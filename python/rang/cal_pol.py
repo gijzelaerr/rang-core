@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The polarisation terms Gpol, KCROSS, Xf and Df with the parallactic angle
 P (task C6, research/c6-polterms.md; C1 terms T6 and T8 to T11,
 research/c1-calibration-chain.md).
@@ -460,33 +461,72 @@ class _PolField:
 
     def chunk_loaded(self, chunk, arr):
         """A `Loaded` of one chunk (`rang.cal_chunks.Chunk`) for the
-        kernels: its rows, intervals and channels."""
+        kernels: its rows, intervals and channels (task E2: of the averaged
+        rows when the field is averaged; `rows` then the chunk's averaged
+        row indices)."""
         pos = chunk.pos
-        m = self.meta
+        avg = getattr(self, "average", None)
+        if avg is None:
+            m = self.meta
+            rows, a1, a2 = self.rows[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos]
+            flag_row, time_bin = self.flag_row[pos], self.time_bin[pos]
+        else:
+            rows, a1, a2 = np.asarray(pos), avg.antenna1[pos], avg.antenna2[pos]
+            flag_row, time_bin = avg.flag_row[pos], avg.time_bin[pos]
         return Loaded(
             ms=self.ms,
             field_id=self.field_id,
-            rows=self.rows[pos],
-            cols={"ANTENNA1": m["ANTENNA1"][pos], "ANTENNA2": m["ANTENNA2"][pos]},
+            rows=rows,
+            cols={"ANTENNA1": a1, "ANTENNA2": a2},
             data=arr["data"],
             model=arr["model"],
             weights=arr["weights"],
             flag=arr["flag"],
-            flag_row=np.ascontiguousarray(self.flag_row[pos], bool),
+            flag_row=np.ascontiguousarray(flag_row, bool),
             freq=self.freq[chunk.chans],
             nant=len(self.names),
             names=self.names,
             positions=self.positions,
-            time_bin=self.time_bin[pos] - chunk.t0,
+            time_bin=time_bin - chunk.t0,
             keys=self.keys[chunk.t0 : chunk.t1],
             angles=None,
             settings=dict(self.settings),
         )
 
-    def chunks(self, budget, *, per_channel, what):
-        """`rang.cal_chunks.plan` of this field, and the chunk loader."""
+    def chunks(self, budget, *, per_channel, what, average=False):
+        """`rang.cal_chunks.plan` of this field, and the chunk loader.
+        `average` (task E2, `calibrate.average_time`): chunks of the rows
+        averaged in time within each interval (`rang.cal_chunks.Average`),
+        each chunk read in blocks of source rows prepared by `prepare` (the
+        model rotated by P and the tables pre-applied per row) before the
+        averaging."""
         from . import cal_chunks
 
+        if average:
+            m = self.meta
+            avg = cal_chunks.Average(
+                self.time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row
+            )
+            self.average = avg
+            chunks, block = cal_chunks.plan(
+                avg.time_bin, len(self.freq), 4, budget, per_channel=per_channel,
+                what=what, average=avg,
+            )  # fmt: skip
+
+            kept = {}
+
+            def get_averaged(reader, chunk):
+                # One chunk is averaged once (Df reads its chunks four times).
+                if len(chunks) == 1 and kept:
+                    return dict(kept)
+                arr = cal_chunks.load_averaged(
+                    reader, self.rows, chunk, self.cells, self._prep, block, avg
+                )
+                if len(chunks) == 1:
+                    kept.update(arr)
+                return arr
+
+            return chunks, get_averaged
         chunks, block = cal_chunks.plan(
             self.time_bin, len(self.freq), 4, budget, per_channel=per_channel, what=what
         )
@@ -511,10 +551,17 @@ def _refant_index(names, refant):
     ]
 
 
-def _chunked(ms, budget, *, per_channel, what, **load_options):
+def _chunked(ms, budget, *, per_channel, what, average_time=False, **load_options):
     """`load`, or with `budget` (task W3b) the field's `_PolField` and its
     chunks: `(Loaded, None)` when the field is one chunk, else
-    `(_PolField, (chunks, get))`."""
+    `(_PolField, (chunks, get))`. With `average_time` (task E2) always the
+    chunks, of the time-averaged rows (`budget` None: one chunk)."""
+    if average_time:
+        fld = _PolField(ms, **_load_defaults(load_options))
+        chunks, get = fld.chunks(
+            budget, per_channel=per_channel, what=what, average=True
+        )
+        return fld, (chunks, get)
     if budget is None:
         return load(ms, **load_options), None
     fld = _PolField(ms, **_load_defaults(load_options))
@@ -551,7 +598,7 @@ def _each_chunk(fld, chunks, get, row_w=None):
         for c in chunks:
             arr = get(reader, c)
             if row_w is not None:
-                row_w[c.pos] = arr["row_w"]
+                row_w[arr.get("src", c.pos)] = arr["row_w"]
             yield c, fld.chunk_loaded(c, arr)
             del arr
 
@@ -815,6 +862,7 @@ def kcross(
     refant=None,
     estimator="casa",
     budget=None,
+    average_time=False,
     **load_options,
 ):
     """CARACal's KCROSS: `gaincal(gaintype='KCROSS', parang=True)`. Returns
@@ -823,13 +871,14 @@ def kcross(
     `ANTENNA2 = -1`). `refant` is recorded only: KCROSS has no antenna
     reference, it depends on the refant of the earlier terms. `estimator`
     (task C6w): `casa`, CASA's FFT and parabola; `refined`, then
-    `kcross_refine`."""
+    `kcross_refine`. `average_time` (task E2): solve on the rows averaged
+    in time within each interval, after P and the pre-apply per row."""
     if estimator not in KCROSS_ESTIMATORS:
         raise ValueError(f"estimator must be one of {KCROSS_ESTIMATORS}")
     ld, parts = _chunked(
         ms, budget, per_channel=False, what=f"KCROSS field {field_id}",
         field_id=field_id, solved="Kcross", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = kcross_solve(ld)
@@ -918,17 +967,21 @@ def _place(out, chunk, values):
     out[chunk.t0 : chunk.t1, chunk.chans] = values
 
 
-def xf(ms, *, field_id, solint="inf", combine="scan", budget=None, **load_options):
+def xf(
+    ms, *, field_id, solint="inf", combine="scan", budget=None, average_time=False,
+    **load_options,
+):  # fmt: skip
     """CARACal's Xf: `polcal(poltype='Xf')` (`parang=True` always). CASA
     ignores the refant for X (`XJones::setSolve`). Returns
     `(CalTable, XfSolution, Loaded)`; the table is CASA's `Xf Jones`
     (`CPARAM (nchan, 1)`, the array value on every antenna,
     `ANTENNA2 = -1`). `budget` (task W3b): chunks of whole intervals or of
-    channels of one interval (Xf is per interval and channel)."""
+    channels of one interval (Xf is per interval and channel).
+    `average_time` (task E2) as `kcross`."""
     ld, parts = _chunked(
         ms, budget, per_channel=True, what=f"Xf field {field_id}",
         field_id=field_id, solved="Xf", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = xf_solve(ld)
@@ -1132,6 +1185,7 @@ def df(
     minblperant=4,
     min_data_fraction=None,
     budget=None,
+    average_time=False,
     **load_options,
 ):
     """CARACal's Df: `polcal(poltype='Df')` on the (unpolarised) leakage
@@ -1144,11 +1198,13 @@ def df(
     is rang's rule: CASA has none (its flags in such channels come from its
     iterative solver, research/c6w-polwire.md). `budget` (task W3b): chunks
     of whole intervals or of channels of one interval, the gauge test over
-    the whole field first (`rang.cal_chunks.gauge`)."""
+    the whole field first (`rang.cal_chunks.gauge`). `average_time` (task
+    E2) as `kcross`; the gauge test and `min_data_fraction` then see the
+    averaged cells."""
     ld, parts = _chunked(
         ms, budget, per_channel=True, what=f"Df field {field_id}",
         field_id=field_id, solved="Df", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = df_solve(ld, refant=refant, minsnr=minsnr, minblperant=minblperant)

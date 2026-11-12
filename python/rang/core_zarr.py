@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Zarr ingest at the edge of the Rang core (research/core-section6.md).
 
 Reads blosc-compressed zarr v2 chunks and decodes them with the core's Rust

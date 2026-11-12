@@ -300,9 +300,13 @@ def test_flag_writes_the_port_flags_with_backups_and_a_receipt(tmp_path):
     run = ms.with_name("x.ms.rang-run")
     receipts = sorted((run / "receipts").glob("flag-*.rang-receipt.json"))
     receipt = json.loads(receipts[0].read_text(encoding="utf-8"))
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 4
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 5
     assert receipt["command"][:2] == ["rang-core", "flag"] and receipt["exit"] == 0
-    assert any(o.get("modified") for o in receipt["outputs"])
+    # Owner decision E5-20: the modified MS by its listing hash only; the
+    # stage summary hashes the flags written.
+    (modified,) = [o for o in receipt["outputs"] if o.get("modified")]
+    assert modified["path"] == ms.as_posix() and "listing_sha256" in modified
+    assert "tree_sha256" not in modified
     summary = json.loads((run / "flag" / "summary.json").read_text(encoding="utf-8"))
     assert [g["field"] for g in summary["groups"]] == ["CAL", "TGT"]
     # A second flag is skipped: nothing written, no new version.
@@ -409,6 +413,53 @@ def test_a_rerun_saves_the_flags_its_restore_replaces(tmp_path):
     assert np.array_equal(flagversions.load(ms, saved)[0], by_hand)
 
 
+def test_a_missing_recorded_flag_version_is_warned_about(tmp_path, capsys):
+    """E5-42 (WB-12): when the version the last attempt recorded is gone (the
+    MS copied without its .flagversions), the rerun says so and records it."""
+    import shutil
+
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    cli("--no-receipt", "flag", config, ms)
+    shutil.rmtree(flagversions.root(ms))
+    capsys.readouterr()
+    cli("--no-receipt", "flag", config, ms, "--force")
+    err = capsys.readouterr().err
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    entry = state["stages"]["flag"]
+    assert entry["status"] == "done"
+    assert entry["restore_missing"].startswith("rang_flag_")
+    assert f"warning: flag version {entry['restore_missing']}" in err
+
+
+def test_data_from_another_telescope_is_warned_about_not_refused(tmp_path, capsys):
+    """E5-39: rang is tested on MeerKAT only; another TELESCOPE_NAME runs with
+    a warning in the W4 style and is recorded in the state."""
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    assert pipe.inspect_ms(ms)["telescope"] == ""  # no OBSERVATION row: no warning
+    assert pipe.scope_warnings(pipe.inspect_ms(ms)) == []
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        t.addrows(1)
+        t.putcol("TELESCOPE_NAME", ["MeerKAT"])
+    assert pipe.inspect_ms(ms)["telescope"] == "MeerKAT"
+    assert pipe.scope_warnings(pipe.inspect_ms(ms)) == []
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        t.putcol("TELESCOPE_NAME", ["ASKAP"])
+    capsys.readouterr()
+    cli("--no-receipt", "flag", config, ms)
+    err = capsys.readouterr().err
+    assert "warning:" in err and "is from ASKAP, not MeerKAT" in err
+    assert "task W4" in err
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    assert state["telescope"] == "ASKAP"
+    assert state["stages"]["flag"]["status"] == "done"
+
+
 def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
     """E5: after `--force flag` with a changed strategy, the stale apply stage
     must not restore the flags saved before its earlier attempt (the old flag
@@ -464,7 +515,10 @@ def test_a_stage_that_wrote_no_flags_leaves_the_later_restore_in_place(tmp_path)
 @POSIX
 def test_run_resumes_at_the_failed_stage(tmp_path):
     ms = make_ms(tmp_path / "x.ms")
-    bad = write_config(tmp_path, name="bad.yaml", gemclean=tmp_path / "missing")
+    # The three stages this test was written for (the default is the whole
+    # chain since E5-28).
+    stages = "run: {stages: [flag, calibrate, image]}\n"
+    bad = write_config(tmp_path, stages, name="bad.yaml", gemclean=tmp_path / "missing")
     with pytest.raises(SystemExit) as exc:
         cli("run", bad, ms)
     assert exc.value.code == 1
@@ -473,7 +527,9 @@ def test_run_resumes_at_the_failed_stage(tmp_path):
     status = {s: e["status"] for s, e in state["stages"].items()}
     assert status == {"flag": "done", "calibrate": "done", "image": "failed"}
     flags, versions = column(ms, "FLAG"), flagversions.versions(ms)
-    good = write_config(tmp_path, name="good.yaml", gemclean=fake_gemclean(tmp_path))
+    good = write_config(
+        tmp_path, stages, name="good.yaml", gemclean=fake_gemclean(tmp_path)
+    )
     state = cli("run", good, ms)
     assert {s: e["status"] for s, e in state["stages"].items()} == {
         "flag": "done",
@@ -809,7 +865,9 @@ def test_a_second_command_on_a_locked_run_directory_is_refused(tmp_path):
 def test_research_stages_moved(capsys):
     with pytest.raises(SystemExit) as exc:
         core_cli.main(["flags", "-h"])
-    assert "rang-core research flags -h" in str(exc.value)
+    # E5-40: exit 2, the hint on stderr.
+    assert exc.value.code == 2
+    assert "rang-core research flags -h" in capsys.readouterr().err
     core_cli.main(["research", "-h"])
     assert "stages and verbs" in capsys.readouterr().out
 
@@ -818,7 +876,8 @@ def test_config_check_and_defaults(tmp_path, capsys):
     ms = make_ms(tmp_path / "x.ms")
     config = write_config(tmp_path)
     cli("config", "check", config, ms)
-    assert "valid for flag, calibrate, image" in capsys.readouterr().out
+    # Owner decision E5-28: the default run.stages is the whole chain.
+    assert "valid for flag, calibrate, apply, image, selfcal" in capsys.readouterr().out
     with pytest.raises(SystemExit):
         cli("config", "check", DATA / "e2a.yaml")
     err = capsys.readouterr().err

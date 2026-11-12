@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Python interface to the Rang core (Rust, GPL-3.0-or-later).
 
 Phase 1 exposes one fused pass over the visibility cells: prediction, residual,

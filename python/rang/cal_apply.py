@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Correct and corrupt visibilities by CASA calibration tables in the Rust
 kernel (task C4a, research/c4a-apply.md; C1 step 2).
 

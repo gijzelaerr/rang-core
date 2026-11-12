@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! WSClean 3.6 imaging weights and Stokes I formation, ported from source.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

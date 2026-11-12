@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Gain correction and the WSClean Stokes I reader in one pass (big plan task
 //! P5, `research/p5-memory.md`).
 //!

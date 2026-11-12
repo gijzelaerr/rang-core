@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Joined-channel deconvolution for gemclean: WSClean's `-join-channels`
 //! with GeMClean's minor step (`research/g3-spectral.md`).
 //!

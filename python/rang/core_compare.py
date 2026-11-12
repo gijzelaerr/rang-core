@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The comparator engine: every core comparator in one module (task P9,
 research/p9-cli.md).
 

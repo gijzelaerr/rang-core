@@ -46,6 +46,9 @@ What it is:
 - **The tools' file formats**: CASA calibration tables, QuartiCal stores, sky
   models, H5parm, killMS solutions, CASA flag versions and MVFv4 archives.
 - **Oracles.** Each port is gated on reproducing the upstream tool's output.
+- **New to radio astronomy?** Nine introductory notebooks, from the radio sky
+  through calibration and CLEAN to pulsars ({doc}`tutorials/index`), start
+  with {doc}`tutorials/notebooks/i1-radio-sky`.
 - **Start here:** {doc}`tutorials/notebooks/00-ms-to-image` takes a simulated
   MeerKAT Measurement Set to a calibrated image with `rang-core run` and `gemclean`,
   section by section, in under a minute.

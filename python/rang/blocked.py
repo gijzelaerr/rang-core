@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Time-local elimination and compact global pointing information audits.
 
 Local nuisance columns are unconstrained. Their elimination is exact up to

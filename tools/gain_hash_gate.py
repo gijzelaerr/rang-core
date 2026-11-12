@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The C-stream gate on the archived `complex` solves (C1 section 4, rule 2).
 
 Task C2a (research/c2a-gain.md). Recomputes, through the unchanged

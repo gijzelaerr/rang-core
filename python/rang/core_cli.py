@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """`rang-core`: the command line (research/w2-commands.md, research/p9-cli.md;
 before task P9, research/core-h-recipes.md).
 
@@ -76,7 +77,12 @@ RECEIPT_SCHEMA = "rang.receipt"
 # added, and `commit` is null outside a checkout (`core.checkout_root`).
 # Version 4: the root crate became rang-sim, which renamed the receipt key for its
 # library (now environment.rang_sim_lib) and its two recorded variables.
-RECEIPT_VERSION = 4
+# Version 5 (owner decision E5-20, research/e5-prereview.md): an input the
+# command modified (the MS) is listed as an output by its `listing_sha256`
+# (sizes and mtimes), not a `tree_sha256` that re-read tens of GB after every
+# command; the stage summaries hash the flags, gains and images written and
+# name the tables and settings behind a written column.
+RECEIPT_VERSION = 5
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
 # The cab `compare` (legacy form): stage -> comparator script in examples/.
@@ -685,7 +691,9 @@ class Receipt:
     An argument that names an existing path before the command is an input
     (recorded by `listing_sha256`, cheap for large trees); one that exists
     only afterwards is an output (content hashes); an input that changed is
-    also listed as an output with `modified`.
+    also listed as an output with `modified`, by its listing hash again
+    (owner decision E5-20); the stage summaries hash the flags, gains and
+    images written.
     """
 
     def __init__(self, command, stage, verb, paths, pinned):
@@ -712,7 +720,7 @@ class Receipt:
                 continue
             inputs.append(self.before[p])
             if _path_record(p, content=False) != self.before[p]:
-                outputs.append({**_path_record(p, content=True), "modified": True})
+                outputs.append({**_path_record(p, content=False), "modified": True})
         return {
             "schema": RECEIPT_SCHEMA,
             "version": RECEIPT_VERSION,
@@ -1087,21 +1095,32 @@ def stage_usage(stage):
     return "\n".join(lines)
 
 
+def _usage_error(text):
+    """A command line rang-core cannot parse: the message and the usage on
+    stderr, exit 2 as argparse and the refusals (E5-40)."""
+    print(f"rang-core: {text}\n\n{usage()}", file=sys.stderr)
+    raise SystemExit(2)
+
+
 def _global_options(argv):
     """Pop the global options from the front of argv."""
-    options = {"receipt": None, "no_receipt": False, "pin": True}
-    while argv and argv[0].startswith("--") and argv[0] != "--help":
+    options = {"receipt": None, "no_receipt": False, "pin": True, "version": False}
+    while argv and argv[0].startswith("-") and argv[0] not in ("-h", "--help"):
         flag = argv.pop(0)
-        if flag == "--no-pin-threads":
+        if flag in ("--version", "-V"):
+            options["version"] = True
+        elif flag == "--no-pin-threads":
             options["pin"] = False
         elif flag == "--no-receipt":
             options["no_receipt"] = True
-        elif flag == "--receipt" and argv:
+        elif flag == "--receipt":
+            if not argv:
+                _usage_error("--receipt needs a PATH")
             options["receipt"] = argv.pop(0)
         elif flag.startswith("--receipt="):
             options["receipt"] = flag.split("=", 1)[1]
         else:
-            raise SystemExit(f"rang-core: unknown option {flag}\n\n{usage()}")
+            _usage_error(f"unknown option {flag}")
     if os.environ.get("RANG_PIN_THREADS") == "0":
         options["pin"] = False
     return options
@@ -1251,7 +1270,8 @@ def _configure_pipeline(name):
                 default=[],
                 metavar="STAGE",
                 choices=[*CONFIG_STAGES, "all"],
-                help="run a finished stage again (repeatable; all: every stage)",
+                help="run a finished stage of run.stages again (repeatable; "
+                "all: every stage of run.stages)",
             )
         else:
             p.add_argument(
@@ -1273,8 +1293,9 @@ def _pipeline(argv, options, pinned):
     parser = argparse.ArgumentParser(
         prog=prog,
         description=USER_COMMANDS[name].split(": ", 1)[1]
-        + ". Validates the configuration for every stage first; a finished stage "
-        "is skipped unless forced, a failed one runs again.",
+        + ". Validates the configuration for the stages it runs first. A finished "
+        "stage is skipped, or refused when its configuration changed, unless "
+        "forced. A failed or stale one runs again.",
     )
     _configure_pipeline(name)(parser)
     args = parser.parse_args(argv[1:])
@@ -1305,6 +1326,13 @@ def _pipeline(argv, options, pinned):
         if name == "run":
             stages = list(config["run"]["stages"]) if not errors else []
             force = args.force
+            outside = [s for s in force if s != "all" and s not in stages]
+            if stages and outside:
+                raise core_pipeline.Refused(
+                    f"--force {', '.join(outside)}: not in run.stages "
+                    f"({', '.join(stages)}); add it there, or run "
+                    f"rang-core {outside[0]} CONFIG MS --force"
+                )
         else:
             stages, force = [name], ([name] if args.force else [])
         config = core_config.validate(raw, stages, source=Path(args.config))
@@ -1370,6 +1398,11 @@ def _config_command(argv):
         if args.ms:
             info = core_pipeline.inspect_ms(args.ms)
             core_pipeline.preflight(config, info, stages)
+            missing = core_pipeline._missing_masks(config, args.config, stages)
+            if missing:
+                raise core_pipeline.Refused("; ".join(missing))
+            for text in core_pipeline.scope_warnings(info):
+                print(f"rang-core config check: warning: {text}", file=sys.stderr)
     except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
         print(f"rang-core config check: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
@@ -1381,12 +1414,12 @@ def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict, a run's state)."""
     argv = list(sys.argv[1:] if argv is None else argv)
-    if argv[:1] in (["--version"], ["-V"]):
+    options = _global_options(argv)
+    if options["version"]:
         from . import __version__
 
         print(f"rang-core {__version__}")
         return None
-    options = _global_options(argv)
     # Before NumPy: nothing above imports it.
     pinned = pin_threads() if options["pin"] else []
     if not argv or argv[0] in ("-h", "--help"):
@@ -1405,11 +1438,13 @@ def dispatch(argv=None):
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:
-        raise SystemExit(
+        print(
             f"rang-core: {argv[0]} is a research stage now: "
-            f"rang-core research {' '.join(argv)}"
+            f"rang-core research {' '.join(argv)}",
+            file=sys.stderr,
         )
-    raise SystemExit(f"rang-core: unknown command {argv[0]!r}\n\n{usage()}")
+        raise SystemExit(2)
+    _usage_error(f"unknown command {argv[0]!r}")
 
 
 def _research(argv, options, pinned):
@@ -1437,7 +1472,10 @@ def _research(argv, options, pinned):
     argv = _legacy(argv)
     stage = argv[0]
     if stage not in STAGES:
-        raise SystemExit(f"rang-core: unknown stage {stage!r}\n\n{research_usage()}")
+        print(
+            f"rang-core: unknown stage {stage!r}\n\n{research_usage()}", file=sys.stderr
+        )
+        raise SystemExit(2)
     if len(argv) == 1 or argv[1] in ("-h", "--help"):
         print(stage_usage(stage))
         if len(argv) == 1:

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The self-calibration terms Sp, Sa and Sd (task C5, research/c5-selfcal.md;
 C1's T12, research/c1-calibration-chain.md).
 
@@ -232,12 +233,15 @@ def solve(
     minuvw_m=0.0,
     gain_clip=(0.5, 2.0),
     budget=None,
+    average_time=False,
 ):
     """Solve self-calibration `term` (a dict with `type` Sp, Sa or Sd,
     `name`, `solint`, and for Sp and Sa `freqint`; `max_iterations`,
     `stop_criterion`, `stop_fraction`) on MS `rows` (one field), the
     `input_column` against `model_column`. `weight_column` None solves with
-    unit weights (`data.weights: uniform`). Returns a `SelfcalSolution`."""
+    unit weights (`data.weights: uniform`). `average_time` (task E2): Sp and
+    Sa solve on rows averaged in time within each interval
+    (`rang.cal_chunks.Average`); refused for Sd. Returns a `SelfcalSolution`."""
     kind = term["type"]
     if kind not in TYPES:
         raise ValueError(f"self-calibration term type must be one of {TYPES}")
@@ -269,6 +273,9 @@ def solve(
     }
     what = f"selfcal {term.get('name', kind)} field {field_id}"
     delays = offsets = None
+    if average_time and kind not in ("Sp", "Sa"):
+        raise ValueError("average_time applies to Sp and Sa only")
+    extra = {"average": True} if average_time else {}
     if kind in ("Sp", "Sa"):
         fb, gain_freq = freq_bins(freq, term.get("freqint", "inf"))
         sol, _ = cal_gain._solve_gain_field(
@@ -276,6 +283,7 @@ def solve(
             freq_bin=fb if fb.max() > 0 else None, nant=nant,
             calmode="p" if kind == "Sp" else "ap", refant=[refant], refantmode="flex",
             minsnr=0.0, minblperant=0, positions=None, casa_rules=False, **solver,
+            **extra,
         )  # fmt: skip
         gains, flags = sol.gains, sol.flags
         iterations, fraction = sol.iterations, sol.converged_fraction

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Smoke test of the installed wheel (tools/wheel/test.sh, step nocargo).
 
 Checks that rang and its extension come from site-packages, that the

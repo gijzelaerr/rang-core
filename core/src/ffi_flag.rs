@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the Tricolour port (`sumthreshold`), loaded through ctypes by
 //! `python/rang/core_flag.py`. Same conventions as `ffi.rs`: borrowed
 //! buffers described by explicit lengths, 0 on success, 1 on invalid

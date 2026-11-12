@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # The venv for CARACal's get_refant reference run (task E0,
 # research/e0-refant-extend.md section 3.1): msutils 1.2.0 (the last 1.x, what
 # Stimela's unpinned `pip install msutils` base image held), Python 3.11

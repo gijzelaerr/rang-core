@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The delay term K in the Rust core, with its FFT initial estimate (the
 owner's estimator: FFT, then Gauss-Newton) and CASA's
 `gaincal(gaintype='K')` conventions (task C2b, research/c2b-delay.md; C1
@@ -253,6 +254,7 @@ def gaincal(
     offset_start=True,
     scan=None,
     budget=None,
+    average_time=False,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
@@ -265,7 +267,8 @@ def gaincal(
     pre-apply the solve uses SIGMA weights (as `rang.cal_gain.gaincal`),
     otherwise `weight_column`. Raises when no solution is written.
     `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e),
-    and `budget` (task W3b): chunks of whole intervals, the same result."""
+    and `budget` (task W3b): chunks of whole intervals, the same result.
+    `average_time` (task E2) as `rang.cal_gain.gaincal`."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -305,7 +308,7 @@ def gaincal(
         chan_freq=freq, refant=refants, casa_rules=casa_rules,
         initial_estimate=initial_estimate, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction, kind=kind,
-        offset_start=offset_start,
+        offset_start=offset_start, **({"average": True} if average_time else {}),
     )  # fmt: skip
     sol.settings.update(
         {
@@ -331,32 +334,56 @@ _PER_INTERVAL = ("delays", "flags", "err", "kernel_flags", "gain_flags", "gains"
                  "refant_used")  # fmt: skip
 
 
-def _solve_field(fld, tb, *, budget, what, **opts):
+def _solve_field(fld, tb, *, budget, what, average=False, **opts):
     """`solve` on the rows of `fld` (`rang.cal_gain._Field`) in chunks of
     whole intervals under `budget` (task W3b; None: one call), the stop test
     replayed (`rang.cal_chunks.replayed`); K's referencing is per interval,
-    so every chunk is a whole `solve`. Returns `(DelaySolution, row
+    so every chunk is a whole `solve`. `average` (task E2): on the rows
+    averaged in time within each interval. Returns `(DelaySolution, row
     weights)`."""
     from . import cal_chunks
 
     nchan = len(opts["chan_freq"])
-    chunks, block = cal_chunks.plan(tb, nchan, 4, budget, per_channel=False, what=what)
-    row_w = np.zeros(len(tb))
     m = fld.meta
+    avg = None
+    if average:
+        avg = fld.averaged(tb)
+        chunks, block = cal_chunks.plan(
+            avg.time_bin, nchan, 4, budget, per_channel=False, what=what, average=avg
+        )
+        flag_row, ant1, ant2, bins = (
+            avg.flag_row,
+            avg.antenna1,
+            avg.antenna2,
+            avg.time_bin,
+        )
+    else:
+        chunks, block = cal_chunks.plan(
+            tb, nchan, 4, budget, per_channel=False, what=what
+        )
+        flag_row, ant1, ant2, bins = fld.flag_row, m["ANTENNA1"], m["ANTENNA2"], tb
+    row_w = np.zeros(len(tb))
     with core_ms.open_table(fld.ms) as reader:
 
         def run(chunk, max_iterations, stop_fraction, trace):
-            arr = cal_chunks.load(
-                reader, fld.rows, chunk, fld.cells, fld.prepare, block
-            )
             pos = chunk.pos
-            if not trace:
-                row_w[pos] = arr.pop("row_w")
+            if avg is None:
+                arr = cal_chunks.load(
+                    reader, fld.rows, chunk, fld.cells, fld.prepare, block
+                )
+                if not trace:
+                    row_w[pos] = arr.pop("row_w")
+            else:
+                arr = cal_chunks.load_averaged(
+                    reader, fld.rows, chunk, fld.cells, fld.prepare, block, avg
+                )
+                if not trace:
+                    row_w[arr["src"]] = arr["row_w"]
             kw = dict(opts, max_iterations=max_iterations, stop_fraction=stop_fraction)
             return solve(
                 arr["data"], arr["model"], arr["weights"], arr["flag"],
-                fld.flag_row[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos],
-                tb[pos] - chunk.t0, trace=trace, **kw,
+                flag_row[pos], ant1[pos], ant2[pos],
+                bins[pos] - chunk.t0, trace=trace, **kw,
             )  # fmt: skip
 
         results, replay = cal_chunks.replayed(

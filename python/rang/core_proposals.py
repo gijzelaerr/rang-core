@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Frozen whole-rectangle TRAIN-only proposals for the MeerKAT TV pilot.
 
 Verbatim extract of the frozen `rangtoy.flagging_structured_proposals` (big plan task P11,

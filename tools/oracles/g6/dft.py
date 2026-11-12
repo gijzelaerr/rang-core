@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """G6 criterion 3 (research/g6-predict.md): both imagers' model columns
 against the direct Fourier sum of the model image's nonzero pixels.
 

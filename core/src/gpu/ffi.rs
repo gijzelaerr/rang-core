@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Entry points of the GPU gridder for the extension and the C ABI, with the
 //! same buffers as `ffi_grid::rang_core_grid_invert` plus the precision and
 //! a timing array (`Timings::as_array`, `N_TIMINGS` doubles).

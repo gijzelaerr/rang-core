@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """HTTP range-request fetch of a zarr row slice (research/core-g-http-fetch.md).
 
 Fetches, from a zarr v2 store served over HTTP, only the blosc blocks that

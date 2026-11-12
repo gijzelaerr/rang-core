@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Recoverable real-MS experiment, exposed as Stimela2 Python callable cabs.
 
 Verbatim extract of the frozen `rangtoy.flagging_workflow` (big plan task P11,

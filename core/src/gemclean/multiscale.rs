@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Multiscale CLEAN for gemclean: WSClean 3.7's `-multiscale`, radler's
 //! `MultiScaleAlgorithm` with its sub-minor loop (`research/g5-multiscale.md`).
 //!

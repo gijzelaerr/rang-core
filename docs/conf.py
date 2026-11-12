@@ -42,6 +42,7 @@ extensions = [
 exclude_patterns = [
     "_build",
     "_generated",
+    "_extra",
     "logo/README.md",
     "**.ipynb_checkpoints",
     "jupyter_execute",
@@ -74,6 +75,9 @@ html_theme = "furo"
 html_title = "rang-core"
 html_favicon = "logo/favicon.ico"
 html_static_path = ["logo/lockup.svg", "logo/lockup-on-dark.svg"]
+# Standalone pages copied to the site root as they are: the interactive MeerKAT
+# of the introductory track at interferometer/ (research/v3-intro-track.md, 9).
+html_extra_path = ["_extra"]
 html_theme_options = {
     "light_logo": "lockup.svg",
     "dark_logo": "lockup-on-dark.svg",
@@ -106,8 +110,13 @@ def _copy_notebooks(app):
     """Render executed copies when docs/execute_notebooks.py made them,
     otherwise the committed notebooks (no outputs)."""
     TUTORIALS.mkdir(parents=True, exist_ok=True)
-    # The tutorials, then the science notebooks (D3), into one flat directory.
-    sources = [*NOTEBOOKS.glob("*.ipynb"), *NOTEBOOKS.glob("science/*.ipynb")]
+    # The tutorials, the science notebooks (D3) and the introductory track
+    # (V3b), into one flat directory.
+    sources = [
+        *NOTEBOOKS.glob("*.ipynb"),
+        *NOTEBOOKS.glob("science/*.ipynb"),
+        *NOTEBOOKS.glob("intro/*.ipynb"),
+    ]
     for source in sorted(sources, key=lambda path: path.name):
         target = TUTORIALS / source.name
         if not target.exists() or target.stat().st_mtime < source.stat().st_mtime:

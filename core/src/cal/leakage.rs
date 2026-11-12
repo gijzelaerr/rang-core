@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The leakage term Df (task C6, `research/c6-polterms.md`; C1 term T11,
 //! `research/c1-calibration-chain.md` section 1.4).
 //!

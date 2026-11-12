@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI of the casacore table writer (research/e3-table-writer.md).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

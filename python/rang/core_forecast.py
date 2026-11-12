@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Prospective TRAIN-only gain-response forecasts and bounded confirmation.
 
 Verbatim extract of the frozen `rangtoy.flagging_prospective` (big plan task P11,

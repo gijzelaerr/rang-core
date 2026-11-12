@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """QuartiCal gain stores (research/dfio-formats.md, F2).
 
 QuartiCal 0.2.7 writes its gains with dask-ms

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The stages of `rang-core flag | calibrate | apply | image | selfcal | run`
 on a user's Measurement Set (task W2, research/w2-commands.md).
 
@@ -16,9 +17,10 @@ stale. The directory is bound to one MS and locked (fcntl on POSIX, msvcrt
 on Windows) while a command runs.
 
 Flag backups: before the first write ever made to the MS, its flags are
-saved as the CASA flag version `rang_original`; before each writing stage
-writes, its flags are saved again as `rang_<stage>_<UTC time>`
-(`core_writeback.WriteBack`). A stage that ran before and is run again (it
+saved as the CASA flag version `rang_original`; before each stage writes
+flags, they are saved again as `rang_<stage>_<UTC time>`
+(`core_writeback.WriteBack`). The MODEL_DATA writes of image and selfcal
+leave FLAG alone and save no version (E5-43, research/e5-prereview.md). A stage that ran before and is run again (it
 failed, was killed, or is forced) first gets the flags back from the version
 its last attempt saved, so its input is the same each time.
 
@@ -205,6 +207,11 @@ def inspect_ms(ms):
         antennas = [str(n) for n in an.getcol("NAME")]
     with core_ms.open_table(ms / "FIELD") as fd:
         names = [str(n) for n in fd.getcol("NAME")]
+    telescope = ""
+    if (ms / "OBSERVATION" / "table.dat").is_file():
+        with core_ms.open_table(ms / "OBSERVATION") as ob:
+            if ob.nrows and "TELESCOPE_NAME" in ob.colnames():
+                telescope = str(ob.getcol("TELESCOPE_NAME")[0]).strip()
     corr = tuple(int(c) for c in layout["corr_type"])
     auto = rows["ANTENNA1"] == rows["ANTENNA2"]
     return {
@@ -222,12 +229,30 @@ def inspect_ms(ms):
         "antenna_position": positions,
         "antennas": antennas,
         "fields": names,
+        "telescope": telescope,
         "field_ids_in_use": np.unique(rows["FIELD_ID"]).tolist(),
         "scans": np.unique(rows["SCAN_NUMBER"]).tolist(),
         "weight_spectrum": weight_spectrum,
         "autocorrelations": int(auto.sum()),
         "rows": rows,
     }
+
+
+def scope_warnings(info):
+    """[message] for data outside the tested scope that rang still runs on
+    (E5-39, research/e5-prereview.md): rang is tested on MeerKAT only
+    (research/meerkat-scope.md), and its defaults (Tricolour's static masks,
+    `feed_angle_rotation`, CARACal's refant rules) are MeerKAT's. Not refused,
+    so that other telescopes (LOFAR) can be tried."""
+    name = info.get("telescope", "")
+    if name and not name.upper().startswith("MEERKAT"):
+        text = (
+            f"{info['ms']} is from {name}, not MeerKAT: rang is tested on MeerKAT "
+            "only and its defaults (Tricolour's static masks, feed_angle_rotation, "
+            f"refant: auto) are MeerKAT's; check every stage's output {UNSUPPORTED}"
+        )
+        return [text]
+    return []
 
 
 def check_data(config, info, stages):
@@ -592,11 +617,14 @@ def chain_chunk_plans(config, info, plan):
     B, F, Gpol, KCROSS, Xf and Df solve (one per field) of the chain (task
     W3b, research/w3b-chainchunks.md): the chunks `rang.cal_chunks.plan`
     gives that solve under `plan` (a `core_chunks.Budget`), as the library
-    computes them."""
+    computes them. With `calibrate.average_time` (task E2) the chunks are
+    of the rows averaged in time within each interval
+    (`rang.cal_chunks.Average`)."""
     from . import cal_chunks, cal_gain
 
     out, rows = [], info["rows"]
     chain = plan.chain()
+    average = bool(config["calibrate"].get("average_time"))
     for section in core_config.CALIBRATE_SECTIONS:
         block = config["calibrate"][section]
         for i, term in enumerate(block["terms"]):
@@ -614,11 +642,18 @@ def chain_chunk_plans(config, info, plan):
                     rows["TIME"][idx], rows["SCAN_NUMBER"][idx], rows["FIELD_ID"][idx],
                     term["solint"] or "inf", term["combine"] or "",
                 )  # fmt: skip
+                avg = None
+                if average:
+                    avg = cal_chunks.Average(
+                        tb, rows["ANTENNA1"][idx], rows["ANTENNA2"][idx],
+                        np.zeros(len(idx), bool),
+                    )  # fmt: skip
+                    tb = avg.time_bin
                 try:
                     chunks, _ = cal_chunks.plan(
                         tb, info["cell"][0], info["cell"][1], chain,
                         per_channel=term["type"] in PER_CHANNEL_TERMS,
-                        what=f"field {info['fields'][f]!r}",
+                        what=f"field {info['fields'][f]!r}", average=avg,
                     )  # fmt: skip
                 except core_chunks.MemoryLimitError as exc:
                     chunks = exc
@@ -802,6 +837,21 @@ def _version_name(ms, stage):
     return name
 
 
+def _version_lost(ms, version, status):
+    """True when flag version `version`, recorded by a stage's last attempt,
+    was saved once and is gone now (E5-42, WB-12). The name is recorded
+    before the version is saved, so an attempt killed during that save left
+    no version and wrote no flags: not lost. It was saved when the attempt
+    finished, when a write-back session began with it (the journal, which
+    lives in `<ms>.flagversions`), or when that whole directory is gone."""
+    if flagversions.exists(ms, version):
+        return False
+    if status == "done" or not flagversions.root(ms).exists():
+        return True
+    journal = core_writeback.read_journal(ms)
+    return bool(journal) and journal.get("flag_backup") == version
+
+
 def restore_before(ms, entry):
     """Give the MS back the flags saved before this stage's last attempt
     (when it saved any), so a rerun starts from the same input. Returns the
@@ -908,6 +958,50 @@ def _resolve_path(value, config_path):
     if not path.is_absolute():
         path = Path(config_path).resolve().parent / path
     return path
+
+
+def _resolve_mask(value, config_path, log=None):
+    """A FITS mask path (`image.fits_mask`, a selfcal `cleanmask_method`)
+    relative to the configuration file, as `flag.strategy` and
+    `calibrate.model.lsm` (E5-41, research/e5-prereview.md). Before v0.2.0 it
+    was passed to gemclean as given, so relative to the working directory:
+    a mask found only there is still used, with a deprecation warning."""
+    path = _resolve_path(value, config_path)
+    old = Path(value).expanduser()
+    if not path.exists() and not old.is_absolute() and old.exists():
+        if log is not None:
+            log(
+                f"rang-core: deprecated: mask {value} was found relative to the "
+                f"working directory, not to {Path(config_path).name}; mask paths "
+                "are relative to the configuration file since v0.2.0"
+            )
+        return old.resolve()
+    return path
+
+
+def _with_mask(img, config_path, log=None):
+    """`img` with its `fits_mask` resolved (`_resolve_mask`)."""
+    if img.get("fits_mask") is None or config_path is None:
+        return img
+    return {**img, "fits_mask": str(_resolve_mask(img["fits_mask"], config_path, log))}
+
+
+def _missing_masks(config, config_path, stages):
+    """Masks a run of `stages` would pass to gemclean that exist neither
+    beside the configuration file nor in the working directory. Masks with
+    `{field}` are not checked here: a missing one fails in gemclean."""
+    masks = []
+    if "image" in stages and config["image"]["fits_mask"] is not None:
+        masks.append(("image.fits_mask", config["image"]["fits_mask"]))
+    if "selfcal" in stages:
+        for i, method in enumerate(config["selfcal"]["cleanmask_method"] or []):
+            if method not in core_config.CLEANMASK_METHODS and "{field}" not in method:
+                masks.append((f"selfcal.cleanmask_method[{i}]", method))
+    return [
+        f"{key}: no file {_resolve_path(value, config_path)}"
+        for key, value in masks
+        if not _resolve_mask(value, config_path).exists()
+    ]
 
 
 def stage_flag(ctx):
@@ -1602,6 +1696,7 @@ def stage_calibrate_chain(ctx):
         flag_backup=version,
         stage="calibrate",
         budget=plan,  # task W3b: chunks of whole solution intervals
+        average_time=bool(cal.get("average_time")),  # task E2
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
@@ -2036,7 +2131,7 @@ def write_model(img, ms, field_id, prefix, scans=()):
 
 def stage_image(ctx):
     config, info, ms, run = ctx["config"], ctx["info"], ctx["ms"], ctx["run"]
-    img = config["image"]
+    img = _with_mask(config["image"], ctx.get("config_path"), ctx.get("log"))
     binary = find_gemclean(img["gemclean"])
     column = img["column"]
     if column == "auto":
@@ -2100,8 +2195,22 @@ def stage_image(ctx):
 
 def selfcal_refant(config, info):
     """The reference antenna of selfcal (task C5): `selfcal.refant`, else
-    `calibrate.refant`, else 0, as an antenna index."""
-    refant = config["selfcal"]["refant"] or config["calibrate"]["refant"] or [0]
+    `calibrate.refant`, else what an unset calibrate.refant means
+    (`cal_refant.default_choice`), as an antenna index. `auto` is the first
+    antenna of CARACal's choice (`cal_refant.caracal_refant`, which reads
+    only the ANTENNA and OBSERVATION tables), so it is calibrate's first."""
+    refant = config["selfcal"]["refant"] or config["calibrate"]["refant"]
+    if refant is None:  # calibrate.refant unset: auto, else antenna 0 (task E2)
+        refant = cal_refant.default_choice(config, info["ms"])[0][:1]
+    if cal_refant.is_auto(refant):
+        cal = config["calibrate"]
+        try:
+            choice = cal_refant.caracal_refant(
+                info["ms"], cal["refant_maxdist"], cal["refant_minbase"]
+            )
+        except ValueError as exc:
+            raise StageFailed(f"selfcal.refant: {exc}") from exc
+        refant = [choice.names[0]]
     first = refant[0]
     if isinstance(first, str):
         if first not in info["antennas"]:
@@ -2212,6 +2321,7 @@ def _selfcal_image(ctx, binary, column, field, where, k):
     (`core_config.selfcal_image_settings`, task C5b): `(prefix, record)`."""
     config, ms = ctx["config"], ctx["ms"]
     img = core_config.selfcal_image_settings(config, k, ctx["info"]["fields"][field])
+    img = _with_mask(img, ctx.get("config_path"), ctx.get("log"))
     scans = config["data"]["scans"] or ()
     unit = config["data"]["weights"] == "uniform"
     where.mkdir()
@@ -2321,6 +2431,7 @@ def stage_selfcal(ctx):
                 minuvw_m=sc["minuvw_m"],
                 gain_clip=sc["gain_clip"],
                 budget=plan.chain(),
+                **({"average_time": True} if sc["average_time"] else {}),
             )
             solved = sol.summary()
             solved["wall_seconds"] = time.perf_counter() - started
@@ -2424,10 +2535,16 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
     force = set(core_config.STAGES if "all" in force else force)
     info = inspect_ms(ms)
     preflight(config, info, stages)
+    missing = _missing_masks(config, config_path, stages)
+    if missing:
+        raise Refused("; ".join(missing))
     run = RunDir(run_dir or default_run_dir(ms), ms)
     with run.locked():
         state = run.state
         state["config_path"] = str(Path(config_path).resolve())
+        state["telescope"] = info["telescope"]
+        for text in scope_warnings(info):
+            log(f"rang-core: warning: {text}")
         conflicts = []
         for stage in stages:  # before anything runs
             entry = state["stages"].get(stage, {})
@@ -2473,6 +2590,16 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             }
             if entry.get("flag_version"):
                 attempt["flag_version"] = entry["flag_version"]
+                if _version_lost(ms, entry["flag_version"], status):
+                    # E5-42 (WB-12): the rerun cannot start from the flags of
+                    # the last attempt; say so instead of skipping silently.
+                    attempt["restore_missing"] = entry["flag_version"]
+                    log(
+                        f"rang-core: {stage}: warning: flag version "
+                        f"{entry['flag_version']} recorded by the last attempt is "
+                        f"not in {flagversions.root(ms)}; the rerun starts from the "
+                        "flags the MS has now"
+                    )
             state["stages"][stage] = attempt
             run.save()
             log(f"rang-core: {stage}: running" + (f" (was {status})" if status else ""))
@@ -2484,6 +2611,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 "ms": ms,
                 "run": run,
                 "entry": attempt,
+                "log": log,
             }
             flag_writes = core_writeback.flag_writes()
             try:

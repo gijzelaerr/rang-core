@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Run an example driver against the installed rang wheel.
 
     python tools/wheel/run_installed.py SCRIPT [ARGS...]

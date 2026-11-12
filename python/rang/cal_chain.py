@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's cross-calibration chain in C1's order (research/c1-calibration-chain.md).
 
 `primary(ms, ...)` (task C2c, research/c2c-bandpass.md part 3; C1 section
@@ -209,6 +210,8 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["scan"] = common["scan"]
     if common.get("budget") is not None:
         kwargs["budget"] = common["budget"]
+    if common.get("average_time"):
+        kwargs["average_time"] = True
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -442,6 +445,7 @@ def run(
     stage="calibrate",
     log=None,
     budget=None,
+    average_time=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -466,8 +470,12 @@ def run(
     first write). `budget` (task W3b, research/w3b-chainchunks.md): a
     `core_chunks.Budget`; every solve then reads its field in chunks of
     whole solution intervals and every A step flags in blocks of baselines
-    within it, with the result of the one-call run. Returns `{"tables":
-    {name: {...}}, "steps": [...]}`."""
+    within it, with the result of the one-call run. `average_time` (task
+    E2, `calibrate.average_time`): every K, G, B, F, Gpol, KCROSS, Xf and
+    Df solve is on its data and model averaged in time within each solution
+    interval (CASA's pre-averaging, `rang.cal_chunks.load_averaged`); the A
+    steps are unchanged. Returns `{"tables": {name: {...}}, "steps":
+    [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -478,6 +486,8 @@ def run(
         common["scan"] = [int(s) for s in np.atleast_1d(scan)]
     if budget is not None:
         common["budget"] = budget.chain()
+    if average_time:
+        common["average_time"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")

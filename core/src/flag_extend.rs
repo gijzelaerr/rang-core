@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! CASA's `flagdata(mode='extend')` on one flag cube per (chunk, baseline)
 //! segment (task E0, `research/e0-refant-extend.md` section 1.3), as
 //! `FlagAgentExtension::computeAntennaPairFlags` in CASA's flagging code:

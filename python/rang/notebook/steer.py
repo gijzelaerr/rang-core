@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """A thin ipywidgets layer over the plain functions.
 
 Every panel has an `update(**params)` method that reruns only the affected

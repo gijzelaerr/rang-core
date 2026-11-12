@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The flux-scale term F: CASA's `fluxscale` and the secondary-calibrator
 sequence CARACal runs before it (task C2d, research/c2d-fluxscale.md; C1
 step 6, research/c1-calibration-chain.md).

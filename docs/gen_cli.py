@@ -39,7 +39,9 @@ into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
-`rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+`rang_original`, and before each stage writes flags as
+`rang_<stage>_<UTC time>` (the MODEL_DATA that image and selfcal write
+leaves FLAG alone and saves none).
 The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
 `apply` and `image` in order, each as the command above
 (`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs
@@ -58,9 +60,12 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 they replay frozen campaigns and are not recipes for your own MS.
 
 `rang-core check` runs the full local checks on any platform. Every call
-writes a receipt (schema `rang.receipt` version 4: the command, its inputs,
+writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
-outside a source checkout), unless `--no-receipt` is given: a research
+outside a source checkout; a Measurement Set it modified is recorded by a
+hash of its file sizes and mtimes; the stage summaries hash the flags, gain
+solutions and images written, and name the tables and settings behind a
+written column), unless `--no-receipt` is given: a research
 stage beside its output as `<output>.<verb>.rang-receipt.json`, a command
 on a Measurement Set in `<run>/receipts/`. The OpenBLAS, OpenMP, MKL and
 XLA thread pools are capped at one thread where their variables are unset,

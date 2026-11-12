@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! IncrementalStMan writes (research/e5-table-writer-rest.md).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the apply kernel (`cal/apply.rs`, task C4a). Same conventions
 //! as `ffi_closure.rs`: borrowed buffers with explicit lengths, 0 on
 //! success, 1 on invalid arguments (message from

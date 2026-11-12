@@ -32,6 +32,8 @@ on:
       - "tools/e2e/**"
       - "examples/ms-to-image/**"
       - "examples/a1_simtruth.py"
+      - "python/rang/simtruth_ms.py"
+      - "python/rang/simtruth.py"
       - "pyproject.toml"
       - "core/**"
       - "src/**"

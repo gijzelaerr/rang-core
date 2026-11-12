@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the WSClean weighting port (`weights.rs`), loaded through ctypes
 //! by `rang.core_weights`. Every pointer has an explicit length in the
 //! structs, in the style of `ffi.rs`.

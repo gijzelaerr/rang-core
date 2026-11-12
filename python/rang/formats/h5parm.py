@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """losoto/DP3 H5parm, the subset rang uses (research/dfio-formats.md, F4).
 
 An H5parm is an HDF5 file in PyTables' layout: solution sets

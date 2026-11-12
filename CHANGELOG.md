@@ -9,6 +9,45 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (E5 pre-review "Later" findings, `research/e5-prereview.md` section 2.3): `image.fits_mask`
+  and a selfcal FITS `cleanmask_method` are read relative to the configuration file, as `flag.strategy`
+  and `calibrate.model.lsm`; **deprecated:** a mask found only relative to the working directory is still
+  used, with a warning, and a mask found in neither place is refused before anything runs (E5-41).
+  Repeated YAML keys are refused with their line numbers (PyYAML kept the last one). Unknown commands and
+  options exit 2 on stderr (was 1); `--version` works after other global options; `run --force STAGE` of a
+  stage outside `run.stages` is refused; the complex-term refusals and unknown term keys say what to change
+  (E5-40). Data whose OBSERVATION `TELESCOPE_NAME` is not MeerKAT run with a warning, and `state.json`
+  records `telescope` (E5-39). A flag version left unlisted by a kill is listed by the next save of the same
+  flags; a flag version the last attempt recorded but the MS no longer has is warned about
+  (`restore_missing`) (E5-42). Every source file carries an SPDX `GPL-3.0-or-later` line (E5-45).
+
+- New: `calibrate.average_time` (default false; task E2, `research/e2-average-time.md`). With it on,
+  the K, G, B, F, Gpol, KCROSS, Xf and Df solves use CASA's estimator for long intervals: data and
+  model averaged in time within each solution interval (weighted means over unflagged cells after the
+  pre-applied tables and P, weight the sum, per baseline, channel and correlation), streamed in blocks
+  of rows, and the memory plan counts the averaged rows. E2's whole-scan solves on 4096-channel
+  MeerKAT data (176 GiB per interval unaveraged) then fit `data.memory_limit_gb: 8`. Off, every
+  solve and the stage hash are unchanged. Refused with a `complex` term.
+- New: `selfcal.average_time` (default false; task E2): Sp and Sa solve on data and model averaged
+  in time within each solution interval, as `calibrate.average_time` does, so CARACal's solint 120 fits
+  8 GiB at 4,096 channels (333 GiB per interval without). Not CubiCal's estimator, which solves every
+  sample (owner item 33(3)). Off, the stage hash is unchanged. Refused with Sd.
+
+- Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
+  `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
+  sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images
+  written and name the tables and settings behind a written column (E5-20). This holds for every directory
+  a command modified, not only the MS. The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
+  calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
+  recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
+  compiles in (E5-11). `docs/licence.md` lists codex-africanus and katdal's test helpers (BSD-3), and as
+  behaviour reimplemented with no code copied CARACal's `get_refant`, msutils, CASA's flag extension,
+  fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
+  positions (E5-33). `rang/data/README.md` records the source and SHA256 of `casacore_observatories.json`
+  (E5-34). The sdist leaves out `.claude/` and the checkout tools under `tools/` other than `tools/wheel/`,
+  and CONTRIBUTING lists what it carries (E5-37). The `recipes` extra installs stimela 2.1.4 on Python 3.13
+  and older only, so `pip install 'rang-core[recipes]'` resolves on 3.14 (E5-38).
+
 - New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
   Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
   and strategy in `examples/ms-to-image/`; the wheels workflow's job `e2e` runs the same chain on all

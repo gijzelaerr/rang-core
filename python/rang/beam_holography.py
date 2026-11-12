@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """MeerKAT L-band holography beams as rang's reference beam (B1-0).
 
 research/b1-beam-pointing.md freezes the product: SARAO's 2023 holography

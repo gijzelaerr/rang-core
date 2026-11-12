@@ -1,5 +1,51 @@
 # Tutorials
 
+## New to radio astronomy: the introductory track
+
+Nine notebooks take a reader who knows physics but not radio astronomy from
+the radio sky to a calibrated, deconvolved image, polarisation and the basics
+of pulsars and transients ({gh}`research/v3-intro-track.md`). Each states its
+learning goals, computes every number it quotes, uses rang's own functions,
+and ends with exercises and links onwards. They run on a laptop in under a
+minute each (times below: papermill on a Windows workstation, 2 threads, data
+cached; the fixture's first download adds about 6 s).
+Data: the public fixture (I2, I3, I5) and A1, rang's simulated MeerKAT
+observation, written in the notebook from seeds by `python -m rang.simtruth_ms`
+(I4-I8); I1 and I9 need no data.
+
+Before the notebooks, or beside I2, I3 and I7:
+[MeerKAT, from voltages to an image](https://pythonic.nl/rang-core/interferometer/)
+is an interactive 3D model of the array in the browser. Nine chapters go from
+one dish's 1° beam through the geometric delay, the two receiver voltages, a
+live lag correlator, the fringe of one baseline, the 2016 baselines and Earth
+rotation to a dirty image and a Högbom CLEAN you can step. It uses the 64
+antenna positions of `python/rang/data/meerkat.itrf.txt` at 1284 MHz; the uv
+coverage, PSF and images are computed in the page (256² pixels of 3″) from a
+made-up sky, and the dish count, track length, declination and weighting
+change them together. The dish is drawn from MeerKAT's published dimensions
+and is not a survey model; the voltage chapters exaggerate the source
+strength and say so. Nothing to install.
+
+| Notebook | What you learn | Time |
+| --- | --- | --- |
+| {doc}`I1. The radio sky and its emission <notebooks/i1-radio-sky>` | jansky, synchrotron and thermal spectra, brightness temperature, flux standards, the radiometer equation | 5 s |
+| {doc}`I2. Interferometry and visibilities <notebooks/i2-visibilities>` | geometric delay and fringes, visibilities as Fourier components, real amplitudes and phases, the SEFD from autocorrelations | 4 s |
+| {doc}`I3. The MeerKAT array <notebooks/i3-meerkat-array>` | the layout, baselines, resolution and primary beam, Earth-rotation synthesis, PSFs of 4, 16 and 64 antennas | 12 s |
+| {doc}`I4. The measurement equation <notebooks/i4-measurement-equation>` | Jones terms one at a time on simulated truth, correction, the reference antenna | 12 s |
+| {doc}`I5. RFI and flagging <notebooks/i5-rfi-and-flagging>` | real RFI, the static mask, `rang-core flag` scored against a truth mask, the project's null results | 17 s |
+| {doc}`I6. Calibration <notebooks/i6-calibration>` | K, G, B, flux scale and apply with `rang-core`; every table against the truth | 16 s |
+| {doc}`I7. Imaging and deconvolution <notebooks/i7-imaging-and-deconvolution>` | dirty image and PSF, Högbom's CLEAN by hand, GeMClean, noise and flux against the truth | 45 s |
+| {doc}`I8. Polarisation <notebooks/i8-polarisation>` | Stokes parameters, parallactic angle, Df, KCROSS and Xf, calibrated p and χ against the truth, Stokes images | 26 s |
+| {doc}`I9. Time-domain basics <notebooks/i9-time-domain>` | dispersion, dedispersion, DM search, folding, scattering, why images average transients away | 6 s |
+
+The route: I1 to I6, then the MS-to-image tutorial below, then I7 to I9; the
+notebooks 1-5 look inside each step on real data whenever the matching I
+notebook is done. The documentation build executes I1-I5 and I9 on every
+push; I6-I8 run nightly, and other builds show the latest nightly outputs
+while the notebook's code is unchanged (otherwise the page has no outputs).
+From a pip install, I1-I4, I8 and I9 run as they are; I5-I7 read E4's
+configuration from `examples/ms-to-image/` and need a source checkout.
+
 ## Start here: from a Measurement Set to an image
 
 {doc}`notebooks/00-ms-to-image` takes a MeerKAT Measurement Set to a
@@ -78,8 +124,9 @@ The frozen rules they quote, as `rang.core_campaign` and
 To run them yourself:
 
 ```sh
-pip install -e '.[notebook,imaging]'   # from a checkout; rang-core[notebook,imaging] once released
-pip install -e '.[pointing,beam]'      # notebook 7: JAX and katbeam
+pip install -e '.[notebook,imaging]'   # from a checkout (the notebooks follow main)
+pip install 'rang-core[notebook,imaging]>=0.2.0'   # or from PyPI, once 0.2.0 is released
+pip install -e '.[pointing,beam]'      # notebook 7 and I3's beam section: JAX and katbeam
 export RANG_NOTEBOOK_CACHE=/path/of/your/choice   # default ~/.cache/rang-notebook
 jupyter lab notebooks/
 ```
@@ -92,6 +139,22 @@ kernel; on these pages they appear as static output.
 
 ```{toctree}
 :maxdepth: 1
+:caption: The introductory track
+
+notebooks/i1-radio-sky
+notebooks/i2-visibilities
+notebooks/i3-meerkat-array
+notebooks/i4-measurement-equation
+notebooks/i5-rfi-and-flagging
+notebooks/i6-calibration
+notebooks/i7-imaging-and-deconvolution
+notebooks/i8-polarisation
+notebooks/i9-time-domain
+```
+
+```{toctree}
+:maxdepth: 1
+:caption: Tutorials and science notebooks
 
 notebooks/00-ms-to-image
 notebooks/01-data-and-rank

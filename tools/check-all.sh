@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Usage: bash tools/check-all.sh [--rust | --python | --all]  (from any directory; uses Rust 1.93 and .venv)
 # Full local checks from CONTRIBUTING.md, including the core crate. The steps
 # live in python/rang/check.py (`rang-core check`, research/p9-cli.md), which

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """A-FLAG post-hoc: stage-level S1 variants (research/a-flag-aoflagger.md).
 
 Runs in the Tricolour 0.2.1 venv. Re-chains every sum_threshold step with

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Usage: bash tools/a1_casa.sh RUN_DIR SUBCOMMAND ARGS...   (research/a1-simtruth.md)
 # One network-less rang-o-casa container step of examples/a1_simtruth_casa.py,
 # with RUN_DIR mounted at /run (paths in ARGS are under /run) and the step

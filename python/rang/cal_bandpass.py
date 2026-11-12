@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The bandpass B: a diagonal complex gain per channel, with CASA's
 `bandpass(bandtype='B')` rules (task C2c, research/c2c-bandpass.md part 2;
 C1 step 5, research/c1-calibration-chain.md).
@@ -157,6 +158,7 @@ def bandpass(
     stop_fraction=0.99,
     scan=None,
     budget=None,
+    average_time=False,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -167,7 +169,8 @@ def bandpass(
     `rang.cal_gain.gaincal`), `weight_column` otherwise. Raises when no
     solution is written. `weight_column=None` and `scan` as
     `rang.cal_gain.gaincal` (task C2e), and `budget` (task W3b): chunks of
-    whole intervals, or of channels of one interval."""
+    whole intervals, or of channels of one interval. `average_time` (task
+    E2) as `rang.cal_gain.gaincal`."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -209,6 +212,7 @@ def bandpass(
         refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+        **({"average": True} if average_time else {}),
     )  # fmt: skip
     sol = _finish(gsol, fillgaps, casa_rules)
     del gsol

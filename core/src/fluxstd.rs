@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Flux-density standards: per-channel evaluation of log-polynomial spectra.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

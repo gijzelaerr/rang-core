@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """G6 criteria 1, 2 and 6 (research/g6-predict.md): gemclean's model column
 against WSClean's in the same MS, read with python-casacore, in row chunks.
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Polarisations for gemclean: WSClean 3.7's `-pol` list, the conversion of
 //! linear-feed correlations to Stokes I, Q, U, V (and XX, YY as they are), the
 //! weights of each, and the rules that pick which polarisation's weights build

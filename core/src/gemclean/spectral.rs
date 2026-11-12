@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Output channels, channel averaging and WSClean's polynomial spectral fit
 //! for gemclean (`research/g3-spectral.md`).
 //!

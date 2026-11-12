@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W6 criterion 5 (research/w6-imaging-inputs.md): G2's identity set with the final
 # binary and -no-update-model-required, against G2's runs/c34 *.sha256. Heavy:
 # one run at a time under ~/.rang-heavy.lock. The FITS files are deleted after hashing.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Per-baseline robust log-amplitude scores, matching
 //! `rang.flagging.residual_features`.
 

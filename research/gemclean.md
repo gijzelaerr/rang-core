@@ -13,6 +13,13 @@ timing benchmark) and
 bisection, the stop rules, the sweeps at 2048²). Benchmark and its datasets:
 [gemclean-benchmark.md](gemclean-benchmark.md) on `origin/gmclean-bench`.
 
+Update, 2026-11-11 (E5-49, post hoc): since G7 the default is coarse gridding,
+`-wgridder-accuracy 1e-4` in single precision ([g7-defaults.md](g7-defaults.md));
+since G8 the command line is `rang_core::gemclean::cli` (`core/src/gemclean/cli.rs`)
+and ships in the wheel as the `gemclean` console script ([g8-wheel.md](g8-wheel.md)).
+The tables below are as measured then: where they say "optional, not default" for
+`-single` and "gemclean default (`f64`, ε 1e-6)", read the defaults before G7.
+
 Credit: the exact per-step correction, the larger patch and the drift stopping
 signal were suggested by an early reader of the draft on 2026-11-02.
 

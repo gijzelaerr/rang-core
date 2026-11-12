@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Allocation accounting of the `gemclean` binary: the bytes its allocator
 //! ([`crate::gemclean::host::HugePageAlloc`]) holds, the largest amount per
 //! phase of a run, and the sizes of the main buffers, for the memory report

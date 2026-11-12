@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W3b comparisons (research/w3b-chainchunks.md, sections 2 and 3).
 
     python compare.py config CASE ARM MS OUT.yaml      # the case's configuration for an arm

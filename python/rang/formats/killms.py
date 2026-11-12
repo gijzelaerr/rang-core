@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """killMS solution files (`killMS.<name>.sols.npz`; research/dfio-formats.md, F5).
 
 killMS 3.3.0 (`kMS.py`) saves with `np.savez`: `Sols`, a record array of

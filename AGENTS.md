@@ -60,9 +60,11 @@ instruction; contributors can skip it. Task procedures for agents are in
   accuracy/cost comparisons and negative results.
 - Validate numerical correctness before claiming performance or scientific
   improvements.
-- One CPU- or GPU-heavy job at a time on a shared host: run timings, campaigns
-  and the full check under `python tools/heavy_lock.py run -- <command>`.
-  Timing and tuning need an otherwise idle host.
+- Share a host through `tools/heavy_lock.py` (the main checkout's copy): builds,
+  tests, the full check and campaigns as shared jobs,
+  `run --slots N --mem G -- <command>` with honest thread and memory figures;
+  timing and tuning runs exclusive (`run -- <command>`), which waits for an
+  otherwise idle host. Keep the host busy; don't oversubscribe it.
 
 ### Layout
 

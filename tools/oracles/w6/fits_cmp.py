@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W6 image comparisons (research/w6-imaging-inputs.md).
 
     python fits_cmp.py same PREFIX_A PREFIX_B          # SHA-256 of the five files

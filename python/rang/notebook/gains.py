@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Solve full-Jones gains on the core and look at amplitude, phase and TV.
 
 `solve` is `core_workflow.core_solve` (the Rust port of QuartiCal's

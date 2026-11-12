@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Robust scalar phase-gradient guidance, not a physical Jones decomposition.
 
 fn median(values: &mut [f64]) -> Option<f64> {

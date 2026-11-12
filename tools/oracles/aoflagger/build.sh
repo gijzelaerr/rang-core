@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Build the A-FLAG AOFlagger oracle image (research/a-flag-aoflagger.md) and
 # record its id, size, build time and the installed deb versions.
 # Usage: bash tools/oracles/aoflagger/build.sh [tag] [record.json]

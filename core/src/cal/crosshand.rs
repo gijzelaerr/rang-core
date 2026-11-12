@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The cross-hand terms KCROSS (cross-hand delay) and Xf (cross-hand phase)
 //! (task C6, `research/c6-polterms.md`; C1 terms T9 and T10,
 //! `research/c1-calibration-chain.md` section 1.4).

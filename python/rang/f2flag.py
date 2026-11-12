@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """F2: a small supervised RFI flagger and its measures (research/f2-flagger.md).
 
 The network of section 3 (2,785 weights, per baseline, on the (time,

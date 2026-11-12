@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! gemclean: a reference CLEAN whose every minor step is a certified descent
 //! step on the image-domain Gram model, with lazy exact corrections.
 //! Research note: `research/gemclean.md`.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The required descriptions of the MeasurementSet tables and of CASA's
 //! calibration tables (research/e4-table-create.md), as data.
 //!

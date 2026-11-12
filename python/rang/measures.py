@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Parallactic and feed angles for B1-2 (research/b1-2-identifiability.md).
 
 Frozen convention (research/b1-beam-pointing.md, "Measures convention"):
