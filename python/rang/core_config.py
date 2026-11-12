@@ -247,6 +247,14 @@ SCHEMA = {
             "means after the pre-applies and P, weight the sum, per baseline, "
             "channel and correlation); false: every row solved (task E2)",
         ),
+        "average_freq": _k(
+            False,
+            "bool",
+            "G, F and Gpol solve on data and model averaged over the window's "
+            "channels (CASA's G-type estimator: weighted means after the "
+            "pre-applies and P, per row and correlation); false: every channel "
+            "a sample of one frequency bin (task E2)",
+        ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
             "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
@@ -1772,7 +1780,7 @@ RESOURCE_KEYS = {"data": ("memory_limit_gb", "chunk_rows")}
 # Keys left out of the stage hash at their default, so that adding them did
 # not change the hash of an existing configuration (task E2).
 HASH_DEFAULTS = {
-    "calibrate": {"average_time": False},
+    "calibrate": {"average_time": False, "average_freq": False},
     "selfcal": {"average_time": False},
 }
 
