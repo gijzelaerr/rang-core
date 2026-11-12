@@ -457,3 +457,18 @@ on a small set before the real data. `results/e3-caracal/scripts/e3_devtest.sh`.
   30 GiB cap again. Run 02:06-02:39; the input MS was unchanged. The folder
   moves to `e3-20261111-b-correct-try4` and its split is deleted.
 - Try 5 uses tile 16 (configs regenerated; only `tile_size` changes).
+- **Try 5 (tile 16), rc 0:** 04:57-06:52 on 2026-11-12, 6,887 s, shared (8
+  CPUs and 30 GB per container); the input MS was unchanged.
+  - Per worker: obsconf 39, transform 631, prep 275, flag 958, crosscal
+    2,622, polcal 2,359 s.
+  - Container peaks: `set_model_cal` (crosscal) 27.3 GB at tile 16;
+    `flag_rfi` 23.7 GB; polcal's MeqTrees model 1.2 GB.
+  - Run folder peak 131 GB: the split is 118 GB with MODEL_DATA and
+    CORRECTED_DATA, plus 4.7 GB of flag versions. Driver RSS 0.13 GB.
+  - Refant `auto` resolved to `m022,m023,m024` (flex).
+  - Tables: K0, G0, B0, G0 append, secondary G0 and F0, and Kcrs, Xf, Df,
+    Gpol1.
+  - Archived in `e3b-correct/`: `cost.json`, `caltables.tar.gz` (8.9 MB),
+    `log-caracal.txt.gz`, `config.yml` and the two antenna flag summaries.
+- Tile 16 therefore stands as deviation 11's value for E3-B, the timed pass
+  included.
