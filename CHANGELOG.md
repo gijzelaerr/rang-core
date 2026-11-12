@@ -32,6 +32,11 @@ the release notes are the section of this file for that version.
   in time within each solution interval, as `calibrate.average_time` does, so CARACal's solint 120 fits
   8 GiB at 4,096 channels (333 GiB per interval without). Not CubiCal's estimator, which solves every
   sample (owner item 33(3)). Off, the stage hash is unchanged. Refused with Sd.
+- New: `calibrate.average_freq` (default false; task E2, the pre-registered "E2-B amended" arm,
+  `research/e2-average-freq.md`): the G, F and Gpol solves average their data and model over the
+  window's channels before solving (weighted means per row and correlation after the pre-applies and
+  P), as CASA's G-type solves do; K, B, KCROSS, Xf and Df are unchanged. Off, every solve and the
+  stage hash are unchanged.
 
 - Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
   `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file

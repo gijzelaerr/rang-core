@@ -664,9 +664,30 @@ class _Field:
         )
 
 
+def frequency_averaged(data, model, weights, flag):
+    """CASA's frequency pre-averaging of a G-type solve (task E2,
+    `calibrate.average_freq`): `(row, chan, corr)` data and model become one
+    channel, the weighted means over each row's and correlation's unflagged
+    channels (weights the solve's), the weight their sum; a cell with no
+    unflagged weight is flagged, data and model 0. Returns `(data, model,
+    weights, flag)` of shape `(row, 1, corr)`."""
+    w = np.where(np.asarray(flag, bool), 0.0, np.asarray(weights, np.float64))
+    w = np.broadcast_to(w, np.shape(data))
+    sw = w.sum(axis=1, keepdims=True)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        d = np.where(sw > 0, (w * data).sum(axis=1, keepdims=True) / sw, 0)
+        mdl = np.where(sw > 0, (w * model).sum(axis=1, keepdims=True) / sw, 0)
+    return (
+        d.astype(np.complex64),
+        mdl.astype(np.complex64),
+        sw.astype(np.float32),
+        sw <= 0,
+    )
+
+
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
-    **opts,
+    average_freq=False, **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -675,7 +696,10 @@ def _solve_gain_field(
     C5: channel chunks of a self-calibration term, each chunk of the solve
     holding every channel) or one bin. `average` (task E2,
     `calibrate.average_time`): solve on the rows averaged in time within
-    each interval (`rang.cal_chunks.Average`). Returns `(GainSolution, row
+    each interval (`rang.cal_chunks.Average`). `average_freq` (task E2,
+    `calibrate.average_freq`): each chunk's data and model averaged over its
+    channels first (`frequency_averaged`, CASA's estimator for G-type
+    solves); one frequency bin only. Returns `(GainSolution, row
     weights)`."""
     import dataclasses
 
@@ -683,6 +707,8 @@ def _solve_gain_field(
 
     nant = opts["nant"]
     refants = _check(opts["calmode"], opts["refantmode"], opts["refant"], nant)
+    if average_freq and (per_channel or freq_bin is not None):
+        raise ValueError("average_freq needs one frequency bin")
     if per_channel:
         freq_bin = np.arange(nchan)
     elif freq_bin is not None:
@@ -724,6 +750,14 @@ def _solve_gain_field(
                 if not trace:
                     row_w[arr["src"]] = arr["row_w"]
             fb = None if freq_bin is None else freq_bin[chunk.chans] - chunk.f0
+            if average_freq:
+                if not chunk.whole:
+                    raise RuntimeError("average_freq: a chunk without every channel")
+                arr["data"], arr["model"], arr["weights"], arr["flag"] = (
+                    frequency_averaged(
+                        arr["data"], arr["model"], arr["weights"], arr["flag"]
+                    )
+                )
             return _kernel(
                 arr["data"], arr["model"], arr["weights"], arr["flag"],
                 flag_row[pos], ant1[pos], ant2[pos],
@@ -787,6 +821,7 @@ def gaincal(
     scan=None,
     budget=None,
     average_time=False,
+    average_freq=False,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -809,7 +844,9 @@ def gaincal(
     a callable of the field-row positions. Task E2: `average_time` solves
     on the data and model averaged in time within each solution interval
     (CASA's pre-averaging, `rang.cal_chunks.load_averaged`), after the
-    pre-apply; the solution times are those of the unaveraged rows."""
+    pre-apply; the solution times are those of the unaveraged rows. Task E2:
+    `average_freq` solves on the data and model averaged over the window's
+    channels (`frequency_averaged`), as CASA's G-type solves do."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -862,6 +899,7 @@ def gaincal(
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
         **({"average": True} if average_time else {}),
+        **({"average_freq": True} if average_freq else {}),
     )  # fmt: skip
     if sol.flags.all():
         raise RuntimeError(

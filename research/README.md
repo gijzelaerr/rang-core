@@ -52,6 +52,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [E1, the whole chain on simulated truth](e1-chain.md): `rang-core run` on A1's m32 truth exits 0; no gate met as frozen; some causes shared with CASA (K flags, one delay), one rang-only K miss, the rest not established.
 - [E2, the whole chain on the acceptance data](e2-acceptance.md): fetches done (248 GB); item 27 (refant auto, scorer, the 530 flag cells); E1b against E1's gates (image met once the scorer is validated, the rest as E1); E2's protocol and results.
 - [E2 helper, time pre-averaging](e2-average-time.md): `calibrate.average_time` and `selfcal.average_time` (CASA's estimator, off by default) so CARACal's solints fit 8 GiB at 4,096 channels; on A1 equal to off at float32; on LUNO class B met except Gpol (0.25° against 0.1°, partly CASA's frequency pre-averaging of G solves).
+- [E2 helper, frequency pre-averaging](e2-average-freq.md): `calibrate.average_freq` (CASA's G-type estimator, off by default) for the pre-registered "E2-B amended" arm; G, F and Gpol only.
 - [meerkat-scope.md](meerkat-scope.md): the MeerKAT research scope.
 - [AGENTS.md](../AGENTS.md): working conventions and Git attribution. [tool-timings.md](tool-timings.md): every tool run, wall-timed.
 
