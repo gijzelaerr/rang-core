@@ -1,6 +1,7 @@
 # P flag spread: why CASA flags XX and YY where Df is flagged
 
-Task df-flag-rule, 2026-11-12. Status: **proposed** (this section frozen before any code or CASA run of the task).
+Task df-flag-rule, 2026-11-12. Status: **implemented and measured** (sections 1-4 frozen in `66b8cb5` before any code or CASA run; predictions
+in `3d91dce` before the CASA run): gate met, flags exact on all five cases.
 
 ## 1. The finding to explain
 
@@ -101,4 +102,38 @@ a later step had reset FLAG, so check E of section 4 waits for E2-B's snapshot.
 
 ## 6. Measured result
 
-(after the run)
+Run `D:\rang\outputs\pfs-20261112-02` (code `3d91dce`, `examples/check_parang_flags.py run`; `result.json`, the
+seeded tables, `casa-apply.json` and one `export/<case>.npz` per case with the input, CASA, `spread` and `none`
+FLAG; 1.3 MB). CASA 6.7.6.14 in `rang-o-casa:6.7.6.14`. 21.6 s wall inside the script (5 `applycal` 14.7 s; rang
+0.2-1.8 s per apply), under the heavy lock's shared slots.
+
+**Gate: met, flags exact on all five cases.** Every count equals the prediction of section 5.
+
+| Case | CASA new (XX, XY, YX, YY) | CASA four equal | `spread` | `none` (CASA only; rang only) | Class B median / p95 (reported) |
+| --- | --- | --- | --- | --- | --- |
+| A df-noparang | 0, 96,407, 0, 0 | no | exact | exact | 0 / 1.4e-8 |
+| B df-parang | 96,407 each | yes | exact | 96,407, 0, 96,407, 96,407; none | 3.2e-7 / 6.6e-7 |
+| C g-parang | 60,135 each | yes | exact | 0, 38,320, 21,815, 60,135; none | 3.5e-6 / 6.0e-6 |
+| D inflag-parang | 3,200, 6,400, 6,400, 3,200 | yes | exact | 3,200, 6,400, 6,400, 3,200; none | 1.2e-7 / 2.5e-7 |
+| E chain-parang | 103,626 each | yes | exact | 83,857, 0, 44,638, 64,407; none | 4.5e-6 / 6.5e-6 |
+
+`spread` and `none` give bit-identical CORRECTED_DATA on every case; only FLAG differs. Without P (case A) CASA's
+Df rule is C4a's: only cross hands are flagged. With P every flag spreads to all four correlations, whether it
+comes from Df (B), a diagonal term's receptor (C), the input FLAG (D) or the chain (E). So the rule is P's, not
+Df's. `none` never flags a cell CASA leaves unflagged, which is E2's observation.
+
+**E2's 70 %.** CASA flags XX and YY exactly where rang flags XY or YX (or any one correlation). Where a Df
+parameter is flagged on the table but rang's cross hands are not flagged after interpolation (nearest frequency
+interpolation moves to the closest unflagged solution channel), or where XX is already flagged, nothing new
+appears. That would explain why only 1,008,519 of 1,446,125 cells gain a flag, but it is not counted on E2's
+data: check E of section 4 (E2-B's snapshot) is still to do. E2's measurement that every CASA-only cell had
+both cross hands flagged fits the rule.
+
+**Recommendation for the owner: `spread` as the default** (implemented so). It is CASA's rule. It also matches
+the values: P builds XX and YY from all four correlations, so with `none` rang writes unflagged parallel hands
+that contain a flagged cross hand. E2's frozen run is unaffected (its wheel and code paths predate this);
+E2's gate 2b flag difference on J1331+3030 is this rule.
+
+Not done here: CASA's solves with `parang=True` (Gpol, KCROSS, Xf, Df) corrupt the model by P, which may flag
+the same way in the solver's pre-apply. rang's solves rotate the model without flags. Not tested; a follow-up if
+the polarisation solves' flag counts ever matter.

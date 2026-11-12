@@ -1844,3 +1844,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | U5 `repro_casa.py` (simulated MS, all CASA probes) | self-built MS | 8.2 s, 8.3 s | 274 MB | WSL, two runs |
 | 2026-11-12 | U5 python-casacore 3.8.1 `MALLOC_PERTURB_` sets (fNi, MultiFile, MultiFile 4 KiB) | probes | 6.7, 4.3, 3.5 s | – | WSL |
 | 2026-11-12 | U5 WSClean 3.7 read-only MS runs | 64 MB MS, 5 arms | 12 s | – | Docker `rang-wsclean-native:3.7` |
+| 2026-11-12 | df-flag-rule `check_parang_flags.py run` (5 CASA `applycal` + 10 rang applies, `parang`) | O-CASA `c.ms`, 61 MB | 21.6 s (CASA 14.7 s) | – | Windows + Docker `rang-o-casa:6.7.6.14`, shared slots |
+| 2026-11-12 | df-flag-rule `check_parang_flags.py predict` | O-CASA `c.ms` | 18.2 min incl. heavy-lock queue | – | Windows, shared slots |
