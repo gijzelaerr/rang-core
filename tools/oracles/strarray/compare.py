@@ -97,7 +97,7 @@ def check(path):
         with core_ms.open_table(where) as t:
             for col, info in entry["columns"].items():
                 want = info["cells"]
-                if info["manager"] == "IncrementalStMan":
+                if info["manager"] == "IncrementalStMan" and entry["nrows"]:
                     # Out of the reader's scope: it must refuse, cleanly.
                     try:
                         t.getcol(col, 0, 1)
