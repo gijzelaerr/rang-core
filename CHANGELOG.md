@@ -9,6 +9,9 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (E5 final F-01): astropy is a required dependency. Every polarisation solve and `apply.parang`
+  take the parallactic angle from it, and a bare `pip install rang-core` stopped there with
+  `ModuleNotFoundError`; the `imaging` extra is kept and now adds nothing.
 - New: a known-limits page (`docs/limits.md`, linked from the README): scope, flagging, calibration,
   self-calibration, imaging and platform limits with the reports behind them; the E2 and E3 results
   are added when they land (E5 final, `research/e5-final.md`).

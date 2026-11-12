@@ -19,9 +19,11 @@ wall time, memory), whatever the outcome.
 - **MeerKAT L band only.** UHF and S band are not supported. Data from other
   telescopes runs with a warning, untested ({gh}`research/meerkat-scope.md`).
 - **Not yet tested on native MeerKAT data.** The acceptance rests on simulated
-  truth (A1, E1) and two processed observations (ESO 137-006 and LUNO); the
-  polarisation claim rests on processed LUNO data plus simulation. Native
-  data (E2-N) stays open ({gh}`research/a0-acceptance.md`).
+  truth (A1, E1), ESO 137-006 (a Measurement Set with raw phases, Stokes I)
+  and LUNO (processed: pre-phased DATA, processed flags and weights; full
+  polarisation), so the polarisation claim rests on processed data plus
+  simulation. A native observation (E2-N) stays open
+  ({gh}`research/a0-acceptance.md`).
 - **No direction-dependent calibration** and no facets.
 - **No learned flagger.** `rang-core flag` runs the Tricolour port only
   ({gh}`research/f3-flagger.md`).
@@ -50,9 +52,11 @@ wall time, memory), whatever the outcome.
   memory and FEED is not rewritten: CASA reading a rang-calibrated MS whose
   FEED holds 0 applies a different P with `parang=True`
   ({gh}`research/c6w-polwire.md` section 7).
-- **Pre-averaging.** `calibrate.average_time`, `selfcal.average_time` and
-  `calibrate.average_freq` are CASA-style pre-averaging, off by default; with
-  them the solves differ from CubiCal's estimator
+- **Pre-averaging**, off by default. `calibrate.average_time` and
+  `selfcal.average_time` average in time before a solve, as CASA does, which
+  differs from CubiCal's estimator; `calibrate.average_freq` is CASA's
+  frequency pre-averaging of the G, Gsec, F and Gpol solves (K, B, KCROSS,
+  Xf, Df and selfcal unchanged; {gh}`research/e2-average-freq.md`)
   ({gh}`research/e2-acceptance.md`).
 - Options refused for now: `solnorm: true`, `calmode: a`, `gainfield` on
   pre-applied tables, `complex` terms mixed with K, G, B, A, F; complex gains
@@ -92,5 +96,7 @@ wall time, memory), whatever the outcome.
   writer to the same MS; `rang-core` refuses a second command on the same run
   directory ({doc}`concepts/ingest`).
 - **Memory limit.** `data.memory_limit_gb` is 8 GiB by default; flag,
-  calibrate and apply read in chunks within it. Whole-array runs with
-  channel chunks are slow ({gh}`research/w3b-chainchunks.md`).
+  calibrate and apply read in chunks within it. Channel-chunked solves on
+  whole-array data are slow: 30-52 min per arm in W3b, before the channel
+  sliced read, which is 2.1-2.2 × faster on the polarisation sets
+  ({gh}`research/w3b-chainchunks.md`, {gh}`research/sliced-read.md`).

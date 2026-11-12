@@ -55,7 +55,7 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | Extra | Installs | For |
 | --- | --- | --- |
 | `notebook` | matplotlib, pandas, ipywidgets, ipykernel, jupyterlab, nbformat, nbconvert | the tutorials and `rang.notebook` |
-| `imaging` | astropy | FITS output of the gridders |
+| `imaging` | astropy | nothing since astropy became required (FITS output of the gridders, the parallactic angle); kept so existing install lines work |
 | `pointing` | JAX, SciPy | the JAX direct-Fourier reference path of the pointing solver |
 | `beam` | katbeam, EIDOS | the beam controls of `rang.beam_holography` |
 | `meerkat` | katdal, katsdptelstate | MVFv4 archives through `rang.meerkat` ({gh}`research/mk1-katdal.md`) |

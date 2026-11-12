@@ -55,6 +55,7 @@ beam = ["katbeam==0.1", "eidos==1.1.2"]
 # stimela 2.1.4 requires Python < 3.14; on 3.14 the extra installs nothing
 # rather than failing to resolve (E5-38).
 recipes = ["stimela==2.1.4; python_version < '3.14'"]
+# Empty in effect since astropy is required (F-01); kept for existing install lines.
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
 # rdbtools are sdist-only (a C compiler is needed), cityhash has no cp314 wheel.
