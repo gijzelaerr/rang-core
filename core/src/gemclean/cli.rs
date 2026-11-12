@@ -641,10 +641,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
-    if a.predict || a.update_model {
-        if let Some(e) = model_column_error(&a.model_column, a.data_column.as_deref()) {
-            return Err(e);
-        }
+    if (a.predict || a.update_model)
+        && let Some(e) = model_column_error(&a.model_column, a.data_column.as_deref())
+    {
+        return Err(e);
     }
     if a.join_pols && a.pols.len() < 2 {
         return Err(
@@ -1166,10 +1166,10 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
     };
     // The input column may only now be known (CORRECTED_DATA when the MS has
     // it): refuse before anything is read or written (E5-02).
-    if args.update_model {
-        if let Some(e) = model_column_error(&args.model_column, Some(&column)) {
-            return Err(e);
-        }
+    if args.update_model
+        && let Some(e) = model_column_error(&args.model_column, Some(&column))
+    {
+        return Err(e);
     }
     let t = Instant::now();
     let selection = Selection {
