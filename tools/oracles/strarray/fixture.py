@@ -13,7 +13,8 @@ The StandardStMan columns cover every way it stores strings: scalars (short,
 inline in the slot, and long, in the string buckets), direct fixed-shape
 arrays, and non-direct arrays (casacore's SSMIndStringColumn), variable and
 fixed shape, one and two dimensions, empty strings, non-ASCII text and
-strings longer than a bucket, so the string-bucket chain is followed. A
+strings longer than a bucket, so the string-bucket chain is followed;
+UNSET_VAR and UNSET_FIXED have their even rows never written. A
 small bucket size spreads the rows over several buckets. INCR is an
 IncrementalStMan string array, which the reader refuses.
 """
@@ -65,6 +66,8 @@ def main(out):
             pt.makearrcoldesc("LONG", "", ndim=1, valuetype="string"),
             pt.makescacoldesc("NAME", ""),
             pt.makearrcoldesc("INCR", "", ndim=1, valuetype="string"),
+            pt.makearrcoldesc("UNSET_VAR", "", ndim=1, valuetype="string"),
+            pt.makearrcoldesc("UNSET_FIXED", "", shape=[2], valuetype="string"),
         ]
     )
     dminfo = {
@@ -79,6 +82,8 @@ def main(out):
                 "DIRECT",
                 "LONG",
                 "NAME",
+                "UNSET_VAR",
+                "UNSET_FIXED",
             ],
         },
         "*2": {
@@ -97,13 +102,20 @@ def main(out):
         t.putcell("LONG", row, long_cell(row))
         t.putcell("NAME", row, scalar(row))
         t.putcell("INCR", row, np.array(["X", "Y"]))
+        if row % 2:  # UNSET_*: only odd rows written, even rows never
+            t.putcell("UNSET_VAR", row, np.array([f"u{row}"]))
+            t.putcell("UNSET_FIXED", row, np.array([f"w{row}", "z"]))
     t.close()
 
     t = pt.table(str(path), ack=False)
     oracle = {"nrows": t.nrows(), "columns": {}}
-    for name in ("POLARIZATION_TYPE", "VAR", "FIXED", "DIRECT", "LONG", "NAME"):
+    names = ("POLARIZATION_TYPE", "VAR", "FIXED", "DIRECT", "LONG", "NAME")
+    for name in names + ("UNSET_VAR", "UNSET_FIXED"):
         cells = []
         for row in range(t.nrows()):
+            if not t.iscelldefined(name, row):
+                cells.append(None)
+                continue
             value = t.getcell(name, row)
             if isinstance(value, str):
                 cells.append({"shape": [], "values": [value]})

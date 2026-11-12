@@ -63,9 +63,16 @@ int array.
    variable-shape column with shapes [2], [3], [2, 3] and [0], empty strings
    and non-ASCII text; fixed-shape non-direct, direct, strings of 300 to
    707 characters across buckets, and scalars; and an IncrementalStMan
-   string array. `oracle.json` holds each cell as `getcell` returns it.
+   string array; and two columns, variable-shape and fixed-shape, whose even
+   rows were never written. `oracle.json` holds each cell as `getcell`
+   returns it, null where `iscelldefined` is false.
    `tests/test_core_ms_strarray.py` compares every cell, whole columns and
-   out-of-order row lists, and the refusals. **Result:** 21 passed, 4 skipped (with `test_core_ms.py` and
+   out-of-order row lists, and the refusals. casacore agrees with the
+   implemented empty-slot rule: an unwritten variable-shape cell is
+   undefined (the reader refuses it, "has no array"), an unwritten
+   fixed-shape cell is two empty strings (the reader returns them).
+   A filled flag of 0 (a shape set, no values) is implemented as in
+   `SSMStringHandler::get` but not measured: python-casacore cannot write it. **Result:** 21 passed, 4 skipped (with `test_core_ms.py` and
    `test_cal_pol.py`; the skips are the archive oracle's absent MSs).
 2. **Real MSs** (`tools/oracles/strarray/compare.py`: `dump` in WSL with
    python-casacore 3.8.1, `check` natively): every string column, scalar or
@@ -102,8 +109,9 @@ earlier runs failed for reasons since fixed or not reproduced: the first on
 SPDX lines missing from the new tools and a ruff 0.17.4 rule (the venv now
 has 0.17.3, as the main checkout), with the gate unable to find the archive
 (a mangled UNC path); the second only in `core-test`, a compile failure of
-the `clean_major_cycles` example (E0514, a crate built by another rustc in
-the shared target directory), which did not recur in the third run.
+the `clean_major_cycles` example (E0514 among the errors; the head of the
+log was cut off, so the cause is not established), which did not recur in
+the third run.
 
 ## For the coordinator
 

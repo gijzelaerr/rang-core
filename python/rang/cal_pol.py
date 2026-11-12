@@ -102,16 +102,23 @@ def feed_types(ms):
     with core_ms.open_table(Path(ms) / "FEED") as t:
         if "POLARIZATION_TYPE" not in t.columns:
             return None
-        try:
-            return [tuple(r) for r in t.getcol("POLARIZATION_TYPE").tolist()]
-        except OSError:  # undefined or differently shaped cells
-            out = []
-            for row in range(t.nrows):
-                try:
-                    out.append(tuple(t.getcol("POLARIZATION_TYPE", row, 1)[0]))
-                except OSError:
-                    out.append(None)
-            return out
+        return _cells(t, "POLARIZATION_TYPE")
+
+
+def _cells(table, name):
+    """Each row of a 1-D string-array column as a tuple, None for an
+    undefined cell: one read, or row by row when cells are undefined or
+    differ in shape."""
+    try:
+        return [tuple(r) for r in table.getcol(name).tolist()]
+    except OSError:
+        out = []
+        for row in range(table.nrows):
+            try:
+                out.append(tuple(table.getcol(name, row, 1)[0].tolist()))
+            except OSError:
+                out.append(None)
+        return out
 
 
 def receptor_angles(ms):

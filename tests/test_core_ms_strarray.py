@@ -18,7 +18,7 @@ from rang import core_ms
 DATA = Path(__file__).resolve().parent / "data" / "strarray"
 ORACLE = json.loads((DATA / "oracle.json").read_text(encoding="utf-8"))
 COLUMNS = list(ORACLE["columns"])
-UNIFORM = ["POLARIZATION_TYPE", "FIXED", "DIRECT", "NAME"]
+UNIFORM = ["POLARIZATION_TYPE", "FIXED", "DIRECT", "NAME", "UNSET_FIXED"]
 
 
 @pytest.fixture
@@ -37,6 +37,10 @@ def _cell(entry):
 def test_every_cell_equals_casacore(table, name):
     assert table.nrows == ORACLE["nrows"]
     for row, entry in enumerate(ORACLE["columns"][name]):
+        if entry is None:  # undefined in casacore: refused, not invented
+            with pytest.raises(OSError, match="has no array"):
+                table.getcol(name, row, 1)
+            continue
         got = table.getcol(name, row, 1)
         want = _cell(entry)
         assert got.shape == (1,) + want.shape, (name, row)
@@ -80,3 +84,14 @@ def test_polarisation_basis_refuses_circular_feeds(table, tmp_path):
     assert types[0] == ("R", "L") and types[1] == cal_pol.LINEAR_FEEDS
     with pytest.raises(ValueError, match=r"\[\['R', 'L'\]\]; P is"):
         cal_pol.receptor_angles(tmp_path / "ms")
+
+
+def test_undefined_cells_row_by_row(table):
+    from rang import cal_pol
+
+    want = [
+        None if e is None else tuple(e["values"])
+        for e in ORACLE["columns"]["UNSET_VAR"]
+    ]
+    assert want[0] is None and want[1] == ("u1",)
+    assert cal_pol._cells(table, "UNSET_VAR") == want
