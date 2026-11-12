@@ -114,4 +114,42 @@ arm is reported.
 
 ## 5. Results
 
-(not yet run)
+### 5.1 Where a channel chunk's time goes (profile, run -01)
+
+`D:\rang\outputs\sliced-read-20261111-01-profile`, `tools/oracles/sliced/profile_b.py`:
+B on poldx field 0 (`combine: scan`, K and G pre-applied, unit model,
+`chunk_rows: 7`, so 256 one-channel chunks, 512 loads over the two replay
+passes, 50 iterations), under cProfile, one run each as a shared heavy-lock
+job (4 slots; not a timing measurement).
+
+| Cumulative s | `bd15126` | branch `63fed2e` |
+| --- | ---: | ---: |
+| `bandpass` (wall) | 26.3 | 10.4 |
+| `cal_chunks.load` | 25.0 | 9.3 |
+| reads (`core_chunks.read_rows`) | 11.8 | 7.6 |
+| `prepare` (pre-apply, weights, flags) | 12.6 | 1.6 |
+| of which the pre-apply | 4.2 | 1.5 |
+| the solve kernel (`_kernel`) | 1.2 | 1.1 |
+| rows' weight sums from whole rows | (in `prepare`) | 0.07 |
+
+The reader's share falls least: poldx's tiles (`[4, 256, 32]`) hold every
+channel, so a one-channel read still reads every tile of the field's rows
+(from the page cache); what it saves is the copy and decode of the other 255
+channels and the per-run calls. Most of the gain is the prepare on one
+channel instead of 256.
+
+### 5.2 Run -02 and a change of how the arms take the lock (2026-11-12)
+
+`D:\rang\outputs\sliced-read-20261111-02`, `tools/oracles/sliced/all.sh`.
+Run with every arm in its own heavy-lock ticket, as section 4 says. By
+2026-11-12 08:10 the shared arms O, C, P (U, D, T, M) and the timing arms
+C-BT, C-T, P-BT, P-T, P-BD, P-D, W-BD, W-D and W-BM had finished. On the
+coordinator's request, the remaining arms (W-M, the first verdict, H-U, H-D,
+H-M, H-BT, H-T, the last verdict) then ran back to back inside one exclusive
+hold (`heavy_lock.py run -- bash tools/oracles/sliced/batch.sh`), because
+each separate exclusive ticket drained the host's shared jobs first and left
+it at about 14 % CPU. The per-arm W-M ticket was cancelled before it started.
+Each arm still records `heavy_lock.py status` at its start
+(`logs/lock-status.txt`). Post hoc for H-U, H-D and H-M, which section 4 left
+shared: they now run exclusive, which changes none of their outputs; the
+timing protocol of the timed arms is unchanged.
