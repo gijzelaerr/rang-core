@@ -1839,3 +1839,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GiB both | native Windows, exclusive |
 | 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GiB both | native Windows, exclusive |
 | 2026-11-12 | sliced-read native `python -m rang.check` (heavy lock shared, 8 slots), head 816e614 | worktree sliced-read | 52 min 13 s (lock wait included) | – | FAIL on test_the_lock_keeps_a_second_process_out alone (fails on bd15126 too); gain-hash gate PASS |
+| 2026-11-12 | ms-lock-windows native `python -m rang.check` (heavy lock shared, 4 slots), on 2899c23 plus the Windows lock | worktree ms-lock-windows | 29 min 44 s (lock wait included) | – | PASS; 1248 pytest passed, gain-hash gate PASS; research/ms-lock-windows.md |

@@ -438,7 +438,8 @@ class Table:
         extra flush that python-casacore would not do). Opening the table
         with `core_ms` or python-casacore in this process instead would
         close a descriptor of `table.lock` and so drop this process's lock
-        (POSIX); the writer re-takes it before writing. `chans` as
+        (POSIX fcntl); the writer re-takes it before writing. On Windows the
+        lock is per handle and is not dropped. `chans` as
         `core_ms.Table.getcol`."""
         count = 0 if nrow is None else int(nrow)
         cut = core_ms.reader_slice(chans)
