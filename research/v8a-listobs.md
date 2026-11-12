@@ -167,8 +167,7 @@ unchanged.
   (development fixes, section 5); on `luno` and `a1` the comparison then
   showed zero differences (80 and 438 values). `eso137` was not compared.
 - **New development case `edges`** (`tools/oracles/casa/listobs_edges.py`, written by
-  rang's table writer to `D:ang\scratch8a-20261112\edges.ms`): a field
-ang\scratch8a-20261112\edges.ms`): a field
+  rang's table writer to `D:\rang\scratch\v8a-20261112\edges.ms`): a field
   change inside a scan, a state change inside a scan, a FIELD row without
   data, and two spectral windows alternating in one scan. None of the earlier
   MSs had any of these, so how CASA splits a scan into sub-entries was
