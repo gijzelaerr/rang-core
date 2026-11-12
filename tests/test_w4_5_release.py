@@ -192,6 +192,8 @@ def test_pyproject_metadata():
         ("core/src/wgridder.rs", "Copyright (C) 2020-2026 Max-Planck-Society"),
     ):
         assert holder in notices and holder in _text(path), (path, holder)
+    # E5 final F-01: the polarisation chain needs astropy in a bare install.
+    assert 'dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]' in project
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):
