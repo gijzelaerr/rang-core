@@ -323,6 +323,13 @@ SCHEMA = {
             "correct by the parallactic angle after the tables, in "
             "calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)",
         ),
+        "parang_flags": _k(
+            "spread",
+            "choice",
+            "P's flags: spread, CASA's (a cell with any correlation flagged after "
+            "the tables is flagged in all four); none, the tables' flags only",
+            ("spread", "none"),
+        ),
         "targets": _k(
             [],
             "targets",

@@ -9,9 +9,10 @@
 //! parallactic angle of antenna `p` at the row's time plus the receptor angle
 //! (C1 T6; `rang.simtruth`'s convention, which CASA's `applycal(parang=True)`
 //! inverts, research/a1-simtruth.md 7.2). P is CASA's type 7: last when
-//! correcting, first when corrupting, and it never flags. The angles are
-//! computed in Python (`rang.cal_pol.parallactic_angles`); this module only
-//! rotates. `corrupt` is `V = P_p M P_q^T`; `correct` its exact inverse
+//! correcting, first when corrupting. This module only rotates: the angles
+//! are computed in Python (`rang.cal_pol.parallactic_angles`), and so are
+//! P's flags (`rang.cal_pol.spread_flags`: CASA's general-Jones rule, any
+//! flagged correlation of a cell flags all four; research/p-flag-spread.md). `corrupt` is `V = P_p M P_q^T`; `correct` its exact inverse
 //! `M = P_p^T V P_q` (P is orthogonal), which is `corrupt` with both angles
 //! negated. Rows are independent, so the output is bit-identical for every
 //! thread count.

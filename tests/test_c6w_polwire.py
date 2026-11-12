@@ -188,3 +188,31 @@ def _fft_delay(s, df):
     a0, a1, a2 = amp[k - 1], amp[k], amp[k + 1]
     f = k + 0.5 - (a2 - a1) / (a0 - 2 * a1 + a2)
     return (f - n / 2) / n / df * 1e9
+
+
+def test_applycal_parang_flags_spread_by_default(tmp_path):
+    """Task df-flag-rule (research/p-flag-spread.md): with parang, a cell
+    with one correlation flagged is flagged in all four (CASA's general-Jones
+    P); `parang_flags='none'` keeps the input flags."""
+    pytest.importorskip("astropy")
+    src = _with_feed(make_ms(tmp_path / "src" / "x.ms"))
+    with core_ms_write.open_table(src, readonly=False) as t:
+        flag = np.zeros(t.getcol("FLAG").shape, bool)
+        flag[3, 2, 0] = True  # XX only
+        flag[5, 1, 2] = True  # YX only
+        t.putcol("FLAG", flag)
+    got = {}
+    for mode in ("spread", "none"):
+        ms = Path(shutil.copytree(src, tmp_path / mode / "x.ms"))
+        s = applycal.applycal(ms, [], parang=True, field=[0, 1], parang_flags=mode)
+        assert s["parang_flags"] == mode
+        with core_ms.open_table(ms) as t:
+            got[mode] = (t.getcol("FLAG"), t.getcol("CORRECTED_DATA"))
+    assert np.array_equal(got["none"][0], flag)
+    want = np.broadcast_to(flag.any(-1, keepdims=True), flag.shape)
+    assert np.array_equal(got["spread"][0], want)
+    assert np.array_equal(
+        got["spread"][1].view(np.uint32), got["none"][1].view(np.uint32)
+    )
+    with pytest.raises(applycal.ApplyError):
+        applycal.applycal(src, [], parang=True, parang_flags="casa")

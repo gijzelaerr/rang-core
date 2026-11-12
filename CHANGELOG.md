@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (task df-flag-rule, `research/p-flag-spread.md`): with `apply.parang`, P now flags as CASA's
+  `applycal(parang=True)` does on linear feeds: a cell with any correlation flagged after the tables
+  (input flags, a bad receptor, a Df-flagged cross hand) is flagged in all four, since P rotates XX and
+  YY out of all four correlations. New key `apply.parang_flags` (`spread`, the default; `none`, the
+  previous flags) and `parang_flags=` on `rang.applycal.applycal` and `rang.cal_pol.apply`. Values are
+  unchanged; without `parang` nothing changes.
+
 - Changed (E5 pre-review "Later" findings, `research/e5-prereview.md` section 2.3): `image.fits_mask`
   and a selfcal FITS `cleanmask_method` are read relative to the configuration file, as `flag.strategy`
   and `calibrate.model.lsm`; **deprecated:** a mask found only relative to the working directory is still

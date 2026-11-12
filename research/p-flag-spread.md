@@ -82,7 +82,22 @@ Cost: a cheap OR over four booleans per cell; no timing claim.
 
 ## 5. Predictions
 
-(filled by `--predict` before the CASA run)
+`examples/check_parang_flags.py predict D:\rang\outputs\pfs-20261112-01-predict` (rang with `spread`, before any
+CASA run; new flags over the field's input FLAG, per XX, XY, YX, YY; 18.2 min wall, nearly all of it waiting
+in the heavy-lock queue):
+
+| Case | New flags (XX, XY, YX, YY) |
+| --- | --- |
+| A df-noparang | 0, 96,407, 0, 0 |
+| B df-parang | 96,407 each |
+| C g-parang | 60,135 each |
+| D inflag-parang | 3,200, 6,400, 6,400, 3,200 (over the edited FLAG) |
+| E chain-parang | 103,626 each |
+
+E2's own measurements (relayed 2026-11-12 by the E2 session, read-only; not gated): every CASA-only XX or YY
+cell on J1331+3030 had XY and YX already flagged in both CASA's and rang's FLAG, and no cross-hand cell was
+flagged by CASA alone. That is what `spread` predicts. E2's snapshot of CASA's post-applycal FLAG was taken after
+a later step had reset FLAG, so check E of section 4 waits for E2-B's snapshot.
 
 ## 6. Measured result
 
