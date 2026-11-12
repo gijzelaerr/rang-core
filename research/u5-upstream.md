@@ -1,7 +1,7 @@
-# U5: upstream findings prepared for filing, non-RATT included (2026-11-12)
+# U5: upstream findings filed, non-RATT included (2026-11-12)
 
 Task U5. On 2026-11-12 the owner approved, in chat, "Report the bugs errors and fixes where you can", which widens
-the reporting rule to non-RATT projects. Status: **reproduced and written; nothing posted.** This
+the reporting rule to non-RATT projects. Status: **reproduced, written and filed.** Rows 2-23 were posted on 2026-11-12 by the coordinator, after the owner said "Post all of them"; rows 1 (Obit note), 24 and 25 (CASA helpdesk) are for the owner to send. This
 session's permission settings refused `gh issue create`, and the coordinator then set the route: the
 coordinator posts after the owner has seen the list. The list is
 [upstream-issues/u5-manifest.md](upstream-issues/u5-manifest.md): 25 texts. 22 are for public trackers
@@ -14,37 +14,37 @@ reproduction agents (astron, casacore, casacure, pyeco, casa), each told to post
 [u5-upstream-files/](u5-upstream-files/) (one folder per group). Logs (ignored): `outputs/u5-20261112-<group>/logs/`.
 Hosts: native Windows 11 and WSL2 Ubuntu 26.04, plus the local `rang-wsclean-native:3.7` and
 `rang-obit:dc26694` images. Fresh uv venvs from public PyPI on `D:\rang\scratch\u5` or `/dev/shm`, all
-deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed in source at that sha (rows 4, 8, 17 and 18 are source reads only). The issue or MR links are filled in by the coordinator after posting; the Target column names the tracker.
+deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed in source at that sha (rows 4, 8, 17 and 18 are source reads only). The Link column gives the filed issue (gitlab.com and git.astron.nl call them work items).
 
-## To file (25 texts)
+## Filed (22) and for the owner to send (3)
 
-| # | Finding | Reproduced on | Target | Notes |
-| --- | --- | --- | --- | --- |
-| 1 | Obit `MFMakeResiduals` reads `dim[5]` past `dim[MAXINFOELEMDIM=5]`; MFImage CLEAN segfaults at the first residual | run on bill-cotton/Obit master dc26694 (V5: crash rc 139; patched rc 0, fluxes within 2e-4); lines 1088, 1115 re-read at dc26694 | note to Richard Armstrong (owner's choice), [obit-dconcleanvismf-dim5.md](upstream-issues/obit-dconcleanvismf-dim5.md) | his fork richarms/Obit (issues off) has the same fix, ab77437c on `fix/mfbeam-stokes-multigpu`, 2026-10-20, not on bill-cotton master; bill-cotton/Obit has issues on but none ever filed |
-| 2 | schaapcommon `Fit2DGaussianCentred`: `size_t` offsets, so the fit sees the x ≥ 0, y ≥ 0 quadrant only (also the circular fit); β Jacobian sign wrong | run: built against schaapcommon 35f91f8, fits identical with the other three quadrants zeroed or set to 0.5; patched build responds. Whole box on S1 13.58″ × 9.47″ against 13.88″ × 8.34″ (G7 §13) | git.astron.nl RD/schaapcommon, patch inline | present since WSClean 3.0; WSClean master pins 35f91f8 |
-| 3 | WSClean `-join-polarizations`: help and docs say sum of squares; default clean sums linearly | run on 3.7 (two-source simulation picks the linear-sum peak); read at master 486d0f5 (`subminor_loop.cc:49,179`, Radler 703c1bd) | gitlab.com aroffringa/wsclean | `-no-fast-subminor` path squares (G9 §8) |
-| 4 | WSClean `CalculateMsLimits` tests the y bound with `u` | read at master 486d0f5 `msprovidercollection.cpp:28` (v3.7 `:27`) | gitlab.com aroffringa/wsclean | introduced by the v3.5 refactor (MR !717); v3.4 used v. Feeds `max_baseline`, hence the beam-fit box of row 2 |
-| 5 | WSClean `-save-source-list` restrictions (channels-out > 1 needs spectral fitting; Stokes I only; niter > 0) not in help or docs | run on 3.7; read at master (`settings.cpp:378-395`) | gitlab.com aroffringa/wsclean | low priority, doc |
-| 6 | AOFlagger `sumthreshold_masked` reads Lua args 4, 5 for the direction flags (checks 5, 6) | run on 3.5.0 (`(true,false)` runs both, `(false,true)` runs x only); read at master 811f8e0 `functionswrapper.cpp:319` | gitlab.com aroffringa/aoflagger | shipped strategies pass `true, true`, unaffected |
-| 7 | AOFlagger `SumThresholdMissing::horizontal`: xRight on a missing sample stays in the sum; plus VerticalStacked zero padding (the y half) | run on 3.5.0: 504 of 504 cells flagged with the missing hot sample at x = 1, 2 of 504 at x = 10; padding 4 cells in 40 columns | gitlab.com aroffringa/aoflagger | affects shipped strategies; one-line fix |
-| 8 | AOFlagger docs: filter "sigma" is a variance; `invert_mask` after `clear_mask` is a silent no-op | read at master 811f8e0; 3.5.0 (A-FLAG deviation 1) | gitlab.com aroffringa/aoflagger | docs |
-| 9 | casacore writes uninitialised heap memory into table files: `table.fNi` gaps, `StManArrayFile::putRes` reserved arrays (read back as cell values after an ISM recreate), `MultiFile::writeHeader` (4,194,079 bytes vary), `writeRemainder` | run on python-casacore 3.8.1 wheel (casacore 3.8.1) under `MALLOC_PERTURB_`; read at master 9afc669 | github casacore/casacore | casacore 3.8.2 (latest) has no python-casacore wheel; code unchanged at master 9afc669, after 3.8.2. No SECURITY.md, private reporting off; PR #1089 (2022, declined) made the buffer part public; the text proposes zeroing tails only |
-| 10 | casacore ISM: re-putting a single-row indirect array decrements its refcount below zero; file then grows (20 puts, 16 records against 10) | run on 3.8.1; read at 9afc669 | github casacore/casacore | cause differs from E5's note (`handleRemove` on the same offset) |
-| 11 | casacore TiledCellStMan ranged getcol/putcol raise `TSMShape::offset` (reads `rowpos` past its end) | run on 3.8.1 | github casacore/casacore | ranged `getcol` fails too, not only `putcol` |
-| 12 | casacore MemoryStMan FixedShape array column in a reopened table: `findExt` on read, SIGABRT on close | run on 3.8.1 | github casacore/casacore | zeros on reopen are documented; the abort is not |
-| 13 | casacure: TiledColumnStMan accepted for a variable-shape column; tiled create with nrow > 0 fails and leaves a broken table; `getcoldesc`/`getdminfo` misreport managers; DEFAULTTILESHAPE [2,4,8] stored as [2,4,8192] | run on casacure 3.8.41 (latest), python-casacore 3.8.1 reference | github tmolteno/casacure | E2 items 1, 5 plus two new |
-| 14 | casacure measures: UTC→TAI/UT1 returns the input relabelled (TAI off by 37 s, UT1 0.13 s); ITRF metres labelled rad | run on 3.8.41; read at de45b5d `measures.rs:272-274` | github tmolteno/casacure | E2 item 3 |
-| 15 | casacure TaQL: BETWEEN, bare SELECT FROM, ORDERBY DESC, `rownumbers(table)` | run on 3.8.41 | github tmolteno/casacure | E2 item 6 |
-| 16 | casacure never-written cells: 3-D FLAG_CATEGORY reads `(nrow,)` bool; 0-row columns read int32; `addcols` writes defined empty 1-D cells | run on 3.8.41 | github tmolteno/casacure | E2 item 7, E3 twelfth item, one new |
-| 17 | casacure: no LICENSE/COPYING in the tree or the wheel | read at de45b5d; 3.8.41 wheel | github tmolteno/casacure | E2 item 8 |
-| 18 | celestial-eop-data `build.rs` runs `date -u`: Windows build panics; `data_timestamp()` is the build date | read at v0.1.33 b7678d9 `build.rs:36-41`; Windows panic measured on 0.1.12 (E2), not rerun | github gaker/celestial-eop-data | crates.io stops at 0.1.12 |
-| 19 | dask `ProgressBar._finish` joins a thread in `time.sleep(dt)` | run on dask 2026.8.0 (latest): dt = 20 gives 20.00 s for a 1 s task; read at main b4cc5c5 `progress.py:108-129` | github dask/dask | fix: `threading.Event` |
-| 20 | katdal 0.23 (PyPI, 2024-06-28) fails at `mvftoms.py` import on `pkg_resources` | run on 0.23 with setuptools 84.2.1, Python 3.13; fixed on master 84432ef (closes #379) | github ska-sa/katdal | release request; **optional for the owner** (fixed on master, as the skipped carta-python, DP3 and CASA items are) |
-| 21 | carta-python `Chrome(driver_path=...)` passes `executable_path`, gone in Selenium ≥ 4.10 | run on dev c33914d, Selenium 4.52.0: TypeError | github CARTAvis/carta-python | |
-| 22 | carta-python `Session.__del__` repeats `close()` | run on dev c33914d with stubs: two calls each | github CARTAvis/carta-python | |
-| 23 | CASA docs: SR2016 break at 11.1496 GHz, not 11 GHz; Baars entry omits its 1934−638 cubic | run on 6.7.6.14 (latest): 11.0 GHz uses the low piece, 2.10811 Jy against 2.11267 (0.22 %); read at casa6 90e9d3d `FluxStdsQS2.cc:202-204` | github casangi/casadocs | |
-| 24 | CASA silent failures: `setjy` returns `{}` with MODEL_DATA unchanged (default PB2017 on 1934−638 without tables), unknown names 1 Jy; bandpass with a missing table returns normally; gaincal G returns a `solve_tables` entry it never wrote; K ignores `minblperant`; solver messages on stdout only; G/T drop the frequency part of `solint` without a warning | run on 6.7.6.14 on a self-built simulated MS; read at casa6 90e9d3d (`Imager.cc:5066-5076`, `Calibrater.cc:3852-3861`, `VisCalSolver2.cc:265,466`) | NRAO helpdesk (login) or casa-feedback@nrao.edu | CASA has no public tracker; owner sends. Also notes casatasks 6.7.6.14 no longer imports from a fresh install (`six`, fixed on master 4fce2abe, unreleased) |
-| 25 | CASA wheels: manylinux_2_34 bundles AlmaLinux 9's libssl 3.2.2 without its libcrypto (fails on Ubuntu 24.04 and 26.04); licence metadata contradictory, no licence file, stale classifiers | run on 6.7.6.14 (Ubuntu 24.04.5 container, Ubuntu 26.04) | NRAO helpdesk | cause corrected from O-CASA's note: not Ubuntu-24-specific |
+| # | Finding | Reproduced on | Target | Notes | Link |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Obit `MFMakeResiduals` reads `dim[5]` past `dim[MAXINFOELEMDIM=5]`; MFImage CLEAN segfaults at the first residual | run on bill-cotton/Obit master dc26694 (V5: crash rc 139; patched rc 0, fluxes within 2e-4); lines 1088, 1115 re-read at dc26694 | note to Richard Armstrong (owner's choice), [obit-dconcleanvismf-dim5.md](upstream-issues/obit-dconcleanvismf-dim5.md) | his fork richarms/Obit (issues off) has the same fix, ab77437c on `fix/mfbeam-stokes-multigpu`, 2026-10-20, not on bill-cotton master; bill-cotton/Obit has issues on but none ever filed | for the owner to send |
+| 2 | schaapcommon `Fit2DGaussianCentred`: `size_t` offsets, so the fit sees the x ≥ 0, y ≥ 0 quadrant only (also the circular fit); β Jacobian sign wrong | run: built against schaapcommon 35f91f8, fits identical with the other three quadrants zeroed or set to 0.5; patched build responds. Whole box on S1 13.58″ × 9.47″ against 13.88″ × 8.34″ (G7 §13) | git.astron.nl RD/schaapcommon, patch inline | present since WSClean 3.0; WSClean master pins 35f91f8 | [RD/schaapcommon#1](https://git.astron.nl/RD/schaapcommon/-/work_items/1) |
+| 3 | WSClean `-join-polarizations`: help and docs say sum of squares; default clean sums linearly | run on 3.7 (two-source simulation picks the linear-sum peak); read at master 486d0f5 (`subminor_loop.cc:49,179`, Radler 703c1bd) | gitlab.com aroffringa/wsclean | `-no-fast-subminor` path squares (G9 §8) | [aroffringa/wsclean#207](https://gitlab.com/aroffringa/wsclean/-/work_items/207) |
+| 4 | WSClean `CalculateMsLimits` tests the y bound with `u` | read at master 486d0f5 `msprovidercollection.cpp:28` (v3.7 `:27`) | gitlab.com aroffringa/wsclean | introduced by the v3.5 refactor (MR !717); v3.4 used v. Feeds `max_baseline`, hence the beam-fit box of row 2 | [aroffringa/wsclean#208](https://gitlab.com/aroffringa/wsclean/-/work_items/208) |
+| 5 | WSClean `-save-source-list` restrictions (channels-out > 1 needs spectral fitting; Stokes I only; niter > 0) not in help or docs | run on 3.7; read at master (`settings.cpp:378-395`) | gitlab.com aroffringa/wsclean | low priority, doc | [aroffringa/wsclean#209](https://gitlab.com/aroffringa/wsclean/-/work_items/209) |
+| 6 | AOFlagger `sumthreshold_masked` reads Lua args 4, 5 for the direction flags (checks 5, 6) | run on 3.5.0 (`(true,false)` runs both, `(false,true)` runs x only); read at master 811f8e0 `functionswrapper.cpp:319` | gitlab.com aroffringa/aoflagger | shipped strategies pass `true, true`, unaffected | [aroffringa/aoflagger#44](https://gitlab.com/aroffringa/aoflagger/-/work_items/44) |
+| 7 | AOFlagger `SumThresholdMissing::horizontal`: xRight on a missing sample stays in the sum; plus VerticalStacked zero padding (the y half) | run on 3.5.0: 504 of 504 cells flagged with the missing hot sample at x = 1, 2 of 504 at x = 10; padding 4 cells in 40 columns | gitlab.com aroffringa/aoflagger | affects shipped strategies; one-line fix | [aroffringa/aoflagger#45](https://gitlab.com/aroffringa/aoflagger/-/work_items/45) |
+| 8 | AOFlagger docs: filter "sigma" is a variance; `invert_mask` after `clear_mask` is a silent no-op | read at master 811f8e0; 3.5.0 (A-FLAG deviation 1) | gitlab.com aroffringa/aoflagger | docs | [aroffringa/aoflagger#46](https://gitlab.com/aroffringa/aoflagger/-/work_items/46) |
+| 9 | casacore writes uninitialised heap memory into table files: `table.fNi` gaps, `StManArrayFile::putRes` reserved arrays (read back as cell values after an ISM recreate), `MultiFile::writeHeader` (4,194,079 bytes vary), `writeRemainder` | run on python-casacore 3.8.1 wheel (casacore 3.8.1) under `MALLOC_PERTURB_`; read at master 9afc669 | github casacore/casacore | casacore 3.8.2 (latest) has no python-casacore wheel; code unchanged at master 9afc669, after 3.8.2. No SECURITY.md, private reporting off; PR #1089 (2022, declined) made the buffer part public; the text proposes zeroing tails only | [casacore/casacore#1550](https://github.com/casacore/casacore/issues/1550) |
+| 10 | casacore ISM: re-putting a single-row indirect array decrements its refcount below zero; file then grows (20 puts, 16 records against 10) | run on 3.8.1; read at 9afc669 | github casacore/casacore | cause differs from E5's note (`handleRemove` on the same offset) | [casacore/casacore#1551](https://github.com/casacore/casacore/issues/1551) |
+| 11 | casacore TiledCellStMan ranged getcol/putcol raise `TSMShape::offset` (reads `rowpos` past its end) | run on 3.8.1 | github casacore/casacore | ranged `getcol` fails too, not only `putcol` | [casacore/casacore#1552](https://github.com/casacore/casacore/issues/1552) |
+| 12 | casacore MemoryStMan FixedShape array column in a reopened table: `findExt` on read, SIGABRT on close | run on 3.8.1 | github casacore/casacore | zeros on reopen are documented; the abort is not | [casacore/casacore#1553](https://github.com/casacore/casacore/issues/1553) |
+| 13 | casacure: TiledColumnStMan accepted for a variable-shape column; tiled create with nrow > 0 fails and leaves a broken table; `getcoldesc`/`getdminfo` misreport managers; DEFAULTTILESHAPE [2,4,8] stored as [2,4,8192] | run on casacure 3.8.41 (latest), python-casacore 3.8.1 reference | github tmolteno/casacure | E2 items 1, 5 plus two new | [tmolteno/casacure#42](https://github.com/tmolteno/casacure/issues/42) |
+| 14 | casacure measures: UTC→TAI/UT1 returns the input relabelled (TAI off by 37 s, UT1 0.13 s); ITRF metres labelled rad | run on 3.8.41; read at de45b5d `measures.rs:272-274` | github tmolteno/casacure | E2 item 3 | [tmolteno/casacure#43](https://github.com/tmolteno/casacure/issues/43) |
+| 15 | casacure TaQL: BETWEEN, bare SELECT FROM, ORDERBY DESC, `rownumbers(table)` | run on 3.8.41 | github tmolteno/casacure | E2 item 6 | [tmolteno/casacure#44](https://github.com/tmolteno/casacure/issues/44) |
+| 16 | casacure never-written cells: 3-D FLAG_CATEGORY reads `(nrow,)` bool; 0-row columns read int32; `addcols` writes defined empty 1-D cells | run on 3.8.41 | github tmolteno/casacure | E2 item 7, E3 twelfth item, one new | [tmolteno/casacure#45](https://github.com/tmolteno/casacure/issues/45) |
+| 17 | casacure: no LICENSE/COPYING in the tree or the wheel | read at de45b5d; 3.8.41 wheel | github tmolteno/casacure | E2 item 8 | [tmolteno/casacure#46](https://github.com/tmolteno/casacure/issues/46) |
+| 18 | celestial-eop-data `build.rs` runs `date -u`: Windows build panics; `data_timestamp()` is the build date | read at v0.1.33 b7678d9 `build.rs:36-41`; Windows panic measured on 0.1.12 (E2), not rerun | github gaker/celestial-eop-data | crates.io stops at 0.1.12 | [gaker/celestial-eop-data#1](https://github.com/gaker/celestial-eop-data/issues/1) |
+| 19 | dask `ProgressBar._finish` joins a thread in `time.sleep(dt)` | run on dask 2026.8.0 (latest): dt = 20 gives 20.00 s for a 1 s task; read at main b4cc5c5 `progress.py:108-129` | github dask/dask | fix: `threading.Event` | [dask/dask#12716](https://github.com/dask/dask/issues/12716) |
+| 20 | katdal 0.23 (PyPI, 2024-06-28) fails at `mvftoms.py` import on `pkg_resources` | run on 0.23 with setuptools 84.2.1, Python 3.13; fixed on master 84432ef (closes #379) | github ska-sa/katdal | release request; **optional for the owner** (fixed on master, as the skipped carta-python, DP3 and CASA items are) | [ska-sa/katdal#400](https://github.com/ska-sa/katdal/issues/400) |
+| 21 | carta-python `Chrome(driver_path=...)` passes `executable_path`, gone in Selenium ≥ 4.10 | run on dev c33914d, Selenium 4.52.0: TypeError | github CARTAvis/carta-python | | [CARTAvis/carta-python#192](https://github.com/CARTAvis/carta-python/issues/192) |
+| 22 | carta-python `Session.__del__` repeats `close()` | run on dev c33914d with stubs: two calls each | github CARTAvis/carta-python | | [CARTAvis/carta-python#193](https://github.com/CARTAvis/carta-python/issues/193) |
+| 23 | CASA docs: SR2016 break at 11.1496 GHz, not 11 GHz; Baars entry omits its 1934−638 cubic | run on 6.7.6.14 (latest): 11.0 GHz uses the low piece, 2.10811 Jy against 2.11267 (0.22 %); read at casa6 90e9d3d `FluxStdsQS2.cc:202-204` | github casangi/casadocs | | [casangi/casadocs#205](https://github.com/casangi/casadocs/issues/205) |
+| 24 | CASA silent failures: `setjy` returns `{}` with MODEL_DATA unchanged (default PB2017 on 1934−638 without tables), unknown names 1 Jy; bandpass with a missing table returns normally; gaincal G returns a `solve_tables` entry it never wrote; K ignores `minblperant`; solver messages on stdout only; G/T drop the frequency part of `solint` without a warning | run on 6.7.6.14 on a self-built simulated MS; read at casa6 90e9d3d (`Imager.cc:5066-5076`, `Calibrater.cc:3852-3861`, `VisCalSolver2.cc:265,466`) | NRAO helpdesk (login) or casa-feedback@nrao.edu | CASA has no public tracker; owner sends. Also notes casatasks 6.7.6.14 no longer imports from a fresh install (`six`, fixed on master 4fce2abe, unreleased) | for the owner to send |
+| 25 | CASA wheels: manylinux_2_34 bundles AlmaLinux 9's libssl 3.2.2 without its libcrypto (fails on Ubuntu 24.04 and 26.04); licence metadata contradictory, no licence file, stale classifiers | run on 6.7.6.14 (Ubuntu 24.04.5 container, Ubuntu 26.04) | NRAO helpdesk | cause corrected from O-CASA's note: not Ubuntu-24-specific | for the owner to send |
 
 ## Skipped, with reasons
 
@@ -123,20 +123,21 @@ Deleted: every venv and clone under `D:\rang\scratch\u5` and `/dev/shm`.
 
 ## For the coordinator
 
-- Nothing is posted. Post from [the manifest](upstream-issues/u5-manifest.md) after the owner has seen it; rows 1,
-  24 and 25 go by email or helpdesk and the owner sends them; rows 3-8 need the rate-limited GitLab duplicate
-  searches rerun first.
-- Obit: Richard Armstrong already has our fix in his fork (ab77437c); the note confirms it and asks about its
-  route to Bill Cotton's master.
-- casacore row 9 goes in public: no private route exists and the buffer part has been public since #1089.
-- Lines for `research/upstream-notes.md`: "Upstream status after U5 (2026-11-12; `u5-upstream.md`): 25 texts
-  prepared, none posted; manifest `upstream-issues/u5-manifest.md`; all U4 casacure filings fixed in 3.8.38."
-- STATE paragraph: "U5, upstream findings prepared (2026-11-12; reproduced, not posted; [u5-upstream.md](u5-upstream.md)).
-  The owner's approval widened reporting to non-RATT projects. 25 texts (Obit note to Richard Armstrong, schaapcommon,
-  WSClean, AOFlagger, casacore, casacure, celestial-eop-data, dask, katdal, carta-python, casadocs, two CASA helpdesk
-  tickets), each reproduced on the latest release or confirmed at the default-branch head, the rest of the non-RATT
-  backlog skipped with reasons. The coordinator posts from the manifest after the owner has seen it."
-- Plan line: "U5 done 2026-11-12 (`u5-upstream.md`): texts and manifest ready; posting is the coordinator's."
+- Filed 2026-11-12 by the coordinator ("Post all of them"): rows 2-23, links in the table and the
+  [manifest](upstream-issues/u5-manifest.md). For the owner to send: row 1 (Obit note to Richard Armstrong, whose fork
+  already has the fix, ab77437c) and rows 24-25 (CASA helpdesk or casa-feedback@nrao.edu).
+- casacore #1550 went in public: no private route exists and the buffer part has been public since #1089.
+- Line for `research/upstream-notes.md`: "Upstream status after U5 (2026-11-12; `u5-upstream.md`): filed
+  schaapcommon work item 1; WSClean 207-209; AOFlagger 44-46; casacore #1550-#1553; casacure #42-#46;
+  celestial-eop-data #1; dask #12716; katdal #400; carta-python #192, #193; casadocs #205. Obit note and two CASA
+  helpdesk tickets for the owner to send. All U4 casacure filings fixed in 3.8.38."
+- STATE paragraph: "U5, upstream findings filed (2026-11-12; [u5-upstream.md](u5-upstream.md)). The owner's approval
+  widened reporting to non-RATT projects. 22 issues filed (schaapcommon, WSClean ×3, AOFlagger ×3, casacore ×4,
+  casacure ×5, celestial-eop-data, dask, katdal, carta-python ×2, casadocs), each reproduced on the latest release or
+  confirmed at the default-branch head; an Obit note to Richard Armstrong and two CASA helpdesk tickets wait for the
+  owner; the rest of the non-RATT backlog was skipped with reasons."
+- Plan line: "U5 done 2026-11-12 (`u5-upstream.md`): 22 filed; Obit note and CASA tickets with the owner."
+- To watch: every link in the table.
 - Not run: the full `python -m rang.check` (the commit adds research files only). Ran ruff check and ruff format on
   `u5-upstream-files/`, `py_compile` on its Python scripts, and the docs tests (13 passed; one unrelated failure,
   `test_e5_decisions::test_a_run_without_run_stages_runs_the_whole_chain`, an extension ImportError from the main

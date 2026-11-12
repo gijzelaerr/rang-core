@@ -307,7 +307,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 ## Upstream reporting
 
 - [Upstream notes](upstream-notes.md): the status of each observation.
-- [U5, findings prepared](u5-upstream.md): 25 texts for Obit, schaapcommon, WSClean, AOFlagger, casacore, casacure, celestial-eop-data, dask, katdal, carta-python, casadocs and CASA, none posted; [manifest](upstream-issues/u5-manifest.md); U4's casacure filings all fixed in 3.8.38.
+- [U5, findings filed](u5-upstream.md): 22 issues on schaapcommon, WSClean, AOFlagger, casacore, casacure, celestial-eop-data, dask, katdal, carta-python and casadocs ([manifest](upstream-issues/u5-manifest.md)); an Obit note and two CASA helpdesk tickets for the owner to send; U4's casacure filings all fixed in 3.8.38.
 - [U4, findings filed](u4-upstream.md): fifteen filings on Tigger, Crystalball, pfb-imaging, Tricolour, QuartiCal, killMS, casacure and Purr, two pull requests, and tricolour#114 rebased and green.
 - [U3, saopicc upstream](upstream-saopicc.md): six issues and four pull requests on DDFacet and killMS; Hogbom diverges with more than one facet.
 - [U2, upstream fixes](upstream-prs.md): three issues and four pull requests (tricolour#112 merged, caracal#1708 approved, tricolour#114 and stimela#620 open).
