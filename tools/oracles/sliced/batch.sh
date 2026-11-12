@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # The arms all.sh has not finished, back to back inside ONE heavy-lock hold
 # (coordinator's request 2026-11-12: a separate exclusive ticket per arm
 # drains the shared jobs before each one and leaves the host idle). Run it

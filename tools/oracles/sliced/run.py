@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Sliced-read arms (research/sliced-read.md, sections 2 to 4), native.
 
     python run.py RUN CASE ARM [--base BASE]   # one arm: copy, configure, run, hash

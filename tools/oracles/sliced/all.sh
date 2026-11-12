@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # The sliced-read runs (research/sliced-read.md, sections 2 to 4), in order:
 # correctness arms as shared heavy-lock jobs, timing arms exclusive, the
 # held-out H last. Usage (Git Bash on Windows):
