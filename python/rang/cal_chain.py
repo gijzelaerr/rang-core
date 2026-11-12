@@ -175,6 +175,8 @@ def _solve_one(ms, term, field_id, tables, common):
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
+    if kind != "G":
+        kwargs.pop("average_freq", None)  # task E2: G-type solves only
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -212,6 +214,8 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["budget"] = common["budget"]
     if common.get("average_time"):
         kwargs["average_time"] = True
+    if kind == "Gpol" and common.get("average_freq"):
+        kwargs["average_freq"] = True  # task E2: G-type solves only
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -446,6 +450,7 @@ def run(
     log=None,
     budget=None,
     average_time=False,
+    average_freq=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -474,7 +479,10 @@ def run(
     E2, `calibrate.average_time`): every K, G, B, F, Gpol, KCROSS, Xf and
     Df solve is on its data and model averaged in time within each solution
     interval (CASA's pre-averaging, `rang.cal_chunks.load_averaged`); the A
-    steps are unchanged. Returns `{"tables": {name: {...}}, "steps":
+    steps are unchanged. `average_freq` (task E2, `calibrate.average_freq`):
+    every G, F and Gpol solve is on its data and model averaged over the
+    window's channels (`rang.cal_gain.frequency_averaged`, CASA's G-type
+    estimator); K, B, KCROSS, Xf and Df are unchanged. Returns `{"tables": {name: {...}}, "steps":
     [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
@@ -488,6 +496,8 @@ def run(
         common["budget"] = budget.chain()
     if average_time:
         common["average_time"] = True
+    if average_freq:
+        common["average_freq"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")

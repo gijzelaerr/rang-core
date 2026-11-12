@@ -601,7 +601,26 @@ presented as a pass.
   frozen arm stays the record. If the key is not ready, the amended arm is
   "not run".
 - Amendments: 2026-11-12, the wheel venv's `imaging` extra (6.4, wheel
-  smoke), before any E2 run.
+  smoke), before any E2 run. 2026-11-12, the E2-B amended arm's key,
+  `calibrate.average_freq` (below), before any sealed E2-B score was read.
+- **Amendment 2026-11-12 (E2-B amended arm's key; committed before any
+  sealed E2-B 3b, 3c or row score was read; E2-B's gate 1 numbers, read
+  before it, are readable under the rule above).** The key is
+  `calibrate.average_freq: true`, commit `e75fcfc` (branch `fp-e2-freqavg`,
+  merged here as `50ba873`): every G (primary and secondary), F and Gpol
+  solve averages data and model over the window's channels before the
+  solve; K, B, KCROSS, Xf, Df, A and selfcal are unchanged
+  ([e2-average-freq.md](e2-average-freq.md)). LUNO validation
+  (development data, with `average_time`, against CASA 6.7.6.14, class B):
+  met on K (median 0.0032 ns), KCROSS (0.00062 ns), Xf (0.053°, p95 0.30°),
+  Df (2.4e-5, p95 2.2e-4) and the fcal composite (4.5e-5, p95 2.2e-3);
+  **not met on Gpol**, median 0.108° against 0.1° (0.250° without the key).
+  The arm runs as pre-registered: `e2b.yaml` plus the key, under
+  `e2_timed.py`, exclusive, on `e2b.ms` restored as in 6.2, from a wheel
+  built at `50ba873` in its own venv with the frozen venv's pins
+  (`freeze-2.txt`). The frozen wheel and venv stay E2-A's. Same gates and
+  scorers as the frozen arm; its Gpol class B miss is expected at about
+  the LUNO size.
 
 ## For the coordinator
 
