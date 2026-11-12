@@ -2,8 +2,9 @@
 
 The coordinator posts these after the owner has seen the list; U5 posted nothing. Each text file has its
 `Target`, `Reproduced on` and `Duplicates checked` lines above a `Title:` and a `---`. Post the part
-below `---` as the body. Every filing is an issue; none is an MR or PR (git.astron.nl: the account is
-external and cannot fork, so the schaapcommon patch is inline).
+below `---` as the body. Rows 2-23 are issues (none is an MR or PR: on git.astron.nl the account is
+external and cannot fork, so the schaapcommon patch is inline); row 1 is an email note and rows 24-25 are
+helpdesk tickets, all three for the owner to send.
 
 | # | Host | Project | Title | Text file | Kind |
 | --- | --- | --- | --- | --- | --- |
@@ -26,7 +27,7 @@ external and cannot fork, so the schaapcommon patch is inline).
 | 17 | github.com | tmolteno/casacure | No LICENSE/COPYING file in the repository or the wheel (LGPL-3.0-or-later declared) | [casacure-licence-file.md](casacure-licence-file.md) | issue |
 | 18 | github.com | gaker/celestial-eop-data | build.rs runs `date -u`: the build panics on Windows without a POSIX `date`, and data_timestamp() is the build date | [celestial-eop-data-build-date.md](celestial-eop-data-build-date.md) | issue |
 | 19 | github.com | dask/dask | diagnostics.ProgressBar: compute() returns up to `dt` seconds late because _finish joins a thread in time.sleep(dt) | [dask-progressbar-finish-wait.md](dask-progressbar-finish-wait.md) | issue |
-| 20 | github.com | ska-sa/katdal | Release request: katdal 0.23 on PyPI fails to import ms_extra (pkg_resources) with current setuptools | [katdal-release-pkg-resources.md](katdal-release-pkg-resources.md) | issue |
+| 20 | github.com | ska-sa/katdal | Release request: katdal 0.23 on PyPI fails to import ms_extra (pkg_resources) with current setuptools | [katdal-release-pkg-resources.md](katdal-release-pkg-resources.md) | issue, **optional (owner)**: a release request for a fix already on master; similar fixed-on-master items (carta-python `re.sub`, DP3 names, CASA `six`) were skipped |
 | 21 | github.com | CARTAvis/carta-python | Chrome(driver_path=...) fails on Selenium >= 4.10: executable_path is no longer accepted | [carta-python-chrome-driver-path.md](carta-python-chrome-driver-path.md) | issue (repo is busy: post soon) |
 | 22 | github.com | CARTAvis/carta-python | Session.close() is repeated by __del__, so an explicitly closed headless session errors at interpreter exit | [carta-python-session-del-double-close.md](carta-python-session-del-double-close.md) | issue |
 | 23 | github.com | casangi/casadocs | Flux calibrator models: Stevens-Reynolds 2016 break is 11.1496 GHz, not 11 GHz; Baars entry omits its 1934-638 polynomial | [casadocs-flux-standards-1934.md](casadocs-flux-standards-1934.md) | issue (docs) |
@@ -35,6 +36,7 @@ external and cannot fork, so the schaapcommon patch is inline).
 
 Before posting:
 
-- **gitlab.com rows 3-8:** some duplicate searches hit HTTP 429 (rate limit) on 2026-11-12. Each text names the searches that did not run; re-run them first.
-- **Row 2:** the anonymous API lists no schaapcommon issues at all, so its tracker may be disabled; the fallback is WSClean's tracker.
+- **gitlab.com rows 3-8:** the searches first stopped by HTTP 429 were rerun anonymously on 2026-11-12 and found no duplicate (each text's `Duplicates checked` line). Issue comments are not visible anonymously; nearest neighbour WSClean #103 (closed 2022, `-squared-channel-joining`) is cited in row 3.
+- **Row 2:** git.astron.nl shows issue pages only when signed in (DP3's too returns 404 anonymously), so whether schaapcommon takes issues is checked when posting; the fallback is WSClean's tracker.
+- **Rows 9-12:** run on casacore 3.8.1 (the python-casacore 3.8.1 wheel); v3.8.2 has no wheel, and the cited code is the same at master 9afc669, which is after v3.8.2. Each text says so.
 - **Row 9:** casacore has no SECURITY.md and private reporting is off, and the buffer part has been public since PR #1089 (declined in 2022), so it goes in as a public issue.

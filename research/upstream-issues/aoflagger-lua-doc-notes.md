@@ -1,7 +1,7 @@
 Target: https://gitlab.com/aroffringa/aoflagger/-/issues
 Status: ready to post (low priority; documentation, one small behaviour question)
 Reproduced on: read in source at master 811f8e09261f04e97a4802a23635eee125fbf4b7 and v3.5.0 f4ee4cf; (2) also run on AOFlagger 3.5.0
-Duplicates checked: AOFlagger issues/MRs ("high_pass_filter", "sigma", issues for "invert_mask"; none found; "clear_mask" and MRs for "invert_mask" not run, gitlab.com API rate limit; nearest MR !122 "Fix error in sumthreshold Lua documentation")
+Duplicates checked: AOFlagger issues/MRs ("high_pass_filter", "sigma", issues for "invert_mask"; none found; "clear_mask" issues and MRs (0) and "invert_mask" MRs (only !94, which added it) rerun 2026-11-12; nearest MR !122 "Fix error in sumthreshold Lua documentation")
 Title: Lua docs: high/low_pass_filter take sigma squared; invert_mask after clear_mask does nothing
 ---
 1. `doc/source/lua_functions.rst` documents `high_pass_filter(data, xsize, ysize, xsigma, ysigma)`

@@ -5,7 +5,7 @@ The fix is not on bill-cotton/Obit master (dc26694, 2026-10-09, latest; lines 10
 richarms to bill-cotton/Obit exists; bill-cotton/Obit has issues enabled but no issue or PR was ever filed there.
 Reproduced on: bill-cotton/Obit master dc26694, built and run by V5 (`rang-obit:dc26694`, crash; `rang-obit:dc26694-p1`, patched, passes).
 
-Subject: Obit MFImage CLEAN crash: dim[5] in MFMakeResiduals (your ab77437c)
+Title: Obit MFImage CLEAN crash: dim[5] in MFMakeResiduals (your ab77437c)
 
 ---
 

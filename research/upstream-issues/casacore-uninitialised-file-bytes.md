@@ -1,6 +1,7 @@
 Target: https://github.com/casacore/casacore/issues
 Status: ready to post
 Reproduced on: python-casacore 3.8.1 wheel from PyPI (bundles casacore 3.8.1), Linux x86_64 (WSL2, glibc), 2026-11-12; code read at casacore master 9afc669 (unchanged in these places; v3.8.2 has no python-casacore wheel)
+Latest release: casacore v3.8.2 (2026-09-29) was not run (no python-casacore wheel for it); master 9afc669 is after v3.8.2, and the cited code is the same there.
 Duplicates checked: casacore issues/PRs for "uninitialised", "uninitialized", "valgrind", "MALLOC_PERTURB", "MultiFile", "writeHeader", "StManArrayFile", "putRes", "padding", "garbage", "heap"; nearest: PR #1089 (closed unmerged 2022: zero FilebufIO and MemoryIO buffers; declined as an innocent valgrind warning, suppressions in build-tools/casacore_memcheck.supp), #767 (closed 2018; StandardStMan record-column file growth on identical rewrite, a size issue, not uninitialised bytes)
 Title: Table files contain uninitialised heap memory (array-file gaps, reserved arrays, MultiFile header blocks); one case is read back as cell values
 ---

@@ -1,6 +1,7 @@
 Target: https://github.com/casacore/casacore/issues
 Status: ready to post
 Reproduced on: python-casacore 3.8.1 wheel from PyPI (bundles casacore 3.8.1), Linux x86_64 (WSL2), 2026-11-12; code read at casacore master 9afc669 (unchanged)
+Latest release: casacore v3.8.2 (2026-09-29) was not run (no python-casacore wheel for it); master 9afc669 is after v3.8.2, and the cited code is the same there.
 Duplicates checked: casacore issues/PRs for "MemoryStMan", "findExt", "terminate called"; python-casacore for "MemoryStMan"; no match (nearest by words: #998 open, MS::requiredTableDesc, unrelated)
 Title: Reopened disk table with a FixedShape MemoryStMan array column: reads raise MSMColumn::findExt and closing the table aborts the process
 ---

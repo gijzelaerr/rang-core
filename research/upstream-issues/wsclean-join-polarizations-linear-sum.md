@@ -1,7 +1,7 @@
 Target: https://gitlab.com/aroffringa/wsclean/-/issues
 Status: ready to post
 Reproduced on: run on WSClean 3.7 (`-pol IQ -join-polarizations -niter 1`, two-source simulation); read in source at WSClean master 486d0f5f2277818bd8082b5e7eb8b3f762b14bc3 with Radler 703c1bd79aa97a27e9a69076ebf4f95f18f02bec (its pin; Radler master 109057d has the same code)
-Duplicates checked: WSClean issues/MRs ("join-polarizations", "sum of squares"; "linear sum", "peak finding" not run, gitlab.com API rate limit; nearest #169 "Multiscale and squared-channel-joining", #197 "-fit-rm" question; neither covers this); Radler MRs ("join", "polarization", "squared", "GetLinearIntegrated"; nearest !152 "Fix squared channel issue", !53 "Spectral fitting with joined polarizations")
+Duplicates checked: WSClean issues/MRs ("join-polarizations", "sum of squares"; "linear sum" (0 hits) and "peak finding" (nearest #103 "-squared-channel-joining finding low signal clean components", closed 2022: the explicit squared flag, not the default rule) rerun 2026-11-12; nearest #169 "Multiscale and squared-channel-joining", #197 "-fit-rm" question; neither covers this); Radler MRs ("join", "polarization", "squared", "GetLinearIntegrated"; nearest !152 "Fix squared channel issue", !53 "Spectral fitting with joined polarizations")
 Title: -join-polarizations: help and docs say peaks are found in the sum of squares; the default clean finds them in the linear sum
 ---
 `wsclean --help` (master `main/commandline.cpp:467-470`, v3.7 `:457`):

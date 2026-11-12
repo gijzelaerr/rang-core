@@ -14,7 +14,7 @@ reproduction agents (astron, casacore, casacure, pyeco, casa), each told to post
 [u5-upstream-files/](u5-upstream-files/) (one folder per group). Logs (ignored): `outputs/u5-20261112-<group>/logs/`.
 Hosts: native Windows 11 and WSL2 Ubuntu 26.04, plus the local `rang-wsclean-native:3.7` and
 `rang-obit:dc26694` images. Fresh uv venvs from public PyPI on `D:\rang\scratch\u5` or `/dev/shm`, all
-deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed in source at that sha.
+deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed in source at that sha (rows 4, 8, 17 and 18 are source reads only). The issue or MR links are filled in by the coordinator after posting; the Target column names the tracker.
 
 ## To file (25 texts)
 
@@ -28,7 +28,7 @@ deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed
 | 6 | AOFlagger `sumthreshold_masked` reads Lua args 4, 5 for the direction flags (checks 5, 6) | run on 3.5.0 (`(true,false)` runs both, `(false,true)` runs x only); read at master 811f8e0 `functionswrapper.cpp:319` | gitlab.com aroffringa/aoflagger | shipped strategies pass `true, true`, unaffected |
 | 7 | AOFlagger `SumThresholdMissing::horizontal`: xRight on a missing sample stays in the sum; plus VerticalStacked zero padding (the y half) | run on 3.5.0: 504 of 504 cells flagged with the missing hot sample at x = 1, 2 of 504 at x = 10; padding 4 cells in 40 columns | gitlab.com aroffringa/aoflagger | affects shipped strategies; one-line fix |
 | 8 | AOFlagger docs: filter "sigma" is a variance; `invert_mask` after `clear_mask` is a silent no-op | read at master 811f8e0; 3.5.0 (A-FLAG deviation 1) | gitlab.com aroffringa/aoflagger | docs |
-| 9 | casacore writes uninitialised heap memory into table files: `table.fNi` gaps, `StManArrayFile::putRes` reserved arrays (read back as cell values after an ISM recreate), `MultiFile::writeHeader` (4,194,079 bytes vary), `writeRemainder` | run on python-casacore 3.8.1 wheel (casacore 3.8.1) under `MALLOC_PERTURB_`; read at master 9afc669 | github casacore/casacore | casacore 3.8.2 exists without a python-casacore wheel. No SECURITY.md, private reporting off; PR #1089 (2022, declined) made the buffer part public; the text proposes zeroing tails only |
+| 9 | casacore writes uninitialised heap memory into table files: `table.fNi` gaps, `StManArrayFile::putRes` reserved arrays (read back as cell values after an ISM recreate), `MultiFile::writeHeader` (4,194,079 bytes vary), `writeRemainder` | run on python-casacore 3.8.1 wheel (casacore 3.8.1) under `MALLOC_PERTURB_`; read at master 9afc669 | github casacore/casacore | casacore 3.8.2 (latest) has no python-casacore wheel; code unchanged at master 9afc669, after 3.8.2. No SECURITY.md, private reporting off; PR #1089 (2022, declined) made the buffer part public; the text proposes zeroing tails only |
 | 10 | casacore ISM: re-putting a single-row indirect array decrements its refcount below zero; file then grows (20 puts, 16 records against 10) | run on 3.8.1; read at 9afc669 | github casacore/casacore | cause differs from E5's note (`handleRemove` on the same offset) |
 | 11 | casacore TiledCellStMan ranged getcol/putcol raise `TSMShape::offset` (reads `rowpos` past its end) | run on 3.8.1 | github casacore/casacore | ranged `getcol` fails too, not only `putcol` |
 | 12 | casacore MemoryStMan FixedShape array column in a reopened table: `findExt` on read, SIGABRT on close | run on 3.8.1 | github casacore/casacore | zeros on reopen are documented; the abort is not |
@@ -39,7 +39,7 @@ deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed
 | 17 | casacure: no LICENSE/COPYING in the tree or the wheel | read at de45b5d; 3.8.41 wheel | github tmolteno/casacure | E2 item 8 |
 | 18 | celestial-eop-data `build.rs` runs `date -u`: Windows build panics; `data_timestamp()` is the build date | read at v0.1.33 b7678d9 `build.rs:36-41`; Windows panic measured on 0.1.12 (E2), not rerun | github gaker/celestial-eop-data | crates.io stops at 0.1.12 |
 | 19 | dask `ProgressBar._finish` joins a thread in `time.sleep(dt)` | run on dask 2026.8.0 (latest): dt = 20 gives 20.00 s for a 1 s task; read at main b4cc5c5 `progress.py:108-129` | github dask/dask | fix: `threading.Event` |
-| 20 | katdal 0.23 (PyPI, 2024-06-28) fails at `mvftoms.py` import on `pkg_resources` | run on 0.23 with setuptools 84.2.1, Python 3.13; fixed on master 84432ef (closes #379) | github ska-sa/katdal | release request |
+| 20 | katdal 0.23 (PyPI, 2024-06-28) fails at `mvftoms.py` import on `pkg_resources` | run on 0.23 with setuptools 84.2.1, Python 3.13; fixed on master 84432ef (closes #379) | github ska-sa/katdal | release request; **optional for the owner** (fixed on master, as the skipped carta-python, DP3 and CASA items are) |
 | 21 | carta-python `Chrome(driver_path=...)` passes `executable_path`, gone in Selenium ≥ 4.10 | run on dev c33914d, Selenium 4.52.0: TypeError | github CARTAvis/carta-python | |
 | 22 | carta-python `Session.__del__` repeats `close()` | run on dev c33914d with stubs: two calls each | github CARTAvis/carta-python | |
 | 23 | CASA docs: SR2016 break at 11.1496 GHz, not 11 GHz; Baars entry omits its 1934−638 cubic | run on 6.7.6.14 (latest): 11.0 GHz uses the low piece, 2.10811 Jy against 2.11267 (0.22 %); read at casa6 90e9d3d `FluxStdsQS2.cc:202-204` | github casangi/casadocs | |
@@ -131,3 +131,13 @@ Deleted: every venv and clone under `D:\rang\scratch\u5` and `/dev/shm`.
 - casacore row 9 goes in public: no private route exists and the buffer part has been public since #1089.
 - Lines for `research/upstream-notes.md`: "Upstream status after U5 (2026-11-12; `u5-upstream.md`): 25 texts
   prepared, none posted; manifest `upstream-issues/u5-manifest.md`; all U4 casacure filings fixed in 3.8.38."
+- STATE paragraph: "U5, upstream findings prepared (2026-11-12; reproduced, not posted; [u5-upstream.md](u5-upstream.md)).
+  The owner's approval widened reporting to non-RATT projects. 25 texts (Obit note to Richard Armstrong, schaapcommon,
+  WSClean, AOFlagger, casacore, casacure, celestial-eop-data, dask, katdal, carta-python, casadocs, two CASA helpdesk
+  tickets), each reproduced on the latest release or confirmed at the default-branch head, the rest of the non-RATT
+  backlog skipped with reasons. The coordinator posts from the manifest after the owner has seen it."
+- Plan line: "U5 done 2026-11-12 (`u5-upstream.md`): texts and manifest ready; posting is the coordinator's."
+- Not run: the full `python -m rang.check` (the commit adds research files only). Ran ruff check and ruff format on
+  `u5-upstream-files/`, `py_compile` on its Python scripts, and the docs tests (13 passed; one unrelated failure,
+  `test_e5_decisions::test_a_run_without_run_stages_runs_the_whole_chain`, an extension ImportError from the main
+  checkout's venv not built for this worktree).
