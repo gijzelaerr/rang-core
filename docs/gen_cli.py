@@ -59,6 +59,12 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 (Stimela2, each marked `# rang-recipe: research`) call the same functions;
 they replay frozen campaigns and are not recipes for your own MS.
 
+**CASA's tasks** ({gh}`research/v8-open-casa.md`): `rang-core listobs MS`
+summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
+`--json` ({gh}`research/v8a-listobs.md`); `rang.tasks.listobs(vis=...)` is
+the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
+tasks to rang's.
+
 `rang-core check` runs the full local checks on any platform. Every call
 writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
@@ -135,6 +141,7 @@ def page():
         "The configuration, every key at its default:\n\n"
         f"```text\n$ rang-core config defaults\n{_run('config', 'defaults')}\n```\n"
     )
+    parts.append(_block("`listobs`", "rang-core listobs -h", _help("listobs")))
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(

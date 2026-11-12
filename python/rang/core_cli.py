@@ -1015,6 +1015,7 @@ USER_COMMANDS = {
 # Other top-level commands.
 TOP_LEVEL = {
     "config": "defaults | check CONFIG [MS]: the configuration schema",
+    "listobs": "MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs",
     "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
@@ -1410,6 +1411,48 @@ def _config_command(argv):
     return config
 
 
+def _listobs_command(argv):
+    """`rang-core listobs MS`: read-only, so no receipt (as `config`)."""
+    parser = argparse.ArgumentParser(
+        prog="rang-core listobs",
+        description="Summarise a Measurement Set as CASA's listobs does "
+        "(research/v8a-listobs.md). Reads only; writes nothing to the MS.",
+    )
+    parser.add_argument("ms", help="the Measurement Set")
+    parser.add_argument(
+        "--json", action="store_true", help="print the record as JSON, not the text"
+    )
+    parser.add_argument("--listfile", help="write the text (or JSON) to this file")
+    parser.add_argument(
+        "--overwrite", action="store_true", help="replace an existing --listfile"
+    )
+    args = parser.parse_args(argv)
+    from . import listobs
+
+    try:
+        record = listobs.summary(args.ms)
+    except (listobs.ListobsError, OSError) as exc:
+        print(f"rang-core listobs: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    out = (
+        json.dumps(record, indent=1) + "\n"
+        if args.json
+        else listobs.text(record, args.ms)
+    )
+    if args.listfile:
+        path = Path(args.listfile)
+        if path.exists() and not args.overwrite:
+            print(
+                f"rang-core listobs: {path} exists (--overwrite replaces it)",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        path.write_text(out, encoding="utf-8")
+    else:
+        sys.stdout.write(out)
+    return record
+
+
 def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict, a run's state)."""
@@ -1435,6 +1478,8 @@ def dispatch(argv=None):
         return _pipeline(argv, options, pinned)
     if argv[0] == "config":
         return _config_command(argv[1:])
+    if argv[0] == "listobs":
+        return _listobs_command(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:
