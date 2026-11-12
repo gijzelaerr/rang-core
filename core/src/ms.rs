@@ -8,8 +8,9 @@
 //! MeerKAT Measurement Sets in `outputs/` use them. The on-disk format was
 //! read from the casacore 3.8.1 sources listed in the research file; nothing
 //! is copied from casacore (LGPL-2.1-or-later). Scope: scalar, direct-array
-//! and indirect-array columns of the numeric, boolean and string types,
-//! returned as native bytes in casacore's Fortran cell order. Outside the
+//! and indirect-array columns of the numeric, boolean and string types
+//! (StandardStMan's indirect string arrays live in its string buckets,
+//! research/feed-poltype-read.md), returned as native bytes in casacore's Fortran cell order. Outside the
 //! scope, refused with an error: IncrementalStMan arrays and strings, other
 //! storage managers, MultiFile tables and big-endian hosts.
 
@@ -162,6 +163,9 @@ pub struct ColumnDesc {
     pub ndim: i32,
     /// Fixed cell shape in casacore (Fortran) axis order, empty if not fixed.
     pub shape: Vec<i64>,
+    /// Every row has `shape`: the FixedShape option with a shape in the
+    /// description, or a shape set for the whole column in its binding.
+    pub fixed_shape: bool,
     pub max_length: u32,
     pub manager_type: String,
     pub manager_name: String,
@@ -454,6 +458,12 @@ enum SsmKind {
     IndirectString,
     Direct(usize),
     Indirect,
+    /// A non-direct string array (casacore's SSMIndStringColumn): a 12-byte
+    /// (bucket, offset, length) slot per row into the string buckets. A
+    /// fixed-shape column (Some) stores the strings only; a variable-shape
+    /// one (None) stores the shape and a filled flag first. Unlike numeric
+    /// indirect arrays, nothing of it is in `table.fNi`.
+    IndirectStringArray(Option<Vec<i64>>),
 }
 
 struct SsmColumn {
@@ -574,6 +584,10 @@ impl Ssm {
                 (dt, true, true) => (
                     SsmKind::Direct(product(&desc.shape)),
                     8 * dt.size() * product(&desc.shape),
+                ),
+                (DataType::Str, true, false) => (
+                    SsmKind::IndirectStringArray(desc.fixed_shape.then(|| desc.shape.clone())),
+                    8 * 12,
                 ),
                 (_, true, false) => (SsmKind::Indirect, 64),
             };
@@ -736,6 +750,63 @@ impl Ssm {
                     },
                 )?;
             }
+            SsmKind::IndirectStringArray(fixed) => {
+                let mut handler = StringBuckets::new(self)?;
+                let mut row = start;
+                let name = &desc.name;
+                self.visit_rows(&mut file, col, start, count, |bucket, offset, first, n| {
+                    for i in 0..n {
+                        let at = offset + (first + i) * 12;
+                        let (b, o, l) = (
+                            read_i32(bucket, at, big)?,
+                            read_i32(bucket, at + 4, big)?,
+                            read_i32(bucket, at + 8, big)?,
+                        );
+                        // As SSMStringHandler::get: an empty slot is an
+                        // undefined cell (variable shape) or empty strings.
+                        let (shape, filled) = match (fixed, l > 0) {
+                            (Some(shape), true) => {
+                                handler.seek(b, o as usize)?;
+                                (shape.clone(), true)
+                            }
+                            (Some(shape), false) => (shape.clone(), false),
+                            (None, true) => {
+                                let shape = handler.shape(b, o as usize)?;
+                                (shape, handler.int()? != 0)
+                            }
+                            (None, false) => {
+                                return err(format!("row {row} of {name} has no array"));
+                            }
+                        };
+                        let nelem = product(&shape);
+                        let head = if fixed.is_some() {
+                            0
+                        } else {
+                            4 * (shape.len() + 2)
+                        };
+                        if filled && head + 4 * nelem > l as usize {
+                            return err(format!(
+                                "row {row} of {name}: {nelem} strings do not fit in {l} bytes"
+                            ));
+                        }
+                        if row == start {
+                            data.shape = shape.clone();
+                        } else if shape != data.shape {
+                            return err(format!(
+                                "rows of {name} differ in shape; read fewer rows at once"
+                            ));
+                        }
+                        if filled {
+                            data.strings.extend(handler.next_strings(nelem)?);
+                        } else {
+                            data.strings
+                                .extend(std::iter::repeat_n(String::new(), nelem));
+                        }
+                        row += 1;
+                    }
+                    Ok(())
+                })?;
+            }
             SsmKind::Indirect => {
                 let mut offsets = Vec::with_capacity(count as usize);
                 self.visit_rows(&mut file, col, start, count, |bucket, offset, first, n| {
@@ -850,10 +921,37 @@ impl<'a> StringBuckets<'a> {
             return Ok(vec![String::new(); nelem]);
         }
         self.seek(bucket, offset)?;
+        self.next_strings(nelem)
+    }
+
+    /// One canonical (big-endian) int at the read position.
+    fn int(&mut self) -> Result<i32> {
+        let bytes = self.read(4)?;
+        Ok(i32::from_be_bytes(bytes.try_into().unwrap()))
+    }
+
+    /// The shape at (`bucket`, `offset`) of a variable-shape string array: a
+    /// canonical int dimension count, then the dimensions (Fortran order).
+    fn shape(&mut self, bucket: i32, offset: usize) -> Result<Vec<i64>> {
+        self.seek(bucket, offset)?;
+        let ndim = self.int()?;
+        if !(0..=64).contains(&ndim) {
+            return err(format!("string array has {ndim} dimensions"));
+        }
+        (0..ndim)
+            .map(|_| match self.int()? {
+                d if d >= 0 => Ok(i64::from(d)),
+                d => err(format!("string array has dimension {d}")),
+            })
+            .collect()
+    }
+
+    /// `nelem` strings at the read position, each a canonical int length
+    /// and its characters.
+    fn next_strings(&mut self, nelem: usize) -> Result<Vec<String>> {
         let mut out = Vec::with_capacity(nelem);
         for _ in 0..nelem {
-            let len = self.read(4)?;
-            let len = i32::from_be_bytes(len.try_into().unwrap()).max(0) as usize;
+            let len = self.int()?.max(0) as usize;
             let text = self.read(len)?;
             out.push(String::from_utf8_lossy(&text).into_owned());
         }
@@ -1753,6 +1851,7 @@ impl Table {
                     }
                 }
             }
+            let fixed_shape = !shape.is_empty() && option & 4 != 0;
             columns.push(ColumnDesc {
                 name,
                 dtype,
@@ -1760,6 +1859,7 @@ impl Table {
                 option,
                 ndim,
                 shape,
+                fixed_shape,
                 max_length,
                 manager_type,
                 manager_name,
@@ -1807,6 +1907,7 @@ impl Table {
                 if column.shape.is_empty() {
                     column.shape = shape;
                 }
+                column.fixed_shape = !column.shape.is_empty();
             }
         }
         let mut blobs = Vec::with_capacity(n);

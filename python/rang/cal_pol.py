@@ -93,9 +93,41 @@ def parallactic_angle(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m, frame="casa"):
     raise ValueError(f"frame must be one of {FRAMES}")
 
 
+LINEAR_FEEDS = ("X", "Y")
+
+
+def feed_types(ms):
+    """FEED POLARIZATION_TYPE per row as a tuple (None for a row without
+    one), or None when FEED has no such column."""
+    with core_ms.open_table(Path(ms) / "FEED") as t:
+        if "POLARIZATION_TYPE" not in t.columns:
+            return None
+        try:
+            return [tuple(r) for r in t.getcol("POLARIZATION_TYPE").tolist()]
+        except OSError:  # undefined or differently shaped cells
+            out = []
+            for row in range(t.nrows):
+                try:
+                    out.append(tuple(t.getcol("POLARIZATION_TYPE", row, 1)[0]))
+                except OSError:
+                    out.append(None)
+            return out
+
+
 def receptor_angles(ms):
     """FEED RECEPTOR_ANGLE of the first receptor per antenna (rad); CASA's
-    P for linear feeds uses `q + RECEPTOR_ANGLE[0]` (A1 section 2.1)."""
+    P for linear feeds uses `q + RECEPTOR_ANGLE[0]` (A1 section 2.1), so a
+    FEED whose POLARIZATION_TYPE is not X, Y is refused
+    (research/feed-poltype-read.md)."""
+    types = feed_types(ms) or []
+    # Rows without a value, or with empty strings only, are not checked.
+    other = sorted({p for p in types if p and any(p) and p != LINEAR_FEEDS})
+    if other:
+        raise ValueError(
+            f"{ms}: FEED POLARIZATION_TYPE {[list(p) for p in other]}; P is "
+            "implemented for MeerKAT's linear feeds (X, Y) only "
+            "(research/meerkat-scope.md)"
+        )
     with core_ms.open_table(Path(ms) / "ANTENNA") as t:
         nant = len(t.getcol("NAME"))
     with core_ms.open_table(Path(ms) / "FEED") as t:
@@ -1294,6 +1326,7 @@ def clip_df(table, limit=0.6):
 __all__ = [
     "FRAMES",
     "KCROSS_ESTIMATORS",
+    "LINEAR_FEEDS",
     "DfSolution",
     "KcrossSolution",
     "Loaded",
@@ -1303,6 +1336,7 @@ __all__ = [
     "data_fraction",
     "df",
     "df_solve",
+    "feed_types",
     "gpol",
     "kcross",
     "kcross_refine",
