@@ -1845,3 +1845,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | U5 python-casacore 3.8.1 `MALLOC_PERTURB_` sets (fNi, MultiFile, MultiFile 4 KiB) | probes | 6.7, 4.3, 3.5 s | – | WSL |
 | 2026-11-12 | U5 WSClean 3.7 read-only MS runs | 64 MB MS, 5 arms | 12 s | – | Docker `rang-wsclean-native:3.7` |
 | 2026-11-12 | ms-lock-windows native `python -m rang.check` (heavy lock shared, 4 slots), on 2899c23 plus the Windows lock | worktree ms-lock-windows | 29 min 44 s (lock wait included) | – | PASS; 1248 pytest passed, gain-hash gate PASS; research/ms-lock-windows.md |
+| 2026-11-12 | V8a CASA 6.7.6.14 `listobs` probe (`listobs.sh`, run 00) | luno, a1, eso137 | 124 s | 332 MB | WSL Docker `rang-o-casa:6.7.6.14`, heavy lock 1 slot; stopped at the fixture |
+| 2026-11-12 | V8a CASA `listobs` gate run 01 (nine MSs, with msmetadata) | 9 MSs | 126.3 s (eso137 61.7 s) | 332 MB | WSL Docker, heavy lock 1 slot |
+| 2026-11-12 | V8a rang `listobs.summary` + comparison | 9 MSs | 0.01-13.5 s per MS (eso137 0.89 s) | – | native Windows, MSs over `\\wsl.localhost` while E2 ran; research/v8a-listobs.md |

@@ -4,7 +4,7 @@ Piece 3 of [v8-open-casa.md](v8-open-casa.md) (section 7), moved before v0.2.0
 by the owner on 2026-11-12 (section 8.1, decision 1). Branch
 `claude/v8a-listobs-1c691e` from `main` `452f9d5`.
 
-**Status: proposed (protocol frozen before code).** Sections 1-7 are committed
+**Status: measured, PASS (2026-11-12; section 8).** Protocol frozen before code; Sections 1-7 are committed
 before any rang `listobs` code and before any comparison of rang's output with
 CASA's. CASA's own output on the data below was produced by a probe run
 (section 3) before or while this note was written; its output format guides the
@@ -193,4 +193,66 @@ development MSs show zero differences (`dev2.json`, section 8).
 
 ## 8. Measured result
 
-(Not yet run.)
+**PASS.** Zero differences on the eight development MSs after the fixes below,
+then zero on the held-out `eso137` at its one comparison.
+
+| MS | values compared | differences | rang wall (s) | CASA wall (s) |
+| --- | ---: | ---: | ---: | ---: |
+| `luno` | 80 | 0 | 6.75 | 0.03 |
+| `a1` | 438 | 0 | 0.01 | 1.36 |
+| `edges` | 142 | 0 (9 before amendment 2) | 0.01 | 0.27 |
+| `fixture-scan1`, `4`, `5`, `8`, `9` | 81 each | 0 | 2.2-13.5 | 0.03 each |
+| `eso137` (held out) | 650 | **0** | 0.89 | 61.7 |
+
+Walls are informational (section 4): rang's are dominated by reading MSs over
+`\\wsl.localhost` on a host running E2's shared jobs (the same LUNO MS took
+0.35 s in the first comparison); CASA's are inside the container on WSL's own
+disk. `eso137`'s CASA wall is 62 s against rang's 0.9 s because CASA's
+verbose listing reads more than the scalar columns; not a claimed speed-up.
+
+Worst |rang − CASA| over all nine MSs: times 0; IntegrationTime 7e-14 s;
+directions 4e-16 rad; channel frequencies and widths, bandwidth, reference and
+centre frequency 0 Hz; ITRF 9.3e-10 m; WGS84 longitude 0, latitude 9e-15 rad,
+height 2.8e-9 m. Every check was also shown to fire just above its tolerance
+(perturbation test: 2 ms, 2e-3 arcsec, 2 mm, 2 Hz, a row count, a missing scan;
+0.5 ms passes).
+
+Runs and receipts (WSL `~/Github/rang/outputs/`, ignored):
+
+- `v8a-listobs-20261112-00-probe`: CASA on `luno`, `a1`, `eso137`; stopped at
+  the fixture (amendment 1). 124 s, 332 MB peak.
+- `v8a-listobs-20261112-01`: the gate run, CASA on all nine MSs (`meta.json`,
+  `image.txt`, `code-sha256.txt`, `time.txt`: 126.3 s, 332 MB peak).
+- `v8a-listobs-20261112-02-compare`: `dev.json` (before amendment 2: `edges`
+  9 differences), `dev2.json` (development gate, all zero), `heldout.json`.
+- `research/results/v8a-listobs-casa-fixture.json`: CASA's record, listfile
+  and msmetadata on the five fixture MSs (channels as SHA-256), which
+  `tests/test_v8a_listobs.py` compares rang against without CASA (needs the
+  fixture: `RANG_FIXTURE` or `outputs/ska-pointing/outer_scans.zip`, else it
+  skips).
+
+Development fixes, in order (each from CASA's output, no CASA source read):
+fields without rows are not listed; RA wrapped into (−π, π]; `timeref` added
+(amendment 1); the sub-entry rule (amendment 2). The listfile parser was also
+fixed twice (sections end at the next heading; SrcId only when printed); these
+are comparator fixes, not rang fixes.
+
+Gaps, not gated: antenna offsets from the array centre are not printed; the
+text layout is rang's; `StateId` as first-row state against lowest id, and a
+scan number reused across observations or arrays, are untested; no real
+multi-spw MeerKAT MS (only the synthetic `edges`, two spws); CASA's selection
+keywords are refused, not implemented.
+
+## 9. For the coordinator
+
+- Branch `claude/v8a-listobs-1c691e`, not merged. The FEED fix
+  (`claude/feed-poltype-read-ea1d2d`) was not needed: FEED is never read.
+- STATE paragraph: *V8a `listobs` (2026-11-12): `rang-core listobs` and
+  `rang.tasks.listobs` (CASA keywords; selections refused) match CASA
+  6.7.6.14's `listobs` record, channels and antenna positions on eight
+  development MSs and the held-out ESO137 MS (650 values, 0 differences;
+  research/v8a-listobs.md). CI compares rang with an archive of CASA's output
+  on the public fixture.*
+- Plan line (v8-open-casa.md section 7, piece 3): done; next CASA piece is
+  `flagdata` `tfcrop` after v0.2.0. A real multi-spw check waits for E2's
+  converted MSs.

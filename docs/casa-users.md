@@ -53,7 +53,9 @@ The returned record has CASA's keys and units: `BeginTime` and `EndTime` in
 MJD days, `IntegrationTime` in seconds, `nfields`, `numrecords`, `field_N`
 (name, code, direction in radians) and `scan_N` (per sub-entry `BeginTime`,
 `EndTime`, `FieldId`, `FieldName`, `SpwIds`, `StateId`, `nRow`,
-`IntegrationTime`, `scanId`). rang adds what CASA prints but does not return:
+`IntegrationTime`, `scanId`). As in CASA, a scan has one sub-entry per field,
+in field-id order, each with the scan's whole time range; a state change
+inside a scan does not split it. rang adds what CASA prints but does not return:
 `observation`, `spectral_windows` (every channel frequency and width),
 `sources`, `antennas` (ITRF position and WGS84 longitude, latitude and
 height), `fields_extra` (rows and source id per field) and `states` (the scan
@@ -66,4 +68,7 @@ Keywords: `vis`, `listfile`, `overwrite` work as in CASA; `selectdata` and
 
 Differences from CASA: the text layout is rang's own (the values are what is
 compared); the antenna offsets from the array centre are not printed (they
-need CASA's observatory table).
+need CASA's observatory table); the antenna table prints WGS84 longitude and
+latitude, where CASA's "Lat." column is the geocentric latitude. On CASA
+6.7.6.14 the record, channels and antenna positions agree with CASA's on nine
+MSs within 1 ms, 1e-3 arcsec, 1 Hz and 1 mm (research/v8a-listobs.md).
