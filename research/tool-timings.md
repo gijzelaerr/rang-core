@@ -1806,3 +1806,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-10 | F3 held-out `f3_eval.py real`, 7 arms, 19 cases | LUNO MAIN_1 / MAIN_2 | 47.2 / 31.0 min | – | A dominates (19 Docker runs) |
 | 2026-11-10 | F3 native `python -m rang.check` (heavy_lock), twice | worktree fp-f3-flagger | 82 min; 42 min (wall includes lock waits) | – | second: only the research-index test fails |
 | 2026-11-11 | E4 `rang-core run` on A1 small (flag, calibrate, apply, image; `examples/ms-to-image/config.yaml`), native Windows, 2 threads, no heavy lock (CPU-light) | 12,480 rows × 64 ch × 4 corr, 41 MB | 9.7-11.7 s (2.0, 1.7, 1.3-1.9, 3.5-3.8 s) | – | host shared with E2; `tools/e2e/run.py` 16.5 s with generation; notebook 00 under papermill 24.9-30.1 s; research/e4-tutorial.md |
+| 2026-11-12 | sliced-read `rang-core calibrate`, T arm (`chunk_rows: 7`), before `bd15126` / after `sliced-read` | A1 small (64 ch) | 59.5 / 55.2 s; apply 34.3 / 36.0 s | 0.06 GB both | native Windows, heavy lock exclusive, 1 run each; research/sliced-read.md |
+| 2026-11-12 | the same, T arm | poldx (256 ch) | 147.5 / 68.1 s; apply 56.0 / 51.2 s | 0.24 GB both | native Windows, exclusive |
+| 2026-11-12 | the same, T arm | polholdout (256 ch) | 132.4 / 63.0 s; apply 51.8 / 51.4 s | 0.24 GB both | native Windows, exclusive |
+| 2026-11-12 | the same, D arm (one chunk) | poldx | 5.34 / 5.41 s; apply 4.00 / 4.11 s | 0.27 GB both | native Windows, exclusive |
+| 2026-11-12 | the same, D arm (8 GiB), calibrate K, G, B | `w3.ms` (4096 ch) | 806.7 / 607.9 s | 3.21 GB both | native Windows, exclusive |
+| 2026-11-12 | the same, M arm (4.33 GiB) | `w3.ms` | 1238.2 / 825.0 s | 1.64 GB both | native Windows, exclusive |

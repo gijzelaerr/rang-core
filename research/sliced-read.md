@@ -11,7 +11,7 @@ path's wall time. Branch `sliced-read` from origin/main `bd15126`. Resource
 work: no scientific novelty is claimed; the speed is measured against the same
 code before the change on the same host.
 
-**Status: proposed** (sections 0 to 4 are frozen before any code is written).
+**Status: measured** (sections 0 to 4 were frozen before any code was written; results in section 5).
 
 ## 0. What the code does at `bd15126`
 
@@ -153,3 +153,77 @@ Each arm still records `heavy_lock.py status` at its start
 (`logs/lock-status.txt`). Post hoc for H-U, H-D and H-M, which section 4 left
 shared: they now run exclusive, which changes none of their outputs; the
 timing protocol of the timed arms is unchanged.
+
+### 5.3 Identity (criteria 1 to 3): pass, 19 of 19
+
+`verdict-1-2.json` (15 checks) and `verdict.json` (19), run -02. Bit-identical
+in every check: calibrate run-directory files, every MS column and flag
+version after calibrate and apply, summaries and exits.
+
+- O, C, P, H: D, T and M on the branch against U (main, unchunked), 12 checks.
+- W: D against B-D, M against B-M, M against D, 3 checks.
+- Reported: the base's own C-BT, P-BD, P-BT and H-BT against U, 4 checks, all
+  equal, as in W3b.
+
+### 5.4 Reader unit tests (criterion 4): pass
+
+`tests/test_sliced_read.py`, 112 tests, cover the cases section 3 lists:
+- both tiled managers, both endians, StandardStMan arrays
+- Bool, complex, float and int columns
+- casacure `getcolslice` and casacure-written tables
+- the pre-apply on a window for K, G, B (with flagged channels) and Xf/Df
+- channel-chunked B, Xf and Df equal to one call
+- the three oracle MSs
+
+The reader's existing casacore and casacure oracle tests pass unchanged, 22
+with none skipped.
+
+### 5.5 Timings and memory (section 4; criterion 5 passes)
+
+Native Windows on the shared host (16 threads, 63 GB). One run per arm, each
+with the heavy lock held exclusively. At every timed arm's start
+`logs/lock-status.txt` shows the arm's own process as the exclusive owner and
+0 of 16 shared slots in use. Wall time in seconds, peak working set in GB.
+
+| Arm | Stage | Before (`bd15126`) | After (branch) | Ratio | Peak before / after |
+| --- | --- | ---: | ---: | ---: | --- |
+| C T (64 ch) | calibrate | 59.5 | 55.2 | 1.08x | 0.06 / 0.06 |
+| C T | apply | 34.3 | 36.0 | 0.95x | 0.05 / 0.05 |
+| P T (256 ch) | calibrate | 147.5 | 68.1 | 2.17x | 0.24 / 0.24 |
+| P T | apply | 56.0 | 51.2 | 1.09x | 0.16 / 0.16 |
+| H T (256 ch) | calibrate | 132.4 | 63.0 | 2.10x | 0.24 / 0.24 |
+| H T | apply | 51.8 | 51.4 | 1.01x | 0.16 / 0.16 |
+| P D | calibrate | 5.34 | 5.41 | 0.99x | 0.27 / 0.27 |
+| P D | apply | 4.00 | 4.11 | 0.97x | 0.53 / 0.53 |
+| W D (4096 ch) | calibrate | 806.7 | 607.9 | 1.33x | 3.21 / 3.21 (limit 8) |
+| W M | calibrate | 1238.2 | 825.0 | 1.50x | 1.64 / 1.64 (limit 4.33) |
+
+- Peak memory is unchanged in every arm. On W both peaks are within their
+  limits (criterion 5).
+- The gain is in calibrate's channel chunks: B, Xf and Df with one or a few
+  channels per chunk.
+- P D and the apply stage do not take the changed path. P D is one chunk.
+  Apply's row blocks read whole channels in `cal_chain`. They move within the
+  host's run-to-run spread, about 10 %.
+- C has 64 channels, so less was re-prepared per chunk; its gain is the
+  smallest.
+- The C T apply figure (0.95x) is one run each, within the same spread.
+
+## 6. Limits and open points
+
+- One run per arm, as frozen. The ratios are single measurements on a shared
+  host, held exclusively.
+- On these sets a sliced read saves no disk bytes, because every tile spans
+  all channels (section 0).
+  - A tile shape that splits channels (for example `[4, 64, n]`) would let a
+    channel chunk skip tiles on disk. The reader already visits only the
+    intersecting tiles.
+  - Changing the tile shape that rang writes is not part of this change; it
+    is a possible follow-up.
+- W's chunked calibrate is still 10 to 14 min native. What remains is the
+  reads, which decode every tile, and the replay passes. The prepare is no
+  longer the cost.
+- The apply stage still reads whole channels per row block. It was not
+  chunked by channel here, and it was not slow in these arms.
+
+**Status: measured.** Criteria 1 to 5 pass. The change is kept.
