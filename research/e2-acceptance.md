@@ -727,6 +727,59 @@ row value was read. Each scorer was run on the development dry run first
   flagged. Measured: CASA applycal's FLAG equals rang's in all 408,827,131
   compared cells (`g2b-applycal.json`, `flag_elements_differ` 0).
 
+### 7.3 E2-B frozen arm, gates as frozen
+
+Outputs are in `D:\rang\outputs\e2-20261111-20-e2b` (R).
+
+| Gate | Result | Reading |
+| --- | --- | --- |
+| 1 | met | exit 0, every stage in the receipt; wall 6,195 s (`e2b-timed.json`) |
+| 2a | met | FLAG, FLAG_ROW hashes equal the input's after restore (272,916 rows) |
+| 2b casacore | met | 27 tables, every column |
+| 2b CASA listobs, flagmanager | met | – |
+| 2b CASA applycal (class C) | **not met** | flags equal (0 of 408,827,131 cells differ; 7.2); **42 cells** over 11 float32 eps of the cell max: 11.0–25.6 eps (median 11.6; 36 of them ≤ 15 eps), max relative 0.22. They lie on field 1 scan 18 (30) and field 2 scans 19–20 (12), mostly in channels 1862–1879, 17 on baseline (35, 55) |
+| 2b WSClean -niter 0 | met | CORRECTED_DATA and MODEL_DATA |
+| 2b dask-ms (QuartiCal's reader) | met | 4 datasets, 272,916 rows; met on its rerun after a helper named `daskms.py` shadowed the package (first reading: import error, a scorer bug) |
+| 2c | met | 459 FITS files parse |
+| 3a | met, **exact** | Tricolour against rang's flag stage: 0 of 1,117,863,936 cells differ, every scan. 6.5 expected a few ulp cells |
+| 3b | **not met** | below |
+
+**Gate 3b** (`g3b.json`, CASA 6.7.6.14, 18 tasks, 0 errors, 3,672 s; class B
+as 6.5):
+
+| Term | Result | Reading |
+| --- | --- | --- |
+| K | met | \|Δτ\| median 0.00072 ns, p95 0.0047, max 0.0057 |
+| KCROSS | met | 0.00053 ns |
+| Xf | met | median 0.047°, p95 0.60°, max 3.9° |
+| Df | met | median 1.7e-5, p95 2.2e-4 |
+| Gpol | **not met (expected)** | median 0.278°, p95 2.17° against 0.1° |
+| fcal K G B composite | **not met** (expected met) | median 1.14e-3, p95 1.52e-2 against 7e-4 / 3e-3; flags 0 differ |
+| gcal K F B composite | **not met** | median 1.12e-3, p95 1.51e-2 |
+
+- Reported only, not gated:
+  - G: relative 1.4e-4 median, 0.0074°.
+  - B: relative 1.1e-3 median, p95 7.0e-3, 0.062°; 5,242 solution flags
+    differ.
+  - Gsec: 3.6e-4.
+  - F: 2.3e-4.
+  - Df: 8,670 solution flags differ.
+
+**Rows (frozen arm):**
+
+| Row | Result | Reading |
+| --- | --- | --- |
+| 3C 286 parity | **met** | 6 bins scored: \|Δp\| ≤ 0.030 points, \|Δχ\| ≤ 0.077° |
+| 1830−211 | **not met** | 7 bins: I within 0.025 %, \|Δp\| ≤ 0.062 points; \|Δχ\| up to 13.1° in 4 bins |
+
+- 1830−211's polarisation is 0.02–0.09 %, so its χ is mostly noise. The row
+  is still read as frozen.
+- **3C 286's absolute χ on scan 17 is −0.5° to −4.2°, the same in both arms,
+  against the model's 33°** (the development scan read 86–89°). The offset
+  differs between scans, so the frame difference of 7.1 depends on
+  parallactic angle and is shared by rang and CASA. The transfer row, which
+  is judged on absolute χ, measures it.
+
 ## For the coordinator
 
 (written at the end)
