@@ -6,8 +6,8 @@
 `rang-core flag | calibrate | apply | image | selfcal | run CONFIG MS`. One
 YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
-the whole configuration first and refuse what is not implemented yet,
-naming the task that adds it. Today `flag` runs the Tricolour port and
+the whole configuration first and refuse what is not implemented yet
+(`rang-core config check --all CONFIG` lists it). Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
 MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
 or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
@@ -386,6 +386,67 @@ run:
 #   stop_fraction: 0.99  # complex, Sp, Sa: fraction converged to stop
 # Term types: complex, K, G, B, A, F, Gpol, KCROSS, Xf, Df, Sd, Sp, Sa.
 # Implemented: complex, K, G, B, A, F (C2e), Gpol, KCROSS, Xf, Df (C6w); in selfcal, Sd, Sp, Sa (C5).
+```
+
+```text
+$ rang-core config check -h
+usage: rang-core config check [-h]
+                              [--stage {flag,calibrate,apply,image,selfcal}]
+                              [--all]
+                              config [ms]
+
+positional arguments:
+  config
+  ms                    also resolve its fields against this MS
+
+options:
+  -h, --help            show this help message and exit
+  --stage {flag,calibrate,apply,image,selfcal}
+                        check for these stages (default: run.stages;
+                        repeatable)
+  --all                 list what every stage cannot run yet
+```
+
+## `formats`
+
+```text
+$ rang-core formats -h
+usage: rang-core formats [-h] {check,convert} ...
+
+`rang-core formats convert IN OUT` and `rang-core formats check PATH`
+(research/dfio-formats.md).
+
+positional arguments:
+  {check,convert}
+    check          read a file and print a JSON summary
+    convert        read IN and write OUT in another format
+
+options:
+  -h, --help       show this help message and exit
+```
+
+```text
+$ rang-core formats check -h
+usage: rang-core formats check [-h] [--trust] path
+
+positional arguments:
+  path
+
+options:
+  -h, --help  show this help message and exit
+  --trust     allow a DicoModel (pickle) you made
+```
+
+```text
+$ rang-core formats convert -h
+usage: rang-core formats convert [-h] src dst
+
+positional arguments:
+  src
+  dst
+
+options:
+  -h, --help  show this help message and exit
 ```
 
 ## `research`

@@ -25,8 +25,8 @@ INTRO = """\
 `rang-core flag | calibrate | apply | image | selfcal | run CONFIG MS`. One
 YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
-the whole configuration first and refuse what is not implemented yet,
-naming the task that adds it. Today `flag` runs the Tricolour port and
+the whole configuration first and refuse what is not implemented yet
+(`rang-core config check --all CONFIG` lists it). Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
 MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
 or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
@@ -135,6 +135,15 @@ def page():
         "The configuration, every key at its default:\n\n"
         f"```text\n$ rang-core config defaults\n{_run('config', 'defaults')}\n```\n"
     )
+    # E5-29: the subcommands a user runs before a stage.
+    parts.append(
+        f"```text\n$ rang-core config check -h\n{_help('config', 'check')}\n```\n"
+    )
+    parts.append(_block("`formats`", "rang-core formats -h", _help("formats")))
+    for verb in ("check", "convert"):
+        parts.append(
+            f"```text\n$ rang-core formats {verb} -h\n{_help('formats', verb)}\n```\n"
+        )
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(
