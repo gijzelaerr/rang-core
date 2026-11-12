@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The bandpass B: a diagonal complex gain per channel, with CASA's
 `bandpass(bandtype='B')` rules (task C2c, research/c2c-bandpass.md part 2;
 C1 step 5, research/c1-calibration-chain.md).

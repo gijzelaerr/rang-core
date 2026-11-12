@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """CASA `applycal` on a Measurement Set (task C4b, research/c4b-apply-ms.md;
 C1 step 7). For example::
 

@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """CASA calibration tables (DF-IO-CT; research/dfio-formats.md, F1).
 
 `read(path)` turns a CASA `NewCalTable` (G, B, K, T, Df Jones, CASA >= 3.4)

@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Follows CASA's FlagAgentExtension.cc (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA 2011; Copyright (C) European
+// Southern Observatory, 2011; LGPL-2.1 or later): notices in
+// THIRD-PARTY-NOTICES.txt.
 //! CASA's `flagdata(mode='extend')` on one flag cube per (chunk, baseline)
 //! segment (task E0, `research/e0-refant-extend.md` section 1.3), as
 //! `FlagAgentExtension::computeAntennaPairFlags` in CASA's flagging code:

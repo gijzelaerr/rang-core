@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The gain term G: diagonal complex (`calmode='ap'`) and phase-only (`'p'`)
 solves in the Rust core, with CASA's intervals and rules (task C2a,
 research/c2a-gain.md; C1 step 3, research/c1-calibration-chain.md).

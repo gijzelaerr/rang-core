@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later AND MIT
+// Follows CASA's C++ source in part (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// notices in THIRD-PARTY-NOTICES.txt.
 //! Diagonal gain solvers `diag_complex` (calmode `ap`) and `phase` (calmode
 //! `p`), ported from QuartiCal 0.2.7 (task C2a, `research/c2a-gain.md`; C1
 //! step 3, `research/c1-calibration-chain.md`).
