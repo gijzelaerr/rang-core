@@ -1613,6 +1613,7 @@ def stage_calibrate_chain(ctx):
         stage="calibrate",
         budget=plan,  # task W3b: chunks of whole solution intervals
         average_time=bool(cal.get("average_time")),  # task E2
+        average_freq=bool(cal.get("average_freq")),  # task E2, amended arm
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
