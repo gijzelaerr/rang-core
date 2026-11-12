@@ -326,9 +326,9 @@ def applycal(
         raise ApplyError(f"applymode {applymode!r}: rang applies {list(MODES)}")
     from . import cal_pol
 
-    if parang_flags not in cal_pol.PARANG_FLAGS:
+    if parang_flags not in cal_pol.P_FLAG_RULES:
         raise ApplyError(
-            f"parang_flags {parang_flags!r}: use one of {list(cal_pol.PARANG_FLAGS)}"
+            f"parang_flags {parang_flags!r}: use one of {list(cal_pol.P_FLAG_RULES)}"
         )
     tables = [_load(t) for t in gaintable]
     if not tables and not parang:

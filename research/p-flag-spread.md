@@ -125,14 +125,27 @@ Df's. `none` never flags a cell CASA leaves unflagged, which is E2's observation
 **E2's 70 %.** CASA flags XX and YY exactly where rang flags XY or YX (or any one correlation). Where a Df
 parameter is flagged on the table but rang's cross hands are not flagged after interpolation (nearest frequency
 interpolation moves to the closest unflagged solution channel), or where XX is already flagged, nothing new
-appears. That would explain why only 1,008,519 of 1,446,125 cells gain a flag, but it is not counted on E2's
-data: check E of section 4 (E2-B's snapshot) is still to do. E2's measurement that every CASA-only cell had
-both cross hands flagged fits the rule.
+appears. That would explain why only 1,008,519 of 1,446,125 cells gain a flag, but it is not counted on the
+development slice: E2's snapshot there was taken after a later step had reset FLAG. E2's measurement that every
+CASA-only cell had both cross hands flagged fits the rule.
+
+**Check E on E2-B (read-only, reported).** `D:\rang\outputs\e2-20261111-20-e2b\df-flag-snapshot\flags-after-applycal.npz`
+(CASA's FLAG after `applycal` and rang's applied FLAG; 272,916 rows × 4,096 channels; script and counts kept in
+this session's scratch, summarised here): on fields 0, 1 and 2 (484M, 490M and 144M cells) CASA's and rang's
+flags differ in 0 cells, neither has a partly flagged cell, and rang's FLAG ORed over the four correlations
+equals CASA's in every cell. That is consistent but does not discriminate: with no partly flagged cell,
+`spread` and `none` give the same flags (presumably no Df flag on E2-B survives interpolation; not checked on
+its table).
 
 **Recommendation for the owner: `spread` as the default** (implemented so). It is CASA's rule. It also matches
 the values: P builds XX and YY from all four correlations, so with `none` rang writes unflagged parallel hands
 that contain a flagged cross hand. E2's frozen run is unaffected (its wheel and code paths predate this);
 E2's gate 2b flag difference on J1331+3030 is this rule.
+
+**Full check** (`python -m rang.check`, after the measured run): every step passes (1,279 pytest). The
+gain-hash gate passed on a separate run (8.2 s) with `RANG_ARCHIVE_OUTPUTS` set to the WSL outputs over
+`\\wsl.localhost`. After the measured run, the constant was renamed from `PARANG_FLAGS` to `P_FLAG_RULES`
+because the receipts test reads `RANG_`-like names as environment variables. Behaviour is unchanged.
 
 Not done here: CASA's solves with `parang=True` (Gpol, KCROSS, Xf, Df) corrupt the model by P, which may flag
 the same way in the solver's pre-apply. rang's solves rotate the model without flags. Not tested; a follow-up if

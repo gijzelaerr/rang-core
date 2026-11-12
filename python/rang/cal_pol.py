@@ -190,7 +190,7 @@ def rotate(data, angle_p, angle_q, inverse=False):
     return out
 
 
-PARANG_FLAGS = ("spread", "none")
+P_FLAG_RULES = ("spread", "none")
 
 
 def spread_flags(flag, mode="spread"):
@@ -202,8 +202,8 @@ def spread_flags(flag, mode="spread"):
     leakage flags XX and YY too. That is also what the values need: P
     rotates XX out of all four correlations. `mode='spread'` copies that
     rule on `flag` `(..., 4)`; `none` returns it unchanged."""
-    if mode not in PARANG_FLAGS:
-        raise ValueError(f"parang_flags {mode!r}: use one of {PARANG_FLAGS}")
+    if mode not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {mode!r}: use one of {P_FLAG_RULES}")
     flag = np.asarray(flag, bool)
     if mode == "none":
         return flag
@@ -235,8 +235,8 @@ def apply(
     `none` leaves the flags as the tables set them. Flags are computed in
     correct order for both directions, so `corrupt` flags the cells
     `correct` does."""
-    if parang_flags not in PARANG_FLAGS:
-        raise ValueError(f"parang_flags {parang_flags!r}: use one of {PARANG_FLAGS}")
+    if parang_flags not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {parang_flags!r}: use one of {P_FLAG_RULES}")
     tables = list(tables)
     data = np.asarray(data)
     flag = np.broadcast_to(np.asarray(flag, bool), data.shape)
@@ -1326,7 +1326,7 @@ def clip_df(table, limit=0.6):
 __all__ = [
     "FRAMES",
     "KCROSS_ESTIMATORS",
-    "PARANG_FLAGS",
+    "P_FLAG_RULES",
     "DfSolution",
     "KcrossSolution",
     "Loaded",
