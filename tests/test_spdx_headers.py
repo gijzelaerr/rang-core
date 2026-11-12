@@ -12,9 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DIRS = ("python/rang", "core/src", "src", "tools")
 SUFFIXES = {".py": "#", ".sh": "#", ".rs": "//", ".cc": "//"}
 LINE = re.compile(r"SPDX-License-Identifier: GPL-3\.0-or-later( AND [A-Za-z0-9.-]+)*$")
-# Files another task was changing when the headers went in (the Rust MS
-# reader and its Python side, sliced reads); stamp them once it merges.
-PENDING = {"core/src/ms.rs", "core/src/ffi_ms.rs", "python/rang/core_ms.py"}
+# Files another task is changing when the headers go in; stamp them once it
+# merges. Empty since sliced-read merged (E5 final).
+PENDING: set[str] = set()
 
 
 def _tracked():

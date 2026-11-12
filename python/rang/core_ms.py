@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Measurement Set reads at the edge of the Rang core (research/core-e-ms-reader.md).
 
 Opens casacore tables read-only through the core's Rust reader and returns

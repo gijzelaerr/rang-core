@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Read-only reader for casacore tables (research/core-e-ms-reader.md).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
