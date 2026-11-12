@@ -201,3 +201,76 @@ def test_clip_df_flags_large_leakages():
     out, n = cal_pol.clip_df(t)
     assert n == 1
     assert out.flags.sum() == 1 and out.flags[1, 0, 1]
+
+
+# --- Task df-flag-rule (research/p-flag-spread.md): P's flags. ---
+
+
+def _lone_bad_leakage_case():
+    nant, ntime, nchan = 4, 2, 6
+    a1, a2, t = _array(nant, ntime)
+    time = 100.0 + 8.0 * t
+    freq = 1e9 + 1e7 * np.arange(nchan)
+    data = RNG.normal(size=(len(a1), nchan, 4)) + 1j * RNG.normal(
+        size=(len(a1), nchan, 4)
+    )
+    d = 0.05 * (
+        RNG.normal(size=(1, nant, nchan, 2)) + 1j * RNG.normal(size=(1, nant, nchan, 2))
+    )
+    dflag = np.zeros(d.shape, bool)
+    dflag[0, 1, :, 1] = True  # antenna 1's d_y bad in every channel: one leakage
+    df = caltable.from_gains("Df", [108.0], list(range(nant)), d, dflag,
+                             subtables=_subtables(freq), refant=-1)  # fmt: skip
+    angles = (RNG.uniform(-3, 3, len(a1)), RNG.uniform(-3, 3, len(a1)))
+    return data, time, a1, a2, freq, df, angles
+
+
+def test_spread_flags_is_casas_general_jones_rule():
+    f = np.zeros((3, 2, 4), bool)
+    f[0, 0, 1] = True
+    f[1, 1, 3] = True
+    got = cal_pol.spread_flags(f)
+    assert got[0, 0].all() and got[1, 1].all()
+    assert got.sum() == 8
+    assert np.array_equal(cal_pol.spread_flags(f, "none"), f)
+    with pytest.raises(ValueError):
+        cal_pol.spread_flags(f, "casa")
+
+
+def test_p_spreads_a_bad_leakages_cross_hand_flags():
+    data, time, a1, a2, freq, df, angles = _lone_bad_leakage_case()
+    flag = np.zeros(data.shape, bool)
+    _, f_tables = cal_apply.apply(data, flag, time, a1, a2, freq, [df],
+                                  interp="nearest")  # fmt: skip
+    # Df alone (C4a's rule): only cross hands, never XX or YY.
+    assert f_tables[..., 1:3].any() and not f_tables[..., [0, 3]].any()
+    _, f_none = cal_pol.apply(data, flag, time, a1, a2, freq, [df], angles=angles,
+                              interp="nearest", parang_flags="none")  # fmt: skip
+    assert np.array_equal(f_none, f_tables)
+    v, f = cal_pol.apply(data, flag, time, a1, a2, freq, [df], angles=angles,
+                         interp="nearest")  # fmt: skip
+    assert np.array_equal(f, np.broadcast_to(f_tables.any(-1, keepdims=True), f.shape))
+    # Rows on antenna 1 are flagged in all four correlations, the others not.
+    on1 = (a1 == 1) | (a2 == 1)
+    assert f[on1].all() and not f[~on1].any()
+    # The values do not depend on the flag rule.
+    v_none, _ = cal_pol.apply(data, flag, time, a1, a2, freq, [df], angles=angles,
+                              interp="nearest", parang_flags="none")  # fmt: skip
+    assert np.array_equal(v.view(np.uint32), v_none.view(np.uint32))
+    # Corrupt flags the cells correct does.
+    _, fc = cal_pol.apply(data, flag, time, a1, a2, freq, [df], angles=angles,
+                          interp="nearest", direction="corrupt")  # fmt: skip
+    assert np.array_equal(fc, f)
+
+
+def test_p_spreads_input_flags_and_needs_angles():
+    data, time, a1, a2, freq, _, angles = _lone_bad_leakage_case()
+    flag = np.zeros(data.shape, bool)
+    flag[0, 2, 0] = True  # XX only
+    _, f = cal_pol.apply(data, flag, time, a1, a2, freq, [], angles=angles)
+    assert f[0, 2].all() and f.sum() == 4
+    _, f_no_p = cal_pol.apply(data, flag, time, a1, a2, freq, [])
+    assert np.array_equal(f_no_p, flag)
+    with pytest.raises(ValueError):
+        cal_pol.apply(data, flag, time, a1, a2, freq, [], angles=angles,
+                      parang_flags="casa")  # fmt: skip

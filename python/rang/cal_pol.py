@@ -23,7 +23,9 @@ type 7, always corrupts the model, first):
 `parallactic_angles(...)` gives per row the angle `a = q + RECEPTOR_ANGLE`
 of both antennas in the chosen frame, `rotate(...)` applies P in the Rust
 kernel (`core/src/cal/parang.rs`), and `apply(...)` corrects or corrupts
-by tables (`rang.cal_apply`) and P in CASA's order.
+by tables (`rang.cal_apply`) and P in CASA's order, with P's flags
+`spread_flags` (CASA's general-Jones rule: any flagged correlation of a cell
+flags all four; task df-flag-rule, research/p-flag-spread.md).
 
 **The parallactic-angle frame (provisional, owner decision; A1 section 7.2):**
 `frame='casa'` (the default) is the hour-angle formula on astropy's apparent
@@ -188,6 +190,26 @@ def rotate(data, angle_p, angle_q, inverse=False):
     return out
 
 
+P_FLAG_RULES = ("spread", "none")
+
+
+def spread_flags(flag, mode="spread"):
+    """P's flags (task df-flag-rule, research/p-flag-spread.md). For linear
+    feeds CASA's `PJones` is a general Jones matrix (`StandardVisCal.cc`,
+    `syncMeta2`), applied after B, K, G, J, D, X and C, and the general
+    `Jones::flagRight` then `flagLeft` (`Jones.cc`) flag every correlation
+    of a cell when any one of them is flagged: so an XY flagged by a bad
+    leakage flags XX and YY too. That is also what the values need: P
+    rotates XX out of all four correlations. `mode='spread'` copies that
+    rule on `flag` `(..., 4)`; `none` returns it unchanged."""
+    if mode not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {mode!r}: use one of {P_FLAG_RULES}")
+    flag = np.asarray(flag, bool)
+    if mode == "none":
+        return flag
+    return np.broadcast_to(flag.any(axis=-1, keepdims=True), flag.shape).copy()
+
+
 def apply(
     data,
     flag,
@@ -203,10 +225,18 @@ def apply(
     field_id=0,
     nant=None,
     table_fields=None,
+    parang_flags="spread",
 ):
     """Correct (or corrupt) by `tables` and, when `angles` (`(a_p, a_q)` per
     row) are given, by P in CASA's order: P is applied last when correcting
-    and first when corrupting, and never flags."""
+    and first when corrupting. P's flags follow `parang_flags`
+    (`spread_flags`): `spread` (CASA's rule, the default) flags all four
+    correlations of a cell with any correlation flagged after the tables,
+    `none` leaves the flags as the tables set them. Flags are computed in
+    correct order for both directions, so `corrupt` flags the cells
+    `correct` does."""
+    if parang_flags not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {parang_flags!r}: use one of {P_FLAG_RULES}")
     tables = list(tables)
     data = np.asarray(data)
     flag = np.broadcast_to(np.asarray(flag, bool), data.shape)
@@ -229,6 +259,8 @@ def apply(
         )
     if direction == "correct" and angles is not None:
         data = rotate(data, *angles, inverse=True)
+    if angles is not None:
+        flag = spread_flags(flag, parang_flags)
     return np.asarray(data, np.complex64), np.asarray(flag, bool)
 
 
@@ -1294,6 +1326,7 @@ def clip_df(table, limit=0.6):
 __all__ = [
     "FRAMES",
     "KCROSS_ESTIMATORS",
+    "P_FLAG_RULES",
     "DfSolution",
     "KcrossSolution",
     "Loaded",
@@ -1313,6 +1346,7 @@ __all__ = [
     "receptor_angles",
     "rotate",
     "row_angles",
+    "spread_flags",
     "unpolarised_gauge",
     "xf",
     "xf_solve",

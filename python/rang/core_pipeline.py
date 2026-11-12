@@ -1922,6 +1922,7 @@ def stage_apply(ctx):
             "parang": True,
             "frame": config["calibrate"]["polcal"]["frame"],
             "receptor_angle": None if angle is None else float(np.deg2rad(angle)),
+            "parang_flags": cfg["parang_flags"],
         }
     with writeback_session(ctx, "apply") as (w, written):
         for i, (fields, names, target) in enumerate(targets):
@@ -1969,6 +1970,7 @@ def stage_apply(ctx):
         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; "
         "of the CASA tables only G, B and T do (rang.applycal)",
         "parang": bool(cfg["parang"]),
+        "parang_flags": cfg["parang_flags"] if cfg["parang"] else None,
         "restored_before": restored,
         "applied": applied,
         "warnings": warnings,

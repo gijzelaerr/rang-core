@@ -304,6 +304,7 @@ def applycal(
     parang=False,
     frame="casa",
     receptor_angle=None,
+    parang_flags="spread",
 ):
     """Apply CASA calibration tables (paths or `CalTable`s) to `ms` as CASA
     `applycal` (module docstring). `session` lets a caller pass an open
@@ -313,12 +314,22 @@ def applycal(
     `rang.cal_pol.apply`, in `frame` (`rang.cal_pol.row_angles`, with
     `receptor_angle` replacing FEED's); the angles of each field are
     computed once over all of the field's rows, so they do not depend on
-    the chunking. Returns a summary."""
+    the chunking. `parang_flags` is P's flag rule
+    (`rang.cal_pol.spread_flags`): `spread`, CASA's, flags all four
+    correlations of a cell with any one flagged after the tables; `none`
+    keeps the tables' flags (rang before task df-flag-rule). Returns a
+    summary."""
     from pathlib import Path
 
     ms = Path(ms)
     if applymode not in MODES:
         raise ApplyError(f"applymode {applymode!r}: rang applies {list(MODES)}")
+    from . import cal_pol
+
+    if parang_flags not in cal_pol.P_FLAG_RULES:
+        raise ApplyError(
+            f"parang_flags {parang_flags!r}: use one of {list(cal_pol.P_FLAG_RULES)}"
+        )
     tables = [_load(t) for t in gaintable]
     if not tables and not parang:
         raise ApplyError("no gaintable given")
@@ -366,6 +377,7 @@ def applycal(
         "column": column,
         "weights_written": write_weights,
         "parang": bool(parang),
+        "parang_flags": parang_flags if parang else None,
         "rows": 0,
         "cells_flagged_before": 0,
         "cells_flagged_after": 0,
@@ -456,8 +468,6 @@ def applycal(
                 else:
                     got, gflag = data[idx], flag[idx]
                 if parang:
-                    from . import cal_pol
-
                     angles = cal_pol.table_angles(
                         angle_tables[int(fid)],
                         group["TIME"],
@@ -465,6 +475,7 @@ def applycal(
                         group["ANTENNA2"],
                     )
                     got = cal_pol.rotate(got, *angles, inverse=True)
+                    gflag = cal_pol.spread_flags(gflag, parang_flags)
                 out[idx] = got
                 new_flag[idx] = gflag
                 if write_weights:

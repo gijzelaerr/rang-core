@@ -296,6 +296,7 @@ apply:
   applymode: calflag  # as CASA applycal
   calwt: false  # scale the weights by the gains (CASA: G, T and B only; no effect on complex)
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
+  parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
 image:
   imager: gemclean  # the imager
