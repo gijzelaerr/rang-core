@@ -66,6 +66,7 @@ installation
 concepts/index
 cli
 tutorials/index
+limits
 api/index
 ```
 

@@ -9,6 +9,16 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New: a known-limits page (`docs/limits.md`, linked from the README): scope, flagging, calibration,
+  self-calibration, imaging and platform limits with the reports behind them; the E2 and E3 results
+  are added when they land (E5 final, `research/e5-final.md`).
+- Changed (finish-plan item 27, f11fdd1): an unset `calibrate.refant` (it was refused) means CARACal's
+  `auto` choice, or antenna 0 when no antenna qualifies; the default selfcal reference antenna is the
+  same choice (it was antenna 0), and `selfcal.refant: auto` runs; the `image.niter` default is
+  1,000,000 (it was 100,000).
+- Changed: Measurement Set reads take a channel slice in the reader (`core/src/ms.rs`), 2.1-2.2x
+  faster on the channel-chunked polarisation solves and bit-identical on 19 frozen comparisons
+  (`research/sliced-read.md`).
 - Changed (E5 pre-review "Later" findings, `research/e5-prereview.md` section 2.3): `image.fits_mask`
   and a selfcal FITS `cleanmask_method` are read relative to the configuration file, as `flag.strategy`
   and `calibrate.model.lsm`; **deprecated:** a mask found only relative to the working directory is still
@@ -170,7 +180,7 @@ the release notes are the section of this file for that version.
   drops short baselines, new key `selfcal.refant`. `CORRECTED_1GC` is copied from `apply.column`
   after this run's apply. Solutions go to a QuartiCal gain store per round. New module
   `rang.cal_selfcal`; `rang.cal_gain`'s chunked solve takes channel chunks. `complex`
-  self-calibration terms and `refant: auto` in selfcal are refused.
+  self-calibration terms are refused (`refant: auto` in selfcal was refused too, until item 27).
 - New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
   KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
   its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),
