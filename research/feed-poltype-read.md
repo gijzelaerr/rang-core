@@ -65,7 +65,8 @@ int array.
    707 characters across buckets, and scalars; and an IncrementalStMan
    string array. `oracle.json` holds each cell as `getcell` returns it.
    `tests/test_core_ms_strarray.py` compares every cell, whole columns and
-   out-of-order row lists, and the refusals. RESULT_FIXTURE
+   out-of-order row lists, and the refusals. **Result:** 21 passed, 4 skipped (with `test_core_ms.py` and
+   `test_cal_pol.py`; the skips are the archive oracle's absent MSs).
 2. **Real MSs** (`tools/oracles/strarray/compare.py`: `dump` in WSL with
    python-casacore 3.8.1, `check` natively): every string column, scalar or
    array, of the main table and every subtable of 13 MSs: C7a M1-casa and
@@ -74,7 +75,12 @@ int array.
    E4's `casa.ms` and rang-written `core.ms`; E2's `e2b.ms`, `pilot.ms`
    (converted by rang) and `a1-small.ms` (dry run `e2-20261111-12`); and the
    C2d `slice2.ms`. That is 170 tables and 3,344 cells, at most 2,000 rows
-   per table. RESULT_REAL
+   per table. **Result:** 3,336 cells compared, 0 differences: every
+   FEED `POLARIZATION_TYPE` is `X, Y`. POINTING `NAME` is an
+   IncrementalStMan scalar string in all 13 MSs (one with rows, 8 cells);
+   the reader refuses it with its "is not supported" error, as before and
+   out of this task's scope. Output:
+   [results/feed-poltype-read/compare-check.txt](results/feed-poltype-read/compare-check.txt).
 
 ## Using POLARIZATION_TYPE
 
@@ -87,11 +93,24 @@ casacore, so nothing that runs now changes. The pipeline's own circular-feed
 refusals go by `POLARIZATION.CORR_TYPE` (`core_pipeline`, `applycal`,
 `core_imaging`, the campaign modules); they are left as they are.
 
+## Full check
+
+`python -m rang.check` (after `maturin develop --release`, heavy lock shared
+4 slots, `RANG_ARCHIVE_OUTPUTS` the WSL outputs) on `7314632`: PASS, 268 + 274
+core tests, 1,252 passed and 82 skipped in pytest, gain-hash gate PASS. Two
+earlier runs failed for reasons since fixed or not reproduced: the first on
+SPDX lines missing from the new tools and a ruff 0.17.4 rule (the venv now
+has 0.17.3, as the main checkout), with the gate unable to find the archive
+(a mangled UNC path); the second only in `core-test`, a compile failure of
+the `clean_major_cycles` example (E0514, a crate built by another rustc in
+the shared target directory), which did not recur in the third run.
+
 ## For the coordinator
 
 - Item 14's reader bug (finish-plan section 7) and the matching C7a item are
   fixed; the C7a harness's `casa-feed` workaround can read FEED with
   `rang.core_ms` again if wanted (not changed here).
+- IncrementalStMan string columns (POINTING `NAME` in every MS checked)
+  are still refused; nothing in rang reads them now.
 - Open, not done: whether the CORR_TYPE-based linear checks should also
-  check FEED (two sources of the same fact); and IncrementalStMan string
-  arrays, which are still refused (none in the 13 MSs).
+  check FEED (two sources of the same fact).
