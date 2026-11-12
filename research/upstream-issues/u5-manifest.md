@@ -1,10 +1,10 @@
 # U5 posting manifest (2026-11-12)
 
-**Rows 2-23 filed 2026-11-12** by the coordinator on the owner's word ("Post all of them"); links in the last column. Rows 1, 24 and 25 are for the owner to send. U5 itself posted nothing. Each text file has its
+**Rows 2-23 filed 2026-11-12** by the coordinator on the owner's word ("Post all of them"); links in the last column. Row 1 is for the owner to send. **Rows 24 and 25 (CASA helpdesk tickets): not sent, owner decision 2026-11-12: no contributions to CASA** ([v8-open-casa.md](../v8-open-casa.md) section 5); their texts stay as a record of CASA's defects. U5 itself posted nothing. Each text file has its
 `Target`, `Reproduced on` and `Duplicates checked` lines above a `Title:` and a `---`. Post the part
 below `---` as the body. Rows 2-23 are issues (none is an MR or PR: on git.astron.nl the account is
-external and cannot fork, so the schaapcommon patch is inline); row 1 is an email note and rows 24-25 are
-helpdesk tickets, all three for the owner to send.
+external and cannot fork, so the schaapcommon patch is inline); row 1 is an email note for the owner to send, and rows 24-25 are
+helpdesk tickets that will not be sent (owner decision 2026-11-12).
 
 | # | Host | Project | Title | Text file | Kind | Link |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -31,8 +31,8 @@ helpdesk tickets, all three for the owner to send.
 | 21 | github.com | CARTAvis/carta-python | Chrome(driver_path=...) fails on Selenium >= 4.10: executable_path is no longer accepted | [carta-python-chrome-driver-path.md](carta-python-chrome-driver-path.md) | issue (repo is busy: post soon) | [CARTAvis/carta-python#192](https://github.com/CARTAvis/carta-python/issues/192) |
 | 22 | github.com | CARTAvis/carta-python | Session.close() is repeated by __del__, so an explicitly closed headless session errors at interpreter exit | [carta-python-session-del-double-close.md](carta-python-session-del-double-close.md) | issue | [CARTAvis/carta-python#193](https://github.com/CARTAvis/carta-python/issues/193) |
 | 23 | github.com | casangi/casadocs | Flux calibrator models: Stevens-Reynolds 2016 break is 11.1496 GHz, not 11 GHz; Baars entry omits its 1934-638 polynomial | [casadocs-flux-standards-1934.md](casadocs-flux-standards-1934.md) | issue (docs) | [casangi/casadocs#205](https://github.com/casangi/casadocs/issues/205) |
-| 24 | email / helpdesk | NRAO CASA (help.nrao.edu, login; or casa-feedback@nrao.edu) | setjy/bandpass report failures only as SEVERE log lines and return normally; gaincal K ignores minblperant; solver messages go to stdout only | [casa-silent-failures.md](casa-silent-failures.md) | helpdesk ticket; owner sends | for the owner to send |
-| 25 | email / helpdesk | NRAO CASA | casatools 6.7.6.14 manylinux_2_34 wheel does not import on Ubuntu 24.04/26.04 (bundled libssl without its libcrypto); wheel licence metadata contradicts itself | [casa-wheel-packaging.md](casa-wheel-packaging.md) | helpdesk ticket; owner sends | for the owner to send |
+| 24 | email / helpdesk | NRAO CASA (help.nrao.edu, login; or casa-feedback@nrao.edu) | setjy/bandpass report failures only as SEVERE log lines and return normally; gaincal K ignores minblperant; solver messages go to stdout only | [casa-silent-failures.md](casa-silent-failures.md) | helpdesk ticket (not sent) | **not sent, owner decision 2026-11-12: no contributions to CASA** ([v8-open-casa.md](../v8-open-casa.md)); kept as the record of CASA defects rang tests against |
+| 25 | email / helpdesk | NRAO CASA | casatools 6.7.6.14 manylinux_2_34 wheel does not import on Ubuntu 24.04/26.04 (bundled libssl without its libcrypto); wheel licence metadata contradicts itself | [casa-wheel-packaging.md](casa-wheel-packaging.md) | helpdesk ticket (not sent) | **not sent, owner decision 2026-11-12: no contributions to CASA** ([v8-open-casa.md](../v8-open-casa.md)); kept as the record of CASA defects rang tests against |
 
 Before posting:
 

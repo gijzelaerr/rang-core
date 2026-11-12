@@ -1,5 +1,5 @@
 Target: NRAO helpdesk https://help.nrao.edu (CASA department; my.nrao.edu login) or casa-feedback@nrao.edu. TEXT-ONLY: CASA has no public issue tracker (casa6 source is read-only on open-bitbucket.nrao.edu).
-Status: ready to post
+Status: not sent, owner decision 2026-11-12: no contributions to CASA (research/v8-open-casa.md section 5). Kept as the record of CASA's defects; rang's tests check it does not copy them.
 Reproduced on: casatools 6.7.6.14 / casatasks 6.7.6.14 (latest on PyPI, 2026-08-07), cp312, run 2026-11-12: manylinux_2_34 wheel on Ubuntu 24.04.5 (OpenSSL 3.0.13, container) and Ubuntu 26.04 (OpenSSL 3.5.5); manylinux_2_28 wheel on Ubuntu 26.04. Metadata read from the installed wheels and in source at casa6 master 90e9d3dae955.
 Duplicates checked: CASA Docs Known Issues and 6.7.6 platform table (casadocs.readthedocs.io, stable); GitHub-wide issue search "casatools libssl", "casatools OPENSSL_3.0.1", "manylinux_2_34 casatools", "casatools openssl": no matches. NRAO JIRA is not public, so a duplicate there cannot be ruled out.
 
