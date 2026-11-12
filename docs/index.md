@@ -24,7 +24,8 @@ gain TV stopped at its go/no-go test on one observation, before any training
 field model (an external
 catalogue) is the first condition for reopening beam and pointing on real data.
 The reference imager GeMClean beats WSClean's time on 16 threads, not always on one, at
-3–5 times the memory ({gh}`research/gemclean-speed.md`).
+2.0–2.4 times the memory on the real pilot with its current defaults
+({gh}`research/gemclean-speed.md`, {gh}`research/g7-defaults.md`).
 ```
 
 What it is:

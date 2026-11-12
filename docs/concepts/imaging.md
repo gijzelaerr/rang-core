@@ -56,8 +56,9 @@ masks, Stokes IQUV), and `rang-core image` runs it from a configuration
 ({gh}`research/gemclean.md`, {gh}`research/g8-wheel.md`). Each minor cycle
 ends by a measured stop rule with a floor, `-stale-floor 0.01` by default
 ({gh}`research/stale-floor.md`). Against WSClean built for the same CPU it is
-faster on 16 threads, not always on one, at 3-5 times the memory
-({gh}`research/gemclean-speed.md`). The CLEAN study
+faster on 16 threads, not always on one; with the current defaults it uses
+2.0-2.4 times WSClean's memory on the real pilot at 512 channels
+({gh}`research/gemclean-speed.md`, {gh}`research/g7-defaults.md`). The CLEAN study
 ({doc}`../research/index`, {gh}`research/clean-theory.md`) implements Högbom
 and Clark iterations in `core/src/clean.rs` to measure what can and cannot
 be proven about them. Notebook I7 ({doc}`../tutorials/notebooks/i7-imaging-and-deconvolution`)
