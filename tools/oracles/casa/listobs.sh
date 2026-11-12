@@ -3,7 +3,7 @@
 # CASA listobs on the V8a MSs, read-only (research/v8a-listobs.md).
 # Usage: bash tools/oracles/casa/listobs.sh OUT_DIR [image]
 # MSs: the LUNO 1934-638 slice (outputs/luno-solve-20261029-02/work.ms) and
-# the five public fixture MSs (outer_scans.zip, extracted by rang.notebook);
+# the five public fixture MSs (outer_scans.zip as extracted by B1);
 # A1's simulated MS as C2a's CASA run left it (16 antennas, 4 fields, 20+
 # scans); the ESO137 pilot raw MS (61 antennas, metadata only).
 set -euo pipefail
@@ -13,7 +13,7 @@ image=${2:-rang-o-casa:6.7.6.14}
 if [ -e "$run" ]; then echo "$run exists; choose a fresh run directory" >&2; exit 1; fi
 mkdir -p "$run"
 luno=$(realpath "$HOME/Github/rang/outputs/luno-solve-20261029-02/work.ms")
-fixture=$(realpath "$HOME/.cache/rang-notebook/fixture-scan9/outer_scans")
+fixture=$(realpath "${RANG_FIXTURE_DIR:-$HOME/Github/rang/outputs/b1-20261030-03-fixture/outer_scans}")
 args=(luno=/ms/luno.ms)
 a1=/mnt/d/rang/outputs/c2a-20261106-03/casa/a1.ms
 eso=/mnt/d/rang/outputs/20261103-gemclean-heldout/real/raw.ms

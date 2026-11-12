@@ -28,6 +28,7 @@ class _Diff:
     def __init__(self):
         self.differences = []
         self.compared = 0
+        self.worst = {}  # value kind -> largest |rang - casa| seen
 
     def exact(self, where, rang, casa):
         self.compared += 1
@@ -42,6 +43,8 @@ class _Diff:
         d = float(rang) - float(casa)
         if wrap:
             d = (d + wrap / 2) % wrap - wrap / 2
+        kind = re.sub(r"\d+", "N", where)
+        self.worst[kind] = max(self.worst.get(kind, 0.0), abs(d))
         if not abs(d) <= tol:
             self.differences.append(
                 {"where": where, "rang": rang, "casa": casa, "diff": d, "tol": tol}
@@ -122,7 +125,7 @@ def compare(rang, casa, msmd=None, text=None):
         d.differences.append({"where": "msmd", "casa": msmd["failed"]})
     if text is not None:
         _text(d, rang, parse_text(text))
-    return {"differences": d.differences, "compared": d.compared}
+    return {"differences": d.differences, "compared": d.compared, "worst": d.worst}
 
 
 def _spws(d, rang, casa):
@@ -197,13 +200,16 @@ def _antennas(d, rang, casa):
 # --- CASA's listfile ------------------------------------------------------------
 
 
-def _section(lines, start, stop=None):
-    """Lines after the first line matching `start` up to a blank line."""
+def _section(lines, start):
+    """Lines after the first line matching `start`, up to a blank line or
+    the next heading."""
     for i, line in enumerate(lines):
         if re.match(start, line.strip()):
             out = []
             for nxt in lines[i + 1 :]:
-                if not nxt.strip() or (stop and re.match(stop, nxt.strip())):
+                # A section ends at a blank line or the next heading (CASA
+                # starts headings in column 0 and rows with spaces).
+                if not nxt.strip() or not nxt[:1].isspace():
                     break
                 out.append(nxt)
             return out
@@ -223,14 +229,15 @@ def parse_text(text):
             out["telescope"] = m.group(1).strip()
     fields = _section(lines, r"Fields:")
     if fields is not None:
+        has_source = bool(fields) and "SrcId" in fields[0]
         rows = {}
         for line in fields[1:]:
             parts = line.split()
             if parts and parts[0].isdigit():
-                rows[int(parts[0])] = {
-                    "source_id": int(parts[-2]),
-                    "nrows": int(parts[-1]),
-                }
+                row = {"nrows": int(parts[-1])}
+                if has_source:
+                    row["source_id"] = int(parts[-2])
+                rows[int(parts[0])] = row
         out["fields"] = rows
     spws = _section(lines, r"Spectral Windows:")
     if spws is not None:
@@ -267,7 +274,8 @@ def _text(d, rang, parsed):
         for f, c in parsed["fields"].items():
             r = extra.get(f, {})
             d.exact(f"text field {f} nrows", r.get("nrows"), c["nrows"])
-            d.exact(f"text field {f} source id", r.get("source_id"), c["source_id"])
+            if "source_id" in c:
+                d.exact(f"text field {f} source id", r.get("source_id"), c["source_id"])
     if "spws" in parsed:
         spws = {s["id"]: s for s in rang["spectral_windows"]}
         for s, c in parsed["spws"].items():

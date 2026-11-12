@@ -152,6 +152,12 @@ def _direction(m0, m1, refer):
     }
 
 
+def _wrap(angle):
+    """An angle in (-pi, pi]."""
+    out = math.remainder(float(angle), 2 * math.pi)
+    return math.pi if out == -math.pi else out
+
+
 def _runs(keys):
     """Start indices of runs of equal consecutive rows of `keys` (n, k)."""
     if len(keys) == 0:
@@ -191,14 +197,18 @@ def summary(ms):
         record["BeginTime"] = begin_s / DAY
         record["EndTime"] = end_s / DAY
         record["IntegrationTime"] = end_s - begin_s
-    record["nfields"] = int(fields["_nrows"])
+    # CASA lists only the fields that have rows in MAIN.
+    used = sorted(int(f) for f in np.unique(field) if 0 <= f < int(fields["_nrows"]))
+    record["nfields"] = len(used)
     record["numrecords"] = nrows
+    record["timeref"] = "UTC"
 
-    for f in range(int(fields["_nrows"])):
+    for f in used:
         pd = np.asarray(fields["PHASE_DIR"][f], np.float64).reshape(-1, 2)[0]
         record[f"field_{f}"] = {
             "code": str(fields["CODE"][f]),
-            "direction": _direction(pd[0], pd[1], field_ref),
+            # RA in (-pi, pi], as CASA returns it.
+            "direction": _direction(_wrap(pd[0]), pd[1], field_ref),
             "name": field_names[f],
         }
 
@@ -232,7 +242,7 @@ def summary(ms):
     record.update(per_scan)
 
     record["observation"] = _observation(ms)
-    record["fields_extra"] = _fields_extra(fields, field, nrows)
+    record["fields_extra"] = _fields_extra(fields, field, used)
     record["spectral_windows"] = _spectral_windows(ms, spw_of_dd, pol_of_dd, ddid)
     record["sources"] = _sources(ms)
     record["antennas"] = _antennas(ms)
@@ -256,7 +266,7 @@ def _observation(ms):
     return out
 
 
-def _fields_extra(fields, field, nrows):
+def _fields_extra(fields, field, used):
     counts = np.bincount(field[field >= 0], minlength=int(fields["_nrows"]))
     source = fields.get("SOURCE_ID")
     return [
@@ -265,7 +275,7 @@ def _fields_extra(fields, field, nrows):
             "nrows": int(counts[f]) if f < len(counts) else 0,
             "source_id": int(source[f]) if source is not None else -1,
         }
-        for f in range(int(fields["_nrows"]))
+        for f in used
     ]
 
 
@@ -491,7 +501,7 @@ def text(record, ms=""):
         ),
     ]
     extra = {e["id"]: e for e in record["fields_extra"]}
-    for f in range(record["nfields"]):
+    for f in sorted(extra):
         fe = record[f"field_{f}"]
         d = fe["direction"]
         lines.append(
@@ -534,7 +544,7 @@ def text(record, ms=""):
         "",
         f"Antennas: {len(ants)}:",
         (
-            "  ID   Name  Station   Diam.    Long.         Lat.          Height(m)"
+            "  ID   Name  Station   Diam.    Long.(WGS84)  Lat.(WGS84)   Height(m)"
             "   ITRF Geocentric coordinates (m)"
         ),
     ]
