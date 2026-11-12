@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-__all__ = ["listobs", "Unsupported"]
+__all__ = ["Unsupported", "listobs"]
 
 
 class Unsupported(ValueError):
@@ -60,21 +60,21 @@ def listobs(
     `verbose=False` and `listunfl=True` are refused; `selectdata` and
     `cachesize` have no effect.
     """
-    given = dict(
-        spw=spw,
-        field=field,
-        antenna=antenna,
-        uvrange=uvrange,
-        timerange=timerange,
-        correlation=correlation,
-        scan=scan,
-        intent=intent,
-        feed=feed,
-        array=array,
-        observation=observation,
-        verbose=verbose,
-        listunfl=listunfl,
-    )
+    given = {
+        "spw": spw,
+        "field": field,
+        "antenna": antenna,
+        "uvrange": uvrange,
+        "timerange": timerange,
+        "correlation": correlation,
+        "scan": scan,
+        "intent": intent,
+        "feed": feed,
+        "array": array,
+        "observation": observation,
+        "verbose": verbose,
+        "listunfl": listunfl,
+    }
     defaults = {k: "" for k in given} | {"verbose": True, "listunfl": False}
     _refuse("listobs", given, defaults)
     from .. import listobs as _listobs

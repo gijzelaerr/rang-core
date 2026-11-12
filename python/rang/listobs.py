@@ -16,6 +16,7 @@ CASA's behaviour as documented and probed, not read from CASA's source
 from __future__ import annotations
 
 import datetime as _dt
+import itertools
 import math
 from pathlib import Path
 
@@ -208,7 +209,7 @@ def summary(ms):
     starts = _runs(keys)
     bounds = np.append(starts, len(order))
     per_scan = {}
-    for lo, hi in zip(bounds[:-1], bounds[1:]):
+    for lo, hi in itertools.pairwise(bounds):
         rows = order[lo:hi]
         s = int(scan[rows[0]])
         f = int(field[rows[0]])
@@ -354,7 +355,9 @@ def _antennas(ms):
             "id": a,
             "name": str(an["NAME"][a]),
             "station": str(an["STATION"][a]) if "STATION" in an else "",
-            "diameter_m": float(an["DISH_DIAMETER"][a]) if "DISH_DIAMETER" in an else 0.0,
+            "diameter_m": float(an["DISH_DIAMETER"][a])
+            if "DISH_DIAMETER" in an
+            else 0.0,
             "itrf_m": xyz[a].tolist(),
             "longitude_rad": float(lon[a]),
             "latitude_rad": float(lat[a]),
@@ -374,7 +377,20 @@ def _states(ms):
 # --- text ---------------------------------------------------------------------
 
 MJD_EPOCH = _dt.datetime(1858, 11, 17, tzinfo=_dt.timezone.utc)
-MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
+MONTHS = (
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+)
 
 
 def format_time(mjd_days, date=True):
@@ -440,8 +456,10 @@ def text(record, ms=""):
     if "BeginTime" in record:
         lines += [
             f"   Total elapsed time = {record['IntegrationTime']:.5g} seconds",
-            f"   Observed from   {format_time(record['BeginTime'])}"
-            f"   to   {format_time(record['EndTime'])} (UTC)",
+            (
+                f"   Observed from   {format_time(record['BeginTime'])}"
+                f"   to   {format_time(record['EndTime'])} (UTC)"
+            ),
         ]
     lines += ["", "Scans (sub-entries in time order):"]
     lines.append(
@@ -467,8 +485,10 @@ def text(record, ms=""):
     lines += [
         "",
         f"Fields: {record['nfields']}",
-        "  ID   Code Name                RA               Decl           Epoch"
-        "   SrcId      nRows",
+        (
+            "  ID   Code Name                RA               Decl           Epoch"
+            "   SrcId      nRows"
+        ),
     ]
     extra = {e["id"]: e for e in record["fields_extra"]}
     for f in range(record["nfields"]):
@@ -483,8 +503,10 @@ def text(record, ms=""):
     lines += [
         "",
         f"Spectral Windows:  ({len(spws)} unique spectral windows)",
-        "  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz)"
-        " CtrFreq(MHz)  Corrs",
+        (
+            "  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz)"
+            " CtrFreq(MHz)  Corrs"
+        ),
     ]
     for s in spws:
         ch0 = s["chan_freq_hz"][0] / 1e6 if s["chan_freq_hz"] else math.nan
@@ -511,8 +533,10 @@ def text(record, ms=""):
     lines += [
         "",
         f"Antennas: {len(ants)}:",
-        "  ID   Name  Station   Diam.    Long.         Lat.          Height(m)"
-        "   ITRF Geocentric coordinates (m)",
+        (
+            "  ID   Name  Station   Diam.    Long.         Lat.          Height(m)"
+            "   ITRF Geocentric coordinates (m)"
+        ),
     ]
     for a in ants:
         x, y, z = a["itrf_m"]

@@ -73,7 +73,11 @@ def msmd_record(ms):
                     "latitude_rad": pos["m1"]["value"],
                     "height_m": pos["m2"]["value"],
                     "refer": pos["refer"],
-                    "itrf_angles": [itrf["m0"]["value"], itrf["m1"]["value"], itrf["m2"]["value"]],
+                    "itrf_angles": [
+                        itrf["m0"]["value"],
+                        itrf["m1"]["value"],
+                        itrf["m2"]["value"],
+                    ],
                     "itrf_refer": itrf["refer"],
                     "offset_m": [
                         off["longitude offset"]["value"],
@@ -85,8 +89,10 @@ def msmd_record(ms):
         observatory = md.observatorynames()[0]
         try:
             obs = md.observatoryposition(0)
-            obs = {k: obs[k]["value"] for k in ("m0", "m1", "m2")} | {"refer": obs["refer"]}
-        except Exception as exc:
+            obs = {k: obs[k]["value"] for k in ("m0", "m1", "m2")} | {
+                "refer": obs["refer"]
+            }
+        except Exception as exc:  # noqa: BLE001 (recorded, never fatal)
             obs = f"failed: {type(exc).__name__}: {exc}"
         return {
             "spws": spws,
@@ -96,7 +102,7 @@ def msmd_record(ms):
             "fieldnames": md.fieldnames(),
             "scannumbers": md.scannumbers(),
         }
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 (recorded, never fatal)
         return {"failed": f"{type(exc).__name__}: {exc}"}
     finally:
         md.done()
@@ -111,7 +117,7 @@ def main(argv):
 
     try:
         version = casatasks.version_string()
-    except Exception as exc:  # recorded, never fatal
+    except Exception as exc:  # noqa: BLE001 (recorded, never fatal)
         version = f"unknown ({type(exc).__name__})"
     meta = {"casatasks": version, "runs": []}
     for spec in argv[1:]:
