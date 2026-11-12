@@ -227,3 +227,11 @@ with the heavy lock held exclusively. At every timed arm's start
   chunked by channel here, and it was not slow in these arms.
 
 **Status: measured.** Criteria 1 to 5 pass. The change is kept.
+
+Full local check (`python -m rang.check` after `maturin develop --release`,
+heavy lock shared, 8 slots), on `d0e29d1` after merging origin/main: all
+gates pass, including the gain-hash gate, except one test:
+`test_the_lock_keeps_a_second_process_out`. It fails the same way on
+`bd15126`. It runs here only because this worktree holds its fixture MS
+(`outputs/tv-caracal-wsl-20261029-01/original.ms`); without it the test
+skips. Log: `D:\rang\outputs\sliced-read-20261112-check4.log`.
