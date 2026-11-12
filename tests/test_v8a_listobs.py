@@ -166,3 +166,42 @@ def test_reads_no_visibility_column(ms, monkeypatch):
     listobs.summary(ms)
     main = {name for table, name in seen if table == ms.name}
     assert main == set(listobs.MAIN_COLUMNS)
+
+
+# --- rang against CASA's archived output on the public fixture ----------------
+
+ARCHIVE = ROOT / "research/results/v8a-listobs-casa-fixture.json"
+
+
+@pytest.fixture(scope="module")
+def fixture_mss(tmp_path_factory):
+    import zipfile
+
+    from rang.notebook import data as fixture_data
+
+    source = fixture_data.find_fixture()
+    if source is None:
+        pytest.skip("fixture MS not present")
+    if source.is_dir():
+        return {source.name: source}
+    if fixture_data._sha256(source) != fixture_data.FIXTURE_SHA256:
+        pytest.fail(f"{source} is not the pinned public fixture")
+    dest = tmp_path_factory.mktemp("fixture")
+    with zipfile.ZipFile(source) as zipped:
+        for info in fixture_data._safe_members(zipped, "outer_scans/"):
+            zipped.extract(info, dest)
+    return {p.name: p for p in sorted((dest / "outer_scans").glob("*.ms"))}
+
+
+@pytest.mark.parametrize("scan", [1, 4, 5, 8, 9])
+def test_fixture_matches_casa_archive(fixture_mss, scan):
+    from rang.oracles import casa_listobs
+
+    name = f"1672727931_sdp_l0_scan_{scan}.ms"
+    if name not in fixture_mss:
+        pytest.skip(f"fixture MS not present: {name}")
+    run = json.loads(ARCHIVE.read_text(encoding="utf-8"))["runs"][f"fixture-scan{scan}"]
+    result = casa_listobs.compare(
+        listobs.summary(fixture_mss[name]), run["record"], run["msmd"], run["text"]
+    )
+    assert result["differences"] == [] and result["compared"] > 50

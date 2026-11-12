@@ -10,6 +10,7 @@ a value present on one side only is a difference.
 
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 
@@ -128,6 +129,23 @@ def compare(rang, casa, msmd=None, text=None):
     return {"differences": d.differences, "compared": d.compared, "worst": d.worst}
 
 
+def channels_sha256(values):
+    """SHA-256 of channel values as little-endian float64 (archives)."""
+    return hashlib.sha256(np.asarray(values, "<f8").tobytes()).hexdigest()
+
+
+def _channels(d, w, rf, rw, c):
+    cf, cw = np.asarray(c["chanfreqs"], float), np.asarray(c["chanwidths"], float)
+    d.exact(f"{w}.chan count", (rf.size, rw.size), (cf.size, cw.size))
+    if rf.size == cf.size and rf.size:
+        diff = float(np.max(np.abs(rf - cf)))
+        d.near(f"{w}.chan_freq max diff", diff, 0.0, FREQ_HZ)
+        d.near(f"{w}.chan_freq[0]", rf[0], cf[0], FREQ_HZ)
+    if rw.size == cw.size and rw.size:
+        diff = float(np.max(np.abs(rw - cw)))
+        d.near(f"{w}.chan_width max diff", diff, 0.0, FREQ_HZ)
+
+
 def _spws(d, rang, casa):
     d.exact("spw count", len(rang), len(casa))
     for s, (r, c) in enumerate(zip(rang, casa, strict=False)):
@@ -136,18 +154,13 @@ def _spws(d, rang, casa):
         d.exact(f"{w}.nchan", r["nchan"], int(c["nchan"]))
         corr = [STOKES.get(int(x), str(x)) for x in np.ravel(c["corrtypes"])]
         d.exact(f"{w}.corr_types", r["corr_types"], corr)
-        rf, cf = np.asarray(r["chan_freq_hz"]), np.asarray(c["chanfreqs"], float)
-        rw, cw = np.asarray(r["chan_width_hz"]), np.asarray(c["chanwidths"], float)
-        d.exact(f"{w}.chan count", (rf.size, rw.size), (cf.size, cw.size))
-        if rf.size == cf.size and rf.size:
-            d.near(
-                f"{w}.chan_freq max diff", float(np.max(np.abs(rf - cf))), 0.0, FREQ_HZ
-            )
-            d.near(f"{w}.chan_freq[0]", rf[0], cf[0], FREQ_HZ)
-        if rw.size == cw.size and rw.size:
-            d.near(
-                f"{w}.chan_width max diff", float(np.max(np.abs(rw - cw))), 0.0, FREQ_HZ
-            )
+        rf, rw = np.asarray(r["chan_freq_hz"]), np.asarray(r["chan_width_hz"])
+        if "chanfreqs" in c:
+            _channels(d, w, rf, rw, c)
+        else:  # an archive: the channels as SHA-256 only, so exact
+            for key, values in (("chanfreqs", rf), ("chanwidths", rw)):
+                got = channels_sha256(values)
+                d.exact(f"{w}.{key} sha256", got, c[f"{key}_sha256"])
         d.near(
             f"{w}.total_bandwidth",
             r["total_bandwidth_hz"],
