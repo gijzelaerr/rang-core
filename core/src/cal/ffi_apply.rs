@@ -24,7 +24,9 @@ fn set_error(message: &str) {
 }
 
 /// The chunk: `data` interleaved complex64 and `flags` `(nrow, nchan, 4)`,
-/// `time`, `antenna1`, `antenna2` `(nrow,)`, `freq` `(nchan,)`.
+/// `time`, `antenna1`, `antenna2` `(nrow,)`, `freq` `(nband,)`: the
+/// window's frequencies, of which the data hold channels `first_chan..
+/// first_chan + nchan` (`nband` = `nchan`, `first_chan` 0 for every channel).
 #[repr(C)]
 pub struct ApplyChunkC {
     pub nrow: usize,
@@ -36,6 +38,8 @@ pub struct ApplyChunkC {
     pub antenna1: *const u32,
     pub antenna2: *const u32,
     pub freq: *const f64,
+    pub nband: usize,
+    pub first_chan: usize,
 }
 
 /// The packed terms (see the module documentation).
@@ -112,7 +116,8 @@ unsafe fn run(
             time: slice(chunk.time, chunk.nrow, "time")?,
             antenna1: slice(chunk.antenna1, chunk.nrow, "antenna1")?,
             antenna2: slice(chunk.antenna2, chunk.nrow, "antenna2")?,
-            freq: slice(chunk.freq, chunk.nchan, "freq")?,
+            freq: slice(chunk.freq, chunk.nband, "freq")?,
+            first_chan: chunk.first_chan,
         };
         let kind = slice(terms.kind, nt, "kind")?;
         let ti = slice(terms.time_interp, nt, "time_interp")?;

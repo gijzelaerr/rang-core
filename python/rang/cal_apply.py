@@ -175,12 +175,16 @@ def apply(
     threads=0,
     nant=None,
     table_fields=None,
+    channels=None,
 ):
     """Correct (or corrupt) `data` (row, chan, 4) by `tables` (CalTable
     list) in the Rust kernel; returns (complex64 visibilities, bool flags).
     The flags are `flag` OR the tables' flags. `threads` 0 uses the global
     rayon pool. `table_fields` (one per table: a table FIELD_ID or
-    `POOLED`) overrides `field_id`'s row choice (task C4b)."""
+    `POOLED`) overrides `field_id`'s row choice (task C4b). `channels` (a
+    slice of `frequencies`, the window's whole band): `data` holds only
+    those channels, corrected exactly as the same channels of the whole
+    band (research/sliced-read.md)."""
     if direction not in DIRECTIONS:
         raise ValueError(f"direction must be one of {sorted(DIRECTIONS)}")
     data = np.ascontiguousarray(data, np.complex64)
@@ -201,6 +205,13 @@ def apply(
         interp=interp,
         table_fields=table_fields,
     )
+    first = 0
+    if channels is not None:
+        first, stop, step = channels.indices(len(frequencies))
+        if step != 1 or stop - first != data.shape[1]:
+            raise ValueError(
+                "channels must be a unit-step slice of the data's channels"
+            )
     out = np.empty_like(data)
     out_flag = np.empty(data.shape, np.uint8)
     extension().cal_apply(
@@ -229,6 +240,7 @@ def apply(
         int(threads),
         out,
         out_flag,
+        int(first),
     )
     return out, out_flag.astype(bool)
 

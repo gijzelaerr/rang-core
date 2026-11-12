@@ -215,15 +215,43 @@ def _getter(source):
     return lambda name, start, n: source.getcol(name, int(start), int(n))
 
 
+def _rows_getter(source):
+    """`(name, rows, chans) -> array` of a `WriteBack` session or a core
+    reader (`core_ms`, `core_ms_write`), which read a list of rows and a
+    channel slice in one call; None for other readers."""
+    if hasattr(source, "write_flags"):  # core_writeback.WriteBack
+        return getattr(source, "read_rows", None)
+    get = getattr(source, "getcol_rows", None)
+    if get is None:
+        return None
+    return lambda name, rows, chans: get(name, rows, chans=chans)
+
+
 def read_rows(source, name, rows, chans=None, block_rows=None):
-    """Column `name` at `rows` (any order; duplicates not allowed), read in
-    runs of consecutive rows from a `WriteBack` session or a reader, in the
-    order of `rows`. `chans` (a slice) keeps only those channels; reads then
-    go in blocks of `block_rows` rows so only the kept channels are held."""
-    get = _getter(source)
+    """Column `name` at `rows` (any order; duplicates not allowed) from a
+    `WriteBack` session or a reader, in the order of `rows`. `chans` (a
+    slice) keeps only those channels. The core's readers read the rows in
+    one call per block of `block_rows` rows, only the channels kept
+    (research/sliced-read.md); other readers (python-casacore) read runs of
+    consecutive rows and cut the channels in NumPy."""
     rows = np.asarray(rows, np.int64)
-    out = None
+    if not len(rows):
+        raise ValueError("no rows")
     step = len(rows) if not block_rows else max(1, int(block_rows))
+    sliced = _rows_getter(source)
+    if sliced is not None:
+        if step >= len(rows):
+            return sliced(name, rows, chans)
+        out = None
+        for b in range(0, len(rows), step):
+            values = sliced(name, rows[b : b + step], chans)
+            if out is None:
+                out = np.empty((len(rows), *values.shape[1:]), values.dtype)
+            out[b : b + len(values)] = values
+            del values
+        return out
+    get = _getter(source)
+    out = None
     for b in range(0, len(rows), step):
         part = rows[b : b + step]
         order = np.argsort(part, kind="stable")
@@ -237,8 +265,6 @@ def read_rows(source, name, rows, chans=None, block_rows=None):
             out = np.empty((len(rows), *values.shape[1:]), values.dtype)
         out[b + order] = values
         del values
-    if out is None:
-        raise ValueError("no rows")
     return out
 
 

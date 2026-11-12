@@ -371,12 +371,19 @@ class WriteBack:
         self._require()
         return self.table.colnames()
 
-    def read(self, name, start, n):
+    def read(self, name, start, n, chans=None):
         """Rows `start` to `start + n - 1` of a column, read through the
         session's writer (opening the MS with another reader in this
-        process would drop the lock)."""
+        process would drop the lock); `chans` reads only those channels
+        (`core_ms.Table.getcol`)."""
         self._require()
-        return self.table.getcol(name, int(start), int(n))
+        return self.table.getcol(name, int(start), int(n), chans=chans)
+
+    def read_rows(self, name, rows, chans=None):
+        """The rows `rows` (any order) of a column in one read through the
+        session's writer; `chans` as `read`."""
+        self._require()
+        return self.table.getcol_rows(name, rows, chans=chans)
 
     # -- writes ----------------------------------------------------------------
     def _put(self, name, start, values):

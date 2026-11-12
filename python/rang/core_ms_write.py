@@ -433,15 +433,31 @@ class Table:
         else:
             self.putcol(columnname, np.asarray([value]), rownr, 1)
 
-    def getcol(self, columnname, startrow=0, nrow=None):
+    def getcol(self, columnname, startrow=0, nrow=None, chans=None):
         """Flush, then read with the core reader through the writer (an
         extra flush that python-casacore would not do). Opening the table
         with `core_ms` or python-casacore in this process instead would
         close a descriptor of `table.lock` and so drop this process's lock
-        (POSIX); the writer re-takes it before writing."""
+        (POSIX); the writer re-takes it before writing. `chans` as
+        `core_ms.Table.getcol`."""
         count = 0 if nrow is None else int(nrow)
+        cut = core_ms.reader_slice(chans)
+        if cut is False:
+            return self.getcol(columnname, startrow, nrow)[:, chans]
         raw, nrows, cell, dtype, nstrings = self._writer.read(
-            columnname, int(startrow), count
+            columnname, int(startrow), count, cut
+        )
+        return core_ms._decode(raw, nrows, cell, dtype, nstrings)
+
+    def getcol_rows(self, columnname, rows, chans=None):
+        """Flush, then read the rows `rows` (any order) in one call, as
+        `core_ms.Table.getcol_rows`."""
+        cut = core_ms.reader_slice(chans)
+        if cut is False:
+            return self.getcol_rows(columnname, rows)[:, chans]
+        rows = np.ascontiguousarray(rows, np.uint64)
+        raw, nrows, cell, dtype, nstrings = self._writer.read_rows(
+            columnname, rows, cut
         )
         return core_ms._decode(raw, nrows, cell, dtype, nstrings)
 

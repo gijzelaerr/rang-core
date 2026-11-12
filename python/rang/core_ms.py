@@ -78,15 +78,55 @@ class Table:
     def subtable(self, name):
         return Table(self.path / name)
 
-    def getcol(self, name, startrow=0, nrow=None):
-        """Rows `startrow` onwards (all, or `nrow` of them) of one column."""
+    def getcol(self, name, startrow=0, nrow=None, chans=None):
+        """Rows `startrow` onwards (all, or `nrow` of them) of one column.
+        `chans` (a slice of the first cell axis, the channels of a
+        visibility column) reads only those channels: the tiled managers
+        read only the tiles they intersect (research/sliced-read.md)."""
         if self._table is None:
             raise ValueError("table is closed")
         count = 0 if nrow is None else int(nrow)
         if nrow is not None and count <= 0:
             raise ValueError("nrow must be positive")
-        raw, nrows, cell, dtype, nstrings = self._table.read(name, int(startrow), count)
+        cut = reader_slice(chans)
+        if cut is False:
+            return self.getcol(name, startrow, nrow)[:, chans]
+        raw, nrows, cell, dtype, nstrings = self._table.read(
+            name, int(startrow), count, cut
+        )
         return _decode(raw, nrows, cell, dtype, nstrings)
+
+    def getcol_rows(self, name, rows, chans=None):
+        """The rows `rows` (any order) of one column, in that order, read in
+        one call through one tile cache; `chans` as `getcol`."""
+        if self._table is None:
+            raise ValueError("table is closed")
+        cut = reader_slice(chans)
+        if cut is False:
+            return self.getcol_rows(name, rows)[:, chans]
+        rows = np.ascontiguousarray(rows, np.uint64)
+        raw, nrows, cell, dtype, nstrings = self._table.read_rows(name, rows, cut)
+        return _decode(raw, nrows, cell, dtype, nstrings)
+
+
+def reader_slice(chans):
+    """`chans` (None or a slice of NumPy's first cell axis) as the reader's
+    cell slice (the last casacore axis: first pixel and length, -1 to the
+    end); None for whole cells, False when the reader cannot take it (a
+    step, a negative or empty bound: the caller cuts in NumPy)."""
+    if chans is None:
+        return None
+    if not isinstance(chans, slice) or chans.step not in (None, 1):
+        return False
+    start = 0 if chans.start is None else int(chans.start)
+    if start < 0:
+        return False
+    if chans.stop is None:
+        return [(start, -1)]
+    stop = int(chans.stop)
+    if stop <= start:
+        return False
+    return [(start, stop - start)]
 
 
 def open_table(path):
