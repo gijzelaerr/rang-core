@@ -1,7 +1,7 @@
 # U5: upstream findings filed, non-RATT included (2026-11-12)
 
 Task U5. On 2026-11-12 the owner approved, in chat, "Report the bugs errors and fixes where you can", which widens
-the reporting rule to non-RATT projects. Status: **reproduced, written and filed.** Rows 2-23 were posted on 2026-11-12 by the coordinator, after the owner said "Post all of them"; rows 1 (Obit note), 24 and 25 (CASA helpdesk) are for the owner to send. This
+the reporting rule to non-RATT projects. Status: **reproduced, written and filed.** Rows 2-23 were posted on 2026-11-12 by the coordinator, after the owner said "Post all of them"; row 1 (Obit note) is for the owner to send; rows 24 and 25 (CASA helpdesk): **not sent, owner decision 2026-11-12: no contributions to CASA** ([v8-open-casa.md](v8-open-casa.md) section 5), texts kept as the record. This
 session's permission settings refused `gh issue create`, and the coordinator then set the route: the
 coordinator posts after the owner has seen the list. The list is
 [upstream-issues/u5-manifest.md](upstream-issues/u5-manifest.md): 25 texts. 22 are for public trackers
@@ -16,7 +16,7 @@ Hosts: native Windows 11 and WSL2 Ubuntu 26.04, plus the local `rang-wsclean-nat
 `rang-obit:dc26694` images. Fresh uv venvs from public PyPI on `D:\rang\scratch\u5` or `/dev/shm`, all
 deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed in source at that sha (rows 4, 8, 17 and 18 are source reads only). The Link column gives the filed issue (gitlab.com and git.astron.nl call them work items).
 
-## Filed (22) and for the owner to send (3)
+## Filed (22), for the owner to send (1) and not sent (2)
 
 | # | Finding | Reproduced on | Target | Notes | Link |
 | --- | --- | --- | --- | --- | --- |
@@ -43,8 +43,8 @@ deleted afterwards. "Run on X" below means executed; "read at Y" means confirmed
 | 21 | carta-python `Chrome(driver_path=...)` passes `executable_path`, gone in Selenium ≥ 4.10 | run on dev c33914d, Selenium 4.52.0: TypeError | github CARTAvis/carta-python | | [CARTAvis/carta-python#192](https://github.com/CARTAvis/carta-python/issues/192) |
 | 22 | carta-python `Session.__del__` repeats `close()` | run on dev c33914d with stubs: two calls each | github CARTAvis/carta-python | | [CARTAvis/carta-python#193](https://github.com/CARTAvis/carta-python/issues/193) |
 | 23 | CASA docs: SR2016 break at 11.1496 GHz, not 11 GHz; Baars entry omits its 1934−638 cubic | run on 6.7.6.14 (latest): 11.0 GHz uses the low piece, 2.10811 Jy against 2.11267 (0.22 %); read at casa6 90e9d3d `FluxStdsQS2.cc:202-204` | github casangi/casadocs | | [casangi/casadocs#205](https://github.com/casangi/casadocs/issues/205) |
-| 24 | CASA silent failures: `setjy` returns `{}` with MODEL_DATA unchanged (default PB2017 on 1934−638 without tables), unknown names 1 Jy; bandpass with a missing table returns normally; gaincal G returns a `solve_tables` entry it never wrote; K ignores `minblperant`; solver messages on stdout only; G/T drop the frequency part of `solint` without a warning | run on 6.7.6.14 on a self-built simulated MS; read at casa6 90e9d3d (`Imager.cc:5066-5076`, `Calibrater.cc:3852-3861`, `VisCalSolver2.cc:265,466`) | NRAO helpdesk (login) or casa-feedback@nrao.edu | CASA has no public tracker; owner sends. Also notes casatasks 6.7.6.14 no longer imports from a fresh install (`six`, fixed on master 4fce2abe, unreleased) | for the owner to send |
-| 25 | CASA wheels: manylinux_2_34 bundles AlmaLinux 9's libssl 3.2.2 without its libcrypto (fails on Ubuntu 24.04 and 26.04); licence metadata contradictory, no licence file, stale classifiers | run on 6.7.6.14 (Ubuntu 24.04.5 container, Ubuntu 26.04) | NRAO helpdesk | cause corrected from O-CASA's note: not Ubuntu-24-specific | for the owner to send |
+| 24 | CASA silent failures: `setjy` returns `{}` with MODEL_DATA unchanged (default PB2017 on 1934−638 without tables), unknown names 1 Jy; bandpass with a missing table returns normally; gaincal G returns a `solve_tables` entry it never wrote; K ignores `minblperant`; solver messages on stdout only; G/T drop the frequency part of `solint` without a warning | run on 6.7.6.14 on a self-built simulated MS; read at casa6 90e9d3d (`Imager.cc:5066-5076`, `Calibrater.cc:3852-3861`, `VisCalSolver2.cc:265,466`) | NRAO helpdesk (login) or casa-feedback@nrao.edu | CASA has no public tracker. Also notes casatasks 6.7.6.14 no longer imports from a fresh install (`six`, fixed on master 4fce2abe, unreleased) | **not sent, owner decision 2026-11-12: no contributions to CASA** |
+| 25 | CASA wheels: manylinux_2_34 bundles AlmaLinux 9's libssl 3.2.2 without its libcrypto (fails on Ubuntu 24.04 and 26.04); licence metadata contradictory, no licence file, stale classifiers | run on 6.7.6.14 (Ubuntu 24.04.5 container, Ubuntu 26.04) | NRAO helpdesk | cause corrected from O-CASA's note: not Ubuntu-24-specific | **not sent, owner decision 2026-11-12: no contributions to CASA** |
 
 ## Skipped, with reasons
 
@@ -125,18 +125,17 @@ Deleted: every venv and clone under `D:\rang\scratch\u5` and `/dev/shm`.
 
 - Filed 2026-11-12 by the coordinator ("Post all of them"): rows 2-23, links in the table and the
   [manifest](upstream-issues/u5-manifest.md). For the owner to send: row 1 (Obit note to Richard Armstrong, whose fork
-  already has the fix, ab77437c) and rows 24-25 (CASA helpdesk or casa-feedback@nrao.edu).
+  already has the fix, ab77437c). Rows 24-25 (CASA helpdesk): not sent, owner decision 2026-11-12: no contributions to CASA (V8).
 - casacore #1550 went in public: no private route exists and the buffer part has been public since #1089.
 - Line for `research/upstream-notes.md`: "Upstream status after U5 (2026-11-12; `u5-upstream.md`): filed
   schaapcommon work item 1; WSClean 207-209; AOFlagger 44-46; casacore #1550-#1553; casacure #42-#46;
-  celestial-eop-data #1; dask #12716; katdal #400; carta-python #192, #193; casadocs #205. Obit note and two CASA
-  helpdesk tickets for the owner to send. All U4 casacure filings fixed in 3.8.38."
+  celestial-eop-data #1; dask #12716; katdal #400; carta-python #192, #193; casadocs #205. Obit note for the owner to send; two CASA
+  helpdesk tickets not sent (owner decision 2026-11-12, V8). All U4 casacure filings fixed in 3.8.38."
 - STATE paragraph: "U5, upstream findings filed (2026-11-12; [u5-upstream.md](u5-upstream.md)). The owner's approval
   widened reporting to non-RATT projects. 22 issues filed (schaapcommon, WSClean ×3, AOFlagger ×3, casacore ×4,
   casacure ×5, celestial-eop-data, dask, katdal, carta-python ×2, casadocs), each reproduced on the latest release or
-  confirmed at the default-branch head; an Obit note to Richard Armstrong and two CASA helpdesk tickets wait for the
-  owner; the rest of the non-RATT backlog was skipped with reasons."
-- Plan line: "U5 done 2026-11-12 (`u5-upstream.md`): 22 filed; Obit note and CASA tickets with the owner."
+  confirmed at the default-branch head; an Obit note to Richard Armstrong waits for the owner and two CASA helpdesk tickets will not be sent (owner decision 2026-11-12); the rest of the non-RATT backlog was skipped with reasons."
+- Plan line: "U5 done 2026-11-12 (`u5-upstream.md`): 22 filed; Obit note with the owner; CASA tickets not sent (V8)."
 - To watch: every link in the table.
 - Not run: the full `python -m rang.check` (the commit adds research files only). Ran ruff check and ruff format on
   `u5-upstream-files/`, `py_compile` on its Python scripts, and the docs tests (13 passed; one unrelated failure,

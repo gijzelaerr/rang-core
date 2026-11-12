@@ -1,5 +1,5 @@
 Target: NRAO helpdesk https://help.nrao.edu (CASA department; my.nrao.edu login) or casa-feedback@nrao.edu. TEXT-ONLY: CASA has no public issue tracker.
-Status: ready to post
+Status: not sent, owner decision 2026-11-12: no contributions to CASA (research/v8-open-casa.md section 5). Kept as the record of CASA's defects; rang's tests check it does not copy them.
 Reproduced on: casatools/casatasks 6.7.6.14 (latest on PyPI), manylinux_2_28 wheel, Python 3.12, Ubuntu 26.04, run 2026-11-12. The setup has the Ubuntu casacore-data 20250826 measures, casaconfig auto-updates off and casarundata 2026.10.27-1 for the Perley-Butler tables. `six` was installed by hand (see the note at the end). Code references are read in source at casa6 master 90e9d3dae955. The VisCalSolver2 iteration-limit message is read in source only; it was observed on 6.7.6.14 in October and not rerun here.
 Duplicates checked: CASA Docs Known Issues (stable), which lists two setjy items (a segfault with usescratch=False, and models not being overwritten); neither is these. GitHub-wide issue search "setjy minblperant", "gaincal minblperant K": no matches. NRAO JIRA is not public.
 
