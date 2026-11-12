@@ -42,7 +42,7 @@ from pathlib import Path
 import numpy as np
 
 ORDER = ["gate1", "archive", "wcs", "casacore", "casa-ro", "wsclean0", "daskms",
-         "wsclean3c", "copy", "prep", "applycal", "compare", "restore", "tricolour"]  # fmt: skip
+         "wsclean3c", "copy", "prep", "applycal", "compare", "snapshot", "restore", "tricolour"]  # fmt: skip
 CASA_IMAGE = "rang-o-casa:6.7.6.14"
 FORMATS_IMAGE = "rang-formats-oracle:20261030"
 QC_PY = "/opt/qc/bin/python"
@@ -191,6 +191,8 @@ for name in sorted(os.listdir(fv)):
         touch(s, name)
         s.close()
 for name in sorted(os.listdir(sys.argv[2])):
+    if not os.path.isfile(os.path.join(sys.argv[2], name, "table.dat")):
+        continue  # summary.json and other non-tables
     s = table(os.path.join(sys.argv[2], name), ack=False)
     touch(s, "caltable:" + name)
     s.close()
@@ -201,9 +203,9 @@ print(len(out["tables"]), "tables", len(out["errors"]), "errors")
 
 def casacore(ms, r):
     ms, r = Path(ms), Path(r)
-    (r / "casacore.py").write_text(CASACORE_PY, encoding="utf-8")
+    (r / "e2p_casacore.py").write_text(CASACORE_PY, encoding="utf-8")
     rc = docker(r, FORMATS_IMAGE, [(ms.parent, "/ms"), (r, "/r")],
-                f"{QC_PY} /r/casacore.py /ms/{ms.name} /r/rang-run/calibrate /r/casacore-raw.json",
+                f"{QC_PY} -I /r/e2p_casacore.py /ms/{ms.name} /r/rang-run/calibrate /r/casacore-raw.json",
                 "casacore")  # fmt: skip
     raw = json.loads((r / "casacore-raw.json").read_text()) if rc == 0 else {}
     write(r / "g2b-casacore.json", {"exit": rc, "tables": len(raw.get("tables", {})),
@@ -232,9 +234,9 @@ json.dump(out, open(sys.argv[2] + "/casa-ro.json", "w"), indent=1, default=str)
 
 def casa_ro(ms, r):
     ms, r = Path(ms), Path(r)
-    (r / "casa_ro.py").write_text(CASA_RO_PY, encoding="utf-8")
+    (r / "e2p_casa_ro.py").write_text(CASA_RO_PY, encoding="utf-8")
     rc = docker(r, CASA_IMAGE, [(ms.parent, "/ms"), (r, "/r")],
-                f"/opt/casa/bin/python /r/casa_ro.py /ms/{ms.name} /r", "casa-ro")  # fmt: skip
+                f"/opt/casa/bin/python -I /r/e2p_casa_ro.py /ms/{ms.name} /r", "casa-ro")  # fmt: skip
     raw = json.loads((r / "casa-ro.json").read_text()) if rc == 0 else {}
     versions = (raw.get("flagmanager") or {}).get("result")
     ok = rc == 0 and all(v.get("error") is None for v in raw.values()) and len(raw) == 2
@@ -299,6 +301,102 @@ def wsclean3c(ms, r):
     return 0
 
 
+UNIT_PY = r"""
+import json, sys
+import numpy as np
+from casacore.tables import table, makecoldesc
+ms, mode, out = sys.argv[1:4]
+t = table(ms, readonly=False, ack=False)
+cols = t.colnames()
+rec = {"mode": mode}
+if mode == "on":
+    assert "RANG_FLAG" in cols and "E2_CASA_FLAG" not in cols
+    n = t.nrows()
+    rows_extra = 0
+    for r0 in range(0, n, 4000):
+        k = min(4000, n - r0)
+        fr = t.getcol("FLAG_ROW", r0, k)
+        rf = t.getcol("RANG_FLAG", r0, k)
+        rows_extra += int((fr & ~rf.all(axis=(1, 2))).sum())
+    rec["flag_row_not_all_rang_flag"] = rows_extra
+    t.renamecol("FLAG", "E2_CASA_FLAG")
+    t.renamecol("RANG_FLAG", "FLAG")
+    t.renamecol("WEIGHT_SPECTRUM", "E2_WEIGHT_SPECTRUM")
+    t.renamecol("WEIGHT", "E2_WEIGHT")
+    desc = t.getcoldesc("E2_WEIGHT")
+    t.addcols(makecoldesc("WEIGHT", desc))
+    w = np.ones((n, t.getcell("E2_WEIGHT", 0).shape[0]), np.float32)
+    t.putcol("WEIGHT", w)
+else:
+    assert "E2_CASA_FLAG" in cols
+    t.removecols(["WEIGHT"])
+    t.renamecol("E2_WEIGHT", "WEIGHT")
+    t.renamecol("E2_WEIGHT_SPECTRUM", "WEIGHT_SPECTRUM")
+    t.renamecol("FLAG", "RANG_FLAG")
+    t.renamecol("E2_CASA_FLAG", "FLAG")
+rec["columns"] = t.colnames()
+t.close()
+json.dump(rec, open(out, "w"), indent=1)
+print(json.dumps(rec))
+"""
+
+
+def wsclean3c_unit(ms, r):
+    """Gate 3c's matched oracle (added 2026-11-12, research/e2-acceptance.md
+    results): `wsclean3c` as committed images with the MS's WEIGHT_SPECTRUM,
+    where rang's image stage passes `-unit-weights` (data.weights: uniform);
+    the gridder matches (WSClean 3.7's default wgridder at 1e-4, rang's
+    image.wgridder_accuracy 1e-4). Run on the CASA copy R/casa/<ms> as the
+    last step that reads it: by column renames only (undone after), FLAG is
+    rang's FLAG after apply (RANG_FLAG), WEIGHT_SPECTRUM is absent and WEIGHT
+    is 1, so WSClean falls back to WEIGHT (W6), and WSClean images
+    RANG_CORRECTED_DATA at wsclean3c's settings -> R/wsclean3c-unit/."""
+    from rang import core_ms
+
+    ms, r = Path(ms), Path(r)
+    cms = r / "casa" / ms.name
+    cfg = json.loads((r / "rang-run-moved" / "config.resolved.json").read_text())
+    im = cfg["image"]
+    fields = list(
+        dict.fromkeys(n for role in im["fields"] for n in cfg["fields"][role])
+    )
+    with core_ms.open_table(cms / "FIELD") as t:
+        names = [str(n) for n in t.getcol("NAME")]
+    (r / "e2p_unit.py").write_text(UNIT_PY, encoding="utf-8")
+    mounts = prep_mounts(r)
+    rc = docker(r, FORMATS_IMAGE, mounts,
+                f"{QC_PY} -I /p/e2p_unit.py /c/{cms.name} on /p/unit-on.json", "unit-on")  # fmt: skip
+    if rc != 0:
+        return rc
+    d = r / "wsclean3c-unit"
+    (d / "tmp").mkdir(parents=True, exist_ok=True)
+    size = " ".join(str(x) for x in im["size"])
+    common = (f"-size {size} -scale {im['scale']} -weight briggs {im['robust']} "
+              f"-channels-out {im['channels_out']} -join-channels -pol {im['pol']} "
+              "-join-polarizations -data-column RANG_CORRECTED_DATA "
+              f"-gridder wgridder -wgridder-accuracy {float(im['wgridder_accuracy'])!r} "
+              "-no-update-model-required -j 8 -temp-dir /p/wsclean3c-unit/tmp")  # fmt: skip
+    rcs = {}
+    for f in fields:
+        fid = names.index(f)
+        tag = f.replace("+", "p").replace("-", "m")
+        for kind, extra in (("dirty", "-niter 0"),
+                            ("clean", (f"-niter {int(im['niter'])} -mgain {im['mgain']} "
+                                      f"-auto-threshold {im['auto_threshold']}"))):  # fmt: skip
+            cmd = (f"wsclean -name /p/wsclean3c-unit/{tag}-{kind} {common} {extra} "
+                   f"-field {fid} /c/{cms.name}")  # fmt: skip
+            rcs[f"{f}:{kind}"] = docker(r, WSCLEAN_IMAGE, mounts, cmd,
+                                        f"wsclean3c-unit-{tag}-{kind}", 16)  # fmt: skip
+    shutil.rmtree(d / "tmp", ignore_errors=True)
+    off = docker(r, FORMATS_IMAGE, mounts,
+                 f"{QC_PY} -I /p/e2p_unit.py /c/{cms.name} off /p/unit-off.json", "unit-off")  # fmt: skip
+    write(
+        r / "wsclean3c-unit-run.json",
+        {"exit": rcs, "unit_off_exit": off, "settings": common},
+    )
+    return off or max(rcs.values(), default=0)
+
+
 DASKMS_PY = r"""
 import json, sys
 import numpy as np
@@ -328,9 +426,9 @@ print(json.dumps(out))
 
 def daskms(ms, r):
     ms, r = Path(ms), Path(r)
-    (r / "daskms.py").write_text(DASKMS_PY, encoding="utf-8")
+    (r / "e2p_daskms.py").write_text(DASKMS_PY, encoding="utf-8")
     rc = docker(r, FORMATS_IMAGE, [(ms.parent, "/ms"), (r, "/r")],
-                f"{QC_PY} /r/daskms.py /ms/{ms.name} /r/daskms-raw.json", "daskms")  # fmt: skip
+                f"{QC_PY} -I /r/e2p_daskms.py /ms/{ms.name} /r/daskms-raw.json", "daskms")  # fmt: skip
     raw = json.loads((r / "daskms-raw.json").read_text()) if rc == 0 else {}
     write(
         r / "g2b-daskms.json",
@@ -411,9 +509,9 @@ def prep_mounts(r):
 def prep(ms, r):
     ms, r = Path(ms), Path(r)
     version = apply_summary(r)["flag_version"]  # FLAG before apply = after calibrate
-    (r / "prep.py").write_text(PREP_PY, encoding="utf-8")
+    (r / "e2p_prep.py").write_text(PREP_PY, encoding="utf-8")
     return docker(r, FORMATS_IMAGE, prep_mounts(r),
-                  f"{QC_PY} /p/prep.py /c/{ms.name} {version} /p/prep.json", "prep")  # fmt: skip
+                  f"{QC_PY} -I /p/e2p_prep.py /c/{ms.name} {version} /p/prep.json", "prep")  # fmt: skip
 
 
 APPLY_PY = """\
@@ -457,9 +555,9 @@ def applycal(ms, r):
     ms, r = Path(ms), Path(r)
     calls = applycal_spec(r, f"/c/{ms.name}")
     write(r / "applycal-spec.json", calls)
-    (r / "applycal.py").write_text(APPLY_PY, encoding="utf-8")
+    (r / "e2p_applycal.py").write_text(APPLY_PY, encoding="utf-8")
     return docker(r, CASA_IMAGE, prep_mounts(r),
-                  "/opt/casa/bin/python /p/applycal.py /p/applycal-spec.json /p/applycal-result.json",
+                  "/opt/casa/bin/python -I /p/e2p_applycal.py /p/applycal-spec.json /p/applycal-result.json",
                   "applycal")  # fmt: skip
 
 
@@ -506,9 +604,9 @@ def compare(ms, r):
     ms, r = Path(ms), Path(r)
     tasks = json.loads((r / "applycal-result.json").read_text())
     errors = [t for t in tasks if t["error"]]
-    (r / "compare.py").write_text(COMPARE_PY, encoding="utf-8")
+    (r / "e2p_compare.py").write_text(COMPARE_PY, encoding="utf-8")
     rc = docker(r, FORMATS_IMAGE, prep_mounts(r),
-                f"{QC_PY} /p/compare.py /c/{ms.name} /p/compare-raw.json", "compare")  # fmt: skip
+                f"{QC_PY} -I /p/e2p_compare.py /c/{ms.name} /p/compare-raw.json", "compare")  # fmt: skip
     raw = json.loads((r / "compare-raw.json").read_text()) if rc == 0 else {}
     ok = (rc == 0 and not errors and raw.get("compared_cells", 0) > 0
           and raw["cells_over_class_c"] == 0 and raw["flag_elements_differ"] == 0
@@ -517,6 +615,30 @@ def compare(ms, r):
           "compare_exit": rc, **raw, "class_c": "per cell <= 1e-6 relative or <= 11 float32 "
           "epsilons of the cell's largest correlation; flags exact", "met": ok})  # fmt: skip
     return 0
+
+
+SNAP_PY = r"""
+import sys
+import numpy as np
+from casacore.tables import table
+t = table(sys.argv[1], ack=False)
+cols = {c: t.getcol(c) for c in ("ANTENNA1", "ANTENNA2", "FIELD_ID", "SCAN_NUMBER", "TIME")}
+for c in ("FLAG", "RANG_FLAG"):
+    cols[c] = np.packbits(t.getcol(c), axis=-1)  # 4 correlations packed, MSB first
+np.savez(sys.argv[2], **cols)
+print({k: v.shape for k, v in cols.items()})
+"""
+
+
+def snapshot(ms, r):
+    """CASA's FLAG after applycal and rang's applied FLAG (RANG_FLAG) on the copy,
+    kept before the 3b arm's prep resets FLAG (the Df flag-rule follow-up)."""
+    ms, r = Path(ms), Path(r)
+    (r / "df-flag-snapshot").mkdir(exist_ok=True)
+    (r / "e2p_snap.py").write_text(SNAP_PY, encoding="utf-8")
+    return docker(r, FORMATS_IMAGE, prep_mounts(r),
+                  f"{QC_PY} -I /p/e2p_snap.py /c/{ms.name} "
+                  "/p/df-flag-snapshot/flags-after-applycal.npz", "snapshot")  # fmt: skip
 
 
 # --- gate 2a and the restore -------------------------------------------------------
@@ -571,9 +693,9 @@ def restore(ms, r, input_json, label="g2a"):
     keep = r / "columns-before.json"
     if not keep.exists():
         raise SystemExit(f"{keep} missing: the MS's columns before the run")
-    (r / "drop.py").write_text(DROP_PY, encoding="utf-8")
+    (r / "e2p_drop.py").write_text(DROP_PY, encoding="utf-8")
     rc = docker(r, FORMATS_IMAGE, [(ms.parent, "/ms"), (r, "/p")],
-                f"{QC_PY} /p/drop.py /ms/{ms.name} /p/columns-before.json /p/{label}-drop.json",
+                f"{QC_PY} -I /p/e2p_drop.py /ms/{ms.name} /p/columns-before.json /p/{label}-drop.json",
                 f"{label}-drop")  # fmt: skip
     moved = None
     if run_dir(ms).exists() and label == "g2a":
@@ -650,8 +772,8 @@ def tricolour(ms, r, input_json, strategy):
 
 STEPS = {"gate1": gate1, "archive": archive, "wcs": wcs, "casacore": casacore,
          "casa-ro": casa_ro, "wsclean0": wsclean0, "daskms": daskms, "wsclean3c": wsclean3c,
-         "copy": copy,
-         "prep": prep, "applycal": applycal, "compare": compare, "restore": restore,
+         "wsclean3c-unit": wsclean3c_unit, "copy": copy,
+         "prep": prep, "applycal": applycal, "compare": compare, "snapshot": snapshot, "restore": restore,
          "tricolour": tricolour, "columns-before": columns_before}  # fmt: skip
 
 

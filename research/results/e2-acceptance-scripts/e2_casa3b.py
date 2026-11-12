@@ -19,6 +19,7 @@ frequency itself; `average_time` and `average_freq` do not apply.
 """
 
 import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -121,7 +122,9 @@ def run(msname, r):
     )  # FLAG after calibrate again, idempotent renames
     if rc:
         return rc
-    (r / "casa" / "tables").mkdir(exist_ok=True)
+    # A fresh table directory: an interrupted run leaves tables (Gapp is copied).
+    shutil.rmtree(r / "casa" / "tables", ignore_errors=True)
+    (r / "casa" / "tables").mkdir()
     rc = P.docker(r, P.CASA_IMAGE, P.prep_mounts(r) + [(ROOT / "examples", "/ex")],
                   "/opt/casa/bin/python -I /ex/oracle_pol.py tasks /p/casa3b-spec.json "
                   "/p/casa3b-tasks.json", "casa3b")  # fmt: skip

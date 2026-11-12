@@ -622,6 +622,111 @@ presented as a pass.
   scorers as the frozen arm; its Gpol class B miss is expected at about
   the LUNO size.
 
+## 7. E2-B results
+
+Measured 2026-11-12. Each gate is read against 6.5 as frozen. Sealed scores
+were read only after `0477e54` (the 6.7 amendment, pushed).
+
+### 7.1 Scorer and oracle decisions written before reading the sealed scores
+
+Written on 2026-11-12, after the 6.7 amendment and before any E2-B 3b, 3c or
+row value was read. Each scorer was run on the development dry run first
+(`D:\rang\outputs\e2-20261111-12-dryrun\post-dev`).
+
+- **Gate 3c's oracle as committed is not matched in weights.**
+  - `wsclean3c` (`e2_post.py`) images with the MS's WEIGHT_SPECTRUM. On
+    `e2b.ms` that column ranges from 0.13 to 0.17 within a scan and from 1.1
+    to 17 in others.
+  - Rang's image stage passes `-unit-weights` (`data.weights: uniform`).
+  - The gridder matches: WSClean 3.7's default is wgridder at 1e-4, which is
+    rang's `image.wgridder_accuracy`.
+  - This was found from the two argv lists, not from a 3c value.
+  - Under 6.5's scorer-bug rule, both readings are reported, labelled:
+    - "as committed" (`R/wsclean3c`);
+    - "matched" (`R/wsclean3c-unit`). The new step `wsclean3c-unit` images
+      RANG_CORRECTED_DATA with rang's FLAG after apply. It runs on the CASA
+      copy with WEIGHT_SPECTRUM renamed away and a unit WEIGHT, so WSClean
+      falls back to WEIGHT (W6). The renames are undone afterwards.
+  - Development reading, as committed: dirty L∞/peak 0.11 (J1939−6342) and
+    0.022 (J1331+3030).
+  - Development reading, matched (`wsclean3c-unit` on the dry run's copy):
+    - Imaging weights and flags are equal: WSCIMGWG 4904650.0106 in both,
+      no FLAG_ROW outside rang's flags.
+    - The MFS I peak is 14.4097 against 14.4079 Jy (1.2e-4 relative).
+    - **Dirty L∞/peak is 0.050 (J1939−6342) and 0.022 (J1331+3030)**,
+      largest on the image edge in output channel 6:
+
+      | Field, image | Full image | 5 % border excluded | Inner two-thirds | Median |
+      | --- | --- | --- | --- | --- |
+      | J1939−6342, MFS | 8.5e-3 | 6.1e-4 | 2.6e-4 | 4.4e-5 |
+      | J1939−6342, channel 6 | 5.0e-2 | 3.8e-3 | 1.1e-3 | 1.2e-4 |
+      | J1331+3030, MFS | 3.3e-3 | 1.9e-4 | 7.6e-5 | 1.3e-5 |
+
+    - Both imagers run wgridder at ε 1e-4, rang's frozen
+      `image.wgridder_accuracy`. A0 measured its dirty bound (6.5e-8 to
+      2.2e-7) at matched higher accuracy.
+    - **Expected on E2-B, written before reading it: dirty L∞ not met** at
+      1e-6. The other 3c measures as measured. Off-source |model| on dev
+      was 1.58 (J1939−6342) and 3.16 (J1331+3030) against the 1.6 limit.
+    - The region profile is reported beside, never as the gate.
+- **3c scorer** (`e2_score3c.py`): the measures and limits are listed in its
+  docstring. **Q/Q₀ is not checked**: it needs both models predicted through
+  one gridder on the MS. 3c is therefore reported at best as "met where
+  checked", never as met.
+- **Visibility-domain rows** (`e2_rows_b.py`: 3C 286 parity, 1830−211; the
+  transfer reuses its estimator):
+  - Both arms apply with parang true, so the apply performs the derotation to
+    the sky frame and the scorer adds none.
+  - Development reading on LUNO scan 1 (parallactic angle −169°):
+
+    | Column (both arms) | χ |
+    | --- | --- |
+    | MODEL_DATA | 32.6–33.0° (the model's 33.0°) |
+    | DATA | 10–16° |
+    | CORRECTED_DATA | 86–89° (rang and CASA within 0.1°) |
+
+  - This frame difference is shared by both arms, so it cancels in parity.
+    The transfer row's absolute χ will show it.
+- **Transfer and leakage recipe, the same for both scans and arms:**
+  1. A per-scan phase-only G (p, 60 s, parang), with the development K, G
+     and B preapplied. It is solved on scan 17 against the 3C 286 model, and
+     on scan 18 against 1934−638's.
+  2. Development K, G, B, that G, and development Kcross, Xf and Df applied.
+  - The development tables come from `e2b-dev.yaml` or
+    `e2b-amended-dev.yaml`: `e2b.yaml` or `e2b-amended.yaml` with scans
+    [1, 2], no secondary block, stages [flag, calibrate], and the gcal apply
+    target dropped with the secondary block.
+  - `e2_devtables.py` saves FLAG after calibrate as flag version
+    `e2dev_<arm>_after_calibrate` for the CASA development copy.
+  - Leakage only: scan 18's own amplitude-and-phase G is reported beside it.
+    A phase-only G with scan 2's amplitudes would put the X/Y amplitude drift
+    between scans into Q.
+- **The amended arm's CASA input differs from the frozen arm's**
+  (`e2_fvcmp.py`, `R_amended/flagversions-frozen-vs-amended.json`):
+  - FLAG after rang's flag stage is identical.
+  - FLAG after calibrate (the CASA copy's flags) differs in 5,916 of
+    4.47e9 elements: 4,392 frozen only, 1,524 amended only.
+  - So the amended arm gets its own CASA 3b run, `e2_casa3b.py` on its copy.
+- **Weights in 3b (stated, not changed):** rang solves with unit weights;
+  CASA's arm (`e2_casa3b.py`, as `e1b_casa.py` and the LUNO validation) uses
+  WEIGHT_SPECTRUM. On LUNO the weights were
+  ruled out as the cause of the Gpol miss (6.1).
+
+### 7.2 Gate 2b's flag rule (cause found on main)
+
+- **Development slice:** CASA's applycal flagged extra parallel-hand cells
+  where rang did not.
+  - The cause is CASA's P term, not Df. With `parang=True` on linear feeds,
+    P is a general 2×2 Jones, so CASA flags all four correlations where any
+    one is flagged ([p-flag-spread.md](p-flag-spread.md), main merge
+    `305fdf8`).
+  - Main now has `apply.parang_flags`, default `spread` (CASA's rule). `none`
+    is the frozen behaviour, and CORRECTED_DATA is bit-identical under both.
+  - E2 runs on its frozen wheel, which has `none`.
+- **On E2-B both settings give the same flags:** no cell there is partly
+  flagged. Measured: CASA applycal's FLAG equals rang's in all 408,827,131
+  compared cells (`g2b-applycal.json`, `flag_elements_differ` 0).
+
 ## For the coordinator
 
 (written at the end)

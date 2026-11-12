@@ -1,0 +1,64 @@
+# E2-B transfer and leakage rows' development tables (research/e2-acceptance.md
+# 6.5): e2b.yaml with data.scans [1, 2], no secondary block, run.stages [flag, calibrate];
+# the gcal apply target goes with the secondary block (apply and image are not run).
+schema: rang-config
+version: 1
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [J1833-2103]
+  xcal: [J1331+3030]
+data:
+  weights: uniform
+  scans: [1, 2]
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+calibrate:
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  polcal:
+    field: [xcal]
+    model: {source: nrao, name: 3C286}
+    feed_angle_rotation: -90
+    extendflags: true
+    # Strategy 1 (xcal_model_fcal_leak); Gpol is phase-only (amendment 1).
+    terms:
+      - {type: Gpol, name: Gpol, solint: 60s, calmode: p, parang: true,
+         preapply: [K, G, B], interp: [linear, linear, linear]}
+      - {type: KCROSS, name: Kcross, solint: inf, parang: true,
+         preapply: [K, G, B, Gpol], interp: [linear, linear, linear, linear]}
+      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,
+         preapply: [K, G, B, Gpol, Kcross], interp: [linear, linear, linear, linear, nearest]}
+      - {type: Df, name: Df, field: [fcal], solint: inf, combine: scan, parang: true,
+         clip: [-0.6, 0.6], preapply: [K, G, B, Kcross, Xf],
+         interp: [linear, linear, linear, nearest, nearest]}
+apply:
+  calwt: false
+  parang: true
+  targets:
+    - field: [fcal, xcal]
+      tables: [K, G, B, Gpol, Kcross, Xf, Df]
+      interp: [linear, linear, linear, linear, nearest, nearest, nearest]
+image:
+  fields: [fcal, gcal, xcal]
+  column: CORRECTED_DATA
+  size: [2048, 2048]
+  scale: 2asec
+  weight: briggs
+  robust: 0.0
+  channels_out: 8
+  join_channels: true
+  pol: IQUV
+  join_polarizations: true
+  mgain: 0.9
+  auto_threshold: 3.0
+run:
+  stages: [flag, calibrate]
