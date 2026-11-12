@@ -16,7 +16,6 @@ CASA's behaviour as documented and probed, not read from CASA's source
 from __future__ import annotations
 
 import datetime as _dt
-import itertools
 import math
 from pathlib import Path
 
@@ -158,14 +157,6 @@ def _wrap(angle):
     return math.pi if out == -math.pi else out
 
 
-def _runs(keys):
-    """Start indices of runs of equal consecutive rows of `keys` (n, k)."""
-    if len(keys) == 0:
-        return np.zeros(0, int)
-    change = np.any(keys[1:] != keys[:-1], axis=1)
-    return np.concatenate([[0], np.flatnonzero(change) + 1])
-
-
 def summary(ms):
     """CASA listobs's returned record for `ms`, with rang's additions."""
     ms = Path(ms)
@@ -179,8 +170,6 @@ def summary(ms):
     field = np.asarray(main["FIELD_ID"], np.int64)
     ddid = np.asarray(main["DATA_DESC_ID"], np.int64)
     state = np.asarray(main["STATE_ID"], np.int64)
-    obs_id = np.asarray(main["OBSERVATION_ID"], np.int64)
-    array_id = np.asarray(main["ARRAY_ID"], np.int64)
 
     fields = _cols(ms / "FIELD", ("NAME", "CODE", "PHASE_DIR"), ("SOURCE_ID",))
     field_ref = _measinfo_ref(ms / "FIELD", "PHASE_DIR", "J2000")
@@ -212,33 +201,32 @@ def summary(ms):
             "name": field_names[f],
         }
 
-    # Scans: rows in time order (stable), split into sub-entries wherever
-    # the observation, array, scan, field, data description or state changes.
+    # Scans, as CASA's record has them (amendment 2): one sub-entry per field
+    # within a scan, in field-id order; every sub-entry of a scan carries the
+    # scan's whole time range; a state change does not split a sub-entry
+    # (StateId is the state of its first row in time order).
     order = np.argsort(time, kind="stable")
-    keys = np.stack([obs_id, array_id, scan, field, state], axis=1)[order]
-    starts = _runs(keys)
-    bounds = np.append(starts, len(order))
     per_scan = {}
-    for lo, hi in itertools.pairwise(bounds):
-        rows = order[lo:hi]
-        s = int(scan[rows[0]])
-        f = int(field[rows[0]])
-        spws = sorted({spw_of_dd[int(d)] for d in np.unique(ddid[rows])})
-        t0 = float((time[rows] - interval[rows] / 2.0).min())
-        t1 = float((time[rows] + interval[rows] / 2.0).max())
-        entry = {
-            "BeginTime": t0 / DAY,
-            "EndTime": t1 / DAY,
-            "FieldId": f,
-            "FieldName": field_names[f] if 0 <= f < len(field_names) else "",
-            "IntegrationTime": float(np.mean(interval[rows])),
-            "SpwIds": spws,
-            "StateId": int(state[rows[0]]),
-            "nRow": len(rows),
-            "scanId": s,
-        }
-        sub = per_scan.setdefault(f"scan_{s}", {})
-        sub[str(len(sub))] = entry
+    for s in np.unique(scan):
+        in_scan = order[scan[order] == s]
+        t0 = float((time[in_scan] - interval[in_scan] / 2.0).min())
+        t1 = float((time[in_scan] + interval[in_scan] / 2.0).max())
+        sub = per_scan.setdefault(f"scan_{int(s)}", {})
+        for f in np.unique(field[in_scan]):
+            rows = in_scan[field[in_scan] == f]
+            f = int(f)
+            spws = sorted({spw_of_dd[int(d)] for d in np.unique(ddid[rows])})
+            sub[str(len(sub))] = {
+                "BeginTime": t0 / DAY,
+                "EndTime": t1 / DAY,
+                "FieldId": f,
+                "FieldName": field_names[f] if 0 <= f < len(field_names) else "",
+                "IntegrationTime": float(np.mean(interval[rows])),
+                "SpwIds": spws,
+                "StateId": int(state[rows[0]]),
+                "nRow": len(rows),
+                "scanId": int(s),
+            }
     record.update(per_scan)
 
     record["observation"] = _observation(ms)
@@ -471,7 +459,7 @@ def text(record, ms=""):
                 f"   to   {format_time(record['EndTime'])} (UTC)"
             ),
         ]
-    lines += ["", "Scans (sub-entries in time order):"]
+    lines += ["", "Scans (one sub-entry per field in a scan):"]
     lines.append(
         "  Timerange (UTC)                           Scan  FldId FieldName"
         "             nRows  SpwIds  StateId  Average Interval(s)"

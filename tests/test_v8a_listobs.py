@@ -29,7 +29,7 @@ M000 = (5109271.49735416, 2006808.89302781, -3239130.73614072)
 
 def make_ms(path):
     """6 baselines x 10 times; times 0-3 field 0 scan 1, 4-6 field 1 scan 2,
-    7-9 field 0 scan 3 with state 1 for times 8-9 (two sub-entries)."""
+    7-9 field 0 scan 3 with state 1 for times 8-9 (no split, as CASA)."""
     nrow = 60
     ms = w1.make_ms(path, nrow, 8)
     with core_ms_write.open_table(ms / "FIELD", readonly=False) as t:
@@ -79,9 +79,9 @@ def test_record_has_casa_keys_times_and_scans(ms):
     assert s1["SpwIds"] == [0] and s1["StateId"] == 0 and s1["scanId"] == 1
     assert s1["IntegrationTime"] == pytest.approx(8.0)
     assert r["scan_2"]["0"]["FieldId"] == 1 and r["scan_2"]["0"]["nRow"] == 18
-    sub = r["scan_3"]
-    assert [sub[k]["StateId"] for k in ("0", "1")] == [0, 1]
-    assert [sub[k]["nRow"] for k in ("0", "1")] == [6, 12]
+    # A state change inside a scan does not split it (CASA, amendment 2).
+    assert list(r["scan_3"]) == ["0"]
+    assert r["scan_3"]["0"]["StateId"] == 0 and r["scan_3"]["0"]["nRow"] == 18
     f1 = r["field_1"]
     assert f1["name"] == "3C286" and f1["code"] == "T"
     # RA in (-pi, pi], as CASA returns it.
@@ -140,7 +140,7 @@ def test_cli_json_and_refusals(ms, tmp_path, capsys):
     record = dispatch(["listobs", str(ms), "--json"])
     printed = json.loads(capsys.readouterr().out)
     assert printed["numrecords"] == record["numrecords"] == 60
-    assert printed["scan_3"]["1"]["StateId"] == 1
+    assert printed["scan_3"]["0"]["nRow"] == 18
     out = tmp_path / "l.json"
     dispatch(["listobs", str(ms), "--json", "--listfile", str(out)])
     assert json.loads(out.read_text(encoding="utf-8"))["nfields"] == 2

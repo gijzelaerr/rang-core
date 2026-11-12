@@ -176,6 +176,21 @@ unchanged.
   changes in time order, with the data descriptions inside a sub-entry
   collected into `SpwIds`.
 
+## 7b. Amendment 2 (2026-11-12, development fix, before the held-out comparison)
+
+Gate run `outputs/v8a-listobs-20261112-01` (WSL; CASA on all nine MSs, 126 s,
+332 MB peak). The development comparison then gave zero differences on `luno`,
+`a1` and the five fixture MSs, and 9 differences on `edges`: rang's
+sub-entry rule of amendment 1 was wrong. CASA's rule, read off its record and
+listfile for `edges` (no CASA source read): **one sub-entry per field within a
+scan, in field-id order; every sub-entry carries the scan's whole time range;
+a state change inside a scan does not split it** (scan 3 is one entry, its
+listfile ScanIntent shows both states' modes). rang now does this, with
+`StateId` = the state of the field's first row in time order. Gaps left, as no
+MS here separates them: first-row state against lowest state id; a scan
+number reused across observations or arrays. With the fix, all eight
+development MSs show zero differences (`dev2.json`, section 8).
+
 ## 8. Measured result
 
 (Not yet run.)
