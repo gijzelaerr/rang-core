@@ -866,6 +866,118 @@ def pilot(out):
     )
 
 
+OWN = {
+    "H1a": ["T1", "T1f"],
+    "H1b": ["T1", "T1f"],
+    "H2": ["T2"],
+    "H3": ["T3"],
+    "H4a": ["T4"],
+    "H4b": ["T4"],
+    "H5a": ["T5flipw", "T5now"],
+    "H5b": ["T5flipw", "T5now"],
+    "H6": ["T6"],
+    "H8a": ["T8"],
+    "H8b": ["T8"],
+    "H8c": ["T8"],
+    "H10": ["T10"],
+}
+TESTS = ["T1", "T1f", "T2", "T3", "T4", "T6", "T8", "T5flipw", "T5now", "T5eps7", "T10"]
+AFTER_T1 = {"T2", "T3", "T6w", "T6r"}
+
+
+def hyp(name):
+    """H1a -> H1, H10 -> H10, C2 -> C, M -> M."""
+    return name.rstrip("abc") if name[0] == "H" else name.rstrip("0123456789")
+
+
+def drops(r, T):
+    """Fractions of the arm's excess power removed by each test (section 5, clarification 1)."""
+    P = {
+        k: v["F"] ** 2 - T**2 for k, v in r.items() if isinstance(v, dict) and "F" in v
+    }
+    p0 = P["none"]
+    out = {"P_none": p0}
+    for k, v in P.items():
+        if k == "none":
+            continue
+        ref = P["T1"] if k in AFTER_T1 else p0
+        out[k] = (ref - v) / p0 if p0 > 0 else None
+    if out.get("T6w") is not None and out.get("T6r") is not None:
+        out["T6"] = out["T6w"] - out["T6r"]
+    return out
+
+
+def summary(out):
+    T = json.loads((out / "arms/C-1.json").read_text())["none"]["F"]
+    pil = json.loads((out / "pilot.json").read_text())
+    Ppil = pil["none"]["F"] ** 2 - T**2
+    arms_ = {}
+    for fn in sorted((out / "arms").glob("*.json")):
+        if fn.name.endswith("-baselines.json"):
+            continue
+        nm, k = fn.stem.rsplit("-", 1)
+        r = json.loads(fn.read_text())
+        arms_[(nm, float(k))] = {
+            "F": r["none"]["F"],
+            "drops": drops(r, T),
+            "shape": r["none"]["shape"],
+        }
+    a2 = {}
+    for nm, k in arms_:
+        if nm in A_MAX and k not in (1.0, float(A_MAX[nm])):
+            a2[nm] = k
+        if nm in ("H5a", "H5b", "H7", "H10", "M", "C2"):
+            a2[nm] = 1.0
+    spec = {}
+    for nm, tests in OWN.items():
+        if nm not in a2:
+            continue
+        for t in tests:
+            own = arms_[(nm, a2[nm])]["drops"].get(t)
+            others = {
+                o: arms_[(o, a2[o])]["drops"].get(t)
+                for o in a2
+                if hyp(o) != hyp(nm) and hyp(o) != "C"
+            }
+            worst = max((x for x in others.values() if x is not None), default=None)
+            spec[f"{nm}:{t}"] = {
+                "own": own,
+                "max_other": worst,
+                "max_other_arm": max(
+                    others, key=lambda o: -1e9 if others[o] is None else others[o]
+                ),
+                "specific": own is not None
+                and own >= 0.7
+                and worst is not None
+                and worst <= 0.3,
+            }
+    pd = drops(pil, T)
+    res = {
+        "T_thermal_subset_jy": T,
+        "F_pilot_subset_jy": pil["none"]["F"],
+        "P_pilot": Ppil,
+        "C0_ratio": pil["C0_F_over_heldout"],
+        "C2_vs_C": arms_[("C2", 1.0)]["F"] / T,
+        "pilot_drops": pd,
+        "pilot_floors_uJy": {
+            k: v["F"] * 1e6 for k, v in pil.items() if isinstance(v, dict) and "F" in v
+        },
+        "a2": a2,
+        "arms": {
+            f"{nm}@{k:g}": {
+                "F_uJy": v["F"] * 1e6,
+                "P_over_Ppilot": v["drops"]["P_none"] / Ppil,
+                **{t: v["drops"].get(t) for t in TESTS},
+                "shape": v["shape"],
+            }
+            for (nm, k), v in sorted(arms_.items())
+        },
+        "specificity": spec,
+    }
+    wjson(out / "summary.json", res)
+    log("summary written")
+
+
 def cheap(out):
     fn = out / "cheap.json"
     if fn.exists():
@@ -890,7 +1002,17 @@ def cheap(out):
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
-        "stage", choices=["prep", "skies", "cheap", "pilot", "arms", "all", "cleanup"]
+        "stage",
+        choices=[
+            "prep",
+            "skies",
+            "cheap",
+            "pilot",
+            "arms",
+            "all",
+            "summary",
+            "cleanup",
+        ],
     )
     p.add_argument("--out", default="D:/rang/outputs/20261113-floor")
     p.add_argument("--rows-limit", type=int)
@@ -908,6 +1030,8 @@ def main(argv=None):
         pilot(out)
     if a.stage in ("arms", "all"):
         arms(out)
+    if a.stage in ("summary", "all"):
+        summary(out)
     if a.stage == "cleanup":
         import shutil
 
