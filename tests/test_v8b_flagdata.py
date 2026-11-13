@@ -145,3 +145,13 @@ def test_a_refused_call_leaves_the_ms_writable(built, tmp_path):
         tasks.flagdata(vis=str(ms), mode="manual", uvrange="1~3km", flagbackup=False)
     got = tasks.flagdata(vis=str(ms), mode="manual", scan="2", flagbackup=False)
     assert got["flagged_after"] > got["flagged_before"]
+
+
+def test_writing_calls_leave_a_receipt(built, tmp_path):
+    ms = _copy(built / "syn-edges.ms", tmp_path / "e.ms")
+    got = tasks.flagdata(vis=str(ms), mode="quack", quackinterval=8.0, flagbackup=False)
+    receipts = sorted(tmp_path.glob("e.ms.flagdata-quack-*.rang-receipt.json"))
+    assert len(receipts) == 1
+    record = json.loads(receipts[0].read_text(encoding="utf-8"))
+    assert record["verdict"]["flag_sha256"] == got["flag_sha256"]
+    assert "quackinterval=8.0" in record["command"]

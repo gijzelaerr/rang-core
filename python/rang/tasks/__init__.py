@@ -201,9 +201,14 @@ def flagdata(
     as `rang_original` (rang never writes FLAG without a backup);
     `verbose`, `formats` and `overwrite` have no effect.
     """
+    import inspect
+
     from .. import flagdata as _fd
 
-    given = {k: v for k, v in locals().items() if k in _FLAGDATA_REFUSED}
+    defaults = {k: p.default for k, p in inspect.signature(flagdata).parameters.items()}
+    given_all = {k: v for k, v in locals().items()
+                 if k in defaults and k != "vis" and v != defaults[k]}  # fmt: skip
+    given = {k: given_all.get(k, defaults[k]) for k in _FLAGDATA_REFUSED}
     _refuse("flagdata", given, _FLAGDATA_REFUSED)
     if mode not in _FLAGDATA_MODES:
         raise Unsupported(f"flagdata: mode={mode!r} not supported yet "
@@ -268,4 +273,33 @@ def flagdata(
     backup = (
         _fd.next_backup_name(vis) if flagbackup else _fd.core_writeback.DEFAULT_BACKUP
     )
-    return _fd.run(vis, mode, sel_kw, params, flag_backup=backup).as_dict()
+    return _write_with_receipt(
+        vis,
+        mode,
+        given_all,
+        lambda: _fd.run(vis, mode, sel_kw, params, flag_backup=backup),
+    )
+
+
+def _write_with_receipt(vis, mode, keywords, call):
+    """Run a writing call and write its receipt beside `vis`:
+    `<vis>.flagdata-<mode>-<UTC>.rang-receipt.json` (the inputs' listing
+    hashes before, the flags and flag versions after, the record)."""
+    from datetime import datetime, timezone
+
+    from ..core_cli import Receipt
+
+    vis = Path(vis)
+    when = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    command = ["rang.tasks.flagdata", f"vis={vis}"] + [
+        f"{k}={v!r}" for k, v in sorted(keywords.items())
+    ]
+    receipt = Receipt(command, "flagdata", mode, [str(vis), f"{vis}.flagversions"], [])
+    path = vis.parent / f"{vis.name}.flagdata-{mode}-{when}.rang-receipt.json"
+    try:
+        record = call().as_dict()
+    except BaseException as exc:
+        receipt.write(path, f"exception: {type(exc).__name__}")
+        raise
+    receipt.write(path, 0, verdict=record)
+    return record
