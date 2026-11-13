@@ -404,12 +404,24 @@ def _chan_range(freq, width, part):
 
 
 def _freq_channels(freq, width, lo, hi):
-    """Channels of a frequency range (section 9, convention S1)."""
+    """Channels of a frequency range (section 9, S1): from the first
+    channel whose centre is at or above `lo` to the last whose centre is at
+    or below `hi`, the two swapped when the range falls between two centres
+    (CASA then selects both neighbours); ranges outside the band clip to
+    its edge channels."""
     lo, hi = min(lo, hi), max(lo, hi)
-    if CONV["spw_freq"] == "centre":
-        return (freq >= lo) & (freq <= hi)
-    half = np.abs(width) / 2.0
-    return (freq + half > lo) & (freq - half < hi)
+    out = np.zeros(len(freq), bool)
+    order = np.argsort(freq)
+    f = freq[order]
+    if hi < f[0] or lo > f[-1]:
+        return out
+    a = int(np.searchsorted(f, lo, side="left"))
+    b = int(np.searchsorted(f, hi, side="right")) - 1
+    a, b = min(a, len(f) - 1), max(b, 0)
+    if a > b:
+        a, b = b, a
+    out[order[a : b + 1]] = True
+    return out
 
 
 def select_spw(meta, text):
@@ -502,13 +514,12 @@ def select(meta, mode="manual", field="", spw="", antenna="", timerange="",
 # -- conventions read off CASA's output (research/v8b-flagdata.md section 9) ----
 
 CONV = {
-    "antenna_plain_cross_only": False,
+    "antenna_plain_cross_only": True,
     "timerange": "centre",
-    "spw_freq": "centre",
     "flag_row": "all",  # FLAG_ROW = every cell of the row flagged
     "quack_start": "time",  # scan start: first TIME (not TIME - INTERVAL/2)
     "quack_scan_key": ("OBSERVATION_ID", "ARRAY_ID", "SCAN_NUMBER", "FIELD_ID"),
-    "elevation_frame": "geodetic",
+    "elevation_frame": "geocentric",
     "shadow_uvw": "column",
 }
 
@@ -574,14 +585,15 @@ def quack_rows(meta, rows, interval, mode, increment=False, flag_row=None, flags
             t0, t1 = time[live].min(), time[live].max()
         else:
             t0, t1 = (time[live] - half[live]).min(), (time[live] + half[live]).max()
+        # The window includes its boundary (section 9, Q1).
         if mode == "beg":
-            hit = t < t0 + interval
+            hit = t <= t0 + interval
         elif mode == "endb":
-            hit = t > t1 - interval
+            hit = t >= t1 - interval
         elif mode == "tail":
-            hit = t >= t0 + interval
+            hit = t > t0 + interval
         elif mode == "end":
-            hit = t <= t1 - interval
+            hit = t < t1 - interval
         else:
             raise SelectionError(f"quackmode {mode!r}")
         out[mine[hit]] = True
@@ -643,9 +655,9 @@ def shadow_rows(meta, rows, tolerance=0.0):
             limit = r[i] + r[j] - tolerance
             close.append(abs(d - limit))
             if d < limit:
-                # uvw = x_j - x_i projected: w > 0 puts j nearer the source,
-                # so j shadows i (section 9, convention H1).
-                dead.add(i if uvw[k, 2] > 0 else j)
+                # CASA flags ANTENNA2 of a row whose UVW has w > 0, else
+                # ANTENNA1 (section 9, H1).
+                dead.add(j if uvw[k, 2] > 0 else i)
         shadowed_at[t] = dead
     for t, dead in shadowed_at.items():
         if dead:
@@ -712,12 +724,17 @@ class Result:
         return {k: getattr(self, k) for k in self.__dataclass_fields__}
 
 
-def _finish_rows(flag, flag_row_old, mode):
+def _finish_rows(flag, flag_row_old, mode, whole_rows):
+    """FLAG_ROW after a mode (section 9, R1): CASA sets it where a row is
+    then wholly flagged only when the mode flags whole rows (manual, quack,
+    shadow, elevation without a spw or correlation selection) and clears
+    it where `unflag` leaves a cell unflagged; clip, extend and tfcrop, and
+    any spw or correlation selection, leave FLAG_ROW as it was."""
     if mode == "unflag":
-        return flag.all(axis=(1, 2)) & flag_row_old & False | flag.all(axis=(1, 2))
-    return flag.all(axis=(1, 2)) | flag_row_old if CONV["flag_row"] == "keep" else flag.all(
-        axis=(1, 2)
-    )
+        return flag_row_old & flag.all(axis=(1, 2))
+    if whole_rows and mode in ("manual", "quack", "shadow", "elevation"):
+        return flag_row_old | flag.all(axis=(1, 2))
+    return flag_row_old
 
 
 def run(ms, mode, sel_kw, params, flag_backup=core_writeback.DEFAULT_BACKUP, chunk_rows=None):
@@ -736,6 +753,10 @@ def run(ms, mode, sel_kw, params, flag_backup=core_writeback.DEFAULT_BACKUP, chu
         meta.nchan, meta.ncorr = w.cell
         sel = select(meta, mode, **sel_kw)
         res.rows = int(sel.rows.sum())
+        if not res.rows:
+            # CASA: "MSSelectionNullSelection : The selected table has zero rows."
+            raise SelectionError("the selection has zero rows")
+        whole_rows = not sel_kw.get("spw") and not sel_kw.get("correlation")
         rowflag = None
         if mode == "quack":
             flags_all = None
@@ -773,7 +794,7 @@ def run(ms, mode, sel_kw, params, flag_backup=core_writeback.DEFAULT_BACKUP, chu
                     flag |= clip_cells(values, cells, params.get("clipminmax"),
                                        params.get("clipoutside", True),
                                        params.get("clipzeros", False))  # fmt: skip
-                new_row = _finish_rows(flag, old_row, mode)
+                new_row = _finish_rows(flag, old_row, mode, whole_rows)
                 res.flagged_after += int(flag.sum())
                 w.write_flags(s0, flag, new_row)
                 digest.update(np.ascontiguousarray(flag).tobytes())
@@ -871,7 +892,7 @@ def _write_rows_flags(w, rows, flag, spans):
             continue
         out = w.read("FLAG", s0, n).astype(bool)
         out[rows[pick] - s0] = flag[pick]
-        w.write_flags(s0, out, out.all(axis=(1, 2)))
+        w.write_flags(s0, out)
 
 
 def next_backup_name(ms):
@@ -916,8 +937,20 @@ def summary(ms, sel_kw, spwchan=False, spwcorr=False, basecnt=False, fieldcnt=Fa
             total += int(tot_r.sum())
             flagged += int(flg_r.sum())
             sl = slice(s0, s0 + n)
+            x1, x2 = m["ANTENNA1"][sl], m["ANTENNA2"][sl]
+            # An autocorrelation counts once for its antenna (section 9, U1).
+            x2 = np.where(x1 == x2, -1, x2)
+            for xs in (x1, x2):
+                for v in np.unique(xs[xs >= 0]):
+                    pick = xs == v
+                    add("antenna", int(v), int(tot_r[pick].sum()), int(flg_r[pick].sum()))
+                    if basecnt:
+                        sc = m["SCAN_NUMBER"][sl]
+                        for s_ in np.unique(sc[pick]):
+                            p2 = pick & (sc == s_)
+                            add("antenna:scan", f"{meta.ant_names[v]}:{s_}",
+                                int(tot_r[p2].sum()), int(flg_r[p2].sum()))  # fmt: skip
             for group, values in (
-                ("antenna1", m["ANTENNA1"][sl]), ("antenna2", m["ANTENNA2"][sl]),
                 ("array", m["ARRAY_ID"][sl]), ("observation", m["OBSERVATION_ID"][sl]),
                 ("scan", m["SCAN_NUMBER"][sl]), ("spw", spw_of[sl]),
                 ("field", m["FIELD_ID"][sl]),
@@ -949,14 +982,7 @@ def summary(ms, sel_kw, spwchan=False, spwcorr=False, basecnt=False, fieldcnt=Fa
 
 def _summary_record(meta, acc, total, flagged, name):
     out = {"name": name, "type": "summary", "total": float(total), "flagged": float(flagged)}
-    ant = {}
-    for group in ("antenna1", "antenna2"):
-        for k, (tt, ff) in acc.get(group, {}).items():
-            d = ant.setdefault(meta.ant_names[k], [0, 0])
-            d[0] += tt
-            d[1] += ff
-    if CONV.get("summary_auto_once", True):
-        pass
+    ant = {meta.ant_names[k]: v for k, v in acc.get("antenna", {}).items()}
     out["antenna"] = {k: {"total": float(v[0]), "flagged": float(v[1])} for k, v in ant.items()}
     names = {"array": str, "observation": str, "scan": str, "spw": str, "correlation": str}
     for group, conv in names.items():
@@ -964,7 +990,7 @@ def _summary_record(meta, acc, total, flagged, name):
                       for k, v in acc.get(group, {}).items()}  # fmt: skip
     out["field"] = {meta.field_names[k]: {"total": float(v[0]), "flagged": float(v[1])}
                     for k, v in acc.get("field", {}).items()}  # fmt: skip
-    for group in ("baseline", "spw:channel", "spw:correlation"):
+    for group in ("baseline", "antenna:scan", "spw:channel", "spw:correlation"):
         if group in acc:
             out[group] = {k: {"total": float(v[0]), "flagged": float(v[1])}
                           for k, v in acc[group].items()}  # fmt: skip
