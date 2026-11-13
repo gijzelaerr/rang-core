@@ -4,9 +4,20 @@ Issue [gijzelaerr/rang-core#6](https://github.com/gijzelaerr/rang-core/issues/6)
 arms 1 and 2 (roadmap v0.3.0; arm 3, joint gains and image, is v0.6.0). Branch
 `claude/selfcal-arms-82d5c9` from main `30d9412`, 2026-11-13. Native Windows.
 
-**Status: proposed.** Sections 1 to 6 are the protocol, committed before any
-code that tests it and before any arm is scored. Results go in section 8 and
-later, dated; changes after a result are labelled post hoc.
+**Status: implemented and measured, 2026-11-13. No arm meets C5's T2 gate.**
+Section 9 gives the verdicts against the frozen rule:
+
+- `r` delay **helps, not met**: its final phase p95 is 0.62 and 0.69 × `u`'s
+  on the held-out cases, at 2.0 × the cost, and its delay gate passes.
+- `r` pa: **null** (0.88 and 0.65).
+- `p` delay: **null** (1.02 and 1.01).
+
+Both arms use the existing `selfcal.rounds` and `selfcal.terms` keys, so
+`rang-core selfcal`, its defaults and E2 are unchanged.
+
+Sections 1 to 6 are the protocol, committed before any code that tests it
+and before any arm was scored. Results are in section 8 and later, dated;
+changes after a result are labelled post hoc.
 
 ## 1. Hypothesis
 
@@ -400,3 +411,96 @@ just as closely as above.
 
 Lock waits: QuartiCal reran at 30 minutes per job with the wait included,
 the first pass at 11 minutes.
+
+### 8.4 Held out (`D:\rang\outputs\selfcal-arms-20261113-03`)
+
+The four held-out MSs were generated after the freeze record (`6bec2d5`).
+The 10 loops ran once, in parallel, each under `--slots 4 --mem 4`; nothing
+was rerun.
+
+**`u` reproduces C5b's native `u`** on all four cases (C5b section 6), to
+within one unit in the last printed digit:
+
+| case | round 1 (this run / C5b) | round 2 (this run / C5b) |
+| --- | --- | --- |
+| c5pa-held2 | 2.48 / 14.9 against 2.48 / 14.9 | 1.47 / 10.5 against 1.47 / 10.5 |
+| c5delay-held2 | 4.19 / 17.7 against 4.18 / 17.7 | 2.85 / 13.5 against 2.85 / 13.5 |
+| c5pa-held | 2.26 / 14.9 against 2.26 / 14.9 | 1.87 / 12.9 against 1.88 / 12.9 |
+| c5delay-held | 1.96 / 15.7 against 1.95 / 15.7 | 1.06 / 10.0 against 1.05 / 10.0 |
+
+The truth sets are therefore C5's and C5b's.
+
+Final rounds, with phase rms / p95 (°), Sa amplitude median / p95 (%) and
+Sd delay rms / p95 (ns):
+
+| case | arm | final round | phase | amplitude / delay | gates failed |
+| --- | --- | --- | --- | --- | --- |
+| c5pa-held | u | 2 Sa 8 | 1.87 / 12.9 | 1.45 / 2.85 % | phase, amp_rel |
+| c5pa-held | r | 5 Sa 8 | 1.59 / 11.3 | 1.52 / 2.78 % | phase, amp_rel |
+| c5pa-held2 | u | 2 Sa 8 | 1.47 / 10.5 | 1.54 / 4.16 % | phase, amp_rel |
+| c5pa-held2 | r | 5 Sa 8 | 0.58 / 6.9 | 1.63 / 4.34 % | phase, amp_rel, amp_vs_input |
+| c5delay-held | u | 2 Sd 8 | 1.06 / 10.0 | 0.0074 / 0.070 | delay, phase |
+| c5delay-held | r | 5 Sd 8 | 0.62 / 6.2 | 0.0016 / 0.019 | phase |
+| c5delay-held | p | 2 Sd 8 | 1.06 / 10.2 | 0.0076 / 0.072 | delay, phase |
+| c5delay-held2 | u | 2 Sd 8 | 2.85 / 13.5 | 0.0050 / 0.077 | delay, phase |
+| c5delay-held2 | r | 5 Sd 8 | 2.02 / 9.3 | 0.0036 / 0.012 | phase |
+| c5delay-held2 | p | 2 Sd 8 | 2.88 / 13.6 | 0.0052 / 0.082 | delay, phase |
+
+Round R − 1 (gated with T2's round-1 rows) fails phase in every `r` and `p`
+loop. `r`'s rounds 3 to 5 lower phase p95 monotonically on every case: for
+example 7.8 → 6.9 → 6.2° on c5delay-held and 8.4 → 7.4 → 6.9° on
+c5pa-held2.
+
+Stage wall times were 61-71 s for `u`, 121-146 s for `r` and 65-67 s for
+`p`. The lock waits were 42-49 minutes per loop. Model relative rms on the
+longest baseline bin:
+
+| case | `u` | `r` |
+| --- | --- | --- |
+| c5pa-held | 0.281 | 0.252 |
+| c5pa-held2 | 0.207 | 0.145 |
+| c5delay-held | 0.164 | 0.133 |
+| c5delay-held2 | 0.153 | 0.202 |
+
+`r`'s model error is lower on three of the four cases; on c5delay-held2 it
+is higher.
+
+## 9. Verdicts (section 5, frozen rule, held-out cases)
+
+These come from `verdict.json`, unrounded. The ratio is the arm's
+final-round phase p95 over `u`'s; cost is the stage wall time over `u`'s.
+
+| arm | ratios on (held, held2) | cost | verdict |
+| --- | --- | --- | --- |
+| `r` pa | 0.879, 0.651 | 1.97 ×, 2.11 × | **null** (0.879 > 0.8 on c5pa-held) |
+| `r` delay | 0.621, 0.688 | 1.98 ×, 2.05 × | **helps, not met** |
+| `p` delay | 1.019, 1.008 | 1.02 ×, 0.94 × | **null** |
+
+- **T2 is not met by any arm on any case.** The phase p95 is 6.2-13.6°
+  against 1.5-3°. On pa, the Sa amplitude p95 (2.8-4.3 %) also exceeds the
+  limit, and `r` on c5pa-held2 newly fails `amp_vs_input`.
+- **`r` delay helps.** Phase p95 falls by 31-38 %. Delay p95 falls from
+  0.070-0.077 ns to 0.012-0.019 ns, inside T2's 0.03, so the delay row now
+  passes where `u` and C5b's masks failed it. The cost is 2 × the stage
+  time.
+- **`r` pa is null under the rule.** It helps on c5pa-held2 (0.65) and by
+  12 % on c5pa-held. The amplitude round does not improve.
+- **A phase-only first round (`p`) does nothing.** Round 2 of `p` equals
+  `u`'s to within 2 %.
+- **What limits every arm is still the model.** The longest-baseline model
+  rms stays at 0.13-0.25, against 0.13-0.34 in C5b. More rounds lower it,
+  but not to the level a model from truly corrected data reaches in C5
+  section 7.
+
+This is no novelty claim and no default change. `u` (E2's schedule) stays
+the default.
+
+- `r` delay is a configuration an astronomer can choose today, through
+  `selfcal.rounds: 5` and the terms in section 4. On simulated MeerKAT-like
+  delay errors it halves the delay error at twice the cost.
+- Comparing it with CARACal on E2-A, the second oracle in section 3, is left
+  for later, as the issue plans.
+- Arm 3 (joint gains and image, v0.6.0) targets the model limit directly.
+
+Archive: `research/results/selfcal-arms.json`, holding every scored loop
+(`-02` and `-03`), the QuartiCal comparisons and `verdict.json`.
