@@ -522,3 +522,22 @@ cells unflagged and are not scored.
 - **Deleted 09:20:** the try 5 split `msdir` (118 GB plus 4.7 GB of flag
   versions) and the non-MFS leakage products. Kept: `e2b.ms` (51 GB, for the
   timed pass) and the run's `output\`, logs and MFS images (0.5 GB).
+
+### 10.12 Stopped by the owner (2026-11-13); resume state
+
+- Stopped on the owner's order, relayed by the coordinator. No E3 job was
+  running or queued at the stop.
+- On D: `e3-20261111-input\e2b.ms` (51 GB, verified, 0 cells differ), kept
+  for the timed pass. The run folders hold logs and `output\` only.
+- **E3-B timed pass:** waits for E2's timed runs, since both need the host
+  exclusive. To resume, from WSL:
+  `bash research/results/e3-caracal/scripts/e3_locked.sh b timed <W>/configs/e3b-timed.yml /mnt/d/rang/outputs/e3-20261111-input exclusive`
+  (`<W>` is the results folder's `/mnt/c/...` path). The config has
+  MeqTrees tile 16. Then run `e3_cost.py`, run the measures as in 10.11 on
+  its split, compare with `e3b-correct/`, archive, and delete the split.
+- **E3-A:** waits for E2-A to finish and needs the disk gate (≥ 600 GB free,
+  no E2-A copy). Build `e2a.ms` with `e3_build.sh`, using the section 2
+  groups, then the correctness pass (shared), then the timed pass
+  (exclusive). The 30 GiB VM limit may also hit E3-A's `set_model_cal`.
+  Deviation 11 is E3-B only, so a stop there goes back to the coordinator.
+- Open: 3C 286 χ (10.11), and the 1934−638 flux scale of CARACal's own model.
