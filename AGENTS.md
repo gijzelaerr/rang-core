@@ -30,14 +30,19 @@ instruction; contributors can skip it. Task procedures for agents are in
 
 - Contributors and their agents open a pull request against `main` from a
   branch or fork; `CONTRIBUTING.md` gives the route.
-- CI on a pull request: `tests` (ruff, ruff format, cargo fmt, clippy with
-  warnings as errors, cargo test for the root crate and `core/`, pytest on Linux
-  and Windows against the branch's extension), `docs` (notebooks on the public
-  fixture, the CLI page check, `sphinx-build -W`), and `wheels` when the pull
-  request touches `core/`, `src/`, `Cargo.*`, `.cargo/`, `pyproject.toml` or
-  `tools/wheel/`. CI has no archives or oracles (CASA, QuartiCal, WSClean), so
-  their gates still need the full local checks (`python -m rang.check`, after
-  `maturin develop --release`); report the result in the pull request.
+- CI: `tests` (ruff, ruff format, cargo fmt, clippy with warnings as errors,
+  cargo test for the root crate and `core/`, pytest on Linux and Windows
+  against the branch's extension) runs on every pull request and on every push
+  to a branch other than `main`; `docs` (notebooks on the public fixture, the
+  CLI page check, `sphinx-build -W`) on pull requests, and `wheels` when the
+  pull request touches `core/`, `src/`, `Cargo.*`, `.cargo/`, `pyproject.toml`
+  or `tools/wheel/`. A session runs `python tools/check_all.py --quick`, pushes
+  its branch (`git push -u origin <branch>`) and reads the run with
+  `gh run list` / `gh run watch` (`docs/agents/check-and-ci.md`). CI has no
+  archives or oracles (CASA, QuartiCal, WSClean), so their gates still need
+  the full local check (`python tools/check_all.py`, which builds the
+  extension itself), run by the session or left to the coordinator's one
+  merge check; report which in the pull request or hand-back.
 - Never force-push a shared branch; never rewrite `main`.
 - Commit under your own name and address. An agent commits as the person it
   works for, never under an agent or bot identity of its own.
@@ -65,6 +70,8 @@ instruction; contributors can skip it. Task procedures for agents are in
   `run --slots N --mem G -- <command>` with honest thread and memory figures;
   timing and tuning runs exclusive (`run -- <command>`), which waits for an
   otherwise idle host. Keep the host busy; don't oversubscribe it.
+  `--priority critical` (served first, never preempting) is for the release's
+  critical path only, on the coordinator's word; everything else queues normal.
 
 ### Layout
 
