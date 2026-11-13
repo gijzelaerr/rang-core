@@ -853,6 +853,96 @@ as 6.5):
   parallactic angle and is shared by rang and CASA. The transfer row, which
   is judged on absolute χ, measures it.
 
+### 7.4 E2-B frozen arm: matched 3c, transfer and leakage rows (2026-11-13)
+
+Resumed from 8.3 on 2026-11-13. Records: `results/e2-acceptance/e2b/frozen/`
+(R's text records; the transfer cases in `transfer/`, `transfer-amended/`,
+`transfer-casa/`) and `e2b/devtables/`. Each step a shared heavy_lock job.
+
+**Gate 3c, matched oracle** (`R\g3c-matched.json`, unit weights as rang's
+`-unit-weights`; 7.1). Not met, as expected in 7.1:
+
+| Measure | As committed (8.1) | Matched | Limit |
+| --- | --- | --- | --- |
+| Dirty L∞ / peak, max over images | 0.032 | 3.5e-3 (J1331+3030), 2.9e-3 (J1833−2103), 1.2e-3 (J1939−6342) | 1e-6 |
+| — inner two-thirds (reported) | 0.032 | 3.0e-5, 2.4e-5, 2.2e-5 | – |
+| Compact sources, median ratio, scatter | 37, 0.9936, 1.4 % | 35, 0.9942, 0.97 % | within 0.5 %, ≤ 1 % |
+| Δα, 12 sources ≥ 50σ | 0.023 | 0.0097 | ≤ 0.05 |
+| Off-source \|model\| ratio (J1939, J1833, J1331) | 1.28, 1.70, 2.29 | 1.27, 1.67, 2.27 | ≤ 1.6 |
+| Unpolarised Q, U, V (J1939−6342) | not met (V) | met | – |
+| Q/Q₀ | not checked | not checked | – |
+
+- Matched 3c: "met where checked" is false. Δα and the unpolarised test are
+  met; dirty L∞, the compact-source median (0.58 % from 1) and off-source on
+  J1833−2103 and J1331+3030 are not.
+
+**Library selftest** (`transfer/selftest.json`): the run's own K, G, B, Gpol,
+Kcross, Xf, Df applied by the library to J1331+3030 scan 17 reproduce
+RANG_CORRECTED_DATA and RANG_FLAG **bit for bit**: 171,242,769 cells, 0 over
+class C, max relative difference 0, 0 flag elements differ. The transfer
+cases' route is the chain's.
+
+**Leakage scorer, development rerun** (fixed field and beam, 8.3 item 3):
+J1939−6342 (OBJECT asserted), beam 19.1 px, Q/I 0.073 %, U/I 0.071 %,
+V/I 0.008 %: met on the dry run's slice.
+
+**CASA development tables** (`e2_casa_xfer.py dev`, CASA 6.7.6.14): 11 tasks,
+0 errors, on a copy of `luno-dev.ms` carrying rang's frozen development FLAG
+after calibrate (equal to the amended one, 7.1).
+
+**Rows** (one bin 1.3–1.5 GHz for the transfer; 73.6 % of scan 17's cells
+unflagged in every arm):
+
+| Row | Rang frozen | Rang amended | CASA | Limit | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| 3C 286 transfer, p | 9.668 % | 9.672 % | 9.677 % | [9.0, 10.1] % | p met in all arms |
+| 3C 286 transfer, χ criterion | not met | not met | not met | \|χ − 33.1°\| ≤ 7° | **not met** as frozen (all arms) |
+| 1934−638 leakage, phase-only G (gated): Q/I, U/I, V/I | 0.302 %, 0.288 %, 0.053 % | 0.302 %, 0.288 %, 0.053 % | 0.298 %, 0.288 %, 0.053 % | each ≤ 0.3 % | **rang not met** (Q by 0.002 points), CASA met |
+| 1934−638 leakage, scan 18's own ap G (reported beside) | 0.026 %, 0.029 %, 0.054 % | 0.026 %, 0.029 %, 0.054 % | 0.025 %, 0.028 %, 0.053 % | – | – |
+
+- The χ criterion is reported as frozen and not interpreted here. The
+  absolute polarisation angle belongs to the chi-offset task
+  (`research/chi-offset.md`, branch `claude/chi-offset-80cb6a`). The three
+  arms agree in χ to 0.04°.
+- Rang's phase-only leakage is 0.004 points of Q/I above CASA's, and both are
+  within 0.002 points of the limit. With scan 18's own amplitudes the
+  leakage is about 10 × lower in all arms. So the gated number is mostly the
+  X/Y amplitude drift between the development scans and scan 18 (7.1). The
+  verdict stays as frozen: not met.
+- The amended arm's development tables (with `average_freq`) change nothing
+  above the fourth digit.
+
+**Scorer fixes found on E2 data (no value had been read):**
+- `e2_transfer.py`'s first `xfer17` run stopped with a 27.8 GiB allocation:
+  the script did not pass the chain's memory budget
+  (`core_chunks.budget(...).chain()`, as `core_pipeline` passes it to
+  `cal_chain.run`). Fixed in b5fc631. Nothing had been written, and the
+  rerun ran the same case.
+- `e2_leakage.py` writes `OUT/<label>.json`, the same name as
+  `e2_transfer.py`'s case record. The rang leak cases' solve and apply
+  records were therefore overwritten by the leakage result. The tables
+  (`<case>-Gscan`) are kept. Values are unaffected; this is recorded only.
+
+**Flags left on `R\casa\e2b.ms`:**
+- Before the cases, the FLAG there was the CASA 3b chain's (`e2_casa3b.py
+  run` ends with its applycal). It was saved as flag version
+  `e2_casa_applycal` and restored after the CASA cases (272,916 rows).
+- CORRECTED_DATA on J1331+3030 scan 17 and J1939−6342 scan 18 now holds
+  CASA's transfer and leakage applies (the last case, `leak18ap`, on scan 18),
+  not the 3b chain's. E2_XFER holds rang's last cases.
+- J1833−2103 (scans 19-20) is unchanged.
+
+**Disk, freed 2026-11-13** (each one's records committed first, 27d9684,
+`results/e2-acceptance/dev-archive/`; D: 299 → 595 GB free):
+- this task's outputs `e2-20261111-12-dryrun` (79 GB), `e2-20261110-11-avg`
+  (77 GB, including `luno-dev.ms`), `e2-20261111-13-freqavg` (74 GB);
+- the CASA development copy `DEV\casa-dev\casa\luno-dev.ms` (78 GB; tables
+  kept);
+- F2's `f2-20261106-04-sim-test` (48 GB; owner item 32, results on main).
+- **Kept:** `f2-20261106-02-sim-train`, `-01-sim-v` and
+  `f3-20261110-03-sim-test`, because branch `fp-f4-flagger`'s `f3flag.py`
+  reads them.
+
 ## 8. Paused 2026-11-13 07:00 (owner's order: stop everything)
 
 All queued heavy_lock tickets were cancelled while waiting; no job was
@@ -893,6 +983,10 @@ was read.
 - Amended arm, steps done: timed run, gate 1, archive, wcs, casacore, casa-ro.
 
 ### 8.3 Not started, or must be rerun
+
+Resumed 2026-11-13: items 1-5 done (7.4). Item 6 runs; item 7 follows it.
+Item 7's deletion of `e2b.ms` is withdrawn: E3-B's timed pass needs the
+data (coordinator, 2026-11-13).
 
 1. **Matched 3c score:**
    `e2_score3c.py R R\wsclean3c-unit R\g3c-matched.json`.

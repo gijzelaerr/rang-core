@@ -1,0 +1,5 @@
+2026-11-12 08:09:18	SEVERE	::casa	
+2026-11-12 08:09:18	SEVERE	::casa	The contents of measurespath do not appear to be casarundata. CASA may still work if the data can be found in datapath.
+2026-11-12 08:09:18	SEVERE	::casa	The measures data found at measurespath is not being maintained by casaconfig.
+2026-11-12 08:09:18	SEVERE	::casa	visit https://casadocs.readthedocs.io/en/stable/notebooks/external-data.html for more information
+2026-11-12 08:09:18	SEVERE	::casa	

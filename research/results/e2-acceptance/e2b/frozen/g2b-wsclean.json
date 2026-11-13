@@ -1,0 +1,14 @@
+{
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-image.fits"
+ ],
+ "met": true
+}

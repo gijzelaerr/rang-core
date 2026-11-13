@@ -1,0 +1,21 @@
+{
+ "label": "leak18ap",
+ "column": "E2_XFER",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/leak18ap -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2_XFER -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 14.805419921875,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448019641283,
+ "Q_over_I": 0.00025568721913340743,
+ "Q_at_peak_over_I": -0.00011877907224171135,
+ "U_over_I": 0.0002923200570909745,
+ "U_at_peak_over_I": -0.0002211461648198299,
+ "V_over_I": 0.000535478873886864,
+ "V_at_peak_over_I": 6.288482569520636e-05,
+ "met": true,
+ "max_over_I": 0.000535478873886864
+}

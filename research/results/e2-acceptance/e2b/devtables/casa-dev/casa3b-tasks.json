@@ -1,0 +1,2377 @@
+[
+ {
+  "task": "setjy",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  },
+  "seconds": 501.46143676099996,
+  "error": null,
+  "written": true,
+  "return": {
+   "1": {
+    "0": {
+     "fluxd": "[13.993332  0.        0.        0.      ]"
+    },
+    "fieldName": "J1939-6342"
+   },
+   "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+  }
+ },
+ {
+  "task": "setjy",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "field": "J1331+3030",
+   "standard": "manual",
+   "fluxdensity": [
+    14.7172,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "spix": [
+    -0.4507,
+    -0.1798,
+    0.0357
+   ],
+   "reffreq": "1.47GHz",
+   "polindex": [
+    0.098
+   ],
+   "polangle": [
+    0.575959
+   ],
+   "rotmeas": 0.0,
+   "scalebychan": true,
+   "usescratch": true
+  },
+  "seconds": 184.66354001399998,
+  "error": null,
+  "written": true,
+  "return": {
+   "0": {
+    "0": {
+     "fluxd": "[18.33540736  0.7308517   1.64152286  0.        ]"
+    },
+    "fieldName": "J1331+3030"
+   },
+   "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/K",
+   "field": "J1939-6342",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "parang": false
+  },
+  "seconds": 285.5952850340001,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "[]",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47\n 48 49 50 51 52 53 54 55]",
+    "field": "[1]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'UNKNOWN']",
+    "observation": "[0]",
+    "scan": "[2]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/K']",
+   "solvestats": {
+    "above_minblperant": "[1 1]",
+    "above_minsnr": "[1 1]",
+    "data_unflagged": "[1 1]",
+    "expected": "[1 1]",
+    "spw0": {
+     "above_minblperant": "[1 1]",
+     "above_minsnr": "[1 1]",
+     "ant0": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant16": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant17": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant18": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant19": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant20": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant21": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant22": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant23": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant24": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant25": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant26": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant27": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant28": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant29": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant30": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant31": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant32": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant33": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant34": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant35": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant36": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant37": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant38": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant39": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant40": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant41": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant42": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant43": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant44": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant45": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant46": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant47": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant48": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant49": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant50": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant51": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant52": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant53": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant54": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant55": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[1 1]",
+     "expected": "[1 1]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/G",
+   "field": "J1939-6342",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  },
+  "seconds": 230.3211022380001,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47\n 48 49 50 51 52 53 54 55]",
+    "field": "[1]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'UNKNOWN']",
+    "observation": "[0]",
+    "scan": "[2]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/G']",
+   "solvestats": {
+    "above_minblperant": "[1 1]",
+    "above_minsnr": "[1 1]",
+    "data_unflagged": "[1 1]",
+    "expected": "[1 1]",
+    "spw0": {
+     "above_minblperant": "[1 1]",
+     "above_minsnr": "[1 1]",
+     "ant0": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant16": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant17": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[1]"
+     },
+     "ant18": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant19": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant20": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant21": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant22": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant23": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant24": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant25": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant26": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant27": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant28": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant29": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant30": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant31": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant32": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant33": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant34": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant35": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant36": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant37": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant38": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant39": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant40": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant41": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant42": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant43": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant44": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant45": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant46": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant47": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant48": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant49": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant50": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant51": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant52": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant53": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant54": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant55": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[1 1]",
+     "expected": "[1 1]"
+    }
+   }
+  }
+ },
+ {
+  "task": "bandpass",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/B",
+   "field": "J1939-6342",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 0,
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 273.1608346780001,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/G' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47\n 48 49 50 51 52 53 54 55]",
+    "field": "[1]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'UNKNOWN']",
+    "observation": "[0]",
+    "scan": "[2]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/B']",
+   "solvestats": {
+    "above_minblperant": "[1 1]",
+    "above_minsnr": "[1 1]",
+    "data_unflagged": "[1 1]",
+    "expected": "[1 1]",
+    "spw0": {
+     "above_minblperant": "[1 1]",
+     "above_minsnr": "[1 1]",
+     "ant0": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant16": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant17": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[1]"
+     },
+     "ant18": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant19": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant20": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant21": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant22": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant23": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant24": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant25": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant26": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant27": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant28": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant29": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant30": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant31": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant32": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant33": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant34": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant35": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant36": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant37": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant38": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant39": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant40": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant41": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant42": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant43": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant44": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant45": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant46": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant47": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant48": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant49": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant50": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant51": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant52": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant53": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant54": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant55": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[1 1]",
+     "expected": "[1 1]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gpol",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 309.3369149309999,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/G' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47\n 48 49 50 51 52 53 54 55]",
+    "field": "[0]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'UNKNOWN']",
+    "observation": "[0]",
+    "scan": "[1]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Gpol']",
+   "solvestats": {
+    "above_minblperant": "[10 10]",
+    "above_minsnr": "[10 10]",
+    "data_unflagged": "[10 10]",
+    "expected": "[10 10]",
+    "spw0": {
+     "above_minblperant": "[10 10]",
+     "above_minsnr": "[10 10]",
+     "ant0": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant16": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant17": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[10]"
+     },
+     "ant18": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant19": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant20": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant21": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant22": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant23": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant24": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant25": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant26": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant27": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant28": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant29": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant30": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant31": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant32": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant33": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant34": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant35": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant36": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant37": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant38": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant39": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant40": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant41": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant42": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant43": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant44": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant45": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant46": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant47": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant48": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant49": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant50": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant51": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant52": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant53": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant54": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant55": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[10 10]",
+     "expected": "[10 10]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Kcross",
+   "field": "J1331+3030",
+   "gaintype": "KCROSS",
+   "solint": "inf",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Gpol"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 341.87701248500025,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/G' '/p/casa/tables/Gpol'\n '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23\n 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47\n 48 49 50 51 52 53 54 55]",
+    "field": "[0]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'UNKNOWN']",
+    "observation": "[0]",
+    "scan": "[1]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Kcross']",
+   "solvestats": {
+    "above_minblperant": "[0 0]",
+    "above_minsnr": "[0 0]",
+    "data_unflagged": "[1 1]",
+    "expected": "[1 1]",
+    "spw0": {
+     "above_minblperant": "[0 0]",
+     "above_minsnr": "[0 0]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant16": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant17": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant18": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant19": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant20": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant21": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant22": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant23": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant24": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant25": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant26": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant27": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant28": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant29": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant30": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant31": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant32": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant33": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant34": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant35": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant36": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant37": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant38": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant39": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant40": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant41": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant42": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant43": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant44": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant45": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant46": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant47": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant48": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant49": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant50": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant51": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant52": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant53": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant54": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant55": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[1 1]",
+     "expected": "[1 1]"
+    }
+   }
+  }
+ },
+ {
+  "task": "polcal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/Xf",
+   "field": "J1331+3030",
+   "poltype": "Xf",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Gpol",
+    "/p/casa/tables/Kcross"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest"
+   ]
+  },
+  "seconds": 353.1445232359997,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "polcal",
+  "call": {
+   "vis": "/c/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/Df.raw",
+   "field": "J1939-6342",
+   "poltype": "Df",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Kcross",
+    "/p/casa/tables/Xf"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest"
+   ]
+  },
+  "seconds": 353.58581946000004,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/p/casa/tables/Df.raw",
+   "dst": "/p/casa/tables/Df"
+  },
+  "seconds": 0.45893566100039607,
+  "error": null,
+  "written": true,
+  "return": "/p/casa/tables/Df"
+ },
+ {
+  "task": "flagdata",
+  "call": {
+   "vis": "/p/casa/tables/Df",
+   "mode": "clip",
+   "clipminmax": [
+    -0.6,
+    0.6
+   ],
+   "datacolumn": "CPARAM",
+   "flagbackup": false
+  },
+  "seconds": 0.3404218709997622,
+  "error": null,
+  "written": true,
+  "return": null
+ }
+]
