@@ -65,7 +65,15 @@ by it and reworded. `sphinx-build -W` and the tests: section 5.
 
 ## 5. Checks
 
-See the coordinator section below for the runs and their results.
+- GitHub `docs` workflow on `5bc8b0f` (run 43379688451, ubuntu, green): extension build 251 s, the notebooks on the
+  public fixture (`RANG_NOTEBOOK_LUNO=0`, I6-I8 from the nightly cache) 112 s, the CLI page check 4 s,
+  `sphinx-build -W --keep-going` 28 s, no warning. On `2a9378d` (run 43375892773) green too.
+- Locally: `tests/test_w4_8_docs.py` README and research-index tests (6 passed); ruff and ruff format on `docs/conf.py`;
+  the link script of section 3.
+- **Not run locally:** the extension build in the worktree venv waited 64 min in `tools/heavy_lock.py` behind an
+  exclusive `cold_build_bench.py` (pid 36400) and was withdrawn once CI had built and checked the same commit. So no
+  local `sphinx-build`, no local notebooks job, and the quickstart commands were not run by hand; they are the
+  commands of `tools/e2e/run.py` and `notebooks/00-ms-to-image.ipynb`, which CI runs.
 
 ## 6. Left
 
@@ -85,4 +93,9 @@ See the coordinator section below for the runs and their results.
 
 ## For the coordinator
 
-Filled in at hand-back (checks, commits).
+- Branch `docs-polish` (pushed), commits `2a9378d` (stale-statement fixes, research story 7-8), `5bc8b0f` (new pages,
+  landing, theme), and this note's completion. Not merged. Documentation and `docs/conf.py` theme options only.
+- Merging: `research/README.md` and `research/tool-timings.md` take one line each (take both on conflict); no file
+  that the speedup-tools branch touches was edited.
+- Before merge, if wanted: a local `python -m rang.check` (not run here, see section 5); docs CI is green.
+- At v0.2.0 (E6): L4, remove the "0.1.0 lacks the chain" notes; at E2/E3: L1.
