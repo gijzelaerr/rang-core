@@ -108,6 +108,21 @@ What it changes (coordinator, proposed):
 
 Still open for Simon: whether he would review the edge-case set, and which MSv2 cases he has seen break readers.
 
+### Follow-up from Simon (2026-11-13, relayed by the owner)
+
+- In his view Dask "is veering towards unmaintained" and has task-scaling limits that are unlikely to be fixed.
+- The exception would be depending on Matthew Rocklin's Rust implementation of the Dask scheduler ([getfrisky.dev](https://getfrisky.dev/)). It is closed source, and how well it is or will be maintained is unclear.
+- xarray-ms does not depend on Dask as its execution framework.
+
+None of these claims were checked here [I].
+
+What it changes (proposed, not decided):
+
+1. **Stage 2 is no longer "Dask distributed" by default.** Stage 1's `plan`/`run`/`reduce` ChunkSpec API stays independent of the executor. Stage 2 becomes "a multi-node executor", with Dask (dask-jobqueue) as one candidate beside a plain Slurm/PBS job-array executor (one ChunkSpec list per array task, reduced by a final job). Before stage 2 starts, a short note compares the candidates on maintenance (commit and release activity), task-count scaling at the planned chunk counts, and Slurm/PBS support. No closed-source scheduler is a dependency.
+2. **Interoperability does not need Dask.** #5's optional xarray-ms ingest (point 1 above) does not pull in Dask as a runtime requirement.
+3. **Risks (section 5):** add Dask's maintenance and its task-scaling limits; the existing "Dask overhead with many small chunks" item becomes part of the stage 2 comparison.
+4. **Owner decision:** whether #4 (stage 2) is renamed executor-neutral in the roadmap and on the issue.
+
 ## For the coordinator
 
 None of this is on the v0.2.0 finish line. Stage 1 is proposed for v0.3.0, and stages 2 and 3 after it, subject to the owner's decision.
