@@ -1,0 +1,11 @@
+{
+ "ms": "D:\\rang\\data\\e2-a\\e2a.ms",
+ "rows": 1047614,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+ "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6",
+ "seconds": 29.19227630001842
+}

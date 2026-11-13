@@ -1043,6 +1043,38 @@ data (coordinator, 2026-11-13).
 The χ-offset session reads `R\casa\e2b.ms` only after it is told "done".
 Send that after step 5.
 
+## 9. E2-A
+
+### 9.1 The Measurement Set (built and verified 2026-11-13)
+
+`e2_convert.py build D:\rang\data\e2-a\e2a.ms` from ms1_primary MAIN_4
+(scan 9), ms1_target MAIN_4 (scan 10) and ms1_primary MAIN_5 (scan 11), then
+`verify` and `e2_flaghash.py`. Each step was a shared heavy_lock job at
+critical priority. Records: `results/e2-acceptance/e2a/`; logs in
+`D:\rang\outputs\e2-20261113-30-e2a`.
+
+- 1,047,614 rows (98,332 + 850,950 + 98,332), 61 antennas, 4,096 channels;
+  fields J1939−6342 and ESO137-001. This matches 6.2.
+- Build 1,304 s, verify 706 s, hash 30 s. The MS is 194 GB.
+- `verify`: 0 differing cells in DATA, WEIGHT_SPECTRUM and FLAG (17,164,107,776
+  each), and 0 in every row column.
+- Gate 2a's reference: FLAG SHA-256 `1aec438d…3baa`, FLAG_ROW `b528098a…89d6`
+  (`flaghash-input.json`).
+
+### 9.2 Start rule for the rang arm: not met; the run waits
+
+- D: has 400 GB free after the build. 6.2 needs 470 GB, so the arm is
+  **70 GB short**, and the amended arm's CASA copy (about 185 GB) is still to
+  come.
+- The run waits, as 6.2 says, and the shortfall goes to the coordinator.
+- What would free enough, none of it deleted here:
+  - `D:\rang\data\e2-b\e2b.ms` (118 GB), once the amended arm's `restore` and
+    tricolour have run. E3-B's input is `e3-20261111-input\e2b.ms`.
+  - `R\casa\e2b.ms` (221 GB), once chi-offset no longer reads it.
+  - The amended arm's own CASA copy, after its scores.
+- The rang arm runs under `e2_timed.py`, exclusive, from the frozen wheel venv
+  `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv` (6.4), on this MS.
+
 ## For the coordinator
 
 (written at the end)
