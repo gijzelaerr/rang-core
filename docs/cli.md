@@ -280,7 +280,7 @@ calibrate:
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
-  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation); false: every row solved (task E2)
+  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation; Gpol, KCROSS, Xf and Df with P never across scans or more than 5 deg of parallactic angle); false: every row solved (task E2)
   average_freq: false  # G, F and Gpol solve on data and model averaged over the window's channels (CASA's G-type estimator: weighted means after the pre-applies and P, per row and correlation); false: every channel a sample of one frequency bin (task E2)
   primary:
     field: ["fcal"]  # fields of the primary solves

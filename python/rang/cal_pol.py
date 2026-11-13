@@ -573,13 +573,20 @@ class _PolField:
         averaged in time within each interval (`rang.cal_chunks.Average`),
         each chunk read in blocks of source rows prepared by `prepare` (the
         model rotated by P and the tables pre-applied per row) before the
-        averaging."""
+        averaging; with P, no average holds two scans or more than
+        `cal_chunks.PSI_TOL_DEG` of P's angle (task xf-avg-fix)."""
         from . import cal_chunks
 
         if average:
             m = self.meta
+            group = None
+            if self.table is not None:
+                # Task xf-avg-fix: no average across scans or a span of P's
+                # angle (research/xf-avg-fix.md section 2).
+                psi = table_angles(self.table, m["TIME"], m["ANTENNA1"], m["ANTENNA2"])
+                group = cal_chunks.psi_groups(self.time_bin, m["SCAN_NUMBER"], psi[0])
             avg = cal_chunks.Average(
-                self.time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row
+                self.time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row, group
             )
             self.average = avg
             chunks, block = cal_chunks.plan(
@@ -821,20 +828,19 @@ def gpol(
         model = cal_gain._ms_columns(ms, [model_column], rows)[model_column]
     if not parang_done:
         model = np.asarray(model, np.complex64)
+    angles = None
     if parang and not parang_done:
         c = cal_gain._ms_columns(ms, ["TIME", "ANTENNA1", "ANTENNA2"], rows)
-        model = rotate(
-            model,
-            *row_angles(
-                ms,
-                c["TIME"],
-                c["ANTENNA1"],
-                c["ANTENNA2"],
-                field_id,
-                frame,
-                receptor_angle,
-            ),
-        )
+        angles = row_angles(
+            ms, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], field_id, frame,
+            receptor_angle,
+        )  # fmt: skip
+        model = rotate(model, *angles)
+    elif parang:
+        angles = table_angles(table, c["TIME"], c["ANTENNA1"], c["ANTENNA2"])
+    if parang and solve_options.get("average_time"):
+        # Task xf-avg-fix: no average across scans or a span of P's angle.
+        solve_options["average_psi"] = angles[0]
     table, sol, info = cal_gain.gaincal(
         ms,
         field_id=field_id,

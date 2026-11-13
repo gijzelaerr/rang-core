@@ -246,7 +246,9 @@ SCHEMA = {
             "K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged "
             "in time within each solution interval (CASA's pre-averaging: weighted "
             "means after the pre-applies and P, weight the sum, per baseline, "
-            "channel and correlation); false: every row solved (task E2)",
+            "channel and correlation; Gpol, KCROSS, Xf and Df with P never across "
+            "scans or more than 5 deg of parallactic angle); false: every row "
+            "solved (task E2)",
         ),
         "average_freq": _k(
             False,

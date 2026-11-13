@@ -127,3 +127,90 @@ frozen and amended arms are likewise unaffected (gate 2a). Not edited:
 ---
 
 (Results below this line, dated.)
+
+## 4. Implementation (2026-11-13)
+
+- `rang.cal_chunks.psi_groups(time_bin, scan, psi, tol_deg=PSI_TOL_DEG)`:
+  section 2's rule; returns None when every interval is one group.
+  `cal_chunks.Average(..., group=None)`: with groups, one averaged row per
+  (group, baseline) in (interval, group, ANTENNA1, ANTENNA2) order, each
+  carrying its interval; without, the code is the old one line for line.
+- `rang.cal_pol._PolField.chunks(average=True)` (KCROSS, Xf, Df): groups from
+  the solve's own angle table when P is on.
+- `rang.cal_pol.gpol` passes P's angles (`average_psi`) to
+  `rang.cal_gain.gaincal`, whose `_Field.averaged` forms the groups; K, G, B,
+  F and selfcal never pass angles.
+- Docs: `calibrate.average_time`'s description (`docs/cli.md` regenerated),
+  `docs/limits.md`, `docs/howto/calibrate.md`.
+
+## 5. Results (2026-11-13)
+
+Host: the Windows workstation (16 threads). Scripts and archives in
+`research/results/xf-avg-fix/`; run root
+`D:\rang\outputs\xf-avg-fix-20261113-01-sim` (chi-offset's control and feed0
+truths copied in, 301 MB); chi-offset's `sim_chi.py` and `chi_vs_psi.py` taken
+unchanged from `claude/chi-offset-80cb6a` at b12d2c3.
+
+**Gate 1, PASS** (`gate1.json`). Control truth, rang `m90`
+(`average_time: true`, `feed_angle_rotation: -90`) with the fix:
+
+| Scan | ψ | χ fixed, averaged | χ unaveraged | χ CASA | χ averaged before the fix |
+| --- | --- | --- | --- | --- | --- |
+| 2 | −121.2° | 33.376° | 33.377° | 33.378° | 49.51° |
+| 8 | −140.4° | 33.863° | 33.864° | 33.865° | 38.16° |
+| 14 | +167.8° | 32.999° | 32.999° | 32.998° | 33.57° |
+| 22 | +122.9° | 33.946° | 33.947° | 33.947° | 33.35° |
+
+max |χ − 33°| = 0.946° ≤ 1.11°; fixed averaged against unaveraged ≤ 0.0012°,
+against CASA ≤ 0.0015°; p 0.0935-0.0952 (truth 0.095). Xf table against the
+unaveraged arm's: median 0.012°, max 0.015° over 4,096 channels (before the
+fix: 78.1° median, 107.2° max). Reported: feed0 truth, `null` arm, averaged
+with the fix, max |χ − 33°| 0.796°, ≤ 0.0003° from unaveraged, Xf median
+0.003° (before: 99.4°). The unaveraged arms reproduce chi-offset's χ exactly
+(the fix does not touch them). Four rang arms, 13.4-14.3 s each, heavy lock
+critical, 4 slots, 4 GB.
+
+**Gate 2, PASS.**
+(a) `e2b_groups.py` on `D:\rang\data\e2-b\e2b.ms` (`e2b-groups.json`, 10 s):
+Gpol (3C 286, 10 intervals of 60 s, scan 17, max span 0.25°), KCROSS and Xf
+(3C 286, one interval, scan 17, 1.92°), Df (J1939-6342, one interval, scan
+18, 2.67°): every interval one group, so E2-B's (frozen and amended) solves
+take the unchanged path.
+(b) `fixture_hashes.py`: the 20 tables (Gpol, KCROSS, Xf, Df on both fields;
+averaging on and off; one call and chunked) have the same SHA-256 at 30d9412
+(main checkout's code) and with the fix (`hashes-base-30d9412.json`).
+(c) `tests/test_e2_average_time.py` and `test_e2_average_freq.py` pass
+unchanged; the full quick check is in section 6.
+
+**Gate 3, tests** (`tests/test_xf_avg_fix.py`, 9 tests, 2.7 s): the rule's
+cases (one scan, two scans in one interval, a wide scan cut into equal pieces,
+the ±180° wrap); on the fixture with field 1's second half moved 3 h later
+(ψ −80° then −16°), DATA the P-rotated polarised model with a cross-hand
+phase of 40.1° and a constant leakage: the averaged Xf equals a loop
+reference of the per-scan average (2e-6) and the unaveraged Xf within 0.5°
+(0.16° measured), which is 1.1° from the truth; the whole-interval average
+(the old estimator) is 6° off in median; Gpol, KCROSS, Xf and Df each average
+into 12 rows (6 baselines × 2 scans), P off into 6; a 0.3° tolerance cuts the
+scans into pieces and Xf equals the reference per piece.
+
+**Verdict: the fix ships.** E2-A and E2-B are unaffected (sections 1, 3 and
+gate 2a); any later run that solves Xf over several 3C 286 scans with
+`average_time` gets the per-scan average, equal to the unaveraged solve and
+CASA on chi-offset's simulation.
+
+## 6. Checks (2026-11-13)
+
+`python tools/check_all.py --quick --priority critical`: PASS in 1,517 s
+(fmt, ruff, clippy, Rust tests, extension build, pytest on the diff's files
+215 passed / 27 skipped, gain-hash gate PASS); log
+`outputs/check/20261113T152941Z-quick.log`. The full check (CASA, QuartiCal,
+WSClean oracles) is left to the coordinator's merge check.
+
+## For the coordinator
+
+Branch `xf-avg-fix`. The brief's premise was wrong: E2-A has no polcal scan
+(section 1), so its amended arm is void (section 3) and nothing was written
+for it; E2-B is not exposed either. The fix is unconditional in `rang.cal_pol`
+and Gpol's path through `rang.cal_gain`; gates 1-3 pass. Run outputs:
+`D:\rang\outputs\xf-avg-fix-20261113-01-sim` (sim arms, deleted after
+scoring except the JSONs archived here).

@@ -120,7 +120,10 @@ item 33): `calibrate.average_time: true` (CASA's time
 pre-averaging, off by default) brings them within it, and
 `calibrate.average_freq: true` adds CASA's frequency pre-averaging for G, F
 and Gpol. Both differ from CubiCal's estimator
-({gh}`research/e2-acceptance.md`, {gh}`research/e2-average-freq.md`).
+({gh}`research/e2-acceptance.md`, {gh}`research/e2-average-freq.md`). The
+polarisation solves average within one scan and 5° of parallactic angle, so
+an Xf with `combine: scan` over several 3C 286 scans keeps its signal
+({gh}`research/xf-avg-fix.md`).
 
 ## Self-calibration
 

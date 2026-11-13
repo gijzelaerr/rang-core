@@ -1,0 +1,58 @@
+[
+ {
+  "solve": "Gpol",
+  "field": "J1331+3030",
+  "solint": "60s",
+  "combine": "",
+  "rows": 118104,
+  "intervals": 10,
+  "scans": [
+   17
+  ],
+  "max_span_deg": 0.25329117665761997,
+  "groups": null,
+  "unchanged": true
+ },
+ {
+  "solve": "KCROSS",
+  "field": "J1331+3030",
+  "solint": "inf",
+  "combine": "",
+  "rows": 118104,
+  "intervals": 1,
+  "scans": [
+   17
+  ],
+  "max_span_deg": 1.9240917759049156,
+  "groups": null,
+  "unchanged": true
+ },
+ {
+  "solve": "Xf",
+  "field": "J1331+3030",
+  "solint": "inf",
+  "combine": "scan",
+  "rows": 118104,
+  "intervals": 1,
+  "scans": [
+   17
+  ],
+  "max_span_deg": 1.9240917759049156,
+  "groups": null,
+  "unchanged": true
+ },
+ {
+  "solve": "Df",
+  "field": "J1939-6342",
+  "solint": "inf",
+  "combine": "scan",
+  "rows": 119700,
+  "intervals": 1,
+  "scans": [
+   18
+  ],
+  "max_span_deg": 2.6742199574645147,
+  "groups": null,
+  "unchanged": true
+ }
+]
