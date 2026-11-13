@@ -1,6 +1,6 @@
 # Correctness audit before v0.2.0 (2026-11-13)
 
-Branch `claude/correctness-audit-35f2b0`, from main 2a02470. The audit maps each user-facing stage to
+Branch `claude/correctness-audit-35f2b0`, from main 2a02470, rebased onto 30d9412. The audit maps each user-facing stage to
 its tests, oracle gates, written tolerances and GPU twins (AGENTS.md: every GPU path has a CPU path
 with the same result within a written tolerance). It also looks for untested public functions, missing
 bad-input handling and cross-platform problems, and closes the cheap gaps with tests. The audit is a
@@ -38,7 +38,7 @@ these tests skip, and the full local check (`python -m rang.check`) is the gate.
 | MS writer (`core_ms_write`, `ms_write.rs`, ...) | `test_core_ms_write` (7), `test_e4/e5/e6_*`; Rust tests except `ms_schema.rs` (0) | casacore trees (E3-E6) | yes (skip without results) | byte-identical trees | none |
 | Formats (`formats/*`) | `test_dfio_formats` (16) | `tools/formats-oracle` container, `results/dfio-formats.json` | archived verdicts; `test_archived_verdicts` accepts the recorded "fail" rows | `check_formats.py:419,681` 1e-6 | none |
 | MS inspection (`core_pipeline.inspect_ms`, `check_data`) | `test_w4_unsupported` (windows, DDIDs, empty selections, zero rows, missing weights, 1/2/circular correlations), `test_e5_prereview` | none | — | n/a | none. `test_ms_inspection.py` tests the example script, not `inspect_ms` |
-| listobs | on unmerged `claude/v8a-listobs-1c691e` | CASA 6.7.6.14 `listobs` | on that branch | 0 differences (V8a) | — |
+| listobs (`rang.tasks.listobs`, merged 6b731e1 after this audit started) | `test_v8a_listobs` (record keys, selections refused, listfile, CLI refusals, no visibility column read) | CASA 6.7.6.14 `listobs` | yes, `test_fixture_matches_casa_archive` (skips without the fixture MSs) | 0 differences on 8 MSs + ESO137 (V8a note) | none. Not audited further here |
 | Config | `test_e5_prereview.py:58` fuzz (no crash), `test_w2_commands` (unknown keys) | — | — | — | — |
 | CLI, gemclean CLI | `test_core_cli` (29), `test_g8_gemclean`; 4+1 Rust | — | — | — | — |
 
@@ -142,7 +142,17 @@ New tests: `tests/test_correctness_audit.py` has 23 cases. The Rust tests are
 
 ## 5. Run record
 
-See the coordinator section for the commands, results and wall times.
+Host: the development host (16 threads), every run under the main checkout's `tools/heavy_lock.py`.
+
+| Run | Result | Wall |
+|---|---|---|
+| `cargo test --release --lib -- gemclean::fits gemclean::mask gemclean::cli ffi_flag` (4 slots) | 13 passed | build plus test, lock wait excluded, not separated |
+| pytest on 21 related files, `-n 4`, before the NaN fix | 253 passed, 13 skipped, **1 failed**: `test_gain_solve_nan_cells_equal_flagged_cells`, all 48 gains NaN (finding #6) | 27 s pytest |
+| `python -m rang.check --skip core-clippy-gpu,core-test-gpu,pytest` on 4e9b64a (main 2a02470) | PASS: root 23/23 (1 ignored), core 274/274, clippy, ext build, gain hashes | 2,207 s with lock wait |
+| `python tools/check_all.py --quick` after rebasing onto main 30d9412 | PASS: core 274/274, pytest (the diff's files) 509 passed and 22 skipped, gain hashes | 903 s, lock wait excluded |
+
+The CI run of the pushed branch is linked in the hand-back. CI has no archives, so the oracle-gated
+tests (calibration solvers, imaging, MS writing) need the coordinator's full check at merge.
 
 ## For the coordinator
 
