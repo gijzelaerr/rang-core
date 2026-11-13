@@ -142,7 +142,11 @@ def u_run(s, d, g_wall, out):
     rec["dirty_linf_over_peak"] = s.dirty_check(dirty, rec["orientation"])
     rec["precondition_pass"] = rec["orientation_margin"] >= 0.5
     log = (d / "sara.log").read_text(encoding="utf-8", errors="replace") if (d / "sara.log").exists() else ""
-    eps = [float(x) for x in re.findall(r"eps = ([0-9.eE+-]+)", log)]
+    # The major-cycle lines ("Iter k: peak residual = ..., rms = R, eps = E"); the primal-dual
+    # solver's own "eps = " lines are not these.
+    cyc = re.findall(r"rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log)
+    eps = [float(e) for _, e in cyc]
+    rec["tool_rms_jy"] = [float(r) for r, _ in cyc]
     rec["eps"] = eps
     rec["converged"] = bool(eps) and eps[-1] < 5e-4
     rec["diverged"] = "diverg" in log.lower()
