@@ -1,0 +1,67 @@
+2026-11-12T21:00:39 step gate1 D:\rang\data\e2-b\e2b.ms []
+2026-11-12T22:18:50 step archive D:\rang\data\e2-b\e2b.ms []
+2026-11-12T22:18:52 archived D:\rang\data\e2-b\e2b.ms.rang-run to D:\rang\outputs\e2-20261112-21-e2b-amended\rang-run
+2026-11-12T22:48:23 step wcs D:\rang\data\e2-b\e2b.ms []
+2026-11-12T23:19:49 step casacore D:\rang\data\e2-b\e2b.ms []
+2026-11-12T23:19:49 START casacore: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /r/e2p_casacore.py /ms/e2b.ms /r/rang-run/calibrate /r/casacore-raw.json'
+2026-11-12T23:19:55 END casacore rc=0 5.5s
+2026-11-13T04:33:06 step casa-ro D:\rang\data\e2-b\e2b.ms []
+2026-11-13T04:33:06 START casa-ro: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -I /r/e2p_casa_ro.py /ms/e2b.ms /r'
+2026-11-13T04:33:27 END casa-ro rc=0 20.2s
+2026-11-13T08:51:19 step wsclean0 D:\rang\data\e2-b\e2b.ms []
+2026-11-13T08:51:19 START wsclean0-CORRECTED_DATA: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean0/CORRECTED_DATA -size 1024 1024 -scale 2asec -niter 0 -data-column CORRECTED_DATA -field 0 -no-update-model-required -j 8 -temp-dir /r/wsclean0/tmp /ms/e2b.ms'
+2026-11-13T08:56:11 END wsclean0-CORRECTED_DATA rc=0 291.3s
+2026-11-13T08:56:11 START wsclean0-MODEL_DATA: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean0/MODEL_DATA -size 1024 1024 -scale 2asec -niter 0 -data-column MODEL_DATA -field 0 -no-update-model-required -j 8 -temp-dir /r/wsclean0/tmp /ms/e2b.ms'
+2026-11-13T09:00:01 END wsclean0-MODEL_DATA rc=0 230.1s
+2026-11-13T09:21:41 step daskms D:\rang\data\e2-b\e2b.ms []
+2026-11-13T09:21:41 START daskms: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /r/e2p_daskms.py /ms/e2b.ms /r/daskms-raw.json'
+2026-11-13T09:33:24 END daskms rc=0 702.9s
+2026-11-13T09:55:05 step wsclean3c D:\rang\data\e2-b\e2b.ms []
+2026-11-13T09:55:05 START wsclean3c-J1939m6342-dirty: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1939m6342-dirty -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 0 -field 1 /ms/e2b.ms'
+2026-11-13T10:24:46 END wsclean3c-J1939m6342-dirty rc=0 1781.4s
+2026-11-13T10:24:46 START wsclean3c-J1939m6342-clean: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1939m6342-clean -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -field 1 /ms/e2b.ms'
+2026-11-13T12:39:38 END wsclean3c-J1939m6342-clean rc=0 8092.1s
+2026-11-13T12:39:38 START wsclean3c-J1833m2103-dirty: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1833m2103-dirty -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 0 -field 2 /ms/e2b.ms'
+2026-11-13T12:48:06 END wsclean3c-J1833m2103-dirty rc=0 507.8s
+2026-11-13T12:48:06 START wsclean3c-J1833m2103-clean: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1833m2103-clean -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -field 2 /ms/e2b.ms'
+2026-11-13T13:24:57 END wsclean3c-J1833m2103-clean rc=0 2210.9s
+2026-11-13T13:24:57 START wsclean3c-J1331p3030-dirty: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1331p3030-dirty -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 0 -field 0 /ms/e2b.ms'
+2026-11-13T13:54:10 END wsclean3c-J1331p3030-dirty rc=0 1752.8s
+2026-11-13T13:54:10 START wsclean3c-J1331p3030-clean: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/r:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /r/wsclean3c/J1331p3030-clean -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -field 0 /ms/e2b.ms'
+2026-11-13T15:50:28 END wsclean3c-J1331p3030-clean rc=0 6979.1s
+2026-11-13T17:02:30 step copy D:\rang\data\e2-b\e2b.ms []
+2026-11-13T17:04:20 copied D:\rang\data\e2-b\e2b.ms to D:\rang\outputs\e2-20261112-21-e2b-amended\casa 110.4s
+2026-11-13T18:08:51 step prep D:\rang\data\e2-b\e2b.ms []
+2026-11-13T18:08:51 START prep: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_prep.py /c/e2b.ms rang_apply_20261112T173358Z /p/prep.json'
+2026-11-13T18:09:27 END prep rc=0 35.9s
+2026-11-13T18:48:58 step applycal D:\rang\data\e2-b\e2b.ms []
+2026-11-13T18:48:58 START applycal: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -I /p/e2p_applycal.py /p/applycal-spec.json /p/applycal-result.json'
+2026-11-13T19:08:57 END applycal rc=0 1198.5s
+2026-11-13T19:30:58 step compare D:\rang\data\e2-b\e2b.ms []
+2026-11-13T19:30:58 START compare: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_compare.py /c/e2b.ms /p/compare-raw.json'
+2026-11-13T19:43:32 END compare rc=0 754.2s
+2026-11-13T19:58:43 step snapshot D:\rang\data\e2-b\e2b.ms []
+2026-11-13T19:58:43 START snapshot: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_snap.py /c/e2b.ms /p/df-flag-snapshot/flags-after-applycal.npz'
+2026-11-13T20:00:05 END snapshot rc=0 81.9s
+2026-11-13T20:17:36 step restore D:\rang\data\e2-b\e2b.ms ['D:\\rang\\outputs\\e2-20261111-20-e2b\\flaghash-input.json']
+2026-11-13T20:25:49 step restore D:\rang\data\e2-b\e2b.ms ['D:\\rang\\outputs\\e2-20261111-20-e2b\\flaghash-input.json']
+2026-11-13T20:26:39 START g2a-drop: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_drop.py /ms/e2b.ms /p/columns-before.json /p/g2a-drop.json'
+2026-11-13T20:26:40 END g2a-drop rc=0 0.9s
+2026-11-13T20:26:41 step tricolour D:\rang\data\e2-b\e2b.ms ['D:\\rang\\outputs\\e2-20261111-20-e2b\\flaghash-input.json', 'research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml']
+2026-11-13T20:26:41 START tricolour: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-tricolour:0.2.1-e1 sh -c 'tricolour -c /p/tricolour-strategy.yaml -fs polarisation -dc DATA -dpm /ms/e2b.ms'
+2026-11-13T20:41:53 END tricolour rc=0 912.7s
+2026-11-13T20:43:59 START g3a-restore-drop: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/data/e2-b:/ms:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_drop.py /ms/e2b.ms /p/columns-before.json /p/g3a-restore-drop.json'
+2026-11-13T20:44:00 END g3a-restore-drop rc=0 1.0s
+2026-11-13T20:44:01 START prep: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_prep.py /c/e2b.ms rang_apply_20261112T173358Z /p/prep.json'
+2026-11-13T20:44:33 END prep rc=0 31.7s
+2026-11-13T20:44:33 START casa3b: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -v '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-acceptance/examples:/ex:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -I /ex/oracle_pol.py tasks /p/casa3b-spec.json /p/casa3b-tasks.json'
+2026-11-13T20:44:36 END casa3b rc=1 3.0s
+2026-11-13T20:45:15 START prep: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_prep.py /c/e2b.ms rang_apply_20261112T173358Z /p/prep.json'
+2026-11-13T20:45:42 END prep rc=0 27.2s
+2026-11-13T20:45:42 START casa3b: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -v '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-acceptance/examples:/ex:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -I /ex/oracle_pol.py tasks /p/casa3b-spec.json /p/casa3b-tasks.json'
+2026-11-13T22:04:37 END casa3b rc=0 4735.0s
+2026-11-13T22:04:37 casa3b tasks 18 errors []
+2026-11-13T22:08:35 step wsclean3c-unit D:\rang\data\e2-b\e2b.ms []
+2026-11-13T22:08:35 START unit-on: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-formats-oracle:20261030 sh -c '/opt/qc/bin/python -I /p/e2p_unit.py /c/e2b.ms on /p/unit-on.json'
+2026-11-13T22:08:57 END unit-on rc=0 21.4s
+2026-11-13T22:08:57 START wsclean3c-unit-J1939m6342-dirty: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=16 -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended/casa:/c:rw' -v '/mnt/d/rang/outputs/e2-20261112-21-e2b-amended:/p:rw' -w /tmp rang-wsclean-native:3.7 sh -c 'wsclean -name /p/wsclean3c-unit/J1939m6342-dirty -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -j 8 -temp-dir /p/wsclean3c-unit/tmp -niter 0 -field 1 /c/e2b.ms'

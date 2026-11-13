@@ -1,0 +1,1 @@
+2026-11-13 post hoc: copied from the frozen arm's R/columns-before.json; the amended run started on e2b.ms after the frozen chain's last drop (R/g3a-restore-drop.json lists the same columns)

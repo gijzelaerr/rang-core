@@ -958,6 +958,66 @@ decoded).**
 - E2-A's rang arm still waits for 6.2's start rule: 470 GB free after the
   build.
 
+### 7.5 E2-B amended arm (6.7, `calibrate.average_freq`), gates as frozen
+
+Outputs: `D:\rang\outputs\e2-20261112-21-e2b-amended` (RA). Records:
+`results/e2-acceptance/e2b/amended/`. The post chain was resumed on
+2026-11-13 from wsclean0, and the same scorers were used as for the frozen
+arm. The frozen arm stays the record.
+
+| Gate | Amended | Frozen (7.3, 7.4) |
+| --- | --- | --- |
+| 1 | met: exit 0, 6,249 s, 49.1 GB | met: 6,195 s, 49.0 GB |
+| 2a | met (272,916 rows) | met |
+| 2b casacore, CASA listobs and flagmanager, WSClean, dask-ms | met (30 tables; 4 datasets) | met |
+| 2b CASA applycal (class C) | **not met**: 40 cells over (max 25.2 eps, relative 0.21), flags exact (0 of 408,827,848) | not met: 42 cells |
+| 2c | met (459 FITS) | met |
+| 3a | met, **exact** (0 of 1,117,863,936 cells) | exact |
+| 3b | **not met** | not met |
+| 3c as committed | **not met** | not met |
+| 3C 286 parity | **met**: 6 bins, \|Δp\| ≤ 0.024 points, \|Δχ\| ≤ 0.055° | met |
+| 1830−211 | **not met**: \|Δχ\| up to 13.0° (I within 0.025 %, \|Δp\| ≤ 0.061 points) | not met |
+| Transfer, leakage | as 7.4 (the amended development tables) | 7.4 |
+
+**Gate 3b, amended** (`RA\g3b.json`; CASA 6.7.6.14, 18 tasks, 0 errors, 4,782 s
+with the queue):
+
+| Term | Amended | Frozen |
+| --- | --- | --- |
+| K | met, median 0.00072 ns | the same |
+| KCROSS | met, 0.00031 ns | 0.00053 ns |
+| Xf | met, median 0.027°, p95 0.28° | 0.047°, 0.60° |
+| Df | met, median 1.5e-5, p95 2.2e-4 | 1.7e-5, 2.2e-4 |
+| Gpol | **not met**: median 0.124°, p95 0.94°, max 1.21° (limit 0.1°) | 0.278°, 2.17° |
+| fcal K G B composite | **not met**: median 1.14e-3, p95 1.52e-2 | the same to 3 digits |
+| gcal K F B composite | **not met**: median 1.12e-3, p95 1.51e-2 | the same |
+
+- As 6.7 expected, the key moves Gpol about halfway to the limit:
+  0.278° → 0.124°, against LUNO's 0.250° → 0.108°. It does not meet it.
+- The composites do not move. Their miss is not Gpol's.
+
+**Gate 3c as committed, amended** (`RA\g3c-as-committed.json`): not met.
+- Compact sources: 36, median 0.9955, scatter 1.46 %.
+- Δα: 0.018 (met).
+- Dirty L∞: 0.032, 2.8e-3, 4.9e-3.
+- Off-source ratios: 1.61, 1.68, 2.19.
+- Unpolarised V: not met.
+- Q/Q₀: not checked.
+
+The matched reading follows in 7.6 once its oracle images are made.
+
+**Resume repairs (post hoc, recorded):**
+- The amended arm's `restore` stopped because `RA\columns-before.json` was
+  missing. The frozen arm wrote that file before its run; the amended arm's
+  launch did not. It was copied from R's: the amended run started on `e2b.ms`
+  after the frozen chain's last drop, and `R\g3a-restore-drop.json` lists the
+  same 23 columns (`RA\columns-before.provenance.txt`). Its restore then met
+  2a. FLAG had already been restored from `rang_original` before the stop.
+- `e2_casa3b.py run` needs `casa3b-spec.json` from its `spec` step. That
+  step was run before it (as for R).
+- `D:\rang\data\e2-b\e2b.ms` is back to the converter's columns and FLAG:
+  2a met, 51 GB.
+
 ## 8. Paused 2026-11-13 07:00 (owner's order: stop everything)
 
 All queued heavy_lock tickets were cancelled while waiting; no job was

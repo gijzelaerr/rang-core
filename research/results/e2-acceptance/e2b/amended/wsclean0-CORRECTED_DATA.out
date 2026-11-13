@@ -1,0 +1,24 @@
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  856-1712 (4096)
+Precalculating weights for uniform weighting...
+Opening /ms/e2b.ms, spw 0 with contiguous MS reader.
+ == Constructing image ==
+Detected 43.1 GB of system memory, usage not limited.
+Opening /ms/e2b.ms, spw 0 with contiguous MS reader.
+Determining min and max w & theoretical beam size... DONE (w=[0.0416277:29697.9] lambdas, maxuvw=42358.7 lambda)
+Theoretic beam = 4.87''
+Minimal inversion size: 1013 x 1013, using optimal: 1024 x 1024
+Loading data in memory...
+Gridding 113960 rows...
+Gridded visibility count: 171242769
+Writing dirty image...
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Inversion: 00:04:50.294311, prediction: 00:00:00, deconvolution: 00:00:00
