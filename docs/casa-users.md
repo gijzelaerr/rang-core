@@ -20,9 +20,9 @@ There are two ways in:
 | CASA task | rang | State |
 | --- | --- | --- |
 | `listobs` | `rang-core listobs MS [--json]`; `rang.tasks.listobs` | ported ({gh}`research/v8a-listobs.md`) |
-| `flagdata` `tfcrop` | `rang-core flag` | planned, after v0.2.0 (Tricolour stays the default flagger) |
-| `flagdata` `manual`, `shadow`, `quack`, `elevation`, `unflag`, `summary` | `rang-core flag` | planned, after `tfcrop` |
-| `flagdata` `extend` | `calibrate.polcal.extendflags` in the configuration | exists |
+| `flagdata` `manual`, `clip`, `quack`, `shadow`, `elevation`, `extend`, `unflag`, `summary` | `rang-core flagdata MS key=value ...`; `rang.tasks.flagdata` | ported ({gh}`research/v8b-flagdata.md`) |
+| `flagdata` `tfcrop` | – | not at parity yet, so `rang.tasks.flagdata` refuses it ({gh}`research/v8b-flagdata.md` section 9.3); `rang-core flag` (the Tricolour port) is the flagger |
+| `flagdata` `extend` inside calibration | `calibrate.polcal.extendflags` in the configuration | exists |
 | `flagmanager` (save, restore) | `rang.formats.flagversions`; every write saves a flag version first | exists |
 | `setjy` | `calibrate.model.source: setjy` (also `manual`, `lsm`) | exists |
 | `gaincal` (G, K, KCROSS), `bandpass`, `fluxscale`, `polcal` (Xf, Df) | `rang-core calibrate`, terms `G, K, B, F, Gpol, KCROSS, Xf, Df` | exists |
@@ -72,3 +72,46 @@ need CASA's observatory table); the antenna table prints WGS84 longitude and
 latitude, where CASA's "Lat." column is the geocentric latitude. On CASA
 6.7.6.14 the record, channels and antenna positions agree with CASA's on nine
 MSs within 1 ms, 1e-3 arcsec, 1 Hz and 1 mm (research/v8a-listobs.md).
+
+## `flagdata`
+
+```python
+from rang.tasks import flagdata
+
+flagdata(vis="my.ms", mode="manual", autocorr=True)
+flagdata(vis="my.ms", mode="quack", quackinterval=8.0, quackmode="beg")
+flagdata(vis="my.ms", mode="manual", spw="*:856~880MHz,*:1419.8~1421.3MHz")
+flagdata(vis="my.ms", mode="shadow", tolerance=0.0)
+flagdata(vis="my.ms", mode="elevation", lowerlimit=20.0)
+counts = flagdata(vis="my.ms", mode="summary", basecnt=True)
+flagdata(vis="my.Df", mode="clip", clipminmax=[-0.6, 0.6], datacolumn="CPARAM",
+         flagbackup=False)
+```
+
+```text
+rang-core flagdata my.ms mode=quack quackinterval=8
+rang-core flagdata my.ms mode=summary spwchan=True
+```
+
+Keywords and defaults are CASA 6.7's. The selections `field`, `spw` (ids,
+names, `*`, channel ranges `a~b` and `;` lists, frequency ranges in Hz, kHz,
+MHz or GHz), `antenna` (names, ids, `A&B`, `A&&B`, `A&&&`, `!A`), `scan`,
+`timerange`, `uvrange` (m, km), `observation`, `array` and `correlation`
+(with `ABS_`, `REAL_`, `IMAG_`, `ARG_`, `NORM_` for `clip`) work as in CASA;
+`intent`, `feed`, wavelength `uvrange`, channel steps, `rflag`, `antint`,
+`list` mode, `addantenna`, `channelavg`, `action` other than `apply` and
+`savepars` are refused before anything is written. On a calibration table
+only `clip` on `CPARAM` is supported.
+
+Every writing call saves the flags first (`flagbackup=True`: CASA's
+`flagdata_<n>` version; `False`: rang's `rang_original`, once) and leaves a
+receipt beside the MS, `<ms>.flagdata-<mode>-<time>.rang-receipt.json`.
+
+CASA's conventions that the documentation leaves open, as rang implements
+them (read off CASA 6.7.6.14's output, {gh}`research/v8b-flagdata.md`
+section 9): quack's window includes its boundary; FLAG_ROW is set only by
+whole-row selections of `manual`, `quack`, `shadow` and `elevation`; a bare
+antenna name selects its cross-correlations only; `elevation` uses the
+geocentric horizon; a frequency range inside one channel selects that
+channel's two neighbours; `summary` counts an autocorrelation once for its
+antenna.

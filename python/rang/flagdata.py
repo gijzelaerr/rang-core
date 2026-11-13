@@ -658,35 +658,79 @@ def elevation_rows(meta, rows, lower, upper):
     return out
 
 
+def _source_itrs(times, ra, dec):
+    """Unit vectors (n, 3) of a J2000 direction in ITRS at MS TIMEs."""
+    from astropy import units
+    from astropy.coordinates import ITRS, SkyCoord
+    from astropy.time import Time
+    from astropy.utils import iers
+
+    iers.conf.auto_download = False
+    when = Time(np.asarray(times, np.float64) / 86400.0, format="mjd", scale="utc")
+    src = SkyCoord(ra * units.rad, dec * units.rad, frame="icrs")
+    xyz = src.transform_to(ITRS(obstime=when)).cartesian.xyz.value.T
+    return xyz / np.linalg.norm(xyz, axis=1, keepdims=True)
+
+
 def shadow_rows(meta, rows, tolerance=0.0):
     """bool (nrow,): rows with an antenna shadowed at that time by another
-    antenna (projected separation below the sum of the dish radii minus
-    `tolerance`, the shadowing antenna nearer the source)."""
+    antenna of the ANTENNA table (section 9, H1, H2). A pair's projected
+    separation and w come from the UVW column of its row at that time (MS
+    convention, ANTENNA1 - ANTENNA2), or, for a pair without a row then,
+    from the antenna positions and the field's direction in ITRS. The pair
+    shadows when the separation is below r1 + r2 - `tolerance`; the antenna
+    farther from the source (ANTENNA2 when w > 0) is flagged on all its rows
+    at that time."""
     m = meta.main
     out = np.zeros(meta.nrows, bool)
-    time = m["TIME"]
+    time, field = m["TIME"], m["FIELD_ID"]
     a1, a2, uvw = m["ANTENNA1"], m["ANTENNA2"], np.asarray(m["UVW"], np.float64)
+    nant = len(meta.ant_names)
     r = meta.ant_diam / 2.0
-    shadowed_at = {}
-    close = []
-    for t in np.unique(time[rows]):
-        at = np.flatnonzero((time == t) & (a1 != a2))
-        dead = set()
-        for k in at:
-            i, j = int(a1[k]), int(a2[k])
-            d = math.hypot(uvw[k, 0], uvw[k, 1])
-            limit = r[i] + r[j] - tolerance
-            close.append(abs(d - limit))
-            if d < limit:
-                # CASA flags ANTENNA2 of a row whose UVW has w > 0, else
-                # ANTENNA1 (section 9, H1).
-                dead.add(j if uvw[k, 2] > 0 else i)
-        shadowed_at[t] = dead
-    for t, dead in shadowed_at.items():
+    pos = meta.ant_pos
+    times = np.unique(time[rows])
+    first_field = {}
+    for t in times:
+        first_field[t] = int(field[np.flatnonzero(time == t)[0]])
+    src = {}
+    for f in sorted(set(first_field.values())):
+        ts = np.array([t for t in times if first_field[t] == f])
+        for t, v in zip(ts, _source_itrs(ts, *meta.field_dir[f]), strict=True):
+            src[t] = v
+    iu, ju = np.triu_indices(nant, 1)
+    limit = r[iu] + r[ju] - tolerance
+    margin = np.inf
+    order = np.argsort(time, kind="stable")
+    bounds = np.searchsorted(time[order], times, side="left")
+    ends = np.searchsorted(time[order], times, side="right")
+    for t, lo, hi in zip(times, bounds, ends, strict=True):
+        at = order[lo:hi]
+        at = at[a1[at] != a2[at]]
+        bvec = pos[iu] - pos[ju]
+        wv = bvec @ src[t]
+        dist = np.sqrt(np.maximum((bvec * bvec).sum(axis=1) - wv * wv, 0.0))
+        # Rows present at this time: their UVW column instead.
+        key = {(int(a), int(b)): k for k, a, b in zip(at, a1[at], a2[at], strict=True)}
+        for p, (i, j) in enumerate(zip(iu, ju, strict=True)):
+            k = key.get((int(i), int(j)))
+            sign = 1.0
+            if k is None:
+                k = key.get((int(j), int(i)))
+                sign = -1.0
+            if k is not None:
+                dist[p] = math.hypot(uvw[k, 0], uvw[k, 1])
+                wv[p] = sign * uvw[k, 2]
+        margin = (
+            min(margin, float(np.min(np.abs(dist - limit)))) if len(dist) else margin
+        )
+        hit = dist < limit
+        dead = set(np.where(wv[hit] > 0, ju[hit], iu[hit]).tolist())
         if dead:
-            at = (time == t) & rows
-            out |= at & (np.isin(a1, list(dead)) | np.isin(a2, list(dead)))
-    meta.extra["shadow_margin_m"] = float(min(close)) if close else None
+            mine = order[lo:hi]
+            mine = mine[rows[mine]]
+            sel = np.isin(a1[mine], list(dead)) | np.isin(a2[mine], list(dead))
+            out[mine[sel]] = True
+    meta.extra["shadow_margin_m"] = None if math.isinf(margin) else margin
     return out
 
 

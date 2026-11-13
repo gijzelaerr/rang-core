@@ -67,8 +67,7 @@ def _flag_sha(ms):
         {"mode": "clip", "channelavg": True},
         {"mode": "manual", "action": "calculate"},
         {"mode": "manual", "savepars": True},
-        {"mode": "tfcrop", "datacolumn": "FLOAT_DATA"},
-        {"mode": "tfcrop", "usewindowstats": "maybe"},
+        {"mode": "tfcrop"},
         {"mode": "quack", "quackmode": "middle"},
         {"mode": "manual", "uvrange": "<10klambda"},
         {"mode": "manual", "spw": "0:0~10^2"},
@@ -155,3 +154,16 @@ def test_writing_calls_leave_a_receipt(built, tmp_path):
     record = json.loads(receipts[0].read_text(encoding="utf-8"))
     assert record["verdict"]["flag_sha256"] == got["flag_sha256"]
     assert "quackinterval=8.0" in record["command"]
+
+
+def test_tfcrop_reference_runs_when_enabled(built, tmp_path, monkeypatch):
+    from rang import tfcrop
+
+    monkeypatch.setattr(tfcrop, "ENABLED", True)
+    ms = _copy(built / "syn-rfi.ms", tmp_path / "r.ms")
+    got = tasks.flagdata(
+        vis=str(ms), mode="tfcrop", extendflags=False, flagbackup=False
+    )
+    assert got["flagged_after"] > got["flagged_before"]
+    with pytest.raises(tasks.Unsupported):
+        tasks.flagdata(vis=str(ms), mode="tfcrop", usewindowstats="maybe")

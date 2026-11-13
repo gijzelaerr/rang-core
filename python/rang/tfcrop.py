@@ -20,6 +20,11 @@ import itertools
 
 import numpy as np
 
+# tfcrop is not at parity with CASA (research/v8b-flagdata.md, section 9.3):
+# rang.tasks.flagdata refuses mode='tfcrop' unless this is set True (the V8b
+# harness and tests do; nothing else should).
+ENABLED = False
+
 TF = {
     "kernel": "numpy",
     "iterations": 1,

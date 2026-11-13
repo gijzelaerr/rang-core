@@ -220,6 +220,14 @@ def flagdata(
         raise Unsupported(f"flagdata: datacolumn={datacolumn!r} not supported yet "
                           f"(DATA, CORRECTED, MODEL, RESIDUAL, RESIDUAL_DATA; CPARAM for clip)")  # fmt: skip
     if mode == "tfcrop":
+        from .. import tfcrop as _tfcrop
+
+        if not _tfcrop.ENABLED:
+            raise Unsupported(
+                "flagdata: mode='tfcrop' is not at parity with CASA yet "
+                "(research/v8b-flagdata.md section 9.3); use rang-core flag "
+                "(the Tricolour port) or CASA"
+            )
         for key, val, ok in (("timefit", timefit, ("line", "poly")),
                              ("freqfit", freqfit, ("line", "poly")),
                              ("flagdimension", flagdimension, ("freq", "time", "freqtime", "timefreq")),

@@ -62,7 +62,9 @@ def read_flags(path):
 
 
 def run_case(out, case):
-    from rang import tasks
+    from rang import tasks, tfcrop
+
+    tfcrop.ENABLED = True  # the V8b harness measures the reference
 
     name = case["name"]
     work = out / "work" / name
