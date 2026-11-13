@@ -87,6 +87,27 @@ Not proposed:
 - Should ra-ng's Rust MS reader be offered as an arcae alternative, or should ra-ng read through arcae?
 - Which cluster and data size would make a fair first scaling test?
 
+## 7. Simon Perkins' reply (2026-11-13)
+
+Relayed by the owner:
+
+- xarray-ms can ingest MSv2 data behind an MSv4 view interface, "but that will mean data access is in Python".
+- arcae plus xarray-ms "handles a lot unpleasant MSv2 edge cases (variable, partially filled columns)".
+
+What it changes (coordinator, proposed):
+
+1. **The fast path stays the Rust reader.** Data access through xarray-ms runs in Python, which would put a Python boundary inside every chunk read. #5 therefore keeps two paths:
+   - ra-ng's Rust reader for MSv2;
+   - a Rust MSv4/Zarr reader for MSv4.
+   - An optional `xarray-ms` ingest arrives as an xarray Dataset at the Python layer, for interoperability; its cost is measured, not assumed.
+2. **arcae + xarray-ms becomes an oracle for MSv2 edge cases.**
+   - Build a case set of variable-shaped and partially filled columns: unwritten WEIGHT_SPECTRUM cells (as in W4), variable-shape DATA across spectral windows, string arrays (as fixed in [feed-poltype-read.md](feed-poltype-read.md)) and tiled storage managers.
+   - Gate ra-ng's reader against arcae's reads on it: equal values and equal "unwritten" masks.
+   - Wherever ra-ng refuses and arcae reads, record the gap as a reader task.
+3. **Arrow as the meeting point** [I]: arcae exports Arrow, and arrow-rs reads the Arrow C data interface without a copy. So a Rust path through arcae's Arrow tables is possible without Python per read. Whether that costs less than ra-ng's own reader is to be measured.
+
+Still open for Simon: whether he would review the edge-case set, and which MSv2 cases he has seen break readers.
+
 ## For the coordinator
 
 None of this is on the v0.2.0 finish line. Stage 1 is proposed for v0.3.0, and stages 2 and 3 after it, subject to the owner's decision.
