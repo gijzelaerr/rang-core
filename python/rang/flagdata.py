@@ -791,16 +791,18 @@ class Result:
         return {k: getattr(self, k) for k in self.__dataclass_fields__}
 
 
-def _finish_rows(flag, flag_row_old, mode, whole_rows):
-    """FLAG_ROW after a mode (section 9, R1): CASA sets it where a row is
-    then wholly flagged only when the mode flags whole rows (manual, quack,
-    shadow, elevation without a spw or correlation selection) and clears
-    it where `unflag` leaves a cell unflagged; clip, extend and tfcrop, and
-    any spw or correlation selection, leave FLAG_ROW as it was."""
+def _finish_rows(flag, flag_row_old, mode, whole_rows, hit_rows):
+    """FLAG_ROW after a mode (section 9, R1 as amended post hoc after the
+    held-out run): when the mode flags whole rows (manual, quack, shadow,
+    elevation without a spw or correlation selection), CASA sets FLAG_ROW
+    on exactly the rows the mode flags (`hit_rows`), already flagged or
+    not, and on no other; `unflag` clears it where it leaves a cell
+    unflagged; clip, extend and tfcrop, and any spw or correlation
+    selection, leave FLAG_ROW as it was."""
     if mode == "unflag":
         return flag_row_old & flag.all(axis=(1, 2))
     if whole_rows and mode in ("manual", "quack", "shadow", "elevation"):
-        return flag_row_old | flag.all(axis=(1, 2))
+        return flag_row_old | hit_rows
     return flag_row_old
 
 
@@ -868,7 +870,10 @@ def run(
                     flag |= clip_cells(values, cells, params.get("clipminmax"),
                                        params.get("clipoutside", True),
                                        params.get("clipzeros", False))  # fmt: skip
-                new_row = _finish_rows(flag, old_row, mode, whole_rows)
+                hit = sel.rows[s0 : s0 + n]
+                if rowflag is not None:
+                    hit = hit & rowflag[s0 : s0 + n]
+                new_row = _finish_rows(flag, old_row, mode, whole_rows, hit)
                 res.flagged_after += int(flag.sum())
                 w.write_flags(s0, flag, new_row)
                 digest.update(np.ascontiguousarray(flag).tobytes())

@@ -334,6 +334,35 @@ with a spw or correlation selection (FLAG_ROW); `observation` and `array`
 selections (every MS here has one of each); timerange without a date across
 midnight; a field name pattern.
 
+### 9.2a Held-out run (fixed modes, H2), 2026-11-13
+
+Run `ho1` (`round.sh ho1` with the held-out plan, 54 cases: M1, M2, M3,
+M5a, M5b, M6a, M7, M14a, M16a on each of the five SKA fixture MSs and
+`eso137-ho`; CASA 300 s, 691 MB peak; rang 153 s; WSL
+`~/Github/rang/outputs/v8b-flagdata-20261113-ho1`, copies `casa-ho1`,
+`rang-ho1`, verdicts `dev-ho1.json`), rang at `5fd9eb0`, compared once:
+
+- **FLAG equal to CASA's on all 54 cases; every `summary` count equal.**
+  On `eso137-ho` both refuse CARACal's `flag_spw` string (CASA: "No valid SPW
+  & Chan combination found"; rang: no channels selected), so M7 and M16a's
+  spw call change nothing on either side.
+- **FLAG_ROW differs on six `eso137-ho` cases** (M2, M3, M5a, M5b, M6a,
+  M16a; 719 to 5,219 rows). `eso137-ho` has 5,219 rows wholly flagged in
+  FLAG with FLAG_ROW false, which no development MS had. R1 set FLAG_ROW on
+  every wholly flagged row; CASA sets it only on the rows the mode itself
+  flags (checked: CASA's FLAG_ROW equals the input's OR the autocorrelation
+  rows for M2, OR the quack rows for M3, and is unchanged for M5a and M6a,
+  which flag nothing).
+
+**Verdict as frozen (section 7): H2 fails on the held-out set for `manual`,
+`quack`, `elevation` and `shadow` (FLAG_ROW); it passes for `clip`,
+`unflag` and `summary`'s counts; `extend` was not in the held-out list.**
+
+Post hoc (labelled; the held-out verdict above stands): R1 corrected to
+"FLAG_ROW |= the rows the mode flags whole" (`_finish_rows`), then the
+development cases and the held-out cases rerun against the same CASA output
+(section 9.2b).
+
 ### 9.3 tfcrop (H1)
 
 Round 1 (CASA run 01 against rang 01 and 01c). rang 01's first guess (an
