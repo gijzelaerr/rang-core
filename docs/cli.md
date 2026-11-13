@@ -40,6 +40,12 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 (Stimela2, each marked `# rang-recipe: research`) call the same functions;
 they replay frozen campaigns and are not recipes for your own MS.
 
+**CASA's tasks** ({gh}`research/v8-open-casa.md`): `rang-core listobs MS`
+summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
+`--json` ({gh}`research/v8a-listobs.md`); `rang.tasks.listobs(vis=...)` is
+the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
+tasks to rang's.
+
 `rang-core check` runs the full local checks on any platform. Every call
 writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
@@ -76,6 +82,7 @@ commands for a Measurement Set (each takes a config.yaml and an MS):
 
 other commands:
   config          defaults | check CONFIG [MS]: the configuration schema
+  listobs         MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs
   research        STAGE VERB ARGS...: the research chains (rang-core research -h)
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
@@ -448,6 +455,23 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
+## `listobs`
+
+```text
+$ rang-core listobs -h
+usage: rang-core listobs [-h] [--json] [--listfile LISTFILE] [--overwrite] ms
+
+Summarise a Measurement Set as CASA's listobs does (research/v8a-listobs.md).
+Reads only; writes nothing to the MS.
+
+positional arguments:
+  ms                   the Measurement Set
+
+options:
+  -h, --help           show this help message and exit
+  --json               print the record as JSON, not the text
+  --listfile LISTFILE  write the text (or JSON) to this file
+  --overwrite          replace an existing --listfile
 ```
 
 ## `research`

@@ -65,6 +65,7 @@ What it is:
 installation
 concepts/index
 cli
+casa-users
 tutorials/index
 limits
 api/index
