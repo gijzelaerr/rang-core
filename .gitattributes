@@ -13,3 +13,6 @@ research/results/** -text
 history/** -text
 # CARACal's strategy file, byte for byte (SHA-256 in research/e2-acceptance.md 6.3):
 research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml -whitespace
+
+# casacore tables written by python-casacore, byte for byte (tools/oracles/strarray/fixture.py):
+tests/data/strarray/table/** binary
