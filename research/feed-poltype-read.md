@@ -72,7 +72,7 @@ int array.
    undefined (the reader refuses it, "has no array"), an unwritten
    fixed-shape cell is two empty strings (the reader returns them).
    A filled flag of 0 (a shape set, no values) is implemented as in
-   `SSMStringHandler::get` but not measured: python-casacore cannot write it. **Result:** 21 passed, 4 skipped (with `test_core_ms.py` and
+   `SSMStringHandler::get` but not measured: python-casacore cannot write it. **Result:** 25 passed, 4 skipped (with `test_core_ms.py` and
    `test_cal_pol.py`; the skips are the archive oracle's absent MSs).
 2. **Real MSs** (`tools/oracles/strarray/compare.py`: `dump` in WSL with
    python-casacore 3.8.1, `check` natively): every string column, scalar or
@@ -104,7 +104,19 @@ refusals go by `POLARIZATION.CORR_TYPE` (`core_pipeline`, `applycal`,
 
 `python -m rang.check` (after `maturin develop --release`, heavy lock shared
 4 slots, `RANG_ARCHIVE_OUTPUTS` the WSL outputs) on `7314632`: PASS, 268 + 274
-core tests, 1,252 passed and 82 skipped in pytest, gain-hash gate PASS. Two
+core tests, 1,252 passed and 82 skipped in pytest, gain-hash gate PASS. On
+`96f1a28` (the final code): everything passed (268 + 274 core tests, gain-hash
+gate PASS) except one pytest test of 1,256 (1,255 passed, 82 skipped):
+`test_heavy_lock_queue.py::test_waiters_acquire_in_ticket_order`, a timing
+test of `tools/heavy_lock.py`, which this branch does not touch, run while
+the host's real lock queue was busy. Rerun alone under the lock on
+2026-11-13: `tests/test_heavy_lock_queue.py` 4 passed; the remaining two
+repeats were cancelled by the owner's stop order.
+
+Resume state (2026-11-13, stopped on the owner's order): the fix, tests and
+oracle comparison are done and committed. Still to run, if wanted: one clean
+`python -m rang.check` on the branch head (only the heavy_lock timing test
+failed on `96f1a28`), then the coordinator's merge. Two
 earlier runs failed for reasons since fixed or not reproduced: the first on
 SPDX lines missing from the new tools and a ruff 0.17.4 rule (the venv now
 has 0.17.3, as the main checkout), with the gate unable to find the archive
