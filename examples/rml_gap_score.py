@@ -24,8 +24,8 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gemclean_bench_compare import Exact, inner_box, truth_image  # noqa: E402
-from rang.core_imaging import read_fits  # noqa: E402
+from gemclean_bench_compare import Exact, inner_box, truth_image
+from rang.core_imaging import read_fits
 
 FWHM_TO_SIGMA = 1.0 / (2.0 * math.sqrt(2.0 * math.log(2.0)))
 
@@ -62,7 +62,7 @@ def halfmax_major_px(psf, step_deg=0.5):
 
 
 def bilinear(img, x, y):
-    x0, y0 = int(math.floor(x)), int(math.floor(y))
+    x0, y0 = math.floor(x), math.floor(y)
     fx, fy = x - x0, y - y0
     return (
         img[y0, x0] * (1 - fx) * (1 - fy)
@@ -90,7 +90,7 @@ def truth_on_beam(comps, size, beam_px):
     sb2 = (beam_px * FWHM_TO_SIGMA) ** 2
     for x, y, f, fwhm in comps:
         s2 = sb2 + (fwhm * FWHM_TO_SIGMA) ** 2
-        h = int(math.ceil(9.0 * math.sqrt(s2)))
+        h = math.ceil(9.0 * math.sqrt(s2))
         x0, x1 = max(0, int(x) - h), min(size, int(x) + h + 2)
         y0, y1 = max(0, int(y) - h), min(size, int(y) + h + 2)
         gx = np.exp(-((np.arange(x0, x1) - x) ** 2) / (2 * s2))
@@ -119,7 +119,9 @@ def bandlimited_truth(comps, size):
     spec = np.zeros((size, kx.size), np.complex128)
     k2 = kx[None, :] ** 2 + ky[:, None] ** 2
     for x, y, f, fwhm in comps:
-        env = np.exp(-2 * math.pi**2 * (fwhm * FWHM_TO_SIGMA) ** 2 * k2) if fwhm else 1.0
+        env = (
+            np.exp(-2 * math.pi**2 * (fwhm * FWHM_TO_SIGMA) ** 2 * k2) if fwhm else 1.0
+        )
         spec += (
             f
             * env
@@ -228,7 +230,9 @@ def measures(bm, bt, model, label, grps, beam_px, sigma):
                 dx = mxm[k] / fm[k] - mxt[k] / ft[k]
                 dy = mym[k] / fm[k] - myt[k] / ft[k]
                 row["offset_beams"] = math.hypot(dx, dy) / beam_px
-                row["position_pass"] = None if lim is None else row["offset_beams"] <= lim
+                row["position_pass"] = (
+                    None if lim is None else row["offset_beams"] <= lim
+                )
             else:
                 row["offset_beams"] = None
                 row["position_pass"] = None if lim is None else False
@@ -238,9 +242,7 @@ def measures(bm, bt, model, label, grps, beam_px, sigma):
     rec["extended_flux_all_pass"] = all(r["flux_pass"] for r in e) if e else None
     pos = [r["position_pass"] for r in rows if r.get("position_pass") is not None]
     rec["positions_all_pass"] = all(pos) if pos else None
-    rec["positions_failed"] = [
-        r["id"] for r in rows if r.get("position_pass") is False
-    ]
+    rec["positions_failed"] = [r["id"] for r in rows if r.get("position_pass") is False]
     rec["extended_rel_err"] = [r["rel_err"] for r in e]
     outside = model[label == 0]
     rec["false_flux_pos"] = float(outside[outside > 0].sum())
@@ -315,7 +317,12 @@ def cmd_control(args):
     )
     out["seconds"] = time.perf_counter() - t0
     _write(args.out, out)
-    print(json.dumps({k: v for k, v in out.items() if k != "truth_group_over_catalogue"}, indent=1))
+    print(
+        json.dumps(
+            {k: v for k, v in out.items() if k != "truth_group_over_catalogue"},
+            indent=1,
+        )
+    )
 
 
 def cmd_orient(args):
@@ -341,7 +348,11 @@ def cmd_orient(args):
     rec["margin"] = min(others) - ok[best]["linf_over_peak_scaled"]
     rec["pass"] = rec["margin"] >= 0.5
     _write(args.out, rec)
-    print(json.dumps({"orientation": rec["orientation"], **ok[best], "margin": rec["margin"]}))
+    print(
+        json.dumps(
+            {"orientation": rec["orientation"], **ok[best], "margin": rec["margin"]}
+        )
+    )
 
 
 def cmd_score(args):
@@ -374,7 +385,9 @@ def cmd_score(args):
         rec["q_over_q0"] = q / meta["q0"]
         if meta.get("noise"):
             rec["q_over_q_truth"] = q / meta["noise"]["q_truth"]
-        rec["exact_residual_inner_rms_sigma"] = float(np.sqrt(np.mean(r[ib] ** 2)) / sigma)
+        rec["exact_residual_inner_rms_sigma"] = float(
+            np.sqrt(np.mean(r[ib] ** 2)) / sigma
+        )
         rec["exact_residual_inner_peak_sigma"] = float(np.abs(r[ib]).max() / sigma)
     rec["seconds"] = time.perf_counter() - t0
     _write(args.out, rec)
@@ -418,9 +431,12 @@ def main(argv=None):
     s.add_argument("--sigma", type=float)
     s.add_argument("--no-exact", action="store_true")
     args = p.parse_args(argv)
-    {"beam": cmd_beam, "control": cmd_control, "orient": cmd_orient, "score": cmd_score}[
-        args.cmd
-    ](args)
+    {
+        "beam": cmd_beam,
+        "control": cmd_control,
+        "orient": cmd_orient,
+        "score": cmd_score,
+    }[args.cmd](args)
 
 
 if __name__ == "__main__":

@@ -16,9 +16,9 @@ import numpy as np
 
 HERE = Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parents[3] / "examples"))
-import rml_gap_score as rs  # noqa: E402
-from gemclean_bench_compare import Exact, inner_box, truth_image  # noqa: E402
-from rang.core_imaging import read_fits  # noqa: E402
+import rml_gap_score as rs
+from gemclean_bench_compare import Exact, inner_box, truth_image
+from rang.core_imaging import read_fits
 
 O = Path("D:/rang/outputs/rml-gap-20261113")
 CATS = {
@@ -54,14 +54,19 @@ class Sky:
         self.bt = rs.truth_on_beam(self.comps, self.size, self.beam)
         self.label, self.groups = rs.groups(self.comps, self.size, self.beam)
         if self.meta.get("noise"):
-            self.sigma, self.sigma_source = self.meta["noise"]["briggs_image_rms"], "noise file"
+            self.sigma, self.sigma_source = (
+                self.meta["noise"]["briggs_image_rms"],
+                "noise file",
+            )
         else:
             res, _ = read_fits(w / "w-residual.fits")
             ib = np.zeros_like(self.label, bool)
             ib[inner_box(self.size)] = True
             self.sigma = mad_sigma(res, ib & (self.label == 0))
             self.sigma_source = "1.4826 MAD of W's residual outside every group"
-        self.core_dirty = np.load(self.prep / "core-dirty-fits-order.npy").astype(np.float64)
+        self.core_dirty = np.load(self.prep / "core-dirty-fits-order.npy").astype(
+            np.float64
+        )
         self._exact = None
 
     @property
@@ -80,8 +85,12 @@ class Sky:
             rec["q_over_q0"] = q / self.meta["q0"]
             if self.meta.get("noise"):
                 rec["q_over_q_truth"] = q / self.meta["noise"]["q_truth"]
-            rec["exact_residual_inner_rms_sigma"] = float(np.sqrt(np.mean(r[ib] ** 2)) / self.sigma)
-            rec["exact_residual_inner_peak_sigma"] = float(np.abs(r[ib]).max() / self.sigma)
+            rec["exact_residual_inner_rms_sigma"] = float(
+                np.sqrt(np.mean(r[ib] ** 2)) / self.sigma
+            )
+            rec["exact_residual_inner_peak_sigma"] = float(
+                np.abs(r[ib]).max() / self.sigma
+            )
         return rec
 
     def control(self):
@@ -112,7 +121,9 @@ def time_v(path):
     p = Path(path)
     if not p.exists():
         return None
-    m = re.search(r"Maximum resident set size \(kbytes\): (\d+)", p.read_text(encoding="utf-8"))
+    m = re.search(
+        r"Maximum resident set size \(kbytes\): (\d+)", p.read_text(encoding="utf-8")
+    )
     return int(m.group(1)) / 1e6 if m else None
 
 
@@ -120,7 +131,9 @@ def u_run(s, d, g_wall, out):
     run = json.loads((d / "run.json").read_text(encoding="utf-8"))
     rec = {"rc": run["rc"], "wall_s": run["wall_s"], "steps": [
         {k: st[k] for k in ("step", "rc", "wall_s", "wall_cap_hit")} for st in run["steps"]]}  # fmt: skip
-    rec["peak_rss_gb"] = {n: time_v(d / f"time-{n}.txt") for n in ("init", "grid", "sara")}
+    rec["peak_rss_gb"] = {
+        n: time_v(d / f"time-{n}.txt") for n in ("init", "grid", "sara")
+    }
     dirty = d / "pfb_I_main_dirty_time0000_mfs.fits"
     if not dirty.exists():
         rec["precondition"] = "no dirty image"
@@ -141,7 +154,11 @@ def u_run(s, d, g_wall, out):
     rec["orientation_margin"] = best[1][0] - best[0][0]
     rec["dirty_linf_over_peak"] = s.dirty_check(dirty, rec["orientation"])
     rec["precondition_pass"] = rec["orientation_margin"] >= 0.5
-    log = (d / "sara.log").read_text(encoding="utf-8", errors="replace") if (d / "sara.log").exists() else ""
+    log = (
+        (d / "sara.log").read_text(encoding="utf-8", errors="replace")
+        if (d / "sara.log").exists()
+        else ""
+    )
     # The major-cycle lines ("Iter k: peak residual = ..., rms = R, eps = E"); the primal-dual
     # solver's own "eps = " lines are not these.
     cyc = re.findall(r"rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log)
@@ -180,6 +197,15 @@ def u_run(s, d, g_wall, out):
     return rec
 
 
+def _plain(o):
+    """numpy scalars and arrays in JSON."""
+    if isinstance(o, np.generic):
+        return o.item()
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    raise TypeError(type(o).__name__)
+
+
 def analyse(sky):
     s = Sky(sky)
     out = {"sky": sky, "beam_px": s.beam, "sigma": s.sigma, "sigma_source": s.sigma_source,
@@ -198,7 +224,9 @@ def analyse(sky):
         rec["dirty_linf_over_peak"] = s.dirty_check(d / f"{prefix}-dirty.fits")
         rec["precondition_pass"] = rec["dirty_linf_over_peak"] <= 1e-5
         log = (d / "log.txt").read_text(encoding="utf-8", errors="replace")
-        rec["major_cycles_log"] = len(re.findall(r"Major iteration|major cycle \d+|== Major", log, re.I))
+        rec["major_cycles_log"] = len(
+            re.findall(r"Major iteration|major cycle \d+|== Major", log, re.IGNORECASE)
+        )
         arms[arm] = rec
         if arm == "G":
             g_wall = rec["wall_s"]
@@ -213,7 +241,10 @@ def analyse(sky):
         for gg, ww in zip(G["groups"], W["groups"], strict=True):
             if not gg["extended"]:
                 continue
-            ok = abs(gg["F_M"] - ww["F_M"]) <= 0.02 * gg["F_T"] + math.sqrt(2) * gg["eps"]
+            ok = (
+                abs(gg["F_M"] - ww["F_M"])
+                <= 0.02 * gg["F_T"] + math.sqrt(2) * gg["eps"]
+            )
             par.append({"id": gg["id"], "F_G": gg["F_M"], "F_W": ww["F_M"], "F_T": gg["F_T"],
                         "pass": ok})  # fmt: skip
         ratio = W["relative_l2"] / G["relative_l2"]
@@ -223,14 +254,20 @@ def analyse(sky):
             if not name.startswith("U-") or not u.get("last"):
                 continue
             u["r"] = u["last"]["relative_l2"] / G["relative_l2"]
-            u["r5"] = u["within_5g"]["relative_l2"] / G["relative_l2"] if u.get("within_5g") else None
+            u["r5"] = (
+                u["within_5g"]["relative_l2"] / G["relative_l2"]
+                if u.get("within_5g")
+                else None
+            )
             u["cost_ratio_last"] = u["last"]["seconds"] / G["wall_s"]
     for a in arms.values():
         for k in ("last", "within_5g"):
             if isinstance(a.get(k), dict):
                 a[k].pop("groups", None)
     (O / "scores").mkdir(exist_ok=True)
-    (O / "scores" / f"{sky}.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    (O / "scores" / f"{sky}.json").write_text(
+        json.dumps(out, indent=1, default=_plain), encoding="utf-8"
+    )
     brief = {"sky": sky, "beam_px": round(s.beam, 3), "control": out["control"]["pass"],
              "parity": out.get("parity", {}).get("pass")}  # fmt: skip
     for n, a in arms.items():
@@ -239,7 +276,7 @@ def analyse(sky):
         elif a.get("last"):
             brief[n] = (round(a["last"]["relative_l2"], 4), a["last"]["cycle"],
                         round(a["last"]["seconds"], 1), a.get("converged"), a.get("r"), a.get("r5"))  # fmt: skip
-    print(json.dumps(brief))
+    print(json.dumps(brief, default=_plain))
 
 
 if __name__ == "__main__":
