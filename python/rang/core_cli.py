@@ -1016,6 +1016,7 @@ USER_COMMANDS = {
 TOP_LEVEL = {
     "config": "defaults | check CONFIG [MS]: the configuration schema",
     "listobs": "MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs",
+    "flagdata": "MS [key=value ...]: CASA's flagdata modes, CASA's keywords",
     "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
@@ -1453,6 +1454,48 @@ def _listobs_command(argv):
     return record
 
 
+def _flagdata_command(argv):
+    """`rang-core flagdata MS mode=tfcrop key=value ...`: CASA's keyword
+    names (`rang.tasks.flagdata`); values are Python literals where they
+    parse as one (`clipminmax=[0,50]`, `extendflags=False`), else strings.
+    Prints the returned record as JSON."""
+    import ast
+
+    parser = argparse.ArgumentParser(
+        prog="rang-core flagdata",
+        description="CASA's flagdata on a Measurement Set: modes manual, clip, quack, "
+        "shadow, elevation, tfcrop, extend, unflag, summary, with CASA's keyword names "
+        "(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found "
+        "are saved first as a flag version.",
+    )
+    parser.add_argument("ms", help="the Measurement Set (or calibration table, for clip)")
+    parser.add_argument("keywords", nargs="*", metavar="key=value",
+                        help="CASA flagdata keywords, e.g. mode=quack quackinterval=8")  # fmt: skip
+    args = parser.parse_args(argv)
+    kw = {}
+    for item in args.keywords:
+        key, sep, value = item.partition("=")
+        if not sep or not key:
+            parser.error(f"{item!r} is not key=value")
+        try:
+            kw[key] = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            kw[key] = value
+    from . import flagdata as _fd
+    from . import tasks
+
+    try:
+        record = tasks.flagdata(vis=args.ms, **kw)
+    except TypeError as exc:
+        print(f"rang-core flagdata: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    except (tasks.Unsupported, _fd.SelectionError, OSError) as exc:
+        print(f"rang-core flagdata: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    sys.stdout.write(json.dumps(record, indent=1) + "\n")
+    return record
+
+
 def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict, a run's state)."""
@@ -1480,6 +1523,8 @@ def dispatch(argv=None):
         return _config_command(argv[1:])
     if argv[0] == "listobs":
         return _listobs_command(argv[1:])
+    if argv[0] == "flagdata":
+        return _flagdata_command(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:

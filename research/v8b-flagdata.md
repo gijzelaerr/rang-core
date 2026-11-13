@@ -257,6 +257,16 @@ GB), never exclusive; walls are informational and recorded in
 0.1 GB each) and of `eso137-ho` (about 4 GB, created once, copied per arm and
 deleted after). Size: three to four sessions.
 
+## 8a. Amendment 1 (2026-11-13, before any held-out data is opened)
+
+Labelled as an amendment; gates, tolerances and decision rules are unchanged.
+The ESO137 pilot raw MS holds one scan (scan 2, the target `ESO137-pilot`,
+3,598 s, 850,950 rows) with **512 channels**, not 4,096 (read with rang's
+`listobs` metadata only), so "channels 1024-2047" does not exist. `eso137-ho`
+is instead **all 512 channels of the first 600 s of scan 2**
+(`split(timerange=<first 600 s>, keepflags=True, datacolumn='data')`), about
+2.5 GB. Scan 2 is not one of E2-A's held-out scans (9, 10, 11).
+
 ## 9. Development log and results
 
 (Filled in as the work proceeds; empty at the freeze.)
