@@ -306,8 +306,7 @@ changed):
 
 - `luno-ho2`: scan 19 (field `J1833-2103`, 11 integrations, 17,556 rows,
   56 antennas, 4,096 channels) of the E2-B LUNO calibrators MS
-  `D:
-ang\data\e2-b\e2b.ms`, by `split(scan='19', keepflags=True,
+  `D:\rang\data\e2-b\e2b.ms`, by `split(scan='19', keepflags=True,
   datacolumn='data')` (`tools/oracles/casa/v8b_heldout2.sh`). The same
   observation as the development `luno` slice (4 antennas, scan 2), but other
   scans, times and 52 more antennas; no V8 task has opened `e2b.ms` (V8a used
