@@ -312,13 +312,21 @@ development cases equal (FLAG, FLAG_ROW and every summary count).
 | Q1 | quack's window includes its boundary: `beg` flags TIME ≤ t0 + interval, `endb` TIME ≥ t1 − interval, `tail` TIME > t0 + interval, `end` TIME < t1 − interval, with t0, t1 the first and last TIME of the scan (of its unflagged rows with `quackincrement`) | `syn-edges` M3, M4a-d (8 s integrations, interval 8 s) |
 | R1 | FLAG_ROW: set where a row is then wholly flagged only for `manual`, `quack`, `shadow`, `elevation` without a `spw` or `correlation` selection; left as it was by `clip`, `extend`, `tfcrop` and by any spw or correlation selection; `unflag` clears it where it leaves a cell unflagged | `syn-edges` M2 (set), M8c `spw='1'` and M14b (unchanged although rows became wholly flagged), M1 |
 | A1 | a bare antenna name selects that antenna's cross-correlations only; `!name` removes them (the antenna's autocorrelation stays selected) | `syn-edges` M11a, M11c, M11d |
-| H1 | shadow reads the UVW column in the MS convention (ANTENNA1 − ANTENNA2): in a row with projected distance below r1 + r2 − tolerance, ANTENNA2 is flagged when w > 0, else ANTENNA1, on all its rows (autocorrelation included) at that time | `syn-edges` M6a, M6b (times equal; amendment 2 tests the column against positions) |
+| H1 | shadow reads the UVW column in the MS convention (ANTENNA1 − ANTENNA2): in a row with projected distance below r1 + r2 − tolerance, ANTENNA2 is flagged when w > 0, else ANTENNA1, on all its rows (autocorrelation included) at that time | `syn-edges` M6a, M6b; `syn-edges-uvwneg` (UVW negated: CASA flags the other antenna, so it reads the column) |
+| H2 | a pair of ANTENNA-table antennas with no row at that time is projected from the antenna positions and the field's direction in ITRS (astropy here), and can shadow | `syn-edges-nom001` M6a, M6b (m001 has no rows; CASA flags m000 at 61 times, rang's ITRS projection the same 61) |
 | E1 | elevation uses the geocentric horizon (casacore `AZEL`), not astropy's geodetic one: the 20° crossing on `syn-edges` agrees to the integration with the geocentric elevation and is three integrations (0.1°) off with the geodetic one | `syn-edges` M5b |
 | S1 | a frequency range selects from the first channel whose centre is ≥ the low end to the last whose centre is ≤ the high end; a range between two centres selects both neighbours | `a1` M7 (13.4 MHz channels: `1419.8~1421.3MHz` gives channels 41 and 42); `syn-edges` M7 |
 | U1 | `summary` counts an autocorrelation once for its antenna; `basecnt=True` adds `baseline` (`A&&B`) and `antenna:scan` (`A:scan`) | `syn-edges` M16a, `luno` M16a |
 | N1 | a selection with no rows is an error (CASA: "MSSelectionNullSelection"), raised before anything is written | `syn-edges` M12b |
 
-Informative cases (CASA changed at least one flag) among the 77: all
+Round 02 (amendment 2's cases, rebuilt MSs, rang at `cfc1f83`): **84 of
+84 fixed-mode development cases equal** (`dev-02.json`, and `dev-02b.json`
+for the shadow cases after H2), 63 of them informative, including the
+uvrange ranges M12c-e and both shadow probes. The 21 uninformative ones
+(CASA changed no flag): `syn-edges` M5a and M12b; on `luno` M2, M5a, M5b,
+M6a, M6b, M7, M14a, M14c-e; on `a1` M2, M5a, M6a, M6b, M14a, M14c-e; the
+`B-twin` Df table (M17).
+Informative cases (CASA changed at least one flag) among run 01's 77: all
 `syn-edges` arms except M12b; on `luno` and `a1` the shadow, elevation (0-90°)
 and clip arms changed nothing (no shadowing, no NaN, amplitudes inside the
 range), so those modes rest on `syn-edges`. Untested, stated now: `unflag`

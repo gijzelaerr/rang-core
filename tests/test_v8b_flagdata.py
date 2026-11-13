@@ -37,6 +37,8 @@ pytestmark = pytest.mark.skipif(
 def built(tmp_path_factory):
     out = tmp_path_factory.mktemp("v8b")
     cases.build_edges(out / "syn-edges.ms")
+    cases.build_edges(out / "syn-edges-uvwneg.ms", uvw_sign=-1.0)
+    cases.build_edges(out / "syn-edges-nom001.ms", drop=1)
     cases.build_tfcrop(out / "syn-rfi.ms", rfi=True)
     cases.build_tfcrop(out / "syn-noise.ms", rfi=False)
     return out

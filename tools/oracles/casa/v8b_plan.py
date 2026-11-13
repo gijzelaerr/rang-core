@@ -142,11 +142,14 @@ def probe_plan():
              "calls": [base | v]} for k, v in arms.items()]  # fmt: skip
 
 
-def heldout_plan():
+def heldout_plan(tfcrop=False):
+    """The held-out cases: the fixed modes, and tfcrop's T4 and T5 only
+    once H1 has passed its development gate (section 7)."""
     plan = []
-    for arm in ("T4", "T5"):
-        plan.append({"name": f"eso137-ho.{arm}", "input": HELDOUT_INPUTS["eso137-ho"],
-                     "calls": TFCROP[arm]})  # fmt: skip
+    if tfcrop:
+        for arm in ("T4", "T5"):
+            plan.append({"name": f"eso137-ho.{arm}", "input": HELDOUT_INPUTS["eso137-ho"],
+                         "calls": TFCROP[arm]})  # fmt: skip
     fixed = fixed_arms(False)
     for case, path in HELDOUT_INPUTS.items():
         for arm in ("M1", "M2", "M3", "M5a", "M5b", "M6a", "M7", "M14a", "M16a"):
