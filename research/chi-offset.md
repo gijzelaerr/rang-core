@@ -1,6 +1,6 @@
 # Chi-offset: why E2-B's absolute 3C 286 angle is wrong in rang and CASA alike
 
-Status: **proposal, frozen 2026-11-13** before any run of this task. Measured 2026-11-13 (sections 8-10): H3 not accepted as frozen ((iii) fails by 0.47° and 2.31°); owner decisions in section 10. Results
+Status: **proposal, frozen 2026-11-13** before any run of this task. Results
 and later changes go in dated sections below the freeze line.
 
 ## 1. The observation (E2's, read before this note)
@@ -207,15 +207,19 @@ the same four values to 0.01°. The tables of the two rang arms are equal
 for K, G, B, Gpol (≤ 1.8e-6), KCROSS (≤ 8e-4 ns); **Xf differs by 78° median,
 107° max**.
 
-Cause (read from `rang.cal_pol.xf` and `core/src/cal/crosshand.rs`): with
+Measured: toggling `average_time` alone moves Xf by 78° (median); the
+no-average arm equals CASA. Cause, **inferred, not measured** (read from
+`rang.cal_pol.xf` and `core/src/cal/crosshand.rs`): with
 `average_time` the Xf solve (solint inf, `combine: scan`) runs on rows
 averaged across the whole interval, here all four 3C286-SIM scans (115° of
 ψ). The model is rotated by P per row before averaging, so the averaged
 polarised cross-hand model decoheres while the leakage terms (d·I, not
 rotating) do not, and Xf's closed form `arg Σ w V M*` is then set by the
-leakage. CASA's polcal pre-averages within `preavg` (300 s) only. E2-B's Xf
-was solved on one scan (Δψ ≈ 2°), where the effect is small, consistent with
-E2's rang-CASA parity; it is a separate defect, not E2's offset. **Owner
+leakage. CASA's spec here sets no `preavg`, so polcal ran on its default
+(300 s by CASA's documentation; not checked in this run). E2-B's Xf was
+solved on one scan (Δψ ≈ 2°); measured support that this is a separate defect
+and not E2's offset: on the LUNO reruns (single-scan Xf, `average_time` on)
+rang equals CASA to 0.03° (section 9). **Owner
 item: `calibrate.average_time` must not average Xf (or any polarised-model
 solve) across a ψ range; proposed fix: cap the averaging at CASA's preavg or
 at a ψ step.** Not fixed in this task.
@@ -227,7 +231,9 @@ frame question.
 
 ## 9. Results and the frozen rule (2026-11-13)
 
-Archive: `research/results/chi-offset/results.json` (every number below);
+Archive: `research/results/chi-offset/results.json` (the sim, LUNO and E2-B
+θ fits; the Xf table comparison, the own-rerun θ fits and the RM-corrected
+θ_t are quoted here only, from `-04-qf` and the arm directories);
 run roots `D:\rang\outputs\chi-offset-20261113-02-sim`, `-03-luno-s17`,
 `-03-luno-s1`, `-04-qf`, `-05-eval`. Scripts: `sim_chi.py`, `luno_rerun.py`,
 `chi_vs_psi.py`, `evaluate.py`, `chain.sh` (this directory). Deviations
@@ -237,7 +243,12 @@ only in the dry run's slice, copied before E2 deleted the dry-run directory;
 its config is kept verbatim as `dryrun-b-config.yaml`), so each 3C 286 scan
 has its own Xf and the combined and other-scan Xf arms were not possible;
 LUNO `null_noavg` was refused by rang's memory limit (14.7 GiB per interval)
-and is unnecessary there (one scan per Xf, Δψ < 2°).
+and is unnecessary there (one scan per Xf, Δψ < 2°). The s1 copy carries the
+FLAG column as the dry run left it (flag stage plus whatever its calibrate
+and apply stages flagged); its flag backup went with the deleted directory.
+**Planned in section 4 and not run:** the KCROSS and Xf parang-off toggles
+(only Gpol's was run), the sim arm with Xf from one scan (H6), the LUNO
+`null_own`/`m90_own` arms and every LUNO arm with another scan's Xf.
 
 **(i) Q_f, Xf-free** (`chi_vs_psi.py`, 1.3-1.5 GHz, q_f = p_m cos 2(χ_m − ψ − θ),
 model p_m 0.098, χ_m 32.93-32.96° from MODEL_DATA, no RM):
@@ -294,7 +305,9 @@ rang without `average_time` (fail as frozen, separate defect), (iii) fail by
 H4 excluded (the offset is not constant: 89° change for Δψ 44°). H5 excluded
 as the cause (MODEL_DATA χ 32.93-32.96°, p 0.098 on the rerun MSs; the offset
 is ψ-dependent); E2's 30.0° MODEL_DATA reading is not reproduced here. H6 not
-supported (own-scan Xf on both scans gives the same χ(λ²=0) to 0.06°). By the
+supported but not tested as planned (own-scan Xf on both scans gives the same
+χ(λ²=0) to 0.06°; no scan was given another scan's Xf, and the sim one-scan
+arm was not run). By the
 frozen rule's letter: "cause not found" for H3's absolute tolerance.
 
 **Post hoc reading (labelled).** The measurements say the configured receptor
@@ -330,8 +343,10 @@ follow-up rule would compare χ(λ²=0) or RM-corrected χ with 33°.
 
 Branch `claude/chi-offset-80cb6a`; research files only (`research/chi-offset.md`,
 `research/results/chi-offset/`, `research/tool-timings.md`); no package code
-changed. Checks: `ruff check`/`ruff format --check` on the scripts; the full
-`check_all.py` left to the coordinator's merge check (no code under
-`python/`, `core/`, `src/` touched). Run outputs on D: (sim 7 GB, LUNO
+changed. Checks: only `ruff check`/`ruff format --check` on the scripts ran;
+the full check (step 6) was not run here and is left to the coordinator's
+merge check (no code under `python/`, `core/`, `src/` touched; this branch
+predates `tools/check_all.py`). Run outputs on D: (sim 7 GB, LUNO
 bases s17 4 GB and s1 18 GB kept for a follow-up; arm MSs deleted after
-scoring).
+scoring). **`-03-luno-s1/base/luno4.ms` is now the only local copy of raw
+LUNO scans 1-2: do not wipe it.**
