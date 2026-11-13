@@ -1861,3 +1861,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | V8a rang `listobs.summary` + comparison | 9 MSs | 0.01-13.5 s per MS (eso137 0.89 s) | – | native Windows, MSs over `\\wsl.localhost` while E2 ran; research/v8a-listobs.md |
 | 2026-11-13 | docs-polish: GitHub `docs` workflow, run 43379688451 (`5bc8b0f`) | ubuntu runner, public fixture | 417 s job: ext build 251 s, notebooks 112 s, CLI check 4 s, `sphinx-build -W` 28 s | – | GitHub host; green, no warning |
 | 2026-11-13 | docs-polish: `maturin develop --release` in the worktree venv, heavy lock shared 4 slots | worktree docs-polish | not run: 64 min in the queue behind an exclusive `cold_build_bench.py`, then withdrawn | – | Windows host; CI built the same commit |
+| 2026-11-13 | #23: `cargo build --profile gemclean` of gemclean at `30d9412` (heavy lock shared) | worktree imaging-gaps | 228 s compile after about 1 h in the queue | – | Windows host; research/multiscale-df5o-a1.md |
+| 2026-11-13 | #23: gemclean `-multiscale` (r1, r2), `-j 4`, heavy lock 4 slots | DF5-O field, 1024² × 16 ch | 325 s, 240 s | 3739 MB | Windows host, shared; deterministic (r1 = r2) |
+| 2026-11-13 | #23: gemclean Högbom, `-j 4` | DF5-O field | 44 s | 2892 MB | Windows host, shared |
+| 2026-11-13 | #23: gemclean multiscale variants v1, v2, v3, v4 | DF5-O field | 420 s, 243 s, 96 s, 720 s | 3377-3737 MB | Windows host, shared |
+| 2026-11-13 | #23: `measure.py` (DF5-O scorer with the pedestal estimate), heavy lock 2 slots | one arm | 16-21 s | – | Windows host; queue waits up to 74 min excluded |
