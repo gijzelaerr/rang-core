@@ -132,6 +132,16 @@ def dev_plan():
     return plan
 
 
+def probe_plan():
+    """tfcrop probes on `probe-fit` (labelled probe, not gate cases)."""
+    base = {"mode": "tfcrop", "flagdimension": "freq", "extendflags": False}
+    arms = {"P1": {}, "P2": {"maxnpieces": 1}, "P3": {"maxnpieces": 3},
+            "P4": {"maxnpieces": 9}, "P5": {"freqfit": "line"},
+            "P6": {"flagdimension": "time", "timefit": "poly"}}  # fmt: skip
+    return [{"name": f"probe-fit.{k}", "input": "/in/cases/probe-fit.ms",
+             "calls": [base | v]} for k, v in arms.items()]  # fmt: skip
+
+
 def heldout_plan():
     plan = []
     for arm in ("T4", "T5"):
@@ -146,7 +156,8 @@ def heldout_plan():
 
 if __name__ == "__main__":
     which, out = sys.argv[1], sys.argv[2]
-    plan = dev_plan() if which == "dev" else heldout_plan()
+    plan = {"dev": dev_plan, "heldout": heldout_plan, "probe": probe_plan,
+            "devprobe": lambda: dev_plan() + probe_plan()}[which]()  # fmt: skip
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         json.dump(plan, f, indent=1)
     print(len(plan), "cases")

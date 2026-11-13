@@ -382,6 +382,71 @@ def build_edges(path, seed=20261114, uvw_sign=1.0, drop=None):
                                              float(np.degrees(el.max()))]}  # fmt: skip
 
 
+PROBE_NOISE = (0.002, 0.005, 0.02)
+
+
+def probe_shapes(nchan=256):
+    """The band shapes of `probe-fit`, one per (baseline, correlation)
+    plane, with their names: lines, polynomials, sines, steps, Vs and
+    bumps, all positive."""
+    x = np.linspace(-1.0, 1.0, nchan)
+    ch = np.arange(nchan)
+    shapes = []
+    for slope in (0.0, 0.3, 0.9):
+        shapes.append((f"line{slope}", 1.0 + slope * x))
+    for k in (2, 3, 4, 6):
+        shapes.append((f"poly{k}", 2.0 + x**k))
+    for periods in (0.5, 1, 2, 3, 4, 6, 8):
+        shapes.append((f"sine{periods}", 2.0 + np.sin(np.pi * periods * x)))
+    for at in (16, 37, 64, 100, 128, 200):
+        shapes.append((f"step{at}", np.where(ch < at, 1.0, 1.5)))
+    for at, depth in ((8, 0.9), (40, 0.9), (128, 0.5), (128, 0.9), (250, 0.9)):
+        shapes.append(
+            (f"vee{at}-{depth}", 1.0 - depth * np.maximum(0, 1 - np.abs(ch - at) / 30))
+        )
+    for width in (1, 3, 8, 20):
+        shapes.append(
+            (f"bump{width}", 1.0 + 0.5 * np.exp(-0.5 * ((ch - 90) / width) ** 2))
+        )
+    return shapes
+
+
+def build_probe_fit(path, nant=8, ntime=10, nchan=256):
+    """`probe-fit` (a tfcrop probe, research/v8b-flagdata.md section 9):
+    every plane is a band shape times (1 + e * (-1)^(t + f)), so the
+    relative deviation of every point is exactly +-e about the band and
+    the per-row rms of r is e. A point is then flagged (cutoff 3) only
+    where CASA's fit departs from the band by more than about 3e. Shapes
+    cycle over the planes; e cycles over PROBE_NOISE per baseline."""
+    xyz = itrf_positions(ENU + ((200.0, 300.0, 0.0), (-50.0, 600.0, 0.0)))[:nant]
+    pairs = [(a, b) for a in range(nant) for b in range(a + 1, nant)]
+    nbl = len(pairs)
+    times = T0 + 3 * 3600.0 + DT * np.repeat(np.arange(ntime), nbl)
+    a1 = np.tile([p[0] for p in pairs], ntime)
+    a2 = np.tile([p[1] for p in pairs], ntime)
+    field = ("PROBE", 1.2, -0.5)
+    shapes = probe_shapes(nchan)
+    sign = (-1.0) ** (np.arange(ntime)[:, None] + np.arange(nchan)[None, :])
+    data = np.empty((len(times), nchan, 4), np.complex64)
+    names = []
+    for b in range(nbl):
+        e = PROBE_NOISE[b % len(PROBE_NOISE)]
+        for c in range(4):
+            name, band = shapes[(4 * b + c) % len(shapes)]
+            names.append([b, c, name, e])
+            plane = band[None, :] * (1.0 + e * sign)
+            data[b::nbl, :, c] = plane.astype(np.complex64)
+    t = _ms(path, len(times), nchan)
+    with t:
+        _main_rows(t, times, a1, a2, np.ones(len(times)), np.zeros(len(times)),
+                   uvw(times, field[1], field[2], xyz, a1, a2))  # fmt: skip
+        t.putcol("DATA", data)
+        t.putcol("FLAG", np.zeros(data.shape, bool))
+        t.putcol("FLAG_ROW", np.zeros(len(times), bool))
+    _subtables(path, xyz, field, [(1.284e9, 208984.375, nchan)], "V8b probe-fit")
+    return {"planes": names}
+
+
 def main(argv):
     out = Path(argv[0])
     out.mkdir(parents=True, exist_ok=True)
@@ -402,6 +467,8 @@ def main(argv):
             info[name] = build_edges(path, uvw_sign=-1.0)
         elif name == "syn-edges-nom001":
             info[name] = build_edges(path, drop=1)
+        elif name == "probe-fit":
+            info[name] = build_probe_fit(path)
         else:
             raise SystemExit(f"unknown case {name}")
     (out / "cases.json").write_text(
