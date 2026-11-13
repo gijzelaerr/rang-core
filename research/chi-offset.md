@@ -122,3 +122,30 @@ touched.
 ---
 
 (Results below this line, dated.)
+
+## 6. Post-freeze addition (2026-11-13, before any chain run; labelled post hoc)
+
+Read after the freeze, from E2's committed outputs only (no new run):
+
+- **ψ from the metadata is right.** Astropy (MeerKAT site −30.713°, 21.443°;
+  3C 286 J2000; scan 17's first and last TIME) gives 147.11° and 145.27° at
+  HA +2.43 h and +2.60 h; rang's CASA-frame angles give 147.18° and 145.33°.
+  The MS's array centre is at −30.712°, 21.442°. The metadata part of H1 is
+  excluded.
+- **Scan 17 in the feed frame** (E2's q +0.099, u −0.011 rotated back by
+  a = ψ − 90°): q_f −0.049, u_f −0.087. The model in the same frame: q_f
+  +0.063, u_f −0.083. The Xf-free parallel hands disagree with the model in
+  sign; the cross hands agree. That is H3's signature: a frame error in Q_f,
+  with Xf having matched U_f to the model.
+- **χ against λ² on scan 17** (`rows-parity.json`, seven bins, weighted by the
+  unflagged fraction): slope +77.6°/m² (rang) and +79.9°/m² (CASA), i.e.
+  RM_app +1.35 and +1.39 rad m⁻²; intercept −6.9° and −7.0°; residuals
+  ≤ 0.15° except the 7 %-unflagged bin (0.5°). Under H3 the measured angle
+  is −χ_true(λ) + 2ψ + θ_t − 90°, so a real RM enters with the opposite
+  sign: RM_true ≈ −1.35 rad m⁻² (ionospheric size), and the intercept gives
+  θ_t ≈ +3.5° (mod 180) for χ0 = 33°.
+- **Added prediction (H3), for the reruns with the receptor angle 0:** on
+  each 3C 286 scan, χ = χ0 + RM λ² − θ_t with the RM slope **negative**
+  (sign flipped against the −90° arm), χ ≈ 26-30° at 1.4 GHz on scan 17
+  (33° − 3.6° (RM) − up to 3.5° (θ_t)). Under H1 the slope sign would not
+  flip with the receptor angle.
