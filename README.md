@@ -53,7 +53,7 @@ arm64 and x86_64, Windows x86_64.
 | `recipes`, `carta` | the Stimela2 recipes (Python 3.13 or older; installs nothing on 3.14); CARTA from the notebooks |
 | `test`, `docs` | the test suite; the documentation site |
 
-From source, with Rust 1.93 and `cargo` on `PATH` (more in the [installation guide](https://pythonic.nl/rang-core/installation.html)):
+PyPI has only 0.1.0, which predates `rang-core run` and `gemclean`; until 0.2.0, install from source, with Rust 1.93 and `cargo` on `PATH` (more in the [installation guide](https://pythonic.nl/rang-core/installation.html)):
 
 ```sh
 git clone https://github.com/gijzelaerr/rang-core && cd rang-core

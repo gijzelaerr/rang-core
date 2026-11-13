@@ -85,6 +85,18 @@ html_theme_options = {
     "source_repository": GITHUB,
     "source_branch": "main",
     "source_directory": "docs/",
+    "navigation_with_keys": True,
+    "top_of_page_buttons": ["view", "edit"],
+    # The logo's amber (docs/logo/README.md) in dark mode; darkened in light
+    # mode so that links keep a 4.5:1 contrast on white.
+    "light_css_variables": {
+        "color-brand-primary": "#a8640f",
+        "color-brand-content": "#a8640f",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#e8a33d",
+        "color-brand-content": "#e8a33d",
+    },
 }
 
 NOTEBOOKS = ROOT / "notebooks"
