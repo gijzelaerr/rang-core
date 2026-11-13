@@ -527,7 +527,7 @@ def t3(d, V, Y):
     gains = {k: None for k in Y if k not in CENTRAL4}
     base = {k: v.copy() for k, v in Y.items() if k not in CENTRAL4}
     for sweep in range(2):
-        for k in list(gains):  # noqa: PLC0206
+        for k in list(gains):
             tot -= Y[k]
             f, gains[k] = stefcal(d, V - tot, base[k], zero, 1, iters=8, g0=gains[k])
             Y[k] = base[k] * f[:, None]
