@@ -518,6 +518,12 @@ F4 does not stop other users' processes.
 **Training itself is blocked** on the shards and the label audit (running), then the clean C1(U4)
 (deferred), in that order of availability.
 
+**Shards (Stage 3), running from 2026-11-13 08:39.** Calibrator validation
+(`D:/rang/outputs/f4-20261111-06-shards-cal/calibrator/validation`, LUNO MAIN_7) rc 0, audit stop:
+none (T adds 209,120 of 16,945,620 eligible cells, A 2,744,976; 12,533 strong consensus cells at s ≥ 5).
+Calibrator train, then target validation and train, follow in the same queue process; verdicts go to
+`D:/rang/outputs/f4-20261111-queue.json`.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
