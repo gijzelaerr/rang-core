@@ -456,6 +456,26 @@ progress." Nothing of F4 is running or queued in the heavy lock. Stages 1-3 ran 
    under `--slots 4 --mem 16`; GPU memory and wall are unmeasured.
 4. Median seed by validation loss, τ (`f4_tau.py`), then Stage 5 once on the held-out sets.
 
+### Resumed 2026-11-13 (session started by the coordinator)
+
+The handoff row (`research/handoff-2026-11-13.md` on main, "next: parity runs") was stale: parity had
+run on 11-12. Not rerun; checked instead.
+
+**Parity (Stage 2), measured 2026-11-12, U4 (He-normal init seed 0), F3's T/A not involved.** Bars in
+`examples/f4_parity.py`: feature max |Rust − NumPy| ≤ 1e-4, logit p99.9 ≤ 1e-4, logit max ≤ 1e-3, flag
+disagreement (logit sign, eligible cells) ≤ 1e-5.
+
+| Run | Set | Cells | Feature max | Logit p99.9 / max | Flag disagreement | Rust / NumPy features | Wall (lock wait incl.) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `D:/rang/outputs/f4-20261111-04-parity-calibrator` | LUNO MAIN_7 | 16,945,620 | 6.0e-8 | 4.0e-7 / 9.2e-7 | 5.9e-8 (1 cell) | 4.8 / 50.5 s | 153.4 min |
+| `D:/rang/outputs/f4-20261111-04-parity-target` | ESO137 chunk 10 | 17,951,244 | 6.0e-8 | 8.3e-7 / 2.1e-6 | 5.6e-8 (1 cell) | 3.5 / 41.1 s | 11.3 min |
+
+Both pass. Most of the calibrator wall is waiting for the heavy lock (log). Receipts: each run's
+`.code/HEAD` is `5fc158b` with an empty `diff.patch`; `git diff 5fc158b HEAD` touches only
+`research/`, so the parity applies to the code on this branch's head. The extension was built by the
+chain on 2026-11-11 16:55 (`-00-build/chain.log`), after Amendment 2 (`ea5fa52`, 16:14), the last
+commit touching `core/` or `src/` before `5fc158b`; `efd6876` changed one Python line and a test.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
