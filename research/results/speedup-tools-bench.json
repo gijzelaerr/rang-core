@@ -1,0 +1,120 @@
+{
+ "commit": "2a02470df490613b83b92310308e77511e5cead0",
+ "rustc": "rustc 1.93.1 (01f6ddf75 2026-02-11)",
+ "sccache": "sccache 0.19.0",
+ "arms": [
+  {
+   "arm": "A",
+   "tree": "C:\\Users\\gijsm\\Build\\tmp\\20261113-rang-coldbench\\arm-A",
+   "steps": [
+    {
+     "step": "root-build",
+     "status": 0,
+     "wall_seconds": 3.5
+    },
+    {
+     "step": "core-build",
+     "status": 0,
+     "wall_seconds": 240.7
+    },
+    {
+     "step": "core-test",
+     "status": 0,
+     "wall_seconds": 187.9
+    },
+    {
+     "step": "core-clippy",
+     "status": 0,
+     "wall_seconds": 9.0
+    },
+    {
+     "step": "core-test-gpu",
+     "status": 0,
+     "wall_seconds": 341.9
+    },
+    {
+     "step": "ext-build",
+     "status": 0,
+     "wall_seconds": 197.3
+    }
+   ],
+   "total_seconds": 980.3
+  },
+  {
+   "arm": "B",
+   "tree": "C:\\Users\\gijsm\\Build\\tmp\\20261113-rang-coldbench\\arm-B",
+   "steps": [
+    {
+     "step": "root-build",
+     "status": 0,
+     "wall_seconds": 3.9
+    },
+    {
+     "step": "core-build",
+     "status": 0,
+     "wall_seconds": 244.1
+    },
+    {
+     "step": "core-test",
+     "status": 0,
+     "wall_seconds": 188.1
+    },
+    {
+     "step": "core-clippy",
+     "status": 0,
+     "wall_seconds": 9.9
+    },
+    {
+     "step": "core-test-gpu",
+     "status": 0,
+     "wall_seconds": 333.3
+    },
+    {
+     "step": "ext-build",
+     "status": 0,
+     "wall_seconds": 193.9
+    }
+   ],
+   "total_seconds": 973.2,
+   "sccache_stats": "Compile requests                    283\nCompile requests executed           148\nCache hits                           15\nCache hits (Rust)                    15\nCache misses                        130\nCache misses (Rust)                 130\nCache hits rate                   10.34 %\nCache hits rate (Rust)            10.34 %\nCache timeouts                        0\nCache read errors                     0\nForced recaches                       0\nCache write errors                    0\nCache errors                          0\nCompilations                        130\nCompilation failures                  3\nNon-cacheable compilations            0\nNon-cacheable calls                 129\nNon-compilation calls                 6\nUnsupported compiler calls            0\nAverage cache write               0.001 s\nAverage compiler                  1.417 s\nAverage cache read hit            0.000 s\nFailed distributed compilations       0\n\nNon-cacheable reasons:\ncrate-type (bin)                     58\n-                                    19\nmissing input                        16\nmultiple input files                 15\ncrate-type                            8\ncrate-type (proc-macro)               7\ncrate-type (cdylib)                   4\nmissing output_dir                    2\n\nCache location                  Local disk: \"C:\\\\Users\\\\gijsm\\\\Build\\\\tmp\\\\20261113-rang-coldbench\\\\sccache\"\nBase directories                (none)\nUse direct/preprocessor mode?   yes\nVersion (client)                0.19.0\nCache size                          153 MiB\nMax cache size                       30 GiB\n"
+  },
+  {
+   "arm": "C",
+   "tree": "C:\\Users\\gijsm\\Build\\tmp\\20261113-rang-coldbench\\arm-C",
+   "steps": [
+    {
+     "step": "root-build",
+     "status": 0,
+     "wall_seconds": 4.0
+    },
+    {
+     "step": "core-build",
+     "status": 0,
+     "wall_seconds": 237.1
+    },
+    {
+     "step": "core-test",
+     "status": 0,
+     "wall_seconds": 185.1
+    },
+    {
+     "step": "core-clippy",
+     "status": 0,
+     "wall_seconds": 7.8
+    },
+    {
+     "step": "core-test-gpu",
+     "status": 0,
+     "wall_seconds": 285.1
+    },
+    {
+     "step": "ext-build",
+     "status": 0,
+     "wall_seconds": 181.2
+    }
+   ],
+   "total_seconds": 900.4,
+   "sccache_stats": "Compile requests                    283\nCompile requests executed           148\nCache hits                          126\nCache hits (Rust)                   126\nCache misses                         19\nCache misses (Rust)                  19\nCache hits rate                   86.90 %\nCache hits rate (Rust)            86.90 %\nCache timeouts                        0\nCache read errors                     0\nForced recaches                       0\nCache write errors                    0\nCache errors                          0\nCompilations                         19\nCompilation failures                  3\nNon-cacheable compilations            0\nNon-cacheable calls                 129\nNon-compilation calls                 6\nUnsupported compiler calls            0\nAverage cache write               0.001 s\nAverage compiler                  4.542 s\nAverage cache read hit            0.000 s\nFailed distributed compilations       0\n\nNon-cacheable reasons:\ncrate-type (bin)                     58\n-                                    19\nmissing input                        16\nmultiple input files                 15\ncrate-type                            8\ncrate-type (proc-macro)               7\ncrate-type (cdylib)                   4\nmissing output_dir                    2\n\nCache location                  Local disk: \"C:\\\\Users\\\\gijsm\\\\Build\\\\tmp\\\\20261113-rang-coldbench\\\\sccache\"\nBase directories                (none)\nUse direct/preprocessor mode?   yes\nVersion (client)                0.19.0\nCache size                          197 MiB\nMax cache size                       30 GiB\n"
+  }
+ ]
+}

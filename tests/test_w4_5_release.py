@@ -229,6 +229,8 @@ def test_sdist_excludes_the_research_tree():
         "tools/e2e/**/*",
         "tools/gain_hash_gate.py",
         "tools/heavy_lock.py",
+        "tools/check_all.py",
+        "tools/cold_build_bench.py",
     ):
         assert f'{{ path = "{tool}", format = "sdist" }}' in maturin, tool
     assert '{ path = "tools/wheel/**/*", format = "sdist" }' not in maturin

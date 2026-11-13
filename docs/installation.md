@@ -11,6 +11,11 @@ pip install rang-core
 [GitHub release](https://github.com/gijzelaerr/rang-core/releases). To build it yourself, install
 [from source](#from-source).
 
+The only release on PyPI is **0.1.0** (2026-11-02). It predates the user
+chain: it has no `rang-core run`, `flag`, `calibrate`, `apply`, `image`,
+`selfcal` or `config`, and no `gemclean`. Until 0.2.0 is released, install
+[from source](#from-source) to follow the MS-to-image tutorial. There are no pre-releases.
+
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. Every kernel is inside the
 extension `rang._core`, including the root crate's (gain TV, phase trend,
@@ -65,14 +70,14 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | `plot` | matplotlib | plots in the examples |
 | `test` | pytest | the test suite |
 | `docs` | Sphinx, furo, myst-nb, papermill | this site |
-| `recipes` | Stimela 2.1.4 | the Stimela2 recipes in `recipes/` (Python 3.13): `rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply` and `image` on your MS ({doc}`cli`); `core-*.yaml` are research recipes |
+| `recipes` | Stimela 2.1.4 | the Stimela2 recipes in `recipes/` (Python 3.13 or older; installs nothing on 3.14): `rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply` and `image` on your MS ({doc}`cli`); `core-*.yaml` are research recipes |
 
 ```sh
 pip install 'rang-core[notebook,imaging]'
 ```
 
 Install from public PyPI (`--index-url https://pypi.org/simple`). Stimela
-2.1.4 needs Python 3.13; its native backend fails on 3.14. The chain
+2.1.4 needs Python 3.13 or older (the extra installs nothing on 3.14). The chain
 recipe calls the `rang-core` console script, so run it from the environment
 that has rang installed:
 
@@ -131,8 +136,10 @@ python -c "import rang.core as c; print(c.backend_name())"   # extension
 rang-core -h
 ```
 
-Native Windows runs the test suite; for campaign work on Windows use a WSL2
-checkout on the Linux filesystem ({doc}`contributing`).
+Development and the full local check run natively on Windows and Linux;
+macOS is built and tested in CI (the wheels). Only the Linux-only oracles (CASA, WSClean, QuartiCal, CARACal) and the
+frozen campaigns in `history/` need Linux; on Windows use a WSL2 checkout on the
+Linux filesystem for them ({doc}`contributing`).
 
 ## Releases
 

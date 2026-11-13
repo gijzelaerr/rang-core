@@ -46,7 +46,7 @@ Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.8"]
-test = ["pytest>=8", "pytest-xdist>=3.6"]
+test = ["pytest>=8", "pytest-xdist>=3.6", "pytest-timeout>=2.3"]
 pointing = ["jax>=0.4.30", "scipy>=1.12"]
 beam = ["katbeam==0.1", "eidos==1.1.2"]
 # No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
@@ -121,6 +121,8 @@ exclude = [
     { path = "tools/a1_casa.sh", format = "sdist" },
     { path = "tools/a1_checks.sh", format = "sdist" },
     { path = "tools/check-all.sh", format = "sdist" },
+    { path = "tools/check_all.py", format = "sdist" },
+    { path = "tools/cold_build_bench.py", format = "sdist" },
     { path = "tools/core-j-suite.sh", format = "sdist" },
     { path = "tools/e2e/**/*", format = "sdist" },
     { path = "tools/gain_hash_gate.py", format = "sdist" },
