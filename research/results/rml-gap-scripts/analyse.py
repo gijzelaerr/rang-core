@@ -238,7 +238,7 @@ def analyse(sky):
     out["control"] = s.control()
     arms = {}
     g_wall = None
-    for arm, prefix in (("G", "g"), ("W", "w")):
+    for arm, prefix in (("G", "g"), ("W", "w"), ("Gd", "g")):
         d = O / "runs" / arm / sky
         if not (d / f"{prefix}-model.fits").exists():
             continue
@@ -296,7 +296,7 @@ def analyse(sky):
     brief = {"sky": sky, "beam_px": round(s.beam, 3), "control": out["control"]["pass"],
              "parity": out.get("parity", {}).get("pass")}  # fmt: skip
     for n, a in arms.items():
-        if n in ("G", "W"):
+        if n in ("G", "W", "Gd"):
             brief[n] = (round(a["relative_l2"], 4), round(a["wall_s"], 1))
         elif a.get("last"):
             brief[n] = (round(a["last"]["relative_l2"], 4), a["last"]["cycle"],

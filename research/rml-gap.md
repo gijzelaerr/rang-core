@@ -211,6 +211,40 @@ A run that fails (tool error, out of memory) is recorded with its log and repeat
 failure is recorded as the arm's result on that sky. No setting changes after stage 2 without a
 dated, labelled amendment.
 
+### Amendment A1 (2026-11-13, post hoc, before any held-out sky is simulated or read)
+
+**What failed.** On S1-S3, G's dirty image against the core's exact dirty image gave L∞/peak
+2.71e-5, 2.71e-5 and 2.98e-5, above section 4's 1e-5 bound. W's gave 2.5e-7, 2.5e-7 and 2.2e-7. As
+frozen, G would be unscored on every sky.
+
+**Cause.** Section 3 freezes G at GeMClean's default gridder accuracy. Since G7
+([g7-defaults.md](g7-defaults.md)) that default is `-wgridder-accuracy 1e-4` in single precision.
+The 1e-5 bound comes from G4, whose GeMClean ran at 1e-6, so sections 3 and 4 conflict.
+
+**Check (run before the amendment).** G on S1 with `-wgridder-accuracy 1e-6` (arm `G6` in
+`runs.tsv`, 119.6 s against 73.8 s at the default) gives L∞/peak 2.49e-7, equal to W's to the
+digits printed. The mismatch is the gridder's accuracy, not the data, weighting or orientation.
+
+**Change.**
+- **Arm G** adds `-wgridder-accuracy 1e-6`, W's accuracy, on every sky including DF5-O. The
+  bound stays 1e-5.
+- **G at the default accuracy** is kept as a reported-only arm, **Gd**, on every sky G runs on.
+  It shows whether the outcome depends on this choice. It cannot change the decision.
+- **G's previous S1-S3 runs** become Gd's. G is rerun on S1-S3 at 1e-6 (on S1 the check run
+  above), and parity is recomputed against the new G.
+
+The change slows G, which only loosens U's 5 × G budget, so it cannot favour CLEAN. U's tuning
+does not depend on G and is unchanged.
+
+**Other changes in the same commit (scoring code; the rule is unchanged).**
+- **Divergence:** U's "diverged" flag first matched the `diverge_count` row of pfb's option
+  table. It now reads pfb's messages only, and each U run records its stop as tol, diverged,
+  wall cap or cycle cap.
+- **No U iterate within 5 × G's wall:** section 5 counts that sky as U not reaching a model at
+  comparable cost (`r5` not defined). The sky cannot count towards "gap at comparable cost".
+- **Dirty images:** the preconditions use each run's own dirty image, written by the cleaning
+  run, not a separate `-niter 0` run. The dirty image does not depend on `-niter`.
+
 ## 8. Measured results
 
 Not run yet.
