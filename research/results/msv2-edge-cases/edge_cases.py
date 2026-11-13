@@ -938,7 +938,7 @@ def check_xms(case, entry, main_cells, rt_main):
                 continue
             cells = main_cells[column]
             values = got["values"]
-            bad = []
+            bad, visited = [], set()
             for ti, t in enumerate(d["time"]):
                 for bi, (n1, n2) in enumerate(zip(d["ant1"], d["ant2"])):
                     x = values[ti, bi]
@@ -950,6 +950,7 @@ def check_xms(case, entry, main_cells, rt_main):
                         if not np.array_equal(x, fill, equal_nan=True):
                             bad.append(f"no row at {ti},{bi} but values")
                         continue
+                    visited.add(r)
                     kind, v = cells[r]
                     if kind == "refused":
                         bad.append(f"row {r}: ra-ng refuses: {v}")
@@ -969,6 +970,11 @@ def check_xms(case, entry, main_cells, rt_main):
                             v, x, equal_nan=True
                         ):
                             bad.append(f"row {r}: values differ")
+            # Post hoc (2026-11-13): every main-table row of the partition's
+            # data description must lie on xarray-ms's grid.
+            missed = sorted(set(index.values()) - visited)
+            if missed:
+                bad.append(f"rows {missed[:5]} not on the xarray-ms grid")
             refusals = [b for b in bad if "refuses" in b]
             if not bad:
                 out[key] = "match"
