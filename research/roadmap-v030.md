@@ -86,3 +86,5 @@ run without a rerun.
   - #19 beamformed time series
   - #20 digest proposals
 - Earlier: #1 F2 flagger discussion.
+
+- Novel-contribution opportunities (filed 2026-11-13 by another session at the owner's request): #22, #23, #24, #27, #28, with plans added as comments on #6, #9, #10 and #13; overview in [opportunities-2026-11-13.md](opportunities-2026-11-13.md).
