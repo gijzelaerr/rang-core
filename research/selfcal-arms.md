@@ -251,7 +251,7 @@ This record was committed before any held-out MS of this task existed.
   gives them. No variant goes along (section 8.2).
 - **Cases:** `c5pa-held`, `c5delay-held` (seeds 20261321-24 and 20261331-34)
   and `c5pa-held2`, `c5delay-held2` (20261501-04 and 20261511-14). Each is
-  generated once into `D:ang\outputs\selfcal-arms-20261113-03\data`.
+  generated once into `D:\rang\outputs\selfcal-arms-20261113-03\data`.
 - **Runs:** each of the 10 loops runs once, under `--slots 4 --mem 4`,
   `threads: 4`.
 - **Verdict:** `check_selfcal_arms.py verdict` gives section 5 from the
