@@ -6,17 +6,20 @@ section 9. Archive: [results/imaging-floor/](results/imaging-floor/) (`summary.j
 `cheap.json`, every arm). Raw products: `D:\rang\outputs\20261113-floor` (statistics kept,
 visibility scratch deleted). Script: `examples/floor_tests.py` at `a8be1a7`.
 
-**Result in one paragraph.** Seven candidates are rejected, because no plausible amplitude makes even
-5 % of the floor's excess power: DD errors, the primary beam, the w-term, sub-threshold RFI,
-confusion, bandwidth smearing, and calibration error that is random per 8 s dump. One test removes
-most of the floor: 5-min antenna gains fitted against GeMClean's own model take the pilot from
-1,073 to 412 µJy, 85 % of the excess power. A steady per-antenna error of 5.6 %, 5.6° reproduces the
-whole floor in simulation. But the same fit removes 53 % on the control arm whose model only lacks
-flux under 10 mJy, so by the frozen rule it is not specific. Calibration residuals therefore stay
-**unresolved, with an upper bound of 0.85, shared with model incompleteness**. Bad short baselines
-(0.055 after T1) and spectral structure (0.042) are also unresolved, both with small bounds. Post
-hoc, and not a verdict: on the pilot the facet-scale fits remove 2-4 %, against 49 % on the control
-and 1-2 % under gain errors. That pattern points to antenna gains (section 8.4).
+**Result in one paragraph.** Seven candidates are rejected **as injected** (section 8.4 gives the
+limits). DD errors, the primary beam, sub-threshold RFI, confusion and calibration error that is
+random per 8 s dump make under 5 % of the floor's excess power at any plausible amplitude. The w-term
+and bandwidth smearing are rejected because rescoring the pilot does not lower its floor. One test
+removes most of the floor: 5-min antenna gains fitted against GeMClean's own model take the pilot
+from 1,073 to 412 µJy, 85 % of the excess power. A steady per-antenna error of 5.6 %, 5.6°
+reproduces the whole floor in simulation, just above this note's own plausible bound of 5 %, 5°,
+which carries 0.79. But the same fit removes 53 % on a control arm whose model only lacks the flux
+under 10 mJy per pixel. By the frozen rule it is therefore not specific, and calibration residuals
+stay **unresolved, with an upper bound of 0.85, shared with model incompleteness**. Bad short
+baselines (0.055 after T1) and spectral structure (0.042) are also unresolved, both with small
+bounds. Post hoc, and not a verdict: on the pilot the facet-scale fits remove 2-4 %, against 49 % on
+that control and 1-2 % under gain errors. This excludes incompleteness of the control's kind (faint
+flux everywhere), not flux missing only on short spacings, which T1 can also absorb (section 8.4).
 
 ## 1. The floor and what is known before freezing
 
@@ -208,8 +211,15 @@ P(a)/P_pilot is the arm's excess power over the pilot's. a₂ is capped at 50 a�
 | H10, bandwidth smearing | – | 0.0000 | – | – | – | – |
 | M, model lacks pixels < 10 mJy | – | 1.87 | – | – | – | – |
 
-Linearity holds where the excess clears the noise. For H1b, P(5)/P(1) = 25.0 against 25. For H2,
-P(10)/P(1) = 98 against 100. Confusion analytically is σ_c = 11.8 µJy at θ = 12.7″, so
+Linearity, P(a₂) against (a₂/a₁)² P(a₁), with 1.00 expected wherever a₂ was not capped:
+
+- H1b 1.00 and H2 1.00. Also P(5)/P(1) = 25.0 for H1b and 98 for H2, against 25 and 100.
+- H8a 1.02.
+- H1a **3.26**: at 35 % and 35° per dump the gains are far from first order.
+- H8b 0.059 and H8c 0.026: their a₂ scales only the scatter (section 9).
+
+DD truth flux: the central four 8 × 8 facets, ±25.6′, hold 82.1 of the truth's 82.7 Jy. So H3 put its
+errors on 0.60 Jy only. Confusion analytically is σ_c = 11.8 µJy at θ = 12.7″, so
 σ_c² = 1.2e-4 P_pilot. The population put 3.23 million sources, 4.8 Jy apparent, outside the model.
 
 ### 8.3 The test matrix and the pilot
@@ -233,20 +243,31 @@ Pilot, cumulative in the frozen order: T1 0.854, + T2 0.909, + T8 0.929, + T3 0.
 + T6 0.949, floor 1,073 → 412 → 327 → 288 → 282 → 280 → 246 µJy. None of these tests is specific,
 so the cumulative figure bounds the combination; it is not a sum of shares.
 
+The drops corrected by each test's recovery on its own arm (D / own) are labelled corrections:
+
+- T1: 0.854 / 1.00 = 0.854.
+- T2: 0.055 / 0.80 = 0.069.
+- T8: 0.042 / 1.00 = 0.042.
+
+**Baseline overlap (descriptive).** T2's 145 baselines with the largest |s − 1| on the pilot share
+8 with set B's 145; chance alone gives about 11.5. T2's top ten are mostly between outer
+antennas (55-60, 54-58, 46-50), where the model amplitude is small and s is noisy. So T2 does not
+find B's short baselines once T1 has run.
+
 ### 8.4 Verdicts (section 5)
 
 | # | hypothesis | verdict | why |
 | --- | --- | --- | --- |
-| H1 | calibration residuals, antenna-based | **unresolved; upper bound 0.85, shared with model incompleteness (H9)** | T1 is not specific (0.53 on M). A plausible amplitude can carry it: P(a_max) = 0.79 ≥ 0.5 × 0.854 |
+| H1 | calibration residuals, antenna-based | **unresolved; upper bound 0.85, shared with model incompleteness (H9)** | T1 is not specific (0.53 on M). A plausible amplitude carries at least half of it (P(a_max) = 0.79 ≥ 0.5 × 0.854), but not all: the drop exceeds what 5 %, 5° can make by 0.06 |
 | H1a | the same, random per 8 s | **rejected** | P(a_max) = 0.021 < 0.05 |
 | H2 | a few bad short baselines, after T1 | **unresolved; upper bound 0.055** | 0.05 ≤ D < 0.10 and T2 is not specific |
-| H3 | direction-dependent errors | **rejected** | P(a_max) = 0.0005 |
-| H4 | the primary beam | **rejected** | P(a_max) ≤ 0.0002 (a and b) |
-| H5 | the w-term | **rejected** | both alternatives raise the pilot's P; ε 1e-7 leaves F unchanged |
-| H6 | RFI below the flag threshold | **rejected** | P(a_max) = 0.0000 |
+| H3 | direction-dependent errors | **rejected as injected** | P(a_max) = 0.0005. The errors sat on the 0.60 Jy outside ±25.6′; differential errors across the central source (lobes against core) were not injected |
+| H4 | the primary beam | **rejected as injected** | P(a_max) ≤ 0.0002 (a and b). Identical dishes, no pointing errors, one beam value per 25.6′ facet |
+| H5 | the w-term | **rejected** (by pilot rescoring) | both alternatives raise the pilot's P; ε 1e-7 leaves F unchanged |
+| H6 | RFI below the flag threshold | **rejected as injected** | P(a_max) = 0.0000. One form only: 3 channels, fringe-winding phase, baselines under 400 m |
 | H7 | confusion | **rejected** | P(a₁) = 0.001 and σ_c² = 1.2e-4 P_pilot |
 | H8 | spectral structure under one term | H8b, H8c **rejected** (P(a_max) 0.028, 0.025); H8a **unresolved, upper bound 0.042** | H8a's P(a_max) = 0.050 sits on the threshold, and T8 is not specific |
-| H10 | bandwidth smearing | **rejected** | T10 changes nothing (0.000) |
+| H10 | bandwidth smearing | **rejected** (by pilot rescoring) | T10 changes nothing (0.000) |
 | H9 | model incompleteness, deconvolution depth | not tested by injection | arm M shows that every fitting test absorbs it |
 
 So the issue's done-criterion is not met. No share is attributed, and the remainder cannot be
@@ -254,10 +275,12 @@ split between H1 and H9 under this protocol.
 
 **Post hoc, not a verdict.** The tests absorb different amounts on each arm. H1b removes
 1.00 / 0.013 / 0.019 under T1 / T4 / T8; M removes 0.53 / 0.49 / 0.49; the pilot removes
-0.854 / 0.024 / 0.042. The pilot follows the gain-error arm, not the incomplete-model arm. An
-incomplete model drives the facet-scale fits about as hard as the antenna fit, and on the pilot they
-barely move. This was seen afterwards, and M is one choice of incompleteness, so it is a lead for
-the next protocol, not a share.
+0.854 / 0.024 / 0.042. The pilot is unlike M: faint flux missing everywhere drives the facet-scale
+fits about as hard as the antenna fit, and on the pilot they barely move. That excludes M's kind of
+incompleteness. It does not exclude flux missing only on short spacings, the negative bowl, which
+E2 puts 88 % of the floor's power near. Core-antenna amplitudes in T1 can absorb that, while a
+per-facet scale cannot. So the pattern does not separate gain errors from short-spacing
+incompleteness. This was seen afterwards; it is a lead for the next protocol, not a share.
 
 ### 8.5 Cheap analysis (section 6, provisional)
 
@@ -267,7 +290,8 @@ On the full-data exact residuals (`cheap.json`):
   gives 3.9 % of the gridding weight. GeMClean, WSClean plain and WSClean fast agree to 0.01.
 - **E1.** The rms falls with distance from the core: 2.01, 1.84, 1.40 and 0.91 mJy in the 0-10′,
   10-20′, 20-40′ and 40-68′ annuli on A (1.75, 1.46, 0.90, 0.58 mJy on B; the 1 mJy model on A is flat at 0.76, 0.76, 0.70, 0.59). At 3 mJy the floor is tied
-  to the bright source, as H1, H2, H8 and M predict and H3-H7 do not. Cleaning to 1 mJy takes the
+  to the bright source, as H1, H2, H8 and M predict. H3 (at 50 ×), H5, H6, H7 and H10 give
+  flat or rising profiles; H4b at 50 × is core-tied too. Cleaning to 1 mJy takes the
   core-centred part out.
 - **E4.** Skewness −0.01 on A, with no pixel beyond ±3 rms: a ripple, not Gaussian noise. On B, −0.13, with 0.95 % of pixels below −3 rms and 0.63 % above.
 - **E3 and the nearest arm** (E1 log-profile and E2 together). A sits nearest H8a at α = −4.5
@@ -285,6 +309,11 @@ On the full-data exact residuals (`cheap.json`):
    antenna. Do the steady 5 % / 5° errors that H1b needs exist, and is antenna 1 among the worst?
    This is issue #6's question.
 4. E2-A (rang's own chain on ESO137) gives an independent calibration; rerun T1 on it.
+5. Cheap discriminators between gains and short-spacing incompleteness: a phase-only T1, and T1
+   solved on baselines over 400 m only and then applied to all. If the floor drop survives both,
+   gains are the more likely cause.
+6. Untested forms: differential DD errors across the central source, pointing errors per antenna,
+   intermittent and broadband RFI.
 
 ## 9. Clarifications and post-hoc changes
 
@@ -314,5 +343,21 @@ any output** (a 6,000-row smoke run checked the code; its numbers are not result
 2. **a₂ for H8b and H8c** scales only the α scatter about −0.7, so these arms could not reach the
    floor (0.059 and 0.026 P_pilot). The formula assumed P ∝ k², and that does not hold for them.
 3. **a₂ hit the cap of 50** for H3, H4a, H4b and H6.
-4. **The pilot drops are on the 32-channel subset.** E1-E4 on set B use set A's source mask, so B's
+4. **Run order.** One `all` invocation ran prep, skies, cheap, the pilot, then the arms, so the
+   pilot's tests ran before the simulated arms. A 6,000-row smoke run of the pilot ran earlier. a₂
+   needs P_pilot, so the order follows from section 3. No code, rule or threshold changed between
+   the pilot and the arms; the only code change after the smoke run was the summary stage
+   (`a8be1a7`), which reads results and changes none.
+5. **The pilot drops are on the 32-channel subset.** E1-E4 on set B use set A's source mask, so B's
    rms here is 0.7133 mJy, against heldout's 0.6972 on B's own mask.
+
+## 10. For the coordinator
+
+- **Branch:** `claude/floor-prereg-38d00e`. Results are only in `research/` and
+  `examples/floor_tests.py`; no library code changed.
+- **Checks:** the quick check passed (`python tools/check_all.py --quick`). The full check is left
+  to the merge.
+- **Open decision (owner):** whether to run section 8.6 items 1, 3 and 5 as a new frozen protocol.
+  They decide whether #6's self-calibration work is the fix. #13 stays open: no share is attributed.
+- **Scratch:** the 17 GB of sky predictions and the 0.4 GB prep on `D:\rang\outputs\20261113-floor`
+  are deleted; 0.5 MB of statistics remain there and in the archive.
