@@ -271,6 +271,23 @@ def _kernel(
         if freq_bin is None
         else np.asarray(freq_bin, np.int64)
     )
+    if nrow == 0 or nchan == 0:
+        raise ValueError(f"no data to solve: {nrow} rows of {nchan} channels")
+    for label, x in (
+        ("antenna1", a1),
+        ("antenna2", a2),
+        ("flag_row", flag_row),
+        ("time_bin", time_bin),
+    ):
+        if x.shape != (nrow,):
+            raise ValueError(
+                f"{label} must have one value per row ({nrow}), not {x.shape}"
+            )
+    # Longer is allowed: a frequency-averaged chunk keeps the full map.
+    if freq_bin.ndim != 1 or len(freq_bin) < nchan:
+        raise ValueError(f"freq_bin must have one value per channel ({nchan})")
+    if time_bin.min() < 0 or freq_bin.min() < 0:
+        raise ValueError("time_bin and freq_bin must not be negative")
     ntime, nfreq = int(time_bin.max()) + 1, int(freq_bin.max()) + 1
     # The kernel wants rows grouped by interval.
     order = np.argsort(time_bin, kind="stable")

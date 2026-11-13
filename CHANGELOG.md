@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
+  instead of running wrong. `core_grid.invert(gridder="wgrid")` with a GPU device raises instead of
+  running on the CPU. gemclean's FITS reader (`-predict` models, `-fits-mask`) no longer panics on a
+  non-ASCII header byte. `-threshold`, `-abs-threshold` and `-auto-threshold` must be finite and not
+  negative. The gain and bandpass solvers refuse zero rows and per-row arrays of the wrong length.
+  Write-back refuses out-of-range DATA_DESCRIPTION ids (a negative one picked the last row). Flag-version
+  names with `\ : * ? " < > |` are refused on every platform. `fluxstd.manual` refuses non-positive
+  frequencies. No default's numbers change.
+
 - Changed (task df-flag-rule, `research/p-flag-spread.md`): with `apply.parang`, P now flags as CASA's
   `applycal(parang=True)` does on linear feeds: a cell with any correlation flagged after the tables
   (input flags, a bad receptor, a Df-flagged cross hand) is flagged in all four, since P rotates XX and

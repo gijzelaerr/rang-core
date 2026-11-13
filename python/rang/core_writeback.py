@@ -153,8 +153,20 @@ def layout(ms):
             raise UnsupportedLayout(
                 f"{ms}: DATA_DESC_ID {d} has no DATA_DESCRIPTION row"
             )
-        corr = tuple(int(c) for c in corr_of[int(pol_of[d])])
-        shapes.add((int(nchan_of[int(spw_of[d])]), len(corr)))
+        pol, spw = int(pol_of[d]), int(spw_of[d])
+        # A negative id would pick the last row through Python indexing.
+        if not 0 <= pol < len(corr_of):
+            raise UnsupportedLayout(
+                f"{ms}: DATA_DESCRIPTION row {d} names POLARIZATION_ID {pol}, "
+                f"but POLARIZATION has {len(corr_of)} rows"
+            )
+        if not 0 <= spw < len(nchan_of):
+            raise UnsupportedLayout(
+                f"{ms}: DATA_DESCRIPTION row {d} names SPECTRAL_WINDOW_ID {spw}, "
+                f"but SPECTRAL_WINDOW has {len(nchan_of)} rows"
+            )
+        corr = tuple(int(c) for c in corr_of[pol])
+        shapes.add((int(nchan_of[spw]), len(corr)))
         corrs.add(corr)
     if len(shapes) != 1 or len(corrs) != 1:
         raise UnsupportedLayout(

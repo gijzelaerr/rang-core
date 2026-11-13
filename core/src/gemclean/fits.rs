@@ -133,7 +133,13 @@ pub fn read(path: &Path) -> Result<(RawCards, Vec<f64>), String> {
         if pos + 80 > bytes.len() {
             return Err("no END card".into());
         }
-        let text = String::from_utf8_lossy(&bytes[pos..pos + 80]).to_string();
+        // FITS headers are ASCII; a stray byte becomes '?' so the card stays
+        // 80 one-byte characters and the slices below cannot split one
+        // (a lossy UTF-8 decode made them panic; research/correctness-audit-2026-11-13.md).
+        let text: String = bytes[pos..pos + 80]
+            .iter()
+            .map(|&b| if b.is_ascii() { b as char } else { '?' })
+            .collect();
         pos += 80;
         let key = text[..8].trim().to_string();
         if key == "END" {
@@ -301,5 +307,36 @@ mod tests {
         }
         std::fs::remove_dir_all(&dir).unwrap();
         assert!(format_card("lower", &Value::Int(1), "").is_err());
+    }
+
+    /// Byte offset of the card whose key is `key`.
+    fn card_offset(bytes: &[u8], key: &str) -> usize {
+        (0..bytes.len() / 80)
+            .map(|c| c * 80)
+            .find(|&o| bytes[o..o + 8].starts_with(key.as_bytes()))
+            .unwrap()
+    }
+
+    #[test]
+    fn a_non_ascii_header_byte_does_not_panic() {
+        // Correctness audit 2026-11-13: a lossy UTF-8 decode made `text[..8]`
+        // and `text[8..10]` split a character and panic.
+        let dir = std::env::temp_dir().join(format!("gemclean-fits-utf8-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("t.fits");
+        let n = 4;
+        let mut cards = wcs_cards(1.0, -0.5, n, 1e-5, &[1e9]);
+        cards.push(card("ORIGIN", Value::Str("x".into()), ""));
+        write(&path, n, n, &[1.0; 16], -32, &cards).unwrap();
+        let mut bytes = std::fs::read(&path).unwrap();
+        let at = card_offset(&bytes, "ORIGIN");
+        // 0xC3 in the key and at the value indicator.
+        bytes[at + 1] = 0xC3;
+        bytes[at + 8] = 0xC3;
+        std::fs::write(&path, &bytes).unwrap();
+        let (back_cards, back) = read(&path).unwrap();
+        assert_eq!(back, vec![1.0; 16]);
+        assert!(back_cards.iter().all(|(k, _)| k != "ORIGIN"));
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

@@ -309,3 +309,45 @@ pub unsafe extern "C" fn rang_core_flag_rows(
     });
     result.unwrap_or(2)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decode_steps_reads_known_codes_and_refuses_the_rest() {
+        // Correctness audit 2026-11-13: the step table had no direct test.
+        let mut table = vec![0.0; 7 * STEP_WIDTH];
+        for (k, row) in table.chunks_exact_mut(STEP_WIDTH).enumerate() {
+            row[0] = k as f64;
+        }
+        // Code 2 (sum_threshold) with two time and three frequency windows.
+        let st = &mut table[2 * STEP_WIDTH..3 * STEP_WIDTH];
+        st[2] = 2.0;
+        st[3..5].copy_from_slice(&[1.0, 2.0]);
+        st[11] = 3.0;
+        st[12..15].copy_from_slice(&[1.0, 2.0, 4.0]);
+        let steps = decode_steps(&table).unwrap();
+        assert_eq!(steps.len(), 7);
+        assert!(matches!(steps[0], Step::FlagNansZeros));
+        match &steps[2] {
+            Step::SumThreshold(p) => {
+                assert_eq!(p.windows_time, vec![1, 2]);
+                assert_eq!(p.windows_freq, vec![1, 2, 4]);
+            }
+            _ => panic!("code 2 is sum_threshold"),
+        }
+        assert!(matches!(steps[6], Step::Unflag));
+        assert_eq!(decode_steps(&[]).unwrap().len(), 0);
+        let mut unknown = vec![0.0; STEP_WIDTH];
+        unknown[0] = 7.0;
+        assert!(decode_steps(&unknown).is_none());
+        unknown[0] = -1.0;
+        assert!(decode_steps(&unknown).is_none());
+        // More than eight windows would read past the row's window slots.
+        let mut wide = vec![0.0; STEP_WIDTH];
+        wide[0] = 2.0;
+        wide[2] = 9.0;
+        assert!(decode_steps(&wide).is_none());
+    }
+}
