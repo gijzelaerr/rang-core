@@ -289,4 +289,62 @@ rebuilt synthetic MSs.
 
 ## 9. Development log and results
 
-(Filled in as the work proceeds; empty at the freeze.)
+### 9.1 Runs
+
+| Run | What | Where | Wall |
+| --- | --- | --- | --- |
+| CASA 01 | the 103 development cases of section 4 (plan `plan-dev.json`) | WSL `~/Github/rang/outputs/v8b-flagdata-20261113-01`, copy `D:\rang\scratch\v8b-20261113\casa-01` | 59.5 s, 304 MB |
+| rang 01 | the same cases, first code (`6b6865f`) | `D:\rang\scratch\v8b-20261113\rang-01`, verdicts `dev-01.json` | 241 s |
+| rang 01b, 01c | the fixed modes after the conventions below; tfcrop after F1 | `rang-01b`, `rang-01c`, `dev-01b.json`, `dev-01c.json` | – |
+| round 02 | amendment 2: rebuilt synthetic MSs (UVW sign), the new cases, the `probe-fit` tfcrop probe | `casa-02`, `rang-02`, `dev-02.json` | – |
+
+Run 01's synthetic MSs (old UVW sign) are kept in
+`D:\rang\scratch\v8b-20261113\cases-r01`.
+
+### 9.2 Fixed-rule modes: conventions read off CASA's output
+
+Each is a development fix from CASA run 01 (no CASA source read), with the
+case it was read from. After them, rang 01b: **77 of 77** fixed-mode
+development cases equal (FLAG, FLAG_ROW and every summary count).
+
+| Id | Convention | Read from |
+| --- | --- | --- |
+| Q1 | quack's window includes its boundary: `beg` flags TIME ≤ t0 + interval, `endb` TIME ≥ t1 − interval, `tail` TIME > t0 + interval, `end` TIME < t1 − interval, with t0, t1 the first and last TIME of the scan (of its unflagged rows with `quackincrement`) | `syn-edges` M3, M4a-d (8 s integrations, interval 8 s) |
+| R1 | FLAG_ROW: set where a row is then wholly flagged only for `manual`, `quack`, `shadow`, `elevation` without a `spw` or `correlation` selection; left as it was by `clip`, `extend`, `tfcrop` and by any spw or correlation selection; `unflag` clears it where it leaves a cell unflagged | `syn-edges` M2 (set), M8c `spw='1'` and M14b (unchanged although rows became wholly flagged), M1 |
+| A1 | a bare antenna name selects that antenna's cross-correlations only; `!name` removes them (the antenna's autocorrelation stays selected) | `syn-edges` M11a, M11c, M11d |
+| H1 | shadow reads the UVW column in the MS convention (ANTENNA1 − ANTENNA2): in a row with projected distance below r1 + r2 − tolerance, ANTENNA2 is flagged when w > 0, else ANTENNA1, on all its rows (autocorrelation included) at that time | `syn-edges` M6a, M6b (times equal; amendment 2 tests the column against positions) |
+| E1 | elevation uses the geocentric horizon (casacore `AZEL`), not astropy's geodetic one: the 20° crossing on `syn-edges` agrees to the integration with the geocentric elevation and is three integrations (0.1°) off with the geodetic one | `syn-edges` M5b |
+| S1 | a frequency range selects from the first channel whose centre is ≥ the low end to the last whose centre is ≤ the high end; a range between two centres selects both neighbours | `a1` M7 (13.4 MHz channels: `1419.8~1421.3MHz` gives channels 41 and 42); `syn-edges` M7 |
+| U1 | `summary` counts an autocorrelation once for its antenna; `basecnt=True` adds `baseline` (`A&&B`) and `antenna:scan` (`A:scan`) | `syn-edges` M16a, `luno` M16a |
+| N1 | a selection with no rows is an error (CASA: "MSSelectionNullSelection"), raised before anything is written | `syn-edges` M12b |
+
+Informative cases (CASA changed at least one flag) among the 77: all
+`syn-edges` arms except M12b; on `luno` and `a1` the shadow, elevation (0-90°)
+and clip arms changed nothing (no shadowing, no NaN, amplitudes inside the
+range), so those modes rest on `syn-edges`. Untested, stated now: `unflag`
+with a spw or correlation selection (FLAG_ROW); `observation` and `array`
+selections (every MS here has one of each); timerange without a date across
+midnight; a field name pattern.
+
+### 9.3 tfcrop (H1)
+
+Round 1 (CASA run 01 against rang 01 and 01c). rang 01's first guess (an
+absolute residual, one sd per plane) gave precision and recall about 0.2 on
+`syn-noise` T1. Reading CASA's flags on `syn-noise` (noise only, so every
+flag is marginal):
+
+- F1 (development fix): CASA flags both tails, near 3σ (T1); the scale is
+  per time row. The relative residual r = data / fit − 1 against the fitted
+  time-mean band, compared with 3 × the rms of r over the row's channels,
+  reproduces CASA's flags on smooth bands with precision 0.98 and recall
+  0.92 over 24 planes; the disagreeing cells all lie within 3 % of the
+  threshold.
+- Open: CASA's band fit. On planes whose synthetic band has a sharp minimum
+  (`|polynomial|` through zero), CASA flags whole channels at every time
+  well away from the minimum (`syn-noise` baseline 2-5 YY: channels 0-9),
+  which no piecewise polynomial of degree 1-3 with 1-7 pieces, global
+  polynomials of degree 3-7, or lower-envelope (positive-clipped) robust
+  fits tried here reproduce. `probe-fit` (round 02) is designed to map it.
+- rang 01c (F1 in the NumPy reference, one pass): `syn-noise` T1 precision
+  0.96, recall 0.64 (the sharp-minimum planes); `syn-rfi` T1 1.00, 0.40;
+  `a1` T1 0.65, 0.20. H1 fails G3 everywhere at round 1.
