@@ -1,0 +1,7 @@
+C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\.venv\Scripts\python.exe -m rang.gemclean -name D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms.rang-run\selfcal\SIM-TARGET\round-2\image -size 1024 1024 -scale 3asec -weight briggs 0.5 -niter 1000000 -mgain 0.9 -auto-threshold 0.5 -wgridder-accuracy 0.0001 -average-channels 8 -channels-out 8 -join-channels -fit-spectral-pol 2 -auto-mask 6.0 -data-column CORRECTED_DATA -field 3 -scans 1,4,23 -unit-weights -no-update-model-required D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms
+D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms: 960 rows (CORRECTED_DATA, field 3), 8 channels into 8 output channels, MF weighting, joined, 0.06 s read, 0.00 s weights
+auto-mask: major iteration 1, sigma 1.119614e-2 Jy, threshold 6.717686e-2 Jy; continued in the mask at gain 0.8778, threshold 5.598072e-3 Jy
+auto-mask: major iteration 2, sigma 9.028137e-3 Jy, threshold 4.514068e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 1
+joined: 77 components, 2 major cycles, 13 resyncs, stop Threshold; Q/Q0 6.2080e-1
+wall 3.42 s

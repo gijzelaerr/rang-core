@@ -1,0 +1,18 @@
+{
+ "command": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "research/results/e2-acceptance-scripts/e2_dryrun.py",
+  "b",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel2",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-src\\luno-slice.ms"
+ ],
+ "rc": 0,
+ "wall_s": 493.16307163238525,
+ "peak_tree_rss_bytes": 8279064576,
+ "peak_process_rss_bytes": 8101224448,
+ "host_cpu_load_pct_at_start": 15.5,
+ "host_cpu_load_pct_mean": 33.6047520661157,
+ "host_cpu_load_pct_max": 100.0,
+ "logical_cpus": 16,
+ "started": "2026-11-12T01:21:40"
+}

@@ -1,0 +1,128 @@
+{
+ "schema": "rang.receipt",
+ "version": 4,
+ "command": [
+  "rang-core",
+  "run",
+  "D:\\rang\\outputs\\e2-20261110-11-avg\\dry-off\\luno\\config.yaml",
+  "D:\\rang\\outputs\\e2-20261110-11-avg\\dry-off\\luno\\luno-dev.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-10T21:51:31+00:00",
+ "commit": {
+  "head": "f11fdd10e778b9ffe163f4a177b1c9bcb2ea4956",
+  "dirty": true
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/fp-e2-averaging",
+  "distribution": "rang-core",
+  "version": null,
+  "extension_sha256": "29988851a98d7391ef3cea089f753a5889c4669de905c7c1b1d72ef6ed32ebc0"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/fp-e2-averaging/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": null,
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/fp-e2-averaging/python/rang/_core.pyd",
+   "sha256": "29988851a98d7391ef3cea089f753a5889c4669de905c7c1b1d72ef6ed32ebc0"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": null,
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261110-11-avg/dry-off/luno/config.yaml",
+   "kind": "file",
+   "bytes": 1468,
+   "sha256": "4f8192308bd2368cd3fb59c271f645e9a0e811368f4eb3c7582d15e20a886b7c"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261110-11-avg/dry-off/luno/luno-dev.ms",
+   "kind": "directory",
+   "files": 65,
+   "bytes": 402230642,
+   "listing_sha256": "6c3cfe0683ebef59a2bd679e45765fde430d9e79d66a232ecd8c396111db4073"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261110-11-avg/dry-off/luno/luno-dev.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 664375411,
+   "tree_sha256": "ec49eca19126365a2544aa72817e4a31a08cbf1d6ffeec6767b88e8f683ee73b",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261110-11-avg/dry-off/luno/luno-dev.ms.flagversions",
+   "kind": "directory",
+   "files": 14,
+   "bytes": 8402640,
+   "tree_sha256": "fdd00f493ce2854cfe0cc16195b2552ca6c5c3dea8332ab3747590367aedeac1"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261110-11-avg/dry-off/luno/luno-dev.ms.rang-run",
+   "kind": "directory",
+   "files": 193,
+   "bytes": 1748031,
+   "tree_sha256": "3bbdc5f4e98980241263fafca5fa738db0b6896435cf5ef34dbf0e45f9bcef75"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 13.082394900004147,
+  "cpu_seconds": 17.171875,
+  "peak_rss_mb": 987.01953125
+ },
+ "exit": 0,
+ "verdict": null
+}

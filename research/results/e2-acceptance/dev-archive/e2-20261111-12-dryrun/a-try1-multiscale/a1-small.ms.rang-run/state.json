@@ -1,0 +1,111 @@
+{
+ "config_path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\config.yaml",
+ "created": "2026-11-11T18:07:01+00:00",
+ "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "attempts": 1,
+   "config_sha256": "2a1ff7b640693faa7cc0a3d8dffa9d8b08061f44198ee63b18ee668571d58a29",
+   "finished": "2026-11-11T18:07:03+00:00",
+   "flag_version": "rang_apply_20261111T180703Z",
+   "host": "glacier",
+   "pid": 19204,
+   "previous": null,
+   "seconds": 0.5032183000002988,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate",
+    "apply"
+   ],
+   "started": "2026-11-11T18:07:03+00:00",
+   "status": "done",
+   "summary": {
+    "applymode": "calflag",
+    "calwt": false,
+    "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+    "column": "CORRECTED_DATA",
+    "flag_version": "rang_apply_20261111T180703Z",
+    "parang": false,
+    "rang_original_saved_now": false,
+    "restored_before": null
+   }
+  },
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "f7c0d31652f744e9cc281a0a11c34b514b71a432ba8f244c0ba1429f3814132f",
+   "finished": "2026-11-11T18:07:03+00:00",
+   "flag_version": "rang_calibrate_20261111T180701Z",
+   "host": "glacier",
+   "pid": 19204,
+   "previous": null,
+   "seconds": 1.4131275999970967,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-11T18:07:01+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261111T180701Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  },
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "4c84a889509c126a3df68cd8db75cafa30e74ffbed969a26458cc08f391b4d1e",
+   "finished": "2026-11-11T18:07:01+00:00",
+   "flag_version": "rang_flag_20261111T180701Z",
+   "host": "glacier",
+   "pid": 19204,
+   "previous": null,
+   "seconds": 0.6985191000057966,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-11T18:07:01+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "flag_sha256": "bc1f23e1328d7126b5b90b78475fb48722a577a1e15e5cdb6f33659a0a8c7204",
+    "flag_version": "rang_flag_20261111T180701Z",
+    "flagged_after": 0.06201797876602564,
+    "flagged_before": 0.0,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 2400,
+    "steps": 12,
+    "strategy": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  },
+  "image": {
+   "attempts": 1,
+   "config_sha256": "fac2e83170ad0e2da307c40475fe1bd0def23b9705021121c52c2be3eec7859b",
+   "error": "StageFailed: image: gemclean exited 2 on field SIM-TARGET; D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\image\\SIM-TARGET\\gemclean.log: C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\.venv\\Scripts\\python.exe -m rang.gemclean -name D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\image\\SIM-TARGET\\image -size 1024 1024 -scale 3asec -weight briggs 0.5 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -wgridder-accuracy 0.0001 -average-channels 8 -channels-out 8 -join-channels -fit-spectral-pol 2 -auto-mask 5.0 -multiscale -data-column CORRECTED_DATA -field 3 -scans 1,4,23 -unit-weights -no-update-model-required D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms | D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms: 960 rows (CORRECTED_DATA, field 3), 8 channels into 8 output channels, MF weighting, joined, 0.05 s read, 0.00 s weights | gemclean: the PSF convolved with scale 55.22930398317988 has no positive peak",
+   "finished": "2026-11-11T18:07:04+00:00",
+   "host": "glacier",
+   "pid": 19204,
+   "previous": null,
+   "seconds": 1.1700683999952162,
+   "sections": [
+    "fields",
+    "data",
+    "image"
+   ],
+   "started": "2026-11-11T18:07:03+00:00",
+   "status": "failed"
+  }
+ },
+ "updated": "2026-11-11T18:07:04+00:00",
+ "version": 1
+}

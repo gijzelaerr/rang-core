@@ -1,0 +1,36 @@
+{
+ "config_path": "D:\\rang\\outputs\\e2-20261110-11-avg\\dry\\luno\\config.yaml",
+ "created": "2026-11-10T21:47:32+00:00",
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\dry\\luno\\luno-dev.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "8b7e68bddf62ac246406a4778cd57ed4e1d75b420684d0671d9bf7ace626d75d",
+   "finished": "2026-11-10T21:48:05+00:00",
+   "flag_version": "rang_calibrate_20261110T214733Z",
+   "host": "glacier",
+   "pid": 77508,
+   "previous": null,
+   "seconds": 33.51173579999886,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-10T21:47:32+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261110T214733Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "scans": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  }
+ },
+ "updated": "2026-11-10T21:48:05+00:00",
+ "version": 1
+}

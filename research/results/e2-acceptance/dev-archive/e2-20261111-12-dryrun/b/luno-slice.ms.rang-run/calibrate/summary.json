@@ -1,0 +1,927 @@
+{
+ "chunking": {
+  "chunk_gb": 7.369039535522461,
+  "chunk_rows": null,
+  "fixed_gb": 0.6309604644775391,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 7545,
+   "calibrate": 7545,
+   "chain": 5030,
+   "flag": 15091,
+   "model": 7545,
+   "rows": 20122
+  },
+  "solves": [
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "K"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "G"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "B"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 2,
+    "field": "J1331+3030",
+    "term": "Gpol"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1331+3030",
+    "term": "Kcross"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1331+3030",
+    "term": "Xf"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "Df"
+   }
+  ]
+ },
+ "flag_version": "rang_calibrate_20261111T180812Z",
+ "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+ "model": "setjy",
+ "models_written": {
+  "fields": [
+   1
+  ],
+  "flag_version": "rang_calibrate_20261111T180812Z",
+  "polcal": [
+   {
+    "field": 0,
+    "name": "3C286",
+    "receipt": {
+     "column": "MODEL_DATA",
+     "column_added": false,
+     "fields": {
+      "J1331+3030": {
+       "field_id": 0,
+       "rows": 20000,
+       "spectral_windows": {
+        "0": {
+         "freq_hz": [
+          856000000.0,
+          1284000000.0,
+          1711791015.625
+         ],
+         "stokes_i_jy": [
+          18.335407358650862,
+          15.619854300017765,
+          13.716484357881615
+         ],
+         "stokes_iquv_jy": [
+          [
+           18.335407358650862,
+           0.7308517010739817,
+           1.6415228614195152,
+           0.0
+          ],
+          [
+           15.619854300017765,
+           0.6226094060740692,
+           1.398406232486766,
+           0.0
+          ],
+          [
+           13.716484357881615,
+           0.5467408348024873,
+           1.2280023133024405,
+           0.0
+          ]
+         ]
+        }
+       }
+      }
+     },
+     "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms",
+     "spec": {
+      "casa_path": "tabular",
+      "fluxdensity": 14.7172,
+      "kind": "manual",
+      "polangle": [
+       0.575959
+      ],
+      "polindex": [
+       0.098
+      ],
+      "q": 0.0,
+      "reffreq_hz": 1470000000.0,
+      "rotmeas": 0.0,
+      "spix": [
+       -0.4507,
+       -0.1798,
+       0.0357
+      ],
+      "u": 0.0,
+      "v": 0.0
+     }
+    },
+    "spec": "Manual(fluxdensity=14.7172, reffreq_hz=1470000000.0, spix=(-0.4507, -0.1798, 0.0357), q=0.0, u=0.0, v=0.0, polindex=(0.098,), polangle=(0.575959,), rotmeas=0.0)"
+   }
+  ],
+  "rang_original_saved_now": false,
+  "receipt": {
+   "column": "MODEL_DATA",
+   "column_added": true,
+   "fields": {
+    "J1939-6342": {
+     "field_id": 1,
+     "rows": 20000,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        856000000.0,
+        1284000000.0,
+        1711791015.625
+       ],
+       "stokes_i_jy": [
+        13.993332001756828,
+        15.091761285711023,
+        14.00401597658563
+       ]
+      }
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms",
+   "spec": {
+    "extrapolate": false,
+    "kind": "standard",
+    "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+    "source": "1934-638",
+    "standard": "Stevens-Reynolds 2016"
+   }
+  },
+  "spec": "Standard(source=None, standard='Stevens-Reynolds 2016', extrapolate=False, unverified_ok=False)"
+ },
+ "polcal": {
+  "defaults": "provisional (research/c6w-polwire.md): KCROSS per scan and CASA's estimator; Df's clip 0.6, no data-fraction rule",
+  "feed_angle_rotation": -90.0,
+  "frame": "casa",
+  "model": {
+   "column": "MODEL_DATA",
+   "name": "3C286",
+   "source": "nrao"
+  }
+ },
+ "refant_auto": {
+  "antennas": [
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 55.31651089987041,
+    "id": 0,
+    "name": "m000",
+    "shortest_baseline": 29.256520999577873,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 79.94004694639489,
+    "id": 1,
+    "name": "m001",
+    "shortest_baseline": 36.74674815855517,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 57.720977195830024,
+    "id": 2,
+    "name": "m002",
+    "shortest_baseline": 29.256520999577873,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 88.56151185006702,
+    "id": 3,
+    "name": "m003",
+    "shortest_baseline": 40.81758034496882,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 133.46440897170473,
+    "id": 4,
+    "name": "m004",
+    "shortest_baseline": 37.07290946235856,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 121.50860362982975,
+    "id": 5,
+    "name": "m005",
+    "shortest_baseline": 37.07290946235856,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 193.84919948559258,
+    "id": 6,
+    "name": "m007",
+    "shortest_baseline": 120.26628331356329,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 144.6583066283424,
+    "id": 7,
+    "name": "m009",
+    "shortest_baseline": 55.030760963765566,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 291.51920636364565,
+    "id": 8,
+    "name": "m010",
+    "shortest_baseline": 137.6649156224575,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 148.76096486619923,
+    "id": 9,
+    "name": "m011",
+    "shortest_baseline": 54.02912150397934,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 196.33806797587192,
+    "id": 10,
+    "name": "m012",
+    "shortest_baseline": 58.30104873403352,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 286.4975151053672,
+    "id": 11,
+    "name": "m013",
+    "shortest_baseline": 100.00030152712921,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 287.58796706791514,
+    "id": 12,
+    "name": "m014",
+    "shortest_baseline": 107.70242214325354,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 114.66401308984703,
+    "id": 13,
+    "name": "m018",
+    "shortest_baseline": 54.470589851319986,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 182.30399393711238,
+    "id": 14,
+    "name": "m019",
+    "shortest_baseline": 75.165926664226,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 123.26118251783811,
+    "id": 15,
+    "name": "m020",
+    "shortest_baseline": 54.02912150397934,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 313.41620418373446,
+    "id": 16,
+    "name": "m021",
+    "shortest_baseline": 148.43325716593426,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 445.54468369781637,
+    "id": 17,
+    "name": "m022",
+    "shortest_baseline": 151.14933108674785,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 339.99037822345434,
+    "id": 18,
+    "name": "m023",
+    "shortest_baseline": 151.46894147860493,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 525.4928542473024,
+    "id": 19,
+    "name": "m024",
+    "shortest_baseline": 151.14933108674785,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 499.97971375029795,
+    "id": 20,
+    "name": "m025",
+    "shortest_baseline": 185.17199624703431,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 277.1919345886706,
+    "id": 21,
+    "name": "m026",
+    "shortest_baseline": 141.52987081210503,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 222.70779845931588,
+    "id": 22,
+    "name": "m027",
+    "shortest_baseline": 145.14639789536344,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 151.50139978442996,
+    "id": 23,
+    "name": "m029",
+    "shortest_baseline": 81.27043329302714,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 393.20979317584744,
+    "id": 24,
+    "name": "m030",
+    "shortest_baseline": 77.94725995959783,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 414.88695681511655,
+    "id": 25,
+    "name": "m031",
+    "shortest_baseline": 77.94725995959783,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 620.107235487228,
+    "id": 26,
+    "name": "m032",
+    "shortest_baseline": 229.74428081519844,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1245.5523174570208,
+    "id": 27,
+    "name": "m033",
+    "shortest_baseline": 698.7414482699995,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 392.0812974460985,
+    "id": 28,
+    "name": "m035",
+    "shortest_baseline": 109.88689647453644,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 393.665488605154,
+    "id": 29,
+    "name": "m036",
+    "shortest_baseline": 107.70242214325354,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 441.88414550573174,
+    "id": 30,
+    "name": "m037",
+    "shortest_baseline": 157.88492722402717,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 396.4375528755849,
+    "id": 31,
+    "name": "m038",
+    "shortest_baseline": 46.558152963926915,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 437.98203971868804,
+    "id": 32,
+    "name": "m039",
+    "shortest_baseline": 46.558152963926915,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 477.7197427150858,
+    "id": 33,
+    "name": "m040",
+    "shortest_baseline": 230.98383325885428,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 514.9275012195932,
+    "id": 34,
+    "name": "m041",
+    "shortest_baseline": 214.59012755609575,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 427.97690481326464,
+    "id": 35,
+    "name": "m042",
+    "shortest_baseline": 148.43325716593426,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 641.7085524613727,
+    "id": 36,
+    "name": "m043",
+    "shortest_baseline": 287.36746741070766,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1228.4231780719867,
+    "id": 37,
+    "name": "m044",
+    "shortest_baseline": 707.1436032771074,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1902.4136394561006,
+    "id": 38,
+    "name": "m045",
+    "shortest_baseline": 994.3770632873353,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2473.0574245041694,
+    "id": 39,
+    "name": "m046",
+    "shortest_baseline": 1285.3278173574386,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 644.7802777990481,
+    "id": 40,
+    "name": "m047",
+    "shortest_baseline": 223.9533232450238,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 4053.6320908546495,
+    "id": 41,
+    "name": "m048",
+    "shortest_baseline": 1632.5437143530023,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3669.7070906786507,
+    "id": 42,
+    "name": "m049",
+    "shortest_baseline": 1781.2023564674573,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2141.3469518169254,
+    "id": 43,
+    "name": "m050",
+    "shortest_baseline": 1131.9579023588453,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1004.6263414505931,
+    "id": 44,
+    "name": "m051",
+    "shortest_baseline": 370.8065176713241,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1088.5992169305364,
+    "id": 45,
+    "name": "m052",
+    "shortest_baseline": 458.2064914976184,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1067.9612209546506,
+    "id": 46,
+    "name": "m053",
+    "shortest_baseline": 593.3583043624805,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 910.8509184205691,
+    "id": 47,
+    "name": "m054",
+    "shortest_baseline": 493.36086591083307,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1247.2488859279597,
+    "id": 48,
+    "name": "m055",
+    "shortest_baseline": 542.5393082402654,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1746.3214046767466,
+    "id": 49,
+    "name": "m056",
+    "shortest_baseline": 542.5393082402654,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3510.091912089394,
+    "id": 50,
+    "name": "m057",
+    "shortest_baseline": 2319.1903614762496,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 4052.2872893089548,
+    "id": 51,
+    "name": "m058",
+    "shortest_baseline": 2119.647439729862,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3818.0627893195774,
+    "id": 52,
+    "name": "m059",
+    "shortest_baseline": 2108.3795862520465,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2086.87365646864,
+    "id": 53,
+    "name": "m061",
+    "shortest_baseline": 1019.6620675511825,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2686.372900551463,
+    "id": 54,
+    "name": "m062",
+    "shortest_baseline": 1435.5518580071864,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3777.868135739104,
+    "id": 55,
+    "name": "m063",
+    "shortest_baseline": 1692.0496194755087,
+    "within_maxdist": false
+   }
+  ],
+  "caracal_string": "m022,m023,m024",
+  "centre": [
+   5109217.420823876,
+   2006797.675146036,
+   -3239133.867335175
+  ],
+  "centre_source": "casacore MeerKAT (WGS84)",
+  "maxdist": 1000.0,
+  "minbase": 150.0,
+  "names": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "telescope": "MeerKAT"
+ },
+ "restored_before": null,
+ "scans": [
+  1,
+  2
+ ],
+ "steps": [
+  {
+   "fields": [
+    1
+   ],
+   "name": "K",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\K",
+   "rows": 56,
+   "solutions": [
+    {
+     "converged_fraction": 0.9904156731156658,
+     "field_id": 1,
+     "flagged_fraction": 0.05357142857142857,
+     "intervals": 1,
+     "iterations": 31,
+     "rows": 20000
+    }
+   ],
+   "table_sha256": "9e2001f237de3ac911277fbe34a04ad83555b04c4b83d9243e24bb1a932bcabe",
+   "type": "K"
+  },
+  {
+   "fields": [
+    1
+   ],
+   "name": "G",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\G",
+   "rows": 56,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 1,
+     "flagged_fraction": 0.05357142857142857,
+     "intervals": 1,
+     "iterations": 17,
+     "rows": 20000,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "e93202d61d1721a9e2f0a61fb4dd8300f632555ce50a77d90e9207eb8e6480b7",
+   "type": "G"
+  },
+  {
+   "fields": [
+    1
+   ],
+   "name": "B",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\B",
+   "rows": 56,
+   "solutions": [
+    {
+     "converged_fraction": 0.9661780685557101,
+     "field_id": 1,
+     "flagged_fraction": 0.42626517159598215,
+     "intervals": 1,
+     "iterations": 50,
+     "rows": 20000,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "308a6545b2f320bf56fd00342c6f1e6592759faf24077187637ff4b45462abd5",
+   "type": "B"
+  },
+  {
+   "extended": {
+    "added": {
+     "extendpols": 0,
+     "growaround": 2432396,
+     "growfreq": 9513180,
+     "grown": 26777696,
+     "growtime": 879300,
+     "nearfreq": 13799516,
+     "neartime": 18415724
+    },
+    "cells": 655360000,
+    "chunks": 4,
+    "fields": [
+     0,
+     1
+    ],
+    "flag_sha256": "0df147b2f325ad6245e4927d2378294c21eb83d489fe24c6bd69eb02f31ba081",
+    "flagged_after": 517904484,
+    "flagged_before": 480734308,
+    "rows": 40000,
+    "scans": [
+     1,
+     2
+    ],
+    "settings": {
+     "extendpols": true,
+     "flagnearfreq": true,
+     "flagneartime": true,
+     "growaround": true,
+     "growfreq": 80.0,
+     "growtime": 80.0,
+     "ntime": 60.0
+    }
+   },
+   "fields": [
+    0,
+    1
+   ],
+   "name": "extendflags",
+   "type": "extend"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "frame": "casa",
+   "name": "Gpol",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Gpol",
+   "rows": 112,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.17857142857142858,
+     "intervals": 2,
+     "iterations": 17,
+     "rows": 20000,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "b37647dd3d4172e529884e6125c00a36e82c65a222fa192018e53cf7e6c95ca2",
+   "type": "Gpol"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "frame": "casa",
+   "name": "Kcross",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Kcross",
+   "rows": 56,
+   "solutions": [
+    {
+     "delay_ns": [
+      -0.016389834650370975
+     ],
+     "err_ns": [
+      0.00039382533783956794
+     ],
+     "estimator": "casa",
+     "field_id": 0,
+     "intervals": 1,
+     "rows": 20000
+    }
+   ],
+   "table_sha256": "346d8089cd8a8858739dc33196c3d863245c5071fde734348fd2b20cf1aae1db",
+   "type": "KCROSS"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "frame": "casa",
+   "name": "Xf",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Xf",
+   "rows": 56,
+   "solutions": [
+    {
+     "field_id": 0,
+     "flagged_fraction": 0.209716796875,
+     "intervals": 1,
+     "rows": 20000
+    }
+   ],
+   "table_sha256": "3a851b2ca2ce44e06313cf98d01737a4f4f79f6d3022dd1856a009cb2d5fe13d",
+   "type": "Xf"
+  },
+  {
+   "clip": 0.6,
+   "clipped": 0,
+   "fields": [
+    1
+   ],
+   "frame": "casa",
+   "name": "Df",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Df",
+   "rows": 56,
+   "solutions": [
+    {
+     "data_fraction_flagged_channels": 0,
+     "field_id": 1,
+     "flagged_fraction": 0.4722682407924107,
+     "gauge_fixed": true,
+     "intervals": 1,
+     "rows": 20000
+    }
+   ],
+   "table_sha256": "f059f04ac2fe555dfb987cfd9347fb4ebf842190ad8caac0d52f4a29469cd4ee",
+   "type": "Df"
+  }
+ ],
+ "tables": [
+  {
+   "fields": [
+    1
+   ],
+   "format": "casa",
+   "name": "K",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\K",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    1
+   ],
+   "format": "casa",
+   "name": "G",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\G",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    1
+   ],
+   "format": "casa",
+   "name": "B",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\B",
+   "section": "chain",
+   "type": "B"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "Gpol",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Gpol",
+   "section": "chain",
+   "type": "Gpol"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "Kcross",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Kcross",
+   "section": "chain",
+   "type": "KCROSS"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "Xf",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Xf",
+   "section": "chain",
+   "type": "Xf"
+  },
+  {
+   "fields": [
+    1
+   ],
+   "format": "casa",
+   "name": "Df",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms.rang-run\\calibrate\\Df",
+   "section": "chain",
+   "type": "Df"
+  }
+ ],
+ "weight_column": "unit",
+ "weights": "uniform"
+}
