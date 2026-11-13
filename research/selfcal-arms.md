@@ -504,3 +504,9 @@ the default.
 
 Archive: `research/results/selfcal-arms.json`, holding every scored loop
 (`-02` and `-03`), the QuartiCal comparisons and `verdict.json`.
+
+**Outputs kept.** The run directories `-01`, `-01-default`, `-02` and `-03`
+keep their JSONs, logs, receipts, gain stores and restored images (1.4 GB).
+The MS copies and the dirty, PSF, residual and model images were deleted
+after scoring (2026-11-13). Each case's MS is regenerated in 8 s by
+`examples/c5_selfcal_sim.py` from the seeds in section 3.
