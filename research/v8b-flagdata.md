@@ -11,11 +11,15 @@ summary count equal to CASA 6.7.6.14 on all 84 development and 54 held-out
 cases; FLAG_ROW differed on six held-out ESO137 cases, so H2 **fails as frozen
 for `manual`, `quack`, `elevation` and `shadow`** and passes for `clip`,
 `unflag` and `summary`; after a post-hoc correction of one convention, 84/84
-and 54/54 equal (section 9.2). H1 (tfcrop): **development gate not met** after
-round 2 of 4 (section 9.3); `rang.tasks.flagdata` refuses `mode='tfcrop'`.
-Sections 1-8 were committed (f5b0027) before any rang `flagdata` code and
-before any comparison of rang's flags with CASA's; amendments 1 and 2 are
-dated.
+and 54/54 equal (section 9.2b, post hoc, 2026-11-13; ho1 is spent for that
+rule). A second held-out split opened once afterwards (`luno-ho2`, amendment
+3, 2,398 rows wholly flagged without FLAG_ROW): **9 of 9 cases equal in FLAG,
+FLAG_ROW and every summary count** (section 9.2c). H1 (tfcrop): **stopped
+after round 2 of 4, development gate not met** (CASA's band fit not
+identified; best variant 54 of 112 probe planes; section 9.3); rounds 3 and 4
+are left open and `rang.tasks.flagdata` refuses `mode='tfcrop'`. Sections 1-8
+were committed (f5b0027) before any rang `flagdata` code and before any
+comparison of rang's flags with CASA's; amendments 1-3 are dated.
 
 ## 1. Hypotheses and what is not claimed
 
@@ -399,13 +403,44 @@ Post hoc (labelled; the held-out verdict above stands): R1 corrected to
 development cases and the held-out cases rerun against the same CASA output
 (section 9.2b).
 
-### 9.2b Post-hoc rerun after the R1 correction (labelled post hoc)
+### 9.2b Post-hoc rerun after the R1 correction (labelled post hoc, 2026-11-13)
+
+The R1 correction (`_finish_rows`, commit `2cb37ce`, 2026-11-13) was made
+after the ho1 comparison and is post hoc. **ho1 (`eso137-ho`) is therefore
+spent for R1**: it cannot test the corrected rule again; amendment 3's
+`luno-ho2` is the fresh test (section 9.2c).
 
 rang at `2cb37ce` against the same CASA outputs (no CASA rerun): **84 of 84
 fixed-mode development cases** (`dev-02c.json`, 42 s) and **54 of 54
 held-out cases** (`dev-ho2.json`, 157 s) equal in FLAG, FLAG_ROW and every
 summary count. The held-out verdict of 9.2a stands as frozen; this rerun
 shows only that the corrected rule fits both sets.
+
+### 9.2c Second held-out run ho2 (`luno-ho2`, amendment 3), 2026-11-13
+
+Run `ho2l` (`v8b_heldout2.sh`, then `PLAN=heldout2 round.sh ho2l`; the
+prefix `ho2l` keeps it apart from 9.2b's `dev-ho2.json`): CASA `split` 50 s,
+726 MB peak; CASA `flagdata` 288 s; rang 100 s; rang at `8090d08`
+(amendment 3, R1 as corrected); WSL
+`~/Github/rang/outputs/v8b-flagdata-20261113-ho2l`, copies `casa-ho2l`,
+`rang-ho2l`, verdicts `dev-ho2l.json`; compared once.
+
+- `luno-ho2`: 17,556 rows × 4,096 channels × 4 correlations, 53.4 % of
+  cells flagged on input, **2,398 rows wholly flagged in FLAG with FLAG_ROW
+  false** (FLAG_ROW false on every row), so the R1 case that failed ho1 is
+  exercised: CASA leaves FLAG_ROW false on them unless the mode flags the
+  row (M3 and M16a: 3,192 quack rows set; 1,962 wholly flagged rows stay
+  FLAG_ROW false after M16a).
+- **9 of 9 cases pass: FLAG, FLAG_ROW and every summary count equal.**
+  Informative (CASA changed cells): M1 unflag (153.6 M cells), M3 quack
+  (24.4 M), M7 the CARACal spw string (0.20 M), M16a (24.5 M, with the three
+  summaries). Uninformative (CASA changed nothing, nor rang): M2 (the split
+  has no unflagged autocorrelation cells to flag), M5a, M5b, M6a, M14a.
+
+**Verdict: on ho2 R1 as corrected passes for `manual` (M7), `quack` and the
+chain M16a; `elevation` and `shadow` are equal but uninformative on ho2. The
+frozen ho1 verdict (H2 fails for `manual`, `quack`, `elevation`, `shadow`)
+stands.**
 
 ### 9.3 tfcrop (H1)
 
@@ -455,8 +490,9 @@ channel, so that the relative deviation of every point is exactly e;
   T5 and T6 (window statistics) now run and fail (precision 0.04-1.00,
   recall 0.26-0.59).
 
-**Status of H1 at the end of this session: development gate not met after
-round 2 of the four the stop rule allows; the held-out case was not opened.**
+**Status of H1: stopped after round 2 of the four the stop rule allows
+(coordinator, 2026-11-13); development gate not met; the held-out case was
+not opened; rounds 3 and 4 are left open.**
 `rang.tasks.flagdata` refuses `mode='tfcrop'` (the NumPy reference stays in
 `rang.tfcrop` behind `ENABLED`, for the harness), and no Rust kernel was
 written, since the algorithm it would port is not yet known. Two routes on:
@@ -468,9 +504,10 @@ session had no permission to read it).
 
 ## 10. For the coordinator
 
-- Branch `claude/v8b-flagdata-8cce7c` (pushed; not merged). It carries V8a
-  (`claude/v8a-listobs-1c691e`, merged in at `687012c`), which is not on main
-  and still owes its full check; merge V8a first or together.
+- Branch `claude/v8b-flagdata-8cce7c` (pushed; not merged). V8a is on main
+  and `origin/main` is merged in (`2987521`). Coordinator decision
+  (2026-11-13): V8b merges with H2 recorded as failed as frozen on ho1, R1
+  post hoc, ho2 run (9/9), tfcrop stopped and refused.
 - New: `rang.flagdata` (selections, fixed modes, summary, chunks),
   `rang.tfcrop` (NumPy reference, `ENABLED = False`), `rang.tasks.flagdata`
   (CASA keywords, refusals, a receipt per writing call), `rang-core
@@ -482,16 +519,18 @@ session had no permission to read it).
   `tests/test_v8b_flagdata.py` without CASA), `docs/casa-users.md` section.
 - No Rust: the fixed modes are row masks in NumPy (seconds on 141,825 rows ×
   512 channels); tfcrop's Rust kernel waits for the algorithm (section 9.3).
-- Owner decision wanted: tfcrop route (two more probe rounds, or allow a read
-  of `FlagAgentTimeFreqCrop.cc` under decision 5's licence condition; this
-  session's permission to read it was denied).
+- Open for the owner: tfcrop rounds 3 and 4 (probe rounds aimed at the
+  fit), or a read of `FlagAgentTimeFreqCrop.cc` under decision 5's licence
+  condition (this session's permission to read it was denied).
 - STATE paragraph: *V8b `flagdata` (2026-11-13): `rang.tasks.flagdata` and
   `rang-core flagdata` port CASA's manual, clip, quack, shadow, elevation,
   extend, unflag and summary modes; FLAG and summary counts equal CASA
   6.7.6.14 on 84 development and 54 held-out cases; FLAG_ROW differed on six
   held-out ESO137 cases (a convention no development MS exercised), so four
-  modes fail as frozen and pass after a post-hoc fix. tfcrop not at parity
-  after two of four rounds (CASA's band fit unidentified); refused.
+  modes fail as frozen; after a post-hoc fix a fresh LUNO held-out split
+  (2,398 wholly flagged rows without FLAG_ROW) is equal on 9 of 9 cases.
+  tfcrop stopped after two of four rounds (CASA's band fit unidentified);
+  refused.
   research/v8b-flagdata.md.*
 - Checks: `tests/test_v8b_flagdata.py` (56 passed) with
   `test_v8a_listobs.py` and `test_w4_1_receipts.py`; the full `python -m
@@ -501,4 +540,5 @@ session had no permission to read it).
   benchmark; everything after ran under it with 1 slot.
 - Left on disk: `D:\rang\scratch\v8b-20261113` (synthetic MSs, CASA and
   rang runs, verdicts, the 4.4 GB `heldout/eso137-ho.ms`, which
-  `v8b_heldout.sh` rebuilds); WSL `~/Github/rang/outputs/v8b-flagdata-20261113-*`.
+  `v8b_heldout.sh` rebuilds, and the 4.4 GB `heldout/luno-ho2.ms`, which
+  `v8b_heldout2.sh` rebuilds); WSL `~/Github/rang/outputs/v8b-flagdata-20261113-*`.
