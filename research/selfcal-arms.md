@@ -238,3 +238,148 @@ final image, against `u`'s 2 plus one, so it is expected to cost about 2.5 ×
 **Lock.** Every stage runs under
 `python C:\Users\gijsm\Github\rang\tools\heavy_lock.py run --slots 4 --mem 4
 -- ...` at normal priority. C5 measured a peak of 2.25 GB.
+
+## 7. Freeze record
+
+Not yet written; it is committed before any held-out MS is generated.
+
+## 8. Results
+
+### 8.1 Fixture test and probe (2026-11-13)
+
+The harness and tests are commit `24879a1`. The extension's gemclean has
+sha256 `d4de4258…6957761`.
+
+**Fixture test.**
+`tests/test_selfcal_arms.py -k fixture` runs every frozen schedule on scan 9
+of the public fixture: 5 passed in 21 s, under `--slots 2 --mem 4`. The 8
+other tests also pass.
+
+- The first attempt waited 92 minutes in the lock queue, then failed before
+  pytest started. The cause was a relative interpreter path
+  (`.venv/Scripts/python`) that Windows `CreateProcess` could not resolve;
+  no test ran. The rerun used the absolute `python.exe` path.
+
+**Probe** (`D:\rang\outputs\selfcal-arms-20261113-01`, and `-01-default`
+for the default-threads run): arm `u` on `c5pa`, with `threads: 4` and with
+gemclean's default threads.
+
+- The stored gains of both rounds are bit-identical: max |Δg| = 0, max
+  phase difference 3e-15°. So `threads: 4` stays, at `--slots 4`.
+- Stage wall time: 52 s (threads 4) and 46-47 s (default, `--slots 8`).
+- The lock waits around these were 39 and 43 minutes; the host was shared.
+
+Arm `r` runs on `c5pa`: 5 rounds, stage 102 s (2.0 × `u`), exit status 0.
+The probe scored truth anyway (the harness always does), so the numbers
+are below. They are development data and decide nothing.
+
+| arm | round | phase rms / p95 (°) | gates failed |
+| --- | --- | --- | --- |
+| u | 1 Sp 8 | 2.45 / 16.6 | phase |
+| u | 2 Sa 8 | 1.87 / 13.6 | phase, amp_rel (p95 3.98 %) |
+| r | 1-2 Sp inf | not scored (the bin spans truth blocks) | not gated |
+| r | 3 Sp 8 | 1.85 / 12.3 | not gated |
+| r | 4 Sp 8 | 1.79 / 11.7 | phase |
+| r | 5 Sa 8 | 1.75 / 11.3 | phase, amp_rel (p95 4.31 %) |
+
+- Final-round phase p95: `r` 11.3° against `u` 13.6°, a ratio of 0.83. The
+  ratio lies between section 5's 0.8 and 1.2 lines.
+- Model relative rms on the longest baseline bin: 0.263 for `r`, 0.281 for `u`.
+
+### 8.2 Development (`D:\rang\outputs\selfcal-arms-20261113-02`)
+
+`.code/` holds the harness, commit `24879a1` and the gemclean sha256. The
+five loops ran in parallel, each under `--slots 4 --mem 4`. Values are
+phase rms / p95 (°) and delay rms / p95 (ns).
+
+| case | arm | round | phase | delay | gates failed |
+| --- | --- | --- | --- | --- | --- |
+| c5pa | u | 1 Sp 8 | 2.45 / 16.6 | – | phase |
+| c5pa | u | 2 Sa 8 | 1.87 / 13.6 | – | phase, amp_rel (3.98 %) |
+| c5pa | r | 1-2 Sp inf | not scored | – | not gated |
+| c5pa | r | 3 Sp 8 | 1.85 / 12.3 | – | not gated |
+| c5pa | r | 4 Sp 8 | 1.79 / 11.7 | – | phase |
+| c5pa | r | 5 Sa 8 | 1.75 / 11.3 | – | phase, amp_rel (4.31 %) |
+| c5delay | u | 1 Sd 8 | 2.19 / 16.9 | 0.0201 / 0.131 | delay, phase |
+| c5delay | u | 2 Sd 8 | 1.56 / 13.1 | 0.0061 / 0.079 | delay, phase |
+| c5delay | r | 1-2 Sd inf | not scored | – | not gated |
+| c5delay | r | 3 Sd 8 | 1.45 / 11.3 | 0.0049 / 0.051 | not gated |
+| c5delay | r | 4 Sd 8 | 1.35 / 10.7 | 0.0045 / 0.039 | phase |
+| c5delay | r | 5 Sd 8 | 1.32 / 10.6 | 0.0042 / 0.033 | delay p95, phase |
+| c5delay | p | 1 Sp 8, freqint 1 | 2.66 / 17.2 | – | phase |
+| c5delay | p | 2 Sd 8 | 1.56 / 13.1 | 0.0065 / 0.082 | delay, phase |
+
+Each arm's final-round phase p95 as a ratio of `u`'s, unrounded, with the
+stage cost ratio:
+
+| arm | p95 ratio | cost ratio |
+| --- | --- | --- |
+| `r` pa | 0.830 | 1.90 × |
+| `r` delay | 0.812 | 2.11 × |
+| `p` delay | 1.004 | 1.02 × |
+
+- **Every frozen arm fails T2 on development.** The phase p95 is 10.6-13.1°
+  against 1.5-3°.
+- **`u` reproduces C5b's native `u`** (C5b section 5) to within one unit in
+  the last printed digit: 2.45 / 16.6 against 2.46 / 16.6, 1.87 / 13.6
+  against 1.88 / 13.6, and 1.56 / 13.1 against 1.55 / 13.1. This
+  worktree's extension gemclean therefore matches C5b's binary on these
+  cases.
+- **`r` lowers the error on every gated quantity, by less than T2 needs.**
+  The longest-baseline model rms falls from 0.281 to 0.263 (pa) and from
+  0.318 to 0.252 (delay). Most of the gain comes in the first `solint 8`
+  round; rounds 3 to 5 give 12.3 → 11.7 → 11.3° on pa.
+- **`p`'s phase-only first round changes nothing measurable on delay.** Its
+  round 2 equals `u`'s to the digit, and its round 1 is no better than
+  `u`'s Sd round (17.2 against 16.9°).
+- Stage wall times: `u` 93 / 98 s, `r` 177 / 206 s, `p` 100 s (pa / delay).
+
+**No post-hoc variants (decided 2026-11-13, after seeing the development
+numbers).**
+
+- No variant could change the verdict: section 6 says only the frozen arm
+  carries it.
+- No key-only variant plausibly meets T2. `r`'s gain flattens over rounds 3
+  to 5, and T2 is missed by a factor of 4 or more.
+- C5 and C5b place the limit in the model's absorption on long baselines,
+  and none of `rounds`, the terms, `solint` or `freqint` acts on that.
+- The development ratios of 0.81-0.83, close to the 0.8 line, motivated
+  nothing here.
+
+### 8.3 QuartiCal on the new interval forms (development, round 1)
+
+QuartiCal 0.2.7 (image `rang-formats-oracle:20261030`, WSL docker, under
+`--slots 1 --mem 3`) solves round 1 of `r` pa (Sp, solint inf), `r` delay
+(Sd, solint inf) and `p` delay (Sp, solint 8, freqint 1). It uses the same
+MODEL_DATA and C5's class-B limits (`check_c5.QC_B`: |Δ product| median
+7e-4, p95 3e-3; delay median 0.01 ns, p95 0.03 ns).
+
+| run | re-solve = stage | |Δ product| median / p95 / max | delay p95 / max (ns) | QuartiCal s |
+| --- | --- | --- | --- | --- |
+| `r` pa, Sp inf | yes | 9.3e-12 / 3.6e-10 / 6.8e-9 | – | 75 |
+| `r` delay, Sd inf | yes | 2.1e-16 / 7.1e-16 / 1.8e-15 | 1.1e-16 / 2.8e-16 | 90 |
+| `p` delay, Sp 8 freqint 1 | yes | 1.4e-17 / 1.2e-11 / 7.0e-7 | – | 73 |
+
+All three pass: rang's solver agrees with QuartiCal on the new interval forms.
+
+**Harness fix (2026-11-13, before the freeze record).** The first QuartiCal
+pass failed its precondition: rang's re-solve on the oracle's copy differed
+from the stored gains by up to 1.1e-5. The products agreed with QuartiCal
+just as closely as above.
+
+- The cause: the harness predicted the copy's MODEL_DATA with
+  `write_model_data`'s defaults (accuracy 1e-6, double precision). The stage
+  uses the image's `wgridder_accuracy` and, since task G7, single-precision
+  gridding for an accuracy of 1e-5 or coarser.
+- `check_selfcal_arms.predictor` now passes the stage's settings
+  (`core_pipeline._selfcal_model`). The re-solve is then bit-equal on all
+  three runs.
+- The superseded outputs are in `-02/superseded-qc-20261113/`.
+- The loops and their scores were not touched: the fix is in the oracle
+  path only.
+- `examples/check_c5.py`'s `qc` copies the same defaults, so it would fail
+  the same precondition on a post-G7 build. That is a follow-up for the
+  coordinator; it is not changed here.
+
+Lock waits: QuartiCal reran at 30 minutes per job with the wait included,
+the first pass at 11 minutes.

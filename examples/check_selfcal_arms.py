@@ -39,7 +39,8 @@ sys.path.insert(0, str(HERE))
 
 import check_c5 as c5
 import check_c5b as c5b
-from rang import cal_selfcal, core_model, core_ms
+from rang import cal_selfcal, core_config, core_model, core_ms
+from rang import core_pipeline as pipe
 
 EXE = ".exe" if os.name == "nt" else ""
 # `auto`: the extension's gemclean (task G8), recorded by rang._core's sha256.
@@ -247,6 +248,27 @@ def wsl_path(path):
     return f"/mnt/{drive}" + p.as_posix()[len(p.drive) :]
 
 
+def predictor(config_path):
+    """The stage's predictor settings (`core_pipeline._selfcal_model`): the
+    image's wgridder accuracy and gridder precision (task G7 made it single
+    for an accuracy of 1e-5 or coarser), not `write_model_data`'s defaults.
+    Fixed 2026-11-13 before the freeze record (note section 8.3)."""
+    config, errors = core_config.resolve(core_config.load(config_path))
+    if errors:
+        raise SystemExit(f"{config_path}: {errors}")
+    img = config["image"]
+    extra = [str(a) for a in img["extra_args"]]
+    rng = pipe._extra_flag(extra, "-channel-range", 2)
+    return {
+        "channels_out": img["channels_out"],
+        "channel_range": None if rng is None else (int(rng[0]), int(rng[1])),
+        "average_channels": img["average_channels"],
+        "epsilon": float(img["wgridder_accuracy"]),
+        "wgridding": pipe._extra_flag(extra, "-no-wgridding") is None,
+        "single": pipe._gridder_single(img, extra),
+    }
+
+
 def qc(run, case, arm, loop_name, round_k=1):
     """Round `round_k`'s solve against QuartiCal 0.2.7 on the same
     MODEL_DATA (C5's G2, class B): rang's re-solve on a copy must equal the
@@ -270,7 +292,9 @@ def qc(run, case, arm, loop_name, round_k=1):
         source = c5b.base_ms(run, case)  # round 1 solves the pristine DATA
         shutil.copytree(source, copy)
         prefix = Path(r["store"]).parent / "image"
-        core_model.write_model_data(copy, prefix, 3, stage="selfcal-arms-qc")
+        core_model.write_model_data(
+            copy, prefix, 3, stage="selfcal-arms-qc", **predictor(d / "config.yaml")
+        )
     again = cal_selfcal.solve(
         copy, {**term}, rows=rows, field_id=3, input_column="DATA",
         model_column="MODEL_DATA", weight_column="WEIGHT_SPECTRUM", refant=0,
