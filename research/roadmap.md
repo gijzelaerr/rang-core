@@ -149,11 +149,12 @@ These are estimates, not measurements. The weekly API limit and the shared host 
 ## Owner decisions (2026-11-13)
 
 The owner approved the plan as a whole ("i approve all of it"). The three items
-he had left open are resolved by the coordinator's choice under that approval:
+left open are resolved by the coordinator's choice under that approval:
 
 1. **#7, native data:**
    - Source: the SARAO archive through katdal (MVF), an L-band block with 1934−638 and 3C 286 or 3C 138 (for example from MIGHTEE-pol).
-   - Data goes to `D:ang`.
+   - Data goes to `D:
+ang`.
    - **Owner action:** register at the archive and provide the per-user token. Until then #7 waits.
 2. **#9, time series:** P1 (residual snapshot light curves) is the first product, and P2 (dynamic spectra) follows.
 3. **#10, F4's target labels:**
