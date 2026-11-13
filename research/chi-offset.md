@@ -188,3 +188,39 @@ band), `chain.sh` (the queued order and lock sizes).
 6. Results section, compact JSON archive, full check, hand back. The fix if
    H3 holds: `feed_angle_rotation: null` (or 0) for the LUNO product; rang's
    default unchanged; the choice is the owner's.
+
+## 8. Resumed 2026-11-13: the control gate and `average_time` (post hoc, before the rule)
+
+Run root `D:\rang\outputs\chi-offset-20261113-*`; worktree venv built from
+54bd119 (`maturin develop --release`, 3 min 09 s compile). The three truths
+were generated as section 4.1 (`gen` 4.6-5.3 s each; feed0's FEED reads 0,
+control's and revpsi's −90).
+
+**The control gate failed with the chain as frozen.** `rang control m90`
+(`calibrate.average_time: true`, as e2b.yaml) gave χ 49.51°, 38.16°, 33.57°,
+33.35° on 3C286-SIM scans 2, 8, 14, 22 (ψ −121.2°, −140.4°, +167.8°,
++122.9°), p 0.062, 0.093, 0.028, 0.095 against the truth's 33°, 0.095, and
+|V| up to 0.093 (truth 0): U_f rotated into V by about 90°. The same arm with
+`average_time: false` (`m90_noavg`): 33.38°, 33.86°, 33.00°, 33.95°, p
+0.0935-0.0952. CASA's chain on the same truth (`casa control feedms`):
+the same four values to 0.01°. The tables of the two rang arms are equal
+for K, G, B, Gpol (≤ 1.8e-6), KCROSS (≤ 8e-4 ns); **Xf differs by 78° median,
+107° max**.
+
+Cause (read from `rang.cal_pol.xf` and `core/src/cal/crosshand.rs`): with
+`average_time` the Xf solve (solint inf, `combine: scan`) runs on rows
+averaged across the whole interval, here all four 3C286-SIM scans (115° of
+ψ). The model is rotated by P per row before averaging, so the averaged
+polarised cross-hand model decoheres while the leakage terms (d·I, not
+rotating) do not, and Xf's closed form `arg Σ w V M*` is then set by the
+leakage. CASA's polcal pre-averages within `preavg` (300 s) only. E2-B's Xf
+was solved on one scan (Δψ ≈ 2°), where the effect is small, consistent with
+E2's rang-CASA parity; it is a separate defect, not E2's offset. **Owner
+item: `calibrate.average_time` must not average Xf (or any polarised-model
+solve) across a ψ range; proposed fix: cap the averaging at CASA's preavg or
+at a ψ step.** Not fixed in this task.
+
+Consequence for this protocol (post hoc): every sim and LUNO arm is run both
+as frozen (`average_time: true`) and with `average_time: false` (`*_noavg`);
+the rule is evaluated on both and the `_noavg` arms are the ones that test the
+frame question.

@@ -45,7 +45,7 @@ calibrate:
   model: {{source: setjy, standard: Stevens-Reynolds 2016}}
   refant: m000
   uvrange: "{uv}"
-  average_time: true
+  average_time: {avg}
   primary:
     field: [fcal]
     terms:
@@ -81,6 +81,9 @@ RANG_ARMS = {
     "m90": {"far": "-90", "gpol_parang": "true"},
     "null": {"far": "null", "gpol_parang": "true"},
     "gpol_noparang": {"far": "-90", "gpol_parang": "false"},
+    # Added 2026-11-13 after the control gate failed (post hoc): no time pre-averaging.
+    "m90_noavg": {"far": "-90", "gpol_parang": "true", "avg": "false"},
+    "null_noavg": {"far": "null", "gpol_parang": "true", "avg": "false"},
 }
 
 
@@ -137,7 +140,7 @@ def rang_arm(out, truth, arm):
     cfg = d / "config.yaml"
     a = RANG_ARMS[arm]
     cfg.write_text(CONFIG.format(scans="", uv=UVRANGE, far=a["far"],
-                                 gpol_parang=a["gpol_parang"],
+                                 gpol_parang=a["gpol_parang"], avg=a.get("avg", "true"),
                                  stages="calibrate, apply"), encoding="utf-8")  # fmt: skip
     t0 = time.perf_counter()
     with open(d / "rang.log", "w", encoding="utf-8") as fh:

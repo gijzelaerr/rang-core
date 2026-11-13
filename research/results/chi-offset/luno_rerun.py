@@ -4,7 +4,7 @@ ROWS rows of each (whole integrations), all 4,096 channels. Never touches
 E2's MSs or run directories.
 
     python luno_rerun.py build OUT             e2_convert build + rang's flag stage
-    python luno_rerun.py rang OUT ARM          ARM: m90 | null (FEED's 0)
+    python luno_rerun.py rang OUT ARM          ARM: m90 | null (FEED's 0) | null_own | m90_own, each with _noavg
     python luno_rerun.py casa OUT ARM          ARM: m90 | feed0
     python luno_rerun.py score OUT ARM_DIR
 
@@ -51,8 +51,13 @@ run:
 """
 
 
-def chain_config(far):
-    """The dry run's b config (e2b.yaml's shape), scans 1, 2, 17, 18, calibrate and apply."""
+def chain_config(far, xf_own=False, average=True):
+    """The dry run's b config (e2b.yaml's shape), scans 1, 2, 17, 18, calibrate and apply.
+    xf_own: Xf solved per scan (combine '') so each 3C 286 scan gets its own Xf
+    (added 2026-11-13 post hoc, for rule (iii)'s "Xf from either scan").
+    average False: calibrate.average_time off (added 2026-11-13 post hoc: with
+    it on, Xf combine scan is solved on rows averaged across both 3C 286
+    scans, which the sim's control truth showed breaks Xf by 78 deg)."""
     src = (Path(r"D:\rang\outputs\e2-20261111-12-dryrun\b\config.yaml")).read_text(
         encoding="utf-8"
     )
@@ -65,6 +70,13 @@ def chain_config(far):
     )
     assert "scans: [1, 2, 17, 18]" in src and f"feed_angle_rotation: {far}" in src
     assert "stages: [calibrate, apply]" in src
+    if xf_own:
+        old = "      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,"
+        assert old in src
+        src = src.replace(old, old.replace("combine: scan", "combine: ''"))
+    if not average:
+        assert "  average_time: true\n" in src
+        src = src.replace("  average_time: true\n", "  average_time: false\n")
     return src
 
 
@@ -107,12 +119,13 @@ def copy_base(out, d):
 def rang_arm(out, arm):
     d = Path(out) / f"rang-{arm}"
     copy_base(out, d)
-    (d / "config.yaml").write_text(chain_config("-90" if arm == "m90" else "null"),
+    far = "-90" if arm.startswith("m90") else "null"
+    (d / "config.yaml").write_text(chain_config(far, "_own" in arm, "_noavg" not in arm),
                                    encoding="utf-8")  # fmt: skip
     rc, s = run([S.RANG_CORE, "run", d / "config.yaml", d / "sim.ms"], d / "rang.log")
     S.log(out, f"rang {arm} rc={rc} {s:.1f}s")
     if rc == 0:
-        score(d, -90.0 if arm == "m90" else 0.0)
+        score(d, -90.0 if arm.startswith("m90") else 0.0)
     return rc
 
 
