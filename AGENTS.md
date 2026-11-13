@@ -43,6 +43,11 @@ instruction; contributors can skip it. Task procedures for agents are in
   the full local check (`python tools/check_all.py`, which builds the
   extension itself), run by the session or left to the coordinator's one
   merge check; report which in the pull request or hand-back.
+- After every push, to `main` or any branch, read that commit's CI runs
+  (`gh run list --branch <branch> -L 3`, `gh run view <id> --log-failed`) and
+  fix a red run before moving on: each failure mails the owner. Frequent
+  causes: a stale `docs/cli.md` (`python docs/gen_cli.py`), a new `RANG_*`
+  variable missing from `rang.core.ENVIRONMENT`.
 - Never force-push a shared branch; never rewrite `main`.
 - Commit under your own name and address. An agent commits as the person it
   works for, never under an agent or bot identity of its own.

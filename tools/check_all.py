@@ -308,6 +308,10 @@ def _tee(command: list[str], root: Path, env: dict, out) -> tuple[int, str]:
         stderr=subprocess.STDOUT,
     )
     seen = []
+    # A console in a legacy code page (cp1252) cannot print every character a
+    # build writes (maturin prints emoji); never let the echo end the check.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
     assert proc.stdout is not None
     for raw in proc.stdout:
         line = raw.decode("utf-8", errors="replace")

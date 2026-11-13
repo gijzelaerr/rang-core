@@ -48,6 +48,14 @@ Windows against the branch's extension. A later push to the same branch
 cancels the run still in progress. On failure, read the failing job with
 `gh run view <run-id> --log-failed`, fix, run the quick check, and push again.
 
+Never leave a red run behind: every failed run mails the owner. Read the
+result of each push (`gh run list --branch <branch> -L 3`; on failure
+`gh run view <id> --log-failed`), fix it and push again. The usual causes: a
+stale `docs/cli.md` (run `python docs/gen_cli.py` after any CLI or help
+change, and after merging main into the branch), a new `RANG_*` variable
+without an entry in `rang.core.ENVIRONMENT`, and new ruff rules (ruff is not
+pinned).
+
 ## 3. The gates CI lacks
 
 CI has no archives and no oracles (CASA, QuartiCal, WSClean), so the gain-hash
