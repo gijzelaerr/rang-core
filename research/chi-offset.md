@@ -149,3 +149,42 @@ Read after the freeze, from E2's committed outputs only (no new run):
   (sign flipped against the −90° arm), χ ≈ 26-30° at 1.4 GHz on scan 17
   (33° − 3.6° (RM) − up to 3.5° (θ_t)). Under H1 the slope sign would not
   flip with the receptor angle.
+
+## 7. Paused 2026-11-13 (owner's stop order; no chain run made)
+
+**Status.** H3 (receptor angle wrong for this product: θ_t ≈ 0, configured
+−90°) is the leading hypothesis on E2's committed outputs alone (section 6:
+ψ correct to 0.07°, Q_f wrong in sign against the model while U_f agrees,
+χ against λ² linear with intercept giving θ_t ≈ +3.5°). The decision rule
+(section 5) is **not yet evaluated**: (i) the per-integration Q_f fit, (ii)
+the simulation and (iii) the LUNO rerun have not run. H1 (metadata part)
+is excluded; H2, H4, H5, H6 are open. H5 note: MODEL_DATA through the
+estimator reads χ 30.0°, p 0.104 on scan 17 (expected 33°, 0.098); check it
+on the rerun's own MS.
+
+**Nothing measured since section 6.** All jobs were queued behind E2 on a
+full host (16/16 slots) when stopped; the queued tickets and the empty
+output folders (`D:\rang\outputs\chi-offset-20261113-0{1,2-sim,3-luno}`)
+were removed. E2's run directories were never opened for writing.
+
+**Scripts** (`research/results/chi-offset/`, untested end to end):
+`chi_vs_psi.py` (χ, ψ, q_f, u_f per integration, read-only), `sim_chi.py`
+(gen control/feed0/revpsi truths; rang arms m90/null/gpol_noparang; CASA
+arms m90/feedms; score), `luno_rerun.py` (own 6-integration copy of LUNO
+scans 1, 2, 17, 18; build+flag; rang m90/null; CASA m90/feed0; score per
+band), `chain.sh` (the queued order and lock sizes).
+
+**Resume, in order** (main checkout's heavy_lock, shared slots):
+1. `maturin develop --release` in the worktree venv (8 slots, 8 GB).
+2. `sim_chi.py gen {control,feed0,revpsi} D:/rang/outputs/chi-offset-<date>-sim`
+   (4 slots, 4 GB each), then `chain.sh` (fix its SIM/LUNO paths to the new
+   date). Rule (ii): feed0+m90 per scan within 3° of −χ0 + 2ψ − 90°;
+   feed0+null within 1.11° of 33°; control 33°.
+3. LUNO rerun: rule (iii), null arm |χ − 33.1°| ≤ 7° on scans 1 and 17,
+   RM slope negative (section 6's prediction).
+4. Optional H6 arm: Xf from one scan in the sim.
+5. Rule (i) on E2-B scan 17 with `chi_vs_psi.py` only after E2 reports done
+   (read-only on `R\casa\e2b.ms`).
+6. Results section, compact JSON archive, full check, hand back. The fix if
+   H3 holds: `feed_angle_rotation: null` (or 0) for the LUNO product; rang's
+   default unchanged; the choice is the owner's.
