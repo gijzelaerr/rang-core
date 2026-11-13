@@ -321,6 +321,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 
 ## Cross-platform, wheel, docs and release
 
+- [Docs audit, 2026-11-13](docs-audit-2026-11-13.md): the site per audience (beginner, astronomer, developer), stale statements fixed, new quickstart, how-to, developer and glossary pages; what is left.
 - [W4-6 portability hygiene](w4-6-portability.md): UTF-8 on every text read and write in the package, LF by `.gitattributes`, one Windows CI cell with UTF-8 mode off.
 - [W4-8, the documentation pass](w4-8-readme-docs.md): the README as a landing page, this index by theme, STATE trimmed with its history linked, AGENTS.md for the layout, a deploy job that skips without GitHub Pages.
 - [W4-5, the release metadata](w4-5-release.md) for v0.1.0: `rang-core --version`, classifiers and URLs, a PyPI-safe README, the CHANGELOG, the tag-equals-version guard, Node 24 actions, the slim sdist (250 entries, 1.2 MB) and the release procedure.
