@@ -160,11 +160,18 @@ def rang_case(r, dev_run, out_dir, case, average_freq):
     version = st["stages"]["calibrate"]["flag_version"]
     rec = {"case": case, "flag_version": version, "restored_rows": restore(ms, version),
            "dev_run": str(dev_run), "average_freq": bool(average_freq)}  # fmt: skip
-    _cfg, _info, terms = terms_for(resolved(r), ms)
+    from rang import core_chunks
+
+    cfg, info, terms = terms_for(resolved(r), ms)
     dev = Path(dev_run) / "calibrate"
     tables = {n: caltable.read(dev / n) for n in ("K", "G", "B", "Kcross", "Xf", "Df")}
+    # The chain's memory budget (data.memory_limit_gb, task W3b), as
+    # core_pipeline passes it to cal_chain.run; omitted in the first version
+    # (2026-11-13: xfer17 asked for 27.8 GiB in one interval and stopped
+    # before any value was written).
     common = {"model_column": "RANG_MODEL_DATA", "weight_column": None,
-              "average_time": True}  # fmt: skip
+              "average_time": True,
+              "budget": core_chunks.budget(cfg, info).chain()}  # fmt: skip
     if average_freq:
         common["average_freq"] = True
     entries = {n: {"table": t} for n, t in tables.items()}
