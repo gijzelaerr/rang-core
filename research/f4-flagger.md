@@ -430,14 +430,39 @@ cost `f4_cost.py time` at `RAYON_NUM_THREADS` 4 and 1 on `luno:MAIN_1` and `eso:
 per arm; quality runs under `f4_run.py … --lock --slots 4 --mem 16`, the cost timing under
 `f4_run.py … --lock` (exclusive).
 
+### Resume state (2026-11-13, stopped on the owner's order)
+
+Owner, 2026-11-13: "stop everything, write down the plan and end this session. Commit and push our
+progress." Nothing of F4 is running or queued in the heavy lock. Stages 1-3 ran 2026-11-12 00:52-10:08
+(host clock), all rc 0, outputs `D:/rang/outputs/f4-20261111-NN-*`, verdicts in
+`D:/rang/outputs/f4-20261111-queue.json`. No held-out set has been read.
+
+| Step | Result | Wall |
+| --- | --- | --- |
+| tests (15, rebuilt extension) | pass, after the test fix `efd6876` (T6 width per event) | 2.5 s |
+| sim `-02` (f4sim-t) | done | 12.0 min |
+| stage1 calibrator / target | ZE recall of F1's antenna-local injection 1.000 / 0.993; Stop-E, Stop-Z4 not triggered | 46.5 / 25.8 min |
+| nadelta calibrator / target | δ = 0.1 on both (top of the grid, as expected before the run; G2 likely fails) | 140.8 / 146.3 min |
+| parity calibrator / target | pass / pass | 153.4 / 11.3 min |
+| c1u4 `-05` (LUNO MAIN_1, 4 threads) | C1(U4) = 0.441 (bar 0.45) but **not clean**: T 46.7/44.0/44.1 s, U4 19.8/19.4/19.4 s, only one clean repeat of each (host busy); the queue halted here | 19.4 min |
+| shards `-06`, `-07`, label audit | **not run** | |
+
+**Resume steps, in order:**
+
+1. C1(U4) on an idle host (exclusive lock), then the shards and the label audit:
+   `.venv/Scripts/python examples/f4_queue.py --from c1u4`. If C1(U4) > 0.45 when clean, F4 stops (section 8).
+2. Audit: read the label-audit verdict in `queue.json` (shards step) before training.
+3. WSL GPU training (Stage 4, the commands above): build the jax-cuda venv, then 3 seeds × 2 classes
+   under `--slots 4 --mem 16`; GPU memory and wall are unmeasured.
+4. Median seed by validation loss, τ (`f4_tau.py`), then Stage 5 once on the held-out sets.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
   code); `249c282` Amendment 1 (NA); `0f2954d` code; later commits notes, the test fix and Stage 1
-  reporting. Not pushed.
-- **Not run here:** the full check-all (left to the coordinator at merge); training, τ and Stage 5.
-  Three extension tests of `test_f4_flag.py` run first in the detached chain (they need the rebuilt
-  `rang._core`; the chain stops if they fail).
+  reporting. Pushed to `origin/fp-f4-flagger` 2026-11-13 (not merged).
+- **Not run here:** the full check-all (left to the coordinator at merge); clean C1(U4), shards,
+  label audit, training, τ and Stage 5 (see Resume state). The extension tests passed (15/15).
 - **Chain:** detached bash running `outputs/f4-chain.sh` (worktree, ignored); log
   `D:\rang\outputs\f4-20261111-00-build\chain.log`; verdicts `D:\rang\outputs\f4-20261111-queue.json`.
   It only waits on the heavy lock; it does not otherwise yield to E2.

@@ -1811,3 +1811,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-11 | F4 `maturin develop --release --offline` (heavy_lock) | worktree fp-f4-flagger | 23.7 min wall, almost all lock wait | – | first two attempts failed (relative exe path; `-m` built `rang_core_py`) |
 | 2026-11-11 | F4 `maturin develop --release --offline` after Amendment 2 (heavy_lock `--slots 4 --mem 8`) | worktree fp-f4-flagger | 26.1 min wall incl. lock wait (16:29-16:55) | – | build itself not separated from queue wait |
 | 2026-11-12 | F4 `pytest tests/test_f4_flag.py tests/test_f3_flag.py tests/test_f2_sim.py` | rebuilt extension | 2.5 s (15 tests) | – | 11-11 run: 2.9 s, 1 failure (test bug, fixed efd6876) |
+| 2026-11-12 | F4 `f4_queue.py` Stages 1-3 (heavy_lock shared, 4 slots) | sim 12.0, stage1 cal/target 46.5/25.8, nadelta 140.8/146.3, parity 153.4/11.3 min | c1u4 19.4 min (exclusive) | – | C1(U4) 0.441 not clean (host busy); shards not run |
