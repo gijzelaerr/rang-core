@@ -1,6 +1,6 @@
 # Rang: the gap between CLEAN and a sparsity-regularised imager on MeerKAT truth skies (issue #24, step 1)
 
-Status, 2026-11-13: **protocol frozen; nothing run.** Issue
+Status, 2026-11-13: **protocol frozen; amendment A1; stage 2 done (U\* = U-a); held-out runs in progress.** Issue
 [gijzelaerr/rang-core#24](https://github.com/gijzelaerr/rang-core/issues/24), step 1, from the
 stub [proposals/imaging-gap-comparators.md](proposals/imaging-gap-comparators.md). A comparison
 with no rang code: GeMClean, WSClean and pfb-imaging run as released, scored against known truth.
@@ -247,7 +247,60 @@ does not depend on G and is unchanged.
 
 ## 8. Measured results
 
-Not run yet.
+### 8.1 Stage 2: tuning skies S1-S3 (2026-11-13)
+
+**Build.** GeMClean is built from main `30d9412` in 3 min 36 s of compile time (62 min 19 s
+including the lock wait). The binary is
+`D:\rang\outputs\rml-gap-20261113\bin\gemclean-30d9412.exe`, sha256
+`74b4b3788492b4d9789aaf24efb74927092c4818cd2e315b4883cd43dcbb043c`.
+
+**Scorer control.** It passes on S1, S2 and S3: every group ratio is within 1 ± 0.002 and the
+band-limited truth's relative L2 is at most 0.002. The common beam is b = 6.736 px on all three
+skies, the half-max major axis of W's PSF.
+
+**Preconditions.** Dirty-image L∞/peak against the core's exact dirty image:
+
+| arm | S1 | S2 | S3 | result |
+| --- | --- | --- | --- | --- |
+| G (`-wgridder-accuracy 1e-6`, amendment A1) | 2.49e-7 | 2.49e-7 | 2.20e-7 | pass |
+| W | 2.49e-7 | 2.49e-7 | 2.20e-7 | pass |
+| Gd (default accuracy, reported only) | 2.71e-5 | 2.71e-5 | 2.98e-5 | fail |
+
+U's orientation is the identity on every sky, winning by a margin of 0.99, so it passes.
+
+**Parity.** W/G relative-L2 ratios are 0.997 (S1), 1.007 (S2) and 1.005 (S3). C2 passes on the one
+extended group, S2's Gaussian; S1 and S3 have none (49 and 362 groups, all point sources). Parity
+holds on all three skies.
+
+**G, W and Gd.** Relative L2 and wall time (8 threads):
+
+| sky | G | W | Gd |
+| --- | --- | --- | --- |
+| S1 | 0.000810, 119.6 s | 0.000807, 261.0 s | 0.000835, 73.8 s |
+| S2 | 0.000991, 190.3 s | 0.000997, 300.1 s | 0.000997, 152.6 s |
+| S3 | 0.004069, 70.5 s | 0.004089, 181.2 s | 0.004077, 87.1 s |
+
+**U's tuning.** Each configuration ran on S1-S3 with a cap of 20 cycles or 90 min, and every one
+of the 12 runs hit the 20-cycle cap without converging: eps at the last cycle was about 3e-3,
+against tol 5e-4. Relative L2 at the last cycle (unrounded means, as the selection rule uses
+them):
+
+| config | S1 | S2 | S3 | mean | over the lowest |
+| --- | --- | --- | --- | --- | --- |
+| U-a | 0.0537972 | 0.0527704 | 0.0539912 | 0.0535196 | +0.62 % |
+| U-b | 0.0539860 | 0.0528411 | 0.0542046 | 0.0536772 | +0.92 % |
+| U-c | 0.0538028 | 0.0526518 | 0.0531342 | 0.0531963 | +0.01 % |
+| U-d | 0.0537660 | 0.0526067 | 0.0531976 | 0.0531901 | lowest |
+
+**U\* = U-a**, DF5-O's recipe. U-d has the lowest mean, but all four configurations are within
+1 % of it, and the frozen rule sends ties to the earlier letter. Tuning `nlevels` and `rmsfactor`
+moves relative L2 by under 1 %.
+
+On the tuning skies U's relative L2 is 13-67 × G's. The tuning skies do not enter the decision;
+the held-out results are below.
+
+Score files are in `D:\rang\outputs\rml-gap-20261113\scores\S{1,2,3}.json` and the runs in
+`…\runs\{G,W,Gd,U-a,U-b,U-c,U-d}\S{1,2,3}`. Every run and its wall time is in `…\runs.tsv`.
 
 ## 9. For the coordinator
 

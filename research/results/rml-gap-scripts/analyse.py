@@ -162,7 +162,7 @@ def u_run(s, d, g_wall, out):
     # The major-cycle lines ("Iter k: peak residual = ..., rms = R, eps = E"); the primal-dual
     # solver's own "eps = " lines are not these.
     cyc = re.findall(
-        r"peak residual = ([0-9.eE+-]+), rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log
+        r"peak residual =\s+([0-9.eE+-]+), rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log
     )
     eps = [float(e) for _, _, e in cyc]
     rec["tool_peak_residual_jy"] = [float(p) for p, _, _ in cyc]
