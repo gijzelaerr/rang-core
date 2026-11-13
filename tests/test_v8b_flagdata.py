@@ -121,7 +121,7 @@ def test_matches_casa_archive(built, tmp_path, name):
     every count of CASA's summaries is rang's."""
     arch = _archive()
     entry = arch["cases"][name]
-    case, arm = name.split(".", 1)
+    case = name.split(".", 1)[0]
     calls = next(c for c in plan.dev_plan() if c["name"] == name)["calls"]
     ms = _copy(built / f"{case}.ms", tmp_path / f"{case}.ms")
     returns = [tasks.flagdata(vis=str(ms), flagbackup=False, **p) for p in calls]
@@ -135,3 +135,13 @@ def test_matches_casa_archive(built, tmp_path, name):
                     assert got[group][key]["flagged"] == counts["flagged"], (group, key)
             elif group in ("total", "flagged"):
                 assert got[group] == values, group
+
+
+def test_a_refused_call_leaves_the_ms_writable(built, tmp_path):
+    """A selection CASA rejects (no rows) is refused before the write-back
+    session opens, so the next call on the same MS runs."""
+    ms = _copy(built / "syn-edges.ms", tmp_path / "e.ms")
+    with pytest.raises(flagdata.SelectionError):
+        tasks.flagdata(vis=str(ms), mode="manual", uvrange="1~3km", flagbackup=False)
+    got = tasks.flagdata(vis=str(ms), mode="manual", scan="2", flagbackup=False)
+    assert got["flagged_after"] > got["flagged_before"]

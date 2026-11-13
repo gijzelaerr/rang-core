@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from rang_flagdata import local  # noqa: E402
+from rang_flagdata import local
 
 
 def load(path):
@@ -34,7 +34,9 @@ def input_flags(path):
 
     with core_ms.open_table(path) as t:
         flag = np.asarray(t.getcol("FLAG"), bool)
-        row = np.asarray(t.getcol("FLAG_ROW"), bool) if "FLAG_ROW" in t.columns else None
+        row = (
+            np.asarray(t.getcol("FLAG_ROW"), bool) if "FLAG_ROW" in t.columns else None
+        )
         a1 = np.asarray(t.getcol("ANTENNA1")) if "ANTENNA1" in t.columns else None
         a2 = np.asarray(t.getcol("ANTENNA2")) if "ANTENNA2" in t.columns else None
     return flag, row, a1, a2
@@ -65,7 +67,11 @@ def tfcrop_verdict(casa, rang, before, a1, a2):
     agree = float((casa == rang).sum()) / n
     add_c, add_r = casa & ~before, rang & ~before
     tp = int((add_c & add_r).sum())
-    precision = tp / max(int(add_r.sum()), 1) if add_r.any() else (1.0 if not add_c.any() else 0.0)
+    precision = (
+        tp / max(int(add_r.sum()), 1)
+        if add_r.any()
+        else (1.0 if not add_c.any() else 0.0)
+    )
     recall = tp / max(int(add_c.sum()), 1) if add_c.any() else 1.0
     worst = 0.0
     key = a1.astype(np.int64) * 100000 + a2
@@ -119,7 +125,9 @@ def main(argv):
             v["pass"] = False
             verdicts[name] = v
             continue
-        rows_equal = casa_row.shape == rang_row.shape and bool(np.array_equal(casa_row, rang_row))
+        rows_equal = casa_row.shape == rang_row.shape and bool(
+            np.array_equal(casa_row, rang_row)
+        )
         v["flag_row_equal"] = rows_equal
         v["flag_row_diff"] = (int((casa_row != rang_row).sum())
                               if casa_row.shape == rang_row.shape else None)  # fmt: skip
@@ -141,7 +149,9 @@ def main(argv):
             sdiff = []
             for k, (cc, rc) in enumerate(zip(cj["calls"], rj["calls"])):
                 if cc["params"].get("mode") == "summary":
-                    sdiff += [f"call {k}{d}" for d in counts_diff(cc["return"], rc["return"])]
+                    sdiff += [
+                        f"call {k}{d}" for d in counts_diff(cc["return"], rc["return"])
+                    ]
             v["summary_diff"] = sdiff[:50]
             v["summary_ndiff"] = len(sdiff)
             v["pass"] = bool(not diff.any() and rows_equal and not sdiff)

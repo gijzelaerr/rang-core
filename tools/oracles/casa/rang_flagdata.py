@@ -23,9 +23,11 @@ import numpy as np
 SCRATCH = Path(os.environ.get("RANG_V8B_SCRATCH", r"D:\rang\scratch\v8b-20261113"))
 INPUTS = {
     "/in/cases": SCRATCH / "cases",
-    "/in/luno.ms": Path(os.environ.get("RANG_V8B_INPUTS", SCRATCH / "inputs")) / "luno.ms",
+    "/in/luno.ms": Path(os.environ.get("RANG_V8B_INPUTS", SCRATCH / "inputs"))
+    / "luno.ms",
     "/in/a1.ms": Path(r"D:\rang\outputs\c2a-20261106-03\casa\a1.ms"),
-    "/in/fixture": Path(os.environ.get("RANG_V8B_INPUTS", SCRATCH / "inputs")) / "fixture",
+    "/in/fixture": Path(os.environ.get("RANG_V8B_INPUTS", SCRATCH / "inputs"))
+    / "fixture",
     "/in/df": Path(r"D:\rang\outputs\c6-20261106-01\casa"),
     "/in/heldout": SCRATCH / "heldout",
 }
@@ -53,7 +55,9 @@ def read_flags(path):
 
     with core_ms.open_table(path) as t:
         flag = np.asarray(t.getcol("FLAG"), bool)
-        flag_row = np.asarray(t.getcol("FLAG_ROW"), bool) if "FLAG_ROW" in t.columns else None
+        flag_row = (
+            np.asarray(t.getcol("FLAG_ROW"), bool) if "FLAG_ROW" in t.columns else None
+        )
     return flag, flag_row
 
 
@@ -72,7 +76,7 @@ def run_case(out, case):
         error = None
         try:
             ret = tasks.flagdata(vis=str(work), flagbackup=False, **params)
-        except Exception as exc:  # recorded, the case goes on
+        except Exception as exc:  # noqa: BLE001 - recorded, the case goes on
             ret, error = None, f"{type(exc).__name__}: {exc}"
         log["calls"].append({"params": params, "return": plain(ret), "error": error,
                              "wall_s": time.time() - t0})  # fmt: skip
@@ -82,7 +86,9 @@ def run_case(out, case):
                         flag_row=np.zeros(0, bool) if flag_row is None else flag_row)  # fmt: skip
     log["flagged"] = int(flag.sum())
     log["cells"] = int(flag.size)
-    (out / f"{name}.json").write_text(json.dumps(log, indent=1), encoding="utf-8", newline="\n")
+    (out / f"{name}.json").write_text(
+        json.dumps(log, indent=1), encoding="utf-8", newline="\n"
+    )
     shutil.rmtree(work)
     return log
 
@@ -93,7 +99,9 @@ def main(argv):
     plan = json.loads(Path(argv[1]).read_text(encoding="utf-8"))
     only = set(argv[2:])
     for case in plan:
-        if only and not any(case["name"] == o or case["name"].startswith(o) for o in only):
+        if only and not any(
+            case["name"] == o or case["name"].startswith(o) for o in only
+        ):
             continue
         t0 = time.time()
         log = run_case(out, case)

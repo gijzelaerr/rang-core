@@ -107,7 +107,9 @@ def elevation(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m, frame="geodetic"):
     site = location(itrf_xyz_m)
     source = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs")
     if frame == "geodetic":
-        alt = source.transform_to(AltAz(obstime=when, location=site, pressure=0)).alt.rad
+        alt = source.transform_to(
+            AltAz(obstime=when, location=site, pressure=0)
+        ).alt.rad
         return np.asarray(alt, float)
     if frame != "geocentric":
         raise ValueError(f"frame {frame!r}: 'geodetic' or 'geocentric'")

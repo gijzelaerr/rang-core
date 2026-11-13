@@ -100,6 +100,10 @@ def fixed_arms(edges):
                       "timerange": "2026/01/01/03:40:00~03:42:00"}],
             "M12a": [{"mode": "manual", "uvrange": "<100m"}],
             "M12b": [{"mode": "manual", "uvrange": "1~3km"}],
+            # Amendment 2: ranges that select rows.
+            "M12c": [{"mode": "manual", "uvrange": "20~200m"}],
+            "M12d": [{"mode": "manual", "uvrange": "0.02~0.2km"}],
+            "M12e": [{"mode": "manual", "uvrange": ">500m"}],
             "M13": [{"mode": "manual", "correlation": "XY,YX"}],
         }  # fmt: skip
     return arms
@@ -109,10 +113,18 @@ def dev_plan():
     plan = []
     for arm, calls in TFCROP.items():
         for case in TFCROP_CASES[arm]:
-            plan.append({"name": f"{case}.{arm}", "input": DEV_INPUTS[case], "calls": calls})
+            plan.append(
+                {"name": f"{case}.{arm}", "input": DEV_INPUTS[case], "calls": calls}
+            )
     for case in ("syn-edges", "luno", "a1"):
         for arm, calls in fixed_arms(case == "syn-edges").items():
-            plan.append({"name": f"{case}.{arm}", "input": DEV_INPUTS[case], "calls": calls})
+            plan.append(
+                {"name": f"{case}.{arm}", "input": DEV_INPUTS[case], "calls": calls}
+            )
+    for case in ("syn-edges-uvwneg", "syn-edges-nom001"):
+        for arm in ("M6a", "M6b"):
+            plan.append({"name": f"{case}.{arm}", "input": f"/in/cases/{case}.ms",
+                         "calls": fixed_arms(False)[arm]})  # fmt: skip
     for df in ("B-poldx", "B-twin", "B-poldx-uv"):
         plan.append({"name": f"df-{df}.M17", "input": f"/in/df/{df}.Df",
                      "calls": [{"mode": "clip", "clipminmax": [-0.6, 0.6],

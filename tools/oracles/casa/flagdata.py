@@ -61,12 +61,10 @@ def run_case(out, case):
         error = None
         try:
             ret = flagdata(vis=str(work), flagbackup=False, **params)
-        except Exception as exc:  # recorded, the case goes on
+        except Exception as exc:  # noqa: BLE001 - recorded, the case goes on
             ret, error = None, repr(exc)
-        log["calls"].append(
-            {"params": params, "return": plain(ret), "error": error,
-             "wall_s": time.time() - t0}  # fmt: skip
-        )
+        log["calls"].append({"params": params, "return": plain(ret), "error": error,
+                             "wall_s": time.time() - t0})  # fmt: skip
     flag, flag_row = read_flags(work)
     np.savez_compressed(
         out / f"{name}.npz",

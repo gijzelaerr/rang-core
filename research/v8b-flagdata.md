@@ -267,6 +267,26 @@ is instead **all 512 channels of the first 600 s of scan 2**
 (`split(timerange=<first 600 s>, keepflags=True, datacolumn='data')`), about
 2.5 GB. Scan 2 is not one of E2-A's held-out scans (9, 10, 11).
 
+## 8b. Amendment 2 (2026-11-13, after development run 01, before any held-out data)
+
+Labelled as an amendment; gates, tolerances and decision rules are unchanged.
+Three development cases are added, all synthetic, so that conventions read
+off run 01 rest on more than one case:
+
+- `v8b_cases.py` wrote UVW with the opposite sign to the MS convention
+  (ANTENNA1's position minus ANTENNA2's, as the LUNO slice's UVW column
+  has it; checked on six LUNO rows). It now writes the MS convention;
+  `syn-edges-uvwneg` keeps the old sign, so that shadow on both tells
+  whether CASA reads the UVW column or recomputes it from the positions.
+- `syn-edges-nom001`: `syn-edges` without the rows of m001, the antenna
+  that shadows m000. Does an antenna without rows shadow?
+- uvrange arms `M12c` (`20~200m`), `M12d` (`0.02~0.2km`), `M12e` (`>500m`):
+  in run 01 the only range arm (`1~3km`) selected no rows (CASA and rang
+  both refused it with a null selection), so ranges and `km` were untested.
+
+Development run 02 (`round.sh 02`) reruns every development case on the
+rebuilt synthetic MSs.
+
 ## 9. Development log and results
 
 (Filled in as the work proceeds; empty at the freeze.)

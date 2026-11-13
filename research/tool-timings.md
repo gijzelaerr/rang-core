@@ -1857,3 +1857,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | V8a CASA 6.7.6.14 `listobs` probe (`listobs.sh`, run 00) | luno, a1, eso137 | 124 s | 332 MB | WSL Docker `rang-o-casa:6.7.6.14`, heavy lock 1 slot; stopped at the fixture |
 | 2026-11-12 | V8a CASA `listobs` gate run 01 (nine MSs, with msmetadata) | 9 MSs | 126.3 s (eso137 61.7 s) | 332 MB | WSL Docker, heavy lock 1 slot |
 | 2026-11-12 | V8a rang `listobs.summary` + comparison | 9 MSs | 0.01-13.5 s per MS (eso137 0.89 s) | – | native Windows, MSs over `\\wsl.localhost` while E2 ran; research/v8a-listobs.md |
+| 2026-11-13 | V8b CASA 6.7.6.14 `flagdata` development run 01 (`flagdata.sh`, 103 cases) | synthetic MSs, LUNO slice, A1, C6 Df tables | 59.5 s in the container (2,671 s incl. heavy-lock queue) | 304 MB | WSL Docker `rang-o-casa:6.7.6.14`, heavy lock 1 slot; research/v8b-flagdata.md |
+| 2026-11-13 | V8b rang `flagdata` on the 103 development cases (NumPy tfcrop reference) | same | 241 s (tfcrop arms dominate) | – | native Windows; run outside the heavy lock (a lapse, see the note) |

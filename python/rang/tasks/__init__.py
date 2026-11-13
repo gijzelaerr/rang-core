@@ -238,12 +238,14 @@ def flagdata(
         if flagbackup:
             raise Unsupported("flagdata: flagbackup=True on a calibration table is not "
                               "supported yet (pass flagbackup=False)")  # fmt: skip
-        if any(v for k, v in sel_kw.items() if k != "correlation") or correlation not in (
-            "", "ABS_ALL"
-        ):
+        if any(
+            v for k, v in sel_kw.items() if k != "correlation"
+        ) or correlation not in ("", "ABS_ALL"):
             raise Unsupported("flagdata: selections on a calibration table are not "
                               "supported yet")  # fmt: skip
-        return _fd.clip_caltable(vis, list(clipminmax), clipoutside, clipzeros).as_dict()
+        return _fd.clip_caltable(
+            vis, list(clipminmax), clipoutside, clipzeros
+        ).as_dict()
     if mode == "summary":
         return _fd.summary(vis, sel_kw, spwchan=spwchan, spwcorr=spwcorr, basecnt=basecnt,
                            name=name)  # fmt: skip
@@ -263,5 +265,7 @@ def flagdata(
     }  # fmt: skip
     # flagbackup=True saves CASA's numbered version before this call; with
     # False rang still keeps the flags it first found (`rang_original`).
-    backup = _fd.next_backup_name(vis) if flagbackup else _fd.core_writeback.DEFAULT_BACKUP
+    backup = (
+        _fd.next_backup_name(vis) if flagbackup else _fd.core_writeback.DEFAULT_BACKUP
+    )
     return _fd.run(vis, mode, sel_kw, params, flag_backup=backup).as_dict()

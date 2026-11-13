@@ -1468,7 +1468,9 @@ def _flagdata_command(argv):
         "(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found "
         "are saved first as a flag version.",
     )
-    parser.add_argument("ms", help="the Measurement Set (or calibration table, for clip)")
+    parser.add_argument(
+        "ms", help="the Measurement Set (or calibration table, for clip)"
+    )
     parser.add_argument("keywords", nargs="*", metavar="key=value",
                         help="CASA flagdata keywords, e.g. mode=quack quackinterval=8")  # fmt: skip
     args = parser.parse_args(argv)

@@ -22,6 +22,8 @@ UVW computed from the antenna positions and the field's apparent hour angle,
   (its projected separation crosses 13.5 m near 20 degrees elevation); DATA with NaN, Inf, zeros and amplitudes on and next to
   50 Jy; existing FLAG and FLAG_ROW; scan 3 begins with two flagged
   integrations.
+- `syn-edges-uvwneg`, `syn-edges-nom001` (amendment 2): `syn-edges` with
+  UVW negated, and without the rows of m001.
 """
 
 import json
@@ -63,8 +65,16 @@ def itrf_positions(enu=ENU):
     out = []
     for e, n, up in enu:
         # ENU to ECEF rotation at the centre.
-        x = -np.sin(lon) * e - np.sin(lat) * np.cos(lon) * n + np.cos(lat) * np.cos(lon) * up
-        y = np.cos(lon) * e - np.sin(lat) * np.sin(lon) * n + np.cos(lat) * np.sin(lon) * up
+        x = (
+            -np.sin(lon) * e
+            - np.sin(lat) * np.cos(lon) * n
+            + np.cos(lat) * np.cos(lon) * up
+        )
+        y = (
+            np.cos(lon) * e
+            - np.sin(lat) * np.sin(lon) * n
+            + np.cos(lat) * np.sin(lon) * up
+        )
         z = np.cos(lat) * n + np.sin(lat) * up
         out.append(c + np.array([x, y, z]))
     return np.array(out)
@@ -87,12 +97,14 @@ def _azimuth(time, ra, dec, xyz):
 
 
 def uvw(times, ra, dec, xyz, a1, a2):
-    """UVW (m) of baselines a2 - a1 from the apparent Greenwich hour angle."""
-    u, _, _, _, Time = _astropy()
+    """UVW (m) of each row in the MS convention (the position of ANTENNA1
+    minus that of ANTENNA2, as the LUNO slice's UVW column has it), from the
+    apparent Greenwich hour angle."""
+    *_, Time = _astropy()
     t = Time(np.asarray(times) / 86400.0, format="mjd", scale="utc")
     gast = t.sidereal_time("apparent", "greenwich").rad
     h = gast - ra
-    b = xyz[a2] - xyz[a1]
+    b = xyz[a1] - xyz[a2]
     sh, ch, sd, cd = np.sin(h), np.cos(h), np.sin(dec), np.cos(dec)
     uu = sh * b[:, 0] + ch * b[:, 1]
     vv = -sd * ch * b[:, 0] + sd * sh * b[:, 1] + cd * b[:, 2]
@@ -175,7 +187,9 @@ def _subtables(path, xyz, field, spws, observer):
     with _sub(path, "POLARIZATION", 1) as s:
         s.putcol("NUM_CORR", np.array([4], np.int32))
         s.putcell("CORR_TYPE", 0, np.array(CORR, np.int32))
-        s.putcell("CORR_PRODUCT", 0, np.array([[0, 0], [0, 1], [1, 0], [1, 1]], np.int32))
+        s.putcell(
+            "CORR_PRODUCT", 0, np.array([[0, 0], [0, 1], [1, 0], [1, 1]], np.int32)
+        )
         s.putcol("FLAG_ROW", np.array([False]))
     with _sub(path, "DATA_DESCRIPTION", len(spws)) as s:
         s.putcol("SPECTRAL_WINDOW_ID", np.arange(len(spws), dtype=np.int32))
@@ -219,8 +233,8 @@ def _bandpass(rng, nbl, nchan):
     for b in range(nbl):
         for c in range(4):
             p = rng.normal(0, 0.3, 4)
-            shape[b, :, c] = 1 + p[0] * x + p[1] * x**2 + p[2] * x**3 + 0.2 * np.sin(
-                3 * x + p[3]
+            shape[b, :, c] = (
+                1 + p[0] * x + p[1] * x**2 + p[2] * x**3 + 0.2 * np.sin(3 * x + p[3])
             )
     amp = np.where(np.isin(np.arange(4), [0, 3]), 20.0, 2.0)
     return np.abs(shape) * amp
@@ -267,7 +281,11 @@ def build_tfcrop(path, rfi, seed=20261113):
     return path
 
 
-def _field_for_track(xyz, t_mid, el_target=np.radians(20.0), dec=np.radians(10.0)):
+EL_TARGET = np.radians(20.0)
+DEC_EDGES = np.radians(10.0)
+
+
+def _field_for_track(xyz, t_mid, el_target=EL_TARGET, dec=DEC_EDGES):
     """RA such that the field rises through `el_target` at `t_mid`."""
     ras = np.linspace(0, 2 * np.pi, 721)[:-1]
     el = elevation(np.full(len(ras), t_mid), ras, np.full(len(ras), dec), xyz[0])
@@ -286,10 +304,14 @@ def _field_for_track(xyz, t_mid, el_target=np.radians(20.0), dec=np.radians(10.0
     return 0.5 * (lo + hi), dec
 
 
-def build_edges(path, seed=20261114):
+def build_edges(path, seed=20261114, uvw_sign=1.0, drop=None):
+    """`uvw_sign=-1` writes UVW with the opposite sign (amendment 2: does
+    CASA's shadow read the column?); `drop` leaves out every row of that
+    antenna (can an antenna without rows shadow?)."""
     rng = np.random.default_rng(seed)
     xyz = itrf_positions()
-    pairs = [(a, b) for a in range(6) for b in range(a, 6)]  # with autocorrelations
+    pairs = [(a, b) for a in range(6) for b in range(a, 6)  # with autocorrelations
+             if drop is None or drop not in (a, b)]  # fmt: skip
     nbl = len(pairs)
     scans = ((1, 20, 0.0), (2, 1, 600.0), (3, 12, 1200.0), (4, 40, 2400.0))
     t_mid = T0 + 3 * 3600.0 + 2400.0 + 20 * DT
@@ -320,7 +342,8 @@ def build_edges(path, seed=20261114):
     nchan = 32
     t = _ms(path, n, nchan)
     with t:
-        _main_rows(t, times, a1, a2, scan, ddid, uvw(times, ra, dec, xyz, a1, a2))
+        _main_rows(t, times, a1, a2, scan, ddid,
+                   uvw_sign * uvw(times, ra, dec, xyz, a1, a2))  # fmt: skip
         shape = (n, nchan, 4)
         data = 10 * (rng.standard_normal(shape) + 1j * rng.standard_normal(shape))
         data = data.astype(np.complex64)
@@ -362,7 +385,8 @@ def build_edges(path, seed=20261114):
 def main(argv):
     out = Path(argv[0])
     out.mkdir(parents=True, exist_ok=True)
-    names = argv[1:] or ["syn-noise", "syn-rfi", "syn-edges"]
+    names = argv[1:] or ["syn-noise", "syn-rfi", "syn-edges", "syn-edges-uvwneg",
+                         "syn-edges-nom001"]  # fmt: skip
     info = {}
     for name in names:
         path = out / f"{name}.ms"
@@ -374,9 +398,15 @@ def main(argv):
             build_tfcrop(path, rfi=True)
         elif name == "syn-edges":
             info[name] = build_edges(path)
+        elif name == "syn-edges-uvwneg":
+            info[name] = build_edges(path, uvw_sign=-1.0)
+        elif name == "syn-edges-nom001":
+            info[name] = build_edges(path, drop=1)
         else:
             raise SystemExit(f"unknown case {name}")
-    (out / "cases.json").write_text(json.dumps(info, indent=1), encoding="utf-8", newline="\n")
+    (out / "cases.json").write_text(
+        json.dumps(info, indent=1), encoding="utf-8", newline="\n"
+    )
 
 
 if __name__ == "__main__":

@@ -100,7 +100,9 @@ class Meta:
     def corr_names(self):
         """CORR_TYPE names of the one cell layout (rows of one shape)."""
         pols = {int(self.dd_pol[d]) for d in np.unique(self.main["DATA_DESC_ID"])}
-        names = {tuple(STOKES.get(int(c), str(c)) for c in self.pol_corr[p]) for p in pols}
+        names = {
+            tuple(STOKES.get(int(c), str(c)) for c in self.pol_corr[p]) for p in pols
+        }
         if len(names) != 1:
             raise SelectionError(f"{self.path}: more than one correlation layout")
         return list(names.pop())
@@ -130,13 +132,19 @@ def read_meta(ms, reader=None):
         pol_corr = [np.asarray(t.getcol("CORR_TYPE", i, 1)[0]) for i in range(t.nrows)]
     with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
         n = t.nrows
-        spw_freq = [np.asarray(t.getcol("CHAN_FREQ", i, 1)[0], np.float64) for i in range(n)]
-        spw_width = [np.asarray(t.getcol("CHAN_WIDTH", i, 1)[0], np.float64) for i in range(n)]
+        spw_freq = [
+            np.asarray(t.getcol("CHAN_FREQ", i, 1)[0], np.float64) for i in range(n)
+        ]
+        spw_width = [
+            np.asarray(t.getcol("CHAN_WIDTH", i, 1)[0], np.float64) for i in range(n)
+        ]
         spw_names = [str(v) for v in t.getcol("NAME")] if n else []
     field_dir = np.asarray(_col(ms / "FIELD", "PHASE_DIR"), np.float64)
     field_dir = field_dir.reshape(len(field_dir), -1, 2)[:, 0, :]
     proc = ms / "PROCESSOR"
-    ptype = [str(v) for v in _col(proc, "TYPE")] if (proc / "table.dat").exists() else []
+    ptype = (
+        [str(v) for v in _col(proc, "TYPE")] if (proc / "table.dat").exists() else []
+    )
     meta = Meta(
         path=ms,
         main=main,
@@ -148,7 +156,9 @@ def read_meta(ms, reader=None):
         spw_freq=spw_freq,
         spw_width=spw_width,
         spw_names=spw_names,
-        dd_spw=np.asarray(_col(ms / "DATA_DESCRIPTION", "SPECTRAL_WINDOW_ID"), np.int64),
+        dd_spw=np.asarray(
+            _col(ms / "DATA_DESCRIPTION", "SPECTRAL_WINDOW_ID"), np.int64
+        ),
         dd_pol=np.asarray(_col(ms / "DATA_DESCRIPTION", "POLARIZATION_ID"), np.int64),
         pol_corr=pol_corr,
         processor_type=ptype,
@@ -225,7 +235,9 @@ def select_fields(meta, text):
         if re.fullmatch(r"[\d~<>\s]+", part):
             out |= _match_ids(part, ids, "field")
         else:
-            hit = np.array([fnmatch.fnmatchcase(nm, part) for nm in meta.field_names], bool)
+            hit = np.array(
+                [fnmatch.fnmatchcase(nm, part) for nm in meta.field_names], bool
+            )
             if not hit.any():
                 raise SelectionError(f"field={text!r}: no field named {part!r}")
             out |= hit
@@ -268,8 +280,10 @@ def select_baselines(meta, text):
         if amp == "":
             # CASA: every baseline with an antenna of the list, cross only
             # (section 9, convention A1).
-            sel = (lhs_m[0] | lhs_m[1]) & ~auto if CONV["antenna_plain_cross_only"] else (
-                lhs_m[0] | lhs_m[1]
+            sel = (
+                (lhs_m[0] | lhs_m[1]) & ~auto
+                if CONV["antenna_plain_cross_only"]
+                else (lhs_m[0] | lhs_m[1])
             )
         elif amp == "&&&":
             if right:
@@ -351,12 +365,16 @@ def select_uvrange(meta, text):
     uv = np.hypot(uvw[:, 0], uvw[:, 1])
     out = np.zeros(len(uv), bool)
     for part in _split(text):
-        m = re.fullmatch(r"([<>]?)\s*([\d.eE+-]+)\s*(?:~\s*([\d.eE+-]+))?\s*([a-zA-Z]*)", part)
+        m = re.fullmatch(
+            r"([<>]?)\s*([\d.eE+-]+)\s*(?:~\s*([\d.eE+-]+))?\s*([a-zA-Z]*)", part
+        )
         if not m:
             raise SelectionError(f"uvrange={text!r}: cannot parse {part!r}")
         unit = (m[4] or "m").lower()
         if unit not in UNITS_M:
-            raise SelectionError(f"uvrange={text!r}: unit {m[4]!r} not supported (m, km)")
+            raise SelectionError(
+                f"uvrange={text!r}: unit {m[4]!r} not supported (m, km)"
+            )
         k = UNITS_M[unit]
         a = float(m[2]) * k
         if m[3]:
@@ -385,7 +403,9 @@ def _freq_hz(text):
 def _chan_range(freq, width, part):
     """bool (nchan,) of one channel range `a~b`, `a`, or `f1~f2UNIT`."""
     nchan = len(freq)
-    m = re.fullmatch(r"\s*([\d.eE+-]+\s*[a-zA-Z]*)\s*(?:~\s*([\d.eE+-]+\s*[a-zA-Z]*))?\s*", part)
+    m = re.fullmatch(
+        r"\s*([\d.eE+-]+\s*[a-zA-Z]*)\s*(?:~\s*([\d.eE+-]+\s*[a-zA-Z]*))?\s*", part
+    )
     if not m:
         raise SelectionError(f"spw: cannot parse channels {part!r}")
     lo_s, hi_s = m[1], m[2] if m[2] is not None else m[1]
@@ -436,7 +456,11 @@ def select_spw(meta, text):
         elif re.fullmatch(r"[\d~<>\s]+", spw_s):
             spws = [s for s in range(nspw) if _match_ids(spw_s, [s], "spw")[0]]
         else:
-            spws = [s for s, nm in enumerate(meta.spw_names) if fnmatch.fnmatchcase(nm, spw_s)]
+            spws = [
+                s
+                for s, nm in enumerate(meta.spw_names)
+                if fnmatch.fnmatchcase(nm, spw_s)
+            ]
             if not spws:
                 raise SelectionError(f"spw={text!r}: no spectral window {spw_s!r}")
         for s in spws:
@@ -464,7 +488,9 @@ def parse_correlation(meta, text, mode):
     m = re.fullmatch(r"(ABS|ARG|REAL|IMAG|NORM)_(.*)", text)
     if m:
         if mode not in ("clip", "tfcrop"):
-            raise SelectionError(f"correlation={text!r}: operators are for clip and tfcrop")
+            raise SelectionError(
+                f"correlation={text!r}: operators are for clip and tfcrop"
+            )
         op, text = m[1], m[2]
     out = np.zeros(len(names), bool)
     for part in _split(text):
@@ -502,7 +528,9 @@ def select(meta, mode="manual", field="", spw="", antenna="", timerange="",
         proc = meta.main["PROCESSOR_ID"]
         if meta.processor_type:
             ok = np.array([t.upper() == "CORRELATOR" for t in meta.processor_type])
-            auto &= np.where((proc >= 0) & (proc < len(ok)), ok[np.clip(proc, 0, len(ok) - 1)], True)
+            auto &= np.where(
+                (proc >= 0) & (proc < len(ok)), ok[np.clip(proc, 0, len(ok) - 1)], True
+            )
         rows &= auto
     chans = (select_spw(meta, spw) if spw else
              {s: np.ones(len(f), bool) for s, f in enumerate(meta.spw_freq)})  # fmt: skip
@@ -515,12 +543,10 @@ def select(meta, mode="manual", field="", spw="", antenna="", timerange="",
 
 CONV = {
     "antenna_plain_cross_only": True,
-    "timerange": "centre",
-    "flag_row": "all",  # FLAG_ROW = every cell of the row flagged
+    "timerange": "centre",  # rows whose TIME is inside the range (T1)
     "quack_start": "time",  # scan start: first TIME (not TIME - INTERVAL/2)
     "quack_scan_key": ("OBSERVATION_ID", "ARRAY_ID", "SCAN_NUMBER", "FIELD_ID"),
     "elevation_frame": "geocentric",
-    "shadow_uvw": "column",
 }
 
 
@@ -562,7 +588,9 @@ def _data(w, columns, start, n):
     return w.read(columns[0], start, n) - w.read(columns[1], start, n)
 
 
-def quack_rows(meta, rows, interval, mode, increment=False, flag_row=None, flags_all=None):
+def quack_rows(
+    meta, rows, interval, mode, increment=False, flag_row=None, flags_all=None
+):
     """bool (nrow,) of the rows `quack` flags among `rows`."""
     m = meta.main
     time, half = m["TIME"], m["INTERVAL"] / 2.0
@@ -598,11 +626,6 @@ def quack_rows(meta, rows, interval, mode, increment=False, flag_row=None, flags
             raise SelectionError(f"quackmode {mode!r}")
         out[mine[hit]] = True
     return out
-
-
-def antenna_elevations(meta, times):
-    """(ntime, nant) elevation (rad) of each row's field per antenna."""
-    raise NotImplementedError
 
 
 def elevation_rows(meta, rows, lower, upper):
@@ -737,46 +760,53 @@ def _finish_rows(flag, flag_row_old, mode, whole_rows):
     return flag_row_old
 
 
-def run(ms, mode, sel_kw, params, flag_backup=core_writeback.DEFAULT_BACKUP, chunk_rows=None):
+def run(
+    ms, mode, sel_kw, params, flag_backup=core_writeback.DEFAULT_BACKUP, chunk_rows=None
+):
     """Run one writing mode on `ms`. `sel_kw` holds the selection keywords
     of `select`; `params` the mode's. Returns a `Result`."""
     ms = Path(ms)
     res = Result(mode=mode)
+    # Everything that can refuse runs before the write-back session opens,
+    # so a refused call leaves the MS (and its journal) as it was.
+    meta = read_meta(ms)
+    meta.nchan, meta.ncorr = core_writeback.layout(ms)["cell"]
+    sel = select(meta, mode, **sel_kw)
+    res.rows = int(sel.rows.sum())
+    if not res.rows:
+        # CASA: "MSSelectionNullSelection : The selected table has zero rows."
+        raise SelectionError("the selection has zero rows")
+    columns = DATACOLUMNS[str(params.get("datacolumn", "DATA")).upper()]
+    if mode in ("clip", "tfcrop"):
+        with core_ms.open_table(ms) as t:
+            missing = [c for c in columns if c not in t.columns]
+        if missing:
+            raise SelectionError(f"{ms} has no column {', '.join(missing)}")
+    whole_rows = not sel_kw.get("spw") and not sel_kw.get("correlation")
+    rowflag = None
+    if mode == "quack":
+        flags_all = None
+        if params.get("quackincrement"):
+            with core_ms.open_table(ms) as t:
+                flags_all = np.concatenate([
+                    np.asarray(t.getcol("FLAG", s0, n), bool).all(axis=(1, 2))
+                    for s0, n in core_writeback.flagversions.spans(meta.nrows, 1 << 14)
+                ])  # fmt: skip
+        rowflag = quack_rows(meta, sel.rows, float(params.get("quackinterval", 1.0)),
+                             params.get("quackmode", "beg"),
+                             bool(params.get("quackincrement")), flags_all=flags_all)  # fmt: skip
+    elif mode == "elevation":
+        rowflag = elevation_rows(meta, sel.rows, float(params.get("lowerlimit", 0.0)),
+                                 float(params.get("upperlimit", 90.0)))  # fmt: skip
+    elif mode == "shadow":
+        rowflag = shadow_rows(meta, sel.rows, float(params.get("tolerance", 0.0)))
     with core_writeback.WriteBack(ms, flag_backup=flag_backup, stage=f"flagdata {mode}",
                                   chunk_rows=chunk_rows) as w:  # fmt: skip
         spans = list(w.chunks(chunk_rows))
-
-        def reader(name):
-            return np.concatenate([w.read(name, s0, n) for s0, n in spans])
-
-        meta = read_meta(ms, reader)
-        meta.nchan, meta.ncorr = w.cell
-        sel = select(meta, mode, **sel_kw)
-        res.rows = int(sel.rows.sum())
-        if not res.rows:
-            # CASA: "MSSelectionNullSelection : The selected table has zero rows."
-            raise SelectionError("the selection has zero rows")
-        whole_rows = not sel_kw.get("spw") and not sel_kw.get("correlation")
-        rowflag = None
-        if mode == "quack":
-            flags_all = None
-            if params.get("quackincrement"):
-                flags_all = np.concatenate([
-                    w.read("FLAG", s0, n).all(axis=(1, 2)) for s0, n in spans
-                ])  # fmt: skip
-            rowflag = quack_rows(meta, sel.rows, float(params.get("quackinterval", 1.0)),
-                                 params.get("quackmode", "beg"),
-                                 bool(params.get("quackincrement")), flags_all=flags_all)  # fmt: skip
-        elif mode == "elevation":
-            rowflag = elevation_rows(meta, sel.rows, float(params.get("lowerlimit", 0.0)),
-                                     float(params.get("upperlimit", 90.0)))  # fmt: skip
-        elif mode == "shadow":
-            rowflag = shadow_rows(meta, sel.rows, float(params.get("tolerance", 0.0)))
         if mode in ("tfcrop", "extend"):
             _run_chunked(w, meta, sel, mode, params, spans, res)
         else:
             digest = hashlib.sha256()
-            columns = DATACOLUMNS[params.get("datacolumn", "DATA").upper()] if mode == "clip" else ()
             for s0, n in spans:
                 flag = w.read("FLAG", s0, n).astype(bool)
                 old_row = w.read("FLAG_ROW", s0, n).astype(bool)
@@ -826,9 +856,7 @@ def _run_chunked(w, meta, sel, mode, params, spans, res):
         res.cells_selected += int(cells.sum())
         res.flagged_before += int(flag.sum())
         if mode == "tfcrop":
-            data = np.concatenate([_data(w, columns, int(r), 1) for r in mine]) if False else (
-                _read_data_rows(w, columns, mine, spans)
-            )
+            data = _read_data_rows(w, columns, mine, spans)
             values = _value(data, sel.operator)
             new = tfcrop.flag_chunk(values, flag, cells, a1[mine], a2[mine],
                                     meta.main["TIME"][mine], chunk[mine], params)  # fmt: skip
@@ -851,7 +879,9 @@ def _run_chunked(w, meta, sel, mode, params, spans, res):
     res.extra["added"] = counts
     digest = hashlib.sha256()
     for s0, n in spans:
-        digest.update(np.ascontiguousarray(w.read("FLAG", s0, n).astype(bool)).tobytes())
+        digest.update(
+            np.ascontiguousarray(w.read("FLAG", s0, n).astype(bool)).tobytes()
+        )
     res.flag_sha256 = digest.hexdigest()
 
 
@@ -882,7 +912,9 @@ def _read_data_rows(w, columns, rows, spans):
 
     if len(columns) == 1:
         return _read_rows(w, columns[0], rows, spans)
-    return _read_rows(w, columns[0], rows, spans) - _read_rows(w, columns[1], rows, spans)
+    return _read_rows(w, columns[0], rows, spans) - _read_rows(
+        w, columns[1], rows, spans
+    )
 
 
 def _write_rows_flags(w, rows, flag, spans):
@@ -943,7 +975,12 @@ def summary(ms, sel_kw, spwchan=False, spwcorr=False, basecnt=False, fieldcnt=Fa
             for xs in (x1, x2):
                 for v in np.unique(xs[xs >= 0]):
                     pick = xs == v
-                    add("antenna", int(v), int(tot_r[pick].sum()), int(flg_r[pick].sum()))
+                    add(
+                        "antenna",
+                        int(v),
+                        int(tot_r[pick].sum()),
+                        int(flg_r[pick].sum()),
+                    )
                     if basecnt:
                         sc = m["SCAN_NUMBER"][sl]
                         for s_ in np.unique(sc[pick]):
@@ -959,9 +996,16 @@ def summary(ms, sel_kw, spwchan=False, spwcorr=False, basecnt=False, fieldcnt=Fa
                     pick = values == v
                     add(group, int(v), int(tot_r[pick].sum()), int(flg_r[pick].sum()))
             for c, cname in enumerate(corr_names):
-                add("correlation", cname, int(cells[:, :, c].sum()), int(f[:, :, c].sum()))
+                add(
+                    "correlation",
+                    cname,
+                    int(cells[:, :, c].sum()),
+                    int(f[:, :, c].sum()),
+                )
             if basecnt:
-                for bl in np.unique(np.stack([m["ANTENNA1"][sl], m["ANTENNA2"][sl]], 1), axis=0):
+                for bl in np.unique(
+                    np.stack([m["ANTENNA1"][sl], m["ANTENNA2"][sl]], 1), axis=0
+                ):
                     pick = (m["ANTENNA1"][sl] == bl[0]) & (m["ANTENNA2"][sl] == bl[1])
                     key = f"{meta.ant_names[bl[0]]}&&{meta.ant_names[bl[1]]}"
                     add("baseline", key, int(tot_r[pick].sum()), int(flg_r[pick].sum()))
@@ -981,10 +1025,23 @@ def summary(ms, sel_kw, spwchan=False, spwcorr=False, basecnt=False, fieldcnt=Fa
 
 
 def _summary_record(meta, acc, total, flagged, name):
-    out = {"name": name, "type": "summary", "total": float(total), "flagged": float(flagged)}
+    out = {
+        "name": name,
+        "type": "summary",
+        "total": float(total),
+        "flagged": float(flagged),
+    }
     ant = {meta.ant_names[k]: v for k, v in acc.get("antenna", {}).items()}
-    out["antenna"] = {k: {"total": float(v[0]), "flagged": float(v[1])} for k, v in ant.items()}
-    names = {"array": str, "observation": str, "scan": str, "spw": str, "correlation": str}
+    out["antenna"] = {
+        k: {"total": float(v[0]), "flagged": float(v[1])} for k, v in ant.items()
+    }
+    names = {
+        "array": str,
+        "observation": str,
+        "scan": str,
+        "spw": str,
+        "correlation": str,
+    }
     for group, conv in names.items():
         out[group] = {conv(k): {"total": float(v[0]), "flagged": float(v[1])}
                       for k, v in acc.get(group, {}).items()}  # fmt: skip
