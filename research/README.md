@@ -284,6 +284,7 @@ The 2026-09 simulations that led here are under [Historical pilots](#historical-
 ## Gridders and imaging
 
 - [a visibility-free major cycle and the gridder's Lean theorems](gridder-theory.md): a fixed-cost w-aware normal operator, ×13 fewer instructions per pass at 31 M visibilities, no gain on gemclean's 3-5 cycles, ×3.4 at 87; known idea, prior art in the note.
+- [Multiscale on DF5-O, the A1 miss](multiscale-df5o-a1.md) (#23, protocol 2026-11-13): GeMClean `-multiscale` on DF5-O's field with DF5-O's scorer; does it fail A1 on p16, p23, p26 as WSClean 3.7 does, and which scale takes the flux; no fix.
 - [DF5-O, the deconvolution oracles](df5o-deconv-oracles.md): WSClean and pfb-imaging frozen on a simulated MeerKAT field; their dirty images agree with the core's to 1.7e-7 and 2.6e-7 of the peak; WSClean Högbom and pfb kclean/Clark meet the truth tolerances A1 and A2, and WSClean multiscale meets A2 and fails A1 on three sources.
 - [DF2c, `--gridder` for the campaign runs](df2c-campaign-gridder.md): K/L1/L2/L1-M/C1 take `wgrid` with its plan in the receipts, the default bit-identical; L2, L1-M and C1 re-imaged post hoc, no call changes.
 - [X2, the GPU gridder](x2-wgpu.md): the w-stacking gridder and FFT on wgpu (feature `gpu`, f64), C/I/K comparators pass on the RTX 4070 Ti, 2.5–3.3× over 16 CPU threads at four stations, 1.2× at whole-array scale; f32 fails K.
