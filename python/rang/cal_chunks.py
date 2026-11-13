@@ -92,7 +92,8 @@ def plan(time_bin, nchan, ncorr, budget, *, per_channel, what="solve", average=N
         limit = (
             ""
             if budget.limit_gb is None
-            else f", above data.memory_limit_gb {budget.limit_gb:g}"
+            else ", above data.memory_limit_gb "
+            + (budget.limit_text or f"{budget.limit_gb:g}")
         )
         smallest = (
             "one channel of one solution interval"
