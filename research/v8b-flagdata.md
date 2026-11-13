@@ -348,3 +348,39 @@ flag is marginal):
 - rang 01c (F1 in the NumPy reference, one pass): `syn-noise` T1 precision
   0.96, recall 0.64 (the sharp-minimum planes); `syn-rfi` T1 1.00, 0.40;
   `a1` T1 0.65, 0.20. H1 fails G3 everywhere at round 1.
+
+Round 2 (CASA round 02, the `probe-fit` probe: 112 planes, each a known band
+shape times (1 ± e) with e = 0.002, 0.005 or 0.02 alternating in time and
+channel, so that the relative deviation of every point is exactly e;
+`flagdimension='freq'`, `extendflags=False`; arms P1 defaults, P2
+`maxnpieces=1`, P3 3, P4 9, P5 `freqfit='line'`, P6 the time direction):
+
+- F2 (read off P1-P5): the flagged channels barely depend on e, so the
+  per-row threshold is 3 × the rms of r **including the fit's own misfit**,
+  as F1 has it: a flag marks where the fit leaves the band by more than 3 ×
+  the row's rms. Lines are never flagged (P1-P5), cubics never with one
+  piece and x⁴ is (P2), so a piece is a cubic and `freqfit='line'` fits
+  lines; steps, Vs and narrow bumps are flagged near the feature with every
+  piece count.
+- Open: the fit itself. With one piece (P2) the best of the fits tried
+  (least squares, iterated one-sided or two-sided clipping at 1-3 sd, 1-10
+  iterations, flag iterations 1-10, relative or absolute residual, float32 or
+  float64 normal equations) reproduces CASA's channels on 54 of 112 planes
+  (98.5 % of cells); plain least squares matches some shapes exactly
+  (`sine2`: channels 253-255) and not others (`poly4`: CASA flags channels
+  0-2 and 253-255 where least squares gives |r| / rms ≤ 2.4; a one-sided
+  sine is flagged on one side only, which least squares cannot do).
+- rang round 02 (F1 reference, unchanged): the same T verdicts as rang 01c;
+  T5 and T6 (window statistics) now run and fail (precision 0.04-1.00,
+  recall 0.26-0.59).
+
+**Status of H1 at the end of this session: development gate not met after
+round 2 of the four the stop rule allows; the held-out case was not opened.**
+`rang.tasks.flagdata` refuses `mode='tfcrop'` (the NumPy reference stays in
+`rang.tfcrop` behind `ENABLED`, for the harness), and no Rust kernel was
+written, since the algorithm it would port is not yet known. Two routes on:
+two more probe rounds aimed at the fit (single-piece shapes with one feature
+each, then piece boundaries), or the owner allowing a read of CASA's
+`FlagAgentTimeFreqCrop.cc` under decision 5 (the file's licence header is
+GPL or LGPL "or later" if it is like the flagging files E5 checked; this
+session had no permission to read it).
