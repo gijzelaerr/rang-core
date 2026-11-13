@@ -59,7 +59,8 @@ change.
     at the first pooled map, so a stage with nothing to split starts no process.
   - Each worker's initializer sets `RAYON_NUM_THREADS = max(1, T // N)` before any kernel runs. T is `data.threads`
     when set, else the parent's `RAYON_NUM_THREADS`, else `os.cpu_count()`.
-  - At most N tasks are in flight. The parent holds at most N partials that are finished but not yet written.
+  - At most 2N tasks are in flight, so workers are not left idle behind a slow first task. The parent holds at most
+    2N partials that are finished but not yet written. Amendment 1 (2026-11-13, before any code): this was N.
 - **Errors**: a failed task raises when its turn in plan order comes. Everything before it has been written, as in the
   serial loop, and nothing after it. Pending tasks are cancelled. So the MS on disk at a failure equals the serial
   run's.
@@ -101,7 +102,7 @@ Where this departs from the issue's wording:
   under `limit / N`. Each worker pays `BASE_BYTES` and the row bytes as a process of its own. Preflight therefore
   refuses before anything is written when one worker's smallest unit does not fit `limit / N`, with W3's messages and
   the per-process limit named. At N = 1 nothing changes.
-- On top of that, the parent holds the stage's row metadata and up to N unwritten partials: 1 byte per cell for flag,
+- On top of that, the parent holds the stage's row metadata and up to 2N unwritten partials: 1 byte per cell for flag,
   9 for apply, solutions for calibrate. That is not inside `limit / N` per worker. Peak memory is **reported, not
   gated**, in this stage. On Windows there is no `/usr/bin/time` and no gate needs it.
 - Chunk boundaries at N > 1 differ from N = 1 at the same limit. That changes nothing in the results (W3's and W3b's
