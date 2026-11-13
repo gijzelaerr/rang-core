@@ -2,9 +2,9 @@
 
 2026-11-13, branch `claude/msv2-edge-cases-580d8b`, first part of
 gijzelaerr/rang-core issue #5 (`research/multi-node-scope.md` section 7 on
-branch `roadmap-v030`, Simon Perkins' reply). Status: **proposed and frozen**
-(this section and sections 1 to 4 were committed before any case was read
-by ra-ng). This note makes no performance or science claim. It checks
+branch `roadmap-v030`, Simon Perkins' reply). Status: **measured**. The
+introduction and sections 1 to 4 were frozen in `c345bc1`, before ra-ng read
+any case; section 5 and the post-hoc changes came later. This note makes no performance or science claim. It checks
 reader correctness against an oracle.
 
 ## Question
@@ -216,10 +216,170 @@ The native comparison:
 .venv/Scripts/python research/results/msv2-edge-cases/edge_cases.py check D:/rang/outputs/msv2-edge-cases/20261113 research/results/msv2-edge-cases.json
 ```
 
-## 5. Results
+## 5. Results (2026-11-13)
 
-Not run yet.
+Run 01:
+
+- **Reader:** the extension built by `tools/check_all.py --quick` (PASS)
+  from `c345bc1`, with `rang._core` loaded from the worktree.
+- **Cases and dumps:** `D:\rang\outputs\msv2-edge-cases\20261113`.
+- **Receipt:** [`results/msv2-edge-cases.json`](results/msv2-edge-cases.json).
+  It holds, per table and column, the outcome, the manager and up to six
+  notes, plus the xarray-ms outcomes and the versions. `check` takes 2 s.
+
+**Scale:** 116 tables (10 standalone, 8 MS main tables, 98 subtables), 1009
+columns and 5333 cells, of which arcae calls 276 unwritten.
+
+**Oracle check:** arcae and python-casacore disagree on 0 cells.
+
+**Outcome per column:**
+
+| outcome | columns | where |
+| --- | ---: | --- |
+| match | 928 | everything not listed below |
+| mismatch | **0** | – |
+| refusal | 55 | t05 (1); t06 (5); t07 `ISM` (1); 6 POINTING columns in each of the 8 MSs (48) |
+| ra-ng only | 26 | t01 `I32` (1); t10 (3); HISTORY `APP_PARAMS` and `CLI_COMMAND` in every MS (16); 6 more columns in m08 |
+
+**Matches, by feature:**
+
+- **Unwritten WEIGHT_SPECTRUM (m01 to m03):** values and unwritten masks
+  are equal in all three forms: TiledShapeStMan, indirect StandardStMan,
+  and a partly written column. Both readers report the same cells
+  unwritten: 18 in m01, 18 in m02 and 12 in m03.
+- **Never-written fixed-shape cells (m04 TiledColumnStMan, t02, t04):**
+  arcae and casacore call them defined, and ra-ng returns the same bytes.
+- **Variable-shape and partly filled columns (t01, t03, t08):**
+  - In t01 and t03 (two shapes and unwritten rows, in StandardStMan and
+    TiledShapeStMan, for float32, complex64, bool and an ndim 3 float64),
+    every cell and mask is equal.
+  - On whole-column reads over unwritten or mixed-shape rows, both readers
+    refuse (parity).
+  - The reverse-order `getcol_rows` route is equal wherever arcae reads.
+  - In t08, alternating shapes and reused hypercubes are equal.
+- **Variable shape across spectral windows (m05, m06):** DATA, FLAG and
+  WEIGHT_SPECTRUM are equal cell by cell, in TiledShapeStMan and in
+  StandardStMan, and so is SPECTRAL_WINDOW `CHAN_FREQ`.
+- **String arrays:** t07 `VAR`, `FIXED` and `DIRECT`, and FEED
+  `POLARIZATION_TYPE`, are equal, including an unwritten variable-shape
+  cell and non-ASCII text.
+- **Big-endian table (t09):** StandardStMan, IncrementalStMan scalars and
+  TiledShapeStMan are equal.
+- **Empty subtables and tables:** SOURCE, SYSCAL, HISTORY, STATE,
+  PROCESSOR, FLAG_CMD, t10 and the m08 main table have equal row counts,
+  column sets, types and fixed shapes.
+- **Descriptions:** no table differs in row count, column set, value type
+  or fixed shape.
+
+**Refusals:**
+
+- **TiledCellStMan (t05):** "storage manager TiledCellStMan is not
+  supported".
+- **IncrementalStMan holding an array or string column (t06, t07,
+  POINTING):** "IncrementalStMan array or string column S is not
+  supported".
+  - **Predicted:** the refusal of the array and string columns themselves.
+  - **Not predicted:** the refusal is per storage manager, not per column.
+    Every scalar column in the same IncrementalStMan is refused with it:
+    t06 `I32`, `F64` and `B`, and POINTING `TIME`, `INTERVAL`, `NAME`,
+    `NUM_POLY`, `TIME_ORIGIN` and `TRACKING`, even in POINTING tables with
+    no rows.
+  - **Real MSs:** `default_ms` puts most of POINTING, `DIRECTION` and
+    `TARGET` included, in one IncrementalStMan, and so do CASA-written MSs
+    (`D:\rang\c3a\c3a-20261106-01\A-casa.ms`,
+    `D:\rang\outputs\c7a-20261106-03\M1-casa.ms`, both checked with ra-ng's
+    description: those columns are marked unsupported). Any POINTING read
+    is therefore blocked in such MSs.
+
+**ra-ng only** (arcae 0.5.9's limits; not ra-ng tasks):
+
+- **A defined int32 cell of shape [0]** (t01 `I32` row 7): ra-ng returns
+  the empty array, equal to casacore's `getcell`; arcae raises "list_size
+  needs to be a strict positive integer".
+- **Whole-column reads of variable-shape and string columns in 0-row
+  tables:** arcae raises "Data partition produced no chunks!".
+
+**xarray-ms 0.5.14, per MS:**
+
+| MS | VISIBILITY | FLAG | WEIGHT | UVW | SIGMA_SPECTRUM |
+| --- | --- | --- | --- | --- | --- |
+| m01 to m07 (9 partitions) | match | match | match | match | derived by xarray-ms (no column) |
+| m08 (no rows) | fails at open: "range() arg 3 must not be zero" | | | | |
+
+- **Unwritten WEIGHT_SPECTRUM cells:** xarray-ms holds NaN exactly where
+  ra-ng reports a cell unwritten, and equal values elsewhere.
+- **Warnings:** every MS warns `ImputedMetadataWarning` about the empty
+  STATE and PROCESSOR tables, and no column is left out.
+
+**Post-hoc changes to `check`** (2026-11-13, after the first run; each is
+marked in the script):
+
+1. **SIGMA_SPECTRUM:** xarray-ms exposes it without such a column (derived
+   from SIGMA), and the first run stopped with a KeyError. It is now
+   recorded as derived and not compared.
+2. **Booleans:** arcae returns boolean cells as uint8 0 and 1, where
+   python-casacore and ra-ng return bool. Under the frozen rule (same dtype)
+   every boolean column, every FLAG and FLAG_ROW among them, was a
+   mismatch. They are now compared as bool when every value is 0 or 1; any
+   other value still fails.
+3. **Fixed shapes:** `getcoldesc` (arcae and python-casacore) gives a fixed
+   shape in NumPy order, and ra-ng's description in casacore order. The
+   frozen script assumed casacore order on both sides and reported 4
+   description differences (t02, t04, t10); it now reverses ra-ng's shape
+   first.
+4. **Time:** xarray-ms's `time` coordinate is in Unix seconds and TIME is
+   in MJD seconds, so every grid point first came out as "no row". Rows are
+   now mapped at TIME = time + 3506716800 s.
+5. **Triage scalars:** the triage compared python-casacore's scalar cells
+   (Python numbers, so int64 and float64) by dtype, which gave 2255 false
+   disagreements. Scalars are now compared by value.
+
+None of these changes how ra-ng's values are judged. After them, every
+match is exact in values and in unwritten masks.
+
+**Throughput (optional item 4):** not measured.
+
+- The host was full (16 of 16 heavy-lock slots, about 14 jobs queued), and
+  the task allowed no exclusive lock.
+- arcae runs only in WSL, so it would read `D:` through the Windows mount
+  while ra-ng reads natively.
+
+Left open.
+
+## 6. Reader tasks
+
+None is started; fixes wait for the coordinator.
+
+| id | task | cases | weight |
+| --- | --- | --- | --- |
+| R1 | IncrementalStMan: refuse per column, not per manager. Supported scalars read even when the manager also holds an array or string column, and 0-row reads succeed. | t06 `I32`, `F64`, `B`; POINTING `TIME`, `INTERVAL`, `NAME`, `NUM_POLY`, `TIME_ORIGIN`, `TRACKING` (8 MSs) | high: unblocks POINTING scalars in CASA-written MSs; small change |
+| R2 | IncrementalStMan string scalars, string arrays and fixed-shape arrays, as arcae and casacore read them | t06 `S`, `ARR`; t07 `ISM`; POINTING `DIRECTION`, `TARGET` | medium: POINTING directions |
+| R3 | TiledCellStMan | t05 | low: seen in no MeerKAT or CASA MS here |
+
+**Not covered, for a second round:**
+
+- TiledDataStMan, adios2 and Dysco;
+- a string array with a filled flag of 0;
+- the cases Simon Perkins has seen break readers (asked in #5).
 
 ## For the coordinator
 
-Not run yet.
+- **Run:** freeze `c345bc1`, then run 01 on `claude/msv2-edge-cases-580d8b`.
+- **Matches:** of 1009 columns in 116 tables, 928 match arcae exactly, in
+  values and in unwritten masks, and **0 mismatch**. The matching cases are
+  unwritten WEIGHT_SPECTRUM in three forms, variable-shape DATA across
+  spectral windows, partly filled columns, string arrays, the tiled
+  managers, a big-endian table and empty subtables.
+- **Refusals:** 55 refusals reduce to three reader tasks (section 6). R1 is
+  small and unblocks the POINTING scalars of CASA-written MSs; R2 reads
+  POINTING directions; R3 (TiledCellStMan) is low priority.
+- **ra-ng reads where arcae refuses:** 26 columns, all arcae 0.5.9 limits
+  (a shape-[0] cell, whole reads of 0-row columns). Worth telling Simon.
+- **xarray-ms:** equal to ra-ng on every variable it exposes in m01 to m07,
+  NaN exactly at unwritten cells; it fails at open on an MS with no rows.
+- **Post hoc:** five changes to `check`, all on the oracle or harness side
+  (section 5).
+- **Throughput:** not measured; a shared host gives no fair number.
+- **Checks:** no reader code changed. `check_all --quick` passed; the full
+  check is not needed.
+- **Decision:** schedule R1 (and R2 after it)?

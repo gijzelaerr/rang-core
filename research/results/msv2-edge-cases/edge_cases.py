@@ -25,6 +25,7 @@ import numpy as np
 
 SEED = 20261113
 UNWRITTEN = ("has no array", "has no tiled array")
+UNIX_MJD = 3506716800.0  # 1970-01-01 in MJD seconds
 
 # ---------------------------------------------------------------------------
 # make (python-casacore)
@@ -773,6 +774,8 @@ RANK = {"mismatch": 3, "refusal": 2, "ra-ng only": 1, "match": 0}
 
 def check_column(rt, col, oracle):
     """Outcome of one column, with the details that decide it."""
+    if oracle["desc"].get("valueType") == "boolean":
+        oracle = _arcae_bools(oracle)
     nrows = len(oracle["cells"])
     notes, outcome = [], "match"
     rang_cells = []
@@ -842,6 +845,27 @@ def check_column(rt, col, oracle):
     return outcome, notes, rang_cells
 
 
+def _arcae_bools(oracle):
+    """Post hoc (2026-11-13): arcae returns boolean cells as uint8 0/1
+    (python-casacore as bool); read them as bool. A value other than 0 or 1
+    is left as it is, so it still fails the comparison."""
+
+    def conv(x):
+        if x is None or _is_error(x):
+            return x
+        a = np.asarray(x)
+        if a.dtype == np.uint8 and np.isin(a, (0, 1)).all():
+            return a.astype(bool)
+        return x
+
+    out = dict(oracle)
+    out["cells"] = [conv(x) for x in oracle["cells"]]
+    for k in ("whole", "rev"):
+        if k in oracle:
+            out[k] = conv(oracle[k])
+    return out
+
+
 def _summ(v):
     a = _norm(v)
     return f"{a.dtype}{list(a.shape)}"
@@ -866,8 +890,10 @@ def check_description(rt, oracle):
             diffs.append(f"{col} dtype {c['dtype']} != {o['desc']['valueType']}")
         shape = o["desc"].get("shape")
         # Both are casacore descriptions: the shape in casacore axis order.
+        # Post hoc (2026-11-13): getcoldesc (arcae and python-casacore) gives
+        # the shape in NumPy order, ra-ng's description in casacore order.
         fixed = o["desc"].get("option", 0) & 4 and shape is not None
-        if fixed and list(c["shape"]) != list(shape):
+        if fixed and list(c["shape"])[::-1] != list(shape):
             diffs.append(f"{col} fixed shape {c['shape']} != {shape}")
     return diffs
 
@@ -905,13 +931,20 @@ def check_xms(case, entry, main_cells, rt_main):
             column = {"VISIBILITY": "DATA", "WEIGHT": "WEIGHT_SPECTRUM"}.get(var, var)
             if column not in main_cells:
                 column = "WEIGHT" if var == "WEIGHT" else column
+            if column not in main_cells:
+                # Post hoc (2026-11-13): xarray-ms derives the variable from
+                # another column (SIGMA_SPECTRUM from SIGMA); not compared.
+                out[key] = "derived by xarray-ms (no such column)"
+                continue
             cells = main_cells[column]
             values = got["values"]
             bad = []
             for ti, t in enumerate(d["time"]):
                 for bi, (n1, n2) in enumerate(zip(d["ant1"], d["ant2"])):
                     x = values[ti, bi]
-                    r = index.get((float(t), n1, n2))
+                    # Post hoc (2026-11-13): xarray-ms's time is Unix seconds,
+                    # TIME is MJD seconds; the epochs differ by 3506716800 s.
+                    r = index.get((float(t) + UNIX_MJD, n1, n2))
                     fill = np.ones_like(x) if var == "FLAG" else np.full_like(x, np.nan)
                     if r is None:
                         if not np.array_equal(x, fill, equal_nan=True):
@@ -982,15 +1015,20 @@ def check(root, out_path):
         # Triage: arcae against python-casacore.
         cc = casa["data"].get((case, name), {}).get("columns", {})
         for col, o in oracle.get("columns", {}).items():
+            if o["desc"].get("valueType") == "boolean":
+                o = _arcae_bools(o)
             for r, (a, c) in enumerate(
                 zip(o["cells"], cc.get(col, {}).get("cells", []))
             ):
-                if (a is None) != (c is None) or (
-                    a is not None
-                    and not _is_error(a)
-                    and not _is_error(c)
-                    and not equal(a, c)
-                ):
+                # Post hoc (2026-11-13): python-casacore returns scalar cells
+                # as Python numbers (int64, float64): compare scalars by value.
+                if a is None or _is_error(a) or _is_error(c):
+                    same = True
+                elif o["is_array"]:
+                    same = equal(a, c)
+                else:
+                    same = np.asarray(a).tolist() == np.asarray(c).tolist()
+                if (a is None) != (c is None) or not same:
                     result["oracle_disagreements"].append(f"{label} {col} row {r}")
         if "error" in oracle:
             row["oracle_open"] = oracle["error"]
