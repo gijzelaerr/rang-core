@@ -103,11 +103,19 @@ All under `tools/heavy_lock.py` in shared slots, on `D:\rang\scratch\e5b`, Pytho
   wheel only, public PyPI): `Requires-Dist` numpy>=1.26, pyyaml>=6, astropy>=6; astropy 8.0.2 resolved;
   `rang.cal_pol.parallactic_angle` runs (2.072 rad on a MeerKAT position). F-01 closed on Windows; only the CI cells show astropy
   resolving on every platform and Python.
-- **Skip audit** (`pytest -rs -n 8`, worktree venv, `a6ed448`'s tree): 78 skips, every one an absent input or oracle run (ignored
-  `outputs/`, E2/E3/E4 run directories, archived fixtures, Docker), an optional dependency this venv lacks (`[meerkat]`,
-  python-casacore/casacure, pandas, nbconvert, ducc0, comrak), a platform (5 POSIX only, Windows symlinks, Linux-archived libm
-  digits, the Linux deploy job), the GPU feature not compiled, or `RANG_NOTEBOOK_CARTA` unset. None hides a test of this branch's
-  changes; the E5-02 and F-01 tests ran.
+- **Bare `pip install` chain after F-01:** `tools/e2e/run.py --installed` with `venv-bare2`'s `rang-core` (the wheel and its three
+  required dependencies only, nothing else): passed, 14 s (generate 3.5 s, run 8.7 s: flag 0.9, calibrate 1.6, apply 1.1, image
+  4.3), residual 0.705 mJy as in the CI runs. The first run of the whole chain from a bare install; output
+  `D:\rang\scratch\e5b\e2e-bare2`. The wheel's `licenses/THIRD-PARTY-NOTICES.txt` has the CASA section.
+- **Skip audit** (`pytest -rs -n 8`, worktree venv, run in the first final hold on `0bb0109`'s tree; the `a6ed448` check shows the
+  same 78): every skip is an absent input or oracle run (ignored `outputs/`, E2/E3/E4 run directories, archived fixtures, Docker),
+  an optional dependency this venv lacks (`[meerkat]`, python-casacore, casacure, pandas, nbconvert, ducc0, comrak), a platform
+  (5 POSIX only, Windows symlinks, Linux-archived libm digits, the Linux deploy job), the GPU feature not compiled, or
+  `RANG_NOTEBOOK_CARTA` unset. The skips that guard files this branch changed were run by hand: with comrak and readme_renderer
+  installed for the run, `test_rendered_readme_has_no_relative_url` passed (README); with ducc0, `test_matches_ducc0_when_available`
+  passed (`wgridder.rs`, comments only); the tutorial notebook (nbconvert, pandas) was executed from the `7a3080a` wheel (above),
+  and the one cell changed since is text. The E5-02 and F-01 tests ran in the check. The tally keeps reasons, not test names. Not
+  explained here: the sliced-read check's 1,282 passed against these 1,245 (another venv and head; its skip list was not compared).
 - **Malformed configurations:** agent B's 46-case sweep (`e5f-new-code.md`, item 7): clear exit-2 messages except NEW-05 to NEW-08.
 - **Docs site:** `sphinx-build -W --keep-going` of `docs/` (worktree venv, sphinx 9.2.0, notebooks not executed): no warning;
   `limits.html` built.
@@ -124,14 +132,17 @@ path's leading `\\`.
 Final run on `a6ed448` (the same archive, reachable; heavy lock shared, 8 slots, 12 GB), after E5-02 and F-05: **overall PASS**,
 2,488 s (the host shared with queued work). fmt (root, core, extension), ruff, ruff format, `git diff --check`; root build, test
 (23 passed, 1 ignored) and clippy; core build, test (269) and clippy; GPU clippy and test (275); extension build and clippy; pytest
-1,245 passed, 78 skipped (section 4's skip audit); gain-hash gate PASS (5 hashes). The run before it, on `0bb0109`, failed only
+1,245 passed, 78 skipped (section 4's skip audit); gain-hash gate PASS (5 hashes). Run record
+`D:\rang\scratch\e5b\check-final2.json`. The run before it, on `0bb0109`, failed only
 core clippy (`collapsible_if` on E5-02's two new `if` blocks), fixed in `a6ed448` with let-chains, no change of behaviour.
 
 ## 5. For the coordinator
 
 **Branch** `claude/e5-final-early-b94bc5`, cut from local main `2899c23`; not pushed, not merged. Commits, one per fix:
 `b6e8b52` SPDX, `81e4cf8` E5-12, `61c15a8` docs (E5-08, 17, 32, 35, F-04), `397ab0c` E5-29, `af5e038` NEW-04, NEW-13,
-`27a2e2c` F-03, `25329b5` limits page and CHANGELOG, `53ad094` DOC-17, `4cf782f` F-01, `1a97c39` index; the rest are this note.
+`27a2e2c` F-03, `25329b5` limits page and CHANGELOG, `53ad094` DOC-17, `4cf782f` F-01, `1a97c39` index, `47559c9` E5-12's
+further notices, `86edab1` and `a6ed448` E5-02, `0bb0109` F-05; the rest are this note, its CHANGELOG lines and tool timings. The
+full check passed on `a6ed448`; later commits touch `research/` and `CHANGELOG.md` only.
 
 **E2 safety.** `git diff 2899c23 HEAD -- python/rang core src` touches `core_ms.py`, `ms.rs`, `ffi_ms.rs`, `grid.rs`,
 `weights.rs`, `wgridder.rs` in comment lines only, and `simtruth_ms.py` (A1's generator, not on E2's or E3's path). No configuration
@@ -140,15 +151,16 @@ module changed, so no stage hash can change. F-01 changes the wheel's metadata, 
 gemclean's path) and F-05 adds comment lines under the SPDX line of `core/src/cal/*.rs`, `flag_extend.rs`, `rang.cal_*`,
 `rang.applycal` and `rang.formats.caltable`; still no configuration module, so no stage hash.
 
+**Stale after other merges.** `docs/limits.md`'s "Table lock on Linux only" goes stale if the ms-lock-windows worktree's branch
+merges; update that line with it.
+
 **Merging.** `CHANGELOG.md` will conflict with any branch that adds to Unreleased (take both). `docs/cli.md` is generated: run
 `python docs/gen_cli.py` after merging anything that changes a help text or `config defaults`. `tests/test_spdx_headers.py` now has
 no `PENDING` files, so a merged branch that adds an unstamped source file fails it.
 
 **Decisions:**
-1. **F-01, astropy required** (`4cf782f`, coordinator or owner). The alternative is a clear refusal of polarisation terms
-   without astropy, plus "pip install 'rang-core[imaging]'" everywhere the docs say `pip install rang-core`. Requiring it adds three
-   wheels (astropy, pyerfa, astropy-iers-data) and keeps finish-line item 1's wording true. Drop the commit to choose the
-   alternative.
+1. **F-01, astropy required** (`4cf782f`): decided, the coordinator kept it (2026-11-12). It adds three wheels (astropy, pyerfa,
+   astropy-iers-data).
 2. **E5-36** (owner): the `pypi` environment still has no protection rule.
 3. **E5-12's WSClean lines** come from Debian's `debian/copyright` (WSClean's files carry none) and include the Debian packager's
    line, the owner's own; kept verbatim.

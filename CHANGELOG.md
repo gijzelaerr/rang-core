@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed (E5 final E5-02): `gemclean -model-column DATA`, or a model column equal to the column being
+  imaged (`-data-column`, or CORRECTED_DATA when the MS has it), overwrote that column after imaging;
+  both are refused with exit 2 before anything is read. `-no-update-model-required` still writes nothing.
+- Changed (E5 final F-05): the licence page and `THIRD-PARTY-NOTICES.txt` list CASA's C++ sources that
+  the calibration and flag-extension ports follow (GPL-2.0-or-later, LGPL-2.0/2.1-or-later), with
+  their copyright notices; each derived file names CASA.
 - Changed (E5 final F-01): astropy is a required dependency. Every polarisation solve and `apply.parang`
   take the parallactic angle from it, and a bare `pip install rang-core` stopped there with
   `ModuleNotFoundError`; the `imaging` extra is kept and now adds nothing.
