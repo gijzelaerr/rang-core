@@ -853,6 +853,87 @@ as 6.5):
   parallactic angle and is shared by rang and CASA. The transfer row, which
   is judged on absolute χ, measures it.
 
+## 8. Paused 2026-11-13 07:00 (owner's order: stop everything)
+
+All queued heavy_lock tickets were cancelled while waiting; no job was
+running, so none stopped mid-write. Runs:
+
+| Name | Directory |
+| --- | --- |
+| R (frozen) | `D:\rang\outputs\e2-20261111-20-e2b` |
+| RA (amended) | `D:\rang\outputs\e2-20261112-21-e2b-amended` |
+| DEV | `D:\rang\outputs\e2-20261112-22-devtables` (`frozen\`, `amended\`, `casa-dev\`) |
+
+The scripts are in `research/results/e2-acceptance-scripts/`; run them from the
+worktree with `.venv\Scripts\python.exe`, each under `heavy_lock.py run --slots
+8 --mem G`. The scorers were committed in 9c2c478 before any of their values
+was read.
+
+### 8.1 Gates read (frozen arm, 7.3)
+
+- 1: met.
+- 2a: met.
+- 2b: casacore, listobs, WSClean and daskms met; CASA applycal not met.
+- 2c: met.
+- 3a: exact.
+- 3b: not met (Gpol 0.278°, composites 1.1e-3 / 1.5e-2).
+- Rows: parity met; 1830−211 not met.
+- 3c as committed (`R\g3c-as-committed.json`): not met.
+  - Compact sources: 37, median 0.9936, scatter 1.4 %; not met.
+  - Δα: 12 sources, 0.023; met.
+  - Dirty L∞: up to 0.032; not met.
+  - Off-source: 1.28, 1.70, 2.29; not met.
+  - Unpolarised Q/U/V: not met.
+
+### 8.2 Done, not yet read
+
+- Matched unit-weight 3c oracle images are in `R\wsclean3c-unit\` (rc 0).
+  `unit-on.json` has `flag_row_not_all_rang_flag` 0, and rang reads the copy.
+- DEV tables for both arms (rc 0); their after-calibrate flags are equal.
+- Amended arm, steps done: timed run, gate 1, archive, wcs, casacore, casa-ro.
+
+### 8.3 Not started, or must be rerun
+
+1. **Matched 3c score:**
+   `e2_score3c.py R R\wsclean3c-unit R\g3c-matched.json`.
+2. **Selftest.** The first try failed on an import, before it touched the MS;
+   the import is fixed. Before the selftest or any transfer case, first save
+   CASA's applycal FLAG on `R\casa\e2b.ms`:
+   `core_writeback.backup_flags(ms, "e2_casa_applycal")`.
+   Then run `e2_transfer.py selftest R R\transfer`; it must meet class C.
+3. **Leakage dev test (rerun).** The first try imaged the wrong field and had
+   no beam; both are fixed, and its output is kept in `leakage-dev-wrongfield`.
+   Command:
+   `e2_leakage.py D:\rang\outputs\e2-20261111-12-dryrun\post-dev\casa luno-slice.ms RANG_CORRECTED_DATA ...\post-dev\leakage-dev dev-rang`.
+   Check that OBJECT is J1939-6342 and the beam is above 0.
+4. **CASA dev tables (not started):**
+   `e2_casa_xfer.py dev D:\rang\outputs\e2-20261110-11-avg\luno\luno-dev.ms DEV\frozen\rang-run e2dev_frozen_after_calibrate DEV\casa-dev`.
+5. **Transfer and leakage rows,** run in this order. Each case restores the
+   flag-stage FLAG first.
+   1. Frozen arm: `e2_transfer.py rang R DEV\frozen\rang-run R\transfer --case xfer17`,
+      then `e2_rows_b.py transfer R\casa\e2b.ms E2_XFER FLAG R\transfer\xfer17-row.json`.
+   2. Frozen arm, leak18p and leak18ap: run `e2_transfer.py` with that case, then
+      `e2_leakage.py R\casa e2b.ms E2_XFER R\transfer <case>`.
+   3. Amended arm: the same with `DEV\amended\rang-run --average-freq`.
+   4. CASA arm, once: `e2_casa_xfer.py rows R DEV\casa-dev <case>`, then score
+      CORRECTED_DATA and FLAG.
+6. **Amended post chain:** rerun `e2_post.sh` on RA (the arguments are in
+   `RA\post.log`) from the step after casa-ro. Then run its CASA 3b on its own
+   copy and score3b, 3c (as committed and matched), and the parity and 1830 rows.
+7. **Close out E2-B:** write the rest of section 7, the tool-timings rows, the
+   archive and a full check-all. The last full check-all was stopped by the
+   coordinator after it hung; rerun it with `pytest --timeout 600`. The one
+   before failed only on the timing test
+   `test_heavy_lock_queue::test_waiters_acquire_in_ticket_order`, which passes
+   alone. Then delete e2b.ms, its copies and luno-dev, and report D: free
+   (486 GB at 00:40).
+8. **E2-A:** follow 6.2. The wheel venv is
+   `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv`; keep it and the
+   `~/Build/tmp` E2 folders until E2 ends.
+
+The χ-offset session reads `R\casa\e2b.ms` only after it is told "done".
+Send that after step 5.
+
 ## For the coordinator
 
 (written at the end)
