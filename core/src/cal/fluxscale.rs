@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Follows CASA's C++ source in part (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// notices in THIRD-PARTY-NOTICES.txt.
 //! CASA's flux-density bootstrap `fluxscale` (task C2d,
 //! `research/c2d-fluxscale.md`; C1 step 6): from the gain amplitudes of a
 //! `G Jones` table, the scale of each transfer field relative to the

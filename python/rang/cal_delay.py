@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The delay term K in the Rust core, with its FFT initial estimate (the
 owner's estimator: FFT, then Gauss-Newton) and CASA's
 `gaincal(gaintype='K')` conventions (task C2b, research/c2b-delay.md; C1

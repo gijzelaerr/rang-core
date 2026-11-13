@@ -30,9 +30,9 @@ field edge and is adjoint to 4e-13. The 19 % difference between the
 w-stacking image and a direct Fourier transform turned out to be aliasing of
 WSClean's Kaiser–Bessel kernel at padding 1.2, not a defect
 ({gh}`research/df1-wgridder.md`). After DF2a it runs at ducc0's speed on
-whole-array inputs ({gh}`research/df2-wgridder-speed.md`). It is not yet
-bound in the extension: on first use it builds a standalone library with
-`cargo` from a source checkout.
+whole-array inputs ({gh}`research/df2-wgridder-speed.md`). It is bound in the
+extension `rang._core` (`rang.core_wgridder`) like every other kernel, so it
+needs no Rust compiler.
 
 Both use the direct Fourier transform's sign and axis conventions documented
 in the module docstrings, and `fits_image`/`write_fits` give WSClean's FITS
@@ -56,8 +56,9 @@ masks, Stokes IQUV), and `rang-core image` runs it from a configuration
 ({gh}`research/gemclean.md`, {gh}`research/g8-wheel.md`). Each minor cycle
 ends by a measured stop rule with a floor, `-stale-floor 0.01` by default
 ({gh}`research/stale-floor.md`). Against WSClean built for the same CPU it is
-faster on 16 threads, not always on one, at 3-5 times the memory
-({gh}`research/gemclean-speed.md`). The CLEAN study
+faster on 16 threads, not always on one; with the current defaults it uses
+2.0-2.4 times WSClean's memory on the real pilot at 512 channels
+({gh}`research/gemclean-speed.md`, {gh}`research/g7-defaults.md`). The CLEAN study
 ({doc}`../research/index`, {gh}`research/clean-theory.md`) implements Högbom
 and Clark iterations in `core/src/clean.rs` to measure what can and cannot
 be proven about them. Notebook I7 ({doc}`../tutorials/notebooks/i7-imaging-and-deconvolution`)

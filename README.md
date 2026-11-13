@@ -14,14 +14,14 @@
 > trained on gain TV stopped at its go/no-go test on one observation, before any
 > training. A deeper field model (an external catalogue) is the first condition
 > for reopening beam and pointing on real data. The reference imager GeMClean
-> beats WSClean's time on 16 threads, not always on one, at 3–5 times the memory.
+> beats WSClean's time on 16 threads, not always on one, at 2.0–2.4 times the memory on the real pilot. [Known limits](https://pythonic.nl/rang-core/limits.html).
 
 ## What it is
 
 - **A Rust core.** A Measurement Set reader and casacore table writer, zarr
   ingest with HTTP range fetch, QuartiCal's full-Jones solver, Tricolour's
-  SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU
-  and GPU), ducc0's wgridder, CASA's flux standards and a component predictor.
+  SumThreshold strategies, WSClean's imaging weights and w-stacking gridder (CPU,
+  and GPU in a source build), ducc0's wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
   WSClean-style flags, using the exact image-domain value at each minor-cycle step. The wheel
   installs it as the command `gemclean`.
@@ -41,13 +41,13 @@ pip install rang-core
 ```
 
 One `abi3` wheel per platform serves CPython 3.10 and newer, needs no Rust compiler
-and carries every kernel: Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
+and carries every CPU kernel (the GPU paths need a source build with the core's `gpu` feature): Linux x86_64 and aarch64 (glibc 2.28 or newer), macOS
 arm64 and x86_64, Windows x86_64.
 
 | Extra | For |
 | --- | --- |
 | `notebook` | the tutorials and `rang.notebook` |
-| `imaging` | FITS output of the gridders |
+| `imaging` | nothing since astropy became required; kept so existing install lines work |
 | `pointing`, `beam` | the JAX pointing path; the katbeam and EIDOS beam controls |
 | `meerkat`, `formats` | MVFv4 archives through katdal; H5parm |
 | `recipes`, `carta` | the Stimela2 recipes (Python 3.13 or older; installs nothing on 3.14); CARTA from the notebooks |
@@ -111,7 +111,7 @@ The command line (`rang-core -h`; `rang-core config defaults` lists every config
 | Can a flagger trained on gain TV be faster, with fewer tunable parameters? | **Stopped before training**: on one observation the gradient of gain TV barely ranks injected RFI (patch AUC 0.54–0.64 on four of five patterns, bar 0.80), where a residual score reaches 0.97–1.00. No network was trained, so speed and parameter count were not measured | [F1](https://github.com/gijzelaerr/rang-core/blob/main/research/f1-tv-flagger.md) |
 | Can selected pointing corrections beat the baselines on real data? | **Null**: self-calibration works in simulation (0.62′ to 0.054′), selection adds nothing measurable, and neither arm measures pointing on ESO137 with the self-calibrated model; an external catalogue is the first reopening condition | [B1-3](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-3-pointing-selfcal.md), [B1-2](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-2-identifiability.md), [B1](https://github.com/gijzelaerr/rang-core/blob/main/research/b1-beam-pointing.md) |
 | What is proven about CLEAN? | Data-fit convergence since Schwarz (1978); here a Gram-matrix formalism, Lean proofs and the measured exact-recovery transition | [theory](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-theory.md), [transition](https://github.com/gijzelaerr/rang-core/blob/main/research/clean-phase-transition.md) |
-| Can CLEAN with an exact value at each step beat WSClean? | **No novelty claim.** At matched gridding accuracy WSClean takes 1.21–2.35× as long at `-j 16`, 0.93–2.09× at `-j 1`; WSClean is faster on three of seven skies on one core at its best setting tried. GeMClean uses 3–5× the memory. Simulated skies and one real pilot; "4–5 major cycles" failed its held-out test (6, 6, 8, 5) | [GeMClean](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean.md), [speed](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-speed.md), [held-out test](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-heldout.md) |
+| Can CLEAN with an exact value at each step beat WSClean? | **No novelty claim.** At matched gridding accuracy WSClean takes 1.21–2.35× as long at `-j 16`, 0.93–2.09× at `-j 1`; WSClean is faster on three of seven skies on one core at its best setting tried. With G7's defaults (coarse gridding) on the real pilot at 512 channels, at matched accuracy: 1.52× faster than WSClean at `-j 16` and 1.31× slower at `-j 1` natively, level at `-j 16` and 1.24× slower at `-j 1` on WSClean's OS layer, at 2.0–2.4× the memory ([defaults](https://github.com/gijzelaerr/rang-core/blob/main/research/g7-defaults.md); 3–5× before G2 and G7). Simulated skies and one real pilot; "4–5 major cycles" failed its held-out test (6, 6, 8, 5) | [GeMClean](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean.md), [speed](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-speed.md), [held-out test](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-heldout.md) |
 | An exact gridder | ducc0's wgridder ported at its speed; the w-stacking gridder on a GPU gains 1.2–3.3× over 16 threads | [wgridder](https://github.com/gijzelaerr/rang-core/blob/main/research/df1-wgridder.md), [GPU](https://github.com/gijzelaerr/rang-core/blob/main/research/x2-wgpu.md) |
 | A casacore table writer | Byte-identical to casacore 3.8.1 and CASA 6.7.6, bar uninitialised memory and alignment gaps | [writer](https://github.com/gijzelaerr/rang-core/blob/main/research/e5-table-writer-rest.md), [the last of it](https://github.com/gijzelaerr/rang-core/blob/main/research/e6-table-writer-final.md) |
 | Re-validation against upstream | Tricolour 0.5.0-dev flag-identical; QuartiCal's #452 fix reproduced to 1e-15; AOFlagger agrees at kernel level, differs at stage level; CASA `gaincal` is 75–350× slower | [RV1](https://github.com/gijzelaerr/rang-core/blob/main/research/rv1-revalidate.md), [AOFlagger](https://github.com/gijzelaerr/rang-core/blob/main/research/a-flag-aoflagger.md), [gaincal](https://github.com/gijzelaerr/rang-core/blob/main/research/l5c-casa-gaincal.md) |

@@ -55,7 +55,7 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | Extra | Installs | For |
 | --- | --- | --- |
 | `notebook` | matplotlib, pandas, ipywidgets, ipykernel, jupyterlab, nbformat, nbconvert | the tutorials and `rang.notebook` |
-| `imaging` | astropy | FITS output of the gridders |
+| `imaging` | astropy | nothing since astropy became required (FITS output of the gridders, the parallactic angle); kept so existing install lines work |
 | `pointing` | JAX, SciPy | the JAX direct-Fourier reference path of the pointing solver |
 | `beam` | katbeam, EIDOS | the beam controls of `rang.beam_holography` |
 | `meerkat` | katdal, katsdptelstate | MVFv4 archives through `rang.meerkat` ({gh}`research/mk1-katdal.md`) |
@@ -100,6 +100,21 @@ python3 -m venv .venv   # or: uv venv -p 3.14 .venv
 .venv/bin/python -m pip install --index-url https://pypi.org/simple \
     -e '.[pointing,beam,test,imaging,notebook]' ruff maturin
 ```
+
+On Windows (PowerShell), the same with the venv's `Scripts` folder:
+
+```powershell
+git clone https://github.com/gijzelaerr/rang-core
+cd rang-core
+py -3.14 -m venv .venv   # or: uv venv -p 3.14 .venv
+.venv\Scripts\python -m pip install --index-url https://pypi.org/simple `
+    -e ".[pointing,beam,test,imaging,notebook]" ruff maturin
+```
+
+On x86_64, a build from a checkout targets x86-64-v3 (AVX2 and FMA;
+`.cargo/config.toml`), which is faster but crashes with an illegal
+instruction on older CPUs. Set `RUSTFLAGS="-C target-cpu=x86-64"`, as the
+wheels do, to build for any x86_64 CPU.
 
 After a Rust change, rebuild the extension with
 `.venv/bin/maturin develop --release`; Python never runs Cargo itself.

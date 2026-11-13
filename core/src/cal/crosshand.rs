@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Follows CASA's C++ source in part (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// notices in THIRD-PARTY-NOTICES.txt.
 //! The cross-hand terms KCROSS (cross-hand delay) and Xf (cross-hand phase)
 //! (task C6, `research/c6-polterms.md`; C1 terms T9 and T10,
 //! `research/c1-calibration-chain.md` section 1.4).

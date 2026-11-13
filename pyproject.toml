@@ -32,8 +32,11 @@ classifiers = [
 # rang.core and every wrapper import NumPy; the extension itself does not
 # need it at import time, so a bare wheel install would otherwise half work.
 # PyYAML reads the configuration of rang-core flag, calibrate, image and run
-# (task W2, research/w2-commands.md).
-dependencies = ["numpy>=1.26", "pyyaml>=6"]
+# (task W2, research/w2-commands.md). astropy gives the parallactic angle of
+# every polarisation solve and of apply.parang (rang.cal_pol), so `pip install
+# rang-core` runs the full-polarisation chain (E5 final F-01; E2's wheel
+# smoke failed without it, research/e2-acceptance.md).
+dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]
 
 [project.urls]
 Documentation = "https://pythonic.nl/rang-core/"
@@ -52,6 +55,7 @@ beam = ["katbeam==0.1", "eidos==1.1.2"]
 # stimela 2.1.4 requires Python < 3.14; on 3.14 the extra installs nothing
 # rather than failing to resolve (E5-38).
 recipes = ["stimela==2.1.4; python_version < '3.14'"]
+# Empty in effect since astropy is required (F-01); kept for existing install lines.
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
 # rdbtools are sdist-only (a C compiler is needed), cityhash has no cp314 wheel.

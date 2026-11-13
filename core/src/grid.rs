@@ -7,7 +7,16 @@
 //! `main/wsclean.cpp` of WSClean 3.6 (André Offringa and contributors,
 //! GPL-3.0; <https://gitlab.com/aroffringa/wsclean>), as read from the verified
 //! Debian source in `outputs/wsclean-3.6-1-source-20261029/`. The translation
-//! is part of Rang (GPL-3.0-or-later). Validation protocol:
+//! is part of Rang (GPL-3.0-or-later).
+//!
+//! Upstream copyright, verbatim from `debian/copyright` of wsclean 3.6-1
+//! (WSClean's source files carry no notice of their own):
+//! Copyright: 2008-2015 A. R. Offringa
+//!  2009 ASTRON (Netherlands Institute for Radio Astronomy)
+//!  2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+//! License: GPL-3.0+
+//!
+//! Validation protocol:
 //! `research/core-c-gridder.md` (wave 1 task C); the layer-parallel
 //! structure is big-plan task P2 (`research/p2-gridder.md`).
 //!

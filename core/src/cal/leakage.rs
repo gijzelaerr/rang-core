@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Follows CASA's C++ source in part (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// notices in THIRD-PARTY-NOTICES.txt.
 //! The leakage term Df (task C6, `research/c6-polterms.md`; C1 term T11,
 //! `research/c1-calibration-chain.md` section 1.4).
 //!

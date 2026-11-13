@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The flux-scale term F: CASA's `fluxscale` and the secondary-calibrator
 sequence CARACal runs before it (task C2d, research/c2d-fluxscale.md; C1
 step 6, research/c1-calibration-chain.md).

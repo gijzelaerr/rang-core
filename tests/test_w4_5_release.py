@@ -88,6 +88,9 @@ def test_docs_version_agrees():
     assert "release = _version(" in _text("docs/conf.py")
     conf = runpy.run_path(str(ROOT / "docs" / "conf.py"))
     assert conf["release"] == conf["version"] == version
+    # E5-17: the install check's expected output names the current version.
+    install = _text("docs/installation.md")
+    assert re.findall(r"# rang-core (\S+)", install) == [version]
 
 
 def test_version_falls_back_to_pyproject(monkeypatch):
@@ -180,6 +183,20 @@ def test_pyproject_metadata():
         ),
     ):
         assert holder in notices and path in notices, path
+    # E5 final (E5-12): the GPL ports keep their upstream copyright lines,
+    # in the source header and in the notices the wheel carries.
+    for path, holder in (
+        ("core/src/grid.rs", "2008-2015 A. R. Offringa"),
+        ("core/src/weights.rs", "2008-2015 A. R. Offringa"),
+        ("core/src/wgridder.rs", "Copyright (C) 2019-2026 Max-Planck-Society"),
+        ("core/src/wgridder.rs", "Copyright (C) 2020-2026 Max-Planck-Society"),
+        ("core/src/wgridder.rs", "Ignace Bogaert"),
+        ("core/src/wgridder.rs", "Copyright (C) 2019 Peter Bell"),
+        ("core/src/weights.rs", "Copyright (C) 2024 ASTRON"),
+    ):
+        assert holder in notices and holder in _text(path), (path, holder)
+    # E5 final F-01: the polarisation chain needs astropy in a bare install.
+    assert 'dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]' in project
     assert "License ::" not in project
     urls = _section(_text("pyproject.toml"), "project.urls")
     for name in ("Documentation", "Repository", "Issues"):

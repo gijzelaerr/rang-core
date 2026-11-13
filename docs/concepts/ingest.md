@@ -18,7 +18,8 @@ writer, and on Windows a WSL casacore process's lock is not seen; `rang-core`
 refuses a second command on the same run directory), and its
 files are
 byte-identical to casacore 3.8.1's apart from uninitialised padding
-({gh}`research/e3-table-writer.md`). Creating new tables still needs
+({gh}`research/e3-table-writer.md`). `rang.core_ms_write.create_table` creates new
+tables (rang's flag versions use it), so no step of `rang-core` needs
 python-casacore.
 
 ## Zarr and the HTTP range fetch

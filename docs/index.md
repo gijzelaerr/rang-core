@@ -24,7 +24,8 @@ gain TV stopped at its go/no-go test on one observation, before any training
 field model (an external
 catalogue) is the first condition for reopening beam and pointing on real data.
 The reference imager GeMClean beats WSClean's time on 16 threads, not always on one, at
-3–5 times the memory ({gh}`research/gemclean-speed.md`).
+2.0–2.4 times the memory on the real pilot with its current defaults
+({gh}`research/gemclean-speed.md`, {gh}`research/g7-defaults.md`).
 ```
 
 What it is:
@@ -32,7 +33,8 @@ What it is:
 - **A Rust core**, reached through the compiled extension `rang._core`: a
   Measurement Set reader and casacore table writer, zarr ingest with HTTP range
   fetch, QuartiCal's full-Jones solver, Tricolour's SumThreshold strategies,
-  WSClean's imaging weights and w-stacking gridder (CPU and GPU), ducc0's
+  WSClean's imaging weights and w-stacking gridder (CPU, and
+  GPU in a source build), ducc0's
   wgridder, CASA's flux standards and a component predictor.
 - **GeMClean, a reference imager.** `gemclean` takes a Measurement Set to FITS with
   WSClean-style flags, using the exact image-domain value at each minor-cycle step
@@ -64,6 +66,7 @@ installation
 concepts/index
 cli
 tutorials/index
+limits
 api/index
 ```
 

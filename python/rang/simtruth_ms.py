@@ -25,6 +25,7 @@ import argparse
 import json
 import multiprocessing as mp
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -243,6 +244,12 @@ def fill_subtables(ms, d, names, xyz, diameter, times, fields_present):
 
 
 def git_facts():
+    """The source checkout's commit and dirty state; nulls when this module is
+    not in a git checkout (an installed wheel, where `git -C` would describe
+    whatever repository encloses site-packages) or git is not installed."""
+    if not (ROOT / ".git").exists() or shutil.which("git") is None:
+        return {"commit": None, "dirty": None}
+
     def run(*args):
         return subprocess.run(
             ["git", "-C", str(ROOT), *args], capture_output=True, text=True, check=False

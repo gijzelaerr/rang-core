@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Follows CASA's C++ source in part (Copyright (C) Associated
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// notices in THIRD-PARTY-NOTICES.txt.
 //! The bandpass B's post-solve gap filling (task C2c,
 //! `research/c2c-bandpass.md` part 2): CASA's `fillgaps`
 //! (`BJones::fillChanGaps` and `BJones::fillChanGapArray`,
