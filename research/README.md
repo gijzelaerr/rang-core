@@ -20,6 +20,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [finish-plan.md](finish-plan.md): the plan to finish GeMClean and rang-core at v0.2.0, in full polarisation; confirmed 2026-11-05, in execution.
 - [roadmap.md](roadmap.md): the releases after v0.2.0 (approved by the owner 2026-11-13); every item is a `roadmap` issue on gijzelaerr/rang-core.
 - [Opportunities, 2026-11-13](opportunities-2026-11-13.md): opportunities for a novel contribution from the measured notes and the literature scan (proposed); filed as issues #22, #23, #24, #27 and #28.
+- [chi-offset](chi-offset.md) (measured, 2026-11-13): H3 not accepted under the frozen rule (|chi - 33.1| 7.5 and 9.3 deg against 7 deg); post hoc, LUNO's receptor angle is 0, not -90 deg, leaving ionospheric RM plus -3.6 deg; no absolute-angle claim in v0.2.0; found the averaging defect fixed in xf-avg-fix.
 - [Branch triage, 2026-11-13](branch-triage-2026-11-13.md): every branch and worktree classified; 13 merged worktrees removed, the rest kept with reasons.
 - [Upstream status, 2026-11-13](upstream-status-2026-11-13.md): WSClean !1068 and radler !238 still open and unreleased.
 - [Multi-node scope](multi-node-scope.md) (proposed, 2026-11-13): chunk task API, then a multi-node executor (Dask one candidate), then MSv4/Zarr; Simon Perkins' replies on xarray-ms, arcae and Dask; nothing built.
