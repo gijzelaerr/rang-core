@@ -127,18 +127,23 @@ Both tools stop on the threshold after 7 major cycles.
 | ws-multiscale r1 (DF5-O) | p16, p23, p26 | +0.0870 | +0.1615 | +0.0898 | 0.99966 | 1.4463 | – | – |
 | ws-multiscale r2 (DF5-O) | p23, p26 | +0.0853 | +0.1615 | +0.0901 | 0.99967 | 1.4513 | – | – |
 | gc-multiscale r1 = r2 | p23 | +0.0817 | +0.1591 | +0.0850 | 0.99932 | 1.4447 | 325, 240 | 3739 |
+| ws-hogbom r1 = r2 (DF5-O) | none | −0.0148 | −0.0561 | −0.0123 | 0.99588 | 1.6055 | – | – |
 | gc-hogbom r1 | none | −0.0149 | −0.0572 | −0.0123 | 0.99586 | 1.6041 | 44 | 2892 |
 
 **gc-multiscale shares the miss.**
 
-- It fails A1 on p23 only: ΔS is +13.6 µJy against a tolerance of 13.3 µJy (4.5 σ_ap).
-- p16 and p26 pass by under 1 µJy: p16 +20.8 against 21.7 µJy, p26 +19.6 against 20.5 µJy.
+- It fails A1 on p23 only: ΔS is +13.6 µJy against a tolerance of 13.3 µJy (4.55 σ_ap).
+- p16 and p26 pass by under 1 µJy:
+  - p16: +20.8 against 21.7 µJy (6.94 σ_ap);
+  - p26: +19.6 against 20.5 µJy (6.54 σ_ap).
+- The r1 and r2 model cubes are bitwise equal (17 model FITS each).
 - It is inside DF5-O 6.5's bound on every source (p16 ≤ +0.087, p23 ≤ +0.162, p26 ≤ +0.090) and
   on inner RMS (1.4447 ≤ 1.4753 µJy).
 - A2 passes.
 - Spurious flux outside the apertures is +2.87 / −3.37 mJy (WSClean r1: +2.86 / −3.34).
 
-gc-hogbom meets A1, as WSClean Högbom does, so the control holds.
+gc-hogbom meets A1, as WSClean Högbom does, so the control holds. The two Högbom runs agree to
+0.0011 in ΔS/S on these three sources.
 
 Wall time and RSS come from a shared host with 4 threads; no timing claim is made.
 
@@ -187,11 +192,16 @@ No variant trades compact flux for extended flux beyond A1's tolerance.
 
 - 33 of the 34 point sources ≥ 20σ_ap have positive ΔS in gc-multiscale; p25 is the exception
   (−8.3 µJy).
-- Sources below 0.13 mJy have +5 to +8 µJy, except p23 (+13.6) and p32 (+13.2).
-- Sources of 0.2-7 mJy have +10 to +27 µJy, and p39 (17.9 mJy) has +38 µJy.
+- Sources of 0.06-0.12 mJy have +5 to +9 µJy. p23 (0.086 mJy, +13.6) and p32 (0.132 mJy, +13.2)
+  are higher.
+- Sources of 0.18-7 mJy have +10 to +27 µJy.
+- The brightest sources do not follow this:
+  - p20 (14.6 mJy): +4.3 µJy;
+  - p25 (14.2 mJy): −8.3 µJy;
+  - p39 (17.9 mJy): +38 µJy.
 - WSClean r1 has the same pattern.
 
-So the excess is a few µJy to a few tens of µJy per aperture and grows far more slowly than S.
+So the excess is a few µJy to a few tens of µJy per aperture and is far from proportional to S.
 
 - p16, p23 and p26 fail because it exceeds `0.05 S + 3σ_ap` there.
 - p23 has the largest offset for its flux.
@@ -200,6 +210,13 @@ So the excess is a few µJy to a few tens of µJy per aperture and grows far mor
 **It points at the small scales, not a large-scale pedestal.**
 
 - Each source has a positive excess inside r = 11.6 px and a negative model in r < d ≤ 2r.
+- The surround is local. In the ring around p16, p23 and p26, the model density is −1.8e-8,
+  −0.8e-8 and −2.1e-8 Jy/px. The global mean off the apertures is −4.9e-10 Jy/px, so the rings are
+  16-43 times denser.
+- The ring-integrated model (density × 1264 px) is −22.9, −10.2 and −26.8 µJy, against aperture
+  ΔS of +20.8, +13.6 and +19.6 µJy. That is close to a cancellation: flux is moved from the
+  surround into the aperture rather than added. WSClean r1 gives −26.3, −10.8 and −29.4 against
+  +22.1, +13.8 and +20.7.
 - When the 24 px scale's components drop from 21767 to 1182 (v3), the excess goes.
 - Together these suggest the 24 and 48 px scales fit each point with a positive core and a
   negative surround.
@@ -237,7 +254,7 @@ Rows are in [tool-timings.md](tool-timings.md).
 **Diagnosis.**
 
 - By the frozen rule, no large scale carries the excess.
-- Post hoc, there is a small positive offset on 33 of 34 points (median +16 µJy) with a negative
-  surround.
+- Post hoc, there is a small positive offset on 33 of 34 points (median +16 µJy). A local negative
+  ring nearly cancels it, so flux is redistributed, not added.
 - `-multiscale-scale-bias 0.8` removes it, at the cost of a residual RMS above the bound.
 - A fix (issue step 4) needs a frozen note and a held-out field.
