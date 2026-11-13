@@ -1864,3 +1864,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | xf-avg-fix: chi-offset `sim_chi.py rang`, 4 arms (control m90/m90_noavg, feed0 null/null_noavg) with the fix | chi-offset control and feed0 truths (151 MB each) | 13.4-14.3 s per arm, 80 s ticket | – | Windows host, heavy lock critical 4 slots 4 GB; research/xf-avg-fix.md |
 | 2026-11-13 | xf-avg-fix: `e2b_groups.py` (metadata, angle tables, groups) | `D:\rang\data\e2-b\e2b.ms` (272,916 rows) | 10.3 s | – | Windows host; research/xf-avg-fix.md gate 2a |
 | 2026-11-13 | xf-avg-fix: `tools/check_all.py --quick --priority critical` | worktree xf-avg-fix | 1517 s (lock wait excluded) | – | Windows host; PASS |
+| 2026-11-13 | chi-offset `maturin develop --release` (worktree venv) | repo at 54bd119 | 24 min (compile 3 min 09 s, rest lock queue) | – | Windows native, 8 shared slots; an earlier attempt waited 55 min then failed on a relative exe path |
+| 2026-11-13 | chi-offset `sim_chi.py gen` (poldx noiseless twin, 3 truths) | 16 antennas, 256 channels, 0.16 GB each | 4.6-5.3 s each | – | Windows native, 4 workers |
+| 2026-11-13 | chi-offset sim arms: rang `run` calibrate+apply (13 arms) and CASA 6.7.6.14 chain (6 arms) | poldx twin copies | rang 8-12 s per arm, CASA 29-31 s per arm; batch 27 min 53 s incl. lock queue | – | Windows + Docker `rang-o-casa:6.7.6.14`, one 4-slot ticket |
+| 2026-11-13 | chi-offset LUNO rerun build (`e2_convert.py build --rows 9576` MAIN_16, MAIN_17 + rang flag stage) | LUNO zarr | 16.8 s + 85.3 s | – | Windows native |
+| 2026-11-13 | chi-offset LUNO rang calibrate+apply (`average_time` on) | s17: 2 scans × 6 int × 4,096 ch; s1: dry-run slice 40,000 rows | s17 215-231 s, s1 431-435 s per arm | – | Windows native, 8 shared slots; `average_time: false` refused (14.7 GiB per interval > 8 GB limit) |
+| 2026-11-13 | chi-offset LUNO CASA 6.7.6.14 chain | as above | s17 368-380 s, s1 628-667 s per arm | – | WSL Docker, 4 shared slots; 4 h 03 min lock queue before the ticket |
+| 2026-11-13 | chi-offset `chi_vs_psi.py` on E2-B frozen `casa/e2b.ms` scan 17 (read-only) | 221 GB MS, 74 integrations | 54 min per column (2 in parallel) | – | Windows native, 2 shared slots each; read-bound |
+| 2026-11-13 | chi-offset `chi_vs_psi.py` on the dry-run slice scan 1 | 18 GB MS | 20-24 min per column incl. lock queue | – | Windows native |
