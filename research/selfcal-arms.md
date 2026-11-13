@@ -239,9 +239,26 @@ final image, against `u`'s 2 plus one, so it is expected to cost about 2.5 ×
 `python C:\Users\gijsm\Github\rang\tools\heavy_lock.py run --slots 4 --mem 4
 -- ...` at normal priority. C5 measured a peak of 2.25 GB.
 
-## 7. Freeze record
+## 7. Freeze record (2026-11-13)
 
-Not yet written; it is committed before any held-out MS is generated.
+This record was committed before any held-out MS of this task existed.
+
+- **Code:** `examples/check_selfcal_arms.py` at commit `15da67e`. The stage
+  code is `main`'s at `30d9412`, unchanged by this branch.
+- **gemclean:** the extension's (`gemclean: auto`), sha256
+  `d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761`.
+- **Arms:** `u`, `r` (pa and delay) and `p` (delay), exactly as section 4
+  gives them. No variant goes along (section 8.2).
+- **Cases:** `c5pa-held`, `c5delay-held` (seeds 20261321-24 and 20261331-34)
+  and `c5pa-held2`, `c5delay-held2` (20261501-04 and 20261511-14). Each is
+  generated once into `D:ang\outputs\selfcal-arms-20261113-03\data`.
+- **Runs:** each of the 10 loops runs once, under `--slots 4 --mem 4`,
+  `threads: 4`.
+- **Verdict:** `check_selfcal_arms.py verdict` gives section 5 from the
+  unrounded values in `verdict.json`.
+- **Expected check:** `u` must reproduce C5b's native `u` on all four
+  held-out cases (C5b section 6). A mismatch means the truth sets or the
+  binary differ, and it is reported, not rerun.
 
 ## 8. Results
 
