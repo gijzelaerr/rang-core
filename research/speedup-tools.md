@@ -69,3 +69,33 @@ record the result as null and leave `RUSTC_WRAPPER` unset. Numerics: sccache
 returns the compiler's own output for the same inputs, and the release
 profiles are not touched, so results are bit-identical by construction; the
 full check at the end (pytest, gain-hash gate) confirms it.
+
+## 4. Resume state (stopped on the owner's order, 2026-11-13 ~07:30 UTC+1)
+
+Everything below is on branch `claude/speedup-tools-73baec`, pushed, not merged.
+
+| Part | State |
+| --- | --- |
+| C, `heavy_lock.py --priority critical` | **implemented, unit-tested** (8 tests in `tests/test_heavy_lock_queue.py`, incl. the old loaded helper of 097588b serving critical tickets first). Critical tickets subtract 10**18 ns from the name's time and keep the `<20 digits>-<system>-<pid>.json` shape, so old copies honour them. Not yet used on the real queue. |
+| D, `tools/check_all.py` | **implemented, unit-tested** (`tests/test_check_all.py`: UNC repair, archive default, stale-toolchain detection, quick test selection). `rang.check` gains `archive_outputs` (repairs/defaults `RANG_ARCHIVE_OUTPUTS`) and `--pytest-paths`. **Not yet run end to end** (`--dry-run` only): no venv in this worktree yet. |
+| A, CI on pushed branches | **implemented**: `tests.yml` `push: branches-ignore: [main]`, concurrency group by branch name; `docs/agents/check-and-ci.md` + skill wrapper; AGENTS.md CI paragraph. The push of this branch triggered run 43368739920 (lint passed; rust and pytest were still queued when stopped). Free on a public repo: GitHub's Actions billing page says standard GitHub-hosted runners are free in public repositories. |
+| B, sccache | **installed only**: sccache 0.19.0 (official GitHub release, sha256 checked) in `~/.cargo/bin/sccache.exe` and WSL `~/.cargo/bin/sccache`. Small-crate probe: clippy works through it; toggling `RUSTC_WRAPPER` does not rebuild; `CARGO_INCREMENTAL=0` rebuilds the dev profile once. **Not measured; user environment NOT changed** (`RUSTC_WRAPPER`, `SCCACHE_DIR` unset). The timing hold was cancelled before it started. |
+
+Found on the way (told the coordinator): `rang.check`'s own one-at-a-time lock
+let a check hold 8 heavy-lock slots for hours while it waited behind another
+check. `check_all.py` sets `RANG_CHECKALL_LOCKED=1` under the heavy lock.
+
+Resume steps, in order:
+
+1. Read CI run 43368739920 (`gh run view 43368739920`); fix if red.
+2. `python tools/check_all.py --quick` in this worktree (creates `.venv` with uv),
+   then the full `python tools/check_all.py` once; log both in tool-timings.
+3. Bench (protocol section 3, frozen): `python <main>/tools/heavy_lock.py run --
+   python tools/cold_build_bench.py --base ~/Build/tmp/<date>-rang-coldbench --commit <main head>`
+   (exclusive, normal priority). Apply the decision rule; only then set the user env:
+   `RUSTC_WRAPPER=sccache`, `SCCACHE_DIR=D:\rang\cache\sccache`, `SCCACHE_CACHE_SIZE=30G`,
+   `CARGO_INCREMENTAL=0` (this invalidates every worktree's ext-build stamp once: `EXT_ENV`
+   hashes CARGO*/RUST*). WSL: the same in `~/.profile`, cache `/mnt/d/rang/cache/sccache-wsl`.
+4. Results into this note and `research/tool-timings.md`; CHANGELOG line for
+   `rang-core check` (archive repair, `--pytest-paths`); hand to the coordinator,
+   who merges (the heavy_lock change touches every session).
