@@ -7,7 +7,8 @@ import numpy as np
 import pytest
 import test_cal_delay
 import test_cal_gain
-from rang import core_grid, core_ms_write, core_writeback, fluxstd
+import test_cal_pol
+from rang import cal_pol, core_grid, core_ms_write, core_writeback, fluxstd
 from rang.formats import flagversions
 from test_cal_gain import run, simulate
 from test_w2_commands import make_ms
@@ -27,10 +28,13 @@ def test_gain_solve_without_rows_names_the_problem():
 
 
 def test_gain_solve_refuses_per_row_arrays_of_the_wrong_length():
-    # Was a silent truncation of antenna1 through x[order].
+    # On main 30d9412 this input solved without a word: antenna1, antenna2
+    # and flag_row one row longer than the data were cut by x[order].
     s = simulate()
     s["a1"] = np.append(s["a1"], 0)
-    with pytest.raises(ValueError):
+    s["a2"] = np.append(s["a2"], 1)
+    s["flag_row"] = np.append(s["flag_row"], False)
+    with pytest.raises(ValueError, match="antenna1"):
         run(s)
     s = simulate()
     s["tb"] = s["tb"][:-1]
@@ -77,6 +81,58 @@ def test_nan_cells_solve_as_flagged_cells(solver, kw, keys):
     for key in keys:
         assert np.array_equal(getattr(a, key), getattr(b, key)), key
     assert np.isfinite(a.gains if solver == "gain" else a.delays).all()
+
+
+def _poisoned(data, seed=3):
+    bad = np.random.default_rng(seed).random(data.shape[:2]) < 0.05
+    nan = data.copy()
+    nan[bad] = np.nan
+    flag = np.zeros(data.shape, bool)
+    flag[bad] = True
+    return nan, flag
+
+
+def test_nan_cells_in_the_polarisation_solves_act_as_flagged_cells():
+    # Df's leakages were all NaN with their flags clear from one NaN
+    # visibility; KCROSS differed from the flagged solve. Now exact.
+    rng = np.random.default_rng(3)
+    nant, ntime, nchan = 6, 4, 64
+    a1, a2, t = test_cal_pol._array(nant, ntime)
+    freq = 856e6 + 856e6 * (np.arange(nchan) + 0.5) / nchan
+    model = test_cal_pol._polarised_model(len(a1), nchan, np.linspace(-1, 1.2, 4)[t])
+    data = model.copy()
+    data[..., 1] *= np.exp(0.6j)
+    data[..., 2] *= np.exp(-0.6j)
+    data = data + 0.01 * (
+        rng.normal(size=data.shape) + 1j * rng.normal(size=data.shape)
+    )
+    tb = np.zeros(len(a1), np.int64)
+    nan, flag = _poisoned(data)
+    loaded = test_cal_pol._loaded
+    for solve, key in ((cal_pol.kcross_solve, "delay_ns"), (cal_pol.xf_solve, "x")):
+        a = solve(loaded(nan, model, a1, a2, tb, freq, nant))
+        b = solve(loaded(data, model, a1, a2, tb, freq, nant, flag=flag))
+        assert np.array_equal(getattr(a, key), getattr(b, key)), key
+        assert np.array_equal(a.ok, b.ok)
+    nant, ntime, nchan = 7, 3, 4
+    a1, a2, _t = test_cal_pol._array(nant, ntime)
+    d = 0.02 * (
+        rng.normal(size=(nant, nchan, 2)) + 1j * rng.normal(size=(nant, nchan, 2))
+    )
+    model = np.zeros((len(a1), nchan, 4), complex)
+    model[..., 0] = model[..., 3] = 5.0
+    data = model.copy()
+    data[..., 1] += 5 * (d[a1, :, 0] + np.conj(d[a2, :, 1]))
+    data[..., 2] += 5 * (d[a1, :, 1] + np.conj(d[a2, :, 0]))
+    tb = np.zeros(len(a1), np.int64)
+    nan, flag = _poisoned(data)
+    ones = np.ones(nchan)
+    a = cal_pol.df_solve(loaded(nan, model, a1, a2, tb, ones, nant), refant=3)
+    b = cal_pol.df_solve(
+        loaded(data, model, a1, a2, tb, ones, nant, flag=flag), refant=3
+    )
+    assert np.isfinite(a.d).all()
+    assert np.array_equal(a.d, b.d) and np.array_equal(a.flags, b.flags)
 
 
 def test_delay_solve_without_rows_names_the_problem():

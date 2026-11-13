@@ -737,12 +737,20 @@ def _table(kind, ld, values, flags, snr, err, refant, ntime, single_channel):
 
 
 def _flat(ld):
-    """The arrays of a kernel call, rows as loaded."""
+    """The arrays of a kernel call, rows as loaded; non-finite cells flagged
+    and zeroed (`rang.cal_gain.finite_cells`: the Df kernel's leakages were
+    all NaN with their flags clear from one NaN visibility)."""
+    data, model, weights, flag = cal_gain.finite_cells(
+        np.ascontiguousarray(ld.data, np.complex64),
+        np.ascontiguousarray(ld.model, np.complex64),
+        ld.weights,
+        ld.flag,
+    )
     return (
-        ld.data.view(np.float32).reshape(-1),
-        ld.model.view(np.float32).reshape(-1),
-        np.ascontiguousarray(ld.weights.reshape(-1), np.float32),
-        np.ascontiguousarray(ld.flag.reshape(-1), np.uint8),
+        np.ascontiguousarray(data).view(np.float32).reshape(-1),
+        np.ascontiguousarray(model).view(np.float32).reshape(-1),
+        np.ascontiguousarray(weights.reshape(-1), np.float32),
+        np.ascontiguousarray(flag.reshape(-1), np.uint8),
         np.ascontiguousarray(ld.flag_row, np.uint8),
         np.ascontiguousarray(ld.cols["ANTENNA1"], np.uint32),
         np.ascontiguousarray(ld.cols["ANTENNA2"], np.uint32),

@@ -407,8 +407,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 }
             }
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
-            // A NaN threshold never stops the minor cycle; WSClean refuses it
-            // and negative values (research/correctness-audit-2026-11-13.md).
+            // A NaN threshold never stops the minor cycle; finite and not below
+            // zero, as -auto-mask (research/correctness-audit-2026-11-13.md).
             "-threshold" | "-abs-threshold" => a.threshold = non_negative(flag, value(&mut i)?)?,
             "-auto-threshold" => a.auto_threshold = Some(non_negative(flag, value(&mut i)?)?),
             "-patch" => a.patch = number(flag, value(&mut i)?)?,
@@ -3320,7 +3320,7 @@ mod tests {
     #[test]
     fn thresholds_are_finite_and_not_negative() {
         // Correctness audit 2026-11-13: a NaN threshold never ends the minor
-        // cycle; WSClean refuses NaN and negative thresholds.
+        // cycle; NaN, infinite and negative thresholds are refused.
         let parse = |line: &str| {
             let raw: Vec<String> = line.split(' ').map(String::from).collect();
             parse_args(&raw)
