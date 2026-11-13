@@ -301,7 +301,7 @@ Arm `r` runs on `c5pa`: 5 rounds, stage 102 s (2.0 × `u`), exit status 0.
 The probe scored truth anyway (the harness always does), so the numbers
 are below. They are development data and decide nothing.
 
-| arm | round | phase rms / p95 (°) | gates failed |
+| arm | round | phase median / p95 (°) | gates failed |
 | --- | --- | --- | --- |
 | u | 1 Sp 8 | 2.45 / 16.6 | phase |
 | u | 2 Sa 8 | 1.87 / 13.6 | phase, amp_rel (p95 3.98 %) |
@@ -318,7 +318,8 @@ are below. They are development data and decide nothing.
 
 `.code/` holds the harness, commit `24879a1` and the gemclean sha256. The
 five loops ran in parallel, each under `--slots 4 --mem 4`. Values are
-phase rms / p95 (°) and delay rms / p95 (ns).
+phase median / p95 (°) and delay median / p95 (ns), of
+`|Δ arg P|` and `|Δ(τ_p − τ_q)|` against truth (`check_c5.prod_stats`).
 
 | case | arm | round | phase | delay | gates failed |
 | --- | --- | --- | --- | --- | --- |
@@ -389,6 +390,8 @@ MODEL_DATA and C5's class-B limits (`check_c5.QC_B`: |Δ product| median
 | `p` delay, Sp 8 freqint 1 | yes | 1.4e-17 / 1.2e-11 / 7.0e-7 | – | 73 |
 
 All three pass: rang's solver agrees with QuartiCal on the new interval forms.
+The QuartiCal reruns used the harness at `15da67e`; `-02/.code/commit`
+records both commits.
 
 **Harness fix (2026-11-13, before the freeze record).** The first QuartiCal
 pass failed its precondition: rang's re-solve on the oracle's copy differed
@@ -430,8 +433,8 @@ within one unit in the last printed digit:
 
 The truth sets are therefore C5's and C5b's.
 
-Final rounds, with phase rms / p95 (°), Sa amplitude median / p95 (%) and
-Sd delay rms / p95 (ns):
+Final rounds, with phase median / p95 (°), Sa amplitude median / p95 (%)
+and Sd delay median / p95 (ns):
 
 | case | arm | final round | phase | amplitude / delay | gates failed |
 | --- | --- | --- | --- | --- | --- |
@@ -488,16 +491,17 @@ final-round phase p95 over `u`'s; cost is the stage wall time over `u`'s.
 - **A phase-only first round (`p`) does nothing.** Round 2 of `p` equals
   `u`'s to within 2 %.
 - **What limits every arm is still the model.** The longest-baseline model
-  rms stays at 0.13-0.25, against 0.13-0.34 in C5b. More rounds lower it,
-  but not to the level a model from truly corrected data reaches in C5
-  section 7.
+  rms stays at 0.13-0.25, against 0.13-0.34 in C5b. More rounds lower it
+  on three of the four cases (not on c5delay-held2), and never to the level
+  a model from truly corrected data reaches in C5 section 7.
 
 This is no novelty claim and no default change. `u` (E2's schedule) stays
 the default.
 
 - `r` delay is a configuration an astronomer can choose today, through
   `selfcal.rounds: 5` and the terms in section 4. On simulated MeerKAT-like
-  delay errors it halves the delay error at twice the cost.
+  delay errors it lowers the delay p95 3.7-6.4 × and the phase p95 by
+  31-38 %, at twice the cost.
 - Comparing it with CARACal on E2-A, the second oracle in section 3, is left
   for later, as the issue plans.
 - Arm 3 (joint gains and image, v0.6.0) targets the model limit directly.
@@ -510,3 +514,26 @@ keep their JSONs, logs, receipts, gain stores and restored images (1.4 GB).
 The MS copies and the dirty, PSF, residual and model images were deleted
 after scoring (2026-11-13). Each case's MS is regenerated in 8 s by
 `examples/c5_selfcal_sim.py` from the seeds in section 3.
+
+**Label fix (2026-11-13, after the results).** Section 8's tables first
+said "rms" for the first phase and delay number. The harness prints the
+median (`check_c5.prod_stats`), as C5 and C5b do, so the labels now read
+"median". The values did not change. The model numbers are a relative rms,
+as before.
+
+## 10. For the coordinator
+
+- **Don't merge yet.** The branch `claude/selfcal-arms-82d5c9` merges after
+  v0.2.0's E6. It adds no stage code and no configuration key: the arms are
+  configurations, so E2's stage hashes do not move.
+- **Checks run:** `tools/check_all.py --quick` passed twice, and CI (tests,
+  docs) is green. The full local check, with its oracle and archive gates,
+  was not run here; it is left to the merge check.
+- **Follow-up:** `examples/check_c5.py`'s `qc` predicts the oracle copy's
+  MODEL_DATA with `write_model_data`'s defaults. On a post-G7 build its
+  bit-equality precondition would fail as this harness's did (section 8.3).
+- **Older text:** `research/STATE.md` still has three uses of a word
+  AGENTS.md bans, at lines 725, 1207 and 1484. They predate this branch and
+  were left alone.
+- **Open:** the CARACal comparison on E2-A (section 3's second oracle).
+  Arm 3 (joint gains and image) targets the model limit that remains.
