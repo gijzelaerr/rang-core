@@ -166,4 +166,8 @@ ang`.
 
 - One milestone per release on GitHub.
 - New work items join a release only on the owner's word, or go to "Later" with the label `roadmap`.
-- Don't start v0.3.0 implementation before E6. Comparisons with no rang code (#24 step 1, #23 step 1) may run on shared slots without delaying the critical path.
+- **Agent-heavy and CPU-heavy work are split** (owner, 2026-11-13: "a lot of AI heavy work we can already do while waiting on CPU and GPU").
+  - Agent-heavy work on later releases may proceed now on branches: design, proposal notes frozen before code, implementation, and unit tests on the public fixture.
+  - Its CPU and GPU runs (measurements, timing, campaigns) queue in `tools/heavy_lock.py` at normal priority. v0.2.0's critical path keeps `--priority critical` and the timed exclusive holds.
+  - Nothing merges to main ahead of v0.2.0 if it would change what E2, E3 or E5 measure. Such branches wait until after E6.
+  - Notes, docs and code that the chain does not call can merge earlier.
