@@ -81,6 +81,7 @@ CLI receipts are `rang.receipt` version 2 from then on (key
 - [P11, extract and retire](p11-extract.md): the 21 frozen modules to `history/`, 127 definitions as verbatim extracts, −7,817 live lines, suite identical.
 - [P10, test-suite speed](p10-tests.md): the same 555 tests, 6,031 → 188 CPU-s by capping BLAS and XLA threads; check-all now locks.
 - [check-speed, a faster full local check](check-speed.md) (implemented and measured, 2026-11-11; tiered rule proposed): same steps and per-test outcomes; warm 784 → 94-97 s (the gpu steps in their own target directory end a 590 s rebuild flip-flop; pytest-xdist 180 → 64-80 s; ext-build stamp), cold 1,209 → 1,165 s.
+- [speedup-tools, less host time lost](speedup-tools.md) (2026-11-13; in progress): `tools/check_all.py` (one check wrapper, `--quick`), the heavy lock's `--priority critical` lane, sccache with a frozen cold-build protocol, CI on pushed branches.
 - [P9, one CLI](p9-cli.md): `rang-core STAGE VERB`, one comparator engine, versioned receipts and archives, `rang-core check`.
 - [P8, history](p8-history.md): the frozen recipes, container builds and recipe-only modules moved to `history/` ([history/README.md](../history/README.md)); live tree −6,373 lines, every archived verdict reproduced.
 - [P7, architecture](p7-architecture.md): no ctypes, no cargo at import, kernels in the extension, panic-safe C ABI, GIL released; a wheel-only install reproduces every archived verdict; Windows suite 622 passed, 0 failed.
