@@ -476,6 +476,48 @@ Both pass. Most of the calibrator wall is waiting for the heavy lock (log). Rece
 chain on 2026-11-11 16:55 (`-00-build/chain.log`), after Amendment 2 (`ea5fa52`, 16:14), the last
 commit touching `core/` or `src/` before `5fc158b`; `efd6876` changed one Python line and a test.
 
+**C1(U4) clean rerun: deferred, not measured.** `-05b-c1u4` (exclusive, 4 threads) was queued at 08:12
+and withdrawn before it got the lock, on the coordinator's order (an exclusive ticket drains the shared
+E2-B critical path; the run takes about 19 min). Nothing was timed; the `.code` snapshot under
+`-05b-c1u4` belongs to no run. All F4 timing (this C1(U4), later Stage 5's C1/C2) goes into one
+exclusive hold after E2-B's queued jobs. C1(U4) stays 0.441, provisional (section 8's bar 0.45).
+
+**Change of order (labelled, 2026-11-13, before any training or held-out read):** Stage 3's shards and
+label audit (`f4_queue.py --only shards`, shared 4 slots / 16 GB) run before the clean C1(U4) instead
+of after it. No measure, bar or rule changes. If the clean C1(U4) is > 0.45, F4 stops as section 8
+says and the shards are unused.
+
+**WSL GPU training audit (Stage 4 precondition), measured 2026-11-13.** Not training: synthetic
+shards with F3's calibrator shapes and 23 planes (random planes, 5 % positive and 2 % ignored labels,
+seed 7; 4 train shards of 10, 11, 16, 32 dumps, 2 validation), `examples/f3_train.py --nplanes 23
+--seed 1 --steps 2000`, weights discarded. Run `D:/rang/outputs/f4-20261111-10-gpu-audit` (`audit.json`,
+`gpu.csv` at 1 s, `train/train.json`; `.code/HEAD` `6bdb026`, the script `examples/f4_gpu_audit.py`
+in `.code/examples`; after the run it was changed only by ruff: a `with` block and formatting).
+Heavy lock shared, 4 slots / 16 GB, from Windows around `wsl.exe`; 52 min wall, almost all of it lock
+wait. Venv `~/Build/tmp/20261113-f4-jaxcuda` (uv, public PyPI only: no index override in the WSL
+environment or uv/pip config), `jax[cuda12]` 0.12.0.1, 36 s to build.
+
+| Measure | Value |
+| --- | --- |
+| JAX devices | `cuda:0` (RTX 4070 Ti, 12,282 MiB) |
+| Weights (23 inputs) | 4,009, as section 3 |
+| Steady rate (steps 1000-2000) | 55.9 steps/s; 30,000 steps would take 9 min at that rate |
+| Load / train / validation of synthetic shards | 11.1 s / 40.6 s (incl. JIT) / within the 55.3 s wall |
+| GPU memory | baseline 10,820 MiB used by other processes, peak 11,453 MiB: **about 630 MiB for F4** with `XLA_PYTHON_CLIENT_PREALLOCATE=false` |
+| GPU utilisation, median over samples | 95 % |
+
+Reading: **the GPU path runs at 23 planes; no blocker in the code or the environment.** Wall: F3's
+real calibrator training ran 1,279-1,752 s per seed at 15 planes (`f3-20261110-17-train-calibrator`,
+same JAX, same GPU), slower than this audit's rate (real shards are bigger, and batches come from
+them on a busy host), so plan **about 25-30 min per seed, about 3 h for 3 seeds × 2 classes**,
+not 9 min. **Risk: GPU memory.** Ollama's `llama-server` (Windows pid 48888, not F4's) held about 10 GB
+of the 12 GB during the audit, leaving about 1.5 GB; F4's footprint fits in that, but a larger
+validation shard or a second GPU user could run out of memory. Check `nvidia-smi` before Stage 4;
+F4 does not stop other users' processes.
+
+**Training itself is blocked** on the shards and the label audit (running), then the clean C1(U4)
+(deferred), in that order of availability.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
