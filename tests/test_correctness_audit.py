@@ -5,6 +5,8 @@ closes. Synthetic inputs only; no archive, no oracle."""
 
 import numpy as np
 import pytest
+import test_cal_delay
+import test_cal_gain
 from rang import core_grid, core_ms_write, core_writeback, fluxstd
 from rang.formats import flagversions
 from test_cal_gain import run, simulate
@@ -50,20 +52,39 @@ def test_gain_solve_all_flagged_flags_every_solution():
     assert sol.flags.all()
 
 
-def test_gain_solve_nan_cells_equal_flagged_cells():
-    # solve.rs skips non-finite visibilities; the result must be the one of
-    # the same cells flagged.
-    s = simulate(noise=0.01)
-    rng = np.random.default_rng(20261113)
-    bad = rng.random(s["data"].shape[:2]) < 0.05
+@pytest.mark.parametrize(
+    ("solver", "kw", "keys"),
+    [
+        ("gain", {}, ("gains", "snr", "err", "flags")),
+        ("gain", {"calmode": "p"}, ("gains", "snr", "err", "flags")),
+        ("gain", {"casa_rules": False}, ("gains", "snr", "err", "flags")),
+        ("delay", {}, ("delays", "err", "flags")),
+        ("delay", {"kind": "delay_and_offset"}, ("delays", "offsets", "err", "flags")),
+    ],
+)
+def test_nan_cells_solve_as_flagged_cells(solver, kw, keys):
+    # A real bug: cal/diag.rs and the delay kernels have no non-finite guard,
+    # so one NaN visibility made every solution NaN with its flag clear. Now
+    # NaN cells give exactly the solution of the same cells flagged.
+    mod = test_cal_gain if solver == "gain" else test_cal_delay
+    s = mod.simulate(noise=0.01)
+    bad = np.random.default_rng(20261113).random(s["data"].shape[:2]) < 0.05
     nan = {**s, "data": s["data"].copy()}
     nan["data"][bad] = np.nan
     flagged = {**s, "flag": s["flag"].copy()}
     flagged["flag"][bad] = True
-    a, b = run(nan), run(flagged)
-    assert np.array_equal(a.flags, b.flags)
-    ok = ~a.flags
-    assert np.allclose(a.gains[ok], b.gains[ok], rtol=0, atol=1e-6)
+    a, b = mod.run(nan, **kw), mod.run(flagged, **kw)
+    for key in keys:
+        assert np.array_equal(getattr(a, key), getattr(b, key)), key
+    assert np.isfinite(a.gains if solver == "gain" else a.delays).all()
+
+
+def test_delay_solve_without_rows_names_the_problem():
+    s = test_cal_delay.simulate()
+    for key in ("data", "model", "weights", "flag", "flag_row", "a1", "a2", "tb"):
+        s[key] = s[key][:0]
+    with pytest.raises(ValueError, match="no data to solve"):
+        test_cal_delay.run(s)
 
 
 # -- gridder device -------------------------------------------------------------

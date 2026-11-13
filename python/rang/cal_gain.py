@@ -220,6 +220,24 @@ def solve(
     )  # fmt: skip
 
 
+def finite_cells(data, model, weights, flag):
+    """`(data, model, weights, flag)` with every non-finite data, model or
+    weight cell flagged and zeroed. The diagonal and delay kernels have no
+    non-finite guard: one NaN visibility made every solution NaN with its
+    flag clear (research/correctness-audit-2026-11-13.md). solve.rs skips
+    such cells, and this gives the same result as flagging them; finite
+    inputs are returned unchanged."""
+    bad = ~(np.isfinite(data) & np.isfinite(model) & np.isfinite(weights))
+    if not bad.any():
+        return data, model, weights, flag
+    return (
+        np.where(bad, np.complex64(0), data).astype(np.complex64),
+        np.where(bad, np.complex64(0), model).astype(np.complex64),
+        np.where(bad, np.float32(0), weights).astype(np.float32),
+        np.ascontiguousarray(flag | bad.astype(np.uint8), np.uint8),
+    )
+
+
 def _check(calmode, refantmode, refant, nant):
     if calmode not in KINDS:
         raise ValueError(f"calmode must be one of {sorted(KINDS)}")
@@ -262,6 +280,7 @@ def _kernel(
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
     weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
     flag = np.ascontiguousarray(np.broadcast_to(flag, data.shape), np.uint8)
+    data, model, weights, flag = finite_cells(data, model, weights, flag)
     a1 = np.ascontiguousarray(antenna1, np.uint32)
     a2 = np.ascontiguousarray(antenna2, np.uint32)
     flag_row = np.asarray(flag_row, bool) | (a1 == a2)

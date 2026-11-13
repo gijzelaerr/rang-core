@@ -71,7 +71,7 @@ Each row is marked F (fixed here, with a test), T (test added, no code change) o
 | 3 | `read_fits_mask` had no direct test (size mismatch, empty mask, truncated data) | `mask.rs:345` | T |
 | 4 | Gain solve with zero rows died in numpy (`zero-size array ... maximum`) | `cal_gain.py:274` | F |
 | 5 | Gain solve silently truncated per-row arrays (`antenna1` longer than `nrow`); negative bins gave a cryptic error | `cal_gain.py:265-277` | F |
-| 6 | No test fed NaN or an all-flagged set to a solver | `solve.rs:617` | T: NaN cells equal flagged cells (gains to 1e-6, flags identical); all flagged → every solution flagged |
+| 6 | **NaN poisoned the gain, bandpass and delay solves.** `cal/diag.rs` and the delay kernels have no non-finite guard, and nothing in the Python calibration path flags non-finite data. One NaN visibility in 5 % of cells made every gain (48/48) or delay NaN, with its flag clear, so the bad solution would have been written and applied. `solve.rs` skips such cells. No test fed NaN or an all-flagged set to a solver. Found by the new test | `cal_gain._kernel`, `cal_delay` | F: `cal_gain.finite_cells` flags and zeroes non-finite data, model and weight cells. The result is now bit-identical to flagging the same cells (gain ap/p, QuartiCal referencing, delay, delay+offset; gains, delays, offsets, SNR, errors, flags). Finite inputs are unchanged. All flagged → every solution flagged (T) |
 | 7 | Write-back layout: a negative `POLARIZATION_ID` / `SPECTRAL_WINDOW_ID` picked the last subtable row, and a large one raised a bare `IndexError` | `core_writeback.py:156` | F |
 | 8 | Flag-version names: only `/` refused. A `\` nested directories on Windows, and `: * ? " < > \|` failed there | `flagversions.py:135` | F (refused on every OS) |
 | 9 | `fluxstd.manual` gave a quiet NaN or inf for a frequency ≤ 0, where `model()` raises | `fluxstd.py:331` | F |
@@ -91,6 +91,7 @@ Each row is marked F (fixed here, with a test), T (test added, no code change) o
 | 23 | The solver oracles (QuartiCal, CASA) are offline runs recorded in notes, not pytest gates. Only archived JSON/npz receipts are read in the suite | `research/c2*.md` | open (by design; v0.2.0 rests on E2/E3) |
 | 24 | MS-reader oracle and error tests skip unless `outputs/core-e-oracle-*` is present, so in CI and fresh worktrees they never run | `test_core_ms.py` | open (cheap: rerun the error assertions on `core_ms_write.default_ms`) |
 | 25 | Untested public functions: `caltable.jones_terms`, `h5parm.diagonal_gains`/`summary`, `killms.normalise_to_antenna0`, `quartical_store.read_term`, `sky.direction_cosines`/`save_any`, `measures.feed_angle`/`location`, `core_ms.reader_slice`, `core_policy.axis_weights`, `cal_refant.is_auto`, `tvflag_adjoint.tv_value`, `applycal.separation`, about 35 helpers in `f2flag`/`f3flag` (research flaggers, not shipped) | — | open |
+| 27 | The other solvers (`cal_pol` leakage and cross-hand, `cal_fluxscale`, self-cal's non-gain terms) were not probed with NaN input | `cal_pol.py`, `cal/leakage.rs`, `cal/crosshand.rs` | open (the same test pattern, next) |
 | 26 | `df5o-deconv-oracles.md:34` cites `core/src/deconv.rs`, which does not exist | note | open (doc fix) |
 
 ## 3. What changed
@@ -103,6 +104,11 @@ it used to panic on. Every valid FITS header is ASCII, so it reads exactly as be
   `RuntimeError`.
 - `gemclean/fits.rs`, `gemclean/mask.rs`: header bytes outside ASCII read as `?`, so a card is always
   80 one-byte characters.
+- `cal_gain.finite_cells`, called by `cal_gain._kernel` and `cal_delay.solve`, flags and zeroes every
+  non-finite data, model or weight cell. Finite inputs return unchanged, so a solve on finite data is
+  unchanged bit for bit. On the chunked route with `calibrate.average_freq`, a NaN channel makes the
+  averaged cell NaN, and that row's averaged cell is flagged. Averaging over the finite channels instead
+  would be a further change; it is not made here.
 - `cal_gain._kernel`, which also serves bandpass and the chunked `gaincal` route: refuses zero rows or
   channels, per-row arrays of the wrong length, a `freq_bin` shorter than the channels (a longer one
   stays allowed, since a frequency-averaged chunk keeps the full map), and negative bins.
@@ -114,7 +120,7 @@ it used to panic on. Every valid FITS header is ASCII, so it reads exactly as be
 - `gemclean`: `-threshold`, `-abs-threshold` and `-auto-threshold` must be finite and ≥ 0, the same
   check `-auto-mask` already has.
 
-New tests: `tests/test_correctness_audit.py` has 18 cases. The Rust tests are
+New tests: `tests/test_correctness_audit.py` has 23 cases. The Rust tests are
 `gemclean::fits::a_non_ascii_header_byte_does_not_panic`,
 `gemclean::mask::fits_masks_read_refuse_and_never_panic`,
 `gemclean::cli::thresholds_are_finite_and_not_negative` and
@@ -122,6 +128,7 @@ New tests: `tests/test_correctness_audit.py` has 18 cases. The Rust tests are
 
 ## 4. What is left (proposed order)
 
+0. **NaN in the other solvers (#27)**: the pattern of `test_nan_cells_solve_as_flagged_cells`.
 1. **GPU parity that cannot pass silently.** Add a `RANG_REQUIRE_GPU=1` that turns the adapter skip into
    a failure, and run it once per merge batch on the Windows host. Write the f32 limit into
    `docs/limits.md`.

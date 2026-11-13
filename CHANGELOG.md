@@ -10,10 +10,12 @@ the release notes are the section of this file for that version.
 ## Unreleased
 
 - Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
-  instead of running wrong. `core_grid.invert(gridder="wgrid")` with a GPU device raises instead of
+  instead of running wrong. A NaN visibility made every gain, bandpass or delay solution NaN with its
+  flag clear; non-finite data, model and weight cells are now flagged, which gives exactly the solution
+  of the same cells flagged. `core_grid.invert(gridder="wgrid")` with a GPU device raises instead of
   running on the CPU. gemclean's FITS reader (`-predict` models, `-fits-mask`) no longer panics on a
   non-ASCII header byte. `-threshold`, `-abs-threshold` and `-auto-threshold` must be finite and not
-  negative. The gain and bandpass solvers refuse zero rows and per-row arrays of the wrong length.
+  negative. The gain, bandpass and delay solvers refuse zero rows and per-row arrays of the wrong length.
   Write-back refuses out-of-range DATA_DESCRIPTION ids (a negative one picked the last row). Flag-version
   names with `\ : * ? " < > |` are refused on every platform. `fluxstd.manual` refuses non-positive
   frequencies. No default's numbers change.
