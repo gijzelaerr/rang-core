@@ -20,6 +20,8 @@ Each entry is one report and its verdict, newest first within a section.
 - [finish-plan.md](finish-plan.md): the plan to finish GeMClean and rang-core at v0.2.0, in full polarisation; confirmed 2026-11-05, in execution.
 - [roadmap.md](roadmap.md): the releases after v0.2.0 (approved by the owner 2026-11-13); every item is a `roadmap` issue on gijzelaerr/rang-core.
 - [Opportunities, 2026-11-13](opportunities-2026-11-13.md): opportunities for a novel contribution from the measured notes and the literature scan (proposed); filed as issues #22, #23, #24, #27 and #28.
+- [Branch triage, 2026-11-13](branch-triage-2026-11-13.md): every branch and worktree classified; 13 merged worktrees removed, the rest kept with reasons.
+- [Upstream status, 2026-11-13](upstream-status-2026-11-13.md): WSClean !1068 and radler !238 still open and unreleased.
 - [Multi-node scope](multi-node-scope.md) (proposed, 2026-11-13): chunk task API, then a multi-node executor (Dask one candidate), then MSv4/Zarr; Simon Perkins' replies on xarray-ms, arcae and Dask; nothing built.
 - [A0, acceptance data and protocol](a0-acceptance.md): development and held-out data, the frozen gates for the finish line, E1-E3 and CARACal's settings; no public set meets the native gate, so E2-N is open.
 - [C1, the calibration chain](c1-calibration-chain.md): the frozen term list, order, equations, oracles, gauge handling, apply rules and implementation steps for C2 to C7.
