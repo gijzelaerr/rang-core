@@ -366,3 +366,25 @@ MFImage's CLEAN therefore stopped with residual flux left: 236,158 iterations of
 allowed, and peaks 7-12 times the threshold. Its log (`prtLv 1`) does not say why. Not
 established: which stopping rule ended it. Candidates are `minPatch`, `maxPixel`, the major-cycle
 rule with `ccfLim 0.2`, and the TDF defaults of section 3 (`Reuse`, `noNeg`).
+
+## 10. Resume state (2026-11-13, stopped on the owner's order)
+
+- Done and committed at 5b1e3f3:
+  - Obit build, patched as `rang-obit:dc26694-p1`;
+  - checks (a) to (c);
+  - the untimed S1 CLEAN run at -j8 (section 9) and its beam and rms analysis;
+  - the timed runs G-S1-j16-r1 and W-S1-j16-r1.
+  The outputs are in `D:\rang\outputs\v5-20261111-01\runs`.
+- Pending, in this order and each as one exclusive hold, after E2's and E3's timed passes:
+  1. `s1`: the O-S1-j16-r1 run and the r2 repeats of G, W and O;
+  2. `p16`;
+  3. `p1`: S1 and the pilot at -j1, with the 4 h drop rule.
+  Command, from `research/results/v5-obit-scripts`:
+  `V5_PLAN_HELD=1 python tools/heavy_lock.py run -- python v5_run.py plan NAME`.
+- After the timed runs:
+  - score each run with `v5_measure.py`;
+  - add the ratios to section 9;
+  - add rows to `research/tool-timings.md`;
+  - write `research/results/v5-obit.json`;
+  - remove `~/Build/tmp/20261111-v5-wsctmp` and `~/Build/tmp/20261111-v5-obit`.
+- No heavy_lock ticket is queued.
