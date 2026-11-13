@@ -86,6 +86,13 @@ channel-imaging mode, but 3.7 also reorders for `-mgain` ≠ 1, four or more pol
 (`settings.cpp` `determineReorder`); python-casacore `tablehelper._format_cell` discards its `reshape` result;
 Ubuntu casacore-data 20250826 now triggers "TAI_UTC seems out-of-date" in CASA.
 
+## Replies (2026-11-12/13)
+
+- **WSClean #207** (`-join-polarizations`, linear against squared): André Offringa updated the docs (wsclean !1070, open). He also opened [radler !238](https://git.astron.nl/RD/radler/-/merge_requests/238) (open), which makes GenericClean's peak finding use linear integration everywhere when squared joining is off. Multiscale and the subminor loop already did. This confirms the linear rule that G9 copied from the binary. When the next WSClean/Radler release lands, rerun G9's oracle cases. The non-subminor Högbom path is the one that changes.
+- **WSClean #208** (`CalculateMsLimits` tests v with u): confirmed as a genuine bug; fix in wsclean !1068 (open). rang copied the bug on purpose, because the binary is the oracle: `core/src/grid.rs` `w_limits` and `core/src/gemclean/multiscale.rs` `theoretic_beam` both test v with u. When a WSClean release carries !1068, switch both to v and rerun G2's and G7's oracle cases against that release.
+- **WSClean #209** (`-save-source-list` help): closed. The author holds that the error message on an invalid combination is enough. No action.
+- **AOFlagger #44-46:** no reply yet.
+
 ## Follow-ups on U1-U4
 
 Checked 2026-11-12 (`gh search issues/prs --author gijzelaerr`, every comment read). No reply from us is due:
