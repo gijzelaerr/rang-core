@@ -324,7 +324,10 @@ if mode == "on":
     t.renamecol("WEIGHT_SPECTRUM", "E2_WEIGHT_SPECTRUM")
     t.renamecol("WEIGHT", "E2_WEIGHT")
     desc = t.getcoldesc("E2_WEIGHT")
-    t.addcols(makecoldesc("WEIGHT", desc))
+    # its own storage manager, so removecols drops it whole: rang's reader
+    # rejects a StandardStMan that casacore added a column to and removed
+    t.addcols(makecoldesc("WEIGHT", desc),
+              {"TYPE": "StandardStMan", "NAME": "E2UnitWeight", "SPEC": {}})
     w = np.ones((n, t.getcell("E2_WEIGHT", 0).shape[0]), np.float32)
     t.putcol("WEIGHT", w)
 else:

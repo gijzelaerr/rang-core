@@ -22,7 +22,8 @@ ORACLE_DIR is R/wsclean3c (as committed: MS weights) or R/wsclean3c-unit
    convention, WSClean 3.7's method), residual + model (*) beam, and the
    Gaussian fixed to that beam fitted at the candidate (amplitude and centre
    free). Flux = sum over channels; ratio rang / WSClean. Gate: median within
-   0.5 % of 1, robust scatter (1.4826 MAD) <= 1 %, pooled over the fields.
+   0.5 % of 1, robust scatter (1.4826 MAD) <= 1 %, pooled over the fields;
+   not checked with fewer than 3 sources (the scatter is then undefined).
 3. Spectral index: sources >= 50 sigma; alpha per arm from a straight line
    in log S against log nu over the output channels; gate median |d alpha|
    <= 0.05 (pooled).
@@ -222,6 +223,7 @@ def main(r, odir, out_path):
     comp = {"n": len(allsrc)}
     if len(ratios):
         comp.update(median=float(np.median(ratios)), robust_scatter=mad(ratios))
+    if len(ratios) >= 3:  # scatter undefined below 3 sources: not checked
         comp["met"] = bool(
             abs(comp["median"] - 1) <= 0.005 and comp["robust_scatter"] <= 0.01
         )

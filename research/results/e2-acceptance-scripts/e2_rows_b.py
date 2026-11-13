@@ -5,7 +5,8 @@ before it read an E2-B visibility.
 
     python e2_rows_b.py ROW RANG_MS RANG_DATA RANG_FLAG CASA_MS CASA_DATA CASA_FLAG OUT.json
 
-ROW is `parity` (J1331+3030, scan 17: |dp| <= 0.1 point, |dchi| <= 0.5 deg)
+ROW is `transfer` (one arm: `transfer MS DATA FLAG OUT.json`, absolute p and
+chi at 1.3-1.5 GHz against A0's limits), `parity` (J1331+3030, scan 17: |dp| <= 0.1 point, |dchi| <= 0.5 deg)
 or `j1830` (J1833-2103, scans 19 and 20: |I_rang / I_casa - 1| <= 1 %,
 |dp| <= 0.1 point, |dchi| <= 1 deg); `field=NAME scans=a,b` after ROW
 overrides the field and scans (the development test only). Each arm is read
@@ -41,10 +42,12 @@ ROWS = {
     "j1830": {"field": "J1833-2103", "scans": [19, 20], "dp": 0.001, "dchi_deg": 1.0,
               "di": 0.01},
 }  # fmt: skip
-EDGES = [1.0e9, 1.1e9, 1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9, 1.65e9]
+EDGES_DEFAULT = [1.0e9, 1.1e9, 1.2e9, 1.3e9, 1.4e9, 1.5e9, 1.6e9, 1.65e9]
+EDGES = EDGES_DEFAULT
 
 
-def accumulate(ms, data_col, flag_col, field, scans, freq):
+def accumulate(ms, data_col, flag_col, field, scans, freq, edges=None):
+    EDGES = edges or EDGES_DEFAULT
     with core_ms.open_table(Path(ms) / "FIELD") as t:
         fid = [str(n) for n in t.getcol("NAME")].index(field)
     nb = len(EDGES) - 1
@@ -88,7 +91,32 @@ def stokes(s, n):
     return i, q, u, w
 
 
+def transfer(argv):
+    """`transfer MS DATA FLAG OUT.json`: one arm's 3C 286 transfer (A0 6.3):
+    the same estimator over 1.3-1.5 GHz in one bin, J1331+3030 scan 17;
+    gate p in [9.0, 10.1] % and |chi - 33.1 deg| <= 7 deg."""
+    ms, col, fl, out = argv
+    with core_ms.open_table(Path(ms) / "SPECTRAL_WINDOW") as t:
+        freq = np.asarray(t.getcol("CHAN_FREQ"))[0]
+    s, n, tot = accumulate(ms, col, fl, "J1331+3030", [17], freq, [1.3e9, 1.5e9])
+    i, q, u, v = stokes(s, n)
+    p = float(np.hypot(q, u)[0] / i[0])
+    chi = float(np.degrees(0.5 * np.arctan2(u, q))[0])
+    dchi = (chi - 33.1 + 90) % 180 - 90
+    res = {"row": "transfer", "ms": ms, "column": col, "flag": fl,
+           "frac_unflagged": float(n[0] / max(tot[0], 1)), "I": float(i[0]),
+           "q": float(q[0] / i[0]), "u": float(u[0] / i[0]), "v": float(v[0] / i[0]),
+           "p": p, "chi_deg": chi, "chi_minus_33_1_deg": float(dchi),
+           "p_met": 0.090 <= p <= 0.101, "chi_met": abs(dchi) <= 7.0}  # fmt: skip
+    res["met"] = bool(res["p_met"] and res["chi_met"])
+    Path(out).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(res, indent=1))
+    return 0
+
+
 def main(argv):
+    if argv[0] == "transfer":
+        return transfer(argv[1:])
     row, *rest = argv
     spec = dict(ROWS[row])
     while rest and "=" in rest[0]:

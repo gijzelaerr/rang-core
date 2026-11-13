@@ -669,10 +669,21 @@ row value was read. Each scorer was run on the development dry run first
       1e-6. The other 3c measures as measured. Off-source |model| on dev
       was 1.58 (J1939−6342) and 3.16 (J1331+3030) against the 1.6 limit.
     - The region profile is reported beside, never as the gate.
+  - The step's first version added the unit WEIGHT to the shared
+    StandardStMan and removed it afterwards. casacore reads that table; rang's
+    reader then refuses it ("StandardStMan column count mismatches the
+    table"), found on the dry run's copy.
+    - Reproduced on a 10-row table; a follow-up for rang's reader.
+    - Fixed before any E2-B use: the unit WEIGHT gets its own storage
+      manager, and the frozen copy's queued run was stopped before it
+      started.
 - **3c scorer** (`e2_score3c.py`): the measures and limits are listed in its
   docstring. **Q/Q₀ is not checked**: it needs both models predicted through
   one gridder on the MS. 3c is therefore reported at best as "met where
   checked", never as met.
+  The compact-source gate is "not checked" below 3 matched sources (added
+  before any 3c read: on dev it read met with n = 1, where the scatter is 0 by
+  construction).
 - **Visibility-domain rows** (`e2_rows_b.py`: 3C 286 parity, 1830−211; the
   transfer reuses its estimator):
   - Both arms apply with parang true, so the apply performs the derotation to
@@ -687,6 +698,35 @@ row value was read. Each scorer was run on the development dry run first
 
   - This frame difference is shared by both arms, so it cancels in parity.
     The transfer row's absolute χ will show it.
+- **The χ offset, measured at 1.3–1.5 GHz** (scan 17 on the frozen CASA copy;
+  dev scan 1 on the dry run's), written before the transfer row ran:
+
+  | Scan | ψ (array centre) | Model χ | Corrected χ, rang and CASA | Offset |
+  | --- | --- | --- | --- | --- |
+  | Dev scan 1 | −169.2° | 32.7° | 88° | +55.0° |
+  | Scan 17 | +146.4° | 30.0° | −3.2° | −33.2° |
+
+  - On scan 17: model q +0.052, u +0.090; corrected q +0.099, u −0.011.
+    Corrected |q| carries almost all of p, so this is a rotation, not a
+    mirror (Q or U flipped).
+  - The offset changes by −88.2° (≡ 91.8° mod 180) for Δψ = −44.4°. A
+    residual +2ψ predicts 91.2° and −2ψ predicts 88.8°, so the data favour
+    P removed with the wrong sign. Two scans cannot settle it.
+  - Separate study, early reading, not an E2 measurement (2026-11-13,
+    `research/chi-offset.md` on branch claude/chi-offset-80cb6a). ψ agrees
+    with astropy to 0.07°, so P's sign is not the cause.
+    - In the feed frame on scan 17, data q_f −0.049 against model +0.063,
+      while u_f agrees (−0.087 against −0.083).
+    - That fits a receptor angle near 0° rather than −90°, with Xf then
+      matching U to the model: χ = −χ₀ + 2ψ − 90°. This predicts −10° and
+      +79°; E2 saw −3° and +88°.
+    - That study's simulation and LUNO tests are still running.
+  - It is shared by rang and CASA, so it is the configured frame
+    (RECEPTOR_ANGLE −90°, `feed_angle_rotation: -90`, parang true), not
+    one package's apply.
+  - **Expected for the transfer row:** χ near the own-scan −3° (the
+    development Xf cannot remove a ψ-dependent rotation), so **not met** on
+    χ; p inside [9.0, 10.1] %.
 - **Transfer and leakage recipe, the same for both scans and arms:**
   1. A per-scan phase-only G (p, 60 s, parang), with the development K, G
      and B preapplied. It is solved on scan 17 against the 3C 286 model, and
@@ -707,6 +747,39 @@ row value was read. Each scorer was run on the development dry run first
   - FLAG after calibrate (the CASA copy's flags) differs in 5,916 of
     4.47e9 elements: 4,392 frozen only, 1,524 amended only.
   - So the amended arm gets its own CASA 3b run, `e2_casa3b.py` on its copy.
+- **Transfer and leakage, the remaining choices** (`e2_transfer.py`,
+  `e2_casa_xfer.py`, `e2_rows_b.py transfer`, `e2_leakage.py`):
+  - **Where:** both arms run on the frozen CASA copy, `R/casa/e2b.ms`. It
+    holds rang's model (RANG_MODEL_DATA, rang's solve model) and CASA's
+    setjy MODEL_DATA.
+  - **Flags:** FLAG is restored before every case from rang's flag-stage
+    version (`rang_calibrate_*`: FLAG after rang's flag stage, identical in
+    the frozen and amended arms; the own-half solves do not enter).
+  - **Receptor angle:** rang's apply gets −90° explicitly, as the chain does.
+    CASA reads the −90° written into the copy's FEED.
+  - **Rang's arm** uses the chain's own calls and term specs
+    (`core_pipeline.chain_terms`), unit weights and `average_time`, plus
+    `average_freq` for the amended arm. A selftest must first reproduce
+    RANG_CORRECTED_DATA at class C: the run's own tables applied by the
+    library to scan 17.
+  - **CASA's arm:**
+    - Development tables from `e2_casa3b.py`'s calls (no secondary, no
+      applycal), on a copy of `luno-dev.ms` carrying rang's development FLAG
+      after calibrate.
+    - On E2-B: gaincal of the per-scan G, then applycal with parang true.
+    - One CASA run serves both arms when the two development flag versions
+      are equal.
+    - Measured equal (0 elements differ,
+      `devtables/dev-flags-frozen-vs-amended.json`), and the flag-stage FLAG
+      is identical in both arms. So CASA's transfer and leakage results are
+      one run, reported beside both rang arms.
+  - **Transfer measure:** the parity estimator in one bin, 1.3–1.5 GHz.
+  - **Leakage measure:**
+    - Image: WSClean 3.7 dirty IQUV MFS of J1939−6342 at gate 3c's size and
+      weighting (MS weights; a ratio of one source).
+    - Per Stokes Q, U, V: peak |P| within 3 beams of the I peak, over that I
+      peak.
+    - Gate: each ≤ 0.3 %.
 - **Weights in 3b (stated, not changed):** rang solves with unit weights;
   CASA's arm (`e2_casa3b.py`, as `e1b_casa.py` and the LUNO validation) uses
   WEIGHT_SPECTRUM. On LUNO the weights were
