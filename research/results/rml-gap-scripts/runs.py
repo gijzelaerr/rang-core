@@ -1,7 +1,9 @@
 """runs.py: the arms of research/rml-gap.md, section 3. Run every command under
 tools/heavy_lock.py (the main checkout's copy); this script takes no lock itself.
 
-    runs.py g BIN SKY            GeMClean natively (Windows) into $O/runs/G/SKY/g-*
+    runs.py g BIN SKY [ARM [OPTION ...]]
+                                 GeMClean natively (Windows) into $O/runs/ARM/SKY/g-* (ARM
+                                 defaults to G; the options are appended to BASE)
     runs.py w SKY                WSClean 3.7 (WSL docker) into $O/runs/W/SKY/w-*
     runs.py u CONFIG SKY [CAP_CYCLES CAP_SECONDS]
                                  pfb-imaging 0.0.11 init, grid, sara (WSL docker); stores on
@@ -79,17 +81,17 @@ def sim_opts(sky):
     return ["-size", n, n, "-scale", "1.5asec"]
 
 
-def run_g(binary, sky):
-    d = O / "runs" / "G" / sky
+def run_g(binary, sky, arm="G", extra=()):
+    d = O / "runs" / arm / sky
     d.mkdir(parents=True, exist_ok=False)
-    cmd = [binary, "-name", str(d / "g"), *BASE, *sim_opts(sky), SKIES[sky]]
+    cmd = [binary, "-name", str(d / "g"), *BASE, *extra, *sim_opts(sky), SKIES[sky]]
     (d / "cmd.json").write_text(json.dumps(cmd), encoding="utf-8")
     t = time.time()
     with open(d / "log.txt", "w", encoding="utf-8") as log:
         rc = subprocess.call(cmd, stdout=log, stderr=subprocess.STDOUT)
     wall = time.time() - t
     (d / "wall.json").write_text(json.dumps({"rc": rc, "wall_s": wall}), encoding="utf-8")
-    log_row("G", sky, rc, wall, Path(binary).name)
+    log_row(arm, sky, rc, wall, " ".join([Path(binary).name, *extra]))
     return rc, wall
 
 
@@ -220,7 +222,8 @@ def main():
     mode = sys.argv[1]
     O.mkdir(parents=True, exist_ok=True)
     if mode == "g":
-        rc, wall = run_g(sys.argv[2], sys.argv[3])
+        arm = sys.argv[4] if len(sys.argv) > 4 else "G"
+        rc, wall = run_g(sys.argv[2], sys.argv[3], arm, sys.argv[5:])
     elif mode == "w":
         rc, wall = run_w(sys.argv[2])
     elif mode == "u":

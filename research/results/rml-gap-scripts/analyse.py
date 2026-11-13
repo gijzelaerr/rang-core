@@ -161,12 +161,30 @@ def u_run(s, d, g_wall, out):
     )
     # The major-cycle lines ("Iter k: peak residual = ..., rms = R, eps = E"); the primal-dual
     # solver's own "eps = " lines are not these.
-    cyc = re.findall(r"rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log)
-    eps = [float(e) for _, e in cyc]
-    rec["tool_rms_jy"] = [float(r) for r, _ in cyc]
+    cyc = re.findall(
+        r"peak residual = ([0-9.eE+-]+), rms = ([0-9.eE+-]+), eps = ([0-9.eE+-]+)", log
+    )
+    eps = [float(e) for _, _, e in cyc]
+    rec["tool_peak_residual_jy"] = [float(p) for p, _, _ in cyc]
+    rec["tool_rms_jy"] = [float(r) for _, r, _ in cyc]
     rec["eps"] = eps
     rec["converged"] = bool(eps) and eps[-1] < 5e-4
-    rec["diverged"] = "diverg" in log.lower()
+    # Divergence from pfb's messages, not its option table (the "diverge_count" row).
+    rec["diverged"] = any(
+        "diverg" in ln.lower() and "diverge_count" not in ln.lower()
+        for ln in log.splitlines()
+    )
+    wall_cap = any(st["wall_cap_hit"] for st in run["steps"])
+    if rec["converged"]:
+        rec["stop"] = "tol"
+    elif rec["diverged"]:
+        rec["stop"] = "diverged"
+    elif wall_cap:
+        rec["stop"] = "wall cap"
+    elif len(eps) >= run["cap_cycles"]:
+        rec["stop"] = "cycle cap"
+    else:
+        rec["stop"] = f"other (rc {run['rc']})"
     secs = run["file_seconds_since_start"]
     its = sorted(
         (int(m.group(1)), secs[f])
@@ -191,6 +209,13 @@ def u_run(s, d, g_wall, out):
         m = s.measure(rs.ORIENT[rec["orientation"]](model), exact=True)
         m["cycle"] = k
         m["seconds"] = dict(its)[k]
+        # Scale and registration check beside pfb's own residual peak.
+        m["exact_residual_inner_peak_jy"] = (
+            m["exact_residual_inner_peak_sigma"] * s.sigma
+        )
+        m["group_flux_ratios"] = [
+            g["F_M"] / g["F_T"] for g in m["groups"] if g["F_T"] > 0
+        ]
         rec[key] = m
     if rec["converged"] and g_wall:
         rec["converged_within_5g"] = its[-1][1] <= 5 * g_wall
