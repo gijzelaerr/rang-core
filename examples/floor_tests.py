@@ -316,7 +316,6 @@ def sky_set(d, out, name, img, nf=4, alts=True):
     q.mkdir(parents=True, exist_ok=True)
     sign = sign_check(d, img, out)
     s0 = time.perf_counter()
-    f = SIZE // nf
     for iy in range(nf):
         for ix in range(nf):
             fn = q / f"facet{nf}_{iy}_{ix}.npy"
@@ -348,9 +347,9 @@ def sky_set(d, out, name, img, nf=4, alts=True):
     if alts:
         dnu = d.meta["chan_width_hz"]
         jobs = {
-            "flipw": dict(flip_w=False),
-            "now": dict(do_wgridding=False),
-            "eps7": dict(epsilon=1e-7),
+            "flipw": {"flip_w": False},
+            "now": {"do_wgridding": False},
+            "eps7": {"epsilon": 1e-7},
         }
         for k, kw in jobs.items():
             if not (q / f"{k}.npy").exists():
@@ -528,7 +527,7 @@ def t3(d, V, Y):
     gains = {k: None for k in Y if k not in CENTRAL4}
     base = {k: v.copy() for k, v in Y.items() if k not in CENTRAL4}
     for sweep in range(2):
-        for k in gains:
+        for k in list(gains):  # noqa: PLC0206
             tot -= Y[k]
             f, gains[k] = stefcal(d, V - tot, base[k], zero, 1, iters=8, g0=gains[k])
             Y[k] = base[k] * f[:, None]
@@ -574,7 +573,7 @@ def t6_flags(d, e, worst, seed=1316):
     w = d.wnat[s]
     uk, inv = np.unique(key, return_inverse=True)
     power = np.bincount(inv, p) / np.maximum(np.bincount(inv, w), 1e-300)
-    nflag = int(round(0.1 * uk.size))
+    nflag = round(0.1 * uk.size)
     if worst:
         bad = uk[np.argsort(-power)[:nflag]]
     else:
@@ -844,8 +843,8 @@ def arms(out):
         P1 = max(r["none"]["F"] ** 2 - T**2, 1e-30)
         k2 = min(math.sqrt(Ppil / P1), 50.0)
         arm(d, out, nm, round(k2, 3))
-    for nm in A_MAX:
-        arm(d, out, nm, A_MAX[nm])
+    for nm, kmax in A_MAX.items():
+        arm(d, out, nm, kmax)
 
 
 def pilot(out):
