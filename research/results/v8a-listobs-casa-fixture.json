@@ -1,0 +1,833 @@
+{
+ "schema": "rang.v8a-listobs-casa",
+ "version": 1,
+ "oracle": "CASA casatasks 6.7.6.14 listobs, image sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8",
+ "source_run": "v8a-listobs-20261112-01",
+ "runs": {
+  "fixture-scan1": {
+   "record": {
+    "BeginTime": 59947.277368372546,
+    "EndTime": 59947.27755347942,
+    "IntegrationTime": 15.993233680725098,
+    "field_0": {
+     "code": "T",
+     "direction": {
+      "m0": {
+       "unit": "rad",
+       "value": -1.1370071039605743
+      },
+      "m1": {
+       "unit": "rad",
+       "value": -1.1119958085589738
+      },
+      "refer": "J2000",
+      "type": "direction"
+     },
+     "name": "J1939-6342"
+    },
+    "nfields": 1,
+    "numrecords": 20,
+    "scan_1": {
+     "0": {
+      "BeginTime": 59947.277368372546,
+      "EndTime": 59947.27755347942,
+      "FieldId": 0,
+      "FieldName": "J1939-6342",
+      "IntegrationTime": 7.996616971962621,
+      "SpwIds": [
+       0
+      ],
+      "StateId": 0,
+      "nRow": 20,
+      "scanId": 1
+     }
+    },
+    "timeref": "UTC"
+   },
+   "msmd": {
+    "spws": [
+     {
+      "name": "none",
+      "nchan": 4096,
+      "bandwidth": 856000000.0,
+      "meanfreq": 1283895507.8125,
+      "reffreq": {
+       "m0": {
+        "unit": "Hz",
+        "value": 1284000000.0
+       },
+       "refer": "TOPO",
+       "type": "frequency"
+      },
+      "corrtypes": [
+       9,
+       10,
+       11,
+       12
+      ],
+      "chanfreqs_sha256": "76d27590f30636c11a7fedb5f2446972f52e3f266be6db2334c8263cc226da12",
+      "chanfreqs_count": 4096,
+      "chanwidths_sha256": "985cd35a49df30c5a5bc24ad27c92430d68dfcbf8253db3d2edfab20eb95e745",
+      "chanwidths_count": 4096
+     }
+    ],
+    "antennas": [
+     {
+      "name": "m000",
+      "station": "m000",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426496005672916,
+      "latitude_rad": -0.5360416640401379,
+      "height_m": 1095.199887059629,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426496005672905,
+       -0.533097538046245,
+       6373688.499810977
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -9.328414158519116,
+       30.360396241600675,
+       45.28946891706437
+      ]
+     },
+     {
+      "name": "m001",
+      "station": "m001",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426666966827316,
+      "latitude_rad": -0.5360360718682543,
+      "height_m": 1095.0728219440207,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426666966827316,
+       -0.5330919638464252,
+       6373688.477344832
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       0.05598909896966752,
+       65.88835707638536,
+       45.267002772539854
+      ]
+     },
+     {
+      "name": "m002",
+      "station": "m002",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426061537903155,
+      "latitude_rad": -0.536044331364464,
+      "height_m": 1095.24853798002,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426061537903155,
+       -0.5331001967929591,
+       6373688.498570664
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -33.177228047046114,
+       13.414493299814549,
+       45.28822860401124
+      ]
+     },
+     {
+      "name": "m003",
+      "station": "m003",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.3742543476956605,
+      "latitude_rad": -0.5360408747969425,
+      "height_m": 1094.8885665917767,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.3742543476956605,
+       -0.5330967512039683,
+       6373688.203254245
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -67.5818086938413,
+       35.37544817660146,
+       44.99291218537837
+      ]
+     }
+    ],
+    "observatory": "MeerKAT",
+    "observatory_position": {
+     "m0": 0.37426665946841203,
+     "m1": -0.5360464638235224,
+     "m2": 1050.0,
+     "refer": "WGS84"
+    },
+    "fieldnames": [
+     "J1939-6342"
+    ],
+    "scannumbers": [
+     1
+    ]
+   },
+   "text": "================================================================================\n           MeasurementSet Name:  /ms/fixture/1672727931_sdp_l0_scan_1.ms      MS Version 2\n================================================================================\n   Observer: Operator     Project: 20230103-0005  \nObservation: MeerKAT\nData records: 20       Total elapsed time = 15.9932 seconds\n   Observed from   03-Jan-2023/06:39:24.6   to   03-Jan-2023/06:39:40.6 (UTC)\n\n   ObservationID = 0         ArrayID = 0\n  Date        Timerange (UTC)          Scan  FldId FieldName             nRows     SpwIds   Average Interval(s)    ScanIntent\n  03-Jan-2023/06:39:24.6 - 06:39:40.6     1      0 J1939-6342                  20  [0]  [8] [UNKNOWN]\n           (nRows = Total number of rows per scan) \nFields: 1\n  ID   Code Name                RA               Decl           Epoch   SrcId      nRows\n  0    T    J1939-6342          19:39:25.030000 -63.42.45.60000 J2000   0             20\nSpectral Windows:  (1 unique spectral windows and 1 unique polarization setups)\n  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          \n  0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY\nSources: 1\n  ID   Name                SpwId RestFreq(MHz)  \n  0    J1939-6342          0     -              \n  NB: No systemic velocity information found in SOURCE table.\nAntennas: 4:\n  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        \n                                                                     East         North     Elevation               x               y               z\n  0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141\n  1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460\n  2    m002  m002      13.5 m   +021.26.36.8  -30.32.39.8        -33.1772       13.4145       45.2882  5109272.199343  2006783.546050 -3239145.330042\n  3    m003  m003      13.5 m   +021.26.35.5  -30.32.39.1        -67.5818       35.3754       44.9929  5109294.928585  2006755.509854 -3239126.266250\n"
+  },
+  "fixture-scan4": {
+   "record": {
+    "BeginTime": 59947.27847901383,
+    "EndTime": 59947.2786641207,
+    "IntegrationTime": 15.993233680725098,
+    "field_0": {
+     "code": "T",
+     "direction": {
+      "m0": {
+       "unit": "rad",
+       "value": -1.1370071039605743
+      },
+      "m1": {
+       "unit": "rad",
+       "value": -1.1119958085589738
+      },
+      "refer": "J2000",
+      "type": "direction"
+     },
+     "name": "J1939-6342"
+    },
+    "nfields": 1,
+    "numrecords": 20,
+    "scan_4": {
+     "0": {
+      "BeginTime": 59947.27847901383,
+      "EndTime": 59947.2786641207,
+      "FieldId": 0,
+      "FieldName": "J1939-6342",
+      "IntegrationTime": 7.996616971962621,
+      "SpwIds": [
+       0
+      ],
+      "StateId": 0,
+      "nRow": 20,
+      "scanId": 4
+     }
+    },
+    "timeref": "UTC"
+   },
+   "msmd": {
+    "spws": [
+     {
+      "name": "none",
+      "nchan": 4096,
+      "bandwidth": 856000000.0,
+      "meanfreq": 1283895507.8125,
+      "reffreq": {
+       "m0": {
+        "unit": "Hz",
+        "value": 1284000000.0
+       },
+       "refer": "TOPO",
+       "type": "frequency"
+      },
+      "corrtypes": [
+       9,
+       10,
+       11,
+       12
+      ],
+      "chanfreqs_sha256": "76d27590f30636c11a7fedb5f2446972f52e3f266be6db2334c8263cc226da12",
+      "chanfreqs_count": 4096,
+      "chanwidths_sha256": "985cd35a49df30c5a5bc24ad27c92430d68dfcbf8253db3d2edfab20eb95e745",
+      "chanwidths_count": 4096
+     }
+    ],
+    "antennas": [
+     {
+      "name": "m000",
+      "station": "m000",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426496005672916,
+      "latitude_rad": -0.5360416640401379,
+      "height_m": 1095.199887059629,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426496005672905,
+       -0.533097538046245,
+       6373688.499810977
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -9.328414158519116,
+       30.360396241600675,
+       45.28946891706437
+      ]
+     },
+     {
+      "name": "m001",
+      "station": "m001",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426666966827316,
+      "latitude_rad": -0.5360360718682543,
+      "height_m": 1095.0728219440207,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426666966827316,
+       -0.5330919638464252,
+       6373688.477344832
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       0.05598909896966752,
+       65.88835707638536,
+       45.267002772539854
+      ]
+     },
+     {
+      "name": "m002",
+      "station": "m002",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426061537903155,
+      "latitude_rad": -0.536044331364464,
+      "height_m": 1095.24853798002,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426061537903155,
+       -0.5331001967929591,
+       6373688.498570664
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -33.177228047046114,
+       13.414493299814549,
+       45.28822860401124
+      ]
+     },
+     {
+      "name": "m003",
+      "station": "m003",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.3742543476956605,
+      "latitude_rad": -0.5360408747969425,
+      "height_m": 1094.8885665917767,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.3742543476956605,
+       -0.5330967512039683,
+       6373688.203254245
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -67.5818086938413,
+       35.37544817660146,
+       44.99291218537837
+      ]
+     }
+    ],
+    "observatory": "MeerKAT",
+    "observatory_position": {
+     "m0": 0.37426665946841203,
+     "m1": -0.5360464638235224,
+     "m2": 1050.0,
+     "refer": "WGS84"
+    },
+    "fieldnames": [
+     "J1939-6342"
+    ],
+    "scannumbers": [
+     4
+    ]
+   },
+   "text": "================================================================================\n           MeasurementSet Name:  /ms/fixture/1672727931_sdp_l0_scan_4.ms      MS Version 2\n================================================================================\n   Observer: Operator     Project: 20230103-0005  \nObservation: MeerKAT\nData records: 20       Total elapsed time = 15.9932 seconds\n   Observed from   03-Jan-2023/06:41:00.6   to   03-Jan-2023/06:41:16.6 (UTC)\n\n   ObservationID = 0         ArrayID = 0\n  Date        Timerange (UTC)          Scan  FldId FieldName             nRows     SpwIds   Average Interval(s)    ScanIntent\n  03-Jan-2023/06:41:00.6 - 06:41:16.6     4      0 J1939-6342                  20  [0]  [8] [UNKNOWN]\n           (nRows = Total number of rows per scan) \nFields: 1\n  ID   Code Name                RA               Decl           Epoch   SrcId      nRows\n  0    T    J1939-6342          19:39:25.030000 -63.42.45.60000 J2000   0             20\nSpectral Windows:  (1 unique spectral windows and 1 unique polarization setups)\n  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          \n  0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY\nSources: 1\n  ID   Name                SpwId RestFreq(MHz)  \n  0    J1939-6342          0     -              \n  NB: No systemic velocity information found in SOURCE table.\nAntennas: 4:\n  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        \n                                                                     East         North     Elevation               x               y               z\n  0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141\n  1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460\n  2    m002  m002      13.5 m   +021.26.36.8  -30.32.39.8        -33.1772       13.4145       45.2882  5109272.199343  2006783.546050 -3239145.330042\n  3    m003  m003      13.5 m   +021.26.35.5  -30.32.39.1        -67.5818       35.3754       44.9929  5109294.928585  2006755.509854 -3239126.266250\n"
+  },
+  "fixture-scan5": {
+   "record": {
+    "BeginTime": 59947.278849227594,
+    "EndTime": 59947.27903433447,
+    "IntegrationTime": 15.993233680725098,
+    "field_0": {
+     "code": "T",
+     "direction": {
+      "m0": {
+       "unit": "rad",
+       "value": -1.1370071039605743
+      },
+      "m1": {
+       "unit": "rad",
+       "value": -1.1119958085589738
+      },
+      "refer": "J2000",
+      "type": "direction"
+     },
+     "name": "J1939-6342"
+    },
+    "nfields": 1,
+    "numrecords": 20,
+    "scan_5": {
+     "0": {
+      "BeginTime": 59947.278849227594,
+      "EndTime": 59947.27903433447,
+      "FieldId": 0,
+      "FieldName": "J1939-6342",
+      "IntegrationTime": 7.996616971962621,
+      "SpwIds": [
+       0
+      ],
+      "StateId": 0,
+      "nRow": 20,
+      "scanId": 5
+     }
+    },
+    "timeref": "UTC"
+   },
+   "msmd": {
+    "spws": [
+     {
+      "name": "none",
+      "nchan": 4096,
+      "bandwidth": 856000000.0,
+      "meanfreq": 1283895507.8125,
+      "reffreq": {
+       "m0": {
+        "unit": "Hz",
+        "value": 1284000000.0
+       },
+       "refer": "TOPO",
+       "type": "frequency"
+      },
+      "corrtypes": [
+       9,
+       10,
+       11,
+       12
+      ],
+      "chanfreqs_sha256": "76d27590f30636c11a7fedb5f2446972f52e3f266be6db2334c8263cc226da12",
+      "chanfreqs_count": 4096,
+      "chanwidths_sha256": "985cd35a49df30c5a5bc24ad27c92430d68dfcbf8253db3d2edfab20eb95e745",
+      "chanwidths_count": 4096
+     }
+    ],
+    "antennas": [
+     {
+      "name": "m000",
+      "station": "m000",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426496005672916,
+      "latitude_rad": -0.5360416640401379,
+      "height_m": 1095.199887059629,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426496005672905,
+       -0.533097538046245,
+       6373688.499810977
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -9.328414158519116,
+       30.360396241600675,
+       45.28946891706437
+      ]
+     },
+     {
+      "name": "m001",
+      "station": "m001",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426666966827316,
+      "latitude_rad": -0.5360360718682543,
+      "height_m": 1095.0728219440207,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426666966827316,
+       -0.5330919638464252,
+       6373688.477344832
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       0.05598909896966752,
+       65.88835707638536,
+       45.267002772539854
+      ]
+     },
+     {
+      "name": "m002",
+      "station": "m002",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426061537903155,
+      "latitude_rad": -0.536044331364464,
+      "height_m": 1095.24853798002,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426061537903155,
+       -0.5331001967929591,
+       6373688.498570664
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -33.177228047046114,
+       13.414493299814549,
+       45.28822860401124
+      ]
+     },
+     {
+      "name": "m003",
+      "station": "m003",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.3742543476956605,
+      "latitude_rad": -0.5360408747969425,
+      "height_m": 1094.8885665917767,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.3742543476956605,
+       -0.5330967512039683,
+       6373688.203254245
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -67.5818086938413,
+       35.37544817660146,
+       44.99291218537837
+      ]
+     }
+    ],
+    "observatory": "MeerKAT",
+    "observatory_position": {
+     "m0": 0.37426665946841203,
+     "m1": -0.5360464638235224,
+     "m2": 1050.0,
+     "refer": "WGS84"
+    },
+    "fieldnames": [
+     "J1939-6342"
+    ],
+    "scannumbers": [
+     5
+    ]
+   },
+   "text": "================================================================================\n           MeasurementSet Name:  /ms/fixture/1672727931_sdp_l0_scan_5.ms      MS Version 2\n================================================================================\n   Observer: Operator     Project: 20230103-0005  \nObservation: MeerKAT\nData records: 20       Total elapsed time = 15.9932 seconds\n   Observed from   03-Jan-2023/06:41:32.6   to   03-Jan-2023/06:41:48.6 (UTC)\n\n   ObservationID = 0         ArrayID = 0\n  Date        Timerange (UTC)          Scan  FldId FieldName             nRows     SpwIds   Average Interval(s)    ScanIntent\n  03-Jan-2023/06:41:32.6 - 06:41:48.6     5      0 J1939-6342                  20  [0]  [8] [UNKNOWN]\n           (nRows = Total number of rows per scan) \nFields: 1\n  ID   Code Name                RA               Decl           Epoch   SrcId      nRows\n  0    T    J1939-6342          19:39:25.030000 -63.42.45.60000 J2000   0             20\nSpectral Windows:  (1 unique spectral windows and 1 unique polarization setups)\n  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          \n  0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY\nSources: 1\n  ID   Name                SpwId RestFreq(MHz)  \n  0    J1939-6342          0     -              \n  NB: No systemic velocity information found in SOURCE table.\nAntennas: 4:\n  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        \n                                                                     East         North     Elevation               x               y               z\n  0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141\n  1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460\n  2    m002  m002      13.5 m   +021.26.36.8  -30.32.39.8        -33.1772       13.4145       45.2882  5109272.199343  2006783.546050 -3239145.330042\n  3    m003  m003      13.5 m   +021.26.35.5  -30.32.39.1        -67.5818       35.3754       44.9929  5109294.928585  2006755.509854 -3239126.266250\n"
+  },
+  "fixture-scan8": {
+   "record": {
+    "BeginTime": 59947.27986731544,
+    "EndTime": 59947.280052422306,
+    "IntegrationTime": 15.993233680725098,
+    "field_0": {
+     "code": "T",
+     "direction": {
+      "m0": {
+       "unit": "rad",
+       "value": -1.1370071039605743
+      },
+      "m1": {
+       "unit": "rad",
+       "value": -1.1119958085589738
+      },
+      "refer": "J2000",
+      "type": "direction"
+     },
+     "name": "J1939-6342"
+    },
+    "nfields": 1,
+    "numrecords": 20,
+    "scan_8": {
+     "0": {
+      "BeginTime": 59947.27986731544,
+      "EndTime": 59947.280052422306,
+      "FieldId": 0,
+      "FieldName": "J1939-6342",
+      "IntegrationTime": 7.996616971962621,
+      "SpwIds": [
+       0
+      ],
+      "StateId": 0,
+      "nRow": 20,
+      "scanId": 8
+     }
+    },
+    "timeref": "UTC"
+   },
+   "msmd": {
+    "spws": [
+     {
+      "name": "none",
+      "nchan": 4096,
+      "bandwidth": 856000000.0,
+      "meanfreq": 1283895507.8125,
+      "reffreq": {
+       "m0": {
+        "unit": "Hz",
+        "value": 1284000000.0
+       },
+       "refer": "TOPO",
+       "type": "frequency"
+      },
+      "corrtypes": [
+       9,
+       10,
+       11,
+       12
+      ],
+      "chanfreqs_sha256": "76d27590f30636c11a7fedb5f2446972f52e3f266be6db2334c8263cc226da12",
+      "chanfreqs_count": 4096,
+      "chanwidths_sha256": "985cd35a49df30c5a5bc24ad27c92430d68dfcbf8253db3d2edfab20eb95e745",
+      "chanwidths_count": 4096
+     }
+    ],
+    "antennas": [
+     {
+      "name": "m000",
+      "station": "m000",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426496005672916,
+      "latitude_rad": -0.5360416640401379,
+      "height_m": 1095.199887059629,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426496005672905,
+       -0.533097538046245,
+       6373688.499810977
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -9.328414158519116,
+       30.360396241600675,
+       45.28946891706437
+      ]
+     },
+     {
+      "name": "m001",
+      "station": "m001",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426666966827316,
+      "latitude_rad": -0.5360360718682543,
+      "height_m": 1095.0728219440207,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426666966827316,
+       -0.5330919638464252,
+       6373688.477344832
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       0.05598909896966752,
+       65.88835707638536,
+       45.267002772539854
+      ]
+     },
+     {
+      "name": "m002",
+      "station": "m002",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426061537903155,
+      "latitude_rad": -0.536044331364464,
+      "height_m": 1095.24853798002,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426061537903155,
+       -0.5331001967929591,
+       6373688.498570664
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -33.177228047046114,
+       13.414493299814549,
+       45.28822860401124
+      ]
+     },
+     {
+      "name": "m003",
+      "station": "m003",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.3742543476956605,
+      "latitude_rad": -0.5360408747969425,
+      "height_m": 1094.8885665917767,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.3742543476956605,
+       -0.5330967512039683,
+       6373688.203254245
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -67.5818086938413,
+       35.37544817660146,
+       44.99291218537837
+      ]
+     }
+    ],
+    "observatory": "MeerKAT",
+    "observatory_position": {
+     "m0": 0.37426665946841203,
+     "m1": -0.5360464638235224,
+     "m2": 1050.0,
+     "refer": "WGS84"
+    },
+    "fieldnames": [
+     "J1939-6342"
+    ],
+    "scannumbers": [
+     8
+    ]
+   },
+   "text": "================================================================================\n           MeasurementSet Name:  /ms/fixture/1672727931_sdp_l0_scan_8.ms      MS Version 2\n================================================================================\n   Observer: Operator     Project: 20230103-0005  \nObservation: MeerKAT\nData records: 20       Total elapsed time = 15.9932 seconds\n   Observed from   03-Jan-2023/06:43:00.5   to   03-Jan-2023/06:43:16.5 (UTC)\n\n   ObservationID = 0         ArrayID = 0\n  Date        Timerange (UTC)          Scan  FldId FieldName             nRows     SpwIds   Average Interval(s)    ScanIntent\n  03-Jan-2023/06:43:00.5 - 06:43:16.5     8      0 J1939-6342                  20  [0]  [8] [UNKNOWN]\n           (nRows = Total number of rows per scan) \nFields: 1\n  ID   Code Name                RA               Decl           Epoch   SrcId      nRows\n  0    T    J1939-6342          19:39:25.030000 -63.42.45.60000 J2000   0             20\nSpectral Windows:  (1 unique spectral windows and 1 unique polarization setups)\n  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          \n  0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY\nSources: 1\n  ID   Name                SpwId RestFreq(MHz)  \n  0    J1939-6342          0     -              \n  NB: No systemic velocity information found in SOURCE table.\nAntennas: 4:\n  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        \n                                                                     East         North     Elevation               x               y               z\n  0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141\n  1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460\n  2    m002  m002      13.5 m   +021.26.36.8  -30.32.39.8        -33.1772       13.4145       45.2882  5109272.199343  2006783.546050 -3239145.330042\n  3    m003  m003      13.5 m   +021.26.35.5  -30.32.39.1        -67.5818       35.3754       44.9929  5109294.928585  2006755.509854 -3239126.266250\n"
+  },
+  "fixture-scan9": {
+   "record": {
+    "BeginTime": 59947.2802375292,
+    "EndTime": 59947.28153327735,
+    "IntegrationTime": 111.95264053344727,
+    "field_0": {
+     "code": "T",
+     "direction": {
+      "m0": {
+       "unit": "rad",
+       "value": -1.1370071039605743
+      },
+      "m1": {
+       "unit": "rad",
+       "value": -1.1119958085589738
+      },
+      "refer": "J2000",
+      "type": "direction"
+     },
+     "name": "J1939-6342"
+    },
+    "nfields": 1,
+    "numrecords": 140,
+    "scan_9": {
+     "0": {
+      "BeginTime": 59947.2802375292,
+      "EndTime": 59947.28153327735,
+      "FieldId": 0,
+      "FieldName": "J1939-6342",
+      "IntegrationTime": 7.996616971962593,
+      "SpwIds": [
+       0
+      ],
+      "StateId": 0,
+      "nRow": 140,
+      "scanId": 9
+     }
+    },
+    "timeref": "UTC"
+   },
+   "msmd": {
+    "spws": [
+     {
+      "name": "none",
+      "nchan": 4096,
+      "bandwidth": 856000000.0,
+      "meanfreq": 1283895507.8125,
+      "reffreq": {
+       "m0": {
+        "unit": "Hz",
+        "value": 1284000000.0
+       },
+       "refer": "TOPO",
+       "type": "frequency"
+      },
+      "corrtypes": [
+       9,
+       10,
+       11,
+       12
+      ],
+      "chanfreqs_sha256": "76d27590f30636c11a7fedb5f2446972f52e3f266be6db2334c8263cc226da12",
+      "chanfreqs_count": 4096,
+      "chanwidths_sha256": "985cd35a49df30c5a5bc24ad27c92430d68dfcbf8253db3d2edfab20eb95e745",
+      "chanwidths_count": 4096
+     }
+    ],
+    "antennas": [
+     {
+      "name": "m000",
+      "station": "m000",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426496005672916,
+      "latitude_rad": -0.5360416640401379,
+      "height_m": 1095.199887059629,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426496005672905,
+       -0.533097538046245,
+       6373688.499810977
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -9.328414158519116,
+       30.360396241600675,
+       45.28946891706437
+      ]
+     },
+     {
+      "name": "m001",
+      "station": "m001",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426666966827316,
+      "latitude_rad": -0.5360360718682543,
+      "height_m": 1095.0728219440207,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426666966827316,
+       -0.5330919638464252,
+       6373688.477344832
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       0.05598909896966752,
+       65.88835707638536,
+       45.267002772539854
+      ]
+     },
+     {
+      "name": "m002",
+      "station": "m002",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.37426061537903155,
+      "latitude_rad": -0.536044331364464,
+      "height_m": 1095.24853798002,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.37426061537903155,
+       -0.5331001967929591,
+       6373688.498570664
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -33.177228047046114,
+       13.414493299814549,
+       45.28822860401124
+      ]
+     },
+     {
+      "name": "m003",
+      "station": "m003",
+      "diameter_m": 13.5,
+      "longitude_rad": 0.3742543476956605,
+      "latitude_rad": -0.5360408747969425,
+      "height_m": 1094.8885665917767,
+      "refer": "WGS84",
+      "itrf_angles": [
+       0.3742543476956605,
+       -0.5330967512039683,
+       6373688.203254245
+      ],
+      "itrf_refer": "ITRF",
+      "offset_m": [
+       -67.5818086938413,
+       35.37544817660146,
+       44.99291218537837
+      ]
+     }
+    ],
+    "observatory": "MeerKAT",
+    "observatory_position": {
+     "m0": 0.37426665946841203,
+     "m1": -0.5360464638235224,
+     "m2": 1050.0,
+     "refer": "WGS84"
+    },
+    "fieldnames": [
+     "J1939-6342"
+    ],
+    "scannumbers": [
+     9
+    ]
+   },
+   "text": "================================================================================\n           MeasurementSet Name:  /ms/fixture/1672727931_sdp_l0_scan_9.ms      MS Version 2\n================================================================================\n   Observer: Operator     Project: 20230103-0005  \nObservation: MeerKAT\nData records: 140       Total elapsed time = 111.953 seconds\n   Observed from   03-Jan-2023/06:43:32.5   to   03-Jan-2023/06:45:24.5 (UTC)\n\n   ObservationID = 0         ArrayID = 0\n  Date        Timerange (UTC)          Scan  FldId FieldName             nRows     SpwIds   Average Interval(s)    ScanIntent\n  03-Jan-2023/06:43:32.5 - 06:45:24.5     9      0 J1939-6342                 140  [0]  [8] [UNKNOWN]\n           (nRows = Total number of rows per scan) \nFields: 1\n  ID   Code Name                RA               Decl           Epoch   SrcId      nRows\n  0    T    J1939-6342          19:39:25.030000 -63.42.45.60000 J2000   0            140\nSpectral Windows:  (1 unique spectral windows and 1 unique polarization setups)\n  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          \n  0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY\nSources: 1\n  ID   Name                SpwId RestFreq(MHz)  \n  0    J1939-6342          0     -              \n  NB: No systemic velocity information found in SOURCE table.\nAntennas: 4:\n  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        \n                                                                     East         North     Elevation               x               y               z\n  0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141\n  1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460\n  2    m002  m002      13.5 m   +021.26.36.8  -30.32.39.8        -33.1772       13.4145       45.2882  5109272.199343  2006783.546050 -3239145.330042\n  3    m003  m003      13.5 m   +021.26.35.5  -30.32.39.1        -67.5818       35.3754       44.9929  5109294.928585  2006755.509854 -3239126.266250\n"
+  }
+ }
+}

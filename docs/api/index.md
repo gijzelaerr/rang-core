@@ -20,6 +20,7 @@ reach the core:
 | `rang.core_writeback` | in-place writes to the MS with flag versions and a journal |
 | `rang.cal_chain`, `rang.cal_delay`, `rang.cal_gain`, `rang.cal_bandpass`, `rang.cal_fluxscale`, `rang.cal_pol`, `rang.cal_apply`, `rang.cal_selfcal`, `rang.cal_refant` | calibrate's K, G, B, F and polarisation solves, applycal and self-calibration |
 | `rang.calmodels` | calibrator models into MODEL_DATA, as CASA's setjy writes them |
+| `rang.listobs`, `rang.tasks` | the Measurement Set summary of CASA's `listobs`; CASA's tasks under CASA's keyword names |
 | `rang.gemclean` | the `gemclean` console script (GeMClean, the imager) |
 | `rang.formats` | the file formats of the tools the core replaces: CASA calibration tables, flag versions, sky models |
 | `rang.notebook` | the tutorials' plot, table and steering functions |
