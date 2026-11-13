@@ -162,6 +162,20 @@ in `examples/floor_tests.py` (committed after this note). Every run is wall-time
 
 None yet.
 
-## 9. Post-hoc changes
+## 9. Clarifications and post-hoc changes
 
-None yet.
+**Clarifications, 2026-11-13, written into `examples/floor_tests.py` before the full run produced
+any output** (a 6,000-row smoke run checked the code; its numbers are not results):
+
+1. Tests "after T1" (T2, T3, T6) are scored by their increment: D = (P_T1 − P_T1+X) / P_none.
+2. T6 sets the chosen (channel, 2-min) cells to zero weight on baselines under 400 m only.
+3. a_max for H8a is α = −1.0 (k = 1/0.7); for H8b and H8c a scatter of 0.5. Every hypothesis with
+   a scale also gets an arm at a_max, so P_X(a_max) is measured, not extrapolated.
+4. T5 and T10 run on every arm as well, against that arm's model set's alternative predictions.
+5. Facets are predicted from their own sub-image with a centre shift; the sign was chosen by
+   matching the 4 × 4 sum to the full prediction on 3,000 rows (3.6e-6 relative), and each sky
+   set's facet sum is checked against its full prediction on all rows.
+6. The noise constant is measured, not set: σ per part 0.172 Jy at the median weight on 0.418 MHz
+   channels, consistent with heldout §5's 0.238 Jy on the native 0.209 MHz (0.238/√2 = 0.168).
+7. The smoke run's `cheap` stage read the real full-data residuals, so E1-E4 on them (section 8)
+   were seen before the full run; they are frozen statistics computed after the freeze, not priors.
