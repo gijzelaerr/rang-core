@@ -20,7 +20,7 @@ There are two ways in:
 | CASA task | rang | State |
 | --- | --- | --- |
 | `listobs` | `rang-core listobs MS [--json]`; `rang.tasks.listobs` | ported ({gh}`research/v8a-listobs.md`) |
-| `flagdata` `manual`, `clip`, `quack`, `shadow`, `elevation`, `extend`, `unflag`, `summary` | `rang-core flagdata MS key=value ...`; `rang.tasks.flagdata` | ported ({gh}`research/v8b-flagdata.md`) |
+| `flagdata` `manual`, `clip`, `quack`, `shadow`, `elevation`, `extend`, `unflag`, `summary` | `rang-core flagdata MS key=value ...`; `rang.tasks.flagdata` | ported: FLAG and counts equal CASA on 84 + 54 cases, FLAG_ROW after one post-hoc fix ({gh}`research/v8b-flagdata.md`) |
 | `flagdata` `tfcrop` | – | not at parity yet, so `rang.tasks.flagdata` refuses it ({gh}`research/v8b-flagdata.md` section 9.3); `rang-core flag` (the Tricolour port) is the flagger |
 | `flagdata` `extend` inside calibration | `calibrate.polcal.extendflags` in the configuration | exists |
 | `flagmanager` (save, restore) | `rang.formats.flagversions`; every write saves a flag version first | exists |
@@ -114,4 +114,5 @@ whole-row selections of `manual`, `quack`, `shadow` and `elevation`; a bare
 antenna name selects its cross-correlations only; `elevation` uses the
 geocentric horizon; a frequency range inside one channel selects that
 channel's two neighbours; `summary` counts an autocorrelation once for its
-antenna.
+antenna; FLAG_ROW is set on the rows the mode flags whole, not on rows
+that were already wholly flagged.

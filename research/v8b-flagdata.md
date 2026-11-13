@@ -6,9 +6,16 @@ fixed-rule modes). Branch `claude/v8b-flagdata-8cce7c` from `main` `2a02470`,
 with V8a (`claude/v8a-listobs-1c691e`, `2ebfbc4`, not yet on main) merged in
 for `rang.tasks` and `docs/casa-users.md`.
 
-**Status: proposed (frozen 2026-11-13).** Sections 1-8 are committed before any
-rang `flagdata` code and before any comparison of rang's flags with CASA's.
-Nothing is implemented or measured at the freeze.
+**Status: measured (2026-11-13).** H2 (the fixed-rule modes): FLAG and every
+summary count equal to CASA 6.7.6.14 on all 84 development and 54 held-out
+cases; FLAG_ROW differed on six held-out ESO137 cases, so H2 **fails as frozen
+for `manual`, `quack`, `elevation` and `shadow`** and passes for `clip`,
+`unflag` and `summary`; after a post-hoc correction of one convention, 84/84
+and 54/54 equal (section 9.2). H1 (tfcrop): **development gate not met** after
+round 2 of 4 (section 9.3); `rang.tasks.flagdata` refuses `mode='tfcrop'`.
+Sections 1-8 were committed (f5b0027) before any rang `flagdata` code and
+before any comparison of rang's flags with CASA's; amendments 1 and 2 are
+dated.
 
 ## 1. Hypotheses and what is not claimed
 
@@ -363,6 +370,14 @@ Post hoc (labelled; the held-out verdict above stands): R1 corrected to
 development cases and the held-out cases rerun against the same CASA output
 (section 9.2b).
 
+### 9.2b Post-hoc rerun after the R1 correction (labelled post hoc)
+
+rang at `2cb37ce` against the same CASA outputs (no CASA rerun): **84 of 84
+fixed-mode development cases** (`dev-02c.json`, 42 s) and **54 of 54
+held-out cases** (`dev-ho2.json`, 157 s) equal in FLAG, FLAG_ROW and every
+summary count. The held-out verdict of 9.2a stands as frozen; this rerun
+shows only that the corrected rule fits both sets.
+
 ### 9.3 tfcrop (H1)
 
 Round 1 (CASA run 01 against rang 01 and 01c). rang 01's first guess (an
@@ -421,3 +436,40 @@ each, then piece boundaries), or the owner allowing a read of CASA's
 `FlagAgentTimeFreqCrop.cc` under decision 5 (the file's licence header is
 GPL or LGPL "or later" if it is like the flagging files E5 checked; this
 session had no permission to read it).
+
+## 10. For the coordinator
+
+- Branch `claude/v8b-flagdata-8cce7c` (pushed; not merged). It carries V8a
+  (`claude/v8a-listobs-1c691e`, merged in at `687012c`), which is not on main
+  and still owes its full check; merge V8a first or together.
+- New: `rang.flagdata` (selections, fixed modes, summary, chunks),
+  `rang.tfcrop` (NumPy reference, `ENABLED = False`), `rang.tasks.flagdata`
+  (CASA keywords, refusals, a receipt per writing call), `rang-core
+  flagdata MS key=value ...`, `rang.measures.elevation` (geodetic and
+  geocentric), tools under `tools/oracles/casa/` (`flagdata.py/.sh`,
+  `rang_flagdata.py`, `compare_flagdata.py`, `v8b_cases.py`, `v8b_plan.py`,
+  `v8b_heldout.sh`, `archive_flagdata.py`), the CI archive
+  `research/results/v8b-flagdata-casa-synthetic.json` (40 cases, checked by
+  `tests/test_v8b_flagdata.py` without CASA), `docs/casa-users.md` section.
+- No Rust: the fixed modes are row masks in NumPy (seconds on 141,825 rows ×
+  512 channels); tfcrop's Rust kernel waits for the algorithm (section 9.3).
+- Owner decision wanted: tfcrop route (two more probe rounds, or allow a read
+  of `FlagAgentTimeFreqCrop.cc` under decision 5's licence condition; this
+  session's permission to read it was denied).
+- STATE paragraph: *V8b `flagdata` (2026-11-13): `rang.tasks.flagdata` and
+  `rang-core flagdata` port CASA's manual, clip, quack, shadow, elevation,
+  extend, unflag and summary modes; FLAG and summary counts equal CASA
+  6.7.6.14 on 84 development and 54 held-out cases; FLAG_ROW differed on six
+  held-out ESO137 cases (a convention no development MS exercised), so four
+  modes fail as frozen and pass after a post-hoc fix. tfcrop not at parity
+  after two of four rounds (CASA's band fit unidentified); refused.
+  research/v8b-flagdata.md.*
+- Checks: `tests/test_v8b_flagdata.py` (56 passed) with
+  `test_v8a_listobs.py` and `test_w4_1_receipts.py`; the full `python -m
+  rang.check` result is in the hand-back.
+- Process: early smoke runs and one 4-min rang run (06:28-07:20 UTC) ran
+  outside the heavy lock, partly during another session's exclusive timed
+  benchmark; everything after ran under it with 1 slot.
+- Left on disk: `D:\rang\scratch\v8b-20261113` (synthetic MSs, CASA and
+  rang runs, verdicts, the 4.4 GB `heldout/eso137-ho.ms`, which
+  `v8b_heldout.sh` rebuilds); WSL `~/Github/rang/outputs/v8b-flagdata-20261113-*`.
