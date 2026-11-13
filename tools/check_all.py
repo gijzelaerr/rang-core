@@ -56,7 +56,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLCHAIN = "1.93"
 TARGETS = ("target", "core/target", "core/target/feature-gpu", "core/py/target")
 STAMP = ".rang-rustc-vV"
-EXTRAS = "pointing,beam,test,imaging,formats,casacure,docs,notebook"
+EXTRAS = "pointing,beam,test,imaging,formats,casacure,docs,notebook,mcp"
 GPU_STEPS = ("core-clippy-gpu", "core-test-gpu")
 INDEX = "https://pypi.org/simple"
 

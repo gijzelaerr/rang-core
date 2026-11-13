@@ -953,6 +953,34 @@ def write_flags(run, ms, stage, flag, chunk_rows=None):
 # -- the stages ------------------------------------------------------------------
 
 
+def check_config(config_path, ms=None, stages=None, all_stages=False):
+    """`rang-core config check`: (resolved config, stages, [scope warning]).
+
+    Validates `config_path` for `stages` (default `run.stages`; every stage
+    with `all_stages`) and, given `ms`, resolves its fields against that MS
+    and runs the preflight. Reads only. Raises ConfigError, Refused or
+    OSError, as the command reports them (also used by `rang.mcp_tools`)."""
+    raw = core_config.load(config_path)
+    config, errors = core_config.resolve(raw)
+    if errors:
+        raise core_config.ConfigError(errors, source=Path(config_path))
+    stages = (
+        list(core_config.STAGES)
+        if all_stages
+        else (list(stages or ()) or list(config["run"]["stages"]))
+    )
+    config = core_config.validate(raw, stages, source=Path(config_path))
+    warnings = []
+    if ms:
+        info = inspect_ms(ms)
+        preflight(config, info, stages)
+        missing = _missing_masks(config, config_path, stages)
+        if missing:
+            raise Refused("; ".join(missing))
+        warnings = list(scope_warnings(info))
+    return config, stages, warnings
+
+
 def _resolve_path(value, config_path):
     path = Path(value).expanduser()
     if not path.is_absolute():
