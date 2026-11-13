@@ -1,6 +1,6 @@
 # Chi-offset: why E2-B's absolute 3C 286 angle is wrong in rang and CASA alike
 
-Status: **proposal, frozen 2026-11-13** before any run of this task. Results
+Status: **proposal, frozen 2026-11-13** before any run of this task. Measured 2026-11-13 (sections 8-10): H3 not accepted as frozen ((iii) fails by 0.47° and 2.31°); owner decisions in section 10. Results
 and later changes go in dated sections below the freeze line.
 
 ## 1. The observation (E2's, read before this note)
@@ -224,3 +224,114 @@ Consequence for this protocol (post hoc): every sim and LUNO arm is run both
 as frozen (`average_time: true`) and with `average_time: false` (`*_noavg`);
 the rule is evaluated on both and the `_noavg` arms are the ones that test the
 frame question.
+
+## 9. Results and the frozen rule (2026-11-13)
+
+Archive: `research/results/chi-offset/results.json` (every number below);
+run roots `D:\rang\outputs\chi-offset-20261113-02-sim`, `-03-luno-s17`,
+`-03-luno-s1`, `-04-qf`, `-05-eval`. Scripts: `sim_chi.py`, `luno_rerun.py`,
+`chi_vs_psi.py`, `evaluate.py`, `chain.sh` (this directory). Deviations
+from section 4, all post hoc: `_noavg` arms (section 8); the LUNO rerun is
+two sub-runs because the local store holds MAIN_16-19 only (scans 1-2 exist
+only in the dry run's slice, copied before E2 deleted the dry-run directory;
+its config is kept verbatim as `dryrun-b-config.yaml`), so each 3C 286 scan
+has its own Xf and the combined and other-scan Xf arms were not possible;
+LUNO `null_noavg` was refused by rang's memory limit (14.7 GiB per interval)
+and is unnecessary there (one scan per Xf, Δψ < 2°).
+
+**(i) Q_f, Xf-free** (`chi_vs_psi.py`, 1.3-1.5 GHz, q_f = p_m cos 2(χ_m − ψ − θ),
+model p_m 0.098, χ_m 32.93-32.96° from MODEL_DATA, no RM):
+
+| Data | n int | ψ | q_f | θ_t minima (rms q) | rms at 0 / −90° |
+| --- | --- | --- | --- | --- | --- |
+| E2-B frozen `casa/e2b.ms` scan 17 (read-only, after E2 reported done) | 74 | 145.3-147.2° | −0.0445 | **+8.2° (0.0004)**, −54.9° (0.0035) | 0.023 / 0.112 |
+| dry-run slice scan 1 | 13 | −169.4° | +0.0873 | **+8.6° (0.0008)**, +35.7° (0.0012) | 0.017 / 0.158 |
+| joint | 87 | | | **+8.2° (0.0005)**; next −41.2° (0.065) | |
+
+Own reruns (CASA m90): scan 17 +7.4°, scan 1 +8.3°. **Pass** (within 15° of 0;
+−90° excluded by 0.11-0.16 rms against 0.0005). With the RM measured in (iii)
+(χ at 1.4 GHz 3.6° and 5.6° below the model) θ_t ≈ +4.4° and +2.7°.
+
+**(ii) Simulation** (four 3C286-SIM scans, ψ −121.2°, −140.4°, +167.8°, +122.9°):
+
+| Arm | χ per scan | max \|χ − H3 pred\| | slope dχ/dψ | max \|χ − 33°\| |
+| --- | --- | --- | --- | --- |
+| control, rang `m90_noavg` = CASA | 33.38, 33.86, 33.00, 33.95 | – | 0.0 | 0.95° |
+| feed0 + −90, rang `m90_noavg` = CASA `m90` | −5.72, −44.43, 32.54, −58.01 | **0.9°** | **2.0** | – |
+| feed0 + 0, rang `null_noavg` / CASA `feedms` | 33.29, 33.59, 33.00, 33.80 | – | 0.0 | **0.80°** |
+| revpsi (H1) + −90, rang = CASA | −28.35, −67.25, 9.23, −80.58 | 23.0-23.5° (constant) | 2.0 | – |
+| control, rang `m90` as frozen (`average_time`) | 49.51, 38.16, 33.57, 33.35 | – | – | 16.5° |
+| feed0 + −90 / + 0, rang as frozen | −41.8, −52.5, −56.5, −56.7 / 60.1, 39.6, −62.6, 32.8 | 89.0° | 0.0 / 2.0 | – |
+
+rang `_noavg` and CASA agree to ≤ 0.01°. **Pass in rang (`_noavg`, post hoc)
+and CASA; fail in rang as frozen**, for the `average_time` defect of section 8,
+not for the frame. H1's truth gives the 2ψ slope too but sits a constant
+−23° off H3's line; it is distinguishable and the LUNO data do not show it.
+`gpol_noparang` equals `m90` to 0.01° (phase-only Gpol: Q changes the
+parallel hands' amplitude, not their phase), so H2 via Gpol is excluded.
+
+**(iii) LUNO rerun, own copies** (1.3-1.5 GHz; rang = CASA within 0.03°):
+
+| Sub-run | ψ | χ, receptor −90 (rang / CASA) | χ, receptor 0 (rang / CASA) | \|χ − 33.1\| at 0 | RM at −90 / 0 (rad m⁻²) | χ(λ²=0) at 0 |
+| --- | --- | --- | --- | --- | --- | --- |
+| s17 (scan 17, Xf scan 17) | +147° | −1.36 / −1.39 | 25.61 / 25.63 | **7.49 / 7.47** | +1.35 / −1.35 (CASA ±1.39) | 29.24 / 29.37 |
+| s1 (scan 1, Xf scan 1) | −169° | 87.79 / 87.80 | 23.80 / 23.79 | **9.30 / 9.31** | +2.09 / −2.09 (CASA ±2.14) | 29.42 / 29.43 |
+
+p 0.0967-0.0971 in every arm (model 0.098). **Fail**: 7.47° and 9.31° against
+the frozen 7°. What the receptor angle 0 does: the scan-to-scan difference
+falls from 89.2° (H3 predicts 87.0°: −χ0 + 2ψ − 90° gives −8.8° and +78.2°, observed −1.4° and +87.8°) to 1.8° at 1.3-1.5 GHz and to 0.06° at
+λ² = 0; the RM changes sign as section 6 predicted; what is left is a constant
+−3.6° (χ(λ²=0) 29.4° on both scans against 33°) plus Faraday rotation of
+−1.4 and −2.1 rad m⁻² (ionospheric size, different 2.4 h apart). The 7° limit
+(A0's transfer limit) did not budget an RM of this size: at 1.4 GHz it
+is 3.6° and 5.6°.
+
+**Verdict against the frozen rule.** (i) pass, (ii) pass in CASA and in
+rang without `average_time` (fail as frozen, separate defect), (iii) fail by
+0.47° and 2.31°. **H3 is not accepted as frozen.** H1 is excluded: ψ is right
+(section 6, 0.07°) and no ψ slope survives the receptor angle 0. H2 excluded
+(Gpol: no effect; a slope ±1 is absent: the slope is 2 at −90° and 0 at 0).
+H4 excluded (the offset is not constant: 89° change for Δψ 44°). H5 excluded
+as the cause (MODEL_DATA χ 32.93-32.96°, p 0.098 on the rerun MSs; the offset
+is ψ-dependent); E2's 30.0° MODEL_DATA reading is not reproduced here. H6 not
+supported (own-scan Xf on both scans gives the same χ(λ²=0) to 0.06°). By the
+frozen rule's letter: "cause not found" for H3's absolute tolerance.
+
+**Post hoc reading (labelled).** The measurements say the configured receptor
+angle −90° is wrong for this LUNO product by 90° (θ_t ≈ 0, more precisely
++3 to +8° depending on whether the RM is modelled), Xf then forces U into the
+model's sign, and E2-B's χ is −χ0 + 2ψ − 90° plus Faraday rotation. The part
+of the frozen rule that fails is the absolute 7°, which is consumed by the
+ionospheric RM (not in the 3C 286 model, RM 0) and a residual 3.6°. A dated
+follow-up rule would compare χ(λ²=0) or RM-corrected χ with 33°.
+
+## 10. Owner decisions
+
+1. **LUNO receptor angle.** Proposed: `calibrate.polcal.feed_angle_rotation:
+   null` (FEED's stored 0) for the LUNO calibrator product
+   (`LBAND_LUNO_CALIBRATORS`), i.e. drop CARACal strategy 1's −90 in E2-B's
+   config for this product only. Evidence: (i) θ_t +8.2° (−90° excluded);
+   (iii) with 0, the 2ψ slope and the RM sign flip vanish, χ(λ²=0) 29.4° on
+   both scans; rang = CASA. Not applied: rang's default is already null; the
+   −90 is in E2-B's frozen config and CARACal's strategy, which is right for
+   stores that hold −90 (ESO137) and for producers whose X/Y labelling
+   matches. Whether other MeerKAT products need 0 is open (one product seen).
+2. **Accept or not under a post hoc rule.** H3 failed the frozen absolute
+   limit by 0.47° and 2.31°; the owner decides whether the RM-corrected
+   reading (χ(λ²=0) 29.4°, 3.6° from 33°) closes the question, or whether a
+   dated follow-up with an RM term in the 3C 286 model is wanted.
+3. **`calibrate.average_time` and Xf** (section 8): with `combine: scan`
+   over scans at different ψ, Xf is wrong by 78° (sim); any E2/E3 run that
+   solves Xf across several 3C 286 scans with `average_time` on is affected.
+   Proposed fix: cap the pre-averaging of polarised-model solves at CASA's
+   `preavg` (300 s) or a ψ step. Not fixed here.
+
+## For the coordinator
+
+Branch `claude/chi-offset-80cb6a`; research files only (`research/chi-offset.md`,
+`research/results/chi-offset/`, `research/tool-timings.md`); no package code
+changed. Checks: `ruff check`/`ruff format --check` on the scripts; the full
+`check_all.py` left to the coordinator's merge check (no code under
+`python/`, `core/`, `src/` touched). Run outputs on D: (sim 7 GB, LUNO
+bases s17 4 GB and s1 18 GB kept for a follow-up; arm MSs deleted after
+scoring).

@@ -30,6 +30,20 @@ import sim_chi as S
 
 STORE = r"D:\rang\data\e2-b\LBAND_LUNO_CALIBRATORS.zarr"
 GROUPS = ["MAIN_0", "MAIN_1", "MAIN_16", "MAIN_17"]
+# 2026-11-13 (post hoc): the local store holds MAIN_16-19 only; scans 1-2 exist
+# only in the dry run's slice (D:/rang/outputs/e2-20261111-12-dryrun/b/luno-slice.ms,
+# DATA as converted, FLAG from the same flag strategy). Two sub-runs instead of
+# one four-scan MS, chosen by OUT's suffix: -s17 (MAIN_16, MAIN_17 from the store,
+# ROWS rows each, rang's flag stage) and -s1 (a copy of the slice, flags as the
+# dry run left them). Each 3C 286 scan's Xf is then its own scan's.
+SLICE = Path("D:/rang/outputs/e2-20261111-12-dryrun/b/luno-slice.ms")
+SUBRUNS = {"s17": ([17, 18], ["MAIN_16", "MAIN_17"]), "s1": ([1, 2], None)}
+
+
+def subrun(out):
+    return SUBRUNS[Path(out).name.rsplit("-", 1)[-1]]
+
+
 ROWS = 9576  # 6 integrations of 1,596 rows (56 antennas with autos)
 STRATEGY = (
     ROOT
@@ -43,7 +57,7 @@ BANDS = [(1.0e9, 1.1e9), (1.1e9, 1.2e9), (1.2e9, 1.3e9), (1.3e9, 1.4e9), (1.4e9,
 FLAG_CONFIG = """\
 version: 1
 fields: {fcal: [J1939-6342], bpcal: [J1939-6342], xcal: [J1331+3030]}
-data: {weights: uniform, scans: [1, 2, 17, 18]}
+data: {weights: uniform, scans: [17, 18]}
 flag:
   strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
 run:
@@ -51,24 +65,25 @@ run:
 """
 
 
-def chain_config(far, xf_own=False, average=True):
+def chain_config(far, xf_own=False, average=True, scans=(1, 2, 17, 18)):
     """The dry run's b config (e2b.yaml's shape), scans 1, 2, 17, 18, calibrate and apply.
     xf_own: Xf solved per scan (combine '') so each 3C 286 scan gets its own Xf
     (added 2026-11-13 post hoc, for rule (iii)'s "Xf from either scan").
     average False: calibrate.average_time off (added 2026-11-13 post hoc: with
     it on, Xf combine scan is solved on rows averaged across both 3C 286
     scans, which the sim's control truth showed breaks Xf by 78 deg)."""
-    src = (Path(r"D:\rang\outputs\e2-20261111-12-dryrun\b\config.yaml")).read_text(
-        encoding="utf-8"
-    )
-    src = src.replace("  scans: [1, 2]\n", "  scans: [1, 2, 17, 18]\n")
+    # The dry run's directory was deleted by E2 on 2026-11-13; its config.yaml,
+    # read in this session before the deletion, is kept verbatim next to this file.
+    src = (HERE / "dryrun-b-config.yaml").read_text(encoding="utf-8")
+    sc = "[" + ", ".join(str(x) for x in scans) + "]"
+    src = src.replace("  scans: [1, 2]\n", f"  scans: {sc}\n")
     src = src.replace(
         "    feed_angle_rotation: -90\n", f"    feed_angle_rotation: {far}\n"
     )
     src = src.replace(
         "  stages: [flag, calibrate, apply, image]\n", "  stages: [calibrate, apply]\n"
     )
-    assert "scans: [1, 2, 17, 18]" in src and f"feed_angle_rotation: {far}" in src
+    assert f"scans: {sc}" in src and f"feed_angle_rotation: {far}" in src
     assert "stages: [calibrate, apply]" in src
     if xf_own:
         old = "      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,"
@@ -93,8 +108,14 @@ def build(out):
     out.mkdir(parents=True, exist_ok=True)
     base = out / "base" / "luno4.ms"
     base.parent.mkdir(exist_ok=True)
+    groups = subrun(out)[1]
+    if groups is None:
+        t0 = time.perf_counter()
+        shutil.copytree(SLICE, base)
+        S.log(out, f"copy slice {time.perf_counter() - t0:.1f}s")
+        return 0
     conv = ROOT / "research/results/e2-acceptance-scripts/e2_convert.py"
-    rc, s = run([sys.executable, conv, "build", base, *[f"{STORE}:{g}" for g in GROUPS],
+    rc, s = run([sys.executable, conv, "build", base, *[f"{STORE}:{g}" for g in groups],
                  "--rows", ROWS], out / "build.log")  # fmt: skip
     S.log(out, f"build rc={rc} {s:.1f}s")
     if rc:
@@ -120,7 +141,8 @@ def rang_arm(out, arm):
     d = Path(out) / f"rang-{arm}"
     copy_base(out, d)
     far = "-90" if arm.startswith("m90") else "null"
-    (d / "config.yaml").write_text(chain_config(far, "_own" in arm, "_noavg" not in arm),
+    cfg = chain_config(far, "_own" in arm, "_noavg" not in arm, subrun(out)[0])
+    (d / "config.yaml").write_text(cfg,
                                    encoding="utf-8")  # fmt: skip
     rc, s = run([S.RANG_CORE, "run", d / "config.yaml", d / "sim.ms"], d / "rang.log")
     S.log(out, f"rang {arm} rc={rc} {s:.1f}s")

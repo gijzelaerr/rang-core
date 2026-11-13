@@ -46,7 +46,7 @@ def slope(rows):
         ref = k * psi
         c = ref + wrap(chi - ref)
         A = np.vstack([psi, np.ones_like(psi)]).T
-        sol, res, *_ = np.linalg.lstsq(A, c, rcond=None)
+        sol = np.linalg.lstsq(A, c, rcond=None)[0]
         r = float(np.sum((A @ sol - c) ** 2))
         if best is None or r < best[1]:
             best = (float(sol[0]), r)
@@ -55,13 +55,20 @@ def slope(rows):
 
 def sim_rule(sim):
     out = {}
-    for side, arms in (("rang", ("m90", "null", "gpol_noparang")), ("casa", ("m90", "feedms"))):
+    for side, arms in (
+        ("rang", ("m90", "null", "m90_noavg", "null_noavg", "gpol_noparang")),
+        ("casa", ("m90", "feedms")),
+    ):
         for truth in ("control", "feed0", "revpsi"):
             for arm in arms:
                 rows = load(Path(sim) / f"{side}-{truth}-{arm}" / "chi.json")
                 if rows is None:
                     continue
-                configured = -90.0 if arm in ("m90", "gpol_noparang") or truth != "feed0" else 0.0
+                configured = (
+                    -90.0
+                    if arm.startswith(("m90", "gpol")) or truth != "feed0"
+                    else 0.0
+                )
                 per = []
                 for r in rows:
                     h3 = wrap(-CHI0 + 2 * r["psi_deg"] - 90.0)
@@ -73,14 +80,18 @@ def sim_rule(sim):
                     "receptor_configured_deg": configured,
                     "scans": per,
                     "max_abs_d_from_33": max(abs(x["d_from_33"]) for x in per),
-                    "max_abs_d_from_h3_pred": max(abs(x["d_from_h3_pred"]) for x in per),
+                    "max_abs_d_from_h3_pred": max(
+                        abs(x["d_from_h3_pred"]) for x in per
+                    ),
                     "slope_chi_per_psi": slope(rows),
                 }
     v = {}
-    for side, zero in (("rang", "null"), ("casa", "feedms")):
-        a = out.get(f"{side}-feed0-m90")
-        b = out.get(f"{side}-feed0-{zero}")
-        c = out.get(f"{side}-control-m90") or out.get(f"{side}-control-feedms")
+    for side, m90, zero in (("rang", "m90", "null"), ("rang_noavg", "m90_noavg", "null_noavg"),
+                            ("casa", "m90", "feedms")):  # fmt: skip
+        sd = side.split("_")[0]
+        a = out.get(f"{sd}-feed0-{m90}")
+        b = out.get(f"{sd}-feed0-{zero}")
+        c = out.get(f"{sd}-control-{m90}")
         v[side] = {
             "feed0_m90_within_3_of_h3_pred": None if a is None else a["max_abs_d_from_h3_pred"] <= 3.0,
             "feed0_m90_slope_pm2": None if a is None or a["slope_chi_per_psi"] is None
@@ -116,8 +127,8 @@ def luno_rule(luno):
                 lam.setdefault(r["scan"], []).append(l2)
                 chis.setdefault(r["scan"], []).append(r["chi_deg"])
         rm = {}
-        for s in lam:
-            x, y = np.array(lam[s]), np.array(chis[s])
+        for s, l2s in lam.items():
+            x, y = np.array(l2s), np.array(chis[s])
             y = y[0] + wrap(y - y[0])
             k, c = np.polyfit(x, y, 1)
             rm[str(s)] = {"slope_deg_per_m2": float(k), "rm_rad_m2": float(np.radians(k)),
@@ -136,7 +147,9 @@ def theta_fit(specs):
         cor = json.loads(Path(s["corrected"]).read_text())["integrations"]
         mod = json.loads(Path(s["model"]).read_text())["integrations"]
         pm = float(np.mean([r["p"] for r in mod]))
-        cm = float(np.degrees(np.angle(np.mean([r["q"] + 1j * r["u"] for r in mod])) / 2))
+        cm = float(
+            np.degrees(np.angle(np.mean([r["q"] + 1j * r["u"] for r in mod])) / 2)
+        )
         rows = [(r["psi_deg"], r["q_f"], pm, cm) for r in cor]
         allrows += rows
         per[s["label"]] = {"model_p": pm, "model_chi": cm, "n": len(rows),
@@ -151,7 +164,11 @@ def minima(rows, grid):
     pred = pm[None] * np.cos(np.radians(2 * (cm[None] - psi[None] - grid[:, None])))
     chi2 = ((qf[None] - pred) ** 2).sum(1)
     n = len(grid)
-    loc = [i for i in range(n) if chi2[i] <= chi2[(i - 1) % n] and chi2[i] <= chi2[(i + 1) % n]]
+    loc = [
+        i
+        for i in range(n)
+        if chi2[i] <= chi2[(i - 1) % n] and chi2[i] <= chi2[(i + 1) % n]
+    ]
     loc.sort(key=lambda i: chi2[i])
     rms = np.sqrt(chi2 / len(qf))
     return {"minima": [{"theta_deg": float(grid[i]), "rms_q": float(rms[i])} for i in loc[:4]],
