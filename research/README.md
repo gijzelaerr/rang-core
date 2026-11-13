@@ -4,7 +4,7 @@ This index routes collaborators to the evidence; it is not a novelty claim.
 Each entry is one report and its verdict, newest first within a section.
 
 
-- **Paused 2026-11-13:** [handoff-2026-11-13.md](handoff-2026-11-13.md), the plan and the resume state of every open branch.
+- **Paused 2026-11-13:** [next-session.md](next-session.md) (brief for the next coordinator) and [handoff-2026-11-13.md](handoff-2026-11-13.md), the plan and the resume state of every open branch.
 ## Start here
 
 - [vision.md](vision.md): ra-ng's direction (2026-11-11): beginners, astronomers and algorithm scientists working with agents; MeerKAT first, LOFAR in mind; pulsars and transients; GPU where it pays, cross-platform; contributions by pull request; research skills that propose and measure.
