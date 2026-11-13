@@ -524,6 +524,31 @@ none (T adds 209,120 of 16,945,620 eligible cells, A 2,744,976; 12,533 strong co
 Calibrator train, then target validation and train, follow in the same queue process; verdicts go to
 `D:/rang/outputs/f4-20261111-queue.json`.
 
+**Shards and label audit, measured 2026-11-13 08:39-10:37** (`f4_queue.py --only shards`, rc 0;
+walls including lock wait: calibrator validation 32.8, train 43.0 min; target validation 26.0, train
+16.7 min; each class's `.time` holds only its train run, the status log both; 17 GB and 14 GB on D:).
+
+- **Calibrators: audit passes.** 30 training realisations (MAIN_1, 2, 4, 5, 6; seeds 20264201-230),
+  strong consensus at most 0.37 % of eligible cells (bar 10 %); ignored uninjected 11.5-28.6 %, injected
+  positives 0.21-7.6 %. Validation MAIN_7 (seeds 20264301-302) passes too.
+- **Targets: label-audit stop (section 4), as frozen.** Every realisation is over the 40 % bar for
+  ignored uninjected cells: 44 of 44, 0.470-0.640 (validation eso:10 0.499 and 0.530; train eso:0, 2,
+  4, 6, 8, 14, 16, 42 realisations, seeds 20264601-642). Injected positives (1.0-9.8 %) pass. The first
+  stop recorded is eso:0 seed 20264601, 0.536. By section 8 the target class gets **no training**; its
+  outcome is the label-audit stop, as F3's targets (F3 stopped on the consensus labels; F4 on L-INJ).
+- *Why (diagnostic, not a change):* L-INJ ignores every native cell flagged by T or A or with s ≥ 3. T
+  adds 12-17 % of eligible cells on ESO137 (2.1-3.0 M of 17.4-18.0 M), A 1.3-2.5 %; their union is at
+  most about 20 %. So **s ≥ 3 on otherwise unflagged cells accounts for roughly 30-40 % of eligible
+  target cells**. On this one-track target (a bright field, 27-28 dumps) the robust strength s does not
+  separate clean data from RFI at 3. Any fix (a target-calibrated s threshold, labels without s, or
+  expert labels from Landman, section 4) is a protocol change. It needs an amendment and the owner's
+  or coordinator's decision before any target training; it is not made here.
+
+**Next for F4 (calibrators only):** the clean C1(U4) in the batched exclusive hold (bar 0.45; provisional
+0.441); then Stage 4 training on `D:/rang/outputs/f4-20261111-06-shards-cal/calibrator`, 3 seeds, by the
+command in "Staged runs" with the calibrator line only (about 1.5 h GPU; check that `nvidia-smi` shows
+room, given the Ollama memory above); τ; Stage 5 on MAIN_0, 12, 14.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
