@@ -46,6 +46,11 @@ summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
 the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
 tasks to rang's.
 
+**Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
+run status, receipts and FITS statistics to an agent over the Model Context
+Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
+`gemclean`, each confirmed by a token and preceded by a flag-version backup.
+
 `rang-core check` runs the full local checks on any platform. Every call
 writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
@@ -86,6 +91,7 @@ other commands:
   research        STAGE VERB ARGS...: the research chains (rang-core research -h)
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
+  mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -474,6 +480,25 @@ options:
   --json               print the record as JSON, not the text
   --listfile LISTFILE  write the text (or JSON) to this file
   --overwrite          replace an existing --listfile
+```
+
+## `mcp`
+
+```text
+$ rang-core mcp -h
+usage: rang-core mcp [-h] [--allow-write] [--root DIR]
+
+Serve rang-core's tools to an agent over the Model Context Protocol (stdio;
+research/mcp-server.md). Read-only tools by default. Needs the extra: pip
+install 'rang-core[mcp]'. Stages: flag, calibrate, apply, image, selfcal.
+
+options:
+  -h, --help     show this help message and exit
+  --allow-write  also offer run and gemclean, each confirmed by a token from a
+                 first call that writes nothing; every MS write saves a flag
+                 version first
+  --root DIR     accept only path arguments inside DIR (repeatable; default:
+                 any path)
 ```
 
 ## `research`
