@@ -107,3 +107,117 @@ def test_exclusive_waits_for_shared_and_blocks_later_shared(tmp_path):
     ty.join(timeout=5)
     assert order[1][0] == "y"
     order[1][1].unlink()
+
+
+# The priority lane (research/speedup-tools.md).
+OLD_HELPER = "097588b"  # main before the priority lane
+
+
+def _load_old(where: Path):
+    """The helper as running waiters loaded it, or None (shallow clone)."""
+    import subprocess
+
+    try:
+        text = subprocess.run(
+            ["git", "show", f"{OLD_HELPER}:tools/heavy_lock.py"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    path = where / "heavy_lock_old.py"
+    path.write_bytes(text)
+    spec = importlib.util.spec_from_file_location("heavy_lock_old", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["heavy_lock_old"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_critical_ticket_keeps_the_name_shape_and_sorts_first():
+    import re
+
+    now = time.time_ns()
+    normal = hl.ticket_name("normal", now - 10**12)  # an older normal ticket
+    critical = hl.ticket_name("critical", now)
+    later = hl.ticket_name("critical", now + 1)
+    shape = re.compile(r"^\d{20}-[a-z0-9]+-\d+\.json$")
+    assert shape.match(normal) and shape.match(critical)
+    assert sorted([normal, later, critical]) == [critical, later, normal]
+
+
+def test_old_helper_serves_critical_first(tmp_path):
+    import pytest
+
+    old = _load_old(tmp_path)
+    if old is None:
+        pytest.skip(f"{OLD_HELPER} not in this clone")
+    d = tmp_path / "heavy"
+    normal = old.take_ticket(d, 4, 1.0)  # an old waiter, queued first
+    time.sleep(0.01)
+    critical = hl.take_ticket(d, None, 0.0, "critical")
+    assert old.first_live_ticket(d) == critical
+    assert hl.first_live_ticket(d) == critical
+    critical.unlink()
+    assert old.first_live_ticket(d) == normal == hl.first_live_ticket(d)
+    normal.unlink()
+
+
+def test_critical_jumps_queued_normal_waiters(tmp_path):
+    d = tmp_path / "heavy"
+    assert hl.try_acquire(d, ["holder"])
+    order: list[str] = []
+
+    def waiter(name: str, priority: str) -> None:
+        hl.acquire(d, [name], poll=0.02, priority=priority)
+        order.append(name)
+        time.sleep(0.05)
+        hl.release(d)
+
+    threads = []
+    for name, priority in (
+        ("n0", "normal"),
+        ("n1", "normal"),
+        ("c0", "critical"),
+        ("c1", "critical"),
+    ):
+        t = threading.Thread(target=waiter, args=(name, priority))
+        t.start()
+        threads.append(t)
+        time.sleep(0.05)
+    assert order == []  # nothing preempts the running holder
+    hl.release(d)
+    for t in threads:
+        t.join(timeout=10)
+    assert order == ["c0", "c1", "n0", "n1"]
+
+
+def test_critical_exclusive_drains_shared_and_holds_back_normal(tmp_path, monkeypatch):
+    d = tmp_path / "heavy"
+    monkeypatch.setattr(hl, "CAPACITY_SLOTS", 8)
+    s = hl.acquire_shared(d, ["s"], 0.02, 6, 1.0)
+    got: list = []
+    tn = threading.Thread(  # queued first; 6 + 4 > 8, so it waits
+        target=lambda: got.append(("n", hl.acquire_shared(d, ["n"], 0.02, 4, 1.0)))
+    )
+    tn.start()
+    time.sleep(0.1)
+    tx = threading.Thread(
+        target=lambda: (
+            hl.acquire(d, ["x"], 0.02, priority="critical"),
+            got.append("x"),
+        )
+    )
+    tx.start()
+    time.sleep(0.2)
+    assert got == []  # x waits for s; nothing is preempted
+    s.unlink()
+    tx.join(timeout=5)
+    assert got == ["x"]  # x, not the older normal ticket, got the host
+    time.sleep(0.1)
+    assert len(got) == 1  # n still waits while x holds the host
+    hl.release(d)
+    tn.join(timeout=5)
+    assert got[1][0] == "n"
+    got[1][1].unlink()

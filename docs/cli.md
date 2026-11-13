@@ -903,21 +903,24 @@ options:
 ```text
 $ rang-core check -h
 usage: rang-core check [-h] [--rust | --python | --all] [--only ONLY]
-                       [--skip SKIP] [--json JSON] [--fail-fast] [--rebuild]
+                       [--skip SKIP] [--json JSON] [--fail-fast]
+                       [--pytest-paths PYTEST_PATHS] [--rebuild]
 
 The full local checks, portable: `rang-core check` = `python -m rang.check`
 
 options:
-  -h, --help   show this help message and exit
-  --rust       the Rust steps only
-  --python     the Python steps only
-  --all        every step (default)
-  --only ONLY  comma-separated step names
-  --skip SKIP  comma-separated step names
-  --json JSON  write each step's status and wall time
-  --fail-fast  stop after the first failing step
-  --rebuild    run ext-build even when its inputs and the installed extension
-               are those of the last successful build
+  -h, --help            show this help message and exit
+  --rust                the Rust steps only
+  --python              the Python steps only
+  --all                 every step (default)
+  --only ONLY           comma-separated step names
+  --skip SKIP           comma-separated step names
+  --json JSON           write each step's status and wall time
+  --fail-fast           stop after the first failing step
+  --pytest-paths PYTEST_PATHS
+                        comma-separated test files: pytest runs only these
+  --rebuild             run ext-build even when its inputs and the installed
+                        extension are those of the last successful build
 ```
 
 ## `gemclean`
@@ -1091,6 +1094,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_PIN_THREADS` | unset (caps on) | process | `0` turns off the CLI's BLAS and XLA thread caps (the thread variables themselves are recorded under `threads`) | `research/p9-cli.md` | `python/rang/core_cli.py` |
 | `RANG_CHECKALL_LOCK` | unset (~/.rang-checkall-v2.lock) | process | the check's host lock file | `research/p10-tests.md` | `python/rang/check.py` |
 | `RANG_CHECKALL_LOCKED` | unset | process | set by the check while it holds the lock | `research/p10-tests.md` | `python/rang/check.py` |
+| `RANG_ARCHIVE_OUTPUTS` | unset (`outputs/` of this checkout; a mangled UNC path is repaired) | input | directory holding the archived campaign outputs the full check's gain-hash gate reads | `research/speedup-tools.md` | `python/rang/check.py` |
 | `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_CORE_LIB` | unset | refused | the removed ctypes library; setting it is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_SIM_LIB` | unset | refused | the removed ctypes library; recorded by `rang-core environment` | `research/p7-architecture.md` | `python/rang/core_cli.py` |

@@ -5,6 +5,7 @@ Usage (from Windows or WSL, any Python 3.10+):
 
     python tools/heavy_lock.py run -- <command> [args...]            # exclusive
     python tools/heavy_lock.py run --slots 4 --mem 8 -- <command>    # shared
+    python tools/heavy_lock.py run --priority critical ... -- <command>  # jump the queue
     python tools/heavy_lock.py status
     python tools/heavy_lock.py break     # only after checking the owner is gone
 
@@ -36,6 +37,18 @@ builds, tests, check-all and scoring. The head of the queue starts as soon as
 it fits and later tickets wait behind it, so an exclusive job is never starved.
 Older copies of this helper know nothing of shared jobs or tickets: call the
 main checkout's copy.
+
+A priority lane (added 2026-11-13, research/speedup-tools.md): ``run
+--priority critical`` writes its ticket with ``CRITICAL_OFFSET_NS`` (10**18)
+subtracted from the time in its name. The name keeps the shape
+``<20 digits>-<system>-<pid>.json``, so every copy of this helper, including
+the older ones already loaded in running waiters, sorts critical tickets
+before every normal ticket and serves them first, in their own order. Nothing
+is preempted: a critical ticket at the head of the queue waits for the
+running jobs exactly like a normal one, so a critical exclusive ticket still
+drains the shared jobs first, and every normal ticket waits behind it. Use it
+only for the critical path of a release (the E2 and E3 acceptance runs);
+builds, checks, timing runs and everything else queue normal.
 """
 
 from __future__ import annotations
@@ -53,6 +66,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 STALE_TICKET_S = 120.0
+# Subtracted from the time in a critical ticket's name, so that it sorts before
+# every normal ticket while keeping the 20-digit shape (see the module notes).
+CRITICAL_OFFSET_NS = 10**18
+PRIORITIES = ("normal", "critical")
 CAPACITY_SLOTS = int(os.environ.get("RANG_HEAVY_SLOTS", "16"))
 CAPACITY_MEM_GB = float(os.environ.get("RANG_HEAVY_MEM_GB", "48"))
 
@@ -175,11 +192,25 @@ def _fresh(path: Path, stale_s: float) -> bool:
         return False
 
 
-def take_ticket(d: Path, slots: int | None = None, mem: float = 0.0) -> Path:
+def ticket_name(priority: str = "normal", now_ns: int | None = None) -> str:
+    """``<20 digits>-<system>-<pid>.json``; critical tickets sort first."""
+    if priority not in PRIORITIES:
+        raise ValueError(f"priority {priority!r} not in {PRIORITIES}")
+    t = time.time_ns() if now_ns is None else now_ns
+    if priority == "critical":
+        t -= CRITICAL_OFFSET_NS
+    return f"{t:020d}-{system()}-{os.getpid()}.json"
+
+
+def take_ticket(
+    d: Path, slots: int | None = None, mem: float = 0.0, priority: str = "normal"
+) -> Path:
     q = queue_dir(d)
     q.mkdir(parents=True, exist_ok=True)
-    t = q / f"{time.time_ns():020d}-{system()}-{os.getpid()}.json"
+    t = q / ticket_name(priority)
     info = {"pid": os.getpid(), "system": system(), "slots": slots, "mem": mem}
+    if priority != "normal":
+        info["priority"] = priority  # read by status only; the name decides
     t.write_text(json.dumps(info), encoding="utf-8")
     return t
 
@@ -271,9 +302,14 @@ def _register_shared(d: Path, command: list[str], slots: int, mem: float) -> Pat
 
 
 def _wait(
-    d: Path, command: list[str], poll: float, slots: int | None, mem: float
+    d: Path,
+    command: list[str],
+    poll: float,
+    slots: int | None,
+    mem: float,
+    priority: str = "normal",
 ) -> Path | None:
-    ticket = take_ticket(d, slots, mem)
+    ticket = take_ticket(d, slots, mem, priority)
     stale_s = max(STALE_TICKET_S, 3 * poll)
     last = None
     try:
@@ -315,16 +351,21 @@ def _wait(
         ticket.unlink(missing_ok=True)
 
 
-def acquire(d: Path, command: list[str], poll: float) -> None:
+def acquire(d: Path, command: list[str], poll: float, priority: str = "normal") -> None:
     """Take the whole host (the original behaviour)."""
-    _wait(d, command, poll, None, 0.0)
+    _wait(d, command, poll, None, 0.0, priority)
 
 
 def acquire_shared(
-    d: Path, command: list[str], poll: float, slots: int, mem: float
+    d: Path,
+    command: list[str],
+    poll: float,
+    slots: int,
+    mem: float,
+    priority: str = "normal",
 ) -> Path:
     """Take ``slots`` threads and ``mem`` GB; returns the job's heartbeat file."""
-    f = _wait(d, command, poll, slots, mem)
+    f = _wait(d, command, poll, slots, mem, priority)
     assert f is not None
     return f
 
@@ -338,11 +379,15 @@ def _heartbeat(path: Path, stop: threading.Event, every: float) -> None:
 
 
 def run(
-    command: list[str], poll: float, slots: int | None = None, mem: float = 0.0
+    command: list[str],
+    poll: float,
+    slots: int | None = None,
+    mem: float = 0.0,
+    priority: str = "normal",
 ) -> int:
     d = lock_dir()
     if slots is not None:
-        hb = acquire_shared(d, command, poll, slots, mem)
+        hb = acquire_shared(d, command, poll, slots, mem, priority)
         stop = threading.Event()
         threading.Thread(target=_heartbeat, args=(hb, stop, 20.0), daemon=True).start()
         try:
@@ -356,7 +401,7 @@ def run(
 
         wsl_lock = open(Path.home() / ".rang-heavy.lock", "a")  # noqa: SIM115
         fcntl.flock(wsl_lock, fcntl.LOCK_EX)
-    acquire(d, command, poll)
+    acquire(d, command, poll, priority)
     try:
         return subprocess.call(command)
     finally:
@@ -383,6 +428,8 @@ def status(d: Path) -> None:
         except (OSError, ValueError):
             info = {}
         kind = f"{info['slots']} slots" if info.get("slots") else "exclusive"
+        if info.get("priority"):
+            kind += f", {info['priority']}"
         print(f"queue {i}: {t.stem} ({kind})")
 
 
@@ -401,6 +448,13 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument(
         "--exclusive", action="store_true", help="the whole host (the default)"
     )
+    r.add_argument(
+        "--priority",
+        choices=PRIORITIES,
+        default="normal",
+        help="critical: served before every normal ticket, never preempting a "
+        "running job; only for the release's critical path (E2/E3 acceptance)",
+    )
     r.add_argument("command", nargs=argparse.REMAINDER)
     sub.add_parser("status", help="show the exclusive owner, shared jobs and the queue")
     sub.add_parser("break", help="remove the exclusive lock")
@@ -418,7 +472,7 @@ def main(argv: list[str] | None = None) -> int:
     if not command:
         p.error("run needs a command after --")
     slots = None if a.exclusive else a.slots
-    return run(command, a.poll, slots, a.mem)
+    return run(command, a.poll, slots, a.mem, a.priority)
 
 
 if __name__ == "__main__":

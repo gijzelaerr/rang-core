@@ -309,6 +309,15 @@ ENVIRONMENT = (
         "python/rang/check.py",
     ),
     _v(
+        "RANG_ARCHIVE_OUTPUTS",
+        "unset (`outputs/` of this checkout; a mangled UNC path is repaired)",
+        "input",
+        "directory holding the archived campaign outputs the full check's "
+        "gain-hash gate reads",
+        "speedup-tools",
+        "python/rang/check.py",
+    ),
+    _v(
         "RANG_CORE_BACKEND",
         "unset",
         "refused",
