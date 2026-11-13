@@ -7,11 +7,13 @@ claimed: rang-core is checked for parity with CASA, QuartiCal, Tricolour and
 WSClean, not shown to beat them.
 
 ```{important}
-**Placeholder, to be filled from tasks E2 and E3** ({gh}`research/finish-plan.md`;
-both are running). This page will add the acceptance gates as reported on
-E2-A (ESO 137-006, Stokes I) and E2-B (LUNO, full polarisation), and the
-comparison with CARACal's shipped MeerKAT strategy (image quality, flux,
-wall time, memory), whatever the outcome.
+**Placeholder, to be filled from tasks E2 and E3** ({gh}`research/finish-plan.md`).
+As of 2026-11-13 work is paused: E2-B (LUNO, full polarisation) is scored on
+a branch that is not yet merged, E2-A (ESO 137-006, Stokes I) and E3 (CARACal's
+shipped MeerKAT strategy on the same data) have not reported. This page will add
+E2's acceptance gates as reported and E3's comparison (image quality, flux,
+wall time, memory), whatever the outcome. Absolute polarisation angle is under
+investigation; nothing here states it as solved.
 ```
 
 ## Scope
@@ -92,9 +94,11 @@ wall time, memory), whatever the outcome.
 
 ## Data safety and platforms
 
-- **Table lock on Linux only.** On Windows and macOS nothing stops a second
-  writer to the same MS; `rang-core` refuses a second command on the same run
-  directory ({doc}`concepts/ingest`).
+- **Table lock on Linux and Windows only.** Linux takes casacore's `fcntl`
+  lock, Windows a `LockFileEx` lock; on macOS nothing stops a second writer to
+  the same MS, and on Windows a casacore process inside WSL does not see rang's
+  lock ({gh}`research/ms-lock-windows.md`). `rang-core` refuses a second command
+  on the same run directory on every platform ({doc}`concepts/ingest`).
 - **Memory limit.** `data.memory_limit_gb` is 8 GiB by default; flag,
   calibrate and apply read in chunks within it. Channel-chunked solves on
   whole-array data are slow: 30-52 min per arm in W3b, before the channel
