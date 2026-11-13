@@ -46,6 +46,10 @@ commit before either sky is simulated. Nothing is redrawn.
 **Held-out data are read once.** H1-H4, M1, N1, N2 and DF5-O enter only after U's configuration
 is fixed on S1-S3 (section 3). Pre-freeze tooling probes: none were run on any sky.
 
+**Seed record (2026-11-13, written after the freeze commit `292b2b2f42dd34fc4005ce97468c5a4e53616eed`,
+before either sky is simulated; no collision):** N1 sky **1590775363**, noise **260180386**
+(digest `5ed14e43…dbf12733`); N2 sky **2762275878**, noise **306332801** (digest `a4a4fc26…a05a1d`).
+
 ## 3. Arms
 
 Common to every arm on the bench skies: Stokes I, 2048² × 1.5″ (H3 4096² × 1.5″), Briggs 0.5,
