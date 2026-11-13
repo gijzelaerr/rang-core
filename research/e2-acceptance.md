@@ -1075,6 +1075,20 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
 - The rang arm runs under `e2_timed.py`, exclusive, from the frozen wheel venv
   `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv` (6.4), on this MS.
 
+### 9.3 Polarisation sealed (coordinator, 2026-11-13; before any E2-A run)
+
+- The chi-offset study found a defect in the simulation:
+  `calibrate.average_time: true` with Xf `combine: scan` across scans at
+  different parallactic angles puts Xf 78° off. `e2a.yaml` has both. E2-B's
+  Xf is solved on a single scan.
+- A fix and a pre-registered amended E2-A arm are being prepared on branch
+  `xf-avg-fix`. The amended arm is `e2a-amended.yaml`, the fix on and nothing
+  else changed. It runs after the frozen arm, on the same MS, from the
+  calibrate stage.
+- The frozen arm runs as frozen and stays the record.
+- **Sealed:** every E2-A polarisation result (Xf, χ, leakage) is unread until
+  the amended arm is committed.
+
 ## For the coordinator
 
 (written at the end)
