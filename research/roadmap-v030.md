@@ -58,6 +58,31 @@ run without a rerun.
 ## For the coordinator
 
 - The issues and milestones were created on 2026-11-13 with the label
-  `roadmap`; their numbers are listed in section 4 once created.
+  `roadmap` (section 4).
 - The owner moves issues between milestones; the coordinator does not start
   v0.3.0 work before E6.
+
+## 4. Issues (created 2026-11-13, gijzelaerr/rang-core)
+
+- v0.2.0: #2 release tracking.
+- v0.3.0:
+  - #3 multi-node stage 1
+  - #5 MSv4 / xarray-ms
+  - #6 selfcal beyond model absorption
+  - #7 native data (E2-N)
+  - #8 open CASA tasks
+  - #9 time series P1
+  - #10 F4 flagger
+  - #11 UHF
+  - #12 GPU gridding
+  - #13 imaging floor
+  - #14 absolute χ
+- Later:
+  - #4 multi-node stage 2
+  - #15 direction-dependent calibration
+  - #16 LOFAR
+  - #17 VLBI
+  - #18 S band
+  - #19 beamformed time series
+  - #20 digest proposals
+- Earlier: #1 F2 flagger discussion.
