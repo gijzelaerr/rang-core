@@ -294,6 +294,36 @@ off run 01 rest on more than one case:
 Development run 02 (`round.sh 02`) reruns every development case on the
 rebuilt synthetic MSs.
 
+## 8c. Amendment 3 (2026-11-13, after the held-out run ho1, before ho2 is opened)
+
+Labelled as an amendment; gates, tolerances and decision rules are unchanged.
+The R1 FLAG_ROW correction (section 9.2a) was fitted after `eso137-ho` was
+compared, so **ho1 is spent for R1**: its post-hoc 54/54 (section 9.2b) shows
+only that the rule fits. The coordinator asked for a second held-out split
+that no V8 work has opened, compared once under section 5.2 and 7 with rang
+at the commit that adds this amendment (R1 as corrected, nothing else
+changed):
+
+- `luno-ho2`: scan 19 (field `J1833-2103`, 11 integrations, 17,556 rows,
+  56 antennas, 4,096 channels) of the E2-B LUNO calibrators MS
+  `D:
+ang\data\e2-b\e2b.ms`, by `split(scan='19', keepflags=True,
+  datacolumn='data')` (`tools/oracles/casa/v8b_heldout2.sh`). The same
+  observation as the development `luno` slice (4 antennas, scan 2), but other
+  scans, times and 52 more antennas; no V8 task has opened `e2b.ms` (V8a used
+  the SKA fixture and ESO137; V8b the slice). Reading FLAG for V8b produces
+  no E2 numbers.
+- Arms: the nine fixed-mode held-out arms (M1, M2, M3, M5a, M5b, M6a, M7,
+  M14a, M16a), `v8b_plan.py heldout2`. tfcrop is not run (H1 has not passed
+  its development gate).
+- Result: the mode passes on ho2 when every case of that mode is equal in
+  FLAG, FLAG_ROW and every summary count within section 5.2's tolerances. The
+  number of rows wholly flagged in FLAG with FLAG_ROW false is recorded, since
+  R1's correction is only exercised by such rows; if there are none, ho2 tests
+  R1 only on the rows the modes flag.
+- Recorded whichever way it goes; ho1's frozen verdict (H2 fails for four
+  modes) stands regardless.
+
 ## 9. Development log and results
 
 ### 9.1 Runs

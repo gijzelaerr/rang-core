@@ -2,7 +2,7 @@
 """The V8b case list (research/v8b-flagdata.md, section 4) as `flagdata.py`
 plans: every (input, arm) pair, one CASA call list each.
 
-Usage: v8b_plan.py dev|heldout OUT.json
+Usage: v8b_plan.py dev|heldout|heldout2|probe|devprobe OUT.json
 
 Arms take the input paths of `flagdata.sh` (`/in/...`). `rang`'s side reads
 the same list through `rang.oracles.casa_flagdata.cases`.
@@ -21,6 +21,8 @@ DEV_INPUTS = {
 FIXTURE = {f"fixture-scan{s}": f"/in/fixture/1672727931_sdp_l0_scan_{s}.ms"
            for s in (1, 4, 5, 8, 9)}  # fmt: skip
 HELDOUT_INPUTS = FIXTURE | {"eso137-ho": "/in/heldout/eso137-ho.ms"}
+# Amendment 3: the second held-out split, for R1 after ho1 was spent.
+HELDOUT2_INPUTS = {"luno-ho2": "/in/heldout/luno-ho2.ms"}
 
 TFCROP = {
     "T1": [{"mode": "tfcrop", "flagdimension": "freq", "extendflags": False}],
@@ -142,7 +144,7 @@ def probe_plan():
              "calls": [base | v]} for k, v in arms.items()]  # fmt: skip
 
 
-def heldout_plan(tfcrop=False):
+def heldout_plan(tfcrop=False, inputs=None):
     """The held-out cases: the fixed modes, and tfcrop's T4 and T5 only
     once H1 has passed its development gate (section 7)."""
     plan = []
@@ -151,7 +153,7 @@ def heldout_plan(tfcrop=False):
             plan.append({"name": f"eso137-ho.{arm}", "input": HELDOUT_INPUTS["eso137-ho"],
                          "calls": TFCROP[arm]})  # fmt: skip
     fixed = fixed_arms(False)
-    for case, path in HELDOUT_INPUTS.items():
+    for case, path in (inputs or HELDOUT_INPUTS).items():
         for arm in ("M1", "M2", "M3", "M5a", "M5b", "M6a", "M7", "M14a", "M16a"):
             plan.append({"name": f"{case}.{arm}", "input": path, "calls": fixed[arm]})
     return plan
@@ -159,7 +161,8 @@ def heldout_plan(tfcrop=False):
 
 if __name__ == "__main__":
     which, out = sys.argv[1], sys.argv[2]
-    plan = {"dev": dev_plan, "heldout": heldout_plan, "probe": probe_plan,
+    plan = {"dev": dev_plan, "heldout": heldout_plan,
+            "heldout2": lambda: heldout_plan(inputs=HELDOUT2_INPUTS), "probe": probe_plan,
             "devprobe": lambda: dev_plan() + probe_plan()}[which]()  # fmt: skip
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         json.dump(plan, f, indent=1)
