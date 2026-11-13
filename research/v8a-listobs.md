@@ -207,8 +207,8 @@ then zero on the held-out `eso137` at its one comparison.
 Walls are informational (section 4): rang's are dominated by reading MSs over
 `\\wsl.localhost` on a host running E2's shared jobs (the same LUNO MS took
 0.35 s in the first comparison); CASA's are inside the container on WSL's own
-disk. `eso137`'s CASA wall is 62 s against rang's 0.9 s because CASA's
-verbose listing reads more than the scalar columns; not a claimed speed-up.
+disk. `eso137`'s CASA wall is 62 s against rang's 0.9 s: CASA's
+run on that MS takes longer (cause not investigated); not a claimed speed-up.
 
 Worst |rang − CASA| over all nine MSs: times 0; IntegrationTime 7e-14 s;
 directions 4e-16 rad; channel frequencies and widths, bandwidth, reference and
@@ -239,7 +239,8 @@ are comparator fixes, not rang fixes.
 
 Gaps, not gated: antenna offsets from the array centre are not printed; the
 text layout is rang's; `StateId` as first-row state against lowest id, and a
-scan number reused across observations or arrays, are untested; no real
+scan number reused across observations or arrays, are untested; a sub-entry spanning several states (as `edges` scan 3) shows one
+`StateId` in rang's text, where CASA's listfile lists every intent; no real
 multi-spw MeerKAT MS (only the synthetic `edges`, two spws); CASA's selection
 keywords are refused, not implemented.
 
@@ -251,8 +252,27 @@ keywords are refused, not implemented.
   `rang.tasks.listobs` (CASA keywords; selections refused) match CASA
   6.7.6.14's `listobs` record, channels and antenna positions on eight
   development MSs and the held-out ESO137 MS (650 values, 0 differences;
-  research/v8a-listobs.md). CI compares rang with an archive of CASA's output
-  on the public fixture.*
+  research/v8a-listobs.md). A test compares rang with an archive of CASA's
+  output on the public fixture where the fixture is present; CI's `tests` job
+  does not fetch it, so there it skips (wiring it is for the coordinator).*
 - Plan line (v8-open-casa.md section 7, piece 3): done; next CASA piece is
   `flagdata` `tfcrop` after v0.2.0. A real multi-spw check waits for E2's
   converted MSs.
+
+## 10. Resume state (2026-11-13, stopped on the owner's order)
+
+- Done: the gate passed (section 8); fixture archive and tests committed.
+- Full check: run 1 (2026-11-12) failed only
+  `test_w4_6_portability.py::test_every_text_read_and_write_names_its_encoding`
+  (two listfile writes without `newline=`), fixed in the last commit. Run 2
+  passed every stage up to pytest (1247 passed, 86 skipped), and was stopped
+  during `gain-hashes`. The full check has not completed on the head commit.
+- Resume step: from the worktree, in PowerShell with
+  `RANG_ARCHIVE_OUTPUTS=\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs`, run
+  `python <main>\tools\heavy_lock.py run --slots 8 --mem 16 -- .venv\Scripts\python.exe -m rang.check`
+  (on a fresh venv, run `maturin develop --release` first). Then add a
+  tool-timings row, and hand the branch to the coordinator for merge.
+- Left on disk: `D:\rang\scratch\v8a-20261112` (edges.ms, which
+  `listobs_edges.py` rebuilds, and verdict copies; the verdicts are also in
+  WSL `outputs/v8a-listobs-20261112-02-compare`); check logs
+  `~/Build/tmp/20261112-v8a-check*.log`.

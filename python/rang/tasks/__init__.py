@@ -85,7 +85,7 @@ def listobs(
         out = Path(listfile)
         if out.exists() and not overwrite:
             raise FileExistsError(f"listobs: {out} exists (overwrite=True replaces it)")
-        out.write_text(report, encoding="utf-8")
+        out.write_text(report, encoding="utf-8", newline="\n")
     else:
         print(report, end="")
     return record

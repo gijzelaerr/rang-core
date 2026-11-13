@@ -1447,7 +1447,7 @@ def _listobs_command(argv):
                 file=sys.stderr,
             )
             raise SystemExit(2)
-        path.write_text(out, encoding="utf-8")
+        path.write_text(out, encoding="utf-8", newline="\n")
     else:
         sys.stdout.write(out)
     return record
