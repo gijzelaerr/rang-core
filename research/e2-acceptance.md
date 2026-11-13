@@ -1088,6 +1088,11 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
 - The frozen arm runs as frozen and stays the record.
 - **Sealed:** every E2-A polarisation result (Xf, χ, leakage) is unread until
   the amended arm is committed.
+- **Withdrawn the same day (coordinator's correction, before any E2-A run).**
+  E2-A is not exposed. `e2a.yaml` has no polcal block and no Xf, KCROSS,
+  Gpol or Df term (checked: none of them appears in the file), and `e2a.ms`
+  has no polcal scans. The earlier reading came from `e2b.yaml`. There is no
+  amended E2-A arm and no seal. E2-A runs as frozen.
 
 ## For the coordinator
 
