@@ -7,7 +7,7 @@
   "xarray-ms": "0.5.14",
   "xarray": "2026.9.0",
   "extension": "_core.pyd",
-  "commit": "c345bc14ee0e29a42553f71f59085ba6b298f24f"
+  "commit": "654687b2fc7c293690d9d32051c4aa65fbe0976a"
  },
  "tables": [
   {
