@@ -46,6 +46,14 @@ One check at a time on a shared host (research/p10-tests.md): the lock file
 shell wrapper sets it after taking the lock). Refuses to run outside a
 checkout. Never imports `rang.core`: on Windows `maturin develop` cannot
 replace a loaded extension.
+
+`RANG_ARCHIVE_OUTPUTS`, the gain-hash gate's archive (research/speedup-tools.md):
+a UNC value that lost one of its two leading backslashes (Git Bash's path
+conversion) is repaired, and on Windows an unset value defaults to the
+development host's WSL checkout (`DEV_HOST_ARCHIVE`) when that directory
+exists, so elsewhere the gate still reports the archive absent.
+`--pytest-paths` runs pytest on the given test files only (the quick check of
+`tools/check_all.py`).
 """
 
 import argparse
@@ -66,12 +74,37 @@ CARGO = ["cargo", f"+{TOOLCHAIN}"]
 GPU_TARGET = "feature-gpu"
 PYTEST_WORKERS = max(1, min(8, os.cpu_count() or 1))
 PYTEST_LABEL = "bash -c set -o pipefail; .venv/bin/python -m pytest -q 2>&1 | tail -2"
+ARCHIVE_ENV = "RANG_ARCHIVE_OUTPUTS"
+# The development host's archive: the WSL checkout's outputs (CONTRIBUTING.md).
+DEV_HOST_ARCHIVE = r"\\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs"
+_HALF_UNC = re.compile(r"^[\\/](?![\\/])(wsl\.localhost|wsl\$)[\\/]", re.IGNORECASE)
 
 
-def steps(python=None):
+def repair_unc(value):
+    r"""A WSL UNC path (`\\wsl.localhost\...`, `\\wsl$\...`) that lost one of
+    its two leading backslashes gets it back; anything else is unchanged."""
+    if _HALF_UNC.match(value):
+        return "\\" + value.replace("/", "\\")
+    return value
+
+
+def archive_outputs(env, default=DEV_HOST_ARCHIVE, exists=os.path.isdir):
+    """(value, why): what `RANG_ARCHIVE_OUTPUTS` should be in `env`; `why` is
+    "set", "repaired", "default", or None when it stays unset."""
+    value = env.get(ARCHIVE_ENV)
+    if value:
+        fixed = repair_unc(value)
+        return fixed, ("set" if fixed == value else "repaired")
+    if os.name == "nt" and default and exists(default):
+        return default, "default"
+    return None, None
+
+
+def steps(python=None, pytest_paths=None):
     """(name, group, kind, argv, extra environment, FAILED label) in order.
 
     The labels are the shell script's words, so a failure reads as before.
+    `pytest_paths` limits pytest to those test files.
     """
     py = python or sys.executable
     core = ["--manifest-path", "core/Cargo.toml"]
@@ -94,7 +127,12 @@ def steps(python=None):
     if importlib.util.find_spec("xdist") is not None:
         # pytest-xdist (the `test` extra, research/check-speed.md): the same
         # tests on PYTEST_WORKERS processes; without it the suite runs serially.
-        pytest += ["-n", str(PYTEST_WORKERS)]
+        workers = PYTEST_WORKERS
+        if pytest_paths:
+            workers = max(1, min(workers, len(pytest_paths)))
+        pytest += ["-n", str(workers)]
+    if pytest_paths:
+        pytest += list(pytest_paths)
     # The cheap steps (fmt, ruff, `git diff --check`) run first, so a lint
     # failure shows within seconds (and ends a `--fail-fast` run); pytest and
     # the gate stay after the builds they need (core-build's gemclean binary,
@@ -526,6 +564,11 @@ def _parser():
         "--fail-fast", action="store_true", help="stop after the first failing step"
     )
     parser.add_argument(
+        "--pytest-paths",
+        default="",
+        help="comma-separated test files: pytest runs only these",
+    )
+    parser.add_argument(
         "--rebuild",
         action="store_true",
         help="run ext-build even when its inputs and the installed extension "
@@ -562,7 +605,12 @@ def main(argv=None, runner=run_step, root=None):
     )
     if sys.prefix != sys.base_prefix:
         env.setdefault("VIRTUAL_ENV", sys.prefix)
-    chosen = select(args, steps())
+    archive, why = archive_outputs(env)
+    if why in ("repaired", "default"):
+        env[ARCHIVE_ENV] = archive
+        print(f"{ARCHIVE_ENV} {why}: {archive}", flush=True)
+    paths = [n for n in args.pytest_paths.split(",") if n]
+    chosen = select(args, steps(pytest_paths=paths))
     records = []
     fail = 0
     with host_lock():

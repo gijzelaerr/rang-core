@@ -121,6 +121,8 @@ exclude = [
     { path = "tools/a1_casa.sh", format = "sdist" },
     { path = "tools/a1_checks.sh", format = "sdist" },
     { path = "tools/check-all.sh", format = "sdist" },
+    { path = "tools/check_all.py", format = "sdist" },
+    { path = "tools/cold_build_bench.py", format = "sdist" },
     { path = "tools/core-j-suite.sh", format = "sdist" },
     { path = "tools/e2e/**/*", format = "sdist" },
     { path = "tools/gain_hash_gate.py", format = "sdist" },
