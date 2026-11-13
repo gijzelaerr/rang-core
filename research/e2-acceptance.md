@@ -904,8 +904,8 @@ unflagged in every arm):
   absolute polarisation angle belongs to the chi-offset task
   (`research/chi-offset.md`, branch `claude/chi-offset-80cb6a`). The three
   arms agree in χ to 0.04°.
-- Rang's phase-only leakage is 0.004 points of Q/I above CASA's, and both are
-  within 0.002 points of the limit. With scan 18's own amplitudes the
+- Rang's phase-only leakage is 0.004 points of Q/I above CASA's: rang 0.0018
+  points over the limit, CASA 0.0025 points under it. With scan 18's own amplitudes the
   leakage is about 10 × lower in all arms. So the gated number is mostly the
   X/Y amplitude drift between the development scans and scan 18 (7.1). The
   verdict stays as frozen: not met.
@@ -942,6 +942,21 @@ unflagged in every arm):
 - **Kept:** `f2-20261106-02-sim-train`, `-01-sim-v` and
   `f3-20261110-03-sim-test`, because branch `fp-f4-flagger`'s `f3flag.py`
   reads them.
+- The deleted dry-run copy `e2-20261111-12-dryrun\b\luno-slice.ms` is the one
+  `chi-offset-20261113-04-qf` read (its readings are kept there).
+
+**Departure from 6.2's order (dated 2026-11-13, before any E2-A cube was
+decoded).**
+- 6.2 has E2-B archived and `e2b.ms` deleted before E2-A starts.
+- `D:\rang\data\e2-b\e2b.ms` is kept on the coordinator's word, for E3. (E3
+  note 10.12 names `e3-20261111-input\e2b.ms` as E3-B's input; the
+  coordinator decides which copies stay.)
+- `e2a.ms` is built and verified while the amended arm's post chain runs.
+  D: had 590 GB free before the build. The build is about 225 GB and the
+  amended CASA copy about 215 GB with WSClean temporaries. If D: runs short,
+  `e2a.ms` is deleted first: it rebuilds from the zarr in about an hour.
+- E2-A's rang arm still waits for 6.2's start rule: 470 GB free after the
+  build.
 
 ## 8. Paused 2026-11-13 07:00 (owner's order: stop everything)
 

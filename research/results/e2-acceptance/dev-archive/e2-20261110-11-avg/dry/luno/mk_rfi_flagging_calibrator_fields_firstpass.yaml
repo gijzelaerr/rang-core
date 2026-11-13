@@ -33,7 +33,7 @@ strategies:
             flag_all_freq_frac: 0.8
             rho: 1.3
             num_major_iterations: 5
-    -   
+    -
         name: residual_flag_initial
         task: uvcontsub_flagger
         kwargs:
@@ -43,16 +43,16 @@ strategies:
             sigma: 15.0
     # flags are discarded at this point since we or from cycle 1
     # reflag nans and zeros
-    -   
+    -
         name: nan_dropouts_reflag
         task: flag_nans_zeros
-    -   
+    -
         name: uvrange_static_mask
         task: apply_static_mask
         kwargs:
             accumulation_mode: "or"
             uvrange: "0~550"
-    -   
+    -
         name: final_st_very_broad
         task: sum_threshold
         kwargs:
@@ -71,7 +71,7 @@ strategies:
             flag_all_freq_frac: 0.8
             rho: 1.3
             num_major_iterations: 1
-    -   
+    -
         name: final_st_broad
         task: sum_threshold
         kwargs:
@@ -90,7 +90,7 @@ strategies:
             flag_all_freq_frac: 0.8
             rho: 1.3
             num_major_iterations: 1
-    -   
+    -
         name: final_st_narrow
         task: sum_threshold
         kwargs:

@@ -1,4 +1,4 @@
-tricolour - 2026-11-12 16:26:22,939 INFO - 
+tricolour - 2026-11-12 16:26:22,939 INFO -
 *******************************************************************************
                   _______   _           _
                  |__   __| (_)         | |
@@ -26,7 +26,7 @@ tricolour - 2026-11-12 16:26:22,942 INFO - *************************************
 tricolour - 2026-11-12 16:26:22,942 INFO - 0: flag_nans_zeros (nan_dropouts_flag)
 tricolour - 2026-11-12 16:26:22,942 INFO - 1: apply_static_mask (background_static_mask)
 tricolour - 2026-11-12 16:26:22,942 INFO - 	accumulation_mode: or
-tricolour - 2026-11-12 16:26:22,942 INFO - 	uvrange: 
+tricolour - 2026-11-12 16:26:22,942 INFO - 	uvrange:
 tricolour - 2026-11-12 16:26:22,942 INFO - 2: sum_threshold (background_flags)
 tricolour - 2026-11-12 16:26:22,942 INFO - 	outlier_nsigma: 10
 tricolour - 2026-11-12 16:26:22,942 INFO - 	windows_time: [1, 2, 4, 8]
@@ -143,7 +143,7 @@ tricolour - 2026-11-12 16:26:29,226 INFO - Adding field 'J1833-2103' scan 20 to 
 [###########################             ] | 69% Completed | 10m 0s
 [########################################] | 100% Completed | 15m 0s
 tricolour - 2026-11-12 16:41:29,636 INFO - ********************************
-tricolour - 2026-11-12 16:41:29,636 INFO -    BEGINNING OF FLAG SUMMARY    
+tricolour - 2026-11-12 16:41:29,636 INFO -    BEGINNING OF FLAG SUMMARY
 tricolour - 2026-11-12 16:41:29,636 INFO - ********************************
 tricolour - 2026-11-12 16:41:29,636 INFO - Per antenna:
 tricolour - 2026-11-12 16:41:29,636 INFO - 	 m000: 65.961%, original 65.447%
@@ -1812,6 +1812,6 @@ tricolour - 2026-11-12 16:41:29,714 INFO - Per data descriptor id:
 tricolour - 2026-11-12 16:41:29,714 INFO - 	 0: 8.98   	4.49   	5.72   	9.97   	7.87   	2.32   	4.46   	9.97   	8.79   	0.00   %
 tricolour - 2026-11-12 16:41:29,714 INFO - 	    856.0  	951.1  	1046.2 	1141.3 	1236.4 	1331.4 	1426.5 	1521.6 	1616.7 	1711.8  MHz
 tricolour - 2026-11-12 16:41:29,714 INFO - ********************************
-tricolour - 2026-11-12 16:41:29,714 INFO -        END OF FLAG SUMMARY      
+tricolour - 2026-11-12 16:41:29,714 INFO -        END OF FLAG SUMMARY
 tricolour - 2026-11-12 16:41:29,715 INFO - ********************************
 tricolour - 2026-11-12 16:41:29,715 INFO - Data flagged successfully in 00h15m07s

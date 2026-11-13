@@ -1,7 +1,7 @@
 ================================================================================
            MeasurementSet Name:  /ms/e2b.ms      MS Version 2
 ================================================================================
-   Observer: B Hugo     Project: 20210818-0008  
+   Observer: B Hugo     Project: 20210818-0008
 Observation: MeerKAT
 Data records: 272916       Total elapsed time = 2143.09 seconds
    Observed from   18-Aug-2021/16:42:14.2   to   18-Aug-2021/17:17:57.3 (UTC)
@@ -12,18 +12,18 @@ Data records: 272916       Total elapsed time = 2143.09 seconds
               16:53:49.9 - 17:03:49.7    18      1 J1939-6342              119700  [0]  [8] [CALIBRATE_BANDPASS,CALIBRATE_FLUX]
               17:04:37.7 - 17:06:05.6    19      2 J1833-2103               17556  [0]  [8] [CALIBRATE_AMPLI,CALIBRATE_PHASE]
               17:16:29.4 - 17:17:57.3    20      2 J1833-2103               17556  [0]  [8] [CALIBRATE_AMPLI,CALIBRATE_PHASE]
-           (nRows = Total number of rows per scan) 
+           (nRows = Total number of rows per scan)
 Fields: 3
   ID   Code Name                RA               Decl           Epoch        nRows
   0    T    J1331+3030          13:31:08.290000 +30.30.33.00000 J2000       118104
   1    T    J1939-6342          19:39:25.050000 -63.42.43.60000 J2000       119700
   2    T    J1833-2103          18:33:39.920000 -21.03.40.10000 J2000        35112
 Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)
-  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs          
+  SpwID  Name   #Chans   Frame   Ch0(MHz)  ChanWid(kHz)  TotBW(kHz) CtrFreq(MHz)  Corrs
   0      none    4096   TOPO     856.000       208.984    856000.0   1283.8955   XX  XY  YX  YY
 The SOURCE table is absent: see the FIELD table
 Antennas: 56:
-  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)        
+  ID   Name  Station   Diam.    Long.         Lat.                Offset from array center (m)                ITRF Geocentric coordinates (m)
                                                                      East         North     Elevation               x               y               z
   0    m000  m000      13.5 m   +021.26.37.7  -30.32.39.3         -9.3284       30.3604       45.2895  5109271.497354  2006808.893028 -3239130.736141
   1    m001  m001      13.5 m   +021.26.38.0  -30.32.38.1          0.0560       65.8884       45.2670  5109284.854078  2006824.221724 -3239100.126460
