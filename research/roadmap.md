@@ -1,7 +1,7 @@
 # Roadmap: releases after v0.2.0
 
-Status, 2026-11-13: **proposed by the coordinator; the owner decides the
-milestones.** Nothing here is built unless a row says so. Each item is an issue
+Status, 2026-11-13: **approved by the owner** ("i approve all of it", 2026-11-13),
+including the three open decisions as resolved in "Owner decisions" below. Nothing here is built unless a row says so. Each item is an issue
 on [gijzelaerr/rang-core](https://github.com/gijzelaerr/rang-core/issues?q=label%3Aroadmap),
 grouped into one GitHub milestone per release. This note replaces
 `roadmap-v030.md` (same day). The rules:
@@ -145,6 +145,21 @@ These are estimates, not measurements. The weekly API limit and the shared host 
   - a target-calibrated threshold for `s`;
   - labels without `s`;
   - Landman's expert labels.
+
+## Owner decisions (2026-11-13)
+
+The owner approved the plan as a whole ("i approve all of it"). The three items
+he had left open are resolved by the coordinator's choice under that approval:
+
+1. **#7, native data:**
+   - Source: the SARAO archive through katdal (MVF), an L-band block with 1934−638 and 3C 286 or 3C 138 (for example from MIGHTEE-pol).
+   - Data goes to `D:ang`.
+   - **Owner action:** register at the archive and provide the per-user token. Until then #7 waits.
+2. **#9, time series:** P1 (residual snapshot light curves) is the first product, and P2 (dynamic spectra) follows.
+3. **#10, F4's target labels:**
+   - Primary arm: a threshold for `s` calibrated on target fields.
+   - Second arm, pre-registered with it: labels without `s`.
+   - Landman's expert labels are asked for as an independent held-out check, not as a dependency.
 
 ## For the coordinator
 
