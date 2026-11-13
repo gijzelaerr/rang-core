@@ -159,6 +159,7 @@ Host: the development host (16 threads), every run under the main checkout's `to
 | pytest on 21 related files, `-n 4`, before the NaN fix | 253 passed, 13 skipped, **1 failed**: `test_gain_solve_nan_cells_equal_flagged_cells`, all 48 gains NaN (finding #6) | 27 s pytest |
 | `python -m rang.check --skip core-clippy-gpu,core-test-gpu,pytest` on 4e9b64a (main 2a02470) | PASS: root 23/23 (1 ignored), core 274/274, clippy, ext build, gain hashes | 2,207 s with lock wait |
 | `python tools/check_all.py --quick` after rebasing onto main 30d9412 | PASS: core 274/274, pytest (the diff's files) 509 passed and 22 skipped, gain hashes | 903 s, lock wait excluded |
+| `python tools/check_all.py --quick` on 898b39d (with the polarisation NaN fix) | PASS: root 23/23, core 274/274, pytest 534 passed and 22 skipped, gain hashes | 902 s, lock wait excluded (17,365 s with it) |
 
 The CI run of the pushed branch is linked in the hand-back. CI has no archives, so the oracle-gated
 tests (calibration solvers, imaging, MS writing) need the coordinator's full check at merge.
