@@ -22,12 +22,14 @@ look inside each step on real data; 06-07 tell the two research questions.
 
 - **08, reports and image quality** (A1 small, E4's configuration, about
   20 s). Reads `state.json`, the flag, calibrate, apply and image summaries,
-  the receipt and GeMClean's `-report.json`; then judges the image by seven
+  the receipt and GeMClean's `-report.json`; then judges the image by ten
   numbers computed from the FITS files alone (noise over the radiometer
   prediction, pixels beyond 5σ and excess kurtosis, dynamic range, σ near the
   brightest source over σ far from it, largest PSF sidelobe and axis ratio,
   restored over true point flux, CLEAN's stop), on the run's image and on an
   image of uncalibrated DATA made with the same settings; a checklist table.
+  Measured: calibrated noise ratio 17.9, dynamic range 710, restored/true
+  point flux 0.95; uncalibrated 46.5, 10 and 0.05.
 - **09, CPU and GPU paths** (public fixture, about 10 s). What runs where
   (only the w-stacking gridder has a GPU path, `--features gpu`); the CPU
   reference image; w-stacking against the exact w-gridder by region, matching
@@ -103,7 +105,8 @@ hypothesis (H3 of chi-offset) is presented as a finding. Exercise 3
 - Fixture: `download_fixture` into `D:\rang\tmp\20261113-notebooks-v020\fixture`
   (SHA256 pinned). All 19 notebooks through `docs/execute_notebooks.py` with
   `RANG_NOTEBOOK_LUNO=0`, `RANG_NOTEBOOK_INTRO_SLOW=1`, under the lock
-  (4 slots): 246 s in total; per-notebook times in the timing row of
+  (4 slots): 246 s in total. Final run at 3987d96 (6 slots): all 19 clean in
+  255 s (08 20.3 s, 09 7.8 s), `sphinx-build -W` clean in 32 s; rows in
   `research/tool-timings.md`.
 
 ## For the coordinator
