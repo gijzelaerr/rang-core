@@ -67,7 +67,7 @@ Estimate, not a measurement: four to six days of host time if nothing needs a re
 | --- | --- | --- | --- |
 | #3 | Multi-node stage 1: chunk task API, multi-process on one node | M | — |
 | #5 | MSv4 / xarray-ms interoperability (stage 3 of the scoping note) | L | #3's ChunkSpec |
-| #4 | Multi-node stage 2: Dask distributed on Slurm and PBS | L | #3 |
+| #4 | Multi-node stage 2: a multi-node executor (Slurm/PBS job arrays or Dask, chosen by a short comparison; Simon Perkins, 2026-11-13: Dask's maintenance and task-scaling limits) | L | #3 |
 | #12 | GPU gridding in GeMClean, CPU path the reference | L | — |
 | #28 | Close-to-threshold stop rule (fewer major cycles at the same false flux) | M | — |
 
