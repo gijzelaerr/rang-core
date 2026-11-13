@@ -132,7 +132,15 @@ def save(
     ms = Path(ms)
     if exists(ms, name):
         raise ValueError(f"flag version {name!r} exists")
-    if "/" in name or " : " in name or name.endswith(PARTIAL) or not name.strip():
+    # A version is the directory flags.<name>: characters that nest it or that
+    # Windows refuses in a file name are refused on every platform, so a name
+    # saved on Linux also works on Windows.
+    if (
+        any(c in name for c in '/\\:*?"<>|')
+        or " : " in name
+        or name.endswith(PARTIAL)
+        or not name.strip()
+    ):
         raise ValueError(f"flag version name {name!r} is not allowed")
     if (flag is None) != (flag_row is None):
         raise ValueError("give both flag and flag_row, or neither")

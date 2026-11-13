@@ -218,6 +218,13 @@ def invert(
     on the GPU the
     result also carries `gpu`, the path's timing breakdown."""
     if gridder == "wgrid":
+        if resolve_device(device) != "cpu":
+            # The exact gridder has no GPU path; never run a GPU request on
+            # the CPU silently (module docstring).
+            raise RuntimeError(
+                "the wgrid gridder runs on the CPU only; the GPU path is the "
+                "wstack gridder's (unset RANG_GRIDDER_DEVICE or pass device='cpu')"
+            )
         return _invert_wgrid(
             uvw,
             frequencies,

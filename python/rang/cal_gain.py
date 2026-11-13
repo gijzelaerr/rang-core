@@ -220,6 +220,24 @@ def solve(
     )  # fmt: skip
 
 
+def finite_cells(data, model, weights, flag):
+    """`(data, model, weights, flag)` with every non-finite data, model or
+    weight cell flagged and zeroed. The diagonal and delay kernels have no
+    non-finite guard: one NaN visibility made every solution NaN with its
+    flag clear (research/correctness-audit-2026-11-13.md). solve.rs skips
+    such cells, and this gives the same result as flagging them; finite
+    inputs are returned unchanged."""
+    bad = ~(np.isfinite(data) & np.isfinite(model) & np.isfinite(weights))
+    if not bad.any():
+        return data, model, weights, flag
+    return (
+        np.where(bad, np.complex64(0), data).astype(np.complex64),
+        np.where(bad, np.complex64(0), model).astype(np.complex64),
+        np.where(bad, np.float32(0), weights).astype(np.float32),
+        np.ascontiguousarray(flag | bad.astype(np.uint8), np.uint8),
+    )
+
+
 def _check(calmode, refantmode, refant, nant):
     if calmode not in KINDS:
         raise ValueError(f"calmode must be one of {sorted(KINDS)}")
@@ -262,6 +280,7 @@ def _kernel(
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
     weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
     flag = np.ascontiguousarray(np.broadcast_to(flag, data.shape), np.uint8)
+    data, model, weights, flag = finite_cells(data, model, weights, flag)
     a1 = np.ascontiguousarray(antenna1, np.uint32)
     a2 = np.ascontiguousarray(antenna2, np.uint32)
     flag_row = np.asarray(flag_row, bool) | (a1 == a2)
@@ -271,6 +290,23 @@ def _kernel(
         if freq_bin is None
         else np.asarray(freq_bin, np.int64)
     )
+    if nrow == 0 or nchan == 0:
+        raise ValueError(f"no data to solve: {nrow} rows of {nchan} channels")
+    for label, x in (
+        ("antenna1", a1),
+        ("antenna2", a2),
+        ("flag_row", flag_row),
+        ("time_bin", time_bin),
+    ):
+        if x.shape != (nrow,):
+            raise ValueError(
+                f"{label} must have one value per row ({nrow}), not {x.shape}"
+            )
+    # Longer is allowed: a frequency-averaged chunk keeps the full map.
+    if freq_bin.ndim != 1 or len(freq_bin) < nchan:
+        raise ValueError(f"freq_bin must have one value per channel ({nchan})")
+    if time_bin.min() < 0 or freq_bin.min() < 0:
+        raise ValueError("time_bin and freq_bin must not be negative")
     ntime, nfreq = int(time_bin.max()) + 1, int(freq_bin.max()) + 1
     # The kernel wants rows grouped by interval.
     order = np.argsort(time_bin, kind="stable")
