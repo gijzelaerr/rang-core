@@ -1,0 +1,24 @@
+heavy_lock: waiting for shared jobs to fit (queue: behind 01794683566787707300-windows-23112.json)
+heavy_lock: waiting for shared jobs to fit (queue: behind 01794683590647706700-windows-4432.json)
+heavy_lock: waiting for shared jobs to fit
+rang side written to D:\rang\outputs\e2b-arms-20261114\a1\rang
+rc=0 secs=13 :: C:/Users/gijsm/Worktrees/rang/e2b-arms/.venv/Scripts/python.exe C:/Users/gijsm/Worktrees/rang/e2b-arms/research/results/e2b-misses/a1_rang.py rang D:\rang\outputs\e2b-arms-20261114\a1\mini.ms D:\rang\outputs\e2b-arms-20261114\a1
+{
+ "c2": {
+  "max_abs_eps_deviation": 0.0,
+  "met": true
+ },
+ "c3": {
+  "values_bit_identical": true,
+  "flags_equal": true,
+  "compared": 390636,
+  "met": true
+ },
+ "first_term_over_2_ulps": [
+  "f1",
+  "G"
+ ],
+ "emulation_within_2_eps_all42": false,
+ "outcome": "rang difference: first term G (field f1)"
+}
+rc=0 secs=3 :: C:/Users/gijsm/Worktrees/rang/e2b-arms/.venv/Scripts/python.exe C:/Users/gijsm/Worktrees/rang/e2b-arms/research/results/e2b-misses/a1_rang.py compare D:\rang\outputs\e2b-arms-20261114\a1

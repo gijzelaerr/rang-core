@@ -1,0 +1,100 @@
+{
+ "tolerance_rad": 2e-07,
+ "time_equals_centroid": true,
+ "interval_s": [
+  7.996617
+ ],
+ "casa": {
+  "errors": {
+   "J1939-6342": null,
+   "J1833-2103": null
+  },
+  "measurespath": "/usr/share/casacore/data",
+  "IERSeop2000": {
+   "VS_DATE": "2025/07/28/15:15",
+   "VS_VERSION": "0001.0194"
+  }
+ },
+ "casa_ut1_minus_utc_s": [
+  -0.1298951916396618,
+  -0.1298951916396618
+ ],
+ "astropy_ut1_minus_utc_s": "AttributeError(\"'numpy.ndarray' object has no attribute 'to_value'\")",
+ "fields": {
+  "1": {
+   "c4_max_rad": {
+    "1": 2.2332524274304433e-08,
+    "-1": 0.752835247858405
+   },
+   "c4_met": false,
+   "script_formula_vs_rang_max_rad": 0.0,
+   "a": {
+    "max_abs_rad": 7.12557514503942e-06,
+    "median_rad": 6.925294665283133e-06
+   },
+   "b": {
+    "max_abs_rad": 7.12557514503942e-06,
+    "median_rad": 6.925294665283133e-06
+   },
+   "c-": {
+    "max_abs_rad": 0.00031440829599116427,
+    "median_rad": 0.00031101702637315043
+   },
+   "c+": {
+    "max_abs_rad": 0.0003007481508694454,
+    "median_rad": -0.0002970923164049566
+   },
+   "d": {
+    "max_abs_rad": 7.125565370635911e-06,
+    "median_rad": 6.925074901964479e-06
+   },
+   "time_offset_s": {
+    "median": 0.09124904761336869,
+    "min": 0.08835309620906144,
+    "max": 0.09344530805256021
+   }
+  },
+  "2": {
+   "c4_max_rad": {
+    "1": 2.0143127166249997e-08,
+    "-1": 0.8869638135730611
+   },
+   "c4_met": false,
+   "script_formula_vs_rang_max_rad": 0.0,
+   "a": {
+    "max_abs_rad": 3.230899506156959e-06,
+    "median_rad": 2.9999274384628904e-06
+   },
+   "b": {
+    "max_abs_rad": 3.230899506156959e-06,
+    "median_rad": 2.9999274384628904e-06
+   },
+   "c-": {
+    "max_abs_rad": 0.00010272223328655627,
+    "median_rad": -7.565447982216256e-05
+   },
+   "c+": {
+    "max_abs_rad": 0.00010918512856061824,
+    "median_rad": 8.177114135721197e-05
+   },
+   "d": {
+    "max_abs_rad": 3.230573189405561e-06,
+    "median_rad": 2.9996185544334253e-06
+   },
+   "time_offset_s": {
+    "median": -0.1466187375573546,
+    "min": -0.15967485890319177,
+    "max": -0.11074979897383132
+   }
+  }
+ },
+ "extraction_sign": 1,
+ "candidates_max_abs_rad": {
+  "a": 7.12557514503942e-06,
+  "b": 7.12557514503942e-06,
+  "c-": 0.00031440829599116427,
+  "c+": 0.0003007481508694454,
+  "d": 7.125565370635911e-06
+ },
+ "outcome": "void: C4 not met"
+}
