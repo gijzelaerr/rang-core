@@ -10,6 +10,6 @@ n=0
 for step in "$@"; do
   n=$((n + 1))
   read -r mode rest <<<"$step"
-  if [ "$mode" = u ]; then slots=8 mem=16; else slots=8 mem=6; fi
+  if [ "$mode" = u ]; then slots=8 mem=${UMEM:-16}; else slots=8 mem=${WMEM:-6}; fi
   bash "$here/job.sh" "$O/logs/$name-$n.log" $slots $mem python3 "$here/runs.py" $step
 done
