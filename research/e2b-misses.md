@@ -17,6 +17,8 @@ Sources:
   - amended arm: `50ba873`.
   - Line numbers are at those commits. Main has since moved (`parang_flags`,
     xf-avg-fix).
+  - The frozen run's receipt has `commit: None`, so `b2d80dc` is inferred
+    from 6.4 ("the commit that carries this section").
 - Post hoc reads made for this note, with scripts and outputs in
   [results/e2b-misses/](results/e2b-misses/):
   - `cells_tables.py` → `cells-tables.json`: rang's B, Df and Xf flags at the
@@ -33,13 +35,13 @@ Labels used below:
 
 | Miss (gate as frozen) | Most likely cause | Class | Evidence | Proposal |
 | --- | --- | --- | --- | --- |
-| 2b CASA applycal: 42 / 40 cells over class C, max 25.6 / 25.2 eps | float32 rounding in CASA's 8-term apply, concentrated where B or Df solutions are flagged and bridged across channels | tolerance (the 11 eps bound was measured on a shorter chain and about 1,000× fewer cells), possibly an interpolation difference in rang | I (enrichment M) | arm A1: localise per term; tolerance stays |
-| 3b Gpol: 0.124° (amended), 0.278° (frozen), limit 0.1° | the phase-only estimator weights data differently: CASA `w\|R\|²` after `enforceAPonData`, rang `w\|M\|²`; and `average_freq` averages data and model separately, while CASA divides by the model first | convention or definition (estimator) | code M, effect I | arm A3: port CASA's weighting behind a key |
+| 2b CASA applycal: 42 / 40 cells over class C, max 25.6 / 25.2 eps | float32 rounding in CASA's 6- or 7-table apply plus P, clustered where B or Df solutions are flagged and bridged across channels | tolerance (the 11 eps bound was measured on a shorter chain and about 1,000× fewer cells), possibly an interpolation difference in rang | I (cell positions M) | arm A1: localise per term; tolerance stays |
+| 3b Gpol: 0.124° (amended), 0.278° (frozen), limit 0.1° | the phase-only estimator weights data differently: CASA `w\|R\|²` after `enforceAPonData`, rang about `w` (derived from the kernels); and `average_freq` averages data and model separately, while CASA divides by the model first | convention or definition (estimator) | code M, net weights derived, effect I | arm A3 (after A2): port CASA's weighting behind a key |
 | 3b fcal and gcal K/G/B composites: 1.14e-3 / 1.12e-3 against 7e-4 | CASA's K, G, B solved on different inputs: rang's extend flags (added after rang's K, G, B) and WEIGHT_SPECTRUM, where rang used unit weights | scorer or oracle input (A0 rule 3) | inputs M, size I | arm A2: matched inputs, 2×2 |
 | 3c as committed | oracle imaged with MS weights; rang `-unit-weights` | scorer | M (7.1, argv) | none; the matched reading replaces it as the diagnostic, while the frozen reading stays the record |
-| 3c matched: dirty L∞ 1.2e-3 to 3.5e-3 | both gridders at ε 1e-4; the 1e-6 bound needs ε ≤ 1e-6 | protocol or tolerance | I (inner two-thirds 2.2e-5 to 3.0e-5 M) | arm A4: dirty images at ε 1e-6 |
+| 3c matched: dirty L∞ 1.2e-3 to 3.5e-3 | both gridders at ε 1e-4, and an edge excess 12–35× ε that ε alone may not remove | protocol or tolerance, or an edge difference | I (inner two-thirds 2.2e-5 to 3.0e-5 M) | arm A4: ε scan with region profile |
 | 3c matched: compact median 0.9942; off-source \|model\| 1.67, 2.27 | no clean mask in either arm (A0 rule 6 asks for 5σ), because rang refuses a mask on joined IQUV | rang limitation (GeMClean) plus algorithmic | refusal M, effect I | fix the mask, then arm A5 |
-| 1830−211 \|Δχ\| up to 13° | p is 0.02–0.06 %, so χ amplifies a ΔP/I of 6e-5 to 7e-4 | tolerance (no p floor) | M | owner: limitation; vector measure reported beside |
+| 1830−211 \|Δχ\| up to 13° | p is 0.02–0.06 %, so χ amplifies a ΔP/I of 1.7e-7 to 6.6e-4 | tolerance (no p floor) | M | owner: limitation; vector measure reported beside |
 | Transfer χ (\|χ − 33.1°\| ≤ 7°) | receptor angle −90° wrong for LUNO (post hoc, chi-offset), plus ionospheric RM | configuration or convention plus physical | chi-offset: "cause not found" under its rule; post hoc reading I | owner (chi-offset 10.1, 10.2) |
 | Rang leakage 0.302 % (CASA 0.298 %) | X/Y amplitude drift between dev scan 2 and scan 18 under the phase-only per-scan G that 7.1 chose; rang − CASA is 0.004 points | physical plus recipe choice | M | owner: limitation; the ap-G reading (0.026 %) stays beside |
 
@@ -62,24 +64,26 @@ Measured (`R/g2b-applycal.json`, `R/g2b-applycal-cells.json`,
 - Where the frozen cells lie:
   - field 1 (1934−638, scan 18): 30; field 2 (1830−211): 12.
   - Channel 1879: 22, all on field 1.
-  - Baseline (35, 55): 17 of the 42. It is over in 17 of its 75 scan-18
-    integrations, at channel 1879 (16) and 1878 (1).
-  - Every channel is an RFI band:
-    - 1862–1879 = 1245–1249 MHz (GLONASS L2);
-    - 3331–3677 = 1552–1624 MHz (GPS / GLONASS L1, Iridium);
-    - 322, 925, 1182 = 923, 1049, 1103 MHz (GSM, DME / ADS-B).
+  - Baseline (35, 55): 17 of the 42 cells, in 16 integrations of scan 18
+    (one row has both channels 1878 and 1879).
+  - Frequencies (M): 1862–1879 = 1245–1249 MHz; 3331–3677 = 1552–1624 MHz;
+    322, 925, 1182 = 923, 1049, 1103 MHz. That these are RFI bands
+    (GLONASS L2; GPS and GLONASS L1, Iridium; GSM, DME and ADS-B) comes from
+    the known allocations, not from this data (I).
   - 29 of the 42 are over on the cross hands only.
   - On field 1 the over cells have cell maxima of 14–16 Jy (1934−638's I).
     The over correlations are cross hands of 0.15–1.2 Jy: an absolute error
     of 11–13 eps × 15 Jy, about 2e-5 Jy.
 - Rang's solutions there (`cells_tables.py`, rang's frozen tables):
-  - 30 of the 42 cells have B or Df flagged at that channel on one of the two
-    antennas, so the apply bridges the solution in frequency.
-  - For comparison, 43 % of all (antenna, channel) pairs have B or Df flagged
-    (`base_rate_*`; this counts channels whose data are flagged too, so it
-    is an upper reference, not the rate among compared cells).
+  - 29 of the 42 cells have B or Df flagged at that channel on one of the two
+    antennas, so the apply bridges the solution in frequency. One more,
+    (38, 54) at channel 3466, has only Xf flagged (a run of 75).
+  - The rate among all compared cells is not known: that needs the MS. The
+    per-(antenna, channel) rate in `cells-tables.json` (43 %) also counts
+    channels whose data are flagged, so it is not comparable. The clustering
+    is measured; an enrichment is not.
   - At channel 1879, antennas 35, 15, 16, 17 and 5 have B flagged (run of 2
-    channels). 35, 55, 15, 16 and 17 have Df flagged (run of 4–6).
+    channels). 35, 55, 15, 16, 17 and 5 have Df flagged (run of 4–6).
 
 The two implementations:
 - **Rang** (`core/src/cal/apply.rs`, `b2d80dc`):
@@ -87,21 +91,26 @@ The two implementations:
     `resample_freq`);
   - then applies every term in **float64** and rounds once
     (`od[...] = v[k].re as f32`, line 808).
-- **CASA's VisCal** applies each Jones in float32 `Complex`. The chain is B,
-  K, G, Gpol, Kcross, Xf, Df, then P. P mixes the 15 Jy parallel hands into
-  the cross hands, so every float32 rounding of XX and YY lands in a 0.4 Jy
-  cross hand.
+- **CASA's VisCal** applies each Jones in float32 `Complex` (I, from CASA's
+  types; not read for this note).
+- The chain, from `R/applycal-spec.json` (M):
+  - fields 0 and 1: K, G, B, Gpol (time `linear`), Kcross, Xf, Df (time
+    `nearest`; the frequency part is `linear`, so flagged channels are
+    bridged), then P (`parang=True`);
+  - field 2: K, F, B, Kcross, Xf, Df, then P.
+- P mixes the 15 Jy parallel hands into the cross hands, so every float32
+  rounding of XX and YY lands in a 0.4 Jy cross hand (I).
 
 Diagnosis (I):
 - Rounding accumulation over the long chain explains the size of the excess.
   The class C limit of 11 eps (A0 6.2) is the maximum measured by DF-IO
   (10.3 eps) on K, G, B, T and Df only, over about 352k cells
-  (`research/dfio-formats.md` line 365). E2-B has three more terms, P, and
-  about 1,160× as many cells, so a tail above 11 eps is expected.
+  (`research/dfio-formats.md` line 365). E2-B adds Gpol or F, Kcross, Xf and
+  P, and has about 1,160× as many cells, so a tail above 11 eps is expected.
 - Rounding alone does not explain the clustering. Baseline (35, 55) at
-  channel 1879 recurs in 17 integrations, and the cells are enriched in
-  bridged solutions (30 of 42, against at most 43 %). That points to the
-  frequency bridge of a flagged solution:
+  channel 1879 recurs in 16 integrations, and 29 of 42 cells sit on bridged
+  B or Df solutions. That points to the frequency bridge of a flagged
+  solution:
   - rang does it in mixed precision
     (`(f64::from(y[i]) + frac * f64::from(...)) as f32`,
     `apply.rs` `resample_freq`);
@@ -160,10 +169,13 @@ What the LUNO dev runs settled (M, `e2-average-time.md` 4.2):
   and m063.
 
 Two coded differences from CASA's estimator (code M, effect I):
-1. **Phase-only weighting.**
+1. **Phase-only weighting** (net weights derived from the code, not
+   measured).
    - Rang's `phase` kernel is QuartiCal's (`core/src/cal/diag.rs`, `b2d80dc`,
-     lines 45–48 and 388–397). It scales each datum to the model's amplitude
-     and keeps its weight `w`, so a datum's phase enters with weight `w|M|²`.
+     lines 45–48, 388–397 and `elem_phase`). It scales each datum to the
+     model's amplitude, then normalises the residual by `1/|J|²`
+     (`absdivsq`) in both `JᴴWr` and `JᴴWJ`. A datum's phase residual then
+     enters with a weight of about `w`, whatever its amplitude.
    - CASA's `G 'p'` first divides by the model, with weight `w|M|²`
      (`divideCorrByModel`). Then `enforceAPonData` divides each datum by its
      amplitude and multiplies its weight by `amp²`
@@ -171,7 +183,7 @@ Two coded differences from CASA's estimator (code M, effect I):
      The net weight is `w|R|²`.
    - For a point model of a source partly resolved on the long baselines
      (`e2-average-time.md` 4.2's reading of 3C 286), |R| < |M| there. CASA
-     down-weights the outer antennas' baselines more than rang does, so the
+     down-weights the outer antennas' baselines relative to rang, so the
      structure phase splits differently among the antennas. That fits the
      signature: outer antennas, constant in time, both hands.
 2. **The order of averaging under `average_freq`.**
@@ -205,10 +217,18 @@ Rang's estimator is QuartiCal's, which the class A gate checks.
 - E2-B data: scan 17 with the frozen arm's flags after calibrate. Gpol
   re-solved by the library call the chain makes (`cal_chain.chain_terms`),
   K, G, B pre-applied from the frozen tables. CASA's Gpol from the 3b run.
+- Confound: CASA's 3b Gpol pre-applies CASA's own K, G and B, which differ
+  from rang's (section 3).
+  - The E2-B comparison therefore uses a CASA Gpol re-solved after A2's
+    matched case, with that case's K, G and B. Rang's Gpol pre-applies
+    rang's.
+  - A3 runs after A2.
 - Decision rule:
   - Met on both: the key becomes the E2 configuration's for the next unseen
     leg (E2-A has no polcal, so E3 or the reserve).
   - Met on LUNO only: documented limitation, with the per-antenna table.
+  - If A2's matched case leaves the composites outside class B, A3's E2-B
+    reading is reported but not used for the decision.
 - Frozen tolerance: class B Gpol median ≤ 0.1°.
 - Cost: code about half a day. LUNO about 0.5 CPU-hours, E2-B Gpol about
   0.3 CPU-hours, the simulation about 0.5 CPU-hours.
@@ -225,7 +245,9 @@ Measured:
 | G, Gsec, F alone | 1.8e-4, 3.7e-4, 2.4e-4 | – |
 
 Both composites share K and B and agree to 2 %, and `average_freq` (which
-does not touch K and B) moved neither. So the difference is in B (M).
+does not touch K and B) moved neither. B's relative median equals the
+composites', and K's delays agree to 0.00072 ns (median). So the difference
+is most likely in B (I; K is not excluded).
 
 **The CASA arm's inputs differ from rang's** (M, from the scripts and the run
 summary):
@@ -234,8 +256,9 @@ summary):
      after K, G and B (`core_pipeline.py` line 1572, `b2d80dc`). It covers
      fields 0 and 1, so 1934−638 is included.
    - In this run it added 33,362,888 flags: 2,497,588,404 → 2,530,951,292,
-     2.4 % of the unflagged cells of fields 0 and 1
-     (`rang-run/calibrate/summary.json`, step `extendflags`).
+     2.4 % of the unflagged cells of fields 0 and 1 together
+     (`rang-run/calibrate/summary.json`, step `extendflags`). 1934−638's
+     share is not archived.
    - CASA's copy carries rang's FLAG *after* calibrate. CASA's K, G and B
      therefore saw those flags, and rang's did not. `e2_casa3b.py`'s
      docstring states it.
@@ -265,8 +288,8 @@ Classification: oracle input mismatch (scorer side), not rang.
 - Settings: `e2_casa3b.py`'s K, G, B, Gsec and F calls, in 4 cases:
   - flags {flag-stage, after-calibrate} × weights {WEIGHT_SPECTRUM,
     `initweights(wtmode='ones')`};
-  - `minsnr` 3, `minblperant` 4 as now (rang's chain uses 3.0, `cal_chain.py`
-    line 80).
+  - `minsnr` 3, `minblperant` 4 as now. Rang's chain defaults are the same
+    (`cal_chain.py` lines 79–80 at `b2d80dc`).
 - Scored by `e2_score3b.py`'s composite code against the frozen rang tables.
 - Decision rule:
   - The matched case (flag-stage, ones) meeting class B on both composites
@@ -299,18 +322,31 @@ measure by measure:
 | Δα, unpolarised QUV | met | – | – | – |
 | Q/Q₀ | not checked | – | – | – |
 
-**Proposed arm A4 (seen; dirty L∞ at the accuracy the bound was measured at).**
-- Hypothesis: at ε 1e-6 in both imagers, dirty L∞/peak ≤ 1e-6 on all three
-  fields.
+**Proposed arm A4 (seen; dirty L∞ against ε).**
+- At ε 1e-4 the edge L∞ is 12–35× ε, and the inner value 0.2–0.3× ε.
+  - A linear scaling to ε 1e-6 would leave the edge near 1e-5, still a miss.
+  - The ε of A0's 6.5e-8 to 2.2e-7 is not stated in `gemclean-heldout.md`
+    section 3.
+  - So A4 measures the scaling instead of assuming it.
+- Hypothesis: the edge excess falls in proportion to ε. At the finest ε both
+  imagers support in double precision (1e-7 or below), dirty L∞/peak is
+  ≤ 1e-6 on all three fields.
 - Data: RANG_CORRECTED_DATA and rang's FLAG after apply on
   `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms`. Those columns are
   untouched by the 7.4 cases, which wrote CORRECTED_DATA and E2_XFER.
-- Settings: gate 3c's geometry, unit weights; `gemclean` and WSClean 3.7
-  `-niter 0` at `-wgridder-accuracy 1e-6`, double precision.
-- Decision rule: met on all three, the dirty miss was the protocol's ε. If
-  not met, a gridder difference: open a G task.
+- Settings:
+  - gate 3c's geometry and unit weights;
+  - `gemclean` and WSClean 3.7 `-niter 0` at ε 1e-5, 1e-6 and 1e-7;
+  - L∞ over the full image, with the 5 % border excluded, and over the inner
+    two-thirds (7.1's profile).
+- Decision rule:
+  - Met on all three fields at some ε: the dirty miss was the protocol's ε.
+    The owner decides whether the finish line's images run at that ε.
+  - The edge excess does not fall with ε: an edge difference between the
+    gridders (padding or taper; rang's configuration has no padding key).
+    Open a G task.
 - Frozen tolerance: 1e-6.
-- Cost: about 1 CPU-hour.
+- Cost: about 3 CPU-hours.
 
 **Fix, then arm A5 (seen).**
 - Code (GeMClean, G4 follow-up): an automatic mask from Stokes I, applied to
@@ -365,9 +401,13 @@ Measured:
 - Its post hoc reading (I): LUNO's receptor angle is about 0°, not the −90°
   of CARACal's strategy that E2-B configures. Xf then forces U to the model's
   sign, and χ follows −χ₀ + 2ψ − 90° plus ionospheric RM.
-- With receptor 0, χ is still 7.47° (s17) and 9.31° (s1) from 33.1°. That is
-  an RM of −1.4 and −2.1 rad m⁻² (3.6° and 5.6° at 1.4 GHz) plus a constant
-  −3.6°. So even the corrected configuration misses the frozen 7°.
+- chi-offset reran each scan at receptor 0, with Xf solved on that same
+  scan.
+  - χ is still 7.47° (s17) and 9.31° (s1) from 33.1°.
+  - That is an RM of −1.4 and −2.1 rad m⁻² (3.6° and 5.6° at 1.4 GHz),
+    plus a constant −3.6°.
+  - The transfer recipe itself was not rerun at receptor 0. That it would
+    also miss 7° is inferred.
 
 Classification:
 - convention: the configured feed angle for this product;
@@ -387,9 +427,11 @@ Measured (`R/transfer/leak18p.json`, `R/transfer-casa/`, 7.4):
 | --- | --- | --- | --- |
 | Rang, phase-only per-scan G | 0.302 % | 0.288 % | 0.053 % |
 | CASA, phase-only per-scan G | 0.298 % | 0.288 % | 0.053 % |
-| Scan 18's own ap G, reported | 0.025–0.026 % in all arms | – | – |
+| Rang, scan 18's own ap G, reported | 0.026 % | 0.029 % | 0.054 % |
+| CASA, scan 18's own ap G, reported | 0.025 % | 0.028 % | 0.053 % |
 
-- With scan 18's own amplitudes the leakage falls about 10× in every arm. So
+- With scan 18's own amplitudes, Q/I and U/I fall about 10× in every arm,
+  and V/I does not change. So
   the gated number is the X/Y amplitude drift between dev scan 2 and scan 18,
   carried by the phase-only G that 7.1 chose for the recipe. Leakage itself
   is not the main term.
@@ -411,8 +453,8 @@ Measured (`R/transfer/leak18p.json`, `R/transfer-casa/`, 7.4):
   and weights, section 1's interpolation and section 2's weighting each need
   their arm.
 - Gate 3b's B solution-flag difference (5,242) was not attributed. CASA's
-  `minsnr` and `minblperant` match rang's chain defaults, so arm A2's flag
-  case should explain it.
+  `minsnr` and `minblperant` match rang's chain defaults (3 and 4 at
+  `b2d80dc`), so arm A2's flag case should explain it.
 
 ## For the coordinator
 
@@ -425,6 +467,13 @@ and three rows as frozen. Under A0 6.6, any E2-B rerun is "seen".
     until A2 runs;
   - 2b: A0 calls gate 2 release-blocking. Most likely rounding, not a
     writer bug, but unproven until A1.
+- **Blocking until read correctly:**
+  - 3c dirty L∞: the protocol ran at ε 1e-4 against a bound measured at
+    finer ε. A4 shows whether this is the ε or an edge difference in the
+    gridder.
+  - 3c as committed: not blocking on its own. It is a scorer error (MS
+    weights); the matched reading carries the question, and the frozen
+    reading stays the record.
 - **Blocking unless the owner accepts a documented limitation:** Gpol
   (estimator convention, fixable by A3).
 - **Owner decisions, no code:**
@@ -437,9 +486,9 @@ runs as a shared heavy_lock job after E2-A releases the host:
 1. **A2**, composites, matched CASA inputs, 2×2: about 2 CPU-hours, 1.5 h
    wall, 60 GB on D:.
 2. **A1**, applycal localisation: under 0.2 CPU-hours.
-3. **A4**, dirty L∞ at ε 1e-6: about 1 CPU-hour.
+3. **A4**, dirty L∞ against ε (1e-5 to 1e-7): about 3 CPU-hours.
 4. **A3**, Gpol, `casa_phase_weights` key with LUNO and simulation
-   validation: half a day of code, about 1.3 CPU-hours.
+   validation, after A2: half a day of code, about 1.3 CPU-hours.
 5. **GeMClean joined-IQUV auto-mask, then A5**: 1–2 days of code, about
    4 CPU-hours.
 
