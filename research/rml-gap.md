@@ -1,6 +1,7 @@
 # Rang: the gap between CLEAN and a sparsity-regularised imager on MeerKAT truth skies (issue #24, step 1)
 
-Status, 2026-11-13: **protocol frozen; amendment A1; stage 2 done (U\* = U-a); held-out runs in progress.** Issue
+Status, 2026-11-15: **protocol frozen; amendments A1-A3; all arms run; outcome "U worse at our
+settings" (section 8.2); the A3 test U-up on N2 is running.** Issue
 [gijzelaerr/rang-core#24](https://github.com/gijzelaerr/rang-core/issues/24), step 1, from the
 stub [proposals/imaging-gap-comparators.md](proposals/imaging-gap-comparators.md). A comparison
 with no rang code: GeMClean, WSClean and pfb-imaging run as released, scored against known truth.
