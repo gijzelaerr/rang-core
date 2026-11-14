@@ -537,25 +537,39 @@ def _win_cpu(pid: int) -> float | None:
     return sec(times[2]) + sec(times[3])  # kernel + user
 
 
-def process_table() -> dict[int, tuple[int, float]] | None:
-    """{pid: (parent pid, CPU seconds)} of this system's processes, or None."""
+def process_table(
+    roots: list[int] | None = None,
+) -> dict[int, tuple[int, float]] | None:
+    """{pid: (parent pid, CPU seconds)} of this system's processes, or None.
+
+    On Windows the parents come from one snapshot (0.1 s) and CPU is read only
+    for the process trees of `roots` when given: psutil's full table took 24 s
+    for 549 processes on the shared host (2026-11-14).
+    """
+    table: dict[int, tuple[int, float]] = {}
+    if sys.platform == "win32":
+        parents = _win_parents()
+        keep: set[int] = set(parents)
+        if roots is not None:
+            shell = {pid: (ppid, 0.0) for pid, ppid in parents.items()}
+            keep = set()
+            for root in roots:
+                keep |= _tree(shell, root)
+        for pid in keep:
+            cpu = _win_cpu(pid)
+            if cpu is not None:
+                table[pid] = (parents[pid], cpu)
+        return table or None
     try:
         import psutil
     except ImportError:
         psutil = None
-    table: dict[int, tuple[int, float]] = {}
     if psutil is not None:
         for p in psutil.process_iter(["pid", "ppid", "cpu_times"]):
             t = p.info.get("cpu_times")
             if t is not None:
                 table[p.info["pid"]] = (p.info["ppid"] or 0, t.user + t.system)
         return table
-    if sys.platform == "win32":
-        for pid, ppid in _win_parents().items():
-            cpu = _win_cpu(pid)
-            if cpu is not None:
-                table[pid] = (ppid, cpu)
-        return table or None
     proc = Path("/proc")
     if not proc.is_dir():
         return None
@@ -590,11 +604,11 @@ def _tree(table: dict[int, tuple[int, float]], root: int) -> set[int]:
 
 def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float | None]:
     """Cores each pid's process tree used over one sample (None: not measurable)."""
-    before = process_table()
+    before = process_table(pids)
     if before is None:
         return dict.fromkeys(pids)
     time.sleep(sample_s)
-    after = process_table() or {}
+    after = process_table(pids) or {}
     out: dict[int, float | None] = {}
     for pid in pids:
         if pid not in after:
