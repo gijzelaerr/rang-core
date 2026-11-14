@@ -52,6 +52,11 @@ correlation). P (the parallactic angle) differs from CASA by 78–366 ulps on
 every cell, and the class C excess appears only when P is applied (post hoc
 reading). Measured and localised, not diagnosed.
 
+**Update, 2026-11-14 (arm A2, section 9.4):** the 3b composites row is
+confirmed as an oracle input error. With CASA's K, G, B and F solved on
+rang's own solve flags, both composites meet class B (medians 4.2e-5 and
+5.9e-5, p95 1.24e-3 and 1.23e-3). The weights change nothing.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
