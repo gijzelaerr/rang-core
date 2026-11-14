@@ -20,7 +20,10 @@ python tools/check_all.py --quick
 
 Any Python 3.10+ starts it, from PowerShell, cmd or Git Bash. It takes the
 heavy lock itself (shared, 4 slots, 8 GB), so do not wrap it in another
-`heavy_lock.py run`. It runs ruff, ruff format, `git diff --check`, cargo fmt,
+`heavy_lock.py run`. If it is wrapped anyway, it sees `RANG_HEAVY_LOCK_HELD`
+(set by `heavy_lock.py run` for its child) and runs inside the outer hold
+instead of queueing behind it; any nested `heavy_lock.py run` does the same,
+with a warning when it asks for more than the hold. It runs ruff, ruff format, `git diff --check`, cargo fmt,
 clippy with warnings as errors, the root and core Rust tests, the extension
 build into this worktree's `.venv` (created with `uv` if missing), pytest on
 the test files the diff against `origin/main` touches, and the gain-hash gate.
@@ -81,3 +84,16 @@ It is only for the release's critical path (the E2 and E3 acceptance runs),
 when the coordinator says so. Checks, builds, timing runs and everything else
 queue normal. `python tools/heavy_lock.py status` shows the lane of each
 waiting ticket.
+
+## 5. Booked and real use
+
+Book slots honestly: `--slots` is the threads the job really keeps busy and
+`--mem` its peak memory, because every waiting ticket counts them. Do not wrap
+`tools/check_all.py` in `heavy_lock.py run`; it locks itself, and a wrapper
+only holds slots the inner check does not use. `python tools/heavy_lock.py
+status` samples each hold's process tree for two seconds (`--sample`) and
+prints its real use next to its booking, marks a hold IDLE when it uses under
+5 % of one core per booked slot, and ends with `booked N slots, using ~M
+cores`; holds of the other system (WSL seen from Windows and back) show
+`n/a`. It only reports: it never stops or releases a hold, so ask the owner of
+an IDLE hold before doing anything about it.
