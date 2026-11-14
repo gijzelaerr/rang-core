@@ -980,6 +980,67 @@ Decision rule:
 
 Cost: seconds of CPU; 1 slot each side.
 
+### 9.9 A4, dirty L∞ against ε, frozen 2026-11-14 (before any run)
+
+Section 4's proposed arm A4, made concrete. **Seen**: gate 3c's matched
+reading (ε 1e-4: full image 1.2e-3 to 3.5e-3 of the peak, inner two-thirds
+2.2e-5 to 3.0e-5) is known.
+
+Hypothesis (section 4): the dirty difference between GeMClean and WSClean
+3.7, edge excess included, falls in proportion to the gridder accuracy ε.
+At the finest ε both imagers support (1e-7), dirty L∞/peak is ≤ 1e-6 on all
+three fields.
+
+Data: `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms`, put in gate 3c's
+matched state by `e2_post.py`'s own `UNIT_PY` ("on": FLAG is RANG_FLAG,
+WEIGHT_SPECTRUM renamed away, WEIGHT 1), and returned by "off" after the
+last run (the column list is checked against the one before). Both imagers
+read RANG_CORRECTED_DATA from that one state. Gate 3c's rang images were
+made from the rang-run MS's CORRECTED_DATA; A1's C3 showed that equals
+RANG_CORRECTED_DATA bit for bit on the rows it read, and control C6 below
+checks it for the images.
+
+Settings, gate 3c's (`wsclean3c-unit-run.json`, the image stage argv) with
+only ε and the thread count changed:
+- common: `-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8
+  -join-channels -pol IQUV -join-polarizations -niter 0 -data-column
+  RANG_CORRECTED_DATA -field <id> -wgridder-accuracy <ε>`, fields 0, 1, 2
+  (J1331+3030, J1939−6342, J1833−2103);
+- WSClean 3.7 (`rang-wsclean-native:3.7`): `-gridder wgridder
+  -no-update-model-required -j 4`; its own precision choice;
+- GeMClean (this branch's extension, Windows): `-unit-weights -scans
+  17,18,19,20 -no-update-model-required -j 4`; its default precision rule
+  (single at ε ≥ 1e-5, double finer);
+- ε = 1e-5, 1e-6, 1e-7: 18 dirty runs.
+
+Control **C6** (inputs and harness), before any A4 score is read: at ε 1e-4
+on J1833−2103, WSClean reproduces the archived
+`R\wsclean3c-unit\J1833m2103-dirty-*` images and GeMClean reproduces
+`R\rang-run-moved\image\J1833-2103\image-*-dirty.fits`, each within 1e-6 of
+that channel's WSClean I peak in L∞ over every channel, MFS and Stokes.
+Not met: void; the inputs or the harness differ from gate 3c's.
+
+Measures: gate 3c's (`e2_score3c.py`'s `dirty_linf`): per channel and MFS,
+per Stokes, max |rang − WSClean| over the peak |I| of WSClean's dirty image
+of that channel; over the full image (gated), and reported beside with the
+5 % border excluded and over the inner two-thirds.
+
+Frozen tolerance: 1e-6 (A0).
+
+Decision rule, on the full-image L∞ (F(ε), per field):
+- F ≤ 1e-6 on all three fields at some ε: the dirty miss was the protocol's
+  ε. The owner decides whether the finish line's images run at that ε.
+- Otherwise, with r = F(1e-7) / F(1e-5) per field:
+  - r ≤ 0.1 on every field (the excess falls with ε, but not far enough):
+    the miss is ε, the bound is not reached at 1e-7. Owner: a finer ε or a
+    tolerance.
+  - r > 0.5 on any field (the excess does not fall with ε): an edge
+    difference between the gridders (padding or taper). Open a G task.
+  - anything else: partial; reported, no conclusion.
+- The inner two-thirds and 5 % border values are reported, not decided on.
+
+Cost: about 3 CPU-hours; WSClean and GeMClean as shared jobs at 4 slots.
+
 ## For the coordinator
 
 **After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
