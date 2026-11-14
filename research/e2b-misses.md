@@ -892,6 +892,29 @@ explained by the time column or by UT1 − UTC.
 
 ## For the coordinator
 
+**After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
+- **A2 (9.4):** the 3b K/G/B composites miss is closed as an oracle input
+  error. On matched flags both composites meet class B; the weights change
+  nothing.
+- **A1 (9.3):** gate 2b is not shown to be float32 rounding.
+  - Under the frozen rule the outcome is "rang difference", with G named.
+  - Post hoc, P (the parallactic angle) carries the excess.
+- **A1b (9.6):** void as frozen; my C4 bound was below the float32 floor.
+  Post hoc, the P difference is about 1e-5 rad and depends on the source
+  direction. It is not TIME versus TIME_CENTROID, and not UT1 − UTC.
+- **Proposed next step** (not started): a P astrometry arm. It would
+  compare rang's `parallactic_angle_casa` against casacore's own
+  parallactic angle computed in the container (`me.posangle`, or
+  `msmetadata` per antenna and time) at the same rows. That splits
+  precession and nutation from the latitude and apparent-place
+  conventions.
+  - Freeze C4 at about 1e-7, the float32 floor, or extract from a float64
+    path.
+  - Tolerance 2e-7 rad as in 9.5.
+  - If casacore's angle matches CASA's applycal and differs from rang's,
+    the fix is in `cal_pol.parallactic_angle_casa`.
+- The section 0 rows for 2b and 3b composites carry dated lines.
+
 Which misses block v0.2.0 depends on the owner's reading of finish line
 point 3. "Within a tolerance written before the run" is not met for 3b, 3c
 and three rows as frozen. Under A0 6.6, any E2-B rerun is "seen".
