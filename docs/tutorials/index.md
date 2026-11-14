@@ -33,12 +33,13 @@ strength and say so. Nothing to install.
 | {doc}`I3. The MeerKAT array <notebooks/i3-meerkat-array>` | the layout, baselines, resolution and primary beam, Earth-rotation synthesis, PSFs of 4, 16 and 64 antennas | 12 s |
 | {doc}`I4. The measurement equation <notebooks/i4-measurement-equation>` | Jones terms one at a time on simulated truth, correction, the reference antenna | 12 s |
 | {doc}`I5. RFI and flagging <notebooks/i5-rfi-and-flagging>` | real RFI, the static mask, `rang-core flag` scored against a truth mask, the project's null results | 17 s |
-| {doc}`I6. Calibration <notebooks/i6-calibration>` | K, G, B, flux scale and apply with `rang-core`; every table against the truth | 16 s |
+| {doc}`I6. Calibration <notebooks/i6-calibration>` | K, G, B, flux scale and apply with `rang-core`; every table against the truth; residuals against the noise, per antenna | 16 s |
 | {doc}`I7. Imaging and deconvolution <notebooks/i7-imaging-and-deconvolution>` | dirty image and PSF, Högbom's CLEAN by hand, GeMClean, noise and flux against the truth | 45 s |
-| {doc}`I8. Polarisation <notebooks/i8-polarisation>` | Stokes parameters, parallactic angle, Df, KCROSS and Xf, calibrated p and χ against the truth, Stokes images | 26 s |
+| {doc}`I8. Polarisation <notebooks/i8-polarisation>` | Stokes parameters, parallactic angle, Df, KCROSS and Xf, calibrated p and χ against the simulated truth (absolute angle on real data is under investigation), Stokes images | 26 s |
 | {doc}`I9. Time-domain basics <notebooks/i9-time-domain>` | dispersion, dedispersion, DM search, folding, scattering, why images average transients away | 6 s |
 
-The route: I1 to I6, then the MS-to-image tutorial below, then I7 to I9; the
+The route: I1 to I6, then the MS-to-image tutorial below, then I7 to I9, then
+notebooks 8 (reports and image quality) and 9 (CPU and GPU paths); the
 notebooks 1-5 look inside each step on real data whenever the matching I
 notebook is done. The documentation build executes I1-I5 and I9 on every
 push; I6-I8 run nightly, and other builds show the latest nightly outputs
@@ -61,6 +62,19 @@ images, the receipt and resume. It also shows two refusals, circular feeds
 and an unimplemented setting. The CI job `e2e` of the wheels workflow runs
 the same configuration on all five wheels ({gh}`tools/e2e/run.py`). Its
 section on real data is a placeholder until task E2 has results.
+
+## After the image: reports, quality and hardware
+
+Two notebooks for astronomers who run the chain on their own data.
+
+| Notebook | What you do |
+| --- | --- |
+| {doc}`8. Reading rang-core's reports and judging an image <notebooks/08-reports-and-image-quality>` | read `state.json`, the stage summaries, the receipts and GeMClean's `-report.json`; judge an image by its noise against the radiometer equation, residual tails, dynamic range, local noise near bright sources, PSF sidelobes, flux against known sources and CLEAN's stop reason, on calibrated and uncalibrated A1 small |
+| {doc}`9. CPU and GPU paths <notebooks/09-cpu-and-gpu>` | which parts have a GPU path (the w-stacking gridder only, `--features gpu`); the CPU reference on the fixture; comparing two paths at a tolerance relative to the peak; thread-count independence; X2's measured GPU figures; GeMClean's SIMD tiers |
+
+Both run on every documentation build: 8 on A1 small, written in the
+notebook, and 9 on the public fixture. Without a GPU build and adapter, as
+on this site, 9's GPU cell prints its skip line.
 
 ## The chain on real data, step by step
 
@@ -162,6 +176,8 @@ notebooks/02-flagging-step-by-step
 notebooks/03-gains-and-tv
 notebooks/04-imaging
 notebooks/05-the-flagging-experiment
+notebooks/08-reports-and-image-quality
+notebooks/09-cpu-and-gpu
 notebooks/06-gain-tv-flagging-the-experiment
 notebooks/07-beam-and-pointing
 ```

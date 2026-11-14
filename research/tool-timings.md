@@ -1882,3 +1882,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | chi-offset LUNO CASA 6.7.6.14 chain | as above | s17 368-380 s, s1 628-667 s per arm | – | WSL Docker, 4 shared slots; 4 h 03 min lock queue before the ticket |
 | 2026-11-13 | chi-offset `chi_vs_psi.py` on E2-B frozen `casa/e2b.ms` scan 17 (read-only) | 221 GB MS, 74 integrations | 54 min per column (2 in parallel) | – | Windows native, 2 shared slots each; read-bound |
 | 2026-11-13 | chi-offset `chi_vs_psi.py` on the dry-run slice scan 1 | 18 GB MS | 20-24 min per column incl. lock queue | – | Windows native |
+| 2026-11-13 | notebooks-v020: `maturin develop --release` (branch venv, Windows host) | worktree v8-open-casa-a871c6 | 186 s compile (31 min lock wait excluded) | – | heavy lock shared, 8 slots; a first attempt failed after the wait on a relative maturin path |
+| 2026-11-13 | notebooks-v020: `docs/execute_notebooks.py`, 19 notebooks, `RANG_NOTEBOOK_LUNO=0`, `RANG_NOTEBOOK_INTRO_SLOW=1`, first run | public fixture, A1 small, Windows host | 246 s | – | heavy lock shared, 4 slots; 18/19 clean, 08 failed (fixed) |
+| 2026-11-13 | notebooks-v020: final `execute_notebooks.py` (19 notebooks) + `sphinx-build -W` | same, head 3987d96 | 255 s + 32 s | – | heavy lock shared, 6 slots; all clean; slowest I7 38.1 s, 07 27.8 s, 00 27.0 s, I8 22.5 s, 08 20.3 s, 09 7.8 s |
