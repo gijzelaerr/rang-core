@@ -48,7 +48,9 @@ def main(root):
             },
         }
     (OUT / "oracle.json").write_text(
-        json.dumps(oracle, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+        json.dumps(oracle, indent=1, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     print(f"{OUT}: {', '.join(CASES)}")
 
