@@ -1,0 +1,1054 @@
+{
+ "oracle": "CASA 6.7.6.14 flagdata, image rang-o-casa:6.7.6.14",
+ "image": "sha256:24822b4038c5e9c969073168dc904eb5b531fd184acadc53435638e99af169e8",
+ "run": "casa-02",
+ "plan_cases": 116,
+ "cases": {
+  "syn-edges-nom001.M6a": {
+   "gate": "exact",
+   "sha256": [
+    "71d0c9ce4cd01c3a9ef2b6af65c07656350cba11cfb683b309ffd625738166a6",
+    "cd1a4fd2d5b8a0b9b697cf2604b4345872f28e0936715a6640171b6c16d34b39"
+   ]
+  },
+  "syn-edges-nom001.M6b": {
+   "gate": "exact",
+   "sha256": [
+    "ec8e0a3062f42c01238a3a3c9128367711a25aa0df4f3b33f73be57e2206524d",
+    "8fb817144867bd29217ad7c71bc55c1802c4b2e07693dfc3ab1519284640ac27"
+   ]
+  },
+  "syn-edges-uvwneg.M6a": {
+   "gate": "exact",
+   "sha256": [
+    "1f1dbc7bf521ba95a6c99fe16d88e67b6cfb5cbfaabef472d4087057ee79eaca",
+    "77b060592ac262fd9b1cfeede8a9874540c336b67df13d645f8e970e79143765"
+   ]
+  },
+  "syn-edges-uvwneg.M6b": {
+   "gate": "exact",
+   "sha256": [
+    "713b3966d8be043e653907ec9895e3c2137db08e692f63e9290f0272d1f9e7f7",
+    "c17427b894bb648a2297414f38eaddaf55372092b48775f634803a48ffcaa816"
+   ]
+  },
+  "syn-edges.M1": {
+   "gate": "exact",
+   "sha256": [
+    "889c515743080e2f1dcf64bbb982d4887e31ebc65db778be3c85199f6275e1da",
+    "a1a4f5721c1c4610af7f71078f3a68c330536d679803b0e0507ee8dc10c5dfca"
+   ]
+  },
+  "syn-edges.M10a": {
+   "gate": "exact",
+   "sha256": [
+    "8a4162b1ba0d7d7f6ab0759d16fc37d42a2087d405d4a6e00ceac4dbebed5068",
+    "bdad4447cf0bb25cb76e430c573a37601086ab9d760052b6347794a493915b05"
+   ]
+  },
+  "syn-edges.M10b": {
+   "gate": "exact",
+   "sha256": [
+    "d227f2e892e1c2cbef398842690a6194955edb153f1c9b3bcc978e8ebcb362e1",
+    "66a7fcdcb31e10d3245575a81a10cbd3600cdb22626036703945e86e0b3ffc79"
+   ]
+  },
+  "syn-edges.M10c": {
+   "gate": "exact",
+   "sha256": [
+    "08744df5849010240d6b327ade1357f09edcb3cc9e1e14890747f8952accf99b",
+    "bf9238149e20ad2b60416ea84fae28f09daffb20914f34fdb552ed74080a55b8"
+   ]
+  },
+  "syn-edges.M11a": {
+   "gate": "exact",
+   "sha256": [
+    "3ff1237df126736a84f85ff646eeb187b5100175a091e26494e9f24a6caebe45",
+    "906f2545e4b129fc72af27a483a71f421e1766d40c9fae0aeed864990c71549f"
+   ]
+  },
+  "syn-edges.M11b": {
+   "gate": "exact",
+   "sha256": [
+    "94a2b84ebfa14c08113e0a5db51d576e06cee7a1b1cb25b2e224eb75f3711a11",
+    "c505dd404ab8a4b31cb95443cc5f137c5531aa93ad27857a928a2979e5c4b7c8"
+   ]
+  },
+  "syn-edges.M11c": {
+   "gate": "exact",
+   "sha256": [
+    "d9356737d6421fb777f1a032e3d92226acb433c752c24378b31d3eb451366e0e",
+    "3792c8685cb1b1a418e23eb068d98c2355c37428ceb03b66cb1676749465e6ee"
+   ]
+  },
+  "syn-edges.M11d": {
+   "gate": "exact",
+   "sha256": [
+    "48b6b039e6f2f6b82559c6aa18635b47d4d6da730227e62b51c0e970c337cea7",
+    "9d189553439500f2e9fc21f48afef727006cf5f8e515de2483b05e4ccd8c9edc"
+   ]
+  },
+  "syn-edges.M12a": {
+   "gate": "exact",
+   "sha256": [
+    "b6c9583a5d72bc7185775053003075d52395f8874f2578bcf80733c6671e0845",
+    "f9e73c5cacdcf8658c5538e981635fdec5a7f27fe4186c205f649a54acdc5af5"
+   ]
+  },
+  "syn-edges.M12c": {
+   "gate": "exact",
+   "sha256": [
+    "af23ea549d3e097e9f442fe7d2bf79ca3c6a0f64bea00206eb3cf495408f8544",
+    "21c99c58d45498477153b136153314d3472e9e9a6fdfa118b071ff3a4e82931a"
+   ]
+  },
+  "syn-edges.M12d": {
+   "gate": "exact",
+   "sha256": [
+    "af23ea549d3e097e9f442fe7d2bf79ca3c6a0f64bea00206eb3cf495408f8544",
+    "21c99c58d45498477153b136153314d3472e9e9a6fdfa118b071ff3a4e82931a"
+   ]
+  },
+  "syn-edges.M12e": {
+   "gate": "exact",
+   "sha256": [
+    "89b591f26172228b0cdfc7f4d4a7eda21869d81024555219f127b248167286ef",
+    "4a6e40ff9fb1c7272cccf74f1b39393e49805ede053bb2c65646c05594323c6e"
+   ]
+  },
+  "syn-edges.M13": {
+   "gate": "exact",
+   "sha256": [
+    "8dc18b235b510e8d2781ca4f28342eb31f523add085bc90428b535b9bf9d5fb6",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M14a": {
+   "gate": "exact",
+   "sha256": [
+    "5f84ff3ab7917088f54651da0a6e35f6fdd5da8bd02773bf66d0af961d5dff12",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M14b": {
+   "gate": "exact",
+   "sha256": [
+    "713b5049e8aa41b50f5477215b3633237a107c13a6cd3c73f404a839ccb661a8",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M14c": {
+   "gate": "exact",
+   "sha256": [
+    "048b3cf97eeee54228f1a7e61e2a603db57591dbaa8963dd64460e485e787a17",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M14d": {
+   "gate": "exact",
+   "sha256": [
+    "b9bce9c4820c6932daac5ad4d2ec91bff2ea94cee9079edd0d5393260ed0daf4",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M14e": {
+   "gate": "exact",
+   "sha256": [
+    "7b228b378ee7c339343b24b6f426da824cfb16a90dfa1dc9734bf77c1cc04798",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M15a": {
+   "gate": "exact",
+   "sha256": [
+    "8e3ed29a66a915931b7f1804ddb6e8c3b242ae507918fbd7296a23cf3a3db545",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M15b": {
+   "gate": "exact",
+   "sha256": [
+    "533d71666f83ae5a4a9a5812d5d4ae807095b216955d8930f423c9e4154d216a",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M16a": {
+   "gate": "exact",
+   "sha256": [
+    "03907a804e1e03e122f5291ec37a69076f275276a2d477acd0a41ef2b9871713",
+    "a48dc7c30f42e27ce25e204f884375c9cc2f5456ccd94e3d6c90a92b829f00be"
+   ],
+   "summaries": {
+    "3": {
+     "antenna": {
+      "m000": {
+       "flagged": 97566.0,
+       "total": 112128.0
+      },
+      "m001": {
+       "flagged": 62780.0,
+       "total": 112128.0
+      },
+      "m002": {
+       "flagged": 62770.0,
+       "total": 112128.0
+      },
+      "m003": {
+       "flagged": 62899.0,
+       "total": 112128.0
+      },
+      "m004": {
+       "flagged": 62678.0,
+       "total": 112128.0
+      },
+      "m005": {
+       "flagged": 62813.0,
+       "total": 112128.0
+      }
+     },
+     "array": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "correlation": {
+      "XX": {
+       "flagged": 59313.0,
+       "total": 98112.0
+      },
+      "XY": {
+       "flagged": 59303.0,
+       "total": 98112.0
+      },
+      "YX": {
+       "flagged": 59257.0,
+       "total": 98112.0
+      },
+      "YY": {
+       "flagged": 59256.0,
+       "total": 98112.0
+      }
+     },
+     "field": {
+      "EDGES": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "flagged": 237129.0,
+     "name": "Summary",
+     "observation": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "scan": {
+      "1": {
+       "flagged": 69155.0,
+       "total": 107520.0
+      },
+      "2": {
+       "flagged": 5376.0,
+       "total": 5376.0
+      },
+      "3": {
+       "flagged": 43110.0,
+       "total": 64512.0
+      },
+      "4": {
+       "flagged": 119488.0,
+       "total": 215040.0
+      }
+     },
+     "spw": {
+      "0": {
+       "flagged": 166004.0,
+       "total": 196224.0
+      },
+      "1": {
+       "flagged": 71125.0,
+       "total": 196224.0
+      }
+     },
+     "total": 392448.0,
+     "type": "summary"
+    },
+    "4": {
+     "antenna": {
+      "m000": {
+       "flagged": 97566.0,
+       "total": 112128.0
+      },
+      "m001": {
+       "flagged": 62780.0,
+       "total": 112128.0
+      },
+      "m002": {
+       "flagged": 62770.0,
+       "total": 112128.0
+      },
+      "m003": {
+       "flagged": 62899.0,
+       "total": 112128.0
+      },
+      "m004": {
+       "flagged": 62678.0,
+       "total": 112128.0
+      },
+      "m005": {
+       "flagged": 62813.0,
+       "total": 112128.0
+      }
+     },
+     "antenna:scan": {
+      "m000:1": {
+       "flagged": 30720.0,
+       "total": 30720.0
+      },
+      "m000:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m000:3": {
+       "flagged": 18432.0,
+       "total": 18432.0
+      },
+      "m000:4": {
+       "flagged": 46878.0,
+       "total": 61440.0
+      },
+      "m001:1": {
+       "flagged": 17887.0,
+       "total": 30720.0
+      },
+      "m001:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m001:3": {
+       "flagged": 11311.0,
+       "total": 18432.0
+      },
+      "m001:4": {
+       "flagged": 32046.0,
+       "total": 61440.0
+      },
+      "m002:1": {
+       "flagged": 18012.0,
+       "total": 30720.0
+      },
+      "m002:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m002:3": {
+       "flagged": 11293.0,
+       "total": 18432.0
+      },
+      "m002:4": {
+       "flagged": 31929.0,
+       "total": 61440.0
+      },
+      "m003:1": {
+       "flagged": 17902.0,
+       "total": 30720.0
+      },
+      "m003:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m003:3": {
+       "flagged": 11291.0,
+       "total": 18432.0
+      },
+      "m003:4": {
+       "flagged": 32170.0,
+       "total": 61440.0
+      },
+      "m004:1": {
+       "flagged": 17888.0,
+       "total": 30720.0
+      },
+      "m004:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m004:3": {
+       "flagged": 11292.0,
+       "total": 18432.0
+      },
+      "m004:4": {
+       "flagged": 31962.0,
+       "total": 61440.0
+      },
+      "m005:1": {
+       "flagged": 18026.0,
+       "total": 30720.0
+      },
+      "m005:2": {
+       "flagged": 1536.0,
+       "total": 1536.0
+      },
+      "m005:3": {
+       "flagged": 11305.0,
+       "total": 18432.0
+      },
+      "m005:4": {
+       "flagged": 31946.0,
+       "total": 61440.0
+      }
+     },
+     "array": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "baseline": {
+      "m000&&m000": {
+       "flagged": 16259.0,
+       "total": 18688.0
+      },
+      "m000&&m001": {
+       "flagged": 16257.0,
+       "total": 18688.0
+      },
+      "m000&&m002": {
+       "flagged": 16265.0,
+       "total": 18688.0
+      },
+      "m000&&m003": {
+       "flagged": 16263.0,
+       "total": 18688.0
+      },
+      "m000&&m004": {
+       "flagged": 16260.0,
+       "total": 18688.0
+      },
+      "m000&&m005": {
+       "flagged": 16262.0,
+       "total": 18688.0
+      },
+      "m001&&m001": {
+       "flagged": 9283.0,
+       "total": 18688.0
+      },
+      "m001&&m002": {
+       "flagged": 9281.0,
+       "total": 18688.0
+      },
+      "m001&&m003": {
+       "flagged": 9393.0,
+       "total": 18688.0
+      },
+      "m001&&m004": {
+       "flagged": 9272.0,
+       "total": 18688.0
+      },
+      "m001&&m005": {
+       "flagged": 9294.0,
+       "total": 18688.0
+      },
+      "m002&&m002": {
+       "flagged": 9279.0,
+       "total": 18688.0
+      },
+      "m002&&m003": {
+       "flagged": 9276.0,
+       "total": 18688.0
+      },
+      "m002&&m004": {
+       "flagged": 9268.0,
+       "total": 18688.0
+      },
+      "m002&&m005": {
+       "flagged": 9401.0,
+       "total": 18688.0
+      },
+      "m003&&m003": {
+       "flagged": 9394.0,
+       "total": 18688.0
+      },
+      "m003&&m004": {
+       "flagged": 9301.0,
+       "total": 18688.0
+      },
+      "m003&&m005": {
+       "flagged": 9272.0,
+       "total": 18688.0
+      },
+      "m004&&m004": {
+       "flagged": 9265.0,
+       "total": 18688.0
+      },
+      "m004&&m005": {
+       "flagged": 9312.0,
+       "total": 18688.0
+      },
+      "m005&&m005": {
+       "flagged": 9272.0,
+       "total": 18688.0
+      }
+     },
+     "correlation": {
+      "XX": {
+       "flagged": 59313.0,
+       "total": 98112.0
+      },
+      "XY": {
+       "flagged": 59303.0,
+       "total": 98112.0
+      },
+      "YX": {
+       "flagged": 59257.0,
+       "total": 98112.0
+      },
+      "YY": {
+       "flagged": 59256.0,
+       "total": 98112.0
+      }
+     },
+     "field": {
+      "EDGES": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "flagged": 237129.0,
+     "name": "Summary",
+     "observation": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "scan": {
+      "1": {
+       "flagged": 69155.0,
+       "total": 107520.0
+      },
+      "2": {
+       "flagged": 5376.0,
+       "total": 5376.0
+      },
+      "3": {
+       "flagged": 43110.0,
+       "total": 64512.0
+      },
+      "4": {
+       "flagged": 119488.0,
+       "total": 215040.0
+      }
+     },
+     "spw": {
+      "0": {
+       "flagged": 166004.0,
+       "total": 196224.0
+      },
+      "1": {
+       "flagged": 71125.0,
+       "total": 196224.0
+      }
+     },
+     "total": 392448.0,
+     "type": "summary"
+    },
+    "5": {
+     "antenna": {
+      "m000": {
+       "flagged": 97566.0,
+       "total": 112128.0
+      },
+      "m001": {
+       "flagged": 62780.0,
+       "total": 112128.0
+      },
+      "m002": {
+       "flagged": 62770.0,
+       "total": 112128.0
+      },
+      "m003": {
+       "flagged": 62899.0,
+       "total": 112128.0
+      },
+      "m004": {
+       "flagged": 62678.0,
+       "total": 112128.0
+      },
+      "m005": {
+       "flagged": 62813.0,
+       "total": 112128.0
+      }
+     },
+     "array": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "correlation": {
+      "XX": {
+       "flagged": 59313.0,
+       "total": 98112.0
+      },
+      "XY": {
+       "flagged": 59303.0,
+       "total": 98112.0
+      },
+      "YX": {
+       "flagged": 59257.0,
+       "total": 98112.0
+      },
+      "YY": {
+       "flagged": 59256.0,
+       "total": 98112.0
+      }
+     },
+     "field": {
+      "EDGES": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "flagged": 237129.0,
+     "name": "Summary",
+     "observation": {
+      "0": {
+       "flagged": 237129.0,
+       "total": 392448.0
+      }
+     },
+     "scan": {
+      "1": {
+       "flagged": 69155.0,
+       "total": 107520.0
+      },
+      "2": {
+       "flagged": 5376.0,
+       "total": 5376.0
+      },
+      "3": {
+       "flagged": 43110.0,
+       "total": 64512.0
+      },
+      "4": {
+       "flagged": 119488.0,
+       "total": 215040.0
+      }
+     },
+     "spw": {
+      "0": {
+       "flagged": 166004.0,
+       "total": 196224.0
+      },
+      "1": {
+       "flagged": 71125.0,
+       "total": 196224.0
+      }
+     },
+     "spw:channel": {
+      "0:0": {
+       "flagged": 1812.0,
+       "total": 6132.0
+      },
+      "0:1": {
+       "flagged": 1811.0,
+       "total": 6132.0
+      },
+      "0:10": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:11": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:12": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:13": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:14": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:15": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:16": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:17": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:18": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:19": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:2": {
+       "flagged": 1806.0,
+       "total": 6132.0
+      },
+      "0:20": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:21": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:22": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:23": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:24": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:25": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:26": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:27": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:28": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:29": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:3": {
+       "flagged": 1814.0,
+       "total": 6132.0
+      },
+      "0:30": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:31": {
+       "flagged": 1816.0,
+       "total": 6132.0
+      },
+      "0:4": {
+       "flagged": 1822.0,
+       "total": 6132.0
+      },
+      "0:5": {
+       "flagged": 1823.0,
+       "total": 6132.0
+      },
+      "0:6": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:7": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:8": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "0:9": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "1:0": {
+       "flagged": 1819.0,
+       "total": 6132.0
+      },
+      "1:1": {
+       "flagged": 1818.0,
+       "total": 6132.0
+      },
+      "1:10": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "1:11": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "1:12": {
+       "flagged": 6132.0,
+       "total": 6132.0
+      },
+      "1:13": {
+       "flagged": 1817.0,
+       "total": 6132.0
+      },
+      "1:14": {
+       "flagged": 1819.0,
+       "total": 6132.0
+      },
+      "1:15": {
+       "flagged": 1817.0,
+       "total": 6132.0
+      },
+      "1:16": {
+       "flagged": 1809.0,
+       "total": 6132.0
+      },
+      "1:17": {
+       "flagged": 1826.0,
+       "total": 6132.0
+      },
+      "1:18": {
+       "flagged": 1828.0,
+       "total": 6132.0
+      },
+      "1:19": {
+       "flagged": 1835.0,
+       "total": 6132.0
+      },
+      "1:2": {
+       "flagged": 1818.0,
+       "total": 6132.0
+      },
+      "1:20": {
+       "flagged": 1823.0,
+       "total": 6132.0
+      },
+      "1:21": {
+       "flagged": 1819.0,
+       "total": 6132.0
+      },
+      "1:22": {
+       "flagged": 1821.0,
+       "total": 6132.0
+      },
+      "1:23": {
+       "flagged": 1824.0,
+       "total": 6132.0
+      },
+      "1:24": {
+       "flagged": 1814.0,
+       "total": 6132.0
+      },
+      "1:25": {
+       "flagged": 1807.0,
+       "total": 6132.0
+      },
+      "1:26": {
+       "flagged": 1809.0,
+       "total": 6132.0
+      },
+      "1:27": {
+       "flagged": 1809.0,
+       "total": 6132.0
+      },
+      "1:28": {
+       "flagged": 1823.0,
+       "total": 6132.0
+      },
+      "1:29": {
+       "flagged": 1813.0,
+       "total": 6132.0
+      },
+      "1:3": {
+       "flagged": 1822.0,
+       "total": 6132.0
+      },
+      "1:30": {
+       "flagged": 1819.0,
+       "total": 6132.0
+      },
+      "1:31": {
+       "flagged": 1820.0,
+       "total": 6132.0
+      },
+      "1:4": {
+       "flagged": 1809.0,
+       "total": 6132.0
+      },
+      "1:5": {
+       "flagged": 1813.0,
+       "total": 6132.0
+      },
+      "1:6": {
+       "flagged": 1820.0,
+       "total": 6132.0
+      },
+      "1:7": {
+       "flagged": 1810.0,
+       "total": 6132.0
+      },
+      "1:8": {
+       "flagged": 1836.0,
+       "total": 6132.0
+      },
+      "1:9": {
+       "flagged": 1812.0,
+       "total": 6132.0
+      }
+     },
+     "spw:correlation": {
+      "0:XX": {
+       "flagged": 41498.0,
+       "total": 49056.0
+      },
+      "0:XY": {
+       "flagged": 41516.0,
+       "total": 49056.0
+      },
+      "0:YX": {
+       "flagged": 41503.0,
+       "total": 49056.0
+      },
+      "0:YY": {
+       "flagged": 41487.0,
+       "total": 49056.0
+      },
+      "1:XX": {
+       "flagged": 17815.0,
+       "total": 49056.0
+      },
+      "1:XY": {
+       "flagged": 17787.0,
+       "total": 49056.0
+      },
+      "1:YX": {
+       "flagged": 17754.0,
+       "total": 49056.0
+      },
+      "1:YY": {
+       "flagged": 17769.0,
+       "total": 49056.0
+      }
+     },
+     "total": 392448.0,
+     "type": "summary"
+    }
+   }
+  },
+  "syn-edges.M2": {
+   "gate": "exact",
+   "sha256": [
+    "20a28ac649b9960995f26025c7d305a1f5824a22d8db839c9f4e84811ded1e2b",
+    "6879230aa43d61862238ccc7b706c1791fc54aaeaa7055deb62b73ed27f9fb55"
+   ]
+  },
+  "syn-edges.M3": {
+   "gate": "exact",
+   "sha256": [
+    "312592e023510fa993926d4683ba08e7affbbe53785c80522f684306e1f0e3e6",
+    "b608399954236f439cf2448064a7ff145bafdc6480b6f86d7c7221adda11ff3a"
+   ]
+  },
+  "syn-edges.M4a": {
+   "gate": "exact",
+   "sha256": [
+    "af3982aad6a399dc198a47f319761e4d6757851a008cf40295a5e3d3045cf1a1",
+    "b645b09b261f40bece0379b9f94a67591d27da40f26e67114a0586406a625148"
+   ]
+  },
+  "syn-edges.M4b": {
+   "gate": "exact",
+   "sha256": [
+    "54a8872a03b7e861f1017fb2b639111771888b1d3872bfd57075d76f31f9d795",
+    "8d64b005d49a1571d87a2b004f032a1ff0a4b2d1f2d6522fe7d4680a06045827"
+   ]
+  },
+  "syn-edges.M4c": {
+   "gate": "exact",
+   "sha256": [
+    "42c791d52eefb307a969b9090a9f6c2d5974bf696c86d4521b6ac8343d49410c",
+    "34de7e58043c87dd366150616d7badbedc69109c5aaefc369e5eea17128dff4d"
+   ]
+  },
+  "syn-edges.M4d": {
+   "gate": "exact",
+   "sha256": [
+    "49480f4a449e25dc9b9d021ac474b89b03967c1e82e809d4bb38fb1f58bb1839",
+    "e2c26bf5b2045f47fd5711875c1024b5307aaf96b6ff72ab9130bce2ac382c75"
+   ]
+  },
+  "syn-edges.M5a": {
+   "gate": "exact",
+   "sha256": [
+    "62d2e9bcf3561f9732aca808455afcba9de0084a242253d89955e21c1b49109b",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M5b": {
+   "gate": "exact",
+   "sha256": [
+    "b16d1c89a4ddfb3c1cecbce301734f25fd77cb812eb3d913c63dda711273f9fb",
+    "e0f707c68ead62b2b07fc2e41e9effb47108035a823b815e152f459bc312b9ac"
+   ]
+  },
+  "syn-edges.M6a": {
+   "gate": "exact",
+   "sha256": [
+    "6cdaed8159bb8b4cfdcc42f890a3a6547a8eaa8855ab65b58f2d870b4a2babe8",
+    "3208dee3a82838595126aca68ac17fd8e5f7c41dfa323b8fbb515c9b160c585a"
+   ]
+  },
+  "syn-edges.M6b": {
+   "gate": "exact",
+   "sha256": [
+    "c8f5655fcf28ef595ffd0cfcb40c976f1c1bf5025164b3ca2fc19ca927bc5eb0",
+    "c33b988135f70a8d2ad0240daec1f965d98b33ebcffa2218d9557c43ccb45cb3"
+   ]
+  },
+  "syn-edges.M7": {
+   "gate": "exact",
+   "sha256": [
+    "4aa3f5b41d9ed1f2be790f188cb23a67aa486982e0fd119af5fb619bcb577d63",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M8a": {
+   "gate": "exact",
+   "sha256": [
+    "bd4401a1944cf2c6ec420fcc941904a02b7b86578225672bf7f1c30533ddc404",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M8b": {
+   "gate": "exact",
+   "sha256": [
+    "fc70b848a61fcc6b19875ecaeaeff8a7f1393caccceed929749bab84d480c270",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M8c": {
+   "gate": "exact",
+   "sha256": [
+    "c25f4894a12d6878170476e4c78f4e8dfb2e344ae027a63ea732247ff9423f9d",
+    "35b920504b2eff882388b39063f298022b2e7f5636049118627c6906632d09c1"
+   ]
+  },
+  "syn-edges.M9": {
+   "gate": "exact",
+   "sha256": [
+    "c2d80f757ac806fc16c5a57dce4eec3ad813a04fcb7ff4cf08f7bbd9ce1c3734",
+    "1430fa1d6aaceb3d5e57ce23f7ece2760ad342cf802d027b7d75ec7255289ca0"
+   ]
+  }
+ }
+}

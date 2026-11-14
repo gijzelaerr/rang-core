@@ -151,6 +151,7 @@ def page():
             f"```text\n$ rang-core formats {verb} -h\n{_help('formats', verb)}\n```\n"
         )
     parts.append(_block("`listobs`", "rang-core listobs -h", _help("listobs")))
+    parts.append(_block("`flagdata`", "rang-core flagdata -h", _help("flagdata")))
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(
