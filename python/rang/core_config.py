@@ -160,6 +160,25 @@ SCHEMA = {
             "a cap on the rows of every chunk (null: what memory_limit_gb allows); "
             "a solve chunk still holds one solution interval",
         ),
+        "executor": _k(
+            "local",
+            "choice",
+            "where chunk tasks run: local, this machine (research/chunk-task-api.md)",
+            ("local",),
+        ),
+        "processes": _k(
+            1,
+            "int",
+            "processes for the chunk tasks of flag, the complex solve and complex "
+            "apply (1: in this process); each plans its chunks under "
+            "memory_limit_gb / processes; results do not depend on it",
+        ),
+        "threads": _k(
+            None,
+            "int?",
+            "the rayon threads the processes share when processes > 1 (null: "
+            "RAYON_NUM_THREADS, else the CPU count)",
+        ),
     },
     "flag": {
         "flagger": _k(
@@ -1097,6 +1116,10 @@ def resolve(raw):
         errors.append(("data.memory_limit_gb", "must be above 0"))
     if _is_int(data["chunk_rows"]) and data["chunk_rows"] < 1:
         errors.append(("data.chunk_rows", "must be at least 1"))
+    if _is_int(data["processes"]) and data["processes"] < 1:
+        errors.append(("data.processes", "must be at least 1"))
+    if _is_int(data["threads"]) and data["threads"] < 1:
+        errors.append(("data.threads", "must be at least 1"))
     names = {}
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
@@ -1844,9 +1867,12 @@ def validate_file(path, stages):
     return validate(load(path), stages, source=Path(path))
 
 
-# Keys that set chunk sizes only: results do not depend on them (task W3,
-# research/w3-chunking.md), so changing them does not make a stage "changed".
-RESOURCE_KEYS = {"data": ("memory_limit_gb", "chunk_rows")}
+# Keys that set chunk sizes and where chunks run only: results do not depend
+# on them (task W3, research/w3-chunking.md; research/chunk-task-api.md), so
+# changing them does not make a stage "changed".
+RESOURCE_KEYS = {
+    "data": ("memory_limit_gb", "chunk_rows", "executor", "processes", "threads")
+}
 
 
 # Keys left out of the stage hash at their default, so that adding them did

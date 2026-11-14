@@ -9,6 +9,14 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (multi-node stage 1, issue #3, `research/chunk-task-api.md`): the chunk loops of `flag`, the
+  `complex` solve and `complex` apply are chunk tasks (`rang.core_tasks`: serialisable `ChunkSpec`s, `run`,
+  an ordered reduce through the one MS writer) run by a local process pool. New keys `data.executor`
+  (`local`), `data.processes` (default 1: in this process, as before) and `data.threads` (the rayon
+  threads the processes share); each process plans its chunks under `memory_limit_gb / processes`.
+  None of them enters the stage hash. Chain terms, models, CASA-table applies and imaging stay in one
+  process.
+
 ## 0.2.0 (2026-11-14)
 
 The owner released 0.2.0 on 2026-11-14. Its finish line
