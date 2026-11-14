@@ -833,6 +833,63 @@ Decision rule:
 
 Cost: seconds of CPU; 1 slot.
 
+### 9.6 A1b measured, 2026-11-14: void as frozen
+
+Runs:
+- `a1b_casa.py` took 7 s; `a1b_rang.py` 4,731 s, almost all of it queue.
+  Both ran on 1 slot.
+- Results in `D:\rang\outputs\e2b-arms-20261114\a1b`; receipts in
+  [results/e2b-misses/a1b/](results/e2b-misses/a1b/) (`a1b.json`,
+  `casa-ut1.json`).
+- CASA's probe ran with no errors.
+
+**Outcome under the frozen rule: void.** Control C4 is not met.
+- The extraction recovers rang's own angles within 2.2e-8 rad on field 1
+  and 2.0e-8 rad on field 2, against the frozen 1e-9.
+- The other sign gives 0.75 rad, so the extraction's form is right; only
+  its precision fails.
+- The cause is the freeze, not the extraction: the probe's corrected
+  correlations are complex64, and atan2 of float32 values carries about one
+  float32 epsilon (6e-8). A 1e-9 bound could not be met by any extraction
+  from this probe.
+- The extraction was not changed afterwards, and the tolerance is not
+  loosened here. CASA's output was read in the same run, so a relaxed C4
+  would be post hoc.
+
+Read beside the void outcome (**post hoc**; the 2.2e-8 floor is 1/300 of
+the differences below, so the readings are informative):
+
+| Candidate | Max \|Δχ\| field 1 / field 2 (rad) | Median Δχ field 1 / field 2 (rad) |
+| --- | --- | --- |
+| (a) as run | 7.1e-6 / 3.2e-6 | 6.9e-6 / 3.0e-6 |
+| (b) TIME_CENTROID | identical: TIME equals TIME_CENTROID in every row | – |
+| (c) TIME ∓ INTERVAL/2 (8.0 s) | 3.1e-4 and 3.0e-4 / 1.0e-4 and 1.1e-4 | – |
+| (d) UT1 − UTC = CASA's (−0.1299 s) | 7.1e-6 / 3.2e-6 (changes Δχ by < 1e-9) | 6.9e-6 / 3.0e-6 |
+
+- The difference is of the same size as 9.3's P reading: 7e-6 rad of angle,
+  against 1.1e-5 absolute on unit data. It is about constant within each
+  field.
+- H1 is not supported:
+  - TIME and TIME_CENTROID are the same column values here;
+  - using the integration's start or end makes Δχ about 40× worse.
+- H2 is not supported:
+  - forcing CASA's UT1 − UTC (casacore data at `/usr/share/casacore/data`,
+    IERSeop2000 VS_DATE 2025/07/28) does not move Δχ;
+  - so astropy's bundled UT1 − UTC already matches it to well under a
+    millisecond. Astropy's own value was not printed, because of a script
+    bug in the report line (`to_value` on an array); the arm does not use
+    it.
+- Expressed as a clock offset, the difference is +0.091 s on field 1
+  (J1939−6342) and −0.147 s on field 2 (J1833−2103): opposite signs on the
+  two fields. So it is not one time error. It depends on the source
+  direction, which points at H3 (precession or nutation, or the
+  apparent-place or latitude convention) as the remaining candidate. **This
+  is not tested.**
+
+What this allows: nothing under the rule (void). Post hoc, the P
+difference is real, about 1e-5 rad, and direction dependent. It is not
+explained by the time column or by UT1 − UTC.
+
 ## For the coordinator
 
 Which misses block v0.2.0 depends on the owner's reading of finish line
