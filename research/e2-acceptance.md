@@ -1180,6 +1180,28 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
   has no polcal scans. The earlier reading came from `e2b.yaml`. There is no
   amended E2-A arm and no seal. E2-A runs as frozen.
 
+### 9.4 The rang arm: interrupted, no result (2026-11-14)
+
+This attempt gives no E2-A result. It is recorded so the next attempt starts from it.
+
+- The run (`e2_timed.py`, exclusive, critical priority) started at 03:19 local (01:24 UTC). Its records are in `D:ang\outputs\e2-20261113-30-e2a` and `D:ang\data\e2-a\e2a.ms.rang-run` (`state.json`).
+- Stages finished:
+
+  | Stage | Wall time |
+  | --- | --- |
+  | flag | 2,556 s |
+  | calibrate | 4,545 s |
+  | apply | 599 s |
+  | image | 5,386 s |
+
+  The image stage at `auto_threshold` 3.0 and mask 5σ cleaned 684,794 components in 5 major cycles.
+- **Selfcal round 1 ran into the component cap.** Its image used CARACal's selfcal values: mask 10σ, `clean_cutoff` 0.5σ, `-niter 1000000`. It ran from 07:11 to 15:38 local, 30,615 s wall, and stopped at exactly 1,000,000 components after 5 major cycles (Q/Q0 3.68e-2). That is 5.7 times the first image's wall time.
+- Round 2 had started when a power cut at about 17:30 local (2026-11-14) rebooted the host and killed the run. Nothing of round 2 survives; the MS and the round-1 outputs remain on D:.
+- **Wall time is not clean in any case.** The coordinator ran lock-free full checks (5 threads) at 10:52-11:52 UTC and 12:15-13:40 UTC. Per-stage CPU seconds were not captured: the timer process died with the run.
+- **Next attempt (v0.3.0, coordinator's judgement):** as frozen, round 1 alone costs about 8.5 h of the host, so two rounds and the final image come to about a day. Rerunning E2-A as frozen requires a pre-registered amendment.
+  - Candidate change: a selfcal `niter` or depth that keeps the CARACal stop rule reachable, such as CARACal's own niter for these images.
+  - The amendment is written and committed before the rerun. The run above stays as the record of the frozen settings' cost.
+
 ## For the coordinator
 
 (written at the end)
