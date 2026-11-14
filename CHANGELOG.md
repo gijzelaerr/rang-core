@@ -32,7 +32,15 @@ move to 0.3.0 (`research/roadmap.md`).
     - Polarisation angle on 1830−211: |Δχ| up to 13°.
     - Transfer χ (polarisation angle carried from calibrator to target).
     - Rang's leakage: 0.30 %.
-  - The diagnosis and fixes are v0.3.0 work.
+  - The diagnosis (`research/e2b-misses.md`, from code and archived numbers;
+    no new runs) confirms no rang bug among the seven. Its likely causes:
+    - CASA's oracle solved on different flags and weights (composites);
+    - the estimators weight data differently (Gpol);
+    - float32 rounding in CASA's long apply chain (applycal);
+    - a scorer error and unmasked cleaning (3c);
+    - χ at p of 0.02-0.06 % (1830−211);
+    - LUNO's receptor angle and ionospheric RM (transfer χ).
+  - Pre-registered arms A1-A5 test these in v0.3.0.
 - **The measurements still to come are now v0.3.0 work:**
   - the E2-A run on ESO 137;
   - E3, the comparison with CARACal's MeerKAT strategy (image quality, flux,
