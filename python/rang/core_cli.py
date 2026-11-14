@@ -1020,6 +1020,7 @@ TOP_LEVEL = {
     "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
+    "mcp": "[--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
 # time; the cabs call the same functions.
@@ -1387,24 +1388,11 @@ def _config_command(argv):
     from . import core_pipeline
 
     try:
-        raw = core_config.load(args.config)
-        config, errors = core_config.resolve(raw)
-        if errors:
-            raise core_config.ConfigError(errors, source=Path(args.config))
-        stages = (
-            list(CONFIG_STAGES)
-            if args.all
-            else (args.stage or list(config["run"]["stages"]))
+        config, stages, warnings = core_pipeline.check_config(
+            args.config, args.ms, args.stage, all_stages=args.all
         )
-        config = core_config.validate(raw, stages, source=Path(args.config))
-        if args.ms:
-            info = core_pipeline.inspect_ms(args.ms)
-            core_pipeline.preflight(config, info, stages)
-            missing = core_pipeline._missing_masks(config, args.config, stages)
-            if missing:
-                raise core_pipeline.Refused("; ".join(missing))
-            for text in core_pipeline.scope_warnings(info):
-                print(f"rang-core config check: warning: {text}", file=sys.stderr)
+        for text in warnings:
+            print(f"rang-core config check: warning: {text}", file=sys.stderr)
     except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
         print(f"rang-core config check: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
@@ -1527,6 +1515,10 @@ def dispatch(argv=None):
         return _listobs_command(argv[1:])
     if argv[0] == "flagdata":
         return _flagdata_command(argv[1:])
+    if argv[0] == "mcp":
+        from . import mcp_server
+
+        return mcp_server.main(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:

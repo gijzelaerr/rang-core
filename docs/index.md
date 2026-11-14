@@ -119,6 +119,7 @@ contributing
 :caption: Reference
 
 cli
+mcp
 concepts/index
 api/index
 ```
