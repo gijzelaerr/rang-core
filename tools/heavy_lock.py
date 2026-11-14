@@ -58,6 +58,15 @@ itself), does not queue again: it runs its command inside the existing hold
 and says so. Queueing again held the outer slots idle for five hours behind
 the inner ticket, and deadlocks when the queue is full. A nested request for
 more than the hold gets a warning and still runs.
+
+Real use (added 2026-11-14): ``status`` samples, for ``SAMPLE_S`` seconds, the
+CPU time of each hold's process tree on this system (psutil when the Python
+running the helper has it; otherwise ``/proc`` on Linux and WSL, or the Win32
+API through ctypes on Windows) and prints it next to the booked slots. A hold
+whose tree uses under ``IDLE_PER_SLOT`` (5 %) of one core per booked slot is
+marked IDLE; a hold of the other system (WSL from Windows and back) shows
+``n/a``. The last line is ``booked N slots, using ~M cores``. It only reports:
+nothing is ever stopped or released automatically.
 """
 
 from __future__ import annotations
@@ -466,16 +475,187 @@ def run(
             wsl_lock.close()
 
 
-def status(d: Path) -> None:
-    print(f"exclusive: {describe(read_owner(d))}" if d.exists() else "exclusive: free")
+SAMPLE_S = 2.0
+IDLE_PER_SLOT = 0.05  # cores per booked slot below which a hold is IDLE
+
+
+def _win_parents() -> dict[int, int]:
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_void_p),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", ctypes.c_char * 260),
+        ]
+
+    k = ctypes.windll.kernel32
+    k.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    snap = k.CreateToolhelp32Snapshot(0x2, 0)  # TH32CS_SNAPPROCESS
+    if not snap or snap == ctypes.c_void_p(-1).value:
+        return {}
+    parents: dict[int, int] = {}
+    e = Entry()
+    e.dwSize = ctypes.sizeof(Entry)
+    try:
+        ok = k.Process32First(wintypes.HANDLE(snap), ctypes.byref(e))
+        while ok:
+            parents[int(e.th32ProcessID)] = int(e.th32ParentProcessID)
+            ok = k.Process32Next(wintypes.HANDLE(snap), ctypes.byref(e))
+    finally:
+        k.CloseHandle(wintypes.HANDLE(snap))
+    return parents
+
+
+def _win_cpu(pid: int) -> float | None:
+    import ctypes
+    from ctypes import wintypes
+
+    k = ctypes.windll.kernel32
+    k.OpenProcess.restype = wintypes.HANDLE
+    h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return None
+    times = [wintypes.FILETIME() for _ in range(4)]
+    try:
+        if not k.GetProcessTimes(wintypes.HANDLE(h), *(ctypes.byref(t) for t in times)):
+            return None
+    finally:
+        k.CloseHandle(wintypes.HANDLE(h))
+
+    def sec(t) -> float:
+        return ((t.dwHighDateTime << 32) | t.dwLowDateTime) / 1e7
+
+    return sec(times[2]) + sec(times[3])  # kernel + user
+
+
+def process_table() -> dict[int, tuple[int, float]] | None:
+    """{pid: (parent pid, CPU seconds)} of this system's processes, or None."""
+    try:
+        import psutil
+    except ImportError:
+        psutil = None
+    table: dict[int, tuple[int, float]] = {}
+    if psutil is not None:
+        for p in psutil.process_iter(["pid", "ppid", "cpu_times"]):
+            t = p.info.get("cpu_times")
+            if t is not None:
+                table[p.info["pid"]] = (p.info["ppid"] or 0, t.user + t.system)
+        return table
+    if sys.platform == "win32":
+        for pid, ppid in _win_parents().items():
+            cpu = _win_cpu(pid)
+            if cpu is not None:
+                table[pid] = (ppid, cpu)
+        return table or None
+    proc = Path("/proc")
+    if not proc.is_dir():
+        return None
+    tick = os.sysconf("SC_CLK_TCK")
+    for stat in proc.glob("[0-9]*/stat"):
+        try:
+            fields = stat.read_text().rsplit(")", 1)[1].split()
+            table[int(stat.parent.name)] = (
+                int(fields[1]),
+                (int(fields[11]) + int(fields[12])) / tick,
+            )
+        except (OSError, IndexError, ValueError):
+            continue
+    return table or None
+
+
+def _tree(table: dict[int, tuple[int, float]], root: int) -> set[int]:
+    children: dict[int, list[int]] = {}
+    for pid, (ppid, _) in table.items():
+        if pid != ppid:
+            children.setdefault(ppid, []).append(pid)
+    seen: set[int] = set()
+    todo = [root]
+    while todo:
+        pid = todo.pop()
+        if pid in seen or pid not in table:
+            continue
+        seen.add(pid)
+        todo.extend(children.get(pid, []))
+    return seen
+
+
+def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float | None]:
+    """Cores each pid's process tree used over one sample (None: not measurable)."""
+    before = process_table()
+    if before is None:
+        return dict.fromkeys(pids)
+    time.sleep(sample_s)
+    after = process_table() or {}
+    out: dict[int, float | None] = {}
+    for pid in pids:
+        if pid not in after:
+            out[pid] = None
+            continue
+        used = 0.0
+        for q in _tree(after, pid):
+            used += max(0.0, after[q][1] - before.get(q, (0, 0.0))[1])
+        out[pid] = used / sample_s
+    return out
+
+
+def use_note(slots: int, cores: float | None) -> str:
+    if cores is None:
+        return "use n/a"
+    idle = " IDLE" if cores < IDLE_PER_SLOT * slots else ""
+    return f"using ~{cores:.1f} cores{idle}"
+
+
+def status(d: Path, sample_s: float = SAMPLE_S) -> None:
+    """Holds with booked and real use, then the queue. Reports only."""
+    owner = read_owner(d) if d.exists() else None
     shared = live_shared(d)
+    here = system()
+    holds = [j for j in shared if j.get("system") == here]
+    if owner and owner.get("system") == here:
+        holds.append(owner)
+    cores = tree_cores([int(j["pid"]) for j in holds], sample_s) if holds else {}
+
+    def note(j: dict, slots: int) -> str:
+        if j.get("system") != here:
+            return f"use n/a, held from {j.get('system')}"
+        return use_note(slots, cores.get(int(j["pid"])))
+
+    booked, using = 0, 0.0
+    if d.exists():
+        line = f"exclusive: {describe(owner)}"
+        if owner:
+            booked += CAPACITY_SLOTS
+            line += f"; {note(owner, CAPACITY_SLOTS)}"
+            if owner.get("system") == here:
+                using += cores.get(int(owner["pid"])) or 0.0
+        print(line)
+    else:
+        print("exclusive: free")
     used = sum(int(j.get("slots") or 0) for j in shared)
     used_mem = sum(float(j.get("mem") or 0) for j in shared)
     print(f"shared: {used}/{CAPACITY_SLOTS} slots, {used_mem:g}/{CAPACITY_MEM_GB:g} GB")
     for j in shared:
+        slots = int(j.get("slots") or 0)
+        booked += slots
+        if j.get("system") == here:
+            using += cores.get(int(j["pid"])) or 0.0
         print(
-            f"  {j['slots']} slots {j['mem']:g} GB pid {j['pid']}: {j['command'][:140]}"
+            f"  {slots} slots {j['mem']:g} GB pid {j['pid']} "
+            f"({note(j, slots)}): {j['command'][:140]}"
         )
+    away = sum(
+        1 for j in [*shared, *([owner] if owner else [])] if j.get("system") != here
+    )
+    tail = f" ({away} holds of the other system not measured)" if away else ""
     q = queue_dir(d)
     waiting = sorted(q.glob("*.json")) if q.exists() else []
     for i, t in enumerate(waiting, 1):
@@ -487,6 +667,7 @@ def status(d: Path) -> None:
         if info.get("priority"):
             kind += f", {info['priority']}"
         print(f"queue {i}: {t.stem} ({kind})")
+    print(f"booked {booked} slots, using ~{using:.1f} cores{tail}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -512,12 +693,18 @@ def main(argv: list[str] | None = None) -> int:
         "running job; only for the release's critical path (E2/E3 acceptance)",
     )
     r.add_argument("command", nargs=argparse.REMAINDER)
-    sub.add_parser("status", help="show the exclusive owner, shared jobs and the queue")
+    st = sub.add_parser(
+        "status",
+        help="show the holds (booked and real CPU use) and the queue; reports only",
+    )
+    st.add_argument(
+        "--sample", type=float, default=SAMPLE_S, help="seconds of CPU sampling"
+    )
     sub.add_parser("break", help="remove the exclusive lock")
     a = p.parse_args(argv)
     d = lock_dir()
     if a.action == "status":
-        status(d)
+        status(d, a.sample)
         return 0
     if a.action == "break":
         if d.exists():

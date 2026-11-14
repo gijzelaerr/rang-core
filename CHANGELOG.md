@@ -14,6 +14,9 @@ the release notes are the section of this file for that version.
   instead of queueing again. A check wrapped in `heavy_lock.py run` held 4 slots idle for five hours
   while its own inner ticket waited, and would deadlock on a full queue. A nested request for more
   than the hold warns and still runs.
+- New (2026-11-14): `tools/heavy_lock.py status` prints each hold's real CPU use (its process tree,
+  sampled for 2 s) next to its booked slots, marks a hold IDLE under 5 % of one core per booked slot,
+  and ends with `booked N slots, using ~M cores`. Report only; nothing is stopped.
 
 - Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
   instead of running wrong. A NaN visibility made every gain, bandpass, delay or Df solution NaN with
