@@ -9,6 +9,44 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+## 0.2.0 (2026-11-14)
+
+The owner released 0.2.0 on 2026-11-14. Its finish line
+(`research/finish-plan.md` section 1) is met in part, and the parts not met
+move to 0.3.0 (`research/roadmap.md`).
+
+### Known limitations
+
+- **Not every stage is within its oracle tolerance.**
+  - E2-B is the acceptance run on processed LUNO MeerKAT L-band data against
+    CASA 6.7.6.14, WSClean and QuartiCal (`research/e2-acceptance.md` 7.3-7.5).
+  - **Met:** run and write-back, the readers (casacore, CASA listobs and
+    flagmanager, WSClean, dask-ms), FITS output, gridding (exact on all
+    1.1e9 cells), K, KCROSS, Xf, Df, and 3C 286 polarisation parity
+    (|Δχ| ≤ 0.055°).
+  - **Not met, in the frozen and in the amended arm:**
+    - Gpol: median 0.124° in the amended arm, against a 0.1° limit.
+    - The fcal and gcal K G B composites: median 1.1e-3.
+    - CASA applycal on rang's tables: 40 cells over, max 25 eps; flags exact.
+    - Image gate 3c.
+    - Polarisation angle on 1830−211: |Δχ| up to 13°.
+    - Transfer χ (polarisation angle carried from calibrator to target).
+    - Rang's leakage: 0.30 %.
+  - The diagnosis and fixes are v0.3.0 work.
+- **The measurements still to come are now v0.3.0 work:**
+  - the E2-A run on ESO 137;
+  - E3, the comparison with CARACal's MeerKAT strategy (image quality, flux,
+    wall time and memory);
+  - the E5 review.
+- **Native MeerKAT data is not tested.** The acceptance data is processed LUNO
+  data plus simulation (issue #7).
+- **No absolute χ claim.** LUNO's χ offset is not explained; see
+  `research/chi-offset.md`.
+- `flagdata` mode `tfcrop` is refused, and the trained flagger is not shipped.
+
+### Changes since 0.1.0
+
+
 - Fixed (2026-11-14): a `tools/heavy_lock.py run` or `tools/check_all.py` started inside a heavy-lock
   hold (`RANG_HEAVY_LOCK_HELD`, set by `heavy_lock.py run` for its child) runs inside that hold
   instead of queueing again. A check wrapped in `heavy_lock.py run` held 4 slots idle for five hours

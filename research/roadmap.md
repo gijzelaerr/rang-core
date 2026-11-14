@@ -27,22 +27,18 @@ grouped into one GitHub milestone per release. This note replaces
 | v0.6.0 | Beyond the state of the art | Do any of the method proposals beat WSClean, QuartiCal and CARACal at matched cost? |
 | Later | Other telescopes | LOFAR, VLBI, beamformed pulsar and FRB search |
 
-### v0.2.0: parity (tracking issue #2)
+### v0.2.0: parity (tracking issue #2), released 2026-11-14
 
-Status on 2026-11-13:
-
-- E2-B is running.
-- E2-A comes next.
-- E3, the comparison against CARACal, waits for E2.
-- chi-offset is running.
-- Then the E5 delta review and E6 (the owner tags).
-
-Estimate, not a measurement: four to six days of host time if nothing needs a rerun.
+The owner released 0.2.0 with the finish line met in part (finish-plan.md, decision 25).
+- The known limitations are in `CHANGELOG.md` under 0.2.0.
+- What was not finished moves to v0.3.0, in the first rows of its table.
 
 ### v0.3.0: science grade on real data
 
 | Issue | Item | Size | Depends on |
 | --- | --- | --- | --- |
+| #2 | From v0.2.0: E2-B's misses diagnosed and fixed, or kept as stated limits (Gpol, the K G B composites, CASA applycal, 3c, 1830−211 χ, transfer χ, leakage) | M | the diagnosis note `e2b-misses.md` |
+| #2 | From v0.2.0: E2-A scored; E3 against CARACal (timed); the E5 review | M (host time) | — |
 | #7 | Native MeerKAT data (E2-N), frozen E2 protocol unseen | M (fetch + one E2 run) | the data source (owner) |
 | #14 | Absolute polarisation angle χ | M | chi-offset's result |
 | #6 | Self-calibration beyond model absorption: arms 1-2 (rounds and intervals, phase-only first round) | M | — |
@@ -169,5 +165,5 @@ ang`.
 - **Agent-heavy and CPU-heavy work are split** (owner, 2026-11-13: "a lot of AI heavy work we can already do while waiting on CPU and GPU").
   - Agent-heavy work on later releases may proceed now on branches: design, proposal notes frozen before code, implementation, and unit tests on the public fixture.
   - Its CPU and GPU runs (measurements, timing, campaigns) queue in `tools/heavy_lock.py` at normal priority. v0.2.0's critical path keeps `--priority critical` and the timed exclusive holds.
-  - Nothing merges to main ahead of v0.2.0 if it would change what E2, E3 or E5 measure. Such branches wait until after E6.
+  - Lifted 2026-11-14 with the 0.2.0 release: branches that change what E2, E3 or E5 measure merge on a full check; the E2 and E3 runs that follow are rerun on the merged code.
   - Notes, docs and code that the chain does not call can merge earlier.

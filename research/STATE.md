@@ -4,14 +4,14 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **What `main` is:** rang-core 0.2.0 (released 2026-11-14 with the finish line met in part; known limitations in `CHANGELOG.md`): a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gemclean](gemclean.md) with its [benchmark](gemclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
 - **Running:** nothing; paused on the owner's order 2026-11-13. Next session: [next-session.md](next-session.md); resume state in [handoff-2026-11-13.md](handoff-2026-11-13.md) (E2-B scored as frozen, amended arm and E2-A next, then E3 timed; open branches listed there). Of [vision.md](vision.md), V1-V4 and V6-V8 are done; the V4 digest runs weekly (Wednesdays 07:00, scheduled task `ra-ng-weekly-digest`). The [finish plan](finish-plan.md), from 2026-11-05.
 - **Direction:** [vision.md](vision.md) (2026-11-11).
-- **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
+- **Next:** v0.3.0 in [roadmap.md](roadmap.md). It first takes v0.2.0's open items: E2-B's misses, E2-A, E3 and E5. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -19,6 +19,12 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+Release 0.2.0, 2026-11-14 (owner's decision, finish-plan.md item 25):
+- Tagged on the merge of V8b flagdata, the notebooks, the imaging-floor note, the MSv2 edge-case comparison, the MCP server and the nested heavy-lock guard.
+- The finish line is met in part. E2-B misses Gpol, the K G B composites, CASA applycal, 3c, 1830−211 χ, transfer χ and leakage; it meets gridding exactly, K, KCROSS, Xf, Df and 3C 286.
+- E2-A, E3 and E5 were not finished.
+- All of the above moves to v0.3.0.
 
 P flag spread (task df-flag-rule), 2026-11-12 (implemented; measured; [p-flag-spread.md](p-flag-spread.md); branch, not merged): E2 found CASA flagging XX and YY where Df is flagged on J1331+3030. The cause is P, not Df: for linear feeds CASA's `PJones` is a general Jones matrix applied after D, and `Jones::flagRight`/`flagLeft` spread any flagged correlation to all four. New key `apply.parang_flags` (`spread`, default, CASA's; `none`, the old flags; values bit-identical). Against CASA 6.7.6.14 `applycal` flags exact on five cases (Df without and with P, a bad G receptor, XX-only input flags, a K G B Df chain), every count as predicted. E2's frozen run is unchanged; its gate 2b flag difference is this rule.
 

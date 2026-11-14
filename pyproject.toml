@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rang-core"
-version = "0.1.0"
+version = "0.2.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"

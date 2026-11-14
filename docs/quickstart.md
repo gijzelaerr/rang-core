@@ -7,10 +7,9 @@ be checked against the truth. The same chain runs in CI on all five wheels
 ({gh}`tools/e2e/run.py`).
 
 ```{note}
-The 0.1.0 wheel on PyPI predates `rang-core run` and `gemclean`. Until 0.2.0,
-install from a source checkout ({doc}`installation`, "From source"). The
-generator `examples/a1_simtruth.py` and the example configuration are in the
-checkout too.
+Use rang-core 0.2.0 or later, because 0.1.0 predates `rang-core run` and
+`gemclean`. The generator `examples/a1_simtruth.py` and the example
+configuration are in a source checkout ({doc}`installation`, "From source").
 ```
 
 ## 1. Install from source

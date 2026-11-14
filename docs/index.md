@@ -44,7 +44,7 @@ known.
   - {doc}`concepts/basics`, the {doc}`glossary`, and an agent in a checkout
     that answers from the notebooks and reports ({doc}`agents/answer-a-question`)
 * - **An astronomer with a MeerKAT MS**
-  - {doc}`installation` (from source until 0.2.0), then {doc}`quickstart`:
+  - {doc}`installation` (`pip install rang-core`), then {doc}`quickstart`:
     A1 small to a calibrated image with `rang-core run` in under a minute
   - {doc}`howto/index`: your own L-band MS, calibration, flagging,
     checking the result, and the {doc}`limits`
