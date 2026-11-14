@@ -45,6 +45,13 @@ Labels used below:
 | Transfer χ (\|χ − 33.1°\| ≤ 7°) | receptor angle −90° wrong for LUNO (post hoc, chi-offset), plus ionospheric RM | configuration or convention plus physical | chi-offset: "cause not found" under its rule; post hoc reading I | owner (chi-offset 10.1, 10.2) |
 | Rang leakage 0.302 % (CASA 0.298 %) | X/Y amplitude drift between dev scan 2 and scan 18 under the phase-only per-scan G that 7.1 chose; rang − CASA is 0.004 points | physical plus recipe choice | M | owner: limitation; the ap-G reading (0.026 %) stays beside |
 
+**Correction, 2026-11-14 (arm A1, section 9.3):** the 2b row's "float32
+rounding" is not supported. Under A1's frozen rule the outcome is "rang
+difference", with G as the first term over 2 ulps (2.004 ulps, 1
+correlation). P (the parallactic angle) differs from CASA by 78–366 ulps on
+every cell, and the class C excess appears only when P is applied (post hoc
+reading). Measured and localised, not diagnosed.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -621,6 +628,81 @@ Decision rule (class C stays at 11 eps, not loosened):
   cumulative profile is reported, and 2b stays open.
 
 Cost: under 0.2 CPU-hours; the copy is about 30 MB.
+
+### 9.3 A1 measured, 2026-11-14
+
+Runs:
+- Results in `D:\rang\outputs\e2b-arms-20261114\a1`; receipts in
+  [results/e2b-misses/a1/](results/e2b-misses/a1/) (`a1.json`, `mini.json`,
+  `a1-spec.json`, `casa-results.json`, `p-term-size.json`).
+- Scripts: `a1_casa.py`, `a1_rang.py`, `a1_run.sh` and `a1_rang_all.sh`,
+  committed before the run.
+- Rang side: this branch's extension at main `ad5f176`.
+- CASA: 6.7.6.14, 32 `applycal` calls with no errors.
+
+Controls (both met):
+- **C2:** CASA's 2b calls on the mini MS reproduce every archived
+  per-correlation eps of the 42 cells (maximum deviation 0.00 eps).
+- **C3:** rang's library apply reproduces RANG_CORRECTED_DATA bit for bit
+  on 390,636 unflagged correlations, flags equal. So main's apply equals
+  `b2d80dc`'s here, and no rebuild was needed.
+
+M1, each term alone on unit data, d in float32 ulps:
+
+| Term | Over 2 ulps on the 42 cells (field 1 / field 2) | Max ulps on the 42 cells | Over 2 ulps, all cells of the 41 rows |
+| --- | --- | --- | --- |
+| B | 0/120 / 0/48 | 1.03 / 2.00 | 3,607 / 1,198 |
+| K | 0/120 / 0/48 | 2.00 / 2.00 | 12,024 / 5,172 |
+| Kcross | 0 / 0 | 1.00 / 1.00 | 0 / 0 |
+| G (F on field 2) | **1/120** / 0/48 | **2.004** / 1.80 | 4,096 / 0 |
+| Gpol | 23/120 / – | 3.01 / – | 90,112 / – |
+| Df | 0 / 0 | 1.00 / 1.00 | 6 / 0 |
+| Xf | 2/120 / 0/48 | 4.47 / 1.00 | 3,393 / 1,404 |
+| **P** | **120/120 / 48/48** | **366 / 273** | **every cell** (median 151.5 / 78 ulps) |
+
+- No flag differs on any term.
+- P alone on unit data differs from CASA by up to 1.1e-5 (field 1) and
+  5.1e-6 (field 2) in absolute value: median 9.8e-6 and 4.1e-6, on every
+  cell of every row.
+
+M2, cumulative, eps of the cell maximum on the 42 cells:
+- Through every table term (B … Xf), CASA and rang agree within 5.3 eps
+  (field 1) and 3.7 eps (field 2).
+  - None of the 42 cells is over 11 eps before P.
+  - The float32 emulation is within 4.7 and 4.6 eps.
+- Adding P takes the maximum to 13.4 eps (field 1) and 25.6 eps (field 2).
+  - rang's apply has 43 and 28 correlations over 11 eps.
+  - The emulation is no closer: 13.5 and 25.7 eps, with 40 and 28
+    correlations over 11.
+  - Over all cells of the rows, the median rises from about 0.1 eps before
+    P to 2.0 and 1.4 eps with P.
+
+**Outcome under the frozen rule: rang difference, first term G** (field 1).
+The first term in the order whose M1 value exceeds 2 ulps on one of the 42
+cells is G: one correlation at 2.004 ulps. The emulation also misses 2 eps
+on all + P.
+
+What the rule allows us to conclude:
+- The miss is **not shown to be float32 rounding**. The "rounding" branch
+  fails on both of its conditions.
+- Under the rule as frozen, G is the term named. This is the record.
+
+What it does not allow:
+- It does not show that G is the cause, or that any term has a bug.
+- The measurement ranks the terms by size. G's excess is 0.004 ulps over
+  the bound on 1 of 120 correlations. Gpol and Xf exceed by a few ulps.
+- P differs by 78–366 ulps on every cell. M2 shows the class C excess
+  appears only at the P step, and the emulation does not remove it.
+- That P is the term that carries gate 2b's miss is a reading of these
+  numbers (**post hoc**, not the rule's outcome). It fits an angle
+  difference of order 1e-5 rad between rang's and CASA's parallactic
+  angles.
+- What makes that difference (time used, astrometry, receptor-angle
+  handling) is **not measured**.
+
+The frozen rule says a fix task is opened for the named term. Per the
+coordinator, no fix and no new arm is started here; the next step is
+proposed in "For the coordinator".
 
 ## For the coordinator
 
