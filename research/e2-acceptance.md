@@ -1137,7 +1137,7 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
 - Gate 2a's reference: FLAG SHA-256 `1aec438d…3baa`, FLAG_ROW `b528098a…89d6`
   (`flaghash-input.json`).
 
-### 9.2 Start rule for the rang arm: not met; the run waits
+### 9.2 Start rule for the rang arm (not met on 2026-11-13; met 2026-11-14)
 
 - D: has 400 GB free after the build. 6.2 needs 470 GB, so the arm is
   **70 GB short**, and the amended arm's CASA copy (about 185 GB) is still to
@@ -1150,6 +1150,16 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
   - The amended arm's own CASA copy, after its scores.
 - The rang arm runs under `e2_timed.py`, exclusive, from the frozen wheel venv
   `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv` (6.4), on this MS.
+- **Met on 2026-11-14 03:19: D: had 475 GB free.** This followed two
+  deletions, both after the amended arm's records were committed (784b714):
+  - `RA\casa\e2b.ms` and its flag versions (189 GB; CASA's tables kept);
+  - `RA\wsclean3c`, the amended arm's as-committed oracle images (11 GB;
+    the scores are in `g3c-as-committed.json`).
+- Before the run, `columns-before.json` was written. The run was then
+  queued: exclusive, critical priority, host CPU load 6 % at queueing. The
+  command was `e2_timed.py e2a-timed.json -- python -m rang.core_cli run
+  e2a.yaml e2a.ms` (log `e2a-run.log`).
+- `D:\rang\data\e2-b\e2b.ms` (51 GB, restored) and `R\casa\e2b.ms` are kept.
 
 ### 9.3 Polarisation sealed (coordinator, 2026-11-13; before any E2-A run)
 
