@@ -704,6 +704,68 @@ The frozen rule says a fix task is opened for the named term. Per the
 coordinator, no fix and no new arm is started here; the next step is
 proposed in "For the coordinator".
 
+### 9.4 A2 measured, 2026-11-14
+
+Runs:
+- Results in `D:\rang\outputs\e2b-arms-20261114\a2`; receipts in
+  [results/e2b-misses/a2/](results/e2b-misses/a2/) (`a2.json`, `c0.json`,
+  each case's `score.json`, `result.json`, `spec.json`, and
+  `weights-identity.txt`).
+- CASA 6.7.6.14, 1 slot per case at OMP 1. Wall: after-spec 1,051 s,
+  match-ones 1,160 s, match-spec 1,411 s, after-ones 1,323 s. Scoring took
+  61–96 s per case at 4 threads.
+- Preconditions:
+  - the source copy's FLAG hash equals `R/flaghash-input.json`;
+  - the "ones" cases read back WEIGHT and WEIGHT_SPECTRUM as 1 in every
+    cell;
+  - the "spec" cases kept WEIGHT_SPECTRUM between 0 and 21.9.
+
+Harness incidents, none of which changes the protocol:
+- The first case run failed at start because the scripts had CRLF line
+  endings.
+- The first scoring run failed: `$n` was left unexpanded in the case paths
+  (fixed in `a2f2fea`).
+- A D:-full stop interrupted the work. Afterwards every surviving input was
+  re-verified (FLAG hash, flag-version sha256) before reuse.
+
+Controls (both met):
+- **C0:** the archived 3b tables re-scored with this extension reproduce
+  `R/g3b.json`'s two composites exactly (equal cells, 0.0 relative).
+- **C1:** case (after, spec) reproduces them exactly (0.0 relative) and
+  B's 5,242 differing solution flags.
+
+| Case (flags, weights) | fcal K G B median / p95 | gcal K F B median / p95 | Class B | B flags differ | B rel. median |
+| --- | --- | --- | --- | --- | --- |
+| after, spec (= frozen 3b) | 1.14e-3 / 1.52e-2 | 1.12e-3 / 1.51e-2 | no / no | 5,242 | 1.15e-3 |
+| after, ones | 1.14e-3 / 1.52e-2 | 1.12e-3 / 1.51e-2 | no / no | 5,242 | 1.15e-3 |
+| **match, ones** | **4.2e-5 / 1.24e-3** | **5.9e-5 / 1.23e-3** | **yes / yes** | **0** | 8.2e-4 |
+| match, spec | 4.2e-5 / 1.24e-3 | 5.9e-5 / 1.23e-3 | yes / yes | 0 | 8.2e-4 |
+
+- In the match cases, F_fs (F's append on the flag stage's flags, without
+  the A step's) gives 3.6e-4 / 1.6e-3 on the secondary composite. That is
+  reported, not decided on.
+- The weights change nothing.
+  - CASA's K, G, B, Gsec and F are identical value for value, flags
+    included, between the spec and ones cases with the same flags
+    (`a2_weights_identity.py`).
+  - Why CASA's solves are invariant to these weights here is not
+    established.
+
+**Outcome under the frozen rule: both composites met in the matched case.**
+The 3b composite miss was an oracle input error. CASA's K, G and B had been
+solved on rang's flags after calibrate, which include `extendflags`, rather
+than on the flags rang's own solves saw. 3b's composites are closed as
+such.
+
+Attribution, descriptive only:
+- The flags carry all of the miss. Matching them removes B's 5,242
+  differing solution flags and lowers the composite medians 27× and 19×.
+- The weights carry none of it.
+- Section 3's inference, that most likely B differs, was right: the B
+  solutions changed with the flags.
+- Section 8's open item, B's 5,242 flag differences, is explained by the
+  flag case.
+
 ### 9.5 A1b, P alone: rang's parallactic angles against CASA's, frozen 2026-11-14 (before any run)
 
 Asked by the coordinator after 9.3. This is a new arm, **seen**: it was

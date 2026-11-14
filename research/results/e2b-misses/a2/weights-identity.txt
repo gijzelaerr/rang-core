@@ -1,0 +1,10 @@
+('match-ones', 'match-spec') K max|dpar| 0.0 flags differ 0
+('match-ones', 'match-spec') G max|dpar| 0.0 flags differ 0
+('match-ones', 'match-spec') B max|dpar| 0.0 flags differ 0
+('match-ones', 'match-spec') Gsec max|dpar| 0.0 flags differ 0
+('match-ones', 'match-spec') F max|dpar| 0.0 flags differ 0
+('after-ones', 'after-spec') K max|dpar| 0.0 flags differ 0
+('after-ones', 'after-spec') G max|dpar| 0.0 flags differ 0
+('after-ones', 'after-spec') B max|dpar| 0.0 flags differ 0
+('after-ones', 'after-spec') Gsec max|dpar| 0.0 flags differ 0
+('after-ones', 'after-spec') F max|dpar| 0.0 flags differ 0
