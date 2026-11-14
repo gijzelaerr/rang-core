@@ -890,6 +890,96 @@ What this allows: nothing under the rule (void). Post hoc, the P
 difference is real, about 1e-5 rad, and direction dependent. It is not
 explained by the time column or by UT1 − UTC.
 
+### 9.7 A1c, P astrometry: rang's angle against casacore's own, frozen 2026-11-14 (before any run)
+
+Asked by the coordinator after 9.6 (branch `e2b-pastro`). **Seen**: chosen
+after A1b's post hoc reading of a direction-dependent difference of
+7.1e-6 rad (J1939−6342) and 3.2e-6 rad (J1833−2103). No rang code changes
+before the measurement.
+
+Hypotheses for the term that makes rang's `parallactic_angle_casa` differ
+from CASA's applycal:
+- **H3a, sidereal time:** casacore's local apparent sidereal time (GMST
+  model, equation of the equinoxes) differs from astropy's.
+- **H3b, apparent place:** the source's apparent RA and Dec differ, split
+  into **precession and nutation** (casacore's IAU 1976/1980 models
+  against astropy's IAU 2006/2000A) and **aberration** (annual and diurnal,
+  and light deflection).
+- **H3c, latitude or pole convention:** the latitude in the formula
+  (rang: geocentric from ITRF; casacore's AZEL frame) or polar motion.
+
+Data: the A1 mini MS (41 rows; fields 1 and 2; TIME, ANTENNA1/2, FIELD
+PHASE_DIR, which equals DELAY_DIR and REFERENCE_DIR; ANTENNA POSITION), and
+A1b's CASA probe (`D:\rang\outputs\e2b-arms-20261114\a1b\casa\probe_*.npz`,
+not rerun).
+
+Probe, all float64:
+- **Container side** (`a1c_casa.py`, CASA 6.7.6.14's casatools, no `rang`):
+  per field, distinct TIME and antenna in the rows, frame = UTC epoch at
+  TIME and the antenna's ITRF position:
+  - **K**, casacore's parallactic angle as `MSDerivedValues::parAngle`
+    computes it: `me.posangle` of the field direction (J2000) converted to
+    AZEL, against the HADEC pole (HA 0, Dec 90°) converted to AZEL;
+  - K_geo, the same in AZELGEO (reported beside);
+  - the source in HADEC (h, δ), APP and TOPO (RA, Dec), JTRUE (RA, Dec,
+    precession and nutation only), and the LAST.
+- **Rang side** (`a1c_rang.py`): rang's angle q (`parallactic_angle_casa`,
+  receptor not added), astropy's TETE place and apparent sidereal time as
+  that function uses them, and erfa's ICRS → true-of-date matrix
+  (`pnm06a`, no aberration).
+
+Controls:
+- **C4** (extraction floor, now float32-aware): A1b's extraction applied to
+  rang's probe recovers rang's own angles within **1e-7 rad** on every row
+  and antenna. A1b measured 2.2e-8, so this bound is set knowing it is
+  met; it guards the reuse of the probe, not a result.
+- **C5:** the script's formula with astropy inputs reproduces
+  `parallactic_angle_casa` within 1e-12 rad.
+- **K1** (the oracle is the right one): casacore's K, plus RECEPTOR_ANGLE,
+  matches the angles extracted from CASA's applycal probe within 2e-7 rad
+  on every row and antenna of both fields.
+
+Measurement: Δ = q_rang − K per row and antenna (82 values per field),
+then rang's formula `atan2(sin h, tan φ cos δ − sin δ cos h)` with one input
+at a time taken from casacore (or erfa), the rest rang's:
+- (e) h and δ from casacore's HADEC, φ geocentric (rang's);
+- (f) LAST from casacore, place from astropy TETE (sidereal time);
+- (g) place from casacore APP, LAST from astropy (geocentric apparent
+  place);
+- (g') place from casacore TOPO, LAST from astropy (topocentric place);
+- (g1) casacore JTRUE plus astropy's aberration (TETE minus erfa's true
+  place), LAST from astropy: precession and nutation;
+- (g2) erfa's true place plus casacore's aberration (TOPO minus JTRUE),
+  LAST from astropy: aberration;
+- (k) h and δ from casacore's HADEC, φ geodetic (WGS84);
+- reported beside: K_geo − K, and casacore JTRUE against erfa's true place
+  in arcseconds.
+
+Tolerance: a candidate explains the difference when max |q_candidate − K|
+≤ **2e-7 rad** over every row and antenna of both fields (as 9.5).
+
+Decision rule:
+- C4 or C5 not met: void.
+- K1 not met: casacore's measures path is not what applycal applies; cause
+  not found under this rule. Δ and the candidates are reported.
+- K1 met and max |Δ| ≤ 2e-7: rang already equals casacore; A1b's reading
+  is not confirmed. Report.
+- K1 met and max |Δ| > 2e-7: the cause is in rang's angle, named by the
+  first candidate in the order below that meets the tolerance:
+  - (e) met: the term is in h or δ. Then (f) → H3a sidereal time;
+    (g) or (g') → H3b apparent place; and within it (g1) → precession and
+    nutation, (g2) → aberration. If (e) is met but none of (f), (g), (g')
+    is, H3 is "h, δ, combination" and not split further.
+  - (e) not met, (k) met: H3c latitude convention.
+  - None met: cause not found under this rule (H3c pole or formula open).
+- **Fix**, only if one term is named by the rule: change
+  `cal_pol.parallactic_angle_casa` to that convention; it must reproduce K
+  within 2e-7 rad on both fields and A1b's CASA probe within 2e-7 rad,
+  with a unit test against casacore values committed as a fixture.
+  Without a named single term there is no fix in this arm.
+
+Cost: seconds of CPU; 1 slot each side.
+
 ## For the coordinator
 
 **After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
