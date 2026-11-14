@@ -704,6 +704,68 @@ The frozen rule says a fix task is opened for the named term. Per the
 coordinator, no fix and no new arm is started here; the next step is
 proposed in "For the coordinator".
 
+### 9.5 A1b, P alone: rang's parallactic angles against CASA's, frozen 2026-11-14 (before any run)
+
+Asked by the coordinator after 9.3. This is a new arm, **seen**: it was
+chosen after 9.3's P reading. No rang code changes in this branch.
+
+Hypotheses, tested in this order (each a candidate for rang's angle):
+- **H1, time column:** CASA's P uses TIME_CENTROID, or the integration's
+  start or end (TIME ∓ INTERVAL/2), where rang uses TIME
+  (`applycal.applycal` passes `group["TIME"]` to `cal_pol.table_angles`).
+- **H2, UT1 − UTC (IERS source):** CASA's measures data in
+  `rang-o-casa:6.7.6.14` gives a different UT1 − UTC for 2021-08-18 than
+  astropy's bundled IERS. rang's `parallactic_angle_casa` uses
+  `iers.conf.auto_download = False`.
+- **H3, other astrometry:** precession/nutation model or latitude
+  convention. This is not tested directly. It is what remains if H1 and H2
+  fail.
+
+Data: the A1 mini MS (41 rows, fields 1 and 2), its FEED (RECEPTOR_ANGLE
+−90) and ANTENNA tables.
+
+Probe:
+- CASA `applycal` with no tables and `parang=True` on DATA = XX 1, XY = YX
+  = YY 0, FLAG false. The same call is made in rang
+  (`cal_pol.rotate(inverse=True)` with `angle_table_at` angles).
+- Each antenna's angle is read back from the corrected correlations by one
+  extraction function: χ_q from (XX, XY) and χ_p from (XX, YX).
+- **Control C4:** the extraction applied to rang's probe recovers rang's own
+  `angle_table_at` angles within 1e-9 rad on every row and antenna, or the
+  extraction is fixed before CASA's output is read.
+
+Measurement:
+- Δχ = χ_CASA − χ_rang per row and antenna (82 values per field), and
+  the time offset Δχ / (dχ/dt) per value.
+- Candidates for rang's angle:
+  - (a) as run;
+  - (b) at TIME_CENTROID;
+  - (c) at TIME − INTERVAL/2 and TIME + INTERVAL/2;
+  - (d) with UT1 − UTC forced to CASA's value at that epoch, read in the
+    container with `casatools.measures` (UTC → UT1 at the rows' times).
+- Reported beside, not decided on: UT1 − UTC from astropy and from CASA,
+  and the CASA image's measures data date.
+
+Tolerance: a candidate explains the difference when max |Δχ| ≤ 2e-7 rad
+over every row and antenna of both fields. That is about two float32
+epsilons; P's M1 excess was about 1e-5.
+
+Decision rule:
+- The first candidate, in the order (b), (c), (d), that meets the
+  tolerance names the cause:
+  - (b) or (c): H1. Name rang's line and CASA's behaviour (which time its
+    VisBuffer gives PJones).
+  - (d): H2. A data difference in UT1 − UTC, not a code bug in either. Say
+    which side's UT1 − UTC is the published one, if the container's data
+    show their source.
+- None meets it: cause not found under this rule (H3 open). The table of
+  Δχ and the time offsets is reported.
+- If (a) already meets the tolerance, the 9.3 P reading is not confirmed
+  by this probe. Report that.
+- A fix is out of scope here (coordinator).
+
+Cost: seconds of CPU; 1 slot.
+
 ## For the coordinator
 
 Which misses block v0.2.0 depends on the owner's reading of finish line
