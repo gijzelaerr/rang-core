@@ -81,6 +81,24 @@ def sim_opts(sky):
     return ["-size", n, n, "-scale", "1.5asec"]
 
 
+def process_cpu(p):
+    """User and kernel seconds of a finished child (amendment A2); Windows only, where the
+    Popen handle stays open after wait()."""
+    if WSL:
+        return {}
+    import ctypes
+    from ctypes import wintypes
+
+    ft = [wintypes.FILETIME() for _ in range(4)]
+    ok = ctypes.windll.kernel32.GetProcessTimes(
+        wintypes.HANDLE(int(p._handle)), *[ctypes.byref(f) for f in ft]
+    )
+    if not ok:
+        return {}
+    sec = [((f.dwHighDateTime << 32) | f.dwLowDateTime) / 1e7 for f in ft]
+    return {"user_s": sec[3], "kernel_s": sec[2]}
+
+
 def run_g(binary, sky, arm="G", extra=()):
     d = O / "runs" / arm / sky
     d.mkdir(parents=True, exist_ok=False)
@@ -88,9 +106,11 @@ def run_g(binary, sky, arm="G", extra=()):
     (d / "cmd.json").write_text(json.dumps(cmd), encoding="utf-8")
     t = time.time()
     with open(d / "log.txt", "w", encoding="utf-8") as log:
-        rc = subprocess.call(cmd, stdout=log, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT)
+        rc = p.wait()
+        cpu = process_cpu(p)
     wall = time.time() - t
-    (d / "wall.json").write_text(json.dumps({"rc": rc, "wall_s": wall}), encoding="utf-8")
+    (d / "wall.json").write_text(json.dumps({"rc": rc, "wall_s": wall, **cpu}), encoding="utf-8")
     log_row(arm, sky, rc, wall, " ".join([Path(binary).name, *extra]))
     return rc, wall
 

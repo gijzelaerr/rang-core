@@ -2,13 +2,14 @@
 # gchain.sh SKY... : GeMClean natively on each sky, each under the main checkout's heavy_lock
 # (8 slots, 8 GB), logs in $O/logs/ARM-SKY.log. research/rml-gap.md, amendment A1:
 # ARM=G (default) runs at -wgridder-accuracy 1e-6; ARM=Gd at GeMClean's default accuracy.
+# ARM=Gt (amendment A2): G again, timing only, with its CPU seconds in wall.json.
 set -u
 here=$(cd "$(dirname "$0")" && pwd)
 PY=/c/Users/gijsm/Github/rang/.venv/Scripts/python.exe
 O=D:/rang/outputs/rml-gap-20261113
 BIN=$O/bin/gemclean-30d9412.exe
 ARM=${ARM:-G}
-if [ "$ARM" = G ]; then EXTRA="-wgridder-accuracy 1e-6"; else EXTRA=""; fi
+if [ "$ARM" = G ] || [ "$ARM" = Gt ]; then EXTRA="-wgridder-accuracy 1e-6"; else EXTRA=""; fi
 for sky in "$@"; do
   log=$O/logs/$(echo "$ARM" | tr 'A-Z' 'a-z')-$sky.log
   echo "START $(date -Is) $ARM $sky $EXTRA" >"$log"
