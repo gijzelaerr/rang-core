@@ -56,7 +56,9 @@ investigation; nothing here states it as solved.
   ({gh}`research/c6w-polwire.md` section 7).
 - **Pre-averaging**, off by default. `calibrate.average_time` and
   `selfcal.average_time` average in time before a solve, as CASA does, which
-  differs from CubiCal's estimator; `calibrate.average_freq` is CASA's
+  differs from CubiCal's estimator. Gpol, KCROSS, Xf and Df with the
+  parallactic angle applied never average across scans or more than 5° of
+  it ({gh}`research/xf-avg-fix.md`); `calibrate.average_freq` is CASA's
   frequency pre-averaging of the G, Gsec, F and Gpol solves (K, B, KCROSS,
   Xf, Df and selfcal unchanged; {gh}`research/e2-average-freq.md`)
   ({gh}`research/e2-acceptance.md`).

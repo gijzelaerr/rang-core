@@ -16,7 +16,8 @@ fixed shape, one and two dimensions, empty strings, non-ASCII text and
 strings longer than a bucket, so the string-bucket chain is followed;
 UNSET_VAR and UNSET_FIXED have their even rows never written. A
 small bucket size spreads the rows over several buckets. INCR is an
-IncrementalStMan string array, which the reader refuses.
+IncrementalStMan string array, which the reader refused until R2
+(research/msv2-edge-cases.md).
 """
 
 import json

@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rang-core"
-version = "0.1.0"
+version = "0.2.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
@@ -74,6 +74,9 @@ casacure = ["casacure==3.8.35; (sys_platform == 'linux' and (platform_machine ==
 # (the PyPI package `carta` is unrelated). The backend runs in a pinned container.
 carta = ["astropy>=6", "requests>=2.31", "simplejson>=3.19", "selenium>=4.40"]
 notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.29", "jupyterlab>=4", "nbformat>=5.9", "nbconvert>=7.16"]
+# `rang-core mcp`, the MCP server over rang-core (research/mcp-server.md): the
+# official Python SDK, whose 2.x API (MCPServer) the server is written for.
+mcp = ["mcp>=2.3,<3"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
 

@@ -331,6 +331,10 @@ def flux(
 def manual(freq_hz, fluxdensity, reffreq_hz, spix):
     """`setjy(standard='manual', scalebychan=True)` Stokes I (CASA: log10 spix)."""
     nu = np.asarray(freq_hz, dtype=float)
+    if not (np.isfinite(reffreq_hz) and reffreq_hz > 0):
+        raise ValueError(f"reffreq_hz must be positive, not {reffreq_hz}")
+    if nu.size and not (np.all(np.isfinite(nu)) and np.all(nu > 0)):
+        raise ValueError("frequencies must be finite and positive")
     x = np.log10(nu / reffreq_hz)
     exponent = np.zeros_like(x)
     for a in reversed(tuple(spix)):

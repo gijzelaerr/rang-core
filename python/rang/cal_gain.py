@@ -220,6 +220,24 @@ def solve(
     )  # fmt: skip
 
 
+def finite_cells(data, model, weights, flag):
+    """`(data, model, weights, flag)` with every non-finite data, model or
+    weight cell flagged and zeroed. The diagonal and delay kernels have no
+    non-finite guard: one NaN visibility made every solution NaN with its
+    flag clear (research/correctness-audit-2026-11-13.md). solve.rs skips
+    such cells, and this gives the same result as flagging them; finite
+    inputs are returned unchanged."""
+    bad = ~(np.isfinite(data) & np.isfinite(model) & np.isfinite(weights))
+    if not bad.any():
+        return data, model, weights, flag
+    return (
+        np.where(bad, np.complex64(0), data).astype(np.complex64),
+        np.where(bad, np.complex64(0), model).astype(np.complex64),
+        np.where(bad, np.float32(0), weights).astype(np.float32),
+        np.ascontiguousarray(flag | bad.astype(np.uint8), np.uint8),
+    )
+
+
 def _check(calmode, refantmode, refant, nant):
     if calmode not in KINDS:
         raise ValueError(f"calmode must be one of {sorted(KINDS)}")
@@ -262,6 +280,7 @@ def _kernel(
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
     weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
     flag = np.ascontiguousarray(np.broadcast_to(flag, data.shape), np.uint8)
+    data, model, weights, flag = finite_cells(data, model, weights, flag)
     a1 = np.ascontiguousarray(antenna1, np.uint32)
     a2 = np.ascontiguousarray(antenna2, np.uint32)
     flag_row = np.asarray(flag_row, bool) | (a1 == a2)
@@ -271,6 +290,23 @@ def _kernel(
         if freq_bin is None
         else np.asarray(freq_bin, np.int64)
     )
+    if nrow == 0 or nchan == 0:
+        raise ValueError(f"no data to solve: {nrow} rows of {nchan} channels")
+    for label, x in (
+        ("antenna1", a1),
+        ("antenna2", a2),
+        ("flag_row", flag_row),
+        ("time_bin", time_bin),
+    ):
+        if x.shape != (nrow,):
+            raise ValueError(
+                f"{label} must have one value per row ({nrow}), not {x.shape}"
+            )
+    # Longer is allowed: a frequency-averaged chunk keeps the full map.
+    if freq_bin.ndim != 1 or len(freq_bin) < nchan:
+        raise ValueError(f"freq_bin must have one value per channel ({nchan})")
+    if time_bin.min() < 0 or freq_bin.min() < 0:
+        raise ValueError("time_bin and freq_bin must not be negative")
     ntime, nfreq = int(time_bin.max()) + 1, int(freq_bin.max()) + 1
     # The kernel wants rows grouped by interval.
     order = np.argsort(time_bin, kind="stable")
@@ -651,14 +687,21 @@ class _Field:
     def solution_times(self, time_bin, row_w, ntime):
         return times_from_row_weights(self.meta["TIME"], time_bin, row_w, ntime)
 
-    def averaged(self, time_bin):
+    def averaged(self, time_bin, psi=None):
         """The field's rows averaged within the intervals `time_bin` (task
-        E2, `rang.cal_chunks.Average`)."""
+        E2, `rang.cal_chunks.Average`). `psi` (task xf-avg-fix, rad per
+        field row): P's angles of a P-rotated model; no average then holds
+        two scans or more than `cal_chunks.PSI_TOL_DEG` of them."""
         from . import cal_chunks
 
         m = self.meta
+        group = (
+            None
+            if psi is None
+            else cal_chunks.psi_groups(time_bin, m["SCAN_NUMBER"], psi)
+        )
         return cal_chunks.Average(
-            time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row | self.auto
+            time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row | self.auto, group
         )
 
     def scans(self, time_bin, ntime):
@@ -690,7 +733,7 @@ def frequency_averaged(data, model, weights, flag):
 
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
-    average_freq=False, **opts,
+    average_freq=False, average_psi=None, **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -699,7 +742,9 @@ def _solve_gain_field(
     C5: channel chunks of a self-calibration term, each chunk of the solve
     holding every channel) or one bin. `average` (task E2,
     `calibrate.average_time`): solve on the rows averaged in time within
-    each interval (`rang.cal_chunks.Average`). `average_freq` (task E2,
+    each interval (`rang.cal_chunks.Average`; `average_psi`, task
+    xf-avg-fix: P's angles per row of a P-rotated model, `_Field.averaged`).
+    `average_freq` (task E2,
     `calibrate.average_freq`): each chunk's data and model averaged over its
     channels first (`frequency_averaged`, CASA's estimator for G-type
     solves); one frequency bin only. Returns `(GainSolution, row
@@ -719,7 +764,7 @@ def _solve_gain_field(
     m = fld.meta
     avg = None
     if average:
-        avg = fld.averaged(tb)
+        avg = fld.averaged(tb, average_psi)
         chunks, block = cal_chunks.plan(
             avg.time_bin, nchan, 4, budget, per_channel=per_channel, what=what,
             average=avg,
@@ -825,6 +870,7 @@ def gaincal(
     budget=None,
     average_time=False,
     average_freq=False,
+    average_psi=None,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -849,7 +895,10 @@ def gaincal(
     (CASA's pre-averaging, `rang.cal_chunks.load_averaged`), after the
     pre-apply; the solution times are those of the unaveraged rows. Task E2:
     `average_freq` solves on the data and model averaged over the window's
-    channels (`frequency_averaged`), as CASA's G-type solves do."""
+    channels (`frequency_averaged`), as CASA's G-type solves do. Task
+    xf-avg-fix: `average_psi` (rad per field row, `rang.cal_pol.gpol`), P's
+    angles of a P-rotated model: no average holds two scans or more than
+    `rang.cal_chunks.PSI_TOL_DEG` of them (research/xf-avg-fix.md)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -902,6 +951,7 @@ def gaincal(
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
         **({"average": True} if average_time else {}),
+        **({"average_psi": average_psi} if average_time else {}),
         **({"average_freq": True} if average_freq else {}),
     )  # fmt: skip
     if sol.flags.all():

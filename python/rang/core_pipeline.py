@@ -81,6 +81,7 @@ from . import (
     core_flag,
     core_model,
     core_ms,
+    core_tasks,
     core_writeback,
 )
 from .formats import flagversions, quartical_store
@@ -454,6 +455,7 @@ def preflight(config, info, stages):
     """Check the data for the stages (`check_data`) and resolve every field
     list they use, before anything is written."""
     problems = check_data(config, info, stages)
+    problems += core_tasks.problems(config)  # research/chunk-task-api.md
     lists = []
     if "flag" in stages:
         lists.append(("flag.fields", config["flag"]["fields"], "flag"))
@@ -599,7 +601,7 @@ def memory_problems(config, info, stages):
                             f"solution interval of field {info['fields'][field]!r} "
                             f"scan {scan} holds {largest} visibility cells and needs "
                             f"{plan.need_gb('calibrate', largest):.3f} GiB, above "
-                            f"{where} {plan.limit_gb:g}; raise the limit, or use a "
+                            f"{where} {plan.limit_text}; raise the limit, or use a "
                             "shorter solint or a smaller freqint (a solution interval "
                             "is solved whole)"
                         )
@@ -953,6 +955,34 @@ def write_flags(run, ms, stage, flag, chunk_rows=None):
 # -- the stages ------------------------------------------------------------------
 
 
+def check_config(config_path, ms=None, stages=None, all_stages=False):
+    """`rang-core config check`: (resolved config, stages, [scope warning]).
+
+    Validates `config_path` for `stages` (default `run.stages`; every stage
+    with `all_stages`) and, given `ms`, resolves its fields against that MS
+    and runs the preflight. Reads only. Raises ConfigError, Refused or
+    OSError, as the command reports them (also used by `rang.mcp_tools`)."""
+    raw = core_config.load(config_path)
+    config, errors = core_config.resolve(raw)
+    if errors:
+        raise core_config.ConfigError(errors, source=Path(config_path))
+    stages = (
+        list(core_config.STAGES)
+        if all_stages
+        else (list(stages or ()) or list(config["run"]["stages"]))
+    )
+    config = core_config.validate(raw, stages, source=Path(config_path))
+    warnings = []
+    if ms:
+        info = inspect_ms(ms)
+        preflight(config, info, stages)
+        missing = _missing_masks(config, config_path, stages)
+        if missing:
+            raise Refused("; ".join(missing))
+        warnings = list(scope_warnings(info))
+    return config, stages, warnings
+
+
 def _resolve_path(value, config_path):
     path = Path(value).expanduser()
     if not path.is_absolute():
@@ -1024,75 +1054,44 @@ def stage_flag(ctx):
     plan = core_chunks.budget(config, info)
     max_rows = plan.rows("flag")
     cells = int(np.prod(info["cell"]))
-    groups, blocks, flagged_before = [], [], 0
-    with writeback_session(ctx, "flag") as (w, written):
-        for (field, ddid, scan), idx in _groups(columns, rows).items():
-            # One group is one Tricolour window; when it does not fit, blocks
-            # of its baselines on the group's time grid (research/w3-chunking.md).
-            time_grid = np.unique(columns["TIME"][idx])
-            ubl = core_flag.unique_baselines(
-                columns["ANTENNA1"][idx], columns["ANTENNA2"][idx]
-            )
-            if len(idx) <= max_rows:
-                parts = [idx]
-            else:
-                lookup = {(int(a), int(b)): k for k, (a, b) in enumerate(ubl)}
-                bl = np.array(
-                    [
-                        lookup[(int(a), int(b))]
-                        for a, b in zip(
-                            columns["ANTENNA1"][idx], columns["ANTENNA2"][idx]
-                        )
-                    ],
-                    np.int64,
-                )
-                parts = [
-                    idx[np.isin(bl, chosen)]
-                    for chosen in core_chunks.baseline_blocks(bl, len(ubl), max_rows)
-                ]
-            before = after = 0
-            seconds = 0.0
-            for block in parts:
-                data = core_chunks.read_rows(w, cfg["column"], block)
-                flag = core_chunks.read_rows(w, "FLAG", block)
-                result = core_flag.flag_rows(
-                    data,
-                    flag,
-                    columns["ANTENNA1"][block],
-                    columns["ANTENNA2"][block],
-                    columns["TIME"][block],
-                    info["antenna_position"],
-                    info["chan_freq"],
-                    info["chan_width"],
-                    info["corr_type"],
-                    strategies,
-                    masks=masks,
-                    want_intensity=False,
-                    want_stages=False,
-                    time_grid=time_grid,
-                )
-                del data
-                out = result["flags"]
-                new = out if cfg["write"] == "replace" else (flag | out)
-                before += int(flag.sum())
-                after += int(new.sum())
-                seconds += result["seconds"]
-                core_chunks.write_rows(w, "FLAG", block, new)
-                del flag, new, out, result
-            blocks.append(len(parts))
-            flagged_before += before
-            groups.append(
-                {
-                    "field_id": field,
-                    "field": info["fields"][field],
-                    "ddid": ddid,
-                    "scan": scan,
-                    "rows": len(idx),
-                    "flagged_before": before / (len(idx) * cells),
-                    "flagged_after": after / (len(idx) * cells),
-                    "core_seconds": seconds,
-                }
-            )
+    groups, flagged_before = [], 0
+    # One group is one Tricolour window; when it does not fit, blocks of its
+    # baselines on the group's time grid (research/w3-chunking.md), each a
+    # chunk task (research/chunk-task-api.md); the partials are written here,
+    # in plan order, through the stage's one session.
+    by_group = _groups(columns, rows)
+    specs, blocks = core_tasks.plan_flag(
+        ms, info, by_group, max_rows, cfg["column"], cfg["write"], text, masks
+    )
+    totals = [[0, 0, 0.0] for _ in by_group]
+    with (
+        core_tasks.executor(config) as ex,
+        writeback_session(ctx, "flag") as (w, written),
+    ):
+        for spec, part in zip(specs, ex.map(specs, w)):
+            core_chunks.write_rows(w, "FLAG", part["rows"], part["flag"])
+            total = totals[spec.key["group"]]
+            total[0] += part["before"]
+            total[1] += part["after"]
+            total[2] += part["seconds"]
+            del part
+        executor_record = ex.describe()
+    for ((field, ddid, scan), idx), (before, after, seconds) in zip(
+        by_group.items(), totals
+    ):
+        flagged_before += before
+        groups.append(
+            {
+                "field_id": field,
+                "field": info["fields"][field],
+                "ddid": ddid,
+                "scan": scan,
+                "rows": len(idx),
+                "flagged_before": before / (len(idx) * cells),
+                "flagged_after": after / (len(idx) * cells),
+                "core_seconds": seconds,
+            }
+        )
     # The whole FLAG in row order, read back: its hash and the fractions.
     selected = np.zeros(info["nrows"], bool)
     selected[rows] = True
@@ -1121,7 +1120,7 @@ def stage_flag(ctx):
         "flagged_after": total_after / total_cells,
         "flag_sha256": digest.hexdigest(),
         **written,
-        "chunking": {**plan.describe(), "blocks": blocks},
+        "chunking": {**plan.describe(), "blocks": blocks, **executor_record},
     }
     _write_json(ctx["run"].stage_dir("flag") / "summary.json", summary)
     return summary
@@ -1206,24 +1205,43 @@ def _solve_inputs(source, rows, chans, info, weights_mode, model_source, model_c
 
 
 def _complex(inputs, info, rows, time_bin, freq_bin, ntime, nfreq, term, **settings):
+    a = info["rows"]
+    return _complex_rows(
+        inputs,
+        a["ANTENNA1"][rows],
+        a["ANTENNA2"][rows],
+        len(info["antennas"]),
+        time_bin,
+        freq_bin,
+        ntime,
+        nfreq,
+        term,
+        **settings,
+    )
+
+
+def _complex_rows(
+    inputs, antenna1, antenna2, nant, time_bin, freq_bin, ntime, nfreq, term, **settings
+):
+    """`core.solve_complex` on `inputs` (`_solve_inputs`) with the rows'
+    antennas given (a chunk task carries them, research/chunk-task-api.md)."""
     model = (
         {"model": inputs["model"]}
         if "model" in inputs
         else {"scalar_model": inputs["scalar_model"]}
     )
-    a = info["rows"]
     return core.solve_complex(
         inputs["data"],
         inputs["weights"],
         inputs["flag"],
         inputs["flag_row"],
-        a["ANTENNA1"][rows],
-        a["ANTENNA2"][rows],
+        antenna1,
+        antenna2,
         time_bin,
         freq_bin,
         ntime_bins=ntime,
         nfreq_bins=nfreq,
-        nant=len(info["antennas"]),
+        nant=nant,
         stop_criterion=term["stop_criterion"],
         **{
             "max_iterations": term["max_iterations"],
@@ -1258,77 +1276,151 @@ def solve_partition(
     twice to replay the global stop test (pass 1 with the trace, pass 2 to the
     stop iteration), which gives the one-call result bit for bit. Returns
     (solution, time_bin, freq_bin, gain_time, gain_freq, chunking record)."""
-    order, time_bin, freq_bin, gain_time, gain_freq = partition_grid(info, idx, term)
-    ntime, nfreq = len(gain_time), len(gain_freq)
-    nchan, ncorr = info["cell"]
-    nant = len(info["antennas"])
-    read = (info, weights_mode, model_source, model_column)
-    if max_cells is None or len(order) * nchan * ncorr <= max_cells:
-        inputs = _solve_inputs(source, order, slice(0, nchan), *read)
-        solution = _complex(inputs, info, order, time_bin, freq_bin, ntime, nfreq, term)
-        record = {"chunks": 1, "passes": 1}
-        return solution, time_bin, freq_bin, gain_time, gain_freq, record
-    chunks, largest = core_chunks.solve_chunks(
-        time_bin, freq_bin, max_cells, ncorr, hard_cells
-    )
-    if chunks is None:
-        raise core_chunks.MemoryLimitError(
-            f"one solution interval holds {largest} cells, more than a chunk of "
-            f"{max_cells}"
-        )
-    options = core.solve_options(None)
-    if options.stop != "gain":
-        raise StageFailed(
-            f"a chunked solve replays the stop test 'gain' only; RANG_SOLVE_OPTIONS "
-            f"sets stop={options.stop} (research/w3-chunking.md 1.3)"
-        )
+    return solve_partitions(
+        core_tasks.INLINE,
+        source,
+        None,
+        [idx],
+        info,
+        term,
+        weights_mode,
+        model_source,
+        model_column,
+        max_cells,
+        hard_cells,
+    )[0]
 
-    def run(chunk, **settings):
-        rows = order[chunk.rows]
-        inputs = _solve_inputs(source, rows, chunk.chans, *read)
-        sol = _complex(
-            inputs,
+
+def _solve_specs(ms, specs, key, info, order, chunk, time_bin, freq_bin, term, read,
+                 which, max_iterations=None):  # fmt: skip
+    rows = order[chunk.rows]
+    specs.append(
+        core_tasks.solve_spec(
+            ms,
+            len(specs),
+            key,
             info,
             rows,
+            chunk.chans,
             time_bin[chunk.rows] - chunk.t0,
             freq_bin[chunk.chans] - chunk.f0,
             chunk.t1 - chunk.t0,
             chunk.f1 - chunk.f0,
             term,
-            **settings,
+            read,
+            which,
+            max_iterations,
         )
-        del inputs
-        return sol
-
-    import tempfile
-
-    totals = None
-    with tempfile.TemporaryDirectory(prefix="rang-w3-trace-") as tmp:
-        trace = Path(tmp) / "trace.json"
-        for chunk in chunks:
-            run(chunk, stop_fraction=NO_STOP, trace=str(trace))
-            counts = np.array(core_chunks.trace_counts(trace), np.int64)
-            trace.unlink()
-            if counts.shape != (term["max_iterations"], 2):
-                raise StageFailed(
-                    f"chunked solve: the trace has {len(counts)} iterations, not "
-                    f"{term['max_iterations']}"
-                )
-            totals = counts if totals is None else totals + counts
-    stop, fraction = core_chunks.replay_stop(
-        [tuple(int(v) for v in t) for t in totals],
-        ntime * nfreq * nant,
-        term["stop_fraction"],
     )
-    gains = np.empty((ntime, nfreq, nant, 2, 2), np.complex128)
-    flags = np.empty((ntime, nfreq, nant), np.int8)
-    for chunk in chunks:
-        sol = run(chunk, stop_fraction=NO_STOP, max_iterations=stop + 1, trace="")
-        gains[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = sol.gains
-        flags[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = sol.flags
-    solution = core.ComplexSolution(gains, flags, stop + 1, fraction, options, None)
-    record = {"chunks": len(chunks), "passes": 2, "largest_interval_cells": largest}
-    return solution, time_bin, freq_bin, gain_time, gain_freq, record
+
+
+def solve_partitions(
+    executor,
+    source,
+    ms,
+    partitions,
+    info,
+    term,
+    weights_mode,
+    model_source,
+    model_column,
+    max_cells=None,
+    hard_cells=None,
+):
+    """`solve_partition` on each of `partitions` (row indices), as chunk
+    tasks run by `executor` (research/chunk-task-api.md 1.2): the whole
+    partitions and pass 1 of every chunked partition, then the replayed stop
+    per partition, then pass 2. `source` is read when the executor runs
+    inline; workers read `ms`. Returns one result per partition, in order."""
+    nchan, ncorr = info["cell"]
+    nant = len(info["antennas"])
+    read = (weights_mode, model_source, model_column)
+    name = term.get("name")
+    grids, chunked, first = [], {}, []
+    options = None
+    for p, idx in enumerate(partitions):
+        grid = partition_grid(info, idx, term)
+        grids.append(grid)
+        order, time_bin, freq_bin, gain_time, gain_freq = grid
+        if max_cells is None or len(order) * nchan * ncorr <= max_cells:
+            whole = core_chunks.SolveChunk(
+                0, len(gain_time), 0, len(gain_freq), slice(0, len(order)),
+                slice(0, nchan),
+            )  # fmt: skip
+            _solve_specs(ms, first, {"term": name, "partition": p, "chunk": 0}, info,
+                         order, whole, time_bin, freq_bin, term, read, 0)  # fmt: skip
+            continue
+        chunks, largest = core_chunks.solve_chunks(
+            time_bin, freq_bin, max_cells, ncorr, hard_cells
+        )
+        if chunks is None:
+            raise core_chunks.MemoryLimitError(
+                f"one solution interval holds {largest} cells, more than a chunk of "
+                f"{max_cells}"
+            )
+        if options is None:
+            options = core.solve_options(None)
+            if options.stop != "gain":
+                raise StageFailed(
+                    f"a chunked solve replays the stop test 'gain' only; "
+                    f"RANG_SOLVE_OPTIONS sets stop={options.stop} "
+                    "(research/w3-chunking.md 1.3)"
+                )
+        chunked[p] = (chunks, largest)
+        for c, chunk in enumerate(chunks):
+            _solve_specs(ms, first, {"term": name, "partition": p, "chunk": c}, info,
+                         order, chunk, time_bin, freq_bin, term, read, 1)  # fmt: skip
+    whole, totals = {}, {}
+    for spec, partial in zip(first, executor.map(first, source)):
+        p = spec.key["partition"]
+        if spec.params["pass"] == 0:
+            whole[p] = partial
+            continue
+        if partial.shape != (term["max_iterations"], 2):
+            raise StageFailed(
+                f"chunked solve: the trace has {len(partial)} iterations, not "
+                f"{term['max_iterations']}"
+            )
+        totals[p] = partial if p not in totals else totals[p] + partial
+    stops, second, assembled = {}, [], {}
+    for p, (chunks, _) in chunked.items():
+        order, time_bin, freq_bin, gain_time, gain_freq = grids[p]
+        ntime, nfreq = len(gain_time), len(gain_freq)
+        stops[p] = core_chunks.replay_stop(
+            [tuple(int(v) for v in t) for t in totals[p]],
+            ntime * nfreq * nant,
+            term["stop_fraction"],
+        )
+        assembled[p] = (
+            np.empty((ntime, nfreq, nant, 2, 2), np.complex128),
+            np.empty((ntime, nfreq, nant), np.int8),
+        )
+        for c, chunk in enumerate(chunks):
+            _solve_specs(ms, second, {"term": name, "partition": p, "chunk": c},
+                         info, order, chunk, time_bin, freq_bin, term, read, 2,
+                         stops[p][0] + 1)  # fmt: skip
+    for spec, partial in zip(second, executor.map(second, source)):
+        p = spec.key["partition"]
+        chunk = chunked[p][0][spec.key["chunk"]]
+        gains, flags = assembled[p]
+        gains[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = partial["gains"]
+        flags[chunk.t0 : chunk.t1, chunk.f0 : chunk.f1] = partial["flags"]
+    out = []
+    for p, (order, time_bin, freq_bin, gain_time, gain_freq) in enumerate(grids):
+        if p in whole:
+            record = {"chunks": 1, "passes": 1}
+            out.append((whole[p], time_bin, freq_bin, gain_time, gain_freq, record))
+            continue
+        stop, fraction = stops[p]
+        gains, flags = assembled[p]
+        solution = core.ComplexSolution(gains, flags, stop + 1, fraction, options, None)
+        record = {
+            "chunks": len(chunked[p][0]),
+            "passes": 2,
+            "largest_interval_cells": chunked[p][1],
+        }
+        out.append((solution, time_bin, freq_bin, gain_time, gain_freq, record))
+    return out
 
 
 def model_spec(model, config_path):
@@ -1769,21 +1861,24 @@ def stage_calibrate(ctx):
     tables, chunking = [], []
     reader = core_ms.open_table(ms)
     try:
-        for section in core_config.CALIBRATE_SECTIONS:
-            for term in cal[section]["terms"]:
-                tables.append(
-                    _solve_term(
-                        ctx,
-                        reader,
-                        section,
-                        term,
-                        source,
-                        model_column,
-                        max_cells,
-                        out_dir,
-                        chunking,
+        with core_tasks.executor(config) as ex:
+            for section in core_config.CALIBRATE_SECTIONS:
+                for term in cal[section]["terms"]:
+                    tables.append(
+                        _solve_term(
+                            ctx,
+                            reader,
+                            section,
+                            term,
+                            source,
+                            model_column,
+                            max_cells,
+                            out_dir,
+                            chunking,
+                            ex,
+                        )
                     )
-                )
+            executor_record = ex.describe()
     finally:
         reader.close()
     summary = {
@@ -1795,31 +1890,49 @@ def stage_calibrate(ctx):
     }
     if models is not None:
         summary["flag_version"] = models["flag_version"]
-    summary["chunking"] = {**plan.describe(), "partitions": chunking}
+    summary["chunking"] = {
+        **plan.describe(),
+        "partitions": chunking,
+        **executor_record,
+    }
     _write_json(out_dir / "summary.json", summary)
     return summary
 
 
 def _solve_term(
-    ctx, reader, section, term, source, model_column, max_cells, out_dir, chunking
+    ctx,
+    reader,
+    section,
+    term,
+    source,
+    model_column,
+    max_cells,
+    out_dir,
+    chunking,
+    executor=core_tasks.INLINE,
 ):
-    """Solve one term on each of its partitions and write its gain store."""
+    """Solve one term on each of its partitions (chunk tasks run by
+    `executor`, research/chunk-task-api.md) and write its gain store."""
     config, info = ctx["config"], ctx["info"]
     fields, rows = solve_rows(config, info, section, term)
     if not len(rows):
         raise StageFailed(f"calibrate.{section}: no rows in fields {fields}")
     parts, records = [], []
-    for (field, ddid, scan), idx in _groups(info["rows"], rows).items():
-        solution, _, _, gain_time, gain_freq, chunked = solve_partition(
-            reader,
-            idx,
-            info,
-            term,
-            config["data"]["weights"],
-            source,
-            model_column,
-            *max_cells,
-        )
+    groups = list(_groups(info["rows"], rows).items())
+    solved = solve_partitions(
+        executor,
+        reader,
+        ctx["ms"],
+        [idx for _, idx in groups],
+        info,
+        term,
+        config["data"]["weights"],
+        source,
+        model_column,
+        *max_cells,
+    )
+    for ((field, ddid, scan), idx), result in zip(groups, solved):
+        solution, _, _, gain_time, gain_freq, chunked = result
         chunking.append(
             {"term": term["name"], "field_id": field, "scan": scan, **chunked}
         )
@@ -1924,7 +2037,10 @@ def stage_apply(ctx):
             "receptor_angle": None if angle is None else float(np.deg2rad(angle)),
             "parang_flags": cfg["parang_flags"],
         }
-    with writeback_session(ctx, "apply") as (w, written):
+    with (
+        core_tasks.executor(config) as ex,
+        writeback_session(ctx, "apply") as (w, written),
+    ):
         for i, (fields, names, target) in enumerate(targets):
             if all(made[n].get("format") == "casa" for n in names):
                 kinds = [made[n]["type"] for n in names]
@@ -1960,10 +2076,12 @@ def stage_apply(ctx):
                     session=w,
                     chunk_rows=plan.rows("apply"),
                     input_column="DATA" if k == 0 else cfg["column"],
+                    executor=ex,
                 )
                 applied.append(result)
+        executor_record = ex.describe()
     summary = {
-        "chunking": plan.describe(),
+        "chunking": {**plan.describe(), **executor_record},
         "column": cfg["column"],
         "applymode": cfg["applymode"],
         "calwt": cfg["calwt"],

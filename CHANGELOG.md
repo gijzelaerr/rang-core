@@ -9,6 +9,80 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (multi-node stage 1, issue #3, `research/chunk-task-api.md`): the chunk loops of `flag`, the
+  `complex` solve and `complex` apply are chunk tasks (`rang.core_tasks`: serialisable `ChunkSpec`s, `run`,
+  an ordered reduce through the one MS writer) run by a local process pool. New keys `data.executor`
+  (`local`), `data.processes` (default 1: in this process, as before) and `data.threads` (the rayon
+  threads the processes share); each process plans its chunks under `memory_limit_gb / processes`.
+  None of them enters the stage hash. Chain terms, models, CASA-table applies and imaging stay in one
+  process.
+
+## 0.2.0 (2026-11-14)
+
+The owner released 0.2.0 on 2026-11-14. Its finish line
+(`research/finish-plan.md` section 1) is met in part, and the parts not met
+move to 0.3.0 (`research/roadmap.md`).
+
+### Known limitations
+
+- **Not every stage is within its oracle tolerance.**
+  - E2-B is the acceptance run on processed LUNO MeerKAT L-band data against
+    CASA 6.7.6.14, WSClean and QuartiCal (`research/e2-acceptance.md` 7.3-7.5).
+  - **Met:** run and write-back, the readers (casacore, CASA listobs and
+    flagmanager, WSClean, dask-ms), FITS output, gridding (exact on all
+    1.1e9 cells), K, KCROSS, Xf, Df, and 3C 286 polarisation parity
+    (|Δχ| ≤ 0.055°).
+  - **Not met, in the frozen and in the amended arm:**
+    - Gpol: median 0.124° in the amended arm, against a 0.1° limit.
+    - The fcal and gcal K G B composites: median 1.1e-3.
+    - CASA applycal on rang's tables: 40 cells over, max 25 eps; flags exact.
+    - Image gate 3c.
+    - Polarisation angle on 1830−211: |Δχ| up to 13°.
+    - Transfer χ (polarisation angle carried from calibrator to target).
+    - Rang's leakage: 0.30 %.
+  - The diagnosis (`research/e2b-misses.md`, from code and archived numbers;
+    no new runs) confirms no rang bug among the seven. Its likely causes:
+    - CASA's oracle solved on different flags and weights (composites);
+    - the estimators weight data differently (Gpol);
+    - float32 rounding in CASA's long apply chain (applycal);
+    - a scorer error and unmasked cleaning (3c);
+    - χ at p of 0.02-0.06 % (1830−211);
+    - LUNO's receptor angle and ionospheric RM (transfer χ).
+  - Pre-registered arms A1-A5 test these in v0.3.0.
+- **The measurements still to come are now v0.3.0 work:**
+  - the E2-A run on ESO 137;
+  - E3, the comparison with CARACal's MeerKAT strategy (image quality, flux,
+    wall time and memory);
+  - the E5 review.
+- **Native MeerKAT data is not tested.** The acceptance data is processed LUNO
+  data plus simulation (issue #7).
+- **No absolute χ claim.** LUNO's χ offset is not explained; see
+  `research/chi-offset.md`.
+- `flagdata` mode `tfcrop` is refused, and the trained flagger is not shipped.
+
+### Changes since 0.1.0
+
+
+- Fixed (2026-11-14): a `tools/heavy_lock.py run` or `tools/check_all.py` started inside a heavy-lock
+  hold (`RANG_HEAVY_LOCK_HELD`, set by `heavy_lock.py run` for its child) runs inside that hold
+  instead of queueing again. A check wrapped in `heavy_lock.py run` held 4 slots idle for five hours
+  while its own inner ticket waited, and would deadlock on a full queue. A nested request for more
+  than the hold warns and still runs.
+- New (2026-11-14): `tools/heavy_lock.py status` prints each hold's real CPU use (its process tree,
+  sampled for 2 s) next to its booked slots, marks a hold IDLE under 5 % of one core per booked slot,
+  and ends with `booked N slots, using ~M cores`. Report only; nothing is stopped.
+
+- Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
+  instead of running wrong. A NaN visibility made every gain, bandpass, delay or Df solution NaN with
+  its flag clear; non-finite data, model and weight cells are now flagged, which gives exactly the
+  solution of the same cells flagged (gain, bandpass, delay, KCROSS, Xf, Df). `core_grid.invert(gridder="wgrid")` with a GPU device raises instead of
+  running on the CPU. gemclean's FITS reader (`-predict` models, `-fits-mask`) no longer panics on a
+  non-ASCII header byte. `-threshold`, `-abs-threshold` and `-auto-threshold` must be finite and not
+  negative. The gain and bandpass solvers refuse zero rows and per-row arrays of the wrong length; delay refuses zero rows.
+  Write-back refuses out-of-range DATA_DESCRIPTION ids (a negative one picked the last row). Flag-version
+  names with `\ : * ? " < > |` are refused on every platform. `fluxstd.manual` refuses non-positive
+  frequencies. No default's numbers change.
+
 - Changed (task df-flag-rule, `research/p-flag-spread.md`): with `apply.parang`, P now flags as CASA's
   `applycal(parang=True)` does on linear feeds: a cell with any correlation flagged after the tables
   (input flags, a bad receptor, a Df-flagged cross hand) is flagged in all four, since P rotates XX and

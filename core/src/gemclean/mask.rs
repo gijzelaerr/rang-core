@@ -350,7 +350,13 @@ pub fn read_fits_mask(path: &Path, n: usize) -> Result<Vec<bool>, String> {
         if pos + 80 > bytes.len() {
             return Err(format!("{}: no END card", path.display()));
         }
-        let text = String::from_utf8_lossy(&bytes[pos..pos + 80]).to_string();
+        // FITS headers are ASCII; a stray byte becomes '?' so the card stays
+        // 80 one-byte characters and the slices below cannot split one
+        // (a lossy UTF-8 decode made them panic; research/correctness-audit-2026-11-13.md).
+        let text: String = bytes[pos..pos + 80]
+            .iter()
+            .map(|&b| if b.is_ascii() { b as char } else { '?' })
+            .collect();
         pos += 80;
         let key = text.get(..8).unwrap_or("").trim().to_string();
         if key == "END" {
@@ -490,6 +496,49 @@ mod tests {
         st.begin(4, &noise);
         // Two iterations after the finishing one: the run ends.
         assert!(!st.end_stage(4, hand_back, true, true).0);
+    }
+
+    #[test]
+    fn fits_masks_read_refuse_and_never_panic() {
+        // Correctness audit 2026-11-13: read_fits_mask had no direct test,
+        // and a non-ASCII header byte could panic it.
+        use crate::gemclean::fits::{self, Value, card, wcs_cards};
+        let dir = std::env::temp_dir().join(format!("gemclean-mask-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let n = 4;
+        let mut pixels = vec![0.0; n * n];
+        // FITS (x = 3, y = 1): the gridder's index x * n + y.
+        pixels[n + 3] = 1.0;
+        let mut cards = wcs_cards(1.0, -0.5, n, 1e-5, &[1e9]);
+        cards.push(card("ORIGIN", Value::Str("x".into()), ""));
+        let path = dir.join("m.fits");
+        fits::write(&path, n, n, &pixels, -32, &cards).unwrap();
+        let mask = read_fits_mask(&path, n).unwrap();
+        assert_eq!(mask.iter().filter(|&&m| m).count(), 1);
+        assert!(mask[3 * n + 1]);
+        // The wrong size is an error, not a panic.
+        assert!(
+            read_fits_mask(&path, 8)
+                .unwrap_err()
+                .contains("same dimensions")
+        );
+        // An empty mask is refused.
+        let empty = dir.join("e.fits");
+        fits::write(&empty, n, n, &[0.0; 16], -32, &cards).unwrap();
+        assert!(read_fits_mask(&empty, n).unwrap_err().contains("no pixel"));
+        // A non-ASCII byte at a card's value indicator.
+        let mut bytes = std::fs::read(&path).unwrap();
+        let at = (0..bytes.len() / 80)
+            .map(|c| c * 80)
+            .find(|&o| bytes[o..o + 8].starts_with(b"ORIGIN"))
+            .unwrap();
+        bytes[at + 8] = 0xC3;
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(read_fits_mask(&path, n).unwrap()[3 * n + 1]);
+        // A truncated file.
+        std::fs::write(&path, &bytes[..2880]).unwrap();
+        assert!(read_fits_mask(&path, n).is_err());
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

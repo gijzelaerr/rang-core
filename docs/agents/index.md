@@ -16,6 +16,7 @@ anything on its own: work that changes the repository ends in a pull request
 | {doc}`answer-a-question` | a beginner asking about radio astronomy or rang | an answer that cites the notebooks, concepts pages and reports it rests on |
 | {doc}`image-a-meerkat-ms` | an astronomer with a MeerKAT Measurement Set | a FITS image, its receipts and a short run record |
 | {doc}`propose-and-measure` | an algorithm scientist with an idea | a frozen proposal note, a measurement against an oracle, and a pull request |
+| {doc}`use-the-mcp-server` | an agent with rang-core's MCP server and a user's MS | read-only answers, and runs or images only after the user confirmed a plan |
 | {doc}`check-and-ci` | any agent session with a changed branch | a quick local check, a pushed branch with a green CI run, and the oracle gates left to one full check |
 
 ```{toctree}
@@ -25,4 +26,5 @@ answer-a-question
 image-a-meerkat-ms
 propose-and-measure
 check-and-ci
+use-the-mcp-server
 ```

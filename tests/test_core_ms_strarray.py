@@ -69,11 +69,19 @@ def test_strings_across_buckets(table):
     assert len(got[0]) == 300 + 37 * 11 and got[1] == "t11"
 
 
-def test_mixed_shapes_and_other_managers_refuse_cleanly(table):
+def test_mixed_shapes_refuse_cleanly(table):
     with pytest.raises(OSError, match="differ in shape"):
         table.getcol("VAR", 0, 2)
-    with pytest.raises(OSError, match="IncrementalStMan array or string"):
-        table.getcol("INCR")
+
+
+def test_incremental_string_array(table):
+    # INCR, an IncrementalStMan string array put as ["X", "Y"] in every row,
+    # was refused until R2 (research/msv2-edge-cases.md).
+    assert table.columns["INCR"]["supported"]
+    got = table.getcol("INCR")
+    assert got.shape == (ORACLE["nrows"], 2)
+    assert got.tolist() == [["X", "Y"]] * ORACLE["nrows"]
+    assert table.getcol_rows("INCR", [5, 0]).tolist() == [["X", "Y"]] * 2
 
 
 def test_polarisation_basis_refuses_circular_feeds(table, tmp_path):

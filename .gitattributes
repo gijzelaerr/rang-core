@@ -16,3 +16,5 @@ research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpa
 
 # casacore tables written by python-casacore, byte for byte (tools/oracles/strarray/fixture.py):
 tests/data/strarray/table/** binary
+# MSv2 edge cases written by python-casacore (tools/oracles/msv2-edge/fixture.py):
+tests/data/msv2-edge/t0*/** binary

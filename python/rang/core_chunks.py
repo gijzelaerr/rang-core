@@ -65,16 +65,29 @@ def _gib(nbytes):
 @dataclass(frozen=True)
 class Budget:
     """Chunk sizes of one MS under `limit_gb` (and `chunk_rows`, a cap on the
-    rows of every chunk when set)."""
+    rows of every chunk when set). With `processes` above 1 (the chunk-task
+    executor, research/chunk-task-api.md 1.3) each process plans its chunks
+    under `limit_gb / processes`."""
 
     limit_gb: float
     nrows: int
     cell: tuple
     chunk_rows: int | None = None
+    processes: int = 1
 
     @property
     def limit_bytes(self):
-        return int(self.limit_gb * GIB)
+        return int(self.limit_gb * GIB / max(1, int(self.processes)))
+
+    @property
+    def limit_text(self):
+        """The limit as messages name it."""
+        if int(self.processes) <= 1:
+            return f"{self.limit_gb:g}"
+        return (
+            f"{self.limit_gb:g} ({self.limit_gb / int(self.processes):g} per process "
+            f"of data.processes {int(self.processes)})"
+        )
 
     @property
     def fixed_bytes(self):
@@ -86,7 +99,7 @@ class Budget:
         left = self.limit_bytes - self.fixed_bytes
         if left <= 0:
             raise MemoryLimitError(
-                f"data.memory_limit_gb {self.limit_gb:g}: the stage itself needs about "
+                f"data.memory_limit_gb {self.limit_text}: the stage itself needs about "
                 f"{_gib(self.fixed_bytes):.2f} GiB for {self.nrows} rows before it reads "
                 "any visibilities; raise the limit"
             )
@@ -107,7 +120,7 @@ class Budget:
         per_row = int(np.prod(self.cell))
         if self.chunk_bytes < CELL_BYTES[stage] * per_row:
             raise MemoryLimitError(
-                f"data.memory_limit_gb {self.limit_gb:g}: one row of {self.cell} cells "
+                f"data.memory_limit_gb {self.limit_text}: one row of {self.cell} cells "
                 f"needs {_gib(CELL_BYTES[stage] * per_row + self.fixed_bytes):.2f} GiB in "
                 f"{stage}; raise the limit"
             )
@@ -124,13 +137,18 @@ class Budget:
         """The `ChainBudget` of the K, G, B, F and polarisation solves (task
         W3b)."""
         return ChainBudget(
-            self.chunk_bytes, self.fixed_bytes, self.limit_gb, self.chunk_rows
+            self.chunk_bytes,
+            self.fixed_bytes,
+            self.limit_gb,
+            self.chunk_rows,
+            self.limit_text,
         )
 
     def describe(self):
         out = {
             "memory_limit_gb": self.limit_gb,
             "chunk_rows": self.chunk_rows,
+            "processes": int(self.processes),
             "fixed_gb": _gib(self.fixed_bytes),
         }
         try:
@@ -151,6 +169,7 @@ class ChainBudget:
     fixed_bytes: int = 0
     limit_gb: float | None = None
     chunk_rows: int | None = None
+    limit_text: str | None = None
 
     def plan(self, nrows, nchan, ncorr, per_channel):
         """`(max_cells, hard_cells, block_rows)` of a solve on `nrows` rows:
@@ -189,6 +208,7 @@ def budget(config, info):
         int(info["nrows"]),
         tuple(info["cell"]),
         data.get("chunk_rows"),
+        int(data.get("processes") or 1),
     )
 
 

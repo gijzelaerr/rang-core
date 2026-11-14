@@ -46,6 +46,11 @@ summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
 the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
 tasks to rang's.
 
+**Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
+run status, receipts and FITS statistics to an agent over the Model Context
+Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
+`gemclean`, each confirmed by a token and preceded by a flag-version backup.
+
 `rang-core check` runs the full local checks on any platform. Every call
 writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
@@ -83,9 +88,11 @@ commands for a Measurement Set (each takes a config.yaml and an MS):
 other commands:
   config          defaults | check CONFIG [MS]: the configuration schema
   listobs         MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs
+  flagdata        MS [key=value ...]: CASA's flagdata modes, CASA's keywords
   research        STAGE VERB ARGS...: the research chains (rang-core research -h)
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
+  mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -254,6 +261,9 @@ data:
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
   memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
   chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
+  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md)
+  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process); each plans its chunks under memory_limit_gb / processes; results do not depend on it
+  threads: null  # the rayon threads the processes share when processes > 1 (null: RAYON_NUM_THREADS, else the CPU count)
 flag:
   flagger: tricolour  # the Tricolour 0.2.1 port (research/core-d-tricolour.md)
   strategy: null  # required: a Tricolour strategy YAML, such as CARACal's mk_rfi_flagging_calibrator_fields_firstpass.yaml (relative to this file)
@@ -280,7 +290,7 @@ calibrate:
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
-  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation); false: every row solved (task E2)
+  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation; Gpol, KCROSS, Xf and Df with P never across scans or more than 5 deg of parallactic angle); false: every row solved (task E2)
   average_freq: false  # G, F and Gpol solve on data and model averaged over the window's channels (CASA's G-type estimator: weighted means after the pre-applies and P, per row and correlation); false: every channel a sample of one frequency bin (task E2)
   primary:
     field: ["fcal"]  # fields of the primary solves
@@ -474,6 +484,44 @@ options:
   --json               print the record as JSON, not the text
   --listfile LISTFILE  write the text (or JSON) to this file
   --overwrite          replace an existing --listfile
+```
+
+## `flagdata`
+
+```text
+$ rang-core flagdata -h
+usage: rang-core flagdata [-h] ms [key=value ...]
+
+CASA's flagdata on a Measurement Set: modes manual, clip, quack, shadow,
+elevation, tfcrop, extend, unflag, summary, with CASA's keyword names
+(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found
+are saved first as a flag version.
+
+positional arguments:
+  ms          the Measurement Set (or calibration table, for clip)
+  key=value   CASA flagdata keywords, e.g. mode=quack quackinterval=8
+
+options:
+  -h, --help  show this help message and exit
+```
+
+## `mcp`
+
+```text
+$ rang-core mcp -h
+usage: rang-core mcp [-h] [--allow-write] [--root DIR]
+
+Serve rang-core's tools to an agent over the Model Context Protocol (stdio;
+research/mcp-server.md). Read-only tools by default. Needs the extra: pip
+install 'rang-core[mcp]'. Stages: flag, calibrate, apply, image, selfcal.
+
+options:
+  -h, --help     show this help message and exit
+  --allow-write  also offer run and gemclean, each confirmed by a token from a
+                 first call that writes nothing; every MS write saves a flag
+                 version first
+  --root DIR     accept only path arguments inside DIR (repeatable; default:
+                 any path)
 ```
 
 ## `research`

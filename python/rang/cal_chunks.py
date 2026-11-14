@@ -32,6 +32,7 @@ Averaging changes the estimator (CASA's); it is off unless asked for.
 """
 
 import hashlib
+import itertools
 import weakref
 from dataclasses import dataclass
 
@@ -92,7 +93,8 @@ def plan(time_bin, nchan, ncorr, budget, *, per_channel, what="solve", average=N
         limit = (
             ""
             if budget.limit_gb is None
-            else f", above data.memory_limit_gb {budget.limit_gb:g}"
+            else ", above data.memory_limit_gb "
+            + (budget.limit_text or f"{budget.limit_gb:g}")
         )
         smallest = (
             "one channel of one solution interval"
@@ -200,6 +202,51 @@ def _has_channels(reader, name):
 # masked weights and the weighted data and model in double precision).
 AVERAGE_BLOCK_SHARE = 0.5
 
+# Task xf-avg-fix (research/xf-avg-fix.md section 2): a solve on a model
+# rotated by P averages no samples of two scans, nor samples whose parallactic
+# angles span more than this (degrees).
+PSI_TOL_DEG = 5.0
+
+
+def psi_groups(time_bin, scan, psi, tol_deg=None):
+    """The averaging groups of a P-rotated solve (task xf-avg-fix,
+    research/xf-avg-fix.md section 2). Per (interval, scan) of the rows,
+    `psi` (rad, P's angle of each row's ANTENNA1) is taken as the circular
+    difference from the first row's and its span cut into n = max(1,
+    ceil(span / tol)) equal pieces; a group is one (interval, scan, piece).
+    Returns the group of each row (dense, ascending in that order), or None
+    when every interval is one group (the averaging is then the one without
+    groups, unchanged)."""
+    tol = np.radians(PSI_TOL_DEG if tol_deg is None else float(tol_deg))
+    tb = np.asarray(time_bin, np.int64)
+    sc = np.asarray(scan, np.int64)
+    psi = np.asarray(psi, float)
+    if not len(tb):
+        return None
+    _, first, part = np.unique(
+        np.stack([tb, sc]), axis=1, return_index=True, return_inverse=True
+    )
+    part = part.ravel()
+    d = np.angle(np.exp(1j * (psi - psi[first[part]])))  # (-pi, pi]
+    piece = np.zeros(len(tb), np.int64)
+    order = np.argsort(part, kind="stable")
+    bounds = np.flatnonzero(np.r_[True, np.diff(part[order]) != 0, True])
+    for b0, b1 in itertools.pairwise(bounds):
+        rows = order[b0:b1]
+        lo = d[rows].min()
+        span = d[rows].max() - lo
+        n = max(1, int(np.ceil(span / tol)))
+        if n > 1:
+            piece[rows] = np.minimum(
+                np.floor((d[rows] - lo) / (span / n)).astype(np.int64), n - 1
+            )
+    _, group = np.unique(np.stack([tb, sc, piece]), axis=1, return_inverse=True)
+    group = group.ravel().astype(np.int64)
+    per_interval = np.bincount(np.unique(np.stack([tb, group]), axis=1)[0])
+    if (per_interval <= 1).all():
+        return None
+    return group
+
 
 class Average:
     """CASA's time pre-averaging within solution intervals (task E2,
@@ -209,10 +256,15 @@ class Average:
     nothing (FLAG_ROW, outside `uvrange`, autocorrelations); an averaged
     row whose source rows are all skipped is flagged as a row.
 
+    `group` (task xf-avg-fix, `psi_groups`): each source row's averaging
+    group, ascending with the interval; then one averaged row per (group,
+    baseline), in the order of (interval, group, ANTENNA1, ANTENNA2), each
+    with its group's interval. None: one group per interval.
+
     `inverse` is each source row's averaged row (-1 for autocorrelations),
     `time_bin`, `antenna1`, `antenna2`, `flag_row` the averaged rows'."""
 
-    def __init__(self, time_bin, antenna1, antenna2, skip):
+    def __init__(self, time_bin, antenna1, antenna2, skip, group=None):
         tb = np.asarray(time_bin, np.int64)
         a1 = np.asarray(antenna1, np.int64)
         a2 = np.asarray(antenna2, np.int64)
@@ -221,11 +273,20 @@ class Average:
         self.skip = skip
         cross = a1 != a2
         nant = int(max(a1.max(), a2.max())) + 1 if len(a1) else 1
-        key = (tb * nant + a1) * nant + a2
+        outer = tb
+        if group is not None:
+            # The group ascends with the interval, so it alone orders
+            # (interval, group); each group keeps its interval.
+            outer = np.asarray(group, np.int64)
+            interval_of = np.zeros(int(outer.max()) + 1, np.int64)
+            interval_of[outer] = tb
+        key = (outer * nant + a1) * nant + a2
         uniq, inv = np.unique(key[cross], return_inverse=True)
         self.inverse = np.full(len(tb), -1, np.int64)
         self.inverse[cross] = inv.ravel()
         self.time_bin = uniq // (nant * nant)
+        if group is not None:
+            self.time_bin = interval_of[self.time_bin]
         self.antenna1 = (uniq // nant) % nant
         self.antenna2 = uniq % nant
         live = np.bincount(self.inverse[cross & ~skip], minlength=len(uniq))

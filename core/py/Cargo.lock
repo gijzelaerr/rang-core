@@ -679,7 +679,7 @@ dependencies = [
 
 [[package]]
 name = "rang-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "pollster",
  "rang-sim",
@@ -690,7 +690,7 @@ dependencies = [
 
 [[package]]
 name = "rang-core-py"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "numpy",
  "pyo3",
@@ -699,7 +699,7 @@ dependencies = [
 
 [[package]]
 name = "rang-sim"
-version = "0.1.0"
+version = "0.2.0"
 
 [[package]]
 name = "range-alloc"

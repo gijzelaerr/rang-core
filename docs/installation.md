@@ -11,10 +11,11 @@ pip install rang-core
 [GitHub release](https://github.com/gijzelaerr/rang-core/releases). To build it yourself, install
 [from source](#from-source).
 
-The only release on PyPI is **0.1.0** (2026-11-02). It predates the user
-chain: it has no `rang-core run`, `flag`, `calibrate`, `apply`, `image`,
-`selfcal` or `config`, and no `gemclean`. Until 0.2.0 is released, install
-[from source](#from-source) to follow the MS-to-image tutorial. There are no pre-releases.
+The current release is **0.2.0** (2026-11-14), the first with the user
+chain (`rang-core run`, `flag`, `calibrate`, `apply`, `image`, `selfcal`,
+`config`) and `gemclean`. Its known limitations are in the
+[changelog](https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md).
+0.1.0 (2026-11-02) predates the chain. There are no pre-releases.
 
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. Every kernel is inside the
@@ -130,7 +131,7 @@ without docker ({gh}`research/wheel.md`).
 ## Check the install
 
 ```sh
-rang-core --version                                           # rang-core 0.1.0
+rang-core --version                                           # rang-core 0.2.0
 python -c "import rang; print(rang.__version__)"
 python -c "import rang.core as c; print(c.backend_name())"   # extension
 rang-core -h

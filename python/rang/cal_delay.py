@@ -127,6 +127,9 @@ def solve(
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
     weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
     flag = np.ascontiguousarray(np.broadcast_to(flag, data.shape), np.uint8)
+    if nrow == 0 or nchan == 0:
+        raise ValueError(f"no data to solve: {nrow} rows of {nchan} channels")
+    data, model, weights, flag = cal_gain.finite_cells(data, model, weights, flag)
     a1 = np.ascontiguousarray(antenna1, np.uint32)
     a2 = np.ascontiguousarray(antenna2, np.uint32)
     flag_row = np.asarray(flag_row, bool) | (a1 == a2)

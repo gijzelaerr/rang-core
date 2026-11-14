@@ -125,7 +125,7 @@ jobs:
           echo "PY=$PWD/$py" >> "$GITHUB_ENV"
           "$py" -m pip install -q "maturin==$MATURIN_VERSION"
           VIRTUAL_ENV=$PWD/.venv "$py" -m maturin develop --release --locked \
-            --extras test,imaging,formats,casacure,pointing,beam
+            --extras test,imaging,formats,casacure,pointing,beam,mcp
           "$py" -c "import rang.core as c; print('backend', c.backend_name())"
       - name: pytest
         run: |

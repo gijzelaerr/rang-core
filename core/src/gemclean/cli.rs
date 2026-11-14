@@ -407,8 +407,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 }
             }
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
-            "-threshold" | "-abs-threshold" => a.threshold = number(flag, value(&mut i)?)?,
-            "-auto-threshold" => a.auto_threshold = Some(number(flag, value(&mut i)?)?),
+            // A NaN threshold never stops the minor cycle; finite and not below
+            // zero, as -auto-mask (research/correctness-audit-2026-11-13.md).
+            "-threshold" | "-abs-threshold" => a.threshold = non_negative(flag, value(&mut i)?)?,
+            "-auto-threshold" => a.auto_threshold = Some(non_negative(flag, value(&mut i)?)?),
             "-patch" => a.patch = number(flag, value(&mut i)?)?,
             "-theta" => a.theta = number(flag, value(&mut i)?)?,
             "-drift" => a.drift = number(flag, value(&mut i)?)?,
@@ -3313,6 +3315,22 @@ mod tests {
         assert!(!parse("-size 64 64 -scale 2asec -double x.ms").single);
         assert!(parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 -single x.ms").single);
         assert!(!parse("-size 64 64 -scale 2asec -single -double x.ms").single);
+    }
+
+    #[test]
+    fn thresholds_are_finite_and_not_negative() {
+        // Correctness audit 2026-11-13: a NaN threshold never ends the minor
+        // cycle; NaN, infinite and negative thresholds are refused.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        for flag in ["-threshold", "-abs-threshold", "-auto-threshold"] {
+            for bad in ["nan", "-1", "inf"] {
+                assert!(parse(&format!("-size 64 64 -scale 2asec {flag} {bad} x.ms")).is_err());
+            }
+            assert!(parse(&format!("-size 64 64 -scale 2asec {flag} 0.5 x.ms")).is_ok());
+        }
     }
 
     #[test]
