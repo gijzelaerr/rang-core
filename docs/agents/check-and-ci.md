@@ -20,7 +20,10 @@ python tools/check_all.py --quick
 
 Any Python 3.10+ starts it, from PowerShell, cmd or Git Bash. It takes the
 heavy lock itself (shared, 4 slots, 8 GB), so do not wrap it in another
-`heavy_lock.py run`. It runs ruff, ruff format, `git diff --check`, cargo fmt,
+`heavy_lock.py run`. If it is wrapped anyway, it sees `RANG_HEAVY_LOCK_HELD`
+(set by `heavy_lock.py run` for its child) and runs inside the outer hold
+instead of queueing behind it; any nested `heavy_lock.py run` does the same,
+with a warning when it asks for more than the hold. It runs ruff, ruff format, `git diff --check`, cargo fmt,
 clippy with warnings as errors, the root and core Rust tests, the extension
 build into this worktree's `.venv` (created with `uv` if missing), pytest on
 the test files the diff against `origin/main` touches, and the gain-hash gate.

@@ -19,7 +19,12 @@ itself with the worktree's own venv. In order (research/speedup-tools.md):
    `CARGO_BUILD_JOBS` equal to the slots. Under the heavy lock the check's own
    one-at-a-time lock is off (`RANG_CHECKALL_LOCKED=1`): the slots already
    account for the load, and that lock let a waiting check sit on 8 slots
-   for hours behind another (2026-11-13).
+   for hours behind another (2026-11-13). Do not wrap this script in
+   `heavy_lock.py run`: it locks itself. If it starts inside a hold anyway
+   (`RANG_HEAVY_LOCK_HELD` set by `heavy_lock.py run`), it runs inside that
+   hold without queueing again, with a warning when it wants more than the
+   hold (2026-11-14: the wrapped check sat at the back of the queue for five
+   hours while its own wrapper held 4 slots idle).
 3. **toolchain**: each target directory (`target`, `core/target`,
    `core/target/feature-gpu`, `core/py/target`) carries a stamp of
    `rustc +1.93 -vV`; a directory whose stamp differs, or that has no stamp
@@ -59,6 +64,7 @@ STAMP = ".rang-rustc-vV"
 EXTRAS = "pointing,beam,test,imaging,formats,casacure,docs,notebook"
 GPU_STEPS = ("core-clippy-gpu", "core-test-gpu")
 INDEX = "https://pypi.org/simple"
+HELD_VAR = "RANG_HEAVY_LOCK_HELD"  # set by heavy_lock.py run for its child
 
 
 def venv_python(root: Path = ROOT) -> Path:
@@ -323,6 +329,15 @@ def _tee(command: list[str], root: Path, env: dict, out) -> tuple[int, str]:
     return proc.wait(), "".join(seen)
 
 
+def _held(value: str) -> tuple[int, float] | None:
+    """`RANG_HEAVY_LOCK_HELD` (`<slots>:<mem GB>`) parsed, or None."""
+    try:
+        slots, mem = value.split(":")
+        return int(slots), float(mem)
+    except ValueError:
+        return None
+
+
 def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument(
@@ -364,7 +379,8 @@ def main(argv: list[str] | None = None) -> int:
     if a.priority != "normal":  # helpers older than the priority lane lack the flag
         lock += ["--priority", a.priority]
     lock += ["--"]
-    command = me if a.no_lock else lock + me
+    nested = not a.no_lock and _held(os.environ.get(HELD_VAR, "")) is not None
+    command = me if a.no_lock or nested else lock + me
     if a.dry_run:
         print(" ".join(command))
         if a.quick:
@@ -374,6 +390,20 @@ def main(argv: list[str] | None = None) -> int:
             why = stale_reason(root / rel, want)
             print(f"{rel}: {'stale, ' + why if why else 'kept'}")
         return 0
+    if nested:
+        slots, mem = _held(os.environ[HELD_VAR])
+        print(
+            f"check_all: already inside a heavy-lock hold ({slots} slots, {mem:g} GB, "
+            f"{HELD_VAR}); running without queueing again (do not wrap check_all, "
+            "it locks itself)",
+            flush=True,
+        )
+        if a.slots > slots or a.mem > mem:
+            print(
+                f"check_all: warning: wants {a.slots} slots, {a.mem:g} GB, more than "
+                "the hold; running anyway",
+                flush=True,
+            )
     print(f"check_all: log {log}", flush=True)
     return subprocess.call(command, cwd=root)
 

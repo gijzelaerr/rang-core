@@ -49,6 +49,15 @@ running jobs exactly like a normal one, so a critical exclusive ticket still
 drains the shared jobs first, and every normal ticket waits behind it. Use it
 only for the critical path of a release (the E2 and E3 acceptance runs);
 builds, checks, timing runs and everything else queue normal.
+
+Nested runs (added 2026-11-14): ``run`` sets ``RANG_HEAVY_LOCK_HELD`` to
+``<slots>:<mem GB>`` (the host's capacity for an exclusive run) in its
+child's environment. A ``run`` started with that variable set, such as
+``tools/check_all.py`` wrapped in ``heavy_lock.py run`` (it takes the lock
+itself), does not queue again: it runs its command inside the existing hold
+and says so. Queueing again held the outer slots idle for five hours behind
+the inner ticket, and deadlocks when the queue is full. A nested request for
+more than the hold gets a warning and still runs.
 """
 
 from __future__ import annotations
@@ -378,6 +387,47 @@ def _heartbeat(path: Path, stop: threading.Event, every: float) -> None:
             return
 
 
+HELD_VAR = "RANG_HEAVY_LOCK_HELD"
+
+
+def held(environ=None) -> tuple[int, float] | None:
+    """(slots, mem GB) of the hold this process runs inside, or None."""
+    value = (os.environ if environ is None else environ).get(HELD_VAR, "")
+    try:
+        slots, mem = value.split(":")
+        return int(slots), float(mem)
+    except ValueError:
+        return None
+
+
+def nested_note(who: str, slots: int, mem: float, environ=None) -> bool:
+    """Print the one-line note (and a warning when the request exceeds the
+    hold) if this process already runs inside a heavy-lock hold."""
+    hold = held(environ)
+    if hold is None:
+        return False
+    print(
+        f"{who}: already inside a heavy-lock hold ({hold[0]} slots, {hold[1]:g} GB, "
+        f"{HELD_VAR}); running without queueing again",
+        file=sys.stderr,
+        flush=True,
+    )
+    if slots > hold[0] or mem > hold[1]:
+        print(
+            f"{who}: warning: asked for {slots} slots, {mem:g} GB, more than the "
+            "hold; running anyway (queueing again would deadlock)",
+            file=sys.stderr,
+            flush=True,
+        )
+    return True
+
+
+def _child_env(slots: int, mem: float) -> dict:
+    env = dict(os.environ)
+    env[HELD_VAR] = f"{slots}:{mem:g}"
+    return env
+
+
 def run(
     command: list[str],
     poll: float,
@@ -385,13 +435,19 @@ def run(
     mem: float = 0.0,
     priority: str = "normal",
 ) -> int:
+    if slots is None:
+        want = (CAPACITY_SLOTS, CAPACITY_MEM_GB)
+    else:
+        want = (slots, mem)
+    if nested_note("heavy_lock", *want):
+        return subprocess.call(command)
     d = lock_dir()
     if slots is not None:
         hb = acquire_shared(d, command, poll, slots, mem, priority)
         stop = threading.Event()
         threading.Thread(target=_heartbeat, args=(hb, stop, 20.0), daemon=True).start()
         try:
-            return subprocess.call(command)
+            return subprocess.call(command, env=_child_env(slots, mem))
         finally:
             stop.set()
             hb.unlink(missing_ok=True)
@@ -403,7 +459,7 @@ def run(
         fcntl.flock(wsl_lock, fcntl.LOCK_EX)
     acquire(d, command, poll, priority)
     try:
-        return subprocess.call(command)
+        return subprocess.call(command, env=_child_env(*want))
     finally:
         release(d)
         if wsl_lock is not None:

@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed (2026-11-14): a `tools/heavy_lock.py run` or `tools/check_all.py` started inside a heavy-lock
+  hold (`RANG_HEAVY_LOCK_HELD`, set by `heavy_lock.py run` for its child) runs inside that hold
+  instead of queueing again. A check wrapped in `heavy_lock.py run` held 4 slots idle for five hours
+  while its own inner ticket waited, and would deadlock on a full queue. A nested request for more
+  than the hold warns and still runs.
+
 - Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
   instead of running wrong. A NaN visibility made every gain, bandpass, delay or Df solution NaN with
   its flag clear; non-finite data, model and weight cells are now flagged, which gives exactly the
