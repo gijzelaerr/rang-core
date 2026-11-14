@@ -1,0 +1,128 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "run",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\config.yaml",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-11T18:26:22+00:00",
+ "commit": {
+  "head": "332025858f92a650b01d059282afab6d56eabbcd",
+  "dirty": true
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/fp-e2-acceptance",
+  "distribution": "rang-core",
+  "version": "0.1.0",
+  "extension_sha256": "d33f2bf7e0edc6369f3d77495d27d7ec718030341b4bfee9fc2e9a5e3b3f757d"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/fp-e2-acceptance/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.1.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/fp-e2-acceptance/python/rang/_core.pyd",
+   "sha256": "d33f2bf7e0edc6369f3d77495d27d7ec718030341b4bfee9fc2e9a5e3b3f757d"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": null,
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/a/config.yaml",
+   "kind": "file",
+   "bytes": 2909,
+   "sha256": "aa629b758901a42167ab529e30dd35a29fd7ec9cc1cb5789f78edd6c6ae08a6f"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms",
+   "kind": "directory",
+   "files": 65,
+   "bytes": 41296997,
+   "listing_sha256": "cfd5c8e2004395a0e0ec5dd9814197b99f48d58e608d5b249c3882ce47b8def4"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms",
+   "kind": "directory",
+   "files": 71,
+   "bytes": 119942540,
+   "listing_sha256": "f638ab73622548b265bbf25b94a049cd0ab573e703c27c65bd04349b693e6bd1",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms.flagversions",
+   "kind": "directory",
+   "files": 32,
+   "bytes": 2151069,
+   "tree_sha256": "05526e8f4c3f3a560f251878ad8c808748df0efd55c918092a406aae6744233c"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms.rang-run",
+   "kind": "directory",
+   "files": 445,
+   "bytes": 756960521,
+   "tree_sha256": "eff2f68a67e76b6e67bccf907c409d1d711b4d5f77877b3b9bf9b51174fd7668"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 18.57552189999842,
+  "cpu_seconds": 7.578125,
+  "peak_rss_mb": 177.43359375
+ },
+ "exit": 0,
+ "verdict": null
+}

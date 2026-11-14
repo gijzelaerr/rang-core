@@ -1,0 +1,137 @@
+{
+ "applied": [
+  {
+   "applymode": "calflag",
+   "cells_flagged_after": 569004958,
+   "cells_flagged_before": 517904484,
+   "column": "CORRECTED_DATA",
+   "column_added": true,
+   "fields": [
+    "J1331+3030",
+    "J1939-6342"
+   ],
+   "frame": "casa",
+   "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\luno-slice.ms",
+   "parang": true,
+   "receptor_angle": -1.5707963267948966,
+   "rows": 40000,
+   "scans": [
+    1,
+    2
+   ],
+   "tables": [
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "linear",
+     "kind": "K"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "linear",
+     "kind": "G"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "linear",
+     "kind": "B"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "linear",
+     "kind": "G"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "nearest",
+     "kind": "Kcross"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "nearest",
+     "kind": "Xf"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "J1331+3030": "pooled",
+      "J1939-6342": "pooled"
+     },
+     "gainfield": "",
+     "interp": "nearest",
+     "kind": "Df"
+    }
+   ],
+   "tables_applied": [
+    "K",
+    "G",
+    "B",
+    "Gpol",
+    "Kcross",
+    "Xf",
+    "Df"
+   ],
+   "uncovered": [],
+   "weights_written": false
+  }
+ ],
+ "applymode": "calflag",
+ "calwt": false,
+ "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+ "chunking": {
+  "chunk_gb": 7.369039535522461,
+  "chunk_rows": null,
+  "fixed_gb": 0.6309604644775391,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 7545,
+   "calibrate": 7545,
+   "chain": 5030,
+   "flag": 15091,
+   "model": 7545,
+   "rows": 20122
+  }
+ },
+ "column": "CORRECTED_DATA",
+ "flag_version": "rang_apply_20261111T181324Z",
+ "parang": true,
+ "rang_original_saved_now": false,
+ "restored_before": null,
+ "warnings": []
+}

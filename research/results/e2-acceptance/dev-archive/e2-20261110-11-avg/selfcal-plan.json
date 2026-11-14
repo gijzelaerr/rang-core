@@ -1,0 +1,54 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-10-preflight\\e2a-meta.ms",
+ "target_rows": 850950,
+ "limit_gb": 8.0,
+ "scans": [
+  10
+ ],
+ "antennas": 61,
+ "times": 450,
+ "terms": {
+  "Sp solint 120": {
+   "intervals": 4,
+   "rows_per_interval_max": 226920,
+   "averaged_rows_per_interval_max": 1830,
+   "rows_4096ch": {
+    "fits": false,
+    "message": "selfcal: one solution interval holds 3717857280 visibility cells of 850950 rows and needs 333.285 GiB, above data.memory_limit_gb 8; raise the limit, or use a shorter solint (a solution interval is solved whole)"
+   },
+   "time_averaged_4096ch": {
+    "fits": true,
+    "chunks": 4
+   },
+   "rows_512ch": {
+    "fits": false,
+    "message": "selfcal: one solution interval holds 464732160 visibility cells of 850950 rows and needs 42.433 GiB, above data.memory_limit_gb 8; raise the limit, or use a shorter solint (a solution interval is solved whole)"
+   },
+   "time_averaged_512ch": {
+    "fits": true,
+    "chunks": 1
+   }
+  },
+  "Sa solint 120": {
+   "intervals": 4,
+   "rows_per_interval_max": 226920,
+   "averaged_rows_per_interval_max": 1830,
+   "rows_4096ch": {
+    "fits": false,
+    "message": "selfcal: one solution interval holds 3717857280 visibility cells of 850950 rows and needs 333.285 GiB, above data.memory_limit_gb 8; raise the limit, or use a shorter solint (a solution interval is solved whole)"
+   },
+   "time_averaged_4096ch": {
+    "fits": true,
+    "chunks": 4
+   },
+   "rows_512ch": {
+    "fits": false,
+    "message": "selfcal: one solution interval holds 464732160 visibility cells of 850950 rows and needs 42.433 GiB, above data.memory_limit_gb 8; raise the limit, or use a shorter solint (a solution interval is solved whole)"
+   },
+   "time_averaged_512ch": {
+    "fits": true,
+    "chunks": 1
+   }
+  }
+ }
+}

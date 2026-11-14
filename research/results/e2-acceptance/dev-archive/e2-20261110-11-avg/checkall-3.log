@@ -1,0 +1,47 @@
+🍹 Building a mixed python/rust project
+🐍 Not using a specific python interpreter (automatically generating windows import library)
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 29 packages in 29ms
+📦 Built wheel for abi3 Python ≥ 3.10 to C:\Users\gijsm\AppData\Local\Temp\.tmpjlT5mQ\rang_core-0.1.0-cp310-abi3-win_amd64.whl
+✏️ Setting installed package as editable
+🛠 Installed rang-core-0.1.0
+## root-build
+## root-test
+test result: ok. 23 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.17s
+## root-clippy
+## root-fmt
+## core-build
+## core-test
+test result: ok. 265 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.84s
+## core-clippy
+## core-fmt
+## core-clippy-gpu
+## core-test-gpu
+test result: ok. 271 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.84s
+## ext-build
+🍹 Building a mixed python/rust project
+🐍 Not using a specific python interpreter (automatically generating windows import library)
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 29 packages in 40ms
+📦 Built wheel for abi3 Python ≥ 3.10 to C:\Users\gijsm\AppData\Local\Temp\.tmpIQClGW\rang_core-0.1.0-cp310-abi3-win_amd64.whl
+✏️ Setting installed package as editable
+🛠 Installed rang-core-0.1.0
+## ext-clippy
+## ext-fmt
+## ruff
+All checks passed!
+## ruff-format
+445 files already formatted
+## diff-check
+## pytest
+FAILED tests/test_w4_8_docs.py::test_every_note_is_in_the_research_index - As...
+1 failed, 1048 passed, 70 skipped in 201.06s (0:03:21)
+FAILED: bash -c set -o pipefail; .venv/bin/python -m pytest -q 2>&1 | tail -2
+## gain-hashes
+  ok   slice_original
+  ok   fixture_D
+  ok   luno_iterations
+  ok   luno_converged_fraction
+  ok   luno_gain_flags
+gain-hash gate: PASS (10.31 s, archive \\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs)
+## overall: FAIL

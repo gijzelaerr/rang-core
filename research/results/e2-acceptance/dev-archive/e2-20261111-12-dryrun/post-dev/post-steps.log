@@ -1,0 +1,390 @@
+{
+ "stages_wanted": [
+  "flag",
+  "calibrate",
+  "apply",
+  "image"
+ ],
+ "stages": {
+  "apply": "done",
+  "calibrate": "done",
+  "flag": "done",
+  "image": "done"
+ },
+ "seconds": {
+  "apply": 36.561277899993,
+  "calibrate": 315.2567457999976,
+  "flag": 58.89271660000668,
+  "image": 77.30541200000152
+ },
+ "attempts": {
+  "apply": 1,
+  "calibrate": 1,
+  "flag": 1,
+  "image": 1
+ },
+ "receipts": [
+  "run-20261111T232143Z.rang-receipt.json"
+ ],
+ "met": true
+}
+2026-11-12T04:36:53+02:00 gate1 rc=0 8973s
+2026-11-12T07:03:14+02:00 archive rc=0 8781s
+ "files": 306,
+ "failed": [],
+ "met": true
+}
+/outputs/sliced-read-20261111-02 W M --base C:/Users/gijsm/Worktrees/rang/sliced-read-base (queue: behind 01794459794947233500-windows-35008.json)
+{
+ "files": 306,
+ "failed": [],
+ "met": true
+}
+ waiting for shared jobs to fit (queue: behind 01794459801901659800-windows-42884.json)
+{
+ "exit": 1,
+ "tables": 0,
+ "errors": null,
+ "met": false
+}
+ared jobs to fit (queue: behind 01794461795816592100-windows-29508.json)
+{
+ "exit": 1,
+ "tables": 0,
+ "errors": null,
+ "met": false
+}
+r shared jobs to fit (queue: behind 01794468954243960500-windows-42544.json)
+{
+ "exit": 0,
+ "calls": {
+  "listobs": null,
+  "flagmanager": null
+ },
+ "flag_versions_listed": {
+  "0": {
+   "name": "rang_original",
+   "comment": "rang: flags before the first write"
+  },
+  "1": {
+   "name": "rang_flag_20261111T232148Z",
+   "comment": "rang: flags before flag"
+  },
+  "2": {
+   "name": "rang_calibrate_20261111T232243Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "3": {
+   "name": "rang_apply_20261111T232758Z",
+   "comment": "rang: flags before apply"
+  },
+  "MS": "/ms/luno-slice.ms"
+ },
+ "met": true
+}
+
+  "MS": "/ms/luno-slice.ms"
+ },
+ "met": true
+}
+2026-11-12T10:01:17+02:00 casa-ro rc=0 846s
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-ima{
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-image.fits"
+ ],
+ "met": true
+}
+2026-11-12T10:09:13+02:00 wsclean0 rc=0 473s
+2026-11-12T10:09:13+02:00 wsclean0 rc=0 476s
+{
+ "exit": 1,
+ "met": false
+}
+s to fit (queue: behind 01794470953770545700-windows-30104.json)
+{
+ "exit": 1,
+ "met": false
+}
+c=0 1482s
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 139
+ },
+ "settings": "-size{
+ "exit": {
+  "J1939-6342:dirty": 255,
+  "J1939-6342:clean": 255,
+  "J1331+3030:dirty": 255,
+  "J1331+3030:clean": 255
+ },
+ "settings": "-size 512 512 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp"
+ behind 01794472965054076200-windows-40196.json)
+2026-11-12T11:11:19+02:00 copy rc=0 27s
+794474668552656000-windows-32580.json)
+2026-11-12T11:13:42+02:00 stray duplicate chain (launched 02:07) killed; helpers renamed e2p_*, run with -I; rerun from casacore
+{
+ "exit": 1,
+ "tables": 0,
+ "errors": null,
+ "met": false
+}
+2026-11-12T11:37:34+02:00 casacore rc=0 1432s
+{
+ "exit": 0,
+ "calls": {
+  "listobs": null,
+  "flagmanager": null
+ },
+ "flag_versions_listed": {
+  "0": {
+   "name": "rang_original",
+   "comment": "rang: flags before the first write"
+  },
+  "1": {
+   "name": "rang_flag_20261111T232148Z",
+   "comment": "rang: flags before flag"
+  },
+  "2": {
+   "name": "rang_calibrate_20261111T232243Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "3": {
+   "name": "rang_apply_20261111T232758Z",
+   "comment": "rang: flags before apply"
+  },
+  "MS": "/ms/luno-slice.ms"
+ },
+ "met": true
+}
+2026-11-12T11:47:51+02:00 casa-ro rc=0 617s
+{
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-image.fits"
+ ],
+ "met": true
+}
+2026-11-12T11:50:58+02:00 wsclean0 rc=0 187s
+{
+ "exit": 0,
+ "datasets": 2,
+ "rows": 40000,
+ "finite": {
+  "DATA": 655360000,
+  "CORRECTED_DATA": 655360000,
+  "MODEL_DATA": 655360000,
+  "WEIGHT_SPECTRUM": 655360000
+ },
+ "flagged": 569004958,
+ "met": true
+}
+2026-11-12T12:13:33+02:00 daskms rc=0 1355s
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "settings": "-size 512 512 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp"
+}
+2026-11-12T12:44:59+02:00 wsclean3c rc=0 1886s
+2026-11-12T13:10:06+02:00 copy rc=0 1507s
+2026-11-12T13:11:02+02:00 prep rc=0 56s
+[
+ {
+  "vis": "/c/luno-slice.ms",
+  "field": "J1331+3030",
+  "scan": "1,2",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/luno-slice.ms",
+  "field": "J1939-6342",
+  "scan": "1,2",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]
+2026-11-12T13:13:33+02:00 applycal rc=0 151s
+{
+ "applycal_calls": 2,
+ "applycal_errors": [],
+ "compare_exit": 0,
+ "rows": 40000,
+ "cells": 163840000,
+ "compared_cells": 21084501,
+ "flag_elements_differ": 2017038,
+ "cells_over_class_c": 0,
+ "max_eps_of_cell_max": 7.956634883970531,
+ "max_rel": 0.07767720686579478,
+ "nonfinite_compared": 0,
+ "class_c": "per cell <= 1e-6 relative or <= 11 float32 epsilons of the cell's largest correlation; flags exact",
+ "met": false
+}
+2026-11-12T13:15:21+02:00 compare rc=0 108s
+{
+ "restored_rows": 40000,
+ "hash": {
+  "rows": 40000,
+  "flag_sha256": "86dd804b2b6ed73cb4f4857d4723c3b382ac235393becc47bc8f037f6b5f0491",
+  "flag_row_sha256": "ea2265019fc7b7296bfa055e91c23b51de6f1ab04f025c174a49f50cd9e0020f"
+ },
+ "input": {
+  "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-src\\luno-slice.ms",
+  "rows": 40000,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "86dd804b2b6ed73cb4f4857d4723c3b382ac235393becc47bc8f037f6b5f0491",
+  "flag_row_sha256": "ea2265019fc7b7296bfa055e91c23b51de6f1ab04f025c174a49f50cd9e0020f",
+  "seconds": 0.8981479999929434
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\post-dev\\rang-run-moved",
+ "seconds": 6.557879500003764,
+ "met": true
+}
+2026-11-12T16:10:39+02:00 restore rc=0 10518s
+{
+ "tricolour_exit": 0,
+ "rang_version": "rang_calibrate_20261111T232243Z",
+ "elements_differ": 0,
+ "cells_differ": 0,
+ "rang_only": 0,
+ "tricolour_only": 0,
+ "corr_partial": 0,
+ "cells": 163840000,
+ "cells_differ_by_scan": {
+  "1": 0,
+  "2": 0
+ },
+ "exact": true
+}
+{
+ "restored_rows": 40000,
+ "hash": {
+  "rows": 40000,
+  "flag_sha256": "86dd804b2b6ed73cb4f4857d4723c3b382ac235393becc47bc8f037f6b5f0491",
+  "flag_row_sha256": "ea2265019fc7b7296bfa055e91c23b51de6f1ab04f025c174a49f50cd9e0020f"
+ },
+ "input": {
+  "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-src\\luno-slice.ms",
+  "rows": 40000,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "86dd804b2b6ed73cb4f4857d4723c3b382ac235393becc47bc8f037f6b5f0491",
+  "flag_row_sha256": "ea2265019fc7b7296bfa055e91c23b51de6f1ab04f025c174a49f50cd9e0020f",
+  "seconds": 0.8981479999929434
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 14.931474999990314,
+ "met": true
+}
+2026-11-12T16:29:53+02:00 tricolour rc=0 1154s

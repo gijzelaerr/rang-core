@@ -1,0 +1,864 @@
+Traceback (most recent call last):
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_transfer.py", line 220, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_transfer.py", line 216, in main
+    return rang_case(a.r, a.rest[0], a.rest[1], a.case, a.average_freq)
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_transfer.py", line 177, in rang_case
+    g, srec = cal_chain._solve_pol(ms, spec, spec["fields"][0], entries, common)
+              ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_chain.py", line 223, in _solve_pol
+    table, sol, info = cal_pol.gpol(
+                       ~~~~~~~~~~~~^
+        ms,
+        ^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_pol.py", line 759, in gpol
+    table, sol, info = cal_gain.gaincal(
+                       ~~~~~~~~~~~~~~~~^
+        ms,
+        ^^^
+    ...<12 lines>...
+        **solve_options,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_gain.py", line 886, in gaincal
+    sol, row_w = _solve_gain_field(
+                 ~~~~~~~~~~~~~~~~~^
+        fld, tb, nchan=len(freq), per_channel=False, budget=budget,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **({"average_freq": True} if average_freq else {}),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )  # fmt: skip
+    ^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_gain.py", line 762, in _solve_gain_field
+    results, replay = cal_chunks.replayed(
+                      ~~~~~~~~~~~~~~~~~~~^
+        chunks,
+        ^^^^^^^
+    ...<2 lines>...
+        stop_fraction=opts["stop_fraction"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_chunks.py", line 280, in replayed
+    return [run(chunks[0], max_iterations, stop_fraction, False)], None
+            ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_gain.py", line 738, in run
+    arr = cal_chunks.load_averaged(
+        reader, fld.rows, chunk, fld.cells, fld.prepare, block, avg
+    )
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\python\rang\cal_chunks.py", line 232, in load_averaged
+    wm = w * np.where(used, model, 0).astype(np.complex128)
+         ~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+numpy._core._exceptions._ArrayMemoryError: Unable to allocate 27.8 GiB for an array with shape (113960, 4096, 4) and data type complex128
+2026-11-13T10:25:05+02:00 xfer17 D:\rang\outputs\e2-20261111-20-e2b\transfer rc=1 1078s
+{
+ "case": "xfer17",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\frozen\\rang-run",
+ "average_freq": false,
+ "solve_seconds": 558.0322648000147,
+ "solve": {
+  "field_id": 0,
+  "rows": 118104,
+  "intervals": 10,
+  "flagged_fraction": 0.05357142857142857,
+  "iterations": 11,
+  "converged_fraction": 0.9943396226415094,
+  "used_alternate_refant": false
+ },
+ "spec": {
+  "type": "Gpol",
+  "name": "Gscan",
+  "solint": "60s",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K",
+   "G",
+   "B"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "parang": true,
+  "frame": "casa",
+  "receptor_angle": -1.5707963267948966,
+  "model": "column",
+  "model_column": "RANG_MODEL_DATA"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gscan",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 93.17222780000884,
+  "cells_flagged_before": 1238612780,
+  "cells_flagged_after": 1238612780,
+  "uncovered": []
+ },
+ "field": "J1331+3030",
+ "scan": 17
+}
+2026-11-13T10:49:11+02:00 xfer17 D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 1383s
+{
+ "row": "transfer",
+ "ms": "D:\\rang\\outputs\\e2-20261111-20-e2b\\casa\\e2b.ms",
+ "column": "E2_XFER",
+ "flag": "FLAG",
+ "frac_unflagged": 0.7355070873095951,
+ "I": 14.873327228782207,
+ "q": 0.0963109567637315,
+ "u": -0.008465877130530026,
+ "v": 0.0016271346051525543,
+ "p": 0.09668232241901613,
+ "chi_deg": -2.511736505376088,
+ "chi_minus_33_1_deg": -35.611736505376086,
+ "p_met": true,
+ "chi_met": false,
+ "met": false
+}
+2026-11-13T10:49:36+02:00 row xfer17 D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 25s
+{
+ "case": "leak18p",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\frozen\\rang-run",
+ "average_freq": false,
+ "solve_seconds": 577.9020282999845,
+ "solve": {
+  "field_id": 1,
+  "rows": 119700,
+  "intervals": 10,
+  "flagged_fraction": 0.05357142857142857,
+  "iterations": 10,
+  "converged_fraction": 1.0,
+  "used_alternate_refant": false
+ },
+ "spec": {
+  "type": "Gpol",
+  "name": "Gscan",
+  "solint": "60s",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K",
+   "G",
+   "B"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "parang": true,
+  "frame": "casa",
+  "receptor_angle": -1.5707963267948966,
+  "model": "column",
+  "model_column": "RANG_MODEL_DATA"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gscan",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 77.15561740001431,
+  "cells_flagged_before": 1258975624,
+  "cells_flagged_after": 1258975624,
+  "uncovered": []
+ },
+ "field": "J1939-6342",
+ "scan": 18
+}
+2026-11-13T11:01:08+02:00 leak18p D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 692s
+{
+ "label": "leak18p",
+ "column": "E2_XFER",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/leak18p -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2_XFER -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 15.0432767868042,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831447977429447,
+ "Q_over_I": 0.003018091806533262,
+ "Q_at_peak_over_I": 0.003018091806533262,
+ "U_over_I": 0.0028817568128166955,
+ "U_at_peak_over_I": 0.0028817568128166955,
+ "V_over_I": 0.0005332285466730133,
+ "V_at_peak_over_I": 6.166321321011112e-05,
+ "met": false,
+ "max_over_I": 0.003018091806533262
+}
+2026-11-13T11:29:54+02:00 leakage leak18p D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 1726s
+{
+ "case": "leak18ap",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\frozen\\rang-run",
+ "average_freq": false,
+ "solve_seconds": 199.72961559999385,
+ "solve": {},
+ "spec": {
+  "type": "G",
+  "name": "Gscan",
+  "solint": "inf",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K"
+  ],
+  "interp": [
+   "linear"
+  ],
+  "max_iterations": 50,
+  "stop_criterion": 1e-07,
+  "stop_fraction": 0.99,
+  "model": "column",
+  "calmode": "ap"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "Gscan",
+   "B",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 69.89406130000134,
+  "cells_flagged_before": 1258975624,
+  "cells_flagged_after": 1258975624,
+  "uncovered": []
+ },
+ "field": "J1939-6342",
+ "scan": 18
+}
+2026-11-13T11:34:53+02:00 leak18ap D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 299s
+{
+ "label": "leak18ap",
+ "column": "E2_XFER",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/leak18ap -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2_XFER -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 14.805065155029297,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448230476525,
+ "Q_over_I": 0.00025541459528688725,
+ "Q_at_peak_over_I": -0.00011981217972407386,
+ "U_over_I": 0.00029218118356597386,
+ "U_at_peak_over_I": -0.00022214856612448594,
+ "V_over_I": 0.0005354405630050007,
+ "V_at_peak_over_I": 6.292900227857832e-05,
+ "met": true,
+ "max_over_I": 0.0005354405630050007
+}
+2026-11-13T12:04:36+02:00 leakage leak18ap D:\rang\outputs\e2-20261111-20-e2b\transfer rc=0 1783s
+{
+ "case": "xfer17",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\amended\\rang-run",
+ "average_freq": true,
+ "solve_seconds": 424.6330234000052,
+ "solve": {
+  "field_id": 0,
+  "rows": 118104,
+  "intervals": 10,
+  "flagged_fraction": 0.05357142857142857,
+  "iterations": 12,
+  "converged_fraction": 1.0,
+  "used_alternate_refant": false
+ },
+ "spec": {
+  "type": "Gpol",
+  "name": "Gscan",
+  "solint": "60s",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K",
+   "G",
+   "B"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "parang": true,
+  "frame": "casa",
+  "receptor_angle": -1.5707963267948966,
+  "model": "column",
+  "model_column": "RANG_MODEL_DATA"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gscan",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 73.39115169999423,
+  "cells_flagged_before": 1238612780,
+  "cells_flagged_after": 1238612780,
+  "uncovered": []
+ },
+ "field": "J1331+3030",
+ "scan": 17
+}
+2026-11-13T12:13:23+02:00 xfer17 D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 527s
+{
+ "row": "transfer",
+ "ms": "D:\\rang\\outputs\\e2-20261111-20-e2b\\casa\\e2b.ms",
+ "column": "E2_XFER",
+ "flag": "FLAG",
+ "frac_unflagged": 0.7355070873095951,
+ "I": 14.854972860197055,
+ "q": 0.0963352342818394,
+ "u": -0.008566573695369242,
+ "v": 0.001641725061117352,
+ "p": 0.096715373902059,
+ "chi_deg": -2.5408194035572413,
+ "chi_minus_33_1_deg": -35.640819403557245,
+ "p_met": true,
+ "chi_met": false,
+ "met": false
+}
+2026-11-13T12:13:47+02:00 row xfer17 D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 24s
+{
+ "case": "leak18p",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\amended\\rang-run",
+ "average_freq": true,
+ "solve_seconds": 447.2976442000072,
+ "solve": {
+  "field_id": 1,
+  "rows": 119700,
+  "intervals": 10,
+  "flagged_fraction": 0.05357142857142857,
+  "iterations": 10,
+  "converged_fraction": 1.0,
+  "used_alternate_refant": false
+ },
+ "spec": {
+  "type": "Gpol",
+  "name": "Gscan",
+  "solint": "60s",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K",
+   "G",
+   "B"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "parang": true,
+  "frame": "casa",
+  "receptor_angle": -1.5707963267948966,
+  "model": "column",
+  "model_column": "RANG_MODEL_DATA"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gscan",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 70.25460630000453,
+  "cells_flagged_before": 1258975624,
+  "cells_flagged_after": 1258975624,
+  "uncovered": []
+ },
+ "field": "J1939-6342",
+ "scan": 18
+}
+2026-11-13T12:27:27+02:00 leak18p D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 820s
+{
+ "label": "leak18p",
+ "column": "E2_XFER",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/leak18p -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2_XFER -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 15.043269157409668,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448082065049,
+ "Q_over_I": 0.003017981157027848,
+ "Q_at_peak_over_I": 0.003017981157027848,
+ "U_over_I": 0.0028817075084770767,
+ "U_at_peak_over_I": 0.0028817075084770767,
+ "V_over_I": 0.0005333221767635702,
+ "V_at_peak_over_I": 6.164174251013662e-05,
+ "met": false,
+ "max_over_I": 0.003017981157027848
+}
+2026-11-13T12:54:50+02:00 leakage leak18p D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 1643s
+{
+ "case": "leak18ap",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\amended\\rang-run",
+ "average_freq": true,
+ "solve_seconds": 203.3013246000046,
+ "solve": {},
+ "spec": {
+  "type": "G",
+  "name": "Gscan",
+  "solint": "inf",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K"
+  ],
+  "interp": [
+   "linear"
+  ],
+  "max_iterations": 50,
+  "stop_criterion": 1e-07,
+  "stop_fraction": 0.99,
+  "model": "column",
+  "calmode": "ap"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "Gscan",
+   "B",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 68.13490779997665,
+  "cells_flagged_before": 1258975624,
+  "cells_flagged_after": 1258975624,
+  "uncovered": []
+ },
+ "field": "J1939-6342",
+ "scan": 18
+}
+2026-11-13T12:59:51+02:00 leak18ap D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 301s
+{
+ "label": "leak18ap",
+ "column": "E2_XFER",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/leak18ap -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2_XFER -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 14.805419921875,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448019641283,
+ "Q_over_I": 0.00025568721913340743,
+ "Q_at_peak_over_I": -0.00011877907224171135,
+ "U_over_I": 0.0002923200570909745,
+ "U_at_peak_over_I": -0.0002211461648198299,
+ "V_over_I": 0.000535478873886864,
+ "V_at_peak_over_I": 6.288482569520636e-05,
+ "met": true,
+ "max_over_I": 0.000535478873886864
+}
+2026-11-13T13:28:34+02:00 leakage leak18ap D:\rang\outputs\e2-20261111-20-e2b\transfer-amended rc=0 1723s
+[
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "uvrange": ">150",
+   "caltable": "/p/casa/xfer/xfer17",
+   "field": "J1331+3030",
+   "scan": "17",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "applycal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1331+3030",
+   "scan": "17",
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B",
+    "/p/casa/xfer/xfer17",
+    "/d/Kcross",
+    "/d/Xf",
+    "/d/Df"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest",
+    "nearest"
+   ],
+   "gainfield": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "calwt": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "parang": true,
+   "applymode": "calflag",
+   "flagbackup": false
+  }
+ }
+]
+{
+ "case": "xfer17",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "errors": [],
+ "exit": 0
+}
+2026-11-13T13:40:04+02:00 casa xfer17 rc=0 690s
+{
+ "row": "transfer",
+ "ms": "D:\\rang\\outputs\\e2-20261111-20-e2b\\casa\\e2b.ms",
+ "column": "CORRECTED_DATA",
+ "flag": "FLAG",
+ "frac_unflagged": 0.7355070873095951,
+ "I": 14.833110749085977,
+ "q": 0.09638633114827386,
+ "u": -0.008607726363152289,
+ "v": 0.0016283976142139878,
+ "p": 0.096769921904317,
+ "chi_deg": -2.551614550589777,
+ "chi_minus_33_1_deg": -35.65161455058978,
+ "p_met": true,
+ "chi_met": false,
+ "met": false
+}
+2026-11-13T13:40:27+02:00 row casa xfer17 rc=0 23s
+[
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "uvrange": ">150",
+   "caltable": "/p/casa/xfer/leak18p",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "applycal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B",
+    "/p/casa/xfer/leak18p",
+    "/d/Kcross",
+    "/d/Xf",
+    "/d/Df"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest",
+    "nearest"
+   ],
+   "gainfield": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "calwt": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "parang": true,
+   "applymode": "calflag",
+   "flagbackup": false
+  }
+ }
+]
+{
+ "case": "leak18p",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "errors": [],
+ "exit": 0
+}
+2026-11-13T13:51:43+02:00 casa leak18p rc=0 676s
+{
+ "label": "casa-leak18p",
+ "column": "CORRECTED_DATA",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/casa-leak18p -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 15.036002159118652,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448143310589,
+ "Q_over_I": 0.0029752808620723665,
+ "Q_at_peak_over_I": 0.0029752808620723665,
+ "U_over_I": 0.002877738029505294,
+ "U_at_peak_over_I": 0.002877738029505294,
+ "V_over_I": 0.0005299494744865835,
+ "V_at_peak_over_I": 3.6812976151543257e-05,
+ "met": true,
+ "max_over_I": 0.0029752808620723665
+}
+2026-11-13T14:21:49+02:00 leakage casa leak18p rc=0 1806s
+[
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "uvrange": ">150",
+   "caltable": "/p/casa/xfer/leak18ap",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "gaintable": [
+    "/d/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "applycal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintable": [
+    "/d/K",
+    "/p/casa/xfer/leak18ap",
+    "/d/B",
+    "/d/Kcross",
+    "/d/Xf",
+    "/d/Df"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest",
+    "nearest"
+   ],
+   "gainfield": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "calwt": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "parang": true,
+   "applymode": "calflag",
+   "flagbackup": false
+  }
+ }
+]
+{
+ "case": "leak18ap",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "errors": [],
+ "exit": 0
+}
+2026-11-13T14:32:58+02:00 casa leak18ap rc=0 669s
+{
+ "label": "casa-leak18ap",
+ "column": "CORRECTED_DATA",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/casa-leak18ap -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 14.80616569519043,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.83144821668912,
+ "Q_over_I": 0.0002541181068458667,
+ "Q_at_peak_over_I": -0.0001392515309548987,
+ "U_over_I": 0.0002829506341104797,
+ "U_at_peak_over_I": -0.00021432066216915484,
+ "V_over_I": 0.0005328289307466672,
+ "V_at_peak_over_I": 3.929220814863588e-05,
+ "met": true,
+ "max_over_I": 0.0005328289307466672
+}
+2026-11-13T15:03:31+02:00 leakage casa leak18ap rc=0 1833s
+272916
+2026-11-13T15:04:06+02:00 restore-casa-applycal rc=0 35s
+2026-11-13T15:04:06+02:00 rows done

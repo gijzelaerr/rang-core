@@ -1,0 +1,35 @@
+{
+ "config_path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\config.yaml",
+ "created": "2026-11-10T21:42:45+00:00",
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "4600a92b9472c2a6132d307424ea3e8c29004f023efa7cb61e4b0d9b66521653",
+   "finished": "2026-11-10T21:42:47+00:00",
+   "flag_version": "rang_calibrate_20261110T214245Z",
+   "host": "glacier",
+   "pid": 182096,
+   "previous": null,
+   "seconds": 2.1809926999994786,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-10T21:42:45+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261110T214245Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  }
+ },
+ "updated": "2026-11-10T21:42:47+00:00",
+ "version": 1
+}

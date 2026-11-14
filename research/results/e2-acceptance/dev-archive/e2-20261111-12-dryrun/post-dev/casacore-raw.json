@@ -1,0 +1,344 @@
+{
+ "tables": {
+  "MAIN": {
+   "rows": 40000,
+   "columns": {
+    "UVW": 2,
+    "FLAG_CATEGORY": 0,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "ARRAY_ID": 2,
+    "DATA_DESC_ID": 2,
+    "EXPOSURE": 2,
+    "FEED1": 2,
+    "FEED2": 2,
+    "FIELD_ID": 2,
+    "FLAG_ROW": 2,
+    "INTERVAL": 2,
+    "OBSERVATION_ID": 2,
+    "PROCESSOR_ID": 2,
+    "SCAN_NUMBER": 2,
+    "STATE_ID": 2,
+    "TIME": 2,
+    "TIME_CENTROID": 2,
+    "DATA": 2,
+    "WEIGHT_SPECTRUM": 2,
+    "FLAG": 2,
+    "WEIGHT": 2,
+    "SIGMA": 2
+   }
+  },
+  "ANTENNA": {
+   "rows": 56,
+   "columns": {
+    "OFFSET": 2,
+    "POSITION": 2,
+    "TYPE": 2,
+    "DISH_DIAMETER": 2,
+    "FLAG_ROW": 2,
+    "MOUNT": 2,
+    "NAME": 2,
+    "STATION": 2
+   }
+  },
+  "DATA_DESCRIPTION": {
+   "rows": 1,
+   "columns": {
+    "FLAG_ROW": 2,
+    "POLARIZATION_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2
+   }
+  },
+  "FEED": {
+   "rows": 56,
+   "columns": {
+    "POSITION": 2,
+    "BEAM_OFFSET": 2,
+    "POLARIZATION_TYPE": 2,
+    "POL_RESPONSE": 2,
+    "RECEPTOR_ANGLE": 2,
+    "ANTENNA_ID": 2,
+    "BEAM_ID": 2,
+    "FEED_ID": 2,
+    "INTERVAL": 2,
+    "NUM_RECEPTORS": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "TIME": 2
+   }
+  },
+  "FLAG_CMD": {
+   "rows": 0,
+   "columns": {
+    "APPLIED": 0,
+    "COMMAND": 0,
+    "INTERVAL": 0,
+    "LEVEL": 0,
+    "REASON": 0,
+    "SEVERITY": 0,
+    "TIME": 0,
+    "TYPE": 0
+   }
+  },
+  "FIELD": {
+   "rows": 2,
+   "columns": {
+    "DELAY_DIR": 2,
+    "PHASE_DIR": 2,
+    "REFERENCE_DIR": 2,
+    "CODE": 2,
+    "FLAG_ROW": 2,
+    "NAME": 2,
+    "NUM_POLY": 2,
+    "SOURCE_ID": 2,
+    "TIME": 2
+   }
+  },
+  "HISTORY": {
+   "rows": 0,
+   "columns": {
+    "APP_PARAMS": 0,
+    "CLI_COMMAND": 0,
+    "APPLICATION": 0,
+    "MESSAGE": 0,
+    "OBJECT_ID": 0,
+    "OBSERVATION_ID": 0,
+    "ORIGIN": 0,
+    "PRIORITY": 0,
+    "TIME": 0
+   }
+  },
+  "OBSERVATION": {
+   "rows": 1,
+   "columns": {
+    "TIME_RANGE": 2,
+    "LOG": 2,
+    "SCHEDULE": 2,
+    "FLAG_ROW": 2,
+    "OBSERVER": 2,
+    "PROJECT": 2,
+    "RELEASE_DATE": 2,
+    "SCHEDULE_TYPE": 2,
+    "TELESCOPE_NAME": 2
+   }
+  },
+  "POINTING": {
+   "rows": 0,
+   "columns": {
+    "DIRECTION": 0,
+    "ANTENNA_ID": 0,
+    "INTERVAL": 0,
+    "NAME": 0,
+    "NUM_POLY": 0,
+    "TARGET": 0,
+    "TIME": 0,
+    "TIME_ORIGIN": 0,
+    "TRACKING": 0
+   }
+  },
+  "POLARIZATION": {
+   "rows": 1,
+   "columns": {
+    "CORR_TYPE": 2,
+    "CORR_PRODUCT": 2,
+    "FLAG_ROW": 2,
+    "NUM_CORR": 2
+   }
+  },
+  "PROCESSOR": {
+   "rows": 0,
+   "columns": {
+    "FLAG_ROW": 0,
+    "MODE_ID": 0,
+    "TYPE": 0,
+    "TYPE_ID": 0,
+    "SUB_TYPE": 0
+   }
+  },
+  "SPECTRAL_WINDOW": {
+   "rows": 1,
+   "columns": {
+    "MEAS_FREQ_REF": 2,
+    "CHAN_FREQ": 2,
+    "REF_FREQUENCY": 2,
+    "CHAN_WIDTH": 2,
+    "EFFECTIVE_BW": 2,
+    "RESOLUTION": 2,
+    "FLAG_ROW": 2,
+    "FREQ_GROUP": 2,
+    "FREQ_GROUP_NAME": 2,
+    "IF_CONV_CHAIN": 2,
+    "NAME": 2,
+    "NET_SIDEBAND": 2,
+    "NUM_CHAN": 2,
+    "TOTAL_BANDWIDTH": 2
+   }
+  },
+  "STATE": {
+   "rows": 3,
+   "columns": {
+    "CAL": 2,
+    "FLAG_ROW": 2,
+    "LOAD": 2,
+    "OBS_MODE": 2,
+    "REF": 2,
+    "SIG": 2,
+    "SUB_SCAN": 2
+   }
+  },
+  "flags.rang_apply_20261111T232758Z": {
+   "rows": 40000,
+   "columns": {
+    "FLAG": 2,
+    "FLAG_ROW": 2
+   }
+  },
+  "flags.rang_calibrate_20261111T232243Z": {
+   "rows": 40000,
+   "columns": {
+    "FLAG": 2,
+    "FLAG_ROW": 2
+   }
+  },
+  "flags.rang_flag_20261111T232148Z": {
+   "rows": 40000,
+   "columns": {
+    "FLAG": 2,
+    "FLAG_ROW": 2
+   }
+  },
+  "flags.rang_original": {
+   "rows": 40000,
+   "columns": {
+    "FLAG": 2,
+    "FLAG_ROW": 2
+   }
+  },
+  "caltable:B": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "CPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:Df": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "CPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:G": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "CPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:Gpol": {
+   "rows": 112,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "CPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:K": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "FPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:Kcross": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "FPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  },
+  "caltable:Xf": {
+   "rows": 56,
+   "columns": {
+    "TIME": 2,
+    "FIELD_ID": 2,
+    "SPECTRAL_WINDOW_ID": 2,
+    "ANTENNA1": 2,
+    "ANTENNA2": 2,
+    "INTERVAL": 2,
+    "SCAN_NUMBER": 2,
+    "OBSERVATION_ID": 2,
+    "CPARAM": 2,
+    "PARAMERR": 2,
+    "FLAG": 2,
+    "SNR": 2,
+    "WEIGHT": 0
+   }
+  }
+ },
+ "errors": []
+}

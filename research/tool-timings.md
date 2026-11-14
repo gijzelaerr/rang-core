@@ -1895,3 +1895,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | selfcal-arms: QuartiCal 0.2.7 round-1 re-solve (Sp inf, Sd inf, Sp freqint 1), WSL docker, 1 slot | c5pa, c5delay | 73-90 s QuartiCal (30 min with lock wait); first pass 108-139 s, superseded (oracle predictor fix) | – | WSL docker from Windows |
 | 2026-11-13 | selfcal-arms held out: `rang-core selfcal` u / r / p, 10 loops in parallel, 4 slots each | c5pa-held, c5delay-held, c5pa-held2, c5delay-held2 | u 61-71 s, r 121-146 s, p 65-67 s stage (lock waits 42-49 min) | – | native Windows |
 | 2026-11-13 | selfcal-arms `tools/check_all.py --quick` (twice) | worktree | 55 s and 23 s (lock waits 8 and 48 min); first run before that failed on ruff only (1088 s) | – | native Windows |
+| 2026-11-12 | E2-B frozen arm, `rang-core run e2b.yaml` under `e2_timed.py` (gate 1), exclusive | `e2b.ms`, 272,916 rows x 4,096 ch | 6,195 s | 49.0 GB tree RSS | exit 0; every stage |
+| 2026-11-12 | E2-B amended arm (`calibrate.average_freq`), the same, exclusive | the restored `e2b.ms` | 6,249 s | 49.1 GB | exit 0 |
+| 2026-11-12 | E2-B gate 3b CASA arm (`e2_casa3b.py run`, CASA 6.7.6.14, 18 tasks) | the CASA copy | 3,672 s | – | 0 errors |
+| 2026-11-13 | E2-B transfer selftest (`e2_transfer.py selftest`, library apply of 7 tables to scan 17) | the CASA copy | apply 168 s; 1,584 s with flag restore and comparison (queue wait included) | – | bit-exact, shared 4 slots |
+| 2026-11-13 | E2-B per-scan solves (`e2_transfer.py rang`), xfer17 / leak18p / leak18ap | the CASA copy | solve 558 s for xfer17; steps 527-1,383 s / 692-820 s / 299-301 s (frozen-amended, with queue waits) | – | shared 4 slots, 8 GB budget |
+| 2026-11-13 | E2-B leakage images (`e2_leakage.py`, WSClean 3.7 dirty IQUV 2048², 8 channels, -j 8) | J1939−6342 scan 18 | 1,643-1,833 s per case | – | shared 8 slots |
+| 2026-11-13 | E2-B CASA development tables (`e2_casa_xfer.py dev`, 11 tasks) | luno-dev.ms copy | 2,837 s | – | shared 8 slots |
+| 2026-11-13 | E2-B CASA transfer/leakage cases (`e2_casa_xfer.py rows`, gaincal + applycal) | the CASA copy | 669-690 s per case | – | shared 8 slots |
+| 2026-11-13 | E2-B gate 3c score (`e2_score3c.py`, matched oracle) | 3 fields' images | under 3,219 s including the queue wait behind an exclusive bench | – | – |
+| 2026-11-13 | E2-A `e2_convert.py build` / `verify` / `e2_flaghash.py` | ESO137 scans 9, 10, 11: 1,047,614 rows x 4,096 ch (194 GB) | 1,304 s / 706 s / 30 s | – | shared 4 slots, critical priority; 0 cells differ |
+| 2026-11-13 | E2-B amended post chain (`e2_post.py` steps wsclean0 ... tricolour, then CASA 3b, scorers, matched 3c oracle) | `e2b.ms` and its CASA copy | wsclean3c 22,625 s; copy 4,431 s; CASA 3b 4,782 s; tricolour 1,040 s (each with queue waits) | – | shared slots; 3a exact |

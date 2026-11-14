@@ -12,7 +12,7 @@ py=$(cygpath -w "$PWD/.venv/Scripts/python.exe")
 lock='C:\Users\gijsm\Github\rang\tools\heavy_lock.py'
 s=research/results/e2-acceptance-scripts/e2_post.py
 on=0
-for step in gate1 archive wcs casacore casa-ro wsclean0 daskms wsclean3c copy prep applycal compare restore tricolour; do
+for step in gate1 archive wcs casacore casa-ro wsclean0 daskms wsclean3c copy prep applycal compare snapshot restore tricolour; do
   [ "$step" = "$first" ] && on=1
   [ $on = 1 ] || continue
   case $step in

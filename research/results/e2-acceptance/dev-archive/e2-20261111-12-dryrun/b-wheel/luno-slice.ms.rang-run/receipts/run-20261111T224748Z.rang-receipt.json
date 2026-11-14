@@ -1,0 +1,125 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "run",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\config.yaml",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\luno-slice.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-11T22:47:48+00:00",
+ "commit": null,
+ "source": {
+  "checkout": null,
+  "distribution": "rang-core",
+  "version": "0.1.0",
+  "extension_sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Build/tmp/20261111-e2-wheel/venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.1.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Build/tmp/20261111-e2-wheel/venv/Lib/site-packages/rang/_core.pyd",
+   "sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": null,
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/config.yaml",
+   "kind": "file",
+   "bytes": 2902,
+   "sha256": "692fcefa4865d69b4a8016acc768b5ddb029e14d61fe5cf5c212b63176d47c7c"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/luno-slice.ms",
+   "kind": "directory",
+   "files": 65,
+   "bytes": 7953456746,
+   "listing_sha256": "48a39e98b842d739d7c3ec99e843988c5e8678423b4fcdf54555bf8cd997f4a5"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/luno-slice.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 13196337519,
+   "listing_sha256": "f9c8d30913653513abddda731fa9dfbf5bbaa33d4e4740dc82e70470716c3d4f",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/luno-slice.ms.flagversions",
+   "kind": "directory",
+   "files": 20,
+   "bytes": 251683719,
+   "tree_sha256": "bb2e04b1fefa78ac5fd8bed564aacad49369634478c9f425ae99ef9b3aab0263"
+  },
+  {
+   "path": "D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/luno-slice.ms.rang-run",
+   "kind": "directory",
+   "files": 85,
+   "bytes": 7765593,
+   "tree_sha256": "bcd2fad5ac93a9e76ec639a171f1bbd5430153d2e65f7d3b3b07579c0026d096"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 256.95306909999636,
+  "cpu_seconds": 739.171875,
+  "peak_rss_mb": 3849.40625
+ },
+ "exit": "exception: ModuleNotFoundError",
+ "verdict": null
+}

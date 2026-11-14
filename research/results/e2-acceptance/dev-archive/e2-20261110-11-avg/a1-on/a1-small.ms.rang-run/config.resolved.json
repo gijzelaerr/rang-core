@@ -1,0 +1,317 @@
+{
+ "apply": {
+  "applymode": "calflag",
+  "calwt": false,
+  "column": "CORRECTED_DATA",
+  "parang": false,
+  "targets": []
+ },
+ "calibrate": {
+  "average_time": true,
+  "minblperant": null,
+  "minsnr": null,
+  "model": {
+   "column": "MODEL_DATA",
+   "flux_jy": null,
+   "lsm": null,
+   "polangle": null,
+   "polindex": null,
+   "reffreq_hz": null,
+   "rotmeas": null,
+   "source": "setjy",
+   "spix": null,
+   "standard": "Stevens-Reynolds 2016"
+  },
+  "polcal": {
+   "extendflags": false,
+   "feed_angle_rotation": null,
+   "field": [
+    "xcal"
+   ],
+   "frame": "casa",
+   "model": {
+    "column": "MODEL_DATA",
+    "name": null,
+    "source": "nrao"
+   },
+   "terms": []
+  },
+  "primary": {
+   "field": [
+    "fcal"
+   ],
+   "terms": [
+    {
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "K",
+     "preapply": [],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "type": "K",
+     "uvrange": null
+    },
+    {
+     "calmode": null,
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "G",
+     "preapply": [
+      "K"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "type": "G",
+     "uvrange": null
+    },
+    {
+     "combine": "scan",
+     "field": null,
+     "fillgaps": 70,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "B",
+     "preapply": [
+      "K",
+      "G"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "solnorm": null,
+     "type": "B",
+     "uvrange": null
+    },
+    {
+     "field": null,
+     "name": "A",
+     "strategy": null,
+     "type": "A"
+    }
+   ]
+  },
+  "refant": [
+   "m000"
+  ],
+  "refant_maxdist": 1000.0,
+  "refant_minbase": 150.0,
+  "refantmode": "flex",
+  "secondary": {
+   "field": [
+    "gcal"
+   ],
+   "terms": [
+    {
+     "calmode": null,
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "Gsec",
+     "preapply": [
+      "K",
+      "B"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "60s",
+     "type": "G",
+     "uvrange": null
+    },
+    {
+     "field": null,
+     "name": "Asec",
+     "strategy": null,
+     "type": "A"
+    },
+    {
+     "calmode": null,
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "F",
+     "preapply": [
+      "K",
+      "B"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "smodel": null,
+     "solint": "inf",
+     "type": "F",
+     "uvrange": null
+    }
+   ]
+  },
+  "uvrange": ">150"
+ },
+ "data": {
+  "chunk_rows": null,
+  "memory_limit_gb": 8.0,
+  "scans": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22
+  ],
+  "weights": "uniform"
+ },
+ "fields": {
+  "bpcal": [],
+  "fcal": [
+   "J1939-6342"
+  ],
+  "gcal": [
+   "SIM-GCAL"
+  ],
+  "target": [
+   "SIM-TARGET"
+  ],
+  "xcal": []
+ },
+ "flag": {
+  "column": "DATA",
+  "fields": [
+   "all"
+  ],
+  "flagger": "tricolour",
+  "static_masks": "tricolour",
+  "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+  "write": "replace"
+ },
+ "image": {
+  "abs_auto_mask": null,
+  "auto_mask": null,
+  "auto_mask_nmiter": null,
+  "auto_threshold": 3.0,
+  "average_channels": 1,
+  "channels_out": 1,
+  "column": "auto",
+  "extra_args": [],
+  "fields": [
+   "target"
+  ],
+  "fit_spectral_pol": null,
+  "fits_mask": null,
+  "gain": null,
+  "gemclean": "auto",
+  "imager": "gemclean",
+  "join_channels": false,
+  "join_polarizations": false,
+  "maxuv_l": null,
+  "maxuvw_m": null,
+  "mgain": null,
+  "minuv_l": null,
+  "minuvw_m": null,
+  "multiscale": false,
+  "multiscale_gain": null,
+  "multiscale_max_scales": null,
+  "multiscale_scale_bias": null,
+  "multiscale_scales": null,
+  "multiscale_shape": "tapered-quadratic",
+  "name": "image",
+  "niter": 1000000,
+  "nmiter": null,
+  "pol": "I",
+  "robust": 0.0,
+  "scale": null,
+  "size": null,
+  "taper_gaussian": null,
+  "taper_inner_tukey": null,
+  "taper_tukey": null,
+  "threads": null,
+  "threshold": null,
+  "uvrange": "",
+  "weight": "briggs",
+  "wgridder_accuracy": 0.0001,
+  "write_model": false
+ },
+ "run": {
+  "stages": [
+   "calibrate"
+  ]
+ },
+ "schema": "rang-config",
+ "selfcal": {
+  "clean_cutoff": [],
+  "cleanmask_method": [],
+  "cleanmask_thr": [],
+  "gain_clip": [
+   0.5,
+   2.0
+  ],
+  "input_column": "CORRECTED_1GC",
+  "minuvw_m": 0.0,
+  "model_column": "MODEL_DATA",
+  "output_column": "CORRECTED_DATA",
+  "refant": null,
+  "rounds": 2,
+  "terms": [
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   }
+  ]
+ },
+ "version": 1
+}

@@ -1,0 +1,11 @@
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1833-2103:dirty": 0,
+  "J1833-2103:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "settings": "-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp"
+}

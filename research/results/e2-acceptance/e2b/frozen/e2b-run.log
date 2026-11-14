@@ -1,0 +1,9 @@
+rang-core: flag: running
+rang-core: flag: done in 461.1 s
+rang-core: calibrate: running
+rang-core: calibrate: done in 2156.8 s
+rang-core: apply: running
+rang-core: apply: done in 166.6 s
+rang-core: image: running
+rang-core: image: done in 3401.1 s
+rang-core: receipt D:/rang/data/e2-b/e2b.ms.rang-run/receipts/run-20261112T005327Z.rang-receipt.json

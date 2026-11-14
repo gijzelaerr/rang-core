@@ -1,0 +1,59 @@
+{
+ "config_path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\config.yaml",
+ "created": "2026-11-11T22:47:48+00:00",
+ "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\luno-slice.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "dd58b9cf6c26f718c4f41b77ce455546846e77aa20c46dff85cdcdc35ee9d110",
+   "error": "ModuleNotFoundError: No module named 'astropy'",
+   "finished": "2026-11-11T22:52:05+00:00",
+   "flag_version": "rang_calibrate_20261111T224858Z",
+   "host": "glacier",
+   "pid": 34784,
+   "previous": null,
+   "seconds": 187.00485690000642,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-11T22:48:58+00:00",
+   "status": "failed"
+  },
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "318544ab792b8d7fce4b9d501aed064c2bac173b9e08b31df1e55a19734cc830",
+   "finished": "2026-11-11T22:48:58+00:00",
+   "flag_version": "rang_flag_20261111T224753Z",
+   "host": "glacier",
+   "pid": 34784,
+   "previous": null,
+   "seconds": 69.63493830000516,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-11T22:47:48+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "flag_sha256": "1b60dc7485495c008930628d6f4024c88a3ebde717f95059a4a73c5703d5533e",
+    "flag_version": "rang_flag_20261111T224753Z",
+    "flagged_after": 0.7335423400878907,
+    "flagged_before": 0.7058368774414062,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 40000,
+    "steps": 12,
+    "strategy": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  }
+ },
+ "updated": "2026-11-11T22:52:05+00:00",
+ "version": 1
+}

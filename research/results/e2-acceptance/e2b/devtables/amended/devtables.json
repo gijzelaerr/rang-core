@@ -1,0 +1,12 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "config": "research/results/e2-acceptance-scripts/e2b-amended-dev.yaml",
+ "python": "C:\\Users\\gijsm\\Build\\tmp\\20261112-e2-amended-wheel\\venv\\Scripts\\python.exe",
+ "restored_rows_before": 236208,
+ "run_exit": 0,
+ "run_seconds": 2412.6463914000196,
+ "saved_version": "e2dev_amended_after_calibrate",
+ "saved_now": true,
+ "restored_rows_after": 236208,
+ "flag_restored_equal": true
+}

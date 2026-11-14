@@ -1,0 +1,130 @@
+[
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1833-2103",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/F",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "J1939-6342",
+   "J1833-2103",
+   "J1939-6342",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1331+3030",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1939-6342",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]

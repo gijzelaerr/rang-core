@@ -622,6 +622,586 @@ presented as a pass.
   scorers as the frozen arm; its Gpol class B miss is expected at about
   the LUNO size.
 
+## 7. E2-B results
+
+Measured 2026-11-12. Each gate is read against 6.5 as frozen. Sealed scores
+were read only after `0477e54` (the 6.7 amendment, pushed).
+
+### 7.1 Scorer and oracle decisions written before reading the sealed scores
+
+Written on 2026-11-12, after the 6.7 amendment and before any E2-B 3b, 3c or
+row value was read. Each scorer was run on the development dry run first
+(`D:\rang\outputs\e2-20261111-12-dryrun\post-dev`).
+
+- **Gate 3c's oracle as committed is not matched in weights.**
+  - `wsclean3c` (`e2_post.py`) images with the MS's WEIGHT_SPECTRUM. On
+    `e2b.ms` that column ranges from 0.13 to 0.17 within a scan and from 1.1
+    to 17 in others.
+  - Rang's image stage passes `-unit-weights` (`data.weights: uniform`).
+  - The gridder matches: WSClean 3.7's default is wgridder at 1e-4, which is
+    rang's `image.wgridder_accuracy`.
+  - This was found from the two argv lists, not from a 3c value.
+  - Under 6.5's scorer-bug rule, both readings are reported, labelled:
+    - "as committed" (`R/wsclean3c`);
+    - "matched" (`R/wsclean3c-unit`). The new step `wsclean3c-unit` images
+      RANG_CORRECTED_DATA with rang's FLAG after apply. It runs on the CASA
+      copy with WEIGHT_SPECTRUM renamed away and a unit WEIGHT, so WSClean
+      falls back to WEIGHT (W6). The renames are undone afterwards.
+  - Development reading, as committed: dirty L∞/peak 0.11 (J1939−6342) and
+    0.022 (J1331+3030).
+  - Development reading, matched (`wsclean3c-unit` on the dry run's copy):
+    - Imaging weights and flags are equal: WSCIMGWG 4904650.0106 in both,
+      no FLAG_ROW outside rang's flags.
+    - The MFS I peak is 14.4097 against 14.4079 Jy (1.2e-4 relative).
+    - **Dirty L∞/peak is 0.050 (J1939−6342) and 0.022 (J1331+3030)**,
+      largest on the image edge in output channel 6:
+
+      | Field, image | Full image | 5 % border excluded | Inner two-thirds | Median |
+      | --- | --- | --- | --- | --- |
+      | J1939−6342, MFS | 8.5e-3 | 6.1e-4 | 2.6e-4 | 4.4e-5 |
+      | J1939−6342, channel 6 | 5.0e-2 | 3.8e-3 | 1.1e-3 | 1.2e-4 |
+      | J1331+3030, MFS | 3.3e-3 | 1.9e-4 | 7.6e-5 | 1.3e-5 |
+
+    - Both imagers run wgridder at ε 1e-4, rang's frozen
+      `image.wgridder_accuracy`. A0 measured its dirty bound (6.5e-8 to
+      2.2e-7) at matched higher accuracy.
+    - **Expected on E2-B, written before reading it: dirty L∞ not met** at
+      1e-6. The other 3c measures as measured. Off-source |model| on dev
+      was 1.58 (J1939−6342) and 3.16 (J1331+3030) against the 1.6 limit.
+    - The region profile is reported beside, never as the gate.
+  - The step's first version added the unit WEIGHT to the shared
+    StandardStMan and removed it afterwards. casacore reads that table; rang's
+    reader then refuses it ("StandardStMan column count mismatches the
+    table"), found on the dry run's copy.
+    - Reproduced on a 10-row table; a follow-up for rang's reader.
+    - Fixed before any E2-B use: the unit WEIGHT gets its own storage
+      manager, and the frozen copy's queued run was stopped before it
+      started.
+- **3c scorer** (`e2_score3c.py`): the measures and limits are listed in its
+  docstring. **Q/Q₀ is not checked**: it needs both models predicted through
+  one gridder on the MS. 3c is therefore reported at best as "met where
+  checked", never as met.
+  The compact-source gate is "not checked" below 3 matched sources (added
+  before any 3c read: on dev it read met with n = 1, where the scatter is 0 by
+  construction).
+- **Visibility-domain rows** (`e2_rows_b.py`: 3C 286 parity, 1830−211; the
+  transfer reuses its estimator):
+  - Both arms apply with parang true, so the apply performs the derotation to
+    the sky frame and the scorer adds none.
+  - Development reading on LUNO scan 1 (parallactic angle −169°):
+
+    | Column (both arms) | χ |
+    | --- | --- |
+    | MODEL_DATA | 32.6–33.0° (the model's 33.0°) |
+    | DATA | 10–16° |
+    | CORRECTED_DATA | 86–89° (rang and CASA within 0.1°) |
+
+  - This frame difference is shared by both arms, so it cancels in parity.
+    The transfer row's absolute χ will show it.
+- **The χ offset, measured at 1.3–1.5 GHz** (scan 17 on the frozen CASA copy;
+  dev scan 1 on the dry run's), written before the transfer row ran:
+
+  | Scan | ψ (array centre) | Model χ | Corrected χ, rang and CASA | Offset |
+  | --- | --- | --- | --- | --- |
+  | Dev scan 1 | −169.2° | 32.7° | 88° | +55.0° |
+  | Scan 17 | +146.4° | 30.0° | −3.2° | −33.2° |
+
+  - On scan 17: model q +0.052, u +0.090; corrected q +0.099, u −0.011.
+    Corrected |q| carries almost all of p, so this is a rotation, not a
+    mirror (Q or U flipped).
+  - The offset changes by −88.2° (≡ 91.8° mod 180) for Δψ = −44.4°. A
+    residual +2ψ predicts 91.2° and −2ψ predicts 88.8°, so the data favour
+    P removed with the wrong sign. Two scans cannot settle it.
+  - Separate study, early reading, not an E2 measurement (2026-11-13,
+    `research/chi-offset.md` on branch claude/chi-offset-80cb6a). ψ agrees
+    with astropy to 0.07°, so P's sign is not the cause.
+    - In the feed frame on scan 17, data q_f −0.049 against model +0.063,
+      while u_f agrees (−0.087 against −0.083).
+    - That fits a receptor angle near 0° rather than −90°, with Xf then
+      matching U to the model: χ = −χ₀ + 2ψ − 90°. This predicts −10° and
+      +79°; E2 saw −3° and +88°.
+    - That study's simulation and LUNO tests are still running.
+  - It is shared by rang and CASA, so it is the configured frame
+    (RECEPTOR_ANGLE −90°, `feed_angle_rotation: -90`, parang true), not
+    one package's apply.
+  - **Expected for the transfer row:** χ near the own-scan −3° (the
+    development Xf cannot remove a ψ-dependent rotation), so **not met** on
+    χ; p inside [9.0, 10.1] %.
+- **Transfer and leakage recipe, the same for both scans and arms:**
+  1. A per-scan phase-only G (p, 60 s, parang), with the development K, G
+     and B preapplied. It is solved on scan 17 against the 3C 286 model, and
+     on scan 18 against 1934−638's.
+  2. Development K, G, B, that G, and development Kcross, Xf and Df applied.
+  - The development tables come from `e2b-dev.yaml` or
+    `e2b-amended-dev.yaml`: `e2b.yaml` or `e2b-amended.yaml` with scans
+    [1, 2], no secondary block, stages [flag, calibrate], and the gcal apply
+    target dropped with the secondary block.
+  - `e2_devtables.py` saves FLAG after calibrate as flag version
+    `e2dev_<arm>_after_calibrate` for the CASA development copy.
+  - Leakage only: scan 18's own amplitude-and-phase G is reported beside it.
+    A phase-only G with scan 2's amplitudes would put the X/Y amplitude drift
+    between scans into Q.
+- **The amended arm's CASA input differs from the frozen arm's**
+  (`e2_fvcmp.py`, `R_amended/flagversions-frozen-vs-amended.json`):
+  - FLAG after rang's flag stage is identical.
+  - FLAG after calibrate (the CASA copy's flags) differs in 5,916 of
+    4.47e9 elements: 4,392 frozen only, 1,524 amended only.
+  - So the amended arm gets its own CASA 3b run, `e2_casa3b.py` on its copy.
+- **Transfer and leakage, the remaining choices** (`e2_transfer.py`,
+  `e2_casa_xfer.py`, `e2_rows_b.py transfer`, `e2_leakage.py`):
+  - **Where:** both arms run on the frozen CASA copy, `R/casa/e2b.ms`. It
+    holds rang's model (RANG_MODEL_DATA, rang's solve model) and CASA's
+    setjy MODEL_DATA.
+  - **Flags:** FLAG is restored before every case from rang's flag-stage
+    version (`rang_calibrate_*`: FLAG after rang's flag stage, identical in
+    the frozen and amended arms; the own-half solves do not enter).
+  - **Receptor angle:** rang's apply gets −90° explicitly, as the chain does.
+    CASA reads the −90° written into the copy's FEED.
+  - **Rang's arm** uses the chain's own calls and term specs
+    (`core_pipeline.chain_terms`), unit weights and `average_time`, plus
+    `average_freq` for the amended arm. A selftest must first reproduce
+    RANG_CORRECTED_DATA at class C: the run's own tables applied by the
+    library to scan 17.
+  - **CASA's arm:**
+    - Development tables from `e2_casa3b.py`'s calls (no secondary, no
+      applycal), on a copy of `luno-dev.ms` carrying rang's development FLAG
+      after calibrate.
+    - On E2-B: gaincal of the per-scan G, then applycal with parang true.
+    - One CASA run serves both arms when the two development flag versions
+      are equal.
+    - Measured equal (0 elements differ,
+      `devtables/dev-flags-frozen-vs-amended.json`), and the flag-stage FLAG
+      is identical in both arms. So CASA's transfer and leakage results are
+      one run, reported beside both rang arms.
+  - **Transfer measure:** the parity estimator in one bin, 1.3–1.5 GHz.
+  - **Leakage measure:**
+    - Image: WSClean 3.7 dirty IQUV MFS of J1939−6342 at gate 3c's size and
+      weighting (MS weights; a ratio of one source).
+    - Per Stokes Q, U, V: peak |P| within 3 beams of the I peak, over that I
+      peak.
+    - Gate: each ≤ 0.3 %.
+- **Weights in 3b (stated, not changed):** rang solves with unit weights;
+  CASA's arm (`e2_casa3b.py`, as `e1b_casa.py` and the LUNO validation) uses
+  WEIGHT_SPECTRUM. On LUNO the weights were
+  ruled out as the cause of the Gpol miss (6.1).
+
+### 7.2 Gate 2b's flag rule (cause found on main)
+
+- **Development slice:** CASA's applycal flagged extra parallel-hand cells
+  where rang did not.
+  - The cause is CASA's P term, not Df. With `parang=True` on linear feeds,
+    P is a general 2×2 Jones, so CASA flags all four correlations where any
+    one is flagged ([p-flag-spread.md](p-flag-spread.md), main merge
+    `305fdf8`).
+  - Main now has `apply.parang_flags`, default `spread` (CASA's rule). `none`
+    is the frozen behaviour, and CORRECTED_DATA is bit-identical under both.
+  - E2 runs on its frozen wheel, which has `none`.
+- **On E2-B both settings give the same flags:** no cell there is partly
+  flagged. Measured: CASA applycal's FLAG equals rang's in all 408,827,131
+  compared cells (`g2b-applycal.json`, `flag_elements_differ` 0).
+
+### 7.3 E2-B frozen arm, gates as frozen
+
+Outputs are in `D:\rang\outputs\e2-20261111-20-e2b` (R).
+
+| Gate | Result | Reading |
+| --- | --- | --- |
+| 1 | met | exit 0, every stage in the receipt; wall 6,195 s (`e2b-timed.json`) |
+| 2a | met | FLAG, FLAG_ROW hashes equal the input's after restore (272,916 rows) |
+| 2b casacore | met | 27 tables, every column |
+| 2b CASA listobs, flagmanager | met | – |
+| 2b CASA applycal (class C) | **not met** | flags equal (0 of 408,827,131 cells differ; 7.2); **42 cells** over 11 float32 eps of the cell max: 11.0–25.6 eps (median 11.6; 36 of them ≤ 15 eps), max relative 0.22. They lie on field 1 scan 18 (30) and field 2 scans 19–20 (12), mostly in channels 1862–1879, 17 on baseline (35, 55) |
+| 2b WSClean -niter 0 | met | CORRECTED_DATA and MODEL_DATA |
+| 2b dask-ms (QuartiCal's reader) | met | 4 datasets, 272,916 rows; met on its rerun after a helper named `daskms.py` shadowed the package (first reading: import error, a scorer bug) |
+| 2c | met | 459 FITS files parse |
+| 3a | met, **exact** | Tricolour against rang's flag stage: 0 of 1,117,863,936 cells differ, every scan. 6.5 expected a few ulp cells |
+| 3b | **not met** | below |
+
+**Gate 3b** (`g3b.json`, CASA 6.7.6.14, 18 tasks, 0 errors, 3,672 s; class B
+as 6.5):
+
+| Term | Result | Reading |
+| --- | --- | --- |
+| K | met | \|Δτ\| median 0.00072 ns, p95 0.0047, max 0.0057 |
+| KCROSS | met | 0.00053 ns |
+| Xf | met | median 0.047°, p95 0.60°, max 3.9° |
+| Df | met | median 1.7e-5, p95 2.2e-4 |
+| Gpol | **not met (expected)** | median 0.278°, p95 2.17° against 0.1° |
+| fcal K G B composite | **not met** (expected met) | median 1.14e-3, p95 1.52e-2 against 7e-4 / 3e-3; flags 0 differ |
+| gcal K F B composite | **not met** | median 1.12e-3, p95 1.51e-2 |
+
+- Reported only, not gated:
+  - G: relative 1.4e-4 median, 0.0074°.
+  - B: relative 1.1e-3 median, p95 7.0e-3, 0.062°; 5,242 solution flags
+    differ.
+  - Gsec: 3.6e-4.
+  - F: 2.3e-4.
+  - Df: 8,670 solution flags differ.
+
+**Rows (frozen arm):**
+
+| Row | Result | Reading |
+| --- | --- | --- |
+| 3C 286 parity | **met** | 6 bins scored: \|Δp\| ≤ 0.030 points, \|Δχ\| ≤ 0.077° |
+| 1830−211 | **not met** | 7 bins: I within 0.025 %, \|Δp\| ≤ 0.062 points; \|Δχ\| up to 13.1° in 4 bins |
+
+- 1830−211's polarisation is 0.02–0.09 %, so its χ is mostly noise. The row
+  is still read as frozen.
+- **3C 286's absolute χ on scan 17 is −0.5° to −4.2°, the same in both arms,
+  against the model's 33°** (the development scan read 86–89°). The offset
+  differs between scans, so the frame difference of 7.1 depends on
+  parallactic angle and is shared by rang and CASA. The transfer row, which
+  is judged on absolute χ, measures it.
+
+### 7.4 E2-B frozen arm: matched 3c, transfer and leakage rows (2026-11-13)
+
+Resumed from 8.3 on 2026-11-13. Records: `results/e2-acceptance/e2b/frozen/`
+(R's text records; the transfer cases in `transfer/`, `transfer-amended/`,
+`transfer-casa/`) and `e2b/devtables/`. Each step a shared heavy_lock job.
+
+**Gate 3c, matched oracle** (`R\g3c-matched.json`, unit weights as rang's
+`-unit-weights`; 7.1). Not met, as expected in 7.1:
+
+| Measure | As committed (8.1) | Matched | Limit |
+| --- | --- | --- | --- |
+| Dirty L∞ / peak, max over images | 0.032 | 3.5e-3 (J1331+3030), 2.9e-3 (J1833−2103), 1.2e-3 (J1939−6342) | 1e-6 |
+| — inner two-thirds (reported) | 0.032 | 3.0e-5, 2.4e-5, 2.2e-5 | – |
+| Compact sources, median ratio, scatter | 37, 0.9936, 1.4 % | 35, 0.9942, 0.97 % | within 0.5 %, ≤ 1 % |
+| Δα, 12 sources ≥ 50σ | 0.023 | 0.0097 | ≤ 0.05 |
+| Off-source \|model\| ratio (J1939, J1833, J1331) | 1.28, 1.70, 2.29 | 1.27, 1.67, 2.27 | ≤ 1.6 |
+| Unpolarised Q, U, V (J1939−6342) | not met (V) | met | – |
+| Q/Q₀ | not checked | not checked | – |
+
+- Matched 3c: "met where checked" is false. Δα and the unpolarised test are
+  met; dirty L∞, the compact-source median (0.58 % from 1) and off-source on
+  J1833−2103 and J1331+3030 are not.
+
+**Library selftest** (`transfer/selftest.json`): the run's own K, G, B, Gpol,
+Kcross, Xf, Df applied by the library to J1331+3030 scan 17 reproduce
+RANG_CORRECTED_DATA and RANG_FLAG **bit for bit**: 171,242,769 cells, 0 over
+class C, max relative difference 0, 0 flag elements differ. The transfer
+cases' route is the chain's.
+
+**Leakage scorer, development rerun** (fixed field and beam, 8.3 item 3):
+J1939−6342 (OBJECT asserted), beam 19.1 px, Q/I 0.073 %, U/I 0.071 %,
+V/I 0.008 %: met on the dry run's slice.
+
+**CASA development tables** (`e2_casa_xfer.py dev`, CASA 6.7.6.14): 11 tasks,
+0 errors, on a copy of `luno-dev.ms` carrying rang's frozen development FLAG
+after calibrate (equal to the amended one, 7.1).
+
+**Rows** (one bin 1.3–1.5 GHz for the transfer; 73.6 % of scan 17's cells
+unflagged in every arm):
+
+| Row | Rang frozen | Rang amended | CASA | Limit | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| 3C 286 transfer, p | 9.668 % | 9.672 % | 9.677 % | [9.0, 10.1] % | p met in all arms |
+| 3C 286 transfer, χ criterion | not met | not met | not met | \|χ − 33.1°\| ≤ 7° | **not met** as frozen (all arms) |
+| 1934−638 leakage, phase-only G (gated): Q/I, U/I, V/I | 0.302 %, 0.288 %, 0.053 % | 0.302 %, 0.288 %, 0.053 % | 0.298 %, 0.288 %, 0.053 % | each ≤ 0.3 % | **rang not met** (Q by 0.002 points), CASA met |
+| 1934−638 leakage, scan 18's own ap G (reported beside) | 0.026 %, 0.029 %, 0.054 % | 0.026 %, 0.029 %, 0.054 % | 0.025 %, 0.028 %, 0.053 % | – | – |
+
+- The χ criterion is reported as frozen and not interpreted here. The
+  absolute polarisation angle belongs to the chi-offset task
+  (`research/chi-offset.md`, branch `claude/chi-offset-80cb6a`). The three
+  arms agree in χ to 0.04°.
+- Rang's phase-only leakage is 0.004 points of Q/I above CASA's: rang 0.0018
+  points over the limit, CASA 0.0025 points under it. With scan 18's own amplitudes the
+  leakage is about 10 × lower in all arms. So the gated number is mostly the
+  X/Y amplitude drift between the development scans and scan 18 (7.1). The
+  verdict stays as frozen: not met.
+- The amended arm's development tables (with `average_freq`) change nothing
+  above the fourth digit.
+
+**Scorer fixes found on E2 data (no value had been read):**
+- `e2_transfer.py`'s first `xfer17` run stopped with a 27.8 GiB allocation:
+  the script did not pass the chain's memory budget
+  (`core_chunks.budget(...).chain()`, as `core_pipeline` passes it to
+  `cal_chain.run`). Fixed in b5fc631. Nothing had been written, and the
+  rerun ran the same case.
+- `e2_leakage.py` writes `OUT/<label>.json`, the same name as
+  `e2_transfer.py`'s case record. The rang leak cases' solve and apply
+  records were therefore overwritten by the leakage result. The tables
+  (`<case>-Gscan`) are kept. Values are unaffected; this is recorded only.
+
+**Flags left on `R\casa\e2b.ms`:**
+- Before the cases, the FLAG there was the CASA 3b chain's (`e2_casa3b.py
+  run` ends with its applycal). It was saved as flag version
+  `e2_casa_applycal` and restored after the CASA cases (272,916 rows).
+- CORRECTED_DATA on J1331+3030 scan 17 and J1939−6342 scan 18 now holds
+  CASA's transfer and leakage applies (the last case, `leak18ap`, on scan 18),
+  not the 3b chain's. E2_XFER holds rang's last cases.
+- J1833−2103 (scans 19-20) is unchanged.
+
+**Disk, freed 2026-11-13** (each one's records committed first, 27d9684,
+`results/e2-acceptance/dev-archive/`; D: 299 → 595 GB free):
+- this task's outputs `e2-20261111-12-dryrun` (79 GB), `e2-20261110-11-avg`
+  (77 GB, including `luno-dev.ms`), `e2-20261111-13-freqavg` (74 GB);
+- the CASA development copy `DEV\casa-dev\casa\luno-dev.ms` (78 GB; tables
+  kept);
+- F2's `f2-20261106-04-sim-test` (48 GB; owner item 32, results on main).
+- **Kept:** `f2-20261106-02-sim-train`, `-01-sim-v` and
+  `f3-20261110-03-sim-test`, because branch `fp-f4-flagger`'s `f3flag.py`
+  reads them.
+- The deleted dry-run copy `e2-20261111-12-dryrun\b\luno-slice.ms` is the one
+  `chi-offset-20261113-04-qf` read (its readings are kept there).
+
+**Departure from 6.2's order (dated 2026-11-13, before any E2-A cube was
+decoded).**
+- 6.2 has E2-B archived and `e2b.ms` deleted before E2-A starts.
+- `D:\rang\data\e2-b\e2b.ms` is kept on the coordinator's word, for E3. (E3
+  note 10.12 names `e3-20261111-input\e2b.ms` as E3-B's input; the
+  coordinator decides which copies stay.)
+- `e2a.ms` is built and verified while the amended arm's post chain runs.
+  D: had 590 GB free before the build. The build is about 225 GB and the
+  amended CASA copy about 215 GB with WSClean temporaries. If D: runs short,
+  `e2a.ms` is deleted first: it rebuilds from the zarr in about an hour.
+- E2-A's rang arm still waits for 6.2's start rule: 470 GB free after the
+  build.
+
+### 7.5 E2-B amended arm (6.7, `calibrate.average_freq`), gates as frozen
+
+Outputs: `D:\rang\outputs\e2-20261112-21-e2b-amended` (RA). Records:
+`results/e2-acceptance/e2b/amended/`. The post chain was resumed on
+2026-11-13 from wsclean0, and the same scorers were used as for the frozen
+arm. The frozen arm stays the record.
+
+| Gate | Amended | Frozen (7.3, 7.4) |
+| --- | --- | --- |
+| 1 | met: exit 0, 6,249 s, 49.1 GB | met: 6,195 s, 49.0 GB |
+| 2a | met (272,916 rows) | met |
+| 2b casacore, CASA listobs and flagmanager, WSClean, dask-ms | met (30 tables; 4 datasets) | met |
+| 2b CASA applycal (class C) | **not met**: 40 cells over (max 25.2 eps, relative 0.21), flags exact (0 of 408,827,848) | not met: 42 cells |
+| 2c | met (459 FITS) | met |
+| 3a | met, **exact** (0 of 1,117,863,936 cells) | exact |
+| 3b | **not met** | not met |
+| 3c as committed | **not met** | not met |
+| 3C 286 parity | **met**: 6 bins, \|Δp\| ≤ 0.024 points, \|Δχ\| ≤ 0.055° | met |
+| 1830−211 | **not met**: \|Δχ\| up to 13.0° (I within 0.025 %, \|Δp\| ≤ 0.061 points) | not met |
+| Transfer, leakage | as 7.4 (the amended development tables) | 7.4 |
+
+**Gate 3b, amended** (`RA\g3b.json`; CASA 6.7.6.14, 18 tasks, 0 errors, 4,782 s
+with the queue):
+
+| Term | Amended | Frozen |
+| --- | --- | --- |
+| K | met, median 0.00072 ns | the same |
+| KCROSS | met, 0.00031 ns | 0.00053 ns |
+| Xf | met, median 0.027°, p95 0.28° | 0.047°, 0.60° |
+| Df | met, median 1.5e-5, p95 2.2e-4 | 1.7e-5, 2.2e-4 |
+| Gpol | **not met**: median 0.124°, p95 0.94°, max 1.21° (limit 0.1°) | 0.278°, 2.17° |
+| fcal K G B composite | **not met**: median 1.14e-3, p95 1.52e-2 | the same to 3 digits |
+| gcal K F B composite | **not met**: median 1.12e-3, p95 1.51e-2 | the same |
+
+- As 6.7 expected, the key moves Gpol about halfway to the limit:
+  0.278° → 0.124°, against LUNO's 0.250° → 0.108°. It does not meet it.
+- The composites do not move. Their miss is not Gpol's.
+
+**Gate 3c as committed, amended** (`RA\g3c-as-committed.json`): not met.
+- Compact sources: 36, median 0.9955, scatter 1.46 %.
+- Δα: 0.018 (met).
+- Dirty L∞: 0.032, 2.8e-3, 4.9e-3.
+- Off-source ratios: 1.61, 1.68, 2.19.
+- Unpolarised V: not met.
+- Q/Q₀: not checked.
+
+**Gate 3c matched, amended** (`RA\g3c-matched.json`, oracle images made
+2026-11-14 03:16): not met, like the frozen arm's.
+- Dirty L∞: 3.5e-3 (J1331+3030), 2.9e-3 (J1833−2103), 1.2e-3 (J1939−6342).
+  Over the inner two-thirds: 3.0e-5, 2.4e-5, 2.2e-5.
+- Compact sources: 38, median 0.9946, scatter 1.07 %.
+- Δα: 0.022 (met).
+- Off-source ratios: 1.30, 1.66, 2.23.
+- Unpolarised Q, U, V: met.
+- Q/Q₀: not checked.
+
+**E2-B summary (both arms, gates as frozen).**
+- Met: 1, 2a, 2b (casacore, listobs, flagmanager, WSClean, dask-ms), 2c, 3a
+  (exact), 3C 286 parity, and the transfer row's p.
+- Not met: 2b CASA applycal (42 and 40 cells over class C), 3b (Gpol, both
+  composites), 3c (as committed and matched), 1830−211 (χ), the transfer
+  row's χ criterion, and rang's phase-only 1934−638 leakage (0.302 %).
+- Not checked: Q/Q₀.
+
+**Resume repairs (post hoc, recorded):**
+- The amended arm's `restore` stopped because `RA\columns-before.json` was
+  missing. The frozen arm wrote that file before its run; the amended arm's
+  launch did not. It was copied from R's: the amended run started on `e2b.ms`
+  after the frozen chain's last drop, and `R\g3a-restore-drop.json` lists the
+  same 23 columns (`RA\columns-before.provenance.txt`). Its restore then met
+  2a. FLAG had already been restored from `rang_original` before the stop.
+- `e2_casa3b.py run` needs `casa3b-spec.json` from its `spec` step. That
+  step was run before it (as for R).
+- `D:\rang\data\e2-b\e2b.ms` is back to the converter's columns and FLAG:
+  2a met, 51 GB.
+
+## 8. Paused 2026-11-13 07:00 (owner's order: stop everything)
+
+All queued heavy_lock tickets were cancelled while waiting; no job was
+running, so none stopped mid-write. Runs:
+
+| Name | Directory |
+| --- | --- |
+| R (frozen) | `D:\rang\outputs\e2-20261111-20-e2b` |
+| RA (amended) | `D:\rang\outputs\e2-20261112-21-e2b-amended` |
+| DEV | `D:\rang\outputs\e2-20261112-22-devtables` (`frozen\`, `amended\`, `casa-dev\`) |
+
+The scripts are in `research/results/e2-acceptance-scripts/`; run them from the
+worktree with `.venv\Scripts\python.exe`, each under `heavy_lock.py run --slots
+8 --mem G`. The scorers were committed in 9c2c478 before any of their values
+was read.
+
+### 8.1 Gates read (frozen arm, 7.3)
+
+- 1: met.
+- 2a: met.
+- 2b: casacore, listobs, WSClean and daskms met; CASA applycal not met.
+- 2c: met.
+- 3a: exact.
+- 3b: not met (Gpol 0.278°, composites 1.1e-3 / 1.5e-2).
+- Rows: parity met; 1830−211 not met.
+- 3c as committed (`R\g3c-as-committed.json`): not met.
+  - Compact sources: 37, median 0.9936, scatter 1.4 %; not met.
+  - Δα: 12 sources, 0.023; met.
+  - Dirty L∞: up to 0.032; not met.
+  - Off-source: 1.28, 1.70, 2.29; not met.
+  - Unpolarised Q/U/V: not met.
+
+### 8.2 Done, not yet read
+
+- Matched unit-weight 3c oracle images are in `R\wsclean3c-unit\` (rc 0).
+  `unit-on.json` has `flag_row_not_all_rang_flag` 0, and rang reads the copy.
+- DEV tables for both arms (rc 0); their after-calibrate flags are equal.
+- Amended arm, steps done: timed run, gate 1, archive, wcs, casacore, casa-ro.
+
+### 8.3 Not started, or must be rerun
+
+Resumed 2026-11-13: items 1-5 done (7.4). Item 6 runs; item 7 follows it.
+Item 7's deletion of `e2b.ms` is withdrawn: E3-B's timed pass needs the
+data (coordinator, 2026-11-13).
+
+1. **Matched 3c score:**
+   `e2_score3c.py R R\wsclean3c-unit R\g3c-matched.json`.
+2. **Selftest.** The first try failed on an import, before it touched the MS;
+   the import is fixed. Before the selftest or any transfer case, first save
+   CASA's applycal FLAG on `R\casa\e2b.ms`:
+   `core_writeback.backup_flags(ms, "e2_casa_applycal")`.
+   Then run `e2_transfer.py selftest R R\transfer`; it must meet class C.
+3. **Leakage dev test (rerun).** The first try imaged the wrong field and had
+   no beam; both are fixed, and its output is kept in `leakage-dev-wrongfield`.
+   Command:
+   `e2_leakage.py D:\rang\outputs\e2-20261111-12-dryrun\post-dev\casa luno-slice.ms RANG_CORRECTED_DATA ...\post-dev\leakage-dev dev-rang`.
+   Check that OBJECT is J1939-6342 and the beam is above 0.
+4. **CASA dev tables (not started):**
+   `e2_casa_xfer.py dev D:\rang\outputs\e2-20261110-11-avg\luno\luno-dev.ms DEV\frozen\rang-run e2dev_frozen_after_calibrate DEV\casa-dev`.
+5. **Transfer and leakage rows,** run in this order. Each case restores the
+   flag-stage FLAG first.
+   1. Frozen arm: `e2_transfer.py rang R DEV\frozen\rang-run R\transfer --case xfer17`,
+      then `e2_rows_b.py transfer R\casa\e2b.ms E2_XFER FLAG R\transfer\xfer17-row.json`.
+   2. Frozen arm, leak18p and leak18ap: run `e2_transfer.py` with that case, then
+      `e2_leakage.py R\casa e2b.ms E2_XFER R\transfer <case>`.
+   3. Amended arm: the same with `DEV\amended\rang-run --average-freq`.
+   4. CASA arm, once: `e2_casa_xfer.py rows R DEV\casa-dev <case>`, then score
+      CORRECTED_DATA and FLAG.
+6. **Amended post chain:** rerun `e2_post.sh` on RA (the arguments are in
+   `RA\post.log`) from the step after casa-ro. Then run its CASA 3b on its own
+   copy and score3b, 3c (as committed and matched), and the parity and 1830 rows.
+7. **Close out E2-B:** write the rest of section 7, the tool-timings rows, the
+   archive and a full check-all. The last full check-all was stopped by the
+   coordinator after it hung; rerun it with `pytest --timeout 600`. The one
+   before failed only on the timing test
+   `test_heavy_lock_queue::test_waiters_acquire_in_ticket_order`, which passes
+   alone. Then delete e2b.ms, its copies and luno-dev, and report D: free
+   (486 GB at 00:40).
+8. **E2-A:** follow 6.2. The wheel venv is
+   `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv`; keep it and the
+   `~/Build/tmp` E2 folders until E2 ends.
+
+The χ-offset session reads `R\casa\e2b.ms` only after it is told "done".
+Send that after step 5.
+
+## 9. E2-A
+
+### 9.1 The Measurement Set (built and verified 2026-11-13)
+
+`e2_convert.py build D:\rang\data\e2-a\e2a.ms` from ms1_primary MAIN_4
+(scan 9), ms1_target MAIN_4 (scan 10) and ms1_primary MAIN_5 (scan 11), then
+`verify` and `e2_flaghash.py`. Each step was a shared heavy_lock job at
+critical priority. Records: `results/e2-acceptance/e2a/`; logs in
+`D:\rang\outputs\e2-20261113-30-e2a`.
+
+- 1,047,614 rows (98,332 + 850,950 + 98,332), 61 antennas, 4,096 channels;
+  fields J1939−6342 and ESO137-001. This matches 6.2.
+- Build 1,304 s, verify 706 s, hash 30 s. The MS is 194 GB.
+- `verify`: 0 differing cells in DATA, WEIGHT_SPECTRUM and FLAG (17,164,107,776
+  each), and 0 in every row column.
+- Gate 2a's reference: FLAG SHA-256 `1aec438d…3baa`, FLAG_ROW `b528098a…89d6`
+  (`flaghash-input.json`).
+
+### 9.2 Start rule for the rang arm (not met on 2026-11-13; met 2026-11-14)
+
+- D: has 400 GB free after the build. 6.2 needs 470 GB, so the arm is
+  **70 GB short**, and the amended arm's CASA copy (about 185 GB) is still to
+  come.
+- The run waits, as 6.2 says, and the shortfall goes to the coordinator.
+- What would free enough, none of it deleted here:
+  - `D:\rang\data\e2-b\e2b.ms` (118 GB), once the amended arm's `restore` and
+    tricolour have run. E3-B's input is `e3-20261111-input\e2b.ms`.
+  - `R\casa\e2b.ms` (221 GB), once chi-offset no longer reads it.
+  - The amended arm's own CASA copy, after its scores.
+- The rang arm runs under `e2_timed.py`, exclusive, from the frozen wheel venv
+  `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv` (6.4), on this MS.
+- **Met on 2026-11-14 03:19: D: had 475 GB free.** This followed two
+  deletions, both after the amended arm's records were committed (784b714):
+  - `RA\casa\e2b.ms` and its flag versions (189 GB; CASA's tables kept);
+  - `RA\wsclean3c`, the amended arm's as-committed oracle images (11 GB;
+    the scores are in `g3c-as-committed.json`).
+- Before the run, `columns-before.json` was written. The run was then
+  queued: exclusive, critical priority, host CPU load 6 % at queueing. The
+  command was `e2_timed.py e2a-timed.json -- python -m rang.core_cli run
+  e2a.yaml e2a.ms` (log `e2a-run.log`).
+- `D:\rang\data\e2-b\e2b.ms` (51 GB, restored) and `R\casa\e2b.ms` are kept.
+
+### 9.3 Polarisation sealed (coordinator, 2026-11-13; before any E2-A run)
+
+- The chi-offset study found a defect in the simulation:
+  `calibrate.average_time: true` with Xf `combine: scan` across scans at
+  different parallactic angles puts Xf 78° off. `e2a.yaml` has both. E2-B's
+  Xf is solved on a single scan.
+- A fix and a pre-registered amended E2-A arm are being prepared on branch
+  `xf-avg-fix`. The amended arm is `e2a-amended.yaml`, the fix on and nothing
+  else changed. It runs after the frozen arm, on the same MS, from the
+  calibrate stage.
+- The frozen arm runs as frozen and stays the record.
+- **Sealed:** every E2-A polarisation result (Xf, χ, leakage) is unread until
+  the amended arm is committed.
+- **Withdrawn the same day (coordinator's correction, before any E2-A run).**
+  E2-A is not exposed. `e2a.yaml` has no polcal block and no Xf, KCROSS,
+  Gpol or Df term (checked: none of them appears in the file), and `e2a.ms`
+  has no polcal scans. The earlier reading came from `e2b.yaml`. There is no
+  amended E2-A arm and no seal. E2-A runs as frozen.
+
+### 9.4 The rang arm: interrupted, no result (2026-11-14)
+
+This attempt gives no E2-A result. It is recorded so the next attempt starts from it.
+
+- The run (`e2_timed.py`, exclusive, critical priority) started at 03:19 local (01:24 UTC). Its records are in `D:\rang\outputs\e2-20261113-30-e2a` and `D:\rang\data\e2-a\e2a.ms.rang-run` (`state.json`).
+- Stages finished:
+
+  | Stage | Wall time |
+  | --- | --- |
+  | flag | 2,556 s |
+  | calibrate | 4,545 s |
+  | apply | 599 s |
+  | image | 5,386 s |
+
+  The image stage at `auto_threshold` 3.0 and mask 5σ cleaned 684,794 components in 5 major cycles.
+- **Selfcal round 1 ran into the component cap.** Its image used CARACal's selfcal values: mask 10σ, `clean_cutoff` 0.5σ, `-niter 1000000`. It ran from 07:11 to 15:38 local, 30,615 s wall, and stopped at exactly 1,000,000 components after 5 major cycles (Q/Q0 3.68e-2). That is 5.7 times the first image's wall time.
+- Round 2 had started when a power cut at about 17:30 local (2026-11-14) rebooted the host and killed the run. Nothing of round 2 survives; the MS and the round-1 outputs remain on D:.
+- **Wall time is not clean in any case.** The coordinator ran lock-free full checks (5 threads) at 10:52-11:52 UTC and 12:15-13:40 UTC. Per-stage CPU seconds were not captured: the timer process died with the run.
+- **Next attempt (v0.3.0, coordinator's judgement):** as frozen, round 1 alone costs about 8.5 h of the host, so two rounds and the final image come to about a day. Rerunning E2-A as frozen requires a pre-registered amendment.
+  - Candidate change: a selfcal `niter` or depth that keeps the CARACal stop rule reachable, such as CARACal's own niter for these images.
+  - The amendment is written and committed before the rerun. The run above stays as the record of the frozen settings' cost.
+
 ## For the coordinator
 
 (written at the end)

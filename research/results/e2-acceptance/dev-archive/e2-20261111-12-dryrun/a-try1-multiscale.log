@@ -1,0 +1,16 @@
+rang-core: flag: running
+rang-core: flag: done in 0.7 s
+rang-core: calibrate: running
+rang-core: calibrate: done in 1.4 s
+rang-core: apply: running
+rang-core: apply: done in 0.5 s
+rang-core: image: running
+rang-core: receipt D:/rang/outputs/e2-20261111-12-dryrun/a/a1-small.ms.rang-run/receipts/run-20261111T180700Z.rang-receipt.json
+rang-core run: failed: image: image: gemclean exited 2 on field SIM-TARGET; D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms.rang-run\image\SIM-TARGET\gemclean.log: C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\.venv\Scripts\python.exe -m rang.gemclean -name D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms.rang-run\image\SIM-TARGET\image -size 1024 1024 -scale 3asec -weight briggs 0.5 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -wgridder-accuracy 0.0001 -average-channels 8 -channels-out 8 -join-channels -fit-spectral-pol 2 -auto-mask 5.0 -multiscale -data-column CORRECTED_DATA -field 3 -scans 1,4,23 -unit-weights -no-update-model-required D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms | D:\rang\outputs\e2-20261111-12-dryrun\a\a1-small.ms: 960 rows (CORRECTED_DATA, field 3), 8 channels into 8 output channels, MF weighting, joined, 0.05 s read, 0.00 s weights | gemclean: the PSF convolved with scale 55.22930398317988 has no positive peak
+{
+ "leg": "a",
+ "rc": 1,
+ "receipt": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\receipts\\run-20261111T180700Z.rang-receipt.json",
+ "stages": [],
+ "python": "C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\.venv\\Scripts\\python.exe"
+}

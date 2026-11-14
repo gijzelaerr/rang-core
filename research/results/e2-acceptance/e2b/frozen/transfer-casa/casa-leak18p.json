@@ -1,0 +1,21 @@
+{
+ "label": "casa-leak18p",
+ "column": "CORRECTED_DATA",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/casa-leak18p -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/e2b.ms",
+ "i_peak_jy": 15.036002159118652,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 5.831448143310589,
+ "Q_over_I": 0.0029752808620723665,
+ "Q_at_peak_over_I": 0.0029752808620723665,
+ "U_over_I": 0.002877738029505294,
+ "U_at_peak_over_I": 0.002877738029505294,
+ "V_over_I": 0.0005299494744865835,
+ "V_at_peak_over_I": 3.6812976151543257e-05,
+ "met": true,
+ "max_over_I": 0.0029752808620723665
+}

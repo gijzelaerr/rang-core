@@ -1,0 +1,591 @@
+{
+ "chunking": {
+  "chunk_gb": 7.373140335083008,
+  "chunk_rows": null,
+  "fixed_gb": 0.6268596649169922,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 483206,
+   "calibrate": 483206,
+   "chain": 322137,
+   "flag": 966412,
+   "model": 483206,
+   "rows": 1288549
+  },
+  "solves": [
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "K"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "G"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "B"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "SIM-GCAL",
+    "term": "Gsec"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "SIM-GCAL",
+    "term": "F"
+   }
+  ]
+ },
+ "flag_version": "rang_calibrate_20261110T214245Z",
+ "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+ "model": "setjy",
+ "models_written": {
+  "fields": [
+   0
+  ],
+  "flag_version": "rang_calibrate_20261110T214245Z",
+  "rang_original_saved_now": true,
+  "receipt": {
+   "column": "MODEL_DATA",
+   "column_added": true,
+   "fields": {
+    "J1939-6342": {
+     "field_id": 0,
+     "rows": 1440,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        862687500.0,
+        1290687500.0,
+        1705312500.0
+       ],
+       "stokes_i_jy": [
+        14.045013395584787,
+        15.08459340363877,
+        14.026369858829321
+       ]
+      }
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms",
+   "spec": {
+    "extrapolate": false,
+    "kind": "standard",
+    "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+    "source": "1934-638",
+    "standard": "Stevens-Reynolds 2016"
+   }
+  },
+  "spec": "Standard(source=None, standard='Stevens-Reynolds 2016', extrapolate=False, unverified_ok=False)"
+ },
+ "restored_before": null,
+ "scans": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22
+ ],
+ "steps": [
+  {
+   "fields": [
+    0
+   ],
+   "name": "K",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\K",
+   "rows": 16,
+   "solutions": [
+    {
+     "converged_fraction": 0.9931640625,
+     "field_id": 0,
+     "flagged_fraction": 0.0,
+     "intervals": 1,
+     "iterations": 17,
+     "rows": 720
+    }
+   ],
+   "table_sha256": "9f9b9da102c5b3da8f2caf21e0d56b274cadfda8e009f3724eb5101fcc441faa",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "G",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\G",
+   "rows": 16,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.0,
+     "intervals": 1,
+     "iterations": 15,
+     "rows": 720,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "71fc23a517102c5887a08e5501f203f744453b304c3c000f42b3843632e3fd47",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "B",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\B",
+   "rows": 16,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.0,
+     "intervals": 1,
+     "iterations": 13,
+     "rows": 720,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "0cd69d90d2a761b2940fda6f824e152fabf130e22fa39c244a2a1ec1d1f76b6f",
+   "type": "B"
+  },
+  {
+   "applied": {
+    "applymode": "calflag",
+    "cells_flagged_after": 0,
+    "cells_flagged_before": 0,
+    "column": "CORRECTED_DATA",
+    "column_added": true,
+    "fields": [
+     "J1939-6342"
+    ],
+    "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms",
+    "parang": false,
+    "rows": 720,
+    "scans": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
+    ],
+    "tables": [
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "K"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "G"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "B"
+     }
+    ],
+    "uncovered": [],
+    "weights_written": false
+   },
+   "fields": [
+    0
+   ],
+   "flagged": {
+    "chunking": {
+     "blocks": [
+      1
+     ],
+     "max_rows": 966412
+    },
+    "column": "CORRECTED_DATA",
+    "fields": [
+     0
+    ],
+    "flag_sha256": "a734928d1bb4e8760b9c3934639c720b76f80609e712b417460bdcc2c860e8e8",
+    "flagged_after": 0.6260633680555555,
+    "flagged_before": 0.0,
+    "groups": [
+     {
+      "ddid": 0,
+      "field_id": 0,
+      "flagged_after": 0.6260633680555555,
+      "flagged_before": 0.0,
+      "rows": 720,
+      "scan": 1
+     }
+    ],
+    "rows": 720
+   },
+   "gainfield": [
+    "0",
+    "0",
+    "0"
+   ],
+   "name": "A",
+   "strategy": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+   "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+   "tables": [
+    "K",
+    "G",
+    "B"
+   ],
+   "type": "A"
+  },
+  {
+   "fields": [
+    2
+   ],
+   "name": "Gsec",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\Gsec",
+   "rows": 160,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 2,
+     "flagged_fraction": 0.0,
+     "intervals": 10,
+     "iterations": 17,
+     "rows": 2400,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "752947cbeb263f0c4e8dc31c17f0542a9cf307073b638d734d7a5535d42c2e3e",
+   "type": "G"
+  },
+  {
+   "applied": {
+    "applymode": "calflag",
+    "cells_flagged_after": 0,
+    "cells_flagged_before": 0,
+    "column": "CORRECTED_DATA",
+    "column_added": false,
+    "fields": [
+     "SIM-GCAL"
+    ],
+    "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms",
+    "parang": false,
+    "rows": 2400,
+    "scans": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22
+    ],
+    "tables": [
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "SIM-GCAL": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "K"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "SIM-GCAL": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "B"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "SIM-GCAL": 2
+      },
+      "gainfield": "2",
+      "interp": "linear",
+      "kind": "G"
+     }
+    ],
+    "uncovered": [],
+    "weights_written": false
+   },
+   "fields": [
+    2
+   ],
+   "flagged": {
+    "chunking": {
+     "blocks": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "max_rows": 966412
+    },
+    "column": "CORRECTED_DATA",
+    "fields": [
+     2
+    ],
+    "flag_sha256": "e710c6683c442a44ba33f830f88118c4ceafd8da2b3c041b5b160904ba0c9c67",
+    "flagged_after": 0.49405598958333335,
+    "flagged_before": 0.0,
+    "groups": [
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.4754557291666667,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 3
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.4973958333333333,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 5
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.4959635416666667,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 7
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.5011067708333333,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 9
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.4818359375,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 11
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.4944661458333333,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 13
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.5,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 15
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.5034505208333333,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 17
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.48932291666666666,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 19
+     },
+     {
+      "ddid": 0,
+      "field_id": 2,
+      "flagged_after": 0.5015625,
+      "flagged_before": 0.0,
+      "rows": 240,
+      "scan": 21
+     }
+    ],
+    "rows": 2400
+   },
+   "gainfield": [
+    "0",
+    "0",
+    "2"
+   ],
+   "name": "Asec",
+   "strategy": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+   "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+   "tables": [
+    "K",
+    "B",
+    "Gsec"
+   ],
+   "type": "A"
+  },
+  {
+   "append_table": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\F.append",
+   "base": "G",
+   "fields": [
+    2
+   ],
+   "fluxscale": {
+    "SIM-GCAL": {
+     "fitted_flux_err_jy": 0.0,
+     "fitted_flux_jy": 4.294689688407037,
+     "per_window_flux_jy": [
+      4.294689688407037
+     ],
+     "reference_frequency_hz": 1284000000.0,
+     "spectral_index": 0.0
+    }
+   },
+   "name": "F",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\F",
+   "rows": 176,
+   "table_sha256": "74773c8cda56f0c1a4b7212f939a839ce2132653886030b4ba7d5d3a694d424c",
+   "type": "F"
+  }
+ ],
+ "tables": [
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "K",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\K",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "G",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\G",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "B",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\B",
+   "section": "chain",
+   "type": "B"
+  },
+  {
+   "fields": [
+    2
+   ],
+   "format": "casa",
+   "name": "Gsec",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\Gsec",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    2
+   ],
+   "format": "casa",
+   "name": "F",
+   "path": "D:\\rang\\outputs\\e2-20261110-11-avg\\a1-off\\a1-small.ms.rang-run\\calibrate\\F",
+   "section": "chain",
+   "type": "F"
+  }
+ ],
+ "weight_column": "unit",
+ "weights": "uniform"
+}

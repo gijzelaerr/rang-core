@@ -1,0 +1,626 @@
+2026-11-13T08:01:49+02:00 e2_post.sh wsclean0..tricolour
+wsclean0 rc=0 3492s
+daskms rc=0 2003s
+wsclean3c rc=0 22625s
+copy rc=0 4431s
+prep rc=0 3907s
+applycal rc=0 3570s
+compare rc=0 2075s
+snapshot rc=0 993s
+restore rc=1 1103s
+{
+ "restored_rows": 272916,
+ "hash": {
+  "rows": 272916,
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81"
+ },
+ "input": {
+  "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+  "rows": 272916,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81",
+  "seconds": 6.4972430000052555
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": "D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\rang-run-moved",
+ "seconds": 50.44589000000269,
+ "met": true
+}
+2026-11-13T20:26:40+02:00 restore rc=0 457s
+{
+ "tricolour_exit": 0,
+ "rang_version": "rang_calibrate_20261112T165819Z",
+ "elements_differ": 0,
+ "cells_differ": 0,
+ "rang_only": 0,
+ "tricolour_only": 0,
+ "corr_partial": 0,
+ "cells": 1117863936,
+ "cells_differ_by_scan": {
+  "17": 0,
+  "18": 0,
+  "19": 0,
+  "20": 0
+ },
+ "exact": true
+}
+{
+ "restored_rows": 272916,
+ "hash": {
+  "rows": 272916,
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81"
+ },
+ "input": {
+  "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+  "rows": 272916,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81",
+  "seconds": 6.4972430000052555
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 49.84965540000121,
+ "met": true
+}
+2026-11-13T20:44:00+02:00 tricolour rc=0 1040s
+Traceback (most recent call last):
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_casa3b.py", line 145, in <module>
+    sys.exit(main(sys.argv[1:]))
+             ~~~~^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_casa3b.py", line 141, in main
+    return run(msname, r)
+  File "C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_casa3b.py", line 131, in run
+    tasks = json.loads((r / "casa3b-tasks.json").read_text())
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\gijsm\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\casa3b-tasks.json'
+2026-11-13T20:44:36+02:00 casa3b rc=1 36s
+[
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1331+3030",
+   "standard": "manual",
+   "fluxdensity": [
+    14.7172,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "spix": [
+    -0.4507,
+    -0.1798,
+    0.0357
+   ],
+   "reffreq": "1.47GHz",
+   "polindex": [
+    0.098
+   ],
+   "polangle": [
+    0.575959
+   ],
+   "rotmeas": 0.0,
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/K",
+   "field": "J1939-6342",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "parang": false
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/G",
+   "field": "J1939-6342",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/B",
+   "field": "J1939-6342",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 0,
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gsec",
+   "field": "J1833-2103",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/p/casa/tables/G",
+   "dst": "/p/casa/tables/Gapp"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gapp",
+   "field": "J1833-2103",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "append": true,
+   "smodel": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  }
+ },
+ {
+  "task": "fluxscale",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "caltable": "/p/casa/tables/Gapp",
+   "fluxtable": "/p/casa/tables/F",
+   "reference": "J1939-6342",
+   "transfer": ""
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gpol",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Kcross",
+   "field": "J1331+3030",
+   "gaintype": "KCROSS",
+   "solint": "inf",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+2026-11-13T20:44:54+02:00 casa3b-spec rc=0 1s
+2026-11-13T22:04:37+02:00 casa3b rc=0 4782s
+C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\research\results\e2-acceptance-scripts\e2_score3b.py:72: RuntimeWarning: invalid value encountered in divide
+  xd = np.degrees(np.abs(np.angle(xr / xc)))
+{
+ "terms": {
+  "K": {
+   "rows": [
+    56,
+    56
+   ],
+   "flags_differ": 0,
+   "abs_ns": {
+    "n": 106,
+    "median": 0.0007195631042122841,
+    "p95": 0.0046586430398747325,
+    "max": 0.005686965771019459
+   },
+   "class_b": true
+  },
+  "G": {
+   "rows": [
+    56,
+    56
+   ],
+   "flags_differ": 0,
+   "rel": {
+    "n": 106,
+    "median": 0.0001765630004229024,
+    "p95": 0.0006461353041231632,
+    "max": 0.0010203776182606816
+   },
+   "abs_deg": {
+    "n": 106,
+    "median": 0.008277693763375282,
+    "p95": 0.036744303070008755,
+    "max": 0.058196958154439926
+   }
+  },
+  "B": {
+   "rows": [
+    56,
+    56
+   ],
+   "flags_differ": 5242,
+   "rel": {
+    "n": 263520,
+    "median": 0.0011468582088127732,
+    "p95": 0.007002656045369803,
+    "max": 0.06952094286680222
+   },
+   "abs_deg": {
+    "n": 263520,
+    "median": 0.061986545100808144,
+    "p95": 0.3979393750429153,
+    "max": 3.986186981201172
+   }
+  },
+  "Gsec": {
+   "rows": [
+    112,
+    112
+   ],
+   "flags_differ": 0,
+   "rel": {
+    "n": 212,
+    "median": 0.00036745239049196243,
+    "p95": 0.0009788443072466177,
+    "max": 0.0017261530738323927
+   },
+   "abs_deg": {
+    "n": 212,
+    "median": 0.016136853024363518,
+    "p95": 0.055032450892031175,
+    "max": 0.09796559810638428
+   }
+  },
+  "F": {
+   "rows": [
+    168,
+    168
+   ],
+   "flags_differ": 0,
+   "rel": {
+    "n": 318,
+    "median": 0.00023927223810460418,
+    "p95": 0.0006459565542172639,
+    "max": 0.001036036410368979
+   },
+   "abs_deg": {
+    "n": 318,
+    "median": 0.0107333161868155,
+    "p95": 0.03683477193117141,
+    "max": 0.058196958154439926
+   }
+  },
+  "Gpol": {
+   "rows": [
+    560,
+    560
+   ],
+   "flags_differ": 0,
+   "abs_deg": {
+    "n": 1060,
+    "median": 0.12356413900852203,
+    "p95": 0.9380994915962219,
+    "max": 1.2062784433364868
+   },
+   "class_b": false
+  },
+  "Kcross": {
+   "abs_ns": {
+    "n": 56,
+    "median": 0.0003083841875195503,
+    "p95": 0.0003083841875195503,
+    "max": 0.0003083841875195503
+   },
+   "class_b": true
+  },
+  "Xf": {
+   "abs_deg": {
+    "n": 3106,
+    "median": 0.026663046366703965,
+    "p95": 0.27689753596391103,
+    "max": 2.7136624697499068
+   },
+   "class_b": true
+  },
+  "Df": {
+   "abs": {
+    "n": 13065492,
+    "median": 1.4646368981630076e-05,
+    "p95": 0.00022225719294510782,
+    "max": 0.014515924267470837
+   },
+   "flags_differ": 8670,
+   "class_b": true
+  }
+ },
+ "composite_fcal_KGB": {
+  "cells": 112885760,
+  "flags_differ": 0,
+  "n": 112885760,
+  "median": 0.001139843225896246,
+  "p95": 0.0151971108408591,
+  "max": 0.11985367620745299,
+  "class_b": false
+ },
+ "composite_gcal_KFB": {
+  "cells": 248348672,
+  "flags_differ": 0,
+  "n": 248348672,
+  "median": 0.0011248366771117542,
+  "p95": 0.015079375919504399,
+  "max": 0.11848481662002007,
+  "class_b": false
+ },
+ "class_b_all": false
+}
+2026-11-13T22:05:27+02:00 score3b rc=0 49s
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+{
+ "compact": {
+  "n": 36,
+  "median": 0.9955499375651787,
+  "robust_scatter": 0.014641946411046013,
+  "met": false
+ },
+ "spectral_index": {
+  "n": 12,
+  "median_abs_dalpha": 0.01798964090169547,
+  "met": true
+ },
+ "gates": {
+  "dirty_linf": false,
+  "compact_ratio": false,
+  "spectral_index": true,
+  "offsource_model": false,
+  "unpolarised_quv": false,
+  "q_over_q0": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0"
+ ]
+}
+2026-11-13T22:06:17+02:00 score3c rc=0 50s
+{
+ "row": "parity",
+ "spec": {
+  "field": "J1331+3030",
+  "scans": [
+   17
+  ],
+  "dp": 0.001,
+  "dchi_deg": 0.5,
+  "di": null
+ },
+ "rang": [
+  "D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\casa\\e2b.ms",
+  "RANG_CORRECTED_DATA",
+  "RANG_FLAG"
+ ],
+ "casa": [
+  "D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\casa\\e2b.ms",
+  "CORRECTED_DATA",
+  "FLAG"
+ ],
+ "bins_scored": 6,
+ "max_abs_dp": 0.00024031585068114147,
+ "max_abs_dchi_deg": 0.0553515540037921,
+ "max_abs_dI_rel": 0.0027636933614547665,
+ "met": true
+}
+1.00-1.10 GHz frac [0.5527171135434734, 0.5527171135434734] p 0.08737/0.08737 chi -0.47/-0.48 dI -1.35e-03 met True
+1.10-1.20 GHz frac [0.2646018527542536, 0.2646018527542536] p 0.09170/0.09190 chi -1.61/-1.55 dI -9.24e-04 met True
+1.20-1.30 GHz frac [0.07297308311952663, 0.07297308311952663] p 0.09611/0.09644 chi -2.92/-2.85 dI +7.68e-05 met None
+1.30-1.40 GHz frac [0.8034665131742376, 0.8034665131742376] p 0.09676/0.09678 chi -3.02/-3.03 dI +5.95e-04 met True
+1.40-1.50 GHz frac [0.654762461613926, 0.654762461613926] p 0.09797/0.09796 chi -3.58/-3.58 dI +1.52e-03 met True
+1.50-1.60 GHz frac [0.12404149058637576, 0.12404149058637576] p 0.09811/0.09835 chi -3.91/-3.86 dI +1.72e-03 met True
+1.60-1.65 GHz frac [0.4818557417929803, 0.4818557417929803] p 0.09973/0.09972 chi -4.30/-4.31 dI +2.76e-03 met True
+2026-11-13T22:08:02+02:00 rows-parity rc=0 105s
+{
+ "row": "j1830",
+ "spec": {
+  "field": "J1833-2103",
+  "scans": [
+   19,
+   20
+  ],
+  "dp": 0.001,
+  "dchi_deg": 1.0,
+  "di": 0.01
+ },
+ "rang": [
+  "D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\casa\\e2b.ms",
+  "RANG_CORRECTED_DATA",
+  "RANG_FLAG"
+ ],
+ "casa": [
+  "D:\\rang\\outputs\\e2-20261112-21-e2b-amended\\casa\\e2b.ms",
+  "CORRECTED_DATA",
+  "FLAG"
+ ],
+ "bins_scored": 7,
+ "max_abs_dp": 0.000613282064947183,
+ "max_abs_dchi_deg": 12.981059018120476,
+ "max_abs_dI_rel": 0.0002531665697864671,
+ "met": false
+}
+1.00-1.10 GHz frac [0.7779349834266153, 0.7779349834266153] p 0.00019/0.00024 chi 47.19/51.52 dI -2.15e-06 met False
+1.10-1.20 GHz frac [0.42608894711286055, 0.42608894711286055] p 0.00033/0.00027 chi 29.59/23.93 dI -1.74e-04 met False
+1.20-1.30 GHz frac [0.24785367257314767, 0.24785367257314767] p 0.00033/0.00041 chi 19.74/20.33 dI -2.53e-04 met True
+1.30-1.40 GHz frac [0.8638526495330443, 0.8638526495330443] p 0.00038/0.00037 chi 13.34/15.36 dI -1.54e-04 met False
+1.40-1.50 GHz frac [0.694299348426393, 0.694299348426393] p 0.00041/0.00041 chi 17.14/17.05 dI -1.15e-04 met True
+1.50-1.60 GHz frac [0.30333117252836367, 0.30333117252836367] p 0.00030/0.00091 chi 34.83/21.85 dI -1.66e-04 met False
+1.60-1.65 GHz frac [0.6073640414359319, 0.6073640414359319] p 0.00038/0.00038 chi 16.52/16.06 dI -7.89e-05 met True
+2026-11-13T22:08:35+02:00 rows-j1830 rc=0 33s
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1833-2103:dirty": 0,
+  "J1833-2103:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "unit_off_exit": 0,
+ "settings": "-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -j 8 -temp-dir /p/wsclean3c-unit/tmp"
+}
+2026-11-14T03:16:24+02:00 wsclean3c-unit rc=0 18469s
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+{
+ "compact": {
+  "n": 38,
+  "median": 0.9945904962794478,
+  "robust_scatter": 0.01065690941133784,
+  "met": false
+ },
+ "spectral_index": {
+  "n": 12,
+  "median_abs_dalpha": 0.021549551518392718,
+  "met": true
+ },
+ "gates": {
+  "dirty_linf": false,
+  "compact_ratio": false,
+  "spectral_index": true,
+  "offsource_model": false,
+  "unpolarised_quv": true,
+  "q_over_q0": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0"
+ ]
+}
+2026-11-14T03:16:55+02:00 score3c-matched rc=0 30s
+2026-11-14T03:16:55+02:00 amended chain done

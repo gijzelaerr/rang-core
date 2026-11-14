@@ -1,0 +1,30 @@
+{
+ "cells_compared": {
+  "DATA": 32686080,
+  "WEIGHT_SPECTRUM": 32686080,
+  "FLAG": 32686080
+ },
+ "cells_differ": {
+  "DATA": 0,
+  "WEIGHT_SPECTRUM": 0,
+  "FLAG": 0
+ },
+ "rowcols_differ": {
+  "TIME": 0,
+  "TIME_CENTROID": 0,
+  "INTERVAL": 0,
+  "EXPOSURE": 0,
+  "ANTENNA1": 0,
+  "ANTENNA2": 0,
+  "FEED1": 0,
+  "FEED2": 0,
+  "UVW": 0,
+  "FLAG_ROW": 0,
+  "WEIGHT": 0,
+  "SIGMA": 0,
+  "ARRAY_ID": 0,
+  "OBSERVATION_ID": 0,
+  "PROCESSOR_ID": 0
+ },
+ "equal": true
+}
