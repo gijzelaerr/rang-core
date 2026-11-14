@@ -1901,3 +1901,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | selfcal-arms: QuartiCal 0.2.7 round-1 re-solve (Sp inf, Sd inf, Sp freqint 1), WSL docker, 1 slot | c5pa, c5delay | 73-90 s QuartiCal (30 min with lock wait); first pass 108-139 s, superseded (oracle predictor fix) | – | WSL docker from Windows |
 | 2026-11-13 | selfcal-arms held out: `rang-core selfcal` u / r / p, 10 loops in parallel, 4 slots each | c5pa-held, c5delay-held, c5pa-held2, c5delay-held2 | u 61-71 s, r 121-146 s, p 65-67 s stage (lock waits 42-49 min) | – | native Windows |
 | 2026-11-13 | selfcal-arms `tools/check_all.py --quick` (twice) | worktree | 55 s and 23 s (lock waits 8 and 48 min); first run before that failed on ruff only (1088 s) | – | native Windows |
+| 2026-11-14 | imaging-gaps: `check_all.py --quick` (unwrapped) on the merge with main 316b4ce | worktree imaging-gaps | 938 s | – | Windows host; PASS |
