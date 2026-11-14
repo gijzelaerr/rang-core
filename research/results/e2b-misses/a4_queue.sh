@@ -22,11 +22,12 @@ case "$1" in
   windows)
     L=C:/Users/gijsm/Github/rang/tools/heavy_lock.py
     PY=C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe
+    GB=$(cygpath -m "$(command -v bash)")  # Git Bash; a bare "bash" from Windows is WSL's
     P=D:/rang/outputs/e2b-pastro-20261114/a4
     until [ -f "$P/unit-on.json" ]; do sleep 30; done
     for r in $RUNS; do
       IFS=: read -r fid tag eps <<< "$r"
-      "$PY" $L run --slots 4 --mem 16 -- bash "$S/a4_rang.sh" "$fid" "$tag" "$eps"
+      "$PY" $L run --slots 4 --mem 16 -- "$GB" "$S/a4_rang.sh" "$fid" "$tag" "$eps"
     done
     touch "$P/rang.done" ;;
   off)
