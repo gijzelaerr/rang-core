@@ -299,6 +299,50 @@ whose `r_s` values were read. A2 as written does not say two things.
 
 The coordinator may still order the exclusive H4 subset; it is pre-registered above either way.
 
+### Amendment A3 (2026-11-14, post hoc: U-a's gated scores are read; before the run below)
+
+**Why: baseline strength.** U-a's `r_s` is 7-14 on the gated skies. The coordinator asked whether
+pfb sara ran as its authors recommend before that is stated (AGENTS.md: wins against weak
+baselines establish nothing). The check, from pfb 0.0.11 itself:
+- **Upstream preset.** The image ships a stimela recipe, `pfb_imaging/recipes/sara.yml` (`gosara`),
+  that fixes the sara step at `bases self,db1,db2,db3`, `nlevels 2`, `pd-tol 1.5e-4`,
+  `pd-maxit 450`, `tol 5e-4`, `gamma 0.99`, `eta 5e-4` and `positivity 1`. U-a's sara step matches
+  these. U-a departs from the recipe's defaults on:
+  - `l1-reweight-from`: 5 (recipe 7);
+  - `psf-oversize`: 1.4 (recipe 1.6);
+  - `robustness`: 0.5 (recipe -0.3), chosen to match G's weighting;
+  - `chan-average`: 1 (recipe 4); `bda-decorr`: 1.0 (recipe 0.98);
+  - gridder `epsilon`: 1e-6 (recipe: the cab default, 1e-7);
+  - `niter`: 40 (recipe 15).
+- **Deprecation.** pfb 0.0.11 prints a deprecation notice for `pfb sara` ("Migrate to: pfb
+  deconv"), but its shipped recipe still calls `sara`.
+- **Not converged.** On every gated sky:
+  - the outer `eps` is 2.3-2.5e-3 at cycle 40 against `tol` 5e-4, falling only from about
+    3.1e-3 at cycle 10; at that rate, reaching `tol` would take about 160 more cycles;
+  - the residual rms is 106-162 µJy (σ ≈ 23 µJy) and still falling slowly;
+  - the primal-dual inner solve stops at `pd-maxit` in each of the first four cycles, and
+    converges after the l1 reweighting starts.
+
+So the gated result is, at most, **"U worse at our settings"** (U-a, 40-cycle cap, not converged).
+
+**Pre-registered test (run once, after this commit).**
+- **Arm `U-up`** on **N2**, the gated sky with the lowest `r_s` (7.4), where U was closest to G.
+  - The settings are the `gosara` recipe's own values: `robustness -0.3`, `psf-oversize 1.6`,
+    `chan-average 4`, `bda-decorr 0.98`, `l1-reweight-from 7`, `alpha 2`, `rmsfactor 1.0`, and
+    the cab default gridder `epsilon` (1e-7, in `grid` and `sara`). The sara step is unchanged.
+  - Kept fixed: the image geometry (2048² × 1.5″), Stokes I, one band, 8 threads, and `tol` 5e-4.
+  - Budget: until `tol`, or a cap of **200 major cycles or 12 h** of wall time.
+  - Booking: 4 slots.
+- **Scoring:** section 4 as for U-a, at its last cycle and at its last cycle within 5 × Gt's CPU.
+- **Rule** on `r_up` = U-up's last-cycle relative L2 over G's on N2:
+  - **`r_up > 1.25`:** "U worse" holds on N2 at upstream's preset as well. The outcome is stated
+    as "U worse at our settings on 4 of 4 gated skies, and at upstream's preset on N2".
+  - **`r_up ≤ 1.25`:** the outcome is stated only as "U worse at our settings". U-up is then run
+    on H4, M1 and N1 under a further dated amendment before any claim about upstream settings.
+  - **Convergence:** whether U-up reaches `tol` within the cap is reported either way.
+- **Not tested:** `pfb deconv` (the successor command), and upstream settings on the other gated
+  skies unless the rule above calls for them.
+
 ## 8. Measured results
 
 ### 8.1 Stage 2: tuning skies S1-S3 (2026-11-13)

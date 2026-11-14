@@ -68,7 +68,13 @@ CONFIGS = {
     "U-b": {"nlevels": "4"},
     "U-c": {"rmsfactor": "0.5"},
     "U-d": {"nlevels": "4", "rmsfactor": "0.5"},
+    # Amendment A3: pfb 0.0.11's shipped recipe (pfb_imaging/recipes/sara.yml, gosara) values.
+    "U-up": {"l1-reweight-from": "7"},
 }
+# Amendment A3: U-up's init and grid at the gosara recipe's defaults; gridder epsilon at the cab
+# default (1e-7) in init, grid and sara.
+UP = {"chan-average": "4", "bda-decorr": "0.98", "robustness": "-0.3", "psf-oversize": "1.6",
+      "epsilon": "1e-7"}  # fmt: skip
 
 
 def log_row(arm, sky, rc, wall, what):
@@ -178,7 +184,13 @@ def pfb_steps(config, sky, cap_cycles):
             "--epsilon", "1e-6", "--do-wgridding", "--product", "I", *common]  # fmt: skip
     for k, v in opts.items():
         sara += [f"--{k}", v]
-    return [("init", init), ("grid", grid), ("sara", sara)]
+    steps = [("init", init), ("grid", grid), ("sara", sara)]
+    if config == "U-up":
+        for _, step in steps:
+            for i, a in enumerate(step[:-1]):
+                if a.startswith("--") and a[2:] in UP:
+                    step[i + 1] = UP[a[2:]]
+    return steps
 
 
 def run_u(config, sky, cap_cycles, cap_seconds):
