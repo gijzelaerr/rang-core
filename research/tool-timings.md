@@ -1836,3 +1836,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | E2-B CASA transfer/leakage cases (`e2_casa_xfer.py rows`, gaincal + applycal) | the CASA copy | 669-690 s per case | – | shared 8 slots |
 | 2026-11-13 | E2-B gate 3c score (`e2_score3c.py`, matched oracle) | 3 fields' images | under 3,219 s including the queue wait behind an exclusive bench | – | – |
 | 2026-11-13 | E2-A `e2_convert.py build` / `verify` / `e2_flaghash.py` | ESO137 scans 9, 10, 11: 1,047,614 rows x 4,096 ch (194 GB) | 1,304 s / 706 s / 30 s | – | shared 4 slots, critical priority; 0 cells differ |
+| 2026-11-13 | E2-B amended post chain (`e2_post.py` steps wsclean0 ... tricolour, then CASA 3b, scorers, matched 3c oracle) | `e2b.ms` and its CASA copy | wsclean3c 22,625 s; copy 4,431 s; CASA 3b 4,782 s; tricolour 1,040 s (each with queue waits) | – | shared slots; 3a exact |

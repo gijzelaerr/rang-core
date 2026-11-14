@@ -1004,7 +1004,23 @@ with the queue):
 - Unpolarised V: not met.
 - Q/Q₀: not checked.
 
-The matched reading follows in 7.6 once its oracle images are made.
+**Gate 3c matched, amended** (`RA\g3c-matched.json`, oracle images made
+2026-11-14 03:16): not met, like the frozen arm's.
+- Dirty L∞: 3.5e-3 (J1331+3030), 2.9e-3 (J1833−2103), 1.2e-3 (J1939−6342).
+  Over the inner two-thirds: 3.0e-5, 2.4e-5, 2.2e-5.
+- Compact sources: 38, median 0.9946, scatter 1.07 %.
+- Δα: 0.022 (met).
+- Off-source ratios: 1.30, 1.66, 2.23.
+- Unpolarised Q, U, V: met.
+- Q/Q₀: not checked.
+
+**E2-B summary (both arms, gates as frozen).**
+- Met: 1, 2a, 2b (casacore, listobs, flagmanager, WSClean, dask-ms), 2c, 3a
+  (exact), 3C 286 parity, and the transfer row's p.
+- Not met: 2b CASA applycal (42 and 40 cells over class C), 3b (Gpol, both
+  composites), 3c (as committed and matched), 1830−211 (χ), the transfer
+  row's χ criterion, and rang's phase-only 1934−638 leakage (0.302 %).
+- Not checked: Q/Q₀.
 
 **Resume repairs (post hoc, recorded):**
 - The amended arm's `restore` stopped because `RA\columns-before.json` was

@@ -582,3 +582,45 @@ WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044
 1.50-1.60 GHz frac [0.30333117252836367, 0.30333117252836367] p 0.00030/0.00091 chi 34.83/21.85 dI -1.66e-04 met False
 1.60-1.65 GHz frac [0.6073640414359319, 0.6073640414359319] p 0.00038/0.00038 chi 16.52/16.06 dI -7.89e-05 met True
 2026-11-13T22:08:35+02:00 rows-j1830 rc=0 33s
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1833-2103:dirty": 0,
+  "J1833-2103:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "unit_off_exit": 0,
+ "settings": "-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -j 8 -temp-dir /p/wsclean3c-unit/tmp"
+}
+2026-11-14T03:16:24+02:00 wsclean3c-unit rc=0 18469s
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+{
+ "compact": {
+  "n": 38,
+  "median": 0.9945904962794478,
+  "robust_scatter": 0.01065690941133784,
+  "met": false
+ },
+ "spectral_index": {
+  "n": 12,
+  "median_abs_dalpha": 0.021549551518392718,
+  "met": true
+ },
+ "gates": {
+  "dirty_linf": false,
+  "compact_ratio": false,
+  "spectral_index": true,
+  "offsource_model": false,
+  "unpolarised_quv": true,
+  "q_over_q0": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0"
+ ]
+}
+2026-11-14T03:16:55+02:00 score3c-matched rc=0 30s
+2026-11-14T03:16:55+02:00 amended chain done
