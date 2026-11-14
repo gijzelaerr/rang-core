@@ -23,5 +23,7 @@ case "$1" in
     dk "$3" "/opt/casa/bin/python -I /w/scripts/a2_casa.py tasks /p/a2/$n/spec.json /p/a2/$n/result.json"
     rc=$?
     rm -rf "$P/a2/$n/tables"; cp -a "$W/$n/tables" "$P/a2/$n/tables"; cp "$W/$n/casa.log" "$P/a2/$n/" 2>/dev/null
+    # space rule (coordinator 2026-11-14): the case MS goes once its tables are out
+    [ -d "$P/a2/$n/tables" ] && rm -rf "$W/$n/e2b.ms"
     exit $rc ;;
 esac
