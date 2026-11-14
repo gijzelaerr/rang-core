@@ -45,6 +45,18 @@ Labels used below:
 | Transfer χ (\|χ − 33.1°\| ≤ 7°) | receptor angle −90° wrong for LUNO (post hoc, chi-offset), plus ionospheric RM | configuration or convention plus physical | chi-offset: "cause not found" under its rule; post hoc reading I | owner (chi-offset 10.1, 10.2) |
 | Rang leakage 0.302 % (CASA 0.298 %) | X/Y amplitude drift between dev scan 2 and scan 18 under the phase-only per-scan G that 7.1 chose; rang − CASA is 0.004 points | physical plus recipe choice | M | owner: limitation; the ap-G reading (0.026 %) stays beside |
 
+**Correction, 2026-11-14 (arm A1, section 9.3):** the 2b row's "float32
+rounding" is not supported. Under A1's frozen rule the outcome is "rang
+difference", with G as the first term over 2 ulps (2.004 ulps, 1
+correlation). P (the parallactic angle) differs from CASA by 78–366 ulps on
+every cell, and the class C excess appears only when P is applied (post hoc
+reading). Measured and localised, not diagnosed.
+
+**Update, 2026-11-14 (arm A2, section 9.4):** the 3b composites row is
+confirmed as an oracle input error. With CASA's K, G, B and F solved on
+rang's own solve flags, both composites meet class B (medians 4.2e-5 and
+5.9e-5, p95 1.24e-3 and 1.23e-3). The weights change nothing.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -456,7 +468,452 @@ Measured (`R/transfer/leak18p.json`, `R/transfer-casa/`, 7.4):
   `minsnr` and `minblperant` match rang's chain defaults (3 and 4 at
   `b2d80dc`), so arm A2's flag case should explain it.
 
+## 9. Arms A2 and A1, frozen 2026-11-14 (before any run)
+
+Branch `e2b-arms` from main `ad5f176`. This section is committed before the
+scripts that test it (`results/e2b-misses/a2_*.py`, `a1_*.py`). It makes
+sections 1 and 3's proposals exact; where it departs from their wording it
+says so. Both arms are **seen** (A0 6.6): every E2-B number was read before.
+Nothing here changes the frozen E2-B record.
+
+Common:
+- Rang side: this branch's extension (main `ad5f176`, built by
+  `check_all --quick` into the worktree `.venv`); the frozen arm's tables
+  `R/rang-run/calibrate` (`R` = `D:\rang\outputs\e2-20261111-20-e2b`).
+  `R` and its CASA copy are read only; nothing is written under `R`.
+- CASA 6.7.6.14 (`rang-o-casa:6.7.6.14`, docker in WSL), every input copied
+  first to WSL's ext4 under `~/e2b-arms-20261114/` (deleted at the end).
+- Outputs and receipts: `D:\rang\outputs\e2b-arms-20261114\`; compact
+  receipts in `results/e2b-misses/`.
+- Flag versions, from `R/casa/e2b.ms.flagversions`:
+  - flag stage = `rang_calibrate_20261112T010110Z` ("flags before calibrate");
+  - after calibrate = `rang_apply_20261112T013707Z` ("flags before apply",
+    the input of 2b's applycal and of the 3b CASA arm).
+
+### 9.1 A2, K/G/B composites on matched CASA inputs
+
+Rang's solve inputs (M, `R/rang-run/calibrate/summary.json` steps, in order):
+K, G, B on field 1 and Gsec on field 2 saw the flag stage's flags; then the
+A step (`Asec`) flagged field 2 (52.55 % → 53.05 %); then F's appended G
+(base G) was solved on field 2 with those flags; `extendflags` (fields 0
+and 1 only) came after F. Weights: unit (`weight_column: unit`).
+
+So "flag stage" in section 3 is exact for K, G, B and Gsec, but not for F.
+The freeze defines the matched flag case per solve.
+
+Data:
+- `D:\rang\data\e2-b\e2b.ms` (51 GB, DATA never written by rang) copied to
+  ext4. Precondition: its FLAG hash equals `R/flaghash-input.json`
+  (restored state).
+- Per case, a deep copy of the rows with FIELD_ID 1 or 2 (scans 18-20;
+  FIELD_IDs and subtables unchanged) with that case's FLAG and weights.
+
+The 2×2 cases (flags × weights):
+- Flags:
+  - **match**: rows from the flag stage for setjy, K, G, B and Gsec. Then
+    field 2's FLAG is replaced by the after-calibrate version (flag stage
+    plus Asec; extend does not touch field 2) before the Gapp append and
+    `fluxscale` that give F. Before the swap, the same append and
+    fluxscale also run once on the flag stage's flags, giving `F_fs`
+    (section 3's literal case). `F_fs` is reported, not decided on.
+  - **after**: every row from the after-calibrate version (the frozen 3b
+    input).
+- Weights:
+  - **spec**: WEIGHT and WEIGHT_SPECTRUM as in the MS (the frozen 3b input);
+  - **ones**: `initweights(wtmode='ones', dowtsp=True)`. Before any solve,
+    WEIGHT and WEIGHT_SPECTRUM are read back and must be 1 in every cell,
+    or the case is void.
+- The matched case is (match, ones); (after, spec) is the frozen 3b run.
+
+CASA calls: `e2_casa3b.casa_calls`'s setjy (J1939−638 only, since field 0
+is absent), K, G, B, Gsec, `copytree` G → Gapp, the Gapp append on
+J1833−2103 and `fluxscale` → F, with the same arguments: refant
+m022,m023,m024 flex, minsnr 3, minblperant 4, uvrange >150. The polcal
+calls and applycal are not run.
+
+Score (`e2_score3b.scores`' composite code, `e2avg_common`):
+- `composite_fcal_KGB`: K, G, B on J1939−638, pooled, every 8th time;
+- `composite_gcal_KFB`: K, F, B on J1833−2103, table fields (1, 2, 1),
+  every time.
+- Rang's frozen tables against each case's tables. Rows and frequencies
+  come from `R/casa/e2b.ms` (read only).
+- Reported beside them: `term_diff` of K, G, B, Gsec, F (and `F_fs`), and
+  B's solution flags that differ.
+
+Controls, read before any case's score:
+- **C0, scorer:** the archived `R/casa/tables` against
+  `R/rang-run/calibrate` with this extension must reproduce `R/g3b.json`'s
+  two composites: equal cell counts, median and p95 within 1e-3 relative.
+  If not, the scorer is fixed before anything else is read.
+- **C1, harness:** case (after, spec) must reproduce `R/g3b.json`'s
+  composites (median and p95 within 1 % relative) and B's 5,242 differing
+  solution flags (within 1 %). If not, the arm is void and is reported as
+  such.
+
+Decision rule (tolerance class B, median ≤ 7e-4 and p95 ≤ 3e-3, not
+loosened), on the matched case (match, ones):
+- Both composites met: the composite miss was an oracle input error, and
+  3b's composites are closed as such. The other three cases attribute it
+  between flags and weights, as a description, not a decision.
+- Both missed: an estimator difference in B, the shared term (K not
+  excluded). Open a B task under C2c.
+- Primary met, secondary missed: K and B are matched, and the difference is
+  in F (the Gapp append or `fluxscale`). Open an F task.
+- Primary missed, secondary met: the difference is in the primary's G, the
+  term the secondary composite does not use. Open a G task under C2c.
+
+Cost: 4 cases of K, G, B, Gsec and F on scans 18-20. Booked by what one
+pilot case uses, measured inside WSL.
+
+### 9.2 A1, localising gate 2b's 42 cells
+
+Data:
+- A mini MS: deep copy of the 41 distinct rows of the 42 cells
+  (`R/g2b-applycal-cells.json`) from `R/casa/e2b.ms`, all 4,096 channels,
+  subtables kept (RECEPTOR_ANGLE −90, as `prep` set it for 2b).
+- FLAG and FLAG_ROW from the after-calibrate version, which was 2b's input.
+  The copy's own FLAG now holds later cases.
+- Each row's antennas, field and scan must equal the cells file's.
+
+Controls:
+- **C2, CASA harness:** CASA `applycal` with 2b's call for each field
+  (`R/applycal-spec.json`: tables, interp, gainfield, parang, calflag) on the
+  mini MS must reproduce every archived per-correlation eps of the 42
+  cells within 0.01 eps.
+- **C3, rang harness:** `rang.applycal.applycal` with the frozen apply's
+  arguments (`R/rang-run/apply/summary.json`; `parang_flags='none'`, the
+  rule at `b2d80dc`) on the mini MS must reproduce RANG_CORRECTED_DATA bit
+  for bit on every cell that RANG_FLAG leaves unflagged.
+- If C2 or C3 fails, nothing else is read. C3 failing means the rang side
+  is rebuilt at `b2d80dc`.
+
+Order of terms: rang's `cal_gain.TYPE_ORDER`, which is CASA's VisEquation
+order of correction: B, K, Kcross, G (and Gpol; F on field 2), Df, Xf,
+then P.
+
+Measurements:
+- **M1, per term.** DATA = 1 + 0j in all four correlations and FLAG false.
+  This departs from section 1's "unit parallel-hand data", which cannot
+  show Kcross or Xf (they move only the cross hands).
+  - For each term alone, and for P alone (no tables, `parang=True`): CASA
+    `applycal` (2b's interp and gainfield, calflag) against rang's
+    `cal_apply.apply(direction='correct')`, or `cal_pol.rotate` for P, with
+    the same field map.
+  - Both sides correct. Section 1's `corrupt` would compare J with J⁻¹.
+  - Measure, per correlation: d = |c − r| / u, where
+    u = `np.spacing(np.float32(max(|Re r|, |Im r|)))` (one float32 ulp of
+    rang's value). Correlations with |r| < 1e-3 × max_k |r_k| (structural
+    near-zeros) use u of the cell's largest |r_k| instead.
+  - Agreement: d ≤ 2 on every correlation unflagged in both, on the 42
+    cells. Also reported over every unflagged cell of the 41 rows.
+- **M2, cumulative.** On the real DATA and the after-calibrate FLAG:
+  - CASA `applycal` of the cumulative sets in that order. Field 1: {B},
+    {B, K}, {+Kcross}, {+G}, {+Gpol}, {+Df}, {+Xf}, then all + P. Field 2:
+    the same with F for G and Gpol.
+  - Against rang's float64 apply of the same set (one rounding), and a
+    **float32 emulation**: the terms applied one at a time in that order
+    with `cal_apply.apply`, the result rounded to complex64 between terms,
+    then P by `cal_pol.rotate`.
+  - The emulation script is committed before CASA's cumulative outputs
+    exist.
+  - Measure: |c − x| / (eps32 × max_k |x_k|) per correlation, as 2b's
+    compare does.
+
+Decision rule (class C stays at 11 eps, not loosened):
+- **Rounding:** M1 agrees on every term and P on all 42 cells, and the
+  emulation at all + P is within 2 eps of CASA on all 42 cells. The miss is
+  float32 rounding and is reported as a documented limitation. The owner
+  decides whether 2b's class C is read on rang's float64 output.
+- **Rang difference:** M1 exceeds 2 ulps for some term on any of the 42
+  cells. The first such term in the order above is a rang difference. A fix
+  task is opened; the fix is not part of this arm.
+- **Not shown** (added at this freeze; section 1 had no branch for it): M1
+  agrees on every term, but the emulation misses 2 eps on some of the 42
+  cells. Rounding is then not shown, and no term is localised. The
+  cumulative profile is reported, and 2b stays open.
+
+Cost: under 0.2 CPU-hours; the copy is about 30 MB.
+
+### 9.3 A1 measured, 2026-11-14
+
+Runs:
+- Results in `D:\rang\outputs\e2b-arms-20261114\a1`; receipts in
+  [results/e2b-misses/a1/](results/e2b-misses/a1/) (`a1.json`, `mini.json`,
+  `a1-spec.json`, `casa-results.json`, `p-term-size.json`).
+- Scripts: `a1_casa.py`, `a1_rang.py`, `a1_run.sh` and `a1_rang_all.sh`,
+  committed before the run.
+- Rang side: this branch's extension at main `ad5f176`.
+- CASA: 6.7.6.14, 32 `applycal` calls with no errors.
+
+Controls (both met):
+- **C2:** CASA's 2b calls on the mini MS reproduce every archived
+  per-correlation eps of the 42 cells (maximum deviation 0.00 eps).
+- **C3:** rang's library apply reproduces RANG_CORRECTED_DATA bit for bit
+  on 390,636 unflagged correlations, flags equal. So main's apply equals
+  `b2d80dc`'s here, and no rebuild was needed.
+
+M1, each term alone on unit data, d in float32 ulps:
+
+| Term | Over 2 ulps on the 42 cells (field 1 / field 2) | Max ulps on the 42 cells | Over 2 ulps, all cells of the 41 rows |
+| --- | --- | --- | --- |
+| B | 0/120 / 0/48 | 1.03 / 2.00 | 3,607 / 1,198 |
+| K | 0/120 / 0/48 | 2.00 / 2.00 | 12,024 / 5,172 |
+| Kcross | 0 / 0 | 1.00 / 1.00 | 0 / 0 |
+| G (F on field 2) | **1/120** / 0/48 | **2.004** / 1.80 | 4,096 / 0 |
+| Gpol | 23/120 / – | 3.01 / – | 90,112 / – |
+| Df | 0 / 0 | 1.00 / 1.00 | 6 / 0 |
+| Xf | 2/120 / 0/48 | 4.47 / 1.00 | 3,393 / 1,404 |
+| **P** | **120/120 / 48/48** | **366 / 273** | **every cell** (median 151.5 / 78 ulps) |
+
+- No flag differs on any term.
+- P alone on unit data differs from CASA by up to 1.1e-5 (field 1) and
+  5.1e-6 (field 2) in absolute value: median 9.8e-6 and 4.1e-6, on every
+  cell of every row.
+
+M2, cumulative, eps of the cell maximum on the 42 cells:
+- Through every table term (B … Xf), CASA and rang agree within 5.3 eps
+  (field 1) and 3.7 eps (field 2).
+  - None of the 42 cells is over 11 eps before P.
+  - The float32 emulation is within 4.7 and 4.6 eps.
+- Adding P takes the maximum to 13.4 eps (field 1) and 25.6 eps (field 2).
+  - rang's apply has 43 and 28 correlations over 11 eps.
+  - The emulation is no closer: 13.5 and 25.7 eps, with 40 and 28
+    correlations over 11.
+  - Over all cells of the rows, the median rises from about 0.1 eps before
+    P to 2.0 and 1.4 eps with P.
+
+**Outcome under the frozen rule: rang difference, first term G** (field 1).
+The first term in the order whose M1 value exceeds 2 ulps on one of the 42
+cells is G: one correlation at 2.004 ulps. The emulation also misses 2 eps
+on all + P.
+
+What the rule allows us to conclude:
+- The miss is **not shown to be float32 rounding**. The "rounding" branch
+  fails on both of its conditions.
+- Under the rule as frozen, G is the term named. This is the record.
+
+What it does not allow:
+- It does not show that G is the cause, or that any term has a bug.
+- The measurement ranks the terms by size. G's excess is 0.004 ulps over
+  the bound on 1 of 120 correlations. Gpol and Xf exceed by a few ulps.
+- P differs by 78–366 ulps on every cell. M2 shows the class C excess
+  appears only at the P step, and the emulation does not remove it.
+- That P is the term that carries gate 2b's miss is a reading of these
+  numbers (**post hoc**, not the rule's outcome). It fits an angle
+  difference of order 1e-5 rad between rang's and CASA's parallactic
+  angles.
+- What makes that difference (time used, astrometry, receptor-angle
+  handling) is **not measured**.
+
+The frozen rule says a fix task is opened for the named term. Per the
+coordinator, no fix and no new arm is started here; the next step is
+proposed in "For the coordinator".
+
+### 9.4 A2 measured, 2026-11-14
+
+Runs:
+- Results in `D:\rang\outputs\e2b-arms-20261114\a2`; receipts in
+  [results/e2b-misses/a2/](results/e2b-misses/a2/) (`a2.json`, `c0.json`,
+  each case's `score.json`, `result.json`, `spec.json`, and
+  `weights-identity.txt`).
+- CASA 6.7.6.14, 1 slot per case at OMP 1. Wall: after-spec 1,051 s,
+  match-ones 1,160 s, match-spec 1,411 s, after-ones 1,323 s. Scoring took
+  61–96 s per case at 4 threads.
+- Preconditions:
+  - the source copy's FLAG hash equals `R/flaghash-input.json`;
+  - the "ones" cases read back WEIGHT and WEIGHT_SPECTRUM as 1 in every
+    cell;
+  - the "spec" cases kept WEIGHT_SPECTRUM between 0 and 21.9.
+
+Harness incidents, none of which changes the protocol:
+- The first case run failed at start because the scripts had CRLF line
+  endings.
+- The first scoring run failed: `$n` was left unexpanded in the case paths
+  (fixed in `a2f2fea`).
+- A D:-full stop interrupted the work. Afterwards every surviving input was
+  re-verified (FLAG hash, flag-version sha256) before reuse.
+
+Controls (both met):
+- **C0:** the archived 3b tables re-scored with this extension reproduce
+  `R/g3b.json`'s two composites exactly (equal cells, 0.0 relative).
+- **C1:** case (after, spec) reproduces them exactly (0.0 relative) and
+  B's 5,242 differing solution flags.
+
+| Case (flags, weights) | fcal K G B median / p95 | gcal K F B median / p95 | Class B | B flags differ | B rel. median |
+| --- | --- | --- | --- | --- | --- |
+| after, spec (= frozen 3b) | 1.14e-3 / 1.52e-2 | 1.12e-3 / 1.51e-2 | no / no | 5,242 | 1.15e-3 |
+| after, ones | 1.14e-3 / 1.52e-2 | 1.12e-3 / 1.51e-2 | no / no | 5,242 | 1.15e-3 |
+| **match, ones** | **4.2e-5 / 1.24e-3** | **5.9e-5 / 1.23e-3** | **yes / yes** | **0** | 8.2e-4 |
+| match, spec | 4.2e-5 / 1.24e-3 | 5.9e-5 / 1.23e-3 | yes / yes | 0 | 8.2e-4 |
+
+- In the match cases, F_fs (F's append on the flag stage's flags, without
+  the A step's) gives 3.6e-4 / 1.6e-3 on the secondary composite. That is
+  reported, not decided on.
+- The weights change nothing.
+  - CASA's K, G, B, Gsec and F are identical value for value, flags
+    included, between the spec and ones cases with the same flags
+    (`a2_weights_identity.py`).
+  - Why CASA's solves are invariant to these weights here is not
+    established.
+
+**Outcome under the frozen rule: both composites met in the matched case.**
+The 3b composite miss was an oracle input error. CASA's K, G and B had been
+solved on rang's flags after calibrate, which include `extendflags`, rather
+than on the flags rang's own solves saw. 3b's composites are closed as
+such.
+
+Attribution, descriptive only:
+- The flags carry all of the miss. Matching them removes B's 5,242
+  differing solution flags and lowers the composite medians 27× and 19×.
+- The weights carry none of it.
+- Section 3's inference, that most likely B differs, was right: the B
+  solutions changed with the flags.
+- Section 8's open item, B's 5,242 flag differences, is explained by the
+  flag case.
+
+### 9.5 A1b, P alone: rang's parallactic angles against CASA's, frozen 2026-11-14 (before any run)
+
+Asked by the coordinator after 9.3. This is a new arm, **seen**: it was
+chosen after 9.3's P reading. No rang code changes in this branch.
+
+Hypotheses, tested in this order (each a candidate for rang's angle):
+- **H1, time column:** CASA's P uses TIME_CENTROID, or the integration's
+  start or end (TIME ∓ INTERVAL/2), where rang uses TIME
+  (`applycal.applycal` passes `group["TIME"]` to `cal_pol.table_angles`).
+- **H2, UT1 − UTC (IERS source):** CASA's measures data in
+  `rang-o-casa:6.7.6.14` gives a different UT1 − UTC for 2021-08-18 than
+  astropy's bundled IERS. rang's `parallactic_angle_casa` uses
+  `iers.conf.auto_download = False`.
+- **H3, other astrometry:** precession/nutation model or latitude
+  convention. This is not tested directly. It is what remains if H1 and H2
+  fail.
+
+Data: the A1 mini MS (41 rows, fields 1 and 2), its FEED (RECEPTOR_ANGLE
+−90) and ANTENNA tables.
+
+Probe:
+- CASA `applycal` with no tables and `parang=True` on DATA = XX 1, XY = YX
+  = YY 0, FLAG false. The same call is made in rang
+  (`cal_pol.rotate(inverse=True)` with `angle_table_at` angles).
+- Each antenna's angle is read back from the corrected correlations by one
+  extraction function: χ_q from (XX, XY) and χ_p from (XX, YX).
+- **Control C4:** the extraction applied to rang's probe recovers rang's own
+  `angle_table_at` angles within 1e-9 rad on every row and antenna, or the
+  extraction is fixed before CASA's output is read.
+
+Measurement:
+- Δχ = χ_CASA − χ_rang per row and antenna (82 values per field), and
+  the time offset Δχ / (dχ/dt) per value.
+- Candidates for rang's angle:
+  - (a) as run;
+  - (b) at TIME_CENTROID;
+  - (c) at TIME − INTERVAL/2 and TIME + INTERVAL/2;
+  - (d) with UT1 − UTC forced to CASA's value at that epoch, read in the
+    container with `casatools.measures` (UTC → UT1 at the rows' times).
+- Reported beside, not decided on: UT1 − UTC from astropy and from CASA,
+  and the CASA image's measures data date.
+
+Tolerance: a candidate explains the difference when max |Δχ| ≤ 2e-7 rad
+over every row and antenna of both fields. That is about two float32
+epsilons; P's M1 excess was about 1e-5.
+
+Decision rule:
+- The first candidate, in the order (b), (c), (d), that meets the
+  tolerance names the cause:
+  - (b) or (c): H1. Name rang's line and CASA's behaviour (which time its
+    VisBuffer gives PJones).
+  - (d): H2. A data difference in UT1 − UTC, not a code bug in either. Say
+    which side's UT1 − UTC is the published one, if the container's data
+    show their source.
+- None meets it: cause not found under this rule (H3 open). The table of
+  Δχ and the time offsets is reported.
+- If (a) already meets the tolerance, the 9.3 P reading is not confirmed
+  by this probe. Report that.
+- A fix is out of scope here (coordinator).
+
+Cost: seconds of CPU; 1 slot.
+
+### 9.6 A1b measured, 2026-11-14: void as frozen
+
+Runs:
+- `a1b_casa.py` took 7 s; `a1b_rang.py` 4,731 s, almost all of it queue.
+  Both ran on 1 slot.
+- Results in `D:\rang\outputs\e2b-arms-20261114\a1b`; receipts in
+  [results/e2b-misses/a1b/](results/e2b-misses/a1b/) (`a1b.json`,
+  `casa-ut1.json`).
+- CASA's probe ran with no errors.
+
+**Outcome under the frozen rule: void.** Control C4 is not met.
+- The extraction recovers rang's own angles within 2.2e-8 rad on field 1
+  and 2.0e-8 rad on field 2, against the frozen 1e-9.
+- The other sign gives 0.75 rad, so the extraction's form is right; only
+  its precision fails.
+- The cause is the freeze, not the extraction: the probe's corrected
+  correlations are complex64, and atan2 of float32 values carries about one
+  float32 epsilon (6e-8). A 1e-9 bound could not be met by any extraction
+  from this probe.
+- The extraction was not changed afterwards, and the tolerance is not
+  loosened here. CASA's output was read in the same run, so a relaxed C4
+  would be post hoc.
+
+Read beside the void outcome (**post hoc**; the 2.2e-8 floor is 1/300 of
+the differences below, so the readings are informative):
+
+| Candidate | Max \|Δχ\| field 1 / field 2 (rad) | Median Δχ field 1 / field 2 (rad) |
+| --- | --- | --- |
+| (a) as run | 7.1e-6 / 3.2e-6 | 6.9e-6 / 3.0e-6 |
+| (b) TIME_CENTROID | identical: TIME equals TIME_CENTROID in every row | – |
+| (c) TIME ∓ INTERVAL/2 (8.0 s) | 3.1e-4 and 3.0e-4 / 1.0e-4 and 1.1e-4 | – |
+| (d) UT1 − UTC = CASA's (−0.1299 s) | 7.1e-6 / 3.2e-6 (changes Δχ by < 1e-9) | 6.9e-6 / 3.0e-6 |
+
+- The difference is of the same size as 9.3's P reading: 7e-6 rad of angle,
+  against 1.1e-5 absolute on unit data. It is about constant within each
+  field.
+- H1 is not supported:
+  - TIME and TIME_CENTROID are the same column values here;
+  - using the integration's start or end makes Δχ about 40× worse.
+- H2 is not supported:
+  - forcing CASA's UT1 − UTC (casacore data at `/usr/share/casacore/data`,
+    IERSeop2000 VS_DATE 2025/07/28) does not move Δχ;
+  - so astropy's bundled UT1 − UTC already matches it to well under a
+    millisecond. Astropy's own value was not printed, because of a script
+    bug in the report line (`to_value` on an array); the arm does not use
+    it.
+- Expressed as a clock offset, the difference is +0.091 s on field 1
+  (J1939−6342) and −0.147 s on field 2 (J1833−2103): opposite signs on the
+  two fields. So it is not one time error. It depends on the source
+  direction, which points at H3 (precession or nutation, or the
+  apparent-place or latitude convention) as the remaining candidate. **This
+  is not tested.**
+
+What this allows: nothing under the rule (void). Post hoc, the P
+difference is real, about 1e-5 rad, and direction dependent. It is not
+explained by the time column or by UT1 − UTC.
+
 ## For the coordinator
+
+**After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
+- **A2 (9.4):** the 3b K/G/B composites miss is closed as an oracle input
+  error. On matched flags both composites meet class B; the weights change
+  nothing.
+- **A1 (9.3):** gate 2b is not shown to be float32 rounding.
+  - Under the frozen rule the outcome is "rang difference", with G named.
+  - Post hoc, P (the parallactic angle) carries the excess.
+- **A1b (9.6):** void as frozen; my C4 bound was below the float32 floor.
+  Post hoc, the P difference is about 1e-5 rad and depends on the source
+  direction. It is not TIME versus TIME_CENTROID, and not UT1 − UTC.
+- **Proposed next step** (not started): a P astrometry arm. It would
+  compare rang's `parallactic_angle_casa` against casacore's own
+  parallactic angle computed in the container (`me.posangle`, or
+  `msmetadata` per antenna and time) at the same rows. That splits
+  precession and nutation from the latitude and apparent-place
+  conventions.
+  - Freeze C4 at about 1e-7, the float32 floor, or extract from a float64
+    path.
+  - Tolerance 2e-7 rad as in 9.5.
+  - If casacore's angle matches CASA's applycal and differs from rang's,
+    the fix is in `cal_pol.parallactic_angle_casa`.
+- The section 0 rows for 2b and 3b composites carry dated lines.
 
 Which misses block v0.2.0 depends on the owner's reading of finish line
 point 3. "Within a tolerance written before the run" is not met for 3b, 3c

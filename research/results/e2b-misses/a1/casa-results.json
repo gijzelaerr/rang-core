@@ -1,0 +1,162 @@
+[
+ {
+  "name": "c2_f2",
+  "error": null,
+  "seconds": 0.6636727809991498
+ },
+ {
+  "name": "c2_f1",
+  "error": null,
+  "seconds": 0.5946520620000229
+ },
+ {
+  "name": "cum_f1_1",
+  "error": null,
+  "seconds": 0.194089117000658
+ },
+ {
+  "name": "cum_f1_2",
+  "error": null,
+  "seconds": 0.2763958059995275
+ },
+ {
+  "name": "cum_f1_3",
+  "error": null,
+  "seconds": 0.3173352710000472
+ },
+ {
+  "name": "cum_f1_4",
+  "error": null,
+  "seconds": 0.3482293600000048
+ },
+ {
+  "name": "cum_f1_5",
+  "error": null,
+  "seconds": 0.3921247680000306
+ },
+ {
+  "name": "cum_f1_6",
+  "error": null,
+  "seconds": 0.46757922300002974
+ },
+ {
+  "name": "cum_f1_7",
+  "error": null,
+  "seconds": 0.6060156280000228
+ },
+ {
+  "name": "cum_f1_8",
+  "error": null,
+  "seconds": 0.6535099699995044
+ },
+ {
+  "name": "term_f1_B",
+  "error": null,
+  "seconds": 0.2875523749999047
+ },
+ {
+  "name": "term_f1_K",
+  "error": null,
+  "seconds": 0.24766994299989165
+ },
+ {
+  "name": "term_f1_Kcross",
+  "error": null,
+  "seconds": 0.24733363599989389
+ },
+ {
+  "name": "term_f1_G",
+  "error": null,
+  "seconds": 0.22264709599949128
+ },
+ {
+  "name": "term_f1_Gpol",
+  "error": null,
+  "seconds": 0.2640660040005969
+ },
+ {
+  "name": "term_f1_Df",
+  "error": null,
+  "seconds": 0.3052814060001765
+ },
+ {
+  "name": "term_f1_Xf",
+  "error": null,
+  "seconds": 0.26911520800058497
+ },
+ {
+  "name": "term_f1_P",
+  "error": null,
+  "seconds": 0.18769994000012957
+ },
+ {
+  "name": "cum_f2_1",
+  "error": null,
+  "seconds": 0.20642317600049864
+ },
+ {
+  "name": "cum_f2_2",
+  "error": null,
+  "seconds": 0.2577879259997644
+ },
+ {
+  "name": "cum_f2_3",
+  "error": null,
+  "seconds": 0.3109330349998345
+ },
+ {
+  "name": "cum_f2_4",
+  "error": null,
+  "seconds": 0.3392567370001416
+ },
+ {
+  "name": "cum_f2_5",
+  "error": null,
+  "seconds": 0.41044380600033037
+ },
+ {
+  "name": "cum_f2_6",
+  "error": null,
+  "seconds": 0.46571468000001914
+ },
+ {
+  "name": "cum_f2_7",
+  "error": null,
+  "seconds": 0.492262371999459
+ },
+ {
+  "name": "term_f2_B",
+  "error": null,
+  "seconds": 0.23101794900048844
+ },
+ {
+  "name": "term_f2_K",
+  "error": null,
+  "seconds": 0.2004344070001025
+ },
+ {
+  "name": "term_f2_Kcross",
+  "error": null,
+  "seconds": 0.1963929419998749
+ },
+ {
+  "name": "term_f2_F",
+  "error": null,
+  "seconds": 0.1706245339992165
+ },
+ {
+  "name": "term_f2_Df",
+  "error": null,
+  "seconds": 0.21829929200066545
+ },
+ {
+  "name": "term_f2_Xf",
+  "error": null,
+  "seconds": 0.21090634299980593
+ },
+ {
+  "name": "term_f2_P",
+  "error": null,
+  "seconds": 0.13246127100046579
+ }
+]
