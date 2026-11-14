@@ -245,6 +245,48 @@ does not depend on G and is unchanged.
 - **Dirty images:** the preconditions use each run's own dirty image, written by the cleaning
   run, not a separate `-niter 0` run. The dirty image does not depend on `-niter`.
 
+### Amendment A2 (2026-11-14, post hoc, before any held-out score is read)
+
+**Why.** The held-out runs did not share one host state. A power cut (about 17:30), D: filling
+(about 19:55, E2-A's MS) and WSL memory fragmentation (9p reads failing with ENOMEM) forced
+re-runs, and the lock bookings changed mid-stage. Wall times under these loads are not a clean
+cost basis: U-a took 3,254 s on H1 and 2,408 s on H2, with the same settings and the same sky size.
+AGENTS.md wants timing runs exclusive. The coordinator asked on 2026-11-14 for CPU seconds as the
+cost measure, with walls labelled as shared-host. This amendment is written while the first
+held-out scoring job runs, and before any of its output is read.
+
+**Change.**
+- **Primary cost:** CPU seconds (user + system).
+  - W and U: from the container's `/usr/bin/time -v`. U's cost is the sum over init, grid and
+    sara.
+  - U's iterates: pfb gives no per-cycle CPU time. An iterate's cumulative CPU is init + grid +
+    sara's CPU × (the iterate's file time since sara started) / (sara's wall). This assumes a
+    constant CPU rate inside sara, which the measured 3.8-4.2 cores per run supports.
+- **G's CPU:** not measured in the runs already done (native Windows, no `time`). G is re-run on
+  every sky as timing-only arm **Gt**: the same binary and options, with the process's user and
+  kernel time read through `GetProcessTimes`, at 8 slots. Gt's model must be identical to G's,
+  which also checks that G is deterministic. Its images are not otherwise scored.
+- **`r5_s` with CPU:** section 5's `r5_s` uses U\*'s last iterate whose cumulative CPU is at most
+  5 × Gt's CPU on `s`. The wall-based `r5_s` (section 5 as frozen) is reported beside it, labelled
+  shared-host.
+- **Exclusive timing subset** (pre-registered here, run only if needed):
+  - When: the outcome differs between the CPU-based and wall-based `r5_s`, or the deciding
+    iterate's cost ratio on any gated sky is within 4-6.25 × on either basis.
+  - What: G, W and U-a on H4, one exclusive hold each (`heavy_lock.py run -- <cmd>`, no
+    `--slots`), once the queue is quiet. U-a runs to its 40-cycle cap.
+  - Use: their CPU and wall ratios are reported. If H4's exclusive wall ratio puts H4 on the other
+    side of 5 × from its CPU ratio, the outcome is recorded as cost-ambiguous, not decided by
+    either basis.
+- **Bookings:** from 2026-11-14 about 19:30, W and U book 4 slots (measured use 2.1-3.5 and
+  3.8-4.2 cores). Their thread counts stay 8, so their settings are unchanged. Applies to W H1-H3
+  and U-a H1, H3. G still books 8 (about 7.4 cores used).
+- **Repeats** (section 7, a failed run is repeated once):
+  - W H1 failed with rc 125 (D: full).
+  - W H2 and W H3 failed with rc 255 (ENOMEM on a 9p read). WSL's page cache was dropped before
+    the repeat.
+  - U-a H1 was repeated: its first run's last writes hit the full disk.
+  - The failed attempts' logs are kept (`runs\W\H2-enomem`, `runs\W\H3-enomem`, `runs.tsv`).
+
 ## 8. Measured results
 
 ### 8.1 Stage 2: tuning skies S1-S3 (2026-11-13)
