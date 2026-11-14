@@ -980,6 +980,81 @@ Decision rule:
 
 Cost: seconds of CPU; 1 slot each side.
 
+### 9.8 A1c measured, 2026-11-15: cause not found (K1 not met)
+
+Runs:
+- `a1c_casa.py` (CASA 6.7.6.14's casatools, `a1c_run.sh`) took 3 s;
+  `a1c_rang.py` 1,213 s, almost all of it queue. Both ran on 1 slot.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a1c`; receipts in
+  [results/e2b-misses/a1c/](results/e2b-misses/a1c/) (`a1c.json`,
+  `a1c-casa.json`, `a1c-casa.npz`, `a1c-posthoc.json`).
+- casacore logged "Leap second table TAI_UTC seems out-of-date" (the table's
+  age against today's clock). No leap second has been added since 2017, so
+  it does not affect 2021 epochs. A1b's applycal ran on the same data.
+- The posangle check gives 0 for a point straight above, so `me.posangle(a,
+  b)` is the position angle of b seen from a, as K was defined.
+
+Controls:
+- **C4 met:** 2.2e-8 and 2.0e-8 rad against 1e-7.
+- **C5 met:** the script's formula equals `parallactic_angle_casa` exactly
+  (0.0 rad).
+- **K1 not met:** casacore's K against CASA's applycal probe is 2.28e-7 rad
+  (field 1) and 2.73e-7 rad (field 2) at most, against the frozen 2e-7. The
+  medians are −2.2e-8 and −1.3e-7.
+
+**Outcome under the frozen rule: cause not found (K1 not met).**
+casacore's measures path, as computed here, is not shown to be what
+applycal applies. No fix is made, and the 2e-7 bound is not loosened.
+
+Read beside the outcome (all values are max |·| over 82 values per field):
+
+| | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| rang − CASA probe (A1b) | 7.1e-6 rad | 3.2e-6 rad |
+| K − CASA probe (K1) | 2.3e-7 | 2.7e-7 |
+| Δ = rang − K | 7.0e-6 (median −7.0e-6) | 3.2e-6 (median −3.1e-6) |
+| (e) casacore h, δ in rang's formula, geocentric φ | **0.0** (9e-16) | **0.0** |
+| (f) casacore LAST | 6.7e-6 | 3.3e-6 |
+| (g), (g') casacore APP, TOPO place | 5.0e-6 | 3.1e-6 |
+| (g1) casacore precession and nutation | 7.8e-6 | 3.0e-6 |
+| (g2) casacore aberration | 4.2e-6 | 3.2e-6 |
+| (k) geodetic latitude | 2.0e-3 | 5.9e-3 |
+| K_geo (AZELGEO) − K | 2.0e-3 | 5.9e-3 |
+
+Post hoc readings (not the rule's outcome):
+- casacore's K reproduces CASA's applycal to 3–4 % of rang's difference.
+  So casacore is a near-oracle at the 2.7e-7 level, but not within the
+  frozen 2e-7.
+- (e) is exact. casacore's parallactic angle is rang's formula on
+  casacore's HADEC (h, δ), with the geocentric latitude rang uses. The
+  latitude and pole convention (H3c) are therefore not the difference;
+  (k) and AZELGEO are 1e-3 away.
+- The difference is in the source's hour angle and declination. casacore's
+  HADEC differs from astropy's TETE hour angle and Dec by up to 0.41″ and
+  0.53″ (field 1), and 0.43″ and 0.51″ (field 2).
+- No single input explains it:
+  - casacore's APP and TOPO places differ from TETE by ≤ 0.19″ (APP equals
+    TOPO here);
+  - its LAST differs from astropy's by 0.054″;
+  - its JTRUE differs from erfa's IAU 2006/2000A true place by ≤ 0.07″;
+  - substituting any one of these leaves 3–8e-6 rad.
+  - So the 0.5″ is added in casacore's APP → HADEC step, not in the place
+    or the sidereal time.
+- Its size is that of polar motion (x 0.248″, y 0.352″ from astropy's IERS
+  for 2021-08-18). But `a1c_posthoc.py` shows two things:
+  - astropy's observed HADec frame, which applies polar motion and diurnal
+    aberration, is further from casacore (PA 1.2e-5 and 3.9e-6 from K);
+  - a simple polar-motion rotation of the TETE place, in either sign,
+    leaves 0.25–0.33″.
+  - What casacore's HADEC adds is **not identified**.
+
+What this allows: nothing under the rule. Post hoc, rang's P differs from
+casacore and CASA because casacore's HADEC conversion of the source adds
+about 0.5″ that astropy's TETE place plus apparent sidereal time does not.
+A follow-up would read casacore's `MCDirection` APP → HADEC route (polar
+motion, diurnal aberration, the tables it reads) and freeze a candidate
+before testing it. Until then `parallactic_angle_casa` stays as it is.
+
 ### 9.9 A4, dirty L∞ against ε, frozen 2026-11-14 (before any run)
 
 Section 4's proposed arm A4, made concrete. **Seen**: gate 3c's matched

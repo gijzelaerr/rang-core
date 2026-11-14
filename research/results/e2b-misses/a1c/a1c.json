@@ -1,0 +1,142 @@
+{
+ "tolerance_rad": 2e-07,
+ "c4_tol_rad": 1e-07,
+ "posangle_check_rad": {
+  "posangle(lo, hi)": 1.2002584799401937e-15,
+  "posangle(hi, lo)": -3.1415926535897922
+ },
+ "fields": {
+  "1": {
+   "c4_max_rad": 2.2332524274304433e-08,
+   "c5_max_rad": 0.0,
+   "rang_rows_vs_table_max_rad": 0.0,
+   "K1_max_rad": 2.2781492248213908e-07,
+   "K1_median_rad": -2.2128750387651053e-08,
+   "delta_max_rad": 7.007876564379956e-06,
+   "delta_median_rad": -6.955125553931296e-06,
+   "casa_minus_rang_median_rad": 6.925294665283133e-06,
+   "K_geo_minus_K_max_rad": 0.0019751415008668616,
+   "K_rev_plus_K_max_rad": 0.3116173853666897,
+   "place_and_time_arcsec_max": {
+    "jtrue_vs_erfa_true_ra_cosdec": 0.06702940627151947,
+    "jtrue_vs_erfa_true_dec": 0.011553824600334326,
+    "app_vs_tete_ra_cosdec": 0.10728528756758945,
+    "app_vs_tete_dec": 0.18600547849027255,
+    "topo_vs_tete_ra_cosdec": 0.10728528756758945,
+    "topo_vs_tete_dec": 0.18600547849027255,
+    "last_casa_minus_astropy": 0.05424298444393834,
+    "hadec_h_casa_minus_astropy": 0.92471465239803,
+    "hadec_dec_casa_minus_astropy": 0.534719494097771,
+    "lat_itrf_minus_rang_phi": 4.579998741307464e-11,
+    "lat_wgs84_minus_astropy_geodetic": 1.8777994839360604e-09
+   },
+   "candidates": {
+    "e": {
+     "max_abs_rad": 8.881784197001252e-16,
+     "median_rad": 0.0
+    },
+    "f": {
+     "max_abs_rad": 6.731154730044153e-06,
+     "median_rad": -6.681184843149168e-06
+    },
+    "g": {
+     "max_abs_rad": 4.9983384382557006e-06,
+     "median_rad": -4.992094375877443e-06
+    },
+    "g'": {
+     "max_abs_rad": 4.9983384382557006e-06,
+     "median_rad": -4.992094375877443e-06
+    },
+    "g1": {
+     "max_abs_rad": 7.832633556859037e-06,
+     "median_rad": -7.770551982311247e-06
+    },
+    "g2": {
+     "max_abs_rad": 4.191762944305566e-06,
+     "median_rad": -4.1767401528503e-06
+    },
+    "k": {
+     "max_abs_rad": 0.0019751351999115485,
+     "median_rad": -0.001973334431324414
+    }
+   }
+  },
+  "2": {
+   "c4_max_rad": 2.0143127166249997e-08,
+   "c5_max_rad": 0.0,
+   "rang_rows_vs_table_max_rad": 0.0,
+   "K1_max_rad": 2.733072763660971e-07,
+   "K1_median_rad": -1.3179564595233728e-07,
+   "delta_max_rad": 3.183632080627774e-06,
+   "delta_median_rad": -3.0746385997204584e-06,
+   "casa_minus_rang_median_rad": 2.9999274384628904e-06,
+   "K_geo_minus_K_max_rad": 0.005942101191430904,
+   "K_rev_plus_K_max_rad": 1.4813615895845489,
+   "place_and_time_arcsec_max": {
+    "jtrue_vs_erfa_true_ra_cosdec": 0.07013966398851607,
+    "jtrue_vs_erfa_true_dec": 0.002338343226767691,
+    "app_vs_tete_ra_cosdec": 0.167089094257059,
+    "app_vs_tete_dec": 0.05734404619659285,
+    "topo_vs_tete_ra_cosdec": 0.167089094257059,
+    "topo_vs_tete_dec": 0.05734404619659285,
+    "last_casa_minus_astropy": 0.054112556155783136,
+    "hadec_h_casa_minus_astropy": 0.46213877832287714,
+    "hadec_dec_casa_minus_astropy": 0.5126023744954312,
+    "lat_itrf_minus_rang_phi": 4.579998741307464e-11,
+    "lat_wgs84_minus_astropy_geodetic": 1.8777994839360604e-09
+   },
+   "candidates": {
+    "e": {
+     "max_abs_rad": 8.881784197001252e-16,
+     "median_rad": 0.0
+    },
+    "f": {
+     "max_abs_rad": 3.27859313919987e-06,
+     "median_rad": -3.1448504032027813e-06
+    },
+    "g": {
+     "max_abs_rad": 3.0830854242935857e-06,
+     "median_rad": -2.8880016738064285e-06
+    },
+    "g'": {
+     "max_abs_rad": 3.0830854242935857e-06,
+     "median_rad": -2.8880016738064285e-06
+    },
+    "g1": {
+     "max_abs_rad": 3.0344528063608323e-06,
+     "median_rad": -2.960305714116984e-06
+    },
+    "g2": {
+     "max_abs_rad": 3.2338669617715254e-06,
+     "median_rad": -3.003322571970557e-06
+    },
+    "k": {
+     "max_abs_rad": 0.0059370566786789425,
+     "median_rad": -0.00554559464387383
+    }
+   }
+  }
+ },
+ "max_over_fields_rad": {
+  "delta": 7.007876564379956e-06,
+  "K1": 2.733072763660971e-07,
+  "K_geo-K": 0.005942101191430904,
+  "e": 8.881784197001252e-16,
+  "f": 6.731154730044153e-06,
+  "g": 4.9983384382557006e-06,
+  "g'": 4.9983384382557006e-06,
+  "g1": 7.832633556859037e-06,
+  "g2": 4.191762944305566e-06,
+  "k": 0.0059370566786789425
+ },
+ "met": {
+  "e": true,
+  "f": false,
+  "g": false,
+  "g'": false,
+  "g1": false,
+  "g2": false,
+  "k": false
+ },
+ "outcome": "cause not found: K1 not met (casacore's measures path is not applycal's)"
+}
