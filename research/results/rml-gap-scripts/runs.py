@@ -200,6 +200,12 @@ def run_u(config, sky, cap_cycles, cap_seconds):
     run = {"config": config, "sky": sky, "cap_cycles": cap_cycles,
            "cap_seconds": cap_seconds, "start": t_start, "steps": records,
            "rc": rc, "wall_s": total}  # fmt: skip
+    copy_back(work, d, run, t_start)
+    log_row(config, sky, rc, total, "rang-pfb-imaging:0.0.11")
+    return rc, total
+
+
+def copy_back(work, d, run, t_start):
     # Copy FITS, logs and timings to D:, recording each iterate's file time.
     iterates = {}
     for p in sorted(work.rglob("*")):
@@ -214,12 +220,25 @@ def run_u(config, sky, cap_cycles, cap_seconds):
                 iterates[str(rel)] = p.stat().st_mtime - t_start
     run["file_seconds_since_start"] = iterates
     (d / "run.json").write_text(json.dumps(run, indent=1), encoding="utf-8")
-    log_row(config, sky, rc, total, "rang-pfb-imaging:0.0.11")
-    return rc, total
+
+
+# Coordinator rule, 2026-11-14 (after D: filled): no job starts if it would leave D: with
+# under 150 GB free. WSL's VHD lives on D:\wsl, so U's stores count too. Checked here, once
+# the lock is held, with each mode's measured upper output size.
+D_FLOOR_GB = 150
+NEED_GB = {"g": 2, "w": 2, "u": 24}  # U: 5 GB at 2048², 20 GB at 4096²
+
+
+def check_space(mode):
+    free = shutil.disk_usage(f"{D}/").free / 1e9
+    if free - NEED_GB[mode] < D_FLOOR_GB:
+        raise SystemExit(f"D: has {free:.0f} GB free; {mode} needs {NEED_GB[mode]} GB "
+                         f"and must leave {D_FLOOR_GB} GB: not starting")  # fmt: skip
 
 
 def main():
     mode = sys.argv[1]
+    check_space(mode)
     O.mkdir(parents=True, exist_ok=True)
     if mode == "g":
         arm = sys.argv[4] if len(sys.argv) > 4 else "G"

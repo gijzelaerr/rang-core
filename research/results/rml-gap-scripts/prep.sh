@@ -16,6 +16,9 @@ for sky in "$@"; do
     N1|N2) l=$(echo "$sky" | tr N n); ms=$O/data/$l.ms; cat=$O/data/$l.json; noise="--noise $O/data/$l.noise.c64"; n=2048 ;;
   esac
   log=$O/logs/prep-$sky.log
+  # Coordinator rule 2026-11-14: leave D: at least 150 GB free (prepare writes about 1.7 GB).
+  free=$(df -BG --output=avail /d | tail -1 | tr -dc 0-9)
+  if [ "$free" -lt 152 ]; then echo "D: has ${free} GB free: not preparing $sky" | tee "$log"; continue; fi
   echo "START $(date -Is) $sky" >"$log"
   t=$(date +%s)
   RAYON_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 $PY C:/Users/gijsm/Github/rang/tools/heavy_lock.py run --slots 4 --mem 8 -- \
