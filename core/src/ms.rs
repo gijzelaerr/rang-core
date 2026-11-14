@@ -5,15 +5,17 @@
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
 //! Reads `table.dat` and the StandardStMan, IncrementalStMan,
-//! TiledShapeStMan and TiledColumnStMan files of a casacore table as the
+//! TiledShapeStMan, TiledColumnStMan and TiledCellStMan files of a casacore table as the
 //! MeerKAT Measurement Sets in `outputs/` use them. The on-disk format was
 //! read from the casacore 3.8.1 sources listed in the research file; nothing
 //! is copied from casacore (LGPL-2.1-or-later). Scope: scalar, direct-array
 //! and indirect-array columns of the numeric, boolean and string types
 //! (StandardStMan's indirect string arrays live in its string buckets,
-//! research/feed-poltype-read.md), returned as native bytes in casacore's Fortran cell order. Outside the
-//! scope, refused with an error: IncrementalStMan arrays and strings, other
-//! storage managers, MultiFile tables and big-endian hosts.
+//! research/feed-poltype-read.md), returned as native bytes in casacore's Fortran cell order.
+//! IncrementalStMan reads scalars, strings, Direct and indirect arrays,
+//! and refuses per column (research/msv2-edge-cases.md, R1 to R3). Outside the
+//! scope, refused with an error: other storage managers (TiledDataStMan,
+//! adios2, Dysco), MultiFile tables and big-endian hosts.
 
 use std::collections::HashMap;
 use std::fmt;
@@ -1045,7 +1047,25 @@ impl IndirectFile {
 }
 
 // ---------------------------------------------------------------------------
-// IncrementalStMan (scalar columns only).
+// IncrementalStMan: scalars, Direct arrays (values in the bucket) and
+// indirect arrays (`ISMIndColumn`: an 8-byte offset in the bucket into the
+// `table.fNi` array file, 0 for a row without an array), each column form
+// as `ism.rs` writes it (research/msv2-edge-cases.md, R1 and R2).
+
+/// How one column's values sit in an IncrementalStMan bucket.
+#[derive(Clone, Debug, PartialEq)]
+enum IsmValue {
+    /// A numeric or Bool scalar (n 1) or a Direct array of n values; Bool
+    /// as bits from bit 0.
+    Values(DataType, usize),
+    /// A string scalar (n 1) or a Direct string array of n strings
+    /// (`ISMColumn::fromString`).
+    Strings(usize),
+    /// An indirect array, string arrays included.
+    Indirect(DataType),
+    /// Refused for this column only; the manager's other columns read.
+    Unsupported(String),
+}
 
 struct Ism {
     data_file: PathBuf,
@@ -1054,7 +1074,7 @@ struct Ism {
     /// Start rows of the buckets, with the total row count last.
     rows: Vec<u64>,
     buckets: Vec<u32>,
-    columns: Vec<(DataType, usize)>,
+    columns: Vec<IsmValue>,
 }
 
 impl Ism {
@@ -1092,16 +1112,7 @@ impl Ism {
         let mut buckets = ic.block_u32()?;
         rows.truncate(n_used + 1);
         buckets.truncate(n_used);
-        let mut cols = Vec::with_capacity(columns.len());
-        for desc in columns {
-            if desc.is_array || desc.dtype == DataType::Str {
-                return err(format!(
-                    "IncrementalStMan array or string column {} is not supported",
-                    desc.name
-                ));
-            }
-            cols.push((desc.dtype, 1));
-        }
+        let cols = columns.iter().map(|&desc| Self::form(desc)).collect();
         Ok(Ism {
             data_file,
             big,
@@ -1112,14 +1123,51 @@ impl Ism {
         })
     }
 
-    fn read(&self, col: usize, start: u64, count: u64) -> Result<ColumnData> {
-        let (dtype, nelem) = self.columns[col];
+    /// The bucket form of a column, as `ism.rs`'s `ism_col`: arrays without
+    /// the Direct option bit are indirect.
+    fn form(desc: &ColumnDesc) -> IsmValue {
+        if !desc.is_array {
+            return match desc.dtype {
+                DataType::Str => IsmValue::Strings(1),
+                dt => IsmValue::Values(dt, 1),
+            };
+        }
+        if desc.option & 1 == 0 {
+            return IsmValue::Indirect(desc.dtype);
+        }
+        if !desc.fixed_shape || desc.shape.is_empty() {
+            return IsmValue::Unsupported(format!(
+                "IncrementalStMan Direct array column {} without a fixed shape is not supported",
+                desc.name
+            ));
+        }
+        match desc.dtype {
+            DataType::Str => IsmValue::Strings(product(&desc.shape)),
+            dt => IsmValue::Values(dt, product(&desc.shape)),
+        }
+    }
+
+    /// Whether column `col` reads (false: refused on its own).
+    fn supports(&self, col: usize) -> bool {
+        !matches!(self.columns[col], IsmValue::Unsupported(_))
+    }
+
+    fn read(&self, desc: &ColumnDesc, col: usize, start: u64, count: u64) -> Result<ColumnData> {
+        let form = &self.columns[col];
+        if let IsmValue::Unsupported(reason) = form {
+            return err(reason.clone());
+        }
         let mut file = File::open(&self.data_file)?;
         let mut data = ColumnData {
-            dtype: Some(dtype),
+            dtype: Some(desc.dtype),
             nrows: count,
             ..Default::default()
         };
+        if desc.is_array && !matches!(form, IsmValue::Indirect(_)) {
+            data.shape = desc.shape.clone();
+        }
+        // The array file of the indirect columns, opened at their first read.
+        let mut ind: Option<IndirectFile> = None;
         let mut row = start;
         while row < start + count {
             let i = self.rows.partition_point(|&r| r <= row).saturating_sub(1);
@@ -1145,18 +1193,60 @@ impl Ism {
                     .map_or(bucket_end - bucket_start, |&(r, _)| r);
                 let n = (until.min(last - bucket_start + 1) - local) as usize;
                 let value_at = 4 + offset as usize;
-                match dtype {
-                    DataType::Bool => {
+                match form {
+                    IsmValue::Values(DataType::Bool, 1) => {
                         let bit = (bytes.get(value_at).copied().unwrap_or(0)) & 1;
-                        data.bytes.extend(std::iter::repeat_n(bit, n * nelem));
+                        data.bytes.extend(std::iter::repeat_n(bit, n));
                     }
-                    dt => {
-                        let mut one = Vec::with_capacity(dt.size() * nelem);
-                        convert_into(&mut one, &bytes[value_at..], dt, nelem, self.big)?;
+                    IsmValue::Values(DataType::Bool, nelem) => {
+                        let mut one = Vec::with_capacity(*nelem);
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        bits_into(&mut one, src, 0, *nelem)?;
                         for _ in 0..n {
                             data.bytes.extend_from_slice(&one);
                         }
                     }
+                    IsmValue::Values(dt, nelem) => {
+                        let mut one = Vec::with_capacity(dt.size() * nelem);
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        convert_into(&mut one, src, *dt, *nelem, self.big)?;
+                        for _ in 0..n {
+                            data.bytes.extend_from_slice(&one);
+                        }
+                    }
+                    IsmValue::Strings(nelem) => {
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        let one = ism_strings(src, *nelem, self.big)?;
+                        for _ in 0..n {
+                            data.strings.extend(one.iter().cloned());
+                        }
+                    }
+                    IsmValue::Indirect(dt) => {
+                        let at = read_u64(&bytes, value_at, self.big)?;
+                        if at == 0 {
+                            return err(format!("row {row} of {} has no array", desc.name));
+                        }
+                        if ind.is_none() {
+                            ind = Some(IndirectFile::open(&self.data_file, self.big)?);
+                        }
+                        let array = ind.as_mut().unwrap();
+                        let shape = array.shape(at)?;
+                        if row == start {
+                            data.shape = shape.clone();
+                        } else if shape != data.shape {
+                            return err(format!(
+                                "rows of {} differ in shape; read fewer rows at once",
+                                desc.name
+                            ));
+                        }
+                        let mut one = ColumnData::default();
+                        array.values(*dt, &shape, &mut one)?;
+                        for _ in 0..n {
+                            data.bytes.extend_from_slice(&one.bytes);
+                            data.strings.extend(one.strings.iter().cloned());
+                        }
+                    }
+                    IsmValue::Unsupported(_) => unreachable!("refused above"),
                 }
                 row += n as u64;
             }
@@ -1203,8 +1293,32 @@ impl Ism {
     }
 }
 
+/// `n` strings of an IncrementalStMan value (`ISMColumn::toString`): the
+/// total length (itself included), then the characters of one string, or
+/// for several strings each one's length and characters.
+fn ism_strings(src: &[u8], n: usize, big: bool) -> Result<Vec<String>> {
+    let total = read_u32(src, 0, big)? as usize;
+    let body = src
+        .get(4..total.max(4))
+        .ok_or_else(|| MsError("truncated IncrementalStMan string".into()))?;
+    if n == 1 {
+        return Ok(vec![String::from_utf8_lossy(body).into_owned()]);
+    }
+    let mut out = Vec::with_capacity(n);
+    let mut at = 0;
+    for _ in 0..n {
+        let len = read_u32(body, at, big)? as usize;
+        let text = body
+            .get(at + 4..at + 4 + len)
+            .ok_or_else(|| MsError("truncated IncrementalStMan string".into()))?;
+        out.push(String::from_utf8_lossy(text).into_owned());
+        at += 4 + len;
+    }
+    Ok(out)
+}
+
 // ---------------------------------------------------------------------------
-// TiledShapeStMan and TiledColumnStMan.
+// TiledShapeStMan, TiledColumnStMan and TiledCellStMan.
 
 struct Cube {
     shape: Vec<i64>,
@@ -1228,6 +1342,9 @@ struct Tsm {
     cube_map: Vec<u32>,
     pos_map: Vec<u32>,
     by_row: bool,
+    /// TiledCellStMan: hypercube `row` holds row `row`'s cell, given a
+    /// trailing axis of length 1 here so that it reads as a one-row cube.
+    cube_per_row: bool,
 }
 
 impl Tsm {
@@ -1237,7 +1354,7 @@ impl Tsm {
         let mut h = Cursor::new(&header, true);
         h.magic()?;
         let outer = h.start_expect(kind)?;
-        let fixed_tile = if kind == "TiledColumnStMan" {
+        let fixed_tile = if kind == "TiledColumnStMan" || kind == "TiledCellStMan" {
             Some(h.iposition()?)
         } else {
             None
@@ -1274,7 +1391,10 @@ impl Tsm {
         } else {
             u64::from(h.u32()?)
         };
-        let nrdim = h.u32()? as usize;
+        let cube_per_row = kind == "TiledCellStMan";
+        // A TiledCellStMan's hypercubes are cells (no row axis): read them
+        // with a trailing row axis of length 1.
+        let nrdim = h.u32()? as usize + usize::from(cube_per_row);
         let nfile = if inner.version >= 3 {
             h.u64()?
         } else {
@@ -1311,8 +1431,12 @@ impl Tsm {
             h.skip_object()?; // id/coordinate values record
             let _extensible = h.bool()?;
             let _nrdim = h.u32()?;
-            let shape = h.iposition()?;
-            let tile = h.iposition()?;
+            let mut shape = h.iposition()?;
+            let mut tile = h.iposition()?;
+            if cube_per_row && !shape.is_empty() {
+                shape.push(1);
+                tile.push(1);
+            }
             let file_seq = h.i32()?;
             let file_offset = if version == 1 {
                 u64::from(h.u32()?)
@@ -1338,7 +1462,7 @@ impl Tsm {
         }
         h.end(&inner);
         let (mut row_map, mut cube_map, mut pos_map) = (Vec::new(), Vec::new(), Vec::new());
-        let by_row = fixed_tile.is_none();
+        let by_row = fixed_tile.is_none() && !cube_per_row;
         if by_row {
             let _default_tile = h.iposition()?;
             let n = h.u32()? as usize;
@@ -1367,6 +1491,7 @@ impl Tsm {
             cube_map,
             pos_map,
             by_row,
+            cube_per_row,
         })
     }
 
@@ -1387,6 +1512,13 @@ impl Tsm {
 
     /// Hypercube index and position along the last axis of `row`.
     fn locate(&self, row: u64) -> Result<(usize, i64)> {
+        if self.cube_per_row {
+            // A row whose cell was never given a shape has an empty cube.
+            return match self.cubes.get(row as usize) {
+                Some(cube) if !cube.shape.is_empty() => Ok((row as usize, 0)),
+                _ => err(format!("row {row} has no tiled array")),
+            };
+        }
         if !self.by_row {
             return Ok((0, row as i64));
         }
@@ -1937,7 +2069,7 @@ impl Table {
                     Ok(ism) => Manager::Ism(ism),
                     Err(e) => Manager::Unsupported(e.0),
                 },
-                "TiledShapeStMan" | "TiledColumnStMan" => {
+                "TiledShapeStMan" | "TiledColumnStMan" | "TiledCellStMan" => {
                     Manager::Tsm(Tsm::open(&files, seq, &kind, &descs)?)
                 }
                 other => Manager::Unsupported(format!("storage manager {other} is not supported")),
@@ -2000,7 +2132,7 @@ impl Table {
         };
         let mut data = match &manager.manager {
             Manager::Ssm(ssm) => ssm.read(desc, col, start, count).and_then(cut),
-            Manager::Ism(ism) => ism.read(col, start, count).and_then(cut),
+            Manager::Ism(ism) => ism.read(desc, col, start, count).and_then(cut),
             Manager::Tsm(tsm) => tsm.read(desc, col, start..start + count, count, slice),
             Manager::Unsupported(reason) => err(reason.clone()),
         }
@@ -2087,9 +2219,13 @@ impl Table {
             self.little_endian
         );
         for (i, c) in self.columns.iter().enumerate() {
-            let (slot, _) = self.binding[i];
+            let (slot, col) = self.binding[i];
             let manager = &self.managers[slot];
-            let supported = !matches!(manager.manager, Manager::Unsupported(_));
+            let supported = match &manager.manager {
+                Manager::Unsupported(_) => false,
+                Manager::Ism(ism) => ism.supports(col),
+                _ => true,
+            };
             if i > 0 {
                 out.push(',');
             }

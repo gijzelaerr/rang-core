@@ -5,8 +5,9 @@ Opens casacore tables read-only through the core's Rust reader and returns
 columns as python-casacore's `getcol` does: one leading row axis, then the
 cell axes in reversed casacore order, NumPy dtypes `bool`, `int32`,
 `float32`, `float64`, `complex64` and friends, and string columns as object
-arrays. Only StandardStMan, IncrementalStMan (scalars), TiledShapeStMan and
-TiledColumnStMan columns are readable; the description says which. The core
+arrays. Only StandardStMan, IncrementalStMan, TiledShapeStMan,
+TiledColumnStMan and TiledCellStMan columns are readable; the description
+says which, per column (research/msv2-edge-cases.md). The core
 is reached through the extension's `MsTable` (research/core-j-packaging.md;
 the C ABI handle path was removed by task P7, research/p7-architecture.md).
 """

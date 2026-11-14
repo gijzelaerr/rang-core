@@ -1,0 +1,705 @@
+{
+ "versions": {
+  "arcae": "0.5.9",
+  "pyarrow": "26.0.1"
+ },
+ "tables": {
+  "t05-tcellsm": {
+   "nrows": 4,
+   "columns": {
+    "F32": [
+     {
+      "dtype": "float32",
+      "shape": [
+       2,
+       2
+      ],
+      "values": [
+       1.068155288696289,
+       -0.40474507212638855,
+       0.09454584121704102,
+       -0.2019120454788208
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3,
+       2
+      ],
+      "values": [
+       1.0350911617279053,
+       1.1647793054580688,
+       0.3725552558898926,
+       0.18076816201210022,
+       0.8382193446159363,
+       -1.6830865144729614
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       4,
+       3
+      ],
+      "values": [
+       -1.4963983297348022,
+       1.2403241395950317,
+       -0.47056737542152405,
+       0.9512560963630676,
+       -0.524028480052948,
+       -1.130342960357666,
+       -1.4018915891647339,
+       0.09744562208652496,
+       0.8634495139122009,
+       0.214579775929451,
+       -1.5545995235443115,
+       -0.8209235072135925
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       1,
+       1
+      ],
+      "values": [
+       0.20068681240081787
+      ]
+     }
+    ]
+   }
+  },
+  "t06-ism": {
+   "nrows": 10,
+   "columns": {
+    "I32": [
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       2
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       2
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       2
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       3
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       3
+      ]
+     },
+     {
+      "dtype": "int32",
+      "shape": [],
+      "values": [
+       3
+      ]
+     }
+    ],
+    "F64": [
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.3333333333333333
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.3333333333333333
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.3333333333333333
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.3333333333333333
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.6666666666666666
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.6666666666666666
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       0.6666666666666666
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       1.0
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       1.0
+      ]
+     },
+     {
+      "dtype": "float64",
+      "shape": [],
+      "values": [
+       1.0
+      ]
+     }
+    ],
+    "B": [
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       0
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       0
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       0
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     },
+     {
+      "dtype": "uint8",
+      "shape": [],
+      "values": [
+       1
+      ]
+     }
+    ],
+    "S": [
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 1"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 1"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 1"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 1"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 2"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 2"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 2"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 3"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 3"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [],
+      "values": [
+       "value 3"
+      ]
+     }
+    ],
+    "ARR": [
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       1.0,
+       1.0,
+       1.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       2.0,
+       2.0,
+       2.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       2.0,
+       2.0,
+       2.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       2.0,
+       2.0,
+       2.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       3.0,
+       3.0,
+       3.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       3.0,
+       3.0,
+       3.0
+      ]
+     },
+     {
+      "dtype": "float32",
+      "shape": [
+       3
+      ],
+      "values": [
+       3.0,
+       3.0,
+       3.0
+      ]
+     }
+    ]
+   }
+  },
+  "t07-strings": {
+   "nrows": 6,
+   "columns": {
+    "VAR": [
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "X",
+       "Y"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       3
+      ],
+      "values": [
+       "R",
+       "L",
+       "é"
+      ]
+     },
+     null,
+     {
+      "dtype": "str",
+      "shape": [
+       1
+      ],
+      "values": [
+       ""
+      ]
+     },
+     null,
+     null
+    ],
+    "FIXED": [
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "",
+       ""
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "a",
+       "b"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "cc",
+       ""
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "",
+       ""
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "",
+       ""
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "",
+       ""
+      ]
+     }
+    ],
+    "DIRECT": [
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d0",
+       ""
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d1",
+       "e"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d2",
+       "ee"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d3",
+       "eee"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d4",
+       "eeee"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "d5",
+       "eeeee"
+      ]
+     }
+    ],
+    "ISM": [
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "p",
+       "q"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "p",
+       "q"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "p",
+       "q"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "r",
+       "s"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "r",
+       "s"
+      ]
+     },
+     {
+      "dtype": "str",
+      "shape": [
+       2
+      ],
+      "values": [
+       "r",
+       "s"
+      ]
+     }
+    ]
+   }
+  }
+ }
+}
