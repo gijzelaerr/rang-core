@@ -20,6 +20,16 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+After 0.2.0, 2026-11-14 (main 1cacf9f):
+- Released: tag v0.2.0 on 591f5f4. The GitHub release has 7 files and PyPI has rang-core 0.2.0 (6 files). A clean `pip install rang-core==0.2.0` works. Issue #2 and the v0.2.0 milestone are closed.
+- Two fixes before the tag:
+  - `heavy_lock status` read CPU for every Windows process through psutil (24 s for 549 processes). It now reads only the holds' trees.
+  - The notebook count test now expects 8 notebooks.
+- Merged afterwards: selfcal-arms (#6), chunk-task-api (#3, under Unreleased) and msv2-reader-r123 (#5 R1-R3).
+- The wheel job on ff02b75 failed in test_t1_casacure_oracle. The core now reads POINTING's IncrementalStMan columns, which the test still expected it to refuse; fixed in 1cacf9f. Lesson: the Windows full check skips the fixture oracle tests unless `RANG_FIXTURE` is set (the public fixture `outer_scans.zip`, on this host in `D:/rang/outputs/cta-20261113-inputs/`), so set it for every coordinator merge check.
+- Flaky test: test_mcp_server.py::test_confirmed_gemclean[False] (#30) failed 2 of 7 runs under load.
+- E2-A (exclusive and timed since 03:19 local): selfcal round 1 at auto-threshold 0.5 has been running since 07:11. The checks above ran next to it without the lock: 10:52-11:52 UTC and 12:15-13:40 UTC. The E2 agent stops the run at 16:00 local if round 1 is not done.
+
 Release 0.2.0, 2026-11-14 (owner's decision, finish-plan.md item 25):
 - Tagged on the merge of V8b flagdata, the notebooks, the imaging-floor note, the MSv2 edge-case comparison, the MCP server and the nested heavy-lock guard.
 - The finish line is met in part. E2-B misses Gpol, the K G B composites, CASA applycal, 3c, 1830−211 χ, transfer χ and leakage; it meets gridding exactly, K, KCROSS, Xf, Df and 3C 286.
