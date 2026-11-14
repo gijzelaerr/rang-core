@@ -213,8 +213,69 @@ then decide nothing on their own: they are reported as scaling efficiency for th
 
 ## 6. Results
 
-(After the runs.)
+Measured 2026-11-14. Code: branch commit `abdfb5a`, run from the pinned worktree `~/Worktrees/rang/cta-run-abdfb5a`.
+Oracle U: main `30d9412` (`~/Worktrees/rang/cta-oracle-30d9412`). The extension build is the same in both, `_core.pyd`
+sha256 `acbae192…`. Run directory: `D:\rang\outputs\cta-20261114-01`, with `verdict.json` copied to
+[results/chunk-task-api-identity.json](results/chunk-task-api-identity.json). Host: the Windows host in `STATE.md`,
+shared under the heavy lock at normal priority. All arms ran under two tickets: F, O, S, C, P with 4 slots and 4 GB,
+and W with 4 slots and 20 GB. Each arm ran inside its ticket in `batch.sh` (in the run directory), with the same arm
+commands as `all.sh`.
+
+**Verdict: the identity gate passes.** All 17 comparisons against U are bit-identical on criteria 1-5: columns after
+each stage, flag versions, `calibrate/` files byte for byte, and cleaned summaries. Every stage command exited 0.
+Criterion 6 is covered by pytest locally (120 passed, 6 skipped, including the public-fixture test) and by the CI
+`tests` run on `abdfb5a` (green on Linux and Windows).
+
+| Case | Files compared | P1 | P4 | P2T |
+| --- | ---: | --- | --- | --- |
+| F | 123 | identical | identical | identical |
+| O | 123 | identical | identical | identical |
+| S | 240 | identical | identical | identical |
+| C | 162 | identical | identical | identical |
+| P | 243 | identical | identical | identical |
+| W | 240 | identical | identical | (not run, section 2) |
+
+Stage walls in s, flag / calibrate / apply. These were taken on a shared host and are **not timing results**.
+
+| Case | U | P1 | P4 | P2T |
+| --- | --- | --- | --- | --- |
+| F | 2.7 / 2.6 / 2.6 | 2.6 / 2.1 / 1.9 | 4.6 / 3.9 / 3.6 | 3.9 / 6.6 / 4.4 |
+| S | 5.2 / 2.4 / 3.1 | 4.7 / 2.4 / 2.8 | 5.5 / 3.3 / 2.7 | 57.3 / 24.8 / 30.2 |
+| C | – / 4.5 / 1.7 | – / 4.3 / 1.7 | – / 4.5 / 1.7 | – / 75.3 / 44.0 |
+| P | – / 10.1 / 5.6 | – / 7.2 / 6.2 | – / 7.2 / 6.0 | – / 86.1 / 75.5 |
+| W | 220.6 / 277.6 / 48.4 | 213.9 / 499.7 / 74.0 | 271.8 / 501.1 / 33.9 | – |
+
+On the small sets, P4 costs 1-2 s per stage. That is the time to spawn the worker processes, and at this size nothing
+offsets it. P2T is 10-20 times slower on S, C and P because `chunk_rows: 7` cuts the data into many small chunks; it
+is a stress arm and says nothing about speed.
+
+**Open: W calibrate, P1 against U.** P1 took 500 s and U took 278 s. Both ran on the same 4 slots, but at different
+times on a shared host. P1 runs the same reads and solves per chunk as U (section 1.2; the code was checked
+2026-11-14). The small sets show no P1 slowdown: 4.3 s against 4.5 s, and 7.2 s against 10.1 s. A shared-host wall
+cannot settle this either way. The first row of section 5's matrix, main against N = 1 on an exclusive host, does.
+
+**Discarded run, recorded.** The first attempt, `D:\rang\outputs\cta-20261113-01`, now renamed
+`cta-20261113-01-raced`, is void and no verdict was drawn from it. Two runners wrote into the same arm directories: a
+stopped `all.sh` loop survived its task stop, and a second runner was also active. One runner's `rmtree` removed
+the other's MS copies mid-run (exit 2 and `FileNotFoundError` in O-U, O-P2T and C-U; `PermissionError` in O-P1,
+F-P2T, S-P2T and C-P2T). A power cut at about 17:30 on 2026-11-13 then killed the queued tickets. The rerun
+`cta-20261114-01` used one runner from start to finish. Two lessons for harnesses here:
+- An arm directory needs an owner lock, so that a second runner refuses it instead of deleting it.
+- `bash` inside a `heavy_lock run` resolves to WSL's bash on this host. Name Git Bash by its full path.
 
 ## For the coordinator
 
-(After the runs.)
+- **Stage 1's identity gate passes.** There are 17 comparisons on the W3 and W3b sets, all bit-identical. P1 is
+  today's path, so E2 is unchanged.
+- **Timing runs: not run.** They need an exclusive hold, so they are for you to batch after E2: section 5, case W,
+  N ∈ {1, 2, 4, 8} at T = 16, 3 repeats, about 8 h (2 repeats about 5 h). **Before they start,** `run.py` needs the
+  `timing` mode that section 5 names. It does not exist yet. It is about an hour of harness work: the `arm` code with
+  the section 5 config, repeats and a spawn-time record.
+- **Check W calibrate first.** At N = 1 it took 500 s against 278 s on a shared host (section 6). The matrix's first
+  row decides whether this is load or a regression.
+- **Proposed stage 1b:** the chain terms (K, G, B, A, F, polarisation) through the same pool. Today C and P only show
+  that the executor leaves them unchanged.
+- **Kept:**
+  - `D:\rang\outputs\cta-20261114-01` (hashes and logs; the MS copies are deleted);
+  - `cta-20261113-inputs` (the O slice, the strategy and the fixture), which the timing runs need;
+  - the void `cta-20261113-01-raced`, which can be deleted.

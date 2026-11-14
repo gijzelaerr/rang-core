@@ -25,7 +25,7 @@ After 0.2.0, 2026-11-14 (main 1cacf9f):
 - Two fixes before the tag:
   - `heavy_lock status` read CPU for every Windows process through psutil (24 s for 549 processes). It now reads only the holds' trees.
   - The notebook count test now expects 8 notebooks.
-- Merged afterwards: selfcal-arms (#6), chunk-task-api (#3, under Unreleased) and msv2-reader-r123 (#5 R1-R3).
+- Merged afterwards: selfcal-arms (#6), chunk-task-api (#3, under Unreleased; identity gate passed 2026-11-14, 17 comparisons bit-identical, timing runs open: `research/chunk-task-api.md` section 6) and msv2-reader-r123 (#5 R1-R3).
 - The wheel job on ff02b75 failed in test_t1_casacure_oracle. The core now reads POINTING's IncrementalStMan columns, which the test still expected it to refuse; fixed in 1cacf9f. Lesson: the Windows full check skips the fixture oracle tests unless `RANG_FIXTURE` is set (the public fixture `outer_scans.zip`, on this host in `D:/rang/outputs/cta-20261113-inputs/`), so set it for every coordinator merge check.
 - Flaky test: test_mcp_server.py::test_confirmed_gemclean[False] (#30) failed 2 of 7 runs under load.
 - E2-A (exclusive and timed since 03:19 local): selfcal round 1 at auto-threshold 0.5 has been running since 07:11. The checks above ran next to it without the lock: 10:52-11:52 UTC and 12:15-13:40 UTC. The E2 agent stops the run at 16:00 local if round 1 is not done.
