@@ -1871,6 +1871,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-12 | V8a rang `listobs.summary` + comparison | 9 MSs | 0.01-13.5 s per MS (eso137 0.89 s) | – | native Windows, MSs over `\\wsl.localhost` while E2 ran; research/v8a-listobs.md |
 | 2026-11-13 | docs-polish: GitHub `docs` workflow, run 43379688451 (`5bc8b0f`) | ubuntu runner, public fixture | 417 s job: ext build 251 s, notebooks 112 s, CLI check 4 s, `sphinx-build -W` 28 s | – | GitHub host; green, no warning |
 | 2026-11-13 | docs-polish: `maturin develop --release` in the worktree venv, heavy lock shared 4 slots | worktree docs-polish | not run: 64 min in the queue behind an exclusive `cold_build_bench.py`, then withdrawn | – | Windows host; CI built the same commit |
+| 2026-11-13 | #23: `cargo build --profile gemclean` of gemclean at `30d9412` (heavy lock shared) | worktree imaging-gaps | 228 s compile after about 1 h in the queue | – | Windows host; research/multiscale-df5o-a1.md |
+| 2026-11-13 | #23: gemclean `-multiscale` (r1, r2), `-j 4`, heavy lock 4 slots | DF5-O field, 1024² × 16 ch | 325 s, 240 s | 3739 MB | Windows host, shared; deterministic (r1 = r2) |
+| 2026-11-13 | #23: gemclean Högbom, `-j 4` | DF5-O field | 44 s | 2892 MB | Windows host, shared |
+| 2026-11-13 | #23: gemclean multiscale variants v1, v2, v3, v4 | DF5-O field | 420 s, 243 s, 96 s, 720 s | 3377-3737 MB | Windows host, shared |
+| 2026-11-13 | #23: `measure.py` (DF5-O scorer with the pedestal estimate), heavy lock 2 slots | one arm | 16-21 s | – | Windows host; queue waits up to 74 min excluded |
+| 2026-11-14 | imaging-gaps: `check_all.py --quick` under heavy lock (shared 4 slots) | worktree imaging-gaps | not run: 58483 s (16.2 h) queued, then stopped by the coordinator; wrapping `check_all` in `heavy_lock run` nests the lock (4 slots held idle while it waits for 4 more) | – | Windows host; rerun unwrapped after merging main ff02b75 (nested-lock guard) |
 | 2026-11-13 | xf-avg-fix: chi-offset `sim_chi.py rang`, 4 arms (control m90/m90_noavg, feed0 null/null_noavg) with the fix | chi-offset control and feed0 truths (151 MB each) | 13.4-14.3 s per arm, 80 s ticket | – | Windows host, heavy lock critical 4 slots 4 GB; research/xf-avg-fix.md |
 | 2026-11-13 | xf-avg-fix: `e2b_groups.py` (metadata, angle tables, groups) | `D:\rang\data\e2-b\e2b.ms` (272,916 rows) | 10.3 s | – | Windows host; research/xf-avg-fix.md gate 2a |
 | 2026-11-13 | xf-avg-fix: `tools/check_all.py --quick --priority critical` | worktree xf-avg-fix | 1517 s (lock wait excluded) | – | Windows host; PASS |
@@ -1906,3 +1912,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | E2-B gate 3c score (`e2_score3c.py`, matched oracle) | 3 fields' images | under 3,219 s including the queue wait behind an exclusive bench | – | – |
 | 2026-11-13 | E2-A `e2_convert.py build` / `verify` / `e2_flaghash.py` | ESO137 scans 9, 10, 11: 1,047,614 rows x 4,096 ch (194 GB) | 1,304 s / 706 s / 30 s | – | shared 4 slots, critical priority; 0 cells differ |
 | 2026-11-13 | E2-B amended post chain (`e2_post.py` steps wsclean0 ... tricolour, then CASA 3b, scorers, matched 3c oracle) | `e2b.ms` and its CASA copy | wsclean3c 22,625 s; copy 4,431 s; CASA 3b 4,782 s; tricolour 1,040 s (each with queue waits) | – | shared slots; 3a exact |
+| 2026-11-14 | imaging-gaps: `check_all.py --quick` (unwrapped) on the merge with main 316b4ce | worktree imaging-gaps | 938 s | – | Windows host; PASS |
