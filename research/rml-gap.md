@@ -400,6 +400,117 @@ the held-out results are below.
 Score files are in `D:\rang\outputs\rml-gap-20261113\scores\S{1,2,3}.json` and the runs in
 `…\runs\{G,W,Gd,U-a,U-b,U-c,U-d}\S{1,2,3}`. Every run and its wall time is in `…\runs.tsv`.
 
+### 8.2 Gated skies H4, M1, N1, N2 (2026-11-14/15)
+
+**Controls and preconditions.**
+- The scorer control passes on all four skies.
+- **Preconditions:**
+  - G's and W's dirty-image L∞/peak is 1.1e-7 to 2.4e-7, so both pass.
+  - Gd's is 8.4e-6, 1.6e-5 and 1.3e-5 on H4, M1 and N1. Gd is reported only, and the bound is
+    1e-5.
+  - U's orientation is the identity, winning by a margin of 0.99-1.00.
+- **Parity:** W/G is 0.977, 0.988, 0.988 and 0.980, and C2 passes on every extended group (4, 4, 4
+  and 6). Parity holds on 4 of 4, so the outcome is not void.
+
+**Relative L2** and cost. Walls are shared-host. CPU is user + system; G's CPU comes from its Gt
+re-run, whose model is bit-identical to G's on every sky.
+
+| sky | G | W | Gd | U-a (cycle 40) | `r_s` | `r5_s` wall | `r5_s` CPU | U/G CPU, 40 cycles |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| H4 | 0.004888 | 0.004777 | 0.004802 | 0.0468 | 9.58 | 11.12 (cycle 4) | 9.58 (cycle 40) | 4.90 |
+| M1 | 0.003806 | 0.003761 | 0.003800 | 0.0524 | 13.77 | 14.81 (cycle 9) | 13.77 (cycle 40) | 3.67 |
+| N1 | 0.004348 | 0.004298 | 0.004333 | 0.0430 | 9.88 | 12.61 (cycle 3) | 9.88 (cycle 40) | 4.60 |
+| N2 | 0.003777 | 0.003701 | see 8.4 | 0.0279 | 7.38 | 7.90 | see 8.4 | see 8.4 |
+
+| sky | G wall / CPU | W wall / CPU | U-a wall / CPU | U-a eps at 40 | U-a exact residual (G's) |
+| --- | --- | --- | --- | --- | --- |
+| H4 | 145.9 s / 1,272 s | 270.3 s / 858 s | 1,676 s / 6,230 s | 2.47e-3 | 6.74σ rms (1.06σ) |
+| M1 | 181.4 s / 1,609 s | 286.4 s / 891 s | 1,579 s / 5,901 s | 2.49e-3 | 10.06σ (1.04σ) |
+| N1 | 132.3 s / 1,397 s | 382.1 s / 1,321 s | 1,739 s / 6,422 s | 2.30e-3 | 7.51σ (1.06σ) |
+| N2 | 209.7 s / see 8.4 | 413.2 s / – | 1,785 s / – | 2.37e-3 | 6.63σ (1.06σ) |
+
+**Outcome (section 5):**
+- **`r_s` > 1.25 on 4 of 4 gated skies, so the outcome is "U worse".** That clause uses `r_s`
+  only; the cost basis (A2, A2.1) cannot change it, and the exclusive timing subset is not
+  triggered.
+- **Neither gap clause holds** on either cost basis, because `r5_s` ≥ 7.9 everywhere.
+- **Convergence:** U\* reached `tol` on 0 of 4 skies, within 5 × G's wall or CPU or within the
+  cap. Every run stopped at the 40-cycle cap.
+- **Extended groups:** U\* fails measure 3 on every gated sky. A2 positions pass.
+- **A3 scope:** the outcome is stated as **"U worse at our settings"**. Section 8.4 has the
+  upstream-preset run on N2.
+
+**Why U is worse (diagnosis, not a measured cause).**
+- **Not a scorer artefact.** pfb's own peak residual, from its log, matches the scorer's exact
+  residual peak within 1 % on every sky (for example H4: 10.25 against 10.19 mJy).
+- **Biased fluxes.** U's median group flux ratio is 1.07-1.08 on every sky. The total-flux ratio
+  is 0.96-1.08.
+- **A floor near 0.05.** U's relative L2 is 0.043-0.054 on every sky except N2 (0.028), at every
+  setting tried, while G's ranges from 0.0006 to 0.0049. U reaches 0.05 by cycle 3-5 and then falls
+  about 1 % per 4 cycles.
+- **Not converged.** The outer `eps` is 2.3-2.5e-3 at cycle 40, falling only from about 3.1e-3 at
+  cycle 10. The primal-dual inner solve stops at `pd-maxit` in cycles 1-4.
+
+The pattern fits a sara solution stalled by its regularisation and Hessian approximation at this
+recipe, not by data or noise. That is a reading, not a measured cause.
+
+### 8.3 Held-out skies H1-H3 and DF5-O (reported, not gated)
+
+| sky | b (px) | groups (extended) | G | W | U-a | `r` | U/G CPU | U-a exact residual |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| H1 | 9.067 | 56 (0) | 0.000593 | 0.000595 | 0.0525 | 88.6 | 17.1 | 35.2σ |
+| H2 | 8.661 | 224 (0) | 0.002411 | 0.002455 | 0.0533 | 22.1 | 7.3 | 15.7σ |
+| H3 (4096²) | 6.792 | 119 (0) | 0.000761 | 0.000754 | 0.0515 | 67.7 | 13.2 | 23.3σ |
+
+Parity holds on H1-H3, at W/G 1.003, 1.019 and 0.990. U-a never converges: eps is 2.33-2.43e-3
+at cycle 40. On H1 no U iterate falls within 5 × G's wall (`r5` undefined, A1).
+
+**DF5-O field** (1024² × 2″, 16 channels, natural weighting). Scored with DF5-O's own
+`compare_df5o.py measure` (floor and P2 from `outputs/df5o-20261031-01`), plus relative L2 at
+b = 11.58 px (`df5o_l2.py`):
+
+| arm | relative L2 | A1 / A2 | exact residual (inner) | total flux | wall / CPU |
+| --- | --- | --- | --- | --- | --- |
+| G | 0.003835 | pass / pass | 0.92σ | 0.99983 | 1,180 s / 6,952 s |
+| Gd | 0.003718 | pass / pass | 0.94σ | 0.99955 | 1,421 s / 7,758 s |
+| W | 0.003820 | pass / pass | 0.92σ | 0.99969 | 3,142 s / 7,520 s |
+| U-a (40 cycles) | 0.05284 | fail (29 of 39) / fail (5) | 29.2σ | 1.03244 | 11,086 s / 45,203 s |
+
+- **`r` = 13.8;** `r5` is 13.1 within 5 × G's wall (cycle 6) and 13.8 within 5 × G's CPU
+  (cycle 22). U-a is not converged (eps 2.3e-3 at cycle 40).
+- **This answers DF5-O's open item** "sara at a converging budget": four times DF5-O's 10 cycles
+  leave the residual where it was (30σ in DF5-O, 29σ here) and do not reach `tol`.
+- GeMClean accepted `-channels-out 16 -join-channels -multiscale -auto-mask` (the `-niter 0`
+  check, 362 s with lock wait).
+
+**Gd (amendment A1, reported only):** Gd's relative L2 is within 4 % of G's on every sky (largest: H1, -3.4 %), so the
+outcome does not depend on G's gridder accuracy.
+
+### 8.4 Upstream-preset test U-up on N2 (amendment A3)
+
+Running: `runs\U-up\N2`, the gosara preset, 200 cycles or 12 h. Result to follow.
+
+### 8.5 Not run
+
+- **Pilot:** section 7 allows it only under 20 h of host time, and this study used more.
+- **Arm A:** the owner's decision is open.
+- **`pfb deconv`:** not run (A3).
+- **Exclusive timing subset:** not triggered (A2.1).
+
+### 8.6 Provenance
+
+- **Out directory:** `D:\rang\outputs\rml-gap-20261113`.
+  - `runs.tsv`: every run, failures included.
+  - `runs\{G,Gd,Gt,W,U-a..U-d,U-up}\<sky>\`: commands, logs, FITS, `/usr/bin/time` output and
+    `wall.json`.
+  - `scores\<sky>.json`.
+  - `df5o\{ws-G,ws-Gd,ws-W,pfb-sara-U-a}-r1\` and `df5o\measures\`.
+- **Seeds:** N1 and N2 as section 2.
+- **Binary:** GeMClean as section 8.1.
+- **Containers:** `rang-wsclean-native:3.7` and `rang-pfb-imaging:0.0.11`.
+- **Scripts:** `research/results/rml-gap-scripts/`.
+- **Timings:** in [tool-timings.md](tool-timings.md).
+
 ## 9. For the coordinator
 
-Not written yet.
+To be written once 8.4 is in.
