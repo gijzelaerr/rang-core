@@ -1184,7 +1184,7 @@ critical priority. Records: `results/e2-acceptance/e2a/`; logs in
 
 This attempt gives no E2-A result. It is recorded so the next attempt starts from it.
 
-- The run (`e2_timed.py`, exclusive, critical priority) started at 03:19 local (01:24 UTC). Its records are in `D:ang\outputs\e2-20261113-30-e2a` and `D:ang\data\e2-a\e2a.ms.rang-run` (`state.json`).
+- The run (`e2_timed.py`, exclusive, critical priority) started at 03:19 local (01:24 UTC). Its records are in `D:\rang\outputs\e2-20261113-30-e2a` and `D:\rang\data\e2-a\e2a.ms.rang-run` (`state.json`).
 - Stages finished:
 
   | Stage | Wall time |
