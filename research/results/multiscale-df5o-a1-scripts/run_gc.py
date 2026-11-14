@@ -9,6 +9,7 @@ OUT_ROOT/ARM-rREPEAT/{run.json, gemclean.log, ARM-*.fits}. Wall time and the
 peak working set (Windows) of the gemclean process are recorded.
 """
 
+# ruff: noqa: SIM905 (argv kept as the runs used it)
 import ctypes
 import hashlib
 import json
@@ -29,10 +30,13 @@ ARMS = {
     "gc-hogbom": COMMON,
     "gc-multiscale": COMMON + MS,
     # section 5 variants, one change each from gc-multiscale
-    "gc-ms-v1": COMMON + "-multiscale -multiscale-scales 0,24,48,96 -multiscale-gain 0.2".split(),
-    "gc-ms-v2": COMMON + "-multiscale -multiscale-scales 0,24,48 -multiscale-gain 0.2".split(),
+    "gc-ms-v1": COMMON
+    + "-multiscale -multiscale-scales 0,24,48,96 -multiscale-gain 0.2".split(),
+    "gc-ms-v2": COMMON
+    + "-multiscale -multiscale-scales 0,24,48 -multiscale-gain 0.2".split(),
     "gc-ms-v3": COMMON + MS + ["-multiscale-scale-bias", "0.8"],
-    "gc-ms-v4": COMMON + "-multiscale -multiscale-scales 0,24,48,96,192 -multiscale-gain 0.1".split(),
+    "gc-ms-v4": COMMON
+    + "-multiscale -multiscale-scales 0,24,48,96,192 -multiscale-gain 0.1".split(),
 }
 
 
@@ -54,7 +58,9 @@ class PMC(ctypes.Structure):
 def peak_working_set(handle):
     pmc = PMC()
     pmc.cb = ctypes.sizeof(PMC)
-    ok = ctypes.windll.psapi.GetProcessMemoryInfo(int(handle), ctypes.byref(pmc), pmc.cb)
+    ok = ctypes.windll.psapi.GetProcessMemoryInfo(
+        int(handle), ctypes.byref(pmc), pmc.cb
+    )
     return pmc.PeakWorkingSetSize if ok else None
 
 
@@ -87,7 +93,9 @@ def main():
         "returncode": p.returncode,
         "wall_s": wall,
         "peak_rss_mb": None if peak is None else peak / 2**20,
-        "started": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - wall)),
+        "started": time.strftime(
+            "%Y-%m-%dT%H:%M:%S", time.localtime(time.time() - wall)
+        ),
     }
     (out / "run.json").write_text(json.dumps(run, indent=1))
     print(json.dumps(run, indent=1))

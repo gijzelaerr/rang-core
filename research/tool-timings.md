@@ -1866,3 +1866,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-13 | #23: gemclean Högbom, `-j 4` | DF5-O field | 44 s | 2892 MB | Windows host, shared |
 | 2026-11-13 | #23: gemclean multiscale variants v1, v2, v3, v4 | DF5-O field | 420 s, 243 s, 96 s, 720 s | 3377-3737 MB | Windows host, shared |
 | 2026-11-13 | #23: `measure.py` (DF5-O scorer with the pedestal estimate), heavy lock 2 slots | one arm | 16-21 s | – | Windows host; queue waits up to 74 min excluded |
+| 2026-11-14 | imaging-gaps: `check_all.py --quick` under heavy lock (shared 4 slots) | worktree imaging-gaps | not run: 58483 s (16.2 h) in the queue behind an exclusive E2 run, then lock exit 1 | – | Windows host; ruff on the new scripts and `tests/test_w4_8_docs.py` (1 s) run instead; CI tests on push |

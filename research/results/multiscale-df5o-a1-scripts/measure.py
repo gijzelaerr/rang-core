@@ -57,18 +57,27 @@ def main():
         "totals": totals,
         "exact_residual": c.image_stats(res_mfs, sigma),
         "tool_residual": c.image_stats(tool_residual, sigma),
-        "consistency_linf_over_sigma": float(np.abs(tool_residual - res_mfs).max() / sigma),
+        "consistency_linf_over_sigma": float(
+            np.abs(tool_residual - res_mfs).max() / sigma
+        ),
         "q": float(q.mean()),
         "tolerances": c.tolerances(rows, totals, field),
     }
     if a.floor:
         fl = json.loads(Path(a.floor).read_text())
-        rec["reducible_fraction"] = (rec["q"] - fl["q_floor"]) / (fl["q0"] - fl["q_floor"])
-        rec["signal_fraction_left"] = (rec["q"] - fl["q_truth"]) / (fl["q0"] - fl["q_truth"])
+        rec["reducible_fraction"] = (rec["q"] - fl["q_floor"]) / (
+            fl["q0"] - fl["q_floor"]
+        )
+        rec["signal_fraction_left"] = (rec["q"] - fl["q_truth"]) / (
+            fl["q0"] - fl["q_truth"]
+        )
 
     # pedestal estimate per source
     mm = models.mean(0)
-    masks = {s["name"]: c.disc(s["x"], s["y"], s["radius"] / c.CELL) for s in truth["sources"]}
+    masks = {
+        s["name"]: c.disc(s["x"], s["y"], s["radius"] / c.CELL)
+        for s in truth["sources"]
+    }
     any_ap = np.zeros(mm.shape, bool)
     for m in masks.values():
         any_ap |= m
@@ -92,7 +101,7 @@ def main():
     log = arm_dir / "gemclean.log"
     if log.exists():
         text = log.read_text(errors="replace")
-        rec["scale_lines"] = re.findall(r"^multiscale: scale .*$", text, re.M)
+        rec["scale_lines"] = re.findall(r"^multiscale: scale .*$", text, re.MULTILINE)
         rec["log_tail"] = text.splitlines()[-25:]
     rec["seconds"] = time.perf_counter() - t0
 
@@ -100,7 +109,8 @@ def main():
         ref = json.loads(Path(a.check).read_text())
         by = {r["name"]: r for r in ref["sources"]}
         worst = max(
-            abs(r["ds_rel"] - by[r["name"]]["ds_rel"]) / max(abs(by[r["name"]]["ds_rel"]), 1e-12)
+            abs(r["ds_rel"] - by[r["name"]]["ds_rel"])
+            / max(abs(by[r["name"]]["ds_rel"]), 1e-12)
             for r in rows
         )
         rms_new = rec["exact_residual"]["rms_inner_jy"]
@@ -108,7 +118,8 @@ def main():
         rec["check"] = {
             "against": a.check,
             "worst_rel_ds_rel": worst,
-            "ratio_rel": abs(totals["ratio"] - ref["totals"]["ratio"]) / ref["totals"]["ratio"],
+            "ratio_rel": abs(totals["ratio"] - ref["totals"]["ratio"])
+            / ref["totals"]["ratio"],
             "rms_inner_rel": abs(rms_new - rms_ref) / rms_ref,
             "a1_failures_ref": ref["tolerances"]["A1_failures"],
             "a1_failures_new": rec["tolerances"]["A1_failures"],
@@ -120,7 +131,11 @@ def main():
             and rec["check"]["a1_failures_ref"] == rec["check"]["a1_failures_new"]
         )
     Path(a.out).write_text(json.dumps(rec, indent=1))
-    pick = {r["name"]: round(r["ds_rel"], 4) for r in rows if r["name"] in ("p16", "p23", "p26")}
+    pick = {
+        r["name"]: round(r["ds_rel"], 4)
+        for r in rows
+        if r["name"] in ("p16", "p23", "p26")
+    }
     print(json.dumps({"arm": prefix, "A1": rec["tolerances"]["A1_failures"],
                       "A2": rec["tolerances"]["A2_failures"], "ratio": totals["ratio"],
                       "rms_inner_uJy": rec["exact_residual"]["rms_inner_jy"] * 1e6,

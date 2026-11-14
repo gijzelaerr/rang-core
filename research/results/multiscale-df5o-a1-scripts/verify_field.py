@@ -28,7 +28,11 @@ def main():
     listing = "".join(f"{k} {v}\n" for k, v in rows.items())
     digest = hashlib.sha256(listing.encode()).hexdigest()
     other = {name: sha256_file(field_dir / name) for name in rec["files"]}
-    bad = sorted(k for k in set(rows) | set(rec["ms_files"]) if rows.get(k) != rec["ms_files"].get(k))
+    bad = sorted(
+        k
+        for k in set(rows) | set(rec["ms_files"])
+        if rows.get(k) != rec["ms_files"].get(k)
+    )
     bad += sorted(k for k in other if other[k] != rec["files"][k])
     result = {
         "ms_digest": digest,
