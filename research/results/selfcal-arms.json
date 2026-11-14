@@ -1,0 +1,5888 @@
+{
+ "note": "research/selfcal-arms.md",
+ "loops": [
+  {
+   "case": "c5delay",
+   "arm": "p",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": false,
+   "schedule": "[{type: Sp, solint: 8, freqint: 1}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 1283.948516000004,
+   "stage_wall_s": 98.86240990000078,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": 1,
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9977329799107143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 8,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": 1,
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 1.2949495000066236
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.664797898813397,
+        "p95": 17.210616934479138,
+        "max": 63.23742798439338
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.04650530542104149,
+        "p95": 0.2992539026188249,
+        "max": 1.0485281394620514
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 2.20192219997989
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.5618293644261227,
+        "p95": 13.101679436081291,
+        "max": 46.22929902642714
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.02725822081189241,
+        "p95": 0.22816957146834646,
+        "max": 0.7851445715941348
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0064867187171840646,
+       "p95": 0.08185554854892355,
+       "max": 0.16492566008678033
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 26672,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.907722400006605
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 53770,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 30.366343500005314
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 65566,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 31.992313099995954
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2031988717030335e-08,
+    "max": 5.952057842168457e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.050539012998342514
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.033889155834913254
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.09210491180419922
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.15037956833839417
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.20726171135902405
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.31999218463897705
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5delay",
+   "arm": "r",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": false,
+   "schedule": "[{type: Sd, solint: inf}, {type: Sd, solint: inf}, {type: Sd, solint: 8}, {type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 1302.1821568000014,
+   "stage_wall_s": 204.37881200000993,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9987444196428571,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 2.3333540000021458
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 2.7186450000153854
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 2.054574399982812
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.4473175264020797,
+        "p95": 11.344407355797832,
+        "max": 35.24638814721298
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.025259784560360897,
+        "p95": 0.19767399892347753,
+        "max": 0.6055114597843124
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004909436364399139,
+       "p95": 0.05072540993789743,
+       "max": 0.09330133785567574
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9910365513392857,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 2.0441985000215936
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.3461792122223775,
+        "p95": 10.68820840430733,
+        "max": 30.878014459104453
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.02349471916129281,
+        "p95": 0.1862740651489107,
+        "max": 0.5324248329368095
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004515770033976491,
+       "p95": 0.03902555924614727,
+       "max": 0.06732971757599587
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": true,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9912109375,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.9206457000109367
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.3221467496721984,
+        "p95": 10.597749191157328,
+        "max": 28.419284915891865
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.023075301991653495,
+        "p95": 0.18470205878341425,
+        "max": 0.4909410658412427
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004181641853496315,
+       "p95": 0.032855663158760186,
+       "max": 0.05544774200094588
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 26672,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.62341669999296
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 42298,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 28.068914100003894
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 40590,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 26.015161299990723
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 76725,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 35.20931589999236
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 83681,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 33.518816000025254
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 88537,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 29.99599940000917
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2034587981045268e-08,
+    "max": 5.952204311055819e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.021695872768759727
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.026765216141939163
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.0710562914609909
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.11407332867383957
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.16910721361637115
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.2520921528339386
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5pa",
+   "arm": "r",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": false,
+   "schedule": "[{type: Sp, solint: inf}, {type: Sp, solint: inf}, {type: Sp, solint: 8}, {type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 963.1104410999978,
+   "stage_wall_s": 175.71794930004398,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 1.3318866999761667
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9955357142857143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 1.3551385000173468
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 1.1770329999853857
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.8537086625982437,
+        "p95": 12.324469641798652,
+        "max": 23.71769077230901
+       },
+       "amp_rel": {
+        "median": 0.05212446663995779,
+        "p95": 0.13595728356031284,
+        "max": 0.27506239919640274
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.05247476307047738,
+        "p95": 0.14038556964795243,
+        "max": 0.21572465737344182
+       },
+       "rel": {
+        "median": 0.08739289997675316,
+        "p95": 0.22335070916217678,
+        "max": 0.4022366871793705
+       }
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 1.1447895000164863
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.7932290318652009,
+        "p95": 11.681364267957834,
+        "max": 22.420294147995985
+       },
+       "amp_rel": {
+        "median": 0.0521244666399579,
+        "p95": 0.13595728356031295,
+        "max": 0.27506239919640296
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.05247476307047738,
+        "p95": 0.14038556964795243,
+        "max": 0.21572465737344182
+       },
+       "rel": {
+        "median": 0.08623997741438622,
+        "p95": 0.21545998220054557,
+        "max": 0.3830823486082205
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 1.219099300011294
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.7502883250728916,
+        "p95": 11.311601781584859,
+        "max": 21.910892413628805
+       },
+       "amp_rel": {
+        "median": 0.011514475884238096,
+        "p95": 0.043136323042876276,
+        "max": 0.07582843013792617
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.05247476307047738,
+        "p95": 0.14038556964795243,
+        "max": 0.21572465737344182
+       },
+       "rel": {
+        "median": 0.03223292089513925,
+        "p95": 0.19746527028863184,
+        "max": 0.3731703273485255
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": true
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 25921,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 21.087756199995056
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 30992,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.24471519998042
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 30121,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.246120600000722
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 51373,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 25.81980029999977
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 51679,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 29.637819800002035
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 71975,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 30.753543500002706
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2030735524106525e-08,
+    "max": 5.954659180977293e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.04095803201198578
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.03825627639889717
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.07907159626483917
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.13700346648693085
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.17838090658187866
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.2634314000606537
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5delay",
+   "arm": "u",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": false,
+   "schedule": "[{type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 1071.5319437000144,
+   "stage_wall_s": 96.80293949996121,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9996861049107143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.8729680000105873
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.19372249919954,
+        "p95": 16.900002872023478,
+        "max": 62.31847311082332
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.03828534187520115,
+        "p95": 0.29389260117989646,
+        "max": 1.0348366480172673
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.02005602612296537,
+       "p95": 0.1311069490394641,
+       "max": 0.26942341125307123
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.957153900002595
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.5559537582107612,
+        "p95": 13.055121589756709,
+        "max": 45.35367712010578
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.02715568162688327,
+        "p95": 0.22736227031820458,
+        "max": 0.7710661617639357
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.006143850772466181,
+       "p95": 0.07850683925529121,
+       "max": 0.15930896631627722
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 26672,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.01844980000169
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 53937,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 29.885938799998257
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 66582,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 32.0324522999872
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2040111491717015e-08,
+    "max": 5.954918325198351e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.04783067852258682
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.032691191881895065
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.09121444076299667
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.14813125133514404
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.2045358270406723
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.31753236055374146
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5pa",
+   "arm": "u",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": false,
+   "schedule": "[{type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 1176.9639293999935,
+   "stage_wall_s": 92.3204512000666,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 1.2106111000175588
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 2.448473559552587,
+        "p95": 16.60582332757042,
+        "max": 28.710577751059255
+       },
+       "amp_rel": {
+        "median": 0.052124466639957956,
+        "p95": 0.1359572835603129,
+        "max": 0.27506239919640274
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.05247476307047738,
+        "p95": 0.14038556964795243,
+        "max": 0.21572465737344182
+       },
+       "rel": {
+        "median": 0.0941681246888791,
+        "p95": 0.28978900258745466,
+        "max": 0.49045412713504477
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 1.1962534000049345
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.8736579833811722,
+        "p95": 13.622094708296826,
+        "max": 25.43867720078691
+       },
+       "amp_rel": {
+        "median": 0.010544844018834598,
+        "p95": 0.0398101803287896,
+        "max": 0.06968020905115069
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.05247476307047738,
+        "p95": 0.14038556964795243,
+        "max": 0.21572465737344182
+       },
+       "rel": {
+        "median": 0.035147352224263795,
+        "p95": 0.23603582819956764,
+        "max": 0.4306803781062565
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": true
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 25921,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 20.636147000011988
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 45680,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 25.09026399999857
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 61521,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 34.73471769999014
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.202746825595938e-08,
+    "max": 5.955025803630031e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.056689534336328506
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.04478977993130684
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.09653649479150772
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.15831388533115387
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.21913976967334747
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.2814370393753052
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5delay-held",
+   "arm": "p",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: 8, freqint: 1}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2918.5787211999996,
+   "stage_wall_s": 65.21031430002768,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": 1,
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9914202008928571,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": 1,
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.8752355999895371
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.5852853935857083,
+        "p95": 16.45825522440212,
+        "max": 38.907310002275025
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.04511791454475826,
+        "p95": 0.28626418100760376,
+        "max": 0.6660885460662433
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9906529017857143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.3952270000008866
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.0626820173551557,
+        "p95": 10.152294590701448,
+        "max": 29.018117969879334
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.018547034259282037,
+        "p95": 0.1769592581611831,
+        "max": 0.5010661477799336
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0075854325798553335,
+       "p95": 0.07217970971941605,
+       "max": 0.14758048722334394
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 24478,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 16.25817559999996
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 41210,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.585852500022156
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 47889,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 21.221391200000653
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2062630980069932e-08,
+    "max": 5.9564973645904285e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.07097738236188889
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.029847217723727226
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.07330615073442459
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.13981574773788452
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.1455351710319519
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.16710591316223145
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5delay-held2",
+   "arm": "p",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: 8, freqint: 1}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2920.4468737000134,
+   "stage_wall_s": 67.17552520002937,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": 1,
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9901297433035714,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": 1,
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.803607900015777
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 4.516525042930258,
+        "p95": 18.171631307248173,
+        "max": 46.488693520398805
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.0788078247502589,
+        "p95": 0.31582722949297604,
+        "max": 0.7893063989905975
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.99267578125,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.259839300008025
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.8757185624286246,
+        "p95": 13.630241078678292,
+        "max": 35.34105042218471
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.05018548926828595,
+        "p95": 0.23733202190318167,
+        "max": 0.6070858821176741
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.005164996778709421,
+       "p95": 0.08161489364290506,
+       "max": 0.12530904392515801
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 27537,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.981166199984727
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 56501,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 21.310837299999548
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 62835,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 22.02033319999464
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.203652980651457e-08,
+    "max": 5.954649476708936e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.07690723240375519
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.0742354542016983
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.09522204846143723
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.1866641342639923
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.17047876119613647
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.16335563361644745
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5delay-held",
+   "arm": "r",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sd, solint: inf}, {type: Sd, solint: inf}, {type: Sd, solint: 8}, {type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2701.8509518000064,
+   "stage_wall_s": 126.83485170011409,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9990234375,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 1.871844900015276
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9997209821428571,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 1.91556770002353
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9923618861607143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.5128178000159096
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 0.8127170457519712,
+        "p95": 7.7646885195906235,
+        "max": 18.218092094665526
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.01418446942011526,
+        "p95": 0.13541570046744988,
+        "max": 0.31662792288603225
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004319338517844606,
+       "p95": 0.039217189205367854,
+       "max": 0.07892520080299359
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9939662388392857,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.546142899984261
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 0.6325667517709119,
+        "p95": 6.874510361584019,
+        "max": 13.982220787149865
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.01104031648592134,
+        "p95": 0.11991088410482723,
+        "max": 0.24343069104759033
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0023855097634987877,
+       "p95": 0.025355103561669107,
+       "max": 0.04976868262794987
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": true,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9940708705357143,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.3898727000050712
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 0.6156403708894868,
+        "p95": 6.187345466719132,
+        "max": 12.203644320219848
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.010744899790818604,
+        "p95": 0.10793708523522381,
+        "max": 0.21259138781455872
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0015534434309883438,
+       "p95": 0.018549705089319003,
+       "max": 0.034401432663415
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": true,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 24478,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.3412951999926
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 34316,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 17.911168999999063
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 33128,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 16.06025850001606
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 54068,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 20.826517000008607
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 58590,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.594465600006515
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 61470,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 17.990452799975174
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.205415094000868e-08,
+    "max": 5.955056335161982e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.026507943868637085
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.012074285186827183
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.01667172834277153
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.06307326257228851
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.09325132519006729
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.13255904614925385
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5delay-held2",
+   "arm": "r",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sd, solint: inf}, {type: Sd, solint: inf}, {type: Sd, solint: 8}, {type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2851.4104322000057,
+   "stage_wall_s": 145.6842684998992,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9998604910714286,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 2.2488939999893773
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sd",
+      "wall_seconds": 1.8580605999741238
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9940011160714286,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.2677117999992333
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.3800429962107676,
+        "p95": 11.180497099362913,
+        "max": 24.96992457591593
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.04153660009964527,
+        "p95": 0.19482703140801824,
+        "max": 0.4323667403842175
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004424606920658797,
+       "p95": 0.04055543011098792,
+       "max": 0.06520927551103539
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9951520647321429,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.4052778000186663
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.1859483181187214,
+        "p95": 9.979605315948351,
+        "max": 20.868530531769526
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.038149681593311904,
+        "p95": 0.17395688286375455,
+        "max": 0.36221465939380865
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.004220637673395089,
+       "p95": 0.021382422611920537,
+       "max": 0.035085170158046464
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": true,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9952218191964286,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.1820378999982495
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.018230192981731,
+        "p95": 9.300775686755308,
+        "max": 19.313748191777904
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.03522294086244338,
+        "p95": 0.16215098841929368,
+        "max": 0.3354948074584165
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0036455100858252057,
+       "p95": 0.012193621017075747,
+       "max": 0.022995893410854118
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": true,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 27537,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.662602600001264
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 43496,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 21.48550709997653
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 41801,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.256854799983557
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 65963,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.2846581999911
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 67113,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 24.214996000024257
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 66636,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.473875099996803
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2034644654939415e-08,
+    "max": 5.95632586364857e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.03529594466090202
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.039782360196113586
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.06764855980873108
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.12533432245254517
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.13309338688850403
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.20158782601356506
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5pa-held",
+   "arm": "r",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: inf}, {type: Sp, solint: inf}, {type: Sp, solint: 8}, {type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2696.1355714999954,
+   "stage_wall_s": 120.76952159992652,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 1.056318499991903
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 1.053303299995605
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.9316957999835722
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.8357206732314113,
+        "p95": 12.08258731848252,
+        "max": 24.0780176908748
+       },
+       "amp_rel": {
+        "median": 0.06093971546492044,
+        "p95": 0.15573352037381644,
+        "max": 0.2632021465043881
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.061161167484318435,
+        "p95": 0.16463284455896368,
+        "max": 0.23458972950083257
+       },
+       "rel": {
+        "median": 0.09144915424730479,
+        "p95": 0.22544264055279528,
+        "max": 0.43575726829463685
+       }
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.9910265999787953
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.694733143351593,
+        "p95": 11.643069196463562,
+        "max": 22.987561796393162
+       },
+       "amp_rel": {
+        "median": 0.06093971546492061,
+        "p95": 0.15573352037381658,
+        "max": 0.26320214650438833
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.061161167484318435,
+        "p95": 0.16463284455896368,
+        "max": 0.23458972950083257
+       },
+       "rel": {
+        "median": 0.08944138379781166,
+        "p95": 0.21898411358258496,
+        "max": 0.420281239372959
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 0.807166300015524
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.5894894054439255,
+        "p95": 11.308665479200885,
+        "max": 22.322980297373803
+       },
+       "amp_rel": {
+        "median": 0.015210066341936335,
+        "p95": 0.027826335147129764,
+        "max": 0.04745266452971997
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.061161167484318435,
+        "p95": 0.16463284455896368,
+        "max": 0.23458972950083257
+       },
+       "rel": {
+        "median": 0.032170284894055795,
+        "p95": 0.1968651276753406,
+        "max": 0.3881917786605137
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": true
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 23054,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 14.4963666999829
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 26315,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.869801399996504
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 26306,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.168712099984987
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 42903,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 18.07686349999858
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 43061,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 18.67786620001425
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 68673,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 21.816207000025315
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2025050135329213e-08,
+    "max": 5.9481441610748256e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.04740527644753456
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.04098588228225708
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.06533046811819077
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.12678377330303192
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.16591064631938934
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.2518332600593567
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5pa-held2",
+   "arm": "r",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: inf}, {type: Sp, solint: inf}, {type: Sp, solint: 8}, {type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2563.7759345000086,
+   "stage_wall_s": 128.85606489994098,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 7,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 1.0585188000113703
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9910714285714286,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 7,
+      "time_bins_per_scan": {
+       "4": 1,
+       "6": 1,
+       "10": 1,
+       "12": 1,
+       "16": 1,
+       "18": 1,
+       "20": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 0.966096899996046
+     },
+     "truth": null,
+     "scored": "not scored: a solution bin spans two truth blocks"
+    },
+    {
+     "round": 3,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.8819082999834791
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 0.9776251371326083,
+        "p95": 8.397894858609789,
+        "max": 15.534368982435078
+       },
+       "amp_rel": {
+        "median": 0.06325928706713302,
+        "p95": 0.15942289100670257,
+        "max": 0.2507138547602288
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0637279423000866,
+        "p95": 0.16502943465246037,
+        "max": 0.2376085883741228
+       },
+       "rel": {
+        "median": 0.07654712246097899,
+        "p95": 0.18347586830677454,
+        "max": 0.33824588181151655
+       }
+      }
+     }
+    },
+    {
+     "round": 4,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.8146061000006739
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 0.6736034487536288,
+        "p95": 7.381960508020993,
+        "max": 14.120051373904923
+       },
+       "amp_rel": {
+        "median": 0.06325928706713313,
+        "p95": 0.15942289100670257,
+        "max": 0.2507138547602288
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0637279423000866,
+        "p95": 0.16502943465246037,
+        "max": 0.2376085883741228
+       },
+       "rel": {
+        "median": 0.07528134633180288,
+        "p95": 0.174202979900173,
+        "max": 0.3268921873879313
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 5,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 0.8326162000012118
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 0.5837795823809773,
+        "p95": 6.8581371129346875,
+        "max": 13.03553459535699
+       },
+       "amp_rel": {
+        "median": 0.01630871836006681,
+        "p95": 0.04344344536974539,
+        "max": 0.0738035862192381
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0637279423000866,
+        "p95": 0.16502943465246037,
+        "max": 0.2376085883741228
+       },
+       "rel": {
+        "median": 0.022698084864001516,
+        "p95": 0.12156790925413608,
+        "max": 0.22664137691386843
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 26705,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 16.042189500003587
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 28809,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 16.566918900003657
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 28704,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 17.77035460001207
+    },
+    {
+     "image": 4,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 47730,
+      "major_cycles": 13,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 20.536938499979442
+    },
+    {
+     "image": 5,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 48803,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.129837099986617
+    },
+    {
+     "image": 6,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 72058,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 23.04824269999517
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2049484520990143e-08,
+    "max": 5.9556438916221015e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.046715348958969116
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.026781490072607994
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.03934600576758385
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.07559408992528915
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.09958553314208984
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.14527873694896698
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5delay-held",
+   "arm": "u",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2767.9941846999864,
+   "stage_wall_s": 64.16047300002538,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9998604910714286,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.5173210999928415
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.9553169747474661,
+        "p95": 15.714299035273626,
+        "max": 47.68137208768836
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.03412506310767546,
+        "p95": 0.27340744693257113,
+        "max": 0.8083898247550101
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.017806352315878238,
+       "p95": 0.13008258529497166,
+       "max": 0.2617387494696799
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9913504464285714,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.3391770999878645
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 1.0553756572739112,
+        "p95": 9.965189960016778,
+        "max": 28.111784526873866
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 3.3306690738754696e-16
+       },
+       "rel": {
+        "median": 0.018419519665274168,
+        "p95": 0.17370623956195685,
+        "max": 0.48573661545395247
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.007405514859766316,
+       "p95": 0.06984959690317251,
+       "max": 0.14221014020558886
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 24478,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.801745399978245
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 41789,
+      "major_cycles": 9,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 18.97068679999211
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 48319,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 20.51224790001288
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2051840539958563e-08,
+    "max": 5.9518765287177924e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.06795427948236465
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.0294832531362772
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.0707087442278862
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.13509228825569153
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.14394238591194153
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.1636301577091217
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5delay-held2",
+   "arm": "u",
+   "loop": "delay",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sd, solint: 8}, {type: Sd, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2844.795114700013,
+   "stage_wall_s": 71.16321550001157,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9998953683035714,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 24,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.5424581000115722
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 4.188973842733407,
+        "p95": 17.684901944201943,
+        "max": 53.517495697752864
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.07309510357174376,
+        "p95": 0.3074359635189544,
+        "max": 0.9004695494267996
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.018453945782098677,
+       "p95": 0.14439998197487205,
+       "max": 0.23518177892697328
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "max_iterations": 50,
+      "name": "Sd",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sd"
+     },
+     "solve": {
+      "caracal_type": "Fslope",
+      "clipped": 0,
+      "converged_fraction": 0.9932338169642857,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 64,
+      "iterations": 23,
+      "name": "Sd",
+      "quartical_type": "delay_and_offset",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "per channel",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sd",
+      "wall_seconds": 1.4218880999833345
+     },
+     "truth": {
+      "products": {
+       "products": 888832,
+       "phase_deg": {
+        "median": 2.853164159612574,
+        "p95": 13.526534104378943,
+        "max": 34.495010589970384
+       },
+       "amp_rel": {
+        "median": 1.1102230246251565e-16,
+        "p95": 2.220446049250313e-16,
+        "max": 6.661338147750939e-16
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0,
+        "p95": 2.220446049250313e-16,
+        "max": 4.440892098500626e-16
+       },
+       "rel": {
+        "median": 0.04979196365788894,
+        "p95": 0.23553468604555722,
+        "max": 0.5929999846929128
+       }
+      },
+      "delays": {
+       "pairs": 13888,
+       "median": 0.0049795572282596845,
+       "p95": 0.07691468850358799,
+       "max": 0.12228838501902237
+      }
+     },
+     "gated_rows": [
+      "delay_ns",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "delay_ns": false,
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 27537,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.421866900025634
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 53038,
+      "major_cycles": 14,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 25.746407600003295
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 62728,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 20.593335899990052
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.203583207451961e-08,
+    "max": 5.9512840741982684e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.07555986940860748
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.07336205244064331
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.09445615112781525
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.18587684631347656
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.1591194123029709
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.1525503396987915
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5pa-held",
+   "arm": "u",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2564.885374799982,
+   "stage_wall_s": 61.37177940001129,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.836815500020748
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 2.25718098466698,
+        "p95": 14.860254120516935,
+        "max": 30.84402836004652
+       },
+       "amp_rel": {
+        "median": 0.06093971546492066,
+        "p95": 0.15573352037381658,
+        "max": 0.2632021465043879
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.061161167484318435,
+        "p95": 0.16463284455896368,
+        "max": 0.23458972950083257
+       },
+       "rel": {
+        "median": 0.10354770130091759,
+        "p95": 0.2749956454901249,
+        "max": 0.5486467931265956
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 0.911615899996832
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.8744886149438589,
+        "p95": 12.871943101835187,
+        "max": 25.851214940002365
+       },
+       "amp_rel": {
+        "median": 0.014496286567972139,
+        "p95": 0.028471209079727302,
+        "max": 0.054741181189722043
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.061161167484318435,
+        "p95": 0.16463284455896368,
+        "max": 0.23458972950083257
+       },
+       "rel": {
+        "median": 0.03550616460318121,
+        "p95": 0.225339554788979,
+        "max": 0.45280452815479405
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": true
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 23054,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 14.056058999995003
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 37156,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 17.709436200006166
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 55388,
+      "major_cycles": 12,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 22.35415070000454
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.203208178813633e-08,
+    "max": 5.951044687811504e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.06033080443739891
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.06949988752603531
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.12370142340660095
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.13700361549854279
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.1810188591480255
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.2809435725212097
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  },
+  {
+   "case": "c5pa-held2",
+   "arm": "u",
+   "loop": "pa",
+   "post_hoc": false,
+   "held_out": true,
+   "schedule": "[{type: Sp, solint: 8}, {type: Sa, solint: 8}]",
+   "gemclean": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\selfcal-arms-82d5c9\\.venv\\Scripts\\python.exe -m rang.gemclean",
+   "gemclean_sha256": "d4de42583c4bc3dd7d192d99d416d02de52237ce5fffed684322c5ae36957761",
+   "stage_wall_s_with_lock_wait": 2494.6462061000057,
+   "stage_wall_s": 61.19144660001621,
+   "rounds": [
+    {
+     "round": 1,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     },
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 6,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sp",
+      "wall_seconds": 0.7856510999845341
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 2.4786832131285674,
+        "p95": 14.944662367116893,
+        "max": 23.734433410406513
+       },
+       "amp_rel": {
+        "median": 0.06325928706713313,
+        "p95": 0.15942289100670265,
+        "max": 0.25071385476022834
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0637279423000866,
+        "p95": 0.16502943465246037,
+        "max": 0.2376085883741228
+       },
+       "rel": {
+        "median": 0.09514273059426125,
+        "p95": 0.27563961216095817,
+        "max": 0.46670728703292663
+       }
+      }
+     },
+     "gated_rows": [
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false
+      },
+      "pass": false
+     }
+    },
+    {
+     "round": 2,
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 8,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     },
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 3,
+      "flagged_fraction": 0.0,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 55552,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "m000",
+       "solint": 8,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 14,
+      "time_bins_per_scan": {
+       "4": 2,
+       "6": 2,
+       "10": 2,
+       "12": 2,
+       "16": 2,
+       "18": 2,
+       "20": 2
+      },
+      "type": "Sa",
+      "wall_seconds": 0.6895928999874741
+     },
+     "truth": {
+      "products": {
+       "products": 13888,
+       "phase_deg": {
+        "median": 1.4654263020333433,
+        "p95": 10.542683425203998,
+        "max": 17.014862819747496
+       },
+       "amp_rel": {
+        "median": 0.015359410143055197,
+        "p95": 0.041605802086503774,
+        "max": 0.07071247484741616
+       },
+       "uncorrected_amp_rel": {
+        "median": 0.0637279423000866,
+        "p95": 0.16502943465246037,
+        "max": 0.2376085883741228
+       },
+       "rel": {
+        "median": 0.03204323414531994,
+        "p95": 0.18392698255886158,
+        "max": 0.2926690909954503
+       }
+      }
+     },
+     "gated_rows": [
+      "amp_rel",
+      "amp_vs_input",
+      "phase_deg"
+     ],
+     "t2": {
+      "checks": {
+       "phase_deg": false,
+       "amp_rel": false,
+       "amp_vs_input": true
+      },
+      "pass": false
+     }
+    }
+   ],
+   "images": [
+    {
+     "image": 1,
+     "column": "DATA",
+     "clean": {
+      "components": 26705,
+      "major_cycles": 8,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 15.785502400016412
+    },
+    {
+     "image": 2,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 40603,
+      "major_cycles": 11,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.103876100009074
+    },
+    {
+     "image": 3,
+     "column": "CORRECTED_DATA",
+     "clean": {
+      "components": 54363,
+      "major_cycles": 10,
+      "stop": "Threshold"
+     },
+     "wall_seconds": 19.03662230001646
+    }
+   ],
+   "g4_apply": {
+    "cells": 14221312,
+    "median": 2.2043695082571545e-08,
+    "max": 5.952479733334918e-08,
+    "flags_as_expected": true,
+    "pass": true
+   },
+   "model_by_baseline": [
+    {
+     "m": [
+      0,
+      500
+     ],
+     "rows": 18025,
+     "rel_rms": 0.0663490742444992
+    },
+    {
+     "m": [
+      500,
+      1000
+     ],
+     "rows": 10455,
+     "rel_rms": 0.055486857891082764
+    },
+    {
+     "m": [
+      1000,
+      2000
+     ],
+     "rows": 8752,
+     "rel_rms": 0.06337738782167435
+    },
+    {
+     "m": [
+      2000,
+      4000
+     ],
+     "rows": 13256,
+     "rel_rms": 0.10934486240148544
+    },
+    {
+     "m": [
+      4000,
+      6000
+     ],
+     "rows": 4731,
+     "rel_rms": 0.15864749252796173
+    },
+    {
+     "m": [
+      6000,
+      null
+     ],
+     "rows": 333,
+     "rel_rms": 0.20706313848495483
+    }
+   ],
+   "t2_pass": false,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-03"
+  }
+ ],
+ "quartical": [
+  {
+   "case": "c5delay",
+   "arm": "p",
+   "loop": "delay",
+   "round": 1,
+   "term": {
+    "freqint": 1,
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 8,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "resolve_equals_stage": true,
+   "quartical_wall_s_with_lock_wait": 1781.5349614000006,
+   "shape_rang": [
+    14,
+    64,
+    32,
+    2
+   ],
+   "shape_qc": [
+    14,
+    64,
+    32,
+    2
+   ],
+   "products": 888832,
+   "median": 1.3877787807814457e-17,
+   "p95": 1.1572468261826127e-11,
+   "max": 7.036023946402357e-07,
+   "qc_gain_times_equal": true,
+   "qc_chunk_gain_times": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "qc_wall_s": 72.52,
+   "pass": true,
+   "wall_s": 1786.8415266000084,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5delay",
+   "arm": "r",
+   "loop": "delay",
+   "round": 1,
+   "term": {
+    "max_iterations": 50,
+    "name": "Sd",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sd"
+   },
+   "resolve_equals_stage": true,
+   "quartical_wall_s_with_lock_wait": 1799.0717142000212,
+   "shape_rang": [
+    7,
+    64,
+    32,
+    2
+   ],
+   "shape_qc": [
+    7,
+    64,
+    32,
+    2
+   ],
+   "products": 444416,
+   "median": 2.1183523716375092e-16,
+   "p95": 7.108895957933346e-16,
+   "max": 1.847779371410367e-15,
+   "qc_gain_times_equal": true,
+   "qc_chunk_gain_times": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "qc_wall_s": 89.91,
+   "delay_median_ns": 0.0,
+   "delay_p95_ns": 1.1102230246251565e-16,
+   "delay_max_ns": 2.7755575615628914e-16,
+   "pass": true,
+   "wall_s": 1805.5809979000187,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  },
+  {
+   "case": "c5pa",
+   "arm": "r",
+   "loop": "pa",
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "resolve_equals_stage": true,
+   "quartical_wall_s_with_lock_wait": 1772.4787832000002,
+   "shape_rang": [
+    7,
+    1,
+    32,
+    2
+   ],
+   "shape_qc": [
+    7,
+    1,
+    32,
+    2
+   ],
+   "products": 6944,
+   "median": 9.282224919364328e-12,
+   "p95": 3.5730132234687976e-10,
+   "max": 6.7632217843121635e-09,
+   "qc_gain_times_equal": true,
+   "qc_chunk_gain_times": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "qc_wall_s": 74.52,
+   "pass": true,
+   "wall_s": 1777.7197478000016,
+   "run": "D:\\rang\\outputs\\selfcal-arms-20261113-02"
+  }
+ ],
+ "verdict": {
+  "r-pa": {
+   "verdict": "null",
+   "cases": {
+    "c5pa-held": {
+     "t2_pass": false,
+     "final_p95_deg": 11.308665479200885,
+     "u_final_p95_deg": 12.871943101835187,
+     "ratio": 0.8785515434409105,
+     "cost_ratio": 1.9678347732558052
+    },
+    "c5pa-held2": {
+     "t2_pass": false,
+     "final_p95_deg": 6.8581371129346875,
+     "u_final_p95_deg": 10.542683425203998,
+     "ratio": 0.6505115288332756,
+     "cost_ratio": 2.1057855641527987
+    }
+   }
+  },
+  "r-delay": {
+   "verdict": "helps, not met",
+   "cases": {
+    "c5delay-held": {
+     "t2_pass": false,
+     "final_p95_deg": 6.187345466719132,
+     "u_final_p95_deg": 9.965189960016778,
+     "ratio": 0.6208958877396769,
+     "cost_ratio": 1.976837853113457
+    },
+    "c5delay-held2": {
+     "t2_pass": false,
+     "final_p95_deg": 9.300775686755308,
+     "u_final_p95_deg": 13.526534104378943,
+     "ratio": 0.6875948868338986,
+     "cost_ratio": 2.04718501653253
+    }
+   }
+  },
+  "p-delay": {
+   "verdict": "null",
+   "cases": {
+    "c5delay-held": {
+     "t2_pass": false,
+     "final_p95_deg": 10.152294590701448,
+     "u_final_p95_deg": 9.965189960016778,
+     "ratio": 1.018775821779152,
+     "cost_ratio": 1.016362742525322
+    },
+    "c5delay-held2": {
+     "t2_pass": false,
+     "final_p95_deg": 13.630241078678292,
+     "u_final_p95_deg": 13.526534104378943,
+     "ratio": 1.0076669288303333,
+     "cost_ratio": 0.9439641636207184
+    }
+   }
+  }
+ }
+}
