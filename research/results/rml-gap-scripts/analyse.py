@@ -127,13 +127,26 @@ def time_v(path):
     return int(m.group(1)) / 1e6 if m else None
 
 
-def u_run(s, d, g_wall, out):
+def cpu_v(path):
+    """User + system seconds from GNU time -v (amendment A2)."""
+    p = Path(path)
+    if not p.exists():
+        return None
+    t = p.read_text(encoding="utf-8")
+    u = re.search(r"User time \(seconds\): ([0-9.]+)", t)
+    k = re.search(r"System time \(seconds\): ([0-9.]+)", t)
+    return float(u.group(1)) + float(k.group(1)) if u and k else None
+
+
+def u_run(s, d, g_wall, out, g_cpu=None):
     run = json.loads((d / "run.json").read_text(encoding="utf-8"))
     rec = {"rc": run["rc"], "wall_s": run["wall_s"], "steps": [
         {k: st[k] for k in ("step", "rc", "wall_s", "wall_cap_hit")} for st in run["steps"]]}  # fmt: skip
     rec["peak_rss_gb"] = {
         n: time_v(d / f"time-{n}.txt") for n in ("init", "grid", "sara")
     }
+    cpu = {n: cpu_v(d / f"time-{n}.txt") for n in ("init", "grid", "sara")}
+    rec["cpu_s"] = cpu
     dirty = d / "pfb_I_main_dirty_time0000_mfs.fits"
     if not dirty.exists():
         rec["precondition"] = "no dirty image"
@@ -191,17 +204,28 @@ def u_run(s, d, g_wall, out):
         for f in secs
         if (m := re.fullmatch(r"pfb_I_main_model_(\d+)\.fits", f))
     )
+    # Amendment A2: an iterate's cumulative CPU = init + grid + sara's CPU x the fraction of
+    # sara's wall elapsed at the iterate's file time (constant CPU rate inside sara).
+    sara = next((st for st in run["steps"] if st["step"] == "sara"), None)
+    cpu_at = {}
+    if sara and all(cpu.get(n) is not None for n in ("init", "grid", "sara")):
+        off = sara["start"] - run["start"]
+        for k, t in its:
+            frac = min(max((t - off) / sara["wall_s"], 0.0), 1.0)
+            cpu_at[k] = cpu["init"] + cpu["grid"] + cpu["sara"] * frac
     rec["iterates"] = []
     for k, t in its:
         model, _ = read_fits(d / f"pfb_I_main_model_{k}.fits")
         m = s.measure(rs.ORIENT[rec["orientation"]](model), exact=False)
         m.pop("groups")
-        rec["iterates"].append({"cycle": k, "seconds": t, **m})
+        rec["iterates"].append({"cycle": k, "seconds": t, "cpu_s": cpu_at.get(k), **m})
     if not its:
         return rec
     last = its[-1][0]
     within = [k for k, t in its if g_wall and t <= 5 * g_wall]
-    for key, k in (("last", last), ("within_5g", within[-1] if within else None)):
+    within_cpu = [k for k, _ in its if g_cpu and k in cpu_at and cpu_at[k] <= 5 * g_cpu]
+    for key, k in (("last", last), ("within_5g", within[-1] if within else None),
+                   ("within_5g_cpu", within_cpu[-1] if within_cpu else None)):  # fmt: skip
         if k is None:
             rec[key] = None
             continue
@@ -209,6 +233,7 @@ def u_run(s, d, g_wall, out):
         m = s.measure(rs.ORIENT[rec["orientation"]](model), exact=True)
         m["cycle"] = k
         m["seconds"] = dict(its)[k]
+        m["cpu_s"] = cpu_at.get(k)
         # Scale and registration check beside pfb's own residual peak.
         m["exact_residual_inner_peak_jy"] = (
             m["exact_residual_inner_peak_sigma"] * s.sigma
@@ -219,6 +244,8 @@ def u_run(s, d, g_wall, out):
         rec[key] = m
     if rec["converged"] and g_wall:
         rec["converged_within_5g"] = its[-1][1] <= 5 * g_wall
+    if rec["converged"] and g_cpu and last in cpu_at:
+        rec["converged_within_5g_cpu"] = cpu_at[last] <= 5 * g_cpu
     return rec
 
 
@@ -246,6 +273,8 @@ def analyse(sky):
         rec = s.measure(model, exact=True)
         rec.update(wall(d / "wall.json"))
         rec["peak_rss_gb"] = time_v(d / "time.txt")
+        if prefix == "w":
+            rec["cpu_s"] = cpu_v(d / "time.txt")
         rec["dirty_linf_over_peak"] = s.dirty_check(d / f"{prefix}-dirty.fits")
         rec["precondition_pass"] = rec["dirty_linf_over_peak"] <= 1e-5
         log = (d / "log.txt").read_text(encoding="utf-8", errors="replace")
@@ -255,9 +284,20 @@ def analyse(sky):
         arms[arm] = rec
         if arm == "G":
             g_wall = rec["wall_s"]
+            g_model = model
+    # Amendment A2: Gt is G again for its CPU seconds; its model must match G's.
+    g_cpu = None
+    dt = O / "runs" / "Gt" / sky
+    if (dt / "wall.json").exists() and "G" in arms:
+        wt = wall(dt / "wall.json")
+        mt, _ = read_fits(dt / "g-model.fits")
+        g_cpu = wt.get("user_s", 0) + wt.get("kernel_s", 0) if "user_s" in wt else None
+        arms["Gt"] = {**wt, "cpu_s": g_cpu, "model_identical": bool(np.array_equal(mt, g_model)),
+                      "model_maxdiff_over_peak": float(np.abs(mt - g_model).max()
+                                                       / np.abs(g_model).max())}  # fmt: skip
     for d in sorted((O / "runs").glob(f"U-*/{sky}")):
         if (d / "run.json").exists():
-            arms[d.parent.name] = u_run(s, d, g_wall, out)
+            arms[d.parent.name] = u_run(s, d, g_wall, out, g_cpu)
     out["arms"] = arms
     if "G" in arms and "W" in arms:
         G, W = arms["G"], arms["W"]
@@ -285,8 +325,15 @@ def analyse(sky):
                 else None
             )
             u["cost_ratio_last"] = u["last"]["seconds"] / G["wall_s"]
+            u["r5_cpu"] = (
+                u["within_5g_cpu"]["relative_l2"] / G["relative_l2"]
+                if u.get("within_5g_cpu")
+                else None
+            )
+            if g_cpu and u["last"].get("cpu_s"):
+                u["cpu_ratio_last"] = u["last"]["cpu_s"] / g_cpu
     for a in arms.values():
-        for k in ("last", "within_5g"):
+        for k in ("last", "within_5g", "within_5g_cpu"):
             if isinstance(a.get(k), dict):
                 a[k].pop("groups", None)
     (O / "scores").mkdir(exist_ok=True)
@@ -297,10 +344,13 @@ def analyse(sky):
              "parity": out.get("parity", {}).get("pass")}  # fmt: skip
     for n, a in arms.items():
         if n in ("G", "W", "Gd"):
-            brief[n] = (round(a["relative_l2"], 4), round(a["wall_s"], 1))
+            brief[n] = (round(a["relative_l2"], 4), round(a["wall_s"], 1), a.get("cpu_s"))
+        elif n == "Gt":
+            brief[n] = (a["cpu_s"], round(a["wall_s"], 1), a["model_identical"])
         elif a.get("last"):
             brief[n] = (round(a["last"]["relative_l2"], 4), a["last"]["cycle"],
-                        round(a["last"]["seconds"], 1), a.get("converged"), a.get("r"), a.get("r5"))  # fmt: skip
+                        round(a["last"]["seconds"], 1), a.get("converged"), a.get("r"), a.get("r5"),
+                        a.get("r5_cpu"), a.get("cpu_ratio_last"))  # fmt: skip
     print(json.dumps(brief, default=_plain))
 
 

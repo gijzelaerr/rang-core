@@ -287,6 +287,18 @@ held-out scoring job runs, and before any of its output is read.
   - U-a H1 was repeated: its first run's last writes hit the full disk.
   - The failed attempts' logs are kept (`runs\W\H2-enomem`, `runs\W\H3-enomem`, `runs.tsv`).
 
+**Clarification A2.1** (2026-11-14, post hoc). Written after the first held-out scoring pass,
+whose `r_s` values were read. A2 as written does not say two things.
+- **The trigger.** The `r5_s` iterate is by construction the last one at or under 5 ×, so its own
+  cost ratio is almost always in 4-6.25 ×. A2's trigger is read as "a clause that uses `r5_s` or
+  the 5 × budget decides the outcome, and the result depends on the basis". Those clauses are the
+  two gap clauses and the converged-within-5 × count. Outcomes decided by `r_s` alone (better,
+  below the bar; no gap; U worse; mixed) do not use cost, and do not trigger the exclusive subset.
+- **"Cost-ambiguous"** qualifies only the comparable-cost clause and the converged-within-5 ×
+  count. It never relabels an outcome that `r_s` decides.
+
+The coordinator may still order the exclusive H4 subset; it is pre-registered above either way.
+
 ## 8. Measured results
 
 ### 8.1 Stage 2: tuning skies S1-S3 (2026-11-13)
