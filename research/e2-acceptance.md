@@ -1235,6 +1235,8 @@ lists), which is A0 rule 6: automatic mask 5σ, clean to 3σ.
   5,386 s, before both overlap windows.
 - **This overrides owner item 29's "CARACal's values in E2-A's configuration" for the selfcal images.** It
   needs the coordinator's acceptance before launch (For the coordinator).
+- **Accepted by the owner, 2026-11-15** (relayed by the coordinator, before any rerun step): A0 rule 6
+  for the selfcal images, overriding item 29, labelled post hoc as above.
 - Stage hashes: flag, calibrate, apply and image are unchanged, because their sections are byte-equal.
   Only selfcal's hash changes.
 
@@ -1332,15 +1334,24 @@ during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 
 - E2-B's own three rows free 299 GiB. That leaves 613 GiB at launch and about 199 GiB at the end of the
   run, so it meets the rule **for the rang arm's run (gate 1) only**. Compacting the vhdx adds margin.
 - E: (464 GiB free) is not used, because rang's large data stays on D:.
+- **Deleted 2026-11-15 (owner's approval; the coordinator deleted them, after the rebuild of 9.8):**
+  - `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` and `.flagversions`;
+  - `D:\rang\data\e2-b\e2b.ms` and `.flagversions`;
+  - `R\wsclean3c` and `R\wsclean3c-unit`. Their small `.out` and `.json` logs are kept.
+  - WSL's `ext4.vhdx` is now sparse and trimmed. Its allocated space returns only after an
+    administrator `Optimize-VHD`, which the owner runs.
+  - **D: had 645.4 GiB free at 14:55 local** (`(Get-PSDrive D).Free / 1GB`; the coordinator read
+    600.7 GiB earlier), above the 605 GiB start rule, with `e2a.ms` (194 GiB) already built.
 
-**The post chain (6.5) does not fit as written.**
+**The post chain (6.5) does not fit as written** (resolved by the in-place order of 9.9).
 - `e2_post.py` runs `copy` before `restore`: the whole MS and its flag versions go to `R\casa\`, about
   598 GiB for E2-A against 218 GiB for E2-B. `prep` then adds RANG_FLAG (2 GiB) on the copy, and CASA
   `applycal` writes CORRECTED_DATA (128 GiB).
 - That is about 728 GiB on top of the run's 608, while the original still exists. With E2-B's 299 GiB
   freed, D: would need about 680 GiB more than it will have. Freeing everything listed above does not
   cover it either.
-- **Proposed (not implemented, not on this branch):** an E2-A in-place order for `e2_post.py`.
+- **Proposed here; the owner chose it, and 9.9 implements it in a corrected form:** an E2-A in-place
+  order for `e2_post.py`.
   1. Every read of rang's columns runs on `e2a.ms` itself: casacore, casa-ro, wsclean0, daskms, the 3c
      WSClean images, and QuartiCal's self-calibration gains on CORRECTED_1GC against MODEL_DATA, with no
      output column.
@@ -1436,7 +1447,51 @@ and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`
 - An attempt 0 at 13:20 failed in 5 s, before writing anything, because the extension was not yet built.
   Its logs are `attempt0-*` in the output directory.
 - **D: after the build: 313 GiB free, 292 GiB short of 9.6's start rule (605).** The run is ready to
-  launch once that space exists and the coordinator accepts 9.5.
+  launch once that space exists and the coordinator accepts 9.5. Both conditions were met later on
+  2026-11-15 (9.5, 9.6).
+
+### 9.9 Gate 2b in place on E2-A (implemented 2026-11-15, before any run; owner's choice)
+
+`e2_post.py` gains `ORDER_INPLACE`, which E2-A uses in place of `ORDER`.
+- **Steps, in order:** gate1, archive, wcs, casacore, casa-ro, wsclean0, daskms, then
+  **`prep-inplace`, `applycal-inplace`, `compare-inplace`, `snapshot-inplace`**, then restore and
+  tricolour. There is no `copy` step.
+- **The proposal in 9.6 was corrected in one point before any code ran.** With selfcal, rang's apply
+  output is **CORRECTED_1GC**: selfcal copied apply's CORRECTED_DATA into it before overwriting
+  CORRECTED_DATA with its own output. Gate 2b compares CASA applycal with rang's 1GC tables (K1, G1,
+  B1) against rang's apply output, so that is the column to compare. Comparing CORRECTED_DATA, as E2-B's
+  order does, would compare against selfcal's output.
+- `inplace_plan` reads the run directory.
+  - If `selfcal-input.json` records a copy of this run's apply output (same column and apply
+    timestamp), rang's column is CORRECTED_1GC. RANG_FLAG is then the flag version that selfcal saved
+    at its start, which is FLAG after apply.
+  - Otherwise rang's column is apply's own column, and RANG_FLAG is FLAG as it stands (E2-B's
+    reading).
+  - FLAG is reset from the version saved before apply, as in E2-B's `prep`.
+- `prep-inplace` renames rang's column to RANG_CORRECTED_DATA and MODEL_DATA to RANG_MODEL_DATA, and
+  adds RANG_FLAG (2 GiB).
+  - It refuses to run unless RECEPTOR_ANGLE is already −90°, which it is in ESO137's stores (6.2), so
+    FEED is not written.
+  - CASA `applycal` then writes CORRECTED_DATA. With selfcal, that column exists and holds rang's
+    selfcal output, which is overwritten in place, so no new 128 GiB column appears. Every read of it
+    (casacore, wsclean0, daskms) comes earlier in the order.
+- `compare-inplace` and `snapshot-inplace` are E2-B's `compare` and `snapshot` with the MS's own
+  directory mounted as `/c`. `restore` then drops every column not in `columns-before.json` (RANG_*
+  included) and restores FLAG from `rang_original` (gate 2a).
+- **Peak:** the run's 608 GiB plus 2 GiB for RANG_FLAG.
+- **Must also run before `prep-inplace`, not written here:** E2-A's own reads of CORRECTED_1GC and
+  MODEL_DATA, which are gate 3c's WSClean images at the image stage's settings and QuartiCal's
+  self-calibration gains. After `prep-inplace` they read RANG_CORRECTED_DATA and RANG_MODEL_DATA.
+  `e2_post.py wsclean3c` is E2-B's (IQUV, `-join-polarizations`) and reads CORRECTED_DATA, so it does
+  not serve E2-A.
+- **Tests:** `tests/test_e2_post_inplace.py`, 8 tests.
+  - The plan, with and without selfcal, and a stale copy refused.
+  - The order: no copy, the reads before prep, restore and tricolour last.
+  - The CASA steps mount the MS itself.
+  - `PREP_INPLACE_PY` run against a casacore stand-in: renames, RANG_FLAG from selfcal's version, FLAG
+    from the version before apply, refusal of another RECEPTOR_ANGLE.
+  - Not tested here: the scripts inside the containers against a real MS. The first real run is E2-A's
+    post chain.
 
 ## For the coordinator
 
