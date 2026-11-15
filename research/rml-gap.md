@@ -360,7 +360,7 @@ again without its averaging.
   - gridder `epsilon` 1e-7 in `grid` and `sara`;
   - the recipe's sara step;
   - `tol` 5e-4, 8 threads, a cap of 200 major cycles or 12 h, booked at 4 slots.
-  
+
   Code: `runs.py`, `CONFIGS["U-up2"]` and `UP_BY_CONFIG`.
 - **Scoring:** section 4 as for U-a, at the last cycle and at the last cycle within 5 × Gt's CPU.
 - **Precondition.** Section 4's precondition applies unchanged. If it fails only on the
@@ -373,7 +373,7 @@ again without its averaging.
      away), the median of pfb's dirty-image peak (5 × 5 px box) over catalogue flux lies within
      0.9-1.1 in each radius bin: under 10′, 10-20′ and over 20′ from the phase centre. This is the
      section 8.4 test, on which U-a gives 0.97-0.99.
-  
+
   If neither check passes, U-up2 is not scored, and the outcome stays "U worse at our settings".
 - **Rule** on `r_up2`, U-up2's last-cycle relative L2 over G's on N2:
   - **`r_up2 > 1.25`:** the outcome is stated as "U worse at our settings on 4 of 4 gated skies,
@@ -475,7 +475,13 @@ re-run, whose model is bit-identical to G's on every sky.
 - **Neither gap clause holds** on either cost basis, because `r5_s` ≥ 7.9 everywhere.
 - **Convergence:** U\* reached `tol` on 0 of 4 skies, within 5 × G's wall or CPU or within the
   cap. Every run stopped at the 40-cycle cap.
-- **Extended groups:** U\* fails measure 3 on every gated sky. A2 positions pass.
+- **Extended groups:** U\* fails measure 3 on every gated sky.
+- **Positions:** U\* also fails measure 4 (DF5-O's A2 positions) on every gated sky; G passes it.
+  On N2 the failure is group 31, offset by 0.76 b for U-a and 0.88 b for U-up2. (Corrected
+  2026-11-15: this line first said "A2 positions pass". The score files have
+  `positions_all_pass: false`, but their `positions_failed` lists are empty because of a
+  numpy-bool identity test in `rml_gap_score.py`, fixed on branch `claude/rml-gap-up2`. Only the
+  list was wrong, and the outcome is unchanged.)
 - **A3 and A4 scope:**
   - The upstream-preset run on N2 (U-up, section 8.4) failed its precondition and is not scored,
     so A3's rule does not fire.
@@ -603,6 +609,11 @@ settings on 4 of 4 gated skies, and at upstream's preset (without its averaging)
   So it passes. U-up would have failed this check (section 8.4).
 - **Scoring.** U-up2 is scored in the identity orientation (`precondition_basis: "A4 secondary"` in
   `scores\N2.json`). The first pass in orientation 6 gave a meaningless 1.40 and is superseded.
+- **Post hoc.** A4's rule and checks were frozen before the run. Their implementation was written
+  after analyse.py's first pass had been read: `a4_precondition.py`, and the A4 branch in
+  `analyse.py` that adopts the secondary check's orientation. A4 says only "the chosen
+  orientation". Scoring in the orientation that check 1 selects is this note's reading of that
+  phrase, recorded here as post hoc.
 
 **Scores** on N2 (G 0.003777):
 
@@ -617,9 +628,10 @@ settings on 4 of 4 gated skies, and at upstream's preset (without its averaging)
 | measure 3 (extended groups) / measure 4 (positions) | fail / fail | fail / fail |
 | CPU, and over Gt's | 6,502 s (3.95 ×) | 70,394 s (42.8 ×) |
 
-- **Upstream settings improve U.** The upstream weighting and reweighting lower U's error by 32 %
-  against U-a, mostly in the point sources (0.052 to 0.031). U-up2 is still 5 × G's error at
-  43 × G's CPU, and 6.7 × within 5 × G's CPU.
+- **Upstream settings improve U.** At matched cycles, U-up2's relative L2 is 0.0202 at cycle 40
+  against U-a's 0.0279, 28 % lower. Running on to cycle 107 takes it 32 % lower (0.0191).
+  - The gain is mostly in the point sources: 0.052 falls to 0.031.
+  - U-up2 is still 5 × G's error, at 43 × G's CPU, and 6.7 × G's error within 5 × G's CPU.
 - **Stop and convergence.** pfb stopped the run itself at cycle 107 ("diverging": its peak
   residual stopped falling, at 3.994e-3 in cycles 106 and 107).
   - `eps` was 1.21e-3 against `tol` 5e-4, so the run did not converge. None of A4's stops was
@@ -653,7 +665,7 @@ Files: `runs\U-up2\N2\` and `scores\N2.json`.
   - The DF5-O MS copies `df5o\field` and `df5o\field-niter0`. The original is in WSL
     `~/Github/rang/outputs/df5o-20261031-01/field`; re-running `df5o.py` or `df5o_l2.py` needs a
     copy of it at `df5o\field` again.
-  
+
   Kept (33 GB): the per-cycle model images, final products, logs, `prep\`, `data\` and the scores,
   so that every score can be recomputed.
 - **Seeds:** N1 and N2 as section 2.
@@ -680,7 +692,10 @@ Files: `runs\U-up2\N2\` and `scores\N2.json`.
     (`r_up2` = 5.05, 6.7 within 5 × G's CPU), at 43 × G's CPU.
   - U-up2 did not converge. pfb's own stop at cycle 107 left `eps` at 1.2e-3 against `tol`
     5e-4 (section 8.5).
-  - Upstream settings cut U's error by 32 % against U-a; it is still 5 × G's.
+  - Upstream settings cut U's error by 28 % against U-a at matched cycles (32 % at cycle 107);
+    it is still 5 × G's.
+  - U\* also fails measure 4 (positions) on every gated sky. Section 8.2 first said it passed and
+    is now corrected; the outcome is unchanged.
   - U-up2 passed A4's secondary precondition, not section 4's (robust -0.3 has no L∞ match to
     the natural-weighted core dirty image).
 - **Not covered:** learned imagers (arm A), `pfb deconv`, SARA converged to `tol`, and upstream

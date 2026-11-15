@@ -41,7 +41,7 @@ def main():
         for p in comps:
             if p["kind"] != "point" or np.sort(np.hypot(*(xy - [p["x"], p["y"]]).T))[1] < 40:
                 continue
-            r, c = int(round(p["y"])), int(round(p["x"]))
+            r, c = round(p["y"]), round(p["x"])
             rad = float(np.hypot(p["dx"], p["dy"]) * scale / 60)
             rows.append((rad, float(img[r - 2 : r + 3, c - 2 : c + 3].max() / p["flux"])))
         rows = np.array(rows)
