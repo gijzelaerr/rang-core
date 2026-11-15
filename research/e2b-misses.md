@@ -1565,6 +1565,87 @@ Reading (seen, post hoc):
   copy, as the coordinator noted.
 - The FITS images were deleted after scoring.
 
+### 9.18 Gate 3c dirty at ε 1e-6 with `-no-small-inversion`: post hoc amendment, frozen 2026-11-15 (before any run)
+
+**Dated post hoc amendment** to gate 3c's dirty measure, asked by the
+coordinator (branch `e2b-close`). It is seen: 9.10, 9.12 and 9.17 are
+known. The frozen record (3c dirty not met) stays. This adds a labelled
+re-reading.
+
+Amended oracle and settings: 9.9's common settings at **ε 1e-6** on the
+three fields.
+- WSClean 3.7 adds `-no-small-inversion` (A4's `-j` 4 replaced by `-j 2`).
+- GeMClean runs as 9.9 at ε 1e-6, its default precision (double below
+  1e-5).
+
+Data:
+- WSClean reads a reduced copy of `R\casa\e2b.ms` in WSL's ext4
+  (`~/e2b-close/a5.ms`), made with casacore TaQL. It holds all rows; the
+  columns WSClean reads (UVW, ANTENNA1/2, TIME, TIME_CENTROID, INTERVAL,
+  EXPOSURE, FIELD_ID, DATA_DESC_ID, SCAN_NUMBER, FLAG_ROW, the id columns,
+  SIGMA); RANG_CORRECTED_DATA; FLAG = RANG_FLAG; WEIGHT = 1; and every
+  subtable. The copy is deleted after scoring.
+- GeMClean reads `R\casa\e2b.ms` in the matched state (`UNIT_PY` on, then
+  off; the column list is checked), as 9.10's C6 showed bit for bit.
+
+Control **C10**, before any ε 1e-6 score is read: WSClean with its default
+small inversion at ε 1e-4 on J1833−2103, reading the ext4 copy, reproduces
+the archived `R\wsclean3c-unit\J1833m2103-dirty-*` within 1e-6 of the peak
+(as C6). Not met: void.
+
+Measure and bound: gate 3c's dirty L∞ / peak over the full image, frozen
+**1e-6** (A0), with the 5 % border and inner two-thirds reported.
+
+Reading: met on all three fields → gate 3c's dirty measure is met under
+the amended oracle and ε (seen, post hoc); otherwise not met, with the
+values reported.
+
+Booking: WSClean dirty runs at 2 slots, GeMClean at 4.
+
+### 9.19 Gate 2b on the full MS with the new P, frozen 2026-11-15 (before any run)
+
+The consequence of P1 (9.16) on the whole MS. It is seen: P1's mini-MS
+re-score is known.
+
+Procedure on `R\casa\e2b.ms` in place, with no 218 GB copy. Every step
+renames or adds columns that are removed again at the end:
+1. Save: CORRECTED_DATA → E2C_SAVE_CORRECTED_DATA, FLAG →
+   E2C_SAVE_FLAG, FLAG_ROW copied to E2C_SAVE_FLAG_ROW. Record the column
+   list and a FLAG hash (`a2_flaghash`-style sha256 over the rows).
+2. FLAG and FLAG_ROW from the after-calibrate version
+   `flags.rang_apply_20261112T013707Z`, as 2b's prep did. FEED
+   RECEPTOR_ANGLE is already −90° from that prep.
+3. CASA 6.7.6.14 `applycal` with 2b's own spec (`R\applycal-spec.json`, 3
+   calls, calflag, parang) writes CORRECTED_DATA and FLAG. These are
+   renamed to E2C_CASA_CORRECTED_DATA and E2C_CASA_FLAG.
+4. Control **C9**: 2b's own comparison (`e2p_compare.py`'s rule) of
+   E2C_CASA_* against the frozen RANG_CORRECTED_DATA and RANG_FLAG
+   reproduces `R\g2b-applycal.json`: 42 cells over class C, max 25.58 eps,
+   0 flag elements differing. Not met: void.
+5. FLAG and FLAG_ROW from the after-calibrate version again. Then rang's
+   apply with the new P (this branch at main `011232e`) is called with the
+   frozen apply's arguments (`R\rang-run\apply\summary.json`, as A1's C3,
+   `parang_flags='none'`), and writes CORRECTED_DATA and FLAG.
+6. Measure: 2b's comparison of E2C_CASA_* against rang's new
+   CORRECTED_DATA and FLAG.
+   - Class C: per cell ≤ 1e-6 relative, or ≤ 11 float32 eps of the cell's
+     largest correlation; flags exact.
+   - Reported beside: rang new against RANG_CORRECTED_DATA (P's change
+     alone).
+7. Restore: remove CORRECTED_DATA, FLAG and E2C_CASA_*, then rename the
+   E2C_SAVE_* columns back and copy FLAG_ROW back. The column list and the
+   FLAG hash must equal step 1's; D: free space is recorded before and
+   after.
+
+Reading:
+- 0 cells over class C and flags exact → gate 2b's CASA applycal leg is
+  met with the new P (seen; the frozen 2b record stays).
+- Otherwise not met, with the count and the maximum reported.
+
+Booking: CASA applycal and casacore steps at 2 slots (9p I/O-bound),
+rang's apply at 4. D: must keep ≥ 150 GB free; the new columns add about
+85 GB.
+
 ## For the coordinator
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
