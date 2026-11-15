@@ -248,6 +248,32 @@ def test_confirmed_gemclean(ms, tmp_path, writes):
     assert stats["finite"] == 64 * 64
 
 
+def test_job_file_survives_a_concurrent_reader(tmp_path):
+    """Issue 30: on Windows os.replace onto a job file the poller has open, and
+    a read during the replace, both raised PermissionError; the runner died
+    without an exit code and the job read as lost."""
+    import threading
+
+    path = tmp_path / "job.json"
+    mcp_tools._write_json(path, {"i": -1})
+    errors = []
+
+    def writer():
+        try:
+            for i in range(200):
+                mcp_tools._write_json(path, {"i": i})
+        except OSError as exc:
+            errors.append(exc)
+
+    t = threading.Thread(target=writer)
+    t.start()
+    while t.is_alive():
+        assert mcp_tools._read_json(path)["i"] >= -1
+    t.join()
+    assert not errors
+    assert mcp_tools._read_json(path) == {"i": 199}
+
+
 # --- the public fixture -----------------------------------------------------------
 
 

@@ -25,6 +25,42 @@ def _load():
 hl = _load()
 
 
+def _drop(f: Path) -> None:
+    """Remove a slot file or ticket the way heavy_lock does: on Windows a
+    polling waiter reading it makes a plain unlink fail with WinError 32."""
+    assert hl._unlink(f)
+
+
+def _wait_tickets(d: Path, n: int) -> None:
+    """Wait until `n` waiters hold tickets."""
+    q = hl.queue_dir(d)
+    deadline = time.monotonic() + 30
+    while len(list(q.glob("*.json"))) < n:
+        assert time.monotonic() < deadline, f"fewer than {n} tickets"
+        time.sleep(0.005)
+
+
+def _start_queued(d: Path, waiter, args: list[tuple]) -> list[threading.Thread]:
+    """Start one waiter thread per `args`, each only once the previous one's
+    ticket exists, so tickets are taken in start order however loaded the
+    host (issue 31; a fixed sleep let a starved thread take its ticket late).
+    Daemon threads, so a failed test cannot hang pytest at exit."""
+    q = hl.queue_dir(d)
+    threads = []
+    for i, a in enumerate(args):
+        t = threading.Thread(target=waiter, args=a, daemon=True)
+        t.start()
+        threads.append(t)
+        _wait_tickets(d, i + 1)
+        # The threads share a pid, so only the time stamp keeps ticket names
+        # distinct: let the clock move past this ticket before the next.
+        seen = time.time_ns()
+        while time.time_ns() <= seen:
+            time.sleep(0.001)
+    assert len(list(q.glob("*.json"))) == len(args)
+    return threads
+
+
 def test_waiters_acquire_in_ticket_order(tmp_path):
     d = tmp_path / "heavy"
     assert hl.try_acquire(d, ["holder"])
@@ -36,17 +72,45 @@ def test_waiters_acquire_in_ticket_order(tmp_path):
         time.sleep(0.05)
         hl.release(d)
 
-    threads = []
-    for i in range(4):
-        t = threading.Thread(target=waiter, args=(i,))
-        t.start()
-        threads.append(t)
-        time.sleep(0.05)  # distinct tickets, in start order
+    threads = _start_queued(d, waiter, [(i,) for i in range(4)])
     hl.release(d)
     for t in threads:
         t.join(timeout=10)
     assert order == [0, 1, 2, 3]
     assert not list(hl.queue_dir(d).glob("*.json"))
+
+
+def test_waiter_survives_a_reader_on_its_ticket(tmp_path):
+    """Issue 31: on Windows another waiter reading a ticket made its owner's
+    unlink raise WinError 32 right after it took the lock, so the thread died
+    holding the lock and every later waiter hung. Main fails this every time
+    on Windows; `_unlink` waits for the reader instead."""
+    d = tmp_path / "heavy"
+    assert hl.try_acquire(d, ["holder"])
+    errors: list = []
+    got: list = []
+
+    def waiter() -> None:
+        try:
+            hl.acquire(d, ["w"], poll=0.02)
+            got.append(True)
+            hl.release(d)
+        except OSError as exc:  # WinError 32 killed the thread on main
+            errors.append(exc)
+
+    (t,) = _start_queued(d, waiter, [()])
+    ticket = next(hl.queue_dir(d).glob("*.json"))
+    reader = ticket.open("rb")  # what a polling waiter holds for a moment
+    closer = threading.Timer(0.3, reader.close)
+    closer.start()
+    try:
+        hl.release(d)
+        t.join(timeout=10)
+    finally:
+        closer.join()
+        reader.close()
+    assert not errors and got
+    assert not d.exists() and not ticket.exists()
 
 
 def test_stale_ticket_is_skipped(tmp_path):
@@ -76,11 +140,11 @@ def test_shared_jobs_run_together_within_capacity(tmp_path, monkeypatch):
     t.start()
     time.sleep(0.2)
     assert not got  # 10 > 8: waits
-    a.unlink()
+    _drop(a)
     t.join(timeout=5)
     assert got
     for f in (b, got[0]):
-        f.unlink()
+        _drop(f)
 
 
 def test_exclusive_waits_for_shared_and_blocks_later_shared(tmp_path):
@@ -88,17 +152,19 @@ def test_exclusive_waits_for_shared_and_blocks_later_shared(tmp_path):
     s = hl.acquire_shared(d, ["s"], 0.02, 2, 1.0)
     order = []
     tx = threading.Thread(
-        target=lambda: (hl.acquire(d, ["x"], 0.02), order.append("x"))
+        target=lambda: (hl.acquire(d, ["x"], 0.02), order.append("x")), daemon=True
     )
     tx.start()
-    time.sleep(0.1)
+    _wait_tickets(d, 1)  # x queues first
     ty = threading.Thread(
-        target=lambda: order.append(("y", hl.acquire_shared(d, ["y"], 0.02, 1, 1.0)))
+        target=lambda: order.append(("y", hl.acquire_shared(d, ["y"], 0.02, 1, 1.0))),
+        daemon=True,
     )
     ty.start()
+    _wait_tickets(d, 2)
     time.sleep(0.2)
     assert order == []  # x waits for s; y queues behind x
-    s.unlink()
+    _drop(s)
     tx.join(timeout=5)
     assert order == ["x"]
     time.sleep(0.1)
@@ -106,7 +172,7 @@ def test_exclusive_waits_for_shared_and_blocks_later_shared(tmp_path):
     hl.release(d)
     ty.join(timeout=5)
     assert order[1][0] == "y"
-    order[1][1].unlink()
+    _drop(order[1][1])
 
 
 # The priority lane (research/speedup-tools.md).
@@ -159,9 +225,9 @@ def test_old_helper_serves_critical_first(tmp_path):
     critical = hl.take_ticket(d, None, 0.0, "critical")
     assert old.first_live_ticket(d) == critical
     assert hl.first_live_ticket(d) == critical
-    critical.unlink()
+    _drop(critical)
     assert old.first_live_ticket(d) == normal == hl.first_live_ticket(d)
-    normal.unlink()
+    _drop(normal)
 
 
 def test_critical_jumps_queued_normal_waiters(tmp_path):
@@ -175,17 +241,11 @@ def test_critical_jumps_queued_normal_waiters(tmp_path):
         time.sleep(0.05)
         hl.release(d)
 
-    threads = []
-    for name, priority in (
-        ("n0", "normal"),
-        ("n1", "normal"),
-        ("c0", "critical"),
-        ("c1", "critical"),
-    ):
-        t = threading.Thread(target=waiter, args=(name, priority))
-        t.start()
-        threads.append(t)
-        time.sleep(0.05)
+    threads = _start_queued(
+        d,
+        waiter,
+        [("n0", "normal"), ("n1", "normal"), ("c0", "critical"), ("c1", "critical")],
+    )
     assert order == []  # nothing preempts the running holder
     hl.release(d)
     for t in threads:
@@ -199,10 +259,11 @@ def test_critical_exclusive_drains_shared_and_holds_back_normal(tmp_path, monkey
     s = hl.acquire_shared(d, ["s"], 0.02, 6, 1.0)
     got: list = []
     tn = threading.Thread(  # queued first; 6 + 4 > 8, so it waits
-        target=lambda: got.append(("n", hl.acquire_shared(d, ["n"], 0.02, 4, 1.0)))
+        target=lambda: got.append(("n", hl.acquire_shared(d, ["n"], 0.02, 4, 1.0))),
+        daemon=True,
     )
     tn.start()
-    time.sleep(0.1)
+    _wait_tickets(d, 1)
     tx = threading.Thread(
         target=lambda: (
             hl.acquire(d, ["x"], 0.02, priority="critical"),
@@ -212,7 +273,7 @@ def test_critical_exclusive_drains_shared_and_holds_back_normal(tmp_path, monkey
     tx.start()
     time.sleep(0.2)
     assert got == []  # x waits for s; nothing is preempted
-    s.unlink()
+    _drop(s)
     tx.join(timeout=5)
     assert got == ["x"]  # x, not the older normal ticket, got the host
     time.sleep(0.1)
@@ -220,4 +281,4 @@ def test_critical_exclusive_drains_shared_and_holds_back_normal(tmp_path, monkey
     hl.release(d)
     tn.join(timeout=5)
     assert got[1][0] == "n"
-    got[1][1].unlink()
+    _drop(got[1][1])
