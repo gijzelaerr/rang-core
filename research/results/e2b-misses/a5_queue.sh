@@ -20,6 +20,8 @@ case "$1" in
     GB=$(cygpath -m "$(command -v bash)")
     # the ext4 copy reads RANG_FLAG, which "unit on" renames: wait for it
     until [ -f D:/rang/outputs/e2b-close-20261115/a5/a5-copy.json ]; do sleep 30; done
+    # gemclean-iquv-mask reads the same MS for its private copy: no rename before it is done
+    until [ -f D:/rang/outputs/gemclean-iquv-mask-20261115/slim.json ]; do sleep 30; done
     MSYS_NO_PATHCONV=1 wsl -e python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run \
       --slots 1 --mem 2 -- bash "/mnt/c/Users/gijsm/Worktrees/rang/e2b-close/research/results/e2b-misses/a4_run.sh" unit on || exit 1
     for r in 2:J1833m2103 1:J1939m6342 0:J1331p3030; do
