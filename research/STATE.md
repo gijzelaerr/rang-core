@@ -29,6 +29,9 @@ E2-A rerun prepared, 2026-11-15 (branch `e2a-rerun`; [e2-acceptance.md](e2-accep
   so 292 GiB short. Stop rule `e2_diskguard.py` at 165 GiB (tested).
 - Rebuilt `D:\rang\outputs\e2a-20261115\e2a.ms`: 0 cells differ, FLAG/FLAG_ROW hashes equal 9.1.
   Estimate 9-12 h exclusive.
+- Later the same day: the owner accepted 9.5. E2-B's copies were deleted, leaving D: at 645 GiB free
+  (start rule 605). `e2_post.py` gained the in-place gate 2b order (9.9: rang's apply output is
+  CORRECTED_1GC, and there is no 598 GiB copy), with 8 tests.
 
 E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.26–9.27):
 - New key `calibrate.casa_phase_weights`. It needs `average_freq` and acts
