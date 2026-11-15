@@ -57,6 +57,14 @@ confirmed as an oracle input error. With CASA's K, G, B and F solved on
 rang's own solve flags, both composites meet class B (medians 4.2e-5 and
 5.9e-5, p95 1.24e-3 and 1.23e-3). The weights change nothing.
 
+**Update, 2026-11-15 (arms A1c and A4, sections 9.8 and 9.10):**
+- 2b's P: cause not found under A1c's rule (casacore's angle reproduces
+  applycal only to 2.7e-7 rad, against 2e-7). Post hoc, the difference is
+  in casacore's HADEC step, about 0.5″.
+- 3c dirty L∞: not ε. At ε 1e-5, 1e-6 and 1e-7 the full-image values are
+  unchanged (3.5e-3, 1.2e-3, 2.9e-3). It is an edge difference between
+  the gridders; a G task is proposed.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -890,7 +898,326 @@ What this allows: nothing under the rule (void). Post hoc, the P
 difference is real, about 1e-5 rad, and direction dependent. It is not
 explained by the time column or by UT1 − UTC.
 
+### 9.7 A1c, P astrometry: rang's angle against casacore's own, frozen 2026-11-14 (before any run)
+
+Asked by the coordinator after 9.6 (branch `e2b-pastro`). **Seen**: chosen
+after A1b's post hoc reading of a direction-dependent difference of
+7.1e-6 rad (J1939−6342) and 3.2e-6 rad (J1833−2103). No rang code changes
+before the measurement.
+
+Hypotheses for the term that makes rang's `parallactic_angle_casa` differ
+from CASA's applycal:
+- **H3a, sidereal time:** casacore's local apparent sidereal time (GMST
+  model, equation of the equinoxes) differs from astropy's.
+- **H3b, apparent place:** the source's apparent RA and Dec differ, split
+  into **precession and nutation** (casacore's IAU 1976/1980 models
+  against astropy's IAU 2006/2000A) and **aberration** (annual and diurnal,
+  and light deflection).
+- **H3c, latitude or pole convention:** the latitude in the formula
+  (rang: geocentric from ITRF; casacore's AZEL frame) or polar motion.
+
+Data: the A1 mini MS (41 rows; fields 1 and 2; TIME, ANTENNA1/2, FIELD
+PHASE_DIR, which equals DELAY_DIR and REFERENCE_DIR; ANTENNA POSITION), and
+A1b's CASA probe (`D:\rang\outputs\e2b-arms-20261114\a1b\casa\probe_*.npz`,
+not rerun).
+
+Probe, all float64:
+- **Container side** (`a1c_casa.py`, CASA 6.7.6.14's casatools, no `rang`):
+  per field, distinct TIME and antenna in the rows, frame = UTC epoch at
+  TIME and the antenna's ITRF position:
+  - **K**, casacore's parallactic angle as `MSDerivedValues::parAngle`
+    computes it: `me.posangle` of the field direction (J2000) converted to
+    AZEL, against the HADEC pole (HA 0, Dec 90°) converted to AZEL;
+  - K_geo, the same in AZELGEO (reported beside);
+  - the source in HADEC (h, δ), APP and TOPO (RA, Dec), JTRUE (RA, Dec,
+    precession and nutation only), and the LAST.
+- **Rang side** (`a1c_rang.py`): rang's angle q (`parallactic_angle_casa`,
+  receptor not added), astropy's TETE place and apparent sidereal time as
+  that function uses them, and erfa's ICRS → true-of-date matrix
+  (`pnm06a`, no aberration).
+
+Controls:
+- **C4** (extraction floor, now float32-aware): A1b's extraction applied to
+  rang's probe recovers rang's own angles within **1e-7 rad** on every row
+  and antenna. A1b measured 2.2e-8, so this bound is set knowing it is
+  met; it guards the reuse of the probe, not a result.
+- **C5:** the script's formula with astropy inputs reproduces
+  `parallactic_angle_casa` within 1e-12 rad.
+- **K1** (the oracle is the right one): casacore's K, plus RECEPTOR_ANGLE,
+  matches the angles extracted from CASA's applycal probe within 2e-7 rad
+  on every row and antenna of both fields.
+
+Measurement: Δ = q_rang − K per row and antenna (82 values per field),
+then rang's formula `atan2(sin h, tan φ cos δ − sin δ cos h)` with one input
+at a time taken from casacore (or erfa), the rest rang's:
+- (e) h and δ from casacore's HADEC, φ geocentric (rang's);
+- (f) LAST from casacore, place from astropy TETE (sidereal time);
+- (g) place from casacore APP, LAST from astropy (geocentric apparent
+  place);
+- (g') place from casacore TOPO, LAST from astropy (topocentric place);
+- (g1) casacore JTRUE plus astropy's aberration (TETE minus erfa's true
+  place), LAST from astropy: precession and nutation;
+- (g2) erfa's true place plus casacore's aberration (TOPO minus JTRUE),
+  LAST from astropy: aberration;
+- (k) h and δ from casacore's HADEC, φ geodetic (WGS84);
+- reported beside: K_geo − K, and casacore JTRUE against erfa's true place
+  in arcseconds.
+
+Tolerance: a candidate explains the difference when max |q_candidate − K|
+≤ **2e-7 rad** over every row and antenna of both fields (as 9.5).
+
+Decision rule:
+- C4 or C5 not met: void.
+- K1 not met: casacore's measures path is not what applycal applies; cause
+  not found under this rule. Δ and the candidates are reported.
+- K1 met and max |Δ| ≤ 2e-7: rang already equals casacore; A1b's reading
+  is not confirmed. Report.
+- K1 met and max |Δ| > 2e-7: the cause is in rang's angle, named by the
+  first candidate in the order below that meets the tolerance:
+  - (e) met: the term is in h or δ. Then (f) → H3a sidereal time;
+    (g) or (g') → H3b apparent place; and within it (g1) → precession and
+    nutation, (g2) → aberration. If (e) is met but none of (f), (g), (g')
+    is, H3 is "h, δ, combination" and not split further.
+  - (e) not met, (k) met: H3c latitude convention.
+  - None met: cause not found under this rule (H3c pole or formula open).
+- **Fix**, only if one term is named by the rule: change
+  `cal_pol.parallactic_angle_casa` to that convention; it must reproduce K
+  within 2e-7 rad on both fields and A1b's CASA probe within 2e-7 rad,
+  with a unit test against casacore values committed as a fixture.
+  Without a named single term there is no fix in this arm.
+
+Cost: seconds of CPU; 1 slot each side.
+
+### 9.8 A1c measured, 2026-11-15: cause not found (K1 not met)
+
+Runs:
+- `a1c_casa.py` (CASA 6.7.6.14's casatools, `a1c_run.sh`) took 3 s;
+  `a1c_rang.py` 1,213 s, almost all of it queue. Both ran on 1 slot.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a1c`; receipts in
+  [results/e2b-misses/a1c/](results/e2b-misses/a1c/) (`a1c.json`,
+  `a1c-casa.json`, `a1c-casa.npz`, `a1c-posthoc.json`).
+- casacore logged "Leap second table TAI_UTC seems out-of-date" (the table's
+  age against today's clock). No leap second has been added since 2017, so
+  it does not affect 2021 epochs. A1b's applycal ran on the same data.
+- The posangle check gives 0 for a point straight above, so `me.posangle(a,
+  b)` is the position angle of b seen from a, as K was defined.
+
+Controls:
+- **C4 met:** 2.2e-8 and 2.0e-8 rad against 1e-7.
+- **C5 met:** the script's formula equals `parallactic_angle_casa` exactly
+  (0.0 rad).
+- **K1 not met:** casacore's K against CASA's applycal probe is 2.28e-7 rad
+  (field 1) and 2.73e-7 rad (field 2) at most, against the frozen 2e-7. The
+  medians are −2.2e-8 and −1.3e-7.
+
+**Outcome under the frozen rule: cause not found (K1 not met).**
+casacore's measures path, as computed here, is not shown to be what
+applycal applies. No fix is made, and the 2e-7 bound is not loosened.
+
+Read beside the outcome (all values are max |·| over 82 values per field):
+
+| | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| rang − CASA probe (A1b) | 7.1e-6 rad | 3.2e-6 rad |
+| K − CASA probe (K1) | 2.3e-7 | 2.7e-7 |
+| Δ = rang − K | 7.0e-6 (median −7.0e-6) | 3.2e-6 (median −3.1e-6) |
+| (e) casacore h, δ in rang's formula, geocentric φ | **0.0** (9e-16) | **0.0** |
+| (f) casacore LAST | 6.7e-6 | 3.3e-6 |
+| (g), (g') casacore APP, TOPO place | 5.0e-6 | 3.1e-6 |
+| (g1) casacore precession and nutation | 7.8e-6 | 3.0e-6 |
+| (g2) casacore aberration | 4.2e-6 | 3.2e-6 |
+| (k) geodetic latitude | 2.0e-3 | 5.9e-3 |
+| K_geo (AZELGEO) − K | 2.0e-3 | 5.9e-3 |
+
+Post hoc readings (not the rule's outcome):
+- casacore's K reproduces CASA's applycal to 3–4 % of rang's difference.
+  So casacore is a near-oracle at the 2.7e-7 level, but not within the
+  frozen 2e-7.
+- (e) is exact. casacore's parallactic angle is rang's formula on
+  casacore's HADEC (h, δ), with the geocentric latitude rang uses. The
+  latitude and pole convention (H3c) are therefore not the difference;
+  (k) and AZELGEO are 1e-3 away.
+- The difference is in the source's hour angle and declination. casacore's
+  HADEC differs from astropy's TETE hour angle and Dec by up to 0.41″ and
+  0.53″ (field 1), and 0.43″ and 0.51″ (field 2).
+- No single input explains it:
+  - casacore's APP and TOPO places differ from TETE by ≤ 0.19″ (APP equals
+    TOPO here);
+  - its LAST differs from astropy's by 0.054″;
+  - its JTRUE differs from erfa's IAU 2006/2000A true place by ≤ 0.07″;
+  - substituting any one of these leaves 3–8e-6 rad.
+  - So the 0.5″ is added in casacore's APP → HADEC step, not in the place
+    or the sidereal time.
+- Its size is that of polar motion (x 0.248″, y 0.352″ from astropy's IERS
+  for 2021-08-18). But `a1c_posthoc.py` shows two things:
+  - astropy's observed HADec frame, which applies polar motion and diurnal
+    aberration, is further from casacore (PA 1.2e-5 and 3.9e-6 from K);
+  - a simple polar-motion rotation of the TETE place, in either sign,
+    leaves 0.25–0.33″.
+  - What casacore's HADEC adds is **not identified**.
+
+What this allows: nothing under the rule. Post hoc, rang's P differs from
+casacore and CASA because casacore's HADEC conversion of the source adds
+about 0.5″ that astropy's TETE place plus apparent sidereal time does not.
+A follow-up would read casacore's `MCDirection` APP → HADEC route (polar
+motion, diurnal aberration, the tables it reads) and freeze a candidate
+before testing it. Until then `parallactic_angle_casa` stays as it is.
+
+### 9.9 A4, dirty L∞ against ε, frozen 2026-11-14 (before any run)
+
+Section 4's proposed arm A4, made concrete. **Seen**: gate 3c's matched
+reading (ε 1e-4: full image 1.2e-3 to 3.5e-3 of the peak, inner two-thirds
+2.2e-5 to 3.0e-5) is known.
+
+Hypothesis (section 4): the dirty difference between GeMClean and WSClean
+3.7, edge excess included, falls in proportion to the gridder accuracy ε.
+At the finest ε both imagers support (1e-7), dirty L∞/peak is ≤ 1e-6 on all
+three fields.
+
+Data: `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms`, put in gate 3c's
+matched state by `e2_post.py`'s own `UNIT_PY` ("on": FLAG is RANG_FLAG,
+WEIGHT_SPECTRUM renamed away, WEIGHT 1), and returned by "off" after the
+last run (the column list is checked against the one before). Both imagers
+read RANG_CORRECTED_DATA from that one state. Gate 3c's rang images were
+made from the rang-run MS's CORRECTED_DATA; A1's C3 showed that equals
+RANG_CORRECTED_DATA bit for bit on the rows it read, and control C6 below
+checks it for the images.
+
+Settings, gate 3c's (`wsclean3c-unit-run.json`, the image stage argv) with
+only ε and the thread count changed:
+- common: `-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8
+  -join-channels -pol IQUV -join-polarizations -niter 0 -data-column
+  RANG_CORRECTED_DATA -field <id> -wgridder-accuracy <ε>`, fields 0, 1, 2
+  (J1331+3030, J1939−6342, J1833−2103);
+- WSClean 3.7 (`rang-wsclean-native:3.7`): `-gridder wgridder
+  -no-update-model-required -j 4`; its own precision choice;
+- GeMClean (this branch's extension, Windows): `-unit-weights -scans
+  17,18,19,20 -no-update-model-required -j 4`; its default precision rule
+  (single at ε ≥ 1e-5, double finer);
+- ε = 1e-5, 1e-6, 1e-7: 18 dirty runs.
+
+Control **C6** (inputs and harness), before any A4 score is read: at ε 1e-4
+on J1833−2103, WSClean reproduces the archived
+`R\wsclean3c-unit\J1833m2103-dirty-*` images and GeMClean reproduces
+`R\rang-run-moved\image\J1833-2103\image-*-dirty.fits`, each within 1e-6 of
+that channel's WSClean I peak in L∞ over every channel, MFS and Stokes.
+Not met: void; the inputs or the harness differ from gate 3c's.
+
+Measures: gate 3c's (`e2_score3c.py`'s `dirty_linf`): per channel and MFS,
+per Stokes, max |rang − WSClean| over the peak |I| of WSClean's dirty image
+of that channel; over the full image (gated), and reported beside with the
+5 % border excluded and over the inner two-thirds.
+
+Frozen tolerance: 1e-6 (A0).
+
+Decision rule, on the full-image L∞ (F(ε), per field):
+- F ≤ 1e-6 on all three fields at some ε: the dirty miss was the protocol's
+  ε. The owner decides whether the finish line's images run at that ε.
+- Otherwise, with r = F(1e-7) / F(1e-5) per field:
+  - r ≤ 0.1 on every field (the excess falls with ε, but not far enough):
+    the miss is ε, the bound is not reached at 1e-7. Owner: a finer ε or a
+    tolerance.
+  - r > 0.5 on any field (the excess does not fall with ε): an edge
+    difference between the gridders (padding or taper). Open a G task.
+  - anything else: partial; reported, no conclusion.
+- The inner two-thirds and 5 % border values are reported, not decided on.
+
+Cost: about 3 CPU-hours; WSClean and GeMClean as shared jobs at 4 slots.
+
+### 9.10 A4 measured, 2026-11-15: the difference does not fall with ε
+
+Runs (`a4_queue.sh`, `a4_run.sh`, `a4_rang.sh`, `a4_score.py`, committed
+before the runs; `runs.log` gives each wall time):
+- WSClean 3.7 took 494–2,799 s per run at 4 slots; most of it is the
+  reordering pass over `/mnt/d`. Inversion took 3–18 min.
+- GeMClean (Windows) took 171–539 s per run at 4 slots.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a4` (41 GB of images,
+  kept for the follow-up below); receipts in
+  [results/e2b-misses/a4/](results/e2b-misses/a4/) (`a4.json`, `c6.json`,
+  `runs.log`, `unit-on.json`, `unit-off.json`).
+- The CASA copy was put in the matched state at 00:25 and returned at
+  04:39. Its column list afterwards equals the list before;
+  `flag_row_not_all_rang_flag` is 0.
+
+Harness incident, which does not change the protocol: the first GeMClean
+queue failed at once on every run. A bare `bash` under heavy_lock on
+Windows is WSL's, which could not see the `C:/` script path. Fixed to Git
+Bash's path (committed) and rerun; no image had been made.
+
+**C6 met.**
+- GeMClean at ε 1e-4 reproduces gate 3c's archived J1833−2103 dirty images
+  bit for bit (0.0).
+- WSClean reproduces its archived images within 4.0e-7 of the peak, which
+  is the thread count (-j 4 against -j 8).
+
+Full-image dirty L∞ / peak (gated), with the 5 % border excluded and the
+inner two-thirds:
+
+| Field | ε 1e-5 | ε 1e-6 | ε 1e-7 | r = F(1e-7)/F(1e-5) | 5 % border (1e-7) | inner (1e-7) |
+| --- | --- | --- | --- | --- | --- | --- |
+| J1331+3030 | 3.460e-3 | 3.460e-3 | 3.460e-3 | 1.000 | 8.1e-5 | 3.0e-5 |
+| J1939−6342 | 1.228e-3 | 1.228e-3 | 1.228e-3 | 1.000 | 3.0e-5 | 1.1e-5 |
+| J1833−2103 | 2.894e-3 | 2.894e-3 | 2.894e-3 | 1.000 | 8.4e-5 | 2.4e-5 |
+
+**Outcome under the frozen rule: the excess does not fall with ε (r > 0.5
+on every field).** It is an edge difference between the gridders. Per the
+rule, a G task is opened (proposed below; not started here). The bound is
+not met at any ε. Gate 3c's dirty miss is not the protocol's ε.
+
+Read beside the outcome (**post hoc**):
+- ε took effect. Each imager's own images change by only 1.0–1.7e-6 of the
+  peak between ε 1e-5 and 1e-7, so the gridders' ε-dependent error is
+  about 1e-6. The rang − WSClean difference is 1,000× that and independent
+  of ε, the inner two-thirds included (1.1e-5 to 3.0e-5, the same as at
+  1e-4).
+- The maximum sits on the image's outermost rows or columns, in channel
+  0000, Stokes I: pixel (2046, 704), (0, 1596), (588, 0).
+- It falls steadily inward. Excluding m pixels from each side, the maxima
+  are:
+  - 3.5e-3 at m = 0;
+  - 1.8e-3 at m = 2;
+  - 7.7e-4 at m = 8;
+  - 2.3e-4 at m = 32;
+  - 7.8e-5 at m = 102 (J1331+3030).
+  The other fields scale alike.
+- WSClean logs "Minimal inversion size 1139 x 1139, using optimal: 1152 x
+  1152". By default it grids a smaller image than 2048² and interpolates
+  it up (its small-inversion optimisation); GeMClean does not. A
+  difference that grows towards the edge and does not depend on ε fits
+  that, or a difference in the gridding-correction taper at the edge.
+  **Not tested.**
+
+Proposed G task (not started): WSClean at gate 3c's settings with
+`-no-small-inversion` (and, separately, GeMClean's and WSClean's padding
+matched) at ε 1e-6 on J1833−2103, the cheapest field (about 8 min of
+WSClean). GeMClean's images from this arm are reusable. The decision rule
+and tolerance (1e-6) need freezing before the run.
+
 ## For the coordinator
+
+**After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
+- **A1c (9.7, 9.8):** cause not found under the frozen rule. K1 is not
+  met: casacore's own parallactic angle matches CASA's applycal within
+  2.3e-7 and 2.7e-7 rad, against 2e-7. No fix was made, and
+  `parallactic_angle_casa` is unchanged.
+  - Post hoc, (e) is exact: casacore's angle is rang's formula on
+    casacore's HADEC (h, δ).
+  - The 3–7e-6 rad difference comes from about 0.5″ that casacore's APP →
+    HADEC step adds to the source's h and δ.
+  - It is not sidereal time (0.05″), precession and nutation (0.07″), the
+    apparent place (≤ 0.19″) or the latitude.
+  - Polar motion has the right size, but neither astropy's HADec nor a
+    simple rotation reproduces it.
+  - Next step: read casacore's MCDirection APP → HADEC route and freeze a
+    candidate.
+- **A4 (9.9, 9.10):** edge difference, as frozen. Dirty L∞ is 3.5e-3,
+  1.2e-3 and 2.9e-3 at ε 1e-5, 1e-6 and 1e-7 alike (r = 1.000). The inner
+  values are also unchanged. So gate 3c's dirty miss is not ε.
+  - Proposed G task: WSClean `-no-small-inversion`, or matched padding, on
+    J1833−2103 at ε 1e-6, frozen first.
+- The ordered fix list below is unchanged apart from these two items.
+
+**After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
 
 **After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
 - **A2 (9.4):** the 3b K/G/B composites miss is closed as an oracle input
