@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (E2-B arm A3, `research/e2b-misses.md` 9.21): `calibrate.casa_phase_weights` (default false, out of
+  the stage hash at its default; needs `calibrate.average_freq`). Calmode `p` solves (Gpol, and G with
+  calmode p) use CASA's phase-only datum, read from CASA's source: the pre-applied data divided by the
+  model per channel with weight `w|M|^2`, averaged in time and frequency, then normalised to unit
+  amplitude with the weight times the amplitude squared (`rang.cal_gain.model_divided`, `phase_only`).
+  `ap` solves and every other term are unchanged; off is byte-identical.
 - Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
   casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
   match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up

@@ -277,6 +277,15 @@ SCHEMA = {
             "pre-applies and P, per row and correlation); false: every channel "
             "a sample of one frequency bin (task E2)",
         ),
+        "casa_phase_weights": _k(
+            False,
+            "bool",
+            "calmode p solves (Gpol, and G with calmode p) use CASA's phase-only "
+            "datum: data divided by the model per channel with weight w|M|^2, "
+            "averaged, then normalised to unit amplitude with the weight times "
+            "the amplitude squared; needs average_freq; false: QuartiCal's "
+            "phase kernel weighting (task A3, research/e2b-misses.md 9.21)",
+        ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
             "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
@@ -1712,6 +1721,12 @@ def _chain_refusals(config, out):
             "applies to the K, G, B, F, Gpol, KCROSS, Xf and Df solves only; "
             "the complex solve has no time pre-averaging: set false",
         )
+    if cal.get("casa_phase_weights") and not cal.get("average_freq"):
+        bad(
+            "calibrate.casa_phase_weights",
+            "needs calibrate.average_freq: true (CASA normalises the "
+            "frequency-averaged datum; research/e2b-misses.md 9.21)",
+        )
     seen = {}  # name -> (section, type), in solve order
     kinds_used = set()
     primary_g = [t["name"] for t in cal["primary"]["terms"] if t["type"] == "G"]
@@ -1878,7 +1893,11 @@ RESOURCE_KEYS = {
 # Keys left out of the stage hash at their default, so that adding them did
 # not change the hash of an existing configuration (task E2).
 HASH_DEFAULTS = {
-    "calibrate": {"average_time": False, "average_freq": False},
+    "calibrate": {
+        "average_time": False,
+        "average_freq": False,
+        "casa_phase_weights": False,
+    },
     "selfcal": {"average_time": False},
 }
 

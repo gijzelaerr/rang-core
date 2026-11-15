@@ -646,6 +646,9 @@ class _Field:
         self.weight_column, self.sigma_column = weight_column, sigma_column
         self.tables, self.interp, self.nant = tables, interp, nant
         self.field_id, self.solved, self.freq = field_id, solved, freq
+        # Task A3 (`calibrate.casa_phase_weights`): `prepare` divides the
+        # parallel hands by the model (`model_divided`).
+        self.model_divided = False
 
     def prepare(self, pos, c, chans=None):
         """The arrays of field rows `pos` from their cell columns `c`, as
@@ -676,12 +679,17 @@ class _Field:
             with np.errstate(divide="ignore"):
                 weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
         used = flag | self.flag_row[pos][:, None, None] | self.auto[pos][:, None, None]
+        row_w = row_weights(weights, used)
+        if self.model_divided:
+            # After the pre-applies and P, before any average; the row
+            # weights (solution times) stay those of the undivided data.
+            data, mdl, weights, flag = model_divided(data, mdl, weights, flag)
         return {
             "data": data,
             "model": mdl,
             "weights": weights,
             "flag": flag,
-            "row_w": row_weights(weights, used),
+            "row_w": row_w,
         }
 
     def solution_times(self, time_bin, row_w, ntime):
@@ -731,9 +739,63 @@ def frequency_averaged(data, model, weights, flag):
     )
 
 
+PARALLEL_HANDS = (0, 3)
+
+
+def model_divided(data, model, weights, flag):
+    """CASA's `VisEquation::divideCorrByModel` on the parallel hands (task
+    A3, `calibrate.casa_phase_weights`, research/e2b-misses.md 9.21): where
+    a cell is unflagged and its model non-zero, the data become `R / M`
+    (in double precision, as CASA), the weight `w |M|^2` and the model 1;
+    every other cell is flagged with weight 0 (CASA zeroes flagged weights).
+    The cross
+    hands are returned unchanged (the `phase` kernel does not use them, and
+    a flagged cross hand would drop the whole cell). Returns new `(data,
+    model, weights, flag)` arrays of the data's shape."""
+    shape = np.shape(data)
+    data = np.array(data, np.complex64)
+    model = np.array(np.broadcast_to(model, shape), np.complex64)
+    weights = np.array(np.broadcast_to(weights, shape), np.float32)
+    flag = np.array(np.broadcast_to(flag, shape), bool)
+    for c in PARALLEL_HANDS:
+        m = model[..., c].astype(np.complex128)
+        a2 = m.real**2 + m.imag**2
+        ok = ~flag[..., c] & (a2 > 0)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            x = data[..., c].astype(np.complex128) / np.where(ok, m, 1)
+        data[..., c] = np.where(ok, x, data[..., c])
+        weights[..., c] = np.where(ok, weights[..., c] * a2.astype(np.float32), 0)
+        flag[..., c] |= ~ok
+        model[..., c] = np.where(ok, np.complex64(1), model[..., c])
+    return data, model, weights, flag
+
+
+def phase_only(data, model, weights, flag):
+    """CASA's `SolveDataBuffer::enforceAPonData('P')` on the parallel hands
+    of model-divided, averaged data (task A3): each unflagged datum of
+    non-zero amplitude is divided by its amplitude and its weight
+    multiplied by the amplitude squared; the model of an unflagged cell is
+    set to exactly 1 (an average of ones). Cross hands unchanged. Returns
+    new `(data, model, weights)`."""
+    data = np.array(data, np.complex64)
+    model = np.array(np.broadcast_to(model, np.shape(data)), np.complex64)
+    weights = np.array(np.broadcast_to(weights, np.shape(data)), np.float32)
+    flag = np.broadcast_to(np.asarray(flag, bool), np.shape(data))
+    for c in PARALLEL_HANDS:
+        x = data[..., c].astype(np.complex128)
+        amp = np.abs(x)
+        ok = ~flag[..., c] & (amp > 0)
+        data[..., c] = np.where(ok, x / np.where(ok, amp, 1), x)
+        weights[..., c] = np.where(
+            ok, weights[..., c] * (amp**2).astype(np.float32), weights[..., c]
+        )
+        model[..., c] = np.where(~flag[..., c], np.complex64(1), model[..., c])
+    return data, model, weights
+
+
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
-    average_freq=False, average_psi=None, **opts,
+    average_freq=False, average_psi=None, casa_phase_weights=False, **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -747,8 +809,11 @@ def _solve_gain_field(
     `average_freq` (task E2,
     `calibrate.average_freq`): each chunk's data and model averaged over its
     channels first (`frequency_averaged`, CASA's estimator for G-type
-    solves); one frequency bin only. Returns `(GainSolution, row
-    weights)`."""
+    solves); one frequency bin only. `casa_phase_weights` (task A3,
+    `calibrate.casa_phase_weights`, research/e2b-misses.md 9.21; needs
+    `average_freq` and `fld.model_divided`, which `prepare` applies): after
+    the averages, `phase_only`, CASA's estimator for calmode `p`. Returns
+    `(GainSolution, row weights)`."""
     import dataclasses
 
     from . import cal_chunks
@@ -757,6 +822,8 @@ def _solve_gain_field(
     refants = _check(opts["calmode"], opts["refantmode"], opts["refant"], nant)
     if average_freq and (per_channel or freq_bin is not None):
         raise ValueError("average_freq needs one frequency bin")
+    if casa_phase_weights and not (average_freq and fld.model_divided):
+        raise ValueError("casa_phase_weights needs average_freq and model-divided rows")
     if per_channel:
         freq_bin = np.arange(nchan)
     elif freq_bin is not None:
@@ -805,6 +872,10 @@ def _solve_gain_field(
                     frequency_averaged(
                         arr["data"], arr["model"], arr["weights"], arr["flag"]
                     )
+                )
+            if casa_phase_weights:
+                arr["data"], arr["model"], arr["weights"] = phase_only(
+                    arr["data"], arr["model"], arr["weights"], arr["flag"]
                 )
             return _kernel(
                 arr["data"], arr["model"], arr["weights"], arr["flag"],
@@ -871,6 +942,7 @@ def gaincal(
     average_time=False,
     average_freq=False,
     average_psi=None,
+    casa_phase_weights=False,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -898,7 +970,15 @@ def gaincal(
     channels (`frequency_averaged`), as CASA's G-type solves do. Task
     xf-avg-fix: `average_psi` (rad per field row, `rang.cal_pol.gpol`), P's
     angles of a P-rotated model: no average holds two scans or more than
-    `rang.cal_chunks.PSI_TOL_DEG` of them (research/xf-avg-fix.md)."""
+    `rang.cal_chunks.PSI_TOL_DEG` of them (research/xf-avg-fix.md). Task
+    A3: `casa_phase_weights` (needs `average_freq`; acts on calmode `p`
+    only, other calmodes are unchanged) solves on CASA's phase-only datum:
+    the pre-applied data divided by the model per channel with weight
+    `w |M|^2` (`model_divided`), averaged in time and frequency, then
+    normalised to unit amplitude with weight times the amplitude squared
+    (`phase_only`); research/e2b-misses.md 9.21."""
+    if casa_phase_weights and not average_freq:
+        raise ValueError("casa_phase_weights needs average_freq (CASA averages first)")
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -942,6 +1022,8 @@ def gaincal(
         interp=interp, nant=nant, field_id=field_id, solved="G", freq=freq,
         uvrange=uvrange,
     )  # fmt: skip
+    divide = bool(casa_phase_weights) and calmode == "p"
+    fld.model_divided = divide
     m = fld.meta
     tb, keys = solint_bins(m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine)
     sol, row_w = _solve_gain_field(
@@ -953,6 +1035,7 @@ def gaincal(
         **({"average": True} if average_time else {}),
         **({"average_psi": average_psi} if average_time else {}),
         **({"average_freq": True} if average_freq else {}),
+        **({"casa_phase_weights": True} if divide else {}),
     )  # fmt: skip
     if sol.flags.all():
         raise RuntimeError(
