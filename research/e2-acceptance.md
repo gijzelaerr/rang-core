@@ -1216,9 +1216,11 @@ decision in 9.4 (an interruption, not a failure under 6.6), so 6.6's reserve is 
 stopped at exactly 1,000,000 components after 30,615 s, 5.7 × the image stage. Its threshold
 (2.8e-5 Jy, 0.5 × σ) was not reached.
 - 9.4's candidate, "CARACal's own niter", changes nothing. CARACal's `img_niter` is 1,000,000
-  (c5b-selfcal-masks.md section 1), which is what ran. With these values WSClean would also stop on the cap.
-- The departure from CARACal that makes the cap bind is multiscale at 0.5σ. CARACal's default
-  selfcal image is Högbom, and owner item 29 keeps multiscale as the gated setting.
+  (c5b-selfcal-masks.md section 1), which is what ran. Whether WSClean with these values would also
+  stop on the cap is an inference, not measured.
+- The remaining difference from CARACal's default is multiscale. CARACal's selfcal image is Högbom, and
+  owner item 29 keeps multiscale as the gated setting. That multiscale at 0.5σ is what makes the cap bind
+  is an inference too: no Högbom run at this depth exists.
 - At about 30,615 s per image, selfcal's three images alone take about 25 h. The 30,615 s is also inflated: both
   lock-free full checks of 9.4 (10:52-11:52 and 12:15-13:40 UTC) fall inside round 1's image
   (05:11-13:38 UTC).
@@ -1260,7 +1262,8 @@ lists), which is A0 rule 6: automatic mask 5σ, clean to 3σ.
 - **Interruption:** a power cut, a host failure or a disk halt (9.6) gives "interrupted", not a gate-1
   failure, as in 9.4. The same command resumes it after any interrupted write-back is restored:
   `rang-core run` skips finished stages whose hash is unchanged. Gate 1 is then reported as "met with
-  one resume after <cause>", labelled, and wall time per stage as measured.
+  one resume after <cause>", labelled, and wall time per stage as measured. **Not tested:** a resume
+  after a kill in the middle of a stage on this MS; the write-back journal (W1) is what should allow it.
 
 **What changed on main since the frozen wheel, and whether it is in the rerun.** All three are **out**,
 because the frozen wheel stays. None is on E2-A's path in any case:
@@ -1326,18 +1329,41 @@ during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 
 | WSL `D:\wsl\Ubuntu\ext4.vhdx` | 135 reclaimable | file 303 GiB, 168 GiB used inside (`df`). Compacting needs `wsl --shutdown`, which stops every WSL session |
 | `outputs\20261104-speed`, `20261103-gemclean-heldout`, `e1-20261109-03`, `e3-20261111-input` | 69, 56, 52, 51 | other tasks' data (E3-B's input among them) |
 
-- E2-B's own three rows free 299 GiB. That leaves 613 GiB at launch and about 199 GiB at the end of the run,
-  which meets the rule. Compacting the vhdx adds margin.
+- E2-B's own three rows free 299 GiB. That leaves 613 GiB at launch and about 199 GiB at the end of the
+  run, so it meets the rule **for the rang arm's run (gate 1) only**. Compacting the vhdx adds margin.
 - E: (464 GiB free) is not used, because rang's large data stays on D:.
+
+**The post chain (6.5) does not fit as written.**
+- `e2_post.py` runs `copy` before `restore`: the whole MS and its flag versions go to `R\casa\`, about
+  598 GiB for E2-A against 218 GiB for E2-B. `prep` then adds RANG_FLAG (2 GiB) on the copy, and CASA
+  `applycal` writes CORRECTED_DATA (128 GiB).
+- That is about 728 GiB on top of the run's 608, while the original still exists. With E2-B's 299 GiB
+  freed, D: would need about 680 GiB more than it will have. Freeing everything listed above does not
+  cover it either.
+- **Proposed (not implemented, not on this branch):** an E2-A in-place order for `e2_post.py`.
+  1. Every read of rang's columns runs on `e2a.ms` itself: casacore, casa-ro, wsclean0, daskms, the 3c
+     WSClean images, and QuartiCal's self-calibration gains on CORRECTED_1GC against MODEL_DATA, with no
+     output column.
+  2. CORRECTED_1GC is dropped (−128).
+  3. CORRECTED_DATA is renamed RANG_CORRECTED_DATA, and CASA applycal writes a new CORRECTED_DATA (+128).
+  4. `compare`, then `restore`.
+  The peak stays at about 610 GiB, inside the start rule's figure, and no copy is made.
+- The oracle arms run after `restore`, when rang's columns are dropped: CASA's K G B with its own
+  MODEL_DATA and CORRECTED_DATA, then WSClean. They peak at about 450 GiB.
+- `e2_diskguard.py` does not wrap the post chain. Its steps should run inside it too.
+- Without that change, gate 2b's CASA applycal row is "not checked" on E2-A for disk (6.5's rule).
 
 **Stop rule (new harness, flagged).**
 [e2_diskguard.py](results/e2-acceptance-scripts/e2_diskguard.py), tested in
 `tests/test_e2_diskguard.py`, wraps the timed command inside the lock.
-- Every 5 s it reads D:'s free space. Below **165 GiB** it stops the command's own process tree: terminate,
-  then kill after 30 s. It writes a `halt` record and exits 75.
+- Every 5 s it reads D:'s free space. Below **165 GiB** it stops the command's own process tree. psutil's
+  terminate is already a hard kill (TerminateProcess) on Windows, so there is no grace period here. It
+  writes a `halt` record and exits 75.
 - The 15 GiB above the floor covers one poll at the measured write rate (a 128 GiB column in apply's
-  599 s, 0.22 GiB/s, about 1 GiB per poll), the 30 s grace and other sessions' writes.
-- It refuses to start below the same threshold. It touches no other process.
+  599 s, 0.22 GiB/s, about 1 GiB per poll) and other sessions' writes.
+- `--start-min-free-gib 605` refuses to start below the start rule. It is checked when the exclusive lock
+  is granted, not when the run was queued; the launch script's earlier check only refuses to queue. It
+  touches no other process.
 - Every 60 s it appends a durable JSON line: free GiB, tree RSS, tree CPU seconds, host load and host
   process count. These are the per-stage records that 9.4 lost with `e2_timed.py`.
 - A halt is an interruption under 9.5 and is resumed by the same command. The guard does not change the
@@ -1399,6 +1425,14 @@ and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`
   6.4's rule.
   - Exit 0, 26 s wall, 1.35 GiB peak; all five stages done.
   - Every selfcal image ran with `-auto-mask 5.0 -auto-threshold 3.0` and stopped on threshold.
+- **Launch nesting smoke:** shared lock (4 slots) → `e2_diskguard.py --start-min-free-gib 300` →
+  `e2_timed.py` → `e2_dryrun.py a-rerun`, the launch's chain with the smoke in place of the run. It
+  gave rc 0, 25 s and 1.26 GiB, with both records written (`nesting-smoke-*.json`).
+  `e2_post.py columns-before` ran from the worktree `.venv` on the new MS and listed 23 columns.
+- **Revised 2026-11-15 14:10, before any run** (the amendment's change itself is unaltered):
+  - the start rule is now checked inside the lock;
+  - the post-chain disk paragraph is added;
+  - two statements are relabelled as inference, and the untested resume is labelled.
 - An attempt 0 at 13:20 failed in 5 s, before writing anything, because the extension was not yet built.
   Its logs are `attempt0-*` in the output directory.
 - **D: after the build: 313 GiB free, 292 GiB short of 9.6's start rule (605).** The run is ready to

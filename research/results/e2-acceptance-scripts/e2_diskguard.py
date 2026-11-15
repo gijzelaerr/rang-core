@@ -5,9 +5,13 @@
 
 Every `--every` seconds (default 5) it reads the free space of the drive that
 holds `--path` (shutil.disk_usage). When it is below `--min-free-gib` it stops
-the command's whole process tree (terminate, then kill after `--grace` s),
-appends a `halt` record and exits 75; otherwise it returns the command's exit
-code. It touches no process outside the tree it started.
+the command's whole process tree (psutil terminate, which on Windows is
+already TerminateProcess, a hard kill; elsewhere SIGTERM, then kill after
+`--grace` s), appends a `halt` record and exits 75; otherwise it returns the
+command's exit code. It touches no process outside the tree it started. It
+refuses to start (exit 75, a `refused` record) below `--start-min-free-gib`
+(default: `--min-free-gib`): run inside the lock, that is the start rule
+checked when the run actually starts, not when it was queued.
 
 Every `--record` seconds (default 60), and at start, halt and end, it appends
 one JSON line to `--log` and fsyncs it, so the record survives a power cut or
@@ -77,6 +81,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--path", required=True)
     ap.add_argument("--min-free-gib", type=float, required=True)
+    ap.add_argument("--start-min-free-gib", type=float, default=None)
     ap.add_argument("--log", required=True)
     ap.add_argument("--every", type=float, default=5.0)
     ap.add_argument("--record", type=float, default=60.0)
@@ -96,10 +101,11 @@ def main(argv=None):
             fh.flush()
             os.fsync(fh.fileno())
 
-    if free_gib() < args.min_free_gib:
-        write({"event": "refused", "free_gib": free_gib(), "min_free_gib": args.min_free_gib,
+    start_floor = max(args.min_free_gib, args.start_min_free_gib or 0.0)
+    if free_gib() < start_floor:
+        write({"event": "refused", "free_gib": free_gib(), "start_min_free_gib": start_floor,
                "command": cmd})  # fmt: skip
-        print(f"e2_diskguard: {free_gib():.1f} GiB free < {args.min_free_gib}; not started",
+        print(f"e2_diskguard: {free_gib():.1f} GiB free < {start_floor}; not started",
               file=sys.stderr)  # fmt: skip
         return HALT_RC
     psutil.cpu_percent(None)

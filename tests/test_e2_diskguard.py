@@ -54,6 +54,18 @@ def test_refuses_under_the_floor(tmp_path):
     assert not Path("ran").exists()
 
 
+def test_start_rule_checked_at_start(tmp_path):
+    log = tmp_path / "g.jsonl"
+    rc = guard.main(
+        ["--path", str(tmp_path), "--min-free-gib", "0", "--start-min-free-gib", "1e9",
+         "--log", str(log), "--", sys.executable, "-c", "pass"]
+    )  # fmt: skip
+    assert rc == guard.HALT_RC
+    ev = events(log)
+    assert [e["event"] for e in ev] == ["refused"]
+    assert ev[0]["start_min_free_gib"] == 1e9
+
+
 def test_halts_the_tree_when_free_space_drops(tmp_path, monkeypatch):
     log = tmp_path / "g.jsonl"
     calls = {"n": 0}
