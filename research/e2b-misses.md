@@ -1312,6 +1312,65 @@ Decision rule:
 
 Cost: seconds of CPU; 1 slot each side.
 
+### 9.14 A1d measured, 2026-11-15: H4 not shown (5.5e-7 against 2e-7)
+
+Runs:
+- `a1d_casa.py` (`a1d_run.sh`) and `a1d_rang.py` took 1 s and 2 s, each on
+  1 slot.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a1d`; receipts in
+  [results/e2b-misses/a1d/](results/e2b-misses/a1d/) (`a1d.json`,
+  `a1d-casa.npz`).
+
+Controls (all met):
+- **C7:** the emulation reproduces casacore's HADEC on 270 synthetic
+  directions within 4.4e-16 rad. The convention is chosen on them: sign
+  +1, the product R₃R₂R₁, applied without transpose; the other seven
+  conventions are 3e-6 rad or more away.
+  - Both terms matter on the synthetic set. Without the zenith shift, C7
+    would be 4.8e-6 rad; without polar motion, 7.4e-6 rad.
+- **C8:** on the field rows, the emulation from casacore's APP place and
+  LAST reproduces K exactly (1.3e-15 rad).
+- **C5:** as 9.8.
+
+Max |q − K| (median in brackets), rad:
+
+| Candidate | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| rang as is | 7.0e-6 (−7.0e-6) | 3.2e-6 (−3.1e-6) |
+| **(H4)** geocentric TETE + E, astropy LAST | **5.5e-7** (5.4e-7) | **5.6e-8** (−4.4e-8) |
+| (H4-L) the same, casacore LAST | 8.3e-7 | 1.5e-7 |
+| (H4-noPM) without polar motion | 2.1e-6 | 3.0e-6 |
+| (H4-noD) without the zenith shift | 1.6e-6 | 3.3e-7 |
+
+**Outcome under the frozen rule: H4 not shown.** (H4) is 5.5e-7 rad on
+field 1, against 2e-7; (H4-L) is not met either. No fix is made, and
+`parallactic_angle_casa` is unchanged.
+
+Read beside the outcome (**post hoc**):
+- (H4) removes 92 % of rang's difference on field 1 and 98 % on field 2.
+  Field 2 alone would meet the bound (5.6e-8).
+- Both of casacore's TOPO → HADEC terms are needed. Dropping either one
+  leaves 1.6e-6 to 3.0e-6.
+- So most of the A1b/A1c difference is two casacore conventions that
+  astropy does not share:
+  - the zenith-ward "diurnal aberration";
+  - polar motion applied in HADEC.
+- The field 1 residual fits the remaining apparent-place difference:
+  casacore's APP minus astropy's geocentric TETE is 0.067″ in RA·cos δ
+  (0.070″ on field 2) and ≤ 0.012″ in Dec. That is the size of 9.8's
+  JTRUE − erfa difference, i.e. casacore's precession and nutation models
+  against IAU 2006/2000A. At δ −63.7° it weighs about 2× in h.
+- That casacore's own angle is 2.7e-7 from applycal (9.8, K1) is
+  separate and still open.
+
+Whether rang should emulate these conventions is a choice of oracle, not
+a correctness fix: astropy's diurnal aberration is the physical one. Two
+options for the owner:
+- a further arm with casacore's precession and nutation (IAU 1976/1980,
+  erfa `pmat76` and `nut80`) in (H4), frozen first;
+- accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
+  documented convention difference between astropy and casacore.
+
 ## For the coordinator
 
 **After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
