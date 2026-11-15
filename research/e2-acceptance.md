@@ -1697,6 +1697,59 @@ rerun, before any E2-A image existed).**
   `tests/test_e2a_post_reads.py`. The launcher's dry-run test is now opt-in (`E2A_LAUNCHER_DRY=1`), so no
   test runs the launcher during E2-A.
 
+### 9.11 E2-A's oracle arms and rows: estimators frozen 2026-11-16 01:45, before any of their values was read
+
+Branch `e2a-score`, from main `fca103a` (9.10 merged). The rang arm ended at 01:02: rc 0, 37,272 s, peak
+RSS 45.4 GB, D: 240 GiB free (coordinator). The in-place post chain (`e2a_post.sh`, NOSI=1) started at 01:36.
+**Read before this commit:** gate 1, 2c, and 2b's casacore and casa-ro records, as the chain printed them
+(all met). None of them depends on anything below. **Not read:** every 3b, 3c and row value, and every
+post-chain record after casa-ro.
+
+**What 6.5 needs that 9.9-9.10 did not write.** Gate 3b's CASA arm, and the rows (flux scale, target,
+self-calibration rms). They run after the post chain's `restore` and `tricolour`, on `e2a.ms` itself, with no
+copy (9.6). Code: [e2_casa3b_a.py](results/e2-acceptance-scripts/e2_casa3b_a.py),
+[e2_score3b_a.py](results/e2-acceptance-scripts/e2_score3b_a.py),
+[e2_rows_a.py](results/e2-acceptance-scripts/e2_rows_a.py); launcher
+[e2a_rows.sh](results/e2-acceptance-scripts/e2a_rows.sh), one shared heavy-lock job per step inside
+`e2_diskguard.py` (165 GiB). Tests: `tests/test_e2a_rows.py` (5).
+
+| Step | What | Lock (slots, GB) |
+| --- | --- | --- |
+| `casa3b-prep` | FLAG and FLAG_ROW natively from rang's FLAG after calibrate (the version rang's apply saved, after A) | 1, 4 |
+| `casa3b-run` | CASA 6.7.6.14: setjy SR2016 on J1939−6342 with `usescratch=False` (virtual model: no 128 GiB column over 9p), then K0 inf, G0 ap inf (K0), B0 inf combine scan fillgaps 70 solnorm false (K0, G0), K1 60s (G0, B0), G1 ap 60s (K1, B0), B1 as B0 (K1, G1); E2-B's common arguments (K without uvrange, `>150` on G and B, minsnr 3, minblperant 4, rang's refant list, refantmode flex) | 4, 16 |
+| `score3b` | **gated:** K1 by its limit (median ≤ 0.01 ns, p95 ≤ 0.03 ns) and the fcal composite of K1, G1, B1 (class B: relative median ≤ 7e-4, p95 ≤ 3e-3; E2-B's `composite`, every 8th time). Reported: G1, B1, K0, G0, B0 alone and the K0 G0 B0 composite | 1, 8 |
+| `selfcal-score` | **Self-calibration rms:** off-source rms of selfcal's image 1 and its final image (MFS restored); met when after ≤ 1.02 × before | 1, 8 |
+| `target-prep` | FLAG from rang's FLAG after calibrate; CORRECTED_DATA added natively as a copy of DATA, so CASA writes into an existing column (9.20's failure was creating one over 9p) | 1, 8 |
+| `target-applycal` | CASA applycal of CASA's K1, G1, B1 to the target, with rang's apply entry (gainfield nearest, nearest, J1939−6342; interp linear; calwt false; calflag) | 2, 12 |
+| `target-unit-on`, `-off` | unit weights for WSClean (WEIGHT_SPECTRUM renamed away, a unit WEIGHT); CASA's FLAG kept | 1, 2 |
+| `target-wsclean` | WSClean 3.7 cleaned at the image stage's argv (`wsclean_argv`, as 3c) on CASA's CORRECTED_DATA → `R\oracle-a\` | 4, 10 |
+| `target-score` | **Target rows**, rang's image stage against this oracle: compact ratios within 0.7° (3c's candidates and fit; median within 1 %, robust scatter ≤ 1.5 %, not checked below 3); off-source rms rang ≤ 1.2 × oracle and dynamic range rang ≥ 0.8 × oracle | 1, 12 |
+| `flux-prep`, `flux-run` | FLAG from rang's flag stage; `rang-core run` (frozen wheel) of `e2a-rerun.yaml` with `data.scans: [9]` and `run.stages: [calibrate]`; its run directory moved to `R\flux-run` | 1, 4; 4, 16 |
+| `flux-score` | **Flux scale:** scan 11's J1939−6342 cross rows corrected in memory by flux-run's K1, G1, B1 (rang's library apply, interp linear); per 100 MHz bin from the first channel, the median over channels of I / SR2016 I; met when within 2 % in every bin with ≥ 10 % unflagged cells. The full run's tables on the same rows are reported as context, not as the row | 4, 12 |
+| `final-restore` | every column not in `columns-before.json` dropped, FLAG from `rang_original`, hashes against 9.1 | 1, 4 |
+
+**Estimators fixed here (not in 6.5's text).**
+- **Off-source rms** (self-calibration and target rows): the MFS restored images compared, within 0.7° of the
+  centre (appendix A's field limit). Outside the mean of the images above 5σ, where σ is 1.4826 MAD of the
+  first image's residual (selfcal) or the oracle's residual (target) over the inner two-thirds, dilated by
+  2 beams; rms is the root mean square. Dynamic range is the peak within 0.7° over that rms.
+- **Stokes I per channel** (flux scale): the mean over cross rows of Re((XX + YY) / 2) over cells whose four
+  correlations are unflagged after the apply (E2-B rows' rule); SR2016 from `rang.fluxstd` (FS1 validated it
+  against CASA).
+
+**Smoke on A1 small** (`D:\rang\outputs\e2a-score-smoke-20261116`, a fresh `e2_dryrun.py a-rerun`, 19 s):
+- `e2a_post.sh` gate1 through tricolour: rc 0 on every step.
+  - qc-avg: control C-model met (61,440 cells, 0 elements differ); C-flags equal (round 2: 22,420).
+  - QuartiCal on the averages agrees to 1e-16 in both rounds.
+  - WSClean refused A1 small's `-scans 1,4,23` (the field has more scans) as written. For the smoke only, `-scans`
+    was removed from the run's archived image summary, so its 3c scores mean nothing by design.
+  - g2a met.
+- `e2a_rows.sh`: rc 0 on every step after two fixes (target field from the image summary; the smoke's flux
+  overrides).
+  - On A1 small, the full run's tables give I / SR2016 0.99-1.00 per bin. Scan 1's tables applied to scan 23
+    give about 0 (A1 small's gains change between scans), a transfer failure. That is what the row measures,
+    not a bug.
+
 ## For the coordinator
 
 (written at the end)
