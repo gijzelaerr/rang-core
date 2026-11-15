@@ -1802,6 +1802,68 @@ Lesson:
     the ext4 table to D: (no casacore write over 9p).
   - D: has 443 GB free; the ext4 vhdx grows by about 110 GB.
 
+### 9.22 Gate 2b on the full MS with the new P, on ext4, frozen 2026-11-15 (before any run)
+
+9.19's measure and reading, with the I/O path changed after 9.20 (branch
+`e2b-2b`).
+- Numbered 9.22 because main ends at 9.20 and the branches in flight
+  (gemclean-iquv-mask, e2b-gpol) may take 9.21.
+- Seen: P1's mini-MS re-score (9.16) is known.
+- No casacore or CASA write touches `/mnt/d`, and the shared `R\casa\e2b.ms`
+  is only read.
+
+Steps:
+1. **E, an ext4 copy** (`~/e2b-2b/e.ms`). It is made by TaQL from a
+   read-only mount of `R\casa\e2b.ms` and holds:
+   - every row and every subtable;
+   - the row columns, DATA, WEIGHT and SIGMA;
+   - FLAG and FLAG_ROW set from the after-calibrate version
+     `flags.rang_apply_20261112T013707Z`, as 2b's prep did;
+   - FEED RECEPTOR_ANGLE −90°, as in the source.
+2. Control **C11** (the copy is exact):
+   - sha256 of E's DATA and of FLAG + FLAG_ROW, taken in the container on
+     ext4;
+   - equal to the same hashes of the source's DATA and of the version's
+     FLAG + FLAG_ROW, read natively on Windows with rang's reader.
+   - Not met: void.
+3. CASA 6.7.6.14 `applycal` with 2b's own spec (`R\applycal-spec.json`),
+   pointed at E. It writes E's CORRECTED_DATA and FLAG. Then
+   CORRECTED_DATA → E2C_CASA_CORRECTED_DATA and FLAG → E2C_CASA_FLAG, and
+   FLAG and FLAG_ROW are set from the version again (all on ext4).
+4. A plain `cp -a` of E to `D:\rang\outputs\e2b-2b-20261115\e2b-2b.ms`,
+   checked by sha256 of every file on both sides. E is then deleted.
+5. Rang's apply, natively on Windows, on the D: copy:
+   - this branch at main `6587e43`, new P;
+   - the frozen apply's arguments (`R\rang-run\apply\summary.json`, as
+     A1's C3, `parang_flags='none'`);
+   - writes `column='E2C_RANG_CORRECTED_DATA'` and FLAG.
+6. Comparisons, natively with rang's reader, by 2b's rule (class C: per
+   cell ≤ 1e-6 relative or ≤ 11 float32 eps of the cell's largest
+   correlation; flags exact):
+   - **C9:** E2C_CASA_* against the frozen RANG_CORRECTED_DATA and
+     RANG_FLAG of `R\casa\e2b.ms` (row for row) reproduces
+     `R\g2b-applycal.json`: 42 cells over class C, max 25.58 eps, 0 flag
+     elements differing. Not met: void.
+   - **Measure:** E2C_CASA_* against E2C_RANG_CORRECTED_DATA and FLAG.
+   - **Beside:** E2C_RANG against RANG_CORRECTED_DATA (P's change alone).
+7. The D: copy is deleted after scoring.
+
+Reading:
+- 0 cells over class C and flags exact → gate 2b's CASA applycal leg is
+  met with the new P (seen; the frozen 2b record stays).
+- Otherwise not met, with the count and the maximum reported.
+
+Space:
+- E holds about 82 GB with CASA's output, so the vhdx grows by about
+  82 GB, and that growth stays until the vhdx is compacted.
+- The D: copy takes about 82 GB and rang's column about 36 GB.
+- D: had 496 GB free before; the expected low point is about 296 GB.
+
+Booking:
+- the copy and CASA at 2 slots, with 8 and 12 GB;
+- the hashes and comparisons at 1 slot, 4 GB;
+- rang's apply at 4 slots, 16 GB.
+
 ## For the coordinator
 
 **After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
