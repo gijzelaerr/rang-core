@@ -28,8 +28,6 @@ E2-A rerun prepared, 2026-11-15 (branch `e2a-rerun`; [e2-acceptance.md](e2-accep
 - Disk 9.6: the chain writes 414 GiB; start rule 605 GiB free at launch; D: has 313 after the rebuild,
   so 292 GiB short. Stop rule `e2_diskguard.py` at 165 GiB (tested).
 - Rebuilt `D:\rang\outputs\e2a-20261115\e2a.ms`: 0 cells differ, FLAG/FLAG_ROW hashes equal 9.1.
-ang\outputs\e2a-20261115\e2a.ms`: 0 cells differ, FLAG/FLAG_ROW hashes equal 9.1.
-ang\outputs\e2a-20261115\e2a.ms`: 0 cells differ, FLAG/FLAG_ROW hashes equal 9.1.
   Estimate 9-12 h exclusive.
 
 E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
