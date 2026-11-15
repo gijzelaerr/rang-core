@@ -1,0 +1,10 @@
+{
+ "tolerance": 1e-06,
+ "wsclean_ext4_copy_vs_archived": {
+  "max": 6.329786964689917e-07,
+  "border5": 6.329786964689917e-07,
+  "inner": 6.329786964689917e-07,
+  "median_max": 6.1814325827049966e-09
+ },
+ "met": true
+}

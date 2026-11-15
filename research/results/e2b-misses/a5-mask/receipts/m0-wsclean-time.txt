@@ -1,0 +1,23 @@
+	Command being timed: "wsclean -gridder wgridder -no-min-grid-resolution -no-small-inversion -wgridder-accuracy 1e-6 -mgain 0.8 -no-update-model-required -temp-dir /p/m0/wsclean/tmp -size 2048 2048 -scale 1.5asec -weight briggs 0.5 -niter 1000000 -gain 0.1 -nmiter 1000 -data-column DATA -field 0 -j 4 -pol IQUV -join-polarizations -channels-out 8 -join-channels -auto-threshold 3 -auto-mask 5 -name /p/m0/wsclean/w /data/P1.ms"
+	User time (seconds): 1530.96
+	System time (seconds): 391.43
+	Percent of CPU this job got: 79%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 40:32.26
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1394576
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 384
+	Minor (reclaiming a frame) page faults: 46940271
+	Voluntary context switches: 9004286
+	Involuntary context switches: 55404
+	Swaps: 0
+	File system inputs: 84318646
+	File system outputs: 5443584
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

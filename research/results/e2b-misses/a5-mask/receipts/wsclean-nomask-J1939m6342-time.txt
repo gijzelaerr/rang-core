@@ -1,0 +1,23 @@
+	Command being timed: "wsclean -name /p/wsclean-nomask/J1939m6342/J1939m6342-clean -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -no-small-inversion -j 4 -temp-dir /x/tmp-nomask-J1939m6342 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -field 1 /x/e2b-slim.ms"
+	User time (seconds): 3991.71
+	System time (seconds): 399.15
+	Percent of CPU this job got: 131%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 55:36.24
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1393920
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5352
+	Minor (reclaiming a frame) page faults: 74751910
+	Voluntary context switches: 3398257
+	Involuntary context switches: 72984
+	Swaps: 0
+	File system inputs: 201776913
+	File system outputs: 192206544
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

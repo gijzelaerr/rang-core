@@ -20,7 +20,7 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
-E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
+E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.23–9.24):
 - New key `calibrate.casa_phase_weights`. It needs `average_freq` and acts
   on calmode `p` only; default false, and off is byte-identical. It gives
   CASA's phase-only datum, read from CASA's source: divide by the model per
@@ -34,6 +34,17 @@ E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.2
 - Met under the frozen rule (class B 0.1°). The simulation and LUNO had no
   power, so E2-B decided. The key is for the next unseen leg's
   configuration.
+
+E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
+- `gemclean -auto-mask` now works with `-join-polarizations`, as WSClean
+  3.7's radler: noise and peaks of the joined I + Q + U + V residual, the
+  mask the union of every polarisation's model pixels. `image.auto_mask`
+  takes `join_polarizations`. M0 (P1) matches WSClean's σ within 0.27 %.
+- A5 met, control unmasked not met: with the 5σ mask in both arms, gate 3c's
+  compact median is 0.99977 (scatter 0.72 %, n = 37) and off-source 1.05,
+  1.08, 1.09. Unmasked: 0.9940, 1.27 %, 2.30, 1.26, 1.66.
+- GeMClean's peak memory is 20–45 GB on these runs, against WSClean's
+  1.4–2.0 GB.
 
 E2-B P1 and 3c, 2026-11-15 (branch `e2b-pcasa`; [e2b-misses.md](e2b-misses.md) 9.15–9.17):
 - `cal_pol.parallactic_angle_casa` now computes casacore's AZEL

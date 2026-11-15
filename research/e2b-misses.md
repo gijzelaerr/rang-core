@@ -72,7 +72,13 @@ rang's own solve flags, both composites meet class B (medians 4.2e-5 and
   diurnal shift and polar motion). Not met at 2e-7 under the rule; no
   fix.
 
-**Update, 2026-11-15 (arm A3, sections 9.21 and 9.22):** the Gpol row is
+**Update, 2026-11-15 (arm A5, sections 9.21 and 9.22):** the 3c matched
+compact-median and off-source misses were the missing mask. GeMClean now
+masks joined IQUV as WSClean does. With A0 rule 6's 5σ mask in both arms,
+the compact median is 0.99977 (scatter 0.72 %) and off-source 1.05–1.09.
+Unmasked, with the same oracle, they stay at 0.9940 and up to 2.30.
+
+**Update, 2026-11-15 (arm A3, sections 9.23 and 9.24):** the Gpol row is
 closed as an estimator convention. With `calibrate.casa_phase_weights`
 (CASA's phase-only datum, read from CASA's source), rang's Gpol meets
 class B on E2-B scan 17: median 0.00038° against CASA re-solved on A2's
@@ -387,6 +393,10 @@ measure by measure:
 **Fix, then arm A5 (seen).**
 - Code (GeMClean, G4 follow-up): an automatic mask from Stokes I, applied to
   every joined polarisation, as WSClean does with `-join-polarizations`.
+  - **Correction, 2026-11-15 (9.21):** WSClean's mask is not from Stokes I.
+    Its noise and peaks come from the joined I + Q + U + V sum, and the
+    mask is the union of every polarisation's model pixels. A5 is frozen
+    in 9.21.
 - Then both arms at A0 rule 6: `-auto-mask 5`, threshold 3σ, matched weights,
   3 fields.
 - Hypothesis: compact median within 0.5 % and off-source ratios ≤ 1.6.
@@ -1574,7 +1584,477 @@ Reading (seen, post hoc):
   copy, as the coordinator noted.
 - The FITS images were deleted after scoring.
 
-### 9.21 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
+### 9.18 Gate 3c dirty at ε 1e-6 with `-no-small-inversion`: post hoc amendment, frozen 2026-11-15 (before any run)
+
+**Dated post hoc amendment** to gate 3c's dirty measure, asked by the
+coordinator (branch `e2b-close`). It is seen: 9.10, 9.12 and 9.17 are
+known. The frozen record (3c dirty not met) stays. This adds a labelled
+re-reading.
+
+Amended oracle and settings: 9.9's common settings at **ε 1e-6** on the
+three fields.
+- WSClean 3.7 adds `-no-small-inversion` (A4's `-j` 4 replaced by `-j 2`).
+- GeMClean runs as 9.9 at ε 1e-6, its default precision (double below
+  1e-5).
+
+Data:
+- WSClean reads a reduced copy of `R\casa\e2b.ms` in WSL's ext4
+  (`~/e2b-close/a5.ms`), made with casacore TaQL. It holds all rows; the
+  columns WSClean reads (UVW, ANTENNA1/2, TIME, TIME_CENTROID, INTERVAL,
+  EXPOSURE, FIELD_ID, DATA_DESC_ID, SCAN_NUMBER, FLAG_ROW, the id columns,
+  SIGMA); RANG_CORRECTED_DATA; FLAG = RANG_FLAG; WEIGHT = 1; and every
+  subtable. The copy is deleted after scoring.
+- GeMClean reads `R\casa\e2b.ms` in the matched state (`UNIT_PY` on, then
+  off; the column list is checked), as 9.10's C6 showed bit for bit.
+
+Control **C10**, before any ε 1e-6 score is read: WSClean with its default
+small inversion at ε 1e-4 on J1833−2103, reading the ext4 copy, reproduces
+the archived `R\wsclean3c-unit\J1833m2103-dirty-*` within 1e-6 of the peak
+(as C6). Not met: void.
+
+Measure and bound: gate 3c's dirty L∞ / peak over the full image, frozen
+**1e-6** (A0), with the 5 % border and inner two-thirds reported.
+
+Reading: met on all three fields → gate 3c's dirty measure is met under
+the amended oracle and ε (seen, post hoc); otherwise not met, with the
+values reported.
+
+Booking: WSClean dirty runs at 2 slots, GeMClean at 4.
+
+**Measured 2026-11-15: met on all three fields (seen, post hoc
+amendment).** Receipts in [results/e2b-misses/a5c/](results/e2b-misses/a5c/)
+(`a5.json`, `c10.json`, `a5-copy.json`, `runs.log`).
+
+- **C10 met:** WSClean at ε 1e-4 on J1833−2103, reading the ext4 copy,
+  is within 6.3e-7 of the archived images (thread count).
+- On ext4 WSClean took 232 s for that run, against 1,032 s for the same
+  run over 9p (9.10).
+
+| Field | Dirty L∞ / peak, ε 1e-6, `-no-small-inversion` | 9.10 (ε 1e-6, default oracle) |
+| --- | --- | --- |
+| J1331+3030 | **2.0e-7** | 3.5e-3 |
+| J1939−6342 | **3.3e-7** | 1.2e-3 |
+| J1833−2103 | **8.1e-8** | 2.9e-3 |
+
+The 5 % border and inner two-thirds values equal the full-image ones.
+Gate 3c's dirty measure is met under the amended oracle
+(`-no-small-inversion`) at ε 1e-6. The frozen record (not met) stays.
+
+Runs, all rc 0:
+- the ext4 copy took 667 s; it was dropped after the runs;
+- WSClean took 232–775 s at 2 slots;
+- GeMClean took 198 s and 643 s at 4 slots, and 291 s for the J1331
+  rerun at 46 GB.
+
+Harness incidents:
+- The ext4 copy lacked FLAG_CATEGORY, which WSClean opens. It was added
+  without cells (`a5_fixcat.py`) before any image.
+- The first GeMClean J1331+3030 run is **void**. It was booked at 16 GB
+  but used about 45 GB private; with another agent's 40 GB GeMClean the
+  host reached 139 GB committed on 63 GB RAM and thrashed.
+  - The owner approved stopping it; it had already exited.
+  - Its image was set aside unread and deleted.
+  - It was rerun at `--mem 46` (291 s). Every joined-IQUV 8-channel 2048²
+    GeMClean is now booked at 46 GB or more.
+- The first Windows queue waited for gemclean-iquv-mask's read-only copy
+  of the shared MS before any rename.
+- The FITS images were deleted after scoring.
+
+### 9.19 Gate 2b on the full MS with the new P, frozen 2026-11-15 (before any run)
+
+The consequence of P1 (9.16) on the whole MS. It is seen: P1's mini-MS
+re-score is known.
+
+Procedure on `R\casa\e2b.ms` in place, with no 218 GB copy. Every step
+renames or adds columns that are removed again at the end:
+1. Save: CORRECTED_DATA → E2C_SAVE_CORRECTED_DATA, FLAG →
+   E2C_SAVE_FLAG, FLAG_ROW copied to E2C_SAVE_FLAG_ROW. Record the column
+   list and a FLAG hash (`a2_flaghash`-style sha256 over the rows).
+2. FLAG and FLAG_ROW from the after-calibrate version
+   `flags.rang_apply_20261112T013707Z`, as 2b's prep did. FEED
+   RECEPTOR_ANGLE is already −90° from that prep.
+3. CASA 6.7.6.14 `applycal` with 2b's own spec (`R\applycal-spec.json`, 3
+   calls, calflag, parang) writes CORRECTED_DATA and FLAG. These are
+   renamed to E2C_CASA_CORRECTED_DATA and E2C_CASA_FLAG.
+4. Control **C9**: 2b's own comparison (`e2p_compare.py`'s rule) of
+   E2C_CASA_* against the frozen RANG_CORRECTED_DATA and RANG_FLAG
+   reproduces `R\g2b-applycal.json`: 42 cells over class C, max 25.58 eps,
+   0 flag elements differing. Not met: void.
+5. FLAG and FLAG_ROW from the after-calibrate version again. Then rang's
+   apply with the new P (this branch at main `011232e`) is called with the
+   frozen apply's arguments (`R\rang-run\apply\summary.json`, as A1's C3,
+   `parang_flags='none'`), and writes CORRECTED_DATA and FLAG.
+6. Measure: 2b's comparison of E2C_CASA_* against rang's new
+   CORRECTED_DATA and FLAG.
+   - Class C: per cell ≤ 1e-6 relative, or ≤ 11 float32 eps of the cell's
+     largest correlation; flags exact.
+   - Reported beside: rang new against RANG_CORRECTED_DATA (P's change
+     alone).
+7. Restore: remove CORRECTED_DATA, FLAG and E2C_CASA_*, then rename the
+   E2C_SAVE_* columns back and copy FLAG_ROW back. The column list and the
+   FLAG hash must equal step 1's; D: free space is recorded before and
+   after.
+
+Reading:
+- 0 cells over class C and flags exact → gate 2b's CASA applycal leg is
+  met with the new P (seen; the frozen 2b record stays).
+- Otherwise not met, with the count and the maximum reported.
+
+Booking: CASA applycal and casacore steps at 2 slots (9p I/O-bound),
+rang's apply at 4. D: must keep ≥ 150 GB free; the new columns add about
+85 GB.
+
+**Column handling revised 2026-11-15, before any 9.19 run** (the
+comparison, the controls and the reading are unchanged).
+- The MS's data manager names would clash: CASA adds CORRECTED_DATA as
+  `CorrectedTiled`, which the saved column keeps after a rename, and
+  rang adds it as `TiledCorrected`, which RANG_CORRECTED_DATA already uses.
+- So no column is created under those names:
+  - step 1 *copies* CORRECTED_DATA into E2C_SAVE_CORRECTED_DATA (its own
+    manager), so CASA's applycal writes the existing CORRECTED_DATA;
+  - step 3 renames only FLAG, to E2C_CASA_FLAG;
+  - step 5's rang apply writes `column='E2C_RANG_CORRECTED_DATA'` (its own
+    manager) and FLAG, with `flag_backup='rang_original'` (exists, so no
+    version is added), and the write-back journal is put back afterwards;
+  - step 7 copies E2C_SAVE_CORRECTED_DATA back into CORRECTED_DATA and
+    removes the E2C_* columns.
+- The check in step 7 adds the sha256 of CORRECTED_DATA (equal to step
+  1's) to that of FLAG and FLAG_ROW.
+
+Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
+
+**Harness incidents, 2026-11-15, before CASA or rang ran:**
+- The first save failed while it hashed CORRECTED_DATA: a 262 MB read
+  over 9p returned ENOMEM. Nothing had been renamed. Blocks are now 250
+  rows.
+- The second save failed while it copied CORRECTED_DATA into
+  E2C_SAVE_CORRECTED_DATA: a 9p write returned ENOMEM, with WSL's page
+  cache full. `b2_cols.py cleanup` removed the partial column. The column
+  set equals the original again, and no original column was written.
+- Step 1 now renames CORRECTED_DATA to E2C_SAVE_CORRECTED_DATA, with no
+  data copy, and adds an empty CORRECTED_DATA on its own manager
+  (`E2CCasaCorrected`) for CASA to write. Step 7 removes it and renames
+  the saved column back.
+- The third save failed again on a 9p read of CORRECTED_DATA (ENOMEM)
+  while it hashed, before any rename. The hashes are now taken natively
+  on Windows with rang's reader (`b2_hash.py`), before step 1 and after
+  step 7.
+- The fourth attempt reached CASA. applycal failed on all 3 calls with
+  "TSM: no array in row …", because the empty CORRECTED_DATA was a
+  variable-shape TiledShapeStMan column.
+  - The queue's restore ran, and the native hashes of FLAG + FLAG_ROW and
+    CORRECTED_DATA and the column set equal the ones before.
+  - Step 1 now adds CORRECTED_DATA with a fixed shape on a
+    TiledColumnStMan. This was tested on a 41-row copy, where CASA writes
+    it, before the rerun.
+- The fifth attempt's applycal wrote J1939−6342. The other two calls
+  failed reading DATA over 9p (ENOMEM), with the host loaded by another
+  agent's 40 GB GeMClean.
+  - The restore was exact again: hashes and the column set equal.
+  - The CASA step is now booked at 24 GB, which covers WSL's page cache,
+    so the lock keeps other large jobs off while it reads and writes
+    about 72 GB over 9p.
+
+### 9.20 9.19 outcome, 2026-11-15: not run (harness); CASA copy damaged, then repaired
+
+**Not run.** No CASA applycal output for all three fields and no rang
+apply were produced, so there is no 2b reading with the new P on the full
+MS. The mini-MS re-score (9.16, 4.8 eps) stays the only one.
+
+The sixth attempt damaged the shared CASA copy `R\casa\e2b.ms`, and it was
+repaired:
+- **Damage (09:50:58).** Step 1 failed when the table closed. casacore was
+  writing the new fixed-shape CORRECTED_DATA's cube (36 GB, zeros) over
+  9p and got ENOMEM at 15.2 GB.
+  - `table.dat` already named the new data manager (seqnr 25), but its
+    header file `table.f25` was never written.
+  - Neither casacore nor rang could open the MS.
+  - Nothing else used it meanwhile; this note's queue had stopped at the
+    failed step.
+- **Safety first:**
+  - the small metadata files were copied
+    (`D:\rang\outputs\e2b-close-20261115\b2\ms-meta-backup-0951`);
+  - every large data file was hard-linked into
+    `...\b2\ms-hardlinks`;
+  - the repair was rehearsed on an ext4 copy of A1's mini MS.
+- **Rehearsal** (`b2/rehearse/`): `r1.py` builds the same structure,
+  `table.f10` is deleted and its data file truncated, and the same open
+  error follows.
+  - A header from a twin table works once the twin's manager has the same
+    sequence number: casacore checks "seqnr, #col".
+  - The header fields that depend on the row count were found by diffing
+    twins of 41, 300 and 1000 rows: nrrow at 0x60, the cube's last axis
+    at 0xF7, and the data file length at 0x91. `patch2.py` reproduces the
+    shape fields.
+  - On the rehearsal, opening with the patched header and running
+    `b2_cols.py restore` gives the original columns and the original
+    CORRECTED_DATA, FLAG and FLAG_ROW, value for value.
+- **Repair (10:01).**
+  - A twin header for seqnr 25, patched to 272,916 rows and to a file
+    length the existing partial data file covers, was installed as
+    `table.f25` (copy in `b2/repair-table.f25`).
+  - casacore then opened the MS, and `b2_cols.py restore` removed the new
+    CORRECTED_DATA and FLAG and E2C_SAVE_FLAG_ROW, renamed E2C_SAVE_* back
+    and copied FLAG_ROW back. The files f25–f27 are gone.
+- **Check (10:05):**
+  - the column set equals the original (`columns-original.json`);
+  - rang's native sha256 of FLAG + FLAG_ROW and of CORRECTED_DATA equals
+    `hash-before.json`, taken before attempt 4 on the restored original.
+  - So the CASA copy is back as it was. Receipts: `restore-repair.json`,
+    `hash-after-repair.json`.
+- Earlier unit on/off cycles left four 6.5 MB `table.f1Ni` index files of
+  removed StandardStMan columns. They are unused; this note did not remove
+  them.
+
+Lesson:
+- casacore and CASA bulk I/O on `/mnt/d` over 9p failed with ENOMEM 6
+  times in a row while the host was loaded. Smaller blocks,
+  rename-instead-of-copy and a larger booking did not prevent it.
+- Native Windows reads of the same files (rang's reader, 36 GB in 102 s)
+  and ext4 work (WSClean 232 s against 1,032 s) did not fail.
+- Proposed for a rerun, to be frozen first:
+  - CASA on a reduced ext4 copy made from a read-only mount (`a5_copy.py`
+    pattern, with DATA, the after-calibrate FLAG and RANG_*), with C9 as
+    the control that validates the copy;
+  - rang's apply natively on Windows into a column of its own;
+  - the comparison reading the CASA columns after a plain file copy of
+    the ext4 table to D: (no casacore write over 9p).
+  - D: has 443 GB free; the ext4 vhdx grows by about 110 GB.
+
+### 9.21 A5, joined-polarisation auto-mask, frozen 2026-11-15 (before any run)
+
+Numbered 9.18 in this branch's commits up to `c52ed26`, then 9.20. Renumbered
+9.21 on 2026-11-15, after main's 9.15–9.20 (e2b-pcasa, e2b-close). Only the
+number changed.
+
+Fix item 5 of the ordered list. **Seen**: gate 3c's matched scores (section
+4) and A4b's small-inversion finding (9.12) are known. The code was written
+before this section; no image was made with it before the freeze.
+
+**What GeMClean now does, and what it matches.** Read in WSClean 3.7's radler
+(`76fe4474c31c`, the G4 clone `~/Build/tmp/20261109-g4-wsclean-src` in WSL):
+- `radler.cc` `Perform` estimates σ every major iteration as
+  `integrated.MedianAndStdDevFromMAD()` of
+  `residual_set.GetLinearIntegrated(integrated)`.
+- With `-join-polarizations` (no `-link-polarizations`, no
+  `-squared-channel-joining`), `image_set.cc`
+  `GetLinearIntegratedWithNormalChannels` sums **every** polarisation of
+  every channel, channel-weighted, times `polarization_normalization_factor_`
+  (`image_set.h` `InitializePolFactor`: 1 for IQUV, 1/n for Stokes without
+  I, 0.5 for dual or full correlations). So σ is that of I + Q + U + V,
+  not of Stokes I and not of a squared sum. `threshold_bias` is 0 without
+  squared joins.
+- The mask threshold is `max(σ · auto_mask, abs_auto_mask, abs_threshold)`.
+  The peaks are searched in the same integrated residual (the fast
+  sub-minor loop, G9).
+- `SetAutoMaskMode` builds the Högbom mask once, the first time it is used:
+  the union over **every** model image of the set (each channel and each
+  polarisation) of its finite nonzero pixels.
+- One Radler per independent group (`wsclean.cpp` `runIndependentGroup`), so
+  each group has its own mask.
+
+GeMClean's `run_joined_masked` (`core/src/gemclean/joined.rs`, G4) already
+computed all of this on `norm Σ_k a_k Σ_p r_kp` with
+`stokes::normalisation` (G9). The only change is that the CLI and
+`core_config` no longer refuse `-auto-mask` / `-abs-auto-mask` with
+`-join-polarizations`, and the polarisation path calls the masked kernel and
+writes `<name>-mask.json`. Still refused: masks on unjoined polarisations,
+and `-fits-mask` on several polarisations (not validated here).
+
+**Correction to section 4** (dated 2026-11-15): "an automatic mask from
+Stokes I ... as WSClean does" is wrong against the source. WSClean's mask
+and noise come from the joined I + Q + U + V sum. GeMClean matches that,
+not a Stokes I mask.
+
+**M0, development check against WSClean on a fixture** (before A5's E2-B
+runs; development, not gated):
+- Data: G9's P1, `D:\rang\outputs\g9-20261107-02\data\P1.ms`, read in place.
+- Settings, both arms: G9's base (2048², 1.5″, briggs 0.5, gain 0.1,
+  wgridder ε 1e-6, DATA, field 0), `-pol IQUV -join-polarizations
+  -channels-out 8 -join-channels -mgain 0.8 -auto-threshold 3 -auto-mask 5`.
+  WSClean 3.7 adds `-no-small-inversion -no-min-grid-resolution`.
+- Criteria:
+  - σ of every major iteration up to the finishing one: GeMClean's
+    `auto-mask: major iteration i, sigma` against WSClean's "Estimated
+    standard deviation of background noise", within 1 % (WSClean prints 3–4
+    figures);
+  - the same finishing iteration (WSClean's "Auto-masking threshold
+    reached");
+  - total major iterations within ±1.
+- If any fails, A5 does not run: the implementation is fixed first, and the
+  change is labelled post hoc here.
+
+**A5 hypothesis.** With A0 rule 6's 5σ automatic mask in both arms, and the
+oracle without small inversion, gate 3c's cleaned measures meet A0's 3c
+tolerances:
+- compact-source median ratio within 0.5 % of 1, with robust scatter
+  ≤ 1 % (n ≥ 3);
+- off-source |model| ratio ≤ 1.6 on each of the three fields.
+
+**Data.** `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` in gate 3c's
+matched state (`a4_unit.py on`):
+- FLAG is rang's FLAG after apply;
+- WEIGHT is 1, with no WEIGHT_SPECTRUM;
+- both arms read RANG_CORRECTED_DATA.
+
+e2b-pcasa toggles the same state (`a4c_queue.sh`). A5 starts only after
+that queue's `unit off`, and runs on, all of its runs, then off, as one
+sequence. The column list is read read-only before and after every run.
+A run whose list changed is void.
+
+**Amendment, 2026-11-15, before any A5 run on E2-B data** (M0 had
+started; no E2-B image was made). This changes the data route only, not the
+data:
+- A5 makes no rename on the shared CASA copy. `a5-mask/a5_slim.py` reads it
+  read-only, in either state of `a4_unit.py`, and writes a private copy,
+  `D:\rang\outputs\gemclean-iquv-mask-20261115\e2b-slim.ms`, with:
+  - the row columns;
+  - FLAG = rang's FLAG after apply;
+  - RANG_CORRECTED_DATA;
+  - WEIGHT = 1, with no WEIGHT_SPECTRUM;
+  - the subtables.
+- It then compares every copied column with its source, chunk by chunk.
+  Any difference voids the copy (receipt `a5-mask/receipts/slim.json`, with SHA-256 of
+  FLAG and RANG_CORRECTED_DATA).
+- GeMClean reads that copy. WSClean reads a byte-identical copy in WSL's
+  ext4 (`~/Build/tmp/20261115-gemclean-iquv-mask`, checked with sha256sum
+  per file), which also holds its temp-dir.
+- The column-list checks above are replaced by the copy's comparison.
+- WSL jobs book the lock once, from the WSL side, at 2 slots (A5's WSClean
+  used about 0.8 cores on 4; the coordinator, 2026-11-15).
+
+**Settings.** Gate 3c's frozen settings (`e2b.yaml` `image`, E2-B's
+GeMClean argv in `R\rang-run-moved\image\summary.json`):
+- 2048² at 2″, briggs 0, 8 joined channels, IQUV joined;
+- `-niter 1000000 -mgain 0.9 -auto-threshold 3`, wgridder ε 1e-4;
+- unit weights, scans 17–20, fields 0, 1, 2;
+- plus `-auto-mask 5`, with the default `-auto-mask-nmiter` (2).
+
+Per arm:
+- GeMClean: this branch's extension (the build commit goes in the
+  receipt), `-unit-weights`, `-no-update-model-required`, `-j 4`.
+- WSClean 3.7 (`rang-wsclean-native:3.7`): 9.12's oracle,
+  `-no-small-inversion -no-update-model-required -j 4`.
+
+**Control C** (attribution): WSClean as above, without `-auto-mask`.
+- It is scored against E2-B's archived unmasked GeMClean images
+  (`R\rang-run-moved\image\<field>`, which 9.10's C6 reproduced bit for bit
+  in dirty).
+- It separates the mask from the small inversion.
+
+**Measures.** `e2_score3c.py`'s `score_field`, unchanged, called by
+`a5-mask/a5_score.py` per field and pooled as its `main` pools. Dirty L∞ is not
+re-measured here (9.12, 9.17).
+- The source set is recomputed from each pair's own images, so n will not
+  be gate 3c's 35.
+- Reported beside, not decided on:
+  - Δα and the unpolarised Q, U, V test;
+  - both arms' σ per major iteration, finishing iteration and major cycles;
+  - GeMClean's wall time and peak memory.
+
+**Frozen tolerances** (A0 3c, as in `e2_score3c.py`):
+- compact: |median − 1| ≤ 0.005 and robust scatter ≤ 0.01, with n ≥ 3;
+- off-source: ratio ≤ 1.6 per field.
+
+**Decision rule.**
+- **A5 met** on compact and off-source on all three fields, **C not met**:
+  the 3c cleaned miss was the missing mask. The limitation is closed; the
+  owner decides whether gate 3c reruns with A0 rule 6's mask.
+- **A5 met, C met**: the cleaned miss was WSClean's small inversion, not the
+  mask. The mask is delivered anyway.
+- **A5 not met on off-source**: GeMClean's deconvolution default (G7) is a
+  finish-line item (section 4).
+- **A5 off-source met, compact not met**: the compact median stays open as
+  algorithmic (deconvolution or restore). It is not attributed to the mask.
+- A void run (column list changed, or an arm's exit not 0) is rerun once in
+  a fresh on/off sequence, then reported as void.
+
+**Cost.**
+- M0: two runs, about 10 min each at 4 slots.
+- A5 and C: 3 GeMClean and 6 WSClean cleaned runs at 4 slots each. WSClean
+  took 494–2,799 s per dirty run in A4, so allow 1–2 h per cleaned run;
+  about 15 CPU-hours.
+- Disk: about 3 GB of FITS per run, under 30 GB in all, in
+  `D:\rang\outputs\gemclean-iquv-mask-20261115`. Per-case images are
+  deleted once scored; the scores and logs are kept.
+
+### 9.22 A5 measured, 2026-11-15: met, the cleaned miss was the missing mask
+
+Build: this branch at `b7c4cca`, its own extension (`.venv` of the
+worktree, built by `check_all.py --quick`). Receipts are in
+[results/e2b-misses/a5-mask/receipts/](results/e2b-misses/a5-mask/receipts/):
+- `m0.json`, `slim.json`, `flagcat.json`, `a5.json`, `control.json`;
+- per-run time files and the noise lines of each log;
+- `runs.log`.
+
+**M0 (P1, against WSClean 3.7): met.**
+- σ per major iteration agrees within 0.27 % (4e-6, 4.4e-4, 7.0e-5,
+  2.5e-3, 2.6e-3 relative).
+- Both arms finish the mask in iteration 5 and run 6 major iterations.
+
+**Private copy (amendment): exact.**
+- 272,916 rows; no chunk of any copied column differs from the source;
+  WEIGHT is 1 throughout.
+- The ext4 copy equals it file by file (sha256).
+
+**A5 against control C** (frozen measures and tolerances):
+
+| Measure | A5: both masked, oracle without small inversion | C: both unmasked, oracle without small inversion | Tolerance |
+| --- | --- | --- | --- |
+| Compact median (n) | **0.99977** (37) | 0.99395 (36) | within 0.5 % |
+| Compact robust scatter | **0.72 %** | 1.27 % | ≤ 1 % |
+| Off-source ratio, J1331+3030 | **1.053** | 2.298 | ≤ 1.6 |
+| Off-source ratio, J1939−6342 | **1.083** | 1.264 | ≤ 1.6 |
+| Off-source ratio, J1833−2103 | **1.086** | 1.663 | ≤ 1.6 |
+| Δα, median (n), reported | 0.0088 (11) | 0.0124 (12) | ≤ 0.05 |
+| Unpolarised Q, U, V, reported | met | met | – |
+
+**Outcome under the frozen rule: A5 met, C not met.** Gate 3c's cleaned
+miss (off-source and compact median) was the missing mask. The limitation
+is closed. The owner decides whether gate 3c reruns with A0 rule 6's mask
+(A0: a changed setting makes the reading seen).
+- C reproduces gate 3c's matched reading (1.27, 1.67, 2.27; 0.9942), so
+  WSClean's small inversion played no part in the cleaned measures.
+- The scatter's ≤ 1 % gate also fails in C (1.27 %), not only the median.
+  Gate 3c's matched reading had 0.97 %.
+
+Reported beside:
+- **Mask stages.** On all three fields both arms finish the mask in major
+  iteration 4 and run 5 major iterations. σ per iteration agrees within
+  0.67 %, 1.3 % and 2.6 % (J1331, J1939, J1833).
+- **Off-source |model|, Jy** (GeMClean / WSClean):
+  - masked: 1.73 / 1.64, 16.4 / 15.1, 1.79 / 1.65;
+  - unmasked: 28.2 / 12.3, 115.2 / 91.2, 39.8 / 23.9.
+  - Unmasked, GeMClean spreads 1.3–2.3 × WSClean's flux outside the
+    sources. With the mask both put almost all of it inside.
+- **Cost.**
+  - GeMClean (4 slots): 1,533 s, 1,014 s and 431 s wall; peak resident
+    memory 40.3, 44.9 and 20.2 GB; 2.7–3.5 cores on average.
+  - WSClean masked (`-j 4`, booked 2): 1,914, 1,923 and 1,076 s; peak RSS
+    2.0, 2.0 and 1.4 GB; 1.1–1.6 cores.
+  - WSClean unmasked: 3,017, 3,337 and 909 s; 1.4 GB each.
+- **Memory finding.** On joined IQUV, 8 channels, 2048², GeMClean holds
+  10–22 × WSClean's peak memory: 45 GB against 2.0 GB on J1939−6342.
+  - G5 measured 2–3 × on Stokes I.
+  - The 32 entries (8 channels × 4 polarisations) each keep their gridded
+    measurement, beam and working maps (I, not profiled).
+  - Booking: a joined-IQUV 8-channel 2048² GeMClean run needs at least
+    46 GB (the coordinator, after the first run held 40 GB on a 24 GB
+    booking and the host thrashed with another run).
+
+Post hoc, during the run, none changing a measure:
+- WSClean refused the first private copy ("Table column FLAG_CATEGORY is
+  unknown", exit 255 within 1 s, no image). `a5_flagcat.py` added the
+  column, empty as in the source, to the ext4 copy only. GeMClean's copy
+  lacks it, which changes no data column.
+- GeMClean fields 1 and 2 ran after the WSClean lanes, booked at 46 GB.
+- Per-case images (about 30 GB) and both private copies (34 GB each)
+  were deleted after scoring.
+
+### 9.23 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
+
+Committed as 9.21 at `ba26fb2` and renumbered 9.23 when the branch merged
+main, whose A5 had taken 9.21 and 9.22. Only the numbers changed.
 
 Branch `e2b-gpol` from main `02631b8`. Section 2's proposal made exact; where
 this departs from it, it says so. **Seen** (A0 6.6): every E2-B Gpol number
@@ -1744,10 +2224,12 @@ Disk: about 30–40 GB per field-0 copy of X, about 10 GB per copy of L and S;
 at most four copies at once (D: holds WSL's ext4 too), with at least 150 GB
 left on D:.
 
-### 9.22 A3 measured, 2026-11-15: met on L and X; S and L without power
+### 9.24 A3 measured, 2026-11-15: met on L and X; S and L without power
+
+Committed as 9.22 at `c9d17ba`; renumbered with 9.23.
 
 Runs:
-- Code: this branch at `55f7b0b` (the key, committed after 9.21 at
+- Code: this branch at `55f7b0b` (the key, committed after 9.23 at
   `ba26fb2`), extension built by `check_all --quick` into the worktree's
   `.venv`.
 - Scripts: `a3_spec.py`, `a3_casa.py`, `a3_run.sh` (WSL, CASA 6.7.6.14 at
@@ -1836,7 +2318,7 @@ s at 4 threads, peak RSS 2.85 GB on every set (8 GiB budget); copies 728 s
 
 ## For the coordinator
 
-**After A3 (2026-11-15, branch `e2b-gpol`; 9.21, 9.22):**
+**After A3 (2026-11-15, branch `e2b-gpol`; 9.23, 9.24):**
 - **Met on L and X.** The new key `calibrate.casa_phase_weights` (needs
   `average_freq`; calmode `p` only; default false, off byte-identical) puts
   rang's Gpol at 0.00038° from CASA on E2-B scan 17 (class B 0.1°). It was
@@ -1852,6 +2334,41 @@ s at 4 threads, peak RSS 2.85 GB on every set (8 GiB budget); copies 728 s
   reserve configuration, as the rule says; whether it becomes the default
   is not decided here.
 - Every copy was deleted; the receipts are in `results/e2b-misses/a3/`.
+
+**After A5 (9.21, 9.22; 2026-11-15, branch `gemclean-iquv-mask`):**
+- **Code:** `gemclean -auto-mask` with `-join-polarizations`, as radler.
+  The noise and peaks come from the joined I + Q + U + V residual, and the
+  mask is the union of every polarisation's model pixels. `image.auto_mask`
+  now takes `join_polarizations`.
+  - Still refused: masks on unjoined polarisations, and `-fits-mask` on
+    several polarisations.
+  - M0 against WSClean on P1: σ within 0.27 %, the same finishing
+    iteration.
+- **A5: met; control C: not met.** With A0 rule 6's 5σ mask in both arms:
+  - compact median 0.99977, scatter 0.72 % (n = 37);
+  - off-source 1.05, 1.08, 1.09.
+  - Unmasked, with the same oracle, C gives 0.9940, 1.27 %, and 2.30, 1.26,
+    1.66.
+  - So gate 3c's cleaned miss was the missing mask, not small inversion.
+  - Owner: rerun gate 3c with the mask (seen).
+- **Memory:** GeMClean peaks at 20–45 GB on these runs, against WSClean's
+  1.4–2.0 GB (10–22 ×). Book joined-IQUV 8-channel 2048² runs at
+  ≥ 46 GB. A memory task for GeMClean's polarisation path is worth
+  opening.
+
+**After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
+- **9.18, gate 3c dirty at ε 1e-6 with `-no-small-inversion` (dated post
+  hoc amendment): met on all three fields**, at 2.0e-7, 3.3e-7 and 8.1e-8
+  (bound 1e-6). C10 met.
+  - One GeMClean run was void through memory over-booking; it was rerun at
+    46 GB.
+- **9.19, full-MS gate 2b with the new P: not run (harness).** casacore
+  and CASA bulk I/O over 9p failed with ENOMEM 6 times.
+  - The sixth attempt left `R\casa\e2b.ms` unopenable. It was repaired
+    by a rehearsed twin header plus restore, and the column set and
+    native hashes equal the originals (9.20).
+  - A rerun on ext4 is proposed; it must be frozen first.
+  - Gate 2b's only reading with the new P is still the mini MS (9.16).
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
 - **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now

@@ -1098,6 +1098,20 @@ def test_the_polarisation_options_reach_gemclean():
         )
         assert errors == []
         assert path in {r.path for r in core_config.refusals(config, ["image"])}
+    # A mask on joined polarisations is passed (research/e2b-misses.md,
+    # arm A5); unjoined, it is refused.
+    masked = {**image, "auto_mask": 5.0, "auto_threshold": 3.0, "mgain": 0.9}
+    config, errors = core_config.resolve({"version": 1, "image": masked})
+    assert errors == []
+    assert core_config.refusals(config, ["image"]) == []
+    args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
+    assert ("-auto-mask", "5.0") in list(itertools.pairwise(args))
+    config, errors = core_config.resolve(
+        {"version": 1, "image": {**masked, "join_polarizations": False}}
+    )
+    assert "image.auto_mask" in {
+        r.path for r in core_config.refusals(config, ["image"])
+    }
     assert core_config.parse_pol("xx,yy") == ["XX", "YY"]
     assert core_config.parse_pol("VUQI") == ["I", "Q", "U", "V"]
     config, errors = core_config.resolve(

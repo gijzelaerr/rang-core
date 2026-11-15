@@ -1,4 +1,4 @@
-"""Arm A3's rang side and scores (research/e2b-misses.md 9.21), run with this
+"""Arm A3's rang side and scores (research/e2b-misses.md 9.23), run with this
 branch's extension (the worktree's .venv) under tools/heavy_lock.py.
 
     python a3_rang.py scorer              control X-s (archived tables)
@@ -172,7 +172,7 @@ def truth_diff(table, truth_npz, ant_names, mean=False):
     z = np.load(truth_npz)
     ref = ant_names.index("m022")
     a = table.column("ANTENNA1")
-    # mean=True (post hoc, 9.22): the true relative gain averaged over the
+    # mean=True (post hoc, 9.24): the true relative gain averaged over the
     # solution interval (1 s steps), not taken at the solution TIME.
     offs = np.linspace(-0.5, 0.5, 61) if mean else np.zeros(1)
     t = table.column("TIME")[:, None] - float(z["t0"])

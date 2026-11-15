@@ -1,0 +1,38 @@
+ == Deconvolving (1) ==
+Estimated standard deviation of background noise: 6.24 mJy
+Next major iteration at: 1.37 Jy
+Performed 25 iterations in total, 25 in this major iteration with sub-minor optimization.
+Stopped on peak 1.34 Jy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+Next major iteration at: 134.39 mJy
+Performed 51 iterations in total, 26 in this major iteration with sub-minor optimization.
+Stopped on peak 121.38 mJy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+ == Deconvolving (2) ==
+Estimated standard deviation of background noise: 1.54 mJy
+Next major iteration at: 78.79 mJy
+Performed 406 iterations in total, 355 in this major iteration with sub-minor optimization.
+Stopped on peak 78.07 mJy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+Next major iteration at: 7.72 mJy
+Performed 441 iterations in total, 35 in this major iteration with sub-minor optimization.
+Stopped on peak 7.32 mJy, because the threshold was reached.
+ == Deconvolving (3) ==
+Estimated standard deviation of background noise: 1.41 mJy
+Next major iteration at: 14.29 mJy
+Performed 7978 iterations in total, 7537 in this major iteration with sub-minor optimization.
+Stopped on peak 14.29 mJy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+Major iteration threshold reached global threshold of 7.06 mJy: final major iteration.
+Performed 7991 iterations in total, 13 in this major iteration with sub-minor optimization.
+Stopped on peak 6.94 mJy, because the threshold was reached.
+ == Deconvolving (4) ==
+Estimated standard deviation of background noise: 1.2 mJy
+Major iteration threshold reached global threshold of 6.02 mJy: final major iteration.
+Performed 28776 iterations in total, 20785 in this major iteration with sub-minor optimization.
+Stopped on peak 6.02 mJy, because the threshold was reached.
+Auto-masking threshold reached; continuing next major iteration with deeper threshold and mask.
+Major iteration threshold reached global threshold of 3.61 mJy: final major iteration.
+Performed 28780 iterations in total, 4 in this major iteration with sub-minor optimization.
+Stopped on peak 3.6 mJy, because the threshold was reached.
+ == Deconvolving (5) ==
+Estimated standard deviation of background noise: 1.06 mJy
+Major iteration threshold reached global threshold of 3.19 mJy: final major iteration.
+Performed 28780 iterations in total, 0 in this major iteration with sub-minor optimization.
+5 major iterations were performed.

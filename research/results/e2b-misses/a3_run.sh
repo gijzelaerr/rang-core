@@ -1,5 +1,5 @@
 #!/bin/bash
-# Arm A3 in WSL (research/e2b-misses.md 9.21), run by the caller under the
+# Arm A3 in WSL (research/e2b-misses.md 9.23), run by the caller under the
 # main checkout's heavy_lock.py. W is WSL ext4, P the result directory on D:.
 #   a3_run.sh lbase        luno4.ms's FIELD_ID 0 rows -> $W/luno0.ms
 #   a3_run.sh L            CASA Gpol on a copy (casa-m90's K, G, B)
