@@ -258,7 +258,7 @@ channel, shared by the four polarisations), tables 0.14, beams 2.15, PSF
 crops 0.27, three image sets 3.2.
 
 **Regression test.** `core/tests/gemclean_memory.rs` (in `cargo test` for
-`core/`, so in the `tests` workflow; CI_SENTENCE): 24 MeerKAT antennas, 40 dumps, 64
+`core/`, so in the `tests` workflow's Linux `rust` job, where it passed on the first push, run 43712203693): 24 MeerKAT antennas, 40 dumps, 64
 channels, 70 % of the cells at zero weight, 256², `-pol IQUV
 -join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2`. Peak
 heap 149,499,552 bytes before, 101,622,308 after; bound frozen at
