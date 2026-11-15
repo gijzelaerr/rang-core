@@ -301,23 +301,32 @@ class _Mutex:
             try:
                 self.m.mkdir()
                 return self
+            except PermissionError:
+                # Windows: the previous holder's rmdir is still pending (WinError
+                # 5); it is about to be free, so wait like for a held mutex.
+                pass
             except FileExistsError:
                 if not _fresh(self.m, 30.0):  # left by a crashed holder
                     try:
                         self.m.rmdir()
                     except OSError:
                         pass
-                if time.time() - t0 > 120:
-                    raise TimeoutError(
-                        f"heavy_lock: mutex {self.m} held for 120 s"
-                    ) from None
-                time.sleep(0.05)
+            if time.time() - t0 > 120:
+                raise TimeoutError(f"heavy_lock: mutex {self.m} held for 120 s")
+            time.sleep(0.05)
 
     def __exit__(self, *exc: object) -> None:
-        try:
-            self.m.rmdir()
-        except OSError:
-            pass
+        # Retry a Windows sharing violation (a waiter's stat of the mutex) as
+        # `release` does; otherwise the mutex is left for 30 s.
+        for attempt in range(200):
+            try:
+                self.m.rmdir()
+                return
+            except PermissionError:
+                if attempt < 199:
+                    time.sleep(0.01)
+            except OSError:
+                return
 
 
 def _register_shared(d: Path, command: list[str], slots: int, mem: float) -> Path:
