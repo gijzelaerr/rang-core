@@ -1409,6 +1409,86 @@ options for the owner:
 - accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
   documented convention difference between astropy and casacore.
 
+### 9.15 P1, casacore's angle in `parallactic_angle_casa`, frozen 2026-11-15 (before the code)
+
+Owner's decision, through the coordinator: the function exists to match
+CASA, so it emulates casacore in full. Branch `e2b-pcasa`. **Seen**: 9.8
+and 9.14 are known. This is a change of convention, chosen to match the
+oracle; it claims no scientific gain.
+
+Change (implemented after this note is committed):
+- `cal_pol.parallactic_angle_casa(times, ra, dec, itrf_xyz)` computes
+  casacore's AZEL parallactic angle (`MSDerivedValues::parAngle`) from
+  astropy and erfa:
+  1. the geocentric apparent place, astropy TETE without location
+     (light deflection and annual aberration), taken from IAU 2006/2000A
+     to casacore's IAU 1976/1980 equator and equinox of date by
+     `pnm80 · pnm06aᵀ` (erfa; the input numbers are kept, as casacore
+     reads J2000);
+  2. casacore's apparent sidereal time, erfa `gst94` (UT1 from astropy's
+     IERS) plus the ITRF longitude;
+  3. casacore's TOPO → HADEC step, as emulated in 9.14 (C7):
+     - the zenith shift g₂ · u(LAST, φ) with R = |ITRF position|;
+     - polar motion with x, y from astropy's IERS table;
+  4. rang's formula with the geocentric latitude φ.
+- The previous function stays as `parallactic_angle_tete`, the TETE form
+  that `simtruth`'s frozen CASA-frame truth uses. Its test compares simtruth
+  with that function, so the archived truths and their tests are
+  unchanged.
+- The angle is computed in Python; the Rust kernel (`cal/parang.rs`) only
+  rotates, so there is no Rust or GPU path to change.
+
+Fixture and unit test:
+- `tests/data/pa_casacore.json`: casacore's K (`me.posangle` in AZEL,
+  CASA 6.7.6.14's casatools) at synthetic cases, generated in the
+  container by a committed script:
+  - 4 epochs from 2019 to 2024;
+  - 3 MeerKAT antenna positions;
+  - 12 directions with Dec from −85° to +40°.
+  None of them is a field row.
+- Test: the new function is within 2e-7 rad of K on every case.
+- Development uses the fixture only.
+
+Measurement (held out: the field rows, read once after the code and test
+pass):
+- **P1-a:** the new angle against K (9.8) on the 82 values per field of
+  A1's mini MS. Tolerance **2e-7 rad**, max over both fields.
+- **P1-b**, reported: the new angle against A1b's CASA applycal probe (9.8
+  found casacore itself 2.7e-7 from it).
+- **P1-c**, gate 2b re-score as the consequence: A1's `a1_rang.py rang` and
+  `compare` rerun with the new code on the mini MS against A1's archived
+  CASA outputs.
+  - Reported: the 42 cells' maximum eps with P, against the 13.4 and 25.6
+    eps of 9.3; the correlations over 11 eps; the median over all cells of
+    the 41 rows.
+  - Class C (11 eps) on the 42 cells is the reading; the frozen 2b record
+    is not changed.
+  - A1's C3 will now differ by design (P changed), and is reported as
+    such.
+  - The full-MS 2b re-score (a fresh CASA applycal on a 218 GB copy) is
+    not run in this arm.
+
+Decision rule:
+- The unit test fails at 2e-7: the implementation is wrong. Fix it on the
+  fixture before measuring; the held-out rows are not read until then.
+- P1-a met: adopt. `frame='casa'` gives casacore's angle; STATE and the
+  CLI docs are updated.
+- P1-a not met: not adopted. Revert to the TETE form, and report the
+  residual.
+
+Cost: seconds of CPU per run; 1 slot.
+
+### 9.17 Gate 3c dirty with WSClean `-no-small-inversion`, all fields (seen, post hoc reading), 2026-11-15
+
+Asked by the coordinator after 9.12. This is a **seen, post hoc reading**,
+not a gate change. WSClean is rerun as 9.9's oracle plus
+`-no-small-inversion`, at gate 3c's frozen ε (1e-4), on the three fields
+(`a4_run.sh wsclean-nosi`, unit on/off as before). Each run is compared
+with gate 3c's archived GeMClean dirty images
+(`R\rang-run-moved\image\<field>`, which 9.10's C6 reproduced bit for bit)
+by gate 3c's measure (full image, 5 % border, inner two-thirds), read
+against A0's 1e-6.
+
 ## For the coordinator
 
 **After A4b and A1d (2026-11-15, branch `e2b-pastro`):**
