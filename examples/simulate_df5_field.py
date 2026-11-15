@@ -1,6 +1,6 @@
 """The simulated MeerKAT field of big-plan task DF5-O (research/df5o-deconv-oracles.md).
 
-    python examples/simulate_df5_field.py OUT_DIR
+    python examples/simulate_df5_field.py OUT_DIR [--sky-seed N] [--noise-seed N]
 
 Writes, into a fresh OUT_DIR:
 
@@ -26,7 +26,6 @@ against the core's DFT predictor.
 import hashlib
 import json
 import math
-import sys
 import time
 from pathlib import Path
 
@@ -829,4 +828,14 @@ def main(out):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    # Issue #23 step 4's held-out field (research/multiscale-flux-fix.md, section 4):
+    # the two seeds as options; the defaults are DF5-O's.
+    import argparse
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("out")
+    ap.add_argument("--sky-seed", type=int, default=SKY_SEED)
+    ap.add_argument("--noise-seed", type=int, default=NOISE_SEED)
+    a = ap.parse_args()
+    SKY_SEED, NOISE_SEED = a.sky_seed, a.noise_seed
+    main(a.out)
