@@ -1,5 +1,5 @@
 #!/bin/bash
-# Arm A5 in WSL (research/e2b-misses.md 9.18 and its amendment). The caller
+# Arm A5 in WSL (research/e2b-misses.md 9.21 and its amendment). The caller
 # wraps each heavy step in the main checkout's heavy_lock.py, from the WSL side.
 #   a5_run.sh slim                          private matched-state copy of R/casa/e2b.ms -> $P/e2b-slim.ms
 #   a5_run.sh ext4                          copy $P/e2b-slim.ms to WSL ext4 ($X), byte for byte (no lock: a file copy)

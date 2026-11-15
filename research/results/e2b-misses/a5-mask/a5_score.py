@@ -1,4 +1,4 @@
-"""Arm A5 (research/e2b-misses.md 9.20): gate 3c's cleaned measures, by
+"""Arm A5 (research/e2b-misses.md 9.21): gate 3c's cleaned measures, by
 e2_score3c.py's score_field unchanged, per field, pooled as its main pools.
 
     a5_score.py a5|control OUT_JSON

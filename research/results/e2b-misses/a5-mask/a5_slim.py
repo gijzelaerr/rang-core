@@ -1,4 +1,4 @@
-"""Arm A5 (research/e2b-misses.md 9.20, amendment): a private copy of gate
+"""Arm A5 (research/e2b-misses.md 9.21, amendment): a private copy of gate
 3c's matched state, so that A5 needs no rename on the shared CASA copy.
 Reads R/casa/e2b.ms read-only in either state of a4_unit.py:
 - FLAG: rang's FLAG after apply (RANG_FLAG when off, FLAG when on);

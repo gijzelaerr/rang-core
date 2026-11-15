@@ -1,4 +1,4 @@
-"""Arm A5 (research/e2b-misses.md 9.20): WSClean 3.7 needs a FLAG_CATEGORY
+"""Arm A5 (research/e2b-misses.md 9.21): WSClean 3.7 needs a FLAG_CATEGORY
 column, which a5_slim.py left out. Add it to the ext4 copy, empty, as in the
 source (no cell defined), with the source's column description.
 

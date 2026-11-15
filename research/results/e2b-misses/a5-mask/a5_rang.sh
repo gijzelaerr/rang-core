@@ -1,5 +1,5 @@
 #!/bin/bash
-# Arm A5's GeMClean side on Windows (research/e2b-misses.md 9.18), run from
+# Arm A5's GeMClean side on Windows (research/e2b-misses.md 9.21), run from
 # Git Bash; the caller wraps it in the main checkout's heavy_lock.py.
 #   a5_rang.sh e2b FID TAG   gate 3c's settings + -auto-mask 5 -> $P/rang-mask/TAG
 #   a5_rang.sh m0            M0 on G9's P1                     -> $P/m0/rang

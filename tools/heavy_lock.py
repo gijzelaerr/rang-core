@@ -173,6 +173,24 @@ def try_acquire(d: Path, command: list[str]) -> bool:
     return True
 
 
+def _unlink(path: Path, tries: int = 200) -> bool:
+    """Remove a ticket or slot file. On Windows another waiter reading it (any
+    poll reads every ticket and slot file) makes unlink fail with WinError 32;
+    retry for up to 10 s like ``release``, then leave it for the stale-ticket
+    sweep. Raising here instead killed a waiter that had just taken the lock,
+    so the lock was never released (issue 31). Sweeps pass ``tries=1``: the
+    next poll tries again."""
+    for attempt in range(tries):
+        if attempt:
+            time.sleep(0.05)
+        try:
+            path.unlink(missing_ok=True)
+            return True
+        except PermissionError:
+            pass
+    return False
+
+
 def release(d: Path) -> None:
     # On Windows a waiter reading owner.json holds it open for a moment, and
     # unlink or rmdir then fails with WinError 32 (found by check-speed under
@@ -246,7 +264,7 @@ def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
             int(info.get("pid", 0) or 0)
         )
         if dead or not _fresh(t, stale_s):
-            t.unlink(missing_ok=True)
+            _unlink(t, tries=1)
             continue
         return t
     return None
@@ -264,7 +282,7 @@ def live_shared(d: Path, stale_s: float = STALE_TICKET_S) -> list[dict]:
             continue
         dead = info.get("system") == system() and not pid_alive(int(info["pid"]))
         if dead or not _fresh(f, stale_s):
-            f.unlink(missing_ok=True)
+            _unlink(f, tries=1)
             continue
         jobs.append(info)
     return jobs
@@ -283,23 +301,32 @@ class _Mutex:
             try:
                 self.m.mkdir()
                 return self
+            except PermissionError:
+                # Windows: the previous holder's rmdir is still pending (WinError
+                # 5); it is about to be free, so wait like for a held mutex.
+                pass
             except FileExistsError:
                 if not _fresh(self.m, 30.0):  # left by a crashed holder
                     try:
                         self.m.rmdir()
                     except OSError:
                         pass
-                if time.time() - t0 > 120:
-                    raise TimeoutError(
-                        f"heavy_lock: mutex {self.m} held for 120 s"
-                    ) from None
-                time.sleep(0.05)
+            if time.time() - t0 > 120:
+                raise TimeoutError(f"heavy_lock: mutex {self.m} held for 120 s")
+            time.sleep(0.05)
 
     def __exit__(self, *exc: object) -> None:
-        try:
-            self.m.rmdir()
-        except OSError:
-            pass
+        # Retry a Windows sharing violation (a waiter's stat of the mutex) as
+        # `release` does; otherwise the mutex is left for 30 s.
+        for attempt in range(200):
+            try:
+                self.m.rmdir()
+                return
+            except PermissionError:
+                if attempt < 199:
+                    time.sleep(0.01)
+            except OSError:
+                return
 
 
 def _register_shared(d: Path, command: list[str], slots: int, mem: float) -> Path:
@@ -327,7 +354,10 @@ def _wait(
     mem: float,
     priority: str = "normal",
 ) -> Path | None:
-    ticket = take_ticket(d, slots, mem, priority)
+    # Under the mutex, so a ticket is either seen by a waiter's head check
+    # below or taken after that waiter's acquire attempt, never in between.
+    with _Mutex(d):
+        ticket = take_ticket(d, slots, mem, priority)
     stale_s = max(STALE_TICKET_S, 3 * poll)
     last = None
     try:
@@ -346,7 +376,13 @@ def _wait(
                         except OSError:
                             pass
                     shared = live_shared(d, stale_s)
-                    if slots is None:
+                    # Ask again under the mutex: a ticket that sorts first (a
+                    # critical one, or any taken while this waiter was
+                    # descheduled after the check above) must win (issue 31).
+                    head = first_live_ticket(d, stale_s)
+                    if head not in (None, ticket):
+                        pass
+                    elif slots is None:
                         if not shared and try_acquire(d, command):
                             return None
                     elif not d.exists():
@@ -366,7 +402,7 @@ def _wait(
                 last = state
             time.sleep(poll)
     finally:
-        ticket.unlink(missing_ok=True)
+        _unlink(ticket)
 
 
 def acquire(d: Path, command: list[str], poll: float, priority: str = "normal") -> None:
@@ -459,7 +495,7 @@ def run(
             return subprocess.call(command, env=_child_env(slots, mem))
         finally:
             stop.set()
-            hb.unlink(missing_ok=True)
+            _unlink(hb)
     wsl_lock = None
     if sys.platform != "win32":
         import fcntl

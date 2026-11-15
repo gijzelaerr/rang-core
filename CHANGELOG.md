@@ -9,7 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-- New (E2-B fix 5, `research/e2b-misses.md` 9.20): `gemclean -auto-mask` / `-abs-auto-mask` with
+- Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
+  casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
+  match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up
+  to about 7e-6 rad, so archived `RANG_CORRECTED_DATA` no longer matches a rerun bit for bit. The old form
+  is kept as `cal_pol.parallactic_angle_tete`.
+- New (E2-B fix 5, `research/e2b-misses.md` 9.21-9.22): `gemclean -auto-mask` / `-abs-auto-mask` with
   `-join-polarizations` (and `image.auto_mask` with `image.join_polarizations`), as WSClean 3.7's
   radler: the noise and the peaks are those of the joined I + Q + U + V residual, and the mask is
   the union of every polarisation's model pixels. Masks on unjoined polarisations and `-fits-mask`

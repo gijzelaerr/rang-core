@@ -1,5 +1,5 @@
 #!/bin/bash
-# Arm A5 (research/e2b-misses.md 9.18 and its amendment), from Git Bash on
+# Arm A5 (research/e2b-misses.md 9.21 and its amendment), from Git Bash on
 # Windows. WSL steps book the lock once, from the WSL side, at what they use;
 # GeMClean steps book it from Windows. The file copy to ext4 runs outside it.
 #   a5_queue.sh e2b    private copy (slim), its ext4 copy, then three lanes:
