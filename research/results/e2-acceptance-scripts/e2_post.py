@@ -26,6 +26,10 @@ R is the leg's result directory (D:\\...). Steps, in order:
     tricolour Tricolour 0.2.1 on the restored MS (3a), then the cell comparison
               with rang's flag stage, then `restore` again              -> R/g3a.json
 
+E2-A runs the in-place order instead (`ORDER_INPLACE`, research/e2-acceptance.md
+9.9): no `copy`; `prep-inplace`, `applycal-inplace`, `compare-inplace` and
+`snapshot-inplace` act on the leg's MS itself, then `restore` and `tricolour`.
+
 `restore` takes INPUT.json (e2_flaghash.py of the MS as converted);
 `tricolour` takes INPUT.json and the strategy file. Every step runs under
 the main checkout's tools/heavy_lock.py (the caller wraps it).
@@ -497,6 +501,126 @@ json.dump({"renamed": done, "flag_from": version, "rows": n,
 """
 
 
+# --- gate 2b in place (E2-A; research/e2-acceptance.md 9.9) ----------------------
+#
+# E2-A's MS after the chain is about 608 GiB, so `copy` cannot run (9.6). In
+# place, on the leg's MS itself and after every read of rang's columns:
+#   prep-inplace      rang's apply output (CORRECTED_1GC when selfcal copied it,
+#                     else CORRECTED_DATA) -> RANG_CORRECTED_DATA, MODEL_DATA ->
+#                     RANG_MODEL_DATA, RANG_FLAG = FLAG after rang's apply (the
+#                     flag version selfcal saved, else FLAG as it is), FLAG from
+#                     the version before apply; RECEPTOR_ANGLE must already be
+#                     -90 deg (ESO137 stores it so) and is not written
+#   applycal-inplace  CASA applycal with rang's tables into CORRECTED_DATA (with
+#                     selfcal, the existing column holding rang's selfcal output
+#                     is overwritten: no new 128 GiB column)
+#   compare-inplace, snapshot-inplace   as compare and snapshot, on the MS
+# then `restore` (FLAG from rang_original, every column not in
+# columns-before.json dropped, RANG_* included) and `tricolour`.
+ORDER_INPLACE = ["gate1", "archive", "wcs", "casacore", "casa-ro", "wsclean0", "daskms",
+                 "prep-inplace", "applycal-inplace", "compare-inplace", "snapshot-inplace",
+                 "restore", "tricolour"]  # fmt: skip
+
+
+def inplace_plan(ms):
+    """What prep-inplace renames and which flag versions it uses, from the run
+    directory alone (state.json, selfcal-input.json, apply/summary.json)."""
+    rd = run_dir(ms)
+    st = state(ms)["stages"]
+    apply = st.get("apply") or {}
+    if apply.get("status") != "done":
+        raise SystemExit("apply is not done: nothing to compare")
+    summary = json.loads((rd / "apply" / "summary.json").read_text(encoding="utf-8"))
+    column = summary.get("column", "CORRECTED_DATA")
+    marker = rd / "selfcal-input.json"
+    selfcal = st.get("selfcal") or {}
+    if marker.is_file() and "flag_version" in selfcal:
+        copied = json.loads(marker.read_text(encoding="utf-8"))
+        if copied.get("copied_from") != column or copied.get("apply_finished") != apply.get("finished"):
+            raise SystemExit(f"{marker} does not record a copy of this run's apply output")  # fmt: skip
+        rang_column, rang_flag = copied["column"], selfcal["flag_version"]
+    else:
+        rang_column, rang_flag = column, None  # FLAG as it is is FLAG after apply
+    return {"rang_column": rang_column, "rang_flag_version": rang_flag,
+            "flag_before_apply": summary["flag_version"], "applycal_writes": column}  # fmt: skip
+
+
+PREP_INPLACE_PY = r"""
+import json, sys
+import numpy as np
+from casacore.tables import table, makecoldesc
+ms, plan_path, out = sys.argv[1:4]
+plan = json.load(open(plan_path))
+B = 4000
+f = table(ms + "/FEED", ack=False)
+angle = f.getcol("RECEPTOR_ANGLE")
+f.close()
+if not np.allclose(angle, np.deg2rad(-90.0)):
+    raise SystemExit("RECEPTOR_ANGLE is not -90 deg; the in-place order does not write FEED")
+t = table(ms, readonly=False, ack=False)
+cols = t.colnames()
+done = {}
+src = plan["rang_column"]
+if "RANG_CORRECTED_DATA" not in cols:
+    t.renamecol(src, "RANG_CORRECTED_DATA")
+    done[src] = "RANG_CORRECTED_DATA"
+if "MODEL_DATA" in cols and "RANG_MODEL_DATA" not in cols:
+    t.renamecol("MODEL_DATA", "RANG_MODEL_DATA")
+    done["MODEL_DATA"] = "RANG_MODEL_DATA"
+n = t.nrows()
+if "RANG_FLAG" not in t.colnames():
+    dm = t.getdminfo("FLAG")
+    dm["NAME"] = "RangFlagTSM"
+    if "SPEC" in dm and "HYPERCUBES" in dm["SPEC"]:
+        dm["SPEC"].pop("HYPERCUBES", None)
+    t.addcols(makecoldesc("RANG_FLAG", t.getcoldesc("FLAG")), dm)
+    v = plan["rang_flag_version"]
+    fa = table(ms + ".flagversions/flags." + v, ack=False) if v else None
+    for r0 in range(0, n, B):
+        k = min(B, n - r0)
+        t.putcol("RANG_FLAG", (fa if fa is not None else t).getcol("FLAG", r0, k), r0, k)
+    if fa is not None:
+        fa.close()
+    done["RANG_FLAG"] = "FLAG after rang's apply" + (" (" + v + ")" if v else "")
+fv = table(ms + ".flagversions/flags." + plan["flag_before_apply"], ack=False)
+assert fv.nrows() == n
+for r0 in range(0, n, B):
+    k = min(B, n - r0)
+    t.putcol("FLAG", fv.getcol("FLAG", r0, k), r0, k)
+    t.putcol("FLAG_ROW", fv.getcol("FLAG_ROW", r0, k), r0, k)
+fv.close()
+t.close()
+json.dump({"renamed": done, "plan": plan, "rows": n, "receptor_angle": "-90 deg, unchanged"},
+          open(out, "w"), indent=1)
+"""
+
+
+def inplace_mounts(ms, r):
+    return [(Path(ms).parent, "/c"), (Path(r), "/p")]
+
+
+def prep_inplace(ms, r):
+    ms, r = Path(ms), Path(r)
+    plan = inplace_plan(ms)
+    write(r / "prep-inplace-plan.json", plan)
+    (r / "e2p_prep_inplace.py").write_text(PREP_INPLACE_PY, encoding="utf-8")
+    return docker(r, FORMATS_IMAGE, inplace_mounts(ms, r),
+                  f"{QC_PY} -I /p/e2p_prep_inplace.py /c/{ms.name} /p/prep-inplace-plan.json "
+                  "/p/prep-inplace.json", "prep-inplace")  # fmt: skip
+
+
+def applycal_inplace(ms, r):
+    return applycal(ms, r, mounts=inplace_mounts(ms, r))
+
+
+def compare_inplace(ms, r):
+    return compare(ms, r, mounts=inplace_mounts(ms, r))
+
+
+def snapshot_inplace(ms, r):
+    return snapshot(ms, r, mounts=inplace_mounts(ms, r))
+
+
 def apply_summary(r):
     return json.loads((Path(r) / "rang-run" / "apply" / "summary.json").read_text())
 
@@ -554,12 +678,12 @@ def applycal_spec(r, ms_inside):
     return calls
 
 
-def applycal(ms, r):
+def applycal(ms, r, mounts=None):
     ms, r = Path(ms), Path(r)
     calls = applycal_spec(r, f"/c/{ms.name}")
     write(r / "applycal-spec.json", calls)
     (r / "e2p_applycal.py").write_text(APPLY_PY, encoding="utf-8")
-    return docker(r, CASA_IMAGE, prep_mounts(r),
+    return docker(r, CASA_IMAGE, mounts or prep_mounts(r),
                   "/opt/casa/bin/python -I /p/e2p_applycal.py /p/applycal-spec.json /p/applycal-result.json",
                   "applycal")  # fmt: skip
 
@@ -603,12 +727,12 @@ print(json.dumps(res))
 """
 
 
-def compare(ms, r):
+def compare(ms, r, mounts=None):
     ms, r = Path(ms), Path(r)
     tasks = json.loads((r / "applycal-result.json").read_text())
     errors = [t for t in tasks if t["error"]]
     (r / "e2p_compare.py").write_text(COMPARE_PY, encoding="utf-8")
-    rc = docker(r, FORMATS_IMAGE, prep_mounts(r),
+    rc = docker(r, FORMATS_IMAGE, mounts or prep_mounts(r),
                 f"{QC_PY} -I /p/e2p_compare.py /c/{ms.name} /p/compare-raw.json", "compare")  # fmt: skip
     raw = json.loads((r / "compare-raw.json").read_text()) if rc == 0 else {}
     ok = (rc == 0 and not errors and raw.get("compared_cells", 0) > 0
@@ -633,13 +757,13 @@ print({k: v.shape for k, v in cols.items()})
 """
 
 
-def snapshot(ms, r):
+def snapshot(ms, r, mounts=None):
     """CASA's FLAG after applycal and rang's applied FLAG (RANG_FLAG) on the copy,
     kept before the 3b arm's prep resets FLAG (the Df flag-rule follow-up)."""
     ms, r = Path(ms), Path(r)
     (r / "df-flag-snapshot").mkdir(exist_ok=True)
     (r / "e2p_snap.py").write_text(SNAP_PY, encoding="utf-8")
-    return docker(r, FORMATS_IMAGE, prep_mounts(r),
+    return docker(r, FORMATS_IMAGE, mounts or prep_mounts(r),
                   f"{QC_PY} -I /p/e2p_snap.py /c/{ms.name} "
                   "/p/df-flag-snapshot/flags-after-applycal.npz", "snapshot")  # fmt: skip
 
@@ -777,7 +901,9 @@ STEPS = {"gate1": gate1, "archive": archive, "wcs": wcs, "casacore": casacore,
          "casa-ro": casa_ro, "wsclean0": wsclean0, "daskms": daskms, "wsclean3c": wsclean3c,
          "wsclean3c-unit": wsclean3c_unit, "copy": copy,
          "prep": prep, "applycal": applycal, "compare": compare, "snapshot": snapshot, "restore": restore,
-         "tricolour": tricolour, "columns-before": columns_before}  # fmt: skip
+         "tricolour": tricolour, "columns-before": columns_before,
+         "prep-inplace": prep_inplace, "applycal-inplace": applycal_inplace,
+         "compare-inplace": compare_inplace, "snapshot-inplace": snapshot_inplace}  # fmt: skip
 
 
 def main(argv):

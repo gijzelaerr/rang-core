@@ -1203,6 +1203,296 @@ This attempt gives no E2-A result. It is recorded so the next attempt starts fro
   - Candidate change: a selfcal `niter` or depth that keeps the CARACal stop rule reachable, such as CARACal's own niter for these images.
   - The amendment is written and committed before the rerun. The run above stays as the record of the frozen settings' cost.
 
+### 9.5 Amendment 2026-11-15: selfcal image depth for the rerun (committed before any rerun step)
+
+Branch `e2a-rerun`, from main `8eb5b4d`. Nothing of the rerun had been built or run when this was committed.
+**Post hoc** with respect to the interrupted run's cost and logs (9.4). Its author read the archived stage
+summaries, `state.json` and the two GeMClean logs: σ per major iteration, component counts, wall times. No
+gate was computed on that run and no score was read. The rerun stays on scans 9-11 by the coordinator's
+decision in 9.4 (an interruption, not a failure under 6.6), so 6.6's reserve is not used.
+
+**Why the frozen depth cannot finish.** Each selfcal image used C5b's CARACal values (owner item 29): mask
+10σ, then 6σ; clean to `clean_cutoff` 0.5σ inside it; multiscale (gated); `niter` 1,000,000. Round 1's image
+stopped at exactly 1,000,000 components after 30,615 s, 5.7 × the image stage. Its threshold
+(2.8e-5 Jy, 0.5 × σ) was not reached.
+- 9.4's candidate, "CARACal's own niter", changes nothing. CARACal's `img_niter` is 1,000,000
+  (c5b-selfcal-masks.md section 1), which is what ran. Whether WSClean with these values would also
+  stop on the cap is an inference, not measured.
+- The remaining difference from CARACal's default is multiscale. CARACal's selfcal image is Högbom, and
+  owner item 29 keeps multiscale as the gated setting. That multiscale at 0.5σ is what makes the cap bind
+  is an inference too: no Högbom run at this depth exists.
+- At about 30,615 s per image, selfcal's three images alone take about 25 h. The 30,615 s is also inflated: both
+  lock-free full checks of 9.4 (10:52-11:52 and 12:15-13:40 UTC) fall inside round 1's image
+  (05:11-13:38 UTC).
+
+**The change (one key group, nothing else).** [e2a-rerun.yaml](results/e2-acceptance-scripts/e2a-rerun.yaml)
+is `e2a.yaml` with `selfcal.cleanmask_method`, `cleanmask_thr` and `clean_cutoff` removed, plus a header.
+Every selfcal image then takes the image section unchanged (`core_config.selfcal_image_settings` with empty
+lists), which is A0 rule 6: automatic mask 5σ, clean to 3σ.
+- A0 rule 6 says "This holds for every imager" and binds rang and the oracle chain in E2 (appendix A). The
+  frozen selfcal images departed from it under item 29, so the amendment returns them to the A0 rule.
+- Its cost on this data is measured: the image stage stopped on threshold at 684,794 components in
+  5,386 s, before both overlap windows.
+- **This overrides owner item 29's "CARACal's values in E2-A's configuration" for the selfcal images.** It
+  needs the coordinator's acceptance before launch (For the coordinator).
+- **Accepted by the owner, 2026-11-15** (relayed by the coordinator, before any rerun step): A0 rule 6
+  for the selfcal images, overriding item 29, labelled post hoc as above.
+- Stage hashes: flag, calibrate, apply and image are unchanged, because their sections are byte-equal.
+  Only selfcal's hash changes.
+
+**Hypothesis and decision rule (frozen now).**
+- H: under rule 6, each of selfcal's three images (rounds 1 and 2, and the final image) stops on threshold
+  below `niter`, at about the image stage's cost.
+- Read: per image, the stop reason and component count from `gemclean.log`, and its wall time.
+- If an image still stops on `niter`, that is recorded as frozen and the run is not retuned. Gate 1 is
+  read on the exit code as before.
+- Gates, tolerances, scorers and oracles are unchanged (6.5, appendix A). The self-calibration row compares
+  image 1 (CORRECTED_1GC) with the final image at the same rule 6 depth. Under this amendment, selfcal's
+  image 1 has the image stage's settings on a copy of the same column.
+- 6.5's expectation for self-calibration (C5's model absorption, item 29) stands.
+
+**Run conditions (amended).**
+- **Wheel:** the frozen one, unchanged: `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv`, wheel SHA-256
+  `2d222c60…ee2f` with `freeze-2.txt`'s imaging extra (6.4).
+- **MS path (deviation from 6.2):** `D:\rang\outputs\e2a-20261115\e2a.ms`, rebuilt from the same zarr
+  groups (9.1) and verified against 9.1's records (9.8). Main's extension ran the converter, not the
+  frozen wheel. Its `core_ms_write` is the frozen wheel's apart from read-side additions, and the
+  discriminating checks are `verify`'s 0 differing cells and the FLAG/FLAG_ROW hashes.
+- **Host:** exclusive heavy lock, as 6.4. **No lock-free job may run on the host during the run**, the
+  coordinator's full checks included. `e2_diskguard.py` (9.6) samples the host's CPU load and process
+  count every 60 s, durably, so an overlap is visible in the record.
+- **Interruption:** a power cut, a host failure or a disk halt (9.6) gives "interrupted", not a gate-1
+  failure, as in 9.4. The same command resumes it after any interrupted write-back is restored:
+  `rang-core run` skips finished stages whose hash is unchanged. Gate 1 is then reported as "met with
+  one resume after <cause>", labelled, and wall time per stage as measured. **Not tested:** a resume
+  after a kill in the middle of a stage on this MS; the write-back journal (W1) is what should allow it.
+
+**What changed on main since the frozen wheel, and whether it is in the rerun.** All three are **out**,
+because the frozen wheel stays. None is on E2-A's path in any case:
+
+| Change | Where | E2-A's path | In the rerun |
+| --- | --- | --- | --- |
+| Parallactic angle follows casacore (`parallactic_angle_casa`, `720c8de`) | e2b-misses.md 9.15-9.16 | Not evaluated: `e2a.yaml` has no polcal term (`calibrate.polcal.terms: []`) and `apply.parang: false` (`config.resolved.json`). K, G and B do not call it. Gate 2b's CASA applycal runs with `parang=False` too | out (no effect either way) |
+| GeMClean joined-IQUV auto-mask (as WSClean radler) | e2b-misses.md 9.21-9.22 | Stokes I, `join_polarizations: false`. The Stokes I auto-mask is in the frozen wheel and ran in 9.4 | out (no effect) |
+| Chunk-task API and local executor (`core_tasks`, issue #3) | chunk-task-api.md | `data.processes` defaults to 1, in process. The frozen wheel predates it, and its timing runs are still open | out |
+
+### 9.6 Disk budget and stop rule (2026-11-15)
+
+Units are GiB (2^30 bytes), as `shutil.disk_usage` and `du` report them.
+
+- One cell column is 1,047,614 rows × 4,096 × 4 = 17,164,107,776 cells.
+- A complex64 column is 127.9 GiB, WEIGHT_SPECTRUM (float32) 63.9 GiB and FLAG (bit-packed) 2.0 GiB.
+- A flag version is 2.0 GiB, bit-packed: e2b.ms's versions measure 535 MiB at 272,916 rows.
+- The run directory holds images, tables and logs. A 4,096², 8-channel image set is about 3 GiB, and
+  5 GiB per imaging run is budgeted.
+- Write-back adds columns in place (`ensure_column`, TiledShapeStMan) and makes no transient copy, so the
+  peak is the end state.
+
+| Stage | Creates | New GiB | MS + run dir after |
+| --- | --- | --- | --- |
+| build (`e2_convert.py`) | DATA, WEIGHT_SPECTRUM, FLAG, row columns, subtables | 194 (measured 9.1) | 194 |
+| flag | flag versions `rang_original`, `rang_flag_*` | 4 | 198 |
+| calibrate | MODEL_DATA (setjy), version, tables | 130 | 328 |
+| apply | CORRECTED_DATA, version | 130 | 458 |
+| image | images | 5 | 463 |
+| selfcal | CORRECTED_1GC (copy of CORRECTED_DATA), version, 3 images. MODEL_DATA and CORRECTED_DATA are rewritten in place | 145 | **608** |
+
+9.4's run matches this: 578 GB MS, 386 GB of it the run's columns.
+
+**Dropped or reused.**
+- MODEL_DATA and CORRECTED_DATA are already reused: selfcal rewrites them in place.
+- None of the four complex columns can be dropped. MODEL_DATA is calibrate's and selfcal's model, and gate
+  2b's WSClean and QuartiCal read it. CORRECTED_DATA is apply's output, selfcal's output and gate 2b's
+  input. CORRECTED_1GC is selfcal's input in every round and the row's image 1. DATA is the input.
+- `apply.column: CORRECTED_1GC` with `image.column: CORRECTED_1GC` only skips the copy (about 600 s).
+  Selfcal still creates CORRECTED_DATA, so the peak is the same. Not adopted.
+- WEIGHT_SPECTRUM (64 GiB) is never read by the rang arm, which uses `data.weights: uniform` and
+  `-unit-weights`. Dropping it is a converter change to the verified input, though, and the oracle copies
+  use it. Not adopted, and the run would still be short without it.
+- Flag versions of 2 GiB each are not worth deleting.
+
+**Start rule (replaces 9.2's 470).** Free space on D: right before launch must be at least the chain's
+writes, 414 GiB, plus the 150 GiB floor plus a 40 GiB margin for other sessions and WSL's `ext4.vhdx`
+during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 470 had no floor, and in
+9.4 the other sessions took about 75 GiB during the run.
+
+**It does not fit today.**
+- D: had 508 GiB free at 13:00 on 2026-11-15, so after the build it has 314 GiB.
+- That is **291 GiB short** of the start rule. With no space freed, the chain would take D: to about
+  -100 GiB.
+- No configuration change in the frozen chain closes this. The fix is disk.
+- Candidates (sizes by `du` today; none deleted here, and each deletion needs the coordinator or owner):
+
+| Path | GiB | What it is |
+| --- | --- | --- |
+| `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` (+ `.flagversions`) | 222 | E2-B frozen arm's CASA copy (8.3, 9.2; chi-offset read it; 2b was re-scored on an ext4 copy, e2b-misses 9.24) |
+| `D:\rang\data\e2-b\e2b.ms` (+ `.flagversions`) | 55 | E2-B input, restored; rebuildable from the zarr (34 GiB, kept) |
+| `R\wsclean3c`, `R\wsclean3c-unit` | 22 | E2-B 3c oracle images, scored |
+| WSL `D:\wsl\Ubuntu\ext4.vhdx` | 135 reclaimable | file 303 GiB, 168 GiB used inside (`df`). Compacting needs `wsl --shutdown`, which stops every WSL session |
+| `outputs\20261104-speed`, `20261103-gemclean-heldout`, `e1-20261109-03`, `e3-20261111-input` | 69, 56, 52, 51 | other tasks' data (E3-B's input among them) |
+
+- E2-B's own three rows free 299 GiB. That leaves 613 GiB at launch and about 199 GiB at the end of the
+  run, so it meets the rule **for the rang arm's run (gate 1) only**. Compacting the vhdx adds margin.
+- E: (464 GiB free) is not used, because rang's large data stays on D:.
+- **Deleted 2026-11-15 (owner's approval; the coordinator deleted them, after the rebuild of 9.8):**
+  - `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` and `.flagversions`;
+  - `D:\rang\data\e2-b\e2b.ms` and `.flagversions`;
+  - `R\wsclean3c` and `R\wsclean3c-unit`. Their small `.out` and `.json` logs are kept.
+  - WSL's `ext4.vhdx` is now sparse and trimmed. Its allocated space returns only after an
+    administrator `Optimize-VHD`, which the owner runs.
+  - **D: had 645.4 GiB free at 14:55 local** (`(Get-PSDrive D).Free / 1GB`; the coordinator read
+    600.7 GiB earlier), above the 605 GiB start rule, with `e2a.ms` (194 GiB) already built.
+
+**The post chain (6.5) does not fit as written** (resolved by the in-place order of 9.9).
+- `e2_post.py` runs `copy` before `restore`: the whole MS and its flag versions go to `R\casa\`, about
+  598 GiB for E2-A against 218 GiB for E2-B. `prep` then adds RANG_FLAG (2 GiB) on the copy, and CASA
+  `applycal` writes CORRECTED_DATA (128 GiB).
+- That is about 728 GiB on top of the run's 608, while the original still exists. With E2-B's 299 GiB
+  freed, D: would need about 680 GiB more than it will have. Freeing everything listed above does not
+  cover it either.
+- **Proposed here; the owner chose it, and 9.9 implements it in a corrected form:** an E2-A in-place
+  order for `e2_post.py`.
+  1. Every read of rang's columns runs on `e2a.ms` itself: casacore, casa-ro, wsclean0, daskms, the 3c
+     WSClean images, and QuartiCal's self-calibration gains on CORRECTED_1GC against MODEL_DATA, with no
+     output column.
+  2. CORRECTED_1GC is dropped (−128).
+  3. CORRECTED_DATA is renamed RANG_CORRECTED_DATA, and CASA applycal writes a new CORRECTED_DATA (+128).
+  4. `compare`, then `restore`.
+  The peak stays at about 610 GiB, inside the start rule's figure, and no copy is made.
+- The oracle arms run after `restore`, when rang's columns are dropped: CASA's K G B with its own
+  MODEL_DATA and CORRECTED_DATA, then WSClean. They peak at about 450 GiB.
+- `e2_diskguard.py` does not wrap the post chain. Its steps should run inside it too.
+- Without that change, gate 2b's CASA applycal row is "not checked" on E2-A for disk (6.5's rule).
+
+**Stop rule (new harness, flagged).**
+[e2_diskguard.py](results/e2-acceptance-scripts/e2_diskguard.py), tested in
+`tests/test_e2_diskguard.py`, wraps the timed command inside the lock.
+- Every 5 s it reads D:'s free space. Below **165 GiB** it stops the command's own process tree. psutil's
+  terminate is already a hard kill (TerminateProcess) on Windows, so there is no grace period here. It
+  writes a `halt` record and exits 75.
+- The 15 GiB above the floor covers one poll at the measured write rate (a 128 GiB column in apply's
+  599 s, 0.22 GiB/s, about 1 GiB per poll) and other sessions' writes.
+- `--start-min-free-gib 605` refuses to start below the start rule. It is checked when the exclusive lock
+  is granted, not when the run was queued; the launch script's earlier check only refuses to queue. It
+  touches no other process.
+- Every 60 s it appends a durable JSON line: free GiB, tree RSS, tree CPU seconds, host load and host
+  process count. These are the per-stage records that 9.4 lost with `e2_timed.py`.
+- A halt is an interruption under 9.5 and is resumed by the same command. The guard does not change the
+  timing method: `e2_timed.py` still runs inside it.
+
+### 9.7 Wall time, memory and lock (estimate, from 9.4's records)
+
+- **Flag, calibrate, apply, image: 13,086 s, measured in 9.4** (2,556 + 4,545 + 599 + 5,386). It ran
+  01:24-05:03 UTC, before both overlap windows, so it is clean.
+- **Selfcal (estimated):**
+  - copy into CORRECTED_1GC: about 600 s, as apply's column write;
+  - three images at rule 6: about 5,400 s each, 16,200 s;
+  - two rounds of predict, solve and apply. Round 1's took under 6,700 s: it ran from 13:38 UTC, and
+    round 2 had started before the cut at about 15:30 UTC. Each round writes MODEL_DATA and
+    CORRECTED_DATA (about 600 s each, as apply), so 1,500-6,700 s per round.
+  - Selfcal total: **19,800-30,200 s**.
+- **Whole run: about 33,000-43,000 s (9-12 h)**, plus the post chain (6.5), which runs separately and
+  shared.
+- **Lock: exclusive** (6.4, A0 rule 7). Memory: the image-stage peak was not captured in 9.4. G2's
+  pilot at 512 channels peaked at 19.7 GB in GeMClean, calibrate plans within `data.memory_limit_gb` 8,
+  and smoke b peaked at 8.3 GB. Exclusive use of the 63 GB host covers this, and the guard's records
+  give the measured peak.
+- **Priority:** critical, as 9.2, only on the coordinator's word.
+- **Launch** (Git Bash, from the worktree):
+  `PRIORITY=critical bash research/results/e2-acceptance-scripts/e2a_rerun_launch.sh`.
+  [e2a_rerun_launch.sh](results/e2-acceptance-scripts/e2a_rerun_launch.sh) checks the start rule and writes
+  `columns-before.json`. It then runs heavy lock exclusive → `e2_diskguard.py` (165 GiB) → `e2_timed.py` →
+  `rang-core run e2a-rerun.yaml e2a.ms` from the frozen wheel venv. Logs go to
+  `D:\rang\outputs\e2a-20261115\e2a-run.log`, `e2a-guard.jsonl` and `e2a-timed.json`.
+
+### 9.8 The rebuilt MS (built and verified 2026-11-15, after 9.5-9.7 were committed at `2cefa7f`)
+
+`D:\rang\outputs\e2a-20261115\e2a.ms`, built by
+[e2a_rerun_build.sh](results/e2-acceptance-scripts/e2a_rerun_build.sh). It runs `e2_convert.py build`
+and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`'s extension, built by
+`check_all.py --quick`). Each step is a shared heavy-lock job inside `e2_diskguard.py`. Records are in
+[results/e2-acceptance/e2a-rerun/](results/e2-acceptance/e2a-rerun/).
+
+- **Equal to 9.1's archive:**
+  - `e2a.ms.convert.json`: groups, row ranges, attributes, 1,047,614 rows, 61 antennas, 4,096 channels
+    and both fields, apart from `seconds`.
+  - `verify.json`: 0 differing cells in DATA, WEIGHT_SPECTRUM and FLAG (17,164,107,776 each) and 0 in
+    every row column.
+  - FLAG SHA-256 `1aec438d…3baa` and FLAG_ROW `b528098a…89d6`: gate 2a's reference is unchanged.
+  - The main-table column set equals 9.4's `columns-before.json`, 23 columns.
+  - `du` is 194 GiB.
+- **Cost:**
+
+  | Step | Wall | Booked | CPU | Peak tree RSS |
+  | --- | --- | --- | --- | --- |
+  | build | 822 s (9.1: 1,304 s) | 4 slots, 8 GB | 0.93 cores | 0.56 GiB |
+  | verify | 777 s | 4 slots, 8 GB | 0.91 cores | 0.67 GiB |
+  | hash | 30 s | 2 slots, 4 GB | – | 0.16 GiB |
+
+  The converter is single-threaded, so 1 slot and 2 GB would be the honest booking next time.
+- `rang-core config check e2a-rerun.yaml e2a.ms` from the frozen wheel venv:
+  "valid for flag, calibrate, apply, image, selfcal" (`config-check-rerun.txt`).
+- **Smoke:** `e2_dryrun.py a-rerun` ran from the frozen wheel venv on A1 small (shared, 4 slots) and met
+  6.4's rule.
+  - Exit 0, 26 s wall, 1.35 GiB peak; all five stages done.
+  - Every selfcal image ran with `-auto-mask 5.0 -auto-threshold 3.0` and stopped on threshold.
+- **Launch nesting smoke:** shared lock (4 slots) → `e2_diskguard.py --start-min-free-gib 300` →
+  `e2_timed.py` → `e2_dryrun.py a-rerun`, the launch's chain with the smoke in place of the run. It
+  gave rc 0, 25 s and 1.26 GiB, with both records written (`nesting-smoke-*.json`).
+  `e2_post.py columns-before` ran from the worktree `.venv` on the new MS and listed 23 columns.
+- **Revised 2026-11-15 14:10, before any run** (the amendment's change itself is unaltered):
+  - the start rule is now checked inside the lock;
+  - the post-chain disk paragraph is added;
+  - two statements are relabelled as inference, and the untested resume is labelled.
+- An attempt 0 at 13:20 failed in 5 s, before writing anything, because the extension was not yet built.
+  Its logs are `attempt0-*` in the output directory.
+- **D: after the build: 313 GiB free, 292 GiB short of 9.6's start rule (605).** The run is ready to
+  launch once that space exists and the coordinator accepts 9.5. Both conditions were met later on
+  2026-11-15 (9.5, 9.6).
+
+### 9.9 Gate 2b in place on E2-A (implemented 2026-11-15, before any run; owner's choice)
+
+`e2_post.py` gains `ORDER_INPLACE`, which E2-A uses in place of `ORDER`.
+- **Steps, in order:** gate1, archive, wcs, casacore, casa-ro, wsclean0, daskms, then
+  **`prep-inplace`, `applycal-inplace`, `compare-inplace`, `snapshot-inplace`**, then restore and
+  tricolour. There is no `copy` step.
+- **The proposal in 9.6 was corrected in one point before any code ran.** With selfcal, rang's apply
+  output is **CORRECTED_1GC**: selfcal copied apply's CORRECTED_DATA into it before overwriting
+  CORRECTED_DATA with its own output. Gate 2b compares CASA applycal with rang's 1GC tables (K1, G1,
+  B1) against rang's apply output, so that is the column to compare. Comparing CORRECTED_DATA, as E2-B's
+  order does, would compare against selfcal's output.
+- `inplace_plan` reads the run directory.
+  - If `selfcal-input.json` records a copy of this run's apply output (same column and apply
+    timestamp), rang's column is CORRECTED_1GC. RANG_FLAG is then the flag version that selfcal saved
+    at its start, which is FLAG after apply.
+  - Otherwise rang's column is apply's own column, and RANG_FLAG is FLAG as it stands (E2-B's
+    reading).
+  - FLAG is reset from the version saved before apply, as in E2-B's `prep`.
+- `prep-inplace` renames rang's column to RANG_CORRECTED_DATA and MODEL_DATA to RANG_MODEL_DATA, and
+  adds RANG_FLAG (2 GiB).
+  - It refuses to run unless RECEPTOR_ANGLE is already −90°, which it is in ESO137's stores (6.2), so
+    FEED is not written.
+  - CASA `applycal` then writes CORRECTED_DATA. With selfcal, that column exists and holds rang's
+    selfcal output, which is overwritten in place, so no new 128 GiB column appears. Every read of it
+    (casacore, wsclean0, daskms) comes earlier in the order.
+- `compare-inplace` and `snapshot-inplace` are E2-B's `compare` and `snapshot` with the MS's own
+  directory mounted as `/c`. `restore` then drops every column not in `columns-before.json` (RANG_*
+  included) and restores FLAG from `rang_original` (gate 2a).
+- **Peak:** the run's 608 GiB plus 2 GiB for RANG_FLAG.
+- **Must also run before `prep-inplace`, not written here:** E2-A's own reads of CORRECTED_1GC and
+  MODEL_DATA, which are gate 3c's WSClean images at the image stage's settings and QuartiCal's
+  self-calibration gains. After `prep-inplace` they read RANG_CORRECTED_DATA and RANG_MODEL_DATA.
+  `e2_post.py wsclean3c` is E2-B's (IQUV, `-join-polarizations`) and reads CORRECTED_DATA, so it does
+  not serve E2-A.
+- **Tests:** `tests/test_e2_post_inplace.py`, 8 tests.
+  - The plan, with and without selfcal, and a stale copy refused.
+  - The order: no copy, the reads before prep, restore and tricolour last.
+  - The CASA steps mount the MS itself.
+  - `PREP_INPLACE_PY` run against a casacore stand-in: renames, RANG_FLAG from selfcal's version, FLAG
+    from the version before apply, refusal of another RECEPTOR_ANGLE.
+  - Not tested here: the scripts inside the containers against a real MS. The first real run is E2-A's
+    post chain.
+
 ## For the coordinator
 
 (written at the end)
