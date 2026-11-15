@@ -1,0 +1,13 @@
+[
+ {
+  "logfile": "/w/X/casa-prep.log"
+ },
+ {
+  "task": "putflags",
+  "args": {
+   "vis": "/w/x17.ms",
+   "version": "/d/outputs/e2-20261111-20-e2b/casa/e2b.ms.flagversions/flags.rang_apply_20261112T013707Z",
+   "first": 0
+  }
+ }
+]

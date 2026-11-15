@@ -72,6 +72,15 @@ rang's own solve flags, both composites meet class B (medians 4.2e-5 and
   diurnal shift and polar motion). Not met at 2e-7 under the rule; no
   fix.
 
+**Update, 2026-11-15 (arm A3, sections 9.21 and 9.22):** the Gpol row is
+closed as an estimator convention. With `calibrate.casa_phase_weights`
+(CASA's phase-only datum, read from CASA's source), rang's Gpol meets
+class B on E2-B scan 17: median 0.00038° against CASA re-solved on A2's
+matched K, G, B (0.120° with `average_freq` alone, 0.270° without). On LUNO
+dev it is 1.1e-4°, and on the simulation 1.6e-6°. The key's default
+stays false; per the rule it becomes the E2 configuration's for the next
+unseen leg.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -1735,7 +1744,108 @@ Disk: about 30–40 GB per field-0 copy of X, about 10 GB per copy of L and S;
 at most four copies at once (D: holds WSL's ext4 too), with at least 150 GB
 left on D:.
 
+### 9.22 A3 measured, 2026-11-15: met on L and X; S and L without power
+
+Runs:
+- Code: this branch at `55f7b0b` (the key, committed after 9.21 at
+  `ba26fb2`), extension built by `check_all --quick` into the worktree's
+  `.venv`.
+- Scripts: `a3_spec.py`, `a3_casa.py`, `a3_run.sh` (WSL, CASA 6.7.6.14 at
+  OMP 1, 1 slot each) and `a3_rang.py` (Windows). Outputs in
+  `D:\rang\outputs\e2b-gpol-20261115`; receipts in
+  [results/e2b-misses/a3/](results/e2b-misses/a3/) (`a3.json` scores and
+  controls, `scorer.json`, `models.json`, each set's CASA `result.json`,
+  `spec.json`, `base.json` and rang `arms-*.json`).
+- Copies: L's and S's field-0 base (20,000 rows, 8.6 GB) and X's (118,104
+  rows, 22 GB), each a CASA deep copy with source rows checked
+  (`base.json`: rows match the source, contiguous from row 0). X's FLAG
+  from the flag version: 118,104 rows written. All copies were deleted after
+  scoring.
+
+Controls (all met):
+
+| Control | Measure | Value | Bound |
+| --- | --- | --- | --- |
+| X-s, scorer | frozen / amended archived Gpol | 0.27808° / 0.12356° (equal to `g3b.json`) | within 1e-3° |
+| X0, rang harness | arm T on X against `R/rang-run/calibrate/Gpol` | max 1.7e-6°, flags equal | max ≤ 1e-4° |
+| XC, CASA harness | CC against `R/casa/tables/Gpol` | median 5.2e-6°, max 6.5e-5°, flags equal | median ≤ 1e-3° |
+| LC, CASA harness | L re-solve against `casa-m90` Gpol | median 0.0, max 4.1e-5°, flags equal | median ≤ 1e-3° |
+| S-pt | F and K against CASA, point model | 9.4e-5° and 1.7e-6° | median ≤ 0.1° |
+| Models | rang's against CASA's `setjy` model, L / X | max relative 2.1e-11 / 2.5e-11 | 1e-6 / 1e-5 |
+
+Gpol phase against CASA (median / p95 / max, degrees; 1,060 solutions on X,
+148 on L, 224 on S; equal interval counts on every pair, no solution flag
+differs except one on L arm F):
+
+| Set (CASA oracle) | T (`average_time`) | F (+ `average_freq`) | **K (+ `casa_phase_weights`)** | Class B on K |
+| --- | --- | --- | --- | --- |
+| S-res (CASA on the same MS) | 0.0046 / 0.025 / 0.028 | 0.0020 / 0.010 / 0.012 | **1.6e-6 / 5.0e-6 / 8.1e-6** | met |
+| S-pt (control) | 1.6e-4 / 4.9e-4 / 6.7e-4 | 9.4e-5 / 2.8e-4 / 4.0e-4 | 1.7e-6 / 5.7e-6 / 1.4e-5 | met |
+| L (CASA's K, G, B both sides) | 0.162 / 0.69 / 1.08 | 0.073 / 0.32 / 0.46 | **1.1e-4 / 4.8e-4 / 1.9e-3** | met |
+| **X against CM** (A2's matched K, G, B) | 0.270 / 2.18 / 2.92 | 0.120 / 0.96 / 1.22 | **3.8e-4 / 1.5e-3 / 2.7e-3** | **met** |
+| X against CR (rang's K, G, B both sides; descriptive) | 0.271 / 2.18 / 2.92 | 0.120 / 0.96 / 1.22 | 1.8e-4 / 4.5e-4 / 7.2e-4 | – |
+
+Against the simulation's true gains (m022's gauge; descriptive), CASA and
+every rang arm are within 0.004° of each other: medians 0.444° (CASA) and
+0.445–0.447° on S-res, 0.148° on S-pt. The noise sets that, not the
+estimator.
+
+**Outcome under the frozen rule: met on L and X; the key becomes the E2
+configuration's for the next unseen leg** (E2-A has no polcal, so E3 or the
+reserve). The default stays false until then.
+
+Two power branches apply, as frozen:
+- **S has no power.** F already meets class B on S-res (0.0020°): the
+  frozen companion (1.5 Jy at 2.6″, about 10 % of I) moves the two
+  estimators apart by far less than 0.1°. S is reported, and the rule reads
+  L and X.
+- **L has no power.** F already meets class B on L (0.073°). L is reported,
+  and the rule reads S and X.
+- Both together leave X as the deciding set. X is met by a factor of 260
+  (0.00038° against 0.1°). L and S are also met on K. Neither power branch
+  says what happens when both apply; this reading (X decides) is stated
+  here, not frozen.
+
+What the numbers show:
+- On every set, K agrees with CASA 2–4 orders closer than F:
+  - 1.6e-6° on the simulation, which is float32 rounding;
+  - 1.1e-4° on L, where both sides apply the same tables;
+  - 1.8e-4° on X with the same tables (CR).
+  So the port is CASA's estimator. Section 2's weighting and averaging
+  order were the whole of the Gpol miss.
+- The 3b confound (section 2 item 3) is small once the estimator matches:
+  X against CM is 3.8e-4°, against CR 1.8e-4°. Under T and F it was
+  invisible beside the estimator difference (0.270° and 0.120° against both).
+- On X, arm F reproduces the amended miss (0.120° against the archived
+  0.124°, which also had the amended arm's other inputs) and arm T the
+  frozen one (0.270° against 0.278°). The residual differences are CASA's
+  K, G, B (CM against the 3b run's).
+- Flags: 0 of 1,060 Gpol solution flags differ on X in any arm. The
+  rescaled SNR did not move `minsnr` here.
+
+Cost: CASA L 1,107 s, S 1,305 s, X 638 s (setjy 115 s, three Gpol solves
+165–181 s), peak RSS 1.6–3.7 GB; rang arms L 99–101 s, S 99–115 s, X 503–722
+s at 4 threads, peak RSS 2.85 GB on every set (8 GiB budget); copies 728 s
+(L) and 1,514 s (X).
+
 ## For the coordinator
+
+**After A3 (2026-11-15, branch `e2b-gpol`; 9.21, 9.22):**
+- **Met on L and X.** The new key `calibrate.casa_phase_weights` (needs
+  `average_freq`; calmode `p` only; default false, off byte-identical) puts
+  rang's Gpol at 0.00038° from CASA on E2-B scan 17 (class B 0.1°). It was
+  0.120° with `average_freq` alone and 0.270° as frozen. LUNO dev: 1.1e-4°.
+  Simulation: 1.6e-6°.
+- The simulation and LUNO had no power as frozen (`average_freq` alone
+  already met 0.1° there), so X decided. K is 2–4 orders closer than F on
+  all three sets.
+- CASA's order, read from source: divide by the model per channel, average,
+  then normalise the averaged datum. This corrects section 2 item 1 (not
+  per-channel `w|R|²`).
+- Owner: set `casa_phase_weights: true` (with `average_freq`) in the E3 or
+  reserve configuration, as the rule says; whether it becomes the default
+  is not decided here.
+- Every copy was deleted; the receipts are in `results/e2b-misses/a3/`.
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
 - **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now

@@ -20,6 +20,21 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
+- New key `calibrate.casa_phase_weights`. It needs `average_freq` and acts
+  on calmode `p` only; default false, and off is byte-identical. It gives
+  CASA's phase-only datum, read from CASA's source: divide by the model per
+  channel with weight `w|M|²`, average, then normalise to unit amplitude
+  with the weight times amp².
+- Measured against CASA 6.7.6.14, Gpol phase median:
+  - E2-B scan 17 (CASA on A2's matched K, G, B): 0.00038° (0.120° with
+    `average_freq`, 0.270° as frozen);
+  - LUNO dev: 1.1e-4°;
+  - simulation: 1.6e-6°.
+- Met under the frozen rule (class B 0.1°). The simulation and LUNO had no
+  power, so E2-B decided. The key is for the next unseen leg's
+  configuration.
+
 E2-B P1 and 3c, 2026-11-15 (branch `e2b-pcasa`; [e2b-misses.md](e2b-misses.md) 9.15–9.17):
 - `cal_pol.parallactic_angle_casa` now computes casacore's AZEL
   parallactic angle: the IAU 1976/1980 apparent place, `gst94`,

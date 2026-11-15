@@ -1,0 +1,137 @@
+[
+ {
+  "logfile": "/w/X/casa.log"
+ },
+ {
+  "task": "receptor",
+  "args": {
+   "vis": "/w/x17.ms",
+   "deg": -90.0
+  }
+ },
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/w/x17.ms",
+   "field": "J1331+3030",
+   "standard": "manual",
+   "fluxdensity": [
+    14.7172,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "spix": [
+    -0.4507,
+    -0.1798,
+    0.0357
+   ],
+   "reffreq": "1.47GHz",
+   "polindex": [
+    0.098
+   ],
+   "polangle": [
+    0.575959
+   ],
+   "rotmeas": 0.0,
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "model_rows",
+  "args": {
+   "vis": "/w/x17.ms",
+   "rows": [
+    0,
+    60000,
+    118103
+   ],
+   "out": "/p/X/casa-model.npy"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/x17.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/X/Gpol-CC",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/tabs/cc/K",
+    "/w/tabs/cc/G",
+    "/w/tabs/cc/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/x17.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/X/Gpol-CM",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/tabs/cm/K",
+    "/w/tabs/cm/G",
+    "/w/tabs/cm/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/x17.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/X/Gpol-CR",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/tabs/cr/K",
+    "/w/tabs/cr/G",
+    "/w/tabs/cr/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]
