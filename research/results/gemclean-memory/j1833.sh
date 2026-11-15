@@ -9,7 +9,7 @@
 set -u
 P=D:/rang/outputs/gemclean-memory-20261115
 H=$(cd "$(dirname "$0")" && pwd)
-PY=C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe
+PY=C:/Users/gijsm/Worktrees/rang/gemclean-memory/.venv/Scripts/python.exe
 tag=$1; run=$2; shift 2
 out=$P/j1833/$tag; mkdir -p "$out"
 case "$run" in *python*) pre=("$run" -m rang.gemclean) ;; *) pre=("$run") ;; esac
