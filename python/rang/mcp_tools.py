@@ -183,15 +183,36 @@ def _pid_alive(pid):
     return True
 
 
+# On Windows a reader holding a job file open makes the writer's os.replace
+# onto it fail with PermissionError, and a reader opening it while the replace
+# runs fails the same way (issue 30). The poller (`_waited`, `job_log`) and the
+# runner touch the same file, so both sides retry for a short while.
+_SHARING_RETRY_S = 10.0
+
+
+def _retry_sharing(call):
+    deadline = time.monotonic() + _SHARING_RETRY_S
+    delay = 0.001
+    while True:
+        try:
+            return call()
+        except PermissionError:
+            if os.name != "nt" or time.monotonic() >= deadline:
+                raise
+            time.sleep(delay)
+            delay = min(2 * delay, 0.05)
+
+
 def _read_json(path):
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    path = Path(path)
+    return json.loads(_retry_sharing(lambda: path.read_text(encoding="utf-8")))
 
 
 def _write_json(path, payload):
     path = Path(path)
     tmp = path.with_name(path.name + ".tmp")
     tmp.write_text(json.dumps(payload, indent=1) + "\n", encoding="utf-8", newline="\n")
-    os.replace(tmp, path)
+    _retry_sharing(lambda: os.replace(tmp, path))
 
 
 def _fingerprint(path):
@@ -777,6 +798,10 @@ class Tools:
             for runner in self._runners:
                 runner.poll()  # reap finished runners
             record = job_status(_read_json(job_path))
+            if record["state"] == "lost":
+                # The runner may have written `exit` and quit between the read
+                # and the pid checks: read once more before calling it lost.
+                record = job_status(_read_json(job_path))
             if record["state"] in ("done", "failed", "lost"):
                 break
             if time.monotonic() >= deadline:

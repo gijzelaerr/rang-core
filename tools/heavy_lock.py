@@ -173,6 +173,24 @@ def try_acquire(d: Path, command: list[str]) -> bool:
     return True
 
 
+def _unlink(path: Path, tries: int = 200) -> bool:
+    """Remove a ticket or slot file. On Windows another waiter reading it (any
+    poll reads every ticket and slot file) makes unlink fail with WinError 32;
+    retry for up to 10 s like ``release``, then leave it for the stale-ticket
+    sweep. Raising here instead killed a waiter that had just taken the lock,
+    so the lock was never released (issue 31). Sweeps pass ``tries=1``: the
+    next poll tries again."""
+    for attempt in range(tries):
+        if attempt:
+            time.sleep(0.05)
+        try:
+            path.unlink(missing_ok=True)
+            return True
+        except PermissionError:
+            pass
+    return False
+
+
 def release(d: Path) -> None:
     # On Windows a waiter reading owner.json holds it open for a moment, and
     # unlink or rmdir then fails with WinError 32 (found by check-speed under
@@ -246,7 +264,7 @@ def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
             int(info.get("pid", 0) or 0)
         )
         if dead or not _fresh(t, stale_s):
-            t.unlink(missing_ok=True)
+            _unlink(t, tries=1)
             continue
         return t
     return None
@@ -264,7 +282,7 @@ def live_shared(d: Path, stale_s: float = STALE_TICKET_S) -> list[dict]:
             continue
         dead = info.get("system") == system() and not pid_alive(int(info["pid"]))
         if dead or not _fresh(f, stale_s):
-            f.unlink(missing_ok=True)
+            _unlink(f, tries=1)
             continue
         jobs.append(info)
     return jobs
@@ -366,7 +384,7 @@ def _wait(
                 last = state
             time.sleep(poll)
     finally:
-        ticket.unlink(missing_ok=True)
+        _unlink(ticket)
 
 
 def acquire(d: Path, command: list[str], poll: float, priority: str = "normal") -> None:
@@ -459,7 +477,7 @@ def run(
             return subprocess.call(command, env=_child_env(slots, mem))
         finally:
             stop.set()
-            hb.unlink(missing_ok=True)
+            _unlink(hb)
     wsl_lock = None
     if sys.platform != "win32":
         import fcntl
