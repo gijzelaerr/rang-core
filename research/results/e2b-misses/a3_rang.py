@@ -166,22 +166,28 @@ def scorer():
     return 0
 
 
-def truth_diff(table, truth_npz, ant_names):
+def truth_diff(table, truth_npz, ant_names, mean=False):
     """Rang's or CASA's Gpol against the simulation's gains, both in
     m022's gauge (phase of antenna minus m022's, per hand)."""
     z = np.load(truth_npz)
     ref = ant_names.index("m022")
-    t = table.column("TIME") - float(z["t0"])
     a = table.column("ANTENNA1")
-    ph = z["phase0"][a] + float(z["drift_rad"]) * np.sin(
-        2 * np.pi * t[:, None] / float(z["drift_period_s"]) + z["theta"][a]
-    )
-    phr = z["phase0"][ref] + float(z["drift_rad"]) * np.sin(
-        2 * np.pi * t[:, None] / float(z["drift_period_s"]) + z["theta"][ref]
-    )
+    # mean=True (post hoc, 9.22): the true relative gain averaged over the
+    # solution interval (1 s steps), not taken at the solution TIME.
+    offs = np.linspace(-0.5, 0.5, 61) if mean else np.zeros(1)
+    t = table.column("TIME")[:, None] - float(z["t0"])
+    t = t + offs[None, :] * table.column("INTERVAL")[:, None]
+
+    def phase(ants):
+        return z["phase0"][ants][:, None, :] + float(z["drift_rad"]) * np.sin(
+            2 * np.pi * t[:, :, None] / float(z["drift_period_s"])
+            + z["theta"][ants][:, None, :]
+        )
+
+    rel = np.exp(1j * (phase(a) - phase(np.full_like(a, ref)))).mean(axis=1)
     g = table.params[:, 0, :]  # (row, hand)
     f = table.flags[:, 0, :]
-    d = np.degrees(np.abs(np.angle(g * np.exp(-1j * (ph - phr)))))
+    d = np.degrees(np.abs(np.angle(g * np.conj(rel))))
     return C.stats(d[~f])
 
 
@@ -224,7 +230,7 @@ def score():
     out["controls"] = controls
     truth = P / "S" / "truth.npz"
     if truth.exists():
-        with core_ms.open_table(P / "S" / "sim.ms" / "ANTENNA") as t:
+        with core_ms.open_table(LUNO / "base" / "luno4.ms" / "ANTENNA") as t:
             names = [str(n) for n in t.getcol("NAME")]
         tr = {}
         for case in ("res", "pt"):
@@ -233,6 +239,9 @@ def score():
             ]:
                 if p.exists():
                     tr[f"{case}-{label}"] = truth_diff(C.table(p), truth, names)
+                    tr[f"{case}-{label}-interval-mean"] = truth_diff(
+                        C.table(p), truth, names, mean=True
+                    )
         out["truth"] = tr
     C.write(P / "a3.json", out)
     for k, v in out["sets"].items():

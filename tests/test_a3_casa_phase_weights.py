@@ -218,3 +218,56 @@ def test_the_chain_passes_the_key_to_calmode_p_only(cal_ms, tmp_path):  # noqa: 
     with pytest.raises(ValueError, match="average_freq"):
         cal_chain.run(cal_ms, terms, out_dir=tmp_path / "x", model_column="MODEL_DATA",
                       weight_column="WEIGHT", casa_phase_weights=True)  # fmt: skip
+
+
+def _term(kind, name, fields, preapply, **extra):
+    return {
+        "type": kind, "name": name, "fields": fields, "solint": "inf", "combine": "",
+        "refant": 0, "refantmode": "flex", "minsnr": 0.0, "minblperant": 2,
+        "uvrange": "", "preapply": preapply, "interp": [], "max_iterations": 50,
+        "stop_criterion": 1e-7, "stop_fraction": 0.99, "model": "unit", **extra,
+    }  # fmt: skip
+
+
+def test_the_chain_gives_gpol_the_key(pol_ms, tmp_path):  # noqa: F811
+    """Through `cal_chain.run` (the configuration's path), Gpol with the key
+    equals the direct `cal_pol.gpol` call with it and differs from the
+    chain without it; K and G (ap) do not move."""
+    terms = [
+        _term("K", "K", [0], []),
+        _term("G", "G", [0], ["K"], calmode="ap"),
+        _term("Gpol", "Gpol", [1], ["K", "G"], parang=True, frame="casa"),
+    ]
+    out = {}
+    for on in (False, True):
+        res = cal_chain.run(pol_ms, terms, out_dir=tmp_path / f"t{on}", model_column="MODEL_DATA",
+                            weight_column="WEIGHT", average_freq=True,
+                            casa_phase_weights=on)  # fmt: skip
+        out[on] = {n: res["tables"][n]["table"] for n in ("K", "G", "Gpol")}
+    for n in ("K", "G"):
+        assert cal_chain._sha(out[False][n]) == cal_chain._sha(out[True][n])
+    assert cal_chain._sha(out[False]["Gpol"]) != cal_chain._sha(out[True]["Gpol"])
+    direct = cal_pol.gpol(
+        pol_ms, field_id=1, solint="inf", combine="", refant=0, refantmode="flex",
+        minsnr=0.0, minblperant=2, uvrange="", gaintable=[out[True]["K"], out[True]["G"]],
+        interp="linear", parang=True, frame="casa", weight_column="WEIGHT",
+        model=unit(pol_ms, 1), max_iterations=50, stop_criterion=1e-7,
+        stop_fraction=0.99, average_freq=True, casa_phase_weights=True,
+    )[0]  # fmt: skip
+    assert np.array_equal(direct.params, out[True]["Gpol"].params)
+    assert np.array_equal(direct.flags, out[True]["Gpol"].flags)
+
+
+def test_the_e2b_amended_configuration_takes_the_key():
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "research" / "results"
+    path = path / "e2-acceptance-scripts" / "e2b-amended.yaml"
+    if not path.exists():
+        path = (
+            Path(__file__).resolve().parents[1] / "tests" / "data" / "w2" / "e2b.yaml"
+        )
+    raw = core_config.load(path)
+    raw["calibrate"]["average_freq"] = True
+    raw["calibrate"]["casa_phase_weights"] = True
+    core_config.validate(raw, ["calibrate"])

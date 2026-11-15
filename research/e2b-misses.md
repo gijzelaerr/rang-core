@@ -1787,8 +1787,13 @@ differs except one on L arm F):
 
 Against the simulation's true gains (m022's gauge; descriptive), CASA and
 every rang arm are within 0.004° of each other: medians 0.444° (CASA) and
-0.445–0.447° on S-res, 0.148° on S-pt. The noise sets that, not the
-estimator.
+0.445–0.447° on S-res, 0.148° on S-pt, with the truth taken at the solution
+TIME. Post hoc, with the true gain averaged over each solution's interval
+(rang's INTERVAL; CASA writes 0, so its row cannot be read this way), rang's
+S-pt median falls to 0.056° and S-res to 0.354–0.359°. So part of the
+distance to the truth is the frozen 0.2 rad drift within a 60 s interval,
+and on S-res the wrong model. The rest is not attributed; noise alone
+predicts about 1e-3°. None of this bears on the CASA comparison.
 
 **Outcome under the frozen rule: met on L and X; the key becomes the E2
 configuration's for the next unseen leg** (E2-A has no polcal, so E3 or the
@@ -1808,7 +1813,8 @@ Two power branches apply, as frozen:
 
 What the numbers show:
 - On every set, K agrees with CASA 2–4 orders closer than F:
-  - 1.6e-6° on the simulation, which is float32 rounding;
+  - 1.6e-6° on the simulation, about float32 rounding (inferred, not
+    shown);
   - 1.1e-4° on L, where both sides apply the same tables;
   - 1.8e-4° on X with the same tables (CR).
   So the port is CASA's estimator. Section 2's weighting and averaging
