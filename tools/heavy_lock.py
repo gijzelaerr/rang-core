@@ -345,7 +345,10 @@ def _wait(
     mem: float,
     priority: str = "normal",
 ) -> Path | None:
-    ticket = take_ticket(d, slots, mem, priority)
+    # Under the mutex, so a ticket is either seen by a waiter's head check
+    # below or taken after that waiter's acquire attempt, never in between.
+    with _Mutex(d):
+        ticket = take_ticket(d, slots, mem, priority)
     stale_s = max(STALE_TICKET_S, 3 * poll)
     last = None
     try:
@@ -364,7 +367,13 @@ def _wait(
                         except OSError:
                             pass
                     shared = live_shared(d, stale_s)
-                    if slots is None:
+                    # Ask again under the mutex: a ticket that sorts first (a
+                    # critical one, or any taken while this waiter was
+                    # descheduled after the check above) must win (issue 31).
+                    head = first_live_ticket(d, stale_s)
+                    if head not in (None, ticket):
+                        pass
+                    elif slots is None:
                         if not shared and try_acquire(d, command):
                             return None
                     elif not d.exists():
