@@ -1646,6 +1646,25 @@ Booking: CASA applycal and casacore steps at 2 slots (9p I/O-bound),
 rang's apply at 4. D: must keep ≥ 150 GB free; the new columns add about
 85 GB.
 
+**Column handling revised 2026-11-15, before any 9.19 run** (the
+comparison, the controls and the reading are unchanged).
+- The MS's data manager names would clash: CASA adds CORRECTED_DATA as
+  `CorrectedTiled`, which the saved column keeps after a rename, and
+  rang adds it as `TiledCorrected`, which RANG_CORRECTED_DATA already uses.
+- So no column is created under those names:
+  - step 1 *copies* CORRECTED_DATA into E2C_SAVE_CORRECTED_DATA (its own
+    manager), so CASA's applycal writes the existing CORRECTED_DATA;
+  - step 3 renames only FLAG, to E2C_CASA_FLAG;
+  - step 5's rang apply writes `column='E2C_RANG_CORRECTED_DATA'` (its own
+    manager) and FLAG, with `flag_backup='rang_original'` (exists, so no
+    version is added), and the write-back journal is put back afterwards;
+  - step 7 copies E2C_SAVE_CORRECTED_DATA back into CORRECTED_DATA and
+    removes the E2C_* columns.
+- The check in step 7 adds the sha256 of CORRECTED_DATA (equal to step
+  1's) to that of FLAG and FLAG_ROW.
+
+Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
+
 ## For the coordinator
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**

@@ -11,7 +11,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from a4_score import FIELDS, R, TOL, linf  # noqa: E402
+from a4_score import FIELDS, TOL, R, linf
 
 P = Path("D:/rang/outputs/e2b-close-20261115/a5")
 
