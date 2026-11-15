@@ -2080,12 +2080,20 @@ pub fn restore(n: usize, model: &[f64], residual: &[f64], beam: &RestoringBeam) 
     smooth.iter().zip(residual).map(|(s, r)| s + r).collect()
 }
 
-/// The peak resident set size (Linux `VmHWM`), when the platform reports it.
+/// The peak resident set size (Linux `VmHWM`, Windows the peak working
+/// set), when the platform reports it.
 pub fn peak_memory_bytes() -> Option<u64> {
-    let status = std::fs::read_to_string("/proc/self/status").ok()?;
-    let line = status.lines().find(|l| l.starts_with("VmHWM:"))?;
-    let kb: u64 = line.split_whitespace().nth(1)?.parse().ok()?;
-    Some(kb * 1024)
+    #[cfg(windows)]
+    {
+        memory::windows_memory().map(|m| m.peak_working_set)
+    }
+    #[cfg(not(windows))]
+    {
+        let status = std::fs::read_to_string("/proc/self/status").ok()?;
+        let line = status.lines().find(|l| l.starts_with("VmHWM:"))?;
+        let kb: u64 = line.split_whitespace().nth(1)?.parse().ok()?;
+        Some(kb * 1024)
+    }
 }
 
 // ---------------------------------------------------------------------------

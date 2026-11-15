@@ -1127,6 +1127,70 @@ fn print_multiscale(out: &multiscale::Multiscale, theoretic: Option<f64>) {
     out.print_scales();
 }
 
+/// Print the memory report (`-memory-report`) and return the report's
+/// `memory` section (`null` when the allocator does not count).
+fn memory_section(args: &Args) -> String {
+    let phases = memory::phases();
+    let buffers = memory::buffers();
+    let gb = |b: usize| b as f64 / 1e9;
+    if args.memory_report && memory::counting() {
+        println!(
+            "memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):"
+        );
+        for p in &phases {
+            println!(
+                "  {:<26} held {:>7.3}  most {:>7.3}  rss {:>7.3}  peak rss {:>7.3}  swap {:>6.3}",
+                p.label,
+                gb(p.live),
+                gb(p.peak),
+                p.rss.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.hwm.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.swap.map_or(f64::NAN, |b| b as f64 / 1e9)
+            );
+        }
+        println!("memory by buffer (GB):");
+        for (label, bytes) in &buffers {
+            println!("  {label:<44} {:>8.3}", gb(*bytes));
+        }
+    }
+    let memory_json = if memory::counting() {
+        obj(&[
+            (
+                "phases",
+                arr(&phases
+                    .iter()
+                    .map(|p| {
+                        obj(&[
+                            ("label", text(&p.label)),
+                            ("heap_end_bytes", p.live.to_string()),
+                            ("heap_peak_bytes", p.peak.to_string()),
+                            ("rss_bytes", p.rss.map_or("null".into(), |b| b.to_string())),
+                            (
+                                "swap_bytes",
+                                p.swap.map_or("null".into(), |b| b.to_string()),
+                            ),
+                            (
+                                "rss_peak_bytes",
+                                p.hwm.map_or("null".into(), |b| b.to_string()),
+                            ),
+                        ])
+                    })
+                    .collect::<Vec<_>>()),
+            ),
+            (
+                "buffers",
+                arr(&buffers
+                    .iter()
+                    .map(|(l, b)| obj(&[("label", text(l)), ("bytes", b.to_string())]))
+                    .collect::<Vec<_>>()),
+            ),
+        ])
+    } else {
+        "null".into()
+    };
+    memory_json
+}
+
 fn run(raw: &[String]) -> Result<(), String> {
     let wall = Instant::now();
     if raw.iter().any(|a| a == "-version" || a == "--version") {
@@ -1390,64 +1454,7 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
     if args.update_model {
         memory::mark("model");
     }
-    let phases = memory::phases();
-    let buffers = memory::buffers();
-    let gb = |b: usize| b as f64 / 1e9;
-    if args.memory_report && memory::counting() {
-        println!(
-            "memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):"
-        );
-        for p in &phases {
-            println!(
-                "  {:<26} held {:>7.3}  most {:>7.3}  rss {:>7.3}  peak rss {:>7.3}  swap {:>6.3}",
-                p.label,
-                gb(p.live),
-                gb(p.peak),
-                p.rss.map_or(f64::NAN, |b| b as f64 / 1e9),
-                p.hwm.map_or(f64::NAN, |b| b as f64 / 1e9),
-                p.swap.map_or(f64::NAN, |b| b as f64 / 1e9)
-            );
-        }
-        println!("memory by buffer (GB):");
-        for (label, bytes) in &buffers {
-            println!("  {label:<44} {:>8.3}", gb(*bytes));
-        }
-    }
-    let memory_json = if memory::counting() {
-        obj(&[
-            (
-                "phases",
-                arr(&phases
-                    .iter()
-                    .map(|p| {
-                        obj(&[
-                            ("label", text(&p.label)),
-                            ("heap_end_bytes", p.live.to_string()),
-                            ("heap_peak_bytes", p.peak.to_string()),
-                            ("rss_bytes", p.rss.map_or("null".into(), |b| b.to_string())),
-                            (
-                                "swap_bytes",
-                                p.swap.map_or("null".into(), |b| b.to_string()),
-                            ),
-                            (
-                                "rss_peak_bytes",
-                                p.hwm.map_or("null".into(), |b| b.to_string()),
-                            ),
-                        ])
-                    })
-                    .collect::<Vec<_>>()),
-            ),
-            (
-                "buffers",
-                arr(&buffers
-                    .iter()
-                    .map(|(l, b)| obj(&[("label", text(l)), ("bytes", b.to_string())]))
-                    .collect::<Vec<_>>()),
-            ),
-        ])
-    } else {
-        "null".into()
-    };
+    let memory_json = memory_section(&args);
 
     let threads = rayon::current_num_threads();
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
@@ -2476,6 +2483,32 @@ fn deconvolve_pols<T: Real + Send + Sync>(
     }
     drop(earlier);
     let t_psf = t.elapsed().as_secs_f64();
+    if memory::counting() {
+        // Summed over the entries, by buffer (research/gemclean-memory.md).
+        let mut sums: Vec<(String, usize)> = Vec::new();
+        let mut add = |label: String, bytes: usize| match sums.iter_mut().find(|x| x.0 == label) {
+            Some(x) => x.1 += bytes,
+            None => sums.push((label, bytes)),
+        };
+        for m in &measurements {
+            for (label, bytes) in m.memory() {
+                add(format!("{label} ({} entries)", measurements.len()), bytes);
+            }
+        }
+        for b in &beams {
+            for (label, bytes) in b.memory() {
+                add(format!("{label} ({} beams)", beams.len()), bytes);
+            }
+        }
+        add(
+            format!("psf n x n crops ({} channels)", psfs.len()),
+            psfs.iter().map(memory::bytes_of).sum(),
+        );
+        for (label, bytes) in sums {
+            memory::note(&label, bytes);
+        }
+        memory::note("one n x n f64 image", n * n * 8);
+    }
     let settings = clean_settings(args);
     let pair = |e: usize| (&measurements[e], &beams[beam_of[e]]);
     let ne = measurements.len();
@@ -2971,6 +3004,7 @@ fn run_polarizations(
     }
     let t_write = t.elapsed().as_secs_f64();
     memory::mark("write");
+    let memory_json = memory_section(args);
     let beam_json = |r: &gemclean::RestoringBeam| {
         obj(&[
             ("bmaj_deg", num(r.major * scale_deg)),
@@ -3052,6 +3086,7 @@ fn run_polarizations(
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("memory", memory_json),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!(
