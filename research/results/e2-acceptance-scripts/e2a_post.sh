@@ -6,7 +6,8 @@
 #   bash e2a_post.sh [FIRST_STEP] [LAST_STEP]
 # Environment: MS, R (default D:\rang\outputs\e2a-20261115 and its e2a.ms),
 # INPUT (gate 2a's hashes), STRATEGY (Tricolour's), PRIORITY (normal; critical
-# only on the coordinator's word). DRY=1 prints each step's command and runs a
+# only on the coordinator's word). NOSI=0 skips the optional nosi steps (9.10's
+# decision: one -no-small-inversion dirty reading after the primary). DRY=1 prints each step's command and runs a
 # stdin-reading stand-in in its place: no lock, nothing read or written.
 # Each step's stdin is /dev/null: wsl.exe further down would otherwise drain
 # the step list and end the loop early.
@@ -15,6 +16,7 @@ S=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$S/../../.." && pwd)
 export PYTHONUTF8=1
 DRY=${DRY:-0}
+NOSI=${NOSI:-1}
 lock='C:\Users\gijsm\Github\rang\tools\heavy_lock.py'
 py='C:\Users\gijsm\Github\rang\.venv\Scripts\python.exe'  # main checkout's venv
 wpy='C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Scripts\python.exe'  # frozen wheel (6.4)
@@ -55,6 +57,9 @@ qc-selfcal 1 8 py
 unit-on-a 1 2 py
 wsclean3c-a-dirty 2 6 py
 wsclean3c-a-clean 4 10 py
+score3c-a 1 12 py
+wsclean3c-a-nosi-dirty 2 6 py
+score3c-a-nosi 1 8 py
 unit-off-a 1 2 py
 restore 1 4 py
 tricolour 8 24 py
@@ -64,10 +69,11 @@ while read -r step slots mem which; do
   [ -n "$step" ] || continue
   [ "$step" = "$first" ] && on=1
   [ $on = 1 ] || continue
+  case $step in *nosi*) [ "$NOSI" = 1 ] || { [ "$step" = "$last" ] && break; continue; } ;; esac
   case $step in
     restore) extra=("$INPUT") ;;
     tricolour) extra=("$INPUT" "$STRATEGY") ;;
-    wsclean3c-a-dirty|wsclean3c-a-clean) extra=("$slots") ;;
+    wsclean3c-a-dirty|wsclean3c-a-clean|wsclean3c-a-nosi-dirty) extra=("$slots") ;;
     *) extra=() ;;
   esac
   run=$py

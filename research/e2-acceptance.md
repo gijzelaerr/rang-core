@@ -1674,6 +1674,29 @@ processes it had started were stopped, the empty log was deleted, and the dead t
 - **`-no-small-inversion`:** the frozen run is the primary reading, without it. After the primary is
   scored, one `nosi` dirty run adds a second, seen reading, as A4b motivates.
 
+**Gate 3c's E2-A scorer and the nosi steps (written 2026-11-15 after the decisions above, during the
+rerun, before any E2-A image existed).**
+- [e2_score3c_a.py](results/e2-acceptance-scripts/e2_score3c_a.py), Stokes I, one field, A0 6.1's 3c
+  tolerances on the two measures 6.5 names for E2-A:
+  - **Dirty L∞ (gated, full image):** max |rang − WSClean| / WSClean's peak per output channel and MFS,
+    ≤ 1e-6. Reported beside: the inner two-thirds (the decision above), the image without a 5 % border,
+    within 0.7°, and the largest median.
+  - **Compact sources (gated within 0.7° of the centre, appendix A's field limit):** E2-B's candidate,
+    isolation, beam and fit rules (`e2_score3c.py`). Median ratio within 0.5 % of 1, robust scatter
+    ≤ 1 %, not checked below 3 sources. Reported beside: the same over the inner two-thirds and the full
+    image, sources too near the edge counted, and the median ratio in radial bins (0-0.35-0.7-1.0-1.4-2.5°).
+  - Reported, not gated: spectral index (≥ 50σ within 0.7°) and off-source |model|, with A0's 0.05 and
+    1.6 shown. Not checked: Q/Q₀ and MODEL_DATA against `-predict`. Not applicable: the unpolarised Q, U, V
+    measure.
+- Steps in `ORDER_INPLACE`, before `unit-off-a` (restore drops RANG_CORRECTED_DATA, so nothing that reads
+  it can come after): `score3c-a` (→ `R\g3c-a.json`, the primary reading; 1 slot, 12 GB), then the optional
+  `wsclean3c-a-nosi-dirty` (refuses until `g3c-a.json` exists; 2 slots, 6 GB, about 39 GiB of reorder
+  files while it runs) and `score3c-a-nosi` (dirty only, → `R\g3c-a-nosi.json`, seen; 1 slot, 8 GB).
+  The launcher's `NOSI=0` skips the two.
+- Tests: `tests/test_e2a_score3c.py` (4, synthetic image sets in both arms' file names) and 2 more in
+  `tests/test_e2a_post_reads.py`. The launcher's dry-run test is now opt-in (`E2A_LAUNCHER_DRY=1`), so no
+  test runs the launcher during E2-A.
+
 ## For the coordinator
 
 (written at the end)

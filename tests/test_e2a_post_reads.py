@@ -7,6 +7,7 @@ runs a container or reads a real MS."""
 
 import importlib.util
 import json
+import os
 import shutil
 import sys
 import types
@@ -34,7 +35,9 @@ def test_order_puts_the_reads_after_2b_and_before_restore():
     assert at("snapshot-inplace") < at("drop-corrected-inplace") < at("qc-avg")
     assert at("qc-avg") < at("qc-selfcal") < at("unit-on-a")
     assert at("unit-on-a") < at("wsclean3c-a-dirty") < at("wsclean3c-a-clean")
-    assert at("wsclean3c-a-clean") < at("unit-off-a") < at("restore") < at("tricolour")
+    assert at("wsclean3c-a-clean") < at("score3c-a") < at("wsclean3c-a-nosi-dirty")
+    assert at("wsclean3c-a-nosi-dirty") < at("score3c-a-nosi") < at("unit-off-a")
+    assert at("unit-off-a") < at("restore") < at("tricolour")
     assert "wsclean3c" not in o and "copy" not in o  # E2-B's IQUV oracle and copy
 
 
@@ -568,12 +571,12 @@ WSL_GB = 44
 
 @pytest.mark.skipif(
     sys.platform != "win32"
-    or shutil.which("bash") is None
-    or shutil.which("cygpath") is None,
-    reason="the launcher is Git Bash on the Windows host",
+    or shutil.which("cygpath") is None
+    or os.environ.get("E2A_LAUNCHER_DRY") != "1",
+    reason="Git Bash on the Windows host, opt-in only (E2A_LAUNCHER_DRY=1): the "
+    "coordinator does not want the launcher run, not even dry, during E2-A",
 )
 def test_launcher_dry_run_visits_every_step(tmp_path):
-    import os
     import subprocess
 
     env = dict(os.environ, DRY="1", R=str(tmp_path))
@@ -587,3 +590,29 @@ def test_launcher_dry_run_visits_every_step(tmp_path):
              if line.startswith("DRY ")]  # fmt: skip
     assert steps == post.ORDER_INPLACE  # the stand-in drains stdin: no step is lost
     assert not list(tmp_path.iterdir())
+    env["NOSI"] = "0"
+    done = subprocess.run([bash, (HERE / "e2a_post.sh").as_posix()], env=env, capture_output=True,
+                          text=True, timeout=60, check=False)  # fmt: skip
+    steps = [line.split(" -- ")[-1].split()[2] for line in done.stdout.splitlines()
+             if line.startswith("DRY ")]  # fmt: skip
+    assert steps == [s for s in post.ORDER_INPLACE if "nosi" not in s]
+
+
+def test_nosi_follows_the_primary_reading(tmp_path, monkeypatch):
+    fake_colnames(monkeypatch, ["E2_CASA_FLAG", "RANG_CORRECTED_DATA"])
+    with pytest.raises(SystemExit, match="score3c-a"):
+        post.wsclean3c_a_nosi_dirty(tmp_path / "e2a.ms", tmp_path)
+    (tmp_path / "g3c-a.json").write_text("{}")
+    seen = []
+    monkeypatch.setattr(post, "wsclean3c_a", lambda ms, r, kind, threads, nosi=False:
+                        seen.append((kind, threads, nosi)) or 0)  # fmt: skip
+    assert post.wsclean3c_a_nosi_dirty(tmp_path / "e2a.ms", tmp_path) == 0
+    assert seen == [("dirty", "2", True)]
+
+
+def test_nosi_argv_writes_its_own_directory():
+    argv, _ = post.wsclean_argv(image_argv(), name="/p/wsclean3c-a-nosi/T-dirty", column="C",
+                                threads=2, temp="t", ms_inside="/c/m", dirty=True, nosi=True)  # fmt: skip
+    assert "-no-small-inversion" in argv and argv[argv.index("-name") + 1].startswith(
+        "/p/wsclean3c-a-nosi/"
+    )

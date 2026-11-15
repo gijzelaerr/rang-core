@@ -41,6 +41,11 @@ rang's columns, then `restore` and `tricolour`:
     wsclean3c-a-dirty WSClean 3.7 dirty image of RANG_CORRECTED_DATA (Stokes I,
                       the image stage's argv)       -> R/wsclean3c-a/
     wsclean3c-a-clean the same, cleaned as the image stage
+    score3c-a         gate 3c's primary reading (e2_score3c_a.py) -> R/g3c-a.json
+    wsclean3c-a-nosi-dirty, score3c-a-nosi
+                      optional (the launcher's NOSI=0 skips them): after the
+                      primary is scored, one -no-small-inversion dirty run and
+                      its dirty-only reading, seen -> R/g3c-a-nosi.json
     unit-off-a        the matched state undone (restore refuses while it is on)
 
 `restore` takes INPUT.json (e2_flaghash.py of the MS as converted);
@@ -49,6 +54,7 @@ the main checkout's tools/heavy_lock.py (the caller wraps it).
 """
 
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -538,7 +544,8 @@ json.dump({"renamed": done, "flag_from": version, "rows": n,
 ORDER_INPLACE = ["gate1", "archive", "wcs", "casacore", "casa-ro", "wsclean0", "daskms",
                  "prep-inplace", "applycal-inplace", "compare-inplace", "snapshot-inplace",
                  "drop-corrected-inplace", "qc-avg", "qc-selfcal",
-                 "unit-on-a", "wsclean3c-a-dirty", "wsclean3c-a-clean", "unit-off-a",
+                 "unit-on-a", "wsclean3c-a-dirty", "wsclean3c-a-clean", "score3c-a",
+                 "wsclean3c-a-nosi-dirty", "score3c-a-nosi", "unit-off-a",
                  "restore", "tricolour"]  # fmt: skip
 
 
@@ -1429,6 +1436,33 @@ def wsclean3c_a_clean(ms, r, threads="4", nosi=""):
     return wsclean3c_a(ms, r, "clean", threads, nosi == "nosi")
 
 
+def wsclean3c_a_nosi_dirty(ms, r, threads="2"):
+    """The coordinator's decision on 9.10: one -no-small-inversion dirty run,
+    a second, seen reading, only after the primary reading is scored."""
+    if not (Path(r) / "g3c-a.json").is_file():
+        raise SystemExit("score3c-a has not run: the nosi reading follows the primary")
+    return wsclean3c_a(ms, r, "dirty", threads, True)
+
+
+def _score3c_a():
+    spec = importlib.util.spec_from_file_location(
+        "e2_score3c_a", Path(__file__).resolve().parent / "e2_score3c_a.py"
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def score3c_a(ms, r):
+    r = Path(r)
+    return _score3c_a().main(r, r / "wsclean3c-a", r / "g3c-a.json")
+
+
+def score3c_a_nosi(ms, r):
+    r = Path(r)
+    return _score3c_a().main(r, r / "wsclean3c-a-nosi", r / "g3c-a-nosi.json", "--dirty-only")
+
+
 # --- gate 2a and the restore -------------------------------------------------------
 
 
@@ -1571,7 +1605,9 @@ STEPS = {"gate1": gate1, "archive": archive, "wcs": wcs, "casacore": casacore,
          "compare-inplace": compare_inplace, "snapshot-inplace": snapshot_inplace,
          "drop-corrected-inplace": drop_corrected_inplace, "qc-avg": qc_avg,
          "qc-selfcal": qc_selfcal, "unit-on-a": unit_on_a, "unit-off-a": unit_off_a,
-         "wsclean3c-a-dirty": wsclean3c_a_dirty, "wsclean3c-a-clean": wsclean3c_a_clean}  # fmt: skip
+         "wsclean3c-a-dirty": wsclean3c_a_dirty, "wsclean3c-a-clean": wsclean3c_a_clean,
+         "score3c-a": score3c_a, "wsclean3c-a-nosi-dirty": wsclean3c_a_nosi_dirty,
+         "score3c-a-nosi": score3c_a_nosi}  # fmt: skip
 
 
 def main(argv):
