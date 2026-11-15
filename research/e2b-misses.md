@@ -57,6 +57,14 @@ confirmed as an oracle input error. With CASA's K, G, B and F solved on
 rang's own solve flags, both composites meet class B (medians 4.2e-5 and
 5.9e-5, p95 1.24e-3 and 1.23e-3). The weights change nothing.
 
+**Update, 2026-11-15 (arms A1c and A4, sections 9.8 and 9.10):**
+- 2b's P: cause not found under A1c's rule (casacore's angle reproduces
+  applycal only to 2.7e-7 rad, against 2e-7). Post hoc, the difference is
+  in casacore's HADEC step, about 0.5″.
+- 3c dirty L∞: not ε. At ε 1e-5, 1e-6 and 1e-7 the full-image values are
+  unchanged (3.5e-3, 1.2e-3, 2.9e-3). It is an edge difference between
+  the gridders; a G task is proposed.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -1116,7 +1124,100 @@ Decision rule, on the full-image L∞ (F(ε), per field):
 
 Cost: about 3 CPU-hours; WSClean and GeMClean as shared jobs at 4 slots.
 
+### 9.10 A4 measured, 2026-11-15: the difference does not fall with ε
+
+Runs (`a4_queue.sh`, `a4_run.sh`, `a4_rang.sh`, `a4_score.py`, committed
+before the runs; `runs.log` gives each wall time):
+- WSClean 3.7 took 494–2,799 s per run at 4 slots; most of it is the
+  reordering pass over `/mnt/d`. Inversion took 3–18 min.
+- GeMClean (Windows) took 171–539 s per run at 4 slots.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a4` (41 GB of images,
+  kept for the follow-up below); receipts in
+  [results/e2b-misses/a4/](results/e2b-misses/a4/) (`a4.json`, `c6.json`,
+  `runs.log`, `unit-on.json`, `unit-off.json`).
+- The CASA copy was put in the matched state at 00:25 and returned at
+  04:39. Its column list afterwards equals the list before;
+  `flag_row_not_all_rang_flag` is 0.
+
+Harness incident, which does not change the protocol: the first GeMClean
+queue failed at once on every run. A bare `bash` under heavy_lock on
+Windows is WSL's, which could not see the `C:/` script path. Fixed to Git
+Bash's path (committed) and rerun; no image had been made.
+
+**C6 met.**
+- GeMClean at ε 1e-4 reproduces gate 3c's archived J1833−2103 dirty images
+  bit for bit (0.0).
+- WSClean reproduces its archived images within 4.0e-7 of the peak, which
+  is the thread count (-j 4 against -j 8).
+
+Full-image dirty L∞ / peak (gated), with the 5 % border excluded and the
+inner two-thirds:
+
+| Field | ε 1e-5 | ε 1e-6 | ε 1e-7 | r = F(1e-7)/F(1e-5) | 5 % border (1e-7) | inner (1e-7) |
+| --- | --- | --- | --- | --- | --- | --- |
+| J1331+3030 | 3.460e-3 | 3.460e-3 | 3.460e-3 | 1.000 | 8.1e-5 | 3.0e-5 |
+| J1939−6342 | 1.228e-3 | 1.228e-3 | 1.228e-3 | 1.000 | 3.0e-5 | 1.1e-5 |
+| J1833−2103 | 2.894e-3 | 2.894e-3 | 2.894e-3 | 1.000 | 8.4e-5 | 2.4e-5 |
+
+**Outcome under the frozen rule: the excess does not fall with ε (r > 0.5
+on every field).** It is an edge difference between the gridders. Per the
+rule, a G task is opened (proposed below; not started here). The bound is
+not met at any ε. Gate 3c's dirty miss is not the protocol's ε.
+
+Read beside the outcome (**post hoc**):
+- ε took effect. Each imager's own images change by only 1.0–1.7e-6 of the
+  peak between ε 1e-5 and 1e-7, so the gridders' ε-dependent error is
+  about 1e-6. The rang − WSClean difference is 1,000× that and independent
+  of ε, the inner two-thirds included (1.1e-5 to 3.0e-5, the same as at
+  1e-4).
+- The maximum sits on the image's outermost rows or columns, in channel
+  0000, Stokes I: pixel (2046, 704), (0, 1596), (588, 0).
+- It falls steadily inward. Excluding m pixels from each side, the maxima
+  are:
+  - 3.5e-3 at m = 0;
+  - 1.8e-3 at m = 2;
+  - 7.7e-4 at m = 8;
+  - 2.3e-4 at m = 32;
+  - 7.8e-5 at m = 102 (J1331+3030).
+  The other fields scale alike.
+- WSClean logs "Minimal inversion size 1139 x 1139, using optimal: 1152 x
+  1152". By default it grids a smaller image than 2048² and interpolates
+  it up (its small-inversion optimisation); GeMClean does not. A
+  difference that grows towards the edge and does not depend on ε fits
+  that, or a difference in the gridding-correction taper at the edge.
+  **Not tested.**
+
+Proposed G task (not started): WSClean at gate 3c's settings with
+`-no-small-inversion` (and, separately, GeMClean's and WSClean's padding
+matched) at ε 1e-6 on J1833−2103, the cheapest field (about 8 min of
+WSClean). GeMClean's images from this arm are reusable. The decision rule
+and tolerance (1e-6) need freezing before the run.
+
 ## For the coordinator
+
+**After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
+- **A1c (9.7, 9.8):** cause not found under the frozen rule. K1 is not
+  met: casacore's own parallactic angle matches CASA's applycal within
+  2.3e-7 and 2.7e-7 rad, against 2e-7. No fix was made, and
+  `parallactic_angle_casa` is unchanged.
+  - Post hoc, (e) is exact: casacore's angle is rang's formula on
+    casacore's HADEC (h, δ).
+  - The 3–7e-6 rad difference comes from about 0.5″ that casacore's APP →
+    HADEC step adds to the source's h and δ.
+  - It is not sidereal time (0.05″), precession and nutation (0.07″), the
+    apparent place (≤ 0.19″) or the latitude.
+  - Polar motion has the right size, but neither astropy's HADec nor a
+    simple rotation reproduces it.
+  - Next step: read casacore's MCDirection APP → HADEC route and freeze a
+    candidate.
+- **A4 (9.9, 9.10):** edge difference, as frozen. Dirty L∞ is 3.5e-3,
+  1.2e-3 and 2.9e-3 at ε 1e-5, 1e-6 and 1e-7 alike (r = 1.000). The inner
+  values are also unchanged. So gate 3c's dirty miss is not ε.
+  - Proposed G task: WSClean `-no-small-inversion`, or matched padding, on
+    J1833−2103 at ε 1e-6, frozen first.
+- The ordered fix list below is unchanged apart from these two items.
+
+**After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
 
 **After A2, A1 and A1b (2026-11-14, branch `e2b-arms`):**
 - **A2 (9.4):** the 3b K/G/B composites miss is closed as an oracle input

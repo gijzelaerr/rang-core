@@ -1,0 +1,16 @@
+{
+ "tolerance": 1e-06,
+ "wsclean_new_vs_archived": {
+  "max": 3.956116852931198e-07,
+  "border5": 3.956116852931198e-07,
+  "inner": 3.956116852931198e-07,
+  "median_max": 2.6271088476496235e-09
+ },
+ "rang_new_vs_archived": {
+  "max": 0.0,
+  "border5": 0.0,
+  "inner": 0.0,
+  "median_max": 0.0
+ },
+ "met": true
+}
