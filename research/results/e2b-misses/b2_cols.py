@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 from casacore.tables import makecoldesc, table
 
-B = 2000
+B = 250  # 9p reads of 2000-row blocks (262 MB) failed with ENOMEM
 VERSION = "rang_apply_20261112T013707Z"  # FLAG before rang's apply (2b's prep)
 EPS = float(np.finfo(np.float32).eps)
 
