@@ -150,5 +150,25 @@ def nosi(out_json):
     print(json.dumps(res, indent=1))
 
 
+def g3c_nosi(out_json):
+    """9.17: gate 3c's archived GeMClean dirty images against WSClean
+    -no-small-inversion at eps 1e-4, three fields (seen, post hoc)."""
+    res = {"tolerance": TOL, "fields": {}}
+    for name, tag in FIELDS:
+        rdir = R / "rang-run-moved" / "image" / name.replace("+", "_")
+        n = P / "wsclean-nosi" / f"{tag}-eps0.0001"
+        f = linf(
+            lambda c, p, rdir=rdir: rdir / f"image-{c}-{p}-dirty.fits",
+            lambda c, p, n=n, tag=tag: n / f"{tag}-dirty-{c}-{p}-dirty.fits",
+            lambda c, n=n, tag=tag: n / f"{tag}-dirty-{c}-I-dirty.fits",
+        )
+        f.pop("per_image")
+        f["met"] = f["max"] <= TOL
+        res["fields"][name] = f
+    res["met_all"] = all(v["met"] for v in res["fields"].values())
+    Path(out_json).write_text(json.dumps(res, indent=1) + "\n")
+    print(json.dumps(res, indent=1))
+
+
 if __name__ == "__main__":
-    {"c6": c6, "score": score, "nosi": nosi}[sys.argv[1]](sys.argv[2])
+    {"c6": c6, "score": score, "nosi": nosi, "g3c_nosi": g3c_nosi}[sys.argv[1]](sys.argv[2])
