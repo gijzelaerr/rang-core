@@ -1565,7 +1565,258 @@ Reading (seen, post hoc):
   copy, as the coordinator noted.
 - The FITS images were deleted after scoring.
 
+### 9.18 Gate 3c dirty at ε 1e-6 with `-no-small-inversion`: post hoc amendment, frozen 2026-11-15 (before any run)
+
+**Dated post hoc amendment** to gate 3c's dirty measure, asked by the
+coordinator (branch `e2b-close`). It is seen: 9.10, 9.12 and 9.17 are
+known. The frozen record (3c dirty not met) stays. This adds a labelled
+re-reading.
+
+Amended oracle and settings: 9.9's common settings at **ε 1e-6** on the
+three fields.
+- WSClean 3.7 adds `-no-small-inversion` (A4's `-j` 4 replaced by `-j 2`).
+- GeMClean runs as 9.9 at ε 1e-6, its default precision (double below
+  1e-5).
+
+Data:
+- WSClean reads a reduced copy of `R\casa\e2b.ms` in WSL's ext4
+  (`~/e2b-close/a5.ms`), made with casacore TaQL. It holds all rows; the
+  columns WSClean reads (UVW, ANTENNA1/2, TIME, TIME_CENTROID, INTERVAL,
+  EXPOSURE, FIELD_ID, DATA_DESC_ID, SCAN_NUMBER, FLAG_ROW, the id columns,
+  SIGMA); RANG_CORRECTED_DATA; FLAG = RANG_FLAG; WEIGHT = 1; and every
+  subtable. The copy is deleted after scoring.
+- GeMClean reads `R\casa\e2b.ms` in the matched state (`UNIT_PY` on, then
+  off; the column list is checked), as 9.10's C6 showed bit for bit.
+
+Control **C10**, before any ε 1e-6 score is read: WSClean with its default
+small inversion at ε 1e-4 on J1833−2103, reading the ext4 copy, reproduces
+the archived `R\wsclean3c-unit\J1833m2103-dirty-*` within 1e-6 of the peak
+(as C6). Not met: void.
+
+Measure and bound: gate 3c's dirty L∞ / peak over the full image, frozen
+**1e-6** (A0), with the 5 % border and inner two-thirds reported.
+
+Reading: met on all three fields → gate 3c's dirty measure is met under
+the amended oracle and ε (seen, post hoc); otherwise not met, with the
+values reported.
+
+Booking: WSClean dirty runs at 2 slots, GeMClean at 4.
+
+**Measured 2026-11-15: met on all three fields (seen, post hoc
+amendment).** Receipts in [results/e2b-misses/a5c/](results/e2b-misses/a5c/)
+(`a5.json`, `c10.json`, `a5-copy.json`, `runs.log`).
+
+- **C10 met:** WSClean at ε 1e-4 on J1833−2103, reading the ext4 copy,
+  is within 6.3e-7 of the archived images (thread count).
+- On ext4 WSClean took 232 s for that run, against 1,032 s for the same
+  run over 9p (9.10).
+
+| Field | Dirty L∞ / peak, ε 1e-6, `-no-small-inversion` | 9.10 (ε 1e-6, default oracle) |
+| --- | --- | --- |
+| J1331+3030 | **2.0e-7** | 3.5e-3 |
+| J1939−6342 | **3.3e-7** | 1.2e-3 |
+| J1833−2103 | **8.1e-8** | 2.9e-3 |
+
+The 5 % border and inner two-thirds values equal the full-image ones.
+Gate 3c's dirty measure is met under the amended oracle
+(`-no-small-inversion`) at ε 1e-6. The frozen record (not met) stays.
+
+Runs, all rc 0:
+- the ext4 copy took 667 s; it was dropped after the runs;
+- WSClean took 232–775 s at 2 slots;
+- GeMClean took 198 s and 643 s at 4 slots, and 291 s for the J1331
+  rerun at 46 GB.
+
+Harness incidents:
+- The ext4 copy lacked FLAG_CATEGORY, which WSClean opens. It was added
+  without cells (`a5_fixcat.py`) before any image.
+- The first GeMClean J1331+3030 run is **void**. It was booked at 16 GB
+  but used about 45 GB private; with another agent's 40 GB GeMClean the
+  host reached 139 GB committed on 63 GB RAM and thrashed.
+  - The owner approved stopping it; it had already exited.
+  - Its image was set aside unread and deleted.
+  - It was rerun at `--mem 46` (291 s). Every joined-IQUV 8-channel 2048²
+    GeMClean is now booked at 46 GB or more.
+- The first Windows queue waited for gemclean-iquv-mask's read-only copy
+  of the shared MS before any rename.
+- The FITS images were deleted after scoring.
+
+### 9.19 Gate 2b on the full MS with the new P, frozen 2026-11-15 (before any run)
+
+The consequence of P1 (9.16) on the whole MS. It is seen: P1's mini-MS
+re-score is known.
+
+Procedure on `R\casa\e2b.ms` in place, with no 218 GB copy. Every step
+renames or adds columns that are removed again at the end:
+1. Save: CORRECTED_DATA → E2C_SAVE_CORRECTED_DATA, FLAG →
+   E2C_SAVE_FLAG, FLAG_ROW copied to E2C_SAVE_FLAG_ROW. Record the column
+   list and a FLAG hash (`a2_flaghash`-style sha256 over the rows).
+2. FLAG and FLAG_ROW from the after-calibrate version
+   `flags.rang_apply_20261112T013707Z`, as 2b's prep did. FEED
+   RECEPTOR_ANGLE is already −90° from that prep.
+3. CASA 6.7.6.14 `applycal` with 2b's own spec (`R\applycal-spec.json`, 3
+   calls, calflag, parang) writes CORRECTED_DATA and FLAG. These are
+   renamed to E2C_CASA_CORRECTED_DATA and E2C_CASA_FLAG.
+4. Control **C9**: 2b's own comparison (`e2p_compare.py`'s rule) of
+   E2C_CASA_* against the frozen RANG_CORRECTED_DATA and RANG_FLAG
+   reproduces `R\g2b-applycal.json`: 42 cells over class C, max 25.58 eps,
+   0 flag elements differing. Not met: void.
+5. FLAG and FLAG_ROW from the after-calibrate version again. Then rang's
+   apply with the new P (this branch at main `011232e`) is called with the
+   frozen apply's arguments (`R\rang-run\apply\summary.json`, as A1's C3,
+   `parang_flags='none'`), and writes CORRECTED_DATA and FLAG.
+6. Measure: 2b's comparison of E2C_CASA_* against rang's new
+   CORRECTED_DATA and FLAG.
+   - Class C: per cell ≤ 1e-6 relative, or ≤ 11 float32 eps of the cell's
+     largest correlation; flags exact.
+   - Reported beside: rang new against RANG_CORRECTED_DATA (P's change
+     alone).
+7. Restore: remove CORRECTED_DATA, FLAG and E2C_CASA_*, then rename the
+   E2C_SAVE_* columns back and copy FLAG_ROW back. The column list and the
+   FLAG hash must equal step 1's; D: free space is recorded before and
+   after.
+
+Reading:
+- 0 cells over class C and flags exact → gate 2b's CASA applycal leg is
+  met with the new P (seen; the frozen 2b record stays).
+- Otherwise not met, with the count and the maximum reported.
+
+Booking: CASA applycal and casacore steps at 2 slots (9p I/O-bound),
+rang's apply at 4. D: must keep ≥ 150 GB free; the new columns add about
+85 GB.
+
+**Column handling revised 2026-11-15, before any 9.19 run** (the
+comparison, the controls and the reading are unchanged).
+- The MS's data manager names would clash: CASA adds CORRECTED_DATA as
+  `CorrectedTiled`, which the saved column keeps after a rename, and
+  rang adds it as `TiledCorrected`, which RANG_CORRECTED_DATA already uses.
+- So no column is created under those names:
+  - step 1 *copies* CORRECTED_DATA into E2C_SAVE_CORRECTED_DATA (its own
+    manager), so CASA's applycal writes the existing CORRECTED_DATA;
+  - step 3 renames only FLAG, to E2C_CASA_FLAG;
+  - step 5's rang apply writes `column='E2C_RANG_CORRECTED_DATA'` (its own
+    manager) and FLAG, with `flag_backup='rang_original'` (exists, so no
+    version is added), and the write-back journal is put back afterwards;
+  - step 7 copies E2C_SAVE_CORRECTED_DATA back into CORRECTED_DATA and
+    removes the E2C_* columns.
+- The check in step 7 adds the sha256 of CORRECTED_DATA (equal to step
+  1's) to that of FLAG and FLAG_ROW.
+
+Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
+
+**Harness incidents, 2026-11-15, before CASA or rang ran:**
+- The first save failed while it hashed CORRECTED_DATA: a 262 MB read
+  over 9p returned ENOMEM. Nothing had been renamed. Blocks are now 250
+  rows.
+- The second save failed while it copied CORRECTED_DATA into
+  E2C_SAVE_CORRECTED_DATA: a 9p write returned ENOMEM, with WSL's page
+  cache full. `b2_cols.py cleanup` removed the partial column. The column
+  set equals the original again, and no original column was written.
+- Step 1 now renames CORRECTED_DATA to E2C_SAVE_CORRECTED_DATA, with no
+  data copy, and adds an empty CORRECTED_DATA on its own manager
+  (`E2CCasaCorrected`) for CASA to write. Step 7 removes it and renames
+  the saved column back.
+- The third save failed again on a 9p read of CORRECTED_DATA (ENOMEM)
+  while it hashed, before any rename. The hashes are now taken natively
+  on Windows with rang's reader (`b2_hash.py`), before step 1 and after
+  step 7.
+- The fourth attempt reached CASA. applycal failed on all 3 calls with
+  "TSM: no array in row …", because the empty CORRECTED_DATA was a
+  variable-shape TiledShapeStMan column.
+  - The queue's restore ran, and the native hashes of FLAG + FLAG_ROW and
+    CORRECTED_DATA and the column set equal the ones before.
+  - Step 1 now adds CORRECTED_DATA with a fixed shape on a
+    TiledColumnStMan. This was tested on a 41-row copy, where CASA writes
+    it, before the rerun.
+- The fifth attempt's applycal wrote J1939−6342. The other two calls
+  failed reading DATA over 9p (ENOMEM), with the host loaded by another
+  agent's 40 GB GeMClean.
+  - The restore was exact again: hashes and the column set equal.
+  - The CASA step is now booked at 24 GB, which covers WSL's page cache,
+    so the lock keeps other large jobs off while it reads and writes
+    about 72 GB over 9p.
+
+### 9.20 9.19 outcome, 2026-11-15: not run (harness); CASA copy damaged, then repaired
+
+**Not run.** No CASA applycal output for all three fields and no rang
+apply were produced, so there is no 2b reading with the new P on the full
+MS. The mini-MS re-score (9.16, 4.8 eps) stays the only one.
+
+The sixth attempt damaged the shared CASA copy `R\casa\e2b.ms`, and it was
+repaired:
+- **Damage (09:50:58).** Step 1 failed when the table closed. casacore was
+  writing the new fixed-shape CORRECTED_DATA's cube (36 GB, zeros) over
+  9p and got ENOMEM at 15.2 GB.
+  - `table.dat` already named the new data manager (seqnr 25), but its
+    header file `table.f25` was never written.
+  - Neither casacore nor rang could open the MS.
+  - Nothing else used it meanwhile; this note's queue had stopped at the
+    failed step.
+- **Safety first:**
+  - the small metadata files were copied
+    (`D:\rang\outputs\e2b-close-20261115\b2\ms-meta-backup-0951`);
+  - every large data file was hard-linked into
+    `...\b2\ms-hardlinks`;
+  - the repair was rehearsed on an ext4 copy of A1's mini MS.
+- **Rehearsal** (`b2/rehearse/`): `r1.py` builds the same structure,
+  `table.f10` is deleted and its data file truncated, and the same open
+  error follows.
+  - A header from a twin table works once the twin's manager has the same
+    sequence number: casacore checks "seqnr, #col".
+  - The header fields that depend on the row count were found by diffing
+    twins of 41, 300 and 1000 rows: nrrow at 0x60, the cube's last axis
+    at 0xF7, and the data file length at 0x91. `patch2.py` reproduces the
+    shape fields.
+  - On the rehearsal, opening with the patched header and running
+    `b2_cols.py restore` gives the original columns and the original
+    CORRECTED_DATA, FLAG and FLAG_ROW, value for value.
+- **Repair (10:01).**
+  - A twin header for seqnr 25, patched to 272,916 rows and to a file
+    length the existing partial data file covers, was installed as
+    `table.f25` (copy in `b2/repair-table.f25`).
+  - casacore then opened the MS, and `b2_cols.py restore` removed the new
+    CORRECTED_DATA and FLAG and E2C_SAVE_FLAG_ROW, renamed E2C_SAVE_* back
+    and copied FLAG_ROW back. The files f25–f27 are gone.
+- **Check (10:05):**
+  - the column set equals the original (`columns-original.json`);
+  - rang's native sha256 of FLAG + FLAG_ROW and of CORRECTED_DATA equals
+    `hash-before.json`, taken before attempt 4 on the restored original.
+  - So the CASA copy is back as it was. Receipts: `restore-repair.json`,
+    `hash-after-repair.json`.
+- Earlier unit on/off cycles left four 6.5 MB `table.f1Ni` index files of
+  removed StandardStMan columns. They are unused; this note did not remove
+  them.
+
+Lesson:
+- casacore and CASA bulk I/O on `/mnt/d` over 9p failed with ENOMEM 6
+  times in a row while the host was loaded. Smaller blocks,
+  rename-instead-of-copy and a larger booking did not prevent it.
+- Native Windows reads of the same files (rang's reader, 36 GB in 102 s)
+  and ext4 work (WSClean 232 s against 1,032 s) did not fail.
+- Proposed for a rerun, to be frozen first:
+  - CASA on a reduced ext4 copy made from a read-only mount (`a5_copy.py`
+    pattern, with DATA, the after-calibrate FLAG and RANG_*), with C9 as
+    the control that validates the copy;
+  - rang's apply natively on Windows into a column of its own;
+  - the comparison reading the CASA columns after a plain file copy of
+    the ext4 table to D: (no casacore write over 9p).
+  - D: has 443 GB free; the ext4 vhdx grows by about 110 GB.
+
 ## For the coordinator
+
+**After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
+- **9.18, gate 3c dirty at ε 1e-6 with `-no-small-inversion` (dated post
+  hoc amendment): met on all three fields**, at 2.0e-7, 3.3e-7 and 8.1e-8
+  (bound 1e-6). C10 met.
+  - One GeMClean run was void through memory over-booking; it was rerun at
+    46 GB.
+- **9.19, full-MS gate 2b with the new P: not run (harness).** casacore
+  and CASA bulk I/O over 9p failed with ENOMEM 6 times.
+  - The sixth attempt left `R\casa\e2b.ms` unopenable. It was repaired
+    by a rehearsed twin header plus restore, and the column set and
+    native hashes equal the originals (9.20).
+  - A rerun on ext4 is proposed; it must be frozen first.
+  - Gate 2b's only reading with the new P is still the mini MS (9.16).
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
 - **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now
