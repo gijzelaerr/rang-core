@@ -1697,6 +1697,72 @@ Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
     so the lock keeps other large jobs off while it reads and writes
     about 72 GB over 9p.
 
+### 9.20 9.19 outcome, 2026-11-15: not run (harness); CASA copy damaged, then repaired
+
+**Not run.** No CASA applycal output for all three fields and no rang
+apply were produced, so there is no 2b reading with the new P on the full
+MS. The mini-MS re-score (9.16, 4.8 eps) stays the only one.
+
+The sixth attempt damaged the shared CASA copy `R\casa\e2b.ms`, and it was
+repaired:
+- **Damage (09:50:58).** Step 1 failed when the table closed. casacore was
+  writing the new fixed-shape CORRECTED_DATA's cube (36 GB, zeros) over
+  9p and got ENOMEM at 15.2 GB.
+  - `table.dat` already named the new data manager (seqnr 25), but its
+    header file `table.f25` was never written.
+  - Neither casacore nor rang could open the MS.
+  - Nothing else used it meanwhile; this note's queue had stopped at the
+    failed step.
+- **Safety first:**
+  - the small metadata files were copied
+    (`D:\rang\outputs\e2b-close-20261115\b2\ms-meta-backup-0951`);
+  - every large data file was hard-linked into
+    `...\b2\ms-hardlinks`;
+  - the repair was rehearsed on an ext4 copy of A1's mini MS.
+- **Rehearsal** (`b2/rehearse/`): `r1.py` builds the same structure,
+  `table.f10` is deleted and its data file truncated, and the same open
+  error follows.
+  - A header from a twin table works once the twin's manager has the same
+    sequence number: casacore checks "seqnr, #col".
+  - The header fields that depend on the row count were found by diffing
+    twins of 41, 300 and 1000 rows: nrrow at 0x60, the cube's last axis
+    at 0xF7, and the data file length at 0x91. `patch2.py` reproduces the
+    shape fields.
+  - On the rehearsal, opening with the patched header and running
+    `b2_cols.py restore` gives the original columns and the original
+    CORRECTED_DATA, FLAG and FLAG_ROW, value for value.
+- **Repair (10:01).**
+  - A twin header for seqnr 25, patched to 272,916 rows and to a file
+    length the existing partial data file covers, was installed as
+    `table.f25` (copy in `b2/repair-table.f25`).
+  - casacore then opened the MS, and `b2_cols.py restore` removed the new
+    CORRECTED_DATA and FLAG and E2C_SAVE_FLAG_ROW, renamed E2C_SAVE_* back
+    and copied FLAG_ROW back. The files f25–f27 are gone.
+- **Check (10:05):**
+  - the column set equals the original (`columns-original.json`);
+  - rang's native sha256 of FLAG + FLAG_ROW and of CORRECTED_DATA equals
+    `hash-before.json`, taken before attempt 4 on the restored original.
+  - So the CASA copy is back as it was. Receipts: `restore-repair.json`,
+    `hash-after-repair.json`.
+- Earlier unit on/off cycles left four 6.5 MB `table.f1Ni` index files of
+  removed StandardStMan columns. They are unused; this note did not remove
+  them.
+
+Lesson:
+- casacore and CASA bulk I/O on `/mnt/d` over 9p failed with ENOMEM 6
+  times in a row while the host was loaded. Smaller blocks,
+  rename-instead-of-copy and a larger booking did not prevent it.
+- Native Windows reads of the same files (rang's reader, 36 GB in 102 s)
+  and ext4 work (WSClean 232 s against 1,032 s) did not fail.
+- Proposed for a rerun, to be frozen first:
+  - CASA on a reduced ext4 copy made from a read-only mount (`a5_copy.py`
+    pattern, with DATA, the after-calibrate FLAG and RANG_*), with C9 as
+    the control that validates the copy;
+  - rang's apply natively on Windows into a column of its own;
+  - the comparison reading the CASA columns after a plain file copy of
+    the ext4 table to D: (no casacore write over 9p).
+  - D: has 443 GB free; the ext4 vhdx grows by about 110 GB.
+
 ## For the coordinator
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
