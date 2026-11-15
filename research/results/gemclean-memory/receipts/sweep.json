@@ -228,5 +228,101 @@
    "gemclean: -fits-mask takes one polarisation, -auto-mask one or joined polarisations (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule certified (research/g4-masks.md)"
   ],
   "spill_left": []
+ },
+ "stokes-i": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-channels": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined-fit": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 25,
+  "stderr": null,
+  "spill_left": []
  }
 }

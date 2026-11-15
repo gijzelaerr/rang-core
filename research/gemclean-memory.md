@@ -217,13 +217,17 @@ weighting and joined polarisations. On G8's tiny MS (8 antennas, 8
 channels, W1's per-correlation flags and weights, so I and Q share one
 beam and U and V another: the lookup also finds a non-first polarisation)
 the binary before (`2eec8c1`) and after (`c06cdd1`'s build) give the same
-exit code, FITS files, report `entries` and mask record on all 14 cases:
+exit code, FITS files, report `entries` and mask record on all 20 cases:
 joined IQUV with MF weighting, masked, per-channel weighting, one output
 channel, `-fit-spectral-pol 2`, `-no-plan-reuse` and `-double`; joined
 `XX,YY` and `QU`; unjoined IQUV with MF weighting (weights from every
 polarisation), per-channel weighting and one channel; and unjoined IQUV
 with `-audit` or `-auto-mask`, which both refuse with the same message (so
-no reachable path needs a compacted measurement's dense arrays). No
+no reachable path needs a compacted measurement's dense arrays); and Stokes
+I without `-pol` (added in a second sweep: plain, masked, `-channels-out
+2`, joined channels, joined and masked, `-fit-spectral-pol 2`), which shares
+the joined loop, the gridder's freed buffers and the reader's chunks. The
+reference binary of the second sweep was rebuilt from `2eec8c1`. No
 `.spill` file is left after a run that ends normally; one that fails in
 the clean leaves it beside the outputs. On J1833−2103 the report's
 `entries` and `image-mask.json` are also equal.
@@ -262,7 +266,9 @@ crops 0.27, three image sets 3.2.
 channels, 70 % of the cells at zero weight, 256², `-pol IQUV
 -join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2`. Peak
 heap 149,499,552 bytes before, 101,622,308 after; bound frozen at
-122,000,000 (1.2 × after), so the run before the fix fails it. The bound
+122,000,000 (1.2 × after), so the run before the fix fails it. Only that
+whole return was shown to fail (2026-11-15): a single copy coming back may
+stay under the bound (the case's images are 0.5 MB each). The bound
 was measured on Windows (the binary's `CountingAlloc`); Linux counts the
 same requested bytes through `HugePageAlloc`.
 
@@ -303,7 +309,7 @@ default (`-beam-band`, measured in G1).
   reader chunks. `-memory-report` now works on Windows.
 - Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB;
   149.5 MB before) runs in CI's `cargo test`.
-- Identity also on a 14-case option sweep (unjoined, per-channel
+- Identity also on a 20-case option sweep (Stokes I included) (unjoined, per-channel
   weighting, `-fit-spectral-pol`, `-no-plan-reuse`, `-double`, `XX,YY`,
   `QU`, polarisations with different weights). Full check and gpu steps
   left to the merge check.

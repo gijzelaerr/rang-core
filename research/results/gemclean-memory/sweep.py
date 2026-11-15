@@ -4,7 +4,8 @@ against the binary after it, on G8's tiny MS (8 antennas, 8 channels, W1's
 per-correlation flags and weights, so the polarisations do not all share
 rows and weights), over the polarisation options the restructure touched.
 Compares the exit code, every FITS file's SHA-256, the report's `entries`
-and the mask record.
+and the mask record. The Stokes I cases (no `-pol`) were added after the
+first sweep.
 
     sweep.py BEFORE_BINARY AFTER_BINARY OUTDIR   -> OUTDIR/sweep.json
 """
@@ -17,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests"))
-from test_g8_gemclean import tiny_ms  # noqa: E402
+from test_g8_gemclean import tiny_ms
 
 BASE = ["-size", "128", "128", "-scale", "4asec", "-weight", "briggs", "0",
         "-niter", "2000", "-mgain", "0.8", "-auto-threshold", "3",
@@ -41,16 +42,31 @@ CASES = {
     "unjoined-iquv-one-channel": ["-pol", "IQUV"],
     "unjoined-iquv-audit": ["-pol", "IQUV", "-audit"],
     "unjoined-iquv-masked": ["-pol", "IQUV", "-auto-mask", "5"],
+    # Stokes I (no -pol): the joined loop, the gridder's freed buffers and
+    # the reader's chunks are shared with it.
+    "stokes-i": [],
+    "stokes-i-masked": ["-auto-mask", "5"],
+    "stokes-i-channels": ["-channels-out", "2"],
+    "stokes-i-joined": ["-channels-out", "2", "-join-channels"],
+    "stokes-i-joined-masked": ["-channels-out", "2", "-join-channels", "-auto-mask", "5"],
+    "stokes-i-joined-fit": ["-channels-out", "4", "-join-channels", "-fit-spectral-pol", "2"],
 }  # fmt: skip
 
 
 def run(binary, ms, out, extra):
     out.mkdir(parents=True, exist_ok=True)
     p = subprocess.run([binary, "-name", str(out / "g"), *BASE, *extra, str(ms)],
-                       capture_output=True, text=True, encoding="utf-8", errors="replace")  # fmt: skip
-    files = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(out.glob("*.fits"))}
+                       check=False, capture_output=True, text=True, encoding="utf-8", errors="replace")  # fmt: skip
+    files = {
+        f.name: hashlib.sha256(f.read_bytes()).hexdigest()
+        for f in sorted(out.glob("*.fits"))
+    }
     rep = out / "g-report.json"
-    entries = json.loads(rep.read_text(encoding="utf-8")).get("entries") if rep.is_file() else None
+    entries = (
+        json.loads(rep.read_text(encoding="utf-8")).get("entries")
+        if rep.is_file()
+        else None
+    )
     mask = out / "g-mask.json"
     return {
         "exit": p.returncode,
@@ -79,7 +95,12 @@ def main():
             "stderr": [a["stderr"], b["stderr"]] if a["exit"] or b["exit"] else None,
             "spill_left": b["spill_left"],
         }
-        print(name, results[name]["identical"], results[name]["exit"], results[name]["files"])
+        print(
+            name,
+            results[name]["identical"],
+            results[name]["exit"],
+            results[name]["files"],
+        )
     (outdir / "sweep.json").write_text(json.dumps(results, indent=1), encoding="utf-8")
 
 
