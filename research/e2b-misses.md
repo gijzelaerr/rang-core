@@ -1539,7 +1539,44 @@ with gate 3c's archived GeMClean dirty images
 by gate 3c's measure (full image, 5 % border, inner two-thirds), read
 against A0's 1e-6.
 
+Measured 2026-11-15 (`a4c_queue.sh`; WSClean 471, 2,030 and 2,485 s at
+4 slots, almost all of it 9p I/O; unit on/off, the column list
+restored; receipt `a4/g3c-nosi.json`):
+
+| Field | Full image | 5 % border excluded | Inner two-thirds | Gate 3c as matched (9.10's ε 1e-4 row) |
+| --- | --- | --- | --- | --- |
+| J1331+3030 | 2.2e-5 | 2.2e-5 | 2.2e-5 | 3.5e-3 |
+| J1939−6342 | 2.2e-5 | 2.2e-5 | 2.2e-5 | 1.2e-3 |
+| J1833−2103 | 2.0e-6 | 2.0e-6 | 2.0e-6 | 2.9e-3 |
+
+Reading (seen, post hoc):
+- Without small inversion the edge excess is gone. The maximum is the same
+  over the full image, the 5 % border and the inner two-thirds.
+- At the protocol's ε 1e-4 the dirty difference is 2.0e-6 to 2.2e-5, which
+  is the gridders' ε 1e-4 error. It is still above A0's 1e-6, whose bound
+  was measured at finer ε.
+- 9.12 gives 8.1e-8 on J1833−2103 at ε 1e-6 with the same oracle setting.
+- So gate 3c's dirty measure would read as met only with both
+  `-no-small-inversion` and a finer ε (1e-6). That is shown on one field;
+  at 1e-4 it is not met.
+- Owner: whether 3c's dirty comparison is re-read at ε 1e-6 with
+  `-no-small-inversion` on all three fields. That costs 3 WSClean and 3
+  GeMClean runs; book the dirty-only WSClean runs at 1–2 slots on an ext4
+  copy, as the coordinator noted.
+- The FITS images were deleted after scoring.
+
 ## For the coordinator
+
+**After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
+- **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now
+  emulates casacore. It is 1.3e-8 rad from casacore on the held-out field
+  rows, and 3.6e-8 on the 432-case fixture.
+  - Gate 2b on A1's mini MS: 4.8 eps at most on the 42 cells (class C
+    11), against 25.6.
+  - Open: the full-MS 2b re-score, and casacore-to-applycal's 2.7e-7.
+- **3c dirty with `-no-small-inversion` at ε 1e-4 (9.17, seen):** 2.2e-5,
+  2.2e-5 and 2.0e-6. The edge excess is gone; the rest is ε 1e-4. Meeting
+  1e-6 needs ε 1e-6 as well (9.12).
 
 **After A4b and A1d (2026-11-15, branch `e2b-pastro`):**
 - **A4b (9.11, 9.12): met.** Gate 3c's dirty difference is WSClean's small
