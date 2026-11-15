@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parent / "e2-acceptance-scripts"))
+sys.path.insert(0, str(HERE.parent.parent / "e2-acceptance-scripts"))
 from e2_score3c import mad, score_field
 
 R = Path("D:/rang/outputs/e2-20261111-20-e2b")

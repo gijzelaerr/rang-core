@@ -12,8 +12,8 @@ export MSYS_NO_PATHCONV=1
 L=C:/Users/gijsm/Github/rang/tools/heavy_lock.py
 LW=/mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py
 GB="C:/Program Files/Git/bin/bash.exe"
-W=/mnt/c/Users/gijsm/Worktrees/rang/gemclean-iquv-mask/research/results/e2b-misses
-S=C:/Users/gijsm/Worktrees/rang/gemclean-iquv-mask/research/results/e2b-misses
+W=/mnt/c/Users/gijsm/Worktrees/rang/gemclean-iquv-mask/research/results/e2b-misses/a5-mask
+S=C:/Users/gijsm/Worktrees/rang/gemclean-iquv-mask/research/results/e2b-misses/a5-mask
 P=D:/rang/outputs/gemclean-iquv-mask-20261115
 RS=${RANG_SLOTS:-4}
 wsl_job() { wsl.exe -e python3 "$LW" run --slots "$1" --mem "$2" -- bash "$W/a5_run.sh" "${@:3}"; }

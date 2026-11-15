@@ -7,7 +7,7 @@ set -u
 P=D:/rang/outputs/gemclean-iquv-mask-20261115
 WT=C:/Users/gijsm/Worktrees/rang/gemclean-iquv-mask
 PY=$WT/.venv/Scripts/python.exe
-T=$WT/research/results/e2b-misses/a5_time.py
+T=$WT/research/results/e2b-misses/a5-mask/a5_time.py
 s=$(date +%s)
 case "$1" in
   e2b)
