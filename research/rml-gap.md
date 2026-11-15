@@ -1,8 +1,9 @@
 # Rang: the gap between CLEAN and a sparsity-regularised imager on MeerKAT truth skies (issue #24, step 1)
 
-Status, 2026-11-15: **protocol frozen; amendments A1-A4; outcome "U worse at our settings"
-(section 8.2). The A3 test U-up on N2 failed its precondition and is not scored (section 8.4).
-A4's U-up2 (the recipe without its averaging) on N2 is running.** Issue
+Status, 2026-11-15: **protocol frozen; amendments A1-A4. Outcome: "U worse at our settings on
+4 of 4 gated skies, and at upstream's preset (without its averaging) on N2"** (sections 8.2 and
+8.5). A3's U-up failed its precondition and is not scored (section 8.4); A4's U-up2 gives
+`r_up2` = 5.05. Issue
 [gijzelaerr/rang-core#24](https://github.com/gijzelaerr/rang-core/issues/24), step 1, from the
 stub [proposals/imaging-gap-comparators.md](proposals/imaging-gap-comparators.md). A comparison
 with no rang code: GeMClean, WSClean and pfb-imaging run as released, scored against known truth.
@@ -475,9 +476,12 @@ re-run, whose model is bit-identical to G's on every sky.
 - **Convergence:** U\* reached `tol` on 0 of 4 skies, within 5 × G's wall or CPU or within the
   cap. Every run stopped at the 40-cycle cap.
 - **Extended groups:** U\* fails measure 3 on every gated sky. A2 positions pass.
-- **A3 scope:** the outcome is stated as **"U worse at our settings"**. The upstream-preset run on
-  N2 (section 8.4) failed its precondition and is not scored, so A3's rule does not fire and the
-  scope stays there.
+- **A3 and A4 scope:**
+  - The upstream-preset run on N2 (U-up, section 8.4) failed its precondition and is not scored,
+    so A3's rule does not fire.
+  - A4's U-up2, the preset without its averaging, gives `r_up2` = 5.05 > 1.25 (section 8.5). The
+    outcome is therefore stated as **"U worse at our settings on 4 of 4 gated skies, and at
+    upstream's preset (without its averaging) on N2"**.
 
 **Why U is worse (diagnosis, not a measured cause).**
 - **Not a scorer artefact.** pfb's own peak residual, from its log, matches the scorer's exact
@@ -570,26 +574,88 @@ run's own dirty images).
   averaged data give a different image.
 
 So U-up fits pfb's averaged data, not the MS. **It says nothing about SARA's quality at upstream's
-sara-step settings.** Section 9 proposes the test that would.
+sara-step settings.** Amendment A4's U-up2 (section 8.5) is that test.
 
 Files: `runs\U-up\N2\` (logs, iterates, `/usr/bin/time` output) and `scores\N2.json`, whose U-up
 arm has `precondition_pass: false`.
 
-### 8.5 Not run
+### 8.5 U-up2 on N2: upstream's preset without its averaging (amendment A4)
+
+**Result: `r_up2` = 5.05 > 1.25.** A4's rule fires, so the outcome is stated as **"U worse at our
+settings on 4 of 4 gated skies, and at upstream's preset (without its averaging) on N2"**.
+
+**Precondition: passes under A4's secondary check** (`a4_precondition.py`, written to
+`scores\N2-a4-precondition.json`).
+- Section 4's check fails on the margin alone: scaled L∞/peak is 1.00 in every orientation, with a
+  margin of 6e-6, and analyse.py's first pass picked orientation 6. Robust -0.3 against the core's
+  natural-weighted dirty image gives no L∞ match in any orientation.
+- **Secondary check 1, orientation:** the correlation with the core's exact dirty image is 0.795 in
+  the identity orientation, ahead of the next by 0.775, so it passes. (U-a: 0.997 and 0.963; U-up:
+  0.855 and 0.829.)
+- **Secondary check 2, no smearing:** median point-source peak over flux, 25 isolated point sources:
+
+  | distance from phase centre | U-up2 | U-a | U-up |
+  | --- | --- | --- | --- |
+  | under 10′ | 0.985 | 0.986 | 0.293 |
+  | 10-20′ | 0.968 | 0.969 | 0.154 |
+  | over 20′ | 0.982 | 0.993 | 0.065 |
+
+  So it passes. U-up would have failed this check (section 8.4).
+- **Scoring.** U-up2 is scored in the identity orientation (`precondition_basis: "A4 secondary"` in
+  `scores\N2.json`). The first pass in orientation 6 gave a meaningless 1.40 and is superseded.
+
+**Scores** on N2 (G 0.003777):
+
+| | U-a (40 cycles) | U-up2 (107 cycles) |
+| --- | --- | --- |
+| relative L2, last cycle | 0.0279 (`r` 7.38) | 0.0191 (`r` 5.05) |
+| within 5 × G's wall | 0.0299 (cycle 12, 7.90) | 0.0320 (cycle 8, 8.48) |
+| within 5 × Gt's CPU | 0.0279 (cycle 40, 7.38) | 0.0253 (cycle 16, 6.69) |
+| relative L2, extended / points | 0.0118 / 0.0522 | 0.0127 / 0.0314 |
+| exact residual, inner rms / peak | 6.63σ / 434σ | 4.29σ / 229σ |
+| total flux / truth | 0.991 | 0.982 |
+| measure 3 (extended groups) / measure 4 (positions) | fail / fail | fail / fail |
+| CPU, and over Gt's | 6,502 s (3.95 ×) | 70,394 s (42.8 ×) |
+
+- **Upstream settings improve U.** The upstream weighting and reweighting lower U's error by 32 %
+  against U-a, mostly in the point sources (0.052 to 0.031). U-up2 is still 5 × G's error at
+  43 × G's CPU, and 6.7 × within 5 × G's CPU.
+- **Stop and convergence.** pfb stopped the run itself at cycle 107 ("diverging": its peak
+  residual stopped falling, at 3.994e-3 in cycles 106 and 107).
+  - `eps` was 1.21e-3 against `tol` 5e-4, so the run did not converge. None of A4's stops was
+    reached.
+  - The primal-dual inner solve hit `pd-maxit` in 104 of 107 cycles.
+  - Relative L2 changes by about 1 % after cycle 60 (0.0193 to 0.0191).
+  - pfb's "xfit" message appears in every cycle, as in U-a and U-up.
+- **Cost.** Wall 18,281 s (shared-host): init 127 s, grid 38 s, sara 18,115 s. CPU 70,394 s; peak
+  memory 4.0 GB.
+
+Files: `runs\U-up2\N2\` and `scores\N2.json`.
+
+### 8.6 Not run
 
 - **Pilot:** section 7 allows it only under 20 h of host time, and this study used more.
 - **Arm A:** the owner's decision is open.
 - **`pfb deconv`:** not run (A3).
 - **Exclusive timing subset:** not triggered (A2.1).
 
-### 8.6 Provenance
+### 8.7 Provenance
 
 - **Out directory:** `D:\rang\outputs\rml-gap-20261113`.
   - `runs.tsv`: every run, failures included.
-  - `runs\{G,Gd,Gt,W,U-a..U-d,U-up}\<sky>\`: commands, logs, FITS, `/usr/bin/time` output and
-    `wall.json`.
-  - `scores\<sky>.json`.
+  - `runs\{G,Gd,Gt,W,U-a..U-d,U-up,U-up2}\<sky>\`: commands, logs, FITS, `/usr/bin/time` output
+    and `wall.json`.
+  - `scores\<sky>.json` and `scores\N2-a4-precondition.json`.
   - `df5o\{ws-G,ws-Gd,ws-W,pfb-sara-U-a}-r1\` and `df5o\measures\`.
+- **Deleted 2026-11-15, after scoring (28 GB).** These are not read by any score:
+  - pfb's per-cycle `pfb_I_main_residual_<k>.fits` and `pfb_I_main_update_<k>.fits`. pfb's own
+    per-cycle residual peaks stay in its logs.
+  - The DF5-O MS copies `df5o\field` and `df5o\field-niter0`. The original is in WSL
+    `~/Github/rang/outputs/df5o-20261031-01/field`; re-running `df5o.py` or `df5o_l2.py` needs a
+    copy of it at `df5o\field` again.
+  
+  Kept (33 GB): the per-cycle model images, final products, logs, `prep\`, `data\` and the scores,
+  so that every score can be recomputed.
 - **Seeds:** N1 and N2 as section 2.
 - **Binary:** GeMClean as section 8.1.
 - **Containers:** `rang-wsclean-native:3.7` and `rang-pfb-imaging:0.0.11`.
@@ -600,33 +666,32 @@ arm has `precondition_pass: false`.
 
 ## 9. For the coordinator
 
-- **Outcome (section 5): "U worse at our settings."**
-  - On the gated skies, `r_s` is 9.6 (H4), 13.8 (M1), 9.9 (N1) and 7.4 (N2), so `r_s` > 1.25 on
-    4 of 4.
+- **Outcome (section 5, with A3 and A4): "U worse at our settings on 4 of 4 gated skies, and at
+  upstream's preset (without its averaging) on N2".**
+  - On the gated skies, `r_s` is 9.6 (H4), 13.8 (M1), 9.9 (N1) and 7.4 (N2).
   - Neither gap clause holds on either cost basis.
   - U\* converged on 0 of 4 skies.
   - Parity holds on 4 of 4.
   - The reported skies agree: H1-H3 give `r` = 22-89, and DF5-O gives 13.8.
-- **Scope.** pfb `sara` 0.0.11 ran with the recipe's sara step and our weighting, averaging and
-  cycle cap (A3), and did not converge in 40 cycles. Amendment A3's upstream-preset test is not
-  scored (section 8.4): the recipe's averaging smears these 25 MHz-channel MSs. Neither the test
-  nor this outcome says anything about learned imagers, about `pfb deconv`, or about SARA at
-  convergence.
-- **What it means for step 2:** on these skies the sparsity-regularised baseline does not show a
-  gap for an RML or plug-and-play loop in GeMClean to close. If step 2 is still wanted, it needs a
-  stronger baseline first.
-- **Open owner decisions:**
-  - Arm A (a learned imager), as before.
-  - Whether to run either of these proposals. Neither is pre-registered; each needs a new dated
-    amendment.
-    - **U-up2:** gosara's settings without the averaging (`chan-average 1`, `bda-decorr 1.0`,
-      otherwise as U-up) on N2, under A3's rule. It takes about 5 h at 4 slots, and isolates
-      `robustness -0.3`, `psf-oversize 1.6` and `l1-reweight-from 7`.
-    - **`pfb deconv`,** the successor command, on N2.
-- **Branch.** `claude/rml-gap-cc5921`: the note, scripts, timings and
-  `results/rml-gap.json`, with no code change under `python/`, `core/` or `src/`. It is not rebased
-  on main and needs no CHANGELOG entry. The oracle gates in `check_all.py` (full run) are not
-  touched by this branch; only `--quick` was run.
-- **Space.** Raw runs take 56 GB in `D:\rang\outputs\rml-gap-20261113`, kept for the coordinator to
-  delete. The pfb work stores in WSL `~/Build/tmp/20261113-rml-gap` (28 GB) are deleted; their
-  outputs had been copied to the out directory.
+- **Upstream preset on N2:**
+  - U-up, the shipped `gosara` recipe as is, is not scored: its `chan-average 4` smears these
+    25 MHz-channel MSs (section 8.4).
+  - U-up2, the same recipe without the averaging, gives relative L2 0.0191 against G's 0.0038
+    (`r_up2` = 5.05, 6.7 within 5 × G's CPU), at 43 × G's CPU.
+  - U-up2 did not converge. pfb's own stop at cycle 107 left `eps` at 1.2e-3 against `tol`
+    5e-4 (section 8.5).
+  - Upstream settings cut U's error by 32 % against U-a; it is still 5 × G's.
+  - U-up2 passed A4's secondary precondition, not section 4's (robust -0.3 has no L∞ match to
+    the natural-weighted core dirty image).
+- **Not covered:** learned imagers (arm A), `pfb deconv`, SARA converged to `tol`, and upstream
+  settings on H4, M1 and N1. A4's rule calls for none of these, since `r_up2` > 1.25.
+- **What it means for step 2:** on these skies the sparsity-regularised baseline, at its own
+  preset, does not show a gap for an RML or plug-and-play loop in GeMClean to close.
+- **Open owner decision:** arm A (a learned imager), as before.
+- **Branch.** `claude/rml-gap-up2` from main `70a90e2`: amendment A4 (committed before the run),
+  `runs.py`'s U-up2 configuration, `analyse.py`'s A4 secondary branch, `a4_precondition.py`, the
+  note, the timings and `results/rml-gap.json`.
+  - No code change under `python/`, `core/` or `src/`, and no CHANGELOG entry.
+  - Only `check_all.py --quick` was run.
+- **Space.** 33 GB is left in `D:\rang\outputs\rml-gap-20261113`, after the 28 GB deleted in
+  section 8.7. Nothing is running.

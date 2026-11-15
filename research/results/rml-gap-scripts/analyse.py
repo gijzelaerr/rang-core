@@ -167,6 +167,17 @@ def u_run(s, d, g_wall, out, g_cpu=None):
     rec["orientation_margin"] = best[1][0] - best[0][0]
     rec["dirty_linf_over_peak"] = s.dirty_check(dirty, rec["orientation"])
     rec["precondition_pass"] = rec["orientation_margin"] >= 0.5
+    # Amendment A4: for U-up2 only, a failed margin is decided by the secondary precondition
+    # (a4_precondition.py: correlation orientation and the point-source smearing test).
+    a4 = O / "scores" / f"{d.name}-a4-precondition.json"
+    if d.parent.name == "U-up2" and not rec["precondition_pass"] and a4.exists():
+        sec = json.loads(a4.read_text(encoding="utf-8"))[d.parent.name]
+        rec["a4_secondary"] = sec
+        if sec["secondary_pass"]:
+            rec["orientation"] = sec["orientation"]
+            rec["dirty_linf_over_peak"] = s.dirty_check(dirty, rec["orientation"])
+            rec["precondition_pass"] = True
+            rec["precondition_basis"] = "A4 secondary"
     log = (
         (d / "sara.log").read_text(encoding="utf-8", errors="replace")
         if (d / "sara.log").exists()

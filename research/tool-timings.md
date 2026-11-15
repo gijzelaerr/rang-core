@@ -1936,3 +1936,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-15 | rml-gap: `compare_df5o.py measure` ×4 and `df5o_l2.py` | DF5-O arms | 19-21 s each; 11 s | – | Windows host, 4 slots |
 | 2026-11-14–15 | rml-gap: pfb-imaging 0.0.11 U-up (A3, gosara preset: `chan-average 4`, `bda-decorr 0.98`, robust -0.3), 8 threads | N2, 2048² | 18,149.8 s (init 325 s, grid 89 s, sara 17,733 s), 107 cycles; CPU 69,112 s | 3.3 GB | WSL docker, 4 slots, shared load; pfb's own divergence stop, not converged; precondition failed, not scored |
 | 2026-11-15 | rml-gap: `analyse.py N2` rescore (U-a, U-up, Gd, Gt) | N2 | 135 s | – | Windows host, 4 slots, 12 GB |
+| 2026-11-15 | rml-gap: pfb-imaging 0.0.11 U-up2 (A4, gosara preset without `chan-average`/`bda-decorr`), 8 threads | N2, 2048² | 18,281.3 s (init 127 s, grid 38 s, sara 18,115 s), 107 cycles; CPU 70,394 s | 4.0 GB | WSL docker, 4 slots, shared load; pfb's own divergence stop, not converged (eps 1.21e-3) |
+| 2026-11-15 | rml-gap: `analyse.py N2` (U-up2 first pass; rescore with A4's secondary branch) | N2 | 646 s; 198 s (lock wait included) | – | Windows host, 4 slots, 12 GB |
