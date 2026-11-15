@@ -292,6 +292,7 @@ calibrate:
   minblperant: null  # baselines per antenna needed (CASA: 4)
   average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation; Gpol, KCROSS, Xf and Df with P never across scans or more than 5 deg of parallactic angle); false: every row solved (task E2)
   average_freq: false  # G, F and Gpol solve on data and model averaged over the window's channels (CASA's G-type estimator: weighted means after the pre-applies and P, per row and correlation); false: every channel a sample of one frequency bin (task E2)
+  casa_phase_weights: false  # calmode p solves (Gpol, and G with calmode p) use CASA's phase-only datum: data divided by the model per channel with weight w|M|^2, averaged, then normalised to unit amplitude with the weight times the amplitude squared; needs average_freq; false: QuartiCal's phase kernel weighting (task A3, research/e2b-misses.md 9.26)
   primary:
     field: ["fcal"]  # fields of the primary solves
     terms: [{type: complex}]  # terms solved in order
