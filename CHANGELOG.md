@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (issue #32, `research/gemclean-memory.md`): `gemclean` with several polarisations
+  (`-pol IQUV -join-polarizations`, joined channels, masks) needs about half the memory, with
+  byte-identical images: polarisations are read and gridded one at a time, measurements keep only
+  their weighted visibilities, polarisations with the same rows and weights share one gridder plan,
+  and the clean keeps fewer image copies (the dirty images wait in a `<name>-dirty-<n>.spill` file
+  until they are written). PEAK_SENTENCE `-memory-report` now works on Windows, and the polarisation
+  path's `-report.json` has the `memory` section.
 - Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
   casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
   match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up

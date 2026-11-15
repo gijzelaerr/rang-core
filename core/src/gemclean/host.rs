@@ -153,6 +153,45 @@ pub fn min_median(sample: &[f64]) -> Option<(f64, f64)> {
     Some((s[0], median))
 }
 
+/// The `gemclean` binary's allocator where [`HugePageAlloc`] does not exist:
+/// the system's, with the byte counts of [`crate::gemclean::memory`], so
+/// `-memory-report` works on every platform.
+#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
+pub struct CountingAlloc;
+
+// SAFETY: every call is the system allocator's; the counts follow the layouts.
+#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
+unsafe impl std::alloc::GlobalAlloc for CountingAlloc {
+    unsafe fn alloc(&self, layout: std::alloc::Layout) -> *mut u8 {
+        let p = unsafe { std::alloc::System.alloc(layout) };
+        if !p.is_null() {
+            crate::gemclean::memory::grow(layout.size());
+        }
+        p
+    }
+
+    unsafe fn alloc_zeroed(&self, layout: std::alloc::Layout) -> *mut u8 {
+        let p = unsafe { std::alloc::System.alloc_zeroed(layout) };
+        if !p.is_null() {
+            crate::gemclean::memory::grow(layout.size());
+        }
+        p
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: std::alloc::Layout) {
+        unsafe { std::alloc::System.dealloc(ptr, layout) };
+        crate::gemclean::memory::shrink(layout.size());
+    }
+
+    unsafe fn realloc(&self, ptr: *mut u8, layout: std::alloc::Layout, new_size: usize) -> *mut u8 {
+        let out = unsafe { std::alloc::System.realloc(ptr, layout, new_size) };
+        if !out.is_null() {
+            crate::gemclean::memory::resize(layout.size(), new_size);
+        }
+        out
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -323,44 +362,5 @@ mod huge {
                 out
             }
         }
-    }
-}
-
-/// The `gemclean` binary's allocator where [`HugePageAlloc`] does not exist:
-/// the system's, with the byte counts of [`crate::gemclean::memory`], so
-/// `-memory-report` works on every platform.
-#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
-pub struct CountingAlloc;
-
-// SAFETY: every call is the system allocator's; the counts follow the layouts.
-#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
-unsafe impl std::alloc::GlobalAlloc for CountingAlloc {
-    unsafe fn alloc(&self, layout: std::alloc::Layout) -> *mut u8 {
-        let p = unsafe { std::alloc::System.alloc(layout) };
-        if !p.is_null() {
-            crate::gemclean::memory::grow(layout.size());
-        }
-        p
-    }
-
-    unsafe fn alloc_zeroed(&self, layout: std::alloc::Layout) -> *mut u8 {
-        let p = unsafe { std::alloc::System.alloc_zeroed(layout) };
-        if !p.is_null() {
-            crate::gemclean::memory::grow(layout.size());
-        }
-        p
-    }
-
-    unsafe fn dealloc(&self, ptr: *mut u8, layout: std::alloc::Layout) {
-        unsafe { std::alloc::System.dealloc(ptr, layout) };
-        crate::gemclean::memory::shrink(layout.size());
-    }
-
-    unsafe fn realloc(&self, ptr: *mut u8, layout: std::alloc::Layout, new_size: usize) -> *mut u8 {
-        let out = unsafe { std::alloc::System.realloc(ptr, layout, new_size) };
-        if !out.is_null() {
-            crate::gemclean::memory::resize(layout.size(), new_size);
-        }
-        out
     }
 }

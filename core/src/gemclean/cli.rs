@@ -22,7 +22,7 @@
 use crate::clean_certified::{Complex, Measurement, misfit_floor};
 use crate::gemclean::fits::{self, Card, Value, card};
 use crate::gemclean::input::{self, Selection};
-use crate::gemclean::joined::{run_joined, run_joined_masked, run_joined_pols};
+use crate::gemclean::joined::{run_joined, run_joined_masked, run_joined_spilling};
 use crate::gemclean::json::{arr, num, obj, opt, text};
 use crate::gemclean::kernels::{self, Level};
 use crate::gemclean::mask::{self, AutoMask, Masking};
@@ -1153,7 +1153,7 @@ fn memory_section(args: &Args) -> String {
             println!("  {label:<44} {:>8.3}", gb(*bytes));
         }
     }
-    let memory_json = if memory::counting() {
+    if memory::counting() {
         obj(&[
             (
                 "phases",
@@ -1187,8 +1187,7 @@ fn memory_section(args: &Args) -> String {
         ])
     } else {
         "null".into()
-    };
-    memory_json
+    }
 }
 
 fn run(raw: &[String]) -> Result<(), String> {
@@ -2329,17 +2328,12 @@ fn run_channels(
 // ---------------------------------------------------------------------------
 // Several polarisations (task G9, research/g9-stokes.md).
 
-/// One imaged output channel and polarisation: its rows with weight, the
-/// gridding weights and WSClean's counters.
+/// One imaged output channel and polarisation: its rows with weight and the
+/// gridding weights (its counters are kept apart, in `meta`).
 struct PolEntry {
     uvw: Vec<f64>,
     vis: Vec<Complex<f32>>,
     wgt: Vec<f64>,
-    rows: usize,
-    /// `WSCNVIS`, `WSCIMGWG`, `WSCVWSUM`.
-    count: u64,
-    total: f64,
-    visibility_weight_sum: f64,
 }
 
 /// The weight sources and channel group (MF: usize::MAX) of an imaging-weight grid.
@@ -2385,47 +2379,86 @@ fn clean_settings(args: &Args) -> Settings {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn deconvolve_pols<T: Real + Send + Sync>(
-    args: &Args,
-    entries: Vec<PolEntry>,
-    freqs: &[Vec<f64>],
-    central: &[f64],
-    opts: Options,
-) -> Result<PolImages, String> {
-    let n = args.size;
-    let npol = args.pols.len();
-    let kout = freqs.len();
-    let t = Instant::now();
-    let totals: Vec<f64> = entries.iter().map(|e| e.total).collect();
-    let mut measurements: Vec<GridMeasurement<T>> = Vec::with_capacity(entries.len());
-    let mut beams: Vec<Beam> = Vec::new();
-    let mut beam_of = Vec::with_capacity(entries.len());
-    let mut shared_beam = Vec::with_capacity(entries.len());
-    let mut restoring = Vec::with_capacity(kout);
-    let mut fit_estimates = Vec::with_capacity(kout);
-    let mut psfs = Vec::with_capacity(kout);
-    // The rows and gridding weights of the channel's earlier polarisations,
-    // with their beams.
-    let mut earlier: Vec<(Vec<f64>, Vec<f64>, usize)> = Vec::new();
-    for (e, c) in entries.into_iter().enumerate() {
+/// A fingerprint of an entry's rows and gridding weights (two 64-bit
+/// multiply-rotate hashes of the bits, `-0.0` as `0.0`), so that a later
+/// polarisation finds an earlier one with the same rows and weights
+/// without keeping its arrays (research/gemclean-memory.md).
+fn fingerprint(uvw: &[f64], wgt: &[f64]) -> (u64, u64) {
+    let (mut a, mut b) = (0x9e37_79b9_7f4a_7c15u64, 0xc2b2_ae3d_27d4_eb4fu64);
+    let lengths = [uvw.len() as f64, wgt.len() as f64];
+    for x in lengths.iter().chain(uvw).chain(wgt) {
+        let v = (x + 0.0).to_bits();
+        a = (a ^ v).wrapping_mul(0x0000_0100_0000_01b3).rotate_left(23);
+        b = (b ^ v.rotate_left(17))
+            .wrapping_mul(0xff51_afd7_ed55_8ccd)
+            .rotate_left(31);
+    }
+    (a, b)
+}
+
+/// An earlier polarisation with a beam of its own: the fingerprint of its rows
+/// and weights, its entry and its beam.
+type Earlier = ((u64, u64), usize, usize);
+
+/// The measurements, beams and per-channel PSFs of a polarisation run, built
+/// entry by entry (channel-major index `e = k × npol + p`) as each
+/// polarisation is read, so that neither every polarisation's band nor every
+/// entry's gridding arrays are held at once (research/gemclean-memory.md).
+struct PolBuild<T: Real> {
+    npol: usize,
+    measurements: Vec<Option<GridMeasurement<T>>>,
+    beams: Vec<Beam>,
+    beam_of: Vec<usize>,
+    /// Per entry: whether its beam is its channel's first polarisation's.
+    shared_beam: Vec<bool>,
+    restoring: Vec<gemclean::RestoringBeam>,
+    /// The start of each channel's restoring-beam fit, pixels.
+    fit_estimates: Vec<f64>,
+    psfs: Vec<Vec<f64>>,
+    /// Per channel: the earlier polarisations with a beam of their own, by
+    /// the fingerprint of their rows and weights, entry and beam.
+    earlier: Vec<Vec<Earlier>>,
+    t_psf: f64,
+}
+
+impl<T: Real + Send + Sync> PolBuild<T> {
+    fn new(kout: usize, npol: usize) -> Self {
+        let ne = kout * npol;
+        PolBuild {
+            npol,
+            measurements: (0..ne).map(|_| None).collect(),
+            beams: Vec::new(),
+            beam_of: vec![usize::MAX; ne],
+            shared_beam: vec![false; ne],
+            restoring: Vec::with_capacity(kout),
+            fit_estimates: Vec::with_capacity(kout),
+            psfs: Vec::with_capacity(kout),
+            earlier: (0..kout).map(|_| Vec::new()).collect(),
+            t_psf: 0.0,
+        }
+    }
+
+    /// Entry `e`'s measurement, and its PSF and beam unless an earlier
+    /// polarisation of its channel has the same rows and gridding weights,
+    /// bit for bit (GeMClean's exact values need each measurement's own PSF).
+    /// Every channel's first polarisation must be added before its others,
+    /// and the first polarisations in channel order.
+    fn add(
+        &mut self,
+        args: &Args,
+        e: usize,
+        c: PolEntry,
+        freq: &[f64],
+        opts: Options,
+    ) -> Result<(), String> {
+        let t = Instant::now();
+        let n = args.size;
+        let npol = self.npol;
         let (k, p) = (e / npol, e % npol);
+        let print = fingerprint(&c.uvw, &c.wgt);
         if p == 0 {
-            earlier.clear();
-        }
-        // A beam is shared with an earlier polarisation's only where the
-        // gridding weights and rows are the same, bit for bit: GeMClean's
-        // exact values need each measurement's own PSF.
-        let same = earlier
-            .iter()
-            .find(|(u, w, _)| *u == c.uvw && *w == c.wgt)
-            .map(|x| x.2);
-        if npol > 1 && same.is_none() && p + 1 < npol {
-            earlier.push((c.uvw.clone(), c.wgt.clone(), beams.len()));
-        }
-        if p == 0 {
-            let b = multiscale::theoretic_beam(&c.uvw, &freqs[k], &c.wgt, n, args.scale);
-            fit_estimates.push(gemclean::beam_fit_estimate(
+            let b = multiscale::theoretic_beam(&c.uvw, freq, &c.wgt, n, args.scale);
+            self.fit_estimates.push(gemclean::beam_fit_estimate(
                 b,
                 args.scale,
                 args.tapers.gaussian_beam,
@@ -2433,7 +2466,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
         }
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
-            freqs[k].clone(),
+            freq.to_vec(),
             c.vis,
             c.wgt,
             n,
@@ -2441,48 +2474,105 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             args.epsilon,
             opts,
         )?;
+        // The fingerprint finds the earlier entry; its rows and normalised
+        // weights, compared value by value, make the shared beam exactly
+        // this entry's own.
+        let found = self.earlier[k]
+            .iter()
+            .find(|(f, ec, _)| {
+                *f == print
+                    && self.measurements[*ec]
+                        .as_ref()
+                        .is_some_and(|x| m.same_rows_and_weights(x))
+            })
+            .map(|x| (x.1, x.2));
+        let same = found.map(|x| x.1);
         let psf2n = if p == 0 || same.is_none() {
             Some(m.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?)
         } else {
             None
         };
-        let m = if args.plan_reuse {
-            m.prepare()?
-        } else {
-            m.without_plan_reuse()
+        // The same rows and weights make the same plan: share it.
+        let m = match (args.plan_reuse, found) {
+            (true, Some((ec, _))) => {
+                let other = self.measurements[ec].as_ref().expect("built before");
+                m.sharing_plan_of(other)?
+            }
+            (true, None) => m.prepare()?,
+            (false, _) => m.without_plan_reuse(),
         }
         .releasing_grids();
         match psf2n {
             Some(psf2n) => {
+                if npol > 1 && same.is_none() && p + 1 < npol {
+                    self.earlier[k].push((print, e, self.beams.len()));
+                }
                 let columns = if args.beam_band {
                     m.band_columns(2 * n)
                 } else {
                     n + 1
                 };
-                beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
+                self.beams
+                    .push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
                 if p == 0 {
-                    restoring.push(gemclean::fit_restoring_beam(n, &psf2n, fit_estimates[k]));
+                    self.restoring.push(gemclean::fit_restoring_beam(
+                        n,
+                        &psf2n,
+                        self.fit_estimates[k],
+                    ));
                     let mut psf = vec![0.0; n * n];
                     for i in 0..n {
                         for j in 0..n {
                             psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
                         }
                     }
-                    psfs.push(psf);
+                    self.psfs.push(psf);
                 }
-                beam_of.push(beams.len() - 1);
-                shared_beam.push(p == 0);
+                self.beam_of[e] = self.beams.len() - 1;
+                self.shared_beam[e] = p == 0;
             }
             None => {
-                beam_of.push(same.unwrap_or(beam_of[e - p]));
-                shared_beam.push(same == Some(beam_of[e - p]));
+                let first = self.beam_of[e - p];
+                self.beam_of[e] = same.unwrap_or(first);
+                self.shared_beam[e] = same == Some(first);
             }
         }
-        measurements.push(m);
+        // Only the active visibilities, sorted, from here on.
+        self.measurements[e] = Some(if args.plan_reuse { m.compacted()? } else { m });
         memory::mark(&format!("entry {e}: psf and beam"));
+        self.t_psf += t.elapsed().as_secs_f64();
+        Ok(())
     }
-    drop(earlier);
-    let t_psf = t.elapsed().as_secs_f64();
+}
+
+fn deconvolve_pols<T: Real + Send + Sync>(
+    args: &Args,
+    built: PolBuild<T>,
+    totals: &[f64],
+    central: &[f64],
+) -> Result<PolImages, String> {
+    let n = args.size;
+    let npol = args.pols.len();
+    let kout = central.len();
+    let PolBuild {
+        measurements,
+        beams,
+        beam_of,
+        shared_beam,
+        restoring,
+        fit_estimates,
+        psfs,
+        t_psf,
+        ..
+    } = built;
+    let measurements: Vec<GridMeasurement<T>> = measurements
+        .into_iter()
+        .map(|m| m.ok_or("an entry was not built"))
+        .collect::<Result<_, _>>()?;
+    let ne = measurements.len();
+    if ne != kout * npol {
+        return Err("one entry per output channel and polarisation is needed".into());
+    }
     if memory::counting() {
         // Summed over the entries, by buffer (research/gemclean-memory.md).
         let mut sums: Vec<(String, usize)> = Vec::new();
@@ -2490,9 +2580,17 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             Some(x) => x.1 += bytes,
             None => sums.push((label, bytes)),
         };
+        // A shared plan and its weights once.
+        let mut plans = Vec::new();
         for m in &measurements {
+            let key = m.plan_key();
+            let shared = key != 0 && plans.contains(&key);
+            plans.push(key);
             for (label, bytes) in m.memory() {
-                add(format!("{label} ({} entries)", measurements.len()), bytes);
+                if shared && (label.starts_with("gridder:") || label == "measurement: weights") {
+                    continue;
+                }
+                add(format!("{label} ({} entries)", ne), bytes);
             }
         }
         for b in &beams {
@@ -2511,7 +2609,6 @@ fn deconvolve_pols<T: Real + Send + Sync>(
     }
     let settings = clean_settings(args);
     let pair = |e: usize| (&measurements[e], &beams[beam_of[e]]);
-    let ne = measurements.len();
     let mut dirty = vec![Vec::new(); ne];
     let mut model = vec![Vec::new(); ne];
     let mut residual = vec![Vec::new(); ne];
@@ -2579,11 +2676,19 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             // The masks act on the group's integrated residual, and the
             // automatic mask is the union of every entry's nonzero model
             // pixels, as radler's (research/e2b-misses.md, arm A5).
-            let j = if masking.is_some() {
-                run_joined_masked(&pairs, gpol, &w, norm, fit.as_ref(), &settings, masking)?
-            } else {
-                run_joined_pols(&pairs, gpol, &w, norm, fit.as_ref(), &settings)?
-            };
+            // The dirty images wait in a file beside the outputs
+            // (research/gemclean-memory.md).
+            let spill = PathBuf::from(format!("{}-dirty-{}.spill", args.name, runs_json.len()));
+            let j = run_joined_spilling(
+                &pairs,
+                gpol,
+                &w,
+                norm,
+                fit.as_ref(),
+                &settings,
+                masking,
+                Some(&spill),
+            )?;
             if let Some(f) = &fit {
                 reference_frequency = Some(f.reference);
             }
@@ -2637,13 +2742,10 @@ fn run_polarizations(
 ) -> Result<(), String> {
     let n = args.size;
     let npol = args.pols.len();
-    let t = Instant::now();
     let spectral_sel = args.channel_range.is_some() || args.average_channels > 1;
-    let mut data = Vec::with_capacity(npol);
-    let mut widths = Vec::new();
-    for &p in &args.pols {
+    let read = |p: usize| -> Result<(input::StokesI, Vec<f64>), String> {
         let sel = Selection {
-            polarization: p,
+            polarization: args.pols[p],
             ..selection.clone()
         };
         let mut d = input::read_ms(&args.ms, &sel)?;
@@ -2654,163 +2756,210 @@ fn run_polarizations(
         if spectral_sel {
             (d, w) = select_and_average(d, w, args)?;
         }
-        widths = w;
-        data.push(d);
+        Ok((d, w))
+    };
+    let mf = args.mf_weighting.unwrap_or(args.join_channels);
+    let sources_of = |p: usize| {
+        stokes::weight_sources(
+            npol,
+            p,
+            mf,
+            args.join_pols,
+            args.join_channels,
+            args.channels_out,
+        )
+    };
+    // Read first the polarisations the imaging weights come from (with
+    // joined polarisations the first alone); each other is read when its
+    // entries are built, and each is dropped once they are
+    // (research/gemclean-memory.md).
+    let mut needed: Vec<usize> = (0..npol).flat_map(sources_of).collect();
+    needed.sort_unstable();
+    needed.dedup();
+    let mut data: Vec<Option<input::StokesI>> = (0..npol).map(|_| None).collect();
+    let mut widths = Vec::new();
+    let mut t_read = 0.0;
+    for &s in &needed {
+        let t = Instant::now();
+        let (d, w) = read(s)?;
+        t_read += t.elapsed().as_secs_f64();
+        if s == 0 {
+            widths = w;
+        }
+        data[s] = Some(d);
     }
-    let t_read = t.elapsed().as_secs_f64();
     memory::mark("read");
     let t = Instant::now();
-    let nchan = data[0].freq.len();
-    let rows = data[0].rows();
-    let phase_dir = data[0].phase_dir;
+    let first = data[0]
+        .as_ref()
+        .ok_or("the first polarisation is a weight source")?;
+    let nchan = first.freq.len();
+    let rows = first.rows();
+    let phase_dir = first.phase_dir;
+    let freq_all = first.freq.clone();
     let groups: Vec<Vec<usize>> = if args.channels_out > 1 {
-        spectral::channel_groups(&data[0].freq, None, args.channels_out)?
+        spectral::channel_groups(&freq_all, None, args.channels_out)?
     } else {
         vec![(0..nchan).collect()]
     };
     let kout = groups.len();
-    let mf = args.mf_weighting.unwrap_or(args.join_channels);
     let all: Vec<usize> = (0..nchan).collect();
     // Imaging weights per (source set, channel group), computed once each.
     let mut cache: Vec<(WeightKey, Vec<f32>)> = Vec::new();
-    let mut entries = Vec::with_capacity(kout * npol);
-    let mut freqs = Vec::with_capacity(kout);
-    let mut bands = Vec::with_capacity(kout);
     for (k, group) in groups.iter().enumerate() {
-        let freq: Vec<f64> = group.iter().map(|&c| data[0].freq[c]).collect();
-        let low = group
-            .iter()
-            .map(|&c| data[0].freq[c] - 0.5 * widths[c])
-            .fold(f64::INFINITY, f64::min);
-        let high = group
-            .iter()
-            .map(|&c| data[0].freq[c] + 0.5 * widths[c])
-            .fold(f64::NEG_INFINITY, f64::max);
-        let m = group.len();
         for p in 0..npol {
-            let sources = stokes::weight_sources(
-                npol,
-                p,
-                mf,
-                args.join_pols,
-                args.join_channels,
-                args.channels_out,
-            );
+            let sources = sources_of(p);
             // MF: one grid of all channels, sliced; else the group's own.
             let key = (sources.clone(), if mf { usize::MAX } else { k });
             if !cache.iter().any(|(c, _)| *c == key) {
-                let src: Vec<&input::StokesI> = sources.iter().map(|&s| &data[s]).collect();
+                let src: Vec<&input::StokesI> = sources
+                    .iter()
+                    .map(|&s| data[s].as_ref().expect("weight sources are read first"))
+                    .collect();
                 let chans = if mf { &all } else { group };
                 let w =
                     stokes::imaging_weights(&src, chans, args.weight, n, args.scale, &args.tapers)?;
-                cache.push((key.clone(), w));
+                cache.push((key, w));
             }
-            let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
-            let d = &data[p];
-            let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
-            let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
-            for row in 0..rows {
-                for (j, &c) in group.iter().enumerate() {
-                    vis.push(d.vis[row * nchan + c]);
-                    let im = if mf {
-                        imaging[row * nchan + c]
-                    } else {
-                        imaging[row * m + j]
-                    };
-                    let w = d.weight[row * nchan + c];
-                    let g = if d.flag_row[row] {
-                        0.0
-                    } else {
-                        f64::from(w) * f64::from(im)
-                    };
-                    if g != 0.0 {
-                        count += 1;
-                        total += g;
-                        vsum += f64::from(w);
-                    }
-                    wgt.push(g);
-                }
-            }
-            if total <= 0.0 {
-                return Err(format!(
-                    "output channel {k}, polarisation {}: no weighted visibilities",
-                    args.pols[p]
-                ));
-            }
-            let mut uvw = d.uvw.clone();
-            let mut kept = 0;
-            for row in 0..rows {
-                let (a, b) = (row * m, (row + 1) * m);
-                if wgt[a..b].iter().any(|&x| x != 0.0) {
-                    if kept != row {
-                        uvw.copy_within(3 * row..3 * row + 3, 3 * kept);
-                        vis.copy_within(a..b, kept * m);
-                        wgt.copy_within(a..b, kept * m);
-                    }
-                    kept += 1;
-                }
-            }
-            uvw.truncate(3 * kept);
-            vis.truncate(kept * m);
-            wgt.truncate(kept * m);
-            uvw.shrink_to_fit();
-            vis.shrink_to_fit();
-            wgt.shrink_to_fit();
-            entries.push(PolEntry {
-                uvw,
-                vis,
-                wgt,
-                rows: kept,
-                count,
-                total,
-                visibility_weight_sum: vsum,
-            });
         }
-        freqs.push(freq);
+    }
+    let mut freqs = Vec::with_capacity(kout);
+    let mut bands = Vec::with_capacity(kout);
+    for group in &groups {
+        freqs.push(group.iter().map(|&c| freq_all[c]).collect::<Vec<f64>>());
+        let low = group
+            .iter()
+            .map(|&c| freq_all[c] - 0.5 * widths[c])
+            .fold(f64::INFINITY, f64::min);
+        let high = group
+            .iter()
+            .map(|&c| freq_all[c] + 0.5 * widths[c])
+            .fold(f64::NEG_INFINITY, f64::max);
         bands.push((low, high));
     }
-    drop(cache);
-    let freq_all = data[0].freq.clone();
-    drop(data);
     let t_weights = t.elapsed().as_secs_f64();
     memory::mark("weights");
-    let meta: Vec<(u64, f64, f64, usize)> = entries
-        .iter()
-        .map(|e| (e.count, e.total, e.visibility_weight_sum, e.rows))
-        .collect();
     let central: Vec<f64> = bands.iter().map(|(l, h)| 0.5 * (l + h)).collect();
-    println!(
-        "{}: {} rows ({column}, field {}), {} channels into {} output channels, polarisations {}{}, {} weighting{}, {:.2} s read, {:.2} s weights",
-        args.ms.display(),
-        rows,
-        args.field,
-        nchan,
-        kout,
-        args.pols
-            .iter()
-            .map(|p| p.name())
-            .collect::<Vec<_>>()
-            .join(","),
-        if args.join_pols { " joined" } else { "" },
-        if mf { "MF" } else { "per-channel" },
-        if args.join_channels {
-            ", channels joined"
-        } else {
-            ""
-        },
-        t_read,
-        t_weights
-    );
     let opts = Options {
         flip_v: true,
         flip_w: true,
         do_wgridding: args.wgridding,
         ..Options::default()
     };
+    let mut meta: Vec<(u64, f64, f64, usize)> = vec![(0, 0.0, 0.0, 0); kout * npol];
+    // The entries of one polarisation, each turned into its measurement
+    // (and beam) as soon as it is formed.
+    macro_rules! build {
+        ($t:ty) => {{
+            let mut built = PolBuild::<$t>::new(kout, npol);
+            let mut t_entries = 0.0;
+            for p in 0..npol {
+                let d = match data[p].take() {
+                    Some(d) => d,
+                    None => {
+                        let t = Instant::now();
+                        let (d, _) = read(p)?;
+                        t_read += t.elapsed().as_secs_f64();
+                        d
+                    }
+                };
+                if d.rows() != rows || d.freq.len() != nchan {
+                    return Err("the polarisations differ in rows or channels".into());
+                }
+                for (k, group) in groups.iter().enumerate() {
+                    let t = Instant::now();
+                    let m = group.len();
+                    let key = (sources_of(p), if mf { usize::MAX } else { k });
+                    let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
+                    let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
+                    let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
+                    for row in 0..rows {
+                        for (j, &c) in group.iter().enumerate() {
+                            vis.push(d.vis[row * nchan + c]);
+                            let im = if mf {
+                                imaging[row * nchan + c]
+                            } else {
+                                imaging[row * m + j]
+                            };
+                            let w = d.weight[row * nchan + c];
+                            let g = if d.flag_row[row] {
+                                0.0
+                            } else {
+                                f64::from(w) * f64::from(im)
+                            };
+                            if g != 0.0 {
+                                count += 1;
+                                total += g;
+                                vsum += f64::from(w);
+                            }
+                            wgt.push(g);
+                        }
+                    }
+                    if total <= 0.0 {
+                        return Err(format!(
+                            "output channel {k}, polarisation {}: no weighted visibilities",
+                            args.pols[p]
+                        ));
+                    }
+                    let mut uvw = d.uvw.clone();
+                    let mut kept = 0;
+                    for row in 0..rows {
+                        let (a, b) = (row * m, (row + 1) * m);
+                        if wgt[a..b].iter().any(|&x| x != 0.0) {
+                            if kept != row {
+                                uvw.copy_within(3 * row..3 * row + 3, 3 * kept);
+                                vis.copy_within(a..b, kept * m);
+                                wgt.copy_within(a..b, kept * m);
+                            }
+                            kept += 1;
+                        }
+                    }
+                    uvw.truncate(3 * kept);
+                    vis.truncate(kept * m);
+                    wgt.truncate(kept * m);
+                    uvw.shrink_to_fit();
+                    vis.shrink_to_fit();
+                    wgt.shrink_to_fit();
+                    let entry = PolEntry { uvw, vis, wgt };
+                    let e = k * npol + p;
+                    meta[e] = (count, total, vsum, kept);
+                    t_entries += t.elapsed().as_secs_f64();
+                    built.add(args, e, entry, &freqs[k], opts)?;
+                }
+                drop(d);
+            }
+            drop(cache);
+            let totals: Vec<f64> = meta.iter().map(|x| x.1).collect();
+            let t_weights = t_weights + t_entries;
+            println!(
+                "{}: {} rows ({column}, field {}), {} channels into {} output channels, polarisations {}{}, {} weighting{}, {:.2} s read, {:.2} s weights",
+                args.ms.display(),
+                rows,
+                args.field,
+                nchan,
+                kout,
+                args.pols
+                    .iter()
+                    .map(|p| p.name())
+                    .collect::<Vec<_>>()
+                    .join(","),
+                if args.join_pols { " joined" } else { "" },
+                if mf { "MF" } else { "per-channel" },
+                if args.join_channels {
+                    ", channels joined"
+                } else {
+                    ""
+                },
+                t_read,
+                t_weights
+            );
+            deconvolve_pols::<$t>(args, built, &totals, &central)?
+        }};
+    }
     let out = if args.single {
-        deconvolve_pols::<f32>(args, entries, &freqs, &central, opts)?
+        build!(f32)
     } else {
-        deconvolve_pols::<f64>(args, entries, &freqs, &central, opts)?
+        build!(f64)
     };
     let t = Instant::now();
     let scale_deg = args.scale.to_degrees();

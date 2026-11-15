@@ -18,7 +18,7 @@
 use crate::clean_certified::{Complex, Measurement};
 use crate::wgridder::{self, Options, Prepared, Real, VisData, Weights};
 use rayon::prelude::*;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 /// The visibilities, in precision `T` or, when they came in single precision
 /// (as read from a Measurement Set), as they came: widening an `f32` to `f64`
@@ -26,6 +26,9 @@ use std::sync::Mutex;
 enum Data<T> {
     Single(Vec<Complex<f32>>),
     Native(Vec<Complex<T>>),
+    /// Single precision, the active visibilities only, in the gridder's
+    /// sorted order ([`GridMeasurement::compacted`]); `wgt` likewise.
+    Sorted(Vec<Complex<f32>>),
 }
 
 #[inline(always)]
@@ -38,11 +41,12 @@ pub struct GridMeasurement<T: Real> {
     uvw: Vec<f64>,
     freq: Vec<f64>,
     vis: Data<T>,
-    /// Weights normalised to sum to one.
-    wgt: Vec<T>,
+    /// Weights normalised to sum to one (shared by the measurements that
+    /// share a plan, [`GridMeasurement::sharing_plan_of`]).
+    wgt: Arc<Vec<T>>,
     opts: Options,
     /// The plan and layout of the image grid, reused by every major cycle.
-    prepared: Option<Prepared<T>>,
+    prepared: Option<Arc<Prepared<T>>>,
     /// The plan is still to be made ([`GridMeasurement::prepare`]).
     pending: bool,
     buffer: Mutex<Vec<Complex<T>>>,
@@ -131,12 +135,12 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     /// Make the plan of the image grid, if it is still to be made.
     pub fn prepare(mut self) -> Result<GridMeasurement<T>, String> {
         if self.pending {
-            self.prepared = Some(Prepared::new(
+            self.prepared = Some(Arc::new(Prepared::new(
                 &self.opts,
                 &self.uvw,
                 &self.freq,
                 T::weights(&self.wgt),
-            )?);
+            )?));
             self.pending = false;
         }
         Ok(self)
@@ -147,6 +151,103 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             return Err("the measurement must be prepared before use".into());
         }
         Ok(())
+    }
+
+    /// Whether `other` (built earlier, compacted or not) has this unprepared
+    /// measurement's rows, channels and normalised weights, bit for bit, so
+    /// that their PSFs are the same (research/gemclean-memory.md).
+    pub fn same_rows_and_weights(&self, other: &GridMeasurement<T>) -> bool {
+        if self.uvw != other.uvw || self.freq != other.freq {
+            return false;
+        }
+        let bits = |w: &T| w.to().to_bits();
+        match (&self.vis, &other.vis) {
+            (Data::Sorted(_), _) => false,
+            (_, Data::Sorted(_)) => {
+                let Some(p) = &other.prepared else {
+                    return false;
+                };
+                // The plan's active visibilities are those of nonzero weight.
+                let nonzero = self.wgt.par_iter().filter(|w| w.to() != 0.0).count();
+                nonzero == other.wgt.len()
+                    && p.sorted(&self.wgt).is_ok_and(|g| {
+                        g.iter()
+                            .zip(other.wgt.iter())
+                            .all(|(a, b)| bits(a) == bits(b))
+                    })
+            }
+            _ => {
+                self.wgt.len() == other.wgt.len()
+                    && self
+                        .wgt
+                        .iter()
+                        .zip(other.wgt.iter())
+                        .all(|(a, b)| bits(a) == bits(b))
+            }
+        }
+    }
+
+    /// Operations on the visibility-sized arrays need them still held.
+    fn dense(&self) -> Result<(), String> {
+        if matches!(self.vis, Data::Sorted(_)) {
+            return Err("a compacted measurement has no visibility-sized arrays".into());
+        }
+        Ok(())
+    }
+
+    /// Keep only the active visibilities and their weights, in the sorted
+    /// order of the gridder's plan, and drop the visibility-sized arrays
+    /// (research/gemclean-memory.md): residuals read the same values from
+    /// the same sorted places ([`Prepared::residual_sorted`]), so they keep
+    /// their bits. Only where residuals already use the sorted values
+    /// (single-precision data, a prepared plan, inactive visibilities that
+    /// add zero); otherwise unchanged. After it, only
+    /// [`Measurement::residual`] and the memory report work: the PSF,
+    /// [`Measurement::gram_apply`] and the dense residual refuse.
+    pub fn compacted(mut self) -> Result<Self, String> {
+        let (Some(p), true, Data::Single(vis)) = (&self.prepared, self.sorted_residual, &self.vis)
+        else {
+            return Ok(self);
+        };
+        let vis = p.sorted(vis)?;
+        let wgt = p.sorted(&self.wgt)?;
+        self.vis = Data::Sorted(vis);
+        self.wgt = Arc::new(wgt);
+        Ok(self)
+    }
+
+    /// [`GridMeasurement::prepare`] and [`GridMeasurement::compacted`] of an
+    /// unprepared measurement whose rows, channels and normalised weights
+    /// equal those of `other`, a compacted measurement
+    /// ([`GridMeasurement::same_rows_and_weights`], which the caller has
+    /// checked): the plan made here would be `other`'s, so `other`'s plan
+    /// and sorted weights are shared and only the visibilities are this
+    /// measurement's own (research/gemclean-memory.md). Where either cannot
+    /// be compacted, this is [`GridMeasurement::prepare`].
+    pub fn sharing_plan_of(mut self, other: &GridMeasurement<T>) -> Result<Self, String> {
+        let (Some(p), Data::Sorted(_), true, true, Data::Single(vis)) = (
+            &other.prepared,
+            &other.vis,
+            self.pending,
+            self.sorted_residual,
+            &self.vis,
+        ) else {
+            return self.prepare();
+        };
+        let vis = p.sorted(vis)?;
+        self.vis = Data::Sorted(vis);
+        self.wgt = Arc::clone(&other.wgt);
+        self.prepared = Some(Arc::clone(p));
+        self.pending = false;
+        Ok(self)
+    }
+
+    /// An identity of the plan and weights, equal for measurements that
+    /// share them (0 without a plan), for the memory report.
+    pub fn plan_key(&self) -> usize {
+        self.prepared
+            .as_ref()
+            .map_or(0, |p| Arc::as_ptr(p) as *const () as usize)
     }
 
     /// Whether every visibility of zero weight adds exactly zero to the
@@ -163,6 +264,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .par_iter()
                 .zip(self.wgt.par_iter())
                 .all(|(v, w)| w.to() != 0.0 || finite(v.re.to(), v.im.to())),
+            Data::Sorted(_) => self.sorted_residual,
         }
     }
 
@@ -192,7 +294,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             return Err("weights must have a positive sum".into());
         }
         // In place where `T` is `f64`.
-        let wgt: Vec<T> = wgt.into_iter().map(|w| T::of(w / sum)).collect();
+        let wgt: Arc<Vec<T>> = Arc::new(wgt.into_iter().map(|w| T::of(w / sum)).collect());
         let opts = Options {
             nx: side,
             ny: side,
@@ -239,7 +341,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             (
                 "measurement: visibilities",
                 match &self.vis {
-                    Data::Single(v) => bytes_of(v),
+                    Data::Single(v) | Data::Sorted(v) => bytes_of(v),
                     Data::Native(v) => bytes_of(v),
                 },
             ),
@@ -289,6 +391,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
 
     /// [`GridMeasurement::psf_image`] with or without the w-term.
     pub fn psf_image_with(&self, side: usize, wgridding: bool) -> Result<Vec<f64>, String> {
+        self.dense()?;
         let mut out = vec![T::of(0.0); side * side];
         wgridder::vis2dirty_multi(
             &Options {
@@ -310,6 +413,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
 
     fn image(&self, vis: &[Complex<T>]) -> Result<Vec<f64>, String> {
         self.ready()?;
+        self.dense()?;
         let mut out = vec![T::of(0.0); self.opts.nx * self.opts.ny];
         match &self.prepared {
             Some(p) => {
@@ -332,6 +436,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
 
     fn predict_into(&self, model: &[f64], out: &mut [Complex<T>]) -> Result<(), String> {
         self.ready()?;
+        self.dense()?;
         let m: Vec<T> = model.par_iter().map(|&c| T::of(c)).collect();
         match &self.prepared {
             // Visibilities of zero weight are not predicted: nothing reads them.
@@ -362,6 +467,7 @@ impl<T: Real + Send + Sync> Measurement for GridMeasurement<T> {
     }
 
     fn gram_apply(&self, x: &[f64]) -> Result<Vec<f64>, String> {
+        self.dense()?;
         let mut guard = self.buffer.lock().expect("no panic while predicting");
         guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
         self.predict_into(x, guard.as_mut_slice())?;
@@ -378,16 +484,21 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .par_iter()
                 .any(|&c| c != 0.0)
                 .then(|| model.par_iter().map(|&c| T::of(c)).collect());
-            let data = match &self.vis {
-                Data::Single(v) => VisData::C64(v),
-                Data::Native(v) => T::vis_data(v),
-            };
             let mut out = vec![T::of(0.0); self.opts.nx * self.opts.ny];
-            let q = p.residual(data, &self.wgt, m.as_deref(), &mut out)?;
+            let q = match &self.vis {
+                Data::Single(v) => {
+                    p.residual(VisData::C64(v), &self.wgt, m.as_deref(), &mut out)?
+                }
+                Data::Native(v) => p.residual(T::vis_data(v), &self.wgt, m.as_deref(), &mut out)?,
+                Data::Sorted(v) => {
+                    p.residual_sorted(VisData::C64(v), &self.wgt, m.as_deref(), &mut out)?
+                }
+            };
             drop(m);
             crate::gemclean::memory::mark("residual: grid");
             return Ok((widen(&out), 0.5 * q));
         }
+        self.dense()?;
         let mut guard = self.buffer.lock().expect("no panic while predicting");
         guard.resize(self.wgt.len(), Complex::new(T::of(0.0), T::of(0.0)));
         let e = guard.as_mut_slice();
@@ -412,11 +523,12 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .par_iter_mut()
                 .zip(vis.par_iter())
                 .for_each(|(p, v)| *p = widen_vis::<T>(*v)),
+            (Data::Sorted(_), _) => unreachable!("refused by dense()"),
         }
         // In f64, so the misfit keeps its digits in either precision; serial,
         // so it does not depend on the thread count.
         let mut q = 0.0;
-        for (d, w) in e.iter().zip(&self.wgt) {
+        for (d, w) in e.iter().zip(self.wgt.iter()) {
             let (re, im) = (d.re.to(), d.im.to());
             q += w.to() * (re * re + im * im);
         }
@@ -662,6 +774,98 @@ mod tests {
             check::<f64>(shift);
             check::<f32>(shift);
         }
+    }
+
+    /// research/gemclean-memory.md: a compacted measurement (the active
+    /// visibilities and weights only, in the plan's sorted order), and one
+    /// that shares another's plan and weights, give the residual images and
+    /// misfits of the dense measurement, bit for bit, in both precisions;
+    /// the comparison of rows and weights finds the twin and rejects a
+    /// changed weight; the dense operations refuse once compacted.
+    #[test]
+    fn compacted_and_shared_measurements_keep_the_bits() {
+        fn check<T: Real + Send + Sync>() {
+            let mut state = 1115u64;
+            let mut next = || {
+                state ^= state << 13;
+                state ^= state >> 7;
+                state ^= state << 17;
+                (state >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+            };
+            let (nrow, n, cell, eps) = (600, 48usize, 1.5e-4, 1e-6);
+            let uvw: Vec<f64> = (0..3 * nrow)
+                .map(|i| next() * if i % 3 == 2 { 80.0 } else { 3000.0 })
+                .collect();
+            let freq = vec![2.7e8, 3.0e8, 3.3e8, 3.6e8];
+            let cells = nrow * freq.len();
+            let mut vis = || -> Vec<Complex<f32>> {
+                (0..cells)
+                    .map(|_| Complex::new(next() as f32, next() as f32))
+                    .collect()
+            };
+            let (va, vb) = (vis(), vis());
+            let mut state2 = 77u64;
+            let wgt: Vec<f64> = (0..cells)
+                .map(|_| {
+                    state2 ^= state2 << 13;
+                    state2 ^= state2 >> 7;
+                    state2 ^= state2 << 17;
+                    let x = (state2 >> 11) as f64 / (1u64 << 53) as f64;
+                    if x < 0.45 { 0.0 } else { x }
+                })
+                .collect();
+            let opts = crate::gemclean::sim::imaging_options();
+            let unprepared = |v: Vec<Complex<f32>>, w: Vec<f64>| {
+                GridMeasurement::<T>::from_single_unprepared(
+                    uvw.clone(),
+                    freq.clone(),
+                    v,
+                    w,
+                    n,
+                    cell,
+                    eps,
+                    opts,
+                )
+                .unwrap()
+            };
+            let dense_a = unprepared(va.clone(), wgt.clone()).prepare().unwrap();
+            let dense_b = unprepared(vb.clone(), wgt.clone()).prepare().unwrap();
+            let a = unprepared(va, wgt.clone())
+                .prepare()
+                .unwrap()
+                .compacted()
+                .unwrap()
+                .releasing_grids();
+            assert!(matches!(a.vis, Data::Sorted(_)));
+            let twin = unprepared(vb.clone(), wgt.clone());
+            assert!(twin.same_rows_and_weights(&a));
+            let mut other = wgt.clone();
+            let i = other.iter().position(|&w| w != 0.0).unwrap();
+            other[i] *= 1.5;
+            assert!(!unprepared(vb.clone(), other.clone()).same_rows_and_weights(&a));
+            other[i] = 0.0;
+            assert!(!unprepared(vb, other).same_rows_and_weights(&a));
+            let b = twin.sharing_plan_of(&a).unwrap().releasing_grids();
+            assert_eq!(a.plan_key(), b.plan_key());
+            let bits = |x: &[f64]| x.iter().map(|v| v.to_bits()).collect::<Vec<_>>();
+            let mut model = vec![0.0; n * n];
+            for round in 0..3 {
+                if round > 0 {
+                    model[(9 * round) * n + 13 + round] += 0.7;
+                    model[31 * n + 40 - round] -= 0.3;
+                }
+                for (dense, small) in [(&dense_a, &a), (&dense_b, &b)] {
+                    let (x, qx) = dense.residual(&model).unwrap();
+                    let (y, qy) = small.residual(&model).unwrap();
+                    assert_eq!(bits(&x), bits(&y), "round {round}");
+                    assert_eq!(qx.to_bits(), qy.to_bits(), "round {round}");
+                }
+            }
+            assert!(a.psf_image(2 * n).is_err());
+            assert!(b.gram_apply(&model).is_err());
+        }
+        check::<f64>();
+        check::<f32>();
     }
 
     #[test]
