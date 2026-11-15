@@ -1,7 +1,8 @@
 # Rang: the gap between CLEAN and a sparsity-regularised imager on MeerKAT truth skies (issue #24, step 1)
 
 Status, 2026-11-15: **protocol frozen; amendments A1-A3; all arms run; outcome "U worse at our
-settings" (section 8.2); the A3 test U-up on N2 is running.** Issue
+settings" (section 8.2); the A3 test U-up on N2 failed its precondition and is not scored
+(section 8.4).** Issue
 [gijzelaerr/rang-core#24](https://github.com/gijzelaerr/rang-core/issues/24), step 1, from the
 stub [proposals/imaging-gap-comparators.md](proposals/imaging-gap-comparators.md). A comparison
 with no rang code: GeMClean, WSClean and pfb-imaging run as released, scored against known truth.
@@ -407,8 +408,8 @@ Score files are in `D:\rang\outputs\rml-gap-20261113\scores\S{1,2,3}.json` and t
 - The scorer control passes on all four skies.
 - **Preconditions:**
   - G's and W's dirty-image L∞/peak is 1.1e-7 to 2.4e-7, so both pass.
-  - Gd's is 8.4e-6, 1.6e-5 and 1.3e-5 on H4, M1 and N1. Gd is reported only, and the bound is
-    1e-5.
+  - Gd's is 8.4e-6, 1.6e-5, 1.3e-5 and 1.8e-5 on H4, M1, N1 and N2. Gd is reported only, and the
+    bound is 1e-5.
   - U's orientation is the identity, winning by a margin of 0.99-1.00.
 - **Parity:** W/G is 0.977, 0.988, 0.988 and 0.980, and C2 passes on every extended group (4, 4, 4
   and 6). Parity holds on 4 of 4, so the outcome is not void.
@@ -421,14 +422,14 @@ re-run, whose model is bit-identical to G's on every sky.
 | H4 | 0.004888 | 0.004777 | 0.004802 | 0.0468 | 9.58 | 11.12 (cycle 4) | 9.58 (cycle 40) | 4.90 |
 | M1 | 0.003806 | 0.003761 | 0.003800 | 0.0524 | 13.77 | 14.81 (cycle 9) | 13.77 (cycle 40) | 3.67 |
 | N1 | 0.004348 | 0.004298 | 0.004333 | 0.0430 | 9.88 | 12.61 (cycle 3) | 9.88 (cycle 40) | 4.60 |
-| N2 | 0.003777 | 0.003701 | see 8.4 | 0.0279 | 7.38 | 7.90 | see 8.4 | see 8.4 |
+| N2 | 0.003777 | 0.003701 | 0.003753 | 0.0279 | 7.38 | 7.90 (cycle 12) | 7.38 (cycle 40) | 3.95 |
 
 | sky | G wall / CPU | W wall / CPU | U-a wall / CPU | U-a eps at 40 | U-a exact residual (G's) |
 | --- | --- | --- | --- | --- | --- |
 | H4 | 145.9 s / 1,272 s | 270.3 s / 858 s | 1,676 s / 6,230 s | 2.47e-3 | 6.74σ rms (1.06σ) |
 | M1 | 181.4 s / 1,609 s | 286.4 s / 891 s | 1,579 s / 5,901 s | 2.49e-3 | 10.06σ (1.04σ) |
 | N1 | 132.3 s / 1,397 s | 382.1 s / 1,321 s | 1,739 s / 6,422 s | 2.30e-3 | 7.51σ (1.06σ) |
-| N2 | 209.7 s / see 8.4 | 413.2 s / – | 1,785 s / – | 2.37e-3 | 6.63σ (1.06σ) |
+| N2 | 209.7 s / 1,645 s | 413.2 s / 1,376 s | 1,785 s / 6,502 s | 2.37e-3 | 6.63σ (1.06σ) |
 
 **Outcome (section 5):**
 - **`r_s` > 1.25 on 4 of 4 gated skies, so the outcome is "U worse".** That clause uses `r_s`
@@ -438,8 +439,9 @@ re-run, whose model is bit-identical to G's on every sky.
 - **Convergence:** U\* reached `tol` on 0 of 4 skies, within 5 × G's wall or CPU or within the
   cap. Every run stopped at the 40-cycle cap.
 - **Extended groups:** U\* fails measure 3 on every gated sky. A2 positions pass.
-- **A3 scope:** the outcome is stated as **"U worse at our settings"**. Section 8.4 has the
-  upstream-preset run on N2.
+- **A3 scope:** the outcome is stated as **"U worse at our settings"**. The upstream-preset run on
+  N2 (section 8.4) failed its precondition and is not scored, so A3's rule does not fire and the
+  scope stays there.
 
 **Why U is worse (diagnosis, not a measured cause).**
 - **Not a scorer artefact.** pfb's own peak residual, from its log, matches the scorer's exact
@@ -489,7 +491,53 @@ outcome does not depend on G's gridder accuracy.
 
 ### 8.4 Upstream-preset test U-up on N2 (amendment A3)
 
-Running: `runs\U-up\N2`, the gosara preset, 200 cycles or 12 h. Result to follow.
+**Result: not scored.** U-up fails section 4's precondition on N2, so A3's rule on `r_up` does not
+fire. The outcome stays **"U worse at our settings"**, with no claim about upstream's preset.
+
+- **Precondition.** pfb's dirty image against the core's has L∞/peak 0.955 (U-a: 0.014). The best
+  orientation, the identity as for U-a, wins by 0.077 of the peak, against the required 0.5.
+- **Stop.** pfb ended the run itself at cycle 107 ("Algorithm is diverging. Terminating.").
+  - Its stop test fires when the peak residual stops falling: 1.901e-3 at cycle 106, 1.903e-3 at
+    cycle 107. The values did not blow up, and none of A3's stops was reached (`tol`, 200 cycles,
+    12 h).
+  - Not converged: `eps` is 2.51e-3 at cycle 107 against `tol` 5e-4, down from 6.1e-2 at cycle 10
+    and 4.4e-3 at cycle 50.
+  - The primal-dual inner solve hit `pd-maxit` in most cycles.
+  - pfb logs "cannot access local variable 'xfit'" in its model-fit step every cycle, here and in
+    U-a (40 of 40), so the message does not separate the two runs.
+- **Cost.** Wall 18,150 s (shared-host); CPU 69,112 s, 42 × Gt's CPU.
+- **Diagnostic values (not scored):**
+  - Relative L2 is 0.439 (`r` = 116). It is 0.470 at cycle 1 and stays at 0.439 from cycle 9 on,
+    while pfb's own residual falls 40 ×.
+  - Points 0.79, extended 0.19; total flux 0.98 of truth.
+  - pfb's own peak residual is 1.9e-3 Jy, against the scorer's exact 0.219 Jy. For U-a these agree
+    within 1 %.
+
+**Why: the preset's averaging does not transfer to this MS** (post hoc diagnosis, measured on the
+run's own dirty images).
+- **Coarse channels.** N2's MS has 8 channels of 25 MHz at 8 s integrations. `chan-average 4`
+  makes two 100 MHz channels, about 7 % fractional bandwidth each. The recipe's averaging suits
+  MeerKAT's native 209 kHz channels (the 4k mode), which these simulated MSs do not have.
+  `bda-decorr 0.98` adds averaging in time on top.
+- **Point sources smear with radius.** Median dirty-image peak over catalogue flux, for 25
+  isolated point sources:
+
+  | distance from phase centre | U-up | U-a |
+  | --- | --- | --- |
+  | under 10′ | 0.29 | 0.99 |
+  | 10-20′ | 0.15 | 0.97 |
+  | over 20′ | 0.065 | 0.99 |
+
+  Weighting cannot lower a point source's peak in Jy/beam; averaging can.
+- **The orientation is not in doubt.** pfb's dirty images under the two settings correlate at 0.86
+  in the identity orientation, and below 0.03 in the other seven. The L∞ margin fails because the
+  averaged data give a different image.
+
+So U-up fits pfb's averaged data, not the MS. **It says nothing about SARA's quality at upstream's
+sara-step settings.** Section 9 proposes the test that would.
+
+Files: `runs\U-up\N2\` (logs, iterates, `/usr/bin/time` output) and `scores\N2.json`, whose U-up
+arm has `precondition_pass: false`.
 
 ### 8.5 Not run
 
@@ -510,8 +558,39 @@ Running: `runs\U-up\N2`, the gosara preset, 200 cycles or 12 h. Result to follow
 - **Binary:** GeMClean as section 8.1.
 - **Containers:** `rang-wsclean-native:3.7` and `rang-pfb-imaging:0.0.11`.
 - **Scripts:** `research/results/rml-gap-scripts/`.
+- **Compact archive:** [results/rml-gap.json](results/rml-gap.json). It holds every sky's scores
+  (per arm, U's iterates as cycle, wall, CPU and relative L2) and DF5-O's `l2.json`.
 - **Timings:** in [tool-timings.md](tool-timings.md).
 
 ## 9. For the coordinator
 
-To be written once 8.4 is in.
+- **Outcome (section 5): "U worse at our settings."**
+  - On the gated skies, `r_s` is 9.6 (H4), 13.8 (M1), 9.9 (N1) and 7.4 (N2), so `r_s` > 1.25 on
+    4 of 4.
+  - Neither gap clause holds on either cost basis.
+  - U\* converged on 0 of 4 skies.
+  - Parity holds on 4 of 4.
+  - The reported skies agree: H1-H3 give `r` = 22-89, and DF5-O gives 13.8.
+- **Scope.** pfb `sara` 0.0.11 ran with the recipe's sara step and our weighting, averaging and
+  cycle cap (A3), and did not converge in 40 cycles. Amendment A3's upstream-preset test is not
+  scored (section 8.4): the recipe's averaging smears these 25 MHz-channel MSs. Neither the test
+  nor this outcome says anything about learned imagers, about `pfb deconv`, or about SARA at
+  convergence.
+- **What it means for step 2:** on these skies the sparsity-regularised baseline does not show a
+  gap for an RML or plug-and-play loop in GeMClean to close. If step 2 is still wanted, it needs a
+  stronger baseline first.
+- **Open owner decisions:**
+  - Arm A (a learned imager), as before.
+  - Whether to run either of these proposals. Neither is pre-registered; each needs a new dated
+    amendment.
+    - **U-up2:** gosara's settings without the averaging (`chan-average 1`, `bda-decorr 1.0`,
+      otherwise as U-up) on N2, under A3's rule. It takes about 5 h at 4 slots, and isolates
+      `robustness -0.3`, `psf-oversize 1.6` and `l1-reweight-from 7`.
+    - **`pfb deconv`,** the successor command, on N2.
+- **Branch.** `claude/rml-gap-cc5921`: the note, scripts, timings and
+  `results/rml-gap.json`, with no code change under `python/`, `core/` or `src/`. It is not rebased
+  on main and needs no CHANGELOG entry. The oracle gates in `check_all.py` (full run) are not
+  touched by this branch; only `--quick` was run.
+- **Space.** Raw runs take 56 GB in `D:\rang\outputs\rml-gap-20261113`, kept for the coordinator to
+  delete. The pfb work stores in WSL `~/Build/tmp/20261113-rml-gap` (28 GB) are deleted; their
+  outputs had been copied to the out directory.
