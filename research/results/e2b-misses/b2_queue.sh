@@ -17,6 +17,7 @@ wl() {  # slots, b2_run.sh args
 }
 free() { powershell -c "(Get-PSDrive D).Free/1GB" | tr -d '\r'; }
 echo "free_before $(free)" >> "$P/disk.log"
+[ -f "$P/hash-before.json" ] || "$PY" $L run --slots 1 --mem 4 -- "$PY" "$S/b2_hash.py" "$P/hash-before.json" || exit 1
 wl 2 cols save /b/save.json || exit 1
 fail=0
 wl 2 casa || fail=1
@@ -31,6 +32,7 @@ if [ $fail = 0 ]; then
   wl 2 cols compare E2C_RANG_CORRECTED_DATA FLAG RANG_CORRECTED_DATA RANG_FLAG /b/p-change.json || fail=1
 fi
 wl 2 cols restore /b/save.json /b/restore.json
+"$PY" $L run --slots 1 --mem 4 -- "$PY" "$S/b2_hash.py" "$P/hash-after.json"
 echo "free_after $(free)" >> "$P/disk.log"
 touch "$P/done"
 exit $fail

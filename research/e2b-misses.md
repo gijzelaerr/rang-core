@@ -1677,6 +1677,10 @@ Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
   data copy, and adds an empty CORRECTED_DATA on its own manager
   (`E2CCasaCorrected`) for CASA to write. Step 7 removes it and renames
   the saved column back.
+- The third save failed again on a 9p read of CORRECTED_DATA (ENOMEM)
+  while it hashed, before any rename. The hashes are now taken natively
+  on Windows with rang's reader (`b2_hash.py`), before step 1 and after
+  step 7.
 
 ## For the coordinator
 

@@ -101,8 +101,7 @@ def main(ms, mode, *rest):
     if mode == "save":
         assert "E2C_SAVE_FLAG" not in t.colnames() and "RANG_FLAG" in t.colnames()
         rec["columns"] = sorted(t.colnames())
-        rec["flag_sha256"] = col_hash(t, ["FLAG", "FLAG_ROW"])
-        rec["corrected_sha256"] = col_hash(t, ["CORRECTED_DATA"])
+        # hashes are taken natively on Windows (b2_hash.py): 9p reads returned ENOMEM
         # no data copy (a 36 GB write over 9p failed with ENOMEM): rename the
         # column and give CASA an empty CORRECTED_DATA on its own manager
         t.renamecol("CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA")
@@ -126,11 +125,7 @@ def main(ms, mode, *rest):
         t.removecols(["E2C_SAVE_FLAG_ROW"])
         rec["removed"] = drop + ["E2C_SAVE_FLAG_ROW"]
         rec["columns"] = sorted(t.colnames())
-        rec["flag_sha256"] = col_hash(t, ["FLAG", "FLAG_ROW"])
-        rec["corrected_sha256"] = col_hash(t, ["CORRECTED_DATA"])
         rec["columns_equal"] = rec["columns"] == before["columns"]
-        rec["flag_equal"] = rec["flag_sha256"] == before["flag_sha256"]
-        rec["corrected_equal"] = rec["corrected_sha256"] == before["corrected_sha256"]
     elif mode == "cleanup":
         # undo a save that failed while copying (harness incident, 2026-11-15)
         before = json.loads(Path(rest[0]).read_text())
