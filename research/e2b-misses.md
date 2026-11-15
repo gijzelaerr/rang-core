@@ -1478,6 +1478,56 @@ Decision rule:
 
 Cost: seconds of CPU per run; 1 slot.
 
+### 9.16 P1 measured, 2026-11-15: met, adopted
+
+Implemented in `720c8de` (`cal_pol.parallactic_angle_casa`;
+`parallactic_angle_tete` keeps the earlier form). The fixture comes from
+`p1_fixture_casa.py`: 432 cases, elevations −83° to +76°.
+
+Unit test, on the fixture only and before the held-out rows were read:
+- the new angle is within **3.6e-8 rad** of casacore (p99 2.4e-8, median
+  8e-9);
+- the old TETE form was within 4.5e-5 (median 1.2e-6).
+- Test `test_casa_frame_angle_matches_casacore`, bound 2e-7.
+
+Held out (`p1_measure.py`, 2 s; receipts
+[results/e2b-misses/p1/](results/e2b-misses/p1/)):
+
+| | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| **P1-a** new − K, max | **1.3e-8 rad** | **4.3e-9 rad** |
+| old − K, max (9.8) | 7.0e-6 | 3.2e-6 |
+| P1-b new − CASA probe, max | 2.4e-7 | 2.7e-7 |
+| K − CASA probe, max (9.8) | 2.3e-7 | 2.7e-7 |
+
+**Outcome under the frozen rule: P1-a met (1.3e-8 ≤ 2e-7). Adopted.**
+`frame='casa'` now gives casacore's angle. Against CASA's probe the new
+angle is as close as casacore itself. The remaining 2.4–2.7e-7 is
+between casacore's measures and what applycal applies (9.8, K1), and it
+is still open.
+
+**P1-c, gate 2b re-scored on A1's mini MS** (`a1_rang.py rang` and
+`compare`, 6 s, 1 slot; against A1's archived CASA outputs; receipt
+`p1/a1-rescore.json`):
+
+| Cumulative set | Field 1: 42 cells max eps / over 11 | Field 2: 42 cells max eps / over 11 | All cells of the 41 rows: max eps / median |
+| --- | --- | --- | --- |
+| through Xf (unchanged) | 5.26 / 0 | 3.73 / 0 | 5.39, 4.79 / 0.11, 0.10 |
+| + P, before (9.3) | 13.37 / 43 | 25.58 / 28 | 13.37, 25.58 / 1.95, 1.35 |
+| **+ P, now** | **4.81 / 0** | **4.09 / 0** | **4.91, 4.77 / 1.07, 0.75** |
+
+- On the cells that failed, gate 2b's CASA applycal comparison now meets
+  class C (11 eps), with a maximum of 4.8 eps. No cell of the 41 rows is
+  over 11.
+- A1's rule reads the run as "void" only because C3 now differs, by
+  design: rang's apply no longer equals the frozen RANG_CORRECTED_DATA,
+  since P changed. Flags are equal.
+- The frozen 2b record is not changed.
+- A full-MS 2b re-score (a fresh CASA applycal on a 218 GB copy) was not
+  run.
+- The medians with P (1.07 and 0.75 eps against 0.1 before P) are the
+  2.4–2.7e-7 rad that casacore's measures and applycal still differ by.
+
 ### 9.17 Gate 3c dirty with WSClean `-no-small-inversion`, all fields (seen, post hoc reading), 2026-11-15
 
 Asked by the coordinator after 9.12. This is a **seen, post hoc reading**,

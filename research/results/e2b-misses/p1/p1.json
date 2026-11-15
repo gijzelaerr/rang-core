@@ -1,0 +1,23 @@
+{
+ "tolerance_rad": 2e-07,
+ "fields": {
+  "1": {
+   "new_minus_K_max_rad": 1.28729777948422e-08,
+   "new_minus_K_median_rad": 1.234855329101947e-08,
+   "old_minus_K_max_rad": 7.007876564379956e-06,
+   "new_minus_casa_probe_max_rad": 2.402919427879624e-07,
+   "old_minus_casa_probe_max_rad": 7.12557514503942e-06,
+   "K_minus_casa_probe_max_rad": 2.2781492248213908e-07
+  },
+  "2": {
+   "new_minus_K_max_rad": 4.345706461350574e-09,
+   "new_minus_K_median_rad": -3.008130411430443e-09,
+   "old_minus_K_max_rad": 3.183632080627774e-06,
+   "new_minus_casa_probe_max_rad": 2.7037951966235596e-07,
+   "old_minus_casa_probe_max_rad": 3.230899506156959e-06,
+   "K_minus_casa_probe_max_rad": 2.733072763660971e-07
+  }
+ },
+ "p1a_max_rad": 1.28729777948422e-08,
+ "p1a_met": true
+}
