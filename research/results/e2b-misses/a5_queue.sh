@@ -7,7 +7,8 @@ S=$(cd "$(dirname "$0")" && pwd)
 case "$1" in
   wsl)
     L=/mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py
-    python3 $L run --slots 2 --mem 4 -- bash "$S/a5_run.sh" copy || exit 1
+    [ -d "$HOME/e2b-close/a5.ms" ] || python3 $L run --slots 2 --mem 4 -- bash "$S/a5_run.sh" copy || exit 1
+    python3 $L run --slots 1 --mem 2 -- bash "$S/a5_run.sh" fixcat || exit 1
     python3 $L run --slots 2 --mem 10 -- bash "$S/a5_run.sh" wsclean default 2 J1833m2103 0.0001
     for r in 2:J1833m2103 1:J1939m6342 0:J1331p3030; do
       IFS=: read -r fid tag <<< "$r"

@@ -31,6 +31,10 @@ case "$1" in
       -no-update-model-required -j 2 -temp-dir /c/tmp/$mode-$tag-$eps -niter 0 $extra -field $fid /c/a5.ms" \
       > "$P/$mode/$tag-eps$eps.out" 2>&1
     rc=$?; rm -rf "$W/tmp/$mode-$tag-$eps" ;;
+  fixcat)
+    cp "$S/a5_fixcat.py" "$W/"
+    docker run --rm --network none --user "$(id -u):$(id -g)" --tmpfs /tmp -e HOME=/tmp       -v "$R/casa:/c:ro" -v "$W:/w:rw" -w /tmp rang-formats-oracle:20261030       /opt/qc/bin/python -I /w/a5_fixcat.py /c/e2b.ms /w/a5.ms > "$P/fixcat.out" 2>&1
+    rc=$? ;;
   drop)
     rm -rf "$W/a5.ms"; rc=$? ;;
 esac
