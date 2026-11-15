@@ -27,7 +27,7 @@ case "$1" in
       --slots 1 --mem 2 -- bash "/mnt/c/Users/gijsm/Worktrees/rang/e2b-close/research/results/e2b-misses/a4_run.sh" unit on || exit 1
     for r in 2:J1833m2103 1:J1939m6342 0:J1331p3030; do
       IFS=: read -r fid tag <<< "$r"
-      "$PY" $L run --slots 4 --mem 16 -- "$GB" "$S/a5_rang.sh" "$fid" "$tag" 1e-06
+      "$PY" $L run --slots 4 --mem 46 -- "$GB" "$S/a5_rang.sh" "$fid" "$tag" 1e-06
     done
     MSYS_NO_PATHCONV=1 wsl -e python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run \
       --slots 1 --mem 2 -- bash "/mnt/c/Users/gijsm/Worktrees/rang/e2b-close/research/results/e2b-misses/a4_run.sh" unit off
