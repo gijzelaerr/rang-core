@@ -1,8 +1,8 @@
 # Rang: the gap between CLEAN and a sparsity-regularised imager on MeerKAT truth skies (issue #24, step 1)
 
-Status, 2026-11-15: **protocol frozen; amendments A1-A3; all arms run; outcome "U worse at our
-settings" (section 8.2); the A3 test U-up on N2 failed its precondition and is not scored
-(section 8.4).** Issue
+Status, 2026-11-15: **protocol frozen; amendments A1-A4; outcome "U worse at our settings"
+(section 8.2). The A3 test U-up on N2 failed its precondition and is not scored (section 8.4).
+A4's U-up2 (the recipe without its averaging) on N2 is running.** Issue
 [gijzelaerr/rang-core#24](https://github.com/gijzelaerr/rang-core/issues/24), step 1, from the
 stub [proposals/imaging-gap-comparators.md](proposals/imaging-gap-comparators.md). A comparison
 with no rang code: GeMClean, WSClean and pfb-imaging run as released, scored against known truth.
@@ -344,6 +344,42 @@ So the gated result is, at most, **"U worse at our settings"** (U-a, 40-cycle ca
   - **Convergence:** whether U-up reaches `tol` within the cap is reported either way.
 - **Not tested:** `pfb deconv` (the successor command), and upstream settings on the other gated
   skies unless the rule above calls for them.
+
+### Amendment A4 (2026-11-15, post hoc: U-up's result in section 8.4 is read; before the run below)
+
+**Why.** U-up was not scored. The recipe's `chan-average 4` merges this MS's 25 MHz channels into
+100 MHz ones and smears the sky (section 8.4). A "U worse" verdict is only worth something against
+pfb at its own best settings. The coordinator decided, at the owner's request, to run the recipe
+again without its averaging.
+
+**Pre-registered test (run once, after this commit).**
+- **Arm `U-up2`** on **N2**: U-up's settings with `chan-average 1` and `bda-decorr 1.0` (U-a's
+  values; this MS has no fine channels to average). Everything else as U-up:
+  - `robustness -0.3`, `psf-oversize 1.6`, `l1-reweight-from 7`;
+  - gridder `epsilon` 1e-7 in `grid` and `sara`;
+  - the recipe's sara step;
+  - `tol` 5e-4, 8 threads, a cap of 200 major cycles or 12 h, booked at 4 slots.
+  
+  Code: `runs.py`, `CONFIGS["U-up2"]` and `UP_BY_CONFIG`.
+- **Scoring:** section 4 as for U-a, at the last cycle and at the last cycle within 5 × Gt's CPU.
+- **Precondition.** Section 4's precondition applies unchanged. If it fails only on the
+  orientation margin (robust -0.3 against the core's natural-weighted dirty image may do that),
+  this secondary check decides, and the result is labelled "scored under A4's secondary
+  precondition". It requires both:
+  1. **Orientation.** The Pearson correlation of pfb's dirty image with the core's exact dirty
+     image is higher in the chosen orientation than in each of the other seven, by at least 0.5.
+  2. **No smearing.** For N2's isolated point sources (nearest other component at least 40 px
+     away), the median of pfb's dirty-image peak (5 × 5 px box) over catalogue flux lies within
+     0.9-1.1 in each radius bin: under 10′, 10-20′ and over 20′ from the phase centre. This is the
+     section 8.4 test, on which U-a gives 0.97-0.99.
+  
+  If neither check passes, U-up2 is not scored, and the outcome stays "U worse at our settings".
+- **Rule** on `r_up2`, U-up2's last-cycle relative L2 over G's on N2:
+  - **`r_up2 > 1.25`:** the outcome is stated as "U worse at our settings on 4 of 4 gated skies,
+    and at upstream's preset (without its averaging) on N2".
+  - **`r_up2 ≤ 1.25`:** the outcome is stated only as "U worse at our settings". U-up2 is then run
+    on H4, M1 and N1 under a further dated amendment before any claim about upstream settings.
+  - Convergence (`tol` within the cap) and `r5_s` on the CPU basis are reported either way.
 
 ## 8. Measured results
 
