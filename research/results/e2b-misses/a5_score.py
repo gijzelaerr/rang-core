@@ -34,7 +34,7 @@ def tag(n):
 def sigmas_rang(path):
     if not path.exists():
         return None
-    t = path.read_text(errors="replace")
+    t = path.read_text(encoding="utf-8", errors="replace")
     sig = [
         float(x)
         for x in re.findall(r"auto-mask: major iteration \d+, sigma (\S+) Jy", t)
@@ -49,7 +49,7 @@ UNIT = {"Jy": 1.0, "mJy": 1e-3, "µJy": 1e-6, "uJy": 1e-6, "nJy": 1e-9}
 def sigmas_wsclean(path):
     if not path.exists():
         return None
-    t = path.read_text(errors="replace")
+    t = path.read_text(encoding="utf-8", errors="replace")
     sig = [
         float(v) * UNIT[u]
         for v, u in re.findall(

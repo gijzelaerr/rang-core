@@ -13,7 +13,7 @@ from a5_score import sigmas_rang, sigmas_wsclean
 P = Path("D:/rang/outputs/gemclean-iquv-mask-20261115/m0")
 g = sigmas_rang(P / "rang.out")
 w = sigmas_wsclean(P / "wsclean.out")
-t = (P / "rang.out").read_text(errors="replace")
+t = (P / "rang.out").read_text(encoding="utf-8", errors="replace")
 g["majors"] = len(g["sigma"])
 upto = min(
     len(g["sigma"]), len(w["sigma"]), max(g["finishing"] or 0, w["finishing"] or 0)
