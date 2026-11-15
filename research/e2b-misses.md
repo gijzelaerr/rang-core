@@ -1565,6 +1565,176 @@ Reading (seen, post hoc):
   copy, as the coordinator noted.
 - The FITS images were deleted after scoring.
 
+### 9.21 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
+
+Branch `e2b-gpol` from main `02631b8`. Section 2's proposal made exact; where
+this departs from it, it says so. **Seen** (A0 6.6): every E2-B Gpol number
+was read before. Nothing here changes the frozen E2-B record. A null result
+is a valid outcome and is recorded as such.
+
+**CASA's estimator, read from source** (CASA's synthesis code as carried in
+NRAO's LibRA, `github.com/ARDG-NRAO/LibRA` at `7925a46`; CASA 6.7.6.14 is
+the oracle that is run). In `Calibrater::genericGatherAndSolve`
+(`Calibrater.cc` 3342–3381, 3546, 3601) the solve's iterator is built as:
+1. `addCalForSolving`: `CalSolvingVi2` resets the weights from SIGMA, then
+   `VisEquation::collapse2` (`VisEquation.cc` 486–537) corrects the data by
+   the lower terms, corrupts the model by the higher ones, and for a
+   normalizable term calls `divideCorrByModel` (548–): per row, channel and
+   correlation with |M| > 0, `X = R/M`, `W = w|M|²`, `M = 1`;
+2. `addChanAve` (G-type terms are unchannelized, so all channels): the
+   weighted average of X;
+3. `addTimeAve` (the solint or `preavg`): the weighted average in time;
+4. per solution, after gathering, `SDBList::enforceAPonData('P')`
+   (`SolveDataBuffer.cc` 186–): each unflagged averaged datum is divided by
+   its amplitude and its weight multiplied by amp².
+
+So for calmode `p` the datum the solver sees is `X̄/|X̄|` with weight
+`W̄|X̄|²`, where `X̄ = Σ w M* R / Σ w|M|²` over the channels and times of the
+average and `W̄ = Σ w|M|²`. This corrects section 2 item 1: the amplitude
+normalisation acts on the averaged datum, not per channel (net weight
+`|Σ w M* R|² / Σ w|M|²`, not `Σ w|R|²`). Both averages are linear and
+weighted, so their order (CASA: channels, then time; rang: time, then
+channels) gives the same X̄.
+
+**Implementation (frozen before it is written).**
+- Key `calibrate.casa_phase_weights` (bool, default false; out of the stage
+  hash at its default, as `average_freq`). Off is byte-identical.
+- It requires `calibrate.average_freq: true` and is refused without it:
+  CASA always averages a G-type solve over the channels, and the key's
+  normalisation is defined on the averaged datum. It acts on calmode `p`
+  solves only (in E2-B's recipe, Gpol alone); `ap` solves are unchanged.
+- Input conditioning in Python beside `frequency_averaged`, no kernel
+  change. With unit model, the `phase` kernel (`core/src/cal/diag.rs`) scales
+  data to |M| = 1 and normalises by `1/|J|²` = 1, so each datum enters with
+  the weight it is given. Steps in `cal_gain`:
+  - in `_Field.prepare`, after the pre-apply and P: on the parallel hands,
+    `X = R/M` and `w|M|²` where |M| > 0; weight 0 and flagged where M = 0;
+    model 1. Cross hands untouched (the kernel zeroes them, and a flagged
+    cross hand would drop the whole cell, `solve::data_flags`). The row
+    weights that set the solution TIME are taken before this step;
+  - time averaging (`average_time`) and `frequency_averaged` unchanged;
+  - after them: `X̄/|X̄|`, weight × |X̄|² on the parallel hands; flagged where
+    |X̄| = 0.
+- Known remaining difference, not addressed: rang flags a whole cell when
+  either parallel hand is flagged; CASA keeps the other hand.
+- The SNR scale changes with the weights, so `minsnr` can flag differently:
+  Gpol solution flags that differ are reported in every comparison.
+
+**Data and arms.** One harness per data set; every rang arm on a data set
+is scored against the same CASA Gpol. Scorer: `e2avg_common.term_diff`
+(`phase`), median of |Δφ| over (interval, antenna, hand) unflagged in both;
+both tables must have equal interval counts. Arms on each set:
+`T` = `average_time` only (the frozen arm's estimator), `F` = `T` +
+`average_freq` (the amended arm's), `K` = `F` + `casa_phase_weights`.
+CASA's call: `e2_casa3b.casa_calls`'s Gpol (G, calmode p, solint 60s,
+parang, uvrange >150, minsnr 3, minblperant 4, refant m022,m023,m024 flex).
+CASA 6.7.6.14 (`rang-o-casa`, docker in WSL) on private ext4 copies under
+`~/e2b-gpol-20261115/`; rang (this branch's extension) on private copies
+in `D:\rang\outputs\e2b-gpol-20261115\`. `R/casa/e2b.ms`,
+`D:\rang\data\e2-b\e2b.ms` and `luno4.ms` are only read. Copies are
+deleted when scored.
+
+1. **Simulation (S).** Field 0 rows of `luno4.ms` (LUNO scan 1, 4,096
+   channels; its UVW, times and antennas), RECEPTOR_ANGLE −90, FLAG all
+   false, WEIGHT, WEIGHT_SPECTRUM and SIGMA 1. Model: CASA `setjy` manual,
+   an unpolarised point at the phase centre, I = 14.7172 Jy at 1.47 GHz,
+   spix (−0.4507, −0.1798, 0.0357) (X286 without its polarisation), into
+   MODEL_DATA; rang reads the same column. Data, generated in CASA's Python
+   with seed 20261115:
+   `V_pq = g_p (M + C) g_q*` on the parallel hands and 0 on the cross hands,
+   plus complex Gaussian noise σ = 0.3 Jy per part on all four;
+   - `C`: an unpolarised point, 1.5 Jy at 1.284 GHz, spectral index −1.0,
+     offset (−1.6″, −2.0″) in (l, m) (3C 286's companion is about 2.5″
+     away; here it makes the point model wrong on the long baselines);
+   - `g`: per antenna and hand, unit amplitude, phase uniform on (−π, π]
+     plus 0.2 rad × sin(2π t / 600 s + θ), θ uniform.
+   - S-res is that; S-pt is the same with C = 0 (the control).
+   - Polarisation is left out on purpose: P is then the identity on both
+     components and both sides, so the arm tests the weighting under a
+     resolved source and a spectral mismatch, not P (section 9.16's domain).
+2. **LUNO dev (L).** `luno4.ms` (scans 1–2 only, 2 Gpol intervals, FLAG as
+   the dry run left it), as read only. CASA's K, G, B of the chi-offset
+   arm `casa-m90` (the same MS, RECEPTOR_ANGLE −90) are pre-applied on
+   **both** sides; rang's own K, G, B of that dry run no longer exist
+   (`e2-20261110-11-avg` was deleted). So L is the estimator alone. It is not
+   the harness behind 0.250° and 0.108° (e2-average-freq.md 3), and those
+   numbers are not expected to reproduce. CASA Gpol is re-solved on an ext4
+   copy of field 0's rows (`setjy` X286). Rang reads `luno4.ms`'s MODEL_DATA,
+   which must equal CASA's `setjy` model of the copy (max relative
+   difference reported; ≤ 1e-6 or L is void).
+3. **E2-B scan 17 (X).** Field 0's rows (118,104, rows 0–118,103, scan 17) of
+   `D:\rang\data\e2-b\e2b.ms` (DATA never written), FLAG and FLAG_ROW from
+   `R/casa/e2b.ms.flagversions/flags.rang_apply_20261112T013707Z` ("flags
+   before apply", which is what rang's Gpol saw: the only calibrate steps
+   after `extendflags` that touch field 0 are Gpol, KCROSS and Xf, which
+   write no data flags; the X0 control below checks this).
+   - Rang: MODEL_DATA written on its copy by `calmodels.set_model` with
+     `caracal_xcal('3C286')`, as the chain did; K, G, B the frozen tables
+     `R/rang-run/calibrate/{K,G,B}`; `receptor_angle` −90°; unit weights,
+     8 GiB budget, as the frozen run.
+   - CASA: RECEPTOR_ANGLE −90 and `setjy` X286 on its copy. Gpol solved
+     three times on the same copy, by pre-applied K, G, B:
+     - **CM**, A2's matched case `a2/match-ones/tables/{K,G,B}`: **the
+       oracle the decision reads** (section 2's confound);
+     - **CC**, the archived 3b tables `R/casa/tables/{K,G,B}`: the harness
+       control;
+     - **CR**, rang's frozen `R/rang-run/calibrate/{K,G,B}`: descriptive; it
+       isolates the estimator (both sides pre-apply the same tables).
+   - The two models (rang's on its copy, CASA's on its copy) must agree
+     (max relative difference reported; ≤ 1e-5 or X is void).
+
+**Controls, read before any arm's score.**
+- **X-s, scorer:** `term_diff` on the archived tables gives
+  `R/rang-run/calibrate/Gpol` against `R/casa/tables/Gpol` = 0.278° and
+  `RA/rang-run/calibrate/Gpol` against `RA/casa/tables/Gpol` = 0.124°
+  (within 1e-3° of `R/g3b.json`, `RA/g3b.json`).
+- **X0, rang harness:** arm T on X reproduces `R/rang-run/calibrate/Gpol`
+  (max |Δφ| ≤ 1e-4°, flags equal).
+- **XC, CASA harness:** CC reproduces `R/casa/tables/Gpol` (median ≤ 1e-3°,
+  flags equal).
+- **LC, CASA harness:** CASA's L re-solve reproduces
+  `casa-m90/tables/Gpol` (median ≤ 1e-3°, flags equal).
+- **S-pt:** arms F and K each within class B of CASA on S-pt (median
+  ≤ 0.1°). If not, S is void and the harness is fixed first.
+
+A failed control voids its data set's reading; the others still count.
+
+**Hypothesis.** With the key (arm K), rang's Gpol meets class B against
+CASA's (median ≤ 0.1°) on S-res, L and X (against CM).
+
+**Frozen tolerance:** class B, Gpol phase median ≤ 0.1° (A0 6.2, as E2-B's
+gate 3b). Not loosened.
+
+**Decision rule** (on arm K; arms T and F are reported beside it):
+- **S fails** (K misses on S-res, or S-pt fails): the port is not CASA's
+  estimator. Stop: no E2-B decision is read; X is reported only. *(Added at
+  this freeze.)*
+- **S has no power** (F already meets class B on S-res): S cannot tell the
+  estimators apart. Reported; the rule reads L and X alone. *(Added.)*
+- **Met on L and X:** the key becomes the E2 configuration's for the next
+  unseen leg (E2-A has no polcal, so E3 or the reserve). The default stays
+  false until then.
+- **Met on X, not on L:** reported as found. L is the estimator alone, so a
+  miss there with a pass on S puts the remaining difference in the data
+  (the slice, its flags); it is described with the per-antenna table.
+  *(Added.)*
+- **Met on L only:** a documented limitation, with X's per-antenna table.
+- **Met on neither:** a documented limitation; the key is not adopted.
+- **L has no power** (F already meets class B on L): L is reported and the
+  rule reads S and X. *(Added.)*
+- CR is reported, not decided on. Section 2 said X's reading is not used if
+  A2's matched case left the composites outside class B; A2 (9.4) met them,
+  so it is used.
+
+E2-B is solved with the key once, as frozen. Any later variant (another
+averaging order, another flag rule) is post hoc and labelled so.
+
+Cost: code about half a day. S about 0.3 CPU-hours, L 0.2, X about 1
+(three CASA solves and three rang arms on 118,104 rows of 4,096 channels).
+Disk: about 30–40 GB per field-0 copy of X, about 10 GB per copy of L and S;
+at most four copies at once (D: holds WSL's ext4 too), with at least 150 GB
+left on D:.
+
 ## For the coordinator
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
