@@ -20,6 +20,16 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean memory, issue #32, 2026-11-15 (branch `gemclean-memory`; [gemclean-memory.md](gemclean-memory.md)):
+- Joined IQUV, 8 channels, 2048², masked, on J1833−2103 (A5's argv): peak
+  9.20 GiB against 20.24 GiB, every FITS file byte-identical; WSClean 3.7
+  1.34 GiB (6.9 ×). Wall 398 s against 430 s.
+- Accounting first: per entry dense visibilities and weights, the gridder's
+  sorted copies, six `f64` image sets, all four polarisations' band at
+  read. Fixed by per-polarisation reading, compacted and shared gridder
+  plans, fewer image copies and bounded reader chunks.
+- Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB).
+
 E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
 - `gemclean -auto-mask` now works with `-join-polarizations`, as WSClean
   3.7's radler: noise and peaks of the joined I + Q + U + V residual, the

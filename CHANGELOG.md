@@ -14,7 +14,8 @@ the release notes are the section of this file for that version.
   byte-identical images: polarisations are read and gridded one at a time, measurements keep only
   their weighted visibilities, polarisations with the same rows and weights share one gridder plan,
   and the clean keeps fewer image copies (the dirty images wait in a `<name>-dirty-<n>.spill` file
-  until they are written). PEAK_SENTENCE `-memory-report` now works on Windows, and the polarisation
+  until they are written). On E2-B's J1833−2103 (IQUV, 8 joined channels, 2048², masked) the peak fell from 20.2 to
+  9.2 GiB. `-memory-report` now works on Windows, and the polarisation
   path's `-report.json` has the `memory` section.
 - Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
   casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and

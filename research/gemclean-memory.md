@@ -1,8 +1,9 @@
 # GeMClean's memory on joined polarisations (issue #32)
 
-Status: **accounting measured, decision rule frozen 2026-11-15 before any
-fix** (sections 1-4). The fixes and their measurement follow in sections 5
-onwards; every later change to this protocol is dated and labelled post hoc.
+Status: **implemented and measured, target met** (2026-11-15). Accounting
+and decision rule frozen before any fix (sections 1-4, commit `72265c8`);
+fixes and measurement in section 5, one fix added post hoc (dated there).
+J1833−2103: 20.24 to 9.20 GiB, every FITS file byte-identical.
 
 Branch `gemclean-memory`, worktree `~/Worktrees/rang/gemclean-memory`,
 from `main` 756997f. Data and run outputs in
@@ -187,3 +188,92 @@ accounting predicts:
    at the pixels the minor cycle touched (the resync's difference is `0.0`
    elsewhere, as before); the dirty images wait in a file beside the
    outputs until they are written: up to 3 image sets, 3.2 GB.
+
+## 5. The fixes, measured (2026-11-15)
+
+All five planned fixes are in (commit `c06cdd1`), plus one found by the
+first measurement (post hoc, dated 2026-11-15, before the final runs): the
+MS reader's chunks are bounded to about 256 MB of complex cells (it read
+20,000 rows at a time, 7 GB of transient buffers at 4,096 channels × 4
+correlations, while the earlier polarisations' measurements were held:
+14.2 GB heap at the fourth polarisation's read in the first fixed run).
+Rows are independent, so the chunk size changes no value.
+
+**Identity.** Every FITS file byte-identical to the run before the fix:
+
+| Case | Files | Result |
+| --- | ---: | --- |
+| 16-antenna case, 512², 4 ch, IQUV, masked (`rep.sh`), fixes 1-5 | 85 | identical |
+| regression case (`core/tests/gemclean_memory.rs`), 256², 4 ch | 85 | identical |
+| J1833−2103, A5's argv, fixes 1-5 (binary) | 153 | identical |
+| J1833−2103, fixes 1-5 + reader chunks (binary, built by Rust 1.93; the reference by 1.99) | 153 | identical |
+| J1833−2103, the wheel (`python -m rang.gemclean`, this branch's extension) | 153 | identical |
+
+New unit tests: `compacted_and_shared_measurements_keep_the_bits`
+(`measure.rs`: compacted and plan-sharing measurements against the dense
+one, residual images and misfits bit for bit, both precisions) and the
+existing `sorted_residual_has_the_bits_of_the_dense_one`.
+
+**Memory and time on J1833−2103** (4 slots, `-j 4`):
+
+| Run | Peak heap (GB) | Peak working set (GiB) | Peak private (GiB) | Sampled tree RSS (GiB, A5's measure) | Wall (s) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| before (binary `2eec8c1`) | 21.66 | 20.21 | 20.25 | 20.21 | 416.6 |
+| A5 (wheel, `b7c4cca`) | – | – | – | 20.24 | 430.2 |
+| fixes 1-5 (binary) | 14.17 | 10.19 | 13.23 | 9.51 | 398.2 |
+| fixes 1-5 + reader chunks (binary) | 9.82 | 9.19 | 9.20 | 9.18 | 419.0 |
+| the same, the wheel | – | 9.20 | 9.22 | **9.20** | 398.3 |
+| WSClean 3.7 (A5, masked) | – | – | – | 1.34 (1,402,732 kB max RSS) | 1,076 |
+
+Buffers held through the clean after the fixes (GB): visibilities 2.16
+(sorted, active only), weights 0.27 and sorted index 0.54 (one per
+channel, shared by the four polarisations), tables 0.14, beams 2.15, PSF
+crops 0.27, three image sets 3.2.
+
+**Regression test.** `core/tests/gemclean_memory.rs` (in `cargo test` for
+`core/`, so on CI on Linux and Windows): 24 MeerKAT antennas, 40 dumps, 64
+channels, 70 % of the cells at zero weight, 256², `-pol IQUV
+-join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2`. Peak
+heap 149,499,552 bytes before, 101,622,308 after; bound frozen at
+122,000,000 (1.2 × after), so the run before the fix fails it.
+
+**Outcome under the frozen rule.** **met.** J1833−2103 peaks at 9.20 GiB by A5's measure
+(the wheel; 9.20 GiB peak working set, 9.22 GiB peak private bytes)
+against 20.24 GiB before: 2.2 × lower, under the 10 GiB target, with all
+153 FITS files byte-identical. Wall 398.3 s against A5's 430.2 s (the
+binary: 419.0 s against 416.6 s, +0.6 %), within the 10 % rule. It is
+still 6.9 × WSClean's 1.34 GiB on this field: the rest is three `f64`
+image sets, the beams and the in-memory visibilities (section 4).
+
+Not measured here: J1331+3030 and J1939−6342 (40.3 and 44.9 GiB in A5).
+They have more rows; the visibility part scales with them and the image
+and beam part does not, so their saving should be at least as large, but
+it is not a result. The Stokes I paths gain only the gridder's freed
+stored values and the joined clean's fewer copies (`-channels-out
+-join-channels`); their measurements are not compacted.
+
+**Booking.** A joined-IQUV 8-channel 2048² run on a field like
+J1833−2103 now needs about 10 GB, not 24-46 GB; book by the field's rows
+(about 12 B per weighted visibility and polarisation, plus 6 GB for images
+and beams at 2048² × 8 channels).
+
+**Next, not in this task** (each changes bits, so each needs its own
+proposal and tolerance): `f32` working images; the visibilities on disk
+between major cycles (WSClean's route); a band-limited beam spectrum by
+default (`-beam-band`, measured in G1).
+
+## For the coordinator
+
+- **#32: met at byte-identical output.** J1833−2103 (A5's argv) peaks at
+  9.20 GiB against 20.24 GiB (2.2 ×), WSClean 1.34 GiB (6.9 ×); 153 FITS
+  files identical, wall 398 s against 430 s.
+- Fixes in `c06cdd1`: per-polarisation read and build, compacted sorted
+  measurements, shared plans across polarisations, freed gridder buffers,
+  sparse major-cycle models, dirty images in a `.spill` file, bounded
+  reader chunks. `-memory-report` now works on Windows.
+- Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB;
+  149.5 MB before) runs in CI's `cargo test`.
+- Owner: book joined-IQUV 2048² 8-channel runs by rows (about 10 GB on
+  J1833−2103) instead of 46 GB; J1331 and J1939 not re-measured; going
+  below about 9 GB needs `f32` images or on-disk visibilities (a new
+  proposal, bits change).
