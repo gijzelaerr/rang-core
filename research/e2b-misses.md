@@ -2051,6 +2051,137 @@ Post hoc, during the run, none changing a measure:
 - Per-case images (about 30 GB) and both private copies (34 GB each)
   were deleted after scoring.
 
+## For the coordinator
+
+**After A5 (9.21, 9.22; 2026-11-15, branch `gemclean-iquv-mask`):**
+- **Code:** `gemclean -auto-mask` with `-join-polarizations`, as radler.
+  The noise and peaks come from the joined I + Q + U + V residual, and the
+  mask is the union of every polarisation's model pixels. `image.auto_mask`
+  now takes `join_polarizations`.
+  - Still refused: masks on unjoined polarisations, and `-fits-mask` on
+    several polarisations.
+  - M0 against WSClean on P1: σ within 0.27 %, the same finishing
+    iteration.
+- **A5: met; control C: not met.** With A0 rule 6's 5σ mask in both arms:
+  - compact median 0.99977, scatter 0.72 % (n = 37);
+  - off-source 1.05, 1.08, 1.09.
+  - Unmasked, with the same oracle, C gives 0.9940, 1.27 %, and 2.30, 1.26,
+    1.66.
+  - So gate 3c's cleaned miss was the missing mask, not small inversion.
+  - Owner: rerun gate 3c with the mask (seen).
+- **Memory:** GeMClean peaks at 20–45 GB on these runs, against WSClean's
+  1.4–2.0 GB (10–22 ×). Book joined-IQUV 8-channel 2048² runs at
+  ≥ 46 GB. A memory task for GeMClean's polarisation path is worth
+  opening.
+### 9.24 Gate 2b on the full MS with the new P, on ext4, frozen 2026-11-15 (before any run)
+
+9.19's measure and reading, with the I/O path changed after 9.20 (branch
+`e2b-2b`).
+- Numbered 9.24 at merge (2026-11-15, coordinator; first written as 9.22,
+  which gemclean-iquv-mask took for A5 on main).
+- Seen: P1's mini-MS re-score (9.16) is known.
+- No casacore or CASA write touches `/mnt/d`, and the shared `R\casa\e2b.ms`
+  is only read.
+
+Steps:
+1. **E, an ext4 copy** (`~/e2b-2b/e.ms`). It is made by TaQL from a
+   read-only mount of `R\casa\e2b.ms` and holds:
+   - every row and every subtable;
+   - the row columns, DATA, WEIGHT and SIGMA;
+   - FLAG and FLAG_ROW set from the after-calibrate version
+     `flags.rang_apply_20261112T013707Z`, as 2b's prep did;
+   - FEED RECEPTOR_ANGLE −90°, as in the source.
+2. Control **C11** (the copy is exact):
+   - sha256 of E's DATA and of FLAG + FLAG_ROW, taken in the container on
+     ext4;
+   - equal to the same hashes of the source's DATA and of the version's
+     FLAG + FLAG_ROW, read natively on Windows with rang's reader.
+   - Not met: void.
+3. CASA 6.7.6.14 `applycal` with 2b's own spec (`R\applycal-spec.json`),
+   pointed at E. It writes E's CORRECTED_DATA and FLAG. Then
+   CORRECTED_DATA → E2C_CASA_CORRECTED_DATA and FLAG → E2C_CASA_FLAG, and
+   FLAG and FLAG_ROW are set from the version again (all on ext4).
+4. A plain `cp -a` of E to `D:\rang\outputs\e2b-2b-20261115\e2b-2b.ms`,
+   checked by sha256 of every file on both sides. E is then deleted.
+5. Rang's apply, natively on Windows, on the D: copy:
+   - this branch at main `6587e43`, new P;
+   - the frozen apply's arguments (`R\rang-run\apply\summary.json`, as
+     A1's C3, `parang_flags='none'`);
+   - writes `column='E2C_RANG_CORRECTED_DATA'` and FLAG.
+6. Comparisons, natively with rang's reader, by 2b's rule (class C: per
+   cell ≤ 1e-6 relative or ≤ 11 float32 eps of the cell's largest
+   correlation; flags exact):
+   - **C9:** E2C_CASA_* against the frozen RANG_CORRECTED_DATA and
+     RANG_FLAG of `R\casa\e2b.ms` (row for row) reproduces
+     `R\g2b-applycal.json`: 42 cells over class C, max 25.58 eps, 0 flag
+     elements differing. Not met: void.
+   - **Measure:** E2C_CASA_* against E2C_RANG_CORRECTED_DATA and FLAG.
+   - **Beside:** E2C_RANG against RANG_CORRECTED_DATA (P's change alone).
+7. The D: copy is deleted after scoring.
+
+Reading:
+- 0 cells over class C and flags exact → gate 2b's CASA applycal leg is
+  met with the new P (seen; the frozen 2b record stays).
+- Otherwise not met, with the count and the maximum reported.
+
+Space:
+- E holds about 82 GB with CASA's output, so the vhdx grows by about
+  82 GB, and that growth stays until the vhdx is compacted.
+- The D: copy takes about 82 GB and rang's column about 36 GB.
+- D: had 496 GB free before; the expected low point is about 296 GB.
+
+Booking:
+- the copy and CASA at 2 slots, with 8 and 12 GB;
+- the hashes and comparisons at 1 slot, 4 GB;
+- rang's apply at 4 slots, 16 GB.
+
+### 9.25 9.24 measured, 2026-11-15: gate 2b met on the full MS with the new P
+
+Receipts in [results/e2b-misses/c2b/](results/e2b-misses/c2b/):
+`hash_src.json`, `make.json`, `casa-result.json`, `casa_done.json`,
+`apply.json`, `c9.json`, `g2b-new.json`, `p-change.json`, `runs.log`,
+`disk.log` and `e-ext4.sha256`.
+
+Runs, all rc 0 after one harness fix:
+- the source hash took 946 s (native);
+- the ext4 copy E took 665 s;
+- CASA applycal took 336 s, against 1,061 s over 9p in the original 2b;
+- the copy-out of 68 GB, with sha256 on both sides, took 1,025 s;
+- rang's apply took 353 s (native);
+- the three comparisons took 271–349 s.
+
+Harness fix: the first `make` stopped at once. TaQL resolved `$s` to a
+variable inside `taql` itself; it was renamed to `$srctab`, and nothing
+had been written.
+
+Controls (all met):
+- **C11:** E's DATA and FLAG + FLAG_ROW hash equal to the source's DATA
+  and the version's flags, read natively. 272,916 rows.
+- **C9:** CASA's applycal on E against the frozen RANG_CORRECTED_DATA
+  reproduces `R\g2b-applycal.json` exactly: 408,827,131 compared cells,
+  42 over class C, max 25.5827 eps, 0 flag elements differing.
+- The file sha256 lists of E and its D: copy are equal.
+
+| Comparison | Cells over class C | Max eps of cell max | Flag elements differing |
+| --- | --- | --- | --- |
+| **CASA applycal against rang's apply with the new P (measure)** | **0** of 408,827,131 | **7.06** | **0** |
+| CASA against rang with the old P (C9 = frozen 2b) | 42 | 25.58 | 0 |
+| rang new P against rang old P (beside) | 28 | 26.49 | 0 |
+
+**Outcome: met.** On the whole E2-B MS, gate 2b's CASA applycal leg
+meets class C with the new P: 0 cells over 11 eps, a maximum of 7.06 eps,
+and flags exact.
+- This is a seen reading. The frozen 2b record (42 cells) stays.
+- The 42 cells of 9.3 were P's convention, as 9.16 showed on the mini
+  MS.
+
+Space:
+- D: went from 496 GB at the start to a low of 407 GB with the D: copy
+  and rang's column, and is back to 508 GB after the copy was deleted.
+- E (68 GB) was deleted on ext4, but the vhdx keeps the size it grew to
+  until it is compacted.
+- `R\casa\e2b.ms` was only read.
+
 ### 9.26 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
 
 Committed as 9.21 at `ba26fb2`. Renumbered 2026-11-15 on the
@@ -2336,26 +2467,15 @@ s at 4 threads, peak RSS 2.85 GB on every set (8 GiB budget); copies 728 s
   is not decided here.
 - Every copy was deleted; the receipts are in `results/e2b-misses/a3/`.
 
-**After A5 (9.21, 9.22; 2026-11-15, branch `gemclean-iquv-mask`):**
-- **Code:** `gemclean -auto-mask` with `-join-polarizations`, as radler.
-  The noise and peaks come from the joined I + Q + U + V residual, and the
-  mask is the union of every polarisation's model pixels. `image.auto_mask`
-  now takes `join_polarizations`.
-  - Still refused: masks on unjoined polarisations, and `-fits-mask` on
-    several polarisations.
-  - M0 against WSClean on P1: σ within 0.27 %, the same finishing
-    iteration.
-- **A5: met; control C: not met.** With A0 rule 6's 5σ mask in both arms:
-  - compact median 0.99977, scatter 0.72 % (n = 37);
-  - off-source 1.05, 1.08, 1.09.
-  - Unmasked, with the same oracle, C gives 0.9940, 1.27 %, and 2.30, 1.26,
-    1.66.
-  - So gate 3c's cleaned miss was the missing mask, not small inversion.
-  - Owner: rerun gate 3c with the mask (seen).
-- **Memory:** GeMClean peaks at 20–45 GB on these runs, against WSClean's
-  1.4–2.0 GB (10–22 ×). Book joined-IQUV 8-channel 2048² runs at
-  ≥ 46 GB. A memory task for GeMClean's polarisation path is worth
-  opening.
+**After 9.22–9.23 (2026-11-15, branch `e2b-2b`): gate 2b is met on the
+full MS with the new P.**
+- CASA applycal on an ext4 copy against rang's native apply: 0 of
+  408,827,131 cells over class C, max 7.06 eps, flags exact.
+- C9 reproduces the frozen 2b exactly (42 cells, 25.58 eps), and C11 (the
+  copy is exact) is met.
+- No write touched `R\casa\e2b.ms` or went over 9p.
+- The vhdx may need compacting: it took up to about 70 GB, since freed
+  inside ext4.
 
 **After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
 - **9.18, gate 3c dirty at ε 1e-6 with `-no-small-inversion` (dated post

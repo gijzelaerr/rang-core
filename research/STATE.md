@@ -45,6 +45,12 @@ E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](
   1.08, 1.09. Unmasked: 0.9940, 1.27 %, 2.30, 1.26, 1.66.
 - GeMClean's peak memory is 20–45 GB on these runs, against WSClean's
   1.4–2.0 GB.
+E2-B gate 2b on the full MS, 2026-11-15 (branch `e2b-2b`; [e2b-misses.md](e2b-misses.md) 9.24–9.25):
+- With the new P, CASA applycal against rang's apply meets class C on the
+  whole E2-B MS: 0 of 408.8 M cells over, max 7.06 eps, flags exact.
+- The frozen run had 42 cells over (25.6 eps); C9 reproduces it exactly.
+- Method: CASA ran on an ext4 copy and rang's apply natively on Windows.
+  Bulk casacore I/O over 9p had failed with ENOMEM (9.20).
 
 E2-B P1 and 3c, 2026-11-15 (branch `e2b-pcasa`; [e2b-misses.md](e2b-misses.md) 9.15–9.17):
 - `cal_pol.parallactic_angle_casa` now computes casacore's AZEL
