@@ -1230,6 +1230,88 @@ Decision rule:
 
 Cost: one WSClean run, about 10–40 min at 4 slots.
 
+### 9.13 A1d, casacore's TOPO → HADEC step, frozen 2026-11-15 (before any run)
+
+Asked by the coordinator after 9.8. **Seen**: A1c's post hoc reading places
+about 0.5″ in casacore's step from the apparent place to HADEC.
+
+casacore's route, as read in its source (`measures/Measures/MCDirection.cc`,
+`MeasMath.cc`, `MeasTable.cc`, master at 2026-11-15; the container runs
+casacore from CASA 6.7.6.14, which control C7 below checks against):
+- J2000 → JNAT (light deflection) → APP (aberration, then precession and
+  nutation) → TOPO → HADEC → AZEL.
+- APP → TOPO (`applyAPPtoTOPO`) only applies parallax, scaled by 1/distance.
+  For a direction (distance 0) it does nothing, so casacore's TOPO equals
+  APP (as 9.8 found).
+- TOPO → HADEC (`applyTOPOtoHADEC`) does two things:
+  - "diurnal aberration": it adds the vector g₂ · u(LAST, LAT) to the
+    source's unit vector and renormalises. g₂ = 2π R / 86,400 s · (UT → ST
+    ratio) / c, about 1.5e-6 rad for MeasMath's RADIUS. u(LAST, LAT) is the
+    unit vector of the local zenith in the apparent equatorial frame, so
+    the shift is towards the zenith, by g₂ sin z. The physical diurnal
+    aberration is towards the east point.
+  - polar motion (`deapplyPolarMotion`): the rotation
+    Euler(−x″, axis 2; −y″, axis 1; LAST, axis 3), then the sign of the
+    second coordinate flipped to give the hour angle. x and y come from
+    IERSeop2000 (MEASURED).
+- HADEC → AZEL uses LAT, which 9.8's (e) showed is rang's geocentric
+  latitude.
+- Refraction is off: AZEL has none, and none is applied on this route.
+
+rang's `parallactic_angle_casa` uses astropy's TETE at the antenna's
+location. TETE includes the physical (eastward) diurnal aberration, and no
+polar motion.
+
+Hypothesis **H4:** the 3–7e-6 rad difference is casacore's TOPO → HADEC
+step: the zenith-ward "diurnal aberration" in place of the eastward one,
+plus polar motion.
+
+Probe (all float64):
+- Container side (`a1d_casa.py`):
+  - synthetic directions (a grid, not the fields) in APP at the data's
+    epochs and antenna positions, converted to HADEC, with LAST and TDB;
+  - for the data rows: x and y read from IERSeop2000 at each TIME (linear
+    in MJD, as MeasIERS interpolates), TDB and RADIUS (`me.measure` of the
+    position).
+- Rang side (`a1d_rang.py`): an emulation E of casacore's TOPO → HADEC in
+  numpy, from the code above.
+
+Controls:
+- **C7** (the emulation equals the container's casacore): E applied to
+  casacore's own APP place and LAST reproduces casacore's HADEC (h, δ)
+  within 1e-9 rad on the synthetic directions. E's conventions (matrix
+  order, signs) may be fixed until C7 is met, before the field rows are
+  read. Not met: void.
+- **C8:** E applied to casacore's APP place and LAST for the field rows
+  reproduces K (9.8) within 1e-8 rad through rang's formula. Not met: void.
+- **C5** as 9.7.
+
+Candidates for rang's angle, through rang's formula with geocentric φ,
+each against K (9.8):
+- (H4) astropy's geocentric apparent place (TETE without location, so no
+  diurnal aberration), then E (zenith shift and polar motion), LAST from
+  astropy;
+- (H4-L) the same, LAST from casacore;
+- reported beside: (H4-noPM) without polar motion; (H4-noD) without the
+  zenith shift.
+
+Tolerance: 2e-7 rad, max |q − K| over every row and antenna of both fields
+(as 9.7).
+
+Decision rule:
+- C7, C8 or C5 not met: void.
+- (H4) met: H4 is the cause. The beside rows say which of the two terms
+  carries it.
+- (H4) not met, (H4-L) met: H4 plus the 0.054″ sidereal time difference.
+- Neither met: H4 is not shown. The residual is reported.
+- **Fix:** as 9.7, only if (H4) or (H4-L) is met *and* the new angle meets
+  A1b's CASA probe within 2e-7 rad on both fields. Since 9.8 found casacore
+  itself 2.7e-7 from the probe, that second condition may fail. Then there
+  is no fix in this arm, and the owner decides whether rang should emulate
+  casacore at a tolerance written for it.
+
+Cost: seconds of CPU; 1 slot each side.
+
 ## For the coordinator
 
 **After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
