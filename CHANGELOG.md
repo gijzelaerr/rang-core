@@ -9,7 +9,7 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-- New (E2-B fix 5, `research/e2b-misses.md` 9.18): `gemclean -auto-mask` / `-abs-auto-mask` with
+- New (E2-B fix 5, `research/e2b-misses.md` 9.20): `gemclean -auto-mask` / `-abs-auto-mask` with
   `-join-polarizations` (and `image.auto_mask` with `image.join_polarizations`), as WSClean 3.7's
   radler: the noise and the peaks are those of the joined I + Q + U + V residual, and the mask is
   the union of every polarisation's model pixels. Masks on unjoined polarisations and `-fits-mask`

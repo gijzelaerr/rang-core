@@ -378,10 +378,10 @@ measure by measure:
 **Fix, then arm A5 (seen).**
 - Code (GeMClean, G4 follow-up): an automatic mask from Stokes I, applied to
   every joined polarisation, as WSClean does with `-join-polarizations`.
-  - **Correction, 2026-11-15 (9.18):** WSClean's mask is not from Stokes I.
+  - **Correction, 2026-11-15 (9.20):** WSClean's mask is not from Stokes I.
     Its noise and peaks come from the joined I + Q + U + V sum, and the
     mask is the union of every polarisation's model pixels. A5 is frozen
-    in 9.18.
+    in 9.20.
 - Then both arms at A0 rule 6: `-auto-mask 5`, threshold 3σ, matched weights,
   3 fields.
 - Hypothesis: compact median within 0.5 % and off-source ratios ≤ 1.6.
@@ -1413,7 +1413,11 @@ options for the owner:
 - accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
   documented convention difference between astropy and casacore.
 
-### 9.18 A5, joined-polarisation auto-mask, frozen 2026-11-15 (before any run)
+### 9.20 A5, joined-polarisation auto-mask, frozen 2026-11-15 (before any run)
+
+Numbered 9.18 in this branch's commits up to `c52ed26`. Renumbered on
+2026-11-15 because branches e2b-pcasa and e2b-close use 9.15–9.19. Only the
+number changed.
 
 Fix item 5 of the ordered list. **Seen**: gate 3c's matched scores (section
 4) and A4b's small-inversion finding (9.12) are known. The code was written
