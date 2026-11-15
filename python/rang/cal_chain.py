@@ -177,6 +177,7 @@ def _solve_one(ms, term, field_id, tables, common):
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
     if kind != "G":
         kwargs.pop("average_freq", None)  # task E2: G-type solves only
+        kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -216,6 +217,8 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["average_time"] = True
     if kind == "Gpol" and common.get("average_freq"):
         kwargs["average_freq"] = True  # task E2: G-type solves only
+    if kind == "Gpol" and common.get("casa_phase_weights"):
+        kwargs["casa_phase_weights"] = True  # task A3: calmode p only
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -451,6 +454,7 @@ def run(
     budget=None,
     average_time=False,
     average_freq=False,
+    casa_phase_weights=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -482,7 +486,10 @@ def run(
     steps are unchanged. `average_freq` (task E2, `calibrate.average_freq`):
     every G, F and Gpol solve is on its data and model averaged over the
     window's channels (`rang.cal_gain.frequency_averaged`, CASA's G-type
-    estimator); K, B, KCROSS, Xf and Df are unchanged. Returns `{"tables": {name: {...}}, "steps":
+    estimator); K, B, KCROSS, Xf and Df are unchanged.
+    `casa_phase_weights` (task A3, `calibrate.casa_phase_weights`, needs
+    `average_freq`): every calmode `p` G and Gpol solve uses CASA's
+    phase-only datum (`rang.cal_gain.gaincal`). Returns `{"tables": {name: {...}}, "steps":
     [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
@@ -498,6 +505,10 @@ def run(
         common["average_time"] = True
     if average_freq:
         common["average_freq"] = True
+    if casa_phase_weights:
+        if not average_freq:
+            raise ValueError("casa_phase_weights needs average_freq")
+        common["casa_phase_weights"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
