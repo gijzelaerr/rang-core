@@ -1495,7 +1495,7 @@ started; no E2-B image was made). This changes the data route only, not the
 data:
 - A5 makes no rename on the shared CASA copy. `a5_slim.py` reads it
   read-only, in either state of `a4_unit.py`, and writes a private copy,
-  `D:ang\outputs\gemclean-iquv-mask-20261115\e2b-slim.ms`, with:
+  `D:\rang\outputs\gemclean-iquv-mask-20261115\e2b-slim.ms`, with:
   - the row columns;
   - FLAG = rang's FLAG after apply;
   - RANG_CORRECTED_DATA;
