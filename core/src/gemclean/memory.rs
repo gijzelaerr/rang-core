@@ -7,17 +7,13 @@
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
-//! The counters are two relaxed atomics touched once per allocation. Under any
-//! other allocator (the Python extension, other platforms) nothing counts and
-//! [`mark`] and [`note`] do nothing. Heap bytes are what was asked for, not
+//! The counters are two relaxed atomics touched once per allocation. The
+//! binary counts on every platform (Linux through `HugePageAlloc`, elsewhere
+//! through [`crate::gemclean::host::CountingAlloc`]); under any other
+//! allocator (the Python extension) nothing counts and [`mark`] and [`note`]
+//! do nothing. Heap bytes are what was asked for, not
 //! resident pages: huge-page rounding, untouched pages and the program's own
 //! text are not in them, so the process's peak RSS is reported beside them.
-
-// The counters' writers are the allocator's, which exists on 64-bit Linux only.
-#![cfg_attr(
-    not(all(target_os = "linux", target_pointer_width = "64")),
-    allow(dead_code)
-)]
 
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
@@ -72,11 +68,83 @@ pub fn live() -> usize {
     LIVE.load(Relaxed)
 }
 
+#[cfg(target_os = "linux")]
 fn status_kb(key: &str) -> Option<u64> {
     let status = std::fs::read_to_string("/proc/self/status").ok()?;
     let line = status.lines().find(|l| l.starts_with(key))?;
     let kb: u64 = line.split_whitespace().nth(1)?.parse().ok()?;
     Some(kb * 1024)
+}
+
+/// The process's working set and private bytes, now and at their peaks
+/// (`GetProcessMemoryInfo`).
+#[cfg(windows)]
+#[derive(Clone, Copy, Debug, Default)]
+pub struct WindowsMemory {
+    pub working_set: u64,
+    pub peak_working_set: u64,
+    pub private: u64,
+    pub peak_private: u64,
+}
+
+#[cfg(windows)]
+pub fn windows_memory() -> Option<WindowsMemory> {
+    use std::ffi::c_void;
+    #[repr(C)]
+    #[derive(Default)]
+    struct Counters {
+        cb: u32,
+        page_fault_count: u32,
+        peak_working_set_size: usize,
+        working_set_size: usize,
+        quota_peak_paged_pool_usage: usize,
+        quota_paged_pool_usage: usize,
+        quota_peak_non_paged_pool_usage: usize,
+        quota_non_paged_pool_usage: usize,
+        pagefile_usage: usize,
+        peak_pagefile_usage: usize,
+    }
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetCurrentProcess() -> *mut c_void;
+        fn K32GetProcessMemoryInfo(process: *mut c_void, counters: *mut Counters, cb: u32) -> i32;
+    }
+    let mut c = Counters {
+        cb: std::mem::size_of::<Counters>() as u32,
+        ..Counters::default()
+    };
+    // SAFETY: a pseudo-handle of this process and a buffer of the size given.
+    let ok = unsafe { K32GetProcessMemoryInfo(GetCurrentProcess(), &mut c, c.cb) };
+    (ok != 0).then_some(WindowsMemory {
+        working_set: c.working_set_size as u64,
+        peak_working_set: c.peak_working_set_size as u64,
+        private: c.pagefile_usage as u64,
+        peak_private: c.peak_pagefile_usage as u64,
+    })
+}
+
+/// Resident bytes now, their peak so far, and swapped-out bytes (Linux
+/// `VmRSS`, `VmHWM`, `VmSwap`; Windows the working set and its peak, no swap).
+fn resident() -> (Option<u64>, Option<u64>, Option<u64>) {
+    #[cfg(target_os = "linux")]
+    {
+        (
+            status_kb("VmRSS:"),
+            status_kb("VmHWM:"),
+            status_kb("VmSwap:"),
+        )
+    }
+    #[cfg(windows)]
+    {
+        match windows_memory() {
+            Some(m) => (Some(m.working_set), Some(m.peak_working_set), None),
+            None => (None, None, None),
+        }
+    }
+    #[cfg(not(any(target_os = "linux", windows)))]
+    {
+        (None, None, None)
+    }
 }
 
 /// End the current phase under `label` and start the next.
@@ -86,13 +154,14 @@ pub fn mark(label: &str) {
     }
     let live = LIVE.load(Relaxed);
     let peak = PEAK.swap(live, Relaxed).max(live);
+    let (rss, hwm, swap) = resident();
     let phase = Phase {
         label: label.to_string(),
         live,
         peak,
-        rss: status_kb("VmRSS:"),
-        hwm: status_kb("VmHWM:"),
-        swap: status_kb("VmSwap:"),
+        rss,
+        hwm,
+        swap,
     };
     PHASES.lock().expect("no panic while recording").push(phase);
 }

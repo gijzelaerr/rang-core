@@ -390,13 +390,22 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
         weight_spectrum,
     };
     let selected = |start: u64, count: u64| row_mask(&main, sel, start, count);
+    // At most `chunk_rows` rows, and at most about 256 MB of complex cells
+    // per chunk: a chunk holds its cells several times over (the column's
+    // bytes, the decoded values, flags and weights), so 20,000 rows of 4,096
+    // channels and four correlations held 7 GB at once (research/gemclean-memory.md).
+    // Rows are independent, so the values do not depend on it.
+    let step = sel
+        .chunk_rows
+        .max(1)
+        .min(((1u64 << 28) / (nchan * ncorr).max(1) as u64 / 8).max(64));
     // Count the selected rows first, so that each array is allocated once at
     // its size: grown by doubling, the visibilities would pass through up to
     // three times their size.
     let mut rows = 0usize;
     let mut start = 0;
     while start < main.nrows {
-        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        let count = step.min(main.nrows - start);
         rows += selected(start, count)?.iter().filter(|&&k| k).count();
         start += count;
     }
@@ -406,7 +415,7 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     out.weight.reserve_exact(rows * nchan);
     let mut start = 0;
     while start < main.nrows {
-        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        let count = step.min(main.nrows - start);
         let keep = selected(start, count)?;
         if keep.iter().any(|&k| k) {
             let flag_row = bools(&read(&main, "FLAG_ROW", start, count)?, "FLAG_ROW")?;

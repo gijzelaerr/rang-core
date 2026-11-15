@@ -15,6 +15,14 @@ the release notes are the section of this file for that version.
   model per channel with weight `w|M|^2`, averaged in time and frequency, then normalised to unit
   amplitude with the weight times the amplitude squared (`rang.cal_gain.model_divided`, `phase_only`).
   `ap` solves and every other term are unchanged; off is byte-identical.
+- Changed (issue #32, `research/gemclean-memory.md`): `gemclean` with several polarisations
+  (`-pol IQUV -join-polarizations`, joined channels, masks) needs about half the memory, with
+  byte-identical images: polarisations are read and gridded one at a time, measurements keep only
+  their weighted visibilities, polarisations with the same rows and weights share one gridder plan,
+  and the clean keeps fewer image copies (the dirty images wait in a `<name>-dirty-<n>.spill` file
+  until they are written). On E2-B's J1833−2103 (IQUV, 8 joined channels, 2048², masked) the peak fell from 20.2 to
+  9.2 GiB. `-memory-report` now works on Windows, and the polarisation
+  path's `-report.json` has the `memory` section.
 - Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
   casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
   match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up

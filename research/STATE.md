@@ -47,6 +47,15 @@ E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.2
 - Met under the frozen rule (class B 0.1°). The simulation and LUNO had no
   power, so E2-B decided. The key is for the next unseen leg's
   configuration.
+GeMClean memory, issue #32, 2026-11-15 (branch `gemclean-memory`; [gemclean-memory.md](gemclean-memory.md)):
+- Joined IQUV, 8 channels, 2048², masked, on J1833−2103 (A5's argv): peak
+  9.20 GiB against 20.24 GiB, every FITS file byte-identical; WSClean 3.7
+  1.34 GiB (6.9 ×). Wall 398 s against 430 s.
+- Accounting first: per entry dense visibilities and weights, the gridder's
+  sorted copies, six `f64` image sets, all four polarisations' band at
+  read. Fixed by per-polarisation reading, compacted and shared gridder
+  plans, fewer image copies and bounded reader chunks.
+- Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB).
 
 E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
 - `gemclean -auto-mask` now works with `-join-polarizations`, as WSClean

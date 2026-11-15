@@ -86,6 +86,85 @@ struct State<'a> {
     buffers: [Vec<f64>; 2],
 }
 
+/// The models at the start of a major cycle, kept only at the pixels the
+/// cycle's components have touched (research/gemclean-memory.md): elsewhere
+/// the model has not changed, so `m_k − m_k,major` is `a − a = 0.0` there,
+/// the bits a zeroed image holds.
+struct Touched {
+    seen: Vec<bool>,
+    pixels: Vec<usize>,
+    /// `was[k][j]`: entry `k`'s model at `pixels[j]` when the cycle began.
+    was: Vec<Vec<f64>>,
+}
+
+impl Touched {
+    fn new(pixels: usize, entries: usize) -> Touched {
+        Touched {
+            seen: vec![false; pixels],
+            pixels: Vec::new(),
+            was: vec![Vec::new(); entries],
+        }
+    }
+
+    /// Before the first change of pixel `p` in this cycle.
+    fn note(&mut self, p: usize, models: &[Vec<f64>]) {
+        if !self.seen[p] {
+            self.seen[p] = true;
+            self.pixels.push(p);
+            for (was, m) in self.was.iter_mut().zip(models) {
+                was.push(m[p]);
+            }
+        }
+    }
+
+    /// `m_k − m_k,major` into `delta`.
+    fn delta_into(&self, k: usize, model: &[f64], delta: &mut [f64]) {
+        delta.par_iter_mut().for_each(|d| *d = 0.0);
+        for (&p, &w) in self.pixels.iter().zip(&self.was[k]) {
+            delta[p] = model[p] - w;
+        }
+    }
+}
+
+/// The dirty images of a run, kept in a file until the run ends
+/// (research/gemclean-memory.md): the raw `f64` bits, so they come back as
+/// they went.
+fn spill_write(path: &std::path::Path, images: &[Vec<f64>]) -> Result<(), String> {
+    use std::io::Write;
+    let file = std::fs::File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut out = std::io::BufWriter::with_capacity(1 << 22, file);
+    for img in images {
+        for chunk in img.chunks(1 << 16) {
+            let bytes: Vec<u8> = chunk.iter().flat_map(|v| v.to_le_bytes()).collect();
+            out.write_all(&bytes)
+                .map_err(|e| format!("{}: {e}", path.display()))?;
+        }
+    }
+    out.flush().map_err(|e| format!("{}: {e}", path.display()))
+}
+
+fn spill_read(path: &std::path::Path, count: usize, len: usize) -> Result<Vec<Vec<f64>>, String> {
+    use std::io::Read;
+    let file = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut input = std::io::BufReader::with_capacity(1 << 22, file);
+    let mut images = Vec::with_capacity(count);
+    let mut bytes = vec![0u8; 8 * len];
+    for _ in 0..count {
+        input
+            .read_exact(&mut bytes)
+            .map_err(|e| format!("{}: {e}", path.display()))?;
+        images.push(
+            bytes
+                .chunks_exact(8)
+                .map(|b| f64::from_le_bytes(b.try_into().expect("8 bytes")))
+                .collect(),
+        );
+    }
+    drop(input);
+    std::fs::remove_file(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(images)
+}
+
 impl State<'_> {
     /// Every channel's map made exact, `r̃_k = r_k − B_k (m_k − m_k,major)`,
     /// then the integrated map from them.
@@ -96,18 +175,14 @@ impl State<'_> {
         maps: &mut [Vec<f64>],
         since: &mut [Since],
         models: &[Vec<f64>],
-        models_major: &[Vec<f64>],
+        touched: &Touched,
         residuals: &[Vec<f64>],
     ) {
         let [delta, conv] = &mut self.buffers;
         for k in 0..maps.len() {
             delta.resize(models[k].len(), 0.0);
             conv.resize(models[k].len(), 0.0);
-            delta
-                .par_iter_mut()
-                .zip(&models[k])
-                .zip(&models_major[k])
-                .for_each(|((d, a), b)| *d = a - b);
+            touched.delta_into(k, &models[k], delta);
             self.beams[k].convolver.apply_into(delta, conv);
             maps[k]
                 .par_iter_mut()
@@ -179,6 +254,23 @@ pub fn run_joined_masked<M: Measurement>(
     settings: &Settings,
     masking: Option<&super::mask::Masking>,
 ) -> Result<Joined, String> {
+    run_joined_spilling(entries, npol, weights, norm, fit, settings, masking, None)
+}
+
+/// [`run_joined_masked`] with the dirty images kept in the file `spill`
+/// (removed afterwards) while the run lasts, not in memory
+/// (research/gemclean-memory.md). The outcome is the same, bit for bit.
+#[allow(clippy::too_many_arguments)]
+pub fn run_joined_spilling<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: Option<&std::path::Path>,
+) -> Result<Joined, String> {
     use super::mask;
     let channels = entries;
     if npol == 0 || entries.len() != weights.len() * npol {
@@ -233,7 +325,13 @@ pub fn run_joined_masked<M: Measurement>(
         qs.push(q);
     }
     timings.initial = t.elapsed().as_secs_f64();
-    let dirty = residuals.clone();
+    let dirty = match spill {
+        Some(path) => {
+            spill_write(path, &residuals)?;
+            Vec::new()
+        }
+        None => residuals.clone(),
+    };
     let mut residual_int = integrate(&residuals, &a);
     let dirty_int = residual_int.clone();
     let weighted = |q: &[f64]| q.iter().zip(&a).map(|(q, a)| a * q).sum::<f64>();
@@ -299,7 +397,7 @@ pub fn run_joined_masked<M: Measurement>(
             break StopReason::MajorCycles;
         }
         let mut ct = Timings::default();
-        let models_major = models.clone();
+        let mut touched = Touched::new(n * n, kc);
         let mut work = Working::new(residual_int.clone(), n, level, s.tile, s.lazy_bounds);
         if stage_mask.is_some() {
             work.set_mask(stage_mask.as_deref());
@@ -323,12 +421,7 @@ pub fn run_joined_masked<M: Measurement>(
             () => {{
                 let tr = Instant::now();
                 st.resync(
-                    &mut work,
-                    &mut maps,
-                    &mut since,
-                    &models,
-                    &models_major,
-                    &residuals,
+                    &mut work, &mut maps, &mut since, &models, &touched, &residuals,
                 );
                 ct.resync += tr.elapsed().as_secs_f64();
             }};
@@ -413,6 +506,7 @@ pub fn run_joined_masked<M: Measurement>(
                         }
                     }
                 }
+                touched.note(p, &models);
                 for k in 0..kc {
                     let (beam, c) = (channels[k].1, values[k]);
                     abs_flux += a[k] * c.abs();
@@ -483,16 +577,20 @@ pub fn run_joined_masked<M: Measurement>(
         }
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
         work_all.add(&work.work);
+        // The working maps and the major-cycle models are rebuilt by the next
+        // cycle; free them before the major cycle, and replace each residual
+        // in place (research/gemclean-memory.md).
+        drop(maps);
+        drop(touched);
         memory::mark(&format!("cycle {}: minor", cycles.len() + 1));
         let tm = Instant::now();
-        let mut next = Vec::with_capacity(kc);
         for (k, (m, _)) in channels.iter().enumerate() {
             let (r, qk) = m.residual(&models[k])?;
-            next.push(r);
+            residuals[k] = r;
             qs[k] = qk;
         }
         ct.major = tm.elapsed().as_secs_f64();
-        let next_int = integrate(&next, &a);
+        let next_int = integrate(&residuals, &a);
         let q_next = weighted(&qs);
         let stale_linf = next_int
             .par_iter()
@@ -542,11 +640,14 @@ pub fn run_joined_masked<M: Measurement>(
                 fraction = (fraction * 2.0).min(s.major_fraction);
             }
         }
-        residuals = next;
         residual_int = next_int;
         q = q_next;
     };
     timings.total = start.elapsed().as_secs_f64();
+    let dirty = match spill {
+        Some(path) => spill_read(path, kc, n * n)?,
+        None => dirty,
+    };
     let model_int = integrate(&models, &a);
     let f = channels.iter().map(|c| c.1.f).fold(0.0, f64::max);
     Ok(Joined {
