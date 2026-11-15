@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed (WSClean #208, fixed upstream by !1068, commit `ca23d835`, not yet in a release; v3.7 still has
+  the old rule): `gemclean`'s theoretic beam (the start and box of the restoring-beam fit, the circular
+  beam when the fit fails, the default multiscale scales, `theoretic_beam_rad` in `-report.json`) now
+  keeps only visibilities whose `v`, as well as `u`, falls inside the grid; it tested `u` on both axes,
+  as WSClean 3.5-3.7 do. Only coverage the grid cuts in `v` but not in `u` changes; every archived G2-G9
+  case is bit-identical (`research/u5-upstream.md`). The core gridder's `w_limits` (WSClean 3.6 port)
+  still tests `u`.
 - New (E2-B arm A3, `research/e2b-misses.md` 9.26-9.27): `calibrate.casa_phase_weights` (default false, out of
   the stage hash at its default; needs `calibrate.average_freq`). Calmode `p` solves (Gpol, and G with
   calmode p) use CASA's phase-only datum, read from CASA's source: the pre-applied data divided by the

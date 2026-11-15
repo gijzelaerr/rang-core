@@ -90,6 +90,16 @@ Ubuntu casacore-data 20250826 now triggers "TAI_UTC seems out-of-date" in CASA.
 
 - **WSClean #207** (`-join-polarizations`, linear against squared): André Offringa updated the docs (wsclean !1070, open). He also opened [radler !238](https://git.astron.nl/RD/radler/-/merge_requests/238) (open), which makes GenericClean's peak finding use linear integration everywhere when squared joining is off. Multiscale and the subminor loop already did. This confirms the linear rule that G9 copied from the binary. When the next WSClean/Radler release lands, rerun G9's oracle cases. The non-subminor Högbom path is the one that changes.
 - **WSClean #208** (`CalculateMsLimits` tests v with u): confirmed as a genuine bug; fix in wsclean !1068 (open). rang copied the bug on purpose, because the binary is the oracle: `core/src/grid.rs` `w_limits` and `core/src/gemclean/multiscale.rs` `theoretic_beam` both test v with u. When a WSClean release carries !1068, switch both to v and rerun G2's and G7's oracle cases against that release.
+  - *2026-11-16 (post hoc):* !1068 merged 2026-11-13 (commit `ca23d835`, unreleased; v3.7 is still the
+    latest tag and every oracle container is `rang-wsclean-native:3.7`, 3.6 for the core gridder). On the
+    coordinator's instruction `theoretic_beam` now tests v (branch `gemclean-beam-uv`) ahead of the
+    release; `grid.rs` `w_limits` still tests u (it is the core gridder's 3.6 port, checked by
+    `criterion_2_w_limits`). Effect on the archived cases: none. On S1-S3, H1-H4, D2, M1, the G9 probe
+    and cal/cal2/cal3 at their oracle size and scale, no weighted sample has `u` inside the grid and
+    `v` outside, so every theoretic beam (and each channel's) is bit-identical
+    ([probe](results/gemclean-beam-uv/probe.jsonl), [script](results/gemclean-beam-uv/beam_probe.py),
+    69 s). E2-A (4096 x 3", 43,247 wavelengths, so the grid does cut there) was not probed: its
+    Measurement Set is in use by the E2-A post chain.
 - **WSClean #209** (`-save-source-list` help): closed. The author holds that the error message on an invalid combination is enough. No action.
 - **AOFlagger #44-46:** no reply yet.
 
