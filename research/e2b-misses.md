@@ -1409,7 +1409,174 @@ options for the owner:
 - accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
   documented convention difference between astropy and casacore.
 
+### 9.15 P1, casacore's angle in `parallactic_angle_casa`, frozen 2026-11-15 (before the code)
+
+Owner's decision, through the coordinator: the function exists to match
+CASA, so it emulates casacore in full. Branch `e2b-pcasa`. **Seen**: 9.8
+and 9.14 are known. This is a change of convention, chosen to match the
+oracle; it claims no scientific gain.
+
+Change (implemented after this note is committed):
+- `cal_pol.parallactic_angle_casa(times, ra, dec, itrf_xyz)` computes
+  casacore's AZEL parallactic angle (`MSDerivedValues::parAngle`) from
+  astropy and erfa:
+  1. the geocentric apparent place, astropy TETE without location
+     (light deflection and annual aberration), taken from IAU 2006/2000A
+     to casacore's IAU 1976/1980 equator and equinox of date by
+     `pnm80 · pnm06aᵀ` (erfa; the input numbers are kept, as casacore
+     reads J2000);
+  2. casacore's apparent sidereal time, erfa `gst94` (UT1 from astropy's
+     IERS) plus the ITRF longitude;
+  3. casacore's TOPO → HADEC step, as emulated in 9.14 (C7):
+     - the zenith shift g₂ · u(LAST, φ) with R = |ITRF position|;
+     - polar motion with x, y from astropy's IERS table;
+  4. rang's formula with the geocentric latitude φ.
+- The previous function stays as `parallactic_angle_tete`, the TETE form
+  that `simtruth`'s frozen CASA-frame truth uses. Its test compares simtruth
+  with that function, so the archived truths and their tests are
+  unchanged.
+- The angle is computed in Python; the Rust kernel (`cal/parang.rs`) only
+  rotates, so there is no Rust or GPU path to change.
+
+Fixture and unit test:
+- `tests/data/pa_casacore.json`: casacore's K (`me.posangle` in AZEL,
+  CASA 6.7.6.14's casatools) at synthetic cases, generated in the
+  container by a committed script:
+  - 4 epochs from 2019 to 2024;
+  - 3 MeerKAT antenna positions;
+  - 12 directions with Dec from −85° to +40°.
+  None of them is a field row.
+- Test: the new function is within 2e-7 rad of K on every case.
+- Development uses the fixture only.
+
+Measurement (held out: the field rows, read once after the code and test
+pass):
+- **P1-a:** the new angle against K (9.8) on the 82 values per field of
+  A1's mini MS. Tolerance **2e-7 rad**, max over both fields.
+- **P1-b**, reported: the new angle against A1b's CASA applycal probe (9.8
+  found casacore itself 2.7e-7 from it).
+- **P1-c**, gate 2b re-score as the consequence: A1's `a1_rang.py rang` and
+  `compare` rerun with the new code on the mini MS against A1's archived
+  CASA outputs.
+  - Reported: the 42 cells' maximum eps with P, against the 13.4 and 25.6
+    eps of 9.3; the correlations over 11 eps; the median over all cells of
+    the 41 rows.
+  - Class C (11 eps) on the 42 cells is the reading; the frozen 2b record
+    is not changed.
+  - A1's C3 will now differ by design (P changed), and is reported as
+    such.
+  - The full-MS 2b re-score (a fresh CASA applycal on a 218 GB copy) is
+    not run in this arm.
+
+Decision rule:
+- The unit test fails at 2e-7: the implementation is wrong. Fix it on the
+  fixture before measuring; the held-out rows are not read until then.
+- P1-a met: adopt. `frame='casa'` gives casacore's angle; STATE and the
+  CLI docs are updated.
+- P1-a not met: not adopted. Revert to the TETE form, and report the
+  residual.
+
+Cost: seconds of CPU per run; 1 slot.
+
+### 9.16 P1 measured, 2026-11-15: met, adopted
+
+Implemented in `720c8de` (`cal_pol.parallactic_angle_casa`;
+`parallactic_angle_tete` keeps the earlier form). The fixture comes from
+`p1_fixture_casa.py`: 432 cases, elevations −83° to +76°.
+
+Unit test, on the fixture only and before the held-out rows were read:
+- the new angle is within **3.6e-8 rad** of casacore (p99 2.4e-8, median
+  8e-9);
+- the old TETE form was within 4.5e-5 (median 1.2e-6).
+- Test `test_casa_frame_angle_matches_casacore`, bound 2e-7.
+
+Held out (`p1_measure.py`, 2 s; receipts
+[results/e2b-misses/p1/](results/e2b-misses/p1/)):
+
+| | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| **P1-a** new − K, max | **1.3e-8 rad** | **4.3e-9 rad** |
+| old − K, max (9.8) | 7.0e-6 | 3.2e-6 |
+| P1-b new − CASA probe, max | 2.4e-7 | 2.7e-7 |
+| K − CASA probe, max (9.8) | 2.3e-7 | 2.7e-7 |
+
+**Outcome under the frozen rule: P1-a met (1.3e-8 ≤ 2e-7). Adopted.**
+`frame='casa'` now gives casacore's angle. Against CASA's probe the new
+angle is as close as casacore itself. The remaining 2.4–2.7e-7 is
+between casacore's measures and what applycal applies (9.8, K1), and it
+is still open.
+
+**P1-c, gate 2b re-scored on A1's mini MS** (`a1_rang.py rang` and
+`compare`, 6 s, 1 slot; against A1's archived CASA outputs; receipt
+`p1/a1-rescore.json`):
+
+| Cumulative set | Field 1: 42 cells max eps / over 11 | Field 2: 42 cells max eps / over 11 | All cells of the 41 rows: max eps / median |
+| --- | --- | --- | --- |
+| through Xf (unchanged) | 5.26 / 0 | 3.73 / 0 | 5.39, 4.79 / 0.11, 0.10 |
+| + P, before (9.3) | 13.37 / 43 | 25.58 / 28 | 13.37, 25.58 / 1.95, 1.35 |
+| **+ P, now** | **4.81 / 0** | **4.09 / 0** | **4.91, 4.77 / 1.07, 0.75** |
+
+- On the cells that failed, gate 2b's CASA applycal comparison now meets
+  class C (11 eps), with a maximum of 4.8 eps. No cell of the 41 rows is
+  over 11.
+- A1's rule reads the run as "void" only because C3 now differs, by
+  design: rang's apply no longer equals the frozen RANG_CORRECTED_DATA,
+  since P changed. Flags are equal.
+- The frozen 2b record is not changed.
+- A full-MS 2b re-score (a fresh CASA applycal on a 218 GB copy) was not
+  run.
+- The medians with P (1.07 and 0.75 eps against 0.1 before P) are the
+  2.4–2.7e-7 rad that casacore's measures and applycal still differ by.
+
+### 9.17 Gate 3c dirty with WSClean `-no-small-inversion`, all fields (seen, post hoc reading), 2026-11-15
+
+Asked by the coordinator after 9.12. This is a **seen, post hoc reading**,
+not a gate change. WSClean is rerun as 9.9's oracle plus
+`-no-small-inversion`, at gate 3c's frozen ε (1e-4), on the three fields
+(`a4_run.sh wsclean-nosi`, unit on/off as before). Each run is compared
+with gate 3c's archived GeMClean dirty images
+(`R\rang-run-moved\image\<field>`, which 9.10's C6 reproduced bit for bit)
+by gate 3c's measure (full image, 5 % border, inner two-thirds), read
+against A0's 1e-6.
+
+Measured 2026-11-15 (`a4c_queue.sh`; WSClean 471, 2,030 and 2,485 s at
+4 slots, almost all of it 9p I/O; unit on/off, the column list
+restored; receipt `a4/g3c-nosi.json`):
+
+| Field | Full image | 5 % border excluded | Inner two-thirds | Gate 3c as matched (9.10's ε 1e-4 row) |
+| --- | --- | --- | --- | --- |
+| J1331+3030 | 2.2e-5 | 2.2e-5 | 2.2e-5 | 3.5e-3 |
+| J1939−6342 | 2.2e-5 | 2.2e-5 | 2.2e-5 | 1.2e-3 |
+| J1833−2103 | 2.0e-6 | 2.0e-6 | 2.0e-6 | 2.9e-3 |
+
+Reading (seen, post hoc):
+- Without small inversion the edge excess is gone. The maximum is the same
+  over the full image, the 5 % border and the inner two-thirds.
+- At the protocol's ε 1e-4 the dirty difference is 2.0e-6 to 2.2e-5, which
+  is the gridders' ε 1e-4 error. It is still above A0's 1e-6, whose bound
+  was measured at finer ε.
+- 9.12 gives 8.1e-8 on J1833−2103 at ε 1e-6 with the same oracle setting.
+- So gate 3c's dirty measure would read as met only with both
+  `-no-small-inversion` and a finer ε (1e-6). That is shown on one field;
+  at 1e-4 it is not met.
+- Owner: whether 3c's dirty comparison is re-read at ε 1e-6 with
+  `-no-small-inversion` on all three fields. That costs 3 WSClean and 3
+  GeMClean runs; book the dirty-only WSClean runs at 1–2 slots on an ext4
+  copy, as the coordinator noted.
+- The FITS images were deleted after scoring.
+
 ## For the coordinator
+
+**After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
+- **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now
+  emulates casacore. It is 1.3e-8 rad from casacore on the held-out field
+  rows, and 3.6e-8 on the 432-case fixture.
+  - Gate 2b on A1's mini MS: 4.8 eps at most on the 42 cells (class C
+    11), against 25.6.
+  - Open: the full-MS 2b re-score, and casacore-to-applycal's 2.7e-7.
+- **3c dirty with `-no-small-inversion` at ε 1e-4 (9.17, seen):** 2.2e-5,
+  2.2e-5 and 2.0e-6. The edge excess is gone; the rest is ε 1e-4. Meeting
+  1e-6 needs ε 1e-6 as well (9.12).
 
 **After A4b and A1d (2026-11-15, branch `e2b-pastro`):**
 - **A4b (9.11, 9.12): met.** Gate 3c's dirty difference is WSClean's small

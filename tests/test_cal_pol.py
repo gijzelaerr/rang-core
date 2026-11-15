@@ -32,10 +32,30 @@ def test_casa_frame_angle_is_the_truths():
     want = simtruth.parallactic_angle_casa(d, times[sel], fields[sel])
     _, ra, dec, _, _ = simtruth.FIELDS[1]
     for a in (0, 5):
-        got = cal_pol.parallactic_angle_casa(
+        got = cal_pol.parallactic_angle_tete(
             times[sel], math.radians(ra), math.radians(dec), xyz[d.antennas[a]]
         )
         assert np.max(np.abs(got - want[:, a])) < 1e-12
+
+
+def test_casa_frame_angle_matches_casacore():
+    """casacore's own angle (me.posangle in AZEL, CASA 6.7.6.14) at 432
+    synthetic cases: 3 antennas, 12 epochs from 2019 to 2024, 12 directions
+    (research/e2b-misses.md 9.15); frozen tolerance 2e-7 rad."""
+    pytest.importorskip("astropy")
+    import json
+
+    path = Path(__file__).parent / "data" / "pa_casacore.json"
+    cases = json.loads(path.read_text())["cases"]
+    worst = 0.0
+    for c in cases:
+        got = cal_pol.parallactic_angle_casa(
+            [c["time_mjd_s"]], c["ra_rad"], c["dec_rad"], c["itrf_m"]
+        )[0]
+        d = (got - c["casacore_pa_rad"] + math.pi) % (2 * math.pi) - math.pi
+        worst = max(worst, abs(d))
+    assert len(cases) == 432
+    assert worst <= 2e-7
 
 
 def _loaded(data, model, a1, a2, tb, freq, nant, weights=None, flag=None):

@@ -6,7 +6,7 @@
 set -u
 R=/mnt/d/rang/outputs/e2-20261111-20-e2b
 P=/mnt/d/rang/outputs/e2b-pastro-20261114
-S=/mnt/c/Users/gijsm/Worktrees/rang/e2b-pastro/research/results/e2b-misses
+S=$(cd "$(dirname "$0")" && pwd)
 mkdir -p "$P/a4/wsclean" "$P/a4/scripts"
 cp "$S/a4_unit.py" "$P/a4/scripts/"
 dk() {  # image, threads, command
