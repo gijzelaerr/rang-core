@@ -1193,6 +1193,43 @@ matched) at ε 1e-6 on J1833−2103, the cheapest field (about 8 min of
 WSClean). GeMClean's images from this arm are reusable. The decision rule
 and tolerance (1e-6) need freezing before the run.
 
+### 9.11 A4b, WSClean's small inversion, frozen 2026-11-15 (before any run)
+
+Asked by the coordinator after 9.10. **Seen**: A4's edge profile is known.
+
+Padding is already matched. GeMClean's `-padding` defaults to 1.2, as
+WSClean's does (`core/src/grid.rs`), and gate 3c passed neither. So the arm
+tests only the small inversion.
+
+Hypothesis: the edge difference is WSClean's small-inversion optimisation.
+WSClean grids at 1152² for J1833−2103 and interpolates the image up to
+2048², where GeMClean grids at the full padded size. With
+`-no-small-inversion`, WSClean's dirty images match GeMClean's within 1e-6
+of the peak over the full image.
+
+Data and settings: as 9.9, J1833−2103 (field 2) at ε 1e-6, WSClean only,
+plus `-no-small-inversion`. The run reads the CASA copy in the matched
+state (`a4_run.sh unit on`, then `off`; the column list is checked).
+GeMClean's side is A4's `rang/J1833m2103-eps1e-06` images, unchanged.
+
+Measures: as 9.9 (`a4_score.py`'s `linf`), giving F_nosi (this run) and
+F_si = 2.894e-3 (9.10, same ε). Reported beside: the 5 % border and inner
+two-thirds values, and WSClean with against without small inversion.
+
+Frozen tolerance: 1e-6.
+
+Decision rule:
+- F_nosi ≤ 1e-6: the edge difference is WSClean's small inversion. Gate 3c's
+  dirty comparison needs `-no-small-inversion` in the oracle; the owner
+  decides whether that changes the gate's reading.
+- F_nosi ≤ 0.1 × F_si, but above 1e-6: small inversion carries most of the
+  edge excess; the rest is reported, not attributed.
+- F_nosi > 0.1 × F_si: small inversion is not the cause; the edge
+  difference stays open (gridding-correction taper is the next candidate).
+- The inner two-thirds is reported, not decided on.
+
+Cost: one WSClean run, about 10–40 min at 4 slots.
+
 ## For the coordinator
 
 **After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
