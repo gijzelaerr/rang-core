@@ -20,6 +20,18 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
+implemented, not run; written during the rerun, before any E2-A output):
+- `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for
+  WSClean's reorder files), `qc-avg`, `qc-selfcal`, `unit-on-a`, `wsclean3c-a-dirty`/`-clean` (Stokes I,
+  the image stage's argv; no `-no-small-inversion`, as frozen), `unit-off-a`; launcher `e2a_post.sh`
+  (bookings per step, each inside `e2_diskguard.py`).
+- Self-calibration oracle: QuartiCal unaveraged needs 72 GB per interval (WSL 44), so "not checked
+  (memory)" as frozen; amended form, labelled, for the coordinator to accept: QuartiCal on rang's
+  time-averaged inputs (independent averaging, small ext4 MS), C5's class B.
+- Found: WSClean 3.7 has no `-average-channels`, so 3c compares 4,096-channel WSClean with 512-channel
+  GeMClean (smearing expected at the edge); snapshot-inplace read FLAG whole (69 GB), now in blocks.
+
 E2-A rerun prepared, 2026-11-15 (branch `e2a-rerun`; [e2-acceptance.md](e2-acceptance.md) 9.5-9.8):
 - Amendment 9.5 (committed before any step): selfcal images at A0 rule 6 (mask 5σ, clean to 3σ) in
   `e2a-rerun.yaml`; the frozen 0.5σ multiscale depth hit `niter` 1e6 in 30,615 s. Overrides item 29's

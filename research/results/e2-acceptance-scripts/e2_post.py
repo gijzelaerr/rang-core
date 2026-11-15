@@ -28,7 +28,25 @@ R is the leg's result directory (D:\\...). Steps, in order:
 
 E2-A runs the in-place order instead (`ORDER_INPLACE`, research/e2-acceptance.md
 9.9): no `copy`; `prep-inplace`, `applycal-inplace`, `compare-inplace` and
-`snapshot-inplace` act on the leg's MS itself, then `restore` and `tricolour`.
+`snapshot-inplace` act on the leg's MS itself, then (9.10) E2-A's own reads of
+rang's columns, then `restore` and `tricolour`:
+
+    drop-corrected-inplace  CASA's CORRECTED_DATA dropped after 2b (-128 GiB)
+    qc-avg            native: CORRECTED_1GC and each round's model averaged in
+                      time within selfcal's intervals (unit weights, FLAG after
+                      apply and each round's own flags)  -> R/qc-selfcal/
+    qc-selfcal        QuartiCal 0.2.7 on an ext4 MS of those averages, per
+                      round; class B against rang's stores -> R/qc-selfcal.json
+    unit-on-a         gate 3c's matched state (E2-B's UNIT_PY) on the MS
+    wsclean3c-a-dirty WSClean 3.7 dirty image of RANG_CORRECTED_DATA (Stokes I,
+                      the image stage's argv)       -> R/wsclean3c-a/
+    wsclean3c-a-clean the same, cleaned as the image stage
+    score3c-a         gate 3c's primary reading (e2_score3c_a.py) -> R/g3c-a.json
+    wsclean3c-a-nosi-dirty, score3c-a-nosi
+                      optional (the launcher's NOSI=0 skips them): after the
+                      primary is scored, one -no-small-inversion dirty run and
+                      its dirty-only reading, seen -> R/g3c-a-nosi.json
+    unit-off-a        the matched state undone (restore refuses while it is on)
 
 `restore` takes INPUT.json (e2_flaghash.py of the MS as converted);
 `tricolour` takes INPUT.json and the strategy file. Every step runs under
@@ -36,6 +54,7 @@ the main checkout's tools/heavy_lock.py (the caller wraps it).
 """
 
 import hashlib
+import importlib.util
 import json
 import shutil
 import subprocess
@@ -77,11 +96,16 @@ def write(path, payload):
 def docker(r, image, mounts, script, label, threads=8):
     """One network-less container; `script` is a file path inside it or a
     shell command. Output to R/<label>.out."""
-    vols = []
+    vols, made = [], []
     for host, inside in mounts:
-        vols += ["-v", f"'{wsl(host)}:{inside}:rw'"]
+        if isinstance(host, str) and host.startswith("$HOME/"):  # WSL ext4, not /mnt
+            # unquoted: bash expands $HOME, and no double quote crosses wsl.exe
+            vols += ["-v", f"{host}:{inside}:rw"]
+            made += ["mkdir", "-p", host, "&&"]
+        else:
+            vols += ["-v", f"'{wsl(host)}:{inside}:rw'"]
     inner = " ".join(
-        ["docker", "run", "--rm", "--network", "none", "--user", "$(id -u):$(id -g)",
+        [*made, "docker", "run", "--rm", "--network", "none", "--user", "$(id -u):$(id -g)",
          "--tmpfs", "/tmp", "-e", "HOME=/tmp", "-e", f"OMP_NUM_THREADS={threads}",
          *vols, "-w", "/tmp", image, "sh", "-c", f"'{script}'"]
     )  # fmt: skip
@@ -519,6 +543,9 @@ json.dump({"renamed": done, "flag_from": version, "rows": n,
 # columns-before.json dropped, RANG_* included) and `tricolour`.
 ORDER_INPLACE = ["gate1", "archive", "wcs", "casacore", "casa-ro", "wsclean0", "daskms",
                  "prep-inplace", "applycal-inplace", "compare-inplace", "snapshot-inplace",
+                 "drop-corrected-inplace", "qc-avg", "qc-selfcal",
+                 "unit-on-a", "wsclean3c-a-dirty", "wsclean3c-a-clean", "score3c-a",
+                 "wsclean3c-a-nosi-dirty", "score3c-a-nosi", "unit-off-a",
                  "restore", "tricolour"]  # fmt: skip
 
 
@@ -750,8 +777,15 @@ import numpy as np
 from casacore.tables import table
 t = table(sys.argv[1], ack=False)
 cols = {c: t.getcol(c) for c in ("ANTENNA1", "ANTENNA2", "FIELD_ID", "SCAN_NUMBER", "TIME")}
+n = t.nrows()
 for c in ("FLAG", "RANG_FLAG"):
-    cols[c] = np.packbits(t.getcol(c), axis=-1)  # 4 correlations packed, MSB first
+    # 4 correlations packed, MSB first; read in blocks (E2-A: a whole FLAG is 69 GB)
+    first = np.packbits(t.getcol(c, 0, 1), axis=-1)
+    out = np.empty((n, *first.shape[1:]), np.uint8)
+    for r0 in range(0, n, 4000):
+        k = min(4000, n - r0)
+        out[r0 : r0 + k] = np.packbits(t.getcol(c, r0, k), axis=-1)
+    cols[c] = out
 np.savez(sys.argv[2], **cols)
 print({k: v.shape for k, v in cols.items()})
 """
@@ -766,6 +800,667 @@ def snapshot(ms, r, mounts=None):
     return docker(r, FORMATS_IMAGE, mounts or prep_mounts(r),
                   f"{QC_PY} -I /p/e2p_snap.py /c/{ms.name} "
                   "/p/df-flag-snapshot/flags-after-applycal.npz", "snapshot")  # fmt: skip
+
+
+# --- E2-A's reads of rang's columns after gate 2b (research/e2-acceptance.md 9.10) ----
+#
+# 9.9 left two reads to write: gate 3c's WSClean images and the self-calibration
+# row's QuartiCal gains. Both run after compare-inplace and snapshot-inplace and
+# read the renamed columns: RANG_CORRECTED_DATA is rang's apply output
+# (CORRECTED_1GC), RANG_MODEL_DATA selfcal's last model, and FLAG after rang's
+# apply is the flag version selfcal saved (RANG_FLAG holds the same).
+
+DROP_ONE_PY = r"""
+import json, sys
+from casacore.tables import table
+ms, out = sys.argv[1:3]
+t = table(ms, readonly=False, ack=False)
+cols = t.colnames()
+assert "RANG_CORRECTED_DATA" in cols and "CORRECTED_DATA" in cols, cols
+t.removecols(["CORRECTED_DATA"])
+json.dump({"dropped": ["CORRECTED_DATA"], "columns": t.colnames()}, open(out, "w"), indent=1)
+t.close()
+"""
+
+
+def free_gib(path):
+    return shutil.disk_usage(Path(path).resolve().anchor).free / 2**30
+
+
+def drop_corrected_inplace(ms, r):
+    """CASA's CORRECTED_DATA (gate 2b's applycal output; compare and snapshot
+    have read it) dropped, which returns the 128 GiB that WSClean's reordered
+    files need (9.10). `restore` would drop it in any case."""
+    ms, r = Path(ms), Path(r)
+    snap = r / "df-flag-snapshot" / "flags-after-applycal.npz"
+    g = r / "g2b-applycal.json"
+    if not g.is_file() or not snap.is_file():
+        raise SystemExit(
+            "compare-inplace and snapshot-inplace have not run: CORRECTED_DATA kept"
+        )
+    # compare writes its record even when its container failed; a second 2b
+    # reading after the drop would need CASA to write a new 128 GiB column (9.20)
+    got = json.loads(g.read_text(encoding="utf-8"))
+    if got.get("compare_exit") != 0 or not got.get("compared_cells") or got.get("applycal_errors"):
+        raise SystemExit(f"2b's compare did not complete ({g}): CORRECTED_DATA kept")
+    before = free_gib(ms)
+    (r / "e2p_drop_one.py").write_text(DROP_ONE_PY, encoding="utf-8")
+    rc = docker(r, FORMATS_IMAGE, inplace_mounts(ms, r),
+                f"{QC_PY} -I /p/e2p_drop_one.py /c/{ms.name} /p/drop-corrected.json",
+                "drop-corrected", 1)  # fmt: skip
+    write(r / "drop-corrected-run.json",
+          {"exit": rc, "free_gib_before": before, "free_gib_after": free_gib(ms)})  # fmt: skip
+    return rc
+
+
+# --- the self-calibration row: QuartiCal 0.2.7 on rang's averaged inputs -----------
+#
+# The frozen row (6.5) says "unaveraged (stated)". At selfcal's solint (120
+# integrations) one QuartiCal chunk of E2-A's target holds 120 x 1,830
+# baselines x 4,096 channels x 4 correlations: 28.8 GB of complex64 data and
+# as much model, beyond WSL's 44 GB, so that form cannot run here (6.5's rule:
+# the reason is recorded, `unaveraged_form` in qc-selfcal.json). 9.10's form:
+# the averages rang's `selfcal.average_time` solves (CASA's estimator,
+# cal_chunks.load_averaged) are recomputed here without rang's averaging code,
+# written to a small MS on WSL ext4, and QuartiCal solves one interval per
+# averaged time.
+
+QC_B = {"median": 7e-4, "p95": 3e-3}  # C5's G2 (C2a's class B), products, gauge-free
+QC_SUB = 2048  # rows read per block
+QC_EXT4 = "$HOME/e2a-qc"  # the small MSs (about 3 GiB each), deleted after each round
+WSL_MEMORY_GB = 44  # ~/.wslconfig, 2026-11-13
+QUARTICAL_TYPES = {"Sp": "phase", "Sa": "diag_complex"}  # cal_selfcal.QUARTICAL
+
+
+def solint_n(solint):
+    """N integrations of a selfcal `solint` (an int; 'int' 1; 'inf' 0, the
+    scan); None for seconds bins (no QuartiCal form)."""
+    if isinstance(solint, bool):
+        raise TypeError(f"solint {solint!r}")
+    if isinstance(solint, (int, np.integer)):
+        return int(solint)
+    text = str(solint).strip().lower()
+    if text == "inf":
+        return 0
+    if text == "int":
+        return 1
+    return int(text) if text.isdigit() else None
+
+
+def qc_layout(time, scan, a1, a2, n):
+    """Selfcal's intervals and the averaged rows from row metadata alone
+    (written from cal_selfcal.time_bins' rule, not calling it): per scan in
+    time order, N of its unique times per interval from the scan start (0:
+    the scan); one averaged row per (interval, ANTENNA1, ANTENNA2) of the
+    cross-correlations, ordered by its first source row. Returns `bin` and
+    `out` (averaged row, -1 for autocorrelations) per source row; per
+    averaged row `template` (its first source row), `a1`, `a2`, `out_bin`;
+    per interval `bin_time` (mean of its unique times) and `bin_scan`."""
+    time = np.asarray(time, np.float64)
+    scan = np.asarray(scan)
+    a1 = np.asarray(a1, np.int64)
+    a2 = np.asarray(a2, np.int64)
+    tb = np.empty(len(time), np.int64)
+    bin_time, bin_scan, offset = [], [], 0
+    for s in sorted(np.unique(scan), key=lambda s: time[scan == s].min()):
+        m = scan == s
+        u, inv = np.unique(time[m], return_inverse=True)
+        step = len(u) if n == 0 else n
+        local = inv.reshape(-1) // step
+        tb[m] = local + offset
+        for b in range(int(local.max()) + 1):
+            bin_time.append(u[b * step : (b + 1) * step].mean())
+            bin_scan.append(int(s))
+        offset += int(local.max()) + 1
+    nant = int(max(a1.max(), a2.max())) + 1
+    cross = np.flatnonzero(a1 != a2)
+    key = (tb[cross] * nant + a1[cross]) * nant + a2[cross]
+    uniq, first, inv = np.unique(key, return_index=True, return_inverse=True)
+    template = cross[first]
+    order = np.argsort(template, kind="stable")
+    rank = np.empty_like(order)
+    rank[order] = np.arange(len(order))
+    out = np.full(len(time), -1, np.int64)
+    out[cross] = rank[inv.reshape(-1)]
+    ukey = uniq[order]
+    return {"bin": tb, "out": out, "template": template[order],
+            "a1": (ukey // nant) % nant, "a2": ukey % nant, "out_bin": ukey // (nant * nant),
+            "bin_time": np.asarray(bin_time), "bin_scan": np.asarray(bin_scan)}  # fmt: skip
+
+
+class QcSums:
+    """Per averaged row, channel and correlation, over the unflagged samples
+    of rows without FLAG_ROW (unit weights, E2-A's `data.weights: uniform`):
+    the count and the complex128 sums of data and model. `means` gives the
+    averaged arrays as rang's `load_averaged` defines them: data and model
+    the means (complex64, 0 where nothing was summed), the weight the count,
+    flagged where it is 0; an averaged row with no live source row is
+    flagged as a row."""
+
+    def __init__(self, nout, nchan, ncorr):
+        shape = (nout, nchan, ncorr)
+        self.n = np.zeros(shape, np.int32)
+        self.d = np.zeros(shape, np.complex128)
+        self.m = np.zeros(shape, np.complex128)
+        self.live = np.zeros(nout, bool)
+
+    def add(self, out, data, model, flag, flag_row):
+        keep = (np.asarray(out) >= 0) & ~np.asarray(flag_row, bool)
+        idx = np.asarray(out)[keep]
+        used = ~np.asarray(flag, bool)[keep]
+        d = np.where(used, data[keep], 0).astype(np.complex128)
+        m = np.where(used, model[keep], 0).astype(np.complex128)
+        u = used.astype(np.int32)
+        self.live[idx] = True
+        rest = np.arange(len(idx))
+        while len(rest):  # one source row per averaged row per pass: fancy += is exact
+            _, first = np.unique(idx[rest], return_index=True)
+            take = rest[first]
+            self.n[idx[take]] += u[take]
+            self.d[idx[take]] += d[take]
+            self.m[idx[take]] += m[take]
+            rest = np.delete(rest, first)
+
+    def means(self):
+        good = self.n > 0
+        div = np.where(good, self.n, 1)
+        return {"data": np.where(good, self.d / div, 0).astype(np.complex64),
+                "model": np.where(good, self.m / div, 0).astype(np.complex64),
+                "weight": self.n.astype(np.float32), "flag": ~good,
+                "flag_row": ~self.live}  # fmt: skip
+
+
+def apply_flags(valid, tb, fb, a1, a2):
+    """(row, channel): where rang's selfcal apply flags a row (all four
+    correlations, cal_selfcal.apply), that is where either antenna's gain is
+    invalid on the row's interval and the channel's frequency bin. `valid`
+    is (interval, frequency bin, antenna)."""
+    v = np.asarray(valid, bool)[np.asarray(tb)]
+    rows = np.arange(len(tb))
+    bad = ~v[rows, :, np.asarray(a1)] | ~v[rows, :, np.asarray(a2)]
+    return bad[:, np.asarray(fb)]
+
+
+def qc_freq_bins(nchan, freqint):
+    if freqint in ("inf", None, 0):
+        return np.zeros(nchan, np.int64)
+    return np.arange(nchan) // (1 if freqint == "int" else int(freqint))
+
+
+def qc_avg(ms, r):
+    """Step qc-avg (native, from the frozen wheel's venv, whose predictor
+    wrote selfcal's MODEL_DATA). For every selfcal round: rang's solve input
+    (CORRECTED_1GC, RANG_CORRECTED_DATA after prep-inplace) and that round's
+    model, averaged as `selfcal.average_time` averages them, with the flags
+    that round's solve saw (selfcal's flag version, ORed with the earlier
+    rounds' apply flags recomputed from their stores). The MS holds only the
+    last round's model, so every round's model is predicted again from its
+    model images by rang's predictor, block for block as
+    `core_model.write_model_data` predicted it; control: the last round's
+    prediction equals the MS's model column in every element. The last
+    round sums the column itself, so a failed control voids only the
+    earlier rounds (qc-selfcal marks them). Writes R/qc-selfcal/ (about
+    2.5 GiB per round) and R/qc-avg.json."""
+    from rang import _core, cal_selfcal, core_model, core_ms, core_pipeline
+    from rang.formats import flagversions
+
+    ms, r = Path(ms), Path(r)
+    rd = run_dir(ms)
+    started = time.perf_counter()
+    cfg = json.loads((rd / "config.resolved.json").read_text(encoding="utf-8"))
+    sc = json.loads((rd / "selfcal" / "summary.json").read_text(encoding="utf-8"))
+    plan = inplace_plan(ms)
+    if plan["rang_flag_version"] is None:
+        raise SystemExit("this run has no selfcal copy: nothing to compare")
+    if cfg["data"]["weights"] != "uniform":
+        raise SystemExit("qc-avg sums unit weights only (E2-A: data.weights uniform)")
+    (field,) = sc["fields"]
+    fid = int(field["field_id"])
+    rounds = field["rounds"]
+    ns = {solint_n(x["term"]["solint"]) for x in rounds}
+    if len(ns) != 1 or None in ns:
+        raise SystemExit(f"qc-avg needs one integration-count solint for all rounds: {ns}")
+    (n,) = ns
+    scans = list(cfg["data"]["scans"] or [])
+    img = cfg["image"]
+    extra = [str(a) for a in img["extra_args"]]
+    rng = core_pipeline._extra_flag(extra, "-channel-range", 2)
+    channel_range = None if rng is None else (int(rng[0]), int(rng[1]))
+    single = core_pipeline._gridder_single(img, extra)
+    wgridding = core_pipeline._extra_flag(extra, "-no-wgridding") is None
+    freq, corr, phase_dir = core_model.band(ms, fid, 0)
+    a, b = core_model._hands(corr)
+    nchan, ncorr = len(freq), len(corr)
+    cmap = np.asarray(_core.gemclean_channel_map(
+        freq, int(img["channels_out"]), channel_range, int(img["average_channels"])))  # fmt: skip
+    mapped = np.flatnonzero(cmap >= 0)
+
+    def predict(name, uvw):  # core_model.write_model_data's predict, unchanged
+        out = np.zeros((uvw.shape[0], nchan), np.complex64)
+        _core.gemclean_predict(str(name), int(img["channels_out"]), channel_range,
+                               int(img["average_channels"]), float(img["wgridder_accuracy"]),
+                               bool(wgridding), bool(single), phase_dir, uvw, freq, out)  # fmt: skip
+        return out
+
+    with core_ms.open_table(ms) as t:
+        cols = set(t.colnames())
+        data_col = (
+            "RANG_CORRECTED_DATA" if "RANG_CORRECTED_DATA" in cols else plan["rang_column"]
+        )
+        model_col = "RANG_MODEL_DATA" if "RANG_MODEL_DATA" in cols else sc["model_column"]
+        nrow = t.nrows
+        meta = {c: np.asarray(t.getcol(c, 0, nrow))
+                for c in ("FIELD_ID", "SCAN_NUMBER", "TIME", "ANTENNA1", "ANTENNA2")}  # fmt: skip
+    keep = meta["FIELD_ID"] == fid
+    if scans:
+        keep &= np.isin(meta["SCAN_NUMBER"], scans)
+    rows = np.flatnonzero(keep)  # the solve's rows (core_pipeline._selected_rows)
+    lay = qc_layout(meta["TIME"][rows], meta["SCAN_NUMBER"][rows],
+                    meta["ANTENNA1"][rows], meta["ANTENNA2"][rows], n)  # fmt: skip
+    sel = core_model.selected_rows(ms, fid, 0, scans or None)  # the predictor's rows
+    if not np.array_equal(sel, rows[lay["out"] >= 0]):
+        raise SystemExit("the predictor's rows are not the solve's cross-correlations")
+    pos = np.full(nrow, -1, np.int64)
+    pos[rows] = np.arange(len(rows))
+    stores, valid = [], []
+    for x in rounds:
+        g, f, gt, _gf, _gs = cal_selfcal.read_store(x["store"], x["solve"]["name"])
+        stores.append(gt)
+        valid.append(~f & np.isfinite(g).all(-1))
+    times_equal = [bool(len(gt) == len(lay["bin_time"])
+                        and np.max(np.abs(gt - lay["bin_time"])) <= 1e-6)
+                   for gt in stores]  # fmt: skip
+    if not all(times_equal):
+        raise SystemExit(f"rang's intervals differ from qc-avg's: {times_equal}")
+    fbs = [qc_freq_bins(nchan, x["term"].get("freqint", "inf")) for x in rounds]
+    nout = len(lay["template"])
+    sums = [QcSums(nout, nchan, ncorr) for _ in rounds]
+    newly = [0] * len(rounds)
+    ctrl = {"cells": 0, "elements_differ": 0, "max_abs": 0.0}
+    block = int(_core.gemclean_block_rows(nchan))
+    last = len(rounds) - 1
+    with core_ms.open_table(ms) as t:
+        for b0 in range(0, len(sel), block):
+            blk = sel[b0 : b0 + block]
+            lo, hi = int(blk[0]), int(blk[-1]) + 1
+            uvw = np.ascontiguousarray(t.getcol("UVW", lo, hi - lo)[blk - lo], np.float64)
+            vis = [predict(x["model"]["name"], uvw) for x in rounds]
+            del uvw
+            # every solve row from this block's first row to the next block's
+            r_lo = int(rows[0]) if b0 == 0 else lo
+            r_hi = int(sel[b0 + block]) if b0 + block < len(sel) else int(rows[-1]) + 1
+            for s0 in range(r_lo, r_hi, QC_SUB):
+                s1 = min(r_hi, s0 + QC_SUB)
+                here = np.flatnonzero(keep[s0:s1]) + s0
+                if not len(here):
+                    continue
+                pick = here - s0
+                data = np.asarray(t.getcol(data_col, s0, s1 - s0))[pick]
+                mcol = np.asarray(t.getcol(model_col, s0, s1 - s0))[pick]
+                fv, frow = flagversions.load(ms, plan["rang_flag_version"], s0, s1 - s0)
+                flag = np.asarray(fv, bool)[pick].copy()
+                frow = np.asarray(frow, bool)[pick]
+                p = pos[here]
+                out = lay["out"][p]
+                c = np.flatnonzero(out >= 0)
+                at = np.searchsorted(blk, here[c])
+                for k, x in enumerate(rounds):
+                    model = mcol.copy()
+                    v = vis[k][at]
+                    cells = model[c[:, None], mapped[None, :], :]
+                    cells[...] = 0
+                    cells[..., a] = v[:, mapped]
+                    cells[..., b] = v[:, mapped]
+                    model[c[:, None], mapped[None, :], :] = cells
+                    if k == last:  # the control; the MS's own model is summed
+                        diff = model[c] != mcol[c]
+                        ctrl["cells"] += int(diff[..., 0].size)
+                        ctrl["elements_differ"] += int(diff.sum())
+                        if diff.any():
+                            gap = np.abs(model[c].astype(np.complex128) - mcol[c]).max()
+                            ctrl["max_abs"] = max(ctrl["max_abs"], float(gap))
+                        model = mcol
+                    sums[k].add(out, data, model, flag, frow)
+                    bad = apply_flags(valid[k], lay["bin"][p], fbs[k],
+                                      meta["ANTENNA1"][here], meta["ANTENNA2"][here])  # fmt: skip
+                    bad = np.broadcast_to(bad[..., None], flag.shape)
+                    newly[k] += int((bad & ~flag).sum())
+                    flag |= bad  # the next round's solve sees this round's apply
+            del vis
+    d = r / "qc-selfcal"
+    d.mkdir(exist_ok=True)
+    np.save(d / "template_rows.npy", rows[lay["template"]])
+    np.savez(d / "layout.npz", a1=lay["a1"], a2=lay["a2"], bin=lay["out_bin"],
+             time=lay["bin_time"][lay["out_bin"]], bin_time=lay["bin_time"],
+             bin_scan=lay["bin_scan"])  # fmt: skip
+    met = ctrl["cells"] > 0 and ctrl["elements_differ"] == 0
+    rec = {"ms": str(ms), "data_column": data_col, "model_column": model_col,
+           "flag_version": plan["rang_flag_version"], "solint_integrations": n,
+           "rows": len(rows), "cross_rows": len(sel), "averaged_rows": nout,
+           "baselines": len(set(zip(lay["a1"].tolist(), lay["a2"].tolist()))),
+           "intervals": len(lay["bin_time"]), "channels": nchan,
+           "channels_predicted": len(mapped), "predict_block_rows": block,
+           "rang_intervals_equal": times_equal, "model_control": {**ctrl, "met": met},
+           "rounds": []}  # fmt: skip
+    for k, x in enumerate(rounds):
+        sub = d / f"round-{x['round']}"
+        sub.mkdir(exist_ok=True)
+        for name, arr in sums[k].means().items():
+            np.save(sub / f"{name}.npy", arr)
+        sums[k] = None
+        want = x["apply"]["cells_flagged_after"] - x["apply"]["cells_flagged_before"]
+        rec["rounds"].append({"round": x["round"], "term": x["term"], "store": x["store"],
+                              "solve_name": x["solve"]["name"],
+                              "model_images": x["model"]["name"],
+                              "apply_flags_recomputed": newly[k], "apply_flags_rang": want,
+                              "apply_flags_equal": newly[k] == want})  # fmt: skip
+    rec["seconds"] = time.perf_counter() - started
+    write(r / "qc-avg.json", rec)
+    return 0
+
+
+QC_MS_PY = r"""
+import json, sys
+import numpy as np
+from casacore.tables import table, taql, makecoldesc
+src, d, dst, out = sys.argv[1:5]
+COLS = ("UVW, ANTENNA1, ANTENNA2, TIME, TIME_CENTROID, INTERVAL, EXPOSURE, FIELD_ID, "
+        "DATA_DESC_ID, SCAN_NUMBER, FLAG_ROW, ARRAY_ID, OBSERVATION_ID, PROCESSOR_ID, "
+        "STATE_ID, FEED1, FEED2, SIGMA, WEIGHT, DATA, FLAG, WEIGHT_SPECTRUM")
+rows = np.load(d + "/../template_rows.npy")
+lay = np.load(d + "/../layout.npz")
+t = table(src, ack=False)
+cols = t.colnames()
+assert "WEIGHT_SPECTRUM" in cols and not [c for c in cols if c.startswith("E2_")], cols
+subs = [k for k in t.getkeywords()
+        if isinstance(t.getkeyword(k), str) and t.getkeyword(k).startswith("Table: ")]
+ref = t.selectrows([int(x) for x in rows])
+taql(f"SELECT {COLS} FROM $ref GIVING '{dst}' AS PLAIN")
+c = table(dst, readonly=False, ack=False)
+copied = []
+for k in subs:
+    if k not in c.getkeywords():
+        s = table(src + "/" + k, ack=False)
+        s.copy(dst + "/" + k, deep=True)
+        s.close()
+        c.putkeyword(k, table(dst + "/" + k, ack=False))
+        copied.append(k)
+t.close()
+n = c.nrows()
+assert n == len(rows), (n, len(rows))
+assert (c.getcol("ANTENNA1") == lay["a1"]).all() and (c.getcol("ANTENNA2") == lay["a2"]).all()
+c.putcol("TIME", lay["time"])
+c.putcol("TIME_CENTROID", lay["time"])
+c.putcol("FLAG_ROW", np.load(d + "/flag_row.npy"))
+desc = c.getcoldesc("DATA")
+desc["dataManagerType"], desc["dataManagerGroup"] = "StandardStMan", "E2QcModel"
+c.addcols(makecoldesc("MODEL_DATA", desc),
+          {"TYPE": "StandardStMan", "NAME": "E2QcModel", "SPEC": {}})
+arrays = {"DATA": "data", "MODEL_DATA": "model", "WEIGHT_SPECTRUM": "weight", "FLAG": "flag"}
+arrays = {k: np.load(d + "/" + v + ".npy", mmap_mode="r") for k, v in arrays.items()}
+for r0 in range(0, n, 256):
+    k = min(256, n - r0)
+    for name, a in arrays.items():
+        c.putcol(name, np.ascontiguousarray(a[r0 : r0 + k]), r0, k)
+rec = {"rows": n, "columns": c.colnames(), "subtables": subs, "subtables_copied": copied,
+       "times": int(len(np.unique(lay["time"])))}
+c.close()
+json.dump(rec, open(out, "w"), indent=1, default=str)
+print(json.dumps(rec, default=str))
+"""
+
+
+def qc_options(term, refant):
+    """C5's QuartiCal options (examples/check_c5.py QC_OPTIONS) with the
+    reference antenna, the round's type and stop rule (rang's term keys,
+    cal_selfcal.solve's defaults); one interval per averaged time and one
+    time per chunk (`G.time_interval=1`, `input_ms.time_chunk=1`: about
+    0.25 GB of data per chunk), the round's frequency interval (0: the
+    band). Keys checked against the container's argument_schema.yaml."""
+    fi = term.get("freqint", "inf")
+    fint = 0 if fi in ("inf", None) else (1 if fi == "int" else int(fi))
+    return ["input_ms.data_column=DATA", "input_model.recipe=MODEL_DATA",
+            "input_ms.weight_column=WEIGHT_SPECTRUM", "solver.terms=[G]",
+            f"solver.iter_recipe=[{int(term.get('max_iterations', 50))}]",
+            f"solver.convergence_criteria={float(term.get('stop_criterion', 1e-7))!r}",
+            f"solver.convergence_fraction={float(term.get('stop_fraction', 0.99))!r}",
+            f"solver.reference_antenna={int(refant)}", "solver.robust=false",
+            "input_ms.time_chunk=1",
+            "mad_flags.enable=false", "output.flags=false", "output.overwrite=false",
+            "dask.threads=1", "solver.threads=1", "dask.scheduler=single-threaded",
+            f"G.type={QUARTICAL_TYPES[term['type']]}", "G.time_interval=1",
+            f"G.freq_interval={fint}"]  # fmt: skip
+
+
+def qc_products(g, f, qg, qf):
+    """C5's G2 measure (check_c5.qc_compare): relative differences of the
+    gauge-free products g_p conj(g_q), p < q, per hand, where both arms hold
+    a valid gain. g, qg (time, freq, ant, 2); f, qf (time, freq, ant)."""
+    p, q = np.triu_indices(g.shape[2], 1)
+    ok = ~f[:, :, p] & ~f[:, :, q] & ~qf[:, :, p] & ~qf[:, :, q]
+    ok = np.broadcast_to(ok[..., None], (*ok.shape, 2))
+    p1 = g[:, :, p] * np.conj(g[:, :, q])
+    p2 = qg[:, :, p] * np.conj(qg[:, :, q])
+    ok = ok & np.isfinite(p1) & np.isfinite(p2) & (np.abs(p2) > 0)
+    rel = (np.abs(p1 - p2) / np.where(ok, np.abs(p2), 1.0))[ok]
+    if not len(rel):
+        return {"products": 0, "median": None, "p95": None, "max": None, "pass": False}
+    res = {"products": len(rel), "median": float(np.median(rel)),
+           "p95": float(np.percentile(rel, 95)), "max": float(rel.max())}  # fmt: skip
+    res["pass"] = res["median"] <= QC_B["median"] and res["p95"] <= QC_B["p95"]
+    return res
+
+
+def qc_selfcal(ms, r):
+    """Step qc-selfcal: per round, a small MS of qc-avg's averages on WSL
+    ext4 (`QC_MS_PY`, template rows read from the MS), QuartiCal 0.2.7 on it
+    (examples/oracle_gain.py qc-solve), the small MS deleted; then class B
+    against rang's stored gains. -> R/qc-selfcal.json"""
+    from rang import cal_selfcal
+
+    ms, r = Path(ms), Path(r)
+    avg = json.loads((r / "qc-avg.json").read_text(encoding="utf-8"))
+    oracle = Path(__file__).resolve().parents[3] / "examples" / "oracle_gain.py"
+    shutil.copy(oracle, r / "e2p_oracle_gain.py")
+    (r / "e2p_qc_ms.py").write_text(QC_MS_PY, encoding="utf-8")
+    refant = json.loads((run_dir(ms) / "selfcal" / "summary.json").read_text())["refant"]
+    d = r / "qc-selfcal"
+    per = avg["solint_integrations"] * avg["baselines"] * avg["channels"] * 4
+    res = {"oracle": "QuartiCal 0.2.7 (rang-formats-oracle:20261030) on averaged inputs (9.10)",
+           "class_b": QC_B, "refant": refant, "model_control_met": avg["model_control"]["met"],
+           "unaveraged_form": {"run": False, "samples_per_interval": per,
+                               "gb_per_interval_data_model_weights": per * (8 + 8 + 4) / 1e9,
+                               "wsl_memory_gb": WSL_MEMORY_GB,
+                               "reason": "one interval of unaveraged data, model and weights "
+                                         "exceeds WSL's memory (6.5: not checked)"},
+           "rounds": []}  # fmt: skip
+    rc_all = 0
+    last = max(x["round"] for x in avg["rounds"])
+    for x in avg["rounds"]:
+        k, term = x["round"], x["term"]
+        if k != last and not avg["model_control"]["met"]:
+            res["rounds"].append({"round": k, "quartical": "void: model control not met"})
+            continue
+        if term["type"] not in QUARTICAL_TYPES:
+            res["rounds"].append({"round": k, "quartical": "not run: no averaged form"})
+            continue
+        out = d / f"qc-round-{k}"
+        if not (out / "summary.json").is_file():
+            shutil.rmtree(out, ignore_errors=True)
+            small = f"/q/round-{k}.ms"
+            script = (f"rm -rf {small} && {QC_PY} -I /p/e2p_qc_ms.py /c/{ms.name} "
+                      f"/p/qc-selfcal/round-{k} {small} /p/qc-selfcal/round-{k}-ms.json && "
+                      f"NUMBA_CACHE_DIR=/tmp/numba {QC_PY} -I /p/e2p_oracle_gain.py qc-solve "
+                      f"{small} /p/qc-selfcal/qc-round-{k} " + " ".join(qc_options(term, refant))
+                      + f"; rc=$?; rm -rf {small}; exit $rc")  # fmt: skip
+            rc = docker(r, FORMATS_IMAGE, [*inplace_mounts(ms, r), (QC_EXT4, "/q")], script,
+                        f"qc-selfcal-round-{k}", 1)  # fmt: skip
+            if rc != 0:
+                res["rounds"].append({"round": k, "exit": rc, "pass": False})
+                rc_all = rc
+                continue
+        summary = json.loads((out / "summary.json").read_text(encoding="utf-8"))
+        qg = np.load(out / "gains.npy")
+        qg = np.stack([qg[..., 0], qg[..., 3]], -1)
+        qf = np.load(out / "gain_flags.npy") != 0
+        g, f, gt, _gf, _gs = cal_selfcal.read_store(x["store"], x["solve_name"])
+        entry = {"round": k, "term": term, "shape_rang": list(g.shape),
+                 "shape_qc": list(qg.shape), "qc_wall_s": summary.get("time_wall"),
+                 "qc_max_rss_mb": summary.get("max_rss_mb"),
+                 "conv_iter": summary.get("conv_iter"), "rang_flagged": int(f.sum()),
+                 "qc_flagged": int(qf.sum()), "apply_flags_equal": x["apply_flags_equal"]}  # fmt: skip
+        if g.shape != qg.shape:
+            entry["pass"] = False
+        else:
+            entry.update(qc_products(g, f, qg, qf))
+            qt = np.asarray(summary["gain_times"], float)
+            same = len(qt) == len(gt) and np.max(np.abs(qt - gt)) <= 1e-6
+            entry["gain_times_equal"] = bool(same)
+            entry["pass"] = bool(entry["pass"] and same)
+        res["rounds"].append(entry)
+    write(r / "qc-selfcal.json", res)
+    return rc_all
+
+
+# --- gate 3c: WSClean 3.7 at the image stage's settings (E2-A, Stokes I) -------------
+
+# gemclean arguments WSClean does not take, or that wsclean_argv sets itself
+WS_FROM_GEMCLEAN = {"-name": 1, "-average-channels": 1, "-scans": 1, "-unit-weights": 0,
+                    "-data-column": 1, "-j": 1}  # fmt: skip
+
+
+def wsclean_argv(gem, *, name, column, threads, temp, ms_inside, dirty, nosi=False):
+    """WSClean 3.7's command for the image stage's gemclean argv `gem` (the
+    binary, its arguments, the MS): every argument WSClean shares is passed
+    as it was; -name, -data-column, -j and the MS are this step's;
+    -unit-weights is the matched state (unit-on-a); -average-channels has no
+    WSClean counterpart (WSClean grids every channel); -scans is checked by
+    the caller to select every row of the field. -gridder wgridder as E2-B's
+    matched oracle; `dirty` sets -niter 0. Returns (argv, what was dropped)."""
+    args = list(gem[gem.index("-name") : -1])
+    kept, dropped = [], {}
+    i = 0
+    while i < len(args):
+        n = WS_FROM_GEMCLEAN.get(args[i])
+        if n is None:
+            kept.append(args[i])
+            i += 1
+            continue
+        dropped[args[i]] = args[i + 1 : i + 1 + n] if n else True
+        i += 1 + n
+    if dirty:
+        j = kept.index("-niter")
+        kept[j + 1] = "0"
+    if "-gridder" not in kept:
+        kept += ["-gridder", "wgridder"]
+    out = ["wsclean", "-name", name, *kept, "-data-column", column, "-j", str(int(threads)),
+           "-temp-dir", temp, *(["-no-small-inversion"] if nosi else []), ms_inside]  # fmt: skip
+    return out, dropped
+
+
+def ms_columns(ms):
+    from rang import core_ms
+
+    with core_ms.open_table(ms) as t:
+        return list(t.colnames())
+
+
+def unit_on_a(ms, r):
+    """Gate 3c's matched state on the MS itself (E2-B's UNIT_PY: renames and
+    a unit WEIGHT only): FLAG is rang's FLAG after apply (RANG_FLAG),
+    WEIGHT_SPECTRUM renamed away and WEIGHT 1, as the image stage's
+    -unit-weights (data.weights: uniform)."""
+    return _unit_a(ms, r, "on")
+
+
+def unit_off_a(ms, r):
+    return _unit_a(ms, r, "off")
+
+
+def _unit_a(ms, r, mode):
+    ms, r = Path(ms), Path(r)
+    if mode == "on" and "RANG_CORRECTED_DATA" not in ms_columns(ms):
+        raise SystemExit("prep-inplace has not run")
+    (r / "e2p_unit.py").write_text(UNIT_PY, encoding="utf-8")
+    return docker(r, FORMATS_IMAGE, inplace_mounts(ms, r),
+                  f"{QC_PY} -I /p/e2p_unit.py /c/{ms.name} {mode} /p/unit-{mode}-a.json",
+                  f"unit-{mode}-a", 1)  # fmt: skip
+
+
+def wsclean3c_a(ms, r, kind, threads, nosi=False):
+    """Gate 3c's oracle image of rang's apply output (E2-A, 6.5): WSClean
+    3.7 on RANG_CORRECTED_DATA in the matched state, with the image stage's
+    own gemclean argv (R/rang-run/image/summary.json) translated by
+    `wsclean_argv`; `kind` dirty (-niter 0) or clean. Without `nosi` as
+    frozen; `nosi` (-no-small-inversion, E2-B's A4b) only under a later
+    amendment, into its own directory. -> R/wsclean3c-a[-nosi]/"""
+    from rang import core_ms
+
+    ms, r = Path(ms), Path(r)
+    if "E2_CASA_FLAG" not in ms_columns(ms):
+        raise SystemExit("run unit-on-a first: WSClean reads FLAG and WEIGHT")
+    s = json.loads((r / "rang-run" / "image" / "summary.json").read_text(encoding="utf-8"))
+    (entry,) = s["images"]
+    gem = entry["argv"]
+    if "-scans" in gem:
+        with core_ms.open_table(ms) as t:
+            fids = np.asarray(t.getcol("FIELD_ID", 0, t.nrows))
+            scan_ids = np.asarray(t.getcol("SCAN_NUMBER", 0, t.nrows))
+        listed = {int(x) for x in gem[gem.index("-scans") + 1].split(",")}
+        have = {int(x) for x in np.unique(scan_ids[fids == int(entry["field_id"])])}
+        if not have <= listed:
+            raise SystemExit(f"-scans {sorted(listed)} selects part of the field: {sorted(have)}")
+    sub = "wsclean3c-a" + ("-nosi" if nosi else "")
+    d = r / sub
+    (d / "tmp").mkdir(parents=True, exist_ok=True)
+    tag = entry["field"].replace("+", "p").replace("-", "m")
+    argv, dropped = wsclean_argv(gem, name=f"/p/{sub}/{tag}-{kind}", column="RANG_CORRECTED_DATA",
+                                 threads=threads, temp=f"/p/{sub}/tmp", ms_inside=f"/c/{ms.name}",
+                                 dirty=kind == "dirty", nosi=nosi)  # fmt: skip
+    t0 = time.perf_counter()
+    rc = docker(r, WSCLEAN_IMAGE, inplace_mounts(ms, r), " ".join(argv),
+                f"{sub}-{tag}-{kind}", int(threads))  # fmt: skip
+    shutil.rmtree(d / "tmp", ignore_errors=True)
+    fits_out = sorted(p.name for p in d.glob(f"{tag}-{kind}*.fits"))
+    write(r / f"{sub}-{kind}-run.json",
+          {"exit": rc, "argv": argv, "gemclean_argv": gem, "dropped": dropped,
+           "seconds": time.perf_counter() - t0, "fits": fits_out})  # fmt: skip
+    return rc
+
+
+def wsclean3c_a_dirty(ms, r, threads="2", nosi=""):
+    return wsclean3c_a(ms, r, "dirty", threads, nosi == "nosi")
+
+
+def wsclean3c_a_clean(ms, r, threads="4", nosi=""):
+    return wsclean3c_a(ms, r, "clean", threads, nosi == "nosi")
+
+
+def wsclean3c_a_nosi_dirty(ms, r, threads="2"):
+    """The coordinator's decision on 9.10: one -no-small-inversion dirty run,
+    a second, seen reading, only after the primary reading is scored."""
+    if not (Path(r) / "g3c-a.json").is_file():
+        raise SystemExit("score3c-a has not run: the nosi reading follows the primary")
+    return wsclean3c_a(ms, r, "dirty", threads, True)
+
+
+def _score3c_a():
+    spec = importlib.util.spec_from_file_location(
+        "e2_score3c_a", Path(__file__).resolve().parent / "e2_score3c_a.py"
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def score3c_a(ms, r):
+    r = Path(r)
+    return _score3c_a().main(r, r / "wsclean3c-a", r / "g3c-a.json")
+
+
+def score3c_a_nosi(ms, r):
+    r = Path(r)
+    return _score3c_a().main(r, r / "wsclean3c-a-nosi", r / "g3c-a-nosi.json", "--dirty-only")
 
 
 # --- gate 2a and the restore -------------------------------------------------------
@@ -810,9 +1505,13 @@ t.close()
 
 
 def restore(ms, r, input_json, label="g2a"):
-    from rang import core_writeback
+    from rang import core_ms, core_writeback
 
     ms, r = Path(ms), Path(r)
+    with core_ms.open_table(ms) as t:
+        held = [c for c in t.colnames() if c.startswith("E2_")]
+    if held:  # gate 3c's matched state: WEIGHT is the unit column, FLAG is rang's
+        raise SystemExit(f"{ms} holds {held}: run unit-off-a before restore")
     t0 = time.perf_counter()
     rows = core_writeback.restore_flags(ms, "rang_original")
     got = flag_hash(ms)
@@ -903,7 +1602,12 @@ STEPS = {"gate1": gate1, "archive": archive, "wcs": wcs, "casacore": casacore,
          "prep": prep, "applycal": applycal, "compare": compare, "snapshot": snapshot, "restore": restore,
          "tricolour": tricolour, "columns-before": columns_before,
          "prep-inplace": prep_inplace, "applycal-inplace": applycal_inplace,
-         "compare-inplace": compare_inplace, "snapshot-inplace": snapshot_inplace}  # fmt: skip
+         "compare-inplace": compare_inplace, "snapshot-inplace": snapshot_inplace,
+         "drop-corrected-inplace": drop_corrected_inplace, "qc-avg": qc_avg,
+         "qc-selfcal": qc_selfcal, "unit-on-a": unit_on_a, "unit-off-a": unit_off_a,
+         "wsclean3c-a-dirty": wsclean3c_a_dirty, "wsclean3c-a-clean": wsclean3c_a_clean,
+         "score3c-a": score3c_a, "wsclean3c-a-nosi-dirty": wsclean3c_a_nosi_dirty,
+         "score3c-a-nosi": score3c_a_nosi}  # fmt: skip
 
 
 def main(argv):
