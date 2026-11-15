@@ -1602,6 +1602,45 @@ values reported.
 
 Booking: WSClean dirty runs at 2 slots, GeMClean at 4.
 
+**Measured 2026-11-15: met on all three fields (seen, post hoc
+amendment).** Receipts in [results/e2b-misses/a5c/](results/e2b-misses/a5c/)
+(`a5.json`, `c10.json`, `a5-copy.json`, `runs.log`).
+
+- **C10 met:** WSClean at ε 1e-4 on J1833−2103, reading the ext4 copy,
+  is within 6.3e-7 of the archived images (thread count).
+- On ext4 WSClean took 232 s for that run, against 1,032 s for the same
+  run over 9p (9.10).
+
+| Field | Dirty L∞ / peak, ε 1e-6, `-no-small-inversion` | 9.10 (ε 1e-6, default oracle) |
+| --- | --- | --- |
+| J1331+3030 | **2.0e-7** | 3.5e-3 |
+| J1939−6342 | **3.3e-7** | 1.2e-3 |
+| J1833−2103 | **8.1e-8** | 2.9e-3 |
+
+The 5 % border and inner two-thirds values equal the full-image ones.
+Gate 3c's dirty measure is met under the amended oracle
+(`-no-small-inversion`) at ε 1e-6. The frozen record (not met) stays.
+
+Runs, all rc 0:
+- the ext4 copy took 667 s; it was dropped after the runs;
+- WSClean took 232–775 s at 2 slots;
+- GeMClean took 198 s and 643 s at 4 slots, and 291 s for the J1331
+  rerun at 46 GB.
+
+Harness incidents:
+- The ext4 copy lacked FLAG_CATEGORY, which WSClean opens. It was added
+  without cells (`a5_fixcat.py`) before any image.
+- The first GeMClean J1331+3030 run is **void**. It was booked at 16 GB
+  but used about 45 GB private; with another agent's 40 GB GeMClean the
+  host reached 139 GB committed on 63 GB RAM and thrashed.
+  - The owner approved stopping it; it had already exited.
+  - Its image was set aside unread and deleted.
+  - It was rerun at `--mem 46` (291 s). Every joined-IQUV 8-channel 2048²
+    GeMClean is now booked at 46 GB or more.
+- The first Windows queue waited for gemclean-iquv-mask's read-only copy
+  of the shared MS before any rename.
+- The FITS images were deleted after scoring.
+
 ### 9.19 Gate 2b on the full MS with the new P, frozen 2026-11-15 (before any run)
 
 The consequence of P1 (9.16) on the whole MS. It is seen: P1's mini-MS
@@ -1764,6 +1803,20 @@ Lesson:
   - D: has 443 GB free; the ext4 vhdx grows by about 110 GB.
 
 ## For the coordinator
+
+**After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
+- **9.18, gate 3c dirty at ε 1e-6 with `-no-small-inversion` (dated post
+  hoc amendment): met on all three fields**, at 2.0e-7, 3.3e-7 and 8.1e-8
+  (bound 1e-6). C10 met.
+  - One GeMClean run was void through memory over-booking; it was rerun at
+    46 GB.
+- **9.19, full-MS gate 2b with the new P: not run (harness).** casacore
+  and CASA bulk I/O over 9p failed with ENOMEM 6 times.
+  - The sixth attempt left `R\casa\e2b.ms` unopenable. It was repaired
+    by a rehearsed twin header plus restore, and the column set and
+    native hashes equal the originals (9.20).
+  - A rerun on ext4 is proposed; it must be frozen first.
+  - Gate 2b's only reading with the new P is still the mini MS (9.16).
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
 - **P1 (9.15, 9.16): met and adopted.** `parallactic_angle_casa` now
