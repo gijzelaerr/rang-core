@@ -1,0 +1,12 @@
+2026-11-15T11:27:32+02:00 win hash_src D:/rang/outputs/e2b-2b-20261115/hash_src.json rc=0 secs=946
+2026-11-15T11:48:15+02:00 make rc=1 secs=1
+2026-11-15T11:59:54+02:00 make rc=0 secs=665
+2026-11-15T11:59:55+02:00 C11 met
+2026-11-15T12:05:33+02:00 casa rc=0 secs=336
+2026-11-15T12:05:44+02:00 casa_done rc=0 secs=11
+2026-11-15T12:22:51+02:00 copyout rc=0 secs=1025
+2026-11-15T12:22:53+02:00 drop rc=0 secs=2
+2026-11-15T12:28:49+02:00 win apply D:/rang/outputs/e2b-2b-20261115/apply.json rc=0 secs=353
+2026-11-15T12:33:20+02:00 win compare c9 D:/rang/outputs/e2b-2b-20261115/c9.json rc=0 secs=271
+2026-11-15T12:38:14+02:00 win compare measure D:/rang/outputs/e2b-2b-20261115/g2b-new.json rc=0 secs=294
+2026-11-15T12:44:03+02:00 win compare beside D:/rang/outputs/e2b-2b-20261115/p-change.json rc=0 secs=349

@@ -1,0 +1,21 @@
+{
+ "which": "c9",
+ "columns": [
+  "D:\\rang\\outputs\\e2b-2b-20261115\\e2b-2b.ms",
+  "E2C_CASA_CORRECTED_DATA",
+  "E2C_CASA_FLAG",
+  "D:\\rang\\outputs\\e2-20261111-20-e2b\\casa\\e2b.ms",
+  "RANG_CORRECTED_DATA",
+  "RANG_FLAG"
+ ],
+ "cells": 1117863936,
+ "compared_cells": 408827131,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 42,
+ "max_eps_of_cell_max": 25.58267863310874,
+ "max_rel": 0.2243781662896204,
+ "nonfinite_compared": 0,
+ "rows": 272916,
+ "met": false,
+ "secs": 270.4661560058594
+}
