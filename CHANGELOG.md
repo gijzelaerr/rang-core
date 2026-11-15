@@ -9,6 +9,11 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
+  casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
+  match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up
+  to about 7e-6 rad, so archived `RANG_CORRECTED_DATA` no longer matches a rerun bit for bit. The old form
+  is kept as `cal_pol.parallactic_angle_tete`.
 - New (multi-node stage 1, issue #3, `research/chunk-task-api.md`): the chunk loops of `flag`, the
   `complex` solve and `complex` apply are chunk tasks (`rang.core_tasks`: serialisable `ChunkSpec`s, `run`,
   an ordered reduce through the one MS writer) run by a local process pool. New keys `data.executor`
