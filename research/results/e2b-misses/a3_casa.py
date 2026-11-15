@@ -1,4 +1,4 @@
-"""Arm A3's CASA side (research/e2b-misses.md 9.23); imports no `rang`.
+"""Arm A3's CASA side (research/e2b-misses.md 9.26); imports no `rang`.
 
 CASA 6.7.6.14 (`rang-o-casa:6.7.6.14`, `/opt/casa/bin/python -I`):
 
@@ -11,7 +11,7 @@ CASA 6.7.6.14 (`rang-o-casa:6.7.6.14`, `/opt/casa/bin/python -I`):
 - `reset` (`vis`): FLAG and FLAG_ROW false, WEIGHT, SIGMA and
   WEIGHT_SPECTRUM 1;
 - `simulate` (`vis`, `seed`, `sigma`, `flux`, `freq0`, `index`, `lm_arcsec`,
-  `drift_rad`, `drift_period_s`): the simulation of 9.23. MODEL_DATA must hold
+  `drift_rad`, `drift_period_s`): the simulation of 9.26. MODEL_DATA must hold
   the point model (`setjy` first). DATA = g_p (M + C) g_q* on the parallel
   hands, 0 on the cross hands, plus noise; CORRECTED_DATA the same with
   C = 0 and the same noise. The gains are written to `truth` (an .npz);

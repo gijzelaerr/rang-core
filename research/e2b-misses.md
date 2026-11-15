@@ -78,7 +78,7 @@ masks joined IQUV as WSClean does. With A0 rule 6's 5σ mask in both arms,
 the compact median is 0.99977 (scatter 0.72 %) and off-source 1.05–1.09.
 Unmasked, with the same oracle, they stay at 0.9940 and up to 2.30.
 
-**Update, 2026-11-15 (arm A3, sections 9.23 and 9.24):** the Gpol row is
+**Update, 2026-11-15 (arm A3, sections 9.26 and 9.27):** the Gpol row is
 closed as an estimator convention. With `calibrate.casa_phase_weights`
 (CASA's phase-only datum, read from CASA's source), rang's Gpol meets
 class B on E2-B scan 17: median 0.00038° against CASA re-solved on A2's
@@ -2051,10 +2051,11 @@ Post hoc, during the run, none changing a measure:
 - Per-case images (about 30 GB) and both private copies (34 GB each)
   were deleted after scoring.
 
-### 9.23 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
+### 9.26 A3, Gpol on CASA's phase-only estimator (`calibrate.casa_phase_weights`), frozen 2026-11-15 (before the code)
 
-Committed as 9.21 at `ba26fb2` and renumbered 9.23 when the branch merged
-main, whose A5 had taken 9.21 and 9.22. Only the numbers changed.
+Committed as 9.21 at `ba26fb2`. Renumbered 2026-11-15 on the
+coordinator's word: main's A5 holds 9.21–9.22 and gate 2b's full-MS arm
+9.24–9.25, and 9.23 is left unused. Only the numbers changed.
 
 Branch `e2b-gpol` from main `02631b8`. Section 2's proposal made exact; where
 this departs from it, it says so. **Seen** (A0 6.6): every E2-B Gpol number
@@ -2224,12 +2225,12 @@ Disk: about 30–40 GB per field-0 copy of X, about 10 GB per copy of L and S;
 at most four copies at once (D: holds WSL's ext4 too), with at least 150 GB
 left on D:.
 
-### 9.24 A3 measured, 2026-11-15: met on L and X; S and L without power
+### 9.27 A3 measured, 2026-11-15: met on L and X; S and L without power
 
-Committed as 9.22 at `c9d17ba`; renumbered with 9.23.
+Committed as 9.22 at `c9d17ba`; renumbered with 9.26 (2026-11-15).
 
 Runs:
-- Code: this branch at `55f7b0b` (the key, committed after 9.23 at
+- Code: this branch at `55f7b0b` (the key, committed after 9.26 at
   `ba26fb2`), extension built by `check_all --quick` into the worktree's
   `.venv`.
 - Scripts: `a3_spec.py`, `a3_casa.py`, `a3_run.sh` (WSL, CASA 6.7.6.14 at
@@ -2318,7 +2319,7 @@ s at 4 threads, peak RSS 2.85 GB on every set (8 GiB budget); copies 728 s
 
 ## For the coordinator
 
-**After A3 (2026-11-15, branch `e2b-gpol`; 9.23, 9.24):**
+**After A3 (2026-11-15, branch `e2b-gpol`; 9.26, 9.27):**
 - **Met on L and X.** The new key `calibrate.casa_phase_weights` (needs
   `average_freq`; calmode `p` only; default false, off byte-identical) puts
   rang's Gpol at 0.00038° from CASA on E2-B scan 17 (class B 0.1°). It was

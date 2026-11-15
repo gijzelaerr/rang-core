@@ -284,7 +284,7 @@ SCHEMA = {
             "datum: data divided by the model per channel with weight w|M|^2, "
             "averaged, then normalised to unit amplitude with the weight times "
             "the amplitude squared; needs average_freq; false: QuartiCal's "
-            "phase kernel weighting (task A3, research/e2b-misses.md 9.23)",
+            "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
         ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
@@ -1728,7 +1728,7 @@ def _chain_refusals(config, out):
         bad(
             "calibrate.casa_phase_weights",
             "needs calibrate.average_freq: true (CASA normalises the "
-            "frequency-averaged datum; research/e2b-misses.md 9.23)",
+            "frequency-averaged datum; research/e2b-misses.md 9.26)",
         )
     seen = {}  # name -> (section, type), in solve order
     kinds_used = set()

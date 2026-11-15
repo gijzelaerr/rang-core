@@ -20,7 +20,7 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
-E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.23–9.24):
+E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.26–9.27):
 - New key `calibrate.casa_phase_weights`. It needs `average_freq` and acts
   on calmode `p` only; default false, and off is byte-identical. It gives
   CASA's phase-only datum, read from CASA's source: divide by the model per

@@ -1,4 +1,4 @@
-"""Arm A3's CASA task lists (research/e2b-misses.md 9.23); imports no `rang`.
+"""Arm A3's CASA task lists (research/e2b-misses.md 9.26); imports no `rang`.
 
     python a3_spec.py OUT_DIR     writes OUT_DIR/{L,S,Xprep,X}/spec.json
 

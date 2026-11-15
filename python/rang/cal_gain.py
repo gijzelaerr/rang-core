@@ -744,7 +744,7 @@ PARALLEL_HANDS = (0, 3)
 
 def model_divided(data, model, weights, flag):
     """CASA's `VisEquation::divideCorrByModel` on the parallel hands (task
-    A3, `calibrate.casa_phase_weights`, research/e2b-misses.md 9.23): where
+    A3, `calibrate.casa_phase_weights`, research/e2b-misses.md 9.26): where
     a cell is unflagged and its model non-zero, the data become `R / M`
     (in double precision, as CASA), the weight `w |M|^2` and the model 1;
     every other cell is flagged with weight 0 (CASA zeroes flagged weights).
@@ -810,7 +810,7 @@ def _solve_gain_field(
     `calibrate.average_freq`): each chunk's data and model averaged over its
     channels first (`frequency_averaged`, CASA's estimator for G-type
     solves); one frequency bin only. `casa_phase_weights` (task A3,
-    `calibrate.casa_phase_weights`, research/e2b-misses.md 9.23; needs
+    `calibrate.casa_phase_weights`, research/e2b-misses.md 9.26; needs
     `average_freq` and `fld.model_divided`, which `prepare` applies): after
     the averages, `phase_only`, CASA's estimator for calmode `p`. Returns
     `(GainSolution, row weights)`."""
@@ -976,7 +976,7 @@ def gaincal(
     the pre-applied data divided by the model per channel with weight
     `w |M|^2` (`model_divided`), averaged in time and frequency, then
     normalised to unit amplitude with weight times the amplitude squared
-    (`phase_only`); research/e2b-misses.md 9.23."""
+    (`phase_only`); research/e2b-misses.md 9.26."""
     if casa_phase_weights and not average_freq:
         raise ValueError("casa_phase_weights needs average_freq (CASA averages first)")
     ms = Path(ms)

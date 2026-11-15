@@ -9,7 +9,7 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-- New (E2-B arm A3, `research/e2b-misses.md` 9.23-9.24): `calibrate.casa_phase_weights` (default false, out of
+- New (E2-B arm A3, `research/e2b-misses.md` 9.26-9.27): `calibrate.casa_phase_weights` (default false, out of
   the stage hash at its default; needs `calibrate.average_freq`). Calmode `p` solves (Gpol, and G with
   calmode p) use CASA's phase-only datum, read from CASA's source: the pre-applied data divided by the
   model per channel with weight `w|M|^2`, averaged in time and frequency, then normalised to unit

@@ -63,7 +63,7 @@ investigation; nothing here states it as solved.
   Xf, Df and selfcal unchanged; {gh}`research/e2-average-freq.md`)
   ({gh}`research/e2-acceptance.md`). `calibrate.casa_phase_weights` (needs
   `average_freq`) gives the calmode `p` solves (Gpol) CASA's phase-only
-  weighting instead of QuartiCal's ({gh}`research/e2b-misses.md` 9.23).
+  weighting instead of QuartiCal's ({gh}`research/e2b-misses.md` 9.26).
 - Options refused for now: `solnorm: true`, `calmode: a`, `gainfield` on
   pre-applied tables, `complex` terms mixed with K, G, B, A, F; complex gains
   are never transferred to a target (`rang-core config check --all CONFIG`

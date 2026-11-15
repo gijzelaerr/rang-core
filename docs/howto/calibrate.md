@@ -122,7 +122,7 @@ pre-averaging, off by default) brings them within it, and
 and Gpol. With it, `calibrate.casa_phase_weights: true` makes the
 phase-only solves (Gpol) weight as CASA does: data divided by the model per
 channel, averaged, then normalised to unit amplitude with the weight times
-the amplitude squared ({gh}`research/e2b-misses.md` 9.23). All three differ from CubiCal's estimator
+the amplitude squared ({gh}`research/e2b-misses.md` 9.26). All three differ from CubiCal's estimator
 ({gh}`research/e2-acceptance.md`, {gh}`research/e2-average-freq.md`). The
 polarisation solves average within one scan and 5° of parallactic angle, so
 an Xf with `combine: scan` over several 3C 286 scans keeps its signal
