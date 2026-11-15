@@ -103,8 +103,10 @@ def main(ms, mode, *rest):
         rec["columns"] = sorted(t.colnames())
         rec["flag_sha256"] = col_hash(t, ["FLAG", "FLAG_ROW"])
         rec["corrected_sha256"] = col_hash(t, ["CORRECTED_DATA"])
-        add_like(t, "E2C_SAVE_CORRECTED_DATA", "CORRECTED_DATA", "E2CSaveCorrected")
-        copy_col(t, "CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA")
+        # no data copy (a 36 GB write over 9p failed with ENOMEM): rename the
+        # column and give CASA an empty CORRECTED_DATA on its own manager
+        t.renamecol("CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA")
+        add_like(t, "CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA", "E2CCasaCorrected")
         t.renamecol("FLAG", "E2C_SAVE_FLAG")
         t.addcols(makecoldesc("E2C_SAVE_FLAG_ROW", t.getcoldesc("FLAG_ROW")),
                   {"TYPE": "StandardStMan", "NAME": "E2CSaveFlagRow", "SPEC": {}})  # fmt: skip
@@ -115,10 +117,10 @@ def main(ms, mode, *rest):
         new_flag(t, ms, "E2C_CASA_FLAG", "E2CFlagRang")
     elif mode == "restore":
         before = json.loads(Path(rest[0]).read_text())
-        copy_col(t, "E2C_SAVE_CORRECTED_DATA", "CORRECTED_DATA")
-        drop = [c for c in ("E2C_SAVE_CORRECTED_DATA", "E2C_RANG_CORRECTED_DATA", "FLAG",
+        drop = [c for c in ("CORRECTED_DATA", "E2C_RANG_CORRECTED_DATA", "FLAG",
                             "E2C_CASA_FLAG") if c in t.colnames()]  # fmt: skip
         t.removecols(drop)
+        t.renamecol("E2C_SAVE_CORRECTED_DATA", "CORRECTED_DATA")
         t.renamecol("E2C_SAVE_FLAG", "FLAG")
         copy_col(t, "E2C_SAVE_FLAG_ROW", "FLAG_ROW")
         t.removecols(["E2C_SAVE_FLAG_ROW"])
@@ -129,6 +131,15 @@ def main(ms, mode, *rest):
         rec["columns_equal"] = rec["columns"] == before["columns"]
         rec["flag_equal"] = rec["flag_sha256"] == before["flag_sha256"]
         rec["corrected_equal"] = rec["corrected_sha256"] == before["corrected_sha256"]
+    elif mode == "cleanup":
+        # undo a save that failed while copying (harness incident, 2026-11-15)
+        before = json.loads(Path(rest[0]).read_text())
+        assert "E2C_SAVE_FLAG" not in t.colnames()
+        extra = [c for c in t.colnames() if c.startswith("E2C_")]
+        t.removecols(extra)
+        rec["removed"] = extra
+        rec["columns"] = sorted(t.colnames())
+        rec["columns_equal"] = rec["columns"] == before
     elif mode == "compare":
         rec.update(compare(t, *rest[:4]))
     t.close()

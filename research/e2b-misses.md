@@ -1665,6 +1665,19 @@ comparison, the controls and the reading are unchanged).
 
 Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
 
+**Harness incidents, 2026-11-15, before CASA or rang ran:**
+- The first save failed while it hashed CORRECTED_DATA: a 262 MB read
+  over 9p returned ENOMEM. Nothing had been renamed. Blocks are now 250
+  rows.
+- The second save failed while it copied CORRECTED_DATA into
+  E2C_SAVE_CORRECTED_DATA: a 9p write returned ENOMEM, with WSL's page
+  cache full. `b2_cols.py cleanup` removed the partial column. The column
+  set equals the original again, and no original column was written.
+- Step 1 now renames CORRECTED_DATA to E2C_SAVE_CORRECTED_DATA, with no
+  data copy, and adds an empty CORRECTED_DATA on its own manager
+  (`E2CCasaCorrected`) for CASA to write. Step 7 removes it and renames
+  the saved column back.
+
 ## For the coordinator
 
 **After P1 and the 3c reading (2026-11-15, branch `e2b-pcasa`):**
