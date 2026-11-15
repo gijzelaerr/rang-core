@@ -2,6 +2,7 @@
 the frozen configurations' code paths end to end on development data only.
 
     python e2_dryrun.py a RUN        # e2a.yaml's shape on A1 small
+    python e2_dryrun.py a-rerun RUN  # e2a-rerun.yaml's shape (e2-acceptance.md 9.5)
     python e2_dryrun.py b RUN MS     # e2b.yaml's shape on a slice of LUNO scans 1-2
 
 `a`: e2a.yaml with fields mapped to A1 small (fcal J1939-6342, target
@@ -33,8 +34,8 @@ def sub(text, old, new):
     return text.replace(old, new)
 
 
-def config_a():
-    t = (HERE / "e2a.yaml").read_text(encoding="utf-8")
+def config_a(name="e2a.yaml"):
+    t = (HERE / name).read_text(encoding="utf-8")
     t = sub(t, "  gcal: [J1939-6342]\n  target: [ESO137-001]\n",
             "  gcal: [J1939-6342]\n  target: [SIM-TARGET]\n")  # fmt: skip
     t = sub(t, "  scans: [9, 10, 11]\n", "  scans: [1, 4, 23]\n")
@@ -44,7 +45,7 @@ def config_a():
     # short spacings). Multiscale on MeerKAT coverage at 4096 x 3" is G5's run D
     # on the ESO 137 pilot (passed), so here it is off; the rest is unchanged.
     t = sub(t, "  multiscale: true\n", "  multiscale: false\n")
-    return "# e2_dryrun.py a: e2a.yaml on A1 small (development), multiscale off.\n" + t
+    return f"# e2_dryrun.py a: {name} on A1 small (development), multiscale off.\n" + t
 
 
 def config_b():
@@ -65,7 +66,12 @@ def run(leg, out, ms_src):
     if not ms.exists():
         shutil.copytree(ms_src, ms)
     shutil.copy(HERE / STRATEGY, out / STRATEGY)
-    text = config_a() if leg == "a" else config_b()
+    if leg == "a":
+        text = config_a()
+    elif leg == "a-rerun":
+        text = config_a("e2a-rerun.yaml")
+    else:
+        text = config_b()
     (out / "config.yaml").write_text(text, encoding="utf-8")
     cmd = [sys.executable, "-m", "rang.core_cli", "run", str(out / "config.yaml"), str(ms)]
     rc = subprocess.call(cmd)
@@ -82,4 +88,4 @@ def run(leg, out, ms_src):
 
 if __name__ == "__main__":
     leg = sys.argv[1]
-    sys.exit(run(leg, sys.argv[2], A1 if leg == "a" else sys.argv[3]))
+    sys.exit(run(leg, sys.argv[2], A1 if leg in ("a", "a-rerun") else sys.argv[3]))

@@ -1203,6 +1203,165 @@ This attempt gives no E2-A result. It is recorded so the next attempt starts fro
   - Candidate change: a selfcal `niter` or depth that keeps the CARACal stop rule reachable, such as CARACal's own niter for these images.
   - The amendment is written and committed before the rerun. The run above stays as the record of the frozen settings' cost.
 
+### 9.5 Amendment 2026-11-15: selfcal image depth for the rerun (committed before any rerun step)
+
+Branch `e2a-rerun`, from main `8eb5b4d`. Nothing of the rerun had been built or run when this was committed.
+**Post hoc** with respect to the interrupted run's cost and logs (9.4). Its author read the archived stage
+summaries, `state.json` and the two GeMClean logs: σ per major iteration, component counts, wall times. No
+gate was computed on that run and no score was read. The rerun stays on scans 9-11 by the coordinator's
+decision in 9.4 (an interruption, not a failure under 6.6), so 6.6's reserve is not used.
+
+**Why the frozen depth cannot finish.** Each selfcal image used C5b's CARACal values (owner item 29): mask
+10σ, then 6σ; clean to `clean_cutoff` 0.5σ inside it; multiscale (gated); `niter` 1,000,000. Round 1's image
+stopped at exactly 1,000,000 components after 30,615 s, 5.7 × the image stage. Its threshold
+(2.8e-5 Jy, 0.5 × σ) was not reached.
+- 9.4's candidate, "CARACal's own niter", changes nothing. CARACal's `img_niter` is 1,000,000
+  (c5b-selfcal-masks.md section 1), which is what ran. With these values WSClean would also stop on the cap.
+- The departure from CARACal that makes the cap bind is multiscale at 0.5σ. CARACal's default
+  selfcal image is Högbom, and owner item 29 keeps multiscale as the gated setting.
+- At about 30,615 s per image, selfcal's three images alone take about 25 h. The 30,615 s is also inflated: both
+  lock-free full checks of 9.4 (10:52-11:52 and 12:15-13:40 UTC) fall inside round 1's image
+  (05:11-13:38 UTC).
+
+**The change (one key group, nothing else).** [e2a-rerun.yaml](results/e2-acceptance-scripts/e2a-rerun.yaml)
+is `e2a.yaml` with `selfcal.cleanmask_method`, `cleanmask_thr` and `clean_cutoff` removed, plus a header.
+Every selfcal image then takes the image section unchanged (`core_config.selfcal_image_settings` with empty
+lists), which is A0 rule 6: automatic mask 5σ, clean to 3σ.
+- A0 rule 6 says "This holds for every imager" and binds rang and the oracle chain in E2 (appendix A). The
+  frozen selfcal images departed from it under item 29, so the amendment returns them to the A0 rule.
+- Its cost on this data is measured: the image stage stopped on threshold at 684,794 components in
+  5,386 s, before both overlap windows.
+- **This overrides owner item 29's "CARACal's values in E2-A's configuration" for the selfcal images.** It
+  needs the coordinator's acceptance before launch (For the coordinator).
+- Stage hashes: flag, calibrate, apply and image are unchanged, because their sections are byte-equal.
+  Only selfcal's hash changes.
+
+**Hypothesis and decision rule (frozen now).**
+- H: under rule 6, each of selfcal's three images (rounds 1 and 2, and the final image) stops on threshold
+  below `niter`, at about the image stage's cost.
+- Read: per image, the stop reason and component count from `gemclean.log`, and its wall time.
+- If an image still stops on `niter`, that is recorded as frozen and the run is not retuned. Gate 1 is
+  read on the exit code as before.
+- Gates, tolerances, scorers and oracles are unchanged (6.5, appendix A). The self-calibration row compares
+  image 1 (CORRECTED_1GC) with the final image at the same rule 6 depth. Under this amendment, selfcal's
+  image 1 has the image stage's settings on a copy of the same column.
+- 6.5's expectation for self-calibration (C5's model absorption, item 29) stands.
+
+**Run conditions (amended).**
+- **Wheel:** the frozen one, unchanged: `C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv`, wheel SHA-256
+  `2d222c60…ee2f` with `freeze-2.txt`'s imaging extra (6.4).
+- **MS path (deviation from 6.2):** `D:\rang\outputs\e2a-20261115\e2a.ms`, rebuilt from the same zarr
+  groups (9.1) and verified against 9.1's records (9.8). Main's extension ran the converter, not the
+  frozen wheel. Its `core_ms_write` is the frozen wheel's apart from read-side additions, and the
+  discriminating checks are `verify`'s 0 differing cells and the FLAG/FLAG_ROW hashes.
+- **Host:** exclusive heavy lock, as 6.4. **No lock-free job may run on the host during the run**, the
+  coordinator's full checks included. `e2_diskguard.py` (9.6) samples the host's CPU load and process
+  count every 60 s, durably, so an overlap is visible in the record.
+- **Interruption:** a power cut, a host failure or a disk halt (9.6) gives "interrupted", not a gate-1
+  failure, as in 9.4. The same command resumes it after any interrupted write-back is restored:
+  `rang-core run` skips finished stages whose hash is unchanged. Gate 1 is then reported as "met with
+  one resume after <cause>", labelled, and wall time per stage as measured.
+
+**What changed on main since the frozen wheel, and whether it is in the rerun.** All three are **out**,
+because the frozen wheel stays. None is on E2-A's path in any case:
+
+| Change | Where | E2-A's path | In the rerun |
+| --- | --- | --- | --- |
+| Parallactic angle follows casacore (`parallactic_angle_casa`, `720c8de`) | e2b-misses.md 9.15-9.16 | Not evaluated: `e2a.yaml` has no polcal term (`calibrate.polcal.terms: []`) and `apply.parang: false` (`config.resolved.json`). K, G and B do not call it. Gate 2b's CASA applycal runs with `parang=False` too | out (no effect either way) |
+| GeMClean joined-IQUV auto-mask (as WSClean radler) | e2b-misses.md 9.21-9.22 | Stokes I, `join_polarizations: false`. The Stokes I auto-mask is in the frozen wheel and ran in 9.4 | out (no effect) |
+| Chunk-task API and local executor (`core_tasks`, issue #3) | chunk-task-api.md | `data.processes` defaults to 1, in process. The frozen wheel predates it, and its timing runs are still open | out |
+
+### 9.6 Disk budget and stop rule (2026-11-15)
+
+Units are GiB (2^30 bytes), as `shutil.disk_usage` and `du` report them.
+
+- One cell column is 1,047,614 rows × 4,096 × 4 = 17,164,107,776 cells.
+- A complex64 column is 127.9 GiB, WEIGHT_SPECTRUM (float32) 63.9 GiB and FLAG (bit-packed) 2.0 GiB.
+- A flag version is 2.0 GiB, bit-packed: e2b.ms's versions measure 535 MiB at 272,916 rows.
+- The run directory holds images, tables and logs. A 4,096², 8-channel image set is about 3 GiB, and
+  5 GiB per imaging run is budgeted.
+- Write-back adds columns in place (`ensure_column`, TiledShapeStMan) and makes no transient copy, so the
+  peak is the end state.
+
+| Stage | Creates | New GiB | MS + run dir after |
+| --- | --- | --- | --- |
+| build (`e2_convert.py`) | DATA, WEIGHT_SPECTRUM, FLAG, row columns, subtables | 194 (measured 9.1) | 194 |
+| flag | flag versions `rang_original`, `rang_flag_*` | 4 | 198 |
+| calibrate | MODEL_DATA (setjy), version, tables | 130 | 328 |
+| apply | CORRECTED_DATA, version | 130 | 458 |
+| image | images | 5 | 463 |
+| selfcal | CORRECTED_1GC (copy of CORRECTED_DATA), version, 3 images. MODEL_DATA and CORRECTED_DATA are rewritten in place | 145 | **608** |
+
+9.4's run matches this: 578 GB MS, 386 GB of it the run's columns.
+
+**Dropped or reused.**
+- MODEL_DATA and CORRECTED_DATA are already reused: selfcal rewrites them in place.
+- None of the four complex columns can be dropped. MODEL_DATA is calibrate's and selfcal's model, and gate
+  2b's WSClean and QuartiCal read it. CORRECTED_DATA is apply's output, selfcal's output and gate 2b's
+  input. CORRECTED_1GC is selfcal's input in every round and the row's image 1. DATA is the input.
+- `apply.column: CORRECTED_1GC` with `image.column: CORRECTED_1GC` only skips the copy (about 600 s).
+  Selfcal still creates CORRECTED_DATA, so the peak is the same. Not adopted.
+- WEIGHT_SPECTRUM (64 GiB) is never read by the rang arm, which uses `data.weights: uniform` and
+  `-unit-weights`. Dropping it is a converter change to the verified input, though, and the oracle copies
+  use it. Not adopted, and the run would still be short without it.
+- Flag versions of 2 GiB each are not worth deleting.
+
+**Start rule (replaces 9.2's 470).** Free space on D: right before launch must be at least the chain's
+writes, 414 GiB, plus the 150 GiB floor plus a 40 GiB margin for other sessions and WSL's `ext4.vhdx`
+during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 470 had no floor, and in
+9.4 the other sessions took about 75 GiB during the run.
+
+**It does not fit today.**
+- D: had 508 GiB free at 13:00 on 2026-11-15, so after the build it has 314 GiB.
+- That is **291 GiB short** of the start rule. With no space freed, the chain would take D: to about
+  -100 GiB.
+- No configuration change in the frozen chain closes this. The fix is disk.
+- Candidates (sizes by `du` today; none deleted here, and each deletion needs the coordinator or owner):
+
+| Path | GiB | What it is |
+| --- | --- | --- |
+| `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` (+ `.flagversions`) | 222 | E2-B frozen arm's CASA copy (8.3, 9.2; chi-offset read it; 2b was re-scored on an ext4 copy, e2b-misses 9.24) |
+| `D:\rang\data\e2-b\e2b.ms` (+ `.flagversions`) | 55 | E2-B input, restored; rebuildable from the zarr (34 GiB, kept) |
+| `R\wsclean3c`, `R\wsclean3c-unit` | 22 | E2-B 3c oracle images, scored |
+| WSL `D:\wsl\Ubuntu\ext4.vhdx` | 135 reclaimable | file 303 GiB, 168 GiB used inside (`df`). Compacting needs `wsl --shutdown`, which stops every WSL session |
+| `outputs\20261104-speed`, `20261103-gemclean-heldout`, `e1-20261109-03`, `e3-20261111-input` | 69, 56, 52, 51 | other tasks' data (E3-B's input among them) |
+
+- E2-B's own three rows free 299 GiB. That leaves 613 GiB at launch and about 199 GiB at the end of the run,
+  which meets the rule. Compacting the vhdx adds margin.
+- E: (464 GiB free) is not used, because rang's large data stays on D:.
+
+**Stop rule (new harness, flagged).**
+[e2_diskguard.py](results/e2-acceptance-scripts/e2_diskguard.py), tested in
+`tests/test_e2_diskguard.py`, wraps the timed command inside the lock.
+- Every 5 s it reads D:'s free space. Below **165 GiB** it stops the command's own process tree: terminate,
+  then kill after 30 s. It writes a `halt` record and exits 75.
+- The 15 GiB above the floor covers one poll at the measured write rate (a 128 GiB column in apply's
+  599 s, 0.22 GiB/s, about 1 GiB per poll), the 30 s grace and other sessions' writes.
+- It refuses to start below the same threshold. It touches no other process.
+- Every 60 s it appends a durable JSON line: free GiB, tree RSS, tree CPU seconds, host load and host
+  process count. These are the per-stage records that 9.4 lost with `e2_timed.py`.
+- A halt is an interruption under 9.5 and is resumed by the same command. The guard does not change the
+  timing method: `e2_timed.py` still runs inside it.
+
+### 9.7 Wall time, memory and lock (estimate, from 9.4's records)
+
+- **Flag, calibrate, apply, image: 13,086 s, measured in 9.4** (2,556 + 4,545 + 599 + 5,386). It ran
+  01:24-05:03 UTC, before both overlap windows, so it is clean.
+- **Selfcal (estimated):**
+  - copy into CORRECTED_1GC: about 600 s, as apply's column write;
+  - three images at rule 6: about 5,400 s each, 16,200 s;
+  - two rounds of predict, solve and apply. Round 1's took under 6,700 s: it ran from 13:38 UTC, and
+    round 2 had started before the cut at about 15:30 UTC. Each round writes MODEL_DATA and
+    CORRECTED_DATA (about 600 s each, as apply), so 1,500-6,700 s per round.
+  - Selfcal total: **19,800-30,200 s**.
+- **Whole run: about 33,000-43,000 s (9-12 h)**, plus the post chain (6.5), which runs separately and
+  shared.
+- **Lock: exclusive** (6.4, A0 rule 7). Memory: the image-stage peak was not captured in 9.4. G2's
+  pilot at 512 channels peaked at 19.7 GB in GeMClean, calibrate plans within `data.memory_limit_gb` 8,
+  and smoke b peaked at 8.3 GB. Exclusive use of the 63 GB host covers this, and the guard's records
+  give the measured peak.
+- **Priority:** critical, as 9.2, only on the coordinator's word.
+
 ## For the coordinator
 
 (written at the end)
