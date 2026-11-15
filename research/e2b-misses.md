@@ -378,6 +378,10 @@ measure by measure:
 **Fix, then arm A5 (seen).**
 - Code (GeMClean, G4 follow-up): an automatic mask from Stokes I, applied to
   every joined polarisation, as WSClean does with `-join-polarizations`.
+  - **Correction, 2026-11-15 (9.18):** WSClean's mask is not from Stokes I.
+    Its noise and peaks come from the joined I + Q + U + V sum, and the
+    mask is the union of every polarisation's model pixels. A5 is frozen
+    in 9.18.
 - Then both arms at A0 rule 6: `-auto-mask 5`, threshold 3σ, matched weights,
   3 fields.
 - Hypothesis: compact median within 0.5 % and off-source ratios ≤ 1.6.
@@ -1408,6 +1412,138 @@ options for the owner:
   erfa `pmat76` and `nut80`) in (H4), frozen first;
 - accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
   documented convention difference between astropy and casacore.
+
+### 9.18 A5, joined-polarisation auto-mask, frozen 2026-11-15 (before any run)
+
+Fix item 5 of the ordered list. **Seen**: gate 3c's matched scores (section
+4) and A4b's small-inversion finding (9.12) are known. The code was written
+before this section; no image was made with it before the freeze.
+
+**What GeMClean now does, and what it matches.** Read in WSClean 3.7's radler
+(`76fe4474c31c`, the G4 clone `~/Build/tmp/20261109-g4-wsclean-src` in WSL):
+- `radler.cc` `Perform` estimates σ every major iteration as
+  `integrated.MedianAndStdDevFromMAD()` of
+  `residual_set.GetLinearIntegrated(integrated)`.
+- With `-join-polarizations` (no `-link-polarizations`, no
+  `-squared-channel-joining`), `image_set.cc`
+  `GetLinearIntegratedWithNormalChannels` sums **every** polarisation of
+  every channel, channel-weighted, times `polarization_normalization_factor_`
+  (`image_set.h` `InitializePolFactor`: 1 for IQUV, 1/n for Stokes without
+  I, 0.5 for dual or full correlations). So σ is that of I + Q + U + V,
+  not of Stokes I and not of a squared sum. `threshold_bias` is 0 without
+  squared joins.
+- The mask threshold is `max(σ · auto_mask, abs_auto_mask, abs_threshold)`.
+  The peaks are searched in the same integrated residual (the fast
+  sub-minor loop, G9).
+- `SetAutoMaskMode` builds the Högbom mask once, the first time it is used:
+  the union over **every** model image of the set (each channel and each
+  polarisation) of its finite nonzero pixels.
+- One Radler per independent group (`wsclean.cpp` `runIndependentGroup`), so
+  each group has its own mask.
+
+GeMClean's `run_joined_masked` (`core/src/gemclean/joined.rs`, G4) already
+computed all of this on `norm Σ_k a_k Σ_p r_kp` with
+`stokes::normalisation` (G9). The only change is that the CLI and
+`core_config` no longer refuse `-auto-mask` / `-abs-auto-mask` with
+`-join-polarizations`, and the polarisation path calls the masked kernel and
+writes `<name>-mask.json`. Still refused: masks on unjoined polarisations,
+and `-fits-mask` on several polarisations (not validated here).
+
+**Correction to section 4** (dated 2026-11-15): "an automatic mask from
+Stokes I ... as WSClean does" is wrong against the source. WSClean's mask
+and noise come from the joined I + Q + U + V sum. GeMClean matches that,
+not a Stokes I mask.
+
+**M0, development check against WSClean on a fixture** (before A5's E2-B
+runs; development, not gated):
+- Data: G9's P1, `D:\rang\outputs\g9-20261107-02\data\P1.ms`, read in place.
+- Settings, both arms: G9's base (2048², 1.5″, briggs 0.5, gain 0.1,
+  wgridder ε 1e-6, DATA, field 0), `-pol IQUV -join-polarizations
+  -channels-out 8 -join-channels -mgain 0.8 -auto-threshold 3 -auto-mask 5`.
+  WSClean 3.7 adds `-no-small-inversion -no-min-grid-resolution`.
+- Criteria:
+  - σ of every major iteration up to the finishing one: GeMClean's
+    `auto-mask: major iteration i, sigma` against WSClean's "Estimated
+    standard deviation of background noise", within 1 % (WSClean prints 3–4
+    figures);
+  - the same finishing iteration (WSClean's "Auto-masking threshold
+    reached");
+  - total major iterations within ±1.
+- If any fails, A5 does not run: the implementation is fixed first, and the
+  change is labelled post hoc here.
+
+**A5 hypothesis.** With A0 rule 6's 5σ automatic mask in both arms, and the
+oracle without small inversion, gate 3c's cleaned measures meet A0's 3c
+tolerances:
+- compact-source median ratio within 0.5 % of 1, with robust scatter
+  ≤ 1 % (n ≥ 3);
+- off-source |model| ratio ≤ 1.6 on each of the three fields.
+
+**Data.** `D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms` in gate 3c's
+matched state (`a4_unit.py on`):
+- FLAG is rang's FLAG after apply;
+- WEIGHT is 1, with no WEIGHT_SPECTRUM;
+- both arms read RANG_CORRECTED_DATA.
+
+e2b-pcasa toggles the same state (`a4c_queue.sh`). A5 starts only after
+that queue's `unit off`, and runs on, all of its runs, then off, as one
+sequence. The column list is read read-only before and after every run.
+A run whose list changed is void.
+
+**Settings.** Gate 3c's frozen settings (`e2b.yaml` `image`, E2-B's
+GeMClean argv in `R\rang-run-moved\image\summary.json`):
+- 2048² at 2″, briggs 0, 8 joined channels, IQUV joined;
+- `-niter 1000000 -mgain 0.9 -auto-threshold 3`, wgridder ε 1e-4;
+- unit weights, scans 17–20, fields 0, 1, 2;
+- plus `-auto-mask 5`, with the default `-auto-mask-nmiter` (2).
+
+Per arm:
+- GeMClean: this branch's extension (the build commit goes in the
+  receipt), `-unit-weights`, `-no-update-model-required`, `-j 4`.
+- WSClean 3.7 (`rang-wsclean-native:3.7`): 9.12's oracle,
+  `-no-small-inversion -no-update-model-required -j 4`.
+
+**Control C** (attribution): WSClean as above, without `-auto-mask`.
+- It is scored against E2-B's archived unmasked GeMClean images
+  (`R\rang-run-moved\image\<field>`, which 9.10's C6 reproduced bit for bit
+  in dirty).
+- It separates the mask from the small inversion.
+
+**Measures.** `e2_score3c.py`'s `score_field`, unchanged, called by
+`a5_score.py` per field and pooled as its `main` pools. Dirty L∞ is not
+re-measured here (9.12, 9.17).
+- The source set is recomputed from each pair's own images, so n will not
+  be gate 3c's 35.
+- Reported beside, not decided on:
+  - Δα and the unpolarised Q, U, V test;
+  - both arms' σ per major iteration, finishing iteration and major cycles;
+  - GeMClean's wall time and peak memory.
+
+**Frozen tolerances** (A0 3c, as in `e2_score3c.py`):
+- compact: |median − 1| ≤ 0.005 and robust scatter ≤ 0.01, with n ≥ 3;
+- off-source: ratio ≤ 1.6 per field.
+
+**Decision rule.**
+- **A5 met** on compact and off-source on all three fields, **C not met**:
+  the 3c cleaned miss was the missing mask. The limitation is closed; the
+  owner decides whether gate 3c reruns with A0 rule 6's mask.
+- **A5 met, C met**: the cleaned miss was WSClean's small inversion, not the
+  mask. The mask is delivered anyway.
+- **A5 not met on off-source**: GeMClean's deconvolution default (G7) is a
+  finish-line item (section 4).
+- **A5 off-source met, compact not met**: the compact median stays open as
+  algorithmic (deconvolution or restore). It is not attributed to the mask.
+- A void run (column list changed, or an arm's exit not 0) is rerun once in
+  a fresh on/off sequence, then reported as void.
+
+**Cost.**
+- M0: two runs, about 10 min each at 4 slots.
+- A5 and C: 3 GeMClean and 6 WSClean cleaned runs at 4 slots each. WSClean
+  took 494–2,799 s per dirty run in A4, so allow 1–2 h per cleaned run;
+  about 15 CPU-hours.
+- Disk: about 3 GB of FITS per run, under 30 GB in all, in
+  `D:\rang\outputs\gemclean-iquv-mask-20261115`. Per-case images are
+  deleted once scored; the scores and logs are kept.
 
 ## For the coordinator
 
