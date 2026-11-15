@@ -23,6 +23,10 @@ case "$1" in
     dk rang-formats-oracle:20261030 1 "-v $R/casa:/c:ro" \
       "/opt/qc/bin/python -I /p/scripts/a5_slim.py /c/e2b.ms /p/e2b-slim.ms /p/slim.json" > "$P/slim.out" 2>&1
     rc=$? ;;
+  flagcat)  # WSClean needs FLAG_CATEGORY (added to the ext4 copy only, empty, as in the source)
+    cp "$S/a5_flagcat.py" "$P/scripts/"
+    dk rang-formats-oracle:20261030 1 "-v $R/casa:/c:ro -v $X:/x:rw"       "/opt/qc/bin/python -I /p/scripts/a5_flagcat.py /c/e2b.ms /x/e2b-slim.ms /p/flagcat.json" > "$P/flagcat.out" 2>&1
+    rc=$? ;;
   ext4)
     rm -rf "$X/e2b-slim.ms"; cp -a "$P/e2b-slim.ms" "$X/"
     (cd "$P/e2b-slim.ms" && find . -type f -exec sha256sum {} + | sort -k2) > "$X/d.sha"
