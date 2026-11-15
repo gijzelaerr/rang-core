@@ -7,6 +7,7 @@ runs a container or reads a real MS."""
 
 import importlib.util
 import json
+import shutil
 import sys
 import types
 from pathlib import Path
@@ -80,9 +81,18 @@ def test_drop_needs_compare_and_snapshot(tmp_path, monkeypatch):
                         seen.append((label, mounts, script)) or 0)  # fmt: skip
     with pytest.raises(SystemExit):
         post.drop_corrected_inplace(ms, r)
-    (r / "g2b-applycal.json").write_text("{}")
     (r / "df-flag-snapshot").mkdir()
     (r / "df-flag-snapshot" / "flags-after-applycal.npz").write_bytes(b"")
+    for failed in ({"compare_exit": 1, "compared_cells": 0, "applycal_errors": []},
+                   {"compare_exit": 0, "compared_cells": 5, "applycal_errors": [{"field": "x"}]},
+                   {"compare_exit": 0, "compared_cells": 0, "applycal_errors": []}):  # fmt: skip
+        (r / "g2b-applycal.json").write_text(json.dumps(failed))
+        with pytest.raises(SystemExit, match="did not complete"):
+            post.drop_corrected_inplace(ms, r)
+    assert not seen
+    (r / "g2b-applycal.json").write_text(
+        json.dumps({"compare_exit": 0, "compared_cells": 5, "applycal_errors": []})
+    )
     assert post.drop_corrected_inplace(ms, r) == 0
     ((_label, mounts, script),) = seen
     assert mounts[0] == (ms.parent, "/c") and "/c/e2a.ms" in script
@@ -554,3 +564,26 @@ def test_qc_selfcal_compares_stored_gains(tmp_path, monkeypatch):
 
 
 WSL_GB = 44
+
+
+@pytest.mark.skipif(
+    sys.platform != "win32"
+    or shutil.which("bash") is None
+    or shutil.which("cygpath") is None,
+    reason="the launcher is Git Bash on the Windows host",
+)
+def test_launcher_dry_run_visits_every_step(tmp_path):
+    import os
+    import subprocess
+
+    env = dict(os.environ, DRY="1", R=str(tmp_path))
+    bash = str(
+        Path(shutil.which("cygpath")).with_name("bash.exe")
+    )  # Git Bash, not WSL's
+    done = subprocess.run([bash, (HERE / "e2a_post.sh").as_posix()], env=env, capture_output=True,
+                          text=True, timeout=60, check=False)  # fmt: skip
+    assert done.returncode == 0, done.stderr
+    steps = [line.split(" -- ")[-1].split()[2] for line in done.stdout.splitlines()
+             if line.startswith("DRY ")]  # fmt: skip
+    assert steps == post.ORDER_INPLACE  # the stand-in drains stdin: no step is lost
+    assert not list(tmp_path.iterdir())

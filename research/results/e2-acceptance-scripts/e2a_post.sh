@@ -6,13 +6,17 @@
 #   bash e2a_post.sh [FIRST_STEP] [LAST_STEP]
 # Environment: MS, R (default D:\rang\outputs\e2a-20261115 and its e2a.ms),
 # INPUT (gate 2a's hashes), STRATEGY (Tricolour's), PRIORITY (normal; critical
-# only on the coordinator's word).
+# only on the coordinator's word). DRY=1 prints each step's command and runs a
+# stdin-reading stand-in in its place: no lock, nothing read or written.
+# Each step's stdin is /dev/null: wsl.exe further down would otherwise drain
+# the step list and end the loop early.
 set -u
 S=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$S/../../.." && pwd)
 export PYTHONUTF8=1
+DRY=${DRY:-0}
 lock='C:\Users\gijsm\Github\rang\tools\heavy_lock.py'
-py=$(cygpath -w /c/Users/gijsm/Github/rang/.venv/Scripts/python.exe)  # main checkout's venv
+py='C:\Users\gijsm\Github\rang\.venv\Scripts\python.exe'  # main checkout's venv
 wpy='C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Scripts\python.exe'  # frozen wheel (6.4)
 R=${R:-'D:\rang\outputs\e2a-20261115'}
 MS=${MS:-"$R\\e2a.ms"}
@@ -21,10 +25,18 @@ STRATEGY=${STRATEGY:-$(cygpath -w "$S/mk_rfi_flagging_calibrator_fields_firstpas
 PRIORITY=${PRIORITY:-normal}
 post=$(cygpath -w "$S/e2_post.py")
 guard=$(cygpath -w "$S/e2_diskguard.py")
-log=$(cygpath -u "$R")/post-steps.log
+if [ "$DRY" = 1 ]; then log=/dev/null; else log=$(cygpath -u "$R")/post-steps.log; fi
 first=${1:-gate1}
 last=${2:-tricolour}
-# step  slots  GB  python   (bookings: 9.10's table; wsclean -j and RAYON follow the slots)
+runstep() {  # one step's whole command line
+  if [ "$DRY" = 1 ]; then
+    echo "DRY $*"
+    cat > /dev/null  # drains its stdin, as wsl.exe may
+  else
+    "$@"
+  fi
+}
+# step  slots  GB  python   (bookings: 9.10; wsclean -j and RAYON follow the slots)
 STEPS="
 gate1 1 2 py
 archive 1 2 py
@@ -61,9 +73,10 @@ while read -r step slots mem which; do
   run=$py
   [ "$which" = wpy ] && run=$wpy
   t0=$(date +%s)
-  RAYON_NUM_THREADS=$slots "$py" "$lock" run --priority "$PRIORITY" --slots "$slots" --mem "$mem" -- \
-    "$wpy" "$guard" --path 'D:/' --min-free-gib 165 --log "$R\\post-guard.jsonl" -- \
-    "$run" "$post" "$step" "$MS" "$R" "${extra[@]}" 2>&1 | grep -v '^heavy_lock: waiting' >> "$log"
+  RAYON_NUM_THREADS=$slots runstep "$py" "$lock" run --priority "$PRIORITY" --slots "$slots" \
+    --mem "$mem" -- "$wpy" "$guard" --path 'D:/' --min-free-gib 165 --log "$R\\post-guard.jsonl" \
+    -- "$run" "$post" "$step" "$MS" "$R" ${extra[@]+"${extra[@]}"} < /dev/null 2>&1 \
+    | grep -v '^heavy_lock: waiting' | tee -a "$log"
   rc=${PIPESTATUS[0]}
   echo "$(date -Is) $step rc=$rc $(( $(date +%s) - t0 ))s slots=$slots mem=$mem" | tee -a "$log"
   [ "$rc" = 0 ] || exit "$rc"

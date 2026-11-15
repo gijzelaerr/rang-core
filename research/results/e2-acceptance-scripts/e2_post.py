@@ -826,10 +826,16 @@ def drop_corrected_inplace(ms, r):
     files need (9.10). `restore` would drop it in any case."""
     ms, r = Path(ms), Path(r)
     snap = r / "df-flag-snapshot" / "flags-after-applycal.npz"
-    if not (r / "g2b-applycal.json").is_file() or not snap.is_file():
+    g = r / "g2b-applycal.json"
+    if not g.is_file() or not snap.is_file():
         raise SystemExit(
             "compare-inplace and snapshot-inplace have not run: CORRECTED_DATA kept"
         )
+    # compare writes its record even when its container failed; a second 2b
+    # reading after the drop would need CASA to write a new 128 GiB column (9.20)
+    got = json.loads(g.read_text(encoding="utf-8"))
+    if got.get("compare_exit") != 0 or not got.get("compared_cells") or got.get("applycal_errors"):
+        raise SystemExit(f"2b's compare did not complete ({g}): CORRECTED_DATA kept")
     before = free_gib(ms)
     (r / "e2p_drop_one.py").write_text(DROP_ONE_PY, encoding="utf-8")
     rc = docker(r, FORMATS_IMAGE, inplace_mounts(ms, r),

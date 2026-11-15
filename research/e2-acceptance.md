@@ -1496,13 +1496,13 @@ and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`
 
 ### 9.10 Amendment 2026-11-15: E2-A's gate 3c and self-calibration oracles in the in-place order (written after the rerun started, before any E2-A output was read)
 
-Branch `e2a-post`, from main `948efd0`. Written 15:00-16:00 local on 2026-11-15, while the rang arm's timed
-run (9.7, started 14:41) was in its flag stage. **Frozen before any step below runs.** Its author read no
+Branch `e2a-post`, from main `948efd0`. First committed as `341b711` at 15:28 local on 2026-11-15, while the
+rang arm's timed run (9.7, started 14:41) was in its flag stage; revised before any step ran (below). **Frozen before any step below runs.** Its author read no
 E2-A output: no receipt, stage summary, log, table, image or column of the rerun. Read on the host: D:'s free
 space, and one record of `e2a-guard.jsonl` (15:07: 641.4 GiB free, the run's tree at 3.5 GiB, host load 60 %).
 Gates, tolerances and scorers of 6.5 are unchanged, except the self-calibration oracle's form, which is
 labelled below. Code: [e2_post.py](results/e2-acceptance-scripts/e2_post.py) (`ORDER_INPLACE`) and the launcher
-[e2a_post.sh](results/e2-acceptance-scripts/e2a_post.sh). Tests: `tests/test_e2a_post_reads.py`, 18 tests (20 cases) on
+[e2a_post.sh](results/e2-acceptance-scripts/e2a_post.sh). Tests: `tests/test_e2a_post_reads.py`, 19 tests (21 cases) on
 stand-ins.
 
 **Order (adds to 9.9).** gate1, archive, wcs, casacore, casa-ro, wsclean0, daskms, prep-inplace,
@@ -1510,7 +1510,7 @@ applycal-inplace, compare-inplace, snapshot-inplace, then:
 
 | Step | What | Lock (slots, GB) |
 | --- | --- | --- |
-| `drop-corrected-inplace` | CASA's CORRECTED_DATA (2b's applycal output) removed, after compare and snapshot have read it (−128 GiB) | 1, 2 |
+| `drop-corrected-inplace` | CASA's CORRECTED_DATA (2b's applycal output) removed, after compare and snapshot have read it (−128 GiB); refuses unless compare's record shows exit 0, compared cells and no applycal error | 1, 2 |
 | `qc-avg` | native, frozen wheel venv: the self-calibration oracle's inputs (below) → `R\qc-selfcal\` (about 5 GiB) | 4, 16 |
 | `qc-selfcal` | per round: a small MS on WSL ext4, QuartiCal 0.2.7, the small MS deleted; class B → `R\qc-selfcal.json` | 1, 8 |
 | `unit-on-a` | gate 3c's matched state, E2-B's `UNIT_PY`: renames and a unit WEIGHT, no data written | 1, 2 |
@@ -1556,7 +1556,9 @@ snapshot 1/12, tricolour 8/24. They are not re-measured here.
 - Dropped:
   - `-unit-weights` (the matched state does that);
   - `-scans 9,10,11` (the step checks that the list selects every row of the field);
-  - **`-average-channels 8`, which WSClean 3.7 does not have.** WSClean grids all 4,096 channels, where
+  - **`-average-channels 8`, which WSClean 3.7 does not have**: `rang-wsclean-native:3.7` answers
+    "Unknown parameter: average-channels", where it accepts `-no-small-inversion` (checked 15:50 with no
+    MS; its `--help` lists neither). WSClean grids all 4,096 channels, where
     GeMClean grids 512 averaged ones. 6.5's "512 channels" cannot be matched this way.
 - **Expected before reading (stated):** rang's image carries the bandwidth smearing of 1.67 MHz channels
   and WSClean's does not. β = Δν/ν · r/θ is about 1.3e-3 · r/θ, about 0.25 at 0.35° from the centre for a 6.5″
@@ -1635,8 +1637,28 @@ snapshot 1/12, tricolour 8/24. They are not re-measured here.
 **Also fixed here (found while writing):** `snapshot-inplace`'s script read FLAG and RANG_FLAG whole. On
 E2-A that is 69 GB each, beyond WSL's memory. It now reads in blocks of 4,000 rows, with the same output (tested).
 
-**Not tested:** `QC_MS_PY` and every container step against a real MS, and the WSL `$HOME` mount. The
-first real run is E2-A's post chain.
+**Consequence of the drop.** After it, a second 2b reading (6.5 allows a re-read after a scorer bug)
+needs CASA applycal to write a new 128 GiB column over 9p, which is 9.20's failure in e2b-misses. Gate 2b's
+compare and snapshot are therefore read before the drop step runs, and the coordinator accepts the drop.
+
+**Not tested:**
+- `QC_MS_PY` and every container step against a real MS, and the WSL `$HOME` mount. The first real run is
+  E2-A's post chain.
+- The guard's halt on a container step: it kills the `wsl.exe` tree. Whether the docker container then
+  stops is not tested, so for WSClean's reorder writes the 165 GiB floor rests on the disk budget above.
+- The launcher ran only in its `DRY=1` mode (all 20 steps visited with a stdin-draining stand-in, tested).
+
+**Revised 2026-11-15, before any step ran** (after `341b711`): the drop's compare gate; the launcher's stdin
+from `/dev/null` (wsl.exe could drain the step list and end the chain after one step) and its `DRY` mode;
+WSClean's `-average-channels` checked by running it; the timestamps; the drop's consequence; the untested
+guard halt.
+
+**Host incident while writing (recorded, nothing of the run read or changed).** At 15:34 a mistaken shell
+command started the launcher for real instead of `DRY=1`. It queued one shared ticket (`gate1`, 1 slot)
+behind the run's exclusive lock and created an empty `post-steps.log` in `D:\rang\outputs\e2a-20261115`.
+It was stopped within minutes, before the lock was granted: no step ran, nothing was read. The four
+processes it had started were stopped, the empty log was deleted, and the dead ticket is removed by
+`heavy_lock`'s stale-ticket rule.
 
 ## For the coordinator
 
