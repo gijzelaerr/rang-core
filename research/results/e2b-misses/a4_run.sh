@@ -18,15 +18,18 @@ case "$1" in
   unit)
     dk rang-formats-oracle:20261030 1 "/opt/qc/bin/python -I /p/scripts/a4_unit.py /c/e2b.ms $2 /p/unit-$2.json"
     rc=$? ;;
-  wsclean)
-    fid=$2; tag=$3; eps=$4; out=/p/wsclean/$tag-eps$eps
-    mkdir -p "$P/a4/wsclean/$tag-eps$eps/tmp"
+  wsclean|wsclean-nosi)
+    # wsclean-nosi: A4b (9.11), the same plus -no-small-inversion
+    fid=$2; tag=$3; eps=$4; extra=""; sub=wsclean
+    if [ "$1" = wsclean-nosi ]; then extra=-no-small-inversion; sub=wsclean-nosi; fi
+    out=/p/$sub/$tag-eps$eps
+    mkdir -p "$P/a4/$sub/$tag-eps$eps/tmp"
     dk rang-wsclean-native:3.7 4 "wsclean -name $out/$tag-dirty -size 2048 2048 -scale 2asec \
       -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations \
       -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy $eps \
-      -no-update-model-required -j 4 -temp-dir $out/tmp -niter 0 -field $fid /c/e2b.ms" \
-      > "$P/a4/wsclean/$tag-eps$eps.out" 2>&1
-    rc=$?; rm -rf "$P/a4/wsclean/$tag-eps$eps/tmp" ;;
+      -no-update-model-required -j 4 -temp-dir $out/tmp -niter 0 $extra -field $fid /c/e2b.ms" \
+      > "$P/a4/$sub/$tag-eps$eps.out" 2>&1
+    rc=$?; rm -rf "$P/a4/$sub/$tag-eps$eps/tmp" ;;
 esac
 echo "$(date -Is) $* rc=$rc secs=$(( $(date +%s) - s ))" >> "$P/a4/runs.log"
 exit $rc
