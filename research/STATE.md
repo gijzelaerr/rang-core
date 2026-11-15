@@ -20,6 +20,20 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-B P1 and 3c, 2026-11-15 (branch `e2b-pcasa`; [e2b-misses.md](e2b-misses.md) 9.15–9.17):
+- `cal_pol.parallactic_angle_casa` now computes casacore's AZEL
+  parallactic angle: the IAU 1976/1980 apparent place, `gst94`,
+  casacore's zenith-ward diurnal shift and polar motion in HADEC.
+  - It matches casacore within 3.6e-8 rad on a 432-case fixture
+    (`tests/data/pa_casacore.json`) and 1.3e-8 on the held-out field rows,
+    against 7.0e-6 before.
+  - The earlier TETE form stays as `parallactic_angle_tete` for
+    `simtruth`'s frozen truth.
+- Gate 2b re-scored on A1's mini MS: the 42 cells are now 4.8 eps at most
+  (class C 11), against 25.6 before. The full-MS re-score was not run.
+- The 2.4–2.7e-7 rad between casacore's measures and applycal is still
+  open.
+
 After 0.2.0, 2026-11-14 (main 1cacf9f):
 - Released: tag v0.2.0 on 591f5f4. The GitHub release has 7 files and PyPI has rang-core 0.2.0 (6 files). A clean `pip install rang-core==0.2.0` works. Issue #2 and the v0.2.0 milestone are closed.
 - Two fixes before the tag:
