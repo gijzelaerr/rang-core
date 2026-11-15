@@ -48,9 +48,9 @@ def main(mode, *a):
     rec = {"mode": mode}
     if mode == "make":
         src, dst, version, out = a
-        s = table(src, ack=False)
-        taql(f"SELECT {ROWS} FROM $s GIVING '{dst}' AS PLAIN")
-        s.close()
+        srctab = table(src, ack=False)
+        taql(f"SELECT {ROWS} FROM $srctab GIVING '{dst}' AS PLAIN")
+        srctab.close()
         t = table(dst, readonly=False, ack=False)
         put_version(t, version)
         t.flush()
