@@ -1361,6 +1361,12 @@ during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 
   and smoke b peaked at 8.3 GB. Exclusive use of the 63 GB host covers this, and the guard's records
   give the measured peak.
 - **Priority:** critical, as 9.2, only on the coordinator's word.
+- **Launch** (Git Bash, from the worktree):
+  `PRIORITY=critical bash research/results/e2-acceptance-scripts/e2a_rerun_launch.sh`.
+  [e2a_rerun_launch.sh](results/e2-acceptance-scripts/e2a_rerun_launch.sh) checks the start rule and writes
+  `columns-before.json`. It then runs heavy lock exclusive → `e2_diskguard.py` (165 GiB) → `e2_timed.py` →
+  `rang-core run e2a-rerun.yaml e2a.ms` from the frozen wheel venv. Logs go to
+  `D:\rang\outputs\e2a-20261115\e2a-run.log`, `e2a-guard.jsonl` and `e2a-timed.json`.
 
 ## For the coordinator
 
