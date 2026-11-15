@@ -64,10 +64,101 @@ MJD_SECONDS = 86400.0
 # -- the parallactic angle --------------------------------------------------
 
 
+_C_LIGHT = 299792458.0
+_ARCSEC = np.pi / 180.0 / 3600.0
+
+
+def _pa_formula(h, d, phi):
+    return np.arctan2(np.sin(h), np.tan(phi) * np.cos(d) - np.sin(d) * np.cos(h))
+
+
+def _elementary(axis, angle):
+    """casacore's RotMatrix(Euler(angle, axis)) per element of `angle`."""
+    c, s = np.cos(angle), np.sin(angle)
+    m = np.zeros(np.shape(angle) + (3, 3))
+    i, j = [(1, 2), (2, 0), (0, 1)][axis - 1]
+    m[..., axis - 1, axis - 1] = 1.0
+    m[..., i, i] = c
+    m[..., j, j] = c
+    m[..., i, j] = s
+    m[..., j, i] = -s
+    return m
+
+
 def parallactic_angle_casa(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m):
-    """The angle CASA's `parang=True` was measured to use (A1 section 7.2):
-    the hour-angle formula on the apparent (TETE) place, apparent sidereal
-    time, the **geocentric** latitude of the antenna, from apparent north."""
+    """casacore's parallactic angle (`MSDerivedValues::parAngle`, which CASA's
+    `applycal(parang=True)` applies) of the J2000 direction (ra, dec) at an
+    antenna's ITRF position, from astropy and erfa (research/e2b-misses.md
+    9.15): the geocentric apparent place on casacore's IAU 1976/1980
+    equator and equinox, casacore's apparent sidereal time (`gst94`), its
+    TOPO -> HADEC step (a shift of g2 = 2 pi R / day / c towards the zenith,
+    then polar motion), and the hour-angle formula with the geocentric
+    latitude. Matches casacore within 2e-7 rad (`tests/data/pa_casacore.json`)."""
+    import erfa
+    from astropy import units
+    from astropy.coordinates import TETE, SkyCoord
+    from astropy.time import Time
+    from astropy.utils import iers
+
+    iers.conf.auto_download = False
+    times = np.atleast_1d(np.asarray(times_mjd_s, float))
+    x, y, z = (float(v) for v in itrf_xyz_m)
+    when = Time(times / MJD_SECONDS, format="mjd", scale="utc")
+    # 1. geocentric apparent place, IAU 2006/2000A -> casacore's 1976/1980
+    app = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs").transform_to(
+        TETE(obstime=when)
+    )
+    a, d = app.ra.rad, app.dec.rad
+    v = np.stack([np.cos(d) * np.cos(a), np.cos(d) * np.sin(a), np.sin(d)], -1)
+    tt = when.tt
+    m = erfa.pnm80(tt.jd1, tt.jd2) @ np.swapaxes(erfa.pnm06a(tt.jd1, tt.jd2), -1, -2)
+    v = np.einsum("...ij,...j->...i", m, v)
+    # 2. casacore's apparent sidereal time
+    ut1 = when.ut1
+    last = erfa.gst94(ut1.jd1, ut1.jd2) + np.arctan2(y, x)
+    # 3. casacore's TOPO -> HADEC: zenith shift, then polar motion
+    phi = np.arctan2(z, np.hypot(x, y))
+    t_cen = (tt.mjd - 51544.5) / 36525.0
+    ut_to_st = 1.002737909350795 + (5.9006e-11 - 5.9e-15 * t_cen) * t_cen
+    g2 = (
+        2.0
+        * np.pi
+        * float(np.sqrt(x * x + y * y + z * z))
+        / 86400.0
+        * ut_to_st
+        / _C_LIGHT
+    )
+    zen = np.stack(
+        [
+            np.cos(phi) * np.cos(last),
+            np.cos(phi) * np.sin(last),
+            np.full_like(last, np.sin(phi)),
+        ],
+        -1,
+    )
+    v = v + g2[..., None] * zen
+    v = v / np.linalg.norm(v, axis=-1, keepdims=True)
+    xp, yp = iers.earth_orientation_table.get().pm_xy(when)
+    xp = np.atleast_1d(xp.to_value(units.arcsec))
+    yp = np.atleast_1d(yp.to_value(units.arcsec))
+    rot = (
+        _elementary(3, last)
+        @ _elementary(1, -yp * _ARCSEC)
+        @ _elementary(2, -xp * _ARCSEC)
+    )
+    w = np.einsum("...ij,...j->...i", rot, v)
+    h = np.arctan2(-w[..., 1], w[..., 0])
+    dd = np.arcsin(np.clip(w[..., 2], -1.0, 1.0))
+    # 4. the hour-angle formula, geocentric latitude
+    return _pa_formula(h, dd, phi)
+
+
+def parallactic_angle_tete(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m):
+    """The earlier CASA-frame angle (A1 section 7.2, `simtruth`'s frozen
+    CASA-frame truth): the hour-angle formula on astropy's apparent (TETE)
+    place at the antenna, apparent sidereal time, the geocentric latitude.
+    It differs from casacore's by up to about 7e-6 rad (research/e2b-misses.md
+    9.8, 9.14)."""
     from astropy import units
     from astropy.coordinates import TETE, EarthLocation, SkyCoord
     from astropy.time import Time
@@ -1401,6 +1492,7 @@ __all__ = [
     "load",
     "parallactic_angle",
     "parallactic_angle_casa",
+    "parallactic_angle_tete",
     "receptor_angles",
     "rotate",
     "row_angles",
