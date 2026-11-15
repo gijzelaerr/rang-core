@@ -1,0 +1,71 @@
+#!/bin/bash
+# E2-A's post chain in place (research/e2-acceptance.md 9.9, 9.10): e2_post.py's
+# ORDER_INPLACE, one shared heavy_lock job per step, each inside e2_diskguard.py
+# (D: floor 165 GiB, 9.6). Git Bash. Start only after the rang arm has ended
+# (its exclusive lock released) and its records are archived.
+#   bash e2a_post.sh [FIRST_STEP] [LAST_STEP]
+# Environment: MS, R (default D:\rang\outputs\e2a-20261115 and its e2a.ms),
+# INPUT (gate 2a's hashes), STRATEGY (Tricolour's), PRIORITY (normal; critical
+# only on the coordinator's word).
+set -u
+S=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$S/../../.." && pwd)
+export PYTHONUTF8=1
+lock='C:\Users\gijsm\Github\rang\tools\heavy_lock.py'
+py=$(cygpath -w /c/Users/gijsm/Github/rang/.venv/Scripts/python.exe)  # main checkout's venv
+wpy='C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Scripts\python.exe'  # frozen wheel (6.4)
+R=${R:-'D:\rang\outputs\e2a-20261115'}
+MS=${MS:-"$R\\e2a.ms"}
+INPUT=${INPUT:-$(cygpath -w "$ROOT/research/results/e2-acceptance/e2a-rerun/flaghash-input.json")}
+STRATEGY=${STRATEGY:-$(cygpath -w "$S/mk_rfi_flagging_calibrator_fields_firstpass.yaml")}
+PRIORITY=${PRIORITY:-normal}
+post=$(cygpath -w "$S/e2_post.py")
+guard=$(cygpath -w "$S/e2_diskguard.py")
+log=$(cygpath -u "$R")/post-steps.log
+first=${1:-gate1}
+last=${2:-tricolour}
+# step  slots  GB  python   (bookings: 9.10's table; wsclean -j and RAYON follow the slots)
+STEPS="
+gate1 1 2 py
+archive 1 2 py
+wcs 1 4 py
+casacore 1 4 py
+casa-ro 1 4 py
+wsclean0 4 8 py
+daskms 8 24 py
+prep-inplace 1 4 py
+applycal-inplace 2 8 py
+compare-inplace 1 4 py
+snapshot-inplace 1 12 py
+drop-corrected-inplace 1 2 py
+qc-avg 4 16 wpy
+qc-selfcal 1 8 py
+unit-on-a 1 2 py
+wsclean3c-a-dirty 2 6 py
+wsclean3c-a-clean 4 10 py
+unit-off-a 1 2 py
+restore 1 4 py
+tricolour 8 24 py
+"
+on=0
+while read -r step slots mem which; do
+  [ -n "$step" ] || continue
+  [ "$step" = "$first" ] && on=1
+  [ $on = 1 ] || continue
+  case $step in
+    restore) extra=("$INPUT") ;;
+    tricolour) extra=("$INPUT" "$STRATEGY") ;;
+    wsclean3c-a-dirty|wsclean3c-a-clean) extra=("$slots") ;;
+    *) extra=() ;;
+  esac
+  run=$py
+  [ "$which" = wpy ] && run=$wpy
+  t0=$(date +%s)
+  RAYON_NUM_THREADS=$slots "$py" "$lock" run --priority "$PRIORITY" --slots "$slots" --mem "$mem" -- \
+    "$wpy" "$guard" --path 'D:/' --min-free-gib 165 --log "$R\\post-guard.jsonl" -- \
+    "$run" "$post" "$step" "$MS" "$R" "${extra[@]}" 2>&1 | grep -v '^heavy_lock: waiting' >> "$log"
+  rc=${PIPESTATUS[0]}
+  echo "$(date -Is) $step rc=$rc $(( $(date +%s) - t0 ))s slots=$slots mem=$mem" | tee -a "$log"
+  [ "$rc" = 0 ] || exit "$rc"
+  [ "$step" = "$last" ] && break
+done <<< "$STEPS"

@@ -1484,6 +1484,7 @@ and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`
   self-calibration gains. After `prep-inplace` they read RANG_CORRECTED_DATA and RANG_MODEL_DATA.
   `e2_post.py wsclean3c` is E2-B's (IQUV, `-join-polarizations`) and reads CORRECTED_DATA, so it does
   not serve E2-A.
+  Both are written in 9.10, after `snapshot-inplace`.
 - **Tests:** `tests/test_e2_post_inplace.py`, 8 tests.
   - The plan, with and without selfcal, and a stale copy refused.
   - The order: no copy, the reads before prep, restore and tricolour last.
@@ -1492,6 +1493,150 @@ and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`
     from the version before apply, refusal of another RECEPTOR_ANGLE.
   - Not tested here: the scripts inside the containers against a real MS. The first real run is E2-A's
     post chain.
+
+### 9.10 Amendment 2026-11-15: E2-A's gate 3c and self-calibration oracles in the in-place order (written after the rerun started, before any E2-A output was read)
+
+Branch `e2a-post`, from main `948efd0`. Written 15:00-16:00 local on 2026-11-15, while the rang arm's timed
+run (9.7, started 14:41) was in its flag stage. **Frozen before any step below runs.** Its author read no
+E2-A output: no receipt, stage summary, log, table, image or column of the rerun. Read on the host: D:'s free
+space, and one record of `e2a-guard.jsonl` (15:07: 641.4 GiB free, the run's tree at 3.5 GiB, host load 60 %).
+Gates, tolerances and scorers of 6.5 are unchanged, except the self-calibration oracle's form, which is
+labelled below. Code: [e2_post.py](results/e2-acceptance-scripts/e2_post.py) (`ORDER_INPLACE`) and the launcher
+[e2a_post.sh](results/e2-acceptance-scripts/e2a_post.sh). Tests: `tests/test_e2a_post_reads.py`, 18 tests (20 cases) on
+stand-ins.
+
+**Order (adds to 9.9).** gate1, archive, wcs, casacore, casa-ro, wsclean0, daskms, prep-inplace,
+applycal-inplace, compare-inplace, snapshot-inplace, then:
+
+| Step | What | Lock (slots, GB) |
+| --- | --- | --- |
+| `drop-corrected-inplace` | CASA's CORRECTED_DATA (2b's applycal output) removed, after compare and snapshot have read it (−128 GiB) | 1, 2 |
+| `qc-avg` | native, frozen wheel venv: the self-calibration oracle's inputs (below) → `R\qc-selfcal\` (about 5 GiB) | 4, 16 |
+| `qc-selfcal` | per round: a small MS on WSL ext4, QuartiCal 0.2.7, the small MS deleted; class B → `R\qc-selfcal.json` | 1, 8 |
+| `unit-on-a` | gate 3c's matched state, E2-B's `UNIT_PY`: renames and a unit WEIGHT, no data written | 1, 2 |
+| `wsclean3c-a-dirty` | WSClean 3.7, `-niter 0`, `-j 2` → `R\wsclean3c-a\` | 2, 6 |
+| `wsclean3c-a-clean` | WSClean 3.7 cleaned, `-j 4` | 4, 10 |
+| `unit-off-a` | the matched state undone; `restore` now refuses while any `E2_*` column exists | 1, 2 |
+
+then restore and tricolour. `bash e2a_post.sh [FIRST] [LAST]` runs each step as a shared heavy-lock job
+inside `e2_diskguard.py` (165 GiB floor), and logs rc and wall time to `R\post-steps.log`. The earlier steps'
+bookings are in the launcher too, at one job each: wsclean0 4/8, daskms 8/24 (its 8 dask workers),
+snapshot 1/12, tricolour 8/24. They are not re-measured here.
+
+**Why after prep-inplace, not before (9.9 allows both).**
+- After prep-inplace, FLAG after rang's apply exists as RANG_FLAG, so 3c's matched state is renames only.
+  Before it, FLAG would have to be rewritten (2 GiB, over 9p).
+- Disk: WSClean writes its reordered data beside the run. That is about 850,950 target rows × 4,096 channels ×
+  12 B = 39 GiB for the dirty run, and about 65 GiB with the model for the clean run (an estimate, Stokes I).
+  The chain leaves about 60 GiB above the floor (below). Only CASA's CORRECTED_DATA can be given back, and
+  only after compare and snapshot.
+
+**Disk (GiB; estimates from 9.6's arithmetic).**
+- End of the run: 645.4 − 414 ≈ 231 free, less other sessions' writes.
+- `archive` copies the run directory (images and tables, about 12-20). 9.6 did not budget this.
+- prep-inplace +2. snapshot-inplace +8: its npz holds FLAG and RANG_FLAG packed, 4.3 each.
+- Lowest point before the drop: about 200 free, 35 above the floor.
+- After the drop: about 330 free. qc-avg +5. The ext4 MS takes about 2.4 of WSL's `ext4.vhdx` per round;
+  vhdx growth is not returned before an `Optimize-VHD`. WSClean clean takes 65 while it runs, and its FITS
+  about 3.
+- Lowest point after the drop: about 255 free.
+- **No ext4 copy for WSClean.** The target rows of RANG_CORRECTED_DATA and FLAG are about 106 GiB, written
+  into the vhdx for good. Before the drop that is below the floor. After the drop, with WSClean's temporary
+  files also on ext4, it ends at about the floor. So WSClean reads the MS over 9p, which E2-B measured as
+  4.4 times slower (9.17, 9.18 of e2b-misses).
+
+**Gate 3c's oracle (as frozen).**
+- Input: RANG_CORRECTED_DATA, which is CORRECTED_1GC, the image stage's input. Selfcal copied it there
+  complex64 to complex64. FLAG is rang's FLAG after apply, and weights are unit, as `-unit-weights`.
+- Settings: the image stage's own gemclean argv (`R\rang-run\image\summary.json`), passed to WSClean
+  argument for argument (`wsclean_argv`; tested on the interrupted run's archived argv): 4096² at 3″, Briggs
+  0.5, `-niter` 1e6, `-mgain` 0.9, `-auto-threshold` 3, `-auto-mask` 5, `-multiscale`, 8 joined channels,
+  `-fit-spectral-pol` 2, `-wgridder-accuracy` 1e-4, `-field 1`. Added: `-gridder wgridder`, as E2-B's
+  matched oracle.
+- Dropped:
+  - `-unit-weights` (the matched state does that);
+  - `-scans 9,10,11` (the step checks that the list selects every row of the field);
+  - **`-average-channels 8`, which WSClean 3.7 does not have.** WSClean grids all 4,096 channels, where
+    GeMClean grids 512 averaged ones. 6.5's "512 channels" cannot be matched this way.
+- **Expected before reading (stated):** rang's image carries the bandwidth smearing of 1.67 MHz channels
+  and WSClean's does not. β = Δν/ν · r/θ is about 1.3e-3 · r/θ, about 0.25 at 0.35° from the centre for a 6.5″
+  beam. So compact-source ratios rang/WSClean are expected to fall with radius by a few per cent at the
+  edge of the scored region. Dirty L∞ includes the same term. Not computed further.
+- **`-no-small-inversion` is not used.** Neither the frozen protocol nor an amendment says to.
+  - E2-B's A4b (e2b-misses 9.12) found WSClean's small inversion was all of 3c's dirty edge difference:
+    8.1e-8 without it at ε 1e-6, and 2.0e-6 to 2.2e-5 at ε 1e-4 (9.17).
+  - The same edge term is expected in E2-A's dirty L∞ as frozen.
+  - The step takes a `nosi` argument that writes into `R\wsclean3c-a-nosi\`. It runs only under a later
+    amendment (the owner's decision under A4b), as a labelled seen reading.
+- Cost (estimate):
+  - E2-B's dirty IQUV runs took 2,030-2,485 s over 9p for 272,916 rows, at 0.2 cores. With 3.1 times the
+    target rows, each E2-A run should spend about 6,000-8,000 s reordering. The clean run adds deconvolution:
+    GeMClean's image stage took 5,386 s in 9.4.
+  - Memory: WSClean on G5's ESO 137 pilot (4096² at 3″, multiscale) peaked at 5.11 GB, hence the 10 GB
+    booking.
+- Scoring E2-A's 3c (dirty L∞ and compact-source ratios over the inner 0.7°) needs an E2-A reading of
+  `e2_score3c.py`, which is written for E2-B. It is not written here.
+
+**The self-calibration row's oracle (amended form, labelled).**
+- **As frozen (6.5): "gains class B against QuartiCal 0.2.7 on the same MODEL_DATA and solint, unaveraged
+  (stated)". It cannot run here.**
+  - One solution interval is 120 integrations × 1,830 baselines × 4,096 channels × 4 correlations, or
+    3.6e9 samples.
+  - Data and model in complex64 plus float32 weights come to 72 GB per QuartiCal chunk. WSL has 44 GB and
+    the host 63.
+  - Under 6.5's rule that form is "not checked (memory)". `qc-selfcal.json` records it (`unaveraged_form`).
+- **Amended form (written now, before any reading).** QuartiCal solves the time-averaged arrays that
+  rang's `selfcal.average_time` solves (CASA's estimator, e2-average-time.md 1).
+  - Per round, per (interval, baseline), qc-avg takes the unit-weighted means of CORRECTED_1GC and of
+    that round's model over unflagged samples.
+  - Rows with FLAG_ROW and autocorrelations are left out. An empty cell is flagged, and an averaged row
+    with no live source row is flagged as a row.
+  - The averaging is written in `e2_post.py` (`qc_layout`, `QcSums`) and does not call rang's `cal_chunks`
+    or `time_bins`. Tests check it against a per-row loop and against rang's `time_bins`.
+  - A small MS on WSL ext4 holds the averages: 7,320 rows (4 intervals × 1,830), taking template rows'
+    metadata from the MS read-only, and TIME set to each interval's mean time.
+  - QuartiCal runs with C5's options (`examples/check_c5.py` `QC_OPTIONS`) and `G.type` phase (Sp) or
+    diag_complex (Sa), selfcal's refant, `G.time_interval=1`, `G.freq_interval=0`, `input_ms.time_chunk=1`,
+    and the term's stop rule. The keys were checked against the container's `argument_schema.yaml`.
+- What this tests and what it does not.
+  - It tests rang's averaged solve (kernel, flags, intervals, reference-free products) on the averages.
+  - It does not test the averaged-against-unaveraged difference that "(stated)" was to state.
+  - **This changes the oracle's form after the protocol was frozen. It is labelled post hoc with respect
+    to 6.5, and was written before any E2-A output.** The coordinator accepts or rejects it before
+    `qc-avg` runs. If it is rejected, the row's gains are "not checked (memory)".
+- **Models.** The MS holds only the last round's model.
+  - qc-avg predicts each round's model again from its model images, with the frozen wheel's predictor.
+    It uses `core_model.write_model_data`'s rows, blocks of `gemclean_block_rows` rows, cells and unmapped
+    channels.
+  - **Control C-model:** the last round's prediction equals RANG_MODEL_DATA in every element of every
+    target cross row.
+  - The last round always sums the MS's own column. If C-model is not met, the earlier rounds are void.
+- **Flags.**
+  - Round 1 uses selfcal's flag version, which is FLAG after apply.
+  - Round k + 1 uses that version ORed with the apply flags of rounds 1 to k. Those are recomputed from
+    the rounds' stores: all four correlations wherever either antenna's gain is invalid.
+  - **Control C-flags:** the recomputed count equals each round's `cells_flagged_after −
+    cells_flagged_before` in selfcal's summary.
+  - **Control C-bins:** qc-avg's interval times equal rang's stored gain times within 1e-6 s, or the
+    step refuses.
+- **Measure and tolerance (C5's G2, frozen there):** the gauge-free products g_p g_q* (p < q, per hand)
+  where both arms hold a valid gain. Relative difference median ≤ 7e-4 and p95 ≤ 3e-3. QuartiCal's
+  gain times must equal rang's within 1e-6 s. Solutions flagged in either arm (rang's gain clip included)
+  are not compared, and are counted.
+- **Expected before reading:** near class A. Both arms solve the same averaged arrays up to float64
+  summation order before the complex64 cast, and C5 found 1e-15 on identical inputs.
+- Cost (estimate):
+  - qc-avg reads 2 × 104 GiB natively (36 GB in 102 s in 9.20 of e2b-misses) and runs two predictions
+    of 850,950 rows. The prediction time on E2-A is not recorded (9.4 lost it), so 1-2 h is a guess.
+    Memory: 2 × 4.3 GB of sums plus 2 × 1.1 GB of predictions.
+  - qc-selfcal: about 1.5 GB read over 9p per round, and QuartiCal on 30 M row-channels per round. C5 took
+    28-71 s at 3.5 M. So about 10-30 min per round.
+
+**Also fixed here (found while writing):** `snapshot-inplace`'s script read FLAG and RANG_FLAG whole. On
+E2-A that is 69 GB each, beyond WSL's memory. It now reads in blocks of 4,000 rows, with the same output (tested).
+
+**Not tested:** `QC_MS_PY` and every container step against a real MS, and the WSL `$HOME` mount. The
+first real run is E2-A's post chain.
 
 ## For the coordinator
 
