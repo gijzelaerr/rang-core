@@ -1368,6 +1368,42 @@ during an 8-12 h run: **605 GiB**. Before the build, that is **799 GiB**. 9.2's 
   `rang-core run e2a-rerun.yaml e2a.ms` from the frozen wheel venv. Logs go to
   `D:\rang\outputs\e2a-20261115\e2a-run.log`, `e2a-guard.jsonl` and `e2a-timed.json`.
 
+### 9.8 The rebuilt MS (built and verified 2026-11-15, after 9.5-9.7 were committed at `2cefa7f`)
+
+`D:\rang\outputs\e2a-20261115\e2a.ms`, built by
+[e2a_rerun_build.sh](results/e2-acceptance-scripts/e2a_rerun_build.sh). It runs `e2_convert.py build`
+and `verify`, then `e2_flaghash.py`, from the worktree's `.venv` (main `8eb5b4d`'s extension, built by
+`check_all.py --quick`). Each step is a shared heavy-lock job inside `e2_diskguard.py`. Records are in
+[results/e2-acceptance/e2a-rerun/](results/e2-acceptance/e2a-rerun/).
+
+- **Equal to 9.1's archive:**
+  - `e2a.ms.convert.json`: groups, row ranges, attributes, 1,047,614 rows, 61 antennas, 4,096 channels
+    and both fields, apart from `seconds`.
+  - `verify.json`: 0 differing cells in DATA, WEIGHT_SPECTRUM and FLAG (17,164,107,776 each) and 0 in
+    every row column.
+  - FLAG SHA-256 `1aec438d…3baa` and FLAG_ROW `b528098a…89d6`: gate 2a's reference is unchanged.
+  - The main-table column set equals 9.4's `columns-before.json`, 23 columns.
+  - `du` is 194 GiB.
+- **Cost:**
+
+  | Step | Wall | Booked | CPU | Peak tree RSS |
+  | --- | --- | --- | --- | --- |
+  | build | 822 s (9.1: 1,304 s) | 4 slots, 8 GB | 0.93 cores | 0.56 GiB |
+  | verify | 777 s | 4 slots, 8 GB | 0.91 cores | 0.67 GiB |
+  | hash | 30 s | 2 slots, 4 GB | – | 0.16 GiB |
+
+  The converter is single-threaded, so 1 slot and 2 GB would be the honest booking next time.
+- `rang-core config check e2a-rerun.yaml e2a.ms` from the frozen wheel venv:
+  "valid for flag, calibrate, apply, image, selfcal" (`config-check-rerun.txt`).
+- **Smoke:** `e2_dryrun.py a-rerun` ran from the frozen wheel venv on A1 small (shared, 4 slots) and met
+  6.4's rule.
+  - Exit 0, 26 s wall, 1.35 GiB peak; all five stages done.
+  - Every selfcal image ran with `-auto-mask 5.0 -auto-threshold 3.0` and stopped on threshold.
+- An attempt 0 at 13:20 failed in 5 s, before writing anything, because the extension was not yet built.
+  Its logs are `attempt0-*` in the output directory.
+- **D: after the build: 313 GiB free, 292 GiB short of 9.6's start rule (605).** The run is ready to
+  launch once that space exists and the coordinator accepts 9.5.
+
 ## For the coordinator
 
 (written at the end)
