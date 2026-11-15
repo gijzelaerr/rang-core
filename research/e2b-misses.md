@@ -1864,7 +1864,64 @@ Booking:
 - the hashes and comparisons at 1 slot, 4 GB;
 - rang's apply at 4 slots, 16 GB.
 
+### 9.23 9.22 measured, 2026-11-15: gate 2b met on the full MS with the new P
+
+Receipts in [results/e2b-misses/c2b/](results/e2b-misses/c2b/):
+`hash_src.json`, `make.json`, `casa-result.json`, `casa_done.json`,
+`apply.json`, `c9.json`, `g2b-new.json`, `p-change.json`, `runs.log`,
+`disk.log` and `e-ext4.sha256`.
+
+Runs, all rc 0 after one harness fix:
+- the source hash took 946 s (native);
+- the ext4 copy E took 665 s;
+- CASA applycal took 336 s, against 1,061 s over 9p in the original 2b;
+- the copy-out of 68 GB, with sha256 on both sides, took 1,025 s;
+- rang's apply took 353 s (native);
+- the three comparisons took 271–349 s.
+
+Harness fix: the first `make` stopped at once. TaQL resolved `$s` to a
+variable inside `taql` itself; it was renamed to `$srctab`, and nothing
+had been written.
+
+Controls (all met):
+- **C11:** E's DATA and FLAG + FLAG_ROW hash equal to the source's DATA
+  and the version's flags, read natively. 272,916 rows.
+- **C9:** CASA's applycal on E against the frozen RANG_CORRECTED_DATA
+  reproduces `R\g2b-applycal.json` exactly: 408,827,131 compared cells,
+  42 over class C, max 25.5827 eps, 0 flag elements differing.
+- The file sha256 lists of E and its D: copy are equal.
+
+| Comparison | Cells over class C | Max eps of cell max | Flag elements differing |
+| --- | --- | --- | --- |
+| **CASA applycal against rang's apply with the new P (measure)** | **0** of 408,827,131 | **7.06** | **0** |
+| CASA against rang with the old P (C9 = frozen 2b) | 42 | 25.58 | 0 |
+| rang new P against rang old P (beside) | 28 | 26.49 | 0 |
+
+**Outcome: met.** On the whole E2-B MS, gate 2b's CASA applycal leg
+meets class C with the new P: 0 cells over 11 eps, a maximum of 7.06 eps,
+and flags exact.
+- This is a seen reading. The frozen 2b record (42 cells) stays.
+- The 42 cells of 9.3 were P's convention, as 9.16 showed on the mini
+  MS.
+
+Space:
+- D: went from 496 GB at the start to a low of 407 GB with the D: copy
+  and rang's column, and is back to 508 GB after the copy was deleted.
+- E (68 GB) was deleted on ext4, but the vhdx keeps the size it grew to
+  until it is compacted.
+- `R\casa\e2b.ms` was only read.
+
 ## For the coordinator
+
+**After 9.22–9.23 (2026-11-15, branch `e2b-2b`): gate 2b is met on the
+full MS with the new P.**
+- CASA applycal on an ext4 copy against rang's native apply: 0 of
+  408,827,131 cells over class C, max 7.06 eps, flags exact.
+- C9 reproduces the frozen 2b exactly (42 cells, 25.58 eps), and C11 (the
+  copy is exact) is met.
+- No write touched `R\casa\e2b.ms` or went over 9p.
+- The vhdx may need compacting: it took up to about 70 GB, since freed
+  inside ext4.
 
 **After 9.18–9.20 (2026-11-15, branch `e2b-close`):**
 - **9.18, gate 3c dirty at ε 1e-6 with `-no-small-inversion` (dated post
