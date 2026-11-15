@@ -1490,6 +1490,27 @@ that queue's `unit off`, and runs on, all of its runs, then off, as one
 sequence. The column list is read read-only before and after every run.
 A run whose list changed is void.
 
+**Amendment, 2026-11-15, before any A5 run on E2-B data** (M0 had
+started; no E2-B image was made). This changes the data route only, not the
+data:
+- A5 makes no rename on the shared CASA copy. `a5_slim.py` reads it
+  read-only, in either state of `a4_unit.py`, and writes a private copy,
+  `D:ang\outputs\gemclean-iquv-mask-20261115\e2b-slim.ms`, with:
+  - the row columns;
+  - FLAG = rang's FLAG after apply;
+  - RANG_CORRECTED_DATA;
+  - WEIGHT = 1, with no WEIGHT_SPECTRUM;
+  - the subtables.
+- It then compares every copied column with its source, chunk by chunk.
+  Any difference voids the copy (receipt `a5/slim.json`, with SHA-256 of
+  FLAG and RANG_CORRECTED_DATA).
+- GeMClean reads that copy. WSClean reads a byte-identical copy in WSL's
+  ext4 (`~/Build/tmp/20261115-gemclean-iquv-mask`, checked with sha256sum
+  per file), which also holds its temp-dir.
+- The column-list checks above are replaced by the copy's comparison.
+- WSL jobs book the lock once, from the WSL side, at 2 slots (A5's WSClean
+  used about 0.8 cores on 4; the coordinator, 2026-11-15).
+
 **Settings.** Gate 3c's frozen settings (`e2b.yaml` `image`, E2-B's
 GeMClean argv in `R\rang-run-moved\image\summary.json`):
 - 2048² at 2″, briggs 0, 8 joined channels, IQUV joined;
