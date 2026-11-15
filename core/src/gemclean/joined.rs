@@ -43,6 +43,9 @@ pub struct Joined {
     pub q_final: Vec<f64>,
     /// The automatic mask's record (task G4).
     pub auto: Option<super::mask::AutoState>,
+    /// The automatic mask once made: radler's Högbom mask, the union of
+    /// every entry's (channel's and polarisation's) nonzero model pixels.
+    pub auto_mask: Option<Vec<bool>>,
 }
 
 /// `Σ a_k x_k` per pixel, in channel order.
@@ -156,6 +159,17 @@ pub fn run_joined_pols<M: Measurement>(
 /// [`run_joined_pols`] with clean masks (task G4, `research/g4-masks.md`),
 /// as [`super::run_masked`]: the masks act on the integrated residual, and
 /// radler's Högbom mask is the union of the entries' nonzero model pixels.
+///
+/// With joined polarisations (`npol > 1`) this is radler's
+/// `-join-polarizations -auto-mask` (radler `76fe4474c31c`, `radler.cc`
+/// `Perform` and `SetAutoMaskMode`; `image_set.cc`
+/// `GetLinearIntegratedWithNormalChannels`; `research/e2b-misses.md`, arm A5):
+/// the noise of every major iteration is the MAD estimate of the linear
+/// integrated residual `norm Σ_k a_k Σ_p r_kp` (all polarisations summed,
+/// not Stokes I alone and not a squared sum), the mask threshold is that
+/// noise times `-auto-mask`, the peaks are found in the same integrated
+/// residual inside the mask, and the mask is the union over every channel
+/// and polarisation of the nonzero model pixels.
 pub fn run_joined_masked<M: Measurement>(
     entries: &[(&M, &Beam)],
     npol: usize,
@@ -560,6 +574,7 @@ pub fn run_joined_masked<M: Measurement>(
         residual: residuals,
         q_final: qs,
         auto,
+        auto_mask: auto_pixels,
     })
 }
 
@@ -684,6 +699,95 @@ mod tests {
         let plain = run_joined(&[(&i, &b)], &[2.5], None, &settings()).unwrap();
         assert_eq!(one.model, plain.model);
         assert_eq!(one.residual, plain.residual);
+    }
+
+    fn masked_settings() -> Settings {
+        Settings {
+            threshold: 0.0,
+            auto_threshold: Some(1.0),
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            max_components: 4000,
+            max_major: 20,
+            ..Settings::default()
+        }
+    }
+
+    fn masking(sigma: f64) -> super::super::mask::Masking {
+        super::super::mask::Masking {
+            fits: None,
+            auto: Some(super::super::mask::AutoMask {
+                sigma: Some(sigma),
+                absolute: None,
+                nmiter: 2,
+            }),
+        }
+    }
+
+    /// One entry through the masked joined run is [`super::super::run_masked`],
+    /// bit for bit (research/e2b-misses.md, arm A5).
+    #[test]
+    fn one_entry_masked_is_run_masked() {
+        let n = 32;
+        let m = measurement(5, 1.2e9, n, &[(10 * n + 12, 1.0), (20 * n + 7, -0.4)]);
+        let beam = Beam::from_double(n, &m.psf_image(2 * n).unwrap(), 8).unwrap();
+        let s = masked_settings();
+        let mk = masking(5.0);
+        let (single, auto) =
+            super::super::run_masked(&m, &beam, &s, None, None, Some(&mk)).unwrap();
+        let j = run_joined_masked(&[(&m, &beam)], 1, &[2.5], 1.0, None, &s, Some(&mk)).unwrap();
+        assert_eq!(single.model, j.model[0]);
+        assert_eq!(single.residual, j.residual[0]);
+        let (a, b) = (auto.unwrap(), j.auto.unwrap());
+        assert_eq!(a.finishing, b.finishing);
+        assert_eq!(a.cycles, b.cycles);
+    }
+
+    /// Joined polarisations with the automatic mask (research/e2b-misses.md
+    /// arm A5), as radler: the noise is the MAD estimate of the integrated
+    /// residual `norm Σ_p r_p` (I + Q + U + V, norm 1; Q + U, norm 1/2), the
+    /// mask is every polarisation's nonzero model pixels, and no pick falls
+    /// outside it once it is in force.
+    #[test]
+    fn joined_polarisations_auto_mask_follows_radler() {
+        use super::super::mask;
+        let n = 32;
+        let (p1, p2, p3) = (10 * n + 12, 21 * n + 20, 5 * n + 25);
+        let i = measurement(11, 1.2e9, n, &[(p1, 1.0), (p2, 0.4), (p3, 0.05)]);
+        let q = measurement(11, 1.2e9, n, &[(p1, -0.3), (p2, 0.2)]);
+        let u = measurement(11, 1.2e9, n, &[(p1, 0.1), (p3, 0.3)]);
+        let v = measurement(11, 1.2e9, n, &[(p2, 0.02)]);
+        let b = Beam::from_double(n, &i.psf_image(2 * n).unwrap(), 8).unwrap();
+        let s = masked_settings();
+        let mk = masking(5.0);
+        for (set, norm) in [(vec![&i, &q, &u, &v], 1.0), (vec![&q, &u], 0.5)] {
+            let pairs: Vec<(&WgridMeasurement, &Beam)> = set.iter().map(|m| (*m, &b)).collect();
+            let np = pairs.len();
+            let j = run_joined_masked(&pairs, np, &[1.0], norm, None, &s, Some(&mk)).unwrap();
+            let auto = j.auto.as_ref().unwrap();
+            // The first major iteration's noise: the integrated dirty image.
+            let mut int = vec![0.0; n * n];
+            for d in &j.dirty {
+                for (o, x) in int.iter_mut().zip(d) {
+                    *o += norm * x;
+                }
+            }
+            assert_eq!(auto.cycles[0].sigma, mask::radler_stddev(&int));
+            assert_eq!(auto.cycles[0].threshold, 5.0 * auto.cycles[0].sigma);
+            assert!(auto.finishing.is_some());
+            assert_eq!(auto.outside_picks, 0);
+            assert!(auto.masked_picks > 0);
+            // The mask is the union of every polarisation's model pixels.
+            let refs: Vec<&[f64]> = j.model.iter().map(|m| m.as_slice()).collect();
+            let union = mask::from_models(&refs);
+            assert_eq!(j.auto_mask.as_ref().unwrap(), &union);
+            // Every phase-2 pick is inside the mask.
+            assert!(
+                j.integrated
+                    .steps
+                    .iter()
+                    .all(|st| j.auto_mask.as_ref().unwrap()[st.pixel])
+            );
+        }
     }
 
     /// Two channels of one sky with a spectral slope: the joined run finds

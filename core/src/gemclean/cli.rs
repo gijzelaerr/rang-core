@@ -157,7 +157,9 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
-                            takes -mgain or -minor-to-threshold
+                            takes -mgain or -minor-to-threshold; with
+                            -join-polarizations the noise and the peaks are those of the
+                            joined residual and the mask is every polarisation's
   -abs-auto-mask <Jy>       the same with an absolute mask threshold
   -auto-mask-nmiter <n>     major cycles after the mask is made (default 2)
   -major-iteration-mode dual  radler's default (the only mode implemented)";
@@ -689,15 +691,18 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             nmiter: am_nmiter,
         });
     }
+    // Masks on several polarisations need them joined (radler's mask acts on
+    // the joined set's integrated residual; research/e2b-misses.md, arm A5).
     if (a.auto_mask.is_some() || a.fits_mask.is_some())
-        && (a.pols.len() > 1
+        && ((a.pols.len() > 1 && (!a.join_pols || a.fits_mask.is_some()))
             || a.gram_operator.is_some()
             || a.audit
             || matches!(a.cycle_stop, CycleStop::Certified { .. }))
     {
         return Err(
-            "-fits-mask and -auto-mask take one polarisation and neither -gram-operator, -audit \
-             nor -stop-rule certified (research/g4-masks.md)"
+            "-fits-mask takes one polarisation, -auto-mask one or joined polarisations \
+             (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule \
+             certified (research/g4-masks.md)"
                 .into(),
         );
     }
@@ -2504,6 +2509,12 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             }
         }
     }
+    let masking = args.masking.is_active().then_some(&args.masking);
+    if masking.is_some() && groups.iter().any(|(m, _)| m.len() == 1) {
+        return Err("masks with several polarisations need -join-polarizations".into());
+    }
+    let mut autos: Vec<mask::AutoState> = Vec::new();
+    let mut outcomes: Vec<gemclean::Outcome> = Vec::new();
     for (members, gpol) in groups {
         if members.len() == 1 {
             let e = members[0];
@@ -2532,11 +2543,19 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             } else {
                 1.0
             };
-            let j = run_joined_pols(&pairs, gpol, &w, norm, fit.as_ref(), &settings)?;
+            // The masks act on the group's integrated residual, and the
+            // automatic mask is the union of every entry's nonzero model
+            // pixels, as radler's (research/e2b-misses.md, arm A5).
+            let j = if masking.is_some() {
+                run_joined_masked(&pairs, gpol, &w, norm, fit.as_ref(), &settings, masking)?
+            } else {
+                run_joined_pols(&pairs, gpol, &w, norm, fit.as_ref(), &settings)?
+            };
             if let Some(f) = &fit {
                 reference_frequency = Some(f.reference);
             }
             runs_json.push(j.integrated.to_json(None));
+            autos.extend(j.auto);
             for ((e, d), (m, r)) in members
                 .iter()
                 .zip(j.dirty)
@@ -2548,8 +2567,14 @@ fn deconvolve_pols<T: Real + Send + Sync>(
                 model[*e] = m;
                 residual[*e] = r;
             }
+            outcomes.push(j.integrated);
         }
         memory::mark(&format!("group of {}: clean", runs_json.len()));
+    }
+    if masking.is_some() {
+        let a: Vec<Option<&mask::AutoState>> = autos.iter().map(Some).collect();
+        let o: Vec<&gemclean::Outcome> = outcomes.iter().collect();
+        report_masking(args, &a, &o)?;
     }
     Ok(PolImages {
         psf: psfs,
@@ -3315,6 +3340,29 @@ mod tests {
         assert!(!parse("-size 64 64 -scale 2asec -double x.ms").single);
         assert!(parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 -single x.ms").single);
         assert!(!parse("-size 64 64 -scale 2asec -single -double x.ms").single);
+    }
+
+    #[test]
+    fn masks_take_joined_polarisations_only() {
+        // research/e2b-misses.md, arm A5: radler's mask acts on the joined set.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        let base = "-size 64 64 -scale 2asec -mgain 0.9 -auto-threshold 3 -auto-mask 5 \
+                    -no-update-model-required";
+        let a = parse(&format!("{base} -pol IQUV -join-polarizations x.ms")).unwrap();
+        assert_eq!(a.auto_mask.map(|m| m.sigma), Some(Some(5.0)));
+        assert!(
+            parse(&format!("{base} -pol IQUV x.ms"))
+                .err()
+                .is_some_and(|e| e.contains("joined polarisations"))
+        );
+        assert!(parse(&format!("{base} -pol I x.ms")).is_ok());
+        // A FITS mask on joined polarisations stays refused (not validated).
+        let fits = "-size 64 64 -scale 2asec -fits-mask m.fits -pol IQUV -join-polarizations \
+                    -no-update-model-required x.ms";
+        assert!(parse(fits).is_err());
     }
 
     #[test]

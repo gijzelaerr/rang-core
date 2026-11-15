@@ -1401,14 +1401,17 @@ def refusals(config, stages):
             npol = len(parse_pol(img["pol"]))
         except ValueError:
             npol = 1
-        if (masked or img["fits_mask"] is not None) and npol > 1:
+        if npol > 1 and (
+            img["fits_mask"] is not None or (masked and not img["join_polarizations"])
+        ):
             out.append(
                 Refusal(
                     "image.fits_mask"
                     if img["fits_mask"] is not None
                     else "image.auto_mask",
                     "",
-                    "masks take one polarisation (research/g4-masks.md)",
+                    "fits_mask takes one polarisation, auto_mask one or joined "
+                    "polarisations (research/g4-masks.md, research/e2b-misses.md, arm A5)",
                 )
             )
         try:
