@@ -105,7 +105,17 @@ def main(ms, mode, *rest):
         # no data copy (a 36 GB write over 9p failed with ENOMEM): rename the
         # column and give CASA an empty CORRECTED_DATA on its own manager
         t.renamecol("CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA")
-        add_like(t, "CORRECTED_DATA", "E2C_SAVE_CORRECTED_DATA", "E2CCasaCorrected")
+        # fixed shape on a TiledColumnStMan: CASA's write-back needs every
+        # row's array to exist ("TSM: no array in row ..." on a TiledShapeStMan)
+        cell = list(t.getcell("DATA", 0).shape)
+        desc = t.getcoldesc("E2C_SAVE_CORRECTED_DATA")
+        desc.update({"shape": np.array(cell), "ndim": len(cell), "option": 5, "_c_order": True,
+                     "dataManagerType": "TiledColumnStMan",
+                     "dataManagerGroup": "E2CCasaCorrected"})  # fmt: skip
+        desc.pop("maxlen", None)
+        t.addcols(makecoldesc("CORRECTED_DATA", desc),
+                  {"TYPE": "TiledColumnStMan", "NAME": "E2CCasaCorrected",
+                   "SPEC": {"DEFAULTTILESHAPE": np.array([cell[1], 128, 64])}})  # fmt: skip
         t.renamecol("FLAG", "E2C_SAVE_FLAG")
         t.addcols(makecoldesc("E2C_SAVE_FLAG_ROW", t.getcoldesc("FLAG_ROW")),
                   {"TYPE": "StandardStMan", "NAME": "E2CSaveFlagRow", "SPEC": {}})  # fmt: skip

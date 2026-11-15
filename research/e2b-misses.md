@@ -1681,6 +1681,14 @@ Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
   while it hashed, before any rename. The hashes are now taken natively
   on Windows with rang's reader (`b2_hash.py`), before step 1 and after
   step 7.
+- The fourth attempt reached CASA. applycal failed on all 3 calls with
+  "TSM: no array in row …", because the empty CORRECTED_DATA was a
+  variable-shape TiledShapeStMan column.
+  - The queue's restore ran, and the native hashes of FLAG + FLAG_ROW and
+    CORRECTED_DATA and the column set equal the ones before.
+  - Step 1 now adds CORRECTED_DATA with a fixed shape on a
+    TiledColumnStMan. This was tested on a 41-row copy, where CASA writes
+    it, before the rerun.
 
 ## For the coordinator
 
