@@ -209,10 +209,37 @@ Rows are independent, so the chunk size changes no value.
 | J1833−2103, fixes 1-5 + reader chunks (binary, built by Rust 1.93; the reference by 1.99) | 153 | identical |
 | J1833−2103, the wheel (`python -m rang.gemclean`, this branch's extension) | 153 | identical |
 
-New unit tests: `compacted_and_shared_measurements_keep_the_bits`
+**Option sweep** (post hoc, 2026-11-15, after the J1833 runs:
+[sweep.py](results/gemclean-memory/sweep.py), receipt
+[receipts/sweep.json](results/gemclean-memory/receipts/sweep.json)). The
+cases above all have the four polarisations sharing rows and weights, MF
+weighting and joined polarisations. On G8's tiny MS (8 antennas, 8
+channels, W1's per-correlation flags and weights, so I and Q share one
+beam and U and V another: the lookup also finds a non-first polarisation)
+the binary before (`2eec8c1`) and after (`c06cdd1`'s build) give the same
+exit code, FITS files, report `entries` and mask record on all 14 cases:
+joined IQUV with MF weighting, masked, per-channel weighting, one output
+channel, `-fit-spectral-pol 2`, `-no-plan-reuse` and `-double`; joined
+`XX,YY` and `QU`; unjoined IQUV with MF weighting (weights from every
+polarisation), per-channel weighting and one channel; and unjoined IQUV
+with `-audit` or `-auto-mask`, which both refuse with the same message (so
+no reachable path needs a compacted measurement's dense arrays). No
+`.spill` file is left after a run that ends normally; one that fails in
+the clean leaves it beside the outputs. On J1833−2103 the report's
+`entries` and `image-mask.json` are also equal.
+
+New unit test `compacted_and_shared_measurements_keep_the_bits`
 (`measure.rs`: compacted and plan-sharing measurements against the dense
-one, residual images and misfits bit for bit, both precisions) and the
-existing `sorted_residual_has_the_bits_of_the_dense_one`.
+one, residual images and misfits bit for bit, both precisions), beside the
+existing `sorted_residual_has_the_bits_of_the_dense_one`. The GPU
+gridder is separate code (`core/src/gpu`) and not changed; with
+`--features gpu` the core builds and its 6 `gpu` tests pass (filtered run,
+`cargo test --features gpu --lib gpu`); the full check's gpu steps are left
+to the coordinator's merge check. Pytest on this branch's extension:
+`test_g8_gemclean`, `test_g8_identity` (the wheel against the source
+binary, byte for byte), `test_g6_model`, `test_g7_defaults`,
+`test_w4_unsupported`, `test_w2_commands`, `test_e5_final`: 64 passed, 3
+skipped, 1 xfailed.
 
 **Memory and time on J1833−2103** (4 slots, `-j 4`):
 
@@ -231,11 +258,13 @@ channel, shared by the four polarisations), tables 0.14, beams 2.15, PSF
 crops 0.27, three image sets 3.2.
 
 **Regression test.** `core/tests/gemclean_memory.rs` (in `cargo test` for
-`core/`, so on CI on Linux and Windows): 24 MeerKAT antennas, 40 dumps, 64
+`core/`, so in the `tests` workflow; CI_SENTENCE): 24 MeerKAT antennas, 40 dumps, 64
 channels, 70 % of the cells at zero weight, 256², `-pol IQUV
 -join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2`. Peak
 heap 149,499,552 bytes before, 101,622,308 after; bound frozen at
-122,000,000 (1.2 × after), so the run before the fix fails it.
+122,000,000 (1.2 × after), so the run before the fix fails it. The bound
+was measured on Windows (the binary's `CountingAlloc`); Linux counts the
+same requested bytes through `HugePageAlloc`.
 
 **Outcome under the frozen rule.** **met.** J1833−2103 peaks at 9.20 GiB by A5's measure
 (the wheel; 9.20 GiB peak working set, 9.22 GiB peak private bytes)
@@ -252,10 +281,11 @@ it is not a result. The Stokes I paths gain only the gridder's freed
 stored values and the joined clean's fewer copies (`-channels-out
 -join-channels`); their measurements are not compacted.
 
-**Booking.** A joined-IQUV 8-channel 2048² run on a field like
-J1833−2103 now needs about 10 GB, not 24-46 GB; book by the field's rows
-(about 12 B per weighted visibility and polarisation, plus 6 GB for images
-and beams at 2048² × 8 channels).
+**Booking.** A joined-IQUV 8-channel 2048² run on J1833−2103 now needs
+about 10 GB, not 24-46 GB. J1331+3030 and J1939−6342 keep the 46 GB
+booking until they are measured; the estimate is about 12 B per weighted
+visibility and polarisation plus 6 GB for images and beams at 2048² × 8
+channels.
 
 **Next, not in this task** (each changes bits, so each needs its own
 proposal and tolerance): `f32` working images; the visibilities on disk
@@ -273,7 +303,11 @@ default (`-beam-band`, measured in G1).
   reader chunks. `-memory-report` now works on Windows.
 - Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB;
   149.5 MB before) runs in CI's `cargo test`.
-- Owner: book joined-IQUV 2048² 8-channel runs by rows (about 10 GB on
-  J1833−2103) instead of 46 GB; J1331 and J1939 not re-measured; going
-  below about 9 GB needs `f32` images or on-disk visibilities (a new
-  proposal, bits change).
+- Identity also on a 14-case option sweep (unjoined, per-channel
+  weighting, `-fit-spectral-pol`, `-no-plan-reuse`, `-double`, `XX,YY`,
+  `QU`, polarisations with different weights). Full check and gpu steps
+  left to the merge check.
+- Owner: J1833−2103 can be booked at about 10 GB; J1331 and J1939 keep 46
+  GB until measured. WSClean × 3 (4.2 GB) is below the floor of
+  bit-identical arithmetic; going below about 9 GB needs `f32` images or
+  on-disk visibilities (a new proposal, bits change).
