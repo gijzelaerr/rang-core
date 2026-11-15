@@ -65,6 +65,13 @@ rang's own solve flags, both composites meet class B (medians 4.2e-5 and
   unchanged (3.5e-3, 1.2e-3, 2.9e-3). It is an edge difference between
   the gridders; a G task is proposed.
 
+**Update, 2026-11-15 (arms A4b and A1d, sections 9.12 and 9.14):**
+- 3c dirty L∞: WSClean's small inversion. With `-no-small-inversion` the
+  dirty images agree to 8.1e-8 (J1833−2103, ε 1e-6).
+- 2b's P: 92–98 % is casacore's TOPO → HADEC conventions (a zenith-ward
+  diurnal shift and polar motion). Not met at 2e-7 under the rule; no
+  fix.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -1193,7 +1200,234 @@ matched) at ε 1e-6 on J1833−2103, the cheapest field (about 8 min of
 WSClean). GeMClean's images from this arm are reusable. The decision rule
 and tolerance (1e-6) need freezing before the run.
 
+### 9.11 A4b, WSClean's small inversion, frozen 2026-11-15 (before any run)
+
+Asked by the coordinator after 9.10. **Seen**: A4's edge profile is known.
+
+Padding is already matched. GeMClean's `-padding` defaults to 1.2, as
+WSClean's does (`core/src/grid.rs`), and gate 3c passed neither. So the arm
+tests only the small inversion.
+
+Hypothesis: the edge difference is WSClean's small-inversion optimisation.
+WSClean grids at 1152² for J1833−2103 and interpolates the image up to
+2048², where GeMClean grids at the full padded size. With
+`-no-small-inversion`, WSClean's dirty images match GeMClean's within 1e-6
+of the peak over the full image.
+
+Data and settings: as 9.9, J1833−2103 (field 2) at ε 1e-6, WSClean only,
+plus `-no-small-inversion`. The run reads the CASA copy in the matched
+state (`a4_run.sh unit on`, then `off`; the column list is checked).
+GeMClean's side is A4's `rang/J1833m2103-eps1e-06` images, unchanged.
+
+Measures: as 9.9 (`a4_score.py`'s `linf`), giving F_nosi (this run) and
+F_si = 2.894e-3 (9.10, same ε). Reported beside: the 5 % border and inner
+two-thirds values, and WSClean with against without small inversion.
+
+Frozen tolerance: 1e-6.
+
+Decision rule:
+- F_nosi ≤ 1e-6: the edge difference is WSClean's small inversion. Gate 3c's
+  dirty comparison needs `-no-small-inversion` in the oracle; the owner
+  decides whether that changes the gate's reading.
+- F_nosi ≤ 0.1 × F_si, but above 1e-6: small inversion carries most of the
+  edge excess; the rest is reported, not attributed.
+- F_nosi > 0.1 × F_si: small inversion is not the cause; the edge
+  difference stays open (gridding-correction taper is the next candidate).
+- The inner two-thirds is reported, not decided on.
+
+Cost: one WSClean run, about 10–40 min at 4 slots.
+
+### 9.12 A4b measured, 2026-11-15: met, the difference is WSClean's small inversion
+
+Runs:
+- `a4b_queue.sh` ran unit on (25 s), one WSClean run with
+  `-no-small-inversion` (481 s, 4 slots) and unit off. The column list of
+  the CASA copy afterwards equals the one before.
+- Scoring (`a4_score.py nosi`) ran at 2 slots.
+- Receipts in [results/e2b-misses/a4/](results/e2b-misses/a4/) (`a4b.json`,
+  `runs.log`).
+
+J1833−2103 at ε 1e-6, L∞ / peak:
+
+| Pair | Full image | 5 % border excluded | Inner two-thirds |
+| --- | --- | --- | --- |
+| **GeMClean − WSClean `-no-small-inversion`** | **8.1e-8** | 8.1e-8 | 8.1e-8 |
+| GeMClean − WSClean default (9.10) | 2.894e-3 | 8.4e-5 | 2.4e-5 |
+| WSClean default − WSClean `-no-small-inversion` | 2.894e-3 | 8.4e-5 | 2.4e-5 |
+
+**Outcome under the frozen rule: met (8.1e-8 ≤ 1e-6).** The edge
+difference is WSClean's small-inversion optimisation. With it off, the two
+dirty images agree to 8e-8 of the peak over the whole image, edge and
+inner alike. All of gate 3c's dirty difference was WSClean's interpolation
+of its 1176² inversion up to 2048², not GeMClean.
+
+Post hoc:
+- The inner two-thirds' 2.4e-5, which A4 found independent of ε, is also
+  small inversion.
+- The owner decides whether gate 3c's dirty comparison reruns with
+  `-no-small-inversion` in the oracle (A0 rule: a changed oracle setting
+  makes the reading seen). This arm checked one field and one ε.
+
+### 9.13 A1d, casacore's TOPO → HADEC step, frozen 2026-11-15 (before any run)
+
+Asked by the coordinator after 9.8. **Seen**: A1c's post hoc reading places
+about 0.5″ in casacore's step from the apparent place to HADEC.
+
+casacore's route, as read in its source (`measures/Measures/MCDirection.cc`,
+`MeasMath.cc`, `MeasTable.cc`, master at 2026-11-15; the container runs
+casacore from CASA 6.7.6.14, which control C7 below checks against):
+- J2000 → JNAT (light deflection) → APP (aberration, then precession and
+  nutation) → TOPO → HADEC → AZEL.
+- APP → TOPO (`applyAPPtoTOPO`) only applies parallax, scaled by 1/distance.
+  For a direction (distance 0) it does nothing, so casacore's TOPO equals
+  APP (as 9.8 found).
+- TOPO → HADEC (`applyTOPOtoHADEC`) does two things:
+  - "diurnal aberration": it adds the vector g₂ · u(LAST, LAT) to the
+    source's unit vector and renormalises. g₂ = 2π R / 86,400 s · (UT → ST
+    ratio) / c, about 1.5e-6 rad for MeasMath's RADIUS. u(LAST, LAT) is the
+    unit vector of the local zenith in the apparent equatorial frame, so
+    the shift is towards the zenith, by g₂ sin z. The physical diurnal
+    aberration is towards the east point.
+  - polar motion (`deapplyPolarMotion`): the rotation
+    Euler(−x″, axis 2; −y″, axis 1; LAST, axis 3), then the sign of the
+    second coordinate flipped to give the hour angle. x and y come from
+    IERSeop2000 (MEASURED).
+- HADEC → AZEL uses LAT, which 9.8's (e) showed is rang's geocentric
+  latitude.
+- Refraction is off: AZEL has none, and none is applied on this route.
+
+rang's `parallactic_angle_casa` uses astropy's TETE at the antenna's
+location. TETE includes the physical (eastward) diurnal aberration, and no
+polar motion.
+
+Hypothesis **H4:** the 3–7e-6 rad difference is casacore's TOPO → HADEC
+step: the zenith-ward "diurnal aberration" in place of the eastward one,
+plus polar motion.
+
+Probe (all float64):
+- Container side (`a1d_casa.py`):
+  - synthetic directions (a grid, not the fields) in APP at the data's
+    epochs and antenna positions, converted to HADEC, with LAST and TDB;
+  - for the data rows: x and y read from IERSeop2000 at each TIME (linear
+    in MJD, as MeasIERS interpolates), TDB and RADIUS (`me.measure` of the
+    position).
+- Rang side (`a1d_rang.py`): an emulation E of casacore's TOPO → HADEC in
+  numpy, from the code above.
+
+Controls:
+- **C7** (the emulation equals the container's casacore): E applied to
+  casacore's own APP place and LAST reproduces casacore's HADEC (h, δ)
+  within 1e-9 rad on the synthetic directions. E's conventions (matrix
+  order, signs) may be fixed until C7 is met, before the field rows are
+  read. Not met: void.
+- **C8:** E applied to casacore's APP place and LAST for the field rows
+  reproduces K (9.8) within 1e-8 rad through rang's formula. Not met: void.
+- **C5** as 9.7.
+
+Candidates for rang's angle, through rang's formula with geocentric φ,
+each against K (9.8):
+- (H4) astropy's geocentric apparent place (TETE without location, so no
+  diurnal aberration), then E (zenith shift and polar motion), LAST from
+  astropy;
+- (H4-L) the same, LAST from casacore;
+- reported beside: (H4-noPM) without polar motion; (H4-noD) without the
+  zenith shift.
+
+Tolerance: 2e-7 rad, max |q − K| over every row and antenna of both fields
+(as 9.7).
+
+Decision rule:
+- C7, C8 or C5 not met: void.
+- (H4) met: H4 is the cause. The beside rows say which of the two terms
+  carries it.
+- (H4) not met, (H4-L) met: H4 plus the 0.054″ sidereal time difference.
+- Neither met: H4 is not shown. The residual is reported.
+- **Fix:** as 9.7, only if (H4) or (H4-L) is met *and* the new angle meets
+  A1b's CASA probe within 2e-7 rad on both fields. Since 9.8 found casacore
+  itself 2.7e-7 from the probe, that second condition may fail. Then there
+  is no fix in this arm, and the owner decides whether rang should emulate
+  casacore at a tolerance written for it.
+
+Cost: seconds of CPU; 1 slot each side.
+
+### 9.14 A1d measured, 2026-11-15: H4 not shown (5.5e-7 against 2e-7)
+
+Runs:
+- `a1d_casa.py` (`a1d_run.sh`) and `a1d_rang.py` took 1 s and 2 s, each on
+  1 slot.
+- Results in `D:\rang\outputs\e2b-pastro-20261114\a1d`; receipts in
+  [results/e2b-misses/a1d/](results/e2b-misses/a1d/) (`a1d.json`,
+  `a1d-casa.npz`).
+
+Controls (all met):
+- **C7:** the emulation reproduces casacore's HADEC on 270 synthetic
+  directions within 4.4e-16 rad. The convention is chosen on them: sign
+  +1, the product R₃R₂R₁, applied without transpose; the other seven
+  conventions are 3e-6 rad or more away.
+  - Both terms matter on the synthetic set. Without the zenith shift, C7
+    would be 4.8e-6 rad; without polar motion, 7.4e-6 rad.
+- **C8:** on the field rows, the emulation from casacore's APP place and
+  LAST reproduces K exactly (1.3e-15 rad).
+- **C5:** as 9.8.
+
+Max |q − K| (median in brackets), rad:
+
+| Candidate | Field 1 (J1939−6342) | Field 2 (J1833−2103) |
+| --- | --- | --- |
+| rang as is | 7.0e-6 (−7.0e-6) | 3.2e-6 (−3.1e-6) |
+| **(H4)** geocentric TETE + E, astropy LAST | **5.5e-7** (5.4e-7) | **5.6e-8** (−4.4e-8) |
+| (H4-L) the same, casacore LAST | 8.3e-7 | 1.5e-7 |
+| (H4-noPM) without polar motion | 2.1e-6 | 3.0e-6 |
+| (H4-noD) without the zenith shift | 1.6e-6 | 3.3e-7 |
+
+**Outcome under the frozen rule: H4 not shown.** (H4) is 5.5e-7 rad on
+field 1, against 2e-7; (H4-L) is not met either. No fix is made, and
+`parallactic_angle_casa` is unchanged.
+
+Read beside the outcome (**post hoc**):
+- (H4) removes 92 % of rang's difference on field 1 and 98 % on field 2.
+  Field 2 alone would meet the bound (5.6e-8).
+- Both of casacore's TOPO → HADEC terms are needed. Dropping either one
+  leaves 1.6e-6 to 3.0e-6.
+- So most of the A1b/A1c difference is two casacore conventions that
+  astropy does not share:
+  - the zenith-ward "diurnal aberration";
+  - polar motion applied in HADEC.
+- The field 1 residual fits the remaining apparent-place difference:
+  casacore's APP minus astropy's geocentric TETE is 0.067″ in RA·cos δ
+  (0.070″ on field 2) and ≤ 0.012″ in Dec. That is the size of 9.8's
+  JTRUE − erfa difference, i.e. casacore's precession and nutation models
+  against IAU 2006/2000A. At δ −63.7° it weighs about 2× in h.
+- That casacore's own angle is 2.7e-7 from applycal (9.8, K1) is
+  separate and still open.
+
+Whether rang should emulate these conventions is a choice of oracle, not
+a correctness fix: astropy's diurnal aberration is the physical one. Two
+options for the owner:
+- a further arm with casacore's precession and nutation (IAU 1976/1980,
+  erfa `pmat76` and `nut80`) in (H4), frozen first;
+- accepting P's difference (≤ 7e-6 rad, ≤ 26 eps on gate 2b) as a
+  documented convention difference between astropy and casacore.
+
 ## For the coordinator
+
+**After A4b and A1d (2026-11-15, branch `e2b-pastro`):**
+- **A4b (9.11, 9.12): met.** Gate 3c's dirty difference is WSClean's small
+  inversion. With `-no-small-inversion`, GeMClean and WSClean agree to
+  8.1e-8 of the peak over the full image (J1833−2103, ε 1e-6), against
+  2.9e-3 with the default.
+  - Owner: rerun 3c's dirty comparison with that oracle setting (seen).
+  - A4's 41 GB of images were deleted after scoring; logs and scores are
+    kept.
+- **A1d (9.13, 9.14): H4 not shown under the rule** (5.5e-7 on field 1,
+  against 2e-7; 5.6e-8 on field 2). No fix.
+  - Post hoc: casacore's TOPO → HADEC step accounts for 92 % and 98 % of
+    P's difference. It applies a zenith-ward "diurnal aberration" and polar
+    motion, which astropy's TETE does not.
+  - The field 1 residual fits casacore's IAU 1976/1980 precession and
+    nutation (0.067″).
+  - Owner: emulate casacore in a further arm with pmat76/nut80, or accept
+    P's ≤ 7e-6 rad as a documented convention difference.
 
 **After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
 - **A1c (9.7, 9.8):** cause not found under the frozen rule. K1 is not

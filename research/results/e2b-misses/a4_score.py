@@ -116,5 +116,39 @@ def score(out_json):
     print(outcome, rs)
 
 
+def nosi(out_json):
+    """A4b (9.11): WSClean -no-small-inversion against A4's GeMClean, J1833-2103, eps 1e-6."""
+    tag, eps = "J1833m2103", "1e-06"
+    r = P / "rang" / f"{tag}-eps{eps}"
+    w = P / "wsclean" / f"{tag}-eps{eps}"
+    n = P / "wsclean-nosi" / f"{tag}-eps{eps}"
+
+    def rang_img(c, p):
+        return r / f"image-{c}-{p}-dirty.fits"
+
+    def wsc(d):
+        return lambda c, p: d / f"{tag}-dirty-{c}-{p}-dirty.fits"
+
+    def peak(d):
+        return lambda c: d / f"{tag}-dirty-{c}-I-dirty.fits"
+
+    res = {"tolerance": TOL}
+    res["rang_vs_nosi"] = linf(rang_img, wsc(n), peak(n))
+    res["rang_vs_si"] = linf(rang_img, wsc(w), peak(w))
+    res["si_vs_nosi"] = linf(wsc(w), wsc(n), peak(n))
+    for k in ("rang_vs_nosi", "rang_vs_si", "si_vs_nosi"):
+        res[k].pop("per_image")
+    f_nosi, f_si = res["rang_vs_nosi"]["max"], res["rang_vs_si"]["max"]
+    if f_nosi <= TOL:
+        outcome = "met: the edge difference is WSClean's small inversion"
+    elif f_nosi <= 0.1 * f_si:
+        outcome = "small inversion carries most of the edge excess; rest not attributed"
+    else:
+        outcome = "small inversion is not the cause; edge difference open"
+    res["outcome"] = outcome
+    Path(out_json).write_text(json.dumps(res, indent=1) + "\n")
+    print(json.dumps(res, indent=1))
+
+
 if __name__ == "__main__":
-    {"c6": c6, "score": score}[sys.argv[1]](sys.argv[2])
+    {"c6": c6, "score": score, "nosi": nosi}[sys.argv[1]](sys.argv[2])
