@@ -65,6 +65,13 @@ rang's own solve flags, both composites meet class B (medians 4.2e-5 and
   unchanged (3.5e-3, 1.2e-3, 2.9e-3). It is an edge difference between
   the gridders; a G task is proposed.
 
+**Update, 2026-11-15 (arms A4b and A1d, sections 9.12 and 9.14):**
+- 3c dirty L∞: WSClean's small inversion. With `-no-small-inversion` the
+  dirty images agree to 8.1e-8 (J1833−2103, ε 1e-6).
+- 2b's P: 92–98 % is casacore's TOPO → HADEC conventions (a zenith-ward
+  diurnal shift and polar motion). Not met at 2e-7 under the rule; no
+  fix.
+
 **No miss is shown to be a rang bug.** Two have a rang-side component:
 - the Gpol estimator differs from CASA's in two coded places (section 2);
 - GeMClean cannot mask joined IQUV images (section 4).
@@ -1230,6 +1237,37 @@ Decision rule:
 
 Cost: one WSClean run, about 10–40 min at 4 slots.
 
+### 9.12 A4b measured, 2026-11-15: met, the difference is WSClean's small inversion
+
+Runs:
+- `a4b_queue.sh` ran unit on (25 s), one WSClean run with
+  `-no-small-inversion` (481 s, 4 slots) and unit off. The column list of
+  the CASA copy afterwards equals the one before.
+- Scoring (`a4_score.py nosi`) ran at 2 slots.
+- Receipts in [results/e2b-misses/a4/](results/e2b-misses/a4/) (`a4b.json`,
+  `runs.log`).
+
+J1833−2103 at ε 1e-6, L∞ / peak:
+
+| Pair | Full image | 5 % border excluded | Inner two-thirds |
+| --- | --- | --- | --- |
+| **GeMClean − WSClean `-no-small-inversion`** | **8.1e-8** | 8.1e-8 | 8.1e-8 |
+| GeMClean − WSClean default (9.10) | 2.894e-3 | 8.4e-5 | 2.4e-5 |
+| WSClean default − WSClean `-no-small-inversion` | 2.894e-3 | 8.4e-5 | 2.4e-5 |
+
+**Outcome under the frozen rule: met (8.1e-8 ≤ 1e-6).** The edge
+difference is WSClean's small-inversion optimisation. With it off, the two
+dirty images agree to 8e-8 of the peak over the whole image, edge and
+inner alike. All of gate 3c's dirty difference was WSClean's interpolation
+of its 1176² inversion up to 2048², not GeMClean.
+
+Post hoc:
+- The inner two-thirds' 2.4e-5, which A4 found independent of ε, is also
+  small inversion.
+- The owner decides whether gate 3c's dirty comparison reruns with
+  `-no-small-inversion` in the oracle (A0 rule: a changed oracle setting
+  makes the reading seen). This arm checked one field and one ε.
+
 ### 9.13 A1d, casacore's TOPO → HADEC step, frozen 2026-11-15 (before any run)
 
 Asked by the coordinator after 9.8. **Seen**: A1c's post hoc reading places
@@ -1372,6 +1410,24 @@ options for the owner:
   documented convention difference between astropy and casacore.
 
 ## For the coordinator
+
+**After A4b and A1d (2026-11-15, branch `e2b-pastro`):**
+- **A4b (9.11, 9.12): met.** Gate 3c's dirty difference is WSClean's small
+  inversion. With `-no-small-inversion`, GeMClean and WSClean agree to
+  8.1e-8 of the peak over the full image (J1833−2103, ε 1e-6), against
+  2.9e-3 with the default.
+  - Owner: rerun 3c's dirty comparison with that oracle setting (seen).
+  - A4's 41 GB of images were deleted after scoring; logs and scores are
+    kept.
+- **A1d (9.13, 9.14): H4 not shown under the rule** (5.5e-7 on field 1,
+  against 2e-7; 5.6e-8 on field 2). No fix.
+  - Post hoc: casacore's TOPO → HADEC step accounts for 92 % and 98 % of
+    P's difference. It applies a zenith-ward "diurnal aberration" and polar
+    motion, which astropy's TETE does not.
+  - The field 1 residual fits casacore's IAU 1976/1980 precession and
+    nutation (0.067″).
+  - Owner: emulate casacore in a further arm with pmat76/nut80, or accept
+    P's ≤ 7e-6 rad as a documented convention difference.
 
 **After A1c and A4 (2026-11-15, branch `e2b-pastro`):**
 - **A1c (9.7, 9.8):** cause not found under the frozen rule. K1 is not
