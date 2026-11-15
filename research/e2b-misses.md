@@ -1689,6 +1689,13 @@ Scripts: `b2_cols.py`, `b2_run.sh`, `b2_rang.py`, `b2_queue.sh`.
   - Step 1 now adds CORRECTED_DATA with a fixed shape on a
     TiledColumnStMan. This was tested on a 41-row copy, where CASA writes
     it, before the rerun.
+- The fifth attempt's applycal wrote J1939−6342. The other two calls
+  failed reading DATA over 9p (ENOMEM), with the host loaded by another
+  agent's 40 GB GeMClean.
+  - The restore was exact again: hashes and the column set equal.
+  - The CASA step is now booked at 24 GB, which covers WSL's page cache,
+    so the lock keeps other large jobs off while it reads and writes
+    about 72 GB over 9p.
 
 ## For the coordinator
 

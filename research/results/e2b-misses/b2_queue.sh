@@ -13,14 +13,14 @@ until [ -f D:/rang/outputs/e2b-close-20261115/a5/rang.done ]; do sleep 60; done
 wl() {  # slots, b2_run.sh args
   local n=$1; shift
   MSYS_NO_PATHCONV=1 wsl -e python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run \
-    --slots "$n" --mem 6 -- bash "$W/b2_run.sh" "$@"
+    --slots "$n" --mem "${B2MEM:-6}" -- bash "$W/b2_run.sh" "$@"
 }
 free() { powershell -c "(Get-PSDrive D).Free/1GB" | tr -d '\r'; }
 echo "free_before $(free)" >> "$P/disk.log"
 [ -f "$P/hash-before.json" ] || "$PY" $L run --slots 1 --mem 4 -- "$PY" "$S/b2_hash.py" "$P/hash-before.json" || exit 1
 wl 2 cols save /b/save.json || exit 1
 fail=0
-wl 2 casa || fail=1
+B2MEM=24 wl 2 casa || fail=1  # 9p I/O under memory pressure returned ENOMEM: book the page cache too
 wl 2 cols casa_done /b/casa_done.json || fail=1
 wl 2 cols compare CORRECTED_DATA E2C_CASA_FLAG RANG_CORRECTED_DATA RANG_FLAG /b/c9.json || fail=1
 if [ $fail = 0 ]; then
