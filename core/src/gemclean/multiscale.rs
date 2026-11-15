@@ -1190,6 +1190,8 @@ pub fn run_multiscale_masked<M: Measurement>(
             residual: residuals,
             q_final: qs,
             auto,
+            // Multiscale keeps one mask per scale (task G4).
+            auto_mask: None,
         },
         beam_pixels: beam,
         scales,
