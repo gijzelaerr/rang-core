@@ -22,6 +22,9 @@ def sha256_file(path):
 def main():
     field_dir, out = Path(sys.argv[1]), Path(sys.argv[2])
     rec = json.loads((field_dir / "field.json").read_text())["hashes"]
+    # A field simulated on Windows records its MS file names with "\\"
+    # (issue #23 step 4's held-out field); compare names in POSIX form.
+    rec["ms_files"] = {k.replace("\\", "/"): v for k, v in rec["ms_files"].items()}
     ms = field_dir / "field.ms"
     files = sorted(p for p in ms.rglob("*") if p.is_file())
     rows = {p.relative_to(ms).as_posix(): sha256_file(p) for p in files}
@@ -39,7 +42,9 @@ def main():
         "ms_digest_expected": rec["ms_digest"],
         "ms_files": len(rows),
         "mismatches": bad,
-        "ok": digest == rec["ms_digest"] and not bad,
+        # The listing digest depends on the separator the writer used; the
+        # per-file hashes decide.
+        "ok": len(rows) == len(rec["ms_files"]) and not bad,
     }
     out.write_text(json.dumps(result, indent=1))
     print(json.dumps(result, indent=1))
