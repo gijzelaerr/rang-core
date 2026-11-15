@@ -1660,6 +1660,20 @@ It was stopped within minutes, before the lock was granted: no step ran, nothing
 processes it had started were stopped, the empty log was deleted, and the dead ticket is removed by
 `heavy_lock`'s stale-ticket rule.
 
+
+**Coordinator decisions on 9.10, 2026-11-15, before any 9.10 step ran and before any E2-A output was read**
+(the owner delegated judgement):
+- **QuartiCal form:** accepted as amended, post hoc. QuartiCal runs on the time-averaged inputs,
+  averaged independently in numpy, against C5's class B, with the round-2 prediction control. The frozen
+  unaveraged form is recorded as "not checked (memory)": it needs 72 GB per interval, and WSL has 44.
+- **Drop step:** accepted. CASA's CORRECTED_DATA is dropped only after compare's record shows exit 0 and
+  compared cells. This rules out a second gate 2b reading on E2-A; that limitation is recorded.
+- **Gate 3c channels:** run as frozen. WSClean images 4,096 channels and GeMClean 512. The scorer must
+  report the inner two-thirds next to the full image, so channel-smearing toward the edge is visible. This
+  caveat goes in the reading.
+- **`-no-small-inversion`:** the frozen run is the primary reading, without it. After the primary is
+  scored, one `nosi` dirty run adds a second, seen reading, as A4b motivates.
+
 ## For the coordinator
 
 (written at the end)
