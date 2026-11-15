@@ -242,7 +242,12 @@ def measures(bm, bt, model, label, grps, beam_px, sigma):
     rec["extended_flux_all_pass"] = all(r["flux_pass"] for r in e) if e else None
     pos = [r["position_pass"] for r in rows if r.get("position_pass") is not None]
     rec["positions_all_pass"] = all(pos) if pos else None
-    rec["positions_failed"] = [r["id"] for r in rows if r.get("position_pass") is False]
+    # position_pass may be a numpy bool, so compare by value, not identity.
+    rec["positions_failed"] = [
+        r["id"]
+        for r in rows
+        if r.get("position_pass") is not None and not r["position_pass"]
+    ]
     rec["extended_rel_err"] = [r["rel_err"] for r in e]
     outside = model[label == 0]
     rec["false_flux_pos"] = float(outside[outside > 0].sum())

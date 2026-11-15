@@ -70,11 +70,16 @@ CONFIGS = {
     "U-d": {"nlevels": "4", "rmsfactor": "0.5"},
     # Amendment A3: pfb 0.0.11's shipped recipe (pfb_imaging/recipes/sara.yml, gosara) values.
     "U-up": {"l1-reweight-from": "7"},
+    # Amendment A4: U-up without the recipe's averaging.
+    "U-up2": {"l1-reweight-from": "7"},
 }
 # Amendment A3: U-up's init and grid at the gosara recipe's defaults; gridder epsilon at the cab
 # default (1e-7) in init, grid and sara.
 UP = {"chan-average": "4", "bda-decorr": "0.98", "robustness": "-0.3", "psf-oversize": "1.6",
       "epsilon": "1e-7"}  # fmt: skip
+# Amendment A4: as U-up but chan-average and bda-decorr stay at 1 and 1.0 (U-a's values).
+UP_BY_CONFIG = {"U-up": UP, "U-up2": {k: v for k, v in UP.items()
+                                      if k not in ("chan-average", "bda-decorr")}}  # fmt: skip
 
 
 def log_row(arm, sky, rc, wall, what):
@@ -185,11 +190,11 @@ def pfb_steps(config, sky, cap_cycles):
     for k, v in opts.items():
         sara += [f"--{k}", v]
     steps = [("init", init), ("grid", grid), ("sara", sara)]
-    if config == "U-up":
-        for _, step in steps:
-            for i, a in enumerate(step[:-1]):
-                if a.startswith("--") and a[2:] in UP:
-                    step[i + 1] = UP[a[2:]]
+    up = UP_BY_CONFIG.get(config, {})
+    for _, step in steps:
+        for i, a in enumerate(step[:-1]):
+            if a.startswith("--") and a[2:] in up:
+                step[i + 1] = up[a[2:]]
     return steps
 
 
