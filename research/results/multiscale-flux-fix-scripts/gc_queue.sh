@@ -26,6 +26,9 @@ for arm in "$@"; do
   [ -n "${FLOOR:-}" ] && extra=(--floor "$FLOOR")
   python "$lock" run --slots 4 --mem 2 -- "$py" "$here/measure.py" "$wt" "$field" \
     "$root/gc/$arm-r1" "$m" "${extra[@]}" > "$root/measures/$tag-$arm-r1.out" 2>&1 \
-    || echo "$arm: measure failed"
+    || { echo "$arm: measure failed"; continue; }
+  # Scored: keep the model cube and the MFS residual, delete the other images.
+  ( cd "$root/gc/$arm-r1" && rm -f -- *-dirty.fits *-image.fits *-psf.fits \
+      *-[0-9][0-9][0-9][0-9]-residual.fits )
   echo "$(date -Iseconds) $tag $arm done"
 done

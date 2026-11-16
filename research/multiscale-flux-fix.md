@@ -230,3 +230,66 @@ Outcomes:
 ## 8. Results
 
 Not yet measured.
+
+### 8.0 Interim (2026-11-16 03:40, runs still going; not the final reading)
+
+Run root `D:\rang\outputs\msfix-20261116-01`. Binary from `7de8911`, sha256 `3907730f…ea21`.
+
+**Controls.**
+
+- Default gc-multiscale and gc-hogbom on D are bit-identical to step 1-3's outputs (17 model FITS
+  and the MFS residual each).
+- The scorer reproduction of DF5-O's ws-multiscale r1 and r2 passed.
+
+**Held-out rule (section 4).** gc-multiscale default passes A1 on all three seed pairs:
+
+| seed pair | worst A1 ratio | median point ΔS |
+| --- | ---: | ---: |
+| 20261116 / 5116 | 0.99 | +14.5 µJy |
+| 20261117 / 5117 | 0.97 | +16.7 µJy |
+| 20261118 / 5118 | 0.71 | +18.1 µJy |
+
+- H is therefore the third pair, labelled "held-out field shows no miss".
+- WSClean ws-multiscale on H also passes A1 (inner RMS 1.4598 and 1.4595 µJy).
+- H's RMS bound is **1.4887 µJy**. It was frozen before any candidate on H was scored
+  (`H3/rms-bound.json`).
+
+**D, GeMClean.** RMS bound 1.4753 µJy; offset clause ≤ +8.0 µJy.
+
+| arm | A1 failures | worst ratio | median point ΔS (µJy) | inner RMS (µJy) | wall (s) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| gc-multiscale | p23 | 1.03 | +16.0 | 1.4447 | 316 |
+| gc-hogbom | – | 0.53 | −4.2 | 1.6041 | 47 |
+| gc-b065 | – | 0.93 | +16.4 | 1.5418 | 223 |
+| gc-b070 | – | 0.98 | +17.5 | 1.5919 | 191 |
+| gc-b075 | – | 0.79 | +15.8 | 1.5323 | 121 |
+| gc-b080 | – | 0.50 | −2.5 | 1.4862 | 115 |
+| gc-ref1 | – | 0.49 | +3.1 | 1.5794 | 145 |
+| gc-reff | – | 0.49 | −3.8 | 1.5843 | 80 |
+| gc-cap | – | 0.57 | +3.7 | 1.6144 | 198 |
+| gc-gauss | p23 | 1.15 | +13.9 | 1.4313 | 328 |
+| gc-s48 | p32 (A2: p23) | 1.04 | +16.7 | 1.7100 | 336 |
+| gc-sauto | – | 0.82 | +11.0 | **1.3760** | 384 |
+| gc-noneg | 39 sources | 48 | +602 | 171 | 1934 |
+
+So far, on D:
+
+- **No arm passes** all five clauses.
+- **The offset fixes cost RMS.** Every arm that removes the offset (ref1, reff, cap, b080) has an
+  inner RMS of 1.486-1.614 µJy, above the bound.
+- **sauto comes closest.** It fails only the offset clause (+11.0 against ≤ +8.0) and has the
+  lowest RMS of all arms.
+- **gc-noneg diverged.** The 192 px scale took +0.41 Jy, and Q/Q0 is 0.0998 against 0.0176.
+  ws-noneg will show whether WSClean `-no-negative` does the same; a GeMClean bug has not been
+  ruled out.
+- **A post hoc correction.** The theoretic beam is 2.4403 px, not the 2.47 px given in section 2.
+
+**WSClean on D.**
+
+| arm | A1 failures | worst ratio | median point ΔS (µJy) | inner RMS (µJy) |
+| --- | --- | ---: | ---: | ---: |
+| ws-b065 | p26 | 1.02 | +16.7 | 1.5595 |
+| ws-b070 | – | 0.96 | +17.7 | 1.5797 |
+
+The remaining H gc arms and the WSClean arms on D and H were still running at this point.
+`decide.py` writes the final archive.
