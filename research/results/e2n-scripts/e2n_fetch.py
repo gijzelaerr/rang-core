@@ -106,7 +106,17 @@ def main(argv=None):
         d.select(scans=a.scans)
         selected = {"scans": a.scans, "dumps": int(d.shape[0]),
                     "channels": int(d.shape[1]), "products": int(d.shape[2])}  # fmt: skip
-        chunks = mvf_download_module().chunk_names(d.source.data, d.vis.keep)
+        # chunk_names fails in dask on a selection of several separate scans
+        # ("zero-dimensional arrays cannot be concatenated"), so the chunk
+        # lists are made per scan and merged.
+        names = mvf_download_module().chunk_names
+        merged = {}
+        for scan in a.scans:
+            d.select()
+            d.select(scans=[scan])
+            for bucket, files in names(d.source.data, d.vis.keep).items():
+                merged.setdefault(bucket, set()).update(files)
+        chunks = {b: sorted(f) for b, f in merged.items()}
     except Exception as exc:
         raise SystemExit(scrub(f"{type(exc).__name__}: {exc}", token)) from None
     jobs = []

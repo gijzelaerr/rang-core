@@ -290,6 +290,27 @@ CARACal's E3 arm is not part of E2-N.
   Everything goes in [tool-timings.md](tool-timings.md).
 - No result here is a novelty claim (AGENTS.md).
 
+## 8a. Amendment 1 (2026-11-16 17:05 local; metadata and layout only, before any value was read)
+
+Found while fetching, from table layouts and receipts only:
+- **A conversion test on katdal scan 35 alone** (`e2n_tomss.sh`, straight to `D:` over 9p) gave rc 0 in
+  171 s at 3.7 GB peak RSS: casacore's bulk writes over 9p work for mvftoms, so the full conversion goes
+  to `D:` directly and nothing goes to ext4. Of that MS only its table layout, column list, FEED
+  RECEPTOR_ANGLE (−π/2 on every receptor, as `ms_extra.py` writes) and FIELD NAME were read; it was then
+  deleted. Its log has no `token=` line.
+- **mvftoms also writes SIGMA_SPECTRUM** (float32, its own tiled file). 139,934 rows took 8.8 GB, so the
+  selection's MS is about 137 GiB, not 102. Nothing on the E2 path reads SIGMA_SPECTRUM (rang, CASA
+  applycal and the solves, WSClean, Tricolour and QuartiCal use WEIGHT_SPECTRUM or unit weights), and E2's
+  MSs had none. **It is removed right after conversion, before the hashes** (−34 GiB), which restores
+  section 4's 102 GiB.
+- **`mvf_download.chunk_names` fails in dask on a selection of several separate scans** ("zero-dimensional
+  arrays cannot be concatenated"); `e2n_fetch.py` now lists chunks per scan and merges them. Same chunks.
+- **Disk.** D: fell from 550.7 to 417.8 GiB between 15:10 and 16:30 local, because E2-A's rows chain
+  (`e2a-score`) wrote CASA's CORRECTED_DATA into `e2a.ms` (374 GiB on D: in all). That chain still has its
+  WSClean steps to run. Section 4's rules are unchanged; in addition, **the conversion starts only when
+  D: will still hold 165 GiB plus the other sessions' announced writes after it**, so that no other
+  session's disk guard trips because of E2-N. The rang arm's start rule (412 GiB) stands.
+
 ## 9. Results
 
 (none yet)
