@@ -58,6 +58,9 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             wins over -mgain as a rule, whatever the order
   -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
                             (default 0.01; 0: no floor; research/stale-floor.md)
+  -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
+                            (1 + e) times the threshold; the minor cycles still clean to the
+                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -202,6 +205,7 @@ struct Args {
     beam_no_w: bool,
     beam_band: bool,
     lazy_bounds: bool,
+    stop_tolerance: f64,
     memory_report: bool,
     channels_out: usize,
     join_channels: bool,
@@ -310,6 +314,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         beam_no_w: false,
         beam_band: false,
         lazy_bounds: true,
+        stop_tolerance: 0.0,
         memory_report: false,
         channels_out: 1,
         join_channels: false,
@@ -394,6 +399,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
             "-stale-floor" => floor = number(flag, value(&mut i)?)?,
+            "-stop-tolerance" => a.stop_tolerance = number(flag, value(&mut i)?)?,
             "-minor-to-threshold" => to_threshold = true,
             "-stop-rule" => match value(&mut i)?.as_str() {
                 "certified" => certified = true,
@@ -706,6 +712,16 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    if !(a.stop_tolerance >= 0.0 && a.stop_tolerance.is_finite()) {
+        return Err("-stop-tolerance must be a finite number of at least 0".into());
+    }
+    if a.stop_tolerance > 0.0 && (a.auto_mask.is_some() || ms_on || a.join_channels || a.join_pols)
+    {
+        return Err(
+            "-stop-tolerance takes neither -auto-mask, -multiscale, -join-channels nor              -join-polarizations: those loops have their own stop (research/gemclean-stop28.md)"
+                .into(),
+        );
+    }
     if let Some(flag) = ms_option.filter(|_| !ms_on) {
         return Err(format!("{flag} needs -multiscale"));
     }
@@ -915,6 +931,7 @@ fn deconvolve<T: Real + Send + Sync>(
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     };
     let stop_bound = match keep {
         Some((uvw, wgt)) => {
@@ -1490,21 +1507,28 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
         ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
         (
             "settings",
-            obj(&[
-                ("gain", num(args.gain)),
-                ("mgain", num(args.mgain)),
-                ("cycle_stop", text(&format!("{:?}", args.cycle_stop))),
-                ("niter", args.niter.to_string()),
-                ("nmiter", args.nmiter.to_string()),
-                ("threshold", num(args.threshold)),
-                ("auto_threshold", opt(args.auto_threshold)),
-                ("patch", args.patch.to_string()),
-                ("theta", num(args.theta)),
-                ("drift", num(args.drift)),
-                ("tau_min", num(args.tau_min)),
-                ("resync_every", args.resync_every.to_string()),
-                ("audit", args.audit.to_string()),
-            ]),
+            obj(&{
+                let mut v = vec![
+                    ("gain", num(args.gain)),
+                    ("mgain", num(args.mgain)),
+                    ("cycle_stop", text(&format!("{:?}", args.cycle_stop))),
+                    ("niter", args.niter.to_string()),
+                    ("nmiter", args.nmiter.to_string()),
+                    ("threshold", num(args.threshold)),
+                    ("auto_threshold", opt(args.auto_threshold)),
+                    ("patch", args.patch.to_string()),
+                    ("theta", num(args.theta)),
+                    ("drift", num(args.drift)),
+                    ("tau_min", num(args.tau_min)),
+                    ("resync_every", args.resync_every.to_string()),
+                    ("audit", args.audit.to_string()),
+                ];
+                // Only when set, so that the default report is unchanged.
+                if args.stop_tolerance > 0.0 {
+                    v.push(("stop_tolerance", num(args.stop_tolerance)));
+                }
+                v
+            }),
         ),
         (
             "beam",
@@ -1816,6 +1840,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     };
     let beam_peak = beams.iter().map(|b| b.peak).collect();
     let beam_f = beams.iter().map(|b| b.f).collect();
@@ -2376,6 +2401,7 @@ fn clean_settings(args: &Args) -> Settings {
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     }
 }
 
@@ -3562,6 +3588,43 @@ mod tests {
                 assert!(parse(&format!("-size 64 64 -scale 2asec {flag} {bad} x.ms")).is_err());
             }
             assert!(parse(&format!("-size 64 64 -scale 2asec {flag} 0.5 x.ms")).is_ok());
+        }
+    }
+
+    #[test]
+    fn stop_tolerance_flag() {
+        // research/gemclean-stop28.md: off by default, finite and not negative,
+        // and refused on the loops with their own stop.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        let base = "-size 64 64 -scale 2asec -no-update-model-required";
+        assert_eq!(parse(&format!("{base} x.ms")).unwrap().stop_tolerance, 0.0);
+        let a = parse(&format!("{base} -stop-tolerance 0.02 x.ms")).unwrap();
+        assert_eq!(a.stop_tolerance, 0.02);
+        assert_eq!(clean_settings(&a).stop_tolerance, 0.02);
+        for bad in ["-0.1", "nan", "inf"] {
+            assert!(
+                parse(&format!("{base} -stop-tolerance {bad} x.ms")).is_err(),
+                "{bad}"
+            );
+        }
+        for other in [
+            "-multiscale",
+            "-mgain 0.9 -auto-threshold 1 -auto-mask 3",
+            "-channels-out 2 -join-channels",
+            "-pol IQUV -join-polarizations",
+        ] {
+            let line = format!("{base} {other} -stop-tolerance 0.02 x.ms");
+            assert!(
+                parse(&line)
+                    .err()
+                    .is_some_and(|e| e.contains("-stop-tolerance")),
+                "{line}"
+            );
+            let line = format!("{base} {other} -stop-tolerance 0 x.ms");
+            assert!(parse(&line).is_ok(), "{line}");
         }
     }
 

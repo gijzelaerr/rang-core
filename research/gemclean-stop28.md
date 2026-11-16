@@ -159,6 +159,14 @@ first cycle below `(1 + ε) T`; the refusals. 3. Baseline and ε choice on S1-S3
 simulator, simulated once, run once (default, rule, WSClean plain and fast). 5. Seen sets. 6. Pilot. 7. Verdict
 by §6. A failed build or a baseline mismatch stops its stage and is reported.
 
+## Amendments
+
+**1, 2026-11-16, before any run.** (a) Every GeMClean run passes `-wgridder-accuracy 1e-6` (double precision):
+the archived runs (`f0ca931`, the stale-floor reports) used 1e-6, and WSClean's runs here use 1e-6, but GeMClean's
+default has been 1e-4 in single precision since G7 ([g7-defaults.md](g7-defaults.md)). Without the flag the
+baseline would not be the archived one. The rule's effect at the 1e-4 default is not measured here. (b) H7's 40
+points keep the 10 px separation of H1, H3 and H4 (the freeze did not say).
+
 ## Measured result
 
 Not run.
