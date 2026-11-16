@@ -1114,6 +1114,10 @@ gemclean: usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
+  -reorder                  with several polarisations: keep each polarisation's read and each
+                            entry's visibilities in temporary files, read back where used (same
+                            images, less memory; research/gemclean-memory2.md)
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged

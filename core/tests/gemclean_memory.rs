@@ -178,11 +178,18 @@ const REORDER_DUMPS: usize = 120;
 const REORDER_NCHAN: usize = 128;
 const REORDER_SIDE: usize = 128;
 
-/// The frozen bound on `-reorder`'s peak heap, bytes: 1.2 × the 232,370,794
-/// bytes measured on 2026-11-16 at `42ad6c6` (research/gemclean-memory2.md,
-/// section 6); the run without `-reorder` peaked at 351,758,344 and must
-/// exceed it.
-const REORDER_BOUND_BYTES: u64 = 279_000_000;
+/// The frozen bound on `-reorder`'s peak heap, bytes: 1.2 × the value
+/// measured on each platform on 2026-11-16 (research/gemclean-memory2.md,
+/// section 6). Windows (`CountingAlloc`, `42ad6c6`): 232,370,794 with
+/// `-reorder`, 351,758,344 without. Linux (`HugePageAlloc`, the `tests`
+/// workflow's run 43966049067): 282,702,156 with, 402,089,822 without; the
+/// Linux bound was added after that run (post hoc). The run without
+/// `-reorder` must exceed the bound.
+const REORDER_BOUND_BYTES: u64 = if cfg!(target_os = "linux") {
+    339_000_000
+} else {
+    279_000_000
+};
 
 /// Run the `-reorder` case: the FITS files' bytes by name, and the peak heap.
 fn run_reorder_case(

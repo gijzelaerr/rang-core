@@ -238,6 +238,7 @@ the heavy lock, 4 slots, shared host (other jobs ran throughout). Scoring:
 | J1833−2103, this branch without `-reorder` | 153 | identical; `entries` and mask equal; heap phases equal to the baseline's to the printed digit |
 | G8's tiny MS, 21 cases ([sweep.py](results/gemclean-memory2/sweep.py), [receipts/sweep-v1.json](results/gemclean-memory2/receipts/sweep-v1.json)): baseline, branch, branch with `-reorder -temp-dir` | 0-85 per case | all identical in both comparisons (two cases refuse with the same message in all three); no `.tmp` or `.spill` file left |
 | regression case (`core/tests/gemclean_memory.rs`), with and without `-reorder` | 85 | identical |
+| J1833−2103, the wheel (`python -m rang.gemclean -reorder`, this branch's extension at `04e3a86`) | 153 | identical; mask equal; 7.18 GiB tree RSS, 7.19 private, 330.9 s |
 
 The sweep was run with a development build of the same code
 (`gemclean-v1.exe`, before `cargo fmt`).
@@ -285,6 +286,11 @@ The sweep was run with a development build of the same code
 - FITS byte-identical and no temporary file left;
 - 315 s in a debug `cargo test` on this host;
 - the phase 1 case still passes (101,622,276 bytes).
+- **Post hoc, 2026-11-17:** on Linux (the `tests` workflow, run
+  43966049067, `HugePageAlloc`) the case peaked at 282,702,156 bytes with
+  `-reorder` and 402,089,822 without, so the Windows bound failed there.
+  Linux now has its own bound, 339,000,000 (1.2 × its value). The run
+  without `-reorder` exceeds it, and the Windows bound is unchanged.
 
 **Outcome under the frozen rule: partly met.**
 - Identity holds everywhere.
