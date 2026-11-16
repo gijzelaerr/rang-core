@@ -853,3 +853,24 @@ through FLAG_ROW rows with nonzero Stokes I weight.
 - **FLAG_ROW ignored (the known-difference check):** T1 max 3.7e-7, median
   5.9e-8; T2c 5.0e-6 σ. Both within the bounds.
 - **Archive.** `research/results/ts-p1/score-held2-flag-row-ignored.json`.
+### 15.7 T6: not run (the host was never free), 2026-11-16
+
+- **What was tried.**
+  - `tools/oracles/ts-p1/t6_run.py` queues an exclusive ticket and withdraws
+    it after 600 s at the head of the queue, then retries after 15 min.
+  - Its first version could not find its own ticket (the venv launcher runs
+    the interpreter as a child, whose pid names the ticket). That ticket sat
+    at the head for longer than 10 minutes before I withdrew it by hand. The
+    fixed version recognises the ticket through the launcher's child pid.
+  - The fixed version made two attempts. Both were withdrawn after
+    600-605 s at the head (`D:\rang\outputs\ts-p1-20261116\t6-attempts.jsonl`).
+    Throughout, E2-A and E2-B holds (4-8 slots, 16-32 GB) and the V8
+    tfcrop probes kept the host busy.
+- **The driver was then stopped, so that no T6 run happens without being
+  recorded.**
+- **To run T6** once the host is free (`tsp1-held2.ms` stays on D: for it):
+
+      python tools/oracles/ts-p1/t6_run.py D:\rang\outputs\ts-p1-20261116 --attempts 12
+
+  Gate 13.4: rang's wall time and peak RSS (from `lc-t6.lightcurve.rang-receipt.json`)
+  against WSClean's `timing.txt`, each at most 1.5×.
