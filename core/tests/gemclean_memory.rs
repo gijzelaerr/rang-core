@@ -191,13 +191,23 @@ const REORDER_BOUND_BYTES: u64 = if cfg!(target_os = "linux") {
     279_000_000
 };
 
-/// Run the `-reorder` case: the FITS files' bytes by name, and the peak heap.
+/// The peak heap of the clean (the phases from the first minor cycle on),
+/// from the report's phase list.
+fn peak_of_clean(report: &str) -> u64 {
+    let from = report
+        .find("\"label\": \"cycle 1: minor\"")
+        .expect("a first minor cycle");
+    peaks(&report[from..]).0
+}
+
+/// Run the `-reorder` case: the FITS files' bytes by name, the peak heap and
+/// the peak heap of the clean.
 fn run_reorder_case(
     dir: &Path,
     ms: &Path,
     tag: &str,
     extra: &[&str],
-) -> (Vec<(String, Vec<u8>)>, u64) {
+) -> (Vec<(String, Vec<u8>)>, u64, u64) {
     let out_dir = dir.join(tag);
     std::fs::create_dir_all(&out_dir).unwrap();
     let side = REORDER_SIDE.to_string();
@@ -243,7 +253,7 @@ fn run_reorder_case(
         })
         .collect();
     files.sort();
-    (files, heap)
+    (files, heap, peak_of_clean(&report))
 }
 
 #[test]
@@ -254,14 +264,16 @@ fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
     write_case(&ms, NANT, REORDER_DUMPS, REORDER_NCHAN);
     let tmp = dir.join("tmp");
     std::fs::create_dir_all(&tmp).unwrap();
-    let (plain, heap_plain) = run_reorder_case(&dir, &ms, "plain", &[]);
-    let (reorder, heap_reorder) = run_reorder_case(
+    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &[]);
+    let (reorder, heap_reorder, clean_reorder) = run_reorder_case(
         &dir,
         &ms,
         "reorder",
         &["-reorder", "-temp-dir", tmp.to_str().unwrap()],
     );
-    println!("peak heap {heap_plain} bytes without -reorder, {heap_reorder} with");
+    println!(
+        "peak heap {heap_plain} bytes without -reorder, {heap_reorder} with;          in the clean {clean_plain} and {clean_reorder}"
+    );
     assert!(!plain.is_empty());
     assert!(
         plain == reorder,
@@ -277,6 +289,14 @@ fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
     assert!(
         heap_plain > REORDER_BOUND_BYTES,
         "the case no longer separates: {heap_plain} bytes without -reorder"
+    );
+    // With -reorder the whole peak sits in the read's chunk buffers, so the
+    // clean (from the first minor cycle on) is checked on its own (post hoc,
+    // 2026-11-17): at most 0.75 of the run without -reorder, which in-memory
+    // visibilities coming back would exceed.
+    assert!(
+        clean_reorder * 4 <= clean_plain * 3,
+        "-reorder's clean peaks at {clean_reorder} bytes, over 0.75 × {clean_plain}"
     );
     std::fs::remove_dir_all(&dir).unwrap();
 }

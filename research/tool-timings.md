@@ -2062,3 +2062,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gemclean-memory2: `cargo test --test gemclean_memory` (debug) | the two cases | 315 s tests (1,757 s with build and lock wait) | – | 4 slots |
 | 2026-11-16 | gemclean-memory2: `tools/check_all.py --quick` | branch at 04e3a86 | 911 s | – | PASS (the run before, 865 s, FAIL at core-clippy: type_complexity, fixed) |
 | 2026-11-17 | `python -m rang.gemclean -reorder` (wheel, 04e3a86), A5's argv | J1833−2103 | 330.9 s | 7.18 GiB tree RSS | shared host; FITS identical to the baseline |
+| 2026-11-17 | gemclean-memory2: `tools/check_all.py --quick` | branch at 07ba321 | 154 s | – | PASS |
+| 2026-11-17 | gemclean-memory2: identity sweep on the regression case's MS (6 cases × 3 binaries) | 33,120 rows × 128 ch, two reader chunks | 98 s | – | 2 slots |

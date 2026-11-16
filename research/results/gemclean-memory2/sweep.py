@@ -7,7 +7,11 @@ with `-reorder` (files in a separate `-temp-dir`), over phase 1's cases plus
 code, every FITS file's SHA-256, the report's `entries` and the mask
 record, and lists any `.tmp` or `.spill` file left.
 
-    sweep.py BASE_BINARY BRANCH_BINARY OUTDIR   -> OUTDIR/sweep.json
+    sweep.py BASE_BINARY BRANCH_BINARY OUTDIR [MS CASE,CASE,...]   -> OUTDIR/sweep.json
+
+With MS (post hoc, 2026-11-17) the given MS is used instead of G8's, with only
+the named cases: the regression test's 120-dump case, read in two chunks, so
+that the chunked read crosses a chunk boundary.
 """
 
 import hashlib
@@ -84,9 +88,13 @@ def run(binary, ms, out, extra):
 def main():
     base, branch, outdir = sys.argv[1:4]
     outdir = Path(outdir)
-    ms = tiny_ms(outdir / "tiny.ms")
+    if len(sys.argv) > 5:
+        ms, names = Path(sys.argv[4]), sys.argv[5].split(",")
+    else:
+        ms, names = tiny_ms(outdir / "tiny.ms"), list(CASES)
     results = {}
-    for name, extra in CASES.items():
+    for name in names:
+        extra = CASES[name]
         tmp = outdir / name / "tmpdir"
         tmp.mkdir(parents=True, exist_ok=True)
         a = run(base, ms, outdir / name / "base", extra)

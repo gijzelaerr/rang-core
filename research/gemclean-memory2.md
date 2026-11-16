@@ -238,10 +238,21 @@ the heavy lock, 4 slots, shared host (other jobs ran throughout). Scoring:
 | J1833−2103, this branch without `-reorder` | 153 | identical; `entries` and mask equal; heap phases equal to the baseline's to the printed digit |
 | G8's tiny MS, 21 cases ([sweep.py](results/gemclean-memory2/sweep.py), [receipts/sweep-v1.json](results/gemclean-memory2/receipts/sweep-v1.json)): baseline, branch, branch with `-reorder -temp-dir` | 0-85 per case | all identical in both comparisons (two cases refuse with the same message in all three); no `.tmp` or `.spill` file left |
 | regression case (`core/tests/gemclean_memory.rs`), with and without `-reorder` | 85 | identical |
+| regression case's MS (120 dumps, read in two chunks; post hoc, 2026-11-17, [receipts/sweep-regcase.json](results/gemclean-memory2/receipts/sweep-regcase.json)): baseline, branch, branch with `-reorder`, 6 cases (joined MF masked and unmasked, joined per-channel, unjoined MF, unjoined per-channel, one channel) with the sweep's settings | 17-51 per case | all identical; nothing left |
 | J1833−2103, the wheel (`python -m rang.gemclean -reorder`, this branch's extension at `04e3a86`) | 153 | identical; mask equal; 7.18 GiB tree RSS, 7.19 private, 330.9 s |
 
-The sweep was run with a development build of the same code
-(`gemclean-v1.exe`, before `cargo fmt`).
+The G8 sweep was run with a development build of the same code
+(`gemclean-v1.exe`, before `cargo fmt`). G8's MS fits in one reader chunk.
+So the chunked read across a chunk boundary was first checked on J1833−2103
+and the large fields (joined MF weighting only). The post hoc sweep on the
+regression case's two-chunk MS adds unjoined MF weighting (grids from every
+polarisation) and per-channel weighting.
+
+The frozen clause "this branch without `-reorder` byte-identical to the
+baseline on the regression case" was met in the post hoc sweep's
+`branch`-against-`base` comparison on the new case's MS, with the sweep's
+settings, not the test's own argv. The phase 1 case was not rerun against
+the baseline binary.
 
 **Memory and time** (tree RSS is A5's measure; GiB; shared host):
 
@@ -286,6 +297,12 @@ The sweep was run with a development build of the same code
 - FITS byte-identical and no temporary file left;
 - 315 s in a debug `cargo test` on this host;
 - the phase 1 case still passes (101,622,276 bytes).
+- **Post hoc, 2026-11-17:** with `-reorder` the whole peak sits in the
+  read's chunk buffers (232 MB of 232 MB), so the bound alone catches only
+  the band read coming back. The test now also bounds the clean's peak
+  (the phases from the first minor cycle on) at 0.75 × the run without
+  `-reorder`. Measured: 62,700,626 against 100,841,129 bytes (0.62). The
+  case's in-memory visibilities (about 40 MB) coming back would exceed it.
 - **Post hoc, 2026-11-17:** on Linux (the `tests` workflow, run
   43966049067, `HugePageAlloc`) the case peaked at 282,702,156 bytes with
   `-reorder` and 402,089,822 without, so the Windows bound failed there.
@@ -315,10 +332,16 @@ and 2, run
 with BIN `D:/rang/outputs/gemclean-memory2-20261116/bin/gemclean-base-6909a31.exe`
 (TAG `x-base`) and `.../gemclean-v-42ad6c6.exe -reorder` (TAG
 `x-reorder`). The inputs `f0.ms`, `f1.ms` and `f2.ms` are kept for this
-(75 GB on D:) until the coordinator says they can go.
+(68 GB on D:) until the coordinator says they can go.
 
 ## For the coordinator
 
+- **Kept, against the brief's delete-when-done:** the three rebuilt inputs
+  `D:/rang/outputs/gemclean-memory2-20261116/f0.ms`, `f1.ms` and `f2.ms`
+  (with their `.flagversions`; 68 GB), for the exclusive timing in section
+  6. To delete them: `rm -rf D:/rang/outputs/gemclean-memory2-20261116/f?.ms*`.
+  Rebuilding them takes about 71 min (`prep_queue.sh`). `field.sh` needs
+  this worktree's `.venv` (memtime.py) and the `bin/` directory there.
 - #32 phase 2: **partly met** under the frozen rule, at byte-identical
   output (153 FITS files per field, `entries` and the mask equal).
 - `-reorder` (opt-in, with `-temp-dir`) keeps the per-channel read and the
@@ -327,6 +350,13 @@ with BIN `D:/rang/outputs/gemclean-memory2-20261116/bin/gemclean-base-6909a31.ex
   met; J1833−2103 8.40 → 7.17, not met (0.854 against 0.75).
 - Wall time is not higher on any field (shared host). It is 4.7-5.4 ×
   WSClean's 1.34-1.95 GiB.
-- Next memory: the `f32` images (arm F, not run) and the beams, which are
-  now about two thirds of the peak.
-- Booking with `-reorder`: about 11 GB on every field.
+- Booking with `-reorder`: about 11 GB of memory on every field, plus about
+  28 GB of temporary files per large-field run (9 GB on J1833−2103) in the
+  `-name` directory or `-temp-dir`.
+- CI: the first push (`04e3a86`) was red: `tests` 43966049067 failed on the
+  Linux bound and a stale `docs/cli.md`, and `docs` 43966049212 on the same
+  page. Both were fixed in `07ba321` (`tests` 43968914787 and `docs`
+  43968913025 green). The full check and the gpu steps are left to the
+  merge check.
+- Open: arm F (`f32` images, not run); the plans in files (up to 2.9 GB,
+  byte-identical); the beams.
