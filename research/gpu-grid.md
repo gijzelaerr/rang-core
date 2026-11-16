@@ -389,8 +389,9 @@ memory 588-1342 MiB on the skies, 4096 MiB (the budget) on the pilot.
 
 ### 8.5 Checks
 
-- Rust, feature off: `tools/check_all.py --quick` (root and core tests, clippy, fmt) at
-  `10bc238`'s parent; 291 core tests pass. Feature on: `cargo clippy --features gpu
+- `tools/check_all.py --quick` at `393ebd9` (the code of `ac69867`): **PASS** in 986 s (291 core
+  tests, clippy, fmt, the extension, 518 pytest passed). Two earlier quick runs failed on
+  `cargo fmt` and on the research index, both fixed. Feature on: `cargo clippy --features gpu
   --all-targets -D warnings` clean and `cargo test --features gpu` 301 + 1 pass at `c3ceb00`,
   the GPU tests running on the RTX 4070 Ti (not skipped).
 - CI: `tests` and `docs` green on `10bc238` (runs 43898387145, 43898387137) and `STATE` commit
