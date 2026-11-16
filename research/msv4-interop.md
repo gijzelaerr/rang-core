@@ -196,7 +196,7 @@ threads booked), with no claim attached.
 ## 7. Measured result (2026-11-16)
 
 Status after the run: **measured, pass** (xradio arm); the xarray-ms arm is
-refused by the frozen scope.
+refused by the frozen scope. (2026-11-16: for M1, the amended rerun, see "M1 run" at the end of this section.)
 
 **Runs.** Conversions: WSL, one run, `convert-01.log`, under
 `heavy_lock run --slots 2 --mem 4`. Checks: Windows, worktree `.venv`
@@ -291,7 +291,7 @@ mismatches in the six cases that hold autocorrelations, because xarray-ms
 | run | code | outcome |
 | --- | --- | --- |
 | 05 | `7d82e46` (committed; amendment `8a93cfa` before it) | xradio: 9 of 9 `match`; xarray-ms: c6, c7, c9 `match`, c1 to c5 and c8 `mismatch` (coverage); the receipt |
-| 06 | diagnosis `results/msv4-interop/m1_diag_autos.py`, same code | not a measure (post hoc): xarray-ms arm against the MSv2 with its autocorrelation rows removed, all 9 `match` |
+| 06 | diagnosis `results/msv4-interop/m1_diag_autos.py`, same code | not a measure (post hoc): xarray-ms arm against the MSv2 with its autocorrelation rows removed, all 9 `match`. A first run 06 from an uncommitted copy of the same script, before lint and formatting, gave the same result; its output was not kept |
 
 A first launch of run 05 failed before the harness started (`heavy_lock`
 could not spawn a relative interpreter path); nothing was read. Checks on
@@ -342,7 +342,7 @@ those of `convert-01`, unchanged.
 `SIGMA_SPECTRUM`; no `pointing_xds`; no autocorrelations by default; `FLAG`
 pads 1 against false.
 
-## 8. Next steps (proposed, not started)
+## 8. Next steps (proposed; M1 done)
 
 - **M1** (done 2026-11-16: section 9 amendment, section 7 M1 run; not met,
   a writer difference, xarray-ms drops autocorrelations by default): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
@@ -435,7 +435,7 @@ First part (branch `msv4-interop`):
   later), added to the CI and `check_all.py` extras. The core install is
   unchanged. No CLI change, no new `RANG_*` variable.
 - The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`); kept for
-  M1, remove it once M1 is done or dropped.
+  M1b and M3 (new conversions); remove it once they are done or dropped (2026-11-16, after M1).
 - `tools/check_all.py` installs extras only into a new `.venv`: the main
   checkout's `.venv` needs `uv pip install xarray "zarr>=3,<4" numcodecs` (or
   `--extra msv4`) or the merge check skips `tests/test_msv4.py`.
