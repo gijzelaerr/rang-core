@@ -1,0 +1,23 @@
+2026-11-16T21:04:11+02:00 win npy rc=0 secs=2
+2026-11-16T21:17:41+02:00 make rc=0 secs=809
+2026-11-16T21:17:41+02:00 C11 met
+2026-11-16T21:21:35+02:00 subset 2 rc=0 secs=22
+2026-11-16T21:22:08+02:00 copyout 2 rc=0 secs=32
+2026-11-16T21:22:21+02:00 dsha 2 s2-d.sha256 rc=0 secs=13
+2026-11-16T21:22:23+02:00 drops 2 rc=0 secs=1
+2026-11-16T21:27:52+02:00 win apply2 rc=0 secs=329
+2026-11-16T21:28:29+02:00 dsha 2 f2-d.sha256 rc=0 secs=37
+2026-11-16T21:28:29+02:00 field 2 ready, free 330
+2026-11-16T21:29:38+02:00 subset 0 rc=0 secs=67
+2026-11-16T21:31:40+02:00 copyout 0 rc=0 secs=122
+2026-11-16T21:32:25+02:00 dsha 0 s0-d.sha256 rc=0 secs=45
+2026-11-16T21:32:26+02:00 drops 0 rc=0 secs=0
+2026-11-16T21:47:31+02:00 win apply0 rc=0 secs=905
+2026-11-16T21:48:45+02:00 dsha 0 f0-d.sha256 rc=0 secs=74
+2026-11-16T21:48:45+02:00 field 0 ready, free 308
+2026-11-16T21:55:45+02:00 field 2 base rc=0 secs=411 temp_left=0
+2026-11-16T21:57:46+02:00 subset 1 rc=0 secs=116
+2026-11-16T22:06:19+02:00 copyout 1 rc=0 secs=171
+2026-11-16T22:11:24+02:00 field 0 base rc=0 secs=810 temp_left=0
+2026-11-16T22:12:13+02:00 dsha 1 s1-d.sha256 rc=0 secs=354
+2026-11-16T22:12:15+02:00 drops 1 rc=0 secs=1
