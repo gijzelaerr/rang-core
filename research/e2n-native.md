@@ -311,6 +311,29 @@ Found while fetching, from table layouts and receipts only:
   D: will still hold 165 GiB plus the other sessions' announced writes after it**, so that no other
   session's disk guard trips because of E2-N. The rang arm's start rule (412 GiB) stands.
 
+## 8b. Amendment 2 (2026-11-16 21:30 local; host only, no protocol change)
+
+By the coordinator's message (owner's decision), E2-N moves to the shared Linux host **nash**
+(`nash.ru.ac.za`: 36 cores, 503 GB RAM, 16 TB free on /home; other people use it). Every job there runs
+under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
+- **Data.** The selection of section 3 is fetched again on nash by the same `e2n_fetch.py`, into
+  `~/rang-data/outputs/e2n-20261116/mvf/` (the owner placed the link file there, mode 600). nash's link
+  is faster (about 20 MB/s against 5-7 MB/s on the Windows host). The Windows copy on `D:` is complete
+  but for one weights chunk (read timeout) and two `correlator_data` chunks of dump 2 that the archive
+  does not hold (HTTP 404; katdal marks such chunks `data_lost`). It is kept until nash's MS is built
+  and hashed, then deleted.
+- **Runs.** Conversion, the rang arm and the oracle arms run on nash, on the MS
+  `~/rang-data/outputs/e2n-20261116/e2n.ms`. Section 4's D: budget and its 412 GiB start rule apply to
+  the Windows host only; on nash the disk guard keeps 1 TB free. The rang arm runs from a Linux wheel
+  built on nash at this branch's head, once nash's set-up reports a working build.
+- **Oracles at the pinned versions** (A0 rule 8), installed from public PyPI into venvs on nash, since
+  docker is not available there: casatools and casatasks 6.7.6.14, QuartiCal 0.2.7, Tricolour 0.2.1;
+  WSClean 3.7 is nash's own `/usr/bin/wsclean` (built 2026-02-16), not the `rang-wsclean-native`
+  container. That a native build reproduces the container's output is not established; it is checked on
+  one E2-B development input before any E2-N oracle result is read, and reported. nash's system CASA
+  (6.6.5) is not used.
+- **Timings** are labelled host nash; they are not comparable with the Windows host's.
+
 ## 9. Results
 
 (none yet)
