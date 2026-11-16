@@ -372,8 +372,8 @@ def design_scale_ladder(info, seed=10):
             base = (avg, _mirror_rows(rng, half, nchan), cubic, eta, spikes)
         avg, u, cubic, eta, spikes = base
         data[b::nbl, :, c] = ((m * avg)[None, :] * (1.0 + u)).astype(np.complex64)
-        planes.append([b, c, f"g={g},{'cubic' if cubic else 'line'},eta={eta},"
-                             f"spikes={int(spikes)},m={m}"])  # fmt: skip
+        kind = "cubic" if cubic else "line"
+        planes.append([b, c, f"g={g},{kind},eta={eta},spikes={int(spikes)},m={m}"])
     return data, np.zeros(data.shape, bool), {"planes": planes}
 
 
