@@ -28,6 +28,7 @@ LOG=$R/chain-steps.log
 nash() { "$PY" "$N/e2n_nash.py" "$@"; }
 # step slots GB command...
 STEPS="
+columns-before 1 2 POST
 run 16 96 RUN
 gate1 1 2 POST
 archive 1 2 POST
@@ -69,7 +70,7 @@ target-score 1 16 ROWSA target-score
 selfcal-score 1 16 ROWSA selfcal-score
 final-restore 1 4 ROWSA final-restore $INPUT
 "
-first=${1:-run}
+first=${1:-columns-before}
 last=${2:-final-restore}
 on=0
 while read -r step slots mem kind rest; do
