@@ -1979,3 +1979,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ (dev / held-out) | ext4 copy | 312.4 s / 402.2 s | 271 / 273 MB | all 129,024 samples gridded per interval |
 | 2026-11-16 | ts-p1: `examples/ts_p1_measure.py` with in-stream T1 (remakes rang's snapshots) | tsp1-dev / tsp1-held, WSClean FITS over \\wsl.localhost | about 6-8 min | – | 4 slots, 6 GB |
 | 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
+| 2026-11-16 | ts-p1 P2: `examples/ts_p1_sim.py tsp1-noise` / `tsp1-held2` | 907,200 rows; 5.76 / 8.55 GB | 108 s / 93 s | – | 4 slots |
+| 2026-11-16 | ts-p1 P2: `rang-core lightcurve --candidates 5`, 2048² at 2″ (noise / held2) | tsp1-noise / tsp1-held2 | 361 s / 359 s | 286 / 288 MB | 4 threads, shared host (about 2.4 cores in use) |
+| 2026-11-16 | ts-p1 P2: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ | tsp1-held2 ext4 copy, RESIDUAL_DATA, WEIGHT_SPECTRUM | 339.6 s | 274 MB | ignores FLAG_ROW |
+| 2026-11-16 | ts-p1 P2: `maturin develop --release --features gpu` | worktree, target in ~/Build/tmp/20261116-ts-p1-gpu | 5 min 22 s (cold) | – | 8 slots |
+| 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
+| 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
+| 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
