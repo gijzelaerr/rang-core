@@ -1,0 +1,24 @@
+{
+ "calls": [
+  {
+   "fields": [
+    "J1939-6342"
+   ],
+   "tables": [
+    "K",
+    "G",
+    "B",
+    "Gpol",
+    "Kcross",
+    "Xf",
+    "Df"
+   ],
+   "parang": true,
+   "frame": "casa",
+   "receptor_angle": -1.5707963267948966
+  }
+ ],
+ "rang_file": "C:\\Users\\gijsm\\Worktrees\\rang\\gemclean-memory2\\python\\rang\\__init__.py",
+ "worktree_head": "b10d4850ae03d8db2578e776d9c4202bc978ea32",
+ "secs": 123.41173148155212
+}

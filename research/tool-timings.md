@@ -2076,3 +2076,19 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | floor-3 arm P: copy to four correlations, G0, `rang-core selfcal` (Sp 300 s, GeMClean round 1 and final), score; heavy lock shared 8 slots 20 GB, `RAYON_NUM_THREADS=8` | ESO137 pilot `cal2.ms`, 823,500 rows | selfcal 1,138 s (solve 609 s, images 235 s and 167 s); copy 34.6 s, G0 29.4 s, score 52.1 s; 1,586 s in all | – | native Windows host; research/floor-3.md section 9; first attempt refused in 30 s (clarification 1) |
 | 2026-11-16 | floor-3 arm PL: the same, solve above 400 m (`minuvw_m: 400`), no G0; heavy lock shared 8 slots 20 GB, `RAYON_NUM_THREADS=8` | ESO137 pilot `cal2.ms`, 823,500 rows | selfcal 971 s (solve 510 s, images 187 s and 162 s); copy 36.9 s, score 54.3 s; about 1,065 s compute, 2,734 s with about 28 min in the queue | – | native Windows host; research/floor-3.md section 9 |
 | 2026-11-17 | floor-3: `tools/check_all.py --quick` | worktree `3bf41bd` | 940 s (lock wait excluded), 954 s in all | – | PASS; native Windows host |
+| 2026-11-16 | gemclean-memory2: `tools/check_all.py --quick` | worktree at main 6909a31 (unchanged) | 1,109 s | – | PASS; takes the lock itself |
+| 2026-11-16 | gemclean-memory2: input rebuild (`prep_queue.sh`: npy, make E on ext4, three subsets, D: copies, rang's apply) | E2-B `e2b.ms`, 272,916 rows | about 71 min (21:04-22:15) | – | make 809 s; apply 329 / 905 / 123 s (fields 2, 0, 1); shared host |
+| 2026-11-16 | gemclean-memory2: `cargo build --release --bin gemclean` | core, main 6909a31 | 318 s | – | 4 slots, including lock wait |
+| 2026-11-16 | gemclean (baseline 6909a31), A5's argv + `-memory-report`, `-j 4` | J1833−2103, 33,880 rows × 4096 ch, IQUV joined, 8 ch, 2048² | 404.3 s | 8.40 GiB tree RSS (9.20 private) | shared host, 4 slots |
+| 2026-11-16 | gemclean (baseline 6909a31), the same | J1331+3030, 113,960 rows | 804.0 s | 15.87 GiB (17.38 private) | shared host |
+| 2026-11-16 | gemclean (baseline 6909a31), the same | J1939−6342, 115,500 rows | 920.1 s | 16.46 GiB (17.43 private) | shared host |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1833−2103 | 335.1 s | 7.17 GiB (7.19 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1331+3030 | 791.1 s | 9.12 GiB (9.14 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1939−6342 | 880.8 s | 9.10 GiB (9.12 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean 42ad6c6 without `-reorder`, the same | J1833−2103 | 417 s | 9.18 GiB (9.20 private) | shared host; FITS identical to the baseline |
+| 2026-11-16 | gemclean-memory2: identity sweep (`sweep.py`, 21 cases × 3 binaries) | G8's tiny MS | 27 s | – | 2 slots |
+| 2026-11-16 | gemclean-memory2: `cargo test --test gemclean_memory` (debug) | the two cases | 315 s tests (1,757 s with build and lock wait) | – | 4 slots |
+| 2026-11-16 | gemclean-memory2: `tools/check_all.py --quick` | branch at 04e3a86 | 911 s | – | PASS (the run before, 865 s, FAIL at core-clippy: type_complexity, fixed) |
+| 2026-11-17 | `python -m rang.gemclean -reorder` (wheel, 04e3a86), A5's argv | J1833−2103 | 330.9 s | 7.18 GiB tree RSS | shared host; FITS identical to the baseline |
+| 2026-11-17 | gemclean-memory2: `tools/check_all.py --quick` | branch at 07ba321 | 154 s | – | PASS |
+| 2026-11-17 | gemclean-memory2: identity sweep on the regression case's MS (6 cases × 3 binaries) | 33,120 rows × 128 ch, two reader chunks | 98 s | – | 2 slots |

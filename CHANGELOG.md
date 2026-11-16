@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
+  polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
+  entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;
+  `-temp-dir DIR` places them (default: the directory of `-name`). Every FITS file is byte-identical. On E2-B's
+  joined-IQUV 8-channel 2048² runs the peak falls from 15.9-16.5 to 9.1 GiB (J1331+3030, J1939−6342) and from
+  8.4 to 7.2 GiB (J1833−2103); about 28 GB of temporary files on the large fields.
 - New (`research/msv4-interop.md`, #5): `rang.msv4` reads an MSv4 processing set (xradio schema 4.x, Zarr)
   into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
   Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as

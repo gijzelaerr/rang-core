@@ -29,16 +29,16 @@ const SIDE: usize = 256;
 /// section 5). Before the fix this case peaked at 149,499,552 bytes.
 const BOUND_BYTES: u64 = 122_000_000;
 
-fn write_case(path: &Path) {
-    let itrf: Vec<[f64; 3]> = antennas().into_iter().take(NANT).collect();
+fn write_case(path: &Path, nant: usize, dumps: usize, nchan: usize) {
+    let itrf: Vec<[f64; 3]> = antennas().into_iter().take(nant).collect();
     let (positions, lat) = enu(&itrf);
     let dec = (-30.0f64).to_radians();
-    let freq: Vec<f64> = (0..NCHAN).map(|c| 1.3e9 + 2.0e6 * c as f64).collect();
+    let freq: Vec<f64> = (0..nchan).map(|c| 1.3e9 + 2.0e6 * c as f64).collect();
     let (mut uvw, mut ant1, mut ant2, mut time) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
-    for t in 0..DUMPS {
-        let h = ((t as f64 + 0.5) / DUMPS as f64 - 0.5) * 4.0 * std::f64::consts::PI / 12.0;
-        for p in 0..NANT {
-            for q in p + 1..NANT {
+    for t in 0..dumps {
+        let h = ((t as f64 + 0.5) / dumps as f64 - 0.5) * 4.0 * std::f64::consts::PI / 12.0;
+        for p in 0..nant {
+            for q in p + 1..nant {
                 let d = [
                     positions[p][0] - positions[q][0],
                     positions[p][1] - positions[q][1],
@@ -61,11 +61,11 @@ fn write_case(path: &Path) {
     };
     // The source at (l, m) = 20 pixels of 2″ east: phase 2π (u l) / λ.
     let l = (20.0 * 2.0 / 3600.0f64).to_radians();
-    let mut data = vec![0.0f32; 2 * nrow * NCHAN * 4];
-    let mut weight = vec![0.0f32; nrow * NCHAN * 4];
+    let mut data = vec![0.0f32; 2 * nrow * nchan * 4];
+    let mut weight = vec![0.0f32; nrow * nchan * 4];
     for row in 0..nrow {
         for (c, f) in freq.iter().enumerate() {
-            let cell = (row * NCHAN + c) * 4;
+            let cell = (row * nchan + c) * 4;
             let phase = 2.0 * std::f64::consts::PI * uvw[3 * row] * f / 299_792_458.0 * l;
             let on = next() >= 0.7;
             for corr in 0..4 {
@@ -124,7 +124,7 @@ fn joined_iquv_peak_heap_stays_under_the_frozen_bound() {
     let dir = std::env::temp_dir().join(format!("gemclean-memory-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let ms = dir.join("case.ms");
-    write_case(&ms);
+    write_case(&ms, NANT, DUMPS, NCHAN);
     let name = dir.join("g");
     let out = Command::new(env!("CARGO_BIN_EXE_gemclean"))
         .args(["-name", name.to_str().unwrap()])
@@ -166,6 +166,137 @@ fn joined_iquv_peak_heap_stays_under_the_frozen_bound() {
         heap <= BOUND_BYTES,
         "peak heap {heap} bytes over the frozen bound {BOUND_BYTES} \
          (research/gemclean-memory.md)\n{stdout}"
+    );
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The `-reorder` case (research/gemclean-memory2.md): visibilities
+/// dominate (24 antennas, 120 dumps, 128 channels, 30 % of the cells
+/// weighted, against 128² images), so the band read and the in-memory
+/// visibilities that `-reorder` moves to temporary files set the peak.
+const REORDER_DUMPS: usize = 120;
+const REORDER_NCHAN: usize = 128;
+const REORDER_SIDE: usize = 128;
+
+/// The frozen bound on `-reorder`'s peak heap, bytes: 1.2 × the value
+/// measured on each platform on 2026-11-16 (research/gemclean-memory2.md,
+/// section 6). Windows (`CountingAlloc`, `42ad6c6`): 232,370,794 with
+/// `-reorder`, 351,758,344 without. Linux (`HugePageAlloc`, the `tests`
+/// workflow's run 43966049067): 282,702,156 with, 402,089,822 without; the
+/// Linux bound was added after that run (post hoc). The run without
+/// `-reorder` must exceed the bound.
+const REORDER_BOUND_BYTES: u64 = if cfg!(target_os = "linux") {
+    339_000_000
+} else {
+    279_000_000
+};
+
+/// The peak heap of the clean (the phases from the first minor cycle on),
+/// from the report's phase list.
+fn peak_of_clean(report: &str) -> u64 {
+    let from = report
+        .find("\"label\": \"cycle 1: minor\"")
+        .expect("a first minor cycle");
+    peaks(&report[from..]).0
+}
+
+/// Run the `-reorder` case: the FITS files' bytes by name, the peak heap and
+/// the peak heap of the clean.
+fn run_reorder_case(
+    dir: &Path,
+    ms: &Path,
+    tag: &str,
+    extra: &[&str],
+) -> (Vec<(String, Vec<u8>)>, u64, u64) {
+    let out_dir = dir.join(tag);
+    std::fs::create_dir_all(&out_dir).unwrap();
+    let side = REORDER_SIDE.to_string();
+    let out = Command::new(env!("CARGO_BIN_EXE_gemclean"))
+        .args(["-name", out_dir.join("g").to_str().unwrap()])
+        .args(["-size", &side, &side, "-scale", "4asec"])
+        .args([
+            "-weight", "briggs", "0", "-niter", "100000", "-mgain", "0.9",
+        ])
+        .args([
+            "-auto-threshold",
+            "3",
+            "-auto-mask",
+            "5",
+            "-wgridder-accuracy",
+            "1e-4",
+        ])
+        .args(["-pol", "IQUV", "-join-polarizations"])
+        .args(["-channels-out", "4", "-join-channels"])
+        .args(["-data-column", "DATA", "-no-update-model-required"])
+        .args(["-memory-report", "-j", "2"])
+        .args(extra)
+        .arg(ms)
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        out.status.success(),
+        "{stdout}{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report = std::fs::read_to_string(out_dir.join("g-report.json")).unwrap();
+    let (heap, _) = peaks(&report);
+    let mut files: Vec<(String, Vec<u8>)> = std::fs::read_dir(&out_dir)
+        .unwrap()
+        .map(|e| e.unwrap().path())
+        .filter(|p| p.extension().is_some_and(|x| x == "fits"))
+        .map(|p| {
+            (
+                p.file_name().unwrap().to_string_lossy().into_owned(),
+                std::fs::read(&p).unwrap(),
+            )
+        })
+        .collect();
+    files.sort();
+    (files, heap, peak_of_clean(&report))
+}
+
+#[test]
+fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
+    let dir = std::env::temp_dir().join(format!("gemclean-reorder-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let ms = dir.join("case.ms");
+    write_case(&ms, NANT, REORDER_DUMPS, REORDER_NCHAN);
+    let tmp = dir.join("tmp");
+    std::fs::create_dir_all(&tmp).unwrap();
+    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &[]);
+    let (reorder, heap_reorder, clean_reorder) = run_reorder_case(
+        &dir,
+        &ms,
+        "reorder",
+        &["-reorder", "-temp-dir", tmp.to_str().unwrap()],
+    );
+    println!(
+        "peak heap {heap_plain} bytes without -reorder, {heap_reorder} with;          in the clean {clean_plain} and {clean_reorder}"
+    );
+    assert!(!plain.is_empty());
+    assert!(
+        plain == reorder,
+        "-reorder changed the FITS files (research/gemclean-memory2.md)"
+    );
+    let left: Vec<_> = std::fs::read_dir(&tmp).unwrap().collect();
+    assert!(left.is_empty(), "-reorder left temporary files: {left:?}");
+    assert!(heap_reorder > 0, "the binary's allocator does not count");
+    assert!(
+        heap_reorder <= REORDER_BOUND_BYTES,
+        "-reorder peak heap {heap_reorder} bytes over the frozen bound {REORDER_BOUND_BYTES}"
+    );
+    assert!(
+        heap_plain > REORDER_BOUND_BYTES,
+        "the case no longer separates: {heap_plain} bytes without -reorder"
+    );
+    // With -reorder the whole peak sits in the read's chunk buffers, so the
+    // clean (from the first minor cycle on) is checked on its own (post hoc,
+    // 2026-11-17): at most 0.75 of the run without -reorder, which in-memory
+    // visibilities coming back would exceed.
+    assert!(
+        clean_reorder * 4 <= clean_plain * 3,
+        "-reorder's clean peaks at {clean_reorder} bytes, over 0.75 × {clean_plain}"
     );
     std::fs::remove_dir_all(&dir).unwrap();
 }

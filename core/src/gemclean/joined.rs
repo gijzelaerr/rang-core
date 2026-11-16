@@ -143,7 +143,13 @@ fn spill_write(path: &std::path::Path, images: &[Vec<f64>]) -> Result<(), String
     out.flush().map_err(|e| format!("{}: {e}", path.display()))
 }
 
-fn spill_read(path: &std::path::Path, count: usize, len: usize) -> Result<Vec<Vec<f64>>, String> {
+/// The `count` images of `len` pixels that [`run_joined_spill_kept`] left
+/// in `path`, as they went; the file is removed.
+pub fn spill_read(
+    path: &std::path::Path,
+    count: usize,
+    len: usize,
+) -> Result<Vec<Vec<f64>>, String> {
     use std::io::Read;
     let file = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
     let mut input = std::io::BufReader::with_capacity(1 << 22, file);
@@ -270,6 +276,51 @@ pub fn run_joined_spilling<M: Measurement>(
     settings: &Settings,
     masking: Option<&super::mask::Masking>,
     spill: Option<&std::path::Path>,
+) -> Result<Joined, String> {
+    joined(
+        entries, npol, weights, norm, fit, settings, masking, spill, true,
+    )
+}
+
+/// [`run_joined_spilling`] that leaves the dirty images in the file `spill`
+/// (the outcome's `dirty` is empty), for the caller to read with
+/// [`spill_read`] once it has dropped the measurements and beams
+/// (`-reorder`, research/gemclean-memory2.md). The same values otherwise.
+#[allow(clippy::too_many_arguments)]
+pub fn run_joined_spill_kept<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: &std::path::Path,
+) -> Result<Joined, String> {
+    joined(
+        entries,
+        npol,
+        weights,
+        norm,
+        fit,
+        settings,
+        masking,
+        Some(spill),
+        false,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn joined<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: Option<&std::path::Path>,
+    read_back: bool,
 ) -> Result<Joined, String> {
     use super::mask;
     let channels = entries;
@@ -645,8 +696,8 @@ pub fn run_joined_spilling<M: Measurement>(
     };
     timings.total = start.elapsed().as_secs_f64();
     let dirty = match spill {
-        Some(path) => spill_read(path, kc, n * n)?,
-        None => dirty,
+        Some(path) if read_back => spill_read(path, kc, n * n)?,
+        _ => dirty,
     };
     let model_int = integrate(&models, &a);
     let f = channels.iter().map(|c| c.1.f).fold(0.0, f64::max);
