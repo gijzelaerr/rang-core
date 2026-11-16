@@ -562,6 +562,65 @@ mod tests {
     use super::*;
     use crate::clean_certified::WgridMeasurement;
 
+    /// Issue #12 (research/gpu-grid.md): `on_gpu` before the plan; without the
+    /// feature the plan refuses it, naming the feature; with it (and an
+    /// adapter) the residual agrees with the CPU's.
+    #[test]
+    fn on_gpu_is_chosen_before_the_plan() {
+        let mut state = 7u64;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 7;
+            state ^= state << 17;
+            (state >> 11) as f64 / (1u64 << 53) as f64 - 0.5
+        };
+        let nrow = 300;
+        let uvw: Vec<f64> = (0..3 * nrow)
+            .map(|i| next() * if i % 3 == 2 { 50.0 } else { 3000.0 })
+            .collect();
+        let freq = vec![299_792_458.0];
+        let vis: Vec<Complex<f32>> = (0..nrow)
+            .map(|_| Complex::new(next() as f32, next() as f32))
+            .collect();
+        let wgt = vec![1.0; nrow];
+        let opts = crate::gemclean::sim::imaging_options();
+        let make = || {
+            GridMeasurement::<f64>::from_single_unprepared(
+                uvw.clone(),
+                freq.clone(),
+                vis.clone(),
+                wgt.clone(),
+                32,
+                5e-5,
+                1e-6,
+                opts,
+            )
+            .unwrap()
+        };
+        assert!(make().prepare().unwrap().on_gpu(256).is_err());
+        let gpu = make().on_gpu(256).unwrap().prepare();
+        #[cfg(not(feature = "gpu"))]
+        assert!(gpu.is_err_and(|e| e.contains("feature")));
+        #[cfg(feature = "gpu")]
+        if let Ok(gpu) = gpu {
+            let cpu = make().prepare().unwrap();
+            let model: Vec<f64> = (0..32 * 32)
+                .map(|i| if i % 9 == 0 { 0.1 } else { 0.0 })
+                .collect();
+            let (a, qa) = cpu.residual(&model).unwrap();
+            let (b, qb) = gpu.residual(&model).unwrap();
+            let peak = a.iter().fold(0.0_f64, |m, x| m.max(x.abs()));
+            let diff = a
+                .iter()
+                .zip(&b)
+                .fold(0.0_f64, |m, (x, y)| m.max((x - y).abs()));
+            assert!(diff <= 1e-11 * peak, "{diff} {peak}");
+            assert!(((qa - qb) / qa).abs() <= 1e-11);
+        } else {
+            eprintln!("skipped: no usable GPU adapter");
+        }
+    }
+
     /// `-beam-band`: on oversampled pixels the columns from the geometry hold
     /// the PSF's spectrum. What the band drops is the slow tail that the edge
     /// of the 2n box spreads over every column, which more columns barely

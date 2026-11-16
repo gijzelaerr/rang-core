@@ -279,3 +279,24 @@ CPU, and its difference from the one-batch result is reported.
 1e-6)" form is therefore run as **fine**, `-wgridder-accuracy 1e-6` (double
 precision, chosen by the accuracy); "coarse" is the shipped default and is
 passed as `-single -wgridder-accuracy 1e-4` explicitly. Nothing else changes.
+
+**9.3, 2026-11-16, post hoc (seen before writing: Gate 1 on S1 in both forms, with a
+double-precision reference; nothing else of Gate 1, nothing of Gate 2 or the timing).**
+As frozen, Gate 1 **fails in single precision**: on S1 coarse the GPU residual differs from
+the CPU's by 4.8e-4 of the CPU residual's peak (0.048 µJy; bound 1e-5). In double precision
+S1 fine passes (4.3e-12, bound 1e-9). The as-frozen verdict stands: the outcome under
+section 5 is **Failure**.
+Why, as far as seen: the residual's peak (100 µJy, the threshold) is about four orders below
+the data's own scale, and f32 rounding scales with the data. Against the CPU path in double
+precision with the same kernel and grid, the CPU's own f32 residual is off by 8.9e-4 of the
+residual peak (0.089 µJy) and the GPU's by 1.07e-3 (0.107 µJy); `dirty2vis` (2.5e-7) and the
+misfit (8.5e-9) pass. So the bound was normalised by the wrong peak; this is not a port bug,
+and no fix rounds are spent on it.
+Amended single-precision measure, reported beside the frozen one for the coordinator to
+accept or not: (a) max |GPU − CPU| of the residual ≤ 1e-5 × the peak of the dirty image of
+the same plan (model none), and (b) max |GPU − f64 reference| ≤ 2 × max |CPU − f64
+reference|, the reference being the CPU path in double precision with the same kernel and
+grid. Both can fail. Double precision keeps the frozen bound.
+Section 7 says to stop after a Gate 1 failure. Gate 2 and the timing are run all the same,
+labelled post hoc: the brief asks for them, and Gate 2's bounds (µJy, σ, scores) do not use
+the normalisation that failed. They cannot change the frozen outcome.

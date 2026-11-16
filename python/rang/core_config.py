@@ -409,6 +409,13 @@ SCHEMA = {
             "float",
             "gridder accuracy (single precision at 1e-5 or coarser; task G7)",
         ),
+        "gemclean_device": _k(
+            "cpu",
+            "choice",
+            "cpu, or gpu: the major cycles' gridding on the GPU (gemclean -gpu; needs a "
+            "build with the gpu feature; research/gpu-grid.md)",
+            ("cpu", "gpu"),
+        ),
         "extra_args": _k([], "strs", "more gemclean options, passed as given"),
         "channels_out": _k(1, "int", "output channels"),
         "join_channels": _k(False, "bool", "join the output channels"),

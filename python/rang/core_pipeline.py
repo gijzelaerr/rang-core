@@ -2152,6 +2152,9 @@ def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights
         if img[key] is not None:
             args += [flag, str(img[key])]
     args += ["-wgridder-accuracy", repr(float(img["wgridder_accuracy"]))]
+    # Issue #12 (research/gpu-grid.md): only when set, so earlier argv stay as they were.
+    if img.get("gemclean_device", "cpu") == "gpu":
+        args.append("-gpu")
     if img["average_channels"] > 1:
         args += ["-average-channels", str(img["average_channels"])]
     if img["channels_out"] > 1:

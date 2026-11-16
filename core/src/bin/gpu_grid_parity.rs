@@ -21,7 +21,7 @@ use rang_core::clean_certified::Complex;
 use rang_core::gemclean::fits;
 use rang_core::gemclean::input::{self, Selection};
 use rang_core::weights::WeightClass;
-use rang_core::wgridder::{Options, Prepared, Real, VisData, Weights};
+use rang_core::wgridder::{KernelChoice, Options, Prepared, Real, VisData, Weights};
 use std::time::Instant;
 
 fn fnv(bytes: impl Iterator<Item = u64>) -> String {
@@ -123,6 +123,32 @@ fn run<T: Real + Send + Sync>(
         .zip(&d_gpu2)
         .all(|(a, b)| a.to().to_bits() == b.to().to_bits())
         && q_gpu.to_bits() == q_gpu2.to_bits();
+    // In single precision: the CPU path in double precision with the same
+    // kernel and grid, the reference both single-precision paths round from.
+    let reference = if T::SINGLE {
+        let o64 = Options {
+            kernel: Some(KernelChoice {
+                index: plan.kernel_index,
+                nu: plan.nu,
+                nv: plan.nv,
+            }),
+            ..*opts
+        };
+        let w64: Vec<f64> = wgt.iter().map(|w| w.to()).collect();
+        let m64: Vec<f64> = model.iter().map(|m| m.to()).collect();
+        let p64 = Prepared::<f64>::new(&o64, uvw, freq, Weights::F64(&w64))?;
+        let mut d64 = vec![0.0; n];
+        p64.residual(VisData::C64(vis), &w64, has_model.then_some(&m64[..]), &mut d64)?;
+        let (c_rel, c_abs, _) = max_rel(&dc, &d64);
+        let (g_rel, g_abs, _) = max_rel(&dg, &d64);
+        format!(
+            "{{\"cpu_rel\": {c_rel:e}, \"cpu_abs_ujy\": {:e}, \"gpu_rel\": {g_rel:e}, \"gpu_abs_ujy\": {:e}}}",
+            c_abs * 1e6,
+            g_abs * 1e6
+        )
+    } else {
+        "null".to_string()
+    };
     let s = rang_core::wgridder::gpu::stats();
     Ok(format!(
         concat!(
@@ -133,7 +159,7 @@ fn run<T: Real + Send + Sync>(
             "\"cpu_plan_s\": {}, \"cpu_residual_s\": {}, \"cpu_dirty2vis_s\": {}, ",
             "\"gpu_plan_s\": {}, \"gpu_residual_s\": {}, \"gpu_residual_warm_s\": {}, \"gpu_dirty2vis_s\": {}, ",
             "\"gpu_batches\": {}, \"gpu_plane_passes\": {}, \"gpu_device_bytes\": {}, ",
-            "\"gpu_host_s\": {}, \"gpu_upload_s\": {}, \"gpu_compute_s\": {}, \"gpu_download_s\": {}}}"
+            "\"gpu_host_s\": {}, \"gpu_upload_s\": {}, \"gpu_compute_s\": {}, \"gpu_download_s\": {}, \"double_reference\": {}}}"
         ),
         plan.supp,
         plan.nu,
@@ -165,6 +191,7 @@ fn run<T: Real + Send + Sync>(
         s.upload_s,
         s.compute_s,
         s.download_s,
+        reference,
     ))
 }
 

@@ -1127,3 +1127,25 @@ def test_the_polarisation_options_reach_gemclean():
         for r in core_config.refusals(config, ["image"])
         if r.path.startswith("image.") and r.path != "image.fields"
     ]
+
+
+def test_the_gemclean_device_reaches_gemclean():
+    """Issue #12 (research/gpu-grid.md): image.gemclean_device gpu passes -gpu;
+    the default cpu passes nothing, so earlier argv stay as they were."""
+    base = {"size": [64, 64], "scale": "2asec"}
+    plain, errors = core_config.resolve({"version": 1, "image": base})
+    assert errors == []
+    assert plain["image"]["gemclean_device"] == "cpu"
+    assert "-gpu" not in pipe.gemclean_arguments(
+        plain["image"], "DATA", 0, "out/img", "x.ms"
+    )
+    gpu, errors = core_config.resolve(
+        {"version": 1, "image": {**base, "gemclean_device": "gpu"}}
+    )
+    assert errors == []
+    args = pipe.gemclean_arguments(gpu["image"], "DATA", 0, "out/img", "x.ms")
+    assert "-gpu" in args and args[-1] == "x.ms"
+    _, errors = core_config.resolve(
+        {"version": 1, "image": {**base, "gemclean_device": "cuda"}}
+    )
+    assert errors

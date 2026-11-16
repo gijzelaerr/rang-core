@@ -3690,6 +3690,24 @@ mod tests {
     }
 
     #[test]
+    fn gpu_flags_parse_and_refuse_what_they_cannot_run() {
+        // Issue #12 (research/gpu-grid.md): the flags parse with or without the
+        // feature; the modes that do not use the reused plan refuse -gpu.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        let a = parse("-size 64 64 -scale 2asec x.ms").unwrap();
+        assert!(!a.gpu && a.gpu_memory == 1024);
+        let a = parse("-size 64 64 -scale 2asec -gpu -gpu-memory 512 x.ms").unwrap();
+        assert!(a.gpu && a.gpu_memory == 512);
+        for bad in ["-predict", "-no-plan-reuse", "-gpu-memory 0"] {
+            let line = format!("-size 64 64 -scale 2asec -gpu {bad} x.ms");
+            assert!(parse(&line).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
     fn masks_take_joined_polarisations_only() {
         // research/e2b-misses.md, arm A5: radler's mask acts on the joined set.
         let parse = |line: &str| {
