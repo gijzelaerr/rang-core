@@ -198,3 +198,50 @@ integrations) where the readout needs more thresholds. CASA runs in
 ## 8. Results (filled in as work proceeds)
 
 (empty at the freeze)
+
+### 8.1 Readout and first identifications (2026-11-16, probes c01-c06)
+
+Probe batches in `D:\rang\outputs\v8c-tfcrop-20261116\probes\c0N` (template
+`t24x40x256.ms`, 1,104 planes, 8 groups of 138 planes each sharing one A;
+`make.py` in each batch; `tools/oracles/casa/tfcrop_readout.py` designs and
+inverts; `tfcrop_template.py` holds the candidate models). CASA walls 2-5 s
+per arm, 6-22 s per batch.
+
+- **P0 readout works.** On exact lines the readout returns F = A to
+  1-5e-6 relative with per-channel brackets of 2-3e-5 (c01, c02); on noisy
+  groups the brackets are 2-7e-4 at the coarse ladder used (range ±0.01).
+- **P0c control (T-a) holds.** c04: c01's averages with Gaussian mirrored
+  rows instead of readout rows; c01's measured F predicts CASA's flags with
+  22 cells wrong of 14,422 on the cubic (F = A: 184 wrong) and 135 of 14,504
+  on noisy0.01. F is a function of A, not of the row structure.
+- **T-b refuted as stated: F is not the polynomial itself.** On exact
+  cubics and quadratics (c02, eight shapes, `maxnpieces` 1 and 7, scale ×10
+  included) F − A = α Δ²A with α = 1.66 (fit residual below the bracket
+  width), F = A exactly at channels 0, 1, 254, 255, α ramping from 1.0 at
+  channel 2 to 1.66 by channel 7.
+- **Identified (c02, c06): an in-place 5-point running mean of the fit.**
+  For f = 2 .. n−3 in increasing order, F_f = (F_{f−2} + F_{f−1} + P_f +
+  P_{f+1} + P_{f+2}) / 5, already smoothed values entering later windows;
+  channels 0, 1, n−2, n−1 keep P. On a quadratic this gives F − P = (5/3) P''
+  (measured 1.66); on an upward step at a 2-piece join it gives
+  +0.20, +0.44, −0.27, −0.17, −0.09 of the step (measured +0.20, +0.43,
+  −0.27, −0.17, −0.09, linear in the step from 1e-3 to 2e-2).
+- **Pieces overlap by one channel (c06).** With `maxnpieces=2` the measured
+  F equals S(P) for P two cubics with the edge at 128 to the readout
+  precision (rms z 0.4-0.6). An upward step leaves both pieces exact; a
+  downward step pulls the left piece's cubic (−0.61 of the step at channel
+  127, +0.08 at 0, linear in the step). The left piece's fit reproduces that
+  when it includes channel 128 (the first channel of the next piece) and
+  lacks its own last 21 channels; with one-sided exclusion a lower channel
+  past the edge stays in, a higher one is dropped.
+- **Single piece on noisy A (c01 p1).** The measured F equals S(one cubic)
+  within the readout (rms z 0.6-0.7 on three of four noisy groups); the
+  cubic is the least-squares cubic of a kept set close to {A − F ≤ 2 σ}
+  (σ the rms about 0 of A − F over the kept set): rms z 0.61 on noisy0.01,
+  2.7 on noisy0.03, 5.6 on noisy0.003, 13.8 with spikes. The kept-set rule
+  is not identified yet.
+- Model search (candidate schedule, clip factor, stop rule, residual
+  absolute or relative, sd about 0 or the mean, cumulative or fresh mask,
+  smoothing every stage or last only), scored as the fraction of channels
+  whose model F lies within 1.5 half-brackets of the measured F: best 0.87
+  overall (exact designs 0.98-1.00; downward steps 0.89; noisy groups 0.68).
