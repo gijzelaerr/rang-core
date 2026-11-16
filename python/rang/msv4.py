@@ -9,7 +9,9 @@ Opens an xradio processing set (an xarray DataTree, a Zarr store by default,
 - `TIME`: MJD seconds, the MSv4 `time` (Unix seconds) plus 3506716800 s;
 - `ANTENNA1`, `ANTENNA2`: int32 indices into the partition's
   `antenna_xds.antenna_name` (`Partition.antenna_names`);
-- `FLAG_ROW`: false (MSv4 has no row flag);
+- `FLAG_ROW`: false (MSv4 has no row flag). Neither xradio 1.3.1 nor
+  xarray-ms 0.5.14 carries an MSv2 `FLAG_ROW` into the store (the note's
+  M3, case c10), so OR `FLAG_ROW` into `FLAG` before converting;
 - `DATA` complex64, `FLAG` bool, `WEIGHT_SPECTRUM` float32, each
   `(row, channel, corr)`, from the data group's correlated data, flag and
   weight; `UVW` float64 `(row, 3)`. A uint8 `FLAG` (xarray-ms writes one) is

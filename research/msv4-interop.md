@@ -499,6 +499,14 @@ Status: **measured, M2 pass.**
   issue's gate "identical calibration and imaging results". Decide which
   weight a weighted stage takes per data group before an M2-like gate for
   calibration or imaging.
+- **Coordinator decisions, 2026-11-16 (owner delegated):**
+  - M4: document, do not ask upstream (xradio is NRAO's; standing rule: no
+    reports to CASA or NRAO). Done in the merge: `rang.msv4`'s docstring
+    says to OR `FLAG_ROW` into `FLAG` before converting to MSv4.
+  - M5: until it is settled, no weighted stage takes MSv4 input on an MS
+    with `CORRECTED_DATA`; the MSv4 path stays read-and-flag only. Settling
+    it (which weight each data group takes, measured against the MSv2 path)
+    is a later task, with its own amendment.
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.
