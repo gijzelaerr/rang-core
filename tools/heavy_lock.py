@@ -88,6 +88,16 @@ marks them and prints how long each ticket has waited. Copies of this helper
 from before this change start only at the head and never backfill; their
 tickets (no ``drain_s`` key) get no reservation, since they would not start
 into it.
+
+Other Linux hosts (added 2026-11-16, research/nash-host.md): off Windows and
+WSL the lock directory defaults to ``~/rang-data/locks/heavy`` (the data area
+that stands in for ``D:\\rang``), not ``/mnt/d``. ``RANG_HEAVY_NICE=N`` (POSIX
+only, unset by default) runs every command ``run`` starts, nested ones
+included, under ``nice -n N``; ``N = 19`` adds ``ionice -c3`` (idle I/O) when
+``ionice`` is on PATH. It only covers commands started through ``run``: on a
+host shared with other people, prefix everything else yourself. Set
+``RANG_HEAVY_SLOTS`` and ``RANG_HEAVY_MEM_GB`` to the share of such a host the
+project may use; the lock sees only this account's jobs, not other users'.
 """
 
 from __future__ import annotations
@@ -96,6 +106,7 @@ import argparse
 import json
 import os
 import platform
+import shutil
 import socket
 import subprocess
 import sys
@@ -113,6 +124,30 @@ CAPACITY_SLOTS = int(os.environ.get("RANG_HEAVY_SLOTS", "16"))
 CAPACITY_MEM_GB = float(os.environ.get("RANG_HEAVY_MEM_GB", "48"))
 DRAIN_VAR = "RANG_HEAVY_DRAIN_MIN"
 DRAIN_DEFAULT_MIN = 15.0
+NICE_VAR = "RANG_HEAVY_NICE"
+
+
+def nice_level(environ=None) -> int | None:
+    """``RANG_HEAVY_NICE`` clipped to 1-19, or None (unset, 0, unreadable, Windows)."""
+    if sys.platform == "win32":
+        return None
+    value = (os.environ if environ is None else environ).get(NICE_VAR, "")
+    try:
+        level = min(19, int(value))
+    except ValueError:
+        return None
+    return level if level > 0 else None
+
+
+def niced(command: list[str], environ=None) -> list[str]:
+    """``command`` under ``nice -n N`` (and ``ionice -c3`` at 19) when asked."""
+    level = nice_level(environ)
+    if level is None:
+        return list(command)
+    prefix = ["nice", "-n", str(level)]
+    if level == 19 and shutil.which("ionice"):
+        prefix += ["ionice", "-c3"]
+    return prefix + list(command)
 
 
 def default_drain_s(environ=None) -> float:
@@ -138,7 +173,9 @@ def lock_dir() -> Path:
         return Path(env)
     if sys.platform == "win32":
         return Path(r"D:\rang\locks\heavy")
-    return Path("/mnt/d/rang/locks/heavy")
+    if system() == "wsl":
+        return Path("/mnt/d/rang/locks/heavy")
+    return Path.home() / "rang-data" / "locks" / "heavy"
 
 
 def queue_dir(d: Path) -> Path:
@@ -658,15 +695,16 @@ def run(
         want = (CAPACITY_SLOTS, CAPACITY_MEM_GB)
     else:
         want = (slots, mem)
+    child = niced(command)
     if nested_note("heavy_lock", *want):
-        return subprocess.call(command)
+        return subprocess.call(child)
     d = lock_dir()
     if slots is not None:
         hb = acquire_shared(d, command, poll, slots, mem, priority, drain_s)
         stop = threading.Event()
         threading.Thread(target=_heartbeat, args=(hb, stop, 20.0), daemon=True).start()
         try:
-            return subprocess.call(command, env=_child_env(slots, mem))
+            return subprocess.call(child, env=_child_env(slots, mem))
         finally:
             stop.set()
             _unlink(hb)
@@ -678,7 +716,7 @@ def run(
         fcntl.flock(wsl_lock, fcntl.LOCK_EX)
     acquire(d, command, poll, priority, drain_s)
     try:
-        return subprocess.call(command, env=_child_env(*want))
+        return subprocess.call(child, env=_child_env(*want))
     finally:
         release(d)
         if wsl_lock is not None:

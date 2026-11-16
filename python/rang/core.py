@@ -310,7 +310,8 @@ ENVIRONMENT = (
     ),
     _v(
         "RANG_HEAVY_LOCK",
-        "unset (`D:\\rang\\locks\\heavy`; `/mnt/d/rang/locks/heavy` from WSL)",
+        "unset (`D:\\rang\\locks\\heavy`; `/mnt/d/rang/locks/heavy` from WSL; "
+        "`~/rang-data/locks/heavy` on other Linux and macOS hosts)",
         "process",
         "the shared-host lock directory of `tools/heavy_lock.py`; tests point it "
         "at a temporary directory",
@@ -331,6 +332,15 @@ ENVIRONMENT = (
         "process",
         "GB the heavy lock shares out",
         "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_NICE",
+        "unset (no change of priority)",
+        "process",
+        "POSIX only: `heavy_lock.py run` starts its command under `nice -n N`, "
+        "with `ionice -c3` at 19; for hosts shared with other people (nash)",
+        "nash-host",
         "tools/heavy_lock.py",
     ),
     _v(
