@@ -32,6 +32,86 @@ E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md
   phased)". That says nothing about cross-hand terms: 3C 286's XY phase is −176° (coherence 0.69, LUNO 1.9°),
   so KCROSS and Xf are reported as measured. Leakage is uncorrected (1.5 %); 31.5 % of cells carry native flags.
 - Next: the rang arm on nash once its build works, then the gates as frozen.
+MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
+receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
+[results/msv4-interop-m2.json](results/msv4-interop-m2.json)). Amendment frozen before any code or conversion; reader
+unchanged. M3: five cases from fixture scan 9 (c10 `FLAG_ROW`, c11 `CORRECTED_DATA` + `MODEL_DATA` + invalid sigmas,
+c12 `SIGMA` only, c13 no spectral weights, c14 decreasing frequencies), xradio 1.3.1 and xarray-ms 0.5.14
+(`auto_corrs=True`), zero tolerance: c11-c14 bit-identical in every data group (base, corrected, model) in both
+arms; c10 not met, a writer outcome: neither writer carries `FLAG_ROW` into the store. With `CORRECTED_DATA`
+xradio's base weights are `1/SIGMA^2` (xarray-ms: `WEIGHT_SPECTRUM`), unlike ra-ng's MSv2 path. Control c1-c9 equal
+run 07. M2: Tricolour (`cal_chain.flag_corrected`, CARACAL calibrator firstpass) on c5 raises flags 46.8 % to
+80.6 %; its kernel fed from `Partition.chunks` of either store, with the store's metadata, gives the same FLAG on
+every cell: pass.
+
+MSv4 M1b, xarray-ms with autocorrelations, 2026-11-16 (branch `msv4-m1b`; [msv4-interop.md](msv4-interop.md)
+sections 10 and 7, measured, pass; receipt [results/msv4-interop-m1b.json](results/msv4-interop-m1b.json)). Second
+amendment frozen before any conversion: a third arm, xarray-ms 0.5.14 with `auto_corrs=True`, same 9 cases, zero
+tolerance. Run 07: that arm is bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME on all 13,064 rows,
+coverage exact; xradio still 9/9, the default xarray-ms arm as in M1. xarray-ms then pads the autocorrelation
+baselines of MSs without them (c6, c7, c9), and the reader drops exactly those. Reader unchanged.
+Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
+archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
+passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
+separates gains (R ≤ 0.023) from six incomplete-model arms (truncations at 1, 3, 10 mJy and three missing-extended
+arms, R 0.42-0.93); the pilot sits at 0.049. Item 3: the pilot's steady T1 gains (σ_φ 4.8°, σ_a 1.1 %) injected
+reproduce 0.86 of the floor (incompleteness controls 0.29-0.40); antenna 1 ranks worst of 60; no association with
+the publisher's QuartiCal gain statistics. Item 5 **undecided**: T1 solved above 400 m keeps 0.97 of the drop
+(survives), but the phase-only test is void (ρ_p 0.58 on the 1 mJy truncation arm, above 0.3). Joint, frozen:
+H1 and H9 stay unresolved. Post hoc: steady antenna phase errors of about 5° are the lead; phase self-cal (#6)
+is expected to take the subset floor from 1,073 to about 447 µJy, not yet measured.
+
+MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
+not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
+[results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:
+`rang.msv4` reads a uint8 `FLAG` as bool when every value read is 0 or 1 and refuses other values. Rerun on the
+`convert-01` stores at zero tolerance: xradio arm still 9/9 match; xarray-ms 0.5.14 arm matches in c6, c7, c9
+(12,708 rows) and mismatches in the six cases with autocorrelations, which xarray-ms drops by default
+(`auto_corrs=False`). With those rows out of the reference (diagnosis, post hoc) all 9 match, 12,921 rows. Next:
+M1b, the arm with `auto_corrs=True`, after a second amendment.
+
+MSv4 read path, 2026-11-16 (branch `msv4-interop`; [msv4-interop.md](msv4-interop.md), measured, pass; receipt
+[results/msv4-interop.json](results/msv4-interop.json); stores `D:\rang\outputs\msv4-20261116`): #5's second part.
+`rang.msv4`, behind a new `[msv4]` extra (xarray, zarr 3, numcodecs), reads an MSv4 processing set into the
+core's row layout (the `MvfLoader` keys), dropping pad cells. Oracle: xradio 1.3.1 and xarray-ms 0.5.14 (WSL,
+arcae has no Windows wheel) convert 9 MSv2s (fixture scans 1, 4, 5, 8, 9; `A-casa.ms`; `M1-casa.ms`; scan 9 less 4
+rows; the two-window edge case), compared with ra-ng's MSv2 reader at zero tolerance. xradio arm: all 13,064 rows
+bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME, coverage exact, the 4 pads of the gap case dropped.
+xarray-ms arm: refused (it stores FLAG as uint8), task M1. Not covered: FLAG_ROW, CORRECTED_DATA, SIGMA weights,
+decreasing frequencies; no writer, zarrs, object storage or throughput.
+
+V8c tfcrop polynomial template, 2026-11-16 (branch `v8c-tfcrop-poly`; [v8c-tfcrop-poly.md](v8c-tfcrop-poly.md), null
+branch): a new readout probe (one average shared by 138 planes, test cells on a ladder; 2-3e-5 per channel) and
+binary membership probes identify, clean room, an in-place 5-point running mean of the fit, the piece edges, a
+one-sided 2-sigma clip on the absolute residual and three full-piece fits; every noisy one-unknown probe matches
+to 0-2 cells. Not identified: the exclusion at curved band ends, which dominates real bandpasses (V8's N1 probe at
+7 pieces: precision 0.92, recall 0.88). No gate run spent, held-out closed, tfcrop refused, no Rust kernel.
+Heavy-lock backfill, 2026-11-16 (branch `lock-backfill`; [lock-backfill.md](lock-backfill.md), implemented,
+unit-tested, not yet on the live queue): strict FIFO held 1-slot 2 GB tickets for about an hour behind a 4-slot
+46 GB head that did not fit (42 of 48 GB free, 14 of 16 slots). `tools/heavy_lock.py` now lets a shared ticket
+further back start while the head does not fit, if it fits what is free now after reserving room for earlier
+tickets that fit, until the head has waited its drain limit (`run --drain MIN`, default `RANG_HEAVY_DRAIN_MIN`
+15 min; 0 strict FIFO); exclusive heads the same, never past a critical head; `status` marks backfilled holds
+and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged, and the one test that asserted
+strict FIFO behind an exclusive head now pins `drain_s=0`.
+
+GPU gridding in GeMClean (issue #12), 2026-11-16 (branch `gpu-grid`; [gpu-grid.md](gpu-grid.md),
+frozen at `e1c55ac`, amendments 9.1-9.3; library at `9ad7e75`; outputs `D:/rang/outputs/20261116-gpu-grid`):
+- `gemclean -gpu` (feature `gpu`, wgpu/Vulkan, opt-in, default off): the major cycle's degrid and grid of the
+  exact w-gridder on the RTX 4070 Ti by gather (no atomics, deterministic); PSF, minor cycles, resyncs on the CPU.
+  Built on X2's context and FFT. Not CUDA (deviation from the brief, for the coordinator).
+- Gate 0 **pass**: CPU FITS byte-identical to `a931b6c`, feature off and on (S1 both forms, H3).
+- Gate 1: f64 **pass** (≤ 7.4e-12 of the peak, bound 1e-9); f32 **fails as frozen** (up to 4.8e-4 of the
+  residual's 100 µJy peak, bound 1e-5): f32 rounding at the data's scale, as large as the CPU's own f32 error
+  against an f64 reference. Post hoc 9.3 measure: passes on the seven skies, fails on the pilot-512 (4.7 × the
+  CPU's f32 error, three batches per call). Outcome under the frozen rule: **Failure**.
+- Gate 2 (post hoc continuation): all seven skies in both forms within G1's bounds; f64 images equal the CPU's;
+  the pilot fails the 100 µJy L∞ bound (2.1 mJy; one major cycle fewer; its threshold is 3 mJy).
+- Speed: at `-j 8` on a shared host the GPU runs were not faster end to end (13.9-73.2 s against 13.5-68.1 s);
+  exclusive `-j 16` timing against WSClean **not run**: an IDLE 4-slot hold kept the host shared for 80 min
+  (8 tickets withdrawn at 10 min) and another process took the card (10.9 of 12.3 GB). No speed claim.
+- Coordinator decision 2026-11-16: the code is parked on branch `gpu-grid` (c203e02), not merged; only this
+  record is on main. See gpu-grid.md section "Coordinator decision".
 
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
@@ -43,6 +123,7 @@ section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fi
   Automatic scales are nearest: lowest RMS (1.376 / 1.409), offset +11.0 / +9.05 (fails D's ≤ +8.0).
 - WSClean matches GeMClean arm by arm. `-no-negative` diverges in both tools (WSClean logs the divergence).
 - Comment draft for #23 in section 8.7, not posted. The default is unchanged.
+
 V8 tfcrop continued, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md) 9.3-9.4): H fails as frozen after
 all three gate runs (4, 4, 7 of 21 informative development cases; 8 post hoc). New from probes: window statistics
 exact (mean |u| or rms over full windows against cutoff × the row's sd; 12,142/12,144 planes), pre-flagged input,
@@ -57,6 +138,23 @@ passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the 
 frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
 window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
 opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 coordinator round 2, 2026-11-16 ([ts-p1.md](ts-p1.md) section 15):
+
+- **FLAG_ROW.** rang keeps honouring it. On `tsp1-held2`, T1/T2c raw stay
+  not met (0.19, 0.51σ). With FLAG_ROW ignored they reach 3.7e-7 and
+  5.0e-6σ.
+- **GeMClean** now also leaves FLAG_ROW rows out of the uniform/Briggs
+  weight grid. Gridding already skipped them, and its comment was wrong.
+  There is a new test. The 13 archived G2-G9 MSes have 0 FLAG_ROW samples
+  with weight, so their outputs are bit-identical.
+- **T4 met** under amendment 15.2 (peak-curvature Λ plus a pixel-grid
+  correction, written before the draw), on a fresh `tsp1-noise2`: 256
+  against E5 = 235.3 (+1.35σ), 0 at 7σ.
+  - The earlier "−1.3σ" was in units of 3√E; the correct figure is −3.9σ.
+- **T6** runs through `tools/oracles/ts-p1/t6_run.py`, which keeps an
+  exclusive ticket at the head for at most 10 minutes, then withdraws and
+  retries.
+
 TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
 13-14; frozen at `834cf15`, code at `08bfefb`):
 
@@ -111,6 +209,24 @@ measured, not merged):
   (default 5, 3, 8), off-source model flux 0.999-1.000 ×, compact medians within 0.003 %. All as predicted.
 - For the coordinator: default switch to 0.02 recommended (residual peak up to 2 % above T); not measured at the
   1e-4 single-precision default accuracy. Outputs `D:\rang\outputs\stop28-20261116`.
+E2-B confirmation, 2026-11-16 (branch `e2b-confirm`; [e2b-misses.md](e2b-misses.md) 9.28–9.29):
+- Frozen before any run, on the coordinator's decisions (the owner delegated them):
+  - the post hoc 2b and 3c readings stay labelled;
+  - 3c cleaned with the mask is a new frozen arm;
+  - the `casa_phase_weights` default is unchanged (E3 turns it on).
+- `R\casa\e2b.ms` had been deleted. Its inputs were rebuilt hash for hash from
+  `e3-20261111-input\e2b.ms` (only read) and R's 2b flag snapshot, and CASA's output is
+  byte-identical to 9.24's.
+- Today's main:
+  - gate 2b CASA applycal **met**: 0 of 408,827,131 cells over class C, max 7.06 eps, flags
+    exact;
+  - 3c dirty **met**: 2.0e-7, 3.3e-7, 8.1e-8 (bound 1e-6);
+  - 3c cleaned with the mask **not met**: compact scatter 1.18 % (bound 1 %, A5 had 0.72 %).
+    The median 0.99979 (n = 41), Δα 0.0071, off-source 1.07, 1.09, 1.08 and the
+    unpolarised test are met. Post hoc: near-threshold sources around J1939−6342's bright
+    source.
+- GeMClean after #32 peaks at 15–18 GB on the large fields (A5: 40–45). All copies were
+  deleted; receipts are in `results/e2b-misses/c3/receipts/`.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):

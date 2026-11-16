@@ -34,7 +34,7 @@ from rang import core_ms_write as tables
 from rang import simtruth as st
 from rang import simtruth_ms
 
-CASES = ("tsp1-dev", "tsp1-held", "tsp1-held2", "tsp1-noise")
+CASES = ("tsp1-dev", "tsp1-held", "tsp1-held2", "tsp1-noise", "tsp1-noise2")
 # Protocol 2 (research/ts-p1.md 13.1): DATA = CORRECTED_DATA x this gain.
 WRONG_COLUMN_GAIN = 2.0 * np.exp(0.7j)
 FLAG_ALL, FLAG_XX, FLAG_YY, FLAG_CHANNEL, FLAG_ROWS = 0.03, 0.02, 0.02, 10, 0.02
@@ -233,7 +233,7 @@ def generate(args):
     p2 = args.case == "tsp1-held2"
     if args.case == "tsp1-dev":
         layout = DEV
-    elif args.case == "tsp1-noise":
+    elif args.case in ("tsp1-noise", "tsp1-noise2"):
         layout = {r: {"pixel": DEV[r]["pixel"]} for r in ROLES}
     else:
         layout = held_layout(d, ntime)

@@ -176,6 +176,8 @@ SEEDS = {
             ("tsp1-dev", 20261601),
             ("tsp1-held", 20261611),
             ("tsp1-noise", 20261631),
+            # Amendment 15.2: the fresh noise set for T4.
+            ("tsp1-noise2", 20261641),
         )
     },
     # TS-P1 protocol 2 (research/ts-p1.md 13.1): flags and weights seeds too.

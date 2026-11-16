@@ -1,0 +1,9 @@
+D:/rang/outputs/e2b-confirm-20261116/f1.ms: 115500 rows (E2C_RANG_CORRECTED_DATA, field 1), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 68.98 s read, 17.13 s weights
+auto-mask: major iteration 1, sigma 6.244141e-3 Jy, threshold 3.122071e-2 Jy; continued in the mask at gain 0.9000, threshold 3.122071e-2 Jy
+auto-mask: major iteration 2, sigma 1.538080e-3 Jy, threshold 7.690402e-3 Jy; continued in the mask at gain 0.9000, threshold 7.690402e-3 Jy
+auto-mask: major iteration 3, sigma 1.391620e-3 Jy, threshold 6.958098e-3 Jy; continued in the mask at gain 0.9000, threshold 6.958098e-3 Jy
+auto-mask: major iteration 4, sigma 1.193227e-3 Jy, threshold 5.966133e-3 Jy; continued in the mask at gain 0.7003, threshold 3.579680e-3 Jy
+auto-mask: major iteration 5, sigma 1.061009e-3 Jy, threshold 3.183028e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+1 groups deconvolved; wall 981.59 s
+{"exit": 0, "wall_s": 983.3, "peak_rss_gb": 16.67, "cpu_s": 3418.6, "mean_cores": 3.48}

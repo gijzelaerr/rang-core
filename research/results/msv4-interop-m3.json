@@ -1,0 +1,1242 @@
+{
+ "cases": {
+  "c10": {
+   "FLAG_ROW_rows": 28,
+   "S_source": {
+    "0": "SIGMA_SPECTRUM"
+   },
+   "arms": {
+    "xms-auto": {
+     "check_seconds": 0.162,
+     "convert_seconds": 4.512,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "mismatch",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "mismatch",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "mismatch",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "not met",
+     "partitions": {
+      "c10-flag-row_partition_000": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c10.ps.zarr"
+    },
+    "xradio": {
+     "check_seconds": 0.216,
+     "convert_seconds": 4.594,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "mismatch",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "mismatch",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "mismatch",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "not met",
+     "partitions": {
+      "c10-flag-row_0": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c10.ps.zarr"
+    }
+   },
+   "columns": [
+    "ANTENNA1",
+    "ANTENNA2",
+    "ARRAY_ID",
+    "DATA",
+    "DATA_DESC_ID",
+    "EXPOSURE",
+    "FEED1",
+    "FEED2",
+    "FIELD_ID",
+    "FLAG",
+    "FLAG_CATEGORY",
+    "FLAG_ROW",
+    "INTERVAL",
+    "OBSERVATION_ID",
+    "PROCESSOR_ID",
+    "SCAN_NUMBER",
+    "SIGMA",
+    "SIGMA_SPECTRUM",
+    "STATE_ID",
+    "TIME",
+    "TIME_CENTROID",
+    "UVW",
+    "WEIGHT",
+    "WEIGHT_SPECTRUM"
+   ],
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c10-flag-row.ms",
+   "rows": 140
+  },
+  "c11": {
+   "FLAG_ROW_rows": 0,
+   "S_source": {
+    "0": "SIGMA_SPECTRUM"
+   },
+   "arms": {
+    "xms-auto": {
+     "check_seconds": 0.516,
+     "convert_seconds": 5.33,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "corrected": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "model": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c11-corrected-model_partition_000": {
+       "data_groups": [
+        "base",
+        "corrected",
+        "model"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c11.ps.zarr"
+    },
+    "xradio": {
+     "check_seconds": 0.516,
+     "convert_seconds": 5.559,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "match",
+        "weight W": "mismatch"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "S"
+       ],
+       "writer": []
+      },
+      "corrected": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "model": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c11-corrected-model_0": {
+       "data_groups": [
+        "base",
+        "corrected",
+        "model"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c11.ps.zarr"
+    }
+   },
+   "columns": [
+    "ANTENNA1",
+    "ANTENNA2",
+    "ARRAY_ID",
+    "CORRECTED_DATA",
+    "DATA",
+    "DATA_DESC_ID",
+    "EXPOSURE",
+    "FEED1",
+    "FEED2",
+    "FIELD_ID",
+    "FLAG",
+    "FLAG_CATEGORY",
+    "FLAG_ROW",
+    "INTERVAL",
+    "MODEL_DATA",
+    "OBSERVATION_ID",
+    "PROCESSOR_ID",
+    "SCAN_NUMBER",
+    "SIGMA",
+    "SIGMA_SPECTRUM",
+    "STATE_ID",
+    "TIME",
+    "TIME_CENTROID",
+    "UVW",
+    "WEIGHT",
+    "WEIGHT_SPECTRUM"
+   ],
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c11-corrected-model.ms",
+   "rows": 140
+  },
+  "c12": {
+   "FLAG_ROW_rows": 0,
+   "S_source": {
+    "0": "SIGMA repeated"
+   },
+   "arms": {
+    "xms-auto": {
+     "check_seconds": 0.605,
+     "convert_seconds": 6.201,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "corrected": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "model": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c12-sigma-row_partition_000": {
+       "data_groups": [
+        "base",
+        "corrected",
+        "model"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c12.ps.zarr"
+    },
+    "xradio": {
+     "check_seconds": 0.484,
+     "convert_seconds": 5.484,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "match",
+        "weight W": "mismatch"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "S"
+       ],
+       "writer": []
+      },
+      "corrected": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      },
+      "model": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W",
+        "S"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c12-sigma-row_0": {
+       "data_groups": [
+        "base",
+        "corrected",
+        "model"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c12.ps.zarr"
+    }
+   },
+   "columns": [
+    "ANTENNA1",
+    "ANTENNA2",
+    "ARRAY_ID",
+    "CORRECTED_DATA",
+    "DATA",
+    "DATA_DESC_ID",
+    "EXPOSURE",
+    "FEED1",
+    "FEED2",
+    "FIELD_ID",
+    "FLAG",
+    "FLAG_CATEGORY",
+    "FLAG_ROW",
+    "INTERVAL",
+    "MODEL_DATA",
+    "OBSERVATION_ID",
+    "PROCESSOR_ID",
+    "SCAN_NUMBER",
+    "SIGMA",
+    "STATE_ID",
+    "TIME",
+    "TIME_CENTROID",
+    "UVW",
+    "WEIGHT",
+    "WEIGHT_SPECTRUM"
+   ],
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c12-sigma-row.ms",
+   "rows": 140
+  },
+  "c13": {
+   "FLAG_ROW_rows": 0,
+   "S_source": {
+    "0": "SIGMA repeated"
+   },
+   "arms": {
+    "xms-auto": {
+     "check_seconds": 0.182,
+     "convert_seconds": 3.335,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "match",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W",
+        "S"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c13-no-spectrum-weights_partition_000": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c13.ps.zarr"
+    },
+    "xradio": {
+     "check_seconds": 0.173,
+     "convert_seconds": 4.803,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "match",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W",
+        "S"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c13-no-spectrum-weights_0": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c13.ps.zarr"
+    }
+   },
+   "columns": [
+    "ANTENNA1",
+    "ANTENNA2",
+    "ARRAY_ID",
+    "DATA",
+    "DATA_DESC_ID",
+    "EXPOSURE",
+    "FEED1",
+    "FEED2",
+    "FIELD_ID",
+    "FLAG",
+    "FLAG_CATEGORY",
+    "FLAG_ROW",
+    "INTERVAL",
+    "OBSERVATION_ID",
+    "PROCESSOR_ID",
+    "SCAN_NUMBER",
+    "SIGMA",
+    "STATE_ID",
+    "TIME",
+    "TIME_CENTROID",
+    "UVW",
+    "WEIGHT"
+   ],
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c13-no-spectrum-weights.ms",
+   "rows": 140
+  },
+  "c14": {
+   "FLAG_ROW_rows": 0,
+   "S_source": {
+    "0": "SIGMA_SPECTRUM"
+   },
+   "arms": {
+    "xms-auto": {
+     "check_seconds": 0.207,
+     "convert_seconds": 3.449,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c14-decreasing-freq_partition_000": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c14.ps.zarr"
+    },
+    "xradio": {
+     "check_seconds": 0.187,
+     "convert_seconds": 3.617,
+     "groups": {
+      "base": {
+       "deciding": {
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight": "match"
+       },
+       "failures": [],
+       "implied_by_ms": true,
+       "loader_rows": 140,
+       "measures": {
+        "FLAG cells": "match",
+        "FLAG with FLAG_ROW": "match",
+        "TIME": "match",
+        "UVW": "match",
+        "coverage": "match",
+        "data": "match",
+        "weight S": "mismatch",
+        "weight W": "match"
+       },
+       "outcome": "match",
+       "pads": 0,
+       "reader": [],
+       "time_fallback_rows": 0,
+       "unmapped_ms_rows": 0,
+       "weight_deciding_candidates": [
+        "W"
+       ],
+       "weight_matches": [
+        "W"
+       ],
+       "writer": []
+      }
+     },
+     "outcome": "match",
+     "partitions": {
+      "c14-decreasing-freq_0": {
+       "data_groups": [
+        "base"
+       ]
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c14.ps.zarr"
+    }
+   },
+   "columns": [
+    "ANTENNA1",
+    "ANTENNA2",
+    "ARRAY_ID",
+    "DATA",
+    "DATA_DESC_ID",
+    "EXPOSURE",
+    "FEED1",
+    "FEED2",
+    "FIELD_ID",
+    "FLAG",
+    "FLAG_CATEGORY",
+    "FLAG_ROW",
+    "INTERVAL",
+    "OBSERVATION_ID",
+    "PROCESSOR_ID",
+    "SCAN_NUMBER",
+    "SIGMA",
+    "SIGMA_SPECTRUM",
+    "STATE_ID",
+    "TIME",
+    "TIME_CENTROID",
+    "UVW",
+    "WEIGHT",
+    "WEIGHT_SPECTRUM"
+   ],
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c14-decreasing-freq.ms",
+   "rows": 140
+  }
+ },
+ "commit": "72f21867ff7b40ddf25edaadeec1d423d885a48e",
+ "control": {
+  "c1": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c2": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c3": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c4": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c5": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c6": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c7": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c8": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  },
+  "c9": {
+   "xms-auto": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   },
+   "xradio": {
+    "equals_run07": true,
+    "measures": {
+     "DATA": "match",
+     "FLAG": "match",
+     "TIME": "match",
+     "UVW": "match",
+     "WEIGHT_SPECTRUM": "match",
+     "antenna names": "match",
+     "coverage": "match"
+    }
+   }
+  }
+ },
+ "extension": "C:\\Users\\gijsm\\Worktrees\\rang\\msv4-m2\\python\\rang\\_core.pyd",
+ "note": "research/msv4-interop.md section 11",
+ "root": "D:/rang/outputs/msv4-20261116",
+ "seconds": 14.768,
+ "versions": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "python": "3.13.16",
+  "rang-core": "0.2.0",
+  "xarray": "2026.9.0",
+  "zarr": "3.4.2"
+ }
+}

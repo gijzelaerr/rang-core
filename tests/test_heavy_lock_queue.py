@@ -148,11 +148,14 @@ def test_shared_jobs_run_together_within_capacity(tmp_path, monkeypatch):
 
 
 def test_exclusive_waits_for_shared_and_blocks_later_shared(tmp_path):
+    """With drain limit 0 (strict first come, first served; the default lets
+    `y` backfill for 15 minutes, tests/test_heavy_lock_backfill.py)."""
     d = tmp_path / "heavy"
     s = hl.acquire_shared(d, ["s"], 0.02, 2, 1.0)
     order = []
     tx = threading.Thread(
-        target=lambda: (hl.acquire(d, ["x"], 0.02), order.append("x")), daemon=True
+        target=lambda: (hl.acquire(d, ["x"], 0.02, drain_s=0.0), order.append("x")),
+        daemon=True,
     )
     tx.start()
     _wait_tickets(d, 1)  # x queues first

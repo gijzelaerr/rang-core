@@ -1994,6 +1994,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
 | 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
+| 2026-11-16 | v8c-tfcrop: CASA `flagdata(mode='tfcrop')` readout probe batches c01-c10 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs (`t24x40x256.ms`), 11.3 M cells each, 1-4 arms | 3.3-22.3 s per batch; 1.9-5.0 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
+| 2026-11-16 | v8c-tfcrop: readout inversion and candidate scoring (`readall.py`, `evalflags.py` sweeps; NumPy, single thread) | readout groups of c01-c10 | 5 s to about 6 min per sweep | under 2 GB | 1 slot (2-4 GB booked) |
+| 2026-11-16 | v8c-tfcrop: CASA readout batches c11, c12 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 2 arms | 6.0 s per batch | 1.0 GB | 1 slot |
+| 2026-11-16 | v8c-tfcrop: N1 check of a template candidate through `rang.tfcrop.plane` (`n1eval.py`, NumPy) | V8 probe b05/b04 N1, 1,104 planes, 6 arms | about 3-4 min per candidate | under 2 GB | 1 slot |
 | 2026-11-16 | gemclean-stop28: `cargo test --release --lib stop_tolerance`; `cargo build --release --bin gemclean` | worktree core, cold target | 2 m 46 s build, 3.8 s tests; build about 3 min | – | 8 slots |
 | 2026-11-16 | gemclean-stop28: GeMClean development grid, S1-S3 × (default, ε 0, 0.005, 0.01, 0.02, 0.05, 0.10) (`stop28_runs.py dev`, binary `0775c4f`, accuracy 1e-6) | 14.5 M visibilities, 2048², `-j 8` | 17.8-28.6 s each, 480 s in all | 2.74 GiB | 8 slots; native Windows |
 | 2026-11-16 | gemclean-stop28: `gemclean_bench_simulate.py` H5-H8 | 1,814,400 rows × 8 | 48-164 s (lock wait included) | – | booked 4 slots, used about 1 core |
@@ -2024,3 +2028,59 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | e2n: `mvftoms.py -f -a` (host nash, nice/ionice), the selection | 2,229,489 rows × 1,024 × 4, local MVF | 835 s | 5.6 GB | MS 139 GB with SIGMA_SPECTRUM, 105 GiB after |
 | 2026-11-16 | e2n: `e2n_prep_ms.py` (host nash) | e2n.ms: token check, SIGMA_SPECTRUM drop, map, flag hashes | 40 s | – | – |
 | 2026-11-16 | e2n: WSClean 3.7 build check, two images × dirty + PSF | G3 D1.ms, 1,024² | about 2 min | – | Windows host WSL docker, 4 slots |
+| 2026-11-16 | v8c-tfcrop: `tools/check_all.py --quick` | worktree after merging origin/main | 894 s (lock wait excluded) | – | PASS; takes the lock itself |
+| 2026-11-16 | lock-backfill: `tools/check_all.py --quick` | worktree, fresh .venv | 997 s (lock wait excluded; 1113 s wall) | – | PASS: 314 pytest |
+| 2026-11-16 | msv4-interop: xradio 1.3.1 `convert_msv2_to_processing_set`, defaults | 9 MSv2s (20-12480 rows) | 3.2-4.3 s each; 11.6 s for `A-casa.ms` | – | WSL, Python 3.12, under the lock (2 slots, 4 GB) |
+| 2026-11-16 | msv4-interop: xarray-ms 0.5.14 `open_datatree` + `to_zarr` | the same 9 MSv2s | 3.0-4.2 s each; 11.8 s for `A-casa.ms` | – | WSL; whole conversion job 411 s wall with lock wait, peak RSS 689 MB |
+| 2026-11-16 | msv4-interop: `msv4_interop.py check` (rang.core_ms + rang.msv4) | 9 cases × 2 arms | 9 s wall | – | Windows, 1 slot; `A-casa` xradio arm 0.4 s |
+| 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, fresh .venv | 1011 s (lock wait excluded) | – | FAIL, 3 tests: the note not yet in the research index, and two `test_msv4` failures (the complex pad rule, a fixture zip without `table.lock`); all fixed |
+| 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, after the records | 35 s (lock wait excluded) | – | PASS: 63 pytest, 4 skipped |
+| 2026-11-16 | msv4-interop: `tests/test_msv4.py` with xarray and zarr blocked | worktree | 0.05 s | – | 6 skipped, the skip path |
+| 2026-11-16 | msv4-m1: `tools/check_all.py --quick` | worktree, fresh .venv | 875 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m1: `msv4_interop.py check`, run 05 | 9 cases × 2 arms, `convert-01` stores | 9 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m1: `m1_diag_autos.py`, run 06 | 9 cases, xarray-ms arm | 10 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m1: `tools/check_all.py --quick` | worktree, after the records | 33 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m1b: xarray-ms 0.5.14 `open_datatree(auto_corrs=True)` + `to_zarr` (`convert-02`) | 9 MSv2s | 3.0-4.0 s each; 12.2 s for `A-casa.ms` | – | WSL, 2 slots, 4 GB; 42 s wall, peak RSS 890 MB |
+| 2026-11-16 | msv4-m1b: `tools/check_all.py --quick` | worktree, fresh .venv | 836 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m1b: `msv4_interop.py check`, run 07 | 9 cases × 3 arms | 10 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m1b: `tools/check_all.py --quick` | worktree, after the records | 35 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m2: `msv4_m3m2.py make-m3` (python-casacore) | c10-c14 from fixture scan 9 | 17 s wall | – | WSL, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m2: `convert-m3`, xradio 1.3.1 and xarray-ms 0.5.14 `auto_corrs=True` | 5 MSv2s × 2 arms | xradio 3.6-5.6 s, xms-auto 3.3-6.2 s each; 52 s run | – | WSL, 2 slots, 4 GB; 193 s with lock wait, peak RSS 512 MB |
+| 2026-11-16 | msv4-m2: `tools/check_all.py --quick` | worktree, fresh .venv | 1108 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m2: `check-m3`, run 08 | c1-c9 control × 2 arms, c10-c14 × 2 arms per data group | 16 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m2: `m2`, run 09 (Tricolour on c5, MSv2 ×2 and MSv4 ×2) | 140 rows × 4096 channels | 5 s wall; stage 0.5-0.6 s, kernel 0.19-0.22 s | – | Windows, 4 slots, 8 GB |
+| 2026-11-16 | msv4-m2: `tools/check_all.py --quick` | worktree, after the records | 44 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | e2b-confirm: `c3_flags.py check` (native, rang's reader: npz flags, E3 input DATA) | E2-B, 272,916 rows | 570 s | – | 1 slot, 8 GB |
+| 2026-11-16 | e2b-confirm: E on ext4 (TaQL from the read-only E3 input, flags rebuilt) | E2-B, 272,916 rows | 607 s | – | WSL docker, 2 slots |
+| 2026-11-16 | e2b-confirm: CASA 6.7.6.14 applycal, 3 calls, on ext4 | E2-B | 354 s | – | WSL docker, 2 slots, 12 GB |
+| 2026-11-16 | e2b-confirm: rang apply (native, today's main), per field J1833 / J1939 / J1331 | 35,112 / 119,700 / 118,104 rows | 137 / 173 / 140 s | – | 4 slots, 16 GB |
+| 2026-11-16 | e2b-confirm: GeMClean joined IQUV 2048² 8 ch, dirty ε 1e-6 (J1833 / J1939 / J1331) | E2-B fields | 83 / 216 / 260 s | 8.8 / 17.8 / 16.9 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: GeMClean the same, cleaned `-auto-mask 5`, ε 1e-4 | E2-B fields | 422 / 983 / 1,028 s | 9.2 / 16.7 / 14.6 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: WSClean 3.7 the same, dirty / cleaned, `-no-small-inversion` | E2-B fields on ext4 | 234-415 s / 893-1,826 s | 0.5-0.8 / 1.4-2.0 GB | WSL docker, 2 slots, `-j 2` / `-j 4` |
+| 2026-11-16 | e2b-confirm: `tools/check_all.py --quick` | worktree, cold | 1364 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | gpu-grid (#12): cargo build `gemclean` profile, baseline `a931b6c` | core, -j 4 | 305 s | – | native Windows, shared 4 slots |
+| 2026-11-16 | gpu-grid: cargo build `gemclean` profile, feature `gpu` (`gemclean`, `gpu_grid_parity`) / feature off | core, -j 4 | 481 s / 176 s | – | `9ad7e75` |
+| 2026-11-16 | gpu-grid: `cargo test --features gpu --lib wgridder::gpu` (debug) | 4 tests | 82 s | – | RTX 4070 Ti; the one-visibility batch test dominates |
+| 2026-11-16 | gpu-grid: GeMClean CPU `a931b6c`, coarse / fine, `-j 8` shared | S1 S2 S3 H1 H2 H4 (2048²), H3 (4096²) | 13.5-47.6 s / 18.2-68.1 s | – | Gate 0 baseline; per-run walls in `base/*.log` |
+| 2026-11-16 | gpu-grid: GeMClean `-gpu`, coarse / fine, `-j 8` shared | same seven skies | 13.9-45.4 s / 19.6-73.2 s | – | Gate 2; 588-1342 MiB on the GPU |
+| 2026-11-16 | gpu-grid: GeMClean CPU / `-gpu`, coarse, `-j 8` shared | pilot-512 (4096², 3asec) | 196.0 s / 189.5 s | – | major cycles 99.3 s (5) / 65.9 s (4); GPU 4096 MiB, 3 batches per call |
+| 2026-11-16 | gpu-grid: `gpu_grid_parity`, one residual + `dirty2vis` per arm | 7 skies x 2 forms, pilot | under 1 min per case; pilot 3.3 min (dirty image 2.3 min) | – | Gate 1; 8 threads |
+| 2026-11-16 | gpu-grid: `tools/check_all.py --quick` | worktree | 987 s (lock wait excluded) | – | FAIL: cargo fmt only (fixed); 469 pytest passed |
+| 2026-11-16 | gpu-grid: exclusive timing tickets (GeMClean Windows, WSClean WSL) | S1 H2 H3 plan | not started | – | 17:07-18:25; 4 + 4 tickets withdrawn after 10 min at the head (IDLE 4-slot E2-A hold); 1 GPU arm void (card 10.9 of 12.3 GB used) |
+| 2026-11-16 | gpu-grid: exclusive timing tickets, second attempt (coarse, 1024 MiB) | S1 H2 H3 plan | not started | – | 18:40-18:57; WSClean ticket past the 15 min drain limit behind a long 1-slot fetch and a 2-slot job; withdrawn |
+| 2026-11-16 | gpu-grid: `tools/check_all.py --quick` (final) | worktree `393ebd9` | 986 s (lock wait excluded) | – | PASS: 518 pytest |
+| 2026-11-16 | nash-host, host nash: uv 0.13.8 `uv venv --python 3.14` + `uv pip install` of the check's ten extras, ruff, maturin | `5bade77`, empty cache | 23 s | – | shared host, nice 19; system Python 3.12 failed first (`sphinx>=9.2` needs 3.13) |
+| 2026-11-16 | nash-host, host nash: `cargo +1.93 fetch`, three manifests | `5bade77` | 11 s | – | needed before the check: its cargo steps run `--offline` |
+| 2026-11-16 | nash-host, host nash: `tools/check_all.py --quick --slots 16 --mem 32`, first | `5bade77` | 22 s | – | FAIL: every core and extension step, `no matching package named rayon` (empty cargo registry, `--offline`) |
+| 2026-11-16 | nash-host, host nash: `tools/check_all.py --quick --slots 16 --mem 32` | `5bade77`, cold target | 997 s (lock wait excluded; 16:38 with start-up) | – | FAIL: gain-hash gate only (archive absent); fmt, ruff, clippy, root 23 and core 290 Rust tests, extension build pass; no pytest selected (no diff); nice 19, load1 1-11 |
+| 2026-11-16 | nash-host, host nash: WSClean 3.7 `-size 512 512 -scale 8asec -weight briggs 0.5 -niter 500 -data-column DATA -j 16 -no-update-model-required` | public fixture scan 9 (copy) | 3.33, 2.88, 2.87 s | 74 MB | smoke, not a speed result: shared host, nice 19, our exclusive lock, load1 1.6-1.8; inversion 2.6 s of 3.3 |
+| 2026-11-16 | nash-host, host nash: GeMClean (`.venv/bin/gemclean`, extension at `5bade77`), same arguments | public fixture scan 9 (copy) | 0.97, 0.98, 0.96 s | 137 MB | smoke as above; 500 components, 2 major cycles, AVX2 tier; repeats alternate with WSClean |
+| 2026-11-16 | nash-host, host nash: `tools/check_all.py --slots 16 --mem 48` (full) | `5bade77`, warm targets | 683 s (lock wait excluded; 11:23 with start-up) | – | FAIL: gain-hash gate only (archive absent); pytest 1627 passed, 50 skipped (archives, oracles); nice 19 |
+| 2026-11-16 | nash-host, host nash: `pytest -q -n 16 -rs` | `5bade77` | 126 s | – | 1627 passed, 50 skipped; run for the skip reasons; nice 19 |
+| 2026-11-16 | nash-host: `tools/check_all.py --quick`, Windows host | worktree, branch `nash-host` | 1049 s (lock wait excluded) | – | PASS: 318 pytest passed, 13 skipped; new worktree venv and cold targets |
+| 2026-11-16 | floor-2: `examples/floor2_tests.py smoke --rows-limit 6000` (declared smoke, 4 simulated arms), heavy lock shared 2 slots 6 GB | ESO137 set A, 6,000 rows × 32 channels | 208.6 s compute, 230 s with the queue | – | native Windows host; research/floor-2.md section 10 |
+| 2026-11-16 | floor-2: `examples/floor2_tests.py all` (prep, 5 facet sets + 3 extended images, 25 arms + pilot + 3 G3 arms × 6 tests, summary), heavy lock shared 6 slots 16 GB, `RAYON_NUM_THREADS=6` | ESO137 set A, 823,500 rows × 32 channels | 1,634.5 s compute (prep and skies about 6 min, arms 50-65 s each, pilot 54 s); 1,925 s with the queue | – | native Windows host; research/floor-2.md section 11 |
+| 2026-11-16 | floor-2: `tools/check_all.py --quick` | worktree `7726693` | 1,049 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | nash-gainhash, host nash: `fetch-luno-support.sh` + `fetch-luno-solve.sh` (+ `--data`), public S3 | LUNO slice and solve inputs, 2,747 objects, 5.94 GB | 428 s (81 + 347) | – | shared host, nice 19, ionice idle, serial curl; load1 0.37 before, 0.60 after; receipts identical to the workstation's |
+| 2026-11-16 | nash-gainhash, host nash: `tools/check_all.py --slots 16 --mem 48` (full), archive in `~/rang-data/outputs` | `9d1cf8f`, warm targets | 213 s (lock wait excluded) | – | PASS, every step; gain-hash gate 2.77 s; pytest 1634 passed, 50 skipped; nice 19; load1 0.62 before, 6.54 after |
+| 2026-11-16 | nash-gainhash: `tools/check_all.py --quick`, Windows host | worktree, branch `nash-gainhash` | 926 s (lock wait excluded; 1,450 s with the queue) | – | PASS; docs-only diff |

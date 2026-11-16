@@ -309,6 +309,59 @@ ENVIRONMENT = (
         "python/rang/check.py",
     ),
     _v(
+        "RANG_HEAVY_LOCK",
+        "unset (`D:\\rang\\locks\\heavy`; `/mnt/d/rang/locks/heavy` from WSL; "
+        "`~/rang-data/locks/heavy` on other Linux and macOS hosts)",
+        "process",
+        "the shared-host lock directory of `tools/heavy_lock.py`; tests point it "
+        "at a temporary directory",
+        "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_SLOTS",
+        "16",
+        "process",
+        "threads the heavy lock shares out",
+        "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_MEM_GB",
+        "48",
+        "process",
+        "GB the heavy lock shares out",
+        "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_NICE",
+        "unset (no change of priority)",
+        "process",
+        "POSIX only: `heavy_lock.py run` starts its command under `nice -n N`, "
+        "with `ionice -c3` at 19; for hosts shared with other people (nash)",
+        "nash-host",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_LOCK_HELD",
+        "unset",
+        "process",
+        "`<slots>:<mem GB>`, set by `heavy_lock.py run` for its command; a nested "
+        "`run` or check inside it does not queue again",
+        "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
+        "RANG_HEAVY_DRAIN_MIN",
+        "15",
+        "process",
+        "minutes later tickets may backfill past a queue head that does not fit "
+        "(a ticket's own `run --drain` wins); 0: strict first come, first served",
+        "lock-backfill",
+        "tools/heavy_lock.py",
+    ),
+    _v(
         "RANG_ARCHIVE_OUTPUTS",
         "unset (`outputs/` of this checkout; a mangled UNC path is repaired)",
         "input",

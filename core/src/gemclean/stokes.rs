@@ -338,7 +338,8 @@ pub fn imaging_weights(
         .map(|&c| super::input::SPEED_OF_LIGHT / first.freq[c])
         .collect();
     let rows = first.rows();
-    let selected = vec![true; rows];
+    // FLAG_ROW rows stay out of the weight grid (research/ts-p1.md 14.1).
+    let selected: Vec<bool> = first.flag_row.iter().map(|f| !f).collect();
     let mut grid = WeightGrid::new(
         s.class,
         s.width,
