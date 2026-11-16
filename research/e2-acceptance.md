@@ -1750,6 +1750,19 @@ copy (9.6). Code: [e2_casa3b_a.py](results/e2-acceptance-scripts/e2_casa3b_a.py)
     give about 0 (A1 small's gains change between scans), a transfer failure. That is what the row measures,
     not a bug.
 
+### 9.12 Gate 3a on E2-A: Tricolour as frozen did not run (memory); a per-scan reading on the primaries (2026-11-16 15:00, before it ran)
+
+- As frozen (`e2_post.py tricolour`, the whole MS, 16 threads): Tricolour 0.2.1 stopped at 9 % after 336 s
+  with `FiledesIO::read ... Cannot allocate memory` while reading DATA through dask-ms
+  (`R	ricolour.out`). It packs a scan's visibilities in memory. Target scan 10 is 850,950 rows × 4,096
+  channels × 4 correlations, 111 GB of complex64, and WSL has 44 GB. E2-B's whole MS was 35 GB.
+  The step's own restore ran (`g3a-restore.json` met: FLAG and FLAG_ROW equal 9.1's hashes).
+- **Under 6.5's rule, gate 3a is "not checked (memory)" on E2-A as frozen.**
+- **Added reading, labelled post hoc** (`e2_post.py tricolour-scans`): Tricolour once per primary scan
+  (`-sn 9`, then `-sn 11`, 8 workers), the same strategy and options. Cells are compared with rang's flag
+  stage on those scans' rows only (→ `R\g3a-scans.json`), then FLAG is restored (`g3a-scans-restore`). The
+  target scan stays not checked. Lock: 8 slots, 32 GB.
+
 ## For the coordinator
 
 (written at the end)
