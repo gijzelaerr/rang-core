@@ -29,7 +29,7 @@ measured, not merged):
   novelty reading against WSClean plain not met. Seen H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4
   (default 5, 3, 8), off-source model flux 0.999-1.000 ×, compact medians within 0.003 %. All as predicted.
 - For the coordinator: default switch to 0.02 recommended (residual peak up to 2 % above T); not measured at the
-  1e-4 single-precision default accuracy. Outputs `D:ang\outputs\stop28-20261116`.
+  1e-4 single-precision default accuracy. Outputs `D:\rang\outputs\stop28-20261116`.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
