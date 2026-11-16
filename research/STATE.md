@@ -20,6 +20,17 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+#23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
+section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
+`D:\rang\outputs\msfix-20261116-01`):
+- 13 GeMClean and 10 WSClean 3.7 arms on DF5-O's field (D) and a held-out field (H, seeds 20261118/5118;
+  the default passes A1 on all three held-out pairs, so "held-out field shows no miss"). No arm passes on both.
+- Offset fixes (bias 0.8, ref1, reff, cap) take the median point ΔS from +16.0 to −3.8..+3.7 µJy on D but
+  raise the inner RMS to Högbom's level (D 1.486-1.614 against bound 1.475; H 1.539-1.620 against 1.489).
+  Automatic scales are nearest: lowest RMS (1.376 / 1.409), offset +11.0 / +9.05 (fails D's ≤ +8.0).
+- WSClean matches GeMClean arm by arm. `-no-negative` diverges in both tools (WSClean logs the divergence).
+- Comment draft for #23 in section 8.7, not posted. The default is unchanged.
+
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
 - `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for

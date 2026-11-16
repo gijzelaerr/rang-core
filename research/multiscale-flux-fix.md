@@ -3,6 +3,9 @@
 Status, 2026-11-16: **proposed.** Sections 1-7 are frozen in this commit, before any code or run.
 Results will be added as section 8; any later change to sections 1-7 is dated and labelled post hoc.
 
+Status, 2026-11-16 (later): **measured, null.** No arm passes on both fields under section 6
+(section 8.1). Sections 1-7 are unchanged.
+
 Issue [gijzelaerr/rang-core#23](https://github.com/gijzelaerr/rang-core/issues/23), step 4.
 Steps 1-3: [multiscale-df5o-a1.md](multiscale-df5o-a1.md) and
 [results/multiscale-df5o-a1.json](results/multiscale-df5o-a1.json).
@@ -229,7 +232,7 @@ Outcomes:
 
 ## 8. Results
 
-Not yet measured.
+Final reading in 8.1-8.8 (2026-11-16, all runs finished). 8.0 is the interim, kept as written.
 
 ### 8.0 Interim (2026-11-16 03:40, runs still going; not the final reading)
 
@@ -293,3 +296,240 @@ So far, on D:
 
 The remaining H gc arms and the WSClean arms on D and H were still running at this point.
 `decide.py` writes the final archive.
+
+### 8.1 Outcome under section 6: null
+
+Archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json): `decide.py`'s
+output plus the three held-out seed pairs. Run root `D:\rang\outputs\msfix-20261116-01`.
+GeMClean binary sha256 `3907730f…ea21`, from `7de8911`. WSClean 3.7 in `rang-o-casa:6.7.6.14`.
+
+**No arm passes on both fields. The result is null.**
+
+- **Which H.** H is the third seed pair (20261118 / 5118), labelled **"held-out field shows no
+  miss"**, because the default passes A1 on all three pairs (8.0). On H the decision therefore
+  rests on the RMS, margin and offset clauses.
+- **Bounds.** RMS: D 1.4753 µJy, H 1.4887 µJy. H's is the frozen `H3/rms-bound.json`, and
+  `decide.py` gives the same value. Offset: D ≤ +8.003 µJy (half of +16.006), H ≤ +9.072 µJy
+  (half of +18.145).
+- **gc-sauto** passes on H and fails on D, on clause 5 only (+11.00 against ≤ +8.00).
+  - Section 6 needs both fields, so it is not a fix.
+  - Its H pass is by 0.02 µJy (+9.053 against +9.072). That is inside the baseline's own scatter:
+    WSClean's two H repeats differ by 1.8 µJy in the median (+18.59 and +16.77).
+  - ws-sauto fails on H (+11.30).
+- **Every other arm** fails on both fields.
+
+Failing clauses for GeMClean: `1` A1, `2` A2, `3` RMS, `4` margin, `5` offset.
+
+| arm | D: fails | D worst | D median ΔS | D RMS | H: fails | H worst | H median ΔS | H RMS |
+| --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| gc-multiscale (default) | 1 4 5 | 1.03 (p23) | +16.0 | 1.4447 | 5 | 0.71 | +18.1 | 1.4681 |
+| gc-hogbom | 3 | 0.53 | −4.2 | 1.6041 | 3 | 0.43 | −3.9 | 1.5608 |
+| gc-b065 | 3 4 5 | 0.93 | +16.4 | 1.5418 | 3 5 | 0.79 | +19.3 | 1.5806 |
+| gc-b070 | 3 4 5 | 0.98 | +17.5 | 1.5919 | 3 5 | 0.80 | +22.9 | 1.6119 |
+| gc-b075 | 3 5 | 0.79 | +15.8 | 1.5323 | 3 5 | 0.70 | +24.0 | 1.5743 |
+| gc-b080 | 3 | 0.50 | −2.5 | 1.4862 | 3 | 0.56 | +7.9 | 1.5390 |
+| gc-ref1 | 3 | 0.49 | +3.1 | 1.5794 | 3 | 0.40 | +4.8 | 1.6198 |
+| gc-reff | 3 | 0.49 | −3.8 | 1.5843 | 3 | 0.44 | −3.1 | 1.5723 |
+| gc-cap | 3 | 0.57 | +3.7 | 1.6144 | 3 | 0.70 | +3.0 | 1.5863 |
+| gc-gauss | 1 4 5 | 1.15 (p23) | +13.9 | 1.4313 | 5 | 0.74 | +15.2 | 1.4741 |
+| gc-s48 | 1 2 3 4 5 | 1.04 (p32) | +16.7 | 1.7100 | 3 5 | 0.66 | +15.6 | 1.7973 |
+| gc-sauto | 5 | 0.82 | +11.0 | **1.3760** | – | 0.67 | +9.05 | **1.4091** |
+| gc-noneg | all | 48 | +602 | 171 | all | 57 | +809 | 197 |
+
+WSClean 3.7 with the same settings. No WSClean arm passes on either field.
+
+| arm | D: fails | D worst | D median ΔS | D RMS | H: fails | H worst | H median ΔS | H RMS |
+| --- | --- | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| ws-multiscale r1 | 1 4 5 | 1.04 (p16, p23, p26) | +15.4 | 1.4463 | 5 | 0.70 | +18.6 | 1.4598 |
+| ws-multiscale r2 | 1 4 5 | 1.04 | +15.9 | 1.4513 | 5 | 0.70 | +16.8 | 1.4595 |
+| ws-hogbom | not rerun (DF5-O) | | | | 3 | 0.43 | −3.9 | 1.5652 |
+| ws-b065 | 1 3 4 5 | 1.02 (p26) | +16.7 | 1.5595 | 3 5 | 0.77 | +18.7 | 1.5750 |
+| ws-b070 | 3 4 5 | 0.96 | +17.7 | 1.5797 | 3 5 | 0.77 | +22.3 | 1.6133 |
+| ws-b075 | 3 5 | 0.80 | +15.3 | 1.5167 | 3 5 | 0.72 | +25.1 | 1.5741 |
+| ws-b080 | 3 | 0.50 | −2.5 | 1.4883 | 3 | 0.56 | +7.9 | 1.5410 |
+| ws-gauss | 1 4 5 | 1.10 (p23) | +12.5 | 1.4359 | 5 | 0.73 | +15.4 | 1.4772 |
+| ws-s48 | 1 2 3 4 5 | 1.16 (p32) | +18.6 | 1.7133 | 3 5 | 0.65 | +15.8 | 1.8061 |
+| ws-sauto | 5 | 0.83 | +11.6 | 1.3758 | 5 | 0.72 | +11.3 | 1.4092 |
+| ws-noneg | all | 135 | +1513 | 212 | all | 188 | +1811 | 233 |
+
+- **Columns.** Median ΔS is in µJy, over the points ≥ 20σ_ap (34 on D, 32 on H). RMS is the
+  core-recomputed inner RMS, in µJy.
+- **The two tools agree arm by arm.** On b080 they agree to 0.002 µJy in RMS and 0.01 µJy in the
+  median, on both fields.
+
+**The documented limit for v0.3.0 (section 6, null clause).**
+
+- **Arms within H's RMS bound:** default, gauss and sauto, in both tools.
+- **Smallest worst A1 ratio on H among them:** **gc-sauto, 0.675**, against 0.698 for
+  ws-multiscale and 0.725 for ws-sauto.
+
+| field | arm | worst A1 ratio | median point ΔS (µJy) | inner RMS (µJy) |
+| --- | --- | ---: | ---: | ---: |
+| D | gc-sauto | 0.82 | +11.0 | 1.3760 |
+| H | gc-sauto | 0.67 | +9.05 | 1.4091 |
+| D | default | 1.03 (p23 fails) | +16.0 | 1.4447 |
+| H | default | 0.71 | +18.1 | 1.4681 |
+
+### 8.2 What limits the fix: the Högbom end, not bias 0.8 as such
+
+Every arm that halves the offset does so by moving compact flux back to the delta scale, and pays
+for it in residual RMS. The arms that keep the RMS within the bound keep the offset.
+
+- **The offset-removing arms** (b080, ref1, reff, cap) fail only the RMS clause, on both fields.
+  Their scale-0 share of the net model flux is 0.85-0.88 on D and 0.88-0.91 on H, against 0.78
+  and 0.83 for the default.
+- **Their RMS is close to Högbom's.**
+  - On D: 1.4862-1.6144 µJy, against Högbom's 1.6041.
+  - On H: 1.5390-1.6198, against Högbom's 1.5608. ref1, reff and cap are at or above Högbom;
+    b080 is 0.022 µJy below it.
+- **Bias 0.8 is the best of them, and it still fails.**
+  - It exceeds the bound by 0.011 µJy (0.7 %) on D and 0.050 µJy (3.4 %) on H.
+  - On H it also keeps +7.9 µJy of offset, with 30 of 32 points positive. On D the figures are
+    −2.5 µJy and 9 of 34. +7.9 only just meets the half clause (≤ 9.07).
+- **The arms within the bound** (default, gauss, sauto) all keep a median of at least +9 µJy.
+- **The trade-off is not GeMClean's.** WSClean gives the same numbers arm by arm (8.1), so this
+  is the algorithm's trade-off on this PSF, not an implementation effect.
+
+So the limit is not a badly tuned bias. No measured setting meets both the offset clause and the
+RMS bound. Removing the offset makes the result Högbom-like on compact flux, and then also
+Högbom-like on residual RMS. sauto comes nearest to meeting both, from the other side: it has a
+lower RMS than any arm, but it cuts the offset by only 31 % on D and 50 % on H.
+
+### 8.3 Section 3's predictions against the measurements
+
+| arm | prediction | measured (D / H) | reading |
+| --- | --- | --- | --- |
+| b065 | miss smaller; A1 may fail | offset +16.4 / +19.3 (default +16.0 / +18.1); RMS up | wrong on the offset |
+| b070 | miss smaller; RMS below v3's | +17.5 / +22.9; RMS 1.59 / 1.61 | wrong |
+| b075 | A1 passes; RMS near v3's | A1 passes; offset +15.8 / +24.0; RMS 1.53 / 1.57 | the offset stays at a 24 px product of 0.96 |
+| b080 | A1 passes, RMS fails | as predicted on D; on H the RMS fails (1.5390), offset +7.9 | confirmed |
+| ref1 | A1 passes; RMS below v3's, maybe within the bound | A1 passes; RMS 1.58 / 1.62 | wrong on the RMS |
+| reff | near Högbom; RMS above the bound | −3.8 / −3.1; RMS 1.58 / 1.57 | confirmed |
+| cap | A1 passes; RMS closest to the default | A1 passes; RMS 1.61 / 1.59, the worst of the bias arms on D | wrong on the RMS |
+| noneg | no ring, offset smaller, RMS up | diverges in both tools (8.4) | not testable as posed |
+| gauss | shares the miss | p23 fails on D; +13.9 / +15.2 | confirmed |
+| s48 | shares the miss | on D, p32 fails A1 and p23 fails A2; RMS 1.71 / 1.80 | confirmed |
+| sauto | miss smaller, outcome open | +11.0 / +9.05; lowest RMS | confirmed: smaller, but not halved on D |
+
+**H0, read post hoc.**
+
+- **The threshold is not at a product of 1.** Scale wins over the delta do drive the offset.
+  But b075, with a 24 px product of 0.96, keeps the full offset. b080 (0.84) removes it on D and
+  halves it on H.
+- **The offset is not monotone in β.** b065-b075 raise it on H, to +19 to +25 against +18.
+- The per-scale components and flux of every GeMClean arm are in the archive (`scale_lines`).
+
+### 8.4 `-no-negative`: GeMClean against WSClean
+
+Both tools diverge on both fields. The blow-up is therefore upstream behaviour on this field, not
+a GeMClean bug.
+
+- **WSClean.**
+  - It logs `WARNING: Multiscale clean diverged.` on D and on H, after 4 major iterations.
+  - On D it puts 1.84 Jy in the 192 px scale, 2.1 Jy in all: a total ratio of 21.0. On H the
+    ratio is 20.4.
+  - In the fourth minor loop the 192 px peak rises from 100 µJy to 4.96 mJy over 60,000
+    components. That trips radler's guard (4 × the 339 µJy start peak), and cleaning stops.
+- **GeMClean.**
+  - It reports `end Normal` and stops at the threshold after 7 major cycles (6 on H).
+  - It puts 0.41 Jy in the 192 px scale, 0.76 Jy in all: a total ratio of 7.66 (7.58 on H).
+    Q/Q0 is 0.0998, against 0.0176 for the default.
+  - The positive peak falls in every cycle (on D: 31.9, 6.23 and 1.24 mJy, then 257, 79, 23 and
+    6.4 µJy). The guard compares the signed peak with 4 × the start peak, so it never trips.
+  - The over-subtraction stays as a negative residual (|peak| 2.75 mJy), which `-no-negative`
+    cannot clean.
+- **Where the two tools split.**
+  - The first three major cycles start at the same peaks in both tools: 31.9, 6.23 and 1.24 mJy
+    on D; 32.4, 6.38 and 1.28 mJy on H.
+  - The fourth starts at 257 µJy in GeMClean and 339 µJy in WSClean (271 and 391 on H). The
+    trajectories split in the third minor loop.
+  - Both tools fail A1 on the same sources: 39 on D, 37 on H.
+- **Open.** The cause of the split in the third loop is not explained. It does not change the
+  outcome: both tools fail every clause, by a factor of 50 or more.
+
+### 8.5 Controls and checks
+
+- **Defaults reproduced.**
+  - gc-multiscale and gc-hogbom on D are bit-identical to step 1-3 (17 model FITS and the MFS
+    residual each).
+  - gc-b080 on D reproduces step 3's v3 (RMS 1.4862).
+- **Scorer reproduction.** The reproduction of DF5-O's ws-multiscale r1 and r2 passed (8.0).
+- **The scorer's A1 has no multiscale exemption.** `compare_df5o.py` applies `0.05 S + 3σ_ap` to
+  every source ≥ 20σ_ap. The exemption lives only in DF5-O's verdict, so the scorer matches
+  clause 1.
+- **The field.** D was checked against `field.json` before the first run
+  (`verify-d-before.json`) and after the last (`verify-d-after.json`, 10:55). Both are ok: the MS
+  digest is `978e2720…b877`, over 59 files, with no mismatch.
+- **Queue-script errors.**
+  - `gc_queue.sh` was edited in the worktree while bash was reading it; the edit was committed in
+    `d099e8d`.
+  - The errors ("`and: command not found`" and a syntax error at line 36) follow the last arm in
+    `D-gc-queue.log`, `H-gc-select.log` and `H2-gc-select.log`.
+  - Every arm has its run, its measure file and a "done" line, so no run was lost.
+- **WSClean runs.** Every WSClean run returned 0.
+- **The WSL copy of H.** `verify-h-wsl.json` (01:47) reads "not ok". It was written by the script
+  before the POSIX-name fix (`a02375f`, 01:51), and it lists every file under both separators.
+  Every WSClean H run's `run.json` records the field MS digest as `7d876344…`, which equals H's
+  `field.json` digest. The copy WSClean read was therefore the frozen field. The WSL scratch
+  (`~/msfix-20261116`) has been removed; its two verify files are kept under the run root.
+- **Clean-up after scoring.** The H and H2 selection FITS were deleted after the archive was
+  written. The run root keeps the measures, the JSON and the logs.
+
+### 8.6 Cost
+
+GeMClean wall time is at `-j 4` with 4 lock slots on the Windows host, shared, at about 87 % CPU.
+WSClean is at `-j 4` in docker on WSL, with inputs on ext4.
+
+- **GeMClean, on D:**
+  - Högbom 47 s; reff 80 s.
+  - b075, b080 115-145 s; ref1 also falls in this range.
+  - b065, cap, b070 190-223 s.
+  - default 316 s; gauss and s48 328-336 s; sauto 384 s.
+  - noneg 1,934 s.
+- **Peak RSS:** about 3.5-3.9 GB for multiscale and 2.5 GB for Högbom.
+- **WSClean:** 625-1,006 s per arm on D, ws-noneg 2,294 s, with a peak RSS of 0.85-1.06 GB.
+- All rows are in `research/tool-timings.md`.
+
+### 8.7 Issue comment draft (for the coordinator to post on #23)
+
+> **Step 4 (multiscale compact-flux fix): null.** Full note:
+> `research/multiscale-flux-fix.md` section 8; archive `research/results/multiscale-flux-fix.json`.
+>
+> **What was run.** 13 GeMClean arms and 10 WSClean 3.7 arms, on DF5-O's field (D) and on a
+> held-out field (H).
+> - The arms are bias 0.65-0.8, bias referenced to the first scale or to the fitted beam, a
+>   point cap, `-no-negative`, Gaussian scales, no 24 px scale, and automatic scales.
+> - H is the same instrument with sky seed 20261118 and noise seed 5118. The default passes A1 on
+>   all three held-out seed pairs, so H shows no miss.
+> - The decision rule was frozen before any run: A1 without the exemption, A2, residual RMS
+>   within the WSClean repeats' bound, worst A1 ratio ≤ 0.9, and the median point offset halved.
+>
+> **Result: no arm passes on both fields.**
+> - **The offset fixes cost residual RMS.** Bias 0.8, ref1, reff and the cap remove the offset:
+>   on D, median ΔS goes from +16.0 to between −3.8 and +3.7 µJy. But they raise the inner RMS to
+>   1.486-1.614 µJy on D (bound 1.475) and 1.539-1.620 on H (bound 1.489), which is Högbom's
+>   level (1.604 and 1.561). Bias 0.8 is the closest, 0.7 % over on D and 3.4 % on H.
+> - **Automatic scales come nearest.** With no `-multiscale-scales`, inner RMS is the lowest of
+>   all arms (1.376 / 1.409). The median offset falls to +11.0 / +9.05 µJy: it passes on H by
+>   0.02 µJy, but fails D's half-offset clause (≤ +8.0).
+> - **WSClean behaves the same** with the same settings, arm by arm. On bias 0.8 the two tools
+>   agree to 0.002 µJy in RMS.
+> - **`-no-negative` diverges in both tools.** WSClean reports "Multiscale clean diverged". It is
+>   not a GeMClean bug.
+>
+> **Documented limit for v0.3.0.** Under natural weighting with DF5-O's array, multiscale CLEAN
+> leaves a median +9 to +18 µJy excess on compact sources ≥ 20σ_ap (WSClean and GeMClean alike).
+> The best measured setting is automatic scales (D: worst A1 ratio 0.82, +11.0 µJy; H: 0.67,
+> +9.05 µJy). For point-source flux, Högbom is unbiased (−4 µJy) at 7-11 % higher residual RMS;
+> bias 0.8 gives −2.5 / +7.9 µJy at 3-5 % higher RMS.
+>
+> **No default changes.** The default is not changed. Whether to switch DF5-O's scale list to
+> automatic scales is a separate decision.
+
+### 8.8 Next steps (proposed, not started)
+
+- **Automatic scales on DF5-O.** DF5-O's fitted-beam scale list costs residual RMS against
+  radler's automatic scales on both fields (−4.9 % and −3.5 % of the ws-multiscale minimum). It
+  is worth a coordinator decision, as an upstream setting, not a novelty.
+- **The `-no-negative` split in the third minor loop.** Diagnosing it needs a per-iteration trace
+  in both tools. It is low priority, because both diverge.
