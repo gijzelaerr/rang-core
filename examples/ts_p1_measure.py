@@ -130,7 +130,7 @@ def wsclean_images(directory, n):
             yield np.asarray(h[0].data[0, 0], np.float64), h[0].header.copy()
 
 
-def score(ms, truth_path, lc_dir, wsclean=None):
+def score(ms, truth_path, lc_dir, wsclean=None, flag_row_ignored=False):
     started = time.perf_counter()
     truth = json.loads(Path(truth_path).read_text(encoding="utf-8"))
     lc = json.loads((Path(lc_dir) / "lightcurve.json").read_text(encoding="utf-8"))
@@ -208,6 +208,10 @@ def score(ms, truth_path, lc_dir, wsclean=None):
     res["T3d"] = recovery(truth, flux, sigma_meas, sig)
     if wsclean:
         res.update(compare_wsclean(wsclean, ms, lc_dir, lc, flux, sig_k[:, 0], n))
+        if flag_row_ignored:
+            res.update(
+                compare_wsclean_flag_row_ignored(wsclean, ms, lc, sig_k[:, 0], n)
+            )
     gates = ["T2a", "T2b", "T3a", "T3b", "T3c", "T3d"] + (
         ["T1", "T2c"] if wsclean else []
     )
@@ -340,6 +344,71 @@ def compare_wsclean(directory, ms, lc_dir, lc, flux, sig, n):
     }
 
 
+def flag_row_ignored_stream(ms, lc):
+    """Per interval, rang's snapshot and DFT fluxes with FLAG_ROW ignored
+    (cells still flagged by FLAG): WSClean 3.7's reading of an MS, the known
+    oracle difference of research/ts-p1.md 14.1 and 15.3. The product's own
+    snapshot and DFT functions; only the FLAG_ROW step is left out."""
+    from rang import core_model, core_weights
+    from rang import lightcurve as lcm
+
+    s = lc["settings"]
+    field = lc["field"]["id"]
+    rows = core_model.selected_rows(ms, field)
+    freq, _, _ = core_model.band(ms, field)
+    lm = np.array([[p["l"], p["m"]] for p in lc["positions"]])
+    with core_ms.open_table(ms) as t:
+        times = t.getcol_rows("TIME", rows)
+        for when in np.unique(times):
+            sel = np.sort(rows[times == when])
+            data = t.getcol_rows(s["column"], sel)
+            if s["model_column"]:
+                data = data - t.getcol_rows(s["model_column"], sel)
+            if s["weight_column"] == "WEIGHT_SPECTRUM":
+                wt = t.getcol_rows("WEIGHT_SPECTRUM", sel)
+            else:
+                wt = np.broadcast_to(
+                    t.getcol_rows("WEIGHT", sel)[:, None, :], data.shape
+                )
+            vis, w = core_weights.stokes_i(data, wt, t.getcol_rows("FLAG", sel))
+            uvw = np.ascontiguousarray(t.getcol_rows("UVW", sel), np.float64)
+            image = lcm.snapshot(uvw, freq, vis, w, s["size"], s["scale_arcsec"],
+                                 s["epsilon"])  # fmt: skip
+            flux, _, _ = lcm.dft(uvw, freq, vis, w, lm)
+            yield image, flux
+
+
+def compare_wsclean_flag_row_ignored(directory, ms, lc, sig, n):
+    """T1 and T2c against rang with FLAG_ROW ignored (15.3), reported beside
+    the raw verdict."""
+    from astropy.wcs import WCS
+
+    t1, t2c = [], []
+    ours_all = flag_row_ignored_stream(ms, lc)
+    for k, (image, header) in enumerate(wsclean_images(directory, n)):
+        ours, flux = next(ours_all)
+        t1.append(float(np.max(np.abs(ours - image)) / np.max(np.abs(image))))
+        wcs = WCS(header).celestial
+        row = []
+        for s, pos in enumerate(lc["positions"]):
+            x, y = wcs.world_to_pixel_values(pos["ra_deg"], pos["dec_deg"])
+            x, y = round(float(x)), round(float(y))
+            row.append(abs(image[y, x] - flux[s]) / sig[k])
+        t2c.append(row)
+    t1, t2c = np.array(t1), np.array(t2c)
+    return {
+        "T1_flag_row_ignored": {
+            "max_relative": float(t1.max()),
+            "median_relative": float(np.median(t1)),
+            "pass": bool(t1.max() <= T1_BOUND),
+        },
+        "T2c_flag_row_ignored": {
+            "max_over_sigma": float(t2c.max()),
+            "pass": bool(t2c.max() <= T2_BOUND),
+        },
+    }
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("ms")
@@ -347,8 +416,13 @@ def main(argv=None):
     p.add_argument("lc_dir")
     p.add_argument("out")
     p.add_argument("--wsclean", help="directory of WSClean's w-tNNNN-dirty.fits")
+    p.add_argument(
+        "--flag-row-ignored",
+        action="store_true",
+        help="also report T1/T2c against rang with FLAG_ROW ignored (15.3)",
+    )
     a = p.parse_args(argv)
-    res = score(a.ms, a.truth, a.lc_dir, a.wsclean)
+    res = score(a.ms, a.truth, a.lc_dir, a.wsclean, a.flag_row_ignored)
     Path(a.out).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
     print(json.dumps({"gates": res["gates"], "all_pass": res["all_pass"]}))
     return 0 if res["all_pass"] else 1

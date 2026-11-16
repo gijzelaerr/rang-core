@@ -236,3 +236,18 @@ def test_wstack_snapshot_matches_the_wgridder(small):
     )
     assert np.max(np.abs(fa - fb)) < 1e-3 * np.max(np.abs(fa)) + 1e-9
     assert b["settings"]["gridder"] == "wstack"
+
+
+def test_t4_expectation_pieces():
+    t45 = _load("ts_p1_t4t5")
+    size = 64
+    y, x = np.mgrid[:size, :size] - size // 2
+    a = 0.05  # rho = exp(-a (x^2 + y^2) / 2): Lambda = a I
+    psf = np.exp(-0.5 * a * (x * x + y * y))
+    lam = t45.peak_lambda(psf, size)
+    assert np.allclose(lam, a * np.eye(2), rtol=0.02)
+    fit, _ = t45.fit_lambda(psf, size)
+    assert np.allclose(fit, a * np.eye(2), rtol=1e-6)
+    cont = t45.expected_ec(5.0, 1e6, 4e3, lam)
+    grid = t45.expected_grid(5.0, 1e6, 4e3, lam)
+    assert 0.8 * cont < grid < cont  # sampling lowers the highest pixel
