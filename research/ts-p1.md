@@ -874,3 +874,76 @@ through FLAG_ROW rows with nonzero Stokes I weight.
 
   Gate 13.4: rang's wall time and peak RSS (from `lc-t6.lightcurve.rang-receipt.json`)
   against WSClean's `timing.txt`, each at most 1.5×.
+### 15.8 Amendment, 2026-11-16: T6 moves to the shared host nash (host change only, before any T6 reading)
+
+The workstation never had the quiet window that 15.7 waited for, so T6 runs
+on nash ([nash-host.md](nash-host.md): 2 x Xeon E5-2695 v4, 36 cores, 503 GB,
+shared with other users). The protocol of 13.4 is otherwise unchanged: the
+same `tsp1-held2`, the same commands and settings, 16 threads
+(`RAYON_NUM_THREADS=16`, `-j 16`), and the gate at 1.5 x WSClean's wall time
+and 1.5 x its peak memory. No T6 reading exists at this commit.
+
+**What exclusive means on nash.**
+- `heavy_lock.py run -- ...` is exclusive among this account's jobs only. The
+  host is shared: other users' jobs run at normal priority beside ours.
+- Both arms run under the same nice level, `nice -n 19 ionice -c3`
+  (`RANG_HEAVY_NICE=19`, and the prefix on the lock call).
+- 16 threads are within the host's 24-slot cap and one socket's 18 cores, so
+  the protocol's figure stands. Neither arm is pinned (no `numactl`).
+
+**Load record and void rule (frozen here).** Every reading goes through
+`tools/oracles/nash/timed.py`:
+- before and after: load1 (`/proc/loadavg`) and each user's CPU (`top -bn2
+  -d 5`, second frame);
+- during: the host's busy CPU-seconds from `/proc/stat` and the reading's own
+  CPU-seconds and peak RSS from `wait4`. Foreign load = (host busy − own) /
+  wall, in cores. It counts everything outside the timed process tree: other
+  users' jobs, the system and any job of ours outside the lock.
+- Each reading starts only when the host's busy CPU over 30 s is at most 2.0
+  cores (waiting up to 2 h).
+- **A reading made under a mean foreign load above 2.0 cores is void** and is
+  repeated at the end of the order. At most three repeats per arm (six
+  readings in all); if three valid readings per arm cannot be had, T6 is
+  **not obtained (foreign load)**.
+
+**Repeats.** 13.4 has one reading per arm. On nash there are three valid
+readings per arm, interleaved as rang, WSClean, WSClean, rang, rang, WSClean,
+inside one exclusive hold. The gate uses the median wall time of each arm's
+first three valid readings, and the largest peak RSS among them (`wait4`'s
+`ru_maxrss`, the quantity `/usr/bin/time %M` gave in 13.4's `timing.txt`).
+rang's receipt peak is reported beside it.
+
+**The oracle build.** Docker is denied on nash, so the
+`rang-wsclean-native:3.7` image cannot run. WSClean v3.7 is built on nash
+from the image's recipe (`tools/oracles/wsclean-native/Dockerfile`: tag
+`v3.7`, `Release`, `-DPORTABLE=OFF`, KERN casacore 3.7.1-1kern1, which nash
+has installed), outside a container, in
+`~/Build/tmp/20261116-nash-timings/wsclean-native/`. cmake has to be given
+Python 3.12; it found a stray 3.6. The system `/usr/bin/wsclean` (KERN
+3.7-1kern1) is not used: it is the portable build whose gridder uses SSE2
+only (the Dockerfile's note), which would favour rang. The WSClean flags are
+`wsclean_intervals.sh`'s, run directly, with `OMP_NUM_THREADS=16` and the
+`-image.fits` copies deleted as they appear.
+
+**Inputs and I/O.**
+- `tsp1-held2.ms` and its positions are copied from
+  `D:\rang\outputs\ts-p1-20261116` by `tar` over ssh into
+  `~/rang-data/outputs/ts-p1-20261116`; every file's SHA-256 must equal the
+  D: copy's.
+- Both arms now read the same ext4 volume (13.4: rang read NTFS and WSClean
+  ext4). rang reads that copy. WSClean reads its own copy, made once and
+  untimed, as the frozen script made one.
+- Before each reading the arm's MS is read once into the page cache
+  (untimed), so both arms read warm.
+
+**Code.** rang runs at this branch's commit with its extension built on nash
+(its SHA-256 goes with the result). Since the code freeze `08bfefb`,
+`lightcurve.py`, the weights, the wgridder and the Rust kernel are unchanged;
+main changed only GeMClean's Rust and other modules.
+
+**Driver.** `tools/oracles/ts-p1/t6_nash.sh` under
+`nice -n 19 ionice -c3 heavy_lock.py run --`; readings in
+`~/Build/tmp/20261116-nash-timings/t6/readings.jsonl`.
+
+Wall times from nash are labelled host nash and are not compared with the
+workstation's.
