@@ -211,7 +211,12 @@ branch), under `heavy_lock run --slots 1 --mem 4`:
 | 04 | `3fd8d97` (committed) | identical to 03; the receipt |
 
 Neither harness fix touches the tolerance, the mapping or the case list;
-both make it do what section 4 says.
+both make it do what section 4 says. The conversions ran from a copy of the
+harness taken before `3fd8d97`; its `make-gaps` and `convert` code is the
+committed code apart from formatting and lint fixes.
+
+**Skip path:** with xarray and zarr blocked by an import hook, the 6 tests of
+`tests/test_msv4.py` skip ("the [msv4] extra is absent").
 
 **Receipt:** [`results/msv4-interop.json`](results/msv4-interop.json) (run
 04: per case and arm the measures, partitions, pads, `DATA_DESC_ID` mapping,
@@ -237,9 +242,11 @@ weight source, time fallbacks, versions, commit). Stores and logs:
 - Coverage: every MSv2 row maps to one loader row and back. In c8 the reader
   dropped exactly the 4 pads xradio wrote for the removed rows, and invented
   no row.
-- Partitions: c6's 4 fields became 4 partitions (xradio's `OBS_MODE`), and
-  c9's two windows two; each mapped to one `DATA_DESC_ID`. No case had its
-  channels reordered.
+- Partitions: c6 became 4 partitions, one per field (2 to 10 scans each),
+  and c9's two windows two; each mapped to one `DATA_DESC_ID`. No case had
+  its channels reordered.
+- The "antenna names" measure is not independent: rows are mapped by name,
+  so it is implied by the coverage.
 - Under the frozen rule this is **pass**.
 
 **xarray-ms 0.5.14 arm: refused in all 9 cases.** Its stores hold `FLAG` as
@@ -247,6 +254,10 @@ uint8, and section 3 refuses a `FLAG` other than bool. This is the same
 representation as arcae's booleans in the first part (uint8 0 and 1). It was
 not predicted. No xarray-ms value was compared, so the arm says nothing about
 xarray-ms's values, and nothing in it is booked as an oracle disagreement.
+It contradicts section 3's claim that the same code reads an xarray-ms tree:
+as frozen, it does not, for any of these cases. Under M1 more differences may
+sit behind the dtype (xarray-ms pads `FLAG` with 1, which section 3's pad
+rule already ignores).
 Converting xarray-ms's tree with `to_zarr` worked in all 9 cases (3-12 s).
 
 **Cost** (no claim): xradio conversion 3.2-4.3 s per case and 11.6 s for
@@ -257,6 +268,11 @@ arms took 9 s including the start-up, and c6's xradio arm 0.4 s.
 **Not covered** (as section 4 said): `FLAG_ROW` set, `CORRECTED_DATA`,
 weights from `SIGMA`, unwritten `WEIGHT_SPECTRUM`, decreasing channel
 frequencies, schema versions other than 4.0.1, and LOFAR or other telescopes.
+Also not covered (added 2026-11-16, after the run): the `WEIGHT`-repeated
+comparison (every case had a written `WEIGHT_SPECTRUM`), and every data
+group but `base`. c6 and c7 carry a `model` group from `MODEL_DATA`, which
+nothing read, so c6's "second data column" reason in section 4 was not
+exercised.
 Throughput, Rust `zarrs`, object storage and writing were not attempted.
 
 **Found on the way, no MSv4 fault:** python-casacore 3.8.1 can leave
@@ -287,5 +303,10 @@ keeps `table.lock`.
 - New optional extra `msv4` (xarray, zarr 3, numcodecs; Python 3.11 and
   later), added to the CI and `check_all.py` extras. The core install is
   unchanged. No CLI change, no new `RANG_*` variable.
-- The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`, about 1 GB);
-  it can be removed once the note is merged.
+- The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`); kept for
+  M1, remove it once M1 is done or dropped.
+- `tools/check_all.py` installs extras only into a new `.venv`: the main
+  checkout's `.venv` needs `uv pip install xarray "zarr>=3,<4" numcodecs` (or
+  `--extra msv4`) or the merge check skips `tests/test_msv4.py`.
+- The extra is unpinned (lower bounds only), so a later xarray or zarr release
+  can change CI on main.
