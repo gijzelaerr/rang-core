@@ -13,7 +13,7 @@ the release notes are the section of this file for that version.
   into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
   Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as
   bool when it holds only 0 and 1 and refused otherwise. xarray-ms 0.5.14 drops autocorrelations by default,
-  so its stores of MSs with them lack those rows; every row it writes matched. Nothing reads it in the stages yet.
+  so its stores of MSs with them lack those rows; with `auto_corrs=True` all 9 are bit-identical. Nothing reads it in the stages yet.
 - Fixed (WSClean #208, fixed upstream by !1068, commit `ca23d835`, not yet in a release; v3.7 still has
   the old rule): `gemclean`'s theoretic beam (the start and box of the restoring-beam fit, the circular
   beam when the fit fails, the default multiscale scales, `theoretic_beam_rad` in `-report.json`) now
