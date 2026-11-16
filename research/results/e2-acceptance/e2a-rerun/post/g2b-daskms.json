@@ -1,0 +1,13 @@
+{
+ "exit": 0,
+ "datasets": 3,
+ "rows": 1047614,
+ "finite": {
+  "DATA": 17164107776,
+  "CORRECTED_DATA": 17164107776,
+  "MODEL_DATA": 17164107776,
+  "WEIGHT_SPECTRUM": 17164107776
+ },
+ "flagged": 10986572040,
+ "met": true
+}

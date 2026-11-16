@@ -1,0 +1,60 @@
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/oracle-a/ESO137m001-clean",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "1",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-j",
+  "4",
+  "-temp-dir",
+  "/p/oracle-a/tmp",
+  "/c/e2a.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image"
+  ],
+  "-average-channels": [
+   "8"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-scans": [
+   "9,10,11"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 26836.475295400014
+}

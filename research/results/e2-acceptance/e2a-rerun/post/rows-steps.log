@@ -1,0 +1,671 @@
+{
+ "flag_version": "rang_apply_20261115T144017Z",
+ "rows": 1047614,
+ "hash": {
+  "rows": 1047614,
+  "flag_sha256": "654daa791b8394f124858c350eae0b0c6c43da800685e4950c189fe81c23036f",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6"
+ }
+}
+2026-11-16T15:24:54+02:00 casa3b-prep rc=0 166s slots=1 mem=4
+[
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": false
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/K0",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "gaintable": [],
+   "interp": []
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/G0",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K0"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/p/casa/tables/B0",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K0",
+    "/p/casa/tables/G0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/K1",
+   "gaintype": "K",
+   "solint": "60s",
+   "combine": "",
+   "gaintable": [
+    "/p/casa/tables/G0",
+    "/p/casa/tables/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/G1",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "60s",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K1",
+    "/p/casa/tables/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/c/e2a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/p/casa/tables/B1",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K1",
+    "/p/casa/tables/G1"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]
+2026-11-16T16:18:50+02:00 casa3b-run rc=0 3236s slots=4 mem=16
+{
+ "gated": {
+  "K1": true,
+  "composite_fcal_KGB1": false
+ },
+ "met": false
+}
+2026-11-16T16:19:36+02:00 score3b rc=0 46s slots=1 mem=8
+{
+ "field": "ESO137-001",
+ "image_1": {
+  "rms_jy": 0.00020787338030029147,
+  "peak_jy": 0.5412599444389343,
+  "dynamic_range": 2603.7963285969395
+ },
+ "final": {
+  "rms_jy": 9.143673528678255e-05,
+  "peak_jy": 0.572442889213562,
+  "dynamic_range": 6260.53508382763
+ },
+ "ratio_after_before": 0.43986745755851037,
+ "limit": 1.02,
+ "met": true,
+ "sigma_jy": 5.573648018634225e-05,
+ "pixels": 1731968,
+ "masked": 484653,
+ "gains": "qc-selfcal.json (9.10's amended form)"
+}
+2026-11-16T16:20:42+02:00 selfcal-score rc=0 66s slots=1 mem=8
+{
+ "flag_version": "rang_apply_20261115T144017Z",
+ "rows": 1047614,
+ "column_added": true,
+ "seconds": 501.676238199987
+}
+2026-11-16T16:29:05+02:00 target-prep rc=0 503s slots=1 mem=8
+[
+ {
+  "vis": "/c/e2a.ms",
+  "field": "ESO137-001",
+  "scan": "9,10,11",
+  "gaintable": [
+   "/p/casa/tables/K1",
+   "/p/casa/tables/G1",
+   "/p/casa/tables/B1"
+  ],
+  "gainfield": [
+   "nearest",
+   "nearest",
+   "J1939-6342"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "calwt": [
+   false,
+   false,
+   false
+  ],
+  "parang": false,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]
+2026-11-16T17:08:48+02:00 target-applycal rc=0 2382s slots=2 mem=12
+heavy_lock: backfilling past head 01794841630315116069-wsl-48546.json (waited 2 of 15 min)
+2026-11-16T17:10:09+02:00 target-unit-on rc=0 81s slots=1 mem=2
+heavy_lock: backfilling past head 01794841630315116069-wsl-48546.json (waited 3 of 15 min)
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/oracle-a/ESO137m001-clean",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "1",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-j",
+  "4",
+  "-temp-dir",
+  "/p/oracle-a/tmp",
+  "/c/e2a.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image"
+  ],
+  "-average-channels": [
+   "8"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-scans": [
+   "9,10,11"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 26836.475295400014
+}
+2026-11-17T00:37:26+02:00 target-wsclean rc=0 26837s slots=4 mem=10
+2026-11-17T00:37:32+02:00 target-unit-off rc=0 6s slots=1 mem=2
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+{
+ "compact": {
+  "gated_within_0p7deg": {
+   "n": 188,
+   "median": 0.9985945427157138,
+   "robust_scatter": 0.04272716460007057,
+   "met": false
+  },
+  "tolerance": {
+   "median": 0.01,
+   "scatter": 0.015
+  },
+  "sources": [
+   {
+    "x": 1905,
+    "y": 349,
+    "radius_deg": 1.4208394428021134,
+    "snr": 16.92487231536978,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": false,
+    "ratio": 0.8963678005586669,
+    "rang_jy": [
+     0.008139631336281549,
+     0.0023162286951585046,
+     0.0011745942080020311,
+     0.0012973694550778474,
+     0.0002040017784192356,
+     0.0005804137927487011,
+     0.0008225734545759931,
+     -0.0003220542918886694
+    ],
+    "wsclean_jy": [
+     0.008798320571348208,
+     0.0025259844005022184,
+     0.0012353702605128753,
+     0.0018089672931201548,
+     0.0003464558649273752,
+     0.0005334618175497043,
+     0.0007681121501136632,
+     -0.00016072748866121866
+    ]
+   },
+   {
+    "x": 1187,
+    "y": 630,
+    "radius_deg": 1.3824407260751217,
+    "snr": 15.04813237323433,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": false,
+    "ratio": 0.9956143797161475,
+    "rang_jy": [
+     0.007240569919016524,
+     0.002398076550521006,
+     0.0007845339914495865,
+     0.0006041184911095298,
+     0.00043359443352114355,
+     0.0004720844089692869,
+     0.0005290103666386261,
+     0.0001619328959376945
+    ],
+    "wsclean_jy": [
+     0.007833454654707396,
+     0.002797837570644712,
+     0.0008577266112834896,
+     -0.0002450891319332837,
+     0.00044197064753147513,
+     0.00042029080362917745,
+     0.00036264796986609896,
+     0.00021068952949436715
+    ]
+   },
+   {
+    "x": 1211,
+    "y": 695,
+    "radius_deg": 1.325806358409854,
+    "snr": 18.998158631275516,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": true,
+    "ratio": 0.9392107814915512,
+    "rang_jy": [
+     0.010050725211205324,
+     0.003537395010526161,
+     0.0020589878875140162,
+     0.0005007144987578534,
+     0.0002448616019726881,
+     5.7316208753902156e-05,
+     0.00033917787421381865,
+     0.000540709979301823
+    ],
+    "wsclean_jy": [
+     0.010716305471215652,
+     0.003712843758893548,
+     0.002071292277867672,
+     0.0006313698592707627,
+     0.000325429161375982,
+     0.00014211570725601951,
+     0.0003620790705590668,
+     0.0004901078548569599
+    ]
+   },
+   {
+    "x": 107,
+    "y": 833,
+    "radius_deg": 1.908261643486028,
+    "snr": 33.857531067238064,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": false,
+    "ratio": 0.8381687393226762,
+    "rang_jy": [
+     0.004722490927339335,
+     0.0029850192034102207,
+     0.004737418771953516,
+     0.004529221073739273,
+     0.002425000148451806,
+     0.0007714211579778681,
+     0.0008826301690173413,
+     0.0007821276776690013
+    ],
+    "wsclean_jy": [
+     0.005633780961514664,
+     0.003469067713742604,
+     0.005765757030808043,
+     0.005632460258328214,
+     0.0028118025241641808,
+     0.0008941970929512272,
+     0.0010027776199813948,
+     0.0008413898082297447
+    ]
+   },
+   {
+    "x": 2530,
+    "y": 866,
+    "radius_deg": 1.0637486127422728,
+    "snr": 24.137314677813727,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": true,
+    "ratio": 0.9849468711839007,
+    "rang_jy": [
+     0.0077800379308833965,
+     0.00479610445711074,
+     0.002526797105074432,
+     0.0010074712936255447,
+     0.00047284950604716637,
+     0.00038814133900513874,
+     -0.0013120588927047724,
+     0.0003519986032659569
+    ],
+    "wsclean_jy": [
+     0.008103536801995007,
+     0.004800110349847485,
+     0.002519806854862703,
+     0.0010550430621005245,
+     0.0005850776033689428,
+     0.0002632632684869041,
+     -0.0009787412416387815,
+     -9.205100687082009e-05
+    ]
+   },
+   {
+    "x": 2494,
+    "y": 923,
+    "radius_deg": 1.0084851814038271,
+    "snr": 26.07426413419712,
+    "in_0p7deg": false,
+    "in_inner_two_thirds": true,
+    "ratio": 0.9663694184349448,
+    "rang_jy": [
+     0.0054092666456369955,
+     0.00486896137811772,
+     0.0032161284504904283,
+     0.00134910004
+2026-11-17T00:38:07+02:00 target-score rc=0 35s slots=1 mem=12
+{
+ "flag_version": "rang_calibrate_20261115T132707Z",
+ "rows": 1047614
+}
+2026-11-17T00:40:03+02:00 flux-prep rc=0 116s slots=1 mem=4
+{
+ "exit": 0,
+ "seconds": 2052.8947115000046
+}
+2026-11-17T01:14:16+02:00 flux-run rc=0 2053s slots=4 mem=16
+{
+ "rows": 95160,
+ "readings": {
+  "scan9_tables": {
+   "tables": "D:\\rang\\outputs\\e2a-20261115\\flux-run\\calibrate",
+   "bins": [
+    {
+     "lo_mhz": 856.0,
+     "unflagged_fraction": 0.05646602447827678,
+     "channels": 263,
+     "median_ratio": 0.9965827482748812,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 956.0,
+     "unflagged_fraction": 0.1593103714565777,
+     "channels": 455,
+     "median_ratio": 0.996728455157519,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1056.0,
+     "unflagged_fraction": 0.13979940852754488,
+     "channels": 478,
+     "median_ratio": 0.9896361704121337,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1156.0,
+     "unflagged_fraction": 0.03239692560425645,
+     "channels": 479,
+     "median_ratio": 0.9736422736405302,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1256.0,
+     "unflagged_fraction": 0.11947763379360196,
+     "channels": 478,
+     "median_ratio": 0.9837657539877713,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1356.0,
+     "unflagged_fraction": 0.16645568259500976,
+     "channels": 479,
+     "median_ratio": 0.9910178766730817,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1456.0,
+     "unflagged_fraction": 0.07860898447186944,
+     "channels": 401,
+     "median_ratio": 0.9806573346971413,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1556.0,
+     "unflagged_fraction": 0.08361660528230226,
+     "channels": 468,
+     "median_ratio": 0.9604708238917488,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1656.0,
+     "unflagged_fraction": 0.0421530936266615,
+     "channels": 166,
+     "median_ratio": 0.930033560933472,
+     "counted": false,
+     "met": false
+    }
+   ],
+   "met": true
+  },
+  "full_run_tables_context": {
+   "tables": "D:\\rang\\outputs\\e2a-20261115\\rang-run-moved\\calibrate",
+   "bins": [
+    {
+     "lo_mhz": 856.0,
+     "unflagged_fraction": 0.05646602447827678,
+     "channels": 263,
+     "median_ratio": 0.9974010923788936,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 956.0,
+     "unflagged_fraction": 0.1593103714565777,
+     "channels": 455,
+     "median_ratio": 0.9961650163365986,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1056.0,
+     "unflagged_fraction": 0.13979940852754488,
+     "channels": 478,
+     "median_ratio": 0.9937956260319911,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1156.0,
+     "unflagged_fraction": 0.03239692560425645,
+     "channels": 479,
+     "median_ratio": 0.9946537547504942,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1256.0,
+     "unflagged_fraction": 0.11947763379360196,
+     "channels": 478,
+     "median_ratio": 0.9960498262302557,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1356.0,
+     "unflagged_fraction": 0.16645568259500976,
+     "channels": 479,
+     "median_ratio": 0.9956447615850043,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1456.0,
+     "unflagged_fraction": 0.07860898447186944,
+     "channels": 401,
+     "median_ratio": 0.9947949683153062,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1556.0,
+     "unflagged_fraction": 0.08361660528230226,
+     "channels": 468,
+     "median_ratio": 0.9965511590070056,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1656.0,
+     "unflagged_fraction": 0.0421530936266615,
+     "channels": 166,
+     "median_ratio": 0.9504625742278392,
+     "counted": false,
+     "met": false
+    }
+   ],
+   "met": true
+  }
+ },
+ "met": true,
+ "gate": "scan9_tables; the full run's tables are context only"
+}
+2026-11-17T01:15:12+02:00 flux-score rc=0 56s slots=4 mem=12
+{
+ "restored_rows": 1047614,
+ "hash": {
+  "rows": 1047614,
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6"
+ },
+ "input": {
+  "ms": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms",
+  "rows": 1047614,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6",
+  "seconds": 26.573832299996866
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 149.94321980001405,
+ "met": true
+}
+2026-11-17T01:17:43+02:00 final-restore rc=0 151s slots=1 mem=4

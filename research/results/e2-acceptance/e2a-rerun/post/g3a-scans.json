@@ -1,0 +1,19 @@
+{
+ "tricolour_exit": 0,
+ "scans": [
+  9,
+  11
+ ],
+ "rang_version": "rang_calibrate_20261115T132707Z",
+ "elements_differ": 3700,
+ "cells_differ": 925,
+ "rang_only": 495,
+ "tricolour_only": 430,
+ "corr_partial": 0,
+ "cells": 805535744,
+ "cells_differ_by_scan": {
+  "9": 804,
+  "11": 121
+ },
+ "exact": false
+}

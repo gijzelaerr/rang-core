@@ -2092,3 +2092,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | `python -m rang.gemclean -reorder` (wheel, 04e3a86), A5's argv | J1833−2103 | 330.9 s | 7.18 GiB tree RSS | shared host; FITS identical to the baseline |
 | 2026-11-17 | gemclean-memory2: `tools/check_all.py --quick` | branch at 07ba321 | 154 s | – | PASS |
 | 2026-11-17 | gemclean-memory2: identity sweep on the regression case's MS (6 cases × 3 binaries) | 33,120 rows × 128 ch, two reader chunks | 98 s | – | 2 slots |
+| 2026-11-15/16 | E2-A rerun, rang arm (`rang-core run e2a-rerun.yaml`, frozen wheel, `e2_timed.py` in `e2_diskguard.py`) | e2a.ms, 1,047,614 rows x 4,096 ch | 37,272 s (flag 2,738, calibrate 4,390, apply 578, image 5,280, selfcal 24,270) | 45.4 GB tree | exclusive; rc 0 |
+| 2026-11-16 | E2-A post chain (`e2a_post.sh`, 22 steps) | e2a.ms in place | 13.3 h: wsclean0 817 s, daskms 2,894 s, applycal-inplace 3,138 s, compare 2,700 s, qc-avg 3,315 s, qc-selfcal 246 s, WSClean 3c dirty 3,367 s / clean 26,057 s / nosi dirty 3,538 s, restore 421 s, Tricolour 336 s (out of memory) | - | shared, bookings in 9.10; MS over 9p |
+| 2026-11-16 | E2-A Tricolour per primary scan (`tricolour-scans 9,11`) | scans 9, 11 | about 20 min | - | 8 slots, 32 GB |
+| 2026-11-16/17 | E2-A rows (`e2a_rows.sh`): CASA 3b KGB,KGB / CORRECTED_DATA copy / CASA applycal target / oracle WSClean clean / rang calibrate scan 9 | e2a.ms | 3,236 s / 503 s / 2,382 s / 26,837 s / 2,053 s | - | shared; all rc 0 |

@@ -1547,22 +1547,32 @@ def columns_before(ms, r):
 # --- gate 3a ------------------------------------------------------------------------
 
 
-def tricolour(ms, r, input_json, strategy):
+def tricolour(ms, r, input_json, strategy, scans=None):
+    """Gate 3a. `scans` (a comma list) runs Tricolour once per scan
+    (`-sn`) and compares only those scans' rows -> R/g3a-scans.json: E2-A's
+    target scan does not fit Tricolour's per-scan packing in WSL's memory
+    (research/e2-acceptance.md 9.12)."""
     from rang.formats import flagversions
 
     ms, r = Path(ms), Path(r)
+    only = [int(x) for x in scans.split(",")] if scans else None
+    tag = "g3a-scans" if only else "g3a"
     g2a = json.loads((r / "g2a.json").read_text())
     if not g2a["met"]:
         raise SystemExit(
             "gate 2a not met: the MS is not as converted, Tricolour not run"
         )
     shutil.copy(strategy, r / "tricolour-strategy.yaml")
-    cmd = (f"tricolour -c /p/tricolour-strategy.yaml -fs polarisation -dc DATA -dpm "
-           f"/ms/{ms.name}")  # fmt: skip
-    rc = docker(
-        r, TRICOLOUR_IMAGE, [(ms.parent, "/ms"), (r, "/p")], cmd, "tricolour", 16
-    )
-    out = {"tricolour_exit": rc}
+    base = "tricolour -c /p/tricolour-strategy.yaml -fs polarisation -dc DATA -dpm"
+    if only is None:
+        rc = docker(r, TRICOLOUR_IMAGE, [(ms.parent, "/ms"), (r, "/p")],
+                    f"{base} /ms/{ms.name}", "tricolour", 16)  # fmt: skip
+    else:
+        rc = 0
+        for sc in only:
+            rc = rc or docker(r, TRICOLOUR_IMAGE, [(ms.parent, "/ms"), (r, "/p")],
+                              f"{base} -nw 8 -sn {sc} /ms/{ms.name}", f"tricolour-scan{sc}", 8)  # fmt: skip
+    out = {"tricolour_exit": rc, "scans": only}
     if rc == 0:
         from rang import core_ms
 
@@ -1581,6 +1591,9 @@ def tricolour(ms, r, input_json, strategy):
                 a = np.asarray(flagversions.load(ms, name, r0, k)[0], bool)
                 b = np.asarray(t.getcol("FLAG", r0, k), bool)
                 s = np.asarray(t.getcol("SCAN_NUMBER", r0, k))
+                if only is not None:
+                    keep = np.isin(s, only)
+                    a, b, s = a[keep], b[keep], s[keep]
                 d = (a != b).any(-1)
                 acc["elements_differ"] += int((a != b).sum())
                 acc["cells_differ"] += int(d.sum())
@@ -1591,16 +1604,21 @@ def tricolour(ms, r, input_json, strategy):
                 for sc in np.unique(s):
                     scans[int(sc)] = scans.get(int(sc), 0) + int(d[s == sc].sum())
         out.update(acc, cells_differ_by_scan=scans, exact=acc["elements_differ"] == 0)
-    write(r / "g3a.json", out)
-    restore(ms, r, input_json, label="g3a-restore")
+    write(r / f"{tag}.json", out)
+    restore(ms, r, input_json, label=f"{tag}-restore")
     return 0
+
+
+def tricolour_scans(ms, r, input_json, strategy, scans="9,11"):
+    return tricolour(ms, r, input_json, strategy, scans)
 
 
 STEPS = {"gate1": gate1, "archive": archive, "wcs": wcs, "casacore": casacore,
          "casa-ro": casa_ro, "wsclean0": wsclean0, "daskms": daskms, "wsclean3c": wsclean3c,
          "wsclean3c-unit": wsclean3c_unit, "copy": copy,
          "prep": prep, "applycal": applycal, "compare": compare, "snapshot": snapshot, "restore": restore,
-         "tricolour": tricolour, "columns-before": columns_before,
+         "tricolour": tricolour, "tricolour-scans": tricolour_scans,
+         "columns-before": columns_before,
          "prep-inplace": prep_inplace, "applycal-inplace": applycal_inplace,
          "compare-inplace": compare_inplace, "snapshot-inplace": snapshot_inplace,
          "drop-corrected-inplace": drop_corrected_inplace, "qc-avg": qc_avg,
