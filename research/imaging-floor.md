@@ -315,6 +315,9 @@ On the full-data exact residuals (`cheap.json`):
 6. Untested forms: differential DD errors across the central source, pointing errors per antenna,
    intermittent and broadband RFI.
 
+Items 1, 3 and 5 run as a new frozen protocol, [floor-2.md](floor-2.md) (coordinator's decision,
+2026-11-16).
+
 ## 9. Clarifications and post-hoc changes
 
 **Clarifications, 2026-11-13, written into `examples/floor_tests.py` before the full run produced
