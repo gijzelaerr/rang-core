@@ -87,7 +87,20 @@ def gem(out_dir, name, ms, size, tol=None, scale="1.5asec", thr="100e-6", mem=6)
     return locked(cmd, THREADS, mem, out_dir / f"{name}.log")
 
 
-def score(prep, cat, run_dir, out, jobs):
+def beam_of(sky):
+    """The scorer's beam (arcsec): for H1-H4 the archived scores' value; for H5-H8 the geometric
+    mean of WSClean's fitted beam on its nominres fast image (amendment 3)."""
+    if sky in ("h1", "h2", "h3", "h4"):
+        arch = HELD / "sim" / "scores" / f"gemclean-{sky}.json"
+        return json.loads(arch.read_text(encoding="utf-8"))["beam_arcsec"]
+    from astropy.io import fits
+
+    h = fits.getheader(O / "wsclean" / f"{sky}-abs-nominres-fast-j8-image.fits")
+    return (h["BMAJ"] * h["BMIN"]) ** 0.5 * 3600.0
+
+
+def score(prep, cat, run_dir, out, jobs, beam=None):
+    extra = [] if beam is None else ["--beam-arcsec", f"{beam:.6f}"]
     subprocess.run(
         [
             PY,
@@ -99,6 +112,7 @@ def score(prep, cat, run_dir, out, jobs):
             out,
             "--jobs",
             *jobs,
+            *extra,
         ],
         check=False,
     )
@@ -153,6 +167,7 @@ def heldout(stage, skies, tol, data, prep_root):
             d,
             O / "scores" / f"{stage}-{s}.json",
             [f"{s}-default", f"{s}-{tol_tag(tol)}"],
+            beam=beam_of(s),
         )
 
 
@@ -238,6 +253,7 @@ def wscore():
             O / "wsclean",
             O / "scores" / f"wsclean-{s}.json",
             jobs,
+            beam=beam_of(s),
         )
 
 
@@ -350,6 +366,24 @@ def main():
         heldout("new", skies, a.tol, O / "data", O / "prep")
     elif a.stage == "bright":
         bright(a.tol)
+    elif a.stage == "rescore":
+        # Scores only (amendment 3): the runs exist, the beam is given explicitly.
+        for stage, skies, data in (
+            ("new", ("h5", "h6", "h7", "h8"), O / "data"),
+            ("seen", ("h1", "h2", "h3", "h4"), HELD / "sim/data"),
+        ):
+            for s in skies:
+                jobs = [f"{s}-default", f"{s}-{tol_tag(a.tol)}"]
+                if all((O / stage / f"{j}-report.json").exists() for j in jobs):
+                    score(
+                        O / "prep" / s,
+                        data / f"{s}.json",
+                        O / stage,
+                        O / "scores" / f"{stage}-{s}.json",
+                        jobs,
+                        beam=beam_of(s),
+                    )
+        wscore()
     elif a.stage == "pilot":
         pilot(a.tol)
     else:

@@ -172,6 +172,12 @@ host: the held-out GeMClean runs use `-j 4` (4 slots) instead of `-j 8`, and WSC
 (the archived H1-H4 WSClean runs were `-j 16`). Cycle counts and images do not depend on the thread count
 (identical at 1 and 16 threads on S1, [x1-crossplatform.md](x1-crossplatform.md)); no wall time here is a result.
 
+**3, 2026-11-16, after the held-out runs, before any held-out score.** The scorer needs a beam for its "within one
+beam" and "two beams" regions, which the held-out note took from WSClean's `-niter 0` PSF fit. The re-prepared
+H1-H4 and the new H5-H8 have no such comparison, so the beam is passed explicitly: for H1-H4 the archived scores'
+value (12.33″ on H1, as before), for H5-H8 the geometric mean of WSClean's fitted restoring beam on its nominres
+fast image (the same PSF fit). The same beam applies to all four imagers on a sky.
+
 ## Measured result
 
 ### Development (S1-S3), branch binary `0775c4f`, native Windows, `-j 8`
