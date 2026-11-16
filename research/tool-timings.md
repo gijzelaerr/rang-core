@@ -1994,6 +1994,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
 | 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
+| 2026-11-16 | v8c-tfcrop: CASA `flagdata(mode='tfcrop')` readout probe batches c01-c10 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs (`t24x40x256.ms`), 11.3 M cells each, 1-4 arms | 3.3-22.3 s per batch; 1.9-5.0 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
+| 2026-11-16 | v8c-tfcrop: readout inversion and candidate scoring (`readall.py`, `evalflags.py` sweeps; NumPy, single thread) | readout groups of c01-c10 | 5 s to about 6 min per sweep | under 2 GB | 1 slot (2-4 GB booked) |
+| 2026-11-16 | v8c-tfcrop: CASA readout batches c11, c12 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 2 arms | 6.0 s per batch | 1.0 GB | 1 slot |
+| 2026-11-16 | v8c-tfcrop: N1 check of a template candidate through `rang.tfcrop.plane` (`n1eval.py`, NumPy) | V8 probe b05/b04 N1, 1,104 planes, 6 arms | about 3-4 min per candidate | under 2 GB | 1 slot |
 | 2026-11-16 | gemclean-stop28: `cargo test --release --lib stop_tolerance`; `cargo build --release --bin gemclean` | worktree core, cold target | 2 m 46 s build, 3.8 s tests; build about 3 min | – | 8 slots |
 | 2026-11-16 | gemclean-stop28: GeMClean development grid, S1-S3 × (default, ε 0, 0.005, 0.01, 0.02, 0.05, 0.10) (`stop28_runs.py dev`, binary `0775c4f`, accuracy 1e-6) | 14.5 M visibilities, 2048², `-j 8` | 17.8-28.6 s each, 480 s in all | 2.74 GiB | 8 slots; native Windows |
 | 2026-11-16 | gemclean-stop28: `gemclean_bench_simulate.py` H5-H8 | 1,814,400 rows × 8 | 48-164 s (lock wait included) | – | booked 4 slots, used about 1 core |
@@ -2013,3 +2017,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
+| 2026-11-16 | v8c-tfcrop: `tools/check_all.py --quick` | worktree after merging origin/main | 894 s (lock wait excluded) | – | PASS; takes the lock itself |
