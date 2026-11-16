@@ -286,6 +286,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     // -single or -double; otherwise single precision for an accuracy of 1e-5
     // or coarser (task G7, research/g7-defaults.md).
     let mut precision: Option<bool> = None;
+    let mut gpu_memory: Option<usize> = None;
     let mut a = Args {
         ms: PathBuf::new(),
         name: "gemclean".into(),
@@ -478,7 +479,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
             "-gpu" => a.gpu = true,
-            "-gpu-memory" => a.gpu_memory = number(flag, value(&mut i)?)?,
+            "-gpu-memory" => gpu_memory = Some(number(flag, value(&mut i)?)?),
             "-channels-out" => a.channels_out = number(flag, value(&mut i)?)?,
             "-join-channels" => a.join_channels = true,
             "-fit-spectral-pol" => a.fit_spectral_pol = Some(number(flag, value(&mut i)?)?),
@@ -795,7 +796,24 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         a.multiscale = Some(ms);
     }
     a.single = precision.unwrap_or(a.epsilon >= 1e-5);
+    // -gpu-memory, else RANG_GPU_MEMORY_MB (X2's variable), else 1024.
+    a.gpu_memory = match gpu_memory {
+        Some(m) => m,
+        None => match std::env::var("RANG_GPU_MEMORY_MB") {
+            Ok(v) if !v.trim().is_empty() => v
+                .trim()
+                .parse()
+                .map_err(|_| format!("RANG_GPU_MEMORY_MB must be a number of MiB, not {v:?}"))?,
+            _ => a.gpu_memory,
+        },
+    };
     if a.gpu {
+        if a.channels_out > 1 || a.pols.len() > 1 {
+            return Err(
+                "-gpu takes one output channel and one polarisation (the other modes are not validated on the GPU; research/gpu-grid.md)"
+                    .into(),
+            );
+        }
         if a.predict {
             return Err(
                 "-gpu takes no -predict (the predict mode does not use the major cycle)".into(),
