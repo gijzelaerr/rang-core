@@ -1754,7 +1754,7 @@ copy (9.6). Code: [e2_casa3b_a.py](results/e2-acceptance-scripts/e2_casa3b_a.py)
 
 - As frozen (`e2_post.py tricolour`, the whole MS, 16 threads): Tricolour 0.2.1 stopped at 9 % after 336 s
   with `FiledesIO::read ... Cannot allocate memory` while reading DATA through dask-ms
-  (`R	ricolour.out`). It packs a scan's visibilities in memory. Target scan 10 is 850,950 rows × 4,096
+  (`R\tricolour.out`). It packs a scan's visibilities in memory. Target scan 10 is 850,950 rows × 4,096
   channels × 4 correlations, 111 GB of complex64, and WSL has 44 GB. E2-B's whole MS was 35 GB.
   The step's own restore ran (`g3a-restore.json` met: FLAG and FLAG_ROW equal 9.1's hashes).
 - **Under 6.5's rule, gate 3a is "not checked (memory)" on E2-A as frozen.**
