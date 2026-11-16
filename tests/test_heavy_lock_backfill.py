@@ -88,9 +88,7 @@ def test_no_backfill_once_the_head_waited_past_its_drain_limit(tmp_path, monkeyp
     assert hl.decide(queue, small, running, False, NOW)[0] is None
 
 
-def test_no_backfill_while_the_head_fits_or_into_too_little_room(
-    tmp_path, monkeypatch
-):
+def test_no_backfill_while_the_head_fits_or_into_too_little_room(tmp_path, monkeypatch):
     _capacity(monkeypatch)
     head, a, b = (_t(tmp_path, NOW - k * MIN) for k in (3, 2, 1))
     running = [_shared(1, 6.0)]
@@ -296,7 +294,10 @@ def test_critical_exclusive_head_holds_back_a_ticket_that_would_fit(
         time.sleep(0.02)
     assert got == []  # 1 slot would fit beside s, but the head is critical
     tx = threading.Thread(
-        target=lambda: (hl.acquire(d, ["x"], 0.02, priority="critical"), got.append("x")),
+        target=lambda: (
+            hl.acquire(d, ["x"], 0.02, priority="critical"),
+            got.append("x"),
+        ),
         daemon=True,
     )
     tx.start()
