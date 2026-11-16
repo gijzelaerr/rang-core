@@ -20,6 +20,18 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md); issue #7). Proposal frozen
+(`8f3e191`) before any visibility of SARAO CBID 1735268787 was read (SCI-20241101-KR-02, L band 1k, 62 antennas;
+1934−638, 3C 286, J0408−6545, J1744−5144, ASKAP J1745; 5.25 h).
+- Selection: every calibrator scan and the middle three target scans (1.87 h); 6,543 of 6,545 chunks (2 absent
+  in the archive), 89 GB; MS via katdal `mvftoms.py` with no calibration applied, 2.23 M rows, 105 GiB, on nash
+  (host change, amendment 2: data refetched there; pinned oracle images run by apptainer; WSClean from the
+  CASA image's KERN 3.7 build, 1.4e-7 of the peak from the native one).
+- **DATA is observatory-phased** (XX−YY coherence 0.99977 on 1934−638, as LUNO's 0.9997): flat parallel-hand
+  phases come from the observatory, not processing. Under the frozen rule the leg is "E2-N (observatory-
+  phased)"; K and KCROSS are expected near zero. Leakage is uncorrected (1.5 %).
+- Next: the rang arm on nash once its build works, then the gates as frozen.
+
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
 `D:\rang\outputs\msfix-20261116-01`):

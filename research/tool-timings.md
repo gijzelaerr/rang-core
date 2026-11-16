@@ -2019,3 +2019,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | e2n: `mvftoms.py -f -a` test, katdal scan 35 | 139,934 rows × 1,024 × 4, local MVF on D: | 171 s | 3.7 GB | straight to D: over 9p, rc 0; MS 8.8 GB (with SIGMA_SPECTRUM); deleted |
 | 2026-11-16 | e2n: `tools/wheel/build.py` | worktree at 8f3e191 | 195 s (maturin) | – | 8 slots, 12 GB shared |
 | 2026-11-16 | e2n: `tools/check_all.py --quick` | worktree at e9fa922 | 924 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | e2n: `e2n_fetch.py`, the rest of the selection (Windows host, WSL to D:) | 6,128 chunks, 88.6 GB in two runs (16, then 32 workers) | 16,002 s | 1.2 GB | 5.5 MB/s, the archive's rate; 3 failed (2 × HTTP 404, 1 timeout) |
+| 2026-11-16 | e2n: `e2n_fetch.py` (host nash, nice/ionice), the selection | about 4,600 chunks fetched, the tail streamed from the Windows copy | 5,975 s, then a 632 s refetch | 1.0 GB | 9-15 MB/s; upload Windows → nash about 5 MB/s |
+| 2026-11-16 | e2n: `mvftoms.py -f -a` (host nash, nice/ionice), the selection | 2,229,489 rows × 1,024 × 4, local MVF | 835 s | 5.6 GB | MS 139 GB with SIGMA_SPECTRUM, 105 GiB after |
+| 2026-11-16 | e2n: `e2n_prep_ms.py` (host nash) | e2n.ms: token check, SIGMA_SPECTRUM drop, map, flag hashes | 40 s | – | – |
+| 2026-11-16 | e2n: WSClean 3.7 build check, two images × dirty + PSF | G3 D1.ms, 1,024² | about 2 min | – | Windows host WSL docker, 4 slots |

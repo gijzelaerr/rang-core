@@ -6,7 +6,7 @@ Issue #7, task E2-N of [finish-plan.md](finish-plan.md) (A0 row E2-N,
 `mvftoms.py` (python-casacore) and the Linux oracles.
 
 **Status: proposal, frozen (2026-11-16) before any E2-N visibility, flag or
-weight value was read.** Sections 1 to 8 are the protocol; they change only by
+weight value was read.** Results so far in section 9 (fetch, conversion, DATA state). Sections 1 to 8 are the protocol; they change only by
 a dated amendment, labelled post hoc for anything it could have seen. Results
 go below section 9.
 
@@ -345,4 +345,59 @@ under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
 
 ## 9. Results
 
-(none yet)
+### 9.1 Fetch and conversion (2026-11-16)
+
+- **Selection fetched** (section 3; katdal scans 1, 3, 5, 9, 13, 15, 17, 19, 21, 23, 25, 29, 33, 35):
+  1,179 dumps, 6,545 chunks (5,948 in `sdp-l0`: `correlator_data`, `weights`, `weights_channel`; 597 in
+  `sdp-l1-flags`). **6,543 present; 2 absent from the archive** (HTTP 404 on both hosts:
+  `correlator_data/00002_00000` and `00002_00256`, dump 2 of the first scan; katdal flags such chunks
+  `data_lost`). About 89 GB.
+  - Windows host (WSL, to D:): scan 35 alone 5.98 GB in 1,457 s; the rest in two runs (16 then 32
+    workers), 88.7 GB in 16,000 s, 5.5 MB/s, the server's rate rather than the workers'.
+  - nash (amendment 2): the same script, 16 workers, 9-15 MB/s; the tail was filled by streaming the
+    Windows copy's chunks to nash in reverse order (5 MB/s), then one refetch. **SHA-256 of all 6,542
+    chunks the two copies share are equal**; nash's chunk manifest is
+    `~/rang-data/outputs/e2n-20261116/mvf-sha256-nash.txt`.
+- **Conversion on nash** (`e2n_tomss.sh`, mvftoms with `-f -a`, NATIVE_FLAGS, no `--applycal`):
+  rc 0, 835 s wall, 5.6 GB peak RSS; no `token=` in its log. Then `e2n_prep_ms.py`: no `token=` in any
+  subtable string, table or column keyword; SIGMA_SPECTRUM removed (amendment 1); MS 105 GiB.
+- **The MS** `~/rang-data/outputs/e2n-20261116/e2n.ms` on nash: 2,229,489 rows, 1,024 channels × 4,
+  fields J0408-6545, J1331+3030, J1744-5144, ASKAPJ1745, J1939-6342; RECEPTOR_ANGLE −π/2. MS scans
+  ([ms-map.json](results/e2n/ms-map.json)):
+
+  | MS scan | Field | Dumps | katdal scan |
+  | ---: | --- | ---: | ---: |
+  | 1 | J0408-6545 | 74 | 1 |
+  | 2 | J1331+3030 | 74 | 3 |
+  | 3, 4, 5 | J1744-5144 | 14 each | 5, 9, 13 |
+  | 6, 8, 10 | ASKAPJ1745 | 281, 281, 282 | 15, 19, 23 |
+  | 7, 9, 11, 12, 13 | J1744-5144 | 14, 14, 15, 14, 14 | 17, 21, 25, 29, 33 |
+  | 14 | J1939-6342 | 74 | 35 |
+
+- **Gate 2a's reference** ([flaghash-input.json](results/e2n/flaghash-input.json)): FLAG SHA-256
+  `50c7ea35…194e`, FLAG_ROW `f2809997…c2ec9`.
+
+### 9.2 The DATA-state check (section 2): **observatory-phased**
+
+A0 2.2's probe, first 800 rows of each field, 1391.0-1416.9 MHz (channels 640-671), DATA
+([datastate.json](results/e2n/datastate.json)); LUNO's and ESO137's values from A0 2.2 beside:
+
+| | J1939-6342 | J1331+3030 | J1744-5144 | LUNO 1934 (A0) | ESO137 1934 (A0) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| median \|XX−YY phase\| (rad) | 0.0117 | 0.0087 | 0.0192 | 0.016 | 1.488 |
+| XX−YY phase coherence | **0.99977** | 0.99991 | 0.99959 | 0.9997 | 0.018 |
+| row XX phase scatter | 9.9° | 13.1° | 9.4° | 11.1° | 104° |
+| per-row \|⟨XY⟩\|/\|⟨XX⟩\|, median | 1.52 % | 2.57 % | 1.60 % | 1.48 % | 1.35 % |
+| XY phase over rows: mean, coherence | −49°, 0.12 | −176°, 0.69 | 0.5°, 0.08 | – | – |
+
+- **Under section 2's rule (coherence 0.99977 ≥ 0.9) the leg is "observatory-phased".** DATA written
+  by katdal's `mvftoms.py` with no calibration applied has the same flat parallel-hand phases as LUNO's
+  product. So the flat phases are the observatory's (the F-engine gains this observation was taken
+  with), not a processing step: this answers A0 section 10's first "not checked" item for a 2024 product.
+- From here on the leg is reported as **E2-N (observatory-phased)**. K and KCROSS are expected near
+  zero, as on LUNO. The XY phase of 3C 286, −176° with coherence 0.69, is the source's polarisation
+  seen through the instrument frame plus any cross-hand phase; Xf's solve will separate the two, and
+  is reported, not anticipated.
+- Native, as claimed: no calibration was applied by the conversion, and flags and weights are the
+  observatory's. Unphased, as hoped: **no**. Leakage is uncorrected (1.5 % on 1934−638, as LUNO).
+- Every gate of section 6 is read as frozen. Nothing else changes.
