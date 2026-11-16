@@ -1,5 +1,9 @@
 # Rang: a close-to-threshold stop for GeMClean (issue #28)
 
+Status, 2026-11-16: **measured; gain under the frozen rule on four blind skies (mean 1.25 fewer major cycles at
+the default's false flux); over GeMClean's own rule only, no novelty; default unchanged, a switch recommended to the
+coordinator** ([outcome](#outcome-and-recommendation)).
+
 Status at freeze, 2026-11-16: **proposed; nothing built or run on this branch.** Branch `gemclean-stop28`
 from main `d2013ea`. Results go under "Measured result"; nothing above it changes except by dated, labelled
 amendment. Route: [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md).
@@ -255,3 +259,41 @@ verdict.
 
 All stop at the threshold, as predicted (6, 5, 5, 6); the defaults equal [stale-floor.md](stale-floor.md)'s rows. No
 budget, no ascending cycle.
+
+### Seen: the pilot (real; matched, not blind)
+
+`cal2.ms` (A) and `cal3.ms` (B), 4096 × 3″, `-j 4`, accuracy 1e-6. Scored by `gemclean_heldout_real.py score` and
+`compare` (beam 12.7″, mask 5 σ, compact 10 σ). The shared source mask is the mean of these two runs' images, not of
+the three imagers' as in the held-out note, so off-source figures differ slightly from that note's (A 3 mJy default
+8.537 Jy here, 8.567 there).
+
+| set, threshold | run | majors | comps | Q/Q0 | inner peak mJy | off-source \|model\| Jy (px) | compact ratio rule / default, median (MAD σ), n |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| A, 3 mJy | default | 5 | 58,314 | 2.42071e-2 | 3.000 | 8.537 (19,624) | |
+| A, 3 mJy | ε = 0.02 | **3** | 58,302 | 2.42079e-2 | 3.003 | 8.534 (19,617) | 0.99999 (0.009 %), 41 |
+| B, 3 mJy | default | 3 | 38,709 | 1.48446e-2 | 3.000 | 1.995 (4,115) | |
+| B, 3 mJy | ε = 0.02 | 3 | 38,709 | identical | 3.000 | identical | 1 (0), 71 |
+| A, 1 mJy | default | 8 | 441,893 | 1.67116e-2 | 1.000 | 57.53 (327,416) | |
+| A, 1 mJy | ε = 0.02 | **4** | 441,344 | 1.67159e-2 | 1.009 | 57.48 (326,966) | 1.00003 (0.032 %), 60 |
+
+As predicted (3, 3, 4). Defaults reproduce the archive (5, 58,314; 3, 38,709; 8, 441,893). Off-source |model| 0.999-1.000 ×
+the default's; compact-source medians within 0.003 % of 1. On B the rule did not bind (3.1784 mJy > 3.06), so the
+images are the default's. Peak memory 10.9-11.4 GiB.
+
+## Outcome and recommendation
+
+- **Gain, under the frozen rule, on the four blind skies:** 8, 5, 5, 6 → 5, 4, 5, 5 cycles (mean −1.25), at false
+  flux 0.99-1.00 × the default's and within the WSClean tolerance; the residual peak left above the threshold is at
+  most 2 % (largest 1.96 %, H5). A gain over GeMClean's own exact stop, **not over WSClean**: the novelty reading fails
+  (H6 ties WSClean plain's 4 cycles; on H7 GeMClean has 5.721 against plain's 5.689 mJy false flux).
+- **Seen sets agree with their written predictions** exactly (H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4),
+  so the rule behaves as the truncation it is. H3 still needs 6 cycles.
+- **Recommendation to the coordinator:** `-stop-tolerance 0.02` as GeMClean's default meets the note's conditions (gain,
+  pilot off-source |model| ≤ 1.1 ×, compact medians within 0.5 %). The default is **not** changed on this branch. Cost
+  to state with it: the exact residual peak may end up to 2 % above `-abs-threshold`/`-auto-threshold`.
+- **Not measured:** the rule at GeMClean's own default accuracy (1e-4, single precision; amendment 1), where the inner
+  peak can already end up to 25 % above the threshold ([clean-overview.md](clean-overview.md) decision 3); `-auto-mask`,
+  `-multiscale`, joined channels or polarisations (refused); wide fields beyond H3; wall time (no exclusive hold).
+- Archive: [results/gemclean-stop28.json](results/gemclean-stop28.json). Raw products:
+  `D:\rang\outputs\stop28-20261116\` (`dev`, `new`, `seen`, `bright`, `pilot`, `wsclean`, `scores`, `data`). Scripts:
+  `examples/stop28_runs.py`, `examples/stop28_wsclean.sh`, `examples/stop28_table.py`.

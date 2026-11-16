@@ -305,7 +305,7 @@ def pscore(tol):
         ("cal2.ms", "prep-a", ["a-3mjy", "a-1mjy"]),
         ("cal3.ms", "prep-b", ["b-3mjy"]),
     ):
-        if not (O / prep / "vis.c128").exists():
+        if not (O / prep / "meta.json").exists():
             cmd = [
                 PY,
                 "-I",
