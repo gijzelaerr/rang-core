@@ -318,14 +318,17 @@ By the coordinator's message (owner's decision), E2-N moves to the shared Linux 
 under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
 - **Data.** The selection of section 3 is fetched again on nash by the same `e2n_fetch.py`, into
   `~/rang-data/outputs/e2n-20261116/mvf/` (the owner placed the link file there, mode 600). nash's link
-  is faster (about 20 MB/s against 5-7 MB/s on the Windows host). The Windows copy on `D:` is complete
+  measured 9-15 MB/s against 5.5 MB/s on the Windows host (section 9.1). The Windows copy on `D:` is complete
   but for one weights chunk (read timeout) and two `correlator_data` chunks of dump 2 that the archive
   does not hold (HTTP 404; katdal marks such chunks `data_lost`). It is kept until nash's MS is built
   and hashed, then deleted.
 - **Runs.** Conversion, the rang arm and the oracle arms run on nash, on the MS
   `~/rang-data/outputs/e2n-20261116/e2n.ms`. Section 4's D: budget and its 412 GiB start rule apply to
   the Windows host only; on nash the disk guard keeps 1 TB free. The rang arm runs from a Linux wheel
-  built on nash at this branch's head, once nash's set-up reports a working build.
+  built on nash at this branch's head, once nash's set-up reports a working build. **Not only a host
+  change in one respect:** the rang arm is a Linux build, not section 5's Windows wheel, and G4 found
+  native Windows and Linux builds not bit-identical (UCRT against glibc maths). Its booking on nash is
+  restated before the run.
 - **Oracles: the same pinned container images** (A0 rule 8). Revised at 21:50, before any oracle step
   ran: rather than PyPI venvs (whose casatools 6.7.6.14 wheel needs the image's manylinux_2_28 pin and
   measures data, which is exactly what the image already fixes), the four images `rang-o-casa:6.7.6.14`,
@@ -392,12 +395,17 @@ A0 2.2's probe, first 800 rows of each field, 1391.0-1416.9 MHz (channels 640-67
 
 - **Under section 2's rule (coherence 0.99977 ≥ 0.9) the leg is "observatory-phased".** DATA written
   by katdal's `mvftoms.py` with no calibration applied has the same flat parallel-hand phases as LUNO's
-  product. So the flat phases are the observatory's (the F-engine gains this observation was taken
-  with), not a processing step: this answers A0 section 10's first "not checked" item for a 2024 product.
-- From here on the leg is reported as **E2-N (observatory-phased)**. K and KCROSS are expected near
-  zero, as on LUNO. The XY phase of 3C 286, −176° with coherence 0.69, is the source's polarisation
-  seen through the instrument frame plus any cross-hand phase; Xf's solve will separate the two, and
-  is reported, not anticipated.
+  product. So the flat phases are the observatory's, not a processing step: this answers A0 section
+  10's first "not checked" item for a 2024 product. That they are the F-engine gains this observation was
+  taken with is an inference (the RDB's gain sensors were not read).
+- From here on the leg is reported as **E2-N (observatory-phased)**. Section 2's wording rule ("near-null
+  as on LUNO") is applied to K only. XX−YY coherence measures parallel-hand phasing and does not constrain
+  the cross-hand delay or phase: 3C 286's XY phase over rows is −176° at coherence 0.69, against LUNO's
+  1.9° at 0.967 (A0 2.2). So KCROSS and Xf are reported as measured, not expected near zero (this
+  sentence is written after the read).
 - Native, as claimed: no calibration was applied by the conversion, and flags and weights are the
   observatory's. Unphased, as hoped: **no**. Leakage is uncorrected (1.5 % on 1934−638, as LUNO).
+- **Input flags** ([flagfrac-input.json](results/e2n/flagfrac-input.json), every cell): 31.5 % flagged
+  (29.9-34.8 % per scan), no FLAG_ROW, so `--flags` took effect. Every probe cell above happened to be
+  unflagged (25,600 = 800 rows × 32 channels on each field).
 - Every gate of section 6 is read as frozen. Nothing else changes.

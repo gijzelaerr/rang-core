@@ -29,7 +29,8 @@ E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md
   CASA image's KERN 3.7 build, 1.4e-7 of the peak from the native one).
 - **DATA is observatory-phased** (XX−YY coherence 0.99977 on 1934−638, as LUNO's 0.9997): flat parallel-hand
   phases come from the observatory, not processing. Under the frozen rule the leg is "E2-N (observatory-
-  phased)"; K and KCROSS are expected near zero. Leakage is uncorrected (1.5 %).
+  phased)". That says nothing about cross-hand terms: 3C 286's XY phase is −176° (coherence 0.69, LUNO 1.9°),
+  so KCROSS and Xf are reported as measured. Leakage is uncorrected (1.5 %); 31.5 % of cells carry native flags.
 - Next: the rang arm on nash once its build works, then the gates as frozen.
 
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
