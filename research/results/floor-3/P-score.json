@@ -1,0 +1,63 @@
+{
+ "F_uJy": {
+  "B": 1073.415606729187,
+  "Fix": 474.83100062889406,
+  "Fin": 379.2621316115341
+ },
+ "D_Fix": 0.8056811467899708,
+ "D_Fin": 0.8766420601018318,
+ "active_before": 19133875,
+ "active_after": 19133875,
+ "newly_flagged_fraction": 0.0,
+ "solve": {
+  "iterations": 13,
+  "converged_fraction": 1.0,
+  "clipped": 0,
+  "wall_seconds": 608.6553182999778
+ },
+ "solve_summary_keys": [
+  "caracal_type",
+  "clipped",
+  "converged_fraction",
+  "field_id",
+  "flagged_fraction",
+  "freq_bins",
+  "iterations",
+  "name",
+  "quartical_type",
+  "rows",
+  "settings",
+  "time_bins",
+  "time_bins_per_scan",
+  "type",
+  "wall_seconds"
+ ],
+ "flagged_solution_fraction": 0.01639344262295082,
+ "phase_vs_floor2_T1p": {
+  "pearson_r": 0.988634786122183,
+  "rms_diff_deg": 0.7275100400258836,
+  "sigma_phi_deg_selfcal": 4.800792135920652,
+  "sigma_phi_deg_floor2": 4.837695673002692,
+  "n_bins": 12
+ },
+ "XX_minus_YY_steady_deg_rms": 17.718168898217485,
+ "round1_clean": {
+  "components": 58314,
+  "major_cycles": 5,
+  "stop": "Threshold"
+ },
+ "final_clean": {
+  "components": 26357,
+  "major_cycles": 3,
+  "stop": "Threshold"
+ },
+ "image_wall_s": [
+  235.11011929999222,
+  166.78795839997474
+ ],
+ "gemclean_sha256": "acbae192076b6490b8814168b2cfec84b4b45848c21e908f46bda46d29fda5c8",
+ "models": [
+  "D:\\rang\\outputs\\floor-3-20261116\\P\\run\\selfcal\\ESO137-pilot\\round-1\\image-model.fits",
+  "D:\\rang\\outputs\\floor-3-20261116\\P\\run\\selfcal\\ESO137-pilot\\final\\image-model.fits"
+ ]
+}
