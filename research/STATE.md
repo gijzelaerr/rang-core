@@ -20,6 +20,17 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
+archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
+passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
+separates gains (R ≤ 0.023) from six incomplete-model arms (truncations at 1, 3, 10 mJy and three missing-extended
+arms, R 0.42-0.93); the pilot sits at 0.049. Item 3: the pilot's steady T1 gains (σ_φ 4.8°, σ_a 1.1 %) injected
+reproduce 0.86 of the floor (incompleteness controls 0.29-0.40); antenna 1 ranks worst of 60; no association with
+the publisher's QuartiCal gain statistics. Item 5 **undecided**: T1 solved above 400 m keeps 0.97 of the drop
+(survives), but the phase-only test is void (ρ_p 0.58 on the 1 mJy truncation arm, above 0.3). Joint, frozen:
+H1 and H9 stay unresolved. Post hoc: steady antenna phase errors of about 5° are the lead; phase self-cal (#6)
+is expected to take the subset floor from 1,073 to about 447 µJy, not yet measured.
+
 MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
 not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
 [results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:

@@ -316,7 +316,8 @@ On the full-data exact residuals (`cheap.json`):
    intermittent and broadband RFI.
 
 Items 1, 3 and 5 run as a new frozen protocol, [floor-2.md](floor-2.md) (coordinator's decision,
-2026-11-16).
+2026-11-16). Measured: still unresolved under its frozen joint rule; post hoc, every discriminator
+points to steady per-antenna phase errors of about 5°, worst on antenna 1.
 
 ## 9. Clarifications and post-hoc changes
 
