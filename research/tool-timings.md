@@ -1976,3 +1976,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gemclean-stop28: WSClean 3.7 fast / plain, H5-H8 (`stop28_wsclean.sh`, `rang-wsclean-native:3.7`, nominres) | 2048², `-j 8` | 203 / 1,749, 114 / 227, 139 / 205, 173 / 781 s | – | WSL; fast 8 slots, plain 3 (it used about 2.2 cores; first booked 8, stopped and rebooked) |
 | 2026-11-16 | gemclean-stop28: GeMClean pilot, default and ε 0.02: A 3 mJy, B 3 mJy, A 1 mJy | 152 / 142 M active visibilities, 4096 × 3″, `-j 4`, accuracy 1e-6 | 336 / 255, 230 / 240, 613 / 499 s | 10.9-11.4 GiB | 4 slots, 20 GB booked |
 | 2026-11-16 | gemclean-stop28: `gemclean_heldout_real.py prep`, cal2 and cal3 | 4096 × 3″ | 572, 533 s (lock wait included) | – | 4 slots, 24 GB booked |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_compare.py score` (dev, seen, new, WSClean, shipping); `gemclean_heldout_real.py score` / `compare` (pilot) | 2-7 jobs per call | 3.4-7.8 s per job; pilot score 120-149 s, compare 6-17 s | – | bench scores without the lock (single core, seconds); pilot under 4 slots |
+| 2026-11-16 | gemclean-stop28: GeMClean H5-H8 at the shipping accuracy (1e-4 single), default and ε 0.02 | 2048², `-j 4` | 14-18 s each | – | 4 slots; post hoc |
+| 2026-11-16 | gemclean-stop28: `tools/check_all.py --quick` | worktree, cold target | 1150 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | gemclean-stop28: GeMClean and MCP pytest files (the seven GeMClean files and `test_mcp_server`) | worktree extension | 57.5 s | – | 85 passed, 5 skipped, 1 xfailed; 4 slots |

@@ -301,6 +301,11 @@ images are the default's. Peak memory 10.9-11.4 GiB.
 - **Not measured:** the rule at GeMClean's own default accuracy (1e-4, single precision; amendment 1), where the inner
   peak can already end up to 25 % above the threshold ([clean-overview.md](clean-overview.md) decision 3); `-auto-mask`,
   `-multiscale`, joined channels or polarisations (refused); wide fields beyond H3; wall time (no exclusive hold).
+- **Post hoc, outside the verdict: H5-H8 at GeMClean's shipping accuracy** (no `-wgridder-accuracy`, so 1e-4 in
+  single precision; `-j 4`; `stop28_runs.py shipping`). Default 7, 5, 6, 7 cycles; ε = 0.02 6, 4, 5, 5 (mean −1.25);
+  false |flux| 0.992-1.000 × the default's, Q/Q_truth equal to 1e-4, recovery equal. At this accuracy the scorer's
+  exact inner peak ends at 151.7, 100.2, 103.1, 207.1 µJy for **both** runs (the gridder's error, not the rule):
+  the rule adds nothing visible to that. One run per sky, seen after the verdict.
 - Archive: [results/gemclean-stop28.json](results/gemclean-stop28.json). Raw products:
   `D:\rang\outputs\stop28-20261116\` (`dev`, `new`, `seen`, `bright`, `pilot`, `wsclean`, `scores`, `data`). Scripts:
   `examples/stop28_runs.py`, `examples/stop28_wsclean.sh`, `examples/stop28_table.py`.

@@ -364,6 +364,8 @@ def main():
             "bright",
             "pilot",
             "pscore",
+            "rescore",
+            "shipping",
         ],
     )
     p.add_argument("--tol", type=float)
