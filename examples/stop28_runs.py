@@ -228,6 +228,19 @@ def bright(tol):
     shutil.rmtree(w, ignore_errors=True)
 
 
+def wscore():
+    """Score WSClean's runs on H5-H8 (examples/stop28_wsclean.sh) through the same scorer."""
+    for s in ("h5", "h6", "h7", "h8"):
+        jobs = [f"{s}-abs-nominres-fast-j8", f"{s}-abs-nominres-hogbom-j8"]
+        score(
+            O / "prep" / s,
+            O / "data" / f"{s}.json",
+            O / "wsclean",
+            O / "scores" / f"wsclean-{s}.json",
+            jobs,
+        )
+
+
 def pilot(tol):
     d = O / "pilot"
     real = HELD / "real"
@@ -249,10 +262,73 @@ def pilot(tol):
             )
 
 
+def pscore(tol):
+    """The pilot's measures (examples/gemclean_heldout_real.py prep, score, compare), default
+    against the rule; the shared source mask is the mean of these two runs' images."""
+    real = HELD / "real"
+    tool = HERE / "gemclean_heldout_real.py"
+    d = O / "pilot"
+    t = tol_tag(tol)
+    for ms, prep, names in (
+        ("cal2.ms", "prep-a", ["a-3mjy", "a-1mjy"]),
+        ("cal3.ms", "prep-b", ["b-3mjy"]),
+    ):
+        if not (O / prep / "vis.c128").exists():
+            cmd = [
+                PY,
+                "-I",
+                tool,
+                "prep",
+                real / ms,
+                O / prep,
+                "--size",
+                "4096",
+                "--scale",
+                "3",
+            ]
+            locked(cmd, 4, 24, O / "logs" / f"{prep}.log")
+        for n in names:
+            jobs = [f"{n}-default", f"{n}-{t}"]
+            cmd = [
+                PY,
+                "-I",
+                tool,
+                "score",
+                O / prep,
+                d,
+                O / "scores" / f"pilot-{n}.json",
+                "--job",
+                *jobs,
+            ]
+            locked(cmd, 4, 16, O / "logs" / f"pscore-{n}.log")
+            cmd = [
+                PY,
+                "-I",
+                tool,
+                "compare",
+                O / prep,
+                d,
+                O / "scores" / f"pilot-compare-{n}.json",
+            ]
+            cmd += [O / "pilot-images" / n, "--job", *jobs, "--beam-arcsec", "12.7"]
+            cmd += ["--mask-sigma", "5", "--compact-sigma", "10"]
+            locked(cmd, 4, 16, O / "logs" / f"pcompare-{n}.log")
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument(
-        "stage", choices=["dev", "seen", "simulate", "new", "bright", "pilot"]
+        "stage",
+        choices=[
+            "dev",
+            "seen",
+            "simulate",
+            "new",
+            "wscore",
+            "bright",
+            "pilot",
+            "pscore",
+        ],
     )
     p.add_argument("--tol", type=float)
     a = p.parse_args()
@@ -262,6 +338,8 @@ def main():
         dev()
     elif a.stage == "simulate":
         simulate()
+    elif a.stage == "wscore":
+        wscore()
     elif a.tol is None:
         raise SystemExit("--tol is needed after the development stage")
     elif a.stage == "seen":
@@ -272,8 +350,10 @@ def main():
         heldout("new", skies, a.tol, O / "data", O / "prep")
     elif a.stage == "bright":
         bright(a.tol)
-    else:
+    elif a.stage == "pilot":
         pilot(a.tol)
+    else:
+        pscore(a.tol)
     print(
         json.dumps({"stage": a.stage, "finished": time.strftime("%Y-%m-%d %H:%M:%S")}),
         flush=True,
