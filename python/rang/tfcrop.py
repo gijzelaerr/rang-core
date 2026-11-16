@@ -35,6 +35,8 @@ TF = {
     "fit_clip": 2.0,
     # The piecewise polynomial (not identified yet): stage schedule.
     "poly_degree": 3,
+    "pieces_mode": "index",
+    "window_min_live": 2,
     # D1: per-row passes stop when the sd changes by less than this
     # (absolute; the previous sd starts at 0); at most `passes`.
     "row_tol": 0.1,
@@ -55,7 +57,16 @@ def _pieces(y, w, npieces, deg):
     n = len(y)
     x = np.arange(n, dtype=np.float64)
     out = np.empty(n)
+    mode = TF["pieces_mode"]
+    if mode.startswith("min"):
+        npieces = max(1, min(npieces, int(w.sum()) // int(mode[3:])))
+        if npieces == 1:
+            return _lsq(x, y, w, deg)
     edges = np.linspace(0, n, npieces + 1).round().astype(int)
+    if mode == "live":
+        idx = np.flatnonzero(w)
+        cuts = idx[np.linspace(0, len(idx), npieces + 1).round().astype(int)[1:-1]]
+        edges = np.concatenate([[0], cuts, [n]])
     for lo, hi in itertools.pairwise(edges):
         out[lo:hi] = _lsq(x[lo:hi], y[lo:hi], w[lo:hi], deg)
     return out
@@ -85,48 +96,83 @@ def robust_fit(avg, valid, kind, maxnpieces):
     return fit
 
 
-def row_flags(u, live, cut):
+def row_flags(u, live, cut, return_sd=False):
     """D1: per row of `u` (relative deviations), sd = sqrt(mean u^2) over
     its live points; flag |u| > cut * sd; repeat on the rest, a row
     stopping when its sd changes by less than `row_tol` (absolute) from the
-    previous pass, the previous value starting at 0."""
+    previous pass, the previous value starting at 0. With `return_sd`, also
+    the sd each row's last flagging pass used (D4's scale)."""
     new = np.zeros(u.shape, bool)
     done = np.zeros((u.shape[0], 1), bool)
     prev = np.zeros((u.shape[0], 1))
+    used = np.zeros((u.shape[0], 1))
     for _ in range(TF["passes"]):
         ok = live & ~new
         cnt = ok.sum(axis=1, keepdims=True)
         sd = np.sqrt(np.where(ok, u * u, 0.0).sum(axis=1, keepdims=True)
                      / np.maximum(cnt, 1))  # fmt: skip
+        used = np.where(done, used, sd)
         new |= ok & (np.abs(u) > cut * sd) & ~done & (cnt > 0)
         done |= np.abs(sd - prev) < TF["row_tol"]
         prev = sd
         if done.all():
             break
-    return new
+    return (new, used) if return_sd else new
 
 
-def _pass(a, flag, axis, cutoff, fitkind, npieces):
+def window_flags(u, sd, cut, mode, halfwin):
+    """D4: sliding windows of 2 * halfwin + 1 points along each row, over
+    every point of the row (flagged ones included), only where the whole
+    window lies inside the row. 'sum' flags the centre where the mean of
+    |u| over the window exceeds cut * sd; 'std' where the rms of u does;
+    'both' either (the rms is never below the mean of |u|, so 'both' equals
+    'std'). `sd` is each row's scale from D1."""
+    n = u.shape[1]
+    w = 2 * halfwin + 1
+    hit = np.zeros(u.shape, bool)
+    if n < w:
+        return hit
+    kernel = np.ones(w) / w
+
+    def run(x):
+        return np.apply_along_axis(lambda r: np.convolve(r, kernel, "valid"), 1, x)
+
+    inner = slice(halfwin, n - halfwin)
+    if mode in ("sum", "both"):
+        hit[:, inner] |= run(np.abs(u)) > cut * sd
+    if mode in ("std", "both"):
+        hit[:, inner] |= np.sqrt(run(u * u)) > cut * sd
+    return hit
+
+
+def _pass(a, flag, axis, cutoff, fitkind, npieces, winstats="none", halfwin=1):
     """One direction. axis=0 is 'freq': the mean over time of the unflagged
     points of each channel (the band) is fitted across channels and the
     rows are times; axis=1 is 'time', the same with the axes exchanged."""
     if axis == 1:
-        return _pass(a.T, flag.T, 0, cutoff, fitkind, npieces).T
+        return _pass(a.T, flag.T, 0, cutoff, fitkind, npieces, winstats, halfwin).T
     live = ~flag
     cnt = live.sum(axis=0)
     avg = np.where(live, a, 0.0).sum(axis=0) / np.maximum(cnt, 1)
     fit = robust_fit(avg, cnt > 0, fitkind, npieces)
     with np.errstate(invalid="ignore", divide="ignore"):
         u = np.where(fit[None, :] != 0, a / fit[None, :] - 1.0, 0.0)
-    return row_flags(u, live, cutoff)
+    new, sd = row_flags(u, live, cutoff, return_sd=True)
+    if winstats not in ("none", None, ""):
+        # D4b: a flagged point enters the windows as u = -1 (its value as 0).
+        rows_ok = live.sum(axis=1, keepdims=True) >= TF["window_min_live"]
+        new |= (
+            window_flags(np.where(live, u, -1.0), sd, cutoff, winstats, halfwin)
+            & live
+            & rows_ok
+        )
+    return new
 
 
 def plane(a, flag, params):
     """New flags of one (time, channel) plane `a` with existing `flag`."""
-    if params.get("usewindowstats", "none") not in ("none", None, ""):
-        # Window statistics are not identified (research/v8-tfcrop.md,
-        # section 7): refuse rather than ignore them.
-        raise NotImplementedError("tfcrop: usewindowstats is not identified yet")
+    ws = params.get("usewindowstats", "none") or "none"
+    hw = int(params.get("halfwin", 1))
     dims = params.get("flagdimension", "freqtime")
     order = {"freq": ("freq",), "time": ("time",), "freqtime": ("freq", "time"),
              "timefreq": ("time", "freq")}[dims]  # fmt: skip
@@ -134,10 +180,10 @@ def plane(a, flag, params):
     for d in order:
         if d == "freq":
             new |= _pass(a, flag | new, 0, float(params.get("freqcutoff", 3.0)),
-                         params.get("freqfit", "poly"), int(params.get("maxnpieces", 7)))  # fmt: skip
+                         params.get("freqfit", "poly"), int(params.get("maxnpieces", 7)), ws, hw)  # fmt: skip
         else:
             new |= _pass(a, flag | new, 1, float(params.get("timecutoff", 4.0)),
-                         params.get("timefit", "line"), int(params.get("maxnpieces", 7)))  # fmt: skip
+                         params.get("timefit", "line"), int(params.get("maxnpieces", 7)), ws, hw)  # fmt: skip
     return new
 
 

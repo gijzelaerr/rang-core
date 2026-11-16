@@ -281,7 +281,175 @@ DESIGNS = {
     "L1x100": lambda info: design_ladder(info, seed=1, mult=[100.0]),
     "S2": lambda info: design_noise_rows(info, seed=3),
     "R1": lambda info: design_readout(info, seed=4),
+    "NA": lambda info: design_noisy_average(info, seed=7),
+    "NS": lambda info: design_scale_ladder(info, seed=10),
+    "W1": lambda info: design_windows(info, seed=8),
+    "F1": lambda info: design_preflagged(info, seed=9),
 }
+
+
+def _mirror_rows(rng, half, nchan, sd=0.03):
+    """Rows t < half carry u_t (Gaussian, sd `sd`, clipped), rows t + half
+    carry -u_t: the time mean is the plane's average spectrum exactly, and
+    every row's sd stays below 0.1 (one D1 pass)."""
+    u = np.clip(sd * rng.standard_normal((half, nchan)), -0.5, 0.5)
+    return np.concatenate([u, -u])
+
+
+def design_noisy_average(info, seed=7):
+    """NA (the fit on noisy averages): each plane's time mean is a known
+    spectrum A = m * B * (1 + eta * g), B a random positive line or cubic,
+    g Gaussian per channel, eta in {0, 1e-3, 3e-3, 0.01, 0.03, 0.1}, one
+    plane in four with 3-10 positive spikes (+0.2 to +2) in A, and a scale m
+    in {0.01, 1, 100}. Rows are A * (1 + u) with mirrored u (D1 one pass),
+    so the flags read CASA's fit of A through D1."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    x = np.linspace(-1.0, 1.0, nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    etas = (0.0, 1e-3, 3e-3, 0.01, 0.03, 0.1)
+    scales = (0.01, 1.0, 100.0)
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        cubic = k % 2 == 1
+        p = rng.normal(0, 0.3, 4) * (1.0 if cubic else np.array([1, 1, 0, 0]))
+        band = 2.0 + p[0] * x + p[1] * x**2 * cubic + p[2] * x**3 * cubic
+        if not cubic:
+            band = 2.0 + p[0] * x
+        eta = etas[(k // 2) % len(etas)]
+        m = scales[(k // 12) % len(scales)]
+        avg = band * (1.0 + eta * rng.standard_normal(nchan))
+        spikes = k % 4 == 3
+        if spikes:
+            at = rng.choice(nchan, int(rng.integers(3, 11)), replace=False)
+            avg[at] += rng.uniform(0.2, 2.0, len(at))
+        avg = m * np.maximum(avg, 0.05 * m)
+        u = _mirror_rows(rng, half, nchan)
+        data[b::nbl, :, c] = (avg[None, :] * (1.0 + u)).astype(np.complex64)
+        planes.append(
+            [
+                b,
+                c,
+                f"{'cubic' if cubic else 'line'},eta={eta},m={m},spikes={int(spikes)}",
+            ]
+        )
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+SCALES = (1e-3, 1e-2, 0.1, 1.0, 10.0, 100.0, 1e4, 1e6)
+
+
+def design_scale_ladder(info, seed=10):
+    """NS (the absolute tolerance): NA-like planes in groups of eight that
+    are identical up to an amplitude scale m in SCALES (same band, average
+    noise, spikes and rows), so any flag that changes with m within a group
+    is caused by an absolute constant in CASA."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    x = np.linspace(-1.0, 1.0, nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    etas = (0.0, 1e-3, 0.01, 0.03, 0.1)
+    base = None
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        g, j = divmod(k, len(SCALES))
+        m = SCALES[j]
+        if j == 0:
+            cubic = g % 2 == 1
+            p = rng.normal(0, 0.3, 3)
+            band = 2.0 + p[0] * x + ((p[1] * x**2 + p[2] * x**3) if cubic else 0.0)
+            eta = etas[(g // 2) % len(etas)]
+            avg = band * (1.0 + eta * rng.standard_normal(nchan))
+            spikes = g % 4 == 3
+            if spikes:
+                at = rng.choice(nchan, int(rng.integers(3, 11)), replace=False)
+                avg[at] += rng.uniform(0.2, 2.0, len(at))
+            avg = np.maximum(avg, 0.05)
+            base = (avg, _mirror_rows(rng, half, nchan), cubic, eta, spikes)
+        avg, u, cubic, eta, spikes = base
+        data[b::nbl, :, c] = ((m * avg)[None, :] * (1.0 + u)).astype(np.complex64)
+        planes.append([b, c, f"g={g},{'cubic' if cubic else 'line'},eta={eta},"
+                             f"spikes={int(spikes)},m={m}"])  # fmt: skip
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+def design_windows(info, seed=8):
+    """W1 (window statistics on an exact fit): straight-line bands (any fit
+    reproduces them), mirrored rows with sd 0.03 plus structures along
+    frequency: runs of 2-12 channels raised by 1-4 sd (sum), stretches of
+    5-30 channels with 2-5 times the noise (std), and single spikes."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    x = np.linspace(-1.0, 1.0, nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        band = rng.uniform(0.5, 20.0) * (1.0 + rng.uniform(-0.9, 0.9) * x)
+        u = np.clip(0.03 * rng.standard_normal((half, nchan)), -0.3, 0.3)
+        for t in range(half):
+            for _ in range(int(rng.integers(0, 4))):
+                w = int(rng.integers(2, 13))
+                f0 = int(rng.integers(0, nchan - w))
+                u[t, f0 : f0 + w] += rng.choice([-1, 1]) * rng.uniform(1, 4) * 0.03
+            for _ in range(int(rng.integers(0, 3))):
+                w = int(rng.integers(5, 31))
+                f0 = int(rng.integers(0, nchan - w))
+                u[t, f0 : f0 + w] *= rng.uniform(2, 5)
+            if rng.random() < 0.3:
+                u[t, int(rng.integers(0, nchan))] += rng.choice([-1, 1]) * 0.3
+        u = np.clip(np.concatenate([u, -u]), -0.9, 0.9)
+        data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
+        planes.append([b, c, "line"])
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+def design_preflagged(info, seed=9):
+    """F1 (pre-existing flags): S2-like planes (straight-line bands, mirrored
+    rows, sd 0.03, a few outliers) with FLAG set before tfcrop: random cells
+    (fraction 0-0.9), whole channels (0-90 %), whole rows (0-90 %), and one
+    plane in eight wholly flagged except one row or one channel. Flags are
+    set on both mirrored rows so the unflagged time mean stays the band."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    x = np.linspace(-1.0, 1.0, nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    flag = np.zeros(data.shape, bool)
+    planes = []
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        band = rng.uniform(0.5, 20.0) * (1.0 + rng.uniform(-0.9, 0.9) * x)
+        u = np.clip(0.03 * rng.standard_normal((half, nchan)), -0.5, 0.5)
+        for t in range(half):
+            at = rng.choice(nchan, 3, replace=False)
+            u[t, at] = rng.choice([-1, 1], 3) * rng.uniform(0.1, 0.4, 3)
+        u = np.concatenate([u, -u])
+        f = np.zeros((half, nchan), bool)
+        kind = k % 8
+        frac = (k // 8) % 10 / 10.0
+        if kind in (0, 1):
+            f = rng.random((half, nchan)) < frac
+        elif kind in (2, 3):
+            f[:, rng.random(nchan) < frac] = True
+        elif kind in (4, 5):
+            f[rng.random(half) < frac, :] = True
+        elif kind == 6:
+            f[:] = True
+            f[int(rng.integers(0, half)), :] = False
+        else:
+            f[:] = True
+            f[:, int(rng.integers(0, nchan))] = False
+        f = np.concatenate([f, f])
+        data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
+        flag[b::nbl, :, c] = f
+        planes.append([b, c, f"kind={kind},frac={frac}"])
+    return data, flag, {"planes": planes}
 
 
 def main(argv):

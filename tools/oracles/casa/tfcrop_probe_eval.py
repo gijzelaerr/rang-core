@@ -35,6 +35,14 @@ def planes(batch, design):
         yield b, c, name, np.abs(data[b::nbl, :, c]).astype(np.float64), nbl
 
 
+def plane_flags(batch, design):
+    """The input FLAG of every plane, in the order of `planes`."""
+    meta = json.loads((Path(batch) / f"{design}.json").read_text(encoding="utf-8"))
+    flag = np.load(Path(batch) / f"{design}.npz")["flag"]
+    nbl = meta["nbl"]
+    return [flag[b::nbl, :, c] for b, c, _ in meta["planes"]]
+
+
 def d1_rows(u, live, cut, tol=0.1, passes=5):
     """D1: per row, sd = sqrt(mean u^2) over live cells; flag |u| > cut * sd;
     a row stops when its sd changes by less than `tol` (absolute) from the
@@ -100,16 +108,22 @@ def main(argv):
             casa = load_flags(Path(batch) / "out" / f"{case['name']}.npz")
             got = np.zeros_like(casa)
             eq = n = 0
-            for b, c, _name, a, nbl in planes(batch, design):
-                g = tfcrop.plane(a, np.zeros(a.shape, bool), params)
+            before = plane_flags(batch, design)
+            for k, (b, c, _name, a, nbl) in enumerate(planes(batch, design)):
+                try:
+                    g = tfcrop.plane(a, before[k], params) | before[k]
+                except NotImplementedError:
+                    g = before[k].copy()
                 got[b::nbl, :, c] = g
                 eq += bool(np.array_equal(g, casa[b::nbl, :, c]))
                 n += 1
-            tp = int((got & casa).sum())
+            pre = np.load(Path(batch) / f"{design}.npz")["flag"]
+            add_r, add_c = got & ~pre, casa & ~pre
+            tp = int((add_r & add_c).sum())
             print(f"{case['name']}: planes equal {eq}/{n}, agreement "
-                  f"{float((got == casa).mean()):.6f}, CASA {int(casa.sum())}, rang "
-                  f"{int(got.sum())}, precision {tp / max(int(got.sum()), 1):.4f}, "
-                  f"recall {tp / max(int(casa.sum()), 1):.4f}", flush=True)  # fmt: skip
+                  f"{float((got == casa).mean()):.6f}, CASA added {int(add_c.sum())}, rang "
+                  f"added {int(add_r.sum())}, precision {tp / max(int(add_r.sum()), 1):.4f}, "
+                  f"recall {tp / max(int(add_c.sum()), 1):.4f}", flush=True)  # fmt: skip
         return
     else:
         raise SystemExit(f"unknown command {cmd}")
