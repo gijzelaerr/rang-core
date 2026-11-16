@@ -2013,3 +2013,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
+| 2026-11-16 | gpu-grid (#12): cargo build `gemclean` profile, baseline `a931b6c` | core, -j 4 | 305 s | – | native Windows, shared 4 slots |
+| 2026-11-16 | gpu-grid: cargo build `gemclean` profile, feature `gpu` (`gemclean`, `gpu_grid_parity`) / feature off | core, -j 4 | 481 s / 176 s | – | `9ad7e75` |
+| 2026-11-16 | gpu-grid: `cargo test --features gpu --lib wgridder::gpu` (debug) | 4 tests | 82 s | – | RTX 4070 Ti; the one-visibility batch test dominates |
+| 2026-11-16 | gpu-grid: GeMClean CPU `a931b6c`, coarse / fine, `-j 8` shared | S1 S2 S3 H1 H2 H4 (2048²), H3 (4096²) | 13.5-47.6 s / 18.2-68.1 s | – | Gate 0 baseline; per-run walls in `base/*.log` |
+| 2026-11-16 | gpu-grid: GeMClean `-gpu`, coarse / fine, `-j 8` shared | same seven skies | 13.9-45.4 s / 19.6-73.2 s | – | Gate 2; 588-1342 MiB on the GPU |
+| 2026-11-16 | gpu-grid: GeMClean CPU / `-gpu`, coarse, `-j 8` shared | pilot-512 (4096², 3asec) | 196.0 s / 189.5 s | – | major cycles 99.3 s (5) / 65.9 s (4); GPU 4096 MiB, 3 batches per call |
+| 2026-11-16 | gpu-grid: `gpu_grid_parity`, one residual + `dirty2vis` per arm | 7 skies x 2 forms, pilot | under 1 min per case; pilot 3.3 min (dirty image 2.3 min) | – | Gate 1; 8 threads |
+| 2026-11-16 | gpu-grid: `tools/check_all.py --quick` | worktree | 987 s (lock wait excluded) | – | FAIL: cargo fmt only (fixed); 469 pytest passed |

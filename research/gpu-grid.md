@@ -258,7 +258,103 @@ Decision, read from these numbers only:
 
 ## 8. Measured results
 
-None yet.
+Runs 2026-11-16 on this host (Windows 11, 16 threads, RTX 4070 Ti 12 GB, Vulkan, NVIDIA
+driver 621.01, `SHADER_F64` yes). Outputs: `D:/rang/outputs/20261116-gpu-grid` (`base/`,
+`gate0-9ad7e75-{cpu,gpu}/`, `gate1/`, `gate2/`, `timing/`, `wsclean/`). Binaries: baseline
+`gemclean` from `a931b6c` (sha256 `ee933fff…`), and from the library at `9ad7e75` the feature-off
+`gemclean` (`c434075a…`), the feature-on `gemclean` (`b9348d49…`) and `gpu_grid_parity`;
+the library code is unchanged since `9ad7e75` (later commits touch tests, the command line's
+flag handling, the parity driver and the notes). Gates 0-2 ran as shared jobs at `-j 8`
+(images do not depend on the thread count); budget 4096 MiB unless stated, with 0.9-1.1 GB
+of the card in use by others before each run (`gate1/*.gpu`). Archives:
+[results/gpu-grid-gate1.json](results/gpu-grid-gate1.json),
+[results/gpu-grid-gate2.json](results/gpu-grid-gate2.json),
+[results/gpu-grid-gate2-pilot.json](results/gpu-grid-gate2-pilot.json); scripts:
+[results/gpu-grid-scripts/](results/gpu-grid-scripts/).
+
+### 8.1 Gate 0, CPU unchanged: **pass**
+
+S1 coarse, S1 fine and H3 coarse with the feature-off build and with the feature-on build
+without `-gpu`: model, residual and image FITS byte-identical to the `a931b6c` baseline (18 of 18).
+The Rust tests pass with the feature off (quick check) and on (section 8.5).
+
+### 8.2 Gate 1, operator parity: f64 **pass**; f32 **fails as frozen**; f32 passes amendment 9.3 on the seven skies, fails it on the pilot
+
+GPU against CPU on one plan, model = the CPU GeMClean model of the sky. "res." is the
+major cycle's residual image, its difference over the CPU residual's peak (100 µJy on the
+skies, 3 mJy on the pilot) and in µJy; "misfit" is |Δq|/q; "d2v" the visibilities of
+`dirty2vis`, over their peak. Amendment 9.3: (a) the residual difference over the dirty
+image's peak; (b) the GPU's error against the f64 reference over the CPU's (µJy, CPU / GPU).
+
+| sky | form | grid, supp, planes | res. | µJy | misfit | d2v | frozen | 9.3 (a) | 9.3 (b) | µJy vs f64 |
+| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |
+| S1 | coarse | 4752², 5, 6 | 4.8e-4 | 0.048 | 8.5e-9 | 2.5e-7 | FAIL | 5.0e-8 | 1.20 | 0.089 / 0.107 |
+| S2 | coarse | 4752², 5, 6 | 4.2e-4 | 0.042 | 6.1e-9 | 2.5e-7 | FAIL | 4.4e-8 | 1.09 | 0.078 / 0.085 |
+| S3 | coarse | 4752², 5, 6 | 5.8e-5 | 0.006 | 3.5e-9 | 2.3e-7 | FAIL | 5.7e-8 | 1.26 | 0.012 / 0.016 |
+| H1 | coarse | 3388², 6, 7 | 2.7e-4 | 0.027 | 4.1e-9 | 3.3e-7 | FAIL | 3.2e-8 | 0.92 | 0.152 / 0.140 |
+| H2 | coarse | 4752², 5, 7 | 1.3e-4 | 0.013 | 4.7e-9 | 2.5e-7 | FAIL | 6.4e-8 | 1.22 | 0.017 / 0.021 |
+| H3 | coarse | 6776², 6, 8 | 2.8e-4 | 0.028 | 5.9e-9 | 3.3e-7 | FAIL | 2.9e-8 | 1.18 | 0.089 / 0.105 |
+| H4 | coarse | 4752², 5, 6 | 1.5e-4 | 0.015 | 2.2e-9 | 2.4e-7 | FAIL | 5.6e-8 | 1.17 | 0.023 / 0.027 |
+| pilot | coarse | 6776², 6, 31 | 8.5e-5 | 0.256 | 2.2e-9 | 5.7e-7 | FAIL | 2.1e-7 | **4.73** | 0.056 / 0.264 |
+| S1 | fine | 4752², 7, 8 | 4.3e-12 | 4e-10 | 7.4e-15 | 3.3e-13 | pass | | | |
+| S2 | fine | 4752², 7, 8 | 4.2e-12 | 4e-10 | 2.0e-14 | 3.4e-13 | pass | | | |
+| S3 | fine | 4752², 7, 8 | 1.0e-12 | 1e-10 | 2.2e-15 | 2.6e-13 | pass | | | |
+| H1 | fine | 4752², 7, 9 | 5.5e-12 | 6e-10 | 1.8e-14 | 2.3e-13 | pass | | | |
+| H2 | fine | 4752², 7, 9 | 2.1e-12 | 2e-10 | 7.4e-15 | 2.4e-13 | pass | | | |
+| H3 | fine | 7200², 8, 11 | 7.4e-12 | 7e-10 | 3.4e-14 | 3.7e-13 | pass | | | |
+| H4 | fine | 4752², 7, 8 | 1.2e-12 | 1e-10 | 5.2e-15 | 2.6e-13 | pass | | | |
+
+- **f64** passes on all seven skies with three orders to spare (bound 1e-9).
+- **f32** fails the frozen bound everywhere. Under amendment 9.3 it passes (a) everywhere
+  (≤ 2.1e-7 of the dirty peak) and (b) on the seven skies (0.92-1.26 × the CPU's own f32
+  error), but **fails (b) on the pilot**: 0.264 µJy against the CPU's 0.056 µJy (4.7 ×). The
+  pilot is the only case gridded in several batches (three per call, 302,978,293 active
+  visibilities over a 4096 MiB budget), and each batch's partial plane is transformed and
+  projected in f32 on its own (amendment 9.1); that adds rounding. Not diagnosed further.
+- **Determinism**: GPU residuals and visibilities bit-identical within a process (every
+  case) and over three fresh processes (S1 coarse and fine: one hash each). Batching
+  (amendment 9.1): S1 coarse at a 500 MiB budget (five batches per call) gives
+  bit-identical `dirty2vis` visibilities and a different residual hash, with the same
+  difference from the CPU (4.81e-4 of the peak, against 4.81e-4 in one batch). S1 fine does
+  not fit 500 MiB (the two grids alone need 788 MiB) and is refused, as designed.
+- Operator times inside these runs (shared host, 8 CPU threads, warm GPU call): the
+  residual (degrid + grid) took 0.80-1.31 s on the GPU against 1.51-2.45 s on the CPU in f32,
+  1.97-3.42 s against 2.48-4.12 s in f64; the pilot's 15.7 s against 33.5 s. The GPU plan's
+  host setup (GPU order of the visibilities) adds 1-6 s once.
+
+### 8.3 Gate 2, end to end: **pass** on all seven skies in both forms; the pilot **fails** one bound
+
+GeMClean `-gpu` against the CPU (the Gate 0 baseline), G1's bounds on the inner field:
+
+| sky | form | components CPU / GPU (cycles) | image rms/σ | image L∞ µJy | ΔQ/Q_truth | Δfalse mJy | Δrecovery | Δpeak µJy | pass |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| S1 | coarse | 85368 / 85339 (5/5) | 9.7e-3 | 6.0 | 1.8e-6 | 0.043 | 3.9e-6 | 0.68 | pass |
+| S2 | coarse | 90861 / 90924 (5/5) | 2.4e-2 | 30.8 | 1.1e-6 | 0.012 | 6.0e-6 | 1.83 | pass |
+| S3 | coarse | 45818 / 45788 (4/5) | 1.1e-2 | 5.8 | 6.2e-6 | 0.020 | 1.2e-5 | 0.06 | pass |
+| H1 | coarse | 88584 / 88483 (6/6) | 8.7e-3 | 6.4 | 1.8e-5 | 0.000 | 1.6e-5 | 2.01 | pass |
+| H2 | coarse | 54578 / 54654 (7/6) | 1.8e-2 | 7.0 | 1.5e-5 | 0.033 | 1.2e-5 | 0.39 | pass |
+| H3 | coarse | 163175 / 163237 (7/7) | 8.5e-3 | 6.8 | 8.5e-6 | 0.001 | 1.4e-6 | 1.08 | pass |
+| H4 | coarse | 55658 / 55671 (5/5) | 7.7e-2 | 31.3 | 1.1e-5 | 0.151 | 3.2e-5 | 0.67 | pass |
+| S1-H4 | fine | identical counts and cycles on all seven | ≤ 5.7e-10 | ≤ 7.3e-6 | 0 | 0 | 0 | 0 | pass |
+
+In f64 the GPU images equal the CPU's to the FITS float32 rounding (same components); in f32
+the runs part at the first component picked differently and stay inside every bound, S3 and
+H2 with one more or one fewer major cycle. Against WSClean (oracle 2) the GPU runs therefore
+score as the CPU's (gemclean-speed.md): Q/Q_truth 1.00336-1.02541 coarse, within 2e-5 of the
+CPU run on every sky.
+
+Pilot-512 (coarse, the G7 default): restored rms of the difference 0.017 σ (σ = 1.09 mJy, the
+CPU residual's inner rms; bound 0.1), total model flux 83.780 against 83.775 Jy (6.2e-5,
+bound 1e-3), but the largest difference is **2.1 mJy against the 100 µJy bound: fail as
+frozen**. The GPU run stopped after 4 major cycles, the CPU after 5 (58,320 against 58,369
+components); the run's own threshold is 3 mJy, so the 100 µJy bound, written for the
+simulated skies' 100 µJy threshold, is 30 times tighter than the pilot's stopping rule.
+That is a reading, not an amendment. Its major cycles took 65.9 s on the GPU against 99.3 s
+on the CPU (one cycle fewer; shared host, `-j 8`).
+
+### 8.4 Timing (exclusive, `-j 16`)
+
+Pending.
 
 ## 9. Amendments
 
