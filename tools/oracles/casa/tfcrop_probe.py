@@ -144,9 +144,135 @@ def design_rows(info, seed=2, ladder=None):
     return data, np.zeros(data.shape, bool), {"planes": planes}
 
 
+def design_noise_rows(info, seed=3):
+    """D1 boundary probe (S2): straight-line bands; row t < NTIME/2 carries
+    u_t = sigma_t g (g Gaussian, clipped to +-0.9) with sigma_t stepped
+    from 0.08 to 0.12 across rows and planes; one plane in four instead
+    has sigma 0.05 plus 4-12 outliers of +-0.9 and a few values graded
+    0.12-0.2, so that a row's sd drops by 0.1 or more between passes.
+    Row t + NTIME/2 carries -u_t (time mean = band)."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    x = np.linspace(-1.0, 1.0, nchan)
+    k = 0
+    for b in range(nbl):
+        for c in range(4):
+            level, slope = rng.uniform(0.5, 20.0), rng.uniform(-0.9, 0.9)
+            band = level * (1.0 + slope * x)
+            u = np.empty((half, nchan))
+            heavy = k % 4 == 3
+            for t in range(half):
+                if heavy:
+                    u[t] = np.clip(0.05 * rng.standard_normal(nchan), -0.9, 0.9)
+                    n_out = int(rng.integers(4, 13))
+                    at = rng.choice(nchan, n_out + 6, replace=False)
+                    u[t, at[:n_out]] = rng.choice([-0.9, 0.9], n_out)
+                    u[t, at[n_out:]] = rng.choice([-1.0, 1.0], 6) * rng.uniform(0.12, 0.2, 6)
+                else:
+                    s = 0.08 + 0.04 * ((t + 0.37 * k) % half) / (half - 1)
+                    u[t] = np.clip(s * rng.standard_normal(nchan), -0.9, 0.9)
+            u = np.concatenate([u, -u])
+            data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
+            planes.append([b, c, f"line{level:.6f},{slope:.6f}" + (",heavy" if heavy else "")])
+            k += 1
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+READ_SHAPES = ("poly2", "poly3", "poly4", "poly6", "sine1", "sine2", "sineA3",
+               "step64", "stepS128", "vee128-0.2", "bump90-8-0.05", "line0.9")  # fmt: skip
+
+
+def design_readout(info, seed=4, amp=0.05):
+    """Sparse readout (R1): planes of the READ_SHAPES (92 planes each).
+    In row t, the channels f with (f + t) % 9 == 0 are test cells; channel
+    f is hit by four rows (k = 0..3) with values +a, -a, +b, -b (a, b from a
+    per-plane shifted ladder in [0.4, 1.6] * amp), so the time mean is the
+    band exactly and every channel is seen with both signs; every other
+    cell is the band itself. A test cell is flagged where
+    |(B/F)(1 + delta) - 1| > cutoff * sd_row, so the + and - crossings
+    bracket the misfit B/F - 1 at that channel."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    rng = np.random.default_rng(seed)
+    lib = shape_library(nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    ch = np.arange(nchan)
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        name = READ_SHAPES[k % len(READ_SHAPES)]
+        band = lib[name]
+        u = np.zeros((ntime, nchan))
+        shift = rng.uniform(0, 1)
+        for f in ch:
+            t0 = (-f) % 9
+            mags = amp * (0.4 + 1.2 * ((np.array([0.0, 0.5]) + shift + f * 0.618) % 1.0))
+            vals = (mags[0], -mags[0], mags[1], -mags[1])
+            for j in range(4):
+                t = t0 + 9 * j
+                if t < ntime:
+                    u[t, f] = vals[j]
+            # A channel with fewer than four rows keeps its time mean zero.
+            if t0 + 27 >= ntime:
+                u[t0 + 18, f] = 0.0
+                u[t0 + 9, f] = -u[t0, f]
+        data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
+        planes.append([b, c, name])
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+def design_noise(info, seed=5, sigma=0.1):
+    """N1: `syn-noise`-like planes with a fresh seed (V8b's random smooth
+    bandpass per plane times 1 + complex Gaussian noise of `sigma` per
+    component), no flags. A stand-in for the development cases that is
+    not a gate case."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    rng = np.random.default_rng(seed)
+    bp = vc._bandpass(rng, nbl, nchan)  # (nbl, nchan, 4)
+    shape = (ntime, nbl, nchan, 4)
+    noise = (rng.standard_normal(shape) + 1j * rng.standard_normal(shape)) * sigma
+    data = (bp[None] * (1 + noise)).reshape(ntime * nbl, nchan, 4).astype(np.complex64)
+    planes = [[b, c, "bandpass"] for b in range(nbl) for c in range(4)]
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+def design_ladder_time(info, seed=6):
+    """L1 transposed (LT): every plane's time series is a library shape
+    (over NTIME integrations), on a ladder of e over channels (channels f
+    and f + NCHAN/2 mirrored, so the mean over channels of every time is
+    the shape exactly): the time-direction analogue of L1."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = nchan // 2
+    lib = shape_library(ntime)
+    names = sorted(lib)
+    rng = np.random.default_rng(seed)
+    order = rng.permutation(nbl * 4)
+    lad = np.geomspace(1e-4, 0.1, half)
+    e = np.concatenate([lad, lad])
+    sgn = np.where(np.arange(nchan) < half, 1.0, -1.0)[None, :] * (
+        (-1.0) ** np.arange(ntime)[:, None])
+    pattern = 1.0 + e[None, :] * sgn
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    planes = []
+    for k in range(nbl * 4):
+        b, c = divmod(int(order[k]), 4)
+        name = names[k % len(names)]
+        data[b::nbl, :, c] = (lib[name][:, None] * pattern).astype(np.complex64)
+        planes.append([b, c, name])
+    return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
 DESIGNS = {
+    "LT": lambda info: design_ladder_time(info, seed=6),
+    "N1": lambda info: design_noise(info, seed=5),
     "L1": lambda info: design_ladder(info, seed=1),
     "S1": lambda info: design_rows(info, seed=2),
+    "L1x0.01": lambda info: design_ladder(info, seed=1, mult=[0.01]),
+    "L1x100": lambda info: design_ladder(info, seed=1, mult=[100.0]),
+    "S2": lambda info: design_noise_rows(info, seed=3),
+    "R1": lambda info: design_readout(info, seed=4),
 }
 
 
