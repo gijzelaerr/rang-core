@@ -2018,3 +2018,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
 | 2026-11-16 | v8c-tfcrop: `tools/check_all.py --quick` | worktree after merging origin/main | 894 s (lock wait excluded) | – | PASS; takes the lock itself |
+| 2026-11-16 | lock-backfill: `tools/check_all.py --quick` | worktree, fresh .venv | 997 s (lock wait excluded; 1113 s wall) | – | PASS: 314 pytest |

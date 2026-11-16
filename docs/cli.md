@@ -1239,6 +1239,11 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_PIN_THREADS` | unset (caps on) | process | `0` turns off the CLI's BLAS and XLA thread caps (the thread variables themselves are recorded under `threads`) | `research/p9-cli.md` | `python/rang/core_cli.py` |
 | `RANG_CHECKALL_LOCK` | unset (~/.rang-checkall-v2.lock) | process | the check's host lock file | `research/p10-tests.md` | `python/rang/check.py` |
 | `RANG_CHECKALL_LOCKED` | unset | process | set by the check while it holds the lock | `research/p10-tests.md` | `python/rang/check.py` |
+| `RANG_HEAVY_LOCK` | unset (`D:\rang\locks\heavy`; `/mnt/d/rang/locks/heavy` from WSL) | process | the shared-host lock directory of `tools/heavy_lock.py`; tests point it at a temporary directory | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_SLOTS` | 16 | process | threads the heavy lock shares out | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_MEM_GB` | 48 | process | GB the heavy lock shares out | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_LOCK_HELD` | unset | process | `<slots>:<mem GB>`, set by `heavy_lock.py run` for its command; a nested `run` or check inside it does not queue again | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_DRAIN_MIN` | 15 | process | minutes later tickets may backfill past a queue head that does not fit (a ticket's own `run --drain` wins); 0: strict first come, first served | `research/lock-backfill.md` | `tools/heavy_lock.py` |
 | `RANG_ARCHIVE_OUTPUTS` | unset (`outputs/` of this checkout; a mangled UNC path is repaired) | input | directory holding the archived campaign outputs the full check's gain-hash gate reads | `research/speedup-tools.md` | `python/rang/check.py` |
 | `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_CORE_LIB` | unset | refused | the removed ctypes library; setting it is refused | `research/p7-architecture.md` | `python/rang/core.py` |
