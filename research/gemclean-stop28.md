@@ -309,3 +309,10 @@ images are the default's. Peak memory 10.9-11.4 GiB.
 - Archive: [results/gemclean-stop28.json](results/gemclean-stop28.json). Raw products:
   `D:\rang\outputs\stop28-20261116\` (`dev`, `new`, `seen`, `bright`, `pilot`, `wsclean`, `scores`, `data`). Scripts:
   `examples/stop28_runs.py`, `examples/stop28_wsclean.sh`, `examples/stop28_table.py`.
+
+## Coordinator decision, 2026-11-16 (owner delegated: "do whatever you think is best")
+
+The default stays at `-stop-tolerance 0`, and `-stop-tolerance 0.02` ships as an option. The
+measured gain is real but narrow. H5's cut cycle started 0.04 µJy below the cut-off, and the
+shipping accuracy (1e-4) was measured only post hoc. Switching the default needs a fresh frozen
+run at the shipping accuracy on skies not yet seen.
