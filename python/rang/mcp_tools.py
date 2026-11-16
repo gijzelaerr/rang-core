@@ -74,6 +74,7 @@ GEMCLEAN_OPTIONS = {
             "-mgain-misfit",
             "-stale-rule",
             "-stale-floor",
+            "-stop-tolerance",
             "-stop-rule",
             "-stop-rule-kappa",
             "-stop-rule-samples",

@@ -28,6 +28,15 @@ constants were fixed, with their own sky and noise seeds:
         20 - 200 arcsec and 0.1 - 2 Jy, and a curved tail of 25 overlapping
         Gaussians of FWHM 30 - 60 arcsec holding 3 Jy
 
+Held-out skies for research/gemclean-stop28.md, registered in that note
+before they were drawn (sky seeds 20261701-4, noise seeds 20261711-4):
+
+    H5  dec -30: 200 points, 1 mJy - 2 Jy, min-sep 10 px
+    H6  dec -60: 800 points, 0.05 - 50 mJy, no separation
+    H7  dec -10: 40 points, 5 - 500 mJy, min-sep 10 px, and 8 Gaussians of FWHM
+        15 - 120 arcsec and 0.05 - 1 Jy, 220 arcsec inside the inner two-thirds
+    H8  dec -20: 80 points, 5 mJy - 1 Jy, min-sep 10 px, and two 5 Jy points
+
 Held-out sky for research/g5-multiscale.md, its seeds given on the command
 line (--sky-seed, --noise-seed) as drawn after the multiscale build was frozen:
 
@@ -75,10 +84,32 @@ SKY_SEEDS = {
     "H2": 20261202,
     "H3": 20261203,
     "H4": 20261204,
+    "H5": 20261701,
+    "H6": 20261702,
+    "H7": 20261703,
+    "H8": 20261704,
 }
 NOISE_SEED = 20261104
-NOISE_SEEDS = {"H1": 20261211, "H2": 20261212, "H3": 20261213, "H4": 20261214}
-DEC_BY_SKY = {"H1": -75.0, "H2": 10.0, "H4": -45.0, "M1": -60.0}
+NOISE_SEEDS = {
+    "H1": 20261211,
+    "H2": 20261212,
+    "H3": 20261213,
+    "H4": 20261214,
+    "H5": 20261711,
+    "H6": 20261712,
+    "H7": 20261713,
+    "H8": 20261714,
+}
+DEC_BY_SKY = {
+    "H1": -75.0,
+    "H2": 10.0,
+    "H4": -45.0,
+    "M1": -60.0,
+    "H5": -30.0,
+    "H6": -60.0,
+    "H7": -10.0,
+    "H8": -20.0,
+}
 
 
 def _sha(path):
@@ -161,6 +192,14 @@ def sky(name, size, scale_arcsec, min_sep, seed=None):
         pos, flux = draw(120, 0.005, 1.0, min_sep)
     elif name in ("H4", "M1"):
         pos, flux = draw(30, 0.005, 0.3, min_sep)
+    elif name == "H5":
+        pos, flux = draw(200, 0.001, 2.0, min_sep)
+    elif name == "H6":
+        pos, flux = draw(800, 5e-5, 0.05, 0.0)
+    elif name == "H7":
+        pos, flux = draw(40, 0.005, 0.5, min_sep)
+    elif name == "H8":
+        pos, flux = draw(80, 0.005, 1.0, min_sep)
     else:
         pos, flux = draw(500, 1e-4, 0.1, 0.0)
     comps = [
@@ -189,6 +228,25 @@ def sky(name, size, scale_arcsec, min_sep, seed=None):
                 "nearest_point_px": float(math.sqrt(d2[k])),
             }
         )
+    if name == "H7":
+        margin = half - 220.0 / scale_arcsec
+        for _ in range(8):
+            x, y = rng.uniform(-margin, margin, 2)
+            comps.append(
+                {
+                    "kind": "gaussian",
+                    "dx": float(x),
+                    "dy": float(y),
+                    "flux": float(np.exp(rng.uniform(math.log(0.05), math.log(1.0)))),
+                    "fwhm_arcsec": float(
+                        np.exp(rng.uniform(math.log(15.0), math.log(120.0)))
+                    ),
+                }
+            )
+    if name == "H8":
+        for _ in range(2):
+            x, y = rng.uniform(-half, half, 2)
+            comps.append({"kind": "point", "dx": float(x), "dy": float(y), "flux": 5.0})
     if name in ("H4", "M1"):
         margin = half - 220.0 / scale_arcsec
         for _ in range(6):
@@ -410,7 +468,21 @@ def main(argv=None):
     p.add_argument("ms")
     p.add_argument(
         "--sky",
-        choices=["S1", "S2", "S3", "H1", "H2", "H3", "H4", "M1", "none"],
+        choices=[
+            "S1",
+            "S2",
+            "S3",
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5",
+            "H6",
+            "H7",
+            "H8",
+            "M1",
+            "none",
+        ],
         required=True,
     )
     p.add_argument("--nant", type=int, default=64)
@@ -545,7 +617,7 @@ def main(argv=None):
         "ms": str(out.resolve()),
         "sky": args.sky,
         "sky_seed": SKY_SEEDS.get(args.sky) if args.sky_seed is None else args.sky_seed,
-        "noise_seed": NOISE_SEED if args.noise_seed is None else args.noise_seed,
+        "noise_seed": noise_seed,
         "chunk_times": args.chunk_times,
         "nant": nant,
         "ntime": ntime,

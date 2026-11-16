@@ -65,6 +65,12 @@ summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
 the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
 tasks to rang's.
 
+**Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
+--position NAME=RA,DEC --out DIR` gives light curves at given positions from
+the residual (data column minus MODEL_DATA) after `rang-core run`, one point
+per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+snapshot dirty image and its robust rms. It reads the MS only.
+
 **Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
 run status, receipts and FITS statistics to an agent over the Model Context
 Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
@@ -157,6 +163,9 @@ def page():
         )
     parts.append(_block("`listobs`", "rang-core listobs -h", _help("listobs")))
     parts.append(_block("`flagdata`", "rang-core flagdata -h", _help("flagdata")))
+    parts.append(
+        _block("`lightcurve`", "rang-core lightcurve -h", _help("lightcurve"))
+    )
     parts.append(_block("`mcp`", "rang-core mcp -h", _help("mcp")))
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():

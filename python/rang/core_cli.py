@@ -1017,6 +1017,7 @@ TOP_LEVEL = {
     "config": "defaults | check CONFIG [MS]: the configuration schema",
     "listobs": "MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs",
     "flagdata": "MS [key=value ...]: CASA's flagdata modes, CASA's keywords",
+    "lightcurve": "MS --position RA,DEC --out DIR: residual snapshot light curves",
     "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
@@ -1486,6 +1487,175 @@ def _flagdata_command(argv):
     return record
 
 
+def _scale_arcsec(text):
+    """`4`, `4asec`, `0.1amin` or `0.001deg` as arcseconds."""
+    for suffix, factor in (("asec", 1.0), ("amin", 60.0), ("deg", 3600.0)):
+        if text.endswith(suffix):
+            return float(text[: -len(suffix)]) * factor
+    return float(text)
+
+
+def _lightcurve_command(argv, options, pinned):
+    """`rang-core lightcurve MS --position NAME=RA,DEC ... --out DIR`
+    (task TS-P1, research/ts-p1.md): reads the MS only; writes DIR and a
+    receipt beside it."""
+    parser = argparse.ArgumentParser(
+        prog="rang-core lightcurve",
+        description="Light curves at given positions from the residual (data column "
+        "minus MODEL_DATA) of a field after rang-core run, one point per interval of "
+        "--interval-steps integrations: the exact DFT flux at each position, the "
+        "nearest pixel of the interval's dirty snapshot image and the image's "
+        "robust rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. "
+        "Reads the MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.",
+    )
+    parser.add_argument("ms", help="the Measurement Set")
+    parser.add_argument(
+        "--position",
+        action="append",
+        default=[],
+        metavar="[NAME=]RA,DEC",
+        help="a position, degrees or hh:mm:ss,dd:mm:ss (repeatable)",
+    )
+    parser.add_argument(
+        "--positions",
+        metavar="CSV",
+        help="positions from a file with columns name, ra_deg, dec_deg",
+    )
+    parser.add_argument("--out", required=True, help="the output directory (new)")
+    parser.add_argument("--field", default="0", help="field id or name (default 0)")
+    parser.add_argument(
+        "--column", help="data column (default CORRECTED_DATA if present, else DATA)"
+    )
+    parser.add_argument(
+        "--model-column", default="MODEL_DATA", help="subtracted (default MODEL_DATA)"
+    )
+    parser.add_argument(
+        "--no-model", action="store_true", help="use the data column as it is"
+    )
+    parser.add_argument(
+        "--interval-steps",
+        type=int,
+        default=1,
+        help="integrations per interval (default 1)",
+    )
+    parser.add_argument(
+        "--size", type=int, default=1024, help="snapshot width and height (1024)"
+    )
+    parser.add_argument(
+        "--scale", default="4asec", help="snapshot pixel size (default 4asec)"
+    )
+    parser.add_argument(
+        "--no-images", action="store_true", help="DFT fluxes only, no snapshots"
+    )
+    parser.add_argument(
+        "--fits", action="store_true", help="also write each snapshot as FITS"
+    )
+    parser.add_argument(
+        "--candidates",
+        type=float,
+        metavar="SIGMA",
+        help="also list each snapshot's local maxima at or above SIGMA times its "
+        "robust rms, and those of the negated image, in DIR/candidates.csv",
+    )
+    parser.add_argument(
+        "--gridder",
+        choices=("wgrid", "wstack"),
+        default="wgrid",
+        help="snapshot gridder: the exact wgridder (default) or w-stacking",
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "gpu"),
+        default="cpu",
+        help="device of the wstack gridder (gpu needs the gpu build)",
+    )
+    args = parser.parse_args(argv)
+    from . import core_grid
+    from . import lightcurve as lc
+
+    out = Path(args.out)
+    if out.exists():
+        print(f"rang-core lightcurve: {out} exists", file=sys.stderr)
+        raise SystemExit(2)
+    receipt = Receipt(
+        ["rang-core", "lightcurve", *argv],
+        "lightcurve",
+        None,
+        [args.ms, args.positions, str(out)],
+        pinned,
+    )
+
+    def finish(code):
+        if options["no_receipt"]:
+            return
+        receipt.write(options["receipt"] or default_receipt(out, "lightcurve"), code)
+
+    try:
+        positions = [lc.parse_position(p, k) for k, p in enumerate(args.position)]
+        if args.positions:
+            import csv
+
+            with open(args.positions, encoding="utf-8", newline="") as f:
+                for row in csv.DictReader(f):
+                    positions.append(
+                        (row["name"], float(row["ra_deg"]), float(row["dec_deg"]))
+                    )
+        if args.no_images and (args.fits or args.candidates is not None):
+            raise lc.LightcurveError(
+                "--fits and --candidates need the snapshots (drop --no-images)"
+            )
+        if args.device == "gpu" and args.gridder != "wstack":
+            raise lc.LightcurveError("--device gpu needs --gridder wstack")
+        size, scale = args.size, _scale_arcsec(args.scale)
+        if size < 2 or size % 2:
+            raise lc.LightcurveError("--size must be an even number of pixels")
+        on_snapshot = None
+        if args.fits:
+            (out / "snapshots").mkdir(parents=True)
+
+            def on_snapshot(k, image, header):
+                core_grid.write_fits(
+                    out / "snapshots" / f"snapshot-t{k:04d}-dirty.fits", image, header
+                )
+
+        result = lc.light_curves(
+            args.ms,
+            positions,
+            field=args.field,
+            column=args.column,
+            model_column=None if args.no_model else args.model_column,
+            interval_steps=args.interval_steps,
+            size=size,
+            scale_arcsec=scale,
+            images=not args.no_images,
+            on_snapshot=on_snapshot,
+            log=lambda text: print(f"rang-core lightcurve: {text}", file=sys.stderr),
+            gridder=args.gridder,
+            device=args.device,
+            candidate_sigma=args.candidates,
+        )
+        lc.write_outputs(result, out)
+    except (lc.LightcurveError, OSError, KeyError) as exc:
+        finish(2)
+        print(f"rang-core lightcurve: refused\n{exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    except BaseException as exc:
+        finish(f"exception: {type(exc).__name__}")
+        raise
+    finish(0)
+    print(
+        json.dumps(
+            {
+                "out": out.as_posix(),
+                "intervals": result["intervals"],
+                "positions": len(positions),
+                "seconds": result["seconds"]["total"],
+            }
+        )
+    )
+    return result
+
+
 def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict, a run's state)."""
@@ -1515,6 +1685,8 @@ def dispatch(argv=None):
         return _listobs_command(argv[1:])
     if argv[0] == "flagdata":
         return _flagdata_command(argv[1:])
+    if argv[0] == "lightcurve":
+        return _lightcurve_command(argv[1:], options, pinned)
     if argv[0] == "mcp":
         from . import mcp_server
 

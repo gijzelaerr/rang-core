@@ -9,6 +9,7 @@
 `RUN_DIR/ARM-rK/` (FITS, source list, log, `run.json` with the command, wall
 time, peak RSS from `/usr/bin/time -v` and the counts parsed from the log).
 Arms: `dirty` (the `-niter 0` precondition), `ws-hogbom`, `ws-multiscale`,
+`ws-b065` … `ws-sauto` (issue #23 step 4, research/multiscale-flux-fix.md),
 `ws-multiscale-mask`. The multiscale scales are the protocol's rule as
 `field.json` records it; the threshold is its 3 sigma_img.
 
@@ -60,6 +61,30 @@ def arm_args(arm, field):
             "-save-source-list", "-multiscale",
             "-multiscale-scales", scales, "-multiscale-gain", "0.2",
         ]  # fmt: skip
+    # Issue #23 step 4 (research/multiscale-flux-fix.md, section 3): one change
+    # from ws-multiscale each.
+    listed = ["-multiscale-scales", scales]
+    base = [
+        *COMMON,
+        *CLEAN,
+        "-threshold",
+        threshold,
+        "-multiscale",
+        "-multiscale-gain",
+        "0.2",
+    ]
+    step4 = {
+        "ws-b065": [*listed, "-multiscale-scale-bias", "0.65"],
+        "ws-b070": [*listed, "-multiscale-scale-bias", "0.7"],
+        "ws-b075": [*listed, "-multiscale-scale-bias", "0.75"],
+        "ws-b080": [*listed, "-multiscale-scale-bias", "0.8"],
+        "ws-noneg": [*listed, "-no-negative"],
+        "ws-gauss": [*listed, "-multiscale-shape", "gaussian"],
+        "ws-s48": ["-multiscale-scales", "0,48,96,192"],
+        "ws-sauto": [],
+    }
+    if arm in step4:
+        return [*base, *step4[arm]]
     raise SystemExit(f"unknown arm {arm}")
 
 

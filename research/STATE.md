@@ -27,6 +27,16 @@ one-sided 2-sigma clip on the absolute residual and three full-piece fits; every
 to 0-2 cells. Not identified: the exclusion at curved band ends, which dominates real bandpasses (V8's N1 probe at
 7 pieces: precision 0.92, recall 0.88). No gate run spent, held-out closed, tfcrop refused, no Rust kernel.
 
+#23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
+section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
+`D:\rang\outputs\msfix-20261116-01`):
+- 13 GeMClean and 10 WSClean 3.7 arms on DF5-O's field (D) and a held-out field (H, seeds 20261118/5118;
+  the default passes A1 on all three held-out pairs, so "held-out field shows no miss"). No arm passes on both.
+- Offset fixes (bias 0.8, ref1, reff, cap) take the median point ΔS from +16.0 to −3.8..+3.7 µJy on D but
+  raise the inner RMS to Högbom's level (D 1.486-1.614 against bound 1.475; H 1.539-1.620 against 1.489).
+  Automatic scales are nearest: lowest RMS (1.376 / 1.409), offset +11.0 / +9.05 (fails D's ≤ +8.0).
+- WSClean matches GeMClean arm by arm. `-no-negative` diverges in both tools (WSClean logs the divergence).
+- Comment draft for #23 in section 8.7, not posted. The default is unchanged.
 V8 tfcrop continued, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md) 9.3-9.4): H fails as frozen after
 all three gate runs (4, 4, 7 of 21 informative development cases; 8 post hoc). New from probes: window statistics
 exact (mean |u| or rms over full windows against cutoff × the row's sd; 12,142/12,144 planes), pre-flagged input,
@@ -41,6 +51,60 @@ passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the 
 frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
 window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
 opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
+13-14; frozen at `834cf15`, code at `08bfefb`):
+
+- **`tsp1-held2`** (flags, spectral and unequal WEIGHT_SPECTRUM,
+  CORRECTED_DATA):
+  - T2a 6.5e-11σ, T2b 4.2e-6σ, T3 pass (bias ≤ 0.036σ).
+  - T1 (0.13-0.19) and T2c (0.51σ) **not met: WSClean ignores FLAG_ROW**,
+    which is absent from its source. With FLAG_ROW ignored, rang matches
+    WSClean to 6e-8. GeMClean's input.rs says the opposite; unchecked.
+- **T4 not met** at 5σ: 239 against the frozen E5 = 188. The peak-curvature
+  Λ gives 307, and the negatives number 234. 0 candidates at 7σ.
+- **T5 met:** GPU against CPU 1.9e-15, at 2000² (the GPU path refuses the
+  2460 padded width).
+- **Not run.** T6: the exclusive hold was blocked by an IDLE E2-A hold. T7
+  and ESO137: owner decisions 2 and 3.
+
+TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
+[ts-p1.md](ts-p1.md); proposal frozen at `b1d407f` before any code):
+
+- **New command.** `rang-core lightcurve MS --position NAME=RA,DEC --out DIR`.
+  Per 8 s interval of the residual (data column − MODEL_DATA) it gives the
+  exact DFT flux (Rust kernel `core/src/lightcurve.rs`), the nearest
+  snapshot pixel and the robust rms. It only reads the MS.
+- **As frozen: not met (oracle mismatch, T1 and T2c).** Under the post hoc
+  amendments 9.1 and 9.2, not yet accepted, **met** on the held-out
+  simulation (now spent), with commit `8270868`, 64 antennas, 64 channels,
+  450 × 8 s, 6 transients:
+  - T1 against WSClean 3.7 `-intervals-out`: 3.0e-7 of the peak;
+  - DFT against NumPy 1.4e-10 σ, pixel against DFT 3.9e-6 σ, WSClean
+    pixel against DFT 2.5e-6 σ;
+  - bias ≤ 0.042σ, χ² 0.91-1.04, every pulse ≥ 7σ recovered.
+- **Dev attempt 1 failed.** At the frozen 1024² and 4″, T1 (0.082) and T2c
+  (0.26σ) failed: WSClean `-no-min-grid-resolution` drops the 0.4 % of
+  samples beyond 1/(2·4″) (proven: 2.7e-7 once removed). T3a's E reached
+  0.104σ, a 2.2-SE noise excursion; the noiseless twin's bias is 7.6e-8σ.
+- **Amendments, post hoc**, written after dev attempt 1, for the coordinator
+  to accept: 9.1 the snapshot grid 2048² at 2″; 9.2 T3a's bound 3/√N.
+- **Run arm** (GeMClean deep model, reported):
+  - E −9.6σ: its mean was absorbed, as predicted.
+  - The empty control +10.7σ: it lies 34″ from a 48 mJy Gaussian, so this is
+    likely CLEAN residual; unverified.
+  - σ_meas 1.30 σ_snap.
+- **Not tested.** Flags, unequal and spectral weights, and CORRECTED_DATA.
+- **Not done.** T4-T7, ESO137 and E2-A.
+GeMClean close-to-threshold stop, 2026-11-16 (branch `gemclean-stop28`, issue #28; [gemclean-stop28.md](gemclean-stop28.md),
+measured, not merged):
+- `-stop-tolerance ε` (default 0, byte-identical to main on S1-S3): the run ends when the exact peak after a major
+  cycle is below (1 + ε) T; the minor cycles still clean to T. Refused with -auto-mask, -multiscale, joined runs.
+- ε = 0.02 chosen on S1-S3 by the frozen rule (5, 5, 4 → 4, 4, 3). Blind H5-H8 (registered first): 8, 5, 5, 6 →
+  5, 4, 5, 5 cycles, false flux 0.99-1.00 × default, all WSClean tolerances met: **gain** over GeMClean's own rule;
+  novelty reading against WSClean plain not met. Seen H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4
+  (default 5, 3, 8), off-source model flux 0.999-1.000 ×, compact medians within 0.003 %. All as predicted.
+- For the coordinator: default switch to 0.02 recommended (residual peak up to 2 % above T); not measured at the
+  1e-4 single-precision default accuracy. Outputs `D:\rang\outputs\stop28-20261116`.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):

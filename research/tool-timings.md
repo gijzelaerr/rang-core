@@ -1968,12 +1968,52 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gemclean-beam-uv: theoretic-beam probe, old rule against !1068 (`research/results/gemclean-beam-uv/beam_probe.py`) | 13 archived MSes (S1-S3, H1-H4, D2, M1, G9 probe, cal, cal2, cal3) | 69 s | – | 2 slots, 10 GB; first full pass 76 s |
 | 2026-11-16 | gemclean-beam-uv: `tools/check_all.py --quick` | worktree, cold target | 1064 s (lock wait excluded) | – | PASS: 279 core tests, 287 pytest, gain hashes |
 | 2026-11-16 | gemclean-beam-uv: GeMClean pytest files (`test_g8_gemclean`, `test_g8_identity`, `test_g6_model`, `test_g7_defaults`, `test_w4_unsupported`, `test_w2_commands`, `test_e5_final`) | worktree | 42.9 s | – | 64 passed, 3 skipped (POSIX only), 1 xfailed; 4 slots |
+| 2026-11-16 | #23 step 4: `cargo build --profile gemclean` of gemclean at `7de8911` (heavy lock shared) | worktree ms-flux-fix | 251 s | – | Windows host; research/multiscale-flux-fix.md |
+| 2026-11-16 | #23 step 4: `simulate_df5_field.py` held-out fields (seeds 20261116/5116, 20261117/5117, 20261118/5118) | DF5-O instrument, 1024² × 16 ch | 20.7 s, 24.2 s, 23.9 s | 867-875 MB | Windows host |
+| 2026-11-16 | #23 step 4: gemclean `-multiscale` default on the three held-out pairs, `-j 4`, 4 slots | H, H2, H3 | 325 s, 351 s, 356 s | 3677-3684 MB | Windows host, shared (about 87 % CPU) |
+| 2026-11-16 | #23 step 4: gemclean arms on D, `-j 4`, 4 slots: hogbom, reff, b080, b075, ref1, b070, cap, b065, default, gauss, s48, sauto, noneg | DF5-O field | 47, 80, 115, 121, 145, 191, 198, 223, 316, 328, 336, 384, 1,934 s | 2461 (Högbom), 3503-3907 MB | Windows host, shared |
+| 2026-11-16 | #23 step 4: gemclean arms on H, same order | H3 field | 58, 83, 87, 127, 153, 187, 219, 253, 356, 298, 309, 357, 2,052 s | 2460 (Högbom), 3509-4033 MB | Windows host, shared |
+| 2026-11-16 | #23 step 4: WSClean 3.7 arms on D (`rang-o-casa:6.7.6.14`, `-j 4`, ext4): b065, b070, b075, b080, gauss, s48, sauto, noneg | DF5-O field | 669, 725, 632, 625, 1,006, 775, 824, 2,294 s | 851-1038 MB (noneg 989) | WSL docker on the Windows host, shared |
+| 2026-11-16 | #23 step 4: WSClean 3.7 on H: multiscale r1, r2, hogbom, b065, b070, b075, b080, gauss, s48, sauto, noneg | H3 field | 822, 965, 539, 686, 626, 546, 523, 717, 724, 746, 1,474 s | 282 (Högbom), 851-1062 MB | WSL docker, shared |
+| 2026-11-16 | #23 step 4: `decide.py` (frozen rule over 47 measure files) | D and H measures | 0.3 s | – | Windows host, no lock |
+| 2026-11-16 | #23 step 4: `verify_field.py` D after-check (1 slot) | D field, 59 MS files | 291 s including the queue | – | Windows host; ok |
+| 2026-11-16 | #23 step 4: `tools/check_all.py --quick` | worktree ms-flux-fix (docs and archive only) | 107 s (330 s with the lock wait) | – | Windows host; PASS |
 | 2026-11-16 | v8-tfcrop: CASA `flagdata(mode='tfcrop')` probe batches b01-b05 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs, 11.3 M cells each, 5-11 arms | 11.5-41.3 s per batch; 2.0-4.1 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
 | 2026-11-16 | v8-tfcrop: gate run 1, `rang_flagdata.py` + `compare_flagdata.py` (NumPy reference) | 26 development cases (syn-noise, syn-rfi, a1, luno; T1-T8) | 212 s | – | 1 slot |
 | 2026-11-16 | v8-tfcrop: `tools/check_all.py --quick` | worktree, cold target and new venv | 1000 s (lock wait excluded) | – | FAIL on ruff format of the new test only (fixed); 279 core tests, 60 pytest, gain hashes pass |
+| 2026-11-16 | ts-p1: `tools/check_all.py --quick` (new worktree venv) | worktree, cold target | 1149 s (lock wait excluded) | – | FAIL: fmt, ruff, clippy, 4 pytest; fixed |
+| 2026-11-16 | ts-p1: `tools/check_all.py --quick` | worktree | 1395 s (lock wait excluded) | – | PASS: 283 core tests, 501 pytest, gain hashes |
+| 2026-11-16 | ts-p1: `examples/ts_p1_sim.py tsp1-dev` / `--noiseless` twin / `tsp1-held` | 64 antennas, 64 channels, 450 × 8 s, 907,200 rows, 5.76 GB each | 63 s / 69 s / 76 s | – | 4 slots, 4 GB; D:\rang\outputs\ts-p1-20261116 |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 6 positions, 1024² at 4″, `--fits` (dev attempt 1) | tsp1-dev | 108.6 s | 151 MB | 4 threads; image 95.9 s, read 10.6 s, DFT 1.3 s; 267 CPU-s |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 2048² at 2″ (dev / held-out) | tsp1-dev / tsp1-held | 241.0 s / 318.7 s | 285 MB | 4 threads; image 228 / 302 s, DFT 1.3 / 1.6 s; shared host |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 1024² at 4″ (held-out, frozen grid) | tsp1-held | 126.3 s | – | 4 threads |
+| 2026-11-16 | ts-p1: `rang-core lightcurve --no-images` (noiseless twin) | tsp1-dev twin | 13.6 s | 81 MB | DFT only |
+| 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 1024² at 4″ (dev / held-out) | ext4 copy, RESIDUAL_DATA | 128.5 s / 125.6 s | 155 MB | rang-wsclean-native:3.7, WSL; drops about 530-650 samples per interval beyond the grid |
+| 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ (dev / held-out) | ext4 copy | 312.4 s / 402.2 s | 271 / 273 MB | all 129,024 samples gridded per interval |
+| 2026-11-16 | ts-p1: `examples/ts_p1_measure.py` with in-stream T1 (remakes rang's snapshots) | tsp1-dev / tsp1-held, WSClean FITS over \\wsl.localhost | about 6-8 min | – | 4 slots, 6 GB |
+| 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
 | 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
 | 2026-11-16 | v8c-tfcrop: CASA `flagdata(mode='tfcrop')` readout probe batches c01-c10 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs (`t24x40x256.ms`), 11.3 M cells each, 1-4 arms | 3.3-22.3 s per batch; 1.9-5.0 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
 | 2026-11-16 | v8c-tfcrop: readout inversion and candidate scoring (`readall.py`, `evalflags.py` sweeps; NumPy, single thread) | readout groups of c01-c10 | 5 s to about 6 min per sweep | under 2 GB | 1 slot (2-4 GB booked) |
 | 2026-11-16 | v8c-tfcrop: CASA readout batches c11, c12 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 2 arms | 6.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8c-tfcrop: N1 check of a template candidate through `rang.tfcrop.plane` (`n1eval.py`, NumPy) | V8 probe b05/b04 N1, 1,104 planes, 6 arms | about 3-4 min per candidate | under 2 GB | 1 slot |
+| 2026-11-16 | gemclean-stop28: `cargo test --release --lib stop_tolerance`; `cargo build --release --bin gemclean` | worktree core, cold target | 2 m 46 s build, 3.8 s tests; build about 3 min | – | 8 slots |
+| 2026-11-16 | gemclean-stop28: GeMClean development grid, S1-S3 × (default, ε 0, 0.005, 0.01, 0.02, 0.05, 0.10) (`stop28_runs.py dev`, binary `0775c4f`, accuracy 1e-6) | 14.5 M visibilities, 2048², `-j 8` | 17.8-28.6 s each, 480 s in all | 2.74 GiB | 8 slots; native Windows |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_simulate.py` H5-H8 | 1,814,400 rows × 8 | 48-164 s (lock wait included) | – | booked 4 slots, used about 1 core |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_compare.py prepare`, H1-H8 | 2048² (H3 4096²) | 44-1,037 s (lock wait included; H5 1,037 and H8 214 s queued) | – | 4 slots, 12 GB booked |
+| 2026-11-16 | gemclean-stop28: GeMClean default and ε 0.02, H5-H8; H1-H4; bright cases (4) | 2048² (H3 4096²), `-j 4` | 28-59 s; 30-148 s; 29-95 s | 2.7 GiB (5.0 at 4096²) | 4 slots |
+| 2026-11-16 | gemclean-stop28: WSClean 3.7 fast / plain, H5-H8 (`stop28_wsclean.sh`, `rang-wsclean-native:3.7`, nominres) | 2048², `-j 8` | 203 / 1,749, 114 / 227, 139 / 205, 173 / 781 s | – | WSL; fast 8 slots, plain 3 (it used about 2.2 cores; first booked 8, stopped and rebooked) |
+| 2026-11-16 | gemclean-stop28: GeMClean pilot, default and ε 0.02: A 3 mJy, B 3 mJy, A 1 mJy | 152 / 142 M active visibilities, 4096 × 3″, `-j 4`, accuracy 1e-6 | 336 / 255, 230 / 240, 613 / 499 s | 10.9-11.4 GiB | 4 slots, 20 GB booked |
+| 2026-11-16 | gemclean-stop28: `gemclean_heldout_real.py prep`, cal2 and cal3 | 4096 × 3″ | 572, 533 s (lock wait included) | – | 4 slots, 24 GB booked |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_compare.py score` (dev, seen, new, WSClean, shipping); `gemclean_heldout_real.py score` / `compare` (pilot) | 2-7 jobs per call | 3.4-7.8 s per job; pilot score 120-149 s, compare 6-17 s | – | bench scores without the lock (single core, seconds); pilot under 4 slots |
+| 2026-11-16 | gemclean-stop28: GeMClean H5-H8 at the shipping accuracy (1e-4 single), default and ε 0.02 | 2048², `-j 4` | 14-18 s each | – | 4 slots; post hoc |
+| 2026-11-16 | gemclean-stop28: `tools/check_all.py --quick` | worktree, cold target | 1150 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | gemclean-stop28: GeMClean and MCP pytest files (the seven GeMClean files and `test_mcp_server`) | worktree extension | 57.5 s | – | 85 passed, 5 skipped, 1 xfailed; 4 slots |
+| 2026-11-16 | ts-p1 P2: `examples/ts_p1_sim.py tsp1-noise` / `tsp1-held2` | 907,200 rows; 5.76 / 8.55 GB | 108 s / 93 s | – | 4 slots |
+| 2026-11-16 | ts-p1 P2: `rang-core lightcurve --candidates 5`, 2048² at 2″ (noise / held2) | tsp1-noise / tsp1-held2 | 361 s / 359 s | 286 / 288 MB | 4 threads, shared host (about 2.4 cores in use) |
+| 2026-11-16 | ts-p1 P2: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ | tsp1-held2 ext4 copy, RESIDUAL_DATA, WEIGHT_SPECTRUM | 339.6 s | 274 MB | ignores FLAG_ROW |
+| 2026-11-16 | ts-p1 P2: `maturin develop --release --features gpu` | worktree, target in ~/Build/tmp/20261116-ts-p1-gpu | 5 min 22 s (cold) | – | 8 slots |
+| 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
+| 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
+| 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
