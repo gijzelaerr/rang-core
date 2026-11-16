@@ -72,6 +72,16 @@ TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
   - σ_meas 1.30 σ_snap.
 - **Not tested.** Flags, unequal and spectral weights, and CORRECTED_DATA.
 - **Not done.** T4-T7, ESO137 and E2-A.
+GeMClean close-to-threshold stop, 2026-11-16 (branch `gemclean-stop28`, issue #28; [gemclean-stop28.md](gemclean-stop28.md),
+measured, not merged):
+- `-stop-tolerance ε` (default 0, byte-identical to main on S1-S3): the run ends when the exact peak after a major
+  cycle is below (1 + ε) T; the minor cycles still clean to T. Refused with -auto-mask, -multiscale, joined runs.
+- ε = 0.02 chosen on S1-S3 by the frozen rule (5, 5, 4 → 4, 4, 3). Blind H5-H8 (registered first): 8, 5, 5, 6 →
+  5, 4, 5, 5 cycles, false flux 0.99-1.00 × default, all WSClean tolerances met: **gain** over GeMClean's own rule;
+  novelty reading against WSClean plain not met. Seen H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4
+  (default 5, 3, 8), off-source model flux 0.999-1.000 ×, compact medians within 0.003 %. All as predicted.
+- For the coordinator: default switch to 0.02 recommended (residual peak up to 2 % above T); not measured at the
+  1e-4 single-precision default accuracy. Outputs `D:\rang\outputs\stop28-20261116`.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):

@@ -1068,6 +1068,9 @@ gemclean: usage: gemclean [options] <ms>
                             wins over -mgain as a rule, whatever the order
   -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
                             (default 0.01; 0: no floor; research/stale-floor.md)
+  -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
+                            (1 + e) times the threshold; the minor cycles still clean to the
+                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above

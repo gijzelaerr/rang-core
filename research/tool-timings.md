@@ -1994,3 +1994,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
 | 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
+| 2026-11-16 | gemclean-stop28: `cargo test --release --lib stop_tolerance`; `cargo build --release --bin gemclean` | worktree core, cold target | 2 m 46 s build, 3.8 s tests; build about 3 min | – | 8 slots |
+| 2026-11-16 | gemclean-stop28: GeMClean development grid, S1-S3 × (default, ε 0, 0.005, 0.01, 0.02, 0.05, 0.10) (`stop28_runs.py dev`, binary `0775c4f`, accuracy 1e-6) | 14.5 M visibilities, 2048², `-j 8` | 17.8-28.6 s each, 480 s in all | 2.74 GiB | 8 slots; native Windows |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_simulate.py` H5-H8 | 1,814,400 rows × 8 | 48-164 s (lock wait included) | – | booked 4 slots, used about 1 core |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_compare.py prepare`, H1-H8 | 2048² (H3 4096²) | 44-1,037 s (lock wait included; H5 1,037 and H8 214 s queued) | – | 4 slots, 12 GB booked |
+| 2026-11-16 | gemclean-stop28: GeMClean default and ε 0.02, H5-H8; H1-H4; bright cases (4) | 2048² (H3 4096²), `-j 4` | 28-59 s; 30-148 s; 29-95 s | 2.7 GiB (5.0 at 4096²) | 4 slots |
+| 2026-11-16 | gemclean-stop28: WSClean 3.7 fast / plain, H5-H8 (`stop28_wsclean.sh`, `rang-wsclean-native:3.7`, nominres) | 2048², `-j 8` | 203 / 1,749, 114 / 227, 139 / 205, 173 / 781 s | – | WSL; fast 8 slots, plain 3 (it used about 2.2 cores; first booked 8, stopped and rebooked) |
+| 2026-11-16 | gemclean-stop28: GeMClean pilot, default and ε 0.02: A 3 mJy, B 3 mJy, A 1 mJy | 152 / 142 M active visibilities, 4096 × 3″, `-j 4`, accuracy 1e-6 | 336 / 255, 230 / 240, 613 / 499 s | 10.9-11.4 GiB | 4 slots, 20 GB booked |
+| 2026-11-16 | gemclean-stop28: `gemclean_heldout_real.py prep`, cal2 and cal3 | 4096 × 3″ | 572, 533 s (lock wait included) | – | 4 slots, 24 GB booked |
+| 2026-11-16 | gemclean-stop28: `gemclean_bench_compare.py score` (dev, seen, new, WSClean, shipping); `gemclean_heldout_real.py score` / `compare` (pilot) | 2-7 jobs per call | 3.4-7.8 s per job; pilot score 120-149 s, compare 6-17 s | – | bench scores without the lock (single core, seconds); pilot under 4 slots |
+| 2026-11-16 | gemclean-stop28: GeMClean H5-H8 at the shipping accuracy (1e-4 single), default and ε 0.02 | 2048², `-j 4` | 14-18 s each | – | 4 slots; post hoc |
+| 2026-11-16 | gemclean-stop28: `tools/check_all.py --quick` | worktree, cold target | 1150 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | gemclean-stop28: GeMClean and MCP pytest files (the seven GeMClean files and `test_mcp_server`) | worktree extension | 57.5 s | – | 85 passed, 5 skipped, 1 xfailed; 4 slots |
