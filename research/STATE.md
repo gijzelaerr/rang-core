@@ -37,6 +37,7 @@ section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fi
   Automatic scales are nearest: lowest RMS (1.376 / 1.409), offset +11.0 / +9.05 (fails D's ≤ +8.0).
 - WSClean matches GeMClean arm by arm. `-no-negative` diverges in both tools (WSClean logs the divergence).
 - Comment draft for #23 in section 8.7, not posted. The default is unchanged.
+
 V8 tfcrop continued, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md) 9.3-9.4): H fails as frozen after
 all three gate runs (4, 4, 7 of 21 informative development cases; 8 post hoc). New from probes: window statistics
 exact (mean |u| or rms over full windows against cutoff × the row's sd; 12,142/12,144 planes), pre-flagged input,
