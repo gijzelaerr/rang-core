@@ -27,7 +27,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import v8b_cases as vc  # noqa: E402
+import v8b_cases as vc
 
 LADDER = np.geomspace(1e-4, 0.1, 20)
 
@@ -98,7 +98,8 @@ def design_ladder(info, seed=1, mult=None):
     order = rng.permutation(nbl * 4)
     e = np.concatenate([LADDER, LADDER])
     sgn = np.where(np.arange(ntime) < half, 1.0, -1.0)[:, None] * (
-        (-1.0) ** np.arange(nchan)[None, :])
+        (-1.0) ** np.arange(nchan)[None, :]
+    )
     pattern = 1.0 + e[:, None] * sgn
     data = np.empty((nbl * ntime, nchan, 4), np.complex64)
     planes = []
@@ -170,13 +171,17 @@ def design_noise_rows(info, seed=3):
                     n_out = int(rng.integers(4, 13))
                     at = rng.choice(nchan, n_out + 6, replace=False)
                     u[t, at[:n_out]] = rng.choice([-0.9, 0.9], n_out)
-                    u[t, at[n_out:]] = rng.choice([-1.0, 1.0], 6) * rng.uniform(0.12, 0.2, 6)
+                    u[t, at[n_out:]] = rng.choice([-1.0, 1.0], 6) * rng.uniform(
+                        0.12, 0.2, 6
+                    )
                 else:
                     s = 0.08 + 0.04 * ((t + 0.37 * k) % half) / (half - 1)
                     u[t] = np.clip(s * rng.standard_normal(nchan), -0.9, 0.9)
             u = np.concatenate([u, -u])
             data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
-            planes.append([b, c, f"line{level:.6f},{slope:.6f}" + (",heavy" if heavy else "")])
+            planes.append(
+                [b, c, f"line{level:.6f},{slope:.6f}" + (",heavy" if heavy else "")]
+            )
             k += 1
     return data, np.zeros(data.shape, bool), {"planes": planes}
 
@@ -208,7 +213,9 @@ def design_readout(info, seed=4, amp=0.05):
         shift = rng.uniform(0, 1)
         for f in ch:
             t0 = (-f) % 9
-            mags = amp * (0.4 + 1.2 * ((np.array([0.0, 0.5]) + shift + f * 0.618) % 1.0))
+            mags = amp * (
+                0.4 + 1.2 * ((np.array([0.0, 0.5]) + shift + f * 0.618) % 1.0)
+            )
             vals = (mags[0], -mags[0], mags[1], -mags[1])
             for j in range(4):
                 t = t0 + 9 * j
@@ -252,7 +259,8 @@ def design_ladder_time(info, seed=6):
     lad = np.geomspace(1e-4, 0.1, half)
     e = np.concatenate([lad, lad])
     sgn = np.where(np.arange(nchan) < half, 1.0, -1.0)[None, :] * (
-        (-1.0) ** np.arange(ntime)[:, None])
+        (-1.0) ** np.arange(ntime)[:, None]
+    )
     pattern = 1.0 + e[None, :] * sgn
     data = np.empty((nbl * ntime, nchan, 4), np.complex64)
     planes = []

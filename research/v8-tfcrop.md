@@ -146,6 +146,18 @@ channels; outputs `D:\rang\outputs\v8-tfcrop-20261116\probes\b0N\out`):
 | --- | --- | --- |
 | b01 | L1: library band shapes (lines, polynomials, sines, steps, vees, bumps, spikes) on a 20-step ladder of e (1e-4 to 0.1), rows t and t+20 mirrored so the time mean is the band exactly | `freqfit='line'` at `freqcutoff` 2, 3, 4, 5; `maxnpieces` 1, 2, 3, 4, 5, 7, 9; `maxnpieces` 1 and 3 at cutoff 4 |
 | b02 | S1: straight-line bands (any fit reproduces them), rows with 0-64 outliers of 1-12 e, mirrored | `freqfit='line'` at cutoff 2, 3, 4; `maxnpieces` 1 and 7 |
+| b03 | L1 ×0.01 and ×100; S2: line bands, row sd stepped 0.08-0.12, and rows with outliers forcing sd drops ≥ 0.1; R1: sparse readout (one cell in nine at ±δ, 92 planes per shape) | L1×: `line`, `maxnpieces` 1, 7; S2: `line`, 7, 7 at cutoff 4; R1: `line`, `maxnpieces` 1-5, 7, 9 |
+| b04 | LT: L1 transposed (256 integrations × 40 channels); N1: fresh-seed `syn-noise`-like bandpasses (noise 0.1), not a gate case | LT: `flagdimension='time'` at timecutoff 4 and 3, `timefit='poly'` with 1 and 7 pieces; N1: freq, time, freqtime, timefreq, CARACal's call, `usewindowstats` sum and std |
+| b05 | N1 | freq: `line`, `maxnpieces` 1, 2, 3, 5, 7, and cutoff 4 for `line` and 1 piece |
+
+CASA walls: 2.0-4.1 s per arm on 11.3 M cells; a batch of 5-11 arms
+12-41 s inside the container (peak RSS about 1.0 GB). Analysis scripts
+are `tfcrop_probe_eval.py` (committed) and scratch sweeps around it.
+
+**Process miss.** Several analysis sweeps (single-threaded NumPy, under
+2 GB each) ran outside the heavy lock on 2026-11-16 before batch b03,
+four of them in parallel for a few minutes; every CASA run, and every
+analysis from b03 on, ran under the lock with one slot.
 
 - **D1 (probe b02, S1), the per-row statistic.** With the band known, CASA's
   frequency-direction flags are reproduced on 1,101 of 1,104 planes (3 cells
@@ -162,19 +174,52 @@ channels; outputs `D:\rang\outputs\v8-tfcrop-20261116\probes\b0N\out`):
   the threshold and all on rows with sd below 0.005: CASA's straight-line
   fit of an exactly straight band is off by about 1e-6 relative (its line
   fit is less precise than its polynomial fit; not resolved).
-- **D2 (probe b01, L1), the robust line (partial).** With D1, a line fitted
-  by least squares, then refitted twice to the channels whose residual is
-  at most 2 × the rms of the residual (one-sided: only channels above the
-  fit are excluded, "the base of RFI spikes"), reproduces CASA's
-  `freqfit='line'` flags on 1,055 of 1,104 planes at cutoff 3 (1,330 cells
-  wrong of 11.3 M); polynomial and sine shapes all fit, as do the
-  narrow-band spikes. Not identified: why three fits (bumps of width 8
-  need four or five), and why the best count rises to four or five at
-  cutoffs 4 and 5 (1,062 and 1,104 planes); the exclusion factor 2 does not
-  follow the cutoff. The piecewise-polynomial fit (`maxnpieces` ≥ 1 with
-  `freqfit='poly'`) is not identified: a staged line-then-cubic fit with
-  1-5 stages and the piece schedules tried reproduces at most 809 of 1,104
-  planes at `maxnpieces=1`.
+  **Confirmed on S2 (b03)**, the design aimed at the 0.1 boundary (row sd
+  stepped 0.08-0.12) and at sd drops of 0.1 or more (rows with 4-12
+  outliers of ±0.9): 1,104 of 1,104 planes equal, 0 cells different, at
+  `maxnpieces=7` with cutoffs 3 and 4; 1,099 of 1,104 (5 cells) with
+  `freqfit='line'`.
+- **D2 (b01 L1, b05 N1), the robust line: partly identified.** A
+  least-squares line, refitted twice to the channels whose residual is at
+  most 2 × the rms residual of the channels in the previous fit (one-sided:
+  only channels above the fit are left out, "the base of RFI spikes"),
+  then D1. Planes equal to CASA: L1 (noise-free shapes) 1,055 of 1,104 at
+  cutoff 3; N1 (fresh `syn-noise`-like bandpasses, noise 0.1) 924 of 1,104,
+  precision 0.9995, recall 0.976. The sweep is sharp: two or four fits, or
+  a factor of 1.5 or 2.5, give at most 555 planes on N1. Open, with the
+  evidence: (a) the 180 N1 planes that differ are planes where a line is a
+  poor model of the band (misfit up to 0.8 at the band edge); on four of
+  them, a line with another slope and intercept reproduces CASA exactly or
+  within 3 cells, so CASA's line differs there, by up to 13 % in slope;
+  (b) the factor 2 does not follow the cutoff, and at cutoffs 4 and 5 the
+  best fit count on L1 is 4 (1,062 and 1,104 planes); (c) **scale**: L1
+  multiplied by 0.01 gives 26,441 fewer CASA flags than L1 (bumps 12,462,
+  spikes 6,580, steps 7,399 cells), while ×100 differs from ×1 by 7 cells,
+  so the line fit holds an absolute tolerance somewhere; its form is not
+  identified. The fit count is not a function of the relative sd change.
+- **D3 (b04 LT), time is the transposed frequency direction.** L1
+  transposed (shapes over 256 integrations, the ladder over 40 channels)
+  under `flagdimension='time'`, `timecutoff=3`: CASA flags 150,937 cells,
+  exactly L1's count under `freqfit='line'`, cutoff 3, and the model
+  reproduces 1,055 of 1,104 planes, the same as L1. The time pass is D2 and
+  D1 with times and channels exchanged (per-channel sd over times). On N1
+  the time pass (`timecutoff=4`) is equal on all 1,104 planes (18 flags).
+- **Not identified: the piecewise polynomial** (`freqfit='poly'`, the
+  default). The sparse readout R1 (b03) settles the family to the 1e-3
+  level: independent least-squares cubics on equal pieces (edges at
+  round(k·n/maxnpieces)) fit CASA's misfit better than splines, global
+  cubics, overlapping pieces or quadratics (rms 2e-4 to 5e-3 against
+  readout intervals of about 1e-3); below 1e-3 the readout is not precise
+  enough (its intervals are not monotone between neighbouring channels),
+  a negative result for the method. On N1 the best staged fit at
+  `maxnpieces=1` (two cubic fits, factor 2) equals CASA on 543 of 1,104
+  planes; at `maxnpieces=7` the model reaches precision 0.873, recall
+  0.849. At noise 0.1 and cutoff 3, G3 needs the template to about 6e-4
+  relative (a 0.1 σ shift of the threshold moves a third of the marginal
+  flags), so the family alone does not meet it.
+- **Not identified: window statistics** (`usewindowstats`, which CARACal's
+  call uses), the extension after tfcrop, pre-flagged input, chunking.
+  `rang.tfcrop.plane` raises on `usewindowstats` other than `'none'`.
 
 ## 8. Runs and cost
 

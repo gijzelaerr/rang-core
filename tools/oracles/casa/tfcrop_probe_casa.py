@@ -69,8 +69,13 @@ def main(argv):
                             shape=np.array(f.shape), flag_row=fr)  # fmt: skip
         log["flagged"] = int(f.sum())
         log["wall_s"] = time.time() - t0
-        (out / f"{case['name']}.json").write_text(json.dumps(log, indent=1), encoding="utf-8")
-        print(f"{case['name']}: {log['flagged']} flagged, {log['wall_s']:.1f} s", flush=True)
+        (out / f"{case['name']}.json").write_text(
+            json.dumps(log, indent=1), encoding="utf-8"
+        )
+        print(
+            f"{case['name']}: {log['flagged']} flagged, {log['wall_s']:.1f} s",
+            flush=True,
+        )
         shutil.rmtree(work)
 
 

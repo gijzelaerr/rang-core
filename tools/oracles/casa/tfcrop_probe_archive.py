@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tfcrop_probe_eval import load_flags  # noqa: E402
+from tfcrop_probe_eval import load_flags
 
 ARMS = (("b02", "S1", "p7", 3.0), ("b02", "S1", "p1", 3.0),
         ("b03", "S2", "p7", 3.0), ("b03", "S2", "p7_c4", 4.0))  # fmt: skip

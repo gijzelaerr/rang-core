@@ -40,7 +40,9 @@ def test_d1_matches_casa_on_probe_planes(probe):
     nbl = info["nbl"]
     for arm in rec["arms"]:
         n = nbl * 4 * info["ntime"] * info["nchan"]
-        casa = np.unpackbits(np.frombuffer(base64.b64decode(arm["flags"]), np.uint8))[:n]
+        casa = np.unpackbits(np.frombuffer(base64.b64decode(arm["flags"]), np.uint8))[
+            :n
+        ]
         casa = casa.astype(bool).reshape(nbl * 4, info["ntime"], info["nchan"])
         data = designs[arm["design"]]
         params = {"flagdimension": "freq", "freqcutoff": arm["freqcutoff"],
@@ -71,11 +73,15 @@ def test_row_rule_passes():
 
 def test_time_is_transposed_freq():
     rng = np.random.default_rng(1)
-    a = (2.0 + np.linspace(-1, 1, 64)[:, None]) * (1 + 0.1 * rng.standard_normal((64, 48)))
+    a = (2.0 + np.linspace(-1, 1, 64)[:, None]) * (
+        1 + 0.1 * rng.standard_normal((64, 48))
+    )
     a[10, 5] *= 3
     f = np.zeros(a.shape, bool)
     t = tfcrop.plane(a, f, {"flagdimension": "time", "timecutoff": 3.0})
-    q = tfcrop.plane(a.T, f.T, {"flagdimension": "freq", "freqcutoff": 3.0, "freqfit": "line"})
+    q = tfcrop.plane(
+        a.T, f.T, {"flagdimension": "freq", "freqcutoff": 3.0, "freqfit": "line"}
+    )
     assert np.array_equal(t, q.T) and t[10, 5]
 
 
