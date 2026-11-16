@@ -4,7 +4,8 @@ Status, 2026-11-16: **measured. Under the frozen rules the joint reading is row 
 unresolved**, because item 5's phase-only test is void (one truncation arm fails its
 informativeness condition). Item 1 reads gain-like; item 3 finds the steady errors (P(G3) =
 0.86 P_pilot, antenna 1 the worst of 60); item 5's long-baseline T1 survives (ρ_L = 0.97). Post hoc
-(section 12), every discriminator points to steady antenna phase errors of about 5°. Protocol
+(section 12), the lead is steady antenna phase errors of about 5°; the frozen reading does not
+establish it. Protocol
 frozen in `6d00242` before any run (sections 1-10 unchanged since, except the smoke declaration
 in section 10). Follow-up to
 [imaging-floor.md](imaging-floor.md) (issue #13), items 1, 3 and 5 of its section 8.6, on the
@@ -200,8 +201,15 @@ is declared here; its numbers are not results.
 --rows-limit 6000`, arms C, H1b@1, K10@1, XS2@1 only, under `--slots 2 --mem 6`, 230 s. It checked
 the code paths (facet sign (1, −1) at 3.7e-6, facet sums 3.9e-6, the gauge, the publisher's gain
 statistics); its numbers are not results and its directory is deleted. No rule or threshold
-changed after it. Every command under the main checkout's
-`tools/heavy_lock.py run --slots N --mem G`, wall-timed, rows in [tool-timings.md](tool-timings.md).
+changed after it. (This paragraph was committed with the results in `f8077e6`; the pre-run record
+of the smoke run is the message of `3d9bfcb`, pushed before the full run started.)
+
+Every command under the main checkout's `tools/heavy_lock.py run --slots N --mem G`, wall-timed,
+rows in [tool-timings.md](tool-timings.md).
+
+**Clarification, 2026-11-16, after the run (no consequence):** the script ran all the pilot's
+tests in one call and evaluated gate R0 only in the `summary` stage, not before the new tests as
+this section says. R0 passed (11.1), so no number was read under a failed gate.
 
 ## 11. Results
 
@@ -296,9 +304,20 @@ For #6 the frozen table says no change.
   floor, against 0.29-0.40 for incompleteness's spurious gains. Every kind of incompleteness tested
   fails at least two of these. The lead is **steady per-antenna phase errors of about 5° rms over
   the hour (1.1 % amplitude), worst on antenna 1**, left by the publisher's QuartiCal net gain and
-  unrelated to that gain's own per-antenna variability.
+  unrelated to that gain's own per-antenna variability. Where they come from (the publisher's
+solution, or a model CLEANed from the same data) is not tested here.
 - Remaining limits: one gain realisation and one noise seed; the pilot's model was CLEANed from the
   same data; T1L does not separate gain errors from non-closing errors on long baselines.
+
+- **Per-antenna distribution (descriptive, post hoc,** from `summary.json` `antennas`): antenna 1's
+  steady error is −14.3° and +1.2 % amplitude; the next are 25 (+12.8°), 27 (+9.7°), 22 (−9.2°),
+  17 (−9.0°), 11 (+8.1°). σ_φ is 4.84° over all 60, 4.51° without antenna 1 and 3.63° without the
+  worst six; 17 antennas exceed 5°, the median |φ| is 3.2°. So the error is array-wide with a tail,
+  not one antenna.
+- **Overlap with heldout's bad baselines (descriptive, post hoc):** in set B's 145 flagged
+  baselines (`badbaselines.json`) the antennas appearing most are 1 (30 baselines), 25 (26),
+  27 (17), 38 (16), 30 (12), 11 (11). Five of these six (1, 25, 27, 38, 11) are in T1's worst ten
+  here. Set B's flags were chosen by misfit against a model, so this is an overlap, not a test.
 
 ## 13. What it means for #13 and #6
 
@@ -309,7 +328,8 @@ For #6 the frozen table says no change.
 - **#6:** the case for a phase self-calibration round on the pilot is now strong. A 5-min,
   frequency-independent phase solve against the 3 mJy model removes 0.83 of the excess (1,073 →
   447 µJy in the subset's exact residual). That is an expected effect, not a measured self-cal run.
-  Antenna 1's worst-case misfit (heldout §5) is this steady phase error.
+  Antenna 1's worst-case misfit in heldout §5 is consistent with its steady phase error here
+  (−14°); the link was not tested.
 
 ## 14. For the coordinator
 
