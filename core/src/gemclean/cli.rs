@@ -797,18 +797,17 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         a.multiscale = Some(ms);
     }
     a.single = precision.unwrap_or(a.epsilon >= 1e-5);
-    // -gpu-memory, else RANG_GPU_MEMORY_MB (X2's variable), else 1024.
-    a.gpu_memory = match gpu_memory {
-        Some(m) => m,
-        None => match std::env::var("RANG_GPU_MEMORY_MB") {
-            Ok(v) if !v.trim().is_empty() => v
-                .trim()
-                .parse()
-                .map_err(|_| format!("RANG_GPU_MEMORY_MB must be a number of MiB, not {v:?}"))?,
-            _ => a.gpu_memory,
-        },
-    };
     if a.gpu {
+        // -gpu-memory, else RANG_GPU_MEMORY_MB (X2's variable), else 1024.
+        a.gpu_memory = match gpu_memory {
+            Some(m) => m,
+            None => match std::env::var("RANG_GPU_MEMORY_MB") {
+                Ok(v) if !v.trim().is_empty() => v.trim().parse().map_err(|_| {
+                    format!("RANG_GPU_MEMORY_MB must be a number of MiB, not {v:?}")
+                })?,
+                _ => a.gpu_memory,
+            },
+        };
         if a.channels_out > 1 || a.pols.len() > 1 {
             return Err(
                 "-gpu takes one output channel and one polarisation (the other modes are not validated on the GPU; research/gpu-grid.md)"
@@ -839,6 +838,12 @@ fn device<T: Real + Send + Sync>(
     args: &Args,
 ) -> Result<GridMeasurement<T>, String> {
     if args.gpu {
+        #[cfg(feature = "gpu")]
+        println!(
+            "gpu: {}; budget {} MiB",
+            crate::wgridder::gpu::adapter().unwrap_or_else(|e| e),
+            args.gpu_memory
+        );
         m.on_gpu(args.gpu_memory)
     } else {
         Ok(m)
