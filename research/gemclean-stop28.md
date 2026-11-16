@@ -286,11 +286,18 @@ images are the default's. Peak memory 10.9-11.4 GiB.
   flux 0.99-1.00 × the default's and within the WSClean tolerance; the residual peak left above the threshold is at
   most 2 % (largest 1.96 %, H5). A gain over GeMClean's own exact stop, **not over WSClean**: the novelty reading fails
   (H6 ties WSClean plain's 4 cycles; on H7 GeMClean has 5.721 against plain's 5.689 mJy false flux).
+- **The verdict is close to its edge (post hoc observation, no rerun at another ε).** H5's cut cycle started at
+  101.96 µJy against a cut-off of 102.00: had it started 0.04 µJy higher, H5 would take 6 cycles, the savings 2, 1, 0, 1
+  (mean exactly 1.0) and the outcome "partial gain". Other cycles sit just above the cut-off: H7 102.82 (not cut),
+  H6's preceding cycle 102.72, seen H3 102.59. A cycle that ends with the exact peak 2-3 % above `T` is common, so
+  the saving per sky depends on where that last revealed peak falls.
 - **Seen sets agree with their written predictions** exactly (H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4),
-  so the rule behaves as the truncation it is. H3 still needs 6 cycles.
-- **Recommendation to the coordinator:** `-stop-tolerance 0.02` as GeMClean's default meets the note's conditions (gain,
-  pilot off-source |model| ≤ 1.1 ×, compact medians within 0.5 %). The default is **not** changed on this branch. Cost
-  to state with it: the exact residual peak may end up to 2 % above `-abs-threshold`/`-auto-threshold`.
+  so the rule behaves as the truncation it is. **The issue's example bar ("≤ 5 cycles on every held-out sky") is not met
+  if H1-H4 count:** H3 still needs 6 cycles. On the blind H5-H8 alone it is met.
+- **Recommendation to the coordinator:** at accuracy 1e-6, `-stop-tolerance 0.02` meets the note's conditions for a
+  default (gain, pilot off-source |model| ≤ 1.1 ×, compact medians within 0.5 %). GeMClean ships at 1e-4 single
+  precision, so measure the rule there before switching (a post hoc pair is below). The default is **not** changed on
+  this branch. Cost to state with it: the exact residual peak may end up to 2 % above the threshold.
 - **Not measured:** the rule at GeMClean's own default accuracy (1e-4, single precision; amendment 1), where the inner
   peak can already end up to 25 % above the threshold ([clean-overview.md](clean-overview.md) decision 3); `-auto-mask`,
   `-multiscale`, joined channels or polarisations (refused); wide fields beyond H3; wall time (no exclusive hold).

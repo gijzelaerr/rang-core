@@ -58,7 +58,9 @@ def locked(cmd, slots, mem, log):
     return code
 
 
-def gem(out_dir, name, ms, size, tol=None, scale="1.5asec", thr="100e-6", mem=6):
+def gem(
+    out_dir, name, ms, size, tol=None, scale="1.5asec", thr="100e-6", mem=6, acc="1e-6"
+):
     """One GeMClean run in the held-out note's settings (accuracy 1e-6, amendment 1)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     if (out_dir / f"{name}-report.json").exists():
@@ -76,7 +78,9 @@ def gem(out_dir, name, ms, size, tol=None, scale="1.5asec", thr="100e-6", mem=6)
         "-abs-threshold",
         thr,
     ]
-    cmd += ["-wgridder-accuracy", "1e-6", "-data-column", "DATA", "-field", "0"]
+    if acc is not None:
+        cmd += ["-wgridder-accuracy", acc]
+    cmd += ["-data-column", "DATA", "-field", "0"]
     cmd += ["-j", THREADS]
     if tol is not None:
         cmd += ["-stop-tolerance", tol]
@@ -382,6 +386,22 @@ def main():
         heldout("new", skies, a.tol, O / "data", O / "prep")
     elif a.stage == "bright":
         bright(a.tol)
+    elif a.stage == "shipping":
+        # Post hoc, outside the verdict: GeMClean's own default accuracy (1e-4, single).
+        d = O / "shipping"
+        for s in ("h5", "h6", "h7", "h8"):
+            ms = O / "data" / f"{s}.ms"
+            gem(d, f"{s}-default", ms, 2048, acc=None)
+            gem(d, f"{s}-{tol_tag(a.tol)}", ms, 2048, tol=a.tol, acc=None)
+            jobs = [f"{s}-default", f"{s}-{tol_tag(a.tol)}"]
+            score(
+                O / "prep" / s,
+                O / "data" / f"{s}.json",
+                d,
+                O / "scores" / f"shipping-{s}.json",
+                jobs,
+                beam=beam_of(s),
+            )
     elif a.stage == "rescore":
         # Scores only (amendment 3): the runs exist, the beam is given explicitly.
         for stage, skies, data in (
