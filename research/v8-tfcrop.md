@@ -4,7 +4,14 @@ Next piece of issue #8 and of [v8-open-casa.md](v8-open-casa.md) (piece 1).
 Branch `v8-tfcrop` from `main` `d2013ea`, written 2026-11-16 before any new
 tfcrop code and before any new CASA probe.
 
-**Status: proposed; nothing measured under this note.** This note takes over
+**Status: measured, development gate not met (2026-11-16).** Gate run 1 of
+3: 4 of 21 informative development cases pass; H not reached, stopped
+after run 1 (section 9). Identified from probes: the per-row rule (D1,
+exact), the time direction (D3), the robust line in part (D2); not
+identified: the piecewise polynomial, window statistics. tfcrop stays
+refused; no Rust kernel. Sections 1-6 were committed (eedfe52) before any
+code or probe; this status line, sections 7 and 9 are the only later
+edits. This note takes over
 V8b's H1 ([v8b-flagdata.md](v8b-flagdata.md), section 9.3) with a new
 protocol. V8b's own verdict stands as recorded there: H1 stopped after
 round 2 of 4, development gate not met, held-out case not opened. Nothing
@@ -233,4 +240,68 @@ deleted after).
 
 ## 9. Results
 
-(none at the freeze)
+### 9.1 Development gate run 1 of 3 (2026-11-16)
+
+The committed NumPy reference (`rang.tfcrop` at `e632dd4`: D1, D2, D3,
+independent cubic pieces after one line fit, window statistics refused)
+through `rang.tasks.flagdata` (`tfcrop.ENABLED` set by the harness) on the
+26 development cases of section 3, against CASA 6.7.6.14's outputs for the
+same MSs and arms from V8b round 02 (`D:\rang\scratch\v8b-20261113\casa-02`;
+same image, same synthetic MSs, same plan rows). Run
+`D:\rang\outputs\v8-tfcrop-20261116\gate-01`, verdicts `gate-01.json` (copied to [results/v8-tfcrop/gate-01.json](results/v8-tfcrop/gate-01.json)), plan
+`plan-gate.json`; 212 s wall (rang and comparison), one lock slot.
+
+| Case | Inf. | G1 | G2 | Precision | Recall | Pass |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| syn-noise T1, T3 | yes | 0.99846 | 0.0145 | 0.914 | 0.756 | no |
+| syn-noise T4 | yes | 0.99415 | 0.0565 | 0.919 | 0.771 | no |
+| syn-noise T5 | yes | – | – | – | – | no (refused: window statistics) |
+| syn-rfi T1 | yes | 0.99965 | 0.0004 | 0.993 | 0.989 | **yes** |
+| syn-rfi T2 | yes | 1.00000 | 0.0000 | 1.000 | 1.000 | **yes** |
+| syn-rfi T3 | yes | 0.99964 | 0.0004 | 0.997 | 0.995 | **yes** |
+| syn-rfi T4 | yes | 0.99859 | 0.0028 | 0.995 | 0.993 | no (G1, G2) |
+| syn-rfi T5, T6 | yes | – | – | – | – | no (refused) |
+| syn-rfi T7 | yes | 0.98618 | 0.0303 | 0.999 | 0.910 | no |
+| a1 T1, T3 | yes | 0.96907 | 0.0158 | 0.605 | 0.533 | no |
+| a1 T4 | yes | 0.93499 | 0.0466 | 0.645 | 0.604 | no |
+| a1 T5 | yes | – | – | – | – | no (refused) |
+| a1 T8 | yes | 0.94549 | 0.0537 | 0.545 | 0.312 | no |
+| luno T4 | yes | 0.99510 | 0.0060 | 0.086 | 1.000 | no |
+| luno T5, T6 | yes | – | – | – | – | no (refused) |
+| luno T7 | yes | 0.99995 | 0.0001 | 0.997 | 0.994 | **yes** |
+| luno T8 | yes | 0.99852 | 0.0005 | 0.455 | 0.500 | no |
+| syn-noise T2, a1 T2, luno T1-T3 | no | | | | | uninformative |
+
+**4 of 21 informative development cases pass G1-G4** (syn-rfi T1, T2, T3;
+luno T7); G4 (FLAG_ROW) is equal on all 26. Against V8b round 1-2 (same
+cases): syn-noise T1 from precision 0.96 / recall 0.64 to 0.91 / 0.76;
+syn-rfi T1 from 1.00 / 0.40 to 0.99 / 0.99 (passes); a1 T1 from 0.65 / 0.20
+to 0.61 / 0.53. The time direction (T2) is equal wherever CASA flags.
+Reading the misses: syn-noise and a1 fail on the polynomial template (T1);
+on `luno` rang adds 1,963 cells in T1 where CASA adds none, so a guard that
+the probes did not exercise (CASA's handling of pre-flagged channels or of
+a mostly flagged plane; `luno` is heavily flagged on input) is missing; T5
+and T6 are refused by design until window statistics are identified.
+
+### 9.2 Verdict (2026-11-16)
+
+**H not reached; stopped by this session after gate run 1 of 3, with the
+development gate not met.** Following section 5's miss branch:
+`rang.tasks.flagdata` keeps refusing `mode='tfcrop'`, the reference stays
+behind `rang.tfcrop.ENABLED`, the held-out cases were not opened, and
+**no Rust kernel was written**, by section 6's build order (identify in
+the reference, then port); this is a miss against the brief, which asked
+for a Rust kernel. Two gate runs and the budget to 2026-11-17 are unspent.
+
+What is established (clean room, from probes only): D1 exactly (S1, S2:
+2,205 of 2,208 planes, the three differing cells within 0.2 % of the
+threshold); D3 (time = transposed frequency); D2 for bands a line models
+well. What blocks the gate, in order of the cases it would move: the
+piecewise-polynomial template to better than about 1e-3 relative
+(syn-noise, a1, CARACal's default `freqfit`); window statistics
+(`usewindowstats`, every CARACal call, T5, T6); the `luno` guard; D2's open
+points (a)-(c). Suggested next probes: single-piece fits on noisy averages
+(the N1 sweep at `maxnpieces=1` peaked at 543 of 1,104 planes, so the
+staged schedule is wrong, not only its precision); window statistics on
+S-type designs where the fit is exact; a pre-flagged variant of S2 for the
+guard.

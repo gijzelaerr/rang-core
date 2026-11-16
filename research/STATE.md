@@ -20,6 +20,14 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+V8 tfcrop, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md), measured, gate not met): new protocol after
+V8b's stopped H1, frozen before code (G1-G4 unchanged, three gate runs). Clean-room probes against CASA 6.7.6.14
+(five batches of 1,104 designed planes, about 3 s per arm) identify the per-row rule exactly (sd about 0 over the row,
+passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the time direction as the transposed
+frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
+window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
+opened, tfcrop still refused, no Rust kernel (build order: identify first).
+
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
 - `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for
