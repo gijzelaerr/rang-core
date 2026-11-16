@@ -178,9 +178,15 @@ def applycal(ms, r):
         raise SystemExit("corr-prep has not run")
     P.write(r / "casa-applycal-spec.json", applycal_calls(f"/c/{ms.name}"))
     (r / "e2p_applycal.py").write_text(P.APPLY_PY, encoding="utf-8")
-    return P.docker(r, P.CASA_IMAGE, P.inplace_mounts(ms, r),
+    rc = P.docker(r, P.CASA_IMAGE, P.inplace_mounts(ms, r),
                     "/opt/casa/bin/python -I /p/e2p_applycal.py /p/casa-applycal-spec.json "
                     "/p/casa-applycal-result.json", "casa-applycal", 2)  # fmt: skip
+    # e2_rows_a.py's target-unit-on reads its applycal record under this name;
+    # the target is one of this call's fields.
+    res = r / "casa-applycal-result.json"
+    if res.is_file():
+        shutil.copy(res, r / "target-applycal-result.json")
+    return rc
 
 
 if __name__ == "__main__":
