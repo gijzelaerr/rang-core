@@ -263,8 +263,10 @@ driver 621.01, `SHADER_F64` yes). Outputs: `D:/rang/outputs/20261116-gpu-grid` (
 `gate0-9ad7e75-{cpu,gpu}/`, `gate1/`, `gate2/`, `timing/`, `wsclean/`). Binaries: baseline
 `gemclean` from `a931b6c` (sha256 `ee933fff…`), and from the library at `9ad7e75` the feature-off
 `gemclean` (`c434075a…`), the feature-on `gemclean` (`b9348d49…`) and `gpu_grid_parity`;
-the library code is unchanged since `9ad7e75` (later commits touch tests, the command line's
-flag handling, the parity driver and the notes). Gates 0-2 ran as shared jobs at `-j 8`
+Gates 1 and 2 ran on those. The final build at `ac69867` (the command line's flag handling and
+adapter line, a type alias; feature off `40f5869e…`, feature on `184b1adc…`) was checked again:
+Gate 0 byte-identical (18 of 18 files) and its `-gpu` S1 coarse run byte-identical to the
+`9ad7e75` GPU run's FITS. Gates 0-2 ran as shared jobs at `-j 8`
 (images do not depend on the thread count); budget 4096 MiB unless stated, with 0.9-1.1 GB
 of the card in use by others before each run (`gate1/*.gpu`). Archives:
 [results/gpu-grid-gate1.json](results/gpu-grid-gate1.json),
@@ -275,7 +277,8 @@ of the card in use by others before each run (`gate1/*.gpu`). Archives:
 ### 8.1 Gate 0, CPU unchanged: **pass**
 
 S1 coarse, S1 fine and H3 coarse with the feature-off build and with the feature-on build
-without `-gpu`: model, residual and image FITS byte-identical to the `a931b6c` baseline (18 of 18).
+without `-gpu`: model, residual and image FITS byte-identical to the `a931b6c` baseline (18 of 18),
+at `9ad7e75` and again at `ac69867`.
 The Rust tests pass with the feature off (quick check) and on (section 8.5).
 
 ### 8.2 Gate 1, operator parity: f64 **pass**; f32 **fails as frozen**; f32 passes amendment 9.3 on the seven skies, fails it on the pilot
@@ -308,9 +311,10 @@ image's peak; (b) the GPU's error against the f64 reference over the CPU's (µJy
 - **f32** fails the frozen bound everywhere. Under amendment 9.3 it passes (a) everywhere
   (≤ 2.1e-7 of the dirty peak) and (b) on the seven skies (0.92-1.26 × the CPU's own f32
   error), but **fails (b) on the pilot**: 0.264 µJy against the CPU's 0.056 µJy (4.7 ×). The
-  pilot is the only case gridded in several batches (three per call, 302,978,293 active
-  visibilities over a 4096 MiB budget), and each batch's partial plane is transformed and
-  projected in f32 on its own (amendment 9.1); that adds rounding. Not diagnosed further.
+  pilot is the only case gridded in several batches in this table (three per call, 302,978,293
+  active visibilities over a 4096 MiB budget), but batching alone does not explain it: S1
+  coarse in five batches per call (500 MiB) is as close to the f64 reference as in one
+  (0.107 µJy in both). Its 31 w-planes against 6-8 on the skies may; not diagnosed further.
 - **Determinism**: GPU residuals and visibilities bit-identical within a process (every
   case) and over three fresh processes (S1 coarse and fine: one hash each). Batching
   (amendment 9.1): S1 coarse at a 500 MiB budget (five batches per call) gives
@@ -352,9 +356,52 @@ simulated skies' 100 µJy threshold, is 30 times tighter than the pilot's stoppi
 That is a reading, not an amendment. Its major cycles took 65.9 s on the GPU against 99.3 s
 on the CPU (one cycle fewer; shared host, `-j 8`).
 
-### 8.4 Timing (exclusive, `-j 16`)
+### 8.4 Timing (exclusive, `-j 16`): **not run**
 
-Pending.
+The plan ([timing_plan.txt](results/gpu-grid-scripts/timing_plan.txt): S1, H2, H3 × coarse,
+fine × CPU, GPU × 3 repeats, interleaved; WSClean `minres` at `-mgain` 0.8 and 0.9 × 3 in WSL)
+ran its drivers from 17:07 to 18:25. No run started:
+- **The host never went exclusive.** An IDLE 4-slot, 10 GB hold of another task (E2-A
+  scoring, pid 62604, "using ~0.0 cores") held the shared lock throughout, beside other
+  shared jobs. Each exclusive ticket was withdrawn after 10 min at the head of the queue, as
+  the brief asks: GeMClean 4 times (`timing/withdrawn.txt`), WSClean 4 times
+  (`wsclean/withdrawn.txt`). The lock stops backfilling only after a head ticket has waited
+  15 min, so a ticket withdrawn at 10 min cannot drain the host; the two rules do not compose.
+- **The card was taken.** From about 18:05, 10,868 of 12,282 MiB were in use by another
+  process (a resident model server), below section 5's 4096 + 256 MiB: one GPU arm was
+  recorded void (`timing/void.txt`) and every later GPU arm would have been.
+- The drivers were stopped at 18:25; no ticket of this task is left in the queue.
+
+What is known about cost comes from the shared `-j 8` runs of Gates 1 and 2 and is not
+a timing result: end to end the GPU runs took 13.9-73.2 s against the CPU's 13.5-68.1 s on
+the skies, slower in all seven fine runs (f64 at 1/64 of the f32 rate) and within ±7 % in
+coarse; the pilot 189.5 s against 196.0 s. The GPU path's own split on S1 coarse (11 calls):
+compute 2.38 s, upload 0.61 s, host 0.98 s, download 0.12 s, setup 1.20 s. Peak device
+memory 588-1342 MiB on the skies, 4096 MiB (the budget) on the pilot.
+
+### 8.5 Checks
+
+- Rust, feature off: `tools/check_all.py --quick` (root and core tests, clippy, fmt) at
+  `10bc238`'s parent; 291 core tests pass. Feature on: `cargo clippy --features gpu
+  --all-targets -D warnings` clean and `cargo test --features gpu` 301 + 1 pass at `c3ceb00`,
+  the GPU tests running on the RTX 4070 Ti (not skipped).
+- CI: `tests` and `docs` green on `10bc238` (runs 43898387145, 43898387137) and `STATE` commit
+  (43902831327, 43902831138).
+- Python: `tests/test_w2_commands.py::test_the_gemclean_device_reaches_gemclean`, the
+  environment registry and docs tests pass; `docs/cli.md` regenerated.
+
+### 8.6 Outcome
+
+Under section 5 as frozen: **Failure** (Gate 1 fails in f32; Gate 2 fails on the pilot's
+L∞ bound). `-gpu` is not refused on the branch, as the Failure clause asks: it is labelled
+experimental in the usage text, pending the coordinator's decision on amendment 9.3. No speed
+result: the timing did not run (8.4). No novelty claim.
+
+Not checked: WSClean was not run in this session (the oracle comparison is inherited through
+GPU ≈ CPU and gemclean-speed.md); WSClean with IDG; the pilot in f64; pytest against an
+extension built with the feature; Gates 1 and 2 at `-j 16` (they ran at `-j 8`; the images do
+not depend on the thread count); `-gpu` with several channels or polarisations (refused);
+macOS, DX12, AMD; the full `check_all` (left to the coordinator's merge check).
 
 ## 9. Amendments
 

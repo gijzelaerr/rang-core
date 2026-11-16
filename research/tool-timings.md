@@ -2021,3 +2021,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gpu-grid: GeMClean CPU / `-gpu`, coarse, `-j 8` shared | pilot-512 (4096², 3asec) | 196.0 s / 189.5 s | – | major cycles 99.3 s (5) / 65.9 s (4); GPU 4096 MiB, 3 batches per call |
 | 2026-11-16 | gpu-grid: `gpu_grid_parity`, one residual + `dirty2vis` per arm | 7 skies x 2 forms, pilot | under 1 min per case; pilot 3.3 min (dirty image 2.3 min) | – | Gate 1; 8 threads |
 | 2026-11-16 | gpu-grid: `tools/check_all.py --quick` | worktree | 987 s (lock wait excluded) | – | FAIL: cargo fmt only (fixed); 469 pytest passed |
+| 2026-11-16 | gpu-grid: exclusive timing tickets (GeMClean Windows, WSClean WSL) | S1 H2 H3 plan | not started | – | 17:07-18:25; 4 + 4 tickets withdrawn after 10 min at the head (IDLE 4-slot E2-A hold); 1 GPU arm void (card 10.9 of 12.3 GB used) |

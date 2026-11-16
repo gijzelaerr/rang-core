@@ -233,7 +233,7 @@ def drive(plan):
                 if started:
                     continue
                 last = buf[-1] if buf else ""
-                if "behind" in last:
+                if "behind" in last or "waiting for head" in last:
                     head_since = None
                 elif head_since is None:
                     head_since = time.time()

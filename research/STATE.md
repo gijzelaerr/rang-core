@@ -33,7 +33,8 @@ frozen at `e1c55ac`, amendments 9.1-9.3; library at `9ad7e75`; outputs `D:/rang/
 - Gate 2 (post hoc continuation): all seven skies in both forms within G1's bounds; f64 images equal the CPU's;
   the pilot fails the 100 µJy L∞ bound (2.1 mJy; one major cycle fewer; its threshold is 3 mJy).
 - Speed: at `-j 8` on a shared host the GPU runs were not faster end to end (13.9-73.2 s against 13.5-68.1 s);
-  exclusive `-j 16` timing against WSClean in section 8.4.
+  exclusive `-j 16` timing against WSClean **not run**: an IDLE 4-slot hold kept the host shared for 80 min
+  (8 tickets withdrawn at 10 min) and another process took the card (10.9 of 12.3 GB). No speed claim.
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
 `D:\rang\outputs\msfix-20261116-01`):

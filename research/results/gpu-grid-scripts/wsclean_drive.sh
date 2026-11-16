@@ -6,7 +6,7 @@ D=$(cd "$(dirname "$0")" && pwd)
 OUT=/mnt/d/rang/outputs/20261116-gpu-grid/wsclean
 mkdir -p "$OUT"
 for rep in 1 2 3; do
-  for sky in s1 h2 h3; do
+  for sky in ${SKIES:-s1 h2 h3}; do
     for mg in 0.8 0.9; do
       name=$sky-minres-mgain$mg-r$rep
       while [ ! -f "$OUT/$name.txt" ]; do
@@ -17,7 +17,7 @@ for rep in 1 2 3; do
         while kill -0 $pid 2>/dev/null; do
           sleep 5
           [ -f "$OUT/$name.load" ] && { wait $pid; break; }
-          if tail -1 "$err" | grep -q behind; then head=0; else head=$((head + 5)); fi
+          if tail -1 "$err" | grep -q -e behind -e "waiting for head"; then head=0; else head=$((head + 5)); fi
           if [ $head -ge 600 ]; then
             kill $pid; echo "$name withdrawn $(date +%T)" | tee -a "$OUT/withdrawn.txt"; sleep 600; break
           fi
