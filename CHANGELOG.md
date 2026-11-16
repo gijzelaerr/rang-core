@@ -11,8 +11,9 @@ the release notes are the section of this file for that version.
 
 - New (`research/msv4-interop.md`, #5): `rang.msv4` reads an MSv4 processing set (xradio schema 4.x, Zarr)
   into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
-  Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; xarray-ms stores (uint8 `FLAG`) are
-  refused for now. Nothing reads it in the stages yet.
+  Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as
+  bool when it holds only 0 and 1 and refused otherwise. xarray-ms 0.5.14 drops autocorrelations by default,
+  so its stores of MSs with them lack those rows; every row it writes matched. Nothing reads it in the stages yet.
 - Fixed (WSClean #208, fixed upstream by !1068, commit `ca23d835`, not yet in a release; v3.7 still has
   the old rule): `gemclean`'s theoretic beam (the start and box of the restoring-beam fit, the circular
   beam when the fit fails, the default multiscale scales, `theoretic_beam_rad` in `-report.json`) now
