@@ -348,7 +348,7 @@ pads 1 against false.
   a writer difference, xarray-ms drops autocorrelations by default): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
   edge-case harness does for arcae), frozen as an amendment, and rerun the
   xarray-ms arm.
-- **M1b:** rerun the xarray-ms arm with `auto_corrs=True`, a change to the
+- **M1b** (amended in section 10): rerun the xarray-ms arm with `auto_corrs=True`, a change to the
   frozen arm of section 4, so a dated amendment first; it needs the WSL
   oracle venv for the conversions.
 - **M2:** feed `Partition.chunks` to one stage (flag or image) and require
@@ -415,6 +415,49 @@ over all 9 cases and both arms, on the committed code, with a new receipt
   without a second dated amendment written before that code.
 - The differences listed under the probe are not measures; they are
   recorded, and nothing is claimed about them.
+
+## 10. Amendment M1b: xarray-ms with `auto_corrs=True` (2026-11-16, post hoc)
+
+Written and committed before any new conversion; approved by the
+coordinator (owner delegated). It is post hoc to section 4: it adds a writer
+setting after the M1 run showed that xarray-ms's default leaves out the
+autocorrelations. The M1 result (section 7, "M1 run") stays as booked.
+Sections 3, 4, 6 and 9 stay as frozen; the reader is not changed.
+
+**Known before this amendment:** `xarray_ms/backend/msv2/entrypoint.py`
+(0.5.14) takes `auto_corrs: bool = False` in `open_dataset` and
+`open_datatree`; the M1 diagnosis (run 06) matched all 9 cases on their
+cross-correlation rows. No store written with `auto_corrs=True` has been
+opened or compared.
+
+**New arm `xms-auto` (frozen here):** in the same oracle venv (xarray-ms
+0.5.14, xarray 2026.9.0, WSL), `xarray.open_datatree(ms,
+engine="xarray-ms:msv2", auto_corrs=True)`, then `to_zarr(out)`, all else
+default. Stores under `D:\rang\outputs\msv4-20261116\ps\xms-auto`; the
+`xradio` and `xms` stores of `convert-01` are not rewritten. The conversion
+runs from the committed harness (`convert ROOT --arms xms-auto`) under
+`heavy_lock`, log `convert-02.log`, entries `<case>/xms-auto` added to
+`convert.json`.
+
+**Cases, mapping, tolerance, reader:** those of sections 4 and 9,
+unchanged: the same 9 cases, bit-identical, no tolerance, `rang.msv4` as
+merged at `6909a31`.
+
+**Decision rule for M1b (frozen here):** the check of section 4 over all
+9 cases and the three arms `xradio`, `xms` and `xms-auto`, on the committed
+code, receipt `results/msv4-interop-m1b.json`, runs numbered from 07.
+
+- The `xradio` arm must still be all `match` and the `xms` arm as in run 05
+  (c6, c7, c9 `match`, the rest `mismatch`); otherwise something other than
+  the setting changed, and M1b is void until found.
+- **M1b pass:** every measure of every case in the `xms-auto` arm is
+  `match`. Then section 3's claim that the same code reads an xarray-ms
+  tree holds for these 9 cases when xarray-ms is asked for
+  autocorrelations.
+- **M1b not met:** any `xms-auto` measure `refused`, `writer fails` or
+  `mismatch`. The column that differs is found and booked under section 6
+  (writer difference or reader outcome); no reader change without another
+  dated amendment written before that code.
 
 ## For the coordinator
 
