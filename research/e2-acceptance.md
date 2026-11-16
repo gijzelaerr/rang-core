@@ -1815,6 +1815,21 @@ Costs (shared slots): post chain 13.3 h (WSClean 3c clean 26,057 s, dirty 3,367 
 daskms 2,894 s; applycal in place 3,138 s over 9p; compare 2,700 s; qc-avg 3,315 s; QuartiCal 246 s);
 3b CASA 3,236 s; oracle WSClean 26,837 s; flux run 2,053 s. They are in tool-timings.md.
 
+### 9.14 Coordinator decisions on E2-A (2026-11-17, owner delegated)
+
+- The verdict stands as frozen: E2-A is not passed (6.6). A rerun after a fix uses the reserve data under
+  a new frozen leg; none is run now.
+- Gate 3c (dirty L-inf 5.0e-3, compact scatter 3.6 %) and the target compact row (scatter 4.3 %) are
+  listed for v0.3.0 as a known limitation, with the measured radius trend (ratios 1.00 inside 0.35 deg to
+  0.90 beyond 1.4 deg, consistent with 512- against 4,096-channel smearing). This matches E2-B's
+  decision for its cleaned 3c (e2b-misses.md 9.29).
+- Gate 3b's K1 G1 B1 fcal composite miss gets a pre-registered diagnosis, research/e2a-3b-diag.md (branch
+  `e2a-3b-diag`), testing `average_time` and CASA's virtual model (`usescratch=False`) first.
+- The issue #2 comment drafted by the scoring agent is not posted by the coordinator (public; left to the
+  owner).
+- `e2a.ms` (194 GiB, at its 9.1 state) is kept for the diagnosis; the smoke directory
+  `D:ang\outputs\e2a-score-smoke-20261116` is kept until it ends.
+
 ## For the coordinator
 
 (written at the end)
