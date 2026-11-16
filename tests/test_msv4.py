@@ -22,14 +22,17 @@ pytestmark = pytest.mark.skipif(
 DATA = Path(__file__).resolve().parent / "data" / "msv4"
 
 
-def _tree(schema="4.0.1", kind="visibility", vis_dtype="complex64", pad=True):
+def _tree(
+    schema="4.0.1", kind="visibility", vis_dtype="complex64", pad=True, flag=None
+):
     import xarray as xr
 
     rng = np.random.default_rng(7)
     ntime, nbl, nchan, ncorr = 3, 3, 5, 2
     shape = (ntime, nbl, nchan, ncorr)
     vis = (rng.normal(size=shape) + 1j * rng.normal(size=shape)).astype(vis_dtype)
-    flag = rng.random(shape) > 0.7
+    flag_bool = rng.random(shape) > 0.7
+    flag_store = flag_bool if flag is None else flag(flag_bool)
     weight = rng.random(shape).astype("float32")
     uvw = rng.normal(size=(ntime, nbl, 3))
     if pad:
@@ -41,7 +44,7 @@ def _tree(schema="4.0.1", kind="visibility", vis_dtype="complex64", pad=True):
     ds = xr.Dataset(
         {
             "VISIBILITY": (grid, vis),
-            "FLAG": (grid, flag),
+            "FLAG": (grid, flag_store),
             "WEIGHT": (grid, weight),
             "UVW": (("time", "baseline_id", "uvw_label"), uvw),
         },
@@ -71,7 +74,7 @@ def _tree(schema="4.0.1", kind="visibility", vis_dtype="complex64", pad=True):
     )
     ant = xr.Dataset(coords={"antenna_name": ["a0", "a1", "a2"]})
     tree = xr.DataTree.from_dict({"/p0": ds, "/p0/antenna_xds": ant})
-    return tree, (vis, flag, weight, uvw)
+    return tree, (vis, flag_bool, weight, uvw)
 
 
 def test_rows_layout_and_pads(tmp_path):
@@ -178,3 +181,45 @@ def test_xradio_store_equals_msv2(tmp_path):
             seen += 1
         assert len(rows["TIME"]) == int(np.sum(ref["DATA_DESC_ID"] == ddid))
     assert seen == len(ref["TIME"])
+
+
+def _uint8(flag):
+    out = flag.astype(np.uint8)
+    out[1, 2] = 1  # xarray-ms pads FLAG with 1
+    return out
+
+
+def test_uint8_flag_of_0_and_1_reads_as_bool(tmp_path):
+    """Section 9: xarray-ms writes FLAG as uint8; 0 and 1 read as bool."""
+    tree, (_, flag, _, _) = _tree(flag=_uint8)
+    path = tmp_path / "ps.zarr"
+    tree.to_zarr(str(path))
+    part = msv4.open_processing_set(path).partition("p0")
+    assert part.ds["FLAG"].dtype == np.uint8
+    rows = part.rows()
+    keep = np.ones(9, bool)
+    keep[1 * 3 + 2] = False
+    assert rows["PADS"] == 1
+    assert rows["FLAG"].dtype == np.bool_
+    assert rows["FLAG"].tobytes() == flag.reshape(9, 5, 2)[keep].tobytes()
+    reference = msv4.open_processing_set(_tree()[0]).partition("p0").rows()
+    assert rows["FLAG"].tobytes() == reference["FLAG"].tobytes()
+
+
+def test_uint8_flag_other_value_is_refused():
+    def two(flag):
+        out = flag.astype(np.uint8)
+        out[2, 1, 3, 0] = 2
+        return out
+
+    tree, _ = _tree(flag=two)
+    part = msv4.open_processing_set(tree).partition("p0")  # opening reads no value
+    assert next(part.chunks(time_rows=2))["PADS"] == 1  # times 0, 1 are clean
+    with pytest.raises(ValueError, match=r"uint8 with values \[2\]"):
+        part.rows()
+
+
+def test_other_flag_dtype_is_refused():
+    tree, _ = _tree(flag=lambda f: f.astype(np.int8))
+    with pytest.raises(ValueError, match="int8, not bool or uint8"):
+        msv4.open_processing_set(tree).partition("p0")

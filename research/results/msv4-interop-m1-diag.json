@@ -1,0 +1,186 @@
+{
+ "c1": {
+  "ms_rows": 20,
+  "ms_auto_rows": 8,
+  "store_baselines": {
+   "1672727931_sdp_l0_scan_1_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 12,
+  "pads": 0
+ },
+ "c2": {
+  "ms_rows": 20,
+  "ms_auto_rows": 8,
+  "store_baselines": {
+   "1672727931_sdp_l0_scan_4_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 12,
+  "pads": 0
+ },
+ "c3": {
+  "ms_rows": 20,
+  "ms_auto_rows": 8,
+  "store_baselines": {
+   "1672727931_sdp_l0_scan_5_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 12,
+  "pads": 0
+ },
+ "c4": {
+  "ms_rows": 20,
+  "ms_auto_rows": 8,
+  "store_baselines": {
+   "1672727931_sdp_l0_scan_8_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 12,
+  "pads": 0
+ },
+ "c5": {
+  "ms_rows": 140,
+  "ms_auto_rows": 56,
+  "store_baselines": {
+   "1672727931_sdp_l0_scan_9_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 84,
+  "pads": 0
+ },
+ "c6": {
+  "ms_rows": 12480,
+  "ms_auto_rows": 0,
+  "store_baselines": {
+   "A-casa_partition_000": 120,
+   "A-casa_partition_001": 120,
+   "A-casa_partition_002": 120,
+   "A-casa_partition_003": 120
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 12480,
+  "pads": 0
+ },
+ "c7": {
+  "ms_rows": 192,
+  "ms_auto_rows": 0,
+  "store_baselines": {
+   "M1-casa_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 192,
+  "pads": 0
+ },
+ "c8": {
+  "ms_rows": 136,
+  "ms_auto_rows": 55,
+  "store_baselines": {
+   "c8-scan9-gaps_partition_000": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 81,
+  "pads": 3
+ },
+ "c9": {
+  "ms_rows": 36,
+  "ms_auto_rows": 0,
+  "store_baselines": {
+   "m05-var-spw-tssm_partition_000": 6,
+   "m05-var-spw-tssm_partition_001": 6
+  },
+  "store_auto_baselines": 0,
+  "outcome_cross_only": "match",
+  "measures": {
+   "coverage": "match",
+   "DATA": "match",
+   "FLAG": "match",
+   "WEIGHT_SPECTRUM": "match",
+   "UVW": "match",
+   "TIME": "match",
+   "antenna names": "match"
+  },
+  "loader_rows": 36,
+  "pads": 0
+ }
+}

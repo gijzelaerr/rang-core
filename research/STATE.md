@@ -20,9 +20,17 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
+not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
+[results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:
+`rang.msv4` reads a uint8 `FLAG` as bool when every value read is 0 or 1 and refuses other values. Rerun on the
+`convert-01` stores at zero tolerance: xradio arm still 9/9 match; xarray-ms 0.5.14 arm matches in c6, c7, c9
+(12,708 rows) and mismatches in the six cases with autocorrelations, which xarray-ms drops by default
+(`auto_corrs=False`). With those rows out of the reference (diagnosis, post hoc) all 9 match, 12,921 rows. Next:
+M1b, the arm with `auto_corrs=True`, after a second amendment.
+
 MSv4 read path, 2026-11-16 (branch `msv4-interop`; [msv4-interop.md](msv4-interop.md), measured, pass; receipt
-[results/msv4-interop.json](results/msv4-interop.json); stores `D:
-ang\outputs\msv4-20261116`): #5's second part.
+[results/msv4-interop.json](results/msv4-interop.json); stores `D:\rang\outputs\msv4-20261116`): #5's second part.
 `rang.msv4`, behind a new `[msv4]` extra (xarray, zarr 3, numcodecs), reads an MSv4 processing set into the
 core's row layout (the `MvfLoader` keys), dropping pad cells. Oracle: xradio 1.3.1 and xarray-ms 0.5.14 (WSL,
 arcae has no Windows wheel) convert 9 MSv2s (fixture scans 1, 4, 5, 8, 9; `A-casa.ms`; `M1-casa.ms`; scan 9 less 4

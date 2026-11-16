@@ -12,7 +12,9 @@ Opens an xradio processing set (an xarray DataTree, a Zarr store by default,
 - `FLAG_ROW`: false (MSv4 has no row flag);
 - `DATA` complex64, `FLAG` bool, `WEIGHT_SPECTRUM` float32, each
   `(row, channel, corr)`, from the data group's correlated data, flag and
-  weight; `UVW` float64 `(row, 3)`;
+  weight; `UVW` float64 `(row, 3)`. A uint8 `FLAG` (xarray-ms writes one) is
+  read as bool when every value read is 0 or 1, and refused otherwise (the
+  note's section 9);
 - `FIELD_NAME`, `SCAN_NAME`: the per-time names, per row.
 
 Rows are time-major in `baseline_id` order. A `(time, baseline)` cell whose
@@ -32,10 +34,10 @@ import numpy as np
 UNIX_TO_MJD_SECONDS = 3506716800.0
 GRID = ("time", "baseline_id", "frequency", "polarization")
 DTYPES = {
-    "correlated_data": np.dtype("complex64"),
-    "flag": np.dtype("bool"),
-    "weight": np.dtype("float32"),
-    "uvw": np.dtype("float64"),
+    "correlated_data": (np.dtype("complex64"),),
+    "flag": (np.dtype("bool"), np.dtype("uint8")),
+    "weight": (np.dtype("float32"),),
+    "uvw": (np.dtype("float64"),),
 }
 
 
@@ -106,7 +108,7 @@ class Partition:
         group = groups[data_group]
         self.data_group = data_group
         self.variables = {}
-        for role, dtype in DTYPES.items():
+        for role, dtypes in DTYPES.items():
             var = group.get(role)
             if var is None or var not in ds:
                 raise ValueError(f"{name}: data group {data_group!r} has no {role}")
@@ -116,8 +118,9 @@ class Partition:
                 raise ValueError(
                     f"{name}: {var} has dimensions {array.dims}, not {want}"
                 )
-            if array.dtype != dtype:
-                raise ValueError(f"{name}: {var} is {array.dtype}, not {dtype}")
+            if array.dtype not in dtypes:
+                want_dtype = " or ".join(str(d) for d in dtypes)
+                raise ValueError(f"{name}: {var} is {array.dtype}, not {want_dtype}")
             self.variables[role] = var
         self.ds = ds
         self.time_unix = np.asarray(ds["time"].values, np.float64)
@@ -144,6 +147,19 @@ class Partition:
             return np.full(len(self.time), "", dtype=object)
         return np.asarray([str(v) for v in self.ds[coord].values], dtype=object)
 
+    def _flag_as_bool(self, flag):
+        """A uint8 `FLAG` as bool, refused unless every value is 0 or 1."""
+        if flag.dtype == np.bool_:
+            return flag
+        bad = flag > 1
+        if bad.any():
+            values = np.unique(flag[bad])[:8].tolist()
+            raise ValueError(
+                f"{self.name}: {self.variables['flag']} is uint8 with values "
+                f"{values} other than 0 and 1"
+            )
+        return flag != 0
+
     @property
     def nbaseline(self):
         return len(self.antenna1)
@@ -163,6 +179,7 @@ class Partition:
         values = {
             role: np.asarray(part[var].values) for role, var in self.variables.items()
         }
+        values["flag"] = self._flag_as_bool(values["flag"])
         vis = values["correlated_data"]
         ntime, nbl, nchan, ncorr = vis.shape
         uvw = values["uvw"].reshape(ntime * nbl, 3)

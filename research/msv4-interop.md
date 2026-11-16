@@ -196,7 +196,7 @@ threads booked), with no claim attached.
 ## 7. Measured result (2026-11-16)
 
 Status after the run: **measured, pass** (xradio arm); the xarray-ms arm is
-refused by the frozen scope.
+refused by the frozen scope. (2026-11-16: for M1, the amended rerun, see "M1 run" at the end of this section.)
 
 **Runs.** Conversions: WSL, one run, `convert-01.log`, under
 `heavy_lock run --slots 2 --mem 4`. Checks: Windows, worktree `.venv`
@@ -281,11 +281,76 @@ ra-ng's reader reads it there (`lock_sync_rows`, `core/src/ms.rs`). A copy
 without `table.lock` reads as 0 rows. The test fixture `m05.zip` therefore
 keeps `table.lock`.
 
-## 8. Next steps (proposed, not started)
+### M1 run (2026-11-16, under section 9)
 
-- **M1:** accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
+Status: **measured, M1 not met; booked a writer difference.** The xradio arm
+is still all `match`; the xarray-ms arm matches in c6, c7 and c9 and
+mismatches in the six cases that hold autocorrelations, because xarray-ms
+0.5.14 does not write them.
+
+| run | code | outcome |
+| --- | --- | --- |
+| 05 | `7d82e46` (committed; amendment `8a93cfa` before it) | xradio: 9 of 9 `match`; xarray-ms: c6, c7, c9 `match`, c1 to c5 and c8 `mismatch` (coverage); the receipt |
+| 06 | diagnosis `results/msv4-interop/m1_diag_autos.py`, same code | not a measure (post hoc): xarray-ms arm against the MSv2 with its autocorrelation rows removed, all 9 `match`. A first run 06 from an uncommitted copy of the same script, before lint and formatting, gave the same result; its output was not kept |
+
+A first launch of run 05 failed before the harness started (`heavy_lock`
+could not spawn a relative interpreter path); nothing was read. Checks on
+Windows, worktree `.venv` (Python 3.13.16, xarray 2026.9.0, zarr 3.4.2,
+numcodecs 0.17.1), `heavy_lock run --slots 1 --mem 4`, 9 s each. Stores:
+those of `convert-01`, unchanged.
+
+**Receipts:** [`results/msv4-interop-m1.json`](results/msv4-interop-m1.json)
+(run 05, the format of run 04) and
+[`results/msv4-interop-m1-diag.json`](results/msv4-interop-m1-diag.json)
+(run 06).
+
+**xarray-ms 0.5.14 arm, run 05:**
+
+| case | MSv2 rows | of which autocorrelations | xarray-ms rows read | outcome |
+| --- | ---: | ---: | ---: | --- |
+| c1 to c4 | 20 each | 8 each | 12 each | `mismatch` (coverage: 8 MSv2 rows unmapped) |
+| c5 | 140 | 56 | 84 | `mismatch` (56 unmapped) |
+| c6 | 12480 | 0 | 12480 | `match` |
+| c7 | 192 | 0 | 192 | `match` |
+| c8 | 136 | 55 | 81 (3 pads dropped) | `mismatch` (55 unmapped) |
+| c9 | 36 | 0 | 36 | `match` |
+
+- The uint8 `FLAG` holds only 0 and 1 in every case: no read was refused.
+- c6, c7, c9: `DATA`, `FLAG`, `WEIGHT_SPECTRUM`, `UVW` bit-identical,
+  `TIME` exact (no 1 ms fallback), coverage exact, on 12,708 rows.
+- c1 to c5 and c8: every store has 6 baselines for 4 antennas and none of
+  them an autocorrelation. xarray-ms's MSv2 backend takes `auto_corrs`,
+  default `False` (`xarray_ms/backend/msv2/entrypoint.py`), and the arm
+  used the defaults (section 4). The harness books every measure of a case
+  `mismatch` when coverage fails, so these six cases say nothing per column
+  in the receipt.
+- In run 06, with the autocorrelation rows taken out of the reference,
+  every measure of all 9 cases matches: 12,921 rows bit-identical, coverage
+  exact. In c8 xarray-ms wrote 3 pads (the 3 removed cross-correlation
+  cells; xradio wrote 4, the fourth for the removed autocorrelation), and
+  the reader dropped exactly those.
+- Under section 9 this is **M1 not met**. Under section 6 it is a writer
+  difference: for the six cases the reader matches the MSv2 for xradio's
+  store, and xarray-ms's store lacks the MSv2's autocorrelation rows. The
+  reader read every row xarray-ms wrote bit for bit. No reader change
+  followed.
+
+**Other writer differences** (recorded, not measures, nothing claimed):
+`schema_version` 4.0.0 against xradio's 4.0.1; partitions
+`<ms>_partition_<nnn>` against `<ms>_<n>`; `field_name` without xradio's
+`_<id>` suffix, so `FIELD_NAME` rows differ between the writers; an extra
+`SIGMA_SPECTRUM`; no `pointing_xds`; no autocorrelations by default; `FLAG`
+pads 1 against false.
+
+## 8. Next steps (proposed; M1 done)
+
+- **M1** (done 2026-11-16: section 9 amendment, section 7 M1 run; not met,
+  a writer difference, xarray-ms drops autocorrelations by default): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
   edge-case harness does for arcae), frozen as an amendment, and rerun the
   xarray-ms arm.
+- **M1b:** rerun the xarray-ms arm with `auto_corrs=True`, a change to the
+  frozen arm of section 4, so a dated amendment first; it needs the WSL
+  oracle venv for the conversions.
 - **M2:** feed `Partition.chunks` to one stage (flag or image) and require
   the stage's products to be bit-identical to the same stage on the MSv2:
   the issue's gate "identical calibration and imaging results".
@@ -295,7 +360,73 @@ keeps `table.lock`.
   then throughput, object storage and per-chunk writes; each with its own
   note.
 
+## 9. Amendment M1: uint8 `FLAG` (2026-11-16, post hoc)
+
+Written and committed before the code that implements it. It is post hoc to
+sections 3 and 6: it changes the scope after the run of section 7 showed the
+refusal. Sections 3, 4 and 6 stay as frozen; this section overrides one
+refusal of section 3 and adds a rule for the xarray-ms arm.
+
+**Probe before this amendment.** The xarray-ms stores of `convert-01`
+(c5, c6, c9) were opened with xarray in the main checkout's venv and their
+layout read: `FLAG` is uint8 with dimensions `GRID`; c5's `FLAG` holds only
+the values 0 and 1; `schema_version` is 4.0.0 (xradio 4.0.1); partitions are
+named `<ms>_partition_<nnn>` (xradio `<ms>_<n>`); `field_name` has no `_<id>`
+suffix (xradio `J1939-6342_0`, xarray-ms `J1939-6342`); xarray-ms adds a
+`SIGMA_SPECTRUM` variable and writes no `pointing_xds`. The partitions of c6
+and c9 have the same sizes, fields' scans and antenna names in both arms. No
+xarray-ms value was compared with the MSv2.
+
+**Scope change (frozen here).**
+
+- A `FLAG` of dtype uint8 is accepted; bool is accepted as before; every
+  other dtype (int8, uint16, float, ...) is still refused at
+  `Partition(...)`.
+- A uint8 `FLAG` is read as `flag != 0` after a value check: if any cell
+  read holds a value other than 0 or 1, the read is refused
+  (`ValueError`, naming the partition and the values). The check covers
+  every cell of the times read, pads included (xarray-ms pads `FLAG` with 1).
+- The check can only run when values are read, so it runs in
+  `Partition.rows()` (and so in `chunks()`), not when the partition is
+  opened: a bad value in a later chunk is refused only when that chunk is
+  read. The harness books such a refusal as `refused` for the partition.
+- The output `FLAG` stays bool, `(row, channel, corr)`; nothing else in the
+  layout of section 3 changes. The pad rule is unchanged.
+
+**Cases, mapping, tolerance:** those of section 4, unchanged. Bit-identical,
+no tolerance. The stores are those of `convert-01`
+(`D:\rang\outputs\msv4-20261116\ps`), not rewritten; no file under `ps/`
+is newer than `convert.json` (checked before this amendment).
+
+**Decision rule for M1 (frozen here).** The check of section 4 is run again
+over all 9 cases and both arms, on the committed code, with a new receipt
+`results/msv4-interop-m1.json`; runs are numbered from 05.
+
+- The xradio arm must still be all `match` in the same run; otherwise the
+  change broke the reader and M1 fails whatever the xarray-ms arm shows.
+- **M1 pass:** every measure of every case in the xarray-ms arm is `match`.
+  Then section 3's claim that the same code reads an xarray-ms tree holds
+  for these cases.
+- **M1 partial or fail:** any xarray-ms measure `refused` or `mismatch`. The
+  column that differs is found (for example by comparing the two stores
+  directly) and booked under section 6: where the reader matches the MSv2
+  for the xradio store and not for the xarray-ms store, it is a writer
+  difference, not a reader outcome. The reader is not changed further
+  without a second dated amendment written before that code.
+- The differences listed under the probe are not measures; they are
+  recorded, and nothing is claimed about them.
+
 ## For the coordinator
+
+M1 (branch `msv4-m1`): amendment `8a93cfa` (section 9, before the code),
+code `7d82e46`, records after. uint8 `FLAG` of 0/1 is read as bool, other
+values refused on read. Run 05: xradio arm still 9/9 `match`; xarray-ms arm
+3/9 `match`, the 6 cases with autocorrelations `mismatch` because
+xarray-ms defaults to `auto_corrs=False` (writer difference; the cross rows
+match in all 9, run 06). M1b proposed. The WSL oracle venv is kept for M1b
+and M3.
+
+First part (branch `msv4-interop`):
 
 - Branch `msv4-interop`: note `7ebf6ed` (frozen first), code `3fd8d97`,
   records after. Outcome under the frozen rule: **pass** on the xradio arm,
@@ -304,7 +435,7 @@ keeps `table.lock`.
   later), added to the CI and `check_all.py` extras. The core install is
   unchanged. No CLI change, no new `RANG_*` variable.
 - The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`); kept for
-  M1, remove it once M1 is done or dropped.
+  M1b and M3 (new conversions); remove it once they are done or dropped (2026-11-16, after M1).
 - `tools/check_all.py` installs extras only into a new `.venv`: the main
   checkout's `.venv` needs `uv pip install xarray "zarr>=3,<4" numcodecs` (or
   `--extra msv4`) or the merge check skips `tests/test_msv4.py`.
