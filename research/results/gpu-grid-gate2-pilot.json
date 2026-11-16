@@ -1,0 +1,11 @@
+{
+ "sigma_jy": 0.0010920582562622154,
+ "image_rms_over_sigma": 0.017345263176867375,
+ "image_linf_jy": 0.002118229866027832,
+ "model_flux_cpu": 83.77513460046612,
+ "model_flux_gpu": 83.78033403365407,
+ "model_flux_rel": 6.206415797182377e-05,
+ "residual_rms_cpu": 0.0010920582562622154,
+ "residual_rms_gpu": 0.0010921540419300965,
+ "passes": false
+}

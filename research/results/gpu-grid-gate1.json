@@ -425,5 +425,38 @@
   "cpu_dirty2vis_s": 1.0732318,
   "gpu_dirty2vis_s": 0.6362231,
   "gpu_plan_s": 0.745445
+ },
+ {
+  "sky": "pilot",
+  "form": "coarse",
+  "plan": {
+   "supp": 6,
+   "nu": 6776,
+   "nv": 6776,
+   "nplanes": 31,
+   "nvis": 302978293
+  },
+  "residual_rel": 8.543728053698777e-05,
+  "residual_abs_ujy": 0.256288331001997,
+  "residual_peak_ujy": 2999.724820256233,
+  "misfit_rel": 2.2368213723496465e-09,
+  "dirty2vis_rel": 5.663400545815891e-07,
+  "frozen_pass": false,
+  "dirty_peak_ujy": 1197076.0822296143,
+  "amended_a": 2.1409527331349494e-07,
+  "amended_b": 4.729900062483876,
+  "amended_pass": false,
+  "repeat_identical": true,
+  "double_reference": {
+   "cpu_rel": 1.8573953960137406e-05,
+   "cpu_abs_ujy": 0.05571674730918061,
+   "gpu_rel": 8.785294599662653e-05,
+   "gpu_abs_ujy": 0.26353464657909165
+  },
+  "cpu_residual_s": 33.4981337,
+  "gpu_residual_warm_s": 15.6742755,
+  "cpu_dirty2vis_s": 13.7758008,
+  "gpu_dirty2vis_s": 5.11127,
+  "gpu_plan_s": 5.6480536
  }
 ]
