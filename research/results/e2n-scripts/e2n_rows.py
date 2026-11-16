@@ -13,14 +13,15 @@ per-bin sums are saved first (`snap`) and compared afterwards (`score`).
         point, |dchi| <= 1 deg); every scored bin must meet; plus the
         same-scan 3C 286 reading per arm (reported, not gated)
     python e2n_rows.py leakage MS_DIR MS_NAME COLUMN OUT_DIR LABEL
-        e2_leakage.py with FIELD = J0408-6545 (the adapted row: peak Q, U, V
-        over I <= 0.3 %)
+        e2_leakage.py's row with FIELD = J0408-6545 (the adapted row: peak
+        Q, U, V over I <= 0.3 %), through e2_post.docker
 
 The scans come from SCANS below, set from the converted MS's own SCAN_NUMBER
 and FIELD before the run (e2n-native.md results, MS map).
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -31,7 +32,10 @@ sys.path.insert(0, str(HERE.parent / "e2-acceptance-scripts"))
 
 import e2_rows_b as B
 
-XCAL, GCAL, LEAK = "J1331+3030", "J1744-5144", "J0408-6545"
+# E2-N's fields; the E2N_* variables map them for the development dry run only.
+XCAL = os.environ.get("E2N_XCAL", "J1331+3030")
+GCAL = os.environ.get("E2N_GCAL", "J1744-5144")
+LEAK = os.environ.get("E2N_LEAK", "J0408-6545")
 SCANS = {XCAL: None, GCAL: None}  # filled from the MS map before the run
 LIMITS = {
     "parity": {"field": XCAL, "dp": 0.001, "dchi_deg": 0.5, "di": None},
@@ -128,10 +132,54 @@ def score(rang_npy, casa_npy, out):
 
 
 def leakage(ms_dir, ms_name, column, out_dir, label):
-    import e2_leakage as L
+    """e2_leakage.py's row with FIELD = J0408-6545, its WSClean argv and score
+    unchanged, run through e2_post.docker (apptainer on nash, e2n_nash.py)
+    in place of its own `wsl docker` call."""
+    import math
 
-    L.FIELD = LEAK
-    return L.main(ms_dir, ms_name, column, out_dir, label)
+    import e2_leakage as L
+    import e2_post as P
+    from astropy.io import fits
+    from rang import core_ms
+
+    out = Path(out_dir)
+    (out / "tmp").mkdir(parents=True, exist_ok=True)
+    with core_ms.open_table(Path(ms_dir) / ms_name / "FIELD") as t:
+        fid = [str(n) for n in t.getcol("NAME")].index(LEAK)
+    cmd = (f"wsclean -name /o/{label} -size 2048 2048 -scale 2asec -weight briggs 0.0 "
+           "-make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations "
+           f"-data-column {column} -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 "
+           f"-no-update-model-required -j 8 -temp-dir /o/tmp -field {fid} /m/{ms_name}")  # fmt: skip
+    rc = P.docker(
+        out, L.IMAGE, [(Path(ms_dir), "/m"), (out, "/o")], cmd, f"{label}-wsclean", 8
+    )
+    rec = {"label": label, "column": column, "field": LEAK, "field_id": fid,
+           "wsclean_exit": rc, "command": cmd}  # fmt: skip
+    if rc == 0:
+        img = {p: np.asarray(fits.getdata(out / f"{label}-MFS-{p}-image.fits"), float).squeeze()
+               for p in "IQUV"}  # fmt: skip
+        h = fits.getheader(out / f"{label}-MFS-I-image.fits")
+        assert str(h.get("OBJECT")) == LEAK, h.get("OBJECT")
+        psf = out / f"{label}-MFS-psf.fits"
+        hp = fits.getheader(psf if psf.exists() else out / f"{label}-MFS-I-psf.fits")
+        bmaj = max(float(h["BMAJ"]), float(hp.get("BMAJ", 0.0))) / abs(h["CDELT2"])
+        assert bmaj > 0, "no beam in the image or PSF header"
+        py, px = np.unravel_index(int(np.argmax(img["I"])), img["I"].shape)
+        yy, xx = np.mgrid[: img["I"].shape[0], : img["I"].shape[1]]
+        near = np.hypot(xx - px, yy - py) <= 3 * bmaj
+        peak = float(img["I"][py, px])
+        rec.update(i_peak_jy=peak, i_peak_pix=[int(px), int(py)], beam_major_pix=bmaj)
+        for p in "QUV":
+            rec[f"{p}_over_I"] = float(np.max(np.abs(img[p][near]))) / peak
+            rec[f"{p}_at_peak_over_I"] = float(img[p][py, px]) / peak
+        rec["met"] = all(rec[f"{p}_over_I"] <= 0.003 for p in "QUV")
+        rec["max_over_I"] = max(rec[f"{p}_over_I"] for p in "QUV")
+        assert math.isfinite(rec["max_over_I"])
+    (out / f"{label}.json").write_text(
+        json.dumps(rec, indent=1) + "\n", encoding="utf-8"
+    )
+    print(json.dumps(rec, indent=1))
+    return rc
 
 
 if __name__ == "__main__":

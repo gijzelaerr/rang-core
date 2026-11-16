@@ -346,6 +346,46 @@ under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
   ([results/e2n/wsclean-build-check.json](results/e2n/wsclean-build-check.json)).
 - **Timings** are labelled host nash; they are not comparable with the Windows host's.
 
+## 8c. Amendment 3 (2026-11-17; after the DATA-state read of 9.2, before any rang or oracle step on E2-N)
+
+The coordinator's decision (owner delegated), 2026-11-16: E2-N continues as frozen, labelled "E2-N
+(observatory-phased)"; real-size K moves to a later leg on another capture block. Written before the
+rang arm or any oracle touched E2-N. Gates, tolerances and decision rule are unchanged.
+
+**1. Smoke rule (pre-registered; the leg does not start unless both pass).**
+- (a) `rang-core config check e2n.yaml e2n.ms` from the nash wheel venv: "valid for flag, calibrate,
+  apply, image, selfcal", with every field (roles and the bare `J0408-6545`) resolved against the MS.
+- (b) [e2n_dryrun.py](results/e2n-scripts/e2n_dryrun.py): e2n.yaml's shape on A1 small (fields mapped,
+  the bare J0408-6545 entry removed, 1,024² and multiscale off as E2's dry run `a`), run by
+  [e2n_nash_chain.sh](results/e2n-scripts/e2n_nash_chain.sh) from `run` to `final-restore` on nash:
+  every step rc 0 and every stage done. Its scores mean nothing and are not read as results.
+- A failure in (a) or (b) is fixed on development data and the smoke rerun; the fix is recorded here.
+  Only then does `run` start on E2-N, once.
+
+**2. The post chain on nash (no D: and no 9p, so E2-A's space workarounds are not needed; the in-place
+order is kept because it is the tested one).**
+- E2-A's `ORDER_INPLACE` (e2-acceptance.md 9.9, 9.10) on `e2n.ms` itself: gate1 to snapshot-inplace
+  (gates 1, 2a-2c), drop-corrected-inplace, qc-avg and qc-selfcal (self-calibration oracle in 9.10's
+  amended, averaged form; the unaveraged form would fit nash's memory but no script for it exists, so
+  it is "not run"), unit-on-a, the 3c images and score (`e2_score3c_a.py`), unit-off-a, restore,
+  tricolour (gate 3a, whole MS).
+- Added for E2-N, each before `restore` drops rang's columns: `rows-snap-rang` (E2-B's row estimator,
+  `e2_rows_b.accumulate`, on RANG_CORRECTED_DATA = rang's apply output with RANG_FLAG) and
+  `leakage-rang` (in unit-on-a's state: rang's flags, unit weights).
+- After `restore`: CASA's full-Stokes sequence ([e2n_casa3b.py](results/e2n-scripts/e2n_casa3b.py),
+  E2-B's calls **with `usescratch=True`**, as E2-B: nash writes MODEL_DATA locally, so the virtual
+  models of E2-A's 9p workaround are not used), gate 3b's score (E2-B's `e2_score3b.py`, secondary
+  J1744-5144), CASA applycal of CASA's tables with e2n.yaml's apply entries into CORRECTED_DATA,
+  `rows-snap-casa`, the row scores, then the target oracle (E2-A's `e2_rows_a.py` steps from branch
+  e2a-score: unit weights with CASA's flags, WSClean at the image stage's argv, target-score) with
+  `leakage-casa` in that same state, selfcal-score and final-restore.
+- **Leakage weights (labelled):** both arms' J0408-6545 images use unit weights (`data.weights:
+  uniform`), where E2-B's `e2_leakage.py` used the MS's weights. Same argv otherwise.
+- **The rang arm on nash:** a Linux wheel built from this branch on nash (not section 5's Windows
+  wheel; see amendment 2), in `~/Build/tmp/20261116-e2n/wheel-venv`; one shared lock job of 16 slots
+  and 96 GB (`RAYON_NUM_THREADS=16`), under `e2_timed.py` and the disk guard (floor 1,000 GiB on
+  `/home`). Its wall time is indicative (shared host, nice 19, other users), not a timing claim.
+
 ## 9. Results
 
 ### 9.1 Fetch and conversion (2026-11-16)

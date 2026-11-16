@@ -3,7 +3,7 @@ section 6): CARACal's full-Stokes sequence in CASA 6.7.6.14, E2-B's calls
 (`e2_casa3b.py`) with E2-N's fields, run in place on the leg's MS after
 `restore` as E2-A's (`e2_casa3b_a.py`): FLAG from rang's FLAG after calibrate,
 RECEPTOR_ANGLE -90 as mvftoms wrote it, rang's refant list (refantmode flex),
-setjy with usescratch false (virtual models: no MODEL_DATA written over 9p).
+setjy with usescratch true (E2-B's calls: MODEL_DATA written; nash has no 9p, amendment 3).
 Then CASA applycal of CASA's tables with e2n.yaml's apply entries into a
 CORRECTED_DATA that `corr-prep` creates natively (a copy of DATA), for the
 rows (3C 286 parity, J1744-5144, J0408-6545 leakage) and the target oracle.
@@ -16,6 +16,7 @@ rows (3C 286 parity, J1744-5144, J0408-6545 leakage) and the target oracle.
 """
 
 import json
+import os
 import shutil
 import sys
 import time
@@ -27,13 +28,12 @@ sys.path.insert(0, str(ROOT / "research" / "results" / "e2-acceptance-scripts"))
 
 import e2_post as P
 
-FCAL, XCAL, GCAL, TARGET, LEAK = (
-    "J1939-6342",
-    "J1331+3030",
-    "J1744-5144",
-    "ASKAPJ1745",
-    "J0408-6545",
-)
+# E2-N's fields; the E2N_* variables map them for the development dry run only.
+FCAL = os.environ.get("E2N_FCAL", "J1939-6342")
+XCAL = os.environ.get("E2N_XCAL", "J1331+3030")
+GCAL = os.environ.get("E2N_GCAL", "J1744-5144")
+TARGET = os.environ.get("E2N_TARGET", "ASKAPJ1745")
+LEAK = os.environ.get("E2N_LEAK", "J0408-6545")
 UVRANGE = ">150"
 LIN, NEAR = "linear", "nearest"
 X286 = {"fluxdensity": [14.7172, 0.0, 0.0, 0.0], "spix": [-0.4507, -0.1798, 0.0357],
@@ -41,7 +41,7 @@ X286 = {"fluxdensity": [14.7172, 0.0, 0.0, 0.0], "spix": [-0.4507, -0.1798, 0.03
         "rotmeas": 0.0}  # fmt: skip
 # e2n.yaml's apply entries: field, tables, interp, gainfield.
 APPLY = [
-    (f"{GCAL},{TARGET},{LEAK}", ["K", "F", "B", "Kcross", "Xf", "Df"],
+    (",".join(f for f in (GCAL, TARGET, LEAK) if f not in (FCAL, XCAL)), ["K", "F", "B", "Kcross", "Xf", "Df"],
      [LIN] * 3 + [NEAR] * 3, [FCAL, GCAL, FCAL, "", "", ""]),
     (f"{FCAL},{XCAL}", ["K", "G", "B", "Gpol", "Kcross", "Xf", "Df"],
      [LIN] * 4 + [NEAR] * 3, [""] * 7),
@@ -55,9 +55,9 @@ def casa_calls(ms, refant):
     cc = [f"{t}/K", f"{t}/G", f"{t}/B"]
     return [
         {"task": "setjy", "args": {"vis": ms, "field": FCAL, "standard": "Stevens-Reynolds 2016",
-         "scalebychan": True, "usescratch": False}},
+         "scalebychan": True, "usescratch": True}},
         {"task": "setjy", "args": {"vis": ms, "field": XCAL, "standard": "manual", **X286,
-         "scalebychan": True, "usescratch": False}},
+         "scalebychan": True, "usescratch": True}},
         {"task": "gaincal", "args": {**common, **mode, "caltable": f"{t}/K", "field": FCAL,
          "gaintype": "K", "solint": "inf", "combine": "", "parang": False}},
         {"task": "gaincal", "args": {**common, **mode, "caltable": f"{t}/G", "field": FCAL,
