@@ -20,6 +20,23 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+TS-P1 coordinator round 2, 2026-11-16 ([ts-p1.md](ts-p1.md) section 15):
+
+- **FLAG_ROW.** rang keeps honouring it. On `tsp1-held2`, T1/T2c raw stay
+  not met (0.19, 0.51σ). With FLAG_ROW ignored they reach 3.7e-7 and
+  5.0e-6σ.
+- **GeMClean** now also leaves FLAG_ROW rows out of the uniform/Briggs
+  weight grid. Gridding already skipped them, and its comment was wrong.
+  There is a new test. The 13 archived G2-G9 MSes have 0 FLAG_ROW samples
+  with weight, so their outputs are bit-identical.
+- **T4 met** under amendment 15.2 (peak-curvature Λ plus a pixel-grid
+  correction, written before the draw), on a fresh `tsp1-noise2`: 256
+  against E5 = 235.3 (+1.35σ), 0 at 7σ.
+  - The earlier "−1.3σ" was in units of 3√E; the correct figure is −3.9σ.
+- **T6** runs through `tools/oracles/ts-p1/t6_run.py`, which keeps an
+  exclusive ticket at the head for at most 10 minutes, then withdraws and
+  retries.
+
 TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
 13-14; frozen at `834cf15`, code at `08bfefb`):
 
