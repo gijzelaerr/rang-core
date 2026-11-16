@@ -1,6 +1,12 @@
 # Rang: floor-2, gains against short-spacing incompleteness on the pilot (issues #13, #6)
 
-Status, 2026-11-16: **proposed, protocol frozen in this commit before any run.** Follow-up to
+Status, 2026-11-16: **measured. Under the frozen rules the joint reading is row 4: H1 and H9 stay
+unresolved**, because item 5's phase-only test is void (one truncation arm fails its
+informativeness condition). Item 1 reads gain-like; item 3 finds the steady errors (P(G3) =
+0.86 P_pilot, antenna 1 the worst of 60); item 5's long-baseline T1 survives (ρ_L = 0.97). Post hoc
+(section 12), every discriminator points to steady antenna phase errors of about 5°. Protocol
+frozen in `6d00242` before any run (sections 1-10 unchanged since, except the smoke declaration
+in section 10). Follow-up to
 [imaging-floor.md](imaging-floor.md) (issue #13), items 1, 3 and 5 of its section 8.6, on the
 coordinator's decision of 2026-11-16 (owner delegated). Script: `examples/floor2_tests.py`
 (committed after this note; it imports `examples/floor_tests.py` and does not change it).
@@ -188,9 +194,129 @@ The issue's done-criterion (a measured share per cause) is met only by the first
 
 Order: R0's prep and skies, then the arms, then the pilot (its R0 check first, then the new
 tests), then G3 and its controls. A smoke run, if any, uses a simulated arm on a row subset only and
-is declared here; its numbers are not results. Every command under the main checkout's
+is declared here; its numbers are not results.
+
+**Smoke run, declared (2026-11-16 21:09-21:12, before the full run):** `floor2_tests.py smoke
+--rows-limit 6000`, arms C, H1b@1, K10@1, XS2@1 only, under `--slots 2 --mem 6`, 230 s. It checked
+the code paths (facet sign (1, −1) at 3.7e-6, facet sums 3.9e-6, the gauge, the publisher's gain
+statistics); its numbers are not results and its directory is deleted. No rule or threshold
+changed after it. Every command under the main checkout's
 `tools/heavy_lock.py run --slots N --mem G`, wall-timed, rows in [tool-timings.md](tool-timings.md).
 
 ## 11. Results
 
-Not run yet.
+One run, 2026-11-16 21:13-21:45 on the workstation (heavy lock `--slots 6 --mem 16`, normal
+priority, `RAYON_NUM_THREADS=6`): 1,635 s compute, 1,925 s with the queue. Archive:
+[results/floor-2/](results/floor-2/) (`summary.json`, `pilot.json`, every arm's floors and its T1,
+T1p and T1L gains, `run.log`). Raw: `D:\rang\outputs\floor-2-20261116`; the prep and the sky
+predictions (11.4 GB) were deleted after the run.
+
+### 11.1 Gate R0: pass
+
+- prep: `nrow` 823,500, `active` 19,133,875; `noise_c` and `gridding_weight_sum` bit-equal to the archive.
+- pilot: F(none) 1,073.42, F(T1) 411.91, F(T4) 1,060.62, F(T8) 1,050.52 µJy, each 1.000000 × the archive.
+- C@1 44.09 µJy. H1b@5.616: F ratio 1.0000, drops equal to 1e-6. K10@1 (= M): F ratio 1.000001,
+  D_T1 / D_T4 / D_T8 = 0.532 / 0.494 / 0.491, as archived.
+- Facet sums against full predictions: 6.9e-6 relative or less (sign (1, −1)).
+
+### 11.2 The matrix
+
+Drops are fractions of each arm's own excess power, at a₂ (P ≈ P_pilot), from `results/floor-2/summary.json`.
+
+| arm | a₂ (× a₁) | D_T1 | D_T1p | D_T1L | D_T4 | D_T8 | R |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **pilot** | – | **0.854** | **0.828** | **0.827** | 0.024 | 0.042 | **0.049** |
+| H1b | 5.616 | 1.000 | 0.663 | 1.000 | 0.013 | 0.019 | 0.019 |
+| H1bA | 9.688 | 1.000 | 0.000 | 1.000 | 0.020 | 0.023 | 0.023 |
+| H1bP | 6.862 | 1.000 | 1.000 | 1.000 | 0.008 | 0.014 | 0.014 |
+| K1 (1.64 Jy missing at a₁) | 5.59 | 0.178 | 0.104 | −0.019 | 0.071 | 0.075 | 0.42 |
+| K3 (7.74 Jy) | 2.376 | 0.315 | 0.043 | −0.039 | 0.251 | 0.250 | 0.80 |
+| K10 (27.4 Jy) | 0.731 | 0.531 | 0.008 | 0.122 | 0.494 | 0.491 | 0.93 |
+| XS2 (1 Jy at a₁) | 25.464 | 0.837 | 0.000 | 0.149 | 0.747 | 0.741 | 0.89 |
+| XS4 | 36.909 | 0.634 | 0.000 | 0.000 | 0.450 | 0.455 | 0.72 |
+| XG4 | 17.64 | 0.182 | 0.015 | 0.000 | 0.139 | 0.140 | 0.77 |
+| MIX (P = 1.19 P_pilot) | k_H 3.97, k_X 18.0 | 0.932 | 0.325 | 0.630 | 0.339 | 0.339 | 0.36 |
+
+Every arm is usable (P ≥ 0.1 P_pilot, D_T1 ≥ 0.1). On the pure gain arms each T1 variant removes
+what it should: T1L 1.000 on all three; T1p 1.000 on H1bP, 0.000 on H1bA and 0.663 on H1b (its
+phase share). Every antenna keeps at least 59 % of its natural weight above 400 m.
+
+### 11.3 Item 1: gain-like (frozen)
+
+R_G⁺ = 0.044. Every incomplete kind separates: R⁻ runs from 0.28 (K1) to 0.86 (K10), all at least
+2 R_G⁺ = 0.087. The pilot's R⁺ = 0.075 lies below every τ_j (0.111 for K1, 0.161-0.194 for the
+rest). The discriminator is **valid** and the pilot is **unlike every kind**, so item 1 reads
+**gain-like**. The missing-extended arms, the case 8.4 left open, drive the facet-scale fits about
+as hard as M does (R 0.72-0.89). MIX lands at R = 0.36; the pilot sits much closer to the pure gain
+arms.
+
+### 11.4 Item 3: the steady errors exist, and antenna 1 is the worst (frozen)
+
+- **3a: exist.** P(G3) = 0.863 P_pilot (≥ 0.5). Controls: G3K10 0.396 and G3XS2 0.292, both below
+  0.5 P(G3) = 0.431, so 3a separates. The pilot's steady T1 gains after the gauge: σ_a = 1.14 %,
+  σ_φ = 4.84°, variable part 1.46 % per 5 min, flux scale 1.007. Against H1b's 5.6 %, 5.6°, the
+  pilot's errors are **phase errors of the size needed, with amplitude errors five times smaller**.
+  On G3, T1p removes 0.984: the steady error is nearly all phase.
+- **3b: "like gain errors"** by the frozen branch: neither the pilot (ρ(e_p, s_p) = 0.22, p = 0.09)
+  nor H1b (−0.10) is core-concentrated. But only XS4 (0.64) and XG4 (0.80) are core-concentrated;
+  K1, K3, K10 and XS2 are not. So this statistic separates the pilot only from the two widest X arms.
+- **3c: no association** with the publisher's gain. e_p against its amplitude variability gives
+  ρ = −0.18 (p 0.18), phase variability 0.07 (0.61), mean amplitude 0.26 (0.044, above 0.002) and
+  XX/YY ratio 0.08 (0.56). The gain-flag fraction is constant over the subset's antennas, so its ρ
+  is undefined (the script's p for it is an artefact of the NaN); it is read as not associated.
+- **3d: antenna 1 is among the worst: yes, rank 1 of 60** (chance of rank ≤ 6: 0.10). Next come
+  25, 27, 22, 17 and 11. In the spurious gains of K10 and XS2 it ranks 21 and 22, in H1b's draws 48.
+
+### 11.5 Item 5: undecided (frozen)
+
+- Both solvers are valid (ρ_L(H1b) = 1.000, ρ_p(H1bP) = 1.000).
+- **T1L separates** (max ρ_L over the X arms is 0.178, below 0.70), and the pilot **survives** it:
+  ρ_L = 0.968 against m_L + 0.05 = 0.639. The pilot's T1 drop is found on baselines over 400 m and
+  carries over to the short ones; the tested short-spacing kinds give ρ_L ≤ 0.23.
+- **T1p is void.** It is informative only if ρ_p ≤ 0.3 on every K and X arm, and K1 gives 0.583
+  (K3 0.136, K10 0.015, the X arms ≤ 0.085). Faint flux missing at the 1 mJy level shifts the
+  phases that T1 fits. The pilot's ρ_p is 0.970.
+- Reading: **undecided**. The "gains more likely" branch needs both tests to survive and T1p to be
+  informative.
+
+### 11.6 Joint reading (section 8): row 4
+
+Item 1 is gain-like, item 5 undecided, 3a exist. No condition of rows 1-3 holds, so **H1 and H9
+stay unresolved and shared, and H1's bound stays 0.854**. #13's done-criterion is still not met.
+For #6 the frozen table says no change.
+
+## 12. Post hoc reading (not a verdict)
+
+- T1p is void because of one arm, K1, whose own T1 drop is only 0.178 (its T1p drop 0.104). On the
+  pilot T1p removes 0.828 of the excess, against at most 0.104 on any incomplete arm at floor
+  level. A rule on the T1p drop itself, rather than on ρ_p, would have passed. That rule was not
+  frozen, so it is not used.
+- Taken together: the pilot's T1 drop is found from long baselines alone (0.827) and by phase alone
+  (0.828); the facet-scale fits leave it alone; the injected steady phases reproduce 0.86 of the
+  floor, against 0.29-0.40 for incompleteness's spurious gains. Every kind of incompleteness tested
+  fails at least two of these. The lead is **steady per-antenna phase errors of about 5° rms over
+  the hour (1.1 % amplitude), worst on antenna 1**, left by the publisher's QuartiCal net gain and
+  unrelated to that gain's own per-antenna variability.
+- Remaining limits: one gain realisation and one noise seed; the pilot's model was CLEANed from the
+  same data; T1L does not separate gain errors from non-closing errors on long baselines.
+
+## 13. What it means for #13 and #6
+
+- **#13:** frozen, unresolved (row 4). Post hoc, it can be decided by a frozen follow-up with a T1p
+  rule on absolute drops, or more directly by a 5-min phase-only self-calibration of the pilot
+  (`rang-core selfcal`), imaged and scored with imaging-floor's metric. The floor after T1 is
+  412 µJy (9 × thermal on the subset); nothing here explains that remainder.
+- **#6:** the case for a phase self-calibration round on the pilot is now strong. A 5-min,
+  frequency-independent phase solve against the 3 mJy model removes 0.83 of the excess (1,073 →
+  447 µJy in the subset's exact residual). That is an expected effect, not a measured self-cal run.
+  Antenna 1's worst-case misfit (heldout §5) is this steady phase error.
+
+## 14. For the coordinator
+
+- Branch `floor-2`: protocol `6d00242` (frozen and pushed before the run), script
+  `examples/floor2_tests.py` (`3d9bfcb`), results in this note and `results/floor-2/`. No library
+  code changed.
+- Open decision: whether to run the direct test of section 13 (phase-only self-cal of the pilot,
+  scored with imaging-floor's metric) as a frozen floor-3, which would settle H1 if it reproduces
+  the 0.83 drop.
+- Scratch on D: deleted (1.1 MB left in `D:\rang\outputs\floor-2-20261116`).
