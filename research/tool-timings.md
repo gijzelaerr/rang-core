@@ -2013,3 +2013,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
+| 2026-11-16 | lock-backfill: `tools/check_all.py --quick` | worktree, fresh .venv | 997 s (lock wait excluded; 1113 s wall) | – | PASS: 314 pytest |
