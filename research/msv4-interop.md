@@ -342,13 +342,53 @@ those of `convert-01`, unchanged.
 `SIGMA_SPECTRUM`; no `pointing_xds`; no autocorrelations by default; `FLAG`
 pads 1 against false.
 
-## 8. Next steps (proposed; M1 done)
+### M1b run (2026-11-16, under section 10)
+
+Status: **measured, M1b pass.** With `auto_corrs=True` the xarray-ms 0.5.14
+arm matches in every measure of all 9 cases; the `xradio` arm is still all
+`match` and the `xms` arm is as in run 05.
+
+| run | code | outcome |
+| --- | --- | --- |
+| conversion `convert-02` | harness `4d72bb4` (amendment `2de2199` before it), WSL, `heavy_lock run --slots 2 --mem 4`, `convert ROOT --arms xms-auto` | 9 of 9 written, 3.0-4.0 s each, 12.2 s for c6; 42 s wall, peak RSS 890 MB |
+| 07 | `4d72bb4`, Windows worktree `.venv` (Python 3.13.16), `heavy_lock run --slots 1 --mem 4` | `xradio` 9/9 `match`; `xms` c6, c7, c9 `match`, the rest `mismatch` (as run 05); `xms-auto` 9/9 `match`; the receipt |
+
+**Receipt:** [`results/msv4-interop-m1b.json`](results/msv4-interop-m1b.json)
+(run 07, three arms). Stores: `D:\rang\outputs\msv4-20261116\ps\xms-auto`;
+`convert-02.log`; entries `<case>/xms-auto` in `convert.json`.
+
+**`xms-auto` arm, run 07:**
+
+| case | MSv2 rows | rows read | pads dropped | outcome |
+| --- | ---: | ---: | ---: | --- |
+| c1 to c4 | 20 each | 20 each | 0 | `match` |
+| c5 | 140 | 140 | 0 | `match` |
+| c6 | 12480 | 12480 | 1664 | `match` |
+| c7 | 192 | 192 | 128 | `match` |
+| c8 | 136 | 136 | 4 | `match` |
+| c9 | 36 | 36 | 24 | `match` |
+
+- `DATA`, `FLAG` (uint8 0/1, read as bool), `WEIGHT_SPECTRUM` and `UVW`
+  bit-identical on all 13,064 rows; `TIME` exact (no 1 ms fallback);
+  coverage exact.
+- With `auto_corrs=True` xarray-ms lays out the autocorrelation baselines
+  whether or not the MS has them. c6, c7 and c9 have none, so their
+  autocorrelation cells are pads (c6: 16 antennas × 104 times; c7: 4 × 32;
+  c9: 4 × 3 in each of two windows), and the reader dropped exactly those.
+  c8's 4 pads are the 4 removed rows, as in the xradio arm.
+- Under section 10 this is **M1b pass**: `rang.msv4` reads xarray-ms
+  0.5.14 trees of these 9 cases bit for bit when xarray-ms is asked for
+  autocorrelations. With xarray-ms's default (`auto_corrs=False`) the
+  autocorrelation rows are missing from the store (M1, as booked).
+
+## 8. Next steps (proposed; M1 and M1b done)
 
 - **M1** (done 2026-11-16: section 9 amendment, section 7 M1 run; not met,
   a writer difference, xarray-ms drops autocorrelations by default): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
   edge-case harness does for arcae), frozen as an amendment, and rerun the
   xarray-ms arm.
-- **M1b:** rerun the xarray-ms arm with `auto_corrs=True`, a change to the
+- **M1b** (done 2026-11-16: section 10 amendment, section 7 M1b run;
+  pass, 9/9 bit-identical): rerun the xarray-ms arm with `auto_corrs=True`, a change to the
   frozen arm of section 4, so a dated amendment first; it needs the WSL
   oracle venv for the conversions.
 - **M2:** feed `Partition.chunks` to one stage (flag or image) and require
@@ -416,7 +456,56 @@ over all 9 cases and both arms, on the committed code, with a new receipt
 - The differences listed under the probe are not measures; they are
   recorded, and nothing is claimed about them.
 
+## 10. Amendment M1b: xarray-ms with `auto_corrs=True` (2026-11-16, post hoc)
+
+Written and committed before any new conversion; approved by the
+coordinator (owner delegated). It is post hoc to section 4: it adds a writer
+setting after the M1 run showed that xarray-ms's default leaves out the
+autocorrelations. The M1 result (section 7, "M1 run") stays as booked.
+Sections 3, 4, 6 and 9 stay as frozen; the reader is not changed.
+
+**Known before this amendment:** `xarray_ms/backend/msv2/entrypoint.py`
+(0.5.14) takes `auto_corrs: bool = False` in `open_dataset` and
+`open_datatree`; the M1 diagnosis (run 06) matched all 9 cases on their
+cross-correlation rows. No store written with `auto_corrs=True` has been
+opened or compared.
+
+**New arm `xms-auto` (frozen here):** in the same oracle venv (xarray-ms
+0.5.14, xarray 2026.9.0, WSL), `xarray.open_datatree(ms,
+engine="xarray-ms:msv2", auto_corrs=True)`, then `to_zarr(out)`, all else
+default. Stores under `D:\rang\outputs\msv4-20261116\ps\xms-auto`; the
+`xradio` and `xms` stores of `convert-01` are not rewritten. The conversion
+runs from the committed harness (`convert ROOT --arms xms-auto`) under
+`heavy_lock`, log `convert-02.log`, entries `<case>/xms-auto` added to
+`convert.json`.
+
+**Cases, mapping, tolerance, reader:** those of sections 4 and 9,
+unchanged: the same 9 cases, bit-identical, no tolerance, `rang.msv4` as
+merged at `6909a31`.
+
+**Decision rule for M1b (frozen here):** the check of section 4 over all
+9 cases and the three arms `xradio`, `xms` and `xms-auto`, on the committed
+code, receipt `results/msv4-interop-m1b.json`, runs numbered from 07.
+
+- The `xradio` arm must still be all `match` and the `xms` arm as in run 05
+  (c6, c7, c9 `match`, the rest `mismatch`); otherwise something other than
+  the setting changed, and M1b is void until found.
+- **M1b pass:** every measure of every case in the `xms-auto` arm is
+  `match`. Then section 3's claim that the same code reads an xarray-ms
+  tree holds for these 9 cases when xarray-ms is asked for
+  autocorrelations.
+- **M1b not met:** any `xms-auto` measure `refused`, `writer fails` or
+  `mismatch`. The column that differs is found and booked under section 6
+  (writer difference or reader outcome); no reader change without another
+  dated amendment written before that code.
+
 ## For the coordinator
+
+M1b (branch `msv4-m1b`): amendment `2de2199` (section 10, before any
+conversion), harness `4d72bb4` (arm `xms-auto`, `--arms`), records after.
+Run 07: `xms-auto` 9/9 `match` on 13,064 rows, `xradio` 9/9, `xms` as run
+05: **M1b pass**. The reader is unchanged. The WSL oracle venv is kept for
+M3 (new cases need conversions).
 
 M1 (branch `msv4-m1`): amendment `8a93cfa` (section 9, before the code),
 code `7d82e46`, records after. uint8 `FLAG` of 0/1 is read as bool, other

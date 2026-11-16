@@ -20,6 +20,13 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+MSv4 M1b, xarray-ms with autocorrelations, 2026-11-16 (branch `msv4-m1b`; [msv4-interop.md](msv4-interop.md)
+sections 10 and 7, measured, pass; receipt [results/msv4-interop-m1b.json](results/msv4-interop-m1b.json)). Second
+amendment frozen before any conversion: a third arm, xarray-ms 0.5.14 with `auto_corrs=True`, same 9 cases, zero
+tolerance. Run 07: that arm is bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME on all 13,064 rows,
+coverage exact; xradio still 9/9, the default xarray-ms arm as in M1. xarray-ms then pads the autocorrelation
+baselines of MSs without them (c6, c7, c9), and the reader drops exactly those. Reader unchanged.
+
 MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
 not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
 [results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:
