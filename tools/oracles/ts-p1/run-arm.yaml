@@ -1,0 +1,23 @@
+# TS-P1 section 4.2 (reported, not gated): the real chain's residual. GeMClean
+# images the whole hour of a copy of tsp1-dev from DATA and writes its deep
+# model into MODEL_DATA (replacing the simulation's exact static sky); then
+# `rang-core lightcurve` runs with its defaults apart from the snapshot grid
+# (amendment 9.1).
+schema: rang-config
+version: 1
+fields:
+  target: [SIM-TARGET]
+image:
+  fields: [target]
+  column: DATA
+  size: [2048, 2048]
+  scale: 2asec
+  weight: briggs
+  robust: 0.0
+  niter: 100000
+  auto_threshold: 3.0
+  mgain: 0.8
+  threads: 4
+  write_model: true
+run:
+  stages: [image]

@@ -1981,3 +1981,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | v8-tfcrop: CASA `flagdata(mode='tfcrop')` probe batches b01-b05 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs, 11.3 M cells each, 5-11 arms | 11.5-41.3 s per batch; 2.0-4.1 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
 | 2026-11-16 | v8-tfcrop: gate run 1, `rang_flagdata.py` + `compare_flagdata.py` (NumPy reference) | 26 development cases (syn-noise, syn-rfi, a1, luno; T1-T8) | 212 s | – | 1 slot |
 | 2026-11-16 | v8-tfcrop: `tools/check_all.py --quick` | worktree, cold target and new venv | 1000 s (lock wait excluded) | – | FAIL on ruff format of the new test only (fixed); 279 core tests, 60 pytest, gain hashes pass |
+| 2026-11-16 | ts-p1: `tools/check_all.py --quick` (new worktree venv) | worktree, cold target | 1149 s (lock wait excluded) | – | FAIL: fmt, ruff, clippy, 4 pytest; fixed |
+| 2026-11-16 | ts-p1: `tools/check_all.py --quick` | worktree | 1395 s (lock wait excluded) | – | PASS: 283 core tests, 501 pytest, gain hashes |
+| 2026-11-16 | ts-p1: `examples/ts_p1_sim.py tsp1-dev` / `--noiseless` twin / `tsp1-held` | 64 antennas, 64 channels, 450 × 8 s, 907,200 rows, 5.76 GB each | 63 s / 69 s / 76 s | – | 4 slots, 4 GB; D:\rang\outputs\ts-p1-20261116 |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 6 positions, 1024² at 4″, `--fits` (dev attempt 1) | tsp1-dev | 108.6 s | 151 MB | 4 threads; image 95.9 s, read 10.6 s, DFT 1.3 s; 267 CPU-s |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 2048² at 2″ (dev / held-out) | tsp1-dev / tsp1-held | 241.0 s / 318.7 s | 285 MB | 4 threads; image 228 / 302 s, DFT 1.3 / 1.6 s; shared host |
+| 2026-11-16 | ts-p1: `rang-core lightcurve`, 1024² at 4″ (held-out, frozen grid) | tsp1-held | 126.3 s | – | 4 threads |
+| 2026-11-16 | ts-p1: `rang-core lightcurve --no-images` (noiseless twin) | tsp1-dev twin | 13.6 s | 81 MB | DFT only |
+| 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 1024² at 4″ (dev / held-out) | ext4 copy, RESIDUAL_DATA | 128.5 s / 125.6 s | 155 MB | rang-wsclean-native:3.7, WSL; drops about 530-650 samples per interval beyond the grid |
+| 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ (dev / held-out) | ext4 copy | 312.4 s / 402.2 s | 271 / 273 MB | all 129,024 samples gridded per interval |
+| 2026-11-16 | ts-p1: `examples/ts_p1_measure.py` with in-stream T1 (remakes rang's snapshots) | tsp1-dev / tsp1-held, WSClean FITS over \\wsl.localhost | about 6-8 min | – | 4 slots, 6 GB |
+| 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |

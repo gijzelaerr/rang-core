@@ -162,6 +162,18 @@ SEEDS = {
             ("f3sim-t", 20263101),
         )
     },
+    # Task TS-P1 (research/ts-p1.md): the light-curve simulations, built by
+    # examples/ts_p1_sim.py; `layout` draws the held-out set's transients.
+    **{
+        name: {
+            "jones": s0,
+            "sky": s0 + 1,
+            "noise": s0 + 2,
+            "layout": s0 + 3,
+            "rfi": s0 + 4,
+        }
+        for name, s0 in (("tsp1-dev", 20261601), ("tsp1-held", 20261611))
+    },
 }
 
 # Task C6: the versions whose parallactic angle is CASA's frame and whose

@@ -38,6 +38,34 @@ passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the 
 frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
 window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
 opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
+[ts-p1.md](ts-p1.md); proposal frozen at `b1d407f` before any code):
+
+- **New command.** `rang-core lightcurve MS --position NAME=RA,DEC --out DIR`.
+  Per 8 s interval of the residual (data column − MODEL_DATA) it gives the
+  exact DFT flux (Rust kernel `core/src/lightcurve.rs`), the nearest
+  snapshot pixel and the robust rms. It only reads the MS.
+- **As frozen: not met (oracle mismatch, T1 and T2c).** Under the post hoc
+  amendments 9.1 and 9.2, not yet accepted, **met** on the held-out
+  simulation (now spent), with commit `8270868`, 64 antennas, 64 channels,
+  450 × 8 s, 6 transients:
+  - T1 against WSClean 3.7 `-intervals-out`: 3.0e-7 of the peak;
+  - DFT against NumPy 1.4e-10 σ, pixel against DFT 3.9e-6 σ, WSClean
+    pixel against DFT 2.5e-6 σ;
+  - bias ≤ 0.042σ, χ² 0.91-1.04, every pulse ≥ 7σ recovered.
+- **Dev attempt 1 failed.** At the frozen 1024² and 4″, T1 (0.082) and T2c
+  (0.26σ) failed: WSClean `-no-min-grid-resolution` drops the 0.4 % of
+  samples beyond 1/(2·4″) (proven: 2.7e-7 once removed). T3a's E reached
+  0.104σ, a 2.2-SE noise excursion; the noiseless twin's bias is 7.6e-8σ.
+- **Amendments, post hoc**, written after dev attempt 1, for the coordinator
+  to accept: 9.1 the snapshot grid 2048² at 2″; 9.2 T3a's bound 3/√N.
+- **Run arm** (GeMClean deep model, reported):
+  - E −9.6σ: its mean was absorbed, as predicted.
+  - The empty control +10.7σ: it lies 34″ from a 48 mJy Gaussian, so this is
+    likely CLEAN residual; unverified.
+  - σ_meas 1.30 σ_snap.
+- **Not tested.** Flags, unequal and spectral weights, and CORRECTED_DATA.
+- **Not done.** T4-T7, ESO137 and E2-A.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
