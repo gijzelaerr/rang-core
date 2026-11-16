@@ -1118,9 +1118,7 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
-                            takes -mgain or -minor-to-threshold; with
-                            -join-polarizations the noise and the peaks are those of the
-                            joined residual and the mask is every polarisation's
+                            takes -mgain or -minor-to-threshold
   -abs-auto-mask <Jy>       the same with an absolute mask threshold
   -auto-mask-nmiter <n>     major cycles after the mask is made (default 2)
   -major-iteration-mode dual  radler's default (the only mode implemented)
