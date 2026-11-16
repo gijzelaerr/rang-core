@@ -265,7 +265,10 @@ c6; xarray-ms 3.0-11.8 s. The whole WSL job took 6 min 51 s, mostly the
 lock queue; its peak RSS was 689 MB. The native check of all 9 cases × 2
 arms took 9 s including the start-up, and c6's xradio arm 0.4 s.
 
-**Not covered** (as section 4 said): `FLAG_ROW` set, `CORRECTED_DATA`,
+**Not covered** (as section 4 said; 2026-11-16: M3 below covers `FLAG_ROW`,
+`CORRECTED_DATA`, `SIGMA` weights, `WEIGHT` repeated, non-base groups and
+decreasing frequencies; still not covered: unwritten `WEIGHT_SPECTRUM`
+cells, negative channel widths, other schema versions, other telescopes): `FLAG_ROW` set, `CORRECTED_DATA`,
 weights from `SIGMA`, unwritten `WEIGHT_SPECTRUM`, decreasing channel
 frequencies, schema versions other than 4.0.1, and LOFAR or other telescopes.
 Also not covered (added 2026-11-16, after the run): the `WEIGHT`-repeated
@@ -407,7 +410,12 @@ stores under `ps/xradio` and `ps/xms-auto`; `convert-03.log`.
 | c14 decreasing frequencies | base | match | match | W; W | match |
 
 - **c10:** in both stores `FLAG` equals the MSv2 `FLAG` cells bit for bit,
-  and the 28 row flags are gone: a writer outcome (xradio 1.3.1 and
+  and the 28 row flags are gone; no data variable holds them (xradio:
+  `EFFECTIVE_INTEGRATION_TIME`, `FLAG`, `TIME_CENTROID`, `UVW`,
+  `VISIBILITY`, `WEIGHT`; xarray-ms the same plus `SIGMA_SPECTRUM`; read
+  directly from the stores). The receipt books the group `mismatch`; the
+  writer-outcome booking is this note's, resting on `FLAG cells` being
+  `match`: a writer outcome (xradio 1.3.1 and
   xarray-ms 0.5.14 alike), as the probe suggested. `rang.msv4` cannot
   recover them, and its `FLAG_ROW` (false) is then true to the store but not
   to the MSv2. A consumer that needs row flags must OR them in before
@@ -429,7 +437,9 @@ stores under `ps/xradio` and `ps/xms-auto`; `convert-03.log`.
 - **`WEIGHT` repeated (c13):** both writers repeat `WEIGHT` over channels;
   bit-identical.
 - **Decreasing frequencies (c14):** xradio stores the channels ascending
-  (sorted), xarray-ms keeps them descending; with section 4's mapping by
+  (sorted), xarray-ms keeps them descending (read directly from the stores,
+  not in the receipt); the reversed `CHAN_WIDTH` is a constant positive
+  array, so negative widths are not covered; with section 4's mapping by
   frequency both are bit-identical. The reader yields the store's order, so
   the two stores give rows in opposite channel order.
 - **Control:** c1 to c9, both arms, every measure equal to run 07.
@@ -456,6 +466,8 @@ Status: **measured, M2 pass.**
 - Wording as frozen: the reader's rows give the flag stage's flags; the
   stage itself still reads only an MSv2. No weight or `UVW` is exercised;
   c5 is one field/scan group; nothing about calibration or imaging.
+- c5's MS was not touched by the stage: no file under it is newer than
+  `convert-03.log` (checked after run 09).
 - Cost (no claim): stage 0.5-0.6 s per copy; kernel 0.19 s (xradio), 0.22 s
   (xms-auto); the whole run 5 s.
 
@@ -475,6 +487,18 @@ Status: **measured, M2 pass.**
 - **M3** (done 2026-11-16: section 11, section 7 M3 run; not met on
   `FLAG_ROW`, a writer outcome, c11 to c14 pass): cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
   `SIGMA` weights, decreasing frequencies).
+- **M4 (proposed, not started; owner decision):** row flags lost in
+  conversion. Neither writer keeps `FLAG_ROW` (M3, c10). Options: document
+  that `FLAG_ROW` must be OR'd into `FLAG` before conversion, or ask the
+  writers' maintainers; ra-ng's reader cannot recover it.
+- **M5 (proposed, not started; owner decision):** the base-weight
+  convention. With `CORRECTED_DATA`, xradio's base group carries
+  `1/SIGMA^2`, xarray-ms's `WEIGHT_SPECTRUM` (M3, c11 and c12). A weighted
+  stage fed xradio's base group on such an MS cannot match ra-ng's MSv2
+  path, which weights `DATA` with `WEIGHT_SPECTRUM`; this bears on the
+  issue's gate "identical calibration and imaging results". Decide which
+  weight a weighted stage takes per data group before an M2-like gate for
+  calibration or imaging.
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.
@@ -746,8 +770,9 @@ First part (branch `msv4-interop`):
 - New optional extra `msv4` (xarray, zarr 3, numcodecs; Python 3.11 and
   later), added to the CI and `check_all.py` extras. The core install is
   unchanged. No CLI change, no new `RANG_*` variable.
-- The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`); kept for
-  M1b and M3 (new conversions); remove it once they are done or dropped (2026-11-16, after M1).
+- The oracle venv was in WSL (`~/Build/tmp/20261116-msv4-oracle`); removed
+  2026-11-16 after M2 and M3 (its versions are in section 4 and 10 if it
+  must be rebuilt).
 - `tools/check_all.py` installs extras only into a new `.venv`: the main
   checkout's `.venv` needs `uv pip install xarray "zarr>=3,<4" numcodecs` (or
   `--extra msv4`) or the merge check skips `tests/test_msv4.py`.
