@@ -11,6 +11,9 @@ post hoc amendments 9.1 and 9.2: **met** on the held-out simulation (section
 spent: it was scored on two grids, so any later change to the code needs
 `tsp1-held2`. The real-data arms are deferred.
 
+**2026-11-17: T6 met on the shared host nash** (amendment 15.8, section 15.9).
+rang's median wall time is 1.04 x WSClean's and its peak memory 1.07 x.
+
 **Status at freeze: proposed. Nothing here is built or measured.** This note is
 committed before any code that tests it. Any later change is a dated amendment
 in section 9, labelled post hoc if it could have seen a result.
@@ -947,3 +950,60 @@ main changed only GeMClean's Rust and other modules.
 
 Wall times from nash are labelled host nash and are not compared with the
 workstation's.
+
+### 15.9 T6 measured on nash (amendment 15.8), 2026-11-17
+
+- **Code and builds.**
+  - rang: branch `nash-timings` at `3544c0d` (the amendment's commit), with
+    its extension built on nash (`_core.abi3.so` SHA-256 `608a4203…`).
+  - WSClean: v3.7 (`4f395b28`), built on nash by the Dockerfile's recipe
+    (`Release`, `-O3`, `PORTABLE=OFF`; binary SHA-256 `43077a3c…`).
+- **Input.** `tsp1-held2.ms` was copied from D: (34 min, by `tar` over ssh).
+  All 73 files, the positions and truth included, match the D: copy by
+  SHA-256.
+- **Hold.** All six readings ran in one exclusive hold, 00:22-01:01 SAST on
+  2026-11-17, under `nice -n 19 ionice -c3`. None was void, so none was
+  repeated.
+- **Run paths and archive.**
+  - Run: `~/Build/tmp/20261116-nash-timings/t6/` on nash.
+  - Archive: `research/results/ts-p1/t6-nash/`: `readings.jsonl`,
+    `code.txt`, one receipt, WSClean's commit and a cmake excerpt.
+
+| Reading | Order | Wall, s | CPU-s | Peak RSS, MB | Foreign load, cores | load1 before / after |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| rang r1 | 1 | 355.36 | 2,368 | 302.4 | 0.21 | 1.02 / 6.70 |
+| WSClean w1 | 2 | 346.04 | 2,253 | 281.3 | 0.19 | 3.73 / 4.83 |
+| WSClean w2 | 3 | 343.41 | 2,244 | 280.2 | 0.28 | 2.85 / 4.60 |
+| rang r2 | 4 | 360.66 | 2,417 | 297.5 | 0.27 | 2.54 / 7.49 |
+| rang r3 | 5 | 358.32 | 2,390 | 296.9 | 0.27 | 4.24 / 7.60 |
+| WSClean w3 | 6 | 343.34 | 2,243 | 280.7 | 0.25 | 4.24 / 6.28 |
+
+- **Load.** load1 counts our own 16 threads. Other users' CPU, from the top
+  snapshots before and after each reading, was netdata at about 8 % of one
+  core, root at up to 4 %, and the lock's own idle processes. The foreign load
+  stayed at 0.19-0.28 cores against the 2.0 bound. No other job of ours ran.
+
+**Gate 13.4 (frozen readings, as amended in 15.8).**
+- **Wall time.** rang's median is 358.32 s and WSClean's 343.41 s, a ratio
+  of **1.043** against the 1.5 bound: **pass**.
+- **Peak memory.** rang's largest is 302.4 MB and WSClean's 281.3 MB, a
+  ratio of **1.075** against the 1.5 bound: **pass**.
+- **T6 is met on nash.** rang matches WSClean 3.7 (native build) in cost, at
+  16 threads, on a host shared under nice 19.
+
+**Post hoc remarks (not part of the gate).**
+- **Repeatability.** rang's three readings span 1.5 % and WSClean's 0.8 %.
+  rang uses 6.5 % more CPU-seconds.
+- **Receipt.** rang's own peak (`peak_rss_mb`) is 295.3, 290.5 and
+  290.0 MB.
+- **Outputs.**
+  - The three `lightcurve.csv` files are identical (SHA-256 `94b4eb9e…`).
+  - Against the workstation's 4-thread `lc-held2` (2,700 rows), the largest
+    relative differences are 8.7e-14 in `flux_jy`, 1.1e-11 in
+    `flux_snapshot_jy` and 5.5e-11 in `sigma_meas_jy`. That is floating-point
+    rounding from another host, compiler and thread count.
+- **Where WSClean's time goes.** Inversion takes 5 min 28 s of its 346 s.
+  Its reorder runs first, on about one core.
+- **Not comparable.** These are host nash figures, not comparable with
+  10.5's or 14.4's workstation figures.
+- **The input can go.** T6 no longer needs `tsp1-held2.ms` on D:.
