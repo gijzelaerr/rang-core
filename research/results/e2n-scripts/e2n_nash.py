@@ -28,7 +28,14 @@ import e2_post as P
 SIF = Path(os.environ.get("E2N_SIF_DIR", Path.home() / "rang-data" / "oracle-images"))
 
 
+# rang-wsclean-native is built for the Windows host's CPU (-DPORTABLE=OFF) and stops with
+# "Illegal instruction" on nash; the KERN WSClean 3.7 in the CASA image runs instead
+# (e2n-native.md amendment 2, build check).
+SUBSTITUTE = {"rang-wsclean-native:3.7": "rang-o-casa:6.7.6.14"}
+
+
 def sif(image):
+    image = SUBSTITUTE.get(image, image)
     return SIF / (image.replace(":", "_") + ".sif")
 
 

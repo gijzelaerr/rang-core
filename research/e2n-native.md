@@ -334,6 +334,13 @@ under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
   docker archive), with the same bind mounts as `e2_post.docker`
   ([e2n_nash.py](results/e2n-scripts/e2n_nash.py) swaps the runner and nothing else). nash's own WSClean
   and CASA are not used.
+- **WSClean's image does not run on nash** (`Illegal instruction`: `rang-wsclean-native` is built with
+  `-DPORTABLE=OFF` for the Windows host's Ryzen 7 7700X; nash is a Xeon E5-2695 v4). The WSClean 3.7 in
+  `rang-o-casa:6.7.6.14` (KERN's portable `wsclean=3.7-1kern1`, the same version string) runs instead.
+  **Build check (development data, before any E2-N oracle step):** both images on the Windows host, the
+  same argv (G3's D1.ms, 1,024², 2″, Briggs 0, dirty and PSF): L∞ differences 1.35e-7 of the dirty peak
+  and 1.19e-7 of the PSF's, not bit-identical; that is float32 rounding, below gate 3c's 1e-6
+  ([results/e2n/wsclean-build-check.json](results/e2n/wsclean-build-check.json)).
 - **Timings** are labelled host nash; they are not comparable with the Windows host's.
 
 ## 9. Results
