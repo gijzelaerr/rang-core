@@ -36,7 +36,8 @@ def test_d1_matches_casa_on_probe_planes(probe):
     rec = json.loads(ARCHIVE.read_text(encoding="utf-8"))
     info = {"nbl": rec["nbl"], "ntime": rec["ntime"], "nchan": rec["nchan"]}
     designs = {"S1": probe.design_rows(info, seed=2)[0],
-               "S2": probe.design_noise_rows(info, seed=3)[0]}  # fmt: skip
+               "S2": probe.design_noise_rows(info, seed=3)[0],
+               "W1": probe.design_windows(info, seed=8)[0]}  # fmt: skip
     nbl = info["nbl"]
     for arm in rec["arms"]:
         n = nbl * 4 * info["ntime"] * info["nchan"]
@@ -45,8 +46,7 @@ def test_d1_matches_casa_on_probe_planes(probe):
         ]
         casa = casa.astype(bool).reshape(nbl * 4, info["ntime"], info["nchan"])
         data = designs[arm["design"]]
-        params = {"flagdimension": "freq", "freqcutoff": arm["freqcutoff"],
-                  "maxnpieces": int(arm["arm"][1])}  # fmt: skip
+        params = {"flagdimension": "freq"} | arm["params"]
         for k in range(nbl * 4):
             b, c = divmod(k, 4)
             a = np.abs(data[b::nbl, :, c]).astype(np.float64)
@@ -85,7 +85,12 @@ def test_time_is_transposed_freq():
     assert np.array_equal(t, q.T) and t[10, 5]
 
 
-def test_window_statistics_refused():
-    a = np.ones((8, 16))
-    with pytest.raises(NotImplementedError):
-        tfcrop.plane(a, np.zeros(a.shape, bool), {"usewindowstats": "std"})
+def test_window_statistics_edges():
+    # D4: a window that would reach past the band edge flags nothing.
+    u = np.zeros((1, 32))
+    u[0, 0] = u[0, 1] = 1.0
+    sd = np.full((1, 1), 0.1)
+    got = tfcrop.window_flags(u, sd, 3.0, "sum", 1)
+    assert not got[0, 0] and got[0, 1] and got[0, 2] and not got[0, 3:].any()
+    assert np.array_equal(tfcrop.window_flags(u, sd, 3.0, "both", 1),
+                          tfcrop.window_flags(u, sd, 3.0, "std", 1))  # fmt: skip

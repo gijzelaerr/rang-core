@@ -4,14 +4,17 @@ Next piece of issue #8 and of [v8-open-casa.md](v8-open-casa.md) (piece 1).
 Branch `v8-tfcrop` from `main` `d2013ea`, written 2026-11-16 before any new
 tfcrop code and before any new CASA probe.
 
-**Status: measured, development gate not met (2026-11-16).** Gate run 1 of
-3: 4 of 21 informative development cases pass; H not reached, stopped
-after run 1 (section 9). Identified from probes: the per-row rule (D1,
-exact), the time direction (D3), the robust line in part (D2); not
-identified: the piecewise polynomial, window statistics. tfcrop stays
-refused; no Rust kernel. Sections 1-6 were committed (eedfe52) before any
-code or probe; this status line, sections 7 and 9 are the only later
-edits. This note takes over
+**Status: measured; H fails as frozen (2026-11-16).** All three
+development gate runs are spent: 4, 4 and 7 of 21 informative cases pass
+(section 9); the held-out cases stay closed. Identified from probes: the
+per-row rule (D1, exact), the time direction (D3), window statistics (D4,
+exact on 12,142 of 12,144 probe planes), the robust line in part (D2), a
+guard for short pieces in part (D5). Not identified: the piecewise
+polynomial to the precision the gate needs. On `luno` (real MeerKAT data)
+T1-T6 and CARACal's call T5 are bit-identical to CASA. tfcrop stays
+refused; no Rust kernel (coordinator, 2026-11-16: identify first). Sections
+1-6 were committed (eedfe52) before any code or probe; this status line,
+sections 7 and 9 are the only later edits. This note takes over
 V8b's H1 ([v8b-flagdata.md](v8b-flagdata.md), section 9.3) with a new
 protocol. V8b's own verdict stands as recorded there: H1 stopped after
 round 2 of 4, development gate not met, held-out case not opened. Nothing
@@ -224,9 +227,56 @@ analysis from b03 on, ran under the lock with one slot.
   0.849. At noise 0.1 and cutoff 3, G3 needs the template to about 6e-4
   relative (a 0.1 σ shift of the threshold moves a third of the marginal
   flags), so the family alone does not meet it.
-- **Not identified: window statistics** (`usewindowstats`, which CARACal's
-  call uses), the extension after tfcrop, pre-flagged input, chunking.
-  `rang.tfcrop.plane` raises on `usewindowstats` other than `'none'`.
+- **Not identified at the first hand-back: window statistics, pre-flagged
+  input** (superseded by D4 and D5 below; continuation after the
+  coordinator's decision of 2026-11-16 to run section 9.2's probes and gate
+  runs 2 and 3).
+- **D4 (b06 W1, b07 F1), window statistics: identified.** After D1, per
+  row, sliding windows of 2·halfwin+1 points along the pass's axis, over
+  every point of the row, flagged ones included, and only where the whole
+  window lies inside the row (no partial windows at the band edges).
+  `'sum'` flags the centre where the mean of |u| over the window exceeds
+  cutoff × sd; `'std'` where the rms of u over the window does; `'both'`
+  is either, which equals `'std'` because the rms is never below the mean
+  of |u|. sd is the one of the row's last flagging D1 pass. A point
+  flagged before tfcrop enters the windows as u = −1 (its value counts as
+  0); a row with a single unflagged point gets no window flags. The
+  documentation's "N-stddev/2.0" does not match: the factor is the cutoff
+  itself, on the window mean of |u|. W1 (exact-fit lines with runs,
+  noisy stretches and spikes; halfwin 1-3, cutoffs 3 and 4): 12,142 of
+  12,144 planes equal (two cells, at halfwin 3). F1 with windows (pre-flagged
+  cells, channels, rows, near-wholly flagged planes): 946 → 1,094 of 1,104
+  planes with the u = −1 rule and the single-point guard; the time
+  direction 1,101 of 1,104.
+- **Pre-flagged input (b06 F1):** the time mean and D1 skip flagged
+  points; with `freqfit='line'` and `maxnpieces=1` F1 is equal on 1,104 of
+  1,104 planes (random cells, whole channels, whole rows, planes flagged but
+  one row or one channel).
+- **D5 (b09 F2), short pieces: partly identified.** With `maxnpieces > 1`,
+  a piece left with no valid channel usually ends the pass without flags
+  (F2: 34/56 and 51/55 such planes add nothing), one valid channel
+  sometimes (5/56, 16/55), two or more never. Implemented as: a pass whose
+  equal-width piece has fewer than 2 valid channels adds no flags (F1 p7
+  1,092/1,104, F2 p7 355/1,104, the rest of F2 differing through the
+  polynomial template). The cases where an empty piece still yields flags
+  differ from every staged model tried; open.
+- **Scale (b08 NS):** groups of eight planes identical up to an amplitude
+  factor from 1e-3 to 1e6: CASA's flags are the same at every factor in
+  137-138 of 138 groups for line, 1, 3 and 7 pieces and the time pass, so
+  no absolute tolerance acts in the fit; the L1×0.01 difference of b03 is
+  not explained by one (open).
+- **Polynomial (b06 NA, b08 NS):** on noise-free cubic bands with
+  `maxnpieces=1` the model is exact except for single near-threshold cells;
+  with average noise 0.01-0.1 it equals CASA on 0-11 of 14 planes per
+  noise level; float32 normal equations, other abscissae, more or fewer
+  stages, two-sided exclusion and a template refitted after D1 (feedback)
+  all do no better (best 98 of 138 groups at unit scale; feedback lowers
+  N1's line planes from 924 to at most 416).
+- **E1 (post hoc, after gate run 3): extension.** With `extendflags=True`
+  CASA's extension covers every correlation of the selected rows and
+  channels, not only those tfcrop read (`correlation='ABS_XX,YY'`, T8:
+  CASA adds the same 531 cells to all four correlations); rang extended
+  within XX and YY only.
 
 ## 8. Runs and cost
 
@@ -305,3 +355,42 @@ points (a)-(c). Suggested next probes: single-piece fits on noisy averages
 staged schedule is wrong, not only its precision); window statistics on
 S-type designs where the fit is exact; a pre-flagged variant of S2 for the
 guard.
+
+### 9.3 Continuation: probes b06-b09 and gate runs 2 and 3 (2026-11-16)
+
+The coordinator (2026-11-16, after the first hand-back) kept the Rust
+kernel for after identification and asked for section 9.2's probes and the
+unspent gate runs, every process under the heavy lock (all ran with one
+slot), held-out cases closed. Batches b06-b09 (designs NA, W1, F1, NS, F2;
+section 7) and three runs on the 26 development cases against the same
+CASA outputs as run 1:
+
+| Run | Reference | Informative passing | What changed |
+| --- | --- | ---: | --- |
+| 1 (gate-01) | `e632dd4` | 4 / 21 | – |
+| 2 (gate-02) | `8a70cb5`/`e1f3253` (D4) | 4 / 21 | T5, T6 computed: syn-rfi T5 precision 0.999, recall 0.999, G1 0.99907, G2 0.0032 (fails G2 only); luno over-flags (precision 0.21) |
+| 3 (gate-03) | `c58603f` (D4, D5) | **7 / 21** | luno T4, T5 (CARACal's call), T6 bit-identical (728, 7,024, 12,032 cells), T1 and T3 equal; T8 recall 0.500 |
+| post hoc (posthoc-04) | `2bfac46` (E1) | 8 / 21 | luno T8 bit-identical (2,124 cells); labelled post hoc, not a gate run |
+
+Walls 70-72 s per run (rang and comparison), one slot. Runs in
+`D:
+`D:\rang\outputs\v8-tfcrop-20261116\gate-02`, `gate-03` and `posthoc-04`;
+verdicts copied to `research/results/v8-tfcrop/`.
+
+Unchanged in runs 2 and 3: syn-noise T1/T3 (precision 0.914, recall 0.756),
+T4, T5 (0.956/0.855); a1 T1-T5, T8 (precision 0.55-0.73); syn-rfi T4
+(G1 0.99859), T5 and T6 (G2 0.0032-0.0035), T7 (recall 0.910). All are
+cases that run the piecewise polynomial on noisy averages (syn-noise, a1)
+or need its precision at the G2 level (syn-rfi).
+
+### 9.4 Verdict (2026-11-16, final for this note)
+
+**H fails as frozen**: the third development gate run (7 of 21) failed,
+so by section 5 the remaining differences are recorded (9.3) and the
+held-out cases are not opened. `rang.tasks.flagdata` keeps refusing
+`mode='tfcrop'`; the reference stays behind `rang.tfcrop.ENABLED`; no Rust
+kernel. What a later note can build on: D1, D3, D4 exact; D2 and D5 in
+part; E1; on the real `luno` slice the whole CARACal call (T5) and the
+defaults (T4) already equal CASA bit for bit. The one open piece that
+blocks the synthetic and A1 cases is CASA's piecewise-polynomial template on
+noisy averages.

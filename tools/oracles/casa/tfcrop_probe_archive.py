@@ -19,8 +19,15 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tfcrop_probe_eval import load_flags
 
-ARMS = (("b02", "S1", "p7", 3.0), ("b02", "S1", "p1", 3.0),
-        ("b03", "S2", "p7", 3.0), ("b03", "S2", "p7_c4", 4.0))  # fmt: skip
+ARMS = (
+    ("b02", "S1", "p7", {"freqcutoff": 3.0, "maxnpieces": 7}),
+    ("b02", "S1", "p1", {"freqcutoff": 3.0, "maxnpieces": 1}),
+    ("b03", "S2", "p7", {"freqcutoff": 3.0, "maxnpieces": 7}),
+    ("b03", "S2", "p7_c4", {"freqcutoff": 4.0, "maxnpieces": 7}),
+    ("b06", "W1", "sum1", {"usewindowstats": "sum", "halfwin": 1}),
+    ("b06", "W1", "std2", {"usewindowstats": "std", "halfwin": 2}),
+    ("b06", "W1", "both3", {"usewindowstats": "both", "halfwin": 3}),
+)
 
 
 def main(argv):
@@ -28,12 +35,12 @@ def main(argv):
     nbl = int(argv[2]) if len(argv) > 2 else 12
     rec = {"nbl": nbl, "ntime": 40, "nchan": 256, "source": "CASA 6.7.6.14, rang-o-casa",
            "arms": []}  # fmt: skip
-    for batch, design, arm, cut in ARMS:
+    for batch, design, arm, params in ARMS:
         meta = json.loads((root / batch / f"{design}.json").read_text(encoding="utf-8"))
         full = meta["nbl"]
         flags = load_flags(root / batch / "out" / f"{design}.{arm}.npz")
         sub = np.stack([flags[b::full, :, c] for b in range(nbl) for c in range(4)])
-        rec["arms"].append({"design": design, "arm": arm, "freqcutoff": cut,
+        rec["arms"].append({"design": design, "arm": arm, "params": params,
                             "flags": base64.b64encode(np.packbits(sub.reshape(-1))).decode(),
                             "flagged": int(sub.sum())})  # fmt: skip
     out.write_text(json.dumps(rec, indent=1), encoding="utf-8", newline="\n")

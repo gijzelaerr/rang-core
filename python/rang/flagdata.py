@@ -913,7 +913,13 @@ def _run_chunked(w, meta, sel, mode, params, spans, res):
             if params.get("extendflags", True):
                 ext = {"growtime": 50.0, "growfreq": 80.0, "growaround": False,
                        "flagneartime": False, "flagnearfreq": False, "extendpols": True}  # fmt: skip
-                _extend(flag, cells, a1[mine], a2[mine], meta.main["TIME"][mine], chunk[mine],
+                # V8 tfcrop E1 (post hoc, research/v8-tfcrop.md 9.4): the
+                # extension after tfcrop covers every correlation of the
+                # selected rows and channels, not only the ones tfcrop read.
+                every = np.repeat(
+                    cells.any(axis=2, keepdims=True), cells.shape[2], axis=2
+                )
+                _extend(flag, every, a1[mine], a2[mine], meta.main["TIME"][mine], chunk[mine],
                         ext)  # fmt: skip
         else:
             ext = {k: params.get(k, d) for k, d in (

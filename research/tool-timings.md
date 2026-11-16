@@ -1992,3 +1992,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ (dev / held-out) | ext4 copy | 312.4 s / 402.2 s | 271 / 273 MB | all 129,024 samples gridded per interval |
 | 2026-11-16 | ts-p1: `examples/ts_p1_measure.py` with in-stream T1 (remakes rang's snapshots) | tsp1-dev / tsp1-held, WSClean FITS over \\wsl.localhost | about 6-8 min | – | 4 slots, 6 GB |
 | 2026-11-16 | ts-p1: `rang-core image` run arm (GeMClean 2048² at 2″, write_model) | copy of tsp1-dev, DATA | 89.8 s | – | GeMClean 58 s, MODEL_DATA 31 s; 4 threads |
+| 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
+| 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
