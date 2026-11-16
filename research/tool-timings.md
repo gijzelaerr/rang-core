@@ -2028,6 +2028,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | msv4-m1: `tools/check_all.py --quick` | worktree, fresh .venv | 875 s (lock wait excluded) | – | PASS |
 | 2026-11-16 | msv4-m1: `msv4_interop.py check`, run 05 | 9 cases × 2 arms, `convert-01` stores | 9 s wall | – | Windows, 1 slot, 4 GB |
 | 2026-11-16 | msv4-m1: `m1_diag_autos.py`, run 06 | 9 cases, xarray-ms arm | 10 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m1: `tools/check_all.py --quick` | worktree, after the records | 33 s (lock wait excluded) | – | PASS |
 | 2026-11-16 | e2b-confirm: `c3_flags.py check` (native, rang's reader: npz flags, E3 input DATA) | E2-B, 272,916 rows | 570 s | – | 1 slot, 8 GB |
 | 2026-11-16 | e2b-confirm: E on ext4 (TaQL from the read-only E3 input, flags rebuilt) | E2-B, 272,916 rows | 607 s | – | WSL docker, 2 slots |
 | 2026-11-16 | e2b-confirm: CASA 6.7.6.14 applycal, 3 calls, on ext4 | E2-B | 354 s | – | WSL docker, 2 slots, 12 GB |
