@@ -2013,3 +2013,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
+| 2026-11-16 | e2n: `e2n_meta.py` run 1 (metadata plus a sparse flag fraction) | SARAO CBID 1735268787, RDB over HTTPS | 607 s, failed | 1.3 GB | `StoreUnavailable` connect timeout on a `correlator_data` chunk; WSL, 1 slot |
+| 2026-11-16 | e2n: `e2n_meta.py` run 2 (metadata only) | the same | 732 s (469 s `katdal.open`) | 1.3 GB | RDB at about 0.7 MB/s; WSL, 1 slot |
+| 2026-11-16 | e2n: `e2n_fetch.py`, katdal scan 35 (J1939-6342) | 414 chunks, 5.98 GB, plus the 328 MB RDB | 1,457 s | 1.0 GB | 4.1 MB/s overall, 8 HTTPS workers; WSL to D: over 9p |
+| 2026-11-16 | e2n: `mvftoms.py -f -a` test, katdal scan 35 | 139,934 rows × 1,024 × 4, local MVF on D: | 171 s | 3.7 GB | straight to D: over 9p, rc 0; MS 8.8 GB (with SIGMA_SPECTRUM); deleted |
+| 2026-11-16 | e2n: `tools/wheel/build.py` | worktree at 8f3e191 | 195 s (maturin) | – | 8 slots, 12 GB shared |

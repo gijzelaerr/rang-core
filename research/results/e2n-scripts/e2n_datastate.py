@@ -12,6 +12,7 @@ median |XX-YY phase| and its coherence over cells; per row (A0's
 Prints the verdict of section 2's rule from J1939-6342's coherence.
 """
 
+# ruff: noqa: C408  (stats is A0's function, copied unchanged)
 import json
 import sys
 

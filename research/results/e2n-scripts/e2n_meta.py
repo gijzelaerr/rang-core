@@ -31,7 +31,7 @@ def scrub(text, url):
     text = str(text)
     if url:
         text = text.replace(url, "<URL>")
-        base, _, query = url.partition("?")
+        _, _, query = url.partition("?")
         if query:
             text = text.replace(query, "<TOKEN>")
     return re.sub(r"token=[A-Za-z0-9._\-]+", "token=<TOKEN>", text)
@@ -84,7 +84,7 @@ def main(argv=None):
                     "state": state,
                     "target": target.name,
                     "tags": list(target.tags),
-                    "dumps": int(len(ts)),
+                    "dumps": len(ts),
                     "start": float(ts[0]) if len(ts) else None,
                     "seconds": float(len(ts) * d.dump_period),
                 }
@@ -102,7 +102,9 @@ def main(argv=None):
                 idx = np.arange(0, n, a.flag_every)
                 if len(idx) == 0:
                     continue
-                f = np.asarray(d.flags[idx[:: max(1, len(idx) // 4)] if len(idx) > 4 else idx])
+                f = np.asarray(
+                    d.flags[idx[:: max(1, len(idx) // 4)] if len(idx) > 4 else idx]
+                )
                 fractions.append(
                     {
                         "scan": int(scan_index),
@@ -112,11 +114,13 @@ def main(argv=None):
                     }
                 )
             info["flag_fractions_sampled"] = fractions
-    except Exception as exc:  # the message may carry the URL
+    except Exception as exc:  # noqa: BLE001  (the message may carry the URL)
         raise SystemExit(scrub(f"{type(exc).__name__}: {exc}", url)) from None
     text = scrub(json.dumps(info, indent=1, default=str), url)
     a.out.write_text(text)
-    summary = {k: v for k, v in info.items() if k not in ("scans", "targets", "antennas")}
+    summary = {
+        k: v for k, v in info.items() if k not in ("scans", "targets", "antennas")
+    }
     print(scrub(json.dumps(summary, indent=1, default=str), url))
 
 

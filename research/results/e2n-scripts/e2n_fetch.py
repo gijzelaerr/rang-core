@@ -71,7 +71,7 @@ def get(session, url, token, dest, retries=6):
                     raise OSError(f"short read {n} of {expect}")
             part.replace(dest)
             return n
-        except Exception as exc:  # retried; the message may carry the URL
+        except Exception as exc:  # noqa: BLE001  (retried; the message may carry the URL)
             last = scrub(f"{type(exc).__name__}: {exc}", token)
             time.sleep(min(120, 5 * 2**attempt))
     raise RuntimeError(last)
@@ -117,7 +117,7 @@ def main(argv=None):
             for bucket, files in names(d.source.data, d.vis.keep).items():
                 merged.setdefault(bucket, set()).update(files)
         chunks = {b: sorted(f) for b, f in merged.items()}
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001  (the message may carry the URL)
         raise SystemExit(scrub(f"{type(exc).__name__}: {exc}", token)) from None
     jobs = []
     for bucket, names in chunks.items():
@@ -127,7 +127,12 @@ def main(argv=None):
             jobs.append((f"{endpoint}/{bucket}/{name}", out))
     todo = [(u, o) for u, o in jobs if not o.exists()]
     lock = threading.Lock()
-    state = {"done": len(jobs) - len(todo), "bytes": 0, "failed": [], "last": time.time()}
+    state = {
+        "done": len(jobs) - len(todo),
+        "bytes": 0,
+        "failed": [],
+        "last": time.time(),
+    }
 
     def note(final=False):
         el = time.time() - t0
@@ -163,7 +168,9 @@ def main(argv=None):
                "already_present": len(jobs) - len(todo), "workers": a.workers,
                "progress": rec, "failed": state["failed"][:50],
                "katdal": katdal.__version__}  # fmt: skip
-    (a.dest / "fetch-receipt.json").write_text(scrub(json.dumps(receipt, indent=1), token))
+    (a.dest / "fetch-receipt.json").write_text(
+        scrub(json.dumps(receipt, indent=1), token)
+    )
     print(scrub(json.dumps(rec), token))
     return 1 if state["failed"] else 0
 
