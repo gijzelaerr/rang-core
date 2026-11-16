@@ -5,7 +5,9 @@ as frozen; 7 of 21 informative development cases after three gate runs).
 Branch `v8c-tfcrop-poly` from `v8-tfcrop` `1b760e2`, written 2026-11-16
 before any new probe and before any new tfcrop code.
 
-**Status: proposed (frozen at this commit).**
+**Status: measured 2026-11-16; HP not met, null branch (section 9). No
+gate run spent; held-out closed; no Rust kernel.** Sections 1-7 are as
+frozen at `8a34a1c`; only this line and section 8 onward were added later.
 
 ## 1. Hypothesis and what is not claimed
 
@@ -289,3 +291,69 @@ truth on noisy groups. The true rule gives 0-2 wrong cells per group of
   commands (the misfit print of c01, `an2.py`, two overlap scans) ran
   outside the heavy lock (single-threaded, seconds each); everything since
   runs under `heavy_lock.py run --slots 1`.
+
+### 8.3 Band ends, residual form and the realistic check (2026-11-16, c11, c12, N1)
+
+- **Absolute residual (c11 RS, `maxnpieces=1`).** Line band 1..4 times
+  (1 + η s_f), four probes at relative height t η at the low or the high
+  end: the clip on r = A − F (absolute) reproduces all eight groups
+  (2 wrong cells); on A/F − 1 (relative) 7,246.
+- **Band ends are where the model fails.** On V8's N1 probe (b05, fresh
+  `syn-noise`-like bandpasses, already seen in V8, never a gate case) the
+  `maxnpieces=7` differences sit in the first and last pieces (4,019 and
+  3,833 cells against 113-292 in each inner piece), most at channels 0-7
+  and 248-255; with one piece rang under-flags the low end and over-flags
+  the high end. c12 (curved bands times a balanced ±η alternation, nothing
+  past 2 σ in the model) confirms it: flat, sloped, quadratic and sine
+  bands are bit-exact at 7 pieces (0-1 wrong cells), but where the band is
+  high and curved at an end CASA drops the positive-alternation channels at
+  that end (cubB: channels 0, 2, 4, 6, 8 at one piece, 0 and 2 at seven;
+  x3: 254; cubA: 250-254), which have q = r/σ of only 1.3-1.5 under the
+  model. Their threshold in model units scales roughly with B/mean(B)
+  (1.37 against 2.0 on flat bands). Residuals weighted by A or F, squared
+  amplitudes, a per-piece σ, a first line stage (clip 2-3), 2-5 cubic
+  stages and a 5-10 % stop rule all fail to reproduce c12 and c10 together
+  (best about 46,000 wrong cells over c07-c12 and c09, against 2-280 on the
+  one-unknown probes).
+- **Exact designs are not schedule evidence.** On noise-free bands σ is set
+  by float rounding or by the probe itself, and the cascade amplifies any
+  difference (c03 dips, c05 joins, c06 steps, c11 OW dips: 87-958 wrong
+  cells per group, changing with every schedule detail). The schedule
+  claims rest on the noisy one-unknown probes c07, c08, c10, c11.
+- **Realistic check (not P5: P5 needs fresh seeds and was not reached).**
+  Best candidate through `rang.tfcrop.plane` on N1
+  (`research/results/v8c-tfcrop/n1eval.py`): `freqfit='line'` 924/1,104
+  planes, precision 0.9995, recall 0.976 (V8's D2, unchanged);
+  `maxnpieces` 1: 0.72/0.84; 2: 0.95/0.92; 3: 0.94/0.88; 5: 0.91/0.89;
+  7: 0.92/0.88; CARACal's call 0.94/0.92 (V8's model: 0.873/0.849 at 7).
+
+## 9. Verdict (2026-11-16)
+
+**HP not met; null branch of section 6.** The written rule reproduces
+CASA's template on every noisy one-unknown probe (c07, c08, c10, c11: 0-2
+wrong cells per 1.4 M-cell group, one borderline group at 280) and on the
+single-band shapes of c12 at 7 pieces, but not on curved bands at the band
+ends, which dominate realistic bandpasses. The P5 guard was never reached,
+so **no development gate run was spent** (0 of 3), the held-out cases
+(V8's set, and the frozen `syn-noise-ho`/`syn-rfi-ho` seeds, never
+generated) stay closed, `rang.tasks.flagdata` keeps refusing
+`mode='tfcrop'`, and **no Rust kernel** was written (section 6: only after
+the held-out cases pass). `rang.tfcrop` (the reference) is unchanged;
+the candidate model lives in `tools/oracles/casa/tfcrop_template.py`.
+
+Identified, clean room, for a later attempt:
+
+| Piece | Rule | Evidence |
+| --- | --- | --- |
+| Smoothing | F = in-place 5-point running mean of the fit P over channels 2..n−3 in increasing order; channels 0, 1, n−2, n−1 keep P | c02 (α 1.66 against 5/3), c06 step response |
+| Piece edges | floor(n/k)-channel pieces, remainder split floor/ceil between first and last | c05 (`pfit7.py`), 7 and 3 pieces of 256 only: provisional |
+| Overlap | each piece's fit also uses the first channel of the next piece | c06 (p2), c10 (p7); provisional |
+| Clip | one-sided, r = A − F ≤ 2 σ, σ rms about 0 over the previous kept set, fresh mask each fit | c07, c08 (binary), c11 RS (absolute) |
+| Stages | three fits at the full piece count (two clips) | c08 M32 t = 3.1 cascade, c10 (a first global stage at clip 2 is excluded) |
+| Line arm | three line fits (V8 D2) | N1 924/1,104 planes, c09 line (26 wrong cells) |
+| Open | the exclusion at curved band ends (c12), and with it every realistic bandpass | c12, N1, c09 |
+
+Next probe, if reopened: c12's design with the band level and the
+curvature at the end varied separately, at `maxnpieces` 1 and 7, read by
+c07-style membership probes; then a 250-channel selection for the edge
+rule.

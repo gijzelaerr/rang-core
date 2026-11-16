@@ -109,7 +109,16 @@ def template(avg, valid, kind="poly", maxnp=7, rule="inc", clip=2.0, stop=0.1,
         Fold = F
         F = smooth_inplace(P) if (smooth and (smooth_each or s == nstages - 1)) else P
         G = F if resid_of == "F" else P
-        r = avg - G if resid == "abs" else np.where(G != 0, avg / G - 1, 0.0)
+        if resid == "abs":
+            r = avg - G
+        elif resid == "absA":
+            r = (avg - G) * avg
+        elif resid == "absF":
+            r = (avg - G) * G
+        elif resid == "sq":
+            r = avg**2 - G**2
+        else:
+            r = np.where(G != 0, avg / G - 1, 0.0)
         sel = w if sd_over == "kept" else valid
         if not sel.any():
             break
@@ -122,7 +131,7 @@ def template(avg, valid, kind="poly", maxnp=7, rule="inc", clip=2.0, stop=0.1,
                     F = Fold
                 break
         prev = sd
-        thr = clip * sd
+        thr = (OPTS["clip0"] if (deg == 1 and kind != "line" and OPTS.get("clip0")) else clip) * sd
         if OPTS.get("sd_scope", "global") == "piece" and p > 1:
             e = piece_edges(n, p)
             thr = np.empty(n)

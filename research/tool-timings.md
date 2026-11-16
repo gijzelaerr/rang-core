@@ -1973,3 +1973,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | v8-tfcrop: `tools/check_all.py --quick` | worktree, cold target and new venv | 1000 s (lock wait excluded) | – | FAIL on ruff format of the new test only (fixed); 279 core tests, 60 pytest, gain hashes pass |
 | 2026-11-16 | v8-tfcrop: CASA probe batches b06-b09 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 3-21 arms | 9.5-52.0 s per batch | 1.0 GB | 1 slot |
 | 2026-11-16 | v8-tfcrop: gate runs 2 and 3 and the post-hoc run (`rang_flagdata.py` + `compare_flagdata.py`, window statistics on) | 26 development cases | 70, 70, 72 s | – | 1 slot |
+| 2026-11-16 | v8c-tfcrop: CASA `flagdata(mode='tfcrop')` readout probe batches c01-c10 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs (`t24x40x256.ms`), 11.3 M cells each, 1-4 arms | 3.3-22.3 s per batch; 1.9-5.0 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
+| 2026-11-16 | v8c-tfcrop: readout inversion and candidate scoring (`readall.py`, `evalflags.py` sweeps; NumPy, single thread) | readout groups of c01-c10 | 5 s to about 6 min per sweep | under 2 GB | 1 slot (2-4 GB booked) |
+| 2026-11-16 | v8c-tfcrop: CASA readout batches c11, c12 (`tfcrop_probe.sh`) | 1,104-plane probe MSs, 2 arms | 6.0 s per batch | 1.0 GB | 1 slot |
+| 2026-11-16 | v8c-tfcrop: N1 check of a template candidate through `rang.tfcrop.plane` (`n1eval.py`, NumPy) | V8 probe b05/b04 N1, 1,104 planes, 6 arms | about 3-4 min per candidate | under 2 GB | 1 slot |
