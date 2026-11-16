@@ -2025,3 +2025,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, fresh .venv | 1011 s (lock wait excluded) | – | FAIL, 3 tests: the note not yet in the research index, and two `test_msv4` failures (the complex pad rule, a fixture zip without `table.lock`); all fixed |
 | 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, after the records | 35 s (lock wait excluded) | – | PASS: 63 pytest, 4 skipped |
 | 2026-11-16 | msv4-interop: `tests/test_msv4.py` with xarray and zarr blocked | worktree | 0.05 s | – | 6 skipped, the skip path |
+| 2026-11-16 | e2b-confirm: `c3_flags.py check` (native, rang's reader: npz flags, E3 input DATA) | E2-B, 272,916 rows | 570 s | – | 1 slot, 8 GB |
+| 2026-11-16 | e2b-confirm: E on ext4 (TaQL from the read-only E3 input, flags rebuilt) | E2-B, 272,916 rows | 607 s | – | WSL docker, 2 slots |
+| 2026-11-16 | e2b-confirm: CASA 6.7.6.14 applycal, 3 calls, on ext4 | E2-B | 354 s | – | WSL docker, 2 slots, 12 GB |
+| 2026-11-16 | e2b-confirm: rang apply (native, today's main), per field J1833 / J1939 / J1331 | 35,112 / 119,700 / 118,104 rows | 137 / 173 / 140 s | – | 4 slots, 16 GB |
+| 2026-11-16 | e2b-confirm: GeMClean joined IQUV 2048² 8 ch, dirty ε 1e-6 (J1833 / J1939 / J1331) | E2-B fields | 83 / 216 / 260 s | 8.8 / 17.8 / 16.9 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: GeMClean the same, cleaned `-auto-mask 5`, ε 1e-4 | E2-B fields | 422 / 983 / 1,028 s | 9.2 / 16.7 / 14.6 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: WSClean 3.7 the same, dirty / cleaned, `-no-small-inversion` | E2-B fields on ext4 | 234-415 s / 893-1,826 s | 0.5-0.8 / 1.4-2.0 GB | WSL docker, 2 slots, `-j 2` / `-j 4` |
+| 2026-11-16 | e2b-confirm: `tools/check_all.py --quick` | worktree, cold | 1364 s (lock wait excluded) | – | PASS |
