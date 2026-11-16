@@ -2812,3 +2812,8 @@ field 1, and its rang apply had not run. The D:-side hashes of the copy-out
 and copy-back are now taken natively on Windows (Git Bash `sha256sum`, same
 file-list format) and compared with the ext4 side's. Field 1 is rerun from
 its subset step, as the rule allows once.
+- The first rerun stopped at the new comparison: Git Bash's `sha256sum`
+  writes ` *./` (binary mode) where WSL's writes `  ./`. Every hash was
+  equal. The marker is now normalised, and field 1 is rerun from its subset
+  step again. This is the same harness fix, and no field 1 score had been
+  read.

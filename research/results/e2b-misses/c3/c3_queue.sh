@@ -32,7 +32,7 @@ fits46() {  # wait until a 46 GB ticket fits, so it does not head-block the FIFO
 }
 dsha() {  # native sha256 of every file of the D: copy, in c3_run.sh's format
   local s; s=$(date +%s)
-  "$PY" $L run --slots 1 --mem 2 -- "$GB" -c "cd '$P/f$1.ms' && find . -type f -print0 | sort -z | xargs -0 sha256sum" > "$P/$2"
+  "$PY" $L run --slots 1 --mem 2 -- "$GB" -c "cd '$P/f$1.ms' && find . -type f -print0 | sort -z | xargs -0 sha256sum | sed 's/ [*][.]/  ./'" > "$P/$2"
   local rc=$?; echo "$(date -Is) dsha $1 $2 rc=$rc secs=$(( $(date +%s) - s ))" >> "$P/runs.log"; return $rc
 }
 tag() { case $1 in 0) echo J1331p3030;; 1) echo J1939m6342;; 2) echo J1833m2103;; esac; }
