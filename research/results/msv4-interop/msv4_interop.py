@@ -5,8 +5,12 @@ Steps (section 4 of the note):
 
     extract ZIP ROOT          (any OS) the fixture zip into ROOT/fixture
     make-gaps ROOT            (WSL, python-casacore) c8: c5 with rows removed
-    convert ROOT [ids]        (WSL, xradio 1.3.1 and xarray-ms 0.5.14) both arms
-    check ROOT RECEIPT [ids]  (Windows, rang.core_ms and rang.msv4) the comparison
+    convert ROOT [--arms a,b] [ids]       (WSL, xradio 1.3.1 and xarray-ms 0.5.14)
+    check ROOT RECEIPT [--arms a,b] [ids] (Windows, rang.core_ms and rang.msv4)
+
+Arms: `xradio`, `xms` (xarray-ms defaults) and `xms-auto` (xarray-ms with
+`auto_corrs=True`, section 10). `convert` defaults to `xradio,xms` (the
+first part), `check` to every arm with a conversion log entry.
 
 ROOT is `D:/rang/outputs/msv4-<date>` (`/mnt/d/...` in WSL). Archived MSs are
 named by their Windows paths and mapped to `/mnt/d` off Windows.
@@ -33,7 +37,8 @@ ARCHIVED = {
     "c7": "D:/rang/outputs/c7a-20261106-03/M1-casa.ms",
     "c9": "D:/rang/outputs/msv2-edge-cases/20261113/ms/m05-var-spw-tssm",
 }
-ARMS = ("xradio", "xms")
+ARMS = ("xradio", "xms", "xms-auto")
+CONVERT_ARMS = ("xradio", "xms")
 CORR_NAMES = {9: "XX", 10: "XY", 11: "YX", 12: "YY", 5: "RR", 6: "RL", 7: "LR", 8: "LL"}
 NEAREST_S = 1e-3  # the frozen fallback mapping of TIME (section 4)
 
@@ -92,7 +97,7 @@ def make_gaps(root):
         print("c8: removed rows", drop, "left", t.nrows())
 
 
-def convert(root, ids=None):
+def convert(root, ids=None, arms=CONVERT_ARMS):
     import xarray
     from xradio.measurement_set import convert_msv2_to_processing_set
 
@@ -101,7 +106,7 @@ def convert(root, ids=None):
     for case, ms in case_paths(root).items():
         if ids and case not in ids:
             continue
-        for arm in ARMS:
+        for arm in arms:
             out = store(root, arm, case)
             if out.exists():
                 shutil.rmtree(out)
@@ -113,9 +118,16 @@ def convert(root, ids=None):
                     convert_msv2_to_processing_set(
                         in_file=str(ms), out_file=str(out), persistence_mode="w"
                     )
-                else:
+                elif arm == "xms":
                     tree = xarray.open_datatree(str(ms), engine="xarray-ms:msv2")
                     tree.to_zarr(str(out))
+                elif arm == "xms-auto":
+                    tree = xarray.open_datatree(
+                        str(ms), engine="xarray-ms:msv2", auto_corrs=True
+                    )
+                    tree.to_zarr(str(out))
+                else:
+                    raise SystemExit(f"unknown arm {arm!r}")
                 entry["outcome"] = "written"
             except Exception as exc:  # noqa: BLE001 (recorded as `writer fails`)
                 entry["outcome"] = "writer fails"
@@ -307,7 +319,7 @@ def check_arm(ms, path, ref):
     return out
 
 
-def check(root, receipt, ids=None):
+def check(root, receipt, ids=None, arms=ARMS):
     import numpy as np  # noqa: F401
     import rang
     from rang import core
@@ -335,7 +347,7 @@ def check(root, receipt, ids=None):
         started = time.perf_counter()
         ref = _ms_reference(ms)
         entry = {"ms": str(ms), "rows": len(ref["TIME"]), "arms": {}}
-        for arm in ARMS:
+        for arm in arms:
             written = conv.get(f"{case}/{arm}", {})
             if written.get("outcome") != "written":
                 entry["arms"][arm] = {
@@ -367,16 +379,29 @@ def _versions():
     return out
 
 
+def _arms(argv, default):
+    if "--arms" in argv:
+        i = argv.index("--arms")
+        arms = tuple(a for a in argv[i + 1].split(",") if a)
+        unknown = set(arms) - set(ARMS)
+        if unknown:
+            raise SystemExit(f"unknown arms {sorted(unknown)}")
+        return arms, argv[:i] + argv[i + 2 :]
+    return default, argv
+
+
 def main(argv):
     cmd = argv[0]
+    default = CONVERT_ARMS if cmd == "convert" else ARMS
+    arms, argv = _arms(argv, default)
     if cmd == "extract":
         extract(argv[1], argv[2])
     elif cmd == "make-gaps":
         make_gaps(argv[1])
     elif cmd == "convert":
-        convert(argv[1], set(argv[2:]) or None)
+        convert(argv[1], set(argv[2:]) or None, arms)
     elif cmd == "check":
-        check(argv[1], argv[2], set(argv[3:]) or None)
+        check(argv[1], argv[2], set(argv[3:]) or None, arms)
     else:
         raise SystemExit(__doc__)
 
