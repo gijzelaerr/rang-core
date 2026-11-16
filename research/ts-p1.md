@@ -741,3 +741,58 @@ Shared-host figures from the scoring runs (4 threads, not T6):
 | T5 | **Met** at 2000² (13.6, post hoc): 1.9e-15. The GPU path refuses the 2048² grid |
 | T6 | **Not run.** The exclusive hold was blocked |
 | T7, ESO137 | **Not run** (13.5: owner decisions 2 and 3) |
+## 15. Coordinator decisions of 2026-11-16 (second set), amendments and results
+
+The coordinator's decisions (message, 2026-11-16): rang keeps honouring
+FLAG_ROW. WSClean's behaviour is recorded as a known oracle difference, and
+T1/T2c report the raw comparison and the comparison with FLAG_ROW ignored.
+GeMClean's FLAG_ROW handling is to be checked and fixed. T4 gets a dated
+amendment and a fresh noise set. T6 runs when the host is free, with the
+exclusive ticket at the head of the queue for at most about 10 minutes. T7
+and ESO137 are left.
+
+### 15.1 Correction to 14.2 and 14.5
+
+14.2 and 14.5 gave the post hoc count as −1.3σ with the peak-curvature Λ.
+That figure was in units of 3√E, not of Poisson σ. Correctly: (239 − 307)/√307
+= **−3.9 Poisson σ**, outside 3√E as well. So neither Λ explains the count:
+the Gaussian-lobe Λ predicts too few (188) and the peak-curvature Λ too many
+(307).
+
+### 15.2 Amendment to T4, dated 2026-11-16, post hoc (written after `tsp1-noise`, before `tsp1-noise2` exists)
+
+**Λ.** Minus the Hessian of the normalised PSF of interval 0 at its peak, by
+second-order central differences over one pixel, as in
+`research/results/ts-p1/diag_t4_lambda.py`. This is the Λ the Euler
+characteristic formula uses.
+
+**Pixel-grid correction.**
+- Candidates are local maxima of the sampled image, not of the continuous
+  field. At high u, the field near a peak of height h follows h·ρ(x − x₀)
+  (the conditional mean). The highest pixel is therefore at an offset δ from
+  the peak, uniform in [−½, ½]² pixels, and reads h·ρ(δ), where
+  ρ(δ) = exp(−½ δᵀΛδ).
+- So E_grid(u) = mean over δ of E_cont(u / ρ(δ)), on a 41 × 41 grid of δ.
+  E_cont is 13.2's formula with this Λ.
+- The 5σ expectation is E5 = 450 · E_grid(5); likewise at 7σ.
+- The size of the correction was judged from `tsp1-noise` (≈ 1 % of peak
+  height at 7-10 pixels per FWHM, which is ≈ −24 % in count at u = 5), so it is
+  post hoc.
+
+**Data.** `tsp1-noise2` (seeds 20261641-45, otherwise as `tsp1-noise`, in
+13.2), drawn once after this commit. Rang's settings as in 13.2.
+
+**Gate (unchanged):** no positive candidate ≥ 7σ_meas, and
+|N5 − E5| ≤ 3√E5. The PSF depends only on UVW and weights, which equal
+those of `tsp1-noise`. The `tsp1-noise` count is reported against the new
+expectation as a post hoc check, not gated.
+
+### 15.3 T1/T2c: both comparisons
+
+The scorer reports T1 and T2c as frozen (raw) and against rang's snapshots
+remade with FLAG_ROW ignored (`flag_row_ignored`).
+- The raw comparison stays the verdict.
+- The FLAG_ROW-ignored one is labelled as the known-difference check, with
+  the same bounds.
+- It is applied to `tsp1-held2`, which was already read, by rescoring with
+  the frozen code plus this report.
