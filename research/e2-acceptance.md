@@ -1828,7 +1828,7 @@ daskms 2,894 s; applycal in place 3,138 s over 9p; compare 2,700 s; qc-avg 3,315
 - The issue #2 comment drafted by the scoring agent is not posted by the coordinator (public; left to the
   owner).
 - `e2a.ms` (194 GiB, at its 9.1 state) is kept for the diagnosis; the smoke directory
-  `D:ang\outputs\e2a-score-smoke-20261116` is kept until it ends.
+  `D:\rang\outputs\e2a-score-smoke-20261116` is kept until it ends.
 
 ## For the coordinator
 
