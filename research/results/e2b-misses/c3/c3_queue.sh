@@ -30,6 +30,11 @@ win() {  # slots mem label cmd...
 fits46() {  # wait until a 46 GB ticket fits, so it does not head-block the FIFO
   until "$PY" $L status 2>/dev/null | head -2 | grep -qE "shared: [0-9]+/16 slots, [0-2]/48 GB"; do sleep 60; done
 }
+dsha() {  # native sha256 of every file of the D: copy, in c3_run.sh's format
+  local s; s=$(date +%s)
+  "$PY" $L run --slots 1 --mem 2 -- "$GB" -c "cd '$P/f$1.ms' && find . -type f -print0 | sort -z | xargs -0 sha256sum" > "$P/$2"
+  local rc=$?; echo "$(date -Is) dsha $1 $2 rc=$rc secs=$(( $(date +%s) - s ))" >> "$P/runs.log"; return $rc
+}
 tag() { case $1 in 0) echo J1331p3030;; 1) echo J1939m6342;; 2) echo J1833m2103;; esac; }
 name() { case $1 in 0) echo J1331+3030;; 1) echo J1939-6342;; 2) echo J1833-2103;; esac; }
 case "$1" in
@@ -53,8 +58,12 @@ EOF
     need $(( g * 14 / 10 + 12 )) "field $f"
     wl 2 8 subset "$f" || exit 11
     wl 1 2 copyout "$f" || exit 12
+    dsha "$f" "s$f-d.sha256" && cmp "$P/s$f-ext4.sha256" "$P/s$f-d.sha256" || exit 12
+    wl 1 2 drops "$f"
     win 4 16 "apply$f" "$PY" "$S/c3_win.py" apply "$f" "$P/apply$f.json" || exit 13
+    dsha "$f" "f$f-d.sha256" || exit 14
     wl 1 2 copyback "$f" || exit 14
+    cmp "$P/f$f-d.sha256" "$P/f$f-ext4.sha256" || exit 14
     wl 1 4 compare "$f" || exit 15
     lane_ws() {
       wl 2 4 wsclean dirty "$f" "$t"

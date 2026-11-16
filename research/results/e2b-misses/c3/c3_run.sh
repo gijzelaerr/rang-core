@@ -63,18 +63,12 @@ EOF
   copyout)
     f=$2; rm -rf "$P/f$f.ms"
     cp -a "$W/s$f.ms" "$P/f$f.ms"; rc=$?
-    if [ $rc = 0 ]; then
-      shas "$W/s$f.ms" > "$P/s$f-ext4.sha256"; shas "$P/f$f.ms" > "$P/s$f-d.sha256"
-      cmp "$P/s$f-ext4.sha256" "$P/s$f-d.sha256"; rc=$?
-    fi
-    [ $rc = 0 ] && rm -rf "$W/s$f.ms" ;;
+    # the D: side is hashed natively on Windows by c3_queue.sh (9p reads hit ENOMEM, 9.28)
+    [ $rc = 0 ] && { shas "$W/s$f.ms" > "$P/s$f-ext4.sha256"; rc=$?; } ;;
   copyback)
     f=$2; rm -rf "$W/f$f.ms"
     cp -a "$P/f$f.ms" "$W/f$f.ms"; rc=$?
-    if [ $rc = 0 ]; then
-      shas "$P/f$f.ms" > "$P/f$f-d.sha256"; shas "$W/f$f.ms" > "$P/f$f-ext4.sha256"
-      cmp "$P/f$f-d.sha256" "$P/f$f-ext4.sha256"; rc=$?
-    fi ;;
+    [ $rc = 0 ] && { shas "$W/f$f.ms" > "$P/f$f-ext4.sha256"; rc=$?; } ;;
   compare)
     f=$2
     fx compare /w/e.ms "/w/f$f.ms" "$f" /w/flags.npy "/w/g2b-f$f.json" > "$P/compare$f.out" 2>&1
@@ -97,6 +91,8 @@ EOF
       -no-small-inversion -temp-dir /x/tmp-$m-$tag $extra -field $f /x/f$f.ms" \
       > "$P/wsclean-$m/$tag.out" 2>&1
     rc=$?; rm -rf "$W/tmp-$m-$tag" ;;
+  drops)
+    rm -rf "$W/s$2.ms"; rc=$? ;;
   dropf)
     rm -rf "$W/f$2.ms" "$W/s$2.ms"; rc=$? ;;
   drope)

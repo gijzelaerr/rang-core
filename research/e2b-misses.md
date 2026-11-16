@@ -2804,3 +2804,11 @@ Before each field it checks that the field's copy (about 31, 32 and
 if not. The expected low point is about 205 GiB. Ext4 holds E (about
 75 GB) and one field copy, inside the vhdx's free space (325 GB file,
 178 GB used).
+
+**Harness fix, 2026-11-16, post hoc (no measure or setting changed).**
+Field 1's copy-out (14:46) failed while WSL's `sha256sum` read the D: copy
+over 9p ("Cannot allocate memory", as in 9.20). No score had been read for
+field 1, and its rang apply had not run. The D:-side hashes of the copy-out
+and copy-back are now taken natively on Windows (Git Bash `sha256sum`, same
+file-list format) and compared with the ext4 side's. Field 1 is rerun from
+its subset step, as the rule allows once.
