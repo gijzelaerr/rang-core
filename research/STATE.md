@@ -20,6 +20,13 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+V8 tfcrop continued, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md) 9.3-9.4): H fails as frozen after
+all three gate runs (4, 4, 7 of 21 informative development cases; 8 post hoc). New from probes: window statistics
+exact (mean |u| or rms over full windows against cutoff × the row's sd; 12,142/12,144 planes), pre-flagged input,
+a short-piece guard in part, CASA scale-invariant over 1e-3..1e6, extension over all correlations (post hoc). On the
+real LUNO slice T1-T8 equal CASA bit for bit (CARACal's call included); syn-noise and A1 still fail on the
+piecewise-polynomial template. Held-out closed, tfcrop refused, no Rust kernel.
+
 V8 tfcrop, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md), measured, gate not met): new protocol after
 V8b's stopped H1, frozen before code (G1-G4 unchanged, three gate runs). Clean-room probes against CASA 6.7.6.14
 (five batches of 1,104 designed planes, about 3 s per arm) identify the per-row rule exactly (sd about 0 over the row,
