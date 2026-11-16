@@ -138,7 +138,12 @@ fn run<T: Real + Send + Sync>(
         let m64: Vec<f64> = model.iter().map(|m| m.to()).collect();
         let p64 = Prepared::<f64>::new(&o64, uvw, freq, Weights::F64(&w64))?;
         let mut d64 = vec![0.0; n];
-        p64.residual(VisData::C64(vis), &w64, has_model.then_some(&m64[..]), &mut d64)?;
+        p64.residual(
+            VisData::C64(vis),
+            &w64,
+            has_model.then_some(&m64[..]),
+            &mut d64,
+        )?;
         let (c_rel, c_abs, _) = max_rel(&dc, &d64);
         let (g_rel, g_abs, _) = max_rel(&dg, &d64);
         format!(

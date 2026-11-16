@@ -95,11 +95,12 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
-  -gpu                      grid and degrid the major cycles on the GPU (wgpu, Vulkan; needs a
-                            build with the cargo feature gpu and an adapter with f64 shaders;
-                            the PSF, minor cycles and resyncs stay on the CPU; research/gpu-grid.md)
-  -gpu-memory <MiB>         device-memory budget of -gpu (default 1024); over it the
-                            visibilities go to the GPU in batches
+  -gpu                      experimental: grid and degrid the major cycles on the GPU (wgpu,
+                            Vulkan; needs a build with the cargo feature gpu and an adapter with
+                            f64 shaders; the PSF, minor cycles and resyncs stay on the CPU; one
+                            channel and polarisation; not faster here; research/gpu-grid.md)
+  -gpu-memory <MiB>         device-memory budget of -gpu (default RANG_GPU_MEMORY_MB, else 1024);
+                            over it the visibilities go to the GPU in batches
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged

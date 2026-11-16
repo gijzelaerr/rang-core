@@ -117,7 +117,8 @@ ENVIRONMENT = (
         "RANG_GPU_MEMORY_MB",
         "256",
         "speed",
-        "device-memory budget per GPU inversion (batching only)",
+        "device-memory budget per GPU inversion (batching only); for gemclean -gpu "
+        "the default of -gpu-memory (else 1024; research/gpu-grid.md)",
         "x2-wgpu",
         "core/src/gpu/invert.rs",
     ),
