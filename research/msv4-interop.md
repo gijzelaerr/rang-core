@@ -283,7 +283,7 @@ keeps `table.lock`.
 
 ## 8. Next steps (proposed, not started)
 
-- **M1:** accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
+- **M1** (amended in section 9): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
   edge-case harness does for arcae), frozen as an amendment, and rerun the
   xarray-ms arm.
 - **M2:** feed `Partition.chunks` to one stage (flag or image) and require
@@ -294,6 +294,62 @@ keeps `table.lock`.
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.
+
+## 9. Amendment M1: uint8 `FLAG` (2026-11-16, post hoc)
+
+Written and committed before the code that implements it. It is post hoc to
+sections 3 and 6: it changes the scope after the run of section 7 showed the
+refusal. Sections 3, 4 and 6 stay as frozen; this section overrides one
+refusal of section 3 and adds a rule for the xarray-ms arm.
+
+**Probe before this amendment.** The xarray-ms stores of `convert-01`
+(c5, c6, c9) were opened with xarray in the main checkout's venv and their
+layout read: `FLAG` is uint8 with dimensions `GRID`; c5's `FLAG` holds only
+the values 0 and 1; `schema_version` is 4.0.0 (xradio 4.0.1); partitions are
+named `<ms>_partition_<nnn>` (xradio `<ms>_<n>`); `field_name` has no `_<id>`
+suffix (xradio `J1939-6342_0`, xarray-ms `J1939-6342`); xarray-ms adds a
+`SIGMA_SPECTRUM` variable and writes no `pointing_xds`. The partitions of c6
+and c9 have the same sizes, fields' scans and antenna names in both arms. No
+xarray-ms value was compared with the MSv2.
+
+**Scope change (frozen here).**
+
+- A `FLAG` of dtype uint8 is accepted; bool is accepted as before; every
+  other dtype (int8, uint16, float, ...) is still refused at
+  `Partition(...)`.
+- A uint8 `FLAG` is read as `flag != 0` after a value check: if any cell
+  read holds a value other than 0 or 1, the read is refused
+  (`ValueError`, naming the partition and the values). The check covers
+  every cell of the times read, pads included (xarray-ms pads `FLAG` with 1).
+- The check can only run when values are read, so it runs in
+  `Partition.rows()` (and so in `chunks()`), not when the partition is
+  opened: a bad value in a later chunk is refused only when that chunk is
+  read. The harness books such a refusal as `refused` for the partition.
+- The output `FLAG` stays bool, `(row, channel, corr)`; nothing else in the
+  layout of section 3 changes. The pad rule is unchanged.
+
+**Cases, mapping, tolerance:** those of section 4, unchanged. Bit-identical,
+no tolerance. The stores are those of `convert-01`
+(`D:\rang\outputs\msv4-20261116\ps`), not rewritten; no file under `ps/`
+is newer than `convert.json` (checked before this amendment).
+
+**Decision rule for M1 (frozen here).** The check of section 4 is run again
+over all 9 cases and both arms, on the committed code, with a new receipt
+`results/msv4-interop-m1.json`; runs are numbered from 05.
+
+- The xradio arm must still be all `match` in the same run; otherwise the
+  change broke the reader and M1 fails whatever the xarray-ms arm shows.
+- **M1 pass:** every measure of every case in the xarray-ms arm is `match`.
+  Then section 3's claim that the same code reads an xarray-ms tree holds
+  for these cases.
+- **M1 partial or fail:** any xarray-ms measure `refused` or `mismatch`. The
+  column that differs is found (for example by comparing the two stores
+  directly) and booked under section 6: where the reader matches the MSv2
+  for the xradio store and not for the xarray-ms store, it is a writer
+  difference, not a reader outcome. The reader is not changed further
+  without a second dated amendment written before that code.
+- The differences listed under the probe are not measures; they are
+  recorded, and nothing is claimed about them.
 
 ## For the coordinator
 
