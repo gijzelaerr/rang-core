@@ -28,7 +28,7 @@ LOCK = os.environ.get("LOCK", "C:/Users/gijsm/Github/rang/tools/heavy_lock.py")
 BENCH = Path("D:/rang/outputs/20261102-gemclean/bench")
 HELD = Path("D:/rang/outputs/20261103-gemclean-heldout")
 GRID = [0.005, 0.01, 0.02, 0.05, 0.10]
-THREADS = 8
+THREADS = int(os.environ.get("THREADS", "8"))
 WSL_PY = "/home/gijsm/Github/rang/.venv/bin/python"
 
 

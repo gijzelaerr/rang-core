@@ -167,6 +167,28 @@ default has been 1e-4 in single precision since G7 ([g7-defaults.md](g7-defaults
 baseline would not be the archived one. The rule's effect at the 1e-4 default is not measured here. (b) H7's 40
 points keep the 10 px separation of H1, H3 and H4 (the freeze did not say).
 
+**2, 2026-11-16, after the development stage, before any held-out GeMClean run.** Threads only, for the shared
+host: the held-out GeMClean runs use `-j 4` (4 slots) instead of `-j 8`, and WSClean on H5-H8 runs at `-j 8`
+(the archived H1-H4 WSClean runs were `-j 16`). Cycle counts and images do not depend on the thread count
+(identical at 1 and 16 threads on S1, [x1-crossplatform.md](x1-crossplatform.md)); no wall time here is a result.
+
 ## Measured result
 
-Not run.
+### Development (S1-S3), branch binary `0775c4f`, native Windows, `-j 8`
+
+Baseline: the default reproduces the archived Linux runs exactly (S1 5 cycles, 85,337 components, starting peaks
+equal to the archive's to 0.01 µJy; S2 5, S3 4). `-stop-tolerance 0` is byte-identical to the default in model,
+residual, image, PSF and dirty FITS on all three.
+
+| sky | ε | majors | comps | false \|flux\| mJy | Q/Q_truth | recovery (fw) | inner peak µJy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S1 | default, 0, 0.005, 0.01 | 5 | 85,337 | 4.335 | 1.01358 | 0.9994 | 100.01 |
+| S1 | 0.02, 0.05, 0.10 | 4 | 85,142 | 4.305 | 1.01361 | 0.9994 | 101.26 |
+| S2 | default, 0, 0.005 | 5 | 90,905 | 4.878 | 1.01507 | 0.9993 | 100.02 |
+| S2 | 0.01 - 0.10 | 4 | 90,828 | 4.838 | 1.01508 | 0.9993 | 100.52 |
+| S3 | default, 0, 0.005, 0.01 | 4 | 45,803 | 1.575 | 1.00986 | 0.9978 | 100.00 |
+| S3 | 0.02, 0.05, 0.10 | 3 | 45,712 | 1.525 | 1.00988 | 0.9978 | 101.33 |
+
+**Chosen by the frozen rule (§3): ε = 0.02**, the smallest grid value saving a cycle on all three; every quality
+check passes on each. As predicted from the traces. Scores: `scores/dev-s{1,2,3}.json`; table
+`summary-dev.json` (`examples/stop28_table.py dev`).
