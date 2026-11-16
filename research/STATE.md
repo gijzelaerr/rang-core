@@ -44,6 +44,22 @@ passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the 
 frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
 window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
 opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
+13-14; frozen at `834cf15`, code at `08bfefb`):
+
+- **`tsp1-held2`** (flags, spectral and unequal WEIGHT_SPECTRUM,
+  CORRECTED_DATA):
+  - T2a 6.5e-11σ, T2b 4.2e-6σ, T3 pass (bias ≤ 0.036σ).
+  - T1 (0.13-0.19) and T2c (0.51σ) **not met: WSClean ignores FLAG_ROW**,
+    which is absent from its source. With FLAG_ROW ignored, rang matches
+    WSClean to 6e-8. GeMClean's input.rs says the opposite; unchecked.
+- **T4 not met** at 5σ: 239 against the frozen E5 = 188. The peak-curvature
+  Λ gives 307, and the negatives number 234. 0 candidates at 7σ.
+- **T5 met:** GPU against CPU 1.9e-15, at 2000² (the GPU path refuses the
+  2460 padded width).
+- **Not run.** T6: the exclusive hold was blocked by an IDLE E2-A hold. T7
+  and ESO137: owner decisions 2 and 3.
+
 TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
 [ts-p1.md](ts-p1.md); proposal frozen at `b1d407f` before any code):
 

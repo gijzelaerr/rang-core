@@ -466,3 +466,278 @@ use here is not gated.
 - **No real-data claim yet.** Flags, unequal or spectral weights and CORRECTED_DATA are untested
   against WSClean. E2-A's field stays held out as the scope note says. T4-T7 and ESO137 are
   next, with T6 under an exclusive hold.
+
+## 13. Protocol 2: real-MS inputs, T4, T5 and T6 (frozen 2026-11-16, before any run)
+
+Written after section 12 and before any code or data for it exists. Nothing
+here is built or measured at this commit. Everything runs under the heavy
+lock, pytest included. Bookings: 4 slots and 8 GB unless stated; T6 is
+exclusive.
+
+### 13.1 `tsp1-held2`: flags, weights and CORRECTED_DATA
+
+**What stays as in 4.1.** The array, band, time, static sky, the six roles,
+the layout rule and the 2048² grid at 2″ of 9.1.
+
+**Seeds.** `tsp1-held2` uses 20261621-27, in the order jones (unused), sky,
+noise, layout, rfi (unused), flags, weights.
+
+**New in the data.**
+- **Columns.**
+  - CORRECTED_DATA = static sky + transients + noise.
+  - DATA = CORRECTED_DATA × 2 e^{0.7i}, so that reading the wrong column
+    doubles and rotates every flux.
+  - MODEL_DATA = static sky.
+  - RESIDUAL_DATA = CORRECTED_DATA − MODEL_DATA in complex64, for WSClean
+    only.
+  - `rang-core lightcurve` runs with its default column, which must pick
+    CORRECTED_DATA.
+- **Spectral, unequal weights in WEIGHT_SPECTRUM.**
+  - w_pq,h(ν) = w0 · c(ν) · a_p,h · a_q,h, where w0 = 1/σ²,
+    c(ν_k) = 1 + ½ cos(2π k / 64) and a_p,h ~ U(0.5, 1.5) per antenna and
+    hand, drawn from the weights seed. XY and YX take √(w_XX w_YY).
+  - The noise of each correlation is A1's unit draw scaled to
+    σ_cell = 1/√w_cell.
+  - WEIGHT is the channel mean of WEIGHT_SPECTRUM.
+- **Flags** (drawn from the flags seed):
+  - 3 % of (row, channel) cells flagged in all four correlations;
+  - 2 % in XX only and 2 % in YY only;
+  - channel 10 flagged in every row;
+  - FLAG_ROW set on 2 % of rows, with their cells left unflagged, so that
+    FLAG_ROW alone must remove them.
+- **σ_snap per interval**, written to the truth from the cells actually used:
+  σ_snap,k = √(Σ w_I² v) / Σ w_I, where w_I = min(4 w_XX, 4 w_YY) (zero if
+  either hand is flagged or the row is), and v = (σ_XX² + σ_YY²)/4.
+
+**Gates** on `tsp1-held2`, as amended: T1, T2a, T2b, T2c, T3a (3/√N),
+T3b, T3c and T3d. In T3, σ is the per-interval σ_snap,k. The scorer forms its
+own Stokes I from CORRECTED_DATA − MODEL_DATA, WEIGHT_SPECTRUM, FLAG and
+FLAG_ROW, without the product's code. `tsp1-held2` is generated after the
+code freeze of 13.5 and read once.
+
+### 13.2 T4: blind candidates and false alarms
+
+**Product.** `rang-core lightcurve --candidates U` lists the local maxima
+(over the 8 neighbours) of each snapshot at or above U·σ_meas, and of the
+negated image (the null), into `candidates.csv`. Each row gives the interval,
+time, sign, pixel, RA/Dec, flux and S/N.
+
+**Data: `tsp1-noise`.** As `tsp1-dev` but without transients. Seeds
+20261631-35 (as dev's keys); 2048² at 2″; U = 5.
+
+**Expectation.** For each interval, the expected Euler characteristic of a
+stationary Gaussian field with correlation ρ = the normalised PSF (pixel
+units):
+
+E(u) = A √det Λ / (2π)^{3/2} · u e^{−u²/2} + (P/2) (det Λ)^{1/4} / (2π) · e^{−u²/2} + Q(u)
+
+- A is the image area and P its perimeter.
+- Λ comes from a least-squares fit of ln ρ = −½ xᵀΛx over the central
+  pixels with ρ > 0.5 of the PSF of interval 0 (the scorer makes it with the
+  product's snapshot function from unit visibilities).
+- Q is the upper normal tail.
+- The total E5 sums the 450 intervals with the interval-0 Λ.
+
+**Gate T4:**
+- no positive candidate ≥ 7σ_meas;
+- the count of positive candidates ≥ 5σ_meas within 3√E5 of E5.
+
+Negative counts and `tsp1-held2`'s blind recoveries are reported, not gated.
+
+### 13.3 T5: GPU against CPU
+
+**Product.** `--gridder wstack --device cpu|gpu` makes the snapshots with
+rang's w-stacking gridder (X2's wgpu path on the GPU, f64; defaults: 64 w
+layers, padding 1.2). The default stays the exact wgridder on the CPU.
+
+**Data.** The extension is built with the `gpu` feature into a separate
+venv (`~/Build/tmp/20261116-ts-p1-gpu`). It runs on `tsp1-held2`, intervals
+0, 10, …, 440 (45 intervals), because the CPU w-stacking is slow.
+
+**Gate T5:** max |GPU − CPU| ≤ 1e-6 × max |CPU| on every one of those
+intervals. Reported, not gated: wstack against wgridder.
+
+### 13.4 T6: cost
+
+`rang-core lightcurve` (wgridder, 2048² at 2″, `RAYON_NUM_THREADS=16`)
+against WSClean 3.7 `-intervals-out 450 -j 16`, same size, scale, weighting
+and column, on `tsp1-held2`, each under its own exclusive hold
+(`heavy_lock.py run -- …`).
+
+**Gate T6:** rang's wall time ≤ 1.5 × WSClean's and peak memory ≤ 1.5 ×
+WSClean's. WSClean's time includes its reorder; rang reads from D: (NTFS)
+and WSClean from ext4, which is stated with the result.
+
+### 13.5 Order, decision rule and what is not run
+
+**Order.**
+1. This note.
+2. Code and tests; quick check PASS; commit, the code freeze.
+3. `tsp1-noise` → T4.
+4. `tsp1-held2` → T1-T3, then T5, then T6.
+
+**Decision rule.**
+- Each gate passes or fails as written. A failure is recorded with its
+  numbers and is not retuned.
+- A code fix needs `tsp1-held3` and a dated amendment.
+- "Met on real-MS inputs (simulated)" needs T1-T3 to pass on `tsp1-held2`.
+- T4, T5 and T6 are reported gate by gate.
+
+**Not run in this protocol.**
+- **T7.** It needs TRON's ω Cen data and a SARAO token (owner decision 2).
+- **ESO137 ms1 scan 2.**
+  - It needs about 150 GB per 4,096-channel target hour plus calibrator
+    scans, 4-6 h of HTTP fetch at the measured 7-10 MB/s, a full K/G/B
+    calibration and a deep model. That is owner decision 3.
+  - D: has 251 GB free against the 200 GB stop rule, and E2-A needs room.
+  - Proposed instead: a 512-channel averaged fetch, once the owner accepts
+    it.
+- **The uv-coverage default grid** (section 12, optional). Its snapshots
+  would not put the frozen positions on pixel centres, so T2b could not
+  gate it. It needs its own protocol.
+### 13.6 Amendment, 2026-11-16, post hoc (after T5's first attempt failed to run)
+
+The T5 run as frozen (2048², padding 1.2) stopped before its first
+comparison. The GPU w-stacking path refused the grid: `RuntimeError: padded
+width 2460 has a prime factor above 16` (2460 = 2²·3·5·41; X2's FFT takes
+factors up to 16 only). The CPU path accepts it. This is recorded as a
+limitation of the GPU path, not as a T5 measurement.
+
+**Amended T5.**
+- **Grid.** 2000² at 2″, which pads to 2400 = 2⁵·3·5². The field is 1.11°;
+  C, at 0.5°, sits 900 px from the centre, inside the image. Every position
+  stays on a pixel centre.
+- **Unchanged.** Intervals, bound, data and code.
+- The size was chosen only to make the GPU path run, before any GPU or CPU
+  w-stacking image of `tsp1-held2` existed.
+## 14. Protocol 2: measured result
+
+The code freeze is `08bfefb`; protocol 2 itself was frozen at `834cf15`. Run
+paths are in `D:\rang\outputs\ts-p1-20261116\` (`tsp1-noise.ms`,
+`tsp1-held2.ms`, `lc-noise\`, `lc-held2\`, `score-t4.json`,
+`score-held2.json`). WSClean ran in `~/Build/tmp/20261116-ts-p1/wsc-held2`.
+The compact archives are in `research/results/ts-p1/`. Every run below went
+under the heavy lock.
+
+### 14.1 `tsp1-held2`: T1-T3 (read once)
+
+- **Inputs.** The product picked CORRECTED_DATA and WEIGHT_SPECTRUM by
+  default. Each interval kept 114,447-116,785 of 129,024 samples after the
+  flags. σ_snap,k was 6.10-6.17e-5 Jy, and σ_meas matched it (median 6.137e-5
+  Jy).
+
+| Gate | Measured | Verdict |
+| --- | --- | --- |
+| T1 | max 0.194, median 0.128 of the peak | **fail** |
+| T2a (against the NumPy Stokes I and DFT) | 6.5e-11 σ | pass |
+| T2b | 4.2e-6 σ | pass |
+| T2c | 0.51σ; WCS pixels equal rang's | **fail** |
+| T3a | max E 0.036σ (bound 0.141) | pass |
+| T3b | 0.912-1.024 | pass |
+| T3c | all 450 equal | pass |
+| T3d | 7 pulses; lowest S/N 11.0 | pass |
+
+**Cause of T1 and T2c (post hoc diagnostic,
+`research/results/ts-p1/diag_flagrow.py`).**
+- WSClean 3.7 ignores FLAG_ROW. Its source tree (3.6, in
+  `~/Build/tmp/20261109-g4-wsclean-src`) never reads the column, and
+  schaapcommon's `ExtractWeights` uses only FLAG.
+- tsp1-held2 sets FLAG_ROW on 2 % of rows (34, 41 and 59 rows in intervals
+  0, 225 and 309) and leaves their cells unflagged.
+- With FLAG_ROW applied, rang differs from WSClean by 0.128, 0.132 and 0.194
+  of the peak. With FLAG_ROW ignored, the difference is 6.6e-8, 5.8e-8 and
+  5.6e-8.
+- So the rest of protocol 2 agrees with WSClean to about 6e-8 of the peak:
+  per-cell and single-hand flags, the fully flagged channel, spectral and
+  unequal WEIGHT_SPECTRUM with WSClean's `min(4 w_XX, 4 w_YY)` (read from
+  that source), and the CORRECTED_DATA residual.
+- rang follows the MS definition (CASA honours FLAG_ROW). An MS whose
+  FLAG_ROW rows are not also flagged per cell will image differently in
+  WSClean.
+- `core/src/gemclean/input.rs` documents FLAG_ROW as giving weight zero
+  "as in WSClean". On this evidence that is not what WSClean does, and
+  GeMClean's FLAG_ROW handling was not tested here.
+
+**Outcome as frozen: not met (oracle mismatch: FLAG_ROW).** T2 and T3 pass
+on the real-MS inputs. The tolerances are not changed, and `tsp1-held2` is
+spent.
+
+### 14.2 T4: blind false alarms (`tsp1-noise`)
+
+- **Measured.** No candidate reached 7σ_meas (0 positive, 0 negative;
+  expectation 0.0016). At 5σ_meas there were 239 positive and 234 negative
+  candidates, against the frozen E5 = 188.0 (3√E5 = 41).
+- **Verdict.** **T4 fails** at 5σ: +3.7 Poisson σ.
+- **Post hoc diagnostic** (`research/results/ts-p1/diag_t4_lambda.py`;
+  the verdict stands):
+  - The frozen Λ is a Gaussian fit to the main lobe above ρ = 0.5 (FWHM
+    19″ × 14″, det Λ 0.0071 pixel⁻²). It gives a smaller curvature than the
+    PSF has at its peak.
+  - The finite-difference curvature at the peak, the Λ the EC formula
+    actually uses, gives det 0.0189 and E5 = 307 (3√E = 53). The count is
+    then −1.3σ.
+  - Pixel-grid peak counting misses maxima that fall between pixels, which
+    lowers the count against the continuous EC.
+  - Positive and negative counts agree (239 against 234), so there is no
+    excess of positive false alarms over the null. σ_meas equals σ_snap
+    (median ratio 1.0000).
+- **Reading.** The miss is in the frozen expectation, not in the
+  candidates. A fixed rule needs a new noise set (`tsp1-noise2`) and a
+  dated amendment.
+- **Blind recovery on `tsp1-held2`** (reported):
+  - Every interval with truth ≥ 7σ was found blind for A, B, C and D (2, 2,
+    8 and 12 of 2, 2, 8 and 12); E was found in 61 of 108.
+  - No negative candidate reached 7σ.
+  - 37 positive candidates ≥ 7σ lie more than 3 px from every source. All
+    of them fall in intervals with a ≥ 12σ source (mostly C's 42σ pulse,
+    intervals 323-330): sidelobes of an undeconvolved snapshot.
+### 14.3 T5: GPU against CPU (`tsp1-held2`, amendment 13.6)
+
+- **Measured.** At 2000² and 2″, across 45 intervals (0, 10, …, 440), the
+  GPU w-stacking (RTX 4070 Ti, Vulkan, f64) differs from the CPU w-stacking
+  by at most 1.9e-15 of the peak. Median time per snapshot: GPU 2.5 s, CPU
+  6.0 s (8 threads, shared host).
+- **Verdict.** **T5 passes** (bound 1e-6).
+- **Build.** The extension was built with `--features gpu` into
+  `~/Build/tmp/20261116-ts-p1-gpu` (venv and cargo target). maturin's
+  editable install also put that build into the worktree's
+  `python/rang/_core.pyd`; the final quick check restores the default build.
+- **Reported, not gated: w-stacking against the exact wgridder.**
+  - The w-stacking (WSClean 3.6-1's algorithm as reproduced for the archive)
+    differs from the wgridder by 0.28-0.41 of the peak over the full image.
+  - In interval 0 that is 0.34 for the full image, 0.012 in the inner half
+    and 0.0018 in the inner quarter (`research/results/ts-p1/diag_wstack.py`),
+    so the difference sits at the edges of the image.
+  - The GPU path therefore matches its CPU twin exactly, but not
+    WSClean-grade snapshots at the field edge. The product's default stays
+    the wgridder.
+- **The 2048² padded width (2460) is refused by the GPU path** (13.6).
+### 14.4 T6: not run
+
+The exclusive ticket (rang, then WSClean, each `heavy_lock.py run -- …`
+with 16 threads) reached the head of the queue but never started. The host
+had one shared hold left: the E2-A scorer, pid 31176, 4 slots and 10 GB,
+started 06:20 and IDLE at under 5 % of a core for more than four hours.
+While waiting, the ticket kept every later shared job off the host, so it
+was withdrawn. The hold was not touched.
+
+T6 needs the coordinator to clear or schedule that hold. The command, with
+`tsp1-held2` kept on D: for it, is:
+
+    RAYON_NUM_THREADS=16 python tools/heavy_lock.py run -- python -m rang.core_cli lightcurve D:\rang\outputs\ts-p1-20261116\tsp1-held2.ms --field 3 --positions D:\rang\outputs\ts-p1-20261116\tsp1-held2.positions.csv --size 2048 --scale 2asec --out D:\rang\outputs\ts-p1-20261116\lc-t6
+    (WSL) python3 ~/Github/rang/tools/heavy_lock.py run -- bash tools/oracles/ts-p1/wsclean_intervals.sh /mnt/d/rang/outputs/ts-p1-20261116/tsp1-held2.ms ~/Build/tmp/20261116-ts-p1/wsc-t6 16 450 2048 2asec
+
+Shared-host figures from the scoring runs (4 threads, not T6):
+- rang: 359 s, 288 MB.
+- WSClean: 340 s, 274 MB.
+
+### 14.5 Protocol 2 outcome
+
+| Gate | Outcome |
+| --- | --- |
+| T1, T2c | **Not met (oracle mismatch).** WSClean ignores FLAG_ROW. With that one difference removed, rang matches WSClean to 6e-8 on flags, spectral and unequal weights, and CORRECTED_DATA |
+| T2a, T2b, T3a-d | Met on the real-MS inputs |
+| T4 | **Not met.** 0 candidates at 7σ (pass); at 5σ, 239 against the frozen E5 = 188 (+3.7σ). The expectation used the Gaussian-lobe Λ; the peak-curvature Λ gives 307 (−1.3σ). Positive and negative counts are equal |
+| T5 | **Met** at 2000² (13.6, post hoc): 1.9e-15. The GPU path refuses the 2048² grid |
+| T6 | **Not run.** The exclusive hold was blocked |
+| T7, ESO137 | **Not run** (13.5: owner decisions 2 and 3) |

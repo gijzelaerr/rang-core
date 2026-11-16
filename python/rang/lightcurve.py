@@ -183,12 +183,43 @@ def dft(uvw, freq, vis, weight, lm):
     return flux, float(wsum), int(samples)
 
 
-def snapshot(uvw, freq, vis, weight, size, scale_arcsec, epsilon=1e-6):
+def snapshot(
+    uvw,
+    freq,
+    vis,
+    weight,
+    size,
+    scale_arcsec,
+    epsilon=1e-6,
+    gridder="wgrid",
+    device="cpu",
+):
     """The interval's dirty image, `(size, size)` in WSClean's FITS pixel
-    order, divided by the weight sum (natural weighting), float64."""
+    order, divided by the weight sum (natural weighting), float64.
+    `gridder` "wgrid" is the exact wgridder (CPU); "wstack" is rang's
+    w-stacking gridder (`core_grid.invert`: 64 w layers, padding 1.2) on
+    `device` cpu or gpu (f64; research/ts-p1.md 13.3), normalised by its PSF
+    centre."""
     wsum = float(np.sum(weight, dtype=np.float64))
     if wsum <= 0.0:
         return np.full((size, size), np.nan)
+    if gridder == "wstack":
+        out = core_grid.invert(
+            uvw,
+            freq,
+            np.ascontiguousarray(vis, np.complex64),
+            np.ascontiguousarray(weight, np.float32),
+            np.ones(weight.shape, np.float32),
+            width=size,
+            height=size,
+            scale_arcsec=scale_arcsec,
+            gridder="wstack",
+            device=device,
+            precision="f64",
+        )
+        return np.asarray(out["dirty"], np.float64)
+    if gridder != "wgrid":
+        raise LightcurveError(f"gridder must be wgrid or wstack, not {gridder!r}")
     pix = scale_arcsec * ARCSEC
     dirty = core_wgridder.vis2dirty(
         uvw=uvw,
@@ -228,6 +259,58 @@ def outside_grid(uvw, freq, weight, scale_arcsec):
     return int(np.count_nonzero(beyond & (weight > 0)))
 
 
+def radec_from_pixel(x, y, size, scale_arcsec, ra0, dec0):
+    """(RA, Dec) in degrees of FITS pixel (x, y), 0-based: the inverse SIN
+    projection of l = -(x - size/2) scale, m = (y - size/2) scale."""
+    step = scale_arcsec * ARCSEC
+    east, north = -(x - size / 2) * step, (y - size / 2) * step
+    n = math.sqrt(max(0.0, 1.0 - east * east - north * north))
+    dec = math.asin(north * math.cos(dec0) + n * math.sin(dec0))
+    ra = ra0 + math.atan2(east, n * math.cos(dec0) - north * math.sin(dec0))
+    return math.degrees(ra) % 360.0, math.degrees(dec)
+
+
+def local_peaks(image, threshold):
+    """(y, x) of pixels >= `threshold` that are at least as large as all eight
+    neighbours (edge pixels compare with the neighbours they have)."""
+    padded = np.pad(image, 1, constant_values=-np.inf)
+    centre = padded[1:-1, 1:-1]
+    keep = centre >= threshold
+    for dy in (-1, 0, 1):
+        for dx in (-1, 0, 1):
+            if dy or dx:
+                keep &= centre >= padded[1 + dy : padded.shape[0] - 1 + dy,
+                                         1 + dx : padded.shape[1] - 1 + dx]  # fmt: skip
+    return np.argwhere(keep)
+
+
+def candidates(image, sigma, threshold, k, when, size, scale_arcsec, centre):
+    """Blind candidates of one snapshot (research/ts-p1.md 13.2): local maxima
+    at or above `threshold` sigma, and of the negated image (sign -1, the
+    null)."""
+    out = []
+    if not (sigma and np.isfinite(sigma) and sigma > 0):
+        return out
+    for sign in (1, -1):
+        for y, x in local_peaks(sign * image, threshold * sigma):
+            ra, dec = radec_from_pixel(x, y, size, scale_arcsec, *centre)
+            flux = float(image[y, x])
+            out.append(
+                {
+                    "interval": k,
+                    "time_mjd_s": when,
+                    "sign": sign,
+                    "x": int(x),
+                    "y": int(y),
+                    "ra_deg": ra,
+                    "dec_deg": dec,
+                    "flux_jy": flux,
+                    "snr": flux / sigma,
+                }
+            )
+    return out
+
+
 def robust_sigma(image):
     """1.4826 times the median absolute deviation from the median."""
     values = image[np.isfinite(image)]
@@ -250,6 +333,9 @@ def light_curves(
     epsilon=1e-6,
     on_snapshot=None,
     log=None,
+    gridder="wgrid",
+    device="cpu",
+    candidate_sigma=None,
 ):
     """Light curves of `positions` ((name, ra_deg, dec_deg) tuples) in the
     residual of `field` (id or name). `model_column=None` uses the data
@@ -298,6 +384,9 @@ def light_curves(
             "epsilon": float(epsilon),
             "weighting": "natural",
             "polarization": "I",
+            "gridder": gridder,
+            "device": device,
+            "candidate_sigma": candidate_sigma,
         },
         "positions": [
             {
@@ -336,6 +425,7 @@ def light_curves(
             )
         }
         seconds = {"read": 0.0, "dft": 0.0, "image": 0.0}
+        found = []
         lo = 0
         for k, span in enumerate(spans):
             hi = int(np.searchsorted(times, span[-1], side="right"))
@@ -351,8 +441,23 @@ def light_curves(
             snap_flux = [None] * len(positions)
             sigma = None
             if images:
-                image = snapshot(uvw, freq, vis, weight, size, scale_arcsec, epsilon)
+                image = snapshot(
+                    uvw, freq, vis, weight, size, scale_arcsec, epsilon, gridder, device
+                )
                 sigma = robust_sigma(image)
+                if candidate_sigma is not None:
+                    found.extend(
+                        candidates(
+                            image,
+                            sigma,
+                            candidate_sigma,
+                            k,
+                            float(np.mean(span)),
+                            size,
+                            scale_arcsec,
+                            centre,
+                        )
+                    )
                 snap_flux = [
                     None if p is None else float(image[p[1], p[0]]) for p in pixels
                 ]
@@ -375,6 +480,10 @@ def light_curves(
             if log is not None and (k % 50 == 0 or k == len(spans) - 1):
                 log(f"interval {k + 1}/{len(spans)}")
     out.update(arrays)
+    if candidate_sigma is not None:
+        if not images:
+            raise LightcurveError("candidates need the snapshots")
+        out["candidates"] = found
     beyond = sum(n or 0 for n in arrays["outside_grid"])
     out["outside_grid_total"] = beyond if images else None
     if beyond and log is not None:
@@ -409,6 +518,14 @@ def write_outputs(result, out_dir):
     (out_dir / "lightcurve.json").write_text(
         json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n"
     )
+    if result.get("candidates") is not None:
+        keys = ("interval", "time_mjd_s", "sign", "x", "y", "ra_deg", "dec_deg",
+                "flux_jy", "snr")  # fmt: skip
+        with open(out_dir / "candidates.csv", "w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f, lineterminator="\n")
+            writer.writerow(keys)
+            for c in result["candidates"]:
+                writer.writerow([_cell(c[k]) for k in keys])
     with open(out_dir / "lightcurve.csv", "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f, lineterminator="\n")
         writer.writerow(CSV_COLUMNS)

@@ -2006,3 +2006,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gemclean-stop28: GeMClean H5-H8 at the shipping accuracy (1e-4 single), default and ε 0.02 | 2048², `-j 4` | 14-18 s each | – | 4 slots; post hoc |
 | 2026-11-16 | gemclean-stop28: `tools/check_all.py --quick` | worktree, cold target | 1150 s (lock wait excluded) | – | PASS |
 | 2026-11-16 | gemclean-stop28: GeMClean and MCP pytest files (the seven GeMClean files and `test_mcp_server`) | worktree extension | 57.5 s | – | 85 passed, 5 skipped, 1 xfailed; 4 slots |
+| 2026-11-16 | ts-p1 P2: `examples/ts_p1_sim.py tsp1-noise` / `tsp1-held2` | 907,200 rows; 5.76 / 8.55 GB | 108 s / 93 s | – | 4 slots |
+| 2026-11-16 | ts-p1 P2: `rang-core lightcurve --candidates 5`, 2048² at 2″ (noise / held2) | tsp1-noise / tsp1-held2 | 361 s / 359 s | 286 / 288 MB | 4 threads, shared host (about 2.4 cores in use) |
+| 2026-11-16 | ts-p1 P2: WSClean 3.7 `-intervals-out 450 -j 4`, 2048² at 2″ | tsp1-held2 ext4 copy, RESIDUAL_DATA, WEIGHT_SPECTRUM | 339.6 s | 274 MB | ignores FLAG_ROW |
+| 2026-11-16 | ts-p1 P2: `maturin develop --release --features gpu` | worktree, target in ~/Build/tmp/20261116-ts-p1-gpu | 5 min 22 s (cold) | – | 8 slots |
+| 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
+| 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
+| 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |

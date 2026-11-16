@@ -3,7 +3,9 @@
 Usage (worktree venv):
     python examples/ts_p1_sim.py CASE OUTDIR [--ntime N --nant N --nchan N]
 
-CASE is `tsp1-dev` or `tsp1-held`. Writes OUTDIR/<case>.ms through rang's
+CASE is `tsp1-dev`, `tsp1-held`, `tsp1-held2` (protocol 2, research/ts-p1.md
+13.1: flags, spectral unequal WEIGHT_SPECTRUM, CORRECTED_DATA, DATA =
+CORRECTED_DATA x 2 e^{0.7i}) or `tsp1-noise` (13.2: no transients). Writes OUTDIR/<case>.ms through rang's
 table writer: SIM-TARGET (field 3 of A1's FIELD table), one scan of 450
 integrations of 8 s from A1's START_UTC, all 64 antennas, 64 channels over
 856-1712 MHz, no autocorrelations. DATA = static sky + transients + noise;
@@ -32,7 +34,10 @@ from rang import core_ms_write as tables
 from rang import simtruth as st
 from rang import simtruth_ms
 
-CASES = ("tsp1-dev", "tsp1-held")
+CASES = ("tsp1-dev", "tsp1-held", "tsp1-held2", "tsp1-noise")
+# Protocol 2 (research/ts-p1.md 13.1): DATA = CORRECTED_DATA x this gain.
+WRONG_COLUMN_GAIN = 2.0 * np.exp(0.7j)
+FLAG_ALL, FLAG_XX, FLAG_YY, FLAG_CHANNEL, FLAG_ROWS = 0.03, 0.02, 0.02, 10, 0.02
 NTIME, NCHAN = 450, 64
 ANTENNAS = list(range(64))
 TARGET = 3  # SIM-TARGET in A1's FIELD table
@@ -177,8 +182,10 @@ def unit_points(srcs):
     ]
 
 
-def create_ms(path, nrow, nchan):
+def create_ms(path, nrow, nchan, protocol2=False):
     cols = ("DATA", "MODEL_DATA", "RESIDUAL_DATA")
+    if protocol2:
+        cols += ("CORRECTED_DATA",)
     desc = [
         tables.makearrcoldesc(c, 0j, shape=[nchan, 4], valuetype="complex")
         for c in cols
@@ -188,9 +195,17 @@ def create_ms(path, nrow, nchan):
         tables.makearrcoldesc("WEIGHT", 0.0, shape=[4], valuetype="float"),
         tables.makearrcoldesc("SIGMA", 0.0, shape=[4], valuetype="float"),
     ]
+    if protocol2:
+        desc.append(
+            tables.makearrcoldesc(
+                "WEIGHT_SPECTRUM", 0.0, shape=[nchan, 4], valuetype="float"
+            )
+        )
     rows_per_tile = max(1, 32768 // (nchan * 4))
     tiled = {f"*{k + 1}": (f"Tiled{c}", [c], 1) for k, c in enumerate(cols)}
-    tiled["*4"] = ("TiledFlag", ["FLAG"], 8)
+    tiled["*f"] = ("TiledFlag", ["FLAG"], 8)
+    if protocol2:
+        tiled["*w"] = ("TiledWeightSpectrum", ["WEIGHT_SPECTRUM"], 1)
     dminfo = {
         key: {
             "TYPE": "TiledColumnStMan",
@@ -215,7 +230,13 @@ def generate(args):
     if ms.exists():
         raise SystemExit(f"{ms} exists; remove it first")
     unit = sigma_snap(d)
-    layout = DEV if args.case == "tsp1-dev" else held_layout(d, ntime)
+    p2 = args.case == "tsp1-held2"
+    if args.case == "tsp1-dev":
+        layout = DEV
+    elif args.case == "tsp1-noise":
+        layout = {r: {"pixel": DEV[r]["pixel"]} for r in ROLES}
+    else:
+        layout = held_layout(d, ntime)
     srcs = sources(layout)
     flux = truth_flux(layout, d, ntime, unit)
     xyz_all, diameter_all, names_all = st.antenna_table()
@@ -231,7 +252,14 @@ def generate(args):
     a1i, a2i = np.triu_indices(nant, 1)
     nbl = len(a1i)
     nrow = nbl * ntime
-    create_ms(ms, nrow, d.nchan).close()
+    create_ms(ms, nrow, d.nchan, p2).close()
+    if p2:
+        rng_w = np.random.default_rng(d.seeds["weights"])
+        ant_w = rng_w.uniform(0.5, 1.5, (nant, 2))
+        k = np.arange(d.nchan)
+        chan_w = 1.0 + 0.5 * np.cos(2 * math.pi * k / 64)
+        rng_f = np.random.default_rng(d.seeds["flags"])
+    sigma_k = np.full(ntime, unit)
     simtruth_ms.fill_subtables(ms, d, names, xyz, diameter, times, fields)
     with tables.table(str(ms / "OBSERVATION"), readonly=False) as t:
         t.putcol("PROJECT", np.array([f"rang-ts-p1-{args.case}"]))
@@ -253,26 +281,63 @@ def generate(args):
         v = model.copy()
         v[..., 0] += stokes
         v[..., 3] += stokes
+        n = len(rows.tindex)
+        if p2:
+            wx = w * chan_w[None, :] * (ant_w[rows.a1, 0] * ant_w[rows.a2, 0])[:, None]
+            wy = w * chan_w[None, :] * (ant_w[rows.a1, 1] * ant_w[rows.a2, 1])[:, None]
+            wc = np.sqrt(wx * wy)
+            wspec = np.stack([wx, wc, wc, wy], axis=-1)
+            scale = np.sqrt(1.0 / wspec) / d.sigma  # noise sigma relative to A1's
+            u = rng_f.random((n, d.nchan))
+            flags = np.zeros((n, d.nchan, 4), bool)
+            flags[u < FLAG_ALL] = True
+            flags[(u >= FLAG_ALL) & (u < FLAG_ALL + FLAG_XX), 0] = True
+            yy = (u >= FLAG_ALL + FLAG_XX) & (u < FLAG_ALL + FLAG_XX + FLAG_YY)
+            flags[yy, 3] = True
+            flags[:, FLAG_CHANNEL, :] = True
+            flag_row = rng_f.random(n) < FLAG_ROWS
+        else:
+            wspec, scale = None, 1.0
+            flags = np.zeros((n, d.nchan, 4), bool)
+            flag_row = np.zeros(n, bool)
         if not args.noiseless:
-            v = v + np.concatenate([st.noise_integration(d, t, nbl) for t in job])
+            noise = np.concatenate([st.noise_integration(d, t, nbl) for t in job])
+            v = v + noise * scale
         data = v.astype(np.complex64)
         model = model.astype(np.complex64)
-        n = len(rows.tindex)
         tix = times[rows.tindex]
         tab.putcol("UVW", uvw, r0, n)
-        tab.putcol("DATA", data, r0, n)
         tab.putcol("MODEL_DATA", model, r0, n)
         tab.putcol("RESIDUAL_DATA", data - model, r0, n)
-        tab.putcol("FLAG", np.zeros((n, d.nchan, 4), bool), r0, n)
-        tab.putcol("WEIGHT", np.full((n, 4), w), r0, n)
-        tab.putcol("SIGMA", np.full((n, 4), np.float32(d.sigma)), r0, n)
+        tab.putcol("FLAG", flags, r0, n)
+        if p2:
+            tab.putcol("CORRECTED_DATA", data, r0, n)
+            tab.putcol("DATA", (data * WRONG_COLUMN_GAIN).astype(np.complex64), r0, n)
+            tab.putcol("WEIGHT_SPECTRUM", wspec.astype(np.float32), r0, n)
+            tab.putcol("WEIGHT", wspec.mean(axis=1).astype(np.float32), r0, n)
+            tab.putcol(
+                "SIGMA", (1.0 / np.sqrt(wspec.mean(axis=1))).astype(np.float32), r0, n
+            )
+            # sigma_snap per integration from the cells used (13.1).
+            wi = np.minimum(4 * wx, 4 * wy)
+            wi[flags[..., 0] | flags[..., 3]] = 0.0
+            wi[flag_row] = 0.0
+            var = (1.0 / wx + 1.0 / wy) / 4.0
+            for t in job:
+                sel = rows.tindex == t
+                s = wi[sel]
+                sigma_k[t] = math.sqrt(float(np.sum(s**2 * var[sel]))) / float(s.sum())
+        else:
+            tab.putcol("DATA", data, r0, n)
+            tab.putcol("WEIGHT", np.full((n, 4), w), r0, n)
+            tab.putcol("SIGMA", np.full((n, 4), np.float32(d.sigma)), r0, n)
         tab.putcol("TIME", tix, r0, n)
         tab.putcol("TIME_CENTROID", tix, r0, n)
         tab.putcol("ANTENNA1", rows.a1.astype(np.int32), r0, n)
         tab.putcol("ANTENNA2", rows.a2.astype(np.int32), r0, n)
         tab.putcol("INTERVAL", np.full(n, d.dt), r0, n)
         tab.putcol("EXPOSURE", np.full(n, d.dt), r0, n)
-        tab.putcol("FLAG_ROW", np.zeros(n, bool), r0, n)
+        tab.putcol("FLAG_ROW", flag_row, r0, n)
         for col, value in (
             ("FIELD_ID", TARGET),
             ("STATE_ID", TARGET),
@@ -293,6 +358,8 @@ def generate(args):
         "scale_arcsec": SCALE_ARCSEC,
         "sigma_jy": d.sigma,
         "sigma_snap_jy": unit,
+        "sigma_snap_interval_jy": sigma_k.tolist() if p2 else None,
+        "protocol2": p2,
         "nbaseline": nbl,
         "nchan": d.nchan,
         "time_mjd_s": times.tolist(),

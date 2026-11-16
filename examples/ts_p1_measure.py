@@ -81,10 +81,18 @@ def beams(weight, phi):
 
 
 def read_interval(t, rows):
-    data = t.getcol_rows("DATA", rows) - t.getcol_rows("MODEL_DATA", rows)
-    wt = t.getcol_rows("WEIGHT", rows)
+    """The residual of `rows` as the product should read it, formed here:
+    CORRECTED_DATA (else DATA) - MODEL_DATA, WEIGHT_SPECTRUM (else WEIGHT),
+    FLAG and FLAG_ROW (protocol 2, research/ts-p1.md 13.1)."""
+    names = t.colnames()
+    column = "CORRECTED_DATA" if "CORRECTED_DATA" in names else "DATA"
+    data = t.getcol_rows(column, rows) - t.getcol_rows("MODEL_DATA", rows)
+    if "WEIGHT_SPECTRUM" in names:
+        wt = t.getcol_rows("WEIGHT_SPECTRUM", rows)
+    else:
+        wt = np.broadcast_to(t.getcol_rows("WEIGHT", rows)[:, None, :], data.shape)
     flags = t.getcol_rows("FLAG", rows)
-    vis, weight = stokes_i(data, np.broadcast_to(wt[:, None, :], data.shape), flags)
+    vis, weight = stokes_i(data, wt, flags)
     weight[t.getcol_rows("FLAG_ROW", rows).astype(bool)] = 0.0
     return np.asarray(t.getcol_rows("UVW", rows), np.float64), vis, weight
 
@@ -131,6 +139,9 @@ def score(ms, truth_path, lc_dir, wsclean=None):
         raise SystemExit("light curve positions are not the truth's, in order")
     n = len(truth["time_mjd_s"])
     sig = truth["sigma_snap_jy"]
+    # Protocol 2: sigma_snap per interval (13.1); else the design value.
+    per_k = truth.get("sigma_snap_interval_jy")
+    sig_k = np.array(per_k if per_k else [sig] * n, np.float64)[:, None]
     flux = np.array(lc["flux_jy"], np.float64)
     snap = np.array(lc["flux_snapshot_jy"], np.float64)
     sigma_meas = np.array(lc["sigma_meas_jy"], np.float64)
@@ -143,8 +154,8 @@ def score(ms, truth_path, lc_dir, wsclean=None):
         "max": float(sigma_meas.max()),
         "median_over_sigma_snap": float(np.median(sigma_meas) / sig),
     }
-    d2a = np.abs(flux - dft) / sig
-    d2b = np.abs(snap - flux) / sig
+    d2a = np.abs(flux - dft) / sig_k
+    d2b = np.abs(snap - flux) / sig_k
     res["T2a"] = {
         "max_over_sigma": float(d2a.max()),
         "pass": bool(d2a.max() <= T2_BOUND),
@@ -153,7 +164,7 @@ def score(ms, truth_path, lc_dir, wsclean=None):
         "max_over_sigma": float(d2b.max()),
         "pass": bool(d2b.max() <= T2_BOUND),
     }
-    z = (flux - expected) / sig
+    z = (flux - expected) / sig_k
     per = {}
     for s, name in enumerate(names):
         alone = np.all(np.delete(injected, s, axis=1) == 0.0, axis=1) & (
@@ -196,7 +207,7 @@ def score(ms, truth_path, lc_dir, wsclean=None):
     }
     res["T3d"] = recovery(truth, flux, sigma_meas, sig)
     if wsclean:
-        res.update(compare_wsclean(wsclean, ms, lc_dir, lc, flux, sig, n))
+        res.update(compare_wsclean(wsclean, ms, lc_dir, lc, flux, sig_k[:, 0], n))
     gates = ["T2a", "T2b", "T3a", "T3b", "T3c", "T3d"] + (
         ["T1", "T2c"] if wsclean else []
     )
@@ -278,6 +289,8 @@ def rang_snapshots(ms, lc_dir, lc):
                 size=s["size"],
                 scale_arcsec=s["scale_arcsec"],
                 epsilon=s["epsilon"],
+                gridder=s.get("gridder", "wgrid"),
+                device=s.get("device", "cpu"),
                 on_snapshot=lambda k, image, header: images.put(image),
             )
         finally:
@@ -307,7 +320,7 @@ def compare_wsclean(directory, ms, lc_dir, lc, flux, sig, n):
             x, y = round(float(x)), round(float(y))
             if k == 0:
                 pix_ok.append(list(pos["pixel"] or []) == [x, y])
-            row.append(abs(image[y, x] - flux[k, s]) / sig)
+            row.append(abs(image[y, x] - flux[k, s]) / sig[k])
         t2c.append(row)
     for _ in ours_all:  # drain: runs the rerun's flux check
         pass

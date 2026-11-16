@@ -172,7 +172,21 @@ SEEDS = {
             "layout": s0 + 3,
             "rfi": s0 + 4,
         }
-        for name, s0 in (("tsp1-dev", 20261601), ("tsp1-held", 20261611))
+        for name, s0 in (
+            ("tsp1-dev", 20261601),
+            ("tsp1-held", 20261611),
+            ("tsp1-noise", 20261631),
+        )
+    },
+    # TS-P1 protocol 2 (research/ts-p1.md 13.1): flags and weights seeds too.
+    "tsp1-held2": {
+        "jones": 20261621,
+        "sky": 20261622,
+        "noise": 20261623,
+        "layout": 20261624,
+        "rfi": 20261625,
+        "flags": 20261626,
+        "weights": 20261627,
     },
 }
 
