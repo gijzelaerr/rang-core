@@ -37,6 +37,8 @@ TF = {
     "poly_degree": 3,
     "pieces_mode": "index",
     "window_min_live": 2,
+    "piece_min": 2,
+    "piece_scope": "pass",
     # D1: per-row passes stop when the sd changes by less than this
     # (absolute; the previous sd starts at 0); at most `passes`.
     "row_tol": 0.1,
@@ -157,6 +159,18 @@ def _pass(a, flag, axis, cutoff, fitkind, npieces, winstats="none", halfwin=1):
     fit = robust_fit(avg, cnt > 0, fitkind, npieces)
     with np.errstate(invalid="ignore", divide="ignore"):
         u = np.where(fit[None, :] != 0, a / fit[None, :] - 1.0, 0.0)
+    if fitkind == "poly" and TF["piece_min"] > 0 and npieces > 1:
+        # D5 (candidate): a piece with too few valid points stops the pass.
+        edges = np.linspace(0, len(avg), npieces + 1).round().astype(int)
+        valid = cnt > 0
+        short = np.zeros(len(avg), bool)
+        for lo, hi in itertools.pairwise(edges):
+            if int(valid[lo:hi].sum()) < TF["piece_min"]:
+                short[lo:hi] = True
+        if short.any() and TF["piece_scope"] == "pass":
+            return np.zeros(a.shape, bool)
+        if short.any():
+            live = live & ~short[None, :]
     new, sd = row_flags(u, live, cutoff, return_sd=True)
     if winstats not in ("none", None, ""):
         # D4b: a flagged point enters the windows as u = -1 (its value as 0).

@@ -285,6 +285,7 @@ DESIGNS = {
     "NS": lambda info: design_scale_ladder(info, seed=10),
     "W1": lambda info: design_windows(info, seed=8),
     "F1": lambda info: design_preflagged(info, seed=9),
+    "F2": lambda info: design_piece_counts(info, seed=11),
 }
 
 
@@ -407,6 +408,39 @@ def design_windows(info, seed=8):
         data[b::nbl, :, c] = (band[None, :] * (1.0 + u)).astype(np.complex64)
         planes.append([b, c, "line"])
     return data, np.zeros(data.shape, bool), {"planes": planes}
+
+
+def design_piece_counts(info, seed=11):
+    """F2 (pieces with few valid channels): noisy line bands with mirrored
+    rows (sd 0.03, NA-like average noise 0.01) and whole channels flagged so
+    that one piece of a 7-piece (and of a 3-piece) split keeps exactly n
+    valid channels, n = 0..9 cycled over planes; the other pieces keep at
+    least 20. Reads the guard on short pieces (D5)."""
+    nbl, ntime, nchan = info["nbl"], info["ntime"], info["nchan"]
+    half = ntime // 2
+    rng = np.random.default_rng(seed)
+    x = np.linspace(-1.0, 1.0, nchan)
+    data = np.empty((nbl * ntime, nchan, 4), np.complex64)
+    flag = np.zeros(data.shape, bool)
+    planes = []
+    for k in range(nbl * 4):
+        b, c = divmod(k, 4)
+        band = rng.uniform(0.5, 20.0) * (1.0 + rng.uniform(-0.9, 0.9) * x)
+        avg = band * (1.0 + 0.01 * rng.standard_normal(nchan))
+        u = _mirror_rows(rng, half, nchan)
+        n = k % 10
+        split = 7 if (k // 10) % 2 == 0 else 3
+        edges = np.linspace(0, nchan, split + 1).round().astype(int)
+        piece = int(rng.integers(0, split))
+        lo, hi = edges[piece], edges[piece + 1]
+        chf = np.zeros(nchan, bool)
+        keep = rng.choice(np.arange(lo, hi), n, replace=False) if n else []
+        chf[lo:hi] = True
+        chf[list(keep)] = False
+        data[b::nbl, :, c] = (avg[None, :] * (1.0 + u)).astype(np.complex64)
+        flag[b::nbl, :, c] = chf[None, :]
+        planes.append([b, c, f"n={n},split={split},piece={piece}"])
+    return data, flag, {"planes": planes}
 
 
 def design_preflagged(info, seed=9):
