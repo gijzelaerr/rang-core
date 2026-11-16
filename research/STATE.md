@@ -46,6 +46,24 @@ tickets that fit, until the head has waited its drain limit (`run --drain MIN`, 
 and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged, and the one test that asserted
 strict FIFO behind an exclusive head now pins `drain_s=0`.
 
+GPU gridding in GeMClean (issue #12), 2026-11-16 (branch `gpu-grid`; [gpu-grid.md](gpu-grid.md),
+frozen at `e1c55ac`, amendments 9.1-9.3; library at `9ad7e75`; outputs `D:/rang/outputs/20261116-gpu-grid`):
+- `gemclean -gpu` (feature `gpu`, wgpu/Vulkan, opt-in, default off): the major cycle's degrid and grid of the
+  exact w-gridder on the RTX 4070 Ti by gather (no atomics, deterministic); PSF, minor cycles, resyncs on the CPU.
+  Built on X2's context and FFT. Not CUDA (deviation from the brief, for the coordinator).
+- Gate 0 **pass**: CPU FITS byte-identical to `a931b6c`, feature off and on (S1 both forms, H3).
+- Gate 1: f64 **pass** (≤ 7.4e-12 of the peak, bound 1e-9); f32 **fails as frozen** (up to 4.8e-4 of the
+  residual's 100 µJy peak, bound 1e-5): f32 rounding at the data's scale, as large as the CPU's own f32 error
+  against an f64 reference. Post hoc 9.3 measure: passes on the seven skies, fails on the pilot-512 (4.7 × the
+  CPU's f32 error, three batches per call). Outcome under the frozen rule: **Failure**.
+- Gate 2 (post hoc continuation): all seven skies in both forms within G1's bounds; f64 images equal the CPU's;
+  the pilot fails the 100 µJy L∞ bound (2.1 mJy; one major cycle fewer; its threshold is 3 mJy).
+- Speed: at `-j 8` on a shared host the GPU runs were not faster end to end (13.9-73.2 s against 13.5-68.1 s);
+  exclusive `-j 16` timing against WSClean **not run**: an IDLE 4-slot hold kept the host shared for 80 min
+  (8 tickets withdrawn at 10 min) and another process took the card (10.9 of 12.3 GB). No speed claim.
+- Coordinator decision 2026-11-16: the code is parked on branch `gpu-grid` (c203e02), not merged; only this
+  record is on main. See gpu-grid.md section "Coordinator decision".
+
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
 `D:\rang\outputs\msfix-20261116-01`):

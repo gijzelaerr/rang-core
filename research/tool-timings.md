@@ -2033,3 +2033,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | e2b-confirm: GeMClean the same, cleaned `-auto-mask 5`, ε 1e-4 | E2-B fields | 422 / 983 / 1,028 s | 9.2 / 16.7 / 14.6 GB | `-j 4`, 4 slots, shared load |
 | 2026-11-16 | e2b-confirm: WSClean 3.7 the same, dirty / cleaned, `-no-small-inversion` | E2-B fields on ext4 | 234-415 s / 893-1,826 s | 0.5-0.8 / 1.4-2.0 GB | WSL docker, 2 slots, `-j 2` / `-j 4` |
 | 2026-11-16 | e2b-confirm: `tools/check_all.py --quick` | worktree, cold | 1364 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | gpu-grid (#12): cargo build `gemclean` profile, baseline `a931b6c` | core, -j 4 | 305 s | – | native Windows, shared 4 slots |
+| 2026-11-16 | gpu-grid: cargo build `gemclean` profile, feature `gpu` (`gemclean`, `gpu_grid_parity`) / feature off | core, -j 4 | 481 s / 176 s | – | `9ad7e75` |
+| 2026-11-16 | gpu-grid: `cargo test --features gpu --lib wgridder::gpu` (debug) | 4 tests | 82 s | – | RTX 4070 Ti; the one-visibility batch test dominates |
+| 2026-11-16 | gpu-grid: GeMClean CPU `a931b6c`, coarse / fine, `-j 8` shared | S1 S2 S3 H1 H2 H4 (2048²), H3 (4096²) | 13.5-47.6 s / 18.2-68.1 s | – | Gate 0 baseline; per-run walls in `base/*.log` |
+| 2026-11-16 | gpu-grid: GeMClean `-gpu`, coarse / fine, `-j 8` shared | same seven skies | 13.9-45.4 s / 19.6-73.2 s | – | Gate 2; 588-1342 MiB on the GPU |
+| 2026-11-16 | gpu-grid: GeMClean CPU / `-gpu`, coarse, `-j 8` shared | pilot-512 (4096², 3asec) | 196.0 s / 189.5 s | – | major cycles 99.3 s (5) / 65.9 s (4); GPU 4096 MiB, 3 batches per call |
+| 2026-11-16 | gpu-grid: `gpu_grid_parity`, one residual + `dirty2vis` per arm | 7 skies x 2 forms, pilot | under 1 min per case; pilot 3.3 min (dirty image 2.3 min) | – | Gate 1; 8 threads |
+| 2026-11-16 | gpu-grid: `tools/check_all.py --quick` | worktree | 987 s (lock wait excluded) | – | FAIL: cargo fmt only (fixed); 469 pytest passed |
+| 2026-11-16 | gpu-grid: exclusive timing tickets (GeMClean Windows, WSClean WSL) | S1 H2 H3 plan | not started | – | 17:07-18:25; 4 + 4 tickets withdrawn after 10 min at the head (IDLE 4-slot E2-A hold); 1 GPU arm void (card 10.9 of 12.3 GB used) |
+| 2026-11-16 | gpu-grid: exclusive timing tickets, second attempt (coarse, 1024 MiB) | S1 H2 H3 plan | not started | – | 18:40-18:57; WSClean ticket past the 15 min drain limit behind a long 1-slot fetch and a 2-slot job; withdrawn |
+| 2026-11-16 | gpu-grid: `tools/check_all.py --quick` (final) | worktree `393ebd9` | 986 s (lock wait excluded) | – | PASS: 518 pytest |
