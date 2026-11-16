@@ -78,12 +78,37 @@ def expected_ec(u, area, perimeter, lam):
     return e2 + e1 + tail
 
 
-def t4(ms, lc_dir, out):
+def peak_lambda(psf, size):
+    """Amendment 15.2: minus the Hessian of the PSF at its peak, by
+    second-order central differences over one pixel."""
+    c = size // 2
+    dxx = -(psf[c, c + 1] + psf[c, c - 1] - 2.0)
+    dyy = -(psf[c + 1, c] + psf[c - 1, c] - 2.0)
+    dxy = -(psf[c + 1, c + 1] - psf[c + 1, c - 1] - psf[c - 1, c + 1]
+            + psf[c - 1, c - 1]) / 4.0  # fmt: skip
+    return np.array([[dxx, dxy], [dxy, dyy]])
+
+
+def expected_grid(u, area, perimeter, lam, n=41):
+    """Amendment 15.2: the continuous EC expectation at u / rho(delta),
+    averaged over the pixel offset delta of the highest pixel, uniform in
+    [-1/2, 1/2]^2 (n x n points)."""
+    d = (np.arange(n) + 0.5) / n - 0.5
+    total = 0.0
+    for dx in d:
+        for dy in d:
+            q = lam[0, 0] * dx * dx + 2 * lam[0, 1] * dx * dy + lam[1, 1] * dy * dy
+            total += expected_ec(u / math.exp(-0.5 * q), area, perimeter, lam)
+    return total / (n * n)
+
+
+def t4(ms, lc_dir, out, psf_ms=None):
     started = time.perf_counter()
     res_lc = json.loads((Path(lc_dir) / "lightcurve.json").read_text(encoding="utf-8"))
     s = res_lc["settings"]
     size, scale = s["size"], s["scale_arcsec"]
     field = res_lc["field"]["id"]
+    ms = psf_ms or ms  # the PSF needs only UVW and weights (15.2)
     rows, times, unique = interval_rows(ms, field)
     freq, _, _ = core_model.band(ms, field)
     with core_ms.open_table(ms) as t:
@@ -103,8 +128,11 @@ def t4(ms, lc_dir, out):
     pos7 = sum(1 for c in cands if c["sign"] > 0 and c["snr"] >= 7.0)
     neg7 = sum(1 for c in cands if c["sign"] < 0 and -c["snr"] >= 7.0)
     fwhm = 2 * math.sqrt(2 * math.log(2)) / np.sqrt(np.linalg.eigvalsh(lam))
+    lam_peak = peak_lambda(psf, size)
+    a5 = n * expected_grid(5.0, area, perimeter, lam_peak)
+    a7 = n * expected_grid(7.0, area, perimeter, lam_peak)
     res = {
-        "case": "tsp1-noise",
+        "case": res_lc["ms"],
         "intervals": n,
         "lambda_pixels": lam.tolist(),
         "lobe_pixels_fitted": npix,
@@ -116,6 +144,13 @@ def t4(ms, lc_dir, out):
         "positive_7": pos7,
         "negative_7": neg7,
         "deviation_5_in_poisson_sigma": (pos5 - e5) / math.sqrt(e5),
+        "amended_15_2": {
+            "lambda_peak_pixels": lam_peak.tolist(),
+            "expected_5": a5,
+            "expected_7": a7,
+            "deviation_5_in_poisson_sigma": (pos5 - a5) / math.sqrt(a5),
+            "pass": bool(pos7 == 0 and abs(pos5 - a5) <= 3 * math.sqrt(a5)),
+        },
         "pass_7": pos7 == 0,
         "pass_5": abs(pos5 - e5) <= 3 * math.sqrt(e5),
         "seconds": time.perf_counter() - started,
@@ -124,6 +159,7 @@ def t4(ms, lc_dir, out):
     Path(out).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
     print(json.dumps({k: res[k] for k in ("expected_5", "positive_5", "negative_5",
                                          "positive_7", "pass")}))  # fmt: skip
+    print(json.dumps({"amended_15_2": res["amended_15_2"]}))
     return 0 if res["pass"] else 1
 
 
@@ -186,6 +222,7 @@ def main(argv=None):
     a.add_argument("ms")
     a.add_argument("lc_dir")
     a.add_argument("out")
+    a.add_argument("--psf-ms", help="take the PSF from this MS (same UVW, weights)")
     b = sub.add_parser("t5")
     b.add_argument("ms")
     b.add_argument("out")
@@ -194,7 +231,7 @@ def main(argv=None):
     b.add_argument("--scale", type=float, default=2.0)
     args = p.parse_args(argv)
     if args.gate == "t4":
-        return t4(args.ms, args.lc_dir, args.out)
+        return t4(args.ms, args.lc_dir, args.out, args.psf_ms)
     return t5(args.ms, args.out, args.field, args.size, args.scale)
 
 

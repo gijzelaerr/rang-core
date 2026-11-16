@@ -44,6 +44,23 @@ passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the 
 frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
 window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
 opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 coordinator round 2, 2026-11-16 ([ts-p1.md](ts-p1.md) section 15):
+
+- **FLAG_ROW.** rang keeps honouring it. On `tsp1-held2`, T1/T2c raw stay
+  not met (0.19, 0.51σ). With FLAG_ROW ignored they reach 3.7e-7 and
+  5.0e-6σ.
+- **GeMClean** now also leaves FLAG_ROW rows out of the uniform/Briggs
+  weight grid. Gridding already skipped them, and its comment was wrong.
+  There is a new test. The 13 archived G2-G9 MSes have 0 FLAG_ROW samples
+  with weight, so their outputs are bit-identical.
+- **T4 met** under amendment 15.2 (peak-curvature Λ plus a pixel-grid
+  correction, written before the draw), on a fresh `tsp1-noise2`: 256
+  against E5 = 235.3 (+1.35σ), 0 at 7σ.
+  - The earlier "−1.3σ" was in units of 3√E; the correct figure is −3.9σ.
+- **T6** runs through `tools/oracles/ts-p1/t6_run.py`, which keeps an
+  exclusive ticket at the head for at most 10 minutes, then withdraws and
+  retries.
+
 TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
 13-14; frozen at `834cf15`, code at `08bfefb`):
 
