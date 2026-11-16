@@ -272,3 +272,10 @@ repeats at a fixed budget; degridding (each visibility sums its planes in
 order, the grids are the same in every batch) is bit-identical across
 batchings; gridding across batchings must meet Gate 1's tolerance against the
 CPU, and its difference from the one-batch result is reported.
+
+**9.2, 2026-11-16, before any GPU run (not post hoc).** Since G7
+(`research/g7-defaults.md`) GeMClean's default is already the coarse form
+(`-wgridder-accuracy 1e-4`, single precision). Section 3's "default (f64,
+1e-6)" form is therefore run as **fine**, `-wgridder-accuracy 1e-6` (double
+precision, chosen by the accuracy); "coarse" is the shipped default and is
+passed as `-single -wgridder-accuracy 1e-4` explicitly. Nothing else changes.
