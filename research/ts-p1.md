@@ -451,3 +451,18 @@ use here is not gated.
   delete them when not needed.
 - **Lock.** One `pytest -n 4` (about 3 min) ran outside the heavy lock early
   in the session.
+
+## 12. Coordinator decisions, 2026-11-16 (owner delegated: "do whatever you think is best")
+
+- **9.1 (snapshot grid 2048² at 2″) accepted, post hoc.** The frozen T1/T2c miss is an
+  oracle-configuration mismatch, not a rang error: WSClean drops the 0.46 % of samples beyond
+  1/(2·4″) and rang keeps them; removing exactly those samples gives 2.7e-7 of WSClean. The
+  result is reported as "met on the held-out simulation under post hoc amendment 9.1", never as
+  met as frozen.
+- **9.2 (T3a bound 3/√N with the noiseless-twin check) accepted, post hoc**, with the same label.
+- **CLI default stays 1024² at 4″, with its warning on MeerKAT L band.** Changing it is a code
+  change that would need `tsp1-held2`. A later change sets the default from the uv coverage
+  and is gated on `tsp1-held2`.
+- **No real-data claim yet.** Flags, unequal or spectral weights and CORRECTED_DATA are untested
+  against WSClean. E2-A's field stays held out as the scope note says. T4-T7 and ESO137 are
+  next, with T6 under an exclusive hold.
