@@ -1,0 +1,213 @@
+{
+ "case": "tsp1-held",
+ "sigma_snap_jy": 5.65186988328377e-05,
+ "intervals": 450,
+ "sigma_meas_jy": {
+  "median": 5.654607323651276e-05,
+  "min": 5.5680514587387244e-05,
+  "max": 5.7449632742800035e-05,
+  "median_over_sigma_snap": 1.0004843424254337
+ },
+ "T2a": {
+  "max_over_sigma": 1.4150152012029652e-10,
+  "pass": true
+ },
+ "T2b": {
+  "max_over_sigma": 3.3619547697921963e-06,
+  "pass": true
+ },
+ "T3a": {
+  "per_source": {
+   "A": -0.015987664845108635,
+   "B": -0.0026163090151622094,
+   "C": 0.04195574251316709,
+   "D": -0.017110604789714653,
+   "E": 0.0024259774585370804,
+   "F": 0.006196261668092472
+  },
+  "max_abs": 0.04195574251316709,
+  "pass": true,
+  "amended_bound": 0.1414213562373095,
+  "pass_amended": true,
+  "twin_bound": 0.01,
+  "pass_twin": false
+ },
+ "T3b": {
+  "per_source": {
+   "A": 0.9906915019813675,
+   "B": 0.9879994577645256,
+   "C": 0.910150985117334,
+   "D": 1.0365033946976305,
+   "E": 0.9928769455481534,
+   "F": 1.0009144005586192
+  },
+  "pass": true
+ },
+ "sources": {
+  "A": {
+   "bias_over_sigma": -0.015987664845108635,
+   "chi2_reduced": 0.9906915019813675,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "B": {
+   "bias_over_sigma": -0.0026163090151622094,
+   "chi2_reduced": 0.9879994577645256,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "C": {
+   "bias_over_sigma": 0.04195574251316709,
+   "chi2_reduced": 0.910150985117334,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "D": {
+   "bias_over_sigma": -0.017110604789714653,
+   "chi2_reduced": 1.0365033946976305,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "E": {
+   "bias_over_sigma": 0.0024259774585370804,
+   "chi2_reduced": 0.9928769455481534,
+   "bias_vs_injected_alone_over_sigma": 0.027050837241549684,
+   "intervals_alone": 426
+  },
+  "F": {
+   "bias_over_sigma": 0.006196261668092472,
+   "chi2_reduced": 1.0009144005586192,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  }
+ },
+ "T3c": {
+  "pass": true
+ },
+ "T3d": {
+  "pulses": [
+   {
+    "source": "A",
+    "start": 328,
+    "end": 329,
+    "peak_over_sigma": 28.557414499816513,
+    "snr_meas": [
+     27.405232798166253
+    ],
+    "best_interval": 328,
+    "pass": true
+   },
+   {
+    "source": "A",
+    "start": 117,
+    "end": 118,
+    "peak_over_sigma": 23.370451122899837,
+    "snr_meas": [
+     24.03771206293746
+    ],
+    "best_interval": 117,
+    "pass": true
+   },
+   {
+    "source": "B",
+    "start": 170,
+    "end": 172,
+    "peak_over_sigma": 39.44937264003673,
+    "snr_meas": [
+     39.159005234821834,
+     39.30675942709387
+    ],
+    "best_interval": 171,
+    "pass": true
+   },
+   {
+    "source": "C",
+    "start": 234,
+    "end": 242,
+    "peak_over_sigma": 49.39656341770449,
+    "snr_meas": [
+     47.23208482771238,
+     49.54303197982815,
+     48.3764999945001,
+     49.313062385860704,
+     48.04927155301197,
+     49.33841322481198,
+     50.43706659771862,
+     49.934787074089286
+    ],
+    "best_interval": 240,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 63,
+    "end": 67,
+    "peak_over_sigma": 8.648032911180762,
+    "snr_meas": [
+     8.77123014155189,
+     8.230736143159309,
+     7.075814429814479
+    ],
+    "best_interval": 63,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 213,
+    "end": 217,
+    "peak_over_sigma": 8.648032911180762,
+    "snr_meas": [
+     8.654379519024694,
+     8.19126671113831,
+     7.911049879741114
+    ],
+    "best_interval": 213,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 363,
+    "end": 367,
+    "peak_over_sigma": 8.648032911180762,
+    "snr_meas": [
+     9.908454250184386,
+     9.137067972301491,
+     8.099704250274849
+    ],
+    "best_interval": 363,
+    "pass": true
+   }
+  ],
+  "pass": true
+ },
+ "T1": {
+  "max_relative": 0.08566259253452879,
+  "median_relative": 0.049834622590982064,
+  "worst_interval": 357,
+  "pass": false
+ },
+ "T2c": {
+  "max_over_sigma": 0.25085646136348055,
+  "pixels_equal_rang": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "pass": false
+ },
+ "gates": {
+  "T2a": true,
+  "T2b": true,
+  "T3a": true,
+  "T3b": true,
+  "T3c": true,
+  "T3d": true,
+  "T1": false,
+  "T2c": false
+ },
+ "all_pass": false,
+ "seconds": 141.48675730000832
+}

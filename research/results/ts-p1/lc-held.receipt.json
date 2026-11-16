@@ -1,0 +1,123 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "lightcurve",
+  "D:\\rang\\outputs\\ts-p1-20261116\\tsp1-held.ms",
+  "--field",
+  "3",
+  "--positions",
+  "D:\\rang\\outputs\\ts-p1-20261116\\tsp1-held.positions.csv",
+  "--size",
+  "2048",
+  "--scale",
+  "2asec",
+  "--out",
+  "D:\\rang\\outputs\\ts-p1-20261116\\lc-held"
+ ],
+ "stage": "lightcurve",
+ "verb": null,
+ "started_utc": "2026-11-16T09:38:21+00:00",
+ "commit": {
+  "head": "827086898fb99e13379d0762085436963ed6c861",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/ts-p1",
+  "distribution": "rang-core",
+  "version": "0.2.0",
+  "extension_sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+ },
+ "environment": {
+  "python": "3.13.16 (main, Oct  3 2026, 01:04:41) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/ts-p1/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.2.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/ts-p1/python/rang/_core.pyd",
+   "sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "4",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/tsp1-held.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 5760067538,
+   "listing_sha256": "c7fd9e1540fc2fad7f6cfb01dda46247b32d38a036f1a358f1eebabb03a30ed0"
+  },
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/tsp1-held.positions.csv",
+   "kind": "file",
+   "bytes": 240,
+   "sha256": "64c64c9360291abcf7644709cea1f80b47aa7b57f940958c6f091d40c1390c89"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/lc-held",
+   "kind": "directory",
+   "files": 2,
+   "bytes": 662424,
+   "tree_sha256": "e31ccb735dd1f413017eabea61f104afa8f7c102a71deab6b4b10ddce750b6d4"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 318.65940370000317,
+  "cpu_seconds": 830.28125,
+  "peak_rss_mb": 285.32421875
+ },
+ "exit": 0,
+ "verdict": null
+}

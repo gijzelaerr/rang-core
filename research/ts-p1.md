@@ -4,6 +4,10 @@ Issue #9 (gijzelaerr/rang-core), time series P1 of
 [v1-timeseries-scope.md](v1-timeseries-scope.md). Owner approved P1 on
 2026-11-13. Branch `ts-p1`. Written 2026-11-16.
 
+**Status 2026-11-16: implemented and measured; met on the held-out
+simulation** (section 10.3). The post hoc amendments 9.1-9.3 await the
+coordinator's acceptance; the real-data arms are deferred.
+
 **Status at freeze: proposed. Nothing here is built or measured.** This note is
 committed before any code that tests it. Any later change is a dated amendment
 in section 9, labelled post hoc if it could have seen a result.
@@ -254,8 +258,9 @@ frozen rule first and then under the amended rule.
 
 ### 10.1 Dev attempt 1 (frozen settings, 1024² at 4″), 2026-11-16
 
-- **Code.** Commit `ec6bef5`; extension built from it. The clippy fix came
-  later and does not change numbers.
+- **Code.** Commit `ec6bef5`. The extension was built during the first quick
+  check, from the source before its clippy fix (an iterator rewrite of one
+  loop, with no change to the numbers).
 - **Run paths.**
   - Data and receipts: `D:\rang\outputs\ts-p1-20261116\` (`tsp1-dev.ms`,
     `tsp1-dev.truth.json`, `lc-dev\`, `score-dev.json`,
@@ -281,3 +286,117 @@ frozen rule first and then under the amended rule.
     wall time, image 95.9 s, read 10.6 s, DFT 1.3 s.
   - WSClean `-intervals-out 450 -j 4`: 128.5 s wall, peak RSS 155 MB.
   - The simulation: 63 s.
+
+### 10.2 Dev attempt 2 (amendment 9.1, 2048² at 2″) and the noiseless twin
+
+- **Code freeze.** Commit `8270868` (quick check PASS; CI `tests` and `docs`
+  green). Every run below used it.
+- **Run paths.** `D:\rang\outputs\ts-p1-20261116\` (`lc-dev2\`,
+  `score-dev2.json`, `lc-twin\`, `score-twin.json`). WSClean ran in
+  `~/Build/tmp/20261116-ts-p1/wsc-dev2`, which was deleted after scoring.
+- **Grid.** WSClean gridded all 129,024 samples in every interval, and rang
+  counted 0 beyond its grid.
+
+| Gate | Measured | Frozen | Amended |
+| --- | --- | --- | --- |
+| T1 | max 2.5e-7, median 4.2e-8 of the peak | pass | pass |
+| T2a | 1.1e-10 σ | pass | pass |
+| T2b | 1.4e-6 σ | pass | pass |
+| T2c | 1.3e-6 σ; WCS pixels equal rang's | pass | pass |
+| T3a | as attempt 1, max E 0.104σ (the DFT fluxes do not depend on the grid) | **fail** | pass (≤ 0.141) |
+| T3b | 0.975-1.103 | pass | pass |
+| T3c, T3d | all equal; every pulse recovered (lowest S/N C at 6.2) | pass | pass |
+
+- **Twin** (`--noiseless`, the same seeds, DFT only). Max |bias| is
+  7.6e-8 σ (C) against the 0.01σ bound, so E's 0.104σ is noise, not a flux
+  scale error. The twin's Rust and NumPy DFTs agree to 4.4e-12 σ.
+- **Dev passes** under the amended rule, so the held-out set was generated.
+
+### 10.3 Held-out `tsp1-held` (read once, commit `8270868`)
+
+**Layout** (drawn by the frozen rule):
+
+| Source | Pixel | Signal |
+| --- | --- | --- |
+| A | (0, 0) | 8 s pulses at 117 (23.4σ) and 328 (28.6σ) |
+| B | (−166, 213) | 16 s pulse at 170 (39.4σ) |
+| C | (230, −387) | 64 s pulse at 234 (49.4σ) |
+| D | (256, −86) | 8.6σ every 20 min from 504 s |
+| E | (257, 252) | mean 6.4σ |
+| F | (49, 173) | empty |
+
+**Results, amended grid (2048² at 2″):**
+
+| Gate | Measured | Frozen | Amended |
+| --- | --- | --- | --- |
+| T1 | max 3.0e-7, median 5.2e-8 of the peak | pass | pass |
+| T2a | 1.4e-10 σ | pass | pass |
+| T2b | 3.9e-6 σ | pass | pass |
+| T2c | 2.5e-6 σ; pixels equal | pass | pass |
+| T3a | A −0.016, B −0.003, C 0.042, D −0.017, E 0.002, F 0.006 σ | pass | pass |
+| T3b | 0.910-1.037 | pass | pass |
+| T3c | all 450 equal | pass | pass |
+| T3d | 7 pulses; lowest S/N 7.1 (D, peak 8.6σ) | pass | pass |
+
+- **σ.** σ_meas median 1.0004 σ_snap.
+- **Frozen 1024² at 4″, run after the amended set for the record.**
+  - T1 0.086 (median 0.050) and T2c 0.25σ: **fail**, as on dev.
+  - Everything else passes: T2b 3.4e-6 σ, T3a 0.042σ.
+  - rang warned of 265,415 weighted samples beyond the grid (590 per
+    interval, 0.46 %).
+
+**Outcome: met.**
+- Under the amended rule, every gate passes on the held-out set.
+- The frozen tolerances also all hold on the held-out set, at the amended
+  snapshot grid of 9.1.
+- At the frozen grid, T1 and T2c fail because WSClean drops the samples
+  beyond the grid (9.1).
+- The claim is parity with WSClean `-intervals-out` and the exact DFT; no
+  novelty is claimed.
+
+### 10.4 The `rang-core run` arm (reported, not gated)
+
+- **What ran.** `rang-core image` (`tools/oracles/ts-p1/run-arm.yaml`:
+  GeMClean, 2048² at 2″, Briggs 0, `auto_threshold 3`, `mgain 0.8`,
+  `write_model`) on a copy of `tsp1-dev`, from DATA. It took 89.8 s
+  (GeMClean 58 s, the MODEL_DATA write 31 s). `rang-core lightcurve` then ran
+  on the result. The copy was deleted after scoring; the scores and the
+  GeMClean report are in `research/results/ts-p1/`.
+- **Bias against the expected dirty value (σ).** A +0.06, B +0.19, C −0.27,
+  D +0.15, **E −9.57**, **F +10.67**.
+  - E: the deep model absorbed its mean of 10σ, as named in 4.2.
+  - F (empty control): it sits on static sky that the CLEAN model left
+    behind, about 0.6 mJy at that position, probably extended Gaussian or arc
+    emission without multiscale.
+- **Noise and recovery.** σ_meas = 1.30 σ_snap: unmodelled extended emission
+  raises the snapshot rms by 30 %. All 7 pulses ≥ 7σ are still recovered
+  (lowest S/N 4.6, C).
+- **Reading.** With a GeMClean deep model, the product's light curves are
+  biased by the deep model's errors at the position. A constant offset per
+  source is model error, not variability, so the light curves are relative
+  unless the model is right there.
+
+### 10.5 Timings (4 threads, shared host, not gated)
+
+| Step | Dev | Held-out |
+| --- | --- | --- |
+| Simulation | 63 s | 76 s |
+| `rang-core lightcurve` at 2048², 2″ | 241 s, 692 CPU-s, 285 MB | 319 s, 830 CPU-s, 285 MB |
+| `rang-core lightcurve` at 1024², 4″ | 109 s | 126 s |
+| WSClean 2048², 2″, `-j 4` | 312 s, 271 MB | 402 s, 273 MB |
+| WSClean 1024², 4″ | 128 s, 155 MB | 126 s, 155 MB |
+
+- **Where rang's time goes.** In the lightcurve runs, the DFT of six
+  positions over 58 M Stokes I samples takes 1.3-1.6 s, and the snapshot
+  images take 95-302 s.
+- **DFT only** (`--no-images`, the twin): 13.6 s, 81 MB.
+- On the shared host, rang's wall time is 0.77-0.79× WSClean's at 2048² and
+  0.85-1.00× at 1024², at the same threads, with about the same peak memory.
+  This is not T6: there was no exclusive hold.
+
+### 10.6 Not done
+
+- T4 (blind search) and T5 (GPU) are not built.
+- T6 needs an exclusive hold.
+- T7, ESO137 and E2-A's field (section 8) are not run.
+- No notebook or docs page beyond `docs/cli.md`.

@@ -1,0 +1,196 @@
+{
+ "case": "tsp1-dev",
+ "sigma_snap_jy": 5.65186988328377e-05,
+ "intervals": 450,
+ "sigma_meas_jy": {
+  "median": 7.348538897727379e-05,
+  "min": 7.211778177962334e-05,
+  "max": 7.499429345458587e-05,
+  "median_over_sigma_snap": 1.3001960500650864
+ },
+ "T2a": {
+  "max_over_sigma": 1.4187960644631993e-10,
+  "pass": true
+ },
+ "T2b": {
+  "max_over_sigma": 1.3707290270102673e-06,
+  "pass": true
+ },
+ "T3a": {
+  "per_source": {
+   "A": 0.06287607987636001,
+   "B": 0.18500641181985839,
+   "C": -0.2685315744736478,
+   "D": 0.1500308574789639,
+   "E": -9.567946647210613,
+   "F": 10.668376010853818
+  },
+  "max_abs": 10.668376010853818,
+  "pass": false,
+  "amended_bound": 0.1414213562373095,
+  "pass_amended": false,
+  "twin_bound": 0.01,
+  "pass_twin": false
+ },
+ "T3b": {
+  "per_source": {
+   "A": 1.1573892616607908,
+   "B": 1.1705430302150466,
+   "C": 1.1142121968693792,
+   "D": 0.9896942711321504,
+   "E": 93.03159491615509,
+   "F": 114.97868261389613
+  },
+  "pass": false
+ },
+ "sources": {
+  "A": {
+   "bias_over_sigma": 0.06287607987636001,
+   "chi2_reduced": 1.1573892616607908,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "B": {
+   "bias_over_sigma": 0.18500641181985839,
+   "chi2_reduced": 1.1705430302150466,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "C": {
+   "bias_over_sigma": -0.2685315744736478,
+   "chi2_reduced": 1.1142121968693792,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "D": {
+   "bias_over_sigma": 0.1500308574789639,
+   "chi2_reduced": 0.9896942711321504,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  },
+  "E": {
+   "bias_over_sigma": -9.567946647210613,
+   "chi2_reduced": 93.03159491615509,
+   "bias_vs_injected_alone_over_sigma": -9.558617848872936,
+   "intervals_alone": 428
+  },
+  "F": {
+   "bias_over_sigma": 10.668376010853818,
+   "chi2_reduced": 114.97868261389613,
+   "bias_vs_injected_alone_over_sigma": null,
+   "intervals_alone": 0
+  }
+ },
+ "T3c": {
+  "pass": true
+ },
+ "T3d": {
+  "pulses": [
+   {
+    "source": "A",
+    "start": 40,
+    "end": 41,
+    "peak_over_sigma": 20.0,
+    "snr_meas": [
+     15.704621094175415
+    ],
+    "best_interval": 40,
+    "pass": true
+   },
+   {
+    "source": "A",
+    "start": 300,
+    "end": 301,
+    "peak_over_sigma": 10.0,
+    "snr_meas": [
+     7.971104274108582
+    ],
+    "best_interval": 300,
+    "pass": true
+   },
+   {
+    "source": "B",
+    "start": 100,
+    "end": 102,
+    "peak_over_sigma": 15.0,
+    "snr_meas": [
+     11.071892139232212,
+     11.608483195700131
+    ],
+    "best_interval": 101,
+    "pass": true
+   },
+   {
+    "source": "C",
+    "start": 200,
+    "end": 208,
+    "peak_over_sigma": 8.0,
+    "snr_meas": [
+     5.549698299745439,
+     6.664883692914632,
+     5.774024698369634,
+     7.07502677409232,
+     4.603105338785732,
+     6.143885298418355,
+     5.993487466776885,
+     6.056608743832028
+    ],
+    "best_interval": 203,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 50,
+    "end": 55,
+    "peak_over_sigma": 25.0,
+    "snr_meas": [
+     13.506602491907978,
+     19.767161984370627,
+     19.509971627802255,
+     20.03706450667547
+    ],
+    "best_interval": 53,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 200,
+    "end": 205,
+    "peak_over_sigma": 25.0,
+    "snr_meas": [
+     12.653304027569654,
+     18.518853999032366,
+     18.88037420817743,
+     18.87092462084486
+    ],
+    "best_interval": 203,
+    "pass": true
+   },
+   {
+    "source": "D",
+    "start": 350,
+    "end": 355,
+    "peak_over_sigma": 25.0,
+    "snr_meas": [
+     11.384852558059078,
+     18.57609982396983,
+     19.974281095946495,
+     18.309058383808463
+    ],
+    "best_interval": 352,
+    "pass": true
+   }
+  ],
+  "pass": true
+ },
+ "gates": {
+  "T2a": true,
+  "T2b": true,
+  "T3a": false,
+  "T3b": false,
+  "T3c": true,
+  "T3d": true
+ },
+ "all_pass": false,
+ "seconds": 37.003224099986255
+}
