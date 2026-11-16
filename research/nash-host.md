@@ -1,7 +1,7 @@
 # nash, a shared Linux host
 
-Status, 2026-11-16: **set up and checked; smoke timings measured.** ra-ng
-builds and passes its quick check on nash.ru.ac.za, a multi-user Linux server
+Status, 2026-11-16: **set up and checked; the full check passes, gain-hash
+gate included; smoke timings measured.** ra-ng builds and passes its checks on nash.ru.ac.za, a multi-user Linux server
 at Rhodes University. This note is the host's handbook: what is installed
 where, the nice rule, the heavy-lock settings, how to run a job and how to
 label its timings.
@@ -32,7 +32,7 @@ Builds, tests, checks, downloads, imaging, everything that runs longer than
 a moment. No sudo, no system settings, nothing outside `~gijs`.
 
 `heavy_lock.py run` can add the prefix itself (`RANG_HEAVY_NICE=19`, set in
-`~/.rang-env.sh`; on the branch `nash-host`, live once merged): every
+`~/.rang-env.sh`; on main since the `nash-host` merge): every
 command it starts, nested ones included, runs under `nice -n 19 ionice -c3`.
 That only covers commands started through the lock; prefix everything else
 by hand, and prefix the lock call too, since the prefix is inherited.
@@ -79,10 +79,10 @@ see other users' load. On nash, from `~/.rang-env.sh`:
 
 | Setting | Value | Why |
 | --- | --- | --- |
-| `RANG_HEAVY_LOCK` | `~/rang-data/locks/heavy` | the default is `/mnt/d/...` on main; on the branch the default off Windows and WSL becomes `~/rang-data/locks/heavy`, so the variable is then redundant |
+| `RANG_HEAVY_LOCK` | `~/rang-data/locks/heavy` | off Windows and WSL this is the default since the `nash-host` merge, so the variable is redundant |
 | `RANG_HEAVY_SLOTS` | 24 | two thirds of the 36 cores; 12 stay free for other users whatever we book |
 | `RANG_HEAVY_MEM_GB` | 192 | under 40 % of 503 GB; nice does not protect memory, and an out-of-memory kill could hit another user's job |
-| `RANG_HEAVY_NICE` | 19 | new on the branch: `nice -n 19 ionice -c3` for every command `run` starts |
+| `RANG_HEAVY_NICE` | 19 | `nice -n 19 ionice -c3` for every command `run` starts |
 
 Book honestly as everywhere (`--slots` = threads kept busy, `--mem` = peak
 GB). A job wider than one socket (18 cores) crosses the NUMA boundary; for
@@ -126,17 +126,12 @@ lock on nash (`RANG_HEAVY_LOCK=~/rang-data/locks/heavy`). Logs:
 | the same after `cargo fetch`, cold targets | 997 s | FAIL on the gain-hash gate only (archive absent); fmt, ruff, clippy, 23 root and 290 core Rust tests, extension build pass. No pytest: main has no diff, so the quick check selects none |
 | `check_all.py --slots 16 --mem 48` (full), warm targets | 683 s | FAIL on the gain-hash gate only; 290 core and 296 core `gpu`-feature Rust tests (no adapter, so CPU paths), pytest 1627 passed, 50 skipped |
 | `pytest -q -n 16 -rs` (for the skip reasons) | 126 s | 1627 passed, 50 skipped |
+| `check_all.py --slots 16 --mem 48` (full) at `9d1cf8f`, archive built (below), warm targets | 213 s | **PASS**, every step; gain-hash gate PASS (2.77 s, all five checks), pytest 1634 passed, 50 skipped. Log `~/Github/rang/outputs/check/20261116T203814Z-full.log` |
 
-**What the full check lacks on nash.** Not copied, by instruction:
+**What the full check lacks on nash.** Not copied:
 
-- The gain-hash gate's archive (`RANG_ARCHIVE_OUTPUTS`, on the workstation
-  `\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs`): the LUNO slice
-  `luno-support-20261029-01/slice` (3.1 GB) and `luno-solve-20261029-02/inputs`
-  (2.6 GB), both public S3 downloads (`fetch-luno-*.sh`), plus about 77 MB of
-  run products (`tv-response-wsl-20261029-01/clean/{state,backups,trials}`,
-  `core-phase2-inputs-20261029-01/arrays.npz`, `luno-solve-20261029-02/solve/gain_flags.npy`).
-  About 5.8 GB in all. Without it the gate fails; `RANG_GAIN_HASHES=optional`
-  turns that into a skip.
+- Nothing for the gain-hash gate since 2026-11-16: see
+  [The gain-hash archive on nash](#the-gain-hash-archive-on-nash).
 - The 50 pytest skips: archived campaign outputs and oracle runs that live only
   under the workstation's `outputs/` and `D:\rang\outputs` (MS-writer oracle
   MSs `tv-caracal-wsl-20261029-01/original.ms`, `luno-solve-20261029-02/work.ms`,
@@ -166,12 +161,40 @@ Both ran 500 components; WSClean spends 2.6 s of its 3.3 s in inversion.
 This is a smoke test that both imagers run on nash, not a speed comparison:
 the image is tiny, start-up dominates, and the host is shared.
 
+## The gain-hash archive on nash
+
+Built 2026-11-16 (branch `nash-gainhash`) in `~/rang-data/outputs`, with
+`export RANG_ARCHIVE_OUTPUTS="$HOME/rang-data/outputs"` in `~/.rang-env.sh`.
+The gate (`tools/gain_hash_gate.py`) reads seven paths; 6.0 GB in all.
+
+- **Public inputs, fetched on nash** from the `ratt-public-data` S3 bucket
+  (`LBAND_LUNO_CALIBRATORS.zarr`) with the repository's own scripts, under
+  `nice -n 19 ionice -c3`, from `~/Github/rang`:
+  `bash history/tools/flagging/fetch-luno-support.sh outputs/luno-support-20261029-01/slice`,
+  then `fetch-luno-solve.sh outputs/luno-solve-20261029-02/inputs` and the same
+  with `--data`. The scripts `cd` to `history/`, so the files land in
+  `history/outputs/`; they were moved to `~/rang-data/outputs/` afterwards.
+  122 objects (3.22 GB) and 2,625 objects (2.72 GB) in 428 s. Both
+  `receipt.txt` files (bytes, SHA256 and key per object) are identical, once
+  sorted, to the workstation's receipts of 2026-10-29: the bucket has not
+  changed. Fetch log: `~/rang-data/outputs/fetch-20261116-nash.log`.
+- **Run products, copied** from the workstation archive
+  (`\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs`) by tar and scp,
+  80 MB, SHA256 checked on arrival: `tv-response-wsl-20261029-01/clean/`
+  `state.npz`, `backups/clean-t2-f32-solve.npz` and
+  `trials/clean-t2-f32/diagnostics.npz`;
+  `core-phase2-inputs-20261029-01/arrays.npz`;
+  `luno-solve-20261029-02/solve/gain_flags.npy`. Only these five files, not
+  the rest of those run directories.
+
+Result: the full check passes at `9d1cf8f` (table above). The gate's two
+SHA256 digests of solved gains, the 50 iterations, the converged fraction (to
+1e-12) and the gain flags against QuartiCal 0.2.7 all match on nash's
+Broadwell (AVX2, 16 slots) the values archived on the workstation: the
+`complex` solve is bit-identical across the two CPUs. The 50 pytest skips are
+unchanged; they need archives not copied here.
+
 ## Open
 
-- The lock change (`RANG_HEAVY_NICE`, the Linux default directory) is on the
-  branch `nash-host`; until it is merged, nash's main checkout runs the old
-  helper, so `RANG_HEAVY_NICE` does nothing yet and the manual prefix is the
-  only protection.
-- The full check's archive gate needs the campaign archives
-  (`RANG_ARCHIVE_OUTPUTS`), which live on the workstation (`D:\rang`, WSL);
-  they are not copied here.
+- The 50 pytest skips need oracle runs and archives that live only on the
+  workstation; not copied.
