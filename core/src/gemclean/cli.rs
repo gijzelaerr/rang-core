@@ -145,6 +145,13 @@ Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
   -multiscale-shape <shape> tapered-quadratic (default) or gaussian
   -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)
+  -multiscale-bias-reference <r> the beam b of the scale bias: theoretic (default, radler's),
+                            first-scale (the first non-zero scale as radler's first
+                            automatic scale 4b) or a size in pixels
+                            (research/multiscale-flux-fix.md)
+  -multiscale-point-cap <c> cap every non-zero scale's bias at c / its PSF peak, so that a
+                            bare point is cleaned at scale 0 when c < 1 (default: none)
+  -no-negative              no negative components (radler's; with -multiscale only)
 
 Selection and masks (research/g4-masks.md; WSClean's options):
   -taper-gaussian <angle>   Gaussian taper of the weights, beam size (plain number: asec)
@@ -554,6 +561,35 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     "gaussian" => multiscale::Shape::Gaussian,
                     other => return Err(format!("-multiscale-shape: unknown shape {other}")),
                 };
+                ms_option = Some(flag);
+            }
+            // Issue #23 step 4 (research/multiscale-flux-fix.md): GeMClean's
+            // options, default radler's.
+            "-multiscale-bias-reference" => {
+                let v = value(&mut i)?;
+                ms.bias_reference = match v.as_str() {
+                    "theoretic" => multiscale::BiasReference::Theoretic,
+                    "first-scale" => multiscale::BiasReference::FirstScale,
+                    other => {
+                        let p: f64 = number(flag, other.to_string())?;
+                        if !(p > 0.0 && p.is_finite()) {
+                            return Err(format!("{flag}: {other} is not a positive size"));
+                        }
+                        multiscale::BiasReference::Pixels(p)
+                    }
+                };
+                ms_option = Some(flag);
+            }
+            "-multiscale-point-cap" => {
+                let c: f64 = number(flag, value(&mut i)?)?;
+                if !(c > 0.0 && c.is_finite()) {
+                    return Err(format!("{flag} must be positive"));
+                }
+                ms.point_cap = Some(c);
+                ms_option = Some(flag);
+            }
+            "-no-negative" => {
+                ms.allow_negative = false;
                 ms_option = Some(flag);
             }
             "-multiscale-convolution-padding" | "-no-multiscale-fast-subminor" => {
@@ -3600,8 +3636,36 @@ mod tests {
             "-size 64 64 -scale 2asec -multiscale -stop-rule certified x.ms",
             "-size 64 64 -scale 2asec -multiscale -mgain-misfit 0.5 x.ms",
             "-size 64 64 -scale 2asec -multiscale -multiscale-gain 0 x.ms",
+            "-size 64 64 -scale 2asec -no-negative x.ms",
+            "-size 64 64 -scale 2asec -multiscale-point-cap 0.9 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-point-cap 0 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-bias-reference -1 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-bias-reference psf x.ms",
         ] {
             assert!(parse(line).is_err(), "{line}");
         }
+    }
+
+    /// Issue #23 step 4's options (research/multiscale-flux-fix.md).
+    #[test]
+    fn multiscale_flux_fix_flags() {
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw).unwrap().multiscale.unwrap()
+        };
+        let base = "-size 64 64 -scale 2asec -multiscale";
+        let ms = parse(&format!(
+            "{base} -multiscale-bias-reference first-scale x.ms"
+        ));
+        assert_eq!(ms.bias_reference, multiscale::BiasReference::FirstScale);
+        let ms = parse(&format!("{base} -multiscale-bias-reference 11.58 x.ms"));
+        assert_eq!(ms.bias_reference, multiscale::BiasReference::Pixels(11.58));
+        let ms = parse(&format!("{base} -multiscale-bias-reference theoretic x.ms"));
+        assert_eq!(ms, MultiscaleSettings::default());
+        let ms = parse(&format!(
+            "{base} -multiscale-point-cap 0.9 -no-negative x.ms"
+        ));
+        assert_eq!(ms.point_cap, Some(0.9));
+        assert!(!ms.allow_negative);
     }
 }

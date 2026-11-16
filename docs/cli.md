@@ -1106,6 +1106,13 @@ Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
   -multiscale-shape <shape> tapered-quadratic (default) or gaussian
   -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)
+  -multiscale-bias-reference <r> the beam b of the scale bias: theoretic (default, radler's),
+                            first-scale (the first non-zero scale as radler's first
+                            automatic scale 4b) or a size in pixels
+                            (research/multiscale-flux-fix.md)
+  -multiscale-point-cap <c> cap every non-zero scale's bias at c / its PSF peak, so that a
+                            bare point is cleaned at scale 0 when c < 1 (default: none)
+  -no-negative              no negative components (radler's; with -multiscale only)
 
 Selection and masks (research/g4-masks.md; WSClean's options):
   -taper-gaussian <angle>   Gaussian taper of the weights, beam size (plain number: asec)

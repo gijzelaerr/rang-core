@@ -1,0 +1,14 @@
+{
+ "field": "h-20261118",
+ "ws_multiscale_rms_inner_jy": [
+  1.4598384142038474e-06,
+  1.4594646248138923e-06
+ ],
+ "spread_jy": 3.737893899550458e-10,
+ "bound_jy": 1.4886539173101702e-06,
+ "A1_failures": [
+  [],
+  []
+ ],
+ "computed": "2026-11-16T02:57 before any H candidate is scored"
+}
