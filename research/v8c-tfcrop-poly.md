@@ -245,3 +245,47 @@ per arm, 6-22 s per batch.
   smoothing every stage or last only), scored as the fraction of channels
   whose model F lies within 1.5 half-brackets of the measured F: best 0.87
   overall (exact designs 0.98-1.00; downward steps 0.89; noisy groups 0.68).
+
+### 8.2 Kept set, piece edges and stages (2026-11-16, probes c07-c10)
+
+Scoring changed (advisor review): candidate templates are now scored by
+the cells whose D1 flag (full multi-pass rule, `rang.tfcrop.row_flags`)
+differs from CASA's on the readout planes (`research/results/v8c-tfcrop/
+evalflags.py`), not by the distance to the inverted F, which is not ground
+truth on noisy groups. The true rule gives 0-2 wrong cells per group of
+138 planes (1.4 M cells).
+
+- **Membership probes c07, c08 (`maxnpieces=1`).** A = 2 (1 + η s_f), s_f
+  alternating ±1 (σ = η under every definition), with M channels raised to
+  2 (1 + t η). M = 8: kept for t ≤ 2.14, excluded for t ≥ 2.2; M = 32: kept
+  for t ≤ 3.0, an edge-first subset excluded at 3.1 (channels 10-40 and
+  192-245), all excluded from 3.3. Every outcome is binary to 0-2 wrong
+  cells. They fit a one-sided clip r ≤ 2 σ, r = A − F, σ the rms about 0
+  over the channels kept by the previous fit, repeated as a cascade: at
+  M = 32, t = 3.1 the first cubic over all channels drops 2 probes, the
+  second 12 more, and the third is the template (13-14 probes out, as CASA).
+- **Piece edges (c05, `pfit7.py` scan on exact piecewise-linear bands).**
+  F = S(P) with P seven cubics needs internal edges 38, 74, 110, 146, 182,
+  218 (rms z 0.5-0.6; edges at round(k·256/7) give 2.1-3.3); three pieces
+  85, 170. Rule: pieces of floor(n/k) channels, the remainder split
+  floor/ceil between the first and the last piece (`piece_edges`).
+- **Per-piece membership (c10, `maxnpieces=7`).** Four probes at t in one
+  piece (110-145 or the last, 218-255): kept at 1.9 and 2.1, the first two
+  kept and the last two dropped at 2.3, all dropped at 2.6, identically in
+  the middle and the last piece. A schedule of three 7-piece cubic stages
+  with a global σ reproduces all eight groups (1 wrong cell in total); any
+  schedule that starts with a line or a 1-piece cubic over the band drops
+  the probes at the first stage (q ≈ 2.2) and fails t = 2.1 and 2.3. A
+  per-piece σ fails.
+- **Open: the schedule is not one rule yet.** Three 7-piece stages fail
+  the negative-spike influence groups (c03 p7, 439 cells) that a first
+  stage with fewer pieces fits (2 cells); `maxnpieces=2` downward steps
+  (c06) want [1, 2, 2] pieces (4 cells) over [2, 2, 2] (843). On the
+  gate-like bandpasses (c09, cubic + 0.2 sin times 1 + η g) the best p7
+  schedule leaves 3,500-7,200 wrong cells over eight groups (11.3 M cells),
+  and `maxnpieces=1` 28,000-50,000; the single-cubic arm on these bands
+  (misfit 0.1-0.25, rows above sd 0.1) is the furthest from CASA.
+- **Process miss.** Before the advisor review, four short analysis
+  commands (the misfit print of c01, `an2.py`, two overlap scans) ran
+  outside the heavy lock (single-threaded, seconds each); everything since
+  runs under `heavy_lock.py run --slots 1`.
