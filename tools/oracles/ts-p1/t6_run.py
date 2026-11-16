@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """TS-P1 T6 (research/ts-p1.md 13.4, 15): rang's lightcurve and WSClean's
 -intervals-out on tsp1-held2, each under an exclusive heavy-lock hold, with
 the coordinator's rule: an exclusive ticket waits at the head of the queue
