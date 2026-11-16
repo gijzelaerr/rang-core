@@ -933,7 +933,16 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("t.ms");
         let (nrow, nchan) = (6usize, 2usize);
-        let uvw: Vec<f64> = (0..3 * nrow).map(|i| (i % 5) as f64 * 3.0 - 6.0).collect();
+        // Rows 1 and 4 share their uv cell (and 0 and 3, 2 and 5).
+        let uvw: Vec<f64> = (0..nrow)
+            .flat_map(|r| {
+                [
+                    40.0 * (r % 3) as f64 + 7.0,
+                    25.0 * (r % 3) as f64 + 3.0,
+                    0.0,
+                ]
+            })
+            .collect();
         let ant1 = vec![0, 0, 0, 1, 1, 2];
         let ant2 = vec![1, 2, 3, 2, 3, 3];
         let freq = vec![1.0e9, 1.2e9];
@@ -969,9 +978,10 @@ mod tests {
         let a = gridding_weights(&flagged, WeightClass::Uniform, 64, 1e-3).unwrap();
         let b = gridding_weights(&zeroed, WeightClass::Uniform, 64, 1e-3).unwrap();
         assert_eq!(a.weights, b.weights);
-        // Without FLAG_ROW the row counts and changes the others' weights.
+        // Without FLAG_ROW the row counts in its cell and halves row 4's weight.
         let c = gridding_weights(&all, WeightClass::Uniform, 64, 1e-3).unwrap();
-        assert_ne!(c.weights[..nchan], a.weights[..nchan]);
+        let row4 = 4 * nchan..5 * nchan;
+        assert_ne!(c.weights[row4.clone()], a.weights[row4]);
     }
 
     #[test]

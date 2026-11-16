@@ -1,4 +1,4 @@
-"""TS-P1 14.6: does leaving FLAG_ROW rows out of GeMClean's weight grid change
+"""TS-P1 15.4: does leaving FLAG_ROW rows out of GeMClean's weight grid change
 any archived GeMClean case? It changes an image only through rows whose
 FLAG_ROW is set and whose Stokes I weight is nonzero (both hands unflagged,
 finite, weight > 0): those rows used to enter the uniform/Briggs density and
@@ -37,7 +37,8 @@ def probe(path, block=20000):
             w = t.getcol_rows("WEIGHT_SPECTRUM", idx)
         else:
             w = np.broadcast_to(t.getcol_rows("WEIGHT", idx)[:, None, :], flag.shape)
-        ok = ~flag[..., 0] & ~flag[..., 3] & (w[..., 0] > 0) & (w[..., 3] > 0)
+        b = flag.shape[-1] - 1  # YY: index 3 of four correlations, 1 of two
+        ok = ~flag[..., 0] & ~flag[..., b] & (w[..., 0] > 0) & (w[..., b] > 0)
         samples += int(ok.sum())
     return {"ms": path, "rows": nrow, "flag_row_rows": rows_flagged,
             "flag_row_samples_with_weight": samples}  # fmt: skip
