@@ -1978,3 +1978,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | #23 step 4: `decide.py` (frozen rule over 47 measure files) | D and H measures | 0.3 s | – | Windows host, no lock |
 | 2026-11-16 | #23 step 4: `verify_field.py` D after-check (1 slot) | D field, 59 MS files | 291 s including the queue | – | Windows host; ok |
 | 2026-11-16 | #23 step 4: `tools/check_all.py --quick` | worktree ms-flux-fix (docs and archive only) | 107 s (330 s with the lock wait) | – | Windows host; PASS |
+| 2026-11-16 | v8-tfcrop: CASA `flagdata(mode='tfcrop')` probe batches b01-b05 (`tfcrop_probe.sh`, one CASA process per batch) | 1,104-plane probe MSs, 11.3 M cells each, 5-11 arms | 11.5-41.3 s per batch; 2.0-4.1 s per arm | 1.0 GB | 1 slot, WSL Docker `rang-o-casa:6.7.6.14` |
+| 2026-11-16 | v8-tfcrop: gate run 1, `rang_flagdata.py` + `compare_flagdata.py` (NumPy reference) | 26 development cases (syn-noise, syn-rfi, a1, luno; T1-T8) | 212 s | – | 1 slot |
+| 2026-11-16 | v8-tfcrop: `tools/check_all.py --quick` | worktree, cold target and new venv | 1000 s (lock wait excluded) | – | FAIL on ruff format of the new test only (fixed); 279 core tests, 60 pytest, gain hashes pass |
