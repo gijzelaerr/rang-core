@@ -183,6 +183,18 @@ rows in [tool-timings.md](tool-timings.md) labelled **host nash**. No smoke run 
 smoke run of the script on 6,000 rows of a simulated arm, if needed, is declared here and gives no
 results.
 
-## 8. Results
+## 8. Clarifications before any run
+
+**1, 2026-11-17, written with the script, before any run or number.** X3 corrects the data side
+for both fits, so the two are matched. T1p's one phase per antenna is applied to XX and to YY
+alike; T1pH's two phases are applied each to its own hand. Each pair of corrected hands is then
+converted to Stokes I by the same `stokes_from_hands` (floor_tests.prep's `[XX, XX, YY, YY]`
+rule) and scored against the archived pilot model's 4 × 4 facet sum. That model is
+pixel-identical to floor-3's round-1 model. floor-2's T1p, in section 3's matrix, is the
+model-side form V − M g_p g_q*. That form is kept for the specificity reading S, where the arms
+were built with it. X2 uses G1's own round-1 model, as section 4 states. The script checks that
+the hands reproduce prep's Stokes I bit for bit (`x.json` `check`).
+
+## 9. Results
 
 Not run yet.
