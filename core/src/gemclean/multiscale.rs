@@ -232,8 +232,11 @@ pub fn bias_factor(scale: f64, beam: f64, count: usize, scale_bias: f64) -> f64 
 
 /// WSClean's theoretic beam in radians, `1 / max |uvw|/λ` (`MsGridder::
 /// CalculateOverallMetaData`, `CalculateMsLimits`): over the visibilities with
-/// nonzero imaging weight whose `u` falls inside the `n`-pixel grid (WSClean
-/// tests `u` on both axes, and so does this). `uvw` in metres, row-major
+/// nonzero imaging weight whose `(u, v)` falls inside the `n × n`-pixel grid.
+/// WSClean 3.5-3.7 tested `u` on both axes (#208); this follows the fix in
+/// !1068 (commit ca23d835, not yet released), `y = v * pixel_size_y *
+/// image_height`, so it differs from 3.7 only when the grid cuts `v`
+/// differently from `u`. `uvw` in metres, row-major
 /// `[u, v, w]`; `weights` row-major by channel. `None` without such a visibility.
 pub fn theoretic_beam(
     uvw: &[f64],
@@ -258,7 +261,8 @@ pub fn theoretic_beam(
                 }
                 let wavelength = C / f;
                 let x = u / wavelength * pixel * n as f64;
-                if x.floor() > -half && x.ceil() < half {
+                let y = v / wavelength * pixel * n as f64;
+                if x.floor() > -half && x.ceil() < half && y.floor() > -half && y.ceil() < half {
                     best = best.max(length / wavelength);
                 }
             }
@@ -1342,6 +1346,25 @@ mod tests {
         // Row 2: u/λ at 2 GHz = 60,000; x = 60,000 · 1e-5 · 1024 = 614 > 512.
         // At 1 GHz: 30,000 → 307, inside. Row 1 at 1 GHz: 500 m / λ.
         let want = 1.0 / (9000.0 / lambda(1e9)).max(500.0 / lambda(1e9));
+        assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
+    }
+
+    #[test]
+    fn theoretic_beam_tests_v_on_the_second_axis() {
+        // WSClean #208, fixed by !1068 (ca23d835): the y bound is v, not u.
+        // Asymmetric coverage, max |u| = 500 m, max |v| = 9000 m. Row 1 has a
+        // small u and a v outside the grid: v/λ at 1 GHz = 30,021, y = 30,021 ·
+        // 2e-5 · 1024 = 615 > 512. The u-for-both rule kept it (9000 m baseline).
+        let freq = [1.0e9];
+        let uvw = [500.0, 0.0, 0.0, 10.0, 9000.0, 0.0];
+        let w = [1.0, 1.0];
+        let lambda = 299_792_458.0 / 1e9;
+        let got = theoretic_beam(&uvw, &freq, &w, 1024, 2e-5).unwrap();
+        let want = 1.0 / (500.0 / lambda);
+        assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
+        // The same rows transposed (u outside, v small) were excluded before too.
+        let uvw = [0.0, 500.0, 0.0, 9000.0, 10.0, 0.0];
+        let got = theoretic_beam(&uvw, &freq, &w, 1024, 2e-5).unwrap();
         assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
     }
 

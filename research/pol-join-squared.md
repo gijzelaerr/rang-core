@@ -178,5 +178,7 @@ GeMClean default changes in any case; the owner decides.
   GeMClean's theoretic beam (`g5-multiscale.md`, section 1). WSClean 3.8 will compute a different
   theoretic beam (and so different default multiscale scales) from 3.7 where `|v|` limits differ
   from `|u|` limits; GeMClean matches 3.7. A follow-up issue, not part of #22 or #23.
+  *2026-11-16 (post hoc, not part of the frozen proposal):* GeMClean's theoretic beam now follows
+  !1068 (branch `gemclean-beam-uv`, research/u5-upstream.md); bit-identical on every archived case probed.
 - The `-join-polarizations` help text on WSClean master still says squares; #207 is closed by a
   docs change only. Whether to ask for the help text too is the owner's call.

@@ -75,6 +75,8 @@ the rules in `AGENTS.md`.
   - decide the chi-offset fix if H3 holds.
 - **Upstream to follow:** WSClean !1068 and radler !238 (when released, rerun the G2, G7 and G9 oracle cases
   and switch `w_limits` and `theoretic_beam` to v). AOFlagger #44-46 have had no answer yet.
+  *2026-11-16:* !1068 merged (unreleased); `theoretic_beam` switched to v on branch `gemclean-beam-uv`,
+  `w_limits` not yet (research/u5-upstream.md, WSClean #208).
 
 ## A starting prompt for the owner to paste
 

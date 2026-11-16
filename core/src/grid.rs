@@ -668,7 +668,9 @@ pub fn w_limits(settings: &Settings, inputs: &Inputs) -> (f64, f64) {
             let wavelength = C_LIGHT / inputs.frequencies[ch];
             let u = um / wavelength;
             let w = wm / wavelength;
-            // WSClean 3.6 computes both bounds from u (ported as written).
+            // WSClean 3.6 computes both bounds from u (ported as written, the
+            // oracle is 3.6). WSClean #208, fixed upstream by !1068 (ca23d835,
+            // unreleased); GeMClean's `theoretic_beam` already follows the fix.
             let x = u * settings.pixel_size_x * settings.width as f64;
             let y = u * settings.pixel_size_y * settings.height as f64;
             if inputs.imaging_weights[index] != 0.0
