@@ -27,8 +27,10 @@ TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
   Per 8 s interval of the residual (data column − MODEL_DATA) it gives the
   exact DFT flux (Rust kernel `core/src/lightcurve.rs`), the nearest
   snapshot pixel and the robust rms. It only reads the MS.
-- **Held-out simulation: met**, with commit `8270868`, 64 antennas, 64
-  channels, 450 × 8 s, 6 transients:
+- **As frozen: not met (oracle mismatch, T1 and T2c).** Under the post hoc
+  amendments 9.1 and 9.2, not yet accepted, **met** on the held-out
+  simulation (now spent), with commit `8270868`, 64 antennas, 64 channels,
+  450 × 8 s, 6 transients:
   - T1 against WSClean 3.7 `-intervals-out`: 3.0e-7 of the peak;
   - DFT against NumPy 1.4e-10 σ, pixel against DFT 3.9e-6 σ, WSClean
     pixel against DFT 2.5e-6 σ;
@@ -39,8 +41,12 @@ TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
   0.104σ, a 2.2-SE noise excursion; the noiseless twin's bias is 7.6e-8σ.
 - **Amendments, post hoc**, written after dev attempt 1, for the coordinator
   to accept: 9.1 the snapshot grid 2048² at 2″; 9.2 T3a's bound 3/√N.
-- **Run arm** (GeMClean deep model, reported): E −9.6σ (its mean absorbed,
-  as predicted), the empty control +10.7σ (model error), σ_meas 1.30 σ_snap.
+- **Run arm** (GeMClean deep model, reported):
+  - E −9.6σ: its mean was absorbed, as predicted.
+  - The empty control +10.7σ: it lies 34″ from a 48 mJy Gaussian, so this is
+    likely CLEAN residual; unverified.
+  - σ_meas 1.30 σ_snap.
+- **Not tested.** Flags, unequal and spectral weights, and CORRECTED_DATA.
 - **Not done.** T4-T7, ESO137 and E2-A.
 
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,

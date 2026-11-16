@@ -4,9 +4,12 @@ Issue #9 (gijzelaerr/rang-core), time series P1 of
 [v1-timeseries-scope.md](v1-timeseries-scope.md). Owner approved P1 on
 2026-11-13. Branch `ts-p1`. Written 2026-11-16.
 
-**Status 2026-11-16: implemented and measured; met on the held-out
-simulation** (section 10.3). The post hoc amendments 9.1-9.3 await the
-coordinator's acceptance; the real-data arms are deferred.
+**Status 2026-11-16: implemented and measured.** As frozen: **not met
+(oracle mismatch, T1 and T2c)**, on dev and on the held-out set. Under the
+post hoc amendments 9.1 and 9.2: **met** on the held-out simulation (section
+10.3). The amendments await the coordinator's acceptance. `tsp1-held` is now
+spent: it was scored on two grids, so any later change to the code needs
+`tsp1-held2`. The real-data arms are deferred.
 
 **Status at freeze: proposed. Nothing here is built or measured.** This note is
 committed before any code that tests it. Any later change is a dated amendment
@@ -345,14 +348,17 @@ frozen rule first and then under the amended rule.
   - rang warned of 265,415 weighted samples beyond the grid (590 per
     interval, 0.46 %).
 
-**Outcome: met.**
-- Under the amended rule, every gate passes on the held-out set.
-- The frozen tolerances also all hold on the held-out set, at the amended
-  snapshot grid of 9.1.
-- At the frozen grid, T1 and T2c fail because WSClean drops the samples
-  beyond the grid (9.1).
-- The claim is parity with WSClean `-intervals-out` and the exact DFT; no
-  novelty is claimed.
+**Outcome.**
+- **As frozen: not met (oracle mismatch, T1 and T2c).** Dev failed T1, T2c
+  and T3a. On the held-out set at the frozen grid, T1 and T2c fail because
+  WSClean drops the samples beyond the grid (9.1).
+- **Under the post hoc amendments 9.1 and 9.2: met.** Every gate passes on
+  the held-out set. At the amended grid, the frozen tolerances (T3a's 0.1σ
+  included) hold as well.
+- **The amendments are not yet accepted.** `tsp1-held` was scored on two
+  grids and is now spent.
+- **The claim** is parity with WSClean `-intervals-out` and the exact DFT,
+  within the scope given in 10.6. No novelty is claimed.
 
 ### 10.4 The `rang-core run` arm (reported, not gated)
 
@@ -365,9 +371,14 @@ frozen rule first and then under the amended rule.
 - **Bias against the expected dirty value (σ).** A +0.06, B +0.19, C −0.27,
   D +0.15, **E −9.57**, **F +10.67**.
   - E: the deep model absorbed its mean of 10σ, as named in 4.2.
-  - F (empty control): it sits on static sky that the CLEAN model left
-    behind, about 0.6 mJy at that position, probably extended Gaussian or arc
-    emission without multiscale.
+  - F (empty control): F lies 34″ from a 48 mJy Gaussian of FWHM 45″ in the
+    static sky, and 104″ from a 57 mJy, 50″ one. The +10.7σ (about 0.6 mJy)
+    is consistent with that component's flux left behind by CLEAN without
+    multiscale. **Unverified:** the model image at F was not inspected.
+- **Departures from 4.2.**
+  - MODEL_DATA was overwritten by GeMClean's predict rather than removed
+    first. The result is the same.
+  - The lightcurve ran at 2048² and 2″ (9.1), not at its defaults.
 - **Noise and recovery.** σ_meas = 1.30 σ_snap: unmodelled extended emission
   raises the snapshot rms by 30 %. All 7 pulses ≥ 7σ are still recovered
   (lowest S/N 4.6, C).
@@ -394,9 +405,49 @@ frozen rule first and then under the amended rule.
   0.85-1.00× at 1024², at the same threads, with about the same peak memory.
   This is not T6: there was no exclusive hold.
 
-### 10.6 Not done
+### 10.6 Scope of the parity, and not done
 
+**Untested by these simulations.** Both sets have:
+- no flags;
+- equal weights, from WEIGHT only (no WEIGHT_SPECTRUM);
+- one field and one scan;
+- DATA as the data column (no CORRECTED_DATA).
+
+So T1 did **not** test the following against WSClean: the Stokes I weight
+rule with unequal hands, flagged cells, FLAG_ROW, WEIGHT_SPECTRUM, or the
+CORRECTED_DATA default. A real `rang-core run` MS has all of them. The rules
+come from the tested `core_weights.stokes_i` (WSClean's `-pol I`), but their
+use here is not gated.
+
+**Not done.**
 - T4 (blind search) and T5 (GPU) are not built.
 - T6 needs an exclusive hold.
 - T7, ESO137 and E2-A's field (section 8) are not run.
 - No notebook or docs page beyond `docs/cli.md`.
+- The proof of 9.1 is `research/results/ts-p1/diag_grid_4asec.py`, with its
+  output and the command that regenerates its inputs.
+
+## 11. For the coordinator
+
+- **Amendments.** Accept or reject 9.1 (snapshot grid 2048² at 2″) and 9.2
+  (T3a at 3/√N, with the twin check). As frozen, the outcome is not met;
+  with both accepted, it is met.
+- **CLI default.** `rang-core lightcurve` defaults to 1024² at 4″, which
+  warns on MeerKAT L band: about 0.46 % of samples lie beyond the grid, which
+  rang keeps and WSClean drops. Decide whether to change the default, for
+  example to 2″, at four times the FFT cost.
+- **E2-A.** The issue names E2-A's field as a gate, but the scope note holds
+  it out (section 8).
+- **Untested** (10.6): flags, unequal and spectral weights, and
+  CORRECTED_DATA against WSClean. These need a third simulation or a real
+  MS before a real-data claim.
+- **With a GeMClean model**, the light curves carry the model's error at the
+  position (10.4).
+- **T6** needs an exclusive hold.
+- **Checks not run.** The full local check (`python tools/check_all.py`) and
+  the `wheels` workflow, since there is no pull request. The change touches
+  `core/` (a kernel and its binding), so `wheels` will run on a pull request.
+- **Data.** Two MSes (11.5 GB) remain in `D:\rang\outputs\ts-p1-20261116`;
+  delete them when not needed.
+- **Lock.** One `pytest -n 4` (about 3 min) ran outside the heavy lock early
+  in the session.
