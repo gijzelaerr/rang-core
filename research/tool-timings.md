@@ -1968,3 +1968,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gemclean-beam-uv: theoretic-beam probe, old rule against !1068 (`research/results/gemclean-beam-uv/beam_probe.py`) | 13 archived MSes (S1-S3, H1-H4, D2, M1, G9 probe, cal, cal2, cal3) | 69 s | – | 2 slots, 10 GB; first full pass 76 s |
 | 2026-11-16 | gemclean-beam-uv: `tools/check_all.py --quick` | worktree, cold target | 1064 s (lock wait excluded) | – | PASS: 279 core tests, 287 pytest, gain hashes |
 | 2026-11-16 | gemclean-beam-uv: GeMClean pytest files (`test_g8_gemclean`, `test_g8_identity`, `test_g6_model`, `test_g7_defaults`, `test_w4_unsupported`, `test_w2_commands`, `test_e5_final`) | worktree | 42.9 s | – | 64 passed, 3 skipped (POSIX only), 1 xfailed; 4 slots |
+| 2026-11-16 | e2b-confirm: `c3_flags.py check` (native, rang's reader: npz flags, E3 input DATA) | E2-B, 272,916 rows | 570 s | – | 1 slot, 8 GB |
+| 2026-11-16 | e2b-confirm: E on ext4 (TaQL from the read-only E3 input, flags rebuilt) | E2-B, 272,916 rows | 607 s | – | WSL docker, 2 slots |
+| 2026-11-16 | e2b-confirm: CASA 6.7.6.14 applycal, 3 calls, on ext4 | E2-B | 354 s | – | WSL docker, 2 slots, 12 GB |
+| 2026-11-16 | e2b-confirm: rang apply (native, today's main), per field J1833 / J1939 / J1331 | 35,112 / 119,700 / 118,104 rows | 137 / 173 / 140 s | – | 4 slots, 16 GB |
+| 2026-11-16 | e2b-confirm: GeMClean joined IQUV 2048² 8 ch, dirty ε 1e-6 (J1833 / J1939 / J1331) | E2-B fields | 83 / 216 / 260 s | 8.8 / 17.8 / 16.9 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: GeMClean the same, cleaned `-auto-mask 5`, ε 1e-4 | E2-B fields | 422 / 983 / 1,028 s | 9.2 / 16.7 / 14.6 GB | `-j 4`, 4 slots, shared load |
+| 2026-11-16 | e2b-confirm: WSClean 3.7 the same, dirty / cleaned, `-no-small-inversion` | E2-B fields on ext4 | 234-415 s / 893-1,826 s | 0.5-0.8 / 1.4-2.0 GB | WSL docker, 2 slots, `-j 2` / `-j 4` |
+| 2026-11-16 | e2b-confirm: `tools/check_all.py --quick` | worktree, cold | 1364 s (lock wait excluded) | – | PASS |

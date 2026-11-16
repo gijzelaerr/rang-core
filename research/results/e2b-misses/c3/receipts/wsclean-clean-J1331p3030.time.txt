@@ -1,0 +1,23 @@
+	Command being timed: "wsclean -name /p/wsclean-clean/J1331p3030/J1331p3030-clean -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column E2C_RANG_CORRECTED_DATA -gridder wgridder -no-update-model-required -no-small-inversion -temp-dir /x/tmp-clean-J1331p3030 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -auto-mask 5 -wgridder-accuracy 0.0001 -j 4 -field 0 /x/f0.ms"
+	User time (seconds): 2342.39
+	System time (seconds): 554.12
+	Percent of CPU this job got: 158%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 30:26.28
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2038720
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 4348
+	Minor (reclaiming a frame) page faults: 55356299
+	Voluntary context switches: 3313110
+	Involuntary context switches: 41884
+	Swaps: 0
+	File system inputs: 249960585
+	File system outputs: 189653136
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

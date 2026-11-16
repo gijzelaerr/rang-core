@@ -2827,3 +2827,159 @@ J1833−2103 runs here peaked at 8.8 GB (dirty, ε 1e-6) and 9.2 GB (cleaned)
 of summed tree RSS. Before #32, A5's J1939−6342 and J1331+3030 held
 2.2 × J1833−2103, which puts them at about 20 GB now. They are booked at
 30 GB, and their measured peaks are reported.
+
+### 9.29 9.28 measured, 2026-11-16: 2b met, 3c dirty met, 3c cleaned not met (scatter)
+
+Code: this branch, main `d2013ea` plus 9.28's note and scripts. Rang's
+apply and GeMClean ran from this worktree's extension; `check_all --quick`
+passed before any run, and each apply receipt gives `worktree_head`.
+Receipts are in
+[results/e2b-misses/c3/receipts/](results/e2b-misses/c3/receipts/):
+- `g2b.json`, `g3c-dirty.json`, `g3c-clean.json`;
+- per field, `g2b-f*.json` and `score/`;
+- `make.json`, `casa-result.json`, `apply*.json` and the `e-ext4.sha256`
+  list;
+- every run's log and time file, `runs.log` and `disk.log`.
+
+**Controls (all met).**
+- **C11:** E's DATA hash and (FLAG, FLAG_ROW) hash equal
+  `c2b/hash_src.json` (`5a656501…`, `05c6e545…`); 272,916 rows.
+- **CASA applycal on E:** rc 0, with 0 errors in 3 calls.
+  - E's file list equals 9.24's (`c2b/e-ext4.sha256`) in 54 of 67 files,
+    among them DATA, CASA's CORRECTED_DATA and both flag columns.
+  - The 13 that differ are HISTORY's `table.f0` and 12 subtable
+    `table.lock` files.
+  - So CASA's side is byte for byte the run whose C9 reproduced the frozen
+    2b (42 cells, 25.58 eps).
+- **Copies:** the D: copies and the ext4 copies agree file for file
+  (sha256) for every field, before and after rang's apply.
+- **Flags:** each side's flags equal the frozen after-apply flags in every
+  element (0 differ for CASA, 0 for rang).
+
+**Gate 2b, CASA applycal leg: met.**
+
+| Field | Rows | Cells compared | Over class C | Max eps of cell max | Max relative | Flag elements differing |
+| --- | --- | --- | --- | --- | --- | --- |
+| J1331+3030 | 118,104 | 171,242,769 | 0 | 5.89 | 0.073 | 0 |
+| J1939−6342 | 119,700 | 170,064,592 | 0 | 7.06 | 0.19 | 0 |
+| J1833−2103 | 35,112 | 67,519,770 | 0 | 6.88 | 0.044 | 0 |
+| **All** | 272,916 | **408,827,131** | **0** | **7.06** | 0.19 | **0** |
+
+This equals 9.25's post hoc reading (0 cells, 7.06 eps), now under a frozen
+protocol.
+
+**Gate 3c dirty (ε 1e-6, `-no-small-inversion`): met on all three fields.**
+
+| Field | Dirty L∞ / peak, full image | Bound |
+| --- | --- | --- |
+| J1331+3030 | **2.0e-7** | 1e-6 |
+| J1939−6342 | **3.3e-7** | 1e-6 |
+| J1833−2103 | **8.1e-8** | 1e-6 |
+
+- The 5 % border and inner two-thirds values equal the full-image ones.
+- The values equal 9.18's to every printed figure, although the column is
+  today's apply output (new P), not RANG_CORRECTED_DATA.
+
+**Gate 3c cleaned with the mask (new frozen arm): not met.** Every checked
+gate but one is met; the compact-source scatter is not.
+
+| Measure | 9.28 | A5 (9.22, post hoc) | Tolerance | |
+| --- | --- | --- | --- | --- |
+| Compact median ratio (n) | 0.99979 (41) | 0.99977 (37) | within 0.5 % | met |
+| Compact robust scatter | **1.18 %** | 0.72 % | ≤ 1 % | **not met** |
+| Δα, median (n) | 0.0071 (11) | 0.0088 (11) | ≤ 0.05 | met |
+| Off-source ratio, J1331+3030 | 1.068 | 1.053 | ≤ 1.6 | met |
+| Off-source ratio, J1939−6342 | 1.092 | 1.083 | ≤ 1.6 | met |
+| Off-source ratio, J1833−2103 | 1.083 | 1.086 | ≤ 1.6 | met |
+| Unpolarised Q, U, V (J1939−6342) | met | met | ≤ 1.2 × | met |
+| Q/Q₀ | not checked | not checked | – | – |
+
+**Outcome under the frozen rule:**
+- gate 2b's CASA applycal leg is met;
+- gate 3c dirty is met;
+- gate 3c cleaned with the mask is **not met**, on the compact-source
+  robust scatter: 1.18 % against 1 %. The median, Δα, off-source and
+  unpolarised tests are met.
+
+So v0.3.0 cites 9.28 for 2b and 3c dirty, and the 3c cleaned scatter as a
+known limitation. A5's 0.72 % is not repeated.
+
+**Described, post hoc, not decided on** (per-source tables in `score/`):
+- J1833−2103: the same 14 sources as A5, every ratio within 0.004 of A5's.
+- J1331+3030: 13 sources against 12. The new one is at 10.0σ (ratio
+  0.988), and the shared ones move by up to 0.007.
+- J1939−6342: 14 sources against 11.
+  - Three new near-threshold sources (10.1–13.3σ) have ratios 0.816, 0.876
+    and 1.498.
+  - A5's source at (869, 992), ratio 406 there (a fit failure), is 1.022
+    here.
+  - Two at 0.53 and 0.69 are in both sets.
+  - All of these lie within about 200 px of the field's 15 Jy source, where
+    both arms' residual sidelobes are largest.
+- So the scatter is set by about five 10–16σ sources near J1939−6342's
+  bright source. They enter or leave the set with small changes in the
+  images. The isolated-source rule (10σ, 5 beams) is A0's, unchanged.
+- The difference between today's images and A5's is not attributed.
+  Candidates:
+  - today's apply column with the new P (28 cells over class C against the
+    old P, 9.25);
+  - `d2013ea`'s beam change;
+  - #32, said to be byte-identical on J1833.
+
+**Mask stages.** On every field both arms finish the mask in major
+iteration 4 and run 5 major iterations, as in A5.
+
+**Cost.** Wall times on the shared host. GeMClean ran at `-j 4` on 4
+slots; WSClean in WSL docker on 2 slots.
+
+| Field | GeMClean dirty, clean | GeMClean peak RSS (GB) | WSClean dirty, clean | WSClean peak RSS (GB) |
+| --- | --- | --- | --- | --- |
+| J1331+3030 | 260 s, 1,028 s | 16.9, 14.6 | 415 s, 1,826 s | 0.83, 2.04 |
+| J1939−6342 | 216 s, 983 s | 17.8, 16.7 | 293 s, 1,220 s | 0.83, 2.05 |
+| J1833−2103 | 83 s, 422 s | 8.8, 9.2 | 234 s, 893 s | 0.51, 1.41 |
+
+- After #32, GeMClean's joined-IQUV peak is 15–18 GB on the two large
+  fields, against A5's 40–45 GB. That is still 7–21 × WSClean's.
+- Bookings: 46 GB (field 2 dirty), 16 GB (field 2 clean) and 30 GB
+  (fields 0 and 1). No run exceeded its booking.
+- Other steps:
+  - E 607 s and CASA applycal 354 s;
+  - per field: subset 11–34 s, copy-out 67–102 s, rang's apply 137–173 s,
+    copy-back 181–238 s, compare 44–118 s.
+- Two harness incidents are dated in 9.28 (9p ENOMEM and the hash marker).
+- Field 1's GeMClean waited from 15:36 to 17:20 in the pre-wait that was
+  then removed.
+
+**Space.**
+- D: had 251 GiB free at the start, never went below 255 (E2-A freed space
+  meanwhile), and ended at 423 GiB.
+- Every copy was deleted: the D: field copies, E and the subsets on ext4,
+  and the 1.1 GB flag file. So was every FITS image.
+- Logs, time files, mask records and scores are kept.
+
+## For the coordinator
+
+**After 9.28–9.29 (2026-11-16, branch `e2b-confirm`): the E2-B
+confirmation, under a protocol frozen before any run.**
+- **Decisions recorded** (owner delegated to coordinator, 2026-11-16):
+  - the post hoc readings stay labelled;
+  - 3c cleaned with the mask is a frozen arm;
+  - the `casa_phase_weights` default is unchanged, and E3's configuration
+    turns it on (E3's work).
+- **Inputs:** `R\casa\e2b.ms` had been deleted. They were rebuilt hash for
+  hash (C11 met) from `e3-20261111-input\e2b.ms` (only read) and R's 2b
+  flag snapshot. CASA's output is byte-identical to 9.24's.
+- **2b CASA applycal: met.** 0 of 408,827,131 cells over class C, max
+  7.06 eps, flags exact.
+- **3c dirty: met.** 2.0e-7, 3.3e-7 and 8.1e-8 (bound 1e-6).
+- **3c cleaned with the mask: not met.**
+  - Scatter 1.18 % (bound 1 %).
+  - Met: median 0.99979 (n = 41), Δα 0.0071, off-source 1.07, 1.09 and
+    1.08, and the unpolarised test.
+  - Post hoc, described: the scatter comes from near-threshold sources
+    around J1939−6342's bright source. A5's 0.72 % did not repeat.
+  - Owner: cite it as a known limitation, or freeze a new arm for a later
+    leg (for example a source rule, or a field-wise reading).
+- **Memory:** GeMClean after #32 peaks at 15–18 GB on J1331 and J1939 at
+  2048², 8 channels, IQUV. Book 24 GB for those (measured peak plus
+  margin) and 12 GB for J1833.

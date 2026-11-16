@@ -20,6 +20,25 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-B confirmation, 2026-11-16 (branch `e2b-confirm`; [e2b-misses.md](e2b-misses.md) 9.28–9.29):
+- Frozen before any run, on the coordinator's decisions (the owner delegated them):
+  - the post hoc 2b and 3c readings stay labelled;
+  - 3c cleaned with the mask is a new frozen arm;
+  - the `casa_phase_weights` default is unchanged (E3 turns it on).
+- `R\casa\e2b.ms` had been deleted. Its inputs were rebuilt hash for hash from
+  `e3-20261111-input\e2b.ms` (only read) and R's 2b flag snapshot, and CASA's output is
+  byte-identical to 9.24's.
+- Today's main:
+  - gate 2b CASA applycal **met**: 0 of 408,827,131 cells over class C, max 7.06 eps, flags
+    exact;
+  - 3c dirty **met**: 2.0e-7, 3.3e-7, 8.1e-8 (bound 1e-6);
+  - 3c cleaned with the mask **not met**: compact scatter 1.18 % (bound 1 %, A5 had 0.72 %).
+    The median 0.99979 (n = 41), Δα 0.0071, off-source 1.07, 1.09, 1.08 and the
+    unpolarised test are met. Post hoc: near-threshold sources around J1939−6342's bright
+    source.
+- GeMClean after #32 peaks at 15–18 GB on the large fields (A5: 40–45). All copies were
+  deleted; receipts are in `results/e2b-misses/c3/receipts/`.
+
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
 - `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for
