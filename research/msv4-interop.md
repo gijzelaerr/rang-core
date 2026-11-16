@@ -391,10 +391,10 @@ arm matches in every measure of all 9 cases; the `xradio` arm is still all
   pass, 9/9 bit-identical): rerun the xarray-ms arm with `auto_corrs=True`, a change to the
   frozen arm of section 4, so a dated amendment first; it needs the WSL
   oracle venv for the conversions.
-- **M2:** feed `Partition.chunks` to one stage (flag or image) and require
+- **M2** (amended in section 11): feed `Partition.chunks` to one stage (flag or image) and require
   the stage's products to be bit-identical to the same stage on the MSv2:
   the issue's gate "identical calibration and imaging results".
-- **M3:** cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
+- **M3** (amended in section 11): cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
   `SIGMA` weights, decreasing frequencies).
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
@@ -498,6 +498,140 @@ code, receipt `results/msv4-interop-m1b.json`, runs numbered from 07.
   `mismatch`. The column that differs is found and booked under section 6
   (writer difference or reader outcome); no reader change without another
   dated amendment written before that code.
+
+## 11. Amendment M3 and M2 (2026-11-16, post hoc)
+
+Written and committed before any code or conversion of M3 or M2; approved
+by the coordinator (owner delegated). It is post hoc to sections 3, 4 and 6:
+it adds cases and a stage gate after the runs of section 7. Sections 3 to
+10 stay as frozen, and their results stay as booked. **`python/rang/msv4.py`
+is not changed in this task:** whatever it does not support is refused and
+booked, not widened.
+
+**Probe before this amendment.** Read, not run: xradio 1.3.1's
+`_utils/_msv2/conversion.py` (with `CORRECTED_DATA`, the MSv2 weights give
+`WEIGHT_CORRECTED` and SIGMA gives the base `WEIGHT` through
+`sigma_to_weight`, `1/(s*s)` where `s` is finite and positive, else 0;
+`SIGMA_SPECTRUM` first, `SIGMA` as fallback; `WEIGHT` when
+`WEIGHT_SPECTRUM` is absent) and `create_antenna_xds.py` (the only xradio
+file that names `FLAG_ROW` besides a test helper); xarray-ms 0.5.14's
+`backend/msv2/factories/correlated.py` and `entrypoint.py` (`FLAG` from
+`FLAG`, from `FLAG_ROW` only when `FLAG` is absent; `WEIGHT` from
+`WEIGHT_SPECTRUM`, else `WEIGHT` per row; `SIGMA_SPECTRUM` kept as a
+variable; data groups `base`, `corrected`, `model` from `DATA`,
+`CORRECTED_DATA`, `MODEL_DATA`). From this reading neither writer appears
+to carry `FLAG_ROW` into `FLAG` when `FLAG` exists, and the two writers
+appear to give the base group different weights when `CORRECTED_DATA`
+exists; neither is measured yet, and neither is claimed. ra-ng's MSv2
+consumers treat `FLAG_ROW` as flagging every cell of the row
+(`cal_gain.py`, `cal_pol.py`, `core_campaign*.py`). No M3 case or store has
+been written, and no M2 stage run made.
+
+### M3: cases for the uncovered paths (frozen)
+
+**Cases** (built in WSL with python-casacore 3.8.1 in the oracle venv from
+copies of c5, `table.lock` kept; each changes one thing; written to
+`D:\rang\outputs\msv4-20261116\ms\`; each checked readable by
+`rang.core_ms` before it is converted):
+
+| id | from c5, change | path covered |
+| --- | --- | --- |
+| c10 | `FLAG_ROW` true on rows `r % 5 == 2` (28 of 140); `FLAG` unchanged | `FLAG_ROW` set |
+| c11 | add `CORRECTED_DATA = DATA * complex64(0.5 - 0.25j)` and `MODEL_DATA = DATA * complex64(2)` (numpy complex64); in `SIGMA_SPECTRUM`, row 0 channel 0 correlation 0 set to 0, row 1 channel 1 correlation 1 to NaN, row 2 channel 2 correlation 2 to -1 | `CORRECTED_DATA`; the `corrected` and `model` data groups; SIGMA-derived weights from `SIGMA_SPECTRUM` with invalid values |
+| c12 | c11 with `SIGMA_SPECTRUM` removed and `SIGMA` of row 3 correlation 0 set to 0 | SIGMA-derived weights from `SIGMA` |
+| c13 | `WEIGHT_SPECTRUM` and `SIGMA_SPECTRUM` removed | the `WEIGHT`-repeated fallback |
+| c14 | `CHAN_FREQ`, `CHAN_WIDTH`, `EFFECTIVE_BW` and `RESOLUTION` of the spectral window reversed along the channel axis | decreasing channel frequencies |
+
+A case that cannot be built, or whose reference `rang.core_ms` cannot read,
+is booked `not measured` with the reason; a writer that cannot convert it is
+booked `writer fails`.
+
+**Arms:** `xradio` (as section 4) and `xms-auto` (as section 10), conversion
+log `convert-03.log`, entries in `convert.json`. The 9 cases c1 to c9 are
+checked again in the same run as a control: their base-group measures must
+equal run 07 in both arms, else the M3 run is void until the cause is
+found.
+
+**References, per data group** (zero tolerance, mapping of section 4):
+
+- the group's correlated data: `base` against `DATA`, `corrected` against
+  `CORRECTED_DATA`, `model` against `MODEL_DATA`; a group is selected by
+  name;
+- `FLAG`, two measures: `FLAG` against MSv2 `FLAG` (cells), and `FLAG`
+  against `FLAG | FLAG_ROW` (row flag over every cell). The second decides,
+  as ra-ng's MSv2 consumers read it;
+- weights, two candidate references: **W**, `WEIGHT_SPECTRUM` (or `WEIGHT`
+  repeated over channels when that column is absent, as section 4), and
+  **S**, `1/(s*s)` in float32 where `s` is finite and `> 0`, else 0, for
+  `s` = `SIGMA_SPECTRUM` (or `SIGMA` repeated when that column is absent).
+  Deciding: the `corrected` group against W; the `base` group against W
+  when the MS has no `CORRECTED_DATA`. The `base` group of an MS with
+  `CORRECTED_DATA`, and the `model` group, match when they equal W or S
+  bit for bit, and which one is booked. The consequence is recorded either
+  way: ra-ng's MSv2 path weights every column with `WEIGHT_SPECTRUM`;
+- `UVW` and `TIME` as section 4, and coverage.
+
+**Bookings.** A data group the MS implies (`CORRECTED_DATA` gives
+`corrected`, `MODEL_DATA` gives `model`) that the store lacks, or that
+lacks a role (`correlated_data`, `flag`, `weight`, `uvw`), is a writer
+outcome. A complete group that `rang.msv4` refuses is a reader outcome.
+
+**M3 rule.** The `xradio` arm decides, `xms-auto` is reported (section 6).
+
+- **M3 pass:** every deciding measure of every data group of c10 to c14
+  matches in the `xradio` arm.
+- **M3 not met:** any deciding measure does not. Each miss is booked as a
+  writer outcome (the store lacks what the MSv2 holds, for example the row
+  flag) or a reader outcome (the store holds it and the reader misreads or
+  refuses it). A reader outcome becomes a task; the reader is not changed
+  here.
+
+### M2: the flag stage fed from MSv4 (frozen)
+
+**Stage:** `rang.cal_chain.flag_corrected` (the Tricolour port, C1's O1),
+`column="DATA"`, all fields, default masks (the two shipped static masks),
+strategy CARACAL's `mk_rfi_flagging_calibrator_fields_firstpass.yaml` from
+`outputs/caracal-strategy-inputs-8f7bb363` (sha256
+`ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774`),
+parsed by `core_flag.parse_strategy`.
+
+**Case:** c5 (fixture scan 9, one field, one scan, one window; 140 rows,
+4096 channels, autocorrelations).
+
+**MSv2 side:** the stage itself on two fresh copies of c5's MS (never on a
+case MS: the stage writes `FLAG`), under
+`D:\rang\outputs\msv4-20261116\m2\`; `FLAG` read back from each copy with
+`rang.core_ms`. The two copies must give identical `FLAG` (determinism).
+
+**MSv4 side:** an adapter in the harness, since the stage reads only an
+MSv2: the rows of the `base` group from `Partition.chunks(time_rows=4)`,
+concatenated in the order the reader yields them (the stage needs the
+group's whole time grid), into `core_flag.flag_rows` with the stage's
+arguments (`want_intensity=False`, `want_stages=False`), and
+`FLAG | flags` as the stage writes it. Metadata from the store: antenna
+positions (`antenna_xds.ANTENNA_POSITION`, in `antenna_name` order),
+`frequency` and its `channel_width`, and the correlation codes of the
+`polarization` names (`XX` 9 to `YY` 12). Each is compared with the MSv2's
+(`ANTENNA::POSITION`, `CHAN_FREQ`, `CHAN_WIDTH`, `CORR_TYPE`) bit for bit;
+one that differs is replaced by the MSv2's and booked as a labelled
+fallback.
+
+**Arms:** the `xradio` store of c5 decides; the `xms-auto` store is
+reported.
+
+**M2 rule.** Rows mapped by key (section 4).
+
+- **M2 pass:** the MSv4 side's `FLAG` equals the MSv2 side's on every row
+  and cell, bit for bit, with no metadata fallback; the two MSv2 copies
+  agree; and the stage adds flags (`FLAG` after has more set cells than
+  before), so the identity is not vacuous.
+- **M2 partial:** the same with a metadata fallback.
+- **M2 fail:** any other outcome.
+- **Wording:** the MSv2 side is the stage; the MSv4 side feeds the stage's
+  kernel through an adapter. A pass says the reader's rows give the stage's
+  flags, not that the stage reads MSv4.
+- **Not claimed:** the flag stage reads no weight or `UVW`; c5 is one
+  group; nothing about imaging or calibration.
 
 ## For the coordinator
 
