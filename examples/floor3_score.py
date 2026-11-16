@@ -81,13 +81,107 @@ def excess(F):
 
 
 def cmd_copy(out, arm):
+    """cal2.ms rewritten with four correlations (section 9, clarification 1): XX, XY, YX, YY with
+    XY = YX = 0, XY's flag and weight XX's, YX's YY's (floor_tests.prep's own expansion, data 0)."""
+    import importlib.util
+
     dst = out / arm / "pilot.ms"
-    if dst.exists():
+    if (out / arm / "expand.json").exists():
         return
+    shutil.rmtree(dst, ignore_errors=True)
     (out / arm).mkdir(parents=True, exist_ok=True)
     s0 = time.perf_counter()
-    shutil.copytree(ft.HELD / "cal2.ms", dst)
-    ft.log("copy", arm, round(time.perf_counter() - s0, 1), "s")
+    spec = importlib.util.spec_from_file_location(
+        "ghr", REPO / "examples/gemclean_heldout_real.py"
+    )
+    ghr = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ghr)
+    src = ft.HELD / "cal2.ms"
+    with core_ms.open_table(src / "SPECTRAL_WINDOW") as sw:
+        freq = np.asarray(sw.getcol("CHAN_FREQ", 0, 1)[0], np.float64)
+        width = np.asarray(sw.getcol("CHAN_WIDTH", 0, 1)[0], np.float64)
+    with core_ms.open_table(src / "ANTENNA") as an:
+        position, diameter = an.getcol("POSITION"), an.getcol("DISH_DIAMETER")
+    with core_ms.open_table(src / "FIELD") as fi:
+        phase_dir = fi.getcol("PHASE_DIR", 0, 1)
+    with core_ms.open_table(src) as t:
+        nrow = int(t.nrows)
+        times = t.getcol("TIME")
+    ghr.new_ms(
+        dst,
+        nrow,
+        freq.size,
+        4,
+        freq,
+        width,
+        position,
+        diameter,
+        phase_dir,
+        np.unique(times),
+    )
+    n4 = 0
+    with core_ms.open_table(src) as t, ghr.tables.table(str(dst), readonly=False) as o:
+        for r0 in range(0, nrow, ghr.ROW_CHUNK):
+            n = min(ghr.ROW_CHUNK, nrow - r0)
+            for name in (
+                "UVW",
+                "TIME",
+                "TIME_CENTROID",
+                "ANTENNA1",
+                "ANTENNA2",
+                "INTERVAL",
+                "EXPOSURE",
+                "FLAG_ROW",
+                "FIELD_ID",
+                "DATA_DESC_ID",
+                "SCAN_NUMBER",
+                "ARRAY_ID",
+                "OBSERVATION_ID",
+                "FEED1",
+                "FEED2",
+                "PROCESSOR_ID",
+                "STATE_ID",
+            ):
+                o.putcol(name, t.getcol(name, r0, n), r0, n)
+            d = t.getcol("DATA", r0, n)
+            w = t.getcol("WEIGHT_SPECTRUM", r0, n)
+            f = t.getcol("FLAG", r0, n)
+            z = np.zeros_like(d[..., 0])
+            o.putcol(
+                "DATA",
+                np.stack([d[..., 0], z, z, d[..., 1]], -1).astype(np.complex64),
+                r0,
+                n,
+            )
+            o.putcol(
+                "WEIGHT_SPECTRUM",
+                np.stack([w[..., 0], w[..., 0], w[..., 1], w[..., 1]], -1),
+                r0,
+                n,
+            )
+            o.putcol(
+                "FLAG",
+                np.stack([f[..., 0], f[..., 0], f[..., 1], f[..., 1]], -1),
+                r0,
+                n,
+            )
+            wr = t.getcol("WEIGHT", r0, n)
+            sr = t.getcol("SIGMA", r0, n)
+            o.putcol(
+                "WEIGHT", np.stack([wr[:, 0], wr[:, 0], wr[:, 1], wr[:, 1]], -1), r0, n
+            )
+            o.putcol(
+                "SIGMA", np.stack([sr[:, 0], sr[:, 0], sr[:, 1], sr[:, 1]], -1), r0, n
+            )
+            n4 += n
+    with core_ms.open_table(src / "FIELD") as fi:
+        name = fi.getcol("NAME")
+    with ghr.tables.table(str(dst / "FIELD"), readonly=False) as fo:
+        fo.putcol("NAME", np.asarray(name))
+    ft.wjson(
+        out / arm / "expand.json", {"rows": n4, "seconds": time.perf_counter() - s0}
+    )
+    ft.log("expand", arm, n4, round(time.perf_counter() - s0, 1), "s")
 
 
 def cmd_g0(out):

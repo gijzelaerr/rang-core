@@ -125,6 +125,21 @@ with rows in [tool-timings.md](tool-timings.md) labelled with the host. **Host: 
 not nash.** The 8.1 GB MS is already here, a copy is cheap, and the run takes minutes. A smoke run,
 if any, stays off the pilot's new scores and is declared here.
 
-## 8. Results
+## 8. Clarifications before the stage ran
+
+**1, 2026-11-16 22:35 (after G0, before any selfcal number existed).** The first attempt stopped
+at the stage's refusal: `selfcal: correlations XX, YY: the solves and the apply kernel take four
+correlations` (research/w4-unsupported.md). G0 on that plain copy had passed (F 1,073.416 µJy,
+0.999996 ×; kept as `g0-2corr.json`). Each arm's copy is therefore **rewritten with four
+correlations**: XX and YY as in `cal2.ms`, XY = YX = 0, with XY's flag and weight taken from XX
+and YX's from YY. That is the same expansion `floor_tests.prep` already makes in memory, except
+that the cross hands hold 0 instead of a copy (the Stokes I rule reads XX and YY only). The model
+is Stokes I, so its cross hands are 0 and the zero data adds no residual to the diagonal phase
+solve. One consequence: the apply's general-Jones rule flags all four correlations of a cell when
+any input flag is set, so cells flagged in one hand only become flagged in both. Stokes I already
+drops those cells, and G2 reports any change. G0 runs again on the four-correlation copy and must
+pass as frozen; that also checks the rewrite. No rule, threshold or arm changed.
+
+## 9. Results
 
 Not run yet.
