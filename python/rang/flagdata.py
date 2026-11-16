@@ -916,7 +916,9 @@ def _run_chunked(w, meta, sel, mode, params, spans, res):
                 # V8 tfcrop E1 (post hoc, research/v8-tfcrop.md 9.4): the
                 # extension after tfcrop covers every correlation of the
                 # selected rows and channels, not only the ones tfcrop read.
-                every = np.repeat(cells.any(axis=2, keepdims=True), cells.shape[2], axis=2)
+                every = np.repeat(
+                    cells.any(axis=2, keepdims=True), cells.shape[2], axis=2
+                )
                 _extend(flag, every, a1[mine], a2[mine], meta.main["TIME"][mine], chunk[mine],
                         ext)  # fmt: skip
         else:
