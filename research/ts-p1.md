@@ -595,3 +595,18 @@ and WSClean from ext4, which is stated with the result.
 - **The uv-coverage default grid** (section 12, optional). Its snapshots
   would not put the frozen positions on pixel centres, so T2b could not
   gate it. It needs its own protocol.
+### 13.6 Amendment, 2026-11-16, post hoc (after T5's first attempt failed to run)
+
+The T5 run as frozen (2048², padding 1.2) stopped before its first
+comparison. The GPU w-stacking path refused the grid: `RuntimeError: padded
+width 2460 has a prime factor above 16` (2460 = 2²·3·5·41; X2's FFT takes
+factors up to 16 only). The CPU path accepts it. This is recorded as a
+limitation of the GPU path, not as a T5 measurement.
+
+**Amended T5.**
+- **Grid.** 2000² at 2″, which pads to 2400 = 2⁵·3·5². The field is 1.11°;
+  C, at 0.5°, sits 900 px from the centre, inside the image. Every position
+  stays on a pixel centre.
+- **Unchanged.** Intervals, bound, data and code.
+- The size was chosen only to make the GPU path run, before any GPU or CPU
+  w-stacking image of `tsp1-held2` existed.
