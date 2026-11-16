@@ -371,6 +371,14 @@ ran its drivers from 17:07 to 18:25. No run started:
   process (a resident model server), below section 5's 4096 + 256 MiB: one GPU arm was
   recorded void (`timing/void.txt`) and every later GPU arm would have been.
 - The drivers were stopped at 18:25; no ticket of this task is left in the queue.
+- **Second attempt, 18:40-18:57 (post hoc scope: coarse only, `-gpu-memory 1024`, the
+  default, since the card had about 1.4 GB free; plan
+  [timing_plan_coarse1024.txt](results/gpu-grid-scripts/timing_plan_coarse1024.txt)), after
+  the IDLE hold had gone and the drivers' head-of-queue test was fixed (they had taken
+  "waiting for head" of another ticket for being at the head). Again no run started: the
+  WSClean ticket reached the head, passed the 15 min drain limit with a 1-slot data fetch and
+  a 2-slot job of other tasks still running, and was withdrawn; the drivers were stopped at
+  18:57. A shared 1-slot fetch that runs for hours keeps the host from ever going exclusive.
 
 What is known about cost comes from the shared `-j 8` runs of Gates 1 and 2 and is not
 a timing result: end to end the GPU runs took 13.9-73.2 s against the CPU's 13.5-68.1 s on
