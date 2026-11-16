@@ -2048,3 +2048,15 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | gpu-grid: exclusive timing tickets (GeMClean Windows, WSClean WSL) | S1 H2 H3 plan | not started | – | 17:07-18:25; 4 + 4 tickets withdrawn after 10 min at the head (IDLE 4-slot E2-A hold); 1 GPU arm void (card 10.9 of 12.3 GB used) |
 | 2026-11-16 | gpu-grid: exclusive timing tickets, second attempt (coarse, 1024 MiB) | S1 H2 H3 plan | not started | – | 18:40-18:57; WSClean ticket past the 15 min drain limit behind a long 1-slot fetch and a 2-slot job; withdrawn |
 | 2026-11-16 | gpu-grid: `tools/check_all.py --quick` (final) | worktree `393ebd9` | 986 s (lock wait excluded) | – | PASS: 518 pytest |
+| 2026-11-16 | gemclean-memory2: `tools/check_all.py --quick` | worktree at main 6909a31 (unchanged) | 1,109 s | – | PASS; takes the lock itself |
+| 2026-11-16 | gemclean-memory2: input rebuild (`prep_queue.sh`: npy, make E on ext4, three subsets, D: copies, rang's apply) | E2-B `e2b.ms`, 272,916 rows | about 71 min (21:04-22:15) | – | make 809 s; apply 329 / 905 / 123 s (fields 2, 0, 1); shared host |
+| 2026-11-16 | gemclean-memory2: `cargo build --release --bin gemclean` | core, main 6909a31 | 318 s | – | 4 slots, including lock wait |
+| 2026-11-16 | gemclean (baseline 6909a31), A5's argv + `-memory-report`, `-j 4` | J1833−2103, 33,880 rows × 4096 ch, IQUV joined, 8 ch, 2048² | 404.3 s | 8.40 GiB tree RSS (9.20 private) | shared host, 4 slots |
+| 2026-11-16 | gemclean (baseline 6909a31), the same | J1331+3030, 113,960 rows | 804.0 s | 15.87 GiB (17.38 private) | shared host |
+| 2026-11-16 | gemclean (baseline 6909a31), the same | J1939−6342, 115,500 rows | 920.1 s | 16.46 GiB (17.43 private) | shared host |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1833−2103 | 335.1 s | 7.17 GiB (7.19 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1331+3030 | 791.1 s | 9.12 GiB (9.14 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean `-reorder` (42ad6c6), the same | J1939−6342 | 880.8 s | 9.10 GiB (9.12 private) | shared host; FITS identical |
+| 2026-11-16 | gemclean 42ad6c6 without `-reorder`, the same | J1833−2103 | 417 s | 9.18 GiB (9.20 private) | shared host; FITS identical to the baseline |
+| 2026-11-16 | gemclean-memory2: identity sweep (`sweep.py`, 21 cases × 3 binaries) | G8's tiny MS | 27 s | – | 2 slots |
+| 2026-11-16 | gemclean-memory2: `cargo test --test gemclean_memory` (debug) | the two cases | 315 s tests (1,757 s with build and lock wait) | – | 4 slots |

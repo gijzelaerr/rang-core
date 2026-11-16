@@ -23,6 +23,6 @@ s=$(date +%s)
   -wgridder-accuracy 0.0001 "$@" "$P/f$fid.ms" > "$out/log.txt" 2>&1
 rc=$?
 (cd "$out" && sha256sum *.fits > fits.sha256; [ "${KEEP:-0}" = 1 ] || rm -f *.fits)
-left=$(ls "$out" | grep -c '\.spill$\|\.vis$' || true)
+left=$(ls "$out" | grep -c '\.spill$\|\.tmp$' || true)
 echo "$(date -Is) field $fid $tag rc=$rc secs=$(( $(date +%s) - s )) temp_left=$left" >> "$P/runs.log"
 exit $rc

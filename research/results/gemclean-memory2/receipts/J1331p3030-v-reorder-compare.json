@@ -1,0 +1,27 @@
+{
+ "field": "J1331p3030",
+ "run": "v-reorder",
+ "against": "base",
+ "fits": 153,
+ "fits_identical": true,
+ "entries_identical": true,
+ "mask_identical": true,
+ "exit": [
+  0,
+  0
+ ],
+ "base": {
+  "peak_rss_gb": 15.87,
+  "peak_working_set_gib": 16.2,
+  "peak_private_gib": 17.38,
+  "wall_s": 804.0
+ },
+ "run_figures": {
+  "peak_rss_gb": 9.12,
+  "peak_working_set_gib": 9.12,
+  "peak_private_gib": 9.14,
+  "wall_s": 791.1
+ },
+ "rss_ratio": 0.575,
+ "wall_ratio": 0.984
+}

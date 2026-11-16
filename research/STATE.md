@@ -20,6 +20,15 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean memory phase 2 (#32), 2026-11-16 (branch `gemclean-memory2`; [gemclean-memory2.md](gemclean-memory2.md),
+frozen at `b10d485`, code `42ad6c6`; partly met; outputs `D:/rang/outputs/gemclean-memory2-20261116`): new opt-in
+`gemclean -reorder` (`-temp-dir`) reads each polarisation in chunks into a temporary file per output channel (imaging
+weights from the weight grid per channel), keeps the compacted visibilities in a temporary file read back per
+residual, and drops measurements and beams before the dirty images return. A5's argv on the three rebuilt E2-B
+fields: 153 FITS files, `entries` and mask byte-identical on each; tree RSS J1331+3030 15.87 → 9.12 GiB (0.575),
+J1939−6342 16.46 → 9.10 (0.553), both met (≤ 0.6); J1833−2103 8.40 → 7.17 (0.854), not met (≤ 0.75); wall not higher
+(shared host). Still 4.7-5.4 × WSClean. The peak is now the image sets and beams; arm F (`f32` images) not run.
+
 MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
 not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
 [results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:

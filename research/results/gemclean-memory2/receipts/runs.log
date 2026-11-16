@@ -21,3 +21,13 @@
 2026-11-16T22:11:24+02:00 field 0 base rc=0 secs=810 temp_left=0
 2026-11-16T22:12:13+02:00 dsha 1 s1-d.sha256 rc=0 secs=354
 2026-11-16T22:12:15+02:00 drops 1 rc=0 secs=1
+2026-11-16T22:14:18+02:00 win apply1 rc=0 secs=123
+2026-11-16T22:15:22+02:00 dsha 1 f1-d.sha256 rc=0 secs=64
+2026-11-16T22:15:22+02:00 field 1 ready, free 281
+2026-11-16T22:15:26+02:00 drope rc=0 secs=2
+2026-11-16T22:15:26+02:00 prep done, free 281
+2026-11-16T22:31:07+02:00 field 1 base rc=0 secs=929 temp_left=0
+2026-11-16T22:41:39+02:00 field 2 v-reorder rc=0 secs=341 temp_left=0
+2026-11-16T22:48:57+02:00 field 2 v-default rc=0 secs=417 temp_left=0
+2026-11-16T23:15:57+02:00 field 0 v-reorder rc=0 secs=797 temp_left=0
+2026-11-16T23:30:47+02:00 field 1 v-reorder rc=0 secs=887 temp_left=0

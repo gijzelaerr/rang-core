@@ -1,7 +1,10 @@
 # GeMClean's memory on joined polarisations, phase 2 (issue #32)
 
-Status: **proposed** (2026-11-16). Sections 1-5 are frozen before any code
-of this task; measurements follow in section 6.
+Status: **implemented and measured, partly met** (2026-11-16). Sections
+1-5 were frozen before any code (`b10d485`); measurements are in section 6.
+With `-reorder`, J1331+3030 goes from 15.87 to 9.12 GiB and J1939−6342 from
+16.46 to 9.10 (both met), and J1833−2103 from 8.40 to 7.17 (not met). Every
+FITS file is byte-identical, and the option is off by default.
 
 Branch `gemclean-memory2`, worktree `~/Worktrees/rang/gemclean-memory2`,
 from `main` 6909a31. Data and run outputs in
@@ -216,6 +219,108 @@ J1331+3030) in files, and the beams (2.15 GB, used in every minor step).
   fields), measured plus margin. V runs keep the baseline's booking until
   measured.
 
-## 6. Measured
+## 6. Measured (2026-11-16)
 
-Not yet.
+Code: arm V at `42ad6c6` (binary `bin/gemclean-v-42ad6c6.exe`, Rust
+1.99.1). The binary held V1-V3 together, so the three parts are not
+measured apart. Runs: [field.sh](results/gemclean-memory2/field.sh) under
+the heavy lock, 4 slots, shared host (other jobs ran throughout). Scoring:
+[compare.py](results/gemclean-memory2/compare.py). Receipts:
+[receipts/](results/gemclean-memory2/receipts/) (`<field>-<run>-*`).
+
+**Identity (gate): met.**
+
+| Case | Files | Result |
+| --- | ---: | --- |
+| J1331+3030, `-reorder` against the baseline | 153 | identical; `entries` and `image-mask.json` equal |
+| J1939−6342, `-reorder` | 153 | identical; `entries` and mask equal |
+| J1833−2103, `-reorder` | 153 | identical; `entries` and mask equal |
+| J1833−2103, this branch without `-reorder` | 153 | identical; `entries` and mask equal; heap phases equal to the baseline's to the printed digit |
+| G8's tiny MS, 21 cases ([sweep.py](results/gemclean-memory2/sweep.py), [receipts/sweep-v1.json](results/gemclean-memory2/receipts/sweep-v1.json)): baseline, branch, branch with `-reorder -temp-dir` | 0-85 per case | all identical in both comparisons (two cases refuse with the same message in all three); no `.tmp` or `.spill` file left |
+| regression case (`core/tests/gemclean_memory.rs`), with and without `-reorder` | 85 | identical |
+
+The sweep was run with a development build of the same code
+(`gemclean-v1.exe`, before `cargo fmt`).
+
+**Memory and time** (tree RSS is A5's measure; GiB; shared host):
+
+| Field | Baseline RSS | `-reorder` RSS | Ratio | Rule | Peak private, before → after | WSClean 3.7 | × WSClean | Wall, before → after |
+| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| J1331+3030 | 15.87 | **9.12** | 0.575 | ≤ 0.6: **met** | 17.38 → 9.14 | 1.94 | 4.7 | 804.0 → 791.1 s (0.98) |
+| J1939−6342 | 16.46 | **9.10** | 0.553 | ≤ 0.6: **met** | 17.43 → 9.12 | 1.95 | 4.7 | 920.1 → 880.8 s (0.96) |
+| J1833−2103 | 8.40 | **7.17** | 0.854 | ≤ 0.75: **not met** | 9.20 → 7.19 | 1.34 | 5.4 | 404.3 → 335.1 s (0.83) |
+
+- **Where the peak now is:** in the minor cycles and the major cycle's
+  residuals. The heap peaks at 9.39 / 9.37 / 7.66 GB: three image sets
+  (3.2), beams (2.15), PSF crops (0.27), the plans (J1331+3030: index
+  1.37, weights 0.69, permutation 0.69, tables 0.14) and one entry's
+  residual transients.
+- **Build and read:** the build peaks at 6.6 / 6.6 / 4.7 GB (from 18.6 /
+  18.7 / 8.1), and the read at 0.77 GB (from 6.1-6.2).
+- **Why J1833−2103 misses:** the prediction (5.5-6 GB) left out the minor
+  cycle's working maps and the major cycle's transients. On this field the
+  visibilities were only 2.2 of the 9.8 GB.
+- **The baseline's RSS on J1833−2103 is low.** The same binary without
+  `-reorder` read 9.18 GiB with the same heap phases and the same peak
+  private bytes (9.20), so the baseline's 8.40 is the working set trimmed
+  on a loaded host. Against that run the ratio is 0.78, which still misses
+  0.75. The frozen measure is kept.
+- **Files written per run:**
+  - the read file, 12 B per row, channel and polarisation: 22.4, 22.7 and
+    6.7 GB;
+  - the visibility file: 5.48, 5.44 and 2.16 GB, read back once per
+    residual (6 times).
+  - The read and weights phases take 89.6 / 85.3 / 23.7 s read and 37.8 /
+    31.4 / 9.7 s weights, against 83.4 / 66.0 / 27.4 s and 32.3 / 15.2 /
+    5.7 s.
+  - Each run's wall is lower than the baseline's. The host load differed,
+    so this is no speed claim.
+
+**Regression test.** `reorder_keeps_the_bytes_and_lowers_the_peak_heap`
+(24 antennas, 120 dumps, 128 channels, 128², `-pol IQUV
+-join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2`):
+- peak heap 351,758,344 bytes without `-reorder`, 232,370,794 with;
+- bound frozen at 279,000,000 (1.2 × with), so a return of the in-memory
+  path fails it;
+- FITS byte-identical and no temporary file left;
+- 315 s in a debug `cargo test` on this host;
+- the phase 1 case still passes (101,622,276 bytes).
+
+**Outcome under the frozen rule: partly met.**
+- Identity holds everywhere.
+- Memory is met on J1331+3030 (0.575) and J1939−6342 (0.553), and not met
+  on J1833−2103 (0.854 against 0.75).
+- Time is met on all three.
+- So `-reorder` stays opt-in. Making it the default is the coordinator's
+  call, outside this rule's "met" branch.
+- The two large fields can be booked at about 11 GB with `-reorder`,
+  against 20-30 GB without it.
+
+**Arm F: not run** (proposed). The `f32` working images need the joined
+loop, the kernels and the beams made generic over the image precision. It
+is not started in this task, and section 5's rule for it stands for a later
+one. After V, the image sets (3.2 GB) and the beams (2.15 GB) are 60-70 %
+of every field's peak, so they are the next target. The plans (up to 2.9
+GB) are next after them.
+
+**Exclusive timing (for the coordinator).** On an idle host, for F in 0, 1
+and 2, run
+`python tools/heavy_lock.py run -- "C:/Program Files/Git/bin/bash.exe" research/results/gemclean-memory2/field.sh F TAG BIN [-memory-report] [-reorder]`
+with BIN `D:/rang/outputs/gemclean-memory2-20261116/bin/gemclean-base-6909a31.exe`
+(TAG `x-base`) and `.../gemclean-v-42ad6c6.exe -reorder` (TAG
+`x-reorder`). The inputs `f0.ms`, `f1.ms` and `f2.ms` are kept for this
+(75 GB on D:) until the coordinator says they can go.
+
+## For the coordinator
+
+- #32 phase 2: **partly met** under the frozen rule, at byte-identical
+  output (153 FITS files per field, `entries` and the mask equal).
+- `-reorder` (opt-in, with `-temp-dir`) keeps the per-channel read and the
+  compacted visibilities in temporary files.
+- Tree RSS: J1331+3030 15.87 → 9.12 GiB, J1939−6342 16.46 → 9.10, both
+  met; J1833−2103 8.40 → 7.17, not met (0.854 against 0.75).
+- Wall time is not higher on any field (shared host). It is 4.7-5.4 ×
+  WSClean's 1.34-1.95 GiB.
+- Next memory: the `f32` images (arm F, not run) and the beams, which are
+  now about two thirds of the peak.
+- Booking with `-reorder`: about 11 GB on every field.

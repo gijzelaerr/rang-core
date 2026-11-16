@@ -338,18 +338,17 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
 /// `sink` receives each chunk's selected rows, formed by the same code as
 /// [`read_ms`]'s (so with the same values), in row order; the result holds
 /// the header fields only (no rows).
-pub fn read_ms_chunks(
-    path: &Path,
-    sel: &Selection,
-    sink: &mut dyn FnMut(&StokesI) -> Result<(), String>,
-) -> Result<StokesI, String> {
+pub fn read_ms_chunks(path: &Path, sel: &Selection, sink: ChunkSink) -> Result<StokesI, String> {
     read_ms_sink(path, sel, Some(sink))
 }
+
+/// A receiver of [`read_ms_chunks`]'s chunks.
+pub type ChunkSink<'a> = &'a mut dyn FnMut(&StokesI) -> Result<(), String>;
 
 fn read_ms_sink(
     path: &Path,
     sel: &Selection,
-    mut sink: Option<&mut dyn FnMut(&StokesI) -> Result<(), String>>,
+    mut sink: Option<ChunkSink>,
 ) -> Result<StokesI, String> {
     let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
     // Data description -> spectral window and polarisation.

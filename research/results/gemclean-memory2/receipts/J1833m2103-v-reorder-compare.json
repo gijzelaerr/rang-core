@@ -1,0 +1,27 @@
+{
+ "field": "J1833m2103",
+ "run": "v-reorder",
+ "against": "base",
+ "fits": 153,
+ "fits_identical": true,
+ "entries_identical": true,
+ "mask_identical": true,
+ "exit": [
+  0,
+  0
+ ],
+ "base": {
+  "peak_rss_gb": 8.4,
+  "peak_working_set_gib": 8.41,
+  "peak_private_gib": 9.2,
+  "wall_s": 404.3
+ },
+ "run_figures": {
+  "peak_rss_gb": 7.17,
+  "peak_working_set_gib": 7.18,
+  "peak_private_gib": 7.19,
+  "wall_s": 335.1
+ },
+ "rss_ratio": 0.854,
+ "wall_ratio": 0.829
+}
