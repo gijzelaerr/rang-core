@@ -137,6 +137,45 @@ not gated: exact equality of FLAG (the fraction of cases bit-identical).
 
 (empty at the freeze)
 
+Probe batches (labelled probe; `tools/oracles/casa/tfcrop_probe.py`,
+`tfcrop_probe_casa.py`, `tfcrop_probe.sh`; one 24-antenna template, 276
+baselines × 4 correlations = 1,104 planes of 40 integrations × 256
+channels; outputs `D:\rang\outputs\v8-tfcrop-20261116\probes\b0N\out`):
+
+| Batch | Design | Arms (all `flagdimension='freq'`, `extendflags=False`) |
+| --- | --- | --- |
+| b01 | L1: library band shapes (lines, polynomials, sines, steps, vees, bumps, spikes) on a 20-step ladder of e (1e-4 to 0.1), rows t and t+20 mirrored so the time mean is the band exactly | `freqfit='line'` at `freqcutoff` 2, 3, 4, 5; `maxnpieces` 1, 2, 3, 4, 5, 7, 9; `maxnpieces` 1 and 3 at cutoff 4 |
+| b02 | S1: straight-line bands (any fit reproduces them), rows with 0-64 outliers of 1-12 e, mirrored | `freqfit='line'` at cutoff 2, 3, 4; `maxnpieces` 1 and 7 |
+
+- **D1 (probe b02, S1), the per-row statistic.** With the band known, CASA's
+  frequency-direction flags are reproduced on 1,101 of 1,104 planes (3 cells
+  of 11.3 M differ, all within 0.2 % of the threshold) under
+  `freqfit='poly'` by: u = data / fit − 1; per time row, sd = sqrt(mean u²)
+  over the row's unflagged channels (about 0, not about the mean; no ddof);
+  flag |u| > cutoff × sd; repeat with the remaining channels, stopping a
+  row when its sd changes by less than **0.1 in absolute terms** from the
+  previous pass (the previous value starts at 0, so a row whose first sd
+  is below 0.1 gets one pass), at most five passes. Rejected on the same
+  data: deviation from the row mean; sd about the mean; five passes always
+  (57,000 cells wrong); relative 10 % stop (40,000). Under
+  `freqfit='line'` the same rule leaves 275 cells wrong, all within 3 % of
+  the threshold and all on rows with sd below 0.005: CASA's straight-line
+  fit of an exactly straight band is off by about 1e-6 relative (its line
+  fit is less precise than its polynomial fit; not resolved).
+- **D2 (probe b01, L1), the robust line (partial).** With D1, a line fitted
+  by least squares, then refitted twice to the channels whose residual is
+  at most 2 × the rms of the residual (one-sided: only channels above the
+  fit are excluded, "the base of RFI spikes"), reproduces CASA's
+  `freqfit='line'` flags on 1,055 of 1,104 planes at cutoff 3 (1,330 cells
+  wrong of 11.3 M); polynomial and sine shapes all fit, as do the
+  narrow-band spikes. Not identified: why three fits (bumps of width 8
+  need four or five), and why the best count rises to four or five at
+  cutoffs 4 and 5 (1,062 and 1,104 planes); the exclusion factor 2 does not
+  follow the cutoff. The piecewise-polynomial fit (`maxnpieces` ≥ 1 with
+  `freqfit='poly'`) is not identified: a staged line-then-cubic fit with
+  1-5 stages and the piece schedules tried reproduces at most 809 of 1,104
+  planes at `maxnpieces=1`.
+
 ## 8. Runs and cost
 
 CASA in `rang-o-casa:6.7.6.14` (WSL, Docker, `--network none`), on ext4
