@@ -41,6 +41,16 @@ def head_ticket(text):
     return None
 
 
+def own_pids(pid):
+    import psutil
+
+    try:
+        p = psutil.Process(pid)
+        return {pid, *(c.pid for c in p.children(recursive=True))}
+    except psutil.Error:
+        return {pid}
+
+
 def tickets(text):
     return {line.split()[2] for line in text.splitlines() if line.startswith("queue ")}
 
@@ -51,7 +61,7 @@ def attempt(name, argv, kill, granted_marker, log, attempts_log):
     with open(log, "a", encoding="utf-8") as out:
         proc = subprocess.Popen(argv, stdout=out, stderr=subprocess.STDOUT)
         mine, head_since, granted = None, None, False
-        tag = f"-windows-{proc.pid}" if name == "windows" else "-wsl-"
+        tag = "-windows-" if name == "windows" else "-wsl-"
         while proc.poll() is None:
             time.sleep(POLL)
             text = status()
@@ -62,6 +72,13 @@ def attempt(name, argv, kill, granted_marker, log, attempts_log):
             head = head_ticket(text)
             if mine is None:
                 new = [t for t in tickets(text) - before if tag in t]
+                if name == "windows":
+                    # The venv launcher runs the real interpreter as a child,
+                    # whose pid names the ticket.
+                    pids = own_pids(proc.pid)
+                    new = [
+                        t for t in new if int(t.rsplit("-", 1)[1].split(".")[0]) in pids
+                    ]
                 mine = new[0] if len(new) == 1 else None
             if head is not None and head == mine:
                 head_since = head_since or time.time()
