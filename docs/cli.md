@@ -522,6 +522,8 @@ usage: rang-core lightcurve [-h] [--position [NAME=]RA,DEC] [--positions CSV]
                             [--model-column MODEL_COLUMN] [--no-model]
                             [--interval-steps INTERVAL_STEPS] [--size SIZE]
                             [--scale SCALE] [--no-images] [--fits]
+                            [--candidates SIGMA] [--gridder {wgrid,wstack}]
+                            [--device {cpu,gpu}]
                             ms
 
 Light curves at given positions from the residual (data column minus
@@ -553,6 +555,13 @@ options:
   --scale SCALE         snapshot pixel size (default 4asec)
   --no-images           DFT fluxes only, no snapshots
   --fits                also write each snapshot as FITS
+  --candidates SIGMA    also list each snapshot's local maxima at or above
+                        SIGMA times its robust rms, and those of the negated
+                        image, in DIR/candidates.csv
+  --gridder {wgrid,wstack}
+                        snapshot gridder: the exact wgridder (default) or
+                        w-stacking
+  --device {cpu,gpu}    device of the wstack gridder (gpu needs the gpu build)
 ```
 
 ## `mcp`

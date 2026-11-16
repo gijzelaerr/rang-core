@@ -185,3 +185,54 @@ def test_samples_beyond_the_grid_are_counted():
 
 def test_extension_has_the_kernel():
     assert hasattr(core.extension(), "lightcurve_dft")
+
+
+def test_protocol2_small_simulation_matches_the_numpy_oracle(tmp_path):
+    ms = sim.main(
+        ["tsp1-held2", str(tmp_path), "--ntime", "40", "--nant", "8", "--nchan", "16"]
+    )  # fmt: skip
+    truth = json.loads((tmp_path / "tsp1-held2.truth.json").read_text(encoding="utf-8"))
+    res = lc.light_curves(ms, positions(truth), field=3, size=SIZE, scale_arcsec=4.0)
+    assert res["settings"]["column"] == "CORRECTED_DATA"
+    assert res["settings"]["weight_column"] == "WEIGHT_SPECTRUM"
+    dft, _ = measure.oracle(ms, truth)
+    sig = np.array(truth["sigma_snap_interval_jy"])[:, None]
+    flux = np.array(res["flux_jy"])
+    assert np.max(np.abs(flux - dft) / sig) < 1e-6
+    snap = np.array(res["flux_snapshot_jy"], float)
+    ok = np.isfinite(snap)
+    assert np.max(np.abs(snap - flux)[ok] / np.broadcast_to(sig, snap.shape)[ok]) < 1e-3
+    # Flags and FLAG_ROW removed samples: fewer than baselines x channels.
+    assert max(res["samples"]) < 28 * 16
+    # The wrong column would double and rotate every flux.
+    wrong = lc.light_curves(ms, positions(truth), field=3, column="DATA",
+                            images=False)  # fmt: skip
+    assert not np.allclose(wrong["flux_jy"], res["flux_jy"])
+
+
+def test_candidates_and_pixel_round_trip():
+    image = np.zeros((16, 16))
+    image[5, 7] = 10.0
+    image[5, 8] = 9.0  # a neighbour, not a peak
+    image[12, 3] = -8.0
+    found = lc.candidates(image, 1.0, 5.0, 0, 1.0, 16, 4.0, (math.radians(300.0),
+                          math.radians(-36.0)))  # fmt: skip
+    assert [(c["sign"], c["x"], c["y"]) for c in found] == [(1, 7, 5), (-1, 3, 12)]
+    ra, dec = found[0]["ra_deg"], found[0]["dec_deg"]
+    el, em = lc.lm_from_radec(math.radians(ra), math.radians(dec),
+                              math.radians(300.0), math.radians(-36.0))  # fmt: skip
+    x, y, offset = lc.pixel_of(el, em, 16, 4.0)
+    assert (x, y) == (7, 5) and offset < 1e-6
+
+
+def test_wstack_snapshot_matches_the_wgridder(small):
+    ms, _, truth = small
+    a = lc.light_curves(ms, positions(truth)[:1], field=3, size=256, interval_steps=15)
+    b = lc.light_curves(ms, positions(truth)[:1], field=3, size=256, interval_steps=15,
+                        gridder="wstack")  # fmt: skip
+    fa, fb = (
+        np.array(a["flux_snapshot_jy"], float),
+        np.array(b["flux_snapshot_jy"], float),
+    )
+    assert np.max(np.abs(fa - fb)) < 1e-3 * np.max(np.abs(fa)) + 1e-9
+    assert b["settings"]["gridder"] == "wstack"

@@ -1550,6 +1550,25 @@ def _lightcurve_command(argv, options, pinned):
     parser.add_argument(
         "--fits", action="store_true", help="also write each snapshot as FITS"
     )
+    parser.add_argument(
+        "--candidates",
+        type=float,
+        metavar="SIGMA",
+        help="also list each snapshot's local maxima at or above SIGMA times its "
+        "robust rms, and those of the negated image, in DIR/candidates.csv",
+    )
+    parser.add_argument(
+        "--gridder",
+        choices=("wgrid", "wstack"),
+        default="wgrid",
+        help="snapshot gridder: the exact wgridder (default) or w-stacking",
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "gpu"),
+        default="cpu",
+        help="device of the wstack gridder (gpu needs the gpu build)",
+    )
     args = parser.parse_args(argv)
     from . import core_grid
     from . import lightcurve as lc
@@ -1581,8 +1600,12 @@ def _lightcurve_command(argv, options, pinned):
                     positions.append(
                         (row["name"], float(row["ra_deg"]), float(row["dec_deg"]))
                     )
-        if args.no_images and args.fits:
-            raise lc.LightcurveError("--fits needs the snapshots (drop --no-images)")
+        if args.no_images and (args.fits or args.candidates is not None):
+            raise lc.LightcurveError(
+                "--fits and --candidates need the snapshots (drop --no-images)"
+            )
+        if args.device == "gpu" and args.gridder != "wstack":
+            raise lc.LightcurveError("--device gpu needs --gridder wstack")
         size, scale = args.size, _scale_arcsec(args.scale)
         if size < 2 or size % 2:
             raise lc.LightcurveError("--size must be an even number of pixels")
@@ -1607,6 +1630,9 @@ def _lightcurve_command(argv, options, pinned):
             images=not args.no_images,
             on_snapshot=on_snapshot,
             log=lambda text: print(f"rang-core lightcurve: {text}", file=sys.stderr),
+            gridder=args.gridder,
+            device=args.device,
+            candidate_sigma=args.candidates,
         )
         lc.write_outputs(result, out)
     except (lc.LightcurveError, OSError, KeyError) as exc:
