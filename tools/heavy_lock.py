@@ -408,8 +408,7 @@ def decide(
     waited = waited_s(head, now_ns)
     if waited >= limit:
         return None, (
-            f"head {head.name}: waited {waited / 60:.0f} min, past its "
-            f"{limit / 60:g} min drain limit, draining"
+            f"head {head.name}, past its {limit / 60:g} min drain limit (draining)"
         )
     if head_fits(head_info):
         return None, f"head {head.name}, which fits"

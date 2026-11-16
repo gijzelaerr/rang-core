@@ -26,7 +26,8 @@ unit-tested, not yet on the live queue): strict FIFO held 1-slot 2 GB tickets fo
 further back start while the head does not fit, if it fits what is free now after reserving room for earlier
 tickets that fit, until the head has waited its drain limit (`run --drain MIN`, default `RANG_HEAVY_DRAIN_MIN`
 15 min; 0 strict FIFO); exclusive heads the same, never past a critical head; `status` marks backfilled holds
-and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged.
+and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged, and the one test that asserted
+strict FIFO behind an exclusive head now pins `drain_s=0`.
 
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root

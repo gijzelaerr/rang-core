@@ -15,6 +15,8 @@ import threading
 import time
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -29,6 +31,14 @@ def _load():
 
 
 hl = _load()
+
+
+@pytest.fixture(autouse=True)
+def _no_host_drain_setting(monkeypatch):
+    """The host's own RANG_HEAVY_DRAIN_MIN must not change these tests."""
+    monkeypatch.delenv(hl.DRAIN_VAR, raising=False)
+
+
 MIN = 60 * 10**9  # one minute in ns
 NOW = 1_800_000_000 * 10**9
 
@@ -76,7 +86,7 @@ def test_no_backfill_once_the_head_waited_past_its_drain_limit(tmp_path, monkeyp
     queue = [(head, _new(4, 46.0)), (small, _new(1, 2.0))]
     running = [_shared(1, 6.0)]
     verdict, why = hl.decide(queue, small, running, False, NOW)
-    assert verdict is None and "draining" in why
+    assert verdict is None and "draining" in why and "min drain limit" in why
     # The head's own limit decides, not the backfiller's.
     queue = [(head, _new(4, 46.0, drain_min=30)), (small, _new(1, 2.0, 1))]
     assert hl.decide(queue, small, running, False, NOW)[0] == "backfill"
@@ -261,7 +271,14 @@ def test_exclusive_head_is_backfilled_past_then_drains(tmp_path):
     tx.start()
     _wait_tickets(d, 1)
     _next_ns()
-    y = hl.acquire_shared(d, ["y"], 0.02, 1, 1.0)  # backfills past x at once
+    got: list = []
+    ty = threading.Thread(  # backfills past x at once
+        target=lambda: got.append(hl.acquire_shared(d, ["y"], 0.02, 1, 1.0)),
+        daemon=True,
+    )
+    ty.start()
+    ty.join(timeout=10)
+    (y,) = got
     assert json.loads(y.read_text(encoding="utf-8"))["backfill"] is True
     assert order == []  # x waits for s and y
     hl._unlink(s)
