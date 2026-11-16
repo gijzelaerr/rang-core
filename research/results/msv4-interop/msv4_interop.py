@@ -97,13 +97,14 @@ def make_gaps(root):
         print("c8: removed rows", drop, "left", t.nrows())
 
 
-def convert(root, ids=None, arms=CONVERT_ARMS):
+def convert(root, ids=None, arms=CONVERT_ARMS, cases=None):
     import xarray
     from xradio.measurement_set import convert_msv2_to_processing_set
 
     log_path = Path(root) / "convert.json"
     log = json.loads(log_path.read_text()) if log_path.exists() else {}
-    for case, ms in case_paths(root).items():
+    cases = case_paths(root) if cases is None else cases
+    for case, ms in cases.items():
         if ids and case not in ids:
             continue
         for arm in arms:
