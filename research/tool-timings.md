@@ -2019,3 +2019,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
 | 2026-11-16 | v8c-tfcrop: `tools/check_all.py --quick` | worktree after merging origin/main | 894 s (lock wait excluded) | – | PASS; takes the lock itself |
 | 2026-11-16 | lock-backfill: `tools/check_all.py --quick` | worktree, fresh .venv | 997 s (lock wait excluded; 1113 s wall) | – | PASS: 314 pytest |
+| 2026-11-16 | msv4-interop: xradio 1.3.1 `convert_msv2_to_processing_set`, defaults | 9 MSv2s (20-12480 rows) | 3.2-4.3 s each; 11.6 s for `A-casa.ms` | – | WSL, Python 3.12, under the lock (2 slots, 4 GB) |
+| 2026-11-16 | msv4-interop: xarray-ms 0.5.14 `open_datatree` + `to_zarr` | the same 9 MSv2s | 3.0-4.2 s each; 11.8 s for `A-casa.ms` | – | WSL; whole conversion job 411 s wall with lock wait, peak RSS 689 MB |
+| 2026-11-16 | msv4-interop: `msv4_interop.py check` (rang.core_ms + rang.msv4) | 9 cases × 2 arms | 9 s wall | – | Windows, 1 slot; `A-casa` xradio arm 0.4 s |
+| 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, fresh .venv | 1011 s (lock wait excluded) | – | FAIL, 3 tests: the note not yet in the research index, and two `test_msv4` failures (the complex pad rule, a fixture zip without `table.lock`); all fixed |
+| 2026-11-16 | msv4-interop: `tools/check_all.py --quick` | worktree, after the records | 35 s (lock wait excluded) | – | PASS: 63 pytest, 4 skipped |
+| 2026-11-16 | msv4-interop: `tests/test_msv4.py` with xarray and zarr blocked | worktree | 0.05 s | – | 6 skipped, the skip path |
