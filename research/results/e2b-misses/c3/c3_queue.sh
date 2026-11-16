@@ -27,8 +27,8 @@ win() {  # slots mem label cmd...
   "$PY" $L run --slots "$n" --mem "$m" -- "$@" > "$P/win-$lab.out" 2>&1; local rc=$?
   echo "$(date -Is) win $lab rc=$rc secs=$(( $(date +%s) - s ))" >> "$P/runs.log"; return $rc
 }
-fits46() {  # wait until a 46 GB ticket fits, so it does not head-block the FIFO
-  until "$PY" $L status 2>/dev/null | head -2 | grep -qE "shared: [0-9]+/16 slots, [0-2]/48 GB"; do sleep 60; done
+ok() {  # resume: the step is already logged with rc=0 in runs.log (the coordinator, 2026-11-16)
+  grep -qE "^[^ ]+ $1 rc=0 " "$P/runs.log"
 }
 dsha() {  # native sha256 of every file of the D: copy, in c3_run.sh's format
   local s; s=$(date +%s)
@@ -55,24 +55,29 @@ EOF
   field)
     f=$2; t=$(tag "$f"); n=$(name "$f")
     case $f in 0) g=32;; 1) g=33;; 2) g=10;; esac   # GiB of the D: copy after rang's apply (DATA and rang's column, 131 kB per row each)
-    need $(( g * 14 / 10 + 12 )) "field $f"
-    wl 2 8 subset "$f" || exit 11
-    wl 1 2 copyout "$f" || exit 12
-    dsha "$f" "s$f-d.sha256" && cmp "$P/s$f-ext4.sha256" "$P/s$f-d.sha256" || exit 12
-    wl 1 2 drops "$f"
-    win 4 16 "apply$f" "$PY" "$S/c3_win.py" apply "$f" "$P/apply$f.json" || exit 13
-    dsha "$f" "f$f-d.sha256" || exit 14
-    wl 1 2 copyback "$f" || exit 14
-    cmp "$P/f$f-d.sha256" "$P/f$f-ext4.sha256" || exit 14
-    wl 1 4 compare "$f" || exit 15
+    if ! ok "compare $f"; then
+      need $(( g * 14 / 10 + 12 )) "field $f"
+      wl 2 8 subset "$f" || exit 11
+      wl 1 2 copyout "$f" || exit 12
+      dsha "$f" "s$f-d.sha256" && cmp "$P/s$f-ext4.sha256" "$P/s$f-d.sha256" || exit 12
+      wl 1 2 drops "$f"
+      win 4 16 "apply$f" "$PY" "$S/c3_win.py" apply "$f" "$P/apply$f.json" || exit 13
+      dsha "$f" "f$f-d.sha256" || exit 14
+      wl 1 2 copyback "$f" || exit 14
+      cmp "$P/f$f-d.sha256" "$P/f$f-ext4.sha256" || exit 14
+      wl 1 4 compare "$f" || exit 15
+    fi
+    # GeMClean booking (amended 2026-11-16, the coordinator): J1833 measured 8.8 (dirty)
+    # and 9.2 GB (clean) after #32 (this run's receipts); J1939 and J1331 held 2.2x J1833
+    # before #32 (A5), so about 20 GB: booked 30. heavy_lock now backfills and drains.
+    case $f in 2) mr=16;; *) mr=30;; esac
     lane_ws() {
-      wl 2 4 wsclean dirty "$f" "$t"
-      wl 2 4 wsclean clean "$f" "$t"
+      ok "wsclean dirty $f $t" || wl 2 4 wsclean dirty "$f" "$t"
+      ok "wsclean clean $f $t" || wl 2 4 wsclean clean "$f" "$t"
     }
     lane_rang() {
-      fits46; "$PY" $L run --slots 4 --mem 46 -- "$GB" "$S/c3_rang.sh" dirty "$f" "$t"
-      if [ "$f" = 2 ]; then m=16; else m=46; fits46; fi   # J1833 cleaned: 9.2 GiB measured (gemclean-memory 5)
-      "$PY" $L run --slots 4 --mem $m -- "$GB" "$S/c3_rang.sh" clean "$f" "$t"
+      ok "rang dirty $f $t" || "$PY" $L run --slots 4 --mem $mr -- "$GB" "$S/c3_rang.sh" dirty "$f" "$t"
+      ok "rang clean $f $t" || "$PY" $L run --slots 4 --mem $mr -- "$GB" "$S/c3_rang.sh" clean "$f" "$t"
     }
     lane_ws > "$P/lane-ws-$f.log" 2>&1 & a=$!
     lane_rang > "$P/lane-rang-$f.log" 2>&1 & b=$!

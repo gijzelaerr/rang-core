@@ -2817,3 +2817,13 @@ its subset step, as the rule allows once.
   equal. The marker is now normalised, and field 1 is rerun from its subset
   step again. This is the same harness fix, and no field 1 score had been
   read.
+
+**Booking amended, 2026-11-16, on the coordinator's word (no measure or
+setting changed).** Field 1's GeMClean runs waited from 15:36 in
+`fits46`, which waited for at most 2 GB booked on the host. heavy_lock now
+backfills and drains for a large head (main `e3a9fa6`), so the pre-wait is
+removed and the queue resumes, skipping steps already logged rc 0. The
+J1833−2103 runs here peaked at 8.8 GB (dirty, ε 1e-6) and 9.2 GB (cleaned)
+of summed tree RSS. Before #32, A5's J1939−6342 and J1331+3030 held
+2.2 × J1833−2103, which puts them at about 20 GB now. They are booked at
+30 GB, and their measured peaks are reported.
