@@ -20,6 +20,18 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
+receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
+[results/msv4-interop-m2.json](results/msv4-interop-m2.json)). Amendment frozen before any code or conversion; reader
+unchanged. M3: five cases from fixture scan 9 (c10 `FLAG_ROW`, c11 `CORRECTED_DATA` + `MODEL_DATA` + invalid sigmas,
+c12 `SIGMA` only, c13 no spectral weights, c14 decreasing frequencies), xradio 1.3.1 and xarray-ms 0.5.14
+(`auto_corrs=True`), zero tolerance: c11-c14 bit-identical in every data group (base, corrected, model) in both
+arms; c10 not met, a writer outcome: neither writer carries `FLAG_ROW` into the store. With `CORRECTED_DATA`
+xradio's base weights are `1/SIGMA^2` (xarray-ms: `WEIGHT_SPECTRUM`), unlike ra-ng's MSv2 path. Control c1-c9 equal
+run 07. M2: Tricolour (`cal_chain.flag_corrected`, CARACAL calibrator firstpass) on c5 raises flags 46.8 % to
+80.6 %; its kernel fed from `Partition.chunks` of either store, with the store's metadata, gives the same FLAG on
+every cell: pass.
+
 MSv4 M1b, xarray-ms with autocorrelations, 2026-11-16 (branch `msv4-m1b`; [msv4-interop.md](msv4-interop.md)
 sections 10 and 7, measured, pass; receipt [results/msv4-interop-m1b.json](results/msv4-interop-m1b.json)). Second
 amendment frozen before any conversion: a third arm, xarray-ms 0.5.14 with `auto_corrs=True`, same 9 cases, zero
