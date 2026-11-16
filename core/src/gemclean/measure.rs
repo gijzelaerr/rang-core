@@ -56,6 +56,9 @@ pub struct GridMeasurement<T: Real> {
     /// Free the gridder's work grids after every residual
     /// ([`GridMeasurement::releasing_grids`]).
     release_grids: bool,
+    /// Run the plan's plane loops on the GPU within this many MiB of device
+    /// memory ([`GridMeasurement::on_gpu`]).
+    gpu: Option<usize>,
 }
 
 impl<T: Real + Send + Sync> GridMeasurement<T> {
@@ -135,12 +138,11 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     /// Make the plan of the image grid, if it is still to be made.
     pub fn prepare(mut self) -> Result<GridMeasurement<T>, String> {
         if self.pending {
-            self.prepared = Some(Arc::new(Prepared::new(
-                &self.opts,
-                &self.uvw,
-                &self.freq,
-                T::weights(&self.wgt),
-            )?));
+            let mut p = Prepared::new(&self.opts, &self.uvw, &self.freq, T::weights(&self.wgt))?;
+            if let Some(budget) = self.gpu {
+                p.use_gpu(budget)?;
+            }
+            self.prepared = Some(Arc::new(p));
             self.pending = false;
         }
         Ok(self)
@@ -225,6 +227,9 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     /// measurement's own (research/gemclean-memory.md). Where either cannot
     /// be compacted, this is [`GridMeasurement::prepare`].
     pub fn sharing_plan_of(mut self, other: &GridMeasurement<T>) -> Result<Self, String> {
+        if self.gpu.is_some() != other.prepared.as_ref().is_some_and(|p| p.on_gpu()) {
+            return self.prepare();
+        }
         let (Some(p), Data::Sorted(_), true, true, Data::Single(vis)) = (
             &other.prepared,
             &other.vis,
@@ -314,7 +319,20 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
             buffer: Mutex::new(Vec::new()),
             sorted_residual: false,
             release_grids: false,
+            gpu: None,
         })
+    }
+
+    /// Grid and degrid the major cycles on the GPU (issue #12,
+    /// `research/gpu-grid.md`) within `budget_mib` MiB of device memory: the
+    /// plan made by [`GridMeasurement::prepare`] runs its plane loops there.
+    /// Only before the plan is made; the PSF stays on the CPU.
+    pub fn on_gpu(mut self, budget_mib: usize) -> Result<Self, String> {
+        if !self.pending {
+            return Err("the GPU must be chosen before the plan is made".into());
+        }
+        self.gpu = Some(budget_mib);
+        Ok(self)
     }
 
     /// Free the gridder's work grids after every residual, so that several

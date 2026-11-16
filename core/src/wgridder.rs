@@ -3164,6 +3164,9 @@ pub struct Prepared<T: Real> {
     /// The sorted index of each active visibility, in visibility order
     /// ([`Prepared::residual`]), made on first use.
     order: std::sync::OnceLock<Vec<u32>>,
+    /// The plane loops on the GPU ([`Prepared::use_gpu`]).
+    #[cfg(feature = "gpu")]
+    gpu: Option<gpu::Gpu>,
 }
 
 impl<T: Real> Prepared<T> {
@@ -3205,7 +3208,49 @@ impl<T: Real> Prepared<T> {
             n,
             grids: std::sync::Mutex::new(GridWork::default()),
             order: std::sync::OnceLock::new(),
+            #[cfg(feature = "gpu")]
+            gpu: None,
         })
+    }
+
+    /// Run the plane loops of this plan's gridding and degridding on the GPU
+    /// (issue #12, `research/gpu-grid.md`), within `budget_mib` MiB of device
+    /// memory; an error when the build has no `gpu` feature or the device
+    /// cannot run the plan. Everything else stays the CPU's.
+    pub fn use_gpu(&mut self, budget_mib: usize) -> Result<(), String> {
+        #[cfg(feature = "gpu")]
+        {
+            if let Some((setup, lay, tables)) = &self.prepared {
+                self.gpu = Some(gpu::Gpu::new::<T>(
+                    setup, &self.bl, lay, tables, budget_mib,
+                )?);
+            }
+            Ok(())
+        }
+        #[cfg(not(feature = "gpu"))]
+        {
+            let _ = budget_mib;
+            Err("this build has no GPU gridder (cargo feature `gpu` of rang-core)".into())
+        }
+    }
+
+    /// The kernel and grid of this plan.
+    pub fn plan(&self) -> Plan {
+        self.prepared
+            .as_ref()
+            .map_or(Plan::default(), |(setup, _, _)| setup.plan)
+    }
+
+    /// Whether the plane loops run on the GPU.
+    pub fn on_gpu(&self) -> bool {
+        #[cfg(feature = "gpu")]
+        {
+            self.gpu.is_some()
+        }
+        #[cfg(not(feature = "gpu"))]
+        {
+            false
+        }
     }
 
     /// The residual image of `data` against the image `model` (`None`: the
@@ -3302,19 +3347,39 @@ impl<T: Real> Prepared<T> {
         const CHUNK: usize = 1 << 12;
         if let Some(model) = model {
             stored.par_iter_mut().for_each(|v| *v = czero());
-            degrid_images::<T>(
-                setup,
-                &self.bl,
-                lay,
-                tables,
-                grids,
-                true,
-                model,
-                Weights::None,
-                stored,
-                true,
-                Timer::new(),
-            );
+            #[cfg(feature = "gpu")]
+            let on_gpu = if let Some(g) = &self.gpu {
+                g.degrid::<T>(
+                    setup,
+                    &self.bl,
+                    lay,
+                    tables,
+                    model,
+                    Weights::None,
+                    stored,
+                    true,
+                )?;
+                true
+            } else {
+                false
+            };
+            #[cfg(not(feature = "gpu"))]
+            let on_gpu = false;
+            if !on_gpu {
+                degrid_images::<T>(
+                    setup,
+                    &self.bl,
+                    lay,
+                    tables,
+                    grids,
+                    true,
+                    model,
+                    Weights::None,
+                    stored,
+                    true,
+                    Timer::new(),
+                );
+            }
             stored
                 .par_chunks_mut(CHUNK)
                 .zip(lay.refs.par_chunks(CHUNK))
@@ -3365,6 +3430,11 @@ impl<T: Real> Prepared<T> {
                     *o = data_value(*o, p, T::of(imflip));
                 }
             });
+        #[cfg(feature = "gpu")]
+        if let Some(g) = &self.gpu {
+            g.grid::<T>(setup, &self.bl, lay, tables, &work.stored, dirty)?;
+            return Ok(q);
+        }
         grid_images_from::<T>(
             setup,
             &self.bl,
@@ -3406,6 +3476,10 @@ impl<T: Real> Prepared<T> {
                     + b(&tables.cfuv.1),
             ));
         }
+        #[cfg(feature = "gpu")]
+        if let Some(g) = &self.gpu {
+            out.push(("gridder: GPU order and geometry", g.memory()));
+        }
         let work = self.grids.lock().expect("no panic while gridding");
         out.push(("gridder: grids", work.grids.iter().map(b).sum()));
         out.push(("gridder: stored sorted values", b(&work.stored)));
@@ -3423,6 +3497,10 @@ impl<T: Real> Prepared<T> {
         // Both are rewritten in full by the next pass (research/gemclean-memory.md).
         work.grids = Vec::new();
         work.stored = Vec::new();
+        #[cfg(feature = "gpu")]
+        if let Some(g) = &self.gpu {
+            g.release();
+        }
     }
 
     /// `vis2dirty` of `data` with the prepared plan, with weights `wgt`.
@@ -3434,6 +3512,20 @@ impl<T: Real> Prepared<T> {
             return Err("array lengths disagree".into());
         }
         dirty.fill(T::zero());
+        #[cfg(feature = "gpu")]
+        if let (Some(g), Some((setup, lay, tables))) = (&self.gpu, &self.prepared) {
+            let mut work = self.grids.lock().expect("no panic while gridding");
+            values::<T>(
+                setup,
+                &self.bl,
+                &lay.refs,
+                Some(data),
+                wgt,
+                &mut work.stored,
+            );
+            g.grid::<T>(setup, &self.bl, lay, tables, &work.stored, dirty)?;
+            return Ok(setup.plan);
+        }
         Ok(match &self.prepared {
             None => Plan::default(),
             Some((setup, lay, tables)) => grid_images::<T>(
@@ -3466,6 +3558,11 @@ impl<T: Real> Prepared<T> {
             return Err("array lengths disagree".into());
         }
         vis.par_iter_mut().for_each(|v| *v = czero());
+        #[cfg(feature = "gpu")]
+        if let (Some(g), Some((setup, lay, tables))) = (&self.gpu, &self.prepared) {
+            g.degrid::<T>(setup, &self.bl, lay, tables, dirty, wgt, vis, false)?;
+            return Ok(setup.plan);
+        }
         Ok(match &self.prepared {
             None => Plan::default(),
             Some((setup, lay, tables)) => degrid_images::<T>(
@@ -4491,6 +4588,12 @@ const KERNEL_ROWS: &[(usize, f64, f64, f64, f64, usize, bool)] = &[
 ];
 
 // ------------------------------------------------------------------- tests
+
+/// The plane loops on the GPU (issue #12), a child module so that it reads
+/// the plan, layout and tables directly.
+#[cfg(feature = "gpu")]
+#[path = "gpu/wgrid.rs"]
+pub mod gpu;
 
 #[cfg(test)]
 mod tests {

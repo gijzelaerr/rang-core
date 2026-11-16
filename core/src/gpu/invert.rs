@@ -74,14 +74,14 @@ impl Timings {
     }
 }
 
-pub(super) fn bytes_of<T: Copy>(values: &[T]) -> &[u8] {
+pub(crate) fn bytes_of<T: Copy>(values: &[T]) -> &[u8] {
     // SAFETY: only called with f32, f64 and u32 slices (plain data).
     unsafe {
         std::slice::from_raw_parts(values.as_ptr().cast::<u8>(), std::mem::size_of_val(values))
     }
 }
 
-pub(super) fn reals(values: &[f64], precision: Precision) -> Vec<u8> {
+pub(crate) fn reals(values: &[f64], precision: Precision) -> Vec<u8> {
     match precision {
         Precision::F64 => bytes_of(values).to_vec(),
         Precision::F32 => {
@@ -165,7 +165,7 @@ struct Buffers {
     bytes: u64,
 }
 
-pub(super) fn storage(
+pub(crate) fn storage(
     ctx: &Context,
     label: &str,
     size: usize,
@@ -179,14 +179,14 @@ pub(super) fn storage(
     })
 }
 
-pub(super) fn wait(ctx: &Context) -> Result<(), String> {
+pub(crate) fn wait(ctx: &Context) -> Result<(), String> {
     ctx.device
         .poll(wgpu::PollType::wait_indefinitely())
         .map(|_| ())
         .map_err(|e| format!("waiting for the GPU: {e}"))
 }
 
-pub(super) fn uniform(ctx: &Context, words: &[u32]) -> wgpu::Buffer {
+pub(crate) fn uniform(ctx: &Context, words: &[u32]) -> wgpu::Buffer {
     ctx.device
         .create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("params"),
@@ -195,7 +195,7 @@ pub(super) fn uniform(ctx: &Context, words: &[u32]) -> wgpu::Buffer {
         })
 }
 
-pub(super) fn bind(
+pub(crate) fn bind(
     ctx: &Context,
     pipeline: &wgpu::ComputePipeline,
     buffers: &[&wgpu::Buffer],
@@ -226,7 +226,7 @@ fn linear_dispatch(threads: usize) -> (u32, u32, u32) {
 
 /// FFT passes of one batch of `grids` grids: rows (length `width`), then
 /// columns (length `height`). Returns (uniform words, workgroups) per pass.
-pub(super) fn fft_passes(
+pub(crate) fn fft_passes(
     width: usize,
     height: usize,
     grids: usize,

@@ -21,11 +21,15 @@
 //! `sin`/`cos` of the phasor (WGSL has no f64 trigonometry; a Cody-Waite
 //! reduction and fdlibm's polynomials) and any fused multiply-adds the
 //! driver's compiler forms.
+//!
+//! The exact w-gridder's major-cycle calls (issue #12, `research/gpu-grid.md`)
+//! reuse this module's context, FFT and buffer helpers; their host code is
+//! `wgrid.rs`, a child module of `wgridder`.
 
-mod context;
+pub(crate) mod context;
 pub mod ffi;
-mod fft;
-mod invert;
+pub(crate) mod fft;
+pub(crate) mod invert;
 mod shader;
 
 pub use context::{ADAPTER_ENV, adapter_description};

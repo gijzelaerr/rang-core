@@ -23,6 +23,12 @@ path = "src/bin/gridder_gram_bench.rs"
 name = "gram_solver_bench"
 path = "src/bin/gram_solver_bench.rs"
 
+# Gate 1 of research/gpu-grid.md (GPU gridder against the CPU path).
+[[bin]]
+name = "gpu_grid_parity"
+path = "src/bin/gpu_grid_parity.rs"
+required-features = ["gpu"]
+
 [dependencies]
 rang-sim = { path = ".." }
 rayon = "1.12.0"

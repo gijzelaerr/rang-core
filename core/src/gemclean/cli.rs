@@ -95,6 +95,11 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
+  -gpu                      grid and degrid the major cycles on the GPU (wgpu, Vulkan; needs a
+                            build with the cargo feature gpu and an adapter with f64 shaders;
+                            the PSF, minor cycles and resyncs stay on the CPU; research/gpu-grid.md)
+  -gpu-memory <MiB>         device-memory budget of -gpu (default 1024); over it the
+                            visibilities go to the GPU in batches
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -211,6 +216,8 @@ struct Args {
     plan_reuse: bool,
     beam_no_w: bool,
     beam_band: bool,
+    gpu: bool,
+    gpu_memory: usize,
     lazy_bounds: bool,
     stop_tolerance: f64,
     memory_report: bool,
@@ -320,6 +327,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         plan_reuse: true,
         beam_no_w: false,
         beam_band: false,
+        gpu: false,
+        gpu_memory: 1024,
         lazy_bounds: true,
         stop_tolerance: 0.0,
         memory_report: false,
@@ -468,6 +477,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             "-no-plan-reuse" => a.plan_reuse = false,
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
+            "-gpu" => a.gpu = true,
+            "-gpu-memory" => a.gpu_memory = number(flag, value(&mut i)?)?,
             "-channels-out" => a.channels_out = number(flag, value(&mut i)?)?,
             "-join-channels" => a.join_channels = true,
             "-fit-spectral-pol" => a.fit_spectral_pol = Some(number(flag, value(&mut i)?)?),
@@ -784,7 +795,35 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         a.multiscale = Some(ms);
     }
     a.single = precision.unwrap_or(a.epsilon >= 1e-5);
+    if a.gpu {
+        if a.predict {
+            return Err(
+                "-gpu takes no -predict (the predict mode does not use the major cycle)".into(),
+            );
+        }
+        if !a.plan_reuse {
+            return Err("-gpu needs the reused plan (no -no-plan-reuse)".into());
+        }
+        if a.gram_operator.is_some() {
+            return Err("-gpu takes no -gram-operator".into());
+        }
+        if a.gpu_memory == 0 {
+            return Err("-gpu-memory must be positive".into());
+        }
+    }
     Ok(a)
+}
+
+/// The measurement on the GPU when `-gpu` asks for it.
+fn device<T: Real + Send + Sync>(
+    m: GridMeasurement<T>,
+    args: &Args,
+) -> Result<GridMeasurement<T>, String> {
+    if args.gpu {
+        m.on_gpu(args.gpu_memory)
+    } else {
+        Ok(m)
+    }
 }
 
 fn write_image(
@@ -883,15 +922,18 @@ fn deconvolve<T: Real + Send + Sync>(
         .and(theoretic_raw)
         .map(|b| b.max(args.tapers.gaussian_beam));
     // The plan of the image grid is made after the 2n PSF, which does not use it.
-    let measurement: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
-        uvw,
-        freq.to_vec(),
-        vis,
-        wgt,
-        n,
-        args.scale,
-        args.epsilon,
-        opts,
+    let measurement: GridMeasurement<T> = device(
+        GridMeasurement::from_single_unprepared(
+            uvw,
+            freq.to_vec(),
+            vis,
+            wgt,
+            n,
+            args.scale,
+            args.epsilon,
+            opts,
+        )?,
+        args,
     )?;
     memory::mark("measurement");
     let t = Instant::now();
@@ -1604,10 +1646,59 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
         ("memory", memory_json),
+        ("gpu", gpu_section(&args)),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+    gpu_line(&args);
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
     Ok(())
+}
+
+/// The GPU path's report entry (`null` without `-gpu`).
+fn gpu_section(args: &Args) -> String {
+    #[cfg(feature = "gpu")]
+    if args.gpu {
+        let s = crate::wgridder::gpu::stats();
+        let adapter = crate::wgridder::gpu::adapter().unwrap_or_else(|e| e);
+        return obj(&[
+            ("adapter", text(&adapter)),
+            ("budget_mib", args.gpu_memory.to_string()),
+            ("grid_calls", s.grid_calls.to_string()),
+            ("degrid_calls", s.degrid_calls.to_string()),
+            ("plane_passes", s.plane_passes.to_string()),
+            ("batches", s.batches.to_string()),
+            ("setup", num(s.setup_s)),
+            ("host", num(s.host_s)),
+            ("upload", num(s.upload_s)),
+            ("compute", num(s.compute_s)),
+            ("download", num(s.download_s)),
+            ("device_bytes", s.device_bytes.to_string()),
+        ]);
+    }
+    let _ = args;
+    "null".into()
+}
+
+/// One log line on the GPU path's work (nothing without `-gpu`).
+fn gpu_line(args: &Args) {
+    #[cfg(feature = "gpu")]
+    if args.gpu {
+        let s = crate::wgridder::gpu::stats();
+        println!(
+            "gpu: {} grid + {} degrid calls, {} plane passes in {} batches; setup {:.2} s, host {:.2} s, upload {:.2} s, compute {:.2} s, download {:.2} s; {:.0} MiB on the device",
+            s.grid_calls,
+            s.degrid_calls,
+            s.plane_passes,
+            s.batches,
+            s.setup_s,
+            s.host_s,
+            s.upload_s,
+            s.compute_s,
+            s.download_s,
+            s.device_bytes as f64 / 1048576.0
+        );
+    }
+    let _ = args;
 }
 
 /// `-channel-range` (on the channels in ascending frequency), then
@@ -1825,15 +1916,18 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             .reduce(f64::min)
     });
     for (k, c) in chans.into_iter().enumerate() {
-        let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
-            c.uvw,
-            c.freq,
-            c.vis,
-            c.wgt,
-            n,
-            args.scale,
-            args.epsilon,
-            opts,
+        let m: GridMeasurement<T> = device(
+            GridMeasurement::from_single_unprepared(
+                c.uvw,
+                c.freq,
+                c.vis,
+                c.wgt,
+                n,
+                args.scale,
+                args.epsilon,
+                opts,
+            )?,
+            args,
         )?;
         let psf2n = m.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?;
         let m = if args.plan_reuse {
@@ -2380,8 +2474,10 @@ fn run_channels(
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("gpu", gpu_section(args)),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+    gpu_line(args);
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
     Ok(())
 }
@@ -2526,15 +2622,18 @@ impl<T: Real + Send + Sync> PolBuild<T> {
                 args.tapers.gaussian_beam,
             ));
         }
-        let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
-            c.uvw,
-            freq.to_vec(),
-            c.vis,
-            c.wgt,
-            n,
-            args.scale,
-            args.epsilon,
-            opts,
+        let m: GridMeasurement<T> = device(
+            GridMeasurement::from_single_unprepared(
+                c.uvw,
+                freq.to_vec(),
+                c.vis,
+                c.wgt,
+                n,
+                args.scale,
+                args.epsilon,
+                opts,
+            )?,
+            args,
         )?;
         // The fingerprint finds the earlier entry; its rows and normalised
         // weights, compared value by value, make the shared beam exactly
@@ -3298,8 +3397,10 @@ fn run_polarizations(
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
         ("memory", memory_json),
+        ("gpu", gpu_section(args)),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+    gpu_line(args);
     println!(
         "{} groups deconvolved; wall {:.2} s",
         out.runs_json.len(),
