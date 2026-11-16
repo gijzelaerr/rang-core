@@ -38,6 +38,17 @@ amendment frozen before any conversion: a third arm, xarray-ms 0.5.14 with `auto
 tolerance. Run 07: that arm is bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME on all 13,064 rows,
 coverage exact; xradio still 9/9, the default xarray-ms arm as in M1. xarray-ms then pads the autocorrelation
 baselines of MSs without them (c6, c7, c9), and the reader drops exactly those. Reader unchanged.
+Floor-3, 2026-11-16 (branch `floor-3`; [floor-3.md](floor-3.md), protocol frozen in `59f9a20` before any run,
+clarification 1 in `3f75001` before the stage, archive [results/floor-3/](results/floor-3/)): one phase-only round of
+`rang-core selfcal` (Sp, 300 s, `freqint: inf`) on the pilot (#13, #6), scored with imaging-floor's floor on the
+subset. Gates G0-G2 passed (rang-core's round-1 model is pixel-identical to the archived one; no cells newly
+flagged); both solves healthy (converged 1.0, 1.6 % flagged, phases r 0.989 and 0.983 against floor-2's T1p).
+Arm P: F 1,073 to 475 µJy with the model fixed (D_Fix 0.81, R1 replicates floor-2's 0.83) and 379 µJy after
+re-imaging (D_Fin 0.88, R2 lowers). Arm PL, solved above 400 m only: D_Fix 0.80, ratio 0.99 (R3 long). Frozen
+joint reading row 1: H1 attributed under floor-3's standard (not imaging-floor's full criterion; H2, H8a, H4b
+specificity arms not run), share 0.88; for #6 one Sp round fixes most of the pilot's floor, default selfcal
+settings next. Post hoc: 379 µJy (8.6 × thermal) remains unexplained; steady XX − YY phase 17.7° rms, untested.
+
 Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
 archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
 passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
