@@ -20,6 +20,16 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+MSv4 read path, 2026-11-16 (branch `msv4-interop`; [msv4-interop.md](msv4-interop.md), measured, pass; receipt
+[results/msv4-interop.json](results/msv4-interop.json); stores `D:ang\outputs\msv4-20261116`): #5's second part.
+`rang.msv4`, behind a new `[msv4]` extra (xarray, zarr 3, numcodecs), reads an MSv4 processing set into the
+core's row layout (the `MvfLoader` keys), dropping pad cells. Oracle: xradio 1.3.1 and xarray-ms 0.5.14 (WSL,
+arcae has no Windows wheel) convert 9 MSv2s (fixture scans 1, 4, 5, 8, 9; `A-casa.ms`; `M1-casa.ms`; scan 9 less 4
+rows; the two-window edge case), compared with ra-ng's MSv2 reader at zero tolerance. xradio arm: all 13,064 rows
+bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME, coverage exact, the 4 pads of the gap case dropped.
+xarray-ms arm: refused (it stores FLAG as uint8), task M1. Not covered: FLAG_ROW, CORRECTED_DATA, SIGMA weights,
+decreasing frequencies; no writer, zarrs, object storage or throughput.
+
 V8c tfcrop polynomial template, 2026-11-16 (branch `v8c-tfcrop-poly`; [v8c-tfcrop-poly.md](v8c-tfcrop-poly.md), null
 branch): a new readout probe (one average shared by 138 planes, test cells on a ladder; 2-3e-5 per channel) and
 binary membership probes identify, clean room, an in-place 5-point running mean of the fit, the piece edges, a

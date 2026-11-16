@@ -2,7 +2,7 @@
 
 2026-11-16, branch `msv4-interop`, gijzelaerr/rang-core issue #5 (second part;
 the first part is [msv2-edge-cases.md](msv2-edge-cases.md)). Status:
-**proposed**. Sections 1 to 6 are frozen in the commit that adds this note,
+**measured, pass** (section 7). Sections 1 to 6 are frozen in the commit that adds this note,
 before any ra-ng code reads an MSv4 store. Later changes are dated and
 labelled post hoc. The note makes no performance or science claim: it checks
 that a new read path returns the same bits as the MSv2 path.
@@ -193,6 +193,99 @@ The xradio arm decides; the xarray-ms arm is reported beside it.
 Cost is reported (wall time of each conversion and of each check, at the
 threads booked), with no claim attached.
 
-## 7. Measured result
+## 7. Measured result (2026-11-16)
 
-Not yet measured.
+Status after the run: **measured, pass** (xradio arm); the xarray-ms arm is
+refused by the frozen scope.
+
+**Runs.** Conversions: WSL, one run, `convert-01.log`, under
+`heavy_lock run --slots 2 --mem 4`. Checks: Windows, worktree `.venv`
+(Python 3.13.16, extension built by `tools/check_all.py --quick` at this
+branch), under `heavy_lock run --slots 1 --mem 4`:
+
+| run | code | outcome |
+| --- | --- | --- |
+| 01 | harness at `7ebf6ed` + uncommitted reader | stopped at c1's xarray-ms arm: the reader's refusal (`FLAG is uint8, not bool`) escaped the harness instead of being booked `refused` (harness fix) |
+| 02 | harness books partition refusals | stopped at c9: ra-ng's MSv2 `getcol("DATA")` refuses rows of two shapes (two windows), so the harness now reads cell columns per `DATA_DESC_ID` with `getcol_rows` (harness fix). The unit test found a reader bug at the same time: the pad rule viewed complex values as float pairs, but the pads are `nan+0j`, so no pad was found; it now uses `np.isnan` of the complex value, as section 3 says |
+| 03 | the fixes above, uncommitted | xradio arm all `match`; xarray-ms arm `refused` |
+| 04 | `3fd8d97` (committed) | identical to 03; the receipt |
+
+Neither harness fix touches the tolerance, the mapping or the case list;
+both make it do what section 4 says.
+
+**Receipt:** [`results/msv4-interop.json`](results/msv4-interop.json) (run
+04: per case and arm the measures, partitions, pads, `DATA_DESC_ID` mapping,
+weight source, time fallbacks, versions, commit). Stores and logs:
+`D:\rang\outputs\msv4-20261116` (`ps/xradio`, `ps/xms`, `convert.json`,
+`convert-01.log`).
+
+**xradio 1.3.1 arm: every measure of every case matches, bit for bit.**
+
+| case | MSv2 rows | partitions | pads dropped | weights compared with |
+| --- | ---: | ---: | ---: | --- |
+| c1 to c4 (fixture scans 1, 4, 5, 8) | 20 each | 1 | 0 | `WEIGHT_SPECTRUM` |
+| c5 (fixture scan 9) | 140 | 1 | 0 | `WEIGHT_SPECTRUM` |
+| c6 (`A-casa.ms`) | 12480 | 4 | 0 | `WEIGHT_SPECTRUM` |
+| c7 (`M1-casa.ms`) | 192 | 1 | 0 | `WEIGHT_SPECTRUM` |
+| c8 (c5 less 4 rows) | 136 | 1 | 4 | `WEIGHT_SPECTRUM` |
+| c9 (`m05`, two windows) | 36 | 2 | 0 | `WEIGHT_SPECTRUM` |
+
+- `DATA`, `FLAG`, `WEIGHT_SPECTRUM` and `UVW`: same dtype, shape and bytes on
+  all 13,064 rows.
+- `TIME`: exact on every row (`time + 3506716800.0`); the 1 ms fallback was
+  used 0 times.
+- Coverage: every MSv2 row maps to one loader row and back. In c8 the reader
+  dropped exactly the 4 pads xradio wrote for the removed rows, and invented
+  no row.
+- Partitions: c6's 4 fields became 4 partitions (xradio's `OBS_MODE`), and
+  c9's two windows two; each mapped to one `DATA_DESC_ID`. No case had its
+  channels reordered.
+- Under the frozen rule this is **pass**.
+
+**xarray-ms 0.5.14 arm: refused in all 9 cases.** Its stores hold `FLAG` as
+uint8, and section 3 refuses a `FLAG` other than bool. This is the same
+representation as arcae's booleans in the first part (uint8 0 and 1). It was
+not predicted. No xarray-ms value was compared, so the arm says nothing about
+xarray-ms's values, and nothing in it is booked as an oracle disagreement.
+Converting xarray-ms's tree with `to_zarr` worked in all 9 cases (3-12 s).
+
+**Cost** (no claim): xradio conversion 3.2-4.3 s per case and 11.6 s for
+c6; xarray-ms 3.0-11.8 s. The whole WSL job took 6 min 51 s, mostly the
+lock queue; its peak RSS was 689 MB. The native check of all 9 cases × 2
+arms took 9 s including the start-up, and c6's xradio arm 0.4 s.
+
+**Not covered** (as section 4 said): `FLAG_ROW` set, `CORRECTED_DATA`,
+weights from `SIGMA`, unwritten `WEIGHT_SPECTRUM`, decreasing channel
+frequencies, schema versions other than 4.0.1, and LOFAR or other telescopes.
+Throughput, Rust `zarrs`, object storage and writing were not attempted.
+
+**Found on the way, no MSv4 fault:** python-casacore 3.8.1 can leave
+`table.dat` with 0 rows and the true count in `table.lock`'s sync record;
+ra-ng's reader reads it there (`lock_sync_rows`, `core/src/ms.rs`). A copy
+without `table.lock` reads as 0 rows. The test fixture `m05.zip` therefore
+keeps `table.lock`.
+
+## 8. Next steps (proposed, not started)
+
+- **M1:** accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
+  edge-case harness does for arcae), frozen as an amendment, and rerun the
+  xarray-ms arm.
+- **M2:** feed `Partition.chunks` to one stage (flag or image) and require
+  the stage's products to be bit-identical to the same stage on the MSv2:
+  the issue's gate "identical calibration and imaging results".
+- **M3:** cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
+  `SIGMA` weights, decreasing frequencies).
+- **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
+  then throughput, object storage and per-chunk writes; each with its own
+  note.
+
+## For the coordinator
+
+- Branch `msv4-interop`: note `7ebf6ed` (frozen first), code `3fd8d97`,
+  records after. Outcome under the frozen rule: **pass** on the xradio arm,
+  xarray-ms arm refused (uint8 `FLAG`, task M1).
+- New optional extra `msv4` (xarray, zarr 3, numcodecs; Python 3.11 and
+  later), added to the CI and `check_all.py` extras. The core install is
+  unchanged. No CLI change, no new `RANG_*` variable.
+- The oracle venv is in WSL (`~/Build/tmp/20261116-msv4-oracle`, about 1 GB);
+  it can be removed once the note is merged.
