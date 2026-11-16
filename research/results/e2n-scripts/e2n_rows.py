@@ -3,11 +3,11 @@
 rang's columns at `restore` before CASA's arm writes its own, so each arm's
 per-bin sums are saved first (`snap`) and compared afterwards (`score`).
 
-    python e2n_rows.py snap ARM MS DATA FLAG OUT.npz
+    python e2n_rows.py snap ARM MS DATA FLAG OUT.npy
         ARM rang or casa; per row field and scans (MS SCAN_NUMBER), E2-B's
         `accumulate` over E2-B's bins, plus the 1.3-1.5 GHz single bin of
         J1331+3030 (the same-scan reading that stands in for the transfer)
-    python e2n_rows.py score RANG.npz CASA.npz OUT.json
+    python e2n_rows.py score RANG.npy CASA.npy OUT.json
         parity (J1331+3030: |dp| <= 0.1 point, |dchi| <= 0.5 deg) and the
         J1744-5144 row (E2-B's 1830-211 limits: |dI| <= 1 %, |dp| <= 0.1
         point, |dchi| <= 1 deg); every scored bin must meet; plus the
@@ -65,6 +65,8 @@ def snap(arm, ms, col, flag, out):
     sc = scans_of(ms, XCAL)
     s, n, tot = B.accumulate(ms, col, flag, XCAL, sc, freq, [1.3e9, 1.5e9])
     res["xcal_1p3_1p5"] = {"scans": sc, "s": s, "n": n, "tot": tot}
+    if not str(out).endswith(".npy"):
+        raise SystemExit("OUT must end in .npy (np.save appends it otherwise)")
     np.save(out, res, allow_pickle=True)
     print(
         json.dumps(
@@ -80,9 +82,9 @@ def arm_stokes(a):
             "p": np.hypot(q, u) / i, "chi_deg": np.degrees(0.5 * np.arctan2(u, q))}  # fmt: skip
 
 
-def score(rang_npz, casa_npz, out):
-    ra = np.load(rang_npz, allow_pickle=True).item()
-    ca = np.load(casa_npz, allow_pickle=True).item()
+def score(rang_npy, casa_npy, out):
+    ra = np.load(rang_npy, allow_pickle=True).item()
+    ca = np.load(casa_npy, allow_pickle=True).item()
     edges = B.EDGES_DEFAULT
     res = {"rang": ra["ms"], "casa": ca["ms"]}
     for row, lim in LIMITS.items():
