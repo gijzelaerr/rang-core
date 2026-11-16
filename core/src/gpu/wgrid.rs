@@ -573,6 +573,9 @@ struct Pipes {
     x2: Arc<context::Pipelines>,
 }
 
+/// The FFT passes' bind groups and workgroup counts.
+type FftBinds = Vec<(wgpu::BindGroup, (u32, u32))>;
+
 /// A bind group of explicit binding numbers (an entry point's automatic
 /// layout holds only the bindings it uses).
 fn bind(
@@ -1086,7 +1089,7 @@ impl Gpu {
         setup: &Setup,
         bufs: &'a Buffers,
         forward: bool,
-    ) -> (Vec<(wgpu::BindGroup, (u32, u32))>, &'a wgpu::Buffer) {
+    ) -> (FftBinds, &'a wgpu::Buffer) {
         let (nu, nv) = (setup.nu, setup.nv);
         let rows = fft::plan(nv).expect("checked at setup");
         let cols = fft::plan(nu).expect("checked at setup");

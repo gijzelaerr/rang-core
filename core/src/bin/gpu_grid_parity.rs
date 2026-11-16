@@ -44,6 +44,7 @@ fn max_rel(a: &[f64], b: &[f64]) -> (f64, f64, f64) {
     (diff / peak, diff, rms)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn run<T: Real + Send + Sync>(
     opts: &Options,
     uvw: &[f64],
