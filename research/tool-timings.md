@@ -2033,6 +2033,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | msv4-m1b: `tools/check_all.py --quick` | worktree, fresh .venv | 836 s (lock wait excluded) | – | PASS |
 | 2026-11-16 | msv4-m1b: `msv4_interop.py check`, run 07 | 9 cases × 3 arms | 10 s wall | – | Windows, 1 slot, 4 GB |
 | 2026-11-16 | msv4-m1b: `tools/check_all.py --quick` | worktree, after the records | 35 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m2: `msv4_m3m2.py make-m3` (python-casacore) | c10-c14 from fixture scan 9 | 17 s wall | – | WSL, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m2: `convert-m3`, xradio 1.3.1 and xarray-ms 0.5.14 `auto_corrs=True` | 5 MSv2s × 2 arms | xradio 3.6-5.6 s, xms-auto 3.3-6.2 s each; 52 s run | – | WSL, 2 slots, 4 GB; 193 s with lock wait, peak RSS 512 MB |
+| 2026-11-16 | msv4-m2: `tools/check_all.py --quick` | worktree, fresh .venv | 1108 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | msv4-m2: `check-m3`, run 08 | c1-c9 control × 2 arms, c10-c14 × 2 arms per data group | 16 s wall | – | Windows, 1 slot, 4 GB |
+| 2026-11-16 | msv4-m2: `m2`, run 09 (Tricolour on c5, MSv2 ×2 and MSv4 ×2) | 140 rows × 4096 channels | 5 s wall; stage 0.5-0.6 s, kernel 0.19-0.22 s | – | Windows, 4 slots, 8 GB |
 | 2026-11-16 | e2b-confirm: `c3_flags.py check` (native, rang's reader: npz flags, E3 input DATA) | E2-B, 272,916 rows | 570 s | – | 1 slot, 8 GB |
 | 2026-11-16 | e2b-confirm: E on ext4 (TaQL from the read-only E3 input, flags rebuilt) | E2-B, 272,916 rows | 607 s | – | WSL docker, 2 slots |
 | 2026-11-16 | e2b-confirm: CASA 6.7.6.14 applycal, 3 calls, on ext4 | E2-B | 354 s | – | WSL docker, 2 slots, 12 GB |

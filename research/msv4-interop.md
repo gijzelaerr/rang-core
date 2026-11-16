@@ -381,7 +381,85 @@ arm matches in every measure of all 9 cases; the `xradio` arm is still all
   autocorrelations. With xarray-ms's default (`auto_corrs=False`) the
   autocorrelation rows are missing from the store (M1, as booked).
 
-## 8. Next steps (proposed; M1 and M1b done)
+### M3 run (2026-11-16, under section 11)
+
+Status: **measured, M3 not met on c10 (a writer outcome); c11 to c14
+pass.** Neither writer carries `FLAG_ROW` into the store. Every other
+uncovered path reads bit for bit in both arms. No reader outcome, no reader
+change.
+
+| run | code | outcome |
+| --- | --- | --- |
+| build | harness `72f2186` (amendment `6a6e5f4` before it), WSL, `heavy_lock run --slots 1 --mem 4`, `make-m3` | c10 to c14 written, 17 s; each read by `rang.core_ms` before conversion (140 rows each) |
+| conversion `convert-03` | `72f2186`, WSL, `heavy_lock run --slots 2 --mem 4`, `convert-m3` | 10 of 10 written (xradio 3.6-5.6 s, xms-auto 3.3-6.2 s); 52 s run, 193 s with the lock wait, peak RSS 512 MB |
+| 08 | `72f2186`, Windows worktree `.venv` (Python 3.13.16), `heavy_lock run --slots 1 --mem 4`, `check-m3` | control: c1 to c9 equal run 07 in both arms; c10 base `mismatch` on `FLAG` with `FLAG_ROW` in both arms; c11 to c14 every group `match` in both arms; the receipt |
+
+**Receipt:** [`results/msv4-interop-m3.json`](results/msv4-interop-m3.json)
+(run 08). Cases `D:\rang\outputs\msv4-20261116\ms\c10-*.ms` to `c14-*.ms`;
+stores under `ps/xradio` and `ps/xms-auto`; `convert-03.log`.
+
+| case | groups in both stores | data, `FLAG` cells, `UVW`, `TIME`, coverage | `FLAG` with `FLAG_ROW` | weights (xradio; xms-auto) | outcome |
+| --- | --- | --- | --- | --- | --- |
+| c10 `FLAG_ROW` on 28 rows | base | match | **mismatch** in both arms | base W; W | not met, writer outcome |
+| c11 `CORRECTED_DATA`, `MODEL_DATA`, `SIGMA_SPECTRUM` with 0, NaN, -1 | base, corrected, model | match | match | base **S**, corrected W, model W; all W | match |
+| c12 as c11, `SIGMA` only | base, corrected, model | match | match | base **S**, corrected W, model W; all W | match |
+| c13 no `WEIGHT_SPECTRUM`, `SIGMA_SPECTRUM` | base | match | match | W and S (equal here); same | match |
+| c14 decreasing frequencies | base | match | match | W; W | match |
+
+- **c10:** in both stores `FLAG` equals the MSv2 `FLAG` cells bit for bit,
+  and the 28 row flags are gone: a writer outcome (xradio 1.3.1 and
+  xarray-ms 0.5.14 alike), as the probe suggested. `rang.msv4` cannot
+  recover them, and its `FLAG_ROW` (false) is then true to the store but not
+  to the MSv2. A consumer that needs row flags must OR them in before
+  conversion. Under section 11 this is **M3 not met** on c10.
+- **Weights with `CORRECTED_DATA` (c11, c12):** xradio's base group carries
+  S (`1/SIGMA^2`, 0 for the invalid 0, NaN and -1 sigmas), bit for bit with
+  section 11's formula, and its corrected group W; xarray-ms gives every
+  group W. Both match a frozen candidate, so both are `match`. The
+  consequence: a stage fed xradio's base group gets `1/SIGMA^2` weights,
+  where ra-ng's MSv2 path weights `DATA` with `WEIGHT_SPECTRUM`; the two
+  differ in these cases. Measured on the references (post hoc, not a
+  frozen measure): W and S differ on 1,070,235 of 2,293,760 cells in c11 (as
+  in c5: `WEIGHT_SPECTRUM` is not `1/SIGMA_SPECTRUM^2` there) and on all
+  2,293,760 in c12; in c13 the per-row `WEIGHT` and `SIGMA` agree, so W
+  equals S.
+- **Non-base groups (c11, c12):** `corrected` and `model` are complete in
+  both stores and read bit for bit against `CORRECTED_DATA` and
+  `MODEL_DATA`.
+- **`WEIGHT` repeated (c13):** both writers repeat `WEIGHT` over channels;
+  bit-identical.
+- **Decreasing frequencies (c14):** xradio stores the channels ascending
+  (sorted), xarray-ms keeps them descending; with section 4's mapping by
+  frequency both are bit-identical. The reader yields the store's order, so
+  the two stores give rows in opposite channel order.
+- **Control:** c1 to c9, both arms, every measure equal to run 07.
+
+### M2 run (2026-11-16, under section 11)
+
+Status: **measured, M2 pass.**
+
+| run | code | outcome |
+| --- | --- | --- |
+| 09 | `72f2186`, Windows worktree `.venv`, `heavy_lock run --slots 4 --mem 8`, `m2` | MSv2 side: the stage on two copies of c5, identical `FLAG` (sha256 `50846c21...`); xradio and xms-auto: kernel fed from `Partition.chunks(time_rows=4)` (4 chunks), `FLAG` identical on every cell, no metadata fallback; the receipt |
+
+**Receipt:** [`results/msv4-interop-m2.json`](results/msv4-interop-m2.json)
+(run 09). MSv2 copies `D:\rang\outputs\msv4-20261116\m2\c5-copy-a.ms`, `-b.ms`.
+
+- Strategy CARACAL calibrator firstpass (sha256 `ce9ac66a...`, as frozen);
+  `column="DATA"`, the two shipped static masks.
+- The stage raised c5's flagged cells from 1,074,094 to 1,849,716 of
+  2,293,760 (46.8 % to 80.6 %), so the identity is not vacuous.
+- MSv4 side, both arms: 140 rows, 0 pads, antenna positions, channel
+  frequencies and widths and correlation codes from the store equal the
+  MSv2's bit for bit; final `FLAG` equal to the stage's on all 140 rows, 0
+  differing cells.
+- Wording as frozen: the reader's rows give the flag stage's flags; the
+  stage itself still reads only an MSv2. No weight or `UVW` is exercised;
+  c5 is one field/scan group; nothing about calibration or imaging.
+- Cost (no claim): stage 0.5-0.6 s per copy; kernel 0.19 s (xradio), 0.22 s
+  (xms-auto); the whole run 5 s.
+
+## 8. Next steps (proposed; M1, M1b, M2 and M3 done)
 
 - **M1** (done 2026-11-16: section 9 amendment, section 7 M1 run; not met,
   a writer difference, xarray-ms drops autocorrelations by default): accept xarray-ms's uint8 `FLAG` when every value is 0 or 1 (as the
@@ -391,10 +469,11 @@ arm matches in every measure of all 9 cases; the `xradio` arm is still all
   pass, 9/9 bit-identical): rerun the xarray-ms arm with `auto_corrs=True`, a change to the
   frozen arm of section 4, so a dated amendment first; it needs the WSL
   oracle venv for the conversions.
-- **M2** (amended in section 11): feed `Partition.chunks` to one stage (flag or image) and require
+- **M2** (done 2026-11-16: section 11, section 7 M2 run; pass): feed `Partition.chunks` to one stage (flag or image) and require
   the stage's products to be bit-identical to the same stage on the MSv2:
   the issue's gate "identical calibration and imaging results".
-- **M3** (amended in section 11): cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
+- **M3** (done 2026-11-16: section 11, section 7 M3 run; not met on
+  `FLAG_ROW`, a writer outcome, c11 to c14 pass): cases for the uncovered paths above (`FLAG_ROW`, `CORRECTED_DATA`,
   `SIGMA` weights, decreasing frequencies).
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
@@ -634,6 +713,16 @@ reported.
   group; nothing about imaging or calibration.
 
 ## For the coordinator
+
+M2 and M3 (branch `msv4-m2`): amendment `6a6e5f4` (section 11, before any
+code or conversion), harness `72f2186` (`msv4_m3m2.py`), records after.
+M3 (run 08): c11 to c14 bit-identical in every data group, both arms;
+c10's `FLAG_ROW` is dropped by both writers (writer outcome, M3 not met
+there); control c1 to c9 equal run 07. xradio's base weights with
+`CORRECTED_DATA` are `1/SIGMA^2`, not `WEIGHT_SPECTRUM`. M2 (run 09): the
+flag stage's `FLAG` on c5 equals its kernel fed from both stores on every
+cell, metadata from the store: **pass**. Reader unchanged. The WSL oracle
+venv is removed (no named step needs it).
 
 M1b (branch `msv4-m1b`): amendment `2de2199` (section 10, before any
 conversion), harness `4d72bb4` (arm `xms-auto`, `--arms`), records after.
