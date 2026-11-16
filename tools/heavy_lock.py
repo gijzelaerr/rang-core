@@ -6,6 +6,7 @@ Usage (from Windows or WSL, any Python 3.10+):
     python tools/heavy_lock.py run -- <command> [args...]            # exclusive
     python tools/heavy_lock.py run --slots 4 --mem 8 -- <command>    # shared
     python tools/heavy_lock.py run --priority critical ... -- <command>  # jump the queue
+    python tools/heavy_lock.py run --drain 0 ... -- <command>        # no backfill past me
     python tools/heavy_lock.py status
     python tools/heavy_lock.py break     # only after checking the owner is gone
 
@@ -34,7 +35,7 @@ each shared job keeps a heartbeat file in ``heavy-slots``. A plain ``run`` (or
 ``--exclusive``) is exclusive as before: it waits until no shared job runs, then
 holds the whole host. Use exclusive for timing and tuning runs, shared for
 builds, tests, check-all and scoring. The head of the queue starts as soon as
-it fits and later tickets wait behind it, so an exclusive job is never starved.
+it fits; later tickets may backfill past it for a limited time (below).
 Older copies of this helper know nothing of shared jobs or tickets: call the
 main checkout's copy.
 
@@ -67,6 +68,26 @@ whose tree uses under ``IDLE_PER_SLOT`` (5 %) of one core per booked slot is
 marked IDLE; a hold of the other system (WSL from Windows and back) shows
 ``n/a``. The last line is ``booked N slots, using ~M cores``. It only reports:
 nothing is ever stopped or released automatically.
+
+Conservative backfill (added 2026-11-16, research/lock-backfill.md): strict
+first come, first served kept a 4-slot 46 GB head waiting for about an hour
+while one 6 GB hold left 42 of 48 GB, and every ticket behind it, 1-slot 2 GB
+jobs included, waited with 14 of 16 slots free. Now a shared ticket further
+back may start while the head does not fit, if it fits the slots and memory
+free right now after reserving room, in queue order, for every earlier
+backfill-aware shared ticket that fits too (``decide``). Backfill stops once
+the head has waited its drain limit since its ticket was taken (the head's own
+``run --drain MIN``, written into its ticket; default ``RANG_HEAVY_DRAIN_MIN``,
+15 minutes; 0 means strict first come, first served), so the running jobs
+drain and the head starts. An exclusive head is backfilled past in the same
+way until its limit. A critical head is never backfilled past, so critical
+keeps its meaning (served first, never preempting). Exclusive tickets never
+backfill themselves, and a backfill never uses the oversized-job-runs-alone
+rule. Backfilled holds carry ``"backfill": true`` in their slot file; ``status``
+marks them and prints how long each ticket has waited. Copies of this helper
+from before this change start only at the head and never backfill; their
+tickets (no ``drain_s`` key) get no reservation, since they would not start
+into it.
 """
 
 from __future__ import annotations
@@ -90,6 +111,17 @@ CRITICAL_OFFSET_NS = 10**18
 PRIORITIES = ("normal", "critical")
 CAPACITY_SLOTS = int(os.environ.get("RANG_HEAVY_SLOTS", "16"))
 CAPACITY_MEM_GB = float(os.environ.get("RANG_HEAVY_MEM_GB", "48"))
+DRAIN_VAR = "RANG_HEAVY_DRAIN_MIN"
+DRAIN_DEFAULT_MIN = 15.0
+
+
+def default_drain_s(environ=None) -> float:
+    """Seconds a head may be backfilled past (``RANG_HEAVY_DRAIN_MIN``, minutes)."""
+    value = (os.environ if environ is None else environ).get(DRAIN_VAR, "")
+    try:
+        return max(0.0, float(value)) * 60.0
+    except ValueError:
+        return DRAIN_DEFAULT_MIN * 60.0
 
 
 def system() -> str:
@@ -239,22 +271,38 @@ def ticket_name(priority: str = "normal", now_ns: int | None = None) -> str:
 
 
 def take_ticket(
-    d: Path, slots: int | None = None, mem: float = 0.0, priority: str = "normal"
+    d: Path,
+    slots: int | None = None,
+    mem: float = 0.0,
+    priority: str = "normal",
+    drain_s: float | None = None,
 ) -> Path:
     q = queue_dir(d)
     q.mkdir(parents=True, exist_ok=True)
     t = q / ticket_name(priority)
-    info = {"pid": os.getpid(), "system": system(), "slots": slots, "mem": mem}
+    info = {
+        "pid": os.getpid(),
+        "system": system(),
+        "slots": slots,
+        "mem": mem,
+        # Also marks a backfill-aware waiter (research/lock-backfill.md).
+        "drain_s": default_drain_s() if drain_s is None else max(0.0, drain_s),
+    }
     if priority != "normal":
         info["priority"] = priority  # read by status only; the name decides
     t.write_text(json.dumps(info), encoding="utf-8")
     return t
 
 
-def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
+def live_tickets(
+    d: Path, stale_s: float = STALE_TICKET_S, first_only: bool = False
+) -> list[tuple[Path, dict]]:
+    """The live tickets in queue order with their contents; dead and stale
+    tickets are removed on the way."""
     q = queue_dir(d)
     if not q.exists():
-        return None
+        return []
+    out: list[tuple[Path, dict]] = []
     for t in sorted(q.glob("*.json")):
         try:
             info = json.loads(t.read_text(encoding="utf-8"))
@@ -266,8 +314,122 @@ def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
         if dead or not _fresh(t, stale_s):
             _unlink(t, tries=1)
             continue
-        return t
-    return None
+        out.append((t, info))
+        if first_only:
+            break
+    return out
+
+
+def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
+    live = live_tickets(d, stale_s, first_only=True)
+    return live[0][0] if live else None
+
+
+def ticket_time_ns(t: Path) -> int | None:
+    """When the ticket was taken (the critical offset added back), or None."""
+    try:
+        ns = int(t.name[:20])
+    except ValueError:
+        return None
+    return ns + CRITICAL_OFFSET_NS if ns < CRITICAL_OFFSET_NS else ns
+
+
+def is_critical(t: Path) -> bool:
+    try:
+        return int(t.name[:20]) < CRITICAL_OFFSET_NS
+    except ValueError:
+        return False
+
+
+def waited_s(t: Path, now_ns: int | None = None) -> float:
+    """Seconds since the ticket was taken (its mtime is refreshed every poll)."""
+    taken = ticket_time_ns(t)
+    if taken is None:
+        return 0.0
+    now = time.time_ns() if now_ns is None else now_ns
+    return max(0.0, (now - taken) / 1e9)
+
+
+def drain_limit_s(info: dict) -> float:
+    """The head's own drain limit, or this helper's default for an older ticket."""
+    limit = info.get("drain_s")
+    try:
+        return max(0.0, float(limit))
+    except (TypeError, ValueError):
+        return default_drain_s()
+
+
+def decide(
+    queue: list[tuple[Path, dict]],
+    me: Path,
+    shared: list[dict],
+    exclusive_held: bool,
+    now_ns: int | None = None,
+) -> tuple[str | None, str]:
+    """Whether the waiter holding ticket ``me`` may start now.
+
+    ``queue`` is the live tickets in order (``live_tickets``), ``shared`` the
+    live shared holds, ``exclusive_held`` whether the exclusive lock exists.
+    Returns ``("head", why)`` or ``("backfill", why)`` to start and
+    ``(None, why)`` to wait. Pure: the caller re-reads the queue and the holds
+    under the mutex and asks again before it starts.
+    """
+    if exclusive_held:
+        return None, "the exclusive lock"
+    mine = next((info for t, info in queue if t == me), None)
+    if mine is None:  # swept a moment ago: judge it from its own file
+        try:
+            mine = json.loads(me.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            mine = {}
+    used = sum(int(j.get("slots") or 0) for j in shared)
+    used_mem = sum(float(j.get("mem") or 0) for j in shared)
+    free, free_mem = CAPACITY_SLOTS - used, CAPACITY_MEM_GB - used_mem
+
+    def fits(info: dict) -> bool:  # strictly within what is free now
+        return (
+            int(info.get("slots") or 0) <= free
+            and float(info.get("mem") or 0) <= free_mem
+        )
+
+    def head_fits(info: dict) -> bool:
+        if info.get("slots") is None:
+            return not shared
+        return not shared or fits(info)  # an oversized job runs alone
+
+    if not queue or queue[0][0] == me:
+        if head_fits(mine):
+            return "head", "head of the queue"
+        return None, "shared jobs to fit"
+    head, head_info = queue[0]
+    if is_critical(head):
+        return None, f"critical head {head.name} (no backfill past it)"
+    limit = drain_limit_s(head_info)
+    waited = waited_s(head, now_ns)
+    if waited >= limit:
+        return None, (
+            f"head {head.name}: waited {waited / 60:.0f} min, past its "
+            f"{limit / 60:g} min drain limit, draining"
+        )
+    if head_fits(head_info):
+        return None, f"head {head.name}, which fits"
+    if mine.get("slots") is None:
+        return None, f"head {head.name} (exclusive tickets do not backfill)"
+    # Earlier backfill-aware shared tickets that fit go first: reserve their room.
+    for t, info in queue[1:]:
+        if t == me:
+            break
+        if "drain_s" not in info or info.get("slots") is None:
+            continue  # an older helper starts only at the head; exclusive cannot
+        if fits(info):
+            free -= int(info["slots"])
+            free_mem -= float(info.get("mem") or 0)
+    if fits(mine):
+        return "backfill", (
+            f"backfilling past head {head.name} (waited {waited / 60:.0f} of "
+            f"{limit / 60:g} min)"
+        )
+    return None, f"head {head.name} (no room to backfill)"
 
 
 def live_shared(d: Path, stale_s: float = STALE_TICKET_S) -> list[dict]:
@@ -329,7 +491,9 @@ class _Mutex:
                 return
 
 
-def _register_shared(d: Path, command: list[str], slots: int, mem: float) -> Path:
+def _register_shared(
+    d: Path, command: list[str], slots: int, mem: float, backfill: bool = False
+) -> Path:
     sd = slots_dir(d)
     sd.mkdir(parents=True, exist_ok=True)
     f = sd / f"{system()}-{os.getpid()}-{time.time_ns()}.json"
@@ -342,6 +506,8 @@ def _register_shared(d: Path, command: list[str], slots: int, mem: float) -> Pat
         "command": " ".join(command),
         "start": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+    if backfill:
+        info["backfill"] = True
     f.write_text(json.dumps(info), encoding="utf-8")
     return f
 
@@ -353,18 +519,21 @@ def _wait(
     slots: int | None,
     mem: float,
     priority: str = "normal",
+    drain_s: float | None = None,
 ) -> Path | None:
-    # Under the mutex, so a ticket is either seen by a waiter's head check
-    # below or taken after that waiter's acquire attempt, never in between.
+    # Under the mutex, so a ticket is either seen by a waiter's check below or
+    # taken after that waiter's acquire attempt, never in between.
     with _Mutex(d):
-        ticket = take_ticket(d, slots, mem, priority)
+        ticket = take_ticket(d, slots, mem, priority, drain_s)
     stale_s = max(STALE_TICKET_S, 3 * poll)
     last = None
     try:
         while True:
             os.utime(ticket)
-            head = first_live_ticket(d, stale_s)
-            if head is None or head == ticket:
+            verdict, why = decide(
+                live_tickets(d, stale_s), ticket, live_shared(d, stale_s), d.exists()
+            )
+            if verdict is not None or (d.exists() and stale(d)):
                 with _Mutex(d):
                     if stale(d):
                         print(
@@ -375,28 +544,26 @@ def _wait(
                             release(d)
                         except OSError:
                             pass
-                    shared = live_shared(d, stale_s)
-                    # Ask again under the mutex: a ticket that sorts first (a
-                    # critical one, or any taken while this waiter was
-                    # descheduled after the check above) must win (issue 31).
-                    head = first_live_ticket(d, stale_s)
-                    if head not in (None, ticket):
-                        pass
-                    elif slots is None:
-                        if not shared and try_acquire(d, command):
+                    # Decide again from a fresh read under the mutex: a ticket
+                    # that sorts first (a critical one, or any taken while this
+                    # waiter was descheduled) must win (issue 31), and two
+                    # backfillers must not both take the same free room.
+                    verdict, why = decide(
+                        live_tickets(d, stale_s),
+                        ticket,
+                        live_shared(d, stale_s),
+                        d.exists(),
+                    )
+                    if verdict is not None and slots is None:
+                        if try_acquire(d, command):
                             return None
-                    elif not d.exists():
-                        used = sum(int(j.get("slots") or 0) for j in shared)
-                        used_mem = sum(float(j.get("mem") or 0) for j in shared)
-                        fits = (
-                            used + slots <= CAPACITY_SLOTS
-                            and used_mem + mem <= CAPACITY_MEM_GB
+                    elif verdict is not None:
+                        if verdict == "backfill":
+                            print(f"heavy_lock: {why}", file=sys.stderr, flush=True)
+                        return _register_shared(
+                            d, command, slots, mem, backfill=verdict == "backfill"
                         )
-                        if fits or not shared:  # an oversized job runs alone
-                            return _register_shared(d, command, slots, mem)
-            state = describe(read_owner(d)) if d.exists() else "shared jobs to fit"
-            if head not in (None, ticket):
-                state += f" (queue: behind {head.name})"
+            state = describe(read_owner(d)) if d.exists() else why
             if state != last:
                 print(f"heavy_lock: waiting for {state}", file=sys.stderr, flush=True)
                 last = state
@@ -405,9 +572,15 @@ def _wait(
         _unlink(ticket)
 
 
-def acquire(d: Path, command: list[str], poll: float, priority: str = "normal") -> None:
+def acquire(
+    d: Path,
+    command: list[str],
+    poll: float,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> None:
     """Take the whole host (the original behaviour)."""
-    _wait(d, command, poll, None, 0.0, priority)
+    _wait(d, command, poll, None, 0.0, priority, drain_s)
 
 
 def acquire_shared(
@@ -417,9 +590,10 @@ def acquire_shared(
     slots: int,
     mem: float,
     priority: str = "normal",
+    drain_s: float | None = None,
 ) -> Path:
     """Take ``slots`` threads and ``mem`` GB; returns the job's heartbeat file."""
-    f = _wait(d, command, poll, slots, mem, priority)
+    f = _wait(d, command, poll, slots, mem, priority, drain_s)
     assert f is not None
     return f
 
@@ -479,6 +653,7 @@ def run(
     slots: int | None = None,
     mem: float = 0.0,
     priority: str = "normal",
+    drain_s: float | None = None,
 ) -> int:
     if slots is None:
         want = (CAPACITY_SLOTS, CAPACITY_MEM_GB)
@@ -488,7 +663,7 @@ def run(
         return subprocess.call(command)
     d = lock_dir()
     if slots is not None:
-        hb = acquire_shared(d, command, poll, slots, mem, priority)
+        hb = acquire_shared(d, command, poll, slots, mem, priority, drain_s)
         stop = threading.Event()
         threading.Thread(target=_heartbeat, args=(hb, stop, 20.0), daemon=True).start()
         try:
@@ -502,7 +677,7 @@ def run(
 
         wsl_lock = open(Path.home() / ".rang-heavy.lock", "a")  # noqa: SIM115
         fcntl.flock(wsl_lock, fcntl.LOCK_EX)
-    acquire(d, command, poll, priority)
+    acquire(d, command, poll, priority, drain_s)
     try:
         return subprocess.call(command, env=_child_env(*want))
     finally:
@@ -698,9 +873,10 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
         booked += slots
         if j.get("system") == here:
             using += cores.get(int(j["pid"])) or 0.0
+        mark = ", backfilled" if j.get("backfill") else ""
         print(
             f"  {slots} slots {j['mem']:g} GB pid {j['pid']} "
-            f"({note(j, slots)}): {j['command'][:140]}"
+            f"({note(j, slots)}{mark}): {j['command'][:140]}"
         )
     away = sum(
         1 for j in [*shared, *([owner] if owner else [])] if j.get("system") != here
@@ -713,9 +889,22 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
             info = json.loads(t.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             info = {}
-        kind = f"{info['slots']} slots" if info.get("slots") else "exclusive"
+        if info.get("slots"):
+            kind = f"{info['slots']} slots {float(info.get('mem') or 0):g} GB"
+        else:
+            kind = "exclusive"
         if info.get("priority"):
             kind += f", {info['priority']}"
+        waited = waited_s(t)
+        kind += f", waited {waited / 60:.0f} min"
+        if i == 1 and len(waiting) > 1:
+            limit = drain_limit_s(info)
+            if is_critical(t):
+                kind += "; critical head, no backfill past it"
+            elif waited >= limit:
+                kind += f"; past its {limit / 60:g} min drain limit, draining"
+            else:
+                kind += f"; later tickets may backfill until {limit / 60:g} min"
         print(f"queue {i}: {t.stem} ({kind})")
     print(f"booked {booked} slots, using ~{using:.1f} cores{tail}")
 
@@ -742,6 +931,15 @@ def main(argv: list[str] | None = None) -> int:
         help="critical: served before every normal ticket, never preempting a "
         "running job; only for the release's critical path (E2/E3 acceptance)",
     )
+    r.add_argument(
+        "--drain",
+        type=float,
+        default=None,
+        metavar="MIN",
+        help="minutes later tickets may backfill past this one while it heads "
+        "the queue and does not fit; 0 means strict first come, first served "
+        f"(default: {DRAIN_VAR}, else {DRAIN_DEFAULT_MIN:g})",
+    )
     r.add_argument("command", nargs=argparse.REMAINDER)
     st = sub.add_parser(
         "status",
@@ -765,7 +963,8 @@ def main(argv: list[str] | None = None) -> int:
     if not command:
         p.error("run needs a command after --")
     slots = None if a.exclusive else a.slots
-    return run(command, a.poll, slots, a.mem, a.priority)
+    drain_s = None if a.drain is None else a.drain * 60.0
+    return run(command, a.poll, slots, a.mem, a.priority, drain_s)
 
 
 if __name__ == "__main__":

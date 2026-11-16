@@ -20,6 +20,14 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Heavy-lock backfill, 2026-11-16 (branch `lock-backfill`; [lock-backfill.md](lock-backfill.md), implemented,
+unit-tested, not yet on the live queue): strict FIFO held 1-slot 2 GB tickets for about an hour behind a 4-slot
+46 GB head that did not fit (42 of 48 GB free, 14 of 16 slots). `tools/heavy_lock.py` now lets a shared ticket
+further back start while the head does not fit, if it fits what is free now after reserving room for earlier
+tickets that fit, until the head has waited its drain limit (`run --drain MIN`, default `RANG_HEAVY_DRAIN_MIN`
+15 min; 0 strict FIFO); exclusive heads the same, never past a critical head; `status` marks backfilled holds
+and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged.
+
 #23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
 section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
 `D:\rang\outputs\msfix-20261116-01`):
