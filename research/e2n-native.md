@@ -326,12 +326,14 @@ under `nice -n 19 ionice -c3`, without sudo. What changes, and only this:
   `~/rang-data/outputs/e2n-20261116/e2n.ms`. Section 4's D: budget and its 412 GiB start rule apply to
   the Windows host only; on nash the disk guard keeps 1 TB free. The rang arm runs from a Linux wheel
   built on nash at this branch's head, once nash's set-up reports a working build.
-- **Oracles at the pinned versions** (A0 rule 8), installed from public PyPI into venvs on nash, since
-  docker is not available there: casatools and casatasks 6.7.6.14, QuartiCal 0.2.7, Tricolour 0.2.1;
-  WSClean 3.7 is nash's own `/usr/bin/wsclean` (built 2026-02-16), not the `rang-wsclean-native`
-  container. That a native build reproduces the container's output is not established; it is checked on
-  one E2-B development input before any E2-N oracle result is read, and reported. nash's system CASA
-  (6.6.5) is not used.
+- **Oracles: the same pinned container images** (A0 rule 8). Revised at 21:50, before any oracle step
+  ran: rather than PyPI venvs (whose casatools 6.7.6.14 wheel needs the image's manylinux_2_28 pin and
+  measures data, which is exactly what the image already fixes), the four images `rang-o-casa:6.7.6.14`,
+  `rang-wsclean-native:3.7`, `rang-tricolour:0.2.1-e1` and `rang-formats-oracle:20261030` are exported
+  with `docker save` from the Windows host's WSL and run on nash by apptainer (SIF built from the
+  docker archive), with the same bind mounts as `e2_post.docker`
+  ([e2n_nash.py](results/e2n-scripts/e2n_nash.py) swaps the runner and nothing else). nash's own WSClean
+  and CASA are not used.
 - **Timings** are labelled host nash; they are not comparable with the Windows host's.
 
 ## 9. Results
