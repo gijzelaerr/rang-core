@@ -331,6 +331,26 @@ pub fn parallel_hand_indices(corr: &[i32]) -> Result<(usize, usize), String> {
 
 /// Read the selected rows of a Measurement Set as Stokes I.
 pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
+    read_ms_sink(path, sel, None)
+}
+
+/// [`read_ms`] chunk by chunk (`-reorder`, research/gemclean-memory2.md):
+/// `sink` receives each chunk's selected rows, formed by the same code as
+/// [`read_ms`]'s (so with the same values), in row order; the result holds
+/// the header fields only (no rows).
+pub fn read_ms_chunks(
+    path: &Path,
+    sel: &Selection,
+    sink: &mut dyn FnMut(&StokesI) -> Result<(), String>,
+) -> Result<StokesI, String> {
+    read_ms_sink(path, sel, Some(sink))
+}
+
+fn read_ms_sink(
+    path: &Path,
+    sel: &Selection,
+    mut sink: Option<&mut dyn FnMut(&StokesI) -> Result<(), String>>,
+) -> Result<StokesI, String> {
     let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
     // Data description -> spectral window and polarisation.
     let (spw, pol) = match Table::open(path.join("DATA_DESCRIPTION")) {
@@ -405,17 +425,19 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
     // Count the selected rows first, so that each array is allocated once at
     // its size: grown by doubling, the visibilities would pass through up to
     // three times their size.
-    let mut rows = 0usize;
-    let mut start = 0;
-    while start < main.nrows {
-        let count = step.min(main.nrows - start);
-        rows += selected(start, count)?.iter().filter(|&&k| k).count();
-        start += count;
+    if sink.is_none() {
+        let mut rows = 0usize;
+        let mut start = 0;
+        while start < main.nrows {
+            let count = step.min(main.nrows - start);
+            rows += selected(start, count)?.iter().filter(|&&k| k).count();
+            start += count;
+        }
+        out.uvw.reserve_exact(3 * rows);
+        out.flag_row.reserve_exact(rows);
+        out.vis.reserve_exact(rows * nchan);
+        out.weight.reserve_exact(rows * nchan);
     }
-    out.uvw.reserve_exact(3 * rows);
-    out.flag_row.reserve_exact(rows);
-    out.vis.reserve_exact(rows * nchan);
-    out.weight.reserve_exact(rows * nchan);
     let mut start = 0;
     while start < main.nrows {
         let count = step.min(main.nrows - start);
@@ -486,6 +508,13 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                         wgt[ch] = w;
                     }
                 });
+            if let Some(f) = sink.as_mut() {
+                f(&out)?;
+                out.uvw.clear();
+                out.flag_row.clear();
+                out.vis.clear();
+                out.weight.clear();
+            }
         }
         start += count;
     }

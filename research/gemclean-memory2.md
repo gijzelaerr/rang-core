@@ -52,9 +52,10 @@ in the main table's storage-manager files (FLAG is written by `make` here,
 by `casa_done` there), so 9.29's runs are not claimed to be on these bytes;
 every comparison below is against this task's own baseline.
 
-J1939−6342's baseline was still running at the freeze; its column is
-filled in after the freeze and before any arm run (dated in section 6).
-The rule is relative to it, so the freeze does not depend on its value.
+J1939−6342's baseline was still running at the freeze (`b10d485`); its
+column was filled in after it, on 2026-11-16 before any arm run on E2-B
+data. The rule is relative to it, so the freeze does not depend on its
+value.
 
 Baseline: main 6909a31's `gemclean` binary (`bin/gemclean-base-6909a31.exe`,
 Rust 1.99.1), A5's argv plus `-memory-report`
@@ -65,18 +66,18 @@ memtime.py's figures in GiB.
 
 | Phase (heap GB, most during) | J1331+3030 | J1939−6342 | J1833−2103 |
 | --- | ---: | ---: | ---: |
-| read (first polarisation's whole band) | 6.14 | pending | 2.20 |
-| weights (MF imaging-weight cache, band-sized `f32`) | 7.50 | pending | 2.25 |
-| build, highest (fourth polarisation: its band, the cache, every earlier entry) | **18.61** | **pending** | 8.07 |
-| minor cycles | 14.87 | pending | 9.82 |
-| end of the clean (dirty images back from their file) | 14.83 | pending | **9.79** |
+| read (first polarisation's whole band) | 6.14 | 6.22 | 2.20 |
+| weights (MF imaging-weight cache, band-sized `f32`) | 7.50 | 7.60 | 2.25 |
+| build, highest (fourth polarisation: its band, the cache, every earlier entry) | **18.61** | **18.67** | 8.07 |
+| minor cycles | 14.87 | 14.82 | 9.82 |
+| end of the clean (dirty images back from their file) | 14.83 | 14.77 | **9.79** |
 
 | Measure | J1331+3030 | J1939−6342 | J1833−2103 |
 | --- | ---: | ---: | ---: |
 | rows read | 113,960 | 115,500 | 33,880 |
-| tree RSS peak (A5's measure, GiB) | 15.87 | pending | 8.40 |
-| peak working set / peak private (GiB) | 16.20 / 17.38 | pending | 8.41 / 9.20 |
-| wall (s) | 804.0 | pending | 404.3 |
+| tree RSS peak (A5's measure, GiB) | 15.87 | 16.46 | 8.40 |
+| peak working set / peak private (GiB) | 16.20 / 17.38 | 17.40 / 17.43 | 8.41 / 9.20 |
+| wall (s) | 804.0 | 920.1 | 404.3 |
 
 Buffers held through the clean (GB), J1331+3030: compacted visibilities
 5.48, sorted weights 0.69, sorted index 1.37, tables 0.14, beams 2.15, PSF
@@ -185,7 +186,7 @@ J1331+3030) in files, and the beams (2.15 GB, used in every minor step).
   tolerance in this task.
 - **Arm V, memory.** The tree RSS peak (A5's measure) is at most **0.6 ×
   the baseline** on J1331+3030 and J1939−6342, and at most **0.75 ×** on
-  J1833−2103: at most 9.52, 0.6 × J1939−6342's baseline and 6.30 GiB. It is reported
+  J1833−2103: at most 9.52, 0.6 × J1939−6342's baseline (9.88, filled in after the freeze) and 6.30 GiB. It is reported
   beside as a ratio to WSClean 3.7's 1.94, 1.95 and 1.34 GiB (9.29).
 - **Arm V, time.** Wall at most 1.10 × the baseline's on the same field
   (shared host, reported as such). A larger cost is reported with the file

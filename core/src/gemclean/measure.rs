@@ -16,6 +16,7 @@
 //! binary stays `f64`.
 
 use crate::clean_certified::{Complex, Measurement};
+use crate::gemclean::scratch::TempFile;
 use crate::wgridder::{self, Options, Prepared, Real, VisData, Weights};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
@@ -29,6 +30,21 @@ enum Data<T> {
     /// Single precision, the active visibilities only, in the gridder's
     /// sorted order ([`GridMeasurement::compacted`]); `wgt` likewise.
     Sorted(Vec<Complex<f32>>),
+    /// [`Data::Sorted`]'s values in a temporary file (`-reorder`,
+    /// research/gemclean-memory2.md): `len` values at `offset`, read back for
+    /// each residual with the bits they were written with.
+    OnDisk {
+        file: Arc<TempFile>,
+        offset: u64,
+        len: usize,
+    },
+}
+
+impl<T> Data<T> {
+    /// Only the active visibilities, in the plan's sorted order.
+    fn sorted(&self) -> bool {
+        matches!(self, Data::Sorted(_) | Data::OnDisk { .. })
+    }
 }
 
 #[inline(always)]
@@ -162,8 +178,8 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
         }
         let bits = |w: &T| w.to().to_bits();
         match (&self.vis, &other.vis) {
-            (Data::Sorted(_), _) => false,
-            (_, Data::Sorted(_)) => {
+            (a, _) if a.sorted() => false,
+            (_, b) if b.sorted() => {
                 let Some(p) = &other.prepared else {
                     return false;
                 };
@@ -189,7 +205,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
 
     /// Operations on the visibility-sized arrays need them still held.
     fn dense(&self) -> Result<(), String> {
-        if matches!(self.vis, Data::Sorted(_)) {
+        if self.vis.sorted() {
             return Err("a compacted measurement has no visibility-sized arrays".into());
         }
         Ok(())
@@ -225,9 +241,9 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
     /// measurement's own (research/gemclean-memory.md). Where either cannot
     /// be compacted, this is [`GridMeasurement::prepare`].
     pub fn sharing_plan_of(mut self, other: &GridMeasurement<T>) -> Result<Self, String> {
-        let (Some(p), Data::Sorted(_), true, true, Data::Single(vis)) = (
+        let (Some(p), true, true, true, Data::Single(vis)) = (
             &other.prepared,
-            &other.vis,
+            other.vis.sorted(),
             self.pending,
             self.sorted_residual,
             &self.vis,
@@ -264,8 +280,24 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .par_iter()
                 .zip(self.wgt.par_iter())
                 .all(|(v, w)| w.to() != 0.0 || finite(v.re.to(), v.im.to())),
-            Data::Sorted(_) => self.sorted_residual,
+            Data::Sorted(_) | Data::OnDisk { .. } => self.sorted_residual,
         }
+    }
+
+    /// Move a compacted measurement's visibilities to the temporary file
+    /// `file` (`-reorder`, research/gemclean-memory2.md); each residual reads
+    /// them back, so one measurement's visibilities are held at a time and
+    /// the residuals keep their bits. Others are unchanged.
+    pub fn on_disk(mut self, file: &Arc<TempFile>) -> Result<Self, String> {
+        if let Data::Sorted(v) = &self.vis {
+            let offset = file.append_c32(v)?;
+            self.vis = Data::OnDisk {
+                file: Arc::clone(file),
+                offset,
+                len: v.len(),
+            };
+        }
+        Ok(self)
     }
 
     /// Form every residual through a visibility-sized buffer, as before
@@ -343,6 +375,14 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 match &self.vis {
                     Data::Single(v) | Data::Sorted(v) => bytes_of(v),
                     Data::Native(v) => bytes_of(v),
+                    Data::OnDisk { .. } => 0,
+                },
+            ),
+            (
+                "measurement: visibilities in the temporary file (not held)",
+                match &self.vis {
+                    Data::OnDisk { len, .. } => len * std::mem::size_of::<Complex<f32>>(),
+                    _ => 0,
                 },
             ),
             ("measurement: weights", bytes_of(&self.wgt)),
@@ -493,6 +533,10 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 Data::Sorted(v) => {
                     p.residual_sorted(VisData::C64(v), &self.wgt, m.as_deref(), &mut out)?
                 }
+                Data::OnDisk { file, offset, len } => {
+                    let v = file.read_c32(*offset, *len)?;
+                    p.residual_sorted(VisData::C64(&v), &self.wgt, m.as_deref(), &mut out)?
+                }
             };
             drop(m);
             crate::gemclean::memory::mark("residual: grid");
@@ -523,7 +567,7 @@ impl<T: Real + Send + Sync> GridMeasurement<T> {
                 .par_iter_mut()
                 .zip(vis.par_iter())
                 .for_each(|(p, v)| *p = widen_vis::<T>(*v)),
-            (Data::Sorted(_), _) => unreachable!("refused by dense()"),
+            (Data::Sorted(_) | Data::OnDisk { .. }, _) => unreachable!("refused by dense()"),
         }
         // In f64, so the misfit keeps its digits in either precision; serial,
         // so it does not depend on the thread count.

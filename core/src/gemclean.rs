@@ -57,6 +57,7 @@ pub mod measure;
 pub mod memory;
 pub mod multiscale;
 pub mod predict;
+pub mod scratch;
 pub mod sim;
 pub mod spectral;
 pub mod stale_bound;

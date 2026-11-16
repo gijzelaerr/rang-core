@@ -22,7 +22,9 @@
 use crate::clean_certified::{Complex, Measurement, misfit_floor};
 use crate::gemclean::fits::{self, Card, Value, card};
 use crate::gemclean::input::{self, Selection};
-use crate::gemclean::joined::{run_joined, run_joined_masked, run_joined_spilling};
+use crate::gemclean::joined::{
+    run_joined, run_joined_masked, run_joined_spill_kept, run_joined_spilling, spill_read,
+};
 use crate::gemclean::json::{arr, num, obj, opt, text};
 use crate::gemclean::kernels::{self, Level};
 use crate::gemclean::mask::{self, AutoMask, Masking};
@@ -30,6 +32,7 @@ use crate::gemclean::measure::GridMeasurement;
 use crate::gemclean::memory::{self, bytes_of};
 use crate::gemclean::multiscale::{self, MultiscaleSettings};
 use crate::gemclean::predict;
+use crate::gemclean::scratch::{self, TempFile};
 use crate::gemclean::spectral::{self, PolynomialFit};
 use crate::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use crate::gemclean::stokes::{self, Pol};
@@ -39,6 +42,7 @@ use crate::weights::{UvTapers, WeightClass};
 use crate::wgridder::{Options, Real};
 
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::Instant;
 
 const USAGE: &str = "usage: gemclean [options] <ms>
@@ -95,6 +99,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
+  -reorder                  with several polarisations: keep each polarisation's read and each
+                            entry's visibilities in temporary files, read back where used (same
+                            images, less memory; research/gemclean-memory2.md)
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -209,6 +217,9 @@ struct Args {
     single: bool,
     gram_operator: Option<(usize, f64)>,
     plan_reuse: bool,
+    /// `-reorder` and `-temp-dir` (research/gemclean-memory2.md).
+    reorder: bool,
+    temp_dir: Option<PathBuf>,
     beam_no_w: bool,
     beam_band: bool,
     lazy_bounds: bool,
@@ -318,6 +329,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         single: false,
         gram_operator: None,
         plan_reuse: true,
+        reorder: false,
+        temp_dir: None,
         beam_no_w: false,
         beam_band: false,
         lazy_bounds: true,
@@ -466,6 +479,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     Some((number(flag, s.to_string())?, number(flag, t.to_string())?));
             }
             "-no-plan-reuse" => a.plan_reuse = false,
+            "-reorder" => a.reorder = true,
+            "-temp-dir" => a.temp_dir = Some(PathBuf::from(value(&mut i)?)),
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
             "-channels-out" => a.channels_out = number(flag, value(&mut i)?)?,
@@ -2481,10 +2496,12 @@ struct PolBuild<T: Real> {
     /// the fingerprint of their rows and weights, entry and beam.
     earlier: Vec<Vec<Earlier>>,
     t_psf: f64,
+    /// `-reorder`: the file each compacted entry's visibilities go to.
+    vis_file: Option<Arc<TempFile>>,
 }
 
 impl<T: Real + Send + Sync> PolBuild<T> {
-    fn new(kout: usize, npol: usize) -> Self {
+    fn new(kout: usize, npol: usize, vis_file: Option<Arc<TempFile>>) -> Self {
         let ne = kout * npol;
         PolBuild {
             npol,
@@ -2497,6 +2514,7 @@ impl<T: Real + Send + Sync> PolBuild<T> {
             psfs: Vec::with_capacity(kout),
             earlier: (0..kout).map(|_| Vec::new()).collect(),
             t_psf: 0.0,
+            vis_file,
         }
     }
 
@@ -2600,10 +2618,26 @@ impl<T: Real + Send + Sync> PolBuild<T> {
             }
         }
         // Only the active visibilities, sorted, from here on.
-        self.measurements[e] = Some(if args.plan_reuse { m.compacted()? } else { m });
+        let m = if args.plan_reuse { m.compacted()? } else { m };
+        // -reorder: the compacted visibilities wait in a file between uses.
+        let m = match &self.vis_file {
+            Some(f) => m.on_disk(f)?,
+            None => m,
+        };
+        self.measurements[e] = Some(m);
         memory::mark(&format!("entry {e}: psf and beam"));
         self.t_psf += t.elapsed().as_secs_f64();
         Ok(())
+    }
+}
+
+/// A file removed when this is dropped, if it is still there (`-reorder`'s
+/// kept dirty images, also after an error).
+struct RemoveOnDrop(PathBuf);
+
+impl Drop for RemoveOnDrop {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.0);
     }
 }
 
@@ -2707,6 +2741,9 @@ fn deconvolve_pols<T: Real + Send + Sync>(
     }
     let mut autos: Vec<mask::AutoState> = Vec::new();
     let mut outcomes: Vec<gemclean::Outcome> = Vec::new();
+    // With -reorder the dirty images stay in their files until the
+    // measurements and beams are dropped (research/gemclean-memory2.md).
+    let mut kept_dirty: Vec<(RemoveOnDrop, Vec<usize>)> = Vec::new();
     for (members, gpol) in groups {
         if members.len() == 1 {
             let e = members[0];
@@ -2741,35 +2778,60 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             // The dirty images wait in a file beside the outputs
             // (research/gemclean-memory.md).
             let spill = PathBuf::from(format!("{}-dirty-{}.spill", args.name, runs_json.len()));
-            let j = run_joined_spilling(
-                &pairs,
-                gpol,
-                &w,
-                norm,
-                fit.as_ref(),
-                &settings,
-                masking,
-                Some(&spill),
-            )?;
+            let j = if args.reorder {
+                let j = run_joined_spill_kept(
+                    &pairs,
+                    gpol,
+                    &w,
+                    norm,
+                    fit.as_ref(),
+                    &settings,
+                    masking,
+                    &spill,
+                );
+                kept_dirty.push((RemoveOnDrop(spill), members.clone()));
+                j?
+            } else {
+                run_joined_spilling(
+                    &pairs,
+                    gpol,
+                    &w,
+                    norm,
+                    fit.as_ref(),
+                    &settings,
+                    masking,
+                    Some(&spill),
+                )?
+            };
             if let Some(f) = &fit {
                 reference_frequency = Some(f.reference);
             }
             runs_json.push(j.integrated.to_json(None));
             autos.extend(j.auto);
-            for ((e, d), (m, r)) in members
-                .iter()
-                .zip(j.dirty)
-                .zip(j.model.into_iter().zip(j.residual))
-            {
+            let mut dirty_of = j.dirty.into_iter();
+            for (e, (m, r)) in members.iter().zip(j.model.into_iter().zip(j.residual)) {
                 components[*e] = j.integrated.steps.len();
                 majors[*e] = j.integrated.cycles.len();
-                dirty[*e] = d;
+                dirty[*e] = dirty_of.next().unwrap_or_default();
                 model[*e] = m;
                 residual[*e] = r;
             }
             outcomes.push(j.integrated);
         }
         memory::mark(&format!("group of {}: clean", runs_json.len()));
+    }
+    if !kept_dirty.is_empty() {
+        drop(measurements);
+        drop(beams);
+        memory::mark("measurements and beams dropped");
+        for (path, members) in kept_dirty {
+            for (e, d) in members
+                .iter()
+                .zip(spill_read(&path.0, members.len(), n * n)?)
+            {
+                dirty[*e] = d;
+            }
+        }
     }
     if masking.is_some() {
         let a: Vec<Option<&mask::AutoState>> = autos.iter().map(Some).collect();
@@ -2795,6 +2857,150 @@ fn deconvolve_pols<T: Real + Send + Sync>(
 /// Several polarisations: read each, weight them as WSClean's cache does
 /// ([`stokes::weight_sources`]), deconvolve (joined or not, with or without
 /// joined channels) and write WSClean's file names and header counters.
+/// `-reorder`'s read (research/gemclean-memory2.md): every polarisation's
+/// cells per output channel in a temporary file (chunk by chunk, in row
+/// order), the rows' uvw and FLAG_ROW, and the finished imaging-weight grids.
+struct Reordered {
+    file: TempFile,
+    /// `at[p][k]`: the chunks of polarisation `p`, output channel `k`:
+    /// (offset of the visibilities, offset of the weights, rows).
+    at: Vec<Vec<Vec<(u64, u64, usize)>>>,
+    widths: Vec<usize>,
+    groups: Vec<Vec<usize>>,
+    uvw: Vec<f64>,
+    flag_row: Vec<bool>,
+    grids: Vec<(WeightKey, stokes::ImagingGrid)>,
+}
+
+impl Reordered {
+    fn read(
+        args: &Args,
+        selection: &Selection,
+        groups: &[Vec<usize>],
+        all: &[usize],
+        mf: bool,
+        sources_of: &dyn Fn(usize) -> Vec<usize>,
+    ) -> Result<Reordered, String> {
+        let npol = args.pols.len();
+        let b = input::band(&args.ms, selection)?;
+        let mut grids: Vec<(WeightKey, stokes::ImagingGrid)> = Vec::new();
+        for (k, group) in groups.iter().enumerate() {
+            for p in 0..npol {
+                let key = (sources_of(p), if mf { usize::MAX } else { k });
+                if !grids.iter().any(|(c, _)| *c == key) {
+                    let chans = if mf { all } else { &group[..] };
+                    let g = stokes::ImagingGrid::new(
+                        &b.freq,
+                        chans,
+                        args.weight,
+                        args.size,
+                        args.scale,
+                    )?;
+                    grids.push((key, g));
+                }
+            }
+        }
+        let file = TempFile::create(scratch::temp_path(
+            args.temp_dir.as_deref(),
+            &args.name,
+            "read",
+        ))?;
+        let mut at = vec![vec![Vec::new(); groups.len()]; npol];
+        let (mut uvw, mut flag_row) = (Vec::new(), Vec::new());
+        let mut rows = vec![0usize; npol];
+        let mut vis = Vec::new();
+        let mut wgt = Vec::new();
+        for p in 0..npol {
+            let sel = Selection {
+                polarization: args.pols[p],
+                ..selection.clone()
+            };
+            let mut sink = |c: &input::StokesI| -> Result<(), String> {
+                let nchan = c.freq.len();
+                let r = c.rows();
+                if p == 0 {
+                    uvw.extend_from_slice(&c.uvw);
+                    flag_row.extend_from_slice(&c.flag_row);
+                } else if flag_row.len() < rows[p] + r
+                    || flag_row[rows[p]..rows[p] + r] != c.flag_row[..]
+                    || uvw[3 * rows[p]..3 * (rows[p] + r)] != c.uvw[..]
+                {
+                    return Err("the polarisations differ in rows or channels".into());
+                }
+                rows[p] += r;
+                // The grids in the order imaging_weights fills them: source
+                // by source (polarisations in order), rows in order.
+                for (key, g) in grids.iter_mut() {
+                    if key.0.contains(&p) {
+                        g.add(c)?;
+                    }
+                }
+                for (k, group) in groups.iter().enumerate() {
+                    vis.clear();
+                    wgt.clear();
+                    for row in 0..r {
+                        for &ch in group {
+                            vis.push(c.vis[row * nchan + ch]);
+                            wgt.push(c.weight[row * nchan + ch]);
+                        }
+                    }
+                    let ov = file.append_c32(&vis)?;
+                    let ow = file.append_f32(&wgt)?;
+                    at[p][k].push((ov, ow, r));
+                }
+                Ok(())
+            };
+            let h = input::read_ms_chunks(&args.ms, &sel, &mut sink)?;
+            if h.freq.len() != b.freq.len() {
+                return Err("the polarisations differ in rows or channels".into());
+            }
+        }
+        if rows.iter().any(|&r| r != flag_row.len()) {
+            return Err("the polarisations differ in rows or channels".into());
+        }
+        for (_, g) in grids.iter_mut() {
+            g.finish(&args.tapers)?;
+        }
+        Ok(Reordered {
+            file,
+            at,
+            widths: groups.iter().map(Vec::len).collect(),
+            groups: groups.to_vec(),
+            uvw,
+            flag_row,
+            grids,
+        })
+    }
+
+    /// Polarisation `p`'s cells of output channel `k` (`rows × m`): the
+    /// visibilities, the weights and the imaging weights of the grid `key`.
+    #[allow(clippy::type_complexity)]
+    fn load(
+        &self,
+        p: usize,
+        k: usize,
+        key: &WeightKey,
+    ) -> Result<(Vec<Complex<f32>>, Vec<f32>, Vec<f32>), String> {
+        let m = self.widths[k];
+        let rows = self.flag_row.len();
+        let mut vis = Vec::with_capacity(rows * m);
+        let mut wgt = Vec::with_capacity(rows * m);
+        for &(ov, ow, r) in &self.at[p][k] {
+            vis.extend(self.file.read_c32(ov, r * m)?);
+            wgt.extend(self.file.read_f32(ow, r * m)?);
+        }
+        let (_, g) = self
+            .grids
+            .iter()
+            .find(|(c, _)| c == key)
+            .ok_or("no imaging-weight grid for an entry")?;
+        // Looked up per cell at this channel's own band channels (with MF
+        // weighting the grid holds every channel).
+        let imaging = g.lookup(&self.uvw, &self.flag_row, &self.groups[k])?;
+        Ok((vis, wgt, imaging))
+    }
+}
+
 fn run_polarizations(
     args: &Args,
     raw: &[String],
@@ -2831,34 +3037,45 @@ fn run_polarizations(
             args.channels_out,
         )
     };
-    // Read first the polarisations the imaging weights come from (with
-    // joined polarisations the first alone); each other is read when its
-    // entries are built, and each is dropped once they are
-    // (research/gemclean-memory.md).
-    let mut needed: Vec<usize> = (0..npol).flat_map(sources_of).collect();
-    needed.sort_unstable();
-    needed.dedup();
+    // -reorder (research/gemclean-memory2.md): each polarisation is read in
+    // chunks into a temporary file per output channel, with the imaging-weight
+    // grids filled from the same chunks; not with a channel selection.
+    let reorder = args.reorder && !spectral_sel;
     let mut data: Vec<Option<input::StokesI>> = (0..npol).map(|_| None).collect();
     let mut widths = Vec::new();
     let mut t_read = 0.0;
-    for &s in &needed {
+    let (freq_all, phase_dir) = if reorder {
         let t = Instant::now();
-        let (d, w) = read(s)?;
-        t_read += t.elapsed().as_secs_f64();
-        if s == 0 {
-            widths = w;
+        let b = input::band(&args.ms, selection)?;
+        widths = input::channel_widths(&args.ms, selection)?;
+        if widths.len() != b.freq.len() {
+            return Err("CHAN_WIDTH and CHAN_FREQ differ in length".into());
         }
-        data[s] = Some(d);
-    }
-    memory::mark("read");
-    let t = Instant::now();
-    let first = data[0]
-        .as_ref()
-        .ok_or("the first polarisation is a weight source")?;
-    let nchan = first.freq.len();
-    let rows = first.rows();
-    let phase_dir = first.phase_dir;
-    let freq_all = first.freq.clone();
+        t_read += t.elapsed().as_secs_f64();
+        (b.freq, b.phase_dir)
+    } else {
+        // Read first the polarisations the imaging weights come from (with
+        // joined polarisations the first alone); each other is read when its
+        // entries are built, and each is dropped once they are
+        // (research/gemclean-memory.md).
+        let mut needed: Vec<usize> = (0..npol).flat_map(sources_of).collect();
+        needed.sort_unstable();
+        needed.dedup();
+        for &s in &needed {
+            let t = Instant::now();
+            let (d, w) = read(s)?;
+            t_read += t.elapsed().as_secs_f64();
+            if s == 0 {
+                widths = w;
+            }
+            data[s] = Some(d);
+        }
+        let first = data[0]
+            .as_ref()
+            .ok_or("the first polarisation is a weight source")?;
+        (first.freq.clone(), first.phase_dir)
+    };
+    let nchan = freq_all.len();
     let groups: Vec<Vec<usize>> = if args.channels_out > 1 {
         spectral::channel_groups(&freq_all, None, args.channels_out)?
     } else {
@@ -2866,9 +3083,26 @@ fn run_polarizations(
     };
     let kout = groups.len();
     let all: Vec<usize> = (0..nchan).collect();
+    let reordered = if reorder {
+        let t = Instant::now();
+        let r = Reordered::read(args, selection, &groups, &all, mf, &sources_of)?;
+        t_read += t.elapsed().as_secs_f64();
+        Some(r)
+    } else {
+        None
+    };
+    memory::mark("read");
+    let t = Instant::now();
+    let rows = match &reordered {
+        Some(r) => r.flag_row.len(),
+        None => data[0].as_ref().expect("read above").rows(),
+    };
     // Imaging weights per (source set, channel group), computed once each.
     let mut cache: Vec<(WeightKey, Vec<f32>)> = Vec::new();
     for (k, group) in groups.iter().enumerate() {
+        if reordered.is_some() {
+            break;
+        }
         for p in 0..npol {
             let sources = sources_of(p);
             // MF: one grid of all channels, sliced; else the group's own.
@@ -2913,38 +3147,81 @@ fn run_polarizations(
     // (and beam) as soon as it is formed.
     macro_rules! build {
         ($t:ty) => {{
-            let mut built = PolBuild::<$t>::new(kout, npol);
+            let vis_file = if args.reorder {
+                Some(Arc::new(TempFile::create(scratch::temp_path(
+                    args.temp_dir.as_deref(),
+                    &args.name,
+                    "vis",
+                ))?))
+            } else {
+                None
+            };
+            let mut built = PolBuild::<$t>::new(kout, npol, vis_file);
             let mut t_entries = 0.0;
             for p in 0..npol {
-                let d = match data[p].take() {
-                    Some(d) => d,
-                    None => {
+                let d = match (&reordered, data[p].take()) {
+                    (Some(_), _) => None,
+                    (None, Some(d)) => Some(d),
+                    (None, None) => {
                         let t = Instant::now();
                         let (d, _) = read(p)?;
                         t_read += t.elapsed().as_secs_f64();
-                        d
+                        Some(d)
                     }
                 };
-                if d.rows() != rows || d.freq.len() != nchan {
+                if let Some(d) = &d
+                    && (d.rows() != rows || d.freq.len() != nchan)
+                {
                     return Err("the polarisations differ in rows or channels".into());
                 }
                 for (k, group) in groups.iter().enumerate() {
                     let t = Instant::now();
                     let m = group.len();
                     let key = (sources_of(p), if mf { usize::MAX } else { k });
-                    let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
+                    // The band (stride nchan, the group's columns) or, with
+                    // -reorder, the channel's own cells (stride m).
+                    let own: Vec<usize> = (0..m).collect();
+                    let loaded = match &reordered {
+                        Some(r) => Some(r.load(p, k, &key)?),
+                        None => None,
+                    };
+                    let (bvis, bweight, vstride, vcols, imaging, istride, icols, flag_row, uvw0) =
+                        match (&d, &loaded, &reordered) {
+                            (Some(d), _, _) => {
+                                let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
+                                (
+                                    &d.vis[..],
+                                    &d.weight[..],
+                                    nchan,
+                                    &group[..],
+                                    &imaging[..],
+                                    if mf { nchan } else { m },
+                                    if mf { &group[..] } else { &own[..] },
+                                    &d.flag_row[..],
+                                    &d.uvw[..],
+                                )
+                            }
+                            (None, Some((v, w, im)), Some(r)) => (
+                                &v[..],
+                                &w[..],
+                                m,
+                                &own[..],
+                                &im[..],
+                                m,
+                                &own[..],
+                                &r.flag_row[..],
+                                &r.uvw[..],
+                            ),
+                            _ => unreachable!("a band or a reordered read"),
+                        };
                     let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
                     let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
                     for row in 0..rows {
-                        for (j, &c) in group.iter().enumerate() {
-                            vis.push(d.vis[row * nchan + c]);
-                            let im = if mf {
-                                imaging[row * nchan + c]
-                            } else {
-                                imaging[row * m + j]
-                            };
-                            let w = d.weight[row * nchan + c];
-                            let g = if d.flag_row[row] {
+                        for j in 0..m {
+                            vis.push(bvis[row * vstride + vcols[j]]);
+                            let im = imaging[row * istride + icols[j]];
+                            let w = bweight[row * vstride + vcols[j]];
+                            let g = if flag_row[row] {
                                 0.0
                             } else {
                                 f64::from(w) * f64::from(im)
@@ -2963,7 +3240,8 @@ fn run_polarizations(
                             args.pols[p]
                         ));
                     }
-                    let mut uvw = d.uvw.clone();
+                    let mut uvw = uvw0.to_vec();
+                    drop(loaded);
                     let mut kept = 0;
                     for row in 0..rows {
                         let (a, b) = (row * m, (row + 1) * m);
@@ -2991,6 +3269,7 @@ fn run_polarizations(
                 drop(d);
             }
             drop(cache);
+            drop(reordered);
             let totals: Vec<f64> = meta.iter().map(|x| x.1).collect();
             let t_weights = t_weights + t_entries;
             println!(
