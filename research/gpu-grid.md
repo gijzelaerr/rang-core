@@ -262,4 +262,13 @@ None yet.
 
 ## 9. Amendments
 
-None yet.
+**9.1, 2026-11-16, before any GPU run (not post hoc; seen: nothing measured).**
+Gate 1's determinism clause said the GPU images are bit-identical "between
+one batch and a forced small budget". That cannot hold for the design of
+section 2: a plane touched by several batches is transformed once per batch
+and the projections are added, and a sum of transforms does not round as the
+transform of the sum. Amended: GPU results are bit-identical over three
+repeats at a fixed budget; degridding (each visibility sums its planes in
+order, the grids are the same in every batch) is bit-identical across
+batchings; gridding across batchings must meet Gate 1's tolerance against the
+CPU, and its difference from the one-batch result is reported.
