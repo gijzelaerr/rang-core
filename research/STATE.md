@@ -20,6 +20,17 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-A scored, 2026-11-17 (branch `e2a-score`; [e2-acceptance.md](e2-acceptance.md) 9.11-9.13; measured):
+- **Not met as frozen.** Met: gate 1 (37,272 s, 45.4 GB), 2a, 2b (CASA applycal in place: 0 of 1.6e9
+  cells over class C), 2c, flux scale (0.984-0.997 in the counted bins), target noise and dynamic range,
+  self-calibration rms (0.44). Not met: 3b's K1 G1 B1 composite (median 3.2e-3, p95 2.4e-2; K1 met),
+  3c (dirty 5.0e-3; compact median 0.997, scatter 3.6 %), the target compact row (scatter 4.3 %). Not
+  checked (memory): 3a (Tricolour; on the primaries 925 of 806 M cells differ, post hoc) and the
+  unaveraged QuartiCal gains (averaged form, post hoc: met, max 3.3e-7).
+- 3c with `-no-small-inversion`: unchanged (4.97e-3). Ratios fall with radius (1.00 inside 0.35°, 0.90
+  beyond 1.4°), as 512-channel GeMClean against 4,096-channel WSClean predicts.
+- e2a.ms restored to 9.1 (hashes equal); D: 591 GiB free.
+
 E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
 implemented, not run; written during the rerun, before any E2-A output):
 - `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for

@@ -1,0 +1,20 @@
+{
+ "field": "ESO137-001",
+ "image_1": {
+  "rms_jy": 0.00020787338030029147,
+  "peak_jy": 0.5412599444389343,
+  "dynamic_range": 2603.7963285969395
+ },
+ "final": {
+  "rms_jy": 9.143673528678255e-05,
+  "peak_jy": 0.572442889213562,
+  "dynamic_range": 6260.53508382763
+ },
+ "ratio_after_before": 0.43986745755851037,
+ "limit": 1.02,
+ "met": true,
+ "sigma_jy": 5.573648018634225e-05,
+ "pixels": 1731968,
+ "masked": 484653,
+ "gains": "qc-selfcal.json (9.10's amended form)"
+}

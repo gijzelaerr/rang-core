@@ -1,0 +1,64 @@
+{
+ "ms": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms",
+ "data_column": "RANG_CORRECTED_DATA",
+ "model_column": "RANG_MODEL_DATA",
+ "flag_version": "rang_selfcal_20261115T161755Z",
+ "solint_integrations": 120,
+ "rows": 850950,
+ "cross_rows": 823500,
+ "averaged_rows": 7320,
+ "baselines": 1830,
+ "intervals": 4,
+ "channels": 4096,
+ "channels_predicted": 4096,
+ "predict_block_rows": 32768,
+ "rang_intervals_equal": [
+  true,
+  true
+ ],
+ "model_control": {
+  "cells": 3373056000,
+  "elements_differ": 0,
+  "max_abs": 0.0,
+  "met": true
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\gains.qc",
+   "solve_name": "Sp",
+   "model_images": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\image",
+   "apply_flags_recomputed": 0,
+   "apply_flags_rang": 0,
+   "apply_flags_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\gains.qc",
+   "solve_name": "Sa",
+   "model_images": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\image",
+   "apply_flags_recomputed": 238741416,
+   "apply_flags_rang": 238741416,
+   "apply_flags_equal": true
+  }
+ ],
+ "seconds": 3308.440891399994
+}
