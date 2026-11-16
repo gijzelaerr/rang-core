@@ -173,5 +173,15 @@ def test_command_line_writes_outputs_and_receipt(small, tmp_path):
     assert exc.value.code == 2
 
 
+def test_samples_beyond_the_grid_are_counted():
+    limit = 1.0 / (2.0 * 4.0 * lc.ARCSEC)  # wavelengths
+    freq = np.array([299_792_458.0])  # 1 m wavelength
+    uvw = np.array([[0.5 * limit, 0, 0], [limit, 0, 0], [0, -1.5 * limit, 0]])
+    weight = np.array([[1.0], [1.0], [0.0]], np.float32)
+    assert lc.outside_grid(uvw, freq, weight, 4.0) == 1
+    assert lc.outside_grid(uvw, freq, np.ones((3, 1), np.float32), 4.0) == 2
+    assert lc.outside_grid(uvw, freq, weight, 1.0) == 0
+
+
 def test_extension_has_the_kernel():
     assert hasattr(core.extension(), "lightcurve_dft")

@@ -218,6 +218,16 @@ def pixel_of(east, north, size, scale_arcsec):
     return x, y, offset
 
 
+def outside_grid(uvw, freq, weight, scale_arcsec):
+    """Weighted samples with |u| or |v| at or beyond 1/(2 x scale)
+    wavelengths: the edge of a snapshot grid of that pixel size (WSClean
+    with -no-min-grid-resolution drops them; research/ts-p1.md, 9.1)."""
+    limit = 1.0 / (2.0 * scale_arcsec * ARCSEC)
+    lam = np.abs(uvw[:, :2, None]) * (np.asarray(freq)[None, None, :] / 299_792_458.0)
+    beyond = (lam[:, 0] >= limit) | (lam[:, 1] >= limit)
+    return int(np.count_nonzero(beyond & (weight > 0)))
+
+
 def robust_sigma(image):
     """1.4826 times the median absolute deviation from the median."""
     values = image[np.isfinite(image)]
@@ -322,6 +332,7 @@ def light_curves(
                 "weight_sum",
                 "samples",
                 "rows",
+                "outside_grid",
             )
         }
         seconds = {"read": 0.0, "dft": 0.0, "image": 0.0}
@@ -358,9 +369,21 @@ def light_curves(
             arrays["weight_sum"].append(wsum)
             arrays["samples"].append(samples)
             arrays["rows"].append(len(sel))
+            arrays["outside_grid"].append(
+                outside_grid(uvw, freq, weight, scale_arcsec) if images else None
+            )
             if log is not None and (k % 50 == 0 or k == len(spans) - 1):
                 log(f"interval {k + 1}/{len(spans)}")
     out.update(arrays)
+    beyond = sum(n or 0 for n in arrays["outside_grid"])
+    out["outside_grid_total"] = beyond if images else None
+    if beyond and log is not None:
+        log(
+            f"warning: {beyond} weighted samples lie beyond 1/(2 x {scale_arcsec} "
+            "arcsec) in u or v; the snapshots include them (aliased, exact at pixel "
+            "centres), WSClean -no-min-grid-resolution drops them: use a smaller "
+            "--scale to match WSClean"
+        )
     out["seconds"] = {**seconds, "total": time.perf_counter() - started}
     return out
 

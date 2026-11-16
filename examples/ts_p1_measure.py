@@ -36,6 +36,7 @@ T2_BOUND = 1e-3
 T3A_BOUND = 0.1
 T3B_RANGE = (0.8, 1.2)
 T3D_SNR = 4.0
+TWIN_BOUND = 0.01  # amendment 9.2, the noiseless twin's |bias| in sigma_snap
 
 
 def stokes_i(data, weights, flags):
@@ -168,9 +169,18 @@ def score(ms, truth_path, lc_dir, wsclean=None):
             else None,
             "intervals_alone": int(alone.sum()),
         }
+    worst = max(abs(v["bias_over_sigma"]) for v in per.values())
     res["T3a"] = {
         "per_source": {k: v["bias_over_sigma"] for k, v in per.items()},
-        "pass": all(abs(v["bias_over_sigma"]) <= T3A_BOUND for v in per.values()),
+        "max_abs": worst,
+        "pass": bool(worst <= T3A_BOUND),
+        # Amendment 9.2 (post hoc): three standard errors of an n-point mean.
+        "amended_bound": 3.0 / math.sqrt(n),
+        "pass_amended": bool(worst <= 3.0 / math.sqrt(n)),
+        # Amendment 9.2: the noiseless twin's bound (its fluxes equal the
+        # expected dirty values up to complex64 rounding).
+        "twin_bound": TWIN_BOUND,
+        "pass_twin": bool(worst <= TWIN_BOUND),
     }
     res["T3b"] = {
         "per_source": {k: v["chi2_reduced"] for k, v in per.items()},
@@ -186,7 +196,7 @@ def score(ms, truth_path, lc_dir, wsclean=None):
     }
     res["T3d"] = recovery(truth, flux, sigma_meas, sig)
     if wsclean:
-        res.update(compare_wsclean(wsclean, lc_dir, lc, flux, sig, n))
+        res.update(compare_wsclean(wsclean, ms, lc_dir, lc, flux, sig, n))
     gates = ["T2a", "T2b", "T3a", "T3b", "T3c", "T3d"] + (
         ["T1", "T2c"] if wsclean else []
     )
@@ -233,15 +243,62 @@ def recovery(truth, flux, sigma_meas, sig):
     return {"pulses": pulses, "pass": all(p["pass"] for p in pulses)}
 
 
-def compare_wsclean(directory, lc_dir, lc, flux, sig, n):
+def rang_snapshots(ms, lc_dir, lc):
+    """rang's snapshot images in interval order: the run's FITS files when it
+    wrote them (`--fits`), else made again in stream by the product's own
+    `light_curves` with the run's settings (amendment 9.1: no FITS on disk);
+    the second form also checks that the fluxes repeat bit for bit."""
     from astropy.io import fits
+
+    snapshots = Path(lc_dir) / "snapshots"
+    if snapshots.is_dir():
+        for k in range(lc["intervals"]):
+            path = snapshots / f"snapshot-t{k:04d}-dirty.fits"
+            with fits.open(path) as h:
+                yield np.asarray(h[0].data[0, 0], np.float64)
+        return
+    import queue
+    import threading
+
+    from rang import lightcurve
+
+    s = lc["settings"]
+    images = queue.Queue(maxsize=2)
+    rerun = {}
+
+    def run():
+        try:
+            rerun["result"] = lightcurve.light_curves(
+                ms,
+                [(p["name"], p["ra_deg"], p["dec_deg"]) for p in lc["positions"]],
+                field=lc["field"]["id"],
+                column=s["column"],
+                model_column=s["model_column"],
+                interval_steps=s["interval_steps"],
+                size=s["size"],
+                scale_arcsec=s["scale_arcsec"],
+                epsilon=s["epsilon"],
+                on_snapshot=lambda k, image, header: images.put(image),
+            )
+        finally:
+            images.put(None)
+
+    worker = threading.Thread(target=run, daemon=True)
+    worker.start()
+    while (image := images.get()) is not None:
+        yield image
+    worker.join()
+    if rerun.get("result", {}).get("flux_jy") != lc["flux_jy"]:
+        raise SystemExit("the in-stream rerun's fluxes differ from the run's")
+
+
+def compare_wsclean(directory, ms, lc_dir, lc, flux, sig, n):
     from astropy.wcs import WCS
 
     t1, t2c, pix_ok = [], [], []
+    ours_all = rang_snapshots(ms, lc_dir, lc)
     for k, (image, header) in enumerate(wsclean_images(directory, n)):
-        mine = Path(lc_dir) / "snapshots" / f"snapshot-t{k:04d}-dirty.fits"
-        with fits.open(mine) as h:
-            ours = np.asarray(h[0].data[0, 0], np.float64)
+        ours = next(ours_all)
         t1.append(float(np.max(np.abs(ours - image)) / np.max(np.abs(image))))
         wcs = WCS(header).celestial
         row = []
@@ -252,6 +309,8 @@ def compare_wsclean(directory, lc_dir, lc, flux, sig, n):
                 pix_ok.append(list(pos["pixel"] or []) == [x, y])
             row.append(abs(image[y, x] - flux[k, s]) / sig)
         t2c.append(row)
+    for _ in ours_all:  # drain: runs the rerun's flux check
+        pass
     t1, t2c = np.array(t1), np.array(t2c)
     return {
         "T1": {

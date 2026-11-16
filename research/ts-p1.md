@@ -202,8 +202,82 @@ below 200 GB free (memory: keep 150 GB free; E2-A needs room).
 
 ## 9. Amendments
 
-None yet.
+All three amendments are dated 2026-11-16 and are **post hoc**: they were
+written after dev attempt 1 (section 10.1) had been seen. They were committed
+before any rerun and before `tsp1-held` existed. They need the coordinator's
+acceptance, as E2-A's 9.5 did. The held-out result is reported under the
+frozen rule first and then under the amended rule.
+
+**9.1 Snapshot grid: 2048² at 2″ for both arms (was 1024² at 4″).**
+- **Why.** At 4″ the grid ends at 1/(2·4″) = 25.8 kλ, but MeerKAT's longest
+  baselines reach 40.8 kλ in u and 34.4 kλ in v at the top channel (read from
+  the dev MS's UVW). With `-no-min-grid-resolution`, WSClean drops the samples
+  beyond the grid: 530 of 129,024 in interval 0. The exact gridder keeps them,
+  aliased, which is exact at pixel centres, so T2b passes.
+- **Proof.** Removing exactly those samples from rang's snapshot brings the
+  difference from WSClean down to 2.7e-7, 2.0e-7 and 7.5e-8 of the peak in
+  intervals 0, 225 and 430.
+- **Change.** At 2″ the grid ends at 51.6 kλ, so no sample in the 450
+  intervals lies beyond it. Every source keeps its pixel centre (pixel offsets
+  double), and C (0.5°, 900 px) stays inside.
+- **Unchanged.** Tolerances, data and seeds.
+- **New in the product.** `rang-core lightcurve` counts the weighted samples
+  beyond its grid (`outside_grid`) and warns. Its default stays 1024² at 4″;
+  the coordinator decides whether to change it.
+
+**9.2 T3a's bound on a noisy set: 3/√N σ (0.141σ at N = 450).**
+- **Why.** The frozen 0.1σ is 2.1 standard errors of a 450-point mean
+  (1/√450 = 0.047σ). With six sources, one of them fails by chance in about
+  one set in five. Dev's E failed at 0.104σ.
+- **Change.** 3/√N σ matches T3b, which already sits at about 3 standard
+  errors (√(2/450) = 0.067).
+- **Noise check, bound frozen before the run.** To show that E's offset is
+  noise and not a flux-scale error, the noiseless twin of `tsp1-dev` (same
+  seeds, `--noiseless`, DFT only) must give |bias| ≤ 0.01σ for every source.
+  If it does not, there is a bug, and the run stops.
+- **Kept.** The frozen 0.1σ is still reported, and the noise seed is not
+  redrawn.
+
+**9.3 Bookkeeping.**
+- `rang.simtruth.SEEDS` needs an `rfi` key for its registry test, so the TS-P1
+  entries carry an unused `rfi` seed: 20261605 for dev and 20261615 for
+  held-out.
+- One TS-P1 MS is 5.76 GB (DATA, MODEL_DATA, RESIDUAL_DATA; no
+  WEIGHT_SPECTRUM), not "about 5 GB".
+- At 2048² the snapshots are not written to disk. The scorer remakes rang's
+  images in stream with the product's own `light_curves`, at the run's
+  settings, and checks that the fluxes repeat bit for bit. It reads WSClean's
+  FITS from the WSL ext4 directory. The FITS writer is covered by the tests and
+  by dev attempt 1.
 
 ## 10. Measured result
 
-Not measured yet.
+### 10.1 Dev attempt 1 (frozen settings, 1024² at 4″), 2026-11-16
+
+- **Code.** Commit `ec6bef5`; extension built from it. The clippy fix came
+  later and does not change numbers.
+- **Run paths.**
+  - Data and receipts: `D:\rang\outputs\ts-p1-20261116\` (`tsp1-dev.ms`,
+    `tsp1-dev.truth.json`, `lc-dev\`, `score-dev.json`,
+    `lc-dev.lightcurve.rang-receipt.json`).
+  - WSClean: `~/Build/tmp/20261116-ts-p1/wsc-dev` (WSL); its dirty images
+    were copied to `D:\...\wsc-dev`.
+- **σ.** σ_meas median 5.660e-5 Jy = 1.0014 σ_snap (range 0.988-1.013), so
+  the derived σ_snap holds.
+
+| Gate | Measured | Frozen verdict |
+| --- | --- | --- |
+| T1 | max 0.082, median 0.033 of the peak (worst interval 430) | **fail** (WSClean drops the samples beyond the grid, 9.1) |
+| T2a | 1.1e-10 σ | pass |
+| T2b | 2.8e-6 σ | pass |
+| T2c | 0.258σ; WCS pixels equal rang's for all six positions | **fail** (same cause) |
+| T3a | A 0.027, B −0.048, C 0.039, D 0.031, **E 0.104**, F −0.026 σ | **fail** (E) |
+| T3b | 0.975-1.103 | pass |
+| T3c | all 450 times equal | pass |
+| T3d | every pulse ≥ 7σ recovered | pass |
+
+- **Timing** (shared host, 4 threads, not gated):
+  - `rang-core lightcurve`: 108.6 s wall, 267 CPU-s, peak RSS 151 MB. Of the
+    wall time, image 95.9 s, read 10.6 s, DFT 1.3 s.
+  - WSClean `-intervals-out 450 -j 4`: 128.5 s wall, peak RSS 155 MB.
+  - The simulation: 63 s.
