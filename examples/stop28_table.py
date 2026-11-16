@@ -59,7 +59,7 @@ def qw(x, fast, plain):
 def show(rows):
     for r in rows:
         print(
-            f"  {r['name']:<34} maj {r['majors']:>2} comps {r['components']:>7} false {r['false_mjy']:7.3f} mJy "
+            f"  {r['name']:<34} maj {r['majors']:>2} comps {r['components'] if r['components'] is not None else '-':>7} false {r['false_mjy']:7.3f} mJy "
             f"Q/Qt {r['q_qt']:.5f} rec {r['rec_fw']:.4f} inner peak {r['inner_peak_ujy']:7.2f}"
         )
 

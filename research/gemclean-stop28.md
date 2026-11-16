@@ -198,3 +198,60 @@ residual, image, PSF and dirty FITS on all three.
 **Chosen by the frozen rule (§3): ε = 0.02**, the smallest grid value saving a cycle on all three; every quality
 check passes on each. As predicted from the traces. Scores: `scores/dev-s{1,2,3}.json`; table
 `summary-dev.json` (`examples/stop28_table.py dev`).
+
+### Held out, blind: H5-H8 at ε = 0.02 (the verdict)
+
+GeMClean `-j 4`; WSClean 3.7 `rang-wsclean-native:3.7`, nominres, `-mgain 0.8`, `-j 8`; one scorer and one beam
+per sky (10.76″, 11.28″, 11.44″, 10.99″). WSClean's plain loop reports no component total.
+
+| sky | imager | majors | comps | false \|flux\| mJy | Q/Q_truth | recovery (fw) | inner peak µJy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| H5 | GeMClean default | 8 | 517,615 | 162.25 | 1.06868 | 0.9984 | 100.02 |
+| H5 | **ε = 0.02** | **5** | 516,345 | 160.98 | 1.06889 | 0.9984 | 101.96 |
+| H5 | WSClean fast | 10 | 505,075 | 115.92 | 1.07016 | 0.9983 | 238.54 |
+| H5 | WSClean plain | 7 | – | 164.35 | 1.06932 | 0.9984 | 108.47 |
+| H6 | GeMClean default | 5 | 32,242 | 0.517 | 1.00490 | 0.9961 | 99.99 |
+| H6 | **ε = 0.02** | **4** | 32,237 | 0.517 | 1.00490 | 0.9961 | 100.04 |
+| H6 | WSClean fast | 5 | 31,808 | 0.496 | 1.00497 | 0.9960 | 177.81 |
+| H6 | WSClean plain | 4 | – | 0.631 | 1.00490 | 0.9961 | 110.79 |
+| H7 | GeMClean default | 5 | 31,218 | 5.721 | 1.00519 | 0.9348 | 99.97 |
+| H7 | **ε = 0.02** | **5** | 31,218 | 5.721 | 1.00519 | 0.9348 | 99.97 |
+| H7 | WSClean fast | 7 | 30,412 | 6.186 | 1.00496 | 0.9353 | 228.94 |
+| H7 | WSClean plain | 6 | – | 5.689 | 1.00483 | 0.9348 | 104.26 |
+| H8 | GeMClean default | 6 | 145,825 | 111.36 | 1.01983 | 0.9941 | 99.97 |
+| H8 | **ε = 0.02** | **5** | 145,584 | 110.85 | 1.01987 | 0.9941 | 101.33 |
+| H8 | WSClean fast | 10 | 143,745 | 91.56 | 1.02023 | 0.9941 | 263.63 |
+| H8 | WSClean plain | 7 | – | 116.16 | 1.01969 | 0.9941 | 118.85 |
+
+- **Savings 3, 1, 0, 1: mean 1.25 cycles.** The cut cycles started at 101.96, 100.04 and 101.40 µJy (H5 then
+  cycles of 120 and 2 components; H6 5; H8 241). H7's last cycle started at 102.82 µJy, above 102, so nothing changed.
+- **Q-D passes on every sky:** false |flux| 0.992-1.000 × the default's, Q/Q_truth within 0.02 %, recovery equal to
+  four decimals, inner peak below 102 µJy (largest 101.96 on H5).
+- **Q-W passes on every sky:** false |flux| / lower WSClean loop 1.39, 1.04, 1.01, 1.21 (bar 1.6); Q/Q_truth within
+  0.05 % of plain's; recovery equal to plain's to 0.0001.
+- **At most 5 cycles on every sky:** 5, 4, 5, 5.
+- **Outcome under §6: gain.** Over GeMClean's own rule only.
+- **Novelty reading: not met.** Below WSClean plain's cycles at no more false flux on H5 (5 against 7) and H8 (5 against
+  7). Not on H6 (4 against 4) or H7 (5 against 6, but 5.721 against 5.689 mJy false flux).
+- **H5 is the one sky where the default missed the issue's bar badly** (8 cycles). The rule brings it to 5. Its false
+  flux is high for every imager (116-164 mJy, 200 sources up to 2 Jy). WSClean's fast loop is lowest there.
+
+### Seen: H1-H4 (not blind; predictions in §4)
+
+Default reproduced exactly: 6, 6, 8, 5 cycles, false |flux| 1.427, 6.156, 11.842, 5.328 mJy, as the archive.
+At ε = 0.02: **5, 5, 6, 4, as predicted**; false |flux| 1.427, 6.135, 11.832, 5.328 mJy; Q/Q_truth unchanged at
+five decimals; inner peaks 100.15, 100.16, 100.18, 100.07 µJy. Q-D and Q-W pass on all four. H3 still has 6 cycles
+(its sixth cycle starts at 102.59 µJy). By §6's wording this set would read "partial gain"; it does not enter the
+verdict.
+
+### Seen: bright-source cases (the model's own measures; predictions in §4)
+
+| case | default: cycles, comps, model px, off-source Σ\|flux\| Jy | ε = 0.02: same | inner peak µJy |
+| --- | --- | --- | ---: |
+| H1 + 30 Jy | 7, 88,682, 2,522, 16.4481 | 6, 88,665, 2,522, 16.4479 | 100.13 |
+| H4 + 30 Jy | 6, 55,509, 30,688, 7.8450 | 5, 55,502, 30,683, 7.8450 | 100.06 |
+| S2 + 30 Jy off 20 px | 6, 94,678, 4,558, 16.0164 | 5, 94,654, 4,558, 16.0161 | 100.08 |
+| H3 + 100 Jy | 8, 166,396, 6,263, 27.6342 | 6, 166,166, 6,254, 27.6320 | 100.82 |
+
+All stop at the threshold, as predicted (6, 5, 5, 6); the defaults equal [stale-floor.md](stale-floor.md)'s rows. No
+budget, no ascending cycle.

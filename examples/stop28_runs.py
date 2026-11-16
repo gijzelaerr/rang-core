@@ -87,15 +87,31 @@ def gem(out_dir, name, ms, size, tol=None, scale="1.5asec", thr="100e-6", mem=6)
     return locked(cmd, THREADS, mem, out_dir / f"{name}.log")
 
 
+def fits_header(path):
+    """Numeric cards of a FITS primary header (no astropy in the driver's Python)."""
+    out = {}
+    with open(path, "rb") as f:
+        while True:
+            block = f.read(2880).decode("ascii")
+            for i in range(0, 2880, 80):
+                card = block[i : i + 80]
+                key = card[:8].strip()
+                if key == "END":
+                    return out
+                if card[8:10] == "= ":
+                    try:
+                        out[key] = float(card[10:].split("/")[0])
+                    except ValueError:
+                        pass
+
+
 def beam_of(sky):
     """The scorer's beam (arcsec): for H1-H4 the archived scores' value; for H5-H8 the geometric
     mean of WSClean's fitted beam on its nominres fast image (amendment 3)."""
     if sky in ("h1", "h2", "h3", "h4"):
         arch = HELD / "sim" / "scores" / f"gemclean-{sky}.json"
         return json.loads(arch.read_text(encoding="utf-8"))["beam_arcsec"]
-    from astropy.io import fits
-
-    h = fits.getheader(O / "wsclean" / f"{sky}-abs-nominres-fast-j8-image.fits")
+    h = fits_header(O / "wsclean" / f"{sky}-abs-nominres-fast-j8-image.fits")
     return (h["BMAJ"] * h["BMIN"]) ** 0.5 * 3600.0
 
 
