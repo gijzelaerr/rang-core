@@ -796,3 +796,60 @@ remade with FLAG_ROW ignored (`flag_row_ignored`).
   the same bounds.
 - It is applied to `tsp1-held2`, which was already read, by rescoring with
   the frozen code plus this report.
+### 15.4 GeMClean and FLAG_ROW
+
+**Before.**
+- GeMClean already gave FLAG_ROW rows zero gridding weight, in both of its
+  gridding paths (`input.rs` `gridding_weights_tapered` and the per-channel
+  path in `cli.rs`).
+- Those rows still entered the uniform and Briggs weight grid
+  (`selected = all rows` in `input.rs` and `stokes.rs`). Under natural
+  weighting that changes nothing.
+- The module comment said this was "as in WSClean". WSClean in fact never
+  reads FLAG_ROW, and grids such rows if their cells are unflagged.
+
+**Change.**
+- Both weight grids now leave FLAG_ROW rows out.
+- The comment is corrected.
+- New test `gemclean::input::tests::flag_row_rows_are_left_out_of_gridding_and_the_weight_grid`
+  checks three things:
+  - a FLAG_ROW row with unflagged cells gets zero gridding weight;
+  - the uniform weights equal those of the same data with that row's
+    weight zeroed;
+  - without FLAG_ROW, the row's uv-cell partner gets a different weight.
+
+**Bit-identity on the archived cases.** The change can alter an image only
+through FLAG_ROW rows with nonzero Stokes I weight.
+- `research/results/ts-p1/flagrow_probe.py` counted them in the 13
+  archived G2-G9 Measurement Sets (the list in
+  `research/results/gemclean-beam-uv/probe.jsonl`).
+- Every set has 0 FLAG_ROW rows and 0 such samples
+  (`flagrow_probe.jsonl`).
+- So every archived GeMClean output on them is unchanged bit for bit. The
+  argument rests on the code path; the images were not regenerated.
+
+### 15.5 T4 under amendment 15.2 (`tsp1-noise2`, read once)
+
+- **Λ_peak** = [[0.1518, −0.0217], [−0.0217, 0.1276]] pixel⁻². With the
+  pixel-grid correction this gives E5 = 235.3 and E7 = 0.0016.
+- **Measured.** 256 positive candidates at ≥ 5σ (+1.35 Poisson σ; 3√E5 =
+  46) and 243 negative. No candidate of either sign at ≥ 7σ.
+- **Verdict.** **T4 met** under amendment 15.2 (post hoc, written after
+  `tsp1-noise`).
+- **Frozen 13.2 rule on the same draw:** E5 = 188, so it fails again.
+- **Post hoc check on `tsp1-noise`** (PSF from `tsp1-noise2`, the same UVW
+  and weights): 239 against 235.3, +0.24σ.
+- **Run paths.** `lc-noise2\`, `score-t4-noise2.json` and
+  `score-t4-noise-posthoc.json` in `D:\rang\outputs\ts-p1-20261116\`;
+  copies in `research/results/ts-p1/`. `tsp1-noise2.ms` was deleted after
+  scoring.
+### 15.6 `tsp1-held2`: T1/T2c with FLAG_ROW ignored (15.3)
+
+- **Rescore.** The scorer reran with `--flag-row-ignored` against a fresh
+  WSClean run on the same MS: `wsc-held2b`, 348 s and 273 MB, `-j 4`, the
+  same settings as the first run.
+- **Raw (the verdict) reproduces 14.1:** T1 max 0.194, median 0.128; T2c
+  0.51σ. **Not met (oracle mismatch: FLAG_ROW).**
+- **FLAG_ROW ignored (the known-difference check):** T1 max 3.7e-7, median
+  5.9e-8; T2c 5.0e-6 σ. Both within the bounds.
+- **Archive.** `research/results/ts-p1/score-held2-flag-row-ignored.json`.
