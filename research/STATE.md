@@ -32,6 +32,7 @@ E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md
   phased)". That says nothing about cross-hand terms: 3C 286's XY phase is −176° (coherence 0.69, LUNO 1.9°),
   so KCROSS and Xf are reported as measured. Leakage is uncorrected (1.5 %); 31.5 % of cells carry native flags.
 - Next: the rang arm on nash once its build works, then the gates as frozen.
+
 MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
 receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
 [results/msv4-interop-m2.json](results/msv4-interop-m2.json)). Amendment frozen before any code or conversion; reader
