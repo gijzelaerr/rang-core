@@ -8,6 +8,7 @@ Each entry is one report and its verdict, newest first within a section.
 ## Start here
 
 - [vision.md](vision.md): ra-ng's direction (2026-11-11): beginners, astronomers and algorithm scientists working with agents; MeerKAT first, LOFAR in mind; pulsars and transients; GPU where it pays, cross-platform; contributions by pull request; research skills that propose and measure.
+- [TS-P1, residual snapshot light curves](ts-p1.md) (issue #9; proposal frozen 2026-11-16 before code): `rang-core lightcurve`; gates T1 (WSClean `-intervals-out`), T2 (independent DFT) and T3 (injected transients) on two simulations; T4-T7, ESO137 and E2-A deferred.
 - [V1, time-series scope](v1-timeseries-scope.md): proposed, nothing built. First product P1: residual 8 s snapshot light curves and snapshot candidates from a calibrated MeerKAT MS. Oracles: WSClean `-intervals-out` and the exact DFT. Data: ESO137 for development; TRON's ω Cen set (SARAO token) held out. Beamformed work deferred: no public MeerKAT filterbank data. Seven tolerances and five owner decisions.
 - [Weekly digests](digests/2026-11-11.md) (V4, newest 2026-11-11; skill `.claude/skills/rang-digest`): new papers and releases per area, read-only, and ranked [proposal stubs](proposals/joint-selfcal-regularised.md), none approved.
 - [V6, VLBI scope](v6-vlbi-scope.md) (proposed, 2026-11-11): what carries over from rang-core and what is new; tools and public data (N14C3, EHT, the 2025 MeerKAT-EVN run); first piece proposed: fringe fitting against CASA `fringefit` on simulated truth and N14C3; five owner decisions.

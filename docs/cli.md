@@ -46,6 +46,12 @@ summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
 the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
 tasks to rang's.
 
+**Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
+--position NAME=RA,DEC --out DIR` gives light curves at given positions from
+the residual (data column minus MODEL_DATA) after `rang-core run`, one point
+per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+snapshot dirty image and its robust rms. It reads the MS only.
+
 **Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
 run status, receipts and FITS statistics to an agent over the Model Context
 Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
@@ -89,6 +95,7 @@ other commands:
   config          defaults | check CONFIG [MS]: the configuration schema
   listobs         MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs
   flagdata        MS [key=value ...]: CASA's flagdata modes, CASA's keywords
+  lightcurve      MS --position RA,DEC --out DIR: residual snapshot light curves
   research        STAGE VERB ARGS...: the research chains (rang-core research -h)
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
@@ -504,6 +511,48 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
+```
+
+## `lightcurve`
+
+```text
+$ rang-core lightcurve -h
+usage: rang-core lightcurve [-h] [--position [NAME=]RA,DEC] [--positions CSV]
+                            --out OUT [--field FIELD] [--column COLUMN]
+                            [--model-column MODEL_COLUMN] [--no-model]
+                            [--interval-steps INTERVAL_STEPS] [--size SIZE]
+                            [--scale SCALE] [--no-images] [--fits]
+                            ms
+
+Light curves at given positions from the residual (data column minus
+MODEL_DATA) of a field after rang-core run, one point per interval of
+--interval-steps integrations: the exact DFT flux at each position, the
+nearest pixel of the interval's dirty snapshot image and the image's robust
+rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. Reads the
+MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.
+
+positional arguments:
+  ms                    the Measurement Set
+
+options:
+  -h, --help            show this help message and exit
+  --position [NAME=]RA,DEC
+                        a position, degrees or hh:mm:ss,dd:mm:ss (repeatable)
+  --positions CSV       positions from a file with columns name, ra_deg,
+                        dec_deg
+  --out OUT             the output directory (new)
+  --field FIELD         field id or name (default 0)
+  --column COLUMN       data column (default CORRECTED_DATA if present, else
+                        DATA)
+  --model-column MODEL_COLUMN
+                        subtracted (default MODEL_DATA)
+  --no-model            use the data column as it is
+  --interval-steps INTERVAL_STEPS
+                        integrations per interval (default 1)
+  --size SIZE           snapshot width and height (1024)
+  --scale SCALE         snapshot pixel size (default 4asec)
+  --no-images           DFT fluxes only, no snapshots
+  --fits                also write each snapshot as FITS
 ```
 
 ## `mcp`
