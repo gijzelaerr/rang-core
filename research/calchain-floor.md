@@ -648,3 +648,11 @@ replayed; not traced.) No gate was read.
 
 Also named (section 10's table): in R's strict arm the far solutions are
 ID 15 in interval 9 (2,154 / 1,701 ns) and ID 40 in interval 7 (28 ns).
+
+## Coordinator decisions, 2026-11-17
+
+- `calibrate.k_zero_start` is merged opt-in (default off, bitwise unchanged when off).
+- E2-A (now development data) is measured with the key on, under a short note frozen before the run, as a development reading. Then E2-N is measured with the key on, after its frozen arm has run with the default. The default is decided after both: on, if neither shows a regression beyond the frozen tolerance and the ID 50 class of outlier is fixed.
+- The per-interval limit (a second multi-ns antenna in the same interval keeps the bad FFT run) is listed as an open item. A per-antenna choice is the follow-up if a case is found.
+- Pass 0's finding, that a truth stepping between scans plus linear interpolation sets a floor, goes into the design rules for future simulation controls: a noise-free control must use constant truth or `interp: nearest`.
+- nash: `~/rang-data/outputs/calchain-floor-20261117` (70 GB, rebuildable) may be deleted after the E2-A reading.
