@@ -517,3 +517,11 @@ which read the token into memory and scrub it from every log.
 - The next step is D1. The first code step after it (band switch for beams
   and masks, 0408−65 model, a UHF MVF test fixture) waits for the data,
   per the issue.
+
+## Coordinator decisions, 2026-11-17
+
+- D3, in part: no CC BY-NC material ships in the GPL package or the repository. The NC terms conflict with GPL-3.0's freedom to use the material for any purpose. UHF calibrator models are either taken from an openly licensed source, or derived by ra-ng from data it may use, or read at run time from a path the user supplies.
+- D6: the code warns. Any stage that is given UHF frequencies (or S-band ones) logs a warning saying that only L band is validated and naming `docs/limits.md`. This is a small code change, to be made with the v0.3.0 readiness work.
+- D4 and D5 wait for data: they are frozen only once a development set exists.
+- D1, D2, D7 and D8 are the owner's: they involve archive access on the owner's account or contact with SARAO.
+- The anonymous MVF capture block found in passing is recorded only. It is not fetched, until D7 is answered.
