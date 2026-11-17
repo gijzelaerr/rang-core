@@ -1,6 +1,6 @@
 # E2-A gate 3b follow-up: the K estimators, the unattributed part, the synthetic
 
-Status 2026-11-17: **protocol, frozen before any test** (sections 1-6).
+Status 2026-11-17: **measured** (sections 8, 10); protocol frozen before any test (sections 1-6), post hoc addenda 7 and 9.
 Results are added below it; anything decided after a result is read is
 dated and labelled post hoc. Follows [e2a-3b-diag.md](e2a-3b-diag.md)
 (sections 9-12 and its coordinator decisions 2 and 4); issue #2, v0.3.0.
@@ -349,3 +349,96 @@ running it:
 - Every sim composite against truth is also reported on data-unflagged
   cells (the reading used below); the all-cell figures stay in the
   receipts.
+
+## 10. Results of step 4 (simulated truth) and step F (measured 2026-11-17, nash)
+
+`score-sim-*.json`, `score-f0.json`. Composites against truth and between
+arms are on data-unflagged cells (section 9); all-cell figures are in the
+receipts.
+
+**Control S0f not met; S0's not met either (both post hoc, section 9).**
+Noise-free, with B_T = 1, rang U's composite against truth is 5.7e-4
+(KGB1) and 3.7e-4 (KGB0), also when scored at the G0 solution times
+only, so it is not interpolation between scans. The generator is exact
+(DATA = M J_T to 2.5e-7), K0 is recovered exactly (0.0 ns) and, given the
+same K, rang and CASA agree to 7e-7 (U-CK, KGB0). The noise-free floor
+the two tools share was not explained (null). Composites against truth
+are therefore read only as a comparison between arms, not as accuracy;
+the K errors are read directly.
+
+**H-K: rang's K is nearer truth (outcome K1), in every case and seed.**
+|Δτ| against truth, median ns (all antennas; without ID 50 within 10 %):
+
+| Case | rang K0 | CASA K0 | rang K1 | CASA K1 | CASA/rang K1 |
+| --- | --- | --- | --- | --- | --- |
+| S0 (noise-free) | 0.0 | 1.1e-4 | 4.6e-5 | 2.5e-4 | 5.5 |
+| S0f (noise-free, B flat) | 0.0 | 1.1e-4 | 4.8e-5 | 2.7e-4 | 5.6 |
+| S1, seed 1 / 2 | 2.0e-5 / 1.7e-5 | 1.1e-4 / 9.9e-5 | 7.0e-5 / 6.7e-5 | 3.6e-4 / 3.4e-4 | 5.1 |
+| S2, seed 1 / 2 (labelled: truth carries B0's part) | 2.1e-3 / 2.1e-3 | 7.4e-3 / 7.4e-3 | 2.0e-3 / 2.0e-3 | 5.5e-3 / 5.7e-3 | 2.8 |
+
+With nothing pre-applied and no noise, CASA's K0 misses truth by 1.1e-4
+ns where rang's is exact: a bias of CASA's estimator, not noise. The noisy
+ratios (about 5) exceed section 2's 2.6 for a refant-baselines-only fit,
+which fits a bias on top of the noise. CASA's `gaintype='K'` is the less
+accurate estimator here; rang's K is not changed (section 5). The
+averaged-divided arm D gives rang U's K to 1 %.
+
+**Composites (KGB1, data-unflagged median).**
+
+| Case | U-C | U-CK | U vs truth | C vs truth | CK vs truth |
+| --- | --- | --- | --- | --- | --- |
+| S0 | 3.6e-4 | 4.1e-6 | 2.9e-4 | 6.0e-4 | 2.9e-4 |
+| S0f | 2.3e-3 | 9.0e-4 | 5.7e-4 | 2.1e-3 | 2.0e-4 |
+| S1, seeds 1 / 2 | 3.6e-3 / 4.1e-3 | 2.8e-3 / 2.8e-3 | 3.9e-3 / 3.9e-3 | 2.3e-3 / 2.8e-3 | 2.6e-3 / 2.7e-3 |
+| S2, seeds 1 / 2 | 6.5e-4 / 1.4e-3 | 2.8e-5 / 1.9e-4 | 2.0e-3 / 2.4e-3 | 2.2e-3 / 2.4e-3 | 2.0e-3 / 2.3e-3 |
+
+- Section 4's attribution rule (C ≥ 2× U against truth and U-C ≥ 2× U-CK)
+  is met in S0 (noise-free: 6.0e-4 against 2.9e-4; 3.6e-4 against 4e-6).
+  In S2 only its second half holds: sharing rang's K takes U-C down 7-24×,
+  as on the real subset, while the arms' errors against truth sit on the
+  shared floor. In S1 neither half holds. Met in one case of three.
+- **H-B: mixed (outcome B3).** CK is nearer truth than U in S1 (0.68×
+  both seeds) and S0f; a tie in S0 and S2. Not explained; no rang
+  change. The real 1.1e-3 is the one flag of section 8, not this.
+
+**Step F, full scale (E2-A field 0, 61 antennas; CASA on matched
+flags).** Controls met: B1 off against the archived B1 0.0; archived rang
+against archived CASA 3.16e-3 / 2.36e-2 (9.13).
+
+| rang (archived K1, G1; B1 as named) against | B1 as frozen | B1 divided (the fix) |
+| --- | --- | --- |
+| CASA as archived (9.13) | 3.16e-3 / 2.36e-2 | 2.28e-3 / 1.55e-2 |
+| CASA with its own K, pass 0 on the flag stage's FLAG (section 10 of e2a-3b-diag) | 3.13e-3 / 2.29e-2 | **2.24e-3 / 1.45e-2** |
+| CASA on rang's K0, K1 (T-K3's construction) | 1.79e-3 / 1.93e-2 | **4.1e-5 / 4.0e-3** |
+
+CASA's two arms differ from each other by 2.03e-3. At full scale, with
+the fix on and the K shared, rang and CASA agree to a median of 4.1e-5
+(class B's median met) with p95 4.0e-3 (over 3e-3). What separates them
+in the frozen construction is the K estimator, which the simulations show
+is CASA's less accurate one.
+
+## For the coordinator
+
+- **K (H-K):** rang's K is nearer simulated truth in every case: CASA's K1
+  error is 5× rang's with noise and CASA's K0 is biased by 1.1e-4 ns with
+  none. No rang change. At full scale the K estimators carry E2-A's
+  remaining 2.24e-3: with CASA on rang's K the composite is 4.1e-5 / 4.0e-3.
+- **The 1.1e-3 (subset):** one G1 solution (ID 50, interval 7, X) that
+  CASA flags by `minsnr` on its averaged SNR (2.2) and rang keeps (30).
+  It enters every antenna through B1. A definition difference
+  (c2a-gain.md), not a rang defect.
+- **The synthetic's 5e-3:** the unaveraged kernel drops a cell with any
+  correlation flagged; the averages are per correlation, and the divided
+  average is the least-squares minimum (SciPy, 2e-8). Not in E2-A (flags
+  equal over correlations). Documented, one test; no code change.
+- **Null:** the simulations' shared noise-free floor (S0f 5.7e-4); H-B
+  mixed.
+- **Reserve leg:** as frozen (CASA with its own K) the predicted composite
+  is 2.24e-3 / 1.45e-2 with the fix: class B fails again, on CASA's K.
+  Not worth spending unless the gate changes. With T-K3's construction
+  (CASA on rang's K) the prediction is 4.1e-5 / 4.0e-3: the median passes
+  and p95 misses by 1.3×. Owner decision: a K-derived tolerance (decision
+  3 of e2a-3b-diag) or the K-shared construction, written before data.
+- **Disk (nash):** `~/rang-data/outputs/e2a-3b-k-20261117` (the subset,
+  six simulated subsets with their arms, field 0 `f0.ms`), rebuildable
+  with `k_run.py`/`simtag.sh`. Size is in the hand-back.

@@ -20,6 +20,18 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-A gate 3b follow-up, 2026-11-17 (branch `e2a-3b-k`; [e2a-3b-k.md](e2a-3b-k.md), protocol frozen in `b02c95d`
+before any test, post hoc addenda 7 and 9; receipts [results/e2a-3b-k/receipts/](results/e2a-3b-k/receipts/); run on
+nash). K: on simulated truth (the subset's geometry, flags and measured noise) rang's K is nearer truth in every case;
+CASA's K1 error is about 5× rang's and its K0 is biased by 1.1e-4 ns with no noise, so CASA's `gaintype='K'` is the
+less accurate estimator; rang's K is unchanged. Full scale (E2-A field 0, matched flags, divided B1): against CASA with
+its own K 2.24e-3 / 1.45e-2, against CASA on rang's K 4.1e-5 / 4.0e-3. The subset's unattributed 1.1e-3 is one G1
+solution (ID 50, interval 7) that CASA flags by `minsnr` on its averaged SNR (2.2; rang's 30) and that B1 spreads to
+every antenna (CASA's B1 on rang's K and G agrees to 1.0e-4). The 4-antenna synthetic's 5e-3: the unaveraged kernel
+drops a cell with any correlation flagged, the averages are per correlation; the divided average is the
+least-squares minimum (SciPy, 2e-8); E2-A's flags are equal over correlations, so no effect there (one test added).
+Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e-4), H-B mixed. A reserve leg as
+frozen would fail again on CASA's K (predicted 2.24e-3); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
