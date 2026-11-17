@@ -449,3 +449,26 @@ A0 2.2's probe, first 800 rows of each field, 1391.0-1416.9 MHz (channels 640-67
   (29.9-34.8 % per scan), no FLAG_ROW, so `--flags` took effect. Every probe cell above happened to be
   unflagged (25,600 = 800 rows × 32 channels on each field).
 - Every gate of section 6 is read as frozen. Nothing else changes.
+
+### 9.3 The smoke (amendment 3), met (2026-11-17, development data only)
+
+- **(a)** `rang-core config check e2n.yaml e2n.ms` from the nash wheel venv (Linux wheel SHA-256
+  `9b096274…0107`, built at 99a5261 with `x86-64` RUSTFLAGS by `tools/wheel/build.py`): "valid for
+  flag, calibrate, apply, image, selfcal". Met.
+- **(b)** `e2n_dryrun.py` on A1 small, then `e2n_nash_chain.sh` from `columns-before` to
+  `final-restore`: every step rc 0 and every stage of `run.stages` done (flag 2.7 s, calibrate 7.9 s,
+  apply 2.0 s, image 14.7 s, selfcal 48.5 s). Met, after three fixes to the scripts, none to rang or to a
+  gate, each found on the dry run and committed before E2-N's run:
+  1. `e2_post.applycal_spec` failed when the apply summary's `scans` is null (no `data.scans`, as
+     e2n.yaml): it now passes CASA an empty scan selection (every scan). `5a8b223`.
+  2. `restore` needs `columns-before.json`, which E2-A's launcher wrote; the chain now starts with a
+     `columns-before` step. For the dry run it was taken from the unrun A1 copy.
+  3. `e2_rows_a.target-unit-on` reads CASA's applycal record as `target-applycal-result.json`;
+     `e2n_casa3b.py applycal` now writes it under that name too.
+  Records: [results/e2n/smoke/](results/e2n/smoke/). The scores of the dry run mean nothing (A1 small,
+  1,024², multiscale off) and are not read.
+- **Lock (procedural, labelled):** nash's lock was held by exclusive timing runs for about 80 min of
+  the smoke, and each of the chain's 40 steps queued behind them. From here the post chain runs under
+  one outer hold (16 slots, 96 GB: the largest step's booking), the steps inside it as nested holds;
+  the rang arm keeps its own job (16 slots, 96 GB).
+
