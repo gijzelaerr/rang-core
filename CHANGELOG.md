@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (issue #4, multi-node stage 2 step 1, `research/multinode-executor.md`): `data.executor: spool` with
+  `data.spool` (an absolute directory on a filesystem every node mounts) and `data.spool_wait_s` (default 600).
+  The stage writes each chunk task into the spool, workers started by any launcher (`python -m rang.core_spool
+  worker DIR --threads T`: on this host, over ssh, by `srun` or by a Slurm or PBS job array) run them, and the
+  stage reduces the partials in plan order as the single MS writer, so results are bit-identical to one process.
+  `data.processes` is then the number of workers planned for. A worker that stops beating for 60 s has its task
+  re-run elsewhere (at most 3 runs); a worker of another rang or `_core` build is refused. Partials are pickles,
+  so the spool must be private to the user (refused on POSIX otherwise). Resource keys: they leave the stage hash
+  unchanged. A prototype: chosen over Slurm/PBS job arrays, Dask and Ray by the comparison in that note.
 - New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
   polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
   entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;
