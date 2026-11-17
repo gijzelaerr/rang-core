@@ -101,7 +101,12 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -reorder                  with several polarisations: keep each polarisation's read and each
                             entry's visibilities in temporary files, read back where used (same
-                            images, less memory; research/gemclean-memory2.md)
+                            images, less memory; research/gemclean-memory2.md, -memory3.md); the
+                            default with -join-polarizations. The files take 12 B per row, channel
+                            and polarisation read plus 8 B per weighted visibility and polarisation
+                            (about 28 GB for 115,000 rows of 4096 channels in IQUV); a killed run
+                            leaves them (<name>-*.tmp, *.spill)
+  -no-reorder               keep all of that in memory, also with -join-polarizations
   -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
@@ -290,6 +295,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     // -single or -double; otherwise single precision for an accuracy of 1e-5
     // or coarser (task G7, research/g7-defaults.md).
     let mut precision: Option<bool> = None;
+    let mut reorder: Option<bool> = None;
     let mut a = Args {
         ms: PathBuf::new(),
         name: "gemclean".into(),
@@ -479,7 +485,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     Some((number(flag, s.to_string())?, number(flag, t.to_string())?));
             }
             "-no-plan-reuse" => a.plan_reuse = false,
-            "-reorder" => a.reorder = true,
+            "-reorder" => reorder = Some(true),
+            "-no-reorder" => reorder = Some(false),
             "-temp-dir" => a.temp_dir = Some(PathBuf::from(value(&mut i)?)),
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
@@ -799,6 +806,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         a.multiscale = Some(ms);
     }
     a.single = precision.unwrap_or(a.epsilon >= 1e-5);
+    // -reorder is the default with joined polarisations
+    // (research/gemclean-memory3.md, section 6); -no-reorder switches it off.
+    a.reorder = reorder.unwrap_or(a.pols.len() > 1 && a.join_pols);
     Ok(a)
 }
 
@@ -3783,6 +3793,30 @@ mod tests {
         assert_eq!(a.size, 64);
         assert_eq!(a.weight, WeightClass::Briggs(-0.5));
         assert_eq!(a.niter, 10);
+        // -reorder is the default with joined polarisations only
+        // (research/gemclean-memory3.md).
+        for (line, want) in [
+            ("-size 64 64 -scale 2asec x.ms", false),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV x.ms",
+                false,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -reorder x.ms",
+                true,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -join-polarizations x.ms",
+                true,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -join-polarizations -no-reorder x.ms",
+                false,
+            ),
+        ] {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            assert_eq!(parse_args(&raw).unwrap().reorder, want, "{line}");
+        }
         for (line, want) in [
             (
                 "-size 64 64 -scale 2asec x.ms",

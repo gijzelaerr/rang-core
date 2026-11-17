@@ -149,7 +149,15 @@ fn joined_iquv_peak_heap_stays_under_the_frozen_bound() {
         .args(["-pol", "IQUV", "-join-polarizations"])
         .args(["-channels-out", "4", "-join-channels"])
         .args(["-data-column", "DATA", "-no-update-model-required"])
-        .args(["-memory-report", "-j", "2", ms.to_str().unwrap()])
+        // The in-memory path, as measured in phase 1 (-reorder is the default with
+        // joined polarisations since research/gemclean-memory3.md).
+        .args([
+            "-memory-report",
+            "-j",
+            "2",
+            "-no-reorder",
+            ms.to_str().unwrap(),
+        ])
         .output()
         .unwrap();
     let stdout = String::from_utf8_lossy(&out.stdout);
@@ -264,7 +272,7 @@ fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
     write_case(&ms, NANT, REORDER_DUMPS, REORDER_NCHAN);
     let tmp = dir.join("tmp");
     std::fs::create_dir_all(&tmp).unwrap();
-    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &[]);
+    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &["-no-reorder"]);
     let (reorder, heap_reorder, clean_reorder) = run_reorder_case(
         &dir,
         &ms,
