@@ -186,10 +186,11 @@ On nash, `~/rang-data/outputs/e2a-kzero-20261117/` (O). Driver
   arms hold 8, the most allowed from 21:30 to 06:00 SAST. Log
   `O/ARM/R/chain-steps.log`, last line `ARM DONE`.
 - `kz_3b.sh`, waits for ZS's and ZSD's calibrate; every step starts only
-  between 06:00 and a start that ends, by its estimate, before 21:30: OFF's
-  C-copy and run (8 slots), `kz_f0.py flags` and `prep` per arm, CASA `tf`
-  and `k` per arm (4 slots each), `kz_score.py score`. Log
-  `O/3b-steps.log`, last line `3B DONE`.
+  between 06:00 and a start that ends, by its estimate, before 21:30. One
+  branch per arm at once: for OFF first its C-copy, run (8 slots) and key
+  check; for every arm `kz_f0.py flags` and `prep`, then CASA `tf` and `k`
+  (4 slots each); then `kz_score.py score`. Log `O/3b-steps.log`, last line
+  `3B DONE`.
 - Every job through the main checkout's `tools/heavy_lock.py`, slots equal
   to the threads it is allowed, inside `e2_diskguard.py` (floor 1,000 GiB on
   `/home`). Wall times per step in `O/timings.tsv`, copied to
