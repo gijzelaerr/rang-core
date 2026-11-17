@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # W6 cases (research/w6-imaging-inputs.md). Small runs: nice, 4 threads, no heavy lock
 # (CASA split under the lock).
 #   bash run.sh OUTDIR GEMCLEAN dev|held

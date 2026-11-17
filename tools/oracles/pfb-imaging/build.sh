@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Build the DF5-O pfb-imaging oracle image and record its id, size and time.
 # Usage: bash tools/oracles/pfb-imaging/build.sh [tag] [record.json]
 # The lock was resolved on the host (uv 0.12.23, 2026-10-31):

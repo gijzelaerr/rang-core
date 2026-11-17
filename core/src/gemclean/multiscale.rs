@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Multiscale CLEAN for gemclean: WSClean 3.7's `-multiscale`, radler's
 //! `MultiScaleAlgorithm` with its sub-minor loop (`research/g5-multiscale.md`).
 //!
@@ -77,6 +78,21 @@ impl Shape {
     }
 }
 
+/// The beam the scale bias is referenced to (`-multiscale-bias-reference`,
+/// issue #23 step 4, `research/multiscale-flux-fix.md`).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum BiasReference {
+    /// radler's: the theoretic beam `b`, `bias = β^(−log2(s / 2b))`, also for a
+    /// given scale list.
+    Theoretic,
+    /// The first non-zero scale `α₁` taken as radler's first automatic scale
+    /// `4b`: `bias = β^(−log2(s / (α₁/2)))`, so `α₁` gets `1/β` (Offringa &
+    /// Smirnov 2017, eq. 3). Without a non-zero scale: as `Theoretic`.
+    FirstScale,
+    /// `b` given in pixels (for example the fitted PSF FWHM).
+    Pixels(f64),
+}
+
 /// WSClean's multiscale options, with its defaults.
 #[derive(Clone, Debug, PartialEq)]
 pub struct MultiscaleSettings {
@@ -93,6 +109,16 @@ pub struct MultiscaleSettings {
     pub sub_minor_gain: f64,
     /// radler's `divergence_limit` (4; 0: off).
     pub divergence_limit: f64,
+    /// What the scale bias is referenced to (GeMClean's; default radler's).
+    pub bias_reference: BiasReference,
+    /// `-multiscale-point-cap c`: every non-zero scale's bias is at most
+    /// `c / psf_peak(s)`, so that a bare point is selected at scale 0 when
+    /// `c < 1` (GeMClean's; default none).
+    pub point_cap: Option<f64>,
+    /// `false` with `-no-negative`: radler's `allow_negative_components =
+    /// false` (signed peaks, positions at or above the threshold, the signed
+    /// sub-minor maximum).
+    pub allow_negative: bool,
 }
 
 impl Default for MultiscaleSettings {
@@ -104,6 +130,9 @@ impl Default for MultiscaleSettings {
             shape: Shape::TaperedQuadratic,
             sub_minor_gain: 0.2,
             divergence_limit: 4.0,
+            bias_reference: BiasReference::Theoretic,
+            point_cap: None,
+            allow_negative: true,
         }
     }
 }
@@ -229,10 +258,45 @@ pub fn bias_factor(scale: f64, beam: f64, count: usize, scale_bias: f64) -> f64 
     scale_bias.powf(-exponent)
 }
 
+/// The bias factor of every scale in `values` (sorted, as [`scale_list`]
+/// gives them) with `psf_peaks` their integrated PSF peaks: radler's
+/// [`bias_factor`] on the beam [`BiasReference`] chooses, then the point cap.
+/// The defaults give radler's factors exactly.
+pub fn scale_biases(
+    values: &[f64],
+    beam: f64,
+    psf_peaks: &[f64],
+    settings: &MultiscaleSettings,
+) -> Vec<f64> {
+    let reference = match settings.bias_reference {
+        BiasReference::Theoretic => beam,
+        BiasReference::FirstScale => values
+            .iter()
+            .copied()
+            .find(|&v| v > 0.0)
+            .map_or(beam, |a1| a1 / 4.0),
+        BiasReference::Pixels(p) => p,
+    };
+    values
+        .iter()
+        .zip(psf_peaks)
+        .map(|(&v, &peak)| {
+            let b = bias_factor(v, reference, values.len(), settings.scale_bias);
+            match settings.point_cap {
+                Some(c) if v != 0.0 && values.len() > 1 => b.min(c / peak),
+                _ => b,
+            }
+        })
+        .collect()
+}
+
 /// WSClean's theoretic beam in radians, `1 / max |uvw|/λ` (`MsGridder::
 /// CalculateOverallMetaData`, `CalculateMsLimits`): over the visibilities with
-/// nonzero imaging weight whose `u` falls inside the `n`-pixel grid (WSClean
-/// tests `u` on both axes, and so does this). `uvw` in metres, row-major
+/// nonzero imaging weight whose `(u, v)` falls inside the `n × n`-pixel grid.
+/// WSClean 3.5-3.7 tested `u` on both axes (#208); this follows the fix in
+/// !1068 (commit ca23d835, not yet released), `y = v * pixel_size_y *
+/// image_height`, so it differs from 3.7 only when the grid cuts `v`
+/// differently from `u`. `uvw` in metres, row-major
 /// `[u, v, w]`; `weights` row-major by channel. `None` without such a visibility.
 pub fn theoretic_beam(
     uvw: &[f64],
@@ -257,7 +321,8 @@ pub fn theoretic_beam(
                 }
                 let wavelength = C / f;
                 let x = u / wavelength * pixel * n as f64;
-                if x.floor() > -half && x.ceil() < half {
+                let y = v / wavelength * pixel * n as f64;
+                if x.floor() > -half && x.ceil() < half && y.floor() > -half && y.ceil() < half {
                     best = best.max(length / wavelength);
                 }
             }
@@ -380,7 +445,7 @@ fn embed_kernel(n: usize, side: usize, values: &[f64]) -> Vec<f64> {
 
 /// The signed value of the largest `|x|` inside the border, and its pixel;
 /// the first in raster order on ties.
-fn peak(x: &[f64], n: usize, border: usize) -> Option<(f64, usize)> {
+fn peak(x: &[f64], n: usize, border: usize, negative: bool) -> Option<(f64, usize)> {
     if 2 * border >= n {
         return None;
     }
@@ -388,9 +453,13 @@ fn peak(x: &[f64], n: usize, border: usize) -> Option<(f64, usize)> {
     let (_, p) = (lo..hi)
         .into_par_iter()
         .map(|row| {
-            let mut best = (-1.0_f64, usize::MAX);
+            let mut best = (f64::NEG_INFINITY, usize::MAX);
             for col in lo..hi {
-                let v = x[row * n + col].abs();
+                let v = if negative {
+                    x[row * n + col].abs()
+                } else {
+                    x[row * n + col]
+                };
                 if v > best.0 {
                     best = (v, row * n + col);
                 }
@@ -398,7 +467,7 @@ fn peak(x: &[f64], n: usize, border: usize) -> Option<(f64, usize)> {
             best
         })
         .reduce(
-            || (-1.0, usize::MAX),
+            || (f64::NEG_INFINITY, usize::MAX),
             |a, b| {
                 if b.0 > a.0 || (b.0 == a.0 && b.1 < a.1) {
                     b
@@ -412,17 +481,24 @@ fn peak(x: &[f64], n: usize, border: usize) -> Option<(f64, usize)> {
 
 /// [`peak`] inside `mask` (radler's `FindWithMask`); `None` when the mask
 /// has no pixel inside the border.
-fn peak_masked(x: &[f64], n: usize, border: usize, mask: &[bool]) -> Option<(f64, usize)> {
+fn peak_masked(
+    x: &[f64],
+    n: usize,
+    border: usize,
+    mask: &[bool],
+    negative: bool,
+) -> Option<(f64, usize)> {
     if 2 * border >= n {
         return None;
     }
     let (lo, hi) = (border, n - border);
-    let mut best = (-1.0_f64, usize::MAX);
+    let mut best = (f64::NEG_INFINITY, usize::MAX);
     for row in lo..hi {
         for col in lo..hi {
             let p = row * n + col;
-            if mask[p] && x[p].abs() > best.0 {
-                best = (x[p].abs(), p);
+            let v = if negative { x[p].abs() } else { x[p] };
+            if mask[p] && v > best.0 {
+                best = (v, p);
             }
         }
     }
@@ -477,6 +553,8 @@ struct Run<'a> {
     masks: Vec<Vec<bool>>,
     track: bool,
     use_masks: bool,
+    /// radler's `allow_negative_components` (`-no-negative`: false).
+    negative: bool,
 }
 
 impl Run<'_> {
@@ -518,8 +596,8 @@ impl Run<'_> {
             let border = (self.scales[s].scale * 0.5).ceil() as usize;
             let conv = self.convolve(s, integrated)?;
             let found = match self.mask_of(s) {
-                None => peak(&conv, n, border),
-                Some(m) => peak_masked(&conv, n, border, m),
+                None => peak(&conv, n, border, self.negative),
+                Some(m) => peak_masked(&conv, n, border, m, self.negative),
             };
             let (value, pixel) = found.unwrap_or((0.0, 0));
             self.scales[s].value = value;
@@ -575,8 +653,9 @@ impl Run<'_> {
 }
 
 /// `argmax |Σ a_k v_k[i]|` over the selected pixels with radler's
-/// `GetMaxComponent` order; the signed integrated value.
-fn sub_max(values: &[Vec<f64>], a: &[f64], scratch: &mut [f64]) -> (usize, f64) {
+/// `GetMaxComponent` order (`argmax Σ a_k v_k[i]` without negative
+/// components); the signed integrated value.
+fn sub_max(values: &[Vec<f64>], a: &[f64], scratch: &mut [f64], negative: bool) -> (usize, f64) {
     for (i, s) in scratch.iter_mut().enumerate() {
         let mut t = 0.0;
         for (v, &ak) in values.iter().zip(a) {
@@ -587,9 +666,10 @@ fn sub_max(values: &[Vec<f64>], a: &[f64], scratch: &mut [f64]) -> (usize, f64) 
     let mut best = 0usize;
     let mut max = scratch[0];
     for (i, &v) in scratch.iter().enumerate() {
-        if v.abs() > max {
+        let v = if negative { v.abs() } else { v };
+        if v > max {
             best = i;
-            max = v.abs();
+            max = v;
         }
     }
     (best, scratch[best])
@@ -655,6 +735,14 @@ pub fn run_multiscale_masked<M: Measurement>(
     if ms.scales.iter().any(|&v| !(v >= 0.0 && v.is_finite())) {
         return Err("-multiscale-scales must be non-negative".into());
     }
+    if ms.point_cap.is_some_and(|c| !(c > 0.0 && c.is_finite())) {
+        return Err("-multiscale-point-cap must be positive".into());
+    }
+    if let BiasReference::Pixels(p) = ms.bias_reference
+        && !(p > 0.0 && p.is_finite())
+    {
+        return Err("-multiscale-bias-reference must be positive pixels".into());
+    }
     match s.cycle_stop {
         CycleStop::PeakFraction(_) | CycleStop::MeasuredStale { .. } | CycleStop::Threshold => {}
         _ => {
@@ -700,7 +788,7 @@ pub fn run_multiscale_masked<M: Measurement>(
             kernel_side: side,
             kernel,
             kernel_peak: kv[ks / 2 + (ks / 2) * ks],
-            bias: bias_factor(v, beam, values.len(), ms.scale_bias),
+            bias: 1.0,
             psf_peak: 0.0,
             gain: 0.0,
             active: true,
@@ -727,6 +815,7 @@ pub fn run_multiscale_masked<M: Measurement>(
         masks: Vec::new(),
         track: false,
         use_masks: false,
+        negative: ms.allow_negative,
     };
     let mut auto = match masking.and_then(|m| m.auto) {
         Some(am) => Some(mask::AutoState::new(
@@ -760,6 +849,14 @@ pub fn run_multiscale_masked<M: Measurement>(
         }
         run.scales[i].psf_peak = psf_peak;
         run.scales[i].gain = s.gain / psf_peak;
+    }
+    let peaks: Vec<f64> = run.scales.iter().map(|sc| sc.psf_peak).collect();
+    for (sc, b) in run
+        .scales
+        .iter_mut()
+        .zip(scale_biases(&values, beam, &peaks, ms))
+    {
+        sc.bias = b;
     }
     drop(psf_int);
     memory::mark("multiscale: scales");
@@ -904,7 +1001,8 @@ pub fn run_multiscale_masked<M: Measurement>(
                         for k in 0..kc {
                             v += a[k] * conv[k][p];
                         }
-                        if v.abs() >= thr && run.mask_of(sel).is_none_or(|m| m[p]) {
+                        let v = if run.negative { v.abs() } else { v };
+                        if v >= thr && run.mask_of(sel).is_none_or(|m| m[p]) {
                             positions.push(p);
                         }
                     }
@@ -922,7 +1020,7 @@ pub fn run_multiscale_masked<M: Measurement>(
                 drop(conv);
                 let mut sub_model: Vec<Vec<f64>> = vec![vec![0.0; np]; kc];
                 let mut scratch = vec![0.0; np];
-                let (mut mc, mut maxv) = sub_max(&vals, &a, &mut scratch);
+                let (mut mc, mut maxv) = sub_max(&vals, &a, &mut scratch, run.negative);
                 let start_value = maxv.abs();
                 let twice = run.take_twice(sel)?;
                 let half = (n / 2) as isize;
@@ -966,7 +1064,7 @@ pub fn run_multiscale_masked<M: Measurement>(
                     if let Some(am) = auto.as_mut() {
                         am.record_pick(run.mask_of(sel), positions[mc]);
                     }
-                    (mc, maxv) = sub_max(&vals, &a, &mut scratch);
+                    (mc, maxv) = sub_max(&vals, &a, &mut scratch, run.negative);
                     if ms.divergence_limit != 0.0 {
                         diverging = maxv.abs() > start_value * ms.divergence_limit;
                     }
@@ -1189,6 +1287,8 @@ pub fn run_multiscale_masked<M: Measurement>(
             residual: residuals,
             q_final: qs,
             auto,
+            // Multiscale keeps one mask per scale (task G4).
+            auto_mask: None,
         },
         beam_pixels: beam,
         scales,
@@ -1220,7 +1320,20 @@ impl Multiscale {
                 ])
             })
             .collect();
-        obj(&[
+        // Issue #23 step 4's options, only when set (the default report is unchanged).
+        let mut extra: Vec<(&str, String)> = Vec::new();
+        match settings.bias_reference {
+            BiasReference::Theoretic => {}
+            BiasReference::FirstScale => extra.push(("bias_reference", text("first-scale"))),
+            BiasReference::Pixels(p) => extra.push(("bias_reference_pixels", num(p))),
+        }
+        if let Some(c) = settings.point_cap {
+            extra.push(("point_cap", num(c)));
+        }
+        if !settings.allow_negative {
+            extra.push(("allow_negative", "false".to_string()));
+        }
+        let mut fields = vec![
             ("shape", text(settings.shape.name())),
             ("scale_bias", num(settings.scale_bias)),
             ("sub_minor_gain", num(settings.sub_minor_gain)),
@@ -1239,7 +1352,9 @@ impl Multiscale {
             ("twice_convolved_psfs_built", self.twice_built.to_string()),
             ("cache_bytes", CACHE_BYTES.to_string()),
             ("scales", arr(&scales)),
-        ])
+        ];
+        fields.extend(extra);
+        obj(&fields)
     }
 
     /// WSClean's scale lines (`ConvolvePsfs`) and summary.
@@ -1327,6 +1442,147 @@ mod tests {
         assert_eq!(bias_factor(10.0, 2.5, 1, 0.6), 1.0);
     }
 
+    /// Issue #23 step 4 (research/multiscale-flux-fix.md, section 3): the
+    /// bias references and the point cap on DF5-O's numbers.
+    #[test]
+    fn bias_references_and_the_point_cap() {
+        let values = [0.0, 24.0, 48.0, 96.0, 192.0];
+        let peaks = [1.0, 0.5026, 0.326273, 0.157188, 0.0511696];
+        let beam = 2.47;
+        let def = MultiscaleSettings::default();
+        // The default is radler's bias, unchanged.
+        let b = scale_biases(&values, beam, &peaks, &def);
+        for (&v, &bv) in values.iter().zip(&b) {
+            assert_eq!(bv, bias_factor(v, beam, values.len(), 0.6));
+        }
+        // The first scale as radler's 4b: 1, 1/β, 1/β², ...
+        let first = MultiscaleSettings {
+            bias_reference: BiasReference::FirstScale,
+            ..def.clone()
+        };
+        let b = scale_biases(&values, beam, &peaks, &first);
+        for (k, &bv) in b.iter().enumerate() {
+            assert!((bv - 0.6_f64.powi(-(k as i32))).abs() < 1e-12, "{k} {bv}");
+        }
+        // Without a non-zero scale the first-scale reference is the beam.
+        assert_eq!(scale_biases(&[0.0], beam, &[1.0], &first), vec![1.0]);
+        let pixels = MultiscaleSettings {
+            bias_reference: BiasReference::Pixels(11.58),
+            ..def.clone()
+        };
+        let b = scale_biases(&values, beam, &peaks, &pixels);
+        assert!((b[1] - 0.6_f64.powf(-(24.0_f64 / 23.16).log2())).abs() < 1e-12);
+        // The cap: min(radler's, c / psf_peak), never on scale 0.
+        let cap = MultiscaleSettings {
+            point_cap: Some(0.9),
+            ..def.clone()
+        };
+        let b = scale_biases(&values, beam, &peaks, &cap);
+        assert_eq!(b[0], 1.0);
+        assert!((b[1] - 0.9 / 0.5026).abs() < 1e-12);
+        assert!((b[3] - 0.9 / 0.157188).abs() < 1e-12);
+        assert_eq!(b[4], bias_factor(192.0, beam, 5, 0.6));
+        for (bv, p) in b.iter().zip(&peaks).skip(1) {
+            assert!(bv * p <= 0.9 + 1e-12);
+        }
+    }
+
+    /// A lone point: radler's bias on a narrow theoretic beam takes it at the
+    /// larger scales first; with the point cap every component is at scale 0;
+    /// both recover the flux.
+    #[test]
+    fn the_point_cap_cleans_a_point_at_scale_zero() {
+        let n = 64;
+        let mut sky = vec![0.0; n * n];
+        sky[30 * n + 33] = 1.0;
+        let m = measurement(n, &sky);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+            }
+        }
+        let settings = Settings {
+            threshold: 1e-3,
+            max_components: 20_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let ms = MultiscaleSettings {
+            scales: vec![0.0, 4.0, 8.0],
+            ..MultiscaleSettings::default()
+        };
+        let run = |ms: &MultiscaleSettings| {
+            run_multiscale(&[(&m, &beam, &psf[..])], &[1.0], None, &settings, ms, 0.1).unwrap()
+        };
+        let plain = run(&ms);
+        let capped = run(&MultiscaleSettings {
+            point_cap: Some(0.9),
+            ..ms.clone()
+        });
+        let products: Vec<f64> = plain.scales.iter().map(|s| s.bias * s.psf_peak).collect();
+        assert!(products[1] > 1.0, "{products:?}");
+        assert!(plain.scales.iter().skip(1).any(|s| s.components > 0));
+        let why = format!("{:?}", capped.scales);
+        assert!(
+            capped.scales.iter().skip(1).all(|s| s.components == 0),
+            "{why}"
+        );
+        for out in [&plain, &capped] {
+            let total: f64 = out.joined.model[0].iter().sum();
+            assert!((total - 1.0).abs() < 0.01, "{total}");
+        }
+    }
+
+    /// `-no-negative`: every component, and so the model, is non-negative.
+    #[test]
+    fn no_negative_components() {
+        let n = 64;
+        let mut sky = vec![0.0; n * n];
+        let (cx, cy, sigma) = (40.0, 24.0, 3.0);
+        for y in 0..n {
+            for x in 0..n {
+                let d2 = (x as f64 - cx).powi(2) + (y as f64 - cy).powi(2);
+                sky[y * n + x] = (-d2 / (2.0 * sigma * sigma)).exp();
+            }
+        }
+        let total: f64 = sky.iter().sum();
+        for v in &mut sky {
+            *v *= 1.0 / total;
+        }
+        sky[18 * n + 14] += 0.5;
+        let m = measurement(n, &sky);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+            }
+        }
+        let settings = Settings {
+            threshold: 2e-4,
+            max_components: 20_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let ms = MultiscaleSettings {
+            scales: vec![0.0, 4.0, 8.0],
+            allow_negative: false,
+            ..MultiscaleSettings::default()
+        };
+        let out =
+            run_multiscale(&[(&m, &beam, &psf[..])], &[1.0], None, &settings, &ms, 1.0).unwrap();
+        let model = &out.joined.model[0];
+        let low = model.iter().copied().fold(f64::INFINITY, f64::min);
+        assert!(low >= -1e-12, "{low}");
+        assert!(out.joined.integrated.steps.iter().all(|s| s.peak > 0.0));
+        let sum: f64 = model.iter().sum();
+        assert!((sum - 1.5).abs() < 0.05, "{sum}");
+    }
+
     #[test]
     fn theoretic_beam_is_the_longest_weighted_baseline() {
         let freq = [1.0e9, 2.0e9];
@@ -1339,6 +1595,25 @@ mod tests {
         // Row 2: u/λ at 2 GHz = 60,000; x = 60,000 · 1e-5 · 1024 = 614 > 512.
         // At 1 GHz: 30,000 → 307, inside. Row 1 at 1 GHz: 500 m / λ.
         let want = 1.0 / (9000.0 / lambda(1e9)).max(500.0 / lambda(1e9));
+        assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
+    }
+
+    #[test]
+    fn theoretic_beam_tests_v_on_the_second_axis() {
+        // WSClean #208, fixed by !1068 (ca23d835): the y bound is v, not u.
+        // Asymmetric coverage, max |u| = 500 m, max |v| = 9000 m. Row 1 has a
+        // small u and a v outside the grid: v/λ at 1 GHz = 30,021, y = 30,021 ·
+        // 2e-5 · 1024 = 615 > 512. The u-for-both rule kept it (9000 m baseline).
+        let freq = [1.0e9];
+        let uvw = [500.0, 0.0, 0.0, 10.0, 9000.0, 0.0];
+        let w = [1.0, 1.0];
+        let lambda = 299_792_458.0 / 1e9;
+        let got = theoretic_beam(&uvw, &freq, &w, 1024, 2e-5).unwrap();
+        let want = 1.0 / (500.0 / lambda);
+        assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
+        // The same rows transposed (u outside, v small) were excluded before too.
+        let uvw = [0.0, 500.0, 0.0, 9000.0, 10.0, 0.0];
+        let got = theoretic_beam(&uvw, &freq, &w, 1024, 2e-5).unwrap();
         assert!((got - want).abs() < 1e-15 * want, "{got} {want}");
     }
 

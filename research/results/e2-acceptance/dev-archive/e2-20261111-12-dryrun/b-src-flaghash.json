@@ -1,0 +1,11 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-src\\luno-slice.ms",
+ "rows": 40000,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "86dd804b2b6ed73cb4f4857d4723c3b382ac235393becc47bc8f037f6b5f0491",
+ "flag_row_sha256": "ea2265019fc7b7296bfa055e91c23b51de6f1ab04f025c174a49f50cd9e0020f",
+ "seconds": 0.8981479999929434
+}

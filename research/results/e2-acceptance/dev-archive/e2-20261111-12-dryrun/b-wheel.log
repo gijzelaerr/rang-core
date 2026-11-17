@@ -1,0 +1,67 @@
+rang-core: flag: running
+rang-core: flag: done in 69.6 s
+rang-core: calibrate: running
+rang-core: receipt D:/rang/outputs/e2-20261111-12-dryrun/b-wheel/luno-slice.ms.rang-run/receipts/run-20261111T224748Z.rang-receipt.json
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_cli.py", line 1503, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_cli.py", line 1242, in main
+    dispatch(argv)
+    ~~~~~~~~^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_cli.py", line 1409, in dispatch
+    return _pipeline(argv, options, pinned)
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_cli.py", line 1318, in _pipeline
+    state = core_pipeline.execute(
+        config, args.config, ms, stages, run_dir=run_dir, force=force, log=log
+    )
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_pipeline.py", line 2516, in execute
+    summary = STAGE_FUNCTIONS[stage](ctx)
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_pipeline.py", line 1674, in stage_calibrate
+    return stage_calibrate_chain(ctx)
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\core_pipeline.py", line 1603, in stage_calibrate_chain
+    result = cal_chain.run(
+        ms,
+    ...<10 lines>...
+        average_time=bool(cal.get("average_time")),  # task E2
+    )
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_chain.py", line 591, in run
+    table, record = _solve_pol(ms, term, f, tables, common)
+                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_chain.py", line 219, in _solve_pol
+    table, sol, info = cal_pol.gpol(
+                       ~~~~~~~~~~~~^
+        ms,
+        ^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_pol.py", line 717, in gpol
+    table = angle_table(
+        ms, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], field_id, frame,
+        receptor_angle,
+    )  # fmt: skip
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_pol.py", line 133, in angle_table
+    return angle_table_at(ms, np.unique(time), used, field_id, frame, receptor_angle)
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_pol.py", line 152, in angle_table_at
+    q[:, a] = parallactic_angle(times, ra, dec, xyz[a], frame) + recept[a]
+              ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_pol.py", line 87, in parallactic_angle
+    return parallactic_angle_casa(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m)
+  File "C:\Users\gijsm\Build\tmp\20261111-e2-wheel\venv\Lib\site-packages\rang\cal_pol.py", line 65, in parallactic_angle_casa
+    from astropy import units
+ModuleNotFoundError: No module named 'astropy'
+{
+ "leg": "b",
+ "rc": 1,
+ "receipt": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b-wheel\\luno-slice.ms.rang-run\\receipts\\run-20261111T224748Z.rang-receipt.json",
+ "stages": {
+  "calibrate": "failed",
+  "flag": "done"
+ },
+ "python": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe"
+}

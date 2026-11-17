@@ -9,18 +9,24 @@ own material, with the sources named.
 
 Look in this order and stop when the question is covered:
 
-1. The concepts pages, `docs/concepts/`: ingest, flagging, gains, imaging.
-2. The notebooks, `notebooks/01-*.ipynb` to `05-*.ipynb` (tutorials on the
-   public 45 MB MeerKAT fixture) and `notebooks/science/` (the two research
-   questions). `docs/tutorials/index.md` says what each one covers.
-3. The command line, `docs/cli.md`, for "how do I run ..." questions.
-4. The research reports, `research/README.md` (index) and
+1. The beginner pages: `docs/concepts/basics.md` (the chain in one page) and
+   `docs/glossary.md`.
+2. The introductory track, `notebooks/intro/i1-*.ipynb` to `i9-*.ipynb`
+   (radio sky, visibilities, the MeerKAT array, the measurement equation, RFI,
+   calibration, imaging, polarisation, time domain); `docs/learn/index.md`
+   gives the route.
+3. The concepts pages, `docs/concepts/`: ingest, flagging, gains, imaging.
+4. The notebooks, `notebooks/00-ms-to-image.ipynb` (the whole chain),
+   `notebooks/01-*.ipynb` to `05-*.ipynb` (tutorials on the public 45 MB
+   MeerKAT fixture) and `notebooks/science/` (the two research questions).
+   `docs/tutorials/index.md` says what each one covers.
+5. The command line, `docs/cli.md`, and the how-to guides, `docs/howto/`, for
+   "how do I run ..." questions.
+6. The research reports, `research/README.md` (index) and
    `research/STATE.md` (status), for "does rang do / show ..." questions.
 
-An introductory track (interferometry, visibilities, the MeerKAT array,
-calibration, imaging, time-domain basics) is proposed in `research/vision.md`
-and does not exist yet. For basics the repository does not cover, answer from
-general knowledge and say so, then point to the nearest notebook.
+For basics the repository does not cover, answer from general knowledge and
+say so, then point to the nearest notebook.
 
 ## 2. Answer
 

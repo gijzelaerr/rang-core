@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Labelled post-hoc steps after runs -01/-02 (research/o-casa.md, "Measured result").
 # Usage: bash tools/oracles/casa/posthoc.sh [image]
 # Writes outputs/o-casa-20261030-03-wsclean-j1, -04-arm-e, -05-arm-f (fresh only).

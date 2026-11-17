@@ -1,0 +1,46 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "rows": 236208,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "29a6711f27f8fc6c3019b40d4124e5272566d241a46e405aca37c6d0529f7588",
+ "flag_row_sha256": "4e037663400940965b8656b66ce5849a40d80edac96c0327da9313eb391bde03",
+ "seconds": 5.221051399974385
+}
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "rows": 236208,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "4980a9807539da2a808e5f6806d45ad86c68f2a07ac9ae626af2909415902684",
+ "flag_row_sha256": "4e037663400940965b8656b66ce5849a40d80edac96c0327da9313eb391bde03",
+ "seconds": 4.647423999995226
+}
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "rows": 236208,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "29a6711f27f8fc6c3019b40d4124e5272566d241a46e405aca37c6d0529f7588",
+ "flag_row_sha256": "4e037663400940965b8656b66ce5849a40d80edac96c0327da9313eb391bde03",
+ "seconds": 6.77970300000743
+}
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "config": "research/results/e2-acceptance-scripts/e2b-dev.yaml",
+ "python": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+ "moved_before": "D:\\rang\\outputs\\e2-20261112-22-devtables$arm\\rang-run-before",
+ "restored_rows_before": 236208,
+ "run_exit": 0,
+ "run_seconds": 2234.4372422999877,
+ "saved_version": "e2dev_frozen_after_calibrate",
+ "saved_now": true,
+ "restored_rows_after": 236208,
+ "flag_restored_equal": true
+}

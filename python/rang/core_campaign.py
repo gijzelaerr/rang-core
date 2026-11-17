@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The LUNO 1934-638 campaign on the core (research/core-k-luno-campaign.md).
 
 Task K of research/core-parallel-plan.md: the first real-data science run

@@ -1,0 +1,28 @@
+{
+ "listobs": {
+  "error": null,
+  "result": true
+ },
+ "flagmanager": {
+  "error": null,
+  "result": {
+   "0": {
+    "name": "rang_original",
+    "comment": "rang: flags before the first write"
+   },
+   "1": {
+    "name": "rang_flag_20261111T232148Z",
+    "comment": "rang: flags before flag"
+   },
+   "2": {
+    "name": "rang_calibrate_20261111T232243Z",
+    "comment": "rang: flags before calibrate"
+   },
+   "3": {
+    "name": "rang_apply_20261111T232758Z",
+    "comment": "rang: flags before apply"
+   },
+   "MS": "/ms/luno-slice.ms"
+  }
+ }
+}

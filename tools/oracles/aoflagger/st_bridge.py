@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """SumThreshold bridge kernels for A-FLAG (research/a-flag-aoflagger.md, section 2.3).
 
 NumPy only, so that the same file runs in the worktree venv, in the Tricolour

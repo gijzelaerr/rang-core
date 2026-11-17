@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """One line per G6 case from its JSON files (research/g6-predict.md).
 
 python summary.py OUTDIR LABEL"""

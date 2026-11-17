@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """`rang-core formats convert IN OUT` and `rang-core formats check PATH`
 (research/dfio-formats.md).
 

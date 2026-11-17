@@ -1,0 +1,69 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 7.373140335083008,
+  "chunk_rows": null,
+  "fixed_gb": 0.6268596649169922,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 483206,
+   "calibrate": 483206,
+   "chain": 322137,
+   "flag": 966412,
+   "model": 483206,
+   "rows": 1288549
+  }
+ },
+ "column": "DATA",
+ "flag_sha256": "bc1f23e1328d7126b5b90b78475fb48722a577a1e15e5cdb6f33659a0a8c7204",
+ "flag_version": "rang_flag_20261111T180701Z",
+ "flagged_after": 0.06201797876602564,
+ "flagged_before": 0.0,
+ "groups": [
+  {
+   "core_seconds": 0.02959030000056373,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.33956163194444444,
+   "flagged_before": 0.0,
+   "rows": 720,
+   "scan": 1
+  },
+  {
+   "core_seconds": 0.029971700001624413,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.3436414930555556,
+   "flagged_before": 0.0,
+   "rows": 720,
+   "scan": 23
+  },
+  {
+   "core_seconds": 0.029535399997257628,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2938313802083333,
+   "flagged_before": 0.0,
+   "rows": 960,
+   "scan": 4
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 2400,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "strategy": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

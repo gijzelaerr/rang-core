@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """A-FLAG post-hoc: stage measures of the S1 variants (worktree venv; reads outputs/aflag-20261030-15-s1-variants)."""
 import importlib.util
 import json

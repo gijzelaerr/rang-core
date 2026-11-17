@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Tricolour-strategy flagging on the Rang core (research/core-d-tricolour.md).
 
 Runs Tricolour 0.2.1's `polarisation` flagging strategy, ported to Rust in

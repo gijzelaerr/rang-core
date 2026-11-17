@@ -1,0 +1,15 @@
+{
+ "tricolour_exit": 0,
+ "rang_version": "rang_calibrate_20261111T232243Z",
+ "elements_differ": 0,
+ "cells_differ": 0,
+ "rang_only": 0,
+ "tricolour_only": 0,
+ "corr_partial": 0,
+ "cells": 163840000,
+ "cells_differ_by_scan": {
+  "1": 0,
+  "2": 0
+ },
+ "exact": true
+}

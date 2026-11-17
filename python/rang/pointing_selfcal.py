@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """B1-3: pointing self-calibration and the rang method at matched cost.
 
 research/b1-3-pointing-selfcal.md freezes the protocol. This module holds:

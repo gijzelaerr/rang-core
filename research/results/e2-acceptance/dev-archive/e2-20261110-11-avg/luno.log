@@ -1,0 +1,20 @@
+2026-11-11T00:41:19 build rc=0 133.0s
+2026-11-11T00:43:28 verify rc=0 129.6s
+2026-11-11T00:46:49 START listobs: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/luno:/ms:ro' '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/readable:/out:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -c "import casatasks; casatasks.listobs(vis='/ms/luno-dev.ms', listfile='/out/listobs.txt', overwrite=True)"'
+2026-11-11T00:46:54 END listobs rc=1 5.2s
+2026-11-11T00:46:54 START readable: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/luno:/ms:ro' '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/readable:/out:rw' '-v' '/mnt/d/rang/data/e2-d/LBAND_LUNO_CALIBRATORS.zarr:/zarr:ro' -w /tmp rang-tricolour:0.2.1-e1 sh -c 'python3 /out/readable.py'
+2026-11-11T00:46:55 END readable rc=1 1.2s
+2026-11-11T01:33:55 START listobs: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/luno:/ms:rw' '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/readable:/out:rw' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python /out/listobs.py'
+2026-11-11T01:34:16 END listobs rc=0 21.4s
+2026-11-11T01:34:16 START readable: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/luno:/ms:rw' '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/readable:/out:rw' '-v' '/mnt/d/rang/data/e2-d/LBAND_LUNO_CALIBRATORS.zarr:/zarr:ro' -w /tmp rang-tricolour:0.2.1-e1 sh -c 'python3 /out/readable.py'
+2026-11-11T01:35:18 END readable rc=0 62.2s
+2026-11-11T01:35:50 copied for CASA 30.8s
+2026-11-11T02:05:57 rang-core run rc=0 1807.2s
+2026-11-11T02:23:57 START casa: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg:/run:rw' '-v' '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-averaging/examples:/ex:ro' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python /run/casa/receptor.py && /opt/casa/bin/python -I /ex/oracle_pol.py tasks /run/casa/casa-spec.json /run/casa/casa-tasks.json'
+2026-11-11T03:05:15 END casa rc=1 2477.6s
+2026-11-11T03:19:22 START casa-from-7: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg:/run:rw' '-v' '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-averaging/examples:/ex:ro' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python /run/casa/receptor.py && /opt/casa/bin/python -I /ex/oracle_pol.py tasks /run/casa/casa-spec-from-7.json /run/casa/casa-tasks-from-7.json'
+2026-11-11T12:33:34 START casa: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg:/run:rw' '-v' '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-averaging/examples:/ex:ro' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python /run/casa/receptor.py && /opt/casa/bin/python -I /ex/oracle_pol.py tasks /run/casa/casa-spec.json /run/casa/casa-tasks.json'
+2026-11-11T13:12:51 END casa rc=0 2356.5s
+2026-11-11T13:12:51 casa tasks 11 errors []
+2026-11-11T13:37:31 START casa-ones: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg:/run:rw' '-v' '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-averaging/examples:/ex:ro' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python -I /ex/oracle_pol.py tasks /run/casa/casa-spec-ones.json /run/casa/casa-tasks-ones.json'
+2026-11-11T13:46:06 END casa-ones rc=0 515.1s

@@ -1,0 +1,16 @@
+2026-11-15T08:29:45+02:00 save /b/save.json rc=1 secs=43
+2026-11-15T08:40:58+02:00 save /b/save.json rc=1 secs=653
+2026-11-15T08:41:41+02:00 cleanup /b/columns-original.json /b/cleanup.json rc=0 secs=2
+2026-11-15T08:43:54+02:00 save /b/save.json rc=1 secs=114
+2026-11-15T08:46:55+02:00 save /b/save.json rc=0 secs=37
+2026-11-15T08:47:48+02:00 casa rc=3 secs=53
+2026-11-15T08:48:20+02:00 casa_done /b/casa_done.json rc=0 secs=32
+2026-11-15T08:48:21+02:00 compare CORRECTED_DATA E2C_CASA_FLAG RANG_CORRECTED_DATA RANG_FLAG /b/c9.json rc=1 secs=1
+2026-11-15T08:48:29+02:00 restore /b/save.json /b/restore.json rc=0 secs=8
+2026-11-15T08:56:15+02:00 save /b/save.json rc=0 secs=263
+2026-11-15T09:06:51+02:00 casa rc=3 secs=636
+2026-11-15T09:07:24+02:00 casa_done /b/casa_done.json rc=0 secs=33
+2026-11-15T09:13:22+02:00 compare CORRECTED_DATA E2C_CASA_FLAG RANG_CORRECTED_DATA RANG_FLAG /b/c9.json rc=1 secs=357
+2026-11-15T09:13:33+02:00 restore /b/save.json /b/restore.json rc=0 secs=10
+2026-11-15T09:50:58+02:00 save /b/save.json rc=1 secs=134
+2026-11-15T10:01:13+02:00 restore /b/save.json /b/restore-repair.json rc=0 secs=9

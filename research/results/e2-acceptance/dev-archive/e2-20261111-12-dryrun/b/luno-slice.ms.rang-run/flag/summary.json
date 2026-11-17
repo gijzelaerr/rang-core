@@ -1,0 +1,58 @@
+{
+ "chunking": {
+  "blocks": [
+   2,
+   2
+  ],
+  "chunk_gb": 7.369039535522461,
+  "chunk_rows": null,
+  "fixed_gb": 0.6309604644775391,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 7545,
+   "calibrate": 7545,
+   "chain": 5030,
+   "flag": 15091,
+   "model": 7545,
+   "rows": 20122
+  }
+ },
+ "column": "DATA",
+ "flag_sha256": "1b60dc7485495c008930628d6f4024c88a3ebde717f95059a4a73c5703d5533e",
+ "flag_version": "rang_flag_20261111T180717Z",
+ "flagged_after": 0.7335423400878907,
+ "flagged_before": 0.7058368774414062,
+ "groups": [
+  {
+   "core_seconds": 18.736100399997667,
+   "ddid": 0,
+   "field": "J1331+3030",
+   "field_id": 0,
+   "flagged_after": 0.7389815185546875,
+   "flagged_before": 0.6891409301757813,
+   "rows": 20000,
+   "scan": 1
+  },
+  {
+   "core_seconds": 17.880650799997966,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 1,
+   "flagged_after": 0.7281031616210938,
+   "flagged_before": 0.7225328247070313,
+   "rows": 20000,
+   "scan": 2
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 40000,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "strategy": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\b\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

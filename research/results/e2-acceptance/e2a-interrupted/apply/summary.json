@@ -1,0 +1,88 @@
+{
+ "applied": [
+  {
+   "applymode": "calflag",
+   "cells_flagged_after": 10747830624,
+   "cells_flagged_before": 10747830624,
+   "column": "CORRECTED_DATA",
+   "column_added": false,
+   "fields": [
+    "J1939-6342",
+    "ESO137-001"
+   ],
+   "ms": "D:\\rang\\data\\e2-a\\e2a.ms",
+   "parang": false,
+   "rows": 1047614,
+   "scans": [
+    9,
+    10,
+    11
+   ],
+   "tables": [
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "ESO137-001": 0,
+      "J1939-6342": 0
+     },
+     "gainfield": "nearest",
+     "interp": "linear",
+     "kind": "K"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "ESO137-001": 0,
+      "J1939-6342": 0
+     },
+     "gainfield": "nearest",
+     "interp": "linear",
+     "kind": "G"
+    },
+    {
+     "calwt": false,
+     "calwt_effective": false,
+     "field_map": {
+      "ESO137-001": 0,
+      "J1939-6342": 0
+     },
+     "gainfield": "J1939-6342",
+     "interp": "linear",
+     "kind": "B"
+    }
+   ],
+   "tables_applied": [
+    "K1",
+    "G1",
+    "B1"
+   ],
+   "uncovered": [],
+   "weights_written": false
+  }
+ ],
+ "applymode": "calflag",
+ "calwt": false,
+ "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+ "chunking": {
+  "chunk_gb": 7.218893349170685,
+  "chunk_rows": null,
+  "fixed_gb": 0.7811066508293152,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 7392,
+   "calibrate": 7392,
+   "chain": 4928,
+   "flag": 14784,
+   "model": 7392,
+   "rows": 19712
+  }
+ },
+ "column": "CORRECTED_DATA",
+ "flag_version": "rang_apply_20261114T032318Z",
+ "parang": false,
+ "rang_original_saved_now": false,
+ "restored_before": null,
+ "warnings": []
+}

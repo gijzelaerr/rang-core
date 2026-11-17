@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """TRAIN-only local signal transfer constraint with frozen paired QC controls.
 
 Verbatim extract of the frozen `rangtoy.flagging_signal_guard` (big plan task P11,

@@ -1,0 +1,23 @@
+{
+ "restored_rows": 272916,
+ "hash": {
+  "rows": 272916,
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81"
+ },
+ "input": {
+  "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+  "rows": 272916,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81",
+  "seconds": 6.4972430000052555
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 49.84965540000121,
+ "met": true
+}

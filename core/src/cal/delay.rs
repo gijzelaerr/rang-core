@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later AND MIT
 //! The delay term K: QuartiCal 0.2.7's `delay` term with its FFT initial
 //! estimate (task C2b, `research/c2b-delay.md`; C1 step 4,
 //! `research/c1-calibration-chain.md`).

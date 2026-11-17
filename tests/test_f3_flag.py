@@ -4,6 +4,7 @@ guards and the injections, on a small synthetic scan."""
 
 import numpy as np
 import pytest
+from rang import f2flag as ff
 from rang import f3flag as f3
 from rang import f3net
 
@@ -60,6 +61,10 @@ def test_logits_match_jax():
     assert np.abs(zr - zj)[~flagged].max() <= 1e-3
 
 
+@pytest.mark.skipif(
+    not ff.STRATEGY_DIR.is_dir(),
+    reason="CARACal's archived strategy YAMLs are not here",
+)
 def test_w3_is_t_net_static_mask():
     for klass in ("calibrator", "target"):
         steps = f3.w3_strategy(klass)

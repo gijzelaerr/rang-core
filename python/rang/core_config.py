@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The configuration of `rang-core flag | calibrate | apply | image | selfcal |
 run` (task W2, research/w2-commands.md).
 
@@ -159,6 +160,25 @@ SCHEMA = {
             "a cap on the rows of every chunk (null: what memory_limit_gb allows); "
             "a solve chunk still holds one solution interval",
         ),
+        "executor": _k(
+            "local",
+            "choice",
+            "where chunk tasks run: local, this machine (research/chunk-task-api.md)",
+            ("local",),
+        ),
+        "processes": _k(
+            1,
+            "int",
+            "processes for the chunk tasks of flag, the complex solve and complex "
+            "apply (1: in this process); each plans its chunks under "
+            "memory_limit_gb / processes; results do not depend on it",
+        ),
+        "threads": _k(
+            None,
+            "int?",
+            "the rayon threads the processes share when processes > 1 (null: "
+            "RAYON_NUM_THREADS, else the CPU count)",
+        ),
     },
     "flag": {
         "flagger": _k(
@@ -216,7 +236,10 @@ SCHEMA = {
             ),
         },
         "refant": _k(
-            None, "refant", "reference antenna: a name, an id, a list or auto"
+            None,
+            "refant",
+            "reference antenna: a name, an id, a list or auto (CARACal's choice); "
+            "null: auto, or antenna 0 when no antenna qualifies (task E2)",
         ),
         "refantmode": _k(
             "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
@@ -236,6 +259,42 @@ SCHEMA = {
         ),
         "minsnr": _k(None, "float?", "solutions below this SNR are flagged (CASA: 3)"),
         "minblperant": _k(None, "int?", "baselines per antenna needed (CASA: 4)"),
+        "average_time": _k(
+            False,
+            "bool",
+            "K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged "
+            "in time within each solution interval (CASA's pre-averaging: weighted "
+            "means after the pre-applies and P, weight the sum, per baseline, "
+            "channel and correlation; Gpol, KCROSS, Xf and Df with P never across "
+            "scans or more than 5 deg of parallactic angle); false: every row "
+            "solved (task E2)",
+        ),
+        "average_freq": _k(
+            False,
+            "bool",
+            "G, F and Gpol solve on data and model averaged over the window's "
+            "channels (CASA's G-type estimator: weighted means after the "
+            "pre-applies and P, per row and correlation); false: every channel "
+            "a sample of one frequency bin (task E2)",
+        ),
+        "casa_phase_weights": _k(
+            False,
+            "bool",
+            "calmode p solves (Gpol, and G with calmode p) use CASA's phase-only "
+            "datum: data divided by the model per channel with weight w|M|^2, "
+            "averaged, then normalised to unit amplitude with the weight times "
+            "the amplitude squared; needs average_freq; false: QuartiCal's "
+            "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
+        ),
+        "bandpass_model_divided": _k(
+            False,
+            "bool",
+            "B solves divide the pre-applied data by the model (which the K and "
+            "G pre-applies corrupt) before averaging, with weight w|M|^2 and "
+            "model 1, as CASA's divideCorrByModel; matters with average_time "
+            "and K or G varying inside the B interval; false: data and model "
+            "averaged separately (task e2a-3b-diag, research/e2a-3b-diag.md)",
+        ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
             "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
@@ -303,6 +362,13 @@ SCHEMA = {
             "correct by the parallactic angle after the tables, in "
             "calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)",
         ),
+        "parang_flags": _k(
+            "spread",
+            "choice",
+            "P's flags: spread, CASA's (a cell with any correlation flagged after "
+            "the tables is flagged in all four); none, the tables' flags only",
+            ("spread", "none"),
+        ),
         "targets": _k(
             [],
             "targets",
@@ -334,7 +400,7 @@ SCHEMA = {
             ("natural", "uniform", "briggs"),
         ),
         "robust": _k(0.0, "float", "Briggs robustness"),
-        "niter": _k(100000, "int", "maximum number of components"),
+        "niter": _k(1000000, "int", "maximum number of components"),
         "auto_threshold": _k(
             3.0, "float?", "stop at this many robust sigma of the residual"
         ),
@@ -372,7 +438,11 @@ SCHEMA = {
         "auto_mask_nmiter": _k(
             None, "int?", "major cycles after the mask is made (null: WSClean's 2)"
         ),
-        "fits_mask": _k(None, "path?", "a FITS mask of the image's size, one plane"),
+        "fits_mask": _k(
+            None,
+            "path?",
+            "a FITS mask of the image's size, one plane (relative to this file)",
+        ),
         "taper_gaussian": _k(
             None, "str?", "a Gaussian taper, such as 10asec (a plain number is asec)"
         ),
@@ -387,7 +457,9 @@ SCHEMA = {
         "minuvw_m": _k(None, "float?", "shortest baseline |uvw| imaged, metres"),
         "maxuvw_m": _k(None, "float?", "longest baseline |uvw| imaged, metres"),
         "uvrange": _k(
-            "", "str", "not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m"
+            "",
+            "str",
+            "refused when set: use minuv_l, maxuv_l, minuvw_m and maxuvw_m",
         ),
         "multiscale": _k(False, "bool", "multiscale CLEAN (WSClean's -multiscale)"),
         "multiscale_scales": _k(
@@ -443,7 +515,15 @@ SCHEMA = {
         "refant": _k(
             None,
             "refant",
-            "reference antenna (null: calibrate.refant, or 0 when that is unset)",
+            "reference antenna (null: calibrate.refant); auto: the first of "
+            "CARACal's choice",
+        ),
+        "average_time": _k(
+            False,
+            "bool",
+            "Sp and Sa solve on data and model averaged in time within each "
+            "solution interval (calibrate.average_time's estimator; CubiCal "
+            "solves every sample); false: every row solved (task E2)",
         ),
         "gain_clip": _k(
             [0.5, 2.0],
@@ -467,7 +547,8 @@ SCHEMA = {
             [],
             "strs",
             "per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), "
-            "none, or a FITS mask path ({field} is the field name); the last "
+            "none, or a FITS mask path (relative to this file; {field} is the "
+            "field name); the last "
             "repeating (CARACal's cleanmask_method); []: image's mask settings",
         ),
         "cleanmask_thr": _k(
@@ -478,8 +559,10 @@ SCHEMA = {
         ),
     },
     "run": {
+        # Owner decision E5-28 (research/e5-prereview.md): the whole chain, so
+        # that `rang-core run` never images uncalibrated DATA by default.
         "stages": _k(
-            ["flag", "calibrate", "image"],
+            list(STAGES),
             "stages",
             "stages of rang-core run, executed in the order flag, calibrate, apply, "
             "image, selfcal",
@@ -613,10 +696,50 @@ def load(path):
     return loads(text, source=path)
 
 
+def _unique_key_loader(yaml):
+    """A SafeLoader that refuses a key repeated in one mapping: PyYAML keeps
+    the last silently, so a second `image:` block would drop the first (E5-40,
+    research/e5-prereview.md)."""
+
+    class Loader(yaml.SafeLoader):
+        pass
+
+    def mapping(loader, node, deep=False):
+        seen = {}
+        for key_node, _ in node.value:
+            if key_node.tag == "tag:yaml.org,2002:merge":
+                continue  # `<<: *anchor` keys may be overridden by design
+            key = loader.construct_object(key_node, deep=deep)
+            try:
+                hash(key)
+            except TypeError:
+                continue  # SafeLoader reports an unhashable key itself
+            if key in seen:
+                raise ConfigError(
+                    [
+                        (
+                            str(key),
+                            (
+                                f"repeated on line {key_node.start_mark.line + 1} "
+                                f"(first on line {seen[key] + 1}); YAML would keep "
+                                "only the last"
+                            ),
+                        )
+                    ]
+                )
+            seen[key] = key_node.start_mark.line
+        return yaml.SafeLoader.construct_mapping(loader, node, deep=deep)
+
+    Loader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping)
+    return Loader
+
+
 def loads(text, source=None):
     yaml = _yaml()
     try:
-        raw = yaml.safe_load(text)
+        raw = yaml.load(text, Loader=_unique_key_loader(yaml))
+    except ConfigError as exc:
+        raise ConfigError(exc.errors, source=source) from None
     except yaml.YAMLError as exc:
         raise ConfigError([("", f"not valid YAML: {exc}")], source=source) from exc
     if raw is None:
@@ -827,7 +950,13 @@ def _terms(path, value, errors):
         term = {}
         for name in raw:
             if name not in TERM_KEYS:
-                errors.append((f"{where}.{name}", "unknown term key"))
+                errors.append(
+                    (
+                        f"{where}.{name}",
+                        f"unknown term key; a {kind} term takes "
+                        + ", ".join(sorted(allowed, key=list(TERM_KEYS).index)),
+                    )
+                )
             elif name not in allowed:
                 errors.append((f"{where}.{name}", f"not a key of a {kind} term"))
         for name in sorted(allowed, key=list(TERM_KEYS).index):
@@ -1005,6 +1134,10 @@ def resolve(raw):
         errors.append(("data.memory_limit_gb", "must be above 0"))
     if _is_int(data["chunk_rows"]) and data["chunk_rows"] < 1:
         errors.append(("data.chunk_rows", "must be at least 1"))
+    if _is_int(data["processes"]) and data["processes"] < 1:
+        errors.append(("data.processes", "must be at least 1"))
+    if _is_int(data["threads"]) and data["threads"] < 1:
+        errors.append(("data.threads", "must be at least 1"))
     names = {}
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
@@ -1286,14 +1419,17 @@ def refusals(config, stages):
             npol = len(parse_pol(img["pol"]))
         except ValueError:
             npol = 1
-        if (masked or img["fits_mask"] is not None) and npol > 1:
+        if npol > 1 and (
+            img["fits_mask"] is not None or (masked and not img["join_polarizations"])
+        ):
             out.append(
                 Refusal(
                     "image.fits_mask"
                     if img["fits_mask"] is not None
                     else "image.auto_mask",
                     "",
-                    "masks take one polarisation (research/g4-masks.md)",
+                    "fits_mask takes one polarisation, auto_mask one or joined "
+                    "polarisations (research/g4-masks.md, research/e2b-misses.md, arm A5)",
                 )
             )
         try:
@@ -1366,17 +1502,16 @@ def refusals(config, stages):
                         "(CARACal's GainDiag) or Sp, Sd",
                     )
                 )
-        out += _selfcal_image_refusals(config)
-        refant = sc["refant"] or config["calibrate"]["refant"]
-        if refant and "auto" in refant:
+        if sc["average_time"] and any(t["type"] == "Sd" for t in sc["terms"]):
             out.append(
                 Refusal(
-                    "selfcal.refant",
+                    "selfcal.average_time",
                     "",
-                    "auto is resolved by calibrate only; give selfcal.refant an "
-                    "antenna name or id",
+                    "applies to Sp and Sa only; Sd (CARACal's Fslope) solves every "
+                    "sample: set false or use Sp and Sa",
                 )
             )
+        out += _selfcal_image_refusals(config)
     return out
 
 
@@ -1532,9 +1667,16 @@ def _model_refusals(model, cal, no, out):
 
 
 COMPLEX_HAS_NO = (
-    "the complex term solves QuartiCal bins (solint inf, int or N integrations; "
-    "freqint) with no CASA rules; use K, G and B terms for {what}"
+    "the complex term solves on fixed bins of integrations and channels "
+    "(solint inf, int or N; freqint) without CASA's solve options, so it takes "
+    "no {what}; remove it or solve K, G and B terms"
 )
+
+
+def _as_yaml(value):
+    """`value` as YAML flow text for a message ([auto], not ['auto'])."""
+    text = _yaml().safe_dump(value, default_flow_style=True, width=1 << 16)
+    return text.strip().removesuffix("...").strip()
 
 
 def _term_refusals(where, term, cal, no):
@@ -1548,7 +1690,7 @@ def _term_refusals(where, term, cal, no):
     if isinstance(term["solint"], str) and term["solint"].endswith("s"):
         errors.append(("solint", f"solint {term['solint']} (CASA's seconds bins)"))
     if term["combine"]:
-        errors.append(("combine", f"combine {term['combine']!r}"))
+        errors.append(("combine", f"combine ({_as_yaml(term['combine'])})"))
     for name, default in (
         ("refant", None),
         ("uvrange", ""),
@@ -1557,7 +1699,9 @@ def _term_refusals(where, term, cal, no):
     ):
         value = term[name] if term[name] is not None else cal[name]
         if value != default and value is not None:
-            errors.append((name, f"{name} {value!r}"))
+            # Say where the value came from: the term or the calibrate section.
+            origin = name if term[name] is not None else f"calibrate.{name}"
+            errors.append((name, f"{name} ({origin}: {_as_yaml(value)})"))
     if term["refantmode"] is not None:
         errors.append(("refantmode", "refantmode"))
     if term["preapply"]:
@@ -1581,6 +1725,20 @@ def _chain_refusals(config, out):
     def bad(path, text):
         out.append(Refusal(path, "", text))
 
+    if cal.get("average_time") and any(
+        t["type"] == "complex" for s in CALIBRATE_SECTIONS for t in cal[s]["terms"]
+    ):
+        bad(
+            "calibrate.average_time",
+            "applies to the K, G, B, F, Gpol, KCROSS, Xf and Df solves only; "
+            "the complex solve has no time pre-averaging: set false",
+        )
+    if cal.get("casa_phase_weights") and not cal.get("average_freq"):
+        bad(
+            "calibrate.casa_phase_weights",
+            "needs calibrate.average_freq: true (CASA normalises the "
+            "frequency-averaged datum; research/e2b-misses.md 9.26)",
+        )
     seen = {}  # name -> (section, type), in solve order
     kinds_used = set()
     primary_g = [t["name"] for t in cal["primary"]["terms"] if t["type"] == "G"]
@@ -1629,12 +1787,7 @@ def _chain_refusals(config, out):
                 continue
             solved_here = True
             refant = term["refant"] if term["refant"] is not None else cal["refant"]
-            if refant is None and kind not in ("KCROSS", "Xf"):
-                bad(
-                    f"{where}.refant",
-                    "required for K, G, B, F, Gpol and Df (calibrate.refant)",
-                )
-            elif (
+            if (
                 refant is not None
                 and len(refant) > 1
                 and any(str(r).lower() == "auto" for r in refant)
@@ -1741,19 +1894,41 @@ def validate_file(path, stages):
     return validate(load(path), stages, source=Path(path))
 
 
-# Keys that set chunk sizes only: results do not depend on them (task W3,
-# research/w3-chunking.md), so changing them does not make a stage "changed".
-RESOURCE_KEYS = {"data": ("memory_limit_gb", "chunk_rows")}
+# Keys that set chunk sizes and where chunks run only: results do not depend
+# on them (task W3, research/w3-chunking.md; research/chunk-task-api.md), so
+# changing them does not make a stage "changed".
+RESOURCE_KEYS = {
+    "data": ("memory_limit_gb", "chunk_rows", "executor", "processes", "threads")
+}
+
+
+# Keys left out of the stage hash at their default, so that adding them did
+# not change the hash of an existing configuration (task E2).
+HASH_DEFAULTS = {
+    "calibrate": {
+        "average_time": False,
+        "average_freq": False,
+        "casa_phase_weights": False,
+        "bandpass_model_divided": False,
+    },
+    "selfcal": {"average_time": False},
+}
 
 
 def stage_hash(config, stage):
     """SHA-256 of the sections `stage` depends on (STAGE_SECTIONS), without
-    the RESOURCE_KEYS."""
+    the RESOURCE_KEYS, and without the HASH_DEFAULTS keys at their
+    default."""
     part = {}
     for name in STAGE_SECTIONS[stage]:
         section = config[name]
         if name in RESOURCE_KEYS:
             section = {k: v for k, v in section.items() if k not in RESOURCE_KEYS[name]}
+        if name in HASH_DEFAULTS:
+            omit = HASH_DEFAULTS[name]
+            section = {
+                k: v for k, v in section.items() if not (k in omit and v == omit[k])
+            }
         part[name] = section
     text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()

@@ -1,0 +1,794 @@
+{
+ "cases": {
+  "c1": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.044,
+     "convert_seconds": 3.078,
+     "failures": [],
+     "loader_rows": 12,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_1_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 12
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c1.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 8,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 1.7,
+     "convert_seconds": 3.297,
+     "failures": [],
+     "loader_rows": 20,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_1_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 20
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c1.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_1.ms",
+   "rows": 20,
+   "seconds": 1.797
+  },
+  "c2": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.038,
+     "convert_seconds": 2.978,
+     "failures": [],
+     "loader_rows": 12,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_4_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 12
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c2.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 8,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.05,
+     "convert_seconds": 3.168,
+     "failures": [],
+     "loader_rows": 20,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_4_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 20
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c2.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_4.ms",
+   "rows": 20,
+   "seconds": 0.108
+  },
+  "c3": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.045,
+     "convert_seconds": 3.015,
+     "failures": [],
+     "loader_rows": 12,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_5_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 12
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c3.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 8,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.055,
+     "convert_seconds": 3.269,
+     "failures": [],
+     "loader_rows": 20,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_5_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 20
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c3.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_5.ms",
+   "rows": 20,
+   "seconds": 0.124
+  },
+  "c4": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.046,
+     "convert_seconds": 3.219,
+     "failures": [],
+     "loader_rows": 12,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_8_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 12
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c4.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 8,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.054,
+     "convert_seconds": 3.331,
+     "failures": [],
+     "loader_rows": 20,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 20,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_8_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 20
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c4.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_8.ms",
+   "rows": 20,
+   "seconds": 0.118
+  },
+  "c5": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.113,
+     "convert_seconds": 3.368,
+     "failures": [],
+     "loader_rows": 84,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 140,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_9_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 84
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c5.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 56,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.115,
+     "convert_seconds": 3.368,
+     "failures": [],
+     "loader_rows": 140,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 140,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "1672727931_sdp_l0_scan_9_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 140
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c5.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+   "rows": 140,
+   "seconds": 0.264
+  },
+  "c6": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.369,
+     "convert_seconds": 11.821,
+     "failures": [],
+     "loader_rows": 12480,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 12480,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "A-casa_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 1440
+      },
+      "A-casa_partition_001": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 1920
+      },
+      "A-casa_partition_002": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 2400
+      },
+      "A-casa_partition_003": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 6720
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c6.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.357,
+     "convert_seconds": 11.621,
+     "failures": [],
+     "loader_rows": 12480,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 12480,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "A-casa_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 1440
+      },
+      "A-casa_1": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 1920
+      },
+      "A-casa_2": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 2400
+      },
+      "A-casa_3": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 6720
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c6.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\c3a\\c3a-20261106-01\\A-casa.ms",
+   "rows": 12480,
+   "seconds": 0.832
+  },
+  "c7": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.104,
+     "convert_seconds": 3.156,
+     "failures": [],
+     "loader_rows": 192,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 192,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "M1-casa_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 192
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c7.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.093,
+     "convert_seconds": 3.203,
+     "failures": [],
+     "loader_rows": 192,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 192,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "M1-casa_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 192
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c7.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\c7a-20261106-03\\M1-casa.ms",
+   "rows": 192,
+   "seconds": 0.236
+  },
+  "c8": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.092,
+     "convert_seconds": 3.884,
+     "failures": [],
+     "loader_rows": 81,
+     "measures": {
+      "DATA": "mismatch",
+      "FLAG": "mismatch",
+      "TIME": "mismatch",
+      "UVW": "mismatch",
+      "WEIGHT_SPECTRUM": "mismatch",
+      "antenna names": "mismatch",
+      "coverage": "mismatch"
+     },
+     "ms_rows": 136,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "mismatch",
+     "pads": 3,
+     "partitions": {
+      "c8-scan9-gaps_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 3,
+       "rows": 81
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c8.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 55,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.118,
+     "convert_seconds": 3.845,
+     "failures": [],
+     "loader_rows": 136,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 136,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 4,
+     "partitions": {
+      "c8-scan9-gaps_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 4,
+       "rows": 136
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c8.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv4-20261116\\ms\\c8-scan9-gaps.ms",
+   "rows": 136,
+   "seconds": 4.942
+  },
+  "c9": {
+   "arms": {
+    "xms": {
+     "check_seconds": 0.053,
+     "convert_seconds": 4.217,
+     "failures": [],
+     "loader_rows": 36,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 36,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "m05-var-spw-tssm_partition_000": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 18
+      },
+      "m05-var-spw-tssm_partition_001": {
+       "channels_reordered": false,
+       "ddid": [
+        1
+       ],
+       "pads": 0,
+       "rows": 18
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms\\c9.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM",
+      "1": "WEIGHT_SPECTRUM"
+     }
+    },
+    "xradio": {
+     "check_seconds": 0.053,
+     "convert_seconds": 4.307,
+     "failures": [],
+     "loader_rows": 36,
+     "measures": {
+      "DATA": "match",
+      "FLAG": "match",
+      "TIME": "match",
+      "UVW": "match",
+      "WEIGHT_SPECTRUM": "match",
+      "antenna names": "match",
+      "coverage": "match"
+     },
+     "ms_rows": 36,
+     "multiply_mapped_ms_rows": 0,
+     "outcome": "match",
+     "pads": 0,
+     "partitions": {
+      "m05-var-spw-tssm_0": {
+       "channels_reordered": false,
+       "ddid": [
+        0
+       ],
+       "pads": 0,
+       "rows": 18
+      },
+      "m05-var-spw-tssm_1": {
+       "channels_reordered": false,
+       "ddid": [
+        1
+       ],
+       "pads": 0,
+       "rows": 18
+      }
+     },
+     "refused_partitions": {},
+     "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c9.ps.zarr",
+     "time_fallback_rows": 0,
+     "unmapped_ms_rows": 0,
+     "weight_source": {
+      "0": "WEIGHT_SPECTRUM",
+      "1": "WEIGHT_SPECTRUM"
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\msv2-edge-cases\\20261113\\ms\\m05-var-spw-tssm",
+   "rows": 36,
+   "seconds": 0.114
+  }
+ },
+ "commit": "7d82e469c40c734515ceccb368ffe7d30c265a60",
+ "extension": "C:\\Users\\gijsm\\Worktrees\\rang\\msv4-m1\\python\\rang\\_core.pyd",
+ "note": "research/msv4-interop.md",
+ "rang": "C:\\Users\\gijsm\\Worktrees\\rang\\msv4-m1\\python\\rang",
+ "root": "D:/rang/outputs/msv4-20261116",
+ "versions": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "python": "3.13.16",
+  "rang-core": "0.2.0",
+  "xarray": "2026.9.0",
+  "zarr": "3.4.2"
+ }
+}

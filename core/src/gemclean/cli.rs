@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The command line of `gemclean`, a reference CLEAN imager for Measurement
 //! Sets with WSClean-like flags (`research/gemclean.md`). One code for both
 //! front ends (task G8, `research/g8-wheel.md`): the source build's binary
@@ -21,7 +22,9 @@
 use crate::clean_certified::{Complex, Measurement, misfit_floor};
 use crate::gemclean::fits::{self, Card, Value, card};
 use crate::gemclean::input::{self, Selection};
-use crate::gemclean::joined::{run_joined, run_joined_masked, run_joined_pols};
+use crate::gemclean::joined::{
+    run_joined, run_joined_masked, run_joined_spill_kept, run_joined_spilling, spill_read,
+};
 use crate::gemclean::json::{arr, num, obj, opt, text};
 use crate::gemclean::kernels::{self, Level};
 use crate::gemclean::mask::{self, AutoMask, Masking};
@@ -29,6 +32,7 @@ use crate::gemclean::measure::GridMeasurement;
 use crate::gemclean::memory::{self, bytes_of};
 use crate::gemclean::multiscale::{self, MultiscaleSettings};
 use crate::gemclean::predict;
+use crate::gemclean::scratch::{self, TempFile};
 use crate::gemclean::spectral::{self, PolynomialFit};
 use crate::gemclean::stale_bound::{BoundKind, StaleBound, StopBound};
 use crate::gemclean::stokes::{self, Pol};
@@ -38,6 +42,7 @@ use crate::weights::{UvTapers, WeightClass};
 use crate::wgridder::{Options, Real};
 
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::time::Instant;
 
 const USAGE: &str = "usage: gemclean [options] <ms>
@@ -57,6 +62,9 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             wins over -mgain as a rule, whatever the order
   -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
                             (default 0.01; 0: no floor; research/stale-floor.md)
+  -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
+                            (1 + e) times the threshold; the minor cycles still clean to the
+                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -91,6 +99,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
+  -reorder                  with several polarisations: keep each polarisation's read and each
+                            entry's visibilities in temporary files, read back where used (same
+                            images, less memory; research/gemclean-memory2.md)
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -110,7 +122,8 @@ Model column (research/g6-predict.md; WSClean's options):
   -no-update-model-required do not write the Measurement Set
   -predict                  no imaging: predict the existing <name>-model.fits (with
                             -channels-out n, <name>-0000-model.fits ...) into the model column
-  -model-column <name>      the column written (default MODEL_DATA; added if missing)
+  -model-column <name>      the column written (default MODEL_DATA; added if missing); never
+                            DATA, nor the column being imaged
 
 Channels (research/g3-spectral.md; WSClean's options):
   -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the
@@ -143,6 +156,13 @@ Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
   -multiscale-shape <shape> tapered-quadratic (default) or gaussian
   -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)
+  -multiscale-bias-reference <r> the beam b of the scale bias: theoretic (default, radler's),
+                            first-scale (the first non-zero scale as radler's first
+                            automatic scale 4b) or a size in pixels
+                            (research/multiscale-flux-fix.md)
+  -multiscale-point-cap <c> cap every non-zero scale's bias at c / its PSF peak, so that a
+                            bare point is cleaned at scale 0 when c < 1 (default: none)
+  -no-negative              no negative components (radler's; with -multiscale only)
 
 Selection and masks (research/g4-masks.md; WSClean's options):
   -taper-gaussian <angle>   Gaussian taper of the weights, beam size (plain number: asec)
@@ -155,7 +175,9 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
-                            takes -mgain or -minor-to-threshold
+                            takes -mgain or -minor-to-threshold; with
+                            -join-polarizations the noise and the peaks are those of the
+                            joined residual and the mask is every polarisation's
   -abs-auto-mask <Jy>       the same with an absolute mask threshold
   -auto-mask-nmiter <n>     major cycles after the mask is made (default 2)
   -major-iteration-mode dual  radler's default (the only mode implemented)";
@@ -195,9 +217,13 @@ struct Args {
     single: bool,
     gram_operator: Option<(usize, f64)>,
     plan_reuse: bool,
+    /// `-reorder` and `-temp-dir` (research/gemclean-memory2.md).
+    reorder: bool,
+    temp_dir: Option<PathBuf>,
     beam_no_w: bool,
     beam_band: bool,
     lazy_bounds: bool,
+    stop_tolerance: f64,
     memory_report: bool,
     channels_out: usize,
     join_channels: bool,
@@ -303,9 +329,12 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         single: false,
         gram_operator: None,
         plan_reuse: true,
+        reorder: false,
+        temp_dir: None,
         beam_no_w: false,
         beam_band: false,
         lazy_bounds: true,
+        stop_tolerance: 0.0,
         memory_report: false,
         channels_out: 1,
         join_channels: false,
@@ -390,6 +419,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
             "-stale-floor" => floor = number(flag, value(&mut i)?)?,
+            "-stop-tolerance" => a.stop_tolerance = number(flag, value(&mut i)?)?,
             "-minor-to-threshold" => to_threshold = true,
             "-stop-rule" => match value(&mut i)?.as_str() {
                 "certified" => certified = true,
@@ -405,8 +435,10 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 }
             }
             "-nmiter" => a.nmiter = number(flag, value(&mut i)?)?,
-            "-threshold" | "-abs-threshold" => a.threshold = number(flag, value(&mut i)?)?,
-            "-auto-threshold" => a.auto_threshold = Some(number(flag, value(&mut i)?)?),
+            // A NaN threshold never stops the minor cycle; finite and not below
+            // zero, as -auto-mask (research/correctness-audit-2026-11-13.md).
+            "-threshold" | "-abs-threshold" => a.threshold = non_negative(flag, value(&mut i)?)?,
+            "-auto-threshold" => a.auto_threshold = Some(non_negative(flag, value(&mut i)?)?),
             "-patch" => a.patch = number(flag, value(&mut i)?)?,
             "-theta" => a.theta = number(flag, value(&mut i)?)?,
             "-drift" => a.drift = number(flag, value(&mut i)?)?,
@@ -447,6 +479,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     Some((number(flag, s.to_string())?, number(flag, t.to_string())?));
             }
             "-no-plan-reuse" => a.plan_reuse = false,
+            "-reorder" => a.reorder = true,
+            "-temp-dir" => a.temp_dir = Some(PathBuf::from(value(&mut i)?)),
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
             "-channels-out" => a.channels_out = number(flag, value(&mut i)?)?,
@@ -550,6 +584,35 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 };
                 ms_option = Some(flag);
             }
+            // Issue #23 step 4 (research/multiscale-flux-fix.md): GeMClean's
+            // options, default radler's.
+            "-multiscale-bias-reference" => {
+                let v = value(&mut i)?;
+                ms.bias_reference = match v.as_str() {
+                    "theoretic" => multiscale::BiasReference::Theoretic,
+                    "first-scale" => multiscale::BiasReference::FirstScale,
+                    other => {
+                        let p: f64 = number(flag, other.to_string())?;
+                        if !(p > 0.0 && p.is_finite()) {
+                            return Err(format!("{flag}: {other} is not a positive size"));
+                        }
+                        multiscale::BiasReference::Pixels(p)
+                    }
+                };
+                ms_option = Some(flag);
+            }
+            "-multiscale-point-cap" => {
+                let c: f64 = number(flag, value(&mut i)?)?;
+                if !(c > 0.0 && c.is_finite()) {
+                    return Err(format!("{flag} must be positive"));
+                }
+                ms.point_cap = Some(c);
+                ms_option = Some(flag);
+            }
+            "-no-negative" => {
+                ms.allow_negative = false;
+                ms_option = Some(flag);
+            }
             "-multiscale-convolution-padding" | "-no-multiscale-fast-subminor" => {
                 return Err(format!(
                     "{flag} is not implemented: gemclean's shape convolutions are linear and \
@@ -639,6 +702,11 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    if (a.predict || a.update_model)
+        && let Some(e) = model_column_error(&a.model_column, a.data_column.as_deref())
+    {
+        return Err(e);
+    }
     if a.join_pols && a.pols.len() < 2 {
         return Err(
             "Joined/linked polarization deconvolution requested, but only one polarization is \
@@ -680,15 +748,28 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             nmiter: am_nmiter,
         });
     }
+    // Masks on several polarisations need them joined (radler's mask acts on
+    // the joined set's integrated residual; research/e2b-misses.md, arm A5).
     if (a.auto_mask.is_some() || a.fits_mask.is_some())
-        && (a.pols.len() > 1
+        && ((a.pols.len() > 1 && (!a.join_pols || a.fits_mask.is_some()))
             || a.gram_operator.is_some()
             || a.audit
             || matches!(a.cycle_stop, CycleStop::Certified { .. }))
     {
         return Err(
-            "-fits-mask and -auto-mask take one polarisation and neither -gram-operator, -audit \
-             nor -stop-rule certified (research/g4-masks.md)"
+            "-fits-mask takes one polarisation, -auto-mask one or joined polarisations \
+             (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule \
+             certified (research/g4-masks.md)"
+                .into(),
+        );
+    }
+    if !(a.stop_tolerance >= 0.0 && a.stop_tolerance.is_finite()) {
+        return Err("-stop-tolerance must be a finite number of at least 0".into());
+    }
+    if a.stop_tolerance > 0.0 && (a.auto_mask.is_some() || ms_on || a.join_channels || a.join_pols)
+    {
+        return Err(
+            "-stop-tolerance takes neither -auto-mask, -multiscale, -join-channels nor              -join-polarizations: those loops have their own stop (research/gemclean-stop28.md)"
                 .into(),
         );
     }
@@ -901,6 +982,7 @@ fn deconvolve<T: Real + Send + Sync>(
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     };
     let stop_bound = match keep {
         Some((uvw, wgt)) => {
@@ -1113,6 +1195,69 @@ fn print_multiscale(out: &multiscale::Multiscale, theoretic: Option<f64>) {
     out.print_scales();
 }
 
+/// Print the memory report (`-memory-report`) and return the report's
+/// `memory` section (`null` when the allocator does not count).
+fn memory_section(args: &Args) -> String {
+    let phases = memory::phases();
+    let buffers = memory::buffers();
+    let gb = |b: usize| b as f64 / 1e9;
+    if args.memory_report && memory::counting() {
+        println!(
+            "memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):"
+        );
+        for p in &phases {
+            println!(
+                "  {:<26} held {:>7.3}  most {:>7.3}  rss {:>7.3}  peak rss {:>7.3}  swap {:>6.3}",
+                p.label,
+                gb(p.live),
+                gb(p.peak),
+                p.rss.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.hwm.map_or(f64::NAN, |b| b as f64 / 1e9),
+                p.swap.map_or(f64::NAN, |b| b as f64 / 1e9)
+            );
+        }
+        println!("memory by buffer (GB):");
+        for (label, bytes) in &buffers {
+            println!("  {label:<44} {:>8.3}", gb(*bytes));
+        }
+    }
+    if memory::counting() {
+        obj(&[
+            (
+                "phases",
+                arr(&phases
+                    .iter()
+                    .map(|p| {
+                        obj(&[
+                            ("label", text(&p.label)),
+                            ("heap_end_bytes", p.live.to_string()),
+                            ("heap_peak_bytes", p.peak.to_string()),
+                            ("rss_bytes", p.rss.map_or("null".into(), |b| b.to_string())),
+                            (
+                                "swap_bytes",
+                                p.swap.map_or("null".into(), |b| b.to_string()),
+                            ),
+                            (
+                                "rss_peak_bytes",
+                                p.hwm.map_or("null".into(), |b| b.to_string()),
+                            ),
+                        ])
+                    })
+                    .collect::<Vec<_>>()),
+            ),
+            (
+                "buffers",
+                arr(&buffers
+                    .iter()
+                    .map(|(l, b)| obj(&[("label", text(l)), ("bytes", b.to_string())]))
+                    .collect::<Vec<_>>()),
+            ),
+        ])
+    } else {
+        "null".into()
+    }
+}
+
 fn run(raw: &[String]) -> Result<(), String> {
     let wall = Instant::now();
     if raw.iter().any(|a| a == "-version" || a == "--version") {
@@ -1157,6 +1302,13 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
             }
         }
     };
+    // The input column may only now be known (CORRECTED_DATA when the MS has
+    // it): refuse before anything is read or written (E5-02).
+    if args.update_model
+        && let Some(e) = model_column_error(&args.model_column, Some(&column))
+    {
+        return Err(e);
+    }
     let t = Instant::now();
     let selection = Selection {
         data_column: column.clone(),
@@ -1369,64 +1521,7 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
     if args.update_model {
         memory::mark("model");
     }
-    let phases = memory::phases();
-    let buffers = memory::buffers();
-    let gb = |b: usize| b as f64 / 1e9;
-    if args.memory_report && memory::counting() {
-        println!(
-            "memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):"
-        );
-        for p in &phases {
-            println!(
-                "  {:<26} held {:>7.3}  most {:>7.3}  rss {:>7.3}  peak rss {:>7.3}  swap {:>6.3}",
-                p.label,
-                gb(p.live),
-                gb(p.peak),
-                p.rss.map_or(f64::NAN, |b| b as f64 / 1e9),
-                p.hwm.map_or(f64::NAN, |b| b as f64 / 1e9),
-                p.swap.map_or(f64::NAN, |b| b as f64 / 1e9)
-            );
-        }
-        println!("memory by buffer (GB):");
-        for (label, bytes) in &buffers {
-            println!("  {label:<44} {:>8.3}", gb(*bytes));
-        }
-    }
-    let memory_json = if memory::counting() {
-        obj(&[
-            (
-                "phases",
-                arr(&phases
-                    .iter()
-                    .map(|p| {
-                        obj(&[
-                            ("label", text(&p.label)),
-                            ("heap_end_bytes", p.live.to_string()),
-                            ("heap_peak_bytes", p.peak.to_string()),
-                            ("rss_bytes", p.rss.map_or("null".into(), |b| b.to_string())),
-                            (
-                                "swap_bytes",
-                                p.swap.map_or("null".into(), |b| b.to_string()),
-                            ),
-                            (
-                                "rss_peak_bytes",
-                                p.hwm.map_or("null".into(), |b| b.to_string()),
-                            ),
-                        ])
-                    })
-                    .collect::<Vec<_>>()),
-            ),
-            (
-                "buffers",
-                arr(&buffers
-                    .iter()
-                    .map(|(l, b)| obj(&[("label", text(l)), ("bytes", b.to_string())]))
-                    .collect::<Vec<_>>()),
-            ),
-        ])
-    } else {
-        "null".into()
-    };
+    let memory_json = memory_section(&args);
 
     let threads = rayon::current_num_threads();
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
@@ -1463,21 +1558,28 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
         ("phase_dir_rad", arr(&[num(phase_dir.0), num(phase_dir.1)])),
         (
             "settings",
-            obj(&[
-                ("gain", num(args.gain)),
-                ("mgain", num(args.mgain)),
-                ("cycle_stop", text(&format!("{:?}", args.cycle_stop))),
-                ("niter", args.niter.to_string()),
-                ("nmiter", args.nmiter.to_string()),
-                ("threshold", num(args.threshold)),
-                ("auto_threshold", opt(args.auto_threshold)),
-                ("patch", args.patch.to_string()),
-                ("theta", num(args.theta)),
-                ("drift", num(args.drift)),
-                ("tau_min", num(args.tau_min)),
-                ("resync_every", args.resync_every.to_string()),
-                ("audit", args.audit.to_string()),
-            ]),
+            obj(&{
+                let mut v = vec![
+                    ("gain", num(args.gain)),
+                    ("mgain", num(args.mgain)),
+                    ("cycle_stop", text(&format!("{:?}", args.cycle_stop))),
+                    ("niter", args.niter.to_string()),
+                    ("nmiter", args.nmiter.to_string()),
+                    ("threshold", num(args.threshold)),
+                    ("auto_threshold", opt(args.auto_threshold)),
+                    ("patch", args.patch.to_string()),
+                    ("theta", num(args.theta)),
+                    ("drift", num(args.drift)),
+                    ("tau_min", num(args.tau_min)),
+                    ("resync_every", args.resync_every.to_string()),
+                    ("audit", args.audit.to_string()),
+                ];
+                // Only when set, so that the default report is unchanged.
+                if args.stop_tolerance > 0.0 {
+                    v.push(("stop_tolerance", num(args.stop_tolerance)));
+                }
+                v
+            }),
         ),
         (
             "beam",
@@ -1789,6 +1891,7 @@ fn deconvolve_channels<T: Real + Send + Sync>(
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     };
     let beam_peak = beams.iter().map(|b| b.peak).collect();
     let beam_f = beams.iter().map(|b| b.f).collect();
@@ -2301,17 +2404,12 @@ fn run_channels(
 // ---------------------------------------------------------------------------
 // Several polarisations (task G9, research/g9-stokes.md).
 
-/// One imaged output channel and polarisation: its rows with weight, the
-/// gridding weights and WSClean's counters.
+/// One imaged output channel and polarisation: its rows with weight and the
+/// gridding weights (its counters are kept apart, in `meta`).
 struct PolEntry {
     uvw: Vec<f64>,
     vis: Vec<Complex<f32>>,
     wgt: Vec<f64>,
-    rows: usize,
-    /// `WSCNVIS`, `WSCIMGWG`, `WSCVWSUM`.
-    count: u64,
-    total: f64,
-    visibility_weight_sum: f64,
 }
 
 /// The weight sources and channel group (MF: usize::MAX) of an imaging-weight grid.
@@ -2354,50 +2452,93 @@ fn clean_settings(args: &Args) -> Settings {
         level: args.simd.map(|l| l.min(kernels::level())),
         tile: args.tile,
         lazy_bounds: args.lazy_bounds,
+        stop_tolerance: args.stop_tolerance,
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn deconvolve_pols<T: Real + Send + Sync>(
-    args: &Args,
-    entries: Vec<PolEntry>,
-    freqs: &[Vec<f64>],
-    central: &[f64],
-    opts: Options,
-) -> Result<PolImages, String> {
-    let n = args.size;
-    let npol = args.pols.len();
-    let kout = freqs.len();
-    let t = Instant::now();
-    let totals: Vec<f64> = entries.iter().map(|e| e.total).collect();
-    let mut measurements: Vec<GridMeasurement<T>> = Vec::with_capacity(entries.len());
-    let mut beams: Vec<Beam> = Vec::new();
-    let mut beam_of = Vec::with_capacity(entries.len());
-    let mut shared_beam = Vec::with_capacity(entries.len());
-    let mut restoring = Vec::with_capacity(kout);
-    let mut fit_estimates = Vec::with_capacity(kout);
-    let mut psfs = Vec::with_capacity(kout);
-    // The rows and gridding weights of the channel's earlier polarisations,
-    // with their beams.
-    let mut earlier: Vec<(Vec<f64>, Vec<f64>, usize)> = Vec::new();
-    for (e, c) in entries.into_iter().enumerate() {
+/// A fingerprint of an entry's rows and gridding weights (two 64-bit
+/// multiply-rotate hashes of the bits, `-0.0` as `0.0`), so that a later
+/// polarisation finds an earlier one with the same rows and weights
+/// without keeping its arrays (research/gemclean-memory.md).
+fn fingerprint(uvw: &[f64], wgt: &[f64]) -> (u64, u64) {
+    let (mut a, mut b) = (0x9e37_79b9_7f4a_7c15u64, 0xc2b2_ae3d_27d4_eb4fu64);
+    let lengths = [uvw.len() as f64, wgt.len() as f64];
+    for x in lengths.iter().chain(uvw).chain(wgt) {
+        let v = (x + 0.0).to_bits();
+        a = (a ^ v).wrapping_mul(0x0000_0100_0000_01b3).rotate_left(23);
+        b = (b ^ v.rotate_left(17))
+            .wrapping_mul(0xff51_afd7_ed55_8ccd)
+            .rotate_left(31);
+    }
+    (a, b)
+}
+
+/// An earlier polarisation with a beam of its own: the fingerprint of its rows
+/// and weights, its entry and its beam.
+type Earlier = ((u64, u64), usize, usize);
+
+/// The measurements, beams and per-channel PSFs of a polarisation run, built
+/// entry by entry (channel-major index `e = k × npol + p`) as each
+/// polarisation is read, so that neither every polarisation's band nor every
+/// entry's gridding arrays are held at once (research/gemclean-memory.md).
+struct PolBuild<T: Real> {
+    npol: usize,
+    measurements: Vec<Option<GridMeasurement<T>>>,
+    beams: Vec<Beam>,
+    beam_of: Vec<usize>,
+    /// Per entry: whether its beam is its channel's first polarisation's.
+    shared_beam: Vec<bool>,
+    restoring: Vec<gemclean::RestoringBeam>,
+    /// The start of each channel's restoring-beam fit, pixels.
+    fit_estimates: Vec<f64>,
+    psfs: Vec<Vec<f64>>,
+    /// Per channel: the earlier polarisations with a beam of their own, by
+    /// the fingerprint of their rows and weights, entry and beam.
+    earlier: Vec<Vec<Earlier>>,
+    t_psf: f64,
+    /// `-reorder`: the file each compacted entry's visibilities go to.
+    vis_file: Option<Arc<TempFile>>,
+}
+
+impl<T: Real + Send + Sync> PolBuild<T> {
+    fn new(kout: usize, npol: usize, vis_file: Option<Arc<TempFile>>) -> Self {
+        let ne = kout * npol;
+        PolBuild {
+            npol,
+            measurements: (0..ne).map(|_| None).collect(),
+            beams: Vec::new(),
+            beam_of: vec![usize::MAX; ne],
+            shared_beam: vec![false; ne],
+            restoring: Vec::with_capacity(kout),
+            fit_estimates: Vec::with_capacity(kout),
+            psfs: Vec::with_capacity(kout),
+            earlier: (0..kout).map(|_| Vec::new()).collect(),
+            t_psf: 0.0,
+            vis_file,
+        }
+    }
+
+    /// Entry `e`'s measurement, and its PSF and beam unless an earlier
+    /// polarisation of its channel has the same rows and gridding weights,
+    /// bit for bit (GeMClean's exact values need each measurement's own PSF).
+    /// Every channel's first polarisation must be added before its others,
+    /// and the first polarisations in channel order.
+    fn add(
+        &mut self,
+        args: &Args,
+        e: usize,
+        c: PolEntry,
+        freq: &[f64],
+        opts: Options,
+    ) -> Result<(), String> {
+        let t = Instant::now();
+        let n = args.size;
+        let npol = self.npol;
         let (k, p) = (e / npol, e % npol);
+        let print = fingerprint(&c.uvw, &c.wgt);
         if p == 0 {
-            earlier.clear();
-        }
-        // A beam is shared with an earlier polarisation's only where the
-        // gridding weights and rows are the same, bit for bit: GeMClean's
-        // exact values need each measurement's own PSF.
-        let same = earlier
-            .iter()
-            .find(|(u, w, _)| *u == c.uvw && *w == c.wgt)
-            .map(|x| x.2);
-        if npol > 1 && same.is_none() && p + 1 < npol {
-            earlier.push((c.uvw.clone(), c.wgt.clone(), beams.len()));
-        }
-        if p == 0 {
-            let b = multiscale::theoretic_beam(&c.uvw, &freqs[k], &c.wgt, n, args.scale);
-            fit_estimates.push(gemclean::beam_fit_estimate(
+            let b = multiscale::theoretic_beam(&c.uvw, freq, &c.wgt, n, args.scale);
+            self.fit_estimates.push(gemclean::beam_fit_estimate(
                 b,
                 args.scale,
                 args.tapers.gaussian_beam,
@@ -2405,7 +2546,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
         }
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
-            freqs[k].clone(),
+            freq.to_vec(),
             c.vis,
             c.wgt,
             n,
@@ -2413,51 +2554,157 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             args.epsilon,
             opts,
         )?;
+        // The fingerprint finds the earlier entry; its rows and normalised
+        // weights, compared value by value, make the shared beam exactly
+        // this entry's own.
+        let found = self.earlier[k]
+            .iter()
+            .find(|(f, ec, _)| {
+                *f == print
+                    && self.measurements[*ec]
+                        .as_ref()
+                        .is_some_and(|x| m.same_rows_and_weights(x))
+            })
+            .map(|x| (x.1, x.2));
+        let same = found.map(|x| x.1);
         let psf2n = if p == 0 || same.is_none() {
             Some(m.psf_image_with(2 * n, args.wgridding && !args.beam_no_w)?)
         } else {
             None
         };
-        let m = if args.plan_reuse {
-            m.prepare()?
-        } else {
-            m.without_plan_reuse()
+        // The same rows and weights make the same plan: share it.
+        let m = match (args.plan_reuse, found) {
+            (true, Some((ec, _))) => {
+                let other = self.measurements[ec].as_ref().expect("built before");
+                m.sharing_plan_of(other)?
+            }
+            (true, None) => m.prepare()?,
+            (false, _) => m.without_plan_reuse(),
         }
         .releasing_grids();
         match psf2n {
             Some(psf2n) => {
+                if npol > 1 && same.is_none() && p + 1 < npol {
+                    self.earlier[k].push((print, e, self.beams.len()));
+                }
                 let columns = if args.beam_band {
                     m.band_columns(2 * n)
                 } else {
                     n + 1
                 };
-                beams.push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
+                self.beams
+                    .push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
                 if p == 0 {
-                    restoring.push(gemclean::fit_restoring_beam(n, &psf2n, fit_estimates[k]));
+                    self.restoring.push(gemclean::fit_restoring_beam(
+                        n,
+                        &psf2n,
+                        self.fit_estimates[k],
+                    ));
                     let mut psf = vec![0.0; n * n];
                     for i in 0..n {
                         for j in 0..n {
                             psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
                         }
                     }
-                    psfs.push(psf);
+                    self.psfs.push(psf);
                 }
-                beam_of.push(beams.len() - 1);
-                shared_beam.push(p == 0);
+                self.beam_of[e] = self.beams.len() - 1;
+                self.shared_beam[e] = p == 0;
             }
             None => {
-                beam_of.push(same.unwrap_or(beam_of[e - p]));
-                shared_beam.push(same == Some(beam_of[e - p]));
+                let first = self.beam_of[e - p];
+                self.beam_of[e] = same.unwrap_or(first);
+                self.shared_beam[e] = same == Some(first);
             }
         }
-        measurements.push(m);
+        // Only the active visibilities, sorted, from here on.
+        let m = if args.plan_reuse { m.compacted()? } else { m };
+        // -reorder: the compacted visibilities wait in a file between uses.
+        let m = match &self.vis_file {
+            Some(f) => m.on_disk(f)?,
+            None => m,
+        };
+        self.measurements[e] = Some(m);
         memory::mark(&format!("entry {e}: psf and beam"));
+        self.t_psf += t.elapsed().as_secs_f64();
+        Ok(())
     }
-    drop(earlier);
-    let t_psf = t.elapsed().as_secs_f64();
+}
+
+/// A file removed when this is dropped, if it is still there (`-reorder`'s
+/// kept dirty images, also after an error).
+struct RemoveOnDrop(PathBuf);
+
+impl Drop for RemoveOnDrop {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.0);
+    }
+}
+
+fn deconvolve_pols<T: Real + Send + Sync>(
+    args: &Args,
+    built: PolBuild<T>,
+    totals: &[f64],
+    central: &[f64],
+) -> Result<PolImages, String> {
+    let n = args.size;
+    let npol = args.pols.len();
+    let kout = central.len();
+    let PolBuild {
+        measurements,
+        beams,
+        beam_of,
+        shared_beam,
+        restoring,
+        fit_estimates,
+        psfs,
+        t_psf,
+        ..
+    } = built;
+    let measurements: Vec<GridMeasurement<T>> = measurements
+        .into_iter()
+        .map(|m| m.ok_or("an entry was not built"))
+        .collect::<Result<_, _>>()?;
+    let ne = measurements.len();
+    if ne != kout * npol {
+        return Err("one entry per output channel and polarisation is needed".into());
+    }
+    if memory::counting() {
+        // Summed over the entries, by buffer (research/gemclean-memory.md).
+        let mut sums: Vec<(String, usize)> = Vec::new();
+        let mut add = |label: String, bytes: usize| match sums.iter_mut().find(|x| x.0 == label) {
+            Some(x) => x.1 += bytes,
+            None => sums.push((label, bytes)),
+        };
+        // A shared plan and its weights once.
+        let mut plans = Vec::new();
+        for m in &measurements {
+            let key = m.plan_key();
+            let shared = key != 0 && plans.contains(&key);
+            plans.push(key);
+            for (label, bytes) in m.memory() {
+                if shared && (label.starts_with("gridder:") || label == "measurement: weights") {
+                    continue;
+                }
+                add(format!("{label} ({} entries)", ne), bytes);
+            }
+        }
+        for b in &beams {
+            for (label, bytes) in b.memory() {
+                add(format!("{label} ({} beams)", beams.len()), bytes);
+            }
+        }
+        add(
+            format!("psf n x n crops ({} channels)", psfs.len()),
+            psfs.iter().map(memory::bytes_of).sum(),
+        );
+        for (label, bytes) in sums {
+            memory::note(&label, bytes);
+        }
+        memory::note("one n x n f64 image", n * n * 8);
+    }
     let settings = clean_settings(args);
     let pair = |e: usize| (&measurements[e], &beams[beam_of[e]]);
-    let ne = measurements.len();
     let mut dirty = vec![Vec::new(); ne];
     let mut model = vec![Vec::new(); ne];
     let mut residual = vec![Vec::new(); ne];
@@ -2488,6 +2735,15 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             }
         }
     }
+    let masking = args.masking.is_active().then_some(&args.masking);
+    if masking.is_some() && groups.iter().any(|(m, _)| m.len() == 1) {
+        return Err("masks with several polarisations need -join-polarizations".into());
+    }
+    let mut autos: Vec<mask::AutoState> = Vec::new();
+    let mut outcomes: Vec<gemclean::Outcome> = Vec::new();
+    // With -reorder the dirty images stay in their files until the
+    // measurements and beams are dropped (research/gemclean-memory2.md).
+    let mut kept_dirty: Vec<(RemoveOnDrop, Vec<usize>)> = Vec::new();
     for (members, gpol) in groups {
         if members.len() == 1 {
             let e = members[0];
@@ -2516,24 +2772,71 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             } else {
                 1.0
             };
-            let j = run_joined_pols(&pairs, gpol, &w, norm, fit.as_ref(), &settings)?;
+            // The masks act on the group's integrated residual, and the
+            // automatic mask is the union of every entry's nonzero model
+            // pixels, as radler's (research/e2b-misses.md, arm A5).
+            // The dirty images wait in a file beside the outputs
+            // (research/gemclean-memory.md).
+            let spill = PathBuf::from(format!("{}-dirty-{}.spill", args.name, runs_json.len()));
+            let j = if args.reorder {
+                let j = run_joined_spill_kept(
+                    &pairs,
+                    gpol,
+                    &w,
+                    norm,
+                    fit.as_ref(),
+                    &settings,
+                    masking,
+                    &spill,
+                );
+                kept_dirty.push((RemoveOnDrop(spill), members.clone()));
+                j?
+            } else {
+                run_joined_spilling(
+                    &pairs,
+                    gpol,
+                    &w,
+                    norm,
+                    fit.as_ref(),
+                    &settings,
+                    masking,
+                    Some(&spill),
+                )?
+            };
             if let Some(f) = &fit {
                 reference_frequency = Some(f.reference);
             }
             runs_json.push(j.integrated.to_json(None));
-            for ((e, d), (m, r)) in members
-                .iter()
-                .zip(j.dirty)
-                .zip(j.model.into_iter().zip(j.residual))
-            {
+            autos.extend(j.auto);
+            let mut dirty_of = j.dirty.into_iter();
+            for (e, (m, r)) in members.iter().zip(j.model.into_iter().zip(j.residual)) {
                 components[*e] = j.integrated.steps.len();
                 majors[*e] = j.integrated.cycles.len();
-                dirty[*e] = d;
+                dirty[*e] = dirty_of.next().unwrap_or_default();
                 model[*e] = m;
                 residual[*e] = r;
             }
+            outcomes.push(j.integrated);
         }
         memory::mark(&format!("group of {}: clean", runs_json.len()));
+    }
+    if !kept_dirty.is_empty() {
+        drop(measurements);
+        drop(beams);
+        memory::mark("measurements and beams dropped");
+        for (path, members) in kept_dirty {
+            for (e, d) in members
+                .iter()
+                .zip(spill_read(&path.0, members.len(), n * n)?)
+            {
+                dirty[*e] = d;
+            }
+        }
+    }
+    if masking.is_some() {
+        let a: Vec<Option<&mask::AutoState>> = autos.iter().map(Some).collect();
+        let o: Vec<&gemclean::Outcome> = outcomes.iter().collect();
+        report_masking(args, &a, &o)?;
     }
     Ok(PolImages {
         psf: psfs,
@@ -2554,6 +2857,150 @@ fn deconvolve_pols<T: Real + Send + Sync>(
 /// Several polarisations: read each, weight them as WSClean's cache does
 /// ([`stokes::weight_sources`]), deconvolve (joined or not, with or without
 /// joined channels) and write WSClean's file names and header counters.
+/// `-reorder`'s read (research/gemclean-memory2.md): every polarisation's
+/// cells per output channel in a temporary file (chunk by chunk, in row
+/// order), the rows' uvw and FLAG_ROW, and the finished imaging-weight grids.
+struct Reordered {
+    file: TempFile,
+    /// `at[p][k]`: the chunks of polarisation `p`, output channel `k`:
+    /// (offset of the visibilities, offset of the weights, rows).
+    at: Vec<Vec<Vec<(u64, u64, usize)>>>,
+    widths: Vec<usize>,
+    groups: Vec<Vec<usize>>,
+    uvw: Vec<f64>,
+    flag_row: Vec<bool>,
+    grids: Vec<(WeightKey, stokes::ImagingGrid)>,
+}
+
+impl Reordered {
+    fn read(
+        args: &Args,
+        selection: &Selection,
+        groups: &[Vec<usize>],
+        all: &[usize],
+        mf: bool,
+        sources_of: &dyn Fn(usize) -> Vec<usize>,
+    ) -> Result<Reordered, String> {
+        let npol = args.pols.len();
+        let b = input::band(&args.ms, selection)?;
+        let mut grids: Vec<(WeightKey, stokes::ImagingGrid)> = Vec::new();
+        for (k, group) in groups.iter().enumerate() {
+            for p in 0..npol {
+                let key = (sources_of(p), if mf { usize::MAX } else { k });
+                if !grids.iter().any(|(c, _)| *c == key) {
+                    let chans = if mf { all } else { &group[..] };
+                    let g = stokes::ImagingGrid::new(
+                        &b.freq,
+                        chans,
+                        args.weight,
+                        args.size,
+                        args.scale,
+                    )?;
+                    grids.push((key, g));
+                }
+            }
+        }
+        let file = TempFile::create(scratch::temp_path(
+            args.temp_dir.as_deref(),
+            &args.name,
+            "read",
+        ))?;
+        let mut at = vec![vec![Vec::new(); groups.len()]; npol];
+        let (mut uvw, mut flag_row) = (Vec::new(), Vec::new());
+        let mut rows = vec![0usize; npol];
+        let mut vis = Vec::new();
+        let mut wgt = Vec::new();
+        for p in 0..npol {
+            let sel = Selection {
+                polarization: args.pols[p],
+                ..selection.clone()
+            };
+            let mut sink = |c: &input::StokesI| -> Result<(), String> {
+                let nchan = c.freq.len();
+                let r = c.rows();
+                if p == 0 {
+                    uvw.extend_from_slice(&c.uvw);
+                    flag_row.extend_from_slice(&c.flag_row);
+                } else if flag_row.len() < rows[p] + r
+                    || flag_row[rows[p]..rows[p] + r] != c.flag_row[..]
+                    || uvw[3 * rows[p]..3 * (rows[p] + r)] != c.uvw[..]
+                {
+                    return Err("the polarisations differ in rows or channels".into());
+                }
+                rows[p] += r;
+                // The grids in the order imaging_weights fills them: source
+                // by source (polarisations in order), rows in order.
+                for (key, g) in grids.iter_mut() {
+                    if key.0.contains(&p) {
+                        g.add(c)?;
+                    }
+                }
+                for (k, group) in groups.iter().enumerate() {
+                    vis.clear();
+                    wgt.clear();
+                    for row in 0..r {
+                        for &ch in group {
+                            vis.push(c.vis[row * nchan + ch]);
+                            wgt.push(c.weight[row * nchan + ch]);
+                        }
+                    }
+                    let ov = file.append_c32(&vis)?;
+                    let ow = file.append_f32(&wgt)?;
+                    at[p][k].push((ov, ow, r));
+                }
+                Ok(())
+            };
+            let h = input::read_ms_chunks(&args.ms, &sel, &mut sink)?;
+            if h.freq.len() != b.freq.len() {
+                return Err("the polarisations differ in rows or channels".into());
+            }
+        }
+        if rows.iter().any(|&r| r != flag_row.len()) {
+            return Err("the polarisations differ in rows or channels".into());
+        }
+        for (_, g) in grids.iter_mut() {
+            g.finish(&args.tapers)?;
+        }
+        Ok(Reordered {
+            file,
+            at,
+            widths: groups.iter().map(Vec::len).collect(),
+            groups: groups.to_vec(),
+            uvw,
+            flag_row,
+            grids,
+        })
+    }
+
+    /// Polarisation `p`'s cells of output channel `k` (`rows × m`): the
+    /// visibilities, the weights and the imaging weights of the grid `key`.
+    #[allow(clippy::type_complexity)]
+    fn load(
+        &self,
+        p: usize,
+        k: usize,
+        key: &WeightKey,
+    ) -> Result<(Vec<Complex<f32>>, Vec<f32>, Vec<f32>), String> {
+        let m = self.widths[k];
+        let rows = self.flag_row.len();
+        let mut vis = Vec::with_capacity(rows * m);
+        let mut wgt = Vec::with_capacity(rows * m);
+        for &(ov, ow, r) in &self.at[p][k] {
+            vis.extend(self.file.read_c32(ov, r * m)?);
+            wgt.extend(self.file.read_f32(ow, r * m)?);
+        }
+        let (_, g) = self
+            .grids
+            .iter()
+            .find(|(c, _)| c == key)
+            .ok_or("no imaging-weight grid for an entry")?;
+        // Looked up per cell at this channel's own band channels (with MF
+        // weighting the grid holds every channel).
+        let imaging = g.lookup(&self.uvw, &self.flag_row, &self.groups[k])?;
+        Ok((vis, wgt, imaging))
+    }
+}
+
 fn run_polarizations(
     args: &Args,
     raw: &[String],
@@ -2563,13 +3010,10 @@ fn run_polarizations(
 ) -> Result<(), String> {
     let n = args.size;
     let npol = args.pols.len();
-    let t = Instant::now();
     let spectral_sel = args.channel_range.is_some() || args.average_channels > 1;
-    let mut data = Vec::with_capacity(npol);
-    let mut widths = Vec::new();
-    for &p in &args.pols {
+    let read = |p: usize| -> Result<(input::StokesI, Vec<f64>), String> {
         let sel = Selection {
-            polarization: p,
+            polarization: args.pols[p],
             ..selection.clone()
         };
         let mut d = input::read_ms(&args.ms, &sel)?;
@@ -2580,163 +3024,283 @@ fn run_polarizations(
         if spectral_sel {
             (d, w) = select_and_average(d, w, args)?;
         }
-        widths = w;
-        data.push(d);
-    }
-    let t_read = t.elapsed().as_secs_f64();
-    memory::mark("read");
-    let t = Instant::now();
-    let nchan = data[0].freq.len();
-    let rows = data[0].rows();
-    let phase_dir = data[0].phase_dir;
+        Ok((d, w))
+    };
+    let mf = args.mf_weighting.unwrap_or(args.join_channels);
+    let sources_of = |p: usize| {
+        stokes::weight_sources(
+            npol,
+            p,
+            mf,
+            args.join_pols,
+            args.join_channels,
+            args.channels_out,
+        )
+    };
+    // -reorder (research/gemclean-memory2.md): each polarisation is read in
+    // chunks into a temporary file per output channel, with the imaging-weight
+    // grids filled from the same chunks; not with a channel selection.
+    let reorder = args.reorder && !spectral_sel;
+    let mut data: Vec<Option<input::StokesI>> = (0..npol).map(|_| None).collect();
+    let mut widths = Vec::new();
+    let mut t_read = 0.0;
+    let (freq_all, phase_dir) = if reorder {
+        let t = Instant::now();
+        let b = input::band(&args.ms, selection)?;
+        widths = input::channel_widths(&args.ms, selection)?;
+        if widths.len() != b.freq.len() {
+            return Err("CHAN_WIDTH and CHAN_FREQ differ in length".into());
+        }
+        t_read += t.elapsed().as_secs_f64();
+        (b.freq, b.phase_dir)
+    } else {
+        // Read first the polarisations the imaging weights come from (with
+        // joined polarisations the first alone); each other is read when its
+        // entries are built, and each is dropped once they are
+        // (research/gemclean-memory.md).
+        let mut needed: Vec<usize> = (0..npol).flat_map(sources_of).collect();
+        needed.sort_unstable();
+        needed.dedup();
+        for &s in &needed {
+            let t = Instant::now();
+            let (d, w) = read(s)?;
+            t_read += t.elapsed().as_secs_f64();
+            if s == 0 {
+                widths = w;
+            }
+            data[s] = Some(d);
+        }
+        let first = data[0]
+            .as_ref()
+            .ok_or("the first polarisation is a weight source")?;
+        (first.freq.clone(), first.phase_dir)
+    };
+    let nchan = freq_all.len();
     let groups: Vec<Vec<usize>> = if args.channels_out > 1 {
-        spectral::channel_groups(&data[0].freq, None, args.channels_out)?
+        spectral::channel_groups(&freq_all, None, args.channels_out)?
     } else {
         vec![(0..nchan).collect()]
     };
     let kout = groups.len();
-    let mf = args.mf_weighting.unwrap_or(args.join_channels);
     let all: Vec<usize> = (0..nchan).collect();
+    let reordered = if reorder {
+        let t = Instant::now();
+        let r = Reordered::read(args, selection, &groups, &all, mf, &sources_of)?;
+        t_read += t.elapsed().as_secs_f64();
+        Some(r)
+    } else {
+        None
+    };
+    memory::mark("read");
+    let t = Instant::now();
+    let rows = match &reordered {
+        Some(r) => r.flag_row.len(),
+        None => data[0].as_ref().expect("read above").rows(),
+    };
     // Imaging weights per (source set, channel group), computed once each.
     let mut cache: Vec<(WeightKey, Vec<f32>)> = Vec::new();
-    let mut entries = Vec::with_capacity(kout * npol);
-    let mut freqs = Vec::with_capacity(kout);
-    let mut bands = Vec::with_capacity(kout);
     for (k, group) in groups.iter().enumerate() {
-        let freq: Vec<f64> = group.iter().map(|&c| data[0].freq[c]).collect();
-        let low = group
-            .iter()
-            .map(|&c| data[0].freq[c] - 0.5 * widths[c])
-            .fold(f64::INFINITY, f64::min);
-        let high = group
-            .iter()
-            .map(|&c| data[0].freq[c] + 0.5 * widths[c])
-            .fold(f64::NEG_INFINITY, f64::max);
-        let m = group.len();
+        if reordered.is_some() {
+            break;
+        }
         for p in 0..npol {
-            let sources = stokes::weight_sources(
-                npol,
-                p,
-                mf,
-                args.join_pols,
-                args.join_channels,
-                args.channels_out,
-            );
+            let sources = sources_of(p);
             // MF: one grid of all channels, sliced; else the group's own.
             let key = (sources.clone(), if mf { usize::MAX } else { k });
             if !cache.iter().any(|(c, _)| *c == key) {
-                let src: Vec<&input::StokesI> = sources.iter().map(|&s| &data[s]).collect();
+                let src: Vec<&input::StokesI> = sources
+                    .iter()
+                    .map(|&s| data[s].as_ref().expect("weight sources are read first"))
+                    .collect();
                 let chans = if mf { &all } else { group };
                 let w =
                     stokes::imaging_weights(&src, chans, args.weight, n, args.scale, &args.tapers)?;
-                cache.push((key.clone(), w));
+                cache.push((key, w));
             }
-            let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
-            let d = &data[p];
-            let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
-            let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
-            for row in 0..rows {
-                for (j, &c) in group.iter().enumerate() {
-                    vis.push(d.vis[row * nchan + c]);
-                    let im = if mf {
-                        imaging[row * nchan + c]
-                    } else {
-                        imaging[row * m + j]
-                    };
-                    let w = d.weight[row * nchan + c];
-                    let g = if d.flag_row[row] {
-                        0.0
-                    } else {
-                        f64::from(w) * f64::from(im)
-                    };
-                    if g != 0.0 {
-                        count += 1;
-                        total += g;
-                        vsum += f64::from(w);
-                    }
-                    wgt.push(g);
-                }
-            }
-            if total <= 0.0 {
-                return Err(format!(
-                    "output channel {k}, polarisation {}: no weighted visibilities",
-                    args.pols[p]
-                ));
-            }
-            let mut uvw = d.uvw.clone();
-            let mut kept = 0;
-            for row in 0..rows {
-                let (a, b) = (row * m, (row + 1) * m);
-                if wgt[a..b].iter().any(|&x| x != 0.0) {
-                    if kept != row {
-                        uvw.copy_within(3 * row..3 * row + 3, 3 * kept);
-                        vis.copy_within(a..b, kept * m);
-                        wgt.copy_within(a..b, kept * m);
-                    }
-                    kept += 1;
-                }
-            }
-            uvw.truncate(3 * kept);
-            vis.truncate(kept * m);
-            wgt.truncate(kept * m);
-            uvw.shrink_to_fit();
-            vis.shrink_to_fit();
-            wgt.shrink_to_fit();
-            entries.push(PolEntry {
-                uvw,
-                vis,
-                wgt,
-                rows: kept,
-                count,
-                total,
-                visibility_weight_sum: vsum,
-            });
         }
-        freqs.push(freq);
+    }
+    let mut freqs = Vec::with_capacity(kout);
+    let mut bands = Vec::with_capacity(kout);
+    for group in &groups {
+        freqs.push(group.iter().map(|&c| freq_all[c]).collect::<Vec<f64>>());
+        let low = group
+            .iter()
+            .map(|&c| freq_all[c] - 0.5 * widths[c])
+            .fold(f64::INFINITY, f64::min);
+        let high = group
+            .iter()
+            .map(|&c| freq_all[c] + 0.5 * widths[c])
+            .fold(f64::NEG_INFINITY, f64::max);
         bands.push((low, high));
     }
-    drop(cache);
-    let freq_all = data[0].freq.clone();
-    drop(data);
     let t_weights = t.elapsed().as_secs_f64();
     memory::mark("weights");
-    let meta: Vec<(u64, f64, f64, usize)> = entries
-        .iter()
-        .map(|e| (e.count, e.total, e.visibility_weight_sum, e.rows))
-        .collect();
     let central: Vec<f64> = bands.iter().map(|(l, h)| 0.5 * (l + h)).collect();
-    println!(
-        "{}: {} rows ({column}, field {}), {} channels into {} output channels, polarisations {}{}, {} weighting{}, {:.2} s read, {:.2} s weights",
-        args.ms.display(),
-        rows,
-        args.field,
-        nchan,
-        kout,
-        args.pols
-            .iter()
-            .map(|p| p.name())
-            .collect::<Vec<_>>()
-            .join(","),
-        if args.join_pols { " joined" } else { "" },
-        if mf { "MF" } else { "per-channel" },
-        if args.join_channels {
-            ", channels joined"
-        } else {
-            ""
-        },
-        t_read,
-        t_weights
-    );
     let opts = Options {
         flip_v: true,
         flip_w: true,
         do_wgridding: args.wgridding,
         ..Options::default()
     };
+    let mut meta: Vec<(u64, f64, f64, usize)> = vec![(0, 0.0, 0.0, 0); kout * npol];
+    // The entries of one polarisation, each turned into its measurement
+    // (and beam) as soon as it is formed.
+    macro_rules! build {
+        ($t:ty) => {{
+            let vis_file = if args.reorder {
+                Some(Arc::new(TempFile::create(scratch::temp_path(
+                    args.temp_dir.as_deref(),
+                    &args.name,
+                    "vis",
+                ))?))
+            } else {
+                None
+            };
+            let mut built = PolBuild::<$t>::new(kout, npol, vis_file);
+            let mut t_entries = 0.0;
+            for p in 0..npol {
+                let d = match (&reordered, data[p].take()) {
+                    (Some(_), _) => None,
+                    (None, Some(d)) => Some(d),
+                    (None, None) => {
+                        let t = Instant::now();
+                        let (d, _) = read(p)?;
+                        t_read += t.elapsed().as_secs_f64();
+                        Some(d)
+                    }
+                };
+                if let Some(d) = &d
+                    && (d.rows() != rows || d.freq.len() != nchan)
+                {
+                    return Err("the polarisations differ in rows or channels".into());
+                }
+                for (k, group) in groups.iter().enumerate() {
+                    let t = Instant::now();
+                    let m = group.len();
+                    let key = (sources_of(p), if mf { usize::MAX } else { k });
+                    // The band (stride nchan, the group's columns) or, with
+                    // -reorder, the channel's own cells (stride m).
+                    let own: Vec<usize> = (0..m).collect();
+                    let loaded = match &reordered {
+                        Some(r) => Some(r.load(p, k, &key)?),
+                        None => None,
+                    };
+                    let (bvis, bweight, vstride, vcols, imaging, istride, icols, flag_row, uvw0) =
+                        match (&d, &loaded, &reordered) {
+                            (Some(d), _, _) => {
+                                let imaging = &cache.iter().find(|(c, _)| *c == key).unwrap().1;
+                                (
+                                    &d.vis[..],
+                                    &d.weight[..],
+                                    nchan,
+                                    &group[..],
+                                    &imaging[..],
+                                    if mf { nchan } else { m },
+                                    if mf { &group[..] } else { &own[..] },
+                                    &d.flag_row[..],
+                                    &d.uvw[..],
+                                )
+                            }
+                            (None, Some((v, w, im)), Some(r)) => (
+                                &v[..],
+                                &w[..],
+                                m,
+                                &own[..],
+                                &im[..],
+                                m,
+                                &own[..],
+                                &r.flag_row[..],
+                                &r.uvw[..],
+                            ),
+                            _ => unreachable!("a band or a reordered read"),
+                        };
+                    let (mut vis, mut wgt) = (Vec::with_capacity(rows * m), Vec::with_capacity(rows * m));
+                    let (mut count, mut total, mut vsum) = (0u64, 0.0, 0.0);
+                    for row in 0..rows {
+                        for j in 0..m {
+                            vis.push(bvis[row * vstride + vcols[j]]);
+                            let im = imaging[row * istride + icols[j]];
+                            let w = bweight[row * vstride + vcols[j]];
+                            let g = if flag_row[row] {
+                                0.0
+                            } else {
+                                f64::from(w) * f64::from(im)
+                            };
+                            if g != 0.0 {
+                                count += 1;
+                                total += g;
+                                vsum += f64::from(w);
+                            }
+                            wgt.push(g);
+                        }
+                    }
+                    if total <= 0.0 {
+                        return Err(format!(
+                            "output channel {k}, polarisation {}: no weighted visibilities",
+                            args.pols[p]
+                        ));
+                    }
+                    let mut uvw = uvw0.to_vec();
+                    drop(loaded);
+                    let mut kept = 0;
+                    for row in 0..rows {
+                        let (a, b) = (row * m, (row + 1) * m);
+                        if wgt[a..b].iter().any(|&x| x != 0.0) {
+                            if kept != row {
+                                uvw.copy_within(3 * row..3 * row + 3, 3 * kept);
+                                vis.copy_within(a..b, kept * m);
+                                wgt.copy_within(a..b, kept * m);
+                            }
+                            kept += 1;
+                        }
+                    }
+                    uvw.truncate(3 * kept);
+                    vis.truncate(kept * m);
+                    wgt.truncate(kept * m);
+                    uvw.shrink_to_fit();
+                    vis.shrink_to_fit();
+                    wgt.shrink_to_fit();
+                    let entry = PolEntry { uvw, vis, wgt };
+                    let e = k * npol + p;
+                    meta[e] = (count, total, vsum, kept);
+                    t_entries += t.elapsed().as_secs_f64();
+                    built.add(args, e, entry, &freqs[k], opts)?;
+                }
+                drop(d);
+            }
+            drop(cache);
+            drop(reordered);
+            let totals: Vec<f64> = meta.iter().map(|x| x.1).collect();
+            let t_weights = t_weights + t_entries;
+            println!(
+                "{}: {} rows ({column}, field {}), {} channels into {} output channels, polarisations {}{}, {} weighting{}, {:.2} s read, {:.2} s weights",
+                args.ms.display(),
+                rows,
+                args.field,
+                nchan,
+                kout,
+                args.pols
+                    .iter()
+                    .map(|p| p.name())
+                    .collect::<Vec<_>>()
+                    .join(","),
+                if args.join_pols { " joined" } else { "" },
+                if mf { "MF" } else { "per-channel" },
+                if args.join_channels {
+                    ", channels joined"
+                } else {
+                    ""
+                },
+                t_read,
+                t_weights
+            );
+            deconvolve_pols::<$t>(args, built, &totals, &central)?
+        }};
+    }
     let out = if args.single {
-        deconvolve_pols::<f32>(args, entries, &freqs, &central, opts)?
+        build!(f32)
     } else {
-        deconvolve_pols::<f64>(args, entries, &freqs, &central, opts)?
+        build!(f64)
     };
     let t = Instant::now();
     let scale_deg = args.scale.to_degrees();
@@ -2930,6 +3494,7 @@ fn run_polarizations(
     }
     let t_write = t.elapsed().as_secs_f64();
     memory::mark("write");
+    let memory_json = memory_section(args);
     let beam_json = |r: &gemclean::RestoringBeam| {
         obj(&[
             ("bmaj_deg", num(r.major * scale_deg)),
@@ -3011,6 +3576,7 @@ fn run_polarizations(
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("memory", memory_json),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!(
@@ -3086,6 +3652,29 @@ fn written_json(w: &predict::Written, seconds: f64) -> String {
         ("blocks", w.blocks.to_string()),
         ("seconds", num(seconds)),
     ])
+}
+
+/// Why `-model-column` may not be written, if it may not (E5-02,
+/// research/e5-final.md): gemclean never writes DATA, the column the
+/// observation came in, and never writes the column it images, which the
+/// model would overwrite. `data` is the column being imaged, when known.
+fn model_column_error(model: &str, data: Option<&str>) -> Option<String> {
+    if model == "DATA" {
+        return Some(
+            "-model-column DATA: gemclean never writes the DATA column (the model column is \
+             written after imaging unless -no-update-model-required, and by -predict); name \
+             another column, such as MODEL_DATA"
+                .into(),
+        );
+    }
+    if data == Some(model) {
+        return Some(format!(
+            "-model-column {model} is the column being imaged (-data-column, or CORRECTED_DATA \
+             when the MS has it), so the model would overwrite it; name another column, such as \
+             MODEL_DATA, or add -no-update-model-required"
+        ));
+    }
+    None
 }
 
 /// After imaging: the model column, unless -no-update-model-required.
@@ -3231,6 +3820,37 @@ mod tests {
     }
 
     #[test]
+    fn the_model_column_is_never_data_nor_the_imaged_column() {
+        // E5-02 (research/e5-final.md): refused at parsing, naming the option.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        for line in [
+            "-size 64 64 -scale 2asec -model-column DATA x.ms",
+            "-size 64 64 -scale 2asec -predict -model-column DATA x.ms",
+            "-size 64 64 -scale 2asec -data-column CORRECTED_DATA -model-column CORRECTED_DATA x.ms",
+        ] {
+            let e = parse(line)
+                .err()
+                .unwrap_or_else(|| panic!("accepted: {line}"));
+            assert!(e.starts_with("-model-column "), "{line}: {e}");
+        }
+        for line in [
+            "-size 64 64 -scale 2asec x.ms",
+            "-size 64 64 -scale 2asec -model-column MODEL_2 x.ms",
+            "-size 64 64 -scale 2asec -data-column DATA -model-column MODEL_DATA x.ms",
+            // Nothing is written without the model update.
+            "-size 64 64 -scale 2asec -no-update-model-required -model-column DATA x.ms",
+        ] {
+            assert!(parse(line).is_ok(), "{line}");
+        }
+        // The column chosen at run time (CORRECTED_DATA when present).
+        assert!(model_column_error("CORRECTED_DATA", Some("CORRECTED_DATA")).is_some());
+        assert!(model_column_error("MODEL_DATA", Some("CORRECTED_DATA")).is_none());
+    }
+
+    #[test]
     fn gridder_precision_defaults() {
         // Task G7 (research/g7-defaults.md): 1e-4 in single precision by default;
         // a finer accuracy alone gives double; -single and -double win.
@@ -3245,6 +3865,82 @@ mod tests {
         assert!(!parse("-size 64 64 -scale 2asec -double x.ms").single);
         assert!(parse("-size 64 64 -scale 2asec -wgridder-accuracy 1e-6 -single x.ms").single);
         assert!(!parse("-size 64 64 -scale 2asec -single -double x.ms").single);
+    }
+
+    #[test]
+    fn masks_take_joined_polarisations_only() {
+        // research/e2b-misses.md, arm A5: radler's mask acts on the joined set.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        let base = "-size 64 64 -scale 2asec -mgain 0.9 -auto-threshold 3 -auto-mask 5 \
+                    -no-update-model-required";
+        let a = parse(&format!("{base} -pol IQUV -join-polarizations x.ms")).unwrap();
+        assert_eq!(a.auto_mask.map(|m| m.sigma), Some(Some(5.0)));
+        assert!(
+            parse(&format!("{base} -pol IQUV x.ms"))
+                .err()
+                .is_some_and(|e| e.contains("joined polarisations"))
+        );
+        assert!(parse(&format!("{base} -pol I x.ms")).is_ok());
+        // A FITS mask on joined polarisations stays refused (not validated).
+        let fits = "-size 64 64 -scale 2asec -fits-mask m.fits -pol IQUV -join-polarizations \
+                    -no-update-model-required x.ms";
+        assert!(parse(fits).is_err());
+    }
+
+    #[test]
+    fn thresholds_are_finite_and_not_negative() {
+        // Correctness audit 2026-11-13: a NaN threshold never ends the minor
+        // cycle; NaN, infinite and negative thresholds are refused.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        for flag in ["-threshold", "-abs-threshold", "-auto-threshold"] {
+            for bad in ["nan", "-1", "inf"] {
+                assert!(parse(&format!("-size 64 64 -scale 2asec {flag} {bad} x.ms")).is_err());
+            }
+            assert!(parse(&format!("-size 64 64 -scale 2asec {flag} 0.5 x.ms")).is_ok());
+        }
+    }
+
+    #[test]
+    fn stop_tolerance_flag() {
+        // research/gemclean-stop28.md: off by default, finite and not negative,
+        // and refused on the loops with their own stop.
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw)
+        };
+        let base = "-size 64 64 -scale 2asec -no-update-model-required";
+        assert_eq!(parse(&format!("{base} x.ms")).unwrap().stop_tolerance, 0.0);
+        let a = parse(&format!("{base} -stop-tolerance 0.02 x.ms")).unwrap();
+        assert_eq!(a.stop_tolerance, 0.02);
+        assert_eq!(clean_settings(&a).stop_tolerance, 0.02);
+        for bad in ["-0.1", "nan", "inf"] {
+            assert!(
+                parse(&format!("{base} -stop-tolerance {bad} x.ms")).is_err(),
+                "{bad}"
+            );
+        }
+        for other in [
+            "-multiscale",
+            "-mgain 0.9 -auto-threshold 1 -auto-mask 3",
+            "-channels-out 2 -join-channels",
+            "-pol IQUV -join-polarizations",
+        ] {
+            let line = format!("{base} {other} -stop-tolerance 0.02 x.ms");
+            assert!(
+                parse(&line)
+                    .err()
+                    .is_some_and(|e| e.contains("-stop-tolerance")),
+                "{line}"
+            );
+            let line = format!("{base} {other} -stop-tolerance 0 x.ms");
+            assert!(parse(&line).is_ok(), "{line}");
+        }
     }
 
     #[test]
@@ -3282,8 +3978,36 @@ mod tests {
             "-size 64 64 -scale 2asec -multiscale -stop-rule certified x.ms",
             "-size 64 64 -scale 2asec -multiscale -mgain-misfit 0.5 x.ms",
             "-size 64 64 -scale 2asec -multiscale -multiscale-gain 0 x.ms",
+            "-size 64 64 -scale 2asec -no-negative x.ms",
+            "-size 64 64 -scale 2asec -multiscale-point-cap 0.9 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-point-cap 0 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-bias-reference -1 x.ms",
+            "-size 64 64 -scale 2asec -multiscale -multiscale-bias-reference psf x.ms",
         ] {
             assert!(parse(line).is_err(), "{line}");
         }
+    }
+
+    /// Issue #23 step 4's options (research/multiscale-flux-fix.md).
+    #[test]
+    fn multiscale_flux_fix_flags() {
+        let parse = |line: &str| {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            parse_args(&raw).unwrap().multiscale.unwrap()
+        };
+        let base = "-size 64 64 -scale 2asec -multiscale";
+        let ms = parse(&format!(
+            "{base} -multiscale-bias-reference first-scale x.ms"
+        ));
+        assert_eq!(ms.bias_reference, multiscale::BiasReference::FirstScale);
+        let ms = parse(&format!("{base} -multiscale-bias-reference 11.58 x.ms"));
+        assert_eq!(ms.bias_reference, multiscale::BiasReference::Pixels(11.58));
+        let ms = parse(&format!("{base} -multiscale-bias-reference theoretic x.ms"));
+        assert_eq!(ms, MultiscaleSettings::default());
+        let ms = parse(&format!(
+            "{base} -multiscale-point-cap 0.9 -no-negative x.ms"
+        ));
+        assert_eq!(ms.point_cap, Some(0.9));
+        assert!(!ms.allow_negative);
     }
 }

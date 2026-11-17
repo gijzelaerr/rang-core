@@ -1,0 +1,69 @@
+D:/rang/outputs/gemclean-memory-20261115/e2b-slim.ms: 33880 rows (RANG_CORRECTED_DATA, field 2), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 34.72 s read, 5.21 s weights
+auto-mask: major iteration 1, sigma 1.481714e-2 Jy, threshold 7.408572e-2 Jy; continued in the mask at gain 0.9000, threshold 7.408572e-2 Jy
+auto-mask: major iteration 2, sigma 1.812270e-3 Jy, threshold 9.061350e-3 Jy; continued in the mask at gain 0.9000, threshold 9.061350e-3 Jy
+auto-mask: major iteration 3, sigma 8.623579e-4 Jy, threshold 4.311790e-3 Jy; continued in the mask at gain 0.9000, threshold 4.311790e-3 Jy
+auto-mask: major iteration 4, sigma 5.077005e-4 Jy, threshold 2.538502e-3 Jy; continued in the mask at gain 0.7579, threshold 1.523101e-3 Jy
+auto-mask: major iteration 5, sigma 4.619144e-4 Jy, threshold 1.385743e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):
+  read                       held   1.666  most   8.583  rss   1.672  peak rss   5.353  swap    NaN
+  weights                    held   2.221  most   2.246  rss   2.227  peak rss   5.353  swap    NaN
+  entry 0: psf and beam      held   2.620  most   3.857  rss   2.628  peak rss   5.353  swap    NaN
+  entry 4: psf and beam      held   3.241  most   4.448  rss   3.254  peak rss   5.353  swap    NaN
+  entry 8: psf and beam      held   3.742  most   4.959  rss   3.751  peak rss   5.353  swap    NaN
+  entry 12: psf and beam     held   4.152  most   5.308  rss   4.163  peak rss   5.353  swap    NaN
+  entry 16: psf and beam     held   4.738  most   5.945  rss   4.758  peak rss   5.957  swap    NaN
+  entry 20: psf and beam     held   5.307  most   6.515  rss   5.330  peak rss   6.524  swap    NaN
+  entry 24: psf and beam     held   5.738  most   6.967  rss   5.758  peak rss   6.980  swap    NaN
+  entry 28: psf and beam     held   6.156  most   7.388  rss   6.176  peak rss   7.402  swap    NaN
+  entry 1: psf and beam      held   6.187  most  13.073  rss   6.198  peak rss   9.849  swap    NaN
+  entry 5: psf and beam      held   6.307  most   6.498  rss   6.318  peak rss   9.849  swap    NaN
+  entry 9: psf and beam      held   6.379  most   6.618  rss   6.390  peak rss   9.849  swap    NaN
+  entry 13: psf and beam     held   6.414  most   6.657  rss   6.426  peak rss   9.849  swap    NaN
+  entry 17: psf and beam     held   6.520  most   6.725  rss   6.532  peak rss   9.849  swap    NaN
+  entry 21: psf and beam     held   6.619  most   6.831  rss   6.631  peak rss   9.849  swap    NaN
+  entry 25: psf and beam     held   6.663  most   6.930  rss   6.675  peak rss   9.849  swap    NaN
+  entry 29: psf and beam     held   6.702  most   6.974  rss   6.713  peak rss   9.849  swap    NaN
+  entry 2: psf and beam      held   6.733  most  13.619  rss   6.743  peak rss  10.397  swap    NaN
+  entry 6: psf and beam      held   6.852  most   7.044  rss   6.863  peak rss  10.397  swap    NaN
+  entry 10: psf and beam     held   6.924  most   7.164  rss   6.935  peak rss  10.397  swap    NaN
+  entry 14: psf and beam     held   6.960  most   7.203  rss   6.971  peak rss  10.397  swap    NaN
+  entry 18: psf and beam     held   7.066  most   7.271  rss   7.077  peak rss  10.397  swap    NaN
+  entry 22: psf and beam     held   7.165  most   7.377  rss   7.176  peak rss  10.397  swap    NaN
+  entry 26: psf and beam     held   7.209  most   7.476  rss   7.220  peak rss  10.397  swap    NaN
+  entry 30: psf and beam     held   7.247  most   7.520  rss   7.259  peak rss  10.397  swap    NaN
+  entry 3: psf and beam      held   7.278  most  14.165  rss   7.289  peak rss  10.943  swap    NaN
+  entry 7: psf and beam      held   7.398  most   7.589  rss   7.409  peak rss  10.943  swap    NaN
+  entry 11: psf and beam     held   7.470  most   7.709  rss   7.481  peak rss  10.943  swap    NaN
+  entry 15: psf and beam     held   7.506  most   7.748  rss   7.517  peak rss  10.943  swap    NaN
+  entry 19: psf and beam     held   7.612  most   7.817  rss   7.623  peak rss  10.943  swap    NaN
+  entry 23: psf and beam     held   7.710  most   7.923  rss   7.722  peak rss  10.943  swap    NaN
+  entry 27: psf and beam     held   7.754  most   8.022  rss   7.766  peak rss  10.943  swap    NaN
+  entry 31: psf and beam     held   7.793  most   8.066  rss   7.804  peak rss  10.943  swap    NaN
+  cycle 1: minor             held   8.711  most   9.822  rss   8.737  peak rss  10.943  swap    NaN
+  cycle 2: minor             held   8.711  most   9.822  rss   8.727  peak rss  10.943  swap    NaN
+  cycle 3: minor             held   8.711  most   9.818  rss   8.742  peak rss  10.943  swap    NaN
+  cycle 4: minor             held   8.711  most   9.819  rss   8.759  peak rss  10.943  swap    NaN
+  cycle 5: minor             held   8.715  most   9.793  rss   8.756  peak rss  10.943  swap    NaN
+  group of 1: clean          held   9.709  most   9.785  rss   9.729  peak rss  10.943  swap    NaN
+  write                      held   3.490  most   9.709  rss   3.507  peak rss  10.943  swap    NaN
+memory by buffer (GB):
+  measurement: visibilities (32 entries)          2.161
+  measurement: weights (32 entries)               0.270
+  measurement: uvw (32 entries)                   0.022
+  measurement: residual visibilities (32 entries)    0.000
+  gridder: baselines (uvw per row) (32 entries)    0.006
+  gridder: sorted visibility index (32 entries)    0.540
+  gridder: blocks and tiles (32 entries)          0.001
+  gridder: tables (32 entries)                    0.135
+  gridder: grids (32 entries)                     0.000
+  gridder: stored sorted values (32 entries)      0.000
+  gridder: visibility-order permutation (32 entries)    0.000
+  beam: exterior (8 beams)                        1.073
+  beam: patch and rings (8 beams)                 0.001
+  beam: spectrum (8 beams)                        1.074
+  beam: row spectra (resync work space) (8 beams)    0.000
+  psf n x n crops (8 channels)                    0.268
+  one n x n f64 image                             0.034
+1 groups deconvolved; wall 397.88 s
+{"exit": 0, "wall_s": 398.2, "peak_rss_gb": 9.51, "peak_working_set_gib": 10.19, "peak_private_gib": 13.23, "cpu_s": 1350.5, "mean_cores": 3.39}

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI of the Measurement Set reader for the Python layer (ctypes).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

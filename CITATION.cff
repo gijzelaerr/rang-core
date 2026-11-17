@@ -8,5 +8,5 @@ authors:
 repository-code: "https://github.com/gijzelaerr/rang-core"
 url: "https://pythonic.nl/rang-core/"
 license: GPL-3.0-or-later
-version: 0.1.0
+version: 0.2.0
 abstract: "ra-ng: agentic radio astronomy, MeerKAT first. rang-core is its Rust core and Python command line for flagging, calibration and imaging."

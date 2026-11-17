@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Archive two O-CASA runs and check that they reproduce (research/o-casa.md).
 
 Host python3, stdlib only.

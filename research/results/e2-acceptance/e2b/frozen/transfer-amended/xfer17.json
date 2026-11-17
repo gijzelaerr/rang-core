@@ -1,0 +1,64 @@
+{
+ "case": "xfer17",
+ "flag_version": "rang_calibrate_20261112T010110Z",
+ "restored_rows": 272916,
+ "dev_run": "D:\\rang\\outputs\\e2-20261112-22-devtables\\amended\\rang-run",
+ "average_freq": true,
+ "solve_seconds": 424.6330234000052,
+ "solve": {
+  "field_id": 0,
+  "rows": 118104,
+  "intervals": 10,
+  "flagged_fraction": 0.05357142857142857,
+  "iterations": 12,
+  "converged_fraction": 1.0,
+  "used_alternate_refant": false
+ },
+ "spec": {
+  "type": "Gpol",
+  "name": "Gscan",
+  "solint": "60s",
+  "combine": "",
+  "refant": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "refantmode": "flex",
+  "minsnr": 3.0,
+  "minblperant": 4,
+  "uvrange": ">150",
+  "preapply": [
+   "K",
+   "G",
+   "B"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "parang": true,
+  "frame": "casa",
+  "receptor_angle": -1.5707963267948966,
+  "model": "column",
+  "model_column": "RANG_MODEL_DATA"
+ },
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gscan",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 73.39115169999423,
+  "cells_flagged_before": 1238612780,
+  "cells_flagged_after": 1238612780,
+  "uncovered": []
+ },
+ "field": "J1331+3030",
+ "scan": 17
+}

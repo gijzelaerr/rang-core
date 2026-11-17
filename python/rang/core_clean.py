@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Certified CLEAN on the Rang core (research/clean-certified-imaging.md).
 
 A Cotton-Schwab CLEAN whose major cycles go through the core's exact

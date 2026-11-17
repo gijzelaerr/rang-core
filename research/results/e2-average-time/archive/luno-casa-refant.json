@@ -1,0 +1,470 @@
+{
+ "refant": "m022,m023,m024",
+ "rang_auto": {
+  "antennas": [
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 55.31651089987041,
+    "id": 0,
+    "name": "m000",
+    "shortest_baseline": 29.256520999577873,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 79.94004694639489,
+    "id": 1,
+    "name": "m001",
+    "shortest_baseline": 36.74674815855517,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 57.720977195830024,
+    "id": 2,
+    "name": "m002",
+    "shortest_baseline": 29.256520999577873,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 88.56151185006702,
+    "id": 3,
+    "name": "m003",
+    "shortest_baseline": 40.81758034496882,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 133.46440897170473,
+    "id": 4,
+    "name": "m004",
+    "shortest_baseline": 37.07290946235856,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 121.50860362982975,
+    "id": 5,
+    "name": "m005",
+    "shortest_baseline": 37.07290946235856,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 193.84919948559258,
+    "id": 6,
+    "name": "m007",
+    "shortest_baseline": 120.26628331356329,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 144.6583066283424,
+    "id": 7,
+    "name": "m009",
+    "shortest_baseline": 55.030760963765566,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 291.51920636364565,
+    "id": 8,
+    "name": "m010",
+    "shortest_baseline": 137.6649156224575,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 148.76096486619923,
+    "id": 9,
+    "name": "m011",
+    "shortest_baseline": 54.02912150397934,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 196.33806797587192,
+    "id": 10,
+    "name": "m012",
+    "shortest_baseline": 58.30104873403352,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 286.4975151053672,
+    "id": 11,
+    "name": "m013",
+    "shortest_baseline": 100.00030152712921,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 287.58796706791514,
+    "id": 12,
+    "name": "m014",
+    "shortest_baseline": 107.70242214325354,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 114.66401308984703,
+    "id": 13,
+    "name": "m018",
+    "shortest_baseline": 54.470589851319986,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 182.30399393711238,
+    "id": 14,
+    "name": "m019",
+    "shortest_baseline": 75.165926664226,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 123.26118251783811,
+    "id": 15,
+    "name": "m020",
+    "shortest_baseline": 54.02912150397934,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 313.41620418373446,
+    "id": 16,
+    "name": "m021",
+    "shortest_baseline": 148.43325716593426,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 445.54468369781637,
+    "id": 17,
+    "name": "m022",
+    "shortest_baseline": 151.14933108674785,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 339.99037822345434,
+    "id": 18,
+    "name": "m023",
+    "shortest_baseline": 151.46894147860493,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 525.4928542473024,
+    "id": 19,
+    "name": "m024",
+    "shortest_baseline": 151.14933108674785,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 499.97971375029795,
+    "id": 20,
+    "name": "m025",
+    "shortest_baseline": 185.17199624703431,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 277.1919345886706,
+    "id": 21,
+    "name": "m026",
+    "shortest_baseline": 141.52987081210503,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 222.70779845931588,
+    "id": 22,
+    "name": "m027",
+    "shortest_baseline": 145.14639789536344,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 151.50139978442996,
+    "id": 23,
+    "name": "m029",
+    "shortest_baseline": 81.27043329302714,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 393.20979317584744,
+    "id": 24,
+    "name": "m030",
+    "shortest_baseline": 77.94725995959783,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 414.88695681511655,
+    "id": 25,
+    "name": "m031",
+    "shortest_baseline": 77.94725995959783,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 620.107235487228,
+    "id": 26,
+    "name": "m032",
+    "shortest_baseline": 229.74428081519844,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1245.5523174570208,
+    "id": 27,
+    "name": "m033",
+    "shortest_baseline": 698.7414482699995,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 392.0812974460985,
+    "id": 28,
+    "name": "m035",
+    "shortest_baseline": 109.88689647453644,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 393.665488605154,
+    "id": 29,
+    "name": "m036",
+    "shortest_baseline": 107.70242214325354,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 441.88414550573174,
+    "id": 30,
+    "name": "m037",
+    "shortest_baseline": 157.88492722402717,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 396.4375528755849,
+    "id": 31,
+    "name": "m038",
+    "shortest_baseline": 46.558152963926915,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 437.98203971868804,
+    "id": 32,
+    "name": "m039",
+    "shortest_baseline": 46.558152963926915,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 477.7197427150858,
+    "id": 33,
+    "name": "m040",
+    "shortest_baseline": 230.98383325885428,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 514.9275012195932,
+    "id": 34,
+    "name": "m041",
+    "shortest_baseline": 214.59012755609575,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 427.97690481326464,
+    "id": 35,
+    "name": "m042",
+    "shortest_baseline": 148.43325716593426,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 641.7085524613727,
+    "id": 36,
+    "name": "m043",
+    "shortest_baseline": 287.36746741070766,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1228.4231780719867,
+    "id": 37,
+    "name": "m044",
+    "shortest_baseline": 707.1436032771074,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1902.4136394561006,
+    "id": 38,
+    "name": "m045",
+    "shortest_baseline": 994.3770632873353,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2473.0574245041694,
+    "id": 39,
+    "name": "m046",
+    "shortest_baseline": 1285.3278173574386,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 644.7802777990481,
+    "id": 40,
+    "name": "m047",
+    "shortest_baseline": 223.9533232450238,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 4053.6320908546495,
+    "id": 41,
+    "name": "m048",
+    "shortest_baseline": 1632.5437143530023,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3669.7070906786507,
+    "id": 42,
+    "name": "m049",
+    "shortest_baseline": 1781.2023564674573,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2141.3469518169254,
+    "id": 43,
+    "name": "m050",
+    "shortest_baseline": 1131.9579023588453,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1004.6263414505931,
+    "id": 44,
+    "name": "m051",
+    "shortest_baseline": 370.8065176713241,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1088.5992169305364,
+    "id": 45,
+    "name": "m052",
+    "shortest_baseline": 458.2064914976184,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1067.9612209546506,
+    "id": 46,
+    "name": "m053",
+    "shortest_baseline": 593.3583043624805,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 910.8509184205691,
+    "id": 47,
+    "name": "m054",
+    "shortest_baseline": 493.36086591083307,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1247.2488859279597,
+    "id": 48,
+    "name": "m055",
+    "shortest_baseline": 542.5393082402654,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1746.3214046767466,
+    "id": 49,
+    "name": "m056",
+    "shortest_baseline": 542.5393082402654,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3510.091912089394,
+    "id": 50,
+    "name": "m057",
+    "shortest_baseline": 2319.1903614762496,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 4052.2872893089548,
+    "id": 51,
+    "name": "m058",
+    "shortest_baseline": 2119.647439729862,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3818.0627893195774,
+    "id": 52,
+    "name": "m059",
+    "shortest_baseline": 2108.3795862520465,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2086.87365646864,
+    "id": 53,
+    "name": "m061",
+    "shortest_baseline": 1019.6620675511825,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 2686.372900551463,
+    "id": 54,
+    "name": "m062",
+    "shortest_baseline": 1435.5518580071864,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3777.868135739104,
+    "id": 55,
+    "name": "m063",
+    "shortest_baseline": 1692.0496194755087,
+    "within_maxdist": false
+   }
+  ],
+  "caracal_string": "m022,m023,m024",
+  "centre": [
+   5109217.420823876,
+   2006797.675146036,
+   -3239133.867335175
+  ],
+  "centre_source": "casacore MeerKAT (WGS84)",
+  "maxdist": 1000.0,
+  "minbase": 150.0,
+  "names": [
+   "m022",
+   "m023",
+   "m024"
+  ],
+  "telescope": "MeerKAT"
+ }
+}

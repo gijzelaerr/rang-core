@@ -248,7 +248,7 @@ def test_stage_compare_writes_the_comparator_receipt_and_a_rang_receipt(
     # The comparator's own receipt carries no CLI additions.
     assert "comparator" not in json.loads(out.read_text())
     receipt = json.loads((tmp_path / "compare.compare.rang-receipt.json").read_text())
-    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 4
+    assert receipt["schema"] == "rang.receipt" and receipt["version"] == 5
     assert (receipt["stage"], receipt["verb"], receipt["exit"]) == (
         "trend",
         "compare",
@@ -486,22 +486,23 @@ def test_legacy_forms_map_onto_stage_verb():
 
 
 EXPECTED_STEPS = [
-    "root-build",
-    "root-test",
-    "root-clippy",
+    # The cheap steps first (research/check-speed.md).
     "root-fmt",
-    "core-build",
-    "core-test",
-    "core-clippy",
     "core-fmt",
-    "core-clippy-gpu",
-    "core-test-gpu",
-    "ext-build",
-    "ext-clippy",
     "ext-fmt",
     "ruff",
     "ruff-format",
     "diff-check",
+    "root-build",
+    "root-test",
+    "root-clippy",
+    "core-build",
+    "core-test",
+    "core-clippy",
+    "core-clippy-gpu",
+    "core-test-gpu",
+    "ext-build",
+    "ext-clippy",
     "pytest",
     "gain-hashes",  # task C2a: the C-stream gate (research/c2a-gain.md)
 ]
@@ -553,6 +554,158 @@ def test_check_runs_every_step_and_reports_failures(tmp_path, monkeypatch, capsy
     out = capsys.readouterr().out
     assert code == 0 and "## pytest" not in out and out.endswith("## overall: PASS\n")
     assert "## ext-clippy" in out and "## ext-build" not in out
+
+
+def test_check_fail_fast_stops_after_the_first_failure(tmp_path, monkeypatch, capsys):
+    from rang import check
+
+    monkeypatch.setenv("RANG_CHECKALL_LOCKED", "1")
+    seen = []
+
+    def runner(kind, argv, cwd, env):
+        seen.append(argv)
+        return 1 if argv[-3:] == ["python", "examples", "tests"] else 0
+
+    assert check.main(["--fail-fast"], runner=runner, root=ROOT) == 1
+    out = capsys.readouterr().out.splitlines()
+    # root-fmt, core-fmt, ext-fmt, then ruff fails: nothing after it runs.
+    assert [line[3:] for line in out if line.startswith("## ")] == [
+        *EXPECTED_STEPS[:4],
+        "overall: FAIL",
+    ]
+    assert len(seen) == 4
+
+
+def test_check_pytest_uses_xdist_only_when_installed(monkeypatch):
+    import importlib.util
+
+    from rang import check
+
+    real = importlib.util.find_spec
+    for present in (True, False):
+        monkeypatch.setattr(
+            importlib.util,
+            "find_spec",
+            lambda name, present=present: (
+                (real("json") if present else None) if name == "xdist" else real(name)
+            ),
+        )
+        argv = {s[0]: s[3] for s in check.steps("py")}["pytest"]
+        extra = ["-n", str(check.PYTEST_WORKERS)] if present else []
+        assert argv == ["py", "-m", "pytest", "-q", *extra]
+
+
+def test_check_ext_stamp_follows_inputs_and_the_installed_extension(tmp_path):
+    from rang import check
+
+    root = tmp_path / "tree"
+    (root / "core/src").mkdir(parents=True)
+    (root / "python/rang").mkdir(parents=True)
+    (root / "core/src/lib.rs").write_text("fn a() {}\n")
+    (root / "Cargo.toml").write_text("[package]\n")
+    (root / "notes.md").write_text("not an input\n")
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+    env = dict(os.environ)
+    argv = ["py", "-m", "maturin", "develop"]
+    inputs = check.ext_inputs(root, argv, env)
+    if inputs is None:
+        pytest.skip("no rustc +1.93 on this host")
+    assert inputs == check.ext_inputs(root, argv, env)
+    # Files outside EXT_INPUTS do not count; sources, untracked files under
+    # an input, the argument list and the build environment do.
+    (root / "notes.md").write_text("changed\n")
+    assert check.ext_inputs(root, argv, env) == inputs
+    assert check.ext_inputs(root, [*argv, "--release"], env) != inputs
+    assert check.ext_inputs(root, argv, {**env, "RUSTFLAGS": "-Cx"}) != inputs
+    (root / "core/src/new.rs").write_text("\n")
+    assert check.ext_inputs(root, argv, env) != inputs
+    (root / "core/src/new.rs").unlink()
+    (root / "core/src/lib.rs").write_text("fn b() {}\n")
+    assert check.ext_inputs(root, argv, env) != inputs
+    (root / "core/src/lib.rs").write_text("fn a() {}\n")
+    assert check.ext_inputs(root, argv, env) == inputs
+
+    stamp = tmp_path / "stamp.json"
+    assert not check.ext_build_fresh(inputs, root, stamp)  # no stamp yet
+    # No extension installed in the tree: the stamp is not written.
+    check.write_ext_stamp(inputs, root, stamp)
+    assert not stamp.exists()
+    (root / "python/rang/_core.pyd").write_bytes(b"built")
+    if check.ext_installed(root) is None:
+        pytest.skip("rang-core is not installed in this interpreter")
+    # No cargo dep-info yet: no stamp either.
+    check.write_ext_stamp(inputs, root, stamp)
+    assert not stamp.exists()
+    dep_info = root / check.EXT_DEP_INFO
+    dep_info.parent.mkdir(parents=True)
+    dep_info.write_text(
+        f"x.dll: {root / 'core/src/lib.rs'}\n", encoding="utf-8", newline="\n"
+    )
+    check.write_ext_stamp(inputs, root, stamp)
+    assert check.ext_build_fresh(inputs, root, stamp)
+    assert not check.ext_build_fresh(None, root, stamp)
+    assert not check.ext_build_fresh("other", root, stamp)
+    # A different extension in place (an outer debug `maturin develop`).
+    (root / "python/rang/_core.pyd").write_bytes(b"debug build")
+    assert not check.ext_build_fresh(inputs, root, stamp)
+
+
+def test_check_ext_inputs_cover_every_file_cargo_read(tmp_path):
+    from rang import check
+
+    root = tmp_path / "tree"
+    for rel in ("core/src/lib.rs", "data/x.txt", "notes/y.txt", "core/target/o.rs"):
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text("\n", encoding="utf-8", newline="\n")
+    dep = tmp_path / "x.d"
+    deps = [root / r for r in ("core/src/lib.rs", "data/x.txt", "core/target/o.rs")]
+    dep.write_text(
+        f"out.dll: {' '.join(str(p) for p in deps)} {tmp_path / 'registry.rs'}\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    assert check.ext_uncovered(root, dep) == []
+    dep.write_text(f"out.dll: {root / 'notes/y.txt'}\n", encoding="utf-8", newline="\n")
+    assert check.ext_uncovered(root, dep) == ["notes/y.txt"]
+    assert check.ext_uncovered(root, tmp_path / "absent.d") is None
+    # This checkout's own extension build, when there is one.
+    assert check.ext_uncovered(ROOT) in (None, [])
+
+
+def test_check_skips_ext_build_only_when_fresh(tmp_path, monkeypatch, capsys):
+    from rang import check
+
+    monkeypatch.setenv("RANG_CHECKALL_LOCKED", "1")
+    monkeypatch.setattr(check, "ext_inputs", lambda root, argv, env: "digest")
+    monkeypatch.setattr(check, "ext_stamp_path", lambda: tmp_path / "stamp.json")
+    monkeypatch.setattr(check, "set_aside_launchers", list)
+    written = []
+    monkeypatch.setattr(
+        check, "write_ext_stamp", lambda inputs, root: written.append(inputs)
+    )
+    ran = []
+
+    def runner(kind, argv, cwd, env):
+        ran.append(argv)
+        return 0
+
+    for fresh, flags, builds in (
+        (False, [], 1),
+        (True, [], 0),
+        (True, ["--rebuild"], 1),
+    ):
+        monkeypatch.setattr(check, "ext_build_fresh", lambda i, r, f=fresh: f)
+        monkeypatch.setattr(check, "run_step", runner)
+        ran.clear()
+        receipt = tmp_path / "r.json"
+        args = ["--only", "ext-build", "--json", str(receipt), *flags]
+        assert check.main(args, runner=runner, root=ROOT) == 0
+        assert len(ran) == builds
+        step = json.loads(receipt.read_text())["steps"][0]
+        assert step["cached"] is (builds == 0)
+        assert ("not rebuilt" in capsys.readouterr().out) is (builds == 0)
+    assert written == ["digest", "digest"]
 
 
 def test_check_finds_the_checkout():

@@ -1,0 +1,209 @@
+{
+ "cases": {
+  "F": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 2.6,
+     "calibrate": 2.1,
+     "apply": 1.9
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 4.6,
+     "calibrate": 3.9,
+     "apply": 3.6
+    }
+   },
+   "P2T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 3.9,
+     "calibrate": 6.6,
+     "apply": 4.4
+    }
+   },
+   "U_walls_s": {
+    "flag": 2.7,
+    "calibrate": 2.6,
+    "apply": 2.6
+   }
+  },
+  "S": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 240,
+    "walls_s": {
+     "flag": 4.7,
+     "calibrate": 2.4,
+     "apply": 2.8
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 240,
+    "walls_s": {
+     "flag": 5.5,
+     "calibrate": 3.3,
+     "apply": 2.7
+    }
+   },
+   "P2T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 240,
+    "walls_s": {
+     "flag": 57.3,
+     "calibrate": 24.8,
+     "apply": 30.2
+    }
+   },
+   "U_walls_s": {
+    "flag": 5.2,
+    "calibrate": 2.4,
+    "apply": 3.1
+   }
+  },
+  "O": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 1.8,
+     "calibrate": 1.9,
+     "apply": 2.1
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 3.9,
+     "calibrate": 4.0,
+     "apply": 2.9
+    }
+   },
+   "P2T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 3.2,
+     "calibrate": 6.2,
+     "apply": 4.4
+    }
+   },
+   "U_walls_s": {
+    "flag": 2.0,
+    "calibrate": 2.3,
+    "apply": 2.4
+   }
+  },
+  "W": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 240,
+    "walls_s": {
+     "flag": 213.9,
+     "calibrate": 499.7,
+     "apply": 74.0
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 240,
+    "walls_s": {
+     "flag": 271.8,
+     "calibrate": 501.1,
+     "apply": 33.9
+    }
+   },
+   "U_walls_s": {
+    "flag": 220.6,
+    "calibrate": 277.6,
+    "apply": 48.4
+   }
+  },
+  "C": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 162,
+    "walls_s": {
+     "calibrate": 4.3,
+     "apply": 1.7
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 162,
+    "walls_s": {
+     "calibrate": 4.5,
+     "apply": 1.7
+    }
+   },
+   "P2T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 162,
+    "walls_s": {
+     "calibrate": 75.3,
+     "apply": 44.0
+    }
+   },
+   "U_walls_s": {
+    "calibrate": 4.5,
+    "apply": 1.7
+   }
+  },
+  "P": {
+   "P1": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 243,
+    "walls_s": {
+     "calibrate": 7.2,
+     "apply": 6.2
+    }
+   },
+   "P4": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 243,
+    "walls_s": {
+     "calibrate": 7.2,
+     "apply": 6.0
+    }
+   },
+   "P2T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 243,
+    "walls_s": {
+     "calibrate": 86.1,
+     "apply": 75.5
+    }
+   },
+   "U_walls_s": {
+    "calibrate": 10.1,
+    "apply": 5.6
+   }
+  }
+ },
+ "pass": true
+}

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """python-casacore side of the O-CASA oracle (research/o-casa.md).
 
 Runs with the image's system python3 (KERN python3-casacore 3.7.1), in a

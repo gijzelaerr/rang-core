@@ -1,0 +1,7 @@
+2026-11-10T23:47:26 build rc=0 3.3s
+2026-11-10T23:47:30 verify rc=0 3.2s
+2026-11-10T23:47:30 copied for CASA 0.1s
+2026-11-10T23:48:08 rang-core run rc=0 37.9s
+2026-11-10T23:48:19 START casa: docker run --rm --network none --user $(id -u):$(id -g) --tmpfs /tmp -e HOME=/tmp -e OMP_NUM_THREADS=8 '-v' '/mnt/d/rang/outputs/e2-20261110-11-avg/dry:/run:rw' '-v' '/mnt/c/Users/gijsm/Worktrees/rang/fp-e2-averaging/examples:/ex:ro' -w /tmp rang-o-casa:6.7.6.14 sh -c '/opt/casa/bin/python /run/casa/receptor.py && /opt/casa/bin/python -I /ex/oracle_pol.py tasks /run/casa/casa-spec.json /run/casa/casa-tasks.json'
+2026-11-10T23:50:28 END casa rc=0 129.3s
+2026-11-10T23:50:28 casa tasks 11 errors []

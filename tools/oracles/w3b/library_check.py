@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Library check (not a gate; research/w3b-chainchunks.md 5.2): chunked solves equal one call.
 
 python library_check.py MS CELLS [pol]

@@ -1,0 +1,17 @@
+{
+ "row": "transfer",
+ "ms": "D:\\rang\\outputs\\e2-20261111-20-e2b\\casa\\e2b.ms",
+ "column": "CORRECTED_DATA",
+ "flag": "FLAG",
+ "frac_unflagged": 0.7355070873095951,
+ "I": 14.833110749085977,
+ "q": 0.09638633114827386,
+ "u": -0.008607726363152289,
+ "v": 0.0016283976142139878,
+ "p": 0.096769921904317,
+ "chi_deg": -2.551614550589777,
+ "chi_minus_33_1_deg": -35.65161455058978,
+ "p_met": true,
+ "chi_met": false,
+ "met": false
+}

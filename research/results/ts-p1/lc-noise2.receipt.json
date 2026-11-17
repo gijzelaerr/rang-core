@@ -1,0 +1,125 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "lightcurve",
+  "D:\\rang\\outputs\\ts-p1-20261116\\tsp1-noise2.ms",
+  "--field",
+  "3",
+  "--positions",
+  "D:\\rang\\outputs\\ts-p1-20261116\\tsp1-dev.positions.csv",
+  "--size",
+  "2048",
+  "--scale",
+  "2asec",
+  "--candidates",
+  "5",
+  "--out",
+  "D:\\rang\\outputs\\ts-p1-20261116\\lc-noise2"
+ ],
+ "stage": "lightcurve",
+ "verb": null,
+ "started_utc": "2026-11-16T12:37:37+00:00",
+ "commit": {
+  "head": "c1c56e3830defe27b5e1b8fa5c19e6e51c089741",
+  "dirty": true
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/ts-p1",
+  "distribution": "rang-core",
+  "version": "0.2.0",
+  "extension_sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+ },
+ "environment": {
+  "python": "3.13.16 (main, Oct  3 2026, 01:04:41) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/ts-p1/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.2.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/ts-p1/python/rang/_core.pyd",
+   "sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "4",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/tsp1-noise2.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 5760067538,
+   "listing_sha256": "3b093c9aaec7311c46d0214fc9591b53762bf4c8bc50a5c28cda1230cdeb0261"
+  },
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/tsp1-dev.positions.csv",
+   "kind": "file",
+   "bytes": 241,
+   "sha256": "e54f1eacaab45f0a70bf12b380918ba606abd785c5aafc751587048708488aa3"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/lc-noise2",
+   "kind": "directory",
+   "files": 3,
+   "bytes": 835206,
+   "tree_sha256": "d73860c7a6d43e0bde86c35c667b04a3602562992fc9414883564b5d36af76d6"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 343.4563358000014,
+  "cpu_seconds": 858.484375,
+  "peak_rss_mb": 284.0703125
+ },
+ "exit": 0,
+ "verdict": null
+}

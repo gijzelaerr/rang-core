@@ -33,7 +33,8 @@ reimplementations and engineering, not scientific contributions.
 
 ## 2. The flagging experiment, closed as null
 
-This covers a gain-TV-guided threshold policy with re-solves on every observation. A flagger trained on gain TV (self-supervised, aiming to be faster with fewer tunable parameters) was not tested; it is the next experiment.
+This covers a gain-TV-guided threshold policy with re-solves on every
+observation. The learned flaggers that followed are in section 7.
 
 **Question.** Gains of a well-behaved telescope vary smoothly; does the total
 variation (TV) of full-Jones gain solutions show where to flag? The policy,
@@ -124,6 +125,45 @@ are small and certain: Tricolour (a recompilation fix, merged), CARACal
 weights), and six issues and four pull requests on DDFacet and killMS
 ({gh}`research/upstream-prs.md`, {gh}`research/upstream-saopicc.md`,
 {gh}`research/upstream-notes.md`).
+
+## 7. Learned flaggers, stopped or failed as frozen
+
+Three follow-ups to the flagging verdict, each with its protocol frozen
+first; none changed `rang-core flag`.
+
+- **F1, a flagger trained on gain TV:** NO-GO at its go/no-go test, before any
+  training. On LUNO PKS 1934−638 the gradient of gain TV barely ranks injected
+  RFI (patch AUC 0.54–0.64 on four of five patterns, bar 0.80), where a
+  residual score reaches 0.97–1.00 ({gh}`research/f1-tv-flagger.md`).
+- **F2, a supervised fast flagger:** outcome F for calibrators and targets:
+  fast, but it does not generalise to real data ({gh}`research/f2-flagger.md`).
+- **F3, a 3,433-weight network** on noise-normalised residual planes: finds
+  F2's missed narrowband and single-baseline RFI (0.998, 0.999) but misses
+  wide-band, scan-long, antenna-local RFI (0.024 against Tricolour's 0.907),
+  so its recall gate R1 fails (0.640; bar 0.916, Tricolour 0.966); outcome F on calibrators, and the target
+  labels failed their frozen audit ({gh}`research/f3-flagger.md`).
+
+## 8. GeMClean and the user chain
+
+GeMClean is the reference imager: WSClean-style options, Högbom minor cycles
+with the exact image-domain value at each step, multiscale, masks, Stokes
+IQUV, model writing ({gh}`research/gemclean.md`, {gh}`research/g5-multiscale.md`,
+{gh}`research/g9-stokes.md`, {gh}`research/g6-predict.md`). With G7's defaults
+on the real ESO 137-006 pilot at 512 channels and matched accuracy, it is 1.52×
+faster than WSClean at `-j 16` and 1.31× slower at `-j 1` natively; on
+WSClean's OS layer it is level at `-j 16` and 1.24× slower at `-j 1`; memory is
+2.0–2.4× WSClean's ({gh}`research/g7-defaults.md`). No novelty claim.
+
+`rang-core run` chains flag, calibrate (CARACal's K, G, B, F and polarisation
+terms into CASA tables), apply, image and self-calibration. Each port in it is
+gated against its oracle (Tricolour, CASA, QuartiCal, WSClean); the whole chain
+on simulated truth met none of E1's gates as frozen ({gh}`research/e1-chain.md`), and the
+self-calibration loop does not meet its truth limits because the model absorbs
+part of the gain error ({gh}`research/c5-selfcal.md`,
+{gh}`research/c5b-selfcal-masks.md`). The acceptance runs on real data (E2) and
+the comparison with CARACal (E3) are the v0.2.0 gates
+({gh}`research/finish-plan.md`, {gh}`research/e2-acceptance.md`); their
+results are not on `main` yet. {doc}`../limits` lists what is known.
 
 ## How to read a report
 

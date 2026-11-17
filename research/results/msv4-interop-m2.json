@@ -1,0 +1,73 @@
+{
+ "arms": {
+  "xms-auto": {
+   "chunks": 4,
+   "coverage": true,
+   "differing_cells": 0,
+   "flagged_after": 1849716,
+   "flags_identical": true,
+   "kernel_seconds": 0.222,
+   "metadata": {
+    "corr": "match",
+    "freq": "match",
+    "positions": "match",
+    "width": "match"
+   },
+   "outcome": "pass",
+   "pads": 0,
+   "rows": 140,
+   "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c5.ps.zarr"
+  },
+  "xradio": {
+   "chunks": 4,
+   "coverage": true,
+   "differing_cells": 0,
+   "flagged_after": 1849716,
+   "flags_identical": true,
+   "kernel_seconds": 0.19,
+   "metadata": {
+    "corr": "match",
+    "freq": "match",
+    "positions": "match",
+    "width": "match"
+   },
+   "outcome": "pass",
+   "pads": 0,
+   "rows": 140,
+   "store": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c5.ps.zarr"
+  }
+ },
+ "case": "c5",
+ "commit": "72f21867ff7b40ddf25edaadeec1d423d885a48e",
+ "extension": "C:\\Users\\gijsm\\Worktrees\\rang\\msv4-m2\\python\\rang\\_core.pyd",
+ "ms": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+ "msv2": {
+  "a": {
+   "flag_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+   "flagged_after": 1849716,
+   "flagged_before": 1074094,
+   "path": "D:\\rang\\outputs\\msv4-20261116\\m2\\c5-copy-a.ms",
+   "seconds": 0.606
+  },
+  "b": {
+   "flag_sha256": "50846c21a0767a0822b65a6bc44337257dd80255943fb491e067f082cd8c79fc",
+   "flagged_after": 1849716,
+   "flagged_before": 1074094,
+   "path": "D:\\rang\\outputs\\msv4-20261116\\m2\\c5-copy-b.ms",
+   "seconds": 0.5
+  }
+ },
+ "msv2_deterministic": true,
+ "note": "research/msv4-interop.md section 11 (M2)",
+ "stage_adds_flags": true,
+ "strategy": "C:\\Users\\gijsm\\Github\\rang\\outputs\\caracal-strategy-inputs-8f7bb363\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "versions": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "python": "3.13.16",
+  "rang-core": "0.2.0",
+  "xarray": "2026.9.0",
+  "zarr": "3.4.2"
+ }
+}

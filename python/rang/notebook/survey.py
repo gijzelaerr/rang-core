@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Rank first: which gain bins can the data identify, and why not.
 
 The identifiability survey of research/flagging-luno-support.md, on any

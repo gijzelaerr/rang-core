@@ -1,0 +1,21 @@
+ == Deconvolving (1) ==
+Estimated standard deviation of background noise: 12.1 mJy
+Next major iteration at: 1.63 Jy
+Performed 23 iterations in total, 23 in this major iteration with sub-minor optimization.
+Stopped on peak 1.53 Jy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+ == Deconvolving (2) ==
+Estimated standard deviation of background noise: 2.38 mJy
+Next major iteration at: 152.54 mJy
+Performed 85 iterations in total, 62 in this major iteration with sub-minor optimization.
+Stopped on peak -152.05 mJy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+ == Deconvolving (3) ==
+Estimated standard deviation of background noise: 1.16 mJy
+Next major iteration at: 16.37 mJy
+Performed 1672 iterations in total, 1587 in this major iteration with sub-minor optimization.
+Stopped on peak 16.35 mJy, because the minor-loop threshold was reached. Continuing cleaning after inversion/prediction round.
+ == Deconvolving (4) ==
+Estimated standard deviation of background noise: 773.93 µJy
+Major iteration threshold reached global threshold of 2.32 mJy: final major iteration.
+Performed 28844 iterations in total, 27172 in this major iteration with sub-minor optimization.
+Stopped on peak -2.32 mJy, because the threshold was reached.
+4 major iterations were performed.

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Shared helpers of the G6 runs (research/g6-predict.md); source with O and GEM set.
 # O: the run directory under /mnt/d/rang/outputs; GEM: the gemclean binary.
 HERE=${HERE:-$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")}

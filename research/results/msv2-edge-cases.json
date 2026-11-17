@@ -1,0 +1,6282 @@
+{
+ "note": "research/msv2-edge-cases.md",
+ "versions": {
+  "arcae": "0.5.9",
+  "pyarrow": "26.0.1",
+  "python-casacore": "3.8.1",
+  "xarray-ms": "0.5.14",
+  "xarray": "2026.9.0",
+  "extension": "_core.pyd",
+  "commit": "654687b2fc7c293690d9d32051c4aa65fbe0976a"
+ },
+ "tables": [
+  {
+   "table": "t01-ssm-var-partial",
+   "columns": {
+    "F32": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: F32: row 2 of F32 has no array; arcae ArrowInvalid: Row 2 is not defined for column F32 and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: rows of F32 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column F32 to numpy array)"
+     ]
+    },
+    "C64": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: C64: row 2 of C64 has no array; arcae ArrowInvalid: Row 2 is not defined for column C64 and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: rows of C64 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column C64 to numpy array)"
+     ]
+    },
+    "I32": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "row 7: arcae ArrowInvalid: list_size needs to be a strict positive integer",
+      "whole: both refuse (ra-ng OSError: I32: row 1 of I32 has no array; arcae ArrowInvalid: Row 1 is not defined for column I32 and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: rows of I32 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column I32 to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t02-ssm-fixed-unwritten",
+   "columns": {
+    "DIRECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INDIRECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t03-tssm-partial",
+   "columns": {
+    "F32": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: F32: row 3 has no tiled array; arcae ArrowInvalid: Row 3 is not defined for column F32 and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: F32: rows of F32 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column F32 to numpy array)"
+     ]
+    },
+    "C64": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: C64: row 3 has no tiled array; arcae ArrowInvalid: Row 3 is not defined for column C64 and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: C64: rows of C64 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column C64 to numpy array)"
+     ]
+    },
+    "B": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: B: row 3 has no tiled array; arcae ArrowInvalid: Row 3 is not defined for column B and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: B: rows of B differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column B to numpy array)"
+     ]
+    },
+    "F64": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: F64: row 0 has no tiled array; arcae ArrowInvalid: Row 0 is not defined for column F64 and missing rows are not configured)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t04-tcsm-partial",
+   "columns": {
+    "C64": {
+     "outcome": "match",
+     "manager": "TiledColumnStMan",
+     "notes": []
+    },
+    "B": {
+     "outcome": "match",
+     "manager": "TiledColumnStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t05-tcellsm",
+   "columns": {
+    "F32": {
+     "outcome": "refusal",
+     "manager": "TiledCellStMan",
+     "notes": [
+      "row 0: OSError: F32: storage manager TiledCellStMan is not supported",
+      "row 1: OSError: F32: storage manager TiledCellStMan is not supported",
+      "row 2: OSError: F32: storage manager TiledCellStMan is not supported",
+      "row 3: OSError: F32: storage manager TiledCellStMan is not supported",
+      "whole: both refuse (ra-ng OSError: F32: storage manager TiledCellStMan is not supported; arcae TypeError: Can't convert variably shaped column F32 to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: F32: storage manager TiledCellStMan is not supported; arcae TypeError: Can't convert variably shaped column F32 to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t06-ism",
+   "columns": {
+    "I32": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: I32: IncrementalStMan array or string column S is not supported",
+      "row 1: OSError: I32: IncrementalStMan array or string column S is not supported",
+      "row 2: OSError: I32: IncrementalStMan array or string column S is not supported",
+      "row 3: OSError: I32: IncrementalStMan array or string column S is not supported",
+      "row 4: OSError: I32: IncrementalStMan array or string column S is not supported",
+      "row 5: OSError: I32: IncrementalStMan array or string column S is not supported"
+     ]
+    },
+    "F64": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: F64: IncrementalStMan array or string column S is not supported",
+      "row 1: OSError: F64: IncrementalStMan array or string column S is not supported",
+      "row 2: OSError: F64: IncrementalStMan array or string column S is not supported",
+      "row 3: OSError: F64: IncrementalStMan array or string column S is not supported",
+      "row 4: OSError: F64: IncrementalStMan array or string column S is not supported",
+      "row 5: OSError: F64: IncrementalStMan array or string column S is not supported"
+     ]
+    },
+    "B": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: B: IncrementalStMan array or string column S is not supported",
+      "row 1: OSError: B: IncrementalStMan array or string column S is not supported",
+      "row 2: OSError: B: IncrementalStMan array or string column S is not supported",
+      "row 3: OSError: B: IncrementalStMan array or string column S is not supported",
+      "row 4: OSError: B: IncrementalStMan array or string column S is not supported",
+      "row 5: OSError: B: IncrementalStMan array or string column S is not supported"
+     ]
+    },
+    "S": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: S: IncrementalStMan array or string column S is not supported",
+      "row 1: OSError: S: IncrementalStMan array or string column S is not supported",
+      "row 2: OSError: S: IncrementalStMan array or string column S is not supported",
+      "row 3: OSError: S: IncrementalStMan array or string column S is not supported",
+      "row 4: OSError: S: IncrementalStMan array or string column S is not supported",
+      "row 5: OSError: S: IncrementalStMan array or string column S is not supported"
+     ]
+    },
+    "ARR": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: ARR: IncrementalStMan array or string column S is not supported",
+      "row 1: OSError: ARR: IncrementalStMan array or string column S is not supported",
+      "row 2: OSError: ARR: IncrementalStMan array or string column S is not supported",
+      "row 3: OSError: ARR: IncrementalStMan array or string column S is not supported",
+      "row 4: OSError: ARR: IncrementalStMan array or string column S is not supported",
+      "row 5: OSError: ARR: IncrementalStMan array or string column S is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t07-strings",
+   "columns": {
+    "VAR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: VAR: rows of VAR differ in shape; read fewer rows at once (bits per row 96, bucket 0); arcae ArrowInvalid: Row 2 is not defined for column VAR and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: rows of VAR differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column VAR to numpy array)"
+     ]
+    },
+    "FIXED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DIRECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ISM": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "row 0: OSError: ISM: IncrementalStMan array or string column ISM is not supported",
+      "row 1: OSError: ISM: IncrementalStMan array or string column ISM is not supported",
+      "row 2: OSError: ISM: IncrementalStMan array or string column ISM is not supported",
+      "row 3: OSError: ISM: IncrementalStMan array or string column ISM is not supported",
+      "row 4: OSError: ISM: IncrementalStMan array or string column ISM is not supported",
+      "row 5: OSError: ISM: IncrementalStMan array or string column ISM is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t08-tssm-alternating",
+   "columns": {
+    "F32": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: F32: rows of F32 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column F32 to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: F32: rows of F32 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column F32 to numpy array)"
+     ]
+    },
+    "V1": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: V1: rows of V1 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column V1 to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: V1: rows of V1 differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column V1 to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t09-big-endian",
+   "columns": {
+    "I32": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "F64": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": []
+    },
+    "VAR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: VAR: row 1 of VAR has no array; arcae ArrowInvalid: Row 1 is not defined for column VAR and missing rows are not configured)",
+      "reverse rows: both refuse (ra-ng OSError: rows of VAR differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column VAR to numpy array)"
+     ]
+    },
+    "TILED": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TILED: row 2 has no tiled array; arcae ArrowInvalid: Row 2 is not defined for column TILED and missing rows are not configured)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "t10-empty",
+   "columns": {
+    "SSM": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ISM": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": []
+    },
+    "VAR": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "FIXED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STR": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "TSSM": {
+     "outcome": "ra-ng only",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "TCSM": {
+     "outcome": "match",
+     "manager": "TiledColumnStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": []
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: row 0 has no tiled array; arcae ArrowInvalid: Row 0 is not defined for column WEIGHT_SPECTRUM and missing rows are not configured)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m01-ws-unwritten-tssm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": []
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: row 0 of WEIGHT_SPECTRUM has no array; arcae ArrowInvalid: Row 0 is not defined for column WEIGHT_SPECTRUM and missing rows are not configured)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m02-ws-unwritten-ssm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": []
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: row 6 has no tiled array; arcae ArrowInvalid: Row 6 is not defined for column WEIGHT_SPECTRUM and missing rows are not configured)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m03-ws-partial-tssm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": []
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledColumnStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m04-ws-fixed-tcsm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)"
+     ]
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DATA: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: DATA: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)"
+     ]
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_FREQ: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)"
+     ]
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_WIDTH: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)"
+     ]
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: EFFECTIVE_BW: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)"
+     ]
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: RESOLUTION: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m05-var-spw-tssm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)"
+     ]
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DATA: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)"
+     ]
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_FREQ: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)"
+     ]
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_WIDTH: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)"
+     ]
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: EFFECTIVE_BW: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)"
+     ]
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: RESOLUTION: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m06-var-spw-ssm/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of FLAG differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column FLAG to numpy array)"
+     ]
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: FLAG_CATEGORY: row 0 of FLAG_CATEGORY has no array; arcae ArrowInvalid: Row 0 is not defined for column FLAG_CATEGORY and missing rows are not configured)"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIGMA": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DATA: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: DATA: rows of DATA differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column DATA to numpy array)"
+     ]
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "match",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: WEIGHT_SPECTRUM: rows of WEIGHT_SPECTRUM differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column WEIGHT_SPECTRUM to numpy array)"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/SOURCE",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROPER_MOTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CALIBRATION_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_LINES": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_FREQ: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_FREQ differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_FREQ to numpy array)"
+     ]
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: CHAN_WIDTH: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of CHAN_WIDTH differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column CHAN_WIDTH to numpy array)"
+     ]
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: EFFECTIVE_BW: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of EFFECTIVE_BW differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column EFFECTIVE_BW to numpy array)"
+     ]
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: RESOLUTION: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)",
+      "reverse rows: both refuse (ra-ng OSError: rows of RESOLUTION differ in shape; read fewer rows at once; arcae TypeError: Can't convert variably shaped column RESOLUTION to numpy array)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m07-empty-subtables/SYSCAL",
+   "columns": {
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows",
+   "columns": {
+    "UVW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "FLAG_CATEGORY": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "WEIGHT": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "SIGMA": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "ANTENNA1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ARRAY_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA_DESC_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EXPOSURE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED1": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED2": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FIELD_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROCESSOR_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCAN_NUMBER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME_CENTROID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DATA": {
+     "outcome": "ra-ng only",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "WEIGHT_SPECTRUM": {
+     "outcome": "ra-ng only",
+     "manager": "TiledShapeStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/ANTENNA",
+   "columns": {
+    "OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "DISH_DIAMETER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MOUNT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "STATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/DATA_DESCRIPTION",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/FEED",
+   "columns": {
+    "POSITION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_OFFSET": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POLARIZATION_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "POL_RESPONSE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RECEPTOR_ANGLE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "BEAM_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FEED_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_RECEPTORS": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SPECTRAL_WINDOW_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/FIELD",
+   "columns": {
+    "DELAY_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PHASE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REFERENCE_DIR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_POLY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SOURCE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/FLAG_CMD",
+   "columns": {
+    "APPLIED": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "COMMAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LEVEL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REASON": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SEVERITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/HISTORY",
+   "columns": {
+    "APP_PARAMS": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "CLI_COMMAND": {
+     "outcome": "ra-ng only",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: arcae ArrowInvalid: Data partition produced no chunks!"
+     ]
+    },
+    "APPLICATION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MESSAGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBJECT_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVATION_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "ORIGIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PRIORITY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TIME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/OBSERVATION",
+   "columns": {
+    "TIME_RANGE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: LOG: row 0 of LOG has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column LOG and missing rows are not configured)"
+     ]
+    },
+    "SCHEDULE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: SCHEDULE: row 0 of SCHEDULE has no array (bits per row 96, bucket 1); arcae ArrowInvalid: Row 0 is not defined for column SCHEDULE and missing rows are not configured)"
+     ]
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBSERVER": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "PROJECT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RELEASE_DATE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SCHEDULE_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TELESCOPE_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/POINTING",
+   "columns": {
+    "DIRECTION": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: DIRECTION: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Data partition produced no chunks!)"
+     ]
+    },
+    "ANTENNA_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "INTERVAL": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: INTERVAL: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NAME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NAME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "NUM_POLY": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: NUM_POLY: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TARGET": {
+     "outcome": "match",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole: both refuse (ra-ng OSError: TARGET: IncrementalStMan array or string column DIRECTION is not supported; arcae ArrowInvalid: Result shape dimensions are not consistent)"
+     ]
+    },
+    "TIME": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TIME_ORIGIN": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TIME_ORIGIN: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    },
+    "TRACKING": {
+     "outcome": "refusal",
+     "manager": "IncrementalStMan",
+     "notes": [
+      "whole of no rows: OSError: TRACKING: IncrementalStMan array or string column DIRECTION is not supported"
+     ]
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/POLARIZATION",
+   "columns": {
+    "CORR_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CORR_PRODUCT": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CORR": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/PROCESSOR",
+   "columns": {
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "MODE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TYPE_ID": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_TYPE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/SPECTRAL_WINDOW",
+   "columns": {
+    "MEAS_FREQ_REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_FREQ": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF_FREQUENCY": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "CHAN_WIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "EFFECTIVE_BW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "RESOLUTION": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FREQ_GROUP_NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "IF_CONV_CHAIN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NAME": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NET_SIDEBAND": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "NUM_CHAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "TOTAL_BANDWIDTH": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  },
+  {
+   "table": "m08-no-rows/STATE",
+   "columns": {
+    "CAL": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "FLAG_ROW": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "LOAD": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "OBS_MODE": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "REF": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SIG": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    },
+    "SUB_SCAN": {
+     "outcome": "match",
+     "manager": "StandardStMan",
+     "notes": []
+    }
+   },
+   "description": []
+  }
+ ],
+ "oracle_disagreements": [],
+ "xarray_ms": {
+  "m01-ws-unwritten-tssm": {
+   "outcomes": {
+    "/m01-ws-unwritten-tssm_partition_000:VISIBILITY": "match",
+    "/m01-ws-unwritten-tssm_partition_000:FLAG": "match",
+    "/m01-ws-unwritten-tssm_partition_000:WEIGHT": "match",
+    "/m01-ws-unwritten-tssm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m01-ws-unwritten-tssm_partition_000:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m02-ws-unwritten-ssm": {
+   "outcomes": {
+    "/m02-ws-unwritten-ssm_partition_000:VISIBILITY": "match",
+    "/m02-ws-unwritten-ssm_partition_000:FLAG": "match",
+    "/m02-ws-unwritten-ssm_partition_000:WEIGHT": "match",
+    "/m02-ws-unwritten-ssm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m02-ws-unwritten-ssm_partition_000:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m03-ws-partial-tssm": {
+   "outcomes": {
+    "/m03-ws-partial-tssm_partition_000:VISIBILITY": "match",
+    "/m03-ws-partial-tssm_partition_000:FLAG": "match",
+    "/m03-ws-partial-tssm_partition_000:WEIGHT": "match",
+    "/m03-ws-partial-tssm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m03-ws-partial-tssm_partition_000:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m04-ws-fixed-tcsm": {
+   "outcomes": {
+    "/m04-ws-fixed-tcsm_partition_000:VISIBILITY": "match",
+    "/m04-ws-fixed-tcsm_partition_000:FLAG": "match",
+    "/m04-ws-fixed-tcsm_partition_000:WEIGHT": "match",
+    "/m04-ws-fixed-tcsm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m04-ws-fixed-tcsm_partition_000:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m05-var-spw-tssm": {
+   "outcomes": {
+    "/m05-var-spw-tssm_partition_000:VISIBILITY": "match",
+    "/m05-var-spw-tssm_partition_000:FLAG": "match",
+    "/m05-var-spw-tssm_partition_000:WEIGHT": "match",
+    "/m05-var-spw-tssm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m05-var-spw-tssm_partition_000:UVW": "match",
+    "/m05-var-spw-tssm_partition_001:VISIBILITY": "match",
+    "/m05-var-spw-tssm_partition_001:FLAG": "match",
+    "/m05-var-spw-tssm_partition_001:WEIGHT": "match",
+    "/m05-var-spw-tssm_partition_001:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m05-var-spw-tssm_partition_001:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m06-var-spw-ssm": {
+   "outcomes": {
+    "/m06-var-spw-ssm_partition_000:VISIBILITY": "match",
+    "/m06-var-spw-ssm_partition_000:FLAG": "match",
+    "/m06-var-spw-ssm_partition_000:WEIGHT": "match",
+    "/m06-var-spw-ssm_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m06-var-spw-ssm_partition_000:UVW": "match",
+    "/m06-var-spw-ssm_partition_001:VISIBILITY": "match",
+    "/m06-var-spw-ssm_partition_001:FLAG": "match",
+    "/m06-var-spw-ssm_partition_001:WEIGHT": "match",
+    "/m06-var-spw-ssm_partition_001:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m06-var-spw-ssm_partition_001:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m07-empty-subtables": {
+   "outcomes": {
+    "/m07-empty-subtables_partition_000:VISIBILITY": "match",
+    "/m07-empty-subtables_partition_000:FLAG": "match",
+    "/m07-empty-subtables_partition_000:WEIGHT": "match",
+    "/m07-empty-subtables_partition_000:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m07-empty-subtables_partition_000:UVW": "match",
+    "/m07-empty-subtables_partition_001:VISIBILITY": "match",
+    "/m07-empty-subtables_partition_001:FLAG": "match",
+    "/m07-empty-subtables_partition_001:WEIGHT": "match",
+    "/m07-empty-subtables_partition_001:SIGMA_SPECTRUM": "derived by xarray-ms (no such column)",
+    "/m07-empty-subtables_partition_001:UVW": "match"
+   },
+   "warnings": [
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the STATE table of length 0 for STATE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the PROCESSOR table of length 0 for PROCESSOR_ID=0. Artificial metadata will be substituted.",
+    "ImputedMetadataWarning: No row exists in the SOURCE table of length 0 for SOURCE_ID=0. Artificial metadata will be substituted.",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476",
+    "FrameConversionWarning: UVW coordinate frame was set to ITRF which is an unsupported MSv4 frame for UVW. Setting the frame to fk5 from the FIELD_PHASE_CENTER_DIRECTION of the field associated with this dataset. See https://github.com/casangi/xradio/issues/476"
+   ]
+  },
+  "m08-no-rows": {
+   "outcomes": {
+    "open": "ValueError: range() arg 3 must not be zero"
+   },
+   "warnings": []
+  }
+ },
+ "counts": {
+  "match": 928,
+  "ra-ng only": 26,
+  "refusal": 55
+ }
+}

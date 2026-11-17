@@ -11,6 +11,12 @@ pip install rang-core
 [GitHub release](https://github.com/gijzelaerr/rang-core/releases). To build it yourself, install
 [from source](#from-source).
 
+The current release is **0.2.0** (2026-11-14), the first with the user
+chain (`rang-core run`, `flag`, `calibrate`, `apply`, `image`, `selfcal`,
+`config`) and `gemclean`. Its known limitations are in the
+[changelog](https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md).
+0.1.0 (2026-11-02) predates the chain. There are no pre-releases.
+
 The wheel carries the compiled core, so no Rust compiler is needed for the
 flagging chain, imaging and the tutorials. Every kernel is inside the
 extension `rang._core`, including the root crate's (gain TV, phase trend,
@@ -55,7 +61,7 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | Extra | Installs | For |
 | --- | --- | --- |
 | `notebook` | matplotlib, pandas, ipywidgets, ipykernel, jupyterlab, nbformat, nbconvert | the tutorials and `rang.notebook` |
-| `imaging` | astropy | FITS output of the gridders |
+| `imaging` | astropy | nothing since astropy became required (FITS output of the gridders, the parallactic angle); kept so existing install lines work |
 | `pointing` | JAX, SciPy | the JAX direct-Fourier reference path of the pointing solver |
 | `beam` | katbeam, EIDOS | the beam controls of `rang.beam_holography` |
 | `meerkat` | katdal, katsdptelstate | MVFv4 archives through `rang.meerkat` ({gh}`research/mk1-katdal.md`) |
@@ -65,14 +71,14 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | `plot` | matplotlib | plots in the examples |
 | `test` | pytest | the test suite |
 | `docs` | Sphinx, furo, myst-nb, papermill | this site |
-| `recipes` | Stimela 2.1.4 | the Stimela2 recipes in `recipes/` (Python 3.13): `rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply` and `image` on your MS ({doc}`cli`); `core-*.yaml` are research recipes |
+| `recipes` | Stimela 2.1.4 | the Stimela2 recipes in `recipes/` (Python 3.13 or older; installs nothing on 3.14): `rang-chain.yaml` runs `rang-core flag`, `calibrate`, `apply` and `image` on your MS ({doc}`cli`); `core-*.yaml` are research recipes |
 
 ```sh
 pip install 'rang-core[notebook,imaging]'
 ```
 
 Install from public PyPI (`--index-url https://pypi.org/simple`). Stimela
-2.1.4 needs Python 3.13; its native backend fails on 3.14. The chain
+2.1.4 needs Python 3.13 or older (the extra installs nothing on 3.14). The chain
 recipe calls the `rang-core` console script, so run it from the environment
 that has rang installed:
 
@@ -101,6 +107,21 @@ python3 -m venv .venv   # or: uv venv -p 3.14 .venv
     -e '.[pointing,beam,test,imaging,notebook]' ruff maturin
 ```
 
+On Windows (PowerShell), the same with the venv's `Scripts` folder:
+
+```powershell
+git clone https://github.com/gijzelaerr/rang-core
+cd rang-core
+py -3.14 -m venv .venv   # or: uv venv -p 3.14 .venv
+.venv\Scripts\python -m pip install --index-url https://pypi.org/simple `
+    -e ".[pointing,beam,test,imaging,notebook]" ruff maturin
+```
+
+On x86_64, a build from a checkout targets x86-64-v3 (AVX2 and FMA;
+`.cargo/config.toml`), which is faster but crashes with an illegal
+instruction on older CPUs. Set `RUSTFLAGS="-C target-cpu=x86-64"`, as the
+wheels do, to build for any x86_64 CPU.
+
 After a Rust change, rebuild the extension with
 `.venv/bin/maturin develop --release`; Python never runs Cargo itself.
 `bash tools/wheel/build.sh outputs/wheel-<date>-NN` builds the manylinux
@@ -110,14 +131,16 @@ without docker ({gh}`research/wheel.md`).
 ## Check the install
 
 ```sh
-rang-core --version                                           # rang-core 0.1.0
+rang-core --version                                           # rang-core 0.2.0
 python -c "import rang; print(rang.__version__)"
 python -c "import rang.core as c; print(c.backend_name())"   # extension
 rang-core -h
 ```
 
-Native Windows runs the test suite; for campaign work on Windows use a WSL2
-checkout on the Linux filesystem ({doc}`contributing`).
+Development and the full local check run natively on Windows and Linux;
+macOS is built and tested in CI (the wheels). Only the Linux-only oracles (CASA, WSClean, QuartiCal, CARACal) and the
+frozen campaigns in `history/` need Linux; on Windows use a WSL2 checkout on the
+Linux filesystem for them ({doc}`contributing`).
 
 ## Releases
 

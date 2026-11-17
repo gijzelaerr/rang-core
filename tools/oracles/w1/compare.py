@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Compare a W1 oracle run against the frozen tolerances of
 research/w1-writeback.md and write `<run>/summary.json`.
 

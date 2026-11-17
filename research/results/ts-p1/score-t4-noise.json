@@ -1,0 +1,30 @@
+{
+ "case": "tsp1-noise",
+ "intervals": 450,
+ "lambda_pixels": [
+  [
+   0.09460803640339996,
+   -0.026651917619116387
+  ],
+  [
+   -0.026651917619116387,
+   0.08215421080732502
+  ]
+ ],
+ "lobe_pixels_fitted": 63,
+ "correlation_fwhm_arcsec": [
+  19.06698629312169,
+  13.842856602227664
+ ],
+ "expected_5": 187.97166599866634,
+ "expected_7": 0.0016161335496578328,
+ "positive_5": 239,
+ "negative_5": 234,
+ "positive_7": 0,
+ "negative_7": 0,
+ "deviation_5_in_poisson_sigma": 3.721904232450452,
+ "pass_7": true,
+ "pass_5": false,
+ "seconds": 0.9373626000015065,
+ "pass": false
+}

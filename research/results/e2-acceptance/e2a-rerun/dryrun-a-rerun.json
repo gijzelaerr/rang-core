@@ -1,0 +1,13 @@
+{
+ "leg": "a-rerun",
+ "rc": 0,
+ "receipt": "D:\\rang\\outputs\\e2a-20261115\\dryrun-a-rerun\\a1-small.ms.rang-run\\receipts\\run-20261115T112046Z.rang-receipt.json",
+ "stages": {
+  "apply": "done",
+  "calibrate": "done",
+  "flag": "done",
+  "image": "done",
+  "selfcal": "done"
+ },
+ "python": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe"
+}

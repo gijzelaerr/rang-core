@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Implicit gradient of fixed-support gain TV with respect to cell weights.
 
 The JAX reference path of research/f1-tv-flagger.md, section 3. The Rust solver

@@ -1,0 +1,3 @@
+C:\Users\gijsm\Worktrees\rang\fp-e2-acceptance\.venv\Scripts\python.exe -m rang.gemclean -name D:\rang\outputs\e2-20261111-12-dryrun\b\luno-slice.ms.rang-run\image\J1939-6342\image -size 512 512 -scale 2asec -weight briggs 0.0 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -wgridder-accuracy 0.0001 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -field 1 -scans 1,2 -unit-weights -no-update-model-required D:\rang\outputs\e2-20261111-12-dryrun\b\luno-slice.ms
+D:\rang\outputs\e2-20261111-12-dryrun\b\luno-slice.ms: 19272 rows (CORRECTED_DATA, field 1), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 11.06 s read, 2.25 s weights
+1 groups deconvolved; wall 27.40 s

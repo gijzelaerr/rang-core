@@ -25,8 +25,8 @@ INTRO = """\
 `rang-core flag | calibrate | apply | image | selfcal | run CONFIG MS`. One
 YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
-the whole configuration first and refuse what is not implemented yet,
-naming the task that adds it. Today `flag` runs the Tricolour port and
+the whole configuration first and refuse what is not implemented yet
+(`rang-core config check --all CONFIG` lists it). Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
 MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
 or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
@@ -39,7 +39,9 @@ into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
-`rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+`rang_original`, and before each stage writes flags as
+`rang_<stage>_<UTC time>` (the MODEL_DATA that image and selfcal write
+leaves FLAG alone and saves none).
 The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
 `apply` and `image` in order, each as the command above
 (`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs
@@ -57,10 +59,30 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 (Stimela2, each marked `# rang-recipe: research`) call the same functions;
 they replay frozen campaigns and are not recipes for your own MS.
 
+**CASA's tasks** ({gh}`research/v8-open-casa.md`): `rang-core listobs MS`
+summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
+`--json` ({gh}`research/v8a-listobs.md`); `rang.tasks.listobs(vis=...)` is
+the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
+tasks to rang's.
+
+**Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
+--position NAME=RA,DEC --out DIR` gives light curves at given positions from
+the residual (data column minus MODEL_DATA) after `rang-core run`, one point
+per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+snapshot dirty image and its robust rms. It reads the MS only.
+
+**Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
+run status, receipts and FITS statistics to an agent over the Model Context
+Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
+`gemclean`, each confirmed by a token and preceded by a flag-version backup.
+
 `rang-core check` runs the full local checks on any platform. Every call
-writes a receipt (schema `rang.receipt` version 4: the command, its inputs,
+writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
-outside a source checkout), unless `--no-receipt` is given: a research
+outside a source checkout; a Measurement Set it modified is recorded by a
+hash of its file sizes and mtimes; the stage summaries hash the flags, gain
+solutions and images written, and name the tables and settings behind a
+written column), unless `--no-receipt` is given: a research
 stage beside its output as `<output>.<verb>.rang-receipt.json`, a command
 on a Measurement Set in `<run>/receipts/`. The OpenBLAS, OpenMP, MKL and
 XLA thread pools are capped at one thread where their variables are unset,
@@ -130,6 +152,21 @@ def page():
         "The configuration, every key at its default:\n\n"
         f"```text\n$ rang-core config defaults\n{_run('config', 'defaults')}\n```\n"
     )
+    # E5-29: the subcommands a user runs before a stage.
+    parts.append(
+        f"```text\n$ rang-core config check -h\n{_help('config', 'check')}\n```\n"
+    )
+    parts.append(_block("`formats`", "rang-core formats -h", _help("formats")))
+    for verb in ("check", "convert"):
+        parts.append(
+            f"```text\n$ rang-core formats {verb} -h\n{_help('formats', verb)}\n```\n"
+        )
+    parts.append(_block("`listobs`", "rang-core listobs -h", _help("listobs")))
+    parts.append(_block("`flagdata`", "rang-core flagdata -h", _help("flagdata")))
+    parts.append(
+        _block("`lightcurve`", "rang-core lightcurve -h", _help("lightcurve"))
+    )
+    parts.append(_block("`mcp`", "rang-core mcp -h", _help("mcp")))
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! WGSL source of the GPU gridder: gridding (gather), one Stockham FFT pass
 //! and the projection with the w-phasor and the ordered layer sum. One
 //! source, instantiated for `f64` or `f32` by the `real` alias; the f64

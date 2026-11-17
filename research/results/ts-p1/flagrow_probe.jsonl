@@ -1,0 +1,13 @@
+{"ms": "D:/rang/outputs/20261102-gemclean/bench/data/s1.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261102-gemclean/bench/data/s2.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261102-gemclean/bench/data/s3.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/sim/data/h1.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/sim/data/h2.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/sim/data/h3.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/sim/data/h4.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261106-g3-spectral/data/D2.ms", "rows": 907200, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/g5-20261107-03/data/m1.ms", "rows": 1814400, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/g9-20261107-01-probe/probe.ms", "rows": 7200, "flag_row_rows": 0, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/real/cal.ms", "rows": 823500, "flag_row_rows": 27000, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/real/cal2.ms", "rows": 823500, "flag_row_rows": 27000, "flag_row_samples_with_weight": 0}
+{"ms": "D:/rang/outputs/20261103-gemclean-heldout/real/cal3.ms", "rows": 823500, "flag_row_rows": 27000, "flag_row_samples_with_weight": 0}

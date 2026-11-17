@@ -1,0 +1,8 @@
+{
+ "n_drawn": 3229907,
+ "n_kept": 3229886,
+ "n_on_grid": 3229886,
+ "flux_kept_apparent_jy": 4.810183857162591,
+ "beam_table_min": 0.001,
+ "analytic_sigma_c_jy": 1.1848509321969625e-05
+}

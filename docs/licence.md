@@ -16,9 +16,40 @@ ported, and ported code keeps its upstream copyright notices.
 | WSClean 3.6 weights and w-stacking gridder | GPL-3.0 ({gh}`research/core-c-gridder.md`) |
 | ducc0 0.42.0 wgridder | GPL-2.0-or-later ({gh}`research/df1-wgridder.md`) |
 | SARAO/SKA pointing-offset fit (ska-sdp-wflow-pointing-offset) | BSD-3-Clause ({gh}`research/b1-beam-pointing.md`) |
-| MeerKAT ITRF positions from simms | GPL-2.0 ({gh}`data/README.md`) |
+| codex-africanus 0.4.4 WSClean-format component predict (`core/src/predict.rs`) | BSD-3-Clause; the translated file keeps its notice, as does {gh}`THIRD-PARTY-NOTICES.txt` |
+| katdal 0.23 test helpers, adapted for the synthetic MVF writer (`python/rang/meerkat.py`) | BSD-3-Clause, National Research Foundation (SARAO) |
+| CASA (casa6) calibration and flagging C++: `SolvableVisCal.cc`, `SolveDataBuffer.cc`, `StandardVisCal.cc`, `DJones.cc`, `XJones.cc`, `KJones.cc`, `Calibrater.cc`, `VisCal.cc`, `Jones.cc`, `VisEquation.cc`, `CTPatchedInterp.cc`, `RIorAParray.cc`, `FlagAgentExtension.cc`, read in the mirror `dic-case-studies/casa6` at `9269a52` and followed in the K, G, B, F, polarisation and apply ports (`core/src/cal/`, `rang.cal_*`, `rang.applycal`, `rang.formats.caltable`) and in `core/src/flag_extend.rs` | GPL-2.0-or-later (`Calibrater.cc`), LGPL-2.0-or-later or LGPL-2.1-or-later (`FlagAgentExtension.cc`), each file's own header; Associated Universities, Inc. (and ESO for `FlagAgentExtension.cc`). The LGPL lets a copy be put under the GPL, so all are compatible with GPL-3.0-or-later; each derived file names CASA and the notices are in {gh}`THIRD-PARTY-NOTICES.txt` (checked 2026-11-12, E5 final) |
+| MeerKAT ITRF positions from simms | Facts, not code: see below ({gh}`data/README.md`) |
 
 Crystalball is GPL-2.0-only and is not ported.
+
+Behaviour reimplemented from upstream source and documentation, with no
+code copied (owner decision E5-33, 2026-11-11,
+{gh}`research/e5-prereview.md`):
+
+| Reimplemented | Upstream and its licence |
+| --- | --- |
+| CARACal 8f7bb363 `manage_antennas.get_refant` (`refant: auto`, `python/rang/cal_refant.py`) | CARACal, GPL-2.0 (its `pyproject.toml` does not say whether only or or-later); follow-up: ask the CARACal authors to confirm GPL-2.0-or-later |
+| msutils 1.2.0 `flag_stats.save_statistics` and `wgs84_to_ecef`, as `get_refant` uses them (`python/rang/cal_refant.py`) | msutils; licence not checked (its repository reports none) |
+| CASA's ported sources | Listed with the ported code above: the calibration and flag-extension ports read CASA's C++ source, so they are translations, not reimplementations of documented behaviour |
+| casacore 3.8.1 AipsIO and table formats (`core/src/aipsio.rs`, the table writer) | casacore, LGPL-2.1-or-later; the formats were read in its sources, nothing is copied |
+
+The observatory positions in `python/rang/data/casacore_observatories.json`
+come from casacore-data 20250826 ({ghdir}`python/rang/data`); like the
+antenna tables below they are positions, not code.
+
+The antenna coordinate tables in `data/*.itrf.txt` are copied from simms
+(GPL-2.0-only). They hold measured antenna positions (ITRF X, Y, Z, dish
+diameter, name, mount) and no code; positions of physical antennas are facts,
+which copyright does not cover, so they carry no simms licence obligation and
+ship under rang-core's GPL-3.0-or-later with their source recorded in
+{gh}`data/README.md`. Only `meerkat.itrf.txt` ships in the sdist, because
+GeMClean's simulator compiles it in; the VLA, WSRT and KAT-7 tables feed the
+research examples only and stay in the repository (owner decision E5-11,
+2026-11-11, {gh}`research/e5-prereview.md`). A byte copy of
+`meerkat.itrf.txt` is package data (`python/rang/data/`), so the A1
+simulation (`rang.simtruth`, `python -m rang.simtruth_ms`) runs from a wheel
+(V3's owner decision 4, {gh}`research/v3-intro-track.md`).
 
 ## Data
 

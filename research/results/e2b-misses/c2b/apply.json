@@ -1,0 +1,20 @@
+{
+ "calls": [
+  {
+   "fields": [
+    "J1833-2103"
+   ],
+   "parang": true,
+   "frame": "casa"
+  },
+  {
+   "fields": [
+    "J1331+3030",
+    "J1939-6342"
+   ],
+   "parang": true,
+   "frame": "casa"
+  }
+ ],
+ "secs": 351.04068875312805
+}

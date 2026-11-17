@@ -1,0 +1,260 @@
+{
+ "joined-iquv-mf": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-masked": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-per-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-one-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 17,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-fit": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 85,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-no-plan-reuse": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-double": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-xx-yy": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 27,
+  "stderr": null,
+  "left": []
+ },
+ "joined-qu": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 27,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-mf": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-per-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-one-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 17,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-audit": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   2,
+   2,
+   2
+  ],
+  "files": 0,
+  "stderr": [
+   "gemclean: several polarisations take neither -stop-rule certified, -gram-operator, -floor-iterations nor -audit (research/g9-stokes.md)",
+   "gemclean: several polarisations take neither -stop-rule certified, -gram-operator, -floor-iterations nor -audit (research/g9-stokes.md)"
+  ],
+  "left": []
+ },
+ "unjoined-iquv-masked": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   2,
+   2,
+   2
+  ],
+  "files": 0,
+  "stderr": [
+   "gemclean: -fits-mask takes one polarisation, -auto-mask one or joined polarisations (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule certified (research/g4-masks.md)",
+   "gemclean: -fits-mask takes one polarisation, -auto-mask one or joined polarisations (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule certified (research/g4-masks.md)"
+  ],
+  "left": []
+ },
+ "stokes-i": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "left": []
+ },
+ "stokes-i-masked": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "left": []
+ },
+ "stokes-i-channels": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "left": []
+ },
+ "stokes-i-joined": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "left": []
+ },
+ "stokes-i-joined-masked": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "left": []
+ },
+ "stokes-i-joined-fit": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 25,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-channel-range": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ }
+}

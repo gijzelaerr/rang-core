@@ -6,8 +6,8 @@
 `rang-core flag | calibrate | apply | image | selfcal | run CONFIG MS`. One
 YAML configuration (schema `rang-config`, version 1; every key and default
 is listed under `config` below) drives every stage. The commands validate
-the whole configuration first and refuse what is not implemented yet,
-naming the task that adds it. Today `flag` runs the Tricolour port and
+the whole configuration first and refuse what is not implemented yet
+(`rang-core config check --all CONFIG` lists it). Today `flag` runs the Tricolour port and
 writes FLAG, `calibrate` writes calibrator models (setjy, manual, lsm) to
 MODEL_DATA and either solves the `complex` term into a QuartiCal gain store
 or runs CARACal's K, G, B, A and F terms in order into CASA tables, its A
@@ -20,7 +20,9 @@ into MODEL_DATA, an Sp, Sa or Sd solve, apply; {gh}`research/c5-selfcal.md`).
 State and outputs go into a run directory (default `<ms>.rang-run`):
 `rang-core run` skips finished stages and resumes at a failed one. Before
 the first write to an MS its flags are saved as the CASA flag version
-`rang_original`, and before each stage writes as `rang_<stage>_<UTC time>`.
+`rang_original`, and before each stage writes flags as
+`rang_<stage>_<UTC time>` (the MODEL_DATA that image and selfcal write
+leaves FLAG alone and saves none).
 The Stimela2 recipe `recipes/rang-chain.yaml` runs `flag`, `calibrate`,
 `apply` and `image` in order, each as the command above
 (`stimela run recipes/rang-chain.yaml config=config.yaml ms=my.ms`; the cabs
@@ -38,10 +40,30 @@ the linked reports say which. The research recipes `recipes/core-*.yaml`
 (Stimela2, each marked `# rang-recipe: research`) call the same functions;
 they replay frozen campaigns and are not recipes for your own MS.
 
+**CASA's tasks** ({gh}`research/v8-open-casa.md`): `rang-core listobs MS`
+summarises a Measurement Set as CASA's `listobs` does, read-only, as text or
+`--json` ({gh}`research/v8a-listobs.md`); `rang.tasks.listobs(vis=...)` is
+the same in Python under CASA's keyword names. {doc}`casa-users` maps CASA's
+tasks to rang's.
+
+**Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
+--position NAME=RA,DEC --out DIR` gives light curves at given positions from
+the residual (data column minus MODEL_DATA) after `rang-core run`, one point
+per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+snapshot dirty image and its robust rms. It reads the MS only.
+
+**Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
+run status, receipts and FITS statistics to an agent over the Model Context
+Protocol (stdio, extra `rang-core[mcp]`); `--allow-write` adds `run` and
+`gemclean`, each confirmed by a token and preceded by a flag-version backup.
+
 `rang-core check` runs the full local checks on any platform. Every call
-writes a receipt (schema `rang.receipt` version 4: the command, its inputs,
+writes a receipt (schema `rang.receipt` version 5: the command, its inputs,
 the environment with every recorded `RANG_*` variable, and the commit, null
-outside a source checkout), unless `--no-receipt` is given: a research
+outside a source checkout; a Measurement Set it modified is recorded by a
+hash of its file sizes and mtimes; the stage summaries hash the flags, gain
+solutions and images written, and name the tables and settings behind a
+written column), unless `--no-receipt` is given: a research
 stage beside its output as `<output>.<verb>.rang-receipt.json`, a command
 on a Measurement Set in `<run>/receipts/`. The OpenBLAS, OpenMP, MKL and
 XLA thread pools are capped at one thread where their variables are unset,
@@ -71,9 +93,13 @@ commands for a Measurement Set (each takes a config.yaml and an MS):
 
 other commands:
   config          defaults | check CONFIG [MS]: the configuration schema
+  listobs         MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs
+  flagdata        MS [key=value ...]: CASA's flagdata modes, CASA's keywords
+  lightcurve      MS --position RA,DEC --out DIR: residual snapshot light curves
   research        STAGE VERB ARGS...: the research chains (rang-core research -h)
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
+  mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -86,8 +112,8 @@ $ rang-core flag -h
 usage: rang-core flag [-h] [--run-dir RUN_DIR] [--force] config ms
 
 flag with the Tricolour port, writing FLAG. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -107,8 +133,8 @@ $ rang-core calibrate -h
 usage: rang-core calibrate [-h] [--run-dir RUN_DIR] [--force] config ms
 
 solve the calibration terms, writing tables. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -128,8 +154,9 @@ $ rang-core apply -h
 usage: rang-core apply [-h] [--run-dir RUN_DIR] [--force] config ms
 
 apply the complex solutions, writing CORRECTED_DATA. Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -148,8 +175,9 @@ options:
 $ rang-core image -h
 usage: rang-core image [-h] [--run-dir RUN_DIR] [--force] config ms
 
-image with gemclean. Validates the configuration for every stage first; a
-finished stage is skipped unless forced, a failed one runs again.
+image with gemclean. Validates the configuration for the stages it runs first.
+A finished stage is skipped, or refused when its configuration changed, unless
+forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -169,8 +197,9 @@ $ rang-core selfcal -h
 usage: rang-core selfcal [-h] [--run-dir RUN_DIR] [--force] config ms
 
 self-calibrate in rounds (image, model, solve, apply). Validates the
-configuration for every stage first; a finished stage is skipped unless
-forced, a failed one runs again.
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -190,8 +219,8 @@ $ rang-core run -h
 usage: rang-core run [-h] [--run-dir RUN_DIR] [--force STAGE] config ms
 
 the stages of run.stages in order, resuming. Validates the configuration for
-every stage first; a finished stage is skipped unless forced, a failed one
-runs again.
+the stages it runs first. A finished stage is skipped, or refused when its
+configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
@@ -201,7 +230,8 @@ options:
   -h, --help         show this help message and exit
   --run-dir RUN_DIR  the run directory with state.json (default: <ms>.rang-run
                      beside the MS)
-  --force STAGE      run a finished stage again (repeatable; all: every stage)
+  --force STAGE      run a finished stage of run.stages again (repeatable;
+                     all: every stage of run.stages)
 ```
 
 ## `config`
@@ -238,6 +268,9 @@ data:
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
   memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
   chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
+  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md)
+  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process); each plans its chunks under memory_limit_gb / processes; results do not depend on it
+  threads: null  # the rayon threads the processes share when processes > 1 (null: RAYON_NUM_THREADS, else the CPU count)
 flag:
   flagger: tricolour  # the Tricolour 0.2.1 port (research/core-d-tricolour.md)
   strategy: null  # required: a Tricolour strategy YAML, such as CARACal's mk_rfi_flagging_calibrator_fields_firstpass.yaml (relative to this file)
@@ -257,13 +290,17 @@ calibrate:
     polangle: null  # manual: polarisation angle, radians
     rotmeas: null  # manual: rotation measure, rad m^-2
     lsm: null  # a Tigger .lsm sky model, such as pks1934-638.lsm
-  refant: null  # reference antenna: a name, an id, a list or auto
+  refant: null  # reference antenna: a name, an id, a list or auto (CARACal's choice); null: auto, or antenna 0 when no antenna qualifies (task E2)
   refantmode: flex  # flex or strict, as CASA
   refant_maxdist: 1000.0  # refant auto: metres from the array centre at most (CARACal's maxdist)
   refant_minbase: 150.0  # refant auto: metres to every other antenna at least (CARACal's minbase)
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
   minsnr: null  # solutions below this SNR are flagged (CASA: 3)
   minblperant: null  # baselines per antenna needed (CASA: 4)
+  average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation; Gpol, KCROSS, Xf and Df with P never across scans or more than 5 deg of parallactic angle); false: every row solved (task E2)
+  average_freq: false  # G, F and Gpol solve on data and model averaged over the window's channels (CASA's G-type estimator: weighted means after the pre-applies and P, per row and correlation); false: every channel a sample of one frequency bin (task E2)
+  casa_phase_weights: false  # calmode p solves (Gpol, and G with calmode p) use CASA's phase-only datum: data divided by the model per channel with weight w|M|^2, averaged, then normalised to unit amplitude with the weight times the amplitude squared; needs average_freq; false: QuartiCal's phase kernel weighting (task A3, research/e2b-misses.md 9.26)
+  bandpass_model_divided: false  # B solves divide the pre-applied data by the model (which the K and G pre-applies corrupt) before averaging, with weight w|M|^2 and model 1, as CASA's divideCorrByModel; matters with average_time and K or G varying inside the B interval; false: data and model averaged separately (task e2a-3b-diag, research/e2a-3b-diag.md)
   primary:
     field: ["fcal"]  # fields of the primary solves
     terms: [{type: complex}]  # terms solved in order
@@ -285,6 +322,7 @@ apply:
   applymode: calflag  # as CASA applycal
   calwt: false  # scale the weights by the gains (CASA: G, T and B only; no effect on complex)
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
+  parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
 image:
   imager: gemclean  # the imager
@@ -296,7 +334,7 @@ image:
   scale: null  # required: pixel size, such as 2asec
   weight: briggs  # natural, uniform or briggs
   robust: 0.0  # Briggs robustness
-  niter: 100000  # maximum number of components
+  niter: 1000000  # maximum number of components
   auto_threshold: 3.0  # stop at this many robust sigma of the residual
   threshold: null  # stop at this many Jy
   gain: null  # loop gain (null: gemclean's 0.1)
@@ -312,7 +350,7 @@ image:
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
-  fits_mask: null  # a FITS mask of the image's size, one plane
+  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file)
   taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
   taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
   taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
@@ -320,7 +358,7 @@ image:
   maxuv_l: null  # longest uv distance imaged, wavelengths
   minuvw_m: null  # shortest baseline |uvw| imaged, metres
   maxuvw_m: null  # longest baseline |uvw| imaged, metres
-  uvrange: ""  # not read: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
+  uvrange: ""  # refused when set: use minuv_l, maxuv_l, minuvw_m and maxuvw_m
   multiscale: false  # multiscale CLEAN (WSClean's -multiscale)
   multiscale_scales: null  # scales in pixels (null: WSClean's automatic scales)
   multiscale_max_scales: null  # at most this many automatic scales (null: all that fit)
@@ -336,14 +374,15 @@ selfcal:
   input_column: CORRECTED_1GC  # the 1GC-corrected data solved; CORRECTED_1GC is copied from apply.column after this run's apply
   model_column: MODEL_DATA  # the model of each round's image, solved against
   output_column: CORRECTED_DATA  # the column written
-  refant: null  # reference antenna (null: calibrate.refant, or 0 when that is unset)
+  refant: null  # reference antenna (null: calibrate.refant); auto: the first of CARACal's choice
+  average_time: false  # Sp and Sa solve on data and model averaged in time within each solution interval (calibrate.average_time's estimator; CubiCal solves every sample); false: every row solved (task E2)
   gain_clip: [0.5, 2.0]  # gain amplitudes kept, [low, high] (CARACal's cal_gain_cliplow and cliphigh); [] for none
   minuvw_m: 0.0  # baselines shorter than this (metres) are not solved
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
-  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path ({field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
+  cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
 run:
-  stages: ["flag", "calibrate", "image"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
+  stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):
 #   type: null  # the term
 #   name: null  # the table name (default: the type)
@@ -374,6 +413,175 @@ run:
 #   stop_fraction: 0.99  # complex, Sp, Sa: fraction converged to stop
 # Term types: complex, K, G, B, A, F, Gpol, KCROSS, Xf, Df, Sd, Sp, Sa.
 # Implemented: complex, K, G, B, A, F (C2e), Gpol, KCROSS, Xf, Df (C6w); in selfcal, Sd, Sp, Sa (C5).
+```
+
+```text
+$ rang-core config check -h
+usage: rang-core config check [-h]
+                              [--stage {flag,calibrate,apply,image,selfcal}]
+                              [--all]
+                              config [ms]
+
+positional arguments:
+  config
+  ms                    also resolve its fields against this MS
+
+options:
+  -h, --help            show this help message and exit
+  --stage {flag,calibrate,apply,image,selfcal}
+                        check for these stages (default: run.stages;
+                        repeatable)
+  --all                 list what every stage cannot run yet
+```
+
+## `formats`
+
+```text
+$ rang-core formats -h
+usage: rang-core formats [-h] {check,convert} ...
+
+`rang-core formats convert IN OUT` and `rang-core formats check PATH`
+(research/dfio-formats.md).
+
+positional arguments:
+  {check,convert}
+    check          read a file and print a JSON summary
+    convert        read IN and write OUT in another format
+
+options:
+  -h, --help       show this help message and exit
+```
+
+```text
+$ rang-core formats check -h
+usage: rang-core formats check [-h] [--trust] path
+
+positional arguments:
+  path
+
+options:
+  -h, --help  show this help message and exit
+  --trust     allow a DicoModel (pickle) you made
+```
+
+```text
+$ rang-core formats convert -h
+usage: rang-core formats convert [-h] src dst
+
+positional arguments:
+  src
+  dst
+
+options:
+  -h, --help  show this help message and exit
+```
+
+## `listobs`
+
+```text
+$ rang-core listobs -h
+usage: rang-core listobs [-h] [--json] [--listfile LISTFILE] [--overwrite] ms
+
+Summarise a Measurement Set as CASA's listobs does (research/v8a-listobs.md).
+Reads only; writes nothing to the MS.
+
+positional arguments:
+  ms                   the Measurement Set
+
+options:
+  -h, --help           show this help message and exit
+  --json               print the record as JSON, not the text
+  --listfile LISTFILE  write the text (or JSON) to this file
+  --overwrite          replace an existing --listfile
+```
+
+## `flagdata`
+
+```text
+$ rang-core flagdata -h
+usage: rang-core flagdata [-h] ms [key=value ...]
+
+CASA's flagdata on a Measurement Set: modes manual, clip, quack, shadow,
+elevation, tfcrop, extend, unflag, summary, with CASA's keyword names
+(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found
+are saved first as a flag version.
+
+positional arguments:
+  ms          the Measurement Set (or calibration table, for clip)
+  key=value   CASA flagdata keywords, e.g. mode=quack quackinterval=8
+
+options:
+  -h, --help  show this help message and exit
+```
+
+## `lightcurve`
+
+```text
+$ rang-core lightcurve -h
+usage: rang-core lightcurve [-h] [--position [NAME=]RA,DEC] [--positions CSV]
+                            --out OUT [--field FIELD] [--column COLUMN]
+                            [--model-column MODEL_COLUMN] [--no-model]
+                            [--interval-steps INTERVAL_STEPS] [--size SIZE]
+                            [--scale SCALE] [--no-images] [--fits]
+                            [--candidates SIGMA] [--gridder {wgrid,wstack}]
+                            [--device {cpu,gpu}]
+                            ms
+
+Light curves at given positions from the residual (data column minus
+MODEL_DATA) of a field after rang-core run, one point per interval of
+--interval-steps integrations: the exact DFT flux at each position, the
+nearest pixel of the interval's dirty snapshot image and the image's robust
+rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. Reads the
+MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.
+
+positional arguments:
+  ms                    the Measurement Set
+
+options:
+  -h, --help            show this help message and exit
+  --position [NAME=]RA,DEC
+                        a position, degrees or hh:mm:ss,dd:mm:ss (repeatable)
+  --positions CSV       positions from a file with columns name, ra_deg,
+                        dec_deg
+  --out OUT             the output directory (new)
+  --field FIELD         field id or name (default 0)
+  --column COLUMN       data column (default CORRECTED_DATA if present, else
+                        DATA)
+  --model-column MODEL_COLUMN
+                        subtracted (default MODEL_DATA)
+  --no-model            use the data column as it is
+  --interval-steps INTERVAL_STEPS
+                        integrations per interval (default 1)
+  --size SIZE           snapshot width and height (1024)
+  --scale SCALE         snapshot pixel size (default 4asec)
+  --no-images           DFT fluxes only, no snapshots
+  --fits                also write each snapshot as FITS
+  --candidates SIGMA    also list each snapshot's local maxima at or above
+                        SIGMA times its robust rms, and those of the negated
+                        image, in DIR/candidates.csv
+  --gridder {wgrid,wstack}
+                        snapshot gridder: the exact wgridder (default) or
+                        w-stacking
+  --device {cpu,gpu}    device of the wstack gridder (gpu needs the gpu build)
+```
+
+## `mcp`
+
+```text
+$ rang-core mcp -h
+usage: rang-core mcp [-h] [--allow-write] [--root DIR]
+
+Serve rang-core's tools to an agent over the Model Context Protocol (stdio;
+research/mcp-server.md). Read-only tools by default. Needs the extra: pip
+install 'rang-core[mcp]'. Stages: flag, calibrate, apply, image, selfcal.
+
+options:
+  -h, --help     show this help message and exit
+  --allow-write  also offer run and gemclean, each confirmed by a token from a
+                 first call that writes nothing; every MS write saves a flag
+                 version first
+  --root DIR     accept only path arguments inside DIR (repeatable; default:
+                 any path)
 ```
 
 ## `research`
@@ -829,18 +1037,24 @@ options:
 ```text
 $ rang-core check -h
 usage: rang-core check [-h] [--rust | --python | --all] [--only ONLY]
-                       [--skip SKIP] [--json JSON]
+                       [--skip SKIP] [--json JSON] [--fail-fast]
+                       [--pytest-paths PYTEST_PATHS] [--rebuild]
 
 The full local checks, portable: `rang-core check` = `python -m rang.check`
 
 options:
-  -h, --help   show this help message and exit
-  --rust       the Rust steps only
-  --python     the Python steps only
-  --all        every step (default)
-  --only ONLY  comma-separated step names
-  --skip SKIP  comma-separated step names
-  --json JSON  write each step's status and wall time
+  -h, --help            show this help message and exit
+  --rust                the Rust steps only
+  --python              the Python steps only
+  --all                 every step (default)
+  --only ONLY           comma-separated step names
+  --skip SKIP           comma-separated step names
+  --json JSON           write each step's status and wall time
+  --fail-fast           stop after the first failing step
+  --pytest-paths PYTEST_PATHS
+                        comma-separated test files: pytest runs only these
+  --rebuild             run ext-build even when its inputs and the installed
+                        extension are those of the last successful build
 ```
 
 ## `gemclean`
@@ -864,6 +1078,9 @@ gemclean: usage: gemclean [options] <ms>
                             wins over -mgain as a rule, whatever the order
   -stale-floor <f>          also end a later cycle at f of its first peak, under the measured rule
                             (default 0.01; 0: no floor; research/stale-floor.md)
+  -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
+                            (1 + e) times the threshold; the minor cycles still clean to the
+                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -898,6 +1115,10 @@ gemclean: usage: gemclean [options] <ms>
                             at phase step THETA; prototype, off by default; the final
                             residual is still one exact pass through the gridder
   -no-plan-reuse            replan every gridder call (same images, for comparison)
+  -reorder                  with several polarisations: keep each polarisation's read and each
+                            entry's visibilities in temporary files, read back where used (same
+                            images, less memory; research/gemclean-memory2.md)
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -917,7 +1138,8 @@ Model column (research/g6-predict.md; WSClean's options):
   -no-update-model-required do not write the Measurement Set
   -predict                  no imaging: predict the existing <name>-model.fits (with
                             -channels-out n, <name>-0000-model.fits ...) into the model column
-  -model-column <name>      the column written (default MODEL_DATA; added if missing)
+  -model-column <name>      the column written (default MODEL_DATA; added if missing); never
+                            DATA, nor the column being imaged
 
 Channels (research/g3-spectral.md; WSClean's options):
   -channels-out <n>         image n output channels, <name>-0000-<kind>.fits and the
@@ -950,6 +1172,13 @@ Multiscale (research/g5-multiscale.md; WSClean's options and defaults):
   -multiscale-scale-bias <b> bias towards larger scales, lower is stronger (default 0.6)
   -multiscale-shape <shape> tapered-quadratic (default) or gaussian
   -multiscale-gain <g>      a sub-minor loop takes its scale's peak down by g (default 0.2)
+  -multiscale-bias-reference <r> the beam b of the scale bias: theoretic (default, radler's),
+                            first-scale (the first non-zero scale as radler's first
+                            automatic scale 4b) or a size in pixels
+                            (research/multiscale-flux-fix.md)
+  -multiscale-point-cap <c> cap every non-zero scale's bias at c / its PSF peak, so that a
+                            bare point is cleaned at scale 0 when c < 1 (default: none)
+  -no-negative              no negative components (radler's; with -multiscale only)
 
 Selection and masks (research/g4-masks.md; WSClean's options):
   -taper-gaussian <angle>   Gaussian taper of the weights, beam size (plain number: asec)
@@ -962,7 +1191,9 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
-                            takes -mgain or -minor-to-threshold
+                            takes -mgain or -minor-to-threshold; with
+                            -join-polarizations the noise and the peaks are those of the
+                            joined residual and the mask is every polarisation's
   -abs-auto-mask <Jy>       the same with an absolute mask threshold
   -auto-mask-nmiter <n>     major cycles after the mask is made (default 2)
   -major-iteration-mode dual  radler's default (the only mode implemented)
@@ -1013,6 +1244,13 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_PIN_THREADS` | unset (caps on) | process | `0` turns off the CLI's BLAS and XLA thread caps (the thread variables themselves are recorded under `threads`) | `research/p9-cli.md` | `python/rang/core_cli.py` |
 | `RANG_CHECKALL_LOCK` | unset (~/.rang-checkall-v2.lock) | process | the check's host lock file | `research/p10-tests.md` | `python/rang/check.py` |
 | `RANG_CHECKALL_LOCKED` | unset | process | set by the check while it holds the lock | `research/p10-tests.md` | `python/rang/check.py` |
+| `RANG_HEAVY_LOCK` | unset (`D:\rang\locks\heavy`; `/mnt/d/rang/locks/heavy` from WSL; `~/rang-data/locks/heavy` on other Linux and macOS hosts) | process | the shared-host lock directory of `tools/heavy_lock.py`; tests point it at a temporary directory | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_SLOTS` | 16 | process | threads the heavy lock shares out | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_MEM_GB` | 48 | process | GB the heavy lock shares out | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_NICE` | unset (no change of priority) | process | POSIX only: `heavy_lock.py run` starts its command under `nice -n N`, with `ionice -c3` at 19; for hosts shared with other people (nash) | `research/nash-host.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_LOCK_HELD` | unset | process | `<slots>:<mem GB>`, set by `heavy_lock.py run` for its command; a nested `run` or check inside it does not queue again | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_DRAIN_MIN` | 15 | process | minutes later tickets may backfill past a queue head that does not fit (a ticket's own `run --drain` wins); 0: strict first come, first served | `research/lock-backfill.md` | `tools/heavy_lock.py` |
+| `RANG_ARCHIVE_OUTPUTS` | unset (`outputs/` of this checkout; a mangled UNC path is repaired) | input | directory holding the archived campaign outputs the full check's gain-hash gate reads | `research/speedup-tools.md` | `python/rang/check.py` |
 | `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_CORE_LIB` | unset | refused | the removed ctypes library; setting it is refused | `research/p7-architecture.md` | `python/rang/core.py` |
 | `RANG_SIM_LIB` | unset | refused | the removed ctypes library; recorded by `rang-core environment` | `research/p7-architecture.md` | `python/rang/core_cli.py` |

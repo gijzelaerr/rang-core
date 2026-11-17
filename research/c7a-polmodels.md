@@ -442,7 +442,8 @@ Items for others:
 
 - **`core_ms` reader bug:** reading FEED's string-array
   `POLARIZATION_TYPE` fails with a read at a garbage offset ("read of 8 bytes
-  at 206158430210"), not a clean refusal, on both MSs.
+  at 206158430210"), not a clean refusal, on both MSs. Fixed 2026-11-12
+  ([feed-poltype-read.md](feed-poltype-read.md)).
 - **The slice's RECEPTOR_ANGLE is 0**, A1 small's −π/2; C6 on the slice must
   set it as CARACal does.
 - **Parallactic angle (finish-plan 7.8):** C7a needs none; C6 and C7b do.

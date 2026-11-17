@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! `gemclean`: a reference CLEAN imager for Measurement Sets with WSClean-like
 //! flags (`research/gemclean.md`); the source build's front end of
 //! [`rang_core::gemclean::cli`] (task G8, `research/g8-wheel.md`; the wheel's is
@@ -10,6 +11,11 @@
 #[global_allocator]
 static ALLOCATOR: rang_core::gemclean::host::HugePageAlloc =
     rang_core::gemclean::host::HugePageAlloc;
+
+#[cfg(not(all(target_os = "linux", target_pointer_width = "64")))]
+#[global_allocator]
+static ALLOCATOR: rang_core::gemclean::host::CountingAlloc =
+    rang_core::gemclean::host::CountingAlloc;
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();

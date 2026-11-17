@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
 """MeerKAT MVFv4 archives into the core's arrays (research/mk1-katdal.md).
 
 Opens a MeerKAT visibility archive (an RDB URL, with its token if any, or a

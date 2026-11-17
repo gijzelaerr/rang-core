@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """P's angle memory before and after W3b (research/w3b-chainchunks.md 1.5).
 
     python angles_memory.py MS CHUNK_ROWS OUT.json

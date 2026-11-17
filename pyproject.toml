@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rang-core"
-version = "0.1.0"
+version = "0.2.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
@@ -32,8 +32,11 @@ classifiers = [
 # rang.core and every wrapper import NumPy; the extension itself does not
 # need it at import time, so a bare wheel install would otherwise half work.
 # PyYAML reads the configuration of rang-core flag, calibrate, image and run
-# (task W2, research/w2-commands.md).
-dependencies = ["numpy>=1.26", "pyyaml>=6"]
+# (task W2, research/w2-commands.md). astropy gives the parallactic angle of
+# every polarisation solve and of apply.parang (rang.cal_pol), so `pip install
+# rang-core` runs the full-polarisation chain (E5 final F-01; E2's wheel
+# smoke failed without it, research/e2-acceptance.md).
+dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]
 
 [project.urls]
 Documentation = "https://pythonic.nl/rang-core/"
@@ -43,17 +46,24 @@ Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 plot = ["matplotlib>=3.8"]
-test = ["pytest>=8"]
+test = ["pytest>=8", "pytest-xdist>=3.6", "pytest-timeout>=2.3"]
 pointing = ["jax>=0.4.30", "scipy>=1.12"]
 beam = ["katbeam==0.1", "eidos==1.1.2"]
 # No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
 # frozen QuartiCal 0.2.7 / Stimela 2.1.4 / python-casacore 3.8.1 stack that
 # only history/ used; history/tools/flagging/requirements.lock keeps the pins.
-recipes = ["stimela==2.1.4"]
+# stimela 2.1.4 requires Python < 3.14; on 3.14 the extra installs nothing
+# rather than failing to resolve (E5-38).
+recipes = ["stimela==2.1.4; python_version < '3.14'"]
+# Empty in effect since astropy is required (F-01); kept for existing install lines.
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
 # rdbtools are sdist-only (a C compiler is needed), cityhash has no cp314 wheel.
 meerkat = ["katdal==0.23", "katsdptelstate[rdb]==1.0.0"]
+# MSv4 processing sets read by rang.msv4 (research/msv4-interop.md); zarr 3 needs
+# Python 3.11, so on 3.10 the extra installs nothing. xradio and xarray-ms are
+# the oracle only: both need arcae, which has no Windows wheel.
+msv4 = ["xarray>=2025.1; python_version >= '3.11'", "zarr>=3,<4; python_version >= '3.11'", "numcodecs>=0.16; python_version >= '3.11'"]
 # DF-IO (research/dfio-formats.md): the H5parm reader and writer.
 formats = ["h5py>=3.11"]
 # casacure as the second, read-only oracle of the core's table reader and
@@ -68,6 +78,9 @@ casacure = ["casacure==3.8.35; (sys_platform == 'linux' and (platform_machine ==
 # (the PyPI package `carta` is unrelated). The backend runs in a pinned container.
 carta = ["astropy>=6", "requests>=2.31", "simplejson>=3.19", "selenium>=4.40"]
 notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.29", "jupyterlab>=4", "nbformat>=5.9", "nbconvert>=7.16"]
+# `rang-core mcp`, the MCP server over rang-core (research/mcp-server.md): the
+# official Python SDK, whose 2.x API (MCPServer) the server is written for.
+mcp = ["mcp>=2.3,<3"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
 
@@ -85,15 +98,23 @@ module-name = "rang._core"
 # The sdist holds what builds the wheel and what tests the installed wheel
 # (research/w4-5-release.md): the three crates, python/, tests/ (the wheel
 # subset of tools/wheel/pytest_wheel.py runs from it; the full suite reads
-# research/ and needs a checkout), tools/wheel/, README, CHANGELOG and LICENSE.
+# research/ and needs a checkout), tools/wheel/, data/ (below), README,
+# CHANGELOG, CITATION.cff, LICENSE and THIRD-PARTY-NOTICES.txt; every other
+# file under tools/ is a checkout tool and stays out (E5-37).
 # The root crate rang-sim is a path dependency at the repository root, so
 # without this list cargo's file list puts the whole tree in the sdist.
 # .cargo/config.toml (x86-64-v3 for local builds) stays out: an sdist build
 # targets the builder's baseline CPU.
 # data/ stays in (11 kB): gemclean's simulator includes data/meerkat.itrf.txt
-# at compile time, so an sdist without it does not build (found by G8).
+# at compile time, so an sdist without it does not build (found by G8). The
+# VLA, WSRT and KAT-7 tables only feed core/examples/, which stays out (owner
+# decision E5-11, research/e5-prereview.md).
 exclude = [
+    { path = "data/kat7.itrf.txt", format = "sdist" },
+    { path = "data/vla-c.itrf.txt", format = "sdist" },
+    { path = "data/wsrt.itrf.txt", format = "sdist" },
     { path = ".cargo/**/*", format = "sdist" },
+    { path = ".claude/**/*", format = "sdist" },
     { path = ".github/**/*", format = "sdist" },
     { path = "core/examples/**/*", format = "sdist" },
     { path = "docs/**/*", format = "sdist" },
@@ -104,8 +125,15 @@ exclude = [
     { path = "outputs/**/*", format = "sdist" },
     { path = "recipes/**/*", format = "sdist" },
     { path = "research/**/*", format = "sdist" },
+    { path = "tools/a1_casa.sh", format = "sdist" },
+    { path = "tools/a1_checks.sh", format = "sdist" },
     { path = "tools/check-all.sh", format = "sdist" },
+    { path = "tools/check_all.py", format = "sdist" },
+    { path = "tools/cold_build_bench.py", format = "sdist" },
     { path = "tools/core-j-suite.sh", format = "sdist" },
+    { path = "tools/e2e/**/*", format = "sdist" },
+    { path = "tools/gain_hash_gate.py", format = "sdist" },
+    { path = "tools/heavy_lock.py", format = "sdist" },
     { path = "tools/formats-oracle/**/*", format = "sdist" },
     { path = "tools/ms-reader/**/*", format = "sdist" },
     { path = "tools/oracles/**/*", format = "sdist" },

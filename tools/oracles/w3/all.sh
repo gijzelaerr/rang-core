@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # The whole W3 run (research/w3-chunking.md, section 3): every arm of section 2,
 # the refusal of criterion 8 and the verdict.
 # Usage: W3_ORACLE=<5ec40e3 checkout> bash tools/oracles/w3/all.sh RUN

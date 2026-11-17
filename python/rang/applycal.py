@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """CASA `applycal` on a Measurement Set (task C4b, research/c4b-apply-ms.md;
 C1 step 7). For example::
 
@@ -31,7 +35,7 @@ their own solution bins (`rang.cal_apply.apply_jones`).
 
 import numpy as np
 
-from . import cal_apply, core_ms, core_writeback
+from . import cal_apply, core_ms, core_tasks, core_writeback
 from .formats import caltable, quartical_store
 
 MODES = ("calflag", "calflagstrict")
@@ -303,6 +307,7 @@ def applycal(
     parang=False,
     frame="casa",
     receptor_angle=None,
+    parang_flags="spread",
 ):
     """Apply CASA calibration tables (paths or `CalTable`s) to `ms` as CASA
     `applycal` (module docstring). `session` lets a caller pass an open
@@ -312,12 +317,22 @@ def applycal(
     `rang.cal_pol.apply`, in `frame` (`rang.cal_pol.row_angles`, with
     `receptor_angle` replacing FEED's); the angles of each field are
     computed once over all of the field's rows, so they do not depend on
-    the chunking. Returns a summary."""
+    the chunking. `parang_flags` is P's flag rule
+    (`rang.cal_pol.spread_flags`): `spread`, CASA's, flags all four
+    correlations of a cell with any one flagged after the tables; `none`
+    keeps the tables' flags (rang before task df-flag-rule). Returns a
+    summary."""
     from pathlib import Path
 
     ms = Path(ms)
     if applymode not in MODES:
         raise ApplyError(f"applymode {applymode!r}: rang applies {list(MODES)}")
+    from . import cal_pol
+
+    if parang_flags not in cal_pol.P_FLAG_RULES:
+        raise ApplyError(
+            f"parang_flags {parang_flags!r}: use one of {list(cal_pol.P_FLAG_RULES)}"
+        )
     tables = [_load(t) for t in gaintable]
     if not tables and not parang:
         raise ApplyError("no gaintable given")
@@ -365,6 +380,7 @@ def applycal(
         "column": column,
         "weights_written": write_weights,
         "parang": bool(parang),
+        "parang_flags": parang_flags if parang else None,
         "rows": 0,
         "cells_flagged_before": 0,
         "cells_flagged_after": 0,
@@ -455,8 +471,6 @@ def applycal(
                 else:
                     got, gflag = data[idx], flag[idx]
                 if parang:
-                    from . import cal_pol
-
                     angles = cal_pol.table_angles(
                         angle_tables[int(fid)],
                         group["TIME"],
@@ -464,6 +478,7 @@ def applycal(
                         group["ANTENNA2"],
                     )
                     got = cal_pol.rotate(got, *angles, inverse=True)
+                    gflag = cal_pol.spread_flags(gflag, parang_flags)
                 out[idx] = got
                 new_flag[idx] = gflag
                 if write_weights:
@@ -536,6 +551,7 @@ def apply_complex(
     stage="apply",
     threads=0,
     input_column="DATA",
+    executor=None,
 ):
     """Apply the `complex` gains of `term` in a QuartiCal gain store to the
     rows of the fields and scans they were solved on, on their own bins
@@ -543,7 +559,9 @@ def apply_complex(
     reading `input_column` (DATA; `column` itself to chain a second term)
     and writing `column`, FLAG OR'd. `fields`: MS field ids to apply to
     (default: every solved field); a field without its own partition is
-    refused (transfer is not implemented: CASA G tables, C2a). Returns a
+    refused (transfer is not implemented: CASA G tables, C2a). Row chunks
+    are chunk tasks run by `executor` (default: inline;
+    research/chunk-task-api.md), written here in row order. Returns a
     summary."""
     from pathlib import Path
 
@@ -645,36 +663,17 @@ def apply_complex(
                 }
             )
         flagged_before = flagged_after = 0
-        for start, n in w.chunks(chunk_rows):
-            part = row_part[start : start + n]
-            if not (part >= 0).any():
-                continue
-            data = w.read(input_column, start, n)
-            flag = w.read("FLAG", start, n)
-            out = w.read(column, start, n)
-            new_flag = flag.copy()
-            a1 = w.read("ANTENNA1", start, n)
-            a2 = w.read("ANTENNA2", start, n)
-            for k in np.unique(part[part >= 0]):
-                idx = np.flatnonzero(part == k)
-                gains, valid, fb = grids[k]
-                got, gflag = cal_apply.apply_jones(
-                    data[idx],
-                    flag[idx],
-                    a1[idx],
-                    a2[idx],
-                    gains,
-                    valid,
-                    row_bin[start + idx],
-                    fb,
-                    threads=threads,
-                )
-                out[idx] = got
-                new_flag[idx] = gflag
-                flagged_before += int(flag[idx].sum())
-                flagged_after += int(gflag.sum())
-            w.write(column, start, out)
-            w.write_flags(start, new_flag)
+        specs = core_tasks.plan_apply(
+            ms, w.chunks(chunk_rows), row_part, row_bin, grids, input_column,
+            column, threads,
+        )  # fmt: skip
+        executor = executor or core_tasks.INLINE
+        for part in executor.map(specs, w):
+            w.write(column, part["start"], part["out"])
+            w.write_flags(part["start"], part["flag"])
+            flagged_before += part["before"]
+            flagged_after += part["after"]
+            del part
         summary["cells_flagged_before"] = flagged_before
         summary["cells_flagged_after"] = flagged_after
     except BaseException as exc:

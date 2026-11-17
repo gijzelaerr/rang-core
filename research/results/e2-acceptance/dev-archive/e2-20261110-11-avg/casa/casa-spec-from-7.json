@@ -1,0 +1,80 @@
+[
+ {
+  "task": "polcal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/run/casa/Xf",
+   "field": "J1331+3030",
+   "poltype": "Xf",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B",
+    "/run/casa/Gpol",
+    "/run/casa/Kcross"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest"
+   ]
+  }
+ },
+ {
+  "task": "polcal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/run/casa/Df.raw",
+   "field": "J1939-6342",
+   "poltype": "Df",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B",
+    "/run/casa/Kcross",
+    "/run/casa/Xf"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest"
+   ]
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/run/casa/Df.raw",
+   "dst": "/run/casa/Df"
+  }
+ },
+ {
+  "task": "flagdata",
+  "args": {
+   "vis": "/run/casa/Df",
+   "mode": "clip",
+   "clipminmax": [
+    -0.6,
+    0.6
+   ],
+   "datacolumn": "CPARAM",
+   "flagbackup": false
+  }
+ }
+]

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later AND MIT
 //! The delay term K as QuartiCal 0.2.7's `delay_and_offset`: a delay and a
 //! free phase per antenna and hand, with the FFT initial estimate of `delay`
 //! (task C2c, `research/c2c-bandpass.md` part 1; the K model of the finish

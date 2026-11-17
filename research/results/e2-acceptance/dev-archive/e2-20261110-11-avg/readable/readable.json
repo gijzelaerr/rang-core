@@ -1,0 +1,32 @@
+{
+ "tables": {
+  "MAIN": 236208,
+  "ANTENNA": 56,
+  "DATA_DESCRIPTION": 1,
+  "FEED": 56,
+  "FLAG_CMD": 0,
+  "FIELD": 2,
+  "HISTORY": 0,
+  "OBSERVATION": 1,
+  "POINTING": 0,
+  "POLARIZATION": 1,
+  "PROCESSOR": 0,
+  "SPECTRAL_WINDOW": 1,
+  "STATE": 3
+ },
+ "chunks": [
+  {
+   "group": "MAIN_0",
+   "chunk": "0.0.0",
+   "rows": 50000,
+   "equal_bytes": true
+  },
+  {
+   "group": "MAIN_1",
+   "chunk": "1.17.0",
+   "rows": 50000,
+   "equal_bytes": true
+  }
+ ],
+ "casacore_ok": true
+}

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Classify the differences in a compare_core_backends.py receipt.
 
     python tools/wheel/classify_compare.py COMPARE.json OUT.json

@@ -1,0 +1,115 @@
+{
+ "config_path": "C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\research\\results\\e2-acceptance-scripts\\e2b.yaml",
+ "created": "2026-11-12T00:53:29+00:00",
+ "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "attempts": 1,
+   "config_sha256": "9006c28679710bdbb6409284a12c3cc8a05f0239ffcf4cf352358986eb468dae",
+   "finished": "2026-11-12T01:39:53+00:00",
+   "flag_version": "rang_apply_20261112T013707Z",
+   "host": "glacier",
+   "pid": 20848,
+   "previous": null,
+   "seconds": 166.63764919999812,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate",
+    "apply"
+   ],
+   "started": "2026-11-12T01:37:07+00:00",
+   "status": "done",
+   "summary": {
+    "applymode": "calflag",
+    "calwt": false,
+    "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+    "column": "CORRECTED_DATA",
+    "flag_version": "rang_apply_20261112T013707Z",
+    "parang": true,
+    "rang_original_saved_now": false,
+    "restored_before": null
+   }
+  },
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "87a93d612e5bda51f3fadd8d08297ac34546cfed8ed5007b394fbd2c22ab154e",
+   "finished": "2026-11-12T01:37:07+00:00",
+   "flag_version": "rang_calibrate_20261112T010110Z",
+   "host": "glacier",
+   "pid": 20848,
+   "previous": null,
+   "seconds": 2156.8107526999956,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-12T01:01:10+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261112T010110Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  },
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "79b99d25f4cbfd7d023c165f3361dc971d48110669054cf9ae12efa5951872e9",
+   "finished": "2026-11-12T01:01:10+00:00",
+   "flag_version": "rang_flag_20261112T005356Z",
+   "host": "glacier",
+   "pid": 20848,
+   "previous": null,
+   "seconds": 461.1370978999912,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-12T00:53:29+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "flag_sha256": "e1b983b09b05bba6c7cbf152a3c40ad664361ef2d89b75a9385e33941a2a6aae",
+    "flag_version": "rang_flag_20261112T005356Z",
+    "flagged_after": 0.6261770493327732,
+    "flagged_before": 0.620236407733973,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 272916,
+    "steps": 12,
+    "strategy": "C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\research\\results\\e2-acceptance-scripts\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  },
+  "image": {
+   "attempts": 1,
+   "config_sha256": "b123b5505e11d2d000a2237e146fb51cbb4986be739512aa8a3fa48376dd1c00",
+   "finished": "2026-11-12T02:36:34+00:00",
+   "host": "glacier",
+   "pid": 20848,
+   "previous": null,
+   "seconds": 3401.126120300003,
+   "sections": [
+    "fields",
+    "data",
+    "image"
+   ],
+   "started": "2026-11-12T01:39:53+00:00",
+   "status": "done",
+   "summary": {
+    "column": "CORRECTED_DATA",
+    "gemclean": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe -m rang.gemclean",
+    "gemclean_sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+   }
+  }
+ },
+ "updated": "2026-11-12T02:36:34+00:00",
+ "version": 1
+}

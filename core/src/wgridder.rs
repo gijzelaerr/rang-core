@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Exact w-gridder and degridder, a port of ducc0's wgridder.
 //!
 //! A Rust translation of the algorithm of Arras, Reinecke, Westermann and
@@ -11,6 +12,20 @@
 //! read from tag `ducc0_0_42_0` (commit `42ce8ab5`). The translation is part
 //! of Rang (GPL-3.0-or-later). Validation protocol: `research/df1-wgridder.md`
 //! (big-plan task DF1).
+//!
+//! Upstream copyright, verbatim from the ducc0 0.42.0 sources (PyPI sdist
+//! `ducc0-0.42.0.tar.gz`, SHA256 `4e11c59b53a43355b053aebb2a62ee16eebeed026575f7d216cf09d437ce52ef`):
+//! `wgridder_impl.h`: Copyright (C) 2019-2026 Max-Planck-Society,
+//! Copyright (C) 2026 Albert M. W. Yau; Authors: Martin Reinecke, Albert M. W. Yau.
+//! `gridding_kernel.{h,cc}`: Copyright (C) 2020-2026 Max-Planck-Society;
+//! Author: Martin Reinecke. `gl_integrator.h`: Copyright (C) 2019-2026
+//! Max-Planck-Society; `gl_integrator.cc`: Copyright (C) 2019-2026
+//! Max-Planck-Society, Ignace Bogaert; Author: Martin Reinecke. Licence of
+//! these: GNU GPL version 2 or (at your option) any later version.
+//! `fft.h` (`good_size_cmplx` only): Copyright (C) 2010-2026
+//! Max-Planck-Society, Copyright (C) 2019 Peter Bell; Authors: Martin
+//! Reinecke, Peter Bell; BSD-3-Clause OR GPL-2.0-or-later, used under the
+//! GPL.
 //!
 //! Conventions are rang's direct Fourier transform's: pixel `(i, j)` of an
 //! `nx * ny` image stored at `i * ny + j` lies at
@@ -3215,12 +3230,72 @@ impl<T: Real> Prepared<T> {
         {
             return Err("array lengths disagree".into());
         }
+        self.residual_at::<false>(data, wgt, model, dirty)
+    }
+
+    /// [`Prepared::residual`] of data and weights held only for the active
+    /// visibilities, in the sorted order of [`Prepared::sorted`]: the same
+    /// values read from the same places, so the same bits, without the
+    /// visibility-sized arrays (research/gemclean-memory.md).
+    pub fn residual_sorted(
+        &self,
+        data: VisData,
+        wgt: &[T],
+        model: Option<&[T]>,
+        dirty: &mut [T],
+    ) -> Result<f64, String> {
+        let active = self.active();
+        if data.len().is_some_and(|l| l != active)
+            || wgt.len() != active
+            || dirty.len() != self.opts.nx * self.opts.ny
+            || model.is_some_and(|m| m.len() != dirty.len())
+        {
+            return Err("array lengths disagree".into());
+        }
+        self.residual_at::<true>(data, wgt, model, dirty)
+    }
+
+    /// The active visibilities (the sorted layout's length).
+    pub fn active(&self) -> usize {
+        self.prepared
+            .as_ref()
+            .map_or(0, |(_, lay, _)| lay.refs.len())
+    }
+
+    /// `dense` (`nrow × nchan`) at the active visibilities, in the sorted
+    /// order of the layout ([`Prepared::residual_sorted`]).
+    pub fn sorted<V: Copy + Send + Sync>(&self, dense: &[V]) -> Result<Vec<V>, String> {
+        if dense.len() != self.n {
+            return Err("array lengths disagree".into());
+        }
+        let nchan = self.bl.f_over_c.len();
+        Ok(match &self.prepared {
+            None => Vec::new(),
+            Some((_, lay, _)) => lay
+                .refs
+                .par_iter()
+                .map(|r| dense[r.row as usize * nchan + r.ch as usize])
+                .collect(),
+        })
+    }
+
+    /// [`Prepared::residual`] (`SORTED` false: `data` and `wgt` dense) or
+    /// [`Prepared::residual_sorted`] (`SORTED` true: in layout order).
+    fn residual_at<const SORTED: bool>(
+        &self,
+        data: VisData,
+        wgt: &[T],
+        model: Option<&[T]>,
+        dirty: &mut [T],
+    ) -> Result<f64, String> {
         dirty.fill(T::zero());
         let Some((setup, lay, tables)) = &self.prepared else {
             return Ok(0.0);
         };
         let nchan = self.bl.f_over_c.len();
         let index = |r: VisRef| r.row as usize * nchan + r.ch as usize;
+        // Where the value of the `k`-th sorted visibility `r` is held.
+        let at = |k: usize, r: VisRef| if SORTED { k } else { index(r) };
         let mut work = self.grids.lock().expect("no panic while gridding");
         let GridWork { grids, stored } = &mut *work;
         stored.resize(lay.refs.len(), czero());
@@ -3243,9 +3318,10 @@ impl<T: Real> Prepared<T> {
             stored
                 .par_chunks_mut(CHUNK)
                 .zip(lay.refs.par_chunks(CHUNK))
-                .for_each(|(out, refs)| {
-                    for (o, &r) in out.iter_mut().zip(refs) {
-                        *o = data.get::<T>(index(r)) - *o;
+                .enumerate()
+                .for_each(|(c, (out, refs))| {
+                    for (j, (o, &r)) in out.iter_mut().zip(refs).enumerate() {
+                        *o = data.get::<T>(at(c * CHUNK + j, r)) - *o;
                     }
                 });
             crate::gemclean::memory::mark("residual: predict");
@@ -3253,9 +3329,10 @@ impl<T: Real> Prepared<T> {
             stored
                 .par_chunks_mut(CHUNK)
                 .zip(lay.refs.par_chunks(CHUNK))
-                .for_each(|(out, refs)| {
-                    for (o, &r) in out.iter_mut().zip(refs) {
-                        *o = data.get::<T>(index(r));
+                .enumerate()
+                .for_each(|(c, (out, refs))| {
+                    for (j, (o, &r)) in out.iter_mut().zip(refs).enumerate() {
+                        *o = data.get::<T>(at(c * CHUNK + j, r));
                     }
                 });
         }
@@ -3271,7 +3348,7 @@ impl<T: Real> Prepared<T> {
                 prefetch(&stored[next as usize]);
             }
             let d = stored[k as usize];
-            let w = wgt[index(lay.refs[k as usize])];
+            let w = wgt[at(k as usize, lay.refs[k as usize])];
             let (re, im) = (d.re.to(), d.im.to());
             q += w.to() * (re * re + im * im);
         }
@@ -3280,9 +3357,10 @@ impl<T: Real> Prepared<T> {
         stored
             .par_chunks_mut(CHUNK)
             .zip(lay.refs.par_chunks(CHUNK))
-            .for_each(|(out, refs)| {
-                for (o, &r) in out.iter_mut().zip(refs) {
-                    let p = unit_value::<T>(setup, &self.bl, r, w.get::<T>(index(r)));
+            .enumerate()
+            .for_each(|(c, (out, refs))| {
+                for (j, (o, &r)) in out.iter_mut().zip(refs).enumerate() {
+                    let p = unit_value::<T>(setup, &self.bl, r, w.get::<T>(at(c * CHUNK + j, r)));
                     let (_, imflip) = fix_w(self.bl.coord[r.row as usize]);
                     *o = data_value(*o, p, T::of(imflip));
                 }
@@ -3341,7 +3419,10 @@ impl<T: Real> Prepared<T> {
     /// Free the work grids. They are zero between passes, and the next pass
     /// allocates zeroed ones, so its values are the same.
     pub fn release_grids(&self) {
-        self.grids.lock().expect("no panic while gridding").grids = Vec::new();
+        let mut work = self.grids.lock().expect("no panic while gridding");
+        // Both are rewritten in full by the next pass (research/gemclean-memory.md).
+        work.grids = Vec::new();
+        work.stored = Vec::new();
     }
 
     /// `vis2dirty` of `data` with the prepared plan, with weights `wgt`.

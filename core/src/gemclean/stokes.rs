@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Polarisations for gemclean: WSClean 3.7's `-pol` list, the conversion of
 //! linear-feed correlations to Stokes I, Q, U, V (and XX, YY as they are), the
 //! weights of each, and the rules that pick which polarisation's weights build
@@ -317,62 +318,137 @@ pub fn imaging_weights(
     scale: f64,
     tapers: &crate::weights::UvTapers,
 ) -> Result<Vec<f32>, String> {
-    use crate::weights::{WeightGrid, WeightSettings, padded_size};
     let first = sources.first().ok_or("no weight source")?;
-    let padded = padded_size(size, 1.2);
-    let s = WeightSettings {
-        class,
-        width: padded,
-        height: padded,
-        scale_x: scale,
-        scale_y: scale,
-        super_weight: 1.0,
-        rank_filter_level: 3.0,
-        rank_filter_size: 16,
-    };
-    let nchan = first.freq.len();
-    let all = chans.len() == nchan && chans.iter().enumerate().all(|(i, &c)| i == c);
-    let wavelength: Vec<f64> = chans
-        .iter()
-        .map(|&c| super::input::SPEED_OF_LIGHT / first.freq[c])
-        .collect();
     let rows = first.rows();
-    let selected = vec![true; rows];
-    let mut grid = WeightGrid::new(
-        s.class,
-        s.width,
-        s.height,
-        s.scale_x,
-        s.scale_y,
-        s.super_weight,
-    )
-    .map_err(|e| e.to_string())?;
+    let nchan = first.freq.len();
+    let mut grid = ImagingGrid::new(&first.freq, chans, class, size, scale)?;
     for src in sources {
         if src.rows() != rows || src.freq.len() != nchan {
             return Err("weight sources must share rows and channels".into());
         }
-        if all {
-            grid.grid_rows(&src.uvw, &wavelength, &src.weight, &selected)
+        grid.add(src)?;
+    }
+    grid.finish(tapers)?;
+    grid.lookup(&first.uvw, &first.flag_row, chans)
+}
+
+/// [`imaging_weights`] in steps (`-reorder`, research/gemclean-memory2.md):
+/// the grid is filled from one data set or chunk of rows at a time
+/// ([`ImagingGrid::add`], in the order [`imaging_weights`] takes them: source
+/// by source, rows in order, so its serial sums are the same), finished,
+/// then looked up for any channels ([`ImagingGrid::lookup`], per cell, so a
+/// channel's weights do not depend on which others are looked up with it).
+pub struct ImagingGrid {
+    grid: crate::weights::WeightGrid,
+    freq: Vec<f64>,
+    chans: Vec<usize>,
+    wavelength: Vec<f64>,
+    all: bool,
+    rank_filter: (f64, usize),
+}
+
+impl ImagingGrid {
+    /// The grid of the channels `chans` of the band `freq`, with the
+    /// settings of [`super::input::gridding_weights`] (padding 1.2).
+    pub fn new(
+        freq: &[f64],
+        chans: &[usize],
+        class: crate::weights::WeightClass,
+        size: usize,
+        scale: f64,
+    ) -> Result<ImagingGrid, String> {
+        use crate::weights::{WeightGrid, WeightSettings, padded_size};
+        let padded = padded_size(size, 1.2);
+        let s = WeightSettings {
+            class,
+            width: padded,
+            height: padded,
+            scale_x: scale,
+            scale_y: scale,
+            super_weight: 1.0,
+            rank_filter_level: 3.0,
+            rank_filter_size: 16,
+        };
+        let nchan = freq.len();
+        let all = chans.len() == nchan && chans.iter().enumerate().all(|(i, &c)| i == c);
+        let wavelength: Vec<f64> = chans
+            .iter()
+            .map(|&c| super::input::SPEED_OF_LIGHT / freq[c])
+            .collect();
+        let grid = WeightGrid::new(
+            s.class,
+            s.width,
+            s.height,
+            s.scale_x,
+            s.scale_y,
+            s.super_weight,
+        )
+        .map_err(|e| e.to_string())?;
+        Ok(ImagingGrid {
+            grid,
+            freq: freq.to_vec(),
+            chans: chans.to_vec(),
+            wavelength,
+            all,
+            rank_filter: (s.rank_filter_level, s.rank_filter_size),
+        })
+    }
+
+    /// Grid the weights of `src` (whole band, `src.rows()` rows); FLAG_ROW
+    /// rows stay out (research/ts-p1.md 14.1).
+    pub fn add(&mut self, src: &super::input::StokesI) -> Result<(), String> {
+        let rows = src.rows();
+        let nchan = self.freq.len();
+        if src.freq.len() != nchan {
+            return Err("weight sources must share rows and channels".into());
+        }
+        let selected: Vec<bool> = src.flag_row.iter().map(|f| !f).collect();
+        if self.all {
+            self.grid
+                .grid_rows(&src.uvw, &self.wavelength, &src.weight, &selected)
         } else {
-            let mut w = Vec::with_capacity(rows * chans.len());
+            let mut w = Vec::with_capacity(rows * self.chans.len());
             for row in 0..rows {
-                for &c in chans {
+                for &c in &self.chans {
                     w.push(src.weight[row * nchan + c]);
                 }
             }
-            grid.grid_rows(&src.uvw, &wavelength, &w, &selected)
+            self.grid
+                .grid_rows(&src.uvw, &self.wavelength, &w, &selected)
         }
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| e.to_string())
     }
-    grid.finish().map_err(|e| e.to_string())?;
-    if s.rank_filter_level >= 1.0 {
-        grid.rank_filter(s.rank_filter_level, s.rank_filter_size);
+
+    /// Normalise, rank-filter and taper, as [`imaging_weights`].
+    pub fn finish(&mut self, tapers: &crate::weights::UvTapers) -> Result<(), String> {
+        self.grid.finish().map_err(|e| e.to_string())?;
+        if self.rank_filter.0 >= 1.0 {
+            self.grid
+                .rank_filter(self.rank_filter.0, self.rank_filter.1);
+        }
+        self.grid.apply_tapers(tapers);
+        Ok(())
     }
-    grid.apply_tapers(tapers);
-    let mut out = vec![0.0f32; rows * chans.len()];
-    grid.lookup_rows(&first.uvw, &wavelength, &selected, &mut out)
-        .map_err(|e| e.to_string())?;
-    Ok(out)
+
+    /// The imaging weights of the rows (`uvw`, `flag_row`) at the channels
+    /// `chans` of the band, `rows × chans.len()`.
+    pub fn lookup(
+        &self,
+        uvw: &[f64],
+        flag_row: &[bool],
+        chans: &[usize],
+    ) -> Result<Vec<f32>, String> {
+        let wavelength: Vec<f64> = chans
+            .iter()
+            .map(|&c| super::input::SPEED_OF_LIGHT / self.freq[c])
+            .collect();
+        let selected: Vec<bool> = flag_row.iter().map(|f| !f).collect();
+        let mut out = vec![0.0f32; flag_row.len() * chans.len()];
+        self.grid
+            .lookup_rows(uvw, &wavelength, &selected, &mut out)
+            .map_err(|e| e.to_string())?;
+        Ok(out)
+    }
 }
 
 /// Replace `CRVAL4` of WSClean's header cards with `pol`'s value.

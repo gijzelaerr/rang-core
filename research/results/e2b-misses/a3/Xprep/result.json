@@ -1,0 +1,18 @@
+[
+ {
+  "task": "putflags",
+  "call": {
+   "vis": "/w/x17.ms",
+   "version": "/d/outputs/e2-20261111-20-e2b/casa/e2b.ms.flagversions/flags.rang_apply_20261112T013707Z",
+   "first": 0
+  },
+  "seconds": 11.357157512999947,
+  "error": null,
+  "written": false,
+  "peak_rss_mb": 473.4609375,
+  "return": {
+   "rows_written": 118104,
+   "flagged_cells_in_written_blocks": 1250044860
+  }
+ }
+]

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Frozen signed-source/sky-completeness/full-Jones gain-flexibility controls.
 
 Verbatim extract of the frozen `rangtoy.flagging_response` (big plan task P11,

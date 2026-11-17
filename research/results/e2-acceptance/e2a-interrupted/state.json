@@ -1,0 +1,131 @@
+{
+ "config_path": "C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\research\\results\\e2-acceptance-scripts\\e2a.yaml",
+ "created": "2026-11-14T01:24:58+00:00",
+ "ms": "D:\\rang\\data\\e2-a\\e2a.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "attempts": 1,
+   "config_sha256": "97c43a7ba7b572e6178e8b3950af9040c1fc1f31a43b2a64a7afe163aed05805",
+   "finished": "2026-11-14T03:33:17+00:00",
+   "flag_version": "rang_apply_20261114T032318Z",
+   "host": "glacier",
+   "pid": 29452,
+   "previous": null,
+   "seconds": 598.7539648999809,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate",
+    "apply"
+   ],
+   "started": "2026-11-14T03:23:18+00:00",
+   "status": "done",
+   "summary": {
+    "applymode": "calflag",
+    "calwt": false,
+    "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+    "column": "CORRECTED_DATA",
+    "flag_version": "rang_apply_20261114T032318Z",
+    "parang": false,
+    "rang_original_saved_now": false,
+    "restored_before": null
+   }
+  },
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "b9820ea46c95f55a17c86036435126ebd71fa0b99d9b92af7e9d83f622473f2a",
+   "finished": "2026-11-14T03:23:18+00:00",
+   "flag_version": "rang_calibrate_20261114T020734Z",
+   "host": "glacier",
+   "pid": 29452,
+   "previous": null,
+   "seconds": 4544.962667699991,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-14T02:07:33+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261114T020734Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  },
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "a0180cc529727a55e1463cd3c5dddc68c3e7cc381cd7ff274b4b62e9019736a7",
+   "finished": "2026-11-14T02:07:33+00:00",
+   "flag_version": "rang_flag_20261114T012643Z",
+   "host": "glacier",
+   "pid": 29452,
+   "previous": null,
+   "seconds": 2555.571483800013,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-14T01:24:58+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "flag_sha256": "09edd31edd1d5b2f37f57041ac8b4097d85e901603a7be2363175b91eb1ccb43",
+    "flag_version": "rang_flag_20261114T012643Z",
+    "flagged_after": 0.6254792871326235,
+    "flagged_before": 0.5699383529669116,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 1047614,
+    "steps": 12,
+    "strategy": "C:\\Users\\gijsm\\Worktrees\\rang\\fp-e2-acceptance\\research\\results\\e2-acceptance-scripts\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  },
+  "image": {
+   "attempts": 1,
+   "config_sha256": "358c8ce0c372f4bfd9de5a1324b1f757f409cb26601f9a5ff6d71efd3a612475",
+   "finished": "2026-11-14T05:03:03+00:00",
+   "host": "glacier",
+   "pid": 29452,
+   "previous": null,
+   "seconds": 5386.4394039000035,
+   "sections": [
+    "fields",
+    "data",
+    "image"
+   ],
+   "started": "2026-11-14T03:33:17+00:00",
+   "status": "done",
+   "summary": {
+    "column": "CORRECTED_DATA",
+    "gemclean": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe -m rang.gemclean",
+    "gemclean_sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+   }
+  },
+  "selfcal": {
+   "attempts": 1,
+   "config_sha256": "150089ab0a1fab9e6dc05222304bc03ad11ba673a20f57992d335623f80411e4",
+   "flag_version": "rang_selfcal_20261114T050304Z",
+   "host": "glacier",
+   "pid": 29452,
+   "previous": null,
+   "sections": [
+    "fields",
+    "data",
+    "image",
+    "selfcal"
+   ],
+   "started": "2026-11-14T05:03:03+00:00",
+   "status": "running"
+  }
+ },
+ "updated": "2026-11-14T05:03:04+00:00",
+ "version": 1
+}

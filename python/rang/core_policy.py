@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Flag invariants, full-Jones TV and an interpretable TV-guided policy.
 
 Verbatim extract of the frozen `rangtoy.flagging` (big plan task P11,

@@ -4,14 +4,14 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core after the 0.1.0 release: a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **What `main` is:** rang-core 0.2.0 (released 2026-11-14 with the finish line met in part; known limitations in `CHANGELOG.md`): a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gemclean](gemclean.md) with its [benchmark](gemclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** E2, resumed on the owner's word on 2026-11-11 after a halt (`outputs/status/fp-e2.md`); V1-V3 of [vision.md](vision.md). The [finish plan](finish-plan.md), from 2026-11-05. Done: A0, A1, C1, C2a, C2b, C2c, C2d, C2e, C3a, C4a, C4b, C5, C6, C6w, C7a, C7b, E0, E1 (run, gates not met as frozen), G1, G2, G3, G4, G5, G6, G7, G8, G9, W1, W2, W2b, W3, W3b, W4, W5, W6. Fetches approved and done; native data (E2-N) open.
+- **Running:** nothing; paused on the owner's order 2026-11-13. Next session: [next-session.md](next-session.md); resume state in [handoff-2026-11-13.md](handoff-2026-11-13.md) (E2-B scored as frozen, amended arm and E2-A next, then E3 timed; open branches listed there). Of [vision.md](vision.md), V1-V4 and V6-V8 are done; the V4 digest runs weekly (Wednesdays 07:00, scheduled task `ra-ng-weekly-digest`). The [finish plan](finish-plan.md), from 2026-11-05.
 - **Direction:** [vision.md](vision.md) (2026-11-11).
-- **Next:** the tasks of the [finish plan](finish-plan.md), to v0.2.0 in full polarisation. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
+- **Next:** v0.3.0 in [roadmap.md](roadmap.md). It first takes v0.2.0's open items: E2-B's misses, E2-A, E3 and E5. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -20,6 +20,357 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
+before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
+candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
+(1.04e-2). Post hoc tests, each labelled, found two parts. (1) rang's `average_time` in B averaged data and the
+K/G-corrupted model apart over B's two-scan interval while K1 and G1 vary every 60 s. Dividing by the model first,
+as CASA does, makes the subset's averaged B equal its unaveraged B to 4e-7. At full scale on E2-A's primary it
+lowers the composite from 3.16e-3 to 2.28e-3 (p95 2.36e-2 to 1.55e-2), with both controls exact. (2) The K
+estimators, on the subset only: rang's K leaves less residual delay (2.2e-4 against 1.0e-3 ns), and sharing it with
+CASA lowers 6.5e-3 to 1.1e-3. Cleared: CASA's virtual model and weights (its tables are identical), K TIME labels,
+the iteration cap and the stop rule. Fix: `calibrate.bandpass_model_divided` (default false), 5 tests. The E2-A
+verdict stays as booked; a confirmation leg on the reserve data is proposed, not run. `e2a.ms` still holds CASA's
+virtual-model keywords from 3b's setjy.
+xf-preavg, 2026-11-17 (branch `xf-preavg`; [xf-preavg.md](xf-preavg.md), protocol frozen in `a7f62e5` before
+any solve; receipts [results/xf-preavg/](results/xf-preavg/)). Issue #14 item 3 (chi-offset 10.3): the brief's
+premise was stale, the `average_time` Xf defect was fixed on `main` by xf-avg-fix (f8a6435, 2026-11-13). Held-out
+check of that rule, no package code changed: fresh seeds 20261751-4, 720 s 3C286-SIM scans (two span 10.3° and
+9.4° of ψ, split into 3 and 2 averaging pieces), rang `average_time` on and off and CASA 6.7.6.14 (polcal default
+`preavg` 300 s, read). Dev reproduces xf-avg-fix to 0.0005°. Averaged vs unaveraged rang: χ ≤ 0.006°, Xf ≤ 0.031°
+(pass); |χ − 33°| ≤ 0.72° (pass). Frozen outcome 4: rang vs CASA Xf median 0.054° > 0.05° on the held-out set
+(χ 0.007°), and unaveraged rang differs from CASA by more (0.065°). Post hoc: CASA's `preavg` 8, 60, 300 s moves
+its Xf by ≤ 0.01°, so the difference is not pre-averaging; source not found. `preavg` stays not ported.
+
+MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
+receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
+[results/msv4-interop-m2.json](results/msv4-interop-m2.json)). Amendment frozen before any code or conversion; reader
+unchanged. M3: five cases from fixture scan 9 (c10 `FLAG_ROW`, c11 `CORRECTED_DATA` + `MODEL_DATA` + invalid sigmas,
+c12 `SIGMA` only, c13 no spectral weights, c14 decreasing frequencies), xradio 1.3.1 and xarray-ms 0.5.14
+(`auto_corrs=True`), zero tolerance: c11-c14 bit-identical in every data group (base, corrected, model) in both
+arms; c10 not met, a writer outcome: neither writer carries `FLAG_ROW` into the store. With `CORRECTED_DATA`
+xradio's base weights are `1/SIGMA^2` (xarray-ms: `WEIGHT_SPECTRUM`), unlike ra-ng's MSv2 path. Control c1-c9 equal
+run 07. M2: Tricolour (`cal_chain.flag_corrected`, CARACAL calibrator firstpass) on c5 raises flags 46.8 % to
+80.6 %; its kernel fed from `Partition.chunks` of either store, with the store's metadata, gives the same FLAG on
+every cell: pass.
+
+MSv4 M1b, xarray-ms with autocorrelations, 2026-11-16 (branch `msv4-m1b`; [msv4-interop.md](msv4-interop.md)
+sections 10 and 7, measured, pass; receipt [results/msv4-interop-m1b.json](results/msv4-interop-m1b.json)). Second
+amendment frozen before any conversion: a third arm, xarray-ms 0.5.14 with `auto_corrs=True`, same 9 cases, zero
+tolerance. Run 07: that arm is bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME on all 13,064 rows,
+coverage exact; xradio still 9/9, the default xarray-ms arm as in M1. xarray-ms then pads the autocorrelation
+baselines of MSs without them (c6, c7, c9), and the reader drops exactly those. Reader unchanged.
+Floor-3, 2026-11-16 (branch `floor-3`; [floor-3.md](floor-3.md), protocol frozen in `59f9a20` before any run,
+clarification 1 in `3f75001` before the stage, archive [results/floor-3/](results/floor-3/)): one phase-only round of
+`rang-core selfcal` (Sp, 300 s, `freqint: inf`) on the pilot (#13, #6), scored with imaging-floor's floor on the
+subset. Gates G0-G2 passed (rang-core's round-1 model is pixel-identical to the archived one; no cells newly
+flagged); both solves healthy (converged 1.0, 1.6 % flagged, phases r 0.989 and 0.983 against floor-2's T1p).
+Arm P: F 1,073 to 475 µJy with the model fixed (D_Fix 0.81, R1 replicates floor-2's 0.83) and 379 µJy after
+re-imaging (D_Fin 0.88, R2 lowers). Arm PL, solved above 400 m only: D_Fix 0.80, ratio 0.99 (R3 long). Frozen
+joint reading row 1: H1 attributed under floor-3's standard (not imaging-floor's full criterion; H2, H8a, H4b
+specificity arms not run), share 0.88; for #6 one Sp round fixes most of the pilot's floor, default selfcal
+settings next. Post hoc: 379 µJy (8.6 × thermal) remains unexplained; steady XX − YY phase 17.7° rms, untested.
+
+Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
+archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
+passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
+separates gains (R ≤ 0.023) from six incomplete-model arms (truncations at 1, 3, 10 mJy and three missing-extended
+arms, R 0.42-0.93); the pilot sits at 0.049. Item 3: the pilot's steady T1 gains (σ_φ 4.8°, σ_a 1.1 %) injected
+reproduce 0.86 of the floor (incompleteness controls 0.29-0.40); antenna 1 ranks worst of 60; no association with
+the publisher's QuartiCal gain statistics. Item 5 **undecided**: T1 solved above 400 m keeps 0.97 of the drop
+(survives), but the phase-only test is void (ρ_p 0.58 on the 1 mJy truncation arm, above 0.3). Joint, frozen:
+H1 and H9 stay unresolved. Post hoc: steady antenna phase errors of about 5° are the lead; phase self-cal (#6)
+is expected to take the subset floor from 1,073 to about 447 µJy, not yet measured.
+GeMClean memory phase 2 (#32), 2026-11-16 (branch `gemclean-memory2`; [gemclean-memory2.md](gemclean-memory2.md),
+frozen at `b10d485`, code `42ad6c6`; partly met; outputs `D:/rang/outputs/gemclean-memory2-20261116`): new opt-in
+`gemclean -reorder` (`-temp-dir`) reads each polarisation in chunks into a temporary file per output channel (imaging
+weights from the weight grid per channel), keeps the compacted visibilities in a temporary file read back per
+residual, and drops measurements and beams before the dirty images return. A5's argv on the three rebuilt E2-B
+fields: 153 FITS files, `entries` and mask byte-identical on each; tree RSS J1331+3030 15.87 → 9.12 GiB (0.575),
+J1939−6342 16.46 → 9.10 (0.553), both met (≤ 0.6); J1833−2103 8.40 → 7.17 (0.854), not met (≤ 0.75); wall not higher
+(shared host). Still 4.7-5.4 × WSClean. The peak is now the image sets and beams; arm F (`f32` images) not run.
+
+MSv4 M1, uint8 FLAG, 2026-11-16 (branch `msv4-m1`; [msv4-interop.md](msv4-interop.md) sections 9 and 7, measured,
+not met, a writer difference; receipts [results/msv4-interop-m1.json](results/msv4-interop-m1.json),
+[results/msv4-interop-m1-diag.json](results/msv4-interop-m1-diag.json)). Amendment frozen before the code:
+`rang.msv4` reads a uint8 `FLAG` as bool when every value read is 0 or 1 and refuses other values. Rerun on the
+`convert-01` stores at zero tolerance: xradio arm still 9/9 match; xarray-ms 0.5.14 arm matches in c6, c7, c9
+(12,708 rows) and mismatches in the six cases with autocorrelations, which xarray-ms drops by default
+(`auto_corrs=False`). With those rows out of the reference (diagnosis, post hoc) all 9 match, 12,921 rows. Next:
+M1b, the arm with `auto_corrs=True`, after a second amendment.
+
+MSv4 read path, 2026-11-16 (branch `msv4-interop`; [msv4-interop.md](msv4-interop.md), measured, pass; receipt
+[results/msv4-interop.json](results/msv4-interop.json); stores `D:\rang\outputs\msv4-20261116`): #5's second part.
+`rang.msv4`, behind a new `[msv4]` extra (xarray, zarr 3, numcodecs), reads an MSv4 processing set into the
+core's row layout (the `MvfLoader` keys), dropping pad cells. Oracle: xradio 1.3.1 and xarray-ms 0.5.14 (WSL,
+arcae has no Windows wheel) convert 9 MSv2s (fixture scans 1, 4, 5, 8, 9; `A-casa.ms`; `M1-casa.ms`; scan 9 less 4
+rows; the two-window edge case), compared with ra-ng's MSv2 reader at zero tolerance. xradio arm: all 13,064 rows
+bit-identical in DATA, FLAG, WEIGHT_SPECTRUM, UVW and TIME, coverage exact, the 4 pads of the gap case dropped.
+xarray-ms arm: refused (it stores FLAG as uint8), task M1. Not covered: FLAG_ROW, CORRECTED_DATA, SIGMA weights,
+decreasing frequencies; no writer, zarrs, object storage or throughput.
+
+V8c tfcrop polynomial template, 2026-11-16 (branch `v8c-tfcrop-poly`; [v8c-tfcrop-poly.md](v8c-tfcrop-poly.md), null
+branch): a new readout probe (one average shared by 138 planes, test cells on a ladder; 2-3e-5 per channel) and
+binary membership probes identify, clean room, an in-place 5-point running mean of the fit, the piece edges, a
+one-sided 2-sigma clip on the absolute residual and three full-piece fits; every noisy one-unknown probe matches
+to 0-2 cells. Not identified: the exclusion at curved band ends, which dominates real bandpasses (V8's N1 probe at
+7 pieces: precision 0.92, recall 0.88). No gate run spent, held-out closed, tfcrop refused, no Rust kernel.
+Heavy-lock backfill, 2026-11-16 (branch `lock-backfill`; [lock-backfill.md](lock-backfill.md), implemented,
+unit-tested, not yet on the live queue): strict FIFO held 1-slot 2 GB tickets for about an hour behind a 4-slot
+46 GB head that did not fit (42 of 48 GB free, 14 of 16 slots). `tools/heavy_lock.py` now lets a shared ticket
+further back start while the head does not fit, if it fits what is free now after reserving room for earlier
+tickets that fit, until the head has waited its drain limit (`run --drain MIN`, default `RANG_HEAVY_DRAIN_MIN`
+15 min; 0 strict FIFO); exclusive heads the same, never past a critical head; `status` marks backfilled holds
+and each ticket's wait. 11 new tests; the #30/#31 queue tests pass unchanged, and the one test that asserted
+strict FIFO behind an exclusive head now pins `drain_s=0`.
+
+GPU gridding in GeMClean (issue #12), 2026-11-16 (branch `gpu-grid`; [gpu-grid.md](gpu-grid.md),
+frozen at `e1c55ac`, amendments 9.1-9.3; library at `9ad7e75`; outputs `D:/rang/outputs/20261116-gpu-grid`):
+- `gemclean -gpu` (feature `gpu`, wgpu/Vulkan, opt-in, default off): the major cycle's degrid and grid of the
+  exact w-gridder on the RTX 4070 Ti by gather (no atomics, deterministic); PSF, minor cycles, resyncs on the CPU.
+  Built on X2's context and FFT. Not CUDA (deviation from the brief, for the coordinator).
+- Gate 0 **pass**: CPU FITS byte-identical to `a931b6c`, feature off and on (S1 both forms, H3).
+- Gate 1: f64 **pass** (≤ 7.4e-12 of the peak, bound 1e-9); f32 **fails as frozen** (up to 4.8e-4 of the
+  residual's 100 µJy peak, bound 1e-5): f32 rounding at the data's scale, as large as the CPU's own f32 error
+  against an f64 reference. Post hoc 9.3 measure: passes on the seven skies, fails on the pilot-512 (4.7 × the
+  CPU's f32 error, three batches per call). Outcome under the frozen rule: **Failure**.
+- Gate 2 (post hoc continuation): all seven skies in both forms within G1's bounds; f64 images equal the CPU's;
+  the pilot fails the 100 µJy L∞ bound (2.1 mJy; one major cycle fewer; its threshold is 3 mJy).
+- Speed: at `-j 8` on a shared host the GPU runs were not faster end to end (13.9-73.2 s against 13.5-68.1 s);
+  exclusive `-j 16` timing against WSClean **not run**: an IDLE 4-slot hold kept the host shared for 80 min
+  (8 tickets withdrawn at 10 min) and another process took the card (10.9 of 12.3 GB). No speed claim.
+- Coordinator decision 2026-11-16: the code is parked on branch `gpu-grid` (c203e02), not merged; only this
+  record is on main. See gpu-grid.md section "Coordinator decision".
+
+#23 step 4 measured, null, 2026-11-16 (branch `ms-flux-fix`; [multiscale-flux-fix.md](multiscale-flux-fix.md)
+section 8, archive [results/multiscale-flux-fix.json](results/multiscale-flux-fix.json); run root
+`D:\rang\outputs\msfix-20261116-01`):
+- 13 GeMClean and 10 WSClean 3.7 arms on DF5-O's field (D) and a held-out field (H, seeds 20261118/5118;
+  the default passes A1 on all three held-out pairs, so "held-out field shows no miss"). No arm passes on both.
+- Offset fixes (bias 0.8, ref1, reff, cap) take the median point ΔS from +16.0 to −3.8..+3.7 µJy on D but
+  raise the inner RMS to Högbom's level (D 1.486-1.614 against bound 1.475; H 1.539-1.620 against 1.489).
+  Automatic scales are nearest: lowest RMS (1.376 / 1.409), offset +11.0 / +9.05 (fails D's ≤ +8.0).
+- WSClean matches GeMClean arm by arm. `-no-negative` diverges in both tools (WSClean logs the divergence).
+- Comment draft for #23 in section 8.7, not posted. The default is unchanged.
+
+V8 tfcrop continued, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md) 9.3-9.4): H fails as frozen after
+all three gate runs (4, 4, 7 of 21 informative development cases; 8 post hoc). New from probes: window statistics
+exact (mean |u| or rms over full windows against cutoff × the row's sd; 12,142/12,144 planes), pre-flagged input,
+a short-piece guard in part, CASA scale-invariant over 1e-3..1e6, extension over all correlations (post hoc). On the
+real LUNO slice T1-T8 equal CASA bit for bit (CARACal's call included); syn-noise and A1 still fail on the
+piecewise-polynomial template. Held-out closed, tfcrop refused, no Rust kernel.
+
+V8 tfcrop, 2026-11-16 (branch `v8-tfcrop`; [v8-tfcrop.md](v8-tfcrop.md), measured, gate not met): new protocol after
+V8b's stopped H1, frozen before code (G1-G4 unchanged, three gate runs). Clean-room probes against CASA 6.7.6.14
+(five batches of 1,104 designed planes, about 3 s per arm) identify the per-row rule exactly (sd about 0 over the row,
+passes until the sd changes by less than 0.1 absolute; 2,205/2,208 planes), the time direction as the transposed
+frequency direction, and the robust line in part (924/1,104 planes on fresh noise); not the piecewise polynomial or
+window statistics. Gate run 1 of 3: 4 of 21 informative cases pass (syn-rfi T1-T3, luno T7); stopped, held-out not
+opened, tfcrop still refused, no Rust kernel (build order: identify first).
+TS-P1 coordinator round 2, 2026-11-16 ([ts-p1.md](ts-p1.md) section 15):
+
+- **FLAG_ROW.** rang keeps honouring it. On `tsp1-held2`, T1/T2c raw stay
+  not met (0.19, 0.51σ). With FLAG_ROW ignored they reach 3.7e-7 and
+  5.0e-6σ.
+- **GeMClean** now also leaves FLAG_ROW rows out of the uniform/Briggs
+  weight grid. Gridding already skipped them, and its comment was wrong.
+  There is a new test. The 13 archived G2-G9 MSes have 0 FLAG_ROW samples
+  with weight, so their outputs are bit-identical.
+- **T4 met** under amendment 15.2 (peak-curvature Λ plus a pixel-grid
+  correction, written before the draw), on a fresh `tsp1-noise2`: 256
+  against E5 = 235.3 (+1.35σ), 0 at 7σ.
+  - The earlier "−1.3σ" was in units of 3√E; the correct figure is −3.9σ.
+- **T6** runs through `tools/oracles/ts-p1/t6_run.py`, which keeps an
+  exclusive ticket at the head for at most 10 minutes, then withdraws and
+  retries.
+
+TS-P1 protocol 2, 2026-11-16 (branch `ts-p1`; [ts-p1.md](ts-p1.md) sections
+13-14; frozen at `834cf15`, code at `08bfefb`):
+
+- **`tsp1-held2`** (flags, spectral and unequal WEIGHT_SPECTRUM,
+  CORRECTED_DATA):
+  - T2a 6.5e-11σ, T2b 4.2e-6σ, T3 pass (bias ≤ 0.036σ).
+  - T1 (0.13-0.19) and T2c (0.51σ) **not met: WSClean ignores FLAG_ROW**,
+    which is absent from its source. With FLAG_ROW ignored, rang matches
+    WSClean to 6e-8. GeMClean's input.rs says the opposite; unchecked.
+- **T4 not met** at 5σ: 239 against the frozen E5 = 188. The peak-curvature
+  Λ gives 307, and the negatives number 234. 0 candidates at 7σ.
+- **T5 met:** GPU against CPU 1.9e-15, at 2000² (the GPU path refuses the
+  2460 padded width).
+- **Not run.** T6: the exclusive hold was blocked by an IDLE E2-A hold. T7
+  and ESO137: owner decisions 2 and 3.
+
+TS-P1 residual snapshot light curves, 2026-11-16 (branch `ts-p1`, issue #9;
+[ts-p1.md](ts-p1.md); proposal frozen at `b1d407f` before any code):
+
+- **New command.** `rang-core lightcurve MS --position NAME=RA,DEC --out DIR`.
+  Per 8 s interval of the residual (data column − MODEL_DATA) it gives the
+  exact DFT flux (Rust kernel `core/src/lightcurve.rs`), the nearest
+  snapshot pixel and the robust rms. It only reads the MS.
+- **As frozen: not met (oracle mismatch, T1 and T2c).** Under the post hoc
+  amendments 9.1 and 9.2, not yet accepted, **met** on the held-out
+  simulation (now spent), with commit `8270868`, 64 antennas, 64 channels,
+  450 × 8 s, 6 transients:
+  - T1 against WSClean 3.7 `-intervals-out`: 3.0e-7 of the peak;
+  - DFT against NumPy 1.4e-10 σ, pixel against DFT 3.9e-6 σ, WSClean
+    pixel against DFT 2.5e-6 σ;
+  - bias ≤ 0.042σ, χ² 0.91-1.04, every pulse ≥ 7σ recovered.
+- **Dev attempt 1 failed.** At the frozen 1024² and 4″, T1 (0.082) and T2c
+  (0.26σ) failed: WSClean `-no-min-grid-resolution` drops the 0.4 % of
+  samples beyond 1/(2·4″) (proven: 2.7e-7 once removed). T3a's E reached
+  0.104σ, a 2.2-SE noise excursion; the noiseless twin's bias is 7.6e-8σ.
+- **Amendments, post hoc**, written after dev attempt 1, for the coordinator
+  to accept: 9.1 the snapshot grid 2048² at 2″; 9.2 T3a's bound 3/√N.
+- **Run arm** (GeMClean deep model, reported):
+  - E −9.6σ: its mean was absorbed, as predicted.
+  - The empty control +10.7σ: it lies 34″ from a 48 mJy Gaussian, so this is
+    likely CLEAN residual; unverified.
+  - σ_meas 1.30 σ_snap.
+- **Not tested.** Flags, unequal and spectral weights, and CORRECTED_DATA.
+- **Not done.** T4-T7, ESO137 and E2-A.
+GeMClean close-to-threshold stop, 2026-11-16 (branch `gemclean-stop28`, issue #28; [gemclean-stop28.md](gemclean-stop28.md),
+measured, not merged):
+- `-stop-tolerance ε` (default 0, byte-identical to main on S1-S3): the run ends when the exact peak after a major
+  cycle is below (1 + ε) T; the minor cycles still clean to T. Refused with -auto-mask, -multiscale, joined runs.
+- ε = 0.02 chosen on S1-S3 by the frozen rule (5, 5, 4 → 4, 4, 3). Blind H5-H8 (registered first): 8, 5, 5, 6 →
+  5, 4, 5, 5 cycles, false flux 0.99-1.00 × default, all WSClean tolerances met: **gain** over GeMClean's own rule;
+  novelty reading against WSClean plain not met. Seen H1-H4 5, 5, 6, 4; bright cases 6, 5, 5, 6; pilot 3, 3, 4
+  (default 5, 3, 8), off-source model flux 0.999-1.000 ×, compact medians within 0.003 %. All as predicted.
+- For the coordinator: default switch to 0.02 recommended (residual peak up to 2 % above T); not measured at the
+  1e-4 single-precision default accuracy. Outputs `D:\rang\outputs\stop28-20261116`.
+E2-B confirmation, 2026-11-16 (branch `e2b-confirm`; [e2b-misses.md](e2b-misses.md) 9.28–9.29):
+- Frozen before any run, on the coordinator's decisions (the owner delegated them):
+  - the post hoc 2b and 3c readings stay labelled;
+  - 3c cleaned with the mask is a new frozen arm;
+  - the `casa_phase_weights` default is unchanged (E3 turns it on).
+- `R\casa\e2b.ms` had been deleted. Its inputs were rebuilt hash for hash from
+  `e3-20261111-input\e2b.ms` (only read) and R's 2b flag snapshot, and CASA's output is
+  byte-identical to 9.24's.
+- Today's main:
+  - gate 2b CASA applycal **met**: 0 of 408,827,131 cells over class C, max 7.06 eps, flags
+    exact;
+  - 3c dirty **met**: 2.0e-7, 3.3e-7, 8.1e-8 (bound 1e-6);
+  - 3c cleaned with the mask **not met**: compact scatter 1.18 % (bound 1 %, A5 had 0.72 %).
+    The median 0.99979 (n = 41), Δα 0.0071, off-source 1.07, 1.09, 1.08 and the
+    unpolarised test are met. Post hoc: near-threshold sources around J1939−6342's bright
+    source.
+- GeMClean after #32 peaks at 15–18 GB on the large fields (A5: 40–45). All copies were
+  deleted; receipts are in `results/e2b-misses/c3/receipts/`.
+E2-A scored, 2026-11-17 (branch `e2a-score`; [e2-acceptance.md](e2-acceptance.md) 9.11-9.13; measured):
+- **Not met as frozen.** Met: gate 1 (37,272 s, 45.4 GB), 2a, 2b (CASA applycal in place: 0 of 1.6e9
+  cells over class C), 2c, flux scale (0.984-0.997 in the counted bins), target noise and dynamic range,
+  self-calibration rms (0.44). Not met: 3b's K1 G1 B1 composite (median 3.2e-3, p95 2.4e-2; K1 met),
+  3c (dirty 5.0e-3; compact median 0.997, scatter 3.6 %), the target compact row (scatter 4.3 %). Not
+  checked (memory): 3a (Tricolour; on the primaries 925 of 806 M cells differ, post hoc) and the
+  unaveraged QuartiCal gains (averaged form, post hoc: met, max 3.3e-7).
+- 3c with `-no-small-inversion`: unchanged (4.97e-3). Ratios fall with radius (1.00 inside 0.35°, 0.90
+  beyond 1.4°), as 512-channel GeMClean against 4,096-channel WSClean predicts.
+- e2a.ms restored to 9.1 (hashes equal); D: 591 GiB free.
+
+E2-A post-chain reads written, 2026-11-15 (branch `e2a-post`; [e2-acceptance.md](e2-acceptance.md) 9.10,
+implemented, not run; written during the rerun, before any E2-A output):
+- `e2_post.py` `ORDER_INPLACE` gains, after snapshot-inplace: drop of CASA's CORRECTED_DATA (128 GiB for
+  WSClean's reorder files), `qc-avg`, `qc-selfcal`, `unit-on-a`, `wsclean3c-a-dirty`/`-clean` (Stokes I,
+  the image stage's argv; no `-no-small-inversion`, as frozen), `unit-off-a`; launcher `e2a_post.sh`
+  (bookings per step, each inside `e2_diskguard.py`).
+- Self-calibration oracle: QuartiCal unaveraged needs 72 GB per interval (WSL 44), so "not checked
+  (memory)" as frozen; amended form, labelled, for the coordinator to accept: QuartiCal on rang's
+  time-averaged inputs (independent averaging, small ext4 MS), C5's class B.
+- Found: WSClean 3.7 has no `-average-channels`, so 3c compares 4,096-channel WSClean with 512-channel
+  GeMClean (smearing expected at the edge); snapshot-inplace read FLAG whole (69 GB), now in blocks.
+
+E2-A rerun prepared, 2026-11-15 (branch `e2a-rerun`; [e2-acceptance.md](e2-acceptance.md) 9.5-9.8):
+- Amendment 9.5 (committed before any step): selfcal images at A0 rule 6 (mask 5σ, clean to 3σ) in
+  `e2a-rerun.yaml`; the frozen 0.5σ multiscale depth hit `niter` 1e6 in 30,615 s. Overrides item 29's
+  CARACal values for selfcal; needs the coordinator's acceptance. Frozen wheel kept; P, IQUV mask and
+  chunk tasks out (none on E2-A's path).
+- Disk 9.6: the chain writes 414 GiB; start rule 605 GiB free at launch; D: has 313 after the rebuild,
+  so 292 GiB short. Stop rule `e2_diskguard.py` at 165 GiB (tested).
+- Rebuilt `D:\rang\outputs\e2a-20261115\e2a.ms`: 0 cells differ, FLAG/FLAG_ROW hashes equal 9.1.
+  Estimate 9-12 h exclusive.
+- Later the same day: the owner accepted 9.5. E2-B's copies were deleted, leaving D: at 645 GiB free
+  (start rule 605). `e2_post.py` gained the in-place gate 2b order (9.9: rang's apply output is
+  CORRECTED_1GC, and there is no 598 GiB copy), with 8 tests.
+
+E2-B A3, Gpol, 2026-11-15 (branch `e2b-gpol`; [e2b-misses.md](e2b-misses.md) 9.26–9.27):
+- New key `calibrate.casa_phase_weights`. It needs `average_freq` and acts
+  on calmode `p` only; default false, and off is byte-identical. It gives
+  CASA's phase-only datum, read from CASA's source: divide by the model per
+  channel with weight `w|M|²`, average, then normalise to unit amplitude
+  with the weight times amp².
+- Measured against CASA 6.7.6.14, Gpol phase median:
+  - E2-B scan 17 (CASA on A2's matched K, G, B): 0.00038° (0.120° with
+    `average_freq`, 0.270° as frozen);
+  - LUNO dev: 1.1e-4°;
+  - simulation: 1.6e-6°.
+- Met under the frozen rule (class B 0.1°). The simulation and LUNO had no
+  power, so E2-B decided. The key is for the next unseen leg's
+  configuration.
+GeMClean memory, issue #32, 2026-11-15 (branch `gemclean-memory`; [gemclean-memory.md](gemclean-memory.md)):
+- Joined IQUV, 8 channels, 2048², masked, on J1833−2103 (A5's argv): peak
+  9.20 GiB against 20.24 GiB, every FITS file byte-identical; WSClean 3.7
+  1.34 GiB (6.9 ×). Wall 398 s against 430 s.
+- Accounting first: per entry dense visibilities and weights, the gridder's
+  sorted copies, six `f64` image sets, all four polarisations' band at
+  read. Fixed by per-polarisation reading, compacted and shared gridder
+  plans, fewer image copies and bounded reader chunks.
+- Regression test `core/tests/gemclean_memory.rs` (peak heap ≤ 122 MB).
+
+E2-B fix 5 and arm A5, 2026-11-15 (branch `gemclean-iquv-mask`; [e2b-misses.md](e2b-misses.md) 9.21–9.22):
+- `gemclean -auto-mask` now works with `-join-polarizations`, as WSClean
+  3.7's radler: noise and peaks of the joined I + Q + U + V residual, the
+  mask the union of every polarisation's model pixels. `image.auto_mask`
+  takes `join_polarizations`. M0 (P1) matches WSClean's σ within 0.27 %.
+- A5 met, control unmasked not met: with the 5σ mask in both arms, gate 3c's
+  compact median is 0.99977 (scatter 0.72 %, n = 37) and off-source 1.05,
+  1.08, 1.09. Unmasked: 0.9940, 1.27 %, 2.30, 1.26, 1.66.
+- GeMClean's peak memory is 20–45 GB on these runs, against WSClean's
+  1.4–2.0 GB.
+E2-B gate 2b on the full MS, 2026-11-15 (branch `e2b-2b`; [e2b-misses.md](e2b-misses.md) 9.24–9.25):
+- With the new P, CASA applycal against rang's apply meets class C on the
+  whole E2-B MS: 0 of 408.8 M cells over, max 7.06 eps, flags exact.
+- The frozen run had 42 cells over (25.6 eps); C9 reproduces it exactly.
+- Method: CASA ran on an ext4 copy and rang's apply natively on Windows.
+  Bulk casacore I/O over 9p had failed with ENOMEM (9.20).
+
+E2-B P1 and 3c, 2026-11-15 (branch `e2b-pcasa`; [e2b-misses.md](e2b-misses.md) 9.15–9.17):
+- `cal_pol.parallactic_angle_casa` now computes casacore's AZEL
+  parallactic angle: the IAU 1976/1980 apparent place, `gst94`,
+  casacore's zenith-ward diurnal shift and polar motion in HADEC.
+  - It matches casacore within 3.6e-8 rad on a 432-case fixture
+    (`tests/data/pa_casacore.json`) and 1.3e-8 on the held-out field rows,
+    against 7.0e-6 before.
+  - The earlier TETE form stays as `parallactic_angle_tete` for
+    `simtruth`'s frozen truth.
+- Gate 2b re-scored on A1's mini MS: the 42 cells are now 4.8 eps at most
+  (class C 11), against 25.6 before. The full-MS re-score was not run.
+- The 2.4–2.7e-7 rad between casacore's measures and applycal is still
+  open.
+
+After 0.2.0, 2026-11-14 (main 1cacf9f):
+- Released: tag v0.2.0 on 591f5f4. The GitHub release has 7 files and PyPI has rang-core 0.2.0 (6 files). A clean `pip install rang-core==0.2.0` works. Issue #2 and the v0.2.0 milestone are closed.
+- Two fixes before the tag:
+  - `heavy_lock status` read CPU for every Windows process through psutil (24 s for 549 processes). It now reads only the holds' trees.
+  - The notebook count test now expects 8 notebooks.
+- Merged afterwards: selfcal-arms (#6), chunk-task-api (#3, under Unreleased; identity gate passed 2026-11-14, 17 comparisons bit-identical, timing runs open: `research/chunk-task-api.md` section 6) and msv2-reader-r123 (#5 R1-R3).
+- The wheel job on ff02b75 failed in test_t1_casacure_oracle. The core now reads POINTING's IncrementalStMan columns, which the test still expected it to refuse; fixed in 1cacf9f. Lesson: the Windows full check skips the fixture oracle tests unless `RANG_FIXTURE` is set (the public fixture `outer_scans.zip`, on this host in `D:/rang/outputs/cta-20261113-inputs/`), so set it for every coordinator merge check.
+- Flaky test: test_mcp_server.py::test_confirmed_gemclean[False] (#30) failed 2 of 7 runs under load.
+- E2-A (exclusive and timed since 03:19 local): selfcal round 1 at auto-threshold 0.5 has been running since 07:11. The checks above ran next to it without the lock: 10:52-11:52 UTC and 12:15-13:40 UTC. The E2 agent stops the run at 16:00 local if round 1 is not done.
+
+Release 0.2.0, 2026-11-14 (owner's decision, finish-plan.md item 25):
+- Tagged on the merge of V8b flagdata, the notebooks, the imaging-floor note, the MSv2 edge-case comparison, the MCP server and the nested heavy-lock guard.
+- The finish line is met in part. E2-B misses Gpol, the K G B composites, CASA applycal, 3c, 1830−211 χ, transfer χ and leakage; it meets gridding exactly, K, KCROSS, Xf, Df and 3C 286.
+- E2-A, E3 and E5 were not finished.
+- All of the above moves to v0.3.0.
+
+P flag spread (task df-flag-rule), 2026-11-12 (implemented; measured; [p-flag-spread.md](p-flag-spread.md); branch, not merged): E2 found CASA flagging XX and YY where Df is flagged on J1331+3030. The cause is P, not Df: for linear feeds CASA's `PJones` is a general Jones matrix applied after D, and `Jones::flagRight`/`flagLeft` spread any flagged correlation to all four. New key `apply.parang_flags` (`spread`, default, CASA's; `none`, the old flags; values bit-identical). Against CASA 6.7.6.14 `applycal` flags exact on five cases (Df without and with P, a bad G receptor, XX-only input flags, a K G B Df chain), every count as predicted. E2's frozen run is unchanged; its gate 2b flag difference is this rule.
+
+E2 protocol frozen, 2026-11-11 (b2d80dc, merged to main before any E2 run; `research/e2-acceptance.md` section 6, appendix A): E1b scored against E1's frozen gates (image met with the validated scorer, the rest as E1); `calibrate.average_time` and `selfcal.average_time` (CASA's time pre-averaging, off by default) merged; the Gpol class B miss on LUNO recorded as expected (finish-plan item 36); E3's early decoding of E2-B recorded in the protocol. Next: E2-B (timed, exclusive), E2-A, the pre-registered frequency pre-averaging arm.
+
+Interactive MeerKAT, 2026-11-11 (implemented; [v3-intro-track.md](v3-intro-track.md) section 9): a three.js page of the introductory track, <https://pythonic.nl/rang-core/interferometer/>, nine chapters from voltages to a CLEANed image on the real 64 antenna positions; uv coverage, PSF, dirty image and Högbom CLEAN computed in the page from a made-up sky; a teaching picture, no oracle and no claim. Source `docs/_extra/interferometer/index.html`, linked from the tutorials page.
+
+Merges, 2026-11-11 evening: V1 (time-series scope: first product P1, light curves from 8 s residual snapshots, WSClean `-intervals-out` and exact DFT as oracles; beamformed work deferred), V3b (introductory notebooks I1-I9 in `notebooks/intro/`), check-speed (warm check-all 784 to 95 s, cold 1,209 to 1,165 s; pytest-xdist; gpu builds in their own target), E5 later items (7 fixed, SPDX headers); the `tests` workflow green on Linux and Windows; `heavy_lock.py` shares the host in slots (16 threads, 48 GB), exclusive only for timing. Open owner decisions: P1 and the SARAO token; a docs-only check tier; build caches on D:.
+
 Merges and owner answers, 2026-11-11: V7 (LOFAR scope), V4 (first digest, the `rang-digest` skill), E4 (tutorial `notebooks/00-ms-to-image.ipynb`, CI job `e2e`), E5 pre-review (52 findings, 11 fixed), V2 (AGENTS.md split, PR route, `docs/agents/`, skills) merged. Owner on V2: the three new AGENTS.md rules stay; AI trailers are the contributor's choice (the project prefers none); a `tests` workflow now runs lint, clippy, cargo test and pytest (Linux, Windows) on every pull request. Owner: an autocorrelation arm joins F4.
 
 V6, 2026-11-11 (proposed; [v6-vlbi-scope.md](v6-vlbi-scope.md)): VLBI scoping note; first piece proposed is fringe fitting (phase, delay, rate) in Rust against CASA `fringefit` on simulated truth and the public EVN experiment N14C3; closure imaging waits on DF5's RML arm; five owner decisions. Releases (owner, finish-plan item 34): no pre-releases; next PyPI release is v0.2.0 at E6.
@@ -27,6 +378,8 @@ V6, 2026-11-11 (proposed; [v6-vlbi-scope.md](v6-vlbi-scope.md)): VLBI scoping no
 Direction, 2026-11-11 (owner; [vision.md](vision.md)): the project is **ra-ng**, rang-core its first package; the home for agentic radio astronomy for beginners, astronomers and algorithm scientists; MeerKAT first, LOFAR in mind; time series means pulsars and transients; GPU where it pays, cross-platform; the owner commits to main, contributors open pull requests; research skills propose and measure, never merge on their own. v0.2.0 stays the next milestone; light tasks run alongside the heavy queue. AGENTS.md scope and the README tagline reworded. Added the same day: E2 resumed; weekly literature digest (V4); Obit as a second imaging oracle (V5); VLBI later, scoping note V6.
 
 F3, 2026-11-10/11 (implemented; measured; calibrators outcome F; targets stopped at the label audit; [f3-flagger.md](f3-flagger.md)): a 3,433-weight network (`rang.f3flag`, Rust `rang_core::f3flag`, JAX training on the GPU in WSL) on noise-normalised time- and channel-local residual planes and per-antenna medians, trained on LUNO 1830−211 scans with injections and T-and-AOFlagger consensus labels plus F-SIM. Held-out LUNO 1934−638 and 1830−211: F2's missed narrowband and single-baseline RFI now found (0.998, 0.999), 0.73-0.97 × T's flags, but wide-band scan-long antenna-local RFI missed (0.024 against 0.907), so R1 fails (0.640 against 0.966). C1 0.343 at 1 and 4 threads (clean), C2 1.00; 4 tunable kinds against T's 21. Targets: consensus labels on ESO137 failed the frozen audit; an amended post hoc arm also fails (R1 0.724 against bar 0.805). Nothing proposed for `rang-core flag`. No novelty claim. Owner decisions in the note, section "For the coordinator".
+
+Selfcal arms 1 and 2 (issue #6), 2026-11-13 (implemented, measured; [selfcal-arms.md](selfcal-arms.md)). More rounds with longer first intervals (`r`: Sp/Sd at solint inf twice, then solint 8) and a phase-only first round (`p`, delay loop), as configurations of the existing `selfcal.rounds`/`selfcal.terms` keys; the stage, its defaults and E2 are unchanged. On C5's and C5b's four held-out cases no arm meets T2 (phase p95 6.2-13.6 deg against 1.5-3). `r` delay helps under the frozen rule (final phase p95 0.62 and 0.69 x `u`; delay p95 0.012-0.019 ns, inside T2's 0.03; 2 x stage cost); `r` pa null (0.88, 0.65); `p` null (1.02, 1.01). QuartiCal 0.2.7 agrees on Sp inf, Sd inf and Sp freqint 1 (products <= 7e-7). `u` reproduces C5b natively. The model (long-baseline rms 0.13-0.25) still limits; follow-up: check_c5.py's qc predicts with pre-G7 defaults. No novelty claim.
 
 G8, GeMClean in the wheel, 2026-11-10 (implemented, measured; [g8-wheel.md](g8-wheel.md)). `pip install rang-core` gives `gemclean`, a console script over `rang._core.gemclean_main`; the command line lives in `rang_core::gemclean::cli` and the source binary wraps it. FITS byte-identical to the fat-LTO `gemclean` profile on S1 (defaults and 1e-6), D1-C1 and the pilot-512 natively, and on S1 and D1-C1 in Linux. Pilot-512, idle host: the CI wheel 140.0 s against 137.7 s at -j16 (+0.5 %), 798 s against 788 s at -j1 (+1.4 %, repeats spread 6.6 %); Linux (WSL, 9p) 196.6 s against 189.9 s at -j16 (+3.3 %), 730 s against 729 s at -j1; fat LTO for the wheel not adopted; x86-64-v3 wheels 1.5 % faster at -j16 (owner). Ctrl-C ends the script within 10 ms (0xC000013A, as the binary). `image.gemclean: auto` runs the extension. The sdist does not build (data/meerkat.itrf.txt left out; already so on main; fixed after the merge: data/ back in the sdist, and the sdist CI job now builds and imports a wheel from it). Five-platform CI gate met: wheels run 42791140301, all ten test jobs green. Owner decisions: finish-plan section 7 item 31.
 

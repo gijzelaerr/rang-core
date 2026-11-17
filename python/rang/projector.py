@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Checked NumPy boundary for the dependency-free Rust QR projector, and the
 door through which the frozen research modules reach the root crate's kernels.
 

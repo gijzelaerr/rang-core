@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Shared plotting conventions: bare `Figure` objects, no pyplot state.
 
 A `matplotlib.figure.Figure` made without pyplot is never shown twice by

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Parallactic and feed angles for B1-2 (research/b1-2-identifiability.md).
 
 Frozen convention (research/b1-beam-pointing.md, "Measures convention"):
@@ -91,6 +92,37 @@ def parallactic_angle_closed_form(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m):
     source = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs")
     eta = source.position_angle(north).wrap_at(180 * units.deg).rad
     return np.angle(np.exp(1j * (q_apparent + eta)))
+
+
+def elevation(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m, frame="geodetic"):
+    """Elevation (rad, no refraction) of a J2000 direction at MS TIME values
+    (MJD seconds, UTC) from an ITRF position, for `flagdata
+    mode='elevation'` (research/v8b-flagdata.md). `frame="geodetic"` is
+    astropy's AltAz (the WGS84 horizon); `"geocentric"` uses the horizon
+    normal to the geocentric radius (casacore's `AZEL`, E2's finding), on
+    astropy's apparent (TETE) place and apparent sidereal time."""
+    units, AltAz, _, SkyCoord, Time = _astropy()
+    times = np.atleast_1d(np.asarray(times_mjd_s, float))
+    when = Time(times / MJD_SECONDS, format="mjd", scale="utc")
+    site = location(itrf_xyz_m)
+    source = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs")
+    if frame == "geodetic":
+        alt = source.transform_to(
+            AltAz(obstime=when, location=site, pressure=0)
+        ).alt.rad
+        return np.asarray(alt, float)
+    if frame != "geocentric":
+        raise ValueError(f"frame {frame!r}: 'geodetic' or 'geocentric'")
+    from astropy.coordinates import TETE
+
+    apparent = source.transform_to(TETE(obstime=when, location=site))
+    lst = when.sidereal_time("apparent", longitude=site.lon).rad
+    hour = lst - apparent.ra.rad
+    x, y, z = np.asarray(itrf_xyz_m, float)
+    phi = np.arctan2(z, np.hypot(x, y))
+    dec = apparent.dec.rad
+    s = np.sin(phi) * np.sin(dec) + np.cos(phi) * np.cos(dec) * np.cos(hour)
+    return np.arcsin(np.clip(s, -1.0, 1.0))
 
 
 def feed_angle(parallactic_rad, receptor_angle_rad):

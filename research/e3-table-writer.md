@@ -76,9 +76,9 @@ In scope (E3), all on little-endian tables as written by casacore 3.8:
    close), not per `putcol`. No lock-request ids are written (an
    auto-locking casacore reader that holds a read lock and is idle keeps
    the writer waiting; the writer then fails after a bounded number of
-   attempts with a "table is locked" error). Platforms without fcntl
-   (Windows) write without an inter-process lock; this is stated in the
-   API.
+   attempts with a "table is locked" error). Windows: a `LockFileEx`
+   lock since 2026-11-12 (`research/ms-lock-windows.md`; before then no
+   inter-process lock).
 
 Deferred, refused with an error naming the follow-on:
 

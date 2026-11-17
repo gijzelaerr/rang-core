@@ -105,7 +105,8 @@ commit of `rang-wsclean-native:3.7`. Paths are relative to the WSClean tree; rad
   column gets. With a mask, `<name>-mask.json` and one log line per auto-masked major cycle.
 - **Refused, with a message**: `-local-rms*`, `-casa-mask`, `-horizon-mask`, `-clean-border`,
   `-major-iteration-mode` other than `dual`, a mask with several planes, masks with several
-  polarisations, `-gram-operator`, `-audit` or `-stop-rule certified`; `-auto-mask` without `-mgain`
+  polarisations (since 2026-11-15, `-auto-mask` with `-join-polarizations` is taken, as radler's
+  joined-set mask: [e2b-misses.md](e2b-misses.md) 9.21), `-gram-operator`, `-audit` or `-stop-rule certified`; `-auto-mask` without `-mgain`
   or `-minor-to-threshold` (radler's stages are defined on the peak fraction; GeMClean's measured
   rule has no counterpart); `-auto-threshold ≥ -auto-mask` (WSClean's error).
 - **Departures, by design** (recorded before any comparison): GeMClean's Högbom loop is its own

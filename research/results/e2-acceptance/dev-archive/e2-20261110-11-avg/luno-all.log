@@ -1,0 +1,17 @@
+2026-11-10T23:52:05+02:00 start build
+2026-11-11T00:43:28+02:00 end build rc=0
+2026-11-11T00:43:28+02:00 start readable
+2026-11-11T00:46:55+02:00 end readable rc=3
+2026-11-11T00:48:04+02:00 start readable
+2026-11-11T01:35:18+02:00 end readable rc=0
+2026-11-11T01:35:18+02:00 start rang
+2026-11-11T02:05:57+02:00 end rang rc=0
+2026-11-11T02:05:57+02:00 start casa
+2026-11-11T03:05:15+02:00 end casa rc=1
+2026-11-11T03:06:22+02:00 WSL restarted at 03:05 during the CASA arm (after Xf was written; not this task's action); resumed from call 7 (Xf)
+2026-11-11T03:06:22+02:00 start casa
+2026-11-11T10:21:26+02:00 start casa
+2026-11-11T12:30:24+02:00 start casa
+2026-11-11T13:12:51+02:00 end casa rc=0
+2026-11-11T13:12:51+02:00 start score
+2026-11-11T13:16:31+02:00 end score rc=0

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W6 case edits (research/w6-imaging-inputs.md), python-casacore 3.8.1.
 
 python prep.py MS --random-ws SEED      # WEIGHT_SPECTRUM uniform in [0.2, 5], WEIGHT its channel mean

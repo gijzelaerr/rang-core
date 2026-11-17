@@ -1,0 +1,22 @@
+{
+ "tolerance": 1e-06,
+ "rang_vs_nosi": {
+  "max": 8.064331429828542e-08,
+  "border5": 8.064331429828542e-08,
+  "inner": 8.064331429828542e-08,
+  "median_max": 3.6994504252713004e-11
+ },
+ "rang_vs_si": {
+  "max": 0.0028939079213459633,
+  "border5": 8.429245825839886e-05,
+  "inner": 2.384150851943533e-05,
+  "median_max": 3.4393127364311723e-06
+ },
+ "si_vs_nosi": {
+  "max": 0.002893906754474333,
+  "border5": 8.429242427028285e-05,
+  "inner": 2.3841518594453158e-05,
+  "median_max": 3.4393113496432824e-06
+ },
+ "outcome": "met: the edge difference is WSClean's small inversion"
+}

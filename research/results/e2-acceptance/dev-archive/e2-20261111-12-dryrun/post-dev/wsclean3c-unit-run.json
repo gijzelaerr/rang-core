@@ -1,0 +1,10 @@
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "unit_off_exit": 0,
+ "settings": "-size 512 512 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -j 8 -temp-dir /p/wsclean3c-unit/tmp"
+}

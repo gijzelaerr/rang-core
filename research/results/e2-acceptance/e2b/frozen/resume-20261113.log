@@ -1,0 +1,35 @@
+2026-11-13T08:50:39+02:00 backup_flags rc=127 3186s
+no backup
+  File "<string>", line 1
+    from rang import core_writeback as w; print('saved', w.backup_flags(r'D:\rang\outputs\e2-20261111-20-e2b\casa\e2b.ms', 'e2_casa_applycal', 'FLAG after CASA's 3b chain applycal (e2_casa3b.py run), saved 2026-11-13 before the transfer cases'))
+                                                                                                                                                                  ^
+SyntaxError: invalid decimal literal
+2026-11-13T09:21:39+02:00 backup_flags rc=1 1816s
+saved True
+2026-11-13T09:40:33+02:00 backup_flags rc=0 1116s
+{
+ "flag_version": "rang_apply_20261112T013707Z",
+ "restored_rows": 272916,
+ "apply": {
+  "tables": [
+   "K",
+   "G",
+   "B",
+   "Gpol",
+   "Kcross",
+   "Xf",
+   "Df"
+  ],
+  "seconds": 167.88346250000177,
+  "cells_flagged_before": 1250044860,
+  "cells_flagged_after": 1250044860,
+  "uncovered": []
+ },
+ "cells": 171242769,
+ "over_class_c": 0,
+ "flag_elements_differ": 0,
+ "max_rel": 0.0,
+ "max_eps_of_cell_max": 0.0,
+ "met": true
+}
+2026-11-13T10:06:57+02:00 selftest rc=0 1584s

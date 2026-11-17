@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
 //! WSClean-format component sky prediction, ported from codex-africanus 0.4.4.
 //!
 //! A Rust translation of `africanus/rime/wsclean_predict.py` and

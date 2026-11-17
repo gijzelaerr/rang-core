@@ -1,0 +1,546 @@
+{
+ "chunking": {
+  "chunk_gb": 7.373140335083008,
+  "chunk_rows": null,
+  "fixed_gb": 0.6268596649169922,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 483206,
+   "calibrate": 483206,
+   "chain": 322137,
+   "flag": 966412,
+   "model": 483206,
+   "rows": 1288549
+  },
+  "solves": [
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "K0"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "G0"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "B0"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "K1"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "G1"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 1,
+    "field": "J1939-6342",
+    "term": "B1"
+   }
+  ]
+ },
+ "flag_version": "rang_calibrate_20261111T180701Z",
+ "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+ "model": "setjy",
+ "models_written": {
+  "fields": [
+   0
+  ],
+  "flag_version": "rang_calibrate_20261111T180701Z",
+  "rang_original_saved_now": false,
+  "receipt": {
+   "column": "MODEL_DATA",
+   "column_added": true,
+   "fields": {
+    "J1939-6342": {
+     "field_id": 0,
+     "rows": 1440,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        862687500.0,
+        1290687500.0,
+        1705312500.0
+       ],
+       "stokes_i_jy": [
+        14.045013395584787,
+        15.08459340363877,
+        14.026369858829321
+       ]
+      }
+     }
+    }
+   },
+   "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms",
+   "spec": {
+    "extrapolate": false,
+    "kind": "standard",
+    "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+    "source": "1934-638",
+    "standard": "Stevens-Reynolds 2016"
+   }
+  },
+  "spec": "Standard(source=None, standard='Stevens-Reynolds 2016', extrapolate=False, unverified_ok=False)"
+ },
+ "refant_auto": {
+  "antennas": [
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 33.368619229189974,
+    "id": 0,
+    "name": "m000",
+    "shortest_baseline": 124.08813331492844,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 125.95139459538137,
+    "id": 1,
+    "name": "m004",
+    "shortest_baseline": 124.08813331492844,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 312.14974262982105,
+    "id": 2,
+    "name": "m008",
+    "shortest_baseline": 189.29736310609312,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 191.01903174873797,
+    "id": 3,
+    "name": "m012",
+    "shortest_baseline": 80.97004984102287,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 292.00200365530213,
+    "id": 4,
+    "name": "m016",
+    "shortest_baseline": 145.0089306915759,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 114.7678732864166,
+    "id": 5,
+    "name": "m020",
+    "shortest_baseline": 80.97004984102287,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 523.8543191774032,
+    "id": 6,
+    "name": "m024",
+    "shortest_baseline": 382.3862867520097,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 159.66186799473408,
+    "id": 7,
+    "name": "m028",
+    "shortest_baseline": 127.58828303579634,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 618.6197537888878,
+    "id": 8,
+    "name": "m032",
+    "shortest_baseline": 400.72113446875244,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": false,
+    "array_centre_dist": 391.02774956710914,
+    "id": 9,
+    "name": "m036",
+    "shortest_baseline": 145.0089306915759,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 475.453434795227,
+    "id": 10,
+    "name": "m040",
+    "shortest_baseline": 189.29736310609312,
+    "within_maxdist": true
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1227.832778801135,
+    "id": 11,
+    "name": "m044",
+    "shortest_baseline": 707.1135785895189,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 4053.486087082017,
+    "id": 12,
+    "name": "m048",
+    "shortest_baseline": 2828.2753292855095,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1087.6477378702277,
+    "id": 13,
+    "name": "m052",
+    "shortest_baseline": 714.9562487392172,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 1745.816041825521,
+    "id": 14,
+    "name": "m056",
+    "shortest_baseline": 1173.8235365050684,
+    "within_maxdist": false
+   },
+   {
+    "all_baselines_ge_minbase": true,
+    "array_centre_dist": 3775.7837304416043,
+    "id": 15,
+    "name": "m060",
+    "shortest_baseline": 2939.428962254401,
+    "within_maxdist": false
+   }
+  ],
+  "caracal_string": "m008,m024,m032",
+  "centre": [
+   5109217.420823876,
+   2006797.675146036,
+   -3239133.867335175
+  ],
+  "centre_source": "casacore MeerKAT (WGS84)",
+  "maxdist": 1000.0,
+  "minbase": 150.0,
+  "names": [
+   "m008",
+   "m024",
+   "m032"
+  ],
+  "telescope": "MeerKAT"
+ },
+ "restored_before": null,
+ "scans": [
+  1,
+  4,
+  23
+ ],
+ "steps": [
+  {
+   "fields": [
+    0
+   ],
+   "name": "K0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\K0",
+   "rows": 32,
+   "solutions": [
+    {
+     "converged_fraction": 0.998046875,
+     "field_id": 0,
+     "flagged_fraction": 0.0625,
+     "intervals": 2,
+     "iterations": 35,
+     "rows": 1440
+    }
+   ],
+   "table_sha256": "8c05aa121407df0aab2298f03d7ab41108cf70819ca81b569f3593cb0cef8f3f",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "G0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\G0",
+   "rows": 32,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.0625,
+     "intervals": 2,
+     "iterations": 21,
+     "rows": 1440,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "46a6955c7033b019ec26a67cedc60d45fc0a1ce025a293a6d705512e1089bb09",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "B0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\B0",
+   "rows": 16,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.0625,
+     "intervals": 1,
+     "iterations": 39,
+     "rows": 1440,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "d0020e46eafbc317e28d25ce1d8f6e49d06047a7c05c5337312fd58a71d29cde",
+   "type": "B"
+  },
+  {
+   "applied": {
+    "applymode": "calflag",
+    "cells_flagged_after": 148152,
+    "cells_flagged_before": 125928,
+    "column": "CORRECTED_DATA",
+    "column_added": true,
+    "fields": [
+     "J1939-6342"
+    ],
+    "ms": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms",
+    "parang": false,
+    "rows": 1440,
+    "scans": [
+     1,
+     4,
+     23
+    ],
+    "tables": [
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "K"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "G"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "B"
+     }
+    ],
+    "uncovered": [],
+    "weights_written": false
+   },
+   "fields": [
+    0
+   ],
+   "flagged": {
+    "chunking": {
+     "blocks": [
+      1,
+      1
+     ],
+     "max_rows": 966412
+    },
+    "column": "CORRECTED_DATA",
+    "fields": [
+     0
+    ],
+    "flag_sha256": "a7125a79595904f4b87a6a9836468fdee24fcfe04ec74b8163188a53e83bd878",
+    "flagged_after": 0.6962131076388889,
+    "flagged_before": 0.40188802083333336,
+    "groups": [
+     {
+      "ddid": 0,
+      "field_id": 0,
+      "flagged_after": 0.6917317708333334,
+      "flagged_before": 0.4019314236111111,
+      "rows": 720,
+      "scan": 1
+     },
+     {
+      "ddid": 0,
+      "field_id": 0,
+      "flagged_after": 0.7006944444444444,
+      "flagged_before": 0.40184461805555555,
+      "rows": 720,
+      "scan": 23
+     }
+    ],
+    "rows": 1440
+   },
+   "gainfield": [
+    "0",
+    "0",
+    "0"
+   ],
+   "name": "A0",
+   "strategy": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+   "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+   "tables": [
+    "K0",
+    "G0",
+    "B0"
+   ],
+   "type": "A"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "K1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\K1",
+   "rows": 32,
+   "solutions": [
+    {
+     "converged_fraction": 0.0,
+     "field_id": 0,
+     "flagged_fraction": 0.53125,
+     "intervals": 2,
+     "iterations": 50,
+     "rows": 1440
+    }
+   ],
+   "table_sha256": "c001946db18940e3630232b75c911bedef979d4cc37f51fc99a1e227a16b5742",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "G1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\G1",
+   "rows": 32,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.53125,
+     "intervals": 2,
+     "iterations": 29,
+     "rows": 1440,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "651f0b127c2ec9355bb296b2315ccdf26f99caf1f17b31eea5da4aa8ba6beae6",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "B1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\B1",
+   "rows": 16,
+   "solutions": [
+    {
+     "converged_fraction": 0.8985507246376812,
+     "field_id": 0,
+     "flagged_fraction": 0.587890625,
+     "intervals": 1,
+     "iterations": 50,
+     "rows": 1440,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "a7e68a52af8dd66bfb571118fd8d6cc311adaf1083abee70af883bfaab3bb8fb",
+   "type": "B"
+  }
+ ],
+ "tables": [
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "K0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\K0",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "G0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\G0",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "B0",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\B0",
+   "section": "chain",
+   "type": "B"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "K1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\K1",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "G1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\G1",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "B1",
+   "path": "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a\\a1-small.ms.rang-run\\calibrate\\B1",
+   "section": "chain",
+   "type": "B"
+  }
+ ],
+ "weight_column": "unit",
+ "weights": "uniform"
+}

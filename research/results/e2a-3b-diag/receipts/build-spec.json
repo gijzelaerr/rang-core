@@ -1,0 +1,72 @@
+[
+ {
+  "task": "putflags",
+  "args": {
+   "vis": "/d1/src.ms",
+   "rows": "/d1/base.json",
+   "version": "/src/e2a.ms.flagversions/flags.rang_calibrate_20261115T132707Z"
+  }
+ },
+ {
+  "task": "delmod",
+  "args": {
+   "vis": "/d1/src.ms",
+   "otf": true,
+   "scr": false
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/src.ms"
+  }
+ },
+ {
+  "task": "weights_read",
+  "args": {
+   "vis": "/d1/src.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-r0.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-tt.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-ti.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-m.ms"
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-w.ms"
+  }
+ }
+]

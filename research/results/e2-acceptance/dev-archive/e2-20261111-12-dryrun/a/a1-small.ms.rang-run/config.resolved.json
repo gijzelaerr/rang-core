@@ -1,0 +1,352 @@
+{
+ "apply": {
+  "applymode": "calflag",
+  "calwt": false,
+  "column": "CORRECTED_DATA",
+  "parang": false,
+  "targets": [
+   {
+    "field": [
+     "fcal",
+     "target"
+    ],
+    "gainfield": [
+     "nearest",
+     "nearest",
+     "J1939-6342"
+    ],
+    "interp": [
+     "linear",
+     "linear",
+     "linear"
+    ],
+    "tables": [
+     "K1",
+     "G1",
+     "B1"
+    ]
+   }
+  ]
+ },
+ "calibrate": {
+  "average_time": true,
+  "minblperant": null,
+  "minsnr": null,
+  "model": {
+   "column": "MODEL_DATA",
+   "flux_jy": null,
+   "lsm": null,
+   "polangle": null,
+   "polindex": null,
+   "reffreq_hz": null,
+   "rotmeas": null,
+   "source": "setjy",
+   "spix": null,
+   "standard": "Stevens-Reynolds 2016"
+  },
+  "polcal": {
+   "extendflags": false,
+   "feed_angle_rotation": null,
+   "field": [
+    "xcal"
+   ],
+   "frame": "casa",
+   "model": {
+    "column": "MODEL_DATA",
+    "name": null,
+    "source": "nrao"
+   },
+   "terms": []
+  },
+  "primary": {
+   "field": [
+    "fcal"
+   ],
+   "terms": [
+    {
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "K0",
+     "preapply": [],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "type": "K",
+     "uvrange": null
+    },
+    {
+     "calmode": "ap",
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "G0",
+     "preapply": [
+      "K0"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "type": "G",
+     "uvrange": null
+    },
+    {
+     "combine": "scan",
+     "field": null,
+     "fillgaps": 70,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "B0",
+     "preapply": [
+      "K0",
+      "G0"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "solnorm": false,
+     "type": "B",
+     "uvrange": null
+    },
+    {
+     "field": null,
+     "name": "A0",
+     "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+     "type": "A"
+    },
+    {
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "K1",
+     "preapply": [
+      "G0",
+      "B0"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "60s",
+     "type": "K",
+     "uvrange": null
+    },
+    {
+     "calmode": "ap",
+     "combine": "",
+     "field": null,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "G1",
+     "preapply": [
+      "K1",
+      "B0"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "60s",
+     "type": "G",
+     "uvrange": null
+    },
+    {
+     "combine": "scan",
+     "field": null,
+     "fillgaps": 70,
+     "gainfield": [],
+     "interp": [
+      "linear",
+      "linear"
+     ],
+     "minblperant": null,
+     "minsnr": null,
+     "name": "B1",
+     "preapply": [
+      "K1",
+      "G1"
+     ],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "solnorm": false,
+     "type": "B",
+     "uvrange": null
+    }
+   ]
+  },
+  "refant": [
+   "auto"
+  ],
+  "refant_maxdist": 1000.0,
+  "refant_minbase": 150.0,
+  "refantmode": "flex",
+  "secondary": {
+   "field": [
+    "gcal"
+   ],
+   "terms": []
+  },
+  "uvrange": ">150"
+ },
+ "data": {
+  "chunk_rows": null,
+  "memory_limit_gb": 8.0,
+  "scans": [
+   1,
+   4,
+   23
+  ],
+  "weights": "uniform"
+ },
+ "fields": {
+  "bpcal": [
+   "J1939-6342"
+  ],
+  "fcal": [
+   "J1939-6342"
+  ],
+  "gcal": [
+   "J1939-6342"
+  ],
+  "target": [
+   "SIM-TARGET"
+  ],
+  "xcal": []
+ },
+ "flag": {
+  "column": "DATA",
+  "fields": [
+   "fcal",
+   "target"
+  ],
+  "flagger": "tricolour",
+  "static_masks": "tricolour",
+  "strategy": "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+  "write": "replace"
+ },
+ "image": {
+  "abs_auto_mask": null,
+  "auto_mask": 5.0,
+  "auto_mask_nmiter": null,
+  "auto_threshold": 3.0,
+  "average_channels": 8,
+  "channels_out": 8,
+  "column": "CORRECTED_DATA",
+  "extra_args": [],
+  "fields": [
+   "target"
+  ],
+  "fit_spectral_pol": 2,
+  "fits_mask": null,
+  "gain": null,
+  "gemclean": "auto",
+  "imager": "gemclean",
+  "join_channels": true,
+  "join_polarizations": false,
+  "maxuv_l": null,
+  "maxuvw_m": null,
+  "mgain": 0.9,
+  "minuv_l": null,
+  "minuvw_m": null,
+  "multiscale": false,
+  "multiscale_gain": null,
+  "multiscale_max_scales": null,
+  "multiscale_scale_bias": null,
+  "multiscale_scales": null,
+  "multiscale_shape": "tapered-quadratic",
+  "name": "image",
+  "niter": 1000000,
+  "nmiter": null,
+  "pol": "I",
+  "robust": 0.5,
+  "scale": "3asec",
+  "size": [
+   1024,
+   1024
+  ],
+  "taper_gaussian": null,
+  "taper_inner_tukey": null,
+  "taper_tukey": null,
+  "threads": null,
+  "threshold": null,
+  "uvrange": "",
+  "weight": "briggs",
+  "wgridder_accuracy": 0.0001,
+  "write_model": false
+ },
+ "run": {
+  "stages": [
+   "flag",
+   "calibrate",
+   "apply",
+   "image",
+   "selfcal"
+  ]
+ },
+ "schema": "rang-config",
+ "selfcal": {
+  "average_time": true,
+  "clean_cutoff": [
+   0.5
+  ],
+  "cleanmask_method": [
+   "wsclean"
+  ],
+  "cleanmask_thr": [
+   10.0,
+   6.0
+  ],
+  "gain_clip": [
+   0.5,
+   2.0
+  ],
+  "input_column": "CORRECTED_1GC",
+  "minuvw_m": 0.0,
+  "model_column": "MODEL_DATA",
+  "output_column": "CORRECTED_DATA",
+  "refant": null,
+  "rounds": 2,
+  "terms": [
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   }
+  ]
+ },
+ "version": 1
+}

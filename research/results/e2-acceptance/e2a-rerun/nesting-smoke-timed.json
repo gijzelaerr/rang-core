@@ -1,0 +1,17 @@
+{
+ "command": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "research/results/e2-acceptance-scripts/e2_dryrun.py",
+  "a-rerun",
+  "D:\\rang\\outputs\\e2a-20261115\\nesting-smoke\\run"
+ ],
+ "rc": 0,
+ "wall_s": 20.243788480758667,
+ "peak_tree_rss_bytes": 1442172928,
+ "peak_process_rss_bytes": 1356222464,
+ "host_cpu_load_pct_at_start": 0.2,
+ "host_cpu_load_pct_mean": 33.535000000000004,
+ "host_cpu_load_pct_max": 69.2,
+ "logical_cpus": 16,
+ "started": "2026-11-15T14:03:26"
+}

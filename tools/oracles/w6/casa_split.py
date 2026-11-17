@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA 6.7.6 split of scans (W6 criterion 1a, 4b): DATA, flags kept.
 
     /opt/casa/bin/python -I casa_split.py MS OUT SCANS FIELD_NAME OUT.json

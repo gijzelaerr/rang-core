@@ -1,0 +1,6 @@
+{'vis': '', 'caltable': '', 'field': '', 'spw': '', 'intent': '', 'selectdata': True, 'timerange': '', 'uvrange': '', 'antenna': '', 'scan': '', 'observation': '', 'msselect': '', 'solint': 'inf', 'combine': 'obs,scan', 'preavg': 300.0, 'refant': '', 'minblperant': 4, 'minsnr': 3.0, 'poltype': 'D+QU', 'smodel': [], 'append': False, 'docallib': False, 'callib': '', 'gaintable': [], 'gainfield': [], 'interp': [], 'spwmap': []}
+2026-11-17 01:31:20	SEVERE	::casa	
+2026-11-17 01:31:20	SEVERE	::casa	The contents of measurespath do not appear to be casarundata. CASA may still work if the data can be found in datapath.
+2026-11-17 01:31:20	SEVERE	::casa	The measures data found at measurespath is not being maintained by casaconfig.
+2026-11-17 01:31:20	SEVERE	::casa	visit https://casadocs.readthedocs.io/en/stable/notebooks/external-data.html for more information
+2026-11-17 01:31:20	SEVERE	::casa	

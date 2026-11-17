@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! W-stacking gridder, ported from WSClean 3.6-1.
 //!
 //! A Rust translation of the inversion path of `gridding/wstackinggridder.cpp`,
@@ -6,7 +7,16 @@
 //! `main/wsclean.cpp` of WSClean 3.6 (André Offringa and contributors,
 //! GPL-3.0; <https://gitlab.com/aroffringa/wsclean>), as read from the verified
 //! Debian source in `outputs/wsclean-3.6-1-source-20261029/`. The translation
-//! is part of Rang (GPL-3.0-or-later). Validation protocol:
+//! is part of Rang (GPL-3.0-or-later).
+//!
+//! Upstream copyright, verbatim from `debian/copyright` of wsclean 3.6-1
+//! (WSClean's source files carry no notice of their own):
+//! Copyright: 2008-2015 A. R. Offringa
+//!  2009 ASTRON (Netherlands Institute for Radio Astronomy)
+//!  2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+//! License: GPL-3.0+
+//!
+//! Validation protocol:
 //! `research/core-c-gridder.md` (wave 1 task C); the layer-parallel
 //! structure is big-plan task P2 (`research/p2-gridder.md`).
 //!
@@ -658,7 +668,9 @@ pub fn w_limits(settings: &Settings, inputs: &Inputs) -> (f64, f64) {
             let wavelength = C_LIGHT / inputs.frequencies[ch];
             let u = um / wavelength;
             let w = wm / wavelength;
-            // WSClean 3.6 computes both bounds from u (ported as written).
+            // WSClean 3.6 computes both bounds from u (ported as written, the
+            // oracle is 3.6). WSClean #208, fixed upstream by !1068 (ca23d835,
+            // unreleased); GeMClean's `theoretic_beam` already follows the fix.
             let x = u * settings.pixel_size_x * settings.width as f64;
             let y = u * settings.pixel_size_y * settings.height as f64;
             if inputs.imaging_weights[index] != 0.0

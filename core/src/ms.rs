@@ -1,17 +1,21 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Read-only reader for casacore tables (research/core-e-ms-reader.md).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
 //! Reads `table.dat` and the StandardStMan, IncrementalStMan,
-//! TiledShapeStMan and TiledColumnStMan files of a casacore table as the
+//! TiledShapeStMan, TiledColumnStMan and TiledCellStMan files of a casacore table as the
 //! MeerKAT Measurement Sets in `outputs/` use them. The on-disk format was
 //! read from the casacore 3.8.1 sources listed in the research file; nothing
 //! is copied from casacore (LGPL-2.1-or-later). Scope: scalar, direct-array
-//! and indirect-array columns of the numeric, boolean and string types,
-//! returned as native bytes in casacore's Fortran cell order. Outside the
-//! scope, refused with an error: IncrementalStMan arrays and strings, other
-//! storage managers, MultiFile tables and big-endian hosts.
+//! and indirect-array columns of the numeric, boolean and string types
+//! (StandardStMan's indirect string arrays live in its string buckets,
+//! research/feed-poltype-read.md), returned as native bytes in casacore's Fortran cell order.
+//! IncrementalStMan reads scalars, strings, Direct and indirect arrays,
+//! and refuses per column (research/msv2-edge-cases.md, R1 to R3). Outside the
+//! scope, refused with an error: other storage managers (TiledDataStMan,
+//! adios2, Dysco), MultiFile tables and big-endian hosts.
 
 use std::collections::HashMap;
 use std::fmt;
@@ -162,6 +166,9 @@ pub struct ColumnDesc {
     pub ndim: i32,
     /// Fixed cell shape in casacore (Fortran) axis order, empty if not fixed.
     pub shape: Vec<i64>,
+    /// Every row has `shape`: the FixedShape option with a shape in the
+    /// description, or a shape set for the whole column in its binding.
+    pub fixed_shape: bool,
     pub max_length: u32,
     pub manager_type: String,
     pub manager_name: String,
@@ -454,6 +461,12 @@ enum SsmKind {
     IndirectString,
     Direct(usize),
     Indirect,
+    /// A non-direct string array (casacore's SSMIndStringColumn): a 12-byte
+    /// (bucket, offset, length) slot per row into the string buckets. A
+    /// fixed-shape column (Some) stores the strings only; a variable-shape
+    /// one (None) stores the shape and a filled flag first. Unlike numeric
+    /// indirect arrays, nothing of it is in `table.fNi`.
+    IndirectStringArray(Option<Vec<i64>>),
 }
 
 struct SsmColumn {
@@ -574,6 +587,10 @@ impl Ssm {
                 (dt, true, true) => (
                     SsmKind::Direct(product(&desc.shape)),
                     8 * dt.size() * product(&desc.shape),
+                ),
+                (DataType::Str, true, false) => (
+                    SsmKind::IndirectStringArray(desc.fixed_shape.then(|| desc.shape.clone())),
+                    8 * 12,
                 ),
                 (_, true, false) => (SsmKind::Indirect, 64),
             };
@@ -736,6 +753,63 @@ impl Ssm {
                     },
                 )?;
             }
+            SsmKind::IndirectStringArray(fixed) => {
+                let mut handler = StringBuckets::new(self)?;
+                let mut row = start;
+                let name = &desc.name;
+                self.visit_rows(&mut file, col, start, count, |bucket, offset, first, n| {
+                    for i in 0..n {
+                        let at = offset + (first + i) * 12;
+                        let (b, o, l) = (
+                            read_i32(bucket, at, big)?,
+                            read_i32(bucket, at + 4, big)?,
+                            read_i32(bucket, at + 8, big)?,
+                        );
+                        // As SSMStringHandler::get: an empty slot is an
+                        // undefined cell (variable shape) or empty strings.
+                        let (shape, filled) = match (fixed, l > 0) {
+                            (Some(shape), true) => {
+                                handler.seek(b, o as usize)?;
+                                (shape.clone(), true)
+                            }
+                            (Some(shape), false) => (shape.clone(), false),
+                            (None, true) => {
+                                let shape = handler.shape(b, o as usize)?;
+                                (shape, handler.int()? != 0)
+                            }
+                            (None, false) => {
+                                return err(format!("row {row} of {name} has no array"));
+                            }
+                        };
+                        let nelem = product(&shape);
+                        let head = if fixed.is_some() {
+                            0
+                        } else {
+                            4 * (shape.len() + 2)
+                        };
+                        if filled && head + 4 * nelem > l as usize {
+                            return err(format!(
+                                "row {row} of {name}: {nelem} strings do not fit in {l} bytes"
+                            ));
+                        }
+                        if row == start {
+                            data.shape = shape.clone();
+                        } else if shape != data.shape {
+                            return err(format!(
+                                "rows of {name} differ in shape; read fewer rows at once"
+                            ));
+                        }
+                        if filled {
+                            data.strings.extend(handler.next_strings(nelem)?);
+                        } else {
+                            data.strings
+                                .extend(std::iter::repeat_n(String::new(), nelem));
+                        }
+                        row += 1;
+                    }
+                    Ok(())
+                })?;
+            }
             SsmKind::Indirect => {
                 let mut offsets = Vec::with_capacity(count as usize);
                 self.visit_rows(&mut file, col, start, count, |bucket, offset, first, n| {
@@ -850,10 +924,37 @@ impl<'a> StringBuckets<'a> {
             return Ok(vec![String::new(); nelem]);
         }
         self.seek(bucket, offset)?;
+        self.next_strings(nelem)
+    }
+
+    /// One canonical (big-endian) int at the read position.
+    fn int(&mut self) -> Result<i32> {
+        let bytes = self.read(4)?;
+        Ok(i32::from_be_bytes(bytes.try_into().unwrap()))
+    }
+
+    /// The shape at (`bucket`, `offset`) of a variable-shape string array: a
+    /// canonical int dimension count, then the dimensions (Fortran order).
+    fn shape(&mut self, bucket: i32, offset: usize) -> Result<Vec<i64>> {
+        self.seek(bucket, offset)?;
+        let ndim = self.int()?;
+        if !(0..=64).contains(&ndim) {
+            return err(format!("string array has {ndim} dimensions"));
+        }
+        (0..ndim)
+            .map(|_| match self.int()? {
+                d if d >= 0 => Ok(i64::from(d)),
+                d => err(format!("string array has dimension {d}")),
+            })
+            .collect()
+    }
+
+    /// `nelem` strings at the read position, each a canonical int length
+    /// and its characters.
+    fn next_strings(&mut self, nelem: usize) -> Result<Vec<String>> {
         let mut out = Vec::with_capacity(nelem);
         for _ in 0..nelem {
-            let len = self.read(4)?;
-            let len = i32::from_be_bytes(len.try_into().unwrap()).max(0) as usize;
+            let len = self.int()?.max(0) as usize;
             let text = self.read(len)?;
             out.push(String::from_utf8_lossy(&text).into_owned());
         }
@@ -946,7 +1047,25 @@ impl IndirectFile {
 }
 
 // ---------------------------------------------------------------------------
-// IncrementalStMan (scalar columns only).
+// IncrementalStMan: scalars, Direct arrays (values in the bucket) and
+// indirect arrays (`ISMIndColumn`: an 8-byte offset in the bucket into the
+// `table.fNi` array file, 0 for a row without an array), each column form
+// as `ism.rs` writes it (research/msv2-edge-cases.md, R1 and R2).
+
+/// How one column's values sit in an IncrementalStMan bucket.
+#[derive(Clone, Debug, PartialEq)]
+enum IsmValue {
+    /// A numeric or Bool scalar (n 1) or a Direct array of n values; Bool
+    /// as bits from bit 0.
+    Values(DataType, usize),
+    /// A string scalar (n 1) or a Direct string array of n strings
+    /// (`ISMColumn::fromString`).
+    Strings(usize),
+    /// An indirect array, string arrays included.
+    Indirect(DataType),
+    /// Refused for this column only; the manager's other columns read.
+    Unsupported(String),
+}
 
 struct Ism {
     data_file: PathBuf,
@@ -955,7 +1074,7 @@ struct Ism {
     /// Start rows of the buckets, with the total row count last.
     rows: Vec<u64>,
     buckets: Vec<u32>,
-    columns: Vec<(DataType, usize)>,
+    columns: Vec<IsmValue>,
 }
 
 impl Ism {
@@ -993,16 +1112,7 @@ impl Ism {
         let mut buckets = ic.block_u32()?;
         rows.truncate(n_used + 1);
         buckets.truncate(n_used);
-        let mut cols = Vec::with_capacity(columns.len());
-        for desc in columns {
-            if desc.is_array || desc.dtype == DataType::Str {
-                return err(format!(
-                    "IncrementalStMan array or string column {} is not supported",
-                    desc.name
-                ));
-            }
-            cols.push((desc.dtype, 1));
-        }
+        let cols = columns.iter().map(|&desc| Self::form(desc)).collect();
         Ok(Ism {
             data_file,
             big,
@@ -1013,14 +1123,51 @@ impl Ism {
         })
     }
 
-    fn read(&self, col: usize, start: u64, count: u64) -> Result<ColumnData> {
-        let (dtype, nelem) = self.columns[col];
+    /// The bucket form of a column, as `ism.rs`'s `ism_col`: arrays without
+    /// the Direct option bit are indirect.
+    fn form(desc: &ColumnDesc) -> IsmValue {
+        if !desc.is_array {
+            return match desc.dtype {
+                DataType::Str => IsmValue::Strings(1),
+                dt => IsmValue::Values(dt, 1),
+            };
+        }
+        if desc.option & 1 == 0 {
+            return IsmValue::Indirect(desc.dtype);
+        }
+        if !desc.fixed_shape || desc.shape.is_empty() {
+            return IsmValue::Unsupported(format!(
+                "IncrementalStMan Direct array column {} without a fixed shape is not supported",
+                desc.name
+            ));
+        }
+        match desc.dtype {
+            DataType::Str => IsmValue::Strings(product(&desc.shape)),
+            dt => IsmValue::Values(dt, product(&desc.shape)),
+        }
+    }
+
+    /// Whether column `col` reads (false: refused on its own).
+    fn supports(&self, col: usize) -> bool {
+        !matches!(self.columns[col], IsmValue::Unsupported(_))
+    }
+
+    fn read(&self, desc: &ColumnDesc, col: usize, start: u64, count: u64) -> Result<ColumnData> {
+        let form = &self.columns[col];
+        if let IsmValue::Unsupported(reason) = form {
+            return err(reason.clone());
+        }
         let mut file = File::open(&self.data_file)?;
         let mut data = ColumnData {
-            dtype: Some(dtype),
+            dtype: Some(desc.dtype),
             nrows: count,
             ..Default::default()
         };
+        if desc.is_array && !matches!(form, IsmValue::Indirect(_)) {
+            data.shape = desc.shape.clone();
+        }
+        // The array file of the indirect columns, opened at their first read.
+        let mut ind: Option<IndirectFile> = None;
         let mut row = start;
         while row < start + count {
             let i = self.rows.partition_point(|&r| r <= row).saturating_sub(1);
@@ -1046,18 +1193,60 @@ impl Ism {
                     .map_or(bucket_end - bucket_start, |&(r, _)| r);
                 let n = (until.min(last - bucket_start + 1) - local) as usize;
                 let value_at = 4 + offset as usize;
-                match dtype {
-                    DataType::Bool => {
+                match form {
+                    IsmValue::Values(DataType::Bool, 1) => {
                         let bit = (bytes.get(value_at).copied().unwrap_or(0)) & 1;
-                        data.bytes.extend(std::iter::repeat_n(bit, n * nelem));
+                        data.bytes.extend(std::iter::repeat_n(bit, n));
                     }
-                    dt => {
-                        let mut one = Vec::with_capacity(dt.size() * nelem);
-                        convert_into(&mut one, &bytes[value_at..], dt, nelem, self.big)?;
+                    IsmValue::Values(DataType::Bool, nelem) => {
+                        let mut one = Vec::with_capacity(*nelem);
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        bits_into(&mut one, src, 0, *nelem)?;
                         for _ in 0..n {
                             data.bytes.extend_from_slice(&one);
                         }
                     }
+                    IsmValue::Values(dt, nelem) => {
+                        let mut one = Vec::with_capacity(dt.size() * nelem);
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        convert_into(&mut one, src, *dt, *nelem, self.big)?;
+                        for _ in 0..n {
+                            data.bytes.extend_from_slice(&one);
+                        }
+                    }
+                    IsmValue::Strings(nelem) => {
+                        let src = bytes.get(value_at..).unwrap_or(&[]);
+                        let one = ism_strings(src, *nelem, self.big)?;
+                        for _ in 0..n {
+                            data.strings.extend(one.iter().cloned());
+                        }
+                    }
+                    IsmValue::Indirect(dt) => {
+                        let at = read_u64(&bytes, value_at, self.big)?;
+                        if at == 0 {
+                            return err(format!("row {row} of {} has no array", desc.name));
+                        }
+                        if ind.is_none() {
+                            ind = Some(IndirectFile::open(&self.data_file, self.big)?);
+                        }
+                        let array = ind.as_mut().unwrap();
+                        let shape = array.shape(at)?;
+                        if row == start {
+                            data.shape = shape.clone();
+                        } else if shape != data.shape {
+                            return err(format!(
+                                "rows of {} differ in shape; read fewer rows at once",
+                                desc.name
+                            ));
+                        }
+                        let mut one = ColumnData::default();
+                        array.values(*dt, &shape, &mut one)?;
+                        for _ in 0..n {
+                            data.bytes.extend_from_slice(&one.bytes);
+                            data.strings.extend(one.strings.iter().cloned());
+                        }
+                    }
+                    IsmValue::Unsupported(_) => unreachable!("refused above"),
                 }
                 row += n as u64;
             }
@@ -1104,8 +1293,32 @@ impl Ism {
     }
 }
 
+/// `n` strings of an IncrementalStMan value (`ISMColumn::toString`): the
+/// total length (itself included), then the characters of one string, or
+/// for several strings each one's length and characters.
+fn ism_strings(src: &[u8], n: usize, big: bool) -> Result<Vec<String>> {
+    let total = read_u32(src, 0, big)? as usize;
+    let body = src
+        .get(4..total.max(4))
+        .ok_or_else(|| MsError("truncated IncrementalStMan string".into()))?;
+    if n == 1 {
+        return Ok(vec![String::from_utf8_lossy(body).into_owned()]);
+    }
+    let mut out = Vec::with_capacity(n);
+    let mut at = 0;
+    for _ in 0..n {
+        let len = read_u32(body, at, big)? as usize;
+        let text = body
+            .get(at + 4..at + 4 + len)
+            .ok_or_else(|| MsError("truncated IncrementalStMan string".into()))?;
+        out.push(String::from_utf8_lossy(text).into_owned());
+        at += 4 + len;
+    }
+    Ok(out)
+}
+
 // ---------------------------------------------------------------------------
-// TiledShapeStMan and TiledColumnStMan.
+// TiledShapeStMan, TiledColumnStMan and TiledCellStMan.
 
 struct Cube {
     shape: Vec<i64>,
@@ -1129,6 +1342,9 @@ struct Tsm {
     cube_map: Vec<u32>,
     pos_map: Vec<u32>,
     by_row: bool,
+    /// TiledCellStMan: hypercube `row` holds row `row`'s cell, given a
+    /// trailing axis of length 1 here so that it reads as a one-row cube.
+    cube_per_row: bool,
 }
 
 impl Tsm {
@@ -1138,7 +1354,7 @@ impl Tsm {
         let mut h = Cursor::new(&header, true);
         h.magic()?;
         let outer = h.start_expect(kind)?;
-        let fixed_tile = if kind == "TiledColumnStMan" {
+        let fixed_tile = if kind == "TiledColumnStMan" || kind == "TiledCellStMan" {
             Some(h.iposition()?)
         } else {
             None
@@ -1175,7 +1391,10 @@ impl Tsm {
         } else {
             u64::from(h.u32()?)
         };
-        let nrdim = h.u32()? as usize;
+        let cube_per_row = kind == "TiledCellStMan";
+        // A TiledCellStMan's hypercubes are cells (no row axis): read them
+        // with a trailing row axis of length 1.
+        let nrdim = h.u32()? as usize + usize::from(cube_per_row);
         let nfile = if inner.version >= 3 {
             h.u64()?
         } else {
@@ -1212,8 +1431,12 @@ impl Tsm {
             h.skip_object()?; // id/coordinate values record
             let _extensible = h.bool()?;
             let _nrdim = h.u32()?;
-            let shape = h.iposition()?;
-            let tile = h.iposition()?;
+            let mut shape = h.iposition()?;
+            let mut tile = h.iposition()?;
+            if cube_per_row && !shape.is_empty() {
+                shape.push(1);
+                tile.push(1);
+            }
             let file_seq = h.i32()?;
             let file_offset = if version == 1 {
                 u64::from(h.u32()?)
@@ -1239,7 +1462,7 @@ impl Tsm {
         }
         h.end(&inner);
         let (mut row_map, mut cube_map, mut pos_map) = (Vec::new(), Vec::new(), Vec::new());
-        let by_row = fixed_tile.is_none();
+        let by_row = fixed_tile.is_none() && !cube_per_row;
         if by_row {
             let _default_tile = h.iposition()?;
             let n = h.u32()? as usize;
@@ -1268,6 +1491,7 @@ impl Tsm {
             cube_map,
             pos_map,
             by_row,
+            cube_per_row,
         })
     }
 
@@ -1288,6 +1512,13 @@ impl Tsm {
 
     /// Hypercube index and position along the last axis of `row`.
     fn locate(&self, row: u64) -> Result<(usize, i64)> {
+        if self.cube_per_row {
+            // A row whose cell was never given a shape has an empty cube.
+            return match self.cubes.get(row as usize) {
+                Some(cube) if !cube.shape.is_empty() => Ok((row as usize, 0)),
+                _ => err(format!("row {row} has no tiled array")),
+            };
+        }
         if !self.by_row {
             return Ok((0, row as i64));
         }
@@ -1305,7 +1536,18 @@ impl Tsm {
         ))
     }
 
-    fn read(&self, desc: &ColumnDesc, col: usize, start: u64, count: u64) -> Result<ColumnData> {
+    /// Rows `rows` (`count` of them, in any order) of a column, each cell
+    /// cut to `slice` (per cell axis, casacore order: first pixel and
+    /// length; None the whole cell). Only the tiles that intersect the
+    /// slice are read, through one tile cache for every row.
+    fn read<I: Iterator<Item = u64>>(
+        &self,
+        desc: &ColumnDesc,
+        col: usize,
+        rows: I,
+        count: u64,
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
         let dtype = self.columns[col];
         if self.nrdim < 2 {
             return err(format!(
@@ -1322,18 +1564,33 @@ impl Tsm {
         let mut handles: HashMap<usize, File> = HashMap::new();
         let last = self.nrdim - 1;
         let native = dtype.native_size();
-        for row in start..start + count {
+        let mut first_cell: Option<Vec<i64>> = None;
+        let mut lo: Vec<i64> = Vec::new();
+        for row in rows {
             let (cube_index, pos) = self.locate(row)?;
             let cube = &self.cubes[cube_index];
             let cell = &cube.shape[..last];
-            if row == start {
-                data.shape = cell.to_vec();
-            } else if cell != data.shape.as_slice() {
-                return err(format!(
-                    "rows of {} differ in shape; read fewer rows at once",
-                    desc.name
-                ));
+            match &first_cell {
+                None => {
+                    let region = match slice {
+                        None => cell.iter().map(|&n| (0, n)).collect(),
+                        Some(s) => resolve_slice(s, cell)?,
+                    };
+                    lo = region.iter().map(|&(a, _)| a).collect();
+                    data.shape = region.iter().map(|&(_, n)| n).collect();
+                    first_cell = Some(cell.to_vec());
+                }
+                Some(first) if first.as_slice() != cell => {
+                    return err(format!(
+                        "rows of {} differ in shape; read fewer rows at once",
+                        desc.name
+                    ));
+                }
+                Some(_) => {}
             }
+            // The region of the cell to copy: first pixel `lo` and length
+            // `len` per axis.
+            let len = &data.shape;
             let file_index = cube
                 .file
                 .ok_or_else(|| MsError(format!("hypercube of {} has no file", desc.name)))?;
@@ -1354,27 +1611,33 @@ impl Tsm {
             let column_at = self.offset_in_tile(col, cube);
             let tile_last = (pos / cube.tile[last]) as usize;
             let in_tile_last = pos % cube.tile[last];
-            // Strides of the tile grid, of the pixels inside a tile and of the cell.
+            // Strides of the tile grid, of the pixels inside a tile and of
+            // the output cell (the slice's lengths).
             let mut grid_stride = vec![1i64; self.nrdim];
             let mut pixel_stride = vec![1i64; self.nrdim];
-            let mut cell_stride = vec![1i64; last.max(1)];
+            let mut out_stride = vec![1i64; last];
             for i in 1..self.nrdim {
                 grid_stride[i] = grid_stride[i - 1] * cube.tiles_per_dim[i - 1];
                 pixel_stride[i] = pixel_stride[i - 1] * cube.tile[i - 1];
                 if i < last {
-                    cell_stride[i] = cell_stride[i - 1] * cell[i - 1];
+                    out_stride[i] = out_stride[i - 1] * len[i - 1];
                 }
             }
-            let cell_pixels = product(cell);
+            let out_pixels = product(len);
             let out_at = data.bytes.len();
-            data.bytes.resize(out_at + cell_pixels * native, 0);
+            data.bytes.resize(out_at + out_pixels * native, 0);
             let out = &mut data.bytes[out_at..];
+            let whole = (0..last).all(|i| lo[i] == 0 && len[i] == cell[i]);
             let contiguous =
-                (0..last).all(|i| cube.tiles_per_dim[i] == 1 && cube.tile[i] == cell[i]);
-            // Visit every tile the cell intersects (the grid over axes
-            // 0..last-1 at the row's tile along the last axis) and copy its
-            // block of the cell as runs along axis 0.
-            let mut tpos = vec![0i64; last];
+                whole && (0..last).all(|i| cube.tiles_per_dim[i] == 1 && cube.tile[i] == cell[i]);
+            // The tiles the region intersects, per axis.
+            let t_lo: Vec<i64> = (0..last).map(|i| lo[i] / cube.tile[i]).collect();
+            let t_hi: Vec<i64> = (0..last)
+                .map(|i| (lo[i] + len[i] - 1) / cube.tile[i])
+                .collect();
+            // Visit every such tile (at the row's tile along the last axis)
+            // and copy its block of the region as runs.
+            let mut tpos = t_lo.clone();
             loop {
                 let tile_nr = tile_last * grid_stride[last] as usize
                     + (0..last)
@@ -1391,30 +1654,46 @@ impl Tsm {
                 let tile = &cache[&key][column_at..];
                 let base = (in_tile_last * pixel_stride[last]) as usize;
                 if contiguous {
-                    copy_pixels(out, 0, tile, base, cell_pixels, dtype, self.big)?;
+                    copy_pixels(out, 0, tile, base, out_pixels, dtype, self.big)?;
                     break;
                 }
-                // The block of this tile: pixel range per axis of the cell.
-                let block_start: Vec<i64> = (0..last).map(|i| tpos[i] * cube.tile[i]).collect();
-                let block_len: Vec<i64> = (0..last)
-                    .map(|i| (block_start[i] + cube.tile[i]).min(cell[i]) - block_start[i])
+                // The block of this tile within the region, per axis: its
+                // first pixel in the cell and its length.
+                let b_start: Vec<i64> = (0..last)
+                    .map(|i| (tpos[i] * cube.tile[i]).max(lo[i]))
                     .collect();
-                let run = block_len[0] as usize;
+                let b_len: Vec<i64> = (0..last)
+                    .map(|i| {
+                        ((tpos[i] + 1) * cube.tile[i])
+                            .min(lo[i] + len[i])
+                            .min(cell[i])
+                            - b_start[i]
+                    })
+                    .collect();
+                // Leading axes the block spans whole, in the tile and in the
+                // output, are contiguous in both: one run covers them.
+                let mut k = 1;
+                let mut run = b_len[0];
+                while k < last && b_len[k - 1] == cube.tile[k - 1] && b_len[k - 1] == len[k - 1] {
+                    run *= b_len[k];
+                    k += 1;
+                }
+                let run = run as usize;
                 let mut idx = vec![0i64; last];
                 loop {
-                    let src = base
-                        + (1..last)
-                            .map(|i| (idx[i] * pixel_stride[i]) as usize)
-                            .sum::<usize>();
-                    let dst = block_start[0] as usize
-                        + (1..last)
-                            .map(|i| ((block_start[i] + idx[i]) * cell_stride[i]) as usize)
-                            .sum::<usize>();
+                    let mut src = base;
+                    let mut dst = 0usize;
+                    for i in 0..last {
+                        let step = if i >= k { idx[i] } else { 0 };
+                        src += ((b_start[i] - tpos[i] * cube.tile[i] + step) * pixel_stride[i])
+                            as usize;
+                        dst += ((b_start[i] - lo[i] + step) * out_stride[i]) as usize;
+                    }
                     copy_pixels(out, dst, tile, src, run, dtype, self.big)?;
-                    let mut i = 1;
+                    let mut i = k;
                     while i < last {
                         idx[i] += 1;
-                        if idx[i] < block_len[i] {
+                        if idx[i] < b_len[i] {
                             break;
                         }
                         idx[i] = 0;
@@ -1427,10 +1706,10 @@ impl Tsm {
                 let mut i = 0;
                 while i < last {
                     tpos[i] += 1;
-                    if tpos[i] < cube.tiles_per_dim[i] {
+                    if tpos[i] <= t_hi[i] {
                         break;
                     }
-                    tpos[i] = 0;
+                    tpos[i] = t_lo[i];
                     i += 1;
                 }
                 if i >= last {
@@ -1440,6 +1719,98 @@ impl Tsm {
         }
         Ok(data)
     }
+}
+
+/// A cell slice (first pixel and length per axis, casacore order; a
+/// negative length runs to the end of the axis) checked against a cell of
+/// `shape`, with the lengths resolved. A slice of fewer axes than the cell
+/// cuts its last axes (NumPy's first cell axes) and keeps the others whole.
+fn resolve_slice(slice: &[(i64, i64)], shape: &[i64]) -> Result<Vec<(i64, i64)>> {
+    if slice.len() > shape.len() || slice.is_empty() {
+        return err(format!(
+            "a slice of {} axes for cells of {} axes",
+            slice.len(),
+            shape.len()
+        ));
+    }
+    let full: Vec<(i64, i64)> = std::iter::repeat_n((0, -1), shape.len() - slice.len())
+        .chain(slice.iter().copied())
+        .collect();
+    let mut out = Vec::with_capacity(shape.len());
+    for (i, (&(start, n), &size)) in full.iter().zip(shape).enumerate() {
+        let n = if n < 0 { size - start } else { n };
+        if start < 0 || n < 1 || start + n > size {
+            return err(format!(
+                "slice {start}+{n} of axis {i} is outside a cell of {size}"
+            ));
+        }
+        out.push((start, n));
+    }
+    Ok(out)
+}
+
+/// Cells read whole (`data`, `nrows` of `data.shape`) cut to `slice`: the
+/// cut of managers that read whole cells.
+pub(crate) fn cut_cells(data: ColumnData, slice: &[(i64, i64)]) -> Result<ColumnData> {
+    let slice = resolve_slice(slice, &data.shape)?;
+    let shape = data.shape.clone();
+    let len: Vec<i64> = slice.iter().map(|&(_, n)| n).collect();
+    let ndim = shape.len();
+    let in_pixels = product(&shape);
+    let out_pixels = product(&len);
+    let mut in_stride = vec![1usize; ndim];
+    for i in 1..ndim {
+        in_stride[i] = in_stride[i - 1] * shape[i - 1] as usize;
+    }
+    let run = len[0] as usize;
+    let mut out = ColumnData {
+        dtype: data.dtype,
+        nrows: data.nrows,
+        shape: len.clone(),
+        ..Default::default()
+    };
+    // Strings cut element by element, numbers as byte runs along axis 0.
+    let strings = data.dtype.is_none() || data.dtype == Some(DataType::Str);
+    let size = if strings {
+        0
+    } else {
+        data.dtype.unwrap().native_size()
+    };
+    if strings {
+        out.strings.reserve(data.nrows as usize * out_pixels);
+    } else {
+        out.bytes.reserve(data.nrows as usize * out_pixels * size);
+    }
+    for r in 0..data.nrows as usize {
+        let cell0 = r * in_pixels;
+        let mut idx = vec![0i64; ndim];
+        loop {
+            let mut at = cell0 + slice[0].0 as usize;
+            for i in 1..ndim {
+                at += (slice[i].0 + idx[i]) as usize * in_stride[i];
+            }
+            if strings {
+                out.strings
+                    .extend(data.strings[at..at + run].iter().cloned());
+            } else {
+                out.bytes
+                    .extend_from_slice(&data.bytes[at * size..(at + run) * size]);
+            }
+            let mut i = 1;
+            while i < ndim {
+                idx[i] += 1;
+                if idx[i] < len[i] {
+                    break;
+                }
+                idx[i] = 0;
+                i += 1;
+            }
+            if i >= ndim {
+                break;
+            }
+        }
+    }
+    Ok(out)
 }
 
 /// Copy `count` pixels from pixel `src` of a tile's column data into pixel
@@ -1613,6 +1984,7 @@ impl Table {
                     }
                 }
             }
+            let fixed_shape = !shape.is_empty() && option & 4 != 0;
             columns.push(ColumnDesc {
                 name,
                 dtype,
@@ -1620,6 +1992,7 @@ impl Table {
                 option,
                 ndim,
                 shape,
+                fixed_shape,
                 max_length,
                 manager_type,
                 manager_name,
@@ -1667,6 +2040,7 @@ impl Table {
                 if column.shape.is_empty() {
                     column.shape = shape;
                 }
+                column.fixed_shape = !column.shape.is_empty();
             }
         }
         let mut blobs = Vec::with_capacity(n);
@@ -1695,7 +2069,7 @@ impl Table {
                     Ok(ism) => Manager::Ism(ism),
                     Err(e) => Manager::Unsupported(e.0),
                 },
-                "TiledShapeStMan" | "TiledColumnStMan" => {
+                "TiledShapeStMan" | "TiledColumnStMan" | "TiledCellStMan" => {
                     Manager::Tsm(Tsm::open(&files, seq, &kind, &descs)?)
                 }
                 other => Manager::Unsupported(format!("storage manager {other} is not supported")),
@@ -1721,6 +2095,21 @@ impl Table {
 
     /// Read rows `start..start+count` of a column; `count` 0 means to the end.
     pub fn read_column(&self, name: &str, start: u64, count: u64) -> Result<ColumnData> {
+        self.read_column_slice(name, start, count, None)
+    }
+
+    /// Read rows `start..start+count` of a column (`count` 0: to the end),
+    /// each cell cut to `slice`: per cell axis (casacore order) the first
+    /// pixel and the length; None reads whole cells. The tiled managers read
+    /// only the tiles that intersect the slice; the others read whole cells
+    /// and cut them.
+    pub fn read_column_slice(
+        &self,
+        name: &str,
+        start: u64,
+        count: u64,
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
         let index = self.column(name)?;
         let desc = &self.columns[index];
         let count = if count == 0 {
@@ -1737,17 +2126,88 @@ impl Table {
         }
         let (slot, col) = self.binding[index];
         let manager = &self.managers[slot];
+        let cut = |d: ColumnData| match slice {
+            Some(s) if d.nrows > 0 => cut_cells(d, s),
+            _ => Ok(d),
+        };
         let mut data = match &manager.manager {
-            Manager::Ssm(ssm) => ssm.read(desc, col, start, count),
-            Manager::Ism(ism) => ism.read(col, start, count),
-            Manager::Tsm(tsm) => tsm.read(desc, col, start, count),
+            Manager::Ssm(ssm) => ssm.read(desc, col, start, count).and_then(cut),
+            Manager::Ism(ism) => ism.read(desc, col, start, count).and_then(cut),
+            Manager::Tsm(tsm) => tsm.read(desc, col, start..start + count, count, slice),
             Manager::Unsupported(reason) => err(reason.clone()),
         }
         .map_err(|e| MsError(format!("{}: {e}", desc.name)))?;
         if count == 0 {
-            data.shape = desc.shape.clone();
+            data.shape = match slice {
+                Some(s) if !desc.shape.is_empty() && s.len() <= desc.shape.len() => {
+                    resolve_slice(s, &desc.shape)?
+                        .iter()
+                        .map(|&(_, n)| n)
+                        .collect()
+                }
+                _ => desc.shape.clone(),
+            };
         }
         Ok(data)
+    }
+
+    /// Read the rows `rows` (in any order)
+    /// of a column, each cell cut to `slice` as `read_column_slice`, in the
+    /// order of `rows`. The tiled managers read them in one pass through one
+    /// tile cache; the others read each run of consecutive rows.
+    pub fn read_rows(
+        &self,
+        name: &str,
+        rows: &[u64],
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
+        let index = self.column(name)?;
+        let desc = &self.columns[index];
+        if let Some(&bad) = rows.iter().find(|&&r| r >= self.nrows) {
+            return err(format!(
+                "row {bad} exceeds the {} rows of the table",
+                self.nrows
+            ));
+        }
+        if rows.is_empty() {
+            return self.read_column_slice(name, 0, 0, slice).map(|mut d| {
+                d.nrows = 0;
+                d.bytes.clear();
+                d.strings.clear();
+                d
+            });
+        }
+        let (slot, col) = self.binding[index];
+        if let Manager::Tsm(tsm) = &self.managers[slot].manager {
+            return tsm
+                .read(desc, col, rows.iter().copied(), rows.len() as u64, slice)
+                .map_err(|e| MsError(format!("{}: {e}", desc.name)));
+        }
+        let mut out: Option<ColumnData> = None;
+        let mut at = 0;
+        while at < rows.len() {
+            let mut n = 1;
+            while at + n < rows.len() && rows[at + n] == rows[at] + n as u64 {
+                n += 1;
+            }
+            let part = self.read_column_slice(name, rows[at], n as u64, slice)?;
+            match &mut out {
+                None => out = Some(part),
+                Some(o) => {
+                    if o.shape != part.shape {
+                        return err(format!(
+                            "rows of {} differ in shape; read fewer rows at once",
+                            desc.name
+                        ));
+                    }
+                    o.nrows += part.nrows;
+                    o.bytes.extend_from_slice(&part.bytes);
+                    o.strings.extend(part.strings);
+                }
+            }
+            at += n;
+        }
+        Ok(out.unwrap())
     }
 
     /// JSON description of the table for the Python layer.
@@ -1759,9 +2219,13 @@ impl Table {
             self.little_endian
         );
         for (i, c) in self.columns.iter().enumerate() {
-            let (slot, _) = self.binding[i];
+            let (slot, col) = self.binding[i];
             let manager = &self.managers[slot];
-            let supported = !matches!(manager.manager, Manager::Unsupported(_));
+            let supported = match &manager.manager {
+                Manager::Unsupported(_) => false,
+                Manager::Ism(ism) => ism.supports(col),
+                _ => true,
+            };
             if i > 0 {
                 out.push(',');
             }

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """SHA256 receipts of the code a run used (`source_receipts`).
 
 Until task W4-1 this module was the P11 extract of the frozen

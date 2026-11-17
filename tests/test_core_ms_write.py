@@ -122,8 +122,10 @@ def test_formerly_deferred_writes_work(tmp_path):
     assert cell[0].shape == (1, 4096, 4) and cell[0].all() and cell[1] is None
 
 
-def test_the_lock_keeps_a_second_process_out(tmp_path):
-    ms = _copy(FIXTURE, tmp_path)
+def _second_process_is_kept_out(ms):
+    """A subprocess holds `ms` open for writing; this process can read it
+    (the lock bytes lie outside the file's data on Windows) but cannot
+    open it for writing until the holder closes (research/ms-lock-windows.md)."""
     holder = textwrap.dedent(
         f"""
         import sys, time
@@ -135,18 +137,52 @@ def test_the_lock_keeps_a_second_process_out(tmp_path):
         t.close()
         """
     )
+    nrows = core_ms_write.describe(ms)[0]
     proc = subprocess.Popen(
         [sys.executable, "-c", holder], stdout=subprocess.PIPE, text=True
     )
     try:
         assert proc.stdout.readline().strip() == "held"
+        assert core_ms_write.describe(ms)[0] == nrows
         with pytest.raises(OSError, match="locked"):
             core_ms_write.open_table(ms, readonly=False, lock_attempts=1, lock_wait=0)
     finally:
         proc.wait(timeout=60)
+    assert proc.returncode == 0
     core_ms_write.open_table(
         ms, readonly=False, lock_attempts=10, lock_wait=1.0
     ).close()
+
+
+def test_the_lock_keeps_a_second_process_out(tmp_path):
+    _second_process_is_kept_out(_copy(FIXTURE, tmp_path))
+
+
+def test_the_lock_keeps_a_second_process_out_of_a_new_ms(tmp_path):
+    # Fixture-free, so CI runs it on Linux and Windows.
+    if not core_ms_write.has_creator():
+        pytest.skip("extension built without table creation")
+    ms = tmp_path / "new.ms"
+    with core_ms_write.default_ms(ms) as t:
+        t.addrows(5)
+    _second_process_is_kept_out(ms)
+
+
+def test_a_reader_sees_the_rows_while_the_writer_holds_the_lock(tmp_path):
+    # Windows byte-range locks are mandatory: they must not cover table.lock's
+    # sync record, or readers fall back to table.dat's row count.
+    if not core_ms_write.has_creator():
+        pytest.skip("extension built without table creation")
+    ms = tmp_path / "new.ms"
+    core_ms_write.default_ms(ms).close()
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        t.addrows(3)
+        t.flush()
+        assert core_ms_write.describe(ms)[0] == 3
+        with core_ms.open_table(ms) as r:
+            assert r.nrows == 3
+        t.addrows(2)
+    assert core_ms_write.describe(ms)[0] == 5
 
 
 @pytest.mark.parametrize("case", ["F-flag", "F-flagrow", "L-flag", "F-keywords"])

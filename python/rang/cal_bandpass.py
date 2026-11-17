@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The bandpass B: a diagonal complex gain per channel, with CASA's
 `bandpass(bandtype='B')` rules (task C2c, research/c2c-bandpass.md part 2;
 C1 step 5, research/c1-calibration-chain.md).
@@ -157,6 +161,8 @@ def bandpass(
     stop_fraction=0.99,
     scan=None,
     budget=None,
+    average_time=False,
+    model_divided=False,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -167,7 +173,18 @@ def bandpass(
     `rang.cal_gain.gaincal`), `weight_column` otherwise. Raises when no
     solution is written. `weight_column=None` and `scan` as
     `rang.cal_gain.gaincal` (task C2e), and `budget` (task W3b): chunks of
-    whole intervals, or of channels of one interval."""
+    whole intervals, or of channels of one interval. `average_time` (task
+    E2) as `rang.cal_gain.gaincal`. `model_divided` (task e2a-3b-diag,
+    `calibrate.bandpass_model_divided`, research/e2a-3b-diag.md): the
+    parallel hands are divided by the model after the pre-applies, with
+    weight `w |M|^2` and model 1 (`rang.cal_gain.model_divided`, CASA's
+    `divideCorrByModel`), before any time average. A K or G pre-applied in
+    a B solve corrupts the model, so with `average_time` and gains that
+    vary within the B interval, averaging data and model separately is a
+    different estimator from CASA's, which divides first. On E2-A's subset
+    the divided average equals the unaveraged B to 4e-7; on the 4-antenna
+    test synthetic the two still differ (open). Without `average_time` the
+    solution is unchanged up to rounding."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -199,6 +216,7 @@ def bandpass(
         interp=interp, nant=nant, field_id=field_id, solved="B", freq=freq,
         uvrange=uvrange,
     )  # fmt: skip
+    fld.model_divided = bool(model_divided)
     m = fld.meta
     tb, keys = cal_gain.solint_bins(
         m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
@@ -209,6 +227,7 @@ def bandpass(
         refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
         positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+        **({"average": True} if average_time else {}),
     )  # fmt: skip
     sol = _finish(gsol, fillgaps, casa_rules)
     del gsol

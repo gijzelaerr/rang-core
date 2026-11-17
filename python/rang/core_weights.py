@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """WSClean imaging weights and Stokes I on the Rang core (research/core-b-weighting.md).
 
 Ports WSClean 3.6's Briggs, uniform and natural weighting (padded half-plane

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W5: compare arm S (the chain recipe under Stimela) with arm H (the four
 commands by hand) of one case (research/w5-stimela.md, gates 1 and 2).
 

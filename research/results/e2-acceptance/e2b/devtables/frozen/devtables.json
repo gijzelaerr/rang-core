@@ -1,0 +1,13 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "config": "research/results/e2-acceptance-scripts/e2b-dev.yaml",
+ "python": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+ "moved_before": "D:\\rang\\outputs\\e2-20261112-22-devtables\frozen\\rang-run-before",
+ "restored_rows_before": 236208,
+ "run_exit": 0,
+ "run_seconds": 2234.4372422999877,
+ "saved_version": "e2dev_frozen_after_calibrate",
+ "saved_now": true,
+ "restored_rows_after": 236208,
+ "flag_restored_equal": true
+}

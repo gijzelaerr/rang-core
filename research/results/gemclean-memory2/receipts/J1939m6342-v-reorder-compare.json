@@ -1,0 +1,27 @@
+{
+ "field": "J1939m6342",
+ "run": "v-reorder",
+ "against": "base",
+ "fits": 153,
+ "fits_identical": true,
+ "entries_identical": true,
+ "mask_identical": true,
+ "exit": [
+  0,
+  0
+ ],
+ "base": {
+  "peak_rss_gb": 16.46,
+  "peak_working_set_gib": 17.4,
+  "peak_private_gib": 17.43,
+  "wall_s": 920.1
+ },
+ "run_figures": {
+  "peak_rss_gb": 9.1,
+  "peak_working_set_gib": 9.1,
+  "peak_private_gib": 9.12,
+  "wall_s": 880.8
+ },
+ "rss_ratio": 0.553,
+ "wall_ratio": 0.957
+}

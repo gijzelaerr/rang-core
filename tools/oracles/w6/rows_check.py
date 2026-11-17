@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """W6 criterion 1c: MODEL_DATA differs from its 7+7j sentinel exactly on the
 selected rows (field, scans, cross-correlations). python-casacore.
 

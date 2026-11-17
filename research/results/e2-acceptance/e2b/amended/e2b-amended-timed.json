@@ -1,0 +1,19 @@
+{
+ "command": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261112-e2-amended-wheel\\venv\\Scripts\\python.exe",
+  "-m",
+  "rang.core_cli",
+  "run",
+  "research/results/e2-acceptance-scripts/e2b-amended.yaml",
+  "D:\\rang\\data\\e2-b\\e2b.ms"
+ ],
+ "rc": 0,
+ "wall_s": 6248.672557830811,
+ "peak_tree_rss_bytes": 49088040960,
+ "peak_process_rss_bytes": 48914296832,
+ "host_cpu_load_pct_at_start": 2.6,
+ "host_cpu_load_pct_mean": 58.089712758851036,
+ "host_cpu_load_pct_max": 100.0,
+ "logical_cpus": 16,
+ "started": "2026-11-12T18:51:14"
+}

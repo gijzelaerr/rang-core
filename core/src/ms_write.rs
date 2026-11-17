@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Writes into existing casacore tables (research/e3-table-writer.md).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
@@ -88,29 +89,138 @@ mod fcntl {
         unsafe { fcntl(file.as_raw_fd(), F_SETLK, &lock as *const Flock) != -1 }
     }
 
-    pub fn write_lock(file: &std::fs::File, start: i64) -> bool {
-        set(file, F_WRLCK, start)
+    pub fn write_lock(file: &std::fs::File, start: i64) -> std::io::Result<bool> {
+        Ok(set(file, F_WRLCK, start))
     }
 
-    pub fn read_lock(file: &std::fs::File, start: i64) -> bool {
-        set(file, F_RDLCK, start)
+    pub fn read_lock(file: &std::fs::File, start: i64) -> std::io::Result<bool> {
+        Ok(set(file, F_RDLCK, start))
     }
 
     pub fn unlock(file: &std::fs::File, start: i64) {
         set(file, F_UNLCK, start);
     }
+
+    /// Closing any descriptor of the file drops all of a process's fcntl
+    /// locks on it, so the write lock is re-taken before each change.
+    pub const REASSERT: bool = true;
 }
 
-#[cfg(not(target_os = "linux"))]
+/// Windows: `LockFileEx` byte-range locks (research/ms-lock-windows.md).
+/// They are mandatory and per handle, unlike fcntl's advisory per-process
+/// locks, so they are taken on bytes far beyond the end of `table.lock`
+/// (`BASE + start`): reads of the file's request list and sync record, from
+/// any handle, are never refused. They exclude other rang processes on
+/// Windows; a casacore (WSL) process's fcntl lock on the same file is not
+/// seen.
+#[cfg(windows)]
 mod fcntl {
-    // No inter-process lock on this platform (research/e3-table-writer.md).
-    pub fn write_lock(_: &std::fs::File, _: i64) -> bool {
-        true
+    use std::ffi::c_void;
+    use std::os::windows::io::AsRawHandle;
+
+    #[repr(C)]
+    struct Overlapped {
+        internal: usize,
+        internal_high: usize,
+        offset: u32,
+        offset_high: u32,
+        event: *mut c_void,
     }
-    pub fn read_lock(_: &std::fs::File, _: i64) -> bool {
-        true
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn LockFileEx(
+            file: *mut c_void,
+            flags: u32,
+            reserved: u32,
+            low: u32,
+            high: u32,
+            overlapped: *mut Overlapped,
+        ) -> i32;
+        fn UnlockFileEx(
+            file: *mut c_void,
+            reserved: u32,
+            low: u32,
+            high: u32,
+            overlapped: *mut Overlapped,
+        ) -> i32;
+    }
+
+    const LOCKFILE_FAIL_IMMEDIATELY: u32 = 1;
+    const LOCKFILE_EXCLUSIVE_LOCK: u32 = 2;
+    const ERROR_LOCK_VIOLATION: i32 = 33;
+    /// Where lock byte 0 lives: past any `table.lock` casacore writes.
+    pub const BASE: u64 = 1 << 62;
+
+    fn overlapped(start: i64) -> Overlapped {
+        let at = BASE + start as u64;
+        Overlapped {
+            internal: 0,
+            internal_high: 0,
+            offset: at as u32,
+            offset_high: (at >> 32) as u32,
+            event: std::ptr::null_mut(),
+        }
+    }
+
+    /// Ok(true) when taken, Ok(false) when another handle holds it.
+    fn set(file: &std::fs::File, flags: u32, start: i64) -> std::io::Result<bool> {
+        let mut o = overlapped(start);
+        // SAFETY: a valid open handle and OVERLAPPED; FAIL_IMMEDIATELY on a
+        // synchronous handle returns at once.
+        let ok = unsafe {
+            LockFileEx(
+                file.as_raw_handle(),
+                flags | LOCKFILE_FAIL_IMMEDIATELY,
+                0,
+                1,
+                0,
+                &mut o,
+            )
+        };
+        if ok != 0 {
+            return Ok(true);
+        }
+        let e = std::io::Error::last_os_error();
+        if e.raw_os_error() == Some(ERROR_LOCK_VIOLATION) {
+            Ok(false)
+        } else {
+            Err(e)
+        }
+    }
+
+    pub fn write_lock(file: &std::fs::File, start: i64) -> std::io::Result<bool> {
+        set(file, LOCKFILE_EXCLUSIVE_LOCK, start)
+    }
+
+    pub fn read_lock(file: &std::fs::File, start: i64) -> std::io::Result<bool> {
+        set(file, 0, start)
+    }
+
+    pub fn unlock(file: &std::fs::File, start: i64) {
+        let mut o = overlapped(start);
+        // SAFETY: as in `set`; unlocking a range that is not locked fails
+        // harmlessly.
+        unsafe { UnlockFileEx(file.as_raw_handle(), 0, 1, 0, &mut o) };
+    }
+
+    /// A per-handle lock is not dropped by closing another handle of the
+    /// file, and a second exclusive lock of the same range from the same
+    /// handle fails, so the write lock is never re-taken.
+    pub const REASSERT: bool = false;
+}
+
+#[cfg(not(any(target_os = "linux", windows)))]
+mod fcntl {
+    // No inter-process lock on this platform (research/ms-lock-windows.md).
+    pub fn write_lock(_: &std::fs::File, _: i64) -> std::io::Result<bool> {
+        Ok(true)
+    }
+    pub fn read_lock(_: &std::fs::File, _: i64) -> std::io::Result<bool> {
+        Ok(true)
     }
     pub fn unlock(_: &std::fs::File, _: i64) {}
+    pub const REASSERT: bool = false;
 }
 
 /// The sync record of `table.lock` (`TableSyncData`).
@@ -220,9 +330,10 @@ impl LockFile {
             .write(true)
             .open(&path)
             .map_err(|e| MsError(format!("{}: {e}", path.display())))?;
+        let failed = |e: std::io::Error| MsError(format!("lock of {}: {e}", path.display()));
         for i in 0..attempts.max(1) {
-            if fcntl::write_lock(&file, 0) {
-                fcntl::read_lock(&file, 1);
+            if fcntl::write_lock(&file, 0).map_err(failed)? {
+                fcntl::read_lock(&file, 1).map_err(failed)?;
                 return Ok(LockFile { file });
             }
             if i + 1 < attempts {
@@ -250,8 +361,11 @@ impl LockFile {
     /// for example a reader of the same table in the same process). Fails
     /// when another process took it meanwhile.
     pub fn reassert(&self) -> Result<()> {
-        if fcntl::write_lock(&self.file, 0) {
-            fcntl::read_lock(&self.file, 1);
+        if !fcntl::REASSERT {
+            return Ok(());
+        }
+        if fcntl::write_lock(&self.file, 0)? {
+            fcntl::read_lock(&self.file, 1)?;
             Ok(())
         } else {
             err("the table's write lock was lost to another process")
@@ -5104,9 +5218,21 @@ impl TableWriter {
     /// Flush, then read rows of a column with the task E reader, without
     /// touching `table.lock` (which would drop this process's lock).
     pub fn read_column(&mut self, name: &str, start: u64, count: u64) -> Result<ColumnData> {
+        self.read_column_slice(name, start, count, None)
+    }
+
+    /// Flush, then read rows `start..start+count` (`count` 0: to the end)
+    /// with each cell cut to `slice` (`crate::ms::Table::read_column_slice`).
+    pub fn read_column_slice(
+        &mut self,
+        name: &str,
+        start: u64,
+        count: u64,
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
         self.flush()?;
         let direct = crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))
-            .and_then(|t| t.read_column(name, start, count));
+            .and_then(|t| t.read_column_slice(name, start, count, slice));
         match direct {
             Ok(d) => Ok(d),
             Err(e) => {
@@ -5120,7 +5246,55 @@ impl TableWriter {
                 };
                 let dtype = DataType::from_code(self.dat.columns[self.dat.column(name)?].dtype)?;
                 let cells = read_cells(&self.dir, name, start, count, Some(self.nrows))?;
-                pack_cells(dtype, count, cells).ok_or(e)
+                let packed = pack_cells(dtype, count, cells).ok_or(e)?;
+                match slice {
+                    Some(s) if packed.nrows > 0 => crate::ms::cut_cells(packed, s),
+                    _ => Ok(packed),
+                }
+            }
+        }
+    }
+
+    /// Flush, then read the rows `rows` (any order) with each cell cut to
+    /// `slice` (`crate::ms::Table::read_rows`), in the order of `rows`.
+    pub fn read_rows(
+        &mut self,
+        name: &str,
+        rows: &[u64],
+        slice: Option<&[(i64, i64)]>,
+    ) -> Result<ColumnData> {
+        self.flush()?;
+        let direct = crate::ms::Table::open_with_rows(&self.dir, Some(self.nrows))
+            .and_then(|t| t.read_rows(name, rows, slice));
+        match direct {
+            Ok(d) => Ok(d),
+            Err(e) => {
+                // As `read_column_slice`: each run of consecutive rows through
+                // the writer's own cell reads.
+                let mut out: Option<ColumnData> = None;
+                let mut at = 0;
+                while at < rows.len() {
+                    let mut n = 1;
+                    while at + n < rows.len() && rows[at + n] == rows[at] + n as u64 {
+                        n += 1;
+                    }
+                    let part = self
+                        .read_column_slice(name, rows[at], n as u64, slice)
+                        .map_err(|_| e.clone())?;
+                    match &mut out {
+                        None => out = Some(part),
+                        Some(o) => {
+                            if o.shape != part.shape {
+                                return Err(e);
+                            }
+                            o.nrows += part.nrows;
+                            o.bytes.extend_from_slice(&part.bytes);
+                            o.strings.extend(part.strings);
+                        }
+                    }
+                    at += n;
+                }
+                out.ok_or(e)
             }
         }
     }
@@ -6120,6 +6294,37 @@ fn edit_nested(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_lock_file_keeps_its_bytes_readable_and_survives_reassert() {
+        let dir = std::env::temp_dir().join(format!("rang-lock-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("table.lock"), vec![0u8; LOCK_REQUESTS + 4]).unwrap();
+        let zero = std::time::Duration::ZERO;
+        let mut held = LockFile::acquire(&dir, 1, zero).unwrap();
+        // Another handle reads the whole file while the lock is held (the
+        // readers' sync-record row counts), and the holder writes it.
+        assert_eq!(
+            std::fs::read(dir.join("table.lock")).unwrap().len(),
+            LOCK_REQUESTS + 4
+        );
+        held.reassert().unwrap();
+        held.write_sync(7, 3, true, &[true]).unwrap();
+        held.reassert().unwrap();
+        let bytes = std::fs::read(dir.join("table.lock")).unwrap();
+        assert_eq!(SyncRecord::parse(&bytes).unwrap().unwrap().nrows, 7);
+        assert_eq!(held.contents().unwrap(), bytes);
+        // Windows locks are per handle, so a second open in this process is
+        // refused as another process's would be; fcntl locks are per process.
+        #[cfg(windows)]
+        {
+            let e = LockFile::acquire(&dir, 2, std::time::Duration::from_millis(10));
+            assert!(e.err().unwrap().to_string().contains("locked"));
+        }
+        drop(held);
+        drop(LockFile::acquire(&dir, 1, zero).unwrap());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     #[test]
     fn tsm_header_uses_version_2_records_from_two_gib() {

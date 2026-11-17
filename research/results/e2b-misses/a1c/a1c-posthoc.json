@@ -1,0 +1,34 @@
+{
+ "polar_motion_arcsec": [
+  0.24801479517230765,
+  0.352125404548306
+ ],
+ "1": {
+  "astropy_HADec_minus_casacore_HADEC_arcsec": {
+   "h_cosdec_max": 0.7185809907042093,
+   "dec_max": 0.8084006110792937
+  },
+  "astropy_TETE_minus_casacore_HADEC_arcsec": {
+   "h_cosdec_max": 0.4102318498287017,
+   "dec_max": 0.534719494097771
+  },
+  "pa_from_astropy_HADec_minus_K_max_rad": 1.1699660827702019e-05,
+  "pa_from_astropy_HADec_minus_casa_probe_max_rad": 1.1797024464854644e-05,
+  "rang_minus_casa_probe_max_rad": 7.12557514503942e-06,
+  "K_minus_casa_probe_max_rad": 2.2781492248213908e-07
+ },
+ "2": {
+  "astropy_HADec_minus_casacore_HADEC_arcsec": {
+   "h_cosdec_max": 0.5765880961421012,
+   "dec_max": 0.66033246613044
+  },
+  "astropy_TETE_minus_casacore_HADEC_arcsec": {
+   "h_cosdec_max": 0.43131579936477565,
+   "dec_max": 0.5126023744954312
+  },
+  "pa_from_astropy_HADec_minus_K_max_rad": 3.928787097429165e-06,
+  "pa_from_astropy_HADec_minus_casa_probe_max_rad": 3.9935224300791106e-06,
+  "rang_minus_casa_probe_max_rad": 3.230899506156959e-06,
+  "K_minus_casa_probe_max_rad": 2.733072763660971e-07
+ }
+}

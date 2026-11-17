@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Exact Gaussian pointing/sky/gain ambiguity, for controlled small experiments."""
 
 import jax.numpy as jnp

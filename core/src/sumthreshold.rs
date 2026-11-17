@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
 //! RFI flagging ported from Tricolour 0.2.1 (research/core-d-tricolour.md).
 //!
 //! A Rust translation of `tricolour/flagging.py`, `tricolour/stokes.py`,

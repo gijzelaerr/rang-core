@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the flux-standard kernel (`fluxstd.rs`, task FS1). Every pointer
 //! has an explicit length; the return code is 0 on success, 1 on bad input
 //! (null pointer, empty coefficients, non-positive frequency or unit) and 2

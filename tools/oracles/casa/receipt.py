@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Receipts for the O-CASA oracle (research/o-casa.md). Host python3, stdlib only.
 
 receipt.py inputs <out.json>              check both archived receipt.txt files

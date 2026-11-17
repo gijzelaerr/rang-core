@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """F3: the second supervised RFI flagger (research/f3-flagger.md).
 
 The data guards and loaders (LUNO calibrator groups, ESO137 target chunks,

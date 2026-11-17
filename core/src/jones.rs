@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Complex 2x2 Jones algebra, row-major XX, XY, YX, YY as in the MS.
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

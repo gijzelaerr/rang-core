@@ -1,0 +1,11 @@
+{
+ "ms": "D:\\rang\\outputs\\e2-20261110-11-avg\\luno\\luno-dev.ms",
+ "rows": 236208,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "29a6711f27f8fc6c3019b40d4124e5272566d241a46e405aca37c6d0529f7588",
+ "flag_row_sha256": "4e037663400940965b8656b66ce5849a40d80edac96c0327da9313eb391bde03",
+ "seconds": 4.135387499991339
+}

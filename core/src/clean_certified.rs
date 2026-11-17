@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Certified CLEAN: a Cotton-Schwab major/minor-cycle driver over the
 //! kernels of [`crate::clean`], instrumented with the four diagnostics of
 //! `research/clean-theory.md` §6. Research note:

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Read-only grid-matched phase controls for full-Jones TV specificity.
 
 Verbatim extract of the frozen `rangtoy.flagging_equivariance` (big plan task P11,

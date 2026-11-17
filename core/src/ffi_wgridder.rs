@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the exact gridder (`wgridder.rs`), loaded through ctypes by
 //! `python/rang/core_wgridder.py`, in the style of `ffi_grid.rs`.
 //! Status: 0 on success, 1 on invalid arguments (the message is kept for

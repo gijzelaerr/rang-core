@@ -1,0 +1,30 @@
+{
+ "stages_wanted": [
+  "flag",
+  "calibrate",
+  "apply",
+  "image"
+ ],
+ "stages": {
+  "apply": "done",
+  "calibrate": "done",
+  "flag": "done",
+  "image": "done"
+ },
+ "seconds": {
+  "apply": 171.55496859998675,
+  "calibrate": 2139.1096161000023,
+  "flag": 423.4402109999792,
+  "image": 3506.5734939000104
+ },
+ "attempts": {
+  "apply": 1,
+  "calibrate": 1,
+  "flag": 1,
+  "image": 1
+ },
+ "receipts": [
+  "run-20261112T165114Z.rang-receipt.json"
+ ],
+ "met": true
+}

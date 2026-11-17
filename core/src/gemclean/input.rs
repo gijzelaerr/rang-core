@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Measurement Set input of gemclean: Stokes I visibilities, WSClean's
 //! imaging weights and the field and band metadata, through the core's own
 //! read-only reader ([`crate::ms`]).
@@ -13,8 +14,11 @@
 //! flagged or not finite; [`crate::weights::stokes_i_from_linear`]); the
 //! imaging weights on the padded grid (padding 1.2, rank filter 3 over 16
 //! cells, WSClean's defaults); the gridding weight is the Stokes I weight
-//! times the imaging weight, zero on `FLAG_ROW` rows (which still enter the
-//! weight grid, as in WSClean). Wavelengths are `c / f` in double precision
+//! times the imaging weight, zero on `FLAG_ROW` rows, which are also left out of
+//! the weight grid (the MS definition and CASA's; WSClean 3.7 never reads
+//! FLAG_ROW and grids such rows by FLAG alone, research/ts-p1.md 14.1, so the
+//! two differ only on rows whose FLAG_ROW is set and whose cells are not
+//! flagged). Wavelengths are `c / f` in double precision
 //! (WSClean divides in `long double`; a rare last-bit difference can move a
 //! sample by one weight cell).
 
@@ -327,6 +331,25 @@ pub fn parallel_hand_indices(corr: &[i32]) -> Result<(usize, usize), String> {
 
 /// Read the selected rows of a Measurement Set as Stokes I.
 pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
+    read_ms_sink(path, sel, None)
+}
+
+/// [`read_ms`] chunk by chunk (`-reorder`, research/gemclean-memory2.md):
+/// `sink` receives each chunk's selected rows, formed by the same code as
+/// [`read_ms`]'s (so with the same values), in row order; the result holds
+/// the header fields only (no rows).
+pub fn read_ms_chunks(path: &Path, sel: &Selection, sink: ChunkSink) -> Result<StokesI, String> {
+    read_ms_sink(path, sel, Some(sink))
+}
+
+/// A receiver of [`read_ms_chunks`]'s chunks.
+pub type ChunkSink<'a> = &'a mut dyn FnMut(&StokesI) -> Result<(), String>;
+
+fn read_ms_sink(
+    path: &Path,
+    sel: &Selection,
+    mut sink: Option<ChunkSink>,
+) -> Result<StokesI, String> {
     let main = Table::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
     // Data description -> spectral window and polarisation.
     let (spw, pol) = match Table::open(path.join("DATA_DESCRIPTION")) {
@@ -389,23 +412,34 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
         weight_spectrum,
     };
     let selected = |start: u64, count: u64| row_mask(&main, sel, start, count);
+    // At most `chunk_rows` rows, and at most about 256 MB of complex cells
+    // per chunk: a chunk holds its cells several times over (the column's
+    // bytes, the decoded values, flags and weights), so 20,000 rows of 4,096
+    // channels and four correlations held 7 GB at once (research/gemclean-memory.md).
+    // Rows are independent, so the values do not depend on it.
+    let step = sel
+        .chunk_rows
+        .max(1)
+        .min(((1u64 << 28) / (nchan * ncorr).max(1) as u64 / 8).max(64));
     // Count the selected rows first, so that each array is allocated once at
     // its size: grown by doubling, the visibilities would pass through up to
     // three times their size.
-    let mut rows = 0usize;
-    let mut start = 0;
-    while start < main.nrows {
-        let count = sel.chunk_rows.max(1).min(main.nrows - start);
-        rows += selected(start, count)?.iter().filter(|&&k| k).count();
-        start += count;
+    if sink.is_none() {
+        let mut rows = 0usize;
+        let mut start = 0;
+        while start < main.nrows {
+            let count = step.min(main.nrows - start);
+            rows += selected(start, count)?.iter().filter(|&&k| k).count();
+            start += count;
+        }
+        out.uvw.reserve_exact(3 * rows);
+        out.flag_row.reserve_exact(rows);
+        out.vis.reserve_exact(rows * nchan);
+        out.weight.reserve_exact(rows * nchan);
     }
-    out.uvw.reserve_exact(3 * rows);
-    out.flag_row.reserve_exact(rows);
-    out.vis.reserve_exact(rows * nchan);
-    out.weight.reserve_exact(rows * nchan);
     let mut start = 0;
     while start < main.nrows {
-        let count = sel.chunk_rows.max(1).min(main.nrows - start);
+        let count = step.min(main.nrows - start);
         let keep = selected(start, count)?;
         if keep.iter().any(|&k| k) {
             let flag_row = bools(&read(&main, "FLAG_ROW", start, count)?, "FLAG_ROW")?;
@@ -473,6 +507,13 @@ pub fn read_ms(path: &Path, sel: &Selection) -> Result<StokesI, String> {
                         wgt[ch] = w;
                     }
                 });
+            if let Some(f) = sink.as_mut() {
+                f(&out)?;
+                out.uvw.clear();
+                out.flag_row.clear();
+                out.vis.clear();
+                out.weight.clear();
+            }
         }
         start += count;
     }
@@ -542,7 +583,8 @@ pub fn gridding_weights_tapered(
         rank_filter_size: 16,
     };
     let wavelength: Vec<f64> = data.freq.iter().map(|f| SPEED_OF_LIGHT / f).collect();
-    let selected = vec![true; data.rows()];
+    // FLAG_ROW rows stay out of the weight grid (research/ts-p1.md 14.1).
+    let selected: Vec<bool> = data.flag_row.iter().map(|f| !f).collect();
     let (imaging, _) = imaging_weights_tapered(
         &settings,
         tapers,
@@ -908,6 +950,66 @@ mod tests {
         assert_eq!(g.count, 12);
         assert_eq!(g.total, 96.0);
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// FLAG_ROW (research/ts-p1.md 14.1): a row with FLAG_ROW set and its
+    /// cells unflagged weighs nothing in the gridding and stays out of the
+    /// weight grid, so uniform weights equal those of the data without it.
+    #[test]
+    fn flag_row_rows_are_left_out_of_gridding_and_the_weight_grid() {
+        let dir = std::env::temp_dir().join(format!("gemclean-flagrow-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("t.ms");
+        let (nrow, nchan) = (6usize, 2usize);
+        // Rows 1 and 4 share their uv cell (and 0 and 3, 2 and 5).
+        let uvw: Vec<f64> = (0..nrow)
+            .flat_map(|r| {
+                [
+                    40.0 * (r % 3) as f64 + 7.0,
+                    25.0 * (r % 3) as f64 + 3.0,
+                    0.0,
+                ]
+            })
+            .collect();
+        let ant1 = vec![0, 0, 0, 1, 1, 2];
+        let ant2 = vec![1, 2, 3, 2, 3, 3];
+        let freq = vec![1.0e9, 1.2e9];
+        let data = vec![1.0f32; 2 * nrow * nchan * 4];
+        let weight = vec![1.0f32; nrow * nchan * 4];
+        write_ms(
+            &path,
+            &MsArrays {
+                uvw: &uvw,
+                antenna1: &ant1,
+                antenna2: &ant2,
+                time: &[5.0e9; 6],
+                interval: 8.0,
+                freq: &freq,
+                data: &data,
+                weight_spectrum: &weight,
+                antennas: &[[1.0, 2.0, 3.0]; 4],
+                dish_diameter: 13.5,
+                phase_dir: (1.0, -0.6),
+            },
+        )
+        .unwrap();
+        let all = read_ms(&path, &Selection::default()).unwrap();
+        std::fs::remove_dir_all(&dir).unwrap();
+        let mut flagged = all.clone();
+        flagged.flag_row[1] = true;
+        let natural = gridding_weights(&flagged, WeightClass::Natural, 64, 1e-3).unwrap();
+        assert_eq!(natural.count, ((nrow - 1) * nchan) as u64);
+        assert!(natural.weights[nchan..2 * nchan].iter().all(|&g| g == 0.0));
+        // The same row with zero Stokes I weight: the uniform weights agree.
+        let mut zeroed = flagged.clone();
+        zeroed.weight[nchan..2 * nchan].fill(0.0);
+        let a = gridding_weights(&flagged, WeightClass::Uniform, 64, 1e-3).unwrap();
+        let b = gridding_weights(&zeroed, WeightClass::Uniform, 64, 1e-3).unwrap();
+        assert_eq!(a.weights, b.weights);
+        // Without FLAG_ROW the row counts in its cell and halves row 4's weight.
+        let c = gridding_weights(&all, WeightClass::Uniform, 64, 1e-3).unwrap();
+        let row4 = 4 * nchan..5 * nchan;
+        assert_ne!(c.weights[row4.clone()], a.weights[row4]);
     }
 
     #[test]
