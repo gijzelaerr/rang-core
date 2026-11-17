@@ -705,3 +705,13 @@ coordinator applies the words):
 Reading, offered and not applied: on 3C 286 the two packages agree to
 0.03 points in p and 0.2° in χ, and the time is within the 1.5 band. The
 1934−638 flux scale differs by more than 2 %, from CARACal's own model.
+
+### 10.17 Coordinator decisions (2026-11-17)
+
+1. Deviation 12 (10.14: E3-A on nash under apptainer, pinned CPUs,
+   `ncpu` 16, costs compared with rang only on nash) is accepted.
+2. 10.15's key fix is accepted as a placement correction made before any
+   E3-A output.
+3. `e2b.ms` (51 GB on D:) is kept until E3's final report, then deleted.
+4. E3-B is accepted as measured in 10.16. The 1934−638 leakage comparison
+   is reported as "not like for like" and is not gated.
