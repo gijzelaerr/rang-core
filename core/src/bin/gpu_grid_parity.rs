@@ -3,6 +3,9 @@
 //! one Measurement Set, through one prepared plan each. Prints one JSON
 //! object.
 //!
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
+//!
 //! ```text
 //! gpu_grid_parity MS SIZE SCALE_ASEC EPS single|double MODEL_FITS BUDGET_MIB [cpu]
 //! ```
