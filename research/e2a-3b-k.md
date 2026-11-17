@@ -1,6 +1,6 @@
 # E2-A gate 3b follow-up: the K estimators, the unattributed part, the synthetic
 
-Status 2026-11-17: **measured** (sections 8, 10); protocol frozen before any test (sections 1-6), post hoc addenda 7 and 9.
+Status 2026-11-17: **measured** (sections 8, 10, 12); protocol frozen before any test (sections 1-6), post hoc addenda 7, 9 and 11.
 Results are added below it; anything decided after a result is read is
 dated and labelled post hoc. Follows [e2a-3b-diag.md](e2a-3b-diag.md)
 (sections 9-12 and its coordinator decisions 2 and 4); issue #2, v0.3.0.
@@ -315,8 +315,8 @@ keeps (rang's SNR 30.1). Both solved nearly the same value (amplitude
 | TT-TK3u (CASA's B on CASA's G1 with it unflagged, rang's value) | 1.44e-4 / 3.3e-3 |
 
 **The flag carries the 1.1e-3** by section 7's rule (1.05e-3 ≥ 0.8 ×
-1.10e-3; 1.44e-4 ≤ 0.5 × 1.10e-3). One flagged G1 solution makes CASA's
-B1 pre-apply correct ID 50's interval-7 data with a gain interpolated from
+1.10e-3; 1.44e-4 ≤ 0.5 × 1.10e-3). How it gets there is inferred, not
+measured: one flagged G1 solution makes CASA's B1 pre-apply correct ID 50's interval-7 data with a gain interpolated from
 intervals 6 and 8 (amplitude about 0.33) instead of the 0.09 the data
 carry, and B1 couples that into every antenna (B1 per antenna differs by
 4e-4 to 1e-3, ID 50 3.4e-3). The two SNRs are different definitions, as
@@ -356,17 +356,26 @@ running it:
 arms are on data-unflagged cells (section 9); all-cell figures are in the
 receipts.
 
-**Control S0f not met; S0's not met either (both post hoc, section 9).**
+**Step 4 was read with its control unmet.** The frozen rule said to fix
+and rerun S0 before reading S1 and S2; the cause was not found, and S1,
+S2 are read anyway, labelled. **Control S0f not met; S0's not met either
+(both post hoc, section 9).**
 Noise-free, with B_T = 1, rang U's composite against truth is 5.7e-4
 (KGB1) and 3.7e-4 (KGB0), also when scored at the G0 solution times
 only, so it is not interpolation between scans. The generator is exact
 (DATA = M J_T to 2.5e-7), K0 is recovered exactly (0.0 ns) and, given the
-same K, rang and CASA agree to 7e-7 (U-CK, KGB0). The noise-free floor
-the two tools share was not explained (null). Composites against truth
+same K, rang and CASA agree to 7e-7 (U-CK, KGB0). At rang's S0f
+solution the noise-free data are not fitted: |DATA − M J_U| / |M J_U| has
+median 6.9e-4 (pass 0) and 7.6e-4 (pass 1) on data-unflagged cells, so
+the floor is in the solve (it stops short, or a term the chain cannot
+represent), not in the scorer. Not located (null). Composites against truth
 are therefore read only as a comparison between arms, not as accuracy;
 the K errors are read directly.
 
 **H-K: rang's K is nearer truth (outcome K1), in every case and seed.**
+The clean reading is K0: nothing is pre-applied and rang's noise-free K0
+is exact, so the K verdict does not rest on the unmet control. K1 also
+carries each arm's own K0 error through B0.
 |Δτ| against truth, median ns (all antennas; without ID 50 within 10 %):
 
 | Case | rang K0 | CASA K0 | rang K1 | CASA K1 | CASA/rang K1 |
@@ -397,9 +406,9 @@ averaged-divided arm D gives rang U's K to 1 %.
   In S2 only its second half holds: sharing rang's K takes U-C down 7-24×,
   as on the real subset, while the arms' errors against truth sit on the
   shared floor. In S1 neither half holds. Met in one case of three.
-- **H-B: mixed (outcome B3).** CK is nearer truth than U in S1 (0.68×
-  both seeds) and S0f; a tie in S0 and S2. Not explained; no rang
-  change. The real 1.1e-3 is the one flag of section 8, not this.
+- **H-B:** CK is nearer truth than U in S1 (0.68×, both seeds) and S0f,
+  which is outcome B2 as frozen; a tie in S0 and S2. Section 11 follows it
+  up (post hoc).
 
 **Step F, full scale (E2-A field 0, 61 antennas; CASA on matched
 flags).** Controls met: B1 off against the archived B1 0.0; archived rang
@@ -411,11 +420,40 @@ against archived CASA 3.16e-3 / 2.36e-2 (9.13).
 | CASA with its own K, pass 0 on the flag stage's FLAG (section 10 of e2a-3b-diag) | 3.13e-3 / 2.29e-2 | **2.24e-3 / 1.45e-2** |
 | CASA on rang's K0, K1 (T-K3's construction) | 1.79e-3 / 1.93e-2 | **4.1e-5 / 4.0e-3** |
 
-CASA's two arms differ from each other by 2.03e-3. At full scale, with
+CASA's two arms differ from each other by 2.03e-3. The rang arm here is
+patched, not an end-to-end run with the key on: E2-A's archived K1, G1
+and the B1 that D3 re-solved with `bandpass_model_divided` on them. At full scale, with
 the fix on and the K shared, rang and CASA agree to a median of 4.1e-5
 (class B's median met) with p95 4.0e-3 (over 3e-3). What separates them
 in the frozen construction is the K estimator, which the simulations show
 is CASA's less accurate one.
+
+## 12. Results of the post hoc checks (sections 9 and 11; `score-hb.json`, `score-uf.json`)
+
+**H-B on a common cell set** (cells unflagged in U, C, CK and the data):
+S1 U 3.89e-3, C 2.28e-3 / 2.79e-3, CK 2.64e-3 / 2.65e-3 (seeds 1 / 2);
+S2 and S0 ties. In S1 seed 1, U's and CK's G1 differ by 1.7e-5 and in one
+place: CASA flags ID 50's interval 7 (both hands, its SNR below 3), rang
+keeps it; their B1 then differ by 2.3e-3 (B0 by 3e-5). It is the real
+subset's mechanism. With a static truth, interpolating from intervals 6
+and 8 is exact, so CASA's flag helps there; on the real data, where both
+tools solve an amplitude of 0.09, which side is right is not known.
+
+**UF (`calibrate.average_freq: true`, CASA's G estimator) does not close
+it (null).** Real subset: UF flags ID 50's interval 7 (SNR 0.59, 0.50),
+but UF against TK3 is 2.25e-3 / 2.1e-2, worse than T-T's 1.10e-3 (UF
+against T-T 4.2e-3). S1 seed 1: UF keeps the solution (SNR 3.7, 3.2, so
+not CASA's SNR either), and its error against truth equals U's (3.89e-3;
+UF-U 5.5e-5). No default changes.
+
+**The real D arm** (averaged, divided; nash): D-TT 4.93e-3 / 2.7e-2,
+U-D 4.77e-3, D-ntf 6.39e-3 (U-ntf 6.47e-3), KGB0 against T-T 1.4e-6.
+Per term, D against U: K0, G0, B0 within 2e-5; K1 median 4e-6 ns but one
+solution 1,460 ns apart (ID 50); G1 median 5e-6, max 1.05; B1 3.0e-3 with
+28 flags differing; 3,944 FLAG cells differ after A0. The pass-1
+difference is A0's flags and ID 50's K1, not the divided B; the
+simulated D arms equal U to 4e-6 to 6e-5 in S0, S1 seed 1 and S2, and
+differ by 1.2e-3 to 1.9e-3 in S0f and S1 seed 2 (not traced).
 
 ## For the coordinator
 
@@ -431,10 +469,15 @@ is CASA's less accurate one.
   correlation flagged; the averages are per correlation, and the divided
   average is the least-squares minimum (SciPy, 2e-8). Not in E2-A (flags
   equal over correlations). Documented, one test; no code change.
-- **Null:** the simulations' shared noise-free floor (S0f 5.7e-4); H-B
-  mixed.
+- **Null:** the simulations' shared noise-free floor (S0f 5.7e-4; the
+  solve leaves 6.9e-4 of noise-free data unfitted); `average_freq` does
+  not reproduce CASA's flag or close the part.
+- **Open B2 candidate (post hoc):** with a static truth, CASA's B is
+  nearer truth because it flags ID 50's low-SNR interval and interpolates.
+  Whether rang should flag such solutions (an SNR rule on averaged cells)
+  is a design question for a frozen test; nothing changed here.
 - **Reserve leg:** as frozen (CASA with its own K) the predicted composite
-  is 2.24e-3 / 1.45e-2 with the fix: class B fails again, on CASA's K.
+  (from step F's patched rang arm) is 2.24e-3 / 1.45e-2 with the fix: class B fails again, on CASA's K.
   Not worth spending unless the gate changes. With T-K3's construction
   (CASA on rang's K) the prediction is 4.1e-5 / 4.0e-3: the median passes
   and p95 misses by 1.3×. Owner decision: a K-derived tolerance (decision

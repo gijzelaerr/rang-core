@@ -30,8 +30,10 @@ solution (ID 50, interval 7) that CASA flags by `minsnr` on its averaged SNR (2.
 every antenna (CASA's B1 on rang's K and G agrees to 1.0e-4). The 4-antenna synthetic's 5e-3: the unaveraged kernel
 drops a cell with any correlation flagged, the averages are per correlation; the divided average is the
 least-squares minimum (SciPy, 2e-8); E2-A's flags are equal over correlations, so no effect there (one test added).
-Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e-4), H-B mixed. A reserve leg as
-frozen would fail again on CASA's K (predicted 2.24e-3); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
+Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e-4) and `average_freq`, which does
+not close the part. Open (post hoc, B2 candidate): with a static simulated truth CASA's B is nearer truth because it
+flags that kind of low-SNR G1 solution. A reserve leg as frozen would fail again on CASA's K (predicted 2.24e-3, from
+a patched rang arm); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced

@@ -93,3 +93,14 @@
 2026-11-17T10:14:54 START rang sim-s0f-d.ms d: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s0f-d.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s0f-d.ms']
 2026-11-17T10:25:17 END rang sim-s0f-d.ms d rc=0 623.0s
 2026-11-17T10:45:57 END f0-casa-tf rc=0 3132.8s
+2026-11-17T11:09:58 copy sim-s1-20261171-casa.ms -> sim-s1-20261171-uf.ms 5.8s
+2026-11-17T11:09:58 START rang sim-s1-20261171-uf.ms uf: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.ms']
+2026-11-17T11:10:01 copy src.ms -> rang-uf.ms 8.9s
+2026-11-17T11:10:01 START rang rang-uf.ms uf: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/rang-uf.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/rang-uf.ms']
+2026-11-17T11:10:58 copy src.ms -> rang-uf.ms 2.9s
+2026-11-17T11:10:58 START rang rang-uf.ms uf: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/rang-uf.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/rang-uf.ms']
+2026-11-17T11:10:59 copy sim-s1-20261171-casa.ms -> sim-s1-20261171-uf.ms 4.5s
+2026-11-17T11:10:59 START rang sim-s1-20261171-uf.ms uf: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.ms']
+2026-11-17T11:11:34 START rang sim-s1-20261171-uf.ms uf: ['nice', '-n', '19', 'ionice', '-c3', '/home/gijs/Worktrees/rang/e2a-3b-k/.venv/bin/python', '-m', 'rang.core_cli', 'run', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.yaml', '/home/gijs/rang-data/outputs/e2a-3b-k-20261117/sim-s1-20261171-uf.ms']
+2026-11-17T11:30:11 END rang rang-uf.ms uf rc=0 1153.5s
+2026-11-17T11:31:43 END rang sim-s1-20261171-uf.ms uf rc=0 1208.3s
