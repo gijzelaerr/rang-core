@@ -1,0 +1,3 @@
+16:17:02 meta {'zarr': '/home/gijs/rang-data/e2-a/ESO137/ms1_target.zarr', 'main': 'MAIN_4', 'rows': 850950, 'row_chunks': 18, 'field_ids': [0], 'scans': [10], 'phase_dir_sep_arcsec': [0.0], 'ntime': 450, 'time_first': 5064167474.594195, 'time_last': 5064171065.075223, 'span_s': 3590.4810276031494, 'nfield_rows': 1, 'data_desc_id': 0, 'one_field': True, 'phase_ok': True, 'span_ok': True}
+16:17:02 stage meta [] 0.3 s
+TIME meta 1.82 s 84508 KB

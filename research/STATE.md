@@ -35,6 +35,15 @@ GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms
 - As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).
 - Post hoc `-nmiter 1` arms RM1 and PM1: the same loop level (within 3e-4), the same scales, and F_in, F_out and N_out within the bounds. On RM1, 2.72 against 2.93 Jy lies outside a 3,394-pixel points-only mask.
 - Not changed: the clean path. Added: a per-scale confinement test, help and config lines, docs/limits and a CHANGELOG limitation. Reported: GeMClean did not diverge on PM where radler did. floor-5 section 4.3 cannot be met with multiscale and a mask in either imager.
+Floor-6, 2026-11-17 (branch `floor-6`; [floor-6.md](floor-6.md), protocol frozen in `283de190` before any held-out data,
+clarifications 1 and 2 before any held-out number, archive [results/floor-6/](results/floor-6/); host nash).
+Issue #13: held-out checks of floor-5's two causes on scan 10 of the same track (MAIN_4, the pilot's recipe and
+publisher gains, own Sp round; F_ref 393.29 µJy, 9.5 × thermal). Every gate passed, GP by clarification 2's reading
+(against floor-5's `pilot.json` the pin misses by 1.5e-6 > 1e-6). **H9 depth confirmed**: masked CLEAN to 0.3 mJy
+removes 0.201 of P_ref (pilot 0.224; κ −0.09, the gain control again moving the other way). **H8 spectral confirmed,
+larger**: 8 channels, 2 terms remove 0.474 (pilot 0.186, above the 0.236 band edge), 0.465 with the mask on, so the
+gain is spectral, not unmasked flux; the share is scan-dependent (one scan each, no error bar). Both together 0.717
+(F 212 µJy, 5.1 × thermal; pilot 0.492). Mask alone at 3 mJy −0.01.
 
 Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
 - Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".

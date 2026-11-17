@@ -1,0 +1,218 @@
+{
+ "chunking": {
+  "chunk_gb": 11.252288937568665,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 184357,
+   "calibrate": 184357,
+   "chain": 122905,
+   "flag": 368715,
+   "model": 184357,
+   "rows": 491620
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "/home/gijs/Worktrees/rang/floor-6/.venv/bin/python",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/final/image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-no-update-model-required",
+     "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 27374,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "a60e25ae8dc933e37d1d19aba7939e0981bdb9853c6aca33e160f9edae3c37cb",
+     "image-image.fits": "64b2a22bdac9039c34b7b54c117ad97b29ad8fbdbce5f24d1bd8dff9d6f7b978",
+     "image-model.fits": "5651ed631492577d233612141c52a9ac40e099911b305747285be7f3f65db459",
+     "image-psf.fits": "423c7c017120b7e45045eb33d600e2f6c18a0f599337f164922c1f1b0baaece5",
+     "image-report.json": "0b634d6e8813eac177249ad37e224d27c01f6acdfeea6be4daab3e39eaa52abb",
+     "image-residual.fits": "74c0bc3fb260d114022dd610f0a646cbc7139b1c82f2c32f465de25634af8d7d"
+    },
+    "fits_mask": null,
+    "image": 2,
+    "wall_seconds": 343.0016547270352
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 218738652,
+      "cells_flagged_before": 218738652,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 158.77534893993288
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Worktrees/rang/floor-6/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/round-1/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 37417,
+       "major_cycles": 4,
+       "stop": "Threshold"
+      },
+      "column": "DATA",
+      "files": {
+       "image-dirty.fits": "1715947e1c7ed9d0353f69251981446861b823ffa987a7ccc7f9df380128c360",
+       "image-image.fits": "2bfd39bbe4e9dd3745b107678aeebdac04fb29e1fab68677b926dff1c049a5ba",
+       "image-model.fits": "ceffecca250b3d3ac57045eaa81b6ffa02aa9e735580bfcae141a37eb08e0782",
+       "image-psf.fits": "77f9f633b9ccd4efcfce99921f987a0904dd246a6553c4bd950e235487338136",
+       "image-report.json": "06381a2d819ecfd9e46d43c39384b0c30ad3a0872bc804bebf5fa1b760e7d7db",
+       "image-residual.fits": "bdb37a7c52109d723e5e4d32c7d6350f0ec98871da8fb0c802171561f4680311"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 402.801375680021
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/round-1/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 149.12292605196126
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 14,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "300s",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 12,
+      "time_bins_per_scan": {
+       "2": 12
+      },
+      "type": "Sp",
+      "wall_seconds": 1787.1301031139446
+     },
+     "store": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/round-1/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "300s",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261117T153057Z",
+ "gemclean": "/home/gijs/Worktrees/rang/floor-6/.venv/bin/python -m rang.gemclean",
+ "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+ "input": {
+  "column": "DATA",
+  "copied_now": false,
+  "previous_copy": null
+ },
+ "input_column": "DATA",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 1
+}

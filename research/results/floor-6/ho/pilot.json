@@ -1,0 +1,47 @@
+{
+ "none": {
+  "F": 0.00039329355910752527
+ },
+ "T": 4.14800084889683e-05,
+ "T_noise": 4.14800084889683e-05,
+ "F_B": 0.0008357993265124507,
+ "F_Fix": 0.00042137820641694417,
+ "F_Fix_ms": 0.00042137820641694417,
+ "HB": {
+  "check": {
+   "vis_equal": true,
+   "wnat_equal": true
+  },
+  "rel_Fix_ms": 0.0,
+  "newly_flagged": 0.0,
+  "pass": true
+ },
+ "GT": {
+  "T_over_Fref": 0.10546831375295365,
+  "pass": true
+ },
+ "Sp_health": {
+  "converged_fraction": 1.0,
+  "flagged_solution_fraction": 0.01639344262295082,
+  "round1_clean": {
+   "components": 37417,
+   "major_cycles": 4,
+   "stop": "Threshold"
+  },
+  "final_clean": {
+   "components": 27374,
+   "major_cycles": 3,
+   "stop": "Threshold"
+  },
+  "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+  "pass": true
+ },
+ "P_ref": 1.5295923253121958e-07,
+ "P_B": 6.968399230944213e-07,
+ "store": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/round-1/gains.qc",
+ "m0": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/round-1/image-model.fits",
+ "m1": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run/selfcal/ESO137-pilot/final/image-model.fits",
+ "active": 19511491,
+ "nrow": 823500,
+ "noise_c": 1.0090148448944092
+}

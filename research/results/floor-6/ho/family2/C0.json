@@ -1,0 +1,25 @@
+{
+ "arm": "C0",
+ "state": "S0",
+ "F_uJy": 847.2257199650059,
+ "D": -0.027597308555684708,
+ "dP": -1.9230906371556348e-08,
+ "model": [
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/C0/image-model.fits",
+   "flux_jy": 86.41655839007399,
+   "negative_jy": -3.8003894047760696,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 49262
+  }
+ ],
+ "report": {
+  "components": 152666,
+  "major_cycles": 4,
+  "stop": "Threshold",
+  "model_flux": 86.41655837009208,
+  "residual_mad_sigma": 0.0004896162611169584,
+  "residual_peak_abs": 0.009548327806229679
+ }
+}

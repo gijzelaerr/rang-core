@@ -2230,3 +2230,28 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gemclean-ms-mask RM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | H4, 2048² | 15.4 s; 89.6 s | 3.43 GiB; 1.41 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask PM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | pilot, 4096² | 145.3 s; 459.2 s | 12.16 GiB; 4.82 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `gemclean-ms-mask` | 818 s (lock wait excluded) | – | PASS; `docs/gen_cli.py --check` PASS |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py meta` | MAIN_4 metadata | 1.8 s | 0.08 GiB (max RSS) | 1 slot; nice 19, ionice idle (every floor-6 row) |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py fetch` (GKB-net group 4, 520.8 MB) | public store | 24.5 s | 0.08 GiB (max RSS) | 1 slot |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py state` (pilot) | floor-5's `cal2.ms`, 32 ch | 983.7 s | 4.22 GiB (max RSS) | 4 slots, beside the build |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py build` (convert 772 s, verify 180 s, gainload 17 s, gaincheck 91 s, calibrate 602 s, average 315 s) | MAIN_4, 850,950 rows, channels 640:1152 | 1976.8 s | 5.01 GiB (max RSS) | single thread, 1 slot |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py score` fR3, fDm03, fS (gate GP) | pilot S1, 32 ch | 369.5 s | 3.26 GiB (max RSS) | 2 slots |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py copy` | held-out `cal2.ms`, 823,500 rows | 90.7 s | 1.35 GiB (max RSS) | 1 slot |
+| 2026-11-17 | floor-6, host nash: `rang-core selfcal` p1.yaml (round 1, Sp 300 s, final 3 mJy) | held-out `pilot.ms` | 2848.1 s | 11.38 GiB (max RSS) | 8 slots, `RAYON_NUM_THREADS=8`; Sp solve 1787 s; beside the pilot arms |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py state` (held-out) | held-out `cal2.ms`, 32 ch | 270.0 s | 4.22 GiB (max RSS) | 4 slots |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py score` pRm3, pSm3, pSDm03 | pilot S1, 32 ch | 368.4 s | 3.26 GiB (max RSS) | 2 slots |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py score` R3, Dm03, C0, S | held-out S1 / S0, 32 ch | 306.8 s | 3.27 GiB (max RSS) | 2 slots |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py score` Dm1, Rm3, Sm3, SDm03 | held-out S1, 32 ch | 393.0 s | 3.27 GiB (max RSS) | 2 slots |
+| 2026-11-17 | floor-6, host nash: `floor6_tests.py summary` | JSON only | 2.3 s | 0.58 GiB (max RSS) | 1 slot |
+| 2026-11-17 | floor-6, host nash: GeMClean arm pRm3 (Högbom, mask, 3 mJy) | pilot `pilot.ms`, 4096², 256 ch | 581.2 s | 11.34 GiB (max RSS) | `-j 8`, 8 slots; beside build and state |
+| 2026-11-17 | floor-6, host nash: GeMClean arm pSm3 (8 ch, 2 terms, mask, 3 mJy) | the same | 1096.0 s | 22.10 GiB (max RSS) | `-j 8`, 8 slots; beside build, copy and selfcal |
+| 2026-11-17 | floor-6, host nash: GeMClean arm pSDm03 (8 ch, 2 terms, mask, 0.3 mJy) | the same | 2040.5 s | 22.10 GiB (max RSS) | `-j 8`, 8 slots; beside selfcal |
+| 2026-11-17 | floor-6, host nash: GeMClean arm R3 (Högbom, 3 mJy, niter 1e6) | held-out `pilot.ms`, 4096², 256 ch | 347.0 s | 11.38 GiB (max RSS) | `-j 8`, 8 slots; beside the pilot score |
+| 2026-11-17 | floor-6, host nash: GeMClean arm Dm03 (Högbom, mask, 0.3 mJy) | the same | 523.2 s | 11.45 GiB (max RSS) | `-j 8`, 8 slots, alone in the driver |
+| 2026-11-17 | floor-6, host nash: GeMClean arm C0 (Dm03 on DATA) | the same | 445.7 s | 11.45 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: GeMClean arm S (8 ch, 2 terms, 3 mJy) | the same | 1033.3 s | 22.07 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: GeMClean arm Dm1 (Högbom, mask, 1 mJy) | the same | 342.0 s | 11.44 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: GeMClean arm Rm3 (Högbom, mask, 3 mJy) | the same | 336.3 s | 11.44 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: GeMClean arm Sm3 (8 ch, 2 terms, mask, 3 mJy) | the same | 1008.6 s | 22.13 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: GeMClean arm SDm03 (8 ch, 2 terms, mask, 0.3 mJy) | the same | 1714.1 s | 22.14 GiB (max RSS) | `-j 8`, 8 slots |
+| 2026-11-17 | floor-6, host nash: `drive.sh`, whole run | all of the above | 11679 s (16:17:00-19:31:39) | – | rc 0; pilot and held-out tracks in parallel, finished before 21:00 |
+| 2026-11-17 | floor-6: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-6` (write-up, archive) | 839 s (lock wait excluded) | – | PASS; docs, archive and `.gitattributes` diff; gain-hash gate PASS |

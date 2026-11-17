@@ -1,0 +1,5 @@
+16:34:57 score fR3 379.2621316115116 0.0
+16:36:01 score fDm03 334.8257705983144 0.2236251136282673
+16:39:33 score fS 342.63664582758616 0.18633314419009972
+16:39:33 stage score ['fR3=/home/gijs/rang-data/outputs/floor-5-20261117/family2/R3/image', 'fDm03=/home/gijs/rang-data/outputs/floor-5-20261117/family2/Dm03/image', 'fS=/home/gijs/rang-data/outputs/floor-5-20261117/family2/S/image'] 366.9 s
+TIME score-pi-fR3 369.48 s 3415408 KB

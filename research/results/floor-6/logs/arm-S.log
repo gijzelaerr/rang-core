@@ -1,0 +1,6 @@
+== 2026-11-17T18:05:50+02:00 S start ms /home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms
+/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 42.23 s read, 15.05 s weights
+joined: 28186 components, 3 major cycles, 135 resyncs, stop Threshold; Q/Q0 4.9949e-3
+wall 1032.73 s
+== 2026-11-17T18:23:03+02:00 S end rc 0
+TIME arm-S 1033.30 s 23143648 KB

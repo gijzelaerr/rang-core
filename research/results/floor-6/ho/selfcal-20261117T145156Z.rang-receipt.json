@@ -1,0 +1,134 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "selfcal",
+  "/home/gijs/Worktrees/rang/floor-6/research/results/floor-3/p1.yaml",
+  "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms",
+  "--run-dir",
+  "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run"
+ ],
+ "stage": "selfcal",
+ "verb": null,
+ "started_utc": "2026-11-17T14:51:56+00:00",
+ "commit": {
+  "head": "e5f6e74d10e03ee327e5b41d18b4353be32dfff3",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "/home/gijs/Worktrees/rang/floor-6",
+  "distribution": "rang-core",
+  "version": null,
+  "extension_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884"
+ },
+ "environment": {
+  "python": "3.14.10 (main, Nov 11 2026, 00:18:44) [Clang 23.1.3 ]",
+  "executable": "/home/gijs/Worktrees/rang/floor-6/.venv/bin/python",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.39",
+  "system": "Linux",
+  "machine": "x86_64",
+  "cpu_count": 36,
+  "rang_core": null,
+  "extension": {
+   "path": "/home/gijs/Worktrees/rang/floor-6/python/rang/_core.abi3.so",
+   "sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "8",
+   "OMP_NUM_THREADS": "8",
+   "MKL_NUM_THREADS": "8",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "8",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": "/home/gijs/rang-data/fixtures/outer_scans.zip",
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": "/home/gijs/rang-data/locks/heavy",
+   "RANG_HEAVY_SLOTS": "44",
+   "RANG_HEAVY_MEM_GB": "320",
+   "RANG_HEAVY_NICE": "19",
+   "RANG_HEAVY_LOCK_HELD": "8:32",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": "/home/gijs/rang-data/outputs",
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "/home/gijs/Worktrees/rang/floor-6/research/results/floor-3/p1.yaml",
+   "kind": "file",
+   "bytes": 436,
+   "sha256": "2fd0b5992ca22e6c6aa94fbf9e8ce994192a708a83e3767270d18dd071d933f0"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms",
+   "kind": "directory",
+   "files": 65,
+   "bytes": 10367184305,
+   "listing_sha256": "3cd857e3506e53c904dd8daa276c6930217979f4085b3bf4495a1dac1f63c8d0"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms",
+   "kind": "directory",
+   "files": 69,
+   "bytes": 23860261843,
+   "listing_sha256": "1d756be2796d30e9b8ace53e9ce748996a2dc1860aacb865687b6f4eff2dd3ac",
+   "modified": true
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms.flagversions",
+   "kind": "directory",
+   "files": 14,
+   "bytes": 211265001,
+   "tree_sha256": "5594bb7fbf272b766ef57878e92101c1008c0f1cf99161a4e7fc6750c094580d"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/floor-6-20261117/ho/P/run",
+   "kind": "directory",
+   "files": 59,
+   "bytes": 671306417,
+   "tree_sha256": "b01bdf75991425a41e95890aa2c4d55a699bea6b6886e4cf1ee40ce6173c434d"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 2844.021901424043,
+  "cpu_seconds": 2422.752384,
+  "peak_rss_mb": 8413.92578125
+ },
+ "exit": 0,
+ "verdict": null
+}

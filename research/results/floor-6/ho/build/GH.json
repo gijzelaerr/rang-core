@@ -1,0 +1,6 @@
+{
+ "verify_identical": true,
+ "gain_freq_ok": true,
+ "gaincheck": true,
+ "pass": true
+}
