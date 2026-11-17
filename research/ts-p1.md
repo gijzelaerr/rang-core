@@ -981,7 +981,11 @@ workstation's.
 - **Load.** load1 counts our own 16 threads. Other users' CPU, from the top
   snapshots before and after each reading, was netdata at about 8 % of one
   core, root at up to 4 %, and the lock's own idle processes. The foreign load
-  stayed at 0.19-0.28 cores against the 2.0 bound. No other job of ours ran.
+  stayed at 0.19-0.28 cores against the 2.0 bound.
+- **Our own account.** From w2 on, the snapshots also show 8-9 % of one core
+  under our account outside the timed tree. It was not identified (queued
+  lock clients polling are likely). It is counted in the foreign load. No
+  other job of ours held the lock during the hold.
 
 **Gate 13.4 (frozen readings, as amended in 15.8).**
 - **Wall time.** rang's median is 358.32 s and WSClean's 343.41 s, a ratio
