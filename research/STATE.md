@@ -88,6 +88,20 @@ Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e
 not close the part. Open (post hoc, B2 candidate): with a static simulated truth CASA's B is nearer truth because it
 flags that kind of low-SNR G1 solution. A reserve leg as frozen would fail again on CASA's K (predicted 2.24e-3, from
 a patched rang arm); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
+Multi-node executor, #4 stage 2 step 1, 2026-11-17 (branch `multinode-executor`;
+[multinode-executor.md](multinode-executor.md), rule and protocol frozen in `01189d8` before any code; receipts
+[results/multinode-executor/](results/multinode-executor/)). Comparison: Slurm/PBS job arrays are out (not testable
+on nash or CI, no Windows); of the rest the rule picks a spool executor of rang's own (4 passes) over Ray (3) and
+Dask (2: dask-jobqueue has had no commit in 6 months and no release since 2024-08; `distributed` 75 commits in 6
+months, 49 by one maintainer). Prototype: `data.executor: spool` with `data.spool`; workers
+(`python -m rang.core_spool worker DIR`) claim tasks by an exclusive file create (a rename claim double-ran tasks on
+Windows), the stage reduces in plan order as the single writer; leases re-run tasks of dead workers. Gate passed:
+public fixture (Windows and nash: 2 workers, 4 workers at `chunk_rows: 7`, and a worker killed per stage) and
+`w3.ms` on nash (I, S1, S2, S4, S8) all bit-identical to main `9b4542c`. Scaling on nash, shared, provisional,
+2 threads and 2 GB per worker: total S(N) 1.90 / 3.05 / 4.67 at N = 2 / 4 / 8 (calibrate 5.85, flag 4.89 at 8,
+limited by 17 blocks; apply 1.46, the single writer moving 11 GB); one-worker overhead 1.013. Exclusive points not
+obtained. Not tested: Slurm, PBS, a second host, Lustre/CephFS.
+
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced

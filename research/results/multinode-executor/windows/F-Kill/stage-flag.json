@@ -1,0 +1,18 @@
+{
+ "stage": "flag",
+ "workers": [
+  7908,
+  61516
+ ],
+ "killed": {
+  "pid": 66624,
+  "owner": "glacier-66624-4005fb",
+  "claim": "21740-b9673998-0001-00000000",
+  "unix": 1794899876.4433897
+ },
+ "driver_wall_s": 63.09,
+ "worker_exits": [
+  0,
+  1
+ ]
+}

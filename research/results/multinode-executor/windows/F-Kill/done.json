@@ -1,0 +1,87 @@
+{
+ "case": "F",
+ "arm": "Kill",
+ "code": "C:\\Users\\gijsm\\Worktrees\\rang\\multinode-executor\\python",
+ "data": [
+  "processes: 2",
+  "chunk_rows: 7"
+ ],
+ "workers": 2,
+ "threads": 1,
+ "rayon": 1,
+ "kill": true,
+ "source": "D:\\rang\\outputs\\cta-20261113-inputs\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.2.0",
+  "core_sha256": "caf80328f3c7cd2e6fba93ba73ac7737e81de748f7b3eb47fb8e7b6bf4c0a30d"
+ },
+ "host": "GLACIER",
+ "stages": {
+  "flag": {
+   "exit": 0,
+   "wall_s": 63.71,
+   "stage": {
+    "stage": "flag",
+    "workers": [
+     7908,
+     61516
+    ],
+    "killed": {
+     "pid": 66624,
+     "owner": "glacier-66624-4005fb",
+     "claim": "21740-b9673998-0001-00000000",
+     "unix": 1794899876.4433897
+    },
+    "driver_wall_s": 63.09,
+    "worker_exits": [
+     0,
+     1
+    ]
+   }
+  },
+  "calibrate": {
+   "exit": 0,
+   "wall_s": 67.05,
+   "stage": {
+    "stage": "calibrate",
+    "workers": [
+     42476,
+     66012
+    ],
+    "killed": {
+     "pid": 56604,
+     "owner": "glacier-56604-54aa5a",
+     "claim": "54692-8d788cc3-0001-00000000",
+     "unix": 1794899940.2583673
+    },
+    "driver_wall_s": 66.58,
+    "worker_exits": [
+     0,
+     1
+    ]
+   }
+  },
+  "apply": {
+   "exit": 0,
+   "wall_s": 5.16,
+   "stage": {
+    "stage": "apply",
+    "workers": [
+     6984,
+     20416
+    ],
+    "killed": {
+     "pid": 39856,
+     "owner": "glacier-39856-00db0f",
+     "claim": "17020-b5cbada9-0001-00000000",
+     "unix": 1794900007.0676305
+    },
+    "driver_wall_s": 4.59,
+    "worker_exits": [
+     0,
+     1
+    ]
+   }
+  }
+ }
+}

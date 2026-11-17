@@ -163,15 +163,29 @@ SCHEMA = {
         "executor": _k(
             "local",
             "choice",
-            "where chunk tasks run: local, this machine (research/chunk-task-api.md)",
-            ("local",),
+            "where chunk tasks run: local, this machine (research/chunk-task-api.md); "
+            "spool, workers on any nodes serving data.spool "
+            "(research/multinode-executor.md)",
+            ("local", "spool"),
+        ),
+        "spool": _k(
+            None,
+            "str?",
+            "executor spool: an absolute directory on a filesystem every worker "
+            "mounts; start workers with python -m rang.core_spool worker DIR",
+        ),
+        "spool_wait_s": _k(
+            600.0,
+            "float",
+            "executor spool: seconds to wait with no live worker before failing",
         ),
         "processes": _k(
             1,
             "int",
             "processes for the chunk tasks of flag, the complex solve and complex "
-            "apply (1: in this process); each plans its chunks under "
-            "memory_limit_gb / processes; results do not depend on it",
+            "apply (1: in this process; executor spool: the workers planned for); "
+            "each plans its chunks under memory_limit_gb / processes; results do "
+            "not depend on it",
         ),
         "threads": _k(
             None,
@@ -1138,6 +1152,10 @@ def resolve(raw):
         errors.append(("data.processes", "must be at least 1"))
     if _is_int(data["threads"]) and data["threads"] < 1:
         errors.append(("data.threads", "must be at least 1"))
+    if data["executor"] == "spool" and not data["spool"]:
+        errors.append(("data.spool", "executor spool needs a directory"))
+    if _is_num(data["spool_wait_s"]) and not data["spool_wait_s"] > 0:
+        errors.append(("data.spool_wait_s", "must be above 0"))
     names = {}
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
@@ -1898,7 +1916,15 @@ def validate_file(path, stages):
 # on them (task W3, research/w3-chunking.md; research/chunk-task-api.md), so
 # changing them does not make a stage "changed".
 RESOURCE_KEYS = {
-    "data": ("memory_limit_gb", "chunk_rows", "executor", "processes", "threads")
+    "data": (
+        "memory_limit_gb",
+        "chunk_rows",
+        "executor",
+        "processes",
+        "threads",
+        "spool",
+        "spool_wait_s",
+    )
 }
 
 

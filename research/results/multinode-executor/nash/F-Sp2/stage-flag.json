@@ -1,0 +1,12 @@
+{
+ "stage": "flag",
+ "workers": [
+  272202,
+  272203
+ ],
+ "driver_wall_s": 4.62,
+ "worker_exits": [
+  0,
+  0
+ ]
+}

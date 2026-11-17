@@ -268,8 +268,10 @@ data:
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
   memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
   chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
-  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md)
-  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process); each plans its chunks under memory_limit_gb / processes; results do not depend on it
+  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md); spool, workers on any nodes serving data.spool (research/multinode-executor.md)
+  spool: null  # executor spool: an absolute directory on a filesystem every worker mounts; start workers with python -m rang.core_spool worker DIR
+  spool_wait_s: 600.0  # executor spool: seconds to wait with no live worker before failing
+  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process; executor spool: the workers planned for); each plans its chunks under memory_limit_gb / processes; results do not depend on it
   threads: null  # the rayon threads the processes share when processes > 1 (null: RAYON_NUM_THREADS, else the CPU count)
 flag:
   flagger: tricolour  # the Tricolour 0.2.1 port (research/core-d-tricolour.md)

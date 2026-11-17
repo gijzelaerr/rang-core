@@ -1,0 +1,45 @@
+{
+ "case": "F",
+ "arm": "O",
+ "code": "C:\\Users\\gijsm\\Worktrees\\rang\\mn-oracle-9b4542c\\python",
+ "data": [],
+ "workers": 0,
+ "threads": null,
+ "rayon": 4,
+ "kill": false,
+ "source": "D:\\rang\\outputs\\cta-20261113-inputs\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.2.0",
+  "core_sha256": "caf80328f3c7cd2e6fba93ba73ac7737e81de748f7b3eb47fb8e7b6bf4c0a30d"
+ },
+ "host": "GLACIER",
+ "stages": {
+  "flag": {
+   "exit": 0,
+   "wall_s": 2.56,
+   "stage": {
+    "stage": "flag",
+    "workers": [],
+    "driver_wall_s": 2.14
+   }
+  },
+  "calibrate": {
+   "exit": 0,
+   "wall_s": 1.93,
+   "stage": {
+    "stage": "calibrate",
+    "workers": [],
+    "driver_wall_s": 1.56
+   }
+  },
+  "apply": {
+   "exit": 0,
+   "wall_s": 1.88,
+   "stage": {
+    "stage": "apply",
+    "workers": [],
+    "driver_wall_s": 1.49
+   }
+  }
+ }
+}
