@@ -2194,3 +2194,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gemclean-ms-mask PM: WSClean 3.7 | the same | 2,346 s | 5.14 GiB | 8 threads; diverged in major 3 |
 | 2026-11-17 | gemclean-ms-mask RM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | H4, 2048² | 15.4 s; 89.6 s | 3.43 GiB; 1.41 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask PM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | pilot, 4096² | 145.3 s; 459.2 s | 12.16 GiB; 4.82 GiB | 8 slots each |
+| 2026-11-17 | gemclean-ms-mask: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `gemclean-ms-mask` | 818 s (lock wait excluded) | – | PASS; `docs/gen_cli.py --check` PASS |
