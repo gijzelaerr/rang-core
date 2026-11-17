@@ -609,6 +609,31 @@ every attempt reported; no pooling of clean repeats across attempts; the 1-CPU b
 attempt is clean, F4's calibrator outcome on C1(U4) goes to the coordinator with both provisional
 readings, and no held-out set is read.
 
+**Stage 4, training, measured 2026-11-17 11:07-11:55 (+02), host nash, CPU** (`train1.sh` beside the
+weights: `examples/f3_train.py --nplanes 23` at `475ad60`, JAX 0.12.0.1 `cpu:0`, 6 cores per seed by
+`taskset`, the three seeds in parallel under nash's heavy lock `--slots 6 --mem 24`, nice 19, ionice
+-c3). Shards copied 2026-11-17 (58 files, 17 GB, gzip streams, 32 min; `sha256sum -c` on nash OK).
+Weights copied back to `D:/rang/outputs/f4-20261111-08-train-calibrator/seed-K/` (`weights.sha256`,
+checked on glacier); nash keeps `~/rang-data/f4/`. A discarded pilot (seed 1, 1,000 steps, 8 cores:
+70 s, 18 GB) sized the booking.
+
+| Seed | Validation loss | Last 1,000-step training loss | Train wall | CPU | Peak RSS | weights sha256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 0.2095 | 0.0074 | 46.0 min | 4.41 cores | 18.4 GB | `033773cb…` |
+| **2** | **0.0914** | 0.0078 | 46.5 min | 4.41 | 18.4 GB | `a20b1abb…` |
+| 3 | 0.0330 | 0.0115 | 45.5 min | 4.45 | 18.4 GB | `8d5e307a…` |
+
+The weights file is the median seed by validation loss: **seed 2** (`a20b1abb10e0a3be…d90d`). The
+validation losses spread by a factor of six across seeds at nearly equal training losses: the fit
+to validation (MAIN_7 and f2sim-v) depends on the seed. Recorded, not acted on (section 5 fixes the
+median seed).
+
+**τ (Stage 4, validation only), `-09-tau-calibrator`, 2026-11-17, glacier, shared 4 slots, 4.0 min:**
+**τ = −1.0** (largest pooled validation recall with N4's added cells on MAIN_7's uninjected DATA ≤
+T's): recall 0.954 of 3.92 M positive cells (MAIN_7 two realisations, f2sim-v scans 1, 2, 4); added
+209,027 against T's 209,120. At τ = −1.5 added 259,066 > T. Grid ends: −6 recall 0.978 / added 1.87 M;
++2 recall 0.926 / added 36,686. Stored beside the weights' sha256 here: `seed-2/weights.npz@-1.0`.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
