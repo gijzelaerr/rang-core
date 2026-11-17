@@ -55,6 +55,8 @@ def arm_paths(arm):
 
 def _versions(arm):
     _ms, rd, _ = arm_paths(arm)
+    if not (rd / "state.json").exists():  # restore moved it; flux-run makes another
+        rd = O / arm / "R" / "rang-run"  # the archive step's copy
     st = json.loads((rd / "state.json").read_text())["stages"]
     if st.get("calibrate", {}).get("status") != "done":
         raise SystemExit(f"{arm}: calibrate is not done")
@@ -99,9 +101,12 @@ def flags(arm):
     runs = np.split(rows, np.flatnonzero(np.diff(rows) != 1) + 1)
     stage, (kind, after) = _versions(arm)
     fv = Path(str(ms) + ".flagversions")
-    with core_ms.open_table(ms) as t:
-        meta = {c: np.concatenate([np.asarray(t.getcol(c, int(r[0]), len(r))) for r in runs])
-                for c in ("TIME", "ANTENNA1", "ANTENNA2")}  # fmt: skip
+    # row metadata from e2a-3b-k's idle f0.ms (the same source rows, checked by
+    # npzflags), not from the arm's main table, which later stages write
+    with core_ms.open_table(K / "f0.ms") as t:
+        meta = {c: np.asarray(t.getcol(c)) for c in ("TIME", "ANTENNA1", "ANTENNA2")}
+    if len(meta["TIME"]) != len(rows):
+        raise SystemExit("f0.ms rows differ from f0-base.json's source rows")
     rec = {"arm": arm, "source_rows": len(rows), "runs": len(runs)}
     for name, src in (("stage", fv / f"flags.{stage}"),
                       ("after", fv / f"flags.{after}" if kind == "version" else ms)):  # fmt: skip
@@ -131,6 +136,8 @@ def prep(arm):
     shutil.copy(K / "f0-base.json", d / "f0-base.json")
     cal = d / "f0win" / "rang-run" / "calibrate"
     cal.mkdir(parents=True, exist_ok=True)
+    if not (rd / "state.json").exists():
+        rd = O / arm / "R" / "rang-run"  # the archive step's copy (see _versions)
     for n in NAMES:
         shutil.copytree(rd / "calibrate" / n, cal / n)
     log(f"prep {arm}: f0.ms and tables {time.perf_counter() - t0:.1f}s")

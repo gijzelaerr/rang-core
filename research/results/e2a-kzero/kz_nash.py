@@ -81,6 +81,10 @@ def apptainer(r, image, mounts, script, label, threads=8):
 
 
 P.docker = apptainer
+# qc-selfcal's small MSs (`QC_EXT4`, "$HOME/e2a-qc" in e2_post) per arm: ZS and
+# ZSD reach that step together, and E2-N's chain uses the same default path.
+_arm = Path(sys.argv[4]).resolve().parent.name if len(sys.argv) > 4 else "x"
+P.QC_EXT4 = f"$HOME/rang-data/outputs/e2a-kzero-20261117/qc-ext4-{_arm}"
 P.wsl = lambda path: str(Path(path).resolve())  # native paths on Linux
 
 

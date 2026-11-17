@@ -243,3 +243,17 @@ other.
   by sections 3-5. `O` = `~/rang-data/outputs/e2a-kzero-20261117` on nash.
 - Disk on nash: three 194 GiB copies plus three 37 GiB `f0.ms` copies
   (about 700 GiB), deletable after the reading.
+
+## 9. Addendum 2026-11-17 17:30, before any arm table existed (scripts only)
+
+- `kz_score.py` adds, per solution, ZS's and ZSD's K0 and K1 against OFF's
+  (max, median, flag differences, every solution moved by more than 1e-3
+  ns): section 5's expectation had no scorer. Read, not gated.
+- `kz_score.py` and `kz_f0.py` read each arm's tables from prep's copy, or
+  from the archive step's copy `R/rang-run`, not from the live run directory
+  (`restore` moves it and `flux-run` makes a new one with scan-9 tables);
+  `kz_f0.py flags` reads the row metadata from e2a-3b-k's idle `f0.ms`, not
+  from the arm's main table while later stages write it.
+- `kz_nash.py` gives `qc-selfcal`'s small MSs a directory per arm (E2-A's
+  default `$HOME/e2a-qc` is shared by ZS, ZSD and E2-N's chain).
+- The running `.sh` drivers are not edited while they run.

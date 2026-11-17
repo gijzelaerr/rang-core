@@ -56,7 +56,9 @@ KEYS = ("k_zero_start", "bandpass_model_divided", "average_time", "refant", "uvr
 def rang_dir(arm):
     if arm == "archived":
         return K / "f0win" / "rang-run" / "calibrate"
-    return O / arm / "e2a.ms.rang-run" / "calibrate"
+    # prep's copy of the arm's tables (what CASA's `k` arm used); the live run
+    # directory is moved by `restore` and replaced by flux-run's scan-9 tables
+    return O / arm / "f0" / "f0win" / "rang-run" / "calibrate"
 
 
 def casa_dir(arm, case):
@@ -140,6 +142,27 @@ def score():
         out["arms"][arm] = rec
         for key in [k for k in cp.cache if not k.endswith(("rang1", "rang0"))]:
             del cp.cache[key]  # memory: keep only the rang composites for the pairs
+    # added 2026-11-17 17:30, before any arm table existed: per solution, K0 and
+    # K1 of each arm against OFF's (section 5's "no other K1 solution moves by
+    # more than 1e-3 ns")
+    out["k_moves"] = {}
+    for a in ("zs", "zsd"):
+        if a in have and "off" in have:
+            rec = {}
+            for n in ("K0", "K1"):
+                _, va = KS._kvals(C.table(rang_dir(a) / n))
+                _, vb = KS._kvals(C.table(rang_dir("off") / n))
+                if va.shape != vb.shape:
+                    rec[n] = {"shapes": [list(va.shape), list(vb.shape)]}
+                    continue
+                d = np.abs(va - vb)
+                big = np.argwhere(d > 1e-3)
+                rec[n] = {"max_ns": float(np.nanmax(d)), "median_ns": float(np.nanmedian(d)),
+                          "flag_differs": int((np.isnan(va) != np.isnan(vb)).sum()),
+                          "moved_gt_1e-3ns": [{"interval": int(i), "antenna": int(j), "hand": "XY"[h],
+                                               "ns": float(va[i, j, h]), "off_ns": float(vb[i, j, h])}
+                                              for i, j, h in big]}  # fmt: skip
+            out["k_moves"][f"{a} vs off"] = rec
     # same-tool pairs (rang against rang): what the keys move, and host/build drift
     for a, b in (("off", "archived"), ("zs", "off"), ("zsd", "off"), ("zsd", "zs"),
                  ("zs", "archived"), ("zsd", "archived")):  # fmt: skip
