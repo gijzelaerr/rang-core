@@ -252,3 +252,25 @@ common phase and a random common delay applied to truth's G and K, against
 truth, ≤ 1e-6; and, as a check that the scorer is not blind, a random
 per-antenna phase of 1e-3 rad, which must read about 1e-3. Nothing else
 changes.
+
+## 7. Addendum 2026-11-17 14:10, post hoc (after T0, T1, R and T2's four arms were read; before `cf_pass1.py` and CL's strict arm were read)
+
+Read so far (section 8): pass 0 meets machine precision in CL and NS, so
+O-I holds for KGB0. Pass 1 does not follow: NS's KGB1 is 8e-8, but CL's is
+3.5e-3 and CN's 7.7e-4, with a K1 solution 2,263 ns from truth in CL (ID
+50's delay is near the 2,392 ns ambiguity, `1 / (2 × 209 kHz)`) and K1 at
+the 50-iteration cap (converged fraction 0.94). T5 as frozen is
+unreadable: every antenna has B0 channels flagged where data exist
+(minblperant or SNR), so "without antennas with any flagged pass-0
+solution" leaves no cells.
+
+Added, before reading them:
+- **P1** (`cf_pass1.py`, no solve) on CL, CN and R's run: every K1
+  solution more than 1e-3 ns from truth (referenced to m022), and each
+  pass-1 term swapped alone into truth. The pass-1 floor is **in K1** if
+  truth with the arm's K1 alone reads ≥ 0.5 × the arm's KGB1; **in G1 or
+  B1** likewise.
+- **T3 on S0c** (pre-registered in T2 for a pass-1 floor) is running; read
+  by T3's words against CL's 3.5e-3.
+- **T5′**: T5 with K and G solutions only (B's flags are excluded from the
+  composite cell by cell already), on every arm.
