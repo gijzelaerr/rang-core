@@ -76,20 +76,23 @@ bound read-only (`apptainer --bind …:ro`) and never opened for writing.
     it by `setjy(usescratch=True)` followed by a column copy from the rang
     copy (so H-M cannot enter the simulation).
   - Truth terms from the real subset's T-T tables, as realistic
-    parameters (they are not taken as right): case **S1** static, K_T and
-    G_T constant per scan (T-T's K0, G0), B_T = T-T's B0 (flagged
-    channels set to 1); case **S2** varying, K_T and G_T T-T's K1 and G1
-    interpolated linearly to every dump, B_T = T-T's B1. Truth tables are
-    written with a row at every dump time, applied with
+    parameters (they are not taken as right). Case **S1**, static: K_T
+    and G_T constant per scan (T-T's K0, G0), B_T = |T-T's B0| (amplitude
+    only, so that K0's truth is not shifted by a bandpass phase slope).
+    Case **S2**, varying: K_T and G_T T-T's K1 and G1 interpolated
+    linearly to every dump, B_T = T-T's B1 with its weighted linear phase
+    slope per antenna and hand removed. Flagged template solutions are
+    filled from their neighbours in time (K 0, G 1, B 1 if none). Truth
+    tables are written with a row at every dump time and applied with
     `rang.cal_apply.apply(direction="corrupt")`, so the composite of the
     truth tables is exact at every scored time.
-  - Noise: complex Gaussian, per channel and hand, σ measured on the real
-    subset as the robust (MAD) scatter of `(V_t - V_{t+1}) / sqrt 2`
-    over unflagged cells, consecutive dumps of one baseline. Seeds
-    20261171, 20261172 (two per noisy case).
-  - Flags: the real ones (flag stage for pass 0; rang's own after-A for
-    pass 1 of both arms, as T-K3).
-  - Noise-free control **S0**: S2 without noise, one run per arm.
+  - Noise: complex Gaussian, per channel and correlation, σ per
+    component measured on the real subset as the robust (MAD) scatter of
+    `(V_t - V_{t+1}) / sqrt 2` over unflagged cells, consecutive dumps of
+    one baseline. Seeds 20261171, 20261172 (two per noisy case).
+  - Flags: the real ones (flag stage for pass 0; rang U's own after-A for
+    pass 1 of the CASA arms, as T-K3).
+  - Noise-free control **S0**: S1 without noise.
 - **The 4-antenna synthetic**: the test fixture `exact`, unchanged, run
   as a script.
 
@@ -144,9 +147,13 @@ Read, per case and seed, with and without ID 50 (m053, its delay near the
   dumps of rang's interval; median, p95; the same for K0.
 - Composite of each arm against truth (KGB1 and KGB0), and U-C, U-CK,
   D-C, D-CK (does the simulation reproduce the real 6.5e-3 and 1.1e-3?).
-- **Control S0:** every arm's KGB1 against truth ≤ 7e-5. If not met, the
-  generator or a convention (K sign, reference frequency) is wrong; it is
-  fixed and S0 rerun before S1/S2 are read.
+- **Control S0:** rang U's KGB1 and KGB0 against truth ≤ 7e-5. If not
+  met, the generator or a convention (K sign, reference frequency) is
+  wrong; it is fixed and S0 rerun before S1/S2 are read. CASA's S0 error
+  is read as its noise-free estimator bias, not as a control.
+- K errors are read cleanly on S0 and S1 (K0 has nothing pre-applied and
+  B_T no phase); on S2 the K1 "truth" also carries what B0 absorbed of
+  K0's error, so S2 is read on the composites (labelled).
 
 Outcomes, H-K (both noisy cases, both seeds):
 - **K1** rang nearer truth: no rang change; CASA's K is the less accurate
