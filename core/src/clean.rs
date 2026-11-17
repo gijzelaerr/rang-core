@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Högbom CLEAN as greedy coordinate descent on the sampling-weighted
 //! least-squares misfit: the kernels behind `research/clean-theory.md`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The formalism. The data live in the real inner-product space of weighted
 //! visibilities, `⟨x, y⟩ = Σ_k w_k (Re x_k Re y_k + Im x_k Im y_k)`. Every

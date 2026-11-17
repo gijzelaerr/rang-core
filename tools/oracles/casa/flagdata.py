@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA `flagdata` as the oracle of task V8b (research/v8b-flagdata.md).
 
 Runs inside `rang-o-casa:6.7.6.14` with `/opt/casa/bin/python -I`. The plan

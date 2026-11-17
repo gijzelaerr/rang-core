@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Compare rang's listobs with CASA's on the V8a MSs (research/v8a-listobs.md).
 
 Usage: compare_listobs.py CASA_DIR OUT.json NAME=MS [NAME=MS ...]

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Closure quantities as a gauge-free flagging statistic (research/c1-closure-arm.md).
 
 The Rust kernel `core/src/closure.rs` computes, for every sample of every

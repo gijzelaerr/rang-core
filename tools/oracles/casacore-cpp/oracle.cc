@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 // The O-cpp oracle of task E6 (research/e6-table-writer-final.md): casacore
 // 3.7.1 (KERN-10) performs the cases python-casacore cannot (TiledDataStMan
 // hypercubes through TiledDataStManAccessor), the cross-version case X-371
@@ -17,8 +17,8 @@
 // casacore shape [b, a, n]. Keep the sequences in step with the case
 // functions of examples/oracle_ms_final.py.
 //
-// Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-// License, version 3 or (at your option) any later version; see `LICENSE`.
+// Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+// see `LICENSES/MIT.txt`.
 // It calls casacore (LGPL-2.1-or-later) as a library; nothing is copied
 // from it.
 

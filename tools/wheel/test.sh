@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Usage: bash tools/wheel/test.sh BUILD_DIR outputs/OUT_DIR [PYTHON_VERSION ...]
 # (both paths relative to the checkout)
 #

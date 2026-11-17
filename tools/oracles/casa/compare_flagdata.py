@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """V8b's comparison (research/v8b-flagdata.md, section 5): rang's flags and
 returns against CASA's, case by case.
 

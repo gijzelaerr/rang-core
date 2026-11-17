@@ -1,7 +1,9 @@
 Third-party notices for rang-core
 
-rang-core is distributed under the GNU General Public License, version 3 or
-(at your option) any later version (LICENSE). Parts of its compiled extension
+rang-core as distributed is under the GNU General Public License, version 3
+only (LICENSE). ra-ng's own source files are under the MIT License
+(LICENSES/MIT.txt); each file's SPDX line names its licence (docs/licence.md).
+Parts of its compiled extension
 rang._core are translations of code under the licences below; their notices
 are reproduced here as those licences require for binary distributions. The
 source files carry the same notices.

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Readout of CASA's tfcrop band template F (research/v8c-tfcrop-poly.md,
 section 4, P0; every output is labelled probe, never a gate case).
 

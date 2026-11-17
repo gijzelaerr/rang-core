@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Pytest plugin for testing the installed wheel from the source tree.
 
     PYTHONPATH=tools/wheel python -m pytest -p pytest_wheel -o pythonpath= \

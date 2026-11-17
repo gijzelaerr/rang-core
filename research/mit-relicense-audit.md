@@ -519,3 +519,91 @@ lawyer who works with FOSS licences. Questions for them:
 - The relicensing route in this note (permission requests, clean-room rewrites, an LGPL writer module and an optional GPL package) is deferred until the roadmap work is done. Nobody has been asked for permission.
 - Until then, new work avoids adding GPL- or LGPL-derived code beyond what a task needs. It prefers permissive upstreams and reimplementation from papers, so the later rewrite does not grow.
 - The notice gaps found here are fixed now under the GPL, on branch `v030-fix`.
+
+## Owner decision, 2026-11-17 (later the same day)
+
+"maybe we should MIT the parts of the code we can to avoid future work, keep
+the parts that need to be GPL or LGPL that license for now, we will sort that
+out in the future." This supersedes the first decision above for ra-ng's own
+code; the rest of the route stays deferred.
+
+## Step 1 done: own code MIT (2026-11-17)
+
+Branch `mit-own`, from main `11fdd993` (v030-fix merged, package metadata
+GPL-3.0-only). Only SPDX lines and licence prose changed; no code.
+
+**Rule.** Classes a and c of `files.csv` get `MIT`. Class b-permissive gets
+`MIT AND <upstream>`: `MIT AND BSD-3-Clause` for Tricolour, codex-africanus,
+katdal and c-blosc; `MIT` alone for the three QuartiCal translations,
+because QuartiCal is MIT (the notice stays in each file;
+`test_quartical_translations_keep_the_mit_notice`). Classes b-copyleft, c-src
+and d keep their lines unchanged. When in doubt, a file stays GPL.
+
+**Re-checked on the new main.** The four headers v030-fix corrected
+(`ism.rs`, `bandpass.rs`, `fluxscale.rs`, `reference.rs`) are b-copyleft and
+stay GPL. The class-a files v030-fix changed (`core_cli.py`,
+`core_writeback.py`, `lightcurve.py`, `tools/check_all.py`) gained own code
+only. Files on main since the audit base that carry an SPDX line are all own
+(`core/tests/gemclean_memory.rs`, the research scripts).
+
+**Outside the audit's scope.** 112 header-bearing files do not ship
+(`tools/oracles/`, the other `tools/` scripts, research scripts,
+`core/tests/`, `docs/_extra/`). Their heads and upstream mentions were read
+one by one. Six stay GPL (the `HELD` list in
+[results/mit-relicense-audit/spdx.py](results/mit-relicense-audit/spdx.py)):
+- `tools/oracles/aoflagger/st_bridge.py`: AOFlagger 3.5's `SumThresholdMissing`, transcribed;
+- `tools/oracles/aoflagger/posthoc/s1_values.py`: Tricolour's kernel and AOFlagger's semantics re-chained;
+- `tools/oracles/aoflagger/tricolour_dump.py`: re-chains Tricolour's flagger step for step (d);
+- `tools/oracles/casa/crosscal.py`: CARACal's `crosscal_worker.py` calls, line by line (c-src);
+- `tools/oracles/w3b/angles_memory.py`: a verbatim copy of an older `applycal._field_angles` (c-src);
+- `docs/_extra/interferometer/index.html`: embeds the simms-copied MeerKAT positions (d).
+
+**Licence prose.** 32 MIT files said "Licensed under the GNU General Public
+License, version 3 or (at your option) any later version" in a comment; that
+line now names the MIT License and `LICENSES/MIT.txt`. The QuartiCal and
+codex-africanus translations said "part of Rang (GPL-3.0-or-later)"; now
+"(MIT)".
+
+**After the change** (every tracked file with an SPDX line; the list is
+[results/mit-relicense-audit/spdx.csv](results/mit-relicense-audit/spdx.csv),
+written by `spdx.py`):
+
+| Class | SPDX line | Files | Lines |
+| --- | --- | ---: | ---: |
+| a | `MIT` | 256 | 80,305 |
+| c | `MIT` | 9 | 3,725 |
+| b-permissive (QuartiCal) | `MIT` | 3 | 4,799 |
+| b-permissive (BSD) | `MIT AND BSD-3-Clause` | 5 | 3,730 |
+| b-copyleft | `GPL-3.0-or-later` | 21 | 27,531 |
+| b-copyleft | `GPL-3.0-or-later AND LGPL-3.0-only` | 3 | 2,931 |
+| b-copyleft | `GPL-3.0-or-later AND BSD-3-Clause` (`sky.py`) | 1 | 1,160 |
+| b-copyleft | `GPL-3.0-or-later AND SunPro` (`shader.rs`) | 1 | 313 |
+| c-src | `GPL-3.0-or-later` | 30 | 23,551 |
+| c-src | `GPL-3.0-or-later AND LGPL-3.0-only` (`joined.rs`) | 1 | 991 |
+| c-src | `GPL-3.0-or-later AND MIT` (`cal/diag.rs`) | 1 | 1,154 |
+| d | `GPL-3.0-or-later` | 3 | 3,269 |
+| **MIT or MIT AND BSD** | | **273** | **92,559** |
+| **GPL or LGPL** | | **61** | **60,900** |
+
+The class counts include the 112 unshipped files (106 of them class a), so
+they differ from the shipped-only totals of section 1.
+
+**Not stamped.** 170 shipped files carry no SPDX line: 167 class a (36,363
+lines: most of `tests/` and `core/py/src`), 2 c-src and 1 b-copyleft (the CASA
+test references). They stay under the repository's `LICENSE` (GPL) until a
+later step stamps them; the test does not require a line there.
+
+**Licence files and metadata.** `LICENSES/MIT.txt` (Gijs Molenaar and the
+ra-ng contributors, 2026) is new and ships in the wheel and the sdist
+(`license-files`); `LICENSE` stays the GPL-3.0 text. `pyproject.toml`,
+`core` and `core/py` stay `GPL-3.0-only`: the combined package is GPL while
+the GPL and LGPL parts are in it. The root crate `rang-sim` is `MIT` (all
+seven files class a). `CITATION.cff` names only the package licence and is
+unchanged.
+
+**Test.** `tests/test_spdx_headers.py` checks that every tracked SPDX line is
+listed in `spdx.csv` with the same expression, that the expression fits the
+class (a, c: `MIT`; b-permissive: `MIT` first and only permissive terms; the
+rest: a GPL term and not `MIT` first), and that no file `files.csv` marks
+b-copyleft, c-src, d or non-MIT b-permissive carries a bare `MIT`.
+A new file with an SPDX line needs a row: rerun `spdx.py`.

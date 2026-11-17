@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Forward-backward and FISTA for `½‖y − Φ m‖²_W + R(m)` with `m ≥ 0`, over any
 //! [`Measurement`]: the exact gridder or the visibility-free Gram operator.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The weights are normalised, so the gradient at `x` is `G x − d` with
 //! `d = Φᴴ W y` and `G = Φᴴ W Φ`, and the misfit is

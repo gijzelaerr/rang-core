@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Per-file provenance classes of the shipped sources (research/mit-relicense-audit.md).
 
 Writes files.csv beside this script and prints the totals per class and per

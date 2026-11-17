@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """C1: the closure-invariant comparator arm on L1's frozen campaign (research/c1-closure-arm.md).
 
 L1's `core_campaign_array.run` runs unedited on all stations of LUNO chunk 0.

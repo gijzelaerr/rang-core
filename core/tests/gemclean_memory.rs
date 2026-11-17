@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The memory regression test of GeMClean's joined polarisations
 //! (`research/gemclean-memory.md`, issue #32): a small `-pol IQUV
 //! -join-polarizations -channels-out 4 -join-channels -auto-mask 5` run of
@@ -7,8 +7,8 @@
 //! count is that of the allocations, not of resident pages, so it does not
 //! depend on the host's load; `-j 2` fixes the per-thread buffers.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 use rang_core::gemclean::input::{MsArrays, write_ms};
 use rang_core::gemclean::sim::{antennas, baseline_uvw, enu};

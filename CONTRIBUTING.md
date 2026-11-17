@@ -124,16 +124,27 @@ Clippy releases add lints that would otherwise require kernel edits.
 
 Every tracked `.py`, `.rs`, `.sh` and `.cc` file under `python/rang`,
 `core/src`, `src` and `tools` starts with an SPDX line, after a shebang or
-encoding line if it has one:
+encoding line if it has one. ra-ng's own code is MIT:
 
 ```python
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 ```
 
-(`//` for Rust and C++). A file ported from code under another licence names
-both, for example `GPL-3.0-or-later AND MIT`, and keeps the upstream notice
-in full (`docs/licence.md` lists the ported code). Longer copyright
-notices may follow the SPDX line. `tests/test_spdx_headers.py` checks it.
+(`//` for Rust and C++). Code translated from a permissive upstream names
+both, for example `MIT AND BSD-3-Clause`, and keeps the upstream notice in
+full. Code translated or derived from a GPL or LGPL upstream keeps
+`GPL-3.0-or-later` (with `AND LGPL-3.0-only` and the like where the SPDX
+line names the upstream); `docs/licence.md` lists the parts and why. Longer
+copyright notices may follow the SPDX line.
+
+Contributions are inbound = outbound, per file: a change to an MIT file is
+contributed under MIT, a change to a GPL file under that file's GPL line. A
+new file is MIT unless it follows GPL or LGPL code or source; then it takes
+the upstream's licence and its name goes into the `HELD` list of
+`research/results/mit-relicense-audit/spdx.py`. Rerun that script after
+adding a file with an SPDX line: `tests/test_spdx_headers.py` checks every
+line against the list it writes (`spdx.csv`), and that no file the audit
+marks derived carries a bare `MIT`.
 
 ## Releasing
 

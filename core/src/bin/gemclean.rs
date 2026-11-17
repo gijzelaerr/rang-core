@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! `gemclean`: a reference CLEAN imager for Measurement Sets with WSClean-like
 //! flags (`research/gemclean.md`); the source build's front end of
 //! [`rang_core::gemclean::cli`] (task G8, `research/g8-wheel.md`; the wheel's is
 //! the console script over `rang._core.gemclean_main`).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 #[cfg(all(target_os = "linux", target_pointer_width = "64"))]
 #[global_allocator]

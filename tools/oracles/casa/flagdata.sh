@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # CASA flagdata on per-case copies (research/v8b-flagdata.md, section 3).
 # Usage: bash tools/oracles/casa/flagdata.sh OUT_DIR PLAN.json [NAME ...]
 # Inputs are mounted read-only: /in/cases (V8b's synthetic MSs, $cases),

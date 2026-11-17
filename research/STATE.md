@@ -20,6 +20,16 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
+- Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".
+- 273 files (92,559 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice
+  kept); 61 files (60,900 lines) derived from GPL or LGPL code keep their GPL lines (casacore writer, ducc0
+  wgridder, WSClean, radler, CASA kernels, c-src rules, `ms_schema.rs`, six oracle tools held by doubt).
+- `LICENSES/MIT.txt` added and shipped (`license-files`); the package stays `GPL-3.0-only`; root crate
+  `rang-sim` MIT. 170 shipped files without an SPDX line (mostly tests) stay under `LICENSE`.
+- `tests/test_spdx_headers.py` checks every line against `research/results/mit-relicense-audit/spdx.csv`.
+  Only SPDX lines and licence prose changed; header-only conflicts with open branches are expected.
+
 v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review.md) section 5):
 - B-01: `cal_pol.parallactic_angle_casa` translates casacore's measures (`MCDirection.cc`, `MeasMath.cc`,
   `MeasTable.cc`, `MSDerivedValues.cc`, master `3c16927b`, LGPL-2.0-or-later, AUI); no casacore data is read,

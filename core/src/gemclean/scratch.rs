@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Temporary files for gemclean's `-reorder` (research/gemclean-memory2.md,
 //! issue #32): data written once and read back where it is used, as
 //! WSClean's reordered visibility files. Values come back with the bits they
@@ -6,8 +6,8 @@
 //! them changes. A file is removed when its last handle is dropped, also on
 //! an error return or a panic that unwinds.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 use crate::clean_certified::Complex;
 use std::fs::File;

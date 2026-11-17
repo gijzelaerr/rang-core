@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Build the E6 C++ casacore oracle image (research/e6-table-writer-final.md) and
 # record its id, size, build time and the installed deb versions.
 # Usage: bash tools/oracles/casacore-cpp/build.sh [tag] [record.json]

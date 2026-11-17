@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The identity runs of research/chunk-task-api.md (sections 2 and 3).
 
     python run.py arm RUN CASE ARM      # one arm: fresh MS copy, stages, hashes

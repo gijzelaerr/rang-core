@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Small dense symmetric linear algebra for the simulation's 16 pointing parameters.
 //! No external numerical dependency is needed to reproduce this experiment.
 

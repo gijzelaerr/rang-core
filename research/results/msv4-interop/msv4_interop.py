@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """MSv4 read path against the MSv2 path (research/msv4-interop.md).
 
 Steps (section 4 of the note):

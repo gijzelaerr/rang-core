@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The two research questions as guided notebooks (task D3,
 research/d3-science-notebooks.md): archive readers, live demonstrations on
 public or simulated data, and plots.

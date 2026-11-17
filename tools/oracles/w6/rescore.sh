@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # W6: the image comparisons of run.sh again on its outputs (no imager rerun).
 #   bash rescore.sh OUTDIR dev|held
 O=$1; SET=$2

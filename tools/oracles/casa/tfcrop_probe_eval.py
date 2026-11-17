@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Evaluate tfcrop probe batches against models (research/v8-tfcrop.md,
 section 7; labelled probe). Reads `tfcrop_probe.py` designs and the CASA
 flags `tfcrop_probe_casa.py` wrote.

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Retrospective TRAIN-only full-Jones deletion response, not an RFI classifier.
 
 Verbatim extract of the frozen `rangtoy.flagging_influence` (big plan task P11,

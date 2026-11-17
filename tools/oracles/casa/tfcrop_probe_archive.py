@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Archive CASA's flags on the first baselines of the D1 probes (S1, S2) so
 that CI checks rang's per-row rule against CASA without CASA
 (research/v8-tfcrop.md, section 7; `tests/test_v8_tfcrop.py`).

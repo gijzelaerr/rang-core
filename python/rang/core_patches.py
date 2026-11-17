@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Measure patch-removal effects and fit a small gain-TV action predictor.
 
 Verbatim extract of the frozen `rangtoy.flagging_actions` (big plan task P11,

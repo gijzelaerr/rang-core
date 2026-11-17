@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Local Gauss–Newton uncertainty; not a model-mismatch error estimate."""
 
 import numpy as np

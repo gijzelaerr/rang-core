@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Bad-input and parity gaps closed by the correctness audit
 (research/correctness-audit-2026-11-13.md): each test names the gap it
 closes. Synthetic inputs only; no archive, no oracle."""

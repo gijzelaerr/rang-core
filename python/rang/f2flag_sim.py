@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """F-SIM: simulated MeerKAT L-band scans with RFI of known mask (task F2,
 research/f2-flagger.md, section 4).
 

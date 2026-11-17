@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA `listobs` as the oracle of task V8a (research/v8a-listobs.md).
 
 Runs inside `rang-o-casa:6.7.6.14` with `/opt/casa/bin/python -I`. For each

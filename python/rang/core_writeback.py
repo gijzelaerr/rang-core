@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Write-back to an existing Measurement Set (research/w1-writeback.md, W1).
 
 The interface C4b (CORRECTED_DATA, FLAG, WEIGHT), G6 (MODEL_DATA) and W2

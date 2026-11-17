@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """tfcrop probes, host side (research/v8-tfcrop.md, sections 3 and 6; every
 output is labelled probe, never a gate case).
 

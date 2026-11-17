@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Flux-density standards for calibrators, as CASA `setjy` applies them.
 
 Task FS1 (research/fs1-flux-standards.md). This module is canonical: it holds

@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! A sampled upper bound on the error of the phase-centre beam, for the
 //! certified minor-cycle stop rule (`research/stop-rule-theorem.md`).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The true Gram matrix and the beam of the `2n` PSF differ only through the
 //! w-term. With `ñ(x) = √(1 − |x|²) − 1`, `Δ = x_q − x_j` and

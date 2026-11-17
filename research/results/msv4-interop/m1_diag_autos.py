@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Diagnosis for M1 (research/msv4-interop.md section 7, M1 run 05; post hoc,
 not a measure).
 

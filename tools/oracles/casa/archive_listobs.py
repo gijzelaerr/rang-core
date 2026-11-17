@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Archive CASA's listobs output on the public fixture (research/v8a-listobs.md).
 
 Usage: archive_listobs.py CASA_DIR OUT.json NAME [NAME ...]
