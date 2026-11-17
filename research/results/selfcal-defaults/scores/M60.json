@@ -1,0 +1,102 @@
+{
+ "run": "M60",
+ "config": "schema: rang-config\nversion: 1\nfields:\n  target:\n  - 0\ndata:\n  memory_limit_gb: 12.0\nimage:\n  size:\n  - 4096\n  - 4096\n  scale: 3asec\n  weight: briggs\n  robust: 0.5\n  niter: 1000000\n  auto_threshold: null\n  threshold: 0.003\n  gain: 0.1\n  nmiter: 1000\n  threads: 8\n  wgridder_accuracy: 1.0e-06\nselfcal:\n  rounds: 2\n  terms:\n  - type: Sp\n    solint: 60s\n    freqint: inf\n  - type: Sa\n    solint: 60s\n    freqint: inf\n  input_column: DATA\n  output_column: CORRECTED_DATA\n  refant: 0\n  minuvw_m: 0.0\n",
+ "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+ "rounds": [
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "60s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 0.9994444444444445,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 60,
+    "wall_seconds": 261.35224678297527
+   },
+   "image_clean": {
+    "components": 59065,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 285.4664683949668,
+   "model_sha256": {
+    "image-model.fits": "fea351b703c83d17ad4d27d0138a9408cf65b959a688ad88b0f62195b13f255e"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/M60/run/selfcal/ESO137-pilot/round-1/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": "60s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "solve": {
+    "iterations": 39,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 60,
+    "wall_seconds": 257.05720826704055
+   },
+   "image_clean": {
+    "components": 26168,
+    "major_cycles": 3,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 244.33022549399175,
+   "model_sha256": {
+    "image-model.fits": "b08ea726fc12487156d6e103190cc7005b9f86396e06bd931425d014760a09e0"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/M60/run/selfcal/ESO137-pilot/round-2/gains.qc"
+  }
+ ],
+ "final_clean": {
+  "components": 25008,
+  "major_cycles": 3,
+  "stop": "Threshold"
+ },
+ "cells": {
+  "P1A@60": {
+   "round": 2,
+   "model_image": 3,
+   "B": {
+    "F": 0.00031313050672228583,
+    "flux_scale": 1.003910658509679,
+    "F_norm": 0.00031558438846690854,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 9.764955706212895e-08,
+    "D": 0.9142587512667288
+   },
+   "A": {
+    "F": 0.00032612668013054627,
+    "flux_scale": 1.003910658509679,
+    "F_norm": 0.00032868240782116227,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.0609055996425116e-07,
+    "D": 0.911875390028084
+   },
+   "health": true,
+   "D_ho": 0.9142587512667288,
+   "D_in": 0.911875390028084,
+   "gap": -0.002383361238644799
+  }
+ },
+ "F0_B": 0.0010680966827350214,
+ "T_B": 4.409023907741584e-05,
+ "F0_A": 0.0010980944420347224,
+ "T_A": 4.4063196058226154e-05
+}

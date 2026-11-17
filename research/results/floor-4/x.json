@@ -1,0 +1,50 @@
+{
+ "check": {
+  "vis_equal": true,
+  "wnat_equal": true
+ },
+ "X0": {
+  "rms_deg": 17.718168898217485,
+  "circular_mean_deg": -14.974030673185407,
+  "scatter_deg": 9.47657043707404,
+  "scatter_after_gauge_deg": 9.441792430242936,
+  "bin_scatter_deg": 0.5443673013017429,
+  "noise_of_steady_deg": 0.1571453039722957,
+  "n_active": 60,
+  "n_bins": 12
+ },
+ "X1": {
+  "pearson_r": 0.9991011881882439,
+  "halves": [
+   6,
+   6
+  ]
+ },
+ "X2": {
+  "F_B_uJy": 1073.415606729187,
+  "F_per_hand_uJy": 474.83100062889406,
+  "F_scalar_uJy": 459.02728379949747,
+  "D_per_hand": 0.8056811467899708,
+  "D_scalar": 0.8185114740962517,
+  "dD": -0.012830327306280864,
+  "newly_flagged": [
+   0.0,
+   0.0
+  ],
+  "HB1_F_Fix_floor3_score_uJy": 474.83100062889406,
+  "HB1_rel": 0.0,
+  "HB1_pass": true
+ },
+ "X3": {
+  "F_none_uJy": 1073.4151912744712,
+  "F_T1p_uJy": 446.03544281998876,
+  "F_T1pH_uJy": 462.3798528526109,
+  "D_T1p": 0.8287336006664645,
+  "D_T1pH": 0.8158258209812138,
+  "dD": -0.012907779685250698,
+  "T1pH_xx_minus_yy_scatter_deg": 9.633312850085348,
+  "T1pH_vs_Sp_delta_pearson_r": 0.9996066945624167
+ },
+ "store": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/gains.qc",
+ "model": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/image-model.fits"
+}

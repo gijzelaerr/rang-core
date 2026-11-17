@@ -1,0 +1,13 @@
+== 2026-11-17T07:28:58Z load 15.23 17.52 17.03 X start
+09:29:34 stage prepare X wall_s 35.4
+prepare 35.70 s 195588 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 2957.6 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/X/run/receipts/selfcal-20261117T072934Z.rang-receipt.json
+selfcal 2962.72 s 11637708 KB
+10:19:02 stage clean X wall_s 5.1
+10:19:52 cell X X B 334.08 0.9037
+10:20:39 cell X X A 347.72 0.9012
+10:20:39 stage score X wall_s 96.4
+score 96.77 s 4950964 KB
+== 2026-11-17T08:20:39Z load 17.13 16.41 15.23 X end

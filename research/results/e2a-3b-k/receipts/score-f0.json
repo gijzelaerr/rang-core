@@ -1,0 +1,201 @@
+{
+ "rang archived vs CASA archived (as frozen)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.003158851108655284,
+  "p95": 0.023618358543347196,
+  "max": 4.24055266426622,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.003038603163125721,
+   "p95": 0.015064249368186934,
+   "max": 0.14535609382462644,
+   "class_b": false
+  }
+ },
+ "rang archived vs CASA on rang's K (T-K3 construction)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.0017926946335074848,
+  "p95": 0.01932330194638184,
+  "max": 0.4031499683700335,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.0017078907832941289,
+   "p95": 0.011197595124357593,
+   "max": 0.13531699160337418,
+   "class_b": false
+  }
+ },
+ "rang archived vs CASA own K, matched flags": {
+  "cells": 188256256,
+  "flags_differ": 241664,
+  "n": 188256256,
+  "median": 0.003124834297504401,
+  "p95": 0.022885113015326072,
+  "max": 4.178680962109295,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.003010258980056745,
+   "p95": 0.014953257643867044,
+   "max": 0.13223744061812834,
+   "class_b": false
+  }
+ },
+ "rang B1 divided vs CASA archived (as frozen)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.0022806329126614623,
+  "p95": 0.015534577075940255,
+  "max": 3.6451937638236687,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.002187574539733581,
+   "p95": 0.011118604414404864,
+   "max": 0.0805300226318324,
+   "class_b": false
+  }
+ },
+ "rang B1 divided vs CASA on rang's K (T-K3 construction)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 4.1269441343586535e-05,
+  "p95": 0.003976264615916414,
+  "max": 0.08717292990458829,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 3.869035782286039e-05,
+   "p95": 0.003877013763674635,
+   "max": 0.05342402021942826,
+   "class_b": false
+  }
+ },
+ "rang B1 divided vs CASA own K, matched flags": {
+  "cells": 188256256,
+  "flags_differ": 241664,
+  "n": 188256256,
+  "median": 0.002238130665965816,
+  "p95": 0.01448071603488757,
+  "max": 3.628896806208379,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.002150074387793941,
+   "p95": 0.011101235609113497,
+   "max": 0.06771035187348866,
+   "class_b": false
+  }
+ },
+ "rang B1 off (control) vs CASA archived (as frozen)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.003158851108655284,
+  "p95": 0.023618358543347196,
+  "max": 4.24055266426622,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.003038603163125721,
+   "p95": 0.015064249368186934,
+   "max": 0.14535609382462644,
+   "class_b": false
+  }
+ },
+ "rang B1 off (control) vs CASA on rang's K (T-K3 construction)": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.0017926946335074848,
+  "p95": 0.01932330194638184,
+  "max": 0.4031499683700335,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.0017078907832941289,
+   "p95": 0.011197595124357593,
+   "max": 0.13531699160337418,
+   "class_b": false
+  }
+ },
+ "rang B1 off (control) vs CASA own K, matched flags": {
+  "cells": 188256256,
+  "flags_differ": 241664,
+  "n": 188256256,
+  "median": 0.003124834297504401,
+  "p95": 0.022885113015326072,
+  "max": 4.178680962109295,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.003010258980056745,
+   "p95": 0.014953257643867044,
+   "max": 0.13223744061812834,
+   "class_b": false
+  }
+ },
+ "control: off vs archived": {
+  "cells": 188497920,
+  "flags_differ": 0,
+  "n": 188497920,
+  "median": 0.0,
+  "p95": 0.0,
+  "max": 0.0,
+  "class_b": true,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.0,
+   "p95": 0.0,
+   "max": 0.0,
+   "class_b": true
+  }
+ },
+ "CASA own K vs CASA on rang's K": {
+  "cells": 188256256,
+  "flags_differ": 241664,
+  "n": 188256256,
+  "median": 0.0020315748806997444,
+  "p95": 0.013501692361510265,
+  "max": 1.5928206343957458,
+  "class_b": false,
+  "without_id50": {
+   "cells": 182214656,
+   "flags_differ": 0,
+   "n": 182214656,
+   "median": 0.0019502222566077393,
+   "p95": 0.010219726605461183,
+   "max": 0.06380215708504232,
+   "class_b": false
+  }
+ },
+ "seconds": 714.5000667549903
+}

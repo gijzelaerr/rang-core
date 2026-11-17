@@ -1,0 +1,131 @@
+{
+ "run": "N60",
+ "config": "schema: rang-config\nversion: 1\nfields:\n  target:\n  - 0\ndata:\n  memory_limit_gb: 12.0\nimage:\n  size:\n  - 4096\n  - 4096\n  scale: 3asec\n  weight: briggs\n  robust: 0.5\n  niter: 1000000\n  auto_threshold: null\n  threshold: 0.003\n  gain: 0.1\n  nmiter: 1000\n  threads: 8\n  wgridder_accuracy: 1.0e-06\nselfcal:\n  rounds: 3\n  terms:\n  - type: Sp\n    solint: 60s\n    freqint: inf\n  - type: Sp\n    solint: 60s\n    freqint: inf\n  - type: Sa\n    solint: 60s\n    freqint: inf\n  input_column: DATA\n  output_column: CORRECTED_DATA\n  refant: 0\n  minuvw_m: 0.0\n",
+ "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+ "rounds": [
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "60s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 0.9994444444444445,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 60,
+    "wall_seconds": 278.20500612200703
+   },
+   "image_clean": {
+    "components": 59065,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 312.15480061795097,
+   "model_sha256": {
+    "image-model.fits": "fea351b703c83d17ad4d27d0138a9408cf65b959a688ad88b0f62195b13f255e"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/N60/run/selfcal/ESO137-pilot/round-1/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "60s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 0.9994444444444445,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 60,
+    "wall_seconds": 273.9659644579515
+   },
+   "image_clean": {
+    "components": 26168,
+    "major_cycles": 3,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 241.74477056902833,
+   "model_sha256": {
+    "image-model.fits": "b08ea726fc12487156d6e103190cc7005b9f86396e06bd931425d014760a09e0"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/N60/run/selfcal/ESO137-pilot/round-2/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": "60s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "solve": {
+    "iterations": 39,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 60,
+    "wall_seconds": 253.69354586699046
+   },
+   "image_clean": {
+    "components": 25581,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 273.57973838807084,
+   "model_sha256": {
+    "image-model.fits": "481457ce4eab4d176832334986e349b67d4b15777d4a954075697752ef3e6ada"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/N60/run/selfcal/ESO137-pilot/round-3/gains.qc"
+  }
+ ],
+ "final_clean": {
+  "components": 24834,
+  "major_cycles": 3,
+  "stop": "Threshold"
+ },
+ "cells": {
+  "P2A@60": {
+   "round": 3,
+   "model_image": 4,
+   "B": {
+    "F": 0.00031081374847705964,
+    "flux_scale": 1.0039654563809588,
+    "F_norm": 0.0003132836726992398,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 9.620271039802074e-08,
+    "D": 0.9155291557973637
+   },
+   "A": {
+    "F": 0.0003238190736769967,
+    "flux_scale": 1.0039654563809588,
+    "F_norm": 0.00032639234650549194,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.0459039861049544e-07,
+    "D": 0.9131215059335822
+   },
+   "health": true,
+   "D_ho": 0.9155291557973637,
+   "D_in": 0.9131215059335822,
+   "gap": -0.0024076498637815025
+  }
+ },
+ "F0_B": 0.0010680966827350214,
+ "T_B": 4.409023907741584e-05,
+ "F0_A": 0.0010980944420347224,
+ "T_A": 4.4063196058226154e-05
+}

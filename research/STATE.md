@@ -40,6 +40,7 @@ v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review
   conflict (GPL v2 in its metadata, GPL-3.0-or-later in setup.py): a second owner decision.
 - No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
   touched tests pass (hand-back for the coordinator).
+F5 draft, 2026-11-17 (proposed, not frozen; branch `f5-draft`; [f5-flagger.md](f5-flagger.md)): a fourth flagger protocol built on Landman Bester's reply on issue #1 and the F3 review he forwarded. Reading of the code: F3's r^t, r^f and antenna medians cannot see a wide-band scan-long one-antenna event; F4's cross spectral planes are its counterpart (one constant offset per baseline, no smoother, scan-long only), F4's autocorrelation arm NA is not (cross-only injection; no per-antenna bandpass model, delta at the top of its grid). Proposed: per-time-block log-amplitude and noise-variance factorisations per antenna with a low-order fit, noise-like antenna-local training events, held-out slow ramp H4, the reply's label scheme, an image-domain RMS gate with a positive control, a W4 antenna fallback; from Landman's second reply, his `pfb hci` settings as a label generator (pinned, validated on injections first), gain TV as a reported validation measure V-TV, and an agent review of waterfalls (R-AG) as a weak-label arm, never training labels. CARACal 8f7bb363 ships 23 AOFlagger `.rfis` files (2.x XML; `firstpass_QUV.rfis` its MeerKAT default), which AOFlagger 3.5 cannot run unconverted. Mesarcik et al.'s Zenodo set: CC BY 4.0, LOFAR HBA and simulated HERA, 21.9 GB of pickles, not for pretraining. Frozen after F4's calibrator outcome; nothing run. No novelty claim.
 
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
 visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model
@@ -73,6 +74,20 @@ v0.3.0 readiness, 2026-11-17 (branch `v030-ready`; [v030-readiness.md](v030-read
 - uhf-scope D6: a stage given channels outside L band (856-1712 MHz) logs one warning naming docs/limits.md;
   not refused (`core_pipeline.band_warning`, test).
 
+E2-A gate 3b follow-up, 2026-11-17 (branch `e2a-3b-k`; [e2a-3b-k.md](e2a-3b-k.md), protocol frozen in `b02c95d`
+before any test, post hoc addenda 7 and 9; receipts [results/e2a-3b-k/receipts/](results/e2a-3b-k/receipts/); run on
+nash). K: on simulated truth (the subset's geometry, flags and measured noise) rang's K is nearer truth in every case;
+CASA's K1 error is about 5× rang's and its K0 is biased by 1.1e-4 ns with no noise, so CASA's `gaintype='K'` is the
+less accurate estimator; rang's K is unchanged. Full scale (E2-A field 0, matched flags, divided B1): against CASA with
+its own K 2.24e-3 / 1.45e-2, against CASA on rang's K 4.1e-5 / 4.0e-3. The subset's unattributed 1.1e-3 is one G1
+solution (ID 50, interval 7) that CASA flags by `minsnr` on its averaged SNR (2.2; rang's 30) and that B1 spreads to
+every antenna (CASA's B1 on rang's K and G agrees to 1.0e-4). The 4-antenna synthetic's 5e-3: the unaveraged kernel
+drops a cell with any correlation flagged, the averages are per correlation; the divided average is the
+least-squares minimum (SciPy, 2e-8); E2-A's flags are equal over correlations, so no effect there (one test added).
+Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e-4) and `average_freq`, which does
+not close the part. Open (post hoc, B2 candidate): with a static simulated truth CASA's B is nearer truth because it
+flags that kind of low-SNR G1 solution. A reserve leg as frozen would fail again on CASA's K (predicted 2.24e-3, from
+a patched rang arm); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
@@ -123,6 +138,26 @@ re-imaging (D_Fin 0.88, R2 lowers). Arm PL, solved above 400 m only: D_Fix 0.80,
 joint reading row 1: H1 attributed under floor-3's standard (not imaging-floor's full criterion; H2, H8a, H4b
 specificity arms not run), share 0.88; for #6 one Sp round fixes most of the pilot's floor, default selfcal
 settings next. Post hoc: 379 µJy (8.6 × thermal) remains unexplained; steady XX − YY phase 17.7° rms, untested.
+
+Floor-4, 2026-11-17, host nash (branch `floor-4`; [floor-4.md](floor-4.md), protocol frozen in `7bd4fb0` before any
+run, archive [results/floor-4/](results/floor-4/)): H1's specificity under imaging-floor's full criterion and the
+XX − YY phase (#13). Gates R0, G0, G1 and GS passed. nash reproduces floor-3's arm P (F 1,073.42, 474.83, 379.26 µJy;
+F_B and F_Fix bit-equal, F_Fin within 6e-14). T1p is specific: its own arm H1bP gives 1.000, the new arms H2 0.092, H8a 0.000 and H4b 0.004, and
+floor-2's priors at most 0.104 (K1). Plausibility holds (G3P carries 0.825 P_pilot). **Frozen reading row 1: H1
+attributed under imaging-floor's full criterion, share D_T1p 0.83 (fixed model; Sp D_Fix 0.81, D_Fin 0.88); #13's
+done-criterion met for H1**, with H2 and H8a still unresolved and 0.17 of the excess unattributed. XX − YY: a real
+steady phase (halves r 0.999, scatter 9.5° about a −15° gauge constant) that is invisible to Stokes I (per hand
+against scalar ΔD −0.013 in two solvers). It is a polarisation term, outside #13.
+
+Selfcal-defaults, 2026-11-17, host nash (branch `floor-4`; [selfcal-defaults.md](selfcal-defaults.md), protocol
+frozen in `7bd4fb0`, clarification 1 (memory limit) in `4483ec6` before any 600 s or `inf` solve, archive
+[results/selfcal-defaults/](results/selfcal-defaults/)): 13 `rang-core selfcal` runs on the pilot with half the
+channels held out (#6), 24 cells (1-3 Sp rounds, with or without a final Sa, 60-600 s) and the current default.
+Gates HB1 and HB2 passed. Every cell is healthy, with no noise fitting (gap D_in − D_ho −0.0027 to −0.0022).
+Held-out D: one Sp round 0.873-0.877, two 0.905-0.909, with a final Sa 0.910-0.916; current default (Sp, Sa,
+`inf`) 0.892. **Frozen rule: chosen P2@600 (0.905) beats the default by 0.013 < 0.05, so the default is unchanged.**
+Post hoc: the default's scan-long run peaked at 37 GB. The chunk plan refuses one 600 s interval at 12 GiB, so the
+default cannot pass the default `memory_limit_gb` of 8 on this pilot.
 
 Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
 archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
