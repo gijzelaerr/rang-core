@@ -29,9 +29,12 @@ VARIANTS = {"plain": {}, "sep": {"average_time": True},
             "div_unavg": {"model_divided": True}}  # fmt: skip
 
 
-def chi2(arr, ant1, ant2, gains):
+def chi2(arr, ant1, ant2, gains, skip=None):
     """sum w |V - g_p g_q^* M|^2 over unflagged parallel-hand cells of the
-    prepared (unaveraged) rows; gains (chan, ant, hand)."""
+    prepared (unaveraged) rows not skipped (`skip`: FLAG_ROW or auto, as the
+    solver and `np_average` skip them); gains (chan, ant, hand)."""
+    if skip is None:
+        skip = np.zeros(len(ant1), bool)
     total = 0.0
     for h, c in enumerate((0, 3)):
         v = arr["data"][..., c].astype(np.complex128)
@@ -43,7 +46,7 @@ def chi2(arr, ant1, ant2, gains):
         gp = gains[:, ant1, h].T  # (row, chan)
         gq = gains[:, ant2, h].T
         r = v - gp * np.conj(gq) * m
-        ok = ~f & (ant1 != ant2)[:, None] & np.isfinite(r)
+        ok = ~f & ((ant1 != ant2) & ~skip)[:, None] & np.isfinite(r)
         total += float((w * np.abs(r) ** 2)[ok].sum())
     return total
 
@@ -56,6 +59,7 @@ def test_probe(exact, request):  # noqa: F811
             ms, 0, "B", model=model, weight_column="WEIGHT", gaintable=pre
         )
         a1, a2 = fld.meta["ANTENNA1"], fld.meta["ANTENNA2"]
+        skip = np.asarray(fld.flag_row | fld.auto, bool)
         sols = {}
         for rname, rule in RULES.items():
             for vname, var in VARIANTS.items():
@@ -74,7 +78,7 @@ def test_probe(exact, request):  # noqa: F811
                 "median_abs_vs_plain_same_rule": float(np.median(np.abs(g - gp)[ok])),
                 "max_abs_vs_plain_same_rule": float(np.max(np.abs(g - gp)[ok])),
                 "median_abs_vs_strict_plain": float(np.median(np.abs(g - gs)[ok])),
-                "chi2_unaveraged": chi2(arr, a1, a2, np.where(f, 1, g)),
+                "chi2_unaveraged": chi2(arr, a1, a2, np.where(f, 1, g), skip),
                 "flagged": int(f.sum()),
             }
         out[pre_name] = res
