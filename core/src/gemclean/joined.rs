@@ -84,6 +84,78 @@ struct State<'a> {
     beams: Vec<&'a Beam>,
     a: Vec<f64>,
     buffers: [Vec<f64>; 2],
+    /// One work space for every beam's resync convolution: the entries are
+    /// convolved one after another (research/gemclean-memory3.md, arm A).
+    conv_work: super::ConvolverBuffers,
+}
+
+/// The entries' models, held at the pixels a component has gone to
+/// (research/gemclean-memory3.md, arm B). Every component goes into every
+/// entry at the same pixel, so the pixels are shared; each entry's value at
+/// a pixel starts at `0.0` and takes the same additions as the dense image's
+/// element, so [`Models::dense`] is that image, bit for bit.
+struct Models {
+    /// Per pixel: its slot in `pixels`, or `u32::MAX` while untouched.
+    slot: Vec<u32>,
+    pixels: Vec<usize>,
+    /// `values[k][j]`: entry `k`'s model at `pixels[j]`.
+    values: Vec<Vec<f64>>,
+}
+
+impl Models {
+    fn new(pixels: usize, entries: usize) -> Models {
+        Models {
+            slot: vec![u32::MAX; pixels],
+            pixels: Vec::new(),
+            values: vec![Vec::new(); entries],
+        }
+    }
+
+    /// Entry `k`'s model at pixel `p`.
+    fn get(&self, k: usize, p: usize) -> f64 {
+        match self.slot[p] {
+            u32::MAX => 0.0,
+            j => self.values[k][j as usize],
+        }
+    }
+
+    /// `m_k[p] += c`.
+    fn add(&mut self, k: usize, p: usize, c: f64) {
+        let j = match self.slot[p] {
+            u32::MAX => {
+                let j = self.pixels.len();
+                self.slot[p] = u32::try_from(j).expect("fewer model pixels than 2^32 - 1");
+                self.pixels.push(p);
+                for v in &mut self.values {
+                    v.push(0.0);
+                }
+                j
+            }
+            j => j as usize,
+        };
+        self.values[k][j] += c;
+    }
+
+    /// Entry `k`'s model as an image.
+    fn dense(&self, k: usize) -> Vec<f64> {
+        let mut out = vec![0.0; self.slot.len()];
+        for (&p, &v) in self.pixels.iter().zip(&self.values[k]) {
+            out[p] = v;
+        }
+        out
+    }
+
+    /// [`super::mask::from_models`] of the dense images: the pixels where any
+    /// entry's model is finite and nonzero (zero elsewhere).
+    fn mask(&self) -> Vec<bool> {
+        let mut mask = vec![false; self.slot.len()];
+        for (j, &p) in self.pixels.iter().enumerate() {
+            if self.values.iter().any(|v| v[j].is_finite() && v[j] != 0.0) {
+                mask[p] = true;
+            }
+        }
+        mask
+    }
 }
 
 /// The models at the start of a major cycle, kept only at the pixels the
@@ -107,21 +179,21 @@ impl Touched {
     }
 
     /// Before the first change of pixel `p` in this cycle.
-    fn note(&mut self, p: usize, models: &[Vec<f64>]) {
+    fn note(&mut self, p: usize, models: &Models) {
         if !self.seen[p] {
             self.seen[p] = true;
             self.pixels.push(p);
-            for (was, m) in self.was.iter_mut().zip(models) {
-                was.push(m[p]);
+            for (k, was) in self.was.iter_mut().enumerate() {
+                was.push(models.get(k, p));
             }
         }
     }
 
     /// `m_k − m_k,major` into `delta`.
-    fn delta_into(&self, k: usize, model: &[f64], delta: &mut [f64]) {
+    fn delta_into(&self, k: usize, models: &Models, delta: &mut [f64]) {
         delta.par_iter_mut().for_each(|d| *d = 0.0);
         for (&p, &w) in self.pixels.iter().zip(&self.was[k]) {
-            delta[p] = model[p] - w;
+            delta[p] = models.get(k, p) - w;
         }
     }
 }
@@ -180,16 +252,18 @@ impl State<'_> {
         work: &mut Working,
         maps: &mut [Vec<f64>],
         since: &mut [Since],
-        models: &[Vec<f64>],
+        models: &Models,
         touched: &Touched,
         residuals: &[Vec<f64>],
     ) {
         let [delta, conv] = &mut self.buffers;
         for k in 0..maps.len() {
-            delta.resize(models[k].len(), 0.0);
-            conv.resize(models[k].len(), 0.0);
-            touched.delta_into(k, &models[k], delta);
-            self.beams[k].convolver.apply_into(delta, conv);
+            delta.resize(models.slot.len(), 0.0);
+            conv.resize(models.slot.len(), 0.0);
+            touched.delta_into(k, models, delta);
+            self.beams[k]
+                .convolver
+                .apply_into_with(delta, conv, &mut self.conv_work);
             maps[k]
                 .par_iter_mut()
                 .zip(&residuals[k])
@@ -364,14 +438,15 @@ fn joined<M: Measurement>(
         beams: channels.iter().map(|c| c.1).collect(),
         a: a.clone(),
         buffers: [Vec::new(), Vec::new()],
+        conv_work: super::ConvolverBuffers::default(),
     };
     let mut timings = Timings::default();
-    let mut models = vec![vec![0.0; n * n]; kc];
+    let mut models = Models::new(n * n, kc);
     let t = Instant::now();
     let mut residuals = Vec::with_capacity(kc);
     let mut qs = Vec::with_capacity(kc);
     for (k, (m, _)) in channels.iter().enumerate() {
-        let (r, q) = m.residual(&models[k])?;
+        let (r, q) = m.residual(&models.dense(k))?;
         residuals.push(r);
         qs.push(q);
     }
@@ -425,8 +500,7 @@ fn joined<M: Measurement>(
                 }
                 if c.use_auto {
                     if auto_pixels.is_none() {
-                        let refs: Vec<&[f64]> = models.iter().map(|m| m.as_slice()).collect();
-                        auto_pixels = Some(mask::from_models(&refs));
+                        auto_pixels = Some(models.mask());
                     }
                     (c.threshold, auto_pixels.clone())
                 } else {
@@ -561,7 +635,7 @@ fn joined<M: Measurement>(
                 for k in 0..kc {
                     let (beam, c) = (channels[k].1, values[k]);
                     abs_flux += a[k] * c.abs();
-                    models[k][p] += c;
+                    models.add(k, p, c);
                     // The misfit change of the step, −c r + c² b(0)/2, in general form:
                     // after a fit c is no longer γ r / b(0).
                     predicted -= a[k] * (c * exact[k] - 0.5 * c * c * beam.peak);
@@ -609,8 +683,7 @@ fn joined<M: Measurement>(
                         resync!();
                     }
                     if auto_pixels.is_none() {
-                        let refs: Vec<&[f64]> = models.iter().map(|m| m.as_slice()).collect();
-                        auto_pixels = Some(mask::from_models(&refs));
+                        auto_pixels = Some(models.mask());
                     }
                     work.set_mask(auto_pixels.as_deref());
                     let (p, rt) = work.argmax();
@@ -636,7 +709,7 @@ fn joined<M: Measurement>(
         memory::mark(&format!("cycle {}: minor", cycles.len() + 1));
         let tm = Instant::now();
         for (k, (m, _)) in channels.iter().enumerate() {
-            let (r, qk) = m.residual(&models[k])?;
+            let (r, qk) = m.residual(&models.dense(k))?;
             residuals[k] = r;
             qs[k] = qk;
         }
@@ -699,6 +772,7 @@ fn joined<M: Measurement>(
         Some(path) if read_back => spill_read(path, kc, n * n)?,
         _ => dirty,
     };
+    let models: Vec<Vec<f64>> = (0..kc).map(|k| models.dense(k)).collect();
     let model_int = integrate(&models, &a);
     let f = channels.iter().map(|c| c.1.f).fold(0.0, f64::max);
     Ok(Joined {
