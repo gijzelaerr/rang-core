@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # CASA listobs on the V8a MSs, read-only (research/v8a-listobs.md).
 # Usage: bash tools/oracles/casa/listobs.sh OUT_DIR [image]
 # MSs: the LUNO 1934-638 slice (outputs/luno-solve-20261029-02/work.ms) and

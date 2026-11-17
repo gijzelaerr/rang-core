@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.f4flag_features` and `f4flag_logits`: the F4 flagger
 //! (`rang_core::f4flag`, task F4, `research/f4-flagger.md`), for
 //! `rang.f4flag`.

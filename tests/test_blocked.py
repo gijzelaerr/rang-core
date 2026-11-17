@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Dense, NumPy-blocked and Rust-blocked local information must agree."""
 
 import pytest

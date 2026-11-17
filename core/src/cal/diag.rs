@@ -224,9 +224,9 @@ fn model_at(problem: &Problem, cell: usize, chan: usize) -> Jones {
     }
 }
 
-/// What the solver keeps per gain.
+/// What the solver keeps per gain (also driven by `diag_stream`).
 #[derive(Clone, Copy)]
-struct GainState {
+pub(crate) struct GainState {
     gain: [C64; 2],
     km1_gain: [C64; 2],
     km1_abs2_diff: f64,
@@ -245,7 +245,14 @@ struct GainState {
     flag: i8,
 }
 
-const FRESH: GainState = GainState {
+impl GainState {
+    /// `init_flags`: a gain an unflagged cell involves starts unflagged.
+    pub(crate) fn set_live(&mut self) {
+        self.flag = 0;
+    }
+}
+
+pub(crate) const FRESH: GainState = GainState {
     gain: [ONE, ONE],
     km1_gain: [ONE, ONE],
     km1_abs2_diff: 0.,
@@ -261,10 +268,10 @@ const FRESH: GainState = GainState {
 };
 
 /// One unflagged cell of a solution interval and its two antennas.
-struct CellRef {
-    cell: usize,
-    p: u32,
-    q: u32,
+pub(crate) struct CellRef {
+    pub(crate) cell: usize,
+    pub(crate) p: u32,
+    pub(crate) q: u32,
 }
 
 /// The unflagged cells of every interval, in the serial sweep's order, and
@@ -368,12 +375,29 @@ fn elem_phase(
 
 /// `compute_jhj_jhr` for one interval's gains (indexed by antenna).
 fn accumulate(problem: &Problem, kind: Kind, cells: &[CellRef], states: &mut [GainState]) {
+    reset_sums(states);
+    accumulate_cells(problem, kind, cells, states);
+}
+
+/// The start of `compute_jhj_jhr`: every gain's `J^H J` and `J^H r` zeroed.
+pub(crate) fn reset_sums(states: &mut [GainState]) {
     for s in states.iter_mut() {
         s.jhj_c = [C64::ZERO; 2];
         s.jhr_c = [C64::ZERO; 2];
         s.jhj_r = [0.; 4];
         s.jhr_r = [0.; 2];
     }
+}
+
+/// The body of `compute_jhj_jhr`: `cells` (in order) added to the sums of
+/// one interval's gains (indexed by antenna). Calls on consecutive pieces
+/// of an interval's cells give the sums of one call on all of them.
+pub(crate) fn accumulate_cells(
+    problem: &Problem,
+    kind: Kind,
+    cells: &[CellRef],
+    states: &mut [GainState],
+) {
     for c in cells {
         let (p, q, cell) = (c.p as usize, c.q as usize, c.cell);
         let w: [f64; 4] = std::array::from_fn(|k| f64::from(problem.weights[4 * cell + k]));
@@ -562,12 +586,24 @@ fn flag_ladder(state: &mut GainState, loop_idx: usize, stop2: f64, numbness: f64
 
 /// What the end of the solve needs of a gain after an iteration.
 #[derive(Clone, Copy)]
-struct Snapshot {
+pub(crate) struct Snapshot {
     gain: [C64; 2],
     params: [f64; 2],
     param_flag: bool,
     trend: f64,
     flag: i8,
+}
+
+impl Snapshot {
+    pub(crate) fn of(state: &GainState) -> Self {
+        Snapshot {
+            gain: state.gain,
+            params: state.params,
+            param_flag: state.param_flag,
+            trend: state.trend,
+            flag: state.flag,
+        }
+    }
 }
 
 const EMPTY_SNAPSHOT: Snapshot = Snapshot {
@@ -603,36 +639,43 @@ fn run_interval(
     for j in 0..n {
         let loop_idx = k0 + j;
         accumulate(problem, kind, cells, states);
-        let (mut converged, mut flagged) = (0usize, 0usize);
-        for state in states.iter_mut() {
-            match step_gain(state, kind, loop_idx, stop2) {
-                Ok((c, x)) => {
-                    converged += usize::from(c);
-                    flagged += usize::from(x);
-                }
-                Err(error) => {
-                    record.error = Some((loop_idx, error));
-                    return record;
-                }
+        match step_states(states, kind, loop_idx, stop2) {
+            Ok(counts) => record.counts.push(counts),
+            Err(error) => {
+                record.error = Some((loop_idx, error));
+                return record;
             }
         }
-        record.counts.push((converged, flagged));
         let row = &mut snapshots[j * states.len()..(j + 1) * states.len()];
-        for (snapshot, state) in row.iter_mut().zip(states.iter_mut()) {
-            *snapshot = Snapshot {
-                gain: state.gain,
-                params: state.params,
-                param_flag: state.param_flag,
-                trend: state.trend,
-                flag: state.flag,
-            };
-            state.km1_gain = state.gain;
+        for (snapshot, state) in row.iter_mut().zip(states.iter()) {
+            *snapshot = Snapshot::of(state);
         }
     }
     record
 }
 
-fn converged_fraction(converged: usize, flagged: usize, ngains: usize) -> f64 {
+/// One iteration's step of one interval's gains after their sums:
+/// `step_gain` on each (the first error returned), then each gain kept as
+/// the previous one. Returns (converged, flagged) over the interval.
+pub(crate) fn step_states(
+    states: &mut [GainState],
+    kind: Kind,
+    loop_idx: usize,
+    stop2: f64,
+) -> Result<(usize, usize), Error> {
+    let (mut converged, mut flagged) = (0usize, 0usize);
+    for state in states.iter_mut() {
+        let (c, x) = step_gain(state, kind, loop_idx, stop2)?;
+        converged += usize::from(c);
+        flagged += usize::from(x);
+    }
+    for state in states.iter_mut() {
+        state.km1_gain = state.gain;
+    }
+    Ok((converged, flagged))
+}
+
+pub(crate) fn converged_fraction(converged: usize, flagged: usize, ngains: usize) -> f64 {
     let solvable = ngains - flagged;
     if solvable > 0 {
         converged as f64 / solvable as f64
@@ -741,18 +784,32 @@ fn solve_traced(
         }
         k0 += n;
     };
-    // finalize_gain_flags on the stopping iteration's snapshots.
     let mut finals: Vec<Snapshot> = Vec::with_capacity(ngains);
     for snaps in snapshots.chunks(EPOCH * width).take(nintervals) {
-        for s in &snaps[j * width..(j + 1) * width] {
-            let mut s = *s;
-            if s.trend > TREND_LIMIT {
-                s.flag = 1;
-                s.gain = [ONE, ONE];
-            } else if s.flag == -1 {
-                s.flag = 0;
-            }
-            finals.push(s);
+        finals.extend_from_slice(&snaps[j * width..(j + 1) * width]);
+    }
+    Ok(finish(finals, width, settings, k0 + j + 1, fraction))
+}
+
+/// The end of a solve from the stopping iteration's snapshots of every gain
+/// (`width` per interval): `finalize_gain_flags`, then QuartiCal's
+/// referencing when `settings.reference_antenna` is set.
+pub(crate) fn finish(
+    snapshots: Vec<Snapshot>,
+    width: usize,
+    settings: &Settings,
+    iterations: usize,
+    fraction: f64,
+) -> Solution {
+    let kind = settings.kind;
+    // finalize_gain_flags on the stopping iteration's snapshots.
+    let mut finals = snapshots;
+    for s in finals.iter_mut() {
+        if s.trend > TREND_LIMIT {
+            s.flag = 1;
+            s.gain = [ONE, ONE];
+        } else if s.flag == -1 {
+            s.flag = 0;
         }
     }
     if let Some(r) = settings.reference_antenna {
@@ -769,12 +826,12 @@ fn solve_traced(
             }
         }
     }
-    Ok(Solution {
+    Solution {
         gains: finals.iter().map(|s| s.gain).collect(),
         flags: finals.iter().map(|s| s.flag).collect(),
-        iterations: k0 + j + 1,
+        iterations,
         converged_fraction: fraction,
-    })
+    }
 }
 
 /// `reference_gains` of `diag_complex` for one interval: every gain times

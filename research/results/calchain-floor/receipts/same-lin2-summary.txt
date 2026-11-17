@@ -1,0 +1,7 @@
+K0 True True
+G0 True True
+B0 True True
+K1 True True
+G1 True True
+B1 True True
+A0 flag sha True

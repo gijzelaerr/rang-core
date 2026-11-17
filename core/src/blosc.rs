@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT AND BSD-3-Clause
+// Follows c-blosc 1.21.6 (`blosc/blosc.c` `blosc_d`, `blosc/shuffle-sse2.c`):
+// Copyright (c) 2009-2018 Francesc Alted, Copyright (c) 2019-present Blosc
+// Development Team, BSD-3-Clause; the licence text in THIRD-PARTY-NOTICES.txt.
 //! Blosc-1 chunk decoding for zarr ingest (research/core-section6.md).
 //!
 //! Supports what the public MeerKAT zarr stores use: format version 2,

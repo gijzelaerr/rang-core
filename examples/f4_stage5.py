@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """F4 calibrators, Stage 5 chain (research/f4-flagger.md, "Rerun rule" and
 "Stage 5 chain", 2026-11-17). Native Windows, one process, detached.
 

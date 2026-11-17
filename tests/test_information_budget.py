@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Analytic controls for information supplied by nuisance-parameter constraints."""
 
 import pytest

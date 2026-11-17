@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Execute the tutorial notebooks end to end with nbconvert.
 
 All runs start together (one kernel process each) so the module stays near

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C2e (research/c2e-calibrate.md): K, G, B, A and F in `rang-core calibrate`
 and their CASA tables in `rang-core apply`. The command must equal
 `rang.cal_chain.run` and `rang.applycal.applycal` called directly, bit for

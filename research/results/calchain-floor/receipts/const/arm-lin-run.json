@@ -1,0 +1,1 @@
+{"exit": 0, "seconds": 840.6483622289961, "copy_seconds": 2.007803607964888, "argv": ["/home/gijs/Worktrees/rang/calchain-floor/.venv/bin/python", "-m", "rang.core_cli", "run", "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.yaml", "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms"]}

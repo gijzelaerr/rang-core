@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA side of the tfcrop probes (research/v8-tfcrop.md, section 3, labelled
 probe). Runs inside `rang-o-casa:6.7.6.14` with `/opt/casa/bin/python -I`.
 

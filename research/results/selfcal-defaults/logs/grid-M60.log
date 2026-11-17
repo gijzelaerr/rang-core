@@ -1,0 +1,15 @@
+heavy_lock: waiting for head 01794879014692875397-linux-4174287.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T02:09:41Z load 18.42 17.52 11.55 M60 start
+04:10:16 stage prepare M60 wall_s 35.1
+prepare 35.39 s 196236 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 1801.3 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/M60/run/receipts/selfcal-20261117T021017Z.rang-receipt.json
+selfcal 1806.55 s 9748028 KB
+04:40:28 stage clean M60 wall_s 4.4
+04:41:15 cell M60 P1A@60 B 313.13 0.9143
+04:42:00 cell M60 P1A@60 A 326.13 0.9119
+04:42:00 stage score M60 wall_s 92.0
+score 92.29 s 4954920 KB
+== 2026-11-17T02:42:00Z load 11.52 11.44 12.43 M60 end

@@ -1,0 +1,137 @@
+heavy_lock: waiting for shared jobs to fit
+{
+ "runs": [
+  "D",
+  "L120",
+  "L300",
+  "L60",
+  "L600",
+  "M120",
+  "M300",
+  "M60",
+  "M600",
+  "N120",
+  "N300",
+  "N60",
+  "N600"
+ ],
+ "HB1": {
+  "rel": 0.0,
+  "pass": true
+ },
+ "HB2": {
+  "T_B": 4.409023907741584e-05,
+  "rel": -4.964897382109257e-10,
+  "pass": true
+ },
+ "round1_model_identical": true,
+ "determinism": {
+  "M120": [
+   true
+  ],
+  "M300": [
+   true
+  ],
+  "M60": [
+   true
+  ],
+  "M600": [
+   true
+  ],
+  "N120": [
+   true,
+   true
+  ],
+  "N300": [
+   true,
+   true
+  ],
+  "N60": [
+   true,
+   true
+  ],
+  "N600": [
+   true,
+   true
+  ]
+ },
+ "eligible": [
+  "P1@120",
+  "P1@300",
+  "P1@60",
+  "P1@600",
+  "P1A@120",
+  "P1A@300",
+  "P1A@60",
+  "P1A@600",
+  "P2@120",
+  "P2@300",
+  "P2@60",
+  "P2@600",
+  "P2A@120",
+  "P2A@300",
+  "P2A@60",
+  "P2A@600",
+  "P3@120",
+  "P3@300",
+  "P3@60",
+  "P3@600",
+  "P3A@120",
+  "P3A@300",
+  "P3A@60",
+  "P3A@600"
+ ],
+ "D_star": 0.915900536928886,
+ "candidates": [
+  "P2@600",
+  "P2@300",
+  "P2@120",
+  "P2@60",
+  "P1A@600",
+  "P1A@300",
+  "P1A@120",
+  "P1A@60",
+  "P3@600",
+  "P3@300",
+  "P3@120",
+  "P3@60",
+  "P2A@600",
+  "P2A@300",
+  "P2A@120",
+  "P2A@60",
+  "P3A@600",
+  "P3A@300",
+  "P3A@120",
+  "P3A@60"
+ ],
+ "chosen": {
+  "cell": "P2@600",
+  "run": "L600",
+  "round": 2,
+  "D_ho": 0.9049660613893533,
+  "D_in": 0.9023702750860091,
+  "gap": -0.0025957863033442274,
+  "health": true,
+  "F_ho_uJy": 331.92894719540976,
+  "F_in_uJy": 345.651625774019,
+  "flux_scale": 1.0,
+  "newly_flagged": 0.0
+ },
+ "baseline": {
+  "run": "D",
+  "round": 2,
+  "D_ho": 0.8922331093979409,
+  "D_in": 0.8897777979295696,
+  "gap": -0.0024553114683713018,
+  "health": true,
+  "F_ho_uJy": 350.42934171571846,
+  "F_in_uJy": 364.1528894981938,
+  "flux_scale": 1.0038005094280744,
+  "newly_flagged": 0.0
+ },
+ "beats_baseline": false,
+ "baseline_eligible": true,
+ "change_if_check_passes": false,
+ "outcome": "pending: the absorption check (run X) has not run"
+}
+09:28:58 stage summary None wall_s 1.0

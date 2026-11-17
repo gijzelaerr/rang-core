@@ -342,6 +342,28 @@ follow-up rule would compare χ(λ²=0) or RM-corrected χ with 33°.
    (`xf-avg-fix.md`; cd446e2, merged f8a6435: per-scan averaging, at most 5°
    of ψ per averaged row); held-out check against CASA in `xf-preavg.md`.
 
+## 11. Coordinator decisions, 2026-11-17
+
+Decided by the coordinator, recorded on branch `v030-ready` for v0.3.0 (`v030-readiness.md`). Sections 1-10 are
+unchanged.
+
+1. **10.1, LUNO's receptor angle.** Recorded as a per-product configuration note: for SARAO's LUNO
+   calibrator product (`LBAND_LUNO_CALIBRATORS`) use FEED's stored receptor angle 0
+   (`calibrate.polcal.feed_angle_rotation: null`, rang's default): the fitted θ_t is +8.2° and excludes
+   −90° (section 10.1, evidence (i) and (iii)). CARACal strategy 1's −90 suits
+   stores that hold −90 (ESO137) and producers whose X/Y labelling matches. Whether other MeerKAT products
+   need 0 stays open (one product seen). **E2-B's frozen configuration is unchanged** (−90 as frozen); its
+   scores stand as booked. The note is in `docs/howto/calibrate.md` and `docs/limits.md`.
+2. **10.2, absolute χ.** χ is **stated as a limit, not gated**, in v0.3.0. The limit: on LUNO 3C 286 the
+   RM-corrected χ(λ²=0) is **29.4°**, **3.6° from 33°**, rang equal to CASA, on both scans (section 9, post
+   hoc reading); under the frozen absolute limit H3 failed by 0.47° and 2.31°, and that verdict stands. No
+   absolute χ claim is made. **Follow-up for later (not v0.3.0):** a dated, frozen protocol with an RM term
+   in the 3C 286 model, decided before any solve.
+3. **10.3, `average_time` and Xf.** **Closed** by xf-avg-fix (`xf-avg-fix.md`; merged f8a6435: per-scan
+   averaging, at most 5° of ψ) and its held-out check xf-preavg (`xf-preavg.md`: averaged against unaveraged
+   χ ≤ 0.006°, Xf ≤ 0.031°). The separate 0.054° rang-CASA Xf median on held-out simulations is issue #33,
+   a known limitation, low priority.
+
 ## For the coordinator
 
 Branch `claude/chi-offset-80cb6a`; research files only (`research/chi-offset.md`,

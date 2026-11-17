@@ -49,7 +49,7 @@ tasks to rang's.
 **Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
 --position NAME=RA,DEC --out DIR` gives light curves at given positions from
 the residual (data column minus MODEL_DATA) after `rang-core run`, one point
-per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+per integration by default: the exact DFT flux, the nearest pixel of the
 snapshot dirty image and its robust rms. It reads the MS only.
 
 **Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
@@ -268,8 +268,10 @@ data:
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
   memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
   chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
-  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md)
-  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process); each plans its chunks under memory_limit_gb / processes; results do not depend on it
+  executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md); spool, workers on any nodes serving data.spool (research/multinode-executor.md)
+  spool: null  # executor spool: an absolute directory on a filesystem every worker mounts; start workers with python -m rang.core_spool worker DIR
+  spool_wait_s: 600.0  # executor spool: seconds to wait with no live worker before failing
+  processes: 1  # processes for the chunk tasks of flag, the complex solve and complex apply (1: in this process; executor spool: the workers planned for); each plans its chunks under memory_limit_gb / processes; results do not depend on it
   threads: null  # the rayon threads the processes share when processes > 1 (null: RAYON_NUM_THREADS, else the CPU count)
 flag:
   flagger: tricolour  # the Tricolour 0.2.1 port (research/core-d-tricolour.md)
@@ -300,6 +302,7 @@ calibrate:
   average_time: false  # K, G, B, F, Gpol, KCROSS, Xf and Df solve on data and model averaged in time within each solution interval (CASA's pre-averaging: weighted means after the pre-applies and P, weight the sum, per baseline, channel and correlation; Gpol, KCROSS, Xf and Df with P never across scans or more than 5 deg of parallactic angle); false: every row solved (task E2)
   average_freq: false  # G, F and Gpol solve on data and model averaged over the window's channels (CASA's G-type estimator: weighted means after the pre-applies and P, per row and correlation); false: every channel a sample of one frequency bin (task E2)
   casa_phase_weights: false  # calmode p solves (Gpol, and G with calmode p) use CASA's phase-only datum: data divided by the model per channel with weight w|M|^2, averaged, then normalised to unit amplitude with the weight times the amplitude squared; needs average_freq; false: QuartiCal's phase kernel weighting (task A3, research/e2b-misses.md 9.26)
+  k_zero_start: false  # K solves also run from zero delays and keep, per solution interval, the run with the lower weighted residual; guards against the FFT start (refant baselines only) landing on a sidelobe of a sparsely sampled interval; false: the FFT start alone (research/calchain-floor.md section 12)
   bandpass_model_divided: false  # B solves divide the pre-applied data by the model (which the K and G pre-applies corrupt) before averaging, with weight w|M|^2 and model 1, as CASA's divideCorrByModel; matters with average_time and K or G varying inside the B interval; false: data and model averaged separately (task e2a-3b-diag, research/e2a-3b-diag.md)
   primary:
     field: ["fcal"]  # fields of the primary solves
@@ -350,7 +353,7 @@ image:
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
-  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file)
+  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file); with multiscale it confines the component centres, not the scale shapes
   taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
   taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
   taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
@@ -502,9 +505,10 @@ $ rang-core flagdata -h
 usage: rang-core flagdata [-h] ms [key=value ...]
 
 CASA's flagdata on a Measurement Set: modes manual, clip, quack, shadow,
-elevation, tfcrop, extend, unflag, summary, with CASA's keyword names
-(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found
-are saved first as a flag version.
+elevation, extend, unflag, summary, with CASA's keyword names
+(research/v8b-flagdata.md); tfcrop is refused until it reaches parity
+(research/v8-tfcrop.md). Writes FLAG unless mode=summary; the flags found are
+saved first as a flag version.
 
 positional arguments:
   ms          the Measurement Set (or calibration table, for clip)
@@ -532,7 +536,10 @@ MODEL_DATA) of a field after rang-core run, one point per interval of
 --interval-steps integrations: the exact DFT flux at each position, the
 nearest pixel of the interval's dirty snapshot image and the image's robust
 rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. Reads the
-MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.
+MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json (strict JSON: null
+where a value is not a finite number, such as the flux of a fully flagged
+interval). One data description: an MS whose field has rows on another
+DATA_DESC_ID than 0 is refused.
 
 positional arguments:
   ms                    the Measurement Set
@@ -1117,7 +1124,17 @@ gemclean: usage: gemclean [options] <ms>
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -reorder                  with several polarisations: keep each polarisation's read and each
                             entry's visibilities in temporary files, read back where used (same
-                            images, less memory; research/gemclean-memory2.md)
+                            images, less memory; research/gemclean-memory2.md); ignored, with a
+                            warning, for one polarisation; with -channel-range or
+                            -average-channels > 1 each polarisation is read whole first
+  -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
+                            (<name>-dirty-<n>.spill) go (default: the directory of -name)
+                            images, less memory; research/gemclean-memory2.md, -memory3.md); the
+                            default with -join-polarizations. The files take 12 B per row, channel
+                            and polarisation read plus 8 B per weighted visibility and polarisation
+                            (about 28 GB for 115,000 rows of 4096 channels in IQUV); a killed run
+                            leaves them (<name>-*.tmp, *.spill)
+  -no-reorder               keep all of that in memory, also with -join-polarizations
   -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
@@ -1189,6 +1206,8 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -minuv-l / -maxuv-l <l>   uv distance range in wavelengths (on the weight grid's cells)
   -minuvw-m / -maxuvw-m <m> baseline |uvw| range in metres (rows)
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
+                            (with -multiscale: the component centres, at every scale; their
+                            scale shapes reach outside the mask, as in WSClean)
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
                             takes -mgain or -minor-to-threshold; with

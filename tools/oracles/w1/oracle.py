@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """W1 oracles inside the containers (research/w1-writeback.md). Imports no
 rang code. Each mode writes a JSON file.
 

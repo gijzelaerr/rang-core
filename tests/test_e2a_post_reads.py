@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2-A's reads of rang's columns after gate 2b in e2_post.py (research/
 e2-acceptance.md 9.10): gate 3c's WSClean command from the image stage's
 argv, the self-calibration row's averaged QuartiCal inputs (layout, sums,

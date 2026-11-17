@@ -113,9 +113,11 @@ fn transpose_into(
         });
 }
 
-/// The reusable work space of a [`Convolver`].
+/// The reusable work space of a [`Convolver`]. One can serve several
+/// convolvers used one after another ([`Convolver::apply_into_with`]): every
+/// call rewrites what it reads (research/gemclean-memory3.md, arm A).
 #[derive(Default)]
-struct ConvolverBuffers {
+pub(crate) struct ConvolverBuffers {
     /// `rows × keep`: half spectra of the rows, as far as the kernel reaches.
     rows: Vec<C64>,
     /// Per row of the input: not all zero. A zero row's spectrum is not stored.
@@ -305,14 +307,28 @@ impl Convolver {
     /// [`Convolver::apply`] into `out`, without allocating after the first
     /// call (rayon's per-thread scratch aside).
     pub fn apply_into(&self, input: &[f64], out: &mut [f64]) {
+        let mut guard = self.buffers.lock().expect("no panic while convolving");
+        self.apply_into_with(input, out, &mut guard);
+    }
+
+    /// [`Convolver::apply_into`] with the caller's work space `buffers`
+    /// instead of this convolver's own: the same values. The rows the
+    /// forward pass leaves as they were are marked zero and not read, and
+    /// the column pass rewrites every row it hands on, so what `buffers`
+    /// held before (another convolver's work) changes nothing.
+    pub(crate) fn apply_into_with(
+        &self,
+        input: &[f64],
+        out: &mut [f64],
+        buffers: &mut ConvolverBuffers,
+    ) {
         let n = self.n;
         let m = 2 * n;
         let half = m / 2 + 1;
         let keep = self.keep;
         assert_eq!(input.len(), n * n, "input must be n × n");
         assert_eq!(out.len(), n * n, "output must be n × n");
-        let mut guard = self.buffers.lock().expect("no panic while convolving");
-        let ConvolverBuffers { rows, nonzero } = &mut *guard;
+        let ConvolverBuffers { rows, nonzero } = buffers;
         rows.resize(n * keep, ZERO);
         nonzero.resize(n, false);
         self.forward_rows(n, |y, x| input[y * n + x], n, rows, nonzero);
@@ -1489,7 +1505,7 @@ pub fn run_masked<M: Measurement>(
     }
     if s.stop_tolerance > 0.0 && masking.and_then(|m| m.auto).is_some() {
         return Err(
-            "the stop tolerance does not apply with the automatic mask              (research/gemclean-stop28.md)"
+            "the stop tolerance does not apply with the automatic mask (research/gemclean-stop28.md)"
                 .into(),
         );
     }

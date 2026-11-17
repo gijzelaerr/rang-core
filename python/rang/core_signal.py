@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The signal-guard track on the Rust core (research/core-phase3c-b.md).
 
 Replays `flagging_signal_guard.run` with `core_workflow.core_solve`. Every

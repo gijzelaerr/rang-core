@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """One CPU-heavy job at a time across native Windows and WSL on this host.
 
 Usage (from Windows or WSL, any Python 3.10+):

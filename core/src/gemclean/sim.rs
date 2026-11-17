@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Simulated MeerKAT Measurement Sets for gemclean's experiments and profiles.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The array is the 64 antennas of `data/meerkat.itrf.txt`, the track
 //! symmetric about transit. The visibilities are `dirty2vis` of a pixel model

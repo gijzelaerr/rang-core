@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The wgpu gridder of big-plan task X2 (research/x2-wgpu.md): device
 selection, the clean failure without the feature or an adapter, and, where a
 GPU is usable, agreement with the CPU path. The GPU tests skip (never fail)

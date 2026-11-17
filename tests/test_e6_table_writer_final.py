@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task E6 of the core table writer (research/e6-table-writer-final.md):
 TiledDataStMan hypercubes, TiledCellStMan, IncrementalStMan string arrays,
 MultiFile block order and header continuation, the MultiHDF5 refusal.

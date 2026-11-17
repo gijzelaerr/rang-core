@@ -1,0 +1,134 @@
+{
+ "none": {
+  "chain/plain": {
+   "iterations": 37,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 2592.9056084929334,
+   "flagged": 0
+  },
+  "chain/sep": {
+   "iterations": 27,
+   "median_abs_vs_plain_same_rule": 0.06323611736297607,
+   "max_abs_vs_plain_same_rule": 0.2517663836479187,
+   "median_abs_vs_strict_plain": 0.06323611736297607,
+   "chi2_unaveraged": 2548.5037346907075,
+   "flagged": 0
+  },
+  "chain/div": {
+   "iterations": 27,
+   "median_abs_vs_plain_same_rule": 0.06323611736297607,
+   "max_abs_vs_plain_same_rule": 0.2517663836479187,
+   "median_abs_vs_strict_plain": 0.06323611736297607,
+   "chi2_unaveraged": 2548.5037346907075,
+   "flagged": 0
+  },
+  "chain/div_unavg": {
+   "iterations": 37,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 2592.9056084929334,
+   "flagged": 0
+  },
+  "strict/plain": {
+   "iterations": 67,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 2592.905610052665,
+   "flagged": 0
+  },
+  "strict/sep": {
+   "iterations": 51,
+   "median_abs_vs_plain_same_rule": 0.06323611736297607,
+   "max_abs_vs_plain_same_rule": 0.2517663836479187,
+   "median_abs_vs_strict_plain": 0.06323611736297607,
+   "chi2_unaveraged": 2548.50373446475,
+   "flagged": 0
+  },
+  "strict/div": {
+   "iterations": 51,
+   "median_abs_vs_plain_same_rule": 0.06323611736297607,
+   "max_abs_vs_plain_same_rule": 0.2517663836479187,
+   "median_abs_vs_strict_plain": 0.06323611736297607,
+   "chi2_unaveraged": 2548.50373446475,
+   "flagged": 0
+  },
+  "strict/div_unavg": {
+   "iterations": 67,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 2592.905610052665,
+   "flagged": 0
+  }
+ },
+ "KG": {
+  "chain/plain": {
+   "iterations": 29,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 14.492737352623497,
+   "flagged": 0
+  },
+  "chain/sep": {
+   "iterations": 25,
+   "median_abs_vs_plain_same_rule": 0.008683592081069946,
+   "max_abs_vs_plain_same_rule": 0.03318580612540245,
+   "median_abs_vs_strict_plain": 0.008683593012392521,
+   "chi2_unaveraged": 14.811431747038235,
+   "flagged": 0
+  },
+  "chain/div": {
+   "iterations": 25,
+   "median_abs_vs_plain_same_rule": 0.005053692497313023,
+   "max_abs_vs_plain_same_rule": 0.019234437495470047,
+   "median_abs_vs_strict_plain": 0.005053692497313023,
+   "chi2_unaveraged": 14.270221043572263,
+   "flagged": 0
+  },
+  "chain/div_unavg": {
+   "iterations": 29,
+   "median_abs_vs_plain_same_rule": 6.505213034913027e-19,
+   "max_abs_vs_plain_same_rule": 1.192095169244567e-07,
+   "median_abs_vs_strict_plain": 1.3096723705530167e-10,
+   "chi2_unaveraged": 14.49273728920275,
+   "flagged": 0
+  },
+  "strict/plain": {
+   "iterations": 55,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 0.0,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 14.492737801328559,
+   "flagged": 0
+  },
+  "strict/sep": {
+   "iterations": 47,
+   "median_abs_vs_plain_same_rule": 0.00868357066065073,
+   "max_abs_vs_plain_same_rule": 0.03318580612540245,
+   "median_abs_vs_strict_plain": 0.00868357066065073,
+   "chi2_unaveraged": 14.811431188713232,
+   "flagged": 0
+  },
+  "strict/div": {
+   "iterations": 47,
+   "median_abs_vs_plain_same_rule": 0.005053692497313023,
+   "max_abs_vs_plain_same_rule": 0.019234437495470047,
+   "median_abs_vs_strict_plain": 0.005053692497313023,
+   "chi2_unaveraged": 14.270221035511284,
+   "flagged": 0
+  },
+  "strict/div_unavg": {
+   "iterations": 55,
+   "median_abs_vs_plain_same_rule": 0.0,
+   "max_abs_vs_plain_same_rule": 1.192095169244567e-07,
+   "median_abs_vs_strict_plain": 0.0,
+   "chi2_unaveraged": 14.492737742590501,
+   "flagged": 0
+  }
+ }
+}

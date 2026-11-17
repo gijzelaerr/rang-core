@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The introductory notebook track I1-I9 (task V3b, research/v3-intro-track.md).
 
 Static checks only: the notebooks are executed by the documentation workflow

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The memory regression test of GeMClean's joined polarisations
 //! (`research/gemclean-memory.md`, issue #32): a small `-pol IQUV
 //! -join-polarizations -channels-out 4 -join-channels -auto-mask 5` run of
@@ -7,8 +7,8 @@
 //! count is that of the allocations, not of resident pages, so it does not
 //! depend on the host's load; `-j 2` fixes the per-thread buffers.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 use rang_core::gemclean::input::{MsArrays, write_ms};
 use rang_core::gemclean::sim::{antennas, baseline_uvw, enu};
@@ -149,7 +149,15 @@ fn joined_iquv_peak_heap_stays_under_the_frozen_bound() {
         .args(["-pol", "IQUV", "-join-polarizations"])
         .args(["-channels-out", "4", "-join-channels"])
         .args(["-data-column", "DATA", "-no-update-model-required"])
-        .args(["-memory-report", "-j", "2", ms.to_str().unwrap()])
+        // The in-memory path, as measured in phase 1 (-reorder is the default with
+        // joined polarisations since research/gemclean-memory3.md).
+        .args([
+            "-memory-report",
+            "-j",
+            "2",
+            "-no-reorder",
+            ms.to_str().unwrap(),
+        ])
         .output()
         .unwrap();
     let stdout = String::from_utf8_lossy(&out.stdout);
@@ -264,7 +272,7 @@ fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
     write_case(&ms, NANT, REORDER_DUMPS, REORDER_NCHAN);
     let tmp = dir.join("tmp");
     std::fs::create_dir_all(&tmp).unwrap();
-    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &[]);
+    let (plain, heap_plain, clean_plain) = run_reorder_case(&dir, &ms, "plain", &["-no-reorder"]);
     let (reorder, heap_reorder, clean_reorder) = run_reorder_case(
         &dir,
         &ms,
@@ -297,6 +305,88 @@ fn reorder_keeps_the_bytes_and_lowers_the_peak_heap() {
     assert!(
         clean_reorder * 4 <= clean_plain * 3,
         "-reorder's clean peaks at {clean_reorder} bytes, over 0.75 × {clean_plain}"
+    );
+    // GEMCLEAN_MEMORY_KEEP keeps the case's MS for the identity sweeps
+    // (research/gemclean-memory3.md).
+    if std::env::var_os("GEMCLEAN_MEMORY_KEEP").is_some() {
+        println!("kept {}", ms.display());
+    } else {
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+}
+
+/// The image-dominated case (research/gemclean-memory3.md): phase 1's
+/// visibilities at 512², so the clean's image-sized buffers (models,
+/// residuals, working maps, beams and the convolver's row spectra) set its
+/// peak. Arms A (one row-spectra buffer for every beam) and B (sparse
+/// models) lower it.
+const IMAGE_SIDE: usize = 512;
+
+/// The frozen bound on the clean's peak heap (the phases from the first
+/// minor cycle on), in n² `f64` images of this case's side, so that it does
+/// not depend on the platform's allocator: set between the value with main's
+/// joined loop (`7be8c95`'s binary) and the value with arms A and B
+/// (research/gemclean-memory3.md, section 6). Measured on Windows
+/// (`CountingAlloc`) on 2026-11-17: 105.86 images before (222,012,486 bytes),
+/// 84.35 after (176,898,150); a return of the per-beam row spectra alone (3 × 2 images) or
+/// of the dense models (16 images) exceeds it. With `-reorder`, so the dirty
+/// images do not come back beside the beams at the end.
+const IMAGE_BOUND_IMAGES: f64 = 89.0;
+
+/// The gemclean binary under test: this build's, or `GEMCLEAN_MEMORY_BIN`
+/// (to measure another build on the same case).
+fn gemclean_binary() -> String {
+    std::env::var("GEMCLEAN_MEMORY_BIN").unwrap_or_else(|_| env!("CARGO_BIN_EXE_gemclean").into())
+}
+
+#[test]
+fn joined_clean_images_stay_under_the_frozen_bound() {
+    let dir = std::env::temp_dir().join(format!("gemclean-images-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let ms = dir.join("case.ms");
+    write_case(&ms, NANT, DUMPS, NCHAN);
+    let side = IMAGE_SIDE.to_string();
+    let out = Command::new(gemclean_binary())
+        .args(["-name", dir.join("g").to_str().unwrap()])
+        .args(["-size", &side, &side, "-scale", "2asec"])
+        .args([
+            "-weight", "briggs", "0", "-niter", "100000", "-mgain", "0.9",
+        ])
+        .args([
+            "-auto-threshold",
+            "3",
+            "-auto-mask",
+            "5",
+            "-wgridder-accuracy",
+            "1e-4",
+        ])
+        .args(["-pol", "IQUV", "-join-polarizations"])
+        .args(["-channels-out", "4", "-join-channels"])
+        .args(["-data-column", "DATA", "-no-update-model-required"])
+        .args([
+            "-memory-report",
+            "-j",
+            "2",
+            "-reorder",
+            ms.to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        out.status.success(),
+        "{stdout}{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report = std::fs::read_to_string(dir.join("g-report.json")).unwrap();
+    let clean = peak_of_clean(&report);
+    let images = clean as f64 / (IMAGE_SIDE * IMAGE_SIDE * 8) as f64;
+    println!("clean peak heap {clean} bytes, {images:.2} images of {IMAGE_SIDE}²");
+    assert!(clean > 0, "the binary's allocator does not count");
+    assert!(
+        images <= IMAGE_BOUND_IMAGES,
+        "the clean's peak heap is {images:.2} images, over the frozen bound \
+         {IMAGE_BOUND_IMAGES} (research/gemclean-memory3.md)\n{stdout}"
     );
     std::fs::remove_dir_all(&dir).unwrap();
 }

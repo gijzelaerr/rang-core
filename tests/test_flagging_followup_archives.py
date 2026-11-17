@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tracked follow-up evidence, matched coverage and unknown-outcome boundaries."""
 
 import json

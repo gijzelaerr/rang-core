@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """String-array columns read by the core table reader against python-casacore.
 
 `tests/data/strarray` is a casacore table written by python-casacore 3.8.1

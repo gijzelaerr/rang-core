@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # The identity runs of research/chunk-task-api.md, section 2, one arm at a time
 # under the heavy lock at normal priority, then the verdict.
 #   RANG_CTA_ORACLE=~/Worktrees/rang/cta-oracle-30d9412 bash all.sh RUN [CASES]

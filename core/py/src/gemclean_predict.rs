@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.gemclean_*`: gemclean's model prediction
 //! (`rang_core::gemclean::predict`, `research/g6-predict.md`) for
 //! `rang.core_model` (the `rang-core image` path through W1's `WriteBack`).

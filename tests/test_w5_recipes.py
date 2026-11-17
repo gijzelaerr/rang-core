@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W5 (research/w5-stimela.md): the user recipe calls the rang-core commands,
 and every research recipe is marked as one. Static text checks, as
 tests/test_core_cli.py does: no Stimela or YAML import."""

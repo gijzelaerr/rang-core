@@ -1,0 +1,23 @@
+heavy_lock: waiting for head 01794881537944173815-linux-9153.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794882959918069665-linux-25400.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794883177273112033-linux-28177.json, which fits
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T02:59:13Z load 6.82 5.73 7.34 L600 start
+05:02:40 stage prepare L600 wall_s 206.8
+prepare 207.12 s 196248 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 5948.6 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/L600/run/receipts/selfcal-20261117T030241Z.rang-receipt.json
+selfcal 5956.50 s 11665284 KB
+06:42:01 stage clean L600 wall_s 4.1
+06:42:47 cell L600 P1@600 B 382.92 0.873
+06:43:11 cell L600 P2@600 B 331.93 0.905
+06:43:35 cell L600 P3@600 B 329.8 0.9062
+06:43:58 cell L600 P3A@600 B 317.51 0.9117
+06:44:44 cell L600 P1@600 A 396.97 0.8707
+06:45:08 cell L600 P2@600 A 345.65 0.9024
+06:45:32 cell L600 P3@600 A 343.57 0.9036
+06:45:56 cell L600 P3A@600 A 330.44 0.9093
+06:45:56 stage score L600 wall_s 234.8
+score 235.08 s 4956164 KB
+== 2026-11-17T04:45:56Z load 12.08 12.72 11.72 L600 end

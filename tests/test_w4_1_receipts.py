@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-1 (research/w4-1-receipts.md): receipts record every
 result-affecting setting, and the solver takes its options as an argument.
 

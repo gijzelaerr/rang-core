@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Write V8a's edge-case MS with rang's table writer (research/v8a-listobs.md,
 amendment 1).
 

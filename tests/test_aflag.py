@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """A-FLAG: AOFlagger 3.5 as a second SumThreshold oracle (research/a-flag-aoflagger.md).
 
 The bridge-kernel tests run anywhere. The archive tests read the committed

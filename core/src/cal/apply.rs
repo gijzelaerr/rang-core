@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Follows CASA's C++ source in part (Copyright (C) Associated
-// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+// Universities, Inc. Washington DC, USA; (L)GPL version 2 or later), and
+// casacore 3.7.1's `Interpolate1D.tcc` and CASA's `CTTimeInterp1.cc`:
 // notices in THIRD-PARTY-NOTICES.txt.
 //! Apply (correct) and corrupt a chunk of visibilities by calibration terms
 //! (task C4a, `research/c4a-apply.md`; C1 step 2,

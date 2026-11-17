@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """A Measurement Set summary in CASA `listobs`'s terms (research/v8a-listobs.md).
 
 `summary(ms)` returns the record CASA 6.7's `listobs` returns (the same keys

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cal_fluxscale_*`: CASA's `fluxscale` statistics of
 //! `rang_core::cal::fluxscale` (task C2d, `research/c2d-fluxscale.md`), for
 //! `rang.cal_fluxscale`.

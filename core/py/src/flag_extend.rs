@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.flag_extend`: CASA's `flagdata(mode='extend')` of
 //! `rang_core::flag_extend` (task E0, `research/e0-refant-extend.md`), for
 //! `rang.flag_extend`.

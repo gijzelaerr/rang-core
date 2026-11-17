@@ -1,10 +1,13 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later AND LGPL-3.0-only
 //! Clean masks for gemclean (task G4, `research/g4-masks.md`): WSClean 3.7's
 //! `-fits-mask` and radler's automatic mask (`-auto-mask`, `-abs-auto-mask`,
 //! `-auto-mask-nmiter`, the default `dual` major-iteration mode).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Parts follow radler 76fe4474 (LGPL-3.0-only, `// SPDX-License-Identifier:
+//! LGPL-3.0-only` in each file read), conveyed under the GPL, version 3, as
+//! LGPL-3.0 section 2(b) allows: notice in THIRD-PARTY-NOTICES.txt.
 //!
 //! Read in radler `76fe4474c31c` (`radler.cc`, `Radler::Perform`,
 //! `SetAutoMaskMode`, `ReadMask`; `math/gain_calculations.h`,

@@ -1,0 +1,36 @@
+[
+ {
+  "task": "delmod",
+  "call": {
+   "vis": "/d1/casa-m.ms",
+   "otf": true,
+   "scr": false
+  },
+  "seconds": 0.12935804505832493,
+  "error": null,
+  "written": false,
+  "return": null
+ },
+ {
+  "task": "setjy",
+  "call": {
+   "vis": "/d1/casa-m.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  },
+  "seconds": 17.436403201078065,
+  "error": null,
+  "written": false,
+  "return": {
+   "0": {
+    "0": {
+     "fluxd": "[13.993332  0.        0.        0.      ]"
+    },
+    "fieldName": "J1939-6342"
+   },
+   "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+  }
+ }
+]

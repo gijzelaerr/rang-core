@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows casacore's `MSIter.cc` and `BaseTabIter.cc` and CASA's
+# `FlagDataHandler.cc` and `FlagMSHandler.cc` in part (Copyright (C)
+# Associated Universities, Inc., and European Southern Observatory for the
+# two CASA files; (L)GPL version 2 or 2.1 or later): notices in THIRD-PARTY-NOTICES.txt.
 """CASA's `flagdata(mode='extend')` as CARACal runs it (task E0).
 
 research/e0-refant-extend.md sections 1.2 and 1.3. CARACal 8f7bb363's polcal

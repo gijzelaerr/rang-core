@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """rang's side of V8b (research/v8b-flagdata.md): every case of a
 `v8b_plan.py` plan through `rang.tasks.flagdata` on a fresh copy of its
 input, with FLAG, FLAG_ROW and the calls' returns written in the format of

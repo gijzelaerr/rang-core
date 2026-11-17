@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cal_delay_offset_solve`: the delay term K as QuartiCal's
 //! `delay_and_offset` (`rang_core::cal::delay_offset`, task C2c,
 //! `research/c2c-bandpass.md`), and `rang._core.cal_bandpass_fill_gaps`,

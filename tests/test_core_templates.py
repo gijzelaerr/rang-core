@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Numerical and namespace safeguards for paired faint-sky template response.
 
 Live part of tests/test_flagging_signal.py at commit 2da566c

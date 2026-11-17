@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P3: the Tricolour port in parallel over baselines gives the same flags.
 
 research/p3-sumthreshold.md. The thread count of rayon's global pool is fixed

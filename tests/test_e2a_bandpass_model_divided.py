@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task e2a-3b-diag (research/e2a-3b-diag.md): `calibrate.bandpass_model_divided`.
 
 A K or G pre-applied in a B solve corrupts the model; with
@@ -174,3 +175,23 @@ def test_the_chain_passes_it_to_b_only(monkeypatch, cal_ms):  # noqa: F811
         with pytest.raises(StopIteration):
             cal_chain._solve_one(cal_ms, term, 0, {}, common)
     assert seen == {"K": False, "G": False, "B": True}
+
+
+def test_divided_average_equals_unaveraged_when_flags_agree_over_correlations(
+    exact, tmp_path
+):
+    """research/e2a-3b-k.md step 5: the fixture's 5e-3 between the divided
+    average and the unaveraged B is the unaveraged kernel's cell rule (a cell
+    with any correlation flagged is dropped; the averages are per
+    correlation). With FLAG OR-ed over the correlations, as in E2-A's data,
+    the two agree."""
+    ms, model, tables, _ = exact
+    ms2 = Path(shutil.copytree(ms, tmp_path / "y.ms"))
+    with core_ms_write.open_table(ms2, readonly=False) as t:
+        f = np.asarray(t.getcol("FLAG"), bool)
+        t.putcol("FLAG", np.broadcast_to(f.any(-1, keepdims=True), f.shape).copy())
+    plain, pf = _gains(_b(ms2, model, tables))
+    div, df = _gains(_b(ms2, model, tables, average_time=True, model_divided=True))
+    ok = ~pf & ~df
+    assert ok.mean() > 0.5 and np.array_equal(pf, df)
+    assert np.max(np.abs(div[ok] - plain[ok])) < 1e-5

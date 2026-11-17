@@ -1,0 +1,12 @@
+heavy_lock: waiting for linux pid 4053446 since 2026-11-16T23:01:47+00:00: /home/gijs/Worktrees/rang/cta-run-abdfb5a/.venv/bin/python /home/gijs/Worktrees/rang/nash-timings/tools/oracles/chunk_tasks/timing.py point /home/gijs/rang-data/outputs/cta-nash-20261116 B 0
+== 2026-11-16T23:18:50Z load 1.32 2.46 4.20 sets start
+01:20:23 expand base 823500 92.5 s
+01:20:23 stage base None wall_s 92.5
+base 92.89 s 1411184 KB
+01:20:56 prep {'ms': '/home/gijs/rang-data/outputs/20261103-gemclean-heldout/real/cal2.ms', 'nrow': 823500, 'channels': [4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148, 156, 164, 172, 180, 188, 196, 204, 212, 220, 228, 236, 244, 252], 'chan_width_hz': 417968.75, 'noise_c': 1.025014042854309, 'sigma_part_at_median_weight': 0.17160679164083037, 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'gridding_weight_sum': 354721854.8586093, 'active': 19133875, 'ntime': 450, 'seconds': 33.165066558052786}
+01:21:29 set B 4.409023907741584e-05
+01:22:00 prep {'ms': '/home/gijs/rang-data/outputs/20261103-gemclean-heldout/real/cal2.ms', 'nrow': 823500, 'channels': [0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248], 'chan_width_hz': 417968.75, 'noise_c': 1.0244648456573486, 'sigma_part_at_median_weight': 0.17165825514950275, 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'gridding_weight_sum': 356647890.30460405, 'active': 19095534, 'ntime': 450, 'seconds': 31.169361807988025}
+01:22:31 set A 4.4063196058226154e-05
+01:22:31 stage sets None wall_s 127.4
+sets 127.83 s 3099548 KB
+== 2026-11-16T23:22:31Z load 11.51 6.13 5.23 sets end

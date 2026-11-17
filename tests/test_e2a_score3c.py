@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2-A's gate 3c scorer (research/results/e2-acceptance-scripts/e2_score3c_a.py;
 research/e2-acceptance.md 9.10 and the coordinator's decisions) on small
 synthetic image sets in rang's and WSClean's Stokes I file names: dirty L-inf

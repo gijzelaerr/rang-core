@@ -1,0 +1,4 @@
+/home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 44.63 s read, 15.83 s weights
+joined: 26982 components, 3 major cycles, 160 resyncs, stop Threshold; Q/Q0 4.9205e-3
+wall 1029.26 s
+S 1029.84 s 23107312 KB

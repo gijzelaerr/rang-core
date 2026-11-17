@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Shared test setup: thread caps, the pointing reference fixtures and the
 symlink-or-skip fixture.
 

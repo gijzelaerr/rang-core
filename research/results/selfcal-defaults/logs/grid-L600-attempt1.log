@@ -1,0 +1,54 @@
+heavy_lock: waiting for head 01794875089487209601-linux-4124515.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794875244493212964-linux-4127328.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T01:57:29Z load 7.07 4.64 4.17 L600 start
+03:58:32 stage prepare L600 wall_s 62.5
+prepare 62.71 s 196244 KB
+rang-core: selfcal: running
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/L600/run/receipts/selfcal-20261117T015833Z.rang-receipt.json
+Traceback (most recent call last):
+  File "/home/gijs/Github/rang/.venv/bin/rang-core", line 10, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/gijs/Github/rang/python/rang/core_cli.py", line 1258, in main
+    dispatch(argv)
+    ~~~~~~~~^^^^^^
+  File "/home/gijs/Github/rang/python/rang/core_cli.py", line 1681, in dispatch
+    return _pipeline(argv, options, pinned)
+  File "/home/gijs/Github/rang/python/rang/core_cli.py", line 1343, in _pipeline
+    state = core_pipeline.execute(
+        config, args.config, ms, stages, run_dir=run_dir, force=force, log=log
+    )
+  File "/home/gijs/Github/rang/python/rang/core_pipeline.py", line 2740, in execute
+    try:
+    
+  File "/home/gijs/Github/rang/python/rang/core_pipeline.py", line 2544, in stage_selfcal
+    started = time.perf_counter()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        **({"average_time": True} if sc["average_time"] else {}),
+    
+  File "/home/gijs/Github/rang/python/rang/cal_selfcal.py", line 281, in solve
+    sol, _ = cal_gain._solve_gain_field(
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        fld, tb, nchan=len(freq), per_channel=False, budget=budget, what=what,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        **extra,
+        ^^^^^^^^
+    )  # fmt: skip
+    ^
+  File "/home/gijs/Github/rang/python/rang/cal_gain.py", line 846, in _solve_gain_field
+    chunks, block = cal_chunks.plan(
+                    ~~~~~~~~~~~~~~~^
+        tb, nchan, 4, budget, per_channel=per_channel, what=what
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/gijs/Github/rang/python/rang/cal_chunks.py", line 106, in plan
+    raise core_chunks.MemoryLimitError(
+    ...<3 lines>...
+    )
+rang.core_chunks.MemoryLimitError: selfcal Sp field 0: one solution interval holds 142417920 visibility cells of 823500 rows and needs 13.579 GiB, above data.memory_limit_gb 12; raise the limit, or use a shorter solint (a solution interval is solved whole)
+Command exited with non-zero status 1
+selfcal 416.91 s 9749172 KB

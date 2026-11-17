@@ -1,0 +1,33 @@
+{
+ "K0": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "G0": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "B0": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "K1": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "G1": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "B1": {
+  "params_bitwise": true,
+  "flags_equal": true,
+  "times_equal": true
+ },
+ "all_equal": true
+}

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The L1 and L2 campaign preconditions end to end (research/pc1-preconditions.md).
 
 Both replay K's frozen run -01 on K's four stations through the array and

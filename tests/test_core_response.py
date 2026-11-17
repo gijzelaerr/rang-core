@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Frozen response controls, unrestricted real fits and checked storage guards.
 
 Live part of tests/test_flagging_response.py at commit 2da566c

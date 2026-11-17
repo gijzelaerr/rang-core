@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """End-to-end run of the MS-to-image tutorial's chain (task E4,
 research/e4-tutorial.md), as the wheels workflow's `e2e` job runs it on
 every platform.

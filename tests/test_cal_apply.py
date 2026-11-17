@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The Rust apply kernel (task C4a, research/c4a-apply.md) against
 `caltable.correct` by class C, its round trip, and its thread counts."""
 

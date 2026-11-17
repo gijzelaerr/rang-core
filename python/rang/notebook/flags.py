@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Flags, weights and amplitudes per baseline and channel; Tricolour step by step.
 
 Inspection functions read the loaded state. `run_strategy` calls the core's

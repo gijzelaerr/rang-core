@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# The H5parm layout of losoto 2.7.1 (GPL-3.0-or-later) is read and written;
+# no losoto code is used (THIRD-PARTY-NOTICES.txt, formats).
 """losoto/DP3 H5parm, the subset rang uses (research/dfio-formats.md, F4).
 
 An H5parm is an HDF5 file in PyTables' layout: solution sets

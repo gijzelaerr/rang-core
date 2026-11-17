@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Chunk tasks and the local process pool (research/chunk-task-api.md,
 section 3, criterion 6): specs round-trip through JSON, the executor keys
 leave the stage hash alone, and flag, calibrate and apply give the same

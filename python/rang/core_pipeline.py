@@ -74,6 +74,7 @@ import numpy as np
 
 from . import (
     cal_chain,
+    cal_gain,
     cal_refant,
     core,
     core_chunks,
@@ -124,7 +125,29 @@ def _write_json(path, payload):
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
-    os.replace(tmp, path)
+    _replace(tmp, path)
+
+
+# On Windows os.replace onto a file another process has open fails with
+# PermissionError (a sharing violation). `rang-core mcp`'s run_status reads
+# state.json while the run writes it, which made the run itself fail after a
+# finished stage (research/v030-review.md R-01; the job-file form was issue 30).
+# Retry for a short while; elsewhere, or after the deadline, raise as before.
+_SHARING_RETRY_S = 10.0
+
+
+def _replace(tmp, path):
+    deadline = time.monotonic() + _SHARING_RETRY_S
+    delay = 0.001
+    while True:
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if os.name != "nt" or time.monotonic() >= deadline:
+                raise
+            time.sleep(delay)
+            delay = min(2 * delay, 0.05)
 
 
 def default_run_dir(ms):
@@ -252,8 +275,38 @@ def scope_warnings(info):
             "only and its defaults (Tricolour's static masks, feed_angle_rotation, "
             f"refant: auto) are MeerKAT's; check every stage's output {UNSUPPORTED}"
         )
-        return [text]
-    return []
+        out = [text]
+    else:
+        out = []
+    band = band_warning(info.get("chan_freq"))
+    if band:
+        out.append(band)
+    return out
+
+
+# MeerKAT L band, the only band rang is validated on (research/uhf-scope.md,
+# decision D6; research/meerkat-scope.md). Channel centres outside it (UHF
+# 544-1088 MHz, S band) are warned about, not refused.
+L_BAND_HZ = (856.0e6, 1712.0e6)
+_BAND_SLACK_HZ = 1.0e3
+
+
+def band_warning(chan_freq):
+    """One warning when any channel centre lies outside MeerKAT L band, or
+    None."""
+    if chan_freq is None:
+        return None
+    freq = np.asarray(chan_freq, np.float64).ravel()
+    if freq.size == 0:
+        return None
+    lo, hi = float(freq.min()), float(freq.max())
+    if lo >= L_BAND_HZ[0] - _BAND_SLACK_HZ and hi <= L_BAND_HZ[1] + _BAND_SLACK_HZ:
+        return None
+    return (
+        f"channels at {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz reach outside MeerKAT L band "
+        f"({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz): only L band is "
+        "validated; see docs/limits.md"
+    )
 
 
 def check_data(config, info, stages):
@@ -863,7 +916,7 @@ def restore_before(ms, entry):
     research/e5-prereview.md)."""
     journal = core_writeback.read_journal(ms)
     prior = entry.get("flag_version")
-    unfinished = journal and journal.get("state") in ("open", "failed")
+    unfinished = core_writeback.flags_unfinished(journal)
     if unfinished and (not prior or journal.get("flag_backup") != prior):
         raise Refused(
             f"an earlier write-back on {ms} (stage {journal.get('stage')!r}) did "
@@ -891,7 +944,7 @@ def stage_version(ctx, stage):
     if ctx.get("flag_version") is None:
         ms, run = ctx["ms"], ctx["run"]
         journal = core_writeback.read_journal(ms)
-        if journal and journal.get("state") in ("open", "failed"):
+        if core_writeback.flags_unfinished(journal):
             raise Refused(f"{ms}: an unfinished write-back must be restored first")
         rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
         ctx["original_saved_now"] = core_writeback.backup_flags(
@@ -911,7 +964,7 @@ def writeback_session(ctx, stage):
     by the session before its first write."""
     ms = ctx["ms"]
     journal = core_writeback.read_journal(ms)
-    if journal and journal.get("state") in ("open", "failed"):
+    if core_writeback.flags_unfinished(journal):
         raise Refused(f"{ms}: an unfinished write-back must be restored first")
     rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
     version = stage_version(ctx, stage)
@@ -930,7 +983,7 @@ def write_flags(run, ms, stage, flag, chunk_rows=None):
     """Save `rang_original` if absent and `rang_<stage>_<time>`, then write
     FLAG (rows, nchan, ncorr) in chunks. FLAG_ROW is not written."""
     journal = core_writeback.read_journal(ms)
-    if journal and journal.get("state") in ("open", "failed"):
+    if core_writeback.flags_unfinished(journal):
         raise Refused(f"{ms}: an unfinished write-back must be restored first")
     rows = chunk_rows or core_writeback.chunk_rows_for(flag.shape[1:])
     saved = core_writeback.backup_flags(
@@ -1792,6 +1845,7 @@ def stage_calibrate_chain(ctx):
         average_freq=bool(cal.get("average_freq")),  # task E2, amended arm
         casa_phase_weights=bool(cal.get("casa_phase_weights")),  # task A3
         bandpass_model_divided=bool(cal.get("bandpass_model_divided")),  # e2a-3b-diag
+        k_zero_start=bool(cal.get("k_zero_start")),  # calchain-floor
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
@@ -2553,7 +2607,7 @@ def stage_selfcal(ctx):
                 refant=refant,
                 minuvw_m=sc["minuvw_m"],
                 gain_clip=sc["gain_clip"],
-                budget=plan.chain(),
+                budget=plan.selfcal(),
                 **({"average_time": True} if sc["average_time"] else {}),
             )
             solved = sol.summary()
@@ -2749,6 +2803,15 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 run.save()
                 if isinstance(exc, (StageFailed, Refused)):
                     raise StageFailed(f"{stage}: {exc}") from exc
+                if isinstance(exc, cal_gain.NoSolutions):
+                    # R-02 (research/v030-review.md): a solve whose every
+                    # solution is flagged is the stage's failure, with a hint.
+                    raise StageFailed(
+                        f"{stage}: {exc}. A solution is flagged when its data "
+                        "are all flagged, too few baselines remain (minblperant) "
+                        "or its SNR is under minsnr: check calibrate.refant and "
+                        "the flags of that field"
+                    ) from exc
                 raise
             attempt.update(
                 status="done",

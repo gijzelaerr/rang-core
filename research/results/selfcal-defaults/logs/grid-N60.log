@@ -1,0 +1,15 @@
+heavy_lock: waiting for head 01794886807873775484-linux-71071.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794890529648423641-linux-113435.json, past its 15 min drain limit (draining)
+== 2026-11-17T05:07:32Z load 11.42 10.90 10.50 N60 start
+07:08:14 stage prepare N60 wall_s 41.7
+prepare 41.99 s 195968 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 2602.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/N60/run/receipts/selfcal-20261117T050827Z.rang-receipt.json
+selfcal 2621.76 s 9747884 KB
+07:52:01 stage clean N60 wall_s 5.1
+07:52:48 cell N60 P2A@60 B 310.81 0.9155
+07:53:34 cell N60 P2A@60 A 323.82 0.9131
+07:53:34 stage score N60 wall_s 92.8
+score 93.20 s 4954296 KB
+== 2026-11-17T05:53:35Z load 16.91 16.68 16.84 N60 end

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """F4 C1(U4) attempt gate (research/f4-flagger.md, "Rerun rule", 2026-11-17).
 
 Usage: python examples/f4_c1_gate.py [f4_cost.py arguments ...]

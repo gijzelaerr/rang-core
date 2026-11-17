@@ -20,6 +20,60 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms-mask`; [gemclean-ms-mask.md](gemclean-ms-mask.md), protocol frozen in `51a9e5a`, post hoc section 7 in `6457155` before any PM number; archive [results/gemclean-ms-mask/](results/gemclean-ms-mask/); run root `D:\rang\outputs\gemclean-ms-mask-20261117`, host glacier):
+- No mask defect. GeMClean confines multiscale centres to the FITS mask at every scale, as radler and WSClean 3.7 do. The model's flux outside the mask comes from the scale shapes.
+- As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).
+- Post hoc `-nmiter 1` arms RM1 and PM1: the same loop level (within 3e-4), the same scales, and F_in, F_out and N_out within the bounds. On RM1, 2.72 against 2.93 Jy lies outside a 3,394-pixel points-only mask.
+- Not changed: the clean path. Added: a per-scale confinement test, help and config lines, docs/limits and a CHANGELOG limitation. Reported: GeMClean did not diverge on PM where radler did. floor-5 section 4.3 cannot be met with multiscale and a mask in either imager.
+
+Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
+- Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".
+- 441 files (129,462 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice
+  kept); 64 files (61,685 lines) derived from GPL or LGPL code keep their GPL lines (casacore writer, ducc0
+  wgridder, WSClean, radler, CASA kernels, c-src rules, `ms_schema.rs`, six oracle tools held by doubt).
+- `LICENSES/MIT.txt` added and shipped (`license-files`); the package stays `GPL-3.0-only`; root crate
+  `rang-sim` MIT. The 170 shipped files that had no SPDX line are stamped: 167 MIT, three CASA test references GPL.
+- `tests/test_spdx_headers.py` checks every line against `research/results/mit-relicense-audit/spdx.csv`;
+  an unlisted file passes only with a bare `MIT`.
+  Only SPDX lines and licence prose changed; header-only conflicts with open branches are expected.
+selfcal-memory, 2026-11-17 (issue #34, branch `selfcal-memory`, not merged; [selfcal-memory.md](selfcal-memory.md), frozen in `bc8f515` before code): an Sp or Sa solve whose solution interval does not fit `data.memory_limit_gb` is streamed: one read pass writes the unflagged cells to a scratch file beside the MS, and the Rust driver `cal::diag_stream` runs `diag`'s own accumulate, step and finish over it each iteration. Every other solve keeps its path. On nash, the E2 pilot's scan-long Sp and Sa solves at the default 8 GiB equal the one-call solves at 96 GiB bit for bit (13 and 37 iterations), at a 3.62 GiB peak (one-call 35.35 GiB). The default `rang-core selfcal` ran to the end at 8 GiB in 2,207 s, its stores equal to the archived D's, every final FITS identical. The rang-core process peaked at 6.6 GiB; the 9.3 GiB whole-run peak is GeMClean's (the grid's limit-12 peaks too), which stays open in #34. `CELL_BYTES["selfcal"]` = 45, fitted to the present path's solve-only peaks (600 s 5.99 GiB, plan 6.82). Streamed solves cost 9-41 % more wall time (Sp 358 s against 329 s, Sa 575 s against 409 s). Archive [results/selfcal-memory/](results/selfcal-memory/).
+
+v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review.md) section 5):
+- B-01: `cal_pol.parallactic_angle_casa` translates casacore's measures (`MCDirection.cc`, `MeasMath.cc`,
+  `MeasTable.cc`, `MSDerivedValues.cc`, master `3c16927b`, LGPL-2.0-or-later, AUI); no casacore data is read,
+  the Earth orientation is astropy-iers-data's IERS table. Notices verbatim in THIRD-PARTY-NOTICES.txt and
+  docs/licence.md.
+- B-02: WSClean v3.7 `4f395b28` with radler `76fe4474`, aocommon `aa4d6a47`, schaapcommon `b553fd25`, and
+  master `53e25d59` (!1068). **radler is LGPL-3.0-only**: conveyable under GPL version 3 (LGPL-3.0 2(b)),
+  not "or later"; four GeMClean files now `GPL-3.0-or-later AND LGPL-3.0-only`. Owner decision open on the
+  package licence expression (LICENSE and pyproject unchanged).
+- Fixed with tests (tests/test_v030_fix.py, cli.rs): R-02 (fully flagged solve: stage failure, not a
+  traceback), B-11/B-12 (`-temp-dir` takes the spill files; `-reorder`/`-temp-dir` warnings), B-13 (strict
+  JSON, null for non-finite), B-16 (lightcurve refuses a second DATA_DESC_ID), E5-22/23/24 (write-back
+  refuses only after FLAG writes; `initialising` survives a restore; lock before journal, read-only MS
+  refused first). E5-21 stays a known limitation (it would change every stage hash once).
+- MIT-audit notice gaps (section 5.5): c-blosc, katdal, Tricolour, fdlibm, Tigger, codex-africanus,
+  schaapcommon, CASA/casacore in calmodels, apply and flag_extend, the casacore storage managers ("nothing
+  is copied" corrected), EIDOS, WSClean's "GPL 3", CARACal's strategy copies. msutils' licence statements
+  conflict (GPL v2 in its metadata, GPL-3.0-or-later in setup.py): a second owner decision.
+- No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
+  touched tests pass (hand-back for the coordinator).
+calchain-floor, 2026-11-17 (branch `calchain-floor`, not merged; [calchain-floor.md](calchain-floor.md), protocol frozen before any test, post hoc addenda 7, 8, 11, 12; receipts [results/calchain-floor/](results/calchain-floor/)): e2a-3b-k's noise-free K G B floor located. Pass 0 (KGB0 3.7e-4 post-A0, 7.2e-4 on the flag stage's cells): the simulation's per-scan constant truth, stepped between scans 9 and 11, against per-scan K0, G0 pre-applied by linear interpolation across the gap; constant truth or `interp: nearest` each give KGB0 0 (median), max 2.8e-7 (float32); no rang defect. Pass 1: a K defect shared with CASA. When an interval keeps a few cells on the refant baseline the FFT start (refant baselines only) lands on a sidelobe and Gauss-Newton converges there; on E2-A it is ID 50's K1 interval 7 (94 cells, 2 to the refant), 2,335 ns in rang's archived field-0 K1 and 2,365 ns in CASA's against 0.11 ns elsewhere, the "delay near the ambiguity" of e2a-3b-k. Fixed behind `calibrate.k_zero_start` (default off: a zero-start run kept per interval by its residual): S0c's KGB1 3.5e-3 to machine precision; key off, the six S0f' tables bitwise unchanged; on the real subset it moves ID 50's interval 7 from 2,367 to 0.121 ns and nothing else by more than 1e-3 ns. CASA's archived K1 holds the same wrong solution (mechanism shown for rang only). Quick check only; the full check is the coordinator's. Owner decisions: measure E2-A with the key on; make it the default.
+
+F5 draft, 2026-11-17 (proposed, not frozen; branch `f5-draft`; [f5-flagger.md](f5-flagger.md)): a fourth flagger protocol built on Landman Bester's reply on issue #1 and the F3 review he forwarded. Reading of the code: F3's r^t, r^f and antenna medians cannot see a wide-band scan-long one-antenna event; F4's cross spectral planes are its counterpart (one constant offset per baseline, no smoother, scan-long only), F4's autocorrelation arm NA is not (cross-only injection; no per-antenna bandpass model, delta at the top of its grid). Proposed: per-time-block log-amplitude and noise-variance factorisations per antenna with a low-order fit, noise-like antenna-local training events, held-out slow ramp H4, the reply's label scheme, an image-domain RMS gate with a positive control, a W4 antenna fallback; from Landman's second reply, his `pfb hci` settings as a label generator (pinned, validated on injections first), gain TV as a reported validation measure V-TV, and an agent review of waterfalls (R-AG) as a weak-label arm, never training labels. CARACal 8f7bb363 ships 23 AOFlagger `.rfis` files (2.x XML; `firstpass_QUV.rfis` its MeerKAT default), which AOFlagger 3.5 cannot run unconverted. Mesarcik et al.'s Zenodo set: CC BY 4.0, LOFAR HBA and simulated HERA, 21.9 GB of pickles, not for pretraining. Frozen after F4's calibrator outcome; nothing run. No novelty claim.
+Floor-5, 2026-11-17 (branch `floor-5`; [floor-5.md](floor-5.md), protocol frozen in `579396b` before any run,
+clarifications 1 and 2 (pinned build) before the numbers, archive [results/floor-5/](results/floor-5/); host nash).
+Issue #13: what is left of the pilot's floor after one Sp round (379.26 µJy, 8.6 × thermal), with shares rebased to
+P_ref = 1.419e-7 Jy² (0.123 P_pilot). Every gate passed (copy, R0, G0, G1 bit-equal to floor-4's, HB, GS, GM: R3's
+model pixel-identical to G1's). Frozen joint outcome **J2**, Σ 0.41: model depth inside the source mask attributed
+under floor-5's depth standard, share 0.22 (GeMClean to 0.3 mJy masked, F 379 to 335 µJy; gain control κ −0.17);
+spectral modelling (8 output channels, 2 terms) supported, share 0.19. Family I attributes nothing: antenna gains
+5 min (0.375) and 8 s (0.387), per-baseline (0.109), facet spectral (0.282) and central-source DD (0.035) fits are
+all non-specific, firing mostly on the incompleteness arms; w-term and smearing rejected. The 2 × 2 gives ρ_B 0.59
+(partial). Post hoc: the multiscale arm ignored or overran the mask (3.5 Jy on 99 % of pixels), so its note does
+not stand; κ is negative (deep CLEAN on uncorrected data raises the floor). Remainder 0.59 unattributed. Next under
+J2: a protocol for the largest unresolved bound (antenna gains), and held-out checks of the depth and spectral arms.
+
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
 visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model
 is missing (`fluxstd` refuses it); every beam model is L only and refuses UHF; both Tricolour static masks are always
@@ -34,6 +88,61 @@ needs a login). So no visibilities fetched, no listobs or config check; nash hol
 (SARAO's UHF 1934-638 and 0407-65 field models, the memo, holography beam metrics) in `~/rang-data/uhf/reference/`
 with SHA-256. Found in passing: an anonymous MVF capture block (`1775040570`, engineering test) in SARAO's public
 bucket. Eight owner decisions (D1 archive blocks first).
+v0.3.0 readiness, 2026-11-17 (branch `v030-ready`; [v030-readiness.md](v030-readiness.md),
+[v030-review.md](v030-review.md), receipt [results/v030-mcp/](results/v030-mcp/)):
+- Tracker of every "Done when" item and #2 carry-over. Met: χ stated as a limit (chi-offset section 11, coordinator
+  decisions: RM-corrected χ(λ²=0) 29.4°, 3.6° from 33°; 10.1 a per-product note, E2-B's config unchanged; 10.3
+  closed), tfcrop still refused, the MCP chain. Recorded: #23 null, #22 kept as the linear sum (radler !238 merged
+  2026-11-16, WSClean !1068 merged, neither released), #13 attributed (floor-3; floor-4 `84392cdd` on its branch).
+  Running: E2-N and E3-A on nash, the selfcal-defaults grid (`floor-4`, #6), the E2-A 3b K follow-up (`e2a-3b-k`).
+- MCP chain: `tests/test_mcp_chain.py` drives `rang-core mcp --allow-write` with a scripted JSON-RPC client over stdio
+  through listobs, config_check, a confirmed run and run_status until flag, calibrate, apply, image and selfcal are
+  done on the public fixture (8.3 s; 5 of 5 repeats). Its first run found R-01: on Windows a reader of `state.json`
+  (run_status) made the run's replace fail and the run fail; fixed with a 10 s retry, regression test.
+- Review (E5 method, two read-only agents): fixed here the stale "E2 has not reported" docs, CHANGELOG gaps
+  (lightcurve, -stop-tolerance, multiscale options, FLAG_ROW weights, MSv2 R1-R3), known limitations and an Issues
+  draft, lightcurve refusals. Release-blocking for the coordinator: casacore measures and radler/WSClean 3.7
+  notices (B-01, B-02).
+- uhf-scope D6: a stage given channels outside L band (856-1712 MHz) logs one warning naming docs/limits.md;
+  not refused (`core_pipeline.band_warning`, test).
+
+E2-A gate 3b follow-up, 2026-11-17 (branch `e2a-3b-k`; [e2a-3b-k.md](e2a-3b-k.md), protocol frozen in `b02c95d`
+before any test, post hoc addenda 7 and 9; receipts [results/e2a-3b-k/receipts/](results/e2a-3b-k/receipts/); run on
+nash). K: on simulated truth (the subset's geometry, flags and measured noise) rang's K is nearer truth in every case;
+CASA's K1 error is about 5× rang's and its K0 is biased by 1.1e-4 ns with no noise, so CASA's `gaintype='K'` is the
+less accurate estimator; rang's K is unchanged. Full scale (E2-A field 0, matched flags, divided B1): against CASA with
+its own K 2.24e-3 / 1.45e-2, against CASA on rang's K 4.1e-5 / 4.0e-3. The subset's unattributed 1.1e-3 is one G1
+solution (ID 50, interval 7) that CASA flags by `minsnr` on its averaged SNR (2.2; rang's 30) and that B1 spreads to
+every antenna (CASA's B1 on rang's K and G agrees to 1.0e-4). The 4-antenna synthetic's 5e-3: the unaveraged kernel
+drops a cell with any correlation flagged, the averages are per correlation; the divided average is the
+least-squares minimum (SciPy, 2e-8); E2-A's flags are equal over correlations, so no effect there (one test added).
+Models identical (cleared). Null: the simulations' shared noise-free floor (5.7e-4) and `average_freq`, which does
+not close the part. Open (post hoc, B2 candidate): with a static simulated truth CASA's B is nearer truth because it
+flags that kind of low-SNR G1 solution. A reserve leg as frozen would fail again on CASA's K (predicted 2.24e-3, from
+a patched rang arm); with CASA on rang's K, p95 4.0e-3 misses by 1.3×.
+Multi-node executor, #4 stage 2 step 1, 2026-11-17 (branch `multinode-executor`;
+[multinode-executor.md](multinode-executor.md), rule and protocol frozen in `01189d8` before any code; receipts
+[results/multinode-executor/](results/multinode-executor/)). Comparison: Slurm/PBS job arrays are out (not testable
+on nash or CI, no Windows); of the rest the rule picks a spool executor of rang's own (4 passes) over Ray (3) and
+Dask (2: dask-jobqueue has had no commit in 6 months and no release since 2024-08; `distributed` 75 commits in 6
+months, 49 by one maintainer). Prototype: `data.executor: spool` with `data.spool`; workers
+(`python -m rang.core_spool worker DIR`) claim tasks by an exclusive file create (a rename claim double-ran tasks on
+Windows), the stage reduces in plan order as the single writer; leases re-run tasks of dead workers. Gate passed:
+public fixture (Windows and nash: 2 workers, 4 workers at `chunk_rows: 7`, and a worker killed per stage) and
+`w3.ms` on nash (I, S1, S2, S4, S8) all bit-identical to main `9b4542c`. Scaling on nash, shared, provisional,
+2 threads and 2 GB per worker: total S(N) 1.90 / 3.05 / 4.67 at N = 2 / 4 / 8 (calibrate 5.85, flag 4.89 at 8,
+limited by 17 blocks; apply 1.46, the single writer moving 11 GB); one-worker overhead 1.013. Exclusive points not
+obtained. Not tested: Slurm, PBS, a second host, Lustre/CephFS.
+GeMClean memory phase 3 (#32), 2026-11-17 (branch `gemclean-memory3`; [gemclean-memory3.md](gemclean-memory3.md),
+frozen at `7b3b627`, code `f20c06a`, default `bc62504`; met; outputs `D:/rang/outputs/gemclean-memory3-20261117`): a
+tracer in `-memory-report` (live blocks of 1 MiB or more at the heap's highest) put J1833−2103's `-reorder` peak (7.66
+GB) in the minor cycle's resync: 110 n² images (32 dense models), beams 2.15, eight per-beam resync buffers 0.54,
+plans 0.94. Arm A (one resync buffer for every beam) and arm B (models held sparse) lower it to 6.14 GB heap, tree RSS
+**5.73 GiB (0.682 × 8.40, limit 6.30)**, with all 153 FITS files, `entries` and mask byte-identical on all three fields
+with and without `-reorder`, and in 21 + 6 sweep cases. The frozen default rule was met (exclusive, two pairs per field:
+RSS 0.468 / 0.458 / 0.742 of `-no-reorder`, wall 1.066 / 1.050 / 0.979 of the means; five of the six pairs 1.04-1.08, so `-reorder` costs about 5-8 %), so `-reorder` is now the default with
+`-join-polarizations` (`-no-reorder` to switch off): 7.7 GiB on J1331+3030 and J1939−6342, 5.7 on J1833−2103, 4.0-4.3 ×
+WSClean 3.7. New image-dominated memory test (bound 89 images). Next: the beams and plans (50 % of the peak).
 
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
@@ -85,6 +194,26 @@ re-imaging (D_Fin 0.88, R2 lowers). Arm PL, solved above 400 m only: D_Fix 0.80,
 joint reading row 1: H1 attributed under floor-3's standard (not imaging-floor's full criterion; H2, H8a, H4b
 specificity arms not run), share 0.88; for #6 one Sp round fixes most of the pilot's floor, default selfcal
 settings next. Post hoc: 379 µJy (8.6 × thermal) remains unexplained; steady XX − YY phase 17.7° rms, untested.
+
+Floor-4, 2026-11-17, host nash (branch `floor-4`; [floor-4.md](floor-4.md), protocol frozen in `7bd4fb0` before any
+run, archive [results/floor-4/](results/floor-4/)): H1's specificity under imaging-floor's full criterion and the
+XX − YY phase (#13). Gates R0, G0, G1 and GS passed. nash reproduces floor-3's arm P (F 1,073.42, 474.83, 379.26 µJy;
+F_B and F_Fix bit-equal, F_Fin within 6e-14). T1p is specific: its own arm H1bP gives 1.000, the new arms H2 0.092, H8a 0.000 and H4b 0.004, and
+floor-2's priors at most 0.104 (K1). Plausibility holds (G3P carries 0.825 P_pilot). **Frozen reading row 1: H1
+attributed under imaging-floor's full criterion, share D_T1p 0.83 (fixed model; Sp D_Fix 0.81, D_Fin 0.88); #13's
+done-criterion met for H1**, with H2 and H8a still unresolved and 0.17 of the excess unattributed. XX − YY: a real
+steady phase (halves r 0.999, scatter 9.5° about a −15° gauge constant) that is invisible to Stokes I (per hand
+against scalar ΔD −0.013 in two solvers). It is a polarisation term, outside #13.
+
+Selfcal-defaults, 2026-11-17, host nash (branch `floor-4`; [selfcal-defaults.md](selfcal-defaults.md), protocol
+frozen in `7bd4fb0`, clarification 1 (memory limit) in `4483ec6` before any 600 s or `inf` solve, archive
+[results/selfcal-defaults/](results/selfcal-defaults/)): 13 `rang-core selfcal` runs on the pilot with half the
+channels held out (#6), 24 cells (1-3 Sp rounds, with or without a final Sa, 60-600 s) and the current default.
+Gates HB1 and HB2 passed. Every cell is healthy, with no noise fitting (gap D_in − D_ho −0.0027 to −0.0022).
+Held-out D: one Sp round 0.873-0.877, two 0.905-0.909, with a final Sa 0.910-0.916; current default (Sp, Sa,
+`inf`) 0.892. **Frozen rule: chosen P2@600 (0.905) beats the default by 0.013 < 0.05, so the default is unchanged.**
+Post hoc: the default's scan-long run peaked at 37 GB. The chunk plan refuses one 600 s interval at 12 GiB, so the
+default cannot pass the default `memory_limit_gb` of 8 on this pilot.
 
 Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
 archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0

@@ -46,10 +46,10 @@ arm64 and x86_64, Windows x86_64.
 
 | Extra | For |
 | --- | --- |
-| `notebook` | the tutorials and `rang.notebook` |
+| `notebook`, `mcp` | the tutorials and `rang.notebook`; `rang-core mcp`, the MCP server for agents |
 | `imaging` | nothing since astropy became required; kept so existing install lines work |
 | `pointing`, `beam` | the JAX pointing path; the katbeam and EIDOS beam controls |
-| `meerkat`, `formats` | MVFv4 archives through katdal; H5parm |
+| `meerkat`, `formats`, `msv4` | MVFv4 archives through katdal; H5parm; MSv4 processing sets (Python 3.11+) |
 | `recipes`, `carta` | the Stimela2 recipes (Python 3.13 or older; installs nothing on 3.14); CARTA from the notebooks |
 | `test`, `docs` | the test suite; the documentation site |
 
@@ -143,7 +143,7 @@ The project, repository, PyPI distribution and command line are **rang-core**; t
 
 ## Licence and data acknowledgements
 
-rang-core is free software under the [GNU General Public License, version 3 or later](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE).
+rang-core as distributed is free software under the [GNU General Public License, version 3](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE). ra-ng's own code is [MIT](https://github.com/gijzelaerr/rang-core/blob/main/LICENSES/MIT.txt), file by file; the parts translated from GPL or LGPL upstreams keep those licences.
 Ported code keeps its upstream notices; no raw visibilities or beam maps are redistributed.
 
 - **MeerKAT data.** The MeerKAT telescope is operated by the South African Radio

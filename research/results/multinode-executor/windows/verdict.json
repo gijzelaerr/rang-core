@@ -1,0 +1,149 @@
+{
+ "cases": {
+  "F": {
+   "O_build": {
+    "version": "0.2.0",
+    "core_sha256": "caf80328f3c7cd2e6fba93ba73ac7737e81de748f7b3eb47fb8e7b6bf4c0a30d"
+   },
+   "Kill": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 63.71,
+     "calibrate": 67.05,
+     "apply": 5.16
+    },
+    "killed": {
+     "flag": {
+      "pid": 66624,
+      "owner": "glacier-66624-4005fb",
+      "claim": "21740-b9673998-0001-00000000",
+      "unix": 1794899876.4433897
+     },
+     "calibrate": {
+      "pid": 56604,
+      "owner": "glacier-56604-54aa5a",
+      "claim": "54692-8d788cc3-0001-00000000",
+      "unix": 1794899940.2583673
+     },
+     "apply": {
+      "pid": 39856,
+      "owner": "glacier-39856-00db0f",
+      "claim": "17020-b5cbada9-0001-00000000",
+      "unix": 1794900007.0676305
+     }
+    },
+    "spool_counts": {
+     "flag": {
+      "maps": 1,
+      "partial_bytes": 2297540,
+      "plan_sha256": "01c7aff187caf58fc334dc8e4e16533c3543ed61453a7f5d2fa49ff54b0eae5f",
+      "requeued": 1,
+      "spec_bytes": 2403160,
+      "tasks": 10
+     },
+     "calibrate": {
+      "maps": 6,
+      "partial_bytes": 2058837,
+      "plan_sha256": "f581c8022771f73d0734bed86cfd47cdbbd222ee8d1c741411905f5ccc844862",
+      "requeued": 1,
+      "spec_bytes": 1139100,
+      "tasks": 82
+     },
+     "apply": {
+      "maps": 3,
+      "partial_bytes": 61947720,
+      "plan_sha256": "91f1de49b5b33b3b2110ff4771257229bead667f99c002889d0b8a1b6d9e22e4",
+      "requeued": 0,
+      "spec_bytes": 32680277,
+      "tasks": 60
+     }
+    }
+   },
+   "Sp2": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 3.69,
+     "calibrate": 3.74,
+     "apply": 2.63
+    },
+    "killed": {
+     "flag": null,
+     "calibrate": null,
+     "apply": null
+    },
+    "spool_counts": {
+     "flag": {
+      "maps": 1,
+      "partial_bytes": 2295146,
+      "plan_sha256": "311dafc39438f18a90ac3c7d607775000e85f152bed663047d4e704a63771be4",
+      "requeued": 0,
+      "spec_bytes": 244350,
+      "tasks": 1
+     },
+     "calibrate": {
+      "maps": 3,
+      "partial_bytes": 2012708,
+      "plan_sha256": "c42d2f52c82f65aa7e8830982788e85a4ea0f605639d1a3ee4df8a6758599b12",
+      "requeued": 0,
+      "spec_bytes": 76147,
+      "tasks": 3
+     },
+     "apply": {
+      "maps": 3,
+      "partial_bytes": 61932330,
+      "plan_sha256": "d9319bf50ccac2fe9dd479ef29a12a57fa5e200bcf80f31042f6ffacaba65fbf",
+      "requeued": 0,
+      "spec_bytes": 2758813,
+      "tasks": 3
+     }
+    }
+   },
+   "Sp4T": {
+    "pass": true,
+    "differences": [],
+    "files_compared": 123,
+    "walls_s": {
+     "flag": 3.26,
+     "calibrate": 4.88,
+     "apply": 4.81
+    },
+    "killed": {
+     "flag": null,
+     "calibrate": null,
+     "apply": null
+    },
+    "spool_counts": {
+     "flag": {
+      "maps": 1,
+      "partial_bytes": 2297540,
+      "plan_sha256": "01c7aff187caf58fc334dc8e4e16533c3543ed61453a7f5d2fa49ff54b0eae5f",
+      "requeued": 0,
+      "spec_bytes": 2403160,
+      "tasks": 10
+     },
+     "calibrate": {
+      "maps": 6,
+      "partial_bytes": 2058837,
+      "plan_sha256": "f581c8022771f73d0734bed86cfd47cdbbd222ee8d1c741411905f5ccc844862",
+      "requeued": 0,
+      "spec_bytes": 1139100,
+      "tasks": 82
+     },
+     "apply": {
+      "maps": 3,
+      "partial_bytes": 61947720,
+      "plan_sha256": "91f1de49b5b33b3b2110ff4771257229bead667f99c002889d0b8a1b6d9e22e4",
+      "requeued": 0,
+      "spec_bytes": 32680277,
+      "tasks": 60
+     }
+    }
+   }
+  }
+ },
+ "pass": true
+}

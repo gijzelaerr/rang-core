@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The flux-scale term F (task C2d, research/c2d-fluxscale.md): CASA's
 `fluxscale` rules on synthetic G tables, against the rules written out in
 NumPy, and the point model and append helpers."""

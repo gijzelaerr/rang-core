@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """G6 case preparation (python-casacore, rang-ms-reader:local).
 
 python prep.py MS --flags FIELD          # the probe's flag edit on FIELD's rows

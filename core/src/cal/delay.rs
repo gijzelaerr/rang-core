@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later AND MIT
+// SPDX-License-Identifier: MIT
 //! The delay term K: QuartiCal 0.2.7's `delay` term with its FFT initial
 //! estimate (task C2b, `research/c2b-delay.md`; C1 step 4,
 //! `research/c1-calibration-chain.md`).
@@ -32,7 +32,7 @@
 //! > OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 //! > USE OR OTHER DEALINGS IN THE SOFTWARE.
 //!
-//! The translation and its integration are part of Rang (GPL-3.0-or-later).
+//! The translation and its integration are part of Rang (MIT).
 //!
 //! Scope: one direction-independent term, four correlations (`XX, XY, YX,
 //! YY`), one chunk, parallel hands only, no robust reweighting and no MAD

@@ -1,0 +1,420 @@
+{
+ "k1_times_rel_s": [
+  0.0,
+  63.843000411987305,
+  124.29199981689453,
+  182.61499977111816,
+  235.11100006103516,
+  304.3459997177124,
+  360.32299995422363,
+  4054.760000228882,
+  4118.732999801636,
+  4190.720000267029,
+  4243.796999931335,
+  4298.690000534058,
+  4360.529999732971,
+  4413.553000450134
+ ],
+ "per_antenna": {
+  "50": {
+   "0": {
+    "rows": 112,
+    "cells_X": 5469,
+    "cells_Y": 5469,
+    "channels_X": 2171,
+    "baselines_X": 16
+   },
+   "1": {
+    "rows": 112,
+    "cells_X": 8515,
+    "cells_Y": 8515,
+    "channels_X": 2281,
+    "baselines_X": 16
+   },
+   "2": {
+    "rows": 98,
+    "cells_X": 9455,
+    "cells_Y": 9455,
+    "channels_X": 2381,
+    "baselines_X": 14
+   },
+   "3": {
+    "rows": 98,
+    "cells_X": 4693,
+    "cells_Y": 4693,
+    "channels_X": 2077,
+    "baselines_X": 17
+   },
+   "4": {
+    "rows": 112,
+    "cells_X": 2630,
+    "cells_Y": 2630,
+    "channels_X": 1373,
+    "baselines_X": 12
+   },
+   "5": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "6": {
+    "rows": 84,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "7": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "8": {
+    "rows": 126,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "9": {
+    "rows": 98,
+    "cells_X": 451,
+    "cells_Y": 451,
+    "channels_X": 383,
+    "baselines_X": 4
+   },
+   "10": {
+    "rows": 98,
+    "cells_X": 2261,
+    "cells_Y": 2261,
+    "channels_X": 1438,
+    "baselines_X": 14
+   },
+   "11": {
+    "rows": 98,
+    "cells_X": 10252,
+    "cells_Y": 10252,
+    "channels_X": 2500,
+    "baselines_X": 35
+   },
+   "12": {
+    "rows": 112,
+    "cells_X": 9552,
+    "cells_Y": 9552,
+    "channels_X": 2477,
+    "baselines_X": 40
+   },
+   "13": {
+    "rows": 84,
+    "cells_X": 9372,
+    "cells_Y": 9372,
+    "channels_X": 2487,
+    "baselines_X": 30
+   }
+  },
+  "40": {
+   "0": {
+    "rows": 112,
+    "cells_X": 9177,
+    "cells_Y": 9177,
+    "channels_X": 1908,
+    "baselines_X": 32
+   },
+   "1": {
+    "rows": 112,
+    "cells_X": 5821,
+    "cells_Y": 5821,
+    "channels_X": 1743,
+    "baselines_X": 32
+   },
+   "2": {
+    "rows": 98,
+    "cells_X": 3024,
+    "cells_Y": 3024,
+    "channels_X": 1469,
+    "baselines_X": 28
+   },
+   "3": {
+    "rows": 98,
+    "cells_X": 5446,
+    "cells_Y": 5446,
+    "channels_X": 1938,
+    "baselines_X": 29
+   },
+   "4": {
+    "rows": 112,
+    "cells_X": 9087,
+    "cells_Y": 9087,
+    "channels_X": 1832,
+    "baselines_X": 32
+   },
+   "5": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "6": {
+    "rows": 84,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "7": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "8": {
+    "rows": 126,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "9": {
+    "rows": 98,
+    "cells_X": 175,
+    "cells_Y": 175,
+    "channels_X": 156,
+    "baselines_X": 4
+   },
+   "10": {
+    "rows": 98,
+    "cells_X": 3883,
+    "cells_Y": 3883,
+    "channels_X": 1885,
+    "baselines_X": 24
+   },
+   "11": {
+    "rows": 98,
+    "cells_X": 22598,
+    "cells_Y": 22598,
+    "channels_X": 2716,
+    "baselines_X": 70
+   },
+   "12": {
+    "rows": 112,
+    "cells_X": 26498,
+    "cells_Y": 26498,
+    "channels_X": 2746,
+    "baselines_X": 80
+   },
+   "13": {
+    "rows": 84,
+    "cells_X": 23340,
+    "cells_Y": 23340,
+    "channels_X": 2702,
+    "baselines_X": 60
+   }
+  },
+  "5": {
+   "0": {
+    "rows": 112,
+    "cells_X": 20130,
+    "cells_Y": 20130,
+    "channels_X": 2687,
+    "baselines_X": 40
+   },
+   "1": {
+    "rows": 112,
+    "cells_X": 20720,
+    "cells_Y": 20720,
+    "channels_X": 2707,
+    "baselines_X": 40
+   },
+   "2": {
+    "rows": 98,
+    "cells_X": 16501,
+    "cells_Y": 16501,
+    "channels_X": 2677,
+    "baselines_X": 35
+   },
+   "3": {
+    "rows": 98,
+    "cells_X": 4895,
+    "cells_Y": 4895,
+    "channels_X": 2250,
+    "baselines_X": 30
+   },
+   "4": {
+    "rows": 112,
+    "cells_X": 1883,
+    "cells_Y": 1883,
+    "channels_X": 1142,
+    "baselines_X": 15
+   },
+   "5": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "6": {
+    "rows": 84,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "7": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "8": {
+    "rows": 126,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "9": {
+    "rows": 98,
+    "cells_X": 757,
+    "cells_Y": 757,
+    "channels_X": 600,
+    "baselines_X": 6
+   },
+   "10": {
+    "rows": 98,
+    "cells_X": 4117,
+    "cells_Y": 4117,
+    "channels_X": 1706,
+    "baselines_X": 30
+   },
+   "11": {
+    "rows": 98,
+    "cells_X": 9159,
+    "cells_Y": 9159,
+    "channels_X": 2432,
+    "baselines_X": 35
+   },
+   "12": {
+    "rows": 112,
+    "cells_X": 10624,
+    "cells_Y": 10624,
+    "channels_X": 2537,
+    "baselines_X": 40
+   },
+   "13": {
+    "rows": 84,
+    "cells_X": 9296,
+    "cells_Y": 9296,
+    "channels_X": 2490,
+    "baselines_X": 30
+   }
+  },
+  "20": {
+   "0": {
+    "rows": 112,
+    "cells_X": 11105,
+    "cells_Y": 11105,
+    "channels_X": 2401,
+    "baselines_X": 40
+   },
+   "1": {
+    "rows": 112,
+    "cells_X": 12931,
+    "cells_Y": 12931,
+    "channels_X": 2399,
+    "baselines_X": 40
+   },
+   "2": {
+    "rows": 98,
+    "cells_X": 11730,
+    "cells_Y": 11730,
+    "channels_X": 2391,
+    "baselines_X": 35
+   },
+   "3": {
+    "rows": 98,
+    "cells_X": 4775,
+    "cells_Y": 4775,
+    "channels_X": 2043,
+    "baselines_X": 27
+   },
+   "4": {
+    "rows": 112,
+    "cells_X": 6342,
+    "cells_Y": 6342,
+    "channels_X": 1971,
+    "baselines_X": 21
+   },
+   "5": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "6": {
+    "rows": 84,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "7": {
+    "rows": 112,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "8": {
+    "rows": 126,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "9": {
+    "rows": 98,
+    "cells_X": 0,
+    "cells_Y": 0,
+    "channels_X": 0,
+    "baselines_X": 0
+   },
+   "10": {
+    "rows": 98,
+    "cells_X": 4705,
+    "cells_Y": 4705,
+    "channels_X": 1920,
+    "baselines_X": 22
+   },
+   "11": {
+    "rows": 98,
+    "cells_X": 10822,
+    "cells_Y": 10822,
+    "channels_X": 2491,
+    "baselines_X": 41
+   },
+   "12": {
+    "rows": 112,
+    "cells_X": 14010,
+    "cells_Y": 14010,
+    "channels_X": 2635,
+    "baselines_X": 48
+   },
+   "13": {
+    "rows": 84,
+    "cells_X": 12263,
+    "cells_Y": 12263,
+    "channels_X": 2667,
+    "baselines_X": 36
+   }
+  }
+ }
+}

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Write V8b's synthetic MSs with rang's table writer (research/v8b-flagdata.md,
 sections 4.1 and 4.2).
 

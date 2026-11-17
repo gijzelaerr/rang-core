@@ -1,0 +1,3 @@
+START 2026-11-17T13:42:01+02:00 load 2.01 7.36 10.66
+{"tag": "s0f", "case": "s1", "seed": "none", "templates": ["K0", "G0", "B0"], "mode": "static", "seconds": 32.83032410196029}
+END 2026-11-17T13:42:35+02:00 rc=0

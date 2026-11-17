@@ -1,0 +1,20 @@
+heavy_lock: waiting for head 01794881537944173815-linux-9153.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794882700877833952-linux-22490.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794882959918069665-linux-25400.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794883177273112033-linux-28177.json, which fits
+heavy_lock: waiting for head 01794883373313264918-linux-30208.json (no room to backfill)
+heavy_lock: waiting for head 01794883373313264918-linux-30208.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T03:47:26Z load 3.42 4.44 6.10 M300 start
+05:48:20 stage prepare M300 wall_s 52.9
+prepare 53.88 s 196136 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 3078.2 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/M300/run/receipts/selfcal-20261117T034820Z.rang-receipt.json
+selfcal 3083.32 s 9747440 KB
+06:39:48 stage clean M300 wall_s 5.0
+06:40:37 cell M300 P1A@300 B 315.71 0.9128
+06:41:24 cell M300 P1A@300 A 328.66 0.9105
+06:41:24 stage score M300 wall_s 95.0
+score 95.34 s 4953316 KB
+== 2026-11-17T04:41:24Z load 20.39 15.26 12.09 M300 end

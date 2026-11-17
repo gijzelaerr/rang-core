@@ -1,0 +1,12 @@
+{
+ "stage": "apply",
+ "workers": [
+  27336,
+  52748
+ ],
+ "driver_wall_s": 2.06,
+ "worker_exits": [
+  0,
+  0
+ ]
+}

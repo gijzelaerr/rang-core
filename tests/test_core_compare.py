@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 from rang.core_compare import compare, key_and_parent
 
 

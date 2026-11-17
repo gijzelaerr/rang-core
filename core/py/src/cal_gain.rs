@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cal_gain_*`: the gain term G of `rang_core::cal::diag` and
 //! CASA's rules around it in `rang_core::cal::reference` (task C2a,
 //! `research/c2a-gain.md`), for `rang.cal_gain`.

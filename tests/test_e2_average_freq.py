@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2 (the pre-registered "E2-B amended" arm, research/e2-acceptance.md 6.7):
 `calibrate.average_freq`, CASA's frequency pre-averaging of G-type solves
 (G, F, Gpol). Off, every solve and the stage hash are as before; on, a G

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-5 (research/w4-5-release.md): the release metadata of v0.1.0.
 
 One source of truth for the version (pyproject.toml), `rang.__version__`
@@ -170,9 +171,11 @@ def test_pyproject_metadata():
     ):
         assert f'"{classifier}"' in project
     # A PEP 639 licence expression: a License classifier would be rejected.
-    assert 'license = "GPL-3.0-or-later"' in project
+    assert 'license = "GPL-3.0-only"' in project
     # E5: the MIT and BSD notices of the translated code ship in every wheel.
-    assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
+    # The MIT text of ra-ng's own files (docs/licence.md) ships beside the GPL.
+    files = '["LICENSE", "LICENSES/MIT.txt", "THIRD-PARTY-NOTICES.txt"]'
+    assert f"license-files = {files}" in project
     notices = _text("THIRD-PARTY-NOTICES.txt")
     for path, holder in (
         ("core/src/solve.rs", "Copyright (c) 2022 Jonathan Simon Kenyon"),
@@ -195,6 +198,49 @@ def test_pyproject_metadata():
         ("core/src/weights.rs", "Copyright (C) 2024 ASTRON"),
     ):
         assert holder in notices and holder in _text(path), (path, holder)
+    # v0.3.0 B-01 and B-02 (research/v030-review.md): casacore's measures in
+    # the CASA-frame parallactic angle; radler, WSClean 3.7, aocommon and
+    # schaapcommon in GeMClean, read verbatim from their sources.
+    for holder in (
+        "Copyright (C) 1995-1998,2000-2002,2004,2007",  # MCDirection.cc
+        "Copyright (C) 1998-2000,2002-2004,2007",  # MeasMath.cc
+        "Copyright (C) 1995-1999,2000-2004,2016",  # MeasTable.cc
+        "Copyright (C) 1996,1997,1999,2000",  # MSDerivedValues.cc
+        "// SPDX-License-Identifier: LGPL-3.0-only",  # radler 76fe4474
+        "Radler is released\nunder the LGPL version 3.",
+        "Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)",
+    ):
+        assert holder in notices, holder
+    assert "MeasTable.cc" in _text("python/rang/cal_pol.py")
+    for path in ("mask.rs", "joined.rs", "multiscale.rs", "stokes.rs"):
+        assert "core/src/gemclean/" in notices and path in notices, path
+        assert "radler 76fe4474" in _text(f"core/src/gemclean/{path}"), path
+    # The MIT audit's notice gaps (research/mit-relicense-audit.md 3.2): each
+    # holder in the notices and in the file that follows it.
+    for path, holder in (
+        ("core/src/blosc.rs", "Copyright (c) 2009-2018 Francesc Alted"),
+        ("python/rang/meerkat.py", "Copyright (c) 2011-2024, National"),
+        ("core/src/gpu/shader.rs", "Copyright (C) 1993 by Sun Microsystems, Inc."),
+        ("python/rang/formats/sky.py", "The MeqTree Foundation"),
+        ("python/rang/cal_refant.py", "Copyright (c) 2016 SKA South Africa"),
+        ("core/src/gemclean/input.rs", "Copyright (C) 2024 ASTRON"),
+    ):
+        assert holder in notices and holder in _text(path), (path, holder)
+    for path, upstream in (
+        ("core/src/ism.rs", "ISMBucket.cc"),
+        ("core/src/ms_write.rs", "SSMStringHandler.cc"),
+        ("core/src/multifile.rs", "MultiFileBase.cc"),
+        ("core/src/tiled.rs", "TiledStMan.cc"),
+        ("python/rang/calmodels.py", "Imager.cc"),
+        ("python/rang/flag_extend.py", "FlagMSHandler.cc"),
+        ("core/src/cal/apply.rs", "CTTimeInterp1.cc"),
+    ):
+        assert upstream in notices and upstream in _text(path), (path, upstream)
+    for path in ("core/src/ism.rs", "core/src/ms_write.rs", "core/src/tiled.rs"):
+        assert "nothing is copied" not in _text(path), path
+    for path in ("bandpass.rs", "fluxscale.rs", "reference.rs"):
+        assert "CASA is not copied" not in _text(f"core/src/cal/{path}"), path
+    assert "published under the GPL 3\nlicense." in notices
     # E5 final F-01: the polarisation chain needs astropy in a bare install.
     assert 'dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]' in project
     assert "License ::" not in project

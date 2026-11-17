@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """G8 (research/g8-wheel.md): the console script against the source build.
 
 Checkout only (not in the wheel's subset): needs core/target/release/gemclean,

@@ -1,0 +1,135 @@
+{
+ "case": "F",
+ "arm": "O",
+ "code": "/home/gijs/Worktrees/rang/mn-oracle-9b4542c/python",
+ "data": [],
+ "workers": 0,
+ "threads": null,
+ "rayon": 4,
+ "kill": false,
+ "source": "/home/gijs/Build/tmp/20261117-multinode/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.2.0",
+  "core_sha256": "e0c92694834e2eba7f3d074a5dd024e02655d5c104b72f90dcdafd5e2cabcd4c"
+ },
+ "host": "nash",
+ "stages": {
+  "flag": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-O",
+    "flag"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 9.13,
+   "load1_before": 11.54,
+   "users_cpu_before": {
+    "gijs": 749.5,
+    "netdata": 9.0,
+    "root": 1.4
+   },
+   "started": "2026-11-17T09:47:52+0200",
+   "started_unix": 1794901672.68488,
+   "exit": 0,
+   "wall_s": 5.46,
+   "own_cpu_s": 8.8,
+   "max_rss_kb": 99148,
+   "host_busy_cpu_s": 57.3,
+   "foreign_cores": 8.88,
+   "host_busy_cores_10s": [],
+   "load1_after": 11.08,
+   "users_cpu_after": {
+    "gijs": 825.0,
+    "netdata": 9.6,
+    "root": 5.4
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "flag",
+    "workers": [],
+    "driver_wall_s": 5.25
+   }
+  },
+  "calibrate": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-O",
+    "calibrate"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 13.19,
+   "load1_before": 12.06,
+   "users_cpu_before": {
+    "gijs": 2453.6,
+    "netdata": 9.8,
+    "root": 2.4
+   },
+   "started": "2026-11-17T09:48:39+0200",
+   "started_unix": 1794901719.290697,
+   "exit": 0,
+   "wall_s": 2.14,
+   "own_cpu_s": 6.2,
+   "max_rss_kb": 120844,
+   "host_busy_cpu_s": 53.2,
+   "foreign_cores": 22.0,
+   "host_busy_cores_10s": [],
+   "load1_after": 13.02,
+   "users_cpu_after": {
+    "gijs": 1215.3,
+    "netdata": 9.0,
+    "root": 14.5
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "calibrate",
+    "workers": [],
+    "driver_wall_s": 1.89
+   }
+  },
+  "apply": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-O",
+    "apply"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 25.02,
+   "load1_before": 17.11,
+   "users_cpu_before": {
+    "gijs": 2680.1,
+    "netdata": 9.2,
+    "root": 2.4
+   },
+   "started": "2026-11-17T09:49:22+0200",
+   "started_unix": 1794901762.435806,
+   "exit": 0,
+   "wall_s": 1.68,
+   "own_cpu_s": 3.3,
+   "max_rss_kb": 134408,
+   "host_busy_cpu_s": 47.5,
+   "foreign_cores": 26.3,
+   "host_busy_cores_10s": [],
+   "load1_after": 17.82,
+   "users_cpu_after": {
+    "gijs": 2588.4,
+    "netdata": 8.8,
+    "root": 3.6
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "apply",
+    "workers": [],
+    "driver_wall_s": 1.43
+   }
+  }
+ }
+}

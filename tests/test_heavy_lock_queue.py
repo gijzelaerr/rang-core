@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """tools/heavy_lock.py: waiters take the lock first come, first served."""
 
 from __future__ import annotations

@@ -16,8 +16,11 @@
 //! rows). casacore's `BucketCache` is modelled with its slots and its one
 //! scratch buffer, because a bucket written to disk holds the scratch
 //! buffer's earlier bytes after its own index. Little- and big-endian. The
-//! format was read in the casacore sources; nothing is copied from casacore
-//! (LGPL-2.1-or-later).
+//! code is a translation of casacore 3.8.1's (`ISMBase.cc`, `ISMBucket.cc`,
+//! `ISMColumn.cc`, `ISMIndColumn.cc`, `ISMIndex.cc`, `BucketCache.cc`; `split`
+//! and `get_split` keep `ISMBucket::getSplit`'s loop), Copyright (C) Associated
+//! Universities, Inc., GNU Library General Public License version 2 or later:
+//! notices in THIRD-PARTY-NOTICES.txt.
 
 use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};

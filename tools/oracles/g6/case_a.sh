@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # G6 case A (research/g6-predict.md): A1's small MS, field 3, the probe's flags,
 # MODEL_DATA and MODEL_WSCLEAN pre-filled with 7+7j; the probe's WSClean model.
 #   bash case_a.sh OUTDIR GEMCLEAN

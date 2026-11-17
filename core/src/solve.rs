@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later AND MIT
+// SPDX-License-Identifier: MIT
 //! Full-Jones `complex` gain solver, ported from QuartiCal 0.2.7.
 //!
 //! Portions are a Rust translation of `quartical/gains/complex/kernel.py`,
@@ -29,7 +29,7 @@
 //! > OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 //! > USE OR OTHER DEALINGS IN THE SOFTWARE.
 //!
-//! The translation and its integration are part of Rang (GPL-3.0-or-later).
+//! The translation and its integration are part of Rang (MIT).
 //! Scope and validation: `research/core-phase2.md`. One direction-independent
 //! term, four correlations, one chunk, no robust reweighting, no MAD flags.
 //! QuartiCal compiles with `fastmath`, so agreement is to rounding, not bits.

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # W2 end-to-end run into a fresh directory (research/w2-commands.md, criteria 1-4).
 # Usage: bash tools/oracles/w2/run.sh /mnt/d/rang/outputs/fp-w2-20261106/run-NN [MS] [STRATEGY]
 # Needs the worktree .venv (with casacure) and core/target/release/gemclean.

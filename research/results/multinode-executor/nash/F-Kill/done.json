@@ -1,0 +1,196 @@
+{
+ "case": "F",
+ "arm": "Kill",
+ "code": "/home/gijs/Worktrees/rang/multinode-executor/python",
+ "data": [
+  "processes: 2",
+  "chunk_rows: 7"
+ ],
+ "workers": 2,
+ "threads": 1,
+ "rayon": 1,
+ "kill": true,
+ "source": "/home/gijs/Build/tmp/20261117-multinode/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.2.0",
+  "core_sha256": "e0c92694834e2eba7f3d074a5dd024e02655d5c104b72f90dcdafd5e2cabcd4c"
+ },
+ "host": "nash",
+ "stages": {
+  "flag": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-Kill",
+    "flag"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 15.83,
+   "load1_before": 13.21,
+   "users_cpu_before": {
+    "gijs": 1559.6,
+    "netdata": 8.8
+   },
+   "started": "2026-11-17T09:54:42+0200",
+   "started_unix": 1794902082.134212,
+   "exit": 0,
+   "wall_s": 64.33,
+   "own_cpu_s": 10.1,
+   "max_rss_kb": 61256,
+   "host_busy_cpu_s": 1262.7,
+   "foreign_cores": 19.47,
+   "host_busy_cores_10s": [
+    17.24,
+    16.13,
+    20.08,
+    19.22,
+    22.02,
+    21.94
+   ],
+   "load1_after": 17.73,
+   "users_cpu_after": {
+    "gijs": 2175.3,
+    "netdata": 8.4,
+    "root": 3.4
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "flag",
+    "workers": [
+     278036,
+     278037
+    ],
+    "killed": {
+     "pid": 278036,
+     "owner": "nash-278036-c7e412",
+     "claim": "278039-1be32dc6-0001-00000000",
+     "unix": 1794902083.1153026
+    },
+    "driver_wall_s": 63.75,
+    "worker_exits": [
+     -9,
+     0
+    ]
+   }
+  },
+  "calibrate": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-Kill",
+    "calibrate"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 16.98,
+   "load1_before": 16.55,
+   "users_cpu_before": {
+    "gijs": 1863.5,
+    "netdata": 9.0,
+    "root": 1.8
+   },
+   "started": "2026-11-17T09:56:27+0200",
+   "started_unix": 1794902187.360335,
+   "exit": 0,
+   "wall_s": 69.69,
+   "own_cpu_s": 15.4,
+   "max_rss_kb": 89592,
+   "host_busy_cpu_s": 1018.0,
+   "foreign_cores": 14.39,
+   "host_busy_cores_10s": [
+    15.71,
+    16.02,
+    18.07,
+    12.75,
+    9.18,
+    14.44
+   ],
+   "load1_after": 12.35,
+   "users_cpu_after": {
+    "gijs": 1493.0,
+    "netdata": 8.6,
+    "root": 3.0
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "calibrate",
+    "workers": [
+     279747,
+     279748
+    ],
+    "killed": {
+     "pid": 279747,
+     "owner": "nash-279747-d732d6",
+     "claim": "279750-52c9b49d-0001-00000000",
+     "unix": 1794902188.3142896
+    },
+    "driver_wall_s": 69.13,
+    "worker_exits": [
+     -9,
+     0
+    ]
+   }
+  },
+  "apply": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-executor/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-executor/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261117-multinode/run/F-Kill",
+    "apply"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 11.69,
+   "load1_before": 13.31,
+   "users_cpu_before": {
+    "gijs": 1012.4,
+    "netdata": 15.5,
+    "root": 1.4
+   },
+   "started": "2026-11-17T09:58:17+0200",
+   "started_unix": 1794902297.999904,
+   "exit": 0,
+   "wall_s": 67.46,
+   "own_cpu_s": 11.6,
+   "max_rss_kb": 92092,
+   "host_busy_cpu_s": 756.9,
+   "foreign_cores": 11.05,
+   "host_busy_cores_10s": [
+    10.69,
+    8.12,
+    16.65,
+    17.04,
+    7.06,
+    7.26
+   ],
+   "load1_after": 12.05,
+   "users_cpu_after": {
+    "gijs": 1290.3,
+    "netdata": 9.0
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "apply",
+    "workers": [
+     281533,
+     281534
+    ],
+    "killed": {
+     "pid": 281534,
+     "owner": "nash-281534-59f59f",
+     "claim": "281536-4d3a22e6-0001-00000001",
+     "unix": 1794902298.8369644
+    },
+    "driver_wall_s": 66.92,
+    "worker_exits": [
+     0,
+     -9
+    ]
+   }
+  }
+ }
+}

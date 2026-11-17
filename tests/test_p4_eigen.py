@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P4 (research/p4-eigen.md): the QL survey eigensolver keeps decisions."""
 
 import importlib.util

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests of the Tigger ASCII lsm reader (research/l1-model-completeness.md)."""
 
 import math

@@ -1,0 +1,16 @@
+D:/rang/outputs/20261103-gemclean-heldout/real/cal2.ms: 823500 of 823500 rows selected (field 0, DATA), 256 channels 989.8545-1096.4365 MHz, 152158164 visibilities weighted, weight sum 2868959954.251530 (9.59 s read, 3.31 s weights)
+beam: peak 1.000000357628, patch ±64, f 2.4846e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.861" × 9.621" PA -51.36° (841 pixels fitted); PSF 29.10 s, FFT 0.46 s
+multiscale: theoretic beam 7.3267" (2.4422 pixels), 9 scales, 1858 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.100000, kernel peak 7.923160e-2, 85521 components, 4.064862 Jy
+multiscale: scale 10 px, bias factor 1.6667, psf peak 0.389772, gain 0.256560, kernel peak 3.259393e-2, 23181 components, 3.290999 Jy
+multiscale: scale 20 px, bias factor 2.7778, psf peak 0.186572, gain 0.535985, kernel peak 9.551483e-3, 40230 components, 23.262359 Jy
+multiscale: scale 39 px, bias factor 4.6296, psf peak 0.068237, gain 1.465477, kernel peak 2.602329e-3, 61031 components, 32.770055 Jy
+multiscale: scale 78 px, bias factor 7.7160, psf peak 0.019633, gain 5.093350, kernel peak 6.803987e-4, 85897 components, 42.422761 Jy
+multiscale: scale 156 px, bias factor 12.8601, psf peak 0.004238, gain 23.594276, kernel peak 1.781231e-4, 86236 components, 18.157051 Jy
+multiscale: scale 313 px, bias factor 21.4335, psf peak 0.000707, gain 141.509516, kernel peak 4.559203e-5, 40985 components, -17.128809 Jy
+multiscale: scale 625 px, bias factor 35.7225, psf peak 0.000066, gain 1512.140779, kernel peak 1.153563e-5, 3497 components, 13.678194 Jy
+multiscale: scale 1250 px, bias factor 59.5374, psf peak 0.000003, gain 34808.200907, kernel peak 2.894431e-6, 0 components, 0.000000 Jy
+fits mask: 130180 pixels
+426578 components, 3 major cycles, 0 resyncs, stop Threshold; Q/Q0 2.0052e-2; tau min NaN median NaN; minor 2722.35 s (corrections 0.000 s), resync 448.15 s, major 32.10 s
+D:/rang/outputs/20261103-gemclean-heldout/real/cal2.ms: 823500 of 823500 rows predicted into MODEL_DATA (256 channels from 1 model image(s), 2 blocks, 19.12 s)
+wall 3291.53 s

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """G8 (research/g8-wheel.md): gemclean from the wheel, the console script
 `gemclean` and `python -m rang.gemclean` over `rang._core.gemclean_main`.
 

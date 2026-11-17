@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Independent SVD checks of the Rust QR projection and its FFI boundary."""
 
 import numpy as np

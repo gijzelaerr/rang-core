@@ -1,0 +1,6 @@
+/home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms: 823500 of 823500 rows selected (field 0, CORRECTED_DATA), 256 channels 989.8545-1096.4365 MHz, 152158164 visibilities weighted, weight sum 2868959954.251530 (44.88 s read, 8.42 s weights)
+beam: peak 0.999999999487, patch ±64, f 2.4846e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.861" × 9.621" PA -51.36° (841 pixels fitted); PSF 86.67 s, FFT 1.12 s
+fits mask: 130180 pixels
+48849 components, 4 major cycles, 134 resyncs, stop Threshold; Q/Q0 4.6940e-3; tau min 0.500 median 0.674; minor 5.92 s (corrections 0.138 s), resync 20.33 s, major 177.22 s
+wall 387.55 s
+Dm1 387.83 s 11900864 KB

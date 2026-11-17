@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Measurements for the proximal solver on the visibility-free normal operator
 //! (`research/gram-solver.md`). Reads the prepared arrays of
 //! `examples/gemclean_bench_compare.py prepare`, so its misfit is the scorer's.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! ```text
 //! gram_solver_bench PREP OUT NAME MODE [key=value ...]

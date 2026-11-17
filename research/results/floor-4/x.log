@@ -1,0 +1,151 @@
+heavy_lock: waiting for linux pid 4069371 since 2026-11-17T00:08:13+00:00: /home/gijs/Worktrees/rang/cta-run-abdfb5a/.venv/bin/python /home/gijs/Worktrees/rang/nash-timings/tools/oracles/chunk_tasks/timing.py point /home/gijs/rang-data/outputs/cta-nash-20261116 N1 0
+== 2026-11-17T00:24:56Z load 1.02 2.16 3.30 x start
+02:27:07 x {"check": {"vis_equal": true, "wnat_equal": true}, "X0": {"rms_deg": 17.718168898217485, "circular_mean_deg": -14.974030673185407, "scatter_deg": 9.47657043707404, "scatter_after_gauge_deg": 9.441792430242936, "bin_scatter_deg": 0.5443673013017429, "noise_of_steady_deg": 0.1571453039722957, "n_active": 60, "n_bins": 12}, "X1": {"pearson_r": 0.9991011881882439, "halves": [6, 6]}, "X2": {"F_B_uJy": 1073.415606729187, "F_per_hand_uJy": 474.83100062889406, "F_scalar_uJy": 459.02728379949747, "D_per_hand": 0.8056811467899708, "D_scalar": 0.8185114740962517, "dD": -0.012830327306280864, "newly_flagged": [0.0, 0.0], "HB1_F_Fix_floor3_score_uJy": 474.83100062889406, "HB1_rel": 0.0, "HB1_pass": true}, "X3": {"F_none_uJy": 1073.4151912744712, "F_T1p_uJy": 446.03544281998876, "F_T1pH_uJy": 462.3798528526109, "D_T1p": 0.8287336006664645, "D_T1pH": 0.8158258209812138, "dD": -0.012907779685250698, "T1pH_xx_minus_yy_scatter_deg": 9.633312850085348, "T1pH_vs_Sp_delta_pearson_r": 0.9996066945624167}, "store": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/gains.qc", "model": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/image-model.fits"}
+02:27:07 stage x wall_s 130.5
+x 130.81 s 5418068 KB
+{
+ "R0": {
+  "nrow": true,
+  "active": true,
+  "noise_c_rel": 0.0,
+  "gw_sum_rel": 0.0,
+  "pass": true
+ },
+ "GS": {
+  "checks": {
+   "C": true,
+   "pilot_none": true,
+   "pilot_T1": true,
+   "pilot_T1p": true,
+   "pilot_T1L": true,
+   "H1bP_T1p": true,
+   "H2_F": true,
+   "H2_T1": true,
+   "H8a_F": true,
+   "H8a_T1": true,
+   "H4b_F": true,
+   "H4b_T1": true
+  },
+  "pass": true
+ },
+ "G1": {
+  "G0": {
+   "F": 0.001073415606729187,
+   "ratio": 0.9999959072210196,
+   "pass": true,
+   "active": 19133875
+  },
+  "F_uJy": {
+   "B": 1073.415606729187,
+   "Fix": 474.83100062889406,
+   "Fin": 379.2621316115116
+  },
+  "D_Fix": 0.8056811467899708,
+  "D_Fin": 0.8766420601018465,
+  "F_rel": {
+   "B": 0.0,
+   "Fix": 0.0,
+   "Fin": -5.917488721252084e-14
+  },
+  "D_diff": {
+   "D_Fix": 0.0,
+   "D_Fin": 1.4765966227514582e-14
+  },
+  "pass": true
+ },
+ "S": {
+  "T1p": {
+   "own_H1bP": 1.0000004946888161,
+   "others": {
+    "H2@25.144": 0.09179080144195707,
+    "H8a@6.38": -3.503053249514123e-07,
+    "H4b@50": 0.00400227817544118,
+    "K1 (floor-2 prior)": 0.10382788236352658,
+    "K3 (floor-2 prior)": 0.0427506845469759,
+    "K10 (floor-2 prior)": 0.007847830401145374,
+    "XS2 (floor-2 prior)": -0.00039396494740039523,
+    "XS4 (floor-2 prior)": -0.0001510792289880046,
+    "XG4 (floor-2 prior)": 0.015420780786325774
+   },
+   "worst": [
+    "K1 (floor-2 prior)",
+    0.10382788236352658
+   ],
+   "specific": true
+  },
+  "T1pL": {
+   "own_H1bP": 0.9999993815040296,
+   "others": {
+    "H2@25.144": 0.0037795716512194653,
+    "H8a@6.38": -3.97265626484319e-06,
+    "H4b@50": -0.0030615098443586195
+   },
+   "worst": [
+    "H2@25.144",
+    0.0037795716512194653
+   ],
+   "specific": true
+  },
+  "T1L": {
+   "own_H1bP": 0.9999983219181241,
+   "others": {
+    "H2@25.144": 0.0011571294979188934,
+    "H8a@6.38": 0.01661668032913136,
+    "H4b@50": 0.006090444520430229,
+    "K1 (floor-2 prior)": -0.01946406825891553,
+    "K3 (floor-2 prior)": -0.03870778785134425,
+    "K10 (floor-2 prior)": 0.12156115701644744,
+    "XS2 (floor-2 prior)": 0.14913377466682806,
+    "XS4 (floor-2 prior)": -0.0003812354491215073,
+    "XG4 (floor-2 prior)": -0.0002099467384126808
+   },
+   "worst": [
+    "XS2 (floor-2 prior)",
+    0.14913377466682806
+   ],
+   "specific": true
+  },
+  "T1": {
+   "own_H1bP": 1.0000009030462533,
+   "others": {
+    "H2@25.144": 0.1968580328126546,
+    "H8a@6.38": 0.0359418174409858,
+    "H4b@50": 0.028088788150781963,
+    "K1 (floor-2 prior)": 0.17804363361458939,
+    "K3 (floor-2 prior)": 0.31503191058372054,
+    "K10 (floor-2 prior)": 0.5314307872014351,
+    "XS2 (floor-2 prior)": 0.8372766031046338,
+    "XS4 (floor-2 prior)": 0.6337840687037997,
+    "XG4 (floor-2 prior)": 0.18233020665889882
+   },
+   "worst": [
+    "XS2 (floor-2 prior)",
+    0.8372766031046338
+   ],
+   "specific": false
+  }
+ },
+ "Q": {
+  "P_over_Ppilot": {
+   "H1bP@5": 0.5283741444730307,
+   "G3P@1": 0.8247376706708726
+  },
+  "P_plaus": 0.8247376706708726,
+  "D_T1p_pilot": 0.8283633539571493,
+  "holds": true,
+  "exceeds_by": 0.0036256832862767707
+ },
+ "reading": "row 1: H1 attributed under imaging-floor's full criterion, share D_T1p",
+ "X": {
+  "X1": "repeatable",
+  "X2X3": "invisible",
+  "dD": [
+   -0.012830327306280864,
+   -0.012907779685250698
+  ],
+  "reading": "real steady XX-YY phase, invisible to Stokes I: a polarisation term, outside #13"
+ }
+}
+02:27:07 stage summary wall_s 0.0
+== 2026-11-17T00:27:07Z load 8.19 4.25 3.91 x end
+./run_nash.sh: line 73: syntax error near unexpected token `;;'

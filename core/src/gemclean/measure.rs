@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! A measurement with reusable buffers, optionally gridding in single
 //! precision, for gemclean's major cycles.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! [`GridMeasurement<f64>`] is the arithmetic of
 //! [`crate::clean_certified::WgridMeasurement`] with the visibility buffer

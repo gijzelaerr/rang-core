@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests of the core_sensitivity extract.
 
 Live part of tests/test_imaging_sensitivity.py at commit 2da566c

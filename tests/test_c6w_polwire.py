@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C6w (research/c6w-polwire.md): Gpol, KCROSS, Xf, Df and P in
 `rang-core calibrate` and `apply`. The configuration takes the polcal
 section with CARACal's defaults and refuses what `rang.cal_pol` cannot run;

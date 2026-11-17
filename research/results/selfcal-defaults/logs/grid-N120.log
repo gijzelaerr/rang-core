@@ -1,0 +1,13 @@
+== 2026-11-17T05:23:11Z load 14.30 16.08 14.78 N120 start
+07:25:32 stage prepare N120 wall_s 141.4
+prepare 141.72 s 196268 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 2920.1 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/N120/run/receipts/selfcal-20261117T052533Z.rang-receipt.json
+selfcal 2926.52 s 9747132 KB
+08:14:24 stage clean N120 wall_s 4.9
+08:15:09 cell N120 P2A@120 B 311.11 0.9153
+08:15:55 cell N120 P2A@120 A 324.09 0.9129
+08:15:56 stage score N120 wall_s 91.5
+score 91.76 s 4953920 KB
+== 2026-11-17T06:15:56Z load 16.15 18.93 18.60 N120 end

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """MK1: the MVFv4 loader's conventions on a synthetic archive (research/mk1-katdal.md).
 
 The archive is written with katdal's own chunk store and telstate writers

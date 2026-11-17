@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E5 final review (research/e5-final.md): its fixes."""
 
 import sys

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C4b (research/c4b-apply-ms.md): `rang.applycal` on a synthetic MS written
 by the core writer: field maps, weights for `calwt` both ways, chunking, the
 channel median of WEIGHT, and the binned complex apply against a NumPy

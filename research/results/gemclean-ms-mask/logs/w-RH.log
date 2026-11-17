@@ -1,0 +1,14 @@
+Theoretic beam = 5.4''
+Estimated standard deviation of background noise: 634.71 µJy
+Next major iteration at: 13.47 mJy
+Performed 298 iterations in total, 298 in this major iteration with sub-minor optimization.
+Estimated standard deviation of background noise: 513.74 µJy
+Next major iteration at: 687 µJy
+Performed 1807 iterations in total, 1509 in this major iteration with sub-minor optimization.
+Estimated standard deviation of background noise: 505.21 µJy
+Next major iteration at: 50.87 µJy
+Performed 29133 iterations in total, 27326 in this major iteration with sub-minor optimization.
+Estimated standard deviation of background noise: 504.04 µJy
+Major iteration threshold reached global threshold of 40 µJy: final major iteration.
+Performed 39793 iterations in total, 10660 in this major iteration with sub-minor optimization.
+4 major iterations were performed.

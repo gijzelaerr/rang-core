@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The MCP server over rang-core (research/mcp-server.md; issue 27, piece 1).
 
 The tool functions (`rang.mcp_tools`) on W2's synthetic MS and on the public

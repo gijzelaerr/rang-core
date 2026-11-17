@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Copy three cases of the MSv2 edge-case set into `tests/data/msv2-edge`
 with arcae's cells as `oracle.json` (research/msv2-edge-cases.md, R1 to R3).
 

@@ -9,8 +9,9 @@
 //! 3.8.1 computes them (the default tile of a hypercube whose manager has no
 //! DEFAULTTILESHAPE, or axes of it left 0), and the id and coordinate values
 //! record of a hypercube (`TSMCube::values_p`, a `Record` object in the
-//! tiled header). The algorithms were read in the casacore sources; nothing
-//! is copied from casacore (LGPL-2.1-or-later).
+//! tiled header). A translation of casacore 3.8.1's `TiledStMan.cc` and
+//! `TSMCube.cc` (Copyright (C) Associated Universities, Inc., GNU Library
+//! General Public License version 2 or later): notices in THIRD-PARTY-NOTICES.txt.
 
 use crate::aipsio::{KeywordValue, Record, Value, Writer};
 use crate::ms::{Cursor, MsError, Result};

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import numpy as np
 import pytest
 from rang.uncertainty import propagated_standard_deviation

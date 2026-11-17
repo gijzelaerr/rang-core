@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The gain term G (task C2a, research/c2a-gain.md): kernel, CASA's rules,
 intervals, uvrange and the table route, on seeded simulated arrays."""
 

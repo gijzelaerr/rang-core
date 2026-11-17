@@ -89,6 +89,7 @@ Ubuntu casacore-data 20250826 now triggers "TAI_UTC seems out-of-date" in CASA.
 ## Replies (2026-11-12/13)
 
 - **WSClean #207** (`-join-polarizations`, linear against squared): André Offringa updated the docs (wsclean !1070, open). He also opened [radler !238](https://git.astron.nl/RD/radler/-/merge_requests/238) (open), which makes GenericClean's peak finding use linear integration everywhere when squared joining is off. Multiscale and the subminor loop already did. This confirms the linear rule that G9 copied from the binary. When the next WSClean/Radler release lands, rerun G9's oracle cases. The non-subminor Högbom path is the one that changes.
+  - *2026-11-17 (post hoc):* radler !238 merged 2026-11-16 (squash `620e0a76`), not in a release (radler v1.2.0 predates it; WSClean master pins radler `703c1bd7`). GeMClean has no `-no-fast-subminor` path, so nothing it runs changes ([v030-readiness.md](v030-readiness.md) section 4).
 - **WSClean #208** (`CalculateMsLimits` tests v with u): confirmed as a genuine bug; fix in wsclean !1068 (open). rang copied the bug on purpose, because the binary is the oracle: `core/src/grid.rs` `w_limits` and `core/src/gemclean/multiscale.rs` `theoretic_beam` both test v with u. When a WSClean release carries !1068, switch both to v and rerun G2's and G7's oracle cases against that release.
   - *2026-11-16 (post hoc):* !1068 merged 2026-11-13 (commit `ca23d835`, unreleased; v3.7 is still the
     latest tag and every oracle container is `rang-wsclean-native:3.7`, 3.6 for the core gridder). On the

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Runs inside the manylinux_2_28 container; called by tools/wheel/build.sh,
 # which sets SRC, OUT, ARCH, RUST_VERSION, MATURIN_VERSION, ZIG_VERSION,
 # RUSTUP_HOME, CARGO_HOME and CARGO_TARGET_DIR.

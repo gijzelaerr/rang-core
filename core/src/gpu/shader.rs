@@ -1,4 +1,16 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later AND SunPro
+// The sine and cosine polynomials and the pi/2 split are fdlibm's (k_sin.c,
+// k_cos.c, e_rem_pio2.c), whose notice is kept as it asks:
+// ====================================================
+// Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+//
+// Developed at SunSoft, a Sun Microsystems, Inc. business.
+// Permission to use, copy, modify, and distribute this
+// software is freely granted, provided that this notice
+// is preserved.
+// ====================================================
+// The gridding and projection follow WSClean through core/src/grid.rs:
+// notices in THIRD-PARTY-NOTICES.txt.
 //! WGSL source of the GPU gridder: gridding (gather), one Stockham FFT pass
 //! and the projection with the w-phasor and the ordered layer sum. One
 //! source, instantiated for `f64` or `f32` by the `real` alias; the f64

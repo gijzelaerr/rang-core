@@ -1,0 +1,218 @@
+{
+ "chunking": {
+  "chunk_gb": 11.252288937568665,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 184357,
+   "calibrate": 184357,
+   "chain": 122905,
+   "flag": 368715,
+   "model": 184357,
+   "rows": 491620
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "/home/gijs/Github/rang/.venv/bin/python",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/final/image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-no-update-model-required",
+     "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 26357,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "4721554e4964def7733659d19917e1d171b2f2501eda714e5659d62de9d270fa",
+     "image-image.fits": "b598afebc0046f107580870aa8091208efa23075a1d9c627bc323e667f31f7a5",
+     "image-model.fits": "330ee81a7203970f225ad4ba202831c23dd6338e1bd5cda740940655b5ee14d0",
+     "image-psf.fits": "c768a0aa2e1332c6716c94c3f2c83ccca28ea0195d610c9f9bbfd863e29d1e4d",
+     "image-report.json": "2a492647bee1ac807b1957cd07f192aefd6ceaf7d530a6ea42d319946c21d32c",
+     "image-residual.fits": "63f334e6d8cb063b4537eb0135a566d7d05e190e0a1ad1d36505ea2e54af974e"
+    },
+    "fits_mask": null,
+    "image": 2,
+    "wall_seconds": 316.49201309203636
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 234631344,
+      "cells_flagged_before": 234631344,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 139.60183015593793
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Github/rang/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 58314,
+       "major_cycles": 5,
+       "stop": "Threshold"
+      },
+      "column": "DATA",
+      "files": {
+       "image-dirty.fits": "0d9fcf48278a690de6e380dcb23b660ac3cea2fb09d074451f670e03ac80b163",
+       "image-image.fits": "b72350910fc10bc32700b2f1011f604748c233993536111cc303f89461d1e25e",
+       "image-model.fits": "7b1688b00d8b977a5589779db34f0523c35ebcdd5c331bb7d02f9fcd219e0915",
+       "image-psf.fits": "cbc524ff0acf3d4db151a5f4913a829693bf3adefed2a360d7ffbb2ae0129575",
+       "image-report.json": "213c517154f8f6210e0693fce781e4f474fd482624b13526ebdd74f2e38c9243",
+       "image-residual.fits": "3c1a4ca084dd3e6f30067eb1da52839d87528a885e400c84a8b4381c358f3888"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 433.58499637502246
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 133.1179209469119
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 13,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "300s",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 12,
+      "time_bins_per_scan": {
+       "2": 12
+      },
+      "type": "Sp",
+      "wall_seconds": 1628.8657187940553
+     },
+     "store": "/home/gijs/rang-data/outputs/floor-4-20261117/g1/P/run/selfcal/ESO137-pilot/round-1/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "300s",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261116T235805Z",
+ "gemclean": "/home/gijs/Github/rang/.venv/bin/python -m rang.gemclean",
+ "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+ "input": {
+  "column": "DATA",
+  "copied_now": false,
+  "previous_copy": null
+ },
+ "input_column": "DATA",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 1
+}

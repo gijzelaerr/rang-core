@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # ruff: noqa: BLE001  (an oracle harness: every failure is recorded, never raised)
 """MSv2 edge cases: ra-ng's reader against arcae and xarray-ms
 (research/msv2-edge-cases.md; the case set and the comparison are frozen there).

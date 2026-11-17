@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """`rang-core mcp`: an MCP server over rang-core, stdio only
 (research/mcp-server.md; issue 27, piece 1).
 

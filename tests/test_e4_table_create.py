@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Table creation, rows, string arrays, default_ms and caltables (E4).
 
 research/e4-table-create.md. These tests use only the core (they skip when

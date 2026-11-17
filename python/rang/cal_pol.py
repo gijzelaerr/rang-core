@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Follows CASA's C++ source in part (Copyright (C) Associated
-# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
-# notices in THIRD-PARTY-NOTICES.txt.
+# Follows CASA's C++ source in part, and casacore's measures
+# (`MCDirection.cc`, `MeasMath.cc`, `MeasTable.cc`, `MSDerivedValues.cc`) in
+# `parallactic_angle_casa` (Copyright (C) Associated Universities, Inc.
+# Washington DC, USA; (L)GPL version 2 or later): notices in
+# THIRD-PARTY-NOTICES.txt.
 """The polarisation terms Gpol, KCROSS, Xf and Df with the parallactic angle
 P (task C6, research/c6-polterms.md; C1 terms T6 and T8 to T11,
 research/c1-calibration-chain.md).
@@ -1086,7 +1088,7 @@ def kcross(
         )
     sol.settings["estimator"] = estimator
     if not sol.ok.any():
-        raise RuntimeError(f"KCROSS wrote no solutions for field {field_id}")
+        raise cal_gain.NoSolutions(f"KCROSS wrote no solutions for field {field_id}")
     ntime, nant = len(ld.keys), ld.nant
     values = np.zeros((ntime, nant, 1, 2))
     values[:, :, 0, 0] = sol.delay_ns[:, None]
@@ -1179,7 +1181,7 @@ def xf(
         sol = XfSolution(x=x, ok=ok, err=err, settings=dict(fld.settings))
         ld = fld.loaded({"row_w": row_w})
     if not sol.ok.any():
-        raise RuntimeError(f"Xf wrote no solutions for field {field_id}")
+        raise cal_gain.NoSolutions(f"Xf wrote no solutions for field {field_id}")
     ntime, nant = len(ld.keys), ld.nant
     nchan = len(ld.freq)
     values = np.broadcast_to(sol.x[:, None, :, None], (ntime, nant, nchan, 1))
@@ -1430,7 +1432,7 @@ def df(
         sol.settings["min_data_fraction"] = float(min_data_fraction)
         sol.settings["data_fraction_flagged_channels"] = int(low.sum())
     if sol.flags.all():
-        raise RuntimeError(f"Df wrote no solutions for field {field_id}")
+        raise cal_gain.NoSolutions(f"Df wrote no solutions for field {field_id}")
     values = sol.d.transpose(0, 2, 1, 3)
     flags = sol.flags.transpose(0, 2, 1, 3)
     err = sol.err.transpose(0, 2, 1, 3)

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Where a channel-chunked B solve spends its time (research/sliced-read.md).
 
     python profile_b.py MS OUT.txt [CHUNK_ROWS]

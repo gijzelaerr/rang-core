@@ -1,0 +1,8 @@
+heavy_lock: waiting for head 01794913437709681466-linux-419661.json, which fits
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T13:21:35+02:00 load 5.59 8.39 12.70 S start
+/home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 44.63 s read, 15.83 s weights
+joined: 26982 components, 3 major cycles, 160 resyncs, stop Threshold; Q/Q0 4.9205e-3
+wall 1029.26 s
+S 1029.84 s 23107312 KB
+== 2026-11-17T13:38:45+02:00 load 8.46 12.75 12.82 S end rc 0

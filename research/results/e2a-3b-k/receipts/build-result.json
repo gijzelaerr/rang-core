@@ -1,0 +1,90 @@
+[
+ {
+  "task": "npzflags",
+  "call": {
+   "vis": "/d1/src.ms",
+   "npz": "/d1/win/flags/src-flags.npz"
+  },
+  "seconds": 2.0848367139697075,
+  "error": null,
+  "written": false,
+  "return": {
+   "rows": 12480,
+   "flagged_cells": 188778296
+  }
+ },
+ {
+  "task": "delmod",
+  "call": {
+   "vis": "/d1/src.ms",
+   "otf": true,
+   "scr": false
+  },
+  "seconds": 0.13944970502052456,
+  "error": null,
+  "written": false,
+  "return": null
+ },
+ {
+  "task": "flaghash",
+  "call": {
+   "vis": "/d1/src.ms"
+  },
+  "seconds": 1.914396288106218,
+  "error": null,
+  "written": false,
+  "return": {
+   "flag": "e6910ad43683e765e627898e2232854d05f8c91cef89142ed9a28fa9918ebc8d",
+   "flag_row": "d34140e8574ae5e2960c63ece176733ee7cd1d7131813491983d51c3ff78fa17",
+   "flagged_cells": 188778296
+  }
+ },
+ {
+  "task": "weights_read",
+  "call": {
+   "vis": "/d1/src.ms"
+  },
+  "seconds": 8.051981722004712,
+  "error": null,
+  "written": false,
+  "return": {
+   "weight_spectrum_min": 0.0,
+   "weight_spectrum_max": 330.0914611816406,
+   "weight_spectrum_not_1": 204472320,
+   "weight_not_1": 0
+  }
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-u.ms"
+  },
+  "seconds": 2.376150107011199,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-d.ms"
+  },
+  "seconds": 2.445392278023064,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-a.ms"
+  },
+  "seconds": 2.405749463941902,
+  "error": null,
+  "written": true,
+  "return": null
+ }
+]

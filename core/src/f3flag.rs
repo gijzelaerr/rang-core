@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The F3 flagger (task F3, `research/f3-flagger.md`, section 3): per scan,
 //! fifteen input planes per cross-correlation baseline on the (time,
 //! channel) plane, built from noise-normalised amplitudes (time-local and
@@ -6,8 +6,8 @@
 //! medians of their maxima), and F2's five-layer dilated 3×3 network with 15
 //! inputs, in f32.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The features follow `rang.f3flag.features_numpy` (NumPy, float64) and the
 //! network `rang.f3net.forward` (JAX); `tests/test_f3_flag.py` checks parity.

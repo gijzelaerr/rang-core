@@ -1,0 +1,11 @@
+heavy_lock: waiting for linux pid 4069371 since 2026-11-17T00:08:13+00:00: /home/gijs/Worktrees/rang/cta-run-abdfb5a/.venv/bin/python /home/gijs/Worktrees/rang/nash-timings/tools/oracles/chunk_tasks/timing.py point /home/gijs/rang-data/outputs/cta-nash-20261116 N1 0
+heavy_lock: waiting for head 01794872294693692971-linux-4086695.json, past its 15 min drain limit (draining)
+== 2026-11-17T00:25:02Z load 1.10 2.16 3.30 L60 start
+02:25:49 stage prepare L60 wall_s 47.7
+prepare 47.93 s 196244 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 3277.7 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/L60/run/receipts/selfcal-20261117T002555Z.rang-receipt.json
+selfcal 3291.32 s 9748500 KB
+03:20:45 stage clean L60 wall_s 4.2
+== 2026-11-17T01:20:45Z load 14.68 12.58 10.56 L60 end

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W4 (research/w4-unsupported.md): every case of section 3 on W2's synthetic
 MS (`test_w2_commands.make_ms`: 4 antennas, 240 rows, 16 channels, fields CAL
 and TGT in scans 1 and 2, WEIGHT but no WEIGHT_SPECTRUM). Each command either
