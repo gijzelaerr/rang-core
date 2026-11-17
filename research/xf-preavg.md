@@ -139,7 +139,7 @@ generate) has 3C286-SIM scans 2, 8, 14, 22 spanning 2.68°, **10.30°, 9.35°**,
 1.50° of ψ; `psi_groups` cuts the Xf interval into 7 averaging groups (1, 3,
 2, 1 per scan). The dev set: spans 0.15-0.63°, 4 groups (one per scan).
 CASA 6.7.6.14's `polcal` default, read in the container: `preavg` 300.0 s
-(also `solint` 'inf', `combine` 'obst' by default; the chain passes
+(also `solint` 'inf', `combine` 'obs,scan' by default; the chain passes
 `combine='scan'`).
 
 **Tests at d3746c9:** `tests/test_xf_avg_fix.py` and
@@ -174,3 +174,46 @@ set, on the Xf median alone (0.054° against 0.05°; χ 0.007° and the Xf max
 (median 0.065°), so the difference is not rang's averaging. Rule 4: reported,
 not fixed here. Size: 0.05-0.11° in Xf, under 0.01° in χ; far below every
 calibration tolerance in use (C6w 1.11°).
+
+## 5. Post hoc: CASA's `preavg` (2026-11-17, after section 4; labelled)
+
+Not in the frozen protocol. To see whether outcome 4's Xf difference comes
+from CASA's own 300 s pre-average on the 10° scans, CASA's chain was rerun
+with polcal `preavg` 8 s (one integration) and 60 s (`xf_preavg.py
+casa_preavg`; `posthoc.json`):
+
+| CASA arm | Xf vs rang avg, median / max | Xf vs rang noavg, median / max | χ vs rang avg / noavg, max |
+| --- | --- | --- | --- |
+| dev, preavg 300 (default) | 0.023° / 0.040° | 0.016° / 0.041° | 0.0012° / 0.0001° |
+| dev, preavg 8 | 0.035° / 0.052° | 0.021° / 0.032° | 0.0012° / 0.0001° |
+| held-out, preavg 300 (default) | 0.054° / 0.107° | 0.065° / 0.114° | 0.0069° / 0.0023° |
+| held-out, preavg 60 | 0.059° / 0.120° | 0.064° / 0.119° | 0.0069° / 0.0024° |
+| held-out, preavg 8 | 0.052° / 0.101° | 0.055° / 0.108° | 0.0068° / 0.0023° |
+
+CASA's `preavg` moves its Xf by at most 0.01° median here, so the 0.05-0.065°
+rang-CASA difference on the held-out set is not pre-averaging on either
+side. Its source is not found; a likely place is the terms solved before Xf
+on the longer scans (Gpol at 60 s, KCROSS per 720 s scan), not checked here.
+At under 0.01° in χ it has no effect on any gate in use.
+
+**Reading (post hoc).** rang's averaging rule (xf-avg-fix, 5°) is as good as
+CASA's `preavg` at its default or shorter on this data: averaged and
+unaveraged rang differ by ≤ 0.031° in Xf, CASA's three `preavg` settings by
+about 0.01° among themselves. Porting `preavg` would change nothing measurable.
+It stays "not ported" (rejected by the config check).
+
+## For the coordinator
+
+- **No package code changed.** The fix for issue #14's item 3 has been on
+  `main` since f8a6435 (xf-avg-fix). This branch adds the held-out check, the
+  results, a dated pointer in `chi-offset.md` 10.3, timings and the STATE
+  entry. Non-polarised terms are unchanged by construction.
+- Outcome under the frozen rule: **4** (rang-CASA Xf median 0.054° > 0.05°
+  on the held-out set, unaveraged too). The averaging gates pass.
+- Decisions: (1) close issue #14's averaging item, or keep it open for the
+  0.06° rang-CASA Xf difference (a separate diagnosis: compare the Gpol and
+  KCROSS tables on the held-out set). (2) `preavg`: keep it rejected (as
+  proposed), or accept it as a documented no-op alias for CASA scripts.
+- On disk: `D:\rang\outputs\xf-preavg-20261117-01-sim` (860 MB: the two
+  truths, the arms' tables and logs; the arm MSs were deleted after scoring).
+  Can be deleted; every number is in the receipts.

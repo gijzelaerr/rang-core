@@ -2096,3 +2096,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | E2-A post chain (`e2a_post.sh`, 22 steps) | e2a.ms in place | 13.3 h: wsclean0 817 s, daskms 2,894 s, applycal-inplace 3,138 s, compare 2,700 s, qc-avg 3,315 s, qc-selfcal 246 s, WSClean 3c dirty 3,367 s / clean 26,057 s / nosi dirty 3,538 s, restore 421 s, Tricolour 336 s (out of memory) | - | shared, bookings in 9.10; MS over 9p |
 | 2026-11-16 | E2-A Tricolour per primary scan (`tricolour-scans 9,11`) | scans 9, 11 | about 20 min | - | 8 slots, 32 GB |
 | 2026-11-16/17 | E2-A rows (`e2a_rows.sh`): CASA 3b KGB,KGB / CORRECTED_DATA copy / CASA applycal target / oracle WSClean clean / rang calibrate scan 9 | e2a.ms | 3,236 s / 503 s / 2,382 s / 26,837 s / 2,053 s | - | shared; all rc 0 |
+| 2026-11-17 | `maturin develop --release` (xf-preavg worktree, fresh target) | repo | 218 s | – | Windows workstation; heavy lock 8 slots |
+| 2026-11-17 | `simtruth_ms generate poldx --noiseless` (xf-preavg held-out, 720 s 3C286-SIM scans) | 448 integrations, 16 ant, 256 ch | 8.8 s | – | Windows workstation; 677 MB MS |
+| 2026-11-17 | `rang-core run` calibrate + apply, E2-B polcal chain, `average_time` on / off | chi-offset dev sim (104 int) | 10 s / 9 s | – | Windows workstation; 4 slots; includes the MS copy |
+| 2026-11-17 | `rang-core run` calibrate + apply, as above, `average_time` on / off | xf-preavg held-out sim (448 int) | 34 s / 33 s | – | Windows workstation; 4 slots; includes the MS copy |
+| 2026-11-17 | CASA 6.7.6.14 chain (`oracle_pol.py`, WSL container), polcal preavg 300 / 8 | chi-offset dev sim | 38 s / 28 s | – | includes the MS copy |
+| 2026-11-17 | CASA 6.7.6.14 chain, polcal preavg 300 / 60 / 8 | xf-preavg held-out sim | 125 s / 103 s / 127 s | – | includes the MS copy |
