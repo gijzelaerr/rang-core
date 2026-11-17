@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """B1-1 (i): the port of the SARAO/SKA Gaussian pointing-offset fit.
 
 Unit tests are synthetic; the reproduction test runs the five-scan fixture

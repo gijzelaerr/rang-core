@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C1 campaign helpers on synthetic inputs (research/c1-closure-arm.md); offline."""
 
 import numpy as np

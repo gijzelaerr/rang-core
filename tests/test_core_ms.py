@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The core Measurement Set reader against the python-casacore oracle dump.
 
 The oracle (`outputs/core-e-oracle-20261029-01`, research/core-e-ms-reader.md)

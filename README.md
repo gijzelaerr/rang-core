@@ -143,7 +143,7 @@ The project, repository, PyPI distribution and command line are **rang-core**; t
 
 ## Licence and data acknowledgements
 
-rang-core is free software under the [GNU General Public License, version 3 or later](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE).
+rang-core as distributed is free software under the [GNU General Public License, version 3](https://github.com/gijzelaerr/rang-core/blob/main/LICENSE). ra-ng's own code is [MIT](https://github.com/gijzelaerr/rang-core/blob/main/LICENSES/MIT.txt), file by file; the parts translated from GPL or LGPL upstreams keep those licences.
 Ported code keeps its upstream notices; no raw visibilities or beam maps are redistributed.
 
 - **MeerKAT data.** The MeerKAT telescope is operated by the South African Radio

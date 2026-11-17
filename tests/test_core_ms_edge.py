@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """IncrementalStMan arrays and strings, per-column refusal and TiledCellStMan
 in the core table reader (research/msv2-edge-cases.md, R1 to R3).
 

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The timing runs of research/chunk-task-api.md section 5, on the shared
 host nash (amendment 2, section 5.1).
 

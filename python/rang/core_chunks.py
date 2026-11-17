@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Chunking by time and row for whole-array data (task W3, research/w3-chunking.md).
 
 The rang-core stages run within `data.memory_limit_gb` (GiB of resident

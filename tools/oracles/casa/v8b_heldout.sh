@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # V8b's held-out ESO137 subset (research/v8b-flagdata.md, amendment 1):
 # CASA split of the first 600 s of scan 2 of the ESO137 pilot raw MS, all
 # 512 channels, flags kept, DATA only, into $out/eso137-ho.ms.

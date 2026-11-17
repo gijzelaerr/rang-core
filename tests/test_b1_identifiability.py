@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Fast synthetic tests of the B1-2 survey (research/b1-2-identifiability.md)."""
 
 import math

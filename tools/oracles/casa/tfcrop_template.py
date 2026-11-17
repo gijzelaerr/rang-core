@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Candidate models of CASA's tfcrop band template (research/v8c-tfcrop-poly.md,
 section 3), parametrised so that probe readouts can rank them. Not the
 reference (that is rang.tfcrop); a search space.

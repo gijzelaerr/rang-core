@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """TS-P1 (research/ts-p1.md): residual snapshot light curves. A small version
 of the TS-P1 simulation is written inside the test (8 antennas, 8 channels,
 45 integrations); the frozen sets are not."""

@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Measurements for the visibility-free normal operator
 //! (`research/gridder-theory.md`). One JSON object per line on stdout.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! ```text
 //! gridder_gram_bench MS SIZE SCALE_ASEC ROBUST MODE [ARGS]

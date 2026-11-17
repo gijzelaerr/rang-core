@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Run a tfcrop probe job in CASA (research/v8-tfcrop.md; labelled probe).
 # Usage: bash tools/oracles/casa/tfcrop_probe.sh SRC_DIR WSL_DIR JOB.json
 # SRC_DIR (templates, designs, the job; usually under /mnt/d) is copied to

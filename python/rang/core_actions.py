@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The patch-removal actions stage on the Rust core (research/core-phase3-actions.md).
 
 Replays `flagging_actions.run` with `core_workflow.core_solve`. Candidate

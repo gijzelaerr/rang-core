@@ -124,16 +124,27 @@ Clippy releases add lints that would otherwise require kernel edits.
 
 Every tracked `.py`, `.rs`, `.sh` and `.cc` file under `python/rang`,
 `core/src`, `src` and `tools` starts with an SPDX line, after a shebang or
-encoding line if it has one:
+encoding line if it has one. ra-ng's own code is MIT:
 
 ```python
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 ```
 
-(`//` for Rust and C++). A file ported from code under another licence names
-both, for example `GPL-3.0-or-later AND MIT`, and keeps the upstream notice
-in full (`docs/licence.md` lists the ported code). Longer copyright
-notices may follow the SPDX line. `tests/test_spdx_headers.py` checks it.
+(`//` for Rust and C++). Code translated from a permissive upstream names
+both, for example `MIT AND BSD-3-Clause`, and keeps the upstream notice in
+full. Code translated or derived from a GPL or LGPL upstream keeps
+`GPL-3.0-or-later` (with `AND LGPL-3.0-only` and the like where the SPDX
+line names the upstream); `docs/licence.md` lists the parts and why. Longer
+copyright notices may follow the SPDX line.
+
+Contributions are inbound = outbound, per file: a change to an MIT file is
+contributed under MIT, a change to a GPL file under that file's GPL line.
+New files get `SPDX-License-Identifier: MIT`. Code derived from GPL or LGPL
+sources gets the upstream's line instead (as above) and an entry, with its
+class, in the `HELD` list of `research/results/mit-relicense-audit/spdx.py`;
+rerun that script. `tests/test_spdx_headers.py` checks every line against the
+list it writes (`spdx.csv`): a file not yet listed passes only with a bare
+`MIT`, and no file the audit marks derived may carry one.
 
 ## Releasing
 
@@ -151,7 +162,7 @@ publish job, before any upload), takes the release notes from the
 changelog section, and publishes to PyPI by trusted publishing. The sdist
 carries only the crates, `data/README.md` and `data/meerkat.itrf.txt`,
 `python/`, `tests/`, `tools/wheel/`, README, CHANGELOG, `CITATION.cff`,
-LICENSE and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
+LICENSE, `LICENSES/MIT.txt` and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
 `pyproject.toml`).
 
 ## Scientific reporting

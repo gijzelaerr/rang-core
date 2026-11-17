@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """`core_receipts.source_receipts` in a checkout and in an installed package.
 
 The first test began as the live part of tests/test_flagging_next.py at

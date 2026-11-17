@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """tools/check_all.py and the rang.check set-up fixes (research/speedup-tools.md)."""
 
 from __future__ import annotations

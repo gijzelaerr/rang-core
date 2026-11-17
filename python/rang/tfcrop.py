@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA's `flagdata(mode='tfcrop')` (research/v8-tfcrop.md; V8b's first
 attempt in research/v8b-flagdata.md, section 9.3).
 

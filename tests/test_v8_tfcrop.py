@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """V8 tfcrop (research/v8-tfcrop.md): the conventions identified so far,
 checked without CASA. D1 (the per-row rule) against CASA 6.7.6.14's flags
 on the first planes of the S1 and S2 probes

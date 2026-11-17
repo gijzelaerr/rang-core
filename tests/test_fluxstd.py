@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """FS1 flux standards against the CASA setjy oracle archive."""
 
 import json

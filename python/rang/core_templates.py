@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Paired full-Jones flagging/calibration response to evaluation-only faint sky.
 
 Verbatim extract of the frozen `rangtoy.flagging_signal` (big plan task P11,

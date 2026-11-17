@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """MSv4 processing sets into the core's row layout (research/msv4-interop.md).
 
 Opens an xradio processing set (an xarray DataTree, a Zarr store by default,

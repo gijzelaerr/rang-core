@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Wall time, process CPU time and whole-machine load of a timed interval,
 //! so a timing can be judged afterwards on a shared host.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Linux reads `/proc/self/stat` and `/proc/stat` (clock ticks taken as 100
 //! per second, the Linux ABI value); Windows calls `GetProcessTimes` and

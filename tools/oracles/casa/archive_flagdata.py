@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Archive CASA's flags on V8b's synthetic fixed-mode cases for CI
 (research/v8b-flagdata.md): per case the SHA-256 of `np.packbits` of FLAG
 (row, chan, corr order) and of FLAG_ROW, and CASA's summary returns, so that

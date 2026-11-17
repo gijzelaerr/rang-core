@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """G6 (research/g6-predict.md): MODEL_DATA from model images through W1's
 write-back, with the predictor the gemclean binary uses. The MS and the
 model image are written inside the test."""

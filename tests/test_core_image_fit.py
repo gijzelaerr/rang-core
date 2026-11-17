@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests of the core_image_fit extract.
 
 Live part of tests/test_flagging_imaging.py at commit 2da566c

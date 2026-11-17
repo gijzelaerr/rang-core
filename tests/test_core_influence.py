@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests of the core_influence extract.
 
 Live part of tests/test_flagging_influence.py at commit 2da566c

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA's `flagdata` modes on a Measurement Set (task V8b,
 research/v8b-flagdata.md).
 

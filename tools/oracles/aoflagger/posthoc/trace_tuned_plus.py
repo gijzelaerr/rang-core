@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """A-FLAG post-hoc: why tuned+ returns no new flags on the holdout first steps (iteration trace)."""
 import os, sys
 import numpy as np

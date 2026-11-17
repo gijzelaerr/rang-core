@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The F2 flagger's inference (task F2, `research/f2-flagger.md`, section 3):
 //! per baseline, the six input planes of one scan's (time, channel) plane and
 //! a five-layer dilated 3×3 convolutional network with a 1×1 head, in f32.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The features follow `rang.f2flag.features` (NumPy, float64) and the
 //! network `rang.f2flag.forward` (JAX); `tests/test_f2_cnnflag.py` checks

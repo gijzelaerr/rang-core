@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cnnflag_logits`: the F2 flagger's inference
 //! (`rang_core::cnnflag`, task F2, `research/f2-flagger.md`), for
 //! `rang.f2flag`.

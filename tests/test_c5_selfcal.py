@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C5 (research/c5-selfcal.md): self-calibration terms Sp, Sa and Sd, their
 solution intervals, the apply, the configuration and the `selfcal` stage
 with a stand-in gemclean, on Measurement Sets written inside each test.

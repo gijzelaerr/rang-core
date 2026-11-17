@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
+# SPDX-License-Identifier: MIT AND BSD-3-Clause
 # Follows Tricolour 0.2.1 (its defaults and `load_mask`): Copyright (c) 2019,
 # National Research Foundation (SARAO), BSD-3-Clause; the licence text in
 # THIRD-PARTY-NOTICES.txt.

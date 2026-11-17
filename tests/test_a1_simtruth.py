@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Self-checks of the A1 simulated truth (research/a1-simtruth.md)."""
 
 import math

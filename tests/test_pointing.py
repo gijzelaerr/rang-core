@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """JAX DFT, derivative, spline and recovery controls."""
 
 import pytest

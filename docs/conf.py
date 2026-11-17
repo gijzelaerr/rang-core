@@ -20,7 +20,7 @@ GITHUB = "https://github.com/gijzelaerr/rang-core"
 
 project = "rang-core"
 author = "Gijs Molenaar"
-copyright = "2026, Gijs Molenaar; GPL-3.0-or-later"
+copyright = "2026, Gijs Molenaar; MIT and GPL-3.0 (see Licence)"
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _version

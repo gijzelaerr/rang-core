@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """M3 cases and the M2 flag-stage gate (research/msv4-interop.md section 11).
 
 Steps:

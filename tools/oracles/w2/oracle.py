@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """W2 oracles (research/w2-commands.md, criteria 2 and 3).
 
     python oracle.py seed MS SEED            # seed FLAG (10 %) and FLAG_ROW (5 %) with casacure

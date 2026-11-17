@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Known-family safety, true inverse-Jones tangents and no-TEST selection.
 
 Live part of tests/test_flagging_signal_guard.py at commit 2da566c

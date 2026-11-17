@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Timing hook for research/chunk-task-api.md section 5 (the spawn overhead).
 
 On PYTHONPATH with RANG_CTA_TASKLOG set, it wraps rang.core_tasks.run when the

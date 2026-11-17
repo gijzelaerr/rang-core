@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Stable beam derivatives, upstream comparisons and predictor integration."""
 
 import pytest

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-5 (research/w4-5-release.md): the release metadata of v0.1.0.
 
 One source of truth for the version (pyproject.toml), `rang.__version__`
@@ -172,7 +173,9 @@ def test_pyproject_metadata():
     # A PEP 639 licence expression: a License classifier would be rejected.
     assert 'license = "GPL-3.0-only"' in project
     # E5: the MIT and BSD notices of the translated code ship in every wheel.
-    assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
+    # The MIT text of ra-ng's own files (docs/licence.md) ships beside the GPL.
+    files = '["LICENSE", "LICENSES/MIT.txt", "THIRD-PARTY-NOTICES.txt"]'
+    assert f"license-files = {files}" in project
     notices = _text("THIRD-PARTY-NOTICES.txt")
     for path, holder in (
         ("core/src/solve.rs", "Copyright (c) 2022 Jonathan Simon Kenyon"),

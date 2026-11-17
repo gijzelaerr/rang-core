@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
+// SPDX-License-Identifier: MIT AND BSD-3-Clause
 //! WSClean-format component sky prediction, ported from codex-africanus 0.4.4.
 //!
 //! A Rust translation of `africanus/rime/wsclean_predict.py` and
@@ -36,7 +36,7 @@
 //! > NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //! > SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //!
-//! The translation and its integration are part of Rang (GPL-3.0-or-later).
+//! The translation and its integration are part of Rang (MIT).
 //! Validation: `research/core-phase3c-a.md`. Positive Fourier phase, the
 //! convention of the MS and of africanus.
 

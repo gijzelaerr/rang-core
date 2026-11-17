@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Residual snapshot light curves at given positions (task TS-P1,
 research/ts-p1.md; issue #9).
 

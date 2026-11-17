@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-only"
-license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]
+license-files = ["LICENSE", "LICENSES/MIT.txt", "THIRD-PARTY-NOTICES.txt"]
 readme = "README.md"
 authors = [{name = "Gijs Molenaar"}]
 keywords = ["radio astronomy", "MeerKAT", "calibration", "flagging", "interferometry", "imaging", "measurement set"]
@@ -99,7 +99,7 @@ module-name = "rang._core"
 # (research/w4-5-release.md): the three crates, python/, tests/ (the wheel
 # subset of tools/wheel/pytest_wheel.py runs from it; the full suite reads
 # research/ and needs a checkout), tools/wheel/, data/ (below), README,
-# CHANGELOG, CITATION.cff, LICENSE and THIRD-PARTY-NOTICES.txt; every other
+# CHANGELOG, CITATION.cff, LICENSE, LICENSES/MIT.txt and THIRD-PARTY-NOTICES.txt; every other
 # file under tools/ is a checkout tool and stays out (E5-37).
 # The root crate rang-sim is a path dependency at the repository root, so
 # without this list cargo's file list puts the whole tree in the sdist.

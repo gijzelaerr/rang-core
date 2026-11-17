@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Exact gridder of big-plan task DF1 (research/df1-wgridder.md)."""
 
 import hashlib

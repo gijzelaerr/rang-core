@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The injection campaign on the Rust core (research/core-phase3.md).
 
 Replays `flagging_injections.run` with `core_workflow.core_solve`: the same

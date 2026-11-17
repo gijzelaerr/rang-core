@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match rang_sim::cli(&args) {

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core`: the PyO3 extension module over the Rang core.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

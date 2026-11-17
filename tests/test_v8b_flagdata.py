@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """V8b flagdata (research/v8b-flagdata.md): the CASA keyword layer's
 refusals, the selection parsers, and rang's flags on the synthetic MSs
 against the archive of CASA 6.7.6.14's flags on the same MSs

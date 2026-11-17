@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Prepared-state preservation/leakage boundaries without casacore.
 
 Live part of tests/test_flagging_prepared.py at commit 2da566c

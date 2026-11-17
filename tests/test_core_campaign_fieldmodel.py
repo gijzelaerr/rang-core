@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Offline tests of the L1-M field-model driver (research/l1-model-completeness.md)."""
 
 import math

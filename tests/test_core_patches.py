@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Action splits, training-only features and withheld-label safeguards.
 
 Live part of tests/test_flagging_actions.py at commit 2da566c

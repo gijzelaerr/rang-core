@@ -1,11 +1,11 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Major and minor cycles of CLEAN as inexact Newton on the misfit: a driver
 //! whose visibility passes are scheduled by a provable rule, an exact
 //! FFT-batched subtraction on the double-size grid, and an optimisation phase
 //! on each cycle's support. Research note: `research/clean-major-cycles.md`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The misfit is a quadratic with Hessian the Gram matrix `B` of the atoms:
 //! for an increment `Δ`, `Q(m + Δ) − Q(m) = −⟨r, Δ⟩ + ½ Δᵀ B Δ` exactly. A minor

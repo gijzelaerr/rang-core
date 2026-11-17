@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """V8a listobs (research/v8a-listobs.md): the summary on an MS the core writer
 builds inside each test, the CASA keyword layer's refusals, the command line,
 and the WGS84 conversion."""

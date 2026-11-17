@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task L5 (research/l5-solver-science.md): the run-time solver options reach
 the core through `RANG_SOLVE_OPTIONS` (one backend since task P7), default to the archived solver,
 fail loudly when malformed, and the trace replays the core's stop rule."""

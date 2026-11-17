@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The whole-array LUNO 1934-638 campaign on the core (research/luno-array-campaign.md).
 
 Task L1 of research/big-plan.md: task K's frozen campaign

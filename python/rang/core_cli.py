@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """`rang-core`: the command line (research/w2-commands.md, research/p9-cli.md;
 before task P9, research/core-h-recipes.md).
 

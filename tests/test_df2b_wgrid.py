@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Big-plan task DF2b: `gridder="wgrid"` in the imaging drivers, the
 two-weight entry point and the extension bindings (research/df2b-wgrid.md)."""
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Build the O-CASA oracle image (research/o-casa.md) and record time and size.
 # Usage: bash tools/oracles/casa/build.sh [tag] [record.json]
 set -euo pipefail

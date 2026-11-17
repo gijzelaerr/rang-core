@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P6: ported trend candidates equal the frozen ones exactly.
 
 research/p6-python-hotspots.md criterion 4. The archived-mirror test skips

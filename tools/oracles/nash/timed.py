@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """One timed reading on a shared Linux host (research/nash-host.md), with the
 foreign-load record of the nash amendments (research/ts-p1.md 15.8,
 research/chunk-task-api.md 5.1).

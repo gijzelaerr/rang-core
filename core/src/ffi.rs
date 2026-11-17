@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! C ABI of the core, for C consumers and benches.
 //!
 //! The Python layer reaches these functions through the PyO3 extension

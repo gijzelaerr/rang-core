@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """v0.3.0 review fixes on branch v030-fix (research/v030-review.md): R-02,
 B-13, B-16 and the write-back findings E5-22, E5-23 and E5-24."""
 

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The full local check from any worktree, set up correctly, under the heavy lock.
 
     python tools/check_all.py            # the full check (python -m rang.check)

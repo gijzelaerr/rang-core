@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Process peak memory and CPU time on every platform (task P7,
 research/p7-architecture.md; X1 found `import resource` breaking Windows).
 

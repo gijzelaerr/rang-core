@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task e2a-3b-diag (research/e2a-3b-diag.md): `calibrate.bandpass_model_divided`.
 
 A K or G pre-applied in a B solve corrupts the model; with

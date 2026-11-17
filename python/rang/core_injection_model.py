@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Controlled, recoverable RFI injections on real MeerKAT L-band data.
 
 Verbatim extract of the frozen `rangtoy.flagging_injections` (big plan task P11,

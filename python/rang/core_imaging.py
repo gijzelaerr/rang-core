@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Imaging track replay on the Rang core (research/core-i-imaging-replay.md).
 
 Wave 2 task I of ``research/core-parallel-plan.md``: the fifteen archived

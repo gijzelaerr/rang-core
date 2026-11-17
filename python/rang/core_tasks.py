@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Chunk tasks and their executor (multi-node stage 1, research/chunk-task-api.md).
 
 W3's and W3b's chunk loops (research/w3-chunking.md, w3b-chainchunks.md) as

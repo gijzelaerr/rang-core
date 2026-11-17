@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """O-CASA oracle (research/o-casa.md): host helpers offline, the image optionally.
 
 The comparison helpers of `tools/oracles/casa/compare.py` are checked on

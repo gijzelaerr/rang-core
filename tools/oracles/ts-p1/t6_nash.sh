@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # TS-P1 T6 on the shared host nash (research/ts-p1.md 13.4, amended 15.8):
 # rang-core lightcurve against WSClean 3.7 -intervals-out on tsp1-held2, three
 # readings each, in the order R W W R R W, under one exclusive heavy-lock hold:

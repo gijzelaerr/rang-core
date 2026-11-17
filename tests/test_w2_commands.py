@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W2 (research/w2-commands.md): the configuration schema and the commands
 `rang-core flag | calibrate | apply | image | selfcal | run` on a Measurement
 Set written by the core writer inside each test, with resume, flag backups,

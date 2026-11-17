@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.clean_certified`: the certified CLEAN driver of
 //! `rang_core::clean_certified` on the exact wgridder
 //! (`research/clean-certified-imaging.md`), for `rang.core_clean`.

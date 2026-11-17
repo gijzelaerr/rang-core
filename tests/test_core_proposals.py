@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Frozen rectangle geometry, train-only ranks and equal admissible families.
 
 Live part of tests/test_flagging_structured_proposals.py at commit 2da566c

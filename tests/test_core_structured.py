@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Structured selection must prefer no-change and ignore test labels.
 
 Live part of tests/test_flagging_structured.py at commit 2da566c

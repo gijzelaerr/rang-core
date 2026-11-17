@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Pinned full-strategy boundaries, native command and honest control scoring.
 
 Live part of tests/test_flagging_caracal.py at commit 2da566c

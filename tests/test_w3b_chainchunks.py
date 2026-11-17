@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W3b (research/w3b-chainchunks.md): the K, G, B, A, F and polarisation
 terms read their fields in chunks of whole solution intervals and give the
 one-call result bit for bit; their stop test is replayed from the counted

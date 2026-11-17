@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The "Later" findings of the E5 pre-review fixed before v0.2.0
 (research/e5-prereview.md, E5-39 to E5-52)."""
 

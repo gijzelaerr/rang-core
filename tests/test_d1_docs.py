@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The documentation site (task D1, research/d1-docs.md).
 
 The CLI page must equal what `rang-core -h` prints, and the site must build

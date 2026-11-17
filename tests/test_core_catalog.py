@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Sky-track model conventions and fixed-comparison safeguards.
 
 Live part of tests/test_flagging_sky.py at commit 2da566c

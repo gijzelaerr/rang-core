@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task L5-C (research/l5c-casa-gaincal.md): the reader's `nearest` time
 interpolation, and the committed archive's internal consistency (recomputed
 from the run directory when it exists)."""

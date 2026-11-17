@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Owner decisions and proposed fixes on the E5 pre-review (research/e5-prereview.md)."""
 
 import hashlib

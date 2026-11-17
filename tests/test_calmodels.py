@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C3a calibrator models (research/c3a-models.md): point standards, manual
 models, Stokes rows and component lists written to MODEL_DATA through the W1
 write-back, on MSs written by the core writer inside each test."""

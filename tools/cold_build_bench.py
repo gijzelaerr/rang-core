@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Wall-time a cold Rust build of a fresh checkout, with and without sccache.
 
     python tools/heavy_lock.py run -- python tools/cold_build_bench.py \

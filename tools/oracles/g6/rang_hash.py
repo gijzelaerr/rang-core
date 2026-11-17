@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """SHA-256 of a column read with rang's own reader (G6 criterion 6), in the
 byte order compare.py hashes python-casacore's reads.
 

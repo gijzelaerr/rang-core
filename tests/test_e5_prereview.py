@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E5 (research/e5-prereview.md): fixes found by the v0.2.0 pre-review."""
 
 import copy

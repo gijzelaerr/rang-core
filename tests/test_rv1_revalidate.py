@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task RV1 (research/rv1-revalidate.md): the committed archive is consistent
 with itself and, where the ignored run directories exist, with them."""
 

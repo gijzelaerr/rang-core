@@ -2149,3 +2149,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | the same, S2 (2 workers) | the same | 523.3 / 726.2 / 109.2 s | 0.7 / 0.7 / 1.4 GB | shared 5 slots; foreign 7-12 cores; bit-identical; S(2) total 1.90 |
 | 2026-11-17 | the same, S4 (4 workers) | the same | 296.4 / 430.1 / 120.8 s | 0.7 / 0.7 / 1.4 GB | shared 9 slots; foreign 12-17 cores; bit-identical; S(4) total 3.05 |
 | 2026-11-17 | the same, S8 (8 workers) | the same | 192.3 / 254.6 / 107.2 s | 0.7 / 0.7 / 1.4 GB | shared 17 slots; foreign 4.5-7.2 cores; bit-identical; S(8) total 4.67 (flag 4.89, calibrate 5.85, apply 1.46) |
+| 2026-11-17 | mit-own, Windows host: `tools/check_all.py --quick` (first run FAIL on ruff format only, fixed; second PASS; 1576 passed, 63 skipped) | 286 files changed (SPDX lines) | 1005 s / 204 s, lock wait excluded (1,468 s wall with the wait) | – | shared, 4 slots; waited behind gemclean-memory3's exclusive timing runs |
+| 2026-11-17 | mit-own, Windows host: `spdx.py` (classify and stamp every tracked SPDX line) | 334 files | about 1 s | – | 1 slot |
+| 2026-11-17 | mit-own follow-up, Windows host: `tools/check_all.py --quick` after stamping the 170 unheadered shipped files (PASS; 1643 passed, 67 skipped) | 180 files changed | 348 s, lock wait excluded (351 s wall) | – | shared, 4 slots |
