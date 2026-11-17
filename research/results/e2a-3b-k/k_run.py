@@ -6,6 +6,8 @@ rang arms and the simulated-truth cases. Every step is one heavy-lock job
     python k_run.py rang MS ARM           ARM u | d on O/MS (rang-core run, this checkout)
     python k_run.py casa CASE [TAG]       real: ntk3 ntf tkg tk3m model; sim: c ck (TAG the sim case)
     python k_run.py copy SRC DST          copytree inside O
+    python k_run.py f0build               step F: f0.ms, field 0 of all 61 antennas
+    python k_run.py f0casa k|tf           step F: CASA on rang's K (T-K3) or its own K, matched flags
 """
 
 import json
@@ -219,6 +221,54 @@ def casa(case, tag=None):
     return tasks(label, pre + _flags(calls))
 
 
+def f0build():
+    """Step F: field 0, all 61 antennas (e2a-3b-diag D3's copy); FLAG set per pass later."""
+    if (O / "f0.ms").exists():
+        raise SystemExit("f0.ms exists")
+    ants = ",".join(str(a) for a in range(61))
+    rc = apptainer(
+        ["base", "/src/e2a.ms", "/d1/f0.ms", "/d1/f0-base.json", ants], "f0-base", True
+    )
+    if rc:
+        return rc
+    mine = json.loads((O / "f0-base.json").read_text())
+    theirs = json.loads((O / "f0win" / "fcal-base.json").read_text())
+    same = mine["source_rows"] == theirs["source_rows"]
+    log(f"f0 source_rows equal D3's: {same}")
+    if not same:
+        return 4
+    calls = [
+        {"task": "npzflags", "args": {"vis": "/d1/f0.ms", "npz": "/d1/f0win/f0-after-flags.npz"}},
+        {"task": "delmod", "args": {"vis": "/d1/f0.ms", "otf": True, "scr": False}},
+        {"task": "flaghash", "args": {"vis": "/d1/f0.ms"}},
+    ]  # fmt: skip
+    return tasks("f0-build", calls)
+
+
+def f0casa(case):
+    """Step F: CASA on f0.ms, pass 0 on the flag stage's FLAG, pass 1 on rang's
+    after-A FLAG (e2a-3b-diag section 10's matched inputs); `k` on E2-A's
+    archived rang K0, K1 (T-K3's construction), `tf` with CASA's own K."""
+    vis, out = "/d1/f0.ms", f"/d1/f0-casa-{case}"
+    if (O / out[4:]).exists():
+        raise SystemExit(f"{out} exists")
+    (O / out[4:]).mkdir()
+    kw = {"usescratch": False, "flags_pass0": "/d1/f0win/f0-stage-flags.npz",
+          "flags_pass1": "/d1/f0win/f0-after-flags.npz"}  # fmt: skip
+    rk = "/d1/f0win/rang-run/calibrate"
+    if case == "k":
+        calls = d1_run._calls(
+            vis, out, terms=[t for t in ALL if t not in ("K0", "K1")], **kw
+        )
+        _swap(calls, {f"{out}/K0": f"{rk}/K0", f"{out}/K1": f"{rk}/K1"})
+    elif case == "tf":
+        calls = d1_run._calls(vis, out, **kw)
+    else:
+        raise SystemExit(f"unknown case {case}")
+    pre = [{"task": "delmod", "args": {"vis": vis, "otf": True, "scr": False}}]
+    return tasks(f"f0-casa-{case}", pre + _flags(calls))
+
+
 def copy(src, dst):
     if (O / dst).exists():
         raise SystemExit(f"{dst} exists")
@@ -230,7 +280,8 @@ def copy(src, dst):
 
 if __name__ == "__main__":
     step, *args = sys.argv[1:]
-    fn = {"build": build, "rang": rang, "casa": casa, "copy": copy}.get(step)
+    fn = {"build": build, "rang": rang, "casa": casa, "copy": copy, "f0build": f0build,
+          "f0casa": f0casa}.get(step)  # fmt: skip
     if not fn:
         sys.exit(__doc__)
     sys.exit(fn(*args))
