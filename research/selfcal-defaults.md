@@ -164,3 +164,10 @@ from a fresh copy of the base. No rule, threshold, cell or score changed. Post h
 reading: the current default (`solint: inf`) cannot solve this 1 h, 256-channel pilot within the
 default `memory_limit_gb` of 8.
 
+**Scheduling change, 2026-11-17 08:25 SAST (coordinator, on the owner's order; no protocol effect).**
+The grid runs booked 8 slots but used about one core each (the solve and the numpy stages are not
+8-way parallel). Every run not yet launched books `--slots 2` with its `--mem` figure unchanged,
+up to 8 runs at once, with the sum of `--mem` at most 160 GB. Only X was still to launch;
+N300 and N600 kept their 8-slot bookings. `RAYON_NUM_THREADS=8` and every setting are unchanged.
+The booking changes neither the arithmetic nor the order of any computation.
+
