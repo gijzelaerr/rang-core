@@ -182,7 +182,36 @@ one held-out scan, the cross hands, and multiscale with a mask.
 
 ## 9. Clarifications
 
-(none yet)
+**1, 2026-11-17 16:45 SAST, before any held-out visibility, gain or image was read.**
+
+- **Night cap.** Nothing that could overlap 21:30-06:00 runs above 8 booked slots in total. The
+  driver admits a job if all of its jobs then book at most 8 slots, or at most 16 when it is
+  after 06:00 and every running job and the new one end by 21:00 on 1.5 × their estimate.
+- **κ needs a gain-caused excess.** κ divides by P_B − P_ref. If Sp barely helps on scan 10 the
+  ratio means nothing, so κ is **read only if P_B − P_ref ≥ 0.5 P_ref**; below that it is
+  reported, not read, and H9's outcome follows D_h alone ("not separated" cannot occur).
+- **Order.** The pilot side runs first and alongside the held-out build: the pilot state, gate GP
+  (which is also the smoke test of the whole scoring path, the 8-plane S model included), then
+  pRm3, pSm3, pSDm03. On the held-out side R3, Dm03, C0 and S run and are scored before Dm1, Rm3,
+  Sm3 and SDm03, so an interim hand-back can read the primaries.
+- **Conditions fail → stop.** If section 2's conditions fail, the driver stops and logs it;
+  candidate 3 is not improvised unattended.
+- **The gain download.** The publisher's GKB-net gains for MAIN_4 are fetched from the public
+  store (`https://ratt-public-data.s3.af-south-1.amazonaws.com`, keys under
+  `ESO137/ms1_gains.qc/GKB-net/`), as the pilot's were (gemclean-heldout section 5); every object's
+  key, size and SHA-256 go to `inputs/gains/manifest.json`. Group metadata and `gain_time` are
+  fetched for every group that exists, and the first whose times cover every MAIN_4 row within
+  1 s is chosen; only its gains for frequency chunks covering 640:1152 are fetched.
+- **Recipe details.** `gemclean_heldout_real.py` is imported unchanged with `main_group` pointed
+  at MAIN_4. Its `gainload` (fixed to `GKB-net_0`, three time chunks) and `gaincheck` (row chunks
+  0 and 8) are re-implemented in `floor6_tests.py` for the chosen group's chunks and row chunks 0
+  and the middle one; the checks and the correction are the same functions. The MS keeps the
+  recipe's cosmetic constants (`SCAN_NUMBER` 2, OBSERVER text naming MAIN_0).
+- **T and directories.** Every score takes T from its own state (`pilot.json` → `T`): T_ho for
+  the held-out side, floor-5's 44.09 µJy for the pilot side (T_noise recomputed beside it, gate
+  GP within 0.5 %). The held-out state (`ho/`), the pilot state (`pilot/`) and the arms
+  (`family2/`) are separate from floor-5's folders, which are only read. No new environment
+  variable; paths go on the command line.
 
 ## 10. Results
 
