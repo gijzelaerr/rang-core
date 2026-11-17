@@ -1,7 +1,11 @@
 # E2-A gate 3b: diagnosis of the composite miss
 
-Status 2026-11-17: **protocol, frozen before any test below ran.** A
-diagnosis, not a rerun: the E2-A verdict stays as booked in
+Status 2026-11-17: **diagnosed** (sections 7-9): rang's `average_time` in B
+(data and corrupted model averaged apart; fixed behind
+`calibrate.bandpass_model_divided`) and the K estimators; CASA's model and
+weights cleared. Sections 1-5 are the protocol, committed (`d825aea`)
+before any test; 6 and 8 are post hoc addenda, each committed before its
+test. A diagnosis, not a rerun: the E2-A verdict stays as booked in
 `research/e2-acceptance.md` 9.13 (branch `e2a-score`, `51291b7`). A
 confirmation would be a new frozen leg on the reserve data (proposed at the
 end, not run).
@@ -196,6 +200,60 @@ solves stop before the minimum. The stop rule is `stop_criterion` 1e-7 and
 - **Fix if implicated:** the chain's stop rule behind a key (default
   unchanged), with a test.
 
+## 7. Results of D0, D1 and T-S (measured 2026-11-17)
+
+Receipts: [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/);
+outputs `D:\rang\outputs\e2a-3b-diag-20261117\`. Every step rc 0. KGB1
+is the K1 G1 B1 composite, median / p95 (class B: 7e-4 / 3e-3).
+
+**D0, archived full tables** (`d0.json`, `d0b.json`):
+- Control C0 met: the frozen composite reproduced exactly (equal cells,
+  0.0 relative).
+- No single-term swap meets class B; every swap makes it worse (rang's set
+  with CASA's K1, G1 or B1: 7.7e-3, 5.2e-3, 7.4e-3). The terms trade gauge,
+  so a swap does not localise.
+- Removing a linear phase ramp per baseline leaves 2.5e-3 (from 3.2e-3):
+  the miss is not mainly a delay. Phase part 1.8e-3, amplitude part 1.4e-3.
+- H-S (labels): rang's K1 TIMEs equal its G1 TIMEs and CASA's G1 TIMEs
+  (≤ 0.01 s); CASA's K1 TIMEs are 19-49 s earlier (K0: 204, 233 s). Moving
+  either side's K labels to the other's changes the composite by ≤ 3e-4
+  (3.16e-3 → 3.16e-3, 3.15e-3): **cleared**.
+- Uniform over scans (3.1e-3, 3.2e-3), antennas (2.3e-3 to 5.7e-3) and
+  channel blocks (1.8e-3 to 9.4e-3), except m053 (ID 50, 0.114): its K is
+  near 2,300 ns (K1 rang 2,335 vs CASA 2,365 ns, 89 ns apart once), close to
+  the 2,392 ns ambiguity of 209 kHz channels. Not the cause of the median.
+
+**D1, the 15-antenna subset** (12,480 rows, 92 % flagged; `d1-score.json`):
+
+| Pair | KGB1 median / p95 | Reading |
+| --- | --- | --- |
+| R0-C0 (both as frozen) | 1.04e-2 / 0.110 | **reproduces** (≥ 1.4e-3) |
+| R0-TF (CASA pass 0 on matched flags) | 1.03e-2 / 0.116 | H-F **cleared** for KGB1 (KGB0 5.6e-3 → 3.4e-3) |
+| TF-TW (CASA, unit weights) | 0.0 / 0.0 | H-W **cleared**: CASA's six tables identical |
+| TF-TM (CASA, `usescratch=True`) | 0.0 / 0.0 | H-M **cleared** |
+| R0-TK (CASA G1, B1 on rang's K1) | 9.1e-3 / 0.093 | H-K not met by the rule |
+| R0-TI (rang, cap 200) | 1.6e-5 | H-I **cleared** |
+| R0-TT (rang, `average_time` off) | **1.05e-2** / 0.108 | rang against rang larger than rang against CASA |
+| TT-TF | 6.5e-3 / 0.031 | 1.6× lower than R0-TF: below the 2× rule |
+| TS-TTS (strict stop, avg on/off) | 1.04e-2 | T-S: stop rule **cleared** (R0-TS 1.6e-5) |
+
+Post hoc pairs, run after T-S without a written addendum (labelled post
+hoc here; T-K2 is CASA's chain with rang's K0 and K1, from T-T, in every
+pre-apply, `d1_run.py casa tk2`):
+
+| Pair | KGB1 | KGB0 |
+| --- | --- | --- |
+| TT-TK2 (unaveraged rang, CASA on rang's K) | 1.77e-3 / 2.1e-2 (1.58e-3 without m053) | 1.0e-4 / 3.1e-3 |
+| R0-TK2 (averaged rang) | 9.5e-3 / 9.6e-2 | 5.7e-4 / 3.0e-3 |
+
+- K: rang's and CASA's K differ by 0.005 ns (K0) and 0.007 ns (K1) on the
+  subset. Residual delay of the corrected data about each antenna's mean
+  (median): rang's K1 with CASA's G1, B1 (TK) 2.2e-4 ns; R0
+  6.1e-4 ns; CASA's chain (TF) 1.04e-3 ns, (C0) 1.14e-3 ns. rang's K fits
+  the data better than CASA's.
+- With K shared and averaging off, pass 0 meets class B on the median
+  (1.0e-4) and p95 is 3.1e-3 (limit 3e-3); pass 1 is 1.77e-3.
+
 ## 8. Addendum 2026-11-17 03:10, post hoc (after T-S, T-K2 were read; before D2 ran)
 
 T-S cleared the stop rule (section 7). `rang.cal_gain._pre_apply` corrupts
@@ -216,3 +274,69 @@ scan, which fits its small averaging effect (2.4e-4).
   ≤ 7e-5.
 - **Fix:** `calibrate.bandpass_model_divided` (default false), B solves
   on model-divided data, with a test.
+
+## 9. D2 results and the diagnosis (measured 2026-11-17)
+
+`d2-divided.json`, this branch's code (B1 alone, T-T's K1 and G1):
+
+| B1 | KGB1 against unaveraged B1 | against T-K2 (CASA on rang's K) |
+| --- | --- | --- |
+| unaveraged (control: against T-T's frozen B1) | 0.0 (control met) | 1.77e-3 |
+| averaged, data and model apart (frozen) | **9.3e-3** / 0.104 | 9.4e-3 |
+| averaged, model-divided (the fix) | **0.0**, max 4.4e-7 | 1.77e-3 |
+| unaveraged, model-divided | 0.0, max 3.5e-7 | 1.77e-3 |
+
+**Diagnosis.** E2-A's 3b composite miss has two parts, both measured on
+the subset; neither is CASA's model or weights.
+1. **rang's time averaging in B (H-T, the larger part).** In a B solve the
+   pre-applied K and G corrupt the model (CASA's order). `average_time`
+   averaged data and corrupted model separately over B's interval, which
+   spans both scans, an hour apart; K1 and G1 vary every 60 s, so the
+   averaged model decorrelates and the per-channel ratio scatters (B1
+   0.6 %). That is not CASA's estimator: CASA divides by the model first.
+   Divided, the averaged B equals the unaveraged B to 4e-7, and the subset
+   composite against CASA drops from 9.4e-3 to 1.77e-3 (5.3×). E2-B was
+   not affected: its primary K and G were `inf`, constant within B's scan.
+2. **The K estimators (H-K, the rest).** With averaging off, sharing rang's K
+   with CASA lowers TT's composite from 6.5e-3 to 1.77e-3 (3.7×). rang's
+   delays leave less residual delay in the data than CASA's (2.2e-4 against
+   1.0e-3 ns). Per-interval K differences within K's own limit project
+   through 856 MHz onto the composite and B1 cannot absorb them
+   (section 1).
+3. Left over: 1.6e-3 (1.77e-3 with m053), uniform over antennas, with K
+   shared and averaging divided. Not attributed here. Pass 0 under the same
+   conditions is at 1.0e-4.
+
+Cleared: CASA's virtual model, weights (CASA's tables do not change with
+unit weights, as in E2-B A2), K TIME labels, the iteration cap, the stop
+rule. Pass-0 flags (E2-B's cause) move pass 0 only.
+
+**Fix (implemented, branch `e2a-3b-diag`).** `calibrate.bandpass_model_divided`
+(default false, out of the stage hash at its default):
+`rang.cal_bandpass.bandpass(model_divided=True)` divides the pre-applied
+data by the corrupted model (`cal_gain.model_divided`, CASA's
+`divideCorrByModel`) before any average; the chain passes it to B only.
+Tests: `tests/test_e2a_bandpass_model_divided.py` (5: the NumPy reference
+of divide-then-average, unchanged without averaging, nearer the unaveraged
+B on a decorrelating synthetic, the key's default and hash, B only). Off is
+unchanged.
+
+**Not changed:** the K estimator (rang's fits the data better here), and
+the E2-A verdict (9.13, as booked).
+
+## 10. Proposed confirmation (not run)
+
+A new frozen leg on E2's reserve data, protocol written before any run:
+- rang: the E2-A configuration with `calibrate.bandpass_model_divided: true`;
+- CASA 3b arm: pass 0 on the flag stage's FLAG, pass 1 on the after-A FLAG
+  (E2-B A2's matched inputs);
+- gated as frozen (K by its limit, KGB1 class B), and reported beside it
+  the KGB1 composite with CASA on rang's K (T-K2's construction), which
+  separates the K estimators from the rest;
+- expected from the subset: the frozen gate still misses (about 1.8e-3
+  from the K estimators and the unattributed rest). Whether a composite
+  of 60 s K over 856 MHz should be held to class B, or to a tolerance
+  derived from K's limit, is an owner decision (section 1).
+
+Cost: as E2-A's calibrate (about 4,400 s) and 3b CASA (about 3,200 s),
+plus a K-shared CASA case (about 2,000 s).

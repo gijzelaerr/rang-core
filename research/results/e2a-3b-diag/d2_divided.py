@@ -14,7 +14,6 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import d1_score as S
-
 from rang import cal_bandpass
 
 C = S.C
@@ -34,7 +33,9 @@ def main(d):
     for avg in (False, True):
         for div in (False, True):
             t0 = time.perf_counter()
-            b[(avg, div)] = cal_bandpass.bandpass(ms, average_time=avg, model_divided=div, **kw)[0]
+            b[(avg, div)] = cal_bandpass.bandpass(
+                ms, average_time=avg, model_divided=div, **kw
+            )[0]
             secs[f"avg={avg} div={div}"] = time.perf_counter() - t0
     K, G = tt["K1"], tt["G1"]
     out = {"seconds": secs, "composites": {}, "terms": {}}
@@ -46,18 +47,32 @@ def main(d):
          [K, G, tt["B1"]])  # fmt: skip
     comp("avg_undivided vs unavg_undivided (the frozen averaging)", b[(True, False)],
          [K, G, b[(False, False)]])  # fmt: skip
-    comp("avg_divided vs unavg_undivided (the fix)", b[(True, True)], [K, G, b[(False, False)]])
-    comp("unavg_divided vs unavg_undivided", b[(False, True)], [K, G, b[(False, False)]])
+    comp(
+        "avg_divided vs unavg_undivided (the fix)",
+        b[(True, True)],
+        [K, G, b[(False, False)]],
+    )
+    comp(
+        "unavg_divided vs unavg_undivided", b[(False, True)], [K, G, b[(False, False)]]
+    )
     tk2_set = [tk2["K1"], tk2["G1"], tk2["B1"]]
     for (avg, div), bb in b.items():
-        out["composites"][f"avg={avg} div={div} vs T-K2 (CASA, rang's K)"] = S.composite_rel(
-            ms, fid, [K, G, bb], tk2_set
+        out["composites"][f"avg={avg} div={div} vs T-K2 (CASA, rang's K)"] = (
+            S.composite_rel(ms, fid, [K, G, bb], tk2_set)
         )
         out["terms"][f"avg={avg} div={div} B1 vs T-T B1"] = {
             k: v for k, v in C.term_diff(bb, tt["B1"], "complex").items() if k != "rows"
         }
     C.write(d / "d2-divided.json", out)
-    print(json.dumps({k: [v["median"], v["p95"], v["class_b"]] for k, v in out["composites"].items()}, indent=1))
+    print(
+        json.dumps(
+            {
+                k: [v["median"], v["p95"], v["class_b"]]
+                for k, v in out["composites"].items()
+            },
+            indent=1,
+        )
+    )
     return 0
 
 

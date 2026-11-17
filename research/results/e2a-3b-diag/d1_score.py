@@ -88,7 +88,9 @@ def pair(ms, fid, A, B):
             out["terms"][n] = {k: v for k, v in d.items() if k != "rows"}
     for tag, ts in (("1", ("K1", "G1", "B1")), ("0", ("K0", "G0", "B0"))):
         if all(n in A and n in B for n in ts):
-            out[f"KGB{tag}"] = composite_rel(ms, fid, [A[n] for n in ts], [B[n] for n in ts])
+            out[f"KGB{tag}"] = composite_rel(
+                ms, fid, [A[n] for n in ts], [B[n] for n in ts]
+            )
     return out
 
 
@@ -100,9 +102,15 @@ def residual_delays(ms, fid, tabs, k1):
     statistics of |tau - mean over intervals of tau| per antenna."""
     with core_ms.open_table(ms) as t:
         n = t.nrows
-        cols = {c: np.asarray(t.getcol(c)) for c in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID")}
+        cols = {
+            c: np.asarray(t.getcol(c))
+            for c in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID")
+        }
         data = np.asarray(t.getcol("DATA"))
-        flag = np.asarray(t.getcol("FLAG"), bool) | np.asarray(t.getcol("FLAG_ROW"), bool)[:, None, None]
+        flag = (
+            np.asarray(t.getcol("FLAG"), bool)
+            | np.asarray(t.getcol("FLAG_ROW"), bool)[:, None, None]
+        )
         model = np.asarray(t.getcol("MODEL_DATA"))
     with core_ms.open_table(Path(ms) / "SPECTRAL_WINDOW") as t:
         freq = np.asarray(t.getcol("CHAN_FREQ")[0], float)
@@ -129,7 +137,9 @@ def residual_delays(ms, fid, tabs, k1):
                 sel = (ti == k) & (a1 == p) & (a2 == q)
                 ok = ~f[sel][..., hand] & (np.abs(m[sel][..., hand]) > 0)
                 with np.errstate(divide="ignore", invalid="ignore"):
-                    r = np.where(ok, v[sel][..., hand] / np.where(ok, m[sel][..., hand], 1), 0)
+                    r = np.where(
+                        ok, v[sel][..., hand] / np.where(ok, m[sel][..., hand], 1), 0
+                    )
                 s = r.sum(0)
                 good = ok.any(0)
                 if good.sum() < 16:
@@ -161,7 +171,10 @@ def main(d):
     d = Path(d)
     ms = d / "rang-r0.ms"
     fid = C.field_id(ms, FCAL)
-    arms = {a: load(d, a) for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2")}
+    arms = {
+        a: load(d, a)
+        for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2")
+    }
     have = {a: sorted(v) for a, v in arms.items()}
     out = {"tables_present": have, "pairs": {}}
     for label, a, b in PAIRS:
@@ -178,14 +191,18 @@ def main(d):
             for i, n in enumerate(("K1", "G1", "B1")):
                 s = [r[x] for x in ("K1", "G1", "B1")]
                 s[i] = c[n]
-                sw[f"swap_{n}"] = composite_rel(ms, fid, s, [c[x] for x in ("K1", "G1", "B1")])
+                sw[f"swap_{n}"] = composite_rel(
+                    ms, fid, s, [c[x] for x in ("K1", "G1", "B1")]
+                )
             out[f"swaps_against_{base}"] = sw
     # residual delays (the data side), on the rang copy's DATA and MODEL_DATA
     out["residual_delays"] = {}
     for a in ("r0", "tf", "tk", "c0", "ts", "tts"):
         if len(arms[a]) == 6:
             T = arms[a]
-            out["residual_delays"][a] = residual_delays(ms, fid, [T["K1"], T["G1"], T["B1"]], T["K1"])
+            out["residual_delays"][a] = residual_delays(
+                ms, fid, [T["K1"], T["G1"], T["B1"]], T["K1"]
+            )
     out["seconds"] = time.perf_counter() - t0
     C.write(d / "d1-score.json", out)
     brief = {k: {kk: vv.get("median") for kk, vv in v.items() if kk.startswith("KGB")}

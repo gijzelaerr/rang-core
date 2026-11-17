@@ -25,7 +25,10 @@ def per_antenna(ms, fid, A, B, drop):
     from rang import core_ms
 
     with core_ms.open_table(ms) as t:
-        c = {n: np.asarray(t.getcol(n)) for n in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID")}
+        c = {
+            n: np.asarray(t.getcol(n))
+            for n in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID")
+        }
     rows = (c["FIELD_ID"] == fid) & (c["ANTENNA1"] != c["ANTENNA2"])
     times = np.unique(c["TIME"][rows])[:: S.STEP]
     rows &= np.isin(c["TIME"], times)
@@ -50,9 +53,16 @@ def main(argv):
         r = [C.table(run / "rang-run" / "calibrate" / n) for n in ("K1", "G1", "B1")]
         c = [C.table(run / "casa" / "tables" / n) for n in ("K1", "G1", "B1")]
         res = {"full R-C": per_antenna(ms, C.field_id(ms, S.FCAL), r, c, [50])}
-        out = run / "nonexistent"
         Path(argv[2]).write_text(json.dumps(res, indent=1))
-        print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "antenna_median"} for k, v in res.items()}, indent=1))
+        print(
+            json.dumps(
+                {
+                    k: {kk: vv for kk, vv in v.items() if kk != "antenna_median"}
+                    for k, v in res.items()
+                },
+                indent=1,
+            )
+        )
         return 0
     d = Path(argv[0])
     ms = d / "rang-r0.ms"
@@ -65,8 +75,23 @@ def main(argv):
         B = [arms[y][n] for n in ("K1", "G1", "B1")]
         res[label] = per_antenna(ms, fid, A, B, [50])
     C.write(d / "d1-antenna.json", res)
-    print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "antenna_median"} for k, v in res.items()}, indent=1))
-    print(json.dumps({k: {a: round(m, 4) if m else m for a, m in v["antenna_median"].items()} for k, v in res.items()}))
+    print(
+        json.dumps(
+            {
+                k: {kk: vv for kk, vv in v.items() if kk != "antenna_median"}
+                for k, v in res.items()
+            },
+            indent=1,
+        )
+    )
+    print(
+        json.dumps(
+            {
+                k: {a: round(m, 4) if m else m for a, m in v["antenna_median"].items()}
+                for k, v in res.items()
+            }
+        )
+    )
     return 0
 
 

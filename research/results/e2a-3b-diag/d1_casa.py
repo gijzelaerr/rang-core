@@ -119,7 +119,7 @@ def copyflags(src, vis):
 
 
 def flaghash(vis):
-    import numpy as np  # noqa: F401 (used below)
+    import numpy as np
     from casatools import table
 
     tb = table()
@@ -134,7 +134,11 @@ def flaghash(vis):
         hr.update(np.ascontiguousarray(tb.getcol("FLAG_ROW", r0, k)).tobytes())
         flagged += int(f.sum())
     tb.close()
-    return {"flag": hf.hexdigest(), "flag_row": hr.hexdigest(), "flagged_cells": flagged}
+    return {
+        "flag": hf.hexdigest(),
+        "flag_row": hr.hexdigest(),
+        "flagged_cells": flagged,
+    }
 
 
 def weight_range(vis):

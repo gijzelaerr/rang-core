@@ -1791,6 +1791,7 @@ def stage_calibrate_chain(ctx):
         average_time=bool(cal.get("average_time")),  # task E2
         average_freq=bool(cal.get("average_freq")),  # task E2, amended arm
         casa_phase_weights=bool(cal.get("casa_phase_weights")),  # task A3
+        bandpass_model_divided=bool(cal.get("bandpass_model_divided")),  # e2a-3b-diag
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):

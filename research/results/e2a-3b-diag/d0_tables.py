@@ -31,7 +31,10 @@ def meta(ms, fid, step):
     """The composite's rows (as `C.composite` selects them): time, scan,
     antennas; and the channel frequencies."""
     with core_ms.open_table(ms) as t:
-        c = {n: np.asarray(t.getcol(n)) for n in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID", "SCAN_NUMBER")}
+        c = {
+            n: np.asarray(t.getcol(n))
+            for n in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID", "SCAN_NUMBER")
+        }
     with core_ms.open_table(Path(ms) / "SPECTRAL_WINDOW") as t:
         freq = np.asarray(t.getcol("CHAN_FREQ")[0], float)
     rows = (c["FIELD_ID"] == fid) & (c["ANTENNA1"] != c["ANTENNA2"])
@@ -76,22 +79,30 @@ def delay_residual(a, fa, b, fb, freq):
         sxy = (w * phi * x[None, :, None]).sum(1)
         den = sw * sxx - sx**2
         with np.errstate(divide="ignore", invalid="ignore"):
-            beta = np.where(den > 0, (sw * sxy - sx * sy) / np.where(den > 0, den, 1), 0)
+            beta = np.where(
+                den > 0, (sw * sxy - sx * sy) / np.where(den > 0, den, 1), 0
+            )
             alpha = np.where(sw > 0, (sy - beta * sx) / np.where(sw > 0, sw, 1), 0)
         fit = alpha[:, None, :] + beta[:, None, :] * x[None, :, None]
         amp = np.abs(q)
-        parts["lin"].append(np.abs(amp * np.exp(1j * (phi - fit)) - 1)[ok].astype(np.float32))
+        parts["lin"].append(
+            np.abs(amp * np.exp(1j * (phi - fit)) - 1)[ok].astype(np.float32)
+        )
         parts["const"].append(
-            np.abs(amp * np.exp(1j * (phi - alpha[:, None, :])) - 1)[ok].astype(np.float32)
+            np.abs(amp * np.exp(1j * (phi - alpha[:, None, :])) - 1)[ok].astype(
+                np.float32
+            )
         )
         parts["phase"].append(np.abs(np.exp(1j * phi) - 1)[ok].astype(np.float32))
         parts["amp"].append(np.abs(amp - 1)[ok].astype(np.float32))
         slopes.append(np.abs(beta[sw > 2]) / (2 * np.pi))  # rad/GHz -> ns
+
     def st(k):
         v = np.concatenate(parts[k])
         s = C.stats(v)
         s["class_b"] = bool(s.get("n") and s["median"] <= 7e-4 and s["p95"] <= 3e-3)
         return s
+
     return {
         "after_linear_phase_removed": st("lin"),
         "after_constant_phase_removed": st("const"),
@@ -113,14 +124,21 @@ def profiles(r, ok, m, freq):
     for c0 in range(0, len(freq), 256):
         x = r[:, c0 : c0 + 256][ok[:, c0 : c0 + 256]]
         out["channel_block_256"].append(
-            {"chan0": c0, "mhz": float(freq[c0] / 1e6), "n": int(x.size),
-             "median": float(np.median(x)) if x.size else None}  # fmt: skip
+            {
+                "chan0": c0,
+                "mhz": float(freq[c0] / 1e6),
+                "n": int(x.size),
+                "median": float(np.median(x)) if x.size else None,
+            }  # fmt: skip
         )
     return out
 
 
 def times_compare(r, c):
-    tr, tc = np.unique(np.round(r.column("TIME"), 3)), np.unique(np.round(c.column("TIME"), 3))
+    tr, tc = (
+        np.unique(np.round(r.column("TIME"), 3)),
+        np.unique(np.round(c.column("TIME"), 3)),
+    )
     out = {"intervals": [len(tr), len(tc)]}
     if len(tr) == len(tc):
         out["max_abs_dt_s"] = float(np.abs(tr - tc).max())
@@ -160,7 +178,7 @@ def main(run, out_path):
     pooled = [cal_apply.POOLED] * 3
     m, freq = meta(ms, fid, STEP)
     frozen = json.loads((HERE.parent / "e2a-3b-diag" / "g3b-a-frozen.json").read_text())
-    out = {"step": STEP, "rows": int(len(m["TIME"])), "channels": int(len(freq))}
+    out = {"step": STEP, "rows": len(m["TIME"]), "channels": len(freq)}
     for tag, ts in (("1", ("K1", "G1", "B1")), ("0", ("K0", "G0", "B0"))):
         b, fb = C.composite(ms, fid, [c[n] for n in ts], pooled, step=STEP)
         sets = {"rang": [r[n] for n in ts]}
@@ -185,7 +203,8 @@ def main(run, out_path):
                     got = res[label]
                     res["control_C0"] = {
                         "cells_equal": got["n"] == want["n"],
-                        "median_rel": abs(got["median"] - want["median"]) / want["median"],
+                        "median_rel": abs(got["median"] - want["median"])
+                        / want["median"],
                         "p95_rel": abs(got["p95"] - want["p95"]) / want["p95"],
                     }
                     res["control_C0"]["met"] = bool(

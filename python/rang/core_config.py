@@ -286,6 +286,16 @@ SCHEMA = {
             "the amplitude squared; needs average_freq; false: QuartiCal's "
             "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
         ),
+        "bandpass_model_divided": _k(
+            False,
+            "bool",
+            "B solves divide the pre-applied data by the model (which the K and "
+            "G pre-applies corrupt) before averaging, with weight w|M|^2 and "
+            "model 1, as CASA's divideCorrByModel; with average_time and gains "
+            "that vary inside the B interval this is the least-squares solve; "
+            "false: data and model averaged separately (task e2a-3b-diag, "
+            "research/e2a-3b-diag.md)",
+        ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
             "terms": _k([{"type": "complex"}], "terms", "terms solved in order"),
@@ -1900,6 +1910,7 @@ HASH_DEFAULTS = {
         "average_time": False,
         "average_freq": False,
         "casa_phase_weights": False,
+        "bandpass_model_divided": False,
     },
     "selfcal": {"average_time": False},
 }

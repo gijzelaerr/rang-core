@@ -67,7 +67,14 @@ def tasks(d, label, calls, threads=4, src_ro=False):
 
 
 RANG_CASES = ("r0", "tt", "ti")  # ts, tts: copied from src.ms after D1 (post hoc)
-CASA_COPIES = {"c0": "casa-a", "tf": "casa-a", "tk": "casa-a", "tk2": "casa-a", "tw": "casa-w", "tm": "casa-m"}
+CASA_COPIES = {
+    "c0": "casa-a",
+    "tf": "casa-a",
+    "tk": "casa-a",
+    "tk2": "casa-a",
+    "tw": "casa-w",
+    "tm": "casa-m",
+}
 
 
 def build(d):
@@ -88,9 +95,16 @@ def build(d):
         {"task": "weights_read", "args": {"vis": "/d1/src.ms"}},
     ]  # fmt: skip
     for c in RANG_CASES:
-        calls.append({"task": "copytree", "args": {"src": "/d1/src.ms", "dst": f"/d1/rang-{c}.ms"}})
+        calls.append(
+            {
+                "task": "copytree",
+                "args": {"src": "/d1/src.ms", "dst": f"/d1/rang-{c}.ms"},
+            }
+        )
     for c in sorted(set(CASA_COPIES.values())):
-        calls.append({"task": "copytree", "args": {"src": "/d1/src.ms", "dst": f"/d1/{c}.ms"}})
+        calls.append(
+            {"task": "copytree", "args": {"src": "/d1/src.ms", "dst": f"/d1/{c}.ms"}}
+        )
     return tasks(d, "build", calls, 4, src_ro=True)
 
 
@@ -98,11 +112,17 @@ def rang_config(case):
     text = (PINNED / "e2a-rerun.yaml").read_text(encoding="utf-8")
     text = text.replace("  scans: [9, 10, 11]\n", "  scans: [9, 11]\n")
     text = text.replace("  refant: auto\n", "  refant: [m022, m023, m024]\n")
-    text = text.replace("  stages: [flag, calibrate, apply, image, selfcal]", "  stages: [calibrate]")
+    text = text.replace(
+        "  stages: [flag, calibrate, apply, image, selfcal]", "  stages: [calibrate]"
+    )
     if case in ("tt", "tts"):
-        text = text.replace("  average_time: true\n  primary:", "  average_time: false\n  primary:")
+        text = text.replace(
+            "  average_time: true\n  primary:", "  average_time: false\n  primary:"
+        )
         # unaveraged, one K0 interval needs 9.8 GiB (refused at the default 8)
-        text = text.replace("  weights: uniform\n", "  weights: uniform\n  memory_limit_gb: 16\n")
+        text = text.replace(
+            "  weights: uniform\n", "  weights: uniform\n  memory_limit_gb: 16\n"
+        )
     head = f"# research/e2a-3b-diag.md D1 case {case}: e2a-rerun.yaml (51291b7), calibrate only, subset scans and refants.\n"
     return head + text
 
@@ -117,7 +137,14 @@ def rang(d, case):
     cfg.write_text(rang_config(case), encoding="utf-8")
     shutil.copy(PINNED / "mk_rfi_flagging_calibrator_fields_firstpass.yaml", d)
     if case == "ti":
-        argv = [str(FROZEN_PY), str(HERE / "d1_rang_iter.py"), "200", "run", str(cfg), str(ms)]
+        argv = [
+            str(FROZEN_PY),
+            str(HERE / "d1_rang_iter.py"),
+            "200",
+            "run",
+            str(cfg),
+            str(ms),
+        ]
     elif case in ("ts", "tts"):  # post hoc T-S (section 6): a strict stop rule
         argv = [str(FROZEN_PY), str(HERE / "d1_rang_iter.py"), "1000:1e-12:1.0", "run", str(cfg),
                 str(ms)]  # fmt: skip
@@ -130,7 +157,9 @@ def rang(d, case):
                             env={**__import__("os").environ, "PYTHONPATH": ""}).returncode  # fmt: skip
     dt = time.perf_counter() - t0
     log(d, f"END rang-{case} rc={rc} {dt:.1f}s")
-    (d / f"rang-{case}-run.json").write_text(json.dumps({"exit": rc, "seconds": dt}) + "\n")
+    (d / f"rang-{case}-run.json").write_text(
+        json.dumps({"exit": rc, "seconds": dt}) + "\n"
+    )
     return rc
 
 
@@ -175,7 +204,19 @@ def _calls(vis, out, *, usescratch, flags_pass0, flags_pass1, k1=None, terms=Non
         "K1": gk("K1", "60s", ["G0", "B0"]), "G1": gg("G1", "60s", ["K1", "B0"]),
         "B1": bb("B1", ["K1", "G1"]),
     }  # fmt: skip
-    order = terms or ["flags0", "hash0", "setjy", "K0", "G0", "B0", "flags1", "hash1", "K1", "G1", "B1"]
+    order = terms or [
+        "flags0",
+        "hash0",
+        "setjy",
+        "K0",
+        "G0",
+        "B0",
+        "flags1",
+        "hash1",
+        "K1",
+        "G1",
+        "B1",
+    ]
     return [calls[k] for k in order]
 
 
@@ -207,7 +248,9 @@ def casa(d, case):
                 c["args"]["gaintable"] = [g.replace(f"{out}/B0", "/d1/casa-tf/B0")
                                           for g in c["args"]["gaintable"]]  # fmt: skip
         pre = []
-    elif case == "tk2":  # post hoc: rang's K0 and K1 (T-T, unaveraged) in every CASA pre-apply
+    elif (
+        case == "tk2"
+    ):  # post hoc: rang's K0 and K1 (T-T, unaveraged) in every CASA pre-apply
         rk = "/d1/rang-tt.ms.rang-run/calibrate"
         calls = _calls(vis, out, usescratch=False, flags_pass0=stage, flags_pass1=after,
                        terms=["flags0", "hash0", "G0", "B0", "flags1", "hash1", "G1", "B1"])  # fmt: skip

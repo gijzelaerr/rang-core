@@ -1,0 +1,67 @@
+[
+ {
+  "task": "copyflags",
+  "args": {
+   "src": "/d1/rang-r0.ms",
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tk/G1",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "60s",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-r0.ms.rang-run/calibrate/K1",
+    "/d1/casa-tf/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/d1/casa-tk/B1",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-r0.ms.rang-run/calibrate/K1",
+    "/d1/casa-tk/G1"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]

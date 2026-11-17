@@ -47,7 +47,10 @@ def relabel(t, times_from):
 def main(run, out_path):
     run = Path(run)
     ms = run / "e2a.ms"
-    r = {n: C.table(run / "rang-run" / "calibrate" / n) for n in ("K0", "G0", "B0", "K1", "G1", "B1")}
+    r = {
+        n: C.table(run / "rang-run" / "calibrate" / n)
+        for n in ("K0", "G0", "B0", "K1", "G1", "B1")
+    }
     c = {n: C.table(run / "casa" / "tables" / n) for n in r}
     fid = C.field_id(ms, FCAL)
     out = {}
