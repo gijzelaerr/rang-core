@@ -507,3 +507,10 @@ frequency-averaged cell as CASA does. Test, before running it:
   CASA; on S1 it is nearer truth than U if ≤ 0.8 × U's error. Either way
   no default changes here (the key exists; making it the default is an
   owner decision).
+
+## Coordinator decisions, 2026-11-17
+
+1. **Reserve:** not spent. Under the frozen class B rule the predicted composite (2.24e-3 / 1.45e-2) fails again, and it fails on CASA's K, which these simulations show is the less accurate estimator. The reserve stays unread.
+2. **v0.3.0:** E2-A gate 3b is a documented limitation, with the measured cause. CASA's K estimator is biased (1.1e-4 ns noise-free, about 5× rang's error with noise). The 1.1e-3 subset part is one G1 solution, which CASA flags by its `minsnr` definition and rang keeps. With rang's K shared, CASA's composite is 4.1e-5 / 4.0e-3.
+3. **Future protocols (adopted):** a calibration chain whose oracle's estimator is shown to be biased against simulated truth is gated against truth on simulation and against the oracle with shared upstream terms on real data, frozen before data. A reserve leg for E2-A under that rule may be proposed for v0.4.0.
+4. **Open:** the shared 3.7e-4 to 5.7e-4 noise-free floor, and rang's 6.9e-4 of unfitted noise-free data. These are listed under #2 for v0.4.0. They are not a rang defect until they are located.
