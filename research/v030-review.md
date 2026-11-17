@@ -98,7 +98,9 @@ cause was found for it, but its run-state form was R-01.
 
 Branched from the merge of `v030-ready`. Nothing here changes a number, a default, a stage hash or an
 archived output: the fixes are notices, messages, a refusal, the JSON spelling of non-finite values, the
-location of GeMClean's temporary files and write-back bookkeeping (section 5.4).
+location of GeMClean's temporary files and write-back bookkeeping. Proof (section 5.4): `python
+tools/check_all.py --quick` PASS on `b572c7be`, with the gain-hash gate PASS, and again after the audit
+additions (5.5).
 
 ### 5.1 Licence notices (B-01, B-02), read in the upstream sources
 
@@ -182,3 +184,42 @@ astropy-iers-data sdist. Nothing in them was built or run.
   (rerun with `--force` after editing a referenced file in place).
 - E5-26 (a file held open by another program on Windows) and WB-14 (a `restoring` state) were not in
   this brief; E5-24's PermissionError message covers the first in part.
+
+### 5.4 Proof that nothing else changed
+
+`python tools/check_all.py --quick` (ruff, ruff format, cargo fmt, clippy with warnings as errors, the root and core
+Rust tests, the extension build, pytest on the touched test files, the gain-hash gate against the archive)
+passed on the branch before the push (log `outputs/check/20261117T093557Z-quick.log` in the worktree: 293 core
+tests, 768 pytest passed, gain-hash gate PASS); the oracle gates (CASA, WSClean) are left to the
+coordinator's full merge check.
+
+### 5.5 The MIT audit's notice gaps (coordinator, 2026-11-17)
+
+From [mit-relicense-audit.md](mit-relicense-audit.md) section 3.2 (branch `mit-audit`) and its
+`files.csv`, fixed under the current GPL. Each upstream was read in its source, read only, into
+`~/Build/tmp/20261117-v030fix-upstream`: c-blosc tag v1.21.6 (`616f4b73`), the PyPI sdists of katdal 0.23,
+msutils 1.2.0, astro-tigger-lsm 1.8.0 and losoto 2.7.1, netlib's fdlibm `k_sin.c`, `k_cos.c`,
+`e_rem_pio2.c`, casacore v3.8.1 (`5420b48e`) and v3.7.1, the casa6 mirror at `9269a52`, WSClean v3.6
+(`5fdad9bf`) and CARACal `8f7bb363`. killMS 3.3.0 has no sdist on PyPI; its PyPI metadata gives the GPL-2.0
+text, and only its file layout is used.
+
+| Gap | Fix |
+| --- | --- |
+| c-blosc 1.21.6 in `core/src/blosc.rs` | SPDX `GPL-3.0-or-later AND BSD-3-Clause`, header names it; `LICENSE.txt` verbatim in the notices |
+| katdal 0.23's BSD text (`meerkat.py`) | header line; `LICENSE.txt` verbatim in the notices |
+| Tricolour in `core_flag.py` | SPDX `AND BSD-3-Clause`, header; the Tricolour notice names the file |
+| fdlibm constants in `gpu/shader.rs` | SPDX `AND SunPro`; Sun's notice kept in the file, as it requires, and in the notices |
+| Tigger and codex-africanus in `formats/sky.py` | SPDX `AND BSD-3-Clause`; Tigger 1.8.0's notice (MeqTree Foundation and ASTRON, GPL-2.0-or-later, used under GPL-3.0-or-later) and the two regexes named |
+| `gemclean/input.rs` (`stokes_cell`) | header line; schaapcommon's notice names it |
+| `calmodels.py` | CASA `Imager.cc` (GPL-2.0-or-later), `SpectralIndex.cc`, `SkyCompRep.cc`, `Flux.tcc` (LGPL-2.0-or-later): header and notices |
+| `apply.rs`, `flag_extend.py` | casacore `Interpolate1D.tcc` (3.7.1), `MSIter.cc`, `BaseTabIter.cc`; CASA `CTTimeInterp1.cc`, `FlagDataHandler.cc`, `FlagMSHandler.cc` (LGPL-2.1-or-later, AUI and ESO): headers and notices |
+| killMS, losoto (and Crystalball, DDFacet) | headers of `killms.py`, `h5parm.py`; a "formats only, no code" entry in the notices and `licence.md` |
+| msutils | `flag_stats.py` has no notice; `LICENSE` is the GPL-2.0 text, PyPI metadata "GNU GPL v2", `setup.py` "version 3 of the License, or (at your option) any later version" (Copyright (c) 2016 SKA South Africa). No file says "version 2 only", so GPL-2.0 section 9 (any version) or `setup.py` (3 or later) gives GPL-3.0-or-later: **compatible**; about 20 lines of `wgs84_to_ecef`, a textbook formula the function attributes to the HiSPARC note. `licence.md`'s "licence not checked" replaced |
+| WSClean 3.6 `wstackinggridder.h` | verbatim "published under the GPL 3 license." in the notices and `licence.md` (version 3, no "or later"; Debian records 3+); the notices' "its source files carry no notice" corrected |
+| CARACal's strategy YAMLs under `research/results/` | 20 copies of `mk_rfi_flagging_calibrator_fields_firstpass.yaml` (2 byte copies of `8f7bb363`'s, 18 with trailing spaces removed); the upstream file has no notice. [results/CARACAL-NOTICE.md](results/CARACAL-NOTICE.md) lists them with CARACal's licence, and [results/CARACAL-LICENSE.txt](results/CARACAL-LICENSE.txt) is CARACal's `LICENSE` (GPL-2.0). The archived files are unchanged; `research/` ships in neither the sdist nor the wheels |
+| `ism.rs`, `ms_write.rs`, `tiled.rs` said "nothing is copied"; `multifile.rs` said nothing | headers now say they translate casacore 3.8.1's storage managers (`ISMBucket::getSplit`'s loop kept in `split` and `get_split`); fifteen casacore files' notices verbatim (all LGPL-2.0-or-later, AUI) |
+| `bandpass.rs`, `fluxscale.rs`, `reference.rs` said "CASA is not copied" | headers now say translated (`fillChanGapArray`; `fluxscale`; `applyRefAnt`, `verifyConstraints`); their CASA notices were already listed |
+
+Tests: `test_spdx_headers.py` (the new SPDX expressions), `test_w4_5_release.py` (each holder in the notices
+and the file, each casacore and CASA file named in both, no "nothing is copied" / "CASA is not copied" left,
+WSClean's "GPL 3" line). Only comments, notices and docs change.

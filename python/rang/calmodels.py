@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's `Imager.cc` (`sjy_setmanualflux`; GPL version 2 or later)
+# and its components `SpectralIndex.cc`, `SkyCompRep.cc`, `Flux.tcc` (LGPL
+# version 2 or later), Copyright (C) Associated Universities, Inc.,
+# Washington DC, USA: notices in THIRD-PARTY-NOTICES.txt.
 """Calibrator models into MODEL_DATA, as CASA `setjy` writes them.
 
 Task C3a (research/c3a-models.md), step 1 of the calibration chain

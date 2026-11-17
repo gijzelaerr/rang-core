@@ -5,6 +5,9 @@
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! `stokes_cell` follows schaapcommon b553fd25 `reordering.cc`
+//! (`ExtractData`, `ExtractWeights`; Copyright (C) 2024 ASTRON,
+//! GPL-3.0-or-later): notices in THIRD-PARTY-NOTICES.txt.
 //!
 //! The rules follow `examples/clean_certified_export.py`, which reproduces
 //! WSClean 3.7's visibility count and weight sum (`WSCNVIS`, `WSCIMGWG`) on

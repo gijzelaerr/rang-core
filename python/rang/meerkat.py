@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
+# Adapts katdal 0.23's test helpers: Copyright (c) 2011-2024, National
+# Research Foundation (SARAO), BSD-3-Clause; the licence text in
+# THIRD-PARTY-NOTICES.txt.
 """MeerKAT MVFv4 archives into the core's arrays (research/mk1-katdal.md).
 
 Opens a MeerKAT visibility archive (an RDB URL, with its token if any, or a

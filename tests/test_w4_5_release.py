@@ -212,6 +212,32 @@ def test_pyproject_metadata():
     for path in ("mask.rs", "joined.rs", "multiscale.rs", "stokes.rs"):
         assert "core/src/gemclean/" in notices and path in notices, path
         assert "radler 76fe4474" in _text(f"core/src/gemclean/{path}"), path
+    # The MIT audit's notice gaps (research/mit-relicense-audit.md 3.2): each
+    # holder in the notices and in the file that follows it.
+    for path, holder in (
+        ("core/src/blosc.rs", "Copyright (c) 2009-2018 Francesc Alted"),
+        ("python/rang/meerkat.py", "Copyright (c) 2011-2024, National"),
+        ("core/src/gpu/shader.rs", "Copyright (C) 1993 by Sun Microsystems, Inc."),
+        ("python/rang/formats/sky.py", "The MeqTree Foundation"),
+        ("python/rang/cal_refant.py", "Copyright (c) 2016 SKA South Africa"),
+        ("core/src/gemclean/input.rs", "Copyright (C) 2024 ASTRON"),
+    ):
+        assert holder in notices and holder in _text(path), (path, holder)
+    for path, upstream in (
+        ("core/src/ism.rs", "ISMBucket.cc"),
+        ("core/src/ms_write.rs", "SSMStringHandler.cc"),
+        ("core/src/multifile.rs", "MultiFileBase.cc"),
+        ("core/src/tiled.rs", "TiledStMan.cc"),
+        ("python/rang/calmodels.py", "Imager.cc"),
+        ("python/rang/flag_extend.py", "FlagMSHandler.cc"),
+        ("core/src/cal/apply.rs", "CTTimeInterp1.cc"),
+    ):
+        assert upstream in notices and upstream in _text(path), (path, upstream)
+    for path in ("core/src/ism.rs", "core/src/ms_write.rs", "core/src/tiled.rs"):
+        assert "nothing is copied" not in _text(path), path
+    for path in ("bandpass.rs", "fluxscale.rs", "reference.rs"):
+        assert "CASA is not copied" not in _text(f"core/src/cal/{path}"), path
+    assert "published under the GPL 3\nlicense." in notices
     # E5 final F-01: the polarisation chain needs astropy in a bare install.
     assert 'dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]' in project
     assert "License ::" not in project

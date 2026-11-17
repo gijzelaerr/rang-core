@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# The file layout of killMS 3.3.0 (GPL-2.0) is read and written; no killMS
+# code is used (THIRD-PARTY-NOTICES.txt, formats).
 """killMS solution files (`killMS.<name>.sols.npz`; research/dfio-formats.md, F5).
 
 killMS 3.3.0 (`kMS.py`) saves with `np.savez`: `Sols`, a record array of

@@ -9,7 +9,8 @@
 //! Written from `SolvableVisJones::fluxscale` of casa6 6.7.6.14
 //! (`SolvableVisCal.cc`) and casacore's `median(MaskedArray)`,
 //! `stddev(MaskedArray)` and `GenericL2Fit`/`LSQFit` (3.7.1), as read for
-//! the protocol (section 0.1 there); CASA is not copied.
+//! the protocol (section 0.1 there), and translated from them (CASA's names
+//! and branches are kept).
 //!
 //! - `scale`: per field and window the float32 median of every unflagged
 //!   amplitude (for `gainthreshold`), the amplitudes inside the threshold
