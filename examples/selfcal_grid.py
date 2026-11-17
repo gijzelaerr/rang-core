@@ -38,6 +38,9 @@ CH_B = ft.CHANNELS  # 4, 12, ..., 252: imaging-floor's metric channels, held out
 CH_A = ft.CHANNELS - 4  # 0, 8, ..., 248: in sample
 FLAGGED_B = np.sort(np.concatenate([CH_B - 1, CH_B, CH_B + 1, CH_B + 2]))
 SOLINTS = ["60s", "120s", "300s", "600s"]
+# clarification 1 (research/selfcal-defaults.md section 9): `data.memory_limit_gb` by the longest
+# solint of a run; p1.yaml's 12 GiB refuses one 600 s interval (13.6 GiB) and the scan-long `inf`
+MEMORY_GB = {"600s": 16.0, "inf": 96.0}
 
 
 def sp(s):
@@ -113,6 +116,10 @@ def cmd_prepare(out, run, cell=None, minuvw=0.0):
         spec = runs()[run]
         cfg["selfcal"]["rounds"] = spec["rounds"]
         cfg["selfcal"]["terms"] = spec["terms"]
+    sol = {t.get("solint", "inf") for t in cfg["selfcal"]["terms"]}
+    for k, gb in MEMORY_GB.items():
+        if k in sol:
+            cfg["data"]["memory_limit_gb"] = max(cfg["data"]["memory_limit_gb"], gb)
     (q / "config.yaml").write_text(yaml.safe_dump(cfg, sort_keys=False))
     ms = q / "pilot.ms"
     if (q / "holdout.json").exists():

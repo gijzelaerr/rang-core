@@ -145,4 +145,22 @@ work, so about 4 h or more on nash with three in parallel. Wall times go into
 
 ## 8. Results
 
-Not run yet.
+Not scored yet.
+
+## 9. Clarifications before the scored runs
+
+**1, 2026-11-17 04:20 SAST (after L60, L120 and L300 were scored, before any run with a 600 s or
+`inf` interval had solved).** Run L600 stopped in its first solve with rang-core's refusal:
+`one solution interval holds 142417920 visibility cells of 823500 rows and needs 13.579 GiB, above
+data.memory_limit_gb 12` (log kept as `grid-L600-attempt1.log`). D's scan-long interval
+(`solint: inf`, about 843 million cells) would need about 80 GiB, so D was stopped before its solve
+(`D-attempt1`). `data.memory_limit_gb` is a resource budget only. The solver solves one interval
+whole. rang-core's chunking "changes no arithmetic" (`core_chunks`, research/w3-chunking.md
+section 3), and GeMClean does not read the limit. Runs whose terms include a 600 s interval (L600, M600,
+N600, and X if the chosen cell has one) therefore use `memory_limit_gb: 16`. Runs with `inf` (D)
+use 96. Every other key of `p1.yaml` is unchanged. Lock bookings follow honestly: 24 GB for
+the 600 s runs, 100 GB for D. The failed attempts' MS copies were deleted and the runs start again
+from a fresh copy of the base. No rule, threshold, cell or score changed. Post hoc remark, not a
+reading: the current default (`solint: inf`) cannot solve this 1 h, 256-channel pilot within the
+default `memory_limit_gb` of 8.
+
