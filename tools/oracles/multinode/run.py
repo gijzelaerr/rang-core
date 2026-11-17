@@ -32,6 +32,7 @@ tools/oracles/nash/timed.py, whose wait4 covers the workers. The environment:
 import json
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -99,8 +100,12 @@ def config_text(case, arm, d, ms):
     return cta.config_text(case, "_mn", ms)
 
 
+# The build of a checkout that may predate core_spool (the oracle): as
+# core_spool.build().
 BUILD_SNIPPET = (
-    "import json; from rang import core_spool; print(json.dumps(core_spool.build()))"
+    "import hashlib, json; from pathlib import Path; import rang; "
+    "from rang import _core; print(json.dumps({'version': rang.__version__, "
+    "'core_sha256': hashlib.sha256(Path(_core.__file__).read_bytes()).hexdigest()}))"
 )
 
 
@@ -128,8 +133,10 @@ def _start_worker(py, spool, threads, env, log):
     return subprocess.Popen(cmd, env=env, stdout=log, stderr=subprocess.STDOUT, **kw)
 
 
-def _killer(spool, procs, record, halt):
-    """Kill the worker of the first claim, once (the kill test)."""
+def _killer(spool, record, halt):
+    """Kill the worker of the first claim, once (the kill test). The pid is
+    the interpreter's own, from the claim (on Windows a venv's python.exe is
+    a launcher whose pid is not the interpreter's)."""
     claimed = spool / "claimed"
     while not halt.is_set():
         for claim in claimed.glob("*"):
@@ -138,12 +145,14 @@ def _killer(spool, procs, record, halt):
                 pid = int(owner.split("-")[-2])
             except (OSError, ValueError, IndexError):
                 continue  # being written
-            for p in procs:
-                if p.pid == pid:
-                    p.kill()
-                    record["killed"] = {"pid": pid, "claim": claim.name,
-                                        "unix": time.time()}  # fmt: skip
-                    return
+            if os.name == "nt":
+                subprocess.run(["taskkill", "/F", "/PID", str(pid)],
+                               capture_output=True, check=False)  # fmt: skip
+            else:
+                os.kill(pid, signal.SIGKILL)
+            record["killed"] = {"pid": pid, "owner": owner, "claim": claim.name,
+                                "unix": time.time()}  # fmt: skip
+            return
         halt.wait(0.05)
 
 
@@ -172,7 +181,7 @@ def stage(d, name):
     halt = threading.Event()
     killer = None
     if a.get("kill") and procs:
-        killer = threading.Thread(target=_killer, args=(spool, procs, record, halt))
+        killer = threading.Thread(target=_killer, args=(spool, record, halt))
         killer.start()
     t0 = time.time()
     proc = subprocess.run(

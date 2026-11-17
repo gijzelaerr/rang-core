@@ -84,12 +84,29 @@ def prepare(spool):
     return spool
 
 
+def _retry(fn, *args, **kwargs):
+    """`fn(*args)`, retried while Windows reports a sharing violation (another
+    process has the file open for a moment: PermissionError)."""
+    for delay in (0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0):
+        try:
+            return fn(*args, **kwargs)
+        except PermissionError:
+            if os.name != "nt":
+                raise
+            time.sleep(delay)
+    return fn(*args, **kwargs)
+
+
+def _unlink(path):
+    _retry(Path(path).unlink, missing_ok=True)
+
+
 def _write(path, data):
     """Write bytes under a temporary name and rename them into place."""
     tmp = path.with_name(f"{path.name}.tmp-{uuid.uuid4().hex}")
     with open(tmp, "wb") as f:
         f.write(data)
-    os.replace(tmp, path)
+    _retry(os.replace, tmp, path)
 
 
 def _sleeper():
@@ -163,7 +180,7 @@ class Spool:
         for claim in (self.root / "claimed").glob(f"{self.session}-*"):
             tag = claim.name
             try:
-                worker = claim.read_text(encoding="utf-8").strip()
+                worker = _retry(claim.read_text, encoding="utf-8").strip()
                 made = claim.stat().st_mtime
             except FileNotFoundError:
                 continue  # finished meanwhile
@@ -183,10 +200,7 @@ class Spool:
                 )
             if not (self.root / "tasks" / f"{tag}.json").is_file():
                 continue  # the worker finished after all
-            try:
-                claim.unlink()
-            except FileNotFoundError:
-                continue
+            _unlink(claim)
             self.attempts[tag] = self.attempts.get(tag, 1) + 1
             self.counts["requeued"] += 1
             if self.log:
@@ -200,14 +214,14 @@ class Spool:
         last_check = 0.0
         for _ in _sleeper():
             if pkl.is_file():
-                data = pkl.read_bytes()
-                pkl.unlink()
+                data = _retry(pkl.read_bytes)
+                _unlink(pkl)
                 self.mine.discard(tag)
                 self.counts["partial_bytes"] += len(data)
                 return pickle.loads(data)
             if err.is_file():
-                text = err.read_text(encoding="utf-8")
-                err.unlink()
+                text = _retry(err.read_text, encoding="utf-8")
+                _unlink(err)
                 self.mine.discard(tag)
                 raise SpoolError(f"task {tag} failed on a spool worker:\n{text}")
             now = time.time()
@@ -229,10 +243,7 @@ class Spool:
         """Remove this session's specs, claims and results left over."""
         for sub in ("tasks", "done", "claimed"):
             for p in (self.root / sub).glob(f"{self.session}-*"):
-                try:
-                    p.unlink()
-                except FileNotFoundError:
-                    pass
+                _unlink(p)
         self.mine.clear()
 
 
@@ -269,7 +280,7 @@ def _claim(root, worker):
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(worker)
         if not path.is_file():  # finished or discarded meanwhile
-            claim.unlink(missing_ok=True)
+            _unlink(claim)
             continue
         return tag, claim, path
     return None
@@ -305,9 +316,9 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
             tag, claim, task = got
             try:
                 try:
-                    text = task.read_text(encoding="utf-8")
+                    text = _retry(task.read_text, encoding="utf-8")
                 except FileNotFoundError:
-                    claim.unlink(missing_ok=True)
+                    _unlink(claim)
                     continue  # discarded by the parent
                 body = json.loads(text)
                 if body["build"] != mine:
@@ -324,8 +335,8 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
                     root / "done" / f"{tag}.err",
                     f"worker {worker}\n{traceback.format_exc()}".encode(),
                 )
-            task.unlink(missing_ok=True)  # before the claim, so no one re-runs it
-            claim.unlink(missing_ok=True)
+            _unlink(task)  # before the claim, so no one re-runs it
+            _unlink(claim)
             ran += 1
             idle = time.time()
             if max_tasks is not None and ran >= max_tasks:
@@ -333,10 +344,7 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
     finally:
         beat.halt.set()
         for suffix in (".beat", ".json"):
-            try:
-                (root / "workers" / f"{worker}{suffix}").unlink()
-            except FileNotFoundError:
-                pass
+            _unlink(root / "workers" / f"{worker}{suffix}")
     log(f"spool worker {worker}: {ran} tasks, exiting")
     return ran
 
