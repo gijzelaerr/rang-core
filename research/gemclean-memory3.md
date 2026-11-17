@@ -216,6 +216,7 @@ baseline runs (`p2-base`, copied into this phase's `runs/`). Receipts:
 | the `-reorder` regression case's two-chunk MS, 6 cases ([receipts/sweep-regcase.json](results/gemclean-memory3/receipts/sweep-regcase.json)) | 17-51 | all identical in both legs; nothing left |
 | the new image-dominated case (512², 4 channels, IQUV, masked): main's code (`7be8c95`) and `f20c06a`, with and without `-reorder` | 85 | identical |
 | G8's 21 cases again with the default change (`bc62504`, [receipts/sweep-default.json](results/gemclean-memory3/receipts/sweep-default.json)): its default leg now runs `-reorder` for joined polarisations | 0-85 | all identical; nothing left |
+| `-beam-band` (post hoc, 2026-11-17: the one case where arm A's shared buffer changes width between beams): J1833−2103, main's code (`7be8c95`, `-reorder`) against `bc62504` (default), A5's argv plus `-beam-band`; the eight beams keep 53-94 MB of spectrum each (traced), so every resync resizes the buffer | 153 | identical; `entries` and mask equal. Also identical (85 files each) on G8's tiny MS and the regression MS at 4″ and at 1″ |
 | `core/tests/gemclean_memory.rs` (all three cases) | – | pass |
 | J1833−2103 through the wheel, A5's argv with no `-reorder` flag (`python -m rang.gemclean`, this branch's extension at `bc62504`, so `-reorder` by default) | 153 | identical; mask equal; 5.78 GiB tree RSS, 5.78 private, 454.4 s (shared, 4 slots) |
 | gemclean pytest files (`test_g6_model`, `test_g7_defaults`, `test_g8_gemclean`, `test_g8_identity`, `test_w2_commands`, `test_w4_unsupported`, `test_e5_final`, `test_d1_docs`) | – | 68 passed, 3 skipped, 1 xfailed |
@@ -230,10 +231,15 @@ plans 0.94, tables 0.13. The end of the clean (dense models back beside
 the beams) holds 5.94 GB, below the minor cycle's peak. Against WSClean
 3.7's 1.34 GiB (phase 2, 9.29) this is 4.3 ×.
 
-**Time, J1833−2103.** Shared, 380.2 s against phase 2's 335.1 s (1.135).
-That reading is the host's load: the traced binary of main's code ran
-380.3 s in the same hour. The exclusive pairs settle it: `-reorder` with
-A and B runs 316.5 and 318.9 s, below phase 2's shared 335.1 s; **met**.
+**Time, J1833−2103.** The like-for-like reading: main's code (the traced
+binary `7be8c95`) ran 380.3 s and A + B 380.2 s, both with `-reorder`, in
+the same hour on the shared host, so A and B cost no time. Against the
+frozen figure, phase 2's shared 335.1 s, the shared run is 1.135; the
+exclusive `-reorder` runs (316.5, 318.9 s) are below it; taken as **met**
+on that basis. No run of phase 2's binary was made beside this branch's on
+any field, so there is no like-for-like wall against phase 2 beyond the
+J1833−2103 pair above; `gemclean-v-42ad6c6.exe` is kept for exclusive pairs
+if wanted.
 
 **All three fields, exclusive** (`heavy_lock.py run`, idle host, this
 binary, `-memory-report`; tree RSS from pair 1, GiB; wall in s):
@@ -262,10 +268,19 @@ binary, `-memory-report`; tree RSS from pair 1, GiB; wall in s):
   +45 s), 81.72 + 30.48 against 64.85 + 13.98 on J1939−6342 (+33.4 of
   +39), 21.32 + 7.68 against 17.13 + 3.81 on J1833−2103 (the per-channel
   temporary files; pair 1's logs).
-- Arms A and B also lower the in-memory path's minor cycles (J1833−2103
-  without `-reorder`: heap peak 9.33 GB against phase 2's 9.79, now at the
-  end of the clean); its peak on the large fields stays in the build
-  (18.6 GB).
+- Section 3's prediction that the same saving applies without
+  `-reorder` was **not borne out**: without it J1833−2103's peak moves to
+  the end of the clean (9.33 GB heap against phase 2's 9.79; peak private
+  8.73 against 9.20 GiB), where the dirty images come back beside the
+  beams, and the large fields' peak stays in the build (18.6 GB).
+- The `-beam-band` pair (shared, 4 slots) ran 386 s (main's code) and
+  565.5 s (this branch), CPU 1,235 against 1,338 s at 3.26 against 2.37
+  mean cores: mostly host load, but the 8 % more CPU is not explained and
+  `-beam-band` was not in any timed configuration; an exclusive pair would
+  settle it.
+- The time ratios: five of the six exclusive pairs give 1.04-1.08 and the
+  sixth 0.90 (the slow 354.9 s run), so `-reorder` costs about 5-8 % of
+  the wall.
 - The large fields' `-reorder` heap now peaks at 8.27 / 8.26 GB in the
   first residuals (from 9.39 / 9.37).
 
@@ -293,10 +308,21 @@ covers the default's scope.
 -join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2
 -reorder`): the clean's peak heap is 105.86 images of 512² `f64` with
 main's code (222,012,486 bytes) and 84.35 with A and B (176,898,150);
-bound frozen at **89 images**, which a return of the dense models (+16)
-or of the per-beam row spectra (+6) exceeds. The bound is in images, so it
-should hold on Linux's allocator as on Windows'; the first CI run checks
-that.
+bound frozen at **89 images**. Only the whole return was shown to exceed
+it (105.86, main's code); that the dense models alone (+16) or the
+per-beam row spectra alone (+6, about 90.4) exceed it is arithmetic.
+Post hoc (2026-11-17, after the freeze): the test runs with `-reorder`, so
+that the dirty images do not come back beside the beams at the end and the
+clean's peak is the minor cycle that A and B act on. The bound is in
+images; it passed on Linux in the `tests` workflow (run 44089411056).
+
+**Checks.** `tools/check_all.py --quick` PASS (890 s) at `032f36e`, one
+commit before the branch head (`c7339cc` adds documentation, receipts and
+the regenerated `docs/cli.md` only). CI on `c7339cc`: `tests` 44089411056
+and `docs` 44089410942 green. The full check (oracles, gpu steps) is left
+to the merge check. The archived gemclean gates are the pytest files
+listed in the identity table (the three skips are POSIX-only tests) and
+the core's Rust tests (291 passed in the quick check).
 
 **Not done:** arm C (not needed); `f32` images (phase 2's arm F); the
 beams (2.15 GB) and plans (0.94 GB), now 50 % of J1833−2103's peak.

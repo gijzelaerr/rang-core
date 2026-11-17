@@ -2123,3 +2123,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gemclean-memory3: `sweep.py` (21 cases × 3 binaries, G8 tiny MS) | G8's tiny MS | about 1 min | – | shared, 2 slots; run three times (A+B, regression MS 6 cases, default) |
 | 2026-11-17 | gemclean-memory3: the wheel (`python -m rang.gemclean`, extension `bc62504`), A5's argv, `-reorder` by default | phase 2's `f2.ms`, J1833−2103 | 454.4 s | 5.78 GiB | shared, 4 slots; byte-identical |
 | 2026-11-17 | gemclean-memory3: `tools/check_all.py --quick` | worktree at `032f36e9` (A+B, default) | 890 s | – | PASS; takes the lock itself |
+| 2026-11-17 | gemclean-memory3: `-beam-band` identity pair, `7be8c95` (`-reorder`) / `bc62504` (default), A5's argv | phase 2's `f2.ms`, J1833−2103 | 386 / 565.5 s | – / 5.26 GiB | shared, 4 slots; byte-identical; CPU 1,235 / 1,338 s |
