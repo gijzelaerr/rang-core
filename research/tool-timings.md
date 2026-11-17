@@ -2141,3 +2141,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | e2a-3b-k, host nash: CASA 3b chain on E2-A field 0, on rang's K / with its own K | 196,664 rows × 4096 ch | 2,255 s / 3,133 s | – | 4 slots booked, about 1 core used |
 | 2026-11-17 | e2a-3b-k, host nash: `k_score.py` composites, subset / field 0 | every 8th time | 22-50 s / about 600 s | – | 1 slot, `RAYON_NUM_THREADS=1` |
 | 2026-11-17 | e2a-3b-k, Windows host: `k_synth_probe*.py` (the 4-antenna test synthetic, SciPy reference) | test fixture | 1-10 s | – | 1 slot |
+| 2026-11-17 | mit-own, Windows host: `tools/check_all.py --quick` (first run FAIL on ruff format only, fixed; second PASS; 1576 passed, 63 skipped) | 286 files changed (SPDX lines) | 1005 s / 204 s, lock wait excluded (1,468 s wall with the wait) | – | shared, 4 slots; waited behind gemclean-memory3's exclusive timing runs |
+| 2026-11-17 | mit-own, Windows host: `spdx.py` (classify and stamp every tracked SPDX line) | 334 files | about 1 s | – | 1 slot |
