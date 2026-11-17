@@ -160,7 +160,7 @@ end. Archive: [results/selfcal-defaults/](results/selfcal-defaults/): `summary.j
 health, round CLEAN, model hashes), the thermal of both sets, `logs/` (every job, the failed
 `*-attempt1` and the rebooked `grid-D-ticket100`), and `scripts/` (the nash drivers). Run
 directories (stores, images) stay on nash in `~/rang-data/outputs/selfcal-defaults-20261117/`.
-The MS copies are deleted.
+The MS copies, the base copy and nash's copy of `cal2.ms` are deleted.
 
 ### 8.1 Frozen readings
 
@@ -196,7 +196,9 @@ D_ho in every cell.
 2. D* = 0.9159 (P3A@60). Candidates with D_ho ≥ 0.8959: all P2, P3, P1A, P2A and P3A cells (20). The
    cheapest is **P2@600**: two rounds and no amplitude. P1A has two rounds as well but amplitude,
    and 600 s is the longest interval. D_ho(P2@600) = 0.9050.
-3. Absorption check: X, P2@600 with `minuvw_m: 400`: running (filled in when it ends).
+3. Absorption check: X, P2@600 with `minuvw_m: 400` (the selfcal summary records
+   `uvrange '>400'`, and the round-1 model is the grid's). It is healthy and gives D_ho = **0.9037**,
+   at least 0.9050 − 0.05 = 0.855: **passes** (gap −0.0025).
 4. Change: D is eligible (healthy, Δ −0.0025), and D_ho(P2@600) − D_ho(D) = 0.9050 − 0.8922 =
    **0.013 < 0.05**. Neither branch of step 4 holds.
 5. **The default is unchanged** (`rounds: 2`, Sp then Sa, `solint: inf`). This holds whatever
@@ -227,6 +229,8 @@ enough.
 - **Cost.** The selfcal stage wall times, at 8 threads on a shared host, are L60 3,291 s, L300
   5,753 s, M60 1,807 s, M600 3,119 s and D 2,041 s. Solves at 300-600 s take 3-4 × those at
   60-120 s (925 against 287 s for one Sp round). D's `inf` solve is the fastest (299 s).
+- **Absorption.** The long-baseline solve keeps 0.9037 / 0.9050 = 0.999 of the chosen cell's drop,
+  as floor-3's PL kept 0.99 of P's. The two-round correction is found on baselines above 400 m.
 
 ## 9. Clarifications before the scored runs
 

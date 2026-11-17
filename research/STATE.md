@@ -59,6 +59,15 @@ done-criterion met for H1**, with H2 and H8a still unresolved and 0.17 of the ex
 steady phase (halves r 0.999, scatter 9.5° about a −15° gauge constant) that is invisible to Stokes I (per hand
 against scalar ΔD −0.013 in two solvers). It is a polarisation term, outside #13.
 
+Selfcal-defaults, 2026-11-17, host nash (branch `floor-4`; [selfcal-defaults.md](selfcal-defaults.md), protocol
+frozen in `7bd4fb0`, clarification 1 (memory limit) in `4483ec6` before any 600 s or `inf` solve, archive
+[results/selfcal-defaults/](results/selfcal-defaults/)): 13 `rang-core selfcal` runs on the pilot with half the
+channels held out (#6), 24 cells (1-3 Sp rounds, with or without a final Sa, 60-600 s) and the current default.
+Gates HB1 and HB2 passed. Every cell is healthy, with no noise fitting (gap D_in − D_ho −0.0027 to −0.0022).
+Held-out D: one Sp round 0.873-0.877, two 0.905-0.909, with a final Sa 0.910-0.916; current default (Sp, Sa,
+`inf`) 0.892. **Frozen rule: chosen P2@600 (0.905) beats the default by 0.013 < 0.05, so the default is unchanged.**
+Post hoc: the default needs about 37 GB for its scan-long solve and refuses at the default `memory_limit_gb` 8.
+
 Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
 archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
 passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
