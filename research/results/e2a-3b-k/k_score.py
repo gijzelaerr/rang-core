@@ -54,7 +54,9 @@ class Comp:
 
     def get(self, key, tables):
         if key not in self.cache:
-            self.cache[key] = C.composite(self.ms, self.fid, tables, POOLED, step=STEP)
+            self.cache[key] = C.composite(
+                self.ms, self.fid, tables, [cal_apply.POOLED] * len(tables), step=STEP
+            )
         return self.cache[key]
 
     def rel(self, ka, ta, kb, tb):
