@@ -395,7 +395,7 @@ pass 0 after T2 is float32: **O-P** for the residue, **O-I** for the floor.
 | stepped, nearest (NS) | 8.0e-8 / 2.6e-7 | 98.8 % | 0 |
 | constant, linear (CL) | 3.5e-3 / 2.9e-2 | 92.8 % | 2 (ID 50, interval 7: 1,293 ns X, 2,263 ns Y) |
 | constant, nearest (CN) | 7.7e-4 / 7.6e-3 | 92.8 % | the same 2 |
-| stepped, strict (T3) | 1.07e-3 / 7.9e-3 | 96.7 % | ID 50 region, 2,154 ns |
+| stepped, strict (T3) | 1.07e-3 / 7.9e-3 | 96.7 % | ID 15 interval 9 (2,154 ns), ID 40 interval 7 (28 ns) |
 
 (Flag-stage FLAG 92.3 %.) P1 on CL: truth with CL's K1 alone 0 (median;
 max 7.5e-4, the wrong solution sits on cells the scorer's flag-stage
@@ -572,19 +572,31 @@ bug, `cf_run.py`'s replacement did not match); they are kept on nash as
 
 ## For the coordinator
 
-- **A rang defect, shared with CASA, found and fixed behind a key.**
-  rang's K (and CASA's `gaintype='K'`) returns a wrong, unflagged delay
-  when a solution interval keeps very few cells on the baseline to the
-  refant: the FFT start, computed on the refant baselines only, lands on a
-  sidelobe and Gauss-Newton converges there. On E2-A it is ID 50 (m053),
+- **A rang defect found and fixed behind a key; CASA's tables hold the
+  same wrong solution.** rang's K returns a wrong, unflagged delay when a
+  solution interval keeps very few cells on the baseline to the refant:
+  the FFT start, computed on the refant baselines only, lands on a
+  sidelobe and Gauss-Newton converges there (shown for rang; for CASA only
+  the wrong value is measured, not its mechanism). On E2-A it is ID 50 (m053),
   K1 interval 7 (94 cells, 2 to the refant): **2,335 / 2,291 ns at full
   scale in rang's archived K1 and 2,365 / 2,381 ns in CASA's**, against
   0.11 / 0.09 ns in every other interval; the only such solution in either
   tool's 1,680. e2a-3b-k read it as "its delay near the 2,392 ns
   ambiguity". `calibrate.k_zero_start` (default off; `cal_delay.solve`
   `zero_start`) adds a zero-start run and keeps per interval the lower
-  residual: on S0c it takes KGB1 from 3.5e-3 to machine precision; with
-  the key off the six S0f′ tables are bitwise unchanged.
+  residual: on S0c it takes KGB1 from 3.5e-3 to machine precision; on
+  the real subset it moves ID 50's interval 7 from 2,367 to 0.121 ns and
+  nothing else by more than 1e-3 ns; with the key off the six S0f′ tables,
+  their hashes and solution records are unchanged. Limit: the choice is
+  per interval, so if another antenna in the same interval has a delay a
+  zero start cannot reach (several ns), the FFT run is kept and the sparse
+  antenna stays wrong. The "94 cells, 2 to the refant" is the simulation's
+  count (the flag stage's FLAG, which the real run's pass 1 shares up to
+  A0's few extra flags).
+- **Checks run:** `check_all.py --quick` (PASS) and the 25 test files that
+  import `cal_delay`, `cal_chain`, `core_config` or `core_pipeline` (Windows),
+  the new tests also on nash; the full check with the archive and oracle
+  gates is left to the coordinator's merge check (shipped code changed).
 - **Inferred, not measured, for e2a-3b-k:** ID 50's G1 collapse in
   intervals 6-8 (0.38, 0.09, 0.29 in rang; 0.14, 0.12 in CASA) and the
   subset's 1.1e-3 ("one G1 solution CASA flags") sit downstream of this K1
@@ -621,3 +633,18 @@ and how many other solutions move by more than 1e-3 ns. Reading: if the
 key puts ID 50's interval 7 within 0.05 ns of its other intervals (0.11 /
 0.09 ns), the fix is measured on real data; otherwise the real case is
 more than the start (the cells themselves), and the note says so.
+
+## 15. Result of section 14 (measured 2026-11-17, nash; `score-kreal.json`)
+
+On the real subset (`rang-u.ms`, e2a-3b-k's rang U run, its own G0 and
+B0), `gaincal` with the key off gives ID 50's K1 interval 7 at 2,366.7 /
+2,298.6 ns (its other intervals 0.114-0.119 / 0.091-0.093 ns); **with
+the key on 0.121 / 0.094 ns**, interval 7 is among the zero-start
+intervals (with interval 0, whose values do not move), and **no other
+solution moves by more than 1e-3 ns**. The fix is measured on real data.
+(The key-off re-solve differs from that run's own K1 by up to 0.44 ns in
+some solution: the run solved in memory-budget chunks with the stop rule
+replayed; not traced.) No gate was read.
+
+Also named (section 10's table): in R's strict arm the far solutions are
+ID 15 in interval 9 (2,154 / 1,701 ns) and ID 40 in interval 7 (28 ns).
