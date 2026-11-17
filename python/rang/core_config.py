@@ -291,10 +291,9 @@ SCHEMA = {
             "bool",
             "B solves divide the pre-applied data by the model (which the K and "
             "G pre-applies corrupt) before averaging, with weight w|M|^2 and "
-            "model 1, as CASA's divideCorrByModel; with average_time and gains "
-            "that vary inside the B interval this is the least-squares solve; "
-            "false: data and model averaged separately (task e2a-3b-diag, "
-            "research/e2a-3b-diag.md)",
+            "model 1, as CASA's divideCorrByModel; matters with average_time "
+            "and K or G varying inside the B interval; false: data and model "
+            "averaged separately (task e2a-3b-diag, research/e2a-3b-diag.md)",
         ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),

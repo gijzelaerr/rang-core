@@ -180,9 +180,11 @@ def bandpass(
     weight `w |M|^2` and model 1 (`rang.cal_gain.model_divided`, CASA's
     `divideCorrByModel`), before any time average. A K or G pre-applied in
     a B solve corrupts the model, so with `average_time` and gains that
-    vary within the B interval, averaging data and model separately is not
-    the least-squares solve; the divided average is (and without
-    `average_time` the solution is unchanged up to rounding)."""
+    vary within the B interval, averaging data and model separately is a
+    different estimator from CASA's, which divides first. On E2-A's subset
+    the divided average equals the unaveraged B to 4e-7; on the 4-antenna
+    test synthetic the two still differ (open). Without `average_time` the
+    solution is unchanged up to rounding."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]

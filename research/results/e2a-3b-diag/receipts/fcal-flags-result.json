@@ -1,0 +1,31 @@
+[
+ {
+  "task": "putflags",
+  "call": {
+   "vis": "/d1/fcal.ms",
+   "rows": "/d1/fcal-base.json",
+   "version": "/src/e2a.ms.flagversions/flags.rang_apply_20261115T144017Z"
+  },
+  "seconds": 24.53114850500424,
+  "error": null,
+  "written": false,
+  "return": {
+   "rows_written": 196664,
+   "flagged_cells": 2903878396
+  }
+ },
+ {
+  "task": "flaghash",
+  "call": {
+   "vis": "/d1/fcal.ms"
+  },
+  "seconds": 10.762401699990733,
+  "error": null,
+  "written": false,
+  "return": {
+   "flag": "24b124a43a110e99fb22ea7a3180e9e50f7064d288c7e71a7b5e0662e688b5c0",
+   "flag_row": "b6bfca1917246c965754ff22666025983b45fd545a7fb625719cb42cb7905aef",
+   "flagged_cells": 2903878396
+  }
+ }
+]

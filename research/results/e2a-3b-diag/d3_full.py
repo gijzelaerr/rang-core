@@ -102,12 +102,16 @@ def score(d):
             ms, fid, [r["K1"], r["G1"], r["B1"]], c
         ),
         "on (the fix) vs CASA": S.composite_rel(ms, fid, [r["K1"], r["G1"], on], c),
-        "on vs off": S.composite_rel(ms, fid, [r["K1"], r["G1"], on], [r["K1"], r["G1"], off]),
+        "on vs off": S.composite_rel(
+            ms, fid, [r["K1"], r["G1"], on], [r["K1"], r["G1"], off]
+        ),
         "B1 on vs CASA B1 (term)": {
             k: v for k, v in C.term_diff(on, c[2], "complex").items() if k != "rows"
         },
         "B1 archived vs CASA B1 (term)": {
-            k: v for k, v in C.term_diff(r["B1"], c[2], "complex").items() if k != "rows"
+            k: v
+            for k, v in C.term_diff(r["B1"], c[2], "complex").items()
+            if k != "rows"
         },
     }
     C.write(d / "d3.json", out)

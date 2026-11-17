@@ -174,7 +174,20 @@ def main(d):
     fid = C.field_id(ms, FCAL)
     arms = {
         a: load(d, a)
-        for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2", "tk3")
+        for a in (
+            "r0",
+            "c0",
+            "tf",
+            "tw",
+            "tm",
+            "tk",
+            "tt",
+            "ti",
+            "ts",
+            "tts",
+            "tk2",
+            "tk3",
+        )
     }
     have = {a: sorted(v) for a, v in arms.items()}
     out = {"tables_present": have, "pairs": {}}

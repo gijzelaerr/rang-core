@@ -21,16 +21,17 @@ Update this block when a merge changes it. The log below is the record.
 A new paragraph goes directly under this heading.
 
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
-before any test, two post hoc addenda each before its test; receipts
-[results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). E2-A's K1 G1 B1 composite miss (3.2e-3 against 7e-4)
-reproduced on a 15-antenna field-0 subset (1.04e-2). Two parts: (1) rang's `average_time` in B averaged data and
-the K/G-corrupted model apart over B's two-scan interval while K1 and G1 vary every 60 s; dividing by the model
-first (CASA's `divideCorrByModel`) makes the averaged B equal the unaveraged B to 4e-7 and lowers the composite
-against CASA 9.4e-3 → 1.77e-3; (2) the K estimators (rang's K leaves less residual delay, 2.2e-4 against 1.0e-3 ns);
-sharing rang's K with CASA lowers 6.5e-3 → 1.77e-3. 1.6e-3 is left unattributed. Cleared: CASA's virtual model and
-weights (CASA's tables identical), K TIME labels, iteration cap, stop rule; pass-0 flags move pass 0 only. Fix:
-`calibrate.bandpass_model_divided` (default false), 5 tests. The E2-A verdict stays as booked; a confirmation leg on
-the reserve data is proposed, not run. `e2a.ms` still holds CASA's virtual-model keywords from 3b's setjy.
+before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
+candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
+(1.04e-2). Post hoc tests, each labelled, found two parts. (1) rang's `average_time` in B averaged data and the
+K/G-corrupted model apart over B's two-scan interval while K1 and G1 vary every 60 s. Dividing by the model first,
+as CASA does, makes the subset's averaged B equal its unaveraged B to 4e-7. At full scale on E2-A's primary it
+lowers the composite from 3.16e-3 to 2.28e-3 (p95 2.36e-2 to 1.55e-2), with both controls exact. (2) The K
+estimators, on the subset only: rang's K leaves less residual delay (2.2e-4 against 1.0e-3 ns), and sharing it with
+CASA lowers 6.5e-3 to 1.1e-3. Cleared: CASA's virtual model and weights (its tables are identical), K TIME labels,
+the iteration cap and the stop rule. Fix: `calibrate.bandpass_model_divided` (default false), 5 tests. The E2-A
+verdict stays as booked; a confirmation leg on the reserve data is proposed, not run. `e2a.ms` still holds CASA's
+virtual-model keywords from 3b's setjy.
 
 MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
 receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
