@@ -356,7 +356,7 @@ simulated skies' 100 µJy threshold, is 30 times tighter than the pilot's stoppi
 That is a reading, not an amendment. Its major cycles took 65.9 s on the GPU against 99.3 s
 on the CPU (one cycle fewer; shared host, `-j 8`).
 
-### 8.4 Timing (exclusive, `-j 16`): **not run**
+### 8.4 Timing (exclusive, `-j 16`): **not run** on 2026-11-16 (run 2026-11-17: 8.7)
 
 The plan ([timing_plan.txt](results/gpu-grid-scripts/timing_plan.txt): S1, H2, H3 × coarse,
 fine × CPU, GPU × 3 repeats, interleaved; WSClean `minres` at `-mgain` 0.8 and 0.9 × 3 in WSL)
@@ -405,12 +405,75 @@ Under section 5 as frozen: **Failure** (Gate 1 fails in f32; Gate 2 fails on the
 L∞ bound). `-gpu` is not refused on the branch, as the Failure clause asks: it is labelled
 experimental in the usage text, pending the coordinator's decision on amendment 9.3. No speed
 result: the timing did not run (8.4). No novelty claim.
+Timing, 2026-11-17 (8.7, partial, two repeats): the GPU is **not faster** at `-j 16`, 7-10 %
+slower in f32 on S1 and H2 and level on H3, 18-53 % slower in f64; section 5's saving rule
+is not met in either form, so the outcome stays Failure and no speed case for `-gpu` exists.
 
 Not checked: WSClean was not run in this session (the oracle comparison is inherited through
 GPU ≈ CPU and gemclean-speed.md); WSClean with IDG; the pilot in f64; pytest against an
 extension built with the feature; Gates 1 and 2 at `-j 16` (they ran at `-j 8`; the images do
 not depend on the thread count); `-gpu` with several channels or polarisations (refused);
 macOS, DX12, AMD; the full `check_all` (left to the coordinator's merge check).
+
+### 8.7 Timing, exclusive `-j 16`, 2026-11-17 (amendments 9.4, 9.5): **GPU not faster**
+
+Glacier, one exclusive hold 20:32:20-20:51:35 (`heavy_lock.py run --drain 0`), binaries
+`gemclean-9ad7e75-{cpu,gpu}.exe`, GPU budget 4096 MiB, outputs
+`D:/rang/outputs/20261116-gpu-grid/timing-20261117b/` (per-run JSON and logs, `session.log`,
+`nvidia-smi-{start,end}.txt`, `lock-{start,end}.txt`, `ollama-server.log`); archive
+[results/gpu-grid-timing.json](results/gpu-grid-timing.json), scripts `session.py`,
+`session_analyse.py`. Start: card 499 of 12,282 MiB, idle host 0.42 cores (60 s), so the
+clean bound was 2.0 cores; end: 0.74 cores, card 10,235 MiB.
+**Partial session.** At 20:45-20:46 a local Ollama client outside rang (it calls
+Ollama on the quarter hours) loaded `qwen3:14b` (10 GB) onto the card
+during `h3-fine-gpu-r2`: that run took 111.15 s (other CPU 2.77 cores, unclean); every later
+run is unclean by the GPU-drift clause, and `s1-coarse-gpu-r3` was void, which ended the
+session (9.5). So repeats 1 and 2 ran, repeat 3 and the pilot did not; 36 GeMClean arms
+planned, 25 run, 22 clean (other-process CPU of the clean runs 0.84-1.67
+cores; this task's own Ollama connection watcher, polling every 0.7 s from about 20:18 to
+20:58, is inside the baseline and loads both arms alike).
+
+Walls, s, medians of clean runs; saving = (CPU − GPU) / CPU per repeat pair:
+
+| sky | form | accuracy of the GPU form | CPU | GPU | saving r1, r2 | major cycles CPU / GPU, s | GPU path / major (compute) | device MiB | host GB CPU / GPU |
+| --- | --- | --- | ---: | ---: | --- | --- | --- | ---: | --- |
+| S1 | coarse (f32) | Gate 1 **fail** (4.8e-4 of the residual peak, bound 1e-5); Gate 2 pass | 10.85 | 11.84 | −9.1 %, −9.3 % | 3.12 / 3.40 | 94 % (65 %) | 758 | 2.18 / 2.18 |
+| H2 | coarse (f32) | Gate 1 **fail** (1.3e-4); Gate 2 pass | 14.92 | 16.22 | −7.3 %, −10.0 % | 4.62 / 5.31 | 97 % (76 %) | 759 | 2.02 / 1.94 |
+| H3 | coarse (f32) | Gate 1 **fail** (2.8e-4); Gate 2 pass | 34.79 | 34.94 | −1.0 %, +0.1 % | 8.31 / 7.96 | 91 % (72 %) | 1190 | 4.81 / 3.94 |
+| S1 | fine (f64) | Gate 1 pass (4.3e-12); image = CPU | 14.63 | 19.13 | −30.4 %, −31.2 % | 5.81 / 9.18 | 101 % (88 %) | 1341 | 2.96 / 2.64 |
+| H2 | fine (f64) | Gate 1 pass (2.1e-12); image = CPU | 18.67 | 28.37 | −50.5 %, −53.5 % | 7.30 / 15.41 | 102 % (92 %) | 1342 | 2.95 / 2.64 |
+| H3 | fine (f64) | Gate 1 pass (7.4e-12); image = CPU | 50.80 | 59.91 | −17.9 % (r2 unclean: 51.84 / 111.15, −114 %) | 20.03 / 27.39 | 100 % (91 %) | 2360 | 5.41 / 4.59 |
+
+- Repeat spread is small: the two clean walls of every arm agree within 2.8 %.
+- **Section 5's rule, read as written: not met.** No cell saves 10 %; S1 and H2 are slower
+  than their CPU arms by more than 2 % in both forms; H3 coarse is level (−0.4 %). H3 fine has
+  one clean pair, so it is "not measured" under 9.4; it was 18 % slower. The session is
+  partial (two repeats of three), but no third repeat could turn −7 % to −53 % pairs into a
+  10 % saving.
+- **Where the time goes.** The GPU path (host, upload, compute, download) takes 91-102 % of
+  the GPU run's major-cycle time (over 100 % because its counters include GPU calls outside
+  the log's major timer: one grid call more than there are cycles), compute alone 65-92 %, so the major cycle on the card is
+  as long as or longer than the CPU's at 16 threads: in f32 by −4 % (H3) to +15 % (H2), in
+  f64 1.4-2.1 × longer (f64 at 1/64 of the f32 rate). The rest of the run (PSF, minor
+  cycles, resyncs, I/O) is unchanged, so (a reading) no wall saving is left to find in this design. At
+  `-j 8` on a shared host (8.2) the GPU operator was faster; the reading is that at `-j 16`
+  the CPU catches up.
+- **Accuracy of the timed runs:** every clean run's model, residual and image FITS are
+  byte-identical to the Gate 2 run of the same binary and form (CPU: the Gate 0 baseline;
+  GPU: `gate2/gpu`), so the accuracy column holds for these walls. H2 coarse ran 7 major
+  cycles on the CPU and 6 on the GPU, as in Gate 2.
+- **WSClean 3.7** (`minres`, clean repeat 1 only; repeat 2 unclean by the GPU-drift clause,
+  in brackets): S1 17.65 (18.33) s at `-mgain 0.8`, 12.69 (13.12) s at 0.9; H2 15.76 (16.31),
+  16.14 (18.96); H3 40.42 (41.44), 40.55 (42.91); peak RSS 0.58 / 0.58 / 1.13 GB. The
+  faster WSClean arm against GeMClean GPU coarse: S1 1.07 ×, H2 0.97 ×, H3 1.16 ×
+  (GeMClean CPU coarse: 1.17 ×, 1.06 ×, 1.16 ×), at 3-4 × WSClean's memory. The novelty
+  rule (1.5 × on each sky, memory no larger) is not met.
+- **Not run:** repeat 3, the pilot (CPU and GPU coarse), the pilot in f64 through Gate 2;
+  the post-merge build (`9606a6f` and later) was not timed and Gates 0-2 were not re-run on
+  it.
+
+Attempt 3 (`timing-20261117/`, 20:09:59-20:13:40, aborted, 9.5): the same Ollama client had
+loaded the model at 20:10:23; six CPU walls and one WSClean wall, no GPU arm.
 
 ## 9. Amendments
 
@@ -453,6 +516,71 @@ Section 7 says to stop after a Gate 1 failure. Gate 2 and the timing are run all
 labelled post hoc: the brief asks for them, and Gate 2's bounds (µJy, σ, scores) do not use
 the normalisation that failed. They cannot change the frozen outcome.
 
+**9.4, 2026-11-17, the timing arm, frozen before any timed run (post hoc: Gates 0-2 and the
+shared `-j 8` walls of 8.4 are known; no exclusive wall is).** The exclusive `-j 16` timing of
+section 5, on glacier, run because the owner asked for it (the coordinator's reopening order,
+pilot f64 through Gate 2 first, is not followed). It cannot change the outcome of 8.6
+(Failure); it is a reading for the coordinator. Section 5 and `timing_plan.txt` hold, with
+these deviations:
+
+- **One exclusive hold for the whole session**, `heavy_lock.py run --drain 0 -- python
+  session.py ...` ([results/gpu-grid-scripts/session.py](results/gpu-grid-scripts/session.py)),
+  all arms and repeats inside it; no ticket per run, no 10-minute withdrawal.
+- **Arms and order:** `timing_plan.txt` as written (S1, H2, H3 × coarse, fine × CPU, GPU ×
+  3 repeats, interleaved, CPU first in r1 and r3, GPU first in r2; GPU budget 4096 MiB;
+  binaries `gemclean-9ad7e75-{cpu,gpu}.exe`, sha256 `c434075a…`, `b9348d49…`, the ones
+  Gates 1-2 measured), output under `timing-20261117/`. After each repeat's twelve GeMClean
+  arms come that repeat's six WSClean 3.7 arms (`minres`, `-mgain` 0.8 and 0.9 on S1, H2,
+  H3, `wsclean_run.sh` as written, `-j 16`), started from the same driver through `wsl -d
+  Ubuntu`, not under a WSL lock of their own. Then the pilot, one run each of CPU and GPU
+  coarse (`run_sky.sh`'s pilot settings, `-j 16`, 4096 MiB).
+- **Warm-up, untimed, inside the hold:** every file of the four MS read once (page cache),
+  one `docker run --rm rang-wsclean-native:3.7 true`, and one S1 coarse GPU run (shader
+  cache, adapter). WSClean reads its MS copies from the WSL disk, GeMClean from D:.
+- **Walls:** GeMClean process start to exit in a Job Object (`timing.py one`); WSClean
+  GNU time's elapsed inside the container (Docker start excluded), as gemclean-speed.md.
+- **Clean or not, per run** (all recorded, none dropped): other-process CPU = (host busy
+  time from `GetSystemTimes` over the run − the run's own user + system time) / wall, in
+  cores; the driver's 5 Hz `nvidia-smi` sampler counts as other. A run is **unclean** if
+  that exceeds 1.0 core, or if the card's memory in use before the run exceeds the
+  session's start by more than 512 MiB. A GPU arm with less than budget + 256 MiB free is
+  **void** (section 5) and retried once at the end of the session. `nvidia-smi` (full) and
+  the lock status are saved at the start and end of the session.
+- **Medians:** per sky × form, the median of the paired savings (CPU − GPU) / CPU, paired
+  by repeat, over the pairs where both runs are clean; walls are medians of clean runs. A
+  cell with fewer than two clean pairs is "not measured". Section 5's saving rule (≥ 10 %
+  on two skies in one form, no cell slower than 2 %) and novelty rule are then read as
+  written, with the accuracy each form reached beside every number: f64 meets Gate 1 and
+  equals the CPU image; f32 fails Gate 1, so an f32 speed gain does not make the f32 form
+  acceptable.
+- **GPU share:** from each GPU log, the GPU path's own time (host, upload, compute,
+  download) and compute alone over the major-cycle time.
+- **Accuracy of the timed runs:** their model and residual FITS hashed against the Gate 2
+  runs of the same binary (`-j 8`); a mismatch is reported.
+
+**9.5, 2026-11-17, post hoc (seen: the aborted session below; no GPU arm ran).** Attempt 3
+(9.4) took the exclusive hold at 20:09:59 and was stopped at 20:13:40, in its first WSClean
+arm (`timing-20261117/`, kept as recorded). At 20:10:23-20:10:32 a local client sent four
+`/api/chat` requests to Ollama, which loaded `qwen3:14b` (10 GB, 100 % GPU, 15 min
+keep-alive) onto the card; every GPU arm of repeat 1 was void (10,498 of 12,282 MiB used)
+and every run unclean by 9.4's GPU-drift clause (`ollama-2010.txt`, `ollama-server.log`;
+the same client sent a burst at 18:05). The idle host itself read 1.62 cores busy over 10 s
+(0.5-1.4 cores in three later 15 s windows with WSL stopped; no user process above 0.03
+core), so 9.4's 1.0-core bound sat below the floor and would have marked every run
+unclean. Seen: the six CPU walls of repeat 1 (S1 10.88 / 14.55 s, H2 14.54 / 18.41 s,
+H3 35.22 / 50.79 s, coarse / fine) and one WSClean wall (S1 `-mgain 0.8`, 17.51 s); they
+are not pooled with the rerun. Changes for the rerun (`timing-20261117b/`), everything else
+as 9.4:
+- **Clean rule:** the idle baseline is measured over 60 s at the session start (and end),
+  and a run is unclean if its other-process CPU exceeds max(2.0, baseline + 1.0) cores.
+  The baseline is reported beside the results. The GPU-drift clause stays.
+- **Pre-flight:** with less than 4096 + 256 MiB free on the card at the start, the session
+  logs it and ends without timing.
+- **The first void GPU arm ends the session**; no end-of-session retries. A partial
+  session is reported as such and not pooled with another.
+- Ollama is not stopped by this task (not its process); the rerun starts after the model
+  has unloaded.
+
 ## Coordinator decision, 2026-11-16 (owner delegated)
 
 - The frozen outcome, **Failure**, stands. The code (`core/src/gpu/wgrid.rs`, `gemclean -gpu`) stays on
@@ -463,3 +591,31 @@ the normalisation that failed. They cannot change the frozen outcome.
 - Reopening needs, in order: the pilot in f64 through Gate 2, then the exclusive `-j 16` timing against
   WSClean on a quiet host with a free card (scripts in `results/gpu-grid-scripts/`, run with
   `heavy_lock.py run --drain 0`), under a new frozen arm. Only a speed-up at met parity would justify a merge.
+
+## For the coordinator, 2026-11-17 (timing)
+
+- The exclusive `-j 16` timing ran (8.7, partial: repeats 1-2 of 3, no pilot). GPU against CPU,
+  same form: f32 −9 % S1, −9 % H2, −0.4 % H3; f64 −31 %, −52 %, −18 % (one clean pair). The
+  saving rule of section 5 is not met; this adds a measured "not faster" to the frozen Failure.
+  The f32 numbers sit beside its Gate 1 failure; only f64 has met parity, and it is the slower one.
+- Reopening as the decision of 2026-11-16 put it ("a speed-up at met parity") is not supported
+  on this card: the GPU path already takes 91-102 % of the major-cycle time, so a faster
+  wgpu kernel, not more measurement, would be needed. Suggest closing #12 as measured, saving rule not met,
+  for this design and leaving the branch parked.
+- Blocker for any GPU timing on glacier: a local Ollama client outside rang sends
+  Ollama `/api/chat` bursts on the quarter hours (seen 15:30-15:45, 16:00, 18:05, 20:10, 20:15,
+  20:45), loading `qwen3:14b` (10 GB) for 15 minutes each. Timing needs it paused; this task
+  did not touch it.
+- Branch state: origin/main merged (`9606a6f`), SPDX after the MIT relicence (`gpu/wgrid.rs` held
+  GPL as a wgridder child, `gpu_grid_parity.rs` MIT), quick check PASS. Not done: the full
+  check, Gates 0-2 on the merged build, the pilot in f64.
+
+## Coordinator decision, 2026-11-17
+
+- **#12 closes for this design: the saving rule is not met.**
+  - f64 passes accuracy and gives images equal to the CPU's, but on glacier at `-j 16` it is 18-52 % slower than the CPU path.
+  - f32 is level to 9 % slower, and it still fails Gate 1.
+  - The GPU path takes about all of the GPU run's major-cycle time, so the card does not shorten the cycle against 16 CPU threads.
+- **Branch:** the code (`gemclean -gpu`, wgpu, opt-in) is not merged to main. It stays recoverable from the archived commit 93faa7b, listed in `research/results/gpu-grid-timing.json`. Only this note, the timing archive and the session scripts come to main, as a negative result.
+- **Not run:** the pilot, and a third repeat. A local GPU client outside rang loaded a 10 GB model onto the card every quarter hour. The two clean repeats agree within 2.8 %, so the verdict does not depend on the missing repeat.
+- **Reopen only with a different design:** batched multi-visibility kernels, or CUDA, with the CPU path kept equal within a written tolerance (AGENTS.md). That would need a new proposal note.

@@ -2255,3 +2255,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | floor-6, host nash: GeMClean arm SDm03 (8 ch, 2 terms, mask, 0.3 mJy) | the same | 1714.1 s | 22.14 GiB (max RSS) | `-j 8`, 8 slots |
 | 2026-11-17 | floor-6, host nash: `drive.sh`, whole run | all of the above | 11679 s (16:17:00-19:31:39) | – | rc 0; pilot and held-out tracks in parallel, finished before 21:00 |
 | 2026-11-17 | floor-6: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-6` (write-up, archive) | 839 s (lock wait excluded) | – | PASS; docs, archive and `.gitattributes` diff; gain-hash gate PASS |
+| 2026-11-17 | gpu-grid: `cargo clippy --features gpu --all-targets` after the merge, host glacier | core, -j 4 shared | 36 s | – | compiles; 36 `chunks_exact` lints of the local clippy 1.99, none from the merge |
+| 2026-11-17 | gpu-grid: `tools/check_all.py --quick`, host glacier | worktree `20c965d` (merged main) | 742 s (lock wait excluded) | – | PASS: 540 pytest |
+| 2026-11-17 | gpu-grid timing attempt 3, exclusive, host glacier | S1 H2 H3 plan | 3.7 min, aborted | – | Ollama loaded 10 GB at 20:10; GPU arms void; `timing-20261117/` |
+| 2026-11-17 | gpu-grid timing: GeMClean CPU, coarse / fine, `-j 16` exclusive, host glacier | S1, H2 (2048²), H3 (4096²) | 10.85, 14.92, 34.79 s / 14.63, 18.67, 50.80 s | 2.18, 2.02, 4.81 / 2.96, 2.95, 5.41 GB | medians of 2 clean repeats; `timing-20261117b/` |
+| 2026-11-17 | gpu-grid timing: GeMClean `-gpu` (4096 MiB), coarse / fine, `-j 16` exclusive, host glacier | the same | 11.84, 16.22, 34.94 s / 19.13, 28.37, 59.91 s | 2.18, 1.94, 3.94 / 2.64, 2.64, 4.59 GB | RTX 4070 Ti, 758-2360 MiB on the card; H3 fine r2 111.15 s unclean (Ollama load) |
+| 2026-11-17 | gpu-grid timing: WSClean 3.7 `minres` `-mgain` 0.8 / 0.9, `-j 16`, WSL Docker, host glacier | the same | 17.65, 15.76, 40.42 s / 12.69, 16.14, 40.55 s | 0.58, 0.58, 1.13 GB | clean repeat 1; repeat 2 unclean (GPU drift) 3-17 % slower |
+| 2026-11-17 | gpu-grid timing session (warm-up, 2 repeats, stopped at a void GPU arm), host glacier | 25 GeMClean + 12 WSClean runs | 19.3 min exclusive | – | 20:32:20-20:51:35 |
+| 2026-11-17 | gpu-grid: `tools/check_all.py --quick` (final), host glacier | worktree `d98a41a` | 96 s (lock wait excluded; build cached) | – | PASS |
