@@ -213,6 +213,17 @@ one held-out scan, the cross hands, and multiscale with a mask.
   (`family2/`) are separate from floor-5's folders, which are only read. No new environment
   variable; paths go on the command line.
 
+**2, 2026-11-17 16:40 SAST, after the pilot state and before any held-out number (the held-out
+build was still running; no held-out score, gain solution or image existed).** The pilot state
+reproduces floor-5's F_B (1,073.415606729 µJy) and F_Fix (474.831000629 µJy) to every digit, HB
+(rel 0.0) and T_noise (44.0902391 µJy, rel −5e-10). Its F_ref is 379.2621316 µJy. floor-5 holds
+two values of this F: 379.2615719 in `pilot.json` (its numpy S1 against the copied m1) and
+379.2621316 for R3's model and G1's F_Fin; floor-5 accepted the 1.5e-6 gap under its 1e-4 HB gate.
+The pin reproduces the second to every digit and misses the first by 1.48e-6, above GP's 1e-6.
+GP's 1e-6 was set below floor-5's own internal gap, so **GP's F_ref test is read against the
+nearer of the two floor-5 values**; the miss against `pilot.json` is reported beside it. The
+model-score parts of GP (R3, Dm03, S) are unchanged.
+
 ## 10. Results
 
 (not run)

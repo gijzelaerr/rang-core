@@ -558,7 +558,11 @@ def cmd_summary(out, pilot_out, fam_ho):
     res["gates"]["GM"] = gm
     # GP: the pin, on the pilot
     gp = {
-        "F_ref_rel": pi["none"]["F"] * 1e6 / PILOT_F5["F_ref"] - 1,
+        # clarification 2: floor-5 holds two values of this F (pilot.json; G1's F_Fin = R3)
+        "F_ref_rel": min(
+            (pi["none"]["F"] * 1e6 / PILOT_F5[k] - 1 for k in ("F_ref", "fR3")), key=abs
+        ),
+        "F_ref_rel_pilot_json": pi["none"]["F"] * 1e6 / PILOT_F5["F_ref"] - 1,
         "F_B_rel": pi["F_B"] * 1e6 / PILOT_F5["F_B"] - 1,
         "F_Fix_rel": pi["F_Fix"] * 1e6 / PILOT_F5["F_Fix"] - 1,
         "T_noise_rel": pi["T_noise"] / T_PILOT - 1,
@@ -570,7 +574,7 @@ def cmd_summary(out, pilot_out, fam_ho):
         all(
             v is not None and abs(v) <= 1e-6
             for k, v in gp.items()
-            if k not in ("T_noise_rel",)
+            if k not in ("T_noise_rel", "F_ref_rel_pilot_json")
         )
         and abs(gp["T_noise_rel"]) <= 5e-3
     )
