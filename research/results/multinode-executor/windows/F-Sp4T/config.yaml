@@ -1,0 +1,15 @@
+version: 1
+fields: {fcal: [J1939-6342]}
+data:
+  executor: spool
+  spool: "D:/rang/outputs/mn-20261117-02/F-Sp4T/spool"
+  processes: 4
+  chunk_rows: 7
+flag: {strategy: D:/rang/outputs/cta-20261113-inputs/mk_rfi_flagging_calibrator_fields_firstpass.yaml}
+calibrate:
+  model: {source: setjy}
+  primary:
+    terms:
+      - {type: complex, name: Gint, solint: int, freqint: 16}
+      - {type: complex, name: G2, solint: 2, freqint: 512}
+      - {type: complex, name: Gchan, solint: inf, freqint: 1}

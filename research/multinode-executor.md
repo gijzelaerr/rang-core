@@ -5,7 +5,8 @@ against stage 1's `ChunkSpec` ([chunk-task-api.md](chunk-task-api.md), issue #3)
 main `9b4542c`. Infrastructure work: no novelty is claimed. The prototype's gate is identity; its scaling is
 reported, not gated.
 
-**Status, 2026-11-17: proposed.** Sections 0 to 4 are frozen in this commit, before any executor code. The scoring in
+**Status, 2026-11-17: implemented and measured** (section 5). Sections 0 to 4 were frozen in `01189d8`, before any
+executor code. The scoring in
 section 2 applies the rule of section 1 to the probes of section 0; it was written in the same sitting, by the same
 agent that builds the prototype, after the rule. A reader who disagrees with a score can rescore the table: the rule
 is mechanical.
@@ -198,6 +199,116 @@ unit tests pass.
   identity of every point against O. apply used about one core on nash at one process (chunk-task-api 6.1): its S(N)
   is reported as measured, also if below 1.
 
-## 5. Results
+## 5. Results (measured 2026-11-17)
 
-None at this commit.
+**Verdict: the prototype gate passes, and the choice stands.** Every arm of F (Windows and nash) and of W (nash) is
+bit-identical to O on criteria 1-5; the kill test passes on both hosts; the unit tests pass on both. None of section
+1's reversal conditions is met (the overhead condition only provisionally, section 5.3).
+
+Code: branch `multinode-executor`, commits `2a00fe3` to `723c858` (the gates ran on `71417b4`'s package code;
+`723c858` changes only a test). Oracle O: main `9b4542c` from detached worktrees (`~/Worktrees/rang/mn-oracle-9b4542c`
+on both hosts) holding the branch's `_core` build; `git diff 9b4542c -- core/ src/` is empty. Builds: Windows
+`_core.pyd` SHA-256 `caf80328…`, nash `_core.abi3.so` `e0c92694…`, the same on both sides of every comparison (the
+harness checks it). Receipts: [results/multinode-executor/](results/multinode-executor/) (`windows/` and `nash/`:
+`verdict.json`, nash's `report.json`, and every arm's `done.json`, `config.yaml` and `stage-*.json`). Harness:
+`tools/oracles/multinode/run.py` and `nash_points.sh`.
+
+### 5.1 Identity
+
+| Case, host | Arm | Files compared | Result | Walls flag / calibrate / apply, s |
+| --- | --- | ---: | --- | --- |
+| F, Windows | Sp2 | 123 | identical | 3.7 / 3.7 / 2.6 (O 2.6 / 1.9 / 1.9) |
+| F, Windows | Sp4T | 123 | identical | 3.3 / 4.9 / 4.8 |
+| F, Windows | Kill | 123 | identical | 63.7 / 67.1 / 5.2 |
+| F, nash | Sp2 | 123 | identical | 5.2 / 4.9 / 3.1 (O 5.5 / 2.1 / 1.7) |
+| F, nash | Sp4T | 123 | identical | 6.0 / 6.7 / 3.4 |
+| F, nash | Kill | 123 | identical | 64.3 / 69.7 / 67.5 |
+| W, nash | I, S1, S2, S4, S8 | 240 each | identical | section 5.2 |
+
+- **Kill test.** One worker was killed (`taskkill /F`, SIGKILL) right after its first claim in each stage. On nash
+  the parent re-queued one task in each of flag, calibrate and apply after the 60 s lease, and the run finished
+  identical. On Windows it re-queued one in flag and one in calibrate; in apply the killed worker had finished its
+  task before the kill landed, so nothing was lost (re-queued 0, 5.2 s) and the other worker ran the rest. The
+  60 s waits are the lease.
+- **Unit tests:** `tests/test_spool.py` (7 tests) with `tests/test_chunk_tasks.py`: 15 passed, 2 skipped on Windows
+  (the POSIX permission test; the fixture test without `RANG_FIXTURE`); `test_spool` 7 of 7 on nash.
+- **Plans.** The parent's digest of every map's specs (the `ms` path left out) is equal at S1, S2, S4 and S8 in each
+  stage, so every N ran the same tasks (section 4).
+
+### 5.2 Scaling on nash (shared host: provisional)
+
+Each point ran under its own shared ticket (`2N + 1` slots, `16 + 3N` GB; O 4 slots), at nice 19 and ionice idle,
+on a fresh copy of `w3.ms`, one after another between 10:00 and 13:21 SAST. Workers: 2 rayon threads each, each in
+its own session; `memory_limit_gb = 2N`, so 2 GB per worker.
+
+| Point | flag, s | calibrate, s | apply, s | total, s | CPU-s flag / calibrate / apply | foreign load, cores | peak RSS (largest process), GB |
+| --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| O (main, defaults, 4 threads) | 512.4 | 739.5 | 176.5 | 1428.3 | 1835 / 2241 / 195 | 11.1 / 11.7 / 8.3 | 2.7 / 3.3 / 6.9 |
+| I (inline, 2 threads, 2 GB) | 908.9 | 1461.0 | 182.5 | 2552.4 | 1747 / 2522 / 189 | 8.5 / 11.4 / 27.8 | 0.7 / 0.7 / 1.1 |
+| S1 | 940.7 | 1488.9 | 156.4 | 2586.1 | 1818 / 2578 / 226 | 23.6 / 21.8 / 16.3 | 0.7 / 0.7 / 1.4 |
+| S2 | 523.3 | 726.2 | 109.2 | 1358.7 | 1838 / 2396 / 222 | 10.7 / 6.9 / 12.1 | 0.7 / 0.7 / 1.4 |
+| S4 | 296.4 | 430.1 | 120.8 | 847.3 | 1846 / 2496 / 224 | 12.1 / 17.0 / 15.2 | 0.7 / 0.7 / 1.4 |
+| S8 | 192.3 | 254.6 | 107.2 | 554.1 | 1799 / 2494 / 228 | 7.2 / 7.1 / 4.5 | 0.7 / 0.7 / 1.4 |
+
+| N | S(N) flag | calibrate | apply | total | efficiency S(N)/N, total |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 2 | 1.80 | 2.05 | 1.43 | 1.90 | 0.95 |
+| 4 | 3.17 | 3.46 | 1.30 | 3.05 | 0.76 |
+| 8 | 4.89 | 5.85 | 1.46 | 4.67 | 0.58 |
+
+Per stage at every N: 17 flag tasks, 132 solve tasks (three terms, two passes for the chunked partitions) and 54
+apply tasks, with 0.66 GB, 0.05 GB and 11.0 GB of partials through the spool; no task was re-queued. The CPU-seconds
+stay flat with N, so the spool adds no per-task work that grows with the worker count.
+
+Post hoc reading (one repeat per point on a shared host; not a frozen claim):
+- **flag** is bounded by its task count. 17 blocks over 8 workers means 3 rounds for the busiest worker against 2.1
+  on average, which caps the efficiency near 0.71 for equal blocks; 0.61 was measured. A smaller per-worker budget
+  gives more blocks.
+- **calibrate** waits at every barrier (each term, each pass) for its slowest task: 0.73 at N = 8.
+- **apply** stays near 1.5. It moves 11 GB of output columns through the spool, and the parent writes them alone,
+  as the single writer must. This is #4's single-writer risk, measured. Any executor that keeps the single writer
+  moves the same bytes (B and C by TCP).
+- O is the identity reference, not a scaling point (other threads and budget).
+
+### 5.3 Overhead and exclusive points
+
+- Spool overhead at one worker, `t(S1) / t(I)`: flag 1.035, calibrate 1.019, apply 0.857, total 1.013. These are
+  shared points, so by section 1 they are provisional and reopen nothing; all are under the 1.10 limit. apply's
+  0.857 (the spool faster than inline) is not explained by the executor and is read as load.
+- **Exclusive points: not obtained.** The lock was never idle during the task (41 of 44 slots booked at 13:05 SAST,
+  for example), so by section 4 none was queued.
+
+### 5.4 Changes during the work, recorded
+
+- **The claim is not a rename** (implementation, 2026-11-17, before any gate run; section 2 described an atomic
+  rename). The first spool unit test failed on Windows: two workers both renamed the same task file, the second
+  moving it on, so a task could run twice or lose its file. A probe of three processes over 400 files showed it
+  repeatably. The claim is now a file created with `O_CREAT | O_EXCL` (no duplicates in the same probe), and file
+  operations retry Windows sharing violations, on one of which a worker died in the void run below.
+- **Void F run, kept:** `D:\rang\outputs\mn-20261117-01-void`. O did not run (the harness asked the oracle for
+  `core_spool`, which main lacks); the kill test killed nothing (on Windows a venv's `python.exe` is a launcher with
+  another pid, so the harness now kills the pid named in the claim); one worker died on a sharing violation. No
+  verdict was drawn from it. The rerun is `D:\rang\outputs\mn-20261117-02`.
+- `tests/test_spool.py`'s stage test first used the arm's work directory as the spool, which the POSIX permission
+  check refused on nash; fixed in `723c858`.
+
+### 5.5 What this does not show
+
+- No Slurm or PBS run: nash has neither. Workers started by `srun` or a job array run the same command, untested.
+- No second host: the "nodes" are process groups on one host and one filesystem (local disk). Lustre and CephFS
+  metadata and bandwidth (#4's risks) are not measured.
+- No matched-accuracy comparison against QuartiCal or `wsclean-mp`, which #4 requires of stage 2 as a whole.
+- Only flag, the complex solve and complex apply go through the executor; the chain terms stay serial (stage 1b).
+
+## For the coordinator
+
+- **Outcome:** the spool executor (D), ahead of job arrays (out: they need Slurm or PBS), Dask (2 passes:
+  dask-jobqueue inactive for 27 months, `distributed` carried by one maintainer) and Ray (3 passes: a 79 MB wheel, a
+  head and an object store).
+- **Gate passes:** F on Windows and nash and W on nash, all bit-identical to main; the kill test passes.
+- **S(N) on nash, shared:** 1.90 / 3.05 / 4.67 in total at N = 2 / 4 / 8; calibrate 5.85 at 8; apply stays near 1.5
+  (the single writer). Exclusive points not obtained.
+- **Next for #4:** a Slurm run on ilifu and a PBS run on Lengau (job arrays of pilot workers), a whole-array MeerKAT
+  set on Lustre or CephFS, and the matched-accuracy comparisons. The apply ceiling needs a decision: accept it, or
+  let workers write disjoint row ranges (CTDS refuses concurrent writers today).
+- Not merged. The full `python tools/check_all.py` has not been run on the branch.

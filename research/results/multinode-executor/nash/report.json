@@ -1,0 +1,365 @@
+{
+ "points": {
+  "I": {
+   "flag": {
+    "wall_s": 908.9,
+    "own_cpu_s": 1746.9,
+    "max_rss_kb": 694928,
+    "foreign_cores": 8.54,
+    "load1_before": 6.64,
+    "load1_after": 9.06
+   },
+   "calibrate": {
+    "wall_s": 1460.98,
+    "own_cpu_s": 2521.7,
+    "max_rss_kb": 714224,
+    "foreign_cores": 11.36,
+    "load1_before": 15.45,
+    "load1_after": 27.28
+   },
+   "apply": {
+    "wall_s": 182.47,
+    "own_cpu_s": 188.8,
+    "max_rss_kb": 1091208,
+    "foreign_cores": 27.84,
+    "load1_before": 37.41,
+    "load1_after": 45.03
+   },
+   "total_wall_s": 2552.35
+  },
+  "O": {
+   "flag": {
+    "wall_s": 512.39,
+    "own_cpu_s": 1834.6,
+    "max_rss_kb": 2669764,
+    "foreign_cores": 11.14,
+    "load1_before": 9.5,
+    "load1_after": 14.33
+   },
+   "calibrate": {
+    "wall_s": 739.5,
+    "own_cpu_s": 2241.4,
+    "max_rss_kb": 3275388,
+    "foreign_cores": 11.73,
+    "load1_before": 14.58,
+    "load1_after": 12.07
+   },
+   "apply": {
+    "wall_s": 176.45,
+    "own_cpu_s": 194.8,
+    "max_rss_kb": 6857784,
+    "foreign_cores": 8.26,
+    "load1_before": 11.79,
+    "load1_after": 11.76
+   },
+   "total_wall_s": 1428.34
+  },
+  "S1": {
+   "flag": {
+    "wall_s": 940.72,
+    "own_cpu_s": 1818.3,
+    "max_rss_kb": 729804,
+    "foreign_cores": 23.63,
+    "load1_before": 30.78,
+    "load1_after": 26.49,
+    "spool": {
+     "maps": 1,
+     "partial_bytes": 660929945,
+     "plan_sha256": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+     "requeued": 0,
+     "spec_bytes": 5398863,
+     "tasks": 17
+    }
+   },
+   "calibrate": {
+    "wall_s": 1488.9,
+    "own_cpu_s": 2577.9,
+    "max_rss_kb": 671732,
+    "foreign_cores": 21.75,
+    "load1_before": 23.43,
+    "load1_after": 24.91,
+    "spool": {
+     "maps": 6,
+     "partial_bytes": 47134300,
+     "plan_sha256": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+     "requeued": 0,
+     "spec_bytes": 20399420,
+     "tasks": 132
+    }
+   },
+   "apply": {
+    "wall_s": 156.43,
+    "own_cpu_s": 226.1,
+    "max_rss_kb": 1396636,
+    "foreign_cores": 16.28,
+    "load1_before": 23.38,
+    "load1_after": 15.07,
+    "spool": {
+     "maps": 3,
+     "partial_bytes": 11018959251,
+     "plan_sha256": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7",
+     "requeued": 0,
+     "spec_bytes": 452498510,
+     "tasks": 54
+    }
+   },
+   "total_wall_s": 2586.05
+  },
+  "S2": {
+   "flag": {
+    "wall_s": 523.28,
+    "own_cpu_s": 1837.9,
+    "max_rss_kb": 712776,
+    "foreign_cores": 10.71,
+    "load1_before": 17.82,
+    "load1_after": 10.11,
+    "spool": {
+     "maps": 1,
+     "partial_bytes": 660929945,
+     "plan_sha256": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+     "requeued": 0,
+     "spec_bytes": 5398863,
+     "tasks": 17
+    }
+   },
+   "calibrate": {
+    "wall_s": 726.18,
+    "own_cpu_s": 2396.2,
+    "max_rss_kb": 687308,
+    "foreign_cores": 6.94,
+    "load1_before": 7.73,
+    "load1_after": 10.8,
+    "spool": {
+     "maps": 6,
+     "partial_bytes": 47134300,
+     "plan_sha256": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+     "requeued": 0,
+     "spec_bytes": 20399420,
+     "tasks": 132
+    }
+   },
+   "apply": {
+    "wall_s": 109.19,
+    "own_cpu_s": 221.6,
+    "max_rss_kb": 1402316,
+    "foreign_cores": 12.09,
+    "load1_before": 7.08,
+    "load1_after": 13.08,
+    "spool": {
+     "maps": 3,
+     "partial_bytes": 11018959251,
+     "plan_sha256": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7",
+     "requeued": 0,
+     "spec_bytes": 452498510,
+     "tasks": 54
+    }
+   },
+   "total_wall_s": 1358.65
+  },
+  "S4": {
+   "flag": {
+    "wall_s": 296.38,
+    "own_cpu_s": 1845.6,
+    "max_rss_kb": 712220,
+    "foreign_cores": 12.07,
+    "load1_before": 10.99,
+    "load1_after": 23.0,
+    "spool": {
+     "maps": 1,
+     "partial_bytes": 660929945,
+     "plan_sha256": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+     "requeued": 0,
+     "spec_bytes": 5398863,
+     "tasks": 17
+    }
+   },
+   "calibrate": {
+    "wall_s": 430.09,
+    "own_cpu_s": 2496.1,
+    "max_rss_kb": 709492,
+    "foreign_cores": 17.04,
+    "load1_before": 20.64,
+    "load1_after": 26.19,
+    "spool": {
+     "maps": 6,
+     "partial_bytes": 47134300,
+     "plan_sha256": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+     "requeued": 0,
+     "spec_bytes": 20399420,
+     "tasks": 132
+    }
+   },
+   "apply": {
+    "wall_s": 120.82,
+    "own_cpu_s": 223.8,
+    "max_rss_kb": 1391544,
+    "foreign_cores": 15.16,
+    "load1_before": 13.31,
+    "load1_after": 18.35,
+    "spool": {
+     "maps": 3,
+     "partial_bytes": 11018959251,
+     "plan_sha256": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7",
+     "requeued": 0,
+     "spec_bytes": 452498510,
+     "tasks": 54
+    }
+   },
+   "total_wall_s": 847.29
+  },
+  "S8": {
+   "flag": {
+    "wall_s": 192.31,
+    "own_cpu_s": 1798.5,
+    "max_rss_kb": 712200,
+    "foreign_cores": 7.16,
+    "load1_before": 12.64,
+    "load1_after": 13.79,
+    "spool": {
+     "maps": 1,
+     "partial_bytes": 660929945,
+     "plan_sha256": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+     "requeued": 0,
+     "spec_bytes": 5398863,
+     "tasks": 17
+    }
+   },
+   "calibrate": {
+    "wall_s": 254.59,
+    "own_cpu_s": 2493.7,
+    "max_rss_kb": 691924,
+    "foreign_cores": 7.14,
+    "load1_before": 8.94,
+    "load1_after": 17.09,
+    "spool": {
+     "maps": 6,
+     "partial_bytes": 47134300,
+     "plan_sha256": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+     "requeued": 0,
+     "spec_bytes": 20399420,
+     "tasks": 132
+    }
+   },
+   "apply": {
+    "wall_s": 107.16,
+    "own_cpu_s": 228.0,
+    "max_rss_kb": 1384600,
+    "foreign_cores": 4.53,
+    "load1_before": 5.08,
+    "load1_after": 5.71,
+    "spool": {
+     "maps": 3,
+     "partial_bytes": 11018959251,
+     "plan_sha256": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7",
+     "requeued": 0,
+     "spec_bytes": 452498510,
+     "tasks": 54
+    }
+   },
+   "total_wall_s": 554.06
+  }
+ },
+ "scaling": {
+  "S1": {
+   "flag": {
+    "S": 1.0,
+    "efficiency": 1.0
+   },
+   "calibrate": {
+    "S": 1.0,
+    "efficiency": 1.0
+   },
+   "apply": {
+    "S": 1.0,
+    "efficiency": 1.0
+   },
+   "total": {
+    "S": 1.0,
+    "efficiency": 1.0
+   }
+  },
+  "S2": {
+   "flag": {
+    "S": 1.798,
+    "efficiency": 0.899
+   },
+   "calibrate": {
+    "S": 2.05,
+    "efficiency": 1.025
+   },
+   "apply": {
+    "S": 1.433,
+    "efficiency": 0.716
+   },
+   "total": {
+    "S": 1.903,
+    "efficiency": 0.952
+   }
+  },
+  "S4": {
+   "flag": {
+    "S": 3.174,
+    "efficiency": 0.794
+   },
+   "calibrate": {
+    "S": 3.462,
+    "efficiency": 0.865
+   },
+   "apply": {
+    "S": 1.295,
+    "efficiency": 0.324
+   },
+   "total": {
+    "S": 3.052,
+    "efficiency": 0.763
+   }
+  },
+  "S8": {
+   "flag": {
+    "S": 4.892,
+    "efficiency": 0.611
+   },
+   "calibrate": {
+    "S": 5.848,
+    "efficiency": 0.731
+   },
+   "apply": {
+    "S": 1.46,
+    "efficiency": 0.182
+   },
+   "total": {
+    "S": 4.667,
+    "efficiency": 0.583
+   }
+  }
+ },
+ "overhead_S1_over_I": {
+  "flag": 1.035,
+  "calibrate": 1.019,
+  "apply": 0.857,
+  "total": 1.013
+ },
+ "plans": {
+  "S1": {
+   "flag": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+   "calibrate": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+   "apply": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7"
+  },
+  "S2": {
+   "flag": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+   "calibrate": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+   "apply": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7"
+  },
+  "S4": {
+   "flag": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+   "calibrate": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+   "apply": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7"
+  },
+  "S8": {
+   "flag": "4c5901fdd0d9563157780fb20fe9c54cc64d474319e4093d6fdd135642853e5d",
+   "calibrate": "636287dac6de4efcfd172d1484f687c58f79c96dd328ccd7068848ad8543329f",
+   "apply": "d441d4a1b476839c437588db61fcdd96aa3de8b687fae7a770406417fb9f40e7"
+  }
+ },
+ "plans_equal": true
+}
