@@ -178,6 +178,10 @@ def _solve_one(ms, term, field_id, tables, common):
     if kind != "G":
         kwargs.pop("average_freq", None)  # task E2: G-type solves only
         kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
+    if kind != "B":
+        kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
+    if kind != "K":
+        kwargs.pop("zero_start", None)  # calchain-floor: K solves only
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -455,6 +459,8 @@ def run(
     average_time=False,
     average_freq=False,
     casa_phase_weights=False,
+    bandpass_model_divided=False,
+    k_zero_start=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -489,8 +495,15 @@ def run(
     estimator); K, B, KCROSS, Xf and Df are unchanged.
     `casa_phase_weights` (task A3, `calibrate.casa_phase_weights`, needs
     `average_freq`): every calmode `p` G and Gpol solve uses CASA's
-    phase-only datum (`rang.cal_gain.gaincal`). Returns `{"tables": {name: {...}}, "steps":
-    [...]}`."""
+    phase-only datum (`rang.cal_gain.gaincal`). `bandpass_model_divided`
+    (task e2a-3b-diag, `calibrate.bandpass_model_divided`,
+    research/e2a-3b-diag.md): every B solve divides the pre-applied data by
+    the (corrupted) model before any average (`rang.cal_bandpass.bandpass`
+    `model_divided`). `k_zero_start` (`calibrate.k_zero_start`,
+    research/calchain-floor.md section 12): every K solve also runs from a
+    zero start and keeps, per interval, the run with the lower residual
+    (`rang.cal_delay.solve` `zero_start`). Returns `{"tables": {name:
+    {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -509,6 +522,10 @@ def run(
         if not average_freq:
             raise ValueError("casa_phase_weights needs average_freq")
         common["casa_phase_weights"] = True
+    if bandpass_model_divided:
+        common["model_divided"] = True
+    if k_zero_start:
+        common["zero_start"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -542,6 +559,8 @@ def run(
                 stop_fraction=term["stop_fraction"],
             )
             kwargs.pop("model_column")
+            kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
+            kwargs.pop("zero_start", None)  # calchain-floor: K solves only
             table, record, merged = cal_fluxscale.bootstrap(
                 ms,
                 base,

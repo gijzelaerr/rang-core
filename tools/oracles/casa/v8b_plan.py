@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The V8b case list (research/v8b-flagdata.md, section 4) as `flagdata.py`
 plans: every (input, arm) pair, one CASA call list each.
 

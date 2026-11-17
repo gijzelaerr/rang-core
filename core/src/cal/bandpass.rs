@@ -5,8 +5,8 @@
 //! The bandpass B's post-solve gap filling (task C2c,
 //! `research/c2c-bandpass.md` part 2): CASA's `fillgaps`
 //! (`BJones::fillChanGaps` and `BJones::fillChanGapArray`,
-//! `StandardVisCal.cc`, read in the 2023 mirror; C1 section 0), written from
-//! that rule; CASA is not copied. The solve itself is `diag.rs`'s
+//! `StandardVisCal.cc`, read in the 2023 mirror; C1 section 0), translated
+//! from `fillChanGapArray` (its variables and steps). The solve itself is `diag.rs`'s
 //! `diag_complex` per channel with `reference.rs`'s rules.
 //!
 //! Per (time, antenna, polarisation), over the channels: nothing changes

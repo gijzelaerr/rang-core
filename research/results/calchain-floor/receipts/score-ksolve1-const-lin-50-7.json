@@ -1,0 +1,93 @@
+{
+ "case": "const",
+ "arm": "lin",
+ "antenna": 50,
+ "interval": 7,
+ "rows": 909,
+ "truth_ns": [
+  0.11429549753665924,
+  0.08986936509609222
+ ],
+ "arm_table_ns": [
+  1293.571044921875,
+  2263.236572265625
+ ],
+ "FFT start, rang offset start, 50 it": {
+  "iterations": 30,
+  "converged_fraction": 1.0,
+  "ant_ns": [
+   0.114295468508609,
+   0.08986934045151358
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ },
+ "FFT start, rang offset start, 1 it": {
+  "iterations": 1,
+  "converged_fraction": 0.0,
+  "ant_ns": [
+   0.1273967285218307,
+   0.11350281319316763
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ },
+ "FFT start, rang offset start, 1000 it strict": {
+  "iterations": 59,
+  "converged_fraction": 1.0,
+  "ant_ns": [
+   0.11429549685841255,
+   0.08986936459336844
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ },
+ "FFT start, QuartiCal offset start (0), 50 it": {
+  "iterations": 32,
+  "converged_fraction": 1.0,
+  "ant_ns": [
+   0.11429547853713136,
+   0.08986934966722589
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ },
+ "start at 0, 50 it": {
+  "iterations": 35,
+  "converged_fraction": 0.9944019078699636,
+  "ant_ns": [
+   0.11429546300278012,
+   0.08986935616783613
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ },
+ "start at 0, 1000 it strict": {
+  "iterations": 65,
+  "converged_fraction": 1.0,
+  "ant_ns": [
+   0.11429549685841017,
+   0.08986936459353662
+  ],
+  "flagged": [
+   false,
+   false
+  ],
+  "max_err_other_antennas_ns": 0.11869257688522339
+ }
+}

@@ -1,0 +1,359 @@
+{
+ "chunking": {
+  "chunk_gb": 7.2522889375686646,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 118821,
+   "calibrate": 118821,
+   "chain": 79214,
+   "flag": 237643,
+   "model": 118821,
+   "rows": 316857,
+   "selfcal": 79214
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "/home/gijs/Worktrees/rang/selfcal-memory/.venv/bin/python",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/final/image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-no-update-model-required",
+     "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 25053,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "38a828f6c7fdef2dfb864bc4517a64507d17fe90c8a603172a9b2a2c45653698",
+     "image-image.fits": "d3c934e4ba7a10e00258ec36b1a28d15df4587f679be946f0d4f130411e8f379",
+     "image-model.fits": "6ac10e576c0624908261a9b2ae415c3c631ac67c360825a963937ff7d3b8dd71",
+     "image-psf.fits": "189acac5989281ced1940993e81e9a4ad81e8c4cf558c9a51d2d4703bb8e4172",
+     "image-report.json": "0b4de1c4cd1851d202480359f9838081d9934f72aa5755d0253d2cbd46aa709e",
+     "image-residual.fits": "f3b0812afd8225a06f3ea7650625214a10ea0779e79bf30d339b0c34da5917eb"
+    },
+    "fits_mask": null,
+    "image": 3,
+    "wall_seconds": 248.1939071479719
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 144.50148133502807
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Worktrees/rang/selfcal-memory/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-1/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 59065,
+       "major_cycles": 4,
+       "stop": "Threshold"
+      },
+      "column": "DATA",
+      "files": {
+       "image-dirty.fits": "a9edefb0e155ec66c10e0ce3f8b39dba3da330eafe2cecde08cf0d6740f9ba60",
+       "image-image.fits": "d2c0062cc8e914e651016f6f797a3e43bd415fc6f8614ddf275dc5524795c714",
+       "image-model.fits": "fea351b703c83d17ad4d27d0138a9408cf65b959a688ad88b0f62195b13f255e",
+       "image-psf.fits": "bf605367d270c068c22301da5e2f513c5eea5f3a2763a4a5190043afb854e1f4",
+       "image-report.json": "85303e41bee9b3ec64946ed046642df930ac226e92ad917ce7e808f2a8336e91",
+       "image-residual.fits": "773f5e6b0c1315d8be15aa35aa052037eeec53d523d86574d7ec3240db9d28f4"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 291.39652881701477
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-1/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 141.94135441398248
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 13,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "streamed": {
+        "block_rows": 78141,
+        "cells": 76089333,
+        "file_bytes": 7000218636,
+        "read_block": 1048576,
+        "read_seconds": 119.19356373301707,
+        "seconds": 342.0964861200191
+       },
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 1,
+      "time_bins_per_scan": {
+       "2": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 342.82412565196864
+     },
+     "store": "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-1/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    },
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 81.26119329500943
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Worktrees/rang/selfcal-memory/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-2/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "CORRECTED_DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 26218,
+       "major_cycles": 3,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_DATA",
+      "files": {
+       "image-dirty.fits": "f4e4843b1eb3a1bd5a0cc2bf91949c99f459027b87b869857e882c0787ea6529",
+       "image-image.fits": "eae664b51a5eeee67ff04947cbfc452d64e253256083e99cc5813a14c88d4153",
+       "image-model.fits": "71336cb554b5b447ce216bc08a2be63a69afd7ac19ce69c73cc32cfa8949e73f",
+       "image-psf.fits": "8794ca3e425a1ac4cfd0c2e99dfd1826ac30ada894c04233ab04ed9c42dbea26",
+       "image-report.json": "5eabce0d7d1e65d6619f73fab8f1cdf9f96b029ab32a44b39cf377d94367015c",
+       "image-residual.fits": "22e2f53bda44b1e606d357c077163a06c26ad0dba2e3c20b817d4a6fb3ba80ee"
+      },
+      "fits_mask": null,
+      "image": 2,
+      "wall_seconds": 244.30537481501233
+     },
+     "model": {
+      "added": false,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-2/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 126.96329182502814
+     },
+     "round": 2,
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 37,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "streamed": {
+        "block_rows": 78141,
+        "cells": 76089333,
+        "file_bytes": 7000218636,
+        "read_block": 1048576,
+        "read_seconds": 131.05330519401468,
+        "seconds": 574.5677686689887
+       },
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 1,
+      "time_bins_per_scan": {
+       "2": 1
+      },
+      "type": "Sa",
+      "wall_seconds": 575.2604095300194
+     },
+     "store": "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/selfcal/ESO137-pilot/round-2/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261117T122322Z",
+ "gemclean": "/home/gijs/Worktrees/rang/selfcal-memory/.venv/bin/python -m rang.gemclean",
+ "gemclean_sha256": "5647ea5bae49c23660096c1d83190d6ba62f5ef7851e708c7887f10cf766049e",
+ "input": {
+  "column": "DATA",
+  "copied_now": false,
+  "previous_copy": null
+ },
+ "input_column": "DATA",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 2
+}

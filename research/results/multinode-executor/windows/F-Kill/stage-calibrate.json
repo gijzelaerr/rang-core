@@ -1,0 +1,18 @@
+{
+ "stage": "calibrate",
+ "workers": [
+  42476,
+  66012
+ ],
+ "killed": {
+  "pid": 56604,
+  "owner": "glacier-56604-54aa5a",
+  "claim": "54692-8d788cc3-0001-00000000",
+  "unix": 1794899940.2583673
+ },
+ "driver_wall_s": 66.58,
+ "worker_exits": [
+  0,
+  1
+ ]
+}

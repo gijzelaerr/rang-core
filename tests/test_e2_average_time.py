@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2: `calibrate.average_time`, CASA's time pre-averaging within each
 solution interval for K, G, B, F, Gpol, KCROSS, Xf and Df
 (`rang.cal_chunks.Average`, `load_averaged`). Off, every solve and the stage

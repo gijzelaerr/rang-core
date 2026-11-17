@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Offline tests of the task K campaign pieces (research/core-k-luno-campaign.md)."""
 
 import json

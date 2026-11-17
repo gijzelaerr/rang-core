@@ -1,0 +1,30 @@
+{
+ "mode": "subset",
+ "rows": 119700,
+ "first_row_in_e": 118104,
+ "end_row_in_e": 237804,
+ "columns": [
+  "ANTENNA1",
+  "ANTENNA2",
+  "ARRAY_ID",
+  "DATA",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "SIGMA",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "WEIGHT"
+ ]
+}

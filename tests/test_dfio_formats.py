@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The DF-IO formats (research/dfio-formats.md).
 
 Unit tests on synthetic data only: no Docker, no oracle image, no

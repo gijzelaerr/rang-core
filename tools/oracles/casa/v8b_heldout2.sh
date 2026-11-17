@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # V8b's second held-out split (research/v8b-flagdata.md, amendment 3): CASA
 # split of scan 19 of the E2-B LUNO calibrators MS, all channels, flags kept,
 # DATA only, into $out/luno-ho2.ms.

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The full local check from any worktree, set up correctly, under the heavy lock.
 
     python tools/check_all.py            # the full check (python -m rang.check)
@@ -61,7 +61,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLCHAIN = "1.93"
 TARGETS = ("target", "core/target", "core/target/feature-gpu", "core/py/target")
 STAMP = ".rang-rustc-vV"
-EXTRAS = "pointing,beam,test,imaging,formats,casacure,docs,notebook,mcp"
+EXTRAS = "pointing,beam,test,imaging,formats,casacure,docs,notebook,mcp,msv4"
 GPU_STEPS = ("core-clippy-gpu", "core-test-gpu")
 INDEX = "https://pypi.org/simple"
 HELD_VAR = "RANG_HEAVY_LOCK_HELD"  # set by heavy_lock.py run for its child
@@ -241,6 +241,10 @@ def quick_tests(root: Path, changed: list[str]) -> list[str]:
             )
         elif p.parts[:1] in (("docs",), ("notebooks",)):
             chosen |= {t for t in tests if re.search(r"docs|notebook", t.name)}
+        elif p.parts[:1] == ("research",) and p.suffix == ".md":
+            # A new or renamed note must be in research/README.md, which only
+            # the docs tests check (CI went red on this twice, 2026-11-17).
+            chosen |= {t for t in tests if re.search(r"docs", t.name)}
     for t, text in texts.items():
         if any(pat.search(text) for pat in patterns):
             chosen.add(t)

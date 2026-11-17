@@ -1,0 +1,20 @@
+heavy_lock: waiting for linux pid 4053446 since 2026-11-16T23:01:47+00:00: /home/gijs/Worktrees/rang/cta-run-abdfb5a/.venv/bin/python /home/gijs/Worktrees/rang/nash-timings/tools/oracles/chunk_tasks/timing.py point /home/gijs/rang-data/outputs/cta-nash-20261116 B 0
+== 2026-11-16T23:18:48Z load 1.26 2.47 4.21 sim start
+01:19:25 prep {'ms': '/home/gijs/rang-data/outputs/20261103-gemclean-heldout/real/cal2.ms', 'nrow': 823500, 'channels': [4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148, 156, 164, 172, 180, 188, 196, 204, 212, 220, 228, 236, 244, 252], 'chan_width_hz': 417968.75, 'noise_c': 1.025014042854309, 'sigma_part_at_median_weight': 0.17160679164083037, 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'gridding_weight_sum': 354721854.8586093, 'active': 19133875, 'ntime': 450, 'seconds': 37.35004608600866}
+01:19:44 sign (1, 1) 1.9943225383758545
+01:19:47 sign (-1, 1) 1.8310198783874512
+01:19:50 sign (1, -1) 4.19007255914039e-06
+01:19:54 sign (-1, -1) 1.992192268371582
+01:21:56 sky truth {'facet_sum_vs_full_rel_linf': 5.612556378764566e-06, 'seconds': 122.68396170600317}
+01:22:52 sky pilot {'facet_sum_vs_full_rel_linf': 6.910367574164411e-06, 'seconds': 56.07169217907358}
+01:23:50 arm C 1 {'none': 44.09, 'T1': 44.079, 'T1p': 44.084, 'T1L': 44.112, 'T1pL': 44.099}
+01:24:48 arm H1bP 6.862 {'none': 1068.504, 'T1': 44.079, 'T1p': 44.084, 'T1L': 44.112, 'T1pL': 44.098}
+01:25:48 arm H2 25.144 {'none': 1071.283, 'T1': 960.264, 'T1p': 1021.02, 'T1L': 1070.664, 'T1pL': 1069.26}
+01:26:46 arm H8a 6.38 {'none': 1083.339, 'T1': 1063.725, 'T1p': 1083.34, 'T1L': 1074.316, 'T1pL': 1083.341}
+01:28:05 arm H4b 50.0 {'none': 390.56, 'T1': 385.107, 'T1p': 389.788, 'T1L': 389.384, 'T1pL': 391.15}
+01:29:04 arm H1bP 5 {'none': 780.846, 'T1': 44.079, 'T1p': 44.084, 'T1L': 44.112, 'T1pL': 44.098}
+01:30:03 arm G3P 1 {'none': 974.997, 'T1': 44.079, 'T1p': 44.084, 'T1L': 44.112, 'T1pL': 44.099}
+01:30:59 pilot {'none': 1073.415, 'T1': 411.911, 'T1p': 446.513, 'T1L': 448.38, 'T1pL': 467.49}
+01:30:59 stage sim wall_s 731.1
+sim 731.35 s 6225788 KB
+== 2026-11-16T23:30:59Z load 9.52 10.37 8.00 sim end

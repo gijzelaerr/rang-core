@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The w-aware normal operator without visibilities: a sum of Toeplitz
 //! operators, one per w-node, each applied by FFTs on the `2n` grid.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The Gram matrix of the measurement is
 //! `G(l, l') = Re Σ_p W_p exp(2πi (u_p·(l − l') + w_p (x(l) − x(l'))))`,

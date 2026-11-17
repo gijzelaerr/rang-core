@@ -9,6 +9,175 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (licence metadata, `docs/licence.md`): the package's licence expression is now `GPL-3.0-only` (pyproject, `core` and `core/py` crates, CITATION). It contains WSClean-derived code ("GPL 3", with no "or later") and radler code (LGPL-3.0-only, conveyed under GPL v3). ra-ng's own files are MIT (next entry).
+- Changed (licences per file, `docs/licence.md`, `research/mit-relicense-audit.md` "Step 1 done: own code MIT"): ra-ng's own code is now MIT (`LICENSES/MIT.txt`): 436 files, 125,726 lines with `SPDX-License-Identifier: MIT` (every shipped file now has an SPDX line), and 5 files (3,730 lines) translated from BSD upstreams with `MIT AND BSD-3-Clause`. The 64 files (61,685 lines) translated or derived from GPL or LGPL code (casacore, ducc0, WSClean, radler, aocommon, schaapcommon, CASA, CARACal, Tigger, EIDOS, msutils, AOFlagger) keep their GPL lines. The package stays GPL-3.0-only while those parts are in it; the root crate `rang-sim` is MIT. Contributions take the licence of the file they change. `tests/test_spdx_headers.py` checks each line against `research/results/mit-relicense-audit/spdx.csv`.
+- Fixed (issue #34, `research/selfcal-memory.md`): the default self-calibration (Sp then Sa, `solint: inf`) runs within the default `data.memory_limit_gb` of 8. An Sp or Sa solve whose solution interval does not fit is streamed (`rang.cal_stream`, Rust `cal::diag_stream`) through a scratch file beside the MS, 92 bytes per unflagged visibility, with bit-identical solutions; on the E2 pilot the scan-long solve peaks at 3.6 GiB instead of 35.4. The selfcal solves are planned at their own measured 45 bytes per cell (`CELL_BYTES["selfcal"]`, was the chain's 96). GeMClean's 9.3 GiB on the pilot is not under the limit yet.
+- Changed (licence metadata, `docs/licence.md`): the package's licence expression is now `GPL-3.0-only` (pyproject, `core` and `core/py` crates, CITATION). It contains WSClean-derived code ("GPL 3", with no "or later") and radler code (LGPL-3.0-only, conveyed under GPL v3). ra-ng's own files keep `GPL-3.0-or-later`.
+- Investigated (issue #35, `research/gemclean-ms-mask.md`): `gemclean -multiscale -fits-mask` does not lose the mask. Every component centre stays inside it at every scale, as in WSClean 3.7. After one major iteration on simulated H4 and on the ESO 137 pilot, against WSClean: the same scales are chosen, the flux inside the mask agrees within 0.5 %, and the flux outside agrees within 0.21 Jy (2.72 Jy against 2.93 Jy). The deeper runs could not be compared because WSClean diverges on them. The flux the model has outside the mask comes from the scale shapes of centres inside it. The clean path is unchanged. Added: a test that every centre stays inside the mask at every scale, and a line on this behaviour in the `-fits-mask` help and in `image.fits_mask`.
+Drafted for 0.3.0 on 2026-11-17 (`research/v030-readiness.md`); E2-N, E3-A, the selfcal-defaults grid and
+the E2-A 3b K follow-up are still running and will change the limitations below.
+
+### Known limitations
+
+- **With multiscale, a FITS mask confines component centres, not flux** (issue #35, `research/gemclean-ms-mask.md`), as in WSClean 3.7. Large scales centred in small mask islands take up extended emission outside the mask. Cleaned deep (about 1.6σ), both imagers can diverge. Use Högbom when nothing may be cleaned outside the mask.
+- **Native MeerKAT data is not tested yet** (issue #7): E2-N is running; this line is replaced by its
+  measured limits when it reports.
+- **χ is stated as a limit, not gated** (issue #14, `research/chi-offset.md` section 11). On LUNO's 3C 286
+  the RM-corrected χ(λ²=0) is 29.4°, 3.6° from 33°, with rang equal to CASA; under the frozen absolute
+  limit the test failed by 0.47° and 2.31°. No absolute χ claim is made. On LUNO's calibrator product use
+  FEED's receptor angle 0, not CARACal strategy 1's −90 (the fitted angle is +8.2°): a per-product
+  configuration note. A frozen follow-up with
+  an RM term in the 3C 286 model is for later.
+- **Xf differs from CASA by 0.054°** (median) on held-out 3C 286 simulations, against a 0.05° limit; the
+  cause is not found, and CASA's pre-averaging is ruled out (issue #33, `research/xf-preavg.md`).
+- **Multiscale CLEAN over-estimates compact sources** (issue #23, `research/multiscale-flux-fix.md` 8.1,
+  measured null): under natural weighting on DF5-O's array a median +9 to +18 µJy excess on sources
+  ≥ 20σ_ap, in WSClean 3.7 and GeMClean alike. No setting tested passes on both fields. Automatic scales
+  (no `-multiscale-scales`) come nearest (+11.0 / +9.05 µJy); Högbom is unbiased (−4 µJy) at 7-11 % higher
+  residual RMS. No default changes.
+- **Joined polarisations peak on the linear sum** (issue #22, `research/v030-readiness.md` section 4), as
+  WSClean 3.7 and radler (!238, merged 2026-11-16, unreleased) do: with `-pol QU -join-polarizations`,
+  components whose Q and U cancel are not cleaned, in either imager. `-squared-channel-joining` stays
+  refused.
+- **The imaging floor is attributed in part** (issue #13, `research/floor-3.md`; floor-4, branch commit
+  `84392cdd`): steady antenna gains are its main cause, with a share of 0.88 under floor-3's standard and
+  0.83 under imaging-floor's full criterion (floor-4). On floor-3's subset of the pilot one phase-only
+  self-calibration round takes the floor from 1,073 to 379 µJy; the 379 µJy left, 8.6 × thermal, is
+  unexplained.
+- **Image gate 3c is not met on the cleaned images** (E2-B with the mask: compact scatter 1.18 % against
+  1 %; E2-A: dirty 5.0e-3 of the peak, compact scatter 3.6 %, target scatter 4.3 %, ratios falling with
+  radius as 512- against 4,096-channel smearing predicts; `research/e2b-misses.md` 9.29,
+  `research/e2-acceptance.md` 9.13-9.14). E2-A is not passed as frozen; its K1 G1 B1 composite miss is
+  part rang's B time averaging (`calibrate.bandpass_model_divided`, off by default) and part the K
+  estimators (`research/e2a-3b-diag.md`).
+- **E2-B's 1830−211 χ (|Δχ| up to 13° at p of 0.02-0.06 %), transfer χ and leakage (0.30 %)** stay as in
+  0.2.0 (`research/e2b-misses.md` sections 5-7).
+- `flagdata` mode `tfcrop` is still refused (`research/v8-tfcrop.md`, `research/v8c-tfcrop-poly.md`), and
+  the trained flagger is not shipped.
+- A run directory made by 0.2.0 resumes "done" stages by their configuration hash; rerun with
+  `--force all` to get 0.3.0's parallactic angles and imaging weights.
+- Strategy, sky-model and mask files enter a stage's configuration hash by path, not by content
+  (`research/v030-review.md` E5-21): after editing one in place, rerun that stage with `--force`. Hashing
+  the contents would change every stage hash once, so it waits for a release that may do that.
+- **Licence** (`research/v030-review.md` B-02, an owner decision): GeMClean's automatic mask, joined
+  peak finding, multiscale CLEAN and polarisation normalisation follow radler, which is LGPL-3.0-only, and
+  WSClean's README says "version 3" without "or any later version". While they are in it, the extension
+  `rang._core` can be conveyed under the GPL, version 3 only; rang-core's own code stays
+  GPL-3.0-or-later. `docs/licence.md` and `THIRD-PARTY-NOTICES.txt` say so.
+
+### Issues
+
+- Closed by this release (to be closed by the owner at the tag): #14 (χ stated as a limit), #22 (linear
+  join kept, upstream agrees), #23 (measured null, documented limit); #13, #6 and #7 when their running
+  results merge.
+- Fixed in this release: #30 (MCP job-file race; its run-state form fixed too), #31 (heavy-lock ticket
+  races).
+- Progressed: #3 (chunk task API), #5 (MSv4 read path), #8 (V8b modes at parity; tfcrop refused), #9
+  (`rang-core lightcurve`), #12 (GPU gridding, on a branch), #27 (piece 1: an agent runs the chain over
+  MCP), #28 (`-stop-tolerance`), #32 (joined-IQUV memory halved, `-reorder`).
+- Known limitations: #33; the rest are listed above.
+- Unchanged: #1, #4, #10, #11, #15-#20, #24.
+
+### Changes
+
+- Notices (`research/v030-review.md` B-01, B-02): `THIRD-PARTY-NOTICES.txt` and `docs/licence.md` now
+  list casacore's measures (`MCDirection.cc`, `MeasMath.cc`, `MeasTable.cc`, `MSDerivedValues.cc`,
+  LGPL-2.0-or-later), which the CASA-frame parallactic angle follows, and WSClean 3.7 with radler
+  `76fe4474` (LGPL-3.0-only), aocommon and schaapcommon, which GeMClean follows; each read in the
+  upstream sources. The four GeMClean files that follow radler carry `GPL-3.0-or-later AND LGPL-3.0-only`.
+  No casacore data table is read: the parallactic angle's Earth orientation is astropy's IERS table.
+- Notices (`research/mit-relicense-audit.md` 3.2, `research/v030-review.md` 5.5): c-blosc, katdal's BSD
+  text, Tricolour in `core_flag.py`, fdlibm, Tigger and codex-africanus in `formats/sky.py`, schaapcommon in
+  `gemclean/input.rs`, CASA and casacore in `calmodels.py`, `apply.rs` and `flag_extend.py`, EIDOS, msutils
+  (its licence statements conflict, GPL v2 against GPL-3.0-or-later: an owner decision), and the casacore storage managers the table writer translates, whose headers
+  said "nothing is copied"; WSClean 3.6's `wstackinggridder.h` "GPL 3" stated exactly; the CARACal strategy
+  copies in `research/results/` named with CARACal's GPL-2.0 (`research/results/CARACAL-NOTICE.md`).
+- Fixed (R-02): a calibrate solve whose every solution is flagged (for one, a reference antenna whose
+  baselines the strategy flags) now ends `rang-core run` with `failed: calibrate: ... wrote no
+  solutions ...` and a hint (exit 1, the stage recorded as failed), not a traceback
+  (`rang.cal_gain.NoSolutions`, a RuntimeError).
+- Fixed (B-11, B-12): GeMClean's `-temp-dir` now also takes the joined runs' dirty-image spill files
+  (`<name>-dirty-<n>.spill`); `-reorder` with one polarisation, `-reorder` with `-channel-range` or
+  `-average-channels > 1`, and `-temp-dir` where it has no effect print a warning and are in `-h`.
+  Images are unchanged.
+- Changed (B-13): `lightcurve.json` is strict JSON; a value that is not finite (the flux of a fully
+  flagged interval) is `null`, not a bare `NaN`. `lightcurve.csv` keeps `nan`.
+- Fixed (B-16): `rang-core lightcurve` refuses a field with rows on a data description other than 0; it
+  imaged DATA_DESC_ID 0 only, silently.
+- Fixed (E5-22, E5-23, E5-24, write-back): a session that failed or was killed before writing FLAG no
+  longer blocks the next one (only a session that may have written FLAG is refused, and the record of a
+  written column is made before its first write); a column left half-initialised is initialised again
+  after `restore_flags`; the journal is written only once the MS is open for writing, and an MS that
+  cannot be written is refused before the flag backup with a clear message.
+
+- New (`research/uhf-scope.md`, decision D6): a stage given channels outside MeerKAT L band (856-1712 MHz;
+  UHF 544-1088 MHz, S band) logs one warning that only L band is validated, naming `docs/limits.md`
+  (`rang.core_pipeline.band_warning`; also in `config check`). Nothing is refused and no result changes.
+- Fixed (`research/v030-review.md` R-01): on Windows a run's `state.json` replace failed with
+  PermissionError while another process read it, so polling `run_status` through `rang-core mcp` (or any
+  reader) failed the run after a finished stage. The replace now retries for up to 10 s, as the MCP job
+  files do since #30. Found by `tests/test_mcp_chain.py`, which drives the whole chain (flag, calibrate,
+  apply, image, selfcal) through `rang-core mcp` on the public fixture with a scripted JSON-RPC client.
+- New (issue #9, `research/ts-p1.md`): `rang-core lightcurve`, residual snapshot light curves at given
+  positions (a Rust DFT kernel `rang._core.lightcurve_dft`, snapshot images and a robust rms;
+  `--candidates`, `--gridder wstack --device gpu`). Checked against WSClean `-intervals-out` and an
+  independent DFT on held-out simulations, under post hoc amendments 9.1 and 9.2.
+- New (issue #28, `research/gemclean-stop28.md`): `gemclean -stop-tolerance e`, off by default: the run also
+  ends when the exact peak after a major cycle is below (1 + e) T. Refused with auto-masks, multiscale and
+  joins.
+- New (issue #23, `research/multiscale-flux-fix.md`): `gemclean -multiscale-bias-reference`,
+  `-multiscale-point-cap` and `-no-negative`; defaults unchanged.
+- Changed (`research/ts-p1.md` section 14): GeMClean leaves FLAG_ROW rows out of the imaging-weight grid. Uniform
+  and Briggs weights change where FLAG_ROW is set and FLAG is not; WSClean 3.7 counts those rows. Every
+  archived G2-G9 case is bit-identical (none has such rows).
+- New (issue #5, `research/msv2-edge-cases.md`): the MSv2 reader reads IncrementalStMan string and array
+  columns and TiledCellStMan, and refuses per column; MSs refused before now read.
+- Changed (tools, `research/nash-host.md`): `tools/heavy_lock.py` backfills past a queue head that does not
+  fit (drain limit `RANG_HEAVY_DRAIN_MIN`, `run --drain`); `RANG_HEAVY_NICE` and a default Linux lock
+  directory. Fixed (#30, #31): Windows sharing violations on MCP job files and heavy-lock tickets.
+- New (issue #4, multi-node stage 2 step 1, `research/multinode-executor.md`): `data.executor: spool` with
+  `data.spool` (an absolute directory on a filesystem every node mounts) and `data.spool_wait_s` (default 600).
+  The stage writes each chunk task into the spool, workers started by any launcher (`python -m rang.core_spool
+  worker DIR --threads T`: on this host, over ssh, by `srun` or by a Slurm or PBS job array) run them, and the
+  stage reduces the partials in plan order as the single MS writer, so results are bit-identical to one process.
+  `data.processes` is then the number of workers planned for. A worker that stops beating for 60 s has its task
+  re-run elsewhere (at most 3 runs); a worker of another rang or `_core` build is refused. Partials are pickles,
+  so the spool must be private to the user (refused on POSIX otherwise). Resource keys: they leave the stage hash
+  unchanged. A prototype: chosen over Slurm/PBS job arrays, Dask and Ray by the comparison in that note.
+- Changed (issue #32 phase 3, `research/gemclean-memory3.md`): `gemclean -reorder` is now the default when
+  several polarisations are joined (`-pol` with more than one and `-join-polarizations`); `-no-reorder` keeps
+  everything in memory. Its temporary files (12 B per row, channel and polarisation read plus 8 B per weighted
+  visibility; about 28 GB on 115,000 rows of 4096 channels in IQUV, 9 GB on 34,000) go beside `-name` or in
+  `-temp-dir`; a killed run leaves them. The joined clean also holds the models sparse and one resync work
+  space for every beam. Every FITS file is byte-identical. On E2-B's joined-IQUV 8-channel 2048² runs the peak
+  is 7.7 GiB on J1331+3030 and J1939−6342 (16.5-16.9 without `-reorder`) and 5.7 GiB on J1833−2103 (7.2 with
+  phase 2's `-reorder`), about 5-8 % slower than `-no-reorder` (exclusive pairs: five of six 1.04-1.08 ×). `-memory-report` also lists
+  the live blocks of 1 MiB or more at the heap's highest.
+- New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
+  polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
+  entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;
+  `-temp-dir DIR` places them (default: the directory of `-name`). Every FITS file is byte-identical. On E2-B's
+  joined-IQUV 8-channel 2048² runs the peak falls from 15.9-16.5 to 9.1 GiB (J1331+3030, J1939−6342) and from
+  8.4 to 7.2 GiB (J1833−2103); about 28 GB of temporary files on the large fields.
+- New (`research/calchain-floor.md`): `calibrate.k_zero_start` (default false, out of the stage hash at its
+  default). K solves also run from zero delays and keep, per solution interval, the run with the lower weighted
+  residual (`rang.cal_delay.solve(zero_start=True)`). The FFT start uses the refant baselines only; with a few
+  cells there it can land on a sidelobe, and Gauss-Newton converges to a wrong delay: on E2-A, ID 50's K1
+  interval 7 (2,335 ns against 0.11 ns; CASA's K1 holds 2,365 ns). With the key that solution is 0.121 ns on the
+  real subset and nothing else moves by more than 1e-3 ns. About 10 % more K time. Off is unchanged.
+- New (`research/e2a-3b-diag.md`): `calibrate.bandpass_model_divided` (default false, out of the stage hash at
+  its default). B solves divide the pre-applied data by the model, which the K and G pre-applies corrupt, before
+  any time average (`rang.cal_bandpass.bandpass(model_divided=True)`, `rang.cal_gain.model_divided`, CASA's
+  `divideCorrByModel`). With `calibrate.average_time` and K or G varying inside B's interval this changes B; on
+  E2-A's 15-antenna subset the averaged B then equals the unaveraged B to 4e-7. Off is unchanged.
+- New (`research/msv4-interop.md`, #5): `rang.msv4` reads an MSv4 processing set (xradio schema 4.x, Zarr)
+  into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
+  Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as
+  bool when it holds only 0 and 1 and refused otherwise. xarray-ms 0.5.14 drops autocorrelations by default,
+  so its stores of MSs with them lack those rows; with `auto_corrs=True` all 9 are bit-identical. `CORRECTED_DATA` and `MODEL_DATA` groups,
+  SIGMA-derived weights, repeated `WEIGHT` and decreasing frequencies read bit for bit; neither writer keeps
+  `FLAG_ROW`, so row flags are lost in conversion. The Tricolour flag stage gives the same flags fed from MSv4
+  rows as from the MSv2 (fixture scan 9); no stage reads MSv4 directly yet.
 - Fixed (WSClean #208, fixed upstream by !1068, commit `ca23d835`, not yet in a release; v3.7 still has
   the old rule): `gemclean`'s theoretic beam (the start and box of the restoring-beam fit, the circular
   beam when the fit fails, the default multiscale scales, `theoretic_beam_rad` in `-report.json`) now

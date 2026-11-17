@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Big-plan task P2 (research/p2-gridder.md): the layer-parallel gridder gives
 the same images at any thread count, and flagged cells change nothing."""
 

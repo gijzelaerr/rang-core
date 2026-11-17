@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.lightcurve_dft`: the forced-photometry DFT of
 //! `rang_core::lightcurve` (task TS-P1, `research/ts-p1.md`), for
 //! `rang.lightcurve`.

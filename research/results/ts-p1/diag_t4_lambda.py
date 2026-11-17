@@ -12,11 +12,10 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "examples"))
-import ts_p1_t4t5 as g  # noqa: E402
-from rang import core_model, core_ms  # noqa: E402
-from rang import lightcurve as lc  # noqa: E402
-
-import ts_p1_measure as measure  # noqa: E402
+import ts_p1_measure as measure
+import ts_p1_t4t5 as g
+from rang import core_model, core_ms
+from rang import lightcurve as lc
 
 ms = sys.argv[1]
 size, scale = 2048, 2.0

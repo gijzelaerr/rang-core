@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Full-matrix phase symmetry, frozen controls and missing outcome boundaries.
 
 Live part of tests/test_flagging_equivariance.py at commit 2da566c

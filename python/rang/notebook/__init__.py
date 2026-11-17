@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Jupyter tooling for students and professionals (research/d2-notebook.md).
 
 Plain functions first; every plot returns a `matplotlib.figure.Figure` and

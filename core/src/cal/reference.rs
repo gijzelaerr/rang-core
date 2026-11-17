@@ -5,8 +5,8 @@
 //! CASA's rules around a gain solve (task C2a, `research/c2a-gain.md`; C1
 //! step 3): `minblperant` before the solve, `minsnr` after it, and the
 //! reference antenna over the finished table. Written from CASA's rules as
-//! read in `SolvableVisCal.cc` (C1 section 0, the 2023 mirror); CASA is not
-//! copied.
+//! read in `SolvableVisCal.cc` (C1 section 0, the 2023 mirror), translated
+//! step for step (`applyRefAnt`, `verifyConstraints`).
 //!
 //! - `minblperant_ok` (`SolvableVisCal::verifyConstraints`): per solution
 //!   interval, a baseline counts for both its antennas when it has positive

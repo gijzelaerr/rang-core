@@ -1,0 +1,2 @@
+51a9e5a35084ea92b0442b599079227f93a74a09 built with uncommitted test-only edit to core/src/gemclean/multiscale.rs (cfg(test), not in the binary); cargo +1.93 --profile gemclean
+e7e00cfd357dc49a0dbd4b6fb236461d5cccbc13edbb05e34e80928e2b13f7b0 */d/rang/outputs/gemclean-ms-mask-20261117/bin/gemclean-msm.exe

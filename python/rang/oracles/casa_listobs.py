@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """rang's `listobs` record against CASA's (research/v8a-listobs.md, section 4).
 
 `compare(rang, casa, msmd, text)` takes rang's record (`rang.listobs.summary`),

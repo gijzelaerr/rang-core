@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-1 (research/w4-1-receipts.md): receipts record every
 result-affecting setting, and the solver takes its options as an argument.
 
@@ -5,7 +6,8 @@ result-affecting setting, and the solver takes its options as an argument.
   bit, and the Rust core no longer reads `RANG_SOLVE_OPTIONS` or
   `RANG_SOLVE_TRACE` itself;
 - the registry `core.ENVIRONMENT` names every `RANG_*` read anywhere under
-  `python/rang/` or the Rust sources, so a new variable cannot be added
+  `python/rang/`, the Rust sources or `tools/heavy_lock.py` (the shared-host
+  lock, research/lock-backfill.md), so a new variable cannot be added
   silently;
 - every receipt writer records the registry.
 """
@@ -20,7 +22,7 @@ from rang import core
 
 ROOT = Path(__file__).resolve().parents[1]
 NAME = re.compile(r"RANG_[A-Z0-9_]*[A-Z0-9]")
-SOURCES = ("python/rang", "core/src", "core/py/src", "src")
+SOURCES = ("python/rang", "core/src", "core/py/src", "src", "tools/heavy_lock.py")
 
 needs_core = pytest.mark.skipif(
     importlib.util.find_spec("rang._core") is None, reason="rang._core is not built"
@@ -141,7 +143,8 @@ def test_trace_argument_and_environment(tmp_path, monkeypatch):
 def _source_names():
     found = {}
     for top in SOURCES:
-        for path in sorted((ROOT / top).rglob("*")):
+        base = ROOT / top
+        for path in [base] if base.is_file() else sorted(base.rglob("*")):
             if path.suffix not in (".py", ".rs") or "__pycache__" in path.parts:
                 continue
             for name in NAME.findall(path.read_text(encoding="utf-8")):

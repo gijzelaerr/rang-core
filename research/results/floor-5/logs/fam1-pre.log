@@ -1,0 +1,23 @@
+heavy_lock: backfilling past head 01794906781720593738-linux-348455.json (waited 0 of 15 min)
+== 2026-11-17T11:13:02+02:00 load 26.52 20.93 15.24 gates start
+11:13:58 prep {'ms': '/home/gijs/rang-data/outputs/floor-5-20261117/inputs/20261103-gemclean-heldout/real/cal2.ms', 'nrow': 823500, 'channels': [4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148, 156, 164, 172, 180, 188, 196, 204, 212, 220, 228, 236, 244, 252], 'chan_width_hz': 417968.75, 'noise_c': 1.025014042854309, 'sigma_part_at_median_weight': 0.17160679164083037, 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'gridding_weight_sum': 354721854.8586093, 'active': 19133875, 'ntime': 450, 'seconds': 55.61649216001388}
+11:14:14 gates {'R0': {'nrow': True, 'active': True, 'noise_c_rel': 0.0, 'gw_sum_rel': 0.0, 'pass': True}, 'G0': {'F_uJy': 1073.415606729187, 'ratio': 0.9999959072210196, 'pass': True}}
+11:14:14 stage gates [] 71.8 s
+gates 72.38 s 3004032 KB
+== 2026-11-17T11:14:15+02:00 load 31.63 23.26 16.45 gates end rc 0
+== 2026-11-17T11:14:15+02:00 load 31.63 23.26 16.45 skies start
+11:14:37 sky pilot {'facet_sum_vs_full_rel_linf': 6.910367574164411e-06, 'seconds': 16.988904139958322}
+11:15:16 sky truth {'facet_sum_vs_full_rel_linf': 6.999673132668249e-06, 'seconds': 38.45333806006238}
+11:15:47 sky K1 {'facet_sum_vs_full_rel_linf': 7.1207932705874555e-06, 'seconds': 31.012748292065226}
+11:16:16 sky K3 {'facet_sum_vs_full_rel_linf': 7.133945473469794e-06, 'seconds': 28.19658162991982}
+11:16:37 sky K10 {'facet_sum_vs_full_rel_linf': 7.213264325400814e-06, 'seconds': 20.120015869033523}
+11:17:13 skies {'K1': {'kept_jy': 81.06478402414359, 'missing_jy': 1.6402319806220476}, 'K3': {'kept_jy': 74.9624307625927, 'missing_jy': 7.742585242172936}, 'K10': {'kept_jy': 55.29357868526131, 'missing_jy': 27.41143731950433}, 'XS2': {'flux_jy': 1.0, 'short_amp_share': 0.9545335173606873}, 'XS4': {'flux_jy': 1.0, 'short_amp_share': 0.9998918175697327}, 'XG4': {'flux_jy': 0.9999999999999998, 'short_amp_share': 0.9998341798782349}}
+11:18:23 sky m1 {'facet_sum_vs_full_rel_linf': 7.046820428513456e-06, 'seconds': 66.11986174189951}
+11:18:23 stage skies [] 247.9 s
+skies 248.43 s 3566280 KB
+== 2026-11-17T11:18:23+02:00 load 44.22 34.59 22.72 skies end rc 0
+== 2026-11-17T11:18:23+02:00 load 44.22 34.59 22.72 pilot start
+11:24:46 pilot {"check": {"vis_equal": true, "wnat_equal": true}, "F_B_uJy": 1073.415606729187, "F_Fix_uJy": 474.83100062889406, "F_ref_uJy": 379.2615718666121, "rel_Fix": 0.0, "rel_Fin": -1.4758787533208917e-06, "newly_flagged": 0.0, "pass": true} {'none': 379.262, 'T_A': 300.949, 'T_Ap': 326.372, 'T_Af': 298.143, 'T_B|A': 273.951, 'T_B': 280.528, 'T8': 322.144, 'T_D|A': 292.462, 'T5flipw': 416.53, 'T5now': 399.247, 'T5eps7': 379.263, 'T10': 379.265}
+11:24:47 stage pilot [] 383.4 s
+pilot 383.76 s 11776664 KB
+== 2026-11-17T11:24:47+02:00 load 29.62 30.97 25.02 pilot end rc 0

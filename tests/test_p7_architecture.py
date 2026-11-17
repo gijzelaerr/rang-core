@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P7 (research/p7-architecture.md): one entry door, no cargo at run
 time, the GIL released, no abort on a kernel panic, the parallel Tricolour
 pack/unpack and the copy-free solver flags."""

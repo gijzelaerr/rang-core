@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Test an installed rang wheel on the current OS, cargo absent.
 
 Usage:

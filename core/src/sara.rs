@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! A SARA-style analysis prior: Dirac and the Daubechies db1 to db8 bases,
 //! concatenated and scaled by `1/√9`, so that `Ψ Ψᵀ = I` (Carrillo, McEwen and
 //! Wiaux 2012; uSARA, Terris et al. 2023).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The proximal operator of `τ ‖Ψᵀ x‖₁` with `x ≥ 0` has no closed form with a
 //! redundant frame, so it runs dual forward-backward (as uSARA's sub-iteration),

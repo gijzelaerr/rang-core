@@ -75,6 +75,44 @@ def _cell_flags(data, weights, flag, flag_row):
     return flag.any(-1) | flag_row[:, None] | missing | no_weight
 
 
+def _interval_costs(gains, data, model, weights, cells, a1, a2, tb, dims):
+    """Per interval: the sum of w |V - g_p M g_q^*|^2 over the unflagged
+    parallel-hand cells (`cells`, row x chan), with the kernel's gains
+    (interval, chan, antenna, hand); research/calchain-floor.md section 12."""
+    ntime, _, nant, nchan = dims
+    g = gains.view(np.complex128).reshape(ntime, nchan, nant, 2)
+    cost = np.zeros(ntime)
+    step = 2048
+    for b in range(0, len(tb), step):
+        s = slice(b, min(len(tb), b + step))
+        t, p, q = (np.asarray(x[s], np.int64) for x in (tb, a1, a2))
+        for h, c in ((0, 0), (1, 3)):
+            pred = g[t, :, p, h] * model[s, :, c] * np.conj(g[t, :, q, h])
+            r = np.abs(data[s, :, c] - pred) ** 2 * weights[s, :, c]
+            np.add.at(cost, t, np.where(cells[s], r, 0.0).sum(1))
+    return cost
+
+
+def _keep_better(fft, zero, data, model, weights, flag, flag_row, a1, a2, tb, dims):
+    """`zero_start`: per interval the run (FFT start or zero start) with the
+    lower residual; returns the merged run and the intervals taken from the
+    zero start (ties keep the FFT start)."""
+    ntime, nfreq, nant, nchan = dims
+    cells = ~_cell_flags(data, weights, flag.astype(bool), flag_row)
+    args = (data, model, weights, cells, a1, a2, tb, dims)
+    better = _interval_costs(zero["gains"], *args) < _interval_costs(
+        fft["gains"], *args
+    )
+    out = dict(fft)
+    width = {"delays": 2 * nfreq * nant, "err": 2 * nfreq * nant, "offsets": 2 * nfreq * nant,
+             "pflags": nfreq * nant, "gflags": nchan * nant, "gains": 4 * nchan * nant}  # fmt: skip
+    for key, w in width.items():
+        a = fft[key].reshape(ntime, w).copy()
+        a[better] = zero[key].reshape(ntime, w)[better]
+        out[key] = a.reshape(-1)
+    return out, [int(i) for i in np.flatnonzero(better)]
+
+
 def solve(
     data,
     model,
@@ -98,6 +136,7 @@ def solve(
     kind="delay_and_offset",
     offset_start=True,
     trace=False,
+    zero_start=False,
 ):
     """Solve one delay term on arrays (rows, chans, 4 correlations).
 
@@ -112,7 +151,14 @@ def solve(
     response's first sidelobe, 1.43 / bandwidth away); `False` is
     QuartiCal's estimator exactly. Autocorrelations are not used. `trace`
     (task W3b, `rang.cal_chunks.replayed`): return only `(counts, error,
-    ngains)` of the counted kernel."""
+    ngains)` of the counted kernel. `zero_start` (with the initial estimate;
+    research/calchain-floor.md section 12, post hoc): the kernel runs a
+    second time from zero delays and offsets, and per interval the run with
+    the lower weighted residual over the interval's unflagged parallel-hand
+    cells is kept (the FFT start, on the refant baselines only, can land on
+    a sidelobe in a sparsely sampled interval, from which Gauss-Newton
+    converges to a wrong delay); `trace` counts the FFT run only. False:
+    one run, as before."""
     if kind not in KINDS:
         raise ValueError(f"kind must be one of {KINDS}")
     refants = [int(r) for r in np.atleast_1d(refant)]
@@ -150,36 +196,65 @@ def solve(
     fb = np.ascontiguousarray(freq_bin, np.uint32)
     nparam = ntime * nfreq * nant
     ngain = ntime * nchan * nant
-    delays = np.zeros(2 * nparam, np.float64)
-    pflags = np.zeros(nparam, np.int8)
-    err = np.zeros(2 * nparam, np.float64)
-    gflags = np.zeros(ngain, np.int8)
-    gains = np.zeros(4 * ngain if return_gains else 0, np.float64)
-    offsets = np.zeros(2 * nparam, np.float64)
+    zero_start = bool(zero_start) and bool(initial_estimate)
+    want_gains = bool(return_gains) or zero_start
     from rang import core
 
     ext = core.extension()
-    common = (
-        nrow, nchan, ntime, nfreq, int(nant), cal_gain._floats(data), weights,
-        cal_gain._floats(model), flag, flag_row.astype(np.uint8), a1, a2,
-        tb.astype(np.uint32), fb, freq, int(max_iterations), float(stop_criterion),
-        float(stop_fraction), -1 if casa_rules else r0, r0 if initial_estimate else -1,
-    )  # fmt: skip
-    if trace:  # task W3b: the counts of the stop test only
-        counts = np.zeros(2 * max(int(max_iterations), 1), np.uint64)
+
+    def kernel(estimate):
+        common = (
+            nrow, nchan, ntime, nfreq, int(nant), cal_gain._floats(data), weights,
+            cal_gain._floats(model), flag, flag_row.astype(np.uint8), a1, a2,
+            tb.astype(np.uint32), fb, freq, int(max_iterations), float(stop_criterion),
+            float(stop_fraction), -1 if casa_rules else r0, r0 if estimate else -1,
+        )  # fmt: skip
+        if trace:  # task W3b: the counts of the stop test only
+            counts = np.zeros(2 * max(int(max_iterations), 1), np.uint64)
+            if kind == "delay":
+                n, error = ext.cal_delay_trace(*common, counts)
+            else:
+                n, error = ext.cal_delay_offset_trace(
+                    *common, bool(offset_start), counts
+                )
+            return counts[: 2 * n].reshape(-1, 2), error, ngain
+        r = {
+            "delays": np.zeros(2 * nparam, np.float64),
+            "pflags": np.zeros(nparam, np.int8),
+            "err": np.zeros(2 * nparam, np.float64),
+            "gflags": np.zeros(ngain, np.int8),
+            "gains": np.zeros(4 * ngain if want_gains else 0, np.float64),
+            "offsets": np.zeros(2 * nparam, np.float64),
+        }
         if kind == "delay":
-            n, error = ext.cal_delay_trace(*common, counts)
+            it, fr = ext.cal_delay_solve(
+                *common, r["delays"], r["pflags"], r["err"], r["gflags"], r["gains"]
+            )
         else:
-            n, error = ext.cal_delay_offset_trace(*common, bool(offset_start), counts)
-        return counts[: 2 * n].reshape(-1, 2), error, ngain
-    if kind == "delay":
-        iterations, fraction = ext.cal_delay_solve(
-            *common, delays, pflags, err, gflags, gains
-        )
-    else:
-        iterations, fraction = ext.cal_delay_offset_solve(
-            *common, bool(offset_start), delays, offsets, pflags, err, gflags, gains
-        )
+            it, fr = ext.cal_delay_offset_solve(
+                *common, bool(offset_start), r["delays"], r["offsets"], r["pflags"],
+                r["err"], r["gflags"], r["gains"],
+            )  # fmt: skip
+        r["iterations"], r["fraction"] = it, fr
+        return r
+
+    if trace:
+        return kernel(initial_estimate)
+    run = kernel(initial_estimate)
+    zero_kept = None
+    if zero_start:
+        run, zero_kept = _keep_better(
+            run, kernel(False), data, model, weights, flag, flag_row, a1, a2, tb,
+            (ntime, nfreq, nant, nchan),
+        )  # fmt: skip
+    delays, pflags, err, gflags = (
+        run["delays"],
+        run["pflags"],
+        run["err"],
+        run["gflags"],
+    )
+    gains, offsets = run["gains"], run["offsets"]
+    iterations, fraction = run["iterations"], run["fraction"]
     shape = (ntime, nfreq, nant)
     tau = delays.reshape(*shape, 2) * 1e9
     phi = offsets.reshape(*shape, 2)
@@ -210,6 +285,7 @@ def solve(
     out_gains = None
     if return_gains:
         out_gains = gains.view(np.complex128).reshape(ntime, nchan, nant, 2)
+    extra = {} if zero_kept is None else {"zero_start_intervals": zero_kept}
     return DelaySolution(
         delays=tau,
         flags=flags,
@@ -230,6 +306,8 @@ def solve(
             "max_iterations": int(max_iterations),
             "stop_criterion": float(stop_criterion),
             "stop_fraction": float(stop_fraction),
+            "zero_start": zero_start,
+            **extra,
         },
     )
 
@@ -261,6 +339,7 @@ def gaincal(
     scan=None,
     budget=None,
     average_time=False,
+    zero_start=False,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
@@ -274,7 +353,8 @@ def gaincal(
     otherwise `weight_column`. Raises when no solution is written.
     `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e),
     and `budget` (task W3b): chunks of whole intervals, the same result.
-    `average_time` (task E2) as `rang.cal_gain.gaincal`."""
+    `average_time` (task E2) as `rang.cal_gain.gaincal`. `zero_start` as
+    `solve` (research/calchain-floor.md section 12)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -314,7 +394,8 @@ def gaincal(
         chan_freq=freq, refant=refants, casa_rules=casa_rules,
         initial_estimate=initial_estimate, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction, kind=kind,
-        offset_start=offset_start, **({"average": True} if average_time else {}),
+        offset_start=offset_start, zero_start=zero_start,
+        **({"average": True} if average_time else {}),
     )  # fmt: skip
     sol.settings.update(
         {
@@ -326,7 +407,7 @@ def gaincal(
         }
     )
     if sol.flags.all():
-        raise RuntimeError(
+        raise cal_gain.NoSolutions(
             f"gaincal K wrote no solutions for field {field_id} (every delay flagged)"
         )
     times, _ = fld.solution_times(tb, row_w, len(keys))

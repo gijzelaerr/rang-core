@@ -163,15 +163,29 @@ SCHEMA = {
         "executor": _k(
             "local",
             "choice",
-            "where chunk tasks run: local, this machine (research/chunk-task-api.md)",
-            ("local",),
+            "where chunk tasks run: local, this machine (research/chunk-task-api.md); "
+            "spool, workers on any nodes serving data.spool "
+            "(research/multinode-executor.md)",
+            ("local", "spool"),
+        ),
+        "spool": _k(
+            None,
+            "str?",
+            "executor spool: an absolute directory on a filesystem every worker "
+            "mounts; start workers with python -m rang.core_spool worker DIR",
+        ),
+        "spool_wait_s": _k(
+            600.0,
+            "float",
+            "executor spool: seconds to wait with no live worker before failing",
         ),
         "processes": _k(
             1,
             "int",
             "processes for the chunk tasks of flag, the complex solve and complex "
-            "apply (1: in this process); each plans its chunks under "
-            "memory_limit_gb / processes; results do not depend on it",
+            "apply (1: in this process; executor spool: the workers planned for); "
+            "each plans its chunks under memory_limit_gb / processes; results do "
+            "not depend on it",
         ),
         "threads": _k(
             None,
@@ -285,6 +299,24 @@ SCHEMA = {
             "averaged, then normalised to unit amplitude with the weight times "
             "the amplitude squared; needs average_freq; false: QuartiCal's "
             "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
+        ),
+        "k_zero_start": _k(
+            False,
+            "bool",
+            "K solves also run from zero delays and keep, per solution interval, "
+            "the run with the lower weighted residual; guards against the FFT "
+            "start (refant baselines only) landing on a sidelobe of a sparsely "
+            "sampled interval; false: the FFT start alone (research/"
+            "calchain-floor.md section 12)",
+        ),
+        "bandpass_model_divided": _k(
+            False,
+            "bool",
+            "B solves divide the pre-applied data by the model (which the K and "
+            "G pre-applies corrupt) before averaging, with weight w|M|^2 and "
+            "model 1, as CASA's divideCorrByModel; matters with average_time "
+            "and K or G varying inside the B interval; false: data and model "
+            "averaged separately (task e2a-3b-diag, research/e2a-3b-diag.md)",
         ),
         "primary": {
             "field": _k(["fcal"], "fields", "fields of the primary solves"),
@@ -439,7 +471,8 @@ SCHEMA = {
         "fits_mask": _k(
             None,
             "path?",
-            "a FITS mask of the image's size, one plane (relative to this file)",
+            "a FITS mask of the image's size, one plane (relative to this file); "
+            "with multiscale it confines the component centres, not the scale shapes",
         ),
         "taper_gaussian": _k(
             None, "str?", "a Gaussian taper, such as 10asec (a plain number is asec)"
@@ -1136,6 +1169,10 @@ def resolve(raw):
         errors.append(("data.processes", "must be at least 1"))
     if _is_int(data["threads"]) and data["threads"] < 1:
         errors.append(("data.threads", "must be at least 1"))
+    if data["executor"] == "spool" and not data["spool"]:
+        errors.append(("data.spool", "executor spool needs a directory"))
+    if _is_num(data["spool_wait_s"]) and not data["spool_wait_s"] > 0:
+        errors.append(("data.spool_wait_s", "must be above 0"))
     names = {}
     for section in CALIBRATE_SECTIONS:
         for i, term in enumerate(config["calibrate"][section]["terms"]):
@@ -1896,7 +1933,15 @@ def validate_file(path, stages):
 # on them (task W3, research/w3-chunking.md; research/chunk-task-api.md), so
 # changing them does not make a stage "changed".
 RESOURCE_KEYS = {
-    "data": ("memory_limit_gb", "chunk_rows", "executor", "processes", "threads")
+    "data": (
+        "memory_limit_gb",
+        "chunk_rows",
+        "executor",
+        "processes",
+        "threads",
+        "spool",
+        "spool_wait_s",
+    )
 }
 
 
@@ -1907,6 +1952,8 @@ HASH_DEFAULTS = {
         "average_time": False,
         "average_freq": False,
         "casa_phase_weights": False,
+        "bandpass_model_divided": False,
+        "k_zero_start": False,
     },
     "selfcal": {"average_time": False},
 }

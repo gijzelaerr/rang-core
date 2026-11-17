@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P1 (research/p1-solver.md): the solver and fused pass give the same
 bits at every rayon thread count. Rayon's global pool is fixed per process,
 so each thread count runs in its own subprocess."""

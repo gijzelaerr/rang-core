@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """E2-B arm A3 (research/e2b-misses.md 9.26): `calibrate.casa_phase_weights`,
 CASA's phase-only estimator for calmode `p` solves. Off, every solve and the
 stage hash are as before, and the key is refused without `average_freq`;

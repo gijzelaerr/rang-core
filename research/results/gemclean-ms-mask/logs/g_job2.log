@@ -1,0 +1,15 @@
+START 2026-11-17T16:24:59+02:00 :: RM1 PM1
+heavy_lock: waiting for head 01794925335983009700-windows-62288.json (no room to backfill)
+heavy_lock: waiting for head 01794925499911448915-wsl-1406.json (no room to backfill)
+heavy_lock: waiting for head 01794925499911448915-wsl-1406.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+g RM1 rc=0 wall=15.4s
+RUN RM1 rc=0 wall=2307s 2026-11-17T17:03:26+02:00
+heavy_lock: waiting for head 01794926213649489000-windows-70116.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794927046493113400-windows-30880.json, which fits
+heavy_lock: waiting for head 01794927788622001848-wsl-24554.json (no room to backfill)
+heavy_lock: waiting for head 01794927788622001848-wsl-24554.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+g PM1 rc=0 wall=145.3s
+RUN PM1 rc=0 wall=2257s 2026-11-17T17:41:03+02:00
+END 2026-11-17T17:41:03+02:00

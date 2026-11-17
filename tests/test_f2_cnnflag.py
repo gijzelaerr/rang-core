@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """F2: the Rust flagger kernel against the NumPy features and JAX network
 (research/f2-flagger.md, section 3)."""
 

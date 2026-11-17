@@ -11,6 +11,9 @@ post hoc amendments 9.1 and 9.2: **met** on the held-out simulation (section
 spent: it was scored on two grids, so any later change to the code needs
 `tsp1-held2`. The real-data arms are deferred.
 
+**2026-11-17: T6 met on the shared host nash** (amendment 15.8, section 15.9).
+rang's median wall time is 1.04 x WSClean's and its peak memory 1.07 x.
+
 **Status at freeze: proposed. Nothing here is built or measured.** This note is
 committed before any code that tests it. Any later change is a dated amendment
 in section 9, labelled post hoc if it could have seen a result.
@@ -741,3 +744,270 @@ Shared-host figures from the scoring runs (4 threads, not T6):
 | T5 | **Met** at 2000² (13.6, post hoc): 1.9e-15. The GPU path refuses the 2048² grid |
 | T6 | **Not run.** The exclusive hold was blocked |
 | T7, ESO137 | **Not run** (13.5: owner decisions 2 and 3) |
+## 15. Coordinator decisions of 2026-11-16 (second set), amendments and results
+
+The coordinator's decisions (message, 2026-11-16): rang keeps honouring
+FLAG_ROW. WSClean's behaviour is recorded as a known oracle difference, and
+T1/T2c report the raw comparison and the comparison with FLAG_ROW ignored.
+GeMClean's FLAG_ROW handling is to be checked and fixed. T4 gets a dated
+amendment and a fresh noise set. T6 runs when the host is free, with the
+exclusive ticket at the head of the queue for at most about 10 minutes. T7
+and ESO137 are left.
+
+### 15.1 Correction to 14.2 and 14.5
+
+14.2 and 14.5 gave the post hoc count as −1.3σ with the peak-curvature Λ.
+That figure was in units of 3√E, not of Poisson σ. Correctly: (239 − 307)/√307
+= **−3.9 Poisson σ**, outside 3√E as well. So neither Λ explains the count:
+the Gaussian-lobe Λ predicts too few (188) and the peak-curvature Λ too many
+(307).
+
+### 15.2 Amendment to T4, dated 2026-11-16, post hoc (written after `tsp1-noise`, before `tsp1-noise2` exists)
+
+**Λ.** Minus the Hessian of the normalised PSF of interval 0 at its peak, by
+second-order central differences over one pixel, as in
+`research/results/ts-p1/diag_t4_lambda.py`. This is the Λ the Euler
+characteristic formula uses.
+
+**Pixel-grid correction.**
+- Candidates are local maxima of the sampled image, not of the continuous
+  field. At high u, the field near a peak of height h follows h·ρ(x − x₀)
+  (the conditional mean). The highest pixel is therefore at an offset δ from
+  the peak, uniform in [−½, ½]² pixels, and reads h·ρ(δ), where
+  ρ(δ) = exp(−½ δᵀΛδ).
+- So E_grid(u) = mean over δ of E_cont(u / ρ(δ)), on a 41 × 41 grid of δ.
+  E_cont is 13.2's formula with this Λ.
+- The 5σ expectation is E5 = 450 · E_grid(5); likewise at 7σ.
+- The size of the correction was judged from `tsp1-noise` (≈ 1 % of peak
+  height at 7-10 pixels per FWHM, which is ≈ −24 % in count at u = 5), so it is
+  post hoc.
+
+**Data.** `tsp1-noise2` (seeds 20261641-45, otherwise as `tsp1-noise`, in
+13.2), drawn once after this commit. Rang's settings as in 13.2.
+
+**Gate (unchanged):** no positive candidate ≥ 7σ_meas, and
+|N5 − E5| ≤ 3√E5. The PSF depends only on UVW and weights, which equal
+those of `tsp1-noise`. The `tsp1-noise` count is reported against the new
+expectation as a post hoc check, not gated.
+
+### 15.3 T1/T2c: both comparisons
+
+The scorer reports T1 and T2c as frozen (raw) and against rang's snapshots
+remade with FLAG_ROW ignored (`flag_row_ignored`).
+- The raw comparison stays the verdict.
+- The FLAG_ROW-ignored one is labelled as the known-difference check, with
+  the same bounds.
+- It is applied to `tsp1-held2`, which was already read, by rescoring with
+  the frozen code plus this report.
+### 15.4 GeMClean and FLAG_ROW
+
+**Before.**
+- GeMClean already gave FLAG_ROW rows zero gridding weight, in both of its
+  gridding paths (`input.rs` `gridding_weights_tapered` and the per-channel
+  path in `cli.rs`).
+- Those rows still entered the uniform and Briggs weight grid
+  (`selected = all rows` in `input.rs` and `stokes.rs`). Under natural
+  weighting that changes nothing.
+- The module comment said this was "as in WSClean". WSClean in fact never
+  reads FLAG_ROW, and grids such rows if their cells are unflagged.
+
+**Change.**
+- Both weight grids now leave FLAG_ROW rows out.
+- The comment is corrected.
+- New test `gemclean::input::tests::flag_row_rows_are_left_out_of_gridding_and_the_weight_grid`
+  checks three things:
+  - a FLAG_ROW row with unflagged cells gets zero gridding weight;
+  - the uniform weights equal those of the same data with that row's
+    weight zeroed;
+  - without FLAG_ROW, the row's uv-cell partner gets a different weight.
+
+**Bit-identity on the archived cases.** The change can alter an image only
+through FLAG_ROW rows with nonzero Stokes I weight.
+- `research/results/ts-p1/flagrow_probe.py` counted them in the 13
+  archived G2-G9 Measurement Sets (the list in
+  `research/results/gemclean-beam-uv/probe.jsonl`).
+- Every set has 0 FLAG_ROW rows and 0 such samples
+  (`flagrow_probe.jsonl`).
+- So every archived GeMClean output on them is unchanged bit for bit. The
+  argument rests on the code path; the images were not regenerated.
+
+### 15.5 T4 under amendment 15.2 (`tsp1-noise2`, read once)
+
+- **Λ_peak** = [[0.1518, −0.0217], [−0.0217, 0.1276]] pixel⁻². With the
+  pixel-grid correction this gives E5 = 235.3 and E7 = 0.0016.
+- **Measured.** 256 positive candidates at ≥ 5σ (+1.35 Poisson σ; 3√E5 =
+  46) and 243 negative. No candidate of either sign at ≥ 7σ.
+- **Verdict.** **T4 met** under amendment 15.2 (post hoc, written after
+  `tsp1-noise`).
+- **Frozen 13.2 rule on the same draw:** E5 = 188, so it fails again.
+- **Post hoc check on `tsp1-noise`** (PSF from `tsp1-noise2`, the same UVW
+  and weights): 239 against 235.3, +0.24σ.
+- **Run paths.** `lc-noise2\`, `score-t4-noise2.json` and
+  `score-t4-noise-posthoc.json` in `D:\rang\outputs\ts-p1-20261116\`;
+  copies in `research/results/ts-p1/`. `tsp1-noise2.ms` was deleted after
+  scoring.
+### 15.6 `tsp1-held2`: T1/T2c with FLAG_ROW ignored (15.3)
+
+- **Rescore.** The scorer reran with `--flag-row-ignored` against a fresh
+  WSClean run on the same MS: `wsc-held2b`, 348 s and 273 MB, `-j 4`, the
+  same settings as the first run.
+- **Raw (the verdict) reproduces 14.1:** T1 max 0.194, median 0.128; T2c
+  0.51σ. **Not met (oracle mismatch: FLAG_ROW).**
+- **FLAG_ROW ignored (the known-difference check):** T1 max 3.7e-7, median
+  5.9e-8; T2c 5.0e-6 σ. Both within the bounds.
+- **Archive.** `research/results/ts-p1/score-held2-flag-row-ignored.json`.
+### 15.7 T6: not run (the host was never free), 2026-11-16
+
+- **What was tried.**
+  - `tools/oracles/ts-p1/t6_run.py` queues an exclusive ticket and withdraws
+    it after 600 s at the head of the queue, then retries after 15 min.
+  - Its first version could not find its own ticket (the venv launcher runs
+    the interpreter as a child, whose pid names the ticket). That ticket sat
+    at the head for longer than 10 minutes before I withdrew it by hand. The
+    fixed version recognises the ticket through the launcher's child pid.
+  - The fixed version made two attempts. Both were withdrawn after
+    600-605 s at the head (`D:\rang\outputs\ts-p1-20261116\t6-attempts.jsonl`).
+    Throughout, E2-A and E2-B holds (4-8 slots, 16-32 GB) and the V8
+    tfcrop probes kept the host busy.
+- **The driver was then stopped, so that no T6 run happens without being
+  recorded.**
+- **To run T6** once the host is free (`tsp1-held2.ms` stays on D: for it):
+
+      python tools/oracles/ts-p1/t6_run.py D:\rang\outputs\ts-p1-20261116 --attempts 12
+
+  Gate 13.4: rang's wall time and peak RSS (from `lc-t6.lightcurve.rang-receipt.json`)
+  against WSClean's `timing.txt`, each at most 1.5×.
+### 15.8 Amendment, 2026-11-16: T6 moves to the shared host nash (host change only, before any T6 reading)
+
+The workstation never had the quiet window that 15.7 waited for, so T6 runs
+on nash ([nash-host.md](nash-host.md): 2 x Xeon E5-2695 v4, 36 cores, 503 GB,
+shared with other users). The protocol of 13.4 is otherwise unchanged: the
+same `tsp1-held2`, the same commands and settings, 16 threads
+(`RAYON_NUM_THREADS=16`, `-j 16`), and the gate at 1.5 x WSClean's wall time
+and 1.5 x its peak memory. No T6 reading exists at this commit.
+
+**What exclusive means on nash.**
+- `heavy_lock.py run -- ...` is exclusive among this account's jobs only. The
+  host is shared: other users' jobs run at normal priority beside ours.
+- Both arms run under the same nice level, `nice -n 19 ionice -c3`
+  (`RANG_HEAVY_NICE=19`, and the prefix on the lock call).
+- 16 threads are within the host's 24-slot cap and one socket's 18 cores, so
+  the protocol's figure stands. Neither arm is pinned (no `numactl`).
+
+**Load record and void rule (frozen here).** Every reading goes through
+`tools/oracles/nash/timed.py`:
+- before and after: load1 (`/proc/loadavg`) and each user's CPU (`top -bn2
+  -d 5`, second frame);
+- during: the host's busy CPU-seconds from `/proc/stat` and the reading's own
+  CPU-seconds and peak RSS from `wait4`. Foreign load = (host busy − own) /
+  wall, in cores. It counts everything outside the timed process tree: other
+  users' jobs, the system and any job of ours outside the lock.
+- Each reading starts only when the host's busy CPU over 30 s is at most 2.0
+  cores (waiting up to 2 h).
+- **A reading made under a mean foreign load above 2.0 cores is void** and is
+  repeated at the end of the order. At most three repeats per arm (six
+  readings in all); if three valid readings per arm cannot be had, T6 is
+  **not obtained (foreign load)**.
+
+**Repeats.** 13.4 has one reading per arm. On nash there are three valid
+readings per arm, interleaved as rang, WSClean, WSClean, rang, rang, WSClean,
+inside one exclusive hold. The gate uses the median wall time of each arm's
+first three valid readings, and the largest peak RSS among them (`wait4`'s
+`ru_maxrss`, the quantity `/usr/bin/time %M` gave in 13.4's `timing.txt`).
+rang's receipt peak is reported beside it.
+
+**The oracle build.** Docker is denied on nash, so the
+`rang-wsclean-native:3.7` image cannot run. WSClean v3.7 is built on nash
+from the image's recipe (`tools/oracles/wsclean-native/Dockerfile`: tag
+`v3.7`, `Release`, `-DPORTABLE=OFF`, KERN casacore 3.7.1-1kern1, which nash
+has installed), outside a container, in
+`~/Build/tmp/20261116-nash-timings/wsclean-native/`. cmake has to be given
+Python 3.12; it found a stray 3.6. The system `/usr/bin/wsclean` (KERN
+3.7-1kern1) is not used: it is the portable build whose gridder uses SSE2
+only (the Dockerfile's note), which would favour rang. The WSClean flags are
+`wsclean_intervals.sh`'s, run directly, with `OMP_NUM_THREADS=16` and the
+`-image.fits` copies deleted as they appear.
+
+**Inputs and I/O.**
+- `tsp1-held2.ms` and its positions are copied from
+  `D:\rang\outputs\ts-p1-20261116` by `tar` over ssh into
+  `~/rang-data/outputs/ts-p1-20261116`; every file's SHA-256 must equal the
+  D: copy's.
+- Both arms now read the same ext4 volume (13.4: rang read NTFS and WSClean
+  ext4). rang reads that copy. WSClean reads its own copy, made once and
+  untimed, as the frozen script made one.
+- Before each reading the arm's MS is read once into the page cache
+  (untimed), so both arms read warm.
+
+**Code.** rang runs at this branch's commit with its extension built on nash
+(its SHA-256 goes with the result). Since the code freeze `08bfefb`,
+`lightcurve.py`, the weights, the wgridder and the Rust kernel are unchanged;
+main changed only GeMClean's Rust and other modules.
+
+**Driver.** `tools/oracles/ts-p1/t6_nash.sh` under
+`nice -n 19 ionice -c3 heavy_lock.py run --`; readings in
+`~/Build/tmp/20261116-nash-timings/t6/readings.jsonl`.
+
+Wall times from nash are labelled host nash and are not compared with the
+workstation's.
+
+### 15.9 T6 measured on nash (amendment 15.8), 2026-11-17
+
+- **Code and builds.**
+  - rang: branch `nash-timings` at `3544c0d` (the amendment's commit), with
+    its extension built on nash (`_core.abi3.so` SHA-256 `608a4203…`).
+  - WSClean: v3.7 (`4f395b28`), built on nash by the Dockerfile's recipe
+    (`Release`, `-O3`, `PORTABLE=OFF`; binary SHA-256 `43077a3c…`).
+- **Input.** `tsp1-held2.ms` was copied from D: (34 min, by `tar` over ssh).
+  All 73 files, the positions and truth included, match the D: copy by
+  SHA-256.
+- **Hold.** All six readings ran in one exclusive hold, 00:22-01:01 SAST on
+  2026-11-17, under `nice -n 19 ionice -c3`. None was void, so none was
+  repeated.
+- **Run paths and archive.**
+  - Run: `~/Build/tmp/20261116-nash-timings/t6/` on nash.
+  - Archive: `research/results/ts-p1/t6-nash/`: `readings.jsonl`,
+    `code.txt`, one receipt, WSClean's commit and a cmake excerpt.
+
+| Reading | Order | Wall, s | CPU-s | Peak RSS, MB | Foreign load, cores | load1 before / after |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| rang r1 | 1 | 355.36 | 2,368 | 302.4 | 0.21 | 1.02 / 6.70 |
+| WSClean w1 | 2 | 346.04 | 2,253 | 281.3 | 0.19 | 3.73 / 4.83 |
+| WSClean w2 | 3 | 343.41 | 2,244 | 280.2 | 0.28 | 2.85 / 4.60 |
+| rang r2 | 4 | 360.66 | 2,417 | 297.5 | 0.27 | 2.54 / 7.49 |
+| rang r3 | 5 | 358.32 | 2,390 | 296.9 | 0.27 | 4.24 / 7.60 |
+| WSClean w3 | 6 | 343.34 | 2,243 | 280.7 | 0.25 | 4.24 / 6.28 |
+
+- **Load.** load1 counts our own 16 threads. Other users' CPU, from the top
+  snapshots before and after each reading, was netdata at about 8 % of one
+  core, root at up to 4 %, and the lock's own idle processes. The foreign load
+  stayed at 0.19-0.28 cores against the 2.0 bound.
+- **Our own account.** From w2 on, the snapshots also show 8-9 % of one core
+  under our account outside the timed tree. It was not identified (queued
+  lock clients polling are likely). It is counted in the foreign load. No
+  other job of ours held the lock during the hold.
+
+**Gate 13.4 (frozen readings, as amended in 15.8).**
+- **Wall time.** rang's median is 358.32 s and WSClean's 343.41 s, a ratio
+  of **1.043** against the 1.5 bound: **pass**.
+- **Peak memory.** rang's largest is 302.4 MB and WSClean's 281.3 MB, a
+  ratio of **1.075** against the 1.5 bound: **pass**.
+- **T6 is met on nash.** rang matches WSClean 3.7 (native build) in cost, at
+  16 threads, on a host shared under nice 19.
+
+**Post hoc remarks (not part of the gate).**
+- **Repeatability.** rang's three readings span 1.5 % and WSClean's 0.8 %.
+  rang uses 6.5 % more CPU-seconds.
+- **Receipt.** rang's own peak (`peak_rss_mb`) is 295.3, 290.5 and
+  290.0 MB.
+- **Outputs.**
+  - The three `lightcurve.csv` files are identical (SHA-256 `94b4eb9e…`).
+  - Against the workstation's 4-thread `lc-held2` (2,700 rows), the largest
+    relative differences are 8.7e-14 in `flux_jy`, 1.1e-11 in
+    `flux_snapshot_jy` and 5.5e-11 in `sigma_meas_jy`. That is floating-point
+    rounding from another host, compiler and thread count.
+- **Where WSClean's time goes.** Inversion takes 5 min 28 s of its 346 s.
+  Its reorder runs first, on about one core.
+- **Not comparable.** These are host nash figures, not comparable with
+  10.5's or 14.4's workstation figures.
+- **The input can go.** T6 no longer needs `tsp1-held2.ms` on D:.

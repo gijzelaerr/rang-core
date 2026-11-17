@@ -1,0 +1,12 @@
+version: 1
+fields: {fcal: [J1939-6342], gcal: [SIM-GCAL], target: [SIM-TARGET]}
+data:
+  memory_limit_gb: 2
+flag: {strategy: /home/gijs/Worktrees/rang/multinode-executor/research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml}
+calibrate:
+  model: {source: setjy}
+  primary:
+    terms:
+      - {type: complex, name: Gint, solint: int, freqint: 16}
+      - {type: complex, name: G2, solint: 2, freqint: 512}
+      - {type: complex, name: Gchan, solint: inf, freqint: 1}

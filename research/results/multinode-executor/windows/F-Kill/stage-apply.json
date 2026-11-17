@@ -1,0 +1,18 @@
+{
+ "stage": "apply",
+ "workers": [
+  6984,
+  20416
+ ],
+ "killed": {
+  "pid": 39856,
+  "owner": "glacier-39856-00db0f",
+  "claim": "17020-b5cbada9-0001-00000000",
+  "unix": 1794900007.0676305
+ },
+ "driver_wall_s": 4.59,
+ "worker_exits": [
+  0,
+  1
+ ]
+}

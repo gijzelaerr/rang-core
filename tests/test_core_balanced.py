@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Frozen geometry slots, random controls and safe prepared-copy boundaries.
 
 Live part of tests/test_flagging_balanced.py at commit 2da566c

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """casacure (optional) against the task E oracle dump and the core reader.
 
 research/casacure-evaluation.md (task E2). casacure is not a dependency of

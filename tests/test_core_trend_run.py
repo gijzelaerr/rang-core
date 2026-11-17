@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Tests of the core_trend_run extract.
 
 Live part of tests/test_flagging_trend.py at commit 2da566c

@@ -1,0 +1,11 @@
+START 2026-11-17T16:24:59+02:00 pid 1397 :: RM1 PM1
+heavy_lock: waiting for head 01794925335983009700-windows-62288.json (no room to backfill)
+heavy_lock: waiting for shared jobs to fit
+w RM1 rc=0 wall=90.0s
+RUN RM1 rc=0 wall=2289s 2026-11-17T17:03:08+02:00
+heavy_lock: waiting for head 01794925500000547800-windows-23364.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794926213649489000-windows-70116.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+w PM1 rc=0 wall=459.7s
+RUN PM1 rc=0 wall=2128s 2026-11-17T17:38:36+02:00
+END 2026-11-17T17:38:36+02:00

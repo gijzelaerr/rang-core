@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.gemclean_main`: GeMClean's command line inside the extension,
 //! for the wheel's console script `gemclean` (task G8, `research/g8-wheel.md`).
 //!

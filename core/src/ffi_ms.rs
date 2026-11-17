@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! C ABI of the Measurement Set reader for the Python layer (ctypes).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! A table is an opaque handle; a column read returns a buffer the core
 //! allocates and the caller frees with `rang_core_ms_free`. Every function

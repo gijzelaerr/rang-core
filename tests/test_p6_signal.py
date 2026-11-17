@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P6: ported signal-track algebra equals the frozen functions bit for bit.
 
 research/p6-python-hotspots.md criterion 4. The stage-level identity (whole

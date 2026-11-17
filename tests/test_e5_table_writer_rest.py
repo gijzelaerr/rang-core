@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """IncrementalStMan, last-row removal, tiled hypercubes, big-endian,
 MemoryStMan, TiledDataStMan and MultiFile tables in the core writer (E5).
 

@@ -1,0 +1,9 @@
+D:/rang/outputs/gemclean-memory2-20261116/f2.ms: 33880 rows (E2C_RANG_CORRECTED_DATA, field 2), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 22.70 s read, 7.93 s weights
+auto-mask: major iteration 1, sigma 1.481714e-2 Jy, threshold 7.408570e-2 Jy; continued in the mask at gain 0.9000, threshold 7.408570e-2 Jy
+auto-mask: major iteration 2, sigma 1.812271e-3 Jy, threshold 9.061355e-3 Jy; continued in the mask at gain 0.9000, threshold 9.061355e-3 Jy
+auto-mask: major iteration 3, sigma 8.623584e-4 Jy, threshold 4.311792e-3 Jy; continued in the mask at gain 0.9000, threshold 4.311792e-3 Jy
+auto-mask: major iteration 4, sigma 5.077001e-4 Jy, threshold 2.538500e-3 Jy; continued in the mask at gain 0.7579, threshold 1.523100e-3 Jy
+auto-mask: major iteration 5, sigma 4.619132e-4 Jy, threshold 1.385740e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+1 groups deconvolved; wall 329.70 s
+{"exit": 0, "wall_s": 330.9, "peak_rss_gb": 7.18, "peak_working_set_gib": 7.18, "peak_private_gib": 7.19, "cpu_s": 1091.9, "mean_cores": 3.3}

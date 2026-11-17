@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Frozen geometry-balanced whole-rectangle search, not observation transfer.
 
 Verbatim extract of the frozen `rangtoy.flagging_balanced` (big plan task P11,

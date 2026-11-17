@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """TS-P1 (research/ts-p1.md): residual snapshot light curves. A small version
 of the TS-P1 simulation is written inside the test (8 antennas, 8 channels,
 45 integrations); the frozen sets are not."""
@@ -236,3 +237,50 @@ def test_wstack_snapshot_matches_the_wgridder(small):
     )
     assert np.max(np.abs(fa - fb)) < 1e-3 * np.max(np.abs(fa)) + 1e-9
     assert b["settings"]["gridder"] == "wstack"
+
+
+def test_t4_expectation_pieces():
+    t45 = _load("ts_p1_t4t5")
+    size = 64
+    y, x = np.mgrid[:size, :size] - size // 2
+    a = 0.05  # rho = exp(-a (x^2 + y^2) / 2): Lambda = a I
+    psf = np.exp(-0.5 * a * (x * x + y * y))
+    lam = t45.peak_lambda(psf, size)
+    assert np.allclose(lam, a * np.eye(2), rtol=0.02)
+    fit, _ = t45.fit_lambda(psf, size)
+    assert np.allclose(fit, a * np.eye(2), rtol=1e-6)
+    cont = t45.expected_ec(5.0, 1e6, 4e3, lam)
+    grid = t45.expected_grid(5.0, 1e6, 4e3, lam)
+    assert 0.8 * cont < grid < cont  # sampling lowers the highest pixel
+
+
+def test_command_line_refuses_bad_scale_and_positions_file(tmp_path, capsys):
+    """research/v030-review.md B-14, B-15: a bad --scale and a positions CSV
+    without the named columns or with a non-number end in a refusal (exit 2)
+    naming the cause, not a traceback; these are checked before the MS is read."""
+    base = [
+        "--no-receipt",
+        "lightcurve",
+        str(tmp_path / "none.ms"),
+        "--position",
+        "1,2",
+    ]
+    for scale in ("foo", "0", "-3asec"):
+        with pytest.raises(SystemExit) as exc:
+            core_cli.dispatch(
+                base + ["--out", str(tmp_path / f"s{scale}"), "--scale", scale]
+            )
+        assert exc.value.code == 2 and "--scale" in capsys.readouterr().err
+    cases = {
+        "cols.csv": "name,ra,dec\nA,1,2\n",
+        "num.csv": "name,ra_deg,dec_deg\nA,1,x\n",
+        "dec.csv": "name,ra_deg,dec_deg\nA,1,95\n",
+    }
+    for name, text in cases.items():
+        path = tmp_path / name
+        path.write_text(text, encoding="utf-8")
+        with pytest.raises(SystemExit) as exc:
+            core_cli.dispatch(
+                base + ["--out", str(tmp_path / name[:-4]), "--positions", str(path)]
+            )
+        assert exc.value.code == 2 and "--positions" in capsys.readouterr().err

@@ -1,0 +1,56 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms",
+ "term": {
+  "name": "Sp",
+  "type": "Sp",
+  "solint": "300s",
+  "freqint": "inf"
+ },
+ "memory_limit_gb": 12.0,
+ "stream": "false",
+ "selfcal_cell_bytes": 96,
+ "rows": 823500,
+ "cell": [
+  256,
+  4
+ ],
+ "summary": {
+  "name": "Sp",
+  "type": "Sp",
+  "quartical_type": "phase",
+  "caracal_type": "GainDiagPhase",
+  "field_id": 0,
+  "rows": 823500,
+  "time_bins": 12,
+  "time_bins_per_scan": {
+   "2": 12
+  },
+  "freq_bins": 1,
+  "iterations": 13,
+  "converged_fraction": 1.0,
+  "flagged_fraction": 0.01639344262295082,
+  "clipped": 0,
+  "settings": {
+   "solint": "300s",
+   "freqint": "inf",
+   "refant": 0,
+   "refant_name": "ANT00",
+   "input_column": "DATA",
+   "model_column": "MODEL_DATA",
+   "weights": "WEIGHT_SPECTRUM",
+   "uvrange": "",
+   "gain_clip": [
+    0.5,
+    2.0
+   ],
+   "casa_rules": false,
+   "max_iterations": 50,
+   "stop_criterion": 1e-07,
+   "stop_fraction": 0.99
+  }
+ },
+ "solve_seconds": 929.0645402319496,
+ "wall_seconds": 929.7364538339898,
+ "largest_interval_cells": 71208960,
+ "plan_gib_one_interval": 7.212457060813904
+}

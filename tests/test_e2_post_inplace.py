@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2-A's in-place gate 2b order in e2_post.py (research/e2-acceptance.md 9.9):
 the plan picks rang's apply output and flag versions from the run directory,
 the prep script renames and resets flags without a copy (run here against a

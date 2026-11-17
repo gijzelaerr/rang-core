@@ -1,4 +1,7 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT AND BSD-3-Clause
+# Follows Tricolour 0.2.1 (its defaults and `load_mask`): Copyright (c) 2019,
+# National Research Foundation (SARAO), BSD-3-Clause; the licence text in
+# THIRD-PARTY-NOTICES.txt.
 """Tricolour-strategy flagging on the Rang core (research/core-d-tricolour.md).
 
 Runs Tricolour 0.2.1's `polarisation` flagging strategy, ported to Rust in

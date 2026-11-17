@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Compare rang's table reader with python-casacore on the string columns of
 real Measurement Sets (research/feed-poltype-read.md).
 

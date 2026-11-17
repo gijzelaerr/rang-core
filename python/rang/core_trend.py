@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Trend track hot spot, ported (research/p6-python-hotspots.md).
 
 `generate_candidates` returns exactly what the frozen

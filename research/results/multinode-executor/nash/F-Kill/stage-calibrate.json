@@ -1,0 +1,18 @@
+{
+ "stage": "calibrate",
+ "workers": [
+  279747,
+  279748
+ ],
+ "killed": {
+  "pid": 279747,
+  "owner": "nash-279747-d732d6",
+  "claim": "279750-52c9b49d-0001-00000000",
+  "unix": 1794902188.3142896
+ },
+ "driver_wall_s": 69.13,
+ "worker_exits": [
+  -9,
+  0
+ ]
+}

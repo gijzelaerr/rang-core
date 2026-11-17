@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """casacure as a read-only second oracle for the core's casacore tables.
 
 research/t1-casacure-ci.md (task T1), after research/casacure-evaluation.md

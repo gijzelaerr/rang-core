@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P11 (research/p11-extract.md): the `core_*` extracts of the frozen
 campaign modules are verbatim, and no live code imports a frozen module.
 

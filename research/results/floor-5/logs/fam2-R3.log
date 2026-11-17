@@ -1,0 +1,6 @@
+== 2026-11-17T12:45:23+02:00 load 13.88 12.21 12.94 R3 start
+beam: peak 0.999999999487, patch ±64, f 2.4846e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.861" × 9.621" PA -51.36° (841 pixels fitted); PSF 83.51 s, FFT 1.14 s
+26357 components, 3 major cycles, 74 resyncs, stop Threshold; Q/Q0 5.1930e-3; tau min 0.500 median 0.676; minor 1.93 s (corrections 0.176 s), resync 11.75 s, major 133.34 s
+wall 326.22 s
+R3 326.50 s 11830956 KB
+== 2026-11-17T12:50:50+02:00 load 22.55 18.81 15.66 R3 end rc 0

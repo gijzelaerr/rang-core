@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """F3 (research/f3-flagger.md): the Rust features against the NumPy
 reference, the Rust logits against the JAX network, W3's steps, the data
 guards and the injections, on a small synthetic scan."""

@@ -452,3 +452,14 @@ grid. Both can fail. Double precision keeps the frozen bound.
 Section 7 says to stop after a Gate 1 failure. Gate 2 and the timing are run all the same,
 labelled post hoc: the brief asks for them, and Gate 2's bounds (µJy, σ, scores) do not use
 the normalisation that failed. They cannot change the frozen outcome.
+
+## Coordinator decision, 2026-11-16 (owner delegated)
+
+- The frozen outcome, **Failure**, stands. The code (`core/src/gpu/wgrid.rs`, `gemclean -gpu`) stays on
+  branch `gpu-grid` at `c203e02` and is **not merged**: f32 misses the frozen bound, the pilot misses Gate 2,
+  and no run was faster, so an experimental flag would ship without a gain or a met tolerance.
+- Amendment 9.3 is **not accepted** as a pass criterion; it stays a post hoc reading.
+- wgpu instead of CUDA is accepted (X2: no toolkit in builds or wheels).
+- Reopening needs, in order: the pilot in f64 through Gate 2, then the exclusive `-j 16` timing against
+  WSClean on a quiet host with a free card (scripts in `results/gpu-grid-scripts/`, run with
+  `heavy_lock.py run --drain 0`), under a new frozen arm. Only a speed-up at met parity would justify a merge.

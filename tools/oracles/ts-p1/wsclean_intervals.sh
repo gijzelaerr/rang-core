@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # TS-P1 oracle (research/ts-p1.md, T1 and T2c): WSClean 3.7 snapshot dirty
 # images, one per integration, of the residual column of a TS-P1 simulation.
 # Runs on the WSL host, on an ext4 copy (never on the 9p input), inside

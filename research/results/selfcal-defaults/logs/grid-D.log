@@ -1,0 +1,20 @@
+heavy_lock: waiting for head 01794882700877833952-linux-22490.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794882959918069665-linux-25400.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794883373313264918-linux-30208.json (no room to backfill)
+heavy_lock: waiting for head 01794883373313264918-linux-30208.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794883636066337897-linux-33508.json (no room to backfill)
+heavy_lock: waiting for head 01794883636066337897-linux-33508.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T04:45:58Z load 12.08 12.72 11.72 D start
+06:46:34 stage prepare D wall_s 35.8
+prepare 35.96 s 196576 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 2035.4 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/D/run/receipts/selfcal-20261117T044635Z.rang-receipt.json
+selfcal 2040.65 s 37119920 KB
+07:20:41 stage clean D wall_s 5.1
+07:21:37 cell D default B 350.43 0.8922
+07:22:38 cell D default A 364.15 0.8898
+07:22:38 stage score D wall_s 117.2
+score 117.52 s 4953036 KB
+== 2026-11-17T05:22:38Z load 17.89 16.85 14.96 D end

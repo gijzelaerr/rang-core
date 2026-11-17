@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Big plan task P5 (research/p5-memory.md): every lean replacement equals
 the code it replaces on the same cells. Synthetic and offline, except the
 decode checks on the archived K fetch, which are skipped when it is absent.

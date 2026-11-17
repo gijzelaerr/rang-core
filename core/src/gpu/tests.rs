@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! GPU tests (protocol criterion 7). Each returns early, with a message on
 //! stderr, when no usable adapter exists (Linux without a Vulkan loader, CI),
 //! so they skip rather than fail there.

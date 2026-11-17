@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-8 (research/w4-8-readme-docs.md): the documentation pass.
 
 The README stays a short landing page whose links resolve, the research index

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Chunk tasks and their executor (multi-node stage 1, research/chunk-task-api.md).
 
 W3's and W3b's chunk loops (research/w3-chunking.md, w3b-chainchunks.md) as
@@ -17,7 +17,9 @@ explicit tasks:
 - `executor(config)`: `data.executor: local` with `data.processes` processes
   (default 1: the tasks run inline, in this process, on the stage's own
   source; above 1, a spawn process pool with `data.threads` rayon threads
-  shared out among the workers).
+  shared out among the workers); `data.executor: spool` with
+  `data.spool`, a directory on a shared filesystem served by workers on any
+  number of nodes (`core_spool`, research/multinode-executor.md).
 
 Splitting changes no arithmetic: every stage gives the bit-identical result
 at any process count (the gate of research/chunk-task-api.md, section 3).
@@ -35,7 +37,7 @@ from pathlib import Path
 
 import numpy as np
 
-EXECUTORS = ("local",)
+EXECUTORS = ("local", "spool")
 
 
 class ExecutorError(ValueError):
@@ -461,6 +463,12 @@ def settings(config):
     return kind, processes, None if threads is None else int(threads)
 
 
+def spool_settings(config):
+    """(spool directory or None, seconds to wait for a live worker)."""
+    data = config.get("data", {}) if config else {}
+    return data.get("spool"), float(data.get("spool_wait_s") or 600.0)
+
+
 def total_threads(threads=None):
     """The thread budget the workers share: `data.threads`, else the
     process's RAYON_NUM_THREADS, else the CPU count."""
@@ -479,32 +487,50 @@ def _init_worker(threads):
 
 class Executor:
     """`map(specs, source)`: the partials of `specs` in plan order. One
-    process runs them inline on `source`; more run them in a spawn process
-    pool, each worker reading through its own reader, with at most
-    2 x processes tasks in flight."""
+    local process runs them inline on `source`; more run them in a spawn
+    process pool, each worker reading through its own reader, with at most
+    2 x processes tasks in flight. `kind="spool"` hands them to the workers
+    of a spool directory (`core_spool`) instead, `processes` being the number
+    of workers planned for (it sets the window and the per-worker memory)."""
 
-    def __init__(self, processes=1, threads=None, kind="local"):
+    def __init__(
+        self, processes=1, threads=None, kind="local", spool=None, spool_wait_s=600.0
+    ):
         if kind not in EXECUTORS:
             raise ExecutorError(f"data.executor {kind!r}: one of {list(EXECUTORS)}")
         if int(processes) < 1:
             raise ExecutorError("data.processes must be at least 1")
+        if kind == "spool" and not spool:
+            raise ExecutorError("data.executor spool needs data.spool, a directory")
         self.kind = kind
         self.processes = int(processes)
         self.threads = threads
+        self.spool = spool
+        self.spool_wait_s = spool_wait_s
         self._pool = None
+        self._spool = None
+
+    @property
+    def inline(self):
+        return self.kind == "local" and self.processes == 1
 
     @property
     def threads_per_process(self):
-        if self.processes == 1:
-            return None
+        if self.kind == "spool" or self.processes == 1:
+            return None  # spool workers bring their own (--threads)
         return max(1, total_threads(self.threads) // self.processes)
 
     def describe(self):
-        return {
+        out = {
             "executor": self.kind,
             "processes": self.processes,
             "threads_per_process": self.threads_per_process,
         }
+        if self.kind == "spool":
+            out["spool"] = str(self.spool)
+            if self._spool is not None:
+                out["spool_counts"] = self._spool.record()
+        return out
 
     def _start(self):
         if self._pool is None:
@@ -520,9 +546,12 @@ class Executor:
         return self._pool
 
     def map(self, specs, source=None):
-        if self.processes == 1:
+        if self.inline:
             for spec in specs:
                 yield run(spec, source)
+            return
+        if self.kind == "spool":
+            yield from self._map_spool(specs)
             return
         pool = self._start()
         pending = collections.deque()
@@ -538,10 +567,32 @@ class Executor:
             for f in pending:
                 f.cancel()
 
+    def _map_spool(self, specs):
+        from . import core_spool
+
+        if self._spool is None:
+            self._spool = core_spool.Spool(self.spool, self.spool_wait_s)
+        sp = self._spool
+        map_id = sp.new_map()
+        pending = collections.deque()
+        window = 2 * self.processes
+        try:
+            for spec in specs:
+                pending.append(sp.submit(spec, map_id))
+                if len(pending) >= window:
+                    yield sp.result(pending.popleft())
+            while pending:
+                yield sp.result(pending.popleft())
+        finally:
+            if pending:
+                sp.discard()
+
     def close(self):
         if self._pool is not None:
             self._pool.shutdown(wait=True, cancel_futures=True)
             self._pool = None
+        if self._spool is not None:
+            self._spool.discard()
 
 
 INLINE = Executor()
@@ -551,7 +602,8 @@ INLINE = Executor()
 def executor(config):
     """The executor `config['data']` asks for, closed on exit."""
     kind, processes, threads = settings(config)
-    ex = Executor(processes, threads, kind)
+    spool, wait_s = spool_settings(config)
+    ex = Executor(processes, threads, kind, spool, wait_s)
     try:
         yield ex
     finally:
@@ -561,10 +613,17 @@ def executor(config):
 def problems(config):
     """[str]: executor settings that cannot run (preflight)."""
     kind, processes, _ = settings(config)
+    spool, _ = spool_settings(config)
     out = []
     if kind not in EXECUTORS:
         out.append(f"data.executor {kind!r}: one of {list(EXECUTORS)}")
-    if processes > 1 and os.environ.get("RANG_SOLVE_TRACE"):
+    if kind == "spool" and not spool:
+        out.append("data.executor spool needs data.spool, a directory")
+    if kind == "spool" and spool and not os.path.isabs(str(spool)):
+        out.append(
+            f"data.spool {spool!r} must be an absolute path (every worker opens it)"
+        )
+    if (kind == "spool" or processes > 1) and os.environ.get("RANG_SOLVE_TRACE"):
         out.append(
             "RANG_SOLVE_TRACE writes one trace file per solve; it needs "
             "data.processes: 1 (research/chunk-task-api.md 1.1)"
@@ -586,5 +645,6 @@ __all__ = [
     "same_spec",
     "settings",
     "solve_spec",
+    "spool_settings",
     "total_threads",
 ]

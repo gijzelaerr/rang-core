@@ -1,0 +1,45 @@
+{
+ "run": "RH",
+ "sigma": 0.000539304861787241,
+ "omega_px": 58.74215579979939,
+ "eps": {
+  "in": 0.012298058900745848,
+  "out": 0.43215029815140105
+ },
+ "g": {
+  "total": 1.6887958653692294,
+  "F_in": 1.6887958653692294,
+  "F_out": 0.0,
+  "N_out": 0.0,
+  "abs_out": 0.0,
+  "negative": -0.2591539030977401,
+  "nonzero": 1240,
+  "nonzero_out": 0,
+  "big_out": 0
+ },
+ "w": {
+  "total": 1.6889877926655572,
+  "F_in": 1.6889877926655572,
+  "F_out": 0.0,
+  "N_out": 0.0,
+  "abs_out": 0.0,
+  "negative": -0.2507385190469904,
+  "nonzero": 1202,
+  "nonzero_out": 0,
+  "big_out": 0
+ },
+ "g_mask_json": {
+  "fits_mask_pixels": 3394.0,
+  "fits_outside_picks": 0.0,
+  "picks": 41900,
+  "auto": []
+ },
+ "M1": true,
+ "C": true,
+ "g_scales": [],
+ "g_summary": [
+  "41900 components, 5 major cycles, 45 resyncs, stop Threshold; Q/Q0 2.9607e-1; tau min 0.500 median 0.681; minor 0.33 s (corrections 0.023 s), resync 1.11 s, major 4.63 s"
+ ],
+ "w_majors": 4,
+ "w_tail": []
+}

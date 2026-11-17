@@ -1,0 +1,23 @@
+{
+ "calls": [
+  {
+   "fields": [
+    "J1833-2103"
+   ],
+   "tables": [
+    "K",
+    "F",
+    "B",
+    "Kcross",
+    "Xf",
+    "Df"
+   ],
+   "parang": true,
+   "frame": "casa",
+   "receptor_angle": -1.5707963267948966
+  }
+ ],
+ "rang_file": "C:\\Users\\gijsm\\Worktrees\\rang\\e2b-confirm\\python\\rang\\__init__.py",
+ "worktree_head": "d3a8ed4dfade33cbab30d3c75fe29cf156d24df3",
+ "secs": 46.50264000892639
+}

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Pure regression tests for read-only retrospective support diagnostics."""
 
 import importlib.util

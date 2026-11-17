@@ -43,6 +43,12 @@ KINDS = {"ap": 0, "p": 1}
 TYPE_ORDER = ("B", "K", "Kcross", "G", "J", "Df", "Xf", "C", "P", "E", "T", "F")
 
 
+class NoSolutions(RuntimeError):
+    """A solve flagged every solution, so it wrote no table (v0.3.0 review
+    R-02): `rang-core run` reports it as the stage's failure, not a
+    traceback."""
+
+
 def parse_solint(solint):
     """`'inf'`, `'int'` or a duration in seconds (`'60s'`, `'2min'`, `60`)."""
     if isinstance(solint, (int, float)):
@@ -795,7 +801,8 @@ def phase_only(data, model, weights, flag):
 
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
-    average_freq=False, average_psi=None, casa_phase_weights=False, **opts,
+    average_freq=False, average_psi=None, casa_phase_weights=False, stream=False,
+    **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -812,11 +819,15 @@ def _solve_gain_field(
     solves); one frequency bin only. `casa_phase_weights` (task A3,
     `calibrate.casa_phase_weights`, research/e2b-misses.md 9.26; needs
     `average_freq` and `fld.model_divided`, which `prepare` applies): after
-    the averages, `phase_only`, CASA's estimator for calmode `p`. Returns
-    `(GainSolution, row weights)`."""
+    the averages, `phase_only`, CASA's estimator for calmode `p`.
+    `stream` (issue #34, research/selfcal-memory.md; QuartiCal rules, no
+    averages, one frequency bin per `freq_bin`): `"auto"` streams the solve
+    (`rang.cal_stream`, the same solution, `snr` and `err` NaN) when one
+    solution interval does not fit `budget`, True always, False never.
+    Returns `(GainSolution, row weights)`."""
     import dataclasses
 
-    from . import cal_chunks
+    from . import cal_chunks, core_chunks
 
     nant = opts["nant"]
     refants = _check(opts["calmode"], opts["refantmode"], opts["refant"], nant)
@@ -843,9 +854,27 @@ def _solve_gain_field(
             avg.time_bin,
         )
     else:
-        chunks, block = cal_chunks.plan(
-            tb, nchan, 4, budget, per_channel=per_channel, what=what
+        streamable = stream and not (
+            per_channel
+            or average_freq
+            or casa_phase_weights
+            or fld.model_divided
+            or opts["casa_rules"]
         )
+        if stream and not streamable:
+            raise ValueError("stream: QuartiCal rules on unaveraged rows only")
+        try:
+            chunks, block = cal_chunks.plan(
+                tb, nchan, 4, budget, per_channel=per_channel, what=what
+            )
+        except core_chunks.MemoryLimitError:
+            if not streamable:
+                raise
+            chunks = None
+        if streamable and (chunks is None or stream is True):
+            return _stream_gain_field(
+                fld, tb, nchan, freq_bin, budget, what, refants, opts
+            )
         flag_row, ant1, ant2, bins = fld.flag_row, m["ANTENNA1"], m["ANTENNA2"], tb
     row_w = np.zeros(len(tb))
     with core_ms.open_table(fld.ms) as reader:
@@ -911,6 +940,29 @@ def _solve_gain_field(
         casa_rules=opts["casa_rules"], max_iterations=opts["max_iterations"],
         stop_criterion=opts["stop_criterion"], stop_fraction=opts["stop_fraction"],
     )  # fmt: skip
+    return sol, row_w
+
+
+def _stream_gain_field(fld, tb, nchan, freq_bin, budget, what, refants, opts):
+    """`_solve_gain_field` streamed (`rang.cal_stream`): `(GainSolution, row
+    weights)`, the solution's `settings["streamed"]` a record of the
+    stream."""
+    from . import cal_stream
+
+    raw, row_w, record = cal_stream.solve_field(
+        fld, tb, nchan=nchan, freq_bin=freq_bin, budget=budget, what=what,
+        nant=opts["nant"], calmode=opts["calmode"], refants=refants,
+        max_iterations=opts["max_iterations"], stop_criterion=opts["stop_criterion"],
+        stop_fraction=opts["stop_fraction"],
+    )  # fmt: skip
+    sol = _finish(
+        raw, nant=opts["nant"], calmode=opts["calmode"], refants=refants,
+        refantmode=opts["refantmode"], minsnr=opts["minsnr"],
+        minblperant=opts["minblperant"], positions=opts["positions"],
+        casa_rules=False, max_iterations=opts["max_iterations"],
+        stop_criterion=opts["stop_criterion"], stop_fraction=opts["stop_fraction"],
+    )  # fmt: skip
+    sol.settings["streamed"] = record
     return sol, row_w
 
 
@@ -1038,7 +1090,7 @@ def gaincal(
         **({"casa_phase_weights": True} if divide else {}),
     )  # fmt: skip
     if sol.flags.all():
-        raise RuntimeError(
+        raise NoSolutions(
             f"gaincal wrote no solutions for field {field_id} (every solution flagged)"
         )
     times, span = fld.solution_times(tb, row_w, len(keys))

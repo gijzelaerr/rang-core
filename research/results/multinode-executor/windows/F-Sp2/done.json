@@ -1,0 +1,68 @@
+{
+ "case": "F",
+ "arm": "Sp2",
+ "code": "C:\\Users\\gijsm\\Worktrees\\rang\\multinode-executor\\python",
+ "data": [
+  "processes: 2"
+ ],
+ "workers": 2,
+ "threads": 1,
+ "rayon": 1,
+ "kill": false,
+ "source": "D:\\rang\\outputs\\cta-20261113-inputs\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.2.0",
+  "core_sha256": "caf80328f3c7cd2e6fba93ba73ac7737e81de748f7b3eb47fb8e7b6bf4c0a30d"
+ },
+ "host": "GLACIER",
+ "stages": {
+  "flag": {
+   "exit": 0,
+   "wall_s": 3.69,
+   "stage": {
+    "stage": "flag",
+    "workers": [
+     23968,
+     24072
+    ],
+    "driver_wall_s": 2.97,
+    "worker_exits": [
+     0,
+     0
+    ]
+   }
+  },
+  "calibrate": {
+   "exit": 0,
+   "wall_s": 3.74,
+   "stage": {
+    "stage": "calibrate",
+    "workers": [
+     41348,
+     57292
+    ],
+    "driver_wall_s": 3.1,
+    "worker_exits": [
+     0,
+     0
+    ]
+   }
+  },
+  "apply": {
+   "exit": 0,
+   "wall_s": 2.63,
+   "stage": {
+    "stage": "apply",
+    "workers": [
+     27336,
+     52748
+    ],
+    "driver_wall_s": 2.06,
+    "worker_exits": [
+     0,
+     0
+    ]
+   }
+  }
+ }
+}

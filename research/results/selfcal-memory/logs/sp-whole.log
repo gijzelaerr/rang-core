@@ -1,0 +1,4 @@
+== 2026-11-17T12:47:52Z load 20.14 15.93 11.17 sp-whole start
+{"term": {"name": "Sp", "type": "Sp", "solint": "inf", "freqint": "inf"}, "solve_seconds": 328.61949086003006}
+sp-whole 329.68 s 37066116 KB
+== 2026-11-17T12:53:22Z load 14.52 15.38 12.36 sp-whole end

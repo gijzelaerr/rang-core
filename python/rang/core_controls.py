@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Run unmodified CARACAL Tricolour strategies on protected diagnostic copies.
 
 Verbatim extract of the frozen `rangtoy.flagging_caracal` (big plan task P11,

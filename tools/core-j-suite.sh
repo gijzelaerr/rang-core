@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Usage: bash tools/core-j-suite.sh outputs/core-j-<date>-NN
 #
 # Runs every core driver and comparator of research/core-j-packaging.md

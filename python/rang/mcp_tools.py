@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The tools of `rang-core mcp` without the MCP SDK (research/mcp-server.md).
 
     from rang.mcp_tools import Tools

@@ -1,0 +1,46 @@
+{
+ "truth_ns": [
+  0.11429549753665924,
+  0.08986936509609222
+ ],
+ "arm_table_ns": [
+  1293.571044921875,
+  2263.236572265625
+ ],
+ "joint, 1 it": {
+  "iterations": 1,
+  "converged_fraction": 0.0,
+  "ant_ns": [
+   0.1273967285218307,
+   0.11350281319316763
+  ]
+ },
+ "joint, 50 it": {
+  "iterations": 28,
+  "converged_fraction": 0.9902816899070661,
+  "ant_ns": [
+   0.11429543222658055,
+   0.08986931059993783
+  ]
+ },
+ "gaincal scan 11, 50 it": {
+  "iterations": 50,
+  "converged_fraction": 0.8800054310008316,
+  "interval_time_offset_s": -0.06500053405761719,
+  "ant_ns": [
+   1293.583251953125,
+   2263.237060546875
+  ],
+  "intervals": 7
+ },
+ "gaincal scans 9, 11, 50 it": {
+  "iterations": 50,
+  "converged_fraction": 0.9409431784200617,
+  "interval_time_offset_s": -0.06500053405761719,
+  "ant_ns": [
+   1293.583251953125,
+   2263.237060546875
+  ],
+  "intervals": 14
+ }
+}

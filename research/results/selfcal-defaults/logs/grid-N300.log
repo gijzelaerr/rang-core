@@ -1,0 +1,14 @@
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T06:01:46Z load 16.65 18.77 17.58 N300 start
+08:02:54 stage prepare N300 wall_s 67.0
+prepare 67.26 s 196252 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 4652.7 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/N300/run/receipts/selfcal-20261117T060254Z.rang-receipt.json
+selfcal 4659.00 s 9748944 KB
+09:20:39 stage clean N300 wall_s 5.7
+09:21:31 cell N300 P2A@300 B 313.49 0.9141
+09:22:24 cell N300 P2A@300 A 326.44 0.9117
+09:22:24 stage score N300 wall_s 105.1
+score 105.55 s 4950648 KB
+== 2026-11-17T07:22:24Z load 23.81 18.31 16.52 N300 end

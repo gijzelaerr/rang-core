@@ -1,0 +1,47 @@
+{
+ "mode": "make",
+ "receptor_angle_before": [
+  0.0
+ ],
+ "rows": 272916,
+ "columns": [
+  "ANTENNA1",
+  "ANTENNA2",
+  "ARRAY_ID",
+  "DATA",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "SIGMA",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "WEIGHT"
+ ],
+ "subtables": [
+  "ANTENNA",
+  "DATA_DESCRIPTION",
+  "FEED",
+  "FIELD",
+  "FLAG_CMD",
+  "HISTORY",
+  "OBSERVATION",
+  "POINTING",
+  "POLARIZATION",
+  "PROCESSOR",
+  "SPECTRAL_WINDOW",
+  "STATE"
+ ],
+ "data_sha256": "5a656501003c4864486a987b32a86188f99e54e9fa551ccf4c08b91c77d2e19d",
+ "flag_sha256": "05c6e545e3041798f891eb617b6f297fc5e9e82d64d49b25c01077a1b7d36f83"
+}

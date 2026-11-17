@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Synthetic control construction and scoring do not require casacore.
 
 Live part of tests/test_flagging_injections.py at commit 2da566c

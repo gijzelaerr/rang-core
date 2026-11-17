@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The container side of task E0's comparisons (research/e0-refant-extend.md),
 in `rang-o-casa:6.7.6.14`:
 

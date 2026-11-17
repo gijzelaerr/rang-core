@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task P12 (research/p12-rename.md): the package is `rang`, the extension
 `rang._core`, the distribution `rang-core`; the old name `rangtoy` is gone."""
 

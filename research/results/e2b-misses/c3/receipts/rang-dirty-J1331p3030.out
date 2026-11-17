@@ -1,0 +1,3 @@
+D:/rang/outputs/e2b-confirm-20261116/f0.ms: 113960 rows (E2C_RANG_CORRECTED_DATA, field 0), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 79.90 s read, 32.01 s weights
+1 groups deconvolved; wall 257.03 s
+{"exit": 0, "wall_s": 259.5, "peak_rss_gb": 16.87, "cpu_s": 578.2, "mean_cores": 2.23}

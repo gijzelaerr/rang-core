@@ -9,8 +9,11 @@
 //! hypercube), table and column keywords, `addcols` into an existing
 //! StandardStMan or as a new data manager, and the `table.lock` write lock
 //! and sync record, all laid out as casacore 3.8.1 lays them out. The
-//! format was read in the casacore sources listed in the research file;
-//! nothing is copied from casacore (LGPL-2.1-or-later).
+//! format was read in the casacore sources listed in the research file, and
+//! the storage-manager writers translate casacore 3.8.1's code (`SSMBase.cc`,
+//! `SSMIndex.cc`, `SSMStringHandler.cc`, `StArrayFile.cc`, `FilebufIO.cc`,
+//! `BucketCache.cc`, `TSMCube.cc`), Copyright (C) Associated Universities,
+//! Inc., GNU Library General Public License version 2 or later: notices in THIRD-PARTY-NOTICES.txt.
 
 use std::collections::BTreeMap;
 use std::fs::{File, OpenOptions};

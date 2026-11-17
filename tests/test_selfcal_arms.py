@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Self-calibration arms 1 and 2 of issue #6 (research/selfcal-arms.md): the
 frozen schedules validate with C5's keys, their round-to-term and gate
 mapping is the note's, the defaults and E2-A are unchanged, and every

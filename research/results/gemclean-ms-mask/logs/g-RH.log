@@ -1,0 +1,6 @@
+D:/rang/outputs/20261103-gemclean-heldout/sim/data/h4.ms: 1814400 of 1814400 rows selected (field 0, DATA), 8 channels 1312.5000-1487.5000 MHz, 14515200 visibilities weighted, weight sum 2670288014.182778 (3.45 s read, 0.23 s weights)
+beam: peak 1.000000476837, patch ±64, f 8.9751e-3 outside the patch; 2049 of 2049 spectrum columns, -0.00e0 left out; restoring beam 14.046" × 8.305" PA -27.83° (2209 pixels fitted); PSF 1.36 s, FFT 0.07 s
+fits mask: 3394 pixels
+41900 components, 5 major cycles, 45 resyncs, stop Threshold; Q/Q0 2.9607e-1; tau min 0.500 median 0.681; minor 0.33 s (corrections 0.023 s), resync 1.11 s, major 4.63 s
+D:/rang/outputs/20261103-gemclean-heldout/sim/data/h4.ms: 1814400 of 1814400 rows predicted into MODEL_DATA (8 channels from 1 model image(s), 1 blocks, 3.58 s)
+wall 16.31 s

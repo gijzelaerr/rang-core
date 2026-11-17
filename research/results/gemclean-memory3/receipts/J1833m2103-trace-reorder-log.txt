@@ -1,0 +1,447 @@
+D:/rang/outputs/gemclean-memory2-20261116/f2.ms: 33880 rows (E2C_RANG_CORRECTED_DATA, field 2), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 23.49 s read, 9.03 s weights
+auto-mask: major iteration 1, sigma 1.481714e-2 Jy, threshold 7.408570e-2 Jy; continued in the mask at gain 0.9000, threshold 7.408570e-2 Jy
+auto-mask: major iteration 2, sigma 1.812271e-3 Jy, threshold 9.061355e-3 Jy; continued in the mask at gain 0.9000, threshold 9.061355e-3 Jy
+auto-mask: major iteration 3, sigma 8.623584e-4 Jy, threshold 4.311792e-3 Jy; continued in the mask at gain 0.9000, threshold 4.311792e-3 Jy
+auto-mask: major iteration 4, sigma 5.077001e-4 Jy, threshold 2.538500e-3 Jy; continued in the mask at gain 0.7579, threshold 1.523100e-3 Jy
+auto-mask: major iteration 5, sigma 4.619132e-4 Jy, threshold 1.385740e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):
+  read                       held   0.026  most   0.766  rss   0.039  peak rss   0.672  swap    NaN
+  weights                    held   0.026  most   0.026  rss   0.039  peak rss   0.672  swap    NaN
+  entry 0: psf and beam      held   0.394  most   1.661  rss   0.408  peak rss   1.675  swap    NaN
+  entry 4: psf and beam      held   0.896  most   2.230  rss   0.917  peak rss   2.245  swap    NaN
+  entry 8: psf and beam      held   1.326  most   2.616  rss   1.341  peak rss   2.636  swap    NaN
+  entry 12: psf and beam     held   1.701  most   2.892  rss   1.722  peak rss   2.908  swap    NaN
+  entry 16: psf and beam     held   2.182  most   3.496  rss   2.198  peak rss   3.516  swap    NaN
+  entry 20: psf and beam     held   2.653  most   3.958  rss   2.679  peak rss   3.980  swap    NaN
+  entry 24: psf and beam     held   3.040  most   4.313  rss   3.067  peak rss   4.333  swap    NaN
+  entry 28: psf and beam     held   3.420  most   4.691  rss   3.444  peak rss   4.710  swap    NaN
+  entry 1: psf and beam      held   3.421  most   3.976  rss   3.444  peak rss   4.710  swap    NaN
+  entry 5: psf and beam      held   3.422  most   3.977  rss   3.444  peak rss   4.710  swap    NaN
+  entry 9: psf and beam      held   3.423  most   3.978  rss   3.445  peak rss   4.710  swap    NaN
+  entry 13: psf and beam     held   3.423  most   3.979  rss   3.445  peak rss   4.710  swap    NaN
+  entry 17: psf and beam     held   3.424  most   3.979  rss   3.446  peak rss   4.710  swap    NaN
+  entry 21: psf and beam     held   3.425  most   3.980  rss   3.447  peak rss   4.710  swap    NaN
+  entry 25: psf and beam     held   3.425  most   3.980  rss   3.448  peak rss   4.710  swap    NaN
+  entry 29: psf and beam     held   3.426  most   3.981  rss   3.449  peak rss   4.710  swap    NaN
+  entry 2: psf and beam      held   3.427  most   3.982  rss   3.449  peak rss   4.710  swap    NaN
+  entry 6: psf and beam      held   3.428  most   3.983  rss   3.450  peak rss   4.710  swap    NaN
+  entry 10: psf and beam     held   3.428  most   3.983  rss   3.451  peak rss   4.710  swap    NaN
+  entry 14: psf and beam     held   3.429  most   3.984  rss   3.452  peak rss   4.710  swap    NaN
+  entry 18: psf and beam     held   3.429  most   3.985  rss   3.452  peak rss   4.710  swap    NaN
+  entry 22: psf and beam     held   3.430  most   3.985  rss   3.453  peak rss   4.710  swap    NaN
+  entry 26: psf and beam     held   3.431  most   3.986  rss   3.454  peak rss   4.710  swap    NaN
+  entry 30: psf and beam     held   3.432  most   3.987  rss   3.454  peak rss   4.710  swap    NaN
+  entry 3: psf and beam      held   3.432  most   3.987  rss   3.455  peak rss   4.710  swap    NaN
+  entry 7: psf and beam      held   3.433  most   3.988  rss   3.456  peak rss   4.710  swap    NaN
+  entry 11: psf and beam     held   3.434  most   3.989  rss   3.457  peak rss   4.710  swap    NaN
+  entry 15: psf and beam     held   3.434  most   3.990  rss   3.458  peak rss   4.710  swap    NaN
+  entry 19: psf and beam     held   3.435  most   3.990  rss   3.458  peak rss   4.710  swap    NaN
+  entry 23: psf and beam     held   3.436  most   3.991  rss   3.459  peak rss   4.710  swap    NaN
+  entry 27: psf and beam     held   3.436  most   3.992  rss   3.460  peak rss   4.710  swap    NaN
+  entry 31: psf and beam     held   3.437  most   3.992  rss   3.461  peak rss   4.710  swap    NaN
+  residual: grid             held   4.915  most   4.960  rss   4.941  peak rss   4.979  swap    NaN
+  residual: grid             held   4.949  most   4.993  rss   4.974  peak rss   5.013  swap    NaN
+  residual: grid             held   4.982  most   5.026  rss   5.008  peak rss   5.047  swap    NaN
+  residual: grid             held   5.016  most   5.061  rss   5.042  peak rss   5.081  swap    NaN
+  residual: grid             held   5.199  most   5.357  rss   5.234  peak rss   5.375  swap    NaN
+  residual: grid             held   5.233  most   5.396  rss   5.253  peak rss   5.417  swap    NaN
+  residual: grid             held   5.266  most   5.429  rss   5.306  peak rss   5.448  swap    NaN
+  residual: grid             held   5.300  most   5.461  rss   5.318  peak rss   5.480  swap    NaN
+  residual: grid             held   5.322  most   5.412  rss   5.350  peak rss   5.480  swap    NaN
+  residual: grid             held   5.355  most   5.446  rss   5.386  peak rss   5.480  swap    NaN
+  residual: grid             held   5.389  most   5.477  rss   5.420  peak rss   5.499  swap    NaN
+  residual: grid             held   5.422  most   5.513  rss   5.454  peak rss   5.533  swap    NaN
+  residual: grid             held   5.439  most   5.486  rss   5.469  peak rss   5.533  swap    NaN
+  residual: grid             held   5.472  most   5.519  rss   5.503  peak rss   5.547  swap    NaN
+  residual: grid             held   5.506  most   5.553  rss   5.537  peak rss   5.580  swap    NaN
+  residual: grid             held   5.539  most   5.586  rss   5.570  peak rss   5.614  swap    NaN
+  residual: grid             held   5.696  most   5.834  rss   5.738  peak rss   5.854  swap    NaN
+  residual: grid             held   5.730  most   5.868  rss   5.749  peak rss   5.890  swap    NaN
+  residual: grid             held   5.764  most   5.902  rss   5.803  peak rss   5.921  swap    NaN
+  residual: grid             held   5.797  most   5.938  rss   5.819  peak rss   5.956  swap    NaN
+  residual: grid             held   5.874  most   5.997  rss   5.908  peak rss   6.016  swap    NaN
+  residual: grid             held   5.907  most   6.026  rss   5.943  peak rss   6.049  swap    NaN
+  residual: grid             held   5.941  most   6.064  rss   5.976  peak rss   6.083  swap    NaN
+  residual: grid             held   5.974  most   6.097  rss   5.993  peak rss   6.117  swap    NaN
+  residual: grid             held   5.975  most   6.032  rss   5.998  peak rss   6.117  swap    NaN
+  residual: grid             held   6.009  most   6.065  rss   6.033  peak rss   6.117  swap    NaN
+  residual: grid             held   6.043  most   6.099  rss   6.067  peak rss   6.118  swap    NaN
+  residual: grid             held   6.076  most   6.132  rss   6.101  peak rss   6.152  swap    NaN
+  residual: grid             held   6.124  most   6.175  rss   6.149  peak rss   6.196  swap    NaN
+  residual: grid             held   6.158  most   6.209  rss   6.183  peak rss   6.229  swap    NaN
+  residual: grid             held   6.192  most   6.243  rss   6.217  peak rss   6.263  swap    NaN
+  residual: grid             held   6.225  most   6.277  rss   6.251  peak rss   6.298  swap    NaN
+  cycle 1: minor             held   6.550  most   7.661  rss   6.577  peak rss   7.684  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.038  peak rss   7.684  swap    NaN
+  residual: grid             held   6.964  most   7.026  rss   6.992  peak rss   7.684  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.039  peak rss   7.684  swap    NaN
+  residual: grid             held   6.964  most   7.026  rss   6.993  peak rss   7.684  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.040  peak rss   7.684  swap    NaN
+  residual: grid             held   6.964  most   7.026  rss   6.993  peak rss   7.684  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.040  peak rss   7.684  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   6.993  peak rss   7.684  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.218  peak rss   7.684  swap    NaN
+  residual: grid             held   7.053  most   7.233  rss   7.095  peak rss   7.684  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.231  peak rss   7.684  swap    NaN
+  residual: grid             held   7.053  most   7.239  rss   7.102  peak rss   7.684  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.237  peak rss   7.684  swap    NaN
+  residual: grid             held   7.053  most   7.233  rss   7.100  peak rss   7.684  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.236  peak rss   7.684  swap    NaN
+  residual: grid             held   7.053  most   7.238  rss   7.073  peak rss   7.684  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.113  peak rss   7.684  swap    NaN
+  residual: grid             held   7.005  most   7.110  rss   7.030  peak rss   7.684  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.118  peak rss   7.684  swap    NaN
+  residual: grid             held   7.005  most   7.111  rss   7.034  peak rss   7.684  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.121  peak rss   7.684  swap    NaN
+  residual: grid             held   7.005  most   7.112  rss   7.035  peak rss   7.684  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.123  peak rss   7.684  swap    NaN
+  residual: grid             held   7.005  most   7.114  rss   7.036  peak rss   7.684  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.053  peak rss   7.684  swap    NaN
+  residual: grid             held   6.969  most   7.033  rss   7.001  peak rss   7.684  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.053  peak rss   7.684  swap    NaN
+  residual: grid             held   6.969  most   7.034  rss   7.001  peak rss   7.684  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.053  peak rss   7.684  swap    NaN
+  residual: grid             held   6.969  most   7.034  rss   7.001  peak rss   7.684  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.053  peak rss   7.684  swap    NaN
+  residual: grid             held   6.969  most   7.034  rss   7.001  peak rss   7.684  swap    NaN
+  residual: predict          held   7.161  most   7.187  rss   7.193  peak rss   7.684  swap    NaN
+  residual: grid             held   7.039  most   7.191  rss   7.061  peak rss   7.684  swap    NaN
+  residual: predict          held   7.161  most   7.187  rss   7.183  peak rss   7.684  swap    NaN
+  residual: grid             held   7.039  most   7.196  rss   7.083  peak rss   7.684  swap    NaN
+  residual: predict          held   7.161  most   7.187  rss   7.205  peak rss   7.684  swap    NaN
+  residual: grid             held   7.039  most   7.197  rss   7.084  peak rss   7.684  swap    NaN
+  residual: predict          held   7.161  most   7.187  rss   7.206  peak rss   7.684  swap    NaN
+  residual: grid             held   7.039  most   7.191  rss   7.083  peak rss   7.684  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.191  peak rss   7.684  swap    NaN
+  residual: grid             held   7.032  most   7.171  rss   7.076  peak rss   7.684  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.191  peak rss   7.684  swap    NaN
+  residual: grid             held   7.032  most   7.169  rss   7.055  peak rss   7.684  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.171  peak rss   7.684  swap    NaN
+  residual: grid             held   7.032  most   7.172  rss   7.051  peak rss   7.684  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.166  peak rss   7.684  swap    NaN
+  residual: grid             held   7.032  most   7.168  rss   7.062  peak rss   7.684  swap    NaN
+  residual: predict          held   7.037  most   7.066  rss   7.067  peak rss   7.684  swap    NaN
+  residual: grid             held   6.977  most   7.049  rss   7.008  peak rss   7.684  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.068  peak rss   7.684  swap    NaN
+  residual: grid             held   6.977  most   7.049  rss   7.008  peak rss   7.684  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.068  peak rss   7.684  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.008  peak rss   7.684  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.068  peak rss   7.684  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.008  peak rss   7.684  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.058  peak rss   7.684  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.003  peak rss   7.684  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.058  peak rss   7.684  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.003  peak rss   7.684  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.058  peak rss   7.684  swap    NaN
+  residual: grid             held   6.972  most   7.042  rss   7.003  peak rss   7.684  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.058  peak rss   7.684  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.004  peak rss   7.684  swap    NaN
+  cycle 2: minor             held   6.550  most   7.662  rss   6.582  peak rss   7.689  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.043  peak rss   7.689  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   6.996  peak rss   7.689  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.043  peak rss   7.689  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   6.996  peak rss   7.689  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.043  peak rss   7.689  swap    NaN
+  residual: grid             held   6.964  most   7.024  rss   6.996  peak rss   7.689  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.043  peak rss   7.689  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   6.995  peak rss   7.689  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.220  peak rss   7.689  swap    NaN
+  residual: grid             held   7.053  most   7.230  rss   7.098  peak rss   7.689  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.234  peak rss   7.689  swap    NaN
+  residual: grid             held   7.053  most   7.239  rss   7.100  peak rss   7.689  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.236  peak rss   7.689  swap    NaN
+  residual: grid             held   7.053  most   7.239  rss   7.105  peak rss   7.689  swap    NaN
+  residual: predict          held   7.189  most   7.215  rss   7.240  peak rss   7.689  swap    NaN
+  residual: grid             held   7.053  most   7.239  rss   7.103  peak rss   7.689  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.143  peak rss   7.689  swap    NaN
+  residual: grid             held   7.005  most   7.111  rss   7.054  peak rss   7.689  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.142  peak rss   7.689  swap    NaN
+  residual: grid             held   7.005  most   7.111  rss   7.055  peak rss   7.689  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.143  peak rss   7.689  swap    NaN
+  residual: grid             held   7.005  most   7.113  rss   7.055  peak rss   7.689  swap    NaN
+  residual: predict          held   7.093  most   7.119  rss   7.143  peak rss   7.689  swap    NaN
+  residual: grid             held   7.005  most   7.111  rss   7.055  peak rss   7.689  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.071  peak rss   7.689  swap    NaN
+  residual: grid             held   6.969  most   7.033  rss   7.019  peak rss   7.689  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.071  peak rss   7.689  swap    NaN
+  residual: grid             held   6.969  most   7.033  rss   7.019  peak rss   7.689  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.071  peak rss   7.689  swap    NaN
+  residual: grid             held   6.969  most   7.034  rss   7.019  peak rss   7.689  swap    NaN
+  residual: predict          held   7.021  most   7.047  rss   7.071  peak rss   7.689  swap    NaN
+  residual: grid             held   6.969  most   7.034  rss   7.019  peak rss   7.689  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.211  peak rss   7.689  swap    NaN
+  residual: grid             held   7.039  most   7.194  rss   7.089  peak rss   7.689  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.211  peak rss   7.689  swap    NaN
+  residual: grid             held   7.039  most   7.197  rss   7.090  peak rss   7.689  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.212  peak rss   7.689  swap    NaN
+  residual: grid             held   7.039  most   7.198  rss   7.090  peak rss   7.689  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.212  peak rss   7.689  swap    NaN
+  residual: grid             held   7.039  most   7.194  rss   7.090  peak rss   7.689  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.198  peak rss   7.689  swap    NaN
+  residual: grid             held   7.032  most   7.169  rss   7.083  peak rss   7.689  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.198  peak rss   7.689  swap    NaN
+  residual: grid             held   7.032  most   7.167  rss   7.083  peak rss   7.689  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.198  peak rss   7.689  swap    NaN
+  residual: grid             held   7.032  most   7.168  rss   7.083  peak rss   7.689  swap    NaN
+  residual: predict          held   7.147  most   7.173  rss   7.198  peak rss   7.689  swap    NaN
+  residual: grid             held   7.032  most   7.168  rss   7.083  peak rss   7.689  swap    NaN
+  residual: predict          held   7.037  most   7.066  rss   7.088  peak rss   7.689  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.028  peak rss   7.689  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.088  peak rss   7.689  swap    NaN
+  residual: grid             held   6.977  most   7.051  rss   7.028  peak rss   7.689  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.088  peak rss   7.689  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.028  peak rss   7.689  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.088  peak rss   7.689  swap    NaN
+  residual: grid             held   6.977  most   7.049  rss   7.028  peak rss   7.689  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.077  peak rss   7.689  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.023  peak rss   7.689  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.077  peak rss   7.689  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.023  peak rss   7.689  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.077  peak rss   7.689  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.023  peak rss   7.689  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.077  peak rss   7.689  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.023  peak rss   7.689  swap    NaN
+  cycle 3: minor             held   6.550  most   7.658  rss   6.601  peak rss   7.704  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.062  peak rss   7.704  swap    NaN
+  residual: grid             held   6.964  most   7.026  rss   7.015  peak rss   7.704  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.062  peak rss   7.704  swap    NaN
+  residual: grid             held   6.964  most   7.028  rss   7.015  peak rss   7.704  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.062  peak rss   7.704  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   7.015  peak rss   7.704  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.062  peak rss   7.704  swap    NaN
+  residual: grid             held   6.964  most   7.025  rss   7.015  peak rss   7.704  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.240  peak rss   7.704  swap    NaN
+  residual: grid             held   7.053  most   7.232  rss   7.105  peak rss   7.704  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.240  peak rss   7.704  swap    NaN
+  residual: grid             held   7.053  most   7.239  rss   7.105  peak rss   7.704  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.241  peak rss   7.704  swap    NaN
+  residual: grid             held   7.053  most   7.230  rss   7.108  peak rss   7.704  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.243  peak rss   7.704  swap    NaN
+  residual: grid             held   7.053  most   7.234  rss   7.107  peak rss   7.704  swap    NaN
+  residual: predict          held   7.093  most   7.120  rss   7.147  peak rss   7.704  swap    NaN
+  residual: grid             held   7.005  most   7.113  rss   7.059  peak rss   7.704  swap    NaN
+  residual: predict          held   7.093  most   7.120  rss   7.147  peak rss   7.704  swap    NaN
+  residual: grid             held   7.005  most   7.111  rss   7.059  peak rss   7.704  swap    NaN
+  residual: predict          held   7.093  most   7.120  rss   7.147  peak rss   7.704  swap    NaN
+  residual: grid             held   7.005  most   7.113  rss   7.059  peak rss   7.704  swap    NaN
+  residual: predict          held   7.093  most   7.120  rss   7.147  peak rss   7.704  swap    NaN
+  residual: grid             held   7.005  most   7.112  rss   7.059  peak rss   7.704  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.075  peak rss   7.704  swap    NaN
+  residual: grid             held   6.970  most   7.034  rss   7.022  peak rss   7.704  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.074  peak rss   7.704  swap    NaN
+  residual: grid             held   6.970  most   7.034  rss   7.022  peak rss   7.704  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.074  peak rss   7.704  swap    NaN
+  residual: grid             held   6.970  most   7.033  rss   7.022  peak rss   7.704  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.074  peak rss   7.704  swap    NaN
+  residual: grid             held   6.970  most   7.033  rss   7.022  peak rss   7.704  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.214  peak rss   7.704  swap    NaN
+  residual: grid             held   7.039  most   7.198  rss   7.092  peak rss   7.704  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.214  peak rss   7.704  swap    NaN
+  residual: grid             held   7.039  most   7.193  rss   7.092  peak rss   7.704  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.214  peak rss   7.704  swap    NaN
+  residual: grid             held   7.039  most   7.195  rss   7.092  peak rss   7.704  swap    NaN
+  residual: predict          held   7.161  most   7.188  rss   7.214  peak rss   7.704  swap    NaN
+  residual: grid             held   7.039  most   7.199  rss   7.092  peak rss   7.704  swap    NaN
+  residual: predict          held   7.147  most   7.174  rss   7.200  peak rss   7.704  swap    NaN
+  residual: grid             held   7.032  most   7.168  rss   7.085  peak rss   7.704  swap    NaN
+  residual: predict          held   7.147  most   7.174  rss   7.200  peak rss   7.704  swap    NaN
+  residual: grid             held   7.032  most   7.172  rss   7.085  peak rss   7.704  swap    NaN
+  residual: predict          held   7.147  most   7.174  rss   7.200  peak rss   7.704  swap    NaN
+  residual: grid             held   7.032  most   7.169  rss   7.085  peak rss   7.704  swap    NaN
+  residual: predict          held   7.147  most   7.174  rss   7.200  peak rss   7.704  swap    NaN
+  residual: grid             held   7.032  most   7.169  rss   7.085  peak rss   7.704  swap    NaN
+  residual: predict          held   7.037  most   7.066  rss   7.090  peak rss   7.704  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.030  peak rss   7.704  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.090  peak rss   7.704  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.030  peak rss   7.704  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.090  peak rss   7.704  swap    NaN
+  residual: grid             held   6.977  most   7.051  rss   7.030  peak rss   7.704  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.090  peak rss   7.704  swap    NaN
+  residual: grid             held   6.977  most   7.050  rss   7.030  peak rss   7.704  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.080  peak rss   7.704  swap    NaN
+  residual: grid             held   6.972  most   7.042  rss   7.025  peak rss   7.704  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.080  peak rss   7.704  swap    NaN
+  residual: grid             held   6.972  most   7.041  rss   7.025  peak rss   7.704  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.080  peak rss   7.704  swap    NaN
+  residual: grid             held   6.972  most   7.041  rss   7.025  peak rss   7.704  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.080  peak rss   7.704  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.025  peak rss   7.704  swap    NaN
+  cycle 4: minor             held   6.550  most   7.659  rss   6.603  peak rss   7.708  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.064  peak rss   7.708  swap    NaN
+  residual: grid             held   6.965  most   7.027  rss   7.017  peak rss   7.708  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.064  peak rss   7.708  swap    NaN
+  residual: grid             held   6.965  most   7.025  rss   6.983  peak rss   7.708  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.031  peak rss   7.708  swap    NaN
+  residual: grid             held   6.965  most   7.025  rss   6.988  peak rss   7.708  swap    NaN
+  residual: predict          held   7.011  most   7.037  rss   7.035  peak rss   7.708  swap    NaN
+  residual: grid             held   6.965  most   7.026  rss   6.990  peak rss   7.708  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.215  peak rss   7.708  swap    NaN
+  residual: grid             held   7.054  most   7.239  rss   7.105  peak rss   7.708  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.241  peak rss   7.708  swap    NaN
+  residual: grid             held   7.054  most   7.239  rss   7.108  peak rss   7.708  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.244  peak rss   7.708  swap    NaN
+  residual: grid             held   7.054  most   7.240  rss   7.109  peak rss   7.708  swap    NaN
+  residual: predict          held   7.189  most   7.216  rss   7.245  peak rss   7.708  swap    NaN
+  residual: grid             held   7.054  most   7.233  rss   7.107  peak rss   7.708  swap    NaN
+  residual: predict          held   7.094  most   7.120  rss   7.147  peak rss   7.708  swap    NaN
+  residual: grid             held   7.006  most   7.114  rss   7.060  peak rss   7.708  swap    NaN
+  residual: predict          held   7.094  most   7.120  rss   7.148  peak rss   7.708  swap    NaN
+  residual: grid             held   7.006  most   7.114  rss   7.060  peak rss   7.708  swap    NaN
+  residual: predict          held   7.094  most   7.120  rss   7.148  peak rss   7.708  swap    NaN
+  residual: grid             held   7.006  most   7.113  rss   7.060  peak rss   7.708  swap    NaN
+  residual: predict          held   7.094  most   7.120  rss   7.148  peak rss   7.708  swap    NaN
+  residual: grid             held   7.006  most   7.115  rss   7.060  peak rss   7.708  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.076  peak rss   7.708  swap    NaN
+  residual: grid             held   6.970  most   7.034  rss   7.024  peak rss   7.708  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.076  peak rss   7.708  swap    NaN
+  residual: grid             held   6.970  most   7.034  rss   7.024  peak rss   7.708  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.076  peak rss   7.708  swap    NaN
+  residual: grid             held   6.970  most   7.033  rss   7.024  peak rss   7.708  swap    NaN
+  residual: predict          held   7.022  most   7.047  rss   7.076  peak rss   7.708  swap    NaN
+  residual: grid             held   6.970  most   7.034  rss   7.024  peak rss   7.708  swap    NaN
+  residual: predict          held   7.162  most   7.188  rss   7.216  peak rss   7.708  swap    NaN
+  residual: grid             held   7.040  most   7.197  rss   7.094  peak rss   7.708  swap    NaN
+  residual: predict          held   7.162  most   7.188  rss   7.216  peak rss   7.708  swap    NaN
+  residual: grid             held   7.040  most   7.193  rss   7.094  peak rss   7.708  swap    NaN
+  residual: predict          held   7.162  most   7.188  rss   7.216  peak rss   7.708  swap    NaN
+  residual: grid             held   7.040  most   7.195  rss   7.060  peak rss   7.708  swap    NaN
+  residual: predict          held   7.162  most   7.188  rss   7.183  peak rss   7.708  swap    NaN
+  residual: grid             held   7.040  most   7.193  rss   7.082  peak rss   7.708  swap    NaN
+  residual: predict          held   7.148  most   7.174  rss   7.190  peak rss   7.708  swap    NaN
+  residual: grid             held   7.033  most   7.168  rss   7.075  peak rss   7.708  swap    NaN
+  residual: predict          held   7.148  most   7.174  rss   7.190  peak rss   7.708  swap    NaN
+  residual: grid             held   7.033  most   7.168  rss   7.075  peak rss   7.708  swap    NaN
+  residual: predict          held   7.148  most   7.174  rss   7.190  peak rss   7.708  swap    NaN
+  residual: grid             held   7.033  most   7.168  rss   7.075  peak rss   7.708  swap    NaN
+  residual: predict          held   7.148  most   7.174  rss   7.190  peak rss   7.708  swap    NaN
+  residual: grid             held   7.033  most   7.173  rss   7.075  peak rss   7.708  swap    NaN
+  residual: predict          held   7.037  most   7.066  rss   7.080  peak rss   7.708  swap    NaN
+  residual: grid             held   6.978  most   7.050  rss   7.021  peak rss   7.708  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.080  peak rss   7.708  swap    NaN
+  residual: grid             held   6.978  most   7.050  rss   7.021  peak rss   7.708  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.080  peak rss   7.708  swap    NaN
+  residual: grid             held   6.978  most   7.050  rss   7.021  peak rss   7.708  swap    NaN
+  residual: predict          held   7.037  most   7.063  rss   7.081  peak rss   7.708  swap    NaN
+  residual: grid             held   6.978  most   7.050  rss   7.021  peak rss   7.708  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.071  peak rss   7.708  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.016  peak rss   7.708  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.071  peak rss   7.708  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.016  peak rss   7.708  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.071  peak rss   7.708  swap    NaN
+  residual: grid             held   6.972  most   7.041  rss   7.016  peak rss   7.708  swap    NaN
+  residual: predict          held   7.027  most   7.053  rss   7.071  peak rss   7.708  swap    NaN
+  residual: grid             held   6.972  most   7.040  rss   7.016  peak rss   7.708  swap    NaN
+  cycle 5: minor             held   6.554  most   7.632  rss   6.598  peak rss   7.708  swap    NaN
+  residual: predict          held   7.015  most   7.041  rss   7.059  peak rss   7.708  swap    NaN
+  residual: grid             held   6.969  most   7.028  rss   7.012  peak rss   7.708  swap    NaN
+  residual: predict          held   7.015  most   7.041  rss   7.059  peak rss   7.708  swap    NaN
+  residual: grid             held   6.969  most   7.031  rss   7.012  peak rss   7.708  swap    NaN
+  residual: predict          held   7.015  most   7.041  rss   7.059  peak rss   7.708  swap    NaN
+  residual: grid             held   6.969  most   7.030  rss   7.013  peak rss   7.708  swap    NaN
+  residual: predict          held   7.015  most   7.041  rss   7.060  peak rss   7.708  swap    NaN
+  residual: grid             held   6.969  most   7.030  rss   7.013  peak rss   7.708  swap    NaN
+  residual: predict          held   7.193  most   7.220  rss   7.238  peak rss   7.708  swap    NaN
+  residual: grid             held   7.058  most   7.237  rss   7.112  peak rss   7.708  swap    NaN
+  residual: predict          held   7.193  most   7.220  rss   7.248  peak rss   7.708  swap    NaN
+  residual: grid             held   7.058  most   7.231  rss   7.113  peak rss   7.708  swap    NaN
+  residual: predict          held   7.193  most   7.220  rss   7.249  peak rss   7.708  swap    NaN
+  residual: grid             held   7.058  most   7.237  rss   7.115  peak rss   7.708  swap    NaN
+  residual: predict          held   7.193  most   7.220  rss   7.250  peak rss   7.708  swap    NaN
+  residual: grid             held   7.058  most   7.240  rss   7.078  peak rss   7.708  swap    NaN
+  residual: predict          held   7.098  most   7.124  rss   7.118  peak rss   7.708  swap    NaN
+  residual: grid             held   7.010  most   7.117  rss   7.039  peak rss   7.708  swap    NaN
+  residual: predict          held   7.098  most   7.124  rss   7.127  peak rss   7.708  swap    NaN
+  residual: grid             held   7.010  most   7.118  rss   7.041  peak rss   7.708  swap    NaN
+  residual: predict          held   7.098  most   7.124  rss   7.129  peak rss   7.708  swap    NaN
+  residual: grid             held   7.010  most   7.116  rss   7.042  peak rss   7.708  swap    NaN
+  residual: predict          held   7.098  most   7.124  rss   7.130  peak rss   7.708  swap    NaN
+  residual: grid             held   7.010  most   7.116  rss   7.042  peak rss   7.708  swap    NaN
+  residual: predict          held   7.026  most   7.052  rss   7.058  peak rss   7.708  swap    NaN
+  residual: grid             held   6.974  most   7.037  rss   7.006  peak rss   7.708  swap    NaN
+  residual: predict          held   7.026  most   7.052  rss   7.058  peak rss   7.708  swap    NaN
+  residual: grid             held   6.974  most   7.038  rss   7.006  peak rss   7.708  swap    NaN
+  residual: predict          held   7.026  most   7.052  rss   7.058  peak rss   7.708  swap    NaN
+  residual: grid             held   6.974  most   7.038  rss   7.006  peak rss   7.708  swap    NaN
+  residual: predict          held   7.026  most   7.052  rss   7.058  peak rss   7.708  swap    NaN
+  residual: grid             held   6.974  most   7.038  rss   7.006  peak rss   7.708  swap    NaN
+  residual: predict          held   7.166  most   7.192  rss   7.198  peak rss   7.708  swap    NaN
+  residual: grid             held   7.044  most   7.200  rss   7.090  peak rss   7.708  swap    NaN
+  residual: predict          held   7.166  most   7.192  rss   7.212  peak rss   7.708  swap    NaN
+  residual: grid             held   7.044  most   7.196  rss   7.091  peak rss   7.708  swap    NaN
+  residual: predict          held   7.166  most   7.192  rss   7.213  peak rss   7.708  swap    NaN
+  residual: grid             held   7.044  most   7.202  rss   7.094  peak rss   7.708  swap    NaN
+  residual: predict          held   7.166  most   7.192  rss   7.216  peak rss   7.708  swap    NaN
+  residual: grid             held   7.044  most   7.199  rss   7.095  peak rss   7.708  swap    NaN
+  residual: predict          held   7.152  most   7.178  rss   7.203  peak rss   7.708  swap    NaN
+  residual: grid             held   7.037  most   7.172  rss   7.088  peak rss   7.708  swap    NaN
+  residual: predict          held   7.152  most   7.178  rss   7.203  peak rss   7.708  swap    NaN
+  residual: grid             held   7.037  most   7.176  rss   7.088  peak rss   7.708  swap    NaN
+  residual: predict          held   7.152  most   7.178  rss   7.203  peak rss   7.708  swap    NaN
+  residual: grid             held   7.037  most   7.175  rss   7.088  peak rss   7.708  swap    NaN
+  residual: predict          held   7.152  most   7.178  rss   7.203  peak rss   7.708  swap    NaN
+  residual: grid             held   7.037  most   7.176  rss   7.088  peak rss   7.708  swap    NaN
+  residual: predict          held   7.041  most   7.070  rss   7.093  peak rss   7.708  swap    NaN
+  residual: grid             held   6.982  most   7.054  rss   7.033  peak rss   7.708  swap    NaN
+  residual: predict          held   7.041  most   7.067  rss   7.093  peak rss   7.708  swap    NaN
+  residual: grid             held   6.982  most   7.055  rss   7.033  peak rss   7.708  swap    NaN
+  residual: predict          held   7.041  most   7.067  rss   7.093  peak rss   7.708  swap    NaN
+  residual: grid             held   6.982  most   7.054  rss   7.033  peak rss   7.708  swap    NaN
+  residual: predict          held   7.041  most   7.067  rss   7.093  peak rss   7.708  swap    NaN
+  residual: grid             held   6.982  most   7.055  rss   7.033  peak rss   7.708  swap    NaN
+  residual: predict          held   7.031  most   7.057  rss   7.083  peak rss   7.708  swap    NaN
+  residual: grid             held   6.976  most   7.044  rss   7.028  peak rss   7.708  swap    NaN
+  residual: predict          held   7.031  most   7.057  rss   7.083  peak rss   7.708  swap    NaN
+  residual: grid             held   6.976  most   7.044  rss   7.028  peak rss   7.708  swap    NaN
+  residual: predict          held   7.031  most   7.057  rss   7.083  peak rss   7.708  swap    NaN
+  residual: grid             held   6.976  most   7.044  rss   7.028  peak rss   7.708  swap    NaN
+  residual: predict          held   7.031  most   7.057  rss   7.083  peak rss   7.708  swap    NaN
+  residual: grid             held   6.976  most   7.044  rss   7.028  peak rss   7.708  swap    NaN
+  group of 1: clean          held   6.475  most   7.010  rss   6.526  peak rss   7.708  swap    NaN
+  measurements and beams dropped held   2.517  most   6.475  rss   2.536  peak rss   7.708  swap    NaN
+  write                      held   3.490  most   4.029  rss   3.513  peak rss   7.708  swap    NaN
+memory by buffer (GB):
+  measurement: visibilities (32 entries)          0.000
+  measurement: visibilities in the temporary file (not held) (32 entries)    2.161
+  measurement: weights (32 entries)               0.270
+  measurement: uvw (32 entries)                   0.022
+  measurement: residual visibilities (32 entries)    0.000
+  gridder: baselines (uvw per row) (32 entries)    0.006
+  gridder: sorted visibility index (32 entries)    0.540
+  gridder: blocks and tiles (32 entries)          0.001
+  gridder: tables (32 entries)                    0.135
+  gridder: grids (32 entries)                     0.000
+  gridder: stored sorted values (32 entries)      0.000
+  gridder: visibility-order permutation (32 entries)    0.000
+  beam: exterior (8 beams)                        1.073
+  beam: patch and rings (8 beams)                 0.001
+  beam: spectrum (8 beams)                        1.074
+  beam: row spectra (resync work space) (8 beams)    0.000
+  psf n x n crops (8 channels)                    0.268
+  one n x n f64 image                             0.034
+heap at its highest: 7.662 GB, during the phase ended by "cycle 2: minor"; blocks of 1 MiB or more then:
+    110 x      33554432 bytes     3.691 GB
+      8 x     134283264 bytes     1.074 GB
+      8 x     134152200 bytes     1.073 GB
+      8 x      67141632 bytes     0.537 GB
+     16 x       8405000 bytes     0.134 GB
+      1 x     119120424 bytes     0.119 GB
+      2 x      59560212 bytes     0.119 GB
+      1 x     105165728 bytes     0.105 GB
+      2 x      52582864 bytes     0.105 GB
+      1 x      98178128 bytes     0.098 GB
+      2 x      49089064 bytes     0.098 GB
+      1 x      71185744 bytes     0.071 GB
+      2 x      35592872 bytes     0.071 GB
+      1 x      43125936 bytes     0.043 GB
+      2 x      21562968 bytes     0.043 GB
+      1 x      38003272 bytes     0.038 GB
+      2 x      19001636 bytes     0.038 GB
+      1 x      35261456 bytes     0.035 GB
+      2 x      17630728 bytes     0.035 GB
+      1 x      30117472 bytes     0.030 GB
+      2 x      15058736 bytes     0.030 GB
+      3 x       4194304 bytes     0.013 GB
+  smaller blocks                             0.059 GB
+1 groups deconvolved; wall 379.10 s
+{"exit": 0, "wall_s": 380.3, "peak_rss_gb": 7.16, "peak_working_set_gib": 7.18, "peak_private_gib": 7.19, "cpu_s": 1265.2, "mean_cores": 3.33}

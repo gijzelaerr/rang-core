@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! SIMD kernels of the gemclean minor cycle, with runtime dispatch.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Three kernels carry the minor cycle: the patch subtraction
 //! `row −= c · beam` (one call per patch row), the first index of the

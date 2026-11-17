@@ -1,0 +1,14 @@
+heavy_lock: waiting for head 01794875089487209601-linux-4124515.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794875244493212964-linux-4127328.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794878509648297098-linux-4168221.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+04:03:52 cell L120 P1@120 B 377.01 0.8769
+04:04:16 cell L120 P2@120 B 325.34 0.9088
+04:04:41 cell L120 P3@120 B 323.04 0.9101
+04:05:06 cell L120 P3A@120 B 310.34 0.9157
+04:05:52 cell L120 P1@120 A 391.09 0.8746
+04:06:17 cell L120 P2@120 A 339.12 0.9061
+04:06:42 cell L120 P3@120 A 336.85 0.9074
+04:07:07 cell L120 P3A@120 A 323.33 0.9133
+04:07:07 stage score L120 wall_s 243.0
+score 243.32 s 4957124 KB

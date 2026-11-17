@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task D3: the science notebooks and `rang.notebook.science`
 (research/d3-science-notebooks.md).
 

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Dump casacore's observatory table as `me.observatory` returns it (task E0,
 research/e0-refant-extend.md). Run in the O-CASA image with its system
 python-casacore and casacore-data:

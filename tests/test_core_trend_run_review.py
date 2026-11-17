@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Independent numerical/geometry checks for frozen TRAIN trend guidance.
 
 Live part of tests/test_flagging_trend_review.py at commit 2da566c

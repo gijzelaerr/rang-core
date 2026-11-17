@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """TRAIN-supported scalar phase trends as extra full-Jones TV guidance.
 
 Verbatim extract of the frozen `rangtoy.flagging_trend` (big plan task P11,

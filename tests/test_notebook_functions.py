@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Every `rang.notebook` plot and table function on the fixture, headless.
 
 Skips when the notebook extra (matplotlib, pandas) or the fixture archive

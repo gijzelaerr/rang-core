@@ -1,0 +1,19 @@
+{
+ "command": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "-m",
+  "rang.core_cli",
+  "run",
+  "research/results/e2-acceptance-scripts/e2a-rerun.yaml",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+ ],
+ "rc": 0,
+ "wall_s": 37272.0316927433,
+ "peak_tree_rss_bytes": 45383172096,
+ "peak_process_rss_bytes": 45253529600,
+ "host_cpu_load_pct_at_start": 1.1,
+ "host_cpu_load_pct_mean": 52.51187188019967,
+ "host_cpu_load_pct_max": 100.0,
+ "logical_cpus": 16,
+ "started": "2026-11-15T14:41:27"
+}

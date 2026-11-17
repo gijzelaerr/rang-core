@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cal_delay_solve`: the delay term K of `rang_core::cal::delay`
 //! (task C2b, `research/c2b-delay.md`), for `rang.cal_delay`.
 //!

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """tools/check_all.py and the rang.check set-up fixes (research/speedup-tools.md)."""
 
 from __future__ import annotations
@@ -125,7 +126,8 @@ def test_quick_tests_follow_the_diff(tmp_path):
     assert pick("python/rang/formats/caltable.py") == ["test_dotted.py"]
     assert pick("core/src/grid.rs") == ["test_core.py"]
     assert pick("tools/heavy_lock.py") == ["test_tool.py"]
-    assert pick("research/x.md") == ["test_path.py"]
+    # A research note also selects the docs tests (the research index check).
+    assert pick("research/x.md") == ["test_d1_docs.py", "test_path.py"]
     assert pick("docs/index.md") == ["test_d1_docs.py"]
     assert pick("tests/test_other.py") == ["test_other.py"]
     assert pick("CHANGELOG.md") == []

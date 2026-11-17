@@ -1,0 +1,238 @@
+{
+ "run": "L300",
+ "config": "schema: rang-config\nversion: 1\nfields:\n  target:\n  - 0\ndata:\n  memory_limit_gb: 12.0\nimage:\n  size:\n  - 4096\n  - 4096\n  scale: 3asec\n  weight: briggs\n  robust: 0.5\n  niter: 1000000\n  auto_threshold: null\n  threshold: 0.003\n  gain: 0.1\n  nmiter: 1000\n  threads: 8\n  wgridder_accuracy: 1.0e-06\nselfcal:\n  rounds: 4\n  terms:\n  - type: Sp\n    solint: 300s\n    freqint: inf\n  - type: Sp\n    solint: 300s\n    freqint: inf\n  - type: Sp\n    solint: 300s\n    freqint: inf\n  - type: Sa\n    solint: 300s\n    freqint: inf\n  input_column: DATA\n  output_column: CORRECTED_DATA\n  refant: 0\n  minuvw_m: 0.0\n",
+ "gemclean_sha256": "ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+ "rounds": [
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "300s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 12,
+    "wall_seconds": 925.4919932850171
+   },
+   "image_clean": {
+    "components": 59065,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 283.53434685093816,
+   "model_sha256": {
+    "image-model.fits": "fea351b703c83d17ad4d27d0138a9408cf65b959a688ad88b0f62195b13f255e"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/L300/run/selfcal/ESO137-pilot/round-1/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "300s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 12,
+    "wall_seconds": 933.1438769189408
+   },
+   "image_clean": {
+    "components": 26167,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 268.782295136014,
+   "model_sha256": {
+    "image-model.fits": "05226b6cd17bcc944ed3326f5762e8c227f8b14036263237eb3e25e96f5ce3e7"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/L300/run/selfcal/ESO137-pilot/round-2/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "300s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "solve": {
+    "iterations": 13,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 12,
+    "wall_seconds": 914.463523183018
+   },
+   "image_clean": {
+    "components": 25571,
+    "major_cycles": 4,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 265.8994422350079,
+   "model_sha256": {
+    "image-model.fits": "da58f410138984479dc1eeb4b4b3351d694999f026939cf7a07ae5af97e70ae8"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/L300/run/selfcal/ESO137-pilot/round-3/gains.qc"
+  },
+  {
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": "300s",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "solve": {
+    "iterations": 39,
+    "converged_fraction": 1.0,
+    "flagged_fraction": 0.01639344262295082,
+    "clipped": 0,
+    "time_bins": 12,
+    "wall_seconds": 755.0908638900146
+   },
+   "image_clean": {
+    "components": 25431,
+    "major_cycles": 3,
+    "stop": "Threshold"
+   },
+   "image_wall_s": 232.36823959997855,
+   "model_sha256": {
+    "image-model.fits": "4a697dc517ef93ccf96338f2ee88fcc7d9cbb5efe8216a3d745d3c31676be91b"
+   },
+   "store": "/home/gijs/rang-data/outputs/selfcal-defaults-20261117/L300/run/selfcal/ESO137-pilot/round-4/gains.qc"
+  }
+ ],
+ "final_clean": {
+  "components": 24786,
+  "major_cycles": 3,
+  "stop": "Threshold"
+ },
+ "cells": {
+  "P1@300": {
+   "round": 1,
+   "model_image": 2,
+   "B": {
+    "F": 0.00037898962289443003,
+    "flux_scale": 1.0,
+    "F_norm": 0.00037898962289443003,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 1.4168918507975858e-07,
+    "D": 0.8755897310111853
+   },
+   "A": {
+    "F": 0.0003930355367382713,
+    "flux_scale": 1.0,
+    "F_norm": 0.0003930355367382713,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.5253536789227535e-07,
+    "D": 0.8732957974115793
+   },
+   "health": true,
+   "D_ho": 0.8755897310111853,
+   "D_in": 0.8732957974115793,
+   "gap": -0.0022939335996060572
+  },
+  "P2@300": {
+   "round": 2,
+   "model_image": 3,
+   "B": {
+    "F": 0.000327481348942684,
+    "flux_scale": 1.0,
+    "F_norm": 0.000327481348942684,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 1.0530008472341628e-07,
+    "D": 0.9075412011325296
+   },
+   "A": {
+    "F": 0.0003412309304544798,
+    "flux_scale": 1.0,
+    "F_norm": 0.0003412309304544798,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.1449698265196434e-07,
+    "D": 0.9048925564860287
+   },
+   "health": true,
+   "D_ho": 0.9075412011325296,
+   "D_in": 0.9048925564860287,
+   "gap": -0.0026486446465008306
+  },
+  "P3@300": {
+   "round": 3,
+   "model_image": 4,
+   "B": {
+    "F": 0.000325196652151641,
+    "flux_scale": 1.0,
+    "F_norm": 0.000325196652151641,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 1.038089133887317e-07,
+    "D": 0.9088505249651995
+   },
+   "A": {
+    "F": 0.00033898184996795325,
+    "flux_scale": 1.0,
+    "F_norm": 0.00033898184996795325,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.1296712936083029e-07,
+    "D": 0.9061633361354234
+   },
+   "health": true,
+   "D_ho": 0.9088505249651995,
+   "D_in": 0.9061633361354234,
+   "gap": -0.0026871888297760327
+  },
+  "P3A@300": {
+   "round": 4,
+   "model_image": 5,
+   "B": {
+    "F": 0.00031258757413455866,
+    "flux_scale": 1.0040118043334916,
+    "F_norm": 0.00031510068546742253,
+    "newly_flagged": 0.0,
+    "T_used": 4.409023907741584e-05,
+    "P": 9.734449280013587e-08,
+    "D": 0.9145266131142797
+   },
+   "A": {
+    "F": 0.00032553792035159836,
+    "flux_scale": 1.0040118043334916,
+    "F_norm": 0.00032815514862491533,
+    "newly_flagged": 0.0,
+    "T_used": 4.4063196058226154e-05,
+    "P": 1.057442363221746e-07,
+    "D": 0.9121630653489828
+   },
+   "health": true,
+   "D_ho": 0.9145266131142797,
+   "D_in": 0.9121630653489828,
+   "gap": -0.002363547765296903
+  }
+ },
+ "F0_B": 0.0010680966827350214,
+ "T_B": 4.409023907741584e-05,
+ "F0_A": 0.0010980944420347224,
+ "T_A": 4.4063196058226154e-05
+}

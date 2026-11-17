@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! A deliberately small scalar RIME experiment, not an operational calibrator.
 
 mod linalg;

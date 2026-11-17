@@ -1,0 +1,7 @@
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json (no room to backfill)
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json, past its 15 min drain limit (draining)
+== 2026-11-17T11:53:52+02:00 load 23.53 25.40 26.21 arm C start
+11:57:23 arm C 1 {'none': 44.09, 'T_A': 44.079, 'T_Ap': 44.084, 'T_Af': 44.065, 'T_B|A': 44.052, 'T_B': 44.062, 'T8': 44.087, 'T_D|A': 44.075}
+11:57:24 stage arm ['C'] 212.0 s
+arm C 212.32 s 10797884 KB
+== 2026-11-17T11:57:24+02:00 load 18.22 22.21 24.80 arm C end rc 0

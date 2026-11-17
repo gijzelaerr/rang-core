@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Offline tests of the L1 array campaign pieces (research/luno-array-campaign.md).
 
 Every array-scale reimplementation must be bit-identical to task K's code on

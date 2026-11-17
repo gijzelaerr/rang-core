@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Forced photometry by the exact direct Fourier transform, for the residual
 //! snapshot light curves of task TS-P1 (`research/ts-p1.md`, section 3).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! For each position (l, m), with n = sqrt(1 - l² - m²), the flux of one
 //! interval is

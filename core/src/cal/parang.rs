@@ -1,9 +1,9 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! The parallactic-angle term P (task C6, `research/c6-polterms.md`; C1 term
 //! T6, `research/c1-calibration-chain.md` section 1.3).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! For linear feeds `P_p = [[cos a, sin a], [-sin a, cos a]]`, `a` the
 //! parallactic angle of antenna `p` at the row's time plus the receptor angle

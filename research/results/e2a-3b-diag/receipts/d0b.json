@@ -1,0 +1,60 @@
+{
+ "KGB1": {
+  "rang_K_on_casa_K_times": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.0031362478113014,
+   "p95": 0.02355719219820309,
+   "max": 2.6657044710388584,
+   "class_b": false
+  },
+  "casa_K_on_casa_G_times": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.0031552016223781497,
+   "p95": 0.023586428793518063,
+   "max": 2.3476025358732633,
+   "class_b": false
+  },
+  "casa_relabel_vs_casa (CASA-CASA)": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.00028528372076033336,
+   "p95": 0.0019784168472505065,
+   "max": 2.0000000792992996,
+   "class_b": true
+  }
+ },
+ "KGB0": {
+  "rang_K_on_casa_K_times": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.003439566687948167,
+   "p95": 0.05659203817067078,
+   "max": 0.7133503085351462,
+   "class_b": false
+  },
+  "casa_K_on_casa_G_times": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.003494354288045103,
+   "p95": 0.0567068627151796,
+   "max": 0.7133503085351462,
+   "class_b": false
+  },
+  "casa_relabel_vs_casa (CASA-CASA)": {
+   "cells": 188497920,
+   "flags_differ": 0,
+   "n": 188497920,
+   "median": 0.00014389260746731195,
+   "p95": 0.0023825517464229977,
+   "max": 0.012949105037200898,
+   "class_b": true
+  }
+ }
+}

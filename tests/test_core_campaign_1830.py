@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Offline tests of the L2 PKS 1830-211 campaign pieces (research/luno-1830-campaign.md).
 
 Synthetic data only: the scalar model's flux rule and prediction, the

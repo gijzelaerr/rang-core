@@ -1,0 +1,161 @@
+tricolour - 2026-11-16 12:44:28,649 INFO - 
+*******************************************************************************
+                  _______   _           _
+                 |__   __| (_)         | |
+                    | |_ __ _  ___ ___ | | ___  _   _ _ __
+                    | | '__| |/ __/ _ \| |/ _ \| | | | '__|
+                    | | |  | | (_| (_) | | (_) | |_| | |
+                    |_|_|  |_|\___\___/|_|\___/ \__,_|_|
+
+Viva la révolution!
+
+tricolour - 2026-11-16 12:44:28,650 WARNING - Disabling crash debugging with the Interactive Python Debugger, as per user request
+tricolour - 2026-11-16 12:44:28,650 INFO - Flagging on the DATA column
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Looking for static masks...
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Searching /etc/tricolour
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Searching /opt/tricolour/etc/tricolour
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Searching /tmp/.config/tricolour
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Searching /opt/tricolour/lib/python3.12/site-packages/tricolour/data
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Found static mask file /opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_lband_meerkat.staticmask
+tricolour.mask - 2026-11-16 12:44:28,650 INFO - Found static mask file /opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_uhfband_meerkat.staticmask
+tricolour.mask - 2026-11-16 12:44:28,654 INFO - Loaded mask /opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_lband_meerkat.staticmask (non-dilated) with 41.50% flagged bandwidth between 0.856 and 1.712 GHz
+tricolour.mask - 2026-11-16 12:44:28,655 INFO - Loaded mask /opt/tricolour/lib/python3.12/site-packages/tricolour/data/4k_uhfband_meerkat.staticmask (non-dilated) with 4.64% flagged bandwidth between 0.544 and 1.088 GHz
+tricolour - 2026-11-16 12:44:28,655 INFO - *****************************************
+tricolour - 2026-11-16 12:44:28,655 INFO - The following strategies will be applied:
+tricolour - 2026-11-16 12:44:28,655 INFO - *****************************************
+tricolour - 2026-11-16 12:44:28,655 INFO - 0: flag_nans_zeros (nan_dropouts_flag)
+tricolour - 2026-11-16 12:44:28,655 INFO - 1: apply_static_mask (background_static_mask)
+tricolour - 2026-11-16 12:44:28,655 INFO - 	accumulation_mode: or
+tricolour - 2026-11-16 12:44:28,655 INFO - 	uvrange: 
+tricolour - 2026-11-16 12:44:28,655 INFO - 2: sum_threshold (background_flags)
+tricolour - 2026-11-16 12:44:28,655 INFO - 	outlier_nsigma: 10
+tricolour - 2026-11-16 12:44:28,655 INFO - 	windows_time: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,655 INFO - 	windows_freq: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,655 INFO - 	background_reject: 2.0
+tricolour - 2026-11-16 12:44:28,655 INFO - 	background_iterations: 5
+tricolour - 2026-11-16 12:44:28,655 INFO - 	spike_width_time: 12.5
+tricolour - 2026-11-16 12:44:28,655 INFO - 	spike_width_freq: 10.0
+tricolour - 2026-11-16 12:44:28,655 INFO - 	time_extend: 3
+tricolour - 2026-11-16 12:44:28,655 INFO - 	freq_extend: 3
+tricolour - 2026-11-16 12:44:28,656 INFO - 	freq_chunks: 10
+tricolour - 2026-11-16 12:44:28,656 INFO - 	average_freq: 1
+tricolour - 2026-11-16 12:44:28,656 INFO - 	flag_all_time_frac: 0.6
+tricolour - 2026-11-16 12:44:28,656 INFO - 	flag_all_freq_frac: 0.8
+tricolour - 2026-11-16 12:44:28,656 INFO - 	rho: 1.3
+tricolour - 2026-11-16 12:44:28,656 INFO - 	num_major_iterations: 5
+tricolour - 2026-11-16 12:44:28,656 INFO - 3: uvcontsub_flagger (residual_flag_initial)
+tricolour - 2026-11-16 12:44:28,656 INFO - 	major_cycles: 7
+tricolour - 2026-11-16 12:44:28,656 INFO - 	or_original_from_cycle: 1
+tricolour - 2026-11-16 12:44:28,656 INFO - 	taylor_degrees: 20
+tricolour - 2026-11-16 12:44:28,656 INFO - 	sigma: 15.0
+tricolour - 2026-11-16 12:44:28,656 INFO - 4: flag_nans_zeros (nan_dropouts_reflag)
+tricolour - 2026-11-16 12:44:28,656 INFO - 5: apply_static_mask (uvrange_static_mask)
+tricolour - 2026-11-16 12:44:28,656 INFO - 	accumulation_mode: or
+tricolour - 2026-11-16 12:44:28,656 INFO - 	uvrange: 0~550
+tricolour - 2026-11-16 12:44:28,656 INFO - 6: sum_threshold (final_st_very_broad)
+tricolour - 2026-11-16 12:44:28,656 INFO - 	outlier_nsigma: 10
+tricolour - 2026-11-16 12:44:28,656 INFO - 	windows_time: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,656 INFO - 	windows_freq: [32, 48, 64, 128]
+tricolour - 2026-11-16 12:44:28,656 INFO - 	background_reject: 2.0
+tricolour - 2026-11-16 12:44:28,656 INFO - 	background_iterations: 5
+tricolour - 2026-11-16 12:44:28,656 INFO - 	spike_width_time: 6.5
+tricolour - 2026-11-16 12:44:28,656 INFO - 	spike_width_freq: 64.0
+tricolour - 2026-11-16 12:44:28,657 INFO - 	time_extend: 3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	freq_extend: 3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	freq_chunks: 10
+tricolour - 2026-11-16 12:44:28,657 INFO - 	average_freq: 1
+tricolour - 2026-11-16 12:44:28,657 INFO - 	flag_all_time_frac: 0.6
+tricolour - 2026-11-16 12:44:28,657 INFO - 	flag_all_freq_frac: 0.8
+tricolour - 2026-11-16 12:44:28,657 INFO - 	rho: 1.3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	num_major_iterations: 1
+tricolour - 2026-11-16 12:44:28,657 INFO - 7: sum_threshold (final_st_broad)
+tricolour - 2026-11-16 12:44:28,657 INFO - 	outlier_nsigma: 10
+tricolour - 2026-11-16 12:44:28,657 INFO - 	windows_time: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,657 INFO - 	windows_freq: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,657 INFO - 	background_reject: 2.0
+tricolour - 2026-11-16 12:44:28,657 INFO - 	background_iterations: 5
+tricolour - 2026-11-16 12:44:28,657 INFO - 	spike_width_time: 6.5
+tricolour - 2026-11-16 12:44:28,657 INFO - 	spike_width_freq: 10.0
+tricolour - 2026-11-16 12:44:28,657 INFO - 	time_extend: 3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	freq_extend: 3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	freq_chunks: 10
+tricolour - 2026-11-16 12:44:28,657 INFO - 	average_freq: 1
+tricolour - 2026-11-16 12:44:28,657 INFO - 	flag_all_time_frac: 0.6
+tricolour - 2026-11-16 12:44:28,657 INFO - 	flag_all_freq_frac: 0.8
+tricolour - 2026-11-16 12:44:28,657 INFO - 	rho: 1.3
+tricolour - 2026-11-16 12:44:28,657 INFO - 	num_major_iterations: 1
+tricolour - 2026-11-16 12:44:28,657 INFO - 8: sum_threshold (final_st_narrow)
+tricolour - 2026-11-16 12:44:28,658 INFO - 	outlier_nsigma: 10
+tricolour - 2026-11-16 12:44:28,658 INFO - 	windows_time: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,658 INFO - 	windows_freq: [1, 2, 4, 8]
+tricolour - 2026-11-16 12:44:28,658 INFO - 	background_reject: 2.0
+tricolour - 2026-11-16 12:44:28,658 INFO - 	background_iterations: 5
+tricolour - 2026-11-16 12:44:28,658 INFO - 	spike_width_time: 2
+tricolour - 2026-11-16 12:44:28,658 INFO - 	spike_width_freq: 10.0
+tricolour - 2026-11-16 12:44:28,658 INFO - 	time_extend: 3
+tricolour - 2026-11-16 12:44:28,658 INFO - 	freq_extend: 3
+tricolour - 2026-11-16 12:44:28,658 INFO - 	freq_chunks: 10
+tricolour - 2026-11-16 12:44:28,658 INFO - 	average_freq: 1
+tricolour - 2026-11-16 12:44:28,658 INFO - 	flag_all_time_frac: 0.6
+tricolour - 2026-11-16 12:44:28,658 INFO - 	flag_all_freq_frac: 0.8
+tricolour - 2026-11-16 12:44:28,658 INFO - 	rho: 1.3
+tricolour - 2026-11-16 12:44:28,658 INFO - 	num_major_iterations: 1
+tricolour - 2026-11-16 12:44:28,658 INFO - 9: uvcontsub_flagger (residual_flag_final)
+tricolour - 2026-11-16 12:44:28,658 INFO - 	major_cycles: 10
+tricolour - 2026-11-16 12:44:28,658 INFO - 	or_original_from_cycle: 0
+tricolour - 2026-11-16 12:44:28,658 INFO - 	taylor_degrees: 25
+tricolour - 2026-11-16 12:44:28,658 INFO - 	sigma: 13.0
+tricolour - 2026-11-16 12:44:28,658 INFO - 10: flag_autos (flag_autos)
+tricolour - 2026-11-16 12:44:28,658 INFO - 11: combine_with_input_flags (combine_with_input_flags)
+tricolour - 2026-11-16 12:44:28,658 INFO - ***************** END ********************
+tricolour - 2026-11-16 12:44:28,658 INFO - Flagging based on quadrature polarized power
+tricolour - 2026-11-16 12:44:39,265 INFO - Only considering scans '9, 10, 11' as per user selection criterion
+tricolour - 2026-11-16 12:44:39,265 INFO - Adding field 'J1939-6342' scan 9 to compute graph for processing
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:337: PerformanceWarning: Increasing number of chunks by factor of 10
+  packing = da.blockwise(pack_fn, ("row", "chan", "corr"),
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:349: PerformanceWarning: Increasing number of chunks by factor of 10
+  vis_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:356: PerformanceWarning: Increasing number of chunks by factor of 10
+  flag_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:419: PerformanceWarning: Increasing number of chunks by factor of 10
+  return da.blockwise(_unpack_data, ("row", "chan", "corr"),
+tricolour - 2026-11-16 12:44:41,786 INFO - Adding field 'ESO137-001' scan 10 to compute graph for processing
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:337: PerformanceWarning: Increasing number of chunks by factor of 86
+  packing = da.blockwise(pack_fn, ("row", "chan", "corr"),
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:349: PerformanceWarning: Increasing number of chunks by factor of 86
+  vis_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:356: PerformanceWarning: Increasing number of chunks by factor of 86
+  flag_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:419: PerformanceWarning: Increasing number of chunks by factor of 86
+  return da.blockwise(_unpack_data, ("row", "chan", "corr"),
+tricolour - 2026-11-16 12:44:54,681 INFO - Adding field 'J1939-6342' scan 11 to compute graph for processing
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:337: PerformanceWarning: Increasing number of chunks by factor of 10
+  packing = da.blockwise(pack_fn, ("row", "chan", "corr"),
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:349: PerformanceWarning: Increasing number of chunks by factor of 10
+  vis_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:356: PerformanceWarning: Increasing number of chunks by factor of 10
+  flag_windows = da.blockwise(_packed_windows, _WINDOW_SCHEMA,
+/opt/tricolour/lib/python3.12/site-packages/tricolour/packing.py:419: PerformanceWarning: Increasing number of chunks by factor of 10
+  return da.blockwise(_unpack_data, ("row", "chan", "corr"),
+[###                                     ] | 9% Completed | 300.00 s
+Traceback (most recent call last):
+  File "/opt/tricolour/bin/tricolour", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/opt/tricolour/lib/python3.12/site-packages/tricolour/apps/tricolour/app.py", line 273, in main
+    _main(args)
+  File "/opt/tricolour/lib/python3.12/site-packages/tricolour/apps/tricolour/app.py", line 516, in _main
+    _, original_stats, final_stats = dask.compute(write_computes,
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/tricolour/lib/python3.12/site-packages/dask/base.py", line 660, in compute
+    results = schedule(dsk, keys, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/tricolour/lib/python3.12/site-packages/daskms/reads.py", line 189, in getter_wrapper
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/opt/tricolour/lib/python3.12/site-packages/daskms/reads.py", line 50, in ndarray_getcol
+    getcolnp(column, result[rr : rr + rl], startrow=rs, nrow=rl)
+  File "/opt/tricolour/lib/python3.12/site-packages/casacore/tables/table.py", line 1049, in getcolnp
+    return self._getcolvh(columnname, startrow, nrow, rowincr, nparray)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: FiledesIO::read /ms/e2a.ms/table.f0_TSM0 - error returned by system call: Cannot allocate memory

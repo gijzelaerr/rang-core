@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Channel- and row-sliced reads (research/sliced-read.md).
 
 The core reader reads a channel slice of a list of rows in one call; the

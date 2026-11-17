@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """CASA's tasks under CASA's keyword names (research/v8-open-casa.md, section 6).
 
 Each function takes the keyword names and defaults of the CASA 6.7 task of the
