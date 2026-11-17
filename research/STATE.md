@@ -35,6 +35,8 @@ v0.3.0 readiness, 2026-11-17 (branch `v030-ready`; [v030-readiness.md](v030-read
   (lightcurve, -stop-tolerance, multiscale options, FLAG_ROW weights, MSv2 R1-R3), known limitations and an Issues
   draft, lightcurve refusals. Release-blocking for the coordinator: casacore measures and radler/WSClean 3.7
   notices (B-01, B-02).
+- uhf-scope D6: a stage given channels outside L band (856-1712 MHz) logs one warning naming docs/limits.md;
+  not refused (`core_pipeline.band_warning`, test).
 
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no

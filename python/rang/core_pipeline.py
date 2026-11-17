@@ -274,8 +274,38 @@ def scope_warnings(info):
             "only and its defaults (Tricolour's static masks, feed_angle_rotation, "
             f"refant: auto) are MeerKAT's; check every stage's output {UNSUPPORTED}"
         )
-        return [text]
-    return []
+        out = [text]
+    else:
+        out = []
+    band = band_warning(info.get("chan_freq"))
+    if band:
+        out.append(band)
+    return out
+
+
+# MeerKAT L band, the only band rang is validated on (research/uhf-scope.md,
+# decision D6; research/meerkat-scope.md). Channel centres outside it (UHF
+# 544-1088 MHz, S band) are warned about, not refused.
+L_BAND_HZ = (856.0e6, 1712.0e6)
+_BAND_SLACK_HZ = 1.0e3
+
+
+def band_warning(chan_freq):
+    """One warning when any channel centre lies outside MeerKAT L band, or
+    None."""
+    if chan_freq is None:
+        return None
+    freq = np.asarray(chan_freq, np.float64).ravel()
+    if freq.size == 0:
+        return None
+    lo, hi = float(freq.min()), float(freq.max())
+    if lo >= L_BAND_HZ[0] - _BAND_SLACK_HZ and hi <= L_BAND_HZ[1] + _BAND_SLACK_HZ:
+        return None
+    return (
+        f"channels at {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz reach outside MeerKAT L band "
+        f"({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz): only L band is "
+        "validated; see docs/limits.md"
+    )
 
 
 def check_data(config, info, stages):

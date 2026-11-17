@@ -19,7 +19,8 @@ limit, not solved (below).
 
 ## Scope
 
-- **MeerKAT L band only.** UHF and S band are not supported. Data from other
+- **MeerKAT L band only.** UHF and S band are not validated: a stage given
+  channels outside 856-1712 MHz runs with one warning that names this page. Data from other
   telescopes runs with a warning, untested ({gh}`research/meerkat-scope.md`).
 - **Not yet tested on native MeerKAT data.** The acceptance rests on simulated
   truth (A1, E1), ESO 137-006 (a Measurement Set with raw phases, Stokes I)

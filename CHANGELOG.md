@@ -66,6 +66,9 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
 
 ### Changes
 
+- New (`research/uhf-scope.md`, decision D6): a stage given channels outside MeerKAT L band (856-1712 MHz;
+  UHF 544-1088 MHz, S band) logs one warning that only L band is validated, naming `docs/limits.md`
+  (`rang.core_pipeline.band_warning`; also in `config check`). Nothing is refused and no result changes.
 - Fixed (`research/v030-review.md` R-01): on Windows a run's `state.json` replace failed with
   PermissionError while another process read it, so polling `run_status` through `rang-core mcp` (or any
   reader) failed the run after a finished stage. The replace now retries for up to 10 s, as the MCP job
