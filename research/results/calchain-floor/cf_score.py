@@ -507,7 +507,7 @@ def controls(rows, T, tc, tf, mask, bnd):
     on = (rows.a1 == x) | (rows.a2 == x)
     r_on = rel(a[on], fa[on], tc[on], tf[on], mask[on], _Sub(rows, on))["all"]
     r_off = rel(a[~on], fa[~on], tc[~on], tf[~on], mask[~on], _Sub(rows, ~on))["all"]
-    out["positive G(ant %d) x (1+1e-4): on, off" % x] = [r_on, r_off]
+    out[f"positive G(ant {x}) x (1+1e-4): on, off"] = [r_on, r_off]
     # T7: common phase and common delay
     g = deepcopy(T[1])
     ph = np.complex64(np.exp(1j * rng.uniform(-np.pi, np.pi)))

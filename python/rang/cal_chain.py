@@ -180,6 +180,8 @@ def _solve_one(ms, term, field_id, tables, common):
         kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
     if kind != "B":
         kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
+    if kind != "K":
+        kwargs.pop("zero_start", None)  # calchain-floor: K solves only
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -458,6 +460,7 @@ def run(
     average_freq=False,
     casa_phase_weights=False,
     bandpass_model_divided=False,
+    k_zero_start=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -496,8 +499,11 @@ def run(
     (task e2a-3b-diag, `calibrate.bandpass_model_divided`,
     research/e2a-3b-diag.md): every B solve divides the pre-applied data by
     the (corrupted) model before any average (`rang.cal_bandpass.bandpass`
-    `model_divided`). Returns `{"tables": {name: {...}}, "steps":
-    [...]}`."""
+    `model_divided`). `k_zero_start` (`calibrate.k_zero_start`,
+    research/calchain-floor.md section 12): every K solve also runs from a
+    zero start and keeps, per interval, the run with the lower residual
+    (`rang.cal_delay.solve` `zero_start`). Returns `{"tables": {name:
+    {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -518,6 +524,8 @@ def run(
         common["casa_phase_weights"] = True
     if bandpass_model_divided:
         common["model_divided"] = True
+    if k_zero_start:
+        common["zero_start"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -552,6 +560,7 @@ def run(
             )
             kwargs.pop("model_column")
             kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
+            kwargs.pop("zero_start", None)  # calchain-floor: K solves only
             table, record, merged = cal_fluxscale.bootstrap(
                 ms,
                 base,

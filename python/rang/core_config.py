@@ -286,6 +286,15 @@ SCHEMA = {
             "the amplitude squared; needs average_freq; false: QuartiCal's "
             "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
         ),
+        "k_zero_start": _k(
+            False,
+            "bool",
+            "K solves also run from zero delays and keep, per solution interval, "
+            "the run with the lower weighted residual; guards against the FFT "
+            "start (refant baselines only) landing on a sidelobe of a sparsely "
+            "sampled interval; false: the FFT start alone (research/"
+            "calchain-floor.md section 12)",
+        ),
         "bandpass_model_divided": _k(
             False,
             "bool",
@@ -1910,6 +1919,7 @@ HASH_DEFAULTS = {
         "average_freq": False,
         "casa_phase_weights": False,
         "bandpass_model_divided": False,
+        "k_zero_start": False,
     },
     "selfcal": {"average_time": False},
 }

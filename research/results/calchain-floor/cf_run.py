@@ -2,10 +2,12 @@
 """research/calchain-floor.md: one rang U arm on a copy of a case's pristine
 simulated MS (e2a-3b-k's arm `u` config: `d1_run.rang_config("tt")`).
 
-    python cf_run.py CASE ARM        CASE stepped|const, ARM lin|near|strict|f50
+    python cf_run.py CASE ARM        CASE stepped|const, ARM lin|near|strict|f50|lin2|zs
 
 `f50` (section 11, post hoc): `lin` with ID 50's rows in K1 interval 7
 (`cal_gain.solint_bins`, 60 s, field 0) flagged before the run.
+`lin2` (section 12): `lin` again with this branch's code after the
+`k_zero_start` change, the key off; `zs`: `lin` with `k_zero_start: true`.
 
 The arm's MS is O/CASE/arm-ARM.ms (copied from O/CASE/sim-s0f-u.ms, which
 is never written); its run is O/CASE/arm-ARM.ms.rang-run.
@@ -83,7 +85,7 @@ def main(case, arm):
     if arm == "f50":
         flag_interval(ms, 50, 7)
     cfg = d / f"arm-{arm}.yaml"
-    cfg.write_text(config("lin" if arm == "f50" else arm), encoding="utf-8")
+    cfg.write_text(config("lin" if arm in ("f50", "lin2") else arm), encoding="utf-8")
     shutil.copy(DIAG / "pinned" / "mk_rfi_flagging_calibrator_fields_firstpass.yaml", d)
     env = {**os.environ, "PYTHONPATH": "", "RAYON_NUM_THREADS": THREADS,
            "OMP_NUM_THREADS": THREADS}  # fmt: skip
