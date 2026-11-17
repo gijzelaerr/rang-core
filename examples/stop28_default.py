@@ -10,12 +10,13 @@ Usage: python examples/stop28_default.py STAGE
     simulate  H9-H16 (the blind skies), once
     seen      S1-S3 (D, R and -stop-tolerance 0 for I1), H1-H8: prepare and run
     new       H9-H16: prepare and run D, R
-    wsclean   H9-H16: WSClean 3.7 fast and plain (apptainer)
+    wsclean   H9-H16: WSClean 3.7 fast and plain
     pilot     the pilot runs (cal2 A at 3 and 1 mJy, cal3 B at 3 mJy)
     score     every scorer, the pilot's included
     table     the measures, I1, I2 and the frozen verdict -> O/summary.json
 
-Paths from the environment, with nash's defaults: O (outputs), W (this worktree), BIN, LOCK, SIF.
+Paths from the environment, with nash's defaults: O (outputs), W (this worktree), BIN, LOCK,
+WSCLEAN (nash's system WSClean 3.7).
 """
 
 import argparse
@@ -35,9 +36,7 @@ W = Path(os.environ.get("W", Path(__file__).resolve().parents[1]))
 PY = str(W / ".venv/bin/python")
 BIN = os.environ.get("BIN", str(O / "bin/gemclean"))
 LOCK = os.environ.get("LOCK", str(HOME / "Github/rang/tools/heavy_lock.py"))
-SIF = os.environ.get(
-    "SIF", str(HOME / "rang-data/oracle-images/rang-wsclean-native_3.7.sif")
-)
+WSCLEAN = os.environ.get("WSCLEAN", "/usr/bin/wsclean")
 EX = W / "examples"
 EPS = 0.02
 T = 100e-6
@@ -167,7 +166,8 @@ def wsclean():
             args += ["-no-min-grid-resolution", "-wgridder-accuracy", "1e-6"]
             if loop == "hogbom":
                 args.append("-no-fast-subminor")
-            cmd = ["apptainer", "exec", "--bind", str(O), SIF, "wsclean", *args]
+            # Amendment 2: the native image needs AVX-512; nash runs its system WSClean 3.7.
+            cmd = [WSCLEAN, *args]
             cmd += ["-name", d / name, ms]
             (d / f"{name}.cmd").write_text(" ".join(map(str, cmd)) + "\n")
             locked(cmd, slots, 8, d / f"{name}.log", env={"OMP_NUM_THREADS": "8"})

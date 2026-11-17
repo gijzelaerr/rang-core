@@ -128,3 +128,11 @@ simulation or hash check stops its stage and is reported.
 **1, 2026-11-17, before any run.** I2's "index of D's first cycle (from 1)" means the report's own 0-based cycle
 `index`, searched over all cycles: R's cycle count equals the `index` of D's first cycle whose `peak_start` is below
 1.02 T. On the pilot T is that run's threshold (3 or 1 mJy). Driver: `examples/stop28_default.py`.
+
+**2, 2026-11-17, before any WSClean run, after the GeMClean runs on H9-H16 had started (none scored).**
+`rang-wsclean-native_3.7.sif` was built for glacier's CPU and stops with an illegal instruction on nash (no
+AVX-512); every WSClean job exited at once and wrote nothing. WSClean on H9-H16 is nash's system build
+(`/usr/bin/wsclean`, "WSClean version 3.7 (2026-02-16)"), same settings. The oracle stays WSClean 3.7; the build
+differs from the archived H1-H8 runs'. Also, stage 3's hash check: S1, H3 and H4 regenerated on nash equal the
+archive; S2, S3, H1, H2 and H5-H8 differ in the DATA column file (`table.f0_TSM0`; H5-H8 also `table.f3`), so those
+eight are copied from glacier as §3 says, their noise files equal on every sky.
