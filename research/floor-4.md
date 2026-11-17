@@ -212,7 +212,9 @@ Archive: [results/floor-4/](results/floor-4/): `summary.json`, `x.json`, `pilot.
 `prep-meta.json`, `arms/*.json`, G1's `g1-P-score.json`, `g1-g0.json`, `g1-selfcal-summary.json`
 and `g1-f3summary.json`, and the logs `g1.log`, `sim.log`, `x.log`, `sets.log`. The products stay
 on nash in `~/rang-data/outputs/floor-4-20261117/`: G1's run directory (stores and models), the
-arm gains. G1's MS copy, the prep, skies and hands scratch and nash's copy of `cal2.ms` are
+arm gains. `x.log` ends with a `run_nash.sh: line 73` syntax error. The driver script was edited
+while the job ran (bash reads a script as it goes); the error comes after the job's `x end` line
+and touches no result. G1's MS copy, the prep, skies and hands scratch and nash's copy of `cal2.ms` are
 deleted. The nash drivers are archived in
 [results/selfcal-defaults/scripts/](results/selfcal-defaults/scripts/).
 
@@ -228,7 +230,7 @@ deleted. The nash drivers are archived in
 - **G0:** F = 1,073.416 µJy (ratio 0.999996).
 - **G1: passes.** Floor-3's arm P on nash gives F_B 1,073.416, F_Fix 474.831 and F_Fin 379.262 µJy.
   These equal floor-3's numbers to the last printed digit: the relative differences are 0, 0 and
-  −6e-14. D_Fix is 0.8057 and D_Fin 0.8766 (bit-equal to floor-3; the gate allows ±0.02).
+  −6e-14. D_Fix is 0.8057 and D_Fin 0.8766 (equal to floor-3 within 2e-14; the gate allows ±0.02).
   Health: converged 1.000, solutions flagged 1.6 %, r = 0.989 against floor-2's T1p. G1's round-1 model has 58,314
   components in 5 major cycles, the final 26,357 in 3, both as floor-3. The `f3 summary` in
   `g1.log` prints floor-3's own row 2 because no PL arm was run there; that line is not a reading
@@ -297,6 +299,7 @@ Closing #13 is the coordinator's decision.
 - **Remaining.** H2's T1p drop (0.092) is the largest new cross-term and is below K1's prior
   (0.104). The long-baseline phase fit (T1pL) is cleaner still (≤ 0.004 on every new arm), but
   it has no floor-2 rows.
-- **Host.** Every gate reproduced the workstation exactly (R0, G0, G1 bit-equal), so nash's
+- **Host.** Every gate reproduced the workstation: R0 and G0 bit-equal, G1's F_B and F_Fix
+  bit-equal and F_Fin within 6e-14, so nash's
   Broadwell build gives the same numbers as the Windows host for this chain.
 

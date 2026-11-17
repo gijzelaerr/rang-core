@@ -152,8 +152,15 @@ Measured 2026-11-17 on **nash**. Every job ran through the heavy lock (`RANG_HEA
 `nice -n 19 ionice -c3`, `RAYON_NUM_THREADS=8`). The grid runs booked 8 slots and 20 GB (24 GB for
 600 s, 96 GB for D) and the absorption run X 2 slots and 24 GB (scheduling change, section 9). At
 most three grid runs were in flight. The scripts ran from the worktree at `b342702`, and at
-`4483ec6` from L600's second attempt on. The package came from nash's main checkout, and every run
-records the same extension, `gemclean_sha256` `ce12e7d2…`. The scores of L60, L120 and L300 ran
+`4483ec6` from L600's second attempt on. The package came from nash's main checkout, which other
+sessions fast-forwarded while the grid ran. The receipts' `commit.head` values are L60 `d3746c9`,
+L300 `b4204ed`, L600, the M and N runs and D `9b4542c`, and X `92030a3`. Between `56d5613` and
+`92030a3`, `python/rang` changed only in `cal_bandpass.py`, `cal_chain.py`, `core_config.py` and
+the calibrate-chain stage of `core_pipeline.py`: a new bandpass option, `bandpass_model_divided`,
+off by default. Nothing changed in the selfcal solve, apply, model or imaging path. The extension
+was not rebuilt, and every run, X included, records `gemclean_sha256` `ce12e7d2…`. The evidence
+that nothing changed: the round-1 models are identical across all runs and commits, and the M and
+N stores equal L's bit for bit. The scores of L60, L120 and L300 ran
 after HB1 had been read (`NOSCORE=1`, then `run_nash.sh score`). The other runs scored at their
 end. Archive: [results/selfcal-defaults/](results/selfcal-defaults/): `summary.json`
 (`summary-before-X.json` before run X), `scores/<run>.json` (every cell on S_B and S_A, solve
@@ -164,10 +171,10 @@ The MS copies, the base copy and nash's copy of `cal2.ms` are deleted.
 
 ### 8.1 Frozen readings
 
-**Gates. All pass.** G0 and G1 are those of floor-4 (G1 bit-equal to floor-3). **HB1:** the
+**Gates. All pass.** G0 and G1 are those of floor-4 (G1 equal to floor-3 within 6e-14). **HB1:** the
 numpy apply reproduces `floor3_score`'s F_Fix with relative difference 0.0. **HB2:** T on S_B is
 44.090 µJy (relative −5e-10). S_A's T is 44.063 µJy. **Round-1 models:** identical across all 13
-runs (one SHA-256), so P_0 is one number per set: F_0 = 1,068.10 µJy on S_B and 1,098.09 µJy on
+runs and X (one SHA-256, at memory limits 12, 16 and 96 GiB alike), so P_0 is one number per set: F_0 = 1,068.10 µJy on S_B and 1,098.09 µJy on
 S_A. **Determinism:** rounds 1 to n of every M and N run equal L's gain stores bit for bit.
 
 **Health.** Every cell is healthy: converged fraction ≥ 0.9989 in every round, solutions flagged
@@ -222,8 +229,9 @@ enough.
   against 1,068 µJy), not to any setting.
 - **Remaining floor.** The best cell leaves 310 µJy on S_B (7.0 × T). That is close to floor-3's
   379 µJy after one round on the full data, and the gain from more freedom levels off.
-- **Memory.** D's scan-long solve peaked at 37 GB of resident memory against the 80 GiB the
-  chunk plan predicted, and the 600 s runs at 11.7 GB against 13.6 GiB. The current default
+- **Memory.** D's scan-long run peaked at 37 GB of resident memory. The 600 s runs peaked at
+  11.7 GB against the chunk plan's 13.6 GiB, so the plan over-predicts. (D's plan figure was
+  not observed: the 80 GiB of clarification 1 is a scaling of L600's refusal.) The current default
   cannot run on this pilot at the default `memory_limit_gb` of 8 (clarification 1). That is a
   usability problem for #6, independent of the score.
 - **Cost.** The selfcal stage wall times, at 8 threads on a shared host, are L60 3,291 s, L300
@@ -248,6 +256,11 @@ the 600 s runs, 100 GB for D. The failed attempts' MS copies were deleted and th
 from a fresh copy of the base. No rule, threshold, cell or score changed. Post hoc remark, not a
 reading: the current default (`solint: inf`) cannot solve this 1 h, 256-channel pilot within the
 default `memory_limit_gb` of 8.
+
+**Booking note, 2026-11-17 04:58 SAST (scheduling, no protocol effect).** D's lock booking was
+lowered from 100 to 96 GB before D started. At 100 GB it could not fit beside another session's
+96 GB booking under the 192 GB cap, and as head of the queue it held the whole queue.
+`memory_limit_gb` stayed 96. D then peaked at 37 GB.
 
 **Scheduling change, 2026-11-17 08:25 SAST (coordinator, on the owner's order; no protocol effect).**
 The grid runs booked 8 slots but used about one core each (the solve and the numpy stages are not
