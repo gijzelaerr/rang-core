@@ -577,7 +577,37 @@ WSL, D: paths); only the trained `weights.npz` files come back, with sha256.
 **Change of order, labelled, 2026-11-17, before any training or held-out read:** Stage 4 training starts
 while the clean C1(U4) waits for an idle glacier (an exclusive heavy-lock hold). No held-out set is read
 before C1(U4) is clean and ≤ 0.45; if it is > 0.45, F4 stops as section 8 says and the weights are
-unused.
+unused. The same holds for τ (Stage 4, validation only): it may run before the clean C1(U4).
+
+**Checks of the rebuilt extension (2026-11-17, no held-out read):** `tests/test_f4_flag.py` and
+`test_f3_flag.py` 12 passed; T recomputed on LUNO MAIN_7 is bit-identical to the Stage 3 cache
+(`-06-shards-cal/calibrator/flags/luno-MAIN_7-T.npy`, 0 of 16.9 M cells differ, 20.7 s). The extension
+in use from here is check_all's build of `113b3cb` (two SPDX comment lines over `475ad60`).
+
+**C1(U4) attempt 2, `-05c-c1u4`, 2026-11-17 11:20-11:51 (glacier, exclusive hold, 4 threads, LUNO
+MAIN_1): provisional, not clean.** `.code/HEAD` reads `475ad60` (queued before the SPDX commit); the
+run used `113b3cb`'s files and binary (comment-only difference).
+
+| Repeat | T wall (s) | other CPUs | U4 wall (s) | other CPUs |
+| --- | --- | --- | --- | --- |
+| 1 | 45.60 | 1.78 | 19.45 | 2.38 |
+| 2 | 43.08 | 1.58 | 20.06 | 2.90 |
+| 3 | 42.34 | 2.80 | 18.83 | 2.26 |
+
+Medians T 43.08 s, U4 19.45 s: **C1(U4) = 0.452**, all six repeats over the 1-CPU idle bar. Flagged
+fractions identical to attempt 1 (T 0.6088, U4 0.6001). Attempt 1 (`-05`, 11-12) was 0.441 with one
+clean repeat per arm. The two provisional readings sit 0.01 apart on either side of the 0.45 bar,
+while T's wall varies by 7 % within one run, so the bar is not resolved by these readings. Neither is a
+stop nor a pass (section 6: unclean repeats are provisional; `f4_queue.py` applies 0.45 only when all
+repeats are clean).
+
+**Rerun rule, fixed 2026-11-17 before attempt 3 (labelled; no bar changes):** the same command, three
+repeats, under an exclusive hold, preceded inside the hold by a 10 s CPU sample that skips the timing
+if other processes use more than one logical CPU (recorded as a skipped attempt). The first attempt
+whose six repeats are all clean decides, whatever its value; at most two further timed attempts;
+every attempt reported; no pooling of clean repeats across attempts; the 1-CPU bar unchanged. If no
+attempt is clean, F4's calibrator outcome on C1(U4) goes to the coordinator with both provisional
+readings, and no held-out set is read.
 
 ## For the coordinator
 
