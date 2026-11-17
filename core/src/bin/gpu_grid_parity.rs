@@ -1,10 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 //! Gate 1 of `research/gpu-grid.md`: the GPU gridder against the CPU path on
 //! one Measurement Set, through one prepared plan each. Prints one JSON
 //! object.
-//!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
 //!
 //! ```text
 //! gpu_grid_parity MS SIZE SCALE_ASEC EPS single|double MODEL_FITS BUDGET_MIB [cpu]

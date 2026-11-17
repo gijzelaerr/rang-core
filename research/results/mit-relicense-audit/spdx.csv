@@ -4,6 +4,7 @@ core/py/src/cal_delay_offset.rs,a,MIT
 core/py/src/cal_fluxscale.rs,a,MIT
 core/py/src/cal_gain.rs,a,MIT
 core/py/src/cal_pol.rs,a,MIT
+core/py/src/cal_stream.rs,a,MIT
 core/py/src/clean.rs,a,MIT
 core/py/src/cnnflag.rs,a,MIT
 core/py/src/f3flag.rs,a,MIT
@@ -14,6 +15,7 @@ core/py/src/lib.rs,a,MIT
 core/py/src/lightcurve.rs,a,MIT
 core/src/aipsio.rs,c-src,GPL-3.0-or-later
 core/src/bin/gemclean.rs,a,MIT
+core/src/bin/gpu_grid_parity.rs,a,MIT
 core/src/bin/gram_solver_bench.rs,a,MIT
 core/src/bin/gridder_gram_bench.rs,a,MIT
 core/src/blosc.rs,b-permissive,MIT AND BSD-3-Clause
@@ -23,6 +25,7 @@ core/src/cal/crosshand.rs,b-copyleft,GPL-3.0-or-later
 core/src/cal/delay.rs,b-permissive,MIT
 core/src/cal/delay_offset.rs,b-permissive,MIT
 core/src/cal/diag.rs,c-src,GPL-3.0-or-later AND MIT
+core/src/cal/diag_stream.rs,a,MIT
 core/src/cal/ffi_apply.rs,a,MIT
 core/src/cal/fluxscale.rs,b-copyleft,GPL-3.0-or-later
 core/src/cal/leakage.rs,c-src,GPL-3.0-or-later
@@ -74,6 +77,7 @@ core/src/gpu/invert.rs,a,MIT
 core/src/gpu/mod.rs,a,MIT
 core/src/gpu/shader.rs,b-copyleft,GPL-3.0-or-later AND SunPro
 core/src/gpu/tests.rs,a,MIT
+core/src/gpu/wgrid.rs,b-copyleft,GPL-3.0-or-later
 core/src/grid.rs,b-copyleft,GPL-3.0-or-later
 core/src/gridder_gram.rs,a,MIT
 core/src/ism.rs,b-copyleft,GPL-3.0-or-later
@@ -97,6 +101,7 @@ core/src/weights.rs,b-copyleft,GPL-3.0-or-later
 core/src/wgridder.rs,b-copyleft,GPL-3.0-or-later
 core/tests/gemclean_memory.rs,a,MIT
 docs/_extra/interferometer/index.html,d,GPL-3.0-or-later
+examples/selfcal_memory.py,a,MIT
 python/rang/__init__.py,a,MIT
 python/rang/applycal.py,c-src,GPL-3.0-or-later
 python/rang/beam_holography.py,b-copyleft,GPL-3.0-or-later
@@ -113,6 +118,7 @@ python/rang/cal_gain.py,c-src,GPL-3.0-or-later
 python/rang/cal_pol.py,b-copyleft,GPL-3.0-or-later
 python/rang/cal_refant.py,b-copyleft,GPL-3.0-or-later
 python/rang/cal_selfcal.py,c-src,GPL-3.0-or-later
+python/rang/cal_stream.py,a,MIT
 python/rang/calmodels.py,c-src,GPL-3.0-or-later
 python/rang/check.py,a,MIT
 python/rang/core.py,a,MIT
@@ -156,6 +162,7 @@ python/rang/core_response.py,a,MIT
 python/rang/core_sensitivity.py,a,MIT
 python/rang/core_signal.py,a,MIT
 python/rang/core_solver_study.py,a,MIT
+python/rang/core_spool.py,a,MIT
 python/rang/core_state.py,a,MIT
 python/rang/core_structured.py,a,MIT
 python/rang/core_tasks.py,a,MIT
@@ -218,6 +225,30 @@ python/rang/tasks/__init__.py,a,MIT
 python/rang/tfcrop.py,c,MIT
 python/rang/tvflag_adjoint.py,a,MIT
 python/rang/uncertainty.py,a,MIT
+research/results/calchain-floor/cf_k1cells.py,a,MIT
+research/results/calchain-floor/cf_k1solve.py,a,MIT
+research/results/calchain-floor/cf_kcapture.py,a,MIT
+research/results/calchain-floor/cf_kdiag.py,a,MIT
+research/results/calchain-floor/cf_kreal.py,a,MIT
+research/results/calchain-floor/cf_ksolve1.py,a,MIT
+research/results/calchain-floor/cf_ksolve2.py,a,MIT
+research/results/calchain-floor/cf_kstart.py,a,MIT
+research/results/calchain-floor/cf_pass1.py,a,MIT
+research/results/calchain-floor/cf_run.py,a,MIT
+research/results/calchain-floor/cf_same.py,a,MIT
+research/results/calchain-floor/cf_score.py,a,MIT
+research/results/calchain-floor/cf_sim.py,a,MIT
+research/results/gemclean-memory3/compare.py,a,MIT
+research/results/gemclean-memory3/excl.sh,a,MIT
+research/results/gemclean-memory3/excl2.sh,a,MIT
+research/results/gemclean-memory3/field.sh,a,MIT
+research/results/gemclean-memory3/memtime.py,a,MIT
+research/results/gemclean-memory3/sweep.py,a,MIT
+research/results/gemclean-ms-mask-scripts/g_job.sh,a,MIT
+research/results/gemclean-ms-mask-scripts/make_mask.py,a,MIT
+research/results/gemclean-ms-mask-scripts/runs.py,a,MIT
+research/results/gemclean-ms-mask-scripts/score.py,a,MIT
+research/results/gemclean-ms-mask-scripts/w_job.sh,a,MIT
 research/results/mit-relicense-audit/classify.py,a,MIT
 research/results/mit-relicense-audit/spdx.py,a,MIT
 research/results/msv2-edge-cases/edge_cases.py,a,MIT
@@ -249,6 +280,7 @@ tests/test_c6w_polwire.py,a,MIT
 tests/test_cal_apply.py,a,MIT
 tests/test_cal_bandpass.py,a,MIT
 tests/test_cal_delay.py,a,MIT
+tests/test_cal_delay_zero_start.py,a,MIT
 tests/test_cal_fluxscale.py,c-src,GPL-3.0-or-later
 tests/test_cal_gain.py,a,MIT
 tests/test_cal_pol.py,a,MIT
@@ -366,6 +398,7 @@ tests/test_pointing_sim.py,a,MIT
 tests/test_projector.py,a,MIT
 tests/test_rv1_revalidate.py,a,MIT
 tests/test_selfcal_arms.py,a,MIT
+tests/test_selfcal_memory.py,a,MIT
 tests/test_sliced_read.py,a,MIT
 tests/test_spdx_headers.py,a,MIT
 tests/test_t1_casacure_oracle.py,a,MIT
@@ -460,6 +493,8 @@ tools/oracles/g6/prep.py,a,MIT
 tools/oracles/g6/rang_hash.py,a,MIT
 tools/oracles/g6/summary.py,a,MIT
 tools/oracles/msv2-edge/fixture.py,a,MIT
+tools/oracles/multinode/nash_points.sh,a,MIT
+tools/oracles/multinode/run.py,a,MIT
 tools/oracles/nash/timed.py,a,MIT
 tools/oracles/pfb-imaging/build.sh,a,MIT
 tools/oracles/sliced/all.sh,a,MIT

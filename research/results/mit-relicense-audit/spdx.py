@@ -56,6 +56,9 @@ HELD = {
     "tests/test_e0_refant_extend.py": "b-copyleft",  # FlagAgentExtension.cc loops
     "tests/test_cal_fluxscale.py": "c-src",  # fluxscale rules in NumPy
     "tests/test_a3_casa_phase_weights.py": "c-src",  # divideCorrByModel in NumPy
+    # Branch gpu-grid (issue #12): a child module of wgridder.rs (ducc0's
+    # wgridder, GPL) that copies its loops and kernel for the GPU.
+    "core/src/gpu/wgrid.rs": "b-copyleft",
 }
 
 
