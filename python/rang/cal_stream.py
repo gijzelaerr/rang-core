@@ -40,12 +40,18 @@ READ_BLOCK = 1 << 20
 READ_RECORD_BYTES = 2 * RECORD_BYTES + 32
 # Bytes per gain held for the solve (live flags, gains, flags, sums).
 GAIN_BYTES = 256
+# Bytes per cell (one channel and correlation) of a read-pass block: the
+# columns read, the kernel's conversions, and the records and gathered
+# copies of the unflagged cells (all of them, at worst). The pass's own
+# figure, not `CELL_BYTES["selfcal"]` (which sizes the one-call chunks);
+# measured on nash at this value (research/selfcal-memory.md section 5).
+STREAM_CELL_BYTES = 96
 
 
 def blocks(budget, nrows, nchan, ncorr, ngain, what):
     """`(rows, records)`: the rows of all channels one block of the read
-    pass may hold under `budget` (a `core_chunks.ChainBudget`, at its
-    `cell_bytes`; None: every row), and the records of the solver's read
+    pass may hold under `budget` (a `core_chunks.ChainBudget`, at
+    `STREAM_CELL_BYTES`; None: every row), and the records of the solver's read
     block, each after the field's row metadata and the gains. The pass and
     the solver do not hold their blocks at the same time. A
     MemoryLimitError when one row or one record does not fit."""
@@ -58,14 +64,14 @@ def blocks(budget, nrows, nchan, ncorr, ngain, what):
         - GAIN_BYTES * int(ngain)
     )
     row = int(nchan) * int(ncorr)
-    rows = left // (budget.cell_bytes * row)
+    rows = left // (STREAM_CELL_BYTES * row)
     records = min(READ_BLOCK, cells, left // READ_RECORD_BYTES)
     if rows < 1 or records < 1:
         need = core_chunks._gib(
             budget.fixed_bytes
             + core_chunks.CHAIN_ROW_BYTES * int(nrows)
             + GAIN_BYTES * int(ngain)
-            + max(budget.cell_bytes * row, READ_RECORD_BYTES)
+            + max(STREAM_CELL_BYTES * row, READ_RECORD_BYTES)
         )
         limit = (
             ""

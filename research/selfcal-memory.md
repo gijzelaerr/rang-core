@@ -101,8 +101,10 @@ result.
 ## 5. Results
 
 Measured 2026-11-17 on **nash** (heavy lock, shared, `nice -n 19 ionice -c3`; solve-only runs 2 slots,
-`RAYON_NUM_THREADS=2`; the pipeline 8 slots). Worktree code at `346de18` with `CELL_BYTES["selfcal"]` still 96
-for the runs (the figure only picks a path). Pilot rebuilt from floor-5's read-only copy of `cal2.ms`
+`RAYON_NUM_THREADS=2`; the pipeline 8 slots). The nash worktree ran `bc8f515` with the code applied as a
+staged patch. Its tree equals `346de18` in `core/`, `python/`, `examples/` and `tests/` (checked by `git
+diff --cached 346de18`), so the receipt's `commit.head` reads `bc8f515`. `CELL_BYTES["selfcal"]` was
+still 96 for the runs, so the read pass sized its blocks at 96 bytes per cell (78,141 rows). Pilot rebuilt from floor-5's read-only copy of `cal2.ms`
 (`selfcal_grid.py base` 93 s, `prepare D` 38 s, the same 128 held-out channels flagged) into
 `~/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms`. Logs and the driver in
 `~/Build/tmp/20261117-selfcal-memory/`; solutions and records (`*.npz`, `*.json`) in `.../solves/`; the
@@ -118,18 +120,26 @@ archive copy in [results/selfcal-memory/](results/selfcal-memory/).
 | G3 planner | 600 s interval (142,417,920 cells) peak 6,282,172 KiB (5.991 GiB), plan at 45 B 6.815 GiB (1.138 x); 300 s (71,208,960 cells) peak 3,210,836 KiB (3.062 GiB), plan 3.830 GiB | **pass** at 45 |
 
 **G2b, the excess stage.** The rang-core process itself peaked at 6,722 MiB (receipt `peak_rss_mb`,
-`RUSAGE_SELF`), under 8 GiB. The 9.30 GiB `%M` covers the GeMClean child (4096², `-j 8`), which does not
-read `data.memory_limit_gb`. The grid's limit-12 runs peaked at the same 9,747,132-9,749,172 KiB
+`RUSAGE_SELF`), under 8 GiB. The 9.30 GiB `%M` is the GeMClean child's (4096², `-j 8`). Its own report
+gives `peak_memory_bytes` 9,982,324,736 for round 1, exactly the `%M` of 9,748,364 KiB, and
+9,969,901,568 and 9,970,352,128 for round 2 and the final image. GeMClean does not read
+`data.memory_limit_gb`. The grid's limit-12 runs peaked at the same 9,747,132-9,749,172 KiB
 whatever their solint, L600-attempt1 too, which never solved. So that figure was GeMClean all along.
 Under the decision rule, #34 stays open for GeMClean's memory (its own limit, or a documented figure).
 
 **Planner (G3).** The fit uses the solve-only peaks of the present path (`examples/selfcal_memory.py solve
---stream false`, the process holding `inspect_ms`'s rows as rang-core does). The figures per cell above the
-fixed part (0.846 GiB: process, MS rows and field rows) are 38.8 B (600 s), 33.4 B (300 s) and 43.9 B for the
-one-call scan-long interval (843,264,000 cells, 37,066,116 KiB, the archived D's 37.1 GB). The frozen band
-for 600 s allows 38.8-45.6 B. 45 is chosen, not the minimum, because it also covers the scan-long point
-(plan 36.19 GiB against 35.35 measured). That choice is reported here as post hoc reasoning inside the
-frozen band. At the default 8 GiB a chunk now holds 170 M cells, so a 600 s interval of the pilot solves
+--stream false`; the process holds `inspect_ms`'s rows as rang-core does).
+- **Frozen band.** Above the planner's fixed part (0.846 GiB: process, MS rows, field rows), the 600 s
+  peak gives 38.8 B per cell and the 1.15 band ends at 45.6 B.
+- **Slope.** Peaks against interval cells give a slope of 44.2 B per cell (300 s to 600 s) and 45.0 B
+  (600 s to the one-call scan-long interval: 843,264,000 cells, 37,066,116 KiB, the archived D's
+  37.1 GB). The intercept is 0.13 GiB.
+- **Choice: 45, inside the frozen band.** Its margin on the slope is under 2%. The safety is the 0.85
+  GiB fixed part against the 0.13 GiB intercept. The choice of 45 over the band's minimum is post hoc
+  reasoning, reported here: it also covers the scan-long point (plan 36.19 GiB against 35.35 measured).
+- **Caveat.** The fit is on a 64%-flagged MS (128 of 256 channels held out, plus RFI). The one-call
+  kernel builds its cell list from the unflagged cells, so a lightly flagged MS may need more per cell.
+  A figure above 45.6 needs a dated clarification. At the default 8 GiB a chunk now holds 170 M cells, so a 600 s interval of the pilot solves
 on the present path. The archived "13.6 GiB planned against 11.7 GB measured" was the solve's plan
 against a different stage's peak (section 1). The present path at 600 s peaks at 6.0 GiB.
 
@@ -142,7 +152,26 @@ identical; only `image-report.json` (timings) differs.
 - In the pipeline the solves took 343 s (Sp) and 575 s (Sa), against D's 299 s and 429 s. The whole run
   took 2,207 s, against D's 2,041 s.
 
+**Clarification 1, 2026-11-17, post hoc (after the measurements, before merge): the read pass keeps
+its own figure.** The read pass sizes its blocks at `cal_stream.STREAM_CELL_BYTES` = 96, the value it was
+measured at. It does not use `CELL_BYTES["selfcal"]`. As first committed it used the budget's figure, and
+lowering that to 45 would have grown its blocks to about 166,700 rows, a configuration never run. That
+contradicts section 2 ("decides only which path"). The figure has margin: on the public fixture with
+FLAG cleared (60% of cells unflagged, unit weights), the pass's traced Python peak was 35 bytes per
+cell-correlation of a 50-row block (`tracemalloc`, Windows host). No result changes.
+
 **Outcome.** G1 and G2a pass, so the streamed path is kept and #34 item 1 is done: the default
 self-calibration runs on the pilot at the default limit, with the archived D's solutions. G3 passes, so
 `CELL_BYTES["selfcal"]` = 45. G2b: GeMClean's 9.3 GiB is the remaining item of #34. No novelty or speed
 claim.
+
+## 6. For the coordinator
+
+- **Merge decision.** Branch `selfcal-memory` (worktree `~/Worktrees/rang/selfcal-memory` on Windows):
+  not merged. Only `tools/check_all.py --quick` ran (PASS); the full check (oracles, archive) is left to
+  the merge check.
+- **#34 stays open** for GeMClean's 9.3 GiB on the pilot (it does not read `data.memory_limit_gb`): its
+  own limit, or a documented figure with a refusal naming it. Items 1 and 3 of #34 are done here.
+- Nothing was posted on GitHub.
+- **Left on nash:** `~/rang-data/outputs/selfcal-memory-20261117/D/run` (961 MB: images, stores,
+  receipts) and `.../solves/` (npz solutions, 88 kB). The MS copies are deleted.

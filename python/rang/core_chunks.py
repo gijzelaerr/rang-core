@@ -49,8 +49,8 @@ CELL_BYTES = {
     "chain": 96,
     # The self-calibration solves Sp, Sa, Sd (task C5; issue #34,
     # research/selfcal-memory.md section 5): fitted to solve-only peaks on
-    # the E2 pilot (no pre-applies), 38.8, 33.4 and 43.9 bytes per cell for
-    # one 600 s, 300 s and scan-long interval, with a margin.
+    # the E2 pilot (no pre-applies, 64% flagged): a slope of 44.2-45.0 bytes
+    # per cell over 71 M to 843 M cells; the fixed part holds the margin.
     "selfcal": 45,
 }
 # Bytes held per row of a chain solve's field for the whole solve (task W3b):

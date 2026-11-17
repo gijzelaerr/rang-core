@@ -82,16 +82,16 @@ def same(a, b):
     assert a.clipped == b.clipped
 
 
-def cell_bytes_budget(rows, cells, ngain, cell_bytes=core_chunks.CELL_BYTES["selfcal"]):
-    """A selfcal budget whose chunks hold `cells` cells after the rows and
-    `ngain` gains of a streamed solve."""
+def cell_bytes_budget(rows, cells, ngain, per_cell=core_chunks.CELL_BYTES["selfcal"]):
+    """A selfcal budget with room for `cells` cells at `per_cell` bytes after
+    the rows and `ngain` gains of a streamed solve."""
     return core_chunks.ChainBudget(
         chunk_bytes=core_chunks.CHAIN_ROW_BYTES * rows
         + cal_stream.GAIN_BYTES * ngain
-        + cell_bytes * cells,
+        + per_cell * cells,
         limit_gb=1.0,
         limit_text="1",
-        cell_bytes=cell_bytes,
+        cell_bytes=core_chunks.CELL_BYTES["selfcal"],
     )
 
 
@@ -110,7 +110,9 @@ def test_streamed_solve_is_bit_identical(tmp_path, term):
     same(whole, streamed)
     # Blocks of 1, 7 and 40 rows in the read pass.
     for nrows in (1, 7, 40):
-        budget = cell_bytes_budget(len(rows), nrows * c5.NCHAN * 4, ngain(whole))
+        budget = cell_bytes_budget(
+            len(rows), nrows * c5.NCHAN * 4, ngain(whole), cal_stream.STREAM_CELL_BYTES
+        )
         parts = solve(ms, rows, term, stream=True, budget=budget)
         assert parts.settings["streamed"]["block_rows"] == nrows
         same(whole, parts)
@@ -123,7 +125,9 @@ def test_auto_streams_only_an_interval_that_does_not_fit(tmp_path):
     pairs = c5.NANT * (c5.NANT - 1) // 2
     scan_cells = pairs * (c5.NINT // 2) * c5.NCHAN * 4  # one interval per scan
     fits = cell_bytes_budget(len(rows), scan_cells, ngain(whole))
-    small = cell_bytes_budget(len(rows), scan_cells // 3, ngain(whole))
+    small = cell_bytes_budget(
+        len(rows), scan_cells // 3, ngain(whole), cal_stream.STREAM_CELL_BYTES
+    )
     held = solve(ms, rows, term, budget=fits)
     assert "streamed" not in held.settings
     same(whole, held)
@@ -134,7 +138,9 @@ def test_auto_streams_only_an_interval_that_does_not_fit(tmp_path):
     same(whole, streamed)
     with pytest.raises(core_chunks.MemoryLimitError, match="one solution interval"):
         solve(ms, rows, term, budget=small, stream=False)
-    tiny = cell_bytes_budget(len(rows), c5.NCHAN * 4 - 1, ngain(whole))
+    tiny = cell_bytes_budget(
+        len(rows), c5.NCHAN * 4 - 1, ngain(whole), cal_stream.STREAM_CELL_BYTES
+    )
     with pytest.raises(core_chunks.MemoryLimitError, match="streamed solve needs"):
         solve(ms, rows, term, budget=tiny)
 
