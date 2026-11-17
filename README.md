@@ -50,6 +50,7 @@ arm64 and x86_64, Windows x86_64.
 | `imaging` | nothing since astropy became required; kept so existing install lines work |
 | `pointing`, `beam` | the JAX pointing path; the katbeam and EIDOS beam controls |
 | `meerkat`, `formats` | MVFv4 archives through katdal; H5parm |
+| `mcp`, `msv4` | `rang-core mcp`, the MCP server for agents; MSv4 processing sets through `rang.msv4` (Python 3.11+) |
 | `recipes`, `carta` | the Stimela2 recipes (Python 3.13 or older; installs nothing on 3.14); CARTA from the notebooks |
 | `test`, `docs` | the test suite; the documentation site |
 

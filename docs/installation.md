@@ -66,6 +66,8 @@ suite, the examples, the notebooks, the recipes and `research/` are in the
 | `beam` | katbeam, EIDOS | the beam controls of `rang.beam_holography` |
 | `meerkat` | katdal, katsdptelstate | MVFv4 archives through `rang.meerkat` ({gh}`research/mk1-katdal.md`) |
 | `formats` | h5py | the H5parm reader and writer ({gh}`research/dfio-formats.md`) |
+| `mcp` | mcp 2.x | `rang-core mcp`, the MCP server for agents ({doc}`mcp`) |
+| `msv4` | xarray, zarr 3, numcodecs | MSv4 processing sets read by `rang.msv4` (Python 3.11+; installs nothing on 3.10) ({gh}`research/msv4-interop.md`) |
 | `carta` | astropy, requests, simplejson, selenium | CARTA from the notebooks, with CARTA's wrapper from its pinned commit ({gh}`research/nb-carta.md`) |
 | `casacure` | casacure 3.8.35 | the second table oracle in the tests ({gh}`research/t1-casacure-ci.md`) |
 | `plot` | matplotlib | plots in the examples |

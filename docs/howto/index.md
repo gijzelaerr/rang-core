@@ -14,7 +14,7 @@ from source ({doc}`../installation`; 0.1.0 on PyPI lacks the chain) and the
 
 ```{warning}
 rang-core is a tested research demonstrator, not an operational
-calibrator. The v0.2.0 gates on real data have not reported
+calibrator. The gates on real data miss in places
 ({doc}`../limits`). Compare against your usual pipeline before relying on an
 image, and report what differs ({doc}`../contributing`).
 ```

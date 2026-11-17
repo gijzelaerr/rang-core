@@ -7,13 +7,14 @@ claimed: rang-core is checked for parity with CASA, QuartiCal, Tricolour and
 WSClean, not shown to beat them.
 
 ```{important}
-**Placeholder, to be filled from tasks E2 and E3** ({gh}`research/finish-plan.md`).
-As of 2026-11-13 work is paused: E2-B (LUNO, full polarisation) is scored on
-a branch that is not yet merged, E2-A (ESO 137-006, Stokes I) and E3 (CARACal's
-shipped MeerKAT strategy on the same data) have not reported. This page will add
-E2's acceptance gates as reported and E3's comparison (image quality, flux,
-wall time, memory), whatever the outcome. Absolute polarisation angle is under
-investigation; nothing here states it as solved.
+**Acceptance on real data, as of 2026-11-17** ({gh}`research/v030-readiness.md`).
+E2-B (LUNO, full polarisation) and E2-A (ESO 137-006, Stokes I) have reported:
+the gates they miss are listed below and in `CHANGELOG.md`
+({gh}`research/e2b-misses.md`, {gh}`research/e2-acceptance.md` 9.13). E2-A is
+not passed as frozen. E3 (CARACal's shipped MeerKAT strategy on the same data)
+has reported on E2-B (CARACal 6,926 s against rang's 6,195 s) and is running on
+E2-A; E2-N (native data) is running. Absolute polarisation angle is stated as a
+limit, not solved (below).
 ```
 
 ## Scope
@@ -50,6 +51,14 @@ investigation; nothing here states it as solved.
 - **Solution TIME** differs from CASA's by up to 0.054 s (0.41 s with
   `combine`); it is reported, not gated, until CASA's centroid weighting is
   ported ({gh}`research/c2a-gain.md`).
+- **Absolute polarisation angle χ is a stated limit, not gated.** On LUNO's
+  3C 286 the RM-corrected χ(λ²=0) is 29.4°, 3.6° from 33°, rang equal to CASA
+  ({gh}`research/chi-offset.md` section 11). LUNO's calibrator product holds
+  receptor angle 0 (leave `feed_angle_rotation` unset), not CARACal strategy
+  1's −90, which suits stores holding −90 such as ESO137. On held-out 3C 286
+  simulations rang's Xf differs from CASA's by 0.054° (median; issue #33,
+  {gh}`research/xf-preavg.md`). E2-B's 1830−211 χ, transfer χ and 0.30 %
+  leakage misses are in {gh}`research/e2b-misses.md` sections 5-7.
 - **Parallactic angle in memory only.** `feed_angle_rotation` is applied in
   memory and FEED is not rewritten: CASA reading a rang-calibrated MS whose
   FEED holds 0 applies a different P with `parang=True`
@@ -75,16 +84,37 @@ investigation; nothing here states it as solved.
   limits: the model absorbs part of the gain error, and masks do not lift it.
   Accepted for 0.2.0 ({gh}`research/c5-selfcal.md`,
   {gh}`research/c5b-selfcal-masks.md`).
+  More rounds, longer first intervals and a phase-only first round do not
+  meet the truth gate either ({gh}`research/selfcal-arms.md`).
 - Model writing, multiscale and self-calibration with Stokes Q, U or V are
   refused ({gh}`research/g9-stokes.md`).
 
 ## Imaging (GeMClean)
 
-- **The unexplained floor.** On the real pilot the residual floor is 40-60 ×
-  thermal in every imager tried, WSClean included, for a reason not found
-  ({gh}`research/clean-overview.md`).
-- **Memory** is 2.0-2.4 × WSClean's on the pilot at 512 channels
-  ({gh}`research/g7-defaults.md`).
+- **The imaging floor, in part unexplained.** On the real pilot the residual
+  floor is 40-60 × thermal in every imager tried, WSClean included. Steady
+  antenna gains are its main cause: one phase-only self-calibration round
+  takes it from 1,073 to 379 µJy (share 0.83-0.88); the remaining 8.6 ×
+  thermal is not explained ({gh}`research/floor-3.md`, floor-4,
+  {gh}`research/imaging-floor.md`).
+- **Memory** is 2.0-2.4 × WSClean's on the pilot at 512 channels in Stokes I
+  ({gh}`research/g7-defaults.md`). Joined IQUV is 4.7-6.9 × WSClean's: 9.2 GiB
+  on E2-B's J1833−2103 at 2048², 8 channels; `-reorder` brings the large fields
+  to 9.1 GiB with about 28 GB of temporary files
+  ({gh}`research/gemclean-memory.md`, {gh}`research/gemclean-memory2.md`).
+- **Multiscale over-estimates compact sources**: a median +9 to +18 µJy on
+  sources ≥ 20σ_ap on DF5-O's field, in WSClean 3.7 and GeMClean alike; no
+  tested setting fixes it on both fields. Automatic scales come nearest;
+  Högbom is unbiased at 7-11 % higher residual RMS
+  ({gh}`research/multiscale-flux-fix.md` 8.1).
+- **Joined polarisations peak on the linear sum**, as WSClean 3.7 and radler
+  do: with `-pol QU -join-polarizations`, components whose Q and U cancel are
+  not cleaned ({gh}`research/g9-stokes.md`, {gh}`research/v030-readiness.md`
+  section 4).
+- **Cleaned images against WSClean (gate 3c)**: compact-source scatter 1.18 %
+  on E2-B with the mask (bound 1 %), and 3.6 % on E2-A, where 512- against
+  4,096-channel smearing lowers the ratios with radius
+  ({gh}`research/e2b-misses.md` 9.29, {gh}`research/e2-acceptance.md` 9.14).
 - **Images are not byte-identical across platforms**: native Windows and
   Linux builds differ in every file, and no tolerance across them has been
   measured ({gh}`research/g4-masks.md`).

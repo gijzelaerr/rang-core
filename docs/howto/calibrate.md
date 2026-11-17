@@ -73,7 +73,10 @@ CARACal's polarisation strategy 1 (`xcal_model_fcal_leak`): Gpol, KCROSS and
 Xf on the polarisation-angle calibrator against CARACal's NRAO model, Df on
 the flux calibrator, P applied with `apply.parang: true`. The configuration
 frozen for E2-B on LUNO, scans 17–20, is a complete example
-({gh}`research/results/e2-acceptance-scripts/e2b.yaml`); its polcal section:
+({gh}`research/results/e2-acceptance-scripts/e2b.yaml`); its polcal section
+follows. Its `feed_angle_rotation: -90` is CARACal's and suits stores whose
+FEED holds −90 (ESO137); LUNO's calibrator product measures 0, so leave the key
+unset there ({gh}`research/chi-offset.md` section 11). E2-B keeps −90 as frozen.
 
 ```yaml
   polcal:

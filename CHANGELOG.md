@@ -9,6 +9,82 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+Drafted for 0.3.0 on 2026-11-17 (`research/v030-readiness.md`); E2-N, E3-A, the selfcal-defaults grid and
+the E2-A 3b K follow-up are still running and will change the limitations below.
+
+### Known limitations
+
+- **Native MeerKAT data is not tested yet** (issue #7): E2-N is running; this line is replaced by its
+  measured limits when it reports.
+- **χ is stated as a limit, not gated** (issue #14, `research/chi-offset.md` section 11). On LUNO's 3C 286
+  the RM-corrected χ(λ²=0) is 29.4°, 3.6° from 33°, with rang equal to CASA; under the frozen absolute
+  limit the test failed by 0.47° and 2.31°. No absolute χ claim is made. LUNO's calibrator product holds
+  receptor angle 0, not CARACal strategy 1's −90: a per-product configuration note. A frozen follow-up with
+  an RM term in the 3C 286 model is for later.
+- **Xf differs from CASA by 0.054°** (median) on held-out 3C 286 simulations, against a 0.05° limit; the
+  cause is not found, and CASA's pre-averaging is ruled out (issue #33, `research/xf-preavg.md`).
+- **Multiscale CLEAN over-estimates compact sources** (issue #23, `research/multiscale-flux-fix.md` 8.1,
+  measured null): under natural weighting on DF5-O's array a median +9 to +18 µJy excess on sources
+  ≥ 20σ_ap, in WSClean 3.7 and GeMClean alike. No setting tested passes on both fields. Automatic scales
+  (no `-multiscale-scales`) come nearest (+11.0 / +9.05 µJy); Högbom is unbiased (−4 µJy) at 7-11 % higher
+  residual RMS. No default changes.
+- **Joined polarisations peak on the linear sum** (issue #22, `research/v030-readiness.md` section 4), as
+  WSClean 3.7 and radler (!238, merged 2026-11-16, unreleased) do: with `-pol QU -join-polarizations`,
+  components whose Q and U cancel are not cleaned, in either imager. `-squared-channel-joining` stays
+  refused.
+- **The imaging floor is attributed in part** (issue #13, `research/floor-3.md`, floor-4): on the pilot one
+  phase-only self-calibration round removes most of the floor (1,073 to 379 µJy), and the steady antenna
+  gains are its main cause (share 0.83-0.88); 379 µJy, 8.6 × thermal, remains unexplained.
+- **Image gate 3c is not met on the cleaned images** (E2-B with the mask: compact scatter 1.18 % against
+  1 %; E2-A: dirty 5.0e-3 of the peak, compact scatter 3.6 %, target scatter 4.3 %, ratios falling with
+  radius as 512- against 4,096-channel smearing predicts; `research/e2b-misses.md` 9.29,
+  `research/e2-acceptance.md` 9.13-9.14). E2-A is not passed as frozen; its K1 G1 B1 composite miss is
+  part rang's B time averaging (`calibrate.bandpass_model_divided`, off by default) and part the K
+  estimators (`research/e2a-3b-diag.md`).
+- **E2-B's 1830−211 χ (|Δχ| up to 13° at p of 0.02-0.06 %), transfer χ and leakage (0.30 %)** stay as in
+  0.2.0 (`research/e2b-misses.md` sections 5-7).
+- `flagdata` mode `tfcrop` is still refused (`research/v8-tfcrop.md`, `research/v8c-tfcrop-poly.md`), and
+  the trained flagger is not shipped.
+- A run directory made by 0.2.0 resumes "done" stages by their configuration hash; rerun with
+  `--force all` to get 0.3.0's parallactic angles and imaging weights.
+
+### Issues
+
+- Closed by this release (to be closed by the owner at the tag): #14 (χ stated as a limit), #22 (linear
+  join kept, upstream agrees), #23 (measured null, documented limit); #13, #6 and #7 when their running
+  results merge.
+- Fixed in this release: #30 (MCP job-file race; its run-state form fixed too), #31 (heavy-lock ticket
+  races).
+- Progressed: #3 (chunk task API), #5 (MSv4 read path), #8 (V8b modes at parity; tfcrop refused), #9
+  (`rang-core lightcurve`), #12 (GPU gridding, on a branch), #27 (piece 1: an agent runs the chain over
+  MCP), #28 (`-stop-tolerance`), #32 (joined-IQUV memory halved, `-reorder`).
+- Known limitations: #33; the rest are listed above.
+- Unchanged: #1, #4, #10, #11, #15-#20, #24.
+
+### Changes
+
+- Fixed (`research/v030-review.md` R-01): on Windows a run's `state.json` replace failed with
+  PermissionError while another process read it, so polling `run_status` through `rang-core mcp` (or any
+  reader) failed the run after a finished stage. The replace now retries for up to 10 s, as the MCP job
+  files do since #30. Found by `tests/test_mcp_chain.py`, which drives the whole chain (flag, calibrate,
+  apply, image, selfcal) through `rang-core mcp` on the public fixture with a scripted JSON-RPC client.
+- New (issue #9, `research/ts-p1.md`): `rang-core lightcurve`, residual snapshot light curves at given
+  positions (a Rust DFT kernel `rang._core.lightcurve_dft`, snapshot images and a robust rms;
+  `--candidates`, `--gridder wstack --device gpu`). Checked against WSClean `-intervals-out` and an
+  independent DFT on held-out simulations, under post hoc amendments 9.1 and 9.2.
+- New (issue #28, `research/gemclean-stop28.md`): `gemclean -stop-tolerance e`, off by default: the run also
+  ends when the exact peak after a major cycle is below (1 + e) T. Refused with auto-masks, multiscale and
+  joins.
+- New (issue #23, `research/multiscale-flux-fix.md`): `gemclean -multiscale-bias-reference`,
+  `-multiscale-point-cap` and `-no-negative`; defaults unchanged.
+- Changed (`research/ts-p1.md` section 14): GeMClean leaves FLAG_ROW rows out of the imaging-weight grid. Uniform
+  and Briggs weights change where FLAG_ROW is set and FLAG is not; WSClean 3.7 counts those rows. Every
+  archived G2-G9 case is bit-identical (none has such rows).
+- New (issue #5, `research/msv2-edge-cases.md`): the MSv2 reader reads IncrementalStMan string and array
+  columns and TiledCellStMan, and refuses per column; MSs refused before now read.
+- Changed (tools, `research/nash-host.md`): `tools/heavy_lock.py` backfills past a queue head that does not
+  fit (drain limit `RANG_HEAVY_DRAIN_MIN`, `run --drain`); `RANG_HEAVY_NICE` and a default Linux lock
+  directory. Fixed (#30, #31): Windows sharing violations on MCP job files and heavy-lock tickets.
 - New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
   polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
   entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;
