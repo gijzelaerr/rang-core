@@ -195,9 +195,18 @@ def report(run):
         for repeat in range(REPEATS):
             d = run / f"W-{config}-r{repeat}"
             if not (d / "done.json").is_file():
-                out["points"][d.name] = "not obtained"
+                voids = list(run.glob(f"{d.name}.void-*"))
+                out["points"][d.name] = (
+                    f"not obtained ({len(voids)} void attempts)"
+                    if len(voids) >= MAX_ATTEMPTS
+                    else "not run yet"
+                )
                 continue
             rec = json.loads((d / "done.json").read_text())
+            failed = [s for s in STAGES if rec["stages"].get(s, {}).get("exit") != 0]
+            if failed:
+                out["points"][d.name] = f"stage failed: {failed[0]}"
+                continue
             row = {"identity": _identity(base, d) if base.is_dir() else "no base"}
             for s in STAGES:
                 st = rec["stages"][s]
@@ -209,6 +218,7 @@ def report(run):
                                              "foreign_cores", "load1_before",
                                              "load1_after")}  # fmt: skip
                 row[s]["first_task_s"] = spawn[s][-1] if ft else None
+                row[s]["cores_used"] = round(st["own_cpu_s"] / st["wall_s"], 2)
             out["points"][d.name] = row
         out["configs"][config] = {
             "median_wall_s": {s: statistics.median(v) if v else None
