@@ -324,3 +324,28 @@ carry, and B1 couples that into every antenna (B1 per antenna differs by
 frequency-averaged, model-divided buffer, rang's on the cells as they are
 (rang's median G1 SNR 9,833, CASA's 1,323). rang's keeps a solution that
 fits its data; it is not a defect by the rule of section 4.
+
+## 9. Addendum 2026-11-17 10:05, post hoc (after S0 was read, before S0f ran)
+
+S0's control is **not met**: rang U's KGB0 against truth is 7.5e-3 and
+KGB1 3.3e-3 (CASA's 7.5e-3 and 3.6e-3). The generator is not the cause:
+on every 50th row the simulated DATA equal `M J_T` (the truth composite)
+to 2.5e-7, and K0 is recovered exactly (error 0.0 ns). Two things post
+hoc:
+- The composite counts every cell where the tables are unflagged, and B's
+  `fillgaps: 70` fills most of the 92 % flagged channels, where the "truth"
+  is my interpolation of the template. Scored only on cells whose data are
+  unflagged, U's KGB0 is 6.4e-3 and KGB1 2.9e-4 (CASA 6.5e-3, 6.0e-4).
+- What is left in pass 0 is the chain's own floor: G0 (per scan, all
+  channels, B not yet applied) takes each scan's flag-weighted mean of
+  B_T, the flags differ between scans, and B0 (one solution, scans
+  combined) cannot follow both. Pass 1 repairs most of it.
+
+So the frozen S0 rule tests the chain, not the generator. Added, before
+running it:
+- **S0f**: S0 with B_T = 1 (noise-free, static). Control: U's KGB0 and
+  KGB1 against truth ≤ 7e-5 on data-unflagged cells. If met, conventions
+  are right and S0's floor is the chain's.
+- Every sim composite against truth is also reported on data-unflagged
+  cells (the reading used below); the all-cell figures stay in the
+  receipts.

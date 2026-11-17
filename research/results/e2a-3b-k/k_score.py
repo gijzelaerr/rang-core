@@ -59,12 +59,32 @@ class Comp:
             )
         return self.cache[key]
 
-    def rel(self, ka, ta, kb, tb):
+    def data_flags(self):
+        """FLAG of the scored rows' parallel hands (post hoc, section 9)."""
+        if not hasattr(self, "_dflag"):
+            with core_ms.open_table(self.ms) as t:
+                c = {
+                    n: np.asarray(t.getcol(n))
+                    for n in ("TIME", "ANTENNA1", "ANTENNA2", "FIELD_ID")
+                }
+                flag = np.asarray(t.getcol("FLAG"))
+            rows = (c["FIELD_ID"] == self.fid) & (c["ANTENNA1"] != c["ANTENNA2"])
+            rows &= np.isin(c["TIME"], np.unique(c["TIME"][rows])[::STEP])
+            self._dflag = flag[rows][..., (0, 3)]
+        return self._dflag
+
+    def rel(self, ka, ta, kb, tb, data_cells=False):
         a, fa = self.get(ka, ta)
         b, fb = self.get(kb, tb)
         out = C.rel_stats(a, fa, b, fb)
         keep = (self.a1 != ODD) & (self.a2 != ODD)
         out["without_id50"] = C.rel_stats(a[keep], fa[keep], b[keep], fb[keep])
+        if data_cells:
+            d = self.data_flags()
+            out["data_unflagged"] = C.rel_stats(a, fa | d, b, fb)
+            out["data_unflagged_without_id50"] = C.rel_stats(
+                a[keep], (fa | d)[keep], b[keep], fb[keep]
+            )
         return out
 
 
@@ -292,7 +312,7 @@ def sim(tag):
             ta = arm(a, names)
             if ta is not None:
                 out["against_truth"].setdefault(a, {})[tg] = cp.rel(
-                    f"{a}{tg}", ta, "truth", T
+                    f"{a}{tg}", ta, "truth", T, data_cells=True
                 )
     for a, b in (
         ("u", "c"),
@@ -306,7 +326,7 @@ def sim(tag):
             ta, tb = arm(a, names), arm(b, names)
             if ta is not None and tb is not None:
                 out["pairs"].setdefault(f"{a}-{b}", {})[tg] = cp.rel(
-                    f"{a}{tg}", ta, f"{b}{tg}", tb
+                    f"{a}{tg}", ta, f"{b}{tg}", tb, data_cells=True
                 )
     # K errors: K1 by rank against U's K1 times, K0 by scan
     tk = T[0]

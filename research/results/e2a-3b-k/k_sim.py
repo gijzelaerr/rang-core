@@ -198,7 +198,14 @@ def _bandpass_truth(tab, freq, mode):
 
 
 def make(case, seed):
-    tag = "s0" if (case == "s1" and seed == "none") else f"{case}-{seed}"
+    flat = case == "s1f"  # post hoc S0f (section 9): static, B_T = 1
+    if flat:
+        case = "s1"
+    tag = (
+        "s0f"
+        if flat
+        else ("s0" if (case == "s1" and seed == "none") else f"{case}-{seed}")
+    )
     ms = O / f"sim-{tag}-u.ms"
     tdir = O / f"truth-{tag}"
     if ms.exists() or tdir.exists():
@@ -221,6 +228,10 @@ def make(case, seed):
         gt, dump_t, dump_scan, _per_dump(gt, dump_t, dump_scan, "G", mode)
     )
     B = _bandpass_truth(bt, freq, mode)
+    if flat:
+        B.main["CPARAM"] = [
+            np.ones(np.shape(c), np.complex64) for c in B.main["CPARAM"]
+        ]
     tdir.mkdir()
     for n, tab in (("K", K), ("G", G), ("B", B)):
         caltable.write(tab, tdir / n)
