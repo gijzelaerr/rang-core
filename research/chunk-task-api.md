@@ -291,6 +291,15 @@ directory: `~/rang-data/outputs/cta-nash-20261116`.
 Wall times from nash are labelled host nash and are not compared with the
 workstation's.
 
+
+**Scheduling, 2026-11-17 (the coordinator's word; the protocol is unchanged).**
+After points W-B-r0, W-N1-r0 and the already queued W-N2-r0, the matrix
+stopped queuing exclusive points. Each one drained the lock for 15 min or
+more while the shared queue (floor-4's selfcal grid and E2-N's rang arm) sat
+waiting. `timing.py matrix` now queues a point only when `heavy_lock.py
+status` on nash shows no shared or exclusive hold and an empty queue. The
+remaining points run later under the same protocol.
+
 ## 6. Results
 
 Measured 2026-11-14. Code: branch commit `abdfb5a`, run from the pinned worktree `~/Worktrees/rang/cta-run-abdfb5a`.

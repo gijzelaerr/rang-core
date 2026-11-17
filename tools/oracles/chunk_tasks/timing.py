@@ -128,13 +128,31 @@ def point(run, config, repeat):
     return 0
 
 
+def lock_idle(lock):
+    """True when the lock has no shared hold, no exclusive hold and no queue
+    (the coordinator's rule of 2026-11-17: an exclusive point is queued only
+    then, so that it never drains the lock while shared work waits)."""
+    text = subprocess.run([sys.executable, lock, "status"], capture_output=True,
+                          text=True, check=False).stdout  # fmt: skip
+    lines = text.splitlines()
+    return (
+        any(ln.startswith("exclusive: free") for ln in lines)
+        and any(ln.startswith("shared: 0/") for ln in lines)
+        and not any(ln.startswith("queue ") for ln in lines)
+    )
+
+
 def matrix(run):
     run = Path(run)
     run.mkdir(parents=True, exist_ok=True)
     lock = os.environ["RANG_HEAVY_LOCK_PY"]
     for repeat in range(REPEATS):
         for config in order(repeat):
+            if (run / f"W-{config}-r{repeat}" / "done.json").is_file():
+                continue
             for _ in range(MAX_ATTEMPTS):
+                while not lock_idle(lock):
+                    time.sleep(60)
                 proc = subprocess.run(
                     [sys.executable, lock, "run", "--",
                      sys.executable, str(HERE / "timing.py"), "point", str(run),
