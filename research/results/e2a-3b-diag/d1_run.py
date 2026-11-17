@@ -72,6 +72,7 @@ CASA_COPIES = {
     "tf": "casa-a",
     "tk": "casa-a",
     "tk2": "casa-a",
+    "tk3": "casa-a",
     "tw": "casa-w",
     "tm": "casa-m",
 }
@@ -248,10 +249,12 @@ def casa(d, case):
                 c["args"]["gaintable"] = [g.replace(f"{out}/B0", "/d1/casa-tf/B0")
                                           for g in c["args"]["gaintable"]]  # fmt: skip
         pre = []
-    elif (
-        case == "tk2"
-    ):  # post hoc: rang's K0 and K1 (T-T, unaveraged) in every CASA pre-apply
+    elif case in ("tk2", "tk3"):
+        # post hoc: rang's K0 and K1 (T-T, unaveraged) in every CASA pre-apply;
+        # tk3: pass 1 on T-T's own after-calibrate FLAG (T-T's A0), not R0's
         rk = "/d1/rang-tt.ms.rang-run/calibrate"
+        if case == "tk3":
+            after = "/d1/rang-tt.ms"
         calls = _calls(vis, out, usescratch=False, flags_pass0=stage, flags_pass1=after,
                        terms=["flags0", "hash0", "G0", "B0", "flags1", "hash1", "G1", "B1"])  # fmt: skip
         for c in calls:

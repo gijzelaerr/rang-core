@@ -49,6 +49,7 @@ PAIRS = [
     ("TTS-TK", "tts", "tk"),
     ("TT-TK2", "tt", "tk2"),
     ("R0-TK2", "r0", "tk2"),
+    ("TT-TK3 (T-T's own pass-1 flags)", "tt", "tk3"),
 ]
 
 
@@ -67,7 +68,7 @@ def load(d, arm):
             q = arm_dir(d, "tf") / n
         if arm == "tk" and n == "K1":
             q = arm_dir(d, "r0") / "K1"
-        if arm == "tk2" and n in ("K0", "K1"):
+        if arm in ("tk2", "tk3") and n in ("K0", "K1"):
             q = arm_dir(d, "tt") / n
         if q.exists():
             out[n] = C.table(q)
@@ -173,7 +174,7 @@ def main(d):
     fid = C.field_id(ms, FCAL)
     arms = {
         a: load(d, a)
-        for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2")
+        for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2", "tk3")
     }
     have = {a: sorted(v) for a, v in arms.items()}
     out = {"tables_present": have, "pairs": {}}

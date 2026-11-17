@@ -340,3 +340,21 @@ A new frozen leg on E2's reserve data, protocol written before any run:
 
 Cost: as E2-A's calibrate (about 4,400 s) and 3b CASA (about 3,200 s),
 plus a K-shared CASA case (about 2,000 s).
+
+## 11. Addendum 2026-11-17 04:20, post hoc (after section 9 was read; before D3 ran)
+
+The subset's sizes do not carry over to E2-A by scale: its miss is 3.3×
+the full one, and its pass 1 is twice its pass 0 where the full tables have
+them equal. So the full-scale share of the fix is measured directly.
+
+- **D3** (`d3_full.py`): a CASA deep copy of `e2a.ms`'s field-0 rows (all
+  61 antennas, source mounted read-only), FLAG from rang's after-calibrate
+  version (`rang_apply_20261115T144017Z`, the flags B1 saw). B1 re-solved
+  by this branch with E2-A's archived K1 and G1, `average_time` on,
+  `model_divided` off and on (chunked, 6 GB).
+- **Controls:** off against the archived B1 (archived K1, G1) ≤ 7e-5; the
+  archived rang set against CASA's on the copy equals 9.13's 3.16e-3.
+- **Read:** the KGB1 composite of (archived K1, G1, B1-on) against CASA's
+  archived tables, beside 3.16e-3. This measures how much of the booked
+  miss the B averaging carries at full scale, with CASA's pass-0 flags and
+  K left as frozen.
