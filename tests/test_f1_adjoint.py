@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The F1 adjoint against finite differences on a tiny scan (research/f1-tv-flagger.md)."""
 
 import numpy as np

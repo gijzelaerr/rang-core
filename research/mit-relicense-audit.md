@@ -569,28 +569,32 @@ written by `spdx.py`):
 
 | Class | SPDX line | Files | Lines |
 | --- | --- | ---: | ---: |
-| a | `MIT` | 256 | 80,320 |
+| a | `MIT` | 424 | 117,208 |
 | c | `MIT` | 9 | 3,725 |
 | b-permissive (QuartiCal) | `MIT` | 3 | 4,799 |
 | b-permissive (BSD) | `MIT AND BSD-3-Clause` | 5 | 3,730 |
-| b-copyleft | `GPL-3.0-or-later` | 21 | 27,531 |
+| b-copyleft | `GPL-3.0-or-later` | 22 | 27,824 |
 | b-copyleft | `GPL-3.0-or-later AND LGPL-3.0-only` | 3 | 2,931 |
 | b-copyleft | `GPL-3.0-or-later AND BSD-3-Clause` (`sky.py`) | 1 | 1,160 |
 | b-copyleft | `GPL-3.0-or-later AND SunPro` (`shader.rs`) | 1 | 313 |
-| c-src | `GPL-3.0-or-later` | 30 | 23,551 |
+| c-src | `GPL-3.0-or-later` | 32 | 24,043 |
 | c-src | `GPL-3.0-or-later AND LGPL-3.0-only` (`joined.rs`) | 1 | 991 |
 | c-src | `GPL-3.0-or-later AND MIT` (`cal/diag.rs`) | 1 | 1,154 |
 | d | `GPL-3.0-or-later` | 3 | 3,269 |
-| **MIT or MIT AND BSD** | | **273** | **92,574** |
-| **GPL or LGPL** | | **61** | **60,900** |
+| **MIT or MIT AND BSD** | | **441** | **129,462** |
+| **GPL or LGPL** | | **64** | **61,685** |
 
 The class counts include the 112 unshipped files (106 of them class a), so
 they differ from the shipped-only totals of section 1.
 
-**Not stamped.** 170 shipped files carry no SPDX line: 167 class a (36,363
-lines: most of `tests/` and `core/py/src`), 2 c-src and 1 b-copyleft (the CASA
-test references). They stay under the repository's `LICENSE` (GPL) until a
-later step stamps them; the test does not require a line there.
+**Stamped (coordinator follow-up, same day).** The 170 shipped files that had
+no SPDX line now have one. 167 are class a (most of `tests/` and
+`core/py/src`): `MIT`. Three transcribe CASA and stay GPL, with HELD entries:
+`tests/test_e0_refant_extend.py` (b-copyleft, `FlagAgentExtension.cc`'s
+loops), `tests/test_cal_fluxscale.py` and `tests/test_a3_casa_phase_weights.py`
+(c-src, CASA rules in NumPy): `GPL-3.0-or-later`. `tests/test_v030_fix.py`,
+own code added after the audit, is `MIT` too. Every shipped file now carries
+an SPDX line.
 
 **Licence files and metadata.** `LICENSES/MIT.txt` (Gijs Molenaar and the
 ra-ng contributors, 2026) is new and ships in the wheel and the sdist
@@ -605,5 +609,7 @@ listed in `spdx.csv` with the same expression, that the expression fits the
 class (a, c: `MIT`; b-permissive: `MIT` first and only permissive terms; the
 rest: a GPL term and not `MIT` first), and that no file `files.csv` marks
 b-copyleft, c-src, d or non-MIT b-permissive carries a bare `MIT`.
-A new file with an SPDX line needs a row: name it in `spdx.py`'s `NEW` (own
-code) or `HELD` (derived) list and rerun it; an unnamed file is an error.
+A file not yet listed passes if its line is bare `MIT` (new own code is MIT by
+the owner's rule); with any other line it fails until it is added to
+`spdx.py`'s `HELD` with its class. `test_a_bare_mit_on_a_derived_file_fails`
+shows a bare `MIT` on a derived file is caught.

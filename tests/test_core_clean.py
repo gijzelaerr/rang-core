@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Certified CLEAN through the extension (research/clean-certified-imaging.md)."""
 
 import numpy as np

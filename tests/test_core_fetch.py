@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Offline tests of the range-request fetcher against a local HTTP server."""
 
 import hashlib

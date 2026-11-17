@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """`rang.msv4`, the MSv4 processing-set reader (research/msv4-interop.md).
 
 The synthetic store below is written by this test with xarray, so it checks

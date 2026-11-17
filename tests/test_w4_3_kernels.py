@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-3: the closure scores and the flux-standard evaluator run in the
 extension; no call builds anything (research/w4-3-kernels.md)."""
 

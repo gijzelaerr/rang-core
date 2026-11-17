@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The bandpass B and the chain K, G, B (task C2c, research/c2c-bandpass.md):
 per-channel solve with CASA's rules, `fillgaps`, the `B Jones` table, and the
 chain driver, on seeded simulated arrays."""

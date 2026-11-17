@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Every source file carries an SPDX licence line (E5-45, CONTRIBUTING.md
 "Licence headers"), and that line matches the file's provenance class
 (research/mit-relicense-audit.md, "Step 1 done: own code MIT"): ra-ng's own
@@ -5,9 +6,9 @@ code is MIT, code translated from a permissive upstream is `MIT AND` that
 licence, and code derived from GPL or LGPL upstreams keeps its GPL line.
 
 The checked-in list is research/results/mit-relicense-audit/spdx.csv, written
-by spdx.py beside it from the audit's files.csv. A new file with an SPDX line
-needs a row there: name it in spdx.py's NEW (own code) or HELD (derived)
-list and rerun spdx.py."""
+by spdx.py beside it from the audit's files.csv. A file not in the list passes
+if its line is bare `MIT` (new own code is MIT); with any other line it fails
+until it is added to spdx.py's HELD with its class and spdx.py is rerun."""
 
 import csv
 import re
@@ -87,8 +88,11 @@ def test_every_spdx_line_is_listed_and_matches_its_class():
             expr = _expression(p)
             if expr is not None:
                 found[p] = expr
-    unlisted = sorted(set(found) - set(listed))
-    assert unlisted == [], "add them with research/results/mit-relicense-audit/spdx.py"
+    unlisted = sorted(p for p in set(found) - set(listed) if found[p] != "MIT")
+    assert unlisted == [], (
+        "not bare MIT: add each to HELD with its class in "
+        "research/results/mit-relicense-audit/spdx.py and rerun it"
+    )
     assert sorted(set(listed) - set(found)) == []
     wrong = {
         p: (found[p], r["spdx"]) for p, r in listed.items() if found[p] != r["spdx"]
@@ -107,10 +111,13 @@ def test_every_spdx_line_is_listed_and_matches_its_class():
             assert terms[0] != "MIT", p
 
 
-def test_no_derived_file_is_bare_mit():
-    """A file the audit marks derived from GPL/LGPL code, or translated from a
-    non-MIT permissive upstream, never carries a bare `MIT` line."""
-    audit = _csv("files.csv")
+def _on_disk(path):
+    return _expression(path) if (ROOT / path).is_file() else None
+
+
+def _bare_mit_derived(audit, expression):
+    """Paths the audit marks derived (GPL/LGPL code or source, or a non-MIT
+    permissive upstream) whose SPDX expression is a bare `MIT`."""
     derived = [
         p
         for p, r in audit.items()
@@ -118,8 +125,28 @@ def test_no_derived_file_is_bare_mit():
         or (r["class"] == "b-permissive" and r["licence"] != "MIT")
     ]
     assert len(derived) > 60
-    bare = [p for p in derived if (ROOT / p).is_file() and _expression(p) == "MIT"]
-    assert bare == []
+    return [p for p in derived if expression(p) == "MIT"]
+
+
+def test_no_derived_file_is_bare_mit():
+    """A file the audit marks derived never carries a bare `MIT` line."""
+    audit = _csv("files.csv")
+    assert _bare_mit_derived(audit, _on_disk) == []
+
+
+def test_a_bare_mit_on_a_derived_file_fails():
+    """The check above catches a deliberate bare `MIT` on a derived file, both
+    in the audit's list and for a file spdx.csv lists."""
+    audit = _csv("files.csv")
+    listed = _csv("spdx.csv")
+    fake = {"core/src/ism.rs": "MIT", "tests/test_e0_refant_extend.py": "MIT"}
+
+    def found(p):
+        return fake[p] if p in fake else _on_disk(p)
+
+    assert sorted(_bare_mit_derived(audit, found)) == sorted(fake)
+    for p, expr in fake.items():
+        assert listed[p]["class"] in COPYLEFT and listed[p]["spdx"] != expr
 
 
 def test_ported_files_name_the_upstream_licence_too():

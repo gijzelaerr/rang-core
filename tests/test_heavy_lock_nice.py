@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The heavy lock on hosts shared with other people (research/nash-host.md).
 
 `RANG_HEAVY_NICE` starts every command of `heavy_lock.py run` under nice (and

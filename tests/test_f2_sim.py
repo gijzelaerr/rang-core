@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """F2's simulation design (research/f2-flagger.md, section 4): window, seeds, RFI."""
 
 import numpy as np

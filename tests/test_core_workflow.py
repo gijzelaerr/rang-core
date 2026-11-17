@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import numpy as np
 from rang.core_policy import protected_flags
 from rang.core_workflow import core_solve, gain_grid, solve_flags

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W1 write-back (research/w1-writeback.md): columns added and initialised as
 CASA's clearcal leaves them, flags backed up and restored exactly, and an
 interrupted write (SIGKILL) leaves the original flags recoverable. The MSs

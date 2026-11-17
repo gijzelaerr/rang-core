@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Fast synthetic tests of B1-3 (research/b1-3-pointing-selfcal.md)."""
 
 import json

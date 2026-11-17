@@ -138,13 +138,13 @@ line names the upstream); `docs/licence.md` lists the parts and why. Longer
 copyright notices may follow the SPDX line.
 
 Contributions are inbound = outbound, per file: a change to an MIT file is
-contributed under MIT, a change to a GPL file under that file's GPL line. A
-new file is MIT unless it follows GPL or LGPL code or source; then it takes
-the upstream's licence. Name a new file with an SPDX line in the `NEW` (own
-code) or `HELD` (derived) list of `research/results/mit-relicense-audit/spdx.py`
-and rerun it: `tests/test_spdx_headers.py` checks every line against the list
-it writes (`spdx.csv`), and that no file the audit marks derived carries a
-bare `MIT`.
+contributed under MIT, a change to a GPL file under that file's GPL line.
+New files get `SPDX-License-Identifier: MIT`. Code derived from GPL or LGPL
+sources gets the upstream's line instead (as above) and an entry, with its
+class, in the `HELD` list of `research/results/mit-relicense-audit/spdx.py`;
+rerun that script. `tests/test_spdx_headers.py` checks every line against the
+list it writes (`spdx.csv`): a file not yet listed passes only with a bare
+`MIT`, and no file the audit marks derived may carry one.
 
 ## Releasing
 

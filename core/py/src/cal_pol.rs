@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! `rang._core.cal_parang_rotate`, `cal_kcross_solve`, `cal_xf_solve`,
 //! `cal_df_solve`: the polarisation terms of `rang_core::cal::parang`,
 //! `crosshand` and `leakage` (task C6, `research/c6-polterms.md`), for

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The delay term K (task C2b, research/c2b-delay.md): kernel, CASA's K
 referencing and the table route, on seeded simulated arrays."""
 

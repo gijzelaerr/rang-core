@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Integration tests of the scientific controls and Python/Rust boundary.
 
 The pointing simulation runs inside the extension (task P7,

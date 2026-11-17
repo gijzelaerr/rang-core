@@ -8,8 +8,10 @@ line, with its class and the expected licence expression.
 
 A file's class comes from, in order: HELD below; the audit's files.csv (the
 shipped files); the class spdx.csv already records (the files outside the
-audit's scope, reviewed by hand on 2026-11-17). A file in none of them is an
-error: add it to NEW (own code, class a) or HELD (derived) first.
+audit's scope, reviewed by hand on 2026-11-17). A new file in none of them is
+own code (class a) if its SPDX line is bare `MIT`, the owner's rule for new
+code; with any other line it is an error until it is added to HELD with its
+class. The test applies the same rule to files not yet listed.
 
 - Class a and c: `MIT`. Class b-permissive: `MIT AND <upstream>` (`MIT` alone
   when the upstream is MIT; the upstream notice stays in the file).
@@ -50,9 +52,11 @@ HELD = {
     "tools/oracles/w3b/angles_memory.py": "c-src",
     # Embeds MeerKAT positions from data/meerkat.itrf.txt (simms copy).
     "docs/_extra/interferometer/index.html": "d",
+    # Shipped tests that transcribe CASA (files.csv; stamped 2026-11-17).
+    "tests/test_e0_refant_extend.py": "b-copyleft",  # FlagAgentExtension.cc loops
+    "tests/test_cal_fluxscale.py": "c-src",  # fluxscale rules in NumPy
+    "tests/test_a3_casa_phase_weights.py": "c-src",  # divideCorrByModel in NumPy
 }
-# New own files (class a) with an SPDX line, named here when they are added.
-NEW: set[str] = set()
 
 
 def tracked_with_header():
@@ -108,7 +112,7 @@ def main(apply):
             cls = audit[p]["class"]
         elif p in known:
             cls = known[p]["class"]
-        elif p in NEW:
+        elif cur == "MIT":
             cls = "a"
         else:
             unknown.append(p)
@@ -126,7 +130,7 @@ def main(apply):
             assert data.count(old) >= 1
             f.write_bytes(data.replace(old, new, 1))
     if unknown:
-        sys.exit("unclassified, add to NEW or HELD: " + ", ".join(unknown))
+        sys.exit("not bare MIT and not classified, add to HELD: " + ", ".join(unknown))
     rows.sort()
     with open(HERE / "spdx.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\n")

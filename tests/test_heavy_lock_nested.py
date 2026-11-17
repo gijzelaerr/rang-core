@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """A heavy-lock run inside a heavy-lock hold does not queue again (2026-11-14).
 
 A session wrapped tools/check_all.py (which locks itself) in heavy_lock.py run:

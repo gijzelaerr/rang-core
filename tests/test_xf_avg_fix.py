@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task xf-avg-fix (research/xf-avg-fix.md): `calibrate.average_time` never
 averages a P-rotated solve (Gpol, KCROSS, Xf, Df) across scans or across more
 than `cal_chunks.PSI_TOL_DEG` of the parallactic angle. Where no average

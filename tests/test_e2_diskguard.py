@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The E2-A rerun's disk stop rule (research/e2-acceptance.md 9.6):
 `e2_diskguard.py` returns the command's exit code, refuses to start under the
 floor, and stops the command's process tree when free space drops under it,

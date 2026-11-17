@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 # `casa_cube` transcribes CASA FlagAgentExtension.cc (LGPL-2.1-or-later,
 # Associated Universities, Inc. and ESO): notices in THIRD-PARTY-NOTICES.txt.
 """E0 (research/e0-refant-extend.md): CARACal's `refant: auto`

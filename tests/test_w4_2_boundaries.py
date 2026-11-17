@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-2 (research/w4-2-boundaries.md): every binding of `rang._core`
 checks its arrays' lengths, C order and size products, and refuses a
 mismatch with a ValueError naming the argument (review finding W4R-04; the

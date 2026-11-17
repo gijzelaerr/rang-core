@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Scientific invariants: flag protection, full-Jones TV and selection safeguards.
 
 Live part of tests/test_flagging.py at commit 2da566c

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Exercise the README command, including serialization of solver outputs."""
 
 import json

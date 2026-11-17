@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """casacure as the second oracle of the core's table reader and writer.
 
 research/t1-casacure-ci.md (task T1). On every platform with a casacure

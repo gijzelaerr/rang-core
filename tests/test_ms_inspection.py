@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Reader safety and layout diagnostics do not require optional casacore."""
 
 import importlib.util

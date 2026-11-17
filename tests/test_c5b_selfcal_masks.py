@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task C5b (research/c5b-selfcal-masks.md): CARACal's per-image clean
 masks and cut-offs in `rang-core selfcal` (`selfcal.clean_cutoff`,
 `cleanmask_method`, `cleanmask_thr`), their validation, the gemclean

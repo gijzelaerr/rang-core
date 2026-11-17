@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task G7 (research/g7-defaults.md): gemclean's gridder defaults as rang-core sees them."""
 
 from rang import core_config, core_pipeline

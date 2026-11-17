@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """C1 closure kernel against an independent NumPy reference (research/c1-closure-arm.md)."""
 
 import numpy as np

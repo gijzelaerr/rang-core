@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Big-plan task DF5-O (research/df5o-deconv-oracles.md): the measures of
 `examples/compare_df5o.py` on synthetic inputs, and, when the frozen run
 `outputs/df5o-20261031-01` is present, the archive recomputed from it."""

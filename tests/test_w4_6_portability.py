@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-6 (research/w4-6-portability.md): text files in `python/rang` name
 their encoding, whatever the locale of the host.
 

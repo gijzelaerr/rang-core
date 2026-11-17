@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The extension against the archive of the retired ctypes oracle
 (research/p7-architecture.md, criterion 1; before: research/core-j-packaging.md).
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task NB-CARTA: the optional CARTA helper `rang.notebook.carta`
 (research/nb-carta.md).
 

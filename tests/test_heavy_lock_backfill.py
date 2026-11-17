@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """tools/heavy_lock.py: conservative backfill (research/lock-backfill.md).
 
 A ticket further back may start while the head does not fit, if it fits what

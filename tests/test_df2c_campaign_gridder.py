@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Big-plan task DF2c: `--gridder` for the campaign drivers and the plan in
 their receipts (research/df2c-campaign-gridder.md)."""
 

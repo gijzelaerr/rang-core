@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """An agent runs the whole chain through `rang-core mcp` (roadmap v0.3.0, "Done
 when": an agent can run the chain through MCP; issue 27, piece 1;
 research/v030-readiness.md).

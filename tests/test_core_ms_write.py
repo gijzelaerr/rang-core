@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """The core table writer (research/e3-table-writer.md).
 
 Writes go to copies of the task E MSs in a temporary directory; the inputs

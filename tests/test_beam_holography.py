@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """B1-0 beam product: range reader, sampler, normalisation, controls.
 
 Offline: a synthetic stored npz stands in for the SARAO release and a

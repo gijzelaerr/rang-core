@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """E2-A's oracle arms and rows (research/e2-acceptance.md 9.11): the CASA 3b
 task list, the flux row's configuration and bins, the off-source rms shared by
 the self-calibration and target rows, and the K limit. Stand-ins only; the

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import numpy as np
 import pytest
 from rang import core_weights

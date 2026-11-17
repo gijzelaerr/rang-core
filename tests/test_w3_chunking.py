@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """W3 (research/w3-chunking.md): chunking by time and row gives the
 unchunked result bit for bit, and a limit too small for the smallest chunk is
 refused before anything is written. The comparisons on A1's sets, O-CASA's

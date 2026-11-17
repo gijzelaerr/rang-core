@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task C6 (research/c6-polterms.md): the polarisation terms on arrays."""
 
 import math

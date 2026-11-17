@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Task W4-5 (research/w4-5-release.md): the release metadata of v0.1.0.
 
 One source of truth for the version (pyproject.toml), `rang.__version__`
