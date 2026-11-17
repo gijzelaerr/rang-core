@@ -1,6 +1,6 @@
 # Rang: the scan-long self-calibration solve within the default memory limit (issue #34)
 
-Status, 2026-11-17: **proposed, frozen before any code.** Branch `selfcal-memory`. Host for the
+Status, 2026-11-17: **measured (section 5): G1, G2a, G3 pass; G2b runs to the end, its 9.3 GiB peak is GeMClean.** Frozen in `bc8f515` before any code; sections 1-4 unchanged since. Branch `selfcal-memory`. Host for the
 measurements: **nash** ([nash-host.md](nash-host.md)), heavy lock, `nice -n 19 ionice -c3`.
 
 ## 1. The problem, from the archive
@@ -97,3 +97,52 @@ result.
   are recorded.
 - G1 fails: nothing is merged.
 - No novelty or speed claim. This is a resource fix.
+
+## 5. Results
+
+Measured 2026-11-17 on **nash** (heavy lock, shared, `nice -n 19 ionice -c3`; solve-only runs 2 slots,
+`RAYON_NUM_THREADS=2`; the pipeline 8 slots). Worktree code at `346de18` with `CELL_BYTES["selfcal"]` still 96
+for the runs (the figure only picks a path). Pilot rebuilt from floor-5's read-only copy of `cal2.ms`
+(`selfcal_grid.py base` 93 s, `prepare D` 38 s, the same 128 held-out channels flagged) into
+`~/rang-data/outputs/selfcal-memory-20261117/D/pilot.ms`. Logs and the driver in
+`~/Build/tmp/20261117-selfcal-memory/`; solutions and records (`*.npz`, `*.json`) in `.../solves/`; the
+archive copy in [results/selfcal-memory/](results/selfcal-memory/).
+
+| gate | measured | verdict |
+| --- | --- | --- |
+| G1a synthetic | Rust `diag_stream` tests: `diag_complex` and `phase`, 1-3 intervals x 1-5 frequency bins, blocks of 1, 7, 64 and all cells, bits equal; Python `tests/test_selfcal_memory.py`: Sp and Sa at `solint` 3 and `inf`, `freqint` inf, 2 and 4, read blocks of 1, 7, 40 rows and the auto switch, `np.array_equal` (row weights too) | **pass** |
+| G1b fixture | `outer_scans.zip` (scan 9), Sp and Sa `inf` against a 1 Jy point model, streamed = one-call | **pass** |
+| G1c pilot | Sp `inf`: 13 iterations, Sa `inf`: 37, gains, flags, times, fraction equal streamed (limit 8) and one-call (limit 96) | **pass** |
+| G2a solve peak | streamed Sp 3,798,392 KiB, Sa 3,799,516 KiB (3.62 GiB) against 8,388,608 | **pass** |
+| G2b default run | `rang-core selfcal`, D's config without `memory_limit_gb`: ran to the end, 2,207 s; whole-process `%M` 9,748,364 KiB (9.30 GiB), above 8,388,608 | **runs; peak above, from GeMClean** |
+| G3 planner | 600 s interval (142,417,920 cells) peak 6,282,172 KiB (5.991 GiB), plan at 45 B 6.815 GiB (1.138 x); 300 s (71,208,960 cells) peak 3,210,836 KiB (3.062 GiB), plan 3.830 GiB | **pass** at 45 |
+
+**G2b, the excess stage.** The rang-core process itself peaked at 6,722 MiB (receipt `peak_rss_mb`,
+`RUSAGE_SELF`), under 8 GiB. The 9.30 GiB `%M` covers the GeMClean child (4096², `-j 8`), which does not
+read `data.memory_limit_gb`. The grid's limit-12 runs peaked at the same 9,747,132-9,749,172 KiB
+whatever their solint, L600-attempt1 too, which never solved. So that figure was GeMClean all along.
+Under the decision rule, #34 stays open for GeMClean's memory (its own limit, or a documented figure).
+
+**Planner (G3).** The fit uses the solve-only peaks of the present path (`examples/selfcal_memory.py solve
+--stream false`, the process holding `inspect_ms`'s rows as rang-core does). The figures per cell above the
+fixed part (0.846 GiB: process, MS rows and field rows) are 38.8 B (600 s), 33.4 B (300 s) and 43.9 B for the
+one-call scan-long interval (843,264,000 cells, 37,066,116 KiB, the archived D's 37.1 GB). The frozen band
+for 600 s allows 38.8-45.6 B. 45 is chosen, not the minimum, because it also covers the scan-long point
+(plan 36.19 GiB against 35.35 measured). That choice is reported here as post hoc reasoning inside the
+frozen band. At the default 8 GiB a chunk now holds 170 M cells, so a 600 s interval of the pilot solves
+on the present path. The archived "13.6 GiB planned against 11.7 GB measured" was the solve's plan
+against a different stage's peak (section 1). The present path at 600 s peaks at 6.0 GiB.
+
+**Reported.** The new run's round-1 and round-2 gain stores equal the archived D's (old path at 96 GiB)
+bit for bit: same round-1 and round-2 model hashes, 13 and 37 iterations. Every final FITS file is
+identical; only `image-report.json` (timings) differs.
+- Wall times, solve-only: Sp streamed 358 s against one-call 329 s; Sa 575 s against 409 s.
+- The read pass is 134 s of each streamed solve.
+- The cell file holds 76,089,333 unflagged cells (7.00 GB), deleted after each solve.
+- In the pipeline the solves took 343 s (Sp) and 575 s (Sa), against D's 299 s and 429 s. The whole run
+  took 2,207 s, against D's 2,041 s.
+
+**Outcome.** G1 and G2a pass, so the streamed path is kept and #34 item 1 is done: the default
+self-calibration runs on the pilot at the default limit, with the archived D's solutions. G3 passes, so
+`CELL_BYTES["selfcal"]` = 45. G2b: GeMClean's 9.3 GiB is the remaining item of #34. No novelty or speed
+claim.

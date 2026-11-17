@@ -9,6 +9,7 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Fixed (issue #34, `research/selfcal-memory.md`): the default self-calibration (Sp then Sa, `solint: inf`) runs within the default `data.memory_limit_gb` of 8. An Sp or Sa solve whose solution interval does not fit is streamed (`rang.cal_stream`, Rust `cal::diag_stream`) through a scratch file beside the MS, 92 bytes per unflagged visibility, with bit-identical solutions; on the E2 pilot the scan-long solve peaks at 3.6 GiB instead of 35.4. The selfcal solves are planned at their own measured 45 bytes per cell (`CELL_BYTES["selfcal"]`, was the chain's 96). GeMClean's 9.3 GiB on the pilot is not under the limit yet.
 - Changed (licence metadata, `docs/licence.md`): the package's licence expression is now `GPL-3.0-only` (pyproject, `core` and `core/py` crates, CITATION). It contains WSClean-derived code ("GPL 3", with no "or later") and radler code (LGPL-3.0-only, conveyed under GPL v3). ra-ng's own files keep `GPL-3.0-or-later`.
 Drafted for 0.3.0 on 2026-11-17 (`research/v030-readiness.md`); E2-N, E3-A, the selfcal-defaults grid and
 the E2-A 3b K follow-up are still running and will change the limitations below.

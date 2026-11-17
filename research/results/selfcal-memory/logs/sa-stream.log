@@ -1,0 +1,4 @@
+== 2026-11-17T12:47:51Z load 20.14 15.93 11.17 sa-stream start
+{"term": {"name": "Sa", "type": "Sa", "solint": "inf", "freqint": "inf"}, "solve_seconds": 575.3567178209778}
+sa-stream 576.45 s 3799516 KB
+== 2026-11-17T12:57:28Z load 14.10 15.09 12.99 sa-stream end

@@ -48,8 +48,10 @@ CELL_BYTES = {
     # pre-applied copies, the weights and the kernel's sorted copies.
     "chain": 96,
     # The self-calibration solves Sp, Sa, Sd (task C5; issue #34,
-    # research/selfcal-memory.md): as "chain" without pre-applies.
-    "selfcal": 96,
+    # research/selfcal-memory.md section 5): fitted to solve-only peaks on
+    # the E2 pilot (no pre-applies), 38.8, 33.4 and 43.9 bytes per cell for
+    # one 600 s, 300 s and scan-long interval, with a margin.
+    "selfcal": 45,
 }
 # Bytes held per row of a chain solve's field for the whole solve (task W3b):
 # the row metadata, the interval index, the uvrange flag and the row's weight

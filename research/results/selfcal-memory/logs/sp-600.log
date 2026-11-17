@@ -1,0 +1,4 @@
+== 2026-11-17T12:47:54Z load 20.14 15.93 11.17 sp-600 start
+{"term": {"name": "Sp", "type": "Sp", "solint": "600s", "freqint": "inf"}, "solve_seconds": 942.8404692130862}
+sp-600 945.73 s 6282172 KB
+== 2026-11-17T13:03:40Z load 15.19 14.13 13.14 sp-600 end

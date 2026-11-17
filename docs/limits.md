@@ -139,7 +139,12 @@ limit, not solved (below).
   lock ({gh}`research/ms-lock-windows.md`). `rang-core` refuses a second command
   on the same run directory on every platform ({doc}`concepts/ingest`).
 - **Memory limit.** `data.memory_limit_gb` is 8 GiB by default; flag,
-  calibrate and apply read in chunks within it. Channel-chunked solves on
+  calibrate and apply read in chunks within it. A self-calibration Sp or Sa
+  solve whose solution interval does not fit (the default `solint: inf` on
+  a long scan) is streamed through a scratch file beside the MS, 92 bytes
+  per unflagged visibility, with the same solution
+  ({gh}`research/selfcal-memory.md`); Sd and the CASA-rule solves still
+  refuse such an interval. Channel-chunked solves on
   whole-array data are slow: 30-52 min per arm in W3b, before the channel
   sliced read, which is 2.1-2.2 × faster on the polarisation sets
   ({gh}`research/w3b-chainchunks.md`, {gh}`research/sliced-read.md`).

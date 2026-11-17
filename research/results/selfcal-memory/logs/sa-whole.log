@@ -1,0 +1,4 @@
+== 2026-11-17T12:47:53Z load 20.14 15.93 11.17 sa-whole start
+{"term": {"name": "Sa", "type": "Sa", "solint": "inf", "freqint": "inf"}, "solve_seconds": 408.45485988410655}
+sa-whole 409.51 s 37067180 KB
+== 2026-11-17T12:54:43Z load 17.73 15.95 12.80 sa-whole end
