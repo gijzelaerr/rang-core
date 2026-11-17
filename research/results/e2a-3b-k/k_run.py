@@ -106,8 +106,9 @@ def rang(ms, arm):
     text = d1_run.rang_config("tt" if arm == "u" else "r0")
     if arm == "d":
         text = text.replace("  average_time: true\n",
-                            "  average_time: true\n  bandpass_model_divided: true\n")  # fmt: skip
-        assert "bandpass_model_divided: true" in text
+                            "  average_time: true\n  bandpass_model_divided: true\n", 1)  # fmt: skip
+        # calibrate's average_time comes first; selfcal's stays unchanged
+        assert text.count("bandpass_model_divided: true") == 1
     text = text.replace(
         "e2a-3b-diag.md D1 case", "e2a-3b-k.md arm " + arm + ", from D1 case"
     )
