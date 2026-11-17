@@ -541,3 +541,23 @@ cells unflagged and are not scored.
   (exclusive). The 30 GiB VM limit may also hit E3-A's `set_model_cal`.
   Deviation 11 is E3-B only, so a stop there goes back to the coordinator.
 - Open: 3C 286 χ (10.11), and the 1934−638 flux scale of CARACal's own model.
+
+### 10.13 Resumed by the coordinator (2026-11-17)
+
+- The owner's stop of 2026-11-13 is over; the coordinator resumed E3.
+  Branch merged up to main `74e42e0` (one conflict in tool-timings.md, both
+  sides kept).
+- Rang's matching E2-B timed run exists on this host: the frozen arm's
+  `e2b-timed.json` (`D:\rang\outputs\e2-20261111-20-e2b`), exclusive, 6,195 s,
+  peak tree RSS 49.0 GB, started 2026-11-12 02:53 (no E3 pass ran then). It is
+  not rerun.
+- **Change of host state since the correctness pass, post hoc, dated
+  2026-11-17:** `.wslconfig` now gives the WSL VM 44 GB (43 GiB visible,
+  16 GiB swap; owner decision 2026-11-13), against the 30 GiB of section 4's
+  confound text and of the correctness pass. The timed pass runs without
+  container limits, so its containers can use up to 43 GiB. Tile 16
+  (deviation 11) is kept, so the configuration is unchanged; only the
+  ceiling differs.
+- Before the timed pass: `e2b.ms`'s listing equals the correctness pass's
+  `raw-listing-after.txt`; the 17 stimela image digests equal
+  `versions.json`; the lock is free; D: has 516 GiB free.
