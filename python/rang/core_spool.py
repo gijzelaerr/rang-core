@@ -298,7 +298,9 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
     mine = build()
     worker = f"{socket.gethostname()}-{os.getpid()}-{uuid.uuid4().hex[:6]}"
     info = dict(mine, host=socket.gethostname(), pid=os.getpid(), threads=threads)
-    (root / "workers" / f"{worker}.json").write_text(json.dumps(info) + "\n")
+    (root / "workers" / f"{worker}.json").write_text(
+        json.dumps(info) + "\n", encoding="utf-8", newline="\n"
+    )
     beat = _Beat(root / "workers" / f"{worker}.beat")
     beat.path.touch()
     beat.start()
