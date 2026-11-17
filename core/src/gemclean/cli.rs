@@ -3804,7 +3804,7 @@ mod tests {
         assert_eq!(w.len(), 1);
         assert!(w[0].contains("ignored with one polarisation"), "{w:?}");
         let w = temp_warnings(&args_of(
-            "-size 64 64 -scale 2asec -pol iquv -join-polarizations -reorder \
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -reorder \
              -channel-range 0 4 x.ms",
         ));
         assert_eq!(w.len(), 1);
@@ -3814,8 +3814,8 @@ mod tests {
         assert!(w[0].contains("-temp-dir has no effect"), "{w:?}");
         for line in [
             "-size 64 64 -scale 2asec x.ms",
-            "-size 64 64 -scale 2asec -pol iquv -join-polarizations -reorder -temp-dir t x.ms",
-            "-size 64 64 -scale 2asec -pol iquv -join-polarizations -temp-dir t x.ms",
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -reorder -temp-dir t x.ms",
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -temp-dir t x.ms",
         ] {
             assert!(temp_warnings(&args_of(line)).is_empty(), "{line}");
         }
