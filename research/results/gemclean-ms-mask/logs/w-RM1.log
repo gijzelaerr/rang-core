@@ -1,0 +1,49 @@
+Theoretic beam = 5.4''
+Estimated standard deviation of background noise: 634.71 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0482149
+- Scale 14, bias factor=1.7, psfpeak=0.435306, gain=0.229723, kernel peak=0.0145367
+- Scale 29, bias factor=2.8, psfpeak=0.251833, gain=0.397088, kernel peak=0.00450512
+- Scale 58, bias factor=4.6, psfpeak=0.111743, gain=0.894907, kernel peak=0.00126956
+- Scale 115, bias factor=7.7, psfpeak=0.0341629, gain=2.92716, kernel peak=0.000327513
+- Scale 230, bias factor=12.9, psfpeak=0.00828152, gain=12.0751, kernel peak=8.3192e-05
+- Scale 461, bias factor=21.4, psfpeak=0.00170491, gain=58.654, kernel peak=2.11359e-05
+- Scale 922, bias factor=35.7, psfpeak=0.000245999, gain=406.506, kernel peak=5.32827e-06
+Starting multi-scale cleaning. Start peak=269.48 mJy, major iteration threshold=13.47 mJy
+Iteration 5, scale 0 px : 209.15 mJy at 368,403
+Iteration 10, scale 0 px : 160.45 mJy at 363,521
+Iteration 19, scale 0 px : 127.83 mJy at 1650,449
+Iteration 33, scale 0 px : 98.59 mJy at 1207,1181
+Iteration 47, scale 0 px : 78.83 mJy at 363,521
+Iteration 66, scale 0 px : 62.42 mJy at 1325,1179
+Iteration 84, scale 0 px : 49.62 mJy at 1650,449
+Iteration 103, scale 230 px : 49.84 mJy at 766,1013
+Iteration 108, scale 230 px : 37.76 mJy at 766,1013
+Iteration 118, scale 0 px : 39.55 mJy at 362,521
+Iteration 146, scale 0 px : 31.26 mJy at 1212,1506
+Iteration 181, scale 461 px : 32.15 mJy at 1321,1175
+Iteration 189, scale 230 px : 28.31 mJy at 1197,1296
+Iteration 197, scale 230 px : 22.63 mJy at 1212,1185
+Iteration 214, scale 0 px : 25.02 mJy at 1271,716
+Iteration 262, scale 0 px : 19.94 mJy at 1156,1635
+Iteration 306, scale 461 px : 21.71 mJy at 1321,1175
+Iteration 313, scale 461 px : 17.95 mJy at 618,627
+Iteration 328, scale 115 px : -20.71 mJy at 1331,1181
+Iteration 336, scale 115 px : -16.4 mJy at 1331,1181
+(11) Iteration 348, scale 0 px : 16.74 mJy at 1326,1179
+(10) Iteration 388, scale 230 px : 16.44 mJy at 766,1013
+(9) Iteration 394, scale 230 px : 13.48 mJy at 1321,1175
+(8) Iteration 395, scale 115 px : -15.96 mJy at 763,1002
+(7) Iteration 401, scale 461 px : 15.98 mJy at 1321,1175
+(6) Iteration 410, scale 461 px : 13.39 mJy at 766,1013
+Maximum number of major iterations was reached: not continuing deconvolution.
+1 major iterations were performed.
+- Scale 0 px, nr of components cleaned: 298 (1.39 Jy)
+- Scale 14 px, nr of components cleaned: 0 (0 Jy)
+- Scale 29 px, nr of components cleaned: 0 (0 Jy)
+- Scale 58 px, nr of components cleaned: 0 (0 Jy)
+- Scale 115 px, nr of components cleaned: 26 (-125.4 mJy)
+- Scale 230 px, nr of components cleaned: 47 (1.14 Jy)
+- Scale 461 px, nr of components cleaned: 39 (1.93 Jy)
+- Scale 922 px, nr of components cleaned: 0 (0 Jy)
+Total: 410 components (4.33 Jy)

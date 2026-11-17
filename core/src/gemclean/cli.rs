@@ -176,6 +176,8 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -minuv-l / -maxuv-l <l>   uv distance range in wavelengths (on the weight grid's cells)
   -minuvw-m / -maxuvw-m <m> baseline |uvw| range in metres (rows)
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
+                            (with -multiscale: the component centres, at every scale; their
+                            scale shapes reach outside the mask, as in WSClean)
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
                             takes -mgain or -minor-to-threshold; with

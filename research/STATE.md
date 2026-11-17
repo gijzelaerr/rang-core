@@ -20,6 +20,12 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms-mask`; [gemclean-ms-mask.md](gemclean-ms-mask.md), protocol frozen in `51a9e5a`, post hoc section 7 in `6457155` before any PM number; archive [results/gemclean-ms-mask/](results/gemclean-ms-mask/); run root `D:\rang\outputs\gemclean-ms-mask-20261117`, host glacier):
+- No mask defect. GeMClean confines multiscale centres to the FITS mask at every scale, as radler and WSClean 3.7 do. The model's flux outside the mask comes from the scale shapes.
+- As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).
+- Post hoc `-nmiter 1` arms RM1 and PM1: the same loop level (within 3e-4), the same scales, and F_in, F_out and N_out within the bounds. On RM1, 2.72 against 2.93 Jy lies outside a 3,394-pixel points-only mask.
+- Not changed: the clean path. Added: a per-scale confinement test, help and config lines, docs/limits and a CHANGELOG limitation. Reported: GeMClean did not diverge on PM where radler did. floor-5 section 4.3 cannot be met with multiscale and a mask in either imager.
+
 Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
 - Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".
 - 441 files (129,462 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice

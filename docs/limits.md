@@ -112,6 +112,14 @@ limit, not solved (below).
   tested setting fixes it on both fields. Automatic scales come nearest;
   Högbom is unbiased at 7-11 % higher residual RMS
   ({gh}`research/multiscale-flux-fix.md` 8.1).
+- **A FITS mask with multiscale confines the component centres, not the
+  flux**, as in WSClean 3.7 and radler. The scale shapes of centres inside the
+  mask reach outside it. With extended emission outside a mask of small
+  islands, the large scales take that emission up: after one major iteration
+  on a simulated sky, 2.7 Jy lies outside a 3,394-pixel mask in GeMClean and
+  2.9 Jy in WSClean. Cleaned deep (about 1.6σ), both imagers can diverge. When
+  nothing may be cleaned outside the mask, use Högbom, cap the scales, or erode
+  the mask ({gh}`research/gemclean-ms-mask.md`, issue #35).
 - **Joined polarisations peak on the linear sum**, as WSClean 3.7 and radler
   do: with `-pol QU -join-polarizations`, components whose Q and U cancel are
   not cleaned ({gh}`research/g9-stokes.md`, {gh}`research/v030-readiness.md`

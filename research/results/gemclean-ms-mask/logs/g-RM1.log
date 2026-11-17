@@ -1,0 +1,14 @@
+D:/rang/outputs/20261103-gemclean-heldout/sim/data/h4.ms: 1814400 of 1814400 rows selected (field 0, DATA), 8 channels 1312.5000-1487.5000 MHz, 14515200 visibilities weighted, weight sum 2670288014.182778 (4.72 s read, 0.29 s weights)
+beam: peak 1.000000476837, patch ±64, f 8.9751e-3 outside the patch; 2049 of 2049 spectrum columns, -0.00e0 left out; restoring beam 14.046" × 8.305" PA -27.83° (2209 pixels fitted); PSF 1.64 s, FFT 0.09 s
+multiscale: theoretic beam 5.4005" (3.6003 pixels), 8 scales, 23 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.100000, kernel peak 4.821489e-2, 298 components, 1.393028 Jy
+multiscale: scale 14 px, bias factor 1.6667, psf peak 0.435306, gain 0.229723, kernel peak 1.453667e-2, 0 components, 0.000000 Jy
+multiscale: scale 29 px, bias factor 2.7778, psf peak 0.251833, gain 0.397088, kernel peak 4.505117e-3, 0 components, 0.000000 Jy
+multiscale: scale 58 px, bias factor 4.6296, psf peak 0.111743, gain 0.894909, kernel peak 1.269564e-3, 0 components, 0.000000 Jy
+multiscale: scale 115 px, bias factor 7.7160, psf peak 0.034163, gain 2.927161, kernel peak 3.275130e-4, 21 components, -0.099850 Jy
+multiscale: scale 230 px, bias factor 12.8601, psf peak 0.008282, gain 12.075104, kernel peak 8.319198e-5, 45 components, 1.109514 Jy
+multiscale: scale 461 px, bias factor 21.4335, psf peak 0.001705, gain 58.654163, kernel peak 2.113586e-5, 32 components, 1.721697 Jy
+multiscale: scale 922 px, bias factor 35.7225, psf peak 0.000246, gain 406.508669, kernel peak 5.328275e-6, 0 components, 0.000000 Jy
+fits mask: 3394 pixels
+396 components, 1 major cycles, 0 resyncs, stop MajorCycles; Q/Q0 2.8447e-1; tau min NaN median NaN; minor 2.50 s (corrections 0.000 s), resync 1.43 s, major 1.27 s
+wall 15.41 s

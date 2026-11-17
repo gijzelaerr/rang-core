@@ -352,7 +352,7 @@ image:
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
-  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file)
+  fits_mask: null  # a FITS mask of the image's size, one plane (relative to this file); with multiscale it confines the component centres, not the scale shapes
   taper_gaussian: null  # a Gaussian taper, such as 10asec (a plain number is asec)
   taper_tukey: null  # Tukey transition below maxuv_l, wavelengths
   taper_inner_tukey: null  # Tukey transition above minuv_l, wavelengths
@@ -1198,6 +1198,8 @@ Selection and masks (research/g4-masks.md; WSClean's options):
   -minuv-l / -maxuv-l <l>   uv distance range in wavelengths (on the weight grid's cells)
   -minuvw-m / -maxuvw-m <m> baseline |uvw| range in metres (rows)
   -fits-mask <file>         clean only where the FITS image (same size, one plane) is nonzero
+                            (with -multiscale: the component centres, at every scale; their
+                            scale shapes reach outside the mask, as in WSClean)
   -auto-mask <sigma>        radler's automatic mask: clean to sigma times the noise, then
                             on inside the mask of what was found, to the final threshold;
                             takes -mgain or -minor-to-threshold; with

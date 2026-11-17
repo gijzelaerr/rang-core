@@ -1,6 +1,16 @@
 # Rang: GeMClean multiscale with a FITS mask (issue #35)
 
-Status, 2026-11-17: **protocol frozen** (sections 1-5 written and committed before any new run).
+Status, 2026-11-17: **measured: no mask defect.**
+
+- **Provenance.** The protocol (sections 1-5) was frozen in `51a9e5a` before any run. The post hoc
+  section 7 was committed in `6457155`, before any PM number was read.
+- **As frozen:** "multiscale difference, not the mask". M1 and C pass. O is not met, because
+  WSClean 3.7 diverged on RM and on PM.
+- **Under the post hoc `-nmiter 1` arms:** M1, C and O pass. That is the null.
+- **What GeMClean does:** it keeps every component centre inside the mask, as WSClean does. The
+  flux outside the mask comes from scale shapes centred inside it, in both imagers.
+- **What changed:** nothing in the clean path. Added: a per-scale confinement test, help and docs
+  lines, and a known limitation (section 8).
 
 Issue #35 (from [floor-5.md](floor-5.md) section 10.2, arm Dms03): GeMClean `-multiscale
 -fits-mask <source-mask.fits> -threshold 0.0003` on the E2 pilot after one Sp round left a model
@@ -149,3 +159,120 @@ Labelled post hoc. Sections 1-5 are unchanged and RM is scored against them as f
   `-no-update-model-required`, so it wrote MODEL_DATA into `h4.ms` and `cal2.ms`. WSClean read
   DATA only, so neither imager's inputs changed. Every later GeMClean run passes the flag, as
   Dms03 did.
+
+## 8. Results (2026-11-17)
+
+Binary `D:\rang\outputs\gemclean-ms-mask-20261117\bin\gemclean-msm.exe` (`51a9e5a`, sha256
+`e7e00cfd…`, [provenance](results/gemclean-ms-mask/gemclean-msm.exe.provenance)). The run root is
+`D:\rang\outputs\gemclean-ms-mask-20261117`. Scores are in
+[results/gemclean-ms-mask/](results/gemclean-ms-mask/) (`score-*.json`). GeMClean's logs and mask
+records, and WSClean's scale and iteration lines, are in `logs/` there. The scripts are in
+[results/gemclean-ms-mask-scripts/](results/gemclean-ms-mask-scripts/). All runs used the shared
+host glacier, 8 slots per run, in the daytime, so no timing claim is made.
+
+| run | imager | components | majors | end | F_in (Jy) | F_out (Jy) | N_out (Jy) | centres outside |
+| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| RM | GeMClean | 1,345,339 | 3 | Diverged | 1.725 | 7.290 | −1.678 | 0 |
+| RM | WSClean | 32,986 | 2 | diverged | 2.352 | 347.411 | −0.159 | 0 of 335 logged |
+| RH | GeMClean | 41,900 | 5 | – | 1.6888 | 0 | 0 | 0 |
+| RH | WSClean | – | – | – | 1.6890 | 0 | 0 | – |
+| PM | GeMClean | 426,578 | 3 | Normal | 105.265 | 15.254 | −43.796 | 0 |
+| PM | WSClean | 171,353 | 3 | diverged | 104.515 | −62.721 | −110.810 | 0 of 860 logged |
+| RM1 | GeMClean | 396 | 1 | Normal | 1.4054 | 2.7191 | 0.0000 | 0 |
+| RM1 | WSClean | 410 | 1 | – | 1.4043 | 2.9294 | −0.0285 | 0 of 26 logged |
+| PM1 | GeMClean | 916 | 1 | Normal | 81.150 | 0.0922 | −0.0000 | 0 |
+| PM1 | WSClean | 925 | 1 | – | 80.744 | 0.0732 | −0.0001 | 0 of 52 logged |
+
+"Centres outside" means two different counts:
+
+- **GeMClean:** `fits_outside_picks`, which tests every recorded centre against the mask file.
+- **WSClean:** the centres its log prints (`Iteration …, scale … at x,y`), which are only a sample
+  of its components.
+
+In every run, in both imagers, every model pixel outside the mask is nonzero, because of the FFT
+tails.
+
+**As frozen (section 5): "multiscale difference, not the mask".**
+
+- **M1 passes on every run.** No GeMClean centre lies outside the mask at any scale.
+- **C passes on RH.** The model flux is 1.6888 Jy against 1.6890 Jy, and neither imager has a
+  model pixel outside the mask.
+- **O is not met on RM or PM.** In both, the oracle diverged. WSClean reported "Multiscale clean
+  diverged": on RM with 340.6 Jy at the 922-pixel scale, on PM with −68.2 Jy at the 1250-pixel
+  scale. RM's N_out "pass" is vacuous (section 7).
+
+**Post hoc arms (section 7): null.** On RM1 and PM1, M1, C and O all pass:
+
+- **Same stopping level.** Both imagers end the first minor loop at the same level: on RM1
+  13.474 mJy against 13.470 mJy, on PM1 83.169 mJy against 83.170 mJy.
+- **Same scales, almost the same counts** (GeMClean/WSClean):
+  - RM1: 298/298 at scale 0, 21/26 at 115 px, 45/47 at 230 px, 32/39 at 461 px.
+  - PM1: 88/88, 102/133, 413/393, 223/224, 85/86 and 5/1, from scale 0 to 156 px.
+- **Outside the mask on RM1:** 2.72 Jy in GeMClean and 2.93 Jy in WSClean, outside a 3,394-pixel
+  mask that holds only H4's points. This is the 230 px and 461 px shapes, centred on the points,
+  taking up the 6.10 Jy of Gaussians that lie outside.
+- **Outside the mask on PM1:** 0.09 Jy and 0.07 Jy. PM1's O bounds are wide (σ 3.76 mJy,
+  WSClean's printed σ of major iteration 1), but the differences are only 0.02 Jy and 1e-4 Jy.
+
+**What #35 saw.** Dms03 is the same behaviour, cleaned deep:
+
+- The mask confines the centres. Shapes up to 625 px put flux outside the mask's islands.
+- At 0.3 mJy (about 1.6σ) the 313-1250 px scales take part, with gains of 141 to 34,809. The model
+  outside the mask then grows, positive and negative, in both imagers.
+- On the pilot, PM ran Dms03's settings on DATA. Outside the mask it ends with +15.3 Jy, and
+  −43.8 Jy negative, in GeMClean; WSClean, which diverged, has −62.7 Jy and −110.8 Jy.
+- Dms03's own 3.53 Jy outside the mask and −7.62 Jy negative are of the same kind.
+- Its "99 % of pixels" count is the FFT tails. G4's F2 models were nonzero everywhere too.
+
+**Findings outside the fix scope (reported, not changed):**
+
+1. **Divergence differs between the imagers.** radler's divergence limit (4) fired in WSClean on
+   both RM and PM. In GeMClean it fired on RM only (cycle 3, after 1.3M components), not on PM.
+   Two candidate causes:
+   - GeMClean's residual after each sub-minor loop is exact for the image-domain beam
+     (`multiscale.rs`, "What is gemclean's"); radler's is not.
+   - The component sequences differ after the first loop.
+
+   The runs are not comparable after divergence, so the cause is not separated here.
+2. **Deep multiscale inside a mask of small islands is unstable in both imagers.** RM and PM have
+   no sound model to compare. A user who wants nothing outside the mask has three options: use
+   Högbom (RH, Dm03); cap the scales (`-multiscale-scales`, `-multiscale-max-scales`); or erode the
+   mask by the largest shape's half-side. Clipping the shapes to the mask would depart from WSClean
+   and is an owner decision.
+
+**Archived multiscale cases (G2-G9, DF5-O, C5b).** No line of the clean path changed. The diff
+touches only the help text, a config description, the docs and a `#[cfg(test)]` test, so every
+archived output is unchanged by construction. The full `tools/check_all.py`, with its archive and
+oracle gates, is left to the coordinator's merge check.
+
+C5b's post hoc oracle-mask arm `mo` (multiscale with a FITS mask) used a mask that confined only
+the centres. Its reading, "no better than the automatic mask", stands as a statement about that
+behaviour, which WSClean shares.
+
+**Test added:** `gemclean::multiscale::tests::a_fits_mask_confines_the_centres_at_every_scale`.
+
+- **Sky:** 96², with two blobs and a point inside a box mask and one blob outside it; scales 0, 4,
+  8 and 16.
+- **Cases:** one channel and two joined channels, each with the FITS mask alone and with the FITS
+  mask plus the automatic mask.
+- **Asserts:**
+  - every centre lies inside the mask;
+  - two or more non-zero scales clean;
+  - model pixels outside the mask lie within the largest used shape's half-side of the box;
+  - the outside blob stays in the residual.
+
+## 9. For the coordinator
+
+- **#35 verdict: no mask defect.** GeMClean confines multiscale centres to the FITS mask at every
+  scale, as WSClean 3.7 does. The flux outside the mask comes from the shapes. Suggest closing #35
+  with this note; the coordinator posts.
+- **floor-5 section 4.3 cannot be met with multiscale.** Its requirement, "a masked arm puts no
+  component where F is measured", fails for multiscale with a mask in either imager. Dms03's D
+  0.363 includes flux in F's pixels, and WSClean would do the same. The options are Högbom (Dm03,
+  as used), capped scales, or a mask eroded by the largest shape's half-side.
+- **Gated results: none affected.** None uses multiscale with a FITS mask. E2-A and E2-N use
+  multiscale with the automatic mask, which has per-scale masks in the same radler structure and
+  is gated by G4's X1 and X3. Since no defect was found, none of them is affected.
+- **Owner decisions:**
+  - whether to clip the shapes to the mask (a departure from WSClean);
+  - whether to look into the divergence asymmetry (finding 1).

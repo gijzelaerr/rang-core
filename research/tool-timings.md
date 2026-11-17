@@ -2184,3 +2184,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | floor-5, host nash: `floor5_tests.py summary` | JSON only | 1.5 s | 0.37 GiB (max RSS) | 2 slots |
 | 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-5` (write-up, archive) | 1035 s (lock wait excluded) | – | PASS; docs and archive diff; gain-hash gate PASS |
 | 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host, rerun after the post hoc fixes | the same | 41 s (lock wait excluded) | – | PASS; warm targets
+| 2026-11-17 | gemclean-ms-mask: `cargo +1.93 build --profile gemclean --bin gemclean`, Windows host glacier | worktree `gemclean-ms-mask` | 201 s (incl. lock wait) | – | 8 shared slots |
+| 2026-11-17 | gemclean-ms-mask: `cargo +1.93 test --lib gemclean::multiscale::tests` (first run, then the new test alone) | worktree | 49 s; the new test 7.3 s | – | 4 shared slots; first run failed the new test's two-scale assertion (sky changed, then passed) |
+| 2026-11-17 | gemclean-ms-mask RM: GeMClean `-multiscale -fits-mask`, H4, 40 µJy, `-mgain 0.95` | 2048², 8 channels | 337.7 s | 3.57 GiB (peak heap) | 8 shared slots, busy host; 1,345,339 components, diverged |
+| 2026-11-17 | gemclean-ms-mask RM: WSClean 3.7 (WSL docker) | the same | 180.8 s | 1.41 GiB (max RSS) | 8 threads; diverged in major 2 |
+| 2026-11-17 | gemclean-ms-mask RH: GeMClean Högbom with the mask, H4 | the same | 16.3 s | 1.87 GiB | 8 shared slots |
+| 2026-11-17 | gemclean-ms-mask RH: WSClean 3.7 | the same | 92.8 s | 0.76 GiB | 8 threads |
+| 2026-11-17 | gemclean-ms-mask PM: GeMClean `-multiscale -fits-mask`, the pilot `cal2.ms`, 0.3 mJy | 4096², 256 channels | 3,291.5 s | 12.42 GiB | 8 shared slots; 426,578 components |
+| 2026-11-17 | gemclean-ms-mask PM: WSClean 3.7 | the same | 2,346 s | 5.14 GiB | 8 threads; diverged in major 3 |
+| 2026-11-17 | gemclean-ms-mask RM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | H4, 2048² | 15.4 s; 89.6 s | 3.43 GiB; 1.41 GiB | 8 slots each |
+| 2026-11-17 | gemclean-ms-mask PM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | pilot, 4096² | 145.3 s; 459.2 s | 12.16 GiB; 4.82 GiB | 8 slots each |
