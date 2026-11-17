@@ -41,11 +41,21 @@ anything they could have seen.
      1.57 times too small.
 
    Section 2 has the detail.
-5. **CARACal has no UHF configuration to use as the oracle.** Its schema
-   lists `meerkat_band: [L, UHF]`, but no worker reads the key. It ships
-   `firstpass_UHF.yaml` and two UHF calibrator catalogues, but no sample
-   configuration or worker code references them. The gate's CARACal arm
-   therefore needs a UHF configuration frozen by us (owner decision D4).
+5. **CARACal (`8f7bb363`) has no UHF configuration to use as the oracle.**
+   - Its schema lists `meerkat_band: [L, UHF]`, but no worker reads the key.
+     A case-insensitive `uhf` grep over its `*.py`, `*.yml` and `*.yaml`
+     files finds only the schema.
+   - None of the 8 files in `sample_configurations/` is UHF, and no code or
+     configuration names `firstpass_UHF.yaml`.
+   - Its UHF calibrator catalogues are registered as `crystal` models
+     (`southern_calibrators.txt` lines 21-22). `crosscal_worker.py` 651-676
+     predicts them only when `set_model.meerkat_crystalball_skymodel` is
+     set.
+   - The `lsm` branch is tested first. So the shipped
+     `meerkat_skymodel: true` would put the L-band `pks1934-638.lsm` on UHF
+     data.
+   - The gate's CARACal arm therefore needs a UHF configuration frozen by us
+     (owner decision D4).
 
 ## 1. The band
 
@@ -103,23 +113,31 @@ works. File references are to main `9b4542c`.
   - Stokes I: PB2017, with the table ranges `(0.05, 50)` and `(0.2, 50)` GHz
     (`fluxstd.py:174-181`). **OK.**
   - Polarisation: `NRAO_XCAL` (`calmodels.py:390-409`) applies the 1.47 GHz
-    fraction and angle flat, with `rotmeas: 0`.
-    - 3C 286's fraction falls towards low frequency.
-    - 3C 138's angle and fraction vary strongly below 1 GHz.
-    - **SILENT** for 3C 286 (a modest error); larger for 3C 138.
+    fraction and angle flat, with `rotmeas: 0`. Below 1 GHz this is an
+    extrapolation with no frequency guard (manual models have none,
+    `calmodels.py:226-256`). **SILENT.** How far 3C 286's and 3C 138's p and
+    χ move across UHF was not looked up here (section 9).
 - **Published UHF field models** (CC BY-NC 4.0, fetched, section 6.2):
   - `fitted.PKS1934.UBand.wsclean.cat.txt` (7,780 lines);
   - `fitted.PKS0407.UBand.wsclean.cat.txt` (8,874 lines).
 
   CARACal ships `1934-collapsed-uhf-cat.txt` and `0407-collapsed-uhf-cat.txt`
   as "crystal" models (catalogue epoch 2020). They are **not byte-equal** to
-  the DOI release (SHA-256 `30e4b6ff…` against `37617942…` for 1934−638),
-  and the central components differ:
-  - CARACal: 13.586 Jy at a reference of 815.87 MHz;
-  - DOI release: 15.089 Jy, with its `PRIM` line referenced to 1283.79 MHz.
+  the DOI release (SHA-256 `30e4b6ff…` against `37617942…` for 1934−638;
+  7,831 against 7,780 lines).
+  - The central components use different parametrisations: CARACal's is
+    13.586 Jy at 815.87 MHz, the DOI's 15.089 Jy at 1283.79 MHz.
+  - Evaluated here as WSClean ordinary polynomials in `f/f0 − 1`, they agree
+    with each other and with Reynolds to about 2 % at the bottom of the band:
 
-  Which of the two is the reference is owner decision D3. Whether the DOI
-  line's reference frequency is intended has not been checked.
+    | MHz | DOI `PRIM` | CARACal `prim` | Reynolds |
+    | ---: | ---: | ---: | ---: |
+    | 544 | 9.434 | 9.647 | 9.510 Jy |
+    | 816 | 13.663 | 13.588 | 13.652 Jy |
+    | 1088 | 15.042 | 15.053 | 15.043 Jy |
+
+  - The fields (off-axis components) were not compared. Which file is the
+    reference is owner decision D3.
 
 ### 2.2 Flagging
 
@@ -133,20 +151,25 @@ works. File references are to main `9b4542c`.
   - The L-band mask (13,600 frequencies, 915.8-1626.7 MHz) therefore also
     flags its entries below 1088 MHz in UHF data: 915.8-960, 1029.7-1030.5,
     1040.5-1041.3, 1051.6-1052.2 and 1085.7-1088.4 MHz.
-  - Neither mask covers the mobile and broadcast allocations below 900 MHz.
-    UHF masking therefore rests on SumThreshold. **SILENT under-masking; no
-    crash.**
+  - Neither mask has an entry below 915.8 MHz, so 544-915 MHz is masked by
+    SumThreshold alone. Which UHF allocations are active at the site was not
+    checked here. **Possibly SILENT under-masking; no crash.**
 - **Tricolour strategy.**
-  - CARACal ships `firstpass_UHF.yaml` (at `8f7bb363`). Against the
-    calibrator strategy E2 uses, `mk_rfi_flagging_calibrator_fields_firstpass.yaml`:
-    - the static-mask `uvrange` is `0~700` (E2's strategy has `0~1000`);
-    - there are three final SumThreshold passes, "very broad" (frequency
-      windows 32-128), "broad" and "narrow" (spike width in time 2).
+  - CARACal ships `firstpass_UHF.yaml` (at `8f7bb363`). It was diffed here
+    against the calibrator strategy E2 uses,
+    `mk_rfi_flagging_calibrator_fields_firstpass.yaml` (byte-equal to
+    CARACal's copy). The UHF file:
+    - uses `outlier_nsigma` 30 in every SumThreshold pass, where E2's uses 10;
+    - runs 3 major iterations per pass, where E2's runs 5 then 1;
+    - has no `uvcontsub_flagger` passes (E2's has two, Taylor degree 20 and
+      25);
+    - applies the static mask once with `uvrange: "0~700"`. E2's applies it
+      over all baselines (`""`) and again over `0~550`.
   - Both strategies are written in channels and windows with no frequency in
     them, so they run on UHF as they are.
   - **Port check:** rang's Tricolour port is flag-for-flag on four L-band
     controls (`core-d-tricolour.md`). UHF needs the same 3a check with
-    `firstpass_UHF.yaml`, since it exercises the very-broad pass.
+    `firstpass_UHF.yaml`.
 - **AOFlagger.** CARACal's shipped `.rfis` strategies (`firstpass_QUV.rfis`
   and others) have no UHF variant. rang ships none; `flag.strategy` is
   required.
@@ -172,7 +195,8 @@ works. File references are to main `9b4542c`.
     34.9 GB. It is in both the RATT bucket (`MeerKATbeams/`) and SARAO's
     DOI 10.48479/wdb0-h061, CC BY-NC 4.0. Its metrics file (28 MB) is on
     nash.
-  - katbeam has a UHF JimBeam model.
+  - Whether katbeam's installed version has a UHF model was not checked
+    (section 9).
   - Adding a band switch is code for the next leg.
 
 ### 2.4 The MeerKAT boundary
@@ -200,15 +224,16 @@ works. File references are to main `9b4542c`.
   - `fillgaps` and the smoothing windows are in channels. A 4k UHF channel
     is 0.64 of an L-band channel in frequency, so the same channel counts
     span less frequency.
-- **Delay.** K is solved over the band. UHF's band is half as wide, so the
-  same delay error gives half the phase slope across it. The KCROSS and
-  K limits (A0 6.2, in ns) carry over unchanged.
+- **Delay.** K is solved over the band. UHF's band is 0.64 of L band's
+  width, so the same delay gives 0.64 of the total phase across the band.
+  The KCROSS and K limits (A0 6.2, in ns) carry over unchanged.
 - **Leakage (Df).**
   - Hugo (2021) finds second-order leakage limits dynamic range next to
     strong sources at −30 to −40 dB. CASA's linearised Df does not model
     it; CubiCal's full 2×2 per-channel solutions do.
-  - At UHF this matters on 1934−638 itself, which is brighter and has more
-    flux nearby.
+  - At UHF 1934−638 is fainter (9.5-15.0 Jy across the band, Reynolds) and
+    its field carries more of the flux (2.1), so the error budget next to it
+    changes.
   - E2-B's leakage gate (≤ 0.3 % peak QUV/I on 1934−638) is an L-band
     number. Whether it holds at UHF is unmeasured; it must be re-frozen with
     a reason, not copied (D5).
@@ -237,8 +262,8 @@ works. File references are to main `9b4542c`.
 - gemclean and the wgridder take the frequencies from the MS, so uv scaling
   and w-terms follow (`core_imaging.py:442`, ε `1e-4`, `core_config.py:432`).
   **OK.**
-- The field to image is 1.57 times wider at the centre and 2.0 times wider at
-  544 MHz. So the w-term matters more for a given image size, and so does
+- The primary beam is 1.57 times wider at the band centre than at L band's
+  centre, and 2.36 times wider at 544 MHz (section 1). So the w-term matters more for a given image size, and so does
   bandwidth smearing at fixed channel averaging (A0 E2-A's inner 0.7° rule
   was set for L band).
 - `image.size` and `image.scale` have no default (`core_config.py:394-395`).
@@ -309,7 +334,7 @@ No visibility, flag or weight value of any candidate was read.
 | C4 | SARAO DOI repository, 43 releases | `archive-gw-1.kat.ac.za/public/repository/10.48479/` | UHF products, but none of them visibilities | – | – | – | CC BY-NC 4.0: UHF field models (`hhhy-4r55`, `ez63-vx81`), holography (`wdb0-h061`), MeerKLASS UHF DR1 images (`h9k3-7295`, OTF scanning), G357.2 UHF image (`q20r-hb79`) |
 | C5 | Capture block `1775040570` in the same public bucket (`dlm-eXX7O05XIO6/`) | anonymous MVF: RDB and chunks | not established (calibration report: 512 channels) | "Source list: Unknown" | 8 antennas, 8 s | – | engineering proposal `ENG-20260820-RS-01`, observer "Test User"; no terms |
 | C6 | SARAO archive, public UHF capture blocks | archive.sarao.ac.za, katdal with a per-block link | UHF where chosen | the owner picks a block with 1934−638 and/or 0408−65 and a polcal | full array, 4k or 32k channels, 8 s or 2 s | about 0.5-1 TB for a 4 h 4k track | public after the proprietary period ("available to anyone", guidelines 4.1); acknowledgement 7.2. **Needs a new link from the owner** |
-| C7 | Named UHF tracks without a public copy | Hugo (2021): a dedicated 1934−638 and 0407−65 UHF track, 2019-09-22; Polcal-Primer's full `EXT-20220902-BH-01`; a PKS 1830−211 UHF science-verification set (arXiv:2101.00188, about 3.1 TB) | UHF | 1934−638, 0407−65; 3C 286 (EXT) | – | – | commissioning, SV or EXT classes: policy 4.2.2.2, "contact SARAO" |
+| C7 | Named UHF tracks without a public copy | Hugo (2021): a dedicated 1934−638 and 0407−65 UHF track, 2019-09-22; Polcal-Primer's full `EXT-20220902-BH-01`; a PKS 1830−211 UHF science-verification set (arXiv:2101.00188; size about 3.1 TB per a web-search summary, not read in the paper) | UHF | 1934−638, 0407−65; 3C 286 (EXT) | – | – | commissioning, SV or EXT classes: policy 4.2.2.2, "contact SARAO" |
 
 Notes:
 - **C5 is anonymous MVF in a public bucket.** That contradicts
@@ -319,12 +344,17 @@ Notes:
   This is for the coordinator.
 - AWS Open Data has one MeerKAT entry, ESO137 (L band).
 - Zenodo searches ("MeerKAT UHF", "… measurement set", "… visibilities") found
-  no UHF visibility release other than C2.
+  no MeerKAT visibility release other than C2, whose band is not
+  established.
 - The archive's GraphQL schema is public, but `observations` and
   `proposals` both need authentication. So capture block IDs cannot be
   listed without an account.
 
-## 5. Selection rule (frozen before any result)
+## 5. Selection rule (frozen before any visibility was read)
+
+Disclosure: the rule was written with every candidate's metadata (section 4)
+already in hand. It was not written blind to the candidates. What it
+precedes is any read of visibilities and the choice of scans.
 
 A candidate is **eligible** only if all of these hold, judged from published
 text and metadata, never from visibilities:
@@ -441,13 +471,17 @@ which read the token into memory and scrub it from every log.
   acceptance set.
 - **D3 Calibrator models.** Choose:
   - which UHF 1934−638 model rang uses and ships: the Reynolds point, the
-    DOI field model, or CARACal's catalogue (they differ, 2.1);
+    DOI field model, or CARACal's catalogue. They are different files, and
+    their central components agree to about 2 % (2.1);
   - whether CC BY-NC models and beams may be shipped in the GPL-3.0
     package, or fetched at run time instead;
   - the 0408−65 model below 843 MHz.
 - **D4 CARACal arm.** CARACal ships no UHF configuration. Approve freezing
-  ours: `firstpass_UHF.yaml`, the crystal models, UHF `chans`, and
-  `img_npix`/`img_cell`.
+  ours:
+  - `firstpass_UHF.yaml`;
+  - `meerkat_skymodel: false` with `meerkat_crystalball_skymodel: true`, so
+    the UHF crystal models are used rather than the L-band lsm;
+  - UHF `chans`, `img_npix` and `img_cell`.
 - **D5 New gate numbers.** The leakage limit, the 3C 286 p and χ transfer
   rows (with or without an RM correction), and the image geometry and field
   limit, frozen in the next leg's note.
@@ -463,13 +497,17 @@ which read the token into memory and scrub it from every log.
 
 ## 9. Not checked
 
-- The DOI 1934−638 UHF file's `PRIM` reference frequency (1283.79 MHz),
-  whether intended.
 - Reynolds' cubic against Hugo's UHF fit: Figure 5 of the memo was not read
   numerically.
 - C2's band and fields (not opened).
 - katbeam's UHF model against the holography beam.
 - Whether `firstpass_UHF.yaml` is used by any public CARACal run.
+- 3C 286's and 3C 138's polarisation fraction and angle across 544-1088 MHz
+  (Perley-Butler 2013 tables).
+- Whether katbeam has a UHF model, and how it compares with the holography
+  beam.
+- Which RFI allocations are active at the site below 915 MHz.
+- The off-axis components of the DOI and CARACal UHF field models.
 
 ## For the coordinator
 
