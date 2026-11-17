@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The F4 flagger (task F4, `research/f4-flagger.md`, section 3): F3's
 //! fifteen planes plus eight scan-scale spectral planes per
 //! cross-correlation baseline, and F3's five-layer dilated 3×3 network with

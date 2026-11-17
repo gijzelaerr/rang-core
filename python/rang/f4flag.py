@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """F4: the third supervised RFI flagger (research/f4-flagger.md).
 
 F3's planes plus eight scan-scale spectral planes (section 3), F4's data
