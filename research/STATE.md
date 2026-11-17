@@ -20,6 +20,21 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
+visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model
+is missing (`fluxstd` refuses it); every beam model is L only and refuses UHF; both Tricolour static masks are always
+OR'd and the UHF one holds only GSM; the 3C 286 polarisation model is flat from 1.47 GHz; no ionospheric RM correction
+(2 rad m^-2 is 15.5 deg at 816 MHz, so E2-B's chi-transfer row cannot carry over); 1934-638's field carries 20-40 % of
+the flux in the lower band (Hugo 2021), so a field model is required. CARACal ships no UHF configuration
+(`meerkat_band` is read by no worker). Data: no candidate meets the frozen rule (UHF visibilities, terms allowing
+publication, >= 40 antennas full band, 1934-638 or 0408-65): Polcal-Primer's UHF Moon set is teaching-only and core-only,
+the MeerSOLAR sample is CC BY-NC-ND with a publication clause, the RATT bucket and SARAO's DOI repository hold no UHF
+visibilities, and the archive needs a new per-block link (nash's link is scoped to E2-N's block; the archive search
+needs a login). So no visibilities fetched, no listobs or config check; nash holds 39 MB of UHF reference products
+(SARAO's UHF 1934-638 and 0407-65 field models, the memo, holography beam metrics) in `~/rang-data/uhf/reference/`
+with SHA-256. Found in passing: an anonymous MVF capture block (`1775040570`, engineering test) in SARAO's public
+bucket. Eight owner decisions (D1 archive blocks first).
+
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
