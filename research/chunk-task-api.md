@@ -299,6 +299,10 @@ more while the shared queue (floor-4's selfcal grid and E2-N's rang arm) sat
 waiting. `timing.py matrix` now queues a point only when `heavy_lock.py
 status` on nash shows no shared or exclusive hold and an empty queue. The
 remaining points run later under the same protocol.
+W-N2-r0's ticket was already queued but never ran. It drained the lock for 88
+min while one 8-slot shared job used about one core and five shared jobs
+waited, so it was withdrawn at 03:53 SAST before its point started. It is
+queued again, as the first remaining point, once the lock is idle.
 
 ## 6. Results
 
