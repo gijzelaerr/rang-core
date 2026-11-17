@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (issue #32 phase 3, `research/gemclean-memory3.md`): `gemclean -reorder` is now the default when
+  several polarisations are joined (`-pol` with more than one and `-join-polarizations`); `-no-reorder` keeps
+  everything in memory. Its temporary files (12 B per row, channel and polarisation read plus 8 B per weighted
+  visibility; about 28 GB on 115,000 rows of 4096 channels in IQUV, 9 GB on 34,000) go beside `-name` or in
+  `-temp-dir`; a killed run leaves them. The joined clean also holds the models sparse and one resync work
+  space for every beam. Every FITS file is byte-identical. On E2-B's joined-IQUV 8-channel 2048² runs the peak
+  is 7.7 GiB on J1331+3030 and J1939−6342 (16.5-16.9 without `-reorder`) and 5.7 GiB on J1833−2103 (7.2 with
+  phase 2's `-reorder`), at 0.98-1.07 × the wall time of `-no-reorder` (exclusive). `-memory-report` also lists
+  the live blocks of 1 MiB or more at the heap's highest.
 - New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
   polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
   entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;

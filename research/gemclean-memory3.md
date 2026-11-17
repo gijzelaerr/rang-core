@@ -1,7 +1,7 @@
 # GeMClean's memory on joined polarisations, phase 3 (issue #32)
 
-Status: **proposed, frozen before any code of its arms** (2026-11-17).
-Sections 1-5 are the freeze; measurements will go in section 6.
+Status: **implemented and measured, met** (2026-11-17). With arms A and B, J1833−2103 with `-reorder` peaks at 5.73 GiB (0.682 × 8.40, limit 6.30), every FITS file byte-identical; `-reorder` is now the default with `-join-polarizations` (`-no-reorder` to switch off).
+Sections 1-5 were frozen before any code of the arms (`7b3b627`); measurements are in section 6.
 
 Branch `gemclean-memory3`, worktree `~/Worktrees/rang/gemclean-memory3`,
 from `main` 9b4542c. Inputs: phase 2's rebuilt E2-B fields
@@ -194,3 +194,103 @@ every minor step).
   `*.spill`), as in phase 2; this is documented, not a condition.
 - **Booking.** Runs book 10 GB (J1833−2103) and 14 GB (the large fields)
   until measured; exclusive runs hold the whole host.
+
+## 6. Measured (2026-11-17)
+
+Code: arms A and B at `f20c06a` (binary `bin/gemclean-ab-f20c06a.exe`,
+Rust 1.99.1); A and B were built and measured together, not apart. Arm C
+was not needed and is not built. The default change is `bc62504`, after
+the rule below was met. Scoring:
+[compare.py](results/gemclean-memory3/compare.py) against phase 2's
+baseline runs (`p2-base`, copied into this phase's `runs/`). Receipts:
+[receipts/](results/gemclean-memory3/receipts/).
+
+**Identity (gate): met.**
+
+| Case | Files | Result |
+| --- | ---: | --- |
+| J1833−2103, `-reorder`, shared (`ab-reorder`) and exclusive (`x-`, `x2-reorder`) | 153 | identical to `p2-base`; `entries` and mask equal |
+| J1833−2103, without `-reorder` (`x-`, `x2-plain`) | 153 | identical |
+| J1331+3030 and J1939−6342, with and without `-reorder`, two exclusive runs each | 153 | identical |
+| G8's tiny MS, 21 cases ([receipts/sweep-ab.json](results/gemclean-memory3/receipts/sweep-ab.json)): phase 2's baseline binary against `f20c06a` without and with `-reorder -temp-dir` | 0-85 | all identical in both legs (two cases refuse with the same message in all three); nothing left |
+| the `-reorder` regression case's two-chunk MS, 6 cases ([receipts/sweep-regcase.json](results/gemclean-memory3/receipts/sweep-regcase.json)) | 17-51 | all identical in both legs; nothing left |
+| the new image-dominated case (512², 4 channels, IQUV, masked): main's code (`7be8c95`) and `f20c06a`, with and without `-reorder` | 85 | identical |
+| G8's 21 cases again with the default change (`bc62504`, [receipts/sweep-default.json](results/gemclean-memory3/receipts/sweep-default.json)): its default leg now runs `-reorder` for joined polarisations | 0-85 | all identical; nothing left |
+| `core/tests/gemclean_memory.rs` (all three cases) | – | pass |
+
+**Memory, J1833−2103 with `-reorder` (the frozen rule).** Tree RSS
+**5.73 GiB** in each of three runs (shared and two exclusive), peak private
+5.76 GiB: **0.682 × 8.40**, under the 6.30 GiB limit; **met**. Heap peak
+6.135 GB (from 7.662), in the minor cycle's resync as before. The traced
+blocks at the peak: 78 n² images (2.62 GB: residuals 32, working maps 32,
+PSF crops 8, single maps 6), beams 2.15, one row-spectra buffer 0.067, the
+plans 0.94, tables 0.13. The end of the clean (dense models back beside
+the beams) holds 5.94 GB, below the minor cycle's peak. Against WSClean
+3.7's 1.34 GiB (phase 2, 9.29) this is 4.3 ×.
+
+**Time, J1833−2103.** Shared, 380.2 s against phase 2's 335.1 s (1.135).
+That reading is the host's load: the traced binary of main's code ran
+380.3 s in the same hour. The exclusive pairs settle it: `-reorder` with
+A and B runs 316.5 and 318.9 s, below phase 2's shared 335.1 s; **met**.
+
+**All three fields, exclusive** (`heavy_lock.py run`, idle host, this
+binary, `-memory-report`; tree RSS from pair 1, GiB; wall in s):
+
+| Field | RSS without | RSS `-reorder` | Ratio (≤ 0.8) | Phase 2 limit | Peak private without → with | Wall without (2 runs) | Wall `-reorder` (2 runs) | Ratio of means (≤ 1.10) |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: |
+| J1331+3030 | 16.53 | **7.73** | 0.468 | 9.52 | 17.38 → 7.75 | 677.5, 682.0 | 712.0, 737.5 | 1.066 |
+| J1939−6342 | 16.85 | **7.72** | 0.458 | 9.88 | 17.43 → 7.73 | 767.5, 784.3 | 817.5, 812.0 | 1.050 |
+| J1833−2103 | 7.72 | **5.73** | 0.742 | 6.30 | 8.73 → 5.76 | 294.3, 354.9 | 316.5, 318.9 | 0.979 |
+
+- Every first ratio fell in 1.05-1.15 (1.075, 1.051, 1.065), so every field
+  got its second pair, as frozen.
+- J1833−2103's second run without `-reorder` (354.9 s) is 21 % slower than
+  its first on an idle host, unexplained; with its first run alone the
+  ratio would be 1.075, still under 1.10.
+- The sampled RSS of J1833−2103 without `-reorder` (7.72) is below its
+  peak private bytes (8.73): the 2 s sampler missed the end-of-clean peak
+  (9.33 GB heap, the dirty images back beside the beams). Against peak
+  private the ratio is 0.66.
+- Where `-reorder`'s time goes: the read and the imaging weights take
+  75.96 + 27.15 s against 60.79 + 13.67 s on J1331+3030 (+28.7 s of the
+  +45 s), 81.72 + 30.48 against 64.85 + 13.98 on J1939−6342 (+33.4 of
+  +39), 21.32 + 7.68 against 17.13 + 3.81 on J1833−2103 (the per-channel
+  temporary files; pair 1's logs).
+- Arms A and B also lower the in-memory path's minor cycles (J1833−2103
+  without `-reorder`: heap peak 9.33 GB against phase 2's 9.79, now at the
+  end of the clean); its peak on the large fields stays in the build
+  (18.6 GB).
+- The large fields' `-reorder` heap now peaks at 8.27 / 8.26 GB in the
+  first residuals (from 9.39 / 9.37).
+
+**Outcome under the frozen rule: met** (identity, memory 0.682 against
+0.75, time).
+
+**Default: met, and made.** Conditions:
+1. identity on all three fields with and without `-reorder`, and in every
+   sweep case;
+2. memory 0.468 / 0.458 / 0.742 (≤ 0.8), within 9.52 / 9.88 / 6.30 GiB;
+3. time 1.066 / 1.050 / 0.979 (≤ 1.10);
+4. failure: `-temp-dir` naming a directory that does not exist stops
+   during the read (`...\g-read-51208.tmp: The system cannot find the path
+   specified`, exit 2), before any clean, and leaves no file.
+
+So `-reorder` is now the default when `-pol` has more than one
+polarisation and `-join-polarizations` is given (`bc62504`), and
+`-no-reorder` keeps the in-memory path. Unjoined polarisation runs keep
+`-reorder` opt-in. The help text states the files' size. The two memory
+tests that measure the in-memory path now pass `-no-reorder`; a unit test
+covers the default's scope.
+
+**Regression test.** `joined_clean_images_stay_under_the_frozen_bound`
+(24 antennas, 40 dumps, 64 channels, 512², `-pol IQUV
+-join-polarizations -channels-out 4 -join-channels -auto-mask 5 -j 2
+-reorder`): the clean's peak heap is 105.86 images of 512² `f64` with
+main's code (222,012,486 bytes) and 84.35 with A and B (176,898,150);
+bound frozen at **89 images**, which a return of the dense models (+16)
+or of the per-beam row spectra (+6) exceeds. The bound is in images, so it
+should hold on Linux's allocator as on Windows'; the first CI run checks
+that.
+
+**Not done:** arm C (not needed); `f32` images (phase 2's arm F); the
+beams (2.15 GB) and plans (0.94 GB), now 50 % of J1833−2103's peak.
