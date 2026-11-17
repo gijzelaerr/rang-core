@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """A spool executor for the chunk tasks: workers on any number of nodes that
 share a filesystem (multi-node stage 2, research/multinode-executor.md).
 

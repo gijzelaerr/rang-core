@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 # Case W on nash (research/multinode-executor.md, sections 3 and 4): the oracle
 # O, then I, S1, S2, S4, S8 one after another, each under its own shared heavy
 # lock ticket (2N+1 slots, 16+3N GB; O 4 slots, I 3), at nice 19 and ionice

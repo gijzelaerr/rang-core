@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """The identity gate and the scaling points of research/multinode-executor.md
 (sections 3 and 4): the spool executor against the oracle O.
 
