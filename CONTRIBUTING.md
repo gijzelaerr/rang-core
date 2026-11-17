@@ -132,7 +132,9 @@ encoding line if it has one:
 
 (`//` for Rust and C++). A file ported from code under another licence names
 both, for example `GPL-3.0-or-later AND MIT`, and keeps the upstream notice
-in full (`docs/licence.md` lists the ported code). Longer copyright
+in full (`docs/licence.md` lists the ported code). A new file written
+from 2026-11-17 on, with no code derived from GPL or LGPL sources, carries
+`MIT`. Longer copyright
 notices may follow the SPDX line. `tests/test_spdx_headers.py` checks it.
 
 ## Releasing

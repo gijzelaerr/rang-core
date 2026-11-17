@@ -11,7 +11,10 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 DIRS = ("python/rang", "core/src", "src", "tools")
 SUFFIXES = {".py": "#", ".sh": "#", ".rs": "//", ".cc": "//"}
-LINE = re.compile(r"SPDX-License-Identifier: GPL-3\.0-or-later( AND [A-Za-z0-9.-]+)*$")
+# New files from 2026-11-17 (the owner's licence rule) are MIT.
+LINE = re.compile(
+    r"SPDX-License-Identifier: (GPL-3\.0-or-later( AND [A-Za-z0-9.-]+)*|MIT)$"
+)
 # Files another task is changing when the headers go in; stamp them once it
 # merges. Empty since sliced-read merged (E5 final).
 PENDING: set[str] = set()
