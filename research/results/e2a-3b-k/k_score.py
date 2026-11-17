@@ -5,6 +5,7 @@ pooled field map, `e2avg_common` unchanged).
     python k_score.py model        step 2: rang's MODEL_DATA, CASA's, Reynolds 1994 in NumPy
     python k_score.py real         step 3: TT against the nash CASA arms, and the controls
     python k_score.py sim TAG      step 4: the arms of one simulated case against truth
+    python k_score.py f0           step F: full scale, E2-A field 0
 """
 
 import json
@@ -334,6 +335,50 @@ def sim(tag):
     return 0
 
 
+def f0():
+    """Step F: E2-A field 0, rang's archived K1, G1 with D3's divided B1."""
+    t0 = time.perf_counter()
+    cp = Comp(O / "f0.ms")
+    W = O / "f0win"
+    rk = W / "rang-run" / "calibrate"
+    r = tabs(rk, NAMES1)
+    on = [r[0], r[1], C.table(W / "B1-on")]
+    off = [r[0], r[1], C.table(W / "B1-off")]
+    casa = tabs(W / "casa" / "tables", NAMES1)
+    arms = {"rang archived": r, "rang B1 divided": on, "rang B1 off (control)": off}
+    others = {"CASA archived (as frozen)": casa}
+    k = O / "f0-casa-k"
+    if (k / "B1").exists():
+        others["CASA on rang's K (T-K3 construction)"] = [r[0], *tabs(k, ("G1", "B1"))]
+    tf = O / "f0-casa-tf"
+    if (tf / "B1").exists():
+        others["CASA own K, matched flags"] = tabs(tf, NAMES1)
+    out = {}
+    for an, ta in arms.items():
+        for on_, tb in others.items():
+            out[f"{an} vs {on_}"] = cp.rel(an, ta, on_, tb)
+    out["control: off vs archived"] = cp.rel(
+        "rang B1 off (control)", off, "rang archived", r
+    )
+    if (k / "B1").exists() and (tf / "B1").exists():
+        out["CASA own K vs CASA on rang's K"] = cp.rel(
+            "CASA own K, matched flags",
+            others["CASA own K, matched flags"],
+            "CASA on rang's K (T-K3 construction)",
+            others["CASA on rang's K (T-K3 construction)"],
+        )
+    out["seconds"] = time.perf_counter() - t0
+    C.write(O / "score-f0.json", out)
+    print(
+        json.dumps({k_: brief(v) for k_, v in out.items() if k_ != "seconds"}, indent=1)
+    )
+    return 0
+
+
 if __name__ == "__main__":
     step, *args = sys.argv[1:]
-    sys.exit({"split": split, "model": model, "real": real, "sim": sim}[step](*args))
+    sys.exit(
+        {"split": split, "model": model, "real": real, "sim": sim, "f0": f0}[step](
+            *args
+        )
+    )
