@@ -182,7 +182,7 @@ one held-out scan, the cross hands, and multiscale with a mask.
 
 ## 9. Clarifications
 
-**1, 2026-11-17 16:45 SAST, before any held-out visibility, gain or image was read.**
+**1, 2026-11-17 16:10 SAST, before any held-out visibility, gain or image was read.**
 
 - **Night cap.** Nothing that could overlap 21:30-06:00 runs above 8 booked slots in total. The
   driver admits a job if all of its jobs then book at most 8 slots, or at most 16 when it is

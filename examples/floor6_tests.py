@@ -91,20 +91,14 @@ def cmd_meta(out, zarr, pilot_ms):
     root = Path(zarr)
     main = main_group(root)
     nrow, nchunks = ghr.row_chunks(root)
-    fid = np.unique(
-        np.concatenate([ghr.row_column(main, "FIELD_ID", r) for r in range(nchunks)])
-    )
     times = np.unique(
         np.concatenate([ghr.row_column(main, "TIME", r) for r in range(nchunks)])
     )
-    try:
-        scans = np.unique(
-            np.concatenate(
-                [ghr.row_column(main, "SCAN_NUMBER", r) for r in range(nchunks)]
-            )
-        )
-    except (OSError, KeyError, ValueError):  # a store without the column
-        scans = np.array([])
+    # dask-ms partitions MAIN by FIELD_ID, DATA_DESC_ID and SCAN_NUMBER: group attributes
+    attrs = json.loads((main / ".zattrs").read_text(encoding="utf-8"))
+    fid = np.array([attrs["FIELD_ID"]])
+    scans = np.array([attrs["SCAN_NUMBER"]])
+    ddid = attrs.get("DATA_DESC_ID")
     pd = ghr.whole(root / "FIELD/FIELD_0/PHASE_DIR").reshape(-1, 2)
     with core_ms.open_table(str(Path(pilot_ms) / "FIELD")) as f:
         ppd = np.asarray(f.getcol("PHASE_DIR", 0, 1), np.float64).reshape(-1)[:2]
@@ -123,6 +117,7 @@ def cmd_meta(out, zarr, pilot_ms):
         "time_last": float(times[-1]),
         "span_s": span,
         "nfield_rows": int(pd.shape[0]),
+        "data_desc_id": ddid,
     }
     r["one_field"] = len(fid) == 1
     r["phase_ok"] = bool(r["one_field"] and sep[0] <= 0.01)
