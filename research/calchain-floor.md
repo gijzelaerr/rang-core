@@ -274,3 +274,24 @@ Added, before reading them:
   by T3's words against CL's 3.5e-3.
 - **T5′**: T5 with K and G solutions only (B's flags are excluded from the
   composite cell by cell already), on every arm.
+
+## 8. Addendum 2026-11-17 14:20, post hoc (after P1 and the K1 cell counts were read; before `cf_k1solve.py` ran)
+
+P1 (section 9) puts CL's pass-1 floor in B1 (truth with CL's B1 alone
+3.2e-3; with its K1 alone 0 median), and the one K1 solution far from truth
+is ID 50's interval 7 (1,293 ns X, 2,263 ns Y; truth 0.1 ns), the first
+interval of scan 11, where ID 50 has 5,202 unflagged X cells on 37
+baseline-dumps against 34,000-66,000 elsewhere. K is solved jointly over
+all intervals and stops when 99 % of solutions have converged, or at 50
+iterations; CL's K1 stopped at 50 with 0.94.
+
+- **P2** (`cf_k1solve.py`): CL's K1 re-solved by `cal_delay.gaincal` on
+  CL's MS (read only) with CL's G0, B0 pre-applied, (a) at the chain's
+  rule, (b) strict (1000, 1e-12, 1.0), (c) from the FFT start alone (0
+  iterations). Control: (a) equals CL's K1 table (max ≤ 1e-6 ns), else P2
+  is not read.
+- Reading for ID 50's interval 7: **non-convergence** if (b) reaches truth
+  (≤ 1e-3 ns) where (a) does not; **a wrong start** if (c) is already far
+  (> 100 ns) from truth and (b) stays there (a local minimum of a
+  noise-free cost); **a walk** if (c) is near truth and (a), (b) leave it.
+- T3 on S0c (CL strict), already running, is read by T3's words.
