@@ -2,7 +2,7 @@
 name = "rang-core-py"
 version = "0.2.0"
 edition = "2024"
-license = "GPL-3.0-or-later"
+license = "GPL-3.0-only"
 publish = false
 description = "PyO3 extension module rang._core over the Rang core"
 

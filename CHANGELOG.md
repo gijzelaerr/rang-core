@@ -9,6 +9,7 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- Changed (licence metadata, `docs/licence.md`): the package's licence expression is now `GPL-3.0-only` (pyproject, `core` and `core/py` crates, CITATION). It contains WSClean-derived code ("GPL 3", with no "or later") and radler code (LGPL-3.0-only, conveyed under GPL v3). ra-ng's own files keep `GPL-3.0-or-later`.
 Drafted for 0.3.0 on 2026-11-17 (`research/v030-readiness.md`); E2-N, E3-A, the selfcal-defaults grid and
 the E2-A 3b K follow-up are still running and will change the limitations below.
 

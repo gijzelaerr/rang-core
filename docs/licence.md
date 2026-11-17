@@ -2,12 +2,30 @@
 
 ## Software
 
-rang-core is free software under the GNU General Public License, version 3
-or (at your option) any later version; see {gh}`LICENSE`. The GPL was chosen
+rang-core is free software under the GNU General Public License. ra-ng's own
+code is under version 3 or (at your option) any later version; the package as
+distributed is under version 3 only (below); see {gh}`LICENSE`. The GPL was chosen
 on 2026-10-29 so that GPL-3 radio-astronomy tools such as WSClean and
 AOFlagger can be ported into the core. GPL-2.0-only code cannot be combined
 with GPL-3 code, so each upstream's exact licence is checked before it is
 ported, and ported code keeps its upstream copyright notices.
+
+The package as distributed (the wheels, the sdist and the extension
+`rang._core`) is under **GPL-3.0-only**, since 2026-11-17. It contains code
+derived from WSClean, whose sources say "GPL 3" without "or later", and from
+radler, which is LGPL-3.0-only and is conveyed here under GPL version 3 (LGPL-3.0
+section 2(b)). ra-ng's own files keep their `GPL-3.0-or-later` headers, and a
+file derived from an upstream names both licences in its SPDX line. The root
+crate `rang-sim` contains no such code and stays GPL-3.0-or-later.
+
+`python/rang/cal_refant.py`'s `wgs84_to_ecef` is the standard WGS84
+geodetic-to-geocentric conversion, which is published formula, not expression.
+It follows msutils 1.2.0's order of operations so that `refant: auto` picks the
+same antenna as CARACal. msutils' own metadata gives two different GPL versions
+(v2 in its LICENSE, 3.0-or-later in setup.py). The conversion is treated as the
+standard formula, not as a copyrightable part of msutils (coordinator decision,
+2026-11-17). If that view is challenged, the function is rewritten from the
+WGS84 definition (NGA TR8350.2) and checked against the same refant tests.
 
 | Ported or bundled | Upstream licence, as the reports record it |
 | --- | --- |

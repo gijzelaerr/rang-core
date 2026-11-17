@@ -170,7 +170,7 @@ def test_pyproject_metadata():
     ):
         assert f'"{classifier}"' in project
     # A PEP 639 licence expression: a License classifier would be rejected.
-    assert 'license = "GPL-3.0-or-later"' in project
+    assert 'license = "GPL-3.0-only"' in project
     # E5: the MIT and BSD notices of the translated code ship in every wheel.
     assert 'license-files = ["LICENSE", "THIRD-PARTY-NOTICES.txt"]' in project
     notices = _text("THIRD-PARTY-NOTICES.txt")
