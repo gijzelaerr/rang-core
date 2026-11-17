@@ -379,3 +379,23 @@ moves χ by 0.13° against rang. Host-dependent (nash `dev` 0.189°, glacier
 - To rerun: `research/results/xf-gap/nash/drive.sh` (section 5), then
   `post.sh`, `post2.sh`, `fix.sh` in the run root; each log ends
   `DRIVE END rc=N`.
+
+## Coordinator decisions, 2026-11-17
+
+- **`calibrate.xf_calwt` stays opt-in, default false.** It closes the rang-CASA Xf gap to 0.012°
+  (held, unaveraged) against the 0.05° limit, and it is the right switch for CASA equivalence. But
+  CASA's calwt weighting is not closer to the simulated truth (fit residual 0.102° → 0.108°). The
+  default should follow the truth, not the oracle.
+- **Extending calwt weights to G, B, Gpol, KCROSS and Df is not done here.** It would move every
+  archive and is a separate frozen task. It is a v0.4 candidate, with the E2 gates re-read before
+  any default.
+- **The CASA finding is a known oracle limitation.** On noiseless simulations CASA silently drops
+  Gpol intervals that hit its 50-iteration limit, so CASA oracles can differ between hosts. Later
+  noiseless CASA oracles should log dropped intervals, and a reproduction control must check them
+  before any ladder number is read.
+- **Process note accepted as recorded.** The second driver part was started before the dev failure
+  was read. No number from it was read before the amendment was committed.
+- **Open items stay open:** the averaged Kcross is 0.0085 ns from CASA on one scan, and
+  `calwt_factor`'s allocation sits outside the chunk budget (about 1 GB at 64 × 4096). The second
+  must be bounded before the key could become a default.
+- Issue #33 closes with this merge.
