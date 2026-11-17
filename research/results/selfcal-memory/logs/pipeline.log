@@ -1,0 +1,6 @@
+== 2026-11-17T12:10:24Z load 4.76 5.31 7.96 pipeline start
+rang-core: selfcal: running
+rang-core: selfcal: done in 2200.3 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-memory-20261117/D/run/receipts/selfcal-20261117T121024Z.rang-receipt.json
+selfcal 2207.28 s 9748364 KB
+== 2026-11-17T12:47:11Z load 25.71 16.08 11.00 pipeline end

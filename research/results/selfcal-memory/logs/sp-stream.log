@@ -1,0 +1,4 @@
+== 2026-11-17T12:47:50Z load 20.14 15.93 11.17 sp-stream start
+{"term": {"name": "Sp", "type": "Sp", "solint": "inf", "freqint": "inf"}, "solve_seconds": 358.042846146971}
+sp-stream 359.41 s 3798392 KB
+== 2026-11-17T12:53:50Z load 14.63 15.33 12.44 sp-stream end

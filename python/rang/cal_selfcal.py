@@ -234,6 +234,7 @@ def solve(
     gain_clip=(0.5, 2.0),
     budget=None,
     average_time=False,
+    stream="auto",
 ):
     """Solve self-calibration `term` (a dict with `type` Sp, Sa or Sd,
     `name`, `solint`, and for Sp and Sa `freqint`; `max_iterations`,
@@ -241,7 +242,11 @@ def solve(
     `input_column` against `model_column`. `weight_column` None solves with
     unit weights (`data.weights: uniform`). `average_time` (task E2): Sp and
     Sa solve on rows averaged in time within each interval
-    (`rang.cal_chunks.Average`); refused for Sd. Returns a `SelfcalSolution`."""
+    (`rang.cal_chunks.Average`); refused for Sd. `stream` (issue #34,
+    research/selfcal-memory.md; Sp and Sa without `average_time`): `"auto"`
+    solves an interval that does not fit `budget` streamed
+    (`rang.cal_stream`, the same solution), True always, False never (the
+    refusal). Returns a `SelfcalSolution`."""
     kind = term["type"]
     if kind not in TYPES:
         raise ValueError(f"self-calibration term type must be one of {TYPES}")
@@ -275,7 +280,7 @@ def solve(
     delays = offsets = None
     if average_time and kind not in ("Sp", "Sa"):
         raise ValueError("average_time applies to Sp and Sa only")
-    extra = {"average": True} if average_time else {}
+    extra = {"average": True} if average_time else {"stream": stream}
     if kind in ("Sp", "Sa"):
         fb, gain_freq = freq_bins(freq, term.get("freqint", "inf"))
         sol, _ = cal_gain._solve_gain_field(
@@ -287,6 +292,7 @@ def solve(
         )  # fmt: skip
         gains, flags = sol.gains, sol.flags
         iterations, fraction = sol.iterations, sol.converged_fraction
+        streamed = sol.settings.get("streamed")
     else:
         fb, gain_freq = np.arange(len(freq)), freq.copy()
         sol, _ = cal_delay._solve_field(
@@ -299,6 +305,7 @@ def solve(
         flags = np.broadcast_to(flags, gains.shape).copy()
         delays, offsets = sol.delays, sol.offsets
         iterations, fraction = sol.iterations, sol.converged_fraction
+        streamed = None
     flags, clipped = _clip(gains, flags, gain_clip)
     return SelfcalSolution(
         name=str(term.get("name") or kind),
@@ -329,6 +336,7 @@ def solve(
             "gain_clip": list(gain_clip) if gain_clip else None,
             "casa_rules": False,
             **solver,
+            **({"streamed": streamed} if streamed else {}),
         },
     )
 

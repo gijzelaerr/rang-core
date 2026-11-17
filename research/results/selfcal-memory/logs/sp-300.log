@@ -1,0 +1,5 @@
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T12:48:15Z load 20.96 16.48 11.48 sp-300 start
+{"term": {"name": "Sp", "type": "Sp", "solint": "300s", "freqint": "inf"}, "solve_seconds": 929.0645402319496}
+sp-300 932.16 s 3210836 KB
+== 2026-11-17T13:03:47Z load 14.53 14.02 13.11 sp-300 end

@@ -2607,7 +2607,7 @@ def stage_selfcal(ctx):
                 refant=refant,
                 minuvw_m=sc["minuvw_m"],
                 gain_clip=sc["gain_clip"],
-                budget=plan.chain(),
+                budget=plan.selfcal(),
                 **({"average_time": True} if sc["average_time"] else {}),
             )
             solved = sol.summary()

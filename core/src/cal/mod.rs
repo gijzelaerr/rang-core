@@ -11,6 +11,8 @@
 //! holds CASA's `fillgaps` for B (task C2c, `research/c2c-bandpass.md`).
 //! `parang` rotates by the parallactic angle P, `crosshand` solves KCROSS
 //! and Xf, and `leakage` solves Df (task C6, `research/c6-polterms.md`).
+//! `diag_stream` runs `diag`'s solve over its cells in blocks, for solution
+//! intervals too large to hold (issue #34, `research/selfcal-memory.md`).
 
 pub mod apply;
 pub mod bandpass;
@@ -18,6 +20,7 @@ pub mod crosshand;
 pub mod delay;
 pub mod delay_offset;
 pub mod diag;
+pub mod diag_stream;
 pub mod ffi_apply;
 pub mod fluxscale;
 pub mod leakage;
