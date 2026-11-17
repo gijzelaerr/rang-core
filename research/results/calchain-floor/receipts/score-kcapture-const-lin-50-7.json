@@ -17,6 +17,32 @@
    "cells_above_1e-3": 0
   }
  ],
+ "cost_on_solver_cells": {
+  "hand 0": {
+   "truth": {
+    "tau_ns": 0.11429549753665924,
+    "relative_cost": 1.7120717278525152e-15,
+    "relative_cost_no_offset": 1.7301085913861506e-15
+   },
+   "rang": {
+    "tau_ns": 1293.571044921875,
+    "relative_cost": 1.7129901920105677,
+    "relative_cost_no_offset": 2.13519727923177
+   }
+  },
+  "hand 1": {
+   "truth": {
+    "tau_ns": 0.08986936509609222,
+    "relative_cost": 1.7618755561341918e-15,
+    "relative_cost_no_offset": 1.7619712387611189e-15
+   },
+   "rang": {
+    "tau_ns": 2263.236572265625,
+    "relative_cost": 1.8095454552082346,
+    "relative_cost_no_offset": 2.097029588100708
+   }
+  }
+ },
  "cells_flag_any_corr": 270242,
  "cells_weight0_any_corr_not_flagged": 0,
  "unflagged_channels": [

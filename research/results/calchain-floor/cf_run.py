@@ -43,6 +43,9 @@ def config(arm):
         assert (n1, n2) == (1, 4), (n1, n2)  # G0; B0, K1, G1, B1
         cal = cal.replace("interp: [linear, linear]", "interp: [nearest, nearest]")
         cal = cal.replace("interp: [linear]", "interp: [nearest]")
+    if arm == "zs":
+        assert cal.count("  average_time: false\n") == 1
+        cal = cal.replace("  average_time: false\n", "  average_time: false\n  k_zero_start: true\n")
     text = head + "\ncalibrate:\n" + cal + "\napply:\n" + tail
     return text.replace(
         "e2a-3b-diag.md D1 case", f"calchain-floor.md arm {arm}, from D1 case"

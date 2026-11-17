@@ -55,7 +55,34 @@
    2263.240478515625
   ]
  },
- "FFT start only (0 iterations)": {
+ "chain with zero_start (section 12)": {
+  "iterations": 50,
+  "converged_fraction": 0.9409431784200617,
+  "vs_arm_K1_max_ns": 2263.1467029303312,
+  "vs_truth": {
+   "all": {
+    "n": 336,
+    "median": 0.0,
+    "p95": 2.3283064365386963e-08,
+    "max": 3.650784492492676e-07
+   },
+   "without_id50": {
+    "n": 308,
+    "median": 0.0,
+    "p95": 2.2351741790771484e-08,
+    "max": 3.650784492492676e-07
+   },
+   "pivot_hz": [
+    1283895507.8125,
+    1283895507.8125
+   ]
+  },
+  "id50_interval7_ns": [
+   0.11429537087678909,
+   0.08986933529376984
+  ]
+ },
+ "FFT start, one iteration (max_iterations 0 runs 1)": {
   "iterations": 1,
   "converged_fraction": 0.0,
   "vs_arm_K1_max_ns": 0.193115234375,

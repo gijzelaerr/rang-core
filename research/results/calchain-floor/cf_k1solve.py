@@ -25,7 +25,13 @@ RULES = {
         "stop_criterion": 1e-12,
         "stop_fraction": 1.0,
     },
-    "FFT start only (0 iterations)": {
+    "chain with zero_start (section 12)": {
+        "max_iterations": 50,
+        "stop_criterion": 1e-7,
+        "stop_fraction": 0.99,
+        "zero_start": True,
+    },
+    "FFT start, one iteration (max_iterations 0 runs 1)": {
         "max_iterations": 0,
         "stop_criterion": 1e-7,
         "stop_fraction": 0.99,

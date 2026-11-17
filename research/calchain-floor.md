@@ -1,8 +1,11 @@
 # The calibration chain's noise-free floor
 
-Status 2026-11-17: **protocol frozen before any test** (sections 1-5).
-Results go below it. Anything decided after a result is read is dated and
-labelled post hoc. Follows [e2a-3b-k.md](e2a-3b-k.md) sections 9, 10 and
+Status 2026-11-17: **measured** (sections 9, 10, 13); protocol frozen
+before any test (sections 1-5), correction 6 and post hoc addenda 7, 8,
+11, 12. Pass 0's floor is the simulation's design (O-I); pass 1's is a
+K defect shared with CASA (the FFT start on a near-empty refant
+baseline), fixed behind `calibrate.k_zero_start` (default off).
+Anything decided after a result is read is dated and labelled post hoc. Follows [e2a-3b-k.md](e2a-3b-k.md) sections 9, 10 and
 its coordinator decision 4; issue #2, v0.4.0.
 
 ## 1. What is open
@@ -427,43 +430,13 @@ interval 7 because A0 flagged the inner half of each scan (intervals 4-10
 keep 0.4-3 % of their cells): on noise-free data A0 flags the pass-0
 interpolation residual as RFI.
 
-Reading: the pass-1 floor of these simulations is **one or two K1
-solutions on intervals with almost no data** (K applies no `minsnr` or
-`minblperant`, as CASA's K does not; rang matches CASA there), carried by
-B1's combined solve into every antenna. NS escapes because its A0 flagged
-intervals 5-8 completely for IDs 50, 40, 5 and m022 (0 cells), so no K1
-solution is made there. It is a property of
-the estimator's start and of K's missing data-sufficiency rule, not an
-arithmetic defect; nothing was changed here (section 5: a new flag rule
-for K is a default change, and would move every archived K gate).
-
-## For the coordinator
-
-- **Pass 0 located (O-I, frozen rule).** The noise-free K G B floor of
-  e2a-3b-k (KGB0 3.7e-4 on post-A0 cells, 7.2e-4 on the flag stage's) is
-  the simulation's design meeting the chain's interpolation: truth
-  constant per scan with a step between scans 9 and 11, per-scan K0 and
-  G0 pre-applied by linear interpolation across the 4,000 s gap. Remove
-  the step (S0c) or the interpolation (`interp: nearest`) and KGB0 is
-  0 (median), max 2.8e-7, the data's float32. Generator, model, B's
-  channels, flags, K's parametrisation, refant gauge, convergence and
-  float32 all cleared as the floor's cause. Not a rang defect; CASA
-  interpolates the same way, hence their 7e-7 agreement.
-- **Pass 1 located (post hoc).** KGB1's floor is one or two K1 solutions
-  on intervals with almost no unflagged data (ID 50 interval 7: 94 cells,
-  2 on the refant baseline), where the FFT start (refant baselines only)
-  and Gauss-Newton converge to a noise-free local minimum 1,293-2,384 ns
-  from truth; B1, combining scans, spreads it to every antenna. In
-  stepped arms A0 makes such intervals by flagging the pass-0 residual.
-  Not changed. A follow-up for a frozen test: a data-sufficiency rule
-  for K (cells or channels on the refant baseline, behind a key; CASA's
-  K has none) or a start from all baselines.
-- **For future noise-free controls:** use truth constant over the
-  observation, or nodes at the solution times, or `interp: nearest`; and
-  do not read pass 1 with A0 on noise-free data (A0 flags 92.3 → 96.7-98.8 %).
-- **No code change, no gate moved.** Scripts and receipts in
-  `research/results/calchain-floor/`; outputs on nash in
-  `~/rang-data/outputs/calchain-floor-20261117/` (size in the hand-back).
+Reading as first written (superseded by sections 11-13, which measured
+what this paragraph inferred): the pass-1 floor is one or two K1
+solutions on intervals with almost no data, carried by B1's combined
+solve into every antenna; NS escapes because its A0 flagged intervals 5-8
+completely for IDs 50, 40, 5 and m022 (0 cells, nearest-time bins), so no
+K1 solution is made there. The data-sufficiency explanation and "not a
+defect" did not survive section 13.
 
 ## 11. Addendum 2026-11-17 14:55, post hoc (after section 10 was written, before the tests below ran)
 
@@ -525,3 +498,114 @@ parallel-hand cells is kept. Decision rules:
   data in one interval are reduced to a few cells; key off reproduces a
   wrong delay (or the test states that it does not), key on recovers
   truth.
+
+## 13. Results of sections 11 and 12 (measured 2026-11-17, nash)
+
+**T3 on S0c (pre-registered for a pass-1 floor): cleared.** CL strict
+(3,625 s): KGB0 0 (max 2.1e-7), KGB1 3.65e-3 (CL: 3.5e-3, within 20 %);
+K1 converges fully (565 iterations, fraction 1.0) and ID 50's interval 7
+stays 2,263 ns from truth.
+
+**F50: carries.** CL with ID 50's rows in K1 interval 7 flagged before
+the run: KGB1 median 0, p95 6.3e-8, max 5.9e-7, machine precision on the
+primary and the post-A0 cells (KGB0 unchanged at 0 / 2.5e-7). The one
+wrong K1 solution carries all of CL's pass-1 floor (3.5e-3).
+
+**Cost on the solver's cells: identifiable.** On the 94 cells `gaincal`
+gives the kernel for ID 50's interval 7 (the solver's own bins), the
+relative cost with the best free offset per hand is 1.7e-15 (X) and
+1.8e-15 (Y) at truth, 1.71 and 1.81 at rang's delays (1,293.6, 2,263.2
+ns): rang's answer fits none of its data while truth fits all of it. By
+section 11's rule a **rang defect**: a wrong, unflagged K on identifiable
+noise-free data.
+
+**Where it comes from (`cf_kdiag`, the solver's bins).** From the
+captured arrays of that interval: chain rule 1,293.6 / 2,263.2 ns; FFT
+start strict (either offset start) 1,293.4 / 2,263.2 ns; **start at 0,
+strict: 0.1143 / 0.0899 ns = truth**. The same in R's run for ID 40's
+interval 7 (5 refant cells, 257 cells): FFT start 2,384 ns, start at 0
+truth to 6e-4 ns. Refant-baseline cells do not separate wrong from right
+(CL: the wrong one has 2, every right one ≥ 250; R's run: right
+solutions with 8 refant cells, a wrong one, ID 5, with 10), so a
+data-sufficiency flag is not the fix.
+
+**Real data: the same solution, in rang and in CASA.** ID 50's K1 in
+interval 7, against its other intervals (0.11 / 0.09 ns):
+
+| Table | ID 50, K1 interval 7 (X / Y, ns) | other K1 solutions off by > 1 ns |
+| --- | --- | --- |
+| subset, rang T-T (archived) | 2,329.4 / 2,298.6 | 0 of 390 |
+| subset, CASA `casa-ntf` (its own K) | 2,362.1 / 2,320.1, unflagged | 0 of 390 |
+| E2-A field 0, rang (archived 9.13) | 2,335.1 / 2,291.4 | 0 of 1,678 |
+| E2-A field 0, CASA (archived 9.13) | 2,365.3 / 2,380.8 | 0 of 1,678 |
+
+So e2a-3b-k's "ID 50, its delay near the 2,392 ns ambiguity" is this
+solution, not the antenna's delay (0.11 ns), and both tools share it.
+Inferred, not measured: ID 50's G1 amplitude in intervals 5-9 (rang
+0.73, 0.38, 0.09, 0.29, 0.72; CASA on its own K 0.73, 0.14, 0.12, 0.72, 0.72)
+is the band-averaged gain of data corrected by that delay, interpolated
+linearly into the neighbouring intervals; and e2a-3b-k's subset 1.1e-3,
+read there as "one G1 solution CASA flags by `minsnr`", sits downstream
+of it. No gate is re-read here.
+
+**The fix (`calibrate.k_zero_start`, default off; section 12's rules).**
+
+| Arm | KGB0 | KGB1 median / p95 / max | K1 worst error | K wall time |
+| --- | --- | --- | --- | --- |
+| S0f′, this branch, key off (`lin2`) | tables bitwise equal to archived U (all six) | – | – | 770 s run |
+| S0c, key on (`zs`) | 0 / 8.2e-8 / 2.5e-7 | **0 / 5.8e-8 / 5.9e-7** (machine precision) | 2.2e-8 ns | 922 s run (CL 840 s) |
+| S0f′, key on (`zs`, reported) | 7.21e-4 (the pass-0 floor) | 7.8e-4 / 1.7e-2 / 0.30 | 7.5e-3 ns (was 2,384) | 868 s run |
+| `gaincal` on CL's MS, key on (P2) | – | – | ID 50 interval 7: 0.11429 / 0.08987 ns; all 364 solutions within 3.7e-7 ns of truth | – |
+
+The key carries pass 1 on S0c by the frozen words (KGB1 3.5e-3 to
+machine precision). Gates unchanged: with the key off the code path is
+the old one (the second run and the merge happen only with the key), and
+S0f′'s six tables are bitwise equal to archived U's. On S0f′ the key
+removes the 2,384 ns solution but pass 1 stays on the pass-0 floor, as
+section 9 expects. Unit tests: `tests/test_cal_delay_zero_start.py` (a
+noise-free interval with two cells on the refant baseline: off 45-284 ns
+wrong over 20 seeds tried, on within 1e-9 ns; full data with 8 ns delays:
+the FFT run kept bit for bit; the key out of the stage hash at its
+default). Two arms first booked as `zs` ran without the key (a script
+bug, `cf_run.py`'s replacement did not match); they are kept on nash as
+`void-zs*` and equal `lin` (KGB0, KGB1 as CL and R), and were rerun.
+
+## For the coordinator
+
+- **A rang defect, shared with CASA, found and fixed behind a key.**
+  rang's K (and CASA's `gaintype='K'`) returns a wrong, unflagged delay
+  when a solution interval keeps very few cells on the baseline to the
+  refant: the FFT start, computed on the refant baselines only, lands on a
+  sidelobe and Gauss-Newton converges there. On E2-A it is ID 50 (m053),
+  K1 interval 7 (94 cells, 2 to the refant): **2,335 / 2,291 ns at full
+  scale in rang's archived K1 and 2,365 / 2,381 ns in CASA's**, against
+  0.11 / 0.09 ns in every other interval; the only such solution in either
+  tool's 1,680. e2a-3b-k read it as "its delay near the 2,392 ns
+  ambiguity". `calibrate.k_zero_start` (default off; `cal_delay.solve`
+  `zero_start`) adds a zero-start run and keeps per interval the lower
+  residual: on S0c it takes KGB1 from 3.5e-3 to machine precision; with
+  the key off the six S0f′ tables are bitwise unchanged.
+- **Inferred, not measured, for e2a-3b-k:** ID 50's G1 collapse in
+  intervals 6-8 (0.38, 0.09, 0.29 in rang; 0.14, 0.12 in CASA) and the
+  subset's 1.1e-3 ("one G1 solution CASA flags") sit downstream of this K1
+  solution. Owner decision: whether to measure E2-A with the key on (one
+  subset run, one field-0 run) and whether it becomes the default.
+- **Pass 0 located (O-I, frozen rule), no rang defect.** The noise-free
+  KGB0 floor (3.7e-4 post-A0, 7.2e-4 on the flag stage's cells) is the
+  simulation's per-scan constant truth, stepped between scans 9 and 11,
+  against per-scan K0, G0 pre-applied by linear interpolation across the
+  4,000 s gap. Constant truth or `interp: nearest` each give KGB0 0
+  (median), max 2.8e-7 (float32). Generator, model, fillgaps, flags, K's
+  parametrisation, refant gauge, convergence and float32 cleared.
+- **Future noise-free controls:** truth constant over the observation (or
+  nodes at the solution times, or `interp: nearest`), and no A0 on
+  noise-free data (it flags the pass-0 residual: 92.3 % to 96.7-98.8 %).
+- **Protocol record.** Pass 1 read "contradiction" under T2's frozen
+  words; everything after section 6 is post hoc with its addendum
+  committed before its test, except addendum 11, written before F50 and
+  the cost probe ran but committed after (`0311885`). P2's control
+  (≤ 1e-6 ns) was missed by 0.012 ns and P2 is read with that label.
+- Scripts and receipts: `research/results/calchain-floor/`; outputs on
+  nash `~/rang-data/outputs/calchain-floor-20261117/`; nash's worktree
+  holds scp'd copies of the scripts and of the four `python/rang` files,
+  not a pulled commit.
