@@ -178,6 +178,7 @@ def _solve_one(ms, term, field_id, tables, common):
     if kind != "G":
         kwargs.pop("average_freq", None)  # task E2: G-type solves only
         kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
+    kwargs.pop("xf_calwt", None)  # task xf-gap: Xf solves only
     if kind != "B":
         kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
     if kind != "K":
@@ -223,6 +224,8 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["average_freq"] = True  # task E2: G-type solves only
     if kind == "Gpol" and common.get("casa_phase_weights"):
         kwargs["casa_phase_weights"] = True  # task A3: calmode p only
+    if kind == "Xf" and common.get("xf_calwt"):
+        kwargs["calwt"] = True  # task xf-gap: CASA's calwt solve weights
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -461,6 +464,7 @@ def run(
     casa_phase_weights=False,
     bandpass_model_divided=False,
     k_zero_start=False,
+    xf_calwt=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -502,7 +506,10 @@ def run(
     `model_divided`). `k_zero_start` (`calibrate.k_zero_start`,
     research/calchain-floor.md section 12): every K solve also runs from a
     zero start and keeps, per interval, the run with the lower residual
-    (`rang.cal_delay.solve` `zero_start`). Returns `{"tables": {name:
+    (`rang.cal_delay.solve` `zero_start`). `xf_calwt` (`calibrate.xf_calwt`,
+    research/xf-gap.md section 7): every Xf solve weights its cells as
+    CASA's `calwt` scales them by the pre-applied tables
+    (`rang.cal_pol.load`'s `calwt`). Returns `{"tables": {name:
     {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
@@ -526,6 +533,8 @@ def run(
         common["model_divided"] = True
     if k_zero_start:
         common["zero_start"] = True
+    if xf_calwt:
+        common["xf_calwt"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -561,6 +570,7 @@ def run(
             kwargs.pop("model_column")
             kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
             kwargs.pop("zero_start", None)  # calchain-floor: K solves only
+            kwargs.pop("xf_calwt", None)  # task xf-gap: Xf solves only
             table, record, merged = cal_fluxscale.bootstrap(
                 ms,
                 base,

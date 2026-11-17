@@ -2263,3 +2263,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gpu-grid timing: WSClean 3.7 `minres` `-mgain` 0.8 / 0.9, `-j 16`, WSL Docker, host glacier | the same | 17.65, 15.76, 40.42 s / 12.69, 16.14, 40.55 s | 0.58, 0.58, 1.13 GB | clean repeat 1; repeat 2 unclean (GPU drift) 3-17 % slower |
 | 2026-11-17 | gpu-grid timing session (warm-up, 2 repeats, stopped at a void GPU arm), host glacier | 25 GeMClean + 12 WSClean runs | 19.3 min exclusive | – | 20:32:20-20:51:35 |
 | 2026-11-17 | gpu-grid: `tools/check_all.py --quick` (final), host glacier | worktree `d98a41a` | 96 s (lock wait excluded; build cached) | – | PASS |
+| 2026-11-17 | xf-gap: `maturin develop --release` (fresh worktree), host nash | repo | 350 s | – | heavy lock 4 slots, `CARGO_BUILD_JOBS=4` |
+| 2026-11-17 | xf-gap: `simtruth_ms generate poldx --noiseless`, sets dev / held / held4 / dev90, host nash | 16 ant, 256 ch | 12 / 15 / 7 / 15 s | – | 2 workers |
+| 2026-11-17 | xf-gap: `rang-core run` calibrate + apply (noavg / avg), host nash | held (720 s xcal scans); dev | 93 / 88 s; 14 / 15 s | – | 2 slots, 2 threads; includes the MS copy |
+| 2026-11-17 | xf-gap: CASA 6.7.6.14 chain (apptainer), host nash | held / dev / held4 / dev90 | 79 / 19 / 21 / 67 s | – | `OMP_NUM_THREADS=2`; includes the MS copy |
+| 2026-11-17 | xf-gap: harness ladder L0-L3 (rang solvers on CASA tables), host nash | held noavg / avg; dev | 164 / 155 s; 11 s | – | four chains each |
+| 2026-11-17 | xf-gap: mirror M1-M3 + T0 (CASA on rang's tables), host nash | held; dev | 133 s; 48 s | – | four CASA runs each |
+| 2026-11-17 | xf-gap: CASA `casawt` (applycal, split, setjy, polcal Xf), host nash | held; dev | 31 s; 13 s | – | per arm |
+| 2026-11-17 | xf-gap: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `xf-gap` at `b534e20` + index entry | 737 s (lock wait excluded) | – | PASS (369 passed, 41 skipped); gain-hash gate PASS; later commits: docs, receipts and two tests (run separately, pass) |

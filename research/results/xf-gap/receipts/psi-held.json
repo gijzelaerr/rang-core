@@ -1,0 +1,38 @@
+{
+ "truth": "held",
+ "scans": [
+  {
+   "scan": 2,
+   "n_int": 90,
+   "psi_first_deg": -211.14597138270048,
+   "psi_last_deg": -213.73152283337393,
+   "span_deg": 2.681347402814083,
+   "groups": 1
+  },
+  {
+   "scan": 8,
+   "n_int": 90,
+   "psi_first_deg": -235.75741559742764,
+   "psi_last_deg": -245.89834550354962,
+   "span_deg": 10.298989165659918,
+   "groups": 3
+  },
+  {
+   "scan": 14,
+   "n_int": 90,
+   "psi_first_deg": 61.91958304499032,
+   "psi_last_deg": 52.61260467591319,
+   "span_deg": 9.348951134306986,
+   "groups": 2
+  },
+  {
+   "scan": 22,
+   "n_int": 90,
+   "psi_first_deg": 28.672436264142583,
+   "psi_last_deg": 27.218620409959353,
+   "span_deg": 1.4951231260219835,
+   "groups": 1
+  }
+ ],
+ "groups_total": 7
+}
