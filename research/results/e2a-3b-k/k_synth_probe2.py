@@ -42,7 +42,7 @@ def scipy_ls(arr, a1, a2, skip, nant, starts, refant=0):
         sw = np.sqrt(np.where(f, 0, w))
         for ch in range(nchan):
 
-            def res(x):
+            def res(x, sw=sw, ch=ch, v=v, m=m):
                 g = x[:nant] + 1j * np.insert(x[nant:], refant, 0.0)
                 r = sw[:, ch] * (v[:, ch] - g[p] * np.conj(g[q]) * m[:, ch])
                 return np.concatenate([r.real, r.imag])

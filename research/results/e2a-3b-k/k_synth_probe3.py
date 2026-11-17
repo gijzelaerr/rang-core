@@ -54,7 +54,7 @@ def collapse(arr, a1, a2, skip):
 
 
 def test_probe3(exact):  # noqa: F811
-    ms, model, tables, _ = exact
+    ms, model, _, _ = exact
     with core_ms.open_table(ms / "ANTENNA") as t:
         positions = t.getcol("POSITION")
     fld, arr, _ = prepared(
