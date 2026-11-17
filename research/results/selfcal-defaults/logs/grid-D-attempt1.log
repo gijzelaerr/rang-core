@@ -1,0 +1,9 @@
+heavy_lock: waiting for head 01794875089487209601-linux-4124515.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794875244493212964-linux-4127328.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794878509648297098-linux-4168221.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794879013800956552-linux-4174247.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T02:05:34Z load 20.04 15.12 9.10 D start
+04:06:10 stage prepare D wall_s 35.7
+prepare 35.91 s 196256 KB
+rang-core: selfcal: running

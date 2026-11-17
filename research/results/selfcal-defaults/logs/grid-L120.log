@@ -1,0 +1,10 @@
+heavy_lock: backfilling past head 01794875089487209601-linux-4124515.json (waited 3 of 15 min)
+== 2026-11-17T00:27:45Z load 8.55 4.78 4.10 L120 start
+02:28:27 stage prepare L120 wall_s 41.7
+prepare 41.98 s 196092 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 3590.2 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/L120/run/receipts/selfcal-20261117T002829Z.rang-receipt.json
+selfcal 3599.25 s 9747640 KB
+03:28:31 stage clean L120 wall_s 4.7
+== 2026-11-17T01:28:31Z load 5.74 7.23 8.57 L120 end

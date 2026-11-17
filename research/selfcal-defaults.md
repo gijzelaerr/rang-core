@@ -1,6 +1,9 @@
 # Rang: the self-calibration defaults, a frozen grid on the pilot (issue #6)
 
-Status, 2026-11-17: **proposed, frozen before any run.** Coordinator's decision (owner delegated),
+Status, 2026-11-17: **measured (section 8): default unchanged under the frozen rule.** The chosen
+cell, two phase rounds at 600 s (P2@600), gives D_ho 0.905 against the current default's 0.892,
+which is less than the 0.05 margin. Protocol frozen in `7bd4fb0` before any run; clarification 1
+(`4483ec6`) came before any 600 s or `inf` run solved. Coordinator's decision (owner delegated),
 2026-11-17, after [floor-3.md](floor-3.md). floor-3's frozen table said that the default selfcal
 settings are the next question for #6. Companion: [floor-4.md](floor-4.md) (#13). Both share the
 nash reproduction G1 of floor-3's arm P. Host: **nash** ([nash-host.md](nash-host.md)), heavy lock
@@ -145,7 +148,85 @@ work, so about 4 h or more on nash with three in parallel. Wall times go into
 
 ## 8. Results
 
-Not scored yet.
+Measured 2026-11-17 on **nash**. Every job ran through the heavy lock (`RANG_HEAVY_NICE=19`, plus
+`nice -n 19 ionice -c3`, `RAYON_NUM_THREADS=8`). The grid runs booked 8 slots and 20 GB (24 GB for
+600 s, 96 GB for D) and the absorption run X 2 slots and 24 GB (scheduling change, section 9). At
+most three grid runs were in flight. The scripts ran from the worktree at `b342702`, and at
+`4483ec6` from L600's second attempt on. The package came from nash's main checkout, and every run
+records the same extension, `gemclean_sha256` `ce12e7d2…`. The scores of L60, L120 and L300 ran
+after HB1 had been read (`NOSCORE=1`, then `run_nash.sh score`). The other runs scored at their
+end. Archive: [results/selfcal-defaults/](results/selfcal-defaults/): `summary.json`
+(`summary-before-X.json` before run X), `scores/<run>.json` (every cell on S_B and S_A, solve
+health, round CLEAN, model hashes), the thermal of both sets, `logs/` (every job, the failed
+`*-attempt1` and the rebooked `grid-D-ticket100`), and `scripts/` (the nash drivers). Run
+directories (stores, images) stay on nash in `~/rang-data/outputs/selfcal-defaults-20261117/`.
+The MS copies are deleted.
+
+### 8.1 Frozen readings
+
+**Gates. All pass.** G0 and G1 are those of floor-4 (G1 bit-equal to floor-3). **HB1:** the
+numpy apply reproduces `floor3_score`'s F_Fix with relative difference 0.0. **HB2:** T on S_B is
+44.090 µJy (relative −5e-10). S_A's T is 44.063 µJy. **Round-1 models:** identical across all 13
+runs (one SHA-256), so P_0 is one number per set: F_0 = 1,068.10 µJy on S_B and 1,098.09 µJy on
+S_A. **Determinism:** rounds 1 to n of every M and N run equal L's gain stores bit for bit.
+
+**Health.** Every cell is healthy: converged fraction ≥ 0.9989 in every round, solutions flagged
+1.64 % (antenna 21, flagged throughout), 0 clipped, no cells newly flagged. **Every gap
+Δ = D_in − D_ho lies between −0.0027 and −0.0022**, so no cell shows noise fitting, and all 24
+cells and the default are eligible.
+
+**Grid** (D_ho on the held-out channels; in brackets F on S_B in µJy):
+
+| cell | 60 s | 120 s | 300 s | 600 s |
+| --- | --- | --- | --- | --- |
+| P1 (one Sp round) | 0.877 (376.8) | 0.877 (377.0) | 0.876 (379.0) | 0.873 (382.9) |
+| P2 | 0.909 (325.1) | 0.909 (325.3) | 0.908 (327.5) | **0.905 (331.9)** |
+| P3 | 0.910 (322.8) | 0.910 (323.0) | 0.909 (325.2) | 0.906 (329.8) |
+| P1A (Sp, then Sa) | 0.914 (313.1) | 0.914 (313.3) | 0.913 (315.7) | 0.910 (320.5) |
+| P2A | 0.916 (310.8) | 0.915 (311.1) | 0.914 (313.5) | 0.911 (318.4) |
+| P3A | **0.916 (310.1)** | 0.916 (310.3) | 0.915 (312.6) | 0.912 (317.5) |
+| D, current default (Sp, Sa, `solint: inf`) | | | | 0.892 (350.4) |
+
+Amplitude cells are normalised by σ² with σ = 1.0039-1.0043. D_in runs 0.0022-0.0027 below
+D_ho in every cell.
+
+**Rule.**
+
+1. Eligible: all 24 cells (and D).
+2. D* = 0.9159 (P3A@60). Candidates with D_ho ≥ 0.8959: all P2, P3, P1A, P2A and P3A cells (20). The
+   cheapest is **P2@600**: two rounds and no amplitude. P1A has two rounds as well but amplitude,
+   and 600 s is the longest interval. D_ho(P2@600) = 0.9050.
+3. Absorption check: X, P2@600 with `minuvw_m: 400`: running (filled in when it ends).
+4. Change: D is eligible (healthy, Δ −0.0025), and D_ho(P2@600) − D_ho(D) = 0.9050 − 0.8922 =
+   **0.013 < 0.05**. Neither branch of step 4 holds.
+5. **The default is unchanged** (`rounds: 2`, Sp then Sa, `solint: inf`). This holds whatever
+   step 3 gives.
+
+**What it means for #6 (frozen).** On the pilot (one 1 h scan, one band, one bright source), the
+current default lowers the held-out excess by 0.89. No cell of the grid beats it by the frozen
+margin of 0.05, the best by 0.024 (P3A@60). Amplitude self-calibration after the phase rounds
+helps: each nA cell beats its n-round phase-only cell by 0.005-0.037. Shorter intervals help by
+0.004 at most, between 600 s and 60 s. The pilot's errors are steady, so `inf` is nearly
+enough.
+
+### 8.2 Post hoc remarks (not part of the frozen reading)
+
+- **One phase round is worse than the default.** P1 (0.873-0.877) is the floor-3 setting, and D
+  (0.892) beats it by 0.015-0.019. A second phase round adds 0.03 by improving the model the last
+  round solves against. That is the largest single step in the grid.
+- **No overfitting by noise** at any interval or freedom: Δ is the same −0.0025 ± 0.0003 for
+  phase-only and amplitude cells, from 60 s to `inf`. A gap that is the same for every
+  setting, the default included, belongs to the two channel sets (S_A's P_0 is higher, 1,098
+  against 1,068 µJy), not to any setting.
+- **Remaining floor.** The best cell leaves 310 µJy on S_B (7.0 × T). That is close to floor-3's
+  379 µJy after one round on the full data, and the gain from more freedom levels off.
+- **Memory.** D's scan-long solve peaked at 37 GB of resident memory against the 80 GiB the
+  chunk plan predicted, and the 600 s runs at 11.7 GB against 13.6 GiB. The current default
+  cannot run on this pilot at the default `memory_limit_gb` of 8 (clarification 1). That is a
+  usability problem for #6, independent of the score.
+- **Cost.** The selfcal stage wall times, at 8 threads on a shared host, are L60 3,291 s, L300
+  5,753 s, M60 1,807 s, M600 3,119 s and D 2,041 s. Solves at 300-600 s take 3-4 × those at
+  60-120 s (925 against 287 s for one Sp round). D's `inf` solve is the fastest (299 s).
 
 ## 9. Clarifications before the scored runs
 
