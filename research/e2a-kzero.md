@@ -206,3 +206,40 @@ A failed step stops its chain; it is rerun from that step (`kz_chain.sh ARM
 STEP`, `kz_3b.sh STEP`) after the cause is found and named. A reading that
 cannot be made is "not checked", never met. A scorer bug found on these data
 is fixed with a test and both readings are reported, labelled.
+
+## 8. Progress (2026-11-17 16:50 SAST, interim)
+
+Read so far, controls only (no arm result):
+- **Control S met:** `kz_score.py` on B's tables and e2a-3b-k's CASA arms
+  gives KGB1 3.1248e-3 / 2.2885e-2 (own K) and 1.7927e-3 / 1.9323e-2
+  (rang's K), equal to `score-f0.json` to the last digit
+  (`receipts/score-control-s.json`). B's K1 outlier count is **2**: ID 50,
+  interval 7, X 2,335.0 ns and Y 2,291.4 ns, nothing else above 10 ns.
+- **C-copy met** for ZS and ZSD (hashes `1aec438d…`, `b528098a…`); OFF's is
+  the first step of its branch. The config check confirms the keys
+  (ZS: `k_zero_start` true, `bandpass_model_divided` false; ZSD: both true),
+  and both runs' `config.resolved.json` carry them.
+- B's flag-stage FLAG over every row (`D:`, read only): sha256
+  `09edd31e…` (`receipts/flag-stage-hash-archived.json`), for C-flag.
+
+Running on nash since 16:49:58 SAST: `rang-core run` of ZS and ZSD (4 slots
+each), driver `O/drive.log` (started at `08125c2`). Found before any arm
+ran and fixed in the scripts (commit `328ca51`): `e2avg_common` and
+`e1b_score` put the checkout's `python/` (no extension) on `sys.path`;
+`kz_*.py` now import the installed wheel's `rang` first and refuse any
+other.
+
+## For the coordinator (interim)
+
+- Nothing read yet beyond the controls above. Expected order: ZS's and ZSD's
+  calibrate finish tonight (after 21:30, so their 3b branches wait for
+  06:00); OFF, the CASA arms and `score-kz.json` tomorrow during the day;
+  each arm's chain (image, selfcal, post, rows) ends about a day after
+  its start at 4 slots.
+- A fresh agent scores from `O/score-kz.json` (M1, M2), `O/{zs,zsd}/R/`
+  (`gate1.json`, `g2a.json`, `g2b-*.json`, `g2c.json`, `qc-selfcal.json`,
+  `row-selfcal.json`, `row-target.json`, `row-flux.json`,
+  `flag-stage-hash.json`) and `O/{zs,zsd,off}/f0/f0win/flags.json` (C-flag),
+  by sections 3-5. `O` = `~/rang-data/outputs/e2a-kzero-20261117` on nash.
+- Disk on nash: three 194 GiB copies plus three 37 GiB `f0.ms` copies
+  (about 700 GiB), deletable after the reading.
