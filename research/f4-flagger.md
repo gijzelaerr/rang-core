@@ -634,6 +634,21 @@ T's): recall 0.954 of 3.92 M positive cells (MAIN_7 two realisations, f2sim-v sc
 209,027 against T's 209,120. At τ = −1.5 added 259,066 > T. Grid ends: −6 recall 0.978 / added 1.87 M;
 +2 recall 0.926 / added 36,686. Stored beside the weights' sha256 here: `seed-2/weights.npz@-1.0`.
 
+**Post hoc observation, 2026-11-17 (Landman's review on issue #1, comment 6943748188, read during the
+run; F4 not changed).** The review was written against F3 and proposes F5 work (factorised antenna
+planes with smoothing over ≥ 800 channels, a noise-variance plane, noise-like and wider injections,
+a new target label scheme, an image-domain gate); those go to a separate F5 draft. Checked against
+F4's frozen implementation: (1) *smoothing absorbing wide-band RFI*: F4's spectral planes have no
+per-antenna smoother; the reference is the other baselines' median `B_c(f)` and the offset is one
+median over channels per baseline (Amendment 2), so a scan-long antenna-local band on fewer than half
+of the channels is not absorbed; Stage 1 measured ZE's recall of F1's antenna-local band at 1.000
+(calibrators). A band on more than half of the channels, or on half of the antennas, would shift
+the median and is not covered (Amendment 2's withdrawn reading). (2) *σ_b from adjacent-channel
+differences*: F4 keeps F3's σ_b; a spectrally smooth coherent signal partly cancels in it, which can
+lower σ_b on an RFI-affected baseline and so raise its normalised planes; no measure here isolates
+that. (3) *noise-like antenna-local RFI*: not in F4's training (T1-T6 are coherent phasors) nor in
+its held-out tests; F4's result, whatever it is, does not cover it.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
