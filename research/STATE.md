@@ -49,6 +49,16 @@ joint reading row 1: H1 attributed under floor-3's standard (not imaging-floor's
 specificity arms not run), share 0.88; for #6 one Sp round fixes most of the pilot's floor, default selfcal
 settings next. Post hoc: 379 µJy (8.6 × thermal) remains unexplained; steady XX − YY phase 17.7° rms, untested.
 
+Floor-4, 2026-11-17, host nash (branch `floor-4`; [floor-4.md](floor-4.md), protocol frozen in `7bd4fb0` before any
+run, archive [results/floor-4/](results/floor-4/)): H1's specificity under imaging-floor's full criterion and the
+XX − YY phase (#13). Gates R0, G0, G1 and GS passed. nash reproduces floor-3's arm P bit for bit (F 1,073.42, 474.83,
+379.26 µJy). T1p is specific: its own arm H1bP gives 1.000, the new arms H2 0.092, H8a 0.000 and H4b 0.004, and
+floor-2's priors at most 0.104 (K1). Plausibility holds (G3P carries 0.825 P_pilot). **Frozen reading row 1: H1
+attributed under imaging-floor's full criterion, share D_T1p 0.83 (fixed model; Sp D_Fix 0.81, D_Fin 0.88); #13's
+done-criterion met for H1**, with H2 and H8a still unresolved and 0.17 of the excess unattributed. XX − YY: a real
+steady phase (halves r 0.999, scatter 9.5° about a −15° gauge constant) that is invisible to Stokes I (per hand
+against scalar ΔD −0.013 in two solvers). It is a polarisation term, outside #13.
+
 Floor-2, 2026-11-16 (branch `floor-2`; [floor-2.md](floor-2.md), protocol frozen in `6d00242` before any run,
 archive [results/floor-2/](results/floor-2/)): imaging-floor 8.6 items 1, 3, 5 on the pilot (#13, #6). Gate R0
 passed (rebuilt prep bit-equal; pilot, C, H1b, M reproduce). Item 1 **gain-like**: the facet-to-antenna drop ratio
