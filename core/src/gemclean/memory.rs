@@ -16,7 +16,10 @@
 //! text are not in them, so the process's peak RSS is reported beside them.
 
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
+use std::sync::atomic::{
+    AtomicBool, AtomicUsize,
+    Ordering::{Acquire, Relaxed, Release},
+};
 
 static LIVE: AtomicUsize = AtomicUsize::new(0);
 /// The largest `LIVE` since the last [`mark`].
@@ -42,19 +45,124 @@ static BUFFERS: Mutex<Vec<(String, usize)>> = Mutex::new(Vec::new());
 pub(crate) fn grow(bytes: usize) {
     let live = LIVE.fetch_add(bytes, Relaxed) + bytes;
     PEAK.fetch_max(live, Relaxed);
+    if bytes >= LARGE || live > SNAP_LIVE.load(Relaxed) + SNAP_STEP {
+        large(bytes as isize, live);
+    }
 }
 
 #[inline(always)]
 pub(crate) fn shrink(bytes: usize) {
     LIVE.fetch_sub(bytes, Relaxed);
+    if bytes >= LARGE {
+        large(-(bytes as isize), 0);
+    }
+}
+
+/// Blocks of at least this many bytes are counted by size
+/// (research/gemclean-memory3.md: which buffers make up the peak).
+const LARGE: usize = 1 << 20;
+/// A new snapshot of the large blocks when the heap passes the last one by this.
+const SNAP_STEP: usize = 1 << 20;
+const SLOTS: usize = 512;
+
+/// Live blocks of at least [`LARGE`] bytes, by exact size, and their copy at
+/// the highest heap so far. The allocator cannot allocate here, so the tables
+/// are fixed arrays behind a spin lock; a size past the table's room is
+/// counted in its last slot (size 0).
+struct Sizes {
+    size: [usize; SLOTS],
+    count: [isize; SLOTS],
+}
+
+static TABLE_LOCK: AtomicBool = AtomicBool::new(false);
+static mut TABLE: Sizes = Sizes {
+    size: [0; SLOTS],
+    count: [0; SLOTS],
+};
+static mut SNAP: Sizes = Sizes {
+    size: [0; SLOTS],
+    count: [0; SLOTS],
+};
+static SNAP_LIVE: AtomicUsize = AtomicUsize::new(0);
+/// The phase count ([`mark`] calls) when the snapshot was taken.
+static SNAP_PHASE: AtomicUsize = AtomicUsize::new(0);
+static MARKS: AtomicUsize = AtomicUsize::new(0);
+
+#[cold]
+fn large(delta: isize, live: usize) {
+    while TABLE_LOCK
+        .compare_exchange_weak(false, true, Acquire, Relaxed)
+        .is_err()
+    {
+        std::hint::spin_loop();
+    }
+    // SAFETY: the tables are only touched under TABLE_LOCK.
+    unsafe {
+        let t = &mut *std::ptr::addr_of_mut!(TABLE);
+        if delta != 0 && delta.unsigned_abs() >= LARGE {
+            let size = delta.unsigned_abs();
+            let slot = (0..SLOTS - 1)
+                .find(|&i| t.size[i] == size)
+                .or_else(|| (0..SLOTS - 1).find(|&i| t.count[i] == 0))
+                .unwrap_or(SLOTS - 1);
+            if slot < SLOTS - 1 {
+                t.size[slot] = size;
+            }
+            t.count[slot] += if delta > 0 { 1 } else { -1 };
+        }
+        if live > SNAP_LIVE.load(Relaxed) {
+            let s = &mut *std::ptr::addr_of_mut!(SNAP);
+            s.size = t.size;
+            s.count = t.count;
+            SNAP_LIVE.store(live, Relaxed);
+            SNAP_PHASE.store(MARKS.load(Relaxed), Relaxed);
+        }
+    }
+    TABLE_LOCK.store(false, Release);
+}
+
+/// The heap at its highest so far (to within [`SNAP_STEP`]), the number of
+/// phases ended before it, and the live blocks of at least 1 MiB then, as
+/// `(size, count)`, largest total first (size 0: sizes past the table).
+pub fn peak_blocks() -> (usize, usize, Vec<(usize, usize)>) {
+    while TABLE_LOCK
+        .compare_exchange_weak(false, true, Acquire, Relaxed)
+        .is_err()
+    {
+        std::hint::spin_loop();
+    }
+    // SAFETY: under TABLE_LOCK.
+    let (size, count) = unsafe {
+        let s = &*std::ptr::addr_of!(SNAP);
+        (s.size, s.count)
+    };
+    let live = SNAP_LIVE.load(Relaxed);
+    let phase = SNAP_PHASE.load(Relaxed);
+    TABLE_LOCK.store(false, Release);
+    let mut out: Vec<(usize, usize)> = size
+        .iter()
+        .zip(count.iter())
+        .filter(|&(_, &c)| c > 0)
+        .map(|(&s, &c)| (s, c as usize))
+        .collect();
+    out.sort_by_key(|&(s, c)| std::cmp::Reverse(s.max(1) * c));
+    (live, phase, out)
 }
 
 #[inline(always)]
 pub(crate) fn resize(old: usize, new: usize) {
-    if new >= old {
-        grow(new - old);
+    let live = if new >= old {
+        let live = LIVE.fetch_add(new - old, Relaxed) + (new - old);
+        PEAK.fetch_max(live, Relaxed);
+        live
     } else {
-        shrink(old - new);
+        LIVE.fetch_sub(old - new, Relaxed) - (old - new)
+    };
+    if old >= LARGE {
+        large(-(old as isize), 0);
+    }
+    if new >= LARGE || live > SNAP_LIVE.load(Relaxed) + SNAP_STEP {
+        large(if new >= LARGE { new as isize } else { 0 }, live);
     }
 }
 
@@ -154,6 +262,7 @@ pub fn mark(label: &str) {
     }
     let live = LIVE.load(Relaxed);
     let peak = PEAK.swap(live, Relaxed).max(live);
+    MARKS.fetch_add(1, Relaxed);
     let (rss, hwm, swap) = resident();
     let phase = Phase {
         label: label.to_string(),

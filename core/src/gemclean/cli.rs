@@ -1220,6 +1220,27 @@ fn memory_section(args: &Args) -> String {
         for (label, bytes) in &buffers {
             println!("  {label:<44} {:>8.3}", gb(*bytes));
         }
+        // research/gemclean-memory3.md: the live blocks at the highest heap.
+        let (live, phase, blocks) = memory::peak_blocks();
+        let during = phases
+            .get(phase)
+            .map_or("after the last phase", |p| p.label.as_str());
+        println!(
+            "heap at its highest: {:.3} GB, during the phase ended by \"{during}\"; blocks of 1 MiB or more then:",
+            gb(live)
+        );
+        let mut rest = live;
+        for (size, count) in &blocks {
+            rest = rest.saturating_sub(size * count);
+            println!(
+                "  {count:>5} x {size:>13} bytes  {:>8.3} GB",
+                gb(size * count)
+            );
+        }
+        println!(
+            "  smaller blocks                          {:>8.3} GB",
+            gb(rest)
+        );
     }
     if memory::counting() {
         obj(&[
