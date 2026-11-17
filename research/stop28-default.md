@@ -122,3 +122,9 @@ simulation or hash check stops its stage and is reported.
 **How to read a run.** The driver runs unattended (`setsid nohup`); its log
 `~/rang-data/outputs/stop28-default-20261117/logs/driver-<stage>.log` ends with a line `DRIVER-END <stage> rc=N`.
 `timing.tsv` there lists every locked job (name, wall including lock wait, exit code).
+
+## Amendments
+
+**1, 2026-11-17, before any run.** I2's "index of D's first cycle (from 1)" means the report's own 0-based cycle
+`index`, searched over all cycles: R's cycle count equals the `index` of D's first cycle whose `peak_start` is below
+1.02 T. On the pilot T is that run's threshold (3 or 1 mJy). Driver: `examples/stop28_default.py`.
