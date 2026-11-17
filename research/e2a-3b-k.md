@@ -243,3 +243,84 @@ every antenna through its baselines.
   TT-TK3 respectively; anything else is reported as mixed. Either way the
   next question is which G1 is right for that solution (its SNR in both
   tools), not a rang change unless rang's is shown wrong.
+
+## 8. Results (measured 2026-11-17 on nash, except step 5)
+
+Receipts: [results/e2a-3b-k/receipts/](results/e2a-3b-k/receipts/);
+outputs `~/rang-data/outputs/e2a-3b-k-20261117/` on nash. Every step rc 0.
+KGB1 is the K1 G1 B1 composite, median / p95 (class B 7e-4 / 3e-3).
+
+**Data.** `src.ms` on nash: `source_rows` equal the diag's `base.json`,
+FLAG hash `e6910ad4…` after the flag-stage import. `f0.ms`: rows equal D3's,
+FLAG `24b124a4…` (D3's). Noise (step 4's σ): 10,710 dump pairs, median σ
+per component 0.090 (XX), 0.093 (YY), 0.126 (cross hands); 934 of 4,096
+channels had fewer than 50 pairs and took the median.
+
+**Step 5, the synthetic (on the Windows host, 1 slot; `k-synth*-win.json`).**
+- Strict stopping (1000 iterations, 1e-12, fraction 1.0) changes nothing:
+  averaged divided against unaveraged stays 5.05e-3 (K, G pre-applied) and
+  6.3e-2 (nothing pre-applied). H-C (convergence) is **not** the cause.
+- A SciPy least-squares fit of the unaveraged weighted χ² (per channel and
+  hand, started from both solutions) lands on the **divided average** to
+  2e-8, at χ² 14.270 (K, G) and 2548.50 (none); the unaveraged kernel's B
+  sits at 14.493 and 2592.91.
+- Cause (post hoc probe 3): the unaveraged kernel drops every cell with any
+  correlation flagged (QuartiCal's rule, `core/src/solve.rs`
+  `data_flags`), while the averages are per correlation. The kernel run on
+  per-baseline means of the same rows, with FLAG OR-ed over the four
+  correlations first, equals the unaveraged B to 3.5e-8. The fixture flags
+  by correlation: of 1,728 cross cells, 627 have a flag and only 80 all
+  four.
+- E2-A's data cannot show it: FLAG is equal over the four correlations in
+  every cell of the subset and of field 0 (0 of 7.8e8 cells differ,
+  `flags-by-correlation.json`), which is why the subset's divided average
+  equals its unaveraged B (e2a-3b-diag 9).
+- Reading: H-W in the sense of section 4, located in the **unaveraged**
+  path, not the averaged one. Not changed: it does not touch E2-A, and
+  which rule CASA follows for a cell with one correlation flagged was not
+  tested. Documented in `cal_bandpass.bandpass`, with a test (flags equal
+  over correlations: divided average = unaveraged B within 1e-5).
+
+**Step 2, model (H-M): cleared.** rang's MODEL_DATA against CASA's
+`setjy(usescratch=True)` column: |M_r/M_c − 1| median 0, max 1.1e-16;
+phase ≤ 4.5e-10°; both within 9.6e-8 of Reynolds 1994 in NumPy.
+
+**Step 3, real subset (CASA on nash, imported flags).**
+
+| Pair | KGB1 median / p95 | KGB0 |
+| --- | --- | --- |
+| control N-TK3 vs archived T-K3 | 0.0 / 0.0 (met) | 0.0 |
+| control rang U (nash, this branch) vs archived T-T | 4.7e-6 / 1.0e-2 | 3.3e-8 |
+| TT-TF (CASA's own K, nash) | 6.46e-3 / 3.3e-2 | 3.35e-3 |
+| TT-TK3 (CASA on rang's K0, K1) | 1.10e-3 / 1.6e-2 | 1.0e-4 |
+| **TT-TKG** (CASA's B on rang's K and G) | **1.04e-4** / 3.05e-3 | 4.6e-5 |
+
+(U's p95 against T-T is A0's flags: nash's A0 flags a few cells
+differently; CASA's arms all take T-T's imported flags.) Step 1's split of
+TT-TK3: B1-only 1.08e-3, G1-only 6.9e-5; a per-channel factor common to
+all rows is 1.4e-4 and removing it leaves 1.09e-3; amplitude part 3.8e-4,
+phase 5.1e-4 rad. By step 3's rule (TT-TKG ≤ 0.5 × TT-TK3) the part sits
+in **G1**, entering through B1's pre-apply.
+
+**Section 7, the one G1 flag.** rang's and CASA's G1 (both on rang's K1)
+differ by 5.6e-5 (median relative) and in one flag: ID 50 (m053),
+interval 7, X hand, which CASA flags (its SNR 2.22 < `minsnr` 3) and rang
+keeps (rang's SNR 30.1). Both solved nearly the same value (amplitude
+0.091 against 0.088; ID 50's G1 amplitude is 0.72 in intervals 5 and 9,
+0.38, 0.09, 0.29 in 6-8, a decorrelation of that antenna).
+
+| Pair | KGB1 median / p95 |
+| --- | --- |
+| TT-TKGf (CASA's B on rang's G1 with that solution flagged) | 1.05e-3 / 1.5e-2 |
+| TT-TK3u (CASA's B on CASA's G1 with it unflagged, rang's value) | 1.44e-4 / 3.3e-3 |
+
+**The flag carries the 1.1e-3** by section 7's rule (1.05e-3 ≥ 0.8 ×
+1.10e-3; 1.44e-4 ≤ 0.5 × 1.10e-3). One flagged G1 solution makes CASA's
+B1 pre-apply correct ID 50's interval-7 data with a gain interpolated from
+intervals 6 and 8 (amplitude about 0.33) instead of the 0.09 the data
+carry, and B1 couples that into every antenna (B1 per antenna differs by
+4e-4 to 1e-3, ID 50 3.4e-3). The two SNRs are different definitions, as
+`research/c2a-gain.md` 1 states: CASA's on its time- and
+frequency-averaged, model-divided buffer, rang's on the cells as they are
+(rang's median G1 SNR 9,833, CASA's 1,323). rang's keeps a solution that
+fits its data; it is not a defect by the rule of section 4.
