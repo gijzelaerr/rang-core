@@ -1286,6 +1286,9 @@ fn run(raw: &[String]) -> Result<(), String> {
         return Ok(());
     }
     let mut args = parse_args(raw)?;
+    if args.memory_report {
+        memory::trace_blocks();
+    }
     if let Some(p) = &args.fits_mask {
         args.masking.fits = Some(mask::read_fits_mask(p, args.size)?);
     }

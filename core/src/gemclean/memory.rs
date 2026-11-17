@@ -45,7 +45,7 @@ static BUFFERS: Mutex<Vec<(String, usize)>> = Mutex::new(Vec::new());
 pub(crate) fn grow(bytes: usize) {
     let live = LIVE.fetch_add(bytes, Relaxed) + bytes;
     PEAK.fetch_max(live, Relaxed);
-    if bytes >= LARGE || live > SNAP_LIVE.load(Relaxed) + SNAP_STEP {
+    if TRACE.load(Relaxed) && (bytes >= LARGE || live > SNAP_LIVE.load(Relaxed) + SNAP_STEP) {
         large(bytes as isize, live);
     }
 }
@@ -53,9 +53,20 @@ pub(crate) fn grow(bytes: usize) {
 #[inline(always)]
 pub(crate) fn shrink(bytes: usize) {
     LIVE.fetch_sub(bytes, Relaxed);
-    if bytes >= LARGE {
+    if bytes >= LARGE && TRACE.load(Relaxed) {
         large(-(bytes as isize), 0);
     }
+}
+
+/// Whether the large blocks are traced: set by [`trace_blocks`] (the binary's
+/// `-memory-report`), so a run without the report takes no lock.
+static TRACE: AtomicBool = AtomicBool::new(false);
+
+/// Trace the live blocks of at least 1 MiB by size from now on, for
+/// [`peak_blocks`]. Blocks allocated before are not in the table, so call it
+/// before the run allocates its buffers.
+pub fn trace_blocks() {
+    TRACE.store(true, Relaxed);
 }
 
 /// Blocks of at least this many bytes are counted by size
@@ -158,6 +169,9 @@ pub(crate) fn resize(old: usize, new: usize) {
     } else {
         LIVE.fetch_sub(old - new, Relaxed) - (old - new)
     };
+    if !TRACE.load(Relaxed) {
+        return;
+    }
     if old >= LARGE {
         large(-(old as isize), 0);
     }
