@@ -1,0 +1,4 @@
+8e2b18b4e896f5b14ec10bf40ef96c2e85dbd69f0985d09ce3a9986ab4e783ce *leak-MFS-I-image.fits
+990ca1a8c5d8be2b416b2d1df563d0b6cd15cb70259ed8e2ca90bc86ddaaa1e2 *leak-MFS-Q-image.fits
+022c2f919d7f6b5ca93ad4cb25c87482a5ce5e71522d1109a468cbc0e72c5db9 *leak-MFS-U-image.fits
+c53bf2b982cb25fd89508bf1c705163ada1f3c45819568c33dd8f38b111c6786 *leak-MFS-V-image.fits

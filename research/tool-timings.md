@@ -2118,3 +2118,12 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | `rang-core run` calibrate + apply, as above, `average_time` on / off | xf-preavg held-out sim (448 int) | 34 s / 33 s | – | Windows workstation; 4 slots; includes the MS copy |
 | 2026-11-17 | CASA 6.7.6.14 chain (`oracle_pol.py`, WSL container), polcal preavg 300 / 8 | chi-offset dev sim | 38 s / 28 s | – | includes the MS copy |
 | 2026-11-17 | CASA 6.7.6.14 chain, polcal preavg 300 / 60 / 8 | xf-preavg held-out sim | 125 s / 103 s / 127 s | – | includes the MS copy |
+| 2026-11-17 | CARACal 8f7bb363, E3-B timed pass (exclusive, idle host; WSL VM 43 GiB, Docker, MeqTrees tile 16, no container limits) | e2b.ms, 272,916 rows × 4,096 ch | 6,926 s | 27.2 GB (container) | rc 0; transform 597, prep 164, flag 921, crosscal 2,758, polcal 2,444 s; peak disk 131 GB; Windows host; research/e3-caracal.md 10.16 |
+| 2026-11-17 | E3 vis measures + WSClean 3.7 IQUV leakage image (heavy_lock 8 slots, 24 GB) | E3-B timed split, 122 GB; scan 18 | 263 s + 1 h 50 min | 2.3 GB (measures) | Windows host (WSL) |
+| 2026-11-17 | `e2_fetch.py a` on nash (8 workers, nice 19) | ESO137 ms1, 7,777 objects, 180.0 GB | 698 s (258 MB/s) | 1.5 GB | host nash; SHA-256 equal to the Windows manifest; load 11-14 |
+| 2026-11-17 | `apptainer pull` of the 17 stimela images by digest to SIF (4 CPUs, heavy_lock 4 slots 8 GB) | 34 GB Docker, 12 GB SIF | 2,764 s | 9.2 GB | host nash, including lock wait |
+| 2026-11-17 | `maturin build --release` at b2d80dc (rang E2 wheel, Linux) | repo | 336 s | 1.4 GB | host nash, heavy_lock 8 slots |
+| 2026-11-17 | `e2_convert.py build` / `verify` / `e2_flaghash.py` of e2a.ms (heavy_lock 1 slot 3 GB) | 1,047,614 rows × 4,096 ch, 194 GB | build 3,221 s (wall incl. queue 4,061 s); verify 3,001 s incl. queue; hash 117 s | 0.6 GB | host nash; 0 cells differ, FLAG hashes = e2-acceptance 9.1; a first verify was killed in the queue (10.15) |
+| 2026-11-17 | the same, smoke build (`--rows 20000` per group) | 60,000 rows | 243 s + 66 s + 37 s | 0.7 GB | host nash |
+| 2026-11-17 | CARACal E3-A smoke tries 1 and 2 on nash (apptainer, 8 CPUs node 1) | smoke e2a.ms, 60,000 rows | 8 s; 867 s | 19.6 GB (tree RSS) | try 1 schema error (10.15); try 2 rc 1 in crosscal K: the smoke rows are 83-89 % flagged at input, 100 % after flag; host nash |
+| 2026-11-17 | `cp -a` e2a.ms for rang's nash run (heavy_lock 1 slot) | 194 GB | 774 s | – | host nash |

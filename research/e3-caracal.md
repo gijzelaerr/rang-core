@@ -659,3 +659,49 @@ unchanged for E3-B; for E3-A they read as follows.
   nash's lock was raised to 44 slots and 320 GB, blocking the queue. Both
   were killed by their owner at about 07:00 and requeued; the full MS's first
   verify was lost (rc 143).
+
+### 10.16 E3-B timed pass (measured 2026-11-17, Windows host)
+
+- Run 04:39-06:35 local, `D:\rang\outputs\e3-20261111-b-timed`, exclusive.
+  At start, `heavy_lock.py status` listed no shared job and the host was
+  idle (load 0.07). The WSL VM had 43 GiB (10.13). MeqTrees tile 16, no
+  container limits. The input MS was unchanged.
+- **rc 0 in 6,926 s** (correctness pass, shared: 6,887 s).
+  - Per worker: obsconf 39, transform 597, prep 164, flag 921,
+    crosscal 2,758, polcal 2,444 s.
+  - Peaks: `set_model_cal` (MeqTrees) 27.2 GB, `flag_rfi` (CASA) 23.7 GB,
+    run folder 131 GB, driver RSS 0.13 GB.
+  - An empty `output/core.61` (05:16, 0 bytes) appeared in crosscal; the
+    run continued and no step failed.
+  - Archive: `e3b-timed/` (cost.json, config, log, caltables, flag
+    summaries, vis.json, leak.json, MFS hashes).
+- **Repeatability against the correctness pass:**
+  - Every readable column of all 10 caltables (K0, G0, B0, G0 append,
+    secondary G0, F0, Kcrs, Xf, Df, Gpol1) is identical.
+  - Both antenna flag summaries are byte-identical.
+  - `vis.json` is identical in every number.
+  - WSClean's leakage image differs in the third digit: |Q|/I 3.06e-5
+    against 3.08e-5, |U|/I 1.49e-5, |V|/I 6.3e-6. The MFS FITS hashes
+    differ, as expected of WSClean's threaded deconvolution.
+  - So the numbers of 10.11 stand as E3-B's measures.
+- Measures: shared lock, 8 slots, 24 GB; vis 263 s, 2.3 GB RSS; leakage
+  image 1 h 50 min. The split (122 GB) and the non-MFS leakage products are
+  deleted. Kept on D: the run's `output\`, logs, the MFS images (0.5 GB) and
+  `e3-20261111-input\e2b.ms` (51 GB, for the coordinator's rang E3 arms).
+
+**E3-B against rang's E2-B frozen arm, by section 6** (numbers only; the
+coordinator applies the words):
+
+| Measure | CARACal (E3-B) | rang (E2-B frozen) | Reading |
+| --- | --- | --- | --- |
+| Wall, 16 threads, exclusive, this host | 6,926 s (WSL VM, Docker, 9P) | 6,195 s (native) | CARACal/rang 1.12, inside the 1.5 band |
+| Peak memory | 27.2 GB (one container, cgroup incl. cache) | 49.0 GB (tree RSS) | different methods |
+| 3C 286 p, scan 17, 6 bins | 0.0871-0.0996 | 0.0874-0.0996 | \|Δp\| ≤ 0.03 points |
+| 3C 286 χ, scan 17 | −0.4° to −4.1° | −0.5° to −4.2° | Δχ +0.12° to +0.22°. Both are about 33-37° from the catalogue's 33°, so the offset of 10.11 is shared by both packages (E2-B 7.3, chi-offset study), not CARACal's |
+| 3C 286 I, scan 17 | 13.6-17.4 Jy | 13.2-17.1 Jy | CARACal/rang 1.009-1.031 |
+| 1934−638 I/SR2016, scan 18 | 0.81-0.93 | rang's own solve sets I to SR2016 by construction | CARACal's MeqTrees lsm model, 7-19 % low |
+| 1934−638 leakage | image \|Q\|/I 3.1e-5 (Df solved on scan 18 itself) | 0.30 % transfer (dev Df, phase-only G), 0.026 % with scan 18's own ap G | not like for like: rang has no own-scan Df on scan 18 |
+
+Reading, offered and not applied: on 3C 286 the two packages agree to
+0.03 points in p and 0.2° in χ, and the time is within the 1.5 band. The
+1934−638 flux scale differs by more than 2 %, from CARACal's own model.
