@@ -1,0 +1,3090 @@
+{
+ "schema": "rang.v030-mcp-chain",
+ "test": "tests/test_mcp_chain.py::test_agent_runs_the_chain_over_stdio",
+ "commit": "6abdccd37ca541d6ebc5c9d405dbc23437904285",
+ "rang_core": "0.2.0",
+ "python": "3.13.16",
+ "platform": "Windows-11-10.0.26300-SP0",
+ "fixture_scan": "outer_scans/1672727931_sdp_l0_scan_9.ms (public fixture)",
+ "confirmation": "played by the test script, standing in for the user",
+ "wall_seconds": 8.31,
+ "polls": 12,
+ "stages": {
+  "flag": "done",
+  "calibrate": "done",
+  "apply": "done",
+  "image": "done",
+  "selfcal": "done"
+ },
+ "flag_versions": [
+  "rang_original",
+  "rang_flag_20261117T072218Z",
+  "rang_calibrate_20261117T072218Z",
+  "rang_apply_20261117T072219Z",
+  "rang_selfcal_20261117T072220Z"
+ ],
+ "image": {
+  "peak": 14.748929023742676,
+  "rms": 1.346249742017708,
+  "finite": 16384,
+  "nan": 0
+ },
+ "config": "version: 1\nfields:\n  fcal: [J1939-6342]\n  target: [J1939-6342]\nflag:\n  strategy: strategy.yaml\ncalibrate:\n  model: {source: setjy, standard: Stevens-Reynolds 2016}\n  refant: m002\n  minblperant: 2\n  primary:\n    field: [fcal]\n    terms:\n      - {type: K, name: K, solint: inf}\n      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}\n      - {type: B, name: B, solint: inf, combine: scan, preapply: [K, G],\n         interp: [linear, linear]}\napply:\n  targets:\n    - field: [fcal]\n      tables: [K, G, B]\n      interp: [linear, linear, linear]\nimage:\n  fields: [target]\n  size: 128\n  scale: 30asec\n  niter: 200\n  auto_threshold: 3.0\n  threads: 2\nselfcal:\n  rounds: 2\n  refant: m002\nrun:\n  stages: [flag, calibrate, apply, image, selfcal]\n",
+ "transcript": [
+  {
+   "t": 229750.166,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+     "protocolVersion": "2025-06-18",
+     "capabilities": {},
+     "clientInfo": {
+      "name": "rang-test-script",
+      "version": "1"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.313,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+     "capabilities": {
+      "prompts": {
+       "listChanged": false
+      },
+      "resources": {
+       "listChanged": false,
+       "subscribe": false
+      },
+      "tools": {
+       "listChanged": false
+      }
+     },
+     "instructions": "rang-core: MeerKAT flagging, calibration and imaging (a research demonstrator,\nnot an operational calibrator). Read tools change nothing. Write tools, when the\nserver allows them, take two calls: the first returns a plan and a `confirm`\ntoken and writes nothing; show the plan to the user, and only after they agree\ncall again with confirm=<token>. Every MS write is preceded by a flag-version\nbackup (rang_original). Long runs return a job at once: poll run_status and\njob_log.",
+     "protocolVersion": "2025-06-18",
+     "serverInfo": {
+      "name": "rang-core",
+      "version": "0.2.0"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.313,
+   "send": {
+    "jsonrpc": "2.0",
+    "method": "notifications/initialized"
+   }
+  },
+  {
+   "t": 229751.313,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list"
+   }
+  },
+  {
+   "t": 229751.315,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+     "tools": [
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "Summarise a Measurement Set as CASA's listobs does (rang.listobs,\nchecked against CASA 6.7.6 with 0 differences): observation, scans,\nfields, spectral windows, sources, antennas. text=True adds the\nlistobs-style report.",
+       "inputSchema": {
+        "properties": {
+         "ms": {
+          "title": "Ms",
+          "type": "string"
+         },
+         "text": {
+          "default": false,
+          "title": "Text",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "ms"
+        ],
+        "type": "object",
+        "title": "listobsArguments"
+       },
+       "name": "listobs",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "listobsDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "Every rang-core configuration key with its default and comment (YAML).",
+       "inputSchema": {
+        "properties": {},
+        "type": "object",
+        "title": "config_defaultsArguments"
+       },
+       "name": "config_defaults",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "config_defaultsDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "Validate a rang-core configuration (rang-core config check): every\nschema error and refusal at once. With ms, also resolve its fields\nagainst that MS and run the preflight. stages: any of flag, calibrate,\napply, image, selfcal (default run.stages).",
+       "inputSchema": {
+        "properties": {
+         "config": {
+          "title": "Config",
+          "type": "string"
+         },
+         "ms": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Ms"
+         },
+         "stages": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Stages"
+         },
+         "all_stages": {
+          "default": false,
+          "title": "All Stages",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "config"
+        ],
+        "type": "object",
+        "title": "config_checkArguments"
+       },
+       "name": "config_check",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "config_checkDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "The state of a rang-core run directory (default <ms>.rang-run):\neach stage's status, times, flag backup and error; the MS's flag\nversions; the receipts; and the jobs started through this server.",
+       "inputSchema": {
+        "properties": {
+         "run_dir": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Run Dir"
+         },
+         "ms": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Ms"
+         }
+        },
+        "type": "object",
+        "title": "run_statusArguments"
+       },
+       "name": "run_status",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "run_statusDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "The rang receipts of a run directory (command, stage, exit code,\nwall time, commit), or one receipt file in full.",
+       "inputSchema": {
+        "properties": {
+         "path": {
+          "title": "Path",
+          "type": "string"
+         },
+         "full": {
+          "default": false,
+          "title": "Full",
+          "type": "boolean"
+         }
+        },
+        "required": [
+         "path"
+        ],
+        "type": "object",
+        "title": "receiptsArguments"
+       },
+       "name": "receipts",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "receiptsDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "The last lines of the log of a job a write tool started (job is the\njob_file it returned) and its state.",
+       "inputSchema": {
+        "properties": {
+         "job": {
+          "title": "Job",
+          "type": "string"
+         },
+         "lines": {
+          "default": 200,
+          "title": "Lines",
+          "type": "integer"
+         }
+        },
+        "required": [
+         "job"
+        ],
+        "type": "object",
+        "title": "job_logArguments"
+       },
+       "name": "job_log",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "job_logDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "The header cards of one HDU of a FITS image.",
+       "inputSchema": {
+        "properties": {
+         "path": {
+          "title": "Path",
+          "type": "string"
+         },
+         "hdu": {
+          "default": 0,
+          "title": "Hdu",
+          "type": "integer"
+         }
+        },
+        "required": [
+         "path"
+        ],
+        "type": "object",
+        "title": "fits_headerArguments"
+       },
+       "name": "fits_header",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "fits_headerDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": true
+       },
+       "description": "Statistics of the finite pixels of a FITS image (or one plane):\nmin, max, mean, std, RMS, median, NaN count, the peak and its pixel\nand sky position.",
+       "inputSchema": {
+        "properties": {
+         "path": {
+          "title": "Path",
+          "type": "string"
+         },
+         "hdu": {
+          "default": 0,
+          "title": "Hdu",
+          "type": "integer"
+         },
+         "plane": {
+          "anyOf": [
+           {
+            "type": "integer"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Plane"
+         }
+        },
+        "required": [
+         "path"
+        ],
+        "type": "object",
+        "title": "fits_statsArguments"
+       },
+       "name": "fits_stats",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "fits_statsDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false
+       },
+       "description": "rang-core run CONFIG MS: the stages of run.stages, written into the\nMS. Without confirm, writes nothing and returns the plan and a\nsingle-use token (15 min); show the plan to the user and, once they\nagree, call again with confirm=<token>. Saves the flag version\nrang_original first. Returns a job (poll run_status, job_log).",
+       "inputSchema": {
+        "properties": {
+         "config": {
+          "title": "Config",
+          "type": "string"
+         },
+         "ms": {
+          "title": "Ms",
+          "type": "string"
+         },
+         "run_dir": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Run Dir"
+         },
+         "force": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Force"
+         },
+         "confirm": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Confirm"
+         },
+         "wait_seconds": {
+          "default": 0,
+          "title": "Wait Seconds",
+          "type": "number"
+         }
+        },
+        "required": [
+         "config",
+         "ms"
+        ],
+        "type": "object",
+        "title": "runArguments"
+       },
+       "name": "run",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "runDictOutput"
+       }
+      },
+      {
+       "annotations": {
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false,
+        "readOnlyHint": false
+       },
+       "description": "gemclean [options] -name NAME MS (rang's imager, WSClean's options;\nan allowlist). Writes NAME-*.fits and, unless\n-no-update-model-required, MODEL_DATA into the MS (after saving a flag\nversion). Without confirm, writes nothing and returns the plan and a\ntoken; call again with confirm=<token> once the user agrees.",
+       "inputSchema": {
+        "properties": {
+         "ms": {
+          "title": "Ms",
+          "type": "string"
+         },
+         "name": {
+          "title": "Name",
+          "type": "string"
+         },
+         "options": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Options"
+         },
+         "confirm": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "title": "Confirm"
+         },
+         "wait_seconds": {
+          "default": 0,
+          "title": "Wait Seconds",
+          "type": "number"
+         }
+        },
+        "required": [
+         "ms",
+         "name"
+        ],
+        "type": "object",
+        "title": "gemcleanArguments"
+       },
+       "name": "gemclean",
+       "outputSchema": {
+        "type": "object",
+        "additionalProperties": true,
+        "title": "gemcleanDictOutput"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "t": 229751.315,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+     "name": "listobs",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.625,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "ms": "<work>\\scan9.ms",
+      "record": {
+       "BeginTime": 59947.2802375292,
+       "EndTime": 59947.28153327735,
+       "IntegrationTime": 111.95264053344727,
+       "nfields": 1,
+       "numrecords": 140,
+       "timeref": "UTC",
+       "field_0": {
+        "code": "T",
+        "direction": {
+         "m0": {
+          "unit": "rad",
+          "value": -1.137007103960574
+         },
+         "m1": {
+          "unit": "rad",
+          "value": -1.1119958085589738
+         },
+         "refer": "J2000",
+         "type": "direction"
+        },
+        "name": "J1939-6342"
+       },
+       "scan_9": {
+        "0": {
+         "BeginTime": 59947.2802375292,
+         "EndTime": 59947.28153327735,
+         "FieldId": 0,
+         "FieldName": "J1939-6342",
+         "IntegrationTime": 7.996616971962616,
+         "SpwIds": [
+          0
+         ],
+         "StateId": 0,
+         "nRow": 140,
+         "scanId": 9
+        }
+       },
+       "observation": {
+        "observer": "Operator",
+        "project": "20230103-0005",
+        "telescope": "MeerKAT",
+        "time_range": [
+         5179444740.637515,
+         5179445132.471761
+        ]
+       },
+       "fields_extra": [
+        {
+         "id": 0,
+         "nrows": 140,
+         "source_id": 0
+        }
+       ],
+       "spectral_windows": [
+        {
+         "id": 0,
+         "name": "none",
+         "nchan": 4096,
+         "frame": "TOPO",
+         "chan_freq_hz": [
+          856000000.0,
+          856208984.375,
+          856417968.75,
+          856626953.125,
+          "... 4096 items"
+         ],
+         "chan_width_hz": [
+          208984.375,
+          208984.375,
+          208984.375,
+          208984.375,
+          "... 4096 items"
+         ],
+         "ref_freq_hz": 1284000000.0,
+         "total_bandwidth_hz": 856000000.0,
+         "centre_freq_hz": 1283895507.8125,
+         "corr_types": [
+          "XX",
+          "XY",
+          "YX",
+          "YY"
+         ],
+         "in_main": true
+        }
+       ],
+       "sources": [
+        {
+         "id": 0,
+         "name": "J1939-6342",
+         "spw_id": 0,
+         "rest_freq_hz": [],
+         "sysvel_m_s": []
+        }
+       ],
+       "antennas": [
+        {
+         "id": 0,
+         "name": "m000",
+         "station": "m000",
+         "diameter_m": 13.5,
+         "itrf_m": [
+          5109271.497354163,
+          2006808.8930278125,
+          -3239130.7361407224
+         ],
+         "longitude_rad": 0.37426496005672905,
+         "latitude_rad": -0.5360416640401464,
+         "height_m": 1095.1998870605603
+        },
+        {
+         "id": 1,
+         "name": "m001",
+         "station": "m001",
+         "diameter_m": 13.5,
+         "itrf_m": [
+          5109284.8540775385,
+          2006824.2217235335,
+          -3239100.126460417
+         ],
+         "longitude_rad": 0.37426666966827316,
+         "latitude_rad": -0.5360360718682629,
+         "height_m": 1095.0728219468147
+        },
+        {
+         "id": 2,
+         "name": "m002",
+         "station": "m002",
+         "diameter_m": 13.5,
+         "itrf_m": [
+          5109272.199343496,
+          2006783.5460499495,
+          -3239145.330041681
+         ],
+         "longitude_rad": 0.37426061537903155,
+         "latitude_rad": -0.536044331364473,
+         "height_m": 1095.24853798002
+        },
+        {
+         "id": 3,
+         "name": "m003",
+         "station": "m003",
+         "diameter_m": 13.5,
+         "itrf_m": [
+          5109294.928584987,
+          2006755.5098540583,
+          -3239126.2662496553
+         ],
+         "longitude_rad": 0.3742543476956605,
+         "latitude_rad": -0.5360408747969513,
+         "height_m": 1094.888566591777
+        }
+       ],
+       "states": [
+        "UNKNOWN"
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.625,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.704,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": false,
+      "stages": {},
+      "flag_versions": [],
+      "receipts": 0,
+      "jobs": []
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.704,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "method": "tools/call",
+    "params": {
+     "name": "config_check",
+     "arguments": {
+      "config": "<work>\\chain.yaml",
+      "ms": "<work>\\scan9.ms",
+      "all_stages": true
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.767,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 5,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "valid": true,
+      "config": "<work>\\chain.yaml",
+      "ms": "<work>\\scan9.ms",
+      "stages": [
+       "flag",
+       "calibrate",
+       "apply",
+       "image",
+       "selfcal"
+      ],
+      "warnings": [],
+      "run_stages": [
+       "flag",
+       "calibrate",
+       "apply",
+       "image",
+       "selfcal"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.767,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 6,
+    "method": "tools/call",
+    "params": {
+     "name": "run",
+     "arguments": {
+      "config": "<work>\\chain.yaml",
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.78,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 6,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "plan": {
+       "command": [
+        "rang-core",
+        "run",
+        "<work>\\chain.yaml",
+        "<work>\\scan9.ms",
+        "--run-dir",
+        "<work>\\scan9.ms.rang-run"
+       ],
+       "stages": [
+        "flag",
+        "calibrate",
+        "apply",
+        "image",
+        "selfcal"
+       ],
+       "writes_ms": true,
+       "writes_flags_in": [
+        "apply",
+        "calibrate",
+        "flag",
+        "selfcal"
+       ],
+       "flag_versions_saved_first": [
+        "rang_original",
+        "rang_<stage>_<UTC time> before each of ['apply', 'calibrate', 'flag', 'selfcal']"
+       ],
+       "run_dir": "<work>\\scan9.ms.rang-run",
+       "warnings": [],
+       "state": {}
+      },
+      "confirm": "bf836d88312d63cea603beabc40904bf",
+      "expires_seconds": 900,
+      "note": "nothing was written; call run again with confirm=<token>"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.78,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.781,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": false,
+      "stages": {},
+      "flag_versions": [],
+      "receipts": 0,
+      "jobs": []
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.781,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "method": "tools/call",
+    "params": {
+     "name": "run",
+     "arguments": {
+      "config": "<work>\\chain.yaml",
+      "ms": "<work>\\scan9.ms",
+      "confirm": "bf836d88312d63cea603beabc40904bf"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.846,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "job_file": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.json",
+      "job": {
+       "schema": "rang.mcp-job",
+       "version": 1,
+       "id": "run-20261117T072217Z-8178be",
+       "tool": "run",
+       "argv": [
+        "<python>\\python.exe",
+        "-m",
+        "rang.core_cli",
+        "run",
+        "<work>\\chain.yaml",
+        "<work>\\scan9.ms",
+        "--run-dir",
+        "<work>\\scan9.ms.rang-run"
+       ],
+       "cwd": "<work>",
+       "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+       "started_utc": "2026-11-17T07:22:17+00:00",
+       "flag_versions_saved": [
+        "rang_original"
+       ],
+       "state": "starting"
+      }
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.846,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229751.848,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {},
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "state": "starting"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229752.349,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 10,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229752.357,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 10,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {},
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229752.857,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 11,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229752.87,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 11,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "running"
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:18+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229753.37,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 12,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229753.373,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 12,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "running"
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:18+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229753.873,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 13,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229753.887,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 13,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "running"
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:19+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229754.387,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 14,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229754.397,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 14,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "running"
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:19+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229754.897,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 15,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229754.927,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 15,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "running"
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:20+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229755.427,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229755.43,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "running"
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:20+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229755.93,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 17,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229755.933,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 17,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "running"
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:20+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229756.433,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 18,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229756.435,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 18,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "running"
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:20+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229756.936,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 19,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229756.947,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 19,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "finished": "2026-11-17T07:22:22+00:00",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 2.1793705000018235,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_selfcal_20261117T072220Z",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c",
+         "input_column": "CORRECTED_1GC",
+         "model_column": "MODEL_DATA",
+         "output_column": "CORRECTED_DATA",
+         "rang_original_saved_now": false,
+         "refant": 2,
+         "restored_before": null,
+         "rounds": 2
+        }
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:22+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 0,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "state": "running"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229757.448,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 20,
+    "method": "tools/call",
+    "params": {
+     "name": "run_status",
+     "arguments": {
+      "ms": "<work>\\scan9.ms"
+     }
+    }
+   }
+  },
+  {
+   "t": 229757.456,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 20,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "run_dir": "<work>\\scan9.ms.rang-run",
+      "exists": true,
+      "stages": {
+       "apply": {
+        "attempts": 1,
+        "config_sha256": "388c72502ef04d2cd8a8ff0b2c02ab29e52659ebd087c05daea910dfed8cc410",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_apply_20261117T072219Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.386161100002937,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate",
+         "apply"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "applymode": "calflag",
+         "calwt": false,
+         "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+         "column": "CORRECTED_DATA",
+         "flag_version": "rang_apply_20261117T072219Z",
+         "parang": false,
+         "parang_flags": null,
+         "rang_original_saved_now": false,
+         "restored_before": null
+        }
+       },
+       "calibrate": {
+        "attempts": 1,
+        "config_sha256": "37c475087778443fa2d98c17fd86c9058878e8acdaa7e803a4a353a30d2cc11d",
+        "finished": "2026-11-17T07:22:19+00:00",
+        "flag_version": "rang_calibrate_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 1.0263732000021264,
+        "sections": [
+         "fields",
+         "data",
+         "calibrate"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_calibrate_20261117T072218Z",
+         "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+         "model": "setjy",
+         "restored_before": null,
+         "scans": null,
+         "weight_column": "WEIGHT_SPECTRUM",
+         "weights": "as_is"
+        }
+       },
+       "flag": {
+        "attempts": 1,
+        "config_sha256": "e73830dde31e020c7742e45888335753fc69cf81c585bc67ae0b58b28dddef39",
+        "finished": "2026-11-17T07:22:18+00:00",
+        "flag_version": "rang_flag_20261117T072218Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.1809791999985464,
+        "sections": [
+         "fields",
+         "data",
+         "flag"
+        ],
+        "started": "2026-11-17T07:22:18+00:00",
+        "status": "done",
+        "summary": {
+         "column": "DATA",
+         "flag_sha256": "f07c7d26a7ee2f48bfb8983f7119cf1a852e9fc3c3cb51c0f89992ecb3727697",
+         "flag_version": "rang_flag_20261117T072218Z",
+         "flagged_after": 0.8422677176339286,
+         "flagged_before": 0.468267822265625,
+         "rang_original_saved_now": false,
+         "restored_before": null,
+         "rows_flagged": 140,
+         "steps": 5,
+         "strategy": "<work>\\strategy.yaml",
+         "strategy_sha256": "2779ce8b507af1f9fde9057696ce4eaaf18acf8aaf9df3be73b1b6fbd2a32ff7",
+         "write": "replace"
+        }
+       },
+       "image": {
+        "attempts": 1,
+        "config_sha256": "93de8adb00f4f857f90ef4ea540fb7280af6cb883d106430921d6c82fe0ac77d",
+        "finished": "2026-11-17T07:22:20+00:00",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 0.48445750001701526,
+        "sections": [
+         "fields",
+         "data",
+         "image"
+        ],
+        "started": "2026-11-17T07:22:19+00:00",
+        "status": "done",
+        "summary": {
+         "column": "CORRECTED_DATA",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c"
+        }
+       },
+       "selfcal": {
+        "attempts": 1,
+        "config_sha256": "565616b7d8663a391dceb474271737c92e79dbfa3f0252c9d4f6b411811ee70e",
+        "finished": "2026-11-17T07:22:22+00:00",
+        "flag_version": "rang_selfcal_20261117T072220Z",
+        "host": "glacier",
+        "pid": 59668,
+        "previous": null,
+        "seconds": 2.1793705000018235,
+        "sections": [
+         "fields",
+         "data",
+         "image",
+         "selfcal"
+        ],
+        "started": "2026-11-17T07:22:20+00:00",
+        "status": "done",
+        "summary": {
+         "flag_version": "rang_selfcal_20261117T072220Z",
+         "gemclean": "<python>\\python.exe -m rang.gemclean",
+         "gemclean_sha256": "9f959a259bbdd37a2cb0e2b0fced2f6aed3e89583c4ca2d9b8a023183e4ada6c",
+         "input_column": "CORRECTED_1GC",
+         "model_column": "MODEL_DATA",
+         "output_column": "CORRECTED_DATA",
+         "rang_original_saved_now": false,
+         "refant": 2,
+         "restored_before": null,
+         "rounds": 2
+        }
+       }
+      },
+      "ms": "<work>\\scan9.ms",
+      "created": "2026-11-17T07:22:18+00:00",
+      "updated": "2026-11-17T07:22:22+00:00",
+      "flag_versions": [
+       {
+        "name": "rang_original",
+        "comment": ""
+       },
+       {
+        "name": "rang_flag_20261117T072218Z",
+        "comment": "rang: flags before flag"
+       },
+       {
+        "name": "rang_calibrate_20261117T072218Z",
+        "comment": "rang: flags before calibrate"
+       },
+       {
+        "name": "rang_apply_20261117T072219Z",
+        "comment": "rang: flags before apply"
+       },
+       {
+        "name": "rang_selfcal_20261117T072220Z",
+        "comment": "rang: flags before selfcal"
+       }
+      ],
+      "receipts": 1,
+      "jobs": [
+       {
+        "schema": "rang.mcp-job",
+        "version": 1,
+        "id": "run-20261117T072217Z-8178be",
+        "tool": "run",
+        "argv": [
+         "<python>\\python.exe",
+         "-m",
+         "rang.core_cli",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "cwd": "<work>",
+        "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+        "started_utc": "2026-11-17T07:22:17+00:00",
+        "flag_versions_saved": [
+         "rang_original"
+        ],
+        "pid": 61676,
+        "runner_pid": 9624,
+        "exit": 0,
+        "finished_utc": "2026-11-17T07:22:22+00:00",
+        "state": "done"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "t": 229757.456,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "method": "tools/call",
+    "params": {
+     "name": "job_log",
+     "arguments": {
+      "job": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.json"
+     }
+    }
+   }
+  },
+  {
+   "t": 229757.461,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 21,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "job": {
+       "schema": "rang.mcp-job",
+       "version": 1,
+       "id": "run-20261117T072217Z-8178be",
+       "tool": "run",
+       "argv": [
+        "<python>\\python.exe",
+        "-m",
+        "rang.core_cli",
+        "run",
+        "<work>\\chain.yaml",
+        "<work>\\scan9.ms",
+        "--run-dir",
+        "<work>\\scan9.ms.rang-run"
+       ],
+       "cwd": "<work>",
+       "log": "<work>\\scan9.ms.rang-run\\mcp\\jobs\\run-20261117T072217Z-8178be.log",
+       "started_utc": "2026-11-17T07:22:17+00:00",
+       "flag_versions_saved": [
+        "rang_original"
+       ],
+       "pid": 61676,
+       "runner_pid": 9624,
+       "exit": 0,
+       "finished_utc": "2026-11-17T07:22:22+00:00",
+       "state": "done"
+      },
+      "log": "rang-core: flag: running\nrang-core: flag: done in 0.2 s\nrang-core: calibrate: running\nrang-core: calibrate: done in 1.0 s\nrang-core: apply: running\nrang-core: apply: done in 0.4 s\nrang-core: image: running\nrang-core: image: done in 0.5 s\nrang-core: selfcal: running\nrang-core: selfcal: done in 2.2 s\nrang-core: receipt <work>/scan9.ms.rang-run/receipts/run-20261117T072218Z.rang-receipt.json",
+      "bytes": 495
+     }
+    }
+   }
+  },
+  {
+   "t": 229757.462,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 22,
+    "method": "tools/call",
+    "params": {
+     "name": "fits_stats",
+     "arguments": {
+      "path": "<work>\\scan9.ms.rang-run\\image\\J1939-6342\\image-image.fits"
+     }
+    }
+   }
+  },
+  {
+   "t": 229758.297,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 22,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "path": "<work>\\scan9.ms.rang-run\\image\\J1939-6342\\image-image.fits",
+      "hdu": 0,
+      "shape": [
+       1,
+       1,
+       128,
+       128
+      ],
+      "plane": null,
+      "bunit": "JY/BEAM",
+      "pixels": 16384,
+      "finite": 16384,
+      "nan": 0,
+      "min": -0.3599517047405243,
+      "max": 14.748929023742676,
+      "mean": 0.2340335039060516,
+      "std": 1.3257513669358227,
+      "rms": 1.346249742017708,
+      "median": -0.0016269012703560293,
+      "peak": 14.748929023742676,
+      "peak_pixel": [
+       64,
+       64
+      ],
+      "peak_world": {
+       "ra_deg": -65.14570833333335,
+       "dec_deg": -63.71266666666665
+      }
+     }
+    }
+   }
+  },
+  {
+   "t": 229758.297,
+   "send": {
+    "jsonrpc": "2.0",
+    "id": 23,
+    "method": "tools/call",
+    "params": {
+     "name": "receipts",
+     "arguments": {
+      "path": "<work>\\scan9.ms.rang-run"
+     }
+    }
+   }
+  },
+  {
+   "t": 229758.305,
+   "recv": {
+    "jsonrpc": "2.0",
+    "id": 23,
+    "result": {
+     "content": "(structuredContent as text; left out here)",
+     "isError": false,
+     "structuredContent": {
+      "folder": "<work>\\scan9.ms.rang-run\\receipts",
+      "count": 1,
+      "receipts": [
+       {
+        "path": "<work>\\scan9.ms.rang-run\\receipts\\run-20261117T072218Z.rang-receipt.json",
+        "command": [
+         "rang-core",
+         "run",
+         "<work>\\chain.yaml",
+         "<work>\\scan9.ms",
+         "--run-dir",
+         "<work>\\scan9.ms.rang-run"
+        ],
+        "stage": "run",
+        "started_utc": "2026-11-17T07:22:18+00:00",
+        "exit": 0,
+        "wall_seconds": 4.369134500011569,
+        "commit": {
+         "head": "6abdccd37ca541d6ebc5c9d405dbc23437904285",
+         "dirty": true
+        },
+        "outputs": 3
+       }
+      ]
+     }
+    }
+   }
+  }
+ ]
+}

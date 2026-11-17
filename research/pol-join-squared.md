@@ -5,6 +5,12 @@ Implementation waits for v0.2.0's E6 (`research/roadmap.md`, branch `roadmap-v03
 [gijzelaerr/rang-core#22](https://github.com/gijzelaerr/rang-core/issues/22). Gap measured in
 [g9-stokes.md](g9-stokes.md) (section 5, P1-Q6; section 8, decision 1).
 
+*Dated pointer, 2026-11-17 (v0.3.0 outcome):* radler !238 was **merged** on 2026-11-16 (squash `620e0a76`)
+and keeps the linear join on every path; it is in no release yet (radler v1.2.0 predates it, WSClean master
+pins radler `703c1bd7`). For v0.3.0 #22 ends as "kept as WSClean's linear sum, a documented limit"
+([v030-readiness.md](v030-readiness.md) section 4). This proposal stays frozen and unbuilt, for a later
+release.
+
 ## 1. Upstream status (read 2026-11-13, about 10:00-12:00 UTC)
 
 **Upstream has not moved to the sum of squares. It moved the other way: the linear sum is kept

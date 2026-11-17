@@ -49,7 +49,7 @@ tasks to rang's.
 **Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
 --position NAME=RA,DEC --out DIR` gives light curves at given positions from
 the residual (data column minus MODEL_DATA) after `rang-core run`, one point
-per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+per integration by default: the exact DFT flux, the nearest pixel of the
 snapshot dirty image and its robust rms. It reads the MS only.
 
 **Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,
@@ -502,9 +502,10 @@ $ rang-core flagdata -h
 usage: rang-core flagdata [-h] ms [key=value ...]
 
 CASA's flagdata on a Measurement Set: modes manual, clip, quack, shadow,
-elevation, tfcrop, extend, unflag, summary, with CASA's keyword names
-(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found
-are saved first as a flag version.
+elevation, extend, unflag, summary, with CASA's keyword names
+(research/v8b-flagdata.md); tfcrop is refused until it reaches parity
+(research/v8-tfcrop.md). Writes FLAG unless mode=summary; the flags found are
+saved first as a flag version.
 
 positional arguments:
   ms          the Measurement Set (or calibration table, for clip)

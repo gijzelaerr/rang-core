@@ -1444,7 +1444,7 @@ def _listobs_command(argv):
 
 
 def _flagdata_command(argv):
-    """`rang-core flagdata MS mode=tfcrop key=value ...`: CASA's keyword
+    """`rang-core flagdata MS mode=clip key=value ...`: CASA's keyword
     names (`rang.tasks.flagdata`); values are Python literals where they
     parse as one (`clipminmax=[0,50]`, `extendflags=False`), else strings.
     Prints the returned record as JSON."""
@@ -1453,8 +1453,9 @@ def _flagdata_command(argv):
     parser = argparse.ArgumentParser(
         prog="rang-core flagdata",
         description="CASA's flagdata on a Measurement Set: modes manual, clip, quack, "
-        "shadow, elevation, tfcrop, extend, unflag, summary, with CASA's keyword names "
-        "(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found "
+        "shadow, elevation, extend, unflag, summary, with CASA's keyword names "
+        "(research/v8b-flagdata.md); tfcrop is refused until it reaches parity "
+        "(research/v8-tfcrop.md). Writes FLAG unless mode=summary; the flags found "
         "are saved first as a flag version.",
     )
     parser.add_argument(
@@ -1489,10 +1490,22 @@ def _flagdata_command(argv):
 
 def _scale_arcsec(text):
     """`4`, `4asec`, `0.1amin` or `0.001deg` as arcseconds."""
-    for suffix, factor in (("asec", 1.0), ("amin", 60.0), ("deg", 3600.0)):
+    from . import lightcurve as lc
+
+    number, factor = text, 1.0
+    for suffix, f in (("asec", 1.0), ("amin", 60.0), ("deg", 3600.0)):
         if text.endswith(suffix):
-            return float(text[: -len(suffix)]) * factor
-    return float(text)
+            number, factor = text[: -len(suffix)], f
+            break
+    try:
+        value = float(number) * factor
+    except ValueError:
+        raise lc.LightcurveError(
+            f"--scale {text!r}: a number with asec, amin or deg (or none, arcseconds)"
+        ) from None
+    if not (value > 0 and value < float("inf")):
+        raise lc.LightcurveError(f"--scale {text!r} must be positive")
+    return value
 
 
 def _lightcurve_command(argv, options, pinned):
@@ -1596,10 +1609,31 @@ def _lightcurve_command(argv, options, pinned):
             import csv
 
             with open(args.positions, encoding="utf-8", newline="") as f:
-                for row in csv.DictReader(f):
-                    positions.append(
-                        (row["name"], float(row["ra_deg"]), float(row["dec_deg"]))
+                reader = csv.DictReader(f)
+                missing = [
+                    c
+                    for c in ("name", "ra_deg", "dec_deg")
+                    if c not in (reader.fieldnames or [])
+                ]
+                if missing:
+                    raise lc.LightcurveError(
+                        f"--positions {args.positions}: no column {', '.join(missing)} "
+                        "(the header must name name, ra_deg, dec_deg)"
                     )
+                for line, row in enumerate(reader, start=2):
+                    try:
+                        ra, dec = float(row["ra_deg"]), float(row["dec_deg"])
+                    except (TypeError, ValueError):
+                        raise lc.LightcurveError(
+                            f"--positions {args.positions} line {line}: ra_deg and "
+                            "dec_deg must be numbers"
+                        ) from None
+                    if not -90.0 <= dec <= 90.0:
+                        raise lc.LightcurveError(
+                            f"--positions {args.positions} line {line}: Dec outside "
+                            "[-90, 90] degrees"
+                        )
+                    positions.append((row["name"], ra, dec))
         if args.no_images and (args.fits or args.candidates is not None):
             raise lc.LightcurveError(
                 "--fits and --candidates need the snapshots (drop --no-images)"

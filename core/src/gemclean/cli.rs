@@ -769,7 +769,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     if a.stop_tolerance > 0.0 && (a.auto_mask.is_some() || ms_on || a.join_channels || a.join_pols)
     {
         return Err(
-            "-stop-tolerance takes neither -auto-mask, -multiscale, -join-channels nor              -join-polarizations: those loops have their own stop (research/gemclean-stop28.md)"
+            "-stop-tolerance takes neither -auto-mask, -multiscale, -join-channels nor -join-polarizations: those loops have their own stop (research/gemclean-stop28.md)"
                 .into(),
         );
     }

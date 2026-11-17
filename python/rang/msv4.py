@@ -56,6 +56,10 @@ def has_msv4():
 def open_processing_set(source):
     """A `ProcessingSet` from a store path or an opened `xarray.DataTree`."""
     if isinstance(source, (str, Path)):
+        if not has_msv4():
+            raise ImportError(
+                "rang.msv4 needs the extra: pip install 'rang-core[msv4]' (Python 3.11+)"
+            )
         import xarray
 
         tree = xarray.open_datatree(str(source), engine="zarr", chunks=None)

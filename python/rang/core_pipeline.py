@@ -124,7 +124,29 @@ def _write_json(path, payload):
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
-    os.replace(tmp, path)
+    _replace(tmp, path)
+
+
+# On Windows os.replace onto a file another process has open fails with
+# PermissionError (a sharing violation). `rang-core mcp`'s run_status reads
+# state.json while the run writes it, which made the run itself fail after a
+# finished stage (research/v030-review.md R-01; the job-file form was issue 30).
+# Retry for a short while; elsewhere, or after the deadline, raise as before.
+_SHARING_RETRY_S = 10.0
+
+
+def _replace(tmp, path):
+    deadline = time.monotonic() + _SHARING_RETRY_S
+    delay = 0.001
+    while True:
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if os.name != "nt" or time.monotonic() >= deadline:
+                raise
+            time.sleep(delay)
+            delay = min(2 * delay, 0.05)
 
 
 def default_run_dir(ms):
@@ -252,8 +274,38 @@ def scope_warnings(info):
             "only and its defaults (Tricolour's static masks, feed_angle_rotation, "
             f"refant: auto) are MeerKAT's; check every stage's output {UNSUPPORTED}"
         )
-        return [text]
-    return []
+        out = [text]
+    else:
+        out = []
+    band = band_warning(info.get("chan_freq"))
+    if band:
+        out.append(band)
+    return out
+
+
+# MeerKAT L band, the only band rang is validated on (research/uhf-scope.md,
+# decision D6; research/meerkat-scope.md). Channel centres outside it (UHF
+# 544-1088 MHz, S band) are warned about, not refused.
+L_BAND_HZ = (856.0e6, 1712.0e6)
+_BAND_SLACK_HZ = 1.0e3
+
+
+def band_warning(chan_freq):
+    """One warning when any channel centre lies outside MeerKAT L band, or
+    None."""
+    if chan_freq is None:
+        return None
+    freq = np.asarray(chan_freq, np.float64).ravel()
+    if freq.size == 0:
+        return None
+    lo, hi = float(freq.min()), float(freq.max())
+    if lo >= L_BAND_HZ[0] - _BAND_SLACK_HZ and hi <= L_BAND_HZ[1] + _BAND_SLACK_HZ:
+        return None
+    return (
+        f"channels at {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz reach outside MeerKAT L band "
+        f"({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz): only L band is "
+        "validated; see docs/limits.md"
+    )
 
 
 def check_data(config, info, stages):

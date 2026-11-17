@@ -460,6 +460,33 @@ def test_data_from_another_telescope_is_warned_about_not_refused(tmp_path, capsy
     assert state["stages"]["flag"]["status"] == "done"
 
 
+def test_frequencies_outside_l_band_are_warned_about_not_refused(tmp_path, capsys):
+    """research/uhf-scope.md decision D6: channels outside MeerKAT L band
+    (856-1712 MHz; UHF, S band) give one warning naming docs/limits.md, and
+    the stage still runs."""
+    import numpy as np
+
+    assert pipe.band_warning([856.0e6, 1284e6, 1711.79e6]) is None
+    assert "only L band is validated" in pipe.band_warning([544e6, 1088e6])
+    assert "docs/limits.md" in pipe.band_warning([1712e6, 2e9])
+    ms = make_ms(tmp_path / "x.ms")
+    config = write_config(tmp_path)
+    with core_ms_write.open_table(ms / "SPECTRAL_WINDOW", readonly=False) as t:
+        freq = np.asarray(t.getcol("CHAN_FREQ"))
+        t.putcol("CHAN_FREQ", freq - 600e6)  # about 682-686 MHz: UHF
+    warnings = pipe.scope_warnings(pipe.inspect_ms(ms))
+    assert len(warnings) == 1 and "only L band is validated" in warnings[0]
+    capsys.readouterr()
+    cli("--no-receipt", "flag", config, ms)
+    err = capsys.readouterr().err
+    assert err.count("only L band is validated") == 1
+    assert "docs/limits.md" in err
+    state = json.loads(
+        (ms.with_name("x.ms.rang-run") / "state.json").read_text(encoding="utf-8")
+    )
+    assert state["stages"]["flag"]["status"] == "done"
+
+
 def test_a_stale_stage_reruns_on_the_new_upstream_flags(tmp_path):
     """E5: after `--force flag` with a changed strategy, the stale apply stage
     must not restore the flags saved before its earlier attempt (the old flag

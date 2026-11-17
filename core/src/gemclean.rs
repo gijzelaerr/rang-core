@@ -1489,7 +1489,7 @@ pub fn run_masked<M: Measurement>(
     }
     if s.stop_tolerance > 0.0 && masking.and_then(|m| m.auto).is_some() {
         return Err(
-            "the stop tolerance does not apply with the automatic mask              (research/gemclean-stop28.md)"
+            "the stop tolerance does not apply with the automatic mask (research/gemclean-stop28.md)"
                 .into(),
         );
     }
