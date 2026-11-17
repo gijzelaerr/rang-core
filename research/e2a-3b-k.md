@@ -221,3 +221,25 @@ Scripts `research/results/e2a-3b-k/`, outputs
 committed. Every heavy step through the main checkout's
 `tools/heavy_lock.py` on nash under `nice -n 19 ionice -c3`, booking the
 cores used; wall times in `research/tool-timings.md` (host nash).
+
+## 7. Addendum 2026-11-17 09:40, post hoc (after steps 1-3 and 5 were read, before the test below ran)
+
+Read so far (results in section 8): the models are identical (H-M
+cleared); the 1.1e-3 is in B1 (B1-only composite 1.08e-3, G1-only 6.9e-5);
+CASA's B1 on rang's K1 **and G1** (TKG) agrees with rang's to 1.0e-4
+(TT-TKG), so by step 3's rule the part sits in G1, although rang's and
+CASA's G1 differ by only 5.6e-5 (median relative). They differ in one
+flag: CASA flags G1 of ID 50 (m053, its delay near the ambiguity) in
+interval 7, X hand; rang does not. A flagged solution changes how CASA's
+B1 pre-apply corrects that antenna's data in that interval, and B couples
+every antenna through its baselines.
+
+- **TKGf** (CASA): B1 only, on rang's K1 and rang's G1 with that one
+  solution flagged as CASA flags it.
+- **TK3u** (CASA): B1 only, on rang's K1 and CASA's G1 with that one
+  solution unflagged and set to rang's value.
+- **The flag carries the part** if TT-TKGf ≥ 0.8 × TT-TK3 and TT-TK3u ≤
+  0.5 × TT-TK3; **it does not** if both stay within 20 % of TT-TKG and
+  TT-TK3 respectively; anything else is reported as mixed. Either way the
+  next question is which G1 is right for that solution (its SNR in both
+  tools), not a rang change unless rang's is shown wrong.
