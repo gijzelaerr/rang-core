@@ -2146,6 +2146,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm S | G1's pilot.ms, 4096² at 3″ | 1,029.8 s | 22.04 GiB (max RSS) | 8 slots, two at once; `-channels-out 8 -join-channels -fit-spectral-pol 2`, 26,982 components |
 | 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm C0 | G1's pilot.ms, 4096² at 3″ | 501.2 s | 11.36 GiB (max RSS) | 8 slots, two at once; on DATA, 203,096 components |
 | 2026-11-17 | floor-5, host nash: `floor5_tests.py score` (7 Family II models on the subset) | S1 / S0, 32 ch | 500.3 s | 3.23 GiB (max RSS) | 2 threads, 2 slots; about 57 s per arm |
-| 2026-11-17 | floor-5, host nash: `floor5_tests.py twobytwo` | S1 against m1 and Dm03 | 216.4 s | 3.81 GiB (max RSS) | 2 threads, 2 slots |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py twobytwo` | S1 against m1 and Dm03 | 216.4 s | 3.81 GiB (max RSS) | capped at 2 threads (Rayon, OpenMP, OpenBLAS), 2 slots; CPU time not logged; host load1 6.2 before, 25.9 after (other jobs) |
 | 2026-11-17 | floor-5, host nash: `floor5_tests.py summary` | JSON only | 1.5 s | 0.37 GiB (max RSS) | 2 slots |
 | 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-5` (write-up, archive) | 1035 s (lock wait excluded) | – | PASS; docs and archive diff; gain-hash gate PASS |
+| 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host, rerun after the post hoc fixes | the same | 41 s (lock wait excluded) | – | PASS; warm targets

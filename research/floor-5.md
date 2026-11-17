@@ -330,8 +330,8 @@ Measured 2026-11-17 on nash, every stage from the pinned build of clarification 
 [results/floor-5/](results/floor-5/) (`summary.json`, `pilot.json`, `gates.json`, `twobytwo.json`,
 every arm's and Family II arm's JSON, GeMClean reports and logs, G1's `score.json`, the stage
 scripts, the run logs, SHA-256 of every Family II model). Every run ended rc 0: the 11 Family I
-arms (`logs/arms.log`), G1 (`logs/g1.log`), the seven GeMClean arms (`logs/drive-fam2.log`) and
-the scoring (`logs/post.log`). Section 10.1 is the reading exactly as frozen; section 10.2 holds
+arms (`logs/arms.log`, `logs/arm-*.log`), G1 (`logs/g1.log`), the seven GeMClean arms
+(`logs/fam2-*.log`, "end rc 0"; see 10.2 item 8) and the scoring (`logs/post.log`). Section 10.1 is the reading exactly as frozen; section 10.2 holds
 everything read after the numbers, labelled post hoc.
 
 ### 10.1 The frozen reading
@@ -413,9 +413,7 @@ on Threshold; none reached `-niter`.
 | m1 | 379.26 | 300.95 | 273.95 | 0.375 | 0.109 |
 | Dm03 | 334.83 | 282.78 | 266.23 | 0.227 | 0.064 |
 
-**ρ_B = 0.586: partial** (between 0.3 and 0.7): about 59 % of the per-baseline increment survives
-the deeper model and about 41 % was missing model flux. H2 stays unresolved, with an upper bound
-of 0.064 P_ref after Dm03.
+**ρ_B = 0.586: partial** (between 0.3 and 0.7). H2 stays unresolved (section 6.1).
 
 **Joint outcome (section 6.3): J2.** Σ = 0.224 (H9) + 0.186 (S) = **0.410**, so 0 < Σ < 0.5. The
 379 µJy is partly explained. Attributed: model depth inside the source mask (0.224) and spectral
@@ -438,10 +436,13 @@ incompleteness (XS2, XS4, K3) or central-source DD gains (H3c).
    `-multiscale`. This was not checked, and it is a GeMClean question worth an issue. The other
    masked arms (Dm1, Dm03, C0) have no flux outside the mask.
 2. **κ is negative.** Deep masked CLEAN on the uncorrected data raises that floor by 0.126 P_B:
-   1,074 to 1,139 µJy, with 203,096 components and 104.5 Jy against 91.5 Jy on S1. The rule
-   assumed 0 ≤ κ ≤ 1. A negative κ passes it, and it still means the depth gain does not come from
-   absorbing gain artefacts. It also shows that deep CLEAN on gain-corrupted data builds
-   artefacts into the model that the subtraction then spreads.
+   1,073 to 1,139 µJy, with 203,096 components and 104.5 Jy against 91.5 Jy on S1. ΔP(C0) is
+   about −1.0 P_ref against +0.22 P_ref for Dm03. The control's premise was that a gain-blind
+   depth test removes about the same absolute power from both states. It did not: C0 moved the
+   other way, by four times as much. The rule passes by the letter (κ ≤ 0.3), but the control
+   does not measure how much of Dm03's drop could be gain artefacts. It does show that deep
+   CLEAN on gain-corrupted data builds artefacts into the model, which the subtraction then
+   spreads.
 3. **The two attributed shares overlap with Family I's bounds.** Family I's non-specific tests
    fire mostly on the incompleteness arms (XS2, XS4, K3), which is what H9's direct test then
    finds. One descriptive joint figure: T_A then T_B | A on top of Dm03 leaves 266.2 µJy,
@@ -453,16 +454,54 @@ incompleteness (XS2, XS4, K3) or central-source DD gains (H3c).
 5. **Section 4.4 (E1, E2, E5).** The stats were recorded for the pilot and every arm at a₂, but
    `summary` does not compute the assignment. Computed afterwards: Euclidean distance over log E1
    per annulus and log E5 per facet (each over the arm's own rms), and E2. The pilot is nearest
-   XS2 (0.256), H8a (0.262) and XS4 (0.269), then XG4 (0.362) and H1bA (0.364). The
-   separation condition ("every arm's nearest arm is itself") cannot be checked as frozen, because
-   each arm has one realisation (stats at a₂ only). The nearest inter-arm distances (XS2-XS4
-   0.182, H1bA-H3c 0.272) are no larger than the pilot's spread over its three nearest. **No
-   provisional assignment counts.** Pilot E2 0.806; E1/rms 2.93, 1.62, 1.24, 0.87 (0-10′ … 40-68′).
-6. **What #13 can say now.** After one Sp round, a deeper model inside the source mask (CLEAN
-   to 0.3 mJy) removes 0.22 of what is left: F 379 → 335 µJy, 7.6 × thermal. Spectral modelling
-   with 8 output channels removes 0.19. Neither is a held-out result. The remainder (0.59) is
-   not tied to any single cause. Antenna gains, per-baseline scales and facet spectral fits each
-   remove 0.1-0.4, but none is specific against model incompleteness. The per-baseline
-   increment roughly halves under a deeper model (ρ_B 0.59). w-terms and smearing are excluded.
-   Cheap next steps: a held-out channel split of Dm03 and of S, and S with Dm03's mask and depth
-   combined.
+   XS2 (0.256), H8a (0.262) and XS4 (0.269), then XG4 (0.362) and H1bA (0.364). Each arm has
+   one realisation (stats at a₂ only), so "every arm's nearest arm is itself" holds trivially.
+   By the letter of 4.4 the provisional assignment is **XS2** (extended emission missing from the
+   model). It carries little weight. Three arms of different kinds (XS2, H8a, XS4) lie within
+   0.013 of each other in distance from the pilot. The pilot's nearest distance (0.256) is larger
+   than the separation of the closest arm pair (XS2 and XS4, 0.182; next XG4 and XS2 0.254, K3 and
+   XG4 0.267, H1bA and H3c 0.272). The statistic does not separate the arms at the pilot's
+   distance. As frozen, E1, E2 and E5 never override section 6. Pilot E2 0.806; E1/rms 2.93,
+   1.62, 1.24, 0.87 (0-10′ … 40-68′).
+7. **ρ_B read.** About 59 % of the per-baseline increment survives the deeper model, and about
+   41 % was missing model flux. After Dm03 its upper bound is 0.064 P_ref.
+8. **The rc of the GeMClean arms.** `fam2.sh` ends without `exit $rc`, so the "rc 0" lines in
+   `logs/drive-fam2.log` would read 0 whatever happened. The evidence is each
+   `logs/fam2-<arm>.log`, which ends "end rc 0" from GeMClean's own exit status, together with
+   the reports (Threshold stop) in the archive.
+
+### 10.3 What #13 can say now (post hoc)
+
+After one Sp round, a deeper model inside the source mask (CLEAN
+to 0.3 mJy) removes 0.22 of what is left: F 379 → 335 µJy, 7.6 × thermal. Spectral modelling
+with 8 output channels removes 0.19. Neither is a held-out result. The remainder (0.59) is
+not tied to any single cause. Antenna gains, per-baseline scales and facet spectral fits each
+remove 0.1-0.4, but none is specific against model incompleteness. The per-baseline
+increment keeps about 59 % of itself under a deeper model (ρ_B 0.59). w-terms and smearing are excluded.
+Cheap next steps: a held-out channel split of Dm03 and of S, and S with Dm03's mask and depth
+combined.
+
+## 11. For the coordinator
+
+- **Branch** `floor-5`, not merged. Only `tools/check_all.py --quick` ran (Windows). The full
+  check is left to the coordinator's merge check.
+- **Owner decisions.** (a) Which J2 next step comes first: a protocol for the antenna-gain
+  bound (T_Af / T_A), or the cheap held-out checks of Dm03 and S (and S at Dm03's depth and
+  mask). (b) Whether to open a GeMClean issue for `-multiscale` with `-fits-mask` (10.2 item 1).
+- **nash, can be deleted** (not deleted; sizes from `du -sh`; all under
+  `~/rang-data/outputs/floor-5-20261117` unless named):
+
+  | item | size | regenerate | advice |
+  | --- | ---: | --- | --- |
+  | `floor-5/skies` | 15 GB | `floor5_tests.py skies`, 248 s | delete |
+  | `floor-5/prep.unpinned-41bc3efb` | 431 MB | set aside, never used | delete |
+  | `floor-5/prep`, `floor-5/hands`, `floor-5/s1.npy` | 431 MB, 667 MB, 202 MB | `gates` + `pilot`, about 8 min (`floor5_tests.py clean` removes them) | delete after the next step is decided |
+  | `family2/{R3,Dm1,Du1,Dms03,C0}` images | 321 MB each | one GeMClean run each, 6-37 min | keep the `-model.fits`; the rest can go |
+  | `family2/Dm03`, `family2/S` | 321 MB, 2.9 GB | 8 min, 17 min | keep until the held-out step is decided |
+  | `g1/P/g0`, `g1/P/score` | 431 MB, 632 MB | `floor3_score` g0 / score, 1-2 min | delete |
+  | `g1/P/pilot.ms` (+ flagversions 202 MB) | 23 GB | copy + 46 min selfcal | keep until the next step is decided (every follow-up reimages it) |
+  | `inputs/20261103-gemclean-heldout` (`cal2.ms`, FITS) | 5.1 GB | about 2 h over the workstation uplink | keep until the next step is decided |
+  | `inputs/floor-4-20261117` (G1 copy) | 843 MB | equal to the rerun (bit for bit) | delete; also `~/rang-data/outputs/floor-4-20261117` (843 MB), if floor-4 needs it no longer |
+  | `inputs/selfcal-defaults-20261117` | 1.6 GB | from selfcal-defaults' run | delete if not used by that branch |
+  | `~/Build/tmp/20261117-floor5` (scripts, `arch/`) | 0.6 MB | archived in `results/floor-5/` | delete when the branch is merged |
+  | worktree `~/Worktrees/rang/floor-5` on nash (with `.venv`, pinned extension) | 1.1 GB | worktree + venv + copied `.so` | keep while follow-ups need the pinned build |
