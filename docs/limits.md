@@ -12,8 +12,8 @@ E2-B (LUNO, full polarisation) and E2-A (ESO 137-006, Stokes I) have reported:
 the gates they miss are listed below and in `CHANGELOG.md`
 ({gh}`research/e2b-misses.md`, {gh}`research/e2-acceptance.md` 9.13). E2-A is
 not passed as frozen. E3 (CARACal's shipped MeerKAT strategy on the same data)
-has reported on E2-B (CARACal 6,926 s against rang's 6,195 s) and is running on
-E2-A; E2-N (native data) is running. Absolute polarisation angle is stated as a
+has measured E2-B on its branch (`e3-caracal`, not yet merged) and is running
+on E2-A; E2-N (native data) is running. Absolute polarisation angle is stated as a
 limit, not solved (below).
 ```
 
@@ -53,9 +53,10 @@ limit, not solved (below).
   ported ({gh}`research/c2a-gain.md`).
 - **Absolute polarisation angle χ is a stated limit, not gated.** On LUNO's
   3C 286 the RM-corrected χ(λ²=0) is 29.4°, 3.6° from 33°, rang equal to CASA
-  ({gh}`research/chi-offset.md` section 11). LUNO's calibrator product holds
-  receptor angle 0 (leave `feed_angle_rotation` unset), not CARACal strategy
-  1's −90, which suits stores holding −90 such as ESO137. On held-out 3C 286
+  ({gh}`research/chi-offset.md` section 11). On LUNO's calibrator product use
+  FEED's stored receptor angle 0 (leave `feed_angle_rotation` unset): the
+  fitted angle is +8.2°, which excludes CARACal strategy 1's −90; −90 suits
+  stores holding −90 such as ESO137. On held-out 3C 286
   simulations rang's Xf differs from CASA's by 0.054° (median; issue #33,
   {gh}`research/xf-preavg.md`). E2-B's 1830−211 χ, transfer χ and 0.30 %
   leakage misses are in {gh}`research/e2b-misses.md` sections 5-7.
@@ -93,14 +94,17 @@ limit, not solved (below).
 
 - **The imaging floor, in part unexplained.** On the real pilot the residual
   floor is 40-60 × thermal in every imager tried, WSClean included. Steady
-  antenna gains are its main cause: one phase-only self-calibration round
-  takes it from 1,073 to 379 µJy (share 0.83-0.88); the remaining 8.6 ×
-  thermal is not explained ({gh}`research/floor-3.md`, floor-4,
+  antenna gains are its main cause: on floor-3's subset one phase-only
+  self-calibration round takes the floor from 1,073 to 379 µJy (share 0.88
+  under floor-3's standard; floor-4 gives 0.83 under imaging-floor's full
+  criterion), and the remaining 379 µJy, 8.6 × thermal, is not explained
+  ({gh}`research/floor-3.md`, floor-4 on its branch,
   {gh}`research/imaging-floor.md`).
 - **Memory** is 2.0-2.4 × WSClean's on the pilot at 512 channels in Stokes I
-  ({gh}`research/g7-defaults.md`). Joined IQUV is 4.7-6.9 × WSClean's: 9.2 GiB
-  on E2-B's J1833−2103 at 2048², 8 channels; `-reorder` brings the large fields
-  to 9.1 GiB with about 28 GB of temporary files
+  ({gh}`research/g7-defaults.md`). Joined IQUV at 2048², 8 channels on E2-B's
+  fields peaks by default at 15.9-16.5 GiB on the large fields (8.2-8.4 ×
+  WSClean's) and 8.4 GiB on J1833−2103 (6.3 ×); with `-reorder`, 9.1 GiB
+  (4.7 ×) and 7.2 GiB (5.4 ×), with about 28 GB of temporary files
   ({gh}`research/gemclean-memory.md`, {gh}`research/gemclean-memory2.md`).
 - **Multiscale over-estimates compact sources**: a median +9 to +18 µJy on
   sources ≥ 20σ_ap on DF5-O's field, in WSClean 3.7 and GeMClean alike; no

@@ -344,12 +344,13 @@ follow-up rule would compare χ(λ²=0) or RM-corrected χ with 33°.
 
 ## 11. Coordinator decisions, 2026-11-17
 
-Recorded on branch `v030-ready` for v0.3.0 (owner delegated; `v030-readiness.md`). Sections 1-10 are
+Decided by the coordinator, recorded on branch `v030-ready` for v0.3.0 (`v030-readiness.md`). Sections 1-10 are
 unchanged.
 
 1. **10.1, LUNO's receptor angle.** Recorded as a per-product configuration note: for SARAO's LUNO
-   calibrator product (`LBAND_LUNO_CALIBRATORS`) the measured receptor angle is 0 (FEED's stored value,
-   `calibrate.polcal.feed_angle_rotation: null`, rang's default), not CARACal strategy 1's −90, which suits
+   calibrator product (`LBAND_LUNO_CALIBRATORS`) use FEED's stored receptor angle 0
+   (`calibrate.polcal.feed_angle_rotation: null`, rang's default): the fitted θ_t is +8.2° and excludes
+   −90° (section 10.1, evidence (i) and (iii)). CARACal strategy 1's −90 suits
    stores that hold −90 (ESO137) and producers whose X/Y labelling matches. Whether other MeerKAT products
    need 0 stays open (one product seen). **E2-B's frozen configuration is unchanged** (−90 as frozen); its
    scores stand as booked. The note is in `docs/howto/calibrate.md` and `docs/limits.md`.

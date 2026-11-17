@@ -1,7 +1,8 @@
 # v0.3.0 readiness tracker
 
 Status, 2026-11-17: **release-ready except the four results still running** (E2-N and E3-A on nash, the
-selfcal-defaults grid on branch `floor-4`, the E2-A 3b K follow-up on branch `e2a-3b-k`). Written on branch
+selfcal-defaults grid on branch `floor-4`, the E2-A 3b K follow-up on branch `e2a-3b-k`) **and two
+release-blocking licence-notice findings** for the coordinator ([v030-review.md](v030-review.md) B-01, B-02). Written on branch
 `v030-ready` from origin/main `9b4542cb`. Nothing here is tagged or released. The release review is
 [v030-review.md](v030-review.md). The plan is [roadmap.md](roadmap.md) (v0.3.0 section).
 
@@ -69,7 +70,7 @@ closed or commented from this branch). "Close at release" is a proposal for the 
 | # | Title | State at v0.3.0 | Evidence |
 | --- | --- | --- | --- |
 | 33 | Xf: 0.05° rang-CASA gap on held-out 3C 286 simulations | open, known limitation | [xf-preavg.md](xf-preavg.md) |
-| 32 | GeMClean joined-IQUV memory is 10-22x WSClean's | progressed (20.2 to 9.2 GiB; `-reorder` 9.1 GiB on the large fields, 4.7-6.9 × WSClean); open | [gemclean-memory.md](gemclean-memory.md), [gemclean-memory2.md](gemclean-memory2.md) |
+| 32 | GeMClean joined-IQUV memory is 10-22x WSClean's | progressed: by default 15.9-16.5 GiB on the large fields (8.2-8.4 × WSClean), 8.4 GiB on J1833−2103; with `-reorder` 9.1 GiB (4.7 ×) and 7.2 GiB (5.4 ×); open | [gemclean-memory.md](gemclean-memory.md), [gemclean-memory2.md](gemclean-memory2.md) |
 | 31 | test_waiters_acquire_in_ticket_order is flaky under host load | closed 2026-11-15 (in this release) | `61767423`, merged `02631b86` |
 | 30 | Flaky: test_confirmed_gemclean[False] | closed 2026-11-15 (in this release); its run-state form found and fixed here (R-01) | `61767423`; [v030-review.md](v030-review.md) R-01 |
 | 28 | GeMClean close-to-threshold stop rule | progressed (`-stop-tolerance`, off by default); milestone v0.4.0 | [gemclean-stop28.md](gemclean-stop28.md) |
@@ -100,9 +101,10 @@ closed or commented from this branch). "Close at release" is a proposal for the 
 
 ## 6. Left before tagging
 
-1. Merge the four running results (`e2n`, `e3-caracal`, `floor-4`, `e2a-3b-k`) and run the review's delta
+1. B-01 and B-02 ([v030-review.md](v030-review.md) section 3): the casacore measures and radler / WSClean 3.7
+   notices, from the upstream headers.
+2. Merge the four running results (`e2n`, `e3-caracal`, `floor-4`, `e2a-3b-k`) and run the review's delta
    pass over them; replace the "native data not tested" limitation with E2-N's measured limits.
-2. The release-blocking items of [v030-review.md](v030-review.md) section 3 that are not fixed here.
 3. E6 as in 0.2.0: the version bump in `pyproject.toml` (and what follows it), the CHANGELOG section
    `0.3.0` from Unreleased (the "Issues" draft is in the CHANGELOG already), docs/limits.md's E3 line.
 4. Issues to close at the release (the owner posts): #14, #22, #23 now; #13, #6 and #7 when their branches

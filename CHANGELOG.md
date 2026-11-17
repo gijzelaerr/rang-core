@@ -18,8 +18,9 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
   measured limits when it reports.
 - **χ is stated as a limit, not gated** (issue #14, `research/chi-offset.md` section 11). On LUNO's 3C 286
   the RM-corrected χ(λ²=0) is 29.4°, 3.6° from 33°, with rang equal to CASA; under the frozen absolute
-  limit the test failed by 0.47° and 2.31°. No absolute χ claim is made. LUNO's calibrator product holds
-  receptor angle 0, not CARACal strategy 1's −90: a per-product configuration note. A frozen follow-up with
+  limit the test failed by 0.47° and 2.31°. No absolute χ claim is made. On LUNO's calibrator product use
+  FEED's receptor angle 0, not CARACal strategy 1's −90 (the fitted angle is +8.2°): a per-product
+  configuration note. A frozen follow-up with
   an RM term in the 3C 286 model is for later.
 - **Xf differs from CASA by 0.054°** (median) on held-out 3C 286 simulations, against a 0.05° limit; the
   cause is not found, and CASA's pre-averaging is ruled out (issue #33, `research/xf-preavg.md`).
@@ -32,9 +33,11 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
   WSClean 3.7 and radler (!238, merged 2026-11-16, unreleased) do: with `-pol QU -join-polarizations`,
   components whose Q and U cancel are not cleaned, in either imager. `-squared-channel-joining` stays
   refused.
-- **The imaging floor is attributed in part** (issue #13, `research/floor-3.md`, floor-4): on the pilot one
-  phase-only self-calibration round removes most of the floor (1,073 to 379 µJy), and the steady antenna
-  gains are its main cause (share 0.83-0.88); 379 µJy, 8.6 × thermal, remains unexplained.
+- **The imaging floor is attributed in part** (issue #13, `research/floor-3.md`; floor-4, branch commit
+  `84392cdd`): steady antenna gains are its main cause, with a share of 0.88 under floor-3's standard and
+  0.83 under imaging-floor's full criterion (floor-4). On floor-3's subset of the pilot one phase-only
+  self-calibration round takes the floor from 1,073 to 379 µJy; the 379 µJy left, 8.6 × thermal, is
+  unexplained.
 - **Image gate 3c is not met on the cleaned images** (E2-B with the mask: compact scatter 1.18 % against
   1 %; E2-A: dirty 5.0e-3 of the peak, compact scatter 3.6 %, target scatter 4.3 %, ratios falling with
   radius as 512- against 4,096-channel smearing predicts; `research/e2b-misses.md` 9.29,

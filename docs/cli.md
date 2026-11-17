@@ -49,7 +49,7 @@ tasks to rang's.
 **Time series** ({gh}`research/ts-p1.md`): `rang-core lightcurve MS
 --position NAME=RA,DEC --out DIR` gives light curves at given positions from
 the residual (data column minus MODEL_DATA) after `rang-core run`, one point
-per 8 s integration by default: the exact DFT flux, the nearest pixel of the
+per integration by default: the exact DFT flux, the nearest pixel of the
 snapshot dirty image and its robust rms. It reads the MS only.
 
 **Agents** ({doc}`mcp`): `rang-core mcp` serves `listobs`, `config check`,

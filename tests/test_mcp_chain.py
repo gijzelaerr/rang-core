@@ -117,6 +117,10 @@ class Client:
         self.transcript = []
         self.stderr = []
         threading.Thread(target=self._drain, daemon=True).start()
+        # A hung server would block readline forever: kill it after a while.
+        self.watchdog = threading.Timer(DEADLINE_S + 300, self.proc.kill)
+        self.watchdog.daemon = True
+        self.watchdog.start()
 
     def _drain(self):
         for line in self.proc.stderr:
@@ -159,6 +163,7 @@ class Client:
         return result["structuredContent"]
 
     def close(self):
+        self.watchdog.cancel()
         self.proc.stdin.close()
         try:
             self.proc.wait(timeout=30)
