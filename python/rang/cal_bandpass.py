@@ -182,8 +182,13 @@ def bandpass(
     a B solve corrupts the model, so with `average_time` and gains that
     vary within the B interval, averaging data and model separately is a
     different estimator from CASA's, which divides first. On E2-A's subset
-    the divided average equals the unaveraged B to 4e-7; on the 4-antenna
-    test synthetic the two still differ (open). Without `average_time` the
+    the divided average equals the unaveraged B to 4e-7. On the 4-antenna
+    test synthetic they differ (5e-3) because its flags differ between
+    correlations: the unaveraged kernel drops a cell with any correlation
+    flagged (QuartiCal's rule, `core/src/solve.rs` `data_flags`), the
+    averages are per correlation, and the divided average is then the
+    per-correlation least-squares minimum (research/e2a-3b-k.md step 5).
+    With flags equal over correlations the two agree. Without `average_time` the
     solution is unchanged up to rounding."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
