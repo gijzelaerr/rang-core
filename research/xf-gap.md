@@ -169,6 +169,11 @@ Proposal frozen in commit `f9f966d`; scripts in `8ea894c` (before any solve).
 
 ## 6. Amendment, 2026-11-17 20:25 (after the arms, before any ladder, mirror or gauge number was read)
 
+Process note: the driver's second part (H0, ladder, mirror, gauge) was
+started at 20:19, before `dev`'s V0 failure was read; section 4 said to stop
+first. No number of it was read before this amendment was committed
+(`6d7269d`).
+
 **V0 on nash.** `held` reproduces xf-preavg exactly: ψ spans 2.681, 10.299,
 9.349, 1.495° (archive equal), Xf avg against CASA median 0.0544° (0.054),
 noavg 0.0645° (0.065), χ 0.0069° (0.0069). **`dev` fails:** Xf avg against
@@ -310,10 +315,10 @@ CASA's missing Gpol solution for one 3C286-SIM scan.
   |raw/corrected|² of the probe is up to 4.6 % off it).
 - **Cause:** CASA's polcal Xf weights each cell by the pre-applied tables'
   `calwt` factor; rang used 1/SIGMA² unscaled. Xf without D is biased by
-  the 1-3 % leakage, and the weighting sets the bias, so the two
-  estimators differ by 0.04-0.07° on these simulations.
+  the 1-3 % leakage; our reading (not measured separately) is that the
+  weighting sets that bias, so the two estimators differ by 0.04-0.07° here.
 
-**Fix (section 7), `calibrate.xf_calwt: true`:**
+**Fix (section 7), `calibrate.xf_calwt: true`** (measured at `b534e20`):
 
 | Gate | Measured | Limit | |
 | --- | --- | --- | --- |
@@ -323,7 +328,7 @@ CASA's missing Gpol solution for one 3C286-SIM scan.
 | F3 `held` max \|χ_avg − χ_CASA\| | 0.0064 | 0.0089 | pass |
 | F3 `held` max \|χ − 33\| | 0.722 | 1.11 | pass |
 | F4 `held4` noavg against CASA | 0.0003 / 0.0006 | ≤ 0.044 | pass |
-| F5 tests (`tests/test_xf_calwt.py`, off byte-identical) and quick check | see "For the coordinator" | | |
+| F5 tests (`tests/test_xf_calwt.py`, off unchanged, out of the stage hash) and quick check | PASS | | pass |
 
 `held`'s remaining 0.012-0.021° is of the size of CASA's dropped Gpol
 intervals (0.015°, P1); not separated further. Against the truth (fit residual after a
@@ -342,8 +347,11 @@ moves χ by 0.13° against rang. Host-dependent (nash `dev` 0.189°, glacier
 
 - Issue #33 located: CASA's polcal weights the Xf solve by the pre-applied
   tables' `calwt` factor (|G|² × channel-mean |B|² per antenna and hand),
-  rang did not. Proven by a CASA arm (`calwt` True/False on pre-corrected
-  data: 0.0000° each way). Not averaging, not P, not the model, not KCROSS.
+  rang did not. Shown by a CASA arm on pre-corrected data: `calwt=True`
+  equals CASA's chain to 0.0000°; `calwt=False` equals rang's solver to
+  0.0000° on `dev` and 0.015° on `held` (unexplained remainder). Not
+  averaging, not P, not the model, not KCROSS. With the key off (default)
+  #33's gap is unchanged.
 - Fix: `calibrate.xf_calwt` (default false, out of the stage hash; off
   byte-identical), Xf only. With it `held` is 0.012° (noavg) / 0.021° (avg)
   from CASA, `held4` 0.0003°. G, B, Gpol, KCROSS and Df weighting not
@@ -354,10 +362,19 @@ moves χ by 0.13° against rang. Host-dependent (nash `dev` 0.189°, glacier
 - CASA drops non-converged Gpol intervals on noiseless sims, host-dependent:
   CASA oracles on noiseless data can differ between glacier and nash by
   0.2° in Xf. Use noisy twins or check Gpol row counts in future gates.
+- `calwt_factor` allocates times × antennas × channels × 4 complex values
+  outside the chunk budget (about 1 GB at 90 times × 64 antennas × 4096
+  channels); fine for the simulations, to bound before real-data use.
+- Tests assert Xf gets the key and KCROSS does not (Gpol and Df build
+  their own arguments and never receive it).
 - Averaged rang Kcross differs from CASA by 0.0085 ns on one 10° scan
   (KCROSS share 0.21 of the averaged gap); recorded, not chased.
-- Quick check: run on glacier (result in the hand-back); full check (CASA
-  oracles, archives) left to the coordinator's merge check.
+- Quick check on glacier: PASS in 737 s at `b534e20` plus the index entry
+  (369 passed, gain-hash gate PASS); the later commits add docs, receipts
+  and two tests (stage hash, KCROSS not keyed), run separately and passing.
+  Full check (CASA oracles, archives) left to the coordinator's merge check.
+- CI: run 44144084367 (`tests` at `8ea894c`) went red on the missing
+  research-index entry (fixed in the next commits).
 - Disk: nash `~/rang-data/outputs/xf-gap-20261117` 77 MB, can go at merge.
 - To rerun: `research/results/xf-gap/nash/drive.sh` (section 5), then
   `post.sh`, `post2.sh`, `fix.sh` in the run root; each log ends

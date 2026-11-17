@@ -2220,3 +2220,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | xf-gap: harness ladder L0-L3 (rang solvers on CASA tables), host nash | held noavg / avg; dev | 164 / 155 s; 11 s | – | four chains each |
 | 2026-11-17 | xf-gap: mirror M1-M3 + T0 (CASA on rang's tables), host nash | held; dev | 133 s; 48 s | – | four CASA runs each |
 | 2026-11-17 | xf-gap: CASA `casawt` (applycal, split, setjy, polcal Xf), host nash | held; dev | 31 s; 13 s | – | per arm |
+| 2026-11-17 | xf-gap: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `xf-gap` at `b534e20` + index entry | 737 s (lock wait excluded) | – | PASS (369 passed, 41 skipped); gain-hash gate PASS; later commits: docs, receipts and two tests (run separately, pass) |

@@ -117,6 +117,10 @@ def test_chain_threads_it_to_xf_only(solved, monkeypatch):
     common = {"model_column": "MODEL_DATA", "weight_column": "WEIGHT", "xf_calwt": True}
     cal_chain._solve_pol(ms, term, 1, tabs, common)
     assert ("Xf", True) in seen
+    seen.clear()
+    cal_chain._solve_pol(ms, dict(term, type="KCROSS", name="Kc", refant=0,
+                                  estimator="casa"), 1, tabs, common)  # fmt: skip
+    assert seen and all(not on for _, on in seen)
 
 
 def test_the_chunked_solve_is_several_chunks(solved, monkeypatch):
@@ -133,3 +137,18 @@ def test_the_chunked_solve_is_several_chunks(solved, monkeypatch):
     cal_pol.xf(ms, combine="scan", calwt=True, budget=cal_pol_budget(1000, nrows=120),
                **_kw(ms, tables))  # fmt: skip
     assert len(n) > 1
+
+
+def test_the_key_is_out_of_the_stage_hash_at_its_default():
+    from rang import core_config
+
+    raw = {"version": 1, "fields": {"fcal": ["A"]},
+           "calibrate": {"primary": {"terms": [{"type": "G", "name": "G"}]}}}  # fmt: skip
+    config, errors = core_config.resolve(raw)
+    assert not errors and config["calibrate"]["xf_calwt"] is False
+    before = core_config.stage_hash(config, "calibrate")
+    gone = dict(config, calibrate={k: v for k, v in config["calibrate"].items()
+                                   if k != "xf_calwt"})  # fmt: skip
+    assert core_config.stage_hash(gone, "calibrate") == before
+    on = dict(config, calibrate=dict(config["calibrate"], xf_calwt=True))
+    assert core_config.stage_hash(on, "calibrate") != before

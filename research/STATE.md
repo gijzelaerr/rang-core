@@ -22,7 +22,7 @@ A new paragraph goes directly under this heading.
 
 Xf gap against CASA, 2026-11-17 (issue #33; branch `xf-gap`; [xf-gap.md](xf-gap.md), frozen in `f9f966d`, amended `6d7269d` and `6ed7b5b` before the numbers they govern; archive [results/xf-gap/](results/xf-gap/); run root `~/rang-data/outputs/xf-gap-20261117`, host nash):
 - Located (frozen outcome 1): the held-out 0.054-0.065° rang-CASA Xf gap is in the Xf solve on identical inputs (ladder share 1.06, mirror 1.08); not averaging, P, the model, KCROSS or a gauge split (composite XY 0.060°).
-- Cause: CASA's polcal weights each cell by the pre-applied tables' `calwt` factor (|G|² × channel-mean |B|² per antenna and hand, matched to 1e-6); a CASA arm with `calwt` False gives rang's Xf to 0.0000°, True CASA's.
+- Cause: CASA's polcal weights each cell by the pre-applied tables' `calwt` factor (|G|² × channel-mean |B|² per antenna and hand, matched to 1e-6); a CASA arm on pre-corrected data with `calwt` True gives CASA's Xf to 0.0000°, with False rang's (0.0000° dev, 0.015° held).
 - Fix, opt-in: `calibrate.xf_calwt` (default false, off byte-identical). With it held 0.012° / 0.021° (noavg / avg) from CASA, held4 0.0003°, χ within 0.0064°; slightly further from the truth (0.102 → 0.108° residual), so the default stays off (owner decision).
 - Also found: CASA drops Gpol intervals that hit its 50-iteration limit on noiseless data (held 2 of 48, dev one whole scan); nash's dev then differs by 0.19° in Xf and 0.13° in χ. Host-dependent CASA oracle on noiseless sims.
 
