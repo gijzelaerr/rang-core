@@ -5,13 +5,16 @@
 - `npzflags` (`vis`, `npz`): FLAG and FLAG_ROW from a packed export
   (`export_flags.py`; TIME, ANTENNA1, ANTENNA2 checked equal);
 - `copycol` (`src`, `vis`, `column`): one column copied row by row from
-  another copy of the same rows (TIME, ANTENNA1, ANTENNA2 checked equal).
+  another copy of the same rows (TIME, ANTENNA1, ANTENNA2 checked equal);
+- `editsol` (post hoc, section 7): one solution of a caltable copy flagged
+  or unflagged, its value optionally from another table.
 
     k_casa.py base SRC_MS OUT_MS OUT.json ANTS
     k_casa.py tasks SPEC.json RESULT.json
 """
 
 import json
+import os
 import sys
 
 sys.path.insert(0, "/s2")
@@ -63,19 +66,63 @@ def copycol(src, vis, column):
     return {"rows": n, "column": column}
 
 
+def editsol(src, dst, ant, rank, corr, flag, value_from=None):
+    """A copy of caltable `src` at `dst` with the solution of antenna `ant`
+    at the `rank`-th unique TIME, correlation `corr`, flagged (`flag`) and,
+    with `value_from` (another caltable), CPARAM taken from its row of the
+    same antenna and rank."""
+    import shutil
+
+    import numpy as np
+    from casatools import table
+
+    if os.path.isdir(dst):
+        shutil.rmtree(dst)
+    shutil.copytree(src, dst)
+
+    def row_of(tb):
+        t = np.round(tb.getcol("TIME"), 3)
+        times = np.unique(t)
+        rows = np.flatnonzero((tb.getcol("ANTENNA1") == ant) & (t == times[rank]))
+        if len(rows) != 1:
+            raise ValueError(f"{len(rows)} rows for antenna {ant} rank {rank}")
+        return int(rows[0])
+
+    tb = table()
+    tb.open(dst, nomodify=False)
+    r = row_of(tb)
+    f = tb.getcell("FLAG", r)
+    before = {
+        "flag": f.tolist(),
+        "cparam": [str(x) for x in tb.getcell("CPARAM", r).ravel()],
+    }
+    f[corr] = bool(flag)
+    tb.putcell("FLAG", r, f)
+    if value_from:
+        other = table()
+        other.open(value_from)
+        c = tb.getcell("CPARAM", r)
+        c[corr] = other.getcell("CPARAM", row_of(other))[corr]
+        other.close()
+        tb.putcell("CPARAM", r, c)
+    after = {"flag": tb.getcell("FLAG", r).tolist(),
+             "cparam": [str(x) for x in tb.getcell("CPARAM", r).ravel()]}  # fmt: skip
+    tb.close()
+    return {"row": r, "before": before, "after": after}
+
+
 _tasks = D.tasks
 
 
 def tasks(spec_path, result_path):
     import casatasks
 
-    extra = {"npzflags": npzflags, "copycol": copycol}
+    extra = {"npzflags": npzflags, "copycol": copycol, "editsol": editsol}
     with open(spec_path) as fh:
         calls = json.load(fh)
     if not any(c["task"] in extra for c in calls):
         return _tasks(spec_path, result_path)
     # run the extra steps in place, the rest through d1_casa's runner, in order
-    import os
     import time
 
     results = []

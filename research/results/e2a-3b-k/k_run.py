@@ -183,7 +183,7 @@ def casa(case, tag=None):
                   "standard": "Stevens-Reynolds 2016", "scalebychan": True,
                   "usescratch": True}}]  # fmt: skip
         return tasks("casa-model", calls)
-    if case in ("ntk3", "ntf", "tkg", "tk3m"):  # the real subset
+    if case in ("ntk3", "ntf", "tkg", "tk3m", "tkgf", "tk3u"):  # the real subset
         vis = "/d1/casa-a.ms"
         out = f"/d1/casa-{case}"
         f0, f1 = "/d1/win/flags/src-flags.npz", "/d1/win/flags/rang-tt-flags.npz"
@@ -211,6 +211,15 @@ def casa(case, tag=None):
         _swap(calls, {f"{out}/{n}": f"{rk}/{n}" for n in ("K0", "G0", "K1", "G1")})
     elif case == "c":
         calls = d1_run._calls(vis, out, **kw)
+    elif case in ("tkgf", "tk3u"):  # post hoc, section 7: the one G1 flag of ID 50
+        g_rang, g_casa = f"{rk}/G1", "/d1/casa-ntk3/G1"
+        edit = {"src": g_rang if case == "tkgf" else g_casa, "dst": f"{out}/G1-edited",
+                "ant": 50, "rank": 7, "corr": 0, "flag": case == "tkgf"}  # fmt: skip
+        if case == "tk3u":
+            edit["value_from"] = g_rang
+        calls = d1_run._calls(vis, out, terms=["flags1", "hash1", "setjy", "B1"], **kw)
+        _swap(calls, {f"{out}/K1": f"{rk}/K1", f"{out}/G1": f"{out}/G1-edited"})
+        calls = [{"task": "editsol", "args": edit}, *calls]
     else:
         raise SystemExit(f"unknown case {case}")
     if case == "tk3m":

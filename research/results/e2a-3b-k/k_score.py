@@ -192,23 +192,25 @@ def real():
     arms = {"tt": tt, "win-tk3": WIN / "casa-tk3", "win-tf": WIN / "casa-tf",
             "ntk3": O / "casa-ntk3", "ntf": O / "casa-ntf", "tkg": O / "casa-tkg",
             "tk3m": O / "casa-tk3m", "u": O / "rang-u.ms.rang-run" / "calibrate",
-            "d": O / "rang-d.ms.rang-run" / "calibrate"}  # fmt: skip
+            "d": O / "rang-d.ms.rang-run" / "calibrate",
+            "tkgf": O / "casa-tkgf", "tk3u": O / "casa-tk3u"}  # fmt: skip
     shared = {"win-tk3": ("K0", "K1"), "ntk3": ("K0", "K1"), "tk3m": ("K0", "K1"),
-              "tkg": ("K0", "G0", "K1", "G1")}  # fmt: skip
+              "tkg": ("K0", "G0", "K1", "G1"), "tkgf": ("K1",), "tk3u": ("K1",)}  # fmt: skip
 
     def load(arm, names):
         d = arms[arm]
         out = []
         for n in names:
             src = tt if n in shared.get(arm, ()) else d
-            if not (src / n).exists():
+            name = "G1-edited" if (arm in ("tkgf", "tk3u") and n == "G1") else n
+            if not (src / name).exists():
                 return None
-            out.append(C.table(src / n))
+            out.append(C.table(src / name))
         return out
 
     pairs = [("tt", "win-tk3"), ("tt", "ntk3"), ("ntk3", "win-tk3"), ("ntf", "win-tf"),
              ("tt", "ntf"), ("tt", "win-tf"), ("tt", "tkg"), ("tt", "tk3m"), ("u", "tt"),
-             ("u", "ntf"), ("d", "ntf"), ("d", "tt"), ("u", "d")]  # fmt: skip
+             ("u", "ntf"), ("d", "ntf"), ("d", "tt"), ("u", "d"), ("tt", "tkgf"), ("tt", "tk3u")]  # fmt: skip
     out = {}
     for a, b in pairs:
         for tag, names in (("KGB1", NAMES1), ("KGB0", NAMES0)):
