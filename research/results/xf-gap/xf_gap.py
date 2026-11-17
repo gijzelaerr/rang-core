@@ -18,6 +18,7 @@ sim_chi.py, imported unchanged); CASA runs in the apptainer image instead of
 docker. Outputs under ~/rang-data/outputs/xf-gap-20261117 (XFGAP_OUT).
 """
 
+import copy
 import json
 import os
 import shutil
@@ -577,12 +578,114 @@ def model_diff(s):
     return out
 
 
+# -- post hoc (research/xf-gap.md section 6) ------------------------------------
+
+
+def _take(table, idx):
+    t = copy.deepcopy(table)
+    for k, v in t.main.items():
+        if v is None:
+            continue
+        t.main[k] = v[idx] if isinstance(v, np.ndarray) else [v[i] for i in idx]
+    return t
+
+
+def _missing(rang_gpol, casa_gpol):
+    """rang's row mask: True where CASA has no solution within 1 s."""
+    tc = np.unique(np.asarray(casa_gpol.main["TIME"], float))
+    tr = np.asarray(rang_gpol.main["TIME"], float)
+    return np.array([np.min(np.abs(tc - t)) > 1.0 for t in tr])
+
+
+def p1(s):
+    """L2f: rang's Kcross and Xf on CASA's K, G, B and CASA's Gpol completed
+    by the ladder L1's (rang's, on CASA's K, G, B) rows where CASA has none."""
+    from rang.formats import caltable
+
+    ct = O / f"casa-{s}-m90" / "tables"
+    cg = caltable.read(ct / "Gpol")
+    rg = caltable.read(O / f"ladder-{s}-m90_noavg-L1" / "Gpol")
+    miss = np.flatnonzero(_missing(rg, cg))
+    merged = copy.deepcopy(cg)
+    for k in merged.main:
+        a, b = cg.main[k], rg.main[k]
+        if a is None:
+            continue
+        if isinstance(a, np.ndarray):
+            merged.main[k] = np.concatenate([a, np.asarray(b)[miss]])
+        else:
+            merged.main[k] = list(a) + [b[i] for i in miss]
+    order = np.lexsort(
+        (np.asarray(merged.main["ANTENNA1"]), np.asarray(merged.main["TIME"]))
+    )
+    merged = _take(merged, order)
+    g = O / f"p1-{s}-given"
+    if g.exists():
+        shutil.rmtree(g)
+    g.mkdir(parents=True)
+    for t in ("K", "G", "B"):
+        shutil.copytree(ct / t, g / t)
+    caltable.write(merged, g / "Gpol")
+    ms = O / f"casa-{s}-m90" / "model.ms"
+    cfg = O / f"rang-{s}-m90_noavg" / "config.yaml"
+    harness(ms, cfg, g, ORDER[:4], O / f"p1-{s}-L2f")
+    log(f"p1 {s}: {len(miss)} rows filled from L1")
+
+
+def p2(s):
+    """R-drop: rang's chain on its own MS with rang's Gpol rows removed where
+    CASA has none, Kcross and Xf re-solved."""
+    from rang.formats import caltable
+
+    d = O / f"rangcal-{s}"
+    rt = rang_tables(d)
+    rg = caltable.read(rt / "Gpol")
+    cg = caltable.read(O / f"casa-{s}-m90" / "tables" / "Gpol")
+    keep = np.flatnonzero(~_missing(rg, cg))
+    g = O / f"p2-{s}-given"
+    if g.exists():
+        shutil.rmtree(g)
+    g.mkdir(parents=True)
+    for t in ("K", "G", "B"):
+        shutil.copytree(rt / t, g / t)
+    caltable.write(_take(rg, keep), g / "Gpol")
+    harness(d / "sim.ms", d / "config.yaml", g, ORDER[:4], O / f"p2-{s}-Rdrop")
+    log(f"p2 {s}: {len(rg.main['TIME']) - len(keep)} rows removed")
+
+
+def posthoc(dest):
+    res = {}
+    for s in SETS:
+        p = O / f"truth-{s}" / "gauge.npz"
+        if not p.exists():
+            continue
+        f, nu0 = _freq(s), float(np.load(p)["nu0"])
+        C = xf_of(O / f"casa-{s}-m90" / "tables" / "Xf")
+        r = {}
+        if (O / f"p1-{s}-L2f" / "Xf").exists():
+            L2f = xf_of(O / f"p1-{s}-L2f" / "Xf")
+            L1 = xf_of(O / f"ladder-{s}-m90_noavg-L1" / "Xf")
+            L2 = xf_of(O / f"ladder-{s}-m90_noavg-L2" / "Xf")
+            r["P1_L2f_vs_L1"] = summary(delta(L2f, L1), f, nu0)
+            r["P1_L2_vs_L1"] = summary(delta(L2, L1), f, nu0)
+            r["P1_L2f_vs_CASA"] = summary(delta(L2f, C), f, nu0)
+        if (O / f"p2-{s}-Rdrop" / "Xf").exists():
+            rd = xf_of(O / f"p2-{s}-Rdrop" / "Xf")
+            r["P2_Rdrop_vs_CASA"] = summary(delta(rd, C), f, nu0)
+            rr = xf_of(rang_tables(O / f"rangcal-{s}") / "Xf")
+            r["P2_Rdrop_vs_R"] = summary(delta(rd, rr), f, nu0)
+        if r:
+            res[s] = r
+    Path(dest).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(res, indent=1))
+
+
 def main(argv):
     O.mkdir(parents=True, exist_ok=True)
     cmd, args = argv[0], argv[1:]
     fn = {"gen": gen, "psi": psi, "rang": rang, "rangcal": rangcal, "casa": casa,
           "h0": h0, "ladder": ladder, "mirror": mirror, "gauge": gauge,
-          "score": score}.get(cmd)  # fmt: skip
+          "score": score, "p1": p1, "p2": p2, "posthoc": posthoc}.get(cmd)  # fmt: skip
     if fn is None:
         raise SystemExit(__doc__)
     rc = fn(*args)
