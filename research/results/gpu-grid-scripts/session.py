@@ -24,7 +24,7 @@ sys.path.insert(0, str(HERE))
 import timing  # noqa: E402
 
 OUT = Path("D:/rang/outputs/20261116-gpu-grid")
-ROOT = OUT / "timing-20261117"
+ROOT = OUT / "timing-20261117b"  # attempt 3 (timing-20261117) aborted, amendment 9.5
 WSC = OUT / "wsclean"
 LOCK = Path("C:/Users/gijsm/Github/rang/tools/heavy_lock.py")
 BIN = Path("C:/Users/gijsm/Worktrees/rang/gpu-grid/outputs/gpu-grid/bin")
@@ -37,7 +37,12 @@ MS = {
 }
 COMMON = ("-weight briggs 0.5 -niter 1000000 -gain 0.1 -nmiter 1000 -data-column DATA "
           "-field 0 -j 16 -no-update-model-required -single -wgridder-accuracy 1e-4").split()
-OTHER_MAX, GPU_DRIFT_MIB = 1.0, 512
+GPU_DRIFT_MIB, BUDGET_MIB = 512, 4096
+OTHER_MAX = None  # amendment 9.5: max(2.0, idle baseline + 1.0) cores, set at the start
+
+
+class Void(Exception):
+    """Amendment 9.5: the first void GPU arm ends the session."""
 
 
 def log(msg):
@@ -60,11 +65,11 @@ def snapshot(tag):
     lock = subprocess.run([sys.executable, str(LOCK), "status"], capture_output=True, text=True)
     (ROOT / f"lock-{tag}.txt").write_text(lock.stdout + lock.stderr)
     t0, b0 = time.perf_counter(), busy_s()
-    time.sleep(10)
+    time.sleep(60)
     cores = (busy_s() - b0) / (time.perf_counter() - t0)
     used, total = timing.gpu_mem()
-    log(f"snapshot {tag}: host busy {cores:.2f} cores over 10 s (idle driver), GPU {used}/{total} MiB")
-    return used
+    log(f"snapshot {tag}: host busy {cores:.2f} cores over 60 s (idle driver), GPU {used}/{total} MiB")
+    return used, total, cores
 
 
 def mark(name, res, own_cpu_s, wall_s, other_wall_s, b0, b1, gpu_before, base_gpu):
@@ -84,9 +89,9 @@ def gemclean(name, cmd, base_gpu, voids):
         budget = int(cmd[cmd.index("-gpu-memory") + 1])
         used, total = timing.gpu_mem()
         if used is None or total - used < budget + 256:
-            log(f"{name}: VOID, GPU {used}/{total} MiB used")
+            log(f"{name}: VOID, GPU {used}/{total} MiB used; session ends (amendment 9.5)")
             voids.append((name, cmd))
-            return
+            raise Void(name)
     t0, b0 = time.perf_counter(), busy_s()
     timing.one(str(res_path), str(ROOT / f"{name}.log"), cmd)
     b1, span = busy_s(), time.perf_counter() - t0
@@ -143,33 +148,38 @@ def warm_up():
 
 
 def main():
+    global OTHER_MAX
     ROOT.mkdir(parents=True, exist_ok=True)
     (ROOT / "out").mkdir(exist_ok=True)
-    plan = [ln.replace("/timing/out/", "/timing-20261117/out/").split()
+    plan = [ln.replace("/timing/out/", "/timing-20261117b/out/").split()
             for ln in (HERE / "timing_plan.txt").read_text().splitlines()
             if ln.strip() and not ln.startswith("#")]
     log(f"session start, {len(plan)} GeMClean arms")
-    base_gpu = snapshot("start")
+    base_gpu, total, idle = snapshot("start")
+    OTHER_MAX = max(2.0, idle + 1.0)
+    log(f"clean rule: other CPU at most {OTHER_MAX:.2f} cores (idle baseline {idle:.2f})")
+    if total - base_gpu < BUDGET_MIB + 256:
+        log(f"pre-flight: GPU {base_gpu}/{total} MiB used, under budget + 256 free; no timing")
+        snapshot("end")
+        return
     warm_up()
     voids = []
-    for rep in (1, 2, 3):
-        for item in plan:
-            if item[0].endswith(f"-r{rep}"):
-                gemclean(item[0], item[1:], base_gpu, voids)
-        for sky in ("s1", "h2", "h3"):
-            for mg in ("0.8", "0.9"):
-                wsclean(sky, mg, rep, base_gpu)
-    for arm, extra in (("cpu", []), ("gpu", ["-gpu", "-gpu-memory", "4096"])):
-        name = f"pilot-coarse-{arm}-r1"
-        cmd = [str(BIN / f"gemclean-9ad7e75-{arm}.exe"), "-name", str(ROOT / "out" / name),
-               "-size", "4096", "4096", "-scale", "3asec", "-abs-threshold", "0.003", *COMMON,
-               *extra, MS["pilot"]]
-        gemclean(name, cmd, base_gpu, voids)
-    retry, voids = voids, []
-    for name, cmd in retry:
-        gemclean(name, cmd, base_gpu, voids)
-    for name, _ in voids:
-        log(f"{name}: void twice, not measured")
+    try:
+        for rep in (1, 2, 3):
+            for item in plan:
+                if item[0].endswith(f"-r{rep}"):
+                    gemclean(item[0], item[1:], base_gpu, voids)
+            for sky in ("s1", "h2", "h3"):
+                for mg in ("0.8", "0.9"):
+                    wsclean(sky, mg, rep, base_gpu)
+        for arm, extra in (("cpu", []), ("gpu", ["-gpu", "-gpu-memory", str(BUDGET_MIB)])):
+            name = f"pilot-coarse-{arm}-r1"
+            cmd = [str(BIN / f"gemclean-9ad7e75-{arm}.exe"), "-name", str(ROOT / "out" / name),
+                   "-size", "4096", "4096", "-scale", "3asec", "-abs-threshold", "0.003", *COMMON,
+                   *extra, MS["pilot"]]
+            gemclean(name, cmd, base_gpu, voids)
+    except Void as e:
+        log(f"session stopped at the void arm {e}; partial, recorded, not pooled")
     snapshot("end")
     log("session end")
 

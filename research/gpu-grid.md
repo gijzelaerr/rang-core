@@ -495,6 +495,29 @@ these deviations:
 - **Accuracy of the timed runs:** their model and residual FITS hashed against the Gate 2
   runs of the same binary (`-j 8`); a mismatch is reported.
 
+**9.5, 2026-11-17, post hoc (seen: the aborted session below; no GPU arm ran).** Attempt 3
+(9.4) took the exclusive hold at 20:09:59 and was stopped at 20:13:40, in its first WSClean
+arm (`timing-20261117/`, kept as recorded). At 20:10:23-20:10:32 a local client sent four
+`/api/chat` requests to Ollama, which loaded `qwen3:14b` (10 GB, 100 % GPU, 15 min
+keep-alive) onto the card; every GPU arm of repeat 1 was void (10,498 of 12,282 MiB used)
+and every run unclean by 9.4's GPU-drift clause (`ollama-2010.txt`, `ollama-server.log`;
+the same client sent a burst at 18:05). The idle host itself read 1.62 cores busy over 10 s
+(0.5-1.4 cores in three later 15 s windows with WSL stopped; no user process above 0.03
+core), so 9.4's 1.0-core bound sat below the floor and would have marked every run
+unclean. Seen: the six CPU walls of repeat 1 (S1 10.88 / 14.55 s, H2 14.54 / 18.41 s,
+H3 35.22 / 50.79 s, coarse / fine) and one WSClean wall (S1 `-mgain 0.8`, 17.51 s); they
+are not pooled with the rerun. Changes for the rerun (`timing-20261117b/`), everything else
+as 9.4:
+- **Clean rule:** the idle baseline is measured over 60 s at the session start (and end),
+  and a run is unclean if its other-process CPU exceeds max(2.0, baseline + 1.0) cores.
+  The baseline is reported beside the results. The GPU-drift clause stays.
+- **Pre-flight:** with less than 4096 + 256 MiB free on the card at the start, the session
+  logs it and ends without timing.
+- **The first void GPU arm ends the session**; no end-of-session retries. A partial
+  session is reported as such and not pooled with another.
+- Ollama is not stopped by this task (not its process); the rerun starts after the model
+  has unloaded.
+
 ## Coordinator decision, 2026-11-16 (owner delegated)
 
 - The frozen outcome, **Failure**, stands. The code (`core/src/gpu/wgrid.rs`, `gemclean -gpu`) stays on
