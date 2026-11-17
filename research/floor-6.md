@@ -341,3 +341,18 @@ arms one at a time (beside the pilot track until 17:47).
   `pilot` 1.9 GB, `ho/{hands,hb,prep}` 1.7 GB, `inputs` 0.5 GB (gains); the compact readings are
   archived. Keep `ho/P/pilot.ms` and the SDm03 / Dm03 / S models if (b) follows; also
   `~/Build/tmp/20261117-floor6` (scripts, archived in `results/floor-6/scripts/`).
+
+## Coordinator decisions, 2026-11-17
+
+- **Readings accepted as reported, with the GP caveat kept.** H9 (depth) is confirmed at
+  D_h = 0.201. H8 (spectral) is confirmed with a larger effect, D_h = 0.474, which is 2.5× the
+  pilot's share. GP passes only under clarification 2. That clarification was committed after the
+  held-out visibilities and gains were read, but before any held-out Sp solution, image or score
+  existed. It stays labelled post hoc in 10.2. A reader who rejects it should read both outcomes as
+  void, not as failed.
+- **No default changes before v0.3.0.** SDm03 as the selfcal final-image default is a candidate for
+  v0.4. It needs E2-A's and E2-N's gate rows re-read with SDm03 before a default changes, under
+  calchain-floor's simulation-control rule. Until then it is documented as the floor's largest
+  attributed lever (0.717 of the excess on the held-out scan). The antenna-gain protocol on top of
+  SDm03's model is queued after that re-read.
+- nash's 79 GB output stays until the v0.3.0 release, then is deleted apart from the archive.
