@@ -18,9 +18,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests"))
 
-from rang import cal_bandpass  # noqa: E402
-from test_e2_average_time import cal_ms, prepared, unit  # noqa: E402,F401
-from test_e2a_bandpass_model_divided import exact  # noqa: E402,F401
+from rang import cal_bandpass
+from test_e2_average_time import cal_ms, prepared, unit  # noqa: F401
+from test_e2a_bandpass_model_divided import exact  # noqa: F401
 
 RULES = {"chain": {}, "strict": {"max_iterations": 1000, "stop_criterion": 1e-12,
                                  "stop_fraction": 1.0}}  # fmt: skip
@@ -35,7 +35,9 @@ def chi2(arr, ant1, ant2, gains):
     total = 0.0
     for h, c in enumerate((0, 3)):
         v = arr["data"][..., c].astype(np.complex128)
-        m = np.broadcast_to(arr["model"], arr["data"].shape)[..., c].astype(np.complex128)
+        m = np.broadcast_to(arr["model"], arr["data"].shape)[..., c].astype(
+            np.complex128
+        )
         w = np.broadcast_to(arr["weights"], arr["data"].shape)[..., c].astype(float)
         f = np.broadcast_to(arr["flag"], arr["data"].shape)[..., c]
         gp = gains[:, ant1, h].T  # (row, chan)
@@ -50,7 +52,9 @@ def test_probe(exact, request):  # noqa: F811
     ms, model, tables, _ = exact
     out = {}
     for pre_name, pre in (("none", []), ("KG", tables)):
-        fld, arr, _ = prepared(ms, 0, "B", model=model, weight_column="WEIGHT", gaintable=pre)
+        fld, arr, _ = prepared(
+            ms, 0, "B", model=model, weight_column="WEIGHT", gaintable=pre
+        )
         a1, a2 = fld.meta["ANTENNA1"], fld.meta["ANTENNA2"]
         sols = {}
         for rname, rule in RULES.items():

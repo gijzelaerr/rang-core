@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, "/s2")
 
-import d1_casa as D  # noqa: E402
+import d1_casa as D
 
 B = D.B
 
@@ -70,7 +70,8 @@ def tasks(spec_path, result_path):
     import casatasks
 
     extra = {"npzflags": npzflags, "copycol": copycol}
-    calls = json.loads(open(spec_path).read())
+    with open(spec_path) as fh:
+        calls = json.load(fh)
     if not any(c["task"] in extra for c in calls):
         return _tasks(spec_path, result_path)
     # run the extra steps in place, the rest through d1_casa's runner, in order
@@ -90,7 +91,8 @@ def tasks(spec_path, result_path):
                 with open(tmp + ".spec", "w") as fh:
                     json.dump([entry], fh)
                 rc = _tasks(tmp + ".spec", tmp)
-                one = json.loads(open(tmp).read())[0]
+                with open(tmp) as fh:
+                    one = json.load(fh)[0]
                 out, error = one["return"], one["error"]
                 os.remove(tmp)
                 os.remove(tmp + ".spec")

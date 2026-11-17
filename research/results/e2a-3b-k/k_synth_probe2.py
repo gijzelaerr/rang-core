@@ -18,10 +18,10 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests"))
 
-from rang import cal_bandpass, cal_gain, core_ms  # noqa: E402
-from test_e2_average_time import cal_ms, prepared, unit  # noqa: E402,F401
-from test_e2a_bandpass_model_divided import exact  # noqa: E402,F401
-from k_synth_probe import chi2  # noqa: E402
+from k_synth_probe import chi2
+from rang import cal_bandpass, cal_gain, core_ms
+from test_e2_average_time import cal_ms, prepared, unit  # noqa: F401
+from test_e2a_bandpass_model_divided import exact  # noqa: F401
 
 
 def np_ls(arr, a1, a2, nant, refant=0, iters=3000):
@@ -31,8 +31,12 @@ def np_ls(arr, a1, a2, nant, refant=0, iters=3000):
     cross = a1 != a2
     for h, c in enumerate((0, 3)):
         v = arr["data"][cross][..., c].astype(complex)
-        m = np.broadcast_to(arr["model"], arr["data"].shape)[cross][..., c].astype(complex)
-        w = np.broadcast_to(arr["weights"], arr["data"].shape)[cross][..., c].astype(float)
+        m = np.broadcast_to(arr["model"], arr["data"].shape)[cross][..., c].astype(
+            complex
+        )
+        w = np.broadcast_to(arr["weights"], arr["data"].shape)[cross][..., c].astype(
+            float
+        )
         f = np.broadcast_to(arr["flag"], arr["data"].shape)[cross][..., c]
         w = np.where(f, 0, w)
         p, q = a1[cross], a2[cross]
@@ -42,11 +46,13 @@ def np_ls(arr, a1, a2, nant, refant=0, iters=3000):
             for a in range(nant):
                 # rows where a is p: V ~ g_a g_q^* M ; rows where a is q: V^* ~ g_a g_p^* M^*
                 sp, sq = p == a, q == a
-                num = (w[sp] * v[sp] * np.conj(g[:, q[sp]].T * m[sp]) ).sum(0)
+                num = (w[sp] * v[sp] * np.conj(g[:, q[sp]].T * m[sp])).sum(0)
                 den = (w[sp] * np.abs(g[:, q[sp]].T * m[sp]) ** 2).sum(0)
                 num += (w[sq] * np.conj(v[sq]) * g[:, p[sq]].T * m[sq]).sum(0)
                 den += (w[sq] * np.abs(g[:, p[sq]].T * m[sq]) ** 2).sum(0)
-                g[:, a] = 0.5 * g[:, a] + 0.5 * np.where(den > 0, num / np.where(den > 0, den, 1), g[:, a])
+                g[:, a] = 0.5 * g[:, a] + 0.5 * np.where(
+                    den > 0, num / np.where(den > 0, den, 1), g[:, a]
+                )
             g *= np.exp(-1j * np.angle(g[:, refant]))[:, None]
             if np.max(np.abs(g - old)) < 1e-13:
                 break
@@ -60,7 +66,9 @@ def test_probe2(exact):  # noqa: F811
         positions = t.getcol("POSITION")
     out = {}
     for pre_name, pre in (("none", []), ("KG", tables)):
-        fld, arr, _ = prepared(ms, 0, "B", model=model, weight_column="WEIGHT", gaintable=pre)
+        fld, arr, _ = prepared(
+            ms, 0, "B", model=model, weight_column="WEIGHT", gaintable=pre
+        )
         a1, a2 = np.asarray(fld.meta["ANTENNA1"]), np.asarray(fld.meta["ANTENNA2"])
         nchan = arr["data"].shape[1]
         ref = np_ls(arr, a1, a2, 4)
@@ -73,7 +81,10 @@ def test_probe2(exact):  # noqa: F811
                                positions=positions, max_iterations=1000,
                                stop_criterion=1e-12, stop_fraction=1.0)  # fmt: skip
             sols[f"solve_{wname}"] = np.asarray(s.gains)[0]
-        for vname, var in (("plain", {}), ("div", {"average_time": True, "model_divided": True})):
+        for vname, var in (
+            ("plain", {}),
+            ("div", {"average_time": True, "model_divided": True}),
+        ):
             _, sol, _ = cal_bandpass.bandpass(ms, field_id=0, refant=0, combine="scan",
                                               minblperant=2, gaintable=pre, model=model,
                                               weight_column="WEIGHT", max_iterations=1000,
@@ -87,5 +98,7 @@ def test_probe2(exact):  # noqa: F811
         out[pre_name] = res
         out[pre_name + "_weights"] = {"min": float(np.min(arr["weights"])), "max": float(np.max(arr["weights"])),
                                       "shape": list(np.shape(arr["weights"]))}  # fmt: skip
-    Path(os.environ.get("K_OUT", "k-synth2.json")).write_text(json.dumps(out, indent=1) + "\n")
+    Path(os.environ.get("K_OUT", "k-synth2.json")).write_text(
+        json.dumps(out, indent=1) + "\n"
+    )
     print(json.dumps(out, indent=1))

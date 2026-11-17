@@ -4,7 +4,7 @@ rang arms and the simulated-truth cases. Every step is one heavy-lock job
 
     python k_run.py build                 src.ms from e3-input/e2a.ms (bound read-only), flags, copies
     python k_run.py rang MS ARM           ARM u | d on O/MS (rang-core run, this checkout)
-    python k_run.py casa CASE [TAG]       real: ntk3 ntf tkg tk3m; sim: c ck (TAG the sim case)
+    python k_run.py casa CASE [TAG]       real: ntk3 ntf tkg tk3m model; sim: c ck (TAG the sim case)
     python k_run.py copy SRC DST          copytree inside O
 """
 
@@ -21,7 +21,7 @@ ROOT = HERE.parents[2]
 DIAG = ROOT / "research" / "results" / "e2a-3b-diag"
 sys.path.insert(0, str(DIAG))
 
-import d1_run  # noqa: E402  (its _calls and rang_config; Windows constants unused)
+import d1_run
 
 O = Path.home() / "rang-data" / "outputs" / "e2a-3b-k-20261117"
 SRC = Path.home() / "rang-data" / "e3-input"
@@ -37,7 +37,14 @@ def log(text):
 
 
 def apptainer(script_args, label, src_ro=False):
-    binds = ["--bind", f"{O}:/d1", "--bind", f"{HERE}:/s:ro", "--bind", f"{DIAG}:/s2:ro"]
+    binds = [
+        "--bind",
+        f"{O}:/d1",
+        "--bind",
+        f"{HERE}:/s:ro",
+        "--bind",
+        f"{DIAG}:/s2:ro",
+    ]
     if src_ro:
         binds += ["--bind", f"{SRC}:/src:ro"]
     cmd = ["nice", "-n", "19", "ionice", "-c3", "apptainer", "exec", "--containall",
@@ -46,7 +53,9 @@ def apptainer(script_args, label, src_ro=False):
     log(f"START {label}: {' '.join(cmd)}")
     t0 = time.perf_counter()
     with open(O / f"{label}.out", "w", encoding="utf-8") as fh:
-        rc = subprocess.run(cmd, stdout=fh, stderr=subprocess.STDOUT, check=False).returncode
+        rc = subprocess.run(
+            cmd, stdout=fh, stderr=subprocess.STDOUT, check=False
+        ).returncode
     dt = time.perf_counter() - t0
     log(f"END {label} rc={rc} {dt:.1f}s")
     return rc
@@ -63,7 +72,9 @@ def build():
     if (O / "src.ms").exists():
         raise SystemExit("src.ms exists")
     ants = ",".join(map(str, d1_run.ANTS))
-    rc = apptainer(["base", "/src/e2a.ms", "/d1/src.ms", "/d1/base.json", ants], "base", True)
+    rc = apptainer(
+        ["base", "/src/e2a.ms", "/d1/src.ms", "/d1/base.json", ants], "base", True
+    )
     if rc:
         return rc
     mine = json.loads((O / "base.json").read_text())
@@ -79,7 +90,9 @@ def build():
         {"task": "weights_read", "args": {"vis": "/d1/src.ms"}},
     ]  # fmt: skip
     for c in ("rang-u", "rang-d", "casa-a"):
-        calls.append({"task": "copytree", "args": {"src": "/d1/src.ms", "dst": f"/d1/{c}.ms"}})
+        calls.append(
+            {"task": "copytree", "args": {"src": "/d1/src.ms", "dst": f"/d1/{c}.ms"}}
+        )
     return tasks("build", calls)
 
 
@@ -93,7 +106,9 @@ def rang(ms, arm):
         text = text.replace("  average_time: true\n",
                             "  average_time: true\n  bandpass_model_divided: true\n")  # fmt: skip
         assert "bandpass_model_divided: true" in text
-    text = text.replace("e2a-3b-diag.md D1 case", "e2a-3b-k.md arm " + arm + ", from D1 case")
+    text = text.replace(
+        "e2a-3b-diag.md D1 case", "e2a-3b-k.md arm " + arm + ", from D1 case"
+    )
     cfg = O / f"{ms.stem}.yaml"
     cfg.write_text(text, encoding="utf-8")
     shutil.copy(DIAG / "pinned" / "mk_rfi_flagging_calibrator_fields_firstpass.yaml", O)
@@ -108,7 +123,9 @@ def rang(ms, arm):
                             env=env).returncode  # fmt: skip
     dt = time.perf_counter() - t0
     log(f"END rang {ms.name} {arm} rc={rc} {dt:.1f}s")
-    (O / f"{ms.stem}-run.json").write_text(json.dumps({"exit": rc, "seconds": dt}) + "\n")
+    (O / f"{ms.stem}-run.json").write_text(
+        json.dumps({"exit": rc, "seconds": dt}) + "\n"
+    )
     return rc
 
 
@@ -141,11 +158,29 @@ def _model_from(calls, src):
     return out
 
 
-ALL = ["flags0", "hash0", "setjy", "K0", "G0", "B0", "flags1", "hash1", "K1", "G1", "B1"]
+ALL = [
+    "flags0",
+    "hash0",
+    "setjy",
+    "K0",
+    "G0",
+    "B0",
+    "flags1",
+    "hash1",
+    "K1",
+    "G1",
+    "B1",
+]
 
 
 def casa(case, tag=None):
-    pre = None
+    if case == "model":  # step 2: CASA's own SR2016 column on a copy
+        vis = "/d1/casa-m.ms"
+        calls = [{"task": "delmod", "args": {"vis": vis, "otf": True, "scr": False}},
+                 {"task": "setjy", "args": {"vis": vis, "field": d1_run.FCAL,
+                  "standard": "Stevens-Reynolds 2016", "scalebychan": True,
+                  "usescratch": True}}]  # fmt: skip
+        return tasks("casa-model", calls)
     if case in ("ntk3", "ntf", "tkg", "tk3m"):  # the real subset
         vis = "/d1/casa-a.ms"
         out = f"/d1/casa-{case}"
