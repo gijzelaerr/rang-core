@@ -2192,3 +2192,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | calchain-floor, host nash: the same strict, S0c | 12,480 rows × 4096 ch | 3,625 s | – | 2 slots |
 | 2026-11-17 | calchain-floor, host nash: `rang-core run` calibrate, S0c with `calibrate.k_zero_start` on / S0f′ on / S0f′ off (this branch) / S0c with ID 50's interval 7 flagged | 12,480 rows × 4096 ch | 922 s / 868 s / 770 s / 804 s | – | 2 slots each; the key's second K run adds about 10 % against CL's 840 s |
 | 2026-11-17 | calchain-floor, Windows host: `check_all.py --quick` | branch | 961 s | – | 4 slots (the check's own booking) |
+| 2026-11-17 | e2a-kzero, host nash: `maturin build --release` (wheel, b44cbfa2), cold target | repo | 398 s | – | 4 slots, `CARGO_BUILD_JOBS=4`, nice 19 |
+| 2026-11-17 | e2a-kzero, host nash: `cp -a` of `e3-input/e2a.ms`, three copies at once (zs, zsd, off) | 1,047,614 rows × 4,096 ch (194 GiB) | 2,160 s / 2,160 s / 1,895 s | – | 1 slot each, `ionice -c3`; host busy (E2-N run, other jobs) |
+| 2026-11-17 | e2a-kzero, host nash: FLAG/FLAG_ROW hash of a copy (`e2_post.flag_hash`) | the same | 111 s | – | 1 slot; zs and zsd at once |
+| 2026-11-17 | e2a-kzero, host nash: `kz_score.py score`, archived arm only (scorer control S, KGB1 and KGB0 against two CASA arms, K1 count) | f0.ms rows, 188,497,920 cells per composite | 323 s | – | 2 slots, 48 GB booked |
+| 2026-11-17 | e2a-kzero, Windows host: flag-stage FLAG hash of E2-A's archived version (`D:`, read only) | 1,047,614 rows | 24 s | – | 1 slot |
