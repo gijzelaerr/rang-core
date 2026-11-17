@@ -217,3 +217,15 @@ It stays "not ported" (rejected by the config check).
 - On disk: `D:\rang\outputs\xf-preavg-20261117-01-sim` (860 MB: the two
   truths, the arms' tables and logs; the arm MSs were deleted after scoring).
   Can be deleted; every number is in the receipts.
+
+## Coordinator decisions, 2026-11-17
+
+- (a) #14's averaging item is closed: the xf-avg-fix rule holds on held-out data. The rang-CASA Xf gap
+  (held-out median 0.054°, unaveraged 0.065°) is the frozen outcome 4. It is recorded as an open
+  low-priority item under #14. It lies two orders below the χ science tolerance (7°), so no diagnosis
+  runs now. If one runs later, it compares the held-out Gpol and KCROSS tables first.
+- (b) `preavg` stays rejected ("not ported"). Accepting it as a no-op alias would suggest a behaviour
+  rang does not have.
+- The coordinator's brief was based on chi-offset 10.3's stale "Not fixed here". From now on a brief
+  checks the STATE log and merged branches for an existing fix first.
+- `D:\rang\outputs\xf-preavg-20261117-01-sim` is deleted at merge.
