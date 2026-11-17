@@ -1,0 +1,7 @@
+== 2026-11-17T18:33:53+02:00 Rm3 start ms /home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms
+beam: peak 0.999999999612, patch ±64, f 2.4752e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 14.681" × 9.653" PA 18.83° (625 pixels fitted); PSF 84.06 s, FFT 1.12 s
+fits mask: 130180 pixels
+27121 components, 3 major cycles, 74 resyncs, stop Threshold; Q/Q0 6.1618e-3; tau min 0.500 median 0.675; minor 3.23 s (corrections 0.124 s), resync 11.98 s, major 137.61 s
+wall 336.01 s
+== 2026-11-17T18:39:29+02:00 Rm3 end rc 0
+TIME arm-Rm3 336.27 s 11998236 KB

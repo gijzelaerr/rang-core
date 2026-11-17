@@ -1,0 +1,6 @@
+18:24:03 score R3 393.29355910752525 0.0
+18:24:59 score Dm03 352.0844872811559 0.20081388317086873
+18:25:54 score C0 847.2257199650059 -0.027597308555684708
+18:28:10 score S 286.683602650628 0.47393239628033124
+18:28:10 stage score ['R3=/home/gijs/rang-data/outputs/floor-6-20261117/family2/R3/image', 'Dm03=/home/gijs/rang-data/outputs/floor-6-20261117/family2/Dm03/image', 'C0=/home/gijs/rang-data/outputs/floor-6-20261117/family2/C0/image', 'S=/home/gijs/rang-data/outputs/floor-6-20261117/family2/S/image'] 306.2 s
+TIME score-ho-R3 306.79 s 3425796 KB

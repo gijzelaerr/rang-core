@@ -1,0 +1,7 @@
+== 2026-11-17T17:07:31+02:00 pSDm03 start ms /home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms
+/home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 49.97 s read, 19.08 s weights
+fits mask: 130180 pixels
+joined: 107386 components, 5 major cycles, 681 resyncs, stop Threshold; Q/Q0 4.0023e-3
+wall 2039.78 s
+== 2026-11-17T17:41:32+02:00 pSDm03 end rc 0
+TIME arm-pSDm03 2040.45 s 23178620 KB

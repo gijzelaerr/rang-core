@@ -1,0 +1,42 @@
+{
+ "note": "research/floor-6.md",
+ "host": "nash (36 cores), every job nice -n 19 ionice -c3 through ~/Github/rang/tools/heavy_lock.py",
+ "outputs": "nash:~/rang-data/outputs/floor-6-20261117",
+ "driver": {
+  "script": "research/results/floor-6/scripts/drive.sh (run from ~/Build/tmp/20261117-floor6)",
+  "log": "logs/drive.log",
+  "start": "2026-11-17T16:17:00+02:00",
+  "end": "2026-11-17T19:31:39+02:00",
+  "rc": 0
+ },
+ "code": {
+  "worktree": "nash:~/Worktrees/rang/floor-6",
+  "commit_at_driver_start": "e7ac2d26",
+  "commit_from_16_34": "e5f6e74d (clarification 2; differs from e7ac2d26 only in cmd_summary's GP reading, research/floor-6.md and research/README.md)",
+  "selfcal_receipt_commit": "e5f6e74d10e03ee327e5b41d18b4353be32dfff3, dirty false",
+  "extension": "python/rang/_core.abi3.so copied from floor-5, sha256 ce12e7d24cbf4e16d24a717e2e599f7b198f6ccb3f7f614206b2e7ccec2bc884",
+  "python": "3.14.10, .venv with uv pip freeze equal to floor-5's"
+ },
+ "inputs": {
+  "held_out": "nash:~/rang-data/e2-a/ESO137/ms1_target.zarr MAIN_4 (scan 10, field 0), channels 640:1152, averaged 2x",
+  "gains": "ratt-public-data ESO137/ms1_gains.qc/GKB-net/GKB-net_4 (max row gap 0.0 s), CC BY 4.0, Ramatsoku et al. 2020; ho/gains-manifest.json has every key, size and SHA-256",
+  "pilot": "nash:~/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms (read only)",
+  "mask": "nash:~/rang-data/outputs/floor-5-20261117/inputs/20261103-gemclean-heldout/real/images/source-mask.fits (set A)",
+  "selfcal_config": "research/results/floor-3/p1.yaml"
+ },
+ "seeds": {
+  "noise_floor_T": 1301
+ },
+ "models": {
+  "ho_m1_sha256": "5651ed631492577d233612141c52a9ac40e099911b305747285be7f3f65db459",
+  "ho_R3_model_sha256": "5651ed631492577d233612141c52a9ac40e099911b305747285be7f3f65db459"
+ },
+ "files": {
+  "summary.json": "cmd_summary output: gates, every arm, outcomes, secondary readings",
+  "ho/": "held-out state (pilot.json is the scoring state), meta, build checks, Sp summary and receipt, gain manifest",
+  "ho/family2/": "held-out arm scores, GeMClean reports, logs, mask reports",
+  "pilot/": "pilot state and the pilot-side arm scores (fR3, fDm03, fS are floor-5's kept models)",
+  "logs/": "every stage log, with TIME lines (wall s, max RSS KB)",
+  "scripts/": "env.sh, drive.sh, arm.sh as run"
+ }
+}

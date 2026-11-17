@@ -1,0 +1,6 @@
+19:25:51 score Dm1 361.0507799163315 0.15901072171180622
+19:26:46 score Rm3 395.7772412870171 -0.012812571381706507
+19:29:01 score Sm3 288.9810285339012 0.46528599552450683
+19:31:21 score SDm03 212.25205334151386 0.7167196623152507
+19:31:21 stage score ['Dm1=/home/gijs/rang-data/outputs/floor-6-20261117/family2/Dm1/image', 'Rm3=/home/gijs/rang-data/outputs/floor-6-20261117/family2/Rm3/image', 'Sm3=/home/gijs/rang-data/outputs/floor-6-20261117/family2/Sm3/image', 'SDm03=/home/gijs/rang-data/outputs/floor-6-20261117/family2/SDm03/image'] 388.3 s
+TIME score-ho-Dm1 393.03 s 3425580 KB

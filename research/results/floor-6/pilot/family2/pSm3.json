@@ -1,0 +1,81 @@
+{
+ "arm": "pSm3",
+ "state": "S1",
+ "F_uJy": 347.3815202222107,
+ "D": 0.16325952837409732,
+ "dP": 2.3165843882613397e-08,
+ "model": [
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0000-model.fits",
+   "flux_jy": 90.12958997327792,
+   "negative_jy": -0.2380562738634353,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0001-model.fits",
+   "flux_jy": 88.57417403518286,
+   "negative_jy": -0.14073143777022779,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0002-model.fits",
+   "flux_jy": 87.01875796225102,
+   "negative_jy": -0.10871176203420418,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0003-model.fits",
+   "flux_jy": 85.46334191699862,
+   "negative_jy": -0.09398301382316276,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0004-model.fits",
+   "flux_jy": 83.90792584010342,
+   "negative_jy": -0.08010373059369158,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0005-model.fits",
+   "flux_jy": 82.35250991513976,
+   "negative_jy": -0.0662580489845368,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0006-model.fits",
+   "flux_jy": 80.79709377777056,
+   "negative_jy": -0.054378972533413616,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image-0007-model.fits",
+   "flux_jy": 79.24167775417953,
+   "negative_jy": -0.051975616943536807,
+   "outside_mask_jy": 0.0,
+   "outside_mask_pixels": 0,
+   "pixels": 13401
+  }
+ ],
+ "report": {
+  "components": 26646,
+  "major_cycles": 3,
+  "stop": "Threshold",
+  "model_flux": 84.91488884540998,
+  "residual_mad_sigma": 0.00020980835294576286,
+  "residual_peak_abs": 0.0072053248586455825
+ }
+}

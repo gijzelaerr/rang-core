@@ -1,0 +1,7 @@
+== 2026-11-17T17:58:24+02:00 C0 start ms /home/gijs/rang-data/outputs/floor-6-20261117/ho/P/pilot.ms
+beam: peak 0.999999999612, patch ±64, f 2.4752e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 14.681" × 9.653" PA 18.83° (625 pixels fitted); PSF 86.03 s, FFT 1.12 s
+fits mask: 130180 pixels
+152666 components, 4 major cycles, 395 resyncs, stop Threshold; Q/Q0 1.8575e-2; tau min 0.500 median 0.670; minor 20.25 s (corrections 0.859 s), resync 62.24 s, major 180.67 s
+wall 445.38 s
+== 2026-11-17T18:05:50+02:00 C0 end rc 0
+TIME arm-C0 445.66 s 12009768 KB

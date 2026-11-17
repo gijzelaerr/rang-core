@@ -14,6 +14,8 @@ history/** -text
 # CARACal's strategy file, byte for byte (SHA-256 in research/e2-acceptance.md 6.3):
 research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml -whitespace
 research/results/e2a-3b-diag/pinned/mk_rfi_flagging_calibrator_fields_firstpass.yaml -whitespace
+# floor-6's driver log as written on nash (one line ends in a space):
+research/results/floor-6/logs/drive.log -whitespace
 
 # casacore tables written by python-casacore, byte for byte (tools/oracles/strarray/fixture.py):
 tests/data/strarray/table/** binary

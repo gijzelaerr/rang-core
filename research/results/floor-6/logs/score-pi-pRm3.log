@@ -1,0 +1,5 @@
+17:42:36 score pRm3 382.5534244632764 -0.0176704160650251
+17:45:07 score pSm3 347.3815202222107 0.16325952837409732
+17:47:40 score pSDm03 272.13221926774565 0.4917961785410445
+17:47:40 stage score ['pRm3=/home/gijs/rang-data/outputs/floor-6-20261117/family2/pRm3/image', 'pSm3=/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSm3/image', 'pSDm03=/home/gijs/rang-data/outputs/floor-6-20261117/family2/pSDm03/image'] 367.7 s
+TIME score-pi-pRm3 368.35 s 3415020 KB
