@@ -103,7 +103,11 @@ def rang(ms, arm):
     run_dir = Path(str(ms) + ".rang-run")
     if run_dir.exists():
         raise SystemExit(f"{run_dir} exists")
-    text = d1_run.rang_config("tt" if arm == "u" else "r0")
+    text = d1_run.rang_config("tt" if arm in ("u", "uf") else "r0")
+    if arm == "uf":  # post hoc, section 11: CASA's G estimator (average_freq)
+        text = text.replace("  average_time: false\n",
+                            "  average_time: false\n  average_freq: true\n", 1)  # fmt: skip
+        assert text.count("average_freq: true") == 1
     if arm == "d":
         text = text.replace("  average_time: true\n",
                             "  average_time: true\n  bandpass_model_divided: true\n", 1)  # fmt: skip

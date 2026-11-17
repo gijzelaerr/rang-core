@@ -442,3 +442,25 @@ is CASA's less accurate one.
 - **Disk (nash):** `~/rang-data/outputs/e2a-3b-k-20261117` (the subset,
   six simulated subsets with their arms, field 0 `f0.ms`), rebuildable
   with `k_run.py`/`simtag.sh`. Size is in the hand-back.
+
+## 11. Addendum 2026-11-17 11:15, post hoc (after section 10's draft and `k_hb.py` were read, before UF ran)
+
+`score-hb.json`: on a cell set common to U, C, CK and the data, CK is
+still nearer truth than U in S1 (2.64e-3 against 3.89e-3, both seeds),
+which is outcome B2 as frozen. In S1 seed 1, U's and CK's G1 differ by
+1.7e-5 and in one place: CASA flags ID 50's interval 7 (both hands), rang
+keeps it, the real subset's mechanism again; their B1 differ by 2.3e-3.
+In S1 the truth is static, so CASA's interpolation from intervals 6 and 8
+is exact and the flag helps; on the real data, where both tools solve an
+amplitude of 0.09 there, which side is right is not known. rang already
+has CASA's estimator for G as a key (`calibrate.average_freq`,
+research/e2-average-freq.md), whose SNR is then computed on the
+frequency-averaged cell as CASA does. Test, before running it:
+- **UF**: rang U with `calibrate.average_freq: true`, on the real subset
+  and on S1 seed 1.
+- **Reading:** UF against CASA on rang's K (TT-TK3's construction, real)
+  and UF against truth (S1). If UF flags ID 50's interval 7 and UF-TK3
+  drops below 0.5 × TT-TK3 (1.1e-3), the key closes the part against
+  CASA; on S1 it is nearer truth than U if ≤ 0.8 × U's error. Either way
+  no default changes here (the key exists; making it the default is an
+  owner decision).
