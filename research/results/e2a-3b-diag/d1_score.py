@@ -38,11 +38,22 @@ PAIRS = [
     ("H-T R0-TT (rang-rang)", "r0", "tt"),
     ("H-I TI-TF", "ti", "tf"),
     ("H-I R0-TI (rang-rang)", "r0", "ti"),
+    # post hoc T-S (section 6)
+    ("T-S TS-TTS (rang-rang)", "ts", "tts"),
+    ("T-S TS-TF", "ts", "tf"),
+    ("T-S TTS-TF", "tts", "tf"),
+    ("T-S R0-TS (rang-rang)", "r0", "ts"),
+    ("T-S TS-C0", "ts", "c0"),
+    # post hoc, after T-S: unaveraged rang against CASA with rang's K1
+    ("TT-TK", "tt", "tk"),
+    ("TTS-TK", "tts", "tk"),
+    ("TT-TK2", "tt", "tk2"),
+    ("R0-TK2", "r0", "tk2"),
 ]
 
 
 def arm_dir(d, arm):
-    if arm in ("r0", "tt", "ti"):
+    if arm in ("r0", "tt", "ti", "ts", "tts"):
         return d / f"rang-{arm}.ms.rang-run" / "calibrate"
     return d / f"casa-{arm}"
 
@@ -56,6 +67,8 @@ def load(d, arm):
             q = arm_dir(d, "tf") / n
         if arm == "tk" and n == "K1":
             q = arm_dir(d, "r0") / "K1"
+        if arm == "tk2" and n in ("K0", "K1"):
+            q = arm_dir(d, "tt") / n
         if q.exists():
             out[n] = C.table(q)
     return out
@@ -148,7 +161,7 @@ def main(d):
     d = Path(d)
     ms = d / "rang-r0.ms"
     fid = C.field_id(ms, FCAL)
-    arms = {a: load(d, a) for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti")}
+    arms = {a: load(d, a) for a in ("r0", "c0", "tf", "tw", "tm", "tk", "tt", "ti", "ts", "tts", "tk2")}
     have = {a: sorted(v) for a, v in arms.items()}
     out = {"tables_present": have, "pairs": {}}
     for label, a, b in PAIRS:
@@ -169,7 +182,7 @@ def main(d):
             out[f"swaps_against_{base}"] = sw
     # residual delays (the data side), on the rang copy's DATA and MODEL_DATA
     out["residual_delays"] = {}
-    for a in ("r0", "tf", "tk", "c0"):
+    for a in ("r0", "tf", "tk", "c0", "ts", "tts"):
         if len(arms[a]) == 6:
             T = arms[a]
             out["residual_delays"][a] = residual_delays(ms, fid, [T["K1"], T["G1"], T["B1"]], T["K1"])

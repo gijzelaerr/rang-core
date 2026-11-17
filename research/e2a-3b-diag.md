@@ -195,3 +195,24 @@ solves stop before the minimum. The stop rule is `stop_criterion` 1e-7 and
   miss.
 - **Fix if implicated:** the chain's stop rule behind a key (default
   unchanged), with a test.
+
+## 8. Addendum 2026-11-17 03:10, post hoc (after T-S, T-K2 were read; before D2 ran)
+
+T-S cleared the stop rule (section 7). `rang.cal_gain._pre_apply` corrupts
+the model with the terms after the solved one (CASA's VisEquation): in B1
+that is K1 and G1, which vary every 60 s, and `cal_chunks.load_averaged`
+then averages data and corrupted model separately. That is not the
+least-squares solve; CASA divides the data by the model before it
+averages (`divideCorrByModel`, already ported for A3 as
+`cal_gain.model_divided`). Pass 0's B0 sees K0 and G0 constant within each
+scan, which fits its small averaging effect (2.4e-4).
+
+- **D2** (this branch's code, `d2_divided.py`): B1 alone on the subset,
+  T-T's K1 and G1 pre-applied, average_time {off, on} × `model_divided`
+  {off, on}.
+- **Control:** off/off against T-T's B1 (frozen wheel) composite ≤ 7e-5.
+- **Implicates the averaging estimator** if on/off against off/off
+  reproduces the R0-T-T difference (≥ 5e-3) and on/on against off/off is
+  ≤ 7e-5.
+- **Fix:** `calibrate.bandpass_model_divided` (default false), B solves
+  on model-divided data, with a test.

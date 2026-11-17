@@ -162,6 +162,7 @@ def bandpass(
     scan=None,
     budget=None,
     average_time=False,
+    model_divided=False,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -173,7 +174,15 @@ def bandpass(
     solution is written. `weight_column=None` and `scan` as
     `rang.cal_gain.gaincal` (task C2e), and `budget` (task W3b): chunks of
     whole intervals, or of channels of one interval. `average_time` (task
-    E2) as `rang.cal_gain.gaincal`."""
+    E2) as `rang.cal_gain.gaincal`. `model_divided` (task e2a-3b-diag,
+    `calibrate.bandpass_model_divided`, research/e2a-3b-diag.md): the
+    parallel hands are divided by the model after the pre-applies, with
+    weight `w |M|^2` and model 1 (`rang.cal_gain.model_divided`, CASA's
+    `divideCorrByModel`), before any time average. A K or G pre-applied in
+    a B solve corrupts the model, so with `average_time` and gains that
+    vary within the B interval, averaging data and model separately is not
+    the least-squares solve; the divided average is (and without
+    `average_time` the solution is unchanged up to rounding)."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -205,6 +214,7 @@ def bandpass(
         interp=interp, nant=nant, field_id=field_id, solved="B", freq=freq,
         uvrange=uvrange,
     )  # fmt: skip
+    fld.model_divided = bool(model_divided)
     m = fld.meta
     tb, keys = cal_gain.solint_bins(
         m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine

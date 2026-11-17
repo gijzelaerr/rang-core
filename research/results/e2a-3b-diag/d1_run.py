@@ -67,7 +67,7 @@ def tasks(d, label, calls, threads=4, src_ro=False):
 
 
 RANG_CASES = ("r0", "tt", "ti")  # ts, tts: copied from src.ms after D1 (post hoc)
-CASA_COPIES = {"c0": "casa-a", "tf": "casa-a", "tk": "casa-a", "tw": "casa-w", "tm": "casa-m"}
+CASA_COPIES = {"c0": "casa-a", "tf": "casa-a", "tk": "casa-a", "tk2": "casa-a", "tw": "casa-w", "tm": "casa-m"}
 
 
 def build(d):
@@ -207,6 +207,15 @@ def casa(d, case):
                 c["args"]["gaintable"] = [g.replace(f"{out}/B0", "/d1/casa-tf/B0")
                                           for g in c["args"]["gaintable"]]  # fmt: skip
         pre = []
+    elif case == "tk2":  # post hoc: rang's K0 and K1 (T-T, unaveraged) in every CASA pre-apply
+        rk = "/d1/rang-tt.ms.rang-run/calibrate"
+        calls = _calls(vis, out, usescratch=False, flags_pass0=stage, flags_pass1=after,
+                       terms=["flags0", "hash0", "G0", "B0", "flags1", "hash1", "G1", "B1"])  # fmt: skip
+        for c in calls:
+            if c["task"] in ("gaincal", "bandpass"):
+                c["args"]["gaintable"] = [g.replace(f"{out}/K0", f"{rk}/K0").replace(f"{out}/K1", f"{rk}/K1")
+                                          for g in c["args"]["gaintable"]]  # fmt: skip
+        pre = []  # casa-a keeps T-F's virtual model
     else:
         raise SystemExit(f"unknown case {case}")
     return tasks(d, f"casa-{case}", pre + calls, 4)
