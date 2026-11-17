@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# `EidosBeam._reconstruct` re-expresses EIDOS 1.1.2's `recon_par`
+# (`eidos/spatial.py`; Khan M. B. Asad, GNU GPL v3): THIRD-PARTY-NOTICES.txt.
 """MeerKAT L-band holography beams as rang's reference beam (B1-0).
 
 research/b1-beam-pointing.md freezes the product: SARAO's 2023 holography

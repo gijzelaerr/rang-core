@@ -104,7 +104,7 @@ additions (5.5).
 
 ### 5.1 Licence notices (B-01, B-02), read in the upstream sources
 
-Sources fetched read only into `~/Build/tmp/20261117-v030fix-upstream` (removed after): git clones of
+Sources fetched read only into `~/Build/tmp/20261117-v030fix-upstream` (removed at the end of the task): git clones of
 casacore and of WSClean with its submodules, Debian's `debian/copyright` of wsclean 3.7-3, and the
 astropy-iers-data sdist. Nothing in them was built or run.
 
@@ -190,7 +190,8 @@ astropy-iers-data sdist. Nothing in them was built or run.
 `python tools/check_all.py --quick` (ruff, ruff format, cargo fmt, clippy with warnings as errors, the root and core
 Rust tests, the extension build, pytest on the touched test files, the gain-hash gate against the archive)
 passed on the branch before the push (log `outputs/check/20261117T093557Z-quick.log` in the worktree: 293 core
-tests, 768 pytest passed, gain-hash gate PASS); the oracle gates (CASA, WSClean) are left to the
+tests, 768 pytest passed, gain-hash gate PASS; on `7523aa0a`, log `20261117T102026Z-quick.log`: 806 passed,
+gain-hash gate PASS); the oracle gates (CASA, WSClean) are left to the
 coordinator's full merge check.
 
 ### 5.5 The MIT audit's notice gaps (coordinator, 2026-11-17)
@@ -214,11 +215,27 @@ text, and only its file layout is used.
 | `calmodels.py` | CASA `Imager.cc` (GPL-2.0-or-later), `SpectralIndex.cc`, `SkyCompRep.cc`, `Flux.tcc` (LGPL-2.0-or-later): header and notices |
 | `apply.rs`, `flag_extend.py` | casacore `Interpolate1D.tcc` (3.7.1), `MSIter.cc`, `BaseTabIter.cc`; CASA `CTTimeInterp1.cc`, `FlagDataHandler.cc`, `FlagMSHandler.cc` (LGPL-2.1-or-later, AUI and ESO): headers and notices |
 | killMS, losoto (and Crystalball, DDFacet) | headers of `killms.py`, `h5parm.py`; a "formats only, no code" entry in the notices and `licence.md` |
-| msutils | `flag_stats.py` has no notice; `LICENSE` is the GPL-2.0 text, PyPI metadata "GNU GPL v2", `setup.py` "version 3 of the License, or (at your option) any later version" (Copyright (c) 2016 SKA South Africa). No file says "version 2 only", so GPL-2.0 section 9 (any version) or `setup.py` (3 or later) gives GPL-3.0-or-later: **compatible**; about 20 lines of `wgs84_to_ecef`, a textbook formula the function attributes to the HiSPARC note. `licence.md`'s "licence not checked" replaced |
-| WSClean 3.6 `wstackinggridder.h` | verbatim "published under the GPL 3 license." in the notices and `licence.md` (version 3, no "or later"; Debian records 3+); the notices' "its source files carry no notice" corrected |
+| msutils | `flag_stats.py` has no notice; `LICENSE` is the GPL-2.0 text, PyPI metadata "GNU GPL v2", `setup.py` "version 3 of the License, or (at your option) any later version" (Copyright (c) 2016 SKA South Africa). **The statements conflict**: read as the metadata says (version 2, no "or later", the reading applied to WSClean's "version 3"), the ~20 lines of `wgs84_to_ecef` could not be combined with GPL-3.0 code; read as `setup.py` says, they can. Not resolved here and not rewritten: **owner decision 2** (below). `licence.md`'s "licence not checked" replaced by the three statements |
+| WSClean 3.6 `wstackinggridder.h` | verbatim "published under the GPL 3 license." in the notices, `licence.md` and the `grid.rs` header (says "GPL 3", silent on later versions; Debian records 3+); "its source files carry no notice" corrected in both; `core_grid.py`'s `kernel_reference` (a transcription of `makeKaiserBesselKernel`) named |
+| EIDOS 1.1.2 (`beam_holography.py`) and the CASA test reference (`tests/test_e0_refant_extend.py`) | found by checking every b-class path of `files.csv` against the notices: EIDOS `spatial.py` `recon_par` (no file notice; `setup.py` "GNU GPL v3", Khan M. B. Asad; no LICENSE in the sdist) and `casa_cube` (FlagAgentExtension.cc) now named in the headers and notices |
 | CARACal's strategy YAMLs under `research/results/` | 20 copies of `mk_rfi_flagging_calibrator_fields_firstpass.yaml` (2 byte copies of `8f7bb363`'s, 18 with trailing spaces removed); the upstream file has no notice. [results/CARACAL-NOTICE.md](results/CARACAL-NOTICE.md) lists them with CARACal's licence, and [results/CARACAL-LICENSE.txt](results/CARACAL-LICENSE.txt) is CARACal's `LICENSE` (GPL-2.0). The archived files are unchanged; `research/` ships in neither the sdist nor the wheels |
 | `ism.rs`, `ms_write.rs`, `tiled.rs` said "nothing is copied"; `multifile.rs` said nothing | headers now say they translate casacore 3.8.1's storage managers (`ISMBucket::getSplit`'s loop kept in `split` and `get_split`); fifteen casacore files' notices verbatim (all LGPL-2.0-or-later, AUI) |
 | `bandpass.rs`, `fluxscale.rs`, `reference.rs` said "CASA is not copied" | headers now say translated (`fillChanGapArray`; `fluxscale`; `applyRefAnt`, `verifyConstraints`); their CASA notices were already listed |
+
+Write-back follow-up (E5-22): a 0.2.0 journal recorded a column after its first put, so one killed during its
+first FLAG chunk would read as "flags untouched". New journals carry `written_before_put: true`, and only
+those are trusted; any other open or failed journal is refused as before (asserted in
+`test_a_session_that_wrote_no_flags_is_not_refused`).
+
+**Owner decisions from this section.**
+1. Radler is LGPL-3.0-only (5.1), and WSClean 3.6's `wstackinggridder.h` says "GPL 3" with no "or later"
+   (as do WSClean's README, aocommon and EIDOS): while these parts are in it, the extension can be
+   conveyed under GPL version 3 only. Choose the package licence expression (and whether `grid.rs`,
+   `shader.rs`, `weights.rs` and the four radler files keep `GPL-3.0-or-later` in their SPDX lines);
+   `LICENSE` and `pyproject.toml` are unchanged.
+2. msutils' licence statements conflict (GPL v2 in its metadata and LICENSE, GPL-3.0-or-later in
+   `setup.py`): keep `wgs84_to_ecef` as is, ask the msutils authors, or rewrite it from the published
+   WGS84 formula.
 
 Tests: `test_spdx_headers.py` (the new SPDX expressions), `test_w4_5_release.py` (each holder in the notices
 and the file, each casacore and CASA file named in both, no "nothing is copied" / "CASA is not copied" left,

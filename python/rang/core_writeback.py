@@ -118,7 +118,11 @@ def flags_unfinished(journal):
     if not journal or journal.get("state") not in ("open", "failed"):
         return False
     written = journal.get("written")
-    return written is None or any(c in written for c in FLAG_COLUMNS)
+    if written is None or not journal.get("written_before_put"):
+        # Before v0.3.0 a column was recorded after its first put, so a kill
+        # during that put left no record: such a journal counts as unfinished.
+        return True
+    return any(c in written for c in FLAG_COLUMNS)
 
 
 def _check_writable(ms):
@@ -359,6 +363,7 @@ class WriteBack:
             "started": _now(),
             "initialising": dirty,
             "written": [],
+            "written_before_put": True,
         }
         try:
             _write_journal(self.ms, self._journal)

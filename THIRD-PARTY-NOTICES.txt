@@ -112,9 +112,11 @@ file's header names them; see also docs/licence.md)
 
 - WSClean 3.6 imaging weights (André Offringa and contributors,
   GPL-3.0-or-later): core/src/weights.rs.
-- WSClean 3.6 w-stacking gridder (André Offringa and contributors, GPL-3.0,
-  version 3 only as wstackinggridder.h states it): core/src/grid.rs and its
-  WGSL form core/src/gpu/shader.rs.
+- WSClean 3.6 w-stacking gridder (André Offringa and contributors, GPL-3.0;
+  wstackinggridder.h says "GPL 3" and is silent on later versions):
+  core/src/grid.rs, its WGSL form core/src/gpu/shader.rs, and the kernel
+  transcription kernel_reference in python/rang/core_grid.py (a test
+  reference).
 - ducc0 0.42.0 wgridder (Martin Reinecke, Max-Planck-Society,
   GPL-2.0-or-later): core/src/wgridder.rs.
 
@@ -502,16 +504,29 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-No file states "version 2 only": with no version stated in the file,
-GPL-2.0 section 9 lets any version be chosen, and setup.py names version 3
-or later. Either way the code may be used under GPL-3.0-or-later.
+The three statements conflict: the metadata names version 2 with no "or
+later", setup.py names version 3 or later. If "GNU GPL v2" is the licence,
+these lines cannot be combined with GPL-3.0 code; if setup.py's notice is,
+they can. This is an open owner decision (research/v030-review.md 5.5); the
+function is not rewritten here.
 
 schaapcommon b553fd25 reordering.cc (notice above) is also followed in
 core/src/gemclean/input.rs (stokes_cell).
 
+EIDOS 1.1.2 (PyPI sdist): eidos/spatial.py recon_par, re-expressed in
+python/rang/beam_holography.py (EidosBeam._reconstruct, about 24 lines, a
+comparison control). spatial.py carries no notice; setup.py gives author
+Khan M. B. Asad and license 'GNU GPL v3' (silent on later versions), and the
+sdist has no LICENSE file.
+
+CASA FlagAgentExtension.cc (notice above) is also transcribed, loop by loop,
+as a test reference in tests/test_e0_refant_extend.py (casa_cube).
+
 Formats read and written, no code used: killMS 3.3.0 solution files
 (python/rang/formats/killms.py; killMS is GPL-2.0), losoto 2.7.1 H5parm
 (python/rang/formats/h5parm.py; GPL-3.0-or-later), and the Crystalball 0.4.3
-and DDFacet 1.0 sky-model files read by python/rang/formats/sky.py. A file
-format is not covered by these licences; nothing of their code is in
-rang-core.
+and DDFacet 1.0 sky-model files read by python/rang/formats/sky.py
+(Crystalball is GPL-2.0-only). Each format was read in the upstream source;
+no code is translated, as research/mit-relicense-audit.md classifies these
+files (format and rules read, "c-src"). The audit names the sky.py readers
+as the weakest such case.

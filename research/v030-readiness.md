@@ -105,7 +105,8 @@ closed or commented from this branch). "Close at release" is a proposal for the 
 
 1. B-01 and B-02 ([v030-review.md](v030-review.md) section 3): notices done on branch `v030-fix` (section 5.1,
    read in the upstream sources). Open: the owner's decision on the package licence expression given
-   radler's LGPL-3.0-only (section 5.1, "Owner decision").
+   radler's LGPL-3.0-only and WSClean's "GPL 3" (section 5.5, owner decision 1), and msutils' conflicting
+   licence statements (owner decision 2).
 2. Merge the four running results (`e2n`, `e3-caracal`, `floor-4`, `e2a-3b-k`) and run the review's delta
    pass over them; replace the "native data not tested" limitation with E2-N's measured limits.
 3. E6 as in 0.2.0: the version bump in `pyproject.toml` (and what follows it), the CHANGELOG section

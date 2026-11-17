@@ -36,7 +36,8 @@ v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review
   refused first). E5-21 stays a known limitation (it would change every stage hash once).
 - MIT-audit notice gaps (section 5.5): c-blosc, katdal, Tricolour, fdlibm, Tigger, codex-africanus,
   schaapcommon, CASA/casacore in calmodels, apply and flag_extend, the casacore storage managers ("nothing
-  is copied" corrected), msutils (compatible), WSClean's "GPL 3", CARACal's strategy copies.
+  is copied" corrected), EIDOS, WSClean's "GPL 3", CARACal's strategy copies. msutils' licence statements
+  conflict (GPL v2 in its metadata, GPL-3.0-or-later in setup.py): a second owner decision.
 - No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
   touched tests pass (hand-back for the coordinator).
 

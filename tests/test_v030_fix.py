@@ -259,8 +259,11 @@ def test_a_session_that_wrote_no_flags_is_not_refused(tmp_path):
     assert wb.flags_unfinished(wb.read_journal(ms))
     with pytest.raises(wb.InterruptedWriteBack):
         wb.WriteBack(ms).begin()
-    # A journal from before the `written` record counts as unfinished.
+    # A journal from before the `written` record, or from 0.2.0 (recorded
+    # after the put), counts as unfinished.
     assert wb.flags_unfinished({"state": "open"})
+    assert wb.flags_unfinished({"state": "failed", "written": ["MODEL_DATA"]})
+    assert journal["written_before_put"] is True
     assert not wb.flags_unfinished({"state": "restored", "written": ["FLAG"]})
 
 

@@ -1,3 +1,5 @@
+# `casa_cube` transcribes CASA FlagAgentExtension.cc (LGPL-2.1-or-later,
+# Associated Universities, Inc. and ESO): notices in THIRD-PARTY-NOTICES.txt.
 """E0 (research/e0-refant-extend.md): CARACal's `refant: auto`
 (`rang.cal_refant`) and CASA's `flagdata(mode='extend')` with CARACal's
 settings (`rang.flag_extend`, Rust kernel `core/src/flag_extend.rs`). The

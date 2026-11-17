@@ -82,8 +82,8 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
   No casacore data table is read: the parallactic angle's Earth orientation is astropy's IERS table.
 - Notices (`research/mit-relicense-audit.md` 3.2, `research/v030-review.md` 5.5): c-blosc, katdal's BSD
   text, Tricolour in `core_flag.py`, fdlibm, Tigger and codex-africanus in `formats/sky.py`, schaapcommon in
-  `gemclean/input.rs`, CASA and casacore in `calmodels.py`, `apply.rs` and `flag_extend.py`, msutils (its GPL
-  allows GPL-3.0-or-later), and the casacore storage managers the table writer translates, whose headers
+  `gemclean/input.rs`, CASA and casacore in `calmodels.py`, `apply.rs` and `flag_extend.py`, EIDOS, msutils
+  (its licence statements conflict, GPL v2 against GPL-3.0-or-later: an owner decision), and the casacore storage managers the table writer translates, whose headers
   said "nothing is copied"; WSClean 3.6's `wstackinggridder.h` "GPL 3" stated exactly; the CARACal strategy
   copies in `research/results/` named with CARACal's GPL-2.0 (`research/results/CARACAL-NOTICE.md`).
 - Fixed (R-02): a calibrate solve whose every solution is flagged (for one, a reference antenna whose

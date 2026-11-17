@@ -9,8 +9,10 @@
 //! Debian source in `outputs/wsclean-3.6-1-source-20261029/`. The translation
 //! is part of Rang (GPL-3.0-or-later).
 //!
-//! Upstream copyright, verbatim from `debian/copyright` of wsclean 3.6-1
-//! (WSClean's source files carry no notice of their own):
+//! WSClean's source files carry no copyright line; `gridding/wstackinggridder.h`
+//! says "This file was written by André Offringa and is published under the
+//! GPL 3 license.", silent on later versions. Upstream copyright, verbatim from
+//! `debian/copyright` of wsclean 3.6-1 (which records GPL-3.0+):
 //! Copyright: 2008-2015 A. R. Offringa
 //!  2009 ASTRON (Netherlands Institute for Radio Astronomy)
 //!  2014-2016 Gijs Molenaar <gijs@pythonic.nl>
