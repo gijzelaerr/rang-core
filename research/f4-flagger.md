@@ -629,6 +629,12 @@ as provisional. **C2 measured before the chain** (`-12-c2-T`, `-12-c2-N4`, MAIN_
 **C2 = 1.00**, "matches" (0.8-1.2). A smoke test of the exact real-mode command on validation MAIN_7
 (`-11-smoke-calibrator`, N4 @ τ 0, r1 seed 19 only) ran with rc 0, including A (Docker in WSL) and NA.
 
+- Chain run 1 (12:27-14:36, pid 67396): three gated C1(U4) attempts skipped at the gate (`-05f1` 12:50,
+  other CPUs 2.11; `-05f2` 13:41, 3.23; `-05f3` 14:34, 2.10), none timed. Stopped on the owner's order: no
+  exclusive timing on glacier before 21:00. **Scheduling change, labelled:** the chain's gated attempts
+  (C1(U4) and Stage 5 cost) now run only between 21:00 and 07:00 host time; the gate, the bar and the
+  attempt counts are unchanged; restarted from the same state file.
+
 **Stage 4, training, measured 2026-11-17 11:07-11:55 (+02), host nash, CPU** (`train1.sh` beside the
 weights: `examples/f3_train.py --nplanes 23` at `475ad60`, JAX 0.12.0.1 `cpu:0`, 6 cores per seed by
 `taskset`, the three seeds in parallel under nash's heavy lock `--slots 6 --mem 24`, nice 19, ionice

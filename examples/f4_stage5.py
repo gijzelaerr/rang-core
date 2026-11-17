@@ -35,6 +35,17 @@ SETS = ("MAIN_0", "MAIN_12", "MAIN_14")
 ARMS = "T,A,N4,N3,Z4,ZE,U4,N,NA,N4NA"
 WAIT = 900
 MAX_SKIPS = 400
+# Owner's order 2026-11-17: no exclusive timing on glacier in the daytime;
+# exclusive attempts only from 21:00 until 07:00 host time.
+WINDOW = (21, 7)
+
+
+def wait_window():
+    while True:
+        h = time.localtime().tm_hour
+        if h >= WINDOW[0] or h < WINDOW[1]:
+            return
+        time.sleep(300)
 
 
 def note(line):
@@ -55,6 +66,7 @@ def gated(prefix, n4, threads, max_timed, state, key):
     """Gated timing attempts; returns the deciding record."""
     rec = state.setdefault(key, {"skips": 0, "timed": []})
     while rec["skips"] < MAX_SKIPS:
+        wait_window()
         k = rec["skips"] + len(rec["timed"]) + 1
         name = f"{prefix}{k}"
         cmd = ["examples/f4_c1_gate.py", "time", "RUN/c1.json", "--set", "luno:MAIN_1"]
