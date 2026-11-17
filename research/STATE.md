@@ -20,6 +20,19 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Floor-5, 2026-11-17 (branch `floor-5`; [floor-5.md](floor-5.md), protocol frozen in `579396b` before any run,
+clarifications 1 and 2 (pinned build) before the numbers, archive [results/floor-5/](results/floor-5/); host nash).
+Issue #13: what is left of the pilot's floor after one Sp round (379.26 µJy, 8.6 × thermal), with shares rebased to
+P_ref = 1.419e-7 Jy² (0.123 P_pilot). Every gate passed (copy, R0, G0, G1 bit-equal to floor-4's, HB, GS, GM: R3's
+model pixel-identical to G1's). Frozen joint outcome **J2**, Σ 0.41: model depth inside the source mask attributed
+under floor-5's depth standard, share 0.22 (GeMClean to 0.3 mJy masked, F 379 to 335 µJy; gain control κ −0.17);
+spectral modelling (8 output channels, 2 terms) supported, share 0.19. Family I attributes nothing: antenna gains
+5 min (0.375) and 8 s (0.387), per-baseline (0.109), facet spectral (0.282) and central-source DD (0.035) fits are
+all non-specific, firing mostly on the incompleteness arms; w-term and smearing rejected. The 2 × 2 gives ρ_B 0.59
+(partial). Post hoc: the multiscale arm ignored or overran the mask (3.5 Jy on 99 % of pixels), so its note does
+not stand; κ is negative (deep CLEAN on uncorrected data raises the floor). Remainder 0.59 unattributed. Next under
+J2: a protocol for the largest unresolved bound (antenna gains), and held-out checks of the depth and spectral arms.
+
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
 visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model
 is missing (`fluxstd` refuses it); every beam model is L only and refuses UHF; both Tricolour static masks are always

@@ -1,0 +1,6 @@
+== 2026-11-17T12:50:50+02:00 load 22.55 18.81 15.66 Dm03 start
+fits mask: 130180 pixels
+110140 components, 5 major cycles, 292 resyncs, stop Threshold; Q/Q0 4.5475e-3; tau min 0.500 median 0.672; minor 12.44 s (corrections 0.615 s), resync 46.82 s, major 225.47 s
+wall 468.26 s
+Dm03 468.54 s 11904464 KB
+== 2026-11-17T12:58:38+02:00 load 20.20 22.07 18.65 Dm03 end rc 0

@@ -1,0 +1,12 @@
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501743516375-linux-358440.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501750182980-linux-358445.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501751691886-linux-358446.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501789918287-linux-358439.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T12:05:26+02:00 load 23.71 24.18 24.77 arm K1 start
+12:09:00 arm K1 1 {'none': 196.874, 'T_A': 179.354, 'T_Ap': 186.653, 'T_Af': 179.339, 'T_B|A': 117.657, 'T_B': 118.61, 'T8': 189.701, 'T_D|A': 169.062}
+12:12:33 arm K1 1.963 {'none': 379.208, 'T_A': 344.14, 'T_Ap': 358.852, 'T_Af': 344.113, 'T_B|A': 218.645, 'T_B': 220.6, 'T8': 364.846, 'T_D|A': 323.326}
+12:12:34 stage arm ['K1'] 426.9 s
+arm K1 427.21 s 9560664 KB
+== 2026-11-17T12:12:34+02:00 load 22.18 20.59 22.67 arm K1 end rc 0

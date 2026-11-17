@@ -1,0 +1,6 @@
+== 2026-11-17T12:58:38+02:00 load 20.20 22.07 18.65 Du1 start
+beam: peak 0.999999999487, patch ±64, f 2.4846e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.861" × 9.621" PA -51.36° (841 pixels fitted); PSF 82.74 s, FFT 1.13 s
+58496 components, 4 major cycles, 159 resyncs, stop Threshold; Q/Q0 4.5198e-3; tau min 0.500 median 0.673; minor 4.71 s (corrections 0.440 s), resync 24.52 s, major 178.08 s
+wall 385.78 s
+Du1 386.06 s 11840192 KB
+== 2026-11-17T13:05:04+02:00 load 14.12 16.95 17.41 Du1 end rc 0

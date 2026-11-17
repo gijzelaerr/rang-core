@@ -1,0 +1,9 @@
+heavy_lock: waiting for head 01794908206675437758-linux-365907.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794909444492118086-linux-378751.json, which fits
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T12:06:01+02:00 load 23.51 23.91 24.64 arm XS2 start
+12:09:38 arm XS2 1 {'none': 60.974, 'T_A': 47.291, 'T_Ap': 60.978, 'T_Af': 47.279, 'T_B|A': 44.089, 'T_B': 44.085, 'T8': 49.015, 'T_D|A': 46.688}
+12:13:08 arm XS2 8.944 {'none': 379.029, 'T_A': 158.763, 'T_Ap': 379.112, 'T_Af': 158.752, 'T_B|A': 47.009, 'T_B': 45.954, 'T8': 196.437, 'T_D|A': 143.75}
+12:13:08 stage arm ['XS2'] 426.5 s
+arm XS2 426.76 s 10796880 KB
+== 2026-11-17T12:13:08+02:00 load 18.50 19.81 22.33 arm XS2 end rc 0

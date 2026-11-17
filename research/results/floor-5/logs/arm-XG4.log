@@ -1,0 +1,10 @@
+heavy_lock: waiting for head 01794909921728796664-linux-383397.json, which fits
+heavy_lock: waiting for head 01794909923935550900-linux-383420.json (no room to backfill)
+heavy_lock: waiting for head 01794909923935550900-linux-383420.json, which fits
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T12:11:40+02:00 load 19.65 20.04 22.64 arm XG4 start
+12:15:29 arm XG4 1 {'none': 75.102, 'T_A': 70.532, 'T_Ap': 74.721, 'T_Af': 70.521, 'T_B|A': 48.22, 'T_B': 48.234, 'T8': 71.581, 'T_D|A': 65.216}
+12:19:15 arm XG4 6.196 {'none': 379.104, 'T_A': 343.689, 'T_Ap': 376.257, 'T_Af': 343.673, 'T_B|A': 129.661, 'T_B': 129.745, 'T8': 352.045, 'T_D|A': 297.6}
+12:19:16 stage arm ['XG4'] 455.2 s
+arm XG4 455.42 s 10796948 KB
+== 2026-11-17T12:19:16+02:00 load 13.66 16.47 20.08 arm XG4 end rc 0

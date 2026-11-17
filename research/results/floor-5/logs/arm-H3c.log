@@ -1,0 +1,11 @@
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json (no room to backfill)
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501750182980-linux-358445.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T11:54:42+02:00 load 22.27 24.78 25.96 arm H3c start
+11:58:38 arm H3c 1 {'none': 390.37, 'T_A': 275.269, 'T_Ap': 309.299, 'T_Af': 275.242, 'T_B|A': 148.883, 'T_B': 149.51, 'T8': 381.886, 'T_D|A': 57.722}
+12:02:22 arm H3c 0.971 {'none': 379.145, 'T_A': 267.453, 'T_Ap': 300.486, 'T_Af': 267.427, 'T_B|A': 144.925, 'T_B': 145.533, 'T8': 370.889, 'T_D|A': 57.025}
+12:06:00 arm H3c 5 {'none': 1968.347, 'T_A': 1383.071, 'T_Ap': 1548.33, 'T_Af': 1382.959, 'T_B|A': 725.384, 'T_B': 728.314, 'T8': 1936.37, 'T_D|A': 198.48}
+12:06:00 stage arm ['H3c'] 678.2 s
+arm H3c 678.54 s 10796908 KB
+== 2026-11-17T12:06:00+02:00 load 23.51 23.91 24.64 arm H3c end rc 0

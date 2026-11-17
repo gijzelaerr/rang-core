@@ -2118,3 +2118,34 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | chunk-task-api section 5, host nash: W-B-r0 (main `30d9412`, `RAYON_NUM_THREADS=16`, `memory_limit_gb: 32`), flag / calibrate / apply | W3's `w3.ms`, 40,320 rows × 4096 ch | 178.0 / 201.1 / 196.5 s | 2.6 / 6.3 / 13.1 GB | exclusive among our jobs, nice 19; foreign load 0.26-0.37 cores; load1 2.1-2.7 before; research/chunk-task-api.md 6.1 |
 | 2026-11-17 | chunk-task-api section 5, host nash: W-N1-r0 (`abdfb5a`, `processes: 1, threads: 16`), flag / calibrate / apply | the same | 171.5 / 200.6 / 196.1 s | 2.7 / 6.3 / 13.1 GB | as above; foreign load 0.19-0.26 cores; bit-identical to W-B-r0 |
 | 2026-11-17 | curl, UHF reference products, host nash (nice 19, ionice -c3) | 9 files from SARAO DOI releases hhhy-4r55, ez63-vx81, wdb0-h061; 39,235,200 B | 4.2 s | – | uhf-scope.md 6.2; load1 10.0 before, 9.6 after; no lock (download only) |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py gates` (R0, G0), unpinned main `41bc3efb`, set aside | pilot `cal2.ms` subset, 32 ch | 92.4 s | 2.85 GiB (max RSS) | pass, superseded by the pinned rerun (clarification 2); 4 slots |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py skies`, unpinned, stopped | the same | 89.2 s (killed, signal 15) | 2.01 GiB (max RSS) | stopped for the pin; no output used |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py gates` (R0, G0) | the same | 72.4 s | 2.86 GiB (max RSS) | pinned build (worktree `6de8ecb`, extension `ce12e7d2`), nice 19, ionice idle; 4 slots; load1 26.5 before |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py skies` | set B facets | 248.4 s | 3.40 GiB (max RSS) | 4 slots; briefly about 5.6 cores before the thread cap (clarification 2); load1 44 after |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py pilot` (S1, Family I tests, HB) | S1 against m1 | 383.8 s | 11.23 GiB (max RSS) | 4 threads, 4 slots |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm H2` (a₁, a₂, a_max) | simulated arm on the subset | 704.8 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm C` (a₁, a₂, a_max) | simulated arm on the subset | 212.3 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm H1bA` (a₁, a₂, a_max) | simulated arm on the subset | 639.5 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm H8a` (a₁, a₂, a_max) | simulated arm on the subset | 671.8 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm H3c` (a₁, a₂, a_max) | simulated arm on the subset | 678.5 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm H1a` (a₁, a₂, a_max) | simulated arm on the subset | 666.0 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm K3` (a₁, a₂, a_max) | simulated arm on the subset | 389.3 s | 7.94 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm K1` (a₁, a₂, a_max) | simulated arm on the subset | 427.2 s | 9.12 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm XS2` (a₁, a₂, a_max) | simulated arm on the subset | 426.8 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm XS4` (a₁, a₂, a_max) | simulated arm on the subset | 423.2 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py arm XG4` (a₁, a₂, a_max) | simulated arm on the subset | 455.4 s | 10.30 GiB (max RSS) | 4 threads, 4 slots, six at once; load1 13-31 |
+| 2026-11-17 | floor-5, host nash: G1 `floor3_score` copy (four-correlation pilot.ms) | `cal2.ms` | 111.5 s | 1.34 GiB (max RSS) | 8 slots |
+| 2026-11-17 | floor-5, host nash: G1 `floor3_score` g0 | the copy | 69.1 s | 3.19 GiB (max RSS) | 8 slots |
+| 2026-11-17 | floor-5, host nash: G1 `python -m rang.core_cli selfcal` `p1.yaml` (Sp, round-1 + final GeMClean) | pilot.ms, 823,500 rows × 256 ch | 2,775.8 s | 11.29 GiB (max RSS) | `RAYON_NUM_THREADS=8`, 8 slots; solve 1,695 s, images 455 + 327 s; bit-equal to floor-4's G1 |
+| 2026-11-17 | floor-5, host nash: G1 `floor3_score` score | the same | 138.9 s | 3.37 GiB (max RSS) | 8 slots |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm R3 | G1's pilot.ms, 4096² at 3″ | 326.5 s | 11.28 GiB (max RSS) | 8 slots, two at once; 26,357 components, 3 major cycles |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm Dm1 | G1's pilot.ms, 4096² at 3″ | 387.8 s | 11.35 GiB (max RSS) | 8 slots, two at once; 48,849 components, 4 cycles |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm Dm03 | G1's pilot.ms, 4096² at 3″ | 468.5 s | 11.35 GiB (max RSS) | 8 slots, two at once; 110,140 components, 5 cycles |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm Dms03 | G1's pilot.ms, 4096² at 3″ | 2,235.7 s | 14.22 GiB (max RSS) | 8 slots, two at once; `-multiscale`, 105,646 components; minor loop 1,688 s |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm Du1 | G1's pilot.ms, 4096² at 3″ | 386.1 s | 11.29 GiB (max RSS) | 8 slots, two at once; 58,496 components |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm S | G1's pilot.ms, 4096² at 3″ | 1,029.8 s | 22.04 GiB (max RSS) | 8 slots, two at once; `-channels-out 8 -join-channels -fit-spectral-pol 2`, 26,982 components |
+| 2026-11-17 | floor-5, host nash: Family II GeMClean (`python -m rang.gemclean`, -j 8) arm C0 | G1's pilot.ms, 4096² at 3″ | 501.2 s | 11.36 GiB (max RSS) | 8 slots, two at once; on DATA, 203,096 components |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py score` (7 Family II models on the subset) | S1 / S0, 32 ch | 500.3 s | 3.23 GiB (max RSS) | 2 threads, 2 slots; about 57 s per arm |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py twobytwo` | S1 against m1 and Dm03 | 216.4 s | 3.81 GiB (max RSS) | 2 threads, 2 slots |
+| 2026-11-17 | floor-5, host nash: `floor5_tests.py summary` | JSON only | 1.5 s | 0.37 GiB (max RSS) | 2 slots |
+| 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-5` (write-up, archive) | 1035 s (lock wait excluded) | – | PASS; docs and archive diff; gain-hash gate PASS |

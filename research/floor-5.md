@@ -1,6 +1,7 @@
 # Rang: floor-5, what is left of the pilot's floor after one phase self-calibration round (issue #13)
 
-Status, 2026-11-17: **proposed, frozen before any run.** Sections 1-8 are the frozen protocol;
+Status, 2026-11-17: **measured; joint outcome J2** (Σ 0.41 of P_ref: H9 depth 0.22, spectral
+modelling 0.19; Family I unresolved throughout; section 10). Frozen before any run: sections 1-8 are the frozen protocol;
 results go in section 10, clarifications in section 9 (dated, before the numbers they affect, or
 labelled post hoc). Coordinator's brief (owner delegated), 2026-11-17, after floor-4.
 Host: **nash** ([nash-host.md](nash-host.md)): every job through the main checkout's heavy lock,
@@ -324,4 +325,144 @@ and HB (their numbers are in section 10).**
 
 ## 10. Results
 
-Not run yet.
+Measured 2026-11-17 on nash, every stage from the pinned build of clarification 2 (worktree Python
+`6de8ecb`, extension `ce12e7d2`). Outputs: `~/rang-data/outputs/floor-5-20261117`. Archive:
+[results/floor-5/](results/floor-5/) (`summary.json`, `pilot.json`, `gates.json`, `twobytwo.json`,
+every arm's and Family II arm's JSON, GeMClean reports and logs, G1's `score.json`, the stage
+scripts, the run logs, SHA-256 of every Family II model). Every run ended rc 0: the 11 Family I
+arms (`logs/arms.log`), G1 (`logs/g1.log`), the seven GeMClean arms (`logs/drive-fam2.log`) and
+the scoring (`logs/post.log`). Section 10.1 is the reading exactly as frozen; section 10.2 holds
+everything read after the numbers, labelled post hoc.
+
+### 10.1 The frozen reading
+
+**Gates: all pass.**
+
+| gate | measured | rule | result |
+| --- | --- | --- | --- |
+| Copy | `cal2.ms` 66 of 66 files equal by SHA-256 (`table.f4_TSM1` excluded, clarification 1); three FITS equal floor-2's | file for file | pass |
+| R0 | `nrow`, `active` equal; `noise_c` and `gridding_weight_sum` rel 0.0 | 1e-6 | pass |
+| G0 | F 1,073.4156 µJy, ratio 0.999996 | 0.1 % | pass |
+| G1 | F_B 1,073.4156, F_Fix 474.8310, F_Fin 379.2621 µJy (rel ≤ 1e-6); converged 1.0, 1.6 % solutions flagged, 0 newly flagged visibilities, phase r 0.989 against floor-2's T1p | 1e-4; ≥ 0.9, ≤ 5 %, ≥ 0.7 | pass |
+| G1 rerun equality (clarification 1) | round-1 Sp store gains and flags equal, final model pixel-equal to floor-4's copy | bit for bit | pass, so Family I stands on the copy as run |
+| HB | numpy apply: F_Fix rel 0.0; S1 against m1: F_ref 379.2616 µJy, rel −1.5e-6 against F_Fin | 1e-4 | pass |
+| GS | C @ 1: 44.0902 µJy (rel −2e-10); H2 @ 25.144 and H8a @ 6.38: rel 5e-8 and 3e-7 against imaging-floor | 0.5 % | pass |
+| GM | R3's model pixel-identical to G1's final model (`np.array_equal`; same SHA-256 `330ee81a…`), 26,357 components, 3 major cycles, Threshold, 85.893 Jy; R3 scores F 379.2621 µJy, D −3e-6 | pixel-identical | pass, so Family II's drops are against F_ref |
+
+P_ref = 1.419e-7 Jy² (F_ref 379.26 µJy), 0.1234 P_pilot; P_B = 1.150e-6 Jy².
+
+**Family I (section 6.1).** Pilot drops (fraction of P_ref) and every arm at a₂ (rows: arm, its
+P(a₂)/P_ref; columns: tests). Every arm at a₂ is usable (P ≥ 0.1 P_ref). Bold: own arm.
+
+| arm (a₂) | P/P_ref | T_A | T_Af | T_B \| A | T_B | T8 | T_D \| A |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **pilot** | 1 | **0.375** | **0.387** | **0.109** | 0.459 | **0.282** | **0.035** |
+| H1bA (3.403) | 1.001 | **1.000** | 1.000 | 0.000 | 1.000 | 0.023 | 0.000 |
+| H1a (12.479) | 1.387 | 0.790 | **1.000** | 0.002 | 0.384 | 0.316 | 0.000 |
+| H2 (8.831) | 0.996 | 0.194 | 0.195 | **0.803** | 1.000 | 0.016 | 0.139 |
+| H8a (2.241) | 1.006 | 0.034 | 0.034 | 0.044 | 0.078 | **1.000** | 0.021 |
+| H3c (0.971) | 0.999 | 0.509 | 0.509 | 0.356 | 0.864 | 0.044 | **0.481** |
+| K1 (1.963) | 1.000 | 0.179 | 0.179 | 0.498 | 0.671 | 0.075 | 0.098 |
+| K3 (0.835) | 1.001 | 0.316 | 0.316 | 0.428 | 0.742 | 0.250 | 0.091 |
+| XS2 (8.944) | 0.999 | 0.836 | 0.836 | 0.162 | 0.999 | 0.741 | 0.032 |
+| XS4 (12.963) | 0.997 | 0.629 | 0.629 | 0.368 | 0.998 | 0.455 | 0.064 |
+| XG4 (6.196) | 0.999 | 0.181 | 0.181 | 0.715 | 0.895 | 0.140 | 0.208 |
+
+(T_Ap, the descriptive phase-only split of T_A: pilot 0.263.) P(a_max)/P_ref: H1bA 2.16, H1a 0.170,
+H2 1.28, H8a 0.407, H3c 27.3.
+
+| hypothesis (test) | specific? | fires on (D > 0.3, usable) | frozen verdict |
+| --- | --- | --- | --- |
+| H1r (T_A) | no | H1a, H3c, K3, XS2, XS4 | **unresolved**, upper bound 0.375 shared with those arms |
+| H1a (T_Af) | no | H1bA, H3c, K3, XS2, XS4 | **unresolved**, upper bound 0.387 shared with those arms; also the pilot drop exceeds what H1a's a_max carries (0.170 < 0.5 × 0.387) |
+| H2 (T_B \| A) | no | H3c, K1, K3, XG4, XS4 | **unresolved**, upper bound 0.109 shared with those arms; the 2 × 2 reads below |
+| H8 (T8) | no | H1a, XS2, XS4 | **unresolved**, upper bound 0.282 shared with those arms |
+| H3c (T_D \| A) | no (own arm 0.481 < 0.7) | – | **unresolved**, upper bound 0.035 (not specific, so not rejected although D < 0.05) |
+| H5, H10 (T5, T10) | – | – | **rejected**: no alternative lowers P (best ΔP −1.9e-5 P_ref; `flip_w` toggled −0.209, without w-correction −0.110); ε 1e-7 changes F by 4e-6 |
+
+Family I attributes nothing.
+
+**Family II (section 6.2).** F on the subset; D against P_ref (C0: against P_B). Every run stopped
+on Threshold; none reached `-niter`.
+
+| arm | F (µJy) | D | ΔP (Jy²) | components | major cycles | model flux (Jy) | negative (Jy) | outside mask (Jy, pixels) | residual MAD (µJy) | wall (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | ---: |
+| R3 | 379.26 | −0.000 | −4e-13 | 26,357 | 3 | 85.89 | −0.14 | 0.036, 282 | 240.0 | 327 |
+| Dm1 | 345.54 | 0.172 | 2.44e-8 | 48,849 | 4 | 89.09 | −0.35 | 0, 0 | 214.9 | 388 |
+| **Dm03** | **334.83** | **0.224** | 3.17e-8 | 110,140 | 5 | 91.46 | −0.71 | 0, 0 | 209.1 | 469 |
+| Dms03 | 303.89 | 0.363 | 5.15e-8 | 105,646 | 3 | 96.17 | −7.62 | 3.53, 16,647,036 | 191.1 | 2,236 |
+| Du1 | 322.31 | 0.282 | 3.99e-8 | 58,496 | 4 | 88.93 | −1.12 | 0.057, 9,042 | 212.1 | 386 |
+| S | 342.64 | 0.186 | 2.64e-8 | 26,982 | 3 | 84.94 (joined) | −1.25 (8 planes) | 0.37, 2,640 (8 planes) | 209.5 | 1,030 |
+| C0 (S0) | 1,138.70 | −0.126 (of P_B) | −1.44e-7 | 203,096 | 5 | 104.54 | −1.93 | 0, 0 | 716.2 | 501 |
+
+- κ = (ΔP(C0) − ΔP(Dm03)) / (P_B − P_ref) = (−1.444e-7 − 3.173e-8) / 1.008e-6 = **−0.175 ≤ 0.3: gain-blind.**
+- **H9 (depth): attributed under floor-5's depth standard, share 0.224** (D_Dm03 ≥ 0.10, κ ≤ 0.3).
+  This is floor-5's direct-intervention standard, not imaging-floor's full criterion.
+- Beside it: Dm1 0.172 (the trend with threshold: 1 mJy → 0.3 mJy adds 0.05). Dms03 0.363 ≥ 0.224 +
+  0.10, so the note **"extended emission CLEAN misses"** is added. Du1 0.282 ≥ Dm1 0.172 + 0.10,
+  so the note **"unmasked depth cleans artefacts"** is added (never a share). Both notes are
+  qualified post hoc in 10.2.
+- **H8 directly (arm S): D_S 0.186 ≥ 0.10, spectral modelling supported, share 0.186.** The H8
+  verdict is T8's: unresolved (not specific). T8 is neither specific with D_S < 0.05 nor rejected
+  with D_S ≥ 0.10, so no conflict line.
+
+**The 2 × 2 (section 4.3).** ρ_B is read: Dm03 passes GM (through R3) and C0's control.
+
+| model | F none | F after T_A | F after T_A, T_B \| A | ΔP_A / P_ref | ΔP_B / P_ref |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| m1 | 379.26 | 300.95 | 273.95 | 0.375 | 0.109 |
+| Dm03 | 334.83 | 282.78 | 266.23 | 0.227 | 0.064 |
+
+**ρ_B = 0.586: partial** (between 0.3 and 0.7): about 59 % of the per-baseline increment survives
+the deeper model and about 41 % was missing model flux. H2 stays unresolved, with an upper bound
+of 0.064 P_ref after Dm03.
+
+**Joint outcome (section 6.3): J2.** Σ = 0.224 (H9) + 0.186 (S) = **0.410**, so 0 < Σ < 0.5. The
+379 µJy is partly explained. Attributed: model depth inside the source mask (0.224) and spectral
+modelling (0.186). The two are not orthogonal, so Σ is not a decomposition. The remainder
+1 − Σ = **0.590** is unattributed. Unresolved bounds, each shared with the named arms: T_Af 0.387
+(H1bA, H3c, K3, XS2, XS4), T_A 0.375 (H1a, H3c, K3, XS2, XS4), T8 0.282 (H1a, XS2, XS4), T_B | A
+0.109 (H3c, K1, K3, XG4, XS4; ρ_B partial), T_D | A 0.035 (own arm 0.481). Rejected: H5, H10.
+Frozen next step for J2: **a protocol for the largest unresolved bound**, here per-antenna gains
+on 8 s (T_Af 0.387) and 5 min (T_A 0.375). They are not separated from each other or from
+incompleteness (XS2, XS4, K3) or central-source DD gains (H3c).
+
+### 10.2 Post hoc reading (written after the numbers; does not change 10.1)
+
+1. **Dms03 does not respect the mask.** Its model is non-zero on 16,647,036 of 16,777,216 pixels,
+   3.53 Jy of it outside set A's mask, and −7.62 Jy is negative. GeMClean logged 0 resyncs and
+   τ NaN. Section 4.3 required that a masked arm put no component where F is measured. Dms03
+   fails that, so its D 0.363 includes flux in F's own pixels, and the note "extended emission
+   CLEAN misses" has no basis as run. It may come from the multiscale scale kernels spreading
+   components whose centres lie inside the mask, or from `-fits-mask` being ignored under
+   `-multiscale`. This was not checked, and it is a GeMClean question worth an issue. The other
+   masked arms (Dm1, Dm03, C0) have no flux outside the mask.
+2. **κ is negative.** Deep masked CLEAN on the uncorrected data raises that floor by 0.126 P_B:
+   1,074 to 1,139 µJy, with 203,096 components and 104.5 Jy against 91.5 Jy on S1. The rule
+   assumed 0 ≤ κ ≤ 1. A negative κ passes it, and it still means the depth gain does not come from
+   absorbing gain artefacts. It also shows that deep CLEAN on gain-corrupted data builds
+   artefacts into the model that the subtraction then spreads.
+3. **The two attributed shares overlap with Family I's bounds.** Family I's non-specific tests
+   fire mostly on the incompleteness arms (XS2, XS4, K3), which is what H9's direct test then
+   finds. One descriptive joint figure: T_A then T_B | A on top of Dm03 leaves 266.2 µJy,
+   0.486 P_ref, so model depth and the two fits remove about 0.51 of P_ref together. Arm S is an
+   unmasked 3 mJy run with 0.37 Jy outside the mask. Its drop may include a little extra depth
+   (26,982 against 26,357 components), and was not separated from it.
+4. **Margins.** The Du1 note passes by 0.010 (0.282 against 0.272), inside the ±0.02 the note
+   quotes drops to. The H9 share (0.224) and S share (0.186) are clear of their 0.10 thresholds.
+5. **Section 4.4 (E1, E2, E5).** The stats were recorded for the pilot and every arm at a₂, but
+   `summary` does not compute the assignment. Computed afterwards: Euclidean distance over log E1
+   per annulus and log E5 per facet (each over the arm's own rms), and E2. The pilot is nearest
+   XS2 (0.256), H8a (0.262) and XS4 (0.269), then XG4 (0.362) and H1bA (0.364). The
+   separation condition ("every arm's nearest arm is itself") cannot be checked as frozen, because
+   each arm has one realisation (stats at a₂ only). The nearest inter-arm distances (XS2-XS4
+   0.182, H1bA-H3c 0.272) are no larger than the pilot's spread over its three nearest. **No
+   provisional assignment counts.** Pilot E2 0.806; E1/rms 2.93, 1.62, 1.24, 0.87 (0-10′ … 40-68′).
+6. **What #13 can say now.** After one Sp round, a deeper model inside the source mask (CLEAN
+   to 0.3 mJy) removes 0.22 of what is left: F 379 → 335 µJy, 7.6 × thermal. Spectral modelling
+   with 8 output channels removes 0.19. Neither is a held-out result. The remainder (0.59) is
+   not tied to any single cause. Antenna gains, per-baseline scales and facet spectral fits each
+   remove 0.1-0.4, but none is specific against model incompleteness. The per-baseline
+   increment roughly halves under a deeper model (ρ_B 0.59). w-terms and smearing are excluded.
+   Cheap next steps: a held-out channel split of Dm03 and of S, and S with Dm03's mask and depth
+   combined.
