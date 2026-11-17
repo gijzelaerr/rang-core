@@ -212,7 +212,9 @@ Archive: [results/floor-4/](results/floor-4/): `summary.json`, `x.json`, `pilot.
 `prep-meta.json`, `arms/*.json`, G1's `g1-P-score.json`, `g1-g0.json`, `g1-selfcal-summary.json`
 and `g1-f3summary.json`, and the logs `g1.log`, `sim.log`, `x.log`, `sets.log`. The products stay
 on nash in `~/rang-data/outputs/floor-4-20261117/`: G1's run directory (stores and models), the
-arm gains, and the prep, skies and hands scratch. G1's MS copy was deleted after scoring.
+arm gains. G1's MS copy, the prep, skies and hands scratch and nash's copy of `cal2.ms` are
+deleted. The nash drivers are archived in
+[results/selfcal-defaults/scripts/](results/selfcal-defaults/scripts/).
 
 ### 9.1 Frozen readings
 
