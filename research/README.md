@@ -31,6 +31,7 @@ Each entry is one report and its verdict, newest first within a section.
 - [Branch triage, 2026-11-13](branch-triage-2026-11-13.md): every branch and worktree classified; 13 merged worktrees removed, the rest kept with reasons.
 - [Upstream status, 2026-11-13](upstream-status-2026-11-13.md): WSClean !1068 and radler !238 still open and unreleased.
 - [Multi-node scope](multi-node-scope.md) (proposed, 2026-11-13): chunk task API, then a multi-node executor (Dask one candidate), then MSv4/Zarr; Simon Perkins' replies on xarray-ms, arcae and Dask; nothing built.
+- [UHF scope](uhf-scope.md) (proposed, 2026-11-17): issue #11 first leg; what changes from L band at each stage, oracles and gates to carry over, a frozen data rule that no public candidate meets yet (archive link needed, owner decision D1); UHF reference models on nash.
 - [A0, acceptance data and protocol](a0-acceptance.md): development and held-out data, the frozen gates for the finish line, E1-E3 and CARACal's settings; no public set meets the native gate, so E2-N is open.
 - [C1, the calibration chain](c1-calibration-chain.md): the frozen term list, order, equations, oracles, gauge handling, apply rules and implementation steps for C2 to C7.
 - [W1, write-back](w1-writeback.md): MODEL_DATA, CORRECTED_DATA and FLAG written into an existing MS in chunks, with a CASA flag-version backup and recovery after an interrupted run; CASA, WSClean, python-casacore and dask-ms read them bit for bit.
