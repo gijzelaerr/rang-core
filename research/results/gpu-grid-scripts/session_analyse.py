@@ -118,7 +118,7 @@ kept_forms = [f for f in FORMS if sum(1 for s in SKIES if (sav.get((s, f)) or -1
 slower = [(c["sky"], c["form"]) for c in cells if c["sky"] != "pilot" and c["saving_median"] is not None
           and c["saving_median"] < -0.02]
 complete = all(c["measured"] for c in cells if c["sky"] != "pilot")
-reading = "speed option kept" if kept_forms and not slower and complete else "null"
+reading = "speed option kept" if kept_forms and not slower and complete else "saving rule not met"
 
 w = {}
 for sky in SKIES:

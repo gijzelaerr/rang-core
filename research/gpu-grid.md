@@ -356,7 +356,7 @@ simulated skies' 100 µJy threshold, is 30 times tighter than the pilot's stoppi
 That is a reading, not an amendment. Its major cycles took 65.9 s on the GPU against 99.3 s
 on the CPU (one cycle fewer; shared host, `-j 8`).
 
-### 8.4 Timing (exclusive, `-j 16`): **not run**
+### 8.4 Timing (exclusive, `-j 16`): **not run** on 2026-11-16 (run 2026-11-17: 8.7)
 
 The plan ([timing_plan.txt](results/gpu-grid-scripts/timing_plan.txt): S1, H2, H3 × coarse,
 fine × CPU, GPU × 3 repeats, interleaved; WSClean `minres` at `-mgain` 0.8 and 0.9 × 3 in WSL)
@@ -424,12 +424,14 @@ Glacier, one exclusive hold 20:32:20-20:51:35 (`heavy_lock.py run --drain 0`), b
 [results/gpu-grid-timing.json](results/gpu-grid-timing.json), scripts `session.py`,
 `session_analyse.py`. Start: card 499 of 12,282 MiB, idle host 0.42 cores (60 s), so the
 clean bound was 2.0 cores; end: 0.74 cores, card 10,235 MiB.
-**Partial session.** At 20:45-20:46 a local client (`nambia_local_ai --watchdog`, pythonw, not
-part of rang; it calls Ollama on the quarter hours) loaded `qwen3:14b` (10 GB) onto the card
+**Partial session.** At 20:45-20:46 a local Ollama client outside rang (it calls
+Ollama on the quarter hours) loaded `qwen3:14b` (10 GB) onto the card
 during `h3-fine-gpu-r2`: that run took 111.15 s (other CPU 2.77 cores, unclean); every later
 run is unclean by the GPU-drift clause, and `s1-coarse-gpu-r3` was void, which ended the
 session (9.5). So repeats 1 and 2 ran, repeat 3 and the pilot did not; 36 GeMClean arms
-planned, 25 run, 21 clean.
+planned, 25 run, 22 clean (other-process CPU of the clean runs 0.84-1.67
+cores; this task's own Ollama connection watcher, polling every 0.7 s from about 20:18 to
+20:58, is inside the baseline and loads both arms alike).
 
 Walls, s, medians of clean runs; saving = (CPU − GPU) / CPU per repeat pair:
 
@@ -449,11 +451,13 @@ Walls, s, medians of clean runs; saving = (CPU − GPU) / CPU per repeat pair:
   partial (two repeats of three), but no third repeat could turn −7 % to −53 % pairs into a
   10 % saving.
 - **Where the time goes.** The GPU path (host, upload, compute, download) takes 91-102 % of
-  the GPU run's major-cycle time, compute alone 65-92 %, so the major cycle on the card is
+  the GPU run's major-cycle time (over 100 % because its counters include GPU calls outside
+  the log's major timer: one grid call more than there are cycles), compute alone 65-92 %, so the major cycle on the card is
   as long as or longer than the CPU's at 16 threads: in f32 by −4 % (H3) to +15 % (H2), in
   f64 1.4-2.1 × longer (f64 at 1/64 of the f32 rate). The rest of the run (PSF, minor
-  cycles, resyncs, I/O) is unchanged, so no wall saving is left to find. At `-j 8` (8.2) the
-  GPU operator was faster; at `-j 16` the CPU catches up.
+  cycles, resyncs, I/O) is unchanged, so (a reading) no wall saving is left to find in this design. At
+  `-j 8` on a shared host (8.2) the GPU operator was faster; the reading is that at `-j 16`
+  the CPU catches up.
 - **Accuracy of the timed runs:** every clean run's model, residual and image FITS are
   byte-identical to the Gate 2 run of the same binary and form (CPU: the Gate 0 baseline;
   GPU: `gate2/gpu`), so the accuracy column holds for these walls. H2 coarse ran 7 major
@@ -596,9 +600,9 @@ as 9.4:
   The f32 numbers sit beside its Gate 1 failure; only f64 has met parity, and it is the slower one.
 - Reopening as the decision of 2026-11-16 put it ("a speed-up at met parity") is not supported
   on this card: the GPU path already takes 91-102 % of the major-cycle time, so a faster
-  wgpu kernel, not more measurement, would be needed. Suggest closing #12 as measured null
+  wgpu kernel, not more measurement, would be needed. Suggest closing #12 as measured, saving rule not met,
   for this design and leaving the branch parked.
-- Blocker for any GPU timing on glacier: the local `nambia_local_ai --watchdog` (pythonw) sends
+- Blocker for any GPU timing on glacier: a local Ollama client outside rang sends
   Ollama `/api/chat` bursts on the quarter hours (seen 15:30-15:45, 16:00, 18:05, 20:10, 20:15,
   20:45), loading `qwen3:14b` (10 GB) for 15 minutes each. Timing needs it paused; this task
   did not touch it.

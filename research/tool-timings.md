@@ -2220,3 +2220,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gpu-grid timing: GeMClean `-gpu` (4096 MiB), coarse / fine, `-j 16` exclusive, host glacier | the same | 11.84, 16.22, 34.94 s / 19.13, 28.37, 59.91 s | 2.18, 1.94, 3.94 / 2.64, 2.64, 4.59 GB | RTX 4070 Ti, 758-2360 MiB on the card; H3 fine r2 111.15 s unclean (Ollama load) |
 | 2026-11-17 | gpu-grid timing: WSClean 3.7 `minres` `-mgain` 0.8 / 0.9, `-j 16`, WSL Docker, host glacier | the same | 17.65, 15.76, 40.42 s / 12.69, 16.14, 40.55 s | 0.58, 0.58, 1.13 GB | clean repeat 1; repeat 2 unclean (GPU drift) 3-17 % slower |
 | 2026-11-17 | gpu-grid timing session (warm-up, 2 repeats, stopped at a void GPU arm), host glacier | 25 GeMClean + 12 WSClean runs | 19.3 min exclusive | – | 20:32:20-20:51:35 |
+| 2026-11-17 | gpu-grid: `tools/check_all.py --quick` (final), host glacier | worktree `d98a41a` | 96 s (lock wait excluded; build cached) | – | PASS |
