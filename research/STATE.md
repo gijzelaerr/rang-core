@@ -20,6 +20,26 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review.md) section 5):
+- B-01: `cal_pol.parallactic_angle_casa` translates casacore's measures (`MCDirection.cc`, `MeasMath.cc`,
+  `MeasTable.cc`, `MSDerivedValues.cc`, master `3c16927b`, LGPL-2.0-or-later, AUI); no casacore data is read,
+  the Earth orientation is astropy-iers-data's IERS table. Notices verbatim in THIRD-PARTY-NOTICES.txt and
+  docs/licence.md.
+- B-02: WSClean v3.7 `4f395b28` with radler `76fe4474`, aocommon `aa4d6a47`, schaapcommon `b553fd25`, and
+  master `53e25d59` (!1068). **radler is LGPL-3.0-only**: conveyable under GPL version 3 (LGPL-3.0 2(b)),
+  not "or later"; four GeMClean files now `GPL-3.0-or-later AND LGPL-3.0-only`. Owner decision open on the
+  package licence expression (LICENSE and pyproject unchanged).
+- Fixed with tests (tests/test_v030_fix.py, cli.rs): R-02 (fully flagged solve: stage failure, not a
+  traceback), B-11/B-12 (`-temp-dir` takes the spill files; `-reorder`/`-temp-dir` warnings), B-13 (strict
+  JSON, null for non-finite), B-16 (lightcurve refuses a second DATA_DESC_ID), E5-22/23/24 (write-back
+  refuses only after FLAG writes; `initialising` survives a restore; lock before journal, read-only MS
+  refused first). E5-21 stays a known limitation (it would change every stage hash once).
+- MIT-audit notice gaps (section 5.5): c-blosc, katdal, Tricolour, fdlibm, Tigger, codex-africanus,
+  schaapcommon, CASA/casacore in calmodels, apply and flag_extend, the casacore storage managers ("nothing
+  is copied" corrected), EIDOS, WSClean's "GPL 3", CARACal's strategy copies. msutils' licence statements
+  conflict (GPL v2 in its metadata, GPL-3.0-or-later in setup.py): a second owner decision.
+- No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
+  touched tests pass (hand-back for the coordinator).
 F5 draft, 2026-11-17 (proposed, not frozen; branch `f5-draft`; [f5-flagger.md](f5-flagger.md)): a fourth flagger protocol built on Landman Bester's reply on issue #1 and the F3 review he forwarded. Reading of the code: F3's r^t, r^f and antenna medians cannot see a wide-band scan-long one-antenna event; F4's cross spectral planes are its counterpart (one constant offset per baseline, no smoother, scan-long only), F4's autocorrelation arm NA is not (cross-only injection; no per-antenna bandpass model, delta at the top of its grid). Proposed: per-time-block log-amplitude and noise-variance factorisations per antenna with a low-order fit, noise-like antenna-local training events, held-out slow ramp H4, the reply's label scheme, an image-domain RMS gate with a positive control, a W4 antenna fallback; from Landman's second reply, his `pfb hci` settings as a label generator (pinned, validated on injections first), gain TV as a reported validation measure V-TV, and an agent review of waterfalls (R-AG) as a weak-label arm, never training labels. CARACal 8f7bb363 ships 23 AOFlagger `.rfis` files (2.x XML; `firstpass_QUV.rfis` its MeerKAT default), which AOFlagger 3.5 cannot run unconverted. Mesarcik et al.'s Zenodo set: CC BY 4.0, LOFAR HBA and simulated HERA, 21.9 GB of pickles, not for pretraining. Frozen after F4's calibrator outcome; nothing run. No novelty claim.
 
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF

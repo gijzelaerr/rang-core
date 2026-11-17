@@ -50,6 +50,14 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
   the trained flagger is not shipped.
 - A run directory made by 0.2.0 resumes "done" stages by their configuration hash; rerun with
   `--force all` to get 0.3.0's parallactic angles and imaging weights.
+- Strategy, sky-model and mask files enter a stage's configuration hash by path, not by content
+  (`research/v030-review.md` E5-21): after editing one in place, rerun that stage with `--force`. Hashing
+  the contents would change every stage hash once, so it waits for a release that may do that.
+- **Licence** (`research/v030-review.md` B-02, an owner decision): GeMClean's automatic mask, joined
+  peak finding, multiscale CLEAN and polarisation normalisation follow radler, which is LGPL-3.0-only, and
+  WSClean's README says "version 3" without "or any later version". While they are in it, the extension
+  `rang._core` can be conveyed under the GPL, version 3 only; rang-core's own code stays
+  GPL-3.0-or-later. `docs/licence.md` and `THIRD-PARTY-NOTICES.txt` say so.
 
 ### Issues
 
@@ -65,6 +73,36 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
 - Unchanged: #1, #4, #10, #11, #15-#20, #24.
 
 ### Changes
+
+- Notices (`research/v030-review.md` B-01, B-02): `THIRD-PARTY-NOTICES.txt` and `docs/licence.md` now
+  list casacore's measures (`MCDirection.cc`, `MeasMath.cc`, `MeasTable.cc`, `MSDerivedValues.cc`,
+  LGPL-2.0-or-later), which the CASA-frame parallactic angle follows, and WSClean 3.7 with radler
+  `76fe4474` (LGPL-3.0-only), aocommon and schaapcommon, which GeMClean follows; each read in the
+  upstream sources. The four GeMClean files that follow radler carry `GPL-3.0-or-later AND LGPL-3.0-only`.
+  No casacore data table is read: the parallactic angle's Earth orientation is astropy's IERS table.
+- Notices (`research/mit-relicense-audit.md` 3.2, `research/v030-review.md` 5.5): c-blosc, katdal's BSD
+  text, Tricolour in `core_flag.py`, fdlibm, Tigger and codex-africanus in `formats/sky.py`, schaapcommon in
+  `gemclean/input.rs`, CASA and casacore in `calmodels.py`, `apply.rs` and `flag_extend.py`, EIDOS, msutils
+  (its licence statements conflict, GPL v2 against GPL-3.0-or-later: an owner decision), and the casacore storage managers the table writer translates, whose headers
+  said "nothing is copied"; WSClean 3.6's `wstackinggridder.h` "GPL 3" stated exactly; the CARACal strategy
+  copies in `research/results/` named with CARACal's GPL-2.0 (`research/results/CARACAL-NOTICE.md`).
+- Fixed (R-02): a calibrate solve whose every solution is flagged (for one, a reference antenna whose
+  baselines the strategy flags) now ends `rang-core run` with `failed: calibrate: ... wrote no
+  solutions ...` and a hint (exit 1, the stage recorded as failed), not a traceback
+  (`rang.cal_gain.NoSolutions`, a RuntimeError).
+- Fixed (B-11, B-12): GeMClean's `-temp-dir` now also takes the joined runs' dirty-image spill files
+  (`<name>-dirty-<n>.spill`); `-reorder` with one polarisation, `-reorder` with `-channel-range` or
+  `-average-channels > 1`, and `-temp-dir` where it has no effect print a warning and are in `-h`.
+  Images are unchanged.
+- Changed (B-13): `lightcurve.json` is strict JSON; a value that is not finite (the flux of a fully
+  flagged interval) is `null`, not a bare `NaN`. `lightcurve.csv` keeps `nan`.
+- Fixed (B-16): `rang-core lightcurve` refuses a field with rows on a data description other than 0; it
+  imaged DATA_DESC_ID 0 only, silently.
+- Fixed (E5-22, E5-23, E5-24, write-back): a session that failed or was killed before writing FLAG no
+  longer blocks the next one (only a session that may have written FLAG is refused, and the record of a
+  written column is made before its first write); a column left half-initialised is initialised again
+  after `restore_flags`; the journal is written only once the MS is open for writing, and an MS that
+  cannot be written is refused before the flag backup with a clear message.
 
 - New (`research/uhf-scope.md`, decision D6): a stage given channels outside MeerKAT L band (856-1712 MHz;
   UHF 544-1088 MHz, S band) logs one warning that only L band is validated, naming `docs/limits.md`

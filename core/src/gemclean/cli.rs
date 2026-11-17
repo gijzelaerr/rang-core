@@ -101,8 +101,11 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -reorder                  with several polarisations: keep each polarisation's read and each
                             entry's visibilities in temporary files, read back where used (same
-                            images, less memory; research/gemclean-memory2.md)
-  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
+                            images, less memory; research/gemclean-memory2.md); ignored, with a
+                            warning, for one polarisation; with -channel-range or
+                            -average-channels > 1 each polarisation is read whole first
+  -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
+                            (<name>-dirty-<n>.spill) go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -1286,7 +1289,52 @@ fn run(raw: &[String]) -> Result<(), String> {
     run_parsed(args, raw, wall)
 }
 
+/// What `-reorder` and `-temp-dir` will not do for these options (v0.3.0
+/// review B-12, research/v030-review.md), printed as warnings before the run.
+fn temp_warnings(args: &Args) -> Vec<String> {
+    let mut out = Vec::new();
+    let spectral_sel = args.channel_range.is_some() || args.average_channels > 1;
+    if args.reorder && args.pols.len() < 2 {
+        out.push(
+            "-reorder is ignored with one polarisation (it acts on several -pol entries)".into(),
+        );
+    } else if args.reorder && spectral_sel {
+        out.push(
+            "-reorder with -channel-range or -average-channels > 1: each polarisation is read \
+             whole into memory first; only the entries' visibilities and the dirty images go \
+             to temporary files"
+                .into(),
+        );
+    }
+    // Only the several-polarisation path spills a joined run's dirty images.
+    let joined =
+        args.pols.len() > 1 && (args.join_pols || args.join_channels && args.channels_out > 1);
+    if args.temp_dir.is_some() && !args.reorder && !joined && !args.predict {
+        out.push("-temp-dir has no effect without -reorder or a joined deconvolution".into());
+    }
+    out
+}
+
+/// The file a joined run's dirty images wait in (research/gemclean-memory.md):
+/// beside `-name`, or in `-temp-dir` when given (B-11).
+fn spill_path(args: &Args, run: usize) -> PathBuf {
+    let file = format!("{}-dirty-{run}.spill", args.name);
+    match &args.temp_dir {
+        Some(dir) => {
+            let stem = Path::new(&args.name)
+                .file_name()
+                .map(|s| s.to_string_lossy().into_owned())
+                .unwrap_or_else(|| "gemclean".into());
+            dir.join(format!("{stem}-dirty-{run}.spill"))
+        }
+        None => PathBuf::from(file),
+    }
+}
+
 fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
+    for w in temp_warnings(&args) {
+        println!("warning: {w}");
+    }
     if args.predict {
         return predict_only(&args, raw, wall);
     }
@@ -2777,7 +2825,7 @@ fn deconvolve_pols<T: Real + Send + Sync>(
             // pixels, as radler's (research/e2b-misses.md, arm A5).
             // The dirty images wait in a file beside the outputs
             // (research/gemclean-memory.md).
-            let spill = PathBuf::from(format!("{}-dirty-{}.spill", args.name, runs_json.len()));
+            let spill = spill_path(args, runs_json.len());
             let j = if args.reorder {
                 let j = run_joined_spill_kept(
                     &pairs,
@@ -3743,6 +3791,47 @@ pub fn main(args: &[String]) -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn args_of(line: &str) -> Args {
+        let raw: Vec<String> = line.split(' ').map(String::from).collect();
+        parse_args(&raw).unwrap()
+    }
+
+    #[test]
+    fn reorder_and_temp_dir_warn_where_they_do_not_act() {
+        // v0.3.0 review B-12 (research/v030-review.md).
+        let w = temp_warnings(&args_of("-size 64 64 -scale 2asec -reorder x.ms"));
+        assert_eq!(w.len(), 1);
+        assert!(w[0].contains("ignored with one polarisation"), "{w:?}");
+        let w = temp_warnings(&args_of(
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -reorder \
+             -channel-range 0 4 x.ms",
+        ));
+        assert_eq!(w.len(), 1);
+        assert!(w[0].contains("read whole into memory first"), "{w:?}");
+        let w = temp_warnings(&args_of("-size 64 64 -scale 2asec -temp-dir t x.ms"));
+        assert_eq!(w.len(), 1);
+        assert!(w[0].contains("-temp-dir has no effect"), "{w:?}");
+        for line in [
+            "-size 64 64 -scale 2asec x.ms",
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -reorder -temp-dir t x.ms",
+            "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -temp-dir t x.ms",
+        ] {
+            assert!(temp_warnings(&args_of(line)).is_empty(), "{line}");
+        }
+    }
+
+    #[test]
+    fn spill_files_go_to_temp_dir_when_given() {
+        // v0.3.0 review B-11: beside -name by default, else in -temp-dir.
+        let a = args_of("-size 64 64 -scale 2asec -name out/img x.ms");
+        assert_eq!(spill_path(&a, 2), PathBuf::from("out/img-dirty-2.spill"));
+        let a = args_of("-size 64 64 -scale 2asec -name out/img -temp-dir scratch x.ms");
+        assert_eq!(
+            spill_path(&a, 0),
+            Path::new("scratch").join("img-dirty-0.spill")
+        );
+    }
 
     #[test]
     fn angles_and_flags() {

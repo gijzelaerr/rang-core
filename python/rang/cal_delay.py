@@ -326,7 +326,7 @@ def gaincal(
         }
     )
     if sol.flags.all():
-        raise RuntimeError(
+        raise cal_gain.NoSolutions(
             f"gaincal K wrote no solutions for field {field_id} (every delay flagged)"
         )
     times, _ = fld.solution_times(tb, row_w, len(keys))

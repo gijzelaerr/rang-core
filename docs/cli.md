@@ -533,7 +533,10 @@ MODEL_DATA) of a field after rang-core run, one point per interval of
 --interval-steps integrations: the exact DFT flux at each position, the
 nearest pixel of the interval's dirty snapshot image and the image's robust
 rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. Reads the
-MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.
+MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json (strict JSON: null
+where a value is not a finite number, such as the flux of a fully flagged
+interval). One data description: an MS whose field has rows on another
+DATA_DESC_ID than 0 is refused.
 
 positional arguments:
   ms                    the Measurement Set
@@ -1118,8 +1121,11 @@ gemclean: usage: gemclean [options] <ms>
   -no-plan-reuse            replan every gridder call (same images, for comparison)
   -reorder                  with several polarisations: keep each polarisation's read and each
                             entry's visibilities in temporary files, read back where used (same
-                            images, less memory; research/gemclean-memory2.md)
-  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
+                            images, less memory; research/gemclean-memory2.md); ignored, with a
+                            warning, for one polarisation; with -channel-range or
+                            -average-channels > 1 each polarisation is read whole first
+  -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
+                            (<name>-dirty-<n>.spill) go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged

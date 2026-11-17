@@ -18,8 +18,15 @@ position:
 Stokes I and its weight follow WSClean's `-pol I` (`core_weights.stokes_i`):
 `I = (XX + YY) / 2`, weight `min(4 w_XX, 4 w_YY)`, zero when a hand is
 flagged; FLAG_ROW rows weigh zero. Rows: the field, data description 0,
-cross-correlations (`core_model.selected_rows`). Linear feeds with four
-correlations only (MeerKAT). The MS is only read.
+cross-correlations (`core_model.selected_rows`); a field with rows on any
+other data description is refused (one spectral window per MS: split it
+first). Linear feeds with four correlations only (MeerKAT). The MS is only
+read.
+
+`lightcurve.json` is strict JSON: a value that is not a finite number (the
+flux of an interval whose samples are all flagged, for one) is written as
+`null`, never as a bare `NaN` or `Infinity`. `lightcurve.csv` leaves such a
+cell as `nan`, as Python writes it.
 """
 
 import csv
@@ -122,6 +129,40 @@ def _field_id(ms, field):
     if field not in names:
         raise LightcurveError(f"field {field!r} not in the MS ({', '.join(names)})")
     return names.index(field), field
+
+
+def _one_data_description(ms, field_id, field_name):
+    """B-16 (research/v030-review.md): the light curves image data
+    description 0 only, so a field with rows on another one is refused
+    rather than silently cut to its first window."""
+    found = set()
+    with core_ms.open_table(ms) as t:
+        for start in range(0, t.nrows, core_model.SELECT_CHUNK):
+            n = min(core_model.SELECT_CHUNK, t.nrows - start)
+            ddid = t.getcol("DATA_DESC_ID", start, n)
+            mine = ddid[t.getcol("FIELD_ID", start, n) == field_id]
+            found.update(int(d) for d in np.unique(mine))
+    if found - {0}:
+        raise LightcurveError(
+            f"field {field_name} has rows on data descriptions {sorted(found)}: "
+            "lightcurve reads DATA_DESC_ID 0 only; split the MS to one spectral "
+            "window first (for example CASA split with spw=...)"
+        )
+
+
+def _finite_or_null(value):
+    """`value` with every float that is not finite replaced by None (B-13)."""
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _finite_or_null(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_finite_or_null(v) for v in value]
+    if isinstance(value, np.ndarray):
+        return _finite_or_null(value.tolist())
+    if isinstance(value, np.generic):
+        return _finite_or_null(value.item())
+    return value
 
 
 def _columns(ms, column, model_column):
@@ -350,6 +391,7 @@ def light_curves(
     if len(set(names)) != len(names):
         raise LightcurveError("position names must differ")
     field_id, field_name = _field_id(ms, field)
+    _one_data_description(ms, field_id, field_name)
     column, model_column, weight_column = _columns(ms, column, model_column)
     freq, corr, centre = core_model.band(ms, field_id)
     if list(corr) != LINEAR:
@@ -516,7 +558,9 @@ def write_outputs(result, out_dir):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "lightcurve.json").write_text(
-        json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n"
+        json.dumps(_finite_or_null(result), indent=1, allow_nan=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
     )
     if result.get("candidates") is not None:
         keys = ("interval", "time_mjd_s", "sign", "x", "y", "ra_deg", "dec_deg",

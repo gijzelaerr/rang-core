@@ -43,6 +43,12 @@ KINDS = {"ap": 0, "p": 1}
 TYPE_ORDER = ("B", "K", "Kcross", "G", "J", "Df", "Xf", "C", "P", "E", "T", "F")
 
 
+class NoSolutions(RuntimeError):
+    """A solve flagged every solution, so it wrote no table (v0.3.0 review
+    R-02): `rang-core run` reports it as the stage's failure, not a
+    traceback."""
+
+
 def parse_solint(solint):
     """`'inf'`, `'int'` or a duration in seconds (`'60s'`, `'2min'`, `60`)."""
     if isinstance(solint, (int, float)):
@@ -1038,7 +1044,7 @@ def gaincal(
         **({"casa_phase_weights": True} if divide else {}),
     )  # fmt: skip
     if sol.flags.all():
-        raise RuntimeError(
+        raise NoSolutions(
             f"gaincal wrote no solutions for field {field_id} (every solution flagged)"
         )
     times, span = fld.solution_times(tb, row_w, len(keys))

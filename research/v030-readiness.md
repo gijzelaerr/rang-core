@@ -1,8 +1,10 @@
 # v0.3.0 readiness tracker
 
 Status, 2026-11-17: **release-ready except the four results still running** (E2-N and E3-A on nash, the
-selfcal-defaults grid on branch `floor-4`, the E2-A 3b K follow-up on branch `e2a-3b-k`) **and two
-release-blocking licence-notice findings** for the coordinator ([v030-review.md](v030-review.md) B-01, B-02). Written on branch
+selfcal-defaults grid on branch `floor-4`, the E2-A 3b K follow-up on branch `e2a-3b-k`). The two
+licence-notice findings B-01 and B-02 have their notices on branch `v030-fix` ([v030-review.md](v030-review.md)
+section 5.1); **B-02 leaves one owner decision**: radler is LGPL-3.0-only, so while GeMClean follows it the
+extension can be conveyed under GPL version 3 only (`LICENSE` and the package metadata unchanged). Written on branch
 `v030-ready` from origin/main `9b4542cb`. Nothing here is tagged or released. The release review is
 [v030-review.md](v030-review.md). The plan is [roadmap.md](roadmap.md) (v0.3.0 section).
 
@@ -101,8 +103,10 @@ closed or commented from this branch). "Close at release" is a proposal for the 
 
 ## 6. Left before tagging
 
-1. B-01 and B-02 ([v030-review.md](v030-review.md) section 3): the casacore measures and radler / WSClean 3.7
-   notices, from the upstream headers.
+1. B-01 and B-02 ([v030-review.md](v030-review.md) section 3): notices done on branch `v030-fix` (section 5.1,
+   read in the upstream sources). Open: the owner's decision on the package licence expression given
+   radler's LGPL-3.0-only and WSClean's "GPL 3" (section 5.5, owner decision 1), and msutils' conflicting
+   licence statements (owner decision 2).
 2. Merge the four running results (`e2n`, `e3-caracal`, `floor-4`, `e2a-3b-k`) and run the review's delta
    pass over them; replace the "native data not tested" limitation with E2-N's measured limits.
 3. E6 as in 0.2.0: the version bump in `pyproject.toml` (and what follows it), the CHANGELOG section

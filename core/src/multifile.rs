@@ -4,6 +4,9 @@
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Translates casacore's `MultiFile.cc` and `MultiFileBase.cc` (Copyright (C)
+//! 2014 Associated Universities, Inc., GNU Library General Public License
+//! version 2 or later): notices in THIRD-PARTY-NOTICES.txt.
 //!
 //! casacore's `MultiFile` container (version 2, as casacore 3.8.1 writes
 //! it): block 0 holds the header (the change counter, block size and count,

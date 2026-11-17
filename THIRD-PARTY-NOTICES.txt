@@ -112,15 +112,21 @@ file's header names them; see also docs/licence.md)
 
 - WSClean 3.6 imaging weights (André Offringa and contributors,
   GPL-3.0-or-later): core/src/weights.rs.
-- WSClean 3.6 w-stacking gridder (André Offringa and contributors, GPL-3.0):
-  core/src/grid.rs.
+- WSClean 3.6 w-stacking gridder (André Offringa and contributors, GPL-3.0;
+  wstackinggridder.h says "GPL 3" and is silent on later versions):
+  core/src/grid.rs, its WGSL form core/src/gpu/shader.rs, and the kernel
+  transcription kernel_reference in python/rang/core_grid.py (a test
+  reference).
 - ducc0 0.42.0 wgridder (Martin Reinecke, Max-Planck-Society,
   GPL-2.0-or-later): core/src/wgridder.rs.
 
 Their upstream copyright notices, verbatim (also in each source file's header):
 
-WSClean 3.6. Its own source files carry no notice; from
-debian/copyright of wsclean 3.6-1:
+WSClean 3.6. Its source files carry no copyright line; gridding/wstackinggridder.h
+says "This file was written by André Offringa and is published under the GPL 3
+license." (version 3, with no "or later"), WSClean's README "released under the
+GPL license version 3". From debian/copyright of wsclean 3.6-1 (which records
+GPL-3.0+):
 
 Copyright: 2008-2015 A. R. Offringa
  2009 ASTRON (Netherlands Institute for Radio Astronomy)
@@ -232,3 +238,295 @@ casacore 3.7.1 scimath/Fitting/LSQFit.cc, followed in core/src/cal/fluxscale.rs
 (GNU Library General Public License, version 2 or any later version):
 Copyright (C) 1999,2000,2002,2004-2006,2008
 Associated Universities, Inc. Washington DC, USA.
+
+casacore measures, followed in python/rang/cal_pol.py (parallactic_angle_casa,
+research/e2b-misses.md 9.13-9.16): the route J2000 -> APP -> TOPO -> HADEC,
+the TOPO -> HADEC step (the diurnal-aberration shift and polar motion), the
+UT -> ST polynomial and MSDerivedValues::parAngle. Read at casacore master on
+2026-11-15 (commit 3c16927b, inferred from that date; the note does not
+record a commit). The code is a translation of the steps and constants; no
+casacore data table is read or shipped: the Earth orientation comes from
+astropy's IERS table (astropy-iers-data, BSD-3-Clause, a dependency that
+rang-core does not redistribute) and erfa. Each file is under the GNU Library
+General Public License, version 2 "or (at your option) any later version".
+Their notices, verbatim:
+
+measures/Measures/MCDirection.cc:
+Copyright (C) 1995-1998,2000-2002,2004,2007
+Associated Universities, Inc. Washington DC, USA.
+
+measures/Measures/MeasMath.cc:
+Copyright (C) 1998-2000,2002-2004,2007
+Associated Universities, Inc. Washington DC, USA.
+
+measures/Measures/MeasTable.cc:
+Copyright (C) 1995-1999,2000-2004,2016
+Associated Universities, Inc. Washington DC, USA.
+
+ms/MSOper/MSDerivedValues.cc:
+Copyright (C) 1996,1997,1999,2000
+Associated Universities, Inc. Washington DC, USA.
+
+-------------------------------------------------------------------------------
+WSClean 3.7 and its submodules, followed in GeMClean (core/src/gemclean.rs,
+core/src/gemclean/)
+
+Read in WSClean v3.7 (4f395b28, 2026-02-14) with the submodules it pins:
+radler 76fe4474, aocommon aa4d6a47 and schaapcommon b553fd25; and WSClean
+53e25d59 on master (2026-11-13, "Fix an issue in CalculateMsLimits", merge
+request !1068), followed in core/src/gemclean/multiscale.rs.
+
+radler 76fe4474 (LGPL-3.0-only): radler.cc, algorithms/generic_clean.cc,
+algorithms/deconvolution_algorithm.cc, algorithms/subminor_loop.cc,
+algorithms/multiscale_algorithm.cc,
+algorithms/multiscale/multiscale_transforms.h, image_set.h, image_set.cc and
+math/gain_calculations.h (under cpp/); followed in core/src/gemclean/mask.rs,
+joined.rs, multiscale.rs and stokes.rs. Each file's notice, verbatim:
+
+// SPDX-License-Identifier: LGPL-3.0-only
+
+The files carry no copyright line. radler's README.md: "Radler is released
+under the LGPL version 3."; its pyproject.toml names as authors Andre
+Offringa, Maik Nijhuis, Jakob Maljaars and Tammo Jan Dijkema; its
+documentation (doc/conf.py) gives the copyright as André Offringa's. The
+licence texts are radler's LICENSE (GPL-3.0) and LICENSE.LESSER (LGPL-3.0).
+LGPL-3.0 section 2(b) lets a modified version be conveyed "under the GNU
+GPL, with none of the additional permissions of this License applicable to
+that copy", and its section 0 defines the GNU GPL as version 3. So the four
+files are distributed under the GPL, version 3 only for what they derive
+from radler, and so is the extension rang._core while it contains them.
+
+WSClean 3.7's own sources (among them math/imageoperations.cpp,
+main/wsclean.cpp, main/settings.cpp, gridding/msgridderdata.h and, at
+53e25d59, gridding/msprovidercollection.cpp); followed in core/src/gemclean.rs,
+core/src/gemclean/cli.rs, input.rs, multiscale.rs, predict.rs, spectral.rs,
+stokes.rs and core/src/weights.rs. Its source files carry no notice. WSClean's
+README: "WSClean is released under the GPL license version 3, and comes
+without any warranty." From debian/copyright of wsclean 3.7-3 (License:
+GPL-3.0+, "taken from the web page", as Debian records):
+
+Copyright: 2008-2015 A. R. Offringa
+ 2009 ASTRON (Netherlands Institute for Radio Astronomy)
+ 2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+
+aocommon aa4d6a47: include/aocommon/polarization.h (Polarization::ParseList)
+and include/aocommon/image.h (Image::MedianAndStdDevFromMAD); followed in
+core/src/gemclean/stokes.rs and mask.rs. Neither file carries a notice;
+aocommon's LICENSE is the GPL, version 3, and its uvector.h says
+"distributed under the GPL license version 3".
+
+schaapcommon b553fd25 (GPL-3.0-or-later). Its notices, verbatim:
+
+src/fitters/gaussianfitter.cc (Fit2DGaussianCentred); followed in
+core/src/gemclean.rs:
+Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)
+
+src/fitters/spectralfitter.cc; followed in core/src/gemclean/spectral.rs:
+Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)
+
+src/reordering/reordering.cc; followed in core/src/gemclean/stokes.rs (and
+core/src/weights.rs, above):
+Copyright (C) 2024 ASTRON (Netherlands Institute for Radio Astronomy)
+
+schaapcommon's LICENSE: "Copyright 2020 ASTRON".
+
+-------------------------------------------------------------------------------
+Further notices (v0.3.0, research/mit-relicense-audit.md section 3.2; each
+read in the upstream source on 2026-11-17, research/v030-review.md 5.5)
+
+c-blosc 1.21.6 (BSD-3-Clause), tag v1.21.6 (616f4b73): blosc/blosc.c
+(blosc_d) and blosc/shuffle-sse2.c, whose headers say "See LICENSE.txt for
+details about copyright and rights to use"; followed in core/src/blosc.rs.
+LICENSE.txt, verbatim:
+
+BSD License
+
+For Blosc - A blocking, shuffling and lossless compression library
+
+Copyright (c) 2009-2018 Francesc Alted <francesc@blosc.org>
+Copyright (c) 2019-present Blosc Development Team <blosc@blosc.org>
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither the name Francesc Alted nor the names of its contributors may be used
+   to endorse or promote products derived from this software without specific
+   prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+katdal 0.23 (BSD-3-Clause): its test helpers, adapted in
+python/rang/meerkat.py. LICENSE.txt, verbatim:
+
+Copyright (c) 2011-2024, National Research Foundation (SARAO)
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Tricolour 0.2.1 (BSD-3-Clause, notice above): its defaults and load_mask
+are also followed in python/rang/core_flag.py.
+
+fdlibm (netlib.org/fdlibm): k_sin.c, k_cos.c and e_rem_pio2.c, whose
+polynomial coefficients and pi/2 split are in core/src/gpu/shader.rs. The
+notice of each file, verbatim:
+
+====================================================
+Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+
+Developed at SunSoft, a Sun Microsystems, Inc. business.
+Permission to use, copy, modify, and distribute this
+software is freely granted, provided that this notice
+is preserved.
+====================================================
+
+codex-africanus 0.4.4 (BSD-3-Clause, notice above): two regular expressions
+of its WSClean sky-model parser are also in python/rang/formats/sky.py.
+
+Tigger (astro-tigger-lsm) 1.8.0, GPL-2.0-or-later, used under
+GPL-3.0-or-later: Tigger/Models/ModelClasses.py (renderAttrMarkup) and
+Tigger/Models/Formats/ModelHTML.py (save), followed in the .lsm.html writer
+of python/rang/formats/sky.py; its readers follow Tigger's formats
+(Formats/ASCII.py and others). The notice of each file, verbatim:
+
+Copyright (C) 2002-2011
+The MeqTree Foundation &
+ASTRON (Netherlands Foundation for Research in Astronomy)
+P.O.Box 2, 7990 AA Dwingeloo, The Netherlands
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+casacore 3.8.1 (5420b48e) storage managers, translated in core/src/ms_write.rs
+(SSM, the array file, the file buffer, the bucket cache, TSMCube),
+core/src/ism.rs (the IncrementalStMan; ISMBucket::getSplit's loop is kept in
+split and get_split), core/src/multifile.rs and core/src/tiled.rs. Each file
+is under the GNU Library General Public License, version 2 or (at your
+option) any later version. Their notices, verbatim:
+
+tables/DataMan/ISMBase.cc: Copyright (C) 1996,1997,1999,2000,2001,2002
+tables/DataMan/ISMBucket.cc: Copyright (C) 1996,1997,1999,2001,2002
+tables/DataMan/ISMColumn.cc: Copyright (C) 1996,1997,1998,1999,2000,2001,2002
+tables/DataMan/ISMIndColumn.cc: Copyright (C) 1996,1997,1998,1999,2001,2002
+tables/DataMan/ISMIndex.cc: Copyright (C) 1996,1997,1998
+tables/DataMan/SSMBase.cc: Copyright (C) 2000,2001,2002,2005
+tables/DataMan/SSMIndex.cc: Copyright (C) 2000,2001,2002,2005
+tables/DataMan/SSMStringHandler.cc: Copyright (C) 2000,2001,2002
+tables/DataMan/StArrayFile.cc: Copyright (C) 1994,1995,1996,1997,1999,2000,2001,2002
+tables/DataMan/TSMCube.cc: Copyright (C) 1995,1996,1997,1998,1999,2000,2001,2002
+tables/DataMan/TiledStMan.cc: Copyright (C) 1995,1996,1997,1998,1999,2000,2001,2002,2003
+casa/IO/BucketCache.cc: Copyright (C) 1994,1995,1996,1997,1999,2001
+casa/IO/FilebufIO.cc: Copyright (C) 1996,1997,1998,1999,2000,2001,2002
+casa/IO/MultiFile.cc: Copyright (C) 2014
+casa/IO/MultiFileBase.cc: Copyright (C) 2014
+Each: Associated Universities, Inc. Washington DC, USA.
+
+casacore, further files followed in part (GNU Library General Public
+License, version 2 or any later version; Associated Universities, Inc.
+Washington DC, USA):
+- scimath/Functionals/Interpolate1D.tcc (3.7.1), in core/src/cal/apply.rs:
+  Copyright (C) 1996,1997,2000,2002
+- ms/MeasurementSets/MSIter.cc (3.8.1), in python/rang/flag_extend.py:
+  Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003
+- tables/Tables/BaseTabIter.cc (3.8.1), in python/rang/flag_extend.py:
+  Copyright (C) 1994,1995,1996,1997
+
+CASA (casa6 mirror dic-case-studies/casa6 at 9269a52), further files followed
+in part, under casatools/src/code/:
+- synthesis/MeasurementEquations/Imager.cc (sjy_setmanualflux), in
+  python/rang/calmodels.py; GNU General Public License, version 2 or any
+  later version: Copyright (C) 1997-2008 Associated Universities, Inc.
+  Washington DC, USA.
+- components/ComponentModels/SpectralIndex.cc, SkyCompRep.cc and Flux.tcc,
+  in python/rang/calmodels.py; GNU Library General Public License, version 2
+  or any later version: Copyright (C) 1998,1999,2000,2003 (SpectralIndex.cc),
+  1996,1997,1998,1999,2000,2001,2002 (SkyCompRep.cc), 1998,1999,2000,2001,2002
+  (Flux.tcc), Associated Universities, Inc. Washington DC, USA.
+- synthesis/CalTables/CTTimeInterp1.cc, in core/src/cal/apply.rs; GNU Library
+  General Public License, version 2 or any later version: Copyright (C) 2012
+  Associated Universities, Inc. Washington DC, USA.
+- flagging/Flagging/FlagDataHandler.cc and FlagMSHandler.cc, in
+  python/rang/flag_extend.py; GNU Lesser General Public License, version 2.1
+  or any later version: Copyright (C) Associated Universities, Inc.
+  Washington DC, USA 2011, All rights reserved. Copyright (C) European
+  Southern Observatory, 2011, All rights reserved.
+
+msutils 1.2.0 (PyPI sdist): MSUtils/flag_stats.py wgs84_to_ecef, followed
+operation by operation in python/rang/cal_refant.py (about 20 lines; the
+function cites the HiSPARC coordinates note as its reference). flag_stats.py
+carries no notice; the package's LICENSE is the GPL version 2 text, its
+metadata says "GNU GPL v2", and its setup.py says, verbatim:
+
+Copyright (c) 2016 SKA South Africa
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+The three statements conflict: the metadata names version 2 with no "or
+later", setup.py names version 3 or later. If "GNU GPL v2" is the licence,
+these lines cannot be combined with GPL-3.0 code; if setup.py's notice is,
+they can. This is an open owner decision (research/v030-review.md 5.5); the
+function is not rewritten here.
+
+schaapcommon b553fd25 reordering.cc (notice above) is also followed in
+core/src/gemclean/input.rs (stokes_cell).
+
+EIDOS 1.1.2 (PyPI sdist): eidos/spatial.py recon_par, re-expressed in
+python/rang/beam_holography.py (EidosBeam._reconstruct, about 24 lines, a
+comparison control). spatial.py carries no notice; setup.py gives author
+Khan M. B. Asad and license 'GNU GPL v3' (silent on later versions), and the
+sdist has no LICENSE file.
+
+CASA FlagAgentExtension.cc (notice above) is also transcribed, loop by loop,
+as a test reference in tests/test_e0_refant_extend.py (casa_cube).
+
+Formats read and written, no code used: killMS 3.3.0 solution files
+(python/rang/formats/killms.py; killMS is GPL-2.0), losoto 2.7.1 H5parm
+(python/rang/formats/h5parm.py; GPL-3.0-or-later), and the Crystalball 0.4.3
+and DDFacet 1.0 sky-model files read by python/rang/formats/sky.py
+(Crystalball is GPL-2.0-only). Each format was read in the upstream source;
+no code is translated, as research/mit-relicense-audit.md classifies these
+files (format and rules read, "c-src"). The audit names the sky.py readers
+as the weakest such case.

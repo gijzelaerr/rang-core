@@ -202,10 +202,15 @@ def test_sigkill_leaves_original_flags_recoverable(tmp_path, when, count):
         assert w1.sha(ms, "FLAG") == f0
     else:
         assert w1.sha(ms, "FLAG") != f0  # the kill landed after a FLAG write
-    with pytest.raises(wb.InterruptedWriteBack):
-        wb.WriteBack(ms).begin()
-    if when == "init":
-        with wb.WriteBack(ms, on_interrupted="continue") as w:
+    if when != "init":
+        with pytest.raises(wb.InterruptedWriteBack):
+            wb.WriteBack(ms).begin()
+    else:
+        # E5-22 (v0.3.0, research/v030-review.md): the killed session wrote
+        # no FLAG, so the next one is not refused; the half-initialised
+        # column is initialised again.
+        assert "FLAG" not in journal["written"]
+        with wb.WriteBack(ms) as w:
             assert w.ensure_column("CORRECTED_DATA") is False  # re-initialised
         with core_ms.open_table(ms) as t:
             assert np.array_equal(t.getcol("CORRECTED_DATA"), t.getcol("DATA"))

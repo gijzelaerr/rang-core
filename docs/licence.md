@@ -12,16 +12,40 @@ ported, and ported code keeps its upstream copyright notices.
 | Ported or bundled | Upstream licence, as the reports record it |
 | --- | --- |
 | QuartiCal 0.2.7 `complex` solver | MIT; the ported file keeps its notice ({gh}`research/core-phase2.md`) |
-| Tricolour 0.2.1 strategies and static masks | BSD-3-Clause, on the strength of its `LICENSE` file; the masks ship with `TRICOLOUR-LICENSE` ({gh}`research/core-d-tricolour.md`) |
-| WSClean 3.6 weights and w-stacking gridder | GPL-3.0 ({gh}`research/core-c-gridder.md`) |
+| Tricolour 0.2.1 strategies and static masks (`core/src/sumthreshold.rs`, `python/rang/core_flag.py`) | BSD-3-Clause, on the strength of its `LICENSE` file; the masks ship with `TRICOLOUR-LICENSE` ({gh}`research/core-d-tricolour.md`) |
+| WSClean 3.6 weights and w-stacking gridder (`core/src/weights.rs`, `core/src/grid.rs` and its WGSL form `core/src/gpu/shader.rs`) | GPL version 3: `gridding/wstackinggridder.h` says "published under the GPL 3 license" and the README "GPL license version 3", neither "or any later version"; Debian's `debian/copyright` records GPL-3.0+ ({gh}`research/core-c-gridder.md`) |
 | ducc0 0.42.0 wgridder | GPL-2.0-or-later ({gh}`research/df1-wgridder.md`) |
 | SARAO/SKA pointing-offset fit (ska-sdp-wflow-pointing-offset) | BSD-3-Clause ({gh}`research/b1-beam-pointing.md`) |
-| codex-africanus 0.4.4 WSClean-format component predict (`core/src/predict.rs`) | BSD-3-Clause; the translated file keeps its notice, as does {gh}`THIRD-PARTY-NOTICES.txt` |
-| katdal 0.23 test helpers, adapted for the synthetic MVF writer (`python/rang/meerkat.py`) | BSD-3-Clause, National Research Foundation (SARAO) |
+| codex-africanus 0.4.4 WSClean-format component predict (`core/src/predict.rs`) and two regular expressions of its model parser (`python/rang/formats/sky.py`) | BSD-3-Clause; the translated file keeps its notice, as does {gh}`THIRD-PARTY-NOTICES.txt` |
+| katdal 0.23 test helpers, adapted for the synthetic MVF writer (`python/rang/meerkat.py`) | BSD-3-Clause, National Research Foundation (SARAO); its licence text in {gh}`THIRD-PARTY-NOTICES.txt` |
+| c-blosc 1.21.6 `blosc_d` and `shuffle-sse2.c` (`core/src/blosc.rs`) | BSD-3-Clause, Francesc Alted and the Blosc Development Team; licence text in {gh}`THIRD-PARTY-NOTICES.txt` |
+| fdlibm `k_sin.c`, `k_cos.c`, `e_rem_pio2.c` coefficients (`core/src/gpu/shader.rs`) | Sun Microsystems' permissive notice (SPDX `SunPro`), kept in the file and the notices |
+| Tigger 1.8.0 `.lsm.html` writer (`renderAttrMarkup`, `ModelHTML.save`) and its formats (`python/rang/formats/sky.py`) | GPL-2.0-or-later, The MeqTree Foundation and ASTRON, used under GPL-3.0-or-later |
+| casacore 3.8.1 storage managers, translated: SSM, the array file, the file buffer, the bucket cache, TSMCube (`core/src/ms_write.rs`), the IncrementalStMan (`core/src/ism.rs`), MultiFile (`core/src/multifile.rs`), the tile shape (`core/src/tiled.rs`); also `Interpolate1D.tcc` (3.7.1, `core/src/cal/apply.rs`) and `MSIter.cc`, `BaseTabIter.cc` (`python/rang/flag_extend.py`) | LGPL-2.0-or-later, Associated Universities, Inc.; each file's notice in {gh}`THIRD-PARTY-NOTICES.txt` |
+| CASA `Imager.cc` (GPL-2.0-or-later) and `SpectralIndex.cc`, `SkyCompRep.cc`, `Flux.tcc` (LGPL-2.0-or-later) in `python/rang/calmodels.py`; `CTTimeInterp1.cc` (LGPL-2.0-or-later) in `core/src/cal/apply.rs`; `FlagDataHandler.cc`, `FlagMSHandler.cc` (LGPL-2.1-or-later, with ESO) in `python/rang/flag_extend.py`; casa6 mirror `9269a52` | Associated Universities, Inc.; notices in {gh}`THIRD-PARTY-NOTICES.txt` |
+| EIDOS 1.1.2 `recon_par`, re-expressed as a comparison control (`python/rang/beam_holography.py`) | `setup.py` "GNU GPL v3" (Khan M. B. Asad), no notice in the file and no LICENSE in the sdist |
+| msutils 1.2.0 `wgs84_to_ecef` (`python/rang/cal_refant.py`, about 20 lines) | `flag_stats.py` has no notice; `LICENSE` is the GPL-2.0 text, the metadata "GNU GPL v2", `setup.py` "version 3 of the License, or (at your option) any later version" (Copyright (c) 2016 SKA South Africa). The statements conflict: under "GNU GPL v2" alone these lines could not be combined with GPL-3.0 code, under `setup.py` they could. **Open, an owner decision** ({gh}`research/v030-review.md` 5.5): keep, ask the msutils authors, or rewrite from the published formula |
 | CASA (casa6) calibration and flagging C++: `SolvableVisCal.cc`, `SolveDataBuffer.cc`, `StandardVisCal.cc`, `DJones.cc`, `XJones.cc`, `KJones.cc`, `Calibrater.cc`, `VisCal.cc`, `Jones.cc`, `VisEquation.cc`, `CTPatchedInterp.cc`, `RIorAParray.cc`, `FlagAgentExtension.cc`, read in the mirror `dic-case-studies/casa6` at `9269a52` and followed in the K, G, B, F, polarisation and apply ports (`core/src/cal/`, `rang.cal_*`, `rang.applycal`, `rang.formats.caltable`) and in `core/src/flag_extend.rs` | GPL-2.0-or-later (`Calibrater.cc`), LGPL-2.0-or-later or LGPL-2.1-or-later (`FlagAgentExtension.cc`), each file's own header; Associated Universities, Inc. (and ESO for `FlagAgentExtension.cc`). The LGPL lets a copy be put under the GPL, so all are compatible with GPL-3.0-or-later; each derived file names CASA and the notices are in {gh}`THIRD-PARTY-NOTICES.txt` (checked 2026-11-12, E5 final) |
+| casacore measures (`MCDirection.cc`, `MeasMath.cc`, `MeasTable.cc`, `MSDerivedValues.cc`, read at master `3c16927b`, 2026-11-15), followed in `rang.cal_pol.parallactic_angle_casa`: the APP → TOPO → HADEC route, the diurnal-aberration shift, polar motion, the UT → ST polynomial ({gh}`research/e2b-misses.md` 9.13-9.16) | LGPL-2.0-or-later, Associated Universities, Inc.; each file's notice in {gh}`THIRD-PARTY-NOTICES.txt` (checked 2026-11-17, v0.3.0 review B-01). No casacore data table is read or shipped: the Earth orientation is astropy's IERS table (astropy-iers-data, BSD-3-Clause, a dependency, not redistributed) |
+| radler `76fe4474` (WSClean 3.7's submodule): the automatic mask, the joined-polarisation and joined-channel peak finding, multiscale CLEAN, the polarisation normalisation (`core/src/gemclean/mask.rs`, `joined.rs`, `multiscale.rs`, `stokes.rs`) | **LGPL-3.0-only** (`// SPDX-License-Identifier: LGPL-3.0-only` in each file read; README "released under the LGPL version 3"); no copyright line in the files. LGPL-3.0 section 2(b) lets a modified copy be conveyed under the GPL, version 3, so these files are `GPL-3.0-or-later AND LGPL-3.0-only` and the parts derived from radler are GPL version 3 only (checked 2026-11-17, B-02) |
+| WSClean 3.7 (`4f395b28`) and master `53e25d59` (!1068): beam fitting, visibility count and weight sum, `-pol`, channel grouping, prediction, the theoretic beam (`core/src/gemclean.rs`, `core/src/gemclean/`) | The source files carry no notice; README "released under the GPL license version 3"; `debian/copyright` of wsclean 3.7-3 says GPL-3.0+ with A. R. Offringa's, ASTRON's and Gijs Molenaar's lines (in {gh}`THIRD-PARTY-NOTICES.txt`) |
+| aocommon `aa4d6a47` (`polarization.h`, `image.h`) and schaapcommon `b553fd25` (`gaussianfitter.cc`, `spectralfitter.cc`, `reordering.cc`), both WSClean 3.7 submodules | aocommon: no notice in those files, `LICENSE` the GPL version 3; schaapcommon: GPL-3.0-or-later, ASTRON, verbatim in {gh}`THIRD-PARTY-NOTICES.txt` |
 | MeerKAT ITRF positions from simms | Facts, not code: see below ({gh}`data/README.md`) |
 
 Crystalball is GPL-2.0-only and is not ported.
+
+Copies of CARACal's flagging strategy (`mk_rfi_flagging_calibrator_fields_firstpass.yaml`,
+GPL-2.0) are kept under `research/results/` as run receipts; they ship in neither
+the sdist nor the wheels, and {gh}`research/results/CARACAL-NOTICE.md` names them
+with CARACal's licence.
+
+Two upstreams state "version 3" without "or any later version": radler
+(LGPL-3.0-only, per file) and WSClean's own README ("GPL license version 3",
+where Debian's packaging records GPL-3.0+). While GeMClean carries code that
+follows radler, the compiled extension `rang._core` can be conveyed under
+version 3 of the GPL only, though rang-core's own code stays
+GPL-3.0-or-later; `LICENSE` and the package metadata are unchanged pending
+the owner's decision ({gh}`research/v030-review.md`, B-02).
 
 Behaviour reimplemented from upstream source and documentation, with no
 code copied (owner decision E5-33, 2026-11-11,
@@ -30,9 +54,10 @@ code copied (owner decision E5-33, 2026-11-11,
 | Reimplemented | Upstream and its licence |
 | --- | --- |
 | CARACal 8f7bb363 `manage_antennas.get_refant` (`refant: auto`, `python/rang/cal_refant.py`) | CARACal, GPL-2.0 (its `pyproject.toml` does not say whether only or or-later); follow-up: ask the CARACal authors to confirm GPL-2.0-or-later |
-| msutils 1.2.0 `flag_stats.save_statistics` and `wgs84_to_ecef`, as `get_refant` uses them (`python/rang/cal_refant.py`) | msutils; licence not checked (its repository reports none) |
+| msutils 1.2.0 `flag_stats.save_statistics`, as `get_refant` uses it (`python/rang/cal_refant.py`) | msutils; GPL (see the `wgs84_to_ecef` row above, which is followed operation by operation) |
 | CASA's ported sources | Listed with the ported code above: the calibration and flag-extension ports read CASA's C++ source, so they are translations, not reimplementations of documented behaviour |
-| casacore 3.8.1 AipsIO and table formats (`core/src/aipsio.rs`, the table writer) | casacore, LGPL-2.1-or-later; the formats were read in its sources, nothing is copied |
+| casacore 3.8.1 AipsIO and table formats (`core/src/aipsio.rs`, the reader `core/src/ms.rs`) | casacore, LGPL-2.0-or-later; the formats were read in its sources. The storage-manager writers are translations, listed with the ported code above |
+| File formats only, no code: killMS 3.3.0 solutions (`formats/killms.py`; GPL-2.0), losoto 2.7.1 H5parm (`formats/h5parm.py`; GPL-3.0-or-later), Crystalball 0.4.3 and DDFacet 1.0 sky models (`formats/sky.py`) | Formats read in the upstream source, no code translated (the MIT audit's "c-src" class; it names the `sky.py` readers its weakest case; Crystalball is GPL-2.0-only); named in {gh}`THIRD-PARTY-NOTICES.txt` |
 
 The observatory positions in `python/rang/data/casacore_observatories.json`
 come from casacore-data 20250826 ({ghdir}`python/rang/data`); like the

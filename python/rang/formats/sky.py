@@ -1,4 +1,9 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later AND BSD-3-Clause
+# The `.lsm.html` writer follows Tigger 1.8.0 (`ModelClasses.py`
+# `renderAttrMarkup`, `Formats/ModelHTML.py` `save`; Copyright (C) 2002-2011
+# The MeqTree Foundation & ASTRON, GPL-2.0-or-later, used under
+# GPL-3.0-or-later); two regular expressions are codex-africanus 0.4.4's
+# (BSD-3-Clause): notices in THIRD-PARTY-NOTICES.txt.
 """Sky-model formats (research/dfio-formats.md, F3; was `rang.lsm`).
 
 One `Source` list for every text format:

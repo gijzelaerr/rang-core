@@ -74,6 +74,7 @@ import numpy as np
 
 from . import (
     cal_chain,
+    cal_gain,
     cal_refant,
     core,
     core_chunks,
@@ -915,7 +916,7 @@ def restore_before(ms, entry):
     research/e5-prereview.md)."""
     journal = core_writeback.read_journal(ms)
     prior = entry.get("flag_version")
-    unfinished = journal and journal.get("state") in ("open", "failed")
+    unfinished = core_writeback.flags_unfinished(journal)
     if unfinished and (not prior or journal.get("flag_backup") != prior):
         raise Refused(
             f"an earlier write-back on {ms} (stage {journal.get('stage')!r}) did "
@@ -943,7 +944,7 @@ def stage_version(ctx, stage):
     if ctx.get("flag_version") is None:
         ms, run = ctx["ms"], ctx["run"]
         journal = core_writeback.read_journal(ms)
-        if journal and journal.get("state") in ("open", "failed"):
+        if core_writeback.flags_unfinished(journal):
             raise Refused(f"{ms}: an unfinished write-back must be restored first")
         rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
         ctx["original_saved_now"] = core_writeback.backup_flags(
@@ -963,7 +964,7 @@ def writeback_session(ctx, stage):
     by the session before its first write."""
     ms = ctx["ms"]
     journal = core_writeback.read_journal(ms)
-    if journal and journal.get("state") in ("open", "failed"):
+    if core_writeback.flags_unfinished(journal):
         raise Refused(f"{ms}: an unfinished write-back must be restored first")
     rows = core_chunks.budget(ctx["config"], ctx["info"]).rows("rows")
     version = stage_version(ctx, stage)
@@ -982,7 +983,7 @@ def write_flags(run, ms, stage, flag, chunk_rows=None):
     """Save `rang_original` if absent and `rang_<stage>_<time>`, then write
     FLAG (rows, nchan, ncorr) in chunks. FLAG_ROW is not written."""
     journal = core_writeback.read_journal(ms)
-    if journal and journal.get("state") in ("open", "failed"):
+    if core_writeback.flags_unfinished(journal):
         raise Refused(f"{ms}: an unfinished write-back must be restored first")
     rows = chunk_rows or core_writeback.chunk_rows_for(flag.shape[1:])
     saved = core_writeback.backup_flags(
@@ -2801,6 +2802,15 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                 run.save()
                 if isinstance(exc, (StageFailed, Refused)):
                     raise StageFailed(f"{stage}: {exc}") from exc
+                if isinstance(exc, cal_gain.NoSolutions):
+                    # R-02 (research/v030-review.md): a solve whose every
+                    # solution is flagged is the stage's failure, with a hint.
+                    raise StageFailed(
+                        f"{stage}: {exc}. A solution is flagged when its data "
+                        "are all flagged, too few baselines remain (minblperant) "
+                        "or its SNR is under minsnr: check calibrate.refant and "
+                        "the flags of that field"
+                    ) from exc
                 raise
             attempt.update(
                 status="done",
