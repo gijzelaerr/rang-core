@@ -20,6 +20,22 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+v0.3.0 readiness, 2026-11-17 (branch `v030-ready`; [v030-readiness.md](v030-readiness.md),
+[v030-review.md](v030-review.md), receipt [results/v030-mcp/](results/v030-mcp/)):
+- Tracker of every "Done when" item and #2 carry-over. Met: χ stated as a limit (chi-offset section 11, coordinator
+  decisions: RM-corrected χ(λ²=0) 29.4°, 3.6° from 33°; 10.1 a per-product note, E2-B's config unchanged; 10.3
+  closed), tfcrop still refused, the MCP chain. Recorded: #23 null, #22 kept as the linear sum (radler !238 merged
+  2026-11-16, WSClean !1068 merged, neither released), #13 attributed (floor-3; floor-4 `84392cdd` on its branch).
+  Running: E2-N and E3-A on nash, the selfcal-defaults grid (`floor-4`, #6), the E2-A 3b K follow-up (`e2a-3b-k`).
+- MCP chain: `tests/test_mcp_chain.py` drives `rang-core mcp --allow-write` with a scripted JSON-RPC client over stdio
+  through listobs, config_check, a confirmed run and run_status until flag, calibrate, apply, image and selfcal are
+  done on the public fixture (8.3 s; 5 of 5 repeats). Its first run found R-01: on Windows a reader of `state.json`
+  (run_status) made the run's replace fail and the run fail; fixed with a 10 s retry, regression test.
+- Review (E5 method, two read-only agents): fixed here the stale "E2 has not reported" docs, CHANGELOG gaps
+  (lightcurve, -stop-tolerance, multiscale options, FLAG_ROW weights, MSv2 R1-R3), known limitations and an Issues
+  draft, lightcurve refusals. Release-blocking for the coordinator: casacore measures and radler/WSClean 3.7
+  notices (B-01, B-02).
+
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
 candidate carried the K1 G1 B1 composite miss (3.16e-3 against 7e-4), which a 15-antenna field-0 subset reproduced
