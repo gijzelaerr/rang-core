@@ -12,6 +12,8 @@ wider than 5 deg of psi, against rang unaveraged and CASA 6.7.6.14's polcal
     python xf_preavg.py casa OUT TRUTH            CASA's chain (FEED -90 written)
     python xf_preavg.py casadefaults OUT          polcal's signature in the container
     python xf_preavg.py score OUT RESULT.json     the gates of section 3
+    python xf_preavg.py casa_preavg OUT TRUTH S   post hoc: CASA with polcal preavg S
+    python xf_preavg.py posthoc OUT RESULT.json   post hoc: every CASA arm's Xf vs rang
 
 The rang and CASA arms are chi-offset's (research/results/chi-offset/sim_chi.py,
 imported unchanged): E2-B's polcal chain, `feed_angle_rotation: -90`.
@@ -118,6 +120,59 @@ def casa(out, truth):
     rc = sim_chi.casa_arm(out, truth, "m90")
     log(out, f"casa {truth} m90 rc={rc} {time.perf_counter() - t0:.1f}s")
     return rc
+
+
+def casa_preavg(out, truth, preavg):
+    """Post hoc (research/xf-preavg.md section 5): CASA's chain with polcal's
+    `preavg` set for Xf and Df (CASA's default is 300 s)."""
+    d = Path(out) / f"casa-{truth}-m90-preavg{preavg:g}"
+    if d.exists():
+        shutil.rmtree(d)
+    (d / "tables").mkdir(parents=True)
+    shutil.copytree(sim_chi.src_ms(out, truth), d / "sim.ms")
+    calls = sim_chi.casa_calls("/r/sim.ms", "/r/tables")
+    for c in calls:
+        if c["task"] == "polcal":
+            c["args"]["preavg"] = float(preavg)
+    (d / "spec.json").write_text(json.dumps(calls, indent=1))
+    t0 = time.perf_counter()
+    rc = sim_chi.casa_docker(d, -math.pi / 2)
+    log(
+        out,
+        f"casa {truth} m90 preavg {preavg:g} rc={rc} {time.perf_counter() - t0:.1f}s",
+    )
+    if rc == 0:
+        sim_chi.score(d / "sim.ms", "CORRECTED_DATA", "FLAG", d)
+    return rc
+
+
+def posthoc(out, dest):
+    """Post hoc: the held-out Xf and chi of every CASA preavg arm against rang's
+    averaged and unaveraged arms."""
+    out = Path(out)
+    res = {}
+    for truth in ("control", "held"):
+        avg, noavg = out / f"rang-{truth}-m90", out / f"rang-{truth}-m90_noavg"
+        xa = _xf(avg / "sim.ms.rang-run" / "calibrate" / "Xf")
+        xn = _xf(noavg / "sim.ms.rang-run" / "calibrate" / "Xf")
+        ca, cn = _chi(avg), _chi(noavg)
+        for d in sorted(out.glob(f"casa-{truth}-m90*")):
+            if not (d / "chi.json").exists():
+                continue
+            xc, cc = _xf(d / "tables" / "Xf"), _chi(d)
+            res[d.name] = {
+                "xf_vs_avg_deg": _xf_diff(xa, xc),
+                "xf_vs_noavg_deg": _xf_diff(xn, xc),
+                "max_chi_vs_avg": max(
+                    abs(cc[s]["chi_deg"] - ca[s]["chi_deg"]) for s in ca
+                ),
+                "max_chi_vs_noavg": max(
+                    abs(cc[s]["chi_deg"] - cn[s]["chi_deg"]) for s in cn
+                ),
+                "chi": {int(s): cc[s]["chi_deg"] for s in cc},
+            }
+    Path(dest).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(res, indent=1))
 
 
 SIGNATURE = (
@@ -228,6 +283,10 @@ def main(argv):
         return rang(argv[1], argv[2], argv[3])
     elif cmd == "casa":
         return casa(argv[1], argv[2])
+    elif cmd == "casa_preavg":
+        return casa_preavg(argv[1], argv[2], float(argv[3]))
+    elif cmd == "posthoc":
+        posthoc(argv[1], argv[2])
     elif cmd == "casadefaults":
         return casadefaults(argv[1])
     elif cmd == "score":

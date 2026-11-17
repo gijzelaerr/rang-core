@@ -125,3 +125,52 @@ Script: `research/results/xf-preavg/xf_preavg.py`.
 ---
 
 (Results below this line, dated.)
+
+## 4. Results against the frozen rule (2026-11-17)
+
+Host: the Windows workstation (16 threads), heavy lock shared, 4 slots, 10 GB.
+Run root `D:\rang\outputs\xf-preavg-20261117-01-sim`; receipts in
+`research/results/xf-preavg/`: `results.json` (the gates), `psi-held.json`,
+`psi-control.json` (ψ per scan, receptor −90° included, and the averaging
+groups), `casa-polcal-defaults.txt`, `chain.sh`, `xf_preavg.py`.
+
+**Design checks.** The held-out MS (677 MB, 448 integrations, 8.8 s to
+generate) has 3C286-SIM scans 2, 8, 14, 22 spanning 2.68°, **10.30°, 9.35°**,
+1.50° of ψ; `psi_groups` cuts the Xf interval into 7 averaging groups (1, 3,
+2, 1 per scan). The dev set: spans 0.15-0.63°, 4 groups (one per scan).
+CASA 6.7.6.14's `polcal` default, read in the container: `preavg` 300.0 s
+(also `solint` 'inf', `combine` 'obst' by default; the chain passes
+`combine='scan'`).
+
+**Tests at d3746c9:** `tests/test_xf_avg_fix.py` and
+`tests/test_e2_average_time.py` 21 passed, 2 skipped (E2 metadata MSs not on
+this host).
+
+| Gate | Dev | Held-out |
+| --- | --- | --- |
+| V0: dev `m90` χ against gate1.json | 0.0005° (≤ 0.001): **pass** | – |
+| G_avg: χ avg − noavg, max over scans | 0.0011° | 0.0062° |
+| G_avg: Xf avg − noavg, median / max | 0.020° / 0.022° | 0.017° / 0.031° |
+| G_avg | **pass** | **pass** |
+| G_casa: χ avg − CASA, max | 0.0012° | 0.0069° |
+| G_casa: Xf avg − CASA, median / max | 0.023° / 0.040° | **0.054°** / 0.107° |
+| G_casa | **pass** | **fail** (median 0.054 > 0.05) |
+| Reported: χ noavg − CASA, max | 0.00007° | 0.0023° |
+| Reported: Xf noavg − CASA, median / max | 0.016° / 0.041° | **0.065°** / 0.114° |
+| G_truth: max \|χ_avg − 33°\| | 0.946° | 0.723° |
+| Reported: max \|χ_CASA − 33°\| | 0.947° | 0.721° |
+
+χ per held-out scan (avg / noavg / CASA): scan 2 32.743 / 32.743 / 32.742;
+scan 8 32.574 / 32.568 / 32.568; scan 14 32.608 / 32.609 / 32.611; scan 22
+32.277 / 32.278 / 32.279. p 0.0946-0.0965 (truth 0.095), avg and CASA equal
+to 4e-6.
+
+**Verdict by the frozen rule: outcome 4 ("other defect"), not outcome 1.**
+V0, G_avg and G_truth pass on both sets: the xf-avg-fix rule holds on the
+held-out set, including the piece split of two scans wider than 5° (averaged
+against unaveraged: χ ≤ 0.006°, Xf ≤ 0.031°). G_casa fails on the held-out
+set, on the Xf median alone (0.054° against 0.05°; χ 0.007° and the Xf max
+0.107° are inside), and rang **unaveraged** differs from CASA by more
+(median 0.065°), so the difference is not rang's averaging. Rule 4: reported,
+not fixed here. Size: 0.05-0.11° in Xf, under 0.01° in χ; far below every
+calibration tolerance in use (C6w 1.11°).
