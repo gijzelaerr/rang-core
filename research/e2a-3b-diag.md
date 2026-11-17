@@ -427,3 +427,19 @@ about 1 core), score 47 s.
     WEIGHT is 1 in every cell while WEIGHT_SPECTRUM is not, which may be
     why; that is not verified.
   - D3's solve booked 8 slots but used about 1 core (IO-bound).
+
+## Coordinator decisions, 2026-11-17
+
+1. **E2-A verdict:** it stands as booked (not passed, 3b missed). No reading here changes a frozen gate.
+2. **`calibrate.bandpass_model_divided`:** merged opt-in (default false). It becomes the default only
+   after the section 10 confirmation leg on the reserve data, and after a test of the other solves that
+   have a later term pre-applied. Both are proposals for v0.3.0, not yet run.
+3. **K composite tolerance:** the frozen class B bound for 3b stays. For future protocols, a composite
+   whose first term is a 60 s K must state a tolerance derived from K's own limit (0.01 ns across the
+   band), frozen before data, rather than reuse class B. This is a protocol rule for new notes, not a
+   re-reading of E2-A.
+4. **The 1.1e-3 left unattributed, and the 4-antenna synthetic's 5e-3:** open items for the v0.3.0
+   3b follow-up, listed with #2.
+5. **Disk:** `D:\rang\outputs\e2a-3b-diag-20261117` (76 GB, rebuildable by script) is kept until the
+   confirmation leg runs. `e2a.ms` keeps CASA's virtual-model keywords. Any later arm starts with
+   `delmod` or a fresh copy.
