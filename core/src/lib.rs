@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Rang core: an in-memory visibility model and fused calibration passes.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
@@ -52,6 +53,7 @@ pub mod grid;
 pub mod gridder_gram;
 pub mod ism;
 pub mod jones;
+pub mod lightcurve;
 pub mod ms;
 pub mod ms_create;
 pub mod ms_desc;

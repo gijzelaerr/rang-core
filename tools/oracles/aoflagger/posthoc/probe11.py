@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Horizontal masked SumThreshold: bridge with and without the xRight quirk vs
 AOFlagger (fixed hybrid.lua, vertical = false) on synthetic data (post-hoc)."""
 import os

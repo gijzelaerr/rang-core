@@ -1,0 +1,50 @@
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 59444.696044 from DATE-OBS'. [astropy.wcs.wcs]
+{
+ "compact": {
+  "n": 35,
+  "median": 0.994173899481765,
+  "robust_scatter": 0.009666124209062849,
+  "met": false
+ },
+ "spectral_index": {
+  "n": 12,
+  "median_abs_dalpha": 0.009712129109054946,
+  "met": true
+ },
+ "gates": {
+  "dirty_linf": false,
+  "compact_ratio": false,
+  "spectral_index": true,
+  "offsource_model": false,
+  "unpolarised_quv": true,
+  "q_over_q0": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0"
+ ]
+}
+2026-11-13T08:51:12+02:00 score3c-matched rc=0 3219s
+{
+ "label": "dev-rang",
+ "column": "RANG_CORRECTED_DATA",
+ "field_id": 1,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/dev-rang -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 1 /m/luno-slice.ms",
+ "i_peak_jy": 14.450811386108398,
+ "i_peak_pix": [
+  1026,
+  1022
+ ],
+ "beam_major_pix": 19.096623844806224,
+ "Q_over_I": 0.0007323494034821611,
+ "Q_at_peak_over_I": -0.0002413174098569757,
+ "U_over_I": 0.0007132289745057571,
+ "U_at_peak_over_I": 0.00023215309802247265,
+ "V_over_I": 7.828278940975593e-05,
+ "V_at_peak_over_I": 3.764811166831359e-05,
+ "met": true,
+ "max_over_I": 0.0007323494034821611
+}
+2026-11-13T09:21:36+02:00 leakage-dev rc=0 1824s

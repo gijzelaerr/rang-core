@@ -1,0 +1,11 @@
+{
+ "datasets": 2,
+ "rows": 40000,
+ "finite": {
+  "DATA": 655360000,
+  "CORRECTED_DATA": 655360000,
+  "MODEL_DATA": 655360000,
+  "WEIGHT_SPECTRUM": 655360000
+ },
+ "flagged": 569004958
+}

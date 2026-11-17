@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The gain-TV-guided flagging experiment: arms, the decision rule, archives.
 
 A small, local replay of the campaign structure of task K

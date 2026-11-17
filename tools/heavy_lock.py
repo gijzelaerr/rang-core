@@ -1,8 +1,12 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """One CPU-heavy job at a time across native Windows and WSL on this host.
 
 Usage (from Windows or WSL, any Python 3.10+):
 
-    python tools/heavy_lock.py run -- <command> [args...]
+    python tools/heavy_lock.py run -- <command> [args...]            # exclusive
+    python tools/heavy_lock.py run --slots 4 --mem 8 -- <command>    # shared
+    python tools/heavy_lock.py run --priority critical ... -- <command>  # jump the queue
+    python tools/heavy_lock.py run --drain 0 ... -- <command>        # no backfill past me
     python tools/heavy_lock.py status
     python tools/heavy_lock.py break     # only after checking the owner is gone
 
@@ -10,11 +14,90 @@ The lock is a directory on D: (``D:\\rang\\locks\\heavy``, ``/mnt/d/rang/locks/h
 from WSL; ``RANG_HEAVY_LOCK`` overrides). Creating a directory is atomic on NTFS
 and through WSL's drive mount, whereas ``flock`` taken inside WSL is invisible to
 Windows processes. The directory holds ``owner.json`` (system, host, pid,
-command, start time). From WSL the helper also takes ``flock ~/.rang-heavy.lock``,
-so older scripts that lock only that file still wait for it.
+command, start time). From WSL an exclusive run also takes
+``flock ~/.rang-heavy.lock``, so older scripts that lock only that file still
+wait for it.
 
 A lock left by a dead process on the same system is removed automatically; one
 left by the other system is reported and waited on, never broken silently.
+
+Waiters queue first come, first served (added 2026-11-11, after a check-all
+waited three hours while later jobs won the 10 s polling race). Each waiter
+writes a ticket ``<time_ns>-<system>-<pid>.json`` in the sibling directory
+``heavy-queue``; only the oldest live ticket may start. A waiter refreshes its
+ticket's modification time at every poll; a ticket not refreshed for
+``STALE_TICKET_S`` seconds (its waiter crashed or was killed) is removed.
+
+Shared jobs (added 2026-11-11: one job at a time left 80-90 % of the 16
+threads idle). ``run --slots N --mem G`` runs alongside other shared jobs while
+the total stays within ``CAPACITY_SLOTS`` threads and ``CAPACITY_MEM_GB`` GB;
+each shared job keeps a heartbeat file in ``heavy-slots``. A plain ``run`` (or
+``--exclusive``) is exclusive as before: it waits until no shared job runs, then
+holds the whole host. Use exclusive for timing and tuning runs, shared for
+builds, tests, check-all and scoring. The head of the queue starts as soon as
+it fits; later tickets may backfill past it for a limited time (below).
+Older copies of this helper know nothing of shared jobs or tickets: call the
+main checkout's copy.
+
+A priority lane (added 2026-11-13, research/speedup-tools.md): ``run
+--priority critical`` writes its ticket with ``CRITICAL_OFFSET_NS`` (10**18)
+subtracted from the time in its name. The name keeps the shape
+``<20 digits>-<system>-<pid>.json``, so every copy of this helper, including
+the older ones already loaded in running waiters, sorts critical tickets
+before every normal ticket and serves them first, in their own order. Nothing
+is preempted: a critical ticket at the head of the queue waits for the
+running jobs exactly like a normal one, so a critical exclusive ticket still
+drains the shared jobs first, and every normal ticket waits behind it. Use it
+only for the critical path of a release (the E2 and E3 acceptance runs);
+builds, checks, timing runs and everything else queue normal.
+
+Nested runs (added 2026-11-14): ``run`` sets ``RANG_HEAVY_LOCK_HELD`` to
+``<slots>:<mem GB>`` (the host's capacity for an exclusive run) in its
+child's environment. A ``run`` started with that variable set, such as
+``tools/check_all.py`` wrapped in ``heavy_lock.py run`` (it takes the lock
+itself), does not queue again: it runs its command inside the existing hold
+and says so. Queueing again held the outer slots idle for five hours behind
+the inner ticket, and deadlocks when the queue is full. A nested request for
+more than the hold gets a warning and still runs.
+
+Real use (added 2026-11-14): ``status`` samples, for ``SAMPLE_S`` seconds, the
+CPU time of each hold's process tree on this system (psutil when the Python
+running the helper has it; otherwise ``/proc`` on Linux and WSL, or the Win32
+API through ctypes on Windows) and prints it next to the booked slots. A hold
+whose tree uses under ``IDLE_PER_SLOT`` (5 %) of one core per booked slot is
+marked IDLE; a hold of the other system (WSL from Windows and back) shows
+``n/a``. The last line is ``booked N slots, using ~M cores``. It only reports:
+nothing is ever stopped or released automatically.
+
+Conservative backfill (added 2026-11-16, research/lock-backfill.md): strict
+first come, first served kept a 4-slot 46 GB head waiting for about an hour
+while one 6 GB hold left 42 of 48 GB, and every ticket behind it, 1-slot 2 GB
+jobs included, waited with 14 of 16 slots free. Now a shared ticket further
+back may start while the head does not fit, if it fits the slots and memory
+free right now after reserving room, in queue order, for every earlier
+backfill-aware shared ticket that fits too (``decide``). Backfill stops once
+the head has waited its drain limit since its ticket was taken (the head's own
+``run --drain MIN``, written into its ticket; default ``RANG_HEAVY_DRAIN_MIN``,
+15 minutes; 0 means strict first come, first served), so the running jobs
+drain and the head starts. An exclusive head is backfilled past in the same
+way until its limit. A critical head is never backfilled past, so critical
+keeps its meaning (served first, never preempting). Exclusive tickets never
+backfill themselves, and a backfill never uses the oversized-job-runs-alone
+rule. Backfilled holds carry ``"backfill": true`` in their slot file; ``status``
+marks them and prints how long each ticket has waited. Copies of this helper
+from before this change start only at the head and never backfill; their
+tickets (no ``drain_s`` key) get no reservation, since they would not start
+into it.
+
+Other Linux hosts (added 2026-11-16, research/nash-host.md): off Windows and
+WSL the lock directory defaults to ``~/rang-data/locks/heavy`` (the data area
+that stands in for ``D:\\rang``), not ``/mnt/d``. ``RANG_HEAVY_NICE=N`` (POSIX
+only, unset by default) runs every command ``run`` starts, nested ones
+included, under ``nice -n N``; ``N = 19`` adds ``ionice -c3`` (idle I/O) when
+``ionice`` is on PATH. It only covers commands started through ``run``: on a
+host shared with other people, prefix everything else yourself. Set
+``RANG_HEAVY_SLOTS`` and ``RANG_HEAVY_MEM_GB`` to the share of such a host the
+project may use; the lock sees only this account's jobs, not other users'.
 """
 
 from __future__ import annotations
@@ -23,12 +106,57 @@ import argparse
 import json
 import os
 import platform
+import shutil
 import socket
 import subprocess
 import sys
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+STALE_TICKET_S = 120.0
+# Subtracted from the time in a critical ticket's name, so that it sorts before
+# every normal ticket while keeping the 20-digit shape (see the module notes).
+CRITICAL_OFFSET_NS = 10**18
+PRIORITIES = ("normal", "critical")
+CAPACITY_SLOTS = int(os.environ.get("RANG_HEAVY_SLOTS", "16"))
+CAPACITY_MEM_GB = float(os.environ.get("RANG_HEAVY_MEM_GB", "48"))
+DRAIN_VAR = "RANG_HEAVY_DRAIN_MIN"
+DRAIN_DEFAULT_MIN = 15.0
+NICE_VAR = "RANG_HEAVY_NICE"
+
+
+def nice_level(environ=None) -> int | None:
+    """``RANG_HEAVY_NICE`` clipped to 1-19, or None (unset, 0, unreadable, Windows)."""
+    if sys.platform == "win32":
+        return None
+    value = (os.environ if environ is None else environ).get(NICE_VAR, "")
+    try:
+        level = min(19, int(value))
+    except ValueError:
+        return None
+    return level if level > 0 else None
+
+
+def niced(command: list[str], environ=None) -> list[str]:
+    """``command`` under ``nice -n N`` (and ``ionice -c3`` at 19) when asked."""
+    level = nice_level(environ)
+    if level is None:
+        return list(command)
+    prefix = ["nice", "-n", str(level)]
+    if level == 19 and shutil.which("ionice"):
+        prefix += ["ionice", "-c3"]
+    return prefix + list(command)
+
+
+def default_drain_s(environ=None) -> float:
+    """Seconds a head may be backfilled past (``RANG_HEAVY_DRAIN_MIN``, minutes)."""
+    value = (os.environ if environ is None else environ).get(DRAIN_VAR, "")
+    try:
+        return max(0.0, float(value)) * 60.0
+    except ValueError:
+        return DRAIN_DEFAULT_MIN * 60.0
 
 
 def system() -> str:
@@ -45,7 +173,21 @@ def lock_dir() -> Path:
         return Path(env)
     if sys.platform == "win32":
         return Path(r"D:\rang\locks\heavy")
-    return Path("/mnt/d/rang/locks/heavy")
+    if system() == "wsl":
+        return Path("/mnt/d/rang/locks/heavy")
+    return Path.home() / "rang-data" / "locks" / "heavy"
+
+
+def queue_dir(d: Path) -> Path:
+    return d.parent / (d.name + "-queue")
+
+
+def slots_dir(d: Path) -> Path:
+    return d.parent / (d.name + "-slots")
+
+
+def mutex_dir(d: Path) -> Path:
+    return d.parent / (d.name + "-mutex")
 
 
 def pid_alive(pid: int) -> bool:
@@ -53,7 +195,8 @@ def pid_alive(pid: int) -> bool:
         import ctypes
 
         kernel32 = ctypes.windll.kernel32
-        handle = kernel32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        # PROCESS_QUERY_LIMITED_INFORMATION
+        handle = kernel32.OpenProcess(0x1000, False, pid)
         if not handle:
             return False
         code = ctypes.c_ulong()
@@ -99,12 +242,44 @@ def try_acquire(d: Path, command: list[str]) -> bool:
     return True
 
 
+def _unlink(path: Path, tries: int = 200) -> bool:
+    """Remove a ticket or slot file. On Windows another waiter reading it (any
+    poll reads every ticket and slot file) makes unlink fail with WinError 32;
+    retry for up to 10 s like ``release``, then leave it for the stale-ticket
+    sweep. Raising here instead killed a waiter that had just taken the lock,
+    so the lock was never released (issue 31). Sweeps pass ``tries=1``: the
+    next poll tries again."""
+    for attempt in range(tries):
+        if attempt:
+            time.sleep(0.05)
+        try:
+            path.unlink(missing_ok=True)
+            return True
+        except PermissionError:
+            pass
+    return False
+
+
 def release(d: Path) -> None:
-    (d / "owner.json").unlink(missing_ok=True)
-    d.rmdir()
+    # On Windows a waiter reading owner.json holds it open for a moment, and
+    # unlink or rmdir then fails with WinError 32 (found by check-speed under
+    # load): retry for up to 10 s rather than leave the lock behind.
+    for attempt in range(200):
+        try:
+            (d / "owner.json").unlink(missing_ok=True)
+            d.rmdir()
+            return
+        except FileNotFoundError:
+            return
+        except PermissionError:
+            if attempt == 199:
+                raise
+            time.sleep(0.05)
 
 
 def stale(d: Path) -> bool:
+    if not d.exists():
+        return False
     owner = read_owner(d)
     if owner is None:
         # A just-created lock has no owner.json yet; treat as stale only if old.
@@ -115,38 +290,660 @@ def stale(d: Path) -> bool:
     return owner["system"] == system() and not pid_alive(int(owner["pid"]))
 
 
-def acquire(d: Path, command: list[str], poll: float) -> None:
-    last = None
-    while not try_acquire(d, command):
-        if stale(d):
-            print(f"heavy_lock: removing stale lock ({describe(read_owner(d))})", file=sys.stderr)
-            try:
-                release(d)
-            except OSError:
-                pass
+def _fresh(path: Path, stale_s: float) -> bool:
+    try:
+        return time.time() - path.stat().st_mtime <= stale_s
+    except OSError:
+        return False
+
+
+def ticket_name(priority: str = "normal", now_ns: int | None = None) -> str:
+    """``<20 digits>-<system>-<pid>.json``; critical tickets sort first."""
+    if priority not in PRIORITIES:
+        raise ValueError(f"priority {priority!r} not in {PRIORITIES}")
+    t = time.time_ns() if now_ns is None else now_ns
+    if priority == "critical":
+        t -= CRITICAL_OFFSET_NS
+    return f"{t:020d}-{system()}-{os.getpid()}.json"
+
+
+def take_ticket(
+    d: Path,
+    slots: int | None = None,
+    mem: float = 0.0,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> Path:
+    q = queue_dir(d)
+    q.mkdir(parents=True, exist_ok=True)
+    t = q / ticket_name(priority)
+    info = {
+        "pid": os.getpid(),
+        "system": system(),
+        "slots": slots,
+        "mem": mem,
+        # Also marks a backfill-aware waiter (research/lock-backfill.md).
+        "drain_s": default_drain_s() if drain_s is None else max(0.0, drain_s),
+    }
+    if priority != "normal":
+        info["priority"] = priority  # read by status only; the name decides
+    t.write_text(json.dumps(info), encoding="utf-8")
+    return t
+
+
+def live_tickets(
+    d: Path, stale_s: float = STALE_TICKET_S, first_only: bool = False
+) -> list[tuple[Path, dict]]:
+    """The live tickets in queue order with their contents; dead and stale
+    tickets are removed on the way."""
+    q = queue_dir(d)
+    if not q.exists():
+        return []
+    out: list[tuple[Path, dict]] = []
+    for t in sorted(q.glob("*.json")):
+        try:
+            info = json.loads(t.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            info = {}
+        dead = info.get("system") == system() and not pid_alive(
+            int(info.get("pid", 0) or 0)
+        )
+        if dead or not _fresh(t, stale_s):
+            _unlink(t, tries=1)
             continue
-        owner = describe(read_owner(d))
-        if owner != last:
-            print(f"heavy_lock: waiting for {owner}", file=sys.stderr, flush=True)
-            last = owner
-        time.sleep(poll)
+        out.append((t, info))
+        if first_only:
+            break
+    return out
 
 
-def run(command: list[str], poll: float) -> int:
+def first_live_ticket(d: Path, stale_s: float = STALE_TICKET_S) -> Path | None:
+    live = live_tickets(d, stale_s, first_only=True)
+    return live[0][0] if live else None
+
+
+def ticket_time_ns(t: Path) -> int | None:
+    """When the ticket was taken (the critical offset added back), or None."""
+    try:
+        ns = int(t.name[:20])
+    except ValueError:
+        return None
+    return ns + CRITICAL_OFFSET_NS if ns < CRITICAL_OFFSET_NS else ns
+
+
+def is_critical(t: Path) -> bool:
+    try:
+        return int(t.name[:20]) < CRITICAL_OFFSET_NS
+    except ValueError:
+        return False
+
+
+def waited_s(t: Path, now_ns: int | None = None) -> float:
+    """Seconds since the ticket was taken (its mtime is refreshed every poll)."""
+    taken = ticket_time_ns(t)
+    if taken is None:
+        return 0.0
+    now = time.time_ns() if now_ns is None else now_ns
+    return max(0.0, (now - taken) / 1e9)
+
+
+def drain_limit_s(info: dict) -> float:
+    """The head's own drain limit, or this helper's default for an older ticket."""
+    limit = info.get("drain_s")
+    try:
+        return max(0.0, float(limit))
+    except (TypeError, ValueError):
+        return default_drain_s()
+
+
+def decide(
+    queue: list[tuple[Path, dict]],
+    me: Path,
+    shared: list[dict],
+    exclusive_held: bool,
+    now_ns: int | None = None,
+) -> tuple[str | None, str]:
+    """Whether the waiter holding ticket ``me`` may start now.
+
+    ``queue`` is the live tickets in order (``live_tickets``), ``shared`` the
+    live shared holds, ``exclusive_held`` whether the exclusive lock exists.
+    Returns ``("head", why)`` or ``("backfill", why)`` to start and
+    ``(None, why)`` to wait. Pure: the caller re-reads the queue and the holds
+    under the mutex and asks again before it starts.
+    """
+    if exclusive_held:
+        return None, "the exclusive lock"
+    mine = next((info for t, info in queue if t == me), None)
+    if mine is None:  # swept a moment ago: judge it from its own file
+        try:
+            mine = json.loads(me.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            mine = {}
+    used = sum(int(j.get("slots") or 0) for j in shared)
+    used_mem = sum(float(j.get("mem") or 0) for j in shared)
+    free, free_mem = CAPACITY_SLOTS - used, CAPACITY_MEM_GB - used_mem
+
+    def fits(info: dict) -> bool:  # strictly within what is free now
+        return (
+            int(info.get("slots") or 0) <= free
+            and float(info.get("mem") or 0) <= free_mem
+        )
+
+    def head_fits(info: dict) -> bool:
+        if info.get("slots") is None:
+            return not shared
+        return not shared or fits(info)  # an oversized job runs alone
+
+    if not queue or queue[0][0] == me:
+        if head_fits(mine):
+            return "head", "head of the queue"
+        return None, "shared jobs to fit"
+    head, head_info = queue[0]
+    if is_critical(head):
+        return None, f"critical head {head.name} (no backfill past it)"
+    limit = drain_limit_s(head_info)
+    waited = waited_s(head, now_ns)
+    if waited >= limit:
+        return None, (
+            f"head {head.name}, past its {limit / 60:g} min drain limit (draining)"
+        )
+    if head_fits(head_info):
+        return None, f"head {head.name}, which fits"
+    if mine.get("slots") is None:
+        return None, f"head {head.name} (exclusive tickets do not backfill)"
+    # Earlier backfill-aware shared tickets that fit go first: reserve their room.
+    for t, info in queue[1:]:
+        if t == me:
+            break
+        if "drain_s" not in info or info.get("slots") is None:
+            continue  # an older helper starts only at the head; exclusive cannot
+        if fits(info):
+            free -= int(info["slots"])
+            free_mem -= float(info.get("mem") or 0)
+    if fits(mine):
+        return "backfill", (
+            f"backfilling past head {head.name} (waited {waited / 60:.0f} of "
+            f"{limit / 60:g} min)"
+        )
+    return None, f"head {head.name} (no room to backfill)"
+
+
+def live_shared(d: Path, stale_s: float = STALE_TICKET_S) -> list[dict]:
+    jobs: list[dict] = []
+    sd = slots_dir(d)
+    if not sd.exists():
+        return jobs
+    for f in sd.glob("*.json"):
+        try:
+            info = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        dead = info.get("system") == system() and not pid_alive(int(info["pid"]))
+        if dead or not _fresh(f, stale_s):
+            _unlink(f, tries=1)
+            continue
+        jobs.append(info)
+    return jobs
+
+
+class _Mutex:
+    """A short critical section around the fit check and the registration."""
+
+    def __init__(self, d: Path) -> None:
+        self.m = mutex_dir(d)
+
+    def __enter__(self) -> _Mutex:  # noqa: PYI034
+        self.m.parent.mkdir(parents=True, exist_ok=True)
+        t0 = time.time()
+        while True:
+            try:
+                self.m.mkdir()
+                return self
+            except PermissionError:
+                # Windows: the previous holder's rmdir is still pending (WinError
+                # 5); it is about to be free, so wait like for a held mutex.
+                pass
+            except FileExistsError:
+                if not _fresh(self.m, 30.0):  # left by a crashed holder
+                    try:
+                        self.m.rmdir()
+                    except OSError:
+                        pass
+            if time.time() - t0 > 120:
+                raise TimeoutError(f"heavy_lock: mutex {self.m} held for 120 s")
+            time.sleep(0.05)
+
+    def __exit__(self, *exc: object) -> None:
+        # Retry a Windows sharing violation (a waiter's stat of the mutex) as
+        # `release` does; otherwise the mutex is left for 30 s.
+        for attempt in range(200):
+            try:
+                self.m.rmdir()
+                return
+            except PermissionError:
+                if attempt < 199:
+                    time.sleep(0.01)
+            except OSError:
+                return
+
+
+def _register_shared(
+    d: Path, command: list[str], slots: int, mem: float, backfill: bool = False
+) -> Path:
+    sd = slots_dir(d)
+    sd.mkdir(parents=True, exist_ok=True)
+    f = sd / f"{system()}-{os.getpid()}-{time.time_ns()}.json"
+    info = {
+        "system": system(),
+        "host": socket.gethostname(),
+        "pid": os.getpid(),
+        "slots": slots,
+        "mem": mem,
+        "command": " ".join(command),
+        "start": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    if backfill:
+        info["backfill"] = True
+    f.write_text(json.dumps(info), encoding="utf-8")
+    return f
+
+
+def _wait(
+    d: Path,
+    command: list[str],
+    poll: float,
+    slots: int | None,
+    mem: float,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> Path | None:
+    # Under the mutex, so a ticket is either seen by a waiter's check below or
+    # taken after that waiter's acquire attempt, never in between.
+    with _Mutex(d):
+        ticket = take_ticket(d, slots, mem, priority, drain_s)
+    stale_s = max(STALE_TICKET_S, 3 * poll)
+    last = None
+    try:
+        while True:
+            os.utime(ticket)
+            verdict, why = decide(
+                live_tickets(d, stale_s), ticket, live_shared(d, stale_s), d.exists()
+            )
+            if verdict is not None or (d.exists() and stale(d)):
+                with _Mutex(d):
+                    if stale(d):
+                        print(
+                            f"heavy_lock: removing stale lock ({describe(read_owner(d))})",
+                            file=sys.stderr,
+                        )
+                        try:
+                            release(d)
+                        except OSError:
+                            pass
+                    # Decide again from a fresh read under the mutex: a ticket
+                    # that sorts first (a critical one, or any taken while this
+                    # waiter was descheduled) must win (issue 31), and two
+                    # backfillers must not both take the same free room.
+                    verdict, why = decide(
+                        live_tickets(d, stale_s),
+                        ticket,
+                        live_shared(d, stale_s),
+                        d.exists(),
+                    )
+                    if verdict is not None and slots is None:
+                        if try_acquire(d, command):
+                            return None
+                    elif verdict is not None:
+                        if verdict == "backfill":
+                            print(f"heavy_lock: {why}", file=sys.stderr, flush=True)
+                        return _register_shared(
+                            d, command, slots, mem, backfill=verdict == "backfill"
+                        )
+            state = describe(read_owner(d)) if d.exists() else why
+            if state != last:
+                print(f"heavy_lock: waiting for {state}", file=sys.stderr, flush=True)
+                last = state
+            time.sleep(poll)
+    finally:
+        _unlink(ticket)
+
+
+def acquire(
+    d: Path,
+    command: list[str],
+    poll: float,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> None:
+    """Take the whole host (the original behaviour)."""
+    _wait(d, command, poll, None, 0.0, priority, drain_s)
+
+
+def acquire_shared(
+    d: Path,
+    command: list[str],
+    poll: float,
+    slots: int,
+    mem: float,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> Path:
+    """Take ``slots`` threads and ``mem`` GB; returns the job's heartbeat file."""
+    f = _wait(d, command, poll, slots, mem, priority, drain_s)
+    assert f is not None
+    return f
+
+
+def _heartbeat(path: Path, stop: threading.Event, every: float) -> None:
+    while not stop.wait(every):
+        try:
+            os.utime(path)
+        except OSError:
+            return
+
+
+HELD_VAR = "RANG_HEAVY_LOCK_HELD"
+
+
+def held(environ=None) -> tuple[int, float] | None:
+    """(slots, mem GB) of the hold this process runs inside, or None."""
+    value = (os.environ if environ is None else environ).get(HELD_VAR, "")
+    try:
+        slots, mem = value.split(":")
+        return int(slots), float(mem)
+    except ValueError:
+        return None
+
+
+def nested_note(who: str, slots: int, mem: float, environ=None) -> bool:
+    """Print the one-line note (and a warning when the request exceeds the
+    hold) if this process already runs inside a heavy-lock hold."""
+    hold = held(environ)
+    if hold is None:
+        return False
+    print(
+        f"{who}: already inside a heavy-lock hold ({hold[0]} slots, {hold[1]:g} GB, "
+        f"{HELD_VAR}); running without queueing again",
+        file=sys.stderr,
+        flush=True,
+    )
+    if slots > hold[0] or mem > hold[1]:
+        print(
+            f"{who}: warning: asked for {slots} slots, {mem:g} GB, more than the "
+            "hold; running anyway (queueing again would deadlock)",
+            file=sys.stderr,
+            flush=True,
+        )
+    return True
+
+
+def _child_env(slots: int, mem: float) -> dict:
+    env = dict(os.environ)
+    env[HELD_VAR] = f"{slots}:{mem:g}"
+    return env
+
+
+def run(
+    command: list[str],
+    poll: float,
+    slots: int | None = None,
+    mem: float = 0.0,
+    priority: str = "normal",
+    drain_s: float | None = None,
+) -> int:
+    if slots is None:
+        want = (CAPACITY_SLOTS, CAPACITY_MEM_GB)
+    else:
+        want = (slots, mem)
+    child = niced(command)
+    if nested_note("heavy_lock", *want):
+        return subprocess.call(child)
     d = lock_dir()
+    if slots is not None:
+        hb = acquire_shared(d, command, poll, slots, mem, priority, drain_s)
+        stop = threading.Event()
+        threading.Thread(target=_heartbeat, args=(hb, stop, 20.0), daemon=True).start()
+        try:
+            return subprocess.call(child, env=_child_env(slots, mem))
+        finally:
+            stop.set()
+            _unlink(hb)
     wsl_lock = None
     if sys.platform != "win32":
         import fcntl
 
         wsl_lock = open(Path.home() / ".rang-heavy.lock", "a")  # noqa: SIM115
         fcntl.flock(wsl_lock, fcntl.LOCK_EX)
-    acquire(d, command, poll)
+    acquire(d, command, poll, priority, drain_s)
     try:
-        return subprocess.call(command)
+        return subprocess.call(child, env=_child_env(*want))
     finally:
         release(d)
         if wsl_lock is not None:
             wsl_lock.close()
+
+
+SAMPLE_S = 2.0
+IDLE_PER_SLOT = 0.05  # cores per booked slot below which a hold is IDLE
+
+
+def _win_parents() -> dict[int, int]:
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_void_p),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", ctypes.c_char * 260),
+        ]
+
+    k = ctypes.windll.kernel32
+    k.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    snap = k.CreateToolhelp32Snapshot(0x2, 0)  # TH32CS_SNAPPROCESS
+    if not snap or snap == ctypes.c_void_p(-1).value:
+        return {}
+    parents: dict[int, int] = {}
+    e = Entry()
+    e.dwSize = ctypes.sizeof(Entry)
+    try:
+        ok = k.Process32First(wintypes.HANDLE(snap), ctypes.byref(e))
+        while ok:
+            parents[int(e.th32ProcessID)] = int(e.th32ParentProcessID)
+            ok = k.Process32Next(wintypes.HANDLE(snap), ctypes.byref(e))
+    finally:
+        k.CloseHandle(wintypes.HANDLE(snap))
+    return parents
+
+
+def _win_cpu(pid: int) -> float | None:
+    import ctypes
+    from ctypes import wintypes
+
+    k = ctypes.windll.kernel32
+    k.OpenProcess.restype = wintypes.HANDLE
+    h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return None
+    times = [wintypes.FILETIME() for _ in range(4)]
+    try:
+        if not k.GetProcessTimes(wintypes.HANDLE(h), *(ctypes.byref(t) for t in times)):
+            return None
+    finally:
+        k.CloseHandle(wintypes.HANDLE(h))
+
+    def sec(t) -> float:
+        return ((t.dwHighDateTime << 32) | t.dwLowDateTime) / 1e7
+
+    return sec(times[2]) + sec(times[3])  # kernel + user
+
+
+def process_table(
+    roots: list[int] | None = None,
+) -> dict[int, tuple[int, float]] | None:
+    """{pid: (parent pid, CPU seconds)} of this system's processes, or None.
+
+    On Windows the parents come from one snapshot (0.1 s) and CPU is read only
+    for the process trees of `roots` when given: psutil's full table took 24 s
+    for 549 processes on the shared host (2026-11-14).
+    """
+    table: dict[int, tuple[int, float]] = {}
+    if sys.platform == "win32":
+        parents = _win_parents()
+        keep: set[int] = set(parents)
+        if roots is not None:
+            shell = {pid: (ppid, 0.0) for pid, ppid in parents.items()}
+            keep = set()
+            for root in roots:
+                keep |= _tree(shell, root)
+        for pid in keep:
+            cpu = _win_cpu(pid)
+            if cpu is not None:
+                table[pid] = (parents[pid], cpu)
+        return table or None
+    try:
+        import psutil
+    except ImportError:
+        psutil = None
+    if psutil is not None:
+        for p in psutil.process_iter(["pid", "ppid", "cpu_times"]):
+            t = p.info.get("cpu_times")
+            if t is not None:
+                table[p.info["pid"]] = (p.info["ppid"] or 0, t.user + t.system)
+        return table
+    proc = Path("/proc")
+    if not proc.is_dir():
+        return None
+    tick = os.sysconf("SC_CLK_TCK")
+    for stat in proc.glob("[0-9]*/stat"):
+        try:
+            fields = stat.read_text().rsplit(")", 1)[1].split()
+            table[int(stat.parent.name)] = (
+                int(fields[1]),
+                (int(fields[11]) + int(fields[12])) / tick,
+            )
+        except (OSError, IndexError, ValueError):
+            continue
+    return table or None
+
+
+def _tree(table: dict[int, tuple[int, float]], root: int) -> set[int]:
+    children: dict[int, list[int]] = {}
+    for pid, (ppid, _) in table.items():
+        if pid != ppid:
+            children.setdefault(ppid, []).append(pid)
+    seen: set[int] = set()
+    todo = [root]
+    while todo:
+        pid = todo.pop()
+        if pid in seen or pid not in table:
+            continue
+        seen.add(pid)
+        todo.extend(children.get(pid, []))
+    return seen
+
+
+def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float | None]:
+    """Cores each pid's process tree used over one sample (None: not measurable)."""
+    before = process_table(pids)
+    if before is None:
+        return dict.fromkeys(pids)
+    time.sleep(sample_s)
+    after = process_table(pids) or {}
+    out: dict[int, float | None] = {}
+    for pid in pids:
+        if pid not in after:
+            out[pid] = None
+            continue
+        used = 0.0
+        for q in _tree(after, pid):
+            used += max(0.0, after[q][1] - before.get(q, (0, 0.0))[1])
+        out[pid] = used / sample_s
+    return out
+
+
+def use_note(slots: int, cores: float | None) -> str:
+    if cores is None:
+        return "use n/a"
+    idle = " IDLE" if cores < IDLE_PER_SLOT * slots else ""
+    return f"using ~{cores:.1f} cores{idle}"
+
+
+def status(d: Path, sample_s: float = SAMPLE_S) -> None:
+    """Holds with booked and real use, then the queue. Reports only."""
+    owner = read_owner(d) if d.exists() else None
+    shared = live_shared(d)
+    here = system()
+    holds = [j for j in shared if j.get("system") == here]
+    if owner and owner.get("system") == here:
+        holds.append(owner)
+    cores = tree_cores([int(j["pid"]) for j in holds], sample_s) if holds else {}
+
+    def note(j: dict, slots: int) -> str:
+        if j.get("system") != here:
+            return f"use n/a, held from {j.get('system')}"
+        return use_note(slots, cores.get(int(j["pid"])))
+
+    booked, using = 0, 0.0
+    if d.exists():
+        line = f"exclusive: {describe(owner)}"
+        if owner:
+            booked += CAPACITY_SLOTS
+            line += f"; {note(owner, CAPACITY_SLOTS)}"
+            if owner.get("system") == here:
+                using += cores.get(int(owner["pid"])) or 0.0
+        print(line)
+    else:
+        print("exclusive: free")
+    used = sum(int(j.get("slots") or 0) for j in shared)
+    used_mem = sum(float(j.get("mem") or 0) for j in shared)
+    print(f"shared: {used}/{CAPACITY_SLOTS} slots, {used_mem:g}/{CAPACITY_MEM_GB:g} GB")
+    for j in shared:
+        slots = int(j.get("slots") or 0)
+        booked += slots
+        if j.get("system") == here:
+            using += cores.get(int(j["pid"])) or 0.0
+        mark = ", backfilled" if j.get("backfill") else ""
+        print(
+            f"  {slots} slots {j['mem']:g} GB pid {j['pid']} "
+            f"({note(j, slots)}{mark}): {j['command'][:140]}"
+        )
+    away = sum(
+        1 for j in [*shared, *([owner] if owner else [])] if j.get("system") != here
+    )
+    tail = f" ({away} holds of the other system not measured)" if away else ""
+    q = queue_dir(d)
+    waiting = sorted(q.glob("*.json")) if q.exists() else []
+    for i, t in enumerate(waiting, 1):
+        try:
+            info = json.loads(t.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            info = {}
+        if info.get("slots"):
+            kind = f"{info['slots']} slots {float(info.get('mem') or 0):g} GB"
+        else:
+            kind = "exclusive"
+        if info.get("priority"):
+            kind += f", {info['priority']}"
+        waited = waited_s(t)
+        kind += f", waited {waited / 60:.0f} min"
+        if i == 1 and len(waiting) > 1:
+            limit = drain_limit_s(info)
+            if is_critical(t):
+                kind += "; critical head, no backfill past it"
+            elif waited >= limit:
+                kind += f"; past its {limit / 60:g} min drain limit, draining"
+            else:
+                kind += f"; later tickets may backfill until {limit / 60:g} min"
+        print(f"queue {i}: {t.stem} ({kind})")
+    print(f"booked {booked} slots, using ~{using:.1f} cores{tail}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -154,13 +951,45 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="action", required=True)
     r = sub.add_parser("run", help="run a command holding the lock")
     r.add_argument("--poll", type=float, default=10.0, help="seconds between checks")
+    r.add_argument(
+        "--slots",
+        type=int,
+        default=None,
+        help=f"run shared on this many of {CAPACITY_SLOTS} threads (default: exclusive)",
+    )
+    r.add_argument("--mem", type=float, default=4.0, help="GB a shared job may use")
+    r.add_argument(
+        "--exclusive", action="store_true", help="the whole host (the default)"
+    )
+    r.add_argument(
+        "--priority",
+        choices=PRIORITIES,
+        default="normal",
+        help="critical: served before every normal ticket, never preempting a "
+        "running job; only for the release's critical path (E2/E3 acceptance)",
+    )
+    r.add_argument(
+        "--drain",
+        type=float,
+        default=None,
+        metavar="MIN",
+        help="minutes later tickets may backfill past this one while it heads "
+        "the queue and does not fit; 0 means strict first come, first served "
+        f"(default: {DRAIN_VAR}, else {DRAIN_DEFAULT_MIN:g})",
+    )
     r.add_argument("command", nargs=argparse.REMAINDER)
-    sub.add_parser("status", help="show the current owner")
-    sub.add_parser("break", help="remove the lock")
+    st = sub.add_parser(
+        "status",
+        help="show the holds (booked and real CPU use) and the queue; reports only",
+    )
+    st.add_argument(
+        "--sample", type=float, default=SAMPLE_S, help="seconds of CPU sampling"
+    )
+    sub.add_parser("break", help="remove the exclusive lock")
     a = p.parse_args(argv)
     d = lock_dir()
     if a.action == "status":
-        print(describe(read_owner(d)) if d.exists() else "free")
+        status(d, a.sample)
         return 0
     if a.action == "break":
         if d.exists():
@@ -170,7 +999,9 @@ def main(argv: list[str] | None = None) -> int:
     command = a.command[1:] if a.command[:1] == ["--"] else a.command
     if not command:
         p.error("run needs a command after --")
-    return run(command, a.poll)
+    slots = None if a.exclusive else a.slots
+    drain_s = None if a.drain is None else a.drain * 60.0
+    return run(command, a.poll, slots, a.mem, a.priority, drain_s)
 
 
 if __name__ == "__main__":

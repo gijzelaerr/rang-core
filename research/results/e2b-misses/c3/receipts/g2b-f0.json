@@ -1,0 +1,16 @@
+{
+ "mode": "compare",
+ "fid": 0,
+ "rows": 118104,
+ "first_row_in_e": 0,
+ "cells": 483753984,
+ "compared_cells": 171242769,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 0,
+ "max_eps_of_cell_max": 5.893967564215268,
+ "max_rel": 0.07250131907930815,
+ "nonfinite_compared": 0,
+ "casa_flag_ne_frozen": 0,
+ "rang_flag_ne_frozen": 0,
+ "met": true
+}

@@ -1,0 +1,341 @@
+{
+ "stages_wanted": [
+  "flag",
+  "calibrate",
+  "apply",
+  "image"
+ ],
+ "stages": {
+  "apply": "done",
+  "calibrate": "done",
+  "flag": "done",
+  "image": "done"
+ },
+ "seconds": {
+  "apply": 166.63764919999812,
+  "calibrate": 2156.8107526999956,
+  "flag": 461.1370978999912,
+  "image": 3401.126120300003
+ },
+ "attempts": {
+  "apply": 1,
+  "calibrate": 1,
+  "flag": 1,
+  "image": 1
+ },
+ "receipts": [
+  "run-20261112T005327Z.rang-receipt.json"
+ ],
+ "met": true
+}
+2026-11-12T07:03:28+02:00 gate1 rc=0 8781s
+2026-11-12T09:36:01+02:00 archive rc=0 9153s
+{
+ "files": 459,
+ "failed": [],
+ "met": true
+}
+2026-11-12T09:47:25+02:00 wcs rc=0 683s
+{
+ "exit": 1,
+ "tables": 0,
+ "errors": null,
+ "met": false
+}
+2026-11-12T10:01:26+02:00 casacore rc=0 841s
+{
+ "exit": 0,
+ "calls": {
+  "listobs": null,
+  "flagmanager": null
+ },
+ "flag_versions_listed": {
+  "0": {
+   "name": "rang_original",
+   "comment": "rang: flags before the first write"
+  },
+  "1": {
+   "name": "rang_flag_20261112T005356Z",
+   "comment": "rang: flags before flag"
+  },
+  "2": {
+   "name": "rang_calibrate_20261112T010110Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "3": {
+   "name": "rang_apply_20261112T013707Z",
+   "comment": "rang: flags before apply"
+  },
+  "MS": "/ms/e2b.ms"
+ },
+ "met": true
+}
+2026-11-12T10:09:37+02:00 casa-ro rc=0 491s
+{
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-image.fits"
+ ],
+ "met": true
+}
+2026-11-12T10:42:44+02:00 wsclean0 rc=0 1987s
+{
+ "exit": 1,
+ "met": false
+}
+2026-11-12T11:11:08+02:00 daskms rc=0 1704s
+{
+ "exit": {
+  "J1939-6342:dirty": 0,
+  "J1939-6342:clean": 0,
+  "J1833-2103:dirty": 0,
+  "J1833-2103:clean": 0,
+  "J1331+3030:dirty": 0,
+  "J1331+3030:clean": 0
+ },
+ "settings": "-size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -no-update-model-required -j 8 -temp-dir /r/wsclean3c/tmp"
+}
+2026-11-12T16:20:18+02:00 wsclean3c rc=0 18550s
+2026-11-12T16:30:57+02:00 copy rc=0 639s
+2026-11-12T16:35:54+02:00 prep rc=0 297s
+[
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1833-2103",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/F",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "J1939-6342",
+   "J1833-2103",
+   "J1939-6342",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1331+3030",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/e2b.ms",
+  "field": "J1939-6342",
+  "scan": "17,18,19,20",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/G",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Gpol",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]
+2026-11-12T16:53:35+02:00 applycal rc=0 1061s
+{
+ "applycal_calls": 3,
+ "applycal_errors": [],
+ "compare_exit": 0,
+ "rows": 272916,
+ "cells": 1117863936,
+ "compared_cells": 408827131,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 42,
+ "max_eps_of_cell_max": 25.58267863310874,
+ "max_rel": 0.2243781662896204,
+ "nonfinite_compared": 0,
+ "class_c": "per cell <= 1e-6 relative or <= 11 float32 epsilons of the cell's largest correlation; flags exact",
+ "met": false
+}
+2026-11-12T17:30:15+02:00 compare rc=0 2200s
+2026-11-12T17:50:34+02:00 snapshot rc=0 1202s (rerun after the e2p_ fix)
+{
+ "exit": 0,
+ "tables": 27,
+ "errors": [],
+ "met": true
+}
+2026-11-12T17:51:08+02:00 casacore rc=0 34s (rerun after the e2p_ fix)
+{
+ "exit": 0,
+ "datasets": 4,
+ "rows": 272916,
+ "finite": {
+  "DATA": 4471455744,
+  "CORRECTED_DATA": 4471455744,
+  "MODEL_DATA": 4471455744,
+  "WEIGHT_SPECTRUM": 4471455744
+ },
+ "flagged": 2836147220,
+ "met": true
+}
+2026-11-12T18:03:00+02:00 daskms rc=0 712s (rerun after the e2p_ fix)
+{
+ "restored_rows": 272916,
+ "hash": {
+  "rows": 272916,
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81"
+ },
+ "input": {
+  "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+  "rows": 272916,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81",
+  "seconds": 6.4972430000052555
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": "D:\\rang\\outputs\\e2-20261111-20-e2b\\rang-run-moved",
+ "seconds": 45.292857500026,
+ "met": true
+}
+2026-11-12T18:08:36+02:00 restore rc=0 336s
+{
+ "tricolour_exit": 0,
+ "rang_version": "rang_calibrate_20261112T010110Z",
+ "elements_differ": 0,
+ "cells_differ": 0,
+ "rang_only": 0,
+ "tricolour_only": 0,
+ "corr_partial": 0,
+ "cells": 1117863936,
+ "cells_differ_by_scan": {
+  "17": 0,
+  "18": 0,
+  "19": 0,
+  "20": 0
+ },
+ "exact": true
+}
+{
+ "restored_rows": 272916,
+ "hash": {
+  "rows": 272916,
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81"
+ },
+ "input": {
+  "ms": "D:\\rang\\data\\e2-b\\e2b.ms",
+  "rows": 272916,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "0e97dcaba02a6d0178a2c7428fdf45c7f3cb9a129648b940ab2361ec45db71d9",
+  "flag_row_sha256": "b37f355b950cda70b23d08eea63bf593d65fd361f20a2452337c30ca2a453e81",
+  "seconds": 6.4972430000052555
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 47.491639499989105,
+ "met": true
+}
+2026-11-12T18:43:36+02:00 tricolour rc=0 2100s

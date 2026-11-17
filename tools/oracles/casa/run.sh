@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # Run the O-CASA oracle once into a fresh run directory (research/o-casa.md).
 # Usage: bash tools/oracles/casa/run.sh outputs/o-casa-20261030-NN [image]
 # Needs the worktree .venv (compare.py imports rang) and the built image.

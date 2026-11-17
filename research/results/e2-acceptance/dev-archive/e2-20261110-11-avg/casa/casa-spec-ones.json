@@ -1,0 +1,38 @@
+[
+ {
+  "task": "initweights",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "wtmode": "ones",
+   "dowtsp": true
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/run/casa/Gpol-ones",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]

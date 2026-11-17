@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CASA's `flagdata(mode='extend')` as CARACal runs it (task E0).
 
 research/e0-refant-extend.md sections 1.2 and 1.3. CARACal 8f7bb363's polcal

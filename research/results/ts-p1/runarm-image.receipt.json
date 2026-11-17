@@ -1,0 +1,131 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "image",
+  "D:\\rang\\outputs\\ts-p1-20261116\\runarm\\config.yaml",
+  "D:\\rang\\outputs\\ts-p1-20261116\\runarm\\tsp1-dev.ms",
+  "--run-dir",
+  "D:\\rang\\outputs\\ts-p1-20261116\\runarm\\run"
+ ],
+ "stage": "image",
+ "verb": null,
+ "started_utc": "2026-11-16T09:43:28+00:00",
+ "commit": {
+  "head": "827086898fb99e13379d0762085436963ed6c861",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/ts-p1",
+  "distribution": "rang-core",
+  "version": "0.2.0",
+  "extension_sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+ },
+ "environment": {
+  "python": "3.13.16 (main, Oct  3 2026, 01:04:41) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/ts-p1/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.2.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/ts-p1/python/rang/_core.pyd",
+   "sha256": "a98567ddc69fb83df5884de73f31f04739c8f3b5ec6b2bcec5552abc1e64e8f8"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "4",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/runarm/config.yaml",
+   "kind": "file",
+   "bytes": 604,
+   "sha256": "1ec742cd1de6312d652ffd5e006fb2391681f50fd7df3d6afca9d3f59821dbdf"
+  },
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/runarm/tsp1-dev.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 5760067538,
+   "listing_sha256": "9d34fbfd01f0c837046c57333d294749276ce1d87e45b4fbbafbc6772e8e2ae0"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/runarm/tsp1-dev.ms",
+   "kind": "directory",
+   "files": 67,
+   "bytes": 5760067538,
+   "listing_sha256": "76f5bd40e9763acb21429f860eef39a0a6a7c89422bb087efe2db63c379f40f7",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/runarm/tsp1-dev.ms.flagversions",
+   "kind": "directory",
+   "files": 8,
+   "bytes": 29163996,
+   "tree_sha256": "3be830e6827e166e07011253bcd3116cc388c1bd846a6cb45787aaaa3accc4d4"
+  },
+  {
+   "path": "D:/rang/outputs/ts-p1-20261116/runarm/run",
+   "kind": "directory",
+   "files": 11,
+   "bytes": 83938420,
+   "tree_sha256": "c903ba47ace8af92512acca69d8aa987508563bb8010ffa4c97d45e70d012b5c"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 90.56712559997686,
+  "cpu_seconds": 45.5,
+  "peak_rss_mb": 1777.62109375
+ },
+ "exit": 0,
+ "verdict": null
+}

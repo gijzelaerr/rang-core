@@ -1,0 +1,839 @@
+{
+ "stages_wanted": [
+  "flag",
+  "calibrate",
+  "apply",
+  "image",
+  "selfcal"
+ ],
+ "stages": {
+  "apply": "done",
+  "calibrate": "done",
+  "flag": "done",
+  "image": "done",
+  "selfcal": "done"
+ },
+ "seconds": {
+  "apply": 578.4040526000026,
+  "calibrate": 4389.613768800002,
+  "flag": 2737.951462500001,
+  "image": 5279.788692999995,
+  "selfcal": 24269.752384599997
+ },
+ "attempts": {
+  "apply": 1,
+  "calibrate": 1,
+  "flag": 1,
+  "image": 1,
+  "selfcal": 1
+ },
+ "receipts": [
+  "run-20261115T124127Z.rang-receipt.json"
+ ],
+ "met": true
+}
+2026-11-16T01:36:36+02:00 gate1 rc=0 5s slots=1 mem=2
+2026-11-16T01:36:41+02:00 archive rc=0 5s slots=1 mem=2
+{
+ "files": 180,
+ "failed": [],
+ "met": true
+}
+2026-11-16T01:36:47+02:00 wcs rc=0 6s slots=1 mem=4
+{
+ "exit": 0,
+ "tables": 24,
+ "errors": [],
+ "met": true
+}
+2026-11-16T01:36:52+02:00 casacore rc=0 5s slots=1 mem=4
+{
+ "exit": 0,
+ "calls": {
+  "listobs": null,
+  "flagmanager": null
+ },
+ "flag_versions_listed": {
+  "0": {
+   "name": "rang_original",
+   "comment": "rang: flags before the first write"
+  },
+  "1": {
+   "name": "rang_flag_20261115T124313Z",
+   "comment": "rang: flags before flag"
+  },
+  "2": {
+   "name": "rang_calibrate_20261115T132707Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "3": {
+   "name": "rang_apply_20261115T144017Z",
+   "comment": "rang: flags before apply"
+  },
+  "4": {
+   "name": "rang_selfcal_20261115T161755Z",
+   "comment": "rang: flags before selfcal"
+  },
+  "MS": "/ms/e2a.ms"
+ },
+ "met": true
+}
+2026-11-16T01:38:08+02:00 casa-ro rc=0 76s slots=1 mem=4
+{
+ "field": "0",
+ "exit": {
+  "CORRECTED_DATA": 0,
+  "MODEL_DATA": 0
+ },
+ "fits": [
+  "CORRECTED_DATA-dirty.fits",
+  "CORRECTED_DATA-image.fits",
+  "MODEL_DATA-dirty.fits",
+  "MODEL_DATA-image.fits"
+ ],
+ "met": true
+}
+2026-11-16T01:51:45+02:00 wsclean0 rc=0 817s slots=4 mem=8
+{
+ "exit": 0,
+ "datasets": 3,
+ "rows": 1047614,
+ "finite": {
+  "DATA": 17164107776,
+  "CORRECTED_DATA": 17164107776,
+  "MODEL_DATA": 17164107776,
+  "WEIGHT_SPECTRUM": 17164107776
+ },
+ "flagged": 10986572040,
+ "met": true
+}
+2026-11-16T02:39:59+02:00 daskms rc=0 2894s slots=8 mem=24
+{
+ "rang_column": "CORRECTED_1GC",
+ "rang_flag_version": "rang_selfcal_20261115T161755Z",
+ "flag_before_apply": "rang_apply_20261115T144017Z",
+ "applycal_writes": "CORRECTED_DATA"
+}
+2026-11-16T02:43:05+02:00 prep-inplace rc=0 186s slots=1 mem=4
+[
+ {
+  "vis": "/c/e2a.ms",
+  "field": "J1939-6342",
+  "scan": "9,10,11",
+  "gaintable": [
+   "/p/rang-run/calibrate/K1",
+   "/p/rang-run/calibrate/G1",
+   "/p/rang-run/calibrate/B1"
+  ],
+  "gainfield": [
+   "nearest",
+   "nearest",
+   "J1939-6342"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "calwt": [
+   false,
+   false,
+   false
+  ],
+  "parang": false,
+  "applymode": "calflag",
+  "flagbackup": false
+ },
+ {
+  "vis": "/c/e2a.ms",
+  "field": "ESO137-001",
+  "scan": "9,10,11",
+  "gaintable": [
+   "/p/rang-run/calibrate/K1",
+   "/p/rang-run/calibrate/G1",
+   "/p/rang-run/calibrate/B1"
+  ],
+  "gainfield": [
+   "nearest",
+   "nearest",
+   "J1939-6342"
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear"
+  ],
+  "calwt": [
+   false,
+   false,
+   false
+  ],
+  "parang": false,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]
+2026-11-16T03:35:23+02:00 applycal-inplace rc=0 3138s slots=2 mem=8
+{
+ "applycal_calls": 2,
+ "applycal_errors": [],
+ "compare_exit": 0,
+ "rows": 1047614,
+ "cells": 4291026944,
+ "compared_cells": 1604069288,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 0,
+ "max_eps_of_cell_max": 7.069410281056729,
+ "max_rel": 8.94277082501218e-07,
+ "nonfinite_compared": 0,
+ "class_c": "per cell <= 1e-6 relative or <= 11 float32 epsilons of the cell's largest correlation; flags exact",
+ "met": true
+}
+2026-11-16T04:20:23+02:00 compare-inplace rc=0 2700s slots=1 mem=4
+2026-11-16T04:24:09+02:00 snapshot-inplace rc=0 226s slots=1 mem=12
+{
+ "exit": 0,
+ "free_gib_before": 213.93654251098633,
+ "free_gib_after": 341.8160591125488
+}
+2026-11-16T04:24:14+02:00 drop-corrected-inplace rc=0 5s slots=1 mem=2
+{
+ "ms": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms",
+ "data_column": "RANG_CORRECTED_DATA",
+ "model_column": "RANG_MODEL_DATA",
+ "flag_version": "rang_selfcal_20261115T161755Z",
+ "solint_integrations": 120,
+ "rows": 850950,
+ "cross_rows": 823500,
+ "averaged_rows": 7320,
+ "baselines": 1830,
+ "intervals": 4,
+ "channels": 4096,
+ "channels_predicted": 4096,
+ "predict_block_rows": 32768,
+ "rang_intervals_equal": [
+  true,
+  true
+ ],
+ "model_control": {
+  "cells": 3373056000,
+  "elements_differ": 0,
+  "max_abs": 0.0,
+  "met": true
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\gains.qc",
+   "solve_name": "Sp",
+   "model_images": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\image",
+   "apply_flags_recomputed": 0,
+   "apply_flags_rang": 0,
+   "apply_flags_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\gains.qc",
+   "solve_name": "Sa",
+   "model_images": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\image",
+   "apply_flags_recomputed": 238741416,
+   "apply_flags_rang": 238741416,
+   "apply_flags_equal": true
+  }
+ ],
+ "seconds": 3308.440891399994
+}
+2026-11-16T05:19:29+02:00 qc-avg rc=0 3315s slots=4 mem=16
+{
+ "oracle": "QuartiCal 0.2.7 (rang-formats-oracle:20261030) on averaged inputs (9.10)",
+ "class_b": {
+  "median": 0.0007,
+  "p95": 0.003
+ },
+ "refant": 20,
+ "model_control_met": true,
+ "unaveraged_form": {
+  "run": false,
+  "samples_per_interval": 3597926400,
+  "gb_per_interval_data_model_weights": 71.958528,
+  "wsl_memory_gb": 44,
+  "reason": "one interval of unaveraged data, model and weights exceeds WSL's memory (6.5: not checked)"
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "shape_rang": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "shape_qc": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "qc_wall_s": 112.36,
+   "qc_max_rss_mb": 1500.0625,
+   "conv_iter": [
+    [
+     50
+    ],
+    [
+     50
+    ],
+    [
+     50
+    ],
+    [
+     50
+    ]
+   ],
+   "rang_flagged": 4,
+   "qc_flagged": 4,
+   "apply_flags_equal": true,
+   "products": 14160,
+   "median": 2.7755575615628914e-17,
+   "p95": 2.289834988289386e-16,
+   "max": 6.56507468879903e-16,
+   "pass": true,
+   "gain_times_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "shape_rang": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "shape_qc": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "qc_wall_s": 70.05,
+   "qc_max_rss_mb": 1449.265625,
+   "conv_iter": [
+    [
+     31
+    ],
+    [
+     31
+    ],
+    [
+     37
+    ],
+    [
+     39
+    ]
+   ],
+   "rang_flagged": 8,
+   "qc_flagged": 4,
+   "apply_flags_equal": true,
+   "products": 13688,
+   "median": 8.532672722100728e-09,
+   "p95": 1.7804384395159749e-07,
+   "max": 3.261301461447664e-07,
+   "pass": true,
+   "gain_times_equal": true
+  }
+ ]
+}
+2026-11-16T05:23:35+02:00 qc-selfcal rc=0 246s slots=1 mem=8
+2026-11-16T05:24:40+02:00 unit-on-a rc=0 65s slots=1 mem=2
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/wsclean3c-a/ESO137m001-dirty",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "0",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "1",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "RANG_CORRECTED_DATA",
+  "-j",
+  "2",
+  "-temp-dir",
+  "/p/wsclean3c-a/tmp",
+  "/c/e2a.ms"
+ ],
+ "gemclean_argv": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "-m",
+  "rang.gemclean",
+  "-name",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-average-channels",
+  "8",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-field",
+  "1",
+  "-scans",
+  "9,10,11",
+  "-unit-weights",
+  "-no-update-model-required",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image"
+  ],
+  "-average-channels": [
+   "8"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-scans": [
+   "9,10,11"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 3361.4261369000014,
+ "fits": [
+  "ESO137m001-dirty-0000-dirty.fits",
+  "ESO137m001-dirty-0000-image.fits",
+  "ESO137m001-dirty-0001-dirty.fits",
+  "ESO137m001-dirty-0001-image.fits",
+  "ESO137m001-dirty-0002-dirty.fits",
+  "ESO137m001-dirty-0002-image.fits",
+  "ESO137m001-dirty-0003-dirty.fits",
+  "ESO137m001-dirty-0003-image.fits",
+  "ESO137m001-dirty-0004-dirty.fits",
+  "ESO137m001-dirty-0004-image.fits",
+  "ESO137m001-dirty-0005-dirty.fits",
+  "ESO137m001-dirty-0005-image.fits",
+  "ESO137m001-dirty-0006-dirty.fits",
+  "ESO137m001-dirty-0006-image.fits",
+  "ESO137m001-dirty-0007-dirty.fits",
+  "ESO137m001-dirty-0007-image.fits",
+  "ESO137m001-dirty-MFS-dirty.fits",
+  "ESO137m001-dirty-MFS-image.fits"
+ ]
+}
+2026-11-16T06:20:47+02:00 wsclean3c-a-dirty rc=0 3367s slots=2 mem=6
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/wsclean3c-a/ESO137m001-clean",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "1",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "RANG_CORRECTED_DATA",
+  "-j",
+  "4",
+  "-temp-dir",
+  "/p/wsclean3c-a/tmp",
+  "/c/e2a.ms"
+ ],
+ "gemclean_argv": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "-m",
+  "rang.gemclean",
+  "-name",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-average-channels",
+  "8",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-field",
+  "1",
+  "-scans",
+  "9,10,11",
+  "-unit-weights",
+  "-no-update-model-required",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image"
+  ],
+  "-average-channels": [
+   "8"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-scans": [
+   "9,10,11"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 26054.536248999997,
+ "fits": [
+  "ESO137m001-clean-0000-dirty.fits",
+  "ESO137m001-clean-0000-image.fits",
+  "ESO137m001-clean-0000-model.fits",
+  "ESO137m001-clean-0000-psf.fits",
+  "ESO137m001-clean-0000-residual.fits",
+  "ESO137m001-clean-0001-dirty.fits",
+  "ESO137m001-clean-0001-image.fits",
+  "ESO137m001-clean-0001-model.fits",
+  "ESO137m001-clean-0001-psf.fits",
+  "ESO137m001-clean-0001-residual.fits",
+  "ESO137m001-clean-0002-dirty.fits",
+  "ESO137m001-clean-0002-image.fits",
+  "ESO137m001-clean-0002-model.fits",
+  "ESO137m001-clean-0002-psf.fits",
+  "ESO137m001-clean-0002-residual.fits",
+  "ESO137m001-clean-0003-dirty.fits",
+  "ESO137m001-clean-0003-image.fits",
+  "ESO137m001-clean-0003-model.fits",
+  "ESO137m001-clean-0003-psf.fits",
+  "ESO137m001-clean-0003-residual.fits",
+  "ESO137m001-clean-0004-dirty.fits",
+  "ESO137m001-clean-0004-image.fits",
+  "ESO137m001-clean-0004-model.fits",
+  "ESO137m001-clean-0004-psf.fits",
+  "ESO137m001-clean-0004-residual.fits",
+  "ESO137m001-clean-0005-dirty.fits",
+  "ESO137m001-clean-0005-image.fits",
+  "ESO137m001-clean-0005-model.fits",
+  "ESO137m001-clean-0005-psf.fits",
+  "ESO137m001-clean-0005-residual.fits",
+  "ESO137m001-clean-0006-dirty.fits",
+  "ESO137m001-clean-0006-image.fits",
+  "ESO137m001-clean-0006-model.fits",
+  "ESO137m001-clean-0006-psf.fits",
+  "ESO137m001-clean-0006-residual.fits",
+  "ESO137m001-clean-0007-dirty.fits",
+  "ESO137m001-clean-0007-image.fits",
+  "ESO137m001-clean-0007-model.fits",
+  "ESO137m001-clean-0007-psf.fits",
+  "ESO137m001-clean-0007-residual.fits",
+  "ESO137m001-clean-MFS-dirty.fits",
+  "ESO137m001-clean-MFS-image.fits",
+  "ESO137m001-clean-MFS-model.fits",
+  "ESO137m001-clean-MFS-psf.fits",
+  "ESO137m001-clean-MFS-residual.fits"
+ ]
+}
+2026-11-16T13:35:04+02:00 wsclean3c-a-clean rc=0 26057s slots=4 mem=10
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+{"gates": {"dirty_linf": false, "compact_ratio": false, "q_over_q0": "not checked", "model_data_predict": "not checked"}, "met_where_checked": false, "not_checked": ["q_over_q0", "model_data_predict"]}
+2026-11-16T13:35:49+02:00 score3c-a rc=0 45s slots=1 mem=12
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/wsclean3c-a-nosi/ESO137m001-dirty",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "0",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "1",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "RANG_CORRECTED_DATA",
+  "-j",
+  "2",
+  "-temp-dir",
+  "/p/wsclean3c-a-nosi/tmp",
+  "-no-small-inversion",
+  "/c/e2a.ms"
+ ],
+ "gemclean_argv": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "-m",
+  "rang.gemclean",
+  "-name",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-average-channels",
+  "8",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-field",
+  "1",
+  "-scans",
+  "9,10,11",
+  "-unit-weights",
+  "-no-update-model-required",
+  "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\image\\ESO137-001\\image"
+  ],
+  "-average-channels": [
+   "8"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-scans": [
+   "9,10,11"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 3536.734105200012,
+ "fits": [
+  "ESO137m001-dirty-0000-dirty.fits",
+  "ESO137m001-dirty-0000-image.fits",
+  "ESO137m001-dirty-0001-dirty.fits",
+  "ESO137m001-dirty-0001-image.fits",
+  "ESO137m001-dirty-0002-dirty.fits",
+  "ESO137m001-dirty-0002-image.fits",
+  "ESO137m001-dirty-0003-dirty.fits",
+  "ESO137m001-dirty-0003-image.fits",
+  "ESO137m001-dirty-0004-dirty.fits",
+  "ESO137m001-dirty-0004-image.fits",
+  "ESO137m001-dirty-0005-dirty.fits",
+  "ESO137m001-dirty-0005-image.fits",
+  "ESO137m001-dirty-0006-dirty.fits",
+  "ESO137m001-dirty-0006-image.fits",
+  "ESO137m001-dirty-0007-dirty.fits",
+  "ESO137m001-dirty-0007-image.fits",
+  "ESO137m001-dirty-MFS-dirty.fits",
+  "ESO137m001-dirty-MFS-image.fits"
+ ]
+}
+2026-11-16T14:34:47+02:00 wsclean3c-a-nosi-dirty rc=0 3538s slots=2 mem=6
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 58613.044291 from DATE-OBS'. [astropy.wcs.wcs]
+{"gates": {"dirty_linf": false, "q_over_q0": "not checked", "model_data_predict": "not checked"}, "met_where_checked": false, "not_checked": ["q_over_q0", "model_data_predict"]}
+2026-11-16T14:36:37+02:00 score3c-a-nosi rc=0 110s slots=1 mem=8
+2026-11-16T14:37:23+02:00 unit-off-a rc=0 46s slots=1 mem=2
+{
+ "restored_rows": 1047614,
+ "hash": {
+  "rows": 1047614,
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6"
+ },
+ "input": {
+  "ms": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms",
+  "rows": 1047614,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6",
+  "seconds": 26.573832299996866
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": "D:\\rang\\outputs\\e2a-20261115\\rang-run-moved",
+ "seconds": 189.26085790002253,
+ "met": true
+}
+2026-11-16T14:44:24+02:00 restore rc=0 421s slots=1 mem=4
+{
+ "tricolour_exit": 1
+}
+{
+ "restored_rows": 1047614,
+ "hash": {
+  "rows": 1047614,
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6"
+ },
+ "input": {
+  "ms": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms",
+  "rows": 1047614,
+  "cell_shape": [
+   4096,
+   4
+  ],
+  "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+  "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6",
+  "seconds": 26.573832299996866
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 224.72684570000274,
+ "met": true
+}
+2026-11-16T14:53:47+02:00 tricolour rc=0 562s slots=8 mem=24

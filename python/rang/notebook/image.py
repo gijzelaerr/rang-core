@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Briggs weights, dirty image and PSF on the core, and comparisons.
 
 `image` composes the same calls as `core_campaign.image_arm` (gain

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's own `manage_antennas.get_refant` on one MS (task E0,
 research/e0-refant-extend.md section 3.1).
 

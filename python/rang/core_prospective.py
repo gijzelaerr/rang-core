@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The prospective track on the Rust core (research/core-phase3b.md).
 
 Replays `flagging_prospective.run` with `core_workflow.core_solve`. The

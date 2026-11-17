@@ -1,0 +1,78 @@
+[
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "uvrange": ">150",
+   "caltable": "/p/casa/xfer/leak18p",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "applycal",
+  "args": {
+   "vis": "/c/e2b.ms",
+   "field": "J1939-6342",
+   "scan": "18",
+   "gaintable": [
+    "/d/K",
+    "/d/G",
+    "/d/B",
+    "/p/casa/xfer/leak18p",
+    "/d/Kcross",
+    "/d/Xf",
+    "/d/Df"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest",
+    "nearest"
+   ],
+   "gainfield": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ],
+   "calwt": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "parang": true,
+   "applymode": "calflag",
+   "flagbackup": false
+  }
+ }
+]

@@ -1,0 +1,20 @@
+{
+ "label": "dev-rang",
+ "column": "RANG_CORRECTED_DATA",
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/dev-rang -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field J1939-6342 /m/luno-slice.ms",
+ "i_peak_jy": 15.526357650756836,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 0.0,
+ "Q_over_I": 0.09441346357368656,
+ "Q_at_peak_over_I": -0.09441346357368656,
+ "U_over_I": 0.0014485080709110481,
+ "U_at_peak_over_I": 0.0014485080709110481,
+ "V_over_I": 0.0007743835407042974,
+ "V_at_peak_over_I": 0.0007743835407042974,
+ "met": false,
+ "max_over_I": 0.09441346357368656
+}

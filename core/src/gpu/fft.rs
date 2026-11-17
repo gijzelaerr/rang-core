@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The mixed-radix Stockham autosort FFT of the GPU path: the plan (radix
 //! passes and the twiddle table) shared by the WGSL kernel and a host
 //! transcription of the same index scheme, which the unit tests check

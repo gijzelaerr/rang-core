@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """`rang-core`: the command line (research/w2-commands.md, research/p9-cli.md;
 before task P9, research/core-h-recipes.md).
 
@@ -76,7 +77,12 @@ RECEIPT_SCHEMA = "rang.receipt"
 # added, and `commit` is null outside a checkout (`core.checkout_root`).
 # Version 4: the root crate became rang-sim, which renamed the receipt key for its
 # library (now environment.rang_sim_lib) and its two recorded variables.
-RECEIPT_VERSION = 4
+# Version 5 (owner decision E5-20, research/e5-prereview.md): an input the
+# command modified (the MS) is listed as an output by its `listing_sha256`
+# (sizes and mtimes), not a `tree_sha256` that re-read tens of GB after every
+# command; the stage summaries hash the flags, gains and images written and
+# name the tables and settings behind a written column.
+RECEIPT_VERSION = 5
 ARCHIVE_SCHEMA = "rang.archive"
 ARCHIVE_VERSION = 1
 # The cab `compare` (legacy form): stage -> comparator script in examples/.
@@ -685,7 +691,9 @@ class Receipt:
     An argument that names an existing path before the command is an input
     (recorded by `listing_sha256`, cheap for large trees); one that exists
     only afterwards is an output (content hashes); an input that changed is
-    also listed as an output with `modified`.
+    also listed as an output with `modified`, by its listing hash again
+    (owner decision E5-20); the stage summaries hash the flags, gains and
+    images written.
     """
 
     def __init__(self, command, stage, verb, paths, pinned):
@@ -712,7 +720,7 @@ class Receipt:
                 continue
             inputs.append(self.before[p])
             if _path_record(p, content=False) != self.before[p]:
-                outputs.append({**_path_record(p, content=True), "modified": True})
+                outputs.append({**_path_record(p, content=False), "modified": True})
         return {
             "schema": RECEIPT_SCHEMA,
             "version": RECEIPT_VERSION,
@@ -1007,9 +1015,13 @@ USER_COMMANDS = {
 # Other top-level commands.
 TOP_LEVEL = {
     "config": "defaults | check CONFIG [MS]: the configuration schema",
+    "listobs": "MS [--json] [--listfile PATH]: summarise an MS as CASA's listobs",
+    "flagdata": "MS [key=value ...]: CASA's flagdata modes, CASA's keywords",
+    "lightcurve": "MS --position RA,DEC --out DIR: residual snapshot light curves",
     "research": "STAGE VERB ARGS...: the research chains (rang-core research -h)",
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
+    "mcp": "[--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
 # time; the cabs call the same functions.
@@ -1087,21 +1099,32 @@ def stage_usage(stage):
     return "\n".join(lines)
 
 
+def _usage_error(text):
+    """A command line rang-core cannot parse: the message and the usage on
+    stderr, exit 2 as argparse and the refusals (E5-40)."""
+    print(f"rang-core: {text}\n\n{usage()}", file=sys.stderr)
+    raise SystemExit(2)
+
+
 def _global_options(argv):
     """Pop the global options from the front of argv."""
-    options = {"receipt": None, "no_receipt": False, "pin": True}
-    while argv and argv[0].startswith("--") and argv[0] != "--help":
+    options = {"receipt": None, "no_receipt": False, "pin": True, "version": False}
+    while argv and argv[0].startswith("-") and argv[0] not in ("-h", "--help"):
         flag = argv.pop(0)
-        if flag == "--no-pin-threads":
+        if flag in ("--version", "-V"):
+            options["version"] = True
+        elif flag == "--no-pin-threads":
             options["pin"] = False
         elif flag == "--no-receipt":
             options["no_receipt"] = True
-        elif flag == "--receipt" and argv:
+        elif flag == "--receipt":
+            if not argv:
+                _usage_error("--receipt needs a PATH")
             options["receipt"] = argv.pop(0)
         elif flag.startswith("--receipt="):
             options["receipt"] = flag.split("=", 1)[1]
         else:
-            raise SystemExit(f"rang-core: unknown option {flag}\n\n{usage()}")
+            _usage_error(f"unknown option {flag}")
     if os.environ.get("RANG_PIN_THREADS") == "0":
         options["pin"] = False
     return options
@@ -1251,7 +1274,8 @@ def _configure_pipeline(name):
                 default=[],
                 metavar="STAGE",
                 choices=[*CONFIG_STAGES, "all"],
-                help="run a finished stage again (repeatable; all: every stage)",
+                help="run a finished stage of run.stages again (repeatable; "
+                "all: every stage of run.stages)",
             )
         else:
             p.add_argument(
@@ -1273,8 +1297,9 @@ def _pipeline(argv, options, pinned):
     parser = argparse.ArgumentParser(
         prog=prog,
         description=USER_COMMANDS[name].split(": ", 1)[1]
-        + ". Validates the configuration for every stage first; a finished stage "
-        "is skipped unless forced, a failed one runs again.",
+        + ". Validates the configuration for the stages it runs first. A finished "
+        "stage is skipped, or refused when its configuration changed, unless "
+        "forced. A failed or stale one runs again.",
     )
     _configure_pipeline(name)(parser)
     args = parser.parse_args(argv[1:])
@@ -1305,6 +1330,13 @@ def _pipeline(argv, options, pinned):
         if name == "run":
             stages = list(config["run"]["stages"]) if not errors else []
             force = args.force
+            outside = [s for s in force if s != "all" and s not in stages]
+            if stages and outside:
+                raise core_pipeline.Refused(
+                    f"--force {', '.join(outside)}: not in run.stages "
+                    f"({', '.join(stages)}); add it there, or run "
+                    f"rang-core {outside[0]} CONFIG MS --force"
+                )
         else:
             stages, force = [name], ([name] if args.force else [])
         config = core_config.validate(raw, stages, source=Path(args.config))
@@ -1357,19 +1389,11 @@ def _config_command(argv):
     from . import core_pipeline
 
     try:
-        raw = core_config.load(args.config)
-        config, errors = core_config.resolve(raw)
-        if errors:
-            raise core_config.ConfigError(errors, source=Path(args.config))
-        stages = (
-            list(CONFIG_STAGES)
-            if args.all
-            else (args.stage or list(config["run"]["stages"]))
+        config, stages, warnings = core_pipeline.check_config(
+            args.config, args.ms, args.stage, all_stages=args.all
         )
-        config = core_config.validate(raw, stages, source=Path(args.config))
-        if args.ms:
-            info = core_pipeline.inspect_ms(args.ms)
-            core_pipeline.preflight(config, info, stages)
+        for text in warnings:
+            print(f"rang-core config check: warning: {text}", file=sys.stderr)
     except (core_config.ConfigError, core_pipeline.Refused, OSError) as exc:
         print(f"rang-core config check: {exc}", file=sys.stderr)
         raise SystemExit(2) from None
@@ -1377,16 +1401,271 @@ def _config_command(argv):
     return config
 
 
+def _listobs_command(argv):
+    """`rang-core listobs MS`: read-only, so no receipt (as `config`)."""
+    parser = argparse.ArgumentParser(
+        prog="rang-core listobs",
+        description="Summarise a Measurement Set as CASA's listobs does "
+        "(research/v8a-listobs.md). Reads only; writes nothing to the MS.",
+    )
+    parser.add_argument("ms", help="the Measurement Set")
+    parser.add_argument(
+        "--json", action="store_true", help="print the record as JSON, not the text"
+    )
+    parser.add_argument("--listfile", help="write the text (or JSON) to this file")
+    parser.add_argument(
+        "--overwrite", action="store_true", help="replace an existing --listfile"
+    )
+    args = parser.parse_args(argv)
+    from . import listobs
+
+    try:
+        record = listobs.summary(args.ms)
+    except (listobs.ListobsError, OSError) as exc:
+        print(f"rang-core listobs: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    out = (
+        json.dumps(record, indent=1) + "\n"
+        if args.json
+        else listobs.text(record, args.ms)
+    )
+    if args.listfile:
+        path = Path(args.listfile)
+        if path.exists() and not args.overwrite:
+            print(
+                f"rang-core listobs: {path} exists (--overwrite replaces it)",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        path.write_text(out, encoding="utf-8", newline="\n")
+    else:
+        sys.stdout.write(out)
+    return record
+
+
+def _flagdata_command(argv):
+    """`rang-core flagdata MS mode=tfcrop key=value ...`: CASA's keyword
+    names (`rang.tasks.flagdata`); values are Python literals where they
+    parse as one (`clipminmax=[0,50]`, `extendflags=False`), else strings.
+    Prints the returned record as JSON."""
+    import ast
+
+    parser = argparse.ArgumentParser(
+        prog="rang-core flagdata",
+        description="CASA's flagdata on a Measurement Set: modes manual, clip, quack, "
+        "shadow, elevation, tfcrop, extend, unflag, summary, with CASA's keyword names "
+        "(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found "
+        "are saved first as a flag version.",
+    )
+    parser.add_argument(
+        "ms", help="the Measurement Set (or calibration table, for clip)"
+    )
+    parser.add_argument("keywords", nargs="*", metavar="key=value",
+                        help="CASA flagdata keywords, e.g. mode=quack quackinterval=8")  # fmt: skip
+    args = parser.parse_args(argv)
+    kw = {}
+    for item in args.keywords:
+        key, sep, value = item.partition("=")
+        if not sep or not key:
+            parser.error(f"{item!r} is not key=value")
+        try:
+            kw[key] = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            kw[key] = value
+    from . import flagdata as _fd
+    from . import tasks
+
+    try:
+        record = tasks.flagdata(vis=args.ms, **kw)
+    except TypeError as exc:
+        print(f"rang-core flagdata: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    except (tasks.Unsupported, _fd.SelectionError, OSError) as exc:
+        print(f"rang-core flagdata: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    sys.stdout.write(json.dumps(record, indent=1) + "\n")
+    return record
+
+
+def _scale_arcsec(text):
+    """`4`, `4asec`, `0.1amin` or `0.001deg` as arcseconds."""
+    for suffix, factor in (("asec", 1.0), ("amin", 60.0), ("deg", 3600.0)):
+        if text.endswith(suffix):
+            return float(text[: -len(suffix)]) * factor
+    return float(text)
+
+
+def _lightcurve_command(argv, options, pinned):
+    """`rang-core lightcurve MS --position NAME=RA,DEC ... --out DIR`
+    (task TS-P1, research/ts-p1.md): reads the MS only; writes DIR and a
+    receipt beside it."""
+    parser = argparse.ArgumentParser(
+        prog="rang-core lightcurve",
+        description="Light curves at given positions from the residual (data column "
+        "minus MODEL_DATA) of a field after rang-core run, one point per interval of "
+        "--interval-steps integrations: the exact DFT flux at each position, the "
+        "nearest pixel of the interval's dirty snapshot image and the image's "
+        "robust rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. "
+        "Reads the MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.",
+    )
+    parser.add_argument("ms", help="the Measurement Set")
+    parser.add_argument(
+        "--position",
+        action="append",
+        default=[],
+        metavar="[NAME=]RA,DEC",
+        help="a position, degrees or hh:mm:ss,dd:mm:ss (repeatable)",
+    )
+    parser.add_argument(
+        "--positions",
+        metavar="CSV",
+        help="positions from a file with columns name, ra_deg, dec_deg",
+    )
+    parser.add_argument("--out", required=True, help="the output directory (new)")
+    parser.add_argument("--field", default="0", help="field id or name (default 0)")
+    parser.add_argument(
+        "--column", help="data column (default CORRECTED_DATA if present, else DATA)"
+    )
+    parser.add_argument(
+        "--model-column", default="MODEL_DATA", help="subtracted (default MODEL_DATA)"
+    )
+    parser.add_argument(
+        "--no-model", action="store_true", help="use the data column as it is"
+    )
+    parser.add_argument(
+        "--interval-steps",
+        type=int,
+        default=1,
+        help="integrations per interval (default 1)",
+    )
+    parser.add_argument(
+        "--size", type=int, default=1024, help="snapshot width and height (1024)"
+    )
+    parser.add_argument(
+        "--scale", default="4asec", help="snapshot pixel size (default 4asec)"
+    )
+    parser.add_argument(
+        "--no-images", action="store_true", help="DFT fluxes only, no snapshots"
+    )
+    parser.add_argument(
+        "--fits", action="store_true", help="also write each snapshot as FITS"
+    )
+    parser.add_argument(
+        "--candidates",
+        type=float,
+        metavar="SIGMA",
+        help="also list each snapshot's local maxima at or above SIGMA times its "
+        "robust rms, and those of the negated image, in DIR/candidates.csv",
+    )
+    parser.add_argument(
+        "--gridder",
+        choices=("wgrid", "wstack"),
+        default="wgrid",
+        help="snapshot gridder: the exact wgridder (default) or w-stacking",
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "gpu"),
+        default="cpu",
+        help="device of the wstack gridder (gpu needs the gpu build)",
+    )
+    args = parser.parse_args(argv)
+    from . import core_grid
+    from . import lightcurve as lc
+
+    out = Path(args.out)
+    if out.exists():
+        print(f"rang-core lightcurve: {out} exists", file=sys.stderr)
+        raise SystemExit(2)
+    receipt = Receipt(
+        ["rang-core", "lightcurve", *argv],
+        "lightcurve",
+        None,
+        [args.ms, args.positions, str(out)],
+        pinned,
+    )
+
+    def finish(code):
+        if options["no_receipt"]:
+            return
+        receipt.write(options["receipt"] or default_receipt(out, "lightcurve"), code)
+
+    try:
+        positions = [lc.parse_position(p, k) for k, p in enumerate(args.position)]
+        if args.positions:
+            import csv
+
+            with open(args.positions, encoding="utf-8", newline="") as f:
+                for row in csv.DictReader(f):
+                    positions.append(
+                        (row["name"], float(row["ra_deg"]), float(row["dec_deg"]))
+                    )
+        if args.no_images and (args.fits or args.candidates is not None):
+            raise lc.LightcurveError(
+                "--fits and --candidates need the snapshots (drop --no-images)"
+            )
+        if args.device == "gpu" and args.gridder != "wstack":
+            raise lc.LightcurveError("--device gpu needs --gridder wstack")
+        size, scale = args.size, _scale_arcsec(args.scale)
+        if size < 2 or size % 2:
+            raise lc.LightcurveError("--size must be an even number of pixels")
+        on_snapshot = None
+        if args.fits:
+            (out / "snapshots").mkdir(parents=True)
+
+            def on_snapshot(k, image, header):
+                core_grid.write_fits(
+                    out / "snapshots" / f"snapshot-t{k:04d}-dirty.fits", image, header
+                )
+
+        result = lc.light_curves(
+            args.ms,
+            positions,
+            field=args.field,
+            column=args.column,
+            model_column=None if args.no_model else args.model_column,
+            interval_steps=args.interval_steps,
+            size=size,
+            scale_arcsec=scale,
+            images=not args.no_images,
+            on_snapshot=on_snapshot,
+            log=lambda text: print(f"rang-core lightcurve: {text}", file=sys.stderr),
+            gridder=args.gridder,
+            device=args.device,
+            candidate_sigma=args.candidates,
+        )
+        lc.write_outputs(result, out)
+    except (lc.LightcurveError, OSError, KeyError) as exc:
+        finish(2)
+        print(f"rang-core lightcurve: refused\n{exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    except BaseException as exc:
+        finish(f"exception: {type(exc).__name__}")
+        raise
+    finish(0)
+    print(
+        json.dumps(
+            {
+                "out": out.as_posix(),
+                "intervals": result["intervals"],
+                "positions": len(positions),
+                "seconds": result["seconds"]["total"],
+            }
+        )
+    )
+    return result
+
+
 def dispatch(argv=None):
     """Run one command line; return what the command returned (a stage
     function's summary or record, a comparator's verdict, a run's state)."""
     argv = list(sys.argv[1:] if argv is None else argv)
-    if argv[:1] in (["--version"], ["-V"]):
+    options = _global_options(argv)
+    if options["version"]:
         from . import __version__
 
         print(f"rang-core {__version__}")
         return None
-    options = _global_options(argv)
     # Before NumPy: nothing above imports it.
     pinned = pin_threads() if options["pin"] else []
     if not argv or argv[0] in ("-h", "--help"):
@@ -1402,14 +1681,26 @@ def dispatch(argv=None):
         return _pipeline(argv, options, pinned)
     if argv[0] == "config":
         return _config_command(argv[1:])
+    if argv[0] == "listobs":
+        return _listobs_command(argv[1:])
+    if argv[0] == "flagdata":
+        return _flagdata_command(argv[1:])
+    if argv[0] == "lightcurve":
+        return _lightcurve_command(argv[1:], options, pinned)
+    if argv[0] == "mcp":
+        from . import mcp_server
+
+        return mcp_server.main(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:
-        raise SystemExit(
+        print(
             f"rang-core: {argv[0]} is a research stage now: "
-            f"rang-core research {' '.join(argv)}"
+            f"rang-core research {' '.join(argv)}",
+            file=sys.stderr,
         )
-    raise SystemExit(f"rang-core: unknown command {argv[0]!r}\n\n{usage()}")
+        raise SystemExit(2)
+    _usage_error(f"unknown command {argv[0]!r}")
 
 
 def _research(argv, options, pinned):
@@ -1437,7 +1728,10 @@ def _research(argv, options, pinned):
     argv = _legacy(argv)
     stage = argv[0]
     if stage not in STAGES:
-        raise SystemExit(f"rang-core: unknown stage {stage!r}\n\n{research_usage()}")
+        print(
+            f"rang-core: unknown stage {stage!r}\n\n{research_usage()}", file=sys.stderr
+        )
+        raise SystemExit(2)
     if len(argv) == 1 or argv[1] in ("-h", "--help"):
         print(stage_usage(stage))
         if len(argv) == 1:

@@ -24,6 +24,10 @@ from rang.notebook import data
 ROOT = Path(__file__).resolve().parents[1]
 BOOKS = sorted(p.name for p in (ROOT / "notebooks").glob("*.ipynb"))
 LUNO_BOOK = "01-data-and-rank.ipynb"
+# Task E4's tutorial runs on A1 small, written in the notebook; no fixture, no LUNO.
+MS_BOOK = "00-ms-to-image.ipynb"
+# Notebook 8 (reports and image quality) also runs on A1 small alone.
+A1_BOOKS = ("08-reports-and-image-quality.ipynb",)
 
 
 def _execute(name, env):
@@ -85,7 +89,14 @@ def test_notebook_runs_on_the_fixture(name, executed):
     book = executed[name]
     if isinstance(book, Exception):
         raise book
-    assert "LUNO slice available: False" in _text(book)
+    if name == MS_BOOK:
+        text = _text(book)
+        assert "valid for flag, calibrate, apply, image" in text
+        assert "rang-core flag: refused" in text
+    elif name in A1_BOOKS:
+        assert "noise ratio (robust σ / thermal)" in _text(book)
+    else:
+        assert "LUNO slice available: False" in _text(book)
 
 
 def test_luno_sections(executed):

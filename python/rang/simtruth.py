@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Simulated truth for E1 and C2 to C7 (task A1, research/a1-simtruth.md).
 
 A MeerKAT L-band observation in full polarisation with known sky, Jones
@@ -53,8 +54,11 @@ C = 299_792_458.0
 MJD_S = 86400.0
 DEG = math.pi / 180.0
 ARCSEC = DEG / 3600.0
-ROOT = Path(__file__).resolve().parents[2]
-ITRF = ROOT / "data" / "meerkat.itrf.txt"
+# The 64 MeerKAT ITRF positions, package data since V3b (owner decision 4 of
+# research/v3-intro-track.md; facts, not code: E5-11, docs/licence.md), so A1
+# generates from a wheel. A byte copy of data/meerkat.itrf.txt, which GeMClean's
+# simulator compiles in; tests/test_v3_intro.py keeps the two identical.
+ITRF = Path(__file__).resolve().parent / "data" / "meerkat.itrf.txt"
 RECEPTOR_ANGLE = -math.pi / 2
 SEFD_JY = 420.0
 CORR = ("XX", "XY", "YX", "YY")
@@ -159,6 +163,34 @@ SEEDS = {
             # Task F4 (research/f4-flagger.md): its held-out simulation test.
             ("f4sim-t", 20264101),
         )
+    },
+    # Task TS-P1 (research/ts-p1.md): the light-curve simulations, built by
+    # examples/ts_p1_sim.py; `layout` draws the held-out set's transients.
+    **{
+        name: {
+            "jones": s0,
+            "sky": s0 + 1,
+            "noise": s0 + 2,
+            "layout": s0 + 3,
+            "rfi": s0 + 4,
+        }
+        for name, s0 in (
+            ("tsp1-dev", 20261601),
+            ("tsp1-held", 20261611),
+            ("tsp1-noise", 20261631),
+            # Amendment 15.2: the fresh noise set for T4.
+            ("tsp1-noise2", 20261641),
+        )
+    },
+    # TS-P1 protocol 2 (research/ts-p1.md 13.1): flags and weights seeds too.
+    "tsp1-held2": {
+        "jones": 20261621,
+        "sky": 20261622,
+        "noise": 20261623,
+        "layout": 20261624,
+        "rfi": 20261625,
+        "flags": 20261626,
+        "weights": 20261627,
     },
 }
 

@@ -1,0 +1,17 @@
+{
+ "command": [
+  "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+  "research/results/e2-acceptance-scripts/e2_dryrun.py",
+  "a",
+  "D:\\rang\\outputs\\e2-20261111-12-dryrun\\a-wheel"
+ ],
+ "rc": 0,
+ "wall_s": 20.352404832839966,
+ "peak_tree_rss_bytes": 1414823936,
+ "peak_process_rss_bytes": 1324056576,
+ "host_cpu_load_pct_at_start": 11.8,
+ "host_cpu_load_pct_mean": 42.46,
+ "host_cpu_load_pct_max": 78.2,
+ "logical_cpus": 16,
+ "started": "2026-11-12T01:35:52"
+}

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Differentiable scalar beams with frequency-dependent measured parameters.
 
 The optional katbeam adapter reads SARAO's BSD-licensed model tables at runtime;

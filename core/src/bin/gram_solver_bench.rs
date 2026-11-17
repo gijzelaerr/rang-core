@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Measurements for the proximal solver on the visibility-free normal operator
 //! (`research/gram-solver.md`). Reads the prepared arrays of
 //! `examples/gemclean_bench_compare.py prepare`, so its misfit is the scorer's.

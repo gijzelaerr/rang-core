@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! C ABI for the w-stacking gridder (`grid.rs`), loaded through ctypes by
 //! `python/rang/core_grid.py`, in the style of `ffi.rs`.
 

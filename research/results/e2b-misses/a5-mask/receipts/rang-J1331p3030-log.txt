@@ -1,0 +1,6 @@
+auto-mask: major iteration 1, sigma 1.210032e-2 Jy, threshold 6.050160e-2 Jy; continued in the mask at gain 0.9000, threshold 6.050160e-2 Jy
+auto-mask: major iteration 2, sigma 1.836272e-3 Jy, threshold 9.181362e-3 Jy; continued in the mask at gain 0.9000, threshold 9.181362e-3 Jy
+auto-mask: major iteration 3, sigma 9.255715e-4 Jy, threshold 4.627857e-3 Jy; continued in the mask at gain 0.9000, threshold 4.627857e-3 Jy
+auto-mask: major iteration 4, sigma 7.523989e-4 Jy, threshold 3.761995e-3 Jy; continued in the mask at gain 0.5854, threshold 2.257197e-3 Jy
+auto-mask: major iteration 5, sigma 6.577522e-4 Jy, threshold 1.973257e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4

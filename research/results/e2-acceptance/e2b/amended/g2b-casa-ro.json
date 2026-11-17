@@ -1,0 +1,39 @@
+{
+ "exit": 0,
+ "calls": {
+  "listobs": null,
+  "flagmanager": null
+ },
+ "flag_versions_listed": {
+  "0": {
+   "name": "rang_original",
+   "comment": "rang: flags before the first write"
+  },
+  "1": {
+   "name": "rang_flag_20261112T005356Z",
+   "comment": "rang: flags before flag"
+  },
+  "2": {
+   "name": "rang_calibrate_20261112T010110Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "3": {
+   "name": "rang_apply_20261112T013707Z",
+   "comment": "rang: flags before apply"
+  },
+  "4": {
+   "name": "rang_flag_20261112T165116Z",
+   "comment": "rang: flags before flag"
+  },
+  "5": {
+   "name": "rang_calibrate_20261112T165819Z",
+   "comment": "rang: flags before calibrate"
+  },
+  "6": {
+   "name": "rang_apply_20261112T173358Z",
+   "comment": "rang: flags before apply"
+  },
+  "MS": "/ms/e2b.ms"
+ },
+ "met": true
+}

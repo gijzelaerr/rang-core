@@ -1,0 +1,46 @@
+{
+ "case": "D:/rang/outputs/ts-p1-20261116/tsp1-noise.ms",
+ "intervals": 450,
+ "lambda_pixels": [
+  [
+   0.09460803640339996,
+   -0.026651917619116387
+  ],
+  [
+   -0.026651917619116387,
+   0.08215421080732502
+  ]
+ ],
+ "lobe_pixels_fitted": 63,
+ "correlation_fwhm_arcsec": [
+  19.06698629312169,
+  13.842856602227664
+ ],
+ "expected_5": 187.97166599866634,
+ "expected_7": 0.0016161335496578328,
+ "positive_5": 239,
+ "negative_5": 234,
+ "positive_7": 0,
+ "negative_7": 0,
+ "deviation_5_in_poisson_sigma": 3.721904232450452,
+ "amended_15_2": {
+  "lambda_peak_pixels": [
+   [
+    0.15180038609439972,
+    -0.02166747463820176
+   ],
+   [
+    -0.02166747463820176,
+    0.12758293253889064
+   ]
+  ],
+  "expected_5": 235.29685323457696,
+  "expected_7": 0.0015977915699003213,
+  "deviation_5_in_poisson_sigma": 0.24141422963299633,
+  "pass": true
+ },
+ "pass_7": true,
+ "pass_5": false,
+ "seconds": 0.7785993999859784,
+ "pass": false
+}

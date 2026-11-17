@@ -1,0 +1,15 @@
+{
+ "renamed": {
+  "CORRECTED_1GC": "RANG_CORRECTED_DATA",
+  "MODEL_DATA": "RANG_MODEL_DATA",
+  "RANG_FLAG": "FLAG after rang's apply (rang_selfcal_20261115T161755Z)"
+ },
+ "plan": {
+  "rang_column": "CORRECTED_1GC",
+  "rang_flag_version": "rang_selfcal_20261115T161755Z",
+  "flag_before_apply": "rang_apply_20261115T144017Z",
+  "applycal_writes": "CORRECTED_DATA"
+ },
+ "rows": 1047614,
+ "receptor_angle": "-90 deg, unchanged"
+}

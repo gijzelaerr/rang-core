@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! gemclean: a reference CLEAN whose every minor step is a certified descent
 //! step on the image-domain Gram model, with lazy exact corrections.
 //! Research note: `research/gemclean.md`.
@@ -56,6 +57,7 @@ pub mod measure;
 pub mod memory;
 pub mod multiscale;
 pub mod predict;
+pub mod scratch;
 pub mod sim;
 pub mod spectral;
 pub mod stale_bound;
@@ -1026,6 +1028,11 @@ pub struct Settings {
     /// Rescan a tile only when its upper bound wins the argmax. The picks are
     /// those of rescanning every touched tile.
     pub lazy_bounds: bool,
+    /// The close-to-threshold stop `ε ≥ 0` (`research/gemclean-stop28.md`):
+    /// the run also ends when the exact peak at the top of a major cycle is
+    /// below `(1 + ε)` times the threshold. 0: off, the exact stop. Only the
+    /// run's acceptance changes; the minor cycle still cleans to the threshold.
+    pub stop_tolerance: f64,
 }
 
 impl Default for Settings {
@@ -1050,6 +1057,7 @@ impl Default for Settings {
             level: None,
             tile: 64,
             lazy_bounds: true,
+            stop_tolerance: 0.0,
         }
     }
 }
@@ -1476,6 +1484,15 @@ pub fn run_masked<M: Measurement>(
     if matches!(s.cycle_stop, CycleStop::Certified { .. }) && bound.is_none() {
         return Err("the certified rule needs a bound".into());
     }
+    if !(s.stop_tolerance >= 0.0 && s.stop_tolerance.is_finite()) {
+        return Err("the stop tolerance must be a finite number of at least 0".into());
+    }
+    if s.stop_tolerance > 0.0 && masking.and_then(|m| m.auto).is_some() {
+        return Err(
+            "the stop tolerance does not apply with the automatic mask              (research/gemclean-stop28.md)"
+                .into(),
+        );
+    }
     let level = s.level.unwrap_or_else(kernels::level);
     let mut timings = Timings::default();
     let mut model = vec![0.0; n * n];
@@ -1536,6 +1553,14 @@ pub fn run_masked<M: Measurement>(
             Some(m) => mask::masked_peak(&residual, Some(m)).map_or(0.0, |p| p.1),
         };
         if auto.is_none() && peak.abs() < threshold {
+            break StopReason::Threshold;
+        }
+        // The close-to-threshold stop (research/gemclean-stop28.md): a separate
+        // test, so that ε = 0 runs the exact comparison above untouched.
+        if auto.is_none()
+            && s.stop_tolerance > 0.0
+            && peak.abs() < (1.0 + s.stop_tolerance) * threshold
+        {
             break StopReason::Threshold;
         }
         if steps.len() >= s.max_components {
@@ -2079,12 +2104,20 @@ pub fn restore(n: usize, model: &[f64], residual: &[f64], beam: &RestoringBeam) 
     smooth.iter().zip(residual).map(|(s, r)| s + r).collect()
 }
 
-/// The peak resident set size (Linux `VmHWM`), when the platform reports it.
+/// The peak resident set size (Linux `VmHWM`, Windows the peak working
+/// set), when the platform reports it.
 pub fn peak_memory_bytes() -> Option<u64> {
-    let status = std::fs::read_to_string("/proc/self/status").ok()?;
-    let line = status.lines().find(|l| l.starts_with("VmHWM:"))?;
-    let kb: u64 = line.split_whitespace().nth(1)?.parse().ok()?;
-    Some(kb * 1024)
+    #[cfg(windows)]
+    {
+        memory::windows_memory().map(|m| m.peak_working_set)
+    }
+    #[cfg(not(windows))]
+    {
+        let status = std::fs::read_to_string("/proc/self/status").ok()?;
+        let line = status.lines().find(|l| l.starts_with("VmHWM:"))?;
+        let kb: u64 = line.split_whitespace().nth(1)?.parse().ok()?;
+        Some(kb * 1024)
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -2659,6 +2692,89 @@ mod tests {
         assert!(
             certified.cycles[1].stop == MinorStop::PeakRule
                 || certified.cycles[0].stop == MinorStop::PeakRule
+        );
+    }
+
+    /// The close-to-threshold stop (research/gemclean-stop28.md) cuts the
+    /// default run after the first major cycle whose exact peak is below
+    /// `(1 + ε) T`: the cycles before it, and the model, are the default's.
+    #[test]
+    fn stop_tolerance_cuts_the_default_run() {
+        let sources = [(40usize, 70usize, 1.0), (90, 30, 0.6), (20, 100, 0.3)];
+        let (m, uvw, freq, wgt) = strong_w_field(&sources);
+        let (beam, _, _) = strong_w_bound(&m, &uvw, &freq, &wgt);
+        let t = 2e-3;
+        let settings = Settings {
+            threshold: t,
+            max_components: 40_000,
+            max_major: 400,
+            ..Settings::default()
+        };
+        let exact = run(&m, &beam, &settings, None).unwrap();
+        assert_eq!(exact.stop, StopReason::Threshold);
+        let k = exact.cycles.len() - 1;
+        assert!(k >= 1, "the default needs at least two cycles here");
+        let last = exact.cycles[k].peak_start;
+        assert!(exact.cycles[..k].iter().all(|c| c.peak_start > last));
+        // ε = 0 is the exact stop.
+        let zero = run(
+            &m,
+            &beam,
+            &Settings {
+                stop_tolerance: 0.0,
+                ..settings
+            },
+            None,
+        )
+        .unwrap();
+        assert_eq!(zero.model, exact.model);
+        assert_eq!(zero.cycles.len(), exact.cycles.len());
+        // Just above the last cycle's starting peak: that cycle is not run.
+        let eps = last / t - 1.0 + 1e-9;
+        let cut = run(
+            &m,
+            &beam,
+            &Settings {
+                stop_tolerance: eps,
+                ..settings
+            },
+            None,
+        )
+        .unwrap();
+        assert_eq!(cut.stop, StopReason::Threshold);
+        assert_eq!(cut.cycles.len(), k);
+        let taken: usize = exact.cycles[..k].iter().map(|c| c.components).sum();
+        assert_eq!(cut.steps.len(), taken);
+        for (a, b) in cut.steps.iter().zip(&exact.steps) {
+            assert_eq!((a.pixel, a.peak), (b.pixel, b.peak));
+        }
+        let peak = cut.residual.iter().fold(0.0_f64, |p, v| p.max(v.abs()));
+        assert!(peak >= t && peak < (1.0 + eps) * t, "{peak}");
+        // Just below it: the run is the default's.
+        let below = last / t - 1.0 - 1e-9;
+        let same = run(
+            &m,
+            &beam,
+            &Settings {
+                stop_tolerance: below,
+                ..settings
+            },
+            None,
+        )
+        .unwrap();
+        assert_eq!(same.model, exact.model);
+        // A negative tolerance is refused.
+        assert!(
+            run(
+                &m,
+                &beam,
+                &Settings {
+                    stop_tolerance: -0.1,
+                    ..settings
+                },
+                None
+            )
+            .is_err()
         );
     }
 

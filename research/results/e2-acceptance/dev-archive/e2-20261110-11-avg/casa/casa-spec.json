@@ -1,0 +1,242 @@
+[
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "field": "J1331+3030",
+   "standard": "manual",
+   "fluxdensity": [
+    14.7172,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "spix": [
+    -0.4507,
+    -0.1798,
+    0.0357
+   ],
+   "reffreq": "1.47GHz",
+   "polindex": [
+    0.098
+   ],
+   "polangle": [
+    0.575959
+   ],
+   "rotmeas": 0.0,
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/run/casa/K",
+   "field": "J1939-6342",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "parang": false
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/run/casa/G",
+   "field": "J1939-6342",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/run/casa/B",
+   "field": "J1939-6342",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 0,
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/run/casa/Gpol",
+   "field": "J1331+3030",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/run/casa/Kcross",
+   "field": "J1331+3030",
+   "gaintype": "KCROSS",
+   "solint": "inf",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B",
+    "/run/casa/Gpol"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "polcal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/run/casa/Xf",
+   "field": "J1331+3030",
+   "poltype": "Xf",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B",
+    "/run/casa/Gpol",
+    "/run/casa/Kcross"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest"
+   ]
+  }
+ },
+ {
+  "task": "polcal",
+  "args": {
+   "vis": "/run/casa/luno-dev.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/run/casa/Df.raw",
+   "field": "J1939-6342",
+   "poltype": "Df",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/run/casa/K",
+    "/run/casa/G",
+    "/run/casa/B",
+    "/run/casa/Kcross",
+    "/run/casa/Xf"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest"
+   ]
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/run/casa/Df.raw",
+   "dst": "/run/casa/Df"
+  }
+ },
+ {
+  "task": "flagdata",
+  "args": {
+   "vis": "/run/casa/Df",
+   "mode": "clip",
+   "clipminmax": [
+    -0.6,
+    0.6
+   ],
+   "datacolumn": "CPARAM",
+   "flagbackup": false
+  }
+ }
+]

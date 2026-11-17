@@ -1,0 +1,125 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "run",
+  "research/results/e2-acceptance-scripts/e2b.yaml",
+  "D:\\rang\\data\\e2-b\\e2b.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-12T00:53:27+00:00",
+ "commit": null,
+ "source": {
+  "checkout": null,
+  "distribution": "rang-core",
+  "version": "0.1.0",
+  "extension_sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Build/tmp/20261111-e2-wheel/venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.1.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Build/tmp/20261111-e2-wheel/venv/Lib/site-packages/rang/_core.pyd",
+   "sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": null,
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "research/results/e2-acceptance-scripts/e2b.yaml",
+   "kind": "file",
+   "bytes": 3381,
+   "sha256": "c8e8e333eb0888c1c77e9597553b733acb9a3e6deca00b872af5848ff07d1998"
+  },
+  {
+   "path": "D:/rang/data/e2-b/e2b.ms",
+   "kind": "directory",
+   "files": 65,
+   "bytes": 54263794050,
+   "listing_sha256": "37c3e324ca6c5e70000f9a4f413a7ddc12ef7498d16bbc8a5d2ff728f63c514d"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/data/e2-b/e2b.ms",
+   "kind": "directory",
+   "files": 69,
+   "bytes": 125808136092,
+   "listing_sha256": "d6859a6217e5f317b677d554459a9c2039fff0224c98d29c0c2ab8d3433c8d64",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/data/e2-b/e2b.ms.flagversions",
+   "kind": "directory",
+   "files": 26,
+   "bytes": 2239923762,
+   "tree_sha256": "f56558c4987198a5349583075cb8ebce6e49546afbec8a24699354c38fb67bd2"
+  },
+  {
+   "path": "D:/rang/data/e2-b/e2b.ms.rang-run",
+   "kind": "directory",
+   "files": 742,
+   "bytes": 7724092447,
+   "tree_sha256": "6e5f48a7ded8fd70b7b080780656297c92e39cb481850bc35d4ae65cdff2f99c"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 6187.033886000005,
+  "cpu_seconds": 7830.328125,
+  "peak_rss_mb": 5853.40625
+ },
+ "exit": 0,
+ "verdict": null
+}

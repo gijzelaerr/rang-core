@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! A SARA-style analysis prior: Dirac and the Daubechies db1 to db8 bases,
 //! concatenated and scaled by `1/√9`, so that `Ψ Ψᵀ = I` (Carrillo, McEwen and
 //! Wiaux 2012; uSARA, Terris et al. 2023).

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Read-only AipsIO decoding of a casacore table's keywords (`table.dat`).
 
 The core reader (`rang.core_ms`) skips the keyword sets; the formats need the

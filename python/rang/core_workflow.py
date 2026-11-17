@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Core-native solve for the flagging workflow: no Measurement Set, no subprocess.
 
 `core_solve` returns what `flagging_workflow.solve` returns (metrics, TV

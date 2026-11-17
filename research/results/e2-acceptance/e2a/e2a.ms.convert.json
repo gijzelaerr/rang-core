@@ -1,0 +1,49 @@
+{
+ "groups": [
+  {
+   "store": "D:\\rang\\data\\e2-a\\ESO137\\ms1_primary.zarr",
+   "group": "MAIN_4",
+   "rows": 98332,
+   "first_row": 0,
+   "attrs": {
+    "DATA_DESC_ID": 0,
+    "FIELD_ID": 0,
+    "SCAN_NUMBER": 9
+   }
+  },
+  {
+   "store": "D:\\rang\\data\\e2-a\\ESO137\\ms1_target.zarr",
+   "group": "MAIN_4",
+   "rows": 850950,
+   "first_row": 98332,
+   "attrs": {
+    "DATA_DESC_ID": 0,
+    "FIELD_ID": 0,
+    "SCAN_NUMBER": 10
+   }
+  },
+  {
+   "store": "D:\\rang\\data\\e2-a\\ESO137\\ms1_primary.zarr",
+   "group": "MAIN_5",
+   "rows": 98332,
+   "first_row": 949282,
+   "attrs": {
+    "DATA_DESC_ID": 0,
+    "FIELD_ID": 0,
+    "SCAN_NUMBER": 11
+   }
+  }
+ ],
+ "nrow": 1047614,
+ "chan": [
+  0,
+  4096
+ ],
+ "no_cubes": false,
+ "fields": [
+  "J1939-6342",
+  "ESO137-001"
+ ],
+ "antennas": 61,
+ "seconds": 762.6972305774689
+}

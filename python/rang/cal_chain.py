@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """CARACal's cross-calibration chain in C1's order (research/c1-calibration-chain.md).
 
 `primary(ms, ...)` (task C2c, research/c2c-bandpass.md part 3; C1 section
@@ -174,6 +175,11 @@ def _solve_one(ms, term, field_id, tables, common):
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
+    if kind != "G":
+        kwargs.pop("average_freq", None)  # task E2: G-type solves only
+        kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
+    if kind != "B":
+        kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
     if not kwargs["gaintable"]:
         kwargs["gaintable"] = ()
         kwargs["interp"] = "linear"
@@ -209,6 +215,12 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["scan"] = common["scan"]
     if common.get("budget") is not None:
         kwargs["budget"] = common["budget"]
+    if common.get("average_time"):
+        kwargs["average_time"] = True
+    if kind == "Gpol" and common.get("average_freq"):
+        kwargs["average_freq"] = True  # task E2: G-type solves only
+    if kind == "Gpol" and common.get("casa_phase_weights"):
+        kwargs["casa_phase_weights"] = True  # task A3: calmode p only
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -442,6 +454,10 @@ def run(
     stage="calibrate",
     log=None,
     budget=None,
+    average_time=False,
+    average_freq=False,
+    casa_phase_weights=False,
+    bandpass_model_divided=False,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -466,8 +482,22 @@ def run(
     first write). `budget` (task W3b, research/w3b-chainchunks.md): a
     `core_chunks.Budget`; every solve then reads its field in chunks of
     whole solution intervals and every A step flags in blocks of baselines
-    within it, with the result of the one-call run. Returns `{"tables":
-    {name: {...}}, "steps": [...]}`."""
+    within it, with the result of the one-call run. `average_time` (task
+    E2, `calibrate.average_time`): every K, G, B, F, Gpol, KCROSS, Xf and
+    Df solve is on its data and model averaged in time within each solution
+    interval (CASA's pre-averaging, `rang.cal_chunks.load_averaged`); the A
+    steps are unchanged. `average_freq` (task E2, `calibrate.average_freq`):
+    every G, F and Gpol solve is on its data and model averaged over the
+    window's channels (`rang.cal_gain.frequency_averaged`, CASA's G-type
+    estimator); K, B, KCROSS, Xf and Df are unchanged.
+    `casa_phase_weights` (task A3, `calibrate.casa_phase_weights`, needs
+    `average_freq`): every calmode `p` G and Gpol solve uses CASA's
+    phase-only datum (`rang.cal_gain.gaincal`). `bandpass_model_divided`
+    (task e2a-3b-diag, `calibrate.bandpass_model_divided`,
+    research/e2a-3b-diag.md): every B solve divides the pre-applied data by
+    the (corrupted) model before any average (`rang.cal_bandpass.bandpass`
+    `model_divided`). Returns `{"tables": {name: {...}}, "steps":
+    [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -478,6 +508,16 @@ def run(
         common["scan"] = [int(s) for s in np.atleast_1d(scan)]
     if budget is not None:
         common["budget"] = budget.chain()
+    if average_time:
+        common["average_time"] = True
+    if average_freq:
+        common["average_freq"] = True
+    if casa_phase_weights:
+        if not average_freq:
+            raise ValueError("casa_phase_weights needs average_freq")
+        common["casa_phase_weights"] = True
+    if bandpass_model_divided:
+        common["model_divided"] = True
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -511,6 +551,7 @@ def run(
                 stop_fraction=term["stop_fraction"],
             )
             kwargs.pop("model_column")
+            kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
             table, record, merged = cal_fluxscale.bootstrap(
                 ms,
                 base,

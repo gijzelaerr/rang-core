@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """L1-M: the PKS 1934-638 field model under L1's frozen campaign
 (research/l1-model-completeness.md).
 

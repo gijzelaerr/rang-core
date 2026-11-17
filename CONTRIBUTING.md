@@ -2,6 +2,45 @@
 
 Contributions should make a scientific claim easier to reproduce, test or reject. Use Rust for numerical kernels and Python for interfaces, experiments and analysis. The documentation is at <https://pythonic.nl/rang-core/>.
 
+## The pull-request route
+
+The owner commits to `main`; everyone else, people and their coding agents
+alike, contributes through pull requests. The working rules for both are in
+`AGENTS.md`, Part 1 (Part 2 is the owner's own and does not apply to you).
+
+1. **Open an issue or a draft pull request first** for anything larger than a
+   fix, so the owner can say whether it fits `research/vision.md`.
+2. **Branch** from current `main` (or fork). One topic per pull request.
+3. **For a scientific or performance claim, freeze a proposal note first:**
+   commit `research/<id>-<name>.md` with the hypothesis, data, oracle, frozen
+   tolerances and the decision rule before the code that tests it. The
+   measurement, its seeds, run paths and receipts go in the same note under
+   "Measured result"; nulls and failures are reported, not dropped. The
+   novelty rule (`AGENTS.md`, "Claims") decides what may be called a gain.
+   `docs/agents/propose-and-measure.md` is the procedure.
+4. **Run the full local checks** below (`python -m rang.check`), under
+   `python tools/heavy_lock.py run -- ...` on a shared host, and paste the
+   summary (`overall: PASS`, or the failing steps) into the pull request.
+5. **CI.** The `tests` workflow runs on every pull request: ruff, ruff format,
+   cargo fmt, clippy (warnings are errors), cargo test for the root crate and
+   `core/`, and pytest on Linux and Windows against the branch's extension.
+   The `docs` workflow also runs on every pull request: it builds the
+   extension, executes the notebooks on the public fixture, checks the CLI page
+   and builds the site with `sphinx-build -W`. The `wheels` workflow (five
+   platforms) runs when the pull request touches `core/`, `src/`, `Cargo.*`,
+   `.cargo/`, `pyproject.toml` or `tools/wheel/`, and tests each built wheel
+   with a subset of the Python tests. CI has no archives or oracles (CASA,
+   QuartiCal, WSClean), so their gates run only in step 4, which must be done
+   and reported.
+6. **Describe** what changed, what was measured and what was not checked.
+   The owner reviews and merges; defaults and scientific status change only on
+   the owner's decision.
+
+**Agents.** Any agent may do these steps for you; it commits under your name
+and address, not a bot identity. Point it at `AGENTS.md` and at the task
+procedures in `docs/agents/` (Claude Code also finds them as skills in
+`.claude/skills/`).
+
 ## Local checks
 
 Create the Python environment described in the README, then run all checks before committing. The optional tests use every extra below; with fewer, more of them skip:
@@ -32,8 +71,15 @@ is what `tools/check-all.sh` runs) is the same check on any platform; on
 Windows run `.venv\Scripts\python -m rang.check`.
 
 The steps `core-clippy-gpu` and `core-test-gpu` build the core's `gpu`
-feature (wgpu): about 6 minutes cold, a few seconds warm. Leave them
-out with `rang-core check --skip core-clippy-gpu,core-test-gpu`.
+feature (wgpu) in their own `core/target/feature-gpu`: about 6 minutes cold, a few
+seconds warm. Leave them out with `rang-core check --skip core-clippy-gpu,core-test-gpu`.
+The check runs the cheap steps (fmt, ruff, `git diff --check`) first; `--fail-fast`
+stops at the first failure. pytest runs on 8 processes when pytest-xdist (the
+`test` extra) is installed, and `ext-build` skips `maturin develop` when its
+inputs and the installed extension are those of its last successful run
+(`--rebuild` forces it). In a venv without `rang-core` installed yet, run
+`.venv/bin/python tools/check.py` (Windows: `.venv\Scripts\python tools\check.py`)
+instead of a separate `maturin develop` first (research/check-speed.md).
 `bash tools/check-all.sh` runs all of the above with Rust 1.93 and reports
 PASS or FAIL per step. Optional packaging check: `bash tools/wheel/build.sh
 outputs/wheel-<date>-NN` builds the manylinux wheel in docker and
@@ -74,6 +120,21 @@ matches the container kernel stage, so the Rust sources recorded in the result
 receipts remain unchanged: `cargo +1.93 ...` with the commands above. Newer
 Clippy releases add lints that would otherwise require kernel edits.
 
+## Licence headers
+
+Every tracked `.py`, `.rs`, `.sh` and `.cc` file under `python/rang`,
+`core/src`, `src` and `tools` starts with an SPDX line, after a shebang or
+encoding line if it has one:
+
+```python
+# SPDX-License-Identifier: GPL-3.0-or-later
+```
+
+(`//` for Rust and C++). A file ported from code under another licence names
+both, for example `GPL-3.0-or-later AND MIT`, and keeps the upstream notice
+in full (`docs/licence.md` lists the ported code). Longer copyright
+notices may follow the SPDX line. `tests/test_spdx_headers.py` checks it.
+
 ## Releasing
 
 The version is set once, in `pyproject.toml` `[project] version`; bump the
@@ -88,8 +149,10 @@ full local checks, commit and push to `main`, then tag:
 refuses a tag that differs from the version (in both the release and the
 publish job, before any upload), takes the release notes from the
 changelog section, and publishes to PyPI by trusted publishing. The sdist
-carries only the crates, `python/`, `tests/` and `tools/wheel/`
-(`[tool.maturin] exclude` in `pyproject.toml`).
+carries only the crates, `data/README.md` and `data/meerkat.itrf.txt`,
+`python/`, `tests/`, `tools/wheel/`, README, CHANGELOG, `CITATION.cff`,
+LICENSE and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
+`pyproject.toml`).
 
 ## Scientific reporting
 

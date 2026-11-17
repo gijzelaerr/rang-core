@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Direction arguments of sumthreshold vs sumthreshold_masked (post-hoc).
 A horizontal (time) run of 8 samples at 0.6 and a vertical (frequency) run of
 8 samples at 0.6, on zeros: only an L=8 window (threshold 0.42) detects them."""

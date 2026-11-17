@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! CASA calibration tables (NewCalTable) for the table writer
 //! (research/e4-table-create.md).
 //!

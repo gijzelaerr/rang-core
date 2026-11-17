@@ -92,3 +92,30 @@ resumed on the owner's word on 2026-11-11; E2 to E6 form the heavy queue. The li
 | V4 | Research skills (digest, improve) | A weekly literature digest (owner: weekly, 2026-11-11) runs on a schedule and writes a dated digest and proposal notes; the improve skill acts only on a proposal the owner approved | no | `.claude/skills/`, `research/digests/` (after V2) |
 | V5 | Obit as a second imaging oracle | Obit (MFImage) installed in WSL; a note compares GeMClean, WSClean and MFImage on S1 and the pilot at tolerances written first: flux, spectral index, rms, time, memory | yes | `research/`, `tools/` |
 | V6 | VLBI scoping note (EHT, EVN with MeerKAT) | A note picks the first piece (fringe fitting against CASA `fringefit`/AIPS FRING, or closure imaging against eht-imaging/SMILI), its public data and its tolerances; owner decides whether and when it starts, after LOFAR | no | `research/` only |
+| V7 | LOFAR scoping note (LOFAR and LOFAR 2.0) | A note picks the first piece (DI ionospheric solve against DP3 DDECal, or the station beam against EveryBeam), its public data and its tolerances, and lists what to ask ASTRON; owner decides whether and when it starts | no | `research/` only |
+| V8 | Open CASA replacement, scoping note | A note inventories the CASA tasks MeerKAT users run against rang, orders the missing ones by CARACal's use, defines "better" with metrics, settles CASA's role (oracle only) and proposes the first three pieces with oracles and gates; owner decides when they start | no | `research/` only |
+
+## 8. An open CASA (2026-11-12)
+
+Owner, 2026-11-12, verbatim: "fuck casa, they make it impossible to
+contribute. even now, years later. we should not even try. lets make the world
+a better place by making a better CASA that is way more transparant and open to
+contributions. lets replicate casa but make it better".
+
+Status: **direction set; everything is proposed.** ra-ng grows, task by task,
+into an open replacement for the CASA tasks MeerKAT users run (LOFAR in mind),
+each port gated against CASA as an oracle binary, with receipts, documented
+numerics and public pull requests. CASA is never a contribution target: no
+reports or patches go to NRAO. A reimplementation is still not novelty
+(`AGENTS.md`); parity is the goal for the ports, and any claim of better quality
+or cost is measured against the state of the art, which for MeerKAT imaging is
+WSClean, not CASA. The scope, priorities, first pieces and open decisions are in
+[v8-open-casa.md](v8-open-casa.md) (task V8). v0.2.0 stays the next milestone.
+
+Owner, 2026-11-12, on V8's seven decisions: "yes go with the recommendations"
+([v8-open-casa.md](v8-open-casa.md) section 8.1): `listobs` now (V8a), then
+after v0.2.0 `tfcrop` and the fixed-rule `flagdata` modes; Tricolour stays the
+default; casadocs#205 stays open; the CASA licence check runs now (E5b) and
+ports work from CASA's behaviour and documentation; `rang-core` grows with a
+`rang.tasks` layer in CASA's keyword names; spectral line and image tables out
+for now.

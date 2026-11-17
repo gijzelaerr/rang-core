@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA's C++ source in part (Copyright (C) Associated
+# Universities, Inc. Washington DC, USA; (L)GPL version 2 or later):
+# notices in THIRD-PARTY-NOTICES.txt.
 """The polarisation terms Gpol, KCROSS, Xf and Df with the parallactic angle
 P (task C6, research/c6-polterms.md; C1 terms T6 and T8 to T11,
 research/c1-calibration-chain.md).
@@ -22,7 +26,9 @@ type 7, always corrupts the model, first):
 `parallactic_angles(...)` gives per row the angle `a = q + RECEPTOR_ANGLE`
 of both antennas in the chosen frame, `rotate(...)` applies P in the Rust
 kernel (`core/src/cal/parang.rs`), and `apply(...)` corrects or corrupts
-by tables (`rang.cal_apply`) and P in CASA's order.
+by tables (`rang.cal_apply`) and P in CASA's order, with P's flags
+`spread_flags` (CASA's general-Jones rule: any flagged correlation of a cell
+flags all four; task df-flag-rule, research/p-flag-spread.md).
 
 **The parallactic-angle frame (provisional, owner decision; A1 section 7.2):**
 `frame='casa'` (the default) is the hour-angle formula on astropy's apparent
@@ -58,10 +64,101 @@ MJD_SECONDS = 86400.0
 # -- the parallactic angle --------------------------------------------------
 
 
+_C_LIGHT = 299792458.0
+_ARCSEC = np.pi / 180.0 / 3600.0
+
+
+def _pa_formula(h, d, phi):
+    return np.arctan2(np.sin(h), np.tan(phi) * np.cos(d) - np.sin(d) * np.cos(h))
+
+
+def _elementary(axis, angle):
+    """casacore's RotMatrix(Euler(angle, axis)) per element of `angle`."""
+    c, s = np.cos(angle), np.sin(angle)
+    m = np.zeros(np.shape(angle) + (3, 3))
+    i, j = [(1, 2), (2, 0), (0, 1)][axis - 1]
+    m[..., axis - 1, axis - 1] = 1.0
+    m[..., i, i] = c
+    m[..., j, j] = c
+    m[..., i, j] = s
+    m[..., j, i] = -s
+    return m
+
+
 def parallactic_angle_casa(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m):
-    """The angle CASA's `parang=True` was measured to use (A1 section 7.2):
-    the hour-angle formula on the apparent (TETE) place, apparent sidereal
-    time, the **geocentric** latitude of the antenna, from apparent north."""
+    """casacore's parallactic angle (`MSDerivedValues::parAngle`, which CASA's
+    `applycal(parang=True)` applies) of the J2000 direction (ra, dec) at an
+    antenna's ITRF position, from astropy and erfa (research/e2b-misses.md
+    9.15): the geocentric apparent place on casacore's IAU 1976/1980
+    equator and equinox, casacore's apparent sidereal time (`gst94`), its
+    TOPO -> HADEC step (a shift of g2 = 2 pi R / day / c towards the zenith,
+    then polar motion), and the hour-angle formula with the geocentric
+    latitude. Matches casacore within 2e-7 rad (`tests/data/pa_casacore.json`)."""
+    import erfa
+    from astropy import units
+    from astropy.coordinates import TETE, SkyCoord
+    from astropy.time import Time
+    from astropy.utils import iers
+
+    iers.conf.auto_download = False
+    times = np.atleast_1d(np.asarray(times_mjd_s, float))
+    x, y, z = (float(v) for v in itrf_xyz_m)
+    when = Time(times / MJD_SECONDS, format="mjd", scale="utc")
+    # 1. geocentric apparent place, IAU 2006/2000A -> casacore's 1976/1980
+    app = SkyCoord(ra_rad * units.rad, dec_rad * units.rad, frame="icrs").transform_to(
+        TETE(obstime=when)
+    )
+    a, d = app.ra.rad, app.dec.rad
+    v = np.stack([np.cos(d) * np.cos(a), np.cos(d) * np.sin(a), np.sin(d)], -1)
+    tt = when.tt
+    m = erfa.pnm80(tt.jd1, tt.jd2) @ np.swapaxes(erfa.pnm06a(tt.jd1, tt.jd2), -1, -2)
+    v = np.einsum("...ij,...j->...i", m, v)
+    # 2. casacore's apparent sidereal time
+    ut1 = when.ut1
+    last = erfa.gst94(ut1.jd1, ut1.jd2) + np.arctan2(y, x)
+    # 3. casacore's TOPO -> HADEC: zenith shift, then polar motion
+    phi = np.arctan2(z, np.hypot(x, y))
+    t_cen = (tt.mjd - 51544.5) / 36525.0
+    ut_to_st = 1.002737909350795 + (5.9006e-11 - 5.9e-15 * t_cen) * t_cen
+    g2 = (
+        2.0
+        * np.pi
+        * float(np.sqrt(x * x + y * y + z * z))
+        / 86400.0
+        * ut_to_st
+        / _C_LIGHT
+    )
+    zen = np.stack(
+        [
+            np.cos(phi) * np.cos(last),
+            np.cos(phi) * np.sin(last),
+            np.full_like(last, np.sin(phi)),
+        ],
+        -1,
+    )
+    v = v + g2[..., None] * zen
+    v = v / np.linalg.norm(v, axis=-1, keepdims=True)
+    xp, yp = iers.earth_orientation_table.get().pm_xy(when)
+    xp = np.atleast_1d(xp.to_value(units.arcsec))
+    yp = np.atleast_1d(yp.to_value(units.arcsec))
+    rot = (
+        _elementary(3, last)
+        @ _elementary(1, -yp * _ARCSEC)
+        @ _elementary(2, -xp * _ARCSEC)
+    )
+    w = np.einsum("...ij,...j->...i", rot, v)
+    h = np.arctan2(-w[..., 1], w[..., 0])
+    dd = np.arcsin(np.clip(w[..., 2], -1.0, 1.0))
+    # 4. the hour-angle formula, geocentric latitude
+    return _pa_formula(h, dd, phi)
+
+
+def parallactic_angle_tete(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m):
+    """The earlier CASA-frame angle (A1 section 7.2, `simtruth`'s frozen
+    CASA-frame truth): the hour-angle formula on astropy's apparent (TETE)
+    place at the antenna, apparent sidereal time, the geocentric latitude.
+    It differs from casacore's by up to about 7e-6 rad (research/e2b-misses.md
+    9.8, 9.14)."""
     from astropy import units
     from astropy.coordinates import TETE, EarthLocation, SkyCoord
     from astropy.time import Time
@@ -92,9 +189,48 @@ def parallactic_angle(times_mjd_s, ra_rad, dec_rad, itrf_xyz_m, frame="casa"):
     raise ValueError(f"frame must be one of {FRAMES}")
 
 
+LINEAR_FEEDS = ("X", "Y")
+
+
+def feed_types(ms):
+    """FEED POLARIZATION_TYPE per row as a tuple (None for a row without
+    one), or None when FEED has no such column."""
+    with core_ms.open_table(Path(ms) / "FEED") as t:
+        if "POLARIZATION_TYPE" not in t.columns:
+            return None
+        return _cells(t, "POLARIZATION_TYPE")
+
+
+def _cells(table, name):
+    """Each row of a 1-D string-array column as a tuple, None for an
+    undefined cell: one read, or row by row when cells are undefined or
+    differ in shape."""
+    try:
+        return [tuple(r) for r in table.getcol(name).tolist()]
+    except OSError:
+        out = []
+        for row in range(table.nrows):
+            try:
+                out.append(tuple(table.getcol(name, row, 1)[0].tolist()))
+            except OSError:
+                out.append(None)
+        return out
+
+
 def receptor_angles(ms):
     """FEED RECEPTOR_ANGLE of the first receptor per antenna (rad); CASA's
-    P for linear feeds uses `q + RECEPTOR_ANGLE[0]` (A1 section 2.1)."""
+    P for linear feeds uses `q + RECEPTOR_ANGLE[0]` (A1 section 2.1), so a
+    FEED whose POLARIZATION_TYPE is not X, Y is refused
+    (research/feed-poltype-read.md)."""
+    types = feed_types(ms) or []
+    # Rows without a value, or with empty strings only, are not checked.
+    other = sorted({p for p in types if p and any(p) and p != LINEAR_FEEDS})
+    if other:
+        raise ValueError(
+            f"{ms}: FEED POLARIZATION_TYPE {[list(p) for p in other]}; P is "
+            "implemented for MeerKAT's linear feeds (X, Y) only "
+            "(research/meerkat-scope.md)"
+        )
     with core_ms.open_table(Path(ms) / "ANTENNA") as t:
         nant = len(t.getcol("NAME"))
     with core_ms.open_table(Path(ms) / "FEED") as t:
@@ -187,6 +323,26 @@ def rotate(data, angle_p, angle_q, inverse=False):
     return out
 
 
+P_FLAG_RULES = ("spread", "none")
+
+
+def spread_flags(flag, mode="spread"):
+    """P's flags (task df-flag-rule, research/p-flag-spread.md). For linear
+    feeds CASA's `PJones` is a general Jones matrix (`StandardVisCal.cc`,
+    `syncMeta2`), applied after B, K, G, J, D, X and C, and the general
+    `Jones::flagRight` then `flagLeft` (`Jones.cc`) flag every correlation
+    of a cell when any one of them is flagged: so an XY flagged by a bad
+    leakage flags XX and YY too. That is also what the values need: P
+    rotates XX out of all four correlations. `mode='spread'` copies that
+    rule on `flag` `(..., 4)`; `none` returns it unchanged."""
+    if mode not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {mode!r}: use one of {P_FLAG_RULES}")
+    flag = np.asarray(flag, bool)
+    if mode == "none":
+        return flag
+    return np.broadcast_to(flag.any(axis=-1, keepdims=True), flag.shape).copy()
+
+
 def apply(
     data,
     flag,
@@ -202,10 +358,18 @@ def apply(
     field_id=0,
     nant=None,
     table_fields=None,
+    parang_flags="spread",
 ):
     """Correct (or corrupt) by `tables` and, when `angles` (`(a_p, a_q)` per
     row) are given, by P in CASA's order: P is applied last when correcting
-    and first when corrupting, and never flags."""
+    and first when corrupting. P's flags follow `parang_flags`
+    (`spread_flags`): `spread` (CASA's rule, the default) flags all four
+    correlations of a cell with any correlation flagged after the tables,
+    `none` leaves the flags as the tables set them. Flags are computed in
+    correct order for both directions, so `corrupt` flags the cells
+    `correct` does."""
+    if parang_flags not in P_FLAG_RULES:
+        raise ValueError(f"parang_flags {parang_flags!r}: use one of {P_FLAG_RULES}")
     tables = list(tables)
     data = np.asarray(data)
     flag = np.broadcast_to(np.asarray(flag, bool), data.shape)
@@ -228,6 +392,8 @@ def apply(
         )
     if direction == "correct" and angles is not None:
         data = rotate(data, *angles, inverse=True)
+    if angles is not None:
+        flag = spread_flags(flag, parang_flags)
     return np.asarray(data, np.complex64), np.asarray(flag, bool)
 
 
@@ -373,15 +539,18 @@ class _PolField:
             **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
         }
 
-    def prepare(self, pos, c):
-        """The arrays of field rows `pos` from their cell columns `c`."""
+    def prepare(self, pos, c, chans=None):
+        """The arrays of field rows `pos` from their cell columns `c`;
+        `chans` (a slice): the cell columns and the arrays hold only those
+        channels (research/sliced-read.md)."""
         m = self.meta
         data = np.asarray(c[self.data_column], np.complex64)
-        mdl = (
-            c[self.model_column]
-            if self.model is None
-            else cal_gain._model_rows(self.model, pos, len(self.rows))
-        )
+        if self.model is None:
+            mdl = c[self.model_column]
+        else:
+            mdl = cal_gain._model_rows(self.model, pos, len(self.rows))
+            if chans is not None:
+                mdl = np.asarray(mdl)[:, chans]
         mdl = np.asarray(mdl, np.complex64)
         if mdl.shape != data.shape:
             raise ValueError("model must be (row, chan, 4) for the field's rows")
@@ -405,6 +574,7 @@ class _PolField:
                 len(self.names),
                 self.field_id,
                 solved=self.solved,
+                channels=chans,
             )
             sigma = np.asarray(c[self.sigma_column], np.float64)
             if sigma.ndim == 2:
@@ -456,33 +626,79 @@ class _PolField:
 
     def chunk_loaded(self, chunk, arr):
         """A `Loaded` of one chunk (`rang.cal_chunks.Chunk`) for the
-        kernels: its rows, intervals and channels."""
+        kernels: its rows, intervals and channels (task E2: of the averaged
+        rows when the field is averaged; `rows` then the chunk's averaged
+        row indices)."""
         pos = chunk.pos
-        m = self.meta
+        avg = getattr(self, "average", None)
+        if avg is None:
+            m = self.meta
+            rows, a1, a2 = self.rows[pos], m["ANTENNA1"][pos], m["ANTENNA2"][pos]
+            flag_row, time_bin = self.flag_row[pos], self.time_bin[pos]
+        else:
+            rows, a1, a2 = np.asarray(pos), avg.antenna1[pos], avg.antenna2[pos]
+            flag_row, time_bin = avg.flag_row[pos], avg.time_bin[pos]
         return Loaded(
             ms=self.ms,
             field_id=self.field_id,
-            rows=self.rows[pos],
-            cols={"ANTENNA1": m["ANTENNA1"][pos], "ANTENNA2": m["ANTENNA2"][pos]},
+            rows=rows,
+            cols={"ANTENNA1": a1, "ANTENNA2": a2},
             data=arr["data"],
             model=arr["model"],
             weights=arr["weights"],
             flag=arr["flag"],
-            flag_row=np.ascontiguousarray(self.flag_row[pos], bool),
+            flag_row=np.ascontiguousarray(flag_row, bool),
             freq=self.freq[chunk.chans],
             nant=len(self.names),
             names=self.names,
             positions=self.positions,
-            time_bin=self.time_bin[pos] - chunk.t0,
+            time_bin=time_bin - chunk.t0,
             keys=self.keys[chunk.t0 : chunk.t1],
             angles=None,
             settings=dict(self.settings),
         )
 
-    def chunks(self, budget, *, per_channel, what):
-        """`rang.cal_chunks.plan` of this field, and the chunk loader."""
+    def chunks(self, budget, *, per_channel, what, average=False):
+        """`rang.cal_chunks.plan` of this field, and the chunk loader.
+        `average` (task E2, `calibrate.average_time`): chunks of the rows
+        averaged in time within each interval (`rang.cal_chunks.Average`),
+        each chunk read in blocks of source rows prepared by `prepare` (the
+        model rotated by P and the tables pre-applied per row) before the
+        averaging; with P, no average holds two scans or more than
+        `cal_chunks.PSI_TOL_DEG` of P's angle (task xf-avg-fix)."""
         from . import cal_chunks
 
+        if average:
+            m = self.meta
+            group = None
+            if self.table is not None:
+                # Task xf-avg-fix: no average across scans or a span of P's
+                # angle (research/xf-avg-fix.md section 2).
+                psi = table_angles(self.table, m["TIME"], m["ANTENNA1"], m["ANTENNA2"])
+                group = cal_chunks.psi_groups(self.time_bin, m["SCAN_NUMBER"], psi[0])
+            avg = cal_chunks.Average(
+                self.time_bin, m["ANTENNA1"], m["ANTENNA2"], self.flag_row, group
+            )
+            self.average = avg
+            chunks, block = cal_chunks.plan(
+                avg.time_bin, len(self.freq), 4, budget, per_channel=per_channel,
+                what=what, average=avg,
+            )  # fmt: skip
+
+            kept = {}
+
+            def get_averaged(reader, chunk):
+                # One chunk is averaged once (Df reads its chunks four times).
+                if len(chunks) == 1 and kept:
+                    return dict(kept)
+                arr = cal_chunks.load_averaged(
+                    reader, self.rows, chunk, self.cells, self._prep, block, avg
+                )
+                if len(chunks) == 1:
+                    kept.update(arr)
+                return arr
+
+            return chunks, get_averaged
         chunks, block = cal_chunks.plan(
             self.time_bin, len(self.freq), 4, budget, per_channel=per_channel, what=what
         )
@@ -495,8 +711,8 @@ class _PolField:
 
         return chunks, get
 
-    def _prep(self, pos, c):
-        arr = self.prepare(pos, c)
+    def _prep(self, pos, c, chans=None):
+        arr = self.prepare(pos, c, chans=chans)
         del arr["angles"]
         return arr
 
@@ -507,10 +723,17 @@ def _refant_index(names, refant):
     ]
 
 
-def _chunked(ms, budget, *, per_channel, what, **load_options):
+def _chunked(ms, budget, *, per_channel, what, average_time=False, **load_options):
     """`load`, or with `budget` (task W3b) the field's `_PolField` and its
     chunks: `(Loaded, None)` when the field is one chunk, else
-    `(_PolField, (chunks, get))`."""
+    `(_PolField, (chunks, get))`. With `average_time` (task E2) always the
+    chunks, of the time-averaged rows (`budget` None: one chunk)."""
+    if average_time:
+        fld = _PolField(ms, **_load_defaults(load_options))
+        chunks, get = fld.chunks(
+            budget, per_channel=per_channel, what=what, average=True
+        )
+        return fld, (chunks, get)
     if budget is None:
         return load(ms, **load_options), None
     fld = _PolField(ms, **_load_defaults(load_options))
@@ -547,7 +770,7 @@ def _each_chunk(fld, chunks, get, row_w=None):
         for c in chunks:
             arr = get(reader, c)
             if row_w is not None:
-                row_w[c.pos] = arr["row_w"]
+                row_w[arr.get("src", c.pos)] = arr["row_w"]
             yield c, fld.chunk_loaded(c, arr)
             del arr
 
@@ -612,12 +835,20 @@ def _table(kind, ld, values, flags, snr, err, refant, ntime, single_channel):
 
 
 def _flat(ld):
-    """The arrays of a kernel call, rows as loaded."""
+    """The arrays of a kernel call, rows as loaded; non-finite cells flagged
+    and zeroed (`rang.cal_gain.finite_cells`: the Df kernel's leakages were
+    all NaN with their flags clear from one NaN visibility)."""
+    data, model, weights, flag = cal_gain.finite_cells(
+        np.ascontiguousarray(ld.data, np.complex64),
+        np.ascontiguousarray(ld.model, np.complex64),
+        ld.weights,
+        ld.flag,
+    )
     return (
-        ld.data.view(np.float32).reshape(-1),
-        ld.model.view(np.float32).reshape(-1),
-        np.ascontiguousarray(ld.weights.reshape(-1), np.float32),
-        np.ascontiguousarray(ld.flag.reshape(-1), np.uint8),
+        np.ascontiguousarray(data).view(np.float32).reshape(-1),
+        np.ascontiguousarray(model).view(np.float32).reshape(-1),
+        np.ascontiguousarray(weights.reshape(-1), np.float32),
+        np.ascontiguousarray(flag.reshape(-1), np.uint8),
         np.ascontiguousarray(ld.flag_row, np.uint8),
         np.ascontiguousarray(ld.cols["ANTENNA1"], np.uint32),
         np.ascontiguousarray(ld.cols["ANTENNA2"], np.uint32),
@@ -696,20 +927,19 @@ def gpol(
         model = cal_gain._ms_columns(ms, [model_column], rows)[model_column]
     if not parang_done:
         model = np.asarray(model, np.complex64)
+    angles = None
     if parang and not parang_done:
         c = cal_gain._ms_columns(ms, ["TIME", "ANTENNA1", "ANTENNA2"], rows)
-        model = rotate(
-            model,
-            *row_angles(
-                ms,
-                c["TIME"],
-                c["ANTENNA1"],
-                c["ANTENNA2"],
-                field_id,
-                frame,
-                receptor_angle,
-            ),
-        )
+        angles = row_angles(
+            ms, c["TIME"], c["ANTENNA1"], c["ANTENNA2"], field_id, frame,
+            receptor_angle,
+        )  # fmt: skip
+        model = rotate(model, *angles)
+    elif parang:
+        angles = table_angles(table, c["TIME"], c["ANTENNA1"], c["ANTENNA2"])
+    if parang and solve_options.get("average_time"):
+        # Task xf-avg-fix: no average across scans or a span of P's angle.
+        solve_options["average_psi"] = angles[0]
     table, sol, info = cal_gain.gaincal(
         ms,
         field_id=field_id,
@@ -811,6 +1041,7 @@ def kcross(
     refant=None,
     estimator="casa",
     budget=None,
+    average_time=False,
     **load_options,
 ):
     """CARACal's KCROSS: `gaincal(gaintype='KCROSS', parang=True)`. Returns
@@ -819,13 +1050,14 @@ def kcross(
     `ANTENNA2 = -1`). `refant` is recorded only: KCROSS has no antenna
     reference, it depends on the refant of the earlier terms. `estimator`
     (task C6w): `casa`, CASA's FFT and parabola; `refined`, then
-    `kcross_refine`."""
+    `kcross_refine`. `average_time` (task E2): solve on the rows averaged
+    in time within each interval, after P and the pre-apply per row."""
     if estimator not in KCROSS_ESTIMATORS:
         raise ValueError(f"estimator must be one of {KCROSS_ESTIMATORS}")
     ld, parts = _chunked(
         ms, budget, per_channel=False, what=f"KCROSS field {field_id}",
         field_id=field_id, solved="Kcross", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = kcross_solve(ld)
@@ -914,17 +1146,21 @@ def _place(out, chunk, values):
     out[chunk.t0 : chunk.t1, chunk.chans] = values
 
 
-def xf(ms, *, field_id, solint="inf", combine="scan", budget=None, **load_options):
+def xf(
+    ms, *, field_id, solint="inf", combine="scan", budget=None, average_time=False,
+    **load_options,
+):  # fmt: skip
     """CARACal's Xf: `polcal(poltype='Xf')` (`parang=True` always). CASA
     ignores the refant for X (`XJones::setSolve`). Returns
     `(CalTable, XfSolution, Loaded)`; the table is CASA's `Xf Jones`
     (`CPARAM (nchan, 1)`, the array value on every antenna,
     `ANTENNA2 = -1`). `budget` (task W3b): chunks of whole intervals or of
-    channels of one interval (Xf is per interval and channel)."""
+    channels of one interval (Xf is per interval and channel).
+    `average_time` (task E2) as `kcross`."""
     ld, parts = _chunked(
         ms, budget, per_channel=True, what=f"Xf field {field_id}",
         field_id=field_id, solved="Xf", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = xf_solve(ld)
@@ -1128,6 +1364,7 @@ def df(
     minblperant=4,
     min_data_fraction=None,
     budget=None,
+    average_time=False,
     **load_options,
 ):
     """CARACal's Df: `polcal(poltype='Df')` on the (unpolarised) leakage
@@ -1140,11 +1377,13 @@ def df(
     is rang's rule: CASA has none (its flags in such channels come from its
     iterative solver, research/c6w-polwire.md). `budget` (task W3b): chunks
     of whole intervals or of channels of one interval, the gauge test over
-    the whole field first (`rang.cal_chunks.gauge`)."""
+    the whole field first (`rang.cal_chunks.gauge`). `average_time` (task
+    E2) as `kcross`; the gauge test and `min_data_fraction` then see the
+    averaged cells."""
     ld, parts = _chunked(
         ms, budget, per_channel=True, what=f"Df field {field_id}",
         field_id=field_id, solved="Df", solint=solint, combine=combine,
-        **load_options,
+        average_time=average_time, **load_options,
     )  # fmt: skip
     if parts is None:
         sol = df_solve(ld, refant=refant, minsnr=minsnr, minblperant=minblperant)
@@ -1234,6 +1473,8 @@ def clip_df(table, limit=0.6):
 __all__ = [
     "FRAMES",
     "KCROSS_ESTIMATORS",
+    "LINEAR_FEEDS",
+    "P_FLAG_RULES",
     "DfSolution",
     "KcrossSolution",
     "Loaded",
@@ -1243,6 +1484,7 @@ __all__ = [
     "data_fraction",
     "df",
     "df_solve",
+    "feed_types",
     "gpol",
     "kcross",
     "kcross_refine",
@@ -1250,9 +1492,11 @@ __all__ = [
     "load",
     "parallactic_angle",
     "parallactic_angle_casa",
+    "parallactic_angle_tete",
     "receptor_angles",
     "rotate",
     "row_angles",
+    "spread_flags",
     "unpolarised_gauge",
     "xf",
     "xf_solve",

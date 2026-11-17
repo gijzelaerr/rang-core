@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """The `gemclean` command of the wheel (task G8, research/g8-wheel.md).
 
     gemclean [options] <ms>         the console script

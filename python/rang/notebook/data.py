@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Load the two small teaching datasets into the state the core wrappers take.
 
 Two datasets, both real MeerKAT L-band data on four stations:

@@ -91,6 +91,23 @@ def test_existing_columns_are_kept_and_backup_not_retaken(ms):
         assert np.all(t.getcol("CORRECTED_DATA", 0, 10) == 3 + 1j)
 
 
+def test_a_version_renamed_but_not_listed_is_listed_on_the_next_save(ms):
+    """E5-42 (WB-10): a kill between the rename of `flags.<name>` and its list
+    line leaves a complete, unlisted version. The next save of the same flags
+    lists it; a save of other flags is still refused."""
+    path = flagversions.save(ms, "v1", comment="first")
+    listing = flagversions.root(ms) / flagversions.LIST
+    listing.write_text("", encoding="utf-8")  # as if killed before the line
+    assert not flagversions.exists(ms, "v1")
+    assert flagversions.save(ms, "v1", comment="first") == path
+    assert flagversions.versions(ms) == [("v1", "first")]
+    listing.write_text("", encoding="utf-8")
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        t.putcol("FLAG", ~t.getcol("FLAG", 0, 1), 0)
+    with pytest.raises(ValueError, match="remove it first"):
+        flagversions.save(ms, "v1")
+
+
 def test_failed_session_refuses_until_restored(ms):
     f0 = w1.sha(ms, "FLAG")
     with pytest.raises(RuntimeError, match="boom"), wb.WriteBack(ms) as w:
@@ -128,11 +145,15 @@ CHILD = textwrap.dedent(
     from rang import core_writeback as wb
     ms, when, count = sys.argv[1], sys.argv[2], int(sys.argv[3])
     seen = []
+    def kill():
+        if os.name == "nt":  # no SIGKILL: exit at once, no cleanup (E5-43)
+            os._exit(9)
+        os.kill(os.getpid(), signal.SIGKILL)
     def hook(event, column, start, n):
         if event == when and column in ("FLAG", "CORRECTED_DATA"):
             seen.append(start)
             if len(seen) == count:
-                os.kill(os.getpid(), signal.SIGKILL)
+                kill()
     with wb.WriteBack(ms, chunk_rows=32, on_chunk=hook) as w:
         w.ensure_column("MODEL_DATA")
         w.ensure_column("CORRECTED_DATA")
@@ -143,7 +164,6 @@ CHILD = textwrap.dedent(
 )
 
 
-@pytest.mark.skipif(os.name != "posix", reason="SIGKILL and the fcntl lock are POSIX")
 @pytest.mark.parametrize(
     "when,count",
     [("flushed", 6), ("written", 7), ("backup", 2), ("init", 3)],
@@ -161,7 +181,8 @@ def test_sigkill_leaves_original_flags_recoverable(tmp_path, when, count):
     p = subprocess.run(
         [sys.executable, str(child), str(ms), event, str(count)], check=False
     )
-    assert p.returncode == -9
+    # SIGKILL on POSIX; os._exit(9) on Windows, where the table lock is a no-op.
+    assert p.returncode == (9 if os.name == "nt" else -9)
     with core_ms.open_table(ms) as t:  # the MS still opens
         assert t.nrows == 150
         t.getcol("FLAG")

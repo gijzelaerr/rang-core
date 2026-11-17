@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Forward-backward and FISTA for `½‖y − Φ m‖²_W + R(m)` with `m ≥ 0`, over any
 //! [`Measurement`]: the exact gridder or the visibility-free Gram operator.
 //!

@@ -1,0 +1,61 @@
+--- a/src/fitters/gaussianfitter.cc
++++ b/src/fitters/gaussianfitter.cc
+@@ -102,9 +102,9 @@
+   const double scale = 1.0 / fitter.scale_factor;
+ 
+   size_t data_index = 0;
+-  for (size_t yi = 0; yi != height; ++yi) {
++  for (int yi = 0; yi != int(height); ++yi) {
+     const double y = (yi - y_mid) * scale;
+-    for (size_t xi = 0; xi != width; ++xi) {
++    for (int xi = 0; xi != int(width); ++xi) {
+       const double x = (xi - x_mid) * scale;
+       const bool skip = SkipNegativeValues && fitter.image[data_index] < 0.0f;
+       const double e = skip ? 0.0f : GaussCentered(x, y, sx, sy, beta) - fitter.image[data_index];
+@@ -125,9 +125,9 @@
+   const double scale = 1.0 / fitter.scale_factor;
+ 
+   size_t data_index = 0;
+-  for (size_t yi = 0; yi != height; ++yi) {
++  for (int yi = 0; yi != int(height); ++yi) {
+     const double y = (yi - y_mid) * scale;
+-    for (size_t xi = 0; xi != width; ++xi) {
++    for (int xi = 0; xi != int(width); ++xi) {
+       const double x = (xi - x_mid) * scale;
+       const double e = GaussCircularCentered(x, y, s) - fitter.image[data_index];
+       gsl_vector_set(f, data_index, e);
+@@ -153,9 +153,9 @@
+   const double scale = 1.0 / fitter.scale_factor;
+ 
+   size_t data_index = 0;
+-  for (size_t yi = 0; yi != height; ++yi) {
++  for (int yi = 0; yi != int(height); ++yi) {
+     const double y = (yi - y_mid) * scale;
+-    for (size_t xi = 0; xi != width; ++xi) {
++    for (int xi = 0; xi != int(width); ++xi) {
+       const double x = (xi - x_mid) * scale;
+       const bool skip = SkipNegativeValues && fitter.image[data_index] < 0.0f;
+       if (skip) {
+@@ -164,8 +164,8 @@
+         gsl_matrix_set(J, data_index, 2, 0.0);
+       } else {
+         const double exp_term = GaussCentered(x, y, sx, sy, beta);
+-        const double dsx = (beta * x * y / (sx * sx * sy) + x * x / (sx * sx * sx)) * exp_term;
+-        const double dsy = (beta * x * y / (sy * sy * sx) + y * y / (sy * sy * sy)) * exp_term;
++        const double dsx = (-beta * x * y / (sx * sx * sy) + x * x / (sx * sx * sx)) * exp_term;
++        const double dsy = (-beta * x * y / (sy * sy * sx) + y * y / (sy * sy * sy)) * exp_term;
+         const double dbeta = x * y / (sx * sy) * exp_term;
+         gsl_matrix_set(J, data_index, 0, dsx);
+         gsl_matrix_set(J, data_index, 1, dsy);
+@@ -186,9 +186,9 @@
+   const double scale = 1.0 / fitter.scale_factor;
+ 
+   size_t data_index = 0;
+-  for (size_t yi = 0; yi != height; ++yi) {
++  for (int yi = 0; yi != int(height); ++yi) {
+     const double y = (yi - y_mid) * scale;
+-    for (size_t xi = 0; xi != width; ++xi) {
++    for (int xi = 0; xi != int(width); ++xi) {
+       const double x = (xi - x_mid) * scale;
+       const double exp_term = GaussCircularCentered(x, y, s);
+       // derivative of exp((-x*x - y*y)/(2.0*s*s)) to s

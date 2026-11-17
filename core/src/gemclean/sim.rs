@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Simulated MeerKAT Measurement Sets for gemclean's experiments and profiles.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

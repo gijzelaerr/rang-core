@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Joined-channel deconvolution for gemclean: WSClean's `-join-channels`
 //! with GeMClean's minor step (`research/g3-spectral.md`).
 //!
@@ -42,6 +43,9 @@ pub struct Joined {
     pub q_final: Vec<f64>,
     /// The automatic mask's record (task G4).
     pub auto: Option<super::mask::AutoState>,
+    /// The automatic mask once made: radler's Högbom mask, the union of
+    /// every entry's (channel's and polarisation's) nonzero model pixels.
+    pub auto_mask: Option<Vec<bool>>,
 }
 
 /// `Σ a_k x_k` per pixel, in channel order.
@@ -82,6 +86,91 @@ struct State<'a> {
     buffers: [Vec<f64>; 2],
 }
 
+/// The models at the start of a major cycle, kept only at the pixels the
+/// cycle's components have touched (research/gemclean-memory.md): elsewhere
+/// the model has not changed, so `m_k − m_k,major` is `a − a = 0.0` there,
+/// the bits a zeroed image holds.
+struct Touched {
+    seen: Vec<bool>,
+    pixels: Vec<usize>,
+    /// `was[k][j]`: entry `k`'s model at `pixels[j]` when the cycle began.
+    was: Vec<Vec<f64>>,
+}
+
+impl Touched {
+    fn new(pixels: usize, entries: usize) -> Touched {
+        Touched {
+            seen: vec![false; pixels],
+            pixels: Vec::new(),
+            was: vec![Vec::new(); entries],
+        }
+    }
+
+    /// Before the first change of pixel `p` in this cycle.
+    fn note(&mut self, p: usize, models: &[Vec<f64>]) {
+        if !self.seen[p] {
+            self.seen[p] = true;
+            self.pixels.push(p);
+            for (was, m) in self.was.iter_mut().zip(models) {
+                was.push(m[p]);
+            }
+        }
+    }
+
+    /// `m_k − m_k,major` into `delta`.
+    fn delta_into(&self, k: usize, model: &[f64], delta: &mut [f64]) {
+        delta.par_iter_mut().for_each(|d| *d = 0.0);
+        for (&p, &w) in self.pixels.iter().zip(&self.was[k]) {
+            delta[p] = model[p] - w;
+        }
+    }
+}
+
+/// The dirty images of a run, kept in a file until the run ends
+/// (research/gemclean-memory.md): the raw `f64` bits, so they come back as
+/// they went.
+fn spill_write(path: &std::path::Path, images: &[Vec<f64>]) -> Result<(), String> {
+    use std::io::Write;
+    let file = std::fs::File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut out = std::io::BufWriter::with_capacity(1 << 22, file);
+    for img in images {
+        for chunk in img.chunks(1 << 16) {
+            let bytes: Vec<u8> = chunk.iter().flat_map(|v| v.to_le_bytes()).collect();
+            out.write_all(&bytes)
+                .map_err(|e| format!("{}: {e}", path.display()))?;
+        }
+    }
+    out.flush().map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// The `count` images of `len` pixels that [`run_joined_spill_kept`] left
+/// in `path`, as they went; the file is removed.
+pub fn spill_read(
+    path: &std::path::Path,
+    count: usize,
+    len: usize,
+) -> Result<Vec<Vec<f64>>, String> {
+    use std::io::Read;
+    let file = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut input = std::io::BufReader::with_capacity(1 << 22, file);
+    let mut images = Vec::with_capacity(count);
+    let mut bytes = vec![0u8; 8 * len];
+    for _ in 0..count {
+        input
+            .read_exact(&mut bytes)
+            .map_err(|e| format!("{}: {e}", path.display()))?;
+        images.push(
+            bytes
+                .chunks_exact(8)
+                .map(|b| f64::from_le_bytes(b.try_into().expect("8 bytes")))
+                .collect(),
+        );
+    }
+    drop(input);
+    std::fs::remove_file(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(images)
+}
+
 impl State<'_> {
     /// Every channel's map made exact, `r̃_k = r_k − B_k (m_k − m_k,major)`,
     /// then the integrated map from them.
@@ -92,18 +181,14 @@ impl State<'_> {
         maps: &mut [Vec<f64>],
         since: &mut [Since],
         models: &[Vec<f64>],
-        models_major: &[Vec<f64>],
+        touched: &Touched,
         residuals: &[Vec<f64>],
     ) {
         let [delta, conv] = &mut self.buffers;
         for k in 0..maps.len() {
             delta.resize(models[k].len(), 0.0);
             conv.resize(models[k].len(), 0.0);
-            delta
-                .par_iter_mut()
-                .zip(&models[k])
-                .zip(&models_major[k])
-                .for_each(|((d, a), b)| *d = a - b);
+            touched.delta_into(k, &models[k], delta);
             self.beams[k].convolver.apply_into(delta, conv);
             maps[k]
                 .par_iter_mut()
@@ -155,6 +240,17 @@ pub fn run_joined_pols<M: Measurement>(
 /// [`run_joined_pols`] with clean masks (task G4, `research/g4-masks.md`),
 /// as [`super::run_masked`]: the masks act on the integrated residual, and
 /// radler's Högbom mask is the union of the entries' nonzero model pixels.
+///
+/// With joined polarisations (`npol > 1`) this is radler's
+/// `-join-polarizations -auto-mask` (radler `76fe4474c31c`, `radler.cc`
+/// `Perform` and `SetAutoMaskMode`; `image_set.cc`
+/// `GetLinearIntegratedWithNormalChannels`; `research/e2b-misses.md`, arm A5):
+/// the noise of every major iteration is the MAD estimate of the linear
+/// integrated residual `norm Σ_k a_k Σ_p r_kp` (all polarisations summed,
+/// not Stokes I alone and not a squared sum), the mask threshold is that
+/// noise times `-auto-mask`, the peaks are found in the same integrated
+/// residual inside the mask, and the mask is the union over every channel
+/// and polarisation of the nonzero model pixels.
 pub fn run_joined_masked<M: Measurement>(
     entries: &[(&M, &Beam)],
     npol: usize,
@@ -163,6 +259,68 @@ pub fn run_joined_masked<M: Measurement>(
     fit: Option<&PolynomialFit>,
     settings: &Settings,
     masking: Option<&super::mask::Masking>,
+) -> Result<Joined, String> {
+    run_joined_spilling(entries, npol, weights, norm, fit, settings, masking, None)
+}
+
+/// [`run_joined_masked`] with the dirty images kept in the file `spill`
+/// (removed afterwards) while the run lasts, not in memory
+/// (research/gemclean-memory.md). The outcome is the same, bit for bit.
+#[allow(clippy::too_many_arguments)]
+pub fn run_joined_spilling<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: Option<&std::path::Path>,
+) -> Result<Joined, String> {
+    joined(
+        entries, npol, weights, norm, fit, settings, masking, spill, true,
+    )
+}
+
+/// [`run_joined_spilling`] that leaves the dirty images in the file `spill`
+/// (the outcome's `dirty` is empty), for the caller to read with
+/// [`spill_read`] once it has dropped the measurements and beams
+/// (`-reorder`, research/gemclean-memory2.md). The same values otherwise.
+#[allow(clippy::too_many_arguments)]
+pub fn run_joined_spill_kept<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: &std::path::Path,
+) -> Result<Joined, String> {
+    joined(
+        entries,
+        npol,
+        weights,
+        norm,
+        fit,
+        settings,
+        masking,
+        Some(spill),
+        false,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn joined<M: Measurement>(
+    entries: &[(&M, &Beam)],
+    npol: usize,
+    weights: &[f64],
+    norm: f64,
+    fit: Option<&PolynomialFit>,
+    settings: &Settings,
+    masking: Option<&super::mask::Masking>,
+    spill: Option<&std::path::Path>,
+    read_back: bool,
 ) -> Result<Joined, String> {
     use super::mask;
     let channels = entries;
@@ -218,7 +376,13 @@ pub fn run_joined_masked<M: Measurement>(
         qs.push(q);
     }
     timings.initial = t.elapsed().as_secs_f64();
-    let dirty = residuals.clone();
+    let dirty = match spill {
+        Some(path) => {
+            spill_write(path, &residuals)?;
+            Vec::new()
+        }
+        None => residuals.clone(),
+    };
     let mut residual_int = integrate(&residuals, &a);
     let dirty_int = residual_int.clone();
     let weighted = |q: &[f64]| q.iter().zip(&a).map(|(q, a)| a * q).sum::<f64>();
@@ -284,7 +448,7 @@ pub fn run_joined_masked<M: Measurement>(
             break StopReason::MajorCycles;
         }
         let mut ct = Timings::default();
-        let models_major = models.clone();
+        let mut touched = Touched::new(n * n, kc);
         let mut work = Working::new(residual_int.clone(), n, level, s.tile, s.lazy_bounds);
         if stage_mask.is_some() {
             work.set_mask(stage_mask.as_deref());
@@ -308,12 +472,7 @@ pub fn run_joined_masked<M: Measurement>(
             () => {{
                 let tr = Instant::now();
                 st.resync(
-                    &mut work,
-                    &mut maps,
-                    &mut since,
-                    &models,
-                    &models_major,
-                    &residuals,
+                    &mut work, &mut maps, &mut since, &models, &touched, &residuals,
                 );
                 ct.resync += tr.elapsed().as_secs_f64();
             }};
@@ -398,6 +557,7 @@ pub fn run_joined_masked<M: Measurement>(
                         }
                     }
                 }
+                touched.note(p, &models);
                 for k in 0..kc {
                     let (beam, c) = (channels[k].1, values[k]);
                     abs_flux += a[k] * c.abs();
@@ -468,16 +628,20 @@ pub fn run_joined_masked<M: Measurement>(
         }
         ct.minor = minor_start.elapsed().as_secs_f64() - ct.resync;
         work_all.add(&work.work);
+        // The working maps and the major-cycle models are rebuilt by the next
+        // cycle; free them before the major cycle, and replace each residual
+        // in place (research/gemclean-memory.md).
+        drop(maps);
+        drop(touched);
         memory::mark(&format!("cycle {}: minor", cycles.len() + 1));
         let tm = Instant::now();
-        let mut next = Vec::with_capacity(kc);
         for (k, (m, _)) in channels.iter().enumerate() {
             let (r, qk) = m.residual(&models[k])?;
-            next.push(r);
+            residuals[k] = r;
             qs[k] = qk;
         }
         ct.major = tm.elapsed().as_secs_f64();
-        let next_int = integrate(&next, &a);
+        let next_int = integrate(&residuals, &a);
         let q_next = weighted(&qs);
         let stale_linf = next_int
             .par_iter()
@@ -527,11 +691,14 @@ pub fn run_joined_masked<M: Measurement>(
                 fraction = (fraction * 2.0).min(s.major_fraction);
             }
         }
-        residuals = next;
         residual_int = next_int;
         q = q_next;
     };
     timings.total = start.elapsed().as_secs_f64();
+    let dirty = match spill {
+        Some(path) if read_back => spill_read(path, kc, n * n)?,
+        _ => dirty,
+    };
     let model_int = integrate(&models, &a);
     let f = channels.iter().map(|c| c.1.f).fold(0.0, f64::max);
     Ok(Joined {
@@ -559,6 +726,7 @@ pub fn run_joined_masked<M: Measurement>(
         residual: residuals,
         q_final: qs,
         auto,
+        auto_mask: auto_pixels,
     })
 }
 
@@ -683,6 +851,95 @@ mod tests {
         let plain = run_joined(&[(&i, &b)], &[2.5], None, &settings()).unwrap();
         assert_eq!(one.model, plain.model);
         assert_eq!(one.residual, plain.residual);
+    }
+
+    fn masked_settings() -> Settings {
+        Settings {
+            threshold: 0.0,
+            auto_threshold: Some(1.0),
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            max_components: 4000,
+            max_major: 20,
+            ..Settings::default()
+        }
+    }
+
+    fn masking(sigma: f64) -> super::super::mask::Masking {
+        super::super::mask::Masking {
+            fits: None,
+            auto: Some(super::super::mask::AutoMask {
+                sigma: Some(sigma),
+                absolute: None,
+                nmiter: 2,
+            }),
+        }
+    }
+
+    /// One entry through the masked joined run is [`super::super::run_masked`],
+    /// bit for bit (research/e2b-misses.md, arm A5).
+    #[test]
+    fn one_entry_masked_is_run_masked() {
+        let n = 32;
+        let m = measurement(5, 1.2e9, n, &[(10 * n + 12, 1.0), (20 * n + 7, -0.4)]);
+        let beam = Beam::from_double(n, &m.psf_image(2 * n).unwrap(), 8).unwrap();
+        let s = masked_settings();
+        let mk = masking(5.0);
+        let (single, auto) =
+            super::super::run_masked(&m, &beam, &s, None, None, Some(&mk)).unwrap();
+        let j = run_joined_masked(&[(&m, &beam)], 1, &[2.5], 1.0, None, &s, Some(&mk)).unwrap();
+        assert_eq!(single.model, j.model[0]);
+        assert_eq!(single.residual, j.residual[0]);
+        let (a, b) = (auto.unwrap(), j.auto.unwrap());
+        assert_eq!(a.finishing, b.finishing);
+        assert_eq!(a.cycles, b.cycles);
+    }
+
+    /// Joined polarisations with the automatic mask (research/e2b-misses.md
+    /// arm A5), as radler: the noise is the MAD estimate of the integrated
+    /// residual `norm Σ_p r_p` (I + Q + U + V, norm 1; Q + U, norm 1/2), the
+    /// mask is every polarisation's nonzero model pixels, and no pick falls
+    /// outside it once it is in force.
+    #[test]
+    fn joined_polarisations_auto_mask_follows_radler() {
+        use super::super::mask;
+        let n = 32;
+        let (p1, p2, p3) = (10 * n + 12, 21 * n + 20, 5 * n + 25);
+        let i = measurement(11, 1.2e9, n, &[(p1, 1.0), (p2, 0.4), (p3, 0.05)]);
+        let q = measurement(11, 1.2e9, n, &[(p1, -0.3), (p2, 0.2)]);
+        let u = measurement(11, 1.2e9, n, &[(p1, 0.1), (p3, 0.3)]);
+        let v = measurement(11, 1.2e9, n, &[(p2, 0.02)]);
+        let b = Beam::from_double(n, &i.psf_image(2 * n).unwrap(), 8).unwrap();
+        let s = masked_settings();
+        let mk = masking(5.0);
+        for (set, norm) in [(vec![&i, &q, &u, &v], 1.0), (vec![&q, &u], 0.5)] {
+            let pairs: Vec<(&WgridMeasurement, &Beam)> = set.iter().map(|m| (*m, &b)).collect();
+            let np = pairs.len();
+            let j = run_joined_masked(&pairs, np, &[1.0], norm, None, &s, Some(&mk)).unwrap();
+            let auto = j.auto.as_ref().unwrap();
+            // The first major iteration's noise: the integrated dirty image.
+            let mut int = vec![0.0; n * n];
+            for d in &j.dirty {
+                for (o, x) in int.iter_mut().zip(d) {
+                    *o += norm * x;
+                }
+            }
+            assert_eq!(auto.cycles[0].sigma, mask::radler_stddev(&int));
+            assert_eq!(auto.cycles[0].threshold, 5.0 * auto.cycles[0].sigma);
+            assert!(auto.finishing.is_some());
+            assert_eq!(auto.outside_picks, 0);
+            assert!(auto.masked_picks > 0);
+            // The mask is the union of every polarisation's model pixels.
+            let refs: Vec<&[f64]> = j.model.iter().map(|m| m.as_slice()).collect();
+            let union = mask::from_models(&refs);
+            assert_eq!(j.auto_mask.as_ref().unwrap(), &union);
+            // Every phase-2 pick is inside the mask.
+            assert!(
+                j.integrated
+                    .steps
+                    .iter()
+                    .all(|st| j.auto_mask.as_ref().unwrap()[st.pixel])
+            );
+        }
     }
 
     /// Two channels of one sky with a spectral slope: the joined run finds

@@ -1,0 +1,21 @@
+2026-11-13T15:11:59+02:00 D: free 593 GB before build
+MAIN_4: 98332 rows, 76 s
+MAIN_4: 850950 rows, 691 s
+MAIN_5: 98332 rows, 762 s
+{"nrow": 1047614, "chan": [0, 4096], "fields": ["J1939-6342", "ESO137-001"], "antennas": 61, "seconds": 762.6972305774689}
+2026-11-13T15:33:43+02:00 build rc=0 1304s
+{"cells_compared": {"DATA": 17164107776, "WEIGHT_SPECTRUM": 17164107776, "FLAG": 17164107776}, "cells_differ": {"DATA": 0, "WEIGHT_SPECTRUM": 0, "FLAG": 0}, "rowcols_differ": {"TIME": 0, "TIME_CENTROID": 0, "INTERVAL": 0, "EXPOSURE": 0, "ANTENNA1": 0, "ANTENNA2": 0, "FEED1": 0, "FEED2": 0, "UVW": 0, "FLAG_ROW": 0, "WEIGHT": 0, "SIGMA": 0, "ARRAY_ID": 0, "OBSERVATION_ID": 0, "PROCESSOR_ID": 0}, "equal": true}
+2026-11-13T15:45:29+02:00 verify rc=0 706s
+{
+ "ms": "D:\\rang\\data\\e2-a\\e2a.ms",
+ "rows": 1047614,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "1aec438d0d9e2b81398253fd74dc62ec10f31c6ae7dfdc359477e65106d93baa",
+ "flag_row_sha256": "b528098a44e069d6f481fad7c1fb4a07eb7e2629c0b5d61b6473650589fb89d6",
+ "seconds": 29.19227630001842
+}
+2026-11-13T15:45:59+02:00 flaghash rc=0 30s
+2026-11-13T15:45:59+02:00 D: free 400G after build; du 194G

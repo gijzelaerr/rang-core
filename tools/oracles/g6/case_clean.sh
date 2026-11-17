@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 # G6 after-clean cases (research/g6-predict.md, criteria 4, 2, 7): gemclean images
 # a fresh copy and writes MODEL_DATA (the default); gemclean -predict of the FITS it
 # wrote goes to MODEL_PRED (unless SKIP_SELF=1) and WSClean -predict of them to

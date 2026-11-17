@@ -1,0 +1,1 @@
+e2a.yaml: valid for flag, calibrate, apply, image, selfcal

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! One sweep over the visibility cells: prediction, residual, split sums,
 //! whitened amplitudes and antenna-diagonal Gauss--Newton blocks.
 //!

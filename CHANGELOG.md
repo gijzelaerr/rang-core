@@ -9,6 +9,219 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- New (issue #32 phase 2, `research/gemclean-memory2.md`): `gemclean -reorder` (off by default) with several
+  polarisations reads each polarisation in chunks into a temporary file per output channel and keeps each
+  entry's compacted visibilities in a temporary file between residuals, as WSClean's reordered files;
+  `-temp-dir DIR` places them (default: the directory of `-name`). Every FITS file is byte-identical. On E2-B's
+  joined-IQUV 8-channel 2048² runs the peak falls from 15.9-16.5 to 9.1 GiB (J1331+3030, J1939−6342) and from
+  8.4 to 7.2 GiB (J1833−2103); about 28 GB of temporary files on the large fields.
+- New (`research/e2a-3b-diag.md`): `calibrate.bandpass_model_divided` (default false, out of the stage hash at
+  its default). B solves divide the pre-applied data by the model, which the K and G pre-applies corrupt, before
+  any time average (`rang.cal_bandpass.bandpass(model_divided=True)`, `rang.cal_gain.model_divided`, CASA's
+  `divideCorrByModel`). With `calibrate.average_time` and K or G varying inside B's interval this changes B; on
+  E2-A's 15-antenna subset the averaged B then equals the unaveraged B to 4e-7. Off is unchanged.
+- New (`research/msv4-interop.md`, #5): `rang.msv4` reads an MSv4 processing set (xradio schema 4.x, Zarr)
+  into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
+  Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as
+  bool when it holds only 0 and 1 and refused otherwise. xarray-ms 0.5.14 drops autocorrelations by default,
+  so its stores of MSs with them lack those rows; with `auto_corrs=True` all 9 are bit-identical. `CORRECTED_DATA` and `MODEL_DATA` groups,
+  SIGMA-derived weights, repeated `WEIGHT` and decreasing frequencies read bit for bit; neither writer keeps
+  `FLAG_ROW`, so row flags are lost in conversion. The Tricolour flag stage gives the same flags fed from MSv4
+  rows as from the MSv2 (fixture scan 9); no stage reads MSv4 directly yet.
+- Fixed (WSClean #208, fixed upstream by !1068, commit `ca23d835`, not yet in a release; v3.7 still has
+  the old rule): `gemclean`'s theoretic beam (the start and box of the restoring-beam fit, the circular
+  beam when the fit fails, the default multiscale scales, `theoretic_beam_rad` in `-report.json`) now
+  keeps only visibilities whose `v`, as well as `u`, falls inside the grid; it tested `u` on both axes,
+  as WSClean 3.5-3.7 do. Only coverage the grid cuts in `v` but not in `u` changes; every archived G2-G9
+  case is bit-identical (`research/u5-upstream.md`). The core gridder's `w_limits` (WSClean 3.6 port)
+  still tests `u`.
+- New (E2-B arm A3, `research/e2b-misses.md` 9.26-9.27): `calibrate.casa_phase_weights` (default false, out of
+  the stage hash at its default; needs `calibrate.average_freq`). Calmode `p` solves (Gpol, and G with
+  calmode p) use CASA's phase-only datum, read from CASA's source: the pre-applied data divided by the
+  model per channel with weight `w|M|^2`, averaged in time and frequency, then normalised to unit
+  amplitude with the weight times the amplitude squared (`rang.cal_gain.model_divided`, `phase_only`).
+  `ap` solves and every other term are unchanged; off is byte-identical.
+- Changed (issue #32, `research/gemclean-memory.md`): `gemclean` with several polarisations
+  (`-pol IQUV -join-polarizations`, joined channels, masks) needs about half the memory, with
+  byte-identical images: polarisations are read and gridded one at a time, measurements keep only
+  their weighted visibilities, polarisations with the same rows and weights share one gridder plan,
+  and the clean keeps fewer image copies (the dirty images wait in a `<name>-dirty-<n>.spill` file
+  until they are written). On E2-B's J1833−2103 (IQUV, 8 joined channels, 2048², masked) the peak fell from 20.2 to
+  9.2 GiB. `-memory-report` now works on Windows, and the polarisation
+  path's `-report.json` has the `memory` section.
+- Changed (E2-B P1, `research/e2b-misses.md` 9.15-9.16): `frame='casa'` parallactic angles now follow
+  casacore (IAU 1976/1980 apparent place, `gst94`, casacore's diurnal shift and polar motion in HADEC) and
+  match casacore's own angle to 1.3e-8 rad, against 7e-6 rad before. Calibrate and apply angles shift by up
+  to about 7e-6 rad, so archived `RANG_CORRECTED_DATA` no longer matches a rerun bit for bit. The old form
+  is kept as `cal_pol.parallactic_angle_tete`.
+- New (E2-B fix 5, `research/e2b-misses.md` 9.21-9.22): `gemclean -auto-mask` / `-abs-auto-mask` with
+  `-join-polarizations` (and `image.auto_mask` with `image.join_polarizations`), as WSClean 3.7's
+  radler: the noise and the peaks are those of the joined I + Q + U + V residual, and the mask is
+  the union of every polarisation's model pixels. Masks on unjoined polarisations and `-fits-mask`
+  on several polarisations stay refused.
+- New (multi-node stage 1, issue #3, `research/chunk-task-api.md`): the chunk loops of `flag`, the
+  `complex` solve and `complex` apply are chunk tasks (`rang.core_tasks`: serialisable `ChunkSpec`s, `run`,
+  an ordered reduce through the one MS writer) run by a local process pool. New keys `data.executor`
+  (`local`), `data.processes` (default 1: in this process, as before) and `data.threads` (the rayon
+  threads the processes share); each process plans its chunks under `memory_limit_gb / processes`.
+  None of them enters the stage hash. Chain terms, models, CASA-table applies and imaging stay in one
+  process.
+
+## 0.2.0 (2026-11-14)
+
+The owner released 0.2.0 on 2026-11-14. Its finish line
+(`research/finish-plan.md` section 1) is met in part, and the parts not met
+move to 0.3.0 (`research/roadmap.md`).
+
+### Known limitations
+
+- **Not every stage is within its oracle tolerance.**
+  - E2-B is the acceptance run on processed LUNO MeerKAT L-band data against
+    CASA 6.7.6.14, WSClean and QuartiCal (`research/e2-acceptance.md` 7.3-7.5).
+  - **Met:** run and write-back, the readers (casacore, CASA listobs and
+    flagmanager, WSClean, dask-ms), FITS output, gridding (exact on all
+    1.1e9 cells), K, KCROSS, Xf, Df, and 3C 286 polarisation parity
+    (|Δχ| ≤ 0.055°).
+  - **Not met, in the frozen and in the amended arm:**
+    - Gpol: median 0.124° in the amended arm, against a 0.1° limit.
+    - The fcal and gcal K G B composites: median 1.1e-3.
+    - CASA applycal on rang's tables: 40 cells over, max 25 eps; flags exact.
+    - Image gate 3c.
+    - Polarisation angle on 1830−211: |Δχ| up to 13°.
+    - Transfer χ (polarisation angle carried from calibrator to target).
+    - Rang's leakage: 0.30 %.
+  - The diagnosis (`research/e2b-misses.md`, from code and archived numbers;
+    no new runs) confirms no rang bug among the seven. Its likely causes:
+    - CASA's oracle solved on different flags and weights (composites);
+    - the estimators weight data differently (Gpol);
+    - float32 rounding in CASA's long apply chain (applycal);
+    - a scorer error and unmasked cleaning (3c);
+    - χ at p of 0.02-0.06 % (1830−211);
+    - LUNO's receptor angle and ionospheric RM (transfer χ).
+  - Pre-registered arms A1-A5 test these in v0.3.0.
+- **The measurements still to come are now v0.3.0 work:**
+  - the E2-A run on ESO 137;
+  - E3, the comparison with CARACal's MeerKAT strategy (image quality, flux,
+    wall time and memory);
+  - the E5 review.
+- **Native MeerKAT data is not tested.** The acceptance data is processed LUNO
+  data plus simulation (issue #7).
+- **No absolute χ claim.** LUNO's χ offset is not explained; see
+  `research/chi-offset.md`.
+- `flagdata` mode `tfcrop` is refused, and the trained flagger is not shipped.
+
+### Changes since 0.1.0
+
+
+- Fixed (2026-11-14): a `tools/heavy_lock.py run` or `tools/check_all.py` started inside a heavy-lock
+  hold (`RANG_HEAVY_LOCK_HELD`, set by `heavy_lock.py run` for its child) runs inside that hold
+  instead of queueing again. A check wrapped in `heavy_lock.py run` held 4 slots idle for five hours
+  while its own inner ticket waited, and would deadlock on a full queue. A nested request for more
+  than the hold warns and still runs.
+- New (2026-11-14): `tools/heavy_lock.py status` prints each hold's real CPU use (its process tree,
+  sampled for 2 s) next to its booked slots, marks a hold IDLE under 5 % of one core per booked slot,
+  and ends with `booked N slots, using ~M cores`. Report only; nothing is stopped.
+
+- Fixed (correctness audit, `research/correctness-audit-2026-11-13.md`): bad input now fails clearly
+  instead of running wrong. A NaN visibility made every gain, bandpass, delay or Df solution NaN with
+  its flag clear; non-finite data, model and weight cells are now flagged, which gives exactly the
+  solution of the same cells flagged (gain, bandpass, delay, KCROSS, Xf, Df). `core_grid.invert(gridder="wgrid")` with a GPU device raises instead of
+  running on the CPU. gemclean's FITS reader (`-predict` models, `-fits-mask`) no longer panics on a
+  non-ASCII header byte. `-threshold`, `-abs-threshold` and `-auto-threshold` must be finite and not
+  negative. The gain and bandpass solvers refuse zero rows and per-row arrays of the wrong length; delay refuses zero rows.
+  Write-back refuses out-of-range DATA_DESCRIPTION ids (a negative one picked the last row). Flag-version
+  names with `\ : * ? " < > |` are refused on every platform. `fluxstd.manual` refuses non-positive
+  frequencies. No default's numbers change.
+
+- Changed (task df-flag-rule, `research/p-flag-spread.md`): with `apply.parang`, P now flags as CASA's
+  `applycal(parang=True)` does on linear feeds: a cell with any correlation flagged after the tables
+  (input flags, a bad receptor, a Df-flagged cross hand) is flagged in all four, since P rotates XX and
+  YY out of all four correlations. New key `apply.parang_flags` (`spread`, the default; `none`, the
+  previous flags) and `parang_flags=` on `rang.applycal.applycal` and `rang.cal_pol.apply`. Values are
+  unchanged; without `parang` nothing changes.
+
+- Fixed (E5 final E5-02): `gemclean -model-column DATA`, or a model column equal to the column being
+  imaged (`-data-column`, or CORRECTED_DATA when the MS has it), overwrote that column after imaging;
+  both are refused with exit 2 before anything is read. `-no-update-model-required` still writes nothing.
+- Changed (E5 final F-05): the licence page and `THIRD-PARTY-NOTICES.txt` list CASA's C++ sources that
+  the calibration and flag-extension ports follow (GPL-2.0-or-later, LGPL-2.0/2.1-or-later), with
+  their copyright notices; each derived file names CASA.
+- Changed (E5 final F-01): astropy is a required dependency. Every polarisation solve and `apply.parang`
+  take the parallactic angle from it, and a bare `pip install rang-core` stopped there with
+  `ModuleNotFoundError`; the `imaging` extra is kept and now adds nothing.
+- New: a known-limits page (`docs/limits.md`, linked from the README): scope, flagging, calibration,
+  self-calibration, imaging and platform limits with the reports behind them; the E2 and E3 results
+  are added when they land (E5 final, `research/e5-final.md`).
+- Changed (finish-plan item 27, f11fdd1): an unset `calibrate.refant` (it was refused) means CARACal's
+  `auto` choice, or antenna 0 when no antenna qualifies; the default selfcal reference antenna is the
+  same choice (it was antenna 0), and `selfcal.refant: auto` runs; the `image.niter` default is
+  1,000,000 (it was 100,000).
+- Changed: Measurement Set reads take a channel slice in the reader (`core/src/ms.rs`), 2.1-2.2x
+  faster on the channel-chunked polarisation solves and bit-identical on 19 frozen comparisons
+  (`research/sliced-read.md`).
+- Changed (E5 pre-review "Later" findings, `research/e5-prereview.md` section 2.3): `image.fits_mask`
+  and a selfcal FITS `cleanmask_method` are read relative to the configuration file, as `flag.strategy`
+  and `calibrate.model.lsm`; **deprecated:** a mask found only relative to the working directory is still
+  used, with a warning, and a mask found in neither place is refused before anything runs (E5-41).
+  Repeated YAML keys are refused with their line numbers (PyYAML kept the last one). Unknown commands and
+  options exit 2 on stderr (was 1); `--version` works after other global options; `run --force STAGE` of a
+  stage outside `run.stages` is refused; the complex-term refusals and unknown term keys say what to change
+  (E5-40). Data whose OBSERVATION `TELESCOPE_NAME` is not MeerKAT run with a warning, and `state.json`
+  records `telescope` (E5-39). A flag version left unlisted by a kill is listed by the next save of the same
+  flags; a flag version the last attempt recorded but the MS no longer has is warned about
+  (`restore_missing`) (E5-42). Every source file carries an SPDX `GPL-3.0-or-later` line (E5-45).
+
+- New: `calibrate.average_time` (default false; task E2, `research/e2-average-time.md`). With it on,
+  the K, G, B, F, Gpol, KCROSS, Xf and Df solves use CASA's estimator for long intervals: data and
+  model averaged in time within each solution interval (weighted means over unflagged cells after the
+  pre-applied tables and P, weight the sum, per baseline, channel and correlation), streamed in blocks
+  of rows, and the memory plan counts the averaged rows. E2's whole-scan solves on 4096-channel
+  MeerKAT data (176 GiB per interval unaveraged) then fit `data.memory_limit_gb: 8`. Off, every
+  solve and the stage hash are unchanged. Refused with a `complex` term.
+- New: `selfcal.average_time` (default false; task E2): Sp and Sa solve on data and model averaged
+  in time within each solution interval, as `calibrate.average_time` does, so CARACal's solint 120 fits
+  8 GiB at 4,096 channels (333 GiB per interval without). Not CubiCal's estimator, which solves every
+  sample (owner item 33(3)). Off, the stage hash is unchanged. Refused with Sd.
+- New: `calibrate.average_freq` (default false; task E2, the pre-registered "E2-B amended" arm,
+  `research/e2-average-freq.md`): the G, F and Gpol solves average their data and model over the
+  window's channels before solving (weighted means per row and correlation after the pre-applies and
+  P), as CASA's G-type solves do; K, B, KCROSS, Xf and Df are unchanged. Off, every solve and the
+  stage hash are unchanged.
+
+- Changed (owner decisions on the E5 pre-review, `research/e5-prereview.md` section 3): receipts are
+  `rang.receipt` version 5; a Measurement Set a command modified is listed by its `listing_sha256` (file
+  sizes and mtimes), not a full content hash; the stage summaries hash the flags, gain solutions and images
+  written and name the tables and settings behind a written column (E5-20). This holds for every directory
+  a command modified, not only the MS. The default `run.stages` is the whole chain, flag, calibrate, apply, image, selfcal (was flag,
+  calibrate, image, which imaged uncalibrated DATA) (E5-28). The simms antenna tables `data/*.itrf.txt` are
+  recorded in `docs/licence.md` as facts, not code; the sdist carries only `meerkat.itrf.txt`, which GeMClean
+  compiles in (E5-11). `docs/licence.md` lists codex-africanus and katdal's test helpers (BSD-3), and as
+  behaviour reimplemented with no code copied CARACal's `get_refant`, msutils, CASA's flag extension,
+  fluxscale and applycal semantics and casacore's table formats, plus casacore-data's observatory
+  positions (E5-33). `rang/data/README.md` records the source and SHA256 of `casacore_observatories.json`
+  (E5-34). The sdist leaves out `.claude/` and the checkout tools under `tools/` other than `tools/wheel/`,
+  and CONTRIBUTING lists what it carries (E5-37). The `recipes` extra installs stimela 2.1.4 on Python 3.13
+  and older only, so `pip install 'rang-core[recipes]'` resolves on 3.14 (E5-38).
+
+- New (task E4, `research/e4-tutorial.md`): the tutorial `notebooks/00-ms-to-image.ipynb`, from a
+  Measurement Set to an image with `rang-core run` and `gemclean` on A1 small, with its configuration
+  and strategy in `examples/ms-to-image/`; the wheels workflow's job `e2e` runs the same chain on all
+  five wheels (`tools/e2e/run.py`); `docs/cli.md` gains `gemclean -h`. `examples/a1_simtruth.py`
+  finds the checkout's antenna table when rang-core is installed from a wheel.
+
+- Fixed (E5 pre-review, `research/e5-prereview.md`): after `rang-core run ... --force flag`, a stale later stage
+  put back the flags saved before its earlier attempt (the old flag output); later stages now start from the
+  flags the rerun stage left, whenever that stage restored or wrote FLAG. Before a rerun restores a stage's
+  earlier flags, the flags it replaces are saved as the flag version `rang_rerun_<UTC time>`, so flags set
+  outside rang are never lost (one more version per rerun). DATA is never written: `apply.column: DATA` and
+  `selfcal.model_column: DATA` are configuration errors, selfcal refuses to copy apply's output into an
+  `input_column: DATA`, and `rang.core_writeback.WriteBack` refuses DATA. The run directory is locked on
+  Windows too, so a second `rang-core` command on the same MS is refused. Malformed configuration values give
+  the error report (exit 2), not a traceback. The changed-configuration refusal names `--force` forms both
+  commands accept. The wheels and sdist carry `THIRD-PARTY-NOTICES.txt` (QuartiCal's MIT, codex-africanus's
+  and Tricolour's BSD-3 notices). The release job publishes to PyPI only after its own checks pass. The MS
+  table lock holds on Linux only, as the docs now say.
+
 - Research (task F3, `research/f3-flagger.md`): a second learned RFI flagger, not wired into
   `rang-core flag`. New `rang.f3flag` (wrapper W3, features reference, injections, labels, measures),
   `rang.f3net` (the JAX network for training), the Rust kernel `rang_core::f3flag` with
@@ -107,7 +320,7 @@ the release notes are the section of this file for that version.
   drops short baselines, new key `selfcal.refant`. `CORRECTED_1GC` is copied from `apply.column`
   after this run's apply. Solutions go to a QuartiCal gain store per round. New module
   `rang.cal_selfcal`; `rang.cal_gain`'s chunked solve takes channel chunks. `complex`
-  self-calibration terms and `refant: auto` in selfcal are refused.
+  self-calibration terms are refused (`refant: auto` in selfcal was refused too, until item 27).
 - New: `rang-core calibrate` runs the K, G, B, A and F terms and the polarisation terms Gpol,
   KCROSS, Xf and Df within `data.memory_limit_gb` (`research/w3b-chainchunks.md`): each solve reads
   its field in chunks of whole solution intervals (B, Xf and Df also in channels of one interval),

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Local sky-prior-free observability of an array-common sky-frame shift."""
 
 import jax

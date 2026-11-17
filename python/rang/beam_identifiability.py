@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """B1-2: which beam and pointing directions can the data constrain?
 
 research/b1-2-identifiability.md freezes the protocol. This module holds:

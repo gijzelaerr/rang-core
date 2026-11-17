@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! The F3 flagger (task F3, `research/f3-flagger.md`, section 3): per scan,
 //! fifteen input planes per cross-correlation baseline on the (time,
 //! channel) plane, built from noise-normalised amplitudes (time-local and

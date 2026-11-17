@@ -56,18 +56,13 @@ SCANS = [f"1672727931_sdp_l0_scan_{n}.ms" for n in (1, 4, 5, 8, 9)]
 SCAN9 = SCANS[-1]
 # Columns the core does not read, per table, the same in all five MSs (the
 # scratch inventory of research/t1-casacure-ci.md): never-written
-# FLAG_CATEGORY, and POINTING's IncrementalStMan, which holds a string.
-CORE_REFUSES = {
-    "MAIN": {"FLAG_CATEGORY"},
-    "POINTING": {
-        "ANTENNA_ID",
-        "INTERVAL",
-        "NAME",
-        "NUM_POLY",
-        "TIME_ORIGIN",
-        "TRACKING",
-    },
-}
+# FLAG_CATEGORY. POINTING's IncrementalStMan columns read since
+# msv2-reader-r123 (issue #5).
+CORE_REFUSES = {"MAIN": {"FLAG_CATEGORY"}}
+# Columns casacure 3.8.35 refuses ("IncrementalStMan strings are not supported
+# yet"): the core reads them; ISM strings are checked against arcae in
+# tests/test_core_ms_edge.py (t06-ism).
+ORACLE_REFUSES = {"POINTING": {"NAME"}}
 # String-array columns: read in the core with core_ms_write.read_cells.
 STRING_ARRAYS = {
     "FEED": {"POLARIZATION_TYPE"},
@@ -160,6 +155,11 @@ def test_core_reader_equals_casacure(fixture_mss, name):
                 if column in CORE_REFUSES.get(label, set()):
                     with pytest.raises(Exception):  # noqa: B017 - any refusal
                         core.getcol(column)
+                    continue
+                if column in ORACLE_REFUSES.get(label, set()):
+                    assert len(core.getcol(column)) == core.nrows, what
+                    with pytest.raises(RuntimeError, match="IncrementalStMan"):
+                        cc.getcol(column)
                     continue
                 if column in strings:
                     cells = core_ms_write.read_cells(path, column, 0, core.nrows)

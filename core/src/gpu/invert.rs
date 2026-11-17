@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Host side of one GPU inversion: bucketing (CPU code), per-layer cell
 //! sort, batching under the memory budget, uploads, the dispatches of each
 //! batch, the download and the CPU normalisation.

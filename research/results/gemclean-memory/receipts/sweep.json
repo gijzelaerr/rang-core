@@ -1,0 +1,328 @@
+{
+ "joined-iquv-mf": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-per-channel": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-one-channel": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 17,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-fit": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 85,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-no-plan-reuse": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-iquv-double": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-xx-yy": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 27,
+  "stderr": null,
+  "spill_left": []
+ },
+ "joined-qu": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 27,
+  "stderr": null,
+  "spill_left": []
+ },
+ "unjoined-iquv-mf": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "unjoined-iquv-per-channel": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "spill_left": []
+ },
+ "unjoined-iquv-one-channel": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 17,
+  "stderr": null,
+  "spill_left": []
+ },
+ "unjoined-iquv-audit": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   2,
+   2
+  ],
+  "files": 0,
+  "stderr": [
+   "gemclean: several polarisations take neither -stop-rule certified, -gram-operator, -floor-iterations nor -audit (research/g9-stokes.md)",
+   "gemclean: several polarisations take neither -stop-rule certified, -gram-operator, -floor-iterations nor -audit (research/g9-stokes.md)"
+  ],
+  "spill_left": []
+ },
+ "unjoined-iquv-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   2,
+   2
+  ],
+  "files": 0,
+  "stderr": [
+   "gemclean: -fits-mask takes one polarisation, -auto-mask one or joined polarisations (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule certified (research/g4-masks.md)",
+   "gemclean: -fits-mask takes one polarisation, -auto-mask one or joined polarisations (-join-polarizations), and neither takes -gram-operator, -audit or -stop-rule certified (research/g4-masks.md)"
+  ],
+  "spill_left": []
+ },
+ "stokes-i": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 5,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-channels": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined-masked": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 15,
+  "stderr": null,
+  "spill_left": []
+ },
+ "stokes-i-joined-fit": {
+  "identical": true,
+  "same": {
+   "exit": true,
+   "files": true,
+   "entries": true,
+   "mask": true
+  },
+  "exit": [
+   0,
+   0
+  ],
+  "files": 25,
+  "stderr": null,
+  "spill_left": []
+ }
+}

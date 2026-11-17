@@ -1,0 +1,9 @@
+D:/rang/outputs/gemclean-memory-20261115/e2b-slim.ms: 33880 rows (RANG_CORRECTED_DATA, field 2), 4096 channels into 8 output channels, polarisations I,Q,U,V joined, MF weighting, channels joined, 22.01 s read, 5.27 s weights
+auto-mask: major iteration 1, sigma 1.481714e-2 Jy, threshold 7.408572e-2 Jy; continued in the mask at gain 0.9000, threshold 7.408572e-2 Jy
+auto-mask: major iteration 2, sigma 1.812270e-3 Jy, threshold 9.061350e-3 Jy; continued in the mask at gain 0.9000, threshold 9.061350e-3 Jy
+auto-mask: major iteration 3, sigma 8.623579e-4 Jy, threshold 4.311790e-3 Jy; continued in the mask at gain 0.9000, threshold 4.311790e-3 Jy
+auto-mask: major iteration 4, sigma 5.077005e-4 Jy, threshold 2.538502e-3 Jy; continued in the mask at gain 0.7579, threshold 1.523101e-3 Jy
+auto-mask: major iteration 5, sigma 4.619144e-4 Jy, threshold 1.385743e-3 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+1 groups deconvolved; wall 397.19 s
+{"exit": 0, "wall_s": 398.3, "peak_rss_gb": 9.2, "peak_working_set_gib": 9.2, "peak_private_gib": 9.22, "cpu_s": 1391.5, "mean_cores": 3.49}

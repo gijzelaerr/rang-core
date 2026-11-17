@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! SIMD kernels of the gemclean minor cycle, with runtime dispatch.
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public

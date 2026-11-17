@@ -1,0 +1,10 @@
+{
+ "rows": 272916,
+ "cells": 1117863936,
+ "compared_cells": 408827131,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 42,
+ "max_eps_of_cell_max": 25.58267863310874,
+ "max_rel": 0.2243781662896204,
+ "nonfinite_compared": 0
+}

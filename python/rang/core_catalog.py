@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Paired real MeerKAT L-band sky-model experiment, not a flagging win claim.
 
 Verbatim extract of the frozen `rangtoy.flagging_sky` (big plan task P11,

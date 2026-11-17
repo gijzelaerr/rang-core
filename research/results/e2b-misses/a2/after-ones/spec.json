@@ -1,0 +1,179 @@
+[
+ {
+  "logfile": "/w/after-ones/casa.log"
+ },
+ {
+  "task": "putflags",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "version": "/w/src/fv/flags.rang_apply_20261112T013707Z",
+   "first": 118104
+  }
+ },
+ {
+  "task": "weights_ones",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms"
+  }
+ },
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/after-ones/tables/K",
+   "field": "J1939-6342",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "parang": false
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/after-ones/tables/G",
+   "field": "J1939-6342",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/after-ones/tables/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/w/after-ones/tables/B",
+   "field": "J1939-6342",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 0,
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/after-ones/tables/K",
+    "/w/after-ones/tables/G"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/after-ones/tables/Gsec",
+   "field": "J1833-2103",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/w/after-ones/tables/K",
+    "/w/after-ones/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  }
+ },
+ {
+  "task": "copytree",
+  "args": {
+   "src": "/w/after-ones/tables/G",
+   "dst": "/w/after-ones/tables/Gapp"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/w/after-ones/tables/Gapp",
+   "field": "J1833-2103",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "append": true,
+   "smodel": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "gaintable": [
+    "/w/after-ones/tables/K",
+    "/w/after-ones/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  }
+ },
+ {
+  "task": "fluxscale",
+  "args": {
+   "vis": "/w/after-ones/e2b.ms",
+   "caltable": "/w/after-ones/tables/Gapp",
+   "fluxtable": "/w/after-ones/tables/F",
+   "reference": "J1939-6342",
+   "transfer": ""
+  }
+ }
+]

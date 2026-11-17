@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Run Rust calibration experiments from Python.
 
 Rust owns the numerical work; Python owns configuration, campaigns, tables and

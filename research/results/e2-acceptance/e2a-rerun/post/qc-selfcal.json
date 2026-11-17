@@ -1,0 +1,116 @@
+{
+ "oracle": "QuartiCal 0.2.7 (rang-formats-oracle:20261030) on averaged inputs (9.10)",
+ "class_b": {
+  "median": 0.0007,
+  "p95": 0.003
+ },
+ "refant": 20,
+ "model_control_met": true,
+ "unaveraged_form": {
+  "run": false,
+  "samples_per_interval": 3597926400,
+  "gb_per_interval_data_model_weights": 71.958528,
+  "wsl_memory_gb": 44,
+  "reason": "one interval of unaveraged data, model and weights exceeds WSL's memory (6.5: not checked)"
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "shape_rang": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "shape_qc": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "qc_wall_s": 112.36,
+   "qc_max_rss_mb": 1500.0625,
+   "conv_iter": [
+    [
+     50
+    ],
+    [
+     50
+    ],
+    [
+     50
+    ],
+    [
+     50
+    ]
+   ],
+   "rang_flagged": 4,
+   "qc_flagged": 4,
+   "apply_flags_equal": true,
+   "products": 14160,
+   "median": 2.7755575615628914e-17,
+   "p95": 2.289834988289386e-16,
+   "max": 6.56507468879903e-16,
+   "pass": true,
+   "gain_times_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "shape_rang": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "shape_qc": [
+    4,
+    1,
+    61,
+    2
+   ],
+   "qc_wall_s": 70.05,
+   "qc_max_rss_mb": 1449.265625,
+   "conv_iter": [
+    [
+     31
+    ],
+    [
+     31
+    ],
+    [
+     37
+    ],
+    [
+     39
+    ]
+   ],
+   "rang_flagged": 8,
+   "qc_flagged": 4,
+   "apply_flags_equal": true,
+   "products": 13688,
+   "median": 8.532672722100728e-09,
+   "p95": 1.7804384395159749e-07,
+   "max": 3.261301461447664e-07,
+   "pass": true,
+   "gain_times_equal": true
+  }
+ ]
+}

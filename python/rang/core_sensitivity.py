@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """WSClean approximation sensitivity of the frozen fifteen-job imaging family.
 
 Verbatim extract of the frozen `rangtoy.imaging_sensitivity` (big plan task P11,

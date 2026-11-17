@@ -1,0 +1,38 @@
+{
+ "groups": [
+  {
+   "store": "D:\\rang\\data\\e2-d\\LBAND_LUNO_CALIBRATORS.zarr",
+   "group": "MAIN_0",
+   "rows": 20000,
+   "first_row": 0,
+   "attrs": {
+    "DATA_DESC_ID": 0,
+    "FIELD_ID": 0,
+    "SCAN_NUMBER": 1
+   }
+  },
+  {
+   "store": "D:\\rang\\data\\e2-d\\LBAND_LUNO_CALIBRATORS.zarr",
+   "group": "MAIN_1",
+   "rows": 20000,
+   "first_row": 20000,
+   "attrs": {
+    "DATA_DESC_ID": 0,
+    "FIELD_ID": 1,
+    "SCAN_NUMBER": 2
+   }
+  }
+ ],
+ "nrow": 40000,
+ "chan": [
+  0,
+  4096
+ ],
+ "no_cubes": false,
+ "fields": [
+  "J1331+3030",
+  "J1939-6342"
+ ],
+ "antennas": 56,
+ "seconds": 24.01772141456604
+}

@@ -1,0 +1,8 @@
+2026-11-13 11:29:05	SEVERE	::casa
+2026-11-13 11:29:05	SEVERE	::casa	The contents of measurespath do not appear to be casarundata. CASA may still work if the data can be found in datapath.
+2026-11-13 11:29:05	SEVERE	::casa	The measures data found at measurespath is not being maintained by casaconfig.
+2026-11-13 11:29:05	SEVERE	::casa	visit https://casadocs.readthedocs.io/en/stable/notebooks/external-data.html for more information
+2026-11-13 11:29:05	SEVERE	::casa
+2026-11-13 11:29:23	SEVERE	MeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)	Leap second table TAI_UTC seems out-of-date.
+2026-11-13 11:29:23	SEVERE	MeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)+	Until the table is updated (see the CASA documentation or your system admin),
+2026-11-13 11:29:23	SEVERE	MeasTable::dUTC(Double) (file /source/casa6/casatools/casacore/measures/Measures/MeasTable.cc, line 4290)+	times and coordinates derived from UTC could be wrong by 1s or more.

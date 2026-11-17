@@ -125,13 +125,12 @@ def _frozen_imports(path):
                 FROZEN.match(a.name) for a in node.names
             ):
                 found.append(node.lineno)
-        elif isinstance(node, ast.Import):
-            if any(
-                FROZEN.match(a.name.removeprefix("rang."))
-                for a in node.names
-                if a.name.startswith("rang.")
-            ):
-                found.append(node.lineno)
+        elif isinstance(node, ast.Import) and any(
+            FROZEN.match(a.name.removeprefix("rang."))
+            for a in node.names
+            if a.name.startswith("rang.")
+        ):
+            found.append(node.lineno)
     return found
 
 

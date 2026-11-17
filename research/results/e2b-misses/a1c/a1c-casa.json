@@ -1,0 +1,16 @@
+{
+ "posangle_check_rad": {
+  "posangle(lo, hi)": 1.2002584799401937e-15,
+  "posangle(hi, lo)": -3.1415926535897922
+ },
+ "fields": {
+  "1": {
+   "ntimes": 25,
+   "nants": 14
+  },
+  "2": {
+   "ntimes": 11,
+   "nants": 18
+  }
+ }
+}

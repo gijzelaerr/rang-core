@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Tile shapes and hypercube records of casacore's tiled storage managers
 //! (research/e6-table-writer-final.md).
 //!

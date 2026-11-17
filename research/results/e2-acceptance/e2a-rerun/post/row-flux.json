@@ -1,0 +1,163 @@
+{
+ "rows": 95160,
+ "readings": {
+  "scan9_tables": {
+   "tables": "D:\\rang\\outputs\\e2a-20261115\\flux-run\\calibrate",
+   "bins": [
+    {
+     "lo_mhz": 856.0,
+     "unflagged_fraction": 0.05646602447827678,
+     "channels": 263,
+     "median_ratio": 0.9965827482748812,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 956.0,
+     "unflagged_fraction": 0.1593103714565777,
+     "channels": 455,
+     "median_ratio": 0.996728455157519,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1056.0,
+     "unflagged_fraction": 0.13979940852754488,
+     "channels": 478,
+     "median_ratio": 0.9896361704121337,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1156.0,
+     "unflagged_fraction": 0.03239692560425645,
+     "channels": 479,
+     "median_ratio": 0.9736422736405302,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1256.0,
+     "unflagged_fraction": 0.11947763379360196,
+     "channels": 478,
+     "median_ratio": 0.9837657539877713,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1356.0,
+     "unflagged_fraction": 0.16645568259500976,
+     "channels": 479,
+     "median_ratio": 0.9910178766730817,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1456.0,
+     "unflagged_fraction": 0.07860898447186944,
+     "channels": 401,
+     "median_ratio": 0.9806573346971413,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1556.0,
+     "unflagged_fraction": 0.08361660528230226,
+     "channels": 468,
+     "median_ratio": 0.9604708238917488,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1656.0,
+     "unflagged_fraction": 0.0421530936266615,
+     "channels": 166,
+     "median_ratio": 0.930033560933472,
+     "counted": false,
+     "met": false
+    }
+   ],
+   "met": true
+  },
+  "full_run_tables_context": {
+   "tables": "D:\\rang\\outputs\\e2a-20261115\\rang-run-moved\\calibrate",
+   "bins": [
+    {
+     "lo_mhz": 856.0,
+     "unflagged_fraction": 0.05646602447827678,
+     "channels": 263,
+     "median_ratio": 0.9974010923788936,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 956.0,
+     "unflagged_fraction": 0.1593103714565777,
+     "channels": 455,
+     "median_ratio": 0.9961650163365986,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1056.0,
+     "unflagged_fraction": 0.13979940852754488,
+     "channels": 478,
+     "median_ratio": 0.9937956260319911,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1156.0,
+     "unflagged_fraction": 0.03239692560425645,
+     "channels": 479,
+     "median_ratio": 0.9946537547504942,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1256.0,
+     "unflagged_fraction": 0.11947763379360196,
+     "channels": 478,
+     "median_ratio": 0.9960498262302557,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1356.0,
+     "unflagged_fraction": 0.16645568259500976,
+     "channels": 479,
+     "median_ratio": 0.9956447615850043,
+     "counted": true,
+     "met": true
+    },
+    {
+     "lo_mhz": 1456.0,
+     "unflagged_fraction": 0.07860898447186944,
+     "channels": 401,
+     "median_ratio": 0.9947949683153062,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1556.0,
+     "unflagged_fraction": 0.08361660528230226,
+     "channels": 468,
+     "median_ratio": 0.9965511590070056,
+     "counted": false,
+     "met": false
+    },
+    {
+     "lo_mhz": 1656.0,
+     "unflagged_fraction": 0.0421530936266615,
+     "channels": 166,
+     "median_ratio": 0.9504625742278392,
+     "counted": false,
+     "met": false
+    }
+   ],
+   "met": true
+  }
+ },
+ "met": true,
+ "gate": "scan9_tables; the full run's tables are context only"
+}

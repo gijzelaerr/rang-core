@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Chunking by time and row for whole-array data (task W3, research/w3-chunking.md).
 
 The rang-core stages run within `data.memory_limit_gb` (GiB of resident
@@ -64,16 +65,29 @@ def _gib(nbytes):
 @dataclass(frozen=True)
 class Budget:
     """Chunk sizes of one MS under `limit_gb` (and `chunk_rows`, a cap on the
-    rows of every chunk when set)."""
+    rows of every chunk when set). With `processes` above 1 (the chunk-task
+    executor, research/chunk-task-api.md 1.3) each process plans its chunks
+    under `limit_gb / processes`."""
 
     limit_gb: float
     nrows: int
     cell: tuple
     chunk_rows: int | None = None
+    processes: int = 1
 
     @property
     def limit_bytes(self):
-        return int(self.limit_gb * GIB)
+        return int(self.limit_gb * GIB / max(1, int(self.processes)))
+
+    @property
+    def limit_text(self):
+        """The limit as messages name it."""
+        if int(self.processes) <= 1:
+            return f"{self.limit_gb:g}"
+        return (
+            f"{self.limit_gb:g} ({self.limit_gb / int(self.processes):g} per process "
+            f"of data.processes {int(self.processes)})"
+        )
 
     @property
     def fixed_bytes(self):
@@ -85,7 +99,7 @@ class Budget:
         left = self.limit_bytes - self.fixed_bytes
         if left <= 0:
             raise MemoryLimitError(
-                f"data.memory_limit_gb {self.limit_gb:g}: the stage itself needs about "
+                f"data.memory_limit_gb {self.limit_text}: the stage itself needs about "
                 f"{_gib(self.fixed_bytes):.2f} GiB for {self.nrows} rows before it reads "
                 "any visibilities; raise the limit"
             )
@@ -106,7 +120,7 @@ class Budget:
         per_row = int(np.prod(self.cell))
         if self.chunk_bytes < CELL_BYTES[stage] * per_row:
             raise MemoryLimitError(
-                f"data.memory_limit_gb {self.limit_gb:g}: one row of {self.cell} cells "
+                f"data.memory_limit_gb {self.limit_text}: one row of {self.cell} cells "
                 f"needs {_gib(CELL_BYTES[stage] * per_row + self.fixed_bytes):.2f} GiB in "
                 f"{stage}; raise the limit"
             )
@@ -123,13 +137,18 @@ class Budget:
         """The `ChainBudget` of the K, G, B, F and polarisation solves (task
         W3b)."""
         return ChainBudget(
-            self.chunk_bytes, self.fixed_bytes, self.limit_gb, self.chunk_rows
+            self.chunk_bytes,
+            self.fixed_bytes,
+            self.limit_gb,
+            self.chunk_rows,
+            self.limit_text,
         )
 
     def describe(self):
         out = {
             "memory_limit_gb": self.limit_gb,
             "chunk_rows": self.chunk_rows,
+            "processes": int(self.processes),
             "fixed_gb": _gib(self.fixed_bytes),
         }
         try:
@@ -150,6 +169,7 @@ class ChainBudget:
     fixed_bytes: int = 0
     limit_gb: float | None = None
     chunk_rows: int | None = None
+    limit_text: str | None = None
 
     def plan(self, nrows, nchan, ncorr, per_channel):
         """`(max_cells, hard_cells, block_rows)` of a solve on `nrows` rows:
@@ -188,6 +208,7 @@ def budget(config, info):
         int(info["nrows"]),
         tuple(info["cell"]),
         data.get("chunk_rows"),
+        int(data.get("processes") or 1),
     )
 
 
@@ -214,15 +235,43 @@ def _getter(source):
     return lambda name, start, n: source.getcol(name, int(start), int(n))
 
 
+def _rows_getter(source):
+    """`(name, rows, chans) -> array` of a `WriteBack` session or a core
+    reader (`core_ms`, `core_ms_write`), which read a list of rows and a
+    channel slice in one call; None for other readers."""
+    if hasattr(source, "write_flags"):  # core_writeback.WriteBack
+        return getattr(source, "read_rows", None)
+    get = getattr(source, "getcol_rows", None)
+    if get is None:
+        return None
+    return lambda name, rows, chans: get(name, rows, chans=chans)
+
+
 def read_rows(source, name, rows, chans=None, block_rows=None):
-    """Column `name` at `rows` (any order; duplicates not allowed), read in
-    runs of consecutive rows from a `WriteBack` session or a reader, in the
-    order of `rows`. `chans` (a slice) keeps only those channels; reads then
-    go in blocks of `block_rows` rows so only the kept channels are held."""
-    get = _getter(source)
+    """Column `name` at `rows` (any order; duplicates not allowed) from a
+    `WriteBack` session or a reader, in the order of `rows`. `chans` (a
+    slice) keeps only those channels. The core's readers read the rows in
+    one call per block of `block_rows` rows, only the channels kept
+    (research/sliced-read.md); other readers (python-casacore) read runs of
+    consecutive rows and cut the channels in NumPy."""
     rows = np.asarray(rows, np.int64)
-    out = None
+    if not len(rows):
+        raise ValueError("no rows")
     step = len(rows) if not block_rows else max(1, int(block_rows))
+    sliced = _rows_getter(source)
+    if sliced is not None:
+        if step >= len(rows):
+            return sliced(name, rows, chans)
+        out = None
+        for b in range(0, len(rows), step):
+            values = sliced(name, rows[b : b + step], chans)
+            if out is None:
+                out = np.empty((len(rows), *values.shape[1:]), values.dtype)
+            out[b : b + len(values)] = values
+            del values
+        return out
+    get = _getter(source)
+    out = None
     for b in range(0, len(rows), step):
         part = rows[b : b + step]
         order = np.argsort(part, kind="stable")
@@ -236,8 +285,6 @@ def read_rows(source, name, rows, chans=None, block_rows=None):
             out = np.empty((len(rows), *values.shape[1:]), values.dtype)
         out[b + order] = values
         del values
-    if out is None:
-        raise ValueError("no rows")
     return out
 
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Gauge-aware, real full-Jones TRAIN normal equations and deletion response.
 //!
 //! Parameters are antenna-major XX/XY/YX/YY, adjacent real/imaginary; each
