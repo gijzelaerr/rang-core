@@ -464,3 +464,64 @@ for K is a default change, and would move every archived K gate).
 - **No code change, no gate moved.** Scripts and receipts in
   `research/results/calchain-floor/`; outputs on nash in
   `~/rang-data/outputs/calchain-floor-20261117/` (size in the hand-back).
+
+## 11. Addendum 2026-11-17 14:55, post hoc (after section 10 was written, before the tests below ran)
+
+Section 10's reading is partly inferred; by T2's frozen words pass 1 is a
+**contradiction** (NS meets machine precision, CL does not; NS's KGB1 is
+read on 76,994 of 962,190 primary cells, the rest flagged by A0).
+Corrections: T8's bound median (5.0e-7) is `4 eps32 + 2.5e-7`, not ID
+50's delays (ID 50's K is 0.1 ns in these truths, not near 2,392 ns);
+`cf_k1cells`, `cf_kstart`, `cf_ksolve1` and `cf_ksolve2` bin rows by the
+nearest K1 solution time, not by `cal_gain.solint_bins`, so their cell
+counts (5,202 X cells, 424 refant cells, the 0.4-3 % of intervals 4-10,
+NS's 0 cells) and `cf_kstart`'s cost of 2.0 are for those bins; only
+`cf_kcapture` (94 cells, 2 to the refant) uses the solver's own bins. The
+receipt label "FFT start only (0 iterations)" ran one iteration (the
+kernel runs at least one).
+
+Tests added before they ran:
+- **F50**: CL's construction (S0c, linear) with ID 50's rows in K1
+  interval 7 (`solint_bins`, 60 s) flagged before the run. The wrong K1
+  solution **carries** pass 1's floor if KGB1 meets machine precision;
+  **contributes** if KGB1 drops ≥ 2× from 3.5e-3; else not.
+- **Cost on the solver's cells** (`cf_kcapture`): the noise-free cost of
+  ID 50's 94 interval-7 cells at truth and at rang's delay, each with the
+  best free phase per hand (the `delay_and_offset` offset), others at
+  truth. If both are ≤ 1e-6 (relative) the delay is **unidentifiable**
+  from those cells; if rang's is > 1e-3 while truth's is ≤ 1e-6, rang
+  returned a **wrong unflagged answer on identifiable data**, a defect.
+- **Real data**: ID 50's K1 per interval in e2a-3b-k's archived T-T
+  tables (read only), against its neighbours.
+
+## 12. Addendum 2026-11-17 15:10, post hoc (after section 11's cost, the real T-T K1 and `cf_kdiag` were read; before any code change)
+
+Read (section 13): on the 94 cells `gaincal` gives the kernel for ID 50's
+interval 7, truth's relative cost is 1.7e-15 and rang's delay's 1.7-1.8:
+by section 11's rule **a rang defect** (a wrong, unflagged answer on
+identifiable noise-free data). From the same captured arrays a start at
+0 reaches truth (strict), the FFT start does not (with either offset
+start): **the FFT start is the cause**. Refant-baseline cell counts do
+not separate wrong solutions from right ones (right with 8 refant cells,
+wrong with 10), so a data-sufficiency flag is the wrong fix. The real
+subset's archived T-T K1 holds the same solution (ID 50, interval 7:
+2,329 / 2,299 ns; neighbours 0.11 ns), and **CASA's own K1 does too**
+(`casa-ntf`: 2,362 / 2,320 ns, unflagged): a shared property of an FFT
+start on the refant baseline, not a CASA behaviour rang lacks.
+
+The fix, behind a key, default off (today's behaviour bitwise):
+`calibrate.k_zero_start` (`rang.cal_delay.solve(zero_start=True)`): the
+kernel runs a second time from a zero start, and per interval the run
+with the lower weighted residual over the interval's unflagged
+parallel-hand cells is kept. Decision rules:
+- **Gates unchanged**: rang U on S0f′ with this branch's code and the key
+  off (arm `lin2`) gives tables bitwise equal to archived U's.
+- **The fix carries pass 1** if CL with the key on (arm `zs`) meets machine
+  precision on KGB1 (and KGB0 stays there); **contributes** if KGB1 drops
+  ≥ 2× from 3.5e-3; else it does not.
+- R's construction with the key on (`zs` on S0f′) is reported, not gated
+  (A0's flags differ there).
+- Unit test: a noise-free simulation where one antenna's refant-baseline
+  data in one interval are reduced to a few cells; key off reproduces a
+  wrong delay (or the test states that it does not), key on recovers
+  truth.

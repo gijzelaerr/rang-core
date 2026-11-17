@@ -75,6 +75,31 @@ def main(case, name, ant, interval):
                 "model_kt": [float(abs(pred[bad[0][0], bad[0][1]])), float(np.angle(pred[bad[0][0], bad[0][1]]))],
             }  # fmt: skip
     out["consistency_with_truth"] = per
+    # section 11: the cost of the antenna's delay on these cells, truth and rang's,
+    # with the best free phase per hand (delay_and_offset's offset), others at truth
+    _, va = S.kvals(S.tab(A / "K1"))
+    cost = {}
+    for h, c in ((0, 0), (1, 3)):
+        ok = ~ff.any(-1) & (np.abs(mm[..., c]) > 0)
+        res = {}
+        for label, tau in (
+            ("truth", tk[ant, h]),
+            ("rang", tk[rows.ref, h] + va[interval, ant, h]),
+        ):
+            kk = tk[:, h].copy()
+            kk[ant] = tau
+            k = np.exp(1j * ph[None, :] * (kk[a1[sel]] - kk[a2[sel]])[:, None])
+            x = mm[..., c] * k
+            y = dd[..., c]
+            conj = (a2[sel] == ant)[:, None]
+            x = np.where(conj, np.conj(x), x)[ok]
+            y = np.where(conj, np.conj(y), y)[ok]
+            z = np.sum(np.conj(x) * y)
+            e = z / abs(z) if abs(z) > 0 else 1.0
+            res[label] = {"tau_ns": float(tau), "relative_cost": float(np.sum(np.abs(y - x * e) ** 2) / np.sum(np.abs(y) ** 2)),
+                          "relative_cost_no_offset": float(np.sum(np.abs(y - x) ** 2) / np.sum(np.abs(y) ** 2))}  # fmt: skip
+        cost[f"hand {h}"] = res
+    out["cost_on_solver_cells"] = cost
     fl = np.asarray(flag)[sel].astype(bool)
     w0 = np.asarray(weights)[sel] == 0
     out["cells_flag_any_corr"] = int(fl.any(-1).sum())
@@ -93,7 +118,9 @@ def main(case, name, ant, interval):
     from rang import cal_apply, core_ms
 
     with core_ms.open_table(ms) as t:
-        fr = np.flatnonzero(np.asarray(t.getcol("FIELD_ID")) == rows.fid)  # autocorrelations included
+        fr = np.flatnonzero(
+            np.asarray(t.getcol("FIELD_ID")) == rows.fid
+        )  # autocorrelations included
         ma1 = np.asarray(t.getcol("ANTENNA1"))[fr]
         ma2 = np.asarray(t.getcol("ANTENNA2"))[fr]
         tm = np.asarray(t.getcol("TIME"))[fr]
