@@ -195,21 +195,27 @@ def test_run_state_survives_a_polling_reader(tmp_path):
 
 
 def _trim(value):
-    """Long lists (4,096 channel frequencies) cut to their first four items."""
+    """Long lists of numbers or strings (4,096 channel frequencies) cut to
+    their first four items; lists of records (the transcript) kept whole."""
     if isinstance(value, list):
-        if len(value) > 16:
+        if len(value) > 16 and not any(isinstance(v, (list, dict)) for v in value):
             return [_trim(v) for v in value[:4]] + [f"... {len(value)} items"]
         return [_trim(v) for v in value]
     if isinstance(value, dict):
-        return {k: _trim(v) for k, v in value.items()}
+        out = {k: _trim(v) for k, v in value.items()}
+        if "structuredContent" in out and "content" in out:
+            out["content"] = "(structuredContent as text; left out here)"
+        return out
     return value
 
 
 def _scrub(value, replacements):
     text = json.dumps(_trim(value))
     for old, new in replacements:
-        for form in (str(old), json.dumps(str(old))[1:-1]):
-            text = text.replace(form, new)
+        forms = {str(old), Path(old).as_posix()}
+        for form in sorted(forms, key=len, reverse=True):
+            for escaped in (json.dumps(form)[1:-1], form):
+                text = text.replace(escaped, new)
     return json.loads(text)
 
 
