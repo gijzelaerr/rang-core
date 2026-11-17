@@ -135,11 +135,18 @@ def lock_idle(lock):
     text = subprocess.run([sys.executable, lock, "status"], capture_output=True,
                           text=True, check=False).stdout  # fmt: skip
     lines = text.splitlines()
-    return (
+    idle = (
         any(ln.startswith("exclusive: free") for ln in lines)
         and any(ln.startswith("shared: 0/") for ln in lines)
         and not any(ln.startswith("queue ") for ln in lines)
     )
+    if not idle:
+        return False
+    # Also the host: a point queued under foreign load would wait inside its
+    # hold (timed.py's quiet wait) and drain the lock meanwhile.
+    b0 = timed.busy_seconds()
+    time.sleep(30)
+    return (timed.busy_seconds() - b0) / 30 <= MAX_FOREIGN
 
 
 def matrix(run):
