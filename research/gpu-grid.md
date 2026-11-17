@@ -405,12 +405,71 @@ Under section 5 as frozen: **Failure** (Gate 1 fails in f32; Gate 2 fails on the
 L∞ bound). `-gpu` is not refused on the branch, as the Failure clause asks: it is labelled
 experimental in the usage text, pending the coordinator's decision on amendment 9.3. No speed
 result: the timing did not run (8.4). No novelty claim.
+Timing, 2026-11-17 (8.7, partial, two repeats): the GPU is **not faster** at `-j 16`, 7-10 %
+slower in f32 on S1 and H2 and level on H3, 18-53 % slower in f64; section 5's saving rule
+is not met in either form, so the outcome stays Failure and no speed case for `-gpu` exists.
 
 Not checked: WSClean was not run in this session (the oracle comparison is inherited through
 GPU ≈ CPU and gemclean-speed.md); WSClean with IDG; the pilot in f64; pytest against an
 extension built with the feature; Gates 1 and 2 at `-j 16` (they ran at `-j 8`; the images do
 not depend on the thread count); `-gpu` with several channels or polarisations (refused);
 macOS, DX12, AMD; the full `check_all` (left to the coordinator's merge check).
+
+### 8.7 Timing, exclusive `-j 16`, 2026-11-17 (amendments 9.4, 9.5): **GPU not faster**
+
+Glacier, one exclusive hold 20:32:20-20:51:35 (`heavy_lock.py run --drain 0`), binaries
+`gemclean-9ad7e75-{cpu,gpu}.exe`, GPU budget 4096 MiB, outputs
+`D:/rang/outputs/20261116-gpu-grid/timing-20261117b/` (per-run JSON and logs, `session.log`,
+`nvidia-smi-{start,end}.txt`, `lock-{start,end}.txt`, `ollama-server.log`); archive
+[results/gpu-grid-timing.json](results/gpu-grid-timing.json), scripts `session.py`,
+`session_analyse.py`. Start: card 499 of 12,282 MiB, idle host 0.42 cores (60 s), so the
+clean bound was 2.0 cores; end: 0.74 cores, card 10,235 MiB.
+**Partial session.** At 20:45-20:46 a local client (`nambia_local_ai --watchdog`, pythonw, not
+part of rang; it calls Ollama on the quarter hours) loaded `qwen3:14b` (10 GB) onto the card
+during `h3-fine-gpu-r2`: that run took 111.15 s (other CPU 2.77 cores, unclean); every later
+run is unclean by the GPU-drift clause, and `s1-coarse-gpu-r3` was void, which ended the
+session (9.5). So repeats 1 and 2 ran, repeat 3 and the pilot did not; 36 GeMClean arms
+planned, 25 run, 21 clean.
+
+Walls, s, medians of clean runs; saving = (CPU − GPU) / CPU per repeat pair:
+
+| sky | form | accuracy of the GPU form | CPU | GPU | saving r1, r2 | major cycles CPU / GPU, s | GPU path / major (compute) | device MiB | host GB CPU / GPU |
+| --- | --- | --- | ---: | ---: | --- | --- | --- | ---: | --- |
+| S1 | coarse (f32) | Gate 1 **fail** (4.8e-4 of the residual peak, bound 1e-5); Gate 2 pass | 10.85 | 11.84 | −9.1 %, −9.3 % | 3.12 / 3.40 | 94 % (65 %) | 758 | 2.18 / 2.18 |
+| H2 | coarse (f32) | Gate 1 **fail** (1.3e-4); Gate 2 pass | 14.92 | 16.22 | −7.3 %, −10.0 % | 4.62 / 5.31 | 97 % (76 %) | 759 | 2.02 / 1.94 |
+| H3 | coarse (f32) | Gate 1 **fail** (2.8e-4); Gate 2 pass | 34.79 | 34.94 | −1.0 %, +0.1 % | 8.31 / 7.96 | 91 % (72 %) | 1190 | 4.81 / 3.94 |
+| S1 | fine (f64) | Gate 1 pass (4.3e-12); image = CPU | 14.63 | 19.13 | −30.4 %, −31.2 % | 5.81 / 9.18 | 101 % (88 %) | 1341 | 2.96 / 2.64 |
+| H2 | fine (f64) | Gate 1 pass (2.1e-12); image = CPU | 18.67 | 28.37 | −50.5 %, −53.5 % | 7.30 / 15.41 | 102 % (92 %) | 1342 | 2.95 / 2.64 |
+| H3 | fine (f64) | Gate 1 pass (7.4e-12); image = CPU | 50.80 | 59.91 | −17.9 % (r2 unclean: 51.84 / 111.15, −114 %) | 20.03 / 27.39 | 100 % (91 %) | 2360 | 5.41 / 4.59 |
+
+- Repeat spread is small: the two clean walls of every arm agree within 2.8 %.
+- **Section 5's rule, read as written: not met.** No cell saves 10 %; S1 and H2 are slower
+  than their CPU arms by more than 2 % in both forms; H3 coarse is level (−0.4 %). H3 fine has
+  one clean pair, so it is "not measured" under 9.4; it was 18 % slower. The session is
+  partial (two repeats of three), but no third repeat could turn −7 % to −53 % pairs into a
+  10 % saving.
+- **Where the time goes.** The GPU path (host, upload, compute, download) takes 91-102 % of
+  the GPU run's major-cycle time, compute alone 65-92 %, so the major cycle on the card is
+  as long as or longer than the CPU's at 16 threads: in f32 by −4 % (H3) to +15 % (H2), in
+  f64 1.4-2.1 × longer (f64 at 1/64 of the f32 rate). The rest of the run (PSF, minor
+  cycles, resyncs, I/O) is unchanged, so no wall saving is left to find. At `-j 8` (8.2) the
+  GPU operator was faster; at `-j 16` the CPU catches up.
+- **Accuracy of the timed runs:** every clean run's model, residual and image FITS are
+  byte-identical to the Gate 2 run of the same binary and form (CPU: the Gate 0 baseline;
+  GPU: `gate2/gpu`), so the accuracy column holds for these walls. H2 coarse ran 7 major
+  cycles on the CPU and 6 on the GPU, as in Gate 2.
+- **WSClean 3.7** (`minres`, clean repeat 1 only; repeat 2 unclean by the GPU-drift clause,
+  in brackets): S1 17.65 (18.33) s at `-mgain 0.8`, 12.69 (13.12) s at 0.9; H2 15.76 (16.31),
+  16.14 (18.96); H3 40.42 (41.44), 40.55 (42.91); peak RSS 0.58 / 0.58 / 1.13 GB. The
+  faster WSClean arm against GeMClean GPU coarse: S1 1.07 ×, H2 0.97 ×, H3 1.16 ×
+  (GeMClean CPU coarse: 1.17 ×, 1.06 ×, 1.16 ×), at 3-4 × WSClean's memory. The novelty
+  rule (1.5 × on each sky, memory no larger) is not met.
+- **Not run:** repeat 3, the pilot (CPU and GPU coarse), the pilot in f64 through Gate 2;
+  the post-merge build (`9606a6f` and later) was not timed and Gates 0-2 were not re-run on
+  it.
+
+Attempt 3 (`timing-20261117/`, 20:09:59-20:13:40, aborted, 9.5): the same Ollama client had
+loaded the model at 20:10:23; six CPU walls and one WSClean wall, no GPU arm.
 
 ## 9. Amendments
 
@@ -528,3 +587,21 @@ as 9.4:
 - Reopening needs, in order: the pilot in f64 through Gate 2, then the exclusive `-j 16` timing against
   WSClean on a quiet host with a free card (scripts in `results/gpu-grid-scripts/`, run with
   `heavy_lock.py run --drain 0`), under a new frozen arm. Only a speed-up at met parity would justify a merge.
+
+## For the coordinator, 2026-11-17 (timing)
+
+- The exclusive `-j 16` timing ran (8.7, partial: repeats 1-2 of 3, no pilot). GPU against CPU,
+  same form: f32 −9 % S1, −9 % H2, −0.4 % H3; f64 −31 %, −52 %, −18 % (one clean pair). The
+  saving rule of section 5 is not met; this adds a measured "not faster" to the frozen Failure.
+  The f32 numbers sit beside its Gate 1 failure; only f64 has met parity, and it is the slower one.
+- Reopening as the decision of 2026-11-16 put it ("a speed-up at met parity") is not supported
+  on this card: the GPU path already takes 91-102 % of the major-cycle time, so a faster
+  wgpu kernel, not more measurement, would be needed. Suggest closing #12 as measured null
+  for this design and leaving the branch parked.
+- Blocker for any GPU timing on glacier: the local `nambia_local_ai --watchdog` (pythonw) sends
+  Ollama `/api/chat` bursts on the quarter hours (seen 15:30-15:45, 16:00, 18:05, 20:10, 20:15,
+  20:45), loading `qwen3:14b` (10 GB) for 15 minutes each. Timing needs it paused; this task
+  did not touch it.
+- Branch state: origin/main merged (`9606a6f`), SPDX after the MIT relicence (`gpu/wgrid.rs` held
+  GPL as a wgridder child, `gpu_grid_parity.rs` MIT), quick check PASS. Not done: the full
+  check, Gates 0-2 on the merged build, the pilot in f64.
