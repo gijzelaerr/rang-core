@@ -609,6 +609,26 @@ every attempt reported; no pooling of clean repeats across attempts; the 1-CPU b
 attempt is clean, F4's calibrator outcome on C1(U4) goes to the coordinator with both provisional
 readings, and no held-out set is read.
 
+- Attempt 3 (`-05d-c1u4`, 12:18): **skipped at the gate** (other CPUs 2.26 over 10 s). `-05e1-c1u4`
+  was queued and withdrawn before it got the lock (nothing sampled or timed).
+- Coordinator, 2026-11-17: the other load is the coordinator's and other agents' Claude sessions and
+  the owner's apps, which are not paused; keep the gate as frozen, retry about every 15 min, overnight
+  too; skips do not count against the two timed attempts. Attempt 2's 0.452 (provisional) is reported
+  beside whatever clean reading comes.
+
+**Stage 5 chain, fixed 2026-11-17 before any held-out read (`examples/f4_stage5.py`, detached, state
+`D:/rang/outputs/f4-20261111-stage5.json`):** (1) gated C1(U4) attempts `-05fK` every 15 min by the rule
+above; (2) only after a clean C1(U4) ≤ 0.45, the held-out quality runs once, in parallel under shared
+4-slot holds: `f4_eval.py real --heldout` on LUNO MAIN_0, MAIN_12, MAIN_14 (arms T, A, N4, N3, Z4, ZE,
+U4, N, NA, N4NA; δ 0.1; N4 = seed 2 @ τ −1.0; W3's subset check is each run's first step) and
+`f4_eval.py sim` on f4sim-t (calibrator scans); (3) section 6's cost C1 for N4 at 4 and 1 threads on
+`luno:MAIN_1`, gated the same way (labelled: section 6 says only "else provisional"): per thread count
+the first all-clean timed attempt decides, at most three timed attempts, else the last is reported
+as provisional. **C2 measured before the chain** (`-12-c2-T`, `-12-c2-N4`, MAIN_1, separate processes,
+4 threads, not a held-out set): peak working set T 5.519 GB, N4 5.519 GB (both the decode peak):
+**C2 = 1.00**, "matches" (0.8-1.2). A smoke test of the exact real-mode command on validation MAIN_7
+(`-11-smoke-calibrator`, N4 @ τ 0, r1 seed 19 only) ran with rc 0, including A (Docker in WSL) and NA.
+
 **Stage 4, training, measured 2026-11-17 11:07-11:55 (+02), host nash, CPU** (`train1.sh` beside the
 weights: `examples/f3_train.py --nplanes 23` at `475ad60`, JAX 0.12.0.1 `cpu:0`, 6 cores per seed by
 `taskset`, the three seeds in parallel under nash's heavy lock `--slots 6 --mem 24`, nice 19, ionice
