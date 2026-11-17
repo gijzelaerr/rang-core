@@ -510,3 +510,12 @@ lawyer who works with FOSS licences. Questions for them:
 - **Base and sources:** base `41bc3efb`. The notices read from `v030-fix` (`07875d43`) are not on main yet; when v030-fix merges, the notice gaps of 3.2 are what remains. They fit the same release (step 0).
 - **Owner decisions:** the nine in section 6. Decisions 1, 2 and 4 decide most of the cost.
 - **Upstreams fetched:** ducc0 0.42.0, WSClean 3.6, schaapcommon and aocommon headers, read at their tags on GitHub and GitLab; casa6 `9269a52` sources were fetched into a session scratchpad (not kept). Licence metadata came from PyPI JSON for the pinned versions.
+
+## Owner decision, 2026-11-17
+
+"ok never mind about the license, too much work for now. lets rewrite things when we are done."
+
+- rang-core stays GPL-3.0-or-later. v0.3.0 and the releases after it ship under the GPL.
+- The relicensing route in this note (permission requests, clean-room rewrites, an LGPL writer module and an optional GPL package) is deferred until the roadmap work is done. Nobody has been asked for permission.
+- Until then, new work avoids adding GPL- or LGPL-derived code beyond what a task needs. It prefers permissive upstreams and reimplementation from papers, so the later rewrite does not grow.
+- The notice gaps found here are fixed now under the GPL, on branch `v030-fix`.
