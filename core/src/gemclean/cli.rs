@@ -106,6 +106,13 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             -average-channels > 1 each polarisation is read whole first
   -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
                             (<name>-dirty-<n>.spill) go (default: the directory of -name)
+                            images, less memory; research/gemclean-memory2.md, -memory3.md); the
+                            default with -join-polarizations. The files take 12 B per row, channel
+                            and polarisation read plus 8 B per weighted visibility and polarisation
+                            (about 28 GB for 115,000 rows of 4096 channels in IQUV); a killed run
+                            leaves them (<name>-*.tmp, *.spill)
+  -no-reorder               keep all of that in memory, also with -join-polarizations
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged
@@ -293,6 +300,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     // -single or -double; otherwise single precision for an accuracy of 1e-5
     // or coarser (task G7, research/g7-defaults.md).
     let mut precision: Option<bool> = None;
+    let mut reorder: Option<bool> = None;
     let mut a = Args {
         ms: PathBuf::new(),
         name: "gemclean".into(),
@@ -482,7 +490,8 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                     Some((number(flag, s.to_string())?, number(flag, t.to_string())?));
             }
             "-no-plan-reuse" => a.plan_reuse = false,
-            "-reorder" => a.reorder = true,
+            "-reorder" => reorder = Some(true),
+            "-no-reorder" => reorder = Some(false),
             "-temp-dir" => a.temp_dir = Some(PathBuf::from(value(&mut i)?)),
             "-beam-no-w" => a.beam_no_w = true,
             "-beam-band" => a.beam_band = true,
@@ -802,6 +811,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         a.multiscale = Some(ms);
     }
     a.single = precision.unwrap_or(a.epsilon >= 1e-5);
+    // -reorder is the default with joined polarisations
+    // (research/gemclean-memory3.md, section 6); -no-reorder switches it off.
+    a.reorder = reorder.unwrap_or(a.pols.len() > 1 && a.join_pols);
     Ok(a)
 }
 
@@ -1223,6 +1235,27 @@ fn memory_section(args: &Args) -> String {
         for (label, bytes) in &buffers {
             println!("  {label:<44} {:>8.3}", gb(*bytes));
         }
+        // research/gemclean-memory3.md: the live blocks at the highest heap.
+        let (live, phase, blocks) = memory::peak_blocks();
+        let during = phases
+            .get(phase)
+            .map_or("after the last phase", |p| p.label.as_str());
+        println!(
+            "heap at its highest: {:.3} GB, during the phase ended by \"{during}\"; blocks of 1 MiB or more then:",
+            gb(live)
+        );
+        let mut rest = live;
+        for (size, count) in &blocks {
+            rest = rest.saturating_sub(size * count);
+            println!(
+                "  {count:>5} x {size:>13} bytes  {:>8.3} GB",
+                gb(size * count)
+            );
+        }
+        println!(
+            "  smaller blocks                          {:>8.3} GB",
+            gb(rest)
+        );
     }
     if memory::counting() {
         obj(&[
@@ -1268,6 +1301,9 @@ fn run(raw: &[String]) -> Result<(), String> {
         return Ok(());
     }
     let mut args = parse_args(raw)?;
+    if args.memory_report {
+        memory::trace_blocks();
+    }
     if let Some(p) = &args.fits_mask {
         args.masking.fits = Some(mask::read_fits_mask(p, args.size)?);
     }
@@ -3848,6 +3884,30 @@ mod tests {
         assert_eq!(a.size, 64);
         assert_eq!(a.weight, WeightClass::Briggs(-0.5));
         assert_eq!(a.niter, 10);
+        // -reorder is the default with joined polarisations only
+        // (research/gemclean-memory3.md).
+        for (line, want) in [
+            ("-size 64 64 -scale 2asec x.ms", false),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV x.ms",
+                false,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -reorder x.ms",
+                true,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -join-polarizations x.ms",
+                true,
+            ),
+            (
+                "-size 64 64 -scale 2asec -no-update-model-required -pol IQUV -join-polarizations -no-reorder x.ms",
+                false,
+            ),
+        ] {
+            let raw: Vec<String> = line.split(' ').map(String::from).collect();
+            assert_eq!(parse_args(&raw).unwrap().reorder, want, "{line}");
+        }
         for (line, want) in [
             (
                 "-size 64 64 -scale 2asec x.ms",

@@ -1,0 +1,74 @@
+{
+ "joined-iquv-mf": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-masked": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-per-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-mf": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "unjoined-iquv-per-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 51,
+  "stderr": null,
+  "left": []
+ },
+ "joined-iquv-one-channel": {
+  "identical_default": true,
+  "identical_reorder": true,
+  "exit": [
+   0,
+   0,
+   0
+  ],
+  "files": 17,
+  "stderr": null,
+  "left": []
+ }
+}

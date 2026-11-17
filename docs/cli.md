@@ -1129,6 +1129,13 @@ gemclean: usage: gemclean [options] <ms>
                             -average-channels > 1 each polarisation is read whole first
   -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
                             (<name>-dirty-<n>.spill) go (default: the directory of -name)
+                            images, less memory; research/gemclean-memory2.md, -memory3.md); the
+                            default with -join-polarizations. The files take 12 B per row, channel
+                            and polarisation read plus 8 B per weighted visibility and polarisation
+                            (about 28 GB for 115,000 rows of 4096 channels in IQUV); a killed run
+                            leaves them (<name>-*.tmp, *.spill)
+  -no-reorder               keep all of that in memory, also with -join-polarizations
+  -temp-dir <dir>           where -reorder's files go (default: the directory of -name)
   -beam-no-w                the 2n beam without the w-term (the major cycle keeps it)
   -beam-band                resyncs use the beam's spectrum only as far as the longest baseline and
                             the w-term reach; what is left out is logged

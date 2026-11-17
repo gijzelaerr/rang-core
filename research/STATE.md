@@ -127,6 +127,16 @@ public fixture (Windows and nash: 2 workers, 4 workers at `chunk_rows: 7`, and a
 2 threads and 2 GB per worker: total S(N) 1.90 / 3.05 / 4.67 at N = 2 / 4 / 8 (calibrate 5.85, flag 4.89 at 8,
 limited by 17 blocks; apply 1.46, the single writer moving 11 GB); one-worker overhead 1.013. Exclusive points not
 obtained. Not tested: Slurm, PBS, a second host, Lustre/CephFS.
+GeMClean memory phase 3 (#32), 2026-11-17 (branch `gemclean-memory3`; [gemclean-memory3.md](gemclean-memory3.md),
+frozen at `7b3b627`, code `f20c06a`, default `bc62504`; met; outputs `D:/rang/outputs/gemclean-memory3-20261117`): a
+tracer in `-memory-report` (live blocks of 1 MiB or more at the heap's highest) put J1833−2103's `-reorder` peak (7.66
+GB) in the minor cycle's resync: 110 n² images (32 dense models), beams 2.15, eight per-beam resync buffers 0.54,
+plans 0.94. Arm A (one resync buffer for every beam) and arm B (models held sparse) lower it to 6.14 GB heap, tree RSS
+**5.73 GiB (0.682 × 8.40, limit 6.30)**, with all 153 FITS files, `entries` and mask byte-identical on all three fields
+with and without `-reorder`, and in 21 + 6 sweep cases. The frozen default rule was met (exclusive, two pairs per field:
+RSS 0.468 / 0.458 / 0.742 of `-no-reorder`, wall 1.066 / 1.050 / 0.979 of the means; five of the six pairs 1.04-1.08, so `-reorder` costs about 5-8 %), so `-reorder` is now the default with
+`-join-polarizations` (`-no-reorder` to switch off): 7.7 GiB on J1331+3030 and J1939−6342, 5.7 on J1833−2103, 4.0-4.3 ×
+WSClean 3.7. New image-dominated memory test (bound 89 images). Next: the beams and plans (50 % of the peak).
 
 E2-A gate 3b diagnosis, 2026-11-17 (branch `e2a-3b-diag`; [e2a-3b-diag.md](e2a-3b-diag.md), protocol committed
 before any test; receipts [results/e2a-3b-diag/receipts/](results/e2a-3b-diag/receipts/)). Under the frozen rule no
