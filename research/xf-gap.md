@@ -164,3 +164,39 @@ nash).
 ---
 
 (Results below this line, dated.)
+
+Proposal frozen in commit `f9f966d`; scripts in `8ea894c` (before any solve).
+
+## 6. Amendment, 2026-11-17 20:25 (after the arms, before any ladder, mirror or gauge number was read)
+
+**V0 on nash.** `held` reproduces xf-preavg exactly: ψ spans 2.681, 10.299,
+9.349, 1.495° (archive equal), Xf avg against CASA median 0.0544° (0.054),
+noavg 0.0645° (0.065), χ 0.0069° (0.0069). **`dev` fails:** Xf avg against
+CASA median 0.189° against 0.023 ± 0.005°.
+
+Read in the arms' logs (not a ladder number): CASA's Gpol table lacks a
+solution interval wherever its log says `Reached iteration limit: 50
+iterations` on 3C286-SIM (`field=1`); the interval's rows are absent, not
+flagged, and CASA's later solves interpolate Gpol across it (`linear`).
+Counts, CASA rows against rang's: `dev` 3 of 4 (one scan without Gpol),
+`held` 46 of 48 (t0 + 328 s in scan 2 and t0 + 7276 s in scan 14), `dev90`
+45 of 48, `held4` 4 of 4, `held` `gpol8` 339 of 360. rang writes every
+interval. Noiseless data leave CASA's convergence test (relative χ² change)
+at rounding level, so whether an interval converges in 50 iterations can
+differ between hosts; that would explain glacier's `dev` (0.023°) against
+nash's (0.189°).
+
+**Amended (post hoc, labelled):**
+- By section 4's rule nash's numbers are read against nash only. `held`
+  passes V0 and is read as frozen; `dev` is read as a second nash set, not
+  as a reproduction of xf-preavg.
+- **P1:** the ladder step L2 is repeated with CASA's Gpol completed by
+  rang's solutions for the intervals CASA dropped (`L2f`, same rows
+  otherwise). If Δ(L2f, L1) is ≤ 0.02° median while Δ(L2, L1) is not, the
+  dropped intervals carry the Gpol step.
+- **P2:** rang's Xf on rang's own K..Kcross with rang's Gpol rows removed
+  where CASA has none (`R−drop`, rang's Kcross re-solved on that Gpol).
+  If Δ(R−drop, CASA) falls to ≤ 0.02° median, the gap is CASA's dropped
+  intervals, not a rang defect.
+- `held4` (no dropped interval, gap 0.044°) and `dev90` are read the same
+  way as the remaining part once P1 and P2 are in.
