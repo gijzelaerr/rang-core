@@ -155,9 +155,8 @@ def g1_products(g1):
     run = Path(g1) / "P" / "run"
     s = json.loads((run / "selfcal/summary.json").read_text())
     rnd = s["fields"][0]["rounds"][0]
-    store = Path(rnd["store"])
-    if not store.exists():  # the copied run directory: same layout under `g1`
-        store = run / "selfcal/ESO137-pilot/round-1/gains.qc"
+    # the store under this `g1` (a copied run directory keeps the layout, not the absolute path)
+    store = run / Path(rnd["store"]).as_posix().split("/run/", 1)[1]
     rdir = store.parent
     (m0,) = sorted(rdir.glob("*-model.fits"))
     (m1,) = sorted((rdir.parent / "final").glob("*-model.fits"))
