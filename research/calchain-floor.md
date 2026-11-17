@@ -609,3 +609,15 @@ bug, `cf_run.py`'s replacement did not match); they are kept on nash as
   nash `~/rang-data/outputs/calchain-floor-20261117/`; nash's worktree
   holds scp'd copies of the scripts and of the four `python/rang` files,
   not a pulled commit.
+
+## 14. Addendum 2026-11-17 15:50, post hoc (before the real-data check below ran)
+
+The key is shown on noise-free simulation only. **Real-data check**
+(`cf_kreal.py`, no gate read): `cal_delay.gaincal` on e2a-3b-k's real
+subset `rang-u.ms` (read only) with that run's own G0 and B0
+pre-applied, as its K1 was solved, key off and on. Reported: ID 50's K1
+interval 7 in both, whether interval 7 is among `zero_start_intervals`,
+and how many other solutions move by more than 1e-3 ns. Reading: if the
+key puts ID 50's interval 7 within 0.05 ns of its other intervals (0.11 /
+0.09 ns), the fix is measured on real data; otherwise the real case is
+more than the start (the cells themselves), and the note says so.
