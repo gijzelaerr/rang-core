@@ -20,6 +20,12 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Xf gap against CASA, 2026-11-17 (issue #33; branch `xf-gap`; [xf-gap.md](xf-gap.md), frozen in `f9f966d`, amended `6d7269d` and `6ed7b5b` before the numbers they govern; archive [results/xf-gap/](results/xf-gap/); run root `~/rang-data/outputs/xf-gap-20261117`, host nash):
+- Located (frozen outcome 1): the held-out 0.054-0.065° rang-CASA Xf gap is in the Xf solve on identical inputs (ladder share 1.06, mirror 1.08); not averaging, P, the model, KCROSS or a gauge split (composite XY 0.060°).
+- Cause: CASA's polcal weights each cell by the pre-applied tables' `calwt` factor (|G|² × channel-mean |B|² per antenna and hand, matched to 1e-6); a CASA arm with `calwt` False gives rang's Xf to 0.0000°, True CASA's.
+- Fix, opt-in: `calibrate.xf_calwt` (default false, off byte-identical). With it held 0.012° / 0.021° (noavg / avg) from CASA, held4 0.0003°, χ within 0.0064°; slightly further from the truth (0.102 → 0.108° residual), so the default stays off (owner decision).
+- Also found: CASA drops Gpol intervals that hit its 50-iteration limit on noiseless data (held 2 of 48, dev one whole scan); nash's dev then differs by 0.19° in Xf and 0.13° in χ. Host-dependent CASA oracle on noiseless sims.
+
 GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms-mask`; [gemclean-ms-mask.md](gemclean-ms-mask.md), protocol frozen in `51a9e5a`, post hoc section 7 in `6457155` before any PM number; archive [results/gemclean-ms-mask/](results/gemclean-ms-mask/); run root `D:\rang\outputs\gemclean-ms-mask-20261117`, host glacier):
 - No mask defect. GeMClean confines multiscale centres to the FITS mask at every scale, as radler and WSClean 3.7 do. The model's flux outside the mask comes from the scale shapes.
 - As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).

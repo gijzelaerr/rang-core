@@ -241,3 +241,124 @@ dropped Gpol interval):**
 - F5: key off byte-identical (tests); the quick check passes.
 - `dev`'s Xf against CASA is not gated: its 0.189° is CASA's dropped Gpol
   scan (P1, P2) and moves the other way when the weights term is removed.
+
+## 8. Results (measured 2026-11-17 on nash)
+
+Run root `~/rang-data/outputs/xf-gap-20261117/` (77 MB after the MS copies
+were deleted: tables, logs, JSON). Receipts in
+`research/results/xf-gap/receipts/`: `results.json` (section 3's reads),
+`posthoc.json` (P1, P2, `casawt`), `probe-*.json` (weight probe),
+`fix.json` (F1-F4), `psi-*.json`, `steps.log` (every step's rc and wall
+time; all rc 0). Drivers in `research/results/xf-gap/nash/`. Degrees; Xf
+per channel, median / max of |Δ|.
+
+**Controls.** V0 `held` passes (section 6). H0: the harness reproduces the
+pipeline's Gpol to 1.5e-6°, Kcross to 0 ns and Xf to 0° on `held` and
+`dev`. T0: CASA's Xf on its tables passed through rang's reader and writer
+is unchanged (0°). MODEL_DATA: rang's and CASA's identical on both fields
+(max relative difference 0). P: not separable from the Xf step (below);
+`tests/test_cal_pol.py` passes.
+
+**The 2 × 2 (rang `m90_noavg` / `m90` against CASA).**
+
+| Set | Xf noavg | Xf avg | CASA Gpol rows / rang's |
+| --- | --- | --- | --- |
+| `dev` | 0.189 / 0.279 | 0.189 / 0.279 | 3 / 4 |
+| `held` | 0.065 / 0.114 | 0.054 / 0.107 | 46 / 48 |
+| `held4` | 0.044 / 0.118 | 0.044 / 0.118 | 4 / 4 |
+| `dev90` | 0.071 / 0.130 | 0.031 / 0.066 | 45 / 48 |
+
+`gpol8` (`held`, Gpol per integration both sides): 0.063 / 0.135, CASA
+339 / 360 intervals; rang's Xf moves 0.002°, CASA's 0.021°. Scan length
+does not carry the gap (rule 5: `held4` 0.044° with no dropped interval).
+
+**Ladder (`held`, noavg against CASA; Σ shares = 1, telescoping checked to
+5e-6°).** model 0.000, K G B 0.000, Gpol 0.051 (step median 0.015°),
+KCROSS −0.012 (0.0008°), **Xf solver and P 1.062 (0.065°)**. Averaged arm:
+Xf 0.789, KCROSS 0.208 (rang's averaged Kcross on scan 8 is 0.0085 ns from
+CASA's; unaveraged 1.1e-4 ns), Gpol 0.002. **Mirror:** Xf solver (R − M3)
+1.083 (0.063°), KCROSS −0.011, Gpol 0.000, K G B and model −0.072. KCROSS
+delays, rang on CASA's K, G, B, Gpol against CASA: |Δτ| ≤ 2.1e-4 ns per
+scan. **Gauge read:** composite XY 0.060° / 0.109°, YX 0.070° / 0.141°
+(XX 0.006°, YY 0.008°): not a gauge split.
+
+**`dev` (nash only):** Gpol share 1.141 (0.239°), Xf solver −0.139
+(0.044°); mirror K G B and model (M1 − CASA) 1.015. The chains differ by
+CASA's missing Gpol solution for one 3C286-SIM scan.
+
+**Verdict by section 4's rule: outcome 1, located in the Xf solve** (ladder
+1.06, mirror 1.08, same sign). Not a gauge split (rule 2).
+
+**Post hoc (sections 6 and 7, labelled).**
+- P1: CASA's Gpol completed with rang's rows where CASA has none gives
+  rang's L1 Xf exactly (`held` 0.0000°, `dev` 0.0001°): the dropped
+  intervals are the whole Gpol step. P2: rang with its Gpol rows removed
+  where CASA has none: `dev` 0.044° from CASA (was 0.189°), `held` 0.064°
+  (was 0.065°; P2's ≤ 0.02° not met there). The dropped intervals explain
+  `dev`, not `held`.
+- Weight probe (rang's Xf on L3's inputs): with each correlation's weight
+  times |raw / corrected|², `held` 0.018° / 0.072° (from 0.065°), `dev`
+  0.007°; unit weights on V/M 2.3°.
+- `casawt` (CASA, Xf on data pre-corrected by `applycal` and split):
+  `calwt=True` equals CASA's chain to 0.0000° (`held`, `dev`);
+  `calwt=False` equals rang's L3 to 0.0000° (`dev`) and 0.015° / 0.035°
+  (`held`). That 0.015° is not the averaging (against the averaged L3 also
+  0.015°); it equals the dropped-interval step in size, and how each side
+  interpolates CASA's Gpol across an interval missing inside a scan was not
+  tested. The split's WEIGHT ratio is |G(p)|² |G(q)|² mean|B(p)|²
+  mean|B(q)|² per correlation's hands to 1e-6 (the per-cell
+  |raw/corrected|² of the probe is up to 4.6 % off it).
+- **Cause:** CASA's polcal Xf weights each cell by the pre-applied tables'
+  `calwt` factor; rang used 1/SIGMA² unscaled. Xf without D is biased by
+  the 1-3 % leakage, and the weighting sets the bias, so the two
+  estimators differ by 0.04-0.07° on these simulations.
+
+**Fix (section 7), `calibrate.xf_calwt: true`:**
+
+| Gate | Measured | Limit | |
+| --- | --- | --- | --- |
+| F1 `dev` L3 with the key against CASA | 1e-5 / 2e-5 | 1e-3 / 5e-3 | pass |
+| F2 `held` noavg against CASA | 0.012 / 0.036 | 0.05 / 0.25 | pass |
+| F2 `held` avg against CASA | 0.021 / 0.025 | 0.05 / 0.25 | pass |
+| F3 `held` max \|χ_avg − χ_CASA\| | 0.0064 | 0.0089 | pass |
+| F3 `held` max \|χ − 33\| | 0.722 | 1.11 | pass |
+| F4 `held4` noavg against CASA | 0.0003 / 0.0006 | ≤ 0.044 | pass |
+| F5 tests (`tests/test_xf_calwt.py`, off byte-identical) and quick check | see "For the coordinator" | | |
+
+`held`'s remaining 0.012-0.021° is of the size of CASA's dropped Gpol
+intervals (0.015°, P1); not separated further. Against the truth (fit residual after a
+constant and a slope, which the gauge leaves free) the key moves rang
+slightly away: `held` 0.102 → 0.108°, `held4` 0.114 → 0.119°, `dev` 0.098 →
+0.117°. CASA's weighting is not nearer the truth here, so the key stays
+off by default.
+
+**Also found (CASA, not rang):** on noiseless data CASA 6.7.6.14's gaincal
+drops a Gpol interval that reaches its 50-iteration limit (no row written)
+and interpolates across it; on `dev` that removes a whole scan's Gpol and
+moves χ by 0.13° against rang. Host-dependent (nash `dev` 0.189°, glacier
+0.023° in xf-preavg; inferred, glacier's table was not read).
+
+## For the coordinator
+
+- Issue #33 located: CASA's polcal weights the Xf solve by the pre-applied
+  tables' `calwt` factor (|G|² × channel-mean |B|² per antenna and hand),
+  rang did not. Proven by a CASA arm (`calwt` True/False on pre-corrected
+  data: 0.0000° each way). Not averaging, not P, not the model, not KCROSS.
+- Fix: `calibrate.xf_calwt` (default false, out of the stage hash; off
+  byte-identical), Xf only. With it `held` is 0.012° (noavg) / 0.021° (avg)
+  from CASA, `held4` 0.0003°. G, B, Gpol, KCROSS and Df weighting not
+  measured (C2a section 10's open owner decision on CASA's weighting chain).
+- Decide: default on (CASA equality) or off (truth slightly favours off);
+  whether to extend calwt weights to the other solves (a separate frozen
+  task: it moves every archive).
+- CASA drops non-converged Gpol intervals on noiseless sims, host-dependent:
+  CASA oracles on noiseless data can differ between glacier and nash by
+  0.2° in Xf. Use noisy twins or check Gpol row counts in future gates.
+- Averaged rang Kcross differs from CASA by 0.0085 ns on one 10° scan
+  (KCROSS share 0.21 of the averaged gap); recorded, not chased.
+- Quick check: run on glacier (result in the hand-back); full check (CASA
+  oracles, archives) left to the coordinator's merge check.
+- Disk: nash `~/rang-data/outputs/xf-gap-20261117` 77 MB, can go at merge.
+- To rerun: `research/results/xf-gap/nash/drive.sh` (section 5), then
+  `post.sh`, `post2.sh`, `fix.sh` in the run root; each log ends
+  `DRIVE END rc=N`.

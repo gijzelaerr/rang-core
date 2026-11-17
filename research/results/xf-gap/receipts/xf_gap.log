@@ -1,0 +1,60 @@
+2026-11-17T20:06:03 gen dev seeds=None xints=4 10.7s
+2026-11-17T20:06:19 gen held seeds=20261751,20261752,20261753,20261754 xints=90 14.6s
+2026-11-17T20:06:26 gen held4 seeds=20261751,20261752,20261753,20261754 xints=4 7.0s
+2026-11-17T20:06:41 gen dev90 seeds=None xints=90 14.0s
+2026-11-17T20:08:19 rang held m90_noavg rc=0 92.7s
+2026-11-17T20:09:47 rang held m90 rc=0 87.4s
+2026-11-17T20:10:01 rang dev m90_noavg rc=0 13.9s
+2026-11-17T20:10:16 rang dev m90 rc=0 14.3s
+2026-11-17T20:10:31 rang held4 m90_noavg rc=0 14.3s
+2026-11-17T20:10:45 rang held4 m90 rc=0 14.2s
+2026-11-17T20:12:10 rang dev90 m90_noavg rc=0 84.9s
+2026-11-17T20:13:36 rang dev90 m90 rc=0 85.6s
+2026-11-17T20:15:12 rang held gpol8 rc=0 94.9s
+2026-11-17T20:16:24 casa held m90  rc=0 errors=0 71.0s
+2026-11-17T20:16:48 casa dev m90  rc=0 errors=0 17.0s
+2026-11-17T20:17:08 casa held4 m90  rc=0 errors=0 17.0s
+2026-11-17T20:18:11 casa dev90 m90  rc=0 errors=0 58.8s
+2026-11-17T20:19:21 casa held m90 gpol8 rc=0 errors=0 61.6s
+2026-11-17T20:21:05 rangcal held rc=0 80.1s
+2026-11-17T20:22:30 h0 held 84.3s
+2026-11-17T20:22:39 rangcal dev rc=0 8.8s
+2026-11-17T20:22:45 h0 dev 6.4s
+2026-11-17T20:23:06 ladder held m90_noavg L3 19.8s
+2026-11-17T20:23:32 ladder held m90_noavg L2 26.7s
+2026-11-17T20:24:32 ladder held m90_noavg L1 60.0s
+2026-11-17T20:25:30 ladder held m90_noavg L0 57.4s
+2026-11-17T20:25:47 ladder held m90 L3 16.6s
+2026-11-17T20:26:18 ladder held m90 L2 31.4s
+2026-11-17T20:27:10 ladder held m90 L1 51.7s
+2026-11-17T20:28:05 ladder held m90 L0 54.9s
+2026-11-17T20:28:08 ladder dev m90_noavg L3 2.2s
+2026-11-17T20:28:09 ladder dev m90_noavg L2 1.3s
+2026-11-17T20:28:11 ladder dev m90_noavg L1 2.3s
+2026-11-17T20:28:16 ladder dev m90_noavg L0 4.3s
+2026-11-17T20:29:01 casa held mirror M1 rc=0 errors=0 44.4s
+2026-11-17T20:29:37 casa held mirror M2 rc=0 errors=0 34.8s
+2026-11-17T20:30:03 casa held mirror M3 rc=0 errors=0 24.8s
+2026-11-17T20:30:29 casa held mirror T0 rc=0 errors=0 25.4s
+2026-11-17T20:30:43 casa dev mirror M1 rc=0 errors=0 12.7s
+2026-11-17T20:30:55 casa dev mirror M2 rc=0 errors=0 11.9s
+2026-11-17T20:31:06 casa dev mirror M3 rc=0 errors=0 10.5s
+2026-11-17T20:31:17 casa dev mirror T0 rc=0 errors=0 10.9s
+2026-11-17T20:31:36 gauge held rang 16.0s
+2026-11-17T20:31:48 gauge held casa 11.0s
+2026-11-17T20:31:51 gauge dev rang 2.5s
+2026-11-17T20:31:53 gauge dev casa 2.0s
+2026-11-17T20:34:41 p1 held: 32 rows filled from L1
+2026-11-17T20:35:17 p2 held: 32 rows removed
+2026-11-17T20:35:45 p1 dev: 16 rows filled from L1
+2026-11-17T20:35:49 p2 dev: 16 rows removed
+2026-11-17T20:37:32 casa held casawt 0 rc=0 errors=0 28.1s
+2026-11-17T20:38:05 casa held casawt 1 rc=0 errors=0 31.1s
+2026-11-17T20:38:18 casa dev casawt 0 rc=0 errors=0 10.8s
+2026-11-17T20:38:29 casa dev casawt 1 rc=0 errors=0 10.6s
+2026-11-17T20:53:39 rang held calwt rc=0 102.7s
+2026-11-17T20:55:12 rang held calwt_avg rc=0 92.3s
+2026-11-17T20:55:29 rang held4 calwt rc=0 16.7s
+2026-11-17T20:55:44 rang held4 calwt_avg rc=0 14.6s
+2026-11-17T20:55:58 rang dev calwt rc=0 14.2s
+2026-11-17T20:56:13 rang dev calwt_avg rc=0 14.4s

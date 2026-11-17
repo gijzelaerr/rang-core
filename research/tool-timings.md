@@ -2213,3 +2213,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gemclean-ms-mask RM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | H4, 2048² | 15.4 s; 89.6 s | 3.43 GiB; 1.41 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask PM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | pilot, 4096² | 145.3 s; 459.2 s | 12.16 GiB; 4.82 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `gemclean-ms-mask` | 818 s (lock wait excluded) | – | PASS; `docs/gen_cli.py --check` PASS |
+| 2026-11-17 | xf-gap: `maturin develop --release` (fresh worktree), host nash | repo | 350 s | – | heavy lock 4 slots, `CARGO_BUILD_JOBS=4` |
+| 2026-11-17 | xf-gap: `simtruth_ms generate poldx --noiseless`, sets dev / held / held4 / dev90, host nash | 16 ant, 256 ch | 12 / 15 / 7 / 15 s | – | 2 workers |
+| 2026-11-17 | xf-gap: `rang-core run` calibrate + apply (noavg / avg), host nash | held (720 s xcal scans); dev | 93 / 88 s; 14 / 15 s | – | 2 slots, 2 threads; includes the MS copy |
+| 2026-11-17 | xf-gap: CASA 6.7.6.14 chain (apptainer), host nash | held / dev / held4 / dev90 | 79 / 19 / 21 / 67 s | – | `OMP_NUM_THREADS=2`; includes the MS copy |
+| 2026-11-17 | xf-gap: harness ladder L0-L3 (rang solvers on CASA tables), host nash | held noavg / avg; dev | 164 / 155 s; 11 s | – | four chains each |
+| 2026-11-17 | xf-gap: mirror M1-M3 + T0 (CASA on rang's tables), host nash | held; dev | 133 s; 48 s | – | four CASA runs each |
+| 2026-11-17 | xf-gap: CASA `casawt` (applycal, split, setjy, polcal Xf), host nash | held; dev | 31 s; 13 s | – | per arm |
