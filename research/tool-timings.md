@@ -2197,3 +2197,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | e2a-kzero, host nash: FLAG/FLAG_ROW hash of a copy (`e2_post.flag_hash`) | the same | 111 s | – | 1 slot; zs and zsd at once |
 | 2026-11-17 | e2a-kzero, host nash: `kz_score.py score`, archived arm only (scorer control S, KGB1 and KGB0 against two CASA arms, K1 count) | f0.ms rows, 188,497,920 cells per composite | 323 s | – | 2 slots, 48 GB booked |
 | 2026-11-17 | e2a-kzero, Windows host: flag-stage FLAG hash of E2-A's archived version (`D:`, read only) | 1,047,614 rows | 24 s | – | 1 slot |
+| 2026-11-17 | e2a-kzero, Windows host: `check_all.py --quick` | branch | 1,439 s (2,226 s with lock wait) | – | PASS; the check's own booking |
