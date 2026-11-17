@@ -26,6 +26,14 @@ import sys
 import time
 from pathlib import Path
 
+# The pinned wheel's rang, imported before any script below puts the
+# checkout's python/ (no extension built there) on sys.path; its submodules
+# then resolve through the installed package.
+import rang
+
+if "site-packages" not in rang.__file__:
+    raise SystemExit(f"rang from {rang.__file__}, not the installed wheel")
+
 HERE = Path(__file__).resolve().parent
 E2 = HERE.parent / "e2-acceptance-scripts"
 sys.path[:0] = [str(HERE), str(E2)]

@@ -28,6 +28,14 @@ from pathlib import Path
 
 import numpy as np
 
+# The pinned wheel's rang, imported before any script below puts the
+# checkout's python/ (no extension built there) on sys.path; its submodules
+# then resolve through the installed package.
+import rang
+
+if "site-packages" not in rang.__file__:
+    raise SystemExit(f"rang from {rang.__file__}, not the installed wheel")
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 O = Path.home() / "rang-data" / "outputs" / "e2a-kzero-20261117"
