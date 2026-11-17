@@ -653,6 +653,44 @@ def p2(s):
     log(f"p2 {s}: {len(rg.main['TIME']) - len(keep)} rows removed")
 
 
+def casawt(s, calwt):
+    """CASA's Xf without pre-applied tables, on 3C286-SIM's DATA corrected by
+    CASA's K, G, B, Gpol, Kcross (`applycal`, `calwt` as given, no parang)
+    and split out; the model set again by the chain's setjy. With calwt
+    False the solve sees unscaled weights (rang's rule), with True the
+    weights scaled by the tables' amplitudes."""
+    calwt = bool(int(calwt))
+    d = O / f"casawt-{s}-{int(calwt)}"
+    if d.exists():
+        shutil.rmtree(d)
+    (d / "tables").mkdir(parents=True)
+    ct = O / f"casa-{s}-m90" / "tables"
+    for t in ORDER[:5]:
+        shutil.copytree(ct / t, d / "tables" / t)
+    shutil.copytree(O / f"casa-{s}-m90" / "model.ms", d / "sim.ms")
+    chain = sim_chi.casa_calls("/r/split.ms", "/r/tables")
+    setjy = [
+        c for c in chain if c["task"] == "setjy" and c["args"]["field"] == sim_chi.XCAL
+    ]
+    xf = next(c for c in chain if c["args"].get("caltable") == "/r/tables/Xf")
+    xf = copy.deepcopy(xf)
+    xf["args"].update(caltable="/r/tables/Xf-out", gaintable=[], interp=[])
+    calls = [
+        {"task": "applycal", "args": {"vis": "/r/sim.ms", "field": sim_chi.XCAL,
+         "gaintable": [f"/r/tables/{t}" for t in ORDER[:5]],
+         "interp": ["linear"] * 4 + ["nearest"], "calwt": [calwt] * 5,
+         "parang": False, "applymode": "calflag", "flagbackup": False}},
+        {"task": "split", "args": {"vis": "/r/sim.ms", "outputvis": "/r/split.ms",
+         "field": sim_chi.XCAL, "datacolumn": "corrected"}},
+        *setjy,
+        xf,
+    ]  # fmt: skip
+    (d / "spec.json").write_text(json.dumps(calls, indent=1))
+    rc = apptainer(d, [TASKS], f"{s} casawt {int(calwt)}")
+    shutil.rmtree(d / "sim.ms")
+    return rc
+
+
 def posthoc(dest):
     res = {}
     for s in SETS:
@@ -674,6 +712,15 @@ def posthoc(dest):
             r["P2_Rdrop_vs_CASA"] = summary(delta(rd, C), f, nu0)
             rr = xf_of(rang_tables(O / f"rangcal-{s}") / "Xf")
             r["P2_Rdrop_vs_R"] = summary(delta(rd, rr), f, nu0)
+        for w in (0, 1):
+            p = O / f"casawt-{s}-{w}" / "tables" / "Xf-out"
+            if p.exists():
+                xw = xf_of(p)
+                r[f"casawt{w}_vs_CASA"] = summary(delta(xw, C), f, nu0)
+                rr = xf_of(rang_tables(O / f"rang-{s}-m90_noavg") / "Xf")
+                r[f"casawt{w}_vs_R"] = summary(delta(xw, rr), f, nu0)
+                l3 = O / f"ladder-{s}-m90_noavg-L3" / "Xf"
+                r[f"casawt{w}_vs_L3"] = summary(delta(xw, xf_of(l3)), f, nu0)
         if r:
             res[s] = r
     Path(dest).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
@@ -685,7 +732,7 @@ def main(argv):
     cmd, args = argv[0], argv[1:]
     fn = {"gen": gen, "psi": psi, "rang": rang, "rangcal": rangcal, "casa": casa,
           "h0": h0, "ladder": ladder, "mirror": mirror, "gauge": gauge,
-          "score": score, "p1": p1, "p2": p2, "posthoc": posthoc}.get(cmd)  # fmt: skip
+          "score": score, "p1": p1, "p2": p2, "posthoc": posthoc, "casawt": casawt}.get(cmd)  # fmt: skip
     if fn is None:
         raise SystemExit(__doc__)
     rc = fn(*args)
