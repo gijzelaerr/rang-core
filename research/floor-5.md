@@ -303,6 +303,25 @@ per antenna as such. One data set, one noise seed, one field.
   started, because the workstation was held by an exclusive timing run.
 - **Store-equality check.** Added to the script's summary, before any output: `g1_rerun_equal`.
 
+**2, 2026-11-17 11:30 SAST, written while the first arm ran and before any arm result, G1 rerun, GeMClean arm or score was read; after gates R0, G0
+and HB (their numbers are in section 10).**
+
+- **Pinned build, in place of section 2's "nash's main checkout build at the run".** The coordinator
+  fast-forwards nash's main checkout during the run, so one stage could run different code from
+  the next. Every stage runs from the `floor-5` worktree on nash: its Python (`python/rang` at
+  `6de8ecb`), with the extension copied from main's build into the worktree
+  (`python/rang/_core.abi3.so`, SHA-256 `ce12e7d2…c2bc884`, built 2026-11-16 22:39 SAST from main
+  `9d1cf8fc`; main's Rust has changed since, so this is not main's source at `41bc3efb`). The
+  interpreter is the worktree venv `.venv` (Python 3.14.10), with the same third-party versions as
+  main's venv at 11:20 (a pip freeze, compared line for line). GeMClean is this extension's
+  (`python -m rang.gemclean`), and `rang-core selfcal` is `python -m rang.core_cli selfcal`.
+- **Gates run before the pin.** A first R0/G0 run (11:09-11:11) used main's unpinned code. It was
+  set aside (`prep.unpinned-41bc3efb`, `logs/*.unpinned.log`), and R0, G0 and HB were rerun
+  pinned. The 11:13 gates ran on main venv's interpreter with `PYTHONPATH` set to the worktree
+  (same rang code and extension). Skies, pilot and everything after use the worktree venv.
+- **Threads.** Family I stages are capped at 4 threads (Rayon, OpenMP, OpenBLAS), the slots they
+  book. The skies stage started before the cap and briefly used about 5.6 cores.
+
 ## 10. Results
 
 Not run yet.
