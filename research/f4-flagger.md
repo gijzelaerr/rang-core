@@ -634,6 +634,9 @@ as provisional. **C2 measured before the chain** (`-12-c2-T`, `-12-c2-N4`, MAIN_
   exclusive timing on glacier before 21:00. **Scheduling change, labelled:** the chain's gated attempts
   (C1(U4) and Stage 5 cost) now run only between 21:00 and 07:00 host time; the gate, the bar and the
   attempt counts are unchanged; restarted from the same state file.
+- Chain run 2 (pid 35704, 14:45-18:03) made no attempt (window closed). At 18:03 the owner lifted the
+  window for tonight (relayed by the coordinator: glacier's lock empty); run 3 starts at once with
+  `F4_NO_WINDOW=1`, otherwise unchanged.
 
 **Stage 4, training, measured 2026-11-17 11:07-11:55 (+02), host nash, CPU** (`train1.sh` beside the
 weights: `examples/f3_train.py --nplanes 23` at `475ad60`, JAX 0.12.0.1 `cpu:0`, 6 cores per seed by

@@ -41,6 +41,8 @@ WINDOW = (21, 7)
 
 
 def wait_window():
+    if os.environ.get("F4_NO_WINDOW") == "1":  # owner lifted it, 2026-11-17 18:03
+        return
     while True:
         h = time.localtime().tm_hour
         if h >= WINDOW[0] or h < WINDOW[1]:
