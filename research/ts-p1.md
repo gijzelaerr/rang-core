@@ -11,6 +11,9 @@ post hoc amendments 9.1 and 9.2: **met** on the held-out simulation (section
 spent: it was scored on two grids, so any later change to the code needs
 `tsp1-held2`. The real-data arms are deferred.
 
+**2026-11-17: T6 met on the shared host nash** (amendment 15.8, section 15.9).
+rang's median wall time is 1.04 x WSClean's and its peak memory 1.07 x.
+
 **Status at freeze: proposed. Nothing here is built or measured.** This note is
 committed before any code that tests it. Any later change is a dated amendment
 in section 9, labelled post hoc if it could have seen a result.
@@ -874,3 +877,137 @@ through FLAG_ROW rows with nonzero Stokes I weight.
 
   Gate 13.4: rang's wall time and peak RSS (from `lc-t6.lightcurve.rang-receipt.json`)
   against WSClean's `timing.txt`, each at most 1.5×.
+### 15.8 Amendment, 2026-11-16: T6 moves to the shared host nash (host change only, before any T6 reading)
+
+The workstation never had the quiet window that 15.7 waited for, so T6 runs
+on nash ([nash-host.md](nash-host.md): 2 x Xeon E5-2695 v4, 36 cores, 503 GB,
+shared with other users). The protocol of 13.4 is otherwise unchanged: the
+same `tsp1-held2`, the same commands and settings, 16 threads
+(`RAYON_NUM_THREADS=16`, `-j 16`), and the gate at 1.5 x WSClean's wall time
+and 1.5 x its peak memory. No T6 reading exists at this commit.
+
+**What exclusive means on nash.**
+- `heavy_lock.py run -- ...` is exclusive among this account's jobs only. The
+  host is shared: other users' jobs run at normal priority beside ours.
+- Both arms run under the same nice level, `nice -n 19 ionice -c3`
+  (`RANG_HEAVY_NICE=19`, and the prefix on the lock call).
+- 16 threads are within the host's 24-slot cap and one socket's 18 cores, so
+  the protocol's figure stands. Neither arm is pinned (no `numactl`).
+
+**Load record and void rule (frozen here).** Every reading goes through
+`tools/oracles/nash/timed.py`:
+- before and after: load1 (`/proc/loadavg`) and each user's CPU (`top -bn2
+  -d 5`, second frame);
+- during: the host's busy CPU-seconds from `/proc/stat` and the reading's own
+  CPU-seconds and peak RSS from `wait4`. Foreign load = (host busy − own) /
+  wall, in cores. It counts everything outside the timed process tree: other
+  users' jobs, the system and any job of ours outside the lock.
+- Each reading starts only when the host's busy CPU over 30 s is at most 2.0
+  cores (waiting up to 2 h).
+- **A reading made under a mean foreign load above 2.0 cores is void** and is
+  repeated at the end of the order. At most three repeats per arm (six
+  readings in all); if three valid readings per arm cannot be had, T6 is
+  **not obtained (foreign load)**.
+
+**Repeats.** 13.4 has one reading per arm. On nash there are three valid
+readings per arm, interleaved as rang, WSClean, WSClean, rang, rang, WSClean,
+inside one exclusive hold. The gate uses the median wall time of each arm's
+first three valid readings, and the largest peak RSS among them (`wait4`'s
+`ru_maxrss`, the quantity `/usr/bin/time %M` gave in 13.4's `timing.txt`).
+rang's receipt peak is reported beside it.
+
+**The oracle build.** Docker is denied on nash, so the
+`rang-wsclean-native:3.7` image cannot run. WSClean v3.7 is built on nash
+from the image's recipe (`tools/oracles/wsclean-native/Dockerfile`: tag
+`v3.7`, `Release`, `-DPORTABLE=OFF`, KERN casacore 3.7.1-1kern1, which nash
+has installed), outside a container, in
+`~/Build/tmp/20261116-nash-timings/wsclean-native/`. cmake has to be given
+Python 3.12; it found a stray 3.6. The system `/usr/bin/wsclean` (KERN
+3.7-1kern1) is not used: it is the portable build whose gridder uses SSE2
+only (the Dockerfile's note), which would favour rang. The WSClean flags are
+`wsclean_intervals.sh`'s, run directly, with `OMP_NUM_THREADS=16` and the
+`-image.fits` copies deleted as they appear.
+
+**Inputs and I/O.**
+- `tsp1-held2.ms` and its positions are copied from
+  `D:\rang\outputs\ts-p1-20261116` by `tar` over ssh into
+  `~/rang-data/outputs/ts-p1-20261116`; every file's SHA-256 must equal the
+  D: copy's.
+- Both arms now read the same ext4 volume (13.4: rang read NTFS and WSClean
+  ext4). rang reads that copy. WSClean reads its own copy, made once and
+  untimed, as the frozen script made one.
+- Before each reading the arm's MS is read once into the page cache
+  (untimed), so both arms read warm.
+
+**Code.** rang runs at this branch's commit with its extension built on nash
+(its SHA-256 goes with the result). Since the code freeze `08bfefb`,
+`lightcurve.py`, the weights, the wgridder and the Rust kernel are unchanged;
+main changed only GeMClean's Rust and other modules.
+
+**Driver.** `tools/oracles/ts-p1/t6_nash.sh` under
+`nice -n 19 ionice -c3 heavy_lock.py run --`; readings in
+`~/Build/tmp/20261116-nash-timings/t6/readings.jsonl`.
+
+Wall times from nash are labelled host nash and are not compared with the
+workstation's.
+
+### 15.9 T6 measured on nash (amendment 15.8), 2026-11-17
+
+- **Code and builds.**
+  - rang: branch `nash-timings` at `3544c0d` (the amendment's commit), with
+    its extension built on nash (`_core.abi3.so` SHA-256 `608a4203…`).
+  - WSClean: v3.7 (`4f395b28`), built on nash by the Dockerfile's recipe
+    (`Release`, `-O3`, `PORTABLE=OFF`; binary SHA-256 `43077a3c…`).
+- **Input.** `tsp1-held2.ms` was copied from D: (34 min, by `tar` over ssh).
+  All 73 files, the positions and truth included, match the D: copy by
+  SHA-256.
+- **Hold.** All six readings ran in one exclusive hold, 00:22-01:01 SAST on
+  2026-11-17, under `nice -n 19 ionice -c3`. None was void, so none was
+  repeated.
+- **Run paths and archive.**
+  - Run: `~/Build/tmp/20261116-nash-timings/t6/` on nash.
+  - Archive: `research/results/ts-p1/t6-nash/`: `readings.jsonl`,
+    `code.txt`, one receipt, WSClean's commit and a cmake excerpt.
+
+| Reading | Order | Wall, s | CPU-s | Peak RSS, MB | Foreign load, cores | load1 before / after |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| rang r1 | 1 | 355.36 | 2,368 | 302.4 | 0.21 | 1.02 / 6.70 |
+| WSClean w1 | 2 | 346.04 | 2,253 | 281.3 | 0.19 | 3.73 / 4.83 |
+| WSClean w2 | 3 | 343.41 | 2,244 | 280.2 | 0.28 | 2.85 / 4.60 |
+| rang r2 | 4 | 360.66 | 2,417 | 297.5 | 0.27 | 2.54 / 7.49 |
+| rang r3 | 5 | 358.32 | 2,390 | 296.9 | 0.27 | 4.24 / 7.60 |
+| WSClean w3 | 6 | 343.34 | 2,243 | 280.7 | 0.25 | 4.24 / 6.28 |
+
+- **Load.** load1 counts our own 16 threads. Other users' CPU, from the top
+  snapshots before and after each reading, was netdata at about 8 % of one
+  core, root at up to 4 %, and the lock's own idle processes. The foreign load
+  stayed at 0.19-0.28 cores against the 2.0 bound.
+- **Our own account.** From w2 on, the snapshots also show 8-9 % of one core
+  under our account outside the timed tree. It was not identified (queued
+  lock clients polling are likely). It is counted in the foreign load. No
+  other job of ours held the lock during the hold.
+
+**Gate 13.4 (frozen readings, as amended in 15.8).**
+- **Wall time.** rang's median is 358.32 s and WSClean's 343.41 s, a ratio
+  of **1.043** against the 1.5 bound: **pass**.
+- **Peak memory.** rang's largest is 302.4 MB and WSClean's 281.3 MB, a
+  ratio of **1.075** against the 1.5 bound: **pass**.
+- **T6 is met on nash.** rang matches WSClean 3.7 (native build) in cost, at
+  16 threads, on a host shared under nice 19.
+
+**Post hoc remarks (not part of the gate).**
+- **Repeatability.** rang's three readings span 1.5 % and WSClean's 0.8 %.
+  rang uses 6.5 % more CPU-seconds.
+- **Receipt.** rang's own peak (`peak_rss_mb`) is 295.3, 290.5 and
+  290.0 MB.
+- **Outputs.**
+  - The three `lightcurve.csv` files are identical (SHA-256 `94b4eb9e…`).
+  - Against the workstation's 4-thread `lc-held2` (2,700 rows), the largest
+    relative differences are 8.7e-14 in `flux_jy`, 1.1e-11 in
+    `flux_snapshot_jy` and 5.5e-11 in `sigma_meas_jy`. That is floating-point
+    rounding from another host, compiler and thread count.
+- **Where WSClean's time goes.** Inversion takes 5 min 28 s of its 346 s.
+  Its reorder runs first, on about one core.
+- **Not comparable.** These are host nash figures, not comparable with
+  10.5's or 14.4's workstation figures.
+- **The input can go.** T6 no longer needs `tsp1-held2.ms` on D:.

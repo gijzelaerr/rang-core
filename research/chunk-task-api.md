@@ -211,6 +211,99 @@ then decide nothing on their own: they are reported as scaling efficiency for th
 - **Estimate:** about 35 min per point, 13 points, about 8 h exclusive. Two repeats take about 5 h, if the coordinator
   prefers that.
 
+### 5.1 Amendment 2, 2026-11-16: the timing runs move to the shared host nash (host change only, before any timing run)
+
+No exclusive window came on the workstation, so section 5 runs on nash
+([nash-host.md](nash-host.md): 2 x Xeon E5-2695 v4, 36 cores, 503 GB, shared
+with other users). The protocol is otherwise unchanged: case W, flag,
+calibrate and apply on a fresh copy each, T = 16, N ∈ {1, 2, 4, 8} with
+`threads: 16`, `memory_limit_gb: 32`, the baseline, three repeats in rotating
+order, and the reported quantities. No timing run exists at this commit.
+
+**What exclusive means on nash.**
+- `heavy_lock.py run -- ...` is exclusive among this account's jobs only. The
+  host is shared: other users' jobs run at normal priority beside ours.
+- Every configuration runs under the same nice level, `nice -n 19 ionice
+  -c3` (`RANG_HEAVY_NICE=19`, and the prefix on the lock call).
+- T = 16 is within the 24-slot cap and one socket's 18 cores, so the
+  protocol's figure stands. No run is pinned (no `numactl`).
+
+**Load record and void rule (frozen here).** Each stage is one reading of
+`tools/oracles/nash/timed.py`:
+- before and after: load1 and each user's CPU (`top -bn2 -d 5`, second
+  frame);
+- during: foreign load = (host busy CPU-s from `/proc/stat` − the stage's own
+  CPU-s from `wait4`) / wall, in cores. It counts everything outside the timed
+  process tree, other users' jobs and any job of ours outside the lock alike.
+- A stage starts only when the host's busy CPU over 30 s is at most 2.0 cores
+  (waiting up to 2 h).
+- **A point with any stage under a mean foreign load above 2.0 cores is void**
+  and is run again on a fresh copy; the void attempt is kept, renamed. At
+  most three attempts per point; after that the point is **not obtained
+  (foreign load)**.
+
+**Points and order.** Section 5 says both "13 points" and "3 repeats per
+point" over five configurations (the baseline and N = 1, 2, 4, 8). That is
+read as 5 x 3 = 15 points. Repeat r starts at configuration r of (B, N1, N2,
+N4, N8) and wraps round: B N1 N2 N4 N8, then N1 N2 N4 N8 B, then N2 N4 N8 B
+N1. Each point runs under its own exclusive hold.
+
+**Code.**
+- The N configurations run branch commit `abdfb5a`, the code section 6
+  measured, from a detached worktree on nash
+  (`~/Worktrees/rang/cta-run-abdfb5a`). They do not run today's main, whose
+  Rust has changed since `30d9412` (25 files under `core/` and `src/`), so
+  main's extension cannot be paired with `30d9412`'s Python as sections 2
+  and 6 pair them.
+- The baseline B runs main `30d9412`'s Python (`~/Worktrees/rang/cta-oracle-30d9412`)
+  with the same `_core` build. That build was made on nash from `abdfb5a`,
+  whose `core/` and `src/` equal `30d9412`'s; its SHA-256 is
+  `05fae3f0f53a1ad15d768220d160c2c8d0bd3119d88a9e7eca307c153899a294`.
+- Interpreter: uv's Python 3.14 in `abdfb5a`'s venv.
+
+**Data.**
+- Case W is regenerated on nash with W3's command (`examples/a1_simtruth.py
+  generate w3 DIR --scans 1,3,4,5,23 --workers 3 --chunk-ints 1 --name w3`,
+  at main `3d2995a`). It is used only if every column's SHA-256 (rang's
+  reader, `run.py`'s `table_hashes`) equals that of `D:\rang\outputs\w3\data\w3.ms`.
+  Otherwise the D: copy is copied to nash and its file hashes are checked.
+- The strategy is CARACal's first pass from
+  `research/results/e2-acceptance-scripts/` (SHA-256 `ce9ac66a…`, equal to
+  the copy in `cta-20261113-inputs`).
+
+**Measurements the protocol named but did not define.**
+- **Spawn overhead.** `core_tasks` has no timing hook, so the harness puts a
+  `sitecustomize` on `PYTHONPATH` (`tools/oracles/chunk_tasks/spawnlog/`).
+  Spawned workers inherit it. It records the time of each process's first
+  `core_tasks.run` call and changes nothing else. The time to the first task
+  is measured from the stage process's start. The spawn overhead of N is the
+  median time to the first task at N minus the median at N = 1, per stage.
+  The baseline has no tasks.
+- **Peak memory.** `wait4`'s peak RSS of the largest single process in the
+  stage's tree, not the sum over workers. It is reported only, as in 1.3.
+- **Identity.** Criteria 1-4 for every point against the baseline's first
+  repeat, `W-B-r0`.
+
+**Harness.** `tools/oracles/chunk_tasks/timing.py` (`matrix`, `point`,
+`report`), which is the `timing` mode that section 6 said was missing. Run
+directory: `~/rang-data/outputs/cta-nash-20261116`.
+
+Wall times from nash are labelled host nash and are not compared with the
+workstation's.
+
+
+**Scheduling, 2026-11-17 (the coordinator's word; the protocol is unchanged).**
+After points W-B-r0, W-N1-r0 and the already queued W-N2-r0, the matrix
+stopped queuing exclusive points. Each one drained the lock for 15 min or
+more while the shared queue (floor-4's selfcal grid and E2-N's rang arm) sat
+waiting. `timing.py matrix` now queues a point only when `heavy_lock.py
+status` on nash shows no shared or exclusive hold and an empty queue. The
+remaining points run later under the same protocol.
+W-N2-r0's ticket was already queued but never ran. It drained the lock for 88
+min while one 8-slot shared job used about one core and five shared jobs
+waited, so it was withdrawn at 03:53 SAST before its point started. It is
+queued again, as the first remaining point, once the lock is idle.
+
 ## 6. Results
 
 Measured 2026-11-14. Code: branch commit `abdfb5a`, run from the pinned worktree `~/Worktrees/rang/cta-run-abdfb5a`.
@@ -262,6 +355,60 @@ F-P2T, S-P2T and C-P2T). A power cut at about 17:30 on 2026-11-13 then killed th
 `cta-20261114-01` used one runner from start to finish. Two lessons for harnesses here:
 - An arm directory needs an owner lock, so that a second runner refuses it instead of deleting it.
 - `bash` inside a `heavy_lock run` resolves to WSL's bash on this host. Name Git Bash by its full path.
+
+### 6.1 Timing runs on nash (amendment 2, section 5.1): 2 of 15 points, the rest deferred
+
+**Status, 2026-11-17 04:30 SAST.** Two points are measured: W-B-r0 and
+W-N1-r0. The other 13 wait for an idle lock (the scheduling rule above). The
+driver keeps going on nash without a session and queues each point only when
+the lock is idle and the host's busy CPU is at most 2.0 cores. No speed-up
+figure exists yet, so nothing below is the section 5 result.
+
+**Inputs.**
+- Case W: D:'s `w3.ms`, copied to `~/rang-data/outputs/w3/data/w3.ms`; all 65
+  files match by SHA-256. The nash regeneration was not used: its DATA column
+  differs (the other columns are equal).
+- Strategy: SHA-256 `ce9ac66a…`.
+- Code: `abdfb5a` and `30d9412` with `_core` `05fae3f0…`, as 5.1 says.
+- Run directory: `~/rang-data/outputs/cta-nash-20261116/` on nash. Each point
+  is `W-<config>-r<repeat>/`, holding `done.json` with every reading, the
+  hashes after each stage and `tasks.log`. `status.txt` sits in the run
+  directory, and the driver log is `~/Build/tmp/20261116-nash-timings/driver.log`.
+
+**Frozen readings so far.** Each point had its own exclusive hold, under nice
+19. No reading was void.
+
+| Point | Stage | Wall, s | CPU-s (cores used) | Peak RSS, GB | Time to first task, s | Foreign load, cores | load1 before / after |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| W-B-r0 | flag | 177.96 | 1,865 (10.5) | 2.64 | – | 0.37 | 2.14 / 11.58 |
+| W-B-r0 | calibrate | 201.05 | 1,280 (6.4) | 6.26 | – | 0.26 | 2.72 / 9.98 |
+| W-B-r0 | apply | 196.52 | 213 (1.1) | 13.09 | – | 0.29 | 2.27 / 1.98 |
+| W-N1-r0 | flag | 171.50 | 1,820 (10.6) | 2.69 | 28.0 | 0.19 | 2.23 / 11.01 |
+| W-N1-r0 | calibrate | 200.58 | 1,289 (6.4) | 6.26 | 54.8 | 0.26 | 2.79 / 10.16 |
+| W-N1-r0 | apply | 196.08 | 218 (1.1) | 13.08 | 41.4 | 0.24 | 1.63 / 1.29 |
+
+- **Identity (criteria 1-4).** W-N1-r0 equals W-B-r0 on every column after
+  each stage, on the flag versions, on the `calibrate/` files and on the
+  cleaned summaries. That is the first Linux run of the identity gate on
+  case W.
+
+**Post hoc remarks (one repeat each; not the section 5 result).**
+- **W calibrate, the open question in section 6.** At N = 1, calibrate took
+  200.6 s against the baseline's 201.1 s on the same host and threads, so
+  there is no sign here of the 500-against-278 s seen on the shared
+  workstation. Two more repeats each settle it.
+- **apply uses about one core** of the 16 (1.1 cores over 196 s). On nash, W
+  apply is serial or bound by I/O at N = 1, so its scaling with N measures
+  that as much as the executor. The workstation took 48 s for it at 4
+  threads, from NTFS.
+
+**To finish** (on nash, once the matrix ends: `driver.log` ends `all done`):
+1. `timing.py report` writes `timing.json` (and `~/Build/tmp/20261116-nash-timings/cta-report.log`).
+2. Copy `timing.json` to `research/results/chunk-task-api-timing-nash.json`.
+3. Write the table of median walls, S(N), S(N)/N, spawn overhead and identity
+   per point, and the `tool-timings.md` rows.
+4. Remove `~/rang-data/outputs/w3`, the worktrees `cta-run-abdfb5a` and
+   `cta-oracle-30d9412`, and `~/Build/tmp/20261116-nash-timings`.
 
 ## For the coordinator
 

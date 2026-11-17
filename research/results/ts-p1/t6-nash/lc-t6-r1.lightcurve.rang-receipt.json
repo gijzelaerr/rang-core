@@ -1,0 +1,129 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "lightcurve",
+  "/home/gijs/rang-data/outputs/ts-p1-20261116/tsp1-held2.ms",
+  "--field",
+  "3",
+  "--positions",
+  "/home/gijs/rang-data/outputs/ts-p1-20261116/tsp1-held2.positions.csv",
+  "--size",
+  "2048",
+  "--scale",
+  "2asec",
+  "--out",
+  "/home/gijs/Build/tmp/20261116-nash-timings/t6/lc-t6-r1"
+ ],
+ "stage": "lightcurve",
+ "verb": null,
+ "started_utc": "2026-11-16T22:22:31+00:00",
+ "commit": {
+  "head": "3544c0d523316b19a3c2bb09366f94c88b60ef9b",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "/home/gijs/Worktrees/rang/nash-timings",
+  "distribution": "rang-core",
+  "version": "0.2.0",
+  "extension_sha256": "608a4203f9162b55d6d67273ac533c5f10fe57390d9795d259b083f37b5eb48d"
+ },
+ "environment": {
+  "python": "3.14.10 (main, Nov 11 2026, 00:18:44) [Clang 23.1.3 ]",
+  "executable": "/home/gijs/Worktrees/rang/nash-timings/.venv/bin/python",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.39",
+  "system": "Linux",
+  "machine": "x86_64",
+  "cpu_count": 36,
+  "rang_core": "0.2.0",
+  "extension": {
+   "path": "/home/gijs/Worktrees/rang/nash-timings/python/rang/_core.abi3.so",
+   "sha256": "608a4203f9162b55d6d67273ac533c5f10fe57390d9795d259b083f37b5eb48d"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "16",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": "/home/gijs/rang-data/fixtures/outer_scans.zip",
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": "/home/gijs/rang-data/locks/heavy",
+   "RANG_HEAVY_SLOTS": "24",
+   "RANG_HEAVY_MEM_GB": "192",
+   "RANG_HEAVY_NICE": "19",
+   "RANG_HEAVY_LOCK_HELD": "24:192",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": "/home/gijs/rang-data/outputs",
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "/home/gijs/rang-data/outputs/ts-p1-20261116/tsp1-held2.ms",
+   "kind": "directory",
+   "files": 71,
+   "bytes": 8547183736,
+   "listing_sha256": "1482a28836ecb8394e1c2e10c840c1be59ac2740e8cc9036f52392a353a6d65c"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/ts-p1-20261116/tsp1-held2.positions.csv",
+   "kind": "file",
+   "bytes": 238,
+   "sha256": "4cd52b6e899010fec691e5afa86a6269f542e14d6bdcf9236080cde0151fe3d3"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "/home/gijs/Build/tmp/20261116-nash-timings/t6/lc-t6-r1",
+   "kind": "directory",
+   "files": 2,
+   "bytes": 681598,
+   "tree_sha256": "d12f14d22b13f8b16bee50a268bf1ef3df070035994b4aba16afd42a014ae051"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 355.006159806042,
+  "cpu_seconds": 2367.8108249999996,
+  "peak_rss_mb": 295.33203125
+ },
+ "exit": 0,
+ "verdict": null
+}
