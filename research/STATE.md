@@ -22,7 +22,7 @@ A new paragraph goes directly under this heading.
 
 Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
 - Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".
-- 273 files (92,559 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice
+- 273 files (92,574 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice
   kept); 61 files (60,900 lines) derived from GPL or LGPL code keep their GPL lines (casacore writer, ducc0
   wgridder, WSClean, radler, CASA kernels, c-src rules, `ms_schema.rs`, six oracle tools held by doubt).
 - `LICENSES/MIT.txt` added and shipped (`license-files`); the package stays `GPL-3.0-only`; root crate

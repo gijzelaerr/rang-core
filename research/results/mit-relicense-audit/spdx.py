@@ -6,9 +6,11 @@ Writes spdx.csv beside this script: one row per tracked file that has an SPDX
 line, with its class and the expected licence expression.
 `tests/test_spdx_headers.py` checks every file against it.
 
-- Shipped files take their class from files.csv (the audit).
-- Files outside the audit's scope (tools, research scripts, docs, Rust
-  integration tests) take theirs from OTHER below.
+A file's class comes from, in order: HELD below; the audit's files.csv (the
+shipped files); the class spdx.csv already records (the files outside the
+audit's scope, reviewed by hand on 2026-11-17). A file in none of them is an
+error: add it to NEW (own code, class a) or HELD (derived) first.
+
 - Class a and c: `MIT`. Class b-permissive: `MIT AND <upstream>` (`MIT` alone
   when the upstream is MIT; the upstream notice stays in the file).
   Every other class keeps the line it has (GPL or LGPL).
@@ -32,8 +34,8 @@ MIT_CLASSES = {"a", "c"}
 # Permissive upstream licence of each b-permissive file, as its header names it.
 PERMISSIVE = {"MIT", "BSD-3-Clause"}
 
-# Header-bearing files outside the audit's scope (files.csv covers only what
-# ships). Reviewed by hand on 2026-11-17; "a" unless listed in HELD.
+# Files kept GPL whatever else says: code that follows GPL or LGPL code or
+# source, found among the files outside the audit's scope (2026-11-17).
 HELD = {
     # AOFlagger 3.5 `SumThresholdMissing` transcribed (GPL-3.0); Tricolour's kernel.
     "tools/oracles/aoflagger/st_bridge.py": "b-copyleft",
@@ -49,6 +51,8 @@ HELD = {
     # Embeds MeerKAT positions from data/meerkat.itrf.txt (simms copy).
     "docs/_extra/interferometer/index.html": "d",
 }
+# New own files (class a) with an SPDX line, named here when they are added.
+NEW: set[str] = set()
 
 
 def tracked_with_header():
@@ -72,8 +76,11 @@ def tracked_with_header():
     return rows
 
 
-def audit_classes():
-    with open(HERE / "files.csv", newline="", encoding="utf-8") as fh:
+def read_csv(name):
+    path = HERE / name
+    if not path.is_file():
+        return {}
+    with open(path, newline="", encoding="utf-8") as fh:
         return {r["path"]: r for r in csv.DictReader(fh)}
 
 
@@ -90,16 +97,27 @@ def expected(cls, current, upstream_licence):
 
 
 def main(apply):
-    audit = audit_classes()
-    rows = []
+    audit = read_csv("files.csv")
+    known = read_csv("spdx.csv")
+    rows, unknown, tot = [], [], {}
     for p, cur in tracked_with_header():
-        if p in audit:
-            cls, lic = audit[p]["class"], audit[p]["licence"]
+        lic = audit[p]["licence"] if p in audit else "-"
+        if p in HELD:
+            cls = HELD[p]
+        elif p in audit:
+            cls = audit[p]["class"]
+        elif p in known:
+            cls = known[p]["class"]
+        elif p in NEW:
+            cls = "a"
         else:
-            cls, lic = HELD.get(p, "a"), "-"
+            unknown.append(p)
+            continue
         exp = expected(cls, cur, lic)
-        n = len((ROOT / p).read_bytes().splitlines())
-        rows.append((p, n, cls, exp))
+        rows.append((p, cls, exp))
+        t = tot.setdefault(exp, [0, 0])
+        t[0] += 1
+        t[1] += len((ROOT / p).read_bytes().splitlines())
         if apply and exp != cur:
             f = ROOT / p
             data = f.read_bytes()
@@ -107,16 +125,13 @@ def main(apply):
             new = f"SPDX-License-Identifier: {exp}".encode()
             assert data.count(old) >= 1
             f.write_bytes(data.replace(old, new, 1))
+    if unknown:
+        sys.exit("unclassified, add to NEW or HELD: " + ", ".join(unknown))
     rows.sort()
     with open(HERE / "spdx.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\n")
-        w.writerow(["path", "lines", "class", "spdx"])
+        w.writerow(["path", "class", "spdx"])
         w.writerows(rows)
-    tot = {}
-    for _, n, _, exp in rows:
-        t = tot.setdefault(exp, [0, 0])
-        t[0] += 1
-        t[1] += n
     print("| SPDX | files | lines |")
     for k, (f, n) in sorted(tot.items(), key=lambda kv: -kv[1][1]):
         print(f"| {k} | {f} | {n:,} |")

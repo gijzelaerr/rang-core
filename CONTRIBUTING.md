@@ -140,11 +140,11 @@ copyright notices may follow the SPDX line.
 Contributions are inbound = outbound, per file: a change to an MIT file is
 contributed under MIT, a change to a GPL file under that file's GPL line. A
 new file is MIT unless it follows GPL or LGPL code or source; then it takes
-the upstream's licence and its name goes into the `HELD` list of
-`research/results/mit-relicense-audit/spdx.py`. Rerun that script after
-adding a file with an SPDX line: `tests/test_spdx_headers.py` checks every
-line against the list it writes (`spdx.csv`), and that no file the audit
-marks derived carries a bare `MIT`.
+the upstream's licence. Name a new file with an SPDX line in the `NEW` (own
+code) or `HELD` (derived) list of `research/results/mit-relicense-audit/spdx.py`
+and rerun it: `tests/test_spdx_headers.py` checks every line against the list
+it writes (`spdx.csv`), and that no file the audit marks derived carries a
+bare `MIT`.
 
 ## Releasing
 
@@ -162,7 +162,7 @@ publish job, before any upload), takes the release notes from the
 changelog section, and publishes to PyPI by trusted publishing. The sdist
 carries only the crates, `data/README.md` and `data/meerkat.itrf.txt`,
 `python/`, `tests/`, `tools/wheel/`, README, CHANGELOG, `CITATION.cff`,
-LICENSE and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
+LICENSE, `LICENSES/MIT.txt` and `THIRD-PARTY-NOTICES.txt` (`[tool.maturin] exclude` in
 `pyproject.toml`).
 
 ## Scientific reporting

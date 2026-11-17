@@ -6,8 +6,8 @@ licence, and code derived from GPL or LGPL upstreams keeps its GPL line.
 
 The checked-in list is research/results/mit-relicense-audit/spdx.csv, written
 by spdx.py beside it from the audit's files.csv. A new file with an SPDX line
-needs a row there: rerun spdx.py (it classes a file it does not know as own
-code, so a derived file goes into its HELD list first)."""
+needs a row there: name it in spdx.py's NEW (own code) or HELD (derived)
+list and rerun spdx.py."""
 
 import csv
 import re
@@ -90,7 +90,9 @@ def test_every_spdx_line_is_listed_and_matches_its_class():
     unlisted = sorted(set(found) - set(listed))
     assert unlisted == [], "add them with research/results/mit-relicense-audit/spdx.py"
     assert sorted(set(listed) - set(found)) == []
-    wrong = {p: (found[p], r["spdx"]) for p, r in listed.items() if found[p] != r["spdx"]}
+    wrong = {
+        p: (found[p], r["spdx"]) for p, r in listed.items() if found[p] != r["spdx"]
+    }
     assert wrong == {}
     for p, r in listed.items():
         cls, expr = r["class"], r["spdx"]

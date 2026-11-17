@@ -543,8 +543,7 @@ and d keep their lines unchanged. When in doubt, a file stays GPL.
 (`ism.rs`, `bandpass.rs`, `fluxscale.rs`, `reference.rs`) are b-copyleft and
 stay GPL. The class-a files v030-fix changed (`core_cli.py`,
 `core_writeback.py`, `lightcurve.py`, `tools/check_all.py`) gained own code
-only. Files on main since the audit base that carry an SPDX line are all own
-(`core/tests/gemclean_memory.rs`, the research scripts).
+only.
 
 **Outside the audit's scope.** 112 header-bearing files do not ship
 (`tools/oracles/`, the other `tools/` scripts, research scripts,
@@ -570,7 +569,7 @@ written by `spdx.py`):
 
 | Class | SPDX line | Files | Lines |
 | --- | --- | ---: | ---: |
-| a | `MIT` | 256 | 80,305 |
+| a | `MIT` | 256 | 80,320 |
 | c | `MIT` | 9 | 3,725 |
 | b-permissive (QuartiCal) | `MIT` | 3 | 4,799 |
 | b-permissive (BSD) | `MIT AND BSD-3-Clause` | 5 | 3,730 |
@@ -582,7 +581,7 @@ written by `spdx.py`):
 | c-src | `GPL-3.0-or-later AND LGPL-3.0-only` (`joined.rs`) | 1 | 991 |
 | c-src | `GPL-3.0-or-later AND MIT` (`cal/diag.rs`) | 1 | 1,154 |
 | d | `GPL-3.0-or-later` | 3 | 3,269 |
-| **MIT or MIT AND BSD** | | **273** | **92,559** |
+| **MIT or MIT AND BSD** | | **273** | **92,574** |
 | **GPL or LGPL** | | **61** | **60,900** |
 
 The class counts include the 112 unshipped files (106 of them class a), so
@@ -606,4 +605,5 @@ listed in `spdx.csv` with the same expression, that the expression fits the
 class (a, c: `MIT`; b-permissive: `MIT` first and only permissive terms; the
 rest: a GPL term and not `MIT` first), and that no file `files.csv` marks
 b-copyleft, c-src, d or non-MIT b-permissive carries a bare `MIT`.
-A new file with an SPDX line needs a row: rerun `spdx.py`.
+A new file with an SPDX line needs a row: name it in `spdx.py`'s `NEW` (own
+code) or `HELD` (derived) list and rerun it; an unnamed file is an error.
