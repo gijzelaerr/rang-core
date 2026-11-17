@@ -2143,3 +2143,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | e2a-3b-k, Windows host: `k_synth_probe*.py` (the 4-antenna test synthetic, SciPy reference) | test fixture | 1-10 s | – | 1 slot |
 | 2026-11-17 | mit-own, Windows host: `tools/check_all.py --quick` (first run FAIL on ruff format only, fixed; second PASS; 1576 passed, 63 skipped) | 286 files changed (SPDX lines) | 1005 s / 204 s, lock wait excluded (1,468 s wall with the wait) | – | shared, 4 slots; waited behind gemclean-memory3's exclusive timing runs |
 | 2026-11-17 | mit-own, Windows host: `spdx.py` (classify and stamp every tracked SPDX line) | 334 files | about 1 s | – | 1 slot |
+| 2026-11-17 | mit-own follow-up, Windows host: `tools/check_all.py --quick` after stamping the 170 unheadered shipped files (PASS; 1643 passed, 67 skipped) | 180 files changed | 348 s, lock wait excluded (351 s wall) | – | shared, 4 slots |
