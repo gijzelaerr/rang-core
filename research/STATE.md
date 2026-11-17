@@ -20,6 +20,16 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+F4 calibrators, 2026-11-17 (branch `fp-f4-flagger`, task #10; [f4-flagger.md](f4-flagger.md), protocol frozen
+2026-11-11; targets stay stopped at the label audit). Stage 4 ran on nash's CPU (JAX 0.12.0.1; labelled post hoc
+against the frozen GPU plan before training; 46-47 min per seed, 3 seeds in parallel): median seed 2 by validation
+loss (0.2095 / 0.0914 / 0.0330), τ −1.0 on validation (recall 0.954; added cells 209,027 against T's 209,120); C2 1.00.
+Stage 2's cost gate C1(U4) ≤ 0.45 on an idle glacier was never met cleanly: four readings 0.441, 0.452, 0.459, 0.458,
+none with all six repeats under the 1-CPU idle bar (other Claude sessions hold 1-3 CPUs); the rerun rule's two timed
+attempts are spent. So **no held-out set was read, Stage 5 did not run, the section 7 outcome is not reached, and the
+weights do not ship**; stopping F4 on C1(U4) or running Stage 5 on provisional readings is an owner decision.
+Landman's review (issue #1) goes to F5; a post hoc check finds no smoothing defect in F4's frozen planes.
+
 GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms-mask`; [gemclean-ms-mask.md](gemclean-ms-mask.md), protocol frozen in `51a9e5a`, post hoc section 7 in `6457155` before any PM number; archive [results/gemclean-ms-mask/](results/gemclean-ms-mask/); run root `D:\rang\outputs\gemclean-ms-mask-20261117`, host glacier):
 - No mask defect. GeMClean confines multiscale centres to the FITS mask at every scale, as radler and WSClean 3.7 do. The model's flux outside the mask comes from the scale shapes.
 - As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).

@@ -160,6 +160,8 @@ SEEDS = {
             ("f2sim-t2", 20262151),
             # Task F3 (research/f3-flagger.md): its held-out simulation test.
             ("f3sim-t", 20263101),
+            # Task F4 (research/f4-flagger.md): its held-out simulation test.
+            ("f4sim-t", 20264101),
         )
     },
     # Task TS-P1 (research/ts-p1.md): the light-curve simulations, built by

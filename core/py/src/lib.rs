@@ -69,6 +69,7 @@ mod cal_stream;
 mod clean;
 mod cnnflag;
 mod f3flag;
+mod f4flag;
 mod flag_extend;
 mod gemclean_cli;
 mod gemclean_predict;
@@ -2910,6 +2911,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Task F3: the second learned flagger (research/f3-flagger.md).
     m.add_function(wrap_pyfunction!(f3flag::f3flag_features, m)?)?;
     m.add_function(wrap_pyfunction!(f3flag::f3flag_logits, m)?)?;
+    m.add_function(wrap_pyfunction!(f4flag::f4flag_features, m)?)?;
+    m.add_function(wrap_pyfunction!(f4flag::f4flag_logits, m)?)?;
     // Task TS-P1: forced photometry by the exact DFT (research/ts-p1.md).
     m.add_function(wrap_pyfunction!(lightcurve::lightcurve_dft, m)?)?;
     Ok(())

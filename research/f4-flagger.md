@@ -1,0 +1,742 @@
+# F4: a fast supervised RFI flagger for MeerKAT L-band, third protocol
+
+Task F4, branch `fp-f4-flagger` from local main `3eab67c` (ahead of origin/main `c2fe7cc` by the V6
+merge). Follows [F3](f3-flagger.md) (calibrators outcome F, targets stopped at the label audit) on the
+owner's answer of 2026-11-11 ([finish plan](finish-plan.md), section 7 item 32: "1. sure"). **Status at
+freeze: proposed; nothing implemented, fetched, run or trained.** Results go under "Measured result";
+nothing above it changes except by dated, labelled amendment.
+
+The goal is Landman's (2026-11-06): one weights file per observatory and band (MeerKAT L-band), separate
+models for calibrators and targets, faster than the Rust Tricolour port with fewer tunable parameters,
+**comparable** flag quality. Better calibration or imaging is not a goal and is not claimed. LUNO-derived
+weights may be shipped (owner, 2026-11-11, item 32; answers F1 item 4) if an outcome allows it.
+
+**Amendment 1, 2026-11-11, after the freeze (`89eb0b7`), before any Stage 1-5 run, training or
+held-out read: an antenna-domain arm NA.** Owner decision (relayed by the coordinator, 2026-11-11):
+"yes add it to F4": an autocorrelation arm, framed as an arm with its own pre-written gates against the
+cross-correlation-only arm and T, not a change to N4. Source: V. Ravi 2026, arXiv:2611.01308 (digest
+`research/digests/2026-11-11.md`, section 1). N4, its gates and its decision rule (sections 3-7) are
+unchanged.
+
+- *Data (checked 2026-11-11, row columns and channel tile 8 or 5 of non-held-out groups only).*
+  Autocorrelations are in the data: LUNO MAIN_4 and MAIN_7 560 of 15,960 rows (56 antennas × 10 dumps),
+  MAIN_1 1,792 of 50,000 (FLAG_ROW set on all of them); ESO137 chunks 2 and 10 1,647 and 1,586 of
+  50,000. Every auto cell has FLAG = 1 (processing's `flag_autos`), but DATA is real: |XX| median
+  318-411, |XY| 2.1-3.4. NA reads auto DATA and ignores the auto FLAG/FLAG_ROW. F-SIM has no autos.
+- *Arm NA (frozen).* Per antenna k and parallel hand c ∈ {XX, YY}, `A_kc(t, f) = Re V_kk,c`.
+  Scan-long part: `M_kc(f)` = median over t; `ρ_kc(f) = M_kc(f) / median_k M_kc(f)`, divided by its own
+  median over channels; `D_k(f) = max_c (ρ_kc(f) − q25_f ρ_kc)` (fractional excess power). Time-local
+  part: `T_k(t, f) = max_c (A_kc / M_kc − 1) / s_kc(f)`, `s_kc(f)` = 1.4826 × MAD over t of
+  `A_kc / M_kc`. NA flags every cross cell (t, f) of every baseline containing k where `D_k(f) > δ` or
+  `T_k(t, f) > 5`. δ from the grid 0.005, 0.01, 0.02, 0.05, 0.1, on the real validation scan only: the
+  smallest δ whose added cells on uninjected DATA are ≤ T's (else the largest δ, reported). Arms
+  reported: NA (W3 ∪ NA), **N4+NA** (N4 ∪ NA), N4.
+- *Gates of the arm (held-out real sets of section 4; they do not enter section 7).*
+  G1: N4+NA's R5 ≥ N4's R5 and N4+NA's added cells ≤ 1.5 × T's, per set.
+  G2 (sanity): NA's recall of an auto injection (one antenna, band as F1's on that set, scan-long,
+  `+10 · σ_auto` added to `A_kc`, `σ_auto` the radiometer noise from channel differences; seeds 19-21)
+  ≥ 0.9. G3: on strong native consensus cells (R5's) of baselines whose antennas NA flags anywhere in
+  the scan, N4+NA's recall − N4's ≥ 0.05.
+  Reading: **NA-useful** if G1, G2, G3 hold; **NA-neutral** if G1 and G2 hold and G3 fails;
+  **NA-harmful** if G1 fails; **NA-broken** if G2 fails. F1's R1 injections touch cross-correlations
+  only, so NA cannot see them; R1 for N4+NA is reported, and any gain there is not credited to NA.
+  N4 cannot see an emitter that is uncorrelated between antennas by construction; that is stated with
+  every NA result.
+- *Cost.* NA's wall and N4+NA's C1 are reported, not gated.
+- *Status.* Proposed at this amendment's commit; implementation and δ must be done before Stage 5
+  reads any held-out set, otherwise NA is reported as not run, not dropped.
+
+**Amendment 2, 2026-11-11, before any Stage 1-5 run, training or held-out read; found by a unit
+test on synthetic data.** On a calibrator-like scan (50 σ source in the parallel hands) with F1's
+antenna-local injection, the parallel-hand deviation `w` inside the band is a **signed** shift (the
+phasor adds to or subtracts from the source amplitude), so the 25th-percentile offset of step 3 is
+dragged negative and `e^par` is high on the antenna's baselines **outside** the band too (ZE flagged
+33 % of the antenna's non-injected cells, 0 % elsewhere).
+
+- Step 3's offset `o_{b,c}` becomes the **median** over channels of the finite `w_{b,c}` (at least 16),
+  robust to a signed shift on fewer than half of the channels. Step 6's `X` keeps the 25th percentile.
+- T6's width cap becomes min(400, **0.45** · nchan) (was 0.6): 230 channels on ESO137, 400 on LUNO,
+  so trained bands stay under half of the channels. F1's antenna-local bands (16 % and 18 % of the
+  channels) and H3 (≤ 0.4 · nchan) are unchanged.
+- Section 3's reading "unbiased by a band that covers up to 75 % of the channels" is withdrawn: the
+  spectral planes now hold for bands on fewer than half of the channels.
+- *Check (NumPy reference, same synthetic case, band 103 of 256 channels on antenna 9):* with the
+  median offset, cross-plane threshold 5 finds 1.00 of the injected cells and flags 0 % of the
+  antenna's other cells (q25: 33 %). The Rust tests after the rebuild run first in the chain.
+
+## 1. What F3 got wrong, and what changes
+
+| F3 failure | Cause | F4 change |
+| --- | --- | --- |
+| antenna-local injection (R1m): calibrators 0.024 against T 0.907, targets 0.166 against 0.700 | F1's antenna-local band is scan-long and wide (measured before this freeze, `make_injection` metadata only, seeds 19-21 and 41-43: **200-320 channels** of 2,048 on LUNO MAIN_4 and MAIN_7, 10 dumps; **60-92 channels** of 512 on ESO137 chunks 2 and 10, 27-28 dumps). `r^t` subtracts the per-channel time median, `r^f` a 33-channel running median: both absorb it, and the antenna medians are built from them. Training had antenna-local bands of 1-8 channels only | scan-scale spectral planes per baseline against the **other baselines'** spectrum, per antenna and for the array (section 3); training injection T6, wide antenna-local bands 9-400 channels (section 4) |
+| targets: consensus labels failed the frozen audit | T and AOFlagger disagree by an order of magnitude on ESO137; weak consensus cells are flag extension or faint RFI | target labels from injections and F-SIM only (L-INJ, section 4); expertly flagged data requested from Landman (section 4) |
+| R3 had no lower bound and R4 could not fail on targets (F3 Amendment 1) | | new gate R5 (recall of strong native consensus) and a lower bound on R3 (section 6) |
+| S3 undecidable for calibrators (f3sim-t had no drifting cells in calibrator scans) | F-SIM's drifting carriers are random per scan | S3 falls back to H1 injections when a class has fewer than 1,000 drifting cells (section 6) |
+| F3's held-out sets now motivate this design | F3 section 8: a change after a held-out result needs sets not used for it | all F4 held-out sets are new (section 4); F3's sets become training or before/after reports |
+
+## 2. Arms
+
+| Arm | What | Role |
+| --- | --- | --- |
+| **T** | Rust Tricolour port `core_flag.flag_rows`, CARACal `8f7bb363`, the class's first-pass YAML (as F3) | the bar |
+| **A** | AOFlagger 3.5.0, `generic-default.lua`, W3's flags as input mask, ORed with W3 (as F3) | second established flagger |
+| **N4** | the F4 network (section 3) inside W3; one weights file and one τ per class | **the method** |
+| Z4 | W3 OR (max over the eight residual planes before `asinh` > 10) OR (max(`e^par_b`, `e^x_b`) > 5) | one-knob threshold on F3's and F4's planes; stop rule |
+| ZE | W3 OR (max(`e^par_b`, `e^x_b`) > 5) | feature check (Stage 2) |
+| U4 | N4 with its untrained initial weights (init seed 0) | chance; kernel cost |
+| N3 | F3's weights at F3's τ (`2cdeee17…` calibrators τ −2.5; `6d44b33f…` targets τ −4.0) | reported: before/after |
+| N | W3 only | reported |
+
+**W3** is F3's (the class's YAML reduced to `flag_nans_zeros`, `apply_static_mask` `0~550`,
+`flag_autos`, `combine_with_input_flags`). F3's subset check passed on both classes; it is repeated on
+one new held-out scan per class at Stage 5 (stop and report if W3 flags a cell T does not). Every measure
+scores only cells W3 leaves unflagged ("eligible").
+
+## 3. Network N4 (frozen)
+
+Per scan, per cross-correlation baseline b, on the (time, channel) plane; `F` as in F3.
+
+**F3's fifteen planes, unchanged** (F3 section 3, steps 1-6; `rang.f3flag.features_numpy` is their
+reference): `asinh r^t_c` (4), `asinh r^f_c` (4), the six antenna and array planes of `u^t`, `u^f`, and
+the mask `F`. They stay in planes 0-13 and 22 (the mask moves to the last plane).
+
+**Eight new scan-scale spectral planes** (float64, stored float32; constant over time within a scan; 0 on
+`F`). Correlations are split into families φ: parallel (XX, YY; indices 0, 3) and cross (XY, YX;
+indices 1, 2).
+
+1. `P_{b,c}(f)` = F3's step 3 (median over unflagged times of `a_c = |V_c| / σ_bc`); NaN where no time is
+   unflagged or the baseline has no noise scale.
+2. Array spectrum `B_c(f)` = median over baselines of the finite `P_{b,c}(f)` (at least 3, else NaN). This
+   is the reference: other baselines, not the baseline's own spectrum, so a band wider than half of the
+   channels is still visible.
+3. Deviation `w_{b,c}(f) = P_{b,c}(f) − B_c(f)`; offset `o_{b,c}` = 25th percentile over channels of the
+   finite `w_{b,c}` (NumPy's linear interpolation; at least 16 finite channels, else NaN); the 25th
+   percentile is unbiased by a band that covers up to 75 % of the channels.
+4. `e^φ_b(f) = max_{c∈φ} |w_{b,c}(f) − o_{b,c}|` (finite values only).
+5. Per antenna k and channel, `E^φ_k(f)` = median of `e^φ_b(f)` over baselines containing k (at least 3
+   finite, else NaN).
+6. Array excess `X^φ(f) = max_{c∈φ} (B_c(f) − q25_f(B_c))` (signed; the 25th percentile over channels of
+   the finite `B_c`, at least 16).
+7. Planes 14-21, for φ ∈ {par, cross}: `asinh e^φ_b`, `asinh max(E^φ_p, E^φ_q)`, `asinh min(E^φ_p, E^φ_q)`,
+   `asinh X^φ` (F3's `pair` rule when one antenna median is NaN; NaN → 0).
+
+Reading: antenna-local, scan-long RFI on antenna k raises `P` on k's baselines only, so `B` is unchanged
+and `e`, `max(E_p, E_q)` are high across the **whole** band while `min(E)` stays low; the network's
+63-channel receptive field does not need to reach the band edges. On calibrators the parallel hands
+carry the source (about 50-70 σ per visibility), so an additive phasor of 10 σ shifts their amplitude by
+a signed amount that depends on phase; the cross hands are noise-dominated in both classes and show it as
+a positive excess, hence the two families. Array-wide scan-long RFI raises `B` and shows in `X`. RFI on for
+less than half of the dumps does not move `P` and stays the job of `r^t`.
+
+**Network.** F3's stack with 23 inputs: 3×3 convolutions, dilations 1, 2, 4, 8, 16, 8 hidden channels,
+ReLU, "same" zero padding, 1×1 head; receptive field 63 × 63. Weights: 9·23·8 + 8 + 4·584 + 9 =
+**4,009**. Flag where logit > τ and the cell is not in `F`, uniform over correlations.
+
+**Implementations.** Rust `core/src/f4flag.rs` (reuses `f3flag`'s residuals, aggregates and convolution;
+F3's numerics are not changed), `rang._core.f4flag_features` and `f4flag_logits`; NumPy reference
+`rang.f4flag.features_numpy`; JAX network `rang.f3net` with `nplanes=23`. Parity (frozen, as F3):
+features max |Δ| ≤ 1e-4 after `asinh` on one validation scan per class; logits |Δ| ≤ 1e-4 at p99.9,
+≤ 1e-3 max, flag disagreement ≤ 1e-5 of cells.
+
+## 4. Data and labels
+
+**Never read** (exact-name allowlists in code): LUNO `MAIN_16`-`MAIN_19` (E2-B), ESO137 ms1 primary and
+target `MAIN_4`-`MAIN_6` (E2-A), and the F4 held-out sets below until Stage 5 (W3's subset check at Stage
+5 is their first read). ESO137 MAIN_0 chunks 1, 3, 5, 7, 9, 15 and LUNO MAIN_8-MAIN_11, MAIN_13,
+MAIN_15 are reserved, unread.
+
+**Calibrators** (LUNO, 1830−211 unless stated; DATA and FLAG tiles 8-23, channels 1024-3071, row chunk 0).
+
+| Set | Role | Source |
+| --- | --- | --- |
+| MAIN_1 (1934−638, scan 2), MAIN_2 (scan 3), MAIN_4, MAIN_5, MAIN_6 | train (real) | on disk (`f3-20261110-02-inputs`, `-01-fetch`); MAIN_1 and MAIN_2 were F3's held-out sets |
+| MAIN_7 | validation (real) | on disk |
+| f2sim-1..3 / f2sim-v calibrator scans | train / validation (simulation) | F2's |
+| **MAIN_0 (3C 286, scan 1)**, **MAIN_12**, **MAIN_14** | **held-out real test** | new fetch, whole GETs with sha256 receipt; HEAD total ≤ 8 GB, else MAIN_14 is dropped |
+| **f4sim-t calibrator scans** | **held-out simulation test** | new: `f2flag_sim`, seeds 20264101-05 (registered in `simtruth.SEEDS`), start 2024-08-22T05:00, odd antennas, test role |
+
+MAIN_0 is a second calibrator source the network never sees; MAIN_12 and MAIN_14 are later 1830−211 scans.
+
+**Targets** (ESO137 `ms1_target.zarr` MAIN_0, channels 640-1151; 210 s row chunks, contiguous in time).
+
+| Set | Role |
+| --- | --- |
+| chunks 0, 2, 4, 6, 8, 14, 16 | train (real); 0, 14, 16 were F3's held-out set |
+| chunk 10 | validation (real) |
+| f2sim-1..3 / f2sim-v target scans | train / validation (simulation) |
+| **chunks 11, 12, 13** | **held-out real test** (one block of 630 s; 13 borders training chunk 14) |
+| **f4sim-t target scans** | **held-out simulation test** |
+
+A target result remains conditional on one track.
+
+**Training injections** (`rang.f4flag`; F3's T1-T5 unchanged, plus T6). Seeds: shards per (class, role,
+kind) start at calibrator train real 20264201, sim 20264251; validation real 20264301, sim 20264311;
+target train real 20264601, sim 20264651; validation real 20264701, sim 20264711; realisation k adds k
+(real scans 6 realisations per training scan, 2 per validation scan, as F3).
+
+- **T6 wide antenna-local** (the missed class): 1-3 events per realisation; one antenna drawn from the
+  live antennas; band width log-uniform 9 to min(400, 0.6 · nchan) channels at a uniform offset; all
+  dumps of the scan with p = 0.75, else a run of 2 to nt dumps; per-baseline amplitude × U(0.5, 1) (as
+  T3); spectral envelope flat (p = 0.5) or raised-cosine edges over 10 % of the width at each side. All
+  other per-event draws as F3 (α log-uniform 3-300 σ_b, coupling, fringe rate, modulation).
+
+So antenna-local RFI of every width from 1 to 400 channels is now in training (T3 1-8, T6 9-400): F1's
+antenna-local test is no longer a held-out morphology, only a held-out-data test.
+
+**Held-out morphologies (never in training):** F3's H1 (drifting carrier) and H2 (antenna cluster), and
+**H3 antenna pair**: two distinct live antennas with the **same** band (width uniform 0.1-0.4 · nchan),
+scan-long, on every baseline of either antenna (T6 events draw independent bands, so a shared band on two
+antennas is not trained).
+
+**Labels.**
+
+- Simulation (both classes): F3's (positive where max(truth A, injection A) ≥ 3, negative where both 0).
+- **Calibrators, real, L-A1s**: F3's Amendment 1 labels with the strength on the uninjected DATA taken as
+  `s = max(u^t, u^f, e^par_b, e^x_b)` (before `asinh`): positive if injection A ≥ 3, or T and A both flag
+  and s ≥ 3; negative if not injected and flagged by neither; ignored otherwise and on `F`.
+- **Targets, real, L-INJ**: positive if injection A ≥ 3; negative if not injected, flagged by neither T
+  nor A, and s < 3; ignored otherwise (every native cell flagged by T or A, or with s ≥ 3) and on `F`.
+  Native target RFI is learned from F-SIM only; R5 measures what this costs.
+- A third of all realisations get F2's synthetic input flags (as F3). Shards: 256 baselines per
+  realisation, float16 features, int8 labels, under `D:\rang\outputs\f4-*`; features on the whole array.
+
+**Label audit (frozen, before training).** Per real training scan: positive (injected, consensus),
+ignored and negative counts; T's and A's recall of realisation 0's injected cells; median s of positive
+and negative cells. **Stop if** (calibrators) strong consensus exceeds 10 % of eligible cells on any scan;
+(targets) ignored uninjected cells exceed 40 % of eligible cells, or injected positives are below 0.1 % of
+eligible cells, on any realisation.
+
+**Expert labels (asked of Landman, not posted by this task).** Proposed text, for issue #1 after the owner
+has seen it:
+
+> For the target model we need expertly flagged MeerKAT L-band target data: the visibilities as they
+> were before flagging (online/static flags only) and the final FLAG you would image with, same rows,
+> ideally one full-array track or three or more target scans of 10 min or longer, with a line on what
+> was flagged by hand and what by a strategy, and permission to train on them and ship weights derived
+> from them. Two different fields or dates would let us hold one out.
+
+If such data arrive before Stage 5 they enter F4 only as a reported measure, E1 (per arm: recall of the
+expert's flags outside W3, and added cells outside the expert's flags); training on them is F5. If
+nothing arrives, the target outcome stands on L-INJ and F-SIM and is stated as "comparable on
+injections, simulation and strong consensus; not checked against expert flags".
+
+## 5. Training (frozen)
+
+F3's: JAX on the RTX 4070 Ti in WSL (venv `~/Build/tmp/<date>-f4-jaxcuda`, removed at the end;
+`XLA_PYTHON_CLIENT_PREALLOCATE=false`), shards built natively by the Rust kernel; Adam 1e-3, 30,000
+steps, batch 32 windows of one baseline × 256 channels, real : simulation = 1 : 1, unweighted BCE over
+non-ignored cells, He-normal init seeds 1, 2, 3 per class, batch rng 1000 + seed; the weights file is the
+median seed by validation loss.
+
+**Threshold τ (validation only).** Grid −6, −5.5, …, +2. The τ with the largest pooled validation
+recall of positive cells such that N4's added cells on the real validation scan's uninjected DATA are
+≤ T's there; if none qualifies, the τ with the fewest added cells (reported). Stored beside the weights'
+sha256. At most one change of hyperparameters per class, on validation, by dated amendment, before any
+held-out set is read.
+
+## 6. Measures (frozen; per class, T the reference)
+
+**Held-out real** (calibrators: MAIN_0, MAIN_12, MAIN_14; targets: ESO137 chunks 11, 12, 13).
+
+| Gate | Measure | Bar |
+| --- | --- | --- |
+| R1 | F2's injection test (F1's `inject_mask`: narrowband, time-burst, antenna-local, single-baseline; seeds 19, 20, 21; 10 σ_b; eligible cells), recall pooled over seeds, sets and morphologies | ≥ T − 0.05 |
+| R1m | the same per morphology | each ≥ T − 0.10 |
+| R2 | H1, H2, H3 at 10 σ_b, seeds 31, 32, 33, recall per morphology pooled | each ≥ T − 0.05 |
+| R3 | added cells on uninjected DATA, per set, ratio to T | ≤ 1.5, and ≥ 0.5 × min(T, A) / T |
+| R4 | Jaccard of added cells with T, per set | ≥ J(A, T) − 0.05 (calibrators; reported for targets, where it cannot fail) |
+| R5 | recall of strong native consensus: uninjected eligible cells flagged by T and A with s ≥ 5, per set | ≥ 0.80 |
+
+**Held-out simulation** (f4sim-t, class scans).
+
+| Gate | Measure | Bar |
+| --- | --- | --- |
+| S1 | recall of truth cells with A ≥ 10 | ≥ T − 0.05 |
+| S2 | flagged fraction of eligible cells outside the truth mask dilated by one cell | ≤ T + 0.01 |
+| S3 | recall of drifting cells with A ≥ 10; if the class's scans have fewer than 1,000 such cells, H1 at 10 σ_b (seeds 61, 62, 63) injected into them instead | ≥ T − 0.05 |
+
+Q1 by morphology and strength decade, F3's sets (LUNO MAIN_1, MAIN_2; ESO137 0, 14, 16 are training now, so
+N3 against N4 there is reported as fit, not test) and E1 if available: reported, not gated.
+
+**Cost**, as F3 (timing claims allowed): LUNO MAIN_1 and ESO137 chunk 0 (label-free, comparable with F3's
+0.343), rows in memory to flags in memory, N4 = W3 + `f4flag_logits` + threshold against T with the full
+YAML; native Windows, `RAYON_NUM_THREADS` 4 and 1, three repeats alternating, median, heavy lock held;
+**idle host**: other processes ≤ 1 logical CPU in the second before each repeat, else provisional. C2
+peak working set in separate processes.
+
+| | Beats (material) | Matches | Worse |
+| --- | --- | --- | --- |
+| C1 wall, N4 against T, 4 and 1 threads | **≤ 0.5** | 0.5-1.1 | > 1.1 |
+| C2 peak working set against T | ≤ 0.8 | 0.8-1.2 | > 1.2 |
+
+**P** as F3 (T1 kinds under half of T's, no retraining between sets).
+
+## 7. Decision rule (per class, first that applies)
+
+| Outcome | Condition | Reading |
+| --- | --- | --- |
+| **Stop-E** | ZE's recall of F1's antenna-local injection (seeds 41, 42, 43) on the real validation scan < 0.5 | the new planes do not see the missed class; no training for that class |
+| **Stop-Z4** | Z4 meets R1, R3 on the real validation scan (F2's injections, seeds 41-43) and S1, S2 on f2sim-v | a threshold suffices; report; no training |
+| **F** | any of R1, R1m, R2, R3, R4 (calibrators), R5, S1, S3 fails, or C1 > 1.1 | not comparable, or not faster |
+| **H** | all quality gates pass, C1 in 0.5-1.1 at either thread count | comparable, not materially faster |
+| **S** | all quality gates pass, C1 ≤ 0.5 at 4 and 1 threads, C2 not worse, P holds | **Landman's request met** on these data; weights may ship (item 32) |
+| **S−** | S except S2 or P | as S, with that failure stated |
+
+Targets add, whatever the outcome: "labels from injections and simulation; not checked against expert
+flags" unless E1 was measured. Against A as F3: no novelty claim follows from beating T alone.
+
+## 8. Stages and stop rules
+
+| Stage | Work | Stop if |
+| --- | --- | --- |
+| 0 | this protocol, committed before any code | |
+| 1 | fetch LUNO MAIN_0, MAIN_12, MAIN_14 (HEAD ≤ 8 GB, receipt), unread; build f4sim-t unread; Z4 and ZE on validation | **Stop-E**, **Stop-Z4** |
+| 2 | Rust kernel, U4 weights; parity on validation; C1(U4) on LUNO MAIN_1 at 4 threads | parity fails after one round of fixes; **C1(U4) > 0.45** |
+| 3 | T and A on training and validation scans (F3's caches reused where they exist); injections; label audit; shards | label audit stop |
+| 4 | training (3 seeds per class), median seed, τ on validation | |
+| 5 | W3 subset check on one held-out scan per class; held-out sets, once: R1-R5, S1-S3; cost; verdict; archive | W3 not a subset of T |
+
+Anything changed after a held-out result is post hoc, labelled, and needs a held-out rerun on sets not
+yet used for that change (the reserved chunks and groups in section 4).
+
+## 9. Licence of the weights
+
+The owner allowed shipping LUNO-derived weights (2026-11-11, item 32), with the SARAO acknowledgement and
+Ben Hugo's permission of 2026-10-29 cited. ESO137 is CC BY 4.0 (Ramatsoku et al. 2020). Weights ship
+only with outcome S or S−.
+
+## 10. Not claimed
+
+No better calibration or imaging. LUNO is processed (CASA flags, QuartiCal weights); ESO137 targets are
+one track; simulated RFI is not shown to be realistic. Nothing about other bands or telescopes.
+
+## Owner decisions
+
+- 2026-11-11 (finish plan, section 7 item 32), on F3's decisions: "1. sure. 2. ship them sure. 3. only
+  delete if we run out of data. 4. sure." F4 follows; LUNO-derived weights may ship; F2/F3 simulation
+  data stay unless D: runs low; F3's message is posted to issue #1.
+- 2026-11-11, relayed by the coordinator: "yes add it to F4": the antenna-domain (autocorrelation) arm,
+  Amendment 1.
+- Open: posting section 4's request for expertly flagged target data to Landman (issue #1).
+
+## Measured result
+
+Runs under `D:\rang\outputs\f4-20261111-NN-*` (each with `.code/`, `.log`, `.time`, written by
+`examples/f4_run.py`). Native Windows unless stated; AOFlagger and training in WSL.
+
+### Before the freeze (no held-out read)
+
+- F1's antenna-local band width per set (`make_injection` metadata, W3 eligibility, no DATA read by the
+  policy; seeds 19-21, 41-43): LUNO MAIN_7 201-320 channels, MAIN_4 200-320; ESO137 chunk 10 60-92,
+  chunk 2 61-92 (5-7 s per set).
+- ESO137 MAIN_0 row chunks (TIME only): 0-16 are 50,000 rows of 27-28 dumps, about 208 s apart; 17 has
+  950 rows of one dump (reserved).
+
+### Implementation (Stage 2 code, before any run)
+
+- Rust `core/src/f4flag.rs`: F3's residual pass once per baseline (it now also returns the time-median
+  spectrum `p`, F3's numerics unchanged), F3's antenna and array medians, then `B`, `e`, `E`, `X`
+  (rayon over channels, baselines and antennas), planes, and F3's network with 23 inputs
+  (`f3flag::network` and `weight_count_for` take the input count). Bindings `f4flag_features`,
+  `f4flag_logits`.
+- Python `rang.f4flag`: guards (held-out sets refused without `heldout=True`), loaders via F3's
+  `read_luno`/`read_eso`, the NumPy reference, `strength_rows` (s), Z4, ZE, N4, T6, H3, L-A1s, L-INJ,
+  R5's cells. F3's injector gained `codes`, `jitter` and an `envelope` argument (defaults keep F3's
+  draws); `rang.f3net.init_params` takes `nplanes`; `examples/f3_train.py` takes `--nplanes`.
+- Tests: `cargo test f4flag` (weight count 4,009; NumPy's percentile; a 30-of-64-channel scan-long band
+  on one antenna is high in the cross spectral plane and the antenna max, low in the antenna min and in
+  F3's `r^f`); `tests/test_f4_flag.py` (Rust against NumPy ≤ 1e-4 and F3's planes unchanged; logits
+  against JAX; F1's antenna-local injection widened to 60-140 of 256 channels at 10 σ on a 50-σ
+  calibrator-like scan: ZE ≥ 0.9 recall, Z2 ≤ 0.2, ZE false flags ≤ 1 %; T6/H3 seeded, widths, eligible
+  cells; labels; guards).
+
+### Arm NA (Amendment 1), implemented after the amendment
+
+- `rang.f4flag.load_autos`, `na_statistics`, `na_antenna_hits`, `na_flags`, `auto_inject`;
+  `f4_eval.py na-delta` (δ on validation) and arms `NA`, `N4NA` in `f4_eval.py real` (`--na-delta`;
+  G2 and G3 written to the result). Test: synthetic autos (radiometer noise 1e-3, per-antenna
+  bandpasses within 0.2 %), a 100-channel scan-long +10 σ_auto band on one antenna: ≥ 0.9 found, other
+  antennas < 1 %, crosses of the other antennas < 2 %.
+- Validation diagnostic (no flags compared, no held-out read): `D` median / p90 / p99 0.015 / 0.038 /
+  0.102 on LUNO MAIN_7 (56 antennas), 0.028 / 0.071 / 0.121 on ESO137 chunk 10 (61); fraction of
+  (antenna, channel) above δ = 0.005 … 0.1: 0.75, 0.61, 0.35, 0.04, 0.01 (LUNO) and 0.83, 0.76, 0.61,
+  0.22, 0.03 (ESO137). Antenna bandpass mismatch alone exceeds the smaller δ, so the δ rule will pick
+  0.05 or 0.1, and NA then sees only scan-long bands that raise power by 5-10 %. G2's +10 σ_auto is
+  about +0.8 % of the auto power (σ_auto / A ≈ 1/√(Δν τ) = 7.7e-4 at 209 kHz and 8 s), so **G2 will
+  probably fail at the δ the rule picks** (NA-broken) unless the time-local part catches it; that
+  follows from the frozen design and is recorded here before anything is run.
+
+- **Expectation, recorded before any NA run: NA is likely NA-broken (G2) and may be NA-harmful (G1)
+  as frozen.** At δ = 0.1 about 1 % of LUNO (antenna, channel) pairs are above δ; every baseline of
+  such an antenna is flagged, so of order 2 % of cross cells against T's 1.3 %. A label-free prototype
+  on the same validation autos (not adopted, `log ρ` minus a 3× clipped degree-5 polynomial per antenna
+  and hand, z in MAD units): clean (antenna, channel) pairs with z > 5 2.6 % (LUNO MAIN_7) and 0.1 %
+  (ESO137 chunk 10); a scan-long band on antenna 5 (300 or 80 channels) is found at z > 5 for 15 % of
+  its channels at +10 σ_auto and 96 % at +100 σ_auto on LUNO, 0 % at both on ESO137. A working
+  antenna-domain detector needs its own design on validation (an Amendment 2 before Stage 5, or a
+  separate task); the owner or coordinator decides. The frozen NA runs as written either way.
+
+### Staged runs
+
+Queued in order by `examples/f4_queue.py` (each step under the main checkout's `tools/heavy_lock.py`,
+first come, first served since main `bd15126`; shared slots per step, `SHARE` in the script, and
+exclusive only for C1(U4) and Stage 5's cost timing; E2 and other lock
+holders first; the frozen stops are checked between steps and written to
+`D:\rang\outputs\f4-20261111-queue.json`):
+
+```bash
+.venv/Scripts/python examples/f4_queue.py            # sim, stage1, parity, c1u4, shards
+.venv/Scripts/python examples/f4_queue.py --from c1u4 # resume at a step
+```
+
+| Step | Run | Stop |
+| --- | --- | --- |
+| sim | `-02-sim-test` (`f2_simulate.py RUN f4sim-t`) | |
+| stage1 | `-03-stage1-calibrator`, `-03-stage1-target` (`f4_eval.py stage1`, F3's T/A caches `-13`, `-08`) | Stop-E, Stop-Z4 per class |
+| nadelta | `-03-nadelta-calibrator`, `-03-nadelta-target` (`f4_eval.py na-delta`, Amendment 1's δ) | |
+| parity | `-04-parity-calibrator`, `-04-parity-target` (`f4_parity.py`, U4) | parity |
+| c1u4 | `-05-c1u4` (`f4_cost.py time --n4 U4`, LUNO MAIN_1, `RAYON_NUM_THREADS=4`, idle host) | C1(U4) > 0.45 |
+| shards | `-06-shards-cal`, `-07-shards-target` (`f4_shards.py`, validation then train, `--flags-from` F3's caches; T and A computed for MAIN_1, MAIN_2 and ESO137 0, 14, 16) | label audit |
+
+The held-out fetch (`-01-fetch`, `f4_fetch.py`) ran first, network only, nothing decoded: 126
+objects, 4,542,359,207 bytes (all three groups, under the 8 GB bar), 27.6 min, receipt with sha256.
+
+**Queued 2026-11-11 15:51 (host clock)** as a detached process (`outputs/f4-chain.sh`, ignored): the
+extension build under the heavy lock, then `tests/test_f4_flag.py`, `test_f3_flag.py`, `test_f2_sim.py`,
+then `examples/f4_queue.py`; progress in `D:\rang\outputs\f4-20261111-00-build\chain.log`. Three
+tests of `test_f4_flag.py` (Rust against NumPy, logits against JAX, the antenna-local band) need the
+rebuilt extension and had not run at the code commit; the chain stops before Stage 1 if they fail.
+
+**Stage 4, training (WSL, GPU; after the audit, by hand):**
+
+```bash
+wsl -d Ubuntu -- bash -lc 'uv venv ~/Build/tmp/20261111-f4-jaxcuda && uv pip install -p ~/Build/tmp/20261111-f4-jaxcuda "jax[cuda12]" numpy'
+```
+
+```bash
+wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/gijsm/Worktrees/rang/fp-f4-flagger && for c in calibrator:06-shards-cal target:07-shards-target; do k=${c%%:*}; d=${c#*:}; for s in 1 2 3; do XLA_PYTHON_CLIENT_PREALLOCATE=false python3 /mnt/c/Users/gijsm/Github/rang/tools/heavy_lock.py run --slots 4 --mem 16 -- ~/Build/tmp/20261111-f4-jaxcuda/bin/python examples/f3_train.py /mnt/d/rang/outputs/f4-20261111-$d/$k /mnt/d/rang/outputs/f4-20261111-08-train-$k/seed-$s --seed $s --nplanes 23; done; done'
+```
+
+Then per class the median seed by validation loss, and τ (native):
+
+```bash
+.venv/Scripts/python examples/f4_run.py f4-20261111-09-tau-calibrator --lock -- C:/Users/gijsm/Worktrees/rang/fp-f4-flagger/.venv/Scripts/python.exe examples/f4_tau.py RUN/tau.json --class calibrator --shards D:/rang/outputs/f4-20261111-06-shards-cal --n4 D:/rang/outputs/f4-20261111-08-train-calibrator/seed-K/weights.npz
+```
+
+**Stage 5 (held-out, once; `--heldout`):** per set `f4_eval.py real RUN/<set>.json --set luno:MAIN_0
+--heldout --n4 W.npz@TAU` (then `luno:MAIN_12`, `luno:MAIN_14`; targets `eso:11`, `eso:12`, `eso:13`);
+`f4_eval.py sim RUN/sim.json D:/rang/outputs/f4-20261111-02-sim-test/f4sim-t --class <class> --n4 …`;
+cost `f4_cost.py time` at `RAYON_NUM_THREADS` 4 and 1 on `luno:MAIN_1` and `eso:0`, and `f4_cost.py rss`
+per arm; quality runs under `f4_run.py … --lock --slots 4 --mem 16`, the cost timing under
+`f4_run.py … --lock` (exclusive).
+
+### Resume state (2026-11-13, stopped on the owner's order)
+
+Owner, 2026-11-13: "stop everything, write down the plan and end this session. Commit and push our
+progress." Nothing of F4 is running or queued in the heavy lock. Stages 1-3 ran 2026-11-12 00:52-10:08
+(host clock), all rc 0, outputs `D:/rang/outputs/f4-20261111-NN-*`, verdicts in
+`D:/rang/outputs/f4-20261111-queue.json`. No held-out set has been read.
+
+| Step | Result | Wall |
+| --- | --- | --- |
+| tests (15, rebuilt extension) | pass, after the test fix `efd6876` (T6 width per event) | 2.5 s |
+| sim `-02` (f4sim-t) | done | 12.0 min |
+| stage1 calibrator / target | ZE recall of F1's antenna-local injection 1.000 / 0.993; Stop-E, Stop-Z4 not triggered | 46.5 / 25.8 min |
+| nadelta calibrator / target | δ = 0.1 on both (top of the grid, as expected before the run; G2 likely fails) | 140.8 / 146.3 min |
+| parity calibrator / target | pass / pass | 153.4 / 11.3 min |
+| c1u4 `-05` (LUNO MAIN_1, 4 threads) | C1(U4) = 0.441 (bar 0.45) but **not clean**: T 46.7/44.0/44.1 s, U4 19.8/19.4/19.4 s, only one clean repeat of each (host busy); the queue halted here | 19.4 min |
+| shards `-06`, `-07`, label audit | **not run** | |
+
+**Resume steps, in order:**
+
+1. C1(U4) on an idle host (exclusive lock), then the shards and the label audit:
+   `.venv/Scripts/python examples/f4_queue.py --from c1u4`. If C1(U4) > 0.45 when clean, F4 stops (section 8).
+2. Audit: read the label-audit verdict in `queue.json` (shards step) before training.
+3. WSL GPU training (Stage 4, the commands above): build the jax-cuda venv, then 3 seeds × 2 classes
+   under `--slots 4 --mem 16`; GPU memory and wall are unmeasured.
+4. Median seed by validation loss, τ (`f4_tau.py`), then Stage 5 once on the held-out sets.
+
+### Resumed 2026-11-13 (session started by the coordinator)
+
+The handoff row (`research/handoff-2026-11-13.md` on main, "next: parity runs") was stale: parity had
+run on 11-12. Not rerun; checked instead.
+
+**Parity (Stage 2), measured 2026-11-12, U4 (He-normal init seed 0), F3's T/A not involved.** Bars in
+`examples/f4_parity.py`: feature max |Rust − NumPy| ≤ 1e-4, logit p99.9 ≤ 1e-4, logit max ≤ 1e-3, flag
+disagreement (logit sign, eligible cells) ≤ 1e-5.
+
+| Run | Set | Cells | Feature max | Logit p99.9 / max | Flag disagreement | Rust / NumPy features | Wall (lock wait incl.) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `D:/rang/outputs/f4-20261111-04-parity-calibrator` | LUNO MAIN_7 | 16,945,620 | 6.0e-8 | 4.0e-7 / 9.2e-7 | 5.9e-8 (1 cell) | 4.8 / 50.5 s | 153.4 min |
+| `D:/rang/outputs/f4-20261111-04-parity-target` | ESO137 chunk 10 | 17,951,244 | 6.0e-8 | 8.3e-7 / 2.1e-6 | 5.6e-8 (1 cell) | 3.5 / 41.1 s | 11.3 min |
+
+Both pass. Most of the calibrator wall is waiting for the heavy lock (log). Receipts: each run's
+`.code/HEAD` is `5fc158b` with an empty `diff.patch`; `git diff 5fc158b HEAD` touches only
+`research/`, so the parity applies to the code on this branch's head. The extension was built by the
+chain on 2026-11-11 16:55 (`-00-build/chain.log`), after Amendment 2 (`ea5fa52`, 16:14), the last
+commit touching `core/` or `src/` before `5fc158b`; `efd6876` changed one Python line and a test.
+
+**C1(U4) clean rerun: deferred, not measured.** `-05b-c1u4` (exclusive, 4 threads) was queued at 08:12
+and withdrawn before it got the lock, on the coordinator's order (an exclusive ticket drains the shared
+E2-B critical path; the run takes about 19 min). Nothing was timed; the `.code` snapshot under
+`-05b-c1u4` belongs to no run. All F4 timing (this C1(U4), later Stage 5's C1/C2) goes into one
+exclusive hold after E2-B's queued jobs. C1(U4) stays 0.441, provisional (section 8's bar 0.45).
+
+**Change of order (labelled, 2026-11-13, before any training or held-out read):** Stage 3's shards and
+label audit (`f4_queue.py --only shards`, shared 4 slots / 16 GB) run before the clean C1(U4) instead
+of after it. No measure, bar or rule changes. If the clean C1(U4) is > 0.45, F4 stops as section 8
+says and the shards are unused.
+
+**WSL GPU training audit (Stage 4 precondition), measured 2026-11-13.** Not training: synthetic
+shards with F3's calibrator shapes and 23 planes (random planes, 5 % positive and 2 % ignored labels,
+seed 7; 4 train shards of 10, 11, 16, 32 dumps, 2 validation), `examples/f3_train.py --nplanes 23
+--seed 1 --steps 2000`, weights discarded. Run `D:/rang/outputs/f4-20261111-10-gpu-audit` (`audit.json`,
+`gpu.csv` at 1 s, `train/train.json`; `.code/HEAD` `6bdb026`, the script `examples/f4_gpu_audit.py`
+in `.code/examples`; after the run it was changed only by ruff: a `with` block and formatting).
+Heavy lock shared, 4 slots / 16 GB, from Windows around `wsl.exe`; 52 min wall, almost all of it lock
+wait. Venv `~/Build/tmp/20261113-f4-jaxcuda` (uv, public PyPI only: no index override in the WSL
+environment or uv/pip config), `jax[cuda12]` 0.12.0.1, 36 s to build.
+
+| Measure | Value |
+| --- | --- |
+| JAX devices | `cuda:0` (RTX 4070 Ti, 12,282 MiB) |
+| Weights (23 inputs) | 4,009, as section 3 |
+| Steady rate (steps 1000-2000) | 55.9 steps/s; 30,000 steps would take 9 min at that rate |
+| Load / train / validation of synthetic shards | 11.1 s / 40.6 s (incl. JIT) / within the 55.3 s wall |
+| GPU memory | baseline 10,820 MiB used by other processes, peak 11,453 MiB: **about 630 MiB for F4** with `XLA_PYTHON_CLIENT_PREALLOCATE=false` |
+| GPU utilisation, median over samples | 95 % |
+
+Reading: **the GPU path runs at 23 planes; no blocker in the code or the environment.** Wall: F3's
+real calibrator training ran 1,279-1,752 s per seed at 15 planes (`f3-20261110-17-train-calibrator`,
+same JAX, same GPU), slower than this audit's rate (real shards are bigger, and batches come from
+them on a busy host), so plan **about 25-30 min per seed, about 3 h for 3 seeds × 2 classes**,
+not 9 min. **Risk: GPU memory.** Ollama's `llama-server` (Windows pid 48888, not F4's) held about 10 GB
+of the 12 GB during the audit, leaving about 1.5 GB; F4's footprint fits in that, but a larger
+validation shard or a second GPU user could run out of memory. Check `nvidia-smi` before Stage 4;
+F4 does not stop other users' processes.
+
+**Training itself is blocked** on the shards and the label audit (running), then the clean C1(U4)
+(deferred), in that order of availability.
+
+**Shards (Stage 3), running from 2026-11-13 08:39.** Calibrator validation
+(`D:/rang/outputs/f4-20261111-06-shards-cal/calibrator/validation`, LUNO MAIN_7) rc 0, audit stop:
+none (T adds 209,120 of 16,945,620 eligible cells, A 2,744,976; 12,533 strong consensus cells at s ≥ 5).
+Calibrator train, then target validation and train, follow in the same queue process; verdicts go to
+`D:/rang/outputs/f4-20261111-queue.json`.
+
+**Shards and label audit, measured 2026-11-13 08:39-10:37** (`f4_queue.py --only shards`, rc 0;
+walls including lock wait: calibrator validation 32.8, train 43.0 min; target validation 26.0, train
+16.7 min; each class's `.time` holds only its train run, the status log both; 17 GB and 14 GB on D:).
+
+- **Calibrators: audit passes.** 30 training realisations (MAIN_1, 2, 4, 5, 6; seeds 20264201-230),
+  strong consensus at most 0.37 % of eligible cells (bar 10 %); ignored uninjected 11.5-28.6 %, injected
+  positives 0.21-7.6 %. Validation MAIN_7 (seeds 20264301-302) passes too.
+- **Targets: label-audit stop (section 4), as frozen.** Every realisation is over the 40 % bar for
+  ignored uninjected cells: 44 of 44, 0.470-0.640 (validation eso:10 0.499 and 0.530; train eso:0, 2,
+  4, 6, 8, 14, 16, 42 realisations, seeds 20264601-642). Injected positives (1.0-9.8 %) pass. The first
+  stop recorded is eso:0 seed 20264601, 0.536. By section 8 the target class gets **no training**; its
+  outcome is the label-audit stop, as F3's targets (F3 stopped on the consensus labels; F4 on L-INJ).
+- *Why (diagnostic, not a change):* L-INJ ignores every native cell flagged by T or A or with s ≥ 3. T
+  adds 12-17 % of eligible cells on ESO137 (2.1-3.0 M of 17.4-18.0 M), A 1.3-2.5 %; their union is at
+  most about 20 %. So **s ≥ 3 on otherwise unflagged cells accounts for roughly 30-40 % of eligible
+  target cells**. On this one-track target (a bright field, 27-28 dumps) the robust strength s does not
+  separate clean data from RFI at 3. Any fix (a target-calibrated s threshold, labels without s, or
+  expert labels from Landman, section 4) is a protocol change. It needs an amendment and the owner's
+  or coordinator's decision before any target training; it is not made here.
+
+**Next for F4 (calibrators only):** the clean C1(U4) in the batched exclusive hold (bar 0.45; provisional
+0.441); then Stage 4 training on `D:/rang/outputs/f4-20261111-06-shards-cal/calibrator`, 3 seeds, by the
+command in "Staged runs" with the calibrator line only (about 1.5 h GPU; check that `nvidia-smi` shows
+room, given the Ollama memory above); τ; Stage 5 on MAIN_0, 12, 14.
+
+### Resumed 2026-11-17 (task #10, v0.3.0; calibrators only)
+
+Checked first: nothing of F4 ran between 2026-11-13 10:37 and this session (`queue.json` as above, no
+`-08` or later run on D:). Branch merged up to origin/main (`ef09bb9`); the merge touches the flagger
+code only by licence headers and the crate version (`git diff 56753f0 ef09bb9` on `core/src/f3flag.rs`,
+`f4flag.rs`, `sumthreshold.rs`, `ffi_flag.rs` (one added test), `python/rang/f3*.py`, `f4flag.py`,
+`f2flag*.py`, `core_flag.py`; the CARACal YAMLs unchanged). Targets stay stopped (label audit); this
+resume is the calibrator class only.
+
+**Deviation, labelled post hoc against section 5, 2026-11-17, before any Stage 4 step: training on
+CPU (host nash) instead of the RTX 4070 Ti in WSL.** Why: the coordinator's brief for #10 (the glacier
+GPU is mostly held by the owner's Ollama, about 10 GB of 12 GB at the 11-13 audit; F4 does not stop
+other users' processes). What is the same: `examples/f3_train.py` at this branch's code, the same shards
+(`-06-shards-cal/calibrator`, copied to nash with a sha256 manifest checked there), seeds 1, 2, 3, batch
+rng 1000 + seed, Adam 1e-3, 30,000 steps, batch 32 × 256 channels, real : simulation 1 : 1, and the same
+JAX version as the audit (0.12.0.1), now its CPU backend. What is not claimed: the weights are not
+bit-identical to what a GPU run would give; floating-point reduction order differs between XLA's CPU
+and CUDA kernels and 30,000 Adam steps amplify that, so the trained weights are a different draw of the
+same procedure, as a different seed would be. The protocol's selection already absorbs that kind of
+variation (median of three seeds by validation loss, τ chosen afterwards on validation), and every
+measure of section 6 runs on the Rust kernel, whose agreement with JAX on CPU is the frozen parity
+(the 11-12 parity runs used JAX 0.12.0.1 CPU, `CpuDevice(id=0)`, native Windows). No bar, measure,
+seed or rule changes. τ and Stage 5 stay native on glacier as frozen (Windows extension, AOFlagger in
+WSL, D: paths); only the trained `weights.npz` files come back, with sha256.
+
+**Change of order, labelled, 2026-11-17, before any training or held-out read:** Stage 4 training starts
+while the clean C1(U4) waits for an idle glacier (an exclusive heavy-lock hold). No held-out set is read
+before C1(U4) is clean and ≤ 0.45; if it is > 0.45, F4 stops as section 8 says and the weights are
+unused. The same holds for τ (Stage 4, validation only): it may run before the clean C1(U4).
+
+**Checks of the rebuilt extension (2026-11-17, no held-out read):** `tests/test_f4_flag.py` and
+`test_f3_flag.py` 12 passed; T recomputed on LUNO MAIN_7 is bit-identical to the Stage 3 cache
+(`-06-shards-cal/calibrator/flags/luno-MAIN_7-T.npy`, 0 of 16.9 M cells differ, 20.7 s). The extension
+in use from here is check_all's build of `113b3cb` (two SPDX comment lines over `475ad60`).
+
+**C1(U4) attempt 2, `-05c-c1u4`, 2026-11-17 11:20-11:51 (glacier, exclusive hold, 4 threads, LUNO
+MAIN_1): provisional, not clean.** `.code/HEAD` reads `475ad60` (queued before the SPDX commit); the
+run used `113b3cb`'s files and binary (comment-only difference).
+
+| Repeat | T wall (s) | other CPUs | U4 wall (s) | other CPUs |
+| --- | --- | --- | --- | --- |
+| 1 | 45.60 | 1.78 | 19.45 | 2.38 |
+| 2 | 43.08 | 1.58 | 20.06 | 2.90 |
+| 3 | 42.34 | 2.80 | 18.83 | 2.26 |
+
+Medians T 43.08 s, U4 19.45 s: **C1(U4) = 0.452**, all six repeats over the 1-CPU idle bar. Flagged
+fractions identical to attempt 1 (T 0.6088, U4 0.6001). Attempt 1 (`-05`, 11-12) was 0.441 with one
+clean repeat per arm. The two provisional readings sit 0.01 apart on either side of the 0.45 bar,
+while T's wall varies by 7 % within one run, so the bar is not resolved by these readings. Neither is a
+stop nor a pass (section 6: unclean repeats are provisional; `f4_queue.py` applies 0.45 only when all
+repeats are clean).
+
+**Rerun rule, fixed 2026-11-17 before attempt 3 (labelled; no bar changes):** the same command, three
+repeats, under an exclusive hold, preceded inside the hold by a 10 s CPU sample that skips the timing
+if other processes use more than one logical CPU (recorded as a skipped attempt). The first attempt
+whose six repeats are all clean decides, whatever its value; at most two further timed attempts;
+every attempt reported; no pooling of clean repeats across attempts; the 1-CPU bar unchanged. If no
+attempt is clean, F4's calibrator outcome on C1(U4) goes to the coordinator with both provisional
+readings, and no held-out set is read.
+
+- Attempt 3 (`-05d-c1u4`, 12:18): **skipped at the gate** (other CPUs 2.26 over 10 s). `-05e1-c1u4`
+  was queued and withdrawn before it got the lock (nothing sampled or timed).
+- Coordinator, 2026-11-17: the other load is the coordinator's and other agents' Claude sessions and
+  the owner's apps, which are not paused; keep the gate as frozen, retry about every 15 min, overnight
+  too; skips do not count against the two timed attempts. Attempt 2's 0.452 (provisional) is reported
+  beside whatever clean reading comes.
+
+**Stage 5 chain, fixed 2026-11-17 before any held-out read (`examples/f4_stage5.py`, detached, state
+`D:/rang/outputs/f4-20261111-stage5.json`):** (1) gated C1(U4) attempts `-05fK` every 15 min by the rule
+above; (2) only after a clean C1(U4) ≤ 0.45, the held-out quality runs once, in parallel under shared
+4-slot holds: `f4_eval.py real --heldout` on LUNO MAIN_0, MAIN_12, MAIN_14 (arms T, A, N4, N3, Z4, ZE,
+U4, N, NA, N4NA; δ 0.1; N4 = seed 2 @ τ −1.0; W3's subset check is each run's first step) and
+`f4_eval.py sim` on f4sim-t (calibrator scans); (3) section 6's cost C1 for N4 at 4 and 1 threads on
+`luno:MAIN_1`, gated the same way (labelled: section 6 says only "else provisional"): per thread count
+the first all-clean timed attempt decides, at most three timed attempts, else the last is reported
+as provisional. **C2 measured before the chain** (`-12-c2-T`, `-12-c2-N4`, MAIN_1, separate processes,
+4 threads, not a held-out set): peak working set T 5.519 GB, N4 5.519 GB (both the decode peak):
+**C2 = 1.00**, "matches" (0.8-1.2). A smoke test of the exact real-mode command on validation MAIN_7
+(`-11-smoke-calibrator`, N4 @ τ 0, r1 seed 19 only) ran with rc 0, including A (Docker in WSL) and NA.
+
+- Chain run 1 (12:27-14:36, pid 67396): three gated C1(U4) attempts skipped at the gate (`-05f1` 12:50,
+  other CPUs 2.11; `-05f2` 13:41, 3.23; `-05f3` 14:34, 2.10), none timed. Stopped on the owner's order: no
+  exclusive timing on glacier before 21:00. **Scheduling change, labelled:** the chain's gated attempts
+  (C1(U4) and Stage 5 cost) now run only between 21:00 and 07:00 host time; the gate, the bar and the
+  attempt counts are unchanged; restarted from the same state file.
+- Chain run 2 (pid 35704, 14:45-18:03) made no attempt (window closed). At 18:03 the owner lifted the
+  window for tonight (relayed by the coordinator: glacier's lock empty); run 3 starts at once with
+  `F4_NO_WINDOW=1`, otherwise unchanged.
+
+**Stage 4, training, measured 2026-11-17 11:07-11:55 (+02), host nash, CPU** (`train1.sh` beside the
+weights: `examples/f3_train.py --nplanes 23` at `475ad60`, JAX 0.12.0.1 `cpu:0`, 6 cores per seed by
+`taskset`, the three seeds in parallel under nash's heavy lock `--slots 6 --mem 24`, nice 19, ionice
+-c3). Shards copied 2026-11-17 (58 files, 17 GB, gzip streams, 32 min; `sha256sum -c` on nash OK).
+Weights copied back to `D:/rang/outputs/f4-20261111-08-train-calibrator/seed-K/` (`weights.sha256`,
+checked on glacier); nash keeps `~/rang-data/f4/`. A discarded pilot (seed 1, 1,000 steps, 8 cores:
+70 s, 18 GB) sized the booking.
+
+| Seed | Validation loss | Last 1,000-step training loss | Train wall | CPU | Peak RSS | weights sha256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 0.2095 | 0.0074 | 46.0 min | 4.41 cores | 18.4 GB | `033773cb…` |
+| **2** | **0.0914** | 0.0078 | 46.5 min | 4.41 | 18.4 GB | `a20b1abb…` |
+| 3 | 0.0330 | 0.0115 | 45.5 min | 4.45 | 18.4 GB | `8d5e307a…` |
+
+The weights file is the median seed by validation loss: **seed 2** (`a20b1abb10e0a3be…d90d`). The
+validation losses spread by a factor of six across seeds at nearly equal training losses: the fit
+to validation (MAIN_7 and f2sim-v) depends on the seed. Recorded, not acted on (section 5 fixes the
+median seed).
+
+**τ (Stage 4, validation only), `-09-tau-calibrator`, 2026-11-17, glacier, shared 4 slots, 4.0 min:**
+**τ = −1.0** (largest pooled validation recall with N4's added cells on MAIN_7's uninjected DATA ≤
+T's): recall 0.954 of 3.92 M positive cells (MAIN_7 two realisations, f2sim-v scans 1, 2, 4); added
+209,027 against T's 209,120. At τ = −1.5 added 259,066 > T. Grid ends: −6 recall 0.978 / added 1.87 M;
++2 recall 0.926 / added 36,686. Stored beside the weights' sha256 here: `seed-2/weights.npz@-1.0`.
+
+**Post hoc observation, 2026-11-17 (Landman's review on issue #1, comment 6943748188, read during the
+run; F4 not changed).** The review was written against F3 and proposes F5 work (factorised antenna
+planes with smoothing over ≥ 800 channels, a noise-variance plane, noise-like and wider injections,
+a new target label scheme, an image-domain gate); those go to a separate F5 draft. Checked against
+F4's frozen implementation: (1) *smoothing absorbing wide-band RFI*: F4's spectral planes have no
+per-antenna smoother; the reference is the other baselines' median `B_c(f)` and the offset is one
+median over channels per baseline (Amendment 2), so a scan-long antenna-local band on fewer than half
+of the channels is not absorbed; Stage 1 measured ZE's recall of F1's antenna-local band at 1.000
+(calibrators). A band on more than half of the channels, or on half of the antennas, would shift
+the median and is not covered (Amendment 2's withdrawn reading). (2) *σ_b from adjacent-channel
+differences*: F4 keeps F3's σ_b; a spectrally smooth coherent signal partly cancels in it, which can
+lower σ_b on an RFI-affected baseline and so raise its normalised planes; no measure here isolates
+that. (3) *noise-like antenna-local RFI*: not in F4's training (T1-T6 are coherent phasors) nor in
+its held-out tests; F4's result, whatever it is, does not cover it.
+
+### C1(U4) outcome, 2026-11-17 (calibrators): no clean reading; Stage 5 not run
+
+Chain run 3 (`examples/f4_stage5.py`, pid 22996, from 18:04, `F4_NO_WINDOW=1`; glacier, exclusive hold,
+4 threads, LUNO MAIN_1, 3 repeats per arm alternating). Both timed attempts the rerun rule allows ran;
+neither had all six repeats clean, so by the rule the chain stopped and the reading goes to the
+coordinator. **No held-out set was read; Stage 5 did not run; section 7's outcome is not reached.**
+
+| Attempt | Run | T walls (s) | U4 walls (s) | other CPUs per repeat (T; U4) | C1(U4) | clean |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 (11-12) | `-05-c1u4` | 46.74, 43.98, 44.06 | 19.80, 19.44, 19.39 | 0.85, 1.30, 1.42; 1.79, 1.34, 0.26 | 0.441 | 2 of 6 |
+| 2 | `-05c-c1u4` | 45.60, 43.08, 42.34 | 19.45, 20.06, 18.83 | 1.78, 1.58, 2.80; 2.38, 2.90, 2.26 | 0.452 | 0 of 6 |
+| skips | `-05d`, `-05f1`-`-05f3`, `-05f5` | | | gate 2.26, 2.11, 3.23, 2.10, 1.52 | | |
+| 3 (timed 1 of 2) | `-05f4` | 35.76, 34.62, 35.14 | 16.13, 16.19, 16.11 | 0.56, 0.82, 1.46; 0.88, 1.31, 1.01 | 0.459 | 3 of 6 |
+| 4 (timed 2 of 2) | `-05f6` | 35.60, 33.86, 33.88 | 16.20, 15.40, 15.52 | 0.83, 0.29, 1.66; 0.62, 0.38, 0.67 | 0.458 | 5 of 6 |
+
+Flagged fractions identical in every attempt (T 0.6088, U4 0.6001). Reading: four provisional readings,
+0.441-0.459, three of them above the 0.45 bar; the two quietest attempts (evening, lock otherwise
+empty, T 34-36 s) give 0.458 and 0.459. *Post hoc, not a decision:* the five clean repeats of `-05f6`
+alone give T 34.73 s (median of 35.60, 33.86), U4 15.52 s, ratio 0.447; this uses a subset the rule
+does not allow and is reported only to show that the reading sits within ±0.01 of the bar whichever
+way it is cut. Section 8's Stage 2 bar
+(C1(U4) ≤ 0.45) is therefore not met cleanly on this host and is not clearly failed either; N4 runs the same
+kernel at the same cost (weights do not change the work; C2 shows equal memory), so section 7's C1 for
+N4 would also sit near 0.45-0.46. The decision (stop F4 as
+section 8 says for a reading > 0.45, or accept the provisional readings and run Stage 5) is the
+coordinator's or owner's.
+
+What exists for Stage 5 if it is allowed: weights seed 2 (`a20b1abb…`) @ τ −1.0 on D:, the chain with
+its state file (`D:/rang/outputs/f4-20261111-stage5.json`; delete `stopped` and `c1u4.decided` only by
+a decision recorded here), the held-out fetch `-01` unread, f4sim-t `-02` unread, C2 = 1.00 measured.
+
+## For the coordinator
+
+- **Calibrator outcome under section 7: not reached.** Stage 2's C1(U4) gate has no clean reading after
+  the two timed attempts of the rerun rule: 0.458 and 0.459 (and 0.441, 0.452 earlier), all
+  provisional; bar 0.45. No held-out set read, Stage 5 not run, weights do not ship (no S or S−).
+  Decision needed: stop F4 on C1(U4) (three of four readings > 0.45) or run Stage 5 on the provisional
+  readings (a labelled deviation).
+- **Done 2026-11-17:** merged origin/main twice (both sides kept; MIT headers on F4's own files);
+  shards to nash; Stage 4 on nash CPU (deviation labelled before training): median seed 2 by
+  validation loss 0.0914 (seeds 0.2095 / 0.0914 / 0.0330); τ −1.0 (validation recall 0.954, added
+  209,027 vs T 209,120); C2 1.00; smoke test of Stage 5's command on MAIN_7 rc 0.
+- **Targets:** stopped at the label audit (11-13), unchanged; Landman's review goes to F5.
+- **On disk:** D: `f4-20261111-05*`, `-08-train-calibrator` (weights, logs, sha256), `-09-tau`, `-11-smoke`,
+  `-12-c2-*`, `stage5*.json/.out/.err`; nash `~/rang-data/f4/` (shards 17 GB copy, training runs, launcher),
+  worktree `~/Worktrees/rang/fp-f4-flagger` there. Nothing deleted on D:.
+- **`research/tool-timings.md`:** rows added in this branch.
+
+## Coordinator decision, 2026-11-17 (C1(U4))
+
+F4 stops on the calibrators under section 8. Stage 2's frozen bar is C1(U4) ≤ 0.45. The two
+quietest attempts read 0.458 and 0.459, and three of the four readings are above the bar. Running
+Stage 5 on provisional readings would be a deviation in the method's favour, so it is not taken.
+The post hoc 0.447 from a subset of the repeats does not change this: the rule does not allow that
+subset.
+
+- No held-out set is read. The held-out fetch `-01` and f4sim-t `-02` stay unread for F5.
+- The weights (seed 2, `a20b1abb…`) do not ship. They stay on D: as a development artefact.
+- Recorded as a negative result: the U4 kernel costs about 0.46 of the reference at 4 threads on
+  glacier, where the bar was 0.45. The flag fractions are identical in every attempt.
+- The follow-up is F5 (`research/f5-flagger.md`, proposed from Landman's review), which has its own
+  cost bar. No further F4 cost runs.
