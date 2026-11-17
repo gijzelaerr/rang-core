@@ -206,7 +206,8 @@ bit-identical to O on criteria 1-5; the kill test passes on both hosts; the unit
 1's reversal conditions is met (the overhead condition only provisionally, section 5.3).
 
 Code: branch `multinode-executor`, commits `2a00fe3` to `723c858` (the gates ran on `71417b4`'s package code;
-`723c858` changes only a test). Oracle O: main `9b4542c` from detached worktrees (`~/Worktrees/rang/mn-oracle-9b4542c`
+`723c858` changes only a test, and `3ec6747` only names the encoding and newline of the worker's record file, which
+the portability test requires). Oracle O: main `9b4542c` from detached worktrees (`~/Worktrees/rang/mn-oracle-9b4542c`
 on both hosts) holding the branch's `_core` build; `git diff 9b4542c -- core/ src/` is empty. Builds: Windows
 `_core.pyd` SHA-256 `caf80328…`, nash `_core.abi3.so` `e0c92694…`, the same on both sides of every comparison (the
 harness checks it). Receipts: [results/multinode-executor/](results/multinode-executor/) (`windows/` and `nash/`:
