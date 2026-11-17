@@ -295,3 +295,172 @@ iterations; CL's K1 stopped at 50 with 0.94.
   (> 100 ns) from truth and (b) stays there (a local minimum of a
   noise-free cost); **a walk** if (c) is near truth and (a), (b) leave it.
 - T3 on S0c (CL strict), already running, is read by T3's words.
+
+## 9. Results (measured 2026-11-17 on nash)
+
+Receipts: [results/calchain-floor/receipts/](results/calchain-floor/receipts/);
+outputs `~/rang-data/outputs/calchain-floor-20261117/` on nash. Every job
+rc 0. Medians on the primary cell set (flag-stage FLAG) unless labelled.
+
+**Controls.** R met: S0f′'s DATA equal archived S0f's bitwise on all
+41,978 rows, FLAG equal to `src.ms`'s; rang U on S0f′ reproduces archived
+U's six tables bitwise (0 flags differ, max difference 0); with this
+note's scorer on e2a-3b-k's cells (the arm's post-A0 FLAG) KGB0 3.70e-4
+and KGB1 5.65e-4, as archived. Pass 0's residual is 7.21e-4 on the
+primary cells (e2a-3b-k's 6.9e-4, +4.6 %; its cell set was not
+recorded) and 3.70e-4 on the post-A0 cells. C-S met on every arm: null 0;
+G of one antenna × (1 + 1e-4) reads 1.0004e-4 on its baselines, 0
+elsewhere; T7's common phase and 2.9 ns common delay read 1.4e-7
+(median; max 7.3e-7); a ±1e-3 rad per-antenna phase reads 2.0e-3.
+
+**T0 (H-S): cleared.** On every field-0 cross row of S0f′ and S0c
+(8.9e7 cells each) DATA equal `corrupt(M_T, J_T)` exactly (0.0; the
+generator and the scorer share `cal_apply`). MODEL_DATA is real (phase 0)
+and constant in time per channel (a point at the phase centre: no DFT
+smearing), and the column rang wrote on every arm copy equals
+`rang-u.ms`'s exactly.
+
+**T1 (H-I, no solve).** Truth sampled at U's K0, G0 solution TIMEs and
+interpolated linearly: median 0, p95 1.0e-2, max 2.9e-2 (S0f′). The
+median is 0 because the outer half of each scan is clamped to its own
+scan's value; the inner halves (scan 9 after its centroid, scan 11 before
+its) carry up to 2.9e-2. By T1's frozen median rule H-I "cannot carry"
+(0 < 0.1 × 3.7e-4); the rule was blind to an error confined to half the
+cells, and T2 decides. On S0c the same construction gives 0 (max 0):
+T2's internal control met.
+
+**T2 (H-I, decisive), pass 0: O-I.**
+
+| Arm | KGB0 median / p95 / max | pass-0 residual median | machine precision |
+| --- | --- | --- | --- |
+| stepped, linear (R's run) | 7.21e-4 / 9.4e-3 / 3.0e-2 | 7.21e-4 | no |
+| stepped, nearest (NS) | 0 / 1.1e-7 / 2.8e-7 | 0 | yes |
+| constant, linear (CL) | 0 / 8.2e-8 / 2.5e-7 | 0 | yes |
+| constant, nearest (CN) | 0 / 8.2e-8 / 2.5e-7 | 0 | yes |
+
+The pass-0 floor is the linear pre-apply of per-scan solutions across
+the step of a per-scan constant truth: removing the step (CL) or the
+interpolation (NS) each takes KGB0 from 7.2e-4 to the float32 limit of
+the data (max 2.8e-7, under 10 × the T8 bound for every cell). By T6 on
+R's run the floor sits in G0 (truth with U's G0 alone 1.2e-4) and B0
+(alone 3.4e-4), not in K0 (5e-8): G0 and B0 absorb the interpolated K0's
+phase error on the inner half-scans. Not a rang defect: CASA interpolates
+the same way (`interp='linear'` across scans), which is why CASA and rang
+shared the floor to 7e-7 in e2a-3b-k.
+
+**T3 (H-C) on S0f′: cleared.** Every term at 1000 iterations, 1e-12,
+fraction 1.0 (3,056 s): KGB0 7.21e-4 (unchanged), pass-0 residual
+7.21e-4; B0 converged fully at 77 iterations. KGB1 1.07e-3 (worse than
+the default's 7.8e-4): K1 still stops at the 1,000 cap with 0.91
+converged, and one K1 solution is 2,154 ns from truth.
+
+**T4 (H-B): cleared.** 68 of 962,190 scored cells have a B0 channel with
+no data on a > 150 m baseline (filled); without them KGB0 is 7.215e-4.
+B0's flagged channels (1,100-2,100 per antenna where data exist,
+`minblperant`) are excluded cell by cell by the composite already.
+
+**T5 (H-F): unreadable as frozen, T5′ cleared for pass 0.** Every antenna
+has flagged B0 channels, so T5's rule leaves no cells (section 7). In
+K0 and G0 only ID 21 is flagged, which has no data at all; T5′ (K, G
+only) therefore removes no scored baseline and moves nothing. Pass 1 is
+section 10.
+
+**T6 (H-K): cleared for pass 0.** K0 against truth: median 0, max 6e-8
+ns in every arm; truth with U's K0 alone 5e-8 (median), with U's G0 alone
+1.2e-4, with U's B0 alone 3.4e-4 (R's run). Both tables' K pivot is
+1,283,895,507.8 Hz.
+
+**T7 (H-R): cleared for pass 0.** The scorer cancels a common phase and
+delay to 1.4e-7 and sees a per-antenna one (controls above). m022 is
+unflagged in every K0, G0 and K1 solution and `used_alternate_refant` is
+false in every term. In pass 1, G1 flags m022 in 4 rows of R's run and 9
+of NS (0 in CL) and writes ANTENNA2 = −1 there: intervals without the
+refant, which A0 emptied (NS: m022 keeps 0 cells in intervals 5-9). Their
+effect is inside section 10's pass-1 reading, not separated.
+
+**T8 (H-P).** The float32 bound's median over the scored cells is 5.0e-7
+(ID 50's stored delays dominate its baselines). NS, CL and CN meet machine
+precision with 0 % of cells above `max(1e-5, 10 b)`; their maxima
+(2.5e-7 to 2.8e-7) are the data's own float32 rounding. What is left of
+pass 0 after T2 is float32: **O-P** for the residue, **O-I** for the floor.
+
+## 10. Pass 1 (sections 7, 8; post hoc)
+
+| Arm | KGB1 median / p95 | A0: field-0 flagged after | K1 off by > 1e-3 ns |
+| --- | --- | --- | --- |
+| stepped, linear (R) | 7.8e-4 / 2.2e-2 | 96.7 % | 12 (IDs 5, 40 in interval 7: 0.57 ns, 2,384 ns) |
+| stepped, nearest (NS) | 8.0e-8 / 2.6e-7 | 98.8 % | 0 |
+| constant, linear (CL) | 3.5e-3 / 2.9e-2 | 92.8 % | 2 (ID 50, interval 7: 1,293 ns X, 2,263 ns Y) |
+| constant, nearest (CN) | 7.7e-4 / 7.6e-3 | 92.8 % | the same 2 |
+| stepped, strict (T3) | 1.07e-3 / 7.9e-3 | 96.7 % | ID 50 region, 2,154 ns |
+
+(Flag-stage FLAG 92.3 %.) P1 on CL: truth with CL's K1 alone 0 (median;
+max 7.5e-4, the wrong solution sits on cells the scorer's flag-stage
+set excludes), with its G1 alone 0 (p95 6.2e-3), with its **B1 alone
+3.2e-3**: the floor is B1, solved with the wrong K1 pre-applied; B1 per
+antenna is off by 1.2e-3 to 3.2e-3 everywhere and 1.8e-2 on ID 50 (B1
+combines scans, so one interval's wrong K1 reaches every antenna and
+every time).
+
+**What K1 sees there (P2 and the probes `cf_k1cells`, `cf_kstart`,
+`cf_ksolve1/2`, `cf_kcapture`).** P2's control is not met as frozen:
+`gaincal` re-solving CL's K1 at the chain's rule differs from CL's table
+by up to 0.012 ns (not 1e-6; chunk replay of the global stop rule, not
+traced), but it reproduces ID 50's interval-7 solution to 0.01 ns, and is
+read with that label. Strict (692 iterations, fraction 1.0) stays at
+1,293 / 2,263 ns, and one Gauss-Newton step from the FFT start is already
+there: a **wrong start that converges to a local minimum**, not
+non-convergence. The arrays `gaincal` hands the kernel for that interval
+(captured) hold 66 rows of ID 50 and only **94 unflagged cells** (91
+channels across the band, 1-10 per baseline, **2 on the baseline to the
+refant**), every one consistent with truth to 1.4e-7; the FLAG is the
+flag stage's (CL's A0 added almost nothing). The FFT start uses only
+baselines to the refant (`delay.rs` `initial_estimate`), so it sees two
+cells; on 94 cells spread over 91 channels the noise-free delay cost has
+sidelobes nearly as deep as the true minimum, and Gauss-Newton settles in
+one. Solved alone the same interval reaches truth when it has more cells
+(`cf_ksolve1`, `cf_ksolve2`'s joint solve: those probes bin rows by the
+nearest solution time, which puts 909 rows of neighbouring dumps into
+"interval 7"; with `gaincal`'s own bins the captured arrays give the wrong
+value again). In R's run and T3 the same happens to IDs 40 and 5 in
+interval 7 because A0 flagged the inner half of each scan (intervals 4-10
+keep 0.4-3 % of their cells): on noise-free data A0 flags the pass-0
+interpolation residual as RFI.
+
+Reading: the pass-1 floor of these simulations is **one or two K1
+solutions on intervals with almost no data** (K applies no `minsnr` or
+`minblperant`, as CASA's K does not; rang matches CASA there), carried by
+B1's combined solve into every antenna. NS escapes because its A0 flagged
+intervals 5-8 completely for IDs 50, 40, 5 and m022 (0 cells), so no K1
+solution is made there. It is a property of
+the estimator's start and of K's missing data-sufficiency rule, not an
+arithmetic defect; nothing was changed here (section 5: a new flag rule
+for K is a default change, and would move every archived K gate).
+
+## For the coordinator
+
+- **Pass 0 located (O-I, frozen rule).** The noise-free K G B floor of
+  e2a-3b-k (KGB0 3.7e-4 on post-A0 cells, 7.2e-4 on the flag stage's) is
+  the simulation's design meeting the chain's interpolation: truth
+  constant per scan with a step between scans 9 and 11, per-scan K0 and
+  G0 pre-applied by linear interpolation across the 4,000 s gap. Remove
+  the step (S0c) or the interpolation (`interp: nearest`) and KGB0 is
+  0 (median), max 2.8e-7, the data's float32. Generator, model, B's
+  channels, flags, K's parametrisation, refant gauge, convergence and
+  float32 all cleared as the floor's cause. Not a rang defect; CASA
+  interpolates the same way, hence their 7e-7 agreement.
+- **Pass 1 located (post hoc).** KGB1's floor is one or two K1 solutions
+  on intervals with almost no unflagged data (ID 50 interval 7: 94 cells,
+  2 on the refant baseline), where the FFT start (refant baselines only)
+  and Gauss-Newton converge to a noise-free local minimum 1,293-2,384 ns
+  from truth; B1, combining scans, spreads it to every antenna. In
+  stepped arms A0 makes such intervals by flagging the pass-0 residual.
+  Not changed. A follow-up for a frozen test: a data-sufficiency rule
+  for K (cells or channels on the refant baseline, behind a key; CASA's
+  K has none) or a start from all baselines.
+- **For future noise-free controls:** use truth constant over the
+  observation, or nodes at the solution times, or `interp: nearest`; and
+  do not read pass 1 with A0 on noise-free data (A0 flags 92.3 → 96.7-98.8 %).
+- **No code change, no gate moved.** Scripts and receipts in
+  `research/results/calchain-floor/`; outputs on nash in
+  `~/rang-data/outputs/calchain-floor-20261117/` (size in the hand-back).

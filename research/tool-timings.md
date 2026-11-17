@@ -2138,3 +2138,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | e2a-3b-k, host nash: CASA 3b chain on E2-A field 0, on rang's K / with its own K | 196,664 rows × 4096 ch | 2,255 s / 3,133 s | – | 4 slots booked, about 1 core used |
 | 2026-11-17 | e2a-3b-k, host nash: `k_score.py` composites, subset / field 0 | every 8th time | 22-50 s / about 600 s | – | 1 slot, `RAYON_NUM_THREADS=1` |
 | 2026-11-17 | e2a-3b-k, Windows host: `k_synth_probe*.py` (the 4-antenna test synthetic, SciPy reference) | test fixture | 1-10 s | – | 1 slot |
+| 2026-11-17 | calchain-floor, host nash: `maturin develop --release` (core/py), cold target | branch `calchain-floor` at `0229db1` | 337 s | – | 4 slots booked, `CARGO_BUILD_JOBS=4`, nice 19 |
+| 2026-11-17 | calchain-floor, host nash: `cf_sim.py` (S0f′ / S0c from `src.ms`, k_sim's `make`) | 41,978 rows × 4096 ch | 33 s each | – | 1 slot |
+| 2026-11-17 | calchain-floor, host nash: `rang-core run`, calibrate only (e2a-3b-k arm `u`), noise-free S0f′ / S0c, linear and nearest pre-apply | 12,480 rows × 4096 ch | 715-840 s | – | 2 slots booked each, five in parallel |
+| 2026-11-17 | calchain-floor, host nash: the same, every term strict (1000 iterations, 1e-12, fraction 1.0), S0f′ | the same | 3,056 s | – | 2 slots |
+| 2026-11-17 | calchain-floor, host nash: `cf_score.py` (arm scores, T0 on every field-0 row, T1, R) and the K1 probes | every 8th time; T0 all 12,480 rows | 30-80 s each; K1 probes 10-240 s | – | 1-2 slots, nice 19 |

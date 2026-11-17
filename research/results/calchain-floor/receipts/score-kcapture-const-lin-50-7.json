@@ -1,0 +1,80 @@
+{
+ "calls": 1,
+ "rows": 12480,
+ "bins": 14,
+ "rows_ant_interval": 66,
+ "consistency_with_truth": [
+  {
+   "cells": 94,
+   "median": 2.9634510736997957e-08,
+   "max": 1.0752047180496207e-07,
+   "cells_above_1e-3": 0
+  },
+  {
+   "cells": 94,
+   "median": 2.8224560805206442e-08,
+   "max": 1.436348949736418e-07,
+   "cells_above_1e-3": 0
+  }
+ ],
+ "cells_flag_any_corr": 270242,
+ "cells_weight0_any_corr_not_flagged": 0,
+ "unflagged_channels": [
+  137,
+  3955,
+  91
+ ],
+ "unflagged_cells_per_baseline": {
+  "45-50": 6,
+  "50-55": 6,
+  "50-60": 5,
+  "0-50": 9,
+  "15-50": 8,
+  "22-50": 10,
+  "30-50": 1,
+  "40-50": 5,
+  "10-50": 3,
+  "20-50": 2,
+  "25-50": 2,
+  "5-50": 6
+ },
+ "captured_rows_are_field_rows_in_order": true,
+ "flagged cells per correlation: captured / MS FLAG / +B0 / +G0": [
+  [
+   270242,
+   270242,
+   270242,
+   270242
+  ],
+  [
+   270242,
+   270242,
+   270242,
+   270242
+  ],
+  [
+   270242,
+   270242,
+   270242,
+   270242
+  ],
+  [
+   270242,
+   270242,
+   270242,
+   270242
+  ]
+ ],
+ "MS FLAG_ROW rows": 0,
+ "captured-only flagged cells per correlation": [
+  0,
+  0,
+  0,
+  0
+ ],
+ "captured-only flagged rows (any cell)": 0,
+ "interval alone from captured arrays, ant ns": [
+  1293.5832366986676,
+  2263.2371114793573
+ ]
+}
