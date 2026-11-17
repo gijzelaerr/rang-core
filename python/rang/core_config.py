@@ -464,7 +464,8 @@ SCHEMA = {
         "fits_mask": _k(
             None,
             "path?",
-            "a FITS mask of the image's size, one plane (relative to this file)",
+            "a FITS mask of the image's size, one plane (relative to this file); "
+            "with multiscale it confines the component centres, not the scale shapes",
         ),
         "taper_gaussian": _k(
             None, "str?", "a Gaussian taper, such as 10asec (a plain number is asec)"

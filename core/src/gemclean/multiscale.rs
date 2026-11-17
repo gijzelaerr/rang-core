@@ -1786,6 +1786,116 @@ mod tests {
         assert!(out.joined.residual[0][44 * n + 18].abs() > 0.4);
     }
 
+    /// Issue #35 (`research/gemclean-ms-mask.md` section 6): extended emission
+    /// inside a FITS mask and outside it. At every scale the component centres
+    /// stay inside the mask, single and joined channels, with and without the
+    /// automatic mask. The model reaches outside the mask only within the
+    /// largest used shape's half-side (radler's behaviour: the shapes are not
+    /// clipped), and the blob outside stays in the residual.
+    #[test]
+    fn a_fits_mask_confines_the_centres_at_every_scale() {
+        use crate::gemclean::mask::{AutoMask, Masking};
+        let n = 96;
+        let mut sky = vec![0.0; n * n];
+        let mut blob = |cx: f64, cy: f64, sigma: f64, flux: f64| {
+            let mut w = vec![0.0; n * n];
+            for y in 0..n {
+                for x in 0..n {
+                    let r2 = (x as f64 - cx).powi(2) + (y as f64 - cy).powi(2);
+                    w[y * n + x] = (-0.5 * r2 / (sigma * sigma)).exp();
+                }
+            }
+            let s: f64 = w.iter().sum();
+            for (v, wi) in sky.iter_mut().zip(&w) {
+                *v += flux * wi / s;
+            }
+        };
+        blob(26.0, 30.0, 1.5, 0.5);
+        blob(34.0, 38.0, 5.0, 1.0);
+        blob(66.0, 62.0, 5.0, 1.0);
+        sky[28 * n + 38] += 0.3;
+        let m = measurement(n, &sky);
+        let (dirty, _) = m.residual(&vec![0.0; n * n]).unwrap();
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2];
+            }
+        }
+        // A box around the first two blobs and the point only.
+        let (x0, x1, y0, y1) = (18isize, 45isize, 21isize, 48isize);
+        let mut fits = vec![false; n * n];
+        for y in y0..y1 {
+            for x in x0..x1 {
+                fits[y as usize * n + x as usize] = true;
+            }
+        }
+        let settings = Settings {
+            threshold: 2e-3,
+            max_components: 20_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let ms = MultiscaleSettings {
+            scales: vec![0.0, 4.0, 8.0, 16.0],
+            ..MultiscaleSettings::default()
+        };
+        let auto = AutoMask {
+            sigma: None,
+            absolute: Some(0.02),
+            nmiter: 2,
+        };
+        let channels = [(&m, &beam, &psf[..]), (&m, &beam, &psf[..])];
+        for (k, auto) in [(1, None), (2, None), (1, Some(auto)), (2, Some(auto))] {
+            let masking = Masking {
+                fits: Some(fits.clone()),
+                auto,
+            };
+            let out = run_multiscale_masked(
+                &channels[..k],
+                &vec![1.0; k],
+                None,
+                &settings,
+                &ms,
+                1.0,
+                Some(&masking),
+            )
+            .unwrap();
+            let case = format!("{k} channel(s), auto mask {}", auto.is_some());
+            let steps = &out.joined.integrated.steps;
+            assert!(!steps.is_empty(), "{case}");
+            let outside = steps.iter().filter(|st| !fits[st.pixel]).count();
+            assert_eq!(outside, 0, "{case}: centres outside the mask");
+            let used: Vec<&ScaleReport> = out
+                .scales
+                .iter()
+                .filter(|s| s.scale > 0.0 && s.components > 0)
+                .collect();
+            assert!(used.len() >= 2, "{case}: {:?}", out.scales);
+            // The model outside the mask lies within the largest used shape's
+            // half-side of the box (FFT round-off aside).
+            let reach = used.iter().map(|s| s.kernel_side / 2).max().unwrap() as isize;
+            let model = &out.joined.integrated.model;
+            let peak = model.iter().fold(0.0_f64, |a, v| a.max(v.abs()));
+            for y in 0..n as isize {
+                for x in 0..n as isize {
+                    let p = y as usize * n + x as usize;
+                    if model[p].abs() <= 1e-9 * peak || fits[p] {
+                        continue;
+                    }
+                    let near = (x0 - reach..x1 + reach).contains(&x)
+                        && (y0 - reach..y1 + reach).contains(&y);
+                    assert!(near, "{case}: model {} at ({x}, {y})", model[p]);
+                }
+            }
+            for r in &out.joined.residual {
+                assert!(r[62 * n + 66] > 0.5 * dirty[62 * n + 66], "{case}");
+            }
+        }
+    }
+
     /// The automatic mask: phase 1 cleans to the mask threshold, the switch
     /// is recorded, phase 2 cleans deeper inside the mask only.
     #[test]

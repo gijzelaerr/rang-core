@@ -1,0 +1,10 @@
+wsclean	RM	0	181.2	rang-wsclean-native:3.7
+g	RM	0	337.8	gemclean-msm.exe
+wsclean	RH	0	93.3	rang-wsclean-native:3.7
+g	RH	0	16.3	gemclean-msm.exe
+wsclean	PM	0	2346.4	rang-wsclean-native:3.7
+wsclean	RM1	0	90.0	rang-wsclean-native:3.7
+g	RM1	0	15.4	gemclean-msm.exe
+g	PM	0	3291.6	gemclean-msm.exe
+wsclean	PM1	0	459.7	rang-wsclean-native:3.7
+g	PM1	0	145.3	gemclean-msm.exe

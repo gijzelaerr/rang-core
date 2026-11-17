@@ -1,0 +1,77 @@
+Theoretic beam = 7.33''
+Estimated standard deviation of background noise: 3.76 mJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0792316
+- Scale 10, bias factor=1.7, psfpeak=0.389772, gain=0.25656, kernel peak=0.0325939
+- Scale 20, bias factor=2.8, psfpeak=0.186572, gain=0.535985, kernel peak=0.00955148
+- Scale 39, bias factor=4.6, psfpeak=0.0682371, gain=1.46548, kernel peak=0.00260233
+- Scale 78, bias factor=7.7, psfpeak=0.0196334, gain=5.09335, kernel peak=0.000680399
+- Scale 156, bias factor=12.9, psfpeak=0.00423831, gain=23.5943, kernel peak=0.000178123
+- Scale 313, bias factor=21.4, psfpeak=0.000706665, gain=141.51, kernel peak=4.5592e-05
+- Scale 625, bias factor=35.7, psfpeak=6.61312e-05, gain=1512.15, kernel peak=1.15356e-05
+- Scale 1250, bias factor=59.5, psfpeak=2.87285e-06, gain=34808.7, kernel peak=2.89443e-06
+Starting multi-scale cleaning. Start peak=1.66 Jy, major iteration threshold=83.17 mJy
+Iteration 6, scale 20 px : 1.66 Jy at 2086,2044
+Iteration 13, scale 20 px : 1.31 Jy at 2045,2046
+Iteration 25, scale 39 px : 1.4 Jy at 1975,2044
+Iteration 32, scale 78 px : 1.2 Jy at 2152,1982
+Iteration 41, scale 39 px : 1.08 Jy at 2028,2046
+Iteration 55, scale 10 px : 998.72 mJy at 2047,2046
+Iteration 60, scale 78 px : 900.15 mJy at 2151,1983
+Iteration 72, scale 20 px : 877.08 mJy at 2086,2045
+Iteration 83, scale 39 px : 759.29 mJy at 2117,2017
+Iteration 107, scale 10 px : 684.1 mJy at 2047,2046
+Iteration 113, scale 78 px : 663.77 mJy at 2147,1985
+Iteration 123, scale 20 px : 625.06 mJy at 2032,2047
+Iteration 136, scale 39 px : 575.4 mJy at 2107,2033
+Iteration 157, scale 78 px : 517.87 mJy at 2147,1984
+Iteration 166, scale 10 px : 518.66 mJy at 2047,2046
+Iteration 172, scale 20 px : 474.22 mJy at 2020,2045
+Iteration 190, scale 39 px : 439.62 mJy at 2125,2010
+Iteration 214, scale 10 px : 390.72 mJy at 2048,2046
+Iteration 222, scale 20 px : 382.81 mJy at 2026,2046
+Iteration 242, scale 78 px : 378.89 mJy at 2146,1984
+Iteration 251, scale 39 px : 344.61 mJy at 1981,2051
+Iteration 277, scale 0 px : 320.13 mJy at 2049,2046
+Iteration 286, scale 20 px : 302.08 mJy at 2013,2044
+Iteration 320, scale 78 px : 297.59 mJy at 1939,2018
+Iteration 327, scale 39 px : 269.89 mJy at 1967,2035
+Iteration 357, scale 0 px : 252.51 mJy at 2052,2047
+Iteration 370, scale 78 px : 240.14 mJy at 1934,2016
+Iteration 376, scale 20 px : 239.89 mJy at 2014,2044
+Iteration 418, scale 20 px : 194.23 mJy at 2121,1975
+Iteration 499, scale 0 px : 192.66 mJy at 1993,2337
+Iteration 511, scale 78 px : 191.48 mJy at 1930,2017
+Iteration 516, scale 39 px : 183.49 mJy at 2121,1970
+Iteration 542, scale 10 px : 171.29 mJy at 2087,2044
+Iteration 563, scale 20 px : 154.8 mJy at 2025,2046
+Iteration 614, scale 39 px : 153.57 mJy at 2121,1971
+Iteration 631, scale 0 px : 151.84 mJy at 2118,2165
+Iteration 645, scale 78 px : 144.79 mJy at 1926,2018
+Iteration 651, scale 10 px : 129.35 mJy at 2087,2044
+Iteration 693, scale 20 px : 126.19 mJy at 2107,2035
+Iteration 746, scale 39 px : 121.02 mJy at 2119,1971
+Iteration 767, scale 0 px : 119.21 mJy at 2048,2046
+Iteration 791, scale 78 px : 114.34 mJy at 1925,2019
+Iteration 797, scale 10 px : 100.06 mJy at 2095,2040
+(12) Iteration 840, scale 20 px : 100.89 mJy at 1965,2045
+(11) Iteration 890, scale 39 px : 99.16 mJy at 2118,1971
+(10) Iteration 903, scale 0 px : 93.27 mJy at 1994,2337
+(9) Iteration 919, scale 156 px : 87.19 mJy at 1927,2001
+(8) Iteration 920, scale 10 px : 83.94 mJy at 2095,2040
+(7) Iteration 922, scale 78 px : 83.98 mJy at 1921,2027
+(6) Iteration 923, scale 39 px : 83.3 mJy at 2117,1971
+(5) Iteration 924, scale 20 px : 83.28 mJy at 2106,2036
+(4) Iteration 925, scale 20 px : 83.05 mJy at 2146,1962
+Maximum number of major iterations was reached: not continuing deconvolution.
+1 major iterations were performed.
+- Scale 0 px, nr of components cleaned: 88 (1.21 Jy)
+- Scale 10 px, nr of components cleaned: 133 (3.1 Jy)
+- Scale 20 px, nr of components cleaned: 393 (19.7 Jy)
+- Scale 39 px, nr of components cleaned: 224 (25.91 Jy)
+- Scale 78 px, nr of components cleaned: 86 (30.73 Jy)
+- Scale 156 px, nr of components cleaned: 1 (159.97 mJy)
+- Scale 313 px, nr of components cleaned: 0 (0 Jy)
+- Scale 625 px, nr of components cleaned: 0 (0 Jy)
+- Scale 1250 px, nr of components cleaned: 0 (0 Jy)
+Total: 925 components (80.82 Jy)
