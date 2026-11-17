@@ -1,0 +1,14 @@
+{
+ "R0": {
+  "nrow": true,
+  "active": true,
+  "noise_c_rel": 0.0,
+  "gw_sum_rel": 0.0,
+  "pass": true
+ },
+ "G0": {
+  "F_uJy": 1073.415606729187,
+  "ratio": 0.9999959072210196,
+  "pass": true
+ }
+}

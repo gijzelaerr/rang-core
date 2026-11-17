@@ -1,0 +1,14 @@
+heavy_lock: backfilling past head 01794906564366668856-linux-344778.json (waited 0 of 15 min)
+== 2026-11-17T11:09:24+02:00 load 22.11 14.95 12.28 gates start
+11:10:18 prep {'ms': '/home/gijs/rang-data/outputs/floor-5-20261117/inputs/20261103-gemclean-heldout/real/cal2.ms', 'nrow': 823500, 'channels': [4, 12, 20, 28, 36, 44, 52, 60, 68, 76, 84, 92, 100, 108, 116, 124, 132, 140, 148, 156, 164, 172, 180, 188, 196, 204, 212, 220, 228, 236, 244, 252], 'chan_width_hz': 417968.75, 'noise_c': 1.025014042854309, 'sigma_part_at_median_weight': 0.17160679164083037, 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'gridding_weight_sum': 354721854.8586093, 'active': 19133875, 'ntime': 450, 'seconds': 53.75953708705492}
+11:10:56 gates {'R0': {'nrow': True, 'active': True, 'noise_c_rel': 0.0, 'gw_sum_rel': 0.0, 'pass': True}, 'G0': {'F_uJy': 1073.415606729187, 'ratio': 0.9999959072210196, 'pass': True}}
+11:10:56 stage gates [] 91.7 s
+gates 92.40 s 2985316 KB
+== 2026-11-17T11:10:56+02:00 load 25.82 17.78 13.51 gates end rc 0
+== 2026-11-17T11:10:56+02:00 load 25.82 17.78 13.51 skies start
+11:11:11 sign (1, 1) 1.9952137470245361
+11:11:15 sign (-1, 1) 1.8399007320404053
+11:11:19 sign (1, -1) 4.151225766690914e-06
+11:11:24 sign (-1, -1) 1.991212010383606
+Command terminated by signal 15
+skies 89.16 s 2103080 KB

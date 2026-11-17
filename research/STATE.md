@@ -52,6 +52,18 @@ v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review
 - No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
   touched tests pass (hand-back for the coordinator).
 F5 draft, 2026-11-17 (proposed, not frozen; branch `f5-draft`; [f5-flagger.md](f5-flagger.md)): a fourth flagger protocol built on Landman Bester's reply on issue #1 and the F3 review he forwarded. Reading of the code: F3's r^t, r^f and antenna medians cannot see a wide-band scan-long one-antenna event; F4's cross spectral planes are its counterpart (one constant offset per baseline, no smoother, scan-long only), F4's autocorrelation arm NA is not (cross-only injection; no per-antenna bandpass model, delta at the top of its grid). Proposed: per-time-block log-amplitude and noise-variance factorisations per antenna with a low-order fit, noise-like antenna-local training events, held-out slow ramp H4, the reply's label scheme, an image-domain RMS gate with a positive control, a W4 antenna fallback; from Landman's second reply, his `pfb hci` settings as a label generator (pinned, validated on injections first), gain TV as a reported validation measure V-TV, and an agent review of waterfalls (R-AG) as a weak-label arm, never training labels. CARACal 8f7bb363 ships 23 AOFlagger `.rfis` files (2.x XML; `firstpass_QUV.rfis` its MeerKAT default), which AOFlagger 3.5 cannot run unconverted. Mesarcik et al.'s Zenodo set: CC BY 4.0, LOFAR HBA and simulated HERA, 21.9 GB of pickles, not for pretraining. Frozen after F4's calibrator outcome; nothing run. No novelty claim.
+Floor-5, 2026-11-17 (branch `floor-5`; [floor-5.md](floor-5.md), protocol frozen in `579396b` before any run,
+clarifications 1 and 2 (pinned build) before the numbers, archive [results/floor-5/](results/floor-5/); host nash).
+Issue #13: what is left of the pilot's floor after one Sp round (379.26 µJy, 8.6 × thermal), with shares rebased to
+P_ref = 1.419e-7 Jy² (0.123 P_pilot). Every gate passed (copy, R0, G0, G1 bit-equal to floor-4's, HB, GS, GM: R3's
+model pixel-identical to G1's). Frozen joint outcome **J2**, Σ 0.41: model depth inside the source mask attributed
+under floor-5's depth standard, share 0.22 (GeMClean to 0.3 mJy masked, F 379 to 335 µJy; gain control κ −0.17);
+spectral modelling (8 output channels, 2 terms) supported, share 0.19. Family I attributes nothing: antenna gains
+5 min (0.375) and 8 s (0.387), per-baseline (0.109), facet spectral (0.282) and central-source DD (0.035) fits are
+all non-specific, firing mostly on the incompleteness arms; w-term and smearing rejected. The 2 × 2 gives ρ_B 0.59
+(partial). Post hoc: the multiscale arm ignored or overran the mask (3.5 Jy on 99 % of pixels), so its note does
+not stand; κ is negative (deep CLEAN on uncorrected data raises the floor). Remainder 0.59 unattributed. Next under
+J2: a protocol for the largest unresolved bound (antenna gains), and held-out checks of the depth and spectral arms.
 
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
 visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model

@@ -1,0 +1,11 @@
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json (no room to backfill)
+heavy_lock: waiting for head 01794906781720593738-linux-348455.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501750182980-linux-358445.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794907501751691886-linux-358446.json, past its 15 min drain limit (draining)
+== 2026-11-17T11:54:42+02:00 load 22.27 24.78 25.96 arm H1bA start
+11:58:17 arm H1bA 1 {'none': 119.161, 'T_A': 44.079, 'T_Ap': 119.158, 'T_Af': 44.065, 'T_B|A': 44.052, 'T_B': 44.062, 'T8': 117.968, 'T_D|A': 44.075}
+12:01:52 arm H1bA 3.403 {'none': 379.374, 'T_A': 44.079, 'T_Ap': 379.372, 'T_Af': 44.065, 'T_B|A': 44.052, 'T_B': 44.062, 'T8': 375.057, 'T_D|A': 44.075}
+12:05:21 arm H1bA 5 {'none': 555.516, 'T_A': 44.079, 'T_Ap': 555.515, 'T_Af': 44.065, 'T_B|A': 44.052, 'T_B': 44.062, 'T8': 549.155, 'T_D|A': 44.075}
+12:05:21 stage arm ['H1bA'] 639.2 s
+arm H1bA 639.52 s 10796460 KB
+== 2026-11-17T12:05:21+02:00 load 23.42 24.14 24.76 arm H1bA end rc 0

@@ -1,0 +1,6 @@
+== 2026-11-17T13:29:07+02:00 load 12.68 10.92 12.13 C0 start
+fits mask: 130180 pixels
+203096 components, 5 major cycles, 525 resyncs, stop Threshold; Q/Q0 2.4583e-2; tau min 0.500 median 0.670; minor 27.08 s (corrections 1.024 s), resync 77.59 s, major 218.70 s
+wall 500.90 s
+C0 501.19 s 11908392 KB
+== 2026-11-17T13:37:28+02:00 load 16.43 14.72 13.39 C0 end rc 0
