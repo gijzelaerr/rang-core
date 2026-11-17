@@ -561,3 +561,78 @@ cells unflagged and are not scored.
 - Before the timed pass: `e2b.ms`'s listing equals the correctness pass's
   `raw-listing-after.txt`; the 17 stimela image digests equal
   `versions.json`; the lock is free; D: has 516 GiB free.
+
+### 10.14 Amendment, post hoc, 2026-11-17: E3-A on nash (deviation 12)
+
+Written before the E3-A MS build or any E3-A pass on nash. Sections 1-4 are
+unchanged for E3-B; for E3-A they read as follows.
+
+- **Coordinator's decision (2026-11-17):** E3-A runs on nash
+  ([nash-host.md](nash-host.md)), not in the Windows host's WSL Docker. D:
+  has about 516 GiB free with a 150 GiB floor, short of section 4's 600 GB
+  gate, and nash has 16 TB free and 503 GB of memory.
+- **What changes:**
+  - Host: nash, 2 × Xeon E5-2695 v4 (36 cores, 2 NUMA nodes), 503 GB,
+    Ubuntu 24.04, shared with other users.
+  - Backend: `general.backend: singularity`, which Stimela 1.8.3 runs as
+    `apptainer run --contain` (apptainer 1.5.5; Stimela picks the
+    `apptainer` binary first). Images: the 17 cab images of
+    `versions.json`, pulled **by digest** and converted to SIF by
+    `scripts/nash/e3n_pull.sh` into `~/rang-data/stimela-sif`, under the
+    names Stimela looks for (`stimela_<base>_<tag>.sif`); `caracal -sid`
+    points there.
+  - CARACal: the same commit `8f7bb363`, Stimela 1.8.3, Python 3.12 (uv),
+    venv `~/Github/caracal/.venv` on nash.
+  - Data: fetched on nash from the public bucket with `e2_fetch.py a`
+    (E2-A's fetcher, unchanged) into `~/rang-data/e2-a`; its manifest is
+    compared object by object with the Windows `manifest.json`. `e2a.ms`
+    is built and verified by the same converter blob (`e33bbe4b`, in nash's
+    main checkout at `74e42e0`) into `~/rang-data/e3-input` (CARACal's
+    `rawdatadir`, read only), and its FLAG hash is checked against 9.1's.
+  - Configs: `configs/nash/e3a-{correct,timed}.yml`, the frozen
+    `e3a-*.yml` with three lines changed (`backend`, `rawdatadir`, and in
+    the timed pass `selfcal.ncpu: 0` → 16). CARACal resolves `ncpu: 0` with
+    `psutil.cpu_count()`, which is 36 on nash whatever the pinning, and 16
+    is what 0 meant on the 16-thread Windows host (deviation 10).
+- **Cost measurement:** `scripts/nash/e3n_watch.py` replaces
+  `e3_watch.py`, since apptainer has no `docker events`, `docker update` or
+  per-container cgroup. Every second it sums the resident set of the
+  pass's process tree and of each `apptainer run` subtree, one per Stimela
+  step. Summed RSS counts a shared page once per process, so it over-states.
+  It also records `du -sb` of the run folder and the load average every
+  60 s. This is not section 4's cgroup `memory.peak`, which also counted
+  page cache, so peaks are not like for like with E3-B's.
+- **CPU and memory limits:** there are no container limits. A user cgroup
+  scope (`systemd-run --user`) works on nash, but the account has no
+  linger, so a scope could die with the last login session; it is not used.
+  Instead:
+  - `numactl --physcpubind` pins the driver and every container. The
+    correctness pass gets 8 CPUs on node 1 (1, 3, …, 15) and is booked as
+    `--slots 8`. The timed pass gets 16 CPUs on node 0 (0, 2, …, 30) and
+    takes the exclusive lock.
+  - Tools that size their thread pools from the CPU count (AOFlagger,
+    WSClean without `-j`) see 36 CPUs but run on the pinned set.
+  - The memory guard: the watcher stops the pass's own tree above a set
+    tree RSS, 140 GiB for the correctness pass (booked `--mem 100`) and
+    170 GiB for the timed pass. A stop there is recorded as a stop on this
+    host's booking, not as CARACal's result.
+- **Not like for like with E3-B:**
+  - There is no WSL VM, no 9P and no 30/43 GiB VM ceiling.
+  - E3-A keeps MeqTrees `tile_size` at the schema default of 128
+    (deviation 11 is E3-B only).
+  - A `set_model_cal` peak here therefore says nothing about E3-B's stop.
+- **Speed wording:** nash is shared. Other users run at normal priority,
+  ours at `nice -n 19 ionice -c3`, and "exclusive" is exclusive among this
+  account's jobs only. A0 6.3's "16 threads on an idle host" cannot be met.
+  The load average is recorded before and after every pass.
+  - E3-A's costs are compared only with rang's E2-A run timed on nash
+    under the same pinning (16 CPUs on node 0) and lock rule. Rang's Windows
+    37,272 s (e2-acceptance 9.13) is not the comparator.
+  - For that run, rang's frozen E2-A configuration (`e2a-rerun.yaml`) runs
+    from a wheel built on nash at `b2d80dc`, the frozen Windows wheel's
+    commit, with `freeze-2.txt`'s pins. It is a Linux build of the same
+    source, not the frozen wheel itself, and it gets its own copy of
+    `e2a.ms`.
+- **Smoke on nash first** (not an E3 result): a `--rows 20000` per group
+  build of the same three groups, run through the E3-A correctness config,
+  to find apptainer, path and image faults.
