@@ -338,6 +338,9 @@ follow-up rule would compare χ(λ²=0) or RM-corrected χ with 33°.
    solves Xf across several 3C 286 scans with `average_time` on is affected.
    Proposed fix: cap the pre-averaging of polarised-model solves at CASA's
    `preavg` (300 s) or a ψ step. Not fixed here.
+   *Dated pointer, 2026-11-17:* fixed on `main` by xf-avg-fix on 2026-11-13
+   (`xf-avg-fix.md`; cd446e2, merged f8a6435: per-scan averaging, at most 5°
+   of ψ per averaged row); held-out check against CASA in `xf-preavg.md`.
 
 ## For the coordinator
 

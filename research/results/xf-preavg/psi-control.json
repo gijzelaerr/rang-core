@@ -1,0 +1,38 @@
+{
+ "truth": "control",
+ "scans": [
+  {
+   "scan": 2,
+   "n_int": 4,
+   "psi_first_deg": -211.14597138270048,
+   "psi_last_deg": -211.22139259267942,
+   "span_deg": 0.17388764862033668,
+   "groups": 1
+  },
+  {
+   "scan": 8,
+   "n_int": 4,
+   "psi_first_deg": -230.24810084034672,
+   "psi_last_deg": -230.52590572069815,
+   "span_deg": 0.424833179868898,
+   "groups": 1
+  },
+  {
+   "scan": 14,
+   "n_int": 4,
+   "psi_first_deg": 77.99494671989402,
+   "psi_last_deg": 77.46807923756029,
+   "span_deg": 0.6256650888957864,
+   "groups": 1
+  },
+  {
+   "scan": 22,
+   "n_int": 4,
+   "psi_first_deg": 32.98896934529514,
+   "psi_last_deg": 32.866905602715434,
+   "span_deg": 0.15490879130371837,
+   "groups": 1
+  }
+ ],
+ "groups_total": 4
+}

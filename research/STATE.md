@@ -32,6 +32,15 @@ CASA lowers 6.5e-3 to 1.1e-3. Cleared: CASA's virtual model and weights (its tab
 the iteration cap and the stop rule. Fix: `calibrate.bandpass_model_divided` (default false), 5 tests. The E2-A
 verdict stays as booked; a confirmation leg on the reserve data is proposed, not run. `e2a.ms` still holds CASA's
 virtual-model keywords from 3b's setjy.
+xf-preavg, 2026-11-17 (branch `xf-preavg`; [xf-preavg.md](xf-preavg.md), protocol frozen in `a7f62e5` before
+any solve; receipts [results/xf-preavg/](results/xf-preavg/)). Issue #14 item 3 (chi-offset 10.3): the brief's
+premise was stale, the `average_time` Xf defect was fixed on `main` by xf-avg-fix (f8a6435, 2026-11-13). Held-out
+check of that rule, no package code changed: fresh seeds 20261751-4, 720 s 3C286-SIM scans (two span 10.3° and
+9.4° of ψ, split into 3 and 2 averaging pieces), rang `average_time` on and off and CASA 6.7.6.14 (polcal default
+`preavg` 300 s, read). Dev reproduces xf-avg-fix to 0.0005°. Averaged vs unaveraged rang: χ ≤ 0.006°, Xf ≤ 0.031°
+(pass); |χ − 33°| ≤ 0.72° (pass). Frozen outcome 4: rang vs CASA Xf median 0.054° > 0.05° on the held-out set
+(χ 0.007°), and unaveraged rang differs from CASA by more (0.065°). Post hoc: CASA's `preavg` 8, 60, 300 s moves
+its Xf by ≤ 0.01°, so the difference is not pre-averaging; source not found. `preavg` stays not ported.
 
 MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
 receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),
