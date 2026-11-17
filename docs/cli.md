@@ -502,9 +502,10 @@ $ rang-core flagdata -h
 usage: rang-core flagdata [-h] ms [key=value ...]
 
 CASA's flagdata on a Measurement Set: modes manual, clip, quack, shadow,
-elevation, tfcrop, extend, unflag, summary, with CASA's keyword names
-(research/v8b-flagdata.md). Writes FLAG unless mode=summary; the flags found
-are saved first as a flag version.
+elevation, extend, unflag, summary, with CASA's keyword names
+(research/v8b-flagdata.md); tfcrop is refused until it reaches parity
+(research/v8-tfcrop.md). Writes FLAG unless mode=summary; the flags found are
+saved first as a flag version.
 
 positional arguments:
   ms          the Measurement Set (or calibration table, for clip)

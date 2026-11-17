@@ -124,7 +124,29 @@ def _write_json(path, payload):
         fh.write("\n")
         fh.flush()
         os.fsync(fh.fileno())
-    os.replace(tmp, path)
+    _replace(tmp, path)
+
+
+# On Windows os.replace onto a file another process has open fails with
+# PermissionError (a sharing violation). `rang-core mcp`'s run_status reads
+# state.json while the run writes it, which made the run itself fail after a
+# finished stage (research/v030-review.md R-01; the job-file form was issue 30).
+# Retry for a short while; elsewhere, or after the deadline, raise as before.
+_SHARING_RETRY_S = 10.0
+
+
+def _replace(tmp, path):
+    deadline = time.monotonic() + _SHARING_RETRY_S
+    delay = 0.001
+    while True:
+        try:
+            os.replace(tmp, path)
+            return
+        except PermissionError:
+            if os.name != "nt" or time.monotonic() >= deadline:
+                raise
+            time.sleep(delay)
+            delay = min(2 * delay, 0.05)
 
 
 def default_run_dir(ms):

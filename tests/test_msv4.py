@@ -223,3 +223,11 @@ def test_other_flag_dtype_is_refused():
     tree, _ = _tree(flag=lambda f: f.astype(np.int8))
     with pytest.raises(ValueError, match="int8, not bool or uint8"):
         msv4.open_processing_set(tree).partition("p0")
+
+
+def test_missing_extra_names_it(monkeypatch, tmp_path):
+    """research/v030-review.md B-19: without the extra, opening a store says
+    which extra to install instead of a bare ModuleNotFoundError."""
+    monkeypatch.setattr(msv4, "has_msv4", lambda: False)
+    with pytest.raises(ImportError, match=r"rang-core\[msv4\]"):
+        msv4.open_processing_set(tmp_path / "x.ps.zarr")
