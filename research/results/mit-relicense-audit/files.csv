@@ -1,0 +1,393 @@
+path,lines,class,upstream,licence,upstream_files,derived_lines_est
+core/py/src/cal_delay.rs,212,a,-,-,-,0
+core/py/src/cal_delay_offset.rs,255,a,-,-,-,0
+core/py/src/cal_fluxscale.rs,123,a,-,-,-,0
+core/py/src/cal_gain.rs,350,a,-,-,-,0
+core/py/src/cal_pol.rs,300,a,-,-,-,0
+core/py/src/clean.rs,224,a,-,-,-,0
+core/py/src/cnnflag.rs,43,a,-,-,-,0
+core/py/src/f3flag.rs,87,a,-,-,-,0
+core/py/src/flag_extend.rs,61,a,-,-,-,0
+core/py/src/gemclean_cli.rs,23,a,-,-,-,0
+core/py/src/gemclean_predict.rs,89,a,-,-,-,0
+core/py/src/lib.rs,2912,a,-,-,-,0
+core/py/src/lightcurve.rs,40,a,-,-,-,0
+core/src/aipsio.rs,815,c-src,casacore,LGPL-2.0-or-later,"AipsIO.cc, TypeIO.cc, RecordDesc.cc, RecordRep.cc",0
+core/src/bin/gemclean.rs,26,a,-,-,-,0
+core/src/bin/gram_solver_bench.rs,904,a,-,-,-,0
+core/src/bin/gridder_gram_bench.rs,580,a,-,-,-,0
+core/src/blosc.rs,720,b-permissive,c-blosc,BSD-3-Clause,"c-blosc 1.21.6 blosc_d, shuffle-sse2.c (notice missing)",150
+core/src/cal/apply.rs,1604,b-copyleft,CASA,LGPL-2.0-or-later,"RIorAParray.cc trackPhase (fragment); rest c-src from Jones.cc, VisCal.cc, CTPatchedInterp.cc, CTTimeInterp1.cc, casacore Interpolate1D",30
+core/src/cal/bandpass.rs,163,b-copyleft,CASA,LGPL-2.0-or-later,casa6 9269a52 StandardVisCal.cc BJones::fillChanGapArray,90
+core/src/cal/crosshand.rs,454,b-copyleft,CASA,LGPL-2.0-or-later,"KJones.cc DelayFFT::searchPeak (fragment); rest c-src from KcrossJones, XJones, VisEquation",27
+core/src/cal/delay.rs,1171,b-permissive,QuartiCal,MIT,QuartiCal 0.2.7 delay,1000
+core/src/cal/delay_offset.rs,1197,b-permissive,QuartiCal,MIT,QuartiCal 0.2.7 delay_and_offset,1000
+core/src/cal/diag.rs,1154,c-src,CASA,LGPL-2.0-or-later; QuartiCal MIT,"QuartiCal 0.2.7 diag kernels (b-permissive, about 1,000 lines); CASA VisCalSolver2 SNR formula (823-905)",80
+core/src/cal/ffi_apply.rs,250,a,-,-,-,0
+core/src/cal/fluxscale.rs,622,b-copyleft,CASA,LGPL-2.0-or-later,"casa6 9269a52 and 6.7.6.14 SolvableVisCal.cc fluxscale; casacore 3.7.1 LSQFit.cc, median",350
+core/src/cal/leakage.rs,626,c-src,CASA,LGPL-2.0-or-later,"DJones.cc guessPar, Jones GenLinear",0
+core/src/cal/mod.rs,25,a,-,-,-,0
+core/src/cal/parang.rs,114,a,-,-,-,0
+core/src/cal/reference.rs,368,b-copyleft,CASA,LGPL-2.0-or-later,"casa6 9269a52 SolvableVisCal.cc applyRefAnt, verifyConstraints",185
+core/src/caltable.rs,156,c-src,CASA,LGPL-2.0-or-later,NewCalTable writeToDisk sequence,0
+core/src/clean.rs,1222,a,-,-,-,0
+core/src/clean_certified.rs,1053,a,-,-,-,0
+core/src/clean_major.rs,1039,a,-,-,-,0
+core/src/closure.rs,796,a,-,-,-,0
+core/src/cnnflag.rs,331,a,-,-,-,0
+core/src/correct.rs,507,c-src,WSClean,GPL-3.0-or-later (schaapcommon),schaapcommon reordering.cc Stokes I rule,10
+core/src/f3flag.rs,571,a,-,-,-,0
+core/src/ffi.rs,757,a,-,-,-,0
+core/src/ffi_closure.rs,170,a,-,-,-,0
+core/src/ffi_correct.rs,198,a,-,-,-,0
+core/src/ffi_flag.rs,353,a,-,-,-,0
+core/src/ffi_fluxstd.rs,81,a,-,-,-,0
+core/src/ffi_grid.rs,170,a,-,-,-,0
+core/src/ffi_ms.rs,216,a,-,-,-,0
+core/src/ffi_ms_write.rs,634,a,-,-,-,0
+core/src/ffi_weights.rs,233,a,-,-,-,0
+core/src/ffi_wgridder.rs,759,a,-,-,-,0
+core/src/flag_extend.rs,345,b-copyleft,CASA,LGPL-2.1-or-later,casa6 9269a52 FlagAgentExtension.cc computeAntennaPairFlags,125
+core/src/fluxstd.rs,225,c,-,-,"Perley and Butler 2017, Baars 1977 coefficients (papers)",0
+core/src/fused.rs,962,a,-,-,-,0
+core/src/gemclean.rs,3069,b-copyleft,schaapcommon,GPL-3.0-or-later; WSClean GPL-3.0,schaapcommon b553fd25 gaussianfitter.cc Fit2DGaussianCentred; WSClean 3.7 imageoperations.cpp FitBeamSize; radler Perform glue (c-src),65
+core/src/gemclean/cli.rs,4013,c-src,WSClean,GPL-3.0,"WSClean 3.7 commandline.cpp, wsclean.cpp, settings.cpp behaviour (option names: interface; help text own; one error phrase)",300
+core/src/gemclean/fits.rs,342,a,-,-,-,0
+core/src/gemclean/host.rs,366,a,-,-,-,0
+core/src/gemclean/input.rs,1049,b-copyleft,schaapcommon,GPL-3.0-or-later,"schaapcommon b553fd25 reordering.cc ExtractData, ExtractWeights (stokes_cell); WSClean selection rules c-src",24
+core/src/gemclean/joined.rs,988,c-src,radler,LGPL-3.0-only,"radler generic_clean.cc, subminor_loop.cc, image_set.cc flow (v030-fix header: AND LGPL-3.0-only)",60
+core/src/gemclean/kernels.rs,415,a,-,-,-,0
+core/src/gemclean/mask.rs,554,b-copyleft,radler,LGPL-3.0-only; aocommon GPL-3.0,"radler 76fe4474 radler.cc Perform, gain_calculations.h; aocommon aa4d6a47 image.h MedianAndStdDevFromMAD",220
+core/src/gemclean/measure.rs,975,a,-,-,-,0
+core/src/gemclean/memory.rs,192,a,-,-,-,0
+core/src/gemclean/multiscale.rs,1829,b-copyleft,radler,LGPL-3.0-only,"radler 76fe4474 multiscale_algorithm.cc, subminor_loop.cc, multiscale_transforms.h; WSClean 3.7 and 53e25d59 CalculateMsLimits",800
+core/src/gemclean/predict.rs,615,c-src,WSClean,GPL-3.0,"WSClean 3.6 msprovider.cpp, 3.7 FillModelColumn behaviour",50
+core/src/gemclean/scratch.rs,221,a,-,-,-,0
+core/src/gemclean/sim.rs,311,a,-,-,-,0
+core/src/gemclean/spectral.rs,362,c-src,schaapcommon,GPL-3.0-or-later,schaapcommon spectralfitter.cc conventions; WSClean channel split,40
+core/src/gemclean/stale_bound.rs,671,a,-,-,-,0
+core/src/gemclean/stokes.rs,539,b-copyleft,aocommon,GPL-3.0; radler LGPL-3.0-only; schaapcommon GPL-3.0-or-later,aocommon aa4d6a47 polarization.h ParseList; radler image_set.h; schaapcommon reordering.cc,165
+core/src/gpu/context.rs,195,a,-,-,-,0
+core/src/gpu/ffi.rs,139,a,-,-,-,0
+core/src/gpu/fft.rs,175,c,-,-,Stockham FFT from a published description,0
+core/src/gpu/invert.rs,684,a,-,-,-,0
+core/src/gpu/mod.rs,59,a,-,-,-,0
+core/src/gpu/shader.rs,301,b-copyleft,WSClean,"GPL-3.0 (through grid.rs); fdlibm constants (Sun, permissive)","AddDataSample, projectOnImageAndCorrect as in grid.rs",180
+core/src/gpu/tests.rs,289,a,-,-,-,0
+core/src/grid.rs,1093,b-copyleft,WSClean,"GPL-3.0 (wstackinggridder.h: 'GPL 3 license', no or-later)","WSClean 3.6-1 wstackinggridder.{cpp,h}, wsmsgridder.cpp, msgridderdata.h, msprovidercollection.cpp, wsclean.cpp",850
+core/src/gridder_gram.rs,878,a,-,-,-,0
+core/src/ism.rs,2170,b-copyleft,casacore,LGPL-2.0-or-later,"casacore 3.8.1 ISMBase, ISMBucket, ISMColumn, ISMIndColumn, ISMIndex, BucketCache (step for step)",2100
+core/src/jones.rs,83,a,-,-,-,0
+core/src/lib.rs,72,a,-,-,-,0
+core/src/lightcurve.rs,232,a,-,-,-,0
+core/src/ms.rs,2430,c-src,casacore,LGPL-2.0-or-later,casacore 3.8.1 table format sources (core-e-ms-reader.md),0
+core/src/ms_create.rs,884,c-src,casacore,LGPL-2.0-or-later,"SetupNewTable::bindCreate, MeasurementSet::createDefaultSubtables",0
+core/src/ms_desc.rs,469,c-src,casacore,LGPL-2.0-or-later,"BaseTable, TableDesc, ColumnSet::putFile",0
+core/src/ms_schema.rs,2130,d,casacore,LGPL-2.0-or-later (schema strings),"MS v2 and NewCalTable column names, comments and keywords from table.dat written by casacore 3.8.1 and CASA 6.7.6 (interface data)",2130
+core/src/ms_write.rs,6607,b-copyleft,casacore,LGPL-2.0-or-later,"casacore 3.8.1 SSMBase, SSMIndex, SSMStringHandler, StManArrayFile, FilebufIO, BucketCache, TSMCube (L927-4754); the rest c-src",3830
+core/src/multifile.rs,793,b-copyleft,casacore,LGPL-2.0-or-later,"casacore MultiFile, MultiFileBase",600
+core/src/predict.rs,260,b-permissive,codex-africanus,BSD-3-Clause,"0.4.4 rime/wsclean_predict.py, model/wsclean/spec_model.py",180
+core/src/prox_solver.rs,1509,a,-,-,-,0
+core/src/robust.rs,52,a,-,-,-,0
+core/src/sara.rs,493,a,-,-,-,0
+core/src/solve.rs,2431,b-permissive,QuartiCal,MIT,QuartiCal 0.2.7 complex kernel and flagging,2000
+core/src/sumthreshold.rs,1745,b-permissive,Tricolour,BSD-3-Clause,Tricolour 0.2.1 and katsdpsigproc twodflag.py,1330
+core/src/tiled.rs,262,b-copyleft,casacore,LGPL-2.0-or-later,"casacore 3.8.1 TiledStMan::makeTileShape, TSMCube::adjustTileShape",230
+core/src/weights.rs,764,b-copyleft,WSClean,GPL-3.0; schaapcommon GPL-3.0-or-later,"WSClean 3.6 structures/imageweights.*, 3.7 Set*Taper; schaapcommon reordering.cc (549bc69f); aocommon polarization.h",560
+core/src/wgridder.rs,4824,b-copyleft,ducc0,GPL-2.0-or-later,"ducc0 0.42.0 (42ce8ab5) wgridder_impl.h, gridding_kernel.{h,cc} (KernelDB rows verbatim), gl_integrator.*; fft.h good_size_cmplx (BSD-3-Clause OR GPL-2.0-or-later)",3550
+python/rang/__init__.py,114,a,-,-,-,0
+python/rang/applycal.py,696,c-src,CASA,GPL-2.0-or-later (Calibrater.cc),"Calibrater.cc, CTPatchedInterp.cc, VisJones::updateWt2 rules",0
+python/rang/beam_holography.py,654,b-copyleft,EIDOS,GPL-3.0,"EIDOS 1.1.2 recon_par (_reconstruct), a comparison control",24
+python/rang/beam_identifiability.py,1170,a,-,-,-,0
+python/rang/beams.py,279,a,-,-,-,0
+python/rang/blocked.py,275,a,-,-,-,0
+python/rang/cal_apply.py,337,c-src,CARACal,GPL-2.0,CARACal 8f7bb363 interpolation table,0
+python/rang/cal_bandpass.py,319,c-src,CASA,LGPL-2.0-or-later,"StandardVisCal, Calibrater::genericGatherAndSolve",0
+python/rang/cal_chain.py,661,c-src,CARACal,GPL-2.0,CARACal crosscal and polcal worker order,0
+python/rang/cal_chunks.py,516,a,-,-,-,0
+python/rang/cal_delay.py,458,c-src,CASA,LGPL-2.0-or-later,"KJones.cc, Calibrater.cc rules",0
+python/rang/cal_fluxscale.py,441,c-src,CASA,GPL-2.0-or-later,"Calibrater::fluxscale, SolvableVisJones::fluxscale",0
+python/rang/cal_gain.py,1132,c-src,CASA,LGPL-2.0-or-later,"VisEquation collapse2, divideCorrByModel, SolveDataBuffer enforceAPonData",0
+python/rang/cal_pol.py,1503,b-copyleft,casacore,LGPL-2.0-or-later,"casacore measures MCDirection.cc, MeasMath.cc, MeasTable.cc, MSDerivedValues.cc (parallactic_angle_casa; v030-fix notice: a translation of the steps and constants); XJones, VisEquation c-src",70
+python/rang/cal_refant.py,264,b-copyleft,CARACal,GPL-2.0 (only or or-later unstated); msutils GPL-2.0,CARACal 8f7bb363 get_refant (c-src); msutils 1.2.0 wgs84_to_ecef operation by operation,20
+python/rang/cal_selfcal.py,443,c-src,CARACal,GPL-2.0,CARACal selfcal worker; CubiCal semantics,0
+python/rang/calmodels.py,784,c-src,CASA,LGPL-2.0-or-later,"CASA Imager.cc sjy_setmanualflux; casacore SpectralIndex, SkyCompRep, Flux, Polynomial; CARACal nrao_xcal.yml values",0
+python/rang/check.py,671,a,-,-,-,0
+python/rang/core.py,953,a,-,-,-,0
+python/rang/core_actions.py,189,a,-,-,-,0
+python/rang/core_balanced.py,60,a,-,-,-,0
+python/rang/core_campaign.py,1394,a,-,-,-,0
+python/rang/core_campaign_1830.py,1527,a,-,-,-,0
+python/rang/core_campaign_array.py,2217,a,-,-,-,0
+python/rang/core_campaign_closure.py,1114,a,-,-,-,0
+python/rang/core_campaign_fieldmodel.py,1020,a,-,-,-,0
+python/rang/core_cases.py,60,a,-,-,-,0
+python/rang/core_catalog.py,44,a,-,-,-,0
+python/rang/core_chunks.py,443,a,-,-,-,0
+python/rang/core_clean.py,170,a,-,-,-,0
+python/rang/core_cli.py,1824,a,-,-,-,0
+python/rang/core_closure.py,441,a,-,-,-,0
+python/rang/core_compare.py,1662,a,-,-,-,0
+python/rang/core_config.py,2016,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 selfcal_worker image(), schema defaults",60
+python/rang/core_controls.py,54,a,-,-,-,0
+python/rang/core_fetch.py,583,a,-,-,-,0
+python/rang/core_flag.py,356,b-permissive,Tricolour,BSD-3-Clause,"Tricolour 0.2.1 defaults, load_mask (SPDX line GPL only)",45
+python/rang/core_forecast.py,262,a,-,-,-,0
+python/rang/core_grid.py,458,b-copyleft,WSClean,GPL-3.0,makeKaiserBesselKernel transcription (kernel_reference); Stokes I reader,60
+python/rang/core_guard.py,406,a,-,-,-,0
+python/rang/core_image_fit.py,156,a,-,-,-,0
+python/rang/core_imaging.py,821,a,-,-,-,0
+python/rang/core_influence.py,265,a,-,-,-,0
+python/rang/core_injection_model.py,165,a,-,-,-,0
+python/rang/core_injections.py,302,a,-,-,-,0
+python/rang/core_model.py,222,c-src,WSClean,GPL-3.0,WSClean 3.6 msprovider.cpp row and cell rules,15
+python/rang/core_ms.py,135,a,-,-,-,0
+python/rang/core_ms_write.py,892,a,-,-,-,0
+python/rang/core_patches.py,195,a,-,-,-,0
+python/rang/core_paths.py,22,a,-,-,-,0
+python/rang/core_pipeline.py,2860,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 crosscal, polcal and selfcal worker recipe",310
+python/rang/core_policy.py,236,a,-,-,-,0
+python/rang/core_proposals.py,279,a,-,-,-,0
+python/rang/core_prospective.py,255,a,-,-,-,0
+python/rang/core_receipts.py,49,a,-,-,-,0
+python/rang/core_response.py,263,a,-,-,-,0
+python/rang/core_sensitivity.py,377,a,-,-,-,0
+python/rang/core_signal.py,652,a,-,-,-,0
+python/rang/core_solver_study.py,388,a,-,-,-,0
+python/rang/core_state.py,41,a,-,-,-,0
+python/rang/core_structured.py,43,a,-,-,-,0
+python/rang/core_tasks.py,590,a,-,-,-,0
+python/rang/core_templates.py,123,a,-,-,-,0
+python/rang/core_trend.py,376,a,-,-,-,0
+python/rang/core_trend_run.py,325,a,-,-,-,0
+python/rang/core_weights.py,178,c-src,WSClean,GPL-3.0,aocommon BandData wavelengths; WSClean angle parser,10
+python/rang/core_wgridder.py,382,a,-,-,-,0
+python/rang/core_workflow.py,157,a,-,-,-,0
+python/rang/core_writeback.py,625,a,-,-,-,0
+python/rang/core_zarr.py,192,a,-,-,-,0
+python/rang/f2flag.py,504,a,-,-,-,0
+python/rang/f2flag_sim.py,545,a,-,-,-,0
+python/rang/f3flag.py,865,a,-,-,-,0
+python/rang/f3net.py,110,a,-,-,-,0
+python/rang/flag_extend.py,243,c-src,CASA,LGPL-2.0-or-later,"casacore MSIter MSInterval::comp, BaseTabIter; CASA FlagDataHandler, FlagMSHandler",30
+python/rang/flagdata.py,1145,c,-,-,CASA flagdata documentation and probes,0
+python/rang/fluxstd.py,437,c,-,-,"papers; PB2010, SR2016 and Baars fitted to setjy outputs",0
+python/rang/formats/__init__.py,30,a,-,-,-,0
+python/rang/formats/_aipsio.py,285,c-src,casacore,LGPL-2.0-or-later,through the Rust parser,0
+python/rang/formats/caltable.py,493,c-src,CASA,LGPL-2.0-or-later,"CTPatchedInterp, RIorAParray, CTTimeInterp1, KJones, DJones, XJones",0
+python/rang/formats/cli.py,217,a,-,-,-,0
+python/rang/formats/flagversions.py,284,c,-,-,CASA flagmanager on-disk layout,0
+python/rang/formats/h5parm.py,291,c-src,losoto,GPL-3.0-or-later,losoto 2.7.1 sdist read for the H5parm layout (dfio-formats.md:37); attribute values from a losoto-made file,0
+python/rang/formats/killms.py,188,c-src,killMS,GPL-2.0,"killMS 3.3.0 kMS.py, MergeSols.py field list",0
+python/rang/formats/quartical_store.py,387,c,-,-,QuartiCal and dask-ms layout,0
+python/rang/formats/sky.py,1155,b-copyleft,Tigger,GPL-2.0-or-later,"Tigger ModelClasses.renderAttrMarkup, ModelHTML.save (writer); readers c-src from Tigger, Crystalball 0.4.3, DDFacet 1.0, killMS 3.3.0 (GPL-2.0); two regexes from codex-africanus 0.4.4 (BSD-3-Clause)",170
+python/rang/gauge.py,98,a,-,-,-,0
+python/rang/gemclean.py,33,a,-,-,-,0
+python/rang/lightcurve.py,554,a,-,-,-,0
+python/rang/listobs.py,546,c,-,-,CASA listobs output layout,0
+python/rang/lsm.py,38,a,-,-,-,0
+python/rang/mcp_server.py,202,a,-,-,-,0
+python/rang/mcp_tools.py,854,a,-,-,-,0
+python/rang/measures.py,153,a,-,-,-,0
+python/rang/meerkat.py,640,b-permissive,katdal,BSD-3-Clause,"katdal 0.23 test helpers, flags.py (BSD text missing)",230
+python/rang/msv4.py,214,a,-,-,-,0
+python/rang/notebook/__init__.py,45,a,-,-,-,0
+python/rang/notebook/_plot.py,42,a,-,-,-,0
+python/rang/notebook/carta.py,503,a,-,-,-,0
+python/rang/notebook/data.py,625,a,-,-,-,0
+python/rang/notebook/experiment.py,328,a,-,-,-,0
+python/rang/notebook/flags.py,433,a,-,-,-,0
+python/rang/notebook/gains.py,317,a,-,-,-,0
+python/rang/notebook/image.py,262,a,-,-,-,0
+python/rang/notebook/science.py,1278,a,-,-,-,0
+python/rang/notebook/steer.py,387,a,-,-,-,0
+python/rang/notebook/survey.py,378,a,-,-,-,0
+python/rang/observability.py,456,a,-,-,-,0
+python/rang/oracles/__init__.py,6,a,-,-,-,0
+python/rang/oracles/casa_listobs.py,301,c,-,-,CASA listobs output,0
+python/rang/oracles/casacure.py,166,a,-,-,-,0
+python/rang/pointing.py,722,a,-,-,-,0
+python/rang/pointing_selfcal.py,1755,a,-,-,-,0
+python/rang/projector.py,153,a,-,-,-,0
+python/rang/rusage.py,76,a,-,-,-,0
+python/rang/simtruth.py,1155,a,-,-,-,0
+python/rang/simtruth_ms.py,600,a,-,-,-,0
+python/rang/tasks/__init__.py,313,a,-,-,-,0
+python/rang/tfcrop.py,225,c,-,-,CASA tfcrop documentation and probes,0
+python/rang/tvflag_adjoint.py,585,a,-,-,-,0
+python/rang/uncertainty.py,26,a,-,-,-,0
+src/lib.rs,976,a,-,-,-,0
+src/linalg.rs,483,a,-,-,-,0
+src/main.rs,11,a,-,-,-,0
+src/projector.rs,229,a,-,-,-,0
+src/response.rs,827,a,-,-,-,0
+src/trend.rs,202,a,-,-,-,0
+src/tv.rs,142,a,-,-,-,0
+tests/conftest.py,71,a,-,-,-,0
+tests/test_a1_simtruth.py,233,a,-,-,-,0
+tests/test_a3_casa_phase_weights.py,273,c-src,CASA,LGPL-2.0-or-later,divideCorrByModel in NumPy,27
+tests/test_aflag.py,184,a,-,-,-,0
+tests/test_b1_baselines.py,106,a,-,-,-,0
+tests/test_b1_identifiability.py,346,a,-,-,-,0
+tests/test_b1_pointing_selfcal.py,627,a,-,-,-,0
+tests/test_beam_holography.py,156,a,-,-,-,0
+tests/test_beams.py,411,a,-,-,-,0
+tests/test_blocked.py,124,a,-,-,-,0
+tests/test_c2e_calibrate.py,271,a,-,-,-,0
+tests/test_c4b_applycal.py,217,a,-,-,-,0
+tests/test_c5_selfcal.py,387,a,-,-,-,0
+tests/test_c5b_selfcal_masks.py,211,a,-,-,-,0
+tests/test_c6w_polwire.py,218,a,-,-,-,0
+tests/test_cal_apply.py,243,a,-,-,-,0
+tests/test_cal_bandpass.py,136,a,-,-,-,0
+tests/test_cal_delay.py,197,a,-,-,-,0
+tests/test_cal_fluxscale.py,217,c-src,CASA,LGPL-2.0-or-later,SolvableVisJones::fluxscale rules in NumPy,56
+tests/test_cal_gain.py,173,a,-,-,-,0
+tests/test_cal_pol.py,296,a,-,-,-,0
+tests/test_calmodels.py,334,a,-,-,-,0
+tests/test_casacure_optional.py,93,a,-,-,-,0
+tests/test_check_all.py,136,a,-,-,-,0
+tests/test_chunk_tasks.py,302,a,-,-,-,0
+tests/test_core.py,212,a,-,-,-,0
+tests/test_core_backends.py,552,a,-,-,-,0
+tests/test_core_balanced.py,84,a,-,-,-,0
+tests/test_core_campaign.py,201,a,-,-,-,0
+tests/test_core_campaign_1830.py,228,a,-,-,-,0
+tests/test_core_campaign_array.py,281,a,-,-,-,0
+tests/test_core_campaign_closure.py,238,a,-,-,-,0
+tests/test_core_campaign_fieldmodel.py,280,a,-,-,-,0
+tests/test_core_cases.py,40,a,-,-,-,0
+tests/test_core_catalog.py,35,a,-,-,-,0
+tests/test_core_clean.py,77,a,-,-,-,0
+tests/test_core_cli.py,753,a,-,-,-,0
+tests/test_core_closure.py,309,a,-,-,-,0
+tests/test_core_compare.py,139,a,-,-,-,0
+tests/test_core_controls.py,67,a,-,-,-,0
+tests/test_core_fetch.py,250,a,-,-,-,0
+tests/test_core_flag.py,291,a,-,-,-,0
+tests/test_core_grid.py,107,a,-,-,-,0
+tests/test_core_guard.py,284,a,-,-,-,0
+tests/test_core_image_fit.py,69,a,-,-,-,0
+tests/test_core_imaging.py,289,a,-,-,-,0
+tests/test_core_influence.py,284,a,-,-,-,0
+tests/test_core_injection_model.py,125,a,-,-,-,0
+tests/test_core_ms.py,79,a,-,-,-,0
+tests/test_core_ms_edge.py,209,a,-,-,-,0
+tests/test_core_ms_strarray.py,105,a,-,-,-,0
+tests/test_core_ms_write.py,203,a,-,-,-,0
+tests/test_core_patches.py,100,a,-,-,-,0
+tests/test_core_paths.py,28,a,-,-,-,0
+tests/test_core_policy.py,108,a,-,-,-,0
+tests/test_core_proposals.py,223,a,-,-,-,0
+tests/test_core_receipts.py,93,a,-,-,-,0
+tests/test_core_response.py,221,a,-,-,-,0
+tests/test_core_sensitivity.py,201,a,-,-,-,0
+tests/test_core_structured.py,44,a,-,-,-,0
+tests/test_core_templates.py,81,a,-,-,-,0
+tests/test_core_trend_run.py,67,a,-,-,-,0
+tests/test_core_trend_run_review.py,272,a,-,-,-,0
+tests/test_core_weights.py,94,a,-,-,-,0
+tests/test_core_wgridder.py,256,a,-,-,-,0
+tests/test_core_workflow.py,91,a,-,-,-,0
+tests/test_core_zarr.py,126,a,-,-,-,0
+tests/test_correctness_audit.py,217,a,-,-,-,0
+tests/test_d1_docs.py,92,a,-,-,-,0
+tests/test_d3_notebooks.py,338,a,-,-,-,0
+tests/test_df2b_wgrid.py,197,a,-,-,-,0
+tests/test_df2c_campaign_gridder.py,238,a,-,-,-,0
+tests/test_df5o.py,134,a,-,-,-,0
+tests/test_dfio_formats.py,310,a,-,-,-,0
+tests/test_e0_refant_extend.py,290,b-copyleft,CASA,LGPL-2.1-or-later,FlagAgentExtension.cc loops transcribed (casa_cube),40
+tests/test_e2_average_freq.py,176,a,-,-,-,0
+tests/test_e2_average_time.py,420,a,-,-,-,0
+tests/test_e2_diskguard.py,92,a,-,-,-,0
+tests/test_e2_post_inplace.py,192,a,-,-,-,0
+tests/test_e2a_bandpass_model_divided.py,176,a,-,-,-,0
+tests/test_e2a_post_reads.py,618,a,-,-,-,0
+tests/test_e2a_rows.py,108,a,-,-,-,0
+tests/test_e2a_score3c.py,174,a,-,-,-,0
+tests/test_e4_table_create.py,212,a,-,-,-,0
+tests/test_e5_decisions.py,42,a,-,-,-,0
+tests/test_e5_final.py,77,a,-,-,-,0
+tests/test_e5_later.py,169,a,-,-,-,0
+tests/test_e5_prereview.py,178,a,-,-,-,0
+tests/test_e5_table_writer_rest.py,201,a,-,-,-,0
+tests/test_e6_table_writer_final.py,176,a,-,-,-,0
+tests/test_f1_adjoint.py,141,a,-,-,-,0
+tests/test_f2_cnnflag.py,55,a,-,-,-,0
+tests/test_f2_sim.py,34,a,-,-,-,0
+tests/test_f3_flag.py,104,a,-,-,-,0
+tests/test_flagging_followup_archives.py,357,a,-,-,-,0
+tests/test_fluxstd.py,189,a,-,-,-,0
+tests/test_g6_model.py,115,a,-,-,-,0
+tests/test_g7_defaults.py,16,a,-,-,-,0
+tests/test_g8_gemclean.py,236,a,-,-,-,0
+tests/test_g8_identity.py,46,a,-,-,-,0
+tests/test_heavy_lock_backfill.py,349,a,-,-,-,0
+tests/test_heavy_lock_nested.py,207,a,-,-,-,0
+tests/test_heavy_lock_nice.py,87,a,-,-,-,0
+tests/test_heavy_lock_queue.py,287,a,-,-,-,0
+tests/test_information_budget.py,50,a,-,-,-,0
+tests/test_l5_solver.py,132,a,-,-,-,0
+tests/test_l5c.py,116,a,-,-,-,0
+tests/test_lsm.py,143,a,-,-,-,0
+tests/test_mcp_chain.py,350,a,-,-,-,0
+tests/test_mcp_server.py,404,a,-,-,-,0
+tests/test_mk1_meerkat.py,227,a,-,-,-,0
+tests/test_ms_inspection.py,56,a,-,-,-,0
+tests/test_msv4.py,233,a,-,-,-,0
+tests/test_native_support_diagnostics.py,121,a,-,-,-,0
+tests/test_nb_carta.py,248,a,-,-,-,0
+tests/test_notebook_execute.py,111,a,-,-,-,0
+tests/test_notebook_functions.py,173,a,-,-,-,0
+tests/test_o_casa_optional.py,168,a,-,-,-,0
+tests/test_p11_extract.py,240,a,-,-,-,0
+tests/test_p12_rename.py,41,a,-,-,-,0
+tests/test_p1_solver.py,71,a,-,-,-,0
+tests/test_p2_gridder.py,84,a,-,-,-,0
+tests/test_p3_flags.py,183,a,-,-,-,0
+tests/test_p4_eigen.py,102,a,-,-,-,0
+tests/test_p5_memory.py,428,a,-,-,-,0
+tests/test_p6_signal.py,174,a,-,-,-,0
+tests/test_p6_trend.py,186,a,-,-,-,0
+tests/test_p7_architecture.py,209,a,-,-,-,0
+tests/test_pc1_preconditions.py,55,a,-,-,-,0
+tests/test_pointing.py,738,a,-,-,-,0
+tests/test_pointing_example.py,36,a,-,-,-,0
+tests/test_pointing_sim.py,88,a,-,-,-,0
+tests/test_projector.py,105,a,-,-,-,0
+tests/test_rv1_revalidate.py,129,a,-,-,-,0
+tests/test_selfcal_arms.py,170,a,-,-,-,0
+tests/test_sliced_read.py,408,a,-,-,-,0
+tests/test_spdx_headers.py,58,a,-,-,-,0
+tests/test_t1_casacure_oracle.py,604,a,-,-,-,0
+tests/test_ts_p1_lightcurve.py,285,a,-,-,-,0
+tests/test_uncertainty.py,24,a,-,-,-,0
+tests/test_v3_intro.py,135,a,-,-,-,0
+tests/test_v8_tfcrop.py,96,a,-,-,-,0
+tests/test_v8a_listobs.py,207,a,-,-,-,0
+tests/test_v8b_flagdata.py,171,a,-,-,-,0
+tests/test_w1_writeback.py,234,a,-,-,-,0
+tests/test_w2_commands.py,1156,a,-,-,-,0
+tests/test_w3_chunking.py,411,a,-,-,-,0
+tests/test_w3b_chainchunks.py,355,a,-,-,-,0
+tests/test_w4_1_receipts.py,216,a,-,-,-,0
+tests/test_w4_2_boundaries.py,92,a,-,-,-,0
+tests/test_w4_3_kernels.py,156,a,-,-,-,0
+tests/test_w4_5_release.py,338,a,-,-,-,0
+tests/test_w4_6_portability.py,166,a,-,-,-,0
+tests/test_w4_8_docs.py,179,a,-,-,-,0
+tests/test_w4_unsupported.py,364,a,-,-,-,0
+tests/test_w5_recipes.py,97,a,-,-,-,0
+tests/test_x2_gpu.py,101,a,-,-,-,0
+tests/test_xf_avg_fix.py,238,a,-,-,-,0
+tools/check.py,22,a,-,-,-,0
+tools/wheel/build-inside.sh,97,a,-,-,-,0
+tools/wheel/build.py,125,a,-,-,-,0
+tools/wheel/build.sh,59,a,-,-,-,0
+tools/wheel/classify_compare.py,95,a,-,-,-,0
+tools/wheel/pytest_wheel.py,32,a,-,-,-,0
+tools/wheel/run_installed.py,102,a,-,-,-,0
+tools/wheel/smoke.py,62,a,-,-,-,0
+tools/wheel/test.py,307,a,-,-,-,0
+tools/wheel/test.sh,139,a,-,-,-,0
