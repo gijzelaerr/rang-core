@@ -286,7 +286,22 @@ per antenna as such. One data set, one noise seed, one field.
 
 ## 9. Clarifications
 
-None yet.
+**1, 2026-11-17 11:00 SAST, before any run or number.**
+
+- **Copy.** The workstation's uplink to nash runs at about 0.75 MB/s, so `table.f4_TSM1` is not
+  copied. It holds `MODEL_DATA` (TiledModel, 3.37 GB), a column no stage reads: `floor_tests.prep`,
+  `floor3_score` copy and `floor5_tests` read DATA, FLAG, WEIGHT_SPECTRUM, WEIGHT, SIGMA and the
+  row columns. On nash it is a sparse file of the same size. The manifest gate compares the other
+  66 files; `table.f4_TSM1` is listed as excluded. DATA and WEIGHT_SPECTRUM go as 64 MiB blocks
+  (gzip, eight streams) and are checked by the same manifest.
+- **Order.** Family I's pilot stage and arms use G1's round-1 store and final model as copied
+  from floor-4's nash folder (`inputs/floor-4-20261117/g1`), so they can run while G1 reruns.
+  P_ref, and with it every a₂, comes from that copy. The G1 rerun must reproduce the copied store
+  bit for bit (gains and flags) and the final model pixel for pixel; the summary checks both. If
+  either differs, Family I is rescored from the rerun's products, and that is reported.
+- **Smoke.** None ran. A 6,000-row smoke queued on the workstation's lock was stopped before it
+  started, because the workstation was held by an exclusive timing run.
+- **Store-equality check.** Added to the script's summary, before any output: `g1_rerun_equal`.
 
 ## 10. Results
 

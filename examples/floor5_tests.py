@@ -58,6 +58,7 @@ ARMS = {
 OWN = {"T_A": "H1bA", "T_Af": "H1a", "T_B|A": "H2", "T8": "H8a", "T_D|A": "H3c"}
 HYP = {"T_A": "H1r", "T_Af": "H1a", "T_B|A": "H2", "T8": "H8", "T_D|A": "H3c"}
 GS_ARMS = {"H2": 25.144, "H8a": 6.38}
+RERUN = Path(os.environ.get("RANG_FLOOR5_G1RERUN", "/nonexistent"))
 
 
 def setpaths():
@@ -636,6 +637,15 @@ def cmd_summary(out):
     )
     res["GS"] = gs
     res["family1"] = verdict_family1(pil, arms, Pref)
+    if RERUN.exists():
+        sa, _m0a, m1a = g1_products(RERUN)
+        sb, _m0b, m1b = Path(pil["store"]), None, Path(pil["m1"])
+        ga, fa = cal_selfcal.read_store(sa, "Sp")[:2]
+        gb, fb = cal_selfcal.read_store(sb, "Sp")[:2]
+        res["g1_rerun_equal"] = {
+            "store": bool(np.array_equal(ga, gb) and np.array_equal(fa, fb)),
+            "final_model": bool(np.array_equal(fits2d(m1a), fits2d(m1b))),
+        }
     f2d = out / "family2"
     fam2 = (
         {p.stem: json.loads(p.read_text()) for p in f2d.glob("*.json")}
