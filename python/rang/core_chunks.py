@@ -47,6 +47,9 @@ CELL_BYTES = {
     # W3b, research/w3b-chainchunks.md): the cell columns read, their
     # pre-applied copies, the weights and the kernel's sorted copies.
     "chain": 96,
+    # The self-calibration solves Sp, Sa, Sd (task C5; issue #34,
+    # research/selfcal-memory.md): as "chain" without pre-applies.
+    "selfcal": 96,
 }
 # Bytes held per row of a chain solve's field for the whole solve (task W3b):
 # the row metadata, the interval index, the uvrange flag and the row's weight
@@ -144,6 +147,18 @@ class Budget:
             self.limit_text,
         )
 
+    def selfcal(self):
+        """The `ChainBudget` of the self-calibration solves (task C5; issue
+        #34): the chain's, at `CELL_BYTES["selfcal"]` per cell."""
+        return ChainBudget(
+            self.chunk_bytes,
+            self.fixed_bytes,
+            self.limit_gb,
+            self.chunk_rows,
+            self.limit_text,
+            CELL_BYTES["selfcal"],
+        )
+
     def describe(self):
         out = {
             "memory_limit_gb": self.limit_gb,
@@ -170,6 +185,9 @@ class ChainBudget:
     limit_gb: float | None = None
     chunk_rows: int | None = None
     limit_text: str | None = None
+    # Bytes per cell of a chunk: `CELL_BYTES["chain"]`, or "selfcal" for the
+    # self-calibration solves (`Budget.selfcal`).
+    cell_bytes: int = CELL_BYTES["chain"]
 
     def plan(self, nrows, nchan, ncorr, per_channel):
         """`(max_cells, hard_cells, block_rows)` of a solve on `nrows` rows:
@@ -180,7 +198,7 @@ class ChainBudget:
         `chunk_rows` does not cap it (W3 read a frequency chunk's rows
         whole). `hard_cells` is negative when the rows alone do not fit."""
         left = self.chunk_bytes - CHAIN_ROW_BYTES * int(nrows)
-        hard = left // CELL_BYTES["chain"]
+        hard = left // self.cell_bytes
         if per_channel:
             hard //= 2
         row = int(nchan) * int(ncorr)
@@ -194,7 +212,7 @@ class ChainBudget:
         """GiB a solve on `nrows` rows needs for a chunk of `cells` cells
         (and, per channel, a block of one whole row), the process
         included."""
-        cell = CELL_BYTES["chain"] * int(cells) * (2 if per_channel else 1)
+        cell = self.cell_bytes * int(cells) * (2 if per_channel else 1)
         return _gib(self.fixed_bytes + CHAIN_ROW_BYTES * int(nrows) + cell)
 
 

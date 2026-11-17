@@ -64,6 +64,7 @@ mod cal_delay_offset;
 mod cal_fluxscale;
 mod cal_gain;
 mod cal_pol;
+mod cal_stream;
 mod clean;
 mod cnnflag;
 mod f3flag;
@@ -2888,6 +2889,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(cal_pol::cal_df_solve, m)?)?;
     // Task W3b: the stop-test counts of the chain kernels (research/w3b-chainchunks.md).
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_trace, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_stream::cal_gain_solve_streamed, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_stream::cal_stream_record_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(cal_delay::cal_delay_trace, m)?)?;
     m.add_function(wrap_pyfunction!(
         cal_delay_offset::cal_delay_offset_trace,
