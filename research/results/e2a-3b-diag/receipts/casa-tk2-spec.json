@@ -1,0 +1,130 @@
+[
+ {
+  "task": "copyflags",
+  "args": {
+   "src": "/d1/src.ms",
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tk2/G0",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-tt.ms.rang-run/calibrate/K0"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/d1/casa-tk2/B0",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-tt.ms.rang-run/calibrate/K0",
+    "/d1/casa-tk2/G0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "copyflags",
+  "args": {
+   "src": "/d1/rang-r0.ms",
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tk2/G1",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "60s",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-tt.ms.rang-run/calibrate/K1",
+    "/d1/casa-tk2/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/d1/casa-tk2/B1",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/rang-tt.ms.rang-run/calibrate/K1",
+    "/d1/casa-tk2/G1"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]

@@ -1,0 +1,124 @@
+[
+ {
+  "task": "putflags",
+  "call": {
+   "vis": "/d1/src.ms",
+   "rows": "/d1/base.json",
+   "version": "/src/e2a.ms.flagversions/flags.rang_calibrate_20261115T132707Z"
+  },
+  "seconds": 19.087274442004855,
+  "error": null,
+  "written": false,
+  "return": {
+   "rows_written": 12480,
+   "flagged_cells": 188778296
+  }
+ },
+ {
+  "task": "delmod",
+  "call": {
+   "vis": "/d1/src.ms",
+   "otf": true,
+   "scr": false
+  },
+  "seconds": 0.8345790390012553,
+  "error": null,
+  "written": false,
+  "return": null
+ },
+ {
+  "task": "flaghash",
+  "call": {
+   "vis": "/d1/src.ms"
+  },
+  "seconds": 0.7896918519982137,
+  "error": null,
+  "written": false,
+  "return": {
+   "flag": "e6910ad43683e765e627898e2232854d05f8c91cef89142ed9a28fa9918ebc8d",
+   "flag_row": "d34140e8574ae5e2960c63ece176733ee7cd1d7131813491983d51c3ff78fa17",
+   "flagged_cells": 188778296
+  }
+ },
+ {
+  "task": "weights_read",
+  "call": {
+   "vis": "/d1/src.ms"
+  },
+  "seconds": 7.563607568998123,
+  "error": null,
+  "written": false,
+  "return": {
+   "weight_spectrum_min": 0.0,
+   "weight_spectrum_max": 330.0914611816406,
+   "weight_spectrum_not_1": 204472320,
+   "weight_not_1": 0
+  }
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-r0.ms"
+  },
+  "seconds": 34.80700148400501,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-tt.ms"
+  },
+  "seconds": 30.046204835001845,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/rang-ti.ms"
+  },
+  "seconds": 29.87890640400292,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-a.ms"
+  },
+  "seconds": 29.791093545994954,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-m.ms"
+  },
+  "seconds": 29.72766947900527,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/d1/src.ms",
+   "dst": "/d1/casa-w.ms"
+  },
+  "seconds": 29.738430914003402,
+  "error": null,
+  "written": true,
+  "return": null
+ }
+]

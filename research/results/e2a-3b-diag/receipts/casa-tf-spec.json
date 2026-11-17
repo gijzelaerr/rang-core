@@ -1,0 +1,190 @@
+[
+ {
+  "task": "delmod",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "otf": true,
+   "scr": false
+  }
+ },
+ {
+  "task": "copyflags",
+  "args": {
+   "src": "/d1/src.ms",
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "setjy",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": false
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tf/K0",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "gaintable": [],
+   "interp": []
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tf/G0",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/casa-tf/K0"
+   ],
+   "interp": [
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/d1/casa-tf/B0",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/casa-tf/K0",
+    "/d1/casa-tf/G0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "copyflags",
+  "args": {
+   "src": "/d1/rang-r0.ms",
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/casa-a.ms"
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tf/K1",
+   "gaintype": "K",
+   "solint": "60s",
+   "combine": "",
+   "gaintable": [
+    "/d1/casa-tf/G0",
+    "/d1/casa-tf/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "gaincal",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "refantmode": "flex",
+   "caltable": "/d1/casa-tf/G1",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "60s",
+   "combine": "",
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/casa-tf/K1",
+    "/d1/casa-tf/B0"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ },
+ {
+  "task": "bandpass",
+  "args": {
+   "vis": "/d1/casa-a.ms",
+   "field": "J1939-6342",
+   "refant": "m022,m023,m024",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "parang": false,
+   "caltable": "/d1/casa-tf/B1",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 70,
+   "uvrange": ">150",
+   "gaintable": [
+    "/d1/casa-tf/K1",
+    "/d1/casa-tf/G1"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  }
+ }
+]

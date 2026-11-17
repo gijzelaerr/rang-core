@@ -15,6 +15,11 @@ the release notes are the section of this file for that version.
   `-temp-dir DIR` places them (default: the directory of `-name`). Every FITS file is byte-identical. On E2-B's
   joined-IQUV 8-channel 2048² runs the peak falls from 15.9-16.5 to 9.1 GiB (J1331+3030, J1939−6342) and from
   8.4 to 7.2 GiB (J1833−2103); about 28 GB of temporary files on the large fields.
+- New (`research/e2a-3b-diag.md`): `calibrate.bandpass_model_divided` (default false, out of the stage hash at
+  its default). B solves divide the pre-applied data by the model, which the K and G pre-applies corrupt, before
+  any time average (`rang.cal_bandpass.bandpass(model_divided=True)`, `rang.cal_gain.model_divided`, CASA's
+  `divideCorrByModel`). With `calibrate.average_time` and K or G varying inside B's interval this changes B; on
+  E2-A's 15-antenna subset the averaged B then equals the unaveraged B to 4e-7. Off is unchanged.
 - New (`research/msv4-interop.md`, #5): `rang.msv4` reads an MSv4 processing set (xradio schema 4.x, Zarr)
   into the core's row layout, behind the optional `[msv4]` extra (xarray, zarr 3, numcodecs; Python 3.11+).
   Bit-identical to the MSv2 path on xradio 1.3.1's conversions of 9 MSs; a uint8 `FLAG` (xarray-ms) is read as

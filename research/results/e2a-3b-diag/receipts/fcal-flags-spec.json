@@ -1,0 +1,16 @@
+[
+ {
+  "task": "putflags",
+  "args": {
+   "vis": "/d1/fcal.ms",
+   "rows": "/d1/fcal-base.json",
+   "version": "/src/e2a.ms.flagversions/flags.rang_apply_20261115T144017Z"
+  }
+ },
+ {
+  "task": "flaghash",
+  "args": {
+   "vis": "/d1/fcal.ms"
+  }
+ }
+]
