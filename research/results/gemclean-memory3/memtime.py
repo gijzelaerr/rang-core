@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Run a command and record its exit code, wall time, mean cores and peak
 memory (research/gemclean-memory.md): arm A5's a5_time.py (the sum of the
 process tree's resident sets, sampled every 2 s with psutil) plus, on

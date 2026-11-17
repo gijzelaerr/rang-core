@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # research/gemclean-memory3.md (from gemclean-memory2's): GeMClean on one rebuilt E2-B field with arm A5's
 # argv (e2b-misses c3/c3_rang.sh clean, 9.28), from Git Bash; the caller wraps
 # it in the main checkout's heavy_lock.py.

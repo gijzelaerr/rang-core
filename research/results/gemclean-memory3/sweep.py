@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """Identity sweep of research/gemclean-memory2.md (phase 1's sweep.py with a
 third arm): on G8's tiny MS (8 antennas, 8 channels, W1's per-correlation
 flags and weights, so the polarisations do not all share rows and weights),

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # research/gemclean-memory3.md section 4: exclusive pairs, this branch's binary f20c06a
 cd ~/Worktrees/rang/gemclean-memory3
 B=D:/rang/outputs/gemclean-memory3-20261117/bin/gemclean-ab-f20c06a.exe

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 # research/gemclean-memory3.md section 4: second exclusive pairs where the first ratio fell in 1.05-1.15
 until [ -f D:/rang/outputs/gemclean-memory3-20261117/excl.done ]; do sleep 20; done
 cd ~/Worktrees/rang/gemclean-memory3

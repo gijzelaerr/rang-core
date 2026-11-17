@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """research/gemclean-memory2.md: a run against the baseline on one field: every
 FITS file's SHA-256, the report's `entries`, `image-mask.json`, and memtime.py's
 figures.
