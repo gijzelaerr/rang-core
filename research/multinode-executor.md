@@ -334,3 +334,9 @@ Post hoc reading (one repeat per point on a shared host; not a frozen claim):
   set on Lustre or CephFS, and the matched-accuracy comparisons. The apply ceiling needs a decision: accept it, or
   let workers write disjoint row ranges (CTDS refuses concurrent writers today).
 - Not merged. The full `python tools/check_all.py` has not been run on the branch.
+
+## Coordinator decisions, 2026-11-17
+
+- The spool executor is merged as opt-in (`data.executor: spool`). The default stays inline.
+- Apply's ceiling (a single MS writer) is accepted for now, since one writer is what keeps write-back safe and identical. Disjoint row-range writes by workers are a v0.4.0 follow-up under #4, gated bit-identical against the single writer.
+- Exclusive S(N) timing points, a multi-host run on a shared filesystem, and Slurm/PBS runs on a real cluster are next steps under #4. The S(N) figures here are provisional (shared host).
