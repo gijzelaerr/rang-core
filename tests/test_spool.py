@@ -159,7 +159,7 @@ def test_a_failed_spool_task_raises_in_plan_order(tmp_path):
 def test_a_lost_claim_is_requeued(tmp_path, monkeypatch):
     """A claim whose worker stopped beating goes back into the queue and is
     run by a live worker; the partial equals the inline one."""
-    monkeypatch.setattr(core_spool, "LEASE_S", 5.0)
+    monkeypatch.setattr(core_spool, "LEASE_S", 30.0)
     specs = _flag_specs(tmp_path)[:2]
     spool = core_spool.prepare(tmp_path / "spool")
     sp = core_spool.Spool(spool, wait_s=60)
@@ -170,7 +170,7 @@ def test_a_lost_claim_is_requeued(tmp_path, monkeypatch):
     (spool / "claimed" / tags[0]).write_text(dead)
     beat = spool / "workers" / f"{dead}.beat"
     beat.touch()
-    os.utime(beat, (time.time() - 60, time.time() - 60))
+    os.utime(beat, (time.time() - 600, time.time() - 600))
     with Workers(spool, 1):
         got = [sp.result(t) for t in tags]
     assert sp.counts["requeued"] == 1

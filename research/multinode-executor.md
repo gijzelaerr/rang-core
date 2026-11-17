@@ -256,6 +256,21 @@ its own session; `memory_limit_gb = 2N`, so 2 GB per worker.
 | 4 | 3.17 | 3.46 | 1.30 | 3.05 | 0.76 |
 | 8 | 4.89 | 5.85 | 1.46 | 4.67 | 0.58 |
 
+Bookings against the cores used (CPU-seconds / wall). The bookings followed section 4 (`2N + 1`); flag and
+calibrate used about 60 % of them at N = 8, apply about 2 cores at every N, so the bookings were above use:
+
+| Point | Booked slots | Cores used, flag / calibrate / apply |
+| --- | ---: | --- |
+| I | 3 | 1.9 / 1.7 / 1.0 |
+| S1 | 3 | 1.9 / 1.7 / 1.4 |
+| S2 | 5 | 3.5 / 3.3 / 2.0 |
+| S4 | 9 | 6.2 / 5.8 / 1.9 |
+| S8 | 17 | 9.4 / 9.8 / 2.1 |
+
+The same plan ran at every point: the parent's spec digests are equal at S1 to S8, and the `chunking` records of the
+stage summaries (flag blocks per group 5, 5, 2, 2, 3; the solve chunks per partition; the row budgets) are equal at
+I, S1 and S8, so `t(S1) / t(I)` compares the same tasks.
+
 Per stage at every N: 17 flag tasks, 132 solve tasks (three terms, two passes for the chunked partitions) and 54
 apply tasks, with 0.66 GB, 0.05 GB and 11.0 GB of partials through the spool; no task was re-queued. The CPU-seconds
 stay flat with N, so the spool adds no per-task work that grows with the worker count.
@@ -299,6 +314,12 @@ Post hoc reading (one repeat per point on a shared host; not a frozen claim):
   metadata and bandwidth (#4's risks) are not measured.
 - No matched-accuracy comparison against QuartiCal or `wsclean-mp`, which #4 requires of stage 2 as a whole.
 - Only flag, the complex solve and complex apply go through the executor; the chain terms stay serial (stage 1b).
+- S(N) is at 2 threads per worker, so the cores grow with N (a node brings its own). It is not comparable with
+  chunk-task-api section 5's fixed budget of 16 threads.
+- The heartbeat is a Python thread. It beats during kernels because the extension releases the GIL (`py.detach` in
+  `core/py/src/lib.rs`); task durations were not logged, but no task on W was re-queued while running.
+- Job arrays (A) were excluded by the hard gates G4 and G5 and not scored on R1-R6. D's launch path on Slurm or PBS
+  is itself a job array of pilot workers, and that path is untested.
 
 ## For the coordinator
 
