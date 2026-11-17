@@ -549,6 +549,36 @@ walls including lock wait: calibrator validation 32.8, train 43.0 min; target va
 command in "Staged runs" with the calibrator line only (about 1.5 h GPU; check that `nvidia-smi` shows
 room, given the Ollama memory above); τ; Stage 5 on MAIN_0, 12, 14.
 
+### Resumed 2026-11-17 (task #10, v0.3.0; calibrators only)
+
+Checked first: nothing of F4 ran between 2026-11-13 10:37 and this session (`queue.json` as above, no
+`-08` or later run on D:). Branch merged up to origin/main (`ef09bb9`); the merge touches the flagger
+code only by licence headers and the crate version (`git diff 56753f0 ef09bb9` on `core/src/f3flag.rs`,
+`f4flag.rs`, `sumthreshold.rs`, `ffi_flag.rs` (one added test), `python/rang/f3*.py`, `f4flag.py`,
+`f2flag*.py`, `core_flag.py`; the CARACal YAMLs unchanged). Targets stay stopped (label audit); this
+resume is the calibrator class only.
+
+**Deviation, labelled post hoc against section 5, 2026-11-17, before any Stage 4 step: training on
+CPU (host nash) instead of the RTX 4070 Ti in WSL.** Why: the coordinator's brief for #10 (the glacier
+GPU is mostly held by the owner's Ollama, about 10 GB of 12 GB at the 11-13 audit; F4 does not stop
+other users' processes). What is the same: `examples/f3_train.py` at this branch's code, the same shards
+(`-06-shards-cal/calibrator`, copied to nash with a sha256 manifest checked there), seeds 1, 2, 3, batch
+rng 1000 + seed, Adam 1e-3, 30,000 steps, batch 32 × 256 channels, real : simulation 1 : 1, and the same
+JAX version as the audit (0.12.0.1), now its CPU backend. What is not claimed: the weights are not
+bit-identical to what a GPU run would give; floating-point reduction order differs between XLA's CPU
+and CUDA kernels and 30,000 Adam steps amplify that, so the trained weights are a different draw of the
+same procedure, as a different seed would be. The protocol's selection already absorbs that kind of
+variation (median of three seeds by validation loss, τ chosen afterwards on validation), and every
+measure of section 6 runs on the Rust kernel, whose agreement with JAX on CPU is the frozen parity
+(the 11-12 parity runs used JAX 0.12.0.1 CPU, `CpuDevice(id=0)`, native Windows). No bar, measure,
+seed or rule changes. τ and Stage 5 stay native on glacier as frozen (Windows extension, AOFlagger in
+WSL, D: paths); only the trained `weights.npz` files come back, with sha256.
+
+**Change of order, labelled, 2026-11-17, before any training or held-out read:** Stage 4 training starts
+while the clean C1(U4) waits for an idle glacier (an exclusive heavy-lock hold). No held-out set is read
+before C1(U4) is clean and ≤ 0.45; if it is > 0.45, F4 stops as section 8 says and the weights are
+unused.
+
 ## For the coordinator
 
 - **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
