@@ -505,3 +505,10 @@ combined.
   | `inputs/selfcal-defaults-20261117` | 1.6 GB | from selfcal-defaults' run | delete if not used by that branch |
   | `~/Build/tmp/20261117-floor5` (scripts, `arch/`) | 0.6 MB | archived in `results/floor-5/` | delete when the branch is merged |
   | worktree `~/Worktrees/rang/floor-5` on nash (with `.venv`, pinned extension) | 1.1 GB | worktree + venv + copied `.so` | keep while follow-ups need the pinned build |
+
+## Coordinator decisions, 2026-11-17
+
+- (a) Next for #13: held-out checks of the two causes this note supports come first, since they are cheap and confirm or refute 0.224 (depth, Dm03) and 0.186 (spectral, S) on a set not used here. The antenna-gain protocol (T_Af / T_A, the largest unresolved bound) follows. Each gets its own note, frozen before data.
+- (b) The multiscale arm Dms03 broke its mask (3.53 Jy on 99 % of pixels). This is a GeMClean defect report, filed as its own issue, and fixed or explained before any multiscale-with-mask result is relied on.
+- nash: delete now `floor-5/skies`, `prep.unpinned`, `g1/P/g0`, `g1/P/score` and the floor-4 G1 copies. Keep `g1/P/pilot.ms`, `cal2.ms`, `family2/Dm03` and `S` for the held-out checks.
+- For v0.3.0, #13 records its outcome: H1 is attributed (0.83 of the pilot's excess). After one Sp round, depth 0.22 and spectral 0.19 of the remainder are supported but not held out, and 0.59 of the remainder is unattributed. This is a documented limitation.
