@@ -20,6 +20,15 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-A with `calibrate.k_zero_start`, 2026-11-17 (branch `e2a-kzero`; [e2a-kzero.md](e2a-kzero.md), interim):
+- Protocol frozen before any run: arms OFF (key off, flag and calibrate), ZS (`k_zero_start`) and ZSD (with
+  `bandpass_model_divided`) on nash; gate 3b's composites against CASA per arm (own K; CASA on rang's K), the
+  K1 outlier count, and E2-A's gates 1, 2a-c, flux, noise, DR and self-calibration. Development reading only.
+- Controls met: the scorer reproduces e2a-3b-k's step F exactly; E2-A's archived K1 has 2 solutions above
+  10 ns (ID 50 interval 7, X and Y); both copies' hashes equal 9.1's; both runs carry their keys.
+- Running: ZS and ZSD `rang-core run` since 16:50 SAST (4 slots each); OFF and the CASA arms from 06:00.
+  Driver and logs in `~/rang-data/outputs/e2a-kzero-20261117/` on nash. No default decided.
+
 Own code MIT, 2026-11-17 (branch `mit-own`; [mit-relicense-audit.md](mit-relicense-audit.md), "Step 1 done"):
 - Owner: "MIT the parts of the code we can … keep the parts that need to be GPL or LGPL that license for now".
 - 441 files (129,462 lines) now `MIT` or `MIT AND BSD-3-Clause` (QuartiCal translations `MIT` with the notice
