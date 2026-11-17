@@ -217,6 +217,8 @@ baseline runs (`p2-base`, copied into this phase's `runs/`). Receipts:
 | the new image-dominated case (512², 4 channels, IQUV, masked): main's code (`7be8c95`) and `f20c06a`, with and without `-reorder` | 85 | identical |
 | G8's 21 cases again with the default change (`bc62504`, [receipts/sweep-default.json](results/gemclean-memory3/receipts/sweep-default.json)): its default leg now runs `-reorder` for joined polarisations | 0-85 | all identical; nothing left |
 | `core/tests/gemclean_memory.rs` (all three cases) | – | pass |
+| J1833−2103 through the wheel, A5's argv with no `-reorder` flag (`python -m rang.gemclean`, this branch's extension at `bc62504`, so `-reorder` by default) | 153 | identical; mask equal; 5.78 GiB tree RSS, 5.78 private, 454.4 s (shared, 4 slots) |
+| gemclean pytest files (`test_g6_model`, `test_g7_defaults`, `test_g8_gemclean`, `test_g8_identity`, `test_w2_commands`, `test_w4_unsupported`, `test_e5_final`, `test_d1_docs`) | – | 68 passed, 3 skipped, 1 xfailed |
 
 **Memory, J1833−2103 with `-reorder` (the frozen rule).** Tree RSS
 **5.73 GiB** in each of three runs (shared and two exclusive), peak private
@@ -242,6 +244,10 @@ binary, `-memory-report`; tree RSS from pair 1, GiB; wall in s):
 | J1939−6342 | 16.85 | **7.72** | 0.458 | 9.88 | 17.43 → 7.73 | 767.5, 784.3 | 817.5, 812.0 | 1.050 |
 | J1833−2103 | 7.72 | **5.73** | 0.742 | 6.30 | 8.73 → 5.76 | 294.3, 354.9 | 316.5, 318.9 | 0.979 |
 
+- All twelve exclusive runs ended by 14:34 host time on 2026-11-17, before
+  the owner's order of that afternoon (no exclusive runs on this host
+  before 21:00); none was stopped or voided, and none was left to
+  reschedule. The work after it is shared only.
 - Every first ratio fell in 1.05-1.15 (1.075, 1.051, 1.065), so every field
   got its second pair, as frozen.
 - J1833−2103's second run without `-reorder` (354.9 s) is 21 % slower than
@@ -294,3 +300,21 @@ that.
 
 **Not done:** arm C (not needed); `f32` images (phase 2's arm F); the
 beams (2.15 GB) and plans (0.94 GB), now 50 % of J1833−2103's peak.
+
+## For the coordinator
+
+- #32 phase 3: **met** at byte-identical output. J1833−2103 with
+  `-reorder` 7.17 → 5.73 GiB (0.682 × 8.40; limit 6.30).
+- Cause, from a trace of the peak: 32 dense model images (1.07 GB) and
+  eight per-beam resync buffers (0.54 GB) in the minor cycle. Fixed by
+  sparse models and one shared buffer, in every joined run.
+- **Default changed** (`bc62504`): `-reorder` with `-join-polarizations`;
+  `-no-reorder` for the old path. The frozen rule held on all three fields.
+  Bookings for A5-style runs: about 9 GB (large fields) and 7 GB
+  (J1833−2103) of memory, plus 28 / 9 GB of temporary files beside `-name`.
+- Kept: phase 2's inputs `D:/rang/outputs/gemclean-memory2-20261116/f?.ms`
+  (68 GB) are not deleted; this phase's outputs (binaries, logs, hashes,
+  the regression MS, no FITS) are in
+  `D:/rang/outputs/gemclean-memory3-20261117`, a few hundred MB.
+- Open: the beams (2.15 GB) and plans (0.94 GB), byte-identical only if
+  read from files; `f32` images (changes bits).
