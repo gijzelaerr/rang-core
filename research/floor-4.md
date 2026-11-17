@@ -1,7 +1,9 @@
 # Rang: floor-4, H1's specificity under imaging-floor's full criterion, and the XX−YY phase (issue #13)
 
-Status, 2026-11-17: **proposed, frozen before any run.** Coordinator's decision (owner delegated),
-2026-11-17, after [floor-3.md](floor-3.md). Companion protocol for #6:
+Status, 2026-11-17: **measured (section 9): frozen reading row 1, H1 attributed under imaging-floor's
+full criterion, share D_T1p 0.83 (fixed model; Sp D_Fix 0.81, D_Fin 0.88). XX − YY: a real steady
+phase of 9.5° scatter, invisible to Stokes I.** Protocol frozen in `7bd4fb0` before any run.
+Coordinator's decision (owner delegated), 2026-11-17, after [floor-3.md](floor-3.md). Companion protocol for #6:
 [selfcal-defaults.md](selfcal-defaults.md); both share the reproduction run of section 5.
 Host: **nash** ([nash-host.md](nash-host.md)), every job through the heavy lock with
 `RANG_HEAVY_NICE=19`, at most 24 slots in all. Script: `examples/floor4_tests.py` (committed after
@@ -197,4 +199,102 @@ the hands reproduce prep's Stokes I bit for bit (`x.json` `check`).
 
 ## 9. Results
 
-Not run yet.
+Measured 2026-11-17 on **nash**. Every job ran through the heavy lock
+(`run_nash.sh`, `RANG_HEAVY_NICE=19`, plus `nice -n 19 ionice -c3`): G1 at 8 slots and 20 GB, the
+simulation at 8 slots and 24 GB, X0-X3 at 4 slots and 16 GB, all with `RAYON_NUM_THREADS=8`. The
+scripts ran from the worktree at `b342702`, and the `rang` package and extension came from nash's
+main checkout. The extension `python/rang/_core.abi3.so` was built 2026-11-16 22:39 SAST, SHA-256
+`ce12e7d2…c2bc884`, and the stage records the same value as `gemclean_sha256`. The checkout was
+at `56d5613` when G1's stage started. Another session fast-forwarded it to `d3746c9` while the stage
+ran, so the receipt records `d3746c9`. That pull changed only Rust sources under
+`core/src/gemclean`, and the extension was not rebuilt. No smoke run was made.
+Archive: [results/floor-4/](results/floor-4/): `summary.json`, `x.json`, `pilot.json`,
+`prep-meta.json`, `arms/*.json`, G1's `g1-P-score.json`, `g1-g0.json`, `g1-selfcal-summary.json`
+and `g1-f3summary.json`, and the logs `g1.log`, `sim.log`, `x.log`, `sets.log`. The products stay
+on nash in `~/rang-data/outputs/floor-4-20261117/`: G1's run directory (stores and models), the
+arm gains, and the prep, skies and hands scratch. G1's MS copy was deleted after scoring.
+
+### 9.1 Frozen readings
+
+**Gates. All pass.**
+
+- **Copy:** the sorted per-file SHA-256 manifest of `cal2.ms` matches the workstation's, 70 of 70
+  files, and the three FITS match floor-2's hashes (by the previous session, before any run).
+- **R0:** `nrow` and `active` are equal. `noise_c` and `gridding_weight_sum` are bit-equal to
+  imaging-floor's `prep-meta.json` (relative difference 0.0). nash's build reproduces the
+  workstation's prep exactly.
+- **G0:** F = 1,073.416 µJy (ratio 0.999996).
+- **G1: passes.** Floor-3's arm P on nash gives F_B 1,073.416, F_Fix 474.831 and F_Fin 379.262 µJy.
+  These equal floor-3's numbers to the last printed digit: the relative differences are 0, 0 and
+  −6e-14. D_Fix is 0.8057 and D_Fin 0.8766 (bit-equal to floor-3; the gate allows ±0.02).
+  Health: converged 1.000, solutions flagged 1.6 %, r = 0.989 against floor-2's T1p. G1's round-1 model has 58,314
+  components in 5 major cycles, the final 26,357 in 3, both as floor-3. The `f3 summary` in
+  `g1.log` prints floor-3's own row 2 because no PL arm was run there; that line is not a reading
+  of this protocol.
+- **GS: passes**, all 12 checks: C @ 1 gives 44.090 µJy. The pilot's F(none), F(T1), F(T1p) and
+  F(T1L) are 1,073.42, 411.91, 446.51 and 448.38 µJy (floor-2's to 0.5 %). H1bP @ 6.862 gives
+  D_T1p 1.000. H2, H8a and H4b at a₂ give imaging-floor's F and D_T1.
+
+**Arms** (subset floors in µJy, drops as fractions of the arm's own excess):
+
+| arm | F(none) | P/P_pilot | D_T1 | D_T1p | D_T1L | D_T1pL |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| H1bP @ 6.862 (own) | 1,068.50 | 0.991 | 1.000 | **1.000** | 1.000 | 1.000 |
+| H1bP @ 5 | 780.85 | 0.528 | 1.000 | 1.000 | 1.000 | 1.000 |
+| G3P | 975.00 | 0.825 | 1.000 | 1.000 | 1.000 | 1.000 |
+| H2 @ 25.144 | 1,071.28 | 0.996 | 0.197 | **0.092** | 0.001 | 0.004 |
+| H8a @ 6.38 | 1,083.34 | 1.019 | 0.036 | **0.000** | 0.017 | 0.000 |
+| H4b @ 50 | 390.56 | 0.131 | 0.028 | **0.004** | 0.006 | −0.003 |
+| pilot (3 mJy model) | 1,073.42 | 1.000 | 0.854 | **0.828** | 0.827 | 0.812 |
+
+**S: T1p is specific.** Its own arm gives 1.000 ≥ 0.7. Every other usable hypothesis arm is
+≤ 0.3: the new arms H2 0.092, H8a 0.000 and H4b 0.004, and floor-2's priors K1 0.104 (the largest),
+K3 0.043, K10 0.008, XS2 0.000, XS4 0.000 and XG4 0.015. All three new arms are usable
+(P/P_pilot 0.996, 1.019, 0.131 ≥ 0.1). **T1pL is also specific** (reported only). Its own arm gives
+1.000 and the new arms at most 0.004; floor-2 ran no T1pL on its arms.
+
+**Q: holds.** P_plaus = max(P(H1bP @ 5), P(G3P)) = max(0.528, 0.825) P_pilot = 0.825 P_pilot,
+at least 0.5 × D_T1p = 0.414. Because P_plaus < D P_pilot, the frozen note applies: *the drop
+exceeds what a plausible amplitude carries by 0.828 − 0.825 = 0.004*, which is inside the ±0.02
+quoting band.
+
+**Reading (frozen table, row 1): H1 attributed under imaging-floor's full criterion, share
+D_T1p = 0.83** (pilot, nash, fixed model; 0.8284). Sp on the same data gives D_Fix 0.81 and
+D_Fin 0.88 (G1). **#13's done-criterion is met for H1**: a measured share for the one attributed
+cause. H2 (bound 0.055 after T1) and H8a (bound 0.042) stay unresolved. The remainder, 1 − 0.83 =
+0.17 of the excess against the fixed model, or 0.12 after Sp and re-imaging, is unattributed.
+Closing #13 is the coordinator's decision.
+
+**XX − YY (section 4).** `check`: the hands reproduce prep's Stokes I and weights bit for bit.
+
+- **X0:** δ has rms 17.72° over 60 active antennas, which is a circular mean c = −14.97° plus a
+  scatter s = 9.48° (9.44° after floor-2's gauge). Per-bin deviations from the steady δ are 0.54°
+  rms, so the noise of the 12-bin mean is about 0.16°.
+- **X1: repeatable**, r = 0.999 between bins 1-6 and 7-12.
+- **X2:** the per-hand Sp gains give D_Fix 0.806, and the same gains made scalar give 0.819:
+  ΔD_X2 = **−0.013**.
+- **X3:** T1p (data-side) gives D 0.829 and T1pH gives 0.816: ΔD_X3 = **−0.013**. T1pH's own XX − YY
+  scatter is 9.63° and correlates with Sp's at r = 0.9996.
+- Both ΔD lie within ±0.02. **Reading: invisible to Stokes I.** Together with X1 (repeatable),
+  the frozen row applies: a real steady per-antenna XX − YY phase of scatter 9.5°. The 17.7° rms
+  is the gauge constant c (−15.0°) plus that scatter. It does not reach the Stokes I floor. It is
+  a polarisation calibration term, outside #13.
+- **HB1** (selfcal-defaults' gate, computed here): the numpy per-hand apply reproduces
+  `floor3_score`'s F_Fix with relative difference 0.0. **Passes.**
+
+### 9.2 Post hoc remarks (not part of the frozen reading)
+
+- **The per-hand fit costs a little.** In X2 and X3 alike the per-hand correction scores
+  0.013 worse than the scalar one, consistently in two independent solvers, but inside the
+  ±0.02 "invisible" band. That fits the prior: the differential phase enters Stokes I at second
+  order, while the per-hand freedom adds solve noise. It also explains why floor-3's Sp
+  (per hand, D_Fix 0.806) came out 0.022 below floor-2's T1p (scalar, 0.828).
+- **Plausibility is tight but not marginal for the rule.** G3P, the pilot's own steady phases
+  injected into the truth, carries 0.825 P_pilot, almost exactly D_T1p. H1bP @ 5 alone (0.528)
+  would also have passed the 0.414 threshold.
+- **Remaining.** H2's T1p drop (0.092) is the largest new cross-term and is below K1's prior
+  (0.104). The long-baseline phase fit (T1pL) is cleaner still (≤ 0.004 on every new arm), but
+  it has no floor-2 rows.
+- **Host.** Every gate reproduced the workstation exactly (R0, G0, G1 bit-equal), so nash's
+  Broadwell build gives the same numbers as the Windows host for this chain.
+
