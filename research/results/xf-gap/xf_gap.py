@@ -107,6 +107,12 @@ def rang(s, arm):
             "gpol_parang": "true",
             "avg": "false",
         }
+    if arm in ("calwt", "calwt_avg"):  # section 7's fix arms
+        sim_chi.CONFIG = sim_chi.CONFIG.replace(
+            "  average_time: {avg}\n", "  average_time: {avg}\n  xf_calwt: true\n"
+        )
+        sim_chi.RANG_ARMS[arm] = {"far": "-90", "gpol_parang": "true",
+                                  "avg": "true" if arm == "calwt_avg" else "false"}  # fmt: skip
     t0 = time.perf_counter()
     rc = sim_chi.rang_arm(O, s, arm)
     log(f"rang {s} {arm} rc={rc} {time.perf_counter() - t0:.1f}s")
@@ -235,7 +241,7 @@ def _pipeline_terms(cfg, ms):
     return [t for t in terms if t["name"] in ORDER], plan, weight
 
 
-def harness(ms, cfg, given_dir, given, out, average_time=False):
+def harness(ms, cfg, given_dir, given, out, average_time=False, calwt=False):
     """Solve the chain's K..Xf on `ms` (model in MODEL_DATA) as
     `cal_chain.run` does, with the tables named in `given` read from
     `given_dir` instead of solved. Writes the solved tables to `out`."""
@@ -247,6 +253,8 @@ def harness(ms, cfg, given_dir, given, out, average_time=False):
               "budget": plan.chain()}  # fmt: skip
     if average_time:
         common["average_time"] = True
+    if calwt:
+        common["xf_calwt"] = True
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     tables, record = {}, {}
@@ -691,6 +699,51 @@ def casawt(s, calwt):
     return rc
 
 
+def f1(s):
+    """Section 7's F1: the ladder's L3 with `xf_calwt` (rang's Xf on CASA's
+    model.ms and CASA's K..Kcross)."""
+    ms = O / f"casa-{s}-m90" / "model.ms"
+    cfg = O / f"rang-{s}-m90_noavg" / "config.yaml"
+    harness(ms, cfg, O / f"casa-{s}-m90" / "tables", ORDER[:5],
+            O / f"ladder-{s}-calwt-L3", calwt=True)  # fmt: skip
+
+
+def fixscore(dest):
+    """Section 7's gates F1-F4."""
+    res = {}
+    for s in SETS:
+        p = O / f"truth-{s}" / "gauge.npz"
+        cas = O / f"casa-{s}-m90"
+        if not p.exists() or not (cas / "tables" / "Xf").exists():
+            continue
+        f, nu0 = _freq(s), float(np.load(p)["nu0"])
+        C = xf_of(cas / "tables" / "Xf")
+        truth = (np.asarray(np.load(p)["xf"]), np.zeros(len(f), bool), 0.0)
+        r = {}
+        l3 = O / f"ladder-{s}-calwt-L3" / "Xf"
+        if l3.exists():
+            r["F1_L3calwt_vs_CASA"] = summary(delta(xf_of(l3), C), f, nu0)
+        cc = xf_preavg._chi(cas)
+        for arm in ("m90_noavg", "m90", "calwt", "calwt_avg"):
+            d = O / f"rang-{s}-{arm}"
+            if not (d / "chi.json").exists():
+                continue
+            x = xf_of(rang_tables(d) / "Xf")
+            ca = xf_preavg._chi(d)
+            r[arm] = {
+                "xf_vs_CASA": summary(delta(x, C), f, nu0),
+                "xf_vs_truth": summary(delta(x, truth), f, nu0),
+                "max_chi_minus_casa": max(
+                    abs(ca[k]["chi_deg"] - cc[k]["chi_deg"]) for k in ca
+                ),
+                "max_chi_minus_33": max(abs(ca[k]["chi_deg"] - 33.0) for k in ca),
+                "chi": {int(k): ca[k]["chi_deg"] for k in ca},
+            }
+        res[s] = r
+    Path(dest).write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8")
+    print(json.dumps(res, indent=1))
+
+
 def posthoc(dest):
     res = {}
     for s in SETS:
@@ -732,7 +785,7 @@ def main(argv):
     cmd, args = argv[0], argv[1:]
     fn = {"gen": gen, "psi": psi, "rang": rang, "rangcal": rangcal, "casa": casa,
           "h0": h0, "ladder": ladder, "mirror": mirror, "gauge": gauge,
-          "score": score, "p1": p1, "p2": p2, "posthoc": posthoc, "casawt": casawt}.get(cmd)  # fmt: skip
+          "score": score, "p1": p1, "p2": p2, "posthoc": posthoc, "casawt": casawt, "f1": f1, "fixscore": fixscore}.get(cmd)  # fmt: skip
     if fn is None:
         raise SystemExit(__doc__)
     rc = fn(*args)

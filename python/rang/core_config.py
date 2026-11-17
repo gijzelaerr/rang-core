@@ -300,6 +300,14 @@ SCHEMA = {
             "the amplitude squared; needs average_freq; false: QuartiCal's "
             "phase kernel weighting (task A3, research/e2b-misses.md 9.26)",
         ),
+        "xf_calwt": _k(
+            False,
+            "bool",
+            "Xf solves weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables: times F(p) F(q), F the antenna's channel mean "
+            "of |J|^2 per hand (|G|^2 times the mean |B|^2), as CASA 6.7.6.14's "
+            "polcal does; false: 1/SIGMA^2 unscaled (research/xf-gap.md)",
+        ),
         "k_zero_start": _k(
             False,
             "bool",
@@ -1947,6 +1955,7 @@ HASH_DEFAULTS = {
         "casa_phase_weights": False,
         "bandpass_model_divided": False,
         "k_zero_start": False,
+        "xf_calwt": False,
     },
     "selfcal": {"average_time": False},
 }

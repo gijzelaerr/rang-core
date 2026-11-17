@@ -448,6 +448,7 @@ def load(
     weight_column="WEIGHT_SPECTRUM",
     scan=None,
     receptor_angle=None,
+    calwt=False,
 ):
     """Read one field of a one-window MS for a solve of VisCal type
     `solved` (`'G'`, `'Kcross'`, `'Xf'`, `'Df'`): the model rotated by P
@@ -458,13 +459,15 @@ def load(
     solution intervals. Task C6w: `scan` (SCAN_NUMBERs) restricts the rows,
     `weight_column=None` gives unit weights where `weight_column` would be
     read (WEIGHT is repeated over channels), and `receptor_angle` is
-    `row_angles`'."""
+    `row_angles`'. `calwt` (task xf-gap, `calibrate.xf_calwt`): the weights
+    of a pre-applied solve are scaled as CASA's `calwt` scales them
+    (`_PolField.calwt_factor`)."""
     fld = _PolField(
         ms, field_id=field_id, solved=solved, solint=solint, combine=combine,
         uvrange=uvrange, gaintable=gaintable, interp=interp, parang=parang,
         frame=frame, data_column=data_column, model_column=model_column,
         model=model, weight_column=weight_column, scan=scan,
-        receptor_angle=receptor_angle,
+        receptor_angle=receptor_angle, calwt=calwt,
     )  # fmt: skip
     return _load_whole(fld)
 
@@ -477,7 +480,7 @@ class _PolField:
     def __init__(
         self, ms, *, field_id, solved, solint, combine, uvrange, gaintable, interp,
         parang, frame, data_column, model_column, model, weight_column, scan,
-        receptor_angle,
+        receptor_angle, calwt=False,
     ):  # fmt: skip
         ms = Path(ms)
         with core_ms.open_table(ms / "ANTENNA") as t:
@@ -525,6 +528,7 @@ class _PolField:
         )
         self.weight_column, self.sigma_column = weight_column, sigma_column
         self.solved, self.interp = solved, interp
+        self.calwt = bool(calwt)
         tb, keys = cal_gain.solint_bins(
             m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
         )
@@ -539,6 +543,7 @@ class _PolField:
             "interp": interp,
             **({} if scan is None else {"scan": [int(s) for s in np.atleast_1d(scan)]}),
             **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
+            **({"calwt": True} if self.calwt else {}),
         }
 
     def prepare(self, pos, c, chans=None):
@@ -589,6 +594,9 @@ class _PolField:
             weights = np.asarray(c[self.weight_column], np.float32)
             if weights.ndim == 2:  # WEIGHT, repeated over channels (C2e's rule)
                 weights = np.broadcast_to(weights[:, None, :], data.shape)
+        if self.calwt and self.tables:
+            f = self.calwt_factor(m["TIME"][pos], a1, a2)
+            weights = weights * f[:, None, :].astype(np.float32)
         weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
         flag = np.ascontiguousarray(flag, bool)
         used = flag | self.flag_row[pos][:, None, None]
@@ -600,6 +608,47 @@ class _PolField:
             "row_w": cal_gain.row_weights(weights, used),
             "angles": angles,
         }
+
+    def calwt_factor(self, time, a1, a2):
+        """CASA's `calwt` weight factor per row and correlation (task
+        xf-gap, research/xf-gap.md section 7): F(p, h) F(q, h'), F the
+        channel mean, over channels with unflagged solutions, of |J(p, h)|^2
+        for the tables that correct the data at the row's time (measured on
+        CASA 6.7.6.14: |G|^2 times the channel mean of |B|^2). Computed on
+        the whole band, so channel chunks do not change it."""
+        lower = [
+            i
+            for i, t in enumerate(self.tables)
+            if cal_gain.TYPE_ORDER.index(t.kind)
+            < cal_gain.TYPE_ORDER.index(self.solved)
+        ]
+        out = np.ones((len(time), 4))
+        if not lower:
+            return out
+        interp = cal_apply._interps(self.tables, self.interp)
+        nant = len(self.names)
+        ut, inv = np.unique(np.asarray(time, float), return_inverse=True)
+        tt = np.repeat(ut, nant)
+        aa = np.tile(np.arange(nant), len(ut))
+        ones = np.ones((len(tt), len(self.freq), 4), np.complex64)
+        jj, fl = cal_apply.apply(
+            ones, np.zeros(ones.shape, bool), tt, aa, aa, self.freq,
+            [self.tables[i] for i in lower], interp=[interp[i] for i in lower],
+            direction="corrupt", nant=nant, field_id=self.field_id,
+        )  # fmt: skip
+        amp = np.empty((len(tt), 2))
+        for h, c in ((0, 0), (1, 3)):
+            v = np.abs(jj[..., c].astype(np.complex128))
+            ok = ~fl[..., c]
+            n = ok.sum(1)
+            amp[:, h] = np.where(
+                n > 0, np.where(ok, v, 0.0).sum(1) / np.maximum(n, 1), 0.0
+            )
+        amp = amp.reshape(len(ut), nant, 2)
+        a1, a2 = np.asarray(a1), np.asarray(a2)
+        for k, (h1, h2) in enumerate(((0, 0), (0, 1), (1, 0), (1, 1))):
+            out[:, k] = amp[inv, a1, h1] * amp[inv, a2, h2]
+        return out
 
     def loaded(self, arr, *, cols=None, angles=None):
         """The `Loaded` of the whole field from `prepare`'s arrays, or a
@@ -751,6 +800,7 @@ def _load_defaults(options):
         "interp": "linear", "parang": True, "frame": "casa", "data_column": "DATA",
         "model_column": "MODEL_DATA", "model": None,
         "weight_column": "WEIGHT_SPECTRUM", "scan": None, "receptor_angle": None,
+        "calwt": False,
     }  # fmt: skip
     out.update(options)
     return out

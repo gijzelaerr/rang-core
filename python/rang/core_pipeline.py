@@ -1846,6 +1846,7 @@ def stage_calibrate_chain(ctx):
         casa_phase_weights=bool(cal.get("casa_phase_weights")),  # task A3
         bandpass_model_divided=bool(cal.get("bandpass_model_divided")),  # e2a-3b-diag
         k_zero_start=bool(cal.get("k_zero_start")),  # calchain-floor
+        xf_calwt=bool(cal.get("xf_calwt")),  # xf-gap
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):
