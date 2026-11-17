@@ -216,7 +216,7 @@ def test_the_stages_through_spool_workers_equal_one_process(tmp_path):
         work = tmp_path / arm
         work.mkdir()
         ms = w2.make_ms(work / "x.ms")
-        spool = tmp_path / "spool"
+        spool = tmp_path / "spooldir"  # not the arm's own directory
         data = _spool_data(spool, 2, ", chunk_rows: 7") if arm == "spool" else ""
         config = w3._config(work, w3.CONFIG, data)
         args = (
