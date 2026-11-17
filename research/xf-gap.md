@@ -200,3 +200,44 @@ nash's (0.189°).
   intervals, not a rang defect.
 - `held4` (no dropped interval, gap 0.044°) and `dev90` are read the same
   way as the remaining part once P1 and P2 are in.
+
+## 7. Amendment, 2026-11-17 20:55 (after the ladder, mirror and post hoc reads; before any fix code)
+
+Read so far (numbers in section 8): the ladder and the mirror put `held`'s
+gap in the Xf solve on identical inputs (shares 1.06 and 1.08); the gauge
+read does not clear it (XY 0.060°). Post hoc, labelled: rang's Xf with each
+correlation's weight times |raw / corrected|² falls to 0.018° from CASA; a
+CASA arm (`casawt`) that pre-corrects 3C286-SIM with CASA's K, G, B, Gpol,
+Kcross by `applycal` and solves Xf with no table reproduces CASA's chain to
+0.0000° with `calwt=True`, and rang's L3 to 0.0000° (`dev`) with
+`calwt=False`. The split MS's WEIGHT with `calwt=True` over `calwt=False`
+equals, per row and correlation (h, h'), F(p, h) F(q, h') with F the
+antenna's |G|² times its channel mean of |B|² over unflagged channels (to
+1e-6 on `dev`). So CASA's solve weights are the pre-applied tables'
+`calwt` weights, which rang does not apply.
+
+**Fix (frozen before it is written), opt-in, Xf only:**
+- Key `calibrate.xf_calwt` (bool, default false; out of the stage hash at
+  its default, as `casa_phase_weights`). Off is byte-identical.
+- With it, an Xf solve multiplies each cell's weight by F(p, h) F(q, h'),
+  F = the channel mean, over channels whose solutions are unflagged, of
+  |J(p, h)(t, ν)|² for the tables that correct the data, at the row's time
+  (`rang.cal_apply.apply` on a unit cell per antenna). Applied before any
+  time average (every load path).
+- Other solves (K, G, B, Gpol, KCROSS, Df) are not changed: their weighting
+  was not measured here (C2a section 10 leaves CASA's weighting chain to the
+  owner).
+
+**Fix gates (replacing section 4 rule 3's, which assumed a `dev` without a
+dropped Gpol interval):**
+- F1: `dev` L3 with the key (rang's Xf on CASA's tables and model.ms)
+  against CASA's Xf: median ≤ 1e-3°, max ≤ 5e-3°.
+- F2: `held` rang arms with the key, `m90_noavg` and `m90`, against CASA:
+  Xf median ≤ 0.05°, max ≤ 0.25°.
+- F3: `held` max |χ_avg − χ_CASA| with the key ≤ 0.0069° + 0.002°, and
+  |χ − 33| ≤ 1.11° per scan (G_truth).
+- F4: `held4` (no dropped interval) noavg Xf against CASA with the key ≤
+  its value without (0.044°).
+- F5: key off byte-identical (tests); the quick check passes.
+- `dev`'s Xf against CASA is not gated: its 0.189° is CASA's dropped Gpol
+  scan (P1, P2) and moves the other way when the weights term is removed.
