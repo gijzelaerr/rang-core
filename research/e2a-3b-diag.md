@@ -174,3 +174,24 @@ Scripts in `results/e2a-3b-diag/`, outputs under
 `D:\rang\outputs\e2a-3b-diag-20261117\`, compact receipts committed. Every
 heavy step under the main checkout's `tools/heavy_lock.py`, timed, a row in
 `research/tool-timings.md`.
+
+## 6. Addendum 2026-11-17 02:20, post hoc (written after D0 and D1 were read, before T-S ran)
+
+D1 reproduced the miss, and none of H-F, H-W, H-M, H-K, H-I met its rule
+(results in section 7). But rang against rang, `average_time` on (R0) and
+off (T-T), differs on the KGB1 composite by 1.05e-2, more than rang differs
+from CASA, although on the same data and flags the averaged and unaveraged
+least-squares problems have the same minimum. K1 and G1 agree to 1e-4;
+B1 scatters channel to channel. So the next question is whether rang's
+solves stop before the minimum. The stop rule is `stop_criterion` 1e-7 and
+`stop_fraction` 0.99, which T-I (the cap) did not touch.
+
+- **T-S** (rang): R0 with every term at `max_iterations` 1000,
+  `stop_criterion` 1e-12, `stop_fraction` 1.0 (`d1_rang_iter.py`), averaged
+  (`ts`) and unaveraged (`tts`).
+- **Implicates the stop rule** if ts against tts is ≤ 7e-5 (rang's two
+  estimators then agree) and ts against T-F changes the miss by the rule
+  of section 3. If ts against T-F meets class B, the stop rule carries the
+  miss.
+- **Fix if implicated:** the chain's stop rule behind a key (default
+  unchanged), with a test.
