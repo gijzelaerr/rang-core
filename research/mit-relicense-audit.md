@@ -15,23 +15,29 @@ everything he wrote himself can be relicensed by him. That is 100,723 of the
 permissive upstreams (QuartiCal, Tricolour, codex-africanus, katdal, c-blosc),
 which stay usable under MIT if their notices are kept. **31,734 lines in 25
 files are translations of GPL or LGPL code** (about 14,400 lines actually
-derived). Another 25,265 lines in 31 files reimplement rules read in GPL or
-LGPL source (not clean-room), and 2,130 lines of copied schema strings are
-unclear. The blockers are, in order of size:
-1. the casacore table writer (6,830 derived lines, LGPL);
+derived). Another 25,556 lines in 32 files reimplement rules or formats read in
+GPL or LGPL source (not clean-room), and 2,130 lines of copied schema strings
+are unclear. The blockers are, in order of size:
+1. the casacore table writer (4 files, 6,760 derived lines, LGPL-2.x-or-later);
 2. the ducc0 wgridder (3,550, GPL-2.0-or-later, no BSD option);
 3. WSClean's w-stacking gridder and weights (1,650, GPL-3);
 4. GeMClean's radler, aocommon and schaapcommon parts (1,270, LGPL-3.0-only and GPL-3);
-5. six CASA calibration kernels (850, LGPL-2.0-or-later).
+5. five CASA calibration kernels, the CASA flag extension and one test (850, LGPL-2.x-or-later).
 
 An MIT-only rang-core without them has no imager and no Measurement Set
 writes. The cheapest sound route:
 - first, ask ducc0's and ASTRON's authors for permission;
 - meanwhile, rewrite the small CASA and CARACal pieces clean-room;
+- keep the casacore table writer under LGPL-2.1-or-later as a marked module, because its byte identity cannot survive a clean room;
 - move whatever is still GPL into an optional GPL package;
 - have the last step checked by a licensing expert.
 
-Estimate: 2 to 3 months of agent time if no permission comes, a few weeks if it does.
+The end state of that route is "MIT AND LGPL-2.1-or-later" plus an optional GPL
+package, not MIT only. MIT only also needs a clean-room table writer.
+
+**Effort:**
+- **With both permissions and the LGPL writer module:** about 3-4 weeks of agent work, plus the time the replies take.
+- **Fully clean-room:** 12-17 weeks of agent work, or about 7-10 weeks elapsed with independent sessions in parallel; the wgridder sets the pace.
 
 ## 1. File-level classification
 
@@ -54,9 +60,13 @@ against the upstream at the named commit where it mattered:
 - flagging and table IO;
 - the rest of the Python and the tests.
 
-Spot checks of those reviews made here all confirmed them:
-- `ism.rs` `get_split`, whose loop condition is casacore's `ISMBucket::getSplit`;
-- `bandpass.rs` `fill_gap_array`, whose variables and comments are those of `BJones::fillChanGapArray`;
+The two findings that contradict the repository's own wording were
+cross-checked here against the upstream sources:
+- **`ism.rs` `get_split` against casacore v3.8.1 `tables/DataMan/ISMBucket.cc` `ISMBucket::getSplit`.** The early return for `nr <= 2`, the loop condition `cumLeng[i-1] < rowLeng[i] + totLeng - cumLeng[i] && i<nr-1`, the `diff` update and the step back are the same. The file says "nothing is copied".
+- **`bandpass.rs` `fill_gap_array` against casa6 `9269a52` `StandardVisCal.cc` `BJones::fillChanGapArray`.** The variables `ich`, `ch1`, `ch2`, `dch`, `a0`, `da`, `p0`, `dp` and `fch`, the control flow and the comments ("Advance to first unflagged channel") are the same. The file says CASA "is not copied".
+
+Two statements in the files were read on rang's side only; the area reviews
+checked them against the upstream:
 - `wgridder.rs:3540`, the KernelDB rows "verbatim from `src/ducc0/math/gridding_kernel.cc`";
 - `grid.rs:2-10`, "A Rust translation of … `gridding/wstackinggridder.cpp`".
 
@@ -86,8 +96,8 @@ which also prints the totals below.
 | a | 317 | 100,723 | 0 |
 | b-permissive | 8 | 8,520 | 5,935 |
 | b-copyleft | 25 | 31,734 | 14,365 |
-| c-src | 31 | 25,265 | 1,048 |
-| c | 10 | 4,016 | 0 |
+| c-src | 32 | 25,556 | 1,048 |
+| c | 9 | 3,725 | 0 |
 | d | 1 | 2,130 | 2,130 |
 | **total** | **392** | **172,388** | 23,478 |
 
@@ -100,7 +110,8 @@ By area:
 
 | Upstream | Licence | Class | Files | Lines | Derived (est.) |
 | --- | --- | --- | ---: | ---: | ---: |
-| casacore (table storage managers) | LGPL-2.0-or-later / 2.1-or-later | b-copyleft | 5 | 11,335 | 6,830 |
+| casacore (table storage managers: `ms_write.rs`, `ism.rs`, `multifile.rs`, `tiled.rs`) | LGPL-2.0-or-later / 2.1-or-later | b-copyleft | 4 | 9,832 | 6,760 |
+| casacore measures (`cal_pol.py`) | LGPL-2.0-or-later | b-copyleft | 1 | 1,503 | 70 |
 | ducc0 0.42.0 wgridder | GPL-2.0-or-later | b-copyleft | 1 | 4,824 | 3,550 |
 | CASA casa6 (calibration, flag extension) | LGPL-2.0/2.1-or-later | b-copyleft | 7 | 3,846 | 847 |
 | WSClean 3.6/3.7 | GPL-3.0 ("version 3", see 3.2) | b-copyleft | 4 | 2,616 | 1,650 |
@@ -118,6 +129,7 @@ By area:
 | radler (joined.rs) | LGPL-3.0-only | c-src | 1 | 988 | 60 |
 | schaapcommon (spectral.rs) | GPL-3.0-or-later | c-src | 1 | 362 | 40 |
 | killMS 3.3.0 (format) | GPL-2.0 | c-src | 1 | 188 | 0 |
+| losoto 2.7.1 (H5parm layout, `formats/h5parm.py`) | GPL-3.0-or-later | c-src | 1 | 291 | 0 |
 
 Permissive (b-permissive):
 - QuartiCal 0.2.7, MIT: 3 files, 4,799 lines;
@@ -166,6 +178,7 @@ the source:
 - **Calibration (CASA):** `applycal.py`, `cal_*.py`, `calmodels.py`, `formats/caltable.py`, `cal/diag.rs`, `cal/leakage.rs`, `caltable.rs`.
 - **Recipe and defaults (CARACal):** `core_pipeline.py`, `core_config.py`, `cal_chain.py`, `cal_apply.py`, `cal_selfcal.py`.
 - **Table format (casacore):** the reader `ms.rs`, `aipsio.rs`, `ms_desc.rs`, `ms_create.rs` and `formats/_aipsio.py`.
+- **Other formats:** `formats/killms.py` (killMS) and `formats/h5parm.py` (losoto's sdist read, `dfio-formats.md:37`).
 - **GeMClean behaviour (WSClean):** `gemclean/cli.rs`, `gemclean/predict.rs`, `gemclean/spectral.rs`, `gemclean/joined.rs`.
 - **Tests (CASA rules in NumPy):** two files.
 
@@ -214,8 +227,8 @@ package metadata or from the PyPI JSON API for the pinned versions.
 
 | Dependency | Where | Licence | An MIT rang-core may depend on it? |
 | --- | --- | --- | --- |
-| 32 crates of the default build: pyo3 0.30.1, numpy 0.30.0, rayon, rustfft 6.4.1, ndarray, num-complex and others | statically linked into `rang._core` | MIT OR Apache-2.0 (25), Apache-2.0 OR MIT, MIT/Apache-2.0, BSD-2-Clause (numpy crate), Apache-2.0 WITH LLVM-exception (target-lexicon, build only), Unicode-3.0 (unicode-ident) | Yes |
-| feature `gpu`: wgpu 30.0.1 and 62 more crates (98 in all) | statically linked | MIT/Apache-2.0 variants, Zlib, ISC, BSD-2-Clause | Yes |
+| 34 crates of the default build (all platforms): pyo3 0.30.1, numpy 0.30.0, rayon, rustfft 6.4.1, ndarray, num-complex and others | statically linked into `rang._core` | MIT OR Apache-2.0 (25), Apache-2.0 OR MIT, MIT/Apache-2.0, BSD-2-Clause (numpy crate), Apache-2.0 WITH LLVM-exception (target-lexicon, build only), Unicode-3.0 (unicode-ident) | Yes |
+| feature `gpu`: wgpu 30.0.1 and the rest (127 crates in all, all platforms) | statically linked | MIT/Apache-2.0 variants, Apache-2.0, MIT, Zlib, ISC, BSD-2-Clause | Yes |
 | numpy | required | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | Yes |
 | PyYAML 6 | required | MIT | Yes |
 | astropy (pyerfa, astropy-iers-data) | required | BSD-3-Clause | Yes |
@@ -234,7 +247,8 @@ package metadata or from the PyPI JSON API for the pinned versions.
 | `docs`: sphinx 9.2, furo, myst-nb, papermill | extra | BSD-2-Clause, MIT, BSD-3-Clause (myst-nb: blank on PyPI, from its repository, not re-read here), BSD | Yes |
 | Oracles in tests only: ducc0 0.42.0, python-casacore 3.8.1, WSClean, CASA, QuartiCal, AOFlagger | not dependencies | GPL-2.0-or-later, LGPL-3.0, GPL-3, GPL/LGPL, MIT, GPL-3 | Running them as oracles is unaffected |
 
-**The dependency side does not block MIT.** Every linked crate is permissive.
+**The dependency side does not block MIT.** Every linked crate is permissive
+(`cargo metadata` without a platform filter, with and without `gpu`).
 The copyleft packages are optional extras that rang does not redistribute.
 
 ### 3.2 Notice gaps found on the way
@@ -329,7 +343,7 @@ expert (section 7).
 ### 4.3 WSClean w-stacking gridder and imaging weights: `grid.rs`, `gpu/shader.rs`, `weights.rs`, `core_grid.py`
 
 - **Upstream:** WSClean 3.6/3.7. README "GPL license version 3"; `wstackinggridder.h` "GPL 3"; Debian records GPL-3.0+.
-- **Copyright holders:** A. R. Offringa and ASTRON. The Debian line "2014-2016 Gijs Molenaar" is for the Debian packaging, not for these files.
+- **Copyright holders:** A. R. Offringa and ASTRON. The Debian copyright file also lists "2014-2016 Gijs Molenaar". The GeMClean review took this to be probably for the packaging, which the owner can confirm. If he wrote any of the translated WSClean code himself, that part needs no permission.
   - schaapcommon: ASTRON, GPL-3.0-or-later.
   - aocommon: GPL-3, no file notice.
 - **Contact:** André Offringa and ASTRON's R&D group (gitlab.com/aroffringa/wsclean, git.astron.nl/RD). No message drafted.
@@ -353,6 +367,16 @@ expert (section 7).
 Radler is **LGPL-3.0-only**. That already makes the extension GPL-3.0-only
 today (v030-review B-02).
 
+The LGPL route (L) is open for the radler parts. LGPL-3.0 lets a modified copy
+stay under LGPL-3.0, so `multiscale.rs`, `mask.rs` and `joined.rs` could be an
+LGPL-3.0-only module with no permission needed. Their GPL fragments still need
+permission or a rewrite first:
+- aocommon's MAD constant and `ParseList` in `mask.rs` and `stokes.rs`;
+- WSClean's `CalculateMsLimits` and theoretic beam in `multiscale.rs`;
+- schaapcommon in `gemclean.rs` and `input.rs`.
+
+L for GeMClean therefore costs the ~350 GPL lines rather than the ~1,300.
+
 | Part | What it does | Gate | R: spec and size | MIT-only loses |
 | --- | --- | --- | --- | --- |
 | Multiscale (radler) | `-multiscale` and its options: extended emission | g5-multiscale gates B, C1 against WSClean 3.7; unit tests `shapes_have_radlers_sides_and_unit_sum` and others | Cornwell 2008; Offringa & Smirnov 2017 (MNRAS 471, 301); the WSClean docs; 800-1,000 lines | Extended-source imaging |
@@ -368,7 +392,14 @@ Permission for these parts comes from ASTRON and Offringa, as in 4.3. The rewrit
 Upstream: casa6 (mirror `9269a52`, 6.7.6.14), LGPL-2.0/2.1-or-later, copyright
 Associated Universities, Inc. (and ESO for FlagAgentExtension). Permission (P)
 conflicts with the owner's standing no-NRAO decision. The LGPL route (L) is as
-in 4.1.
+in 4.1 and needs no permission.
+
+This audit still recommends R for these parts, for three reasons:
+- they are small (about 1,100-1,300 lines);
+- CASA fidelity can be re-earned by probes, as V8b did;
+- every file left under L keeps the package from being MIT only.
+
+L is the no-cost fallback for any part whose rewrite misses its gate.
 
 | Part | What it does | Gate | R: spec and size | MIT-only loses |
 | --- | --- | --- | --- | --- |
@@ -386,7 +417,7 @@ The rewrite totals about 1,100-1,300 lines. Fluxscale and refant need fresh CASA
 
 | Part | Upstream | Best route | Size | MIT-only loses |
 | --- | --- | --- | --- | --- |
-| `formats/sky.py` Tigger HTML writer (170) and c-src readers (~400) | Tigger GPL-2.0-or-later; Crystalball, DDFacet, killMS GPL-2.0 | R from format samples, with Tigger as a black box | 150 + 400 | Writing `.lsm.html`; the readers if not rewritten |
+| `formats/sky.py` Tigger HTML writer (170) and c-src readers (~400) | Tigger GPL-2.0-or-later (licence and code compared at Tigger's master; the note names 1.8.0, not re-checked); Crystalball, DDFacet, killMS GPL-2.0 | R from format samples, with Tigger as a black box | 150 + 400 | Writing `.lsm.html`; the readers if not rewritten |
 | `beam_holography.py` `_reconstruct` (24) | EIDOS GPL-3.0 | Drop (comparison control) or R from Asad et al. 2021 | 24 | Nothing for users |
 | `cal_refant.py` `wgs84_to_ecef` (20) | msutils GPL-2.0 | R from NIMA TR8350.2 | 10 | Nothing |
 | `core_grid.py` `kernel_reference` (60) | WSClean | R from Jackson et al. 1991, or drop the test reference | 60 | Nothing |
@@ -402,14 +433,14 @@ The rewrite totals about 1,100-1,300 lines. Fluxscale and refant need fresh CASA
 | 1 | Owner decisions (section 6); engage the licensing expert to review this audit before any rewrite | owner, 1-2 weeks of calendar time | 0 |
 | 2 | Requests for permission (owner writes them): ducc0 (Reinecke, MPG, Yau) for the wgridder port; ASTRON and Offringa for WSClean, radler, aocommon and schaapcommon | owner; calendar time unknown (weeks) | 1 |
 | 3 | While waiting: clean-room rewrites of the small items (4.5, 4.6, the c-src restatements), each with its existing oracle gate re-run and a proposal note frozen first | ~2,000-2,500 lines; 2-3 weeks | 1 |
-| 4 | Table writer: decide L (LGPL module), R (non-byte-identical writer, 3-5k lines, 3-4 weeks) or G | 0 or 3-4 weeks | 1 |
-| 5 | Imaging: for what step 2 does not grant, R of the wgridder (2.5-3.5k lines, 4-6 weeks), the weights (1 week), the GeMClean parts (1.5-1.8k lines, 2-3 weeks); or move the w-stacking gridder to the GPL package (G) | 0 to 8-10 weeks | 2 |
+| 4 | Table writer: decide L (LGPL module, 1-2 days of marking), R (non-byte-identical writer, 3-5k lines, 3-4 weeks) or G | 1-2 days or 3-4 weeks | 1 |
+| 5 | Imaging: for what step 2 does not grant, R of the wgridder (2.5-3.5k lines, 4-6 weeks), the weights (1 week) and the GeMClean parts (1.5-1.8k lines, 2-3 weeks), or L for radler (4.4); or move the w-stacking gridder to the GPL package (G) | 0 to 7-10 weeks | 2 |
 | 6 | Restructure if G is used anywhere: a `rang-core-gpl` crate and wheel, registered by entry point, with the rest of rang-core refusing those options with a message that names the package | 1 week | 4, 5 |
-| 7 | The relicensing step itself, checked by the expert first:<br>- `LICENSE` (MIT text);<br>- SPDX lines in 392 files and `tests/test_spdx_headers.py`;<br>- `pyproject.toml` `license`;<br>- the three `Cargo.toml` `license` fields;<br>- `CITATION.cff`, `docs/licence.md`, `THIRD-PARTY-NOTICES.txt` (permissive notices kept), `CONTRIBUTING.md`, README;<br>- the repository's GPL files under `research/results/` and `data/` marked or removed | 1-2 days | 3-6 |
+| 7 | The relicensing step itself, checked by the expert first:<br>- `LICENSE` (MIT text);<br>- SPDX lines in 392 files and `tests/test_spdx_headers.py`;<br>- `pyproject.toml` `license`;<br>- the three `Cargo.toml` `license` fields;<br>- `CITATION.cff`, `docs/licence.md`, `THIRD-PARTY-NOTICES.txt` (permissive notices kept), `CONTRIBUTING.md`, README;<br>- the repository's GPL files under `research/results/` and `data/` marked or removed;<br>- the directories this audit did not classify, because they do not ship, but which a repository-level `LICENSE` would cover: `tools/oracles/` (`aoflagger/st_bridge.py` follows AOFlagger 3.5, GPL-3.0), `tools/e2e/`, `history/`, `examples/`, `core/examples/`, `notebooks/`. Audit them the same way, or scope the new `LICENSE` to the package and mark the rest | 1-2 days (plus 2-3 days for that audit) | 3-6 |
 
-**Effort.**
-- **With permissions for ducc0 and ASTRON, plus the LGPL module for the writer:** about 4-5 weeks of agent time plus the calendar time of the replies.
-- **Fully clean-room:** about 10-14 weeks.
+**Effort, in agent work.** Steps 3, 4 and 5 can run in parallel in independent sessions.
+- **With permissions for ducc0 and ASTRON, plus the LGPL writer module:** about 3-4 weeks (steps 0, 3, 4 L, 7), plus the time the replies take.
+- **Fully clean-room:** 12-17 weeks (step 3: 2-3; step 4 R: 3-4; step 5 R: 7-10), or about 7-10 weeks elapsed in parallel.
 
 Clean-room implementers must be sessions or people that have not read the
 upstream or rang's port (section 4).
@@ -466,7 +497,7 @@ expert before it is pushed, for example the Software Freedom Conservancy
 (which advises free-software projects on licensing and relicensing) or a
 lawyer who works with FOSS licences. Questions for them:
 1. **Static linking of LGPL modules.** Can LGPL-2.1-or-later translations of casacore and CASA stay under the LGPL inside an MIT package whose Rust extension links them statically, and what must the wheel provide for relinking?
-2. **c-src code.** Are the 25,265 lines written to rules read in GPL and LGPL source acceptable as they stand, or must some be rewritten?
+2. **c-src code.** Are the 25,556 lines written to rules read in GPL and LGPL source acceptable as they stand, or must some be rewritten?
 3. **`ms_schema.rs`.** Is the copied schema text protectable?
 4. **Clean room.** What counts as clean-room when the implementer is a language model?
 5. **Optional GPL extras.** Is "MIT core, optional GPL package and optional GPL extras (eidos, stimela, carta-python)" sound?
@@ -475,6 +506,7 @@ lawyer who works with FOSS licences. Questions for them:
 ## 8. For the coordinator
 
 - **Done:** this note; [results/mit-relicense-audit/](results/mit-relicense-audit/) (`files.csv`, `classify.py`). No code changed.
+- **Cross-checks against upstream source made here:** `ism.rs` `get_split` (casacore v3.8.1) and `bandpass.rs` `fill_gap_array` (casa6 `9269a52`). The other upstream comparisons are the area reviews'.
 - **Base and sources:** base `41bc3efb`. The notices read from `v030-fix` (`07875d43`) are not on main yet; when v030-fix merges, the notice gaps of 3.2 are what remains. They fit the same release (step 0).
 - **Owner decisions:** the nine in section 6. Decisions 1, 2 and 4 decide most of the cost.
 - **Upstreams fetched:** ducc0 0.42.0, WSClean 3.6, schaapcommon and aocommon headers, read at their tags on GitHub and GitLab; casa6 `9269a52` sources were fetched into a session scratchpad (not kept). Licence metadata came from PyPI JSON for the pinned versions.

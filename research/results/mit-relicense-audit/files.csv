@@ -177,7 +177,7 @@ python/rang/formats/_aipsio.py,285,c-src,casacore,LGPL-2.0-or-later,through the 
 python/rang/formats/caltable.py,493,c-src,CASA,LGPL-2.0-or-later,"CTPatchedInterp, RIorAParray, CTTimeInterp1, KJones, DJones, XJones",0
 python/rang/formats/cli.py,217,a,-,-,-,0
 python/rang/formats/flagversions.py,284,c,-,-,CASA flagmanager on-disk layout,0
-python/rang/formats/h5parm.py,291,c,-,-,losoto 2.7.1 file layout,0
+python/rang/formats/h5parm.py,291,c-src,losoto,GPL-3.0-or-later,losoto 2.7.1 sdist read for the H5parm layout (dfio-formats.md:37); attribute values from a losoto-made file,0
 python/rang/formats/killms.py,188,c-src,killMS,GPL-2.0,"killMS 3.3.0 kMS.py, MergeSols.py field list",0
 python/rang/formats/quartical_store.py,387,c,-,-,QuartiCal and dask-ms layout,0
 python/rang/formats/sky.py,1155,b-copyleft,Tigger,GPL-2.0-or-later,"Tigger ModelClasses.renderAttrMarkup, ModelHTML.save (writer); readers c-src from Tigger, Crystalball 0.4.3, DDFacet 1.0, killMS 3.3.0 (GPL-2.0); two regexes from codex-africanus 0.4.4 (BSD-3-Clause)",170

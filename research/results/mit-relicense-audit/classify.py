@@ -473,7 +473,13 @@ CLASSES = {
     "python/rang/tfcrop.py": ("c", "-", "-", "CASA tfcrop documentation and probes", 0),
     "python/rang/listobs.py": ("c", "-", "-", "CASA listobs output layout", 0),
     "python/rang/oracles/casa_listobs.py": ("c", "-", "-", "CASA listobs output", 0),
-    "python/rang/formats/h5parm.py": ("c", "-", "-", "losoto 2.7.1 file layout", 0),
+    "python/rang/formats/h5parm.py": (
+        "c-src",
+        "losoto",
+        "GPL-3.0-or-later",
+        "losoto 2.7.1 sdist read for the H5parm layout (dfio-formats.md:37); attribute values from a losoto-made file",
+        0,
+    ),
     "python/rang/formats/flagversions.py": (
         "c",
         "-",
