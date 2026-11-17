@@ -232,3 +232,94 @@ casacore 3.7.1 scimath/Fitting/LSQFit.cc, followed in core/src/cal/fluxscale.rs
 (GNU Library General Public License, version 2 or any later version):
 Copyright (C) 1999,2000,2002,2004-2006,2008
 Associated Universities, Inc. Washington DC, USA.
+
+casacore measures, followed in python/rang/cal_pol.py (parallactic_angle_casa,
+research/e2b-misses.md 9.13-9.16): the route J2000 -> APP -> TOPO -> HADEC,
+the TOPO -> HADEC step (the diurnal-aberration shift and polar motion), the
+UT -> ST polynomial and MSDerivedValues::parAngle. Read at casacore master on
+2026-11-15 (commit 3c16927b, inferred from that date; the note does not
+record a commit). The code is a translation of the steps and constants; no
+casacore data table is read or shipped: the Earth orientation comes from
+astropy's IERS table (astropy-iers-data, BSD-3-Clause, a dependency that
+rang-core does not redistribute) and erfa. Each file is under the GNU Library
+General Public License, version 2 "or (at your option) any later version".
+Their notices, verbatim:
+
+measures/Measures/MCDirection.cc:
+Copyright (C) 1995-1998,2000-2002,2004,2007
+Associated Universities, Inc. Washington DC, USA.
+
+measures/Measures/MeasMath.cc:
+Copyright (C) 1998-2000,2002-2004,2007
+Associated Universities, Inc. Washington DC, USA.
+
+measures/Measures/MeasTable.cc:
+Copyright (C) 1995-1999,2000-2004,2016
+Associated Universities, Inc. Washington DC, USA.
+
+ms/MSOper/MSDerivedValues.cc:
+Copyright (C) 1996,1997,1999,2000
+Associated Universities, Inc. Washington DC, USA.
+
+-------------------------------------------------------------------------------
+WSClean 3.7 and its submodules, followed in GeMClean (core/src/gemclean.rs,
+core/src/gemclean/)
+
+Read in WSClean v3.7 (4f395b28, 2026-02-14) with the submodules it pins:
+radler 76fe4474, aocommon aa4d6a47 and schaapcommon b553fd25; and WSClean
+53e25d59 on master (2026-11-13, "Fix an issue in CalculateMsLimits", merge
+request !1068), followed in core/src/gemclean/multiscale.rs.
+
+radler 76fe4474 (LGPL-3.0-only): radler.cc, algorithms/generic_clean.cc,
+algorithms/deconvolution_algorithm.cc, algorithms/subminor_loop.cc,
+algorithms/multiscale_algorithm.cc,
+algorithms/multiscale/multiscale_transforms.h, image_set.h, image_set.cc and
+math/gain_calculations.h (under cpp/); followed in core/src/gemclean/mask.rs,
+joined.rs, multiscale.rs and stokes.rs. Each file's notice, verbatim:
+
+// SPDX-License-Identifier: LGPL-3.0-only
+
+The files carry no copyright line. radler's README.md: "Radler is released
+under the LGPL version 3."; its pyproject.toml names as authors Andre
+Offringa, Maik Nijhuis, Jakob Maljaars and Tammo Jan Dijkema; its
+documentation (doc/conf.py) gives the copyright as André Offringa's. The
+licence texts are radler's LICENSE (GPL-3.0) and LICENSE.LESSER (LGPL-3.0).
+LGPL-3.0 section 2(b) lets a modified version be conveyed "under the GNU
+GPL, with none of the additional permissions of this License applicable to
+that copy", and its section 0 defines the GNU GPL as version 3. So the four
+files are distributed under the GPL, version 3 only for what they derive
+from radler, and so is the extension rang._core while it contains them.
+
+WSClean 3.7's own sources (among them math/imageoperations.cpp,
+main/wsclean.cpp, main/settings.cpp, gridding/msgridderdata.h and, at
+53e25d59, gridding/msprovidercollection.cpp); followed in core/src/gemclean.rs,
+core/src/gemclean/cli.rs, input.rs, multiscale.rs, predict.rs, spectral.rs,
+stokes.rs and core/src/weights.rs. Its source files carry no notice. WSClean's
+README: "WSClean is released under the GPL license version 3, and comes
+without any warranty." From debian/copyright of wsclean 3.7-3 (License:
+GPL-3.0+, "taken from the web page", as Debian records):
+
+Copyright: 2008-2015 A. R. Offringa
+ 2009 ASTRON (Netherlands Institute for Radio Astronomy)
+ 2014-2016 Gijs Molenaar <gijs@pythonic.nl>
+
+aocommon aa4d6a47: include/aocommon/polarization.h (Polarization::ParseList)
+and include/aocommon/image.h (Image::MedianAndStdDevFromMAD); followed in
+core/src/gemclean/stokes.rs and mask.rs. Neither file carries a notice;
+aocommon's LICENSE is the GPL, version 3, and its uvector.h says
+"distributed under the GPL license version 3".
+
+schaapcommon b553fd25 (GPL-3.0-or-later). Its notices, verbatim:
+
+src/fitters/gaussianfitter.cc (Fit2DGaussianCentred); followed in
+core/src/gemclean.rs:
+Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)
+
+src/fitters/spectralfitter.cc; followed in core/src/gemclean/spectral.rs:
+Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)
+
+src/reordering/reordering.cc; followed in core/src/gemclean/stokes.rs (and
+core/src/weights.rs, above):
+Copyright (C) 2024 ASTRON (Netherlands Institute for Radio Astronomy)
+
+schaapcommon's LICENSE: "Copyright 2020 ASTRON".

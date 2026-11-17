@@ -195,6 +195,23 @@ def test_pyproject_metadata():
         ("core/src/weights.rs", "Copyright (C) 2024 ASTRON"),
     ):
         assert holder in notices and holder in _text(path), (path, holder)
+    # v0.3.0 B-01 and B-02 (research/v030-review.md): casacore's measures in
+    # the CASA-frame parallactic angle; radler, WSClean 3.7, aocommon and
+    # schaapcommon in GeMClean, read verbatim from their sources.
+    for holder in (
+        "Copyright (C) 1995-1998,2000-2002,2004,2007",  # MCDirection.cc
+        "Copyright (C) 1998-2000,2002-2004,2007",  # MeasMath.cc
+        "Copyright (C) 1995-1999,2000-2004,2016",  # MeasTable.cc
+        "Copyright (C) 1996,1997,1999,2000",  # MSDerivedValues.cc
+        "// SPDX-License-Identifier: LGPL-3.0-only",  # radler 76fe4474
+        "Radler is released\nunder the LGPL version 3.",
+        "Copyright (C) 2022 ASTRON (Netherlands Institute for Radio Astronomy)",
+    ):
+        assert holder in notices, holder
+    assert "MeasTable.cc" in _text("python/rang/cal_pol.py")
+    for path in ("mask.rs", "joined.rs", "multiscale.rs", "stokes.rs"):
+        assert "core/src/gemclean/" in notices and path in notices, path
+        assert "radler 76fe4474" in _text(f"core/src/gemclean/{path}"), path
     # E5 final F-01: the polarisation chain needs astropy in a bare install.
     assert 'dependencies = ["numpy>=1.26", "pyyaml>=6", "astropy>=6"]' in project
     assert "License ::" not in project

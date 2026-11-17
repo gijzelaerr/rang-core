@@ -5,6 +5,10 @@ safe fixes on branch `v030-ready`, the rest listed for the coordinator. The four
 (E2-N, E3-A, the selfcal-defaults grid, the E2-A 3b K follow-up) are not reviewed here; they need a delta pass
 when they merge. Tracker: [v030-readiness.md](v030-readiness.md).
 
+**Update, 2026-11-17 (branch `v030-fix`, section 5):** B-01 and B-02 have their notices, read in the upstream
+sources; B-02 found radler LGPL-3.0-only, which leaves an owner decision (5.1). R-02, B-11, B-12, B-13, B-16,
+E5-22, E5-23 and E5-24 are fixed with tests; E5-21 stays a known limitation (5.3).
+
 ## 1. Method
 
 As [e5-final.md](e5-final.md) section 1, in brief:
@@ -55,7 +59,7 @@ As [e5-final.md](e5-final.md) section 1, in brief:
 | B-02 | GeMClean files say "read in radler 76fe447" / WSClean 3.7 (`mask.rs`, `joined.rs`, `multiscale.rs`, `stokes.rs`; new since 0.2.0: the joined auto-mask, `-no-negative`, the bias reference, the !1068 beam fix); radler is in neither the notices nor `licence.md` | `grep -i radler THIRD-PARTY-NOTICES.txt docs/licence.md`: no hits | Add radler 76fe447 and WSClean 3.7 with ASTRON's notice, read from the sources |
 
 Both need the upstream headers read verbatim (not on this host's Windows checkout), so they are not
-drafted here.
+drafted here. **Both done on branch `v030-fix` (section 5.1).**
 
 ## 4. For the coordinator: should-fix and notes
 
@@ -89,3 +93,92 @@ Checked, no finding: new keys stay out of the stage hash at their defaults (`dat
 test); every `RANG_*` variable in the registry's scope is registered; `docs/cli.md` matches the source.
 Flaky test #30: closed by `61767423`; `test_confirmed_gemclean` passed 20 of 20 repeats here, so no further
 cause was found for it, but its run-state form was R-01.
+
+## 5. Fixed on branch `v030-fix` (2026-11-17)
+
+Branched from the merge of `v030-ready`. Nothing here changes a number, a default, a stage hash or an
+archived output: the fixes are notices, messages, a refusal, the JSON spelling of non-finite values, the
+location of GeMClean's temporary files and write-back bookkeeping (section 5.4).
+
+### 5.1 Licence notices (B-01, B-02), read in the upstream sources
+
+Sources fetched read only into `~/Build/tmp/20261117-v030fix-upstream` (removed after): git clones of
+casacore and of WSClean with its submodules, Debian's `debian/copyright` of wsclean 3.7-3, and the
+astropy-iers-data sdist. Nothing in them was built or run.
+
+- **B-01, casacore measures.** `parallactic_angle_casa` translates casacore's route and constants: the
+  J2000 → APP → TOPO → HADEC route (`MCDirection.cc`), `MeasMath::applyTOPOtoHADEC` and
+  `deapplyPolarMotion` (`MeasMath.cc`), `MeasTable::calcUTtoST` (the coefficients 1.002737909350795,
+  +5.9006e-11, −5.9e-15), `diurnalAber` and `polarMotion` (`MeasTable.cc`), and `MSDerivedValues::parAngle`.
+  Read at casacore master `3c16927b` (2026-11-15 16:17 +0100), inferred from e2b-misses 9.13's "master at
+  2026-11-15", which records no commit. All four files: GNU Library General Public License, version 2 or
+  any later version, Associated Universities, Inc.; compatible with GPL-3.0-or-later, as the CASA ports are
+  (e5-final F-05).
+  - **Data**: no casacore data is read. The Earth orientation (UT1 − UTC, polar motion x, y) is
+    `astropy.utils.iers.earth_orientation_table` with `auto_download = False`, that is astropy-iers-data's
+    bundled IERS tables (`eopc04.1962-now`, `finals2000A.all`, `Leap_Second.dat`; the package is
+    BSD-3-Clause, Astropy Developers), plus erfa (`pnm80`, `pnm06a`, `gst94`). Both are dependencies, not
+    redistributed; the wheel ships no IERS or measures table (`python/rang/data` holds two static masks,
+    `TRICOLOUR-LICENSE`, `casacore_observatories.json`, `meerkat.itrf.txt` and `README.md`).
+  - `tests/data/pa_casacore.json` (in the sdist through `tests/`) holds casacore's computed angles from
+    CASA 6.7.6.14 (`research/results/e2b-misses/p1_fixture_casa.py`): numbers computed by casacore, no
+    table or code copied.
+  - `casacore_observatories.json` (E5-34, casacore-data 20250826-160001-5) is not used by this function;
+    its licence stays unchecked (the version is not a Debian one, and no `debian/copyright` was found for
+    it).
+  - Added: the four notices verbatim in `THIRD-PARTY-NOTICES.txt`, a `docs/licence.md` row and the
+    `cal_pol.py` header; test `test_w4_5_release.py` (the notices and the header).
+- **B-02, WSClean 3.7 and radler.** WSClean v3.7 is `4f395b28` (2026-02-14); it pins radler `76fe4474`,
+  aocommon `aa4d6a47` and schaapcommon `b553fd25`. The !1068 fix GeMClean follows is master `53e25d59`
+  (2026-11-13, "Fix an issue in CalculateMsLimits"); `multiscale.rs` cited `ca23d835`, the merge request's
+  commit, and now names both. Headers read:
+  - **radler: `// SPDX-License-Identifier: LGPL-3.0-only`** in every file GeMClean cites (`radler.cc`,
+    `generic_clean.cc`, `deconvolution_algorithm.cc`, `subminor_loop.cc`, `multiscale_algorithm.cc`,
+    `multiscale_transforms.h`, `image_set.h`, `image_set.cc`, `gain_calculations.h`), with no copyright
+    line; README "Radler is released under the LGPL version 3."; `LICENSE` (GPL-3.0) and `LICENSE.LESSER`
+    (LGPL-3.0); pyproject authors Andre Offringa, Maik Nijhuis, Jakob Maljaars, Tammo Jan Dijkema.
+  - WSClean's own sources: no notice in any file GeMClean cites; README "WSClean is released under the
+    GPL license version 3"; Debian's wsclean 3.7-3 `debian/copyright` says GPL-3.0+ ("taken from the web
+    page") with the same three copyright lines as 3.6-1.
+  - aocommon: `polarization.h` and `image.h` carry no notice; `LICENSE` is GPL-3.0; `uvector.h` says
+    "distributed under the GPL license version 3"; its AVX headers say GPL-3.0-or-later (ASTRON).
+  - schaapcommon: `gaussianfitter.cc`, `spectralfitter.cc` (Copyright (C) 2022 ASTRON) and
+    `reordering.cc` (2024 ASTRON), each GPL-3.0-or-later.
+  - **Compatibility.** LGPL-3.0 section 2(b) lets a modified version be conveyed "under the GNU GPL, with
+    none of the additional permissions of this License applicable to that copy", and section 0 defines
+    the GNU GPL as version 3. So radler-derived code may be distributed with rang-core under GPL version 3.
+    It is not the incompatible case (GPL-2.0-only would be), so nothing is withheld; but those parts
+    cannot be offered under "any later version". `mask.rs`, `joined.rs`, `multiscale.rs` and `stokes.rs`
+    now carry `GPL-3.0-or-later AND LGPL-3.0-only` and a line naming radler (as `predict.rs` names its BSD
+    source; test `test_spdx_headers.py`), and the notices say that the extension, while it contains them,
+    is GPL version 3 only.
+  - **Owner decision (not taken here):** `LICENSE` and `pyproject.toml`'s `license = "GPL-3.0-or-later"`
+    are unchanged. Options: state the package expression as `GPL-3.0-or-later AND LGPL-3.0-only` (or the
+    wheel as GPL-3.0-only); ask radler's authors for "or later"; or reimplement the radler-derived parts
+    from documentation only. The same question applies, more weakly, to WSClean's own README ("version
+    3", where Debian records 3+; e5-final NEW-2) and to aocommon; the existing 3.6 ports (`grid.rs`,
+    `weights.rs`) rest on Debian's GPL-3.0+.
+
+### 5.2 Should-fix items fixed, each with a test (`tests/test_v030_fix.py` unless named)
+
+| ID | Fix | Test |
+| --- | --- | --- |
+| R-02 | `rang.cal_gain.NoSolutions` (a RuntimeError) from every "wrote no solutions" (G, K, B, KCROSS, Xf, Df); `core_pipeline.execute` turns it into `StageFailed` with a hint (refant, minblperant, minsnr, flags), so `rang-core run` prints `failed: calibrate: ...` and exits 1 | `test_fully_flagged_gaincal_ends_run_with_a_stage_failure` (the public fixture with refant m000, as the chain test found it); `test_no_solutions_is_a_runtime_error_and_pickles` |
+| B-11 | `-temp-dir` also takes the joined runs' `<name>-dirty-<n>.spill` files | `cli.rs` `spill_files_go_to_temp_dir_when_given`; `gemclean_memory.rs` still finds `-temp-dir` empty after `-reorder` |
+| B-12 | Warnings (stdout, before the run) and help lines: `-reorder` with one polarisation (ignored), with `-channel-range` or `-average-channels > 1` (each polarisation read whole first), `-temp-dir` where it has no effect; `docs/cli.md` regenerated | `cli.rs` `reorder_and_temp_dir_warn_where_they_do_not_act` |
+| B-13 | `lightcurve.json` is strict JSON: non-finite values are `null` (documented in `rang.lightcurve` and the command's help); the returned dict and `lightcurve.csv` (`nan`) are unchanged; the TS-P1 scorers read through `np.array(..., float64)`, which turns null into NaN | `test_lightcurve_json_writes_null_for_values_that_are_not_finite` |
+| B-16 | `light_curves` refuses a field with rows on any DATA_DESC_ID other than 0, naming them | `test_lightcurve_refuses_a_field_on_two_data_descriptions` |
+| E5-22 | A column is recorded as written before its first put; `core_writeback.flags_unfinished(journal)` (open or failed, and FLAG or FLAG_ROW possibly written, or no record) decides the refusal in `WriteBack.begin` and in the pipeline's four journal checks, so a session that wrote no flags no longer blocks the next | `test_a_session_that_wrote_no_flags_is_not_refused`; `test_w1_writeback.py`'s during-init kill now expects no refusal |
+| E5-23 | `WriteBack.begin` carries the journal's `initialising` columns in every state, `restored` included | `test_a_half_initialised_column_is_initialised_again_after_a_restore` |
+| E5-24 | `begin` refuses an MS whose directory, `table.dat` or `table.lock` is not writable, before the flag backup; the writer is opened (and locked) before the journal is written, and a PermissionError there names the remedy | `test_a_read_only_ms_is_refused_before_anything_is_written` |
+
+### 5.3 Left as known limitations
+
+- **E5-21 (and NEW-03's stage-hash part).** Hashing the strategy, sky-model and mask files' contents, and
+  selfcal's fallback refant, changes every stage hash once: every 0.2.0 and 0.3.0 run directory would
+  report "configuration changed" (or need `--force`) with nothing of its own changed, and the archived
+  run directories' hashes would stop matching. The brief forbids changing a stage hash unless the review
+  says it must, and the review says "no: changes every hash once". Stated in CHANGELOG Known limitations
+  (rerun with `--force` after editing a referenced file in place).
+- E5-26 (a file held open by another program on Windows) and WB-14 (a `restoring` state) were not in
+  this brief; E5-24's PermissionError message covers the first in part.

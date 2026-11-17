@@ -20,6 +20,23 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+v0.3.0 review fixes, 2026-11-17 (branch `v030-fix`; [v030-review.md](v030-review.md) section 5):
+- B-01: `cal_pol.parallactic_angle_casa` translates casacore's measures (`MCDirection.cc`, `MeasMath.cc`,
+  `MeasTable.cc`, `MSDerivedValues.cc`, master `3c16927b`, LGPL-2.0-or-later, AUI); no casacore data is read,
+  the Earth orientation is astropy-iers-data's IERS table. Notices verbatim in THIRD-PARTY-NOTICES.txt and
+  docs/licence.md.
+- B-02: WSClean v3.7 `4f395b28` with radler `76fe4474`, aocommon `aa4d6a47`, schaapcommon `b553fd25`, and
+  master `53e25d59` (!1068). **radler is LGPL-3.0-only**: conveyable under GPL version 3 (LGPL-3.0 2(b)),
+  not "or later"; four GeMClean files now `GPL-3.0-or-later AND LGPL-3.0-only`. Owner decision open on the
+  package licence expression (LICENSE and pyproject unchanged).
+- Fixed with tests (tests/test_v030_fix.py, cli.rs): R-02 (fully flagged solve: stage failure, not a
+  traceback), B-11/B-12 (`-temp-dir` takes the spill files; `-reorder`/`-temp-dir` warnings), B-13 (strict
+  JSON, null for non-finite), B-16 (lightcurve refuses a second DATA_DESC_ID), E5-22/23/24 (write-back
+  refuses only after FLAG writes; `initialising` survives a restore; lock before journal, read-only MS
+  refused first). E5-21 stays a known limitation (it would change every stage hash once).
+- No number, default, stage hash or archived output changed: the quick check's gain-hash gate and the
+  touched tests pass (hand-back for the coordinator).
+
 UHF scope, 2026-11-17 (branch `uhf-scope`; [uhf-scope.md](uhf-scope.md), selection rule frozen before any UHF
 visibility was read). Issue #11, first leg; no code. Stage by stage from L to UHF (544-1088 MHz): the 0408-65 flux model
 is missing (`fluxstd` refuses it); every beam model is L only and refuses UHF; both Tricolour static masks are always

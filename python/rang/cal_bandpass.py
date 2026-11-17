@@ -236,7 +236,7 @@ def bandpass(
          "solint": solint, "combine": combine}
     )  # fmt: skip
     if sol.flags.all():
-        raise RuntimeError(
+        raise cal_gain.NoSolutions(
             f"bandpass wrote no solutions for field {field_id} (every solution flagged)"
         )
     times, span = fld.solution_times(tb, row_w, len(keys))

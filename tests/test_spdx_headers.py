@@ -52,6 +52,11 @@ def test_ported_files_name_the_upstream_licence_too():
         "core/src/predict.rs": "BSD-3-Clause",
         "core/src/sumthreshold.rs": "BSD-3-Clause",
         "python/rang/meerkat.py": "BSD-3-Clause",
+        # B-02 (research/v030-review.md): radler 76fe4474 is LGPL-3.0-only.
+        "core/src/gemclean/mask.rs": "LGPL-3.0-only",
+        "core/src/gemclean/joined.rs": "LGPL-3.0-only",
+        "core/src/gemclean/multiscale.rs": "LGPL-3.0-only",
+        "core/src/gemclean/stokes.rs": "LGPL-3.0-only",
     }.items():
         if not (ROOT / path).is_file():
             pytest.skip("not a checkout")

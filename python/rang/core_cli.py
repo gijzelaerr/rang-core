@@ -1519,7 +1519,10 @@ def _lightcurve_command(argv, options, pinned):
         "--interval-steps integrations: the exact DFT flux at each position, the "
         "nearest pixel of the interval's dirty snapshot image and the image's "
         "robust rms (research/ts-p1.md). Stokes I, natural weighting, linear feeds. "
-        "Reads the MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json.",
+        "Reads the MS only; writes DIR/lightcurve.csv and DIR/lightcurve.json (strict "
+        "JSON: null where a value is not a finite number, such as the flux of a fully "
+        "flagged interval). One data description: an MS whose field has rows on "
+        "another DATA_DESC_ID than 0 is refused.",
     )
     parser.add_argument("ms", help="the Measurement Set")
     parser.add_argument(

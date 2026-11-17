@@ -1,9 +1,12 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later AND LGPL-3.0-only
 //! Multiscale CLEAN for gemclean: WSClean 3.7's `-multiscale`, radler's
 //! `MultiScaleAlgorithm` with its sub-minor loop (`research/g5-multiscale.md`).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Parts follow radler 76fe4474 (LGPL-3.0-only, `// SPDX-License-Identifier:
+//! LGPL-3.0-only` in each file read), conveyed under the GPL, version 3, as
+//! LGPL-3.0 section 2(b) allows: notice in THIRD-PARTY-NOTICES.txt.
 //!
 //! What follows radler (`cpp/algorithms/multiscale_algorithm.cc`,
 //! `subminor_loop.cc`, `multiscale/multiscale_transforms.h`, WSClean `v3.7`,
@@ -294,9 +297,9 @@ pub fn scale_biases(
 /// CalculateOverallMetaData`, `CalculateMsLimits`): over the visibilities with
 /// nonzero imaging weight whose `(u, v)` falls inside the `n × n`-pixel grid.
 /// WSClean 3.5-3.7 tested `u` on both axes (#208); this follows the fix in
-/// !1068 (commit ca23d835, not yet released), `y = v * pixel_size_y *
-/// image_height`, so it differs from 3.7 only when the grid cuts `v`
-/// differently from `u`. `uvw` in metres, row-major
+/// !1068 (commit ca23d835, squashed into master as 53e25d59; not yet
+/// released), `y = v * pixel_size_y * image_height`, so it differs from 3.7
+/// only when the grid cuts `v` differently from `u`. `uvw` in metres, row-major
 /// `[u, v, w]`; `weights` row-major by channel. `None` without such a visibility.
 pub fn theoretic_beam(
     uvw: &[f64],
@@ -1600,7 +1603,7 @@ mod tests {
 
     #[test]
     fn theoretic_beam_tests_v_on_the_second_axis() {
-        // WSClean #208, fixed by !1068 (ca23d835): the y bound is v, not u.
+        // WSClean #208, fixed by !1068 (ca23d835, master 53e25d59): the y bound is v, not u.
         // Asymmetric coverage, max |u| = 500 m, max |v| = 9000 m. Row 1 has a
         // small u and a v outside the grid: v/λ at 1 GHz = 30,021, y = 30,021 ·
         // 2e-5 · 1024 = 615 > 512. The u-for-both rule kept it (9000 m baseline).

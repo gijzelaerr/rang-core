@@ -19,9 +19,21 @@ ported, and ported code keeps its upstream copyright notices.
 | codex-africanus 0.4.4 WSClean-format component predict (`core/src/predict.rs`) | BSD-3-Clause; the translated file keeps its notice, as does {gh}`THIRD-PARTY-NOTICES.txt` |
 | katdal 0.23 test helpers, adapted for the synthetic MVF writer (`python/rang/meerkat.py`) | BSD-3-Clause, National Research Foundation (SARAO) |
 | CASA (casa6) calibration and flagging C++: `SolvableVisCal.cc`, `SolveDataBuffer.cc`, `StandardVisCal.cc`, `DJones.cc`, `XJones.cc`, `KJones.cc`, `Calibrater.cc`, `VisCal.cc`, `Jones.cc`, `VisEquation.cc`, `CTPatchedInterp.cc`, `RIorAParray.cc`, `FlagAgentExtension.cc`, read in the mirror `dic-case-studies/casa6` at `9269a52` and followed in the K, G, B, F, polarisation and apply ports (`core/src/cal/`, `rang.cal_*`, `rang.applycal`, `rang.formats.caltable`) and in `core/src/flag_extend.rs` | GPL-2.0-or-later (`Calibrater.cc`), LGPL-2.0-or-later or LGPL-2.1-or-later (`FlagAgentExtension.cc`), each file's own header; Associated Universities, Inc. (and ESO for `FlagAgentExtension.cc`). The LGPL lets a copy be put under the GPL, so all are compatible with GPL-3.0-or-later; each derived file names CASA and the notices are in {gh}`THIRD-PARTY-NOTICES.txt` (checked 2026-11-12, E5 final) |
+| casacore measures (`MCDirection.cc`, `MeasMath.cc`, `MeasTable.cc`, `MSDerivedValues.cc`, read at master `3c16927b`, 2026-11-15), followed in `rang.cal_pol.parallactic_angle_casa`: the APP → TOPO → HADEC route, the diurnal-aberration shift, polar motion, the UT → ST polynomial ({gh}`research/e2b-misses.md` 9.13-9.16) | LGPL-2.0-or-later, Associated Universities, Inc.; each file's notice in {gh}`THIRD-PARTY-NOTICES.txt` (checked 2026-11-17, v0.3.0 review B-01). No casacore data table is read or shipped: the Earth orientation is astropy's IERS table (astropy-iers-data, BSD-3-Clause, a dependency, not redistributed) |
+| radler `76fe4474` (WSClean 3.7's submodule): the automatic mask, the joined-polarisation and joined-channel peak finding, multiscale CLEAN, the polarisation normalisation (`core/src/gemclean/mask.rs`, `joined.rs`, `multiscale.rs`, `stokes.rs`) | **LGPL-3.0-only** (`// SPDX-License-Identifier: LGPL-3.0-only` in each file read; README "released under the LGPL version 3"); no copyright line in the files. LGPL-3.0 section 2(b) lets a modified copy be conveyed under the GPL, version 3, so these files are `GPL-3.0-or-later AND LGPL-3.0-only` and the parts derived from radler are GPL version 3 only (checked 2026-11-17, B-02) |
+| WSClean 3.7 (`4f395b28`) and master `53e25d59` (!1068): beam fitting, visibility count and weight sum, `-pol`, channel grouping, prediction, the theoretic beam (`core/src/gemclean.rs`, `core/src/gemclean/`) | The source files carry no notice; README "released under the GPL license version 3"; `debian/copyright` of wsclean 3.7-3 says GPL-3.0+ with A. R. Offringa's, ASTRON's and Gijs Molenaar's lines (in {gh}`THIRD-PARTY-NOTICES.txt`) |
+| aocommon `aa4d6a47` (`polarization.h`, `image.h`) and schaapcommon `b553fd25` (`gaussianfitter.cc`, `spectralfitter.cc`, `reordering.cc`), both WSClean 3.7 submodules | aocommon: no notice in those files, `LICENSE` the GPL version 3; schaapcommon: GPL-3.0-or-later, ASTRON, verbatim in {gh}`THIRD-PARTY-NOTICES.txt` |
 | MeerKAT ITRF positions from simms | Facts, not code: see below ({gh}`data/README.md`) |
 
 Crystalball is GPL-2.0-only and is not ported.
+
+Two upstreams state "version 3" without "or any later version": radler
+(LGPL-3.0-only, per file) and WSClean's own README ("GPL license version 3",
+where Debian's packaging records GPL-3.0+). While GeMClean carries code that
+follows radler, the compiled extension `rang._core` can be conveyed under
+version 3 of the GPL only, though rang-core's own code stays
+GPL-3.0-or-later; `LICENSE` and the package metadata are unchanged pending
+the owner's decision ({gh}`research/v030-review.md`, B-02).
 
 Behaviour reimplemented from upstream source and documentation, with no
 code copied (owner decision E5-33, 2026-11-11,

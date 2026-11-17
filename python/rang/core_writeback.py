@@ -22,10 +22,15 @@ version (`<ms>.flagversions/flags.<flag_backup>`, default `rang_original`)
 unless that version already exists, and it keeps a journal
 (`<ms>.flagversions/rang-writeback.json`) that says a session is open. A
 session that ends by an exception is marked failed; one that is killed stays
-open. Either way the next `WriteBack` on the MS refuses to start (so a
-half-written FLAG is never saved as a new original) until the caller
-chooses `on_interrupted="restore"` (write the backup back first),
-`"continue"` (keep the flags as they are), or calls `restore_flags`.
+open. Either way, if it may have written FLAG or FLAG_ROW, the next
+`WriteBack` on the MS refuses to start (so a half-written FLAG is never
+saved as a new original) until the caller chooses
+`on_interrupted="restore"` (write the backup back first), `"continue"`
+(keep the flags as they are), or calls `restore_flags`; a session that wrote
+no flags is not refused, and a column it left half-initialised is
+initialised again (E5-22, E5-23). The journal is written only once the MS is
+open for writing, and an MS that cannot be written is refused before
+anything is saved (E5-24).
 
 Every write is flushed before the call returns, so memory follows the chunk
 (the tiled writer keeps the tiles it touched until a flush) and a killed
@@ -101,6 +106,31 @@ def read_journal(ms):
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         return None
+
+
+def flags_unfinished(journal):
+    """True when `journal` is a session that did not finish and may have
+    written FLAG or FLAG_ROW, so the MS's flags may be partly written. A
+    session that never wrote them left the flags as they were and is not
+    refused (E5-22, research/e5-prereview.md). A column is recorded as
+    written before its first put, so a kill during that put counts; a
+    journal without the record (older than the record) counts too."""
+    if not journal or journal.get("state") not in ("open", "failed"):
+        return False
+    written = journal.get("written")
+    return written is None or any(c in written for c in FLAG_COLUMNS)
+
+
+def _check_writable(ms):
+    """Refuse a Measurement Set this process cannot write before anything is
+    saved or journalled (E5-24): a read-only file gave a raw "Access is
+    denied" after the flag backup and an open journal."""
+    for path in (ms, ms / "table.dat", ms / "table.lock"):
+        if path.exists() and not os.access(path, os.W_OK):
+            raise PermissionError(
+                f"{ms} is not writable ({path.name}: permission denied); make it "
+                "writable (or work on a copy) and run again. Nothing was written."
+            )
 
 
 def _write_journal(ms, record):
@@ -253,10 +283,12 @@ class WriteBack:
             return self
         if not (self.ms / "table.dat").is_file():
             raise FileNotFoundError(f"{self.ms} is not a casacore table")
+        _check_writable(self.ms)
         prior = read_journal(self.ms)
-        dirty = []
-        if prior and prior.get("state") in ("open", "failed"):
-            dirty = list(prior.get("initialising", []))
+        # A column an earlier session left half-initialised is initialised
+        # again, also after a restore (E5-23).
+        dirty = list(prior.get("initialising", [])) if prior else []
+        if flags_unfinished(prior):
             what = (
                 f"an earlier write-back on {self.ms} (stage {prior.get('stage')!r}, "
                 f"pid {prior.get('pid')}, started {prior.get('started')}) is "
@@ -301,6 +333,22 @@ class WriteBack:
                         f"flag version {self.flag_backup!r} has {v.nrows} rows, "
                         f"{self.ms} has {self.layout['nrows']}"
                     )
+        # The lock first, then the journal, so that a writer refused here
+        # leaves no open session behind (E5-22, E5-24).
+        try:
+            self.table = core_ms_write.open_table(
+                self.ms,
+                readonly=False,
+                lock_attempts=self._lock[0],
+                lock_wait=self._lock[1],
+            )
+        except PermissionError as exc:
+            raise PermissionError(
+                f"{self.ms} cannot be opened for writing ({exc}); close any program "
+                "that holds it, or make it writable, and run again. FLAG was not "
+                f"written; flag version {self.flag_backup!r} holds the flags as "
+                "they are."
+            ) from exc
         self._journal = {
             "state": "open",
             "ms": str(self.ms.resolve()),
@@ -312,13 +360,12 @@ class WriteBack:
             "initialising": dirty,
             "written": [],
         }
-        _write_journal(self.ms, self._journal)
-        self.table = core_ms_write.open_table(
-            self.ms,
-            readonly=False,
-            lock_attempts=self._lock[0],
-            lock_wait=self._lock[1],
-        )
+        try:
+            _write_journal(self.ms, self._journal)
+        except BaseException:
+            self.table.close()
+            self.table = None
+            raise
         return self
 
     def close(self, error=None):
@@ -405,6 +452,10 @@ class WriteBack:
             # written (E5, research/e5-prereview.md).
             raise ValueError("DATA is never written")
         n = values.shape[0]
+        # Recorded before the put, so that a kill during it is on record
+        # (E5-22: only a session that wrote FLAG is refused afterwards).
+        if name not in self._journal["written"]:
+            self._mark("written", name)
         self.table.putcol(name, values, int(start))
         if name == "FLAG":
             _flag_puts += 1
@@ -413,8 +464,6 @@ class WriteBack:
         self.table.flush()
         if self._on_chunk is not None:
             self._on_chunk("flushed", name, int(start), n)
-        if name not in self._journal["written"]:
-            self._mark("written", name)
 
     def write(self, name, start, values):
         """Write rows `start` onwards of column `name` (any existing column;
@@ -618,6 +667,7 @@ __all__ = [
     "backup_flags",
     "chunk_rows_for",
     "flag_row_all",
+    "flags_unfinished",
     "layout",
     "read_journal",
     "restore_flags",

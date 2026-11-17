@@ -1,9 +1,12 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: GPL-3.0-or-later AND LGPL-3.0-only
 //! Joined-channel deconvolution for gemclean: WSClean's `-join-channels`
 //! with GeMClean's minor step (`research/g3-spectral.md`).
 //!
 //! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
 //! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Parts follow radler 76fe4474 (LGPL-3.0-only, `// SPDX-License-Identifier:
+//! LGPL-3.0-only` in each file read), conveyed under the GPL, version 3, as
+//! LGPL-3.0 section 2(b) allows: notice in THIRD-PARTY-NOTICES.txt.
 //!
 //! As in radler's `GenericClean::ExecuteMajorIteration` and
 //! `SubMinorLoop::Run` (WSClean 3.7), the peak is found on the integrated
