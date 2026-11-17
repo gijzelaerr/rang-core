@@ -123,3 +123,29 @@ outside a box mask. It covers several scales including a large one, single and j
 FITS mask alone, and a FITS mask with the automatic mask. It asserts that every component centre
 (`steps`) lies inside the mask in force, and that components were cleaned at two or more non-zero
 scales, so the test covers the scales and not only scale 0.
+
+## 7. Post hoc amendment, 2026-11-17 (after RM and RH, before any PM number)
+
+Labelled post hoc. Sections 1-5 are unchanged and RM is scored against them as frozen.
+
+- **What RM's numbers forced.** On RM both imagers diverged. WSClean logged "Multiscale clean
+  diverged" in major iteration 2, after 32,986 components, with 340.6 Jy at the 922-pixel scale.
+  GeMClean's multiscale `end` is `Diverged` in its third cycle, after 1,345,339 components. O
+  compares two diverged models, so it cannot decide anything. The frozen σ on RM (3.97 mJy) comes
+  from WSClean's diverged residual, against 0.54 mJy on RH. That makes the N_out "pass" vacuous.
+- **If PM diverges in either imager**, O on PM is recorded as **not met (unscorable)**, as on RM.
+  Nothing else changes.
+- **One comparison arm per case, `-nmiter 1`** (RM1 on H4, PM1 on the pilot). The settings are
+  RM's and PM's with at most one major iteration. On RM, both imagers' first major iteration ended
+  before any divergence (WSClean: peak 269.5 → 13.5 mJy in 410 iterations; GeMClean: 396
+  components, `PeakRule`). The first minor loop is the stretch where the two runs are still
+  comparable. O is scored on RM1 and PM1 as in section 4, with one change: σ is fixed in advance at
+  RH's WSClean σ (0.539 mJy) for RM1, and at WSClean's printed σ of major iteration 1 for PM1.
+  RM1 and PM1 count only if both imagers end their minor loop at the same level, within 2 % of
+  the larger. The level is WSClean's "major iteration threshold" and GeMClean's cycle level,
+  `(1 − mgain) · peak_start`. The decision rule of section 5 applies to RM1 and PM1, recorded as
+  post hoc.
+- **GeMClean wrote MODEL_DATA.** RM, RH and PM ran GeMClean without
+  `-no-update-model-required`, so it wrote MODEL_DATA into `h4.ms` and `cal2.ms`. WSClean read
+  DATA only, so neither imager's inputs changed. Every later GeMClean run passes the flag, as
+  Dms03 did.
