@@ -241,3 +241,14 @@ Scripts in `research/results/calchain-floor/`, outputs in
 read only. Every job through the main checkout's `tools/heavy_lock.py`
 (slots equal to the cores used), under `nice -n 19 ionice -c3`, from this
 branch's venv; wall times in `research/tool-timings.md` (host nash).
+
+## 6. Correction 2026-11-17 13:50, before any test was read
+
+T7's scorer control as frozen ("a random per-antenna phase") is wrong:
+`J_p J_q^*` cancels a phase or delay **common to every antenna** (what a
+change of reference antenna does: every solution's phase minus the
+refant's), not a per-antenna one. T7's control is therefore a random
+common phase and a random common delay applied to truth's G and K, against
+truth, ≤ 1e-6; and, as a check that the scorer is not blind, a random
+per-antenna phase of 1e-3 rad, which must read about 1e-3. Nothing else
+changes.
