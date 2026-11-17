@@ -678,22 +678,50 @@ lower σ_b on an RFI-affected baseline and so raise its normalised planes; no me
 that. (3) *noise-like antenna-local RFI*: not in F4's training (T1-T6 are coherent phasors) nor in
 its held-out tests; F4's result, whatever it is, does not cover it.
 
+### C1(U4) outcome, 2026-11-17 (calibrators): no clean reading; Stage 5 not run
+
+Chain run 3 (`examples/f4_stage5.py`, pid 22996, from 18:04, `F4_NO_WINDOW=1`; glacier, exclusive hold,
+4 threads, LUNO MAIN_1, 3 repeats per arm alternating). Both timed attempts the rerun rule allows ran;
+neither had all six repeats clean, so by the rule the chain stopped and the reading goes to the
+coordinator. **No held-out set was read; Stage 5 did not run; section 7's outcome is not reached.**
+
+| Attempt | Run | T walls (s) | U4 walls (s) | other CPUs per repeat (T; U4) | C1(U4) | clean |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 (11-12) | `-05-c1u4` | 46.74, 43.98, 44.06 | 19.80, 19.44, 19.39 | 0.85, 1.30, 1.42; 1.79, 1.34, 0.26 | 0.441 | 2 of 6 |
+| 2 | `-05c-c1u4` | 45.60, 43.08, 42.34 | 19.45, 20.06, 18.83 | 1.78, 1.58, 2.80; 2.38, 2.90, 2.26 | 0.452 | 0 of 6 |
+| skips | `-05d`, `-05f1`-`-05f3`, `-05f5` | | | gate 2.26, 2.11, 3.23, 2.10, 1.52 | | |
+| 3 (timed 1 of 2) | `-05f4` | 35.76, 34.62, 35.14 | 16.13, 16.19, 16.11 | 0.56, 0.82, 1.46; 0.88, 1.31, 1.01 | 0.459 | 3 of 6 |
+| 4 (timed 2 of 2) | `-05f6` | 35.60, 33.86, 33.88 | 16.20, 15.40, 15.52 | 0.83, 0.29, 1.66; 0.62, 0.38, 0.67 | 0.458 | 5 of 6 |
+
+Flagged fractions identical in every attempt (T 0.6088, U4 0.6001). Reading: four provisional readings,
+0.441-0.459, three of them above the 0.45 bar; the two quietest attempts (evening, lock otherwise
+empty, T 34-36 s) give 0.458 and 0.459. *Post hoc, not a decision:* the five clean repeats of `-05f6`
+alone give T 34.73 s (median of 35.60, 33.86), U4 15.52 s, ratio 0.447; this uses a subset the rule
+does not allow and is reported only to show that the reading sits within ±0.01 of the bar whichever
+way it is cut. Section 8's Stage 2 bar
+(C1(U4) ≤ 0.45) is therefore not met cleanly on this host and is not clearly failed either; N4 runs the same
+kernel at the same cost (weights do not change the work; C2 shows equal memory), so section 7's C1 for
+N4 would also sit near 0.45-0.46. The decision (stop F4 as
+section 8 says for a reading > 0.45, or accept the provisional readings and run Stage 5) is the
+coordinator's or owner's.
+
+What exists for Stage 5 if it is allowed: weights seed 2 (`a20b1abb…`) @ τ −1.0 on D:, the chain with
+its state file (`D:/rang/outputs/f4-20261111-stage5.json`; delete `stopped` and `c1u4.decided` only by
+a decision recorded here), the held-out fetch `-01` unread, f4sim-t `-02` unread, C2 = 1.00 measured.
+
 ## For the coordinator
 
-- **Commits (branch `fp-f4-flagger`, from local main `3eab67c`):** `89eb0b7` protocol (frozen before
-  code); `249c282` Amendment 1 (NA); `0f2954d` code; later commits notes, the test fix and Stage 1
-  reporting. Pushed to `origin/fp-f4-flagger` 2026-11-13 (not merged).
-- **Not run here:** the full check-all (left to the coordinator at merge); clean C1(U4), shards,
-  label audit, training, τ and Stage 5 (see Resume state). The extension tests passed (15/15).
-- **Chain:** detached bash running `outputs/f4-chain.sh` (worktree, ignored); log
-  `D:\rang\outputs\f4-20261111-00-build\chain.log`; verdicts `D:\rang\outputs\f4-20261111-queue.json`.
-  It only waits on the heavy lock; it does not otherwise yield to E2.
-- **Run outputs (ignored):** `D:\rang\outputs\f4-20261111-NN-*`; `-01-fetch` 4.54 GB.
-- **`research/STATE.md`, new log paragraph (when results exist):** "F4, 2026-11-11 (protocol frozen;
-  code; Stages 1-3 queued; [f4-flagger.md](f4-flagger.md)): F3's network with eight scan-scale
-  spectral planes against the array (23 inputs, 4,009 weights) for wide-band scan-long antenna-local
-  RFI, T6 injections 9-400 channels, target labels from injections and simulation, new held-out sets
-  (LUNO MAIN_0, MAIN_12, MAIN_14; ESO137 11-13; f4sim-t), and an autocorrelation arm NA (Amendment 1)."
-- **`research/finish-plan.md`, section 6, Landman:** "F4 protocol frozen 2026-11-11 (`f4-flagger.md`);
-  the request for expertly flagged target data (section 4) awaits posting to issue #1."
+- **Calibrator outcome under section 7: not reached.** Stage 2's C1(U4) gate has no clean reading after
+  the two timed attempts of the rerun rule: 0.458 and 0.459 (and 0.441, 0.452 earlier), all
+  provisional; bar 0.45. No held-out set read, Stage 5 not run, weights do not ship (no S or S−).
+  Decision needed: stop F4 on C1(U4) (three of four readings > 0.45) or run Stage 5 on the provisional
+  readings (a labelled deviation).
+- **Done 2026-11-17:** merged origin/main twice (both sides kept; MIT headers on F4's own files);
+  shards to nash; Stage 4 on nash CPU (deviation labelled before training): median seed 2 by
+  validation loss 0.0914 (seeds 0.2095 / 0.0914 / 0.0330); τ −1.0 (validation recall 0.954, added
+  209,027 vs T 209,120); C2 1.00; smoke test of Stage 5's command on MAIN_7 rc 0.
+- **Targets:** stopped at the label audit (11-13), unchanged; Landman's review goes to F5.
+- **On disk:** D: `f4-20261111-05*`, `-08-train-calibrator` (weights, logs, sha256), `-09-tau`, `-11-smoke`,
+  `-12-c2-*`, `stage5*.json/.out/.err`; nash `~/rang-data/f4/` (shards 17 GB copy, training runs, launcher),
+  worktree `~/Worktrees/rang/fp-f4-flagger` there. Nothing deleted on D:.
 - **`research/tool-timings.md`:** rows added in this branch.
