@@ -1,0 +1,12 @@
+heavy_lock: waiting for head 01794875089487209601-linux-4124515.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01794875244493212964-linux-4127328.json, past its 15 min drain limit (draining)
+03:54:26 cell L60 P1@60 B 376.79 0.877
+03:54:49 cell L60 P2@60 B 325.06 0.9089
+03:55:12 cell L60 P3@60 B 322.76 0.9102
+03:55:35 cell L60 P3A@60 B 310.07 0.9159
+03:56:20 cell L60 P1@60 A 390.91 0.8747
+03:56:43 cell L60 P2@60 A 338.86 0.9062
+03:57:06 cell L60 P3@60 A 336.59 0.9075
+03:57:29 cell L60 P3A@60 A 323.09 0.9135
+03:57:29 stage score L60 wall_s 230.3
+score 230.60 s 4988104 KB

@@ -1,0 +1,15 @@
+heavy_lock: waiting for head 01794881091540472276-linux-3982.json (no room to backfill)
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T02:10:13Z load 15.44 16.98 11.60 M120 start
+04:10:52 stage prepare M120 wall_s 38.4
+prepare 38.71 s 196060 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 1996.2 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/M120/run/receipts/selfcal-20261117T021052Z.rang-receipt.json
+selfcal 2004.66 s 9748584 KB
+04:44:21 stage clean M120 wall_s 4.5
+04:45:06 cell M120 P1A@120 B 313.28 0.9142
+04:45:52 cell M120 P1A@120 A 326.24 0.9118
+04:45:52 stage score M120 wall_s 90.4
+score 90.77 s 4952428 KB
+== 2026-11-17T02:45:52Z load 7.42 9.38 11.39 M120 end

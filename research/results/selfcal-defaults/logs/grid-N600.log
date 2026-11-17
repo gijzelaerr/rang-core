@@ -1,0 +1,14 @@
+heavy_lock: waiting for shared jobs to fit
+== 2026-11-17T06:08:11Z load 20.96 19.76 18.26 N600 start
+08:08:57 stage prepare N600 wall_s 45.3
+prepare 45.57 s 196264 KB
+rang-core: selfcal: running
+rang-core: selfcal: done in 4512.5 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-defaults-20261117/N600/run/receipts/selfcal-20261117T060857Z.rang-receipt.json
+selfcal 4518.61 s 11666580 KB
+09:24:21 stage clean N600 wall_s 5.4
+09:25:11 cell N600 P2A@600 B 318.4 0.9113
+09:26:02 cell N600 P2A@600 A 331.34 0.909
+09:26:02 stage score N600 wall_s 100.7
+score 101.06 s 4951420 KB
+== 2026-11-17T07:26:02Z load 17.33 18.88 17.27 N600 end
