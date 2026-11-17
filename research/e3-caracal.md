@@ -636,3 +636,26 @@ unchanged for E3-B; for E3-A they read as follows.
 - **Smoke on nash first** (not an E3 result): a `--rows 20000` per group
   build of the same three groups, run through the E3-A correctness config,
   to find apptainer, path and image faults.
+
+### 10.15 Correction, post hoc, 2026-11-17: deviation 6's keys in E3-A's config
+
+- The first nash smoke (07:22, rc 1 in 8 s) stopped in CARACal's schema
+  check: `Key 'shared_mem' was not defined. Path: '/selfcal/calibrate'`.
+  E3-A's config had never run before (the smoke and dev passes used E3-B's).
+- `e3_make_configs.py` put deviation 6's `shared_mem: 20Gb` under
+  `selfcal.calibrate`. CARACal's schema and worker read it from
+  `selfcal.cal_cubical.shared_mem`.
+- Section 3's "CARACal's `selfcal` schema has no WSClean `absmem` key" is
+  also wrong: `selfcal.image.absmem` exists (float, GB), and the worker
+  passes it to WSClean.
+- Fix, applied to `configs/nash/e3a-*.yml` only (the generator and the
+  Windows configs stay as frozen): `selfcal.cal_cubical.shared_mem: 20Gb`
+  and `selfcal.image.absmem: 20`. This is A0 6.4's deviation 6 as written
+  ("`shared_mem` and WSClean `absmem` are capped at 20 GB"), now in the keys
+  CARACal reads. It is a placement fix of a frozen deviation, not a new
+  setting. No E3-A output existed when it was made.
+- Lock incident, recorded: the smoke and the full MS's verify had queued
+  under the old lock limits (32 slots, 192 GB) and could not fit after
+  nash's lock was raised to 44 slots and 320 GB, blocking the queue. Both
+  were killed by their owner at about 07:00 and requeued; the full MS's first
+  verify was lost (rc 143).

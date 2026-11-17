@@ -224,9 +224,11 @@ selfcal:
   cal_timeslots_chunk: 240
   image:
     enable: true
+    absmem: 20
   calibrate:
     enable: true
     gsols_timeslots: [120]
+  cal_cubical:
     shared_mem: 20Gb
 
 ddcal:
