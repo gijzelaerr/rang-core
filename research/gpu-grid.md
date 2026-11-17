@@ -616,6 +616,6 @@ as 9.4:
   - f64 passes accuracy and gives images equal to the CPU's, but on glacier at `-j 16` it is 18-52 % slower than the CPU path.
   - f32 is level to 9 % slower, and it still fails Gate 1.
   - The GPU path takes about all of the GPU run's major-cycle time, so the card does not shorten the cycle against 16 CPU threads.
-- **Branch:** the code (`gemclean -gpu`, wgpu, opt-in) is not merged to main. It stays recoverable from the archived commit 93faa7b, listed in `research/results/gpu-grid-timing.json`. Only this note, the timing archive and the session scripts come to main, as a negative result.
+- **Branch:** the code (`gemclean -gpu`, wgpu, opt-in) is not merged to main. It stays on branch `gpu-grid` at commit 93faa7b. Only this note, the timing archive and the session scripts come to main, as a negative result.
 - **Not run:** the pilot, and a third repeat. A local GPU client outside rang loaded a 10 GB model onto the card every quarter hour. The two clean repeats agree within 2.8 %, so the verdict does not depend on the missing repeat.
 - **Reopen only with a different design:** batched multi-visibility kernels, or CUDA, with the CPU path kept equal within a written tolerance (AGENTS.md). That would need a new proposal note.
