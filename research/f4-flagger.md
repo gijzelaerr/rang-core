@@ -725,3 +725,18 @@ a decision recorded here), the held-out fetch `-01` unread, f4sim-t `-02` unread
   `-12-c2-*`, `stage5*.json/.out/.err`; nash `~/rang-data/f4/` (shards 17 GB copy, training runs, launcher),
   worktree `~/Worktrees/rang/fp-f4-flagger` there. Nothing deleted on D:.
 - **`research/tool-timings.md`:** rows added in this branch.
+
+## Coordinator decision, 2026-11-17 (C1(U4))
+
+F4 stops on the calibrators under section 8. Stage 2's frozen bar is C1(U4) ≤ 0.45. The two
+quietest attempts read 0.458 and 0.459, and three of the four readings are above the bar. Running
+Stage 5 on provisional readings would be a deviation in the method's favour, so it is not taken.
+The post hoc 0.447 from a subset of the repeats does not change this: the rule does not allow that
+subset.
+
+- No held-out set is read. The held-out fetch `-01` and f4sim-t `-02` stay unread for F5.
+- The weights (seed 2, `a20b1abb…`) do not ship. They stay on D: as a development artefact.
+- Recorded as a negative result: the U4 kernel costs about 0.46 of the reference at 4 threads on
+  glacier, where the bar was 0.45. The flag fractions are identical in every attempt.
+- The follow-up is F5 (`research/f5-flagger.md`, proposed from Landman's review), which has its own
+  cost bar. No further F4 cost runs.
