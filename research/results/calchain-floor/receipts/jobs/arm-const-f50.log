@@ -1,0 +1,4 @@
+START 2026-11-17T14:46:12+02:00 load 23.24 13.48 9.87
+flagged 120 rows of antenna 50 in interval 7
+const f50 rc 0 803.7s
+END 2026-11-17T14:59:46+02:00 rc=0

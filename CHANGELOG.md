@@ -146,6 +146,12 @@ the E2-A 3b K follow-up are still running and will change the limitations below.
   `-temp-dir DIR` places them (default: the directory of `-name`). Every FITS file is byte-identical. On E2-B's
   joined-IQUV 8-channel 2048² runs the peak falls from 15.9-16.5 to 9.1 GiB (J1331+3030, J1939−6342) and from
   8.4 to 7.2 GiB (J1833−2103); about 28 GB of temporary files on the large fields.
+- New (`research/calchain-floor.md`): `calibrate.k_zero_start` (default false, out of the stage hash at its
+  default). K solves also run from zero delays and keep, per solution interval, the run with the lower weighted
+  residual (`rang.cal_delay.solve(zero_start=True)`). The FFT start uses the refant baselines only; with a few
+  cells there it can land on a sidelobe, and Gauss-Newton converges to a wrong delay: on E2-A, ID 50's K1
+  interval 7 (2,335 ns against 0.11 ns; CASA's K1 holds 2,365 ns). With the key that solution is 0.121 ns on the
+  real subset and nothing else moves by more than 1e-3 ns. About 10 % more K time. Off is unchanged.
 - New (`research/e2a-3b-diag.md`): `calibrate.bandpass_model_divided` (default false, out of the stage hash at
   its default). B solves divide the pre-applied data by the model, which the K and G pre-applies corrupt, before
   any time average (`rang.cal_bandpass.bandpass(model_divided=True)`, `rang.cal_gain.model_divided`, CASA's

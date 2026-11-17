@@ -1,0 +1,399 @@
+{
+ "chunking": {
+  "chunk_gb": 15.373140335083008,
+  "chunk_rows": null,
+  "fixed_gb": 0.6268596649169922,
+  "memory_limit_gb": 16.0,
+  "processes": 1,
+  "rows": {
+   "apply": 15742,
+   "calibrate": 15742,
+   "chain": 10494,
+   "flag": 31484,
+   "model": 15742,
+   "rows": 41978
+  },
+  "solves": [
+   {
+    "channel_chunks": 0,
+    "chunks": 2,
+    "field": "J1939-6342",
+    "term": "K0"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 2,
+    "field": "J1939-6342",
+    "term": "G0"
+   },
+   {
+    "channel_chunks": 3,
+    "chunks": 3,
+    "field": "J1939-6342",
+    "term": "B0"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 2,
+    "field": "J1939-6342",
+    "term": "K1"
+   },
+   {
+    "channel_chunks": 0,
+    "chunks": 2,
+    "field": "J1939-6342",
+    "term": "G1"
+   },
+   {
+    "channel_chunks": 3,
+    "chunks": 3,
+    "field": "J1939-6342",
+    "term": "B1"
+   }
+  ]
+ },
+ "flag_version": "rang_calibrate_20261117T114330Z",
+ "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+ "model": "setjy",
+ "models_written": {
+  "fields": [
+   0
+  ],
+  "flag_version": "rang_calibrate_20261117T114330Z",
+  "rang_original_saved_now": true,
+  "receipt": {
+   "column": "MODEL_DATA",
+   "column_added": true,
+   "fields": {
+    "J1939-6342": {
+     "field_id": 0,
+     "rows": 12480,
+     "spectral_windows": {
+      "0": {
+       "freq_hz": [
+        856000000.0,
+        1284000000.0,
+        1711791015.625
+       ],
+       "stokes_i_jy": [
+        13.993332001756828,
+        15.091761285711023,
+        14.00401597658563
+       ]
+      }
+     }
+    }
+   },
+   "ms": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms",
+   "spec": {
+    "extrapolate": false,
+    "kind": "standard",
+    "provenance": "Reynolds 1994 in GHz below 11.1496 GHz, a power law above; CASA 6.7.6 compiled value (float32), identified from setjy doubles",
+    "source": "1934-638",
+    "standard": "Stevens-Reynolds 2016"
+   }
+  },
+  "spec": "Standard(source=None, standard='Stevens-Reynolds 2016', extrapolate=False, unverified_ok=False)"
+ },
+ "restored_before": null,
+ "scans": [
+  9,
+  11
+ ],
+ "steps": [
+  {
+   "fields": [
+    0
+   ],
+   "name": "K0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/K0",
+   "rows": 122,
+   "solutions": [
+    {
+     "converged_fraction": 0.9954486274767235,
+     "field_id": 0,
+     "flagged_fraction": 0.7704918032786885,
+     "intervals": 2,
+     "iterations": 27,
+     "rows": 12480
+    }
+   ],
+   "table_sha256": "4874daabbef22a641a0d9edaae1b4e7d8823ae3dc602d9176a19bf05ac4c66cd",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "G0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/G0",
+   "rows": 122,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.7704918032786885,
+     "intervals": 2,
+     "iterations": 25,
+     "rows": 12480,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "d97509ed54784209a8773f148959f577bbafe2ca324e2641adeb3a0f0a34737b",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "B0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/B0",
+   "rows": 61,
+   "solutions": [
+    {
+     "converged_fraction": 1.0,
+     "field_id": 0,
+     "flagged_fraction": 0.8525550717213115,
+     "intervals": 1,
+     "iterations": 3,
+     "rows": 12480,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "98ca5c71fe3ff3e244f9085a9f28c233b609004e24b64e6e3802ef415bd1774d",
+   "type": "B"
+  },
+  {
+   "applied": {
+    "applymode": "calflag",
+    "cells_flagged_after": 188778296,
+    "cells_flagged_before": 188778296,
+    "column": "CORRECTED_DATA",
+    "column_added": true,
+    "fields": [
+     "J1939-6342"
+    ],
+    "ms": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms",
+    "parang": false,
+    "parang_flags": null,
+    "rows": 12480,
+    "scans": [
+     9,
+     11
+    ],
+    "tables": [
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "K"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "G"
+     },
+     {
+      "calwt": false,
+      "calwt_effective": false,
+      "field_map": {
+       "J1939-6342": 0
+      },
+      "gainfield": "0",
+      "interp": "linear",
+      "kind": "B"
+     }
+    ],
+    "uncovered": [],
+    "weights_written": false
+   },
+   "fields": [
+    0
+   ],
+   "flagged": {
+    "chunking": {
+     "blocks": [
+      1,
+      1
+     ],
+     "max_rows": 31484
+    },
+    "column": "CORRECTED_DATA",
+    "fields": [
+     0
+    ],
+    "flag_sha256": "90466a91aadcbf4b73197af01a97b6009646ba5996c56fa4fdbb04278e9eeb90",
+    "flagged_after": 0.9277969360351562,
+    "flagged_before": 0.9232462173853165,
+    "groups": [
+     {
+      "ddid": 0,
+      "field_id": 0,
+      "flagged_after": 0.9173755743564703,
+      "flagged_before": 0.9120997893504608,
+      "rows": 6240,
+      "scan": 9
+     },
+     {
+      "ddid": 0,
+      "field_id": 0,
+      "flagged_after": 0.9382182977138421,
+      "flagged_before": 0.9343926454201723,
+      "rows": 6240,
+      "scan": 11
+     }
+    ],
+    "rows": 12480
+   },
+   "gainfield": [
+    "0",
+    "0",
+    "0"
+   ],
+   "name": "A0",
+   "strategy": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+   "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+   "tables": [
+    "K0",
+    "G0",
+    "B0"
+   ],
+   "type": "A"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "K1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/K1",
+   "rows": 854,
+   "solutions": [
+    {
+     "converged_fraction": 0.9408482832442434,
+     "field_id": 0,
+     "flagged_fraction": 0.7704918032786885,
+     "intervals": 14,
+     "iterations": 50,
+     "rows": 12480
+    }
+   ],
+   "table_sha256": "0d4d764175d8fd94618c54f1b551310798c33dd70fd96f403c02881b64acf409",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "G1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/G1",
+   "rows": 854,
+   "solutions": [
+    {
+     "converged_fraction": 0.9948979591836735,
+     "field_id": 0,
+     "flagged_fraction": 0.7704918032786885,
+     "intervals": 14,
+     "iterations": 27,
+     "rows": 12480,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "2df7e0a6b48181f0e8aefa9a102adf49235a50608f89bcb77cb91c943f1079b3",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "name": "B1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/B1",
+   "rows": 61,
+   "solutions": [
+    {
+     "converged_fraction": 0.9961776117258226,
+     "field_id": 0,
+     "flagged_fraction": 0.8534315765881147,
+     "intervals": 1,
+     "iterations": 33,
+     "rows": 12480,
+     "used_alternate_refant": false
+    }
+   ],
+   "table_sha256": "b8fda0ac7c233ddfa9b1baa6936a0dd708071eba170e610a5b2a5836a2a18c0f",
+   "type": "B"
+  }
+ ],
+ "tables": [
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "K0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/K0",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "G0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/G0",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "B0",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/B0",
+   "section": "chain",
+   "type": "B"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "K1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/K1",
+   "section": "chain",
+   "type": "K"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "G1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/G1",
+   "section": "chain",
+   "type": "G"
+  },
+  {
+   "fields": [
+    0
+   ],
+   "format": "casa",
+   "name": "B1",
+   "path": "/home/gijs/rang-data/outputs/calchain-floor-20261117/const/arm-lin.ms.rang-run/calibrate/B1",
+   "section": "chain",
+   "type": "B"
+  }
+ ],
+ "weight_column": "unit",
+ "weights": "uniform"
+}

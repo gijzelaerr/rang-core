@@ -2184,3 +2184,11 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | floor-5, host nash: `floor5_tests.py summary` | JSON only | 1.5 s | 0.37 GiB (max RSS) | 2 slots |
 | 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host | worktree, branch `floor-5` (write-up, archive) | 1035 s (lock wait excluded) | – | PASS; docs and archive diff; gain-hash gate PASS |
 | 2026-11-17 | floor-5: `tools/check_all.py --quick`, Windows host, rerun after the post hoc fixes | the same | 41 s (lock wait excluded) | – | PASS; warm targets
+| 2026-11-17 | calchain-floor, host nash: `maturin develop --release` (core/py), cold target | branch `calchain-floor` at `0229db1` | 337 s | – | 4 slots booked, `CARGO_BUILD_JOBS=4`, nice 19 |
+| 2026-11-17 | calchain-floor, host nash: `cf_sim.py` (S0f′ / S0c from `src.ms`, k_sim's `make`) | 41,978 rows × 4096 ch | 33 s each | – | 1 slot |
+| 2026-11-17 | calchain-floor, host nash: `rang-core run`, calibrate only (e2a-3b-k arm `u`), noise-free S0f′ / S0c, linear and nearest pre-apply | 12,480 rows × 4096 ch | 715-840 s | – | 2 slots booked each, five in parallel |
+| 2026-11-17 | calchain-floor, host nash: the same, every term strict (1000 iterations, 1e-12, fraction 1.0), S0f′ | the same | 3,056 s | – | 2 slots |
+| 2026-11-17 | calchain-floor, host nash: `cf_score.py` (arm scores, T0 on every field-0 row, T1, R) and the K1 probes | every 8th time; T0 all 12,480 rows | 30-80 s each; K1 probes 10-240 s | – | 1-2 slots, nice 19 |
+| 2026-11-17 | calchain-floor, host nash: the same strict, S0c | 12,480 rows × 4096 ch | 3,625 s | – | 2 slots |
+| 2026-11-17 | calchain-floor, host nash: `rang-core run` calibrate, S0c with `calibrate.k_zero_start` on / S0f′ on / S0f′ off (this branch) / S0c with ID 50's interval 7 flagged | 12,480 rows × 4096 ch | 922 s / 868 s / 770 s / 804 s | – | 2 slots each; the key's second K run adds about 10 % against CL's 840 s |
+| 2026-11-17 | calchain-floor, Windows host: `check_all.py --quick` | branch | 961 s | – | 4 slots (the check's own booking) |
