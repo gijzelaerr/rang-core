@@ -34,6 +34,14 @@ def du(path):
         return None
 
 
+def _ancestors(pid, parent):
+    out, q = [], parent.get(pid)
+    while q is not None and q not in out:
+        out.append(q)
+        q = parent.get(q)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--log", required=True)
@@ -54,25 +62,32 @@ def main():
     root = psutil.Process(proc.pid)
     rec(kind="start", pid=proc.pid, cmd=cmd, load=os.getloadavg(), kill_gib=a.kill_gib)
     live = {}  # apptainer-run pid -> {"image", "start", "peak"}
+    seen = set()
     peak_tree, last_sample, halted = 0, 0.0, False
     while proc.poll() is None:
         try:
             procs = [root, *root.children(recursive=True)]
         except psutil.NoSuchProcess:
             break
-        rss, parent = {}, {}
+        rss, parent, cmd_of = {}, {}, {}
         for p in procs:
             try:
                 rss[p.pid] = p.memory_info().rss
                 parent[p.pid] = p.ppid()
-                if p.pid not in live:
-                    cl = p.cmdline()
-                    if (len(cl) > 1 and os.path.basename(cl[0]) in ("apptainer", "singularity")
-                            and cl[1] == "run"):
-                        img = next((c for c in cl if c.endswith(".sif")), "?")
-                        live[p.pid] = {"image": os.path.basename(img), "start": time.time(), "peak": 0}
+                if p.pid not in seen:
+                    cmd_of[p.pid] = " ".join(p.cmdline())
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
+        # Stimela's xrun starts `apptainer run ... IMAGE.sif ...`, possibly through `sh -c`, and
+        # apptainer re-execs as its starter: the outermost new process whose command line names
+        # `apptainer run` and a .sif is the container's top.
+        for pid in sorted(cmd_of, key=lambda q: len(_ancestors(q, parent))):
+            seen.add(pid)
+            js = cmd_of[pid]
+            if ("apptainer run" in js and ".sif" in js
+                    and not any(x in live for x in _ancestors(pid, parent))):
+                img = next((c for c in js.split() if c.endswith(".sif")), "?")
+                live[pid] = {"image": os.path.basename(img), "start": time.time(), "peak": 0}
         total = sum(rss.values())
         peak_tree = max(peak_tree, total)
         sums = {k: 0 for k in live}
