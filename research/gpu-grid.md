@@ -453,6 +453,48 @@ Section 7 says to stop after a Gate 1 failure. Gate 2 and the timing are run all
 labelled post hoc: the brief asks for them, and Gate 2's bounds (µJy, σ, scores) do not use
 the normalisation that failed. They cannot change the frozen outcome.
 
+**9.4, 2026-11-17, the timing arm, frozen before any timed run (post hoc: Gates 0-2 and the
+shared `-j 8` walls of 8.4 are known; no exclusive wall is).** The exclusive `-j 16` timing of
+section 5, on glacier, run because the owner asked for it (the coordinator's reopening order,
+pilot f64 through Gate 2 first, is not followed). It cannot change the outcome of 8.6
+(Failure); it is a reading for the coordinator. Section 5 and `timing_plan.txt` hold, with
+these deviations:
+
+- **One exclusive hold for the whole session**, `heavy_lock.py run --drain 0 -- python
+  session.py ...` ([results/gpu-grid-scripts/session.py](results/gpu-grid-scripts/session.py)),
+  all arms and repeats inside it; no ticket per run, no 10-minute withdrawal.
+- **Arms and order:** `timing_plan.txt` as written (S1, H2, H3 × coarse, fine × CPU, GPU ×
+  3 repeats, interleaved, CPU first in r1 and r3, GPU first in r2; GPU budget 4096 MiB;
+  binaries `gemclean-9ad7e75-{cpu,gpu}.exe`, sha256 `c434075a…`, `b9348d49…`, the ones
+  Gates 1-2 measured), output under `timing-20261117/`. After each repeat's twelve GeMClean
+  arms come that repeat's six WSClean 3.7 arms (`minres`, `-mgain` 0.8 and 0.9 on S1, H2,
+  H3, `wsclean_run.sh` as written, `-j 16`), started from the same driver through `wsl -d
+  Ubuntu`, not under a WSL lock of their own. Then the pilot, one run each of CPU and GPU
+  coarse (`run_sky.sh`'s pilot settings, `-j 16`, 4096 MiB).
+- **Warm-up, untimed, inside the hold:** every file of the four MS read once (page cache),
+  one `docker run --rm rang-wsclean-native:3.7 true`, and one S1 coarse GPU run (shader
+  cache, adapter). WSClean reads its MS copies from the WSL disk, GeMClean from D:.
+- **Walls:** GeMClean process start to exit in a Job Object (`timing.py one`); WSClean
+  GNU time's elapsed inside the container (Docker start excluded), as gemclean-speed.md.
+- **Clean or not, per run** (all recorded, none dropped): other-process CPU = (host busy
+  time from `GetSystemTimes` over the run − the run's own user + system time) / wall, in
+  cores; the driver's 5 Hz `nvidia-smi` sampler counts as other. A run is **unclean** if
+  that exceeds 1.0 core, or if the card's memory in use before the run exceeds the
+  session's start by more than 512 MiB. A GPU arm with less than budget + 256 MiB free is
+  **void** (section 5) and retried once at the end of the session. `nvidia-smi` (full) and
+  the lock status are saved at the start and end of the session.
+- **Medians:** per sky × form, the median of the paired savings (CPU − GPU) / CPU, paired
+  by repeat, over the pairs where both runs are clean; walls are medians of clean runs. A
+  cell with fewer than two clean pairs is "not measured". Section 5's saving rule (≥ 10 %
+  on two skies in one form, no cell slower than 2 %) and novelty rule are then read as
+  written, with the accuracy each form reached beside every number: f64 meets Gate 1 and
+  equals the CPU image; f32 fails Gate 1, so an f32 speed gain does not make the f32 form
+  acceptable.
+- **GPU share:** from each GPU log, the GPU path's own time (host, upload, compute,
+  download) and compute alone over the major-cycle time.
+- **Accuracy of the timed runs:** their model and residual FITS hashed against the Gate 2
+  runs of the same binary (`-j 8`); a mismatch is reported.
+
 ## Coordinator decision, 2026-11-16 (owner delegated)
 
 - The frozen outcome, **Failure**, stands. The code (`core/src/gpu/wgrid.rs`, `gemclean -gpu`) stays on
