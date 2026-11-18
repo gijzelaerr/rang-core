@@ -2,6 +2,9 @@
 
 Status, 2026-11-13: **measured (section 6).**
 
+*2026-11-18:* restated against WSClean 3.8 in [wsclean38-rebaseline.md](wsclean38-rebaseline.md) section 7.3:
+native 3.8 fails A1 on p23 and p26, as native 3.7 does (ΔS/S within 0.0023).
+
 - GeMClean shares WSClean's miss: p23 fails A1, and p16 and p26 pass by under 1 µJy.
 - No single large scale takes the flux.
 - Scale bias 0.8 removes the miss (a post hoc reading).

@@ -2286,3 +2286,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | digest merge: `tools/check_all.py` (full), Windows host glacier | main `31750e14` (digest 2026-11-18 merged) | 1352 s (lock wait excluded) | – | PASS; pytest 1610 passed, 117 skipped; gain-hash gate PASS |
 | 2026-11-18 | katdal-0-24: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `katdal-0-24` (pin and mvftoms edits) | 959 s (lock wait excluded; fresh venv and build) | – | PASS |
 | 2026-11-18 | katdal-0-24: `pytest tests/test_mk1_meerkat.py`, katdal 0.24 | native Windows, Python 3.14 / WSL Ubuntu, Python 3.14.4 + python-casacore 3.8.1 | 4.4 s / 3.8 s (WSL venv install 5 s) | – | 8 passed, 1 skipped / 9 passed |
+| 2026-11-18 | wsclean38-rebaseline: `docker build --build-arg WSCLEAN_TAG=v3.8` (`tools/oracles/wsclean-native`), glacier WSL | WSClean 3.8 `386ba535`, FetchContent deps | 105 s (first build, binary-only install, does not start) / 119 s (`cmake --install`) | – | heavy lock 8 slots |
+| 2026-11-18 | wsclean38-rebaseline: `podman build` 3.7 and 3.8, host nash | same Dockerfile, rootless podman | 311 s / 181 s (lock wait excluded) | – | 4 slots, nice 19, ionice -c3 |
+| 2026-11-18 | wsclean38-rebaseline: `cargo +1.93 build --profile gemclean --bin gemclean`, glacier WSL | `6c615524` | 152 s | – | 8 slots |
+| 2026-11-18 | wsclean38-rebaseline arm P: S1 `-niter 0 -make-psf`, WSClean 3.7 and 3.8, minres and nominres, `-j 16`, glacier | S1 | 2 min for the four jobs | – | 8 slots, shared, daytime |
+| 2026-11-18 | wsclean38-rebaseline arm M: WSClean 3.8 RH (nash) and RM1, RM, PM1, PM (glacier) | H4, the pilot | RH 103 s (nash); RM1 62 s, RM 83 s, PM1 346 s, PM 847 s (glacier) | – | 8 slots, shared, daytime; not a timing (3.7 on glacier: RM 181 s, PM 2,346 s) |
+| 2026-11-18 | wsclean38-rebaseline arm D: `ws-multiscale`, native 3.7 and 3.8, host nash | DF5-O field, `-j 4` | 2,232 s / 1,875 s | – | 4 slots, nice 19, shared; not a timing |
+| 2026-11-18 | wsclean38-rebaseline: `t_speed.sh` smoke (`SMOKE=1`), glacier | S1 `-j 16`, one repeat | 4.3 min | – | 8 slots, daytime; not scored |
