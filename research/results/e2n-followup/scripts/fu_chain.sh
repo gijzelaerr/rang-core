@@ -12,9 +12,10 @@ MS=${MS:-$HOME/rang-data/outputs/e2n-followup-20261118/e2n.ms}
 R=${R:-$HOME/rang-data/outputs/e2n-followup-20261118/R}
 INPUT=${INPUT:-$W/research/results/e2n/flaghash-input.json}
 STRATEGY=$N/mk_rfi_flagging_calibrator_fields_firstpass.yaml
-WPY=${WPY:-$HOME/Build/tmp/20261116-e2n/wheel-venv/bin/python}
+WPY=${WPY:-$W/.venv/bin/python}
 LOCK=$HOME/Github/rang/tools/heavy_lock.py
 FLOOR=${FLOOR:-1000}
+KVERSION=${KVERSION:-rang_apply_20261117T034709Z}
 MSDIR=$(dirname "$MS")
 MSNAME=$(basename "$MS")
 mkdir -p "$R"
@@ -27,6 +28,7 @@ tricolour-dump 1 16 TRI dump
 tricolour-restore 1 4 TRI restore
 casa-prep-a 1 8 FU prep-a
 casa-run-a 4 32 FU run-a
+k-only-m058 4 32 KONLY
 casa-prep-b 1 8 FU prep-b
 casa-run-b 4 32 FU run-b
 score3b 1 16 SCORE3B
@@ -54,6 +56,7 @@ while read -r step slots mem kind rest; do
                       dump) cmd=("$WPY" "$F/fu_tricolour.py" dump "$MS" "$R") ;;
                       restore) cmd=("$WPY" "$F/fu_tricolour.py" restore "$MS" "$R" "$INPUT") ;; esac ;;
     FU) cmd=("$WPY" "$F/fu_casa3b.py" $rest "$MS" "$R") ;;
+    KONLY) cmd=("$WPY" "$F/fu_casa3b.py" k-only "$MS" "$R" "$KVERSION" m058 m058) ;;
     CASA) cmd=(nash e2n_casa3b $rest "$MS" "$R") ;;
     SCORE3B) cmd=(nash e2n_score3b "$R" "$MS") ;;
     ROWSNAP_CASA) cmd=(nash e2n_rows snap casa "$MS" CORRECTED_DATA FLAG "$R/rows-casa.npy") ;;
