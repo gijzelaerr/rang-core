@@ -238,6 +238,17 @@ A failed fetch, build, simulation or gate stops its own track and is reported. T
 - The two reserve tracks run side by side. Each takes the next candidate from the list when its own fails a
   condition or a gate, so "the first two that pass" means the first two to pass in that order of attempts.
 
+**2, 2026-11-18, during the dry run on seen data (section 3.3), before any reserve visibility was fetched or
+any fresh sky was drawn.**
+
+- The nash venv (`uv pip install -e ".[test]"`) lacked SciPy and Astropy, which the benchmark scorer and
+  `gemclean_heldout_real.py` import. D1's `simprep` failed at import. Fix: SciPy 1.18.1 and Astropy 8.0.3 from
+  public PyPI, with NumPy 2.5.5 unchanged. D1's track was rerun (`drive.sh d1`). No number was read before the fix.
+- The dry run's 16-slot cap let other jobs start between A0 and SDa, so the pair was not booked as one job.
+  The main run books each ESO137 pair as one 16-slot job (`scripts/pair.sh`; each arm runs 8 threads and writes
+  its own `/usr/bin/time` line). While a pair waits, smaller jobs of this driver are held back. The pilot's
+  seen pairs keep the old schedule.
+
 ## Measured result
 
 (not yet run)

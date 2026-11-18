@@ -1,5 +1,5 @@
 #!/bin/bash
-# sdm03-default unattended driver (research/sdm03-default.md section 8): drive.sh dry | main | summary
+# sdm03-default unattended driver (research/sdm03-default.md section 8): drive.sh dry | main | d1 | summary
 # Not under the lock itself; every heavy step books the heavy lock with its real thread count and memory,
 # at most $CAP slots booked by this driver at once. Rerunnable: a step with logs/<name>.ok is skipped.
 source ~/Build/tmp/20261118-sdm03/env.sh
@@ -8,13 +8,18 @@ mkdir -p $RUN $LOGS $OUT/sims
 DLOG=$LOGS/driver-$MODE.log
 status(){ { echo "# sdm03-default status (nash driver $MODE, $(date '+%F %H:%M %Z'))"; echo; echo "Driver PID $(cat $B/drive-$MODE.pid 2>/dev/null), log $DLOG"; echo "Running: $(cd $RUN && ls *.job 2>/dev/null | sed 's/\.job$//' | tr '\n' ' ')"; echo; tail -8 $DLOG | sed 's/^/    /'; } > $OUT/status.md.tmp 2>/dev/null && mv $OUT/status.md.tmp $OUT/status.md; }
 log(){ echo "$(date -Is) $*" | tee -a $DLOG; status; }
-admit(){ local booked; booked=$(cat $RUN/*.job 2>/dev/null | awk '{s+=$1} END{print s+0}'); [ $(( booked + $1 )) -le $CAP ]; }
+admit(){ # N NAME: a job of CAP slots (a cost pair) waiting holds back every smaller one
+  local booked; booked=$(cat $RUN/*.job 2>/dev/null | awk '{s+=$1} END{print s+0}')
+  [ $1 -lt $CAP ] && ls $RUN/*.want >/dev/null 2>&1 && return 1
+  [ $(( booked + $1 )) -le $CAP ]
+}
 launch(){ # NAME SLOTS MEM_GB cmd...
   local name=$1 n=$2 mem=$3 rc; shift 3
   [ -f $LOGS/$name.ok ] && return 0
   while true; do
     exec 9>$RUN/.lk; flock 9
-    if admit $n; then echo "$n" > $RUN/$name.job; flock -u 9; break; fi
+    if admit $n $name; then echo "$n" > $RUN/$name.job; rm -f $RUN/$name.want; flock -u 9; break; fi
+    [ $n -ge $CAP ] && touch $RUN/$name.want
     flock -u 9; sleep 30
   done
   log "start $name ($n slots, $mem GB)"
@@ -33,14 +38,15 @@ seen_state(){ # SRC DST: link floor-6's state (read only), never its family2
   mkdir -p $2
   for f in $1/*; do b=$(basename $f); case $b in family2|summary.json) continue;; esac; [ -e $2/$b ] || ln -s $f $2/$b; done
 }
+pair(){ # TAG ARM_A MEM_A ARM_B MEM_B MS STATE: both under one 16-slot booking (amendment 2)
+  [ -f $LOGS/arm-$1-$2.ok ] && [ -f $LOGS/arm-$1-$4.ok ] && return 0
+  launch pair-$1-$2-$4 16 $(( $3 + $5 )) bash $B/pair.sh $1 $2 $4 $6 $7
+}
 real_arms(){ # TAG STATE MS: section 2's ESO137 arms, A0 paired with SDa for cost
-  local t=$1 st=$2 ms=$3 r1 r2 p1 p2
-  arm $t A0 $ms $st eso CORRECTED_DATA 8 16 & p1=$!; arm $t SDa $ms $st eso CORRECTED_DATA 8 32 & p2=$!; wait $p1; r1=$?; wait $p2; r2=$?
-  [ $r1 -eq 0 ] && [ $r2 -eq 0 ] || return 1
-  arm $t Sa $ms $st eso CORRECTED_DATA 8 32 & p1=$!; arm $t Sm $ms $st eso CORRECTED_DATA 8 32 & p2=$!; wait $p1; r1=$?; wait $p2; r2=$?
-  [ $r1 -eq 0 ] && [ $r2 -eq 0 ] || return 1
-  arm $t SDm03 $ms $st eso CORRECTED_DATA 8 32 & p1=$!; arm $t W-SDa $ms $st eso CORRECTED_DATA 8 48 & p2=$!; wait $p1; r1=$?; wait $p2; r2=$?
-  [ $r1 -eq 0 ] && [ $r2 -eq 0 ] || return 1
+  local t=$1 st=$2 ms=$3
+  pair $t A0 16 SDa 32 $ms $st || return 1
+  pair $t Sa 32 Sm 32 $ms $st || return 1
+  pair $t SDm03 32 W-SDa 48 $ms $st || return 1
   launch score-$t 4 16 $PY $SD real --group MAIN_4 -- score $(for a in A0 SDa Sa Sm SDm03 W-SDa; do echo $a=$st/img/$a/image; done) --out $st --held $HELD
 }
 real_track(){ # GROUP -> 0 done, 3 a condition or gate failed (next candidate), 1 error
@@ -104,6 +110,7 @@ case $MODE in
     seen_state $F6/ho $OUT/seen-s10; real_arms s10 $OUT/seen-s10 $F6/ho/P/pilot.ms & SS=$!
     for p in $W1 $W2 $S1 $S2 $S3 $S4 $SS; do wait $p; r=$?; log "track pid $p rc $r"; RC=$(( RC + r )); done
     summary;;
+  d1) sim_track D1; RC=$?;;  # the seen sky alone (rerun after the venv fix, amendment 2)
   summary) summary;;
 esac
 kill $SPID 2>/dev/null
