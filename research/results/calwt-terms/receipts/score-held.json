@@ -1,0 +1,253 @@
+{
+ "set": "held",
+ "noisy": false,
+ "C1": {},
+ "C3_gpol_rows": {
+  "casa": 656,
+  "rang": 768
+ },
+ "S": {
+  "K2": {
+   "off": {
+    "median": 0.00016030669212341309,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on": {
+    "median": 0.00016030669212341309,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on_equals_off": true
+  },
+  "Kg": {
+   "off": {
+    "median": 0.00016069412231445312,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "on": {
+    "median": 0.00016069412231445312,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "on_equals_off": false
+  },
+  "G2": {
+   "off": {
+    "median": 8.728380036651496e-08,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on": {
+    "median": 8.728380036651496e-08,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on_equals_off": true
+  },
+  "Gg": {
+   "off": {
+    "median": 3.0504421532576556e-07,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "on": {
+    "median": 3.0504421532576556e-07,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "on_equals_off": false
+  },
+  "Gpol": {
+   "off": {
+    "median": 1.67827751911136e-05,
+    "n": 1230,
+    "rows_a": 768,
+    "rows_b": 656,
+    "paired": 656
+   },
+   "on": {
+    "median": 1.67827751911136e-05,
+    "n": 1230,
+    "rows_a": 768,
+    "rows_b": 656,
+    "paired": 656
+   },
+   "on_equals_off": false
+  },
+  "Kcross": {
+   "off": {
+    "median": 7.56978988647461e-05,
+    "n": 64,
+    "rows_a": 64,
+    "rows_b": 64,
+    "paired": 64
+   },
+   "on": {
+    "median": 5.125999450683594e-06,
+    "n": 64,
+    "rows_a": 64,
+    "rows_b": 64,
+    "paired": 64
+   },
+   "on_equals_off": false
+  },
+  "Df": {
+   "off": {
+    "median": 6.74460503334285e-07,
+    "n": 61440
+   },
+   "on": {
+    "median": 2.703349268900992e-07,
+    "n": 61440
+   },
+   "on_equals_off": false
+  },
+  "G": {
+   "off": {
+    "median": 1.6353494089360094e-06,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on": {
+    "median": 1.6353494089360094e-06,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on_equals_off": true
+  },
+  "B": {
+   "off": {
+    "median": 6.142540746967744e-08,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on": {
+    "median": 6.142540746967744e-08,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on_equals_off": true
+  },
+  "B2": {
+   "off": {
+    "median": 6.172279464867397e-08,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on": {
+    "median": 6.172279464867397e-08,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "on_equals_off": true
+  }
+ },
+ "chain_vs_casa": {
+  "off": {
+   "K": {
+    "median": 0.006339728832244873,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "G": {
+    "median": 0.00020306203736566343,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "B": {
+    "median": 0.006917763807648966,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "K2": {
+    "median": 0.006215095520019531,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "G2": {
+    "median": 0.00020344556493540923,
+    "n": 60,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "B2": {
+    "median": 0.0068523312280852015,
+    "n": 16384,
+    "rows_a": 32,
+    "rows_b": 32,
+    "paired": 32
+   },
+   "Kg": {
+    "median": 0.006085634231567383,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "Gg": {
+    "median": 0.0002070368823002746,
+    "n": 300,
+    "rows_a": 160,
+    "rows_b": 160,
+    "paired": 160
+   },
+   "Gpol": {
+    "median": 1.5079954001915022e-05,
+    "n": 1230,
+    "rows_a": 768,
+    "rows_b": 656,
+    "paired": 656
+   },
+   "Kcross": {
+    "median": 8.857250213623047e-05,
+    "n": 64,
+    "rows_a": 64,
+    "rows_b": 64,
+    "paired": 64
+   },
+   "Df": {
+    "median": 4.394924973574631e-06,
+    "n": 61440
+   }
+  }
+ }
+}

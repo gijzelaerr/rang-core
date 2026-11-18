@@ -245,6 +245,62 @@ def apply(
     return out, out_flag.astype(bool)
 
 
+# The kinds whose amplitudes scale weights under CASA's `calwt` (scalar
+# and diagonal Jones, `updateWt2`; K, KCROSS, X and D force it off).
+CALWT_KINDS = ("B", "G", "T")
+
+
+def calwt_scale(
+    time, antenna1, antenna2, tables, *, nant, field_id=0, spw=0, interp="linear",
+    threads=0,
+):  # fmt: skip
+    """CASA's `calwt` weight factor of a solve (task calwt-terms,
+    research/calwt-terms.md section 2), in the Rust kernel
+    (`apply::calwt_scale`): float64 `(row, 4)`, per correlation (XX, XY, YX,
+    YY) `F(p, h) F(q, h')` with `F(a, h)` the product over `tables` (the
+    ones that correct the solve's data) of B's mean `|B|^2` over the
+    solution channels unflagged after time interpolation and G's or T's
+    `|g|^2` at the row's time (1 under a flag, or without solutions); other
+    kinds give 1. `interp` as `apply`'s (its time part is used)."""
+    interp = _interps(list(tables), interp)
+    keep = [i for i, t in enumerate(tables) if t.kind in CALWT_KINDS]
+    a1 = np.ascontiguousarray(antenna1, np.uint32)
+    a2 = np.ascontiguousarray(antenna2, np.uint32)
+    out = np.ones((len(a1), 4), np.float64)
+    if not keep or not len(a1):
+        return out
+    packed = pack(
+        [tables[i] for i in keep],
+        int(nant),
+        spw=spw,
+        field_id=field_id,
+        interp=[interp[i] for i in keep],
+    )
+    extension().cal_calwt_scale(
+        np.ascontiguousarray(time, np.float64),
+        a1,
+        a2,
+        int(nant),
+        packed["kind"],
+        packed["time_interp"],
+        packed["freq_interp"],
+        packed["npar"],
+        packed["k_ref_freq"],
+        packed["slot_start"],
+        packed["slot_offset"],
+        packed["slot_time"],
+        packed["param_offset"],
+        packed["params"],
+        packed["flag_offset"],
+        packed["term_flags"],
+        packed["freq_offset"],
+        packed["sol_freq"],
+        int(threads),
+        out,
+    )
+    return out
+
+
 def apply_jones(
     data,
     flag,
@@ -327,10 +383,12 @@ def class_c(got, expected, ok):
 
 
 __all__ = [
+    "CALWT_KINDS",
     "CARACAL_INTERP",
     "POOLED",
     "apply",
     "apply_jones",
+    "calwt_scale",
     "class_c",
     "pack",
     "parse_interp",

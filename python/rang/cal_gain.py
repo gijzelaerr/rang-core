@@ -599,6 +599,25 @@ def _pre_apply(
     return data, model, flag
 
 
+def calwt_factor(tables, interp, solved, time, a1, a2, nant, field_id=0):
+    """CASA's `calwt` factor of a solve of type `solved` (task
+    calwt-terms, research/calwt-terms.md section 2): float64 `(row, 4)`
+    from the pre-applied tables that correct the data (a lower VisCal type,
+    as `_pre_apply`), by `rang.cal_apply.calwt_scale`."""
+    lower = [
+        i
+        for i, t in enumerate(tables)
+        if TYPE_ORDER.index(t.kind) < TYPE_ORDER.index(solved)
+    ]
+    if not lower:
+        return np.ones((len(time), 4))
+    interp = cal_apply._interps(tables, interp)
+    return cal_apply.calwt_scale(
+        time, a1, a2, [tables[i] for i in lower], nant=nant, field_id=field_id,
+        interp=[interp[i] for i in lower],
+    )  # fmt: skip
+
+
 META_COLUMNS = (
     "TIME",
     "SCAN_NUMBER",
@@ -632,6 +651,7 @@ class _Field:
     def __init__(
         self, ms, rows, *, data_column, model, model_column, weight_column,
         sigma_column, tables, interp, nant, field_id, solved, freq, uvrange,
+        solve_calwt=False,
     ):  # fmt: skip
         self.ms, self.rows = ms, rows
         self.meta = _ms_columns(ms, META_COLUMNS, rows)
@@ -655,6 +675,9 @@ class _Field:
         # Task A3 (`calibrate.casa_phase_weights`): `prepare` divides the
         # parallel hands by the model (`model_divided`).
         self.model_divided = False
+        # Task calwt-terms (`calibrate.k_calwt`, `g_calwt`, `gpol_calwt`):
+        # `prepare` scales the weights by CASA's `calwt` factor.
+        self.solve_calwt = bool(solve_calwt)
 
     def prepare(self, pos, c, chans=None):
         """The arrays of field rows `pos` from their cell columns `c`, as
@@ -684,6 +707,14 @@ class _Field:
                 sigma = np.broadcast_to(sigma[:, None, :], weights.shape)
             with np.errstate(divide="ignore"):
                 weights = np.where(sigma > 0, 1.0 / sigma**2, 0.0).astype(np.float32)
+            if self.solve_calwt:
+                # After the SIGMA reset, before the row weights (solution
+                # times), the model division and any average.
+                f = calwt_factor(
+                    self.tables, self.interp, self.solved, m["TIME"][pos],
+                    m["ANTENNA1"][pos], m["ANTENNA2"][pos], self.nant, self.field_id,
+                )  # fmt: skip
+                weights = weights * f[:, None, :].astype(np.float32)
         used = flag | self.flag_row[pos][:, None, None] | self.auto[pos][:, None, None]
         row_w = row_weights(weights, used)
         if self.model_divided:
@@ -995,6 +1026,7 @@ def gaincal(
     average_freq=False,
     average_psi=None,
     casa_phase_weights=False,
+    solve_calwt=False,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -1028,7 +1060,10 @@ def gaincal(
     the pre-applied data divided by the model per channel with weight
     `w |M|^2` (`model_divided`), averaged in time and frequency, then
     normalised to unit amplitude with weight times the amplitude squared
-    (`phase_only`); research/e2b-misses.md 9.26."""
+    (`phase_only`); research/e2b-misses.md 9.26. Task calwt-terms:
+    `solve_calwt` (`calibrate.g_calwt`, `gpol_calwt`) scales the weights
+    by CASA's `calwt` factor of the pre-applied tables that correct the
+    data (`calwt_factor`), after the SIGMA reset and before anything else."""
     if casa_phase_weights and not average_freq:
         raise ValueError("casa_phase_weights needs average_freq (CASA averages first)")
     ms = Path(ms)
@@ -1072,7 +1107,7 @@ def gaincal(
         ms, rows, data_column=data_column, model=model, model_column=model_column,
         weight_column=weight_column, sigma_column=sigma_column, tables=tables,
         interp=interp, nant=nant, field_id=field_id, solved="G", freq=freq,
-        uvrange=uvrange,
+        uvrange=uvrange, solve_calwt=solve_calwt,
     )  # fmt: skip
     divide = bool(casa_phase_weights) and calmode == "p"
     fld.model_divided = divide
@@ -1105,6 +1140,7 @@ def gaincal(
         "time_bin": tb,
         "frequency": freq,
         "spw": spw,
+        **({"calwt": True} if solve_calwt else {}),
     }
     return table, sol, info
 

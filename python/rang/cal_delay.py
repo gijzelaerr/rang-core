@@ -340,6 +340,7 @@ def gaincal(
     budget=None,
     average_time=False,
     zero_start=False,
+    solve_calwt=False,
 ):
     """`gaincal(gaintype='K')` on one field of a single-window MS: returns
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
@@ -354,7 +355,8 @@ def gaincal(
     `weight_column=None` and `scan` as `rang.cal_gain.gaincal` (task C2e),
     and `budget` (task W3b): chunks of whole intervals, the same result.
     `average_time` (task E2) as `rang.cal_gain.gaincal`. `zero_start` as
-    `solve` (research/calchain-floor.md section 12)."""
+    `solve` (research/calchain-floor.md section 12). `solve_calwt` (task
+    calwt-terms, `calibrate.k_calwt`) as `rang.cal_gain.gaincal`'s."""
     ms = Path(ms)
     with core_ms.open_table(ms / "ANTENNA") as t:
         names = [str(n) for n in t.getcol("NAME")]
@@ -383,7 +385,7 @@ def gaincal(
         ms, rows, data_column=data_column, model=model, model_column=model_column,
         weight_column=weight_column, sigma_column=sigma_column, tables=tables,
         interp=interp, nant=nant, field_id=field_id, solved="K", freq=freq,
-        uvrange=uvrange,
+        uvrange=uvrange, solve_calwt=solve_calwt,
     )  # fmt: skip
     m = fld.meta
     tb, keys = cal_gain.solint_bins(
@@ -414,6 +416,8 @@ def gaincal(
     scans = fld.scans(tb, len(keys))
     table = to_caltable(sol, times, scans, field_id=field_id, ms=ms)
     info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
+    if solve_calwt:
+        info["calwt"] = True
     return table, sol, info
 
 

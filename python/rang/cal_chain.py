@@ -65,6 +65,10 @@ K_ALONE = (
 )
 
 
+# The solve types `run`'s `solve_calwt` takes (task calwt-terms).
+CALWT_TYPES = frozenset({"K", "G", "Gpol", "KCROSS", "Df"})
+
+
 def primary(
     ms,
     *,
@@ -179,6 +183,8 @@ def _solve_one(ms, term, field_id, tables, common):
         kwargs.pop("average_freq", None)  # task E2: G-type solves only
         kwargs.pop("casa_phase_weights", None)  # task A3: G-type solves only
     kwargs.pop("xf_calwt", None)  # task xf-gap: Xf solves only
+    if kind in kwargs.pop("solve_calwt", ()):
+        kwargs["solve_calwt"] = True  # task calwt-terms: K and G solves
     if kind != "B":
         kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
     if kind != "K":
@@ -226,6 +232,8 @@ def _solve_pol(ms, term, field_id, tables, common):
         kwargs["casa_phase_weights"] = True  # task A3: calmode p only
     if kind == "Xf" and common.get("xf_calwt"):
         kwargs["calwt"] = True  # task xf-gap: CASA's calwt solve weights
+    if kind in common.get("solve_calwt", ()):
+        kwargs["solve_calwt"] = True  # task calwt-terms: Gpol, KCROSS, Df
     if term["model"] == "unit":
         nrow, nchan = _rows_of(ms, field_id, common.get("scan"))
         kwargs["model"] = cal_fluxscale.smodel_view(nrow, nchan)
@@ -465,6 +473,7 @@ def run(
     bandpass_model_divided=False,
     k_zero_start=False,
     xf_calwt=False,
+    solve_calwt=(),
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -509,7 +518,11 @@ def run(
     (`rang.cal_delay.solve` `zero_start`). `xf_calwt` (`calibrate.xf_calwt`,
     research/xf-gap.md section 7): every Xf solve weights its cells as
     CASA's `calwt` scales them by the pre-applied tables
-    (`rang.cal_pol.load`'s `calwt`). Returns `{"tables": {name:
+    (`rang.cal_pol.load`'s `calwt`). `solve_calwt` (task calwt-terms,
+    research/calwt-terms.md; `calibrate.k_calwt`, `g_calwt`, `gpol_calwt`,
+    `kcross_calwt`, `df_calwt`): the solve types of `CALWT_TYPES` whose
+    weights are scaled by CASA's `calwt` factor of the tables that correct
+    their data (`rang.cal_gain.calwt_factor`; F is not). Returns `{"tables": {name:
     {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
@@ -535,6 +548,11 @@ def run(
         common["zero_start"] = True
     if xf_calwt:
         common["xf_calwt"] = True
+    solve_calwt = frozenset(solve_calwt)
+    if solve_calwt - CALWT_TYPES:
+        raise ValueError(f"solve_calwt takes {sorted(CALWT_TYPES)}")
+    if solve_calwt:
+        common["solve_calwt"] = solve_calwt
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
@@ -571,6 +589,7 @@ def run(
             kwargs.pop("model_divided", None)  # task e2a-3b-diag: B solves only
             kwargs.pop("zero_start", None)  # calchain-floor: K solves only
             kwargs.pop("xf_calwt", None)  # task xf-gap: Xf solves only
+            kwargs.pop("solve_calwt", None)  # task calwt-terms: not F
             table, record, merged = cal_fluxscale.bootstrap(
                 ms,
                 base,

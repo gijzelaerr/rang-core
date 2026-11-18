@@ -85,25 +85,19 @@ fn offsets(o: &[u64], name: &str) -> Result<Vec<usize>, String> {
     Ok(o)
 }
 
+/// The chunk and terms of the packed structs, passed to `f`.
+///
 /// # Safety
 /// As `rang_core_cal_apply`.
-unsafe fn run(
+unsafe fn with_terms<R>(
     chunk: &ApplyChunkC,
     terms: &ApplyTermsC,
-    direction: u32,
-    threads: usize,
-    out_data: *mut f32,
-    out_flags: *mut u8,
-) -> Result<(), String> {
+    f: impl FnOnce(&Chunk, &[Term]) -> Result<R, String>,
+) -> Result<R, String> {
     let cells = chunk
         .nrow
         .checked_mul(chunk.nchan)
         .ok_or("cell count overflows")?;
-    let direction = match direction {
-        0 => Direction::Correct,
-        1 => Direction::Corrupt,
-        _ => return Err("direction must be 0 (correct) or 1 (corrupt)".into()),
-    };
     let nt = terms.nterm;
     // SAFETY (this block): the caller guarantees the documented lengths.
     let (c, packed) = unsafe {
@@ -181,6 +175,28 @@ unsafe fn run(
             k_ref_freq: kref[t],
         });
     }
+    f(&c, &list)
+}
+
+/// # Safety
+/// As `rang_core_cal_apply`.
+unsafe fn run(
+    chunk: &ApplyChunkC,
+    terms: &ApplyTermsC,
+    direction: u32,
+    threads: usize,
+    out_data: *mut f32,
+    out_flags: *mut u8,
+) -> Result<(), String> {
+    let cells = chunk
+        .nrow
+        .checked_mul(chunk.nchan)
+        .ok_or("cell count overflows")?;
+    let direction = match direction {
+        0 => Direction::Correct,
+        1 => Direction::Corrupt,
+        _ => return Err("direction must be 0 (correct) or 1 (corrupt)".into()),
+    };
     if cells > 0 && (out_data.is_null() || out_flags.is_null()) {
         return Err("outputs are null".into());
     }
@@ -195,7 +211,40 @@ unsafe fn run(
             )
         }
     };
-    apply::apply(&c, &list, direction, threads, od, of)
+    // SAFETY: forwarded from the caller.
+    unsafe {
+        with_terms(chunk, terms, |c, list| {
+            apply::apply(c, list, direction, threads, od, of)
+        })
+    }
+}
+
+/// # Safety
+/// As `rang_core_cal_calwt_scale`.
+unsafe fn run_calwt(
+    chunk: &ApplyChunkC,
+    terms: &ApplyTermsC,
+    threads: usize,
+    out: *mut f64,
+) -> Result<(), String> {
+    let n = chunk.nrow.checked_mul(4).ok_or("row count overflows")?;
+    if n > 0 && out.is_null() {
+        return Err("out is null".into());
+    }
+    // SAFETY: the caller guarantees `4 nrow` writable values at `out`.
+    let o = unsafe {
+        if n == 0 {
+            &mut [][..]
+        } else {
+            std::slice::from_raw_parts_mut(out, n)
+        }
+    };
+    // SAFETY: forwarded from the caller.
+    unsafe {
+        with_terms(chunk, terms, |c, list| {
+            apply::calwt_scale(c, list, threads, o)
+        })
+    }
 }
 
 /// Correct (`direction` 0) or corrupt (1) the chunk by the terms into
@@ -221,6 +270,39 @@ pub unsafe extern "C" fn rang_core_cal_apply(
     std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         // SAFETY: forwarded from the caller.
         match unsafe { run(&*chunk, &*terms, direction, threads, out_data, out_flags) } {
+            Ok(()) => 0,
+            Err(message) => {
+                set_error(&message);
+                1
+            }
+        }
+    }))
+    .unwrap_or(2)
+}
+
+/// CASA's `calwt` weight factor of a solve (`apply::calwt_scale`, task
+/// calwt-terms): per row of the chunk (`time`, `antenna1`, `antenna2`;
+/// `nchan` 0, `data` and `flags` may be null) the four correlations'
+/// factors into `out` (`4 nrow` doubles), from the packed tables that
+/// correct the solve's data.
+///
+/// # Safety
+/// Every pointer must hold the lengths the structs document, and `out`
+/// `4 nrow` writable doubles not aliasing the inputs.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rang_core_cal_calwt_scale(
+    chunk: *const ApplyChunkC,
+    terms: *const ApplyTermsC,
+    threads: usize,
+    out: *mut f64,
+) -> i32 {
+    if chunk.is_null() || terms.is_null() {
+        set_error("chunk or terms is null");
+        return 1;
+    }
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        // SAFETY: forwarded from the caller.
+        match unsafe { run_calwt(&*chunk, &*terms, threads, out) } {
             Ok(()) => 0,
             Err(message) => {
                 set_error(&message);

@@ -1610,6 +1610,18 @@ def chain_weight_column(config, info):
     return "WEIGHT_SPECTRUM" if info["weight_spectrum"] else "WEIGHT"
 
 
+# Task calwt-terms (research/calwt-terms.md): the `calibrate` keys that
+# scale a solve type's weights by CASA's calwt factor (`cal_chain.run`'s
+# `solve_calwt`).
+CALWT_KEYS = {
+    "k_calwt": "K",
+    "g_calwt": "G",
+    "gpol_calwt": "Gpol",
+    "kcross_calwt": "KCROSS",
+    "df_calwt": "Df",
+}
+
+
 def chain_terms(config, info, config_path):
     """`rang.cal_chain.run`'s terms for the K, G, B, A, F sequence of
     `calibrate.primary` and `calibrate.secondary` (task C2e). Defaults are
@@ -1847,6 +1859,9 @@ def stage_calibrate_chain(ctx):
         bandpass_model_divided=bool(cal.get("bandpass_model_divided")),  # e2a-3b-diag
         k_zero_start=bool(cal.get("k_zero_start")),  # calchain-floor
         xf_calwt=bool(cal.get("xf_calwt")),  # xf-gap
+        solve_calwt=[
+            kind for key, kind in CALWT_KEYS.items() if cal.get(key)
+        ],  # calwt-terms
     )
     steps = result["steps"]
     for step, term in zip(steps, terms):

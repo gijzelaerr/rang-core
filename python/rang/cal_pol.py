@@ -449,6 +449,7 @@ def load(
     scan=None,
     receptor_angle=None,
     calwt=False,
+    solve_calwt=False,
 ):
     """Read one field of a one-window MS for a solve of VisCal type
     `solved` (`'G'`, `'Kcross'`, `'Xf'`, `'Df'`): the model rotated by P
@@ -461,13 +462,15 @@ def load(
     read (WEIGHT is repeated over channels), and `receptor_angle` is
     `row_angles`'. `calwt` (task xf-gap, `calibrate.xf_calwt`): the weights
     of a pre-applied solve are scaled as CASA's `calwt` scales them
-    (`_PolField.calwt_factor`)."""
+    (`_PolField.calwt_factor`). `solve_calwt` (task calwt-terms,
+    `calibrate.kcross_calwt`, `df_calwt`): the same scaling by the Rust
+    kernel (`rang.cal_gain.calwt_factor`, CASA's `calcWtScale` per table)."""
     fld = _PolField(
         ms, field_id=field_id, solved=solved, solint=solint, combine=combine,
         uvrange=uvrange, gaintable=gaintable, interp=interp, parang=parang,
         frame=frame, data_column=data_column, model_column=model_column,
         model=model, weight_column=weight_column, scan=scan,
-        receptor_angle=receptor_angle, calwt=calwt,
+        receptor_angle=receptor_angle, calwt=calwt, solve_calwt=solve_calwt,
     )  # fmt: skip
     return _load_whole(fld)
 
@@ -480,7 +483,7 @@ class _PolField:
     def __init__(
         self, ms, *, field_id, solved, solint, combine, uvrange, gaintable, interp,
         parang, frame, data_column, model_column, model, weight_column, scan,
-        receptor_angle, calwt=False,
+        receptor_angle, calwt=False, solve_calwt=False,
     ):  # fmt: skip
         ms = Path(ms)
         with core_ms.open_table(ms / "ANTENNA") as t:
@@ -529,6 +532,9 @@ class _PolField:
         self.weight_column, self.sigma_column = weight_column, sigma_column
         self.solved, self.interp = solved, interp
         self.calwt = bool(calwt)
+        self.solve_calwt = bool(solve_calwt)
+        if self.calwt and self.solve_calwt:
+            raise ValueError("give calwt (Xf, task xf-gap) or solve_calwt, not both")
         tb, keys = cal_gain.solint_bins(
             m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
         )
@@ -544,6 +550,7 @@ class _PolField:
             **({} if scan is None else {"scan": [int(s) for s in np.atleast_1d(scan)]}),
             **({} if receptor_angle is None else {"receptor_angle": receptor_angle}),
             **({"calwt": True} if self.calwt else {}),
+            **({"solve_calwt": True} if self.solve_calwt else {}),
         }
 
     def prepare(self, pos, c, chans=None):
@@ -596,6 +603,12 @@ class _PolField:
                 weights = np.broadcast_to(weights[:, None, :], data.shape)
         if self.calwt and self.tables:
             f = self.calwt_factor(m["TIME"][pos], a1, a2)
+            weights = weights * f[:, None, :].astype(np.float32)
+        elif self.solve_calwt and self.tables:
+            f = cal_gain.calwt_factor(
+                self.tables, self.interp, self.solved, m["TIME"][pos], a1, a2,
+                len(self.names), self.field_id,
+            )  # fmt: skip
             weights = weights * f[:, None, :].astype(np.float32)
         weights = np.ascontiguousarray(np.broadcast_to(weights, data.shape), np.float32)
         flag = np.ascontiguousarray(flag, bool)
@@ -800,7 +813,7 @@ def _load_defaults(options):
         "interp": "linear", "parang": True, "frame": "casa", "data_column": "DATA",
         "model_column": "MODEL_DATA", "model": None,
         "weight_column": "WEIGHT_SPECTRUM", "scan": None, "receptor_angle": None,
-        "calwt": False,
+        "calwt": False, "solve_calwt": False,
     }  # fmt: skip
     out.update(options)
     return out
