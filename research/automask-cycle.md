@@ -127,7 +127,7 @@ joins, and `-local-rms`.
 
 ## Measured result
 
-Measured 2026-11-18, 18:19-19:45 SAST (frozen runs) and 19:44-21:47 SAST (one post hoc run), host nash, run root `nash:~/rang-data/outputs/automask-cycle-20261118`
+Measured 2026-11-18, 18:19-19:45 SAST (frozen runs) and 19:44-21:45 SAST (one post hoc run), host nash, run root `nash:~/rang-data/outputs/automask-cycle-20261118`
 (removed after archiving). Archive: [results/automask-cycle/](results/automask-cycle/) (compare outputs `cmp/`,
 imager logs, argv and GeMClean reports `small/`, the rebuild's logs `logs/`, `timing.tsv`, the driver scripts
 `scripts/`, the post hoc residual probe `probe.json`). State rebuilt with sdm03's chain at `c3d6bf72` (worktree `automask-cycle-state`, extension
@@ -179,13 +179,14 @@ Positions are (y, x) array indices; WSClean's log prints x, y.
 
 - **The first loop's stop.** Each imager's iteration-2 first loop stops at 0.1 × its start peak: GeMClean
   7.23 mJy (scan 4) and 10.05 mJy (scan 14), WSClean 7.62 and 10.22 mJy. After the major cycle, GeMClean's
-  residual is at that level: 0 pixels above 7.62 mJy on scan 4, peak 7.34; on scan 14 78 pixels above
-  10 mJy, peak 10.30. WSClean's is not: **1,096 pixels above its own 7.62 mJy stop on scan 4 (112 above
-  15 mJy), 1,837 above 10 mJy on scan 14 (249 above 15 mJy)**. Its log still says "Stopped on peak 7.61 mJy"
+  residual is at that level. On scan 4: 0 pixels above 7.62 mJy and 63 above its own 7.23 mJy stop, peak 7.34
+  (1.5 % over). On scan 14: 78 pixels above 10 mJy, peak 10.30 (2.5 % over). WSClean's is not: **1,096 pixels above its own 7.62 mJy stop on scan 4 (112 above
+  15 mJy), 1,837 above 10 mJy on scan 14 (249 above 15 mJy)**. The scan-14 counts and the 63 come from an inline probe,
+  not archived; `probe.json` re-reads scan 4's n2 residuals. Its log still says "Stopped on peak 7.61 mJy"
   and "10.22 mJy".
 - **The sources.** On scan 4 the excess sits at four compact sources, (y, x) = (2046, 1970), (1980, 2109),
-  (1973, 2159), (2033, 1969). After iteration 1's first loop the imagers agree there: residual 61-65 mJy, 7×7
-  model sums within 5 %. After iteration 2, WSClean's residual there is 15.2-22.8 mJy and GeMClean's
+  (1973, 2159), (2033, 1969). After iteration 1's first loop the imagers agree there. Three of them have 61-65 mJy
+  residual and 7×7 model sums within 5 %. (1980, 2109) has −6.4 / −6.6 mJy and no model in either. After iteration 2, WSClean's residual there is 15.2-22.8 mJy and GeMClean's
   6.4-6.7 mJy. GeMClean has added 17-108 mJy more model per 7×7 box: 571 against 464 mJy at (2046, 1970),
   28.7 against 11.7 mJy at (1980, 2109). The model sums come from an inline probe on nash, run outside the
   lock and not archived. The residuals are re-read by `scripts/probe.py` (`probe.json`).
@@ -234,11 +235,11 @@ So a pixel outside the starting subset that is above the stop at the end is seen
 Inside the subset, the tracked values are the PSF subtraction that `CorrectResidualDirty` then applies, so a
 pixel that ends above the stop must have been outside the starting subset (an inference from the source).
 On scan 4 that is 1,096 pixels. GeMClean's minor loop searches the whole working map (per-tile maxima), and
-its resyncs restore the exact residual, so nothing above its stop survives a loop. How the four sources fell
+its resyncs restore the exact residual, so after the major cycle its residual is within 1.5 % of its stop. How the four sources fell
 below 7.62 mJy at iteration 2's start and rose above it was not traced.
 
 Post hoc test (not in section 4): WSClean n2 on scan 4 with `-no-fast-subminor` (`W-MAIN_1-n2-nofs`).
-It ran 19:44-21:47 (7,229 s against 384 s with the optimisation). The arms are on scan 4's
+It ran 19:44-21:45 (7,229 s against 384 s with the optimisation). The arms are on scan 4's
 iteration 2, after the first loop and a major cycle:
 
 | | WSClean default | WSClean `-no-fast-subminor` | GeMClean |
@@ -252,8 +253,8 @@ iteration 2, after the first loop and a major cycle:
 | radler σ of the MFS residual | 206.9 µJy | 193.8 µJy | 191.5 µJy |
 | rms of G − W | 63.3 µJy | 34.3 µJy | – |
 
-Without the sub-minor optimisation, WSClean's iteration-2 residual matches GeMClean's: nothing left above the
-stop, the four sources at 6.2-7.1 mJy, and the G − W rms halved. Iteration 1 is unchanged (σ 1.19 mJy, start
+Without the sub-minor optimisation, WSClean's iteration-2 residual matches GeMClean's: nothing above 7.62 mJy
+(peak |7.45| mJy, 1.6 % over its own 7.33 mJy stop), the four sources at 6.2-7.1 mJy, and the G − W rms halved. Iteration 1 is unchanged (σ 1.19 mJy, start
 peak 659.06 mJy). The excess is radler's default sub-minor loop, not a property of WSClean's clean as
 documented. How WSClean `-no-fast-subminor` would switch on scan 4 was not run: its full run is about 2 h at
 this cost, and E3-A held nash from 21:45. Whether it would then finish in iteration 3, as GeMClean does, is
@@ -269,31 +270,32 @@ the `state` stage then starting, but that was not checked. scan 14's first `fetc
 `FileExistsError` on a linked subtable when both scans were fetched at once) and passed on retry. Both are kept
 in `timing.tsv`.
 
+What touched nash after E3-A took it exclusively (21:45:02 SAST, 8 s after the post hoc run ended at 21:44:54;
+E3-A's exclusive ticket may have waited on that run): a 201 MB tar read of three FITS files at 21:53 (`nice 19`,
+`ionice -c3`, outside the lock); then, about 22:05, removing the worktree `automask-cycle-state`,
+`~/Build/tmp/20261118-automask-cycle` and the 179 GB run root (`rm` at `nice 19` / `ionice -c3`, 27 s wall,
+14.7 s system). A 1-slot probe queued at 21:47 was cancelled before it ran. Three `tail -F` watchers of the
+removed `driver.log` from the earlier session (pids 1630895, 1649882, 1662781) are still running; they were not
+this session's and were left.
+
 ## For the coordinator
 
-- **Verdict: rule 4, null.** GeMClean's auto-mask switch is radler 3.7's. sdm03's scan-4 O1 failure is not
-  a GeMClean defect, and no code changes.
-- **Property of the rule, or a departure upstream?** The switch is radler's knife edge: start peak / 6σ
-  against 1/(1 − mgain) = 10. GeMClean's iteration-3 start peak is 10.24 mJy, 2.6 % under its 10.51 mJy edge.
-  WSClean's is 15.42 mJy, 50 % higher, and M1/M2 trace that gap to WSClean's side. Its sub-minor first loop in
-  iteration 2 stops at 7.62 mJy but leaves 1,096 pixels above that (peak 22.9 mJy at four sources). GeMClean
-  leaves none above its 7.23 mJy stop. The edge decides which side GeMClean lands on; the gap comes from
-  WSClean's inexact first loop (radler's sub-minor subset), not from GeMClean.
-- **M1** (scan 4, after iteration 2's first loop): W peak 22.89 mJy, G 6.92 at that pixel; G peak 7.34 mJy.
-  **M2**: model flux G +1.2 to +2.8 % per channel, 0.25 of the 1.33 Jy gap at the four sources.
-  **M3**: masks of 1,527 and 1,520 pixels sharing 1,068. "WSClean builds a larger mask" (sdm03) is not supported. No tolerance applies;
-  T1-T3 gate a fix only.
-- **Deviation:** `-nmiter k` skips iteration k's continuation in both imagers, so the smallest case measures
-  after the first loop, not at iteration 3's start (dated, post hoc). M4 comes from sdm03's archive.
-- **Post hoc confirmation:** WSClean `-no-fast-subminor` on scan 4, iteration 2, leaves 0 pixels above its stop
-  (default: 1,096). The four sources come to 6.2-7.1 mJy (GeMClean 6.4-6.7) and G − W rms falls from 63 to
-  34 µJy. Not run: its full-depth switch (about 2 h; nash exclusive from 21:45).
-- **Decision 1:** O1 compares against an oracle whose default minor loop leaves 2-3 × its stop. Should
-  WSClean oracle runs that compare cycle counts or residual excess use `-no-fast-subminor` (about 19 × the
-  wall time on this case)? That is for sdm03's successor.
-- **Decision 2:** whether to copy WSClean's subset-limited first loop into GeMClean so cycle counts match. The
-  frozen rule calls that "not a fix" (it tunes to the oracle's inexactness). Recommended: no.
-- **Decision 3:** #36 can close as null. sdm03's O1 failure on scan 4 rests on the oracle's sub-minor excess.
-  sdm03 records that without the O1 clause its outcome is null, not "not yet". Re-reading #13 is the
-  coordinator's call; nothing here changes A0 as the default.
-- Not run: T3 (no code change), scan 14 n1, other fields.
+- **Verdict: rule 4, null; no code change.** GeMClean's auto-mask switch is radler 3.7's. Gate R holds.
+- **Rule or upstream departure?** The switch is radler's knife edge (start peak / 6σ against 1/(1 − mgain) = 10).
+  GeMClean lands 2.6 % under it (10.24 against 10.51 mJy). WSClean's start peak is 50 % higher (15.42 mJy), and
+  M1/M2 put that gap on WSClean's side: its default sub-minor first loop in iteration 2 stops at 7.62 mJy but
+  leaves 1,096 pixels above it (peak 22.9 mJy at four sources). The edge picks GeMClean's side; the gap is not a
+  GeMClean departure.
+- **M1** (scan 4, after iteration 2's first loop): WSClean peak 22.89 mJy, GeMClean 6.92 there; GeMClean peak
+  7.34. **M2**: GeMClean model +1.2 to +2.8 % per channel, 0.25 of the 1.33 Jy at the four sources. **M3**: masks
+  of 1,527 and 1,520 pixels, 1,068 shared, so "WSClean builds a larger mask" does not hold. No tolerance applies
+  (T1-T3 gate a fix only).
+- **Post hoc:** WSClean `-no-fast-subminor` leaves 0 pixels above 7.62 mJy, the sources at 6.2-7.1 mJy (GeMClean
+  6.4-6.7), G − W rms 63 → 34 µJy, at 19 × the wall. Its full-depth switch was not run.
+- **Deviation:** `-nmiter k` skips iteration k's continuation in both imagers; M4 is from sdm03's archive.
+- **Decide:** (1) whether WSClean oracle runs that compare cycle counts or residual excess use
+  `-no-fast-subminor`; (2) copying radler's subset loop into GeMClean (recommended no; section 6 calls it not a
+  fix); (3) close #36 as null and decide whether to re-read #13: its O1 failure rests on the oracle's excess,
+  and sdm03 records the outcome as null without O1.
+- nash during E3-A (from 21:45:02): one 201 MB read and the cleanup, at `ionice -c3`. Three earlier-session
+  `tail -F` watchers (1630895, 1649882, 1662781) were left running.

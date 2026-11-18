@@ -26,10 +26,10 @@ frozen in `98cd295f` before any run; archive [results/automask-cycle/](results/a
 no code change.** Gate R holds: SHA-256 equal on 357 and 378 objects, WSClean σ 1.19 mJy then 472.9 µJy, GeMClean
 σ and start peak exact, cycle peaks bit-equal to sdm03's. The switch reads as radler 3.7's. On scan 4, after
 iteration 2's first loop (`-nmiter 2`), WSClean's residual peaks at 22.89 mJy (GeMClean 6.92 mJy at that pixel).
-1,096 pixels lie above WSClean's own 7.62 mJy stop, against none for GeMClean (scan 14: 1,837 against 78 above
-10 mJy). WSClean's iteration-3 start peak (15.42 mJy) is one of those sources (GeMClean 6.50 mJy there). Post hoc
+1,096 pixels lie above WSClean's own 7.62 mJy stop, against none for GeMClean (peak 7.34 mJy, 1.5 % over its own
+7.23 mJy stop; scan 14, inline probe: 1,837 against 78 above 10 mJy). WSClean's iteration-3 start peak (15.42 mJy) is one of those sources (GeMClean 6.50 mJy there). Post hoc
 source read: radler's sub-minor loop tracks only the pixels above the threshold at its start and does not rescan
-afterwards. A post hoc WSClean run with `-no-fast-subminor` leaves 0 pixels above its stop, with the four sources
+afterwards. A post hoc WSClean run with `-no-fast-subminor` leaves 0 pixels above 7.62 mJy, with the four sources
 at 6.2-7.1 mJy (GeMClean 6.4-6.7). Högbom masks 1,527 / 1,520 pixels, 1,068 shared: "WSClean builds a larger mask" is not supported.
 Deviation (post hoc): `-nmiter k` skips iteration k's continuation in both imagers, so M4 is from sdm03's archive.
 
