@@ -5,6 +5,10 @@ safe fixes on branch `v030-ready`, the rest listed for the coordinator. The four
 (E2-N, E3-A, the selfcal-defaults grid, the E2-A 3b K follow-up) are not reviewed here; they need a delta pass
 when they merge. Tracker: [v030-readiness.md](v030-readiness.md).
 
+**Delta pass, 2026-11-18 (branch `release-030`):** over everything merged up to `09604d60`, in
+[v030-readiness.md](v030-readiness.md) section 7: five false statements in CHANGELOG and docs fixed (D-01 to
+D-05), no blocker open; E2-N and E3-A get their own pass when they merge.
+
 **Update, 2026-11-17 (branch `v030-fix`, section 5):** B-01 and B-02 have their notices, read in the upstream
 sources; B-02 found radler LGPL-3.0-only, which leaves an owner decision (5.1). R-02, B-11, B-12, B-13, B-16,
 E5-22, E5-23 and E5-24 are fixed with tests; E5-21 stays a known limitation (5.3).
