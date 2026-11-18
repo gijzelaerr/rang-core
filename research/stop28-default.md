@@ -410,3 +410,9 @@ cycle count or image hash; `docs/gen_cli.py --check` passes.
 - **Untested**: the pipeline's default image uses `-auto-threshold 3`; this note measured absolute thresholds only.
 - Raw outputs: `nash:~/rang-data/outputs/stop28-confirm-20261118` (H17-H24 MS, images; S1-S3 linked to the first
   leg's) and `stop28-default-20261117`; delete both after the merge. Nothing merged, nothing posted on GitHub.
+
+## Coordinator decision, confirmation leg (2026-11-18)
+
+- Switch, as the owner allowed ("make it the default if you think it is best"). The confirmation leg met rule 1 on H17-H24 alone, with no post hoc step: savings 2, 1, 1, 1, 1, 1, 1, 1, a mean of 1.125, 8 of 8 skies. S1-S3's own beam fit equals amendment 3's value bit for bit. Merged with the CLI default 0.02 (revert of 3c384832).
+- Image and selfcal outputs from the pipeline change; the stage hashes do not, so finished stages need `--force`. The CHANGELOG says this.
+- Not measured, and stated as a limit: the pipeline's default `-auto-threshold 3` path; every arm used absolute thresholds. Re-read the GeMClean benchmark and the E2/E5 image archive gates at the next archive run; `check_all` does not cover them.
