@@ -427,3 +427,11 @@ models were scored on the other scan's state (`scripts/cross.sh`). D is against 
   archived. floor-6's run root was already gone from nash during this run, removed by someone else.
 - **Check:** `python tools/check_all.py --quick` on Windows, before the hand-back. The full check is left to the
   merge check. The branch adds only research files, the driver, and simulator recipes X1-X4 (no package code).
+
+## Coordinator decision (2026-11-18)
+
+- **The outcome stands at "not yet" under the frozen rule.** Without the oracle clause it would be null. Either way, rang-core's imaging default stays A0, and issue #13 closes with no switch.
+- **Possible GeMClean auto-mask defect.** With `-auto-mask 6 -mgain 0.9 -join-channels`, GeMClean's mask is fixed one major cycle earlier than WSClean's (scan 4 and the pilot), and the residual excess is 1.36 × WSClean's. This is opened as its own issue for a G4-masks follow-up, not decided here.
+- **Reserve.** Using a0-acceptance's imaging-only reserve was within the brief. Scans 4 and 14 are spent. Scans 6 and 8 had metadata read but no visibilities. Scan 12 is untouched.
+- **floor-6 deletion.** The coordinator deleted floor-6's nash outputs on 2026-11-18 during cleanup. That was a coordinator error against the keep-until-v0.3.0 decision. The pilot was scored from the archived `pilot.json`.
+- **Cleanup.** The nash run root `~/rang-data/outputs/sdm03-default-20261118` (213 GB) is deleted after the merge, and the compact results stay in `research/results/sdm03-default/`.
