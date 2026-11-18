@@ -246,3 +246,24 @@ Measured result.
 ---
 
 (Results below this line, dated.)
+
+Keys and tests committed in `d27f84b`; the measurement script
+`research/results/calwt-terms/calwt_terms.py` before any held-out set was
+generated.
+
+## 10. Amendment, 2026-11-18 07:30 (after the development reads D1 and `dev`, before any held-out set was generated)
+
+- **C1 as frozen cannot hold for B2 in a chain.** B2 is solved after K2
+  and G2, so with `k_calwt` or `g_calwt` on it moves with them (D1: G and
+  B byte-identical in every arm; B2 differs in `k`, `g`, `all` only). C1
+  is read as: (a) in the chains, G and B byte-identical to `off` in every
+  arm; (b) in the shared-upstream harness (identical inputs), G, B and B2
+  solved with every key on byte-identical to off. Both are the structural
+  no-op the note means.
+- **Reported, not gating (post hoc):** C_XH after a fit of a constant and
+  a slope in frequency (xf-gap's truth measure). On D1 rang `off` and
+  CASA share a −0.024 ns slope against the truth (residual after the fit
+  0.07°), which makes C_XH (constant only) about 2° on both sides; C_XH
+  stays the gating measure as frozen.
+- The harness solves a term with every key on (`cal_chain.CALWT_TYPES`);
+  only that term is solved, so this is its own key.
