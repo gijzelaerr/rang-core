@@ -121,8 +121,8 @@ def main(ms, r, a1, a2, scan):
     fr, ft = np.array(flags["rang"]), np.array(flags["tricolour"])
     np.savez_compressed(d / "flagsteps.npz", rang=fr, tricolour=ft)
     z = np.load(r / "fu-3a-planes.npz")
-    idx = [e for e in json.loads((r / "fu-3a-planes.json").read_text())
-           if e["scan"] == int(scan) and e["ant1"] == a1 and e["ant2"] == a2][0]["index"]  # fmt: skip
+    idx = next(e for e in json.loads((r / "fu-3a-planes.json").read_text())
+               if e["scan"] == int(scan) and e["ant1"] == a1 and e["ant2"] == a2)["index"]  # fmt: skip
     full_r, full_t = z[f"p{idx}_rang"], z[f"p{idx}_tricolour"]
     per = []
     for i, row in enumerate(rcs):

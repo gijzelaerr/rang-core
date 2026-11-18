@@ -193,3 +193,11 @@ effect. Gate 3a stays not met as frozen. Placing the 68 to a strategy step would
 on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not part of this job.
 
 ### 2.2 Job 1: CASA's K
+
+## Coordinator decisions (2026-11-18 evening, post hoc, after 2.1 and the K diagnosis)
+
+- **The flag-state split is the oracle's standard:** each CASA solve runs on the flags in which rang solved that term
+  (crosscal on the flag stage's flags, the polarisation solves and applycal after `extendflags`). Applying it to E2-A's
+  and E2-B's 3b scripts is a later task, not done here.
+- **Per-step flag dump on m007–m050, scan 7: yes,** shared and short only (section 2.3).
+- **`as_is` arm: deferred** until the rerun's rows are in.
