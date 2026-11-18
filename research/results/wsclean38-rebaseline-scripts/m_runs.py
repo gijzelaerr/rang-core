@@ -32,6 +32,11 @@ PILOT = os.environ.get(
     "MSM_PILOT", f"{D}/rang/outputs/20261103-gemclean-heldout/real/cal2.ms"
 )
 IMAGE = os.environ.get("W_IMAGE", "rang-wsclean-native:3.8")
+# nash: rootless podman (amendment 1); glacier's WSL: docker with the caller's uid (amendment 2).
+if os.environ.get("M_RUNTIME", "podman") == "docker":
+    RUNTIME = ["docker", "run", "--rm", "--user", f"{os.getuid()}:{os.getgid()}"]
+else:
+    RUNTIME = ["podman", "run", "--rm", "--userns=keep-id"]
 
 BASE = [
     "-weight",
@@ -108,10 +113,7 @@ def main():
         (d / "tmp").mkdir(parents=True, exist_ok=True)
         data, name = os.path.dirname(ms), os.path.basename(ms)
         cmd = [
-            "podman",
-            "run",
-            "--rm",
-            "--userns=keep-id",
+            *RUNTIME,
             "--network",
             "none",
             "-e",

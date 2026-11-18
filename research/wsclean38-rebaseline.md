@@ -128,3 +128,17 @@ against WSClean's best of `minres`, `minres -mgain 0.9`, `minres -mgain 0.95` (a
   at start-up. 3.8 is now installed with `cmake --install` and `ldconfig`. glacier's image
   `rang-wsclean-native:3.8`: WSClean `386ba535`, aocommon `dbee2ed9`, radler `703c1bd7`,
   schaapcommon `35f91f80`, xtensor `f115228a`, xtl `c52350e2` (`/wsclean-deps.txt`); 119 s build.
+
+## Amendment 2, 2026-11-18 12:25 (RH's 3.8 output seen; RM, RM1, PM and PM1 not yet run)
+
+- On nash, M's input directory (`~/rang-data/outputs/stop28-default-20261117`, holding H4 and the
+  pilot) was removed by another session's cleanup between RH (finished 11:09) and RM1. RM1, RM,
+  PM1 and PM failed at start-up (podman: `statfs ... no such file or directory`, rc 125); no
+  WSClean output exists for them.
+- RM, RM1, PM and PM1 therefore run on glacier with glacier's `rang-wsclean-native:3.8` on the
+  archived inputs gemclean-ms-mask used (`D:\rang\outputs\20261103-gemclean-heldout`), shared
+  slots, in the daytime, as the 3.7 runs did (`m_job_glacier.sh`, `M_RUNTIME=docker`). RH stays
+  nash's run (nash's H4 copy: the same files as glacier's except glacier's extra MODEL_DATA
+  column; every run images DATA). RH is the Högbom control and does not bear on the hypotheses
+  RM and PM decide.
+- D finished on nash as planned (native 3.7 and 3.8; outputs not yet read).
