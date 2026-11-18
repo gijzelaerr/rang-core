@@ -2289,3 +2289,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | sdm03-default: WSClean 3.7 (`/usr/bin/wsclean`) at SDa / Sa settings on scans 4 / 14 (host nash, shared) | 4096², 256 ch, `-j 8` | SDa 1,188 / 1,227 s; Sa 911 / 1,004 s | 2.2 GiB | |
 | 2026-11-18 | sdm03-default: `g3_spectral_simulate.py` X1-X4 and D1, prep, four or five arms each, score (host nash) | 907k rows × 16 ch, 2048² | sim 33-41 s; prep 35-67 s; A0 29-35 s; SDa/Sa 101-139 s (4.5 GiB); WSClean 88-111 s (0.6 GiB); score 124-143 s | 1.8 GiB (score) | |
 | 2026-11-18 | sdm03-default: floor-6 `score` of six arms per reserve scan; post hoc cross-scan scoring (host nash) | subset 32 ch | 427 s, 474 s; cross 915 s | 3.3 GiB | 4 slots |
+| 2026-11-18 | sdm03-default: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `sdm03-default` | 734 s (lock wait excluded) | – | PASS |
