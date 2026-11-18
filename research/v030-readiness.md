@@ -125,7 +125,7 @@ this branch, read only on the code; the checks named below were run, not assumed
 
 | ID | Class | Finding |
 | --- | --- | --- |
-| D-06 | should-fix | `rang/mcp_tools.py`'s gemclean allowlist has `-stop-tolerance` but neither `-no-reorder` nor `-temp-dir`: with `-reorder` now the default, an agent's joined-polarisation run writes its temporary files beside `-name` with no way to move or avoid them (B-25, now more relevant) |
+| D-06 | fixed (release-030) | `rang/mcp_tools.py`'s gemclean allowlist has `-stop-tolerance` but neither `-no-reorder` nor `-temp-dir`: with `-reorder` now the default, an agent's joined-polarisation run writes its temporary files beside `-name` with no way to move or avoid them (B-25, now more relevant) |
 | D-07 | should-fix | `-reorder`'s temporary files survive a killed run (B-26), now by default; documented, not cleaned up |
 | D-08 | note | `data.executor: spool`: partials are pickles; the spool is refused when not private on POSIX only (`core_spool.py`), on Windows any user who can write the spool directory can run code in a worker. The CHANGELOG states the POSIX rule; a Windows ACL check or a line in the docs is owed |
 | D-09 | note | `calwt_scale` (`core/src/cal/apply.rs`) and `rang.applycal._b_scale` follow CASA's `BJones::calcWtScale`; the notices named `StandardVisCal.cc` for the bandpass port only. Pointer added to `THIRD-PARTY-NOTICES.txt` here (no new licence text: CASA's notice was already there). The G and T form (`SolvableVisJones::calcWtScale`, `SolvableVisCal.cc`) has no pointer; add it once read in the source |

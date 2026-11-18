@@ -62,6 +62,8 @@ GEMCLEAN_OPTIONS = {
             "-no-mf-weighting",
             "-join-polarizations",
             "-multiscale",
+            "-reorder",
+            "-no-reorder",
         ),
         0,
     ),
@@ -119,6 +121,7 @@ GEMCLEAN_OPTIONS = {
             "-abs-auto-mask",
             "-auto-mask-nmiter",
             "-major-iteration-mode",
+            "-temp-dir",
         ),
         1,
     ),
@@ -126,7 +129,7 @@ GEMCLEAN_OPTIONS = {
     "-channel-range": 2,
     "-weight": 1,
 }
-GEMCLEAN_PATH_OPTIONS = ("-fits-mask",)
+GEMCLEAN_PATH_OPTIONS = ("-fits-mask", "-temp-dir")
 
 
 class ToolError(ValueError):

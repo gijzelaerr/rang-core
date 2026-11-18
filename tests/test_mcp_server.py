@@ -225,6 +225,12 @@ def test_gemclean_allowlist(ms, tmp_path):
     plan = tools.gemclean(ms, tmp_path / "img", ["-no-update-model-required"])["plan"]
     assert not plan["writes_ms"] and plan["flag_versions_saved_first"] == []
     assert flagversions.versions(ms) == []
+    # -reorder's ~28 GB of temporary files can be avoided or moved (v0.3.0 D-06).
+    spill = tmp_path / "spill"
+    spill.mkdir()
+    opts = ["-join-polarizations", "-no-reorder", "-temp-dir", str(spill)]
+    cmd = tools.gemclean(ms, tmp_path / "img", opts)["plan"]["command"]
+    assert "-no-reorder" in cmd and cmd[cmd.index("-temp-dir") + 1] == str(spill.resolve())
 
 
 @pytest.mark.parametrize("writes", [False, True])
