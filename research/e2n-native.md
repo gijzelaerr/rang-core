@@ -531,12 +531,11 @@ Nothing was retuned, and the reserve (target scans 27 and 31) was not fetched, b
 
 Notes on individual gates:
 - **3a, chunk-edge clause: not checked.** A0's clause applies only "if W3 must chunk differently from
-  Tricolour". rang's port chunks as Tricolour does (column chunks of 256,
-  [core-d-tricolour.md](core-d-tricolour.md)). The chain did not store the differing cells' positions, and
-  `g3a-restore` dropped Tricolour's FLAG, so placing the 73 cells would need Tricolour rerun on the
-  restored MS (about 35 min). Either way the gate reads not met. E1's 530 cells (owner item 33(2): float64
-  DFT against Tricolour's complex64 pocketfft) are the known precedent; the cause of these 73 is not
-  established.
+  Tricolour". Whether rang's flag stage chunked rows and time as Tricolour did on this MS was not verified.
+  The chain did not store the differing cells' positions, and `g3a-restore` dropped Tricolour's FLAG, so
+  placing the 73 cells would need Tricolour rerun on the restored MS (about 35 min). Either way the gate
+  reads not met. E1's 530 cells (owner item 33(2): float64 DFT against Tricolour's complex64 pocketfft) are
+  the known precedent; the cause of these 73 is not established.
 - **3c:** q/q0 and the MODEL_DATA predict are "not checked" by the scorer, as on E2-A. Reported: L∞ within
   0.7° 3.3e-3; Δα median 0.0097 over 49 sources (A0's 0.05); off-source ratio 1.03 (A0's 1.6).
 - **Scorer strings that are stale (left unedited in the JSONs):**
@@ -547,8 +546,9 @@ Notes on individual gates:
   `rang-o-casa_6.7.6.14.sif` (amendment 2).
 
 **Against section 6's expectations:**
-- As expected: Gpol met, both composites not met, 2b applycal met, 3c dirty not met, and the J1744−5144 χ
-  miss at p of a few hundredths of a percent.
+- As expected: Gpol met, both composites not met, 2b applycal met and 3c dirty not met.
+- The J1744−5144 χ miss came at p of 0.01-0.03 %, the case section 6 expected to be noise-limited. No error
+  bar on χ was computed, so "noise-limited" stays the pre-registered expectation, not a measurement.
 - Not expected: the Xf p95 miss (by 0.085°), the 3c compact scatter, and the target scatter.
 - 3a was expected exact or within a few cells; it read 73.
 
@@ -556,63 +556,68 @@ Notes on individual gates:
 - **3C 286 same-scan (not a transfer), 1.3-1.5 GHz:** rang p 10.20 %, χ 39.30° (|χ − 33.1°| = 6.20°); CASA
   p 10.11 %, χ 39.37°. χ is inside the frozen window (≤ 7°); p is just above its 9.0-10.1 % range for both
   arms. Not in the window.
-- **Flux scale:** CASA's `fluxscale` gives J1744−5144 7.173 ± 0.004 Jy at 1.284 GHz (one spectral window,
-  86 solutions, scaled to 1934−638). rang's and CASA's J1744−5144 Stokes I agree within 0.1 % in every
-  100 MHz bin (row above; 7.18 and 7.17 Jy at 1.2-1.3 GHz).
+- **Flux scale of J1744−5144, scaled to 1934−638, at 1.284 GHz (one spectral window):** rang's calibrate
+  gives 7.179 Jy (`summary.json`, step `fluxscale`). CASA's `fluxscale` gives 7.173 ± 0.004 Jy from 86
+  solutions. The difference is 0.085 %. In the row above, rang's and CASA's Stokes I differ by at most
+  0.095 % in the scored bins. In the unscored 1.2-1.3 GHz bin the values are 7.177 and 7.169 Jy (0.113 %).
 - **Native size of the terms**
   ([e2n_native_size.py](results/e2n-scripts/e2n_native_size.py), committed `1e64d886` before it read an
   E2-N table; [native-size.json](results/e2n/score/native-size.json)):
   - K: |τ| median 0.030 ns (rang) and 0.029 ns (CASA), max 0.076 ns. Near-null as on LUNO.
   - KCROSS: 0.0178 ns (rang) and 0.0189 ns (CASA).
   - Xf: circular mean 1.7° (rang) and 1.6° (CASA), coherence 0.995, median deviation 1.5°.
-  - So the solved cross-hand phase is also near zero. 9.2's −176° was DATA's XY phase on 3C 286, which
-    carries the source's own polarisation; the two readings are consistent.
-  - Real-size K, KCROSS and Xf therefore remain untested, as amendment 3 assigned to a later leg.
+  - **Finding of this leg:** KCROSS and Xf are near-null here too, not only K. Amendment 3 moved only
+    real-size K to a later leg, so real-size KCROSS and Xf are also untested.
+  - *Inference (post hoc, 2026-11-18):* 9.2's −176° was DATA's XY phase on 3C 286, which carries the
+    source's own polarisation, so it does not contradict a near-zero Xf.
 - **`weights: as_is` arm (A0 rule 3): not run.** It is not in `e2n_nash_chain.sh`. It needs about 5.6 h of
   rang stages (flag to image, from 9.4's times) plus CASA's 3b sequence with the MS's weights. That is the
   coordinator's decision.
 
 **Post hoc (2026-11-18, after every gate above was read; changes no verdict).** CASA's K solve on
-J1939−6342 left 19 of 62 antennas flagged, with FPARAM 0 and SNR 0: 0, 1, 2, 3, 6, 7, 9, 11, 12, 15, 16, 18,
-21, 23, 26, 29, 30, 41 and 45.
-- CASA's own solvestats for that call count all 62 antennas above minsnr and minblperant. rang solved all 62.
+J1939−6342 left 19 of 62 antennas flagged, with FPARAM 0: 0, 1, 2, 3, 6, 7, 9, 11, 12, 15, 16, 18, 21, 23,
+26, 29, 30, 41 and 45. rang's K flags none.
+- CASA's own solvestats for that call count all 62 antennas above minsnr and minblperant.
 - The flags it was given are not the cause. On 1934−638's scan the version CASA used (`rang_apply_…`, flags
   after calibrate) flags 46-85 % of each antenna's cells, and no antenna is fully flagged.
-- Every later CASA solve applies K, so G, B, Gsec, Gapp, Gpol and KCROSS show `data_unflagged` 0 for the
-  same 19 antennas. CASA's CORRECTED_DATA carries those flags.
-- Effect on the comparisons:
-  - 3b compares 86 of 124 entries.
-  - The composites' `flags_differ` exceeds their compared cells.
-  - The CASA arm of the J1744−5144 row, the 3C 286 parity, the target oracle and the leakage image has
-    43 antennas against rang's 62. On 3C 286 at 1.0-1.1 GHz, 0.34 of CASA's cells are unflagged against
-    0.55 of rang's.
+- The same happens on development data. On the dry run (A1 small, 9.3) CASA's K flagged antennas 0, 1, 3,
+  5, 10 and 13, and rang's flagged antenna 10.
+- Every later CASA solve applies K. G, B, Gsec, Gapp, Gpol and KCROSS show `data_unflagged` 0 for the same
+  19 antennas.
+- CASA's applycal runs with `applymode='calflag'`, so CASA's CORRECTED_DATA is expected to carry those
+  flags. Two readings bear on this:
+  - CASA's target oracle grids 0.53-0.60 of the visibilities that WSClean grids from rang's data in 3c, in
+    the three counts its log prints. Losing 19 of 62 antennas would leave 0.48 of the baselines.
+  - On 3C 286 at 1.0-1.1 GHz, 0.34 of CASA's cells are unflagged against 0.55 of rang's.
+  - Both are consistent with a large loss, but neither was verified per antenna. That the CASA arm images
+    exactly 43 antennas is not established.
+- Effect on 3b: it compares 86 of 124 entries, and the composites' `flags_differ` exceeds their compared
+  cells.
 - The target scatter comes from faint sources. The middle 68 % of ratios are 0.971-1.060 at ≥ 50σ (n 52),
   against 0.692-1.152 below 20σ (n 193). In 3c, rang's image against WSClean on rang's own data, the
   middle 68 % below 20σ is 0.952-1.043.
-- This points at the oracle arm, not at rang, for the target scatter and possibly the J1744−5144 χ, but the
-  cause of CASA's K flags is not established.
+- Whether the oracle arm's flags explain the target scatter or the J1744−5144 χ is not established, and
+  neither is the cause of CASA's K flags.
 - A CASA rerun after a fix would be "seen" (section 8).
 
 ## For the coordinator
 
-- **#7 is not met as frozen.** E2-N (observatory-phased) ran once (rang arm rc 0, all five stages, post
-  chain rc 0). Of the 25 rows in 9.4's gate table, 17 are met and 8 are not.
+- **#7 is not met as frozen.** E2-N (observatory-phased) ran once: the rang arm with rc 0 and all five
+  stages, and the post chain with rc 0. Of the 25 rows in the gate table, 17 are met and 8 are not.
 - **The misses:**
-  - 3a: 73 cells against Tricolour, out of 2.28e9.
-  - 3b: Xf p95 2.085° against 2.0°, and the fcal and gcal composites, which were expected misses.
+  - 3a: 73 of 2.28e9 cells.
+  - 3b: Xf p95 2.085° against 2.0°, and both composites (expected).
   - 3c: dirty L∞ (expected) and the compact scatter, 2.7 % against 1 %.
-  - J1744−5144: χ, noise-limited at p ≈ 0.02 %.
+  - J1744−5144: χ, at p ≈ 0.02 %.
   - Target: the compact scatter, 13.3 % against 1.5 %.
-- **Met:** 1, 2a-2c, 3C 286 parity, target noise and dynamic range, self-calibration (averaged form), J0408
-  leakage, and 3b K, KCROSS, Df and Gpol.
-- **Post hoc:** CASA's K flagged 19 of 62 antennas on 1934−638, and every CASA product inherits that. The
-  oracle arm is therefore weaker than rang's on the rows that use it. The cause is not established.
+- **Post hoc:** CASA's K flags 19 of 62 antennas on 1934−638, and 6 on the dry run; rang's flags none. Its
+  effect on the oracle rows is likely but not quantified.
 - **Decisions for you:**
-  - Whether to diagnose CASA's K, which would mean a labelled "seen" CASA rerun.
-  - Whether to rerun Tricolour to place 3a's 73 cells (about 35 min).
-  - Whether to run the `as_is` arm (about 6 h plus CASA) or record it as not run.
-- **Release-notes wording (suggested):** "E2-N, native MeerKAT data (SARAO 1735268787, L band): run
-  end-to-end on unprocessed data with rc 0. Not met as frozen on 3a (73 flag cells), Xf p95 (2.09° against
-  2.0°), the K/G/B composites, 3c, the J1744−5144 χ and the target's compact-source scatter. The data are
-  observatory-phased, so K, KCROSS and Xf are near-null here and their real-size solve is untested.
-  CASA's reference arm lost 19 antennas in its delay solve (under investigation)."
+  - Whether to have CASA's K diagnosed, which means a "seen" rerun.
+  - Whether to rerun Tricolour to place 3a's cells (about 35 min).
+  - Whether to run the `as_is` arm (about 6 h plus CASA).
+- **Release notes (suggested):** "E2-N, native MeerKAT data (SARAO 1735268787, L band): runs end to end
+  (rc 0); not met as frozen on 3a (73 flag cells), Xf p95 (2.09° against 2.0°), the K/G/B composites, 3c,
+  the J1744−5144 χ and the target's compact-source scatter. The data are observatory-phased, so K, KCROSS
+  and Xf are near-null and their real-size solve is untested. The CASA reference flagged 19 of 62 antennas in
+  its delay solve, which is not yet understood."
