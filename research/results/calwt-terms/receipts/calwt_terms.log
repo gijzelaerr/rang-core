@@ -1,0 +1,121 @@
+2026-11-18T07:20:59 gen D1 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-D1', '--workers', '4', '--seeds', '20261881,20261882,20261883,20261884'] masks=1 flagged_cells=214327 4.8s
+2026-11-18T07:21:12 rang D1 off rc=0 6.3s
+2026-11-18T07:21:57 casa D1 rc=0 errors=0 38.0s
+2026-11-18T07:21:57 casa D1 C3 Gpol rows 64
+2026-11-18T07:22:15 rang D1 off rc=0 6.2s
+2026-11-18T07:22:22 rang D1 k rc=0 6.2s
+2026-11-18T07:22:28 rang D1 g rc=0 6.1s
+2026-11-18T07:22:34 rang D1 gpol rc=0 6.1s
+2026-11-18T07:22:40 rang D1 kcross rc=0 6.1s
+2026-11-18T07:22:46 rang D1 df rc=0 6.2s
+2026-11-18T07:22:53 rang D1 all rc=0 6.3s
+2026-11-18T07:22:53 STEP D1 rang rc=0 43.6s
+2026-11-18T07:23:51 shared D1 9.4s
+2026-11-18T07:23:51 STEP D1 shared rc=0 9.5s
+2026-11-18T07:23:54 h0 D1 done
+2026-11-18T07:23:54 STEP D1 h0 rc=0 3.3s
+2026-11-18T07:24:18 score D1 written
+2026-11-18T07:24:18 STEP D1 score rc=0 10.6s
+2026-11-18T07:25:19 gen dev argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-dev', '--workers', '4', '--noiseless'] masks=0 flagged_cells=0 4.2s
+2026-11-18T07:25:19 STEP dev gen rc=0 4.3s
+2026-11-18T07:25:25 rang dev off rc=0 6.1s
+2026-11-18T07:25:25 STEP dev rang rc=0 6.2s
+2026-11-18T07:26:04 casa dev rc=0 errors=0 38.5s
+2026-11-18T07:26:04 casa dev C3 Gpol rows 48
+2026-11-18T07:26:04 STEP dev casa rc=0 38.5s
+2026-11-18T07:26:12 shared dev 8.1s
+2026-11-18T07:26:12 STEP dev shared rc=0 8.1s
+2026-11-18T07:26:15 h0 dev done
+2026-11-18T07:26:15 STEP dev h0 rc=0 3.2s
+2026-11-18T07:26:18 score dev written
+2026-11-18T07:26:18 STEP dev score rc=0 3.3s
+2026-11-18T07:27:15 gen H1 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-H1', '--workers', '4', '--seeds', '20261891,20261892,20261893,20261894'] masks=1 flagged_cells=256010 4.8s
+2026-11-18T07:27:15 STEP H1 gen rc=0 4.9s
+2026-11-18T07:27:21 rang H1 off rc=0 6.2s
+2026-11-18T07:27:27 rang H1 k rc=0 6.1s
+2026-11-18T07:27:33 rang H1 g rc=0 6.1s
+2026-11-18T07:27:39 rang H1 gpol rc=0 6.1s
+2026-11-18T07:27:46 rang H1 kcross rc=0 6.1s
+2026-11-18T07:27:52 rang H1 df rc=0 6.1s
+2026-11-18T07:27:58 rang H1 all rc=0 6.6s
+2026-11-18T07:27:58 STEP H1 rang rc=0 43.7s
+2026-11-18T07:28:37 casa H1 rc=0 errors=0 38.2s
+2026-11-18T07:28:37 casa H1 C3 Gpol rows 64
+2026-11-18T07:28:37 STEP H1 casa rc=0 38.3s
+2026-11-18T07:28:45 shared H1 8.4s
+2026-11-18T07:28:45 STEP H1 shared rc=0 8.4s
+2026-11-18T07:28:55 score H1 written
+2026-11-18T07:28:55 STEP H1 score rc=0 9.5s
+2026-11-18T07:28:59 gen H2 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-H2', '--workers', '4', '--seeds', '20261901,20261902,20261903,20261904'] masks=1 flagged_cells=294437 3.8s
+2026-11-18T07:28:59 STEP H2 gen rc=0 3.8s
+2026-11-18T07:29:05 rang H2 off rc=0 6.5s
+2026-11-18T07:29:11 rang H2 k rc=0 6.3s
+2026-11-18T07:29:18 rang H2 g rc=0 6.0s
+2026-11-18T07:29:24 rang H2 gpol rc=0 6.0s
+2026-11-18T07:29:30 rang H2 kcross rc=0 6.0s
+2026-11-18T07:29:36 rang H2 df rc=0 6.0s
+2026-11-18T07:29:42 rang H2 all rc=0 6.0s
+2026-11-18T07:29:42 STEP H2 rang rc=0 43.3s
+2026-11-18T07:30:19 casa H2 rc=0 errors=0 37.2s
+2026-11-18T07:30:19 casa H2 C3 Gpol rows 64
+2026-11-18T07:30:19 STEP H2 casa rc=0 37.3s
+2026-11-18T07:30:27 shared H2 7.6s
+2026-11-18T07:30:27 STEP H2 shared rc=0 7.6s
+2026-11-18T07:30:36 score H2 written
+2026-11-18T07:30:36 STEP H2 score rc=0 9.6s
+2026-11-18T07:30:40 gen H3 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-H3', '--workers', '4', '--seeds', '20261911,20261912,20261913,20261914'] masks=1 flagged_cells=294310 3.7s
+2026-11-18T07:30:40 STEP H3 gen rc=0 3.7s
+2026-11-18T07:30:46 rang H3 off rc=0 6.0s
+2026-11-18T07:30:52 rang H3 k rc=0 6.0s
+2026-11-18T07:30:58 rang H3 g rc=0 6.3s
+2026-11-18T07:31:05 rang H3 gpol rc=0 6.1s
+2026-11-18T07:31:11 rang H3 kcross rc=0 6.1s
+2026-11-18T07:31:17 rang H3 df rc=0 5.9s
+2026-11-18T07:31:23 rang H3 all rc=0 6.1s
+2026-11-18T07:31:23 STEP H3 rang rc=0 42.8s
+2026-11-18T07:32:00 casa H3 rc=0 errors=0 37.1s
+2026-11-18T07:32:00 casa H3 C3 Gpol rows 64
+2026-11-18T07:32:00 STEP H3 casa rc=0 37.1s
+2026-11-18T07:32:08 shared H3 8.0s
+2026-11-18T07:32:08 STEP H3 shared rc=0 8.0s
+2026-11-18T07:32:18 score H3 written
+2026-11-18T07:32:18 STEP H3 score rc=0 9.7s
+2026-11-18T07:32:21 gen H4 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-H4', '--workers', '4', '--seeds', '20261921,20261922,20261923,20261924'] masks=1 flagged_cells=294344 3.7s
+2026-11-18T07:32:21 STEP H4 gen rc=0 3.7s
+2026-11-18T07:32:28 rang H4 off rc=0 6.4s
+2026-11-18T07:32:34 rang H4 k rc=0 6.2s
+2026-11-18T07:32:40 rang H4 g rc=0 6.1s
+2026-11-18T07:32:46 rang H4 gpol rc=0 6.1s
+2026-11-18T07:32:52 rang H4 kcross rc=0 6.1s
+2026-11-18T07:32:59 rang H4 df rc=0 6.1s
+2026-11-18T07:33:05 rang H4 all rc=0 6.3s
+2026-11-18T07:33:05 STEP H4 rang rc=0 43.6s
+2026-11-18T07:33:42 casa H4 rc=0 errors=0 37.4s
+2026-11-18T07:33:42 casa H4 C3 Gpol rows 64
+2026-11-18T07:33:42 STEP H4 casa rc=0 37.5s
+2026-11-18T07:33:51 shared H4 8.2s
+2026-11-18T07:33:51 STEP H4 shared rc=0 8.2s
+2026-11-18T07:34:00 score H4 written
+2026-11-18T07:34:00 STEP H4 score rc=0 9.7s
+2026-11-18T07:34:06 gen held argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-held', '--workers', '4', '--noiseless', '--seeds', '20261751,20261752,20261753,20261754'] masks=0 flagged_cells=0 5.8s
+2026-11-18T07:34:06 STEP held gen rc=0 5.8s
+2026-11-18T07:34:26 rang held off rc=0 19.6s
+2026-11-18T07:34:26 STEP held rang rc=0 19.7s
+2026-11-18T07:36:12 casa held rc=0 errors=0 106.0s
+2026-11-18T07:36:12 casa held C3 Gpol rows 656
+2026-11-18T07:36:12 STEP held casa rc=0 106.2s
+2026-11-18T07:36:34 shared held 21.8s
+2026-11-18T07:36:34 STEP held shared rc=0 21.8s
+2026-11-18T07:36:37 score held written
+2026-11-18T07:36:37 STEP held score rc=0 3.6s
+2026-11-18T07:36:40 gen held4 argv=['poldx', 'D:\\rang\\outputs\\calwt-terms-20261118\\truth-held4', '--workers', '4', '--noiseless', '--seeds', '20261751,20261752,20261753,20261754'] masks=0 flagged_cells=0 3.0s
+2026-11-18T07:36:40 STEP held4 gen rc=0 3.0s
+2026-11-18T07:36:47 rang held4 off rc=0 6.2s
+2026-11-18T07:36:47 STEP held4 rang rc=0 6.2s
+2026-11-18T07:37:24 casa held4 rc=0 errors=0 37.6s
+2026-11-18T07:37:24 casa held4 C3 Gpol rows 64
+2026-11-18T07:37:24 STEP held4 casa rc=0 37.7s
+2026-11-18T07:37:32 shared held4 7.7s
+2026-11-18T07:37:32 STEP held4 shared rc=0 7.7s
+2026-11-18T07:37:35 score held4 written
+2026-11-18T07:37:35 STEP held4 score rc=0 2.5s

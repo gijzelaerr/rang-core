@@ -267,3 +267,76 @@ generated.
   stays the gating measure as frozen.
 - The harness solves a term with every key on (`cal_chain.CALWT_TYPES`);
   only that term is solved, so this is its own key.
+
+## 11. Measured result (2026-11-18, glacier)
+
+Code `74e3bb0` (keys `d27f84b`); run root `D:\rang\outputs\calwt-terms-20261118\`
+(18 GB with the MS copies); receipts `research/results/calwt-terms/receipts/`
+(`results.json` from `summarise.py`, `score-<set>.json`, `calwt_terms.log`).
+Seeds as section 5 (H1-H4 s0 = 20261891, 20261901, 20261911, 20261921; D1
+20261881). Every step rc 0; held-out sets generated and read once.
+
+**Controls.** C0: keys off byte-identical (tests `tests/test_calwt_terms.py`;
+quick check below). C1 (amendment 10): G and B byte-identical to `off` in
+every arm of every set; G, B and B2 with every key on byte-identical to off
+in the harness on every set. C2: the harness reproduces the pipeline's K2,
+Kg, G2, Gg, Gpol, KCROSS and Df byte-identically on D1 and `dev`. C3: CASA's
+Gpol rows equal rang's on D1, H1-H4 and `held4` (64); CASA drops intervals
+on noiseless `dev` (48 of 64) and `held` (656 of 768), reported only. C4:
+the kernel equals `xf_calwt`'s factor and the cell-level |G|² mean|B|² to
+1e-6 relative (tests).
+
+**Oracle read (S, shared CASA upstream, H1-H4; median per set, then over
+sets; ratio on/off).**
+
+| Key | Solve | off | on | on/off | O |
+| --- | --- | --- | --- | --- | --- |
+| `k_calwt` | K2 | 2.79e-4 ns | 2.79e-4 ns | 0.999 | O0 |
+| `k_calwt` | Kg | 8.20e-4 ns | 8.18e-4 ns | 0.997 | O0 |
+| `g_calwt` | G2 | 2.71e-6 | 4.36e-7 | 0.161 | O+ (4/4) |
+| `g_calwt` | Gg | 4.59e-6 | 8.16e-7 | 0.178 | O+ (4/4) |
+| `gpol_calwt` | Gpol | 4.28e-3° | 4.32e-3° | 1.009 | O0 |
+| `kcross_calwt` | KCROSS | 1.24e-4 ns | 4.86e-6 ns | 0.039 | O+ (4/4) |
+| `df_calwt` | Df (gauge-free) | 1.48e-4 | 1.37e-5 | 0.093 | O+ (4/4) |
+
+Noiseless sets (reported): the same pattern for KCROSS (`held` 7.6e-5 →
+5.1e-6 ns, `held4` 8.3e-5 → 2.5e-6) and Df (`held` 6.7e-7 → 2.7e-7,
+`held4` 4.9e-6 → 1.1e-6); K2, Kg, G2, Gpol unchanged there (exact model).
+
+**Truth read (T, H1-H4, mean of the per-set medians; off → on, sets
+with on < off).**
+
+| Key | Composite | off | on | on/off | T |
+| --- | --- | --- | --- | --- | --- |
+| `k_calwt` | C_F / C_G | 1.0530e-3 / 3.2207e-3 | 1.0530e-3 / 3.2207e-3 | 1.000 / 1.000 | T0 |
+| `g_calwt` | C_F / C_G | 1.0530e-3 / 3.2207e-3 | 1.0531e-3 / 3.2222e-3 | 1.000 / 1.0004 (1 of 4) | T0 |
+| `gpol_calwt` | C_X | 1.5612e-3 | 1.5605e-3 | 0.9996 (4 of 4) | T0 |
+| `kcross_calwt` | C_XH | 1.4536° | 1.4587° | 1.0035 (1 of 4) | T0 |
+| `df_calwt` | C_D | 3.4118e-3 | 3.4029e-3 | 0.9974 (4 of 4) | T0 |
+
+Reported: the `all` arm (five keys and `xf_calwt`) C_F 1.0530e-3, C_G
+3.2222e-3, C_X 1.5604e-3, C_XH 1.4709°, C_XH after constant and slope
+0.0874° (off 0.0898°), C_D 3.401e-3; CASA's chain C_G 3.781e-3, C_XH
+1.4706°, fit 0.0929°, C_D 3.251e-3. rang and CASA share a per-set
+cross-hand slope against truth (−0.005 to 0.044 ns), the leakage bias of
+solving KCROSS and Xf before Df. Full chain against CASA (mean over H1-H4,
+`off` → `all`): KCROSS 2.09e-4 → 1.78e-4 ns, Df 1.46e-4 → 1.52e-5, G2 and Gg
+unchanged at 2.3e-4 / 3.0e-4 (upstream K differences dominate there).
+
+**Outcomes (section 8):** `g_calwt`, `kcross_calwt` and `df_calwt`:
+**outcome 2**, a CASA-equivalence switch (CASA's gaincal G, KCROSS and
+polcal Df weight by the pre-applied tables' calwt factor; with the key
+rang moves 5.6-26× nearer CASA on shared inputs) with no truth difference
+at these SNRs. `k_calwt` and `gpol_calwt`: **outcome 3**, null (rang moves
+by < 1 % against CASA: CASA's K and phase-only Gpol estimators do not show
+the weighting, or are not sensitive to it here). No key is nearer truth
+(T0 everywhere, every change < 0.5 %); **every default stays off**.
+
+**Cost (shared lock, 4 threads, not a timing):** rang chain arm 6.0-6.3 s
+with or without the keys on the noisy sets (19.6 s on `held`); CASA chain
+37-38 s (106 s on `held`).
+
+**Not checked:** real data (no shared-upstream real-data leg); B and F
+(no key); the factor's effect with `average_time` or `average_freq` on;
+the CASA mechanism for K and Gpol (whether CASA applies the factor there
+and it does not matter, or does not apply it) was not separated.
