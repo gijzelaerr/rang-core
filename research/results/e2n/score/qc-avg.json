@@ -1,0 +1,64 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms",
+ "data_column": "RANG_CORRECTED_DATA",
+ "model_column": "RANG_MODEL_DATA",
+ "flag_version": "rang_selfcal_20261117T072854Z",
+ "solint_integrations": 120,
+ "rows": 1596004,
+ "cross_rows": 1596004,
+ "averaged_rows": 17019,
+ "baselines": 1891,
+ "intervals": 9,
+ "channels": 1024,
+ "channels_predicted": 1024,
+ "predict_block_rows": 131072,
+ "rang_intervals_equal": [
+  true,
+  true
+ ],
+ "model_control": {
+  "cells": 1634308096,
+  "elements_differ": 0,
+  "max_abs": 0.0,
+  "met": true
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "store": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run/selfcal/ASKAPJ1745/round-1/gains.qc",
+   "solve_name": "Sp",
+   "model_images": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run/selfcal/ASKAPJ1745/round-1/image",
+   "apply_flags_recomputed": 0,
+   "apply_flags_rang": 0,
+   "apply_flags_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "store": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run/selfcal/ASKAPJ1745/round-2/gains.qc",
+   "solve_name": "Sa",
+   "model_images": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run/selfcal/ASKAPJ1745/round-2/image",
+   "apply_flags_recomputed": 0,
+   "apply_flags_rang": 0,
+   "apply_flags_equal": true
+  }
+ ],
+ "seconds": 4826.498159088078
+}

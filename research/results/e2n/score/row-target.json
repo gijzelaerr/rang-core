@@ -1,0 +1,90 @@
+{
+ "compact": {
+  "gated_within_0p7deg": {
+   "n": 316,
+   "median": 0.9901326353892893,
+   "robust_scatter": 0.13317423830116704,
+   "met": false
+  },
+  "tolerance": {
+   "median": 0.01,
+   "scatter": 0.015
+  },
+  "sources": "trimmed in the archive: 558 sources; full list in R/row-target.json (sha256 in manifest.json)",
+  "radial": [
+   {
+    "deg": [
+     0.0,
+     0.35
+    ],
+    "n": 116,
+    "median": 0.9874145755280785
+   },
+   {
+    "deg": [
+     0.35,
+     0.7
+    ],
+    "n": 200,
+    "median": 0.9908216440043431
+   },
+   {
+    "deg": [
+     0.7,
+     1.0
+    ],
+    "n": 135,
+    "median": 0.9899376450100077
+   },
+   {
+    "deg": [
+     1.0,
+     1.4
+    ],
+    "n": 89,
+    "median": 0.9682061435733442
+   },
+   {
+    "deg": [
+     1.4,
+     2.5
+    ],
+    "n": 18,
+    "median": 0.9434997681228976
+   }
+  ],
+  "reported": {
+   "inner_two_thirds": {
+    "n": 511,
+    "median": 0.9896851503668102,
+    "robust_scatter": 0.12373726038476573,
+    "met": false
+   },
+   "full_image": {
+    "n": 558,
+    "median": 0.9854548621106318,
+    "robust_scatter": 0.12251016794105082,
+    "met": false
+   }
+  }
+ },
+ "noise_dynamic_range": {
+  "rang": {
+   "rms_jy": 2.9622485614947226e-05,
+   "peak_jy": 0.1580834835767746,
+   "dynamic_range": 5336.604282019034
+  },
+  "oracle": {
+   "rms_jy": 3.0867701982191845e-05,
+   "peak_jy": 0.15279564261436462,
+   "dynamic_range": 4950.016774896793
+  },
+  "rms_ratio": 0.9596595701240407,
+  "dynamic_range_ratio": 1.0780982216227541,
+  "sigma_jy": 1.894129197169221e-05,
+  "pixels": 1740839,
+  "masked": 475782,
+  "met": true
+ },
+ "caveat": "WSClean grids 4,096 channels, GeMClean 512 averaged (9.10)"
+}

@@ -6,7 +6,8 @@ Issue #7, task E2-N of [finish-plan.md](finish-plan.md) (A0 row E2-N,
 `mvftoms.py` (python-casacore) and the Linux oracles.
 
 **Status: proposal, frozen (2026-11-16) before any E2-N visibility, flag or
-weight value was read.** Results so far in section 9 (fetch, conversion, DATA state). Sections 1 to 8 are the protocol; they change only by
+weight value was read.** Results in section 9: fetch, conversion, DATA state, smoke, and **the gates as
+frozen (9.4, 2026-11-18): E2-N (observatory-phased) is not met**. Sections 1 to 8 are the protocol; they change only by
 a dated amendment, labelled post hoc for anything it could have seen. Results
 go below section 9.
 
@@ -472,3 +473,146 @@ A0 2.2's probe, first 800 rows of each field, 1391.0-1416.9 MHz (channels 640-67
   one outer hold (16 slots, 96 GB: the largest step's booking), the steps inside it as nested holds;
   the rang arm keeps its own job (16 slots, 96 GB).
 
+
+### 9.4 The rang arm and the gates, as frozen (2026-11-18): **not met**
+
+**Run.** `rang-core run e2n.yaml e2n.ms` (nash wheel venv, wheel `9b096274…0107` of 9.3), one shared lock
+job of 16 slots and 96 GB under `e2_timed.py` and the disk guard. It queued from 02:27 and started at 03:53
+SAST on 2026-11-17. It ended with rc 0 after 69,527 s wall, with a peak tree RSS of 36.4 GB. Stage times
+were: flag 1,984 s, calibrate 4,819 s, apply 1,319 s, image 11,985 s and selfcal 49,304 s, one attempt
+each. The host CPU load during the run averaged 37 % and peaked at 99 %, so the wall time is indicative, not a
+timing claim. The post chain (`e2n_nash_chain.sh`, amendment 3's order, one outer hold of 16 slots and
+96 GB) ran from 02:30 to 14:16 SAST on 2026-11-18, and every step returned rc 0. **Run root**
+`~/rang-data/outputs/e2n-20261116/R` on nash; MS `~/rang-data/outputs/e2n-20261116/e2n.ms`, restored at
+the end (FLAG and FLAG_ROW equal to 9.1's hashes). Compact archive:
+[results/e2n/score/](results/e2n/score/). It holds every scorer's JSON, the receipt
+`run-20261117T015337Z.rang-receipt.json`, `R-run-timed.json`, `chain-steps.log`, CASA's fluxscale record
+and a SHA-256 manifest of the originals. The two 400 kB source lists are trimmed to counts. No FITS files
+are committed.
+
+**Gates (section 6; every tolerance as frozen).**
+
+| Gate | Reading | Tolerance | Outcome |
+| --- | --- | --- | --- |
+| 1 | rc 0; flag, calibrate, apply, image and selfcal all done, one attempt each; one receipt; no hand step | as frozen | **met** |
+| 2a | FLAG `50c7ea35…194e`, FLAG_ROW `f2809997…c2ec9` after each of the three restores (`g2a`, `g3a-restore`, `final-restore`) | equal | **met** |
+| 2b casacore | 29 tables open, 0 errors | – | **met** |
+| 2b CASA `listobs`, `flagmanager` | rc 0; the 5 versions listed (`rang_original`, then flag, calibrate, apply, selfcal) | – | **met** |
+| 2b CASA `applycal` vs rang's apply (in place) | 806,816,545 cells compared, 0 over class C (max 8.8 float32 eps of the cell max), flags 0 differ | class C | **met** |
+| 2b WSClean `-niter 0` | CORRECTED_DATA and MODEL_DATA rc 0 | – | **met** |
+| 2b dask-ms | 14 datasets, 2,229,489 rows, all values finite | – | **met** |
+| 2c | astropy WCS parsed all 180 FITS files | – | **met** |
+| 3a | 73 of 2,282,996,736 cells differ (42 rang only, 31 Tricolour only; 68 in MS scan 7, J1744−5144) | 0 cells, or the chunk-edge rule | **not met** |
+| 3b K | median 1.09e-3 ns, p95 3.72e-3 ns (n 86) | ≤ 0.01, ≤ 0.03 ns | met |
+| 3b KCROSS | 1.13e-3 ns | ≤ 0.02 ns | met |
+| 3b Xf | median 0.249°, **p95 2.085°** (n 840) | ≤ 0.5°, ≤ 2.0° | **not met** |
+| 3b Df | median 1.47e-4, p95 4.88e-4 | ≤ 1e-3, ≤ 5e-3 | met |
+| 3b Gpol | median 0.022° | ≤ 0.1° | met |
+| 3b fcal K G B composite | median 1.85e-3, p95 1.68e-2 | 7e-4, 3e-3 | **not met** |
+| 3b gcal K F B composite | median 2.43e-3, p95 1.69e-2 | 7e-4, 3e-3 | **not met** |
+| 3c dirty L∞ / peak | 5.50e-2 (`-no-small-inversion`, labelled seen: 5.50e-2) | ≤ 1e-6 | **not met** |
+| 3c compact sources (inner 0.7°, n 312) | median 0.9964, robust scatter 2.68 % | within 0.5 %, ≤ 1 % | **not met** (scatter) |
+| J1744−5144 row (6 bins scored) | max \|ΔI\| 0.095 %, max \|Δp\| 0.010 point, **max \|Δχ\| 10.3°** at p 0.01-0.03 % | 1 %, 0.1 point, 1° | **not met** (χ) |
+| 3C 286 parity (5 bins scored) | max \|Δp\| 0.088 point, max \|Δχ\| 0.31° | 0.1 point, 0.5° | **met** |
+| Target, compact sources (≤ 0.7°, ≥ 10σ, n 316) | median 0.9901, **robust scatter 13.3 %** | within 1 %, ≤ 1.5 % | **not met** (scatter) |
+| Target, noise and dynamic range | rms 0.960 × the oracle's; peak/rms 1.078 × | ≤ 1.2 ×; ≥ 0.8 × | **met** |
+| Self-calibration rms | 2.82e-5 / 2.90e-5 Jy = 0.971 | ≤ 1.02 | **met** |
+| Self-calibration gains vs QuartiCal 0.2.7 (averaged form, labelled) | Sp: median 3.6e-10, p95 4.3e-9; Sa: 7.1e-9, 3.3e-7; flags and times equal | class B (7e-4, 3e-3) | **met** |
+| J0408−6545 leakage (adapted) | rang: Q 0.147 %, U 0.172 %, V 0.087 % of I (CASA: 0.143, 0.163, 0.086 %) | each ≤ 0.3 % | **met** |
+
+**Outcome under section 8: E2-N (observatory-phased) is not met.** The misses by gate are:
+- 3a: 73 cells.
+- 3b: Xf p95, and both composites.
+- 3c: dirty L∞, and the compact-source scatter.
+- J1744−5144: χ.
+- Target: the compact-source scatter.
+
+Nothing was retuned, and the reserve (target scans 27 and 31) was not fetched, because no fix was tested.
+
+Notes on individual gates:
+- **3a, chunk-edge clause: not checked.** A0's clause applies only "if W3 must chunk differently from
+  Tricolour". rang's port chunks as Tricolour does (column chunks of 256,
+  [core-d-tricolour.md](core-d-tricolour.md)). The chain did not store the differing cells' positions, and
+  `g3a-restore` dropped Tricolour's FLAG, so placing the 73 cells would need Tricolour rerun on the
+  restored MS (about 35 min). Either way the gate reads not met. E1's 530 cells (owner item 33(2): float64
+  DFT against Tricolour's complex64 pocketfft) are the known precedent; the cause of these 73 is not
+  established.
+- **3c:** q/q0 and the MODEL_DATA predict are "not checked" by the scorer, as on E2-A. Reported: L∞ within
+  0.7° 3.3e-3; Δα median 0.0097 over 49 sources (A0's 0.05); off-source ratio 1.03 (A0's 1.6).
+- **Scorer strings that are stale (left unedited in the JSONs):**
+  - the 3c and target caveat "WSClean grids 4,096 channels" means 1,024 here (section 6);
+  - `qc-selfcal.json`'s unaveraged-form reason names WSL's memory. On nash the reason is amendment 3's:
+    no script exists for the unaveraged form, so it is "not run".
+- **WSClean:** every oracle image (3c, the target oracle, leakage, 2b) ran in the KERN 3.7 build of
+  `rang-o-casa_6.7.6.14.sif` (amendment 2).
+
+**Against section 6's expectations:**
+- As expected: Gpol met, both composites not met, 2b applycal met, 3c dirty not met, and the J1744−5144 χ
+  miss at p of a few hundredths of a percent.
+- Not expected: the Xf p95 miss (by 0.085°), the 3c compact scatter, and the target scatter.
+- 3a was expected exact or within a few cells; it read 73.
+
+**Reported, not gated.**
+- **3C 286 same-scan (not a transfer), 1.3-1.5 GHz:** rang p 10.20 %, χ 39.30° (|χ − 33.1°| = 6.20°); CASA
+  p 10.11 %, χ 39.37°. χ is inside the frozen window (≤ 7°); p is just above its 9.0-10.1 % range for both
+  arms. Not in the window.
+- **Flux scale:** CASA's `fluxscale` gives J1744−5144 7.173 ± 0.004 Jy at 1.284 GHz (one spectral window,
+  86 solutions, scaled to 1934−638). rang's and CASA's J1744−5144 Stokes I agree within 0.1 % in every
+  100 MHz bin (row above; 7.18 and 7.17 Jy at 1.2-1.3 GHz).
+- **Native size of the terms**
+  ([e2n_native_size.py](results/e2n-scripts/e2n_native_size.py), committed `1e64d886` before it read an
+  E2-N table; [native-size.json](results/e2n/score/native-size.json)):
+  - K: |τ| median 0.030 ns (rang) and 0.029 ns (CASA), max 0.076 ns. Near-null as on LUNO.
+  - KCROSS: 0.0178 ns (rang) and 0.0189 ns (CASA).
+  - Xf: circular mean 1.7° (rang) and 1.6° (CASA), coherence 0.995, median deviation 1.5°.
+  - So the solved cross-hand phase is also near zero. 9.2's −176° was DATA's XY phase on 3C 286, which
+    carries the source's own polarisation; the two readings are consistent.
+  - Real-size K, KCROSS and Xf therefore remain untested, as amendment 3 assigned to a later leg.
+- **`weights: as_is` arm (A0 rule 3): not run.** It is not in `e2n_nash_chain.sh`. It needs about 5.6 h of
+  rang stages (flag to image, from 9.4's times) plus CASA's 3b sequence with the MS's weights. That is the
+  coordinator's decision.
+
+**Post hoc (2026-11-18, after every gate above was read; changes no verdict).** CASA's K solve on
+J1939−6342 left 19 of 62 antennas flagged, with FPARAM 0 and SNR 0: 0, 1, 2, 3, 6, 7, 9, 11, 12, 15, 16, 18,
+21, 23, 26, 29, 30, 41 and 45.
+- CASA's own solvestats for that call count all 62 antennas above minsnr and minblperant. rang solved all 62.
+- The flags it was given are not the cause. On 1934−638's scan the version CASA used (`rang_apply_…`, flags
+  after calibrate) flags 46-85 % of each antenna's cells, and no antenna is fully flagged.
+- Every later CASA solve applies K, so G, B, Gsec, Gapp, Gpol and KCROSS show `data_unflagged` 0 for the
+  same 19 antennas. CASA's CORRECTED_DATA carries those flags.
+- Effect on the comparisons:
+  - 3b compares 86 of 124 entries.
+  - The composites' `flags_differ` exceeds their compared cells.
+  - The CASA arm of the J1744−5144 row, the 3C 286 parity, the target oracle and the leakage image has
+    43 antennas against rang's 62. On 3C 286 at 1.0-1.1 GHz, 0.34 of CASA's cells are unflagged against
+    0.55 of rang's.
+- The target scatter comes from faint sources. The middle 68 % of ratios are 0.971-1.060 at ≥ 50σ (n 52),
+  against 0.692-1.152 below 20σ (n 193). In 3c, rang's image against WSClean on rang's own data, the
+  middle 68 % below 20σ is 0.952-1.043.
+- This points at the oracle arm, not at rang, for the target scatter and possibly the J1744−5144 χ, but the
+  cause of CASA's K flags is not established.
+- A CASA rerun after a fix would be "seen" (section 8).
+
+## For the coordinator
+
+- **#7 is not met as frozen.** E2-N (observatory-phased) ran once (rang arm rc 0, all five stages, post
+  chain rc 0). Of the 25 rows in 9.4's gate table, 17 are met and 8 are not.
+- **The misses:**
+  - 3a: 73 cells against Tricolour, out of 2.28e9.
+  - 3b: Xf p95 2.085° against 2.0°, and the fcal and gcal composites, which were expected misses.
+  - 3c: dirty L∞ (expected) and the compact scatter, 2.7 % against 1 %.
+  - J1744−5144: χ, noise-limited at p ≈ 0.02 %.
+  - Target: the compact scatter, 13.3 % against 1.5 %.
+- **Met:** 1, 2a-2c, 3C 286 parity, target noise and dynamic range, self-calibration (averaged form), J0408
+  leakage, and 3b K, KCROSS, Df and Gpol.
+- **Post hoc:** CASA's K flagged 19 of 62 antennas on 1934−638, and every CASA product inherits that. The
+  oracle arm is therefore weaker than rang's on the rows that use it. The cause is not established.
+- **Decisions for you:**
+  - Whether to diagnose CASA's K, which would mean a labelled "seen" CASA rerun.
+  - Whether to rerun Tricolour to place 3a's 73 cells (about 35 min).
+  - Whether to run the `as_is` arm (about 6 h plus CASA) or record it as not run.
+- **Release-notes wording (suggested):** "E2-N, native MeerKAT data (SARAO 1735268787, L band): run
+  end-to-end on unprocessed data with rc 0. Not met as frozen on 3a (73 flag cells), Xf p95 (2.09° against
+  2.0°), the K/G/B composites, 3c, the J1744−5144 χ and the target's compact-source scatter. The data are
+  observatory-phased, so K, KCROSS and Xf are near-null here and their real-size solve is untested.
+  CASA's reference arm lost 19 antennas in its delay solve (under investigation)."

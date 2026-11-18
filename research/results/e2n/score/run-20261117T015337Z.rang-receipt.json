@@ -1,0 +1,131 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "run",
+  "/home/gijs/Worktrees/rang/e2n/research/results/e2n-scripts/e2n.yaml",
+  "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-17T01:53:37+00:00",
+ "commit": null,
+ "source": {
+  "checkout": null,
+  "distribution": "rang-core",
+  "version": "0.2.0",
+  "extension_sha256": "9c42ea724253fd47da3e8ca3fd194ac862e2cd4e5702ec0c86f6d3370de683ed"
+ },
+ "environment": {
+  "python": "3.14.10 (main, Nov 11 2026, 00:18:44) [Clang 23.1.3 ]",
+  "executable": "/home/gijs/Build/tmp/20261116-e2n/wheel-venv/bin/python",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.39",
+  "system": "Linux",
+  "machine": "x86_64",
+  "cpu_count": 36,
+  "rang_core": "0.2.0",
+  "extension": {
+   "path": "/home/gijs/Build/tmp/20261116-e2n/wheel-venv/lib/python3.14/site-packages/rang/_core.abi3.so",
+   "sha256": "9c42ea724253fd47da3e8ca3fd194ac862e2cd4e5702ec0c86f6d3370de683ed"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "16",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "16",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": "/home/gijs/rang-data/fixtures/outer_scans.zip",
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": "/home/gijs/rang-data/locks/heavy",
+   "RANG_HEAVY_SLOTS": "24",
+   "RANG_HEAVY_MEM_GB": "192",
+   "RANG_HEAVY_NICE": "19",
+   "RANG_HEAVY_LOCK_HELD": "16:96",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": "/home/gijs/rang-data/outputs",
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "/home/gijs/Worktrees/rang/e2n/research/results/e2n-scripts/e2n.yaml",
+   "kind": "file",
+   "bytes": 3827,
+   "sha256": "7faa7bc35d44e2461c8517c1400e2eca7814696ed24818432d51c6ac969294b3"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms",
+   "kind": "directory",
+   "files": 77,
+   "bytes": 112171022941,
+   "listing_sha256": "65b338eb54b8cb2ee03c94f00467e10bc0ce357b4a2fd9ed2c808cae975d3b94"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms",
+   "kind": "directory",
+   "files": 83,
+   "bytes": 331340186630,
+   "listing_sha256": "c7b92d7b1b4d2cefddca179e084d54dbb3f8f80e4d57095540de40e1c86c6ebf",
+   "modified": true
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.flagversions",
+   "kind": "directory",
+   "files": 32,
+   "bytes": 5711089940,
+   "tree_sha256": "5552340ef3db4853422a402ee5e594a5a9e8a1cff75e89f63b31a7ac6ce63e6f"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run",
+   "kind": "directory",
+   "files": 709,
+   "bytes": 12087569644,
+   "tree_sha256": "2eb43019fa037b71b92bc518edfe46a1213310b4dc5c07b14f9fcaacbe506671"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 69423.27490813902,
+  "cpu_seconds": 39160.801159,
+  "peak_rss_mb": 6915.0
+ },
+ "exit": 0,
+ "verdict": null
+}

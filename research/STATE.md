@@ -20,6 +20,22 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+E2-N scored as frozen, 2026-11-18 (branch `e2n`; [e2n-native.md](e2n-native.md) 9.4; issue #7; archive
+[results/e2n/score/](results/e2n/score/)). **Not met.**
+- The run: `rang-core run` on nash with rc 0, all five stages, 69,527 s at 36.4 GB peak (shared host,
+  indicative). The post chain's 39 steps all returned rc 0. Run root `~/rang-data/outputs/e2n-20261116/R`.
+- Met: 1, 2a-2c, 3C 286 parity (|Δp| 0.088 point, |Δχ| 0.31°), target noise and dynamic range (0.96 ×, 1.08 ×),
+  self-calibration (rms 0.971; gains against QuartiCal in the averaged form), J0408−6545 leakage (0.17 %),
+  and 3b K, KCROSS, Df and Gpol.
+- Not met: 3a (73 of 2.28e9 cells); 3b Xf (p95 2.085° against 2.0°) and both composites; 3c (dirty L∞
+  5.5e-2, compact scatter 2.7 %); J1744−5144 χ (10.3°, p ≈ 0.02 %); the target's compact scatter (13.3 %
+  against 1.5 %).
+- Reported: K, KCROSS and Xf are near-null in both arms (0.03 ns, 0.018 ns, 1.7°), so the real-size solve
+  stays untested. The 3C 286 same-scan reading is p 10.2 %, χ 39.3°. The `as_is` arm was not run.
+- Post hoc: CASA's K left 19 of 62 antennas flagged on 1934−638, and every CASA product inherits that;
+  the cause is not established.
+- Coordinator decisions are listed in the note's last section.
+
 E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md); issue #7). Proposal frozen
 (`8f3e191`) before any visibility of SARAO CBID 1735268787 was read (SCI-20241101-KR-02, L band 1k, 62 antennas;
 1934−638, 3C 286, J0408−6545, J1744−5144, ASKAP J1745; 5.25 h).

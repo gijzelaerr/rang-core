@@ -1,0 +1,38 @@
+{
+ "from": "R/casa3b-n-tasks.json",
+ "fluxscale": [
+  {
+   "task": "fluxscale",
+   "call": {
+    "vis": "/c/e2n.ms",
+    "caltable": "/p/casa/tables/Gapp",
+    "fluxtable": "/p/casa/tables/F",
+    "reference": "J1939-6342",
+    "transfer": ""
+   },
+   "seconds": 2.7632672960171476,
+   "error": null,
+   "written": true,
+   "return": {
+    "2": {
+     "0": {
+      "fluxd": "[7.17320916 0.         0.         0.        ]",
+      "fluxdErr": "[0.00350659 0.         0.         0.        ]",
+      "numSol": "[86.  0.  0.  0.]"
+     },
+     "covarMat": "[]",
+     "fieldName": "J1744-5144",
+     "fitFluxd": 7.173209158464234,
+     "fitFluxdErr": 0.0,
+     "fitRefFreq": 1283582031.25,
+     "spidx": "[0. 0.]",
+     "spidxerr": "[0. 0.]"
+    },
+    "freq": "[1.28358203e+09]",
+    "spwID": "[0]",
+    "spwName": "['none']"
+   }
+  }
+ ],
+ "errors": []
+}
