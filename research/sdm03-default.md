@@ -262,6 +262,20 @@ written after the seen pilot's A0 and SDa scores were read.**
   0.466) and SDa 329.7 µJy (D −0.41 against A0). SDa took 5,512 s and 18.0 GiB, against A0's 531 s and
   9.2 GiB. The rule, the arms and the bars are unchanged.
 
+**4, 2026-11-18 09:00 SAST, before any reserve visibility was fetched (scheduling only).**
+
+- The first main run had started scan 10's seen pair (A0 with SDa) at 08:53. That pair held all 16 of the
+  driver's slots for an estimated 1.5 h, ahead of the reserve. The driver was stopped after 3 min.
+- Scan 10's seen arms now run after the reserve tracks, the fresh skies and the summary (`scripts/drive3.sh`
+  is `drive.sh` at this commit).
+- The restart then took the wrong candidates. The first run's workers had already popped MAIN_1 and MAIN_6
+  from the candidate list, so the restarted workers took MAIN_2 and MAIN_3. For both scans, the group
+  metadata, the TIME column and section 3.1's `meta` check were run, and `gains` had started on the
+  publisher's gain metadata. No visibility, flag, weight or gain value was fetched: their `DATA` folders hold
+  `.zarray` and `.zattrs` only. That is within a0-acceptance's allowance for held-out data (row columns,
+  `.zarray` and `.zattrs`). The driver was stopped and the list reset to MAIN_1, MAIN_6, MAIN_2, MAIN_3.
+  MAIN_2 and MAIN_3 stay unread unless a candidate before them fails.
+
 ## Measured result
 
 (not yet run)

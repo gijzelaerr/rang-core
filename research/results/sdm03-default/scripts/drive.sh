@@ -107,8 +107,10 @@ case $MODE in
     sim_track X2 --sky-seed 20261842 --noise-seed 20261852 & S2=$!
     sim_track X3 --sky-seed 20261843 --noise-seed 20261853 & S3=$!
     sim_track X4 --sky-seed 20261844 --noise-seed 20261854 & S4=$!
-    seen_state $F6/ho $OUT/seen-s10; real_arms s10 $OUT/seen-s10 $F6/ho/P/pilot.ms & SS=$!
-    for p in $W1 $W2 $S1 $S2 $S3 $S4 $SS; do wait $p; r=$?; log "track pid $p rc $r"; RC=$(( RC + r )); done
+    for p in $W1 $W2 $S1 $S2 $S3 $S4; do wait $p; r=$?; log "track pid $p rc $r"; RC=$(( RC + r )); done
+    summary
+    # scan 10 (seen, reported only) after the reserve and the fresh skies (amendment 4)
+    seen_state $F6/ho $OUT/seen-s10; real_arms s10 $OUT/seen-s10 $F6/ho/P/pilot.ms; log "seen s10 rc $?"
     summary;;
   d1) sim_track D1; RC=$?;;  # the seen sky alone (rerun after the venv fix, amendment 2)
   summary) summary;;
