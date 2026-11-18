@@ -66,6 +66,18 @@ exists; pick a new slug and link the old one.
    - Proceedings: `co:ADASS`, `co:URSI`, `co:SPIE AND abs:radio` (the
      comments field), filtered by title.
    Save raw results to the session scratchpad, not the repo.
+   **If the API rate-limits** (HTTP 429 after back-off; it did for a whole
+   run on 2026-11-18): harvest the window from OAI-PMH instead,
+   `https://oaipmh.arxiv.org/oai?verb=ListRecords&metadataPrefix=arXiv&set=physics:astro-ph&from=<last digest date>`,
+   following `resumptionToken`, at least 4 s between pages (about 1,700
+   records a week, under 2 min). Apply the queries above as case-insensitive
+   regular expressions on title plus abstract, with the same `astro-ph.IM`
+   restriction, then read every `astro-ph.IM` title in the window by eye.
+   OAI's `created` is the **latest** version's date, not v1's: get each
+   candidate's version history with `verb=GetRecord&metadataPrefix=arXivRaw`
+   and label revisions of older papers. The harvest covers astro-ph only, so
+   say that cs/eess-only papers (agents) were not searched. Record the
+   deviation in "How this was made".
 4. **Search software (release APIs).** GitHub `repos/<r>/releases`:
    ratt-ru/QuartiCal, ratt-ru/pfb-imaging, ratt-ru/tricolour, mreineck/ducc
    (tags), caracal-pipeline/caracal, saopicc/DDFacet, scottransom/presto,
@@ -100,8 +112,10 @@ exists; pick a new slug and link the old one.
    including a tuned strongest baseline, not a weak one; owner decisions.
    Do not repeat an open proposal; extend it in a new file if needed.
 8. **Verify.** Extract every arXiv ID from the new files and re-query with
-   `id_list`; compare title and first author; fix or drop mismatches. Check
-   every relative link resolves.
+   `id_list`; compare title and first author; fix or drop mismatches. If
+   the API is still rate-limited, use the `arXivRaw` `GetRecord` fetches
+   (independent of a harvest) and say so. Check every relative link
+   resolves.
 9. **Checks**, with the main checkout's venv
    (`~/Github/rang/.venv/Scripts/python` on Windows):
    `python -m pytest tests/test_w4_8_docs.py tests/test_w4_5_release.py`
