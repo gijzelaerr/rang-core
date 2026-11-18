@@ -299,3 +299,15 @@ this session's and were left.
   and sdm03 records the outcome as null without O1.
 - nash during E3-A (from 21:45:02): one 201 MB read and the cleanup, at `ionice -c3`. Three earlier-session
   `tail -F` watchers (1630895, 1649882, 1662781) were left running.
+
+## Coordinator decision (2026-11-18)
+
+- **Outcome stands as frozen: rule 4, null; no code change.** #36 closes as null.
+- **(1) Oracle setting, from now on:** WSClean oracle runs whose measure compares major-cycle counts, or residual
+  excess above a stop, add `-no-fast-subminor`; timing runs keep WSClean's default. Archived oracle runs are not
+  rerun for this. Post hoc for every earlier comparison.
+- **(2) No:** GeMClean does not copy radler's subset loop. It would reproduce an oracle artefact, not fix a defect.
+- **(3) #13 stays closed** with SDm03 "not yet". Its O1 failure on scan 4 rests on the default oracle's residual
+  excess, so O1 as run there is not evidence against SDa. The coordinator re-reads #13 as "not yet, O1 not
+  informative", not as a pass. Any second look at SDa as default is a new frozen note that uses setting (1) and
+  the unspent reserve scan 12.
