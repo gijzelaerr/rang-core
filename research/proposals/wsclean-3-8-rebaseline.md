@@ -12,10 +12,12 @@ changes the parts of WSClean that rang's archived comparisons rest on:
 multiscale with "far fewer FFTs" and a residual update that no longer wraps
 PSF sidelobes around the image; per-scale FITS masks
 (`-multiscale-fits-mask`); wgridder recentering and an updated ducc0
-wgridder; the theoretic-beam fix !1068 that
-[pol-join-squared.md](../pol-join-squared.md) section 7 says changes default
-multiscale scales. Every WSClean number in `research/` is against 3.7
-(`rang-wsclean-native:3.7`, or nash's system WSClean 3.7). Users will
+wgridder. [pol-join-squared.md](../pol-join-squared.md) section 7 also
+expects 3.8 to carry the theoretic-beam fix !1068 (different default
+multiscale scales); the 3.8 changelog read on 2026-11-18 does not name it,
+so confirming it in 3.8's source is step one. The GeMClean comparisons
+cited below are against 3.7 (`rang-wsclean-native:3.7`, or nash's system
+WSClean 3.7). Users will
 compare GeMClean with the WSClean they install, which from now on is 3.8.
 
 ## Hypotheses (each decided separately)
@@ -48,8 +50,8 @@ both versions rerun on one host if that is not possible.
 
 The archived truth skies and settings, unchanged: S1-S3 and H1-H4 with the
 gemclean-speed settings (threshold 100 µJy, Briggs 0.5, gain 0.1; GeMClean
-at 1e-6 and coarse `-single -wgridder-accuracy 1e-4`); the ms-mask fields
-(H4, RM, PM, the pilot with Dms03's settings); the DF5-O simulated field.
+at 1e-6 and coarse `-single -wgridder-accuracy 1e-4`); the ms-mask arms RM
+(on H4) and PM (the pilot with Dms03's settings); the DF5-O simulated field.
 No new data; held-out skies (H9-H16) only if a protocol change needs them.
 
 ## Tolerance to freeze (before any 3.8 run)
