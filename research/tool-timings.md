@@ -2308,4 +2308,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | automask-cycle: GeMClean SDa with `-nmiter 1` / `2` on scan 4, `-nmiter 2` on scan 14 (host nash, shared) | 4096², 256 ch, `-j 8` | 482 / 785 s; 689 s | 18.0 GiB | |
 | 2026-11-18 | automask-cycle: WSClean 3.7 SDa with `-nmiter 1` / `2` on scan 4, `-nmiter 2` on scan 14 (host nash, shared) | 4096², 256 ch, `-j 8` | 266 / 384 s; 386 s | 2.2 GiB | first tries rc 255 in 0.1-2.7 s, relaunched |
 | 2026-11-18 | automask-cycle: `compare.py` M1-M3, three pairs (host nash) | 4096², 8 ch | 11-12 s each | 3.6 GiB | 1 slot |
+| 2026-11-18 | automask-cycle: WSClean 3.7 SDa `-nmiter 2 -no-fast-subminor` on scan 4, post hoc (host nash, shared) | 4096², 256 ch, `-j 8` | 7,229 s (default sub-minor: 384 s) | 1.8 GiB | ~2 cores busy of 8 |
+| 2026-11-18 | automask-cycle: `probe.py` on three MFS residuals (Windows host glacier) | 4096² | 2 s | – | 1 slot |
 | 2026-11-18 | automask-cycle: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `automask-cycle` | 909 s (lock wait excluded) | – | PASS |

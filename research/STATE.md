@@ -29,7 +29,8 @@ iteration 2's first loop (`-nmiter 2`), WSClean's residual peaks at 22.89 mJy (G
 1,096 pixels lie above WSClean's own 7.62 mJy stop, against none for GeMClean (scan 14: 1,837 against 78 above
 10 mJy). WSClean's iteration-3 start peak (15.42 mJy) is one of those sources (GeMClean 6.50 mJy there). Post hoc
 source read: radler's sub-minor loop tracks only the pixels above the threshold at its start and does not rescan
-afterwards. Högbom masks 1,527 / 1,520 pixels, 1,068 shared: "WSClean builds a larger mask" is not supported.
+afterwards. A post hoc WSClean run with `-no-fast-subminor` leaves 0 pixels above its stop, with the four sources
+at 6.2-7.1 mJy (GeMClean 6.4-6.7). Högbom masks 1,527 / 1,520 pixels, 1,068 shared: "WSClean builds a larger mask" is not supported.
 Deviation (post hoc): `-nmiter k` skips iteration k's continuation in both imagers, so M4 is from sdm03's archive.
 
 katdal 0.24, 2026-11-18 (branch `katdal-0-24`; [mk1-katdal.md](mk1-katdal.md) deviation 3, post hoc; from the

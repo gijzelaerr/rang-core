@@ -127,10 +127,10 @@ joins, and `-local-rms`.
 
 ## Measured result
 
-Measured 2026-11-18, 18:19-19:45 SAST, host nash, run root `nash:~/rang-data/outputs/automask-cycle-20261118`
+Measured 2026-11-18, 18:19-19:45 SAST (frozen runs) and 19:44-21:47 SAST (one post hoc run), host nash, run root `nash:~/rang-data/outputs/automask-cycle-20261118`
 (removed after archiving). Archive: [results/automask-cycle/](results/automask-cycle/) (compare outputs `cmp/`,
 imager logs, argv and GeMClean reports `small/`, the rebuild's logs `logs/`, `timing.tsv`, the driver scripts
-`scripts/`). State rebuilt with sdm03's chain at `c3d6bf72` (worktree `automask-cycle-state`, extension
+`scripts/`, the post hoc residual probe `probe.json`). State rebuilt with sdm03's chain at `c3d6bf72` (worktree `automask-cycle-state`, extension
 `f05fedef…`). Imagers: GeMClean from that worktree; WSClean 3.7 `/usr/bin/wsclean`. Every job 8 threads,
 `nice 19`, `ionice -c3`, under the heavy lock.
 
@@ -187,7 +187,8 @@ Positions are (y, x) array indices; WSClean's log prints x, y.
   (1973, 2159), (2033, 1969). After iteration 1's first loop the imagers agree there: residual 61-65 mJy, 7×7
   model sums within 5 %. After iteration 2, WSClean's residual there is 15.2-22.8 mJy and GeMClean's
   6.4-6.7 mJy. GeMClean has added 17-108 mJy more model per 7×7 box: 571 against 464 mJy at (2046, 1970),
-  28.7 against 11.7 mJy at (1980, 2109) (`probe.json`).
+  28.7 against 11.7 mJy at (1980, 2109). The model sums come from an inline probe on nash, run outside the
+  lock and not archived. The residuals are re-read by `scripts/probe.py` (`probe.json`).
 - **The iteration-3 start.** WSClean's iteration-3 start peak in sdm03's full run is 15.42 mJy at x 2109,
   y 1980, the second of those sources. No model there after iteration 1, so it lies outside the Högbom mask and
   iteration 2's in-mask continuation does not touch it. Its n2 residual there is 15.16 mJy (WSClean) and
@@ -237,8 +238,27 @@ its resyncs restore the exact residual, so nothing above its stop survives a loo
 below 7.62 mJy at iteration 2's start and rose above it was not traced.
 
 Post hoc test (not in section 4): WSClean n2 on scan 4 with `-no-fast-subminor` (`W-MAIN_1-n2-nofs`).
-Running at this commit (started 19:44; stopped by 21:45 if not finished, before E3-A's window); its result
-or its absence is added below.
+It ran 19:44-21:47 (7,229 s against 384 s with the optimisation). The arms are on scan 4's
+iteration 2, after the first loop and a major cycle:
+
+| | WSClean default | WSClean `-no-fast-subminor` | GeMClean |
+| --- | --- | --- | --- |
+| iteration-2 σ | 472.9 µJy | 471.42 µJy | 470.46 µJy |
+| iteration-2 start peak | 76.17 mJy | 73.33 mJy | 72.29 mJy |
+| first-loop stop | 7.62 mJy | 7.33 mJy | 7.23 mJy |
+| MFS residual peak | +22.89 mJy | −7.45 mJy | +7.34 mJy |
+| pixels above 7.62 / 10 / 15 mJy | 1,096 / 467 / 112 | 0 / 0 / 0 | 0 / 0 / 0 |
+| residual at the four sources | 15.2-22.8 mJy | 6.2-7.1 mJy | 6.4-6.7 mJy |
+| radler σ of the MFS residual | 206.9 µJy | 193.8 µJy | 191.5 µJy |
+| rms of G − W | 63.3 µJy | 34.3 µJy | – |
+
+Without the sub-minor optimisation, WSClean's iteration-2 residual matches GeMClean's: nothing left above the
+stop, the four sources at 6.2-7.1 mJy, and the G − W rms halved. Iteration 1 is unchanged (σ 1.19 mJy, start
+peak 659.06 mJy). The excess is radler's default sub-minor loop, not a property of WSClean's clean as
+documented. How WSClean `-no-fast-subminor` would switch on scan 4 was not run: its full run is about 2 h at
+this cost, and E3-A held nash from 21:45. Whether it would then finish in iteration 3, as GeMClean does, is
+not known. The probe ran on glacier under its lock, on the three MFS residuals copied from nash at
+`nice 19` / `ionice -c3`. nash was held exclusively by E3-A from 21:45.
 
 ### Not done
 
@@ -260,15 +280,20 @@ in `timing.tsv`.
   leaves none above its 7.23 mJy stop. The edge decides which side GeMClean lands on; the gap comes from
   WSClean's inexact first loop (radler's sub-minor subset), not from GeMClean.
 - **M1** (scan 4, after iteration 2's first loop): W peak 22.89 mJy, G 6.92 at that pixel; G peak 7.34 mJy.
-  **M2**: model flux G +1.2 to +2.8 % per channel, 0.25 of the 1.33 Jy gap at the four sources. **M3**: masks of 1,527 and
-  1,520 pixels sharing 1,068. "WSClean builds a larger mask" (sdm03) is not supported. No tolerance applies;
+  **M2**: model flux G +1.2 to +2.8 % per channel, 0.25 of the 1.33 Jy gap at the four sources.
+  **M3**: masks of 1,527 and 1,520 pixels sharing 1,068. "WSClean builds a larger mask" (sdm03) is not supported. No tolerance applies;
   T1-T3 gate a fix only.
 - **Deviation:** `-nmiter k` skips iteration k's continuation in both imagers, so the smallest case measures
   after the first loop, not at iteration 3's start (dated, post hoc). M4 comes from sdm03's archive.
-- **Decision 1:** O1 compares against an oracle whose own minor loop leaves 2-3 × its stop level. A WSClean
-  oracle run with `-no-fast-subminor` (the post hoc run above) would remove that from the comparison; that is
-  for the owner to decide for sdm03 or its successor.
+- **Post hoc confirmation:** WSClean `-no-fast-subminor` on scan 4, iteration 2, leaves 0 pixels above its stop
+  (default: 1,096). The four sources come to 6.2-7.1 mJy (GeMClean 6.4-6.7) and G − W rms falls from 63 to
+  34 µJy. Not run: its full-depth switch (about 2 h; nash exclusive from 21:45).
+- **Decision 1:** O1 compares against an oracle whose default minor loop leaves 2-3 × its stop. Should
+  WSClean oracle runs that compare cycle counts or residual excess use `-no-fast-subminor` (about 19 × the
+  wall time on this case)? That is for sdm03's successor.
 - **Decision 2:** whether to copy WSClean's subset-limited first loop into GeMClean so cycle counts match. The
   frozen rule calls that "not a fix" (it tunes to the oracle's inexactness). Recommended: no.
-- **Decision 3:** #36 can close as null; sdm03's #13 outcome ("not yet", A0 stays) is unchanged.
+- **Decision 3:** #36 can close as null. sdm03's O1 failure on scan 4 rests on the oracle's sub-minor excess.
+  sdm03 records that without the O1 clause its outcome is null, not "not yet". Re-reading #13 is the
+  coordinator's call; nothing here changes A0 as the default.
 - Not run: T3 (no code change), scan 14 n1, other fields.
