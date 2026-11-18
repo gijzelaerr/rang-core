@@ -192,7 +192,11 @@ def fits_header(path):
 
 
 def beam_of(s):
-    """research/gemclean-stop28.md amendment 3; S1-S3 take the scorer's own (None)."""
+    """research/gemclean-stop28.md amendment 3; S1-S3 the scorer's own (amendment 3 here)."""
+    if s in ("s1", "s2", "s3"):
+        # Amendment 3 (post hoc): the beam the scorer took from the archived prep's
+        # WSClean dirty image, beam_arcsec of D:/rang/outputs/stop28-20261116/scores/dev-s*.json.
+        return 10.761531523459142
     if s in ("h1", "h2", "h3", "h4"):
         f = O / "in/scores" / f"gemclean-{s}.json"
     elif s in ("h5", "h6", "h7", "h8"):

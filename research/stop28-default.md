@@ -136,3 +136,12 @@ AVX-512); every WSClean job exited at once and wrote nothing. WSClean on H9-H16 
 differs from the archived H1-H8 runs'. Also, stage 3's hash check: S1, H3 and H4 regenerated on nash equal the
 archive; S2, S3, H1, H2 and H5-H8 differ in the DATA column file (`table.f0_TSM0`; H5-H8 also `table.f3`), so those
 eight are copied from glacier as §3 says, their noise files equal on every sky.
+
+**3, 2026-11-18, post hoc: after every run had finished and after the H9-H16 savings and checks were seen.** The
+driver's as-run table (`summary-asrun.json`) gave "not yet" only because S1-S3 were never scored:
+`score-seen-s{1,2,3}` exited 1 ("no beam"). §2's "S1-S3 the scorer's own" beam is the one the scorer read from a
+prep made with `--wsclean-dirty`; nash's prepare had no WSClean dirty image, so no such beam existed. Fix: the
+driver passes S1-S3 that beam explicitly, 10.761531523459142″, the `beam_arcsec` of the archived
+`D:/rang/outputs/stop28-20261116/scores/dev-s{1,2,3}.json`, which is √(bmaj × bmin) of the PSF fit in
+`D:/rang/outputs/20261102-gemclean/bench/prep/s1/meta.json` (13.8785″ × 8.3448″). No imaging is re-run, no
+threshold or rule changes; only the three missing S1-S3 scores and the table are produced.
