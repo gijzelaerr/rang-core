@@ -386,8 +386,8 @@ downstream (C_F cannot see K2 and G2).
   the tests) is a small follow-up.
 - CASA drops non-converged Gpol intervals on glacier too on noiseless data
   (`dev` 48/64, `held` 656/768); the noisy sets have none.
-- Checks: `tools/check_all.py --quick` on glacier (result below in the
-  hand-back); the full check (CASA oracles, archives) is left to the merge
+- Checks: `tools/check_all.py --quick` on glacier PASS in 715 s (685 passed; the
+  gain-hash gate in it); the full check (CASA oracles, archives) is left to the merge
   check. One debug `shared` run on D1 (a few seconds) ran outside the heavy
   lock.
 - Disk: `D:\rang\outputs\calwt-terms-20261118` 264 MB after the MS copies

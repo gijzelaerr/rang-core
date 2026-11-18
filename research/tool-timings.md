@@ -2282,3 +2282,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | calwt-terms: `calwt_terms.py` rang chain arm (`rang-core run`, calibrate, 12 terms), Windows host glacier | poldx 16 ant × 256 ch, noisy and noiseless | 6.0-6.3 s per arm (19.6 s on `held`, 90 × 8 s xcal scans); keys on or off the same | – | heavy lock 4 slots, 12 GB; not a timing |
 | 2026-11-18 | calwt-terms: CASA 6.7.6.14 chain (16 tasks, WSL docker), glacier | as above | 37-38 s per set (106 s on `held`) | – | 4 slots |
 | 2026-11-18 | calwt-terms: generation, shared-upstream harness, scoring per set, glacier | as above | gen 3-6 s, shared 8-22 s, score 3-11 s; all 9 sets incl. CASA about 12 min | – | 4 slots |
+| 2026-11-18 | calwt-terms: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `calwt-terms` | 715 s (lock wait excluded) | – | PASS (685 passed, 57 skipped; Rust core 301 passed) |
