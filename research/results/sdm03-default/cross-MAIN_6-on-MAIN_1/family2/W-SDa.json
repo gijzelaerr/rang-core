@@ -1,0 +1,74 @@
+{
+ "arm": "W-SDa",
+ "state": "S1",
+ "F_uJy": 442.5239070998096,
+ "D": -0.6070125978914377,
+ "dP": -7.324525236878174e-08,
+ "model": [
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0000-model.fits",
+   "flux_jy": 92.17227920559307,
+   "negative_jy": -2.7053587394980525,
+   "outside_mask_jy": 0.8586529371555685,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0001-model.fits",
+   "flux_jy": 90.44302431415647,
+   "negative_jy": -2.242353190546794,
+   "outside_mask_jy": 0.793060869467638,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0002-model.fits",
+   "flux_jy": 88.71375046638323,
+   "negative_jy": -1.9251225145947046,
+   "outside_mask_jy": 0.727468749560785,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0003-model.fits",
+   "flux_jy": 86.9844573207447,
+   "negative_jy": -1.6956758787364379,
+   "outside_mask_jy": 0.6618763557544298,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0004-model.fits",
+   "flux_jy": 85.25518690624085,
+   "negative_jy": -1.494078555238957,
+   "outside_mask_jy": 0.5962842417393404,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0005-model.fits",
+   "flux_jy": 83.52593116087232,
+   "negative_jy": -1.3135840718863676,
+   "outside_mask_jy": 0.5306925044587842,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0006-model.fits",
+   "flux_jy": 81.79662642580281,
+   "negative_jy": -1.2172348905630983,
+   "outside_mask_jy": 0.46509991540900586,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image-0007-model.fits",
+   "flux_jy": 80.06734857501273,
+   "negative_jy": -1.2287380526258715,
+   "outside_mask_jy": 0.39950767785552443,
+   "outside_mask_pixels": 6385,
+   "pixels": 23731
+  }
+ ],
+ "report": {}
+}

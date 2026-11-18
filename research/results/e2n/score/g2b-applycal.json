@@ -1,0 +1,15 @@
+{
+ "applycal_calls": 5,
+ "applycal_errors": [],
+ "compare_exit": 0,
+ "rows": 2229489,
+ "cells": 2282996736,
+ "compared_cells": 806816545,
+ "flag_elements_differ": 0,
+ "cells_over_class_c": 0,
+ "max_eps_of_cell_max": 8.766323065547187,
+ "max_rel": 0.13421738195599942,
+ "nonfinite_compared": 0,
+ "class_c": "per cell <= 1e-6 relative or <= 11 float32 epsilons of the cell's largest correlation; flags exact",
+ "met": true
+}

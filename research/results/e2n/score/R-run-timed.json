@@ -1,0 +1,19 @@
+{
+ "command": [
+  "/home/gijs/Build/tmp/20261116-e2n/wheel-venv/bin/python",
+  "-m",
+  "rang.core_cli",
+  "run",
+  "/home/gijs/Worktrees/rang/e2n/research/results/e2n-scripts/e2n.yaml",
+  "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms"
+ ],
+ "rc": 0,
+ "wall_s": 69527.02875065804,
+ "peak_tree_rss_bytes": 36426207232,
+ "peak_process_rss_bytes": 35956346880,
+ "host_cpu_load_pct_at_start": 4.1,
+ "host_cpu_load_pct_mean": 37.401639561215184,
+ "host_cpu_load_pct_max": 99.2,
+ "logical_cpus": 36,
+ "started": "2026-11-17T03:53:36"
+}

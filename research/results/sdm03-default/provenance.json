@@ -1,0 +1,33 @@
+{
+ "note": "research/sdm03-default.md",
+ "host": "nash.ru.ac.za (36 cores, 503 GB; shared, every job nice 19, ionice idle, heavy lock)",
+ "run_root": "nash:~/rang-data/outputs/sdm03-default-20261118",
+ "extension": {
+  "file": "python/rang/_core.abi3.so",
+  "sha256": "959aae392463543e4587666eb80cfa709e84988f24bbd04b4375d9e59d0bb4b4",
+  "built_at": "aef6c48c (main b0388c0c plus the frozen note; maturin develop --release, cargo 1.93)"
+ },
+ "python": "3.14.10, NumPy 2.5.5, SciPy 1.18.1, Astropy 8.0.3 (public PyPI; SciPy and Astropy added by amendment 2)",
+ "drivers": {
+  "dry": "scripts/drive.sh as of 35022d00 (stopped by amendment 3)",
+  "d1": "drive2.sh = drive.sh at 8ab4c834",
+  "main": "drive3.sh = drive.sh at c3d6bf72 (amendment 4); the first main start (ac7dd688) was stopped after 3 min",
+  "sims": "drive4.sh (X1-X3 after the restart)",
+  "wsa": "drive5.sh (W-Sa on X1-X4, scan 4, scan 14)",
+  "s10, summary": "drive6.sh (scan 10's A0 failed: floor-6's outputs were removed from nash during the run)",
+  "post hoc": "scripts/cross.sh (cross-scan scoring, not gating)"
+ },
+ "driver_python_commit_main_run": "c3d6bf72",
+ "wsclean": "/usr/bin/wsclean, WSClean version 3.7 (2026-02-16)",
+ "reserve": {
+  "used": {"MAIN_1": "scan 4, GKB-net group 1", "MAIN_6": "scan 14, GKB-net group 6"},
+  "metadata_only": ["MAIN_2 (scan 6)", "MAIN_3 (scan 8)"],
+  "untouched": ["MAIN_5 (scan 12, E2-A's retry reserve)"],
+  "fetched": "channel tiles 5-8 of DATA, FLAG, WEIGHT_SPECTRUM and the row columns; 18.10 GB (MAIN_1), 18.12 GB (MAIN_6); manifests manifest-MAIN_*-{meta,data}.json, CC BY 4.0, Ramatsoku et al. 2020"
+ },
+ "seeds": {
+  "X1": [20261841, 20261851], "X2": [20261842, 20261852], "X3": [20261843, 20261853], "X4": [20261844, 20261854],
+  "D1 (seen)": [20261161, 20261171],
+  "T noise (ESO137)": 1301
+ }
+}

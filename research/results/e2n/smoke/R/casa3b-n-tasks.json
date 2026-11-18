@@ -1,0 +1,1365 @@
+[
+ {
+  "task": "setjy",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "field": "J1939-6342",
+   "standard": "Stevens-Reynolds 2016",
+   "scalebychan": true,
+   "usescratch": true
+  },
+  "seconds": 0.624870895058848,
+  "error": null,
+  "written": true,
+  "return": {
+   "0": {
+    "0": {
+     "fluxd": "[14.0450134  0.         0.         0.       ]"
+    },
+    "fieldName": "J1939-6342"
+   },
+   "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+  }
+ },
+ {
+  "task": "setjy",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "field": "3C286-SIM",
+   "standard": "manual",
+   "fluxdensity": [
+    14.7172,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "spix": [
+    -0.4507,
+    -0.1798,
+    0.0357
+   ],
+   "reffreq": "1.47GHz",
+   "polindex": [
+    0.098
+   ],
+   "polangle": [
+    0.575959
+   ],
+   "rotmeas": 0.0,
+   "scalebychan": true,
+   "usescratch": true
+  },
+  "seconds": 0.12256135593634099,
+  "error": null,
+  "written": true,
+  "return": {
+   "1": {
+    "0": {
+     "fluxd": "[18.28396393  0.72880116  1.63691726  0.        ]"
+    },
+    "fieldName": "3C286-SIM"
+   },
+   "format": "{field Id: {spw Id: {fluxd: [I,Q,U,V] in Jy}, 'fieldName':field name }}"
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/K",
+   "field": "J1939-6342",
+   "gaintype": "K",
+   "solint": "inf",
+   "combine": "",
+   "parang": false
+  },
+  "seconds": 0.4674763169605285,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "[]",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[0]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 1 23]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/K']",
+   "solvestats": {
+    "above_minblperant": "[2 2]",
+    "above_minsnr": "[2 2]",
+    "data_unflagged": "[2 2]",
+    "expected": "[2 2]",
+    "spw0": {
+     "above_minblperant": "[2 2]",
+     "above_minsnr": "[2 2]",
+     "ant0": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[2 2]",
+     "expected": "[2 2]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/G",
+   "field": "J1939-6342",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K"
+   ],
+   "interp": [
+    "linear"
+   ]
+  },
+  "seconds": 0.1821634490042925,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[0]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 1 23]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/G']",
+   "solvestats": {
+    "above_minblperant": "[2 2]",
+    "above_minsnr": "[2 2]",
+    "data_unflagged": "[2 2]",
+    "expected": "[2 2]",
+    "spw0": {
+     "above_minblperant": "[2 2]",
+     "above_minsnr": "[2 2]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[2]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[2 2]",
+      "above_minsnr": "[2 2]",
+      "data_unflagged": "[2 2]",
+      "expected": "[2 2]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[2 2]",
+     "expected": "[2 2]"
+    }
+   }
+  }
+ },
+ {
+  "task": "bandpass",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/B",
+   "field": "J1939-6342",
+   "bandtype": "B",
+   "solint": "inf",
+   "combine": "scan",
+   "solnorm": false,
+   "fillgaps": 0,
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 0.3027780590346083,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/G' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[0]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 1 23]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/B']",
+   "solvestats": {
+    "above_minblperant": "[1 1]",
+    "above_minsnr": "[1 1]",
+    "data_unflagged": "[1 1]",
+    "expected": "[1 1]",
+    "spw0": {
+     "above_minblperant": "[1 1]",
+     "above_minsnr": "[1 1]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[1]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[1 1]",
+      "above_minsnr": "[1 1]",
+      "data_unflagged": "[1 1]",
+      "expected": "[1 1]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[1 1]",
+     "expected": "[1 1]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gsec",
+   "field": "SIM-GCAL",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  },
+  "seconds": 0.2839372419985011,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[2]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 3  5  7  9 11 13 15 17 19 21]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Gsec']",
+   "solvestats": {
+    "above_minblperant": "[10 10]",
+    "above_minsnr": "[10 10]",
+    "data_unflagged": "[10 10]",
+    "expected": "[10 10]",
+    "spw0": {
+     "above_minblperant": "[10 10]",
+     "above_minsnr": "[10 10]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[10]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[10 10]",
+     "expected": "[10 10]"
+    }
+   }
+  }
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/p/casa/tables/G",
+   "dst": "/p/casa/tables/Gapp"
+  },
+  "seconds": 0.0038513420149683952,
+  "error": null,
+  "written": true,
+  "return": "/p/casa/tables/Gapp"
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gapp",
+   "field": "SIM-GCAL",
+   "gaintype": "G",
+   "calmode": "ap",
+   "solint": "inf",
+   "combine": "",
+   "parang": false,
+   "uvrange": ">150",
+   "append": true,
+   "smodel": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear"
+   ],
+   "gainfield": [
+    "J1939-6342",
+    "J1939-6342"
+   ]
+  },
+  "seconds": 0.2947499928995967,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[2]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 3  5  7  9 11 13 15 17 19 21]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Gapp']",
+   "solvestats": {
+    "above_minblperant": "[10 10]",
+    "above_minsnr": "[10 10]",
+    "data_unflagged": "[10 10]",
+    "expected": "[10 10]",
+    "spw0": {
+     "above_minblperant": "[10 10]",
+     "above_minsnr": "[10 10]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[10]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[10 10]",
+      "above_minsnr": "[10 10]",
+      "data_unflagged": "[10 10]",
+      "expected": "[10 10]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[10 10]",
+     "expected": "[10 10]"
+    }
+   }
+  }
+ },
+ {
+  "task": "fluxscale",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "caltable": "/p/casa/tables/Gapp",
+   "fluxtable": "/p/casa/tables/F",
+   "reference": "J1939-6342",
+   "transfer": ""
+  },
+  "seconds": 0.18789437098894268,
+  "error": null,
+  "written": true,
+  "return": {
+   "2": {
+    "0": {
+     "fluxd": "[4.27399953 0.         0.         0.        ]",
+     "fluxdErr": "[0.00539716 0.         0.         0.        ]",
+     "numSol": "[20.  0.  0.  0.]"
+    },
+    "covarMat": "[]",
+    "fieldName": "SIM-GCAL",
+    "fitFluxd": 4.273999525213736,
+    "fitFluxdErr": 0.0,
+    "fitRefFreq": 1284000000.0,
+    "spidx": "[0. 0.]",
+    "spidxerr": "[0. 0.]"
+   },
+   "freq": "[1.284e+09]",
+   "spwID": "[0]",
+   "spwName": "['L-band']"
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Gpol",
+   "field": "3C286-SIM",
+   "gaintype": "G",
+   "calmode": "p",
+   "solint": "60s",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 0.2722978650126606,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/G' '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[1]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 2  8 14 22]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Gpol']",
+   "solvestats": {
+    "above_minblperant": "[4 4]",
+    "above_minsnr": "[4 4]",
+    "data_unflagged": "[4 4]",
+    "expected": "[4 4]",
+    "spw0": {
+     "above_minblperant": "[4 4]",
+     "above_minsnr": "[4 4]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[4]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[4 4]",
+      "above_minsnr": "[4 4]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[4 4]",
+     "expected": "[4 4]"
+    }
+   }
+  }
+ },
+ {
+  "task": "gaincal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "refantmode": "flex",
+   "caltable": "/p/casa/tables/Kcross",
+   "field": "3C286-SIM",
+   "gaintype": "KCROSS",
+   "solint": "inf",
+   "combine": "",
+   "parang": true,
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Gpol"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear"
+   ]
+  },
+  "seconds": 0.260782920056954,
+  "error": null,
+  "written": true,
+  "return": {
+   "apply_tables": "['/p/casa/tables/B' '/p/casa/tables/G' '/p/casa/tables/Gpol'\n '/p/casa/tables/K']",
+   "selectvis": {
+    "antennas": "[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15]",
+    "field": "[1]",
+    "intents": "['CALIBRATE_AMPLI' 'CALIBRATE_BANDPASS' 'CALIBRATE_FLUX' 'CALIBRATE_PHASE'\n 'CALIBRATE_POLARIZATION' 'TARGET']",
+    "observation": "[0]",
+    "scan": "[ 2  8 14 22]",
+    "spw": "[0]"
+   },
+   "solve_tables": "['/p/casa/tables/Kcross']",
+   "solvestats": {
+    "above_minblperant": "[0 0]",
+    "above_minsnr": "[0 0]",
+    "data_unflagged": "[4 4]",
+    "expected": "[4 4]",
+    "spw0": {
+     "above_minblperant": "[0 0]",
+     "above_minsnr": "[0 0]",
+     "ant0": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant1": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant10": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant11": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant12": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant13": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant14": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant15": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant2": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant3": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant4": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant5": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[0 0]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant6": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant7": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant8": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "ant9": {
+      "above_minblperant": "[0 0]",
+      "above_minsnr": "[0 0]",
+      "data_unflagged": "[4 4]",
+      "expected": "[4 4]",
+      "used_as_refant": "[0]"
+     },
+     "data_unflagged": "[4 4]",
+     "expected": "[4 4]"
+    }
+   }
+  }
+ },
+ {
+  "task": "polcal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/Xf",
+   "field": "3C286-SIM",
+   "poltype": "Xf",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Gpol",
+    "/p/casa/tables/Kcross"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "linear",
+    "nearest"
+   ]
+  },
+  "seconds": 0.28358356503304094,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "polcal",
+  "call": {
+   "vis": "/c/a1-small.ms",
+   "refant": "m008,m024,m032",
+   "minsnr": 3.0,
+   "minblperant": 4,
+   "caltable": "/p/casa/tables/Df.raw",
+   "field": "J1939-6342",
+   "poltype": "Df",
+   "solint": "inf",
+   "combine": "scan",
+   "uvrange": ">150",
+   "gaintable": [
+    "/p/casa/tables/K",
+    "/p/casa/tables/G",
+    "/p/casa/tables/B",
+    "/p/casa/tables/Kcross",
+    "/p/casa/tables/Xf"
+   ],
+   "interp": [
+    "linear",
+    "linear",
+    "linear",
+    "nearest",
+    "nearest"
+   ]
+  },
+  "seconds": 0.3969219629652798,
+  "error": null,
+  "written": true,
+  "return": null
+ },
+ {
+  "task": "copytree",
+  "call": {
+   "src": "/p/casa/tables/Df.raw",
+   "dst": "/p/casa/tables/Df"
+  },
+  "seconds": 0.0035228600027039647,
+  "error": null,
+  "written": true,
+  "return": "/p/casa/tables/Df"
+ },
+ {
+  "task": "flagdata",
+  "call": {
+   "vis": "/p/casa/tables/Df",
+   "mode": "clip",
+   "clipminmax": [
+    -0.6,
+    0.6
+   ],
+   "datacolumn": "CPARAM",
+   "flagbackup": false
+  },
+  "seconds": 0.06219639291521162,
+  "error": null,
+  "written": true,
+  "return": null
+ }
+]

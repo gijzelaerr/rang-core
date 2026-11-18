@@ -1,0 +1,22 @@
+{
+ "label": "casa",
+ "column": "CORRECTED_DATA",
+ "field": "J0408-6545",
+ "field_id": 0,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/casa -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 0 /m/e2n.ms",
+ "i_peak_jy": 16.125762939453125,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 8.115838343016906,
+ "Q_over_I": 0.0014340432364684601,
+ "Q_at_peak_over_I": 0.0014340432364684601,
+ "U_over_I": 0.0016283715209093478,
+ "U_at_peak_over_I": 0.001604320336495972,
+ "V_over_I": 0.0008611723276781693,
+ "V_at_peak_over_I": 0.0002911126960432461,
+ "met": true,
+ "max_over_I": 0.0016283715209093478
+}

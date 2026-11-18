@@ -1,0 +1,121 @@
+{
+ "oracle": "/home/gijs/rang-data/outputs/e2n-20261116/R/wsclean3c-a",
+ "rang_images": "/home/gijs/rang-data/outputs/e2n-20261116/R/rang-run/image/ASKAPJ1745",
+ "channels_out": 8,
+ "dirty_only": false,
+ "dirty": {
+  "max_over_peak": 0.05498950752040955,
+  "per_image": {
+   "0000": 0.052211134326866256,
+   "0001": 0.047102588432348144,
+   "0002": 0.048831350242946645,
+   "0003": 0.05498950752040955,
+   "0004": 0.04231368017601594,
+   "0005": 0.04718777850424371,
+   "0006": 0.04568509021812267,
+   "0007": 0.047634557252432076,
+   "MFS": 0.04794938224883634
+  },
+  "tolerance": 1e-06,
+  "met": false,
+  "reported": {
+   "inner_two_thirds": 0.05498950752040955,
+   "border5": 0.05498950752040955,
+   "within_0p7deg": 0.0032937695545227786,
+   "median_max": 3.59082599038008e-05
+  }
+ },
+ "caveat": "WSClean grids 4,096 channels, GeMClean 512 averaged (9.10)",
+ "compact": {
+  "sigma_jy": 1.7113608907855138e-05,
+  "beam_major_pix": 4.314969223682726,
+  "candidates": 2744,
+  "isolated": 558,
+  "too_near_edge": 2,
+  "sources": "trimmed in the archive: 556 sources; full list in R/g3c-a.json (sha256 in manifest.json)",
+  "gated": {
+   "n": 312,
+   "median": 0.9964436859851054,
+   "robust_scatter": 0.026806616970300273,
+   "met": false
+  },
+  "reported": {
+   "inner_two_thirds": {
+    "n": 504,
+    "median": 0.9914510972896111,
+    "robust_scatter": 0.02541728810800872,
+    "met": false
+   },
+   "full_image": {
+    "n": 556,
+    "median": 0.9899785158551098,
+    "robust_scatter": 0.027835980728972955,
+    "met": false
+   }
+  },
+  "radial": [
+   {
+    "deg": [
+     0.0,
+     0.35
+    ],
+    "n": 117,
+    "median": 1.0016101404272522
+   },
+   {
+    "deg": [
+     0.35,
+     0.7
+    ],
+    "n": 195,
+    "median": 0.9949536854418414
+   },
+   {
+    "deg": [
+     0.7,
+     1.0
+    ],
+    "n": 137,
+    "median": 0.9878027062791466
+   },
+   {
+    "deg": [
+     1.0,
+     1.4
+    ],
+    "n": 84,
+    "median": 0.9705548576999594
+   },
+   {
+    "deg": [
+     1.4,
+     2.5
+    ],
+    "n": 23,
+    "median": 0.9367624350978756
+   }
+  ],
+  "spectral_index_reported": {
+   "n": 49,
+   "tolerance_a0": 0.05,
+   "median_abs_dalpha": 0.009703394508511654
+  },
+  "offsource_reported": {
+   "rang": 49.313889746253025,
+   "wsclean": 47.93723152763596,
+   "tolerance_a0": 1.6,
+   "ratio": 1.0287179333212728
+  }
+ },
+ "gates": {
+  "dirty_linf": false,
+  "compact_ratio": false,
+  "q_over_q0": "not checked",
+  "model_data_predict": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0",
+  "model_data_predict"
+ ]
+}

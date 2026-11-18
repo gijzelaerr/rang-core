@@ -1,0 +1,61 @@
+{
+ "per_ms_scan": {
+  "1": {
+   "flagged_fraction": 0.3172257595265893,
+   "flag_row": 0
+  },
+  "2": {
+   "flagged_fraction": 0.3113956481130167,
+   "flag_row": 0
+  },
+  "3": {
+   "flagged_fraction": 0.33660010285740255,
+   "flag_row": 0
+  },
+  "4": {
+   "flagged_fraction": 0.33406064012686976,
+   "flag_row": 0
+  },
+  "5": {
+   "flagged_fraction": 0.315457648305885,
+   "flag_row": 0
+  },
+  "6": {
+   "flagged_fraction": 0.316349923215283,
+   "flag_row": 0
+  },
+  "7": {
+   "flagged_fraction": 0.3192512988864074,
+   "flag_row": 0
+  },
+  "8": {
+   "flagged_fraction": 0.3169256928105846,
+   "flag_row": 0
+  },
+  "9": {
+   "flagged_fraction": 0.319305920210041,
+   "flag_row": 0
+  },
+  "10": {
+   "flagged_fraction": 0.30774671120196895,
+   "flag_row": 0
+  },
+  "11": {
+   "flagged_fraction": 0.3484159908365283,
+   "flag_row": 0
+  },
+  "12": {
+   "flagged_fraction": 0.29874210310115584,
+   "flag_row": 0
+  },
+  "13": {
+   "flagged_fraction": 0.3066266722627625,
+   "flag_row": 0
+  },
+  "14": {
+   "flagged_fraction": 0.3189400163369428,
+   "flag_row": 0
+  }
+ },
+ "total": 0.3149291156060593
+}

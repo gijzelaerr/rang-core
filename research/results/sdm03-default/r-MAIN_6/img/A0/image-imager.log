@@ -1,0 +1,5 @@
+/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python -m rang.gemclean -name /home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/A0/image -size 4096 4096 -scale 3asec -weight briggs 0.0 -niter 1000000 -auto-threshold 3.0 -j 8 -wgridder-accuracy 0.0001 -data-column CORRECTED_DATA -field 0 -no-update-model-required /home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms
+/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms: 823500 of 823500 rows selected (field 0, CORRECTED_DATA), 256 channels 989.8545-1096.4365 MHz, 154977070 visibilities weighted, weight sum 1009178066.219360 (48.44 s read, 8.83 s weights)
+beam: peak 1.000000000000, patch ±64, f 1.4383e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.300" × 7.515" PA 65.32° (784 pixels fitted); PSF 50.94 s, FFT 1.13 s
+287222 components, 11 major cycles, 493 resyncs, stop Threshold; Q/Q0 6.4114e-3; tau min 0.500 median 0.672; minor 21.88 s (corrections 2.357 s), resync 84.90 s, major 274.19 s
+wall 528.65 s
