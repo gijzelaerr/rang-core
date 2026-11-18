@@ -20,6 +20,11 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean `-stop-tolerance 0.02` default, confirmation leg, 2026-11-18 (issue #28; branch `stop28-default`; [stop28-default.md](stop28-default.md) amendment 4, written before the leg's skies were drawn; archive [results/stop28-default/confirm/](results/stop28-default/confirm/); run root `nash:~/rang-data/outputs/stop28-confirm-20261118`, host nash, 06:02-09:30 SAST, no retries):
+- Outcome **switch** by amendment 4's rule on H17-H24 alone (no pooling, no post hoc step): blind H17-H24 saved 2, 1, 1, 1, 1, 1, 1, 1 cycles (D 8, 4, 5, 6, 6, 5, 5, 5 → R 6, 3, 4, 5, 5, 4, 4, 4), mean 1.125 (rule ≥ 1), 8 of 8 (rule ≥ 4); Q-D on all eight; Q-W beyond D's own miss (H18 false flux D / lower WSClean 2.14, bar 1.6; close call H19 1.562); S1-S3 re-run and scored with the scorer's own beam (10.761531523459142″, bit-equal to amendment 3's), H1-H8 and the pilot carried; I1, I2 pass.
+- Not met (not gating): at most 5 cycles (H17 at 6); novelty (H18, H19, H24 not below WSClean plain's cycles). H22's exact inner peak +0.79 µJy over D's (bar +2).
+- Code on the branch: `git revert 3c384832` restores `4b13f1d9` (CLI default 0.02 where it applies); `rang-core image` and selfcal move with it except with an automatic mask or multiscale. Stage hashes hash the configuration only and do not change. Not merged; the coordinator merges.
+
 F4 calibrators, 2026-11-17 (branch `fp-f4-flagger`, task #10; [f4-flagger.md](f4-flagger.md), protocol frozen
 2026-11-11; targets stay stopped at the label audit). Stage 4 ran on nash's CPU (JAX 0.12.0.1; labelled post hoc
 against the frozen GPU plan before training; 46-47 min per seed, 3 seeds in parallel): median seed 2 by validation
