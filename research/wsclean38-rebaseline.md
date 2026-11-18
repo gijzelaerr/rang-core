@@ -142,3 +142,63 @@ against WSClean's best of `minres`, `minres -mgain 0.9`, `minres -mgain 0.95` (a
   column; every run images DATA). RH is the Högbom control and does not bear on the hypotheses
   RM and PM decide.
 - D finished on nash as planned (native 3.7 and 3.8; outputs not yet read).
+
+## 7. Results
+
+Archive: [results/wsclean38-rebaseline/](results/wsclean38-rebaseline/); scripts:
+[results/wsclean38-rebaseline-scripts/](results/wsclean38-rebaseline-scripts/). Run root
+`D:\rang\outputs\wsclean38-20261118` (glacier) and `nash:~/rang-data/outputs/wsclean38-20261118`.
+Images: glacier `rang-wsclean-native:3.8` and nash's podman builds have the same commits (WSClean
+`386ba535`; aocommon `dbee2ed9`, radler `703c1bd7`, schaapcommon `35f91f80`); 3.7 is `4f395b28`
+on both hosts. GeMClean `6c615524`, sha256 `aa81ad77…dbf1`.
+
+### 7.1 P, parity (glacier, 2026-11-18 09:38): pass
+
+| grid | image | max \|Δ\| / peak | tolerance | verdict |
+| --- | --- | ---: | ---: | --- |
+| minres | dirty | 1.9e-7 | 1e-3 | pass |
+| minres | PSF | 3.0e-7 | 1e-3 | pass |
+| nominres | dirty | 3.1e-8 | 1e-5 | pass |
+| nominres | PSF | 8.9e-16 | 1e-5 | pass |
+
+Both versions print "Theoretic beam = 5.4''" on S1 and fit 13.88″ × 8.34″, PA 150.19°
+(BMAJ equal to 5e-9 relative). On S1, !1068 changes nothing visible.
+
+### 7.2 M, mask (RH on nash; RM, RM1, PM, PM1 on glacier, amendment 2): H-mask holds
+
+| run | WSClean 3.8 | F_in (Jy) | F_out (Jy) | N_out (Jy) | O | 3.7's F_out (Jy) |
+| --- | --- | ---: | ---: | ---: | --- | ---: |
+| RH | 4 majors, converged | 1.689 | 0 | 0 | (C) pass | 0 |
+| RM | **diverged**, 2 majors | 3.286 | 852.714 | −0.409 | fail | 347.411 |
+| PM | **diverged**, 3 majors | 104.393 | −61.249 | −108.687 | fail | −62.721 |
+| RM1 | 1 major | 1.4042 | 2.9313 | −0.0272 | pass | 2.9294 |
+| PM1 | 1 major | 81.1501 | 0.0922 | −0.0000 | pass | 0.0732 |
+
+- **As frozen: H-mask holds.** WSClean 3.8 prints "Multiscale clean diverged" on RM and PM, so
+  gemclean-ms-mask's outcome ("multiscale difference, not the mask") stands as written.
+- **C passes with 3.8.** On RH no model pixel lies outside the mask.
+- M1 (GeMClean's centres) is the archived run's and passes as before.
+- **Reported, not gated:** on PM1, 3.8 agrees with GeMClean to 3e-4 Jy in F_in (81.1501 against
+  81.1498) and to 6e-7 Jy in F_out. 3.7 differed by 0.41 Jy in F_in (80.744). The level check
+  (loop threshold) agrees to 1.7e-5. On RM, 3.8's divergence is larger than 3.7's
+  (852.7 against 347.4 Jy outside the mask).
+- Wall (shared hosts, no timing claim): RM 83 s (3.7: 181 s), PM 847 s (3.7: 2,346 s), RM1 62 s,
+  PM1 346 s, all on glacier at 8 slots; RH 103 s on nash.
+
+### 7.3 D, DF5-O multiscale (nash, native 3.7 and 3.8, one repeat each): H-ms holds
+
+| run | A1 failures | p16 ΔS/S | p23 ΔS/S | p26 ΔS/S | total ratio | inner RMS (µJy) | majors |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| DF5-O r1, packaged 3.7 (control) | p16, p23, p26 | +0.0870 | +0.1615 | +0.0898 | 0.99966 | 1.4463 | 7 |
+| native 3.7 | p23, p26 | +0.0825 | +0.1574 | +0.0897 | 0.99950 | 1.4451 | 7 |
+| native 3.8 | p23, p26 | +0.0830 | +0.1552 | +0.0893 | 0.99939 | 1.4468 | 7 |
+
+- **As frozen: H-ms holds.** Native 3.8 fails A1 on the same sources as native 3.7. The largest
+  ΔS/S change is 0.0023, under the 0.01 bound.
+- A2 passes in all three.
+- The control differs on p16. DF5-O's own r2 also failed only p23 and p26 (df5o-deconv-oracles.md),
+  so p16 sits on A1's edge. That is a build or repeat effect, not a 3.8 effect.
+- The in-container MS read check reports false for both nash runs, because the native images have
+  no python-casacore. Each run imaged a copy of the MS that was deleted afterwards; the field
+  itself was mounted read-only.
+- Wall (nash, shared, nice 19, no timing claim): 3.7 2,232 s, 3.8 1,875 s.
