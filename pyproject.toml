@@ -59,7 +59,7 @@ recipes = ["stimela==2.1.4; python_version < '3.14'"]
 imaging = ["astropy>=6"]
 # MeerKAT MVFv4 archives through katdal (research/mk1-katdal.md); python-lzf and
 # rdbtools are sdist-only (a C compiler is needed), cityhash has no cp314 wheel.
-meerkat = ["katdal==0.23", "katsdptelstate[rdb]==1.0.0"]
+meerkat = ["katdal==0.24", "katsdptelstate[rdb]==1.0.0"]
 # MSv4 processing sets read by rang.msv4 (research/msv4-interop.md); zarr 3 needs
 # Python 3.11, so on 3.10 the extra installs nothing. xradio and xarray-ms are
 # the oracle only: both need arcae, which has no Windows wheel.

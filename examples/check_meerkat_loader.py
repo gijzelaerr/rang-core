@@ -15,7 +15,7 @@ then measures:
 
 Writes `<out>/result.json`; `--archive` also copies the compact result to
 research/results/mk1-katdal.json. Needs the [meerkat] extra and, for (b),
-python-casacore and setuptools<81 (katdal's ms_extra imports pkg_resources).
+python-casacore (katdal 0.24 no longer imports pkg_resources).
 """
 
 import argparse
@@ -287,10 +287,21 @@ def check_katdal(loader, label, **select):
 # --- (b): the mvftoms MS --------------------------------------------------------
 
 
-def run_mvftoms(rdb, ms, mvftoms):
+def run_mvftoms(rdb, ms):
+    # katdal 0.24 installs mvftoms.py as an entry point; run its module.
     started = time.perf_counter()
     proc = subprocess.run(
-        [sys.executable, str(mvftoms), "-f", "--quack", "0", "-o", str(ms), str(rdb)],
+        [
+            sys.executable,
+            "-m",
+            "katdal.scripts.mvftoms",
+            "-f",
+            "--quack",
+            "0",
+            "-o",
+            str(ms),
+            str(rdb),
+        ],
         check=False,
         capture_output=True,
         text=True,
@@ -624,10 +635,9 @@ def main():
         )
         a["http"]["server"] = dict(counters)
     result["a"] = a
-    mvftoms = Path(sys.executable).parent / "mvftoms.py"
     ms = args.out / "fixture.ms"
     result["b"] = {
-        "mvftoms_seconds": run_mvftoms(fixture["rdb"], ms, mvftoms),
+        "mvftoms_seconds": run_mvftoms(fixture["rdb"], ms),
         "arguments": ["-f", "--quack", "0"],
     }
     result["b"].update(check_ms(meerkat.open_mvf(fixture["rdb"]), ms))

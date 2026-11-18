@@ -284,6 +284,21 @@ inside the tracks: 80 lost (dump, channel) cells, 8,975 bad-weight cells
    3.12 no longer ships it. The acceptance venv pins `setuptools<81`
    (80.10.2); the extra does not, because the loader does not use
    `ms_extra`.
+   *2026-11-18, post hoc (digest [2026-11-18](digests/2026-11-18.md)):*
+   katdal 0.24 (2026-11-13) removes `pkg_resources`, so the `[meerkat]`
+   extra now pins `katdal==0.24` and no setuptools pin is needed. 0.24
+   installs `mvftoms.py` as an entry point (`mvftoms.py.exe` on Windows),
+   so the test and `examples/check_meerkat_loader.py` run
+   `python -m katdal.scripts.mvftoms`. Also found: on native Windows
+   `katdal.open` reads `C:\...` as a URL with scheme `c` and fails, with
+   0.23 as with 0.24 (MK1 was measured in WSL, and neither CI nor the check
+   installs the extra); `open_mvf` now passes a drive path as `file:C:\...`
+   (`rang.meerkat.katdal_source`). With 0.24: `tests/test_mk1_meerkat.py`
+   9 passed in WSL (Python 3.14.4, python-casacore 3.8.1, the mvftoms MS
+   comparison included, no `pkg_resources` installed) and 8 passed, 1
+   skipped (mvftoms: no python-casacore wheel) natively on Windows. 0.24
+   also sets L2 gains to 1.0 instead of NaN on calibrators; `open_mvf`
+   does not pass `applycal`, so the loader does not read them.
 4. **HTTP leg.** A plain `python -m http.server` is not enough: after a 404
    katdal lists the bucket and calls it inaccessible unless the answer has
    `<Contents>`. The check serves the archive with a small S3-style handler

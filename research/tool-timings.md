@@ -2283,3 +2283,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | calwt-terms: CASA 6.7.6.14 chain (16 tasks, WSL docker), glacier | as above | 37-38 s per set (106 s on `held`) | – | 4 slots |
 | 2026-11-18 | calwt-terms: generation, shared-upstream harness, scoring per set, glacier | as above | gen 3-6 s, shared 8-22 s, score 3-11 s; all 9 sets incl. CASA about 12 min | – | 4 slots |
 | 2026-11-18 | calwt-terms: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `calwt-terms` | 715 s (lock wait excluded) | – | PASS (685 passed, 57 skipped; Rust core 301 passed) |
+| 2026-11-18 | digest merge: `tools/check_all.py` (full), Windows host glacier | main `31750e14` (digest 2026-11-18 merged) | 1352 s (lock wait excluded) | – | PASS; pytest 1610 passed, 117 skipped; gain-hash gate PASS |
+| 2026-11-18 | katdal-0-24: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `katdal-0-24` (pin and mvftoms edits) | 959 s (lock wait excluded; fresh venv and build) | – | PASS |
+| 2026-11-18 | katdal-0-24: `pytest tests/test_mk1_meerkat.py`, katdal 0.24 | native Windows, Python 3.14 / WSL Ubuntu, Python 3.14.4 + python-casacore 3.8.1 | 4.4 s / 3.8 s (WSL venv install 5 s) | – | 8 passed, 1 skipped / 9 passed |
