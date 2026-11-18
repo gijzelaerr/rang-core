@@ -257,3 +257,17 @@ CHANGELOG.
   output (the gemclean benchmark and E2/E5 image gates) may shift and should be re-read, not re-frozen silently.
 - Raw outputs stay on nash (`~/rang-data/outputs/stop28-default-20261117`, about the size of 19 MS copies);
   delete when merged. The nash worktree is at `47ab64ef`, clean.
+
+## Coordinator decision (2026-11-18)
+
+- The research record is merged; the default change is not. The frozen protocol as run gave "not yet"; "switch"
+  exists only under amendment 3, written after the blind savings were seen, and it lands exactly on the bar (mean
+  1.0, 6 of 8). As with floor-6, a post hoc reading does not change a default without the owner.
+- Checked: amendment 3's beam is √(bmaj × bmin) of WSClean's PSF fit (13.88″ × 8.34″), the same source the frozen
+  note names for the other simulated skies, so the S1-S3 scores are comparable; it is still a substituted input,
+  not the prepare-time dirty image the note implied.
+- `rang-core image` and selfcal call GeMClean through its CLI (`core_pipeline.py`) without `-stop-tolerance`, so
+  the CLI default would move the pipeline too and change image and selfcal stage hashes; the full check's
+  gemclean benchmark and E2/E5 image gates would need re-reading.
+- Owner decision, open: switch (merge `4b13f1d9` from branch `stop28-default` under the full check), or keep
+  opt-in. Branch kept; raw outputs on nash kept until then.
