@@ -390,7 +390,7 @@ downstream (C_F cannot see K2 and G2).
   hand-back); the full check (CASA oracles, archives) is left to the merge
   check. One debug `shared` run on D1 (a few seconds) ran outside the heavy
   lock.
-- Disk: `D:ang\outputs\calwt-terms-20261118` 264 MB after the MS copies
+- Disk: `D:\rang\outputs\calwt-terms-20261118` 264 MB after the MS copies
   were deleted (tables, scores, logs); the MSs regenerate from the seeds.
   Can go at merge.
 - To rerun: `calwt_terms.py set <SET>` for D1, dev, H1-H4, held, held4,
