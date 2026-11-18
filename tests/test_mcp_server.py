@@ -230,7 +230,9 @@ def test_gemclean_allowlist(ms, tmp_path):
     spill.mkdir()
     opts = ["-join-polarizations", "-no-reorder", "-temp-dir", str(spill)]
     cmd = tools.gemclean(ms, tmp_path / "img", opts)["plan"]["command"]
-    assert "-no-reorder" in cmd and cmd[cmd.index("-temp-dir") + 1] == str(spill.resolve())
+    assert "-no-reorder" in cmd and cmd[cmd.index("-temp-dir") + 1] == str(
+        spill.resolve()
+    )
 
 
 @pytest.mark.parametrize("writes", [False, True])
