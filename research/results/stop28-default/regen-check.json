@@ -1,0 +1,44 @@
+{
+ "s1": {
+  "main_table": true,
+  "noise": true
+ },
+ "s2": {
+  "main_table": false
+ },
+ "s3": {
+  "main_table": false
+ },
+ "h1": {
+  "main_table": false,
+  "noise": true
+ },
+ "h2": {
+  "main_table": false,
+  "noise": true
+ },
+ "h3": {
+  "main_table": true,
+  "noise": true
+ },
+ "h4": {
+  "main_table": true,
+  "noise": true
+ },
+ "h5": {
+  "main_table": false,
+  "noise": true
+ },
+ "h6": {
+  "main_table": false,
+  "noise": true
+ },
+ "h7": {
+  "main_table": false,
+  "noise": true
+ },
+ "h8": {
+  "main_table": false,
+  "noise": true
+ }
+}
