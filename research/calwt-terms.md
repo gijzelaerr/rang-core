@@ -396,3 +396,9 @@ downstream (C_F cannot see K2 and G2).
 - To rerun: `calwt_terms.py set <SET>` for D1, dev, H1-H4, held, held4,
   then `summarise.py` and `posthoc.py`.
 
+
+## Coordinator decision (2026-11-18)
+
+- All five keys merge as opt-in CASA-equivalence switches, next to `calibrate.xf_calwt`, default off. `g_calwt`, `kcross_calwt` and `df_calwt` bring rang 6-26× closer to CASA when CASA's upstream tables are shared (outcome 2). `k_calwt` and `gpol_calwt` are kept as null (outcome 3) and documented as such. Simulated truth cannot tell on from off at this noise, so no default changes.
+- Moving `xf_calwt` onto the `calwt_scale` kernel is a small follow-up (the two agree to 1e-6), not part of this merge.
+- The one debug run outside the heavy lock (a few seconds) is noted; there is no effect on any result.
