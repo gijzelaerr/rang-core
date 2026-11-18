@@ -328,15 +328,71 @@ unchanged at 2.3e-4 / 3.0e-4 (upstream K differences dominate there).
 polcal Df weight by the pre-applied tables' calwt factor; with the key
 rang moves 5.6-26× nearer CASA on shared inputs) with no truth difference
 at these SNRs. `k_calwt` and `gpol_calwt`: **outcome 3**, null (rang moves
-by < 1 % against CASA: CASA's K and phase-only Gpol estimators do not show
-the weighting, or are not sensitive to it here). No key is nearer truth
-(T0 everywhere, every change < 0.5 %); **every default stays off**.
+by < 1 % against CASA). T0 everywhere (every change < 0.5 %): at this
+noise the truth read cannot separate on from off (section 12), so truth
+gives no key a default; **every default stays off**.
 
 **Cost (shared lock, 4 threads, not a timing):** rang chain arm 6.0-6.3 s
 with or without the keys on the noisy sets (19.6 s on `held`); CASA chain
 37-38 s (106 s on `held`).
 
 **Not checked:** real data (no shared-upstream real-data leg); B and F
-(no key); the factor's effect with `average_time` or `average_freq` on;
-the CASA mechanism for K and Gpol (whether CASA applies the factor there
-and it does not matter, or does not apply it) was not separated.
+(no key); the measurement with `average_time` or `average_freq` on (the
+load paths carry the factor, tests); the CASA mechanism for K and Gpol.
+Both nulls are confounded, so they do not show that CASA leaves those
+weights unscaled: rang's K differs from CASA's by about 2.8e-4 ns
+(estimator difference, e2a-3b-k) against a key effect of 1e-6 ns; Gpol
+ran without `casa_phase_weights` (CASA's phase-only weighting) and its
+factor leaves out the same-type G.
+
+## 12. Post hoc (labelled; after the held-out read): what the truth read can resolve
+
+From the existing arms (`posthoc.py`, `receipts/posthoc.json`; no new
+runs), mean over H1-H4 of how far each key moves rang's own table in the
+full chain (arm against `off`, section 7's table measure), against the
+`off` chain's distance from CASA and the truth floor:
+
+| Table | moved by its key | rang `off` against CASA | truth floor (gating composite, `off`) |
+| --- | --- | --- | --- |
+| K2 | 1.1e-6 ns | 2.5e-3 ns | C_F 1.05e-3 (B2 re-solved after K2, G2: blind to them) |
+| Kg | 2.6e-6 ns | 2.9e-3 ns | C_G 3.2e-3 |
+| G2 | 2.7e-6 | 2.3e-4 | C_F 1.05e-3 (blind, as K2) |
+| Gg | 6.9e-6 | 3.0e-4 | C_G 3.2e-3 |
+| Gpol | 1.5e-4° | 6.2e-3° | C_X 1.6e-3 |
+| KCROSS | 1.2e-4 ns (≤ 0.02° at the band edge) | 2.1e-4 ns | C_XH 1.45° (0.09° after constant and slope) |
+| Df | 1.5e-4 | 1.5e-4 | C_D 3.4e-3 |
+
+Every key moves its table 20× to 1000× less than the truth composites'
+floor (per-channel B noise, and for the cross hands the shared leakage
+bias of solving KCROSS and Xf before Df). T0 here means not resolvable,
+not shown equal. A truth read that could decide a default would need a
+much higher SNR or many more seeds, and a composite that is not re-solved
+downstream (C_F cannot see K2 and G2).
+
+## For the coordinator
+
+- Outcomes (frozen rule, H1-H4 noisy held-out, CASA 6.7.6.14 on glacier):
+  `g_calwt`, `kcross_calwt`, `df_calwt` outcome 2 (CASA-equivalence:
+  0.16-0.18×, 0.039×, 0.093× of the shared-upstream gap, 4 of 4 sets);
+  `k_calwt`, `gpol_calwt` outcome 3 (null, confounded, section 11). Truth
+  T0 for all, not resolvable at this noise (section 12). All defaults off.
+- B and G-after-K are no-ops by construction (CASA scales only on
+  lower-type B, G, T tables), confirmed byte-identical.
+- Amendment 10 (before the held-out sets): C1 restated (B2 moves with K2,
+  G2 in a chain); C_XH after constant and slope reported.
+- Kernel: `apply::calwt_scale` (Rust, O(rows + times × antennas)).
+  `xf_calwt` still uses its Python path (byte-identical), so its open
+  allocation item stays open; moving it onto the kernel (equal to 1e-6 in
+  the tests) is a small follow-up.
+- CASA drops non-converged Gpol intervals on glacier too on noiseless data
+  (`dev` 48/64, `held` 656/768); the noisy sets have none.
+- Checks: `tools/check_all.py --quick` on glacier (result below in the
+  hand-back); the full check (CASA oracles, archives) is left to the merge
+  check. One debug `shared` run on D1 (a few seconds) ran outside the heavy
+  lock.
+- Disk: `D:ang\outputs\calwt-terms-20261118` 264 MB after the MS copies
+  were deleted (tables, scores, logs); the MSs regenerate from the seeds.
+  Can go at merge.
+- To rerun: `calwt_terms.py set <SET>` for D1, dev, H1-H4, held, held4,
+  then `summarise.py` and `posthoc.py`.
+

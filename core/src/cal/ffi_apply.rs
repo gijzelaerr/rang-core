@@ -212,7 +212,11 @@ unsafe fn run(
         }
     };
     // SAFETY: forwarded from the caller.
-    unsafe { with_terms(chunk, terms, |c, list| apply::apply(c, list, direction, threads, od, of)) }
+    unsafe {
+        with_terms(chunk, terms, |c, list| {
+            apply::apply(c, list, direction, threads, od, of)
+        })
+    }
 }
 
 /// # Safety
@@ -236,7 +240,11 @@ unsafe fn run_calwt(
         }
     };
     // SAFETY: forwarded from the caller.
-    unsafe { with_terms(chunk, terms, |c, list| apply::calwt_scale(c, list, threads, o)) }
+    unsafe {
+        with_terms(chunk, terms, |c, list| {
+            apply::calwt_scale(c, list, threads, o)
+        })
+    }
 }
 
 /// Correct (`direction` 0) or corrupt (1) the chunk by the terms into

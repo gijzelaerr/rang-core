@@ -1775,7 +1775,11 @@ mod tests {
                 }
             }
             let got = wt_scale(&b, a, &series(&b, a), at)[h];
-            assert!((got - sum / n as f64).abs() <= 1e-6 * got, "{got} {}", sum / n as f64);
+            assert!(
+                (got - sum / n as f64).abs() <= 1e-6 * got,
+                "{got} {}",
+                sum / n as f64
+            );
         }
     }
 }

@@ -144,6 +144,29 @@ def test_off_is_byte_identical_and_on_moves_the_solves(solved):
     )
 
 
+def test_k_and_g_load_paths_carry_it(solved):
+    """Chunked (W3b budget) and time-averaged (E2) K and G solves carry
+    the factor: chunked equals whole; averaged with it differs from
+    averaged without."""
+    ms, (k, g, b) = solved
+    kw = {"field_id": 0, "refant": 0, "model": unit(ms, 0), "weight_column": "WEIGHT",
+          "combine": "", "solint": "int", "solve_calwt": True}  # fmt: skip
+    budget = cal_pol_budget(1000, nrows=60)
+    for solve in (
+        lambda **o: cal_delay.gaincal(ms, gaintable=[g, b], **kw, **o),
+        lambda **o: cal_gain.gaincal(
+            ms, calmode="ap", gaintable=[k, b], minblperant=2, **kw, **o
+        ),
+    ):
+        whole, chunked = solve()[0], solve(budget=budget)[0]
+        assert np.allclose(chunked.params, whole.params, rtol=0, atol=2e-6)
+        avg = solve(average_time=True)[0]
+        kw["solve_calwt"] = False
+        avg_off = solve(average_time=True)[0]
+        kw["solve_calwt"] = True
+        assert not np.array_equal(avg.params, avg_off.params)
+
+
 def test_polarisation_solves_and_load_paths(solved):
     ms, tables = solved
     kw = {"field_id": 1, "model": unit(ms, 1, POL), "weight_column": "WEIGHT",
