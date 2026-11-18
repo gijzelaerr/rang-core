@@ -1,0 +1,7 @@
+heavy_lock: waiting for shared jobs to fit
+/home/gijs/rang-data/outputs/automask-cycle-20261118/r-MAIN_6/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 47.89 s read, 22.06 s weights
+auto-mask: major iteration 1, sigma 1.249268e-3 Jy, threshold 7.495608e-3 Jy; continued in the mask at gain 0.9000, threshold 7.495608e-3 Jy
+auto-mask: major iteration 2, sigma 5.185955e-4 Jy, threshold 3.111573e-3 Jy
+joined: 18408 components, 2 major cycles, 105 resyncs, stop Threshold; Q/Q0 2.0920e-2
+wall 688.95 s
+TIME G-MAIN_6-n2 689.49 s 18909320 KB

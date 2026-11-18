@@ -1,0 +1,83 @@
+chunk 1/17 109 s
+chunk 2/17 125 s
+chunk 3/17 154 s
+chunk 4/17 170 s
+chunk 5/17 208 s
+chunk 6/17 240 s
+chunk 7/17 271 s
+chunk 8/17 309 s
+chunk 9/17 333 s
+chunk 10/17 353 s
+chunk 11/17 368 s
+chunk 12/17 387 s
+chunk 13/17 403 s
+chunk 14/17 420 s
+chunk 15/17 439 s
+chunk 16/17 458 s
+chunk 17/17 474 s
+rows 849059 seconds 475.33056555793155
+18:29:31 build convert 493.4 s
+chunk 1/17
+chunk 2/17
+chunk 3/17
+chunk 4/17
+chunk 5/17
+chunk 6/17
+chunk 7/17
+chunk 8/17
+chunk 9/17
+chunk 10/17
+chunk 11/17
+chunk 12/17
+chunk 13/17
+chunk 14/17
+chunk 15/17
+chunk 16/17
+chunk 17/17
+{'zarr_rows': 849059, 'checks': {}, 'ms_rows': 849059, 'rows_equal': True, 'identical': {'UVW': True, 'TIME': True, 'ANTENNA1': True, 'ANTENNA2': True, 'DATA': True, 'FLAG': True, 'WEIGHT_SPECTRUM': True}, 'flag_fraction_all': 0.2815318423469394, 'flag_fraction_cross': 0.257582903758504, 'data_nonfinite_cells': 0, 'freq_first_last_hz': [989750000.0, 1096541015.625], 'phase_dir_rad': [4.255039994310009, -1.0630073253375796], 'corr_type': [9, 10, 11, 12], 'nant': 61}
+18:37:40 build verify 488.7 s
+18:37:55 gainload {'group': 1, 'gain_freq_vs_chan_freq_max_hz': 0.0, 'gain_times': 449, 'gain_flag_fraction': 0.021411352983862136, 'gain_nonfinite': 0, 'amp_median': 0.749532828000057}
+18:37:56 build gainload 15.9 s
+18:39:20 gaincheck {'row_chunk_0': {'raw': {'stokes_i_32chan_coherence_median': 0.943909764289856, 'xx_yy_phase_abs_median_rad': 1.2621080875396729, 'good_fraction': 0.6857376109677786}, 'vis_over_gp_gqH': {'stokes_i_32chan_coherence_median': 0.9866527692098153, 'xx_yy_phase_abs_median_rad': 0.14521651431494917, 'good_fraction': 0.6638974944031394}, 'other': {'stokes_i_32chan_coherence_median': 0.9698347017062492, 'xx_yy_phase_abs_median_rad': 0.991461704365613, 'good_fraction': 0.6638974944031394}}, 'row_chunk_8': {'raw': {'stokes_i_32chan_coherence_median': 0.9492112398147583, 'xx_yy_phase_abs_median_rad': 1.5142645835876465, 'good_fraction': 0.7508915615834263}, 'vis_over_gp_gqH': {'stokes_i_32chan_coherence_median': 0.9868988374607611, 'xx_yy_phase_abs_median_rad': 0.1657968333853659, 'good_fraction': 0.7506076335099351}, 'other': {'stokes_i_32chan_coherence_median': 0.9701590925890946, 'xx_yy_phase_abs_median_rad': 1.1613076692628017, 'good_fraction': 0.7506076335099351}}, 'pass': True}
+18:39:20 build gaincheck 84.3 s
+chunk 1/17 18 s
+chunk 2/17 69 s
+chunk 3/17 115 s
+chunk 4/17 161 s
+chunk 5/17 207 s
+chunk 6/17 241 s
+chunk 7/17 262 s
+chunk 8/17 280 s
+chunk 9/17 304 s
+chunk 10/17 321 s
+chunk 11/17 346 s
+chunk 12/17 364 s
+chunk 13/17 386 s
+chunk 14/17 405 s
+chunk 15/17 424 s
+chunk 16/17 442 s
+chunk 17/17 463 s
+{'flag_cells': 218408108, 'cells': 841390080, 'gain_new_flag_cells': 1680408, 'flag_fraction': 0.2595800844240997, 'rows': 821670, 'seconds': 463.51365386892576}
+18:47:06 build calibrate 465.3 s
+rows 50000/821670
+rows 100000/821670
+rows 150000/821670
+rows 200000/821670
+rows 250000/821670
+rows 300000/821670
+rows 350000/821670
+rows 400000/821670
+rows 450000/821670
+rows 500000/821670
+rows 550000/821670
+rows 600000/821670
+rows 650000/821670
+rows 700000/821670
+rows 750000/821670
+rows 800000/821670
+rows 821670/821670
+{'flag_cells': 108076686, 'cells': 420695040, 'factor': 2, 'flag_fraction': 0.2569003095448903, 'channel_width_hz': 417968.75, 'nchan': 256}
+18:50:41 build average 214.9 s
+18:50:41 GH {'verify_identical': True, 'gain_freq_ok': True, 'gaincheck': True, 'pass': True}
+18:50:41 stage build [] 1762.5 s
+TIME build-MAIN_1 1763.01 s 5261508 KB

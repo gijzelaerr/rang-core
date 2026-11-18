@@ -1,0 +1,18 @@
+{
+ "MAIN_1": {
+  "objects_sdm03": 357,
+  "objects_here": 357,
+  "sha256_equal": true,
+  "bytes_sdm03": 18096402293,
+  "bytes_here": 18096402293,
+  "fetched_utc_here": "2026-11-18T16:20:33Z"
+ },
+ "MAIN_6": {
+  "objects_sdm03": 378,
+  "objects_here": 378,
+  "sha256_equal": true,
+  "bytes_sdm03": 18121223938,
+  "bytes_here": 18121223938,
+  "fetched_utc_here": "2026-11-18T16:21:08Z"
+ }
+}
