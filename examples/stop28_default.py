@@ -15,6 +15,16 @@ Usage: python examples/stop28_default.py STAGE
     score     every scorer, the pilot's included
     table     the measures, I1, I2 and the frozen verdict -> O/summary.json
 
+Confirmation leg (amendment 4), O = the new run root, PREV = the 2026-11-17 run root:
+    c-bin       the H9-H16 binary copied from PREV and hash-checked
+    c-seen      S1-S3: WSClean nominres dirty image and PSF, prepare --wsclean-dirty, D, R, e0,
+                scores with the scorer's own beam (O/beam-s123.json records the source)
+    c-simulate  H17-H24, once (refuses to run before c-seen has scored S1-S3)
+    c-new       H17-H24: prepare and run D, R
+    c-wsclean   H17-H24: WSClean fast and plain
+    c-score     H17-H24 scores
+    c-table     the amendment-4 verdict on H17-H24 alone -> O/summary.json
+
 Paths from the environment, with nash's defaults: O (outputs), W (this worktree), BIN, LOCK,
 WSCLEAN (nash's system WSClean 3.7).
 """
@@ -22,6 +32,7 @@ WSCLEAN (nash's system WSClean 3.7).
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import statistics
@@ -48,6 +59,13 @@ PILOT = (
     ("cal2.ms", "0.001", "a-1mjy"),
 )
 FITS = ("model", "residual", "image", "psf", "dirty")
+# Amendment 4: the confirmation leg.
+PREV = Path(os.environ.get("PREV", HOME / "rang-data/outputs/stop28-default-20261117"))
+CONFIRM_NEW = [f"h{i}" for i in range(17, 25)]
+S123 = ["s1", "s2", "s3"]
+BIN_SHA256 = "d242ef6800523838a411d6f0818c5579afa8e2efb7296ca96af606b42f4f2857"
+ARCHIVED_S_BEAM = 10.761531523459142
+CONFIRM = False
 
 
 def size_of(s):
@@ -125,13 +143,15 @@ def regen():
     (O / "data" / "regen-check.json").write_text(json.dumps(out, indent=1))
 
 
-def prepare(s):
+def prepare(s, wsclean_dirty=None):
     prep = O / "prep" / s
     if (prep / "vis.c128").exists():
         return
     cmd = [PY, EX / "gemclean_bench_compare.py", "prepare", O / "data" / f"{s}.ms"]
     cmd += [O / "data" / f"{s}.json", prep, "--size", size_of(s), "--scale", "1.5"]
     cmd += ["--noise", O / "data" / f"{s}.noise.c64"]
+    if wsclean_dirty:
+        cmd += ["--wsclean-dirty", wsclean_dirty]
     locked(cmd, 4, 12, O / "logs" / f"prepare-{s}.log")
 
 
@@ -193,6 +213,14 @@ def fits_header(path):
 
 def beam_of(s):
     """research/gemclean-stop28.md amendment 3; S1-S3 the scorer's own (amendment 3 here)."""
+    if CONFIRM and s in S123:
+        # Amendment 4: the scorer's own beam from the prep's WSClean PSF fit (None),
+        # the archived beam only if c-seen found no fit (recorded before H17-H24).
+        rec = json.loads((O / "beam-s123.json").read_text(encoding="utf-8"))
+        return rec["beam_arcsec_passed"][s]
+    if CONFIRM and s in CONFIRM_NEW:
+        h = fits_header(O / "wsclean" / f"{s}-abs-nominres-fast-j8-image.fits")
+        return (h["BMAJ"] * h["BMIN"]) ** 0.5 * 3600.0
     if s in ("s1", "s2", "s3"):
         # Amendment 3 (post hoc): the beam the scorer took from the archived prep's
         # WSClean dirty image, beam_arcsec of D:/rang/outputs/stop28-20261116/scores/dev-s*.json.
@@ -276,6 +304,97 @@ def score():
         jobs = [f"{s}-abs-nominres-fast-j8", f"{s}-abs-nominres-hogbom-j8"]
         score_one(s, O / "wsclean", O / "scores" / f"wsclean-{s}.json", jobs)
     pscore()
+
+
+# --- confirmation leg (amendment 4) -----------------------------------------
+
+
+def c_bin():
+    src, dst = PREV / "bin/gemclean", O / "bin/gemclean"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if not dst.exists():
+        shutil.copy2(src, dst)
+        for f in ("commit.txt", "gemclean.sha256"):
+            shutil.copy2(PREV / "bin" / f, O / "bin" / f)
+    got = hashlib.sha256(dst.read_bytes()).hexdigest()
+    print("bin sha256", got, "expected", BIN_SHA256, flush=True)
+    if got != BIN_SHA256:
+        raise SystemExit("binary hash mismatch: the leg stops (amendment 4)")
+
+
+def link_seen_data(s):
+    data = O / "data"
+    data.mkdir(parents=True, exist_ok=True)
+    for ext in (".ms", ".json", ".noise.c64"):
+        dst = data / f"{s}{ext}"
+        if not dst.exists():
+            dst.symlink_to(PREV / "data" / f"{s}{ext}")
+
+
+def wsclean_dirty(s):
+    """-niter 0 -make-psf at the nominres settings (gemclean_bench_run.sh dirty/nominres/fast)."""
+    d = O / "wsclean"
+    (d / "ms").mkdir(parents=True, exist_ok=True)
+    (d / "tmp").mkdir(exist_ok=True)
+    ms = d / "ms" / f"{s}.ms"
+    if not ms.exists():
+        shutil.copytree(O / "data" / f"{s}.ms", ms)
+    name = f"{s}-dirty-nominres-fast-j8"
+    if not (d / f"{name}-psf.fits").exists():
+        args = ["-gridder", "wgridder", "-data-column", "DATA", "-field", "0"]
+        args += ["-size", "2048", "2048", "-scale", "1.5asec"]
+        args += ["-weight", "briggs", "0.5", "-pol", "I", "-j", "8"]
+        args += ["-no-update-model-required", "-temp-dir", d / "tmp"]
+        args += ["-niter", "0", "-make-psf"]
+        args += ["-no-min-grid-resolution", "-wgridder-accuracy", "1e-6"]
+        cmd = [WSCLEAN, *args, "-name", d / name, ms]
+        (d / f"{name}.cmd").write_text(" ".join(map(str, cmd)) + "\n")
+        locked(cmd, 8, 8, d / f"{name}.log", env={"OMP_NUM_THREADS": "8"})
+    return d / name
+
+
+def psf_fits(s):
+    meta = json.loads((O / "prep" / s / "meta.json").read_text(encoding="utf-8"))
+    out = []
+    for k, c in sorted(meta.get("comparisons", {}).items()):
+        a, b = c.get("psf_bmaj_arcsec"), c.get("psf_bmin_arcsec")
+        if "nominres" in k and a and b and math.isfinite(a) and math.isfinite(b):
+            out.append(math.sqrt(a * b))
+    return out
+
+
+def c_seen():
+    rec = {
+        "rule": "amendment 4: the scorer's own beam (null passed); archived beam only without a fit",
+        "beam_arcsec_passed": {},
+        "scorer_fit_arcsec": {},
+    }
+    for s in S123:
+        link_seen_data(s)
+        prepare(s, wsclean_dirty=wsclean_dirty(s))
+        fits = psf_fits(s)
+        rec["scorer_fit_arcsec"][s] = fits[0] if fits else None
+        rec["beam_arcsec_passed"][s] = None if fits else ARCHIVED_S_BEAM
+        pair("seen", s, extra_e0=True)
+    (O / "beam-s123.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    shutil.rmtree(O / "wsclean" / "tmp", ignore_errors=True)
+    (O / "scores").mkdir(exist_ok=True)
+    t = f"e{EPS:g}"
+    for s in S123:
+        score_one(
+            s, O / "seen", O / "scores" / f"seen-{s}.json", [f"{s}-default", f"{s}-{t}"]
+        )
+
+
+def c_score():
+    (O / "scores").mkdir(exist_ok=True)
+    t = f"e{EPS:g}"
+    for s in CONFIRM_NEW:
+        score_one(
+            s, O / "new", O / "scores" / f"new-{s}.json", [f"{s}-default", f"{s}-{t}"]
+        )
+        jobs = [f"{s}-abs-nominres-fast-j8", f"{s}-abs-nominres-hogbom-j8"]
+        score_one(s, O / "wsclean", O / "scores" / f"wsclean-{s}.json", jobs)
 
 
 # --- table and verdict -------------------------------------------------------
@@ -415,13 +534,25 @@ def pilot_record(n):
 
 def table():
     out = {"eps": EPS, "i1": i1(), "seen": {}, "new": {}, "pilot": {}}
-    for s in SEEN:
-        out["seen"][s] = sky_record("seen", s)
+    if CONFIRM:
+        # Amendment 4: S1-S3 from this leg; H1-H8 and the pilot carried from the
+        # 2026-11-17 as-run table (before amendment 3).
+        asrun = json.loads((PREV / "summary-asrun.json").read_text(encoding="utf-8"))
+        out["carried_from"] = str(PREV / "summary-asrun.json")
+        out["beam_s123"] = json.loads(
+            (O / "beam-s123.json").read_text(encoding="utf-8")
+        )
+        for s in SEEN:
+            out["seen"][s] = sky_record("seen", s) if s in S123 else asrun["seen"][s]
+        out["pilot"] = asrun["pilot"]
+    else:
+        for s in SEEN:
+            out["seen"][s] = sky_record("seen", s)
+        for _, _, n in PILOT:
+            f = O / "scores" / f"pilot-compare-{n}.json"
+            out["pilot"][n] = pilot_record(n) if f.exists() else None
     for s in NEW:
         out["new"][s] = sky_record("new", s)
-    for _, _, n in PILOT:
-        f = O / "scores" / f"pilot-compare-{n}.json"
-        out["pilot"][n] = pilot_record(n) if f.exists() else None
 
     def ok_sky(r):
         return (
@@ -523,12 +654,43 @@ def main():
             "pilot",
             "score",
             "table",
+            "c-bin",
+            "c-seen",
+            "c-simulate",
+            "c-new",
+            "c-wsclean",
+            "c-score",
+            "c-table",
         ],
     )
     a = p.parse_args()
+    global CONFIRM, NEW
+    if a.stage.startswith("c-"):
+        if O.resolve() == PREV.resolve():
+            raise SystemExit("the confirmation leg needs its own run root O")
+        CONFIRM, NEW = True, CONFIRM_NEW
     for sub in ("logs", "scores"):
         (O / sub).mkdir(parents=True, exist_ok=True)
-    if a.stage == "regen":
+    if a.stage == "c-bin":
+        c_bin()
+    elif a.stage == "c-seen":
+        c_seen()
+    elif a.stage == "c-simulate":
+        if not all((O / "scores" / f"seen-{s}.json").exists() for s in S123):
+            raise SystemExit("S1-S3 not scored: H17-H24 are drawn only after c-seen")
+        for s in NEW:
+            simulate_one(s, 2048)
+    elif a.stage == "c-new":
+        for s in NEW:
+            prepare(s)
+            pair("new", s)
+    elif a.stage == "c-wsclean":
+        wsclean()
+    elif a.stage == "c-score":
+        c_score()
+    elif a.stage == "c-table":
+        table()
+    elif a.stage == "regen":
         regen()
     elif a.stage == "simulate":
         for s in NEW:
