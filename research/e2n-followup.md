@@ -133,4 +133,63 @@ A cause is "established" only if it is shown for that cell. Otherwise it is an i
 
 ## 2. Results
 
-(Filled in after the runs.)
+**Amendments and corrections after the plan's commit (dated, post hoc).**
+- 2026-11-18 19:05, before `dump` ran: `fu_tricolour.py dump` also saves the whole time × channel plane (rang's,
+  Tricolour's and the native FLAG, and DATA) of each affected scan and baseline. SumThreshold's windows are wider than
+  the 7 × 7 window, and the restore drops Tricolour's FLAG.
+- Section 1.1's CASA quote came from a search summary. On the gaincal page (casatasks, stable) it reads: K "solves
+  for simple antenna-based delays via Fourier transforms of the spectra on baselines to (only) the reference
+  antenna".
+- "CASA used m022" is an inference. The K table's ANTENNA2 is −1 and `used_as_refant` is 0 for every antenna in the
+  solvestats. m022 is first in the list, and the flagged set is exactly the set cut off from m022, not from m023 or
+  m024.
+
+### 2.1 Job 2: 3a's 73 cells placed
+
+The rerun reproduces E2-N's reading exactly: **73 of 2,282,996,736 cells** (292 elements; 42 rang only, 31 Tricolour
+only; no cell differs in only some correlations). Tricolour is deterministic here. The restore gave FLAG
+`50c7ea35…194e` and FLAG_ROW `f2809997…c2ec9`, 9.1's hashes (`fu-3a-restore.json`, met). Records:
+[3a/fu-3a-cells.json](results/e2n-followup/3a/fu-3a-cells.json) (every cell),
+[3a/fu-3a-columns.json](results/e2n-followup/3a/fu-3a-columns.json) and
+[3a/fu-3a-windows.npz](results/e2n-followup/3a/fu-3a-windows.npz). The whole planes (29 MB,
+`fu-3a-planes.npz`, SHA-256 `e1cace97…a72c`) stay in the run root.
+
+| Scan, field | Baseline | Cells | Where |
+| --- | --- | ---: | --- |
+| 7, J1744−5144 (14 dumps) | m007–m050 | 68 | 12 channels between 1,168.6 and 1,663.5 MHz; 62 cells in 6 channels where one arm flags all 14 dumps and the other does not |
+| 2, J1331+3030 (74 dumps) | m017–m055 | 2 | channels 754 and 755 (1,486.3 and 1,487.1 MHz), dumps 37 and 48, Tricolour only |
+| 8, ASKAPJ1745 (281) | m044–m046, m044–m047 | 1 + 1 | channel 365 at dump 120; channel 869 at dump 194; Tricolour only |
+| 10, ASKAPJ1745 (282) | m053–m057 | 1 | channel 296 at dump 87; Tricolour only |
+
+In m007–m050 on scan 7:
+- Rang flags channels 835 and 882 in all 14 dumps, where Tricolour flags none.
+- Tricolour flags channels 920, 922 and 923 in all 14 dumps, where rang flags 6, 10 and 5.
+- On channel 855 rang flags 14 and Tricolour 5. On channel 876 rang flags 14 and Tricolour 11.
+- The other 6 cells are single cells.
+- The parallel-hand |DATA| of every differing cell is 3.6-4.2 Jy, the baseline's ordinary level (|XX|, |YY| about
+  3.9). None is an outlier. Natively, channels 835, 855, 882 and 923 are unflagged on that baseline; 920, 922 and
+  876 have 3, 9 and 11 dumps flagged.
+
+Causes:
+- **Chunk edge: ruled out for all 73 (measured).** Rang's flag stage gives each block whole baselines
+  (`core_chunks.baseline_blocks`, "blocks of consecutive baselines"), so each baseline's whole scan plane goes through
+  the flagger in one piece. Scan 7 (26,474 rows) is one block in any case (`flag/summary.json`). A0's chunk-edge
+  clause therefore has nothing to act on.
+- **Scan edge: not the cause.** Of the 73 cells, 4 are in dump 0 and 4 in dump 13 of scan 7; they belong to the
+  same whole-channel columns as the interior dumps. The other 5 cells are interior.
+- **Whole-channel decisions on a short scan (measured placement, cause inferred).** 62 of the 68 scan-7 cells lie in
+  columns that one arm flags across the whole scan. The strategy's `sum_threshold` steps flag a whole channel once
+  more than `flag_all_time_frac` 0.6 of its times are flagged, which is 9 of 14 dumps here. One more or one fewer
+  flagged dump then moves all 14. On channels 835 and 882 Tricolour flags nothing at all, so the two arms already
+  differed before that rule, in a step with channel-coherent effect (`uvcontsub_flagger`'s 20-term fit across
+  frequency, or a SumThreshold background estimate). Which step it is was not established: the intermediate flags of
+  each step were not saved.
+- **The 5 single cells in scans 2, 8 and 10: threshold-level, inferred.** Each is isolated: 0 to 7 of its 3 × 3
+  neighbours are flagged by both arms, and Tricolour flags each where rang does not. This is the kind of difference
+  E1's 530 cells came from (float64 against complex64). That was not shown cell by cell.
+
+**Reading:** 3a's miss is one baseline on one 14-dump scan (93 %), plus 5 isolated cells. It is not a chunking
+effect. Gate 3a stays not met as frozen. Placing the 68 to a strategy step would need both flaggers' per-step flags
+on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not part of this job.
+
+### 2.2 Job 1: CASA's K

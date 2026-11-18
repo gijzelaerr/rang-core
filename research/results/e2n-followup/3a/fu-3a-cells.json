@@ -1,0 +1,2349 @@
+{
+ "rang_version": "rang_calibrate_20261117T022650Z",
+ "elements_differ": 292,
+ "cells_differ": 73,
+ "rang_only": 42,
+ "tricolour_only": 31,
+ "corr_partial": 0,
+ "cells": 2282996736,
+ "exact": false,
+ "window_half": 3,
+ "cells_list": [
+  {
+   "row": 211717,
+   "chan": 754,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241986616.5119705,
+   "scan": 2,
+   "field": "J1331+3030",
+   "ant1": "m017",
+   "ant2": "m055",
+   "time_index_in_scan": 37,
+   "times_in_scan": 74,
+   "freq_mhz": 1486.296875,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    7.479129314422607,
+    0.41407108306884766,
+    0.09011653065681458,
+    9.272499084472656
+   ]
+  },
+  {
+   "row": 232518,
+   "chan": 755,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241986704.528633,
+   "scan": 2,
+   "field": "J1331+3030",
+   "ant1": "m017",
+   "ant2": "m055",
+   "time_index_in_scan": 48,
+   "times_in_scan": 74,
+   "freq_mhz": 1487.1328125,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 7,
+   "abs_data": [
+    7.548099517822266,
+    0.38032519817352295,
+    0.043221279978752136,
+    9.299808502197266
+   ]
+  },
+  {
+   "row": 892307,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994161.942337,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 0,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    3.846431255340576,
+    0.32310372591018677,
+    0.3015400469303131,
+    3.930490732192993
+   ]
+  },
+  {
+   "row": 892307,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994161.942337,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 0,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 2,
+   "abs_data": [
+    3.860340118408203,
+    0.08665681630373001,
+    0.11299456655979156,
+    4.052804470062256
+   ]
+  },
+  {
+   "row": 892307,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994161.942337,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 0,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 3,
+   "neighbours_flagged_tricolour_3x3": 5,
+   "abs_data": [
+    3.7429962158203125,
+    0.06634709984064102,
+    0.17036092281341553,
+    3.8283956050872803
+   ]
+  },
+  {
+   "row": 892307,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994161.942337,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 0,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 1,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    3.8059465885162354,
+    0.0955180749297142,
+    0.059124238789081573,
+    3.7738077640533447
+   ]
+  },
+  {
+   "row": 894198,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994169.943863,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 1,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    4.1723713874816895,
+    0.31300368905067444,
+    0.3094653785228729,
+    4.2197651863098145
+   ]
+  },
+  {
+   "row": 894198,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994169.943863,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 1,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.032047748565674,
+    0.15729312598705292,
+    0.0796213299036026,
+    3.9908931255340576
+   ]
+  },
+  {
+   "row": 894198,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994169.943863,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 1,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 8,
+   "abs_data": [
+    3.843681573867798,
+    0.054620079696178436,
+    0.09780403971672058,
+    3.8053624629974365
+   ]
+  },
+  {
+   "row": 894198,
+   "chan": 922,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994169.943863,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 1,
+   "times_in_scan": 14,
+   "freq_mhz": 1626.734375,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.8613202571868896,
+    0.10074913501739502,
+    0.029009953141212463,
+    3.7016751766204834
+   ]
+  },
+  {
+   "row": 894198,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994169.943863,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 1,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.8343513011932373,
+    0.08665477484464645,
+    0.09899914264678955,
+    3.887493371963501
+   ]
+  },
+  {
+   "row": 896089,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994177.945389,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 2,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    4.0684685707092285,
+    0.2736518979072571,
+    0.21196529269218445,
+    3.9174532890319824
+   ]
+  },
+  {
+   "row": 896089,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994177.945389,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 2,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 7,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    4.189445972442627,
+    0.24907426536083221,
+    0.08828301727771759,
+    4.109068393707275
+   ]
+  },
+  {
+   "row": 896089,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994177.945389,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 2,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.015051364898682,
+    0.07391022145748138,
+    0.16678836941719055,
+    3.9624533653259277
+   ]
+  },
+  {
+   "row": 896089,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994177.945389,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 2,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.7562427520751953,
+    0.2143276184797287,
+    0.13295325636863708,
+    3.765970230102539
+   ]
+  },
+  {
+   "row": 897980,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994185.946915,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 3,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.646782398223877,
+    0.23482629656791687,
+    0.048341017216444016,
+    3.756446599960327
+   ]
+  },
+  {
+   "row": 897980,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994185.946915,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 3,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.96657133102417,
+    0.10031737387180328,
+    0.10922151058912277,
+    3.89082407951355
+   ]
+  },
+  {
+   "row": 897980,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994185.946915,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 3,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 7,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.90134334564209,
+    0.1351056545972824,
+    0.06501934677362442,
+    3.8810179233551025
+   ]
+  },
+  {
+   "row": 897980,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994185.946915,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 3,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.7975354194641113,
+    0.09825025498867035,
+    0.023285701870918274,
+    3.862351179122925
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.705448865890503,
+    0.20622053742408752,
+    0.15699420869350433,
+    3.67346453666687
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 7,
+   "neighbours_flagged_tricolour_3x3": 5,
+   "abs_data": [
+    3.814427375793457,
+    0.10099176317453384,
+    0.12974850833415985,
+    3.980426073074341
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.8802270889282227,
+    0.1608702391386032,
+    0.1848296821117401,
+    3.9720871448516846
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.8994078636169434,
+    0.1292884796857834,
+    0.07523324340581894,
+    3.880695343017578
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 922,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1626.734375,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.880946159362793,
+    0.0443163700401783,
+    0.137227863073349,
+    3.8833484649658203
+   ]
+  },
+  {
+   "row": 899871,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994193.9484005,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 4,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.8465819358825684,
+    0.13968689739704132,
+    0.040478747338056564,
+    3.7566075325012207
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.9341564178466797,
+    0.058294523507356644,
+    0.30558907985687256,
+    3.6104578971862793
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.138057231903076,
+    0.15017783641815186,
+    0.22664017975330353,
+    3.8238463401794434
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 876,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1588.28125,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    3.893411874771118,
+    0.18682676553726196,
+    0.22770440578460693,
+    3.8401949405670166
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.730862617492676,
+    0.15272490680217743,
+    0.1302718073129654,
+    3.9557008743286133
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.904075860977173,
+    0.12057296931743622,
+    0.09551198035478592,
+    3.9428906440734863
+   ]
+  },
+  {
+   "row": 901762,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994201.949925,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 5,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 1,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.827702522277832,
+    0.09651266783475876,
+    0.02593066357076168,
+    3.838425397872925
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.9038641452789307,
+    0.15173262357711792,
+    0.23459847271442413,
+    3.9481170177459717
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 848,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1564.875,
+   "neighbours_flagged_rang_3x3": 3,
+   "neighbours_flagged_tricolour_3x3": 5,
+   "abs_data": [
+    4.139226913452148,
+    0.1530269980430603,
+    0.05785210430622101,
+    4.147639751434326
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.014711380004883,
+    0.2096889168024063,
+    0.3322928547859192,
+    3.6392910480499268
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 876,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1588.28125,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.835472822189331,
+    0.18974970281124115,
+    0.1973022222518921,
+    3.8057644367218018
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.032086372375488,
+    0.0623418390750885,
+    0.050327349454164505,
+    4.063942909240723
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 7,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.881410837173462,
+    0.11260156333446503,
+    0.24644874036312103,
+    3.886233329772949
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 922,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1626.734375,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    4.048749923706055,
+    0.13076592981815338,
+    0.06209013983607292,
+    3.8612844944000244
+   ]
+  },
+  {
+   "row": 903653,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994209.951451,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 6,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 1,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.8354434967041016,
+    0.11391531676054001,
+    0.09727693349123001,
+    3.923821449279785
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.662719964981079,
+    0.023770298808813095,
+    0.09126482903957367,
+    4.002674102783203
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 848,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1564.875,
+   "neighbours_flagged_rang_3x3": 3,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.711310625076294,
+    0.12832039594650269,
+    0.1251596063375473,
+    3.7181777954101562
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.216884136199951,
+    0.18604929745197296,
+    0.18872417509555817,
+    4.127946853637695
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 857,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1572.3984375,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.9487733840942383,
+    0.16039559245109558,
+    0.29602399468421936,
+    3.8235108852386475
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 876,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1588.28125,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    4.129761695861816,
+    0.2094181776046753,
+    0.31365448236465454,
+    4.039341449737549
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.802839994430542,
+    0.11440706998109818,
+    0.06320278346538544,
+    3.9867775440216064
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 922,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1626.734375,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 9,
+   "abs_data": [
+    3.996854782104492,
+    0.12160708755254745,
+    0.2101031392812729,
+    3.9893200397491455
+   ]
+  },
+  {
+   "row": 905544,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994217.952977,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 7,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 1,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.9160351753234863,
+    0.09696575254201889,
+    0.092458575963974,
+    3.959820032119751
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 374,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1168.640625,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.044195652008057,
+    0.2329174280166626,
+    0.2300756275653839,
+    3.5865883827209473
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.9151222705841064,
+    0.02863972820341587,
+    0.1111590564250946,
+    3.965829372406006
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 848,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1564.875,
+   "neighbours_flagged_rang_3x3": 3,
+   "neighbours_flagged_tricolour_3x3": 5,
+   "abs_data": [
+    4.085921764373779,
+    0.20050285756587982,
+    0.14954353868961334,
+    3.9400908946990967
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.636777639389038,
+    0.18258719146251678,
+    0.31573325395584106,
+    3.7834842205047607
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    4.165181636810303,
+    0.07643789052963257,
+    0.15094630420207977,
+    3.9129018783569336
+   ]
+  },
+  {
+   "row": 907435,
+   "chan": 923,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994225.954503,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 8,
+   "times_in_scan": 14,
+   "freq_mhz": 1627.5703125,
+   "neighbours_flagged_rang_3x3": 3,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.836115598678589,
+    0.07683853060007095,
+    0.08420070260763168,
+    3.781528949737549
+   ]
+  },
+  {
+   "row": 909326,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994233.955988,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 9,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.7912650108337402,
+    0.06708455830812454,
+    0.22350378334522247,
+    3.835108757019043
+   ]
+  },
+  {
+   "row": 909326,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994233.955988,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 9,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.852367639541626,
+    0.19384241104125977,
+    0.2060321867465973,
+    4.038051128387451
+   ]
+  },
+  {
+   "row": 909326,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994233.955988,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 9,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.834327220916748,
+    0.1325419843196869,
+    0.1156909316778183,
+    3.8695902824401855
+   ]
+  },
+  {
+   "row": 911217,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994241.957514,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 10,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    4.0871992111206055,
+    0.16266153752803802,
+    0.22354410588741302,
+    4.078506946563721
+   ]
+  },
+  {
+   "row": 911217,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994241.957514,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 10,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    3.9050698280334473,
+    0.13493365049362183,
+    0.3164776861667633,
+    3.914701461791992
+   ]
+  },
+  {
+   "row": 911217,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994241.957514,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 10,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.894767999649048,
+    0.041461482644081116,
+    0.1080731600522995,
+    3.984422445297241
+   ]
+  },
+  {
+   "row": 911217,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994241.957514,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 10,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.961653709411621,
+    0.2414933145046234,
+    0.09515610337257385,
+    3.9339191913604736
+   ]
+  },
+  {
+   "row": 913108,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994249.95904,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 11,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 9,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.833949565887451,
+    0.11441709846258163,
+    0.2655315101146698,
+    3.855595111846924
+   ]
+  },
+  {
+   "row": 913108,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994249.95904,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 11,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.908848524093628,
+    0.16180658340454102,
+    0.16277913749217987,
+    3.8589138984680176
+   ]
+  },
+  {
+   "row": 914999,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994257.960566,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 12,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 8,
+   "neighbours_flagged_tricolour_3x3": 5,
+   "abs_data": [
+    4.000089645385742,
+    0.1854272484779358,
+    0.2782121002674103,
+    3.752861499786377
+   ]
+  },
+  {
+   "row": 914999,
+   "chan": 855,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994257.960566,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 12,
+   "times_in_scan": 14,
+   "freq_mhz": 1570.7265625,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.7793707847595215,
+    0.018908297643065453,
+    0.15312248468399048,
+    3.720186948776245
+   ]
+  },
+  {
+   "row": 914999,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994257.960566,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 12,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 6,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.9138896465301514,
+    0.08596041798591614,
+    0.03841264173388481,
+    3.7796518802642822
+   ]
+  },
+  {
+   "row": 914999,
+   "chan": 920,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994257.960566,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 12,
+   "times_in_scan": 14,
+   "freq_mhz": 1625.0625,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    3.778278112411499,
+    0.31655290722846985,
+    0.26288214325904846,
+    3.7626419067382812
+   ]
+  },
+  {
+   "row": 916890,
+   "chan": 835,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994265.96205,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 13,
+   "times_in_scan": 14,
+   "freq_mhz": 1554.0078125,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.6665003299713135,
+    0.17050418257713318,
+    0.1389295756816864,
+    3.6926000118255615
+   ]
+  },
+  {
+   "row": 916890,
+   "chan": 856,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241994265.96205,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 13,
+   "times_in_scan": 14,
+   "freq_mhz": 1571.5625,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 4,
+   "abs_data": [
+    3.86098051071167,
+    0.2601340711116791,
+    0.41929373145103455,
+    3.7564220428466797
+   ]
+  },
+  {
+   "row": 916890,
+   "chan": 882,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994265.96205,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 13,
+   "times_in_scan": 14,
+   "freq_mhz": 1593.296875,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 2,
+   "abs_data": [
+    3.905061721801758,
+    0.11907754838466644,
+    0.14890380203723907,
+    3.862988233566284
+   ]
+  },
+  {
+   "row": 916890,
+   "chan": 966,
+   "rang": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "tricolour": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "time": 5241994265.96205,
+   "scan": 7,
+   "field": "J1744-5144",
+   "ant1": "m007",
+   "ant2": "m050",
+   "time_index_in_scan": 13,
+   "times_in_scan": 14,
+   "freq_mhz": 1663.515625,
+   "neighbours_flagged_rang_3x3": 4,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    3.8502509593963623,
+    0.08476261049509048,
+    0.04104955866932869,
+    3.807297945022583
+   ]
+  },
+  {
+   "row": 1144965,
+   "chan": 365,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241995250.148625,
+   "scan": 8,
+   "field": "ASKAPJ1745",
+   "ant1": "m044",
+   "ant2": "m046",
+   "time_index_in_scan": 120,
+   "times_in_scan": 281,
+   "freq_mhz": 1161.1171875,
+   "neighbours_flagged_rang_3x3": 2,
+   "neighbours_flagged_tricolour_3x3": 3,
+   "abs_data": [
+    1.1979492902755737,
+    0.3522811532020569,
+    0.2431725114583969,
+    0.8493755459785461
+   ]
+  },
+  {
+   "row": 1284930,
+   "chan": 869,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241995842.260883,
+   "scan": 8,
+   "field": "ASKAPJ1745",
+   "ant1": "m044",
+   "ant2": "m047",
+   "time_index_in_scan": 194,
+   "times_in_scan": 281,
+   "freq_mhz": 1582.4296875,
+   "neighbours_flagged_rang_3x3": 5,
+   "neighbours_flagged_tricolour_3x3": 6,
+   "abs_data": [
+    0.5797135829925537,
+    0.41390031576156616,
+    0.17532183229923248,
+    0.3382234573364258
+   ]
+  },
+  {
+   "row": 1640757,
+   "chan": 296,
+   "rang": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "tricolour": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "time": 5241997378.552129,
+   "scan": 10,
+   "field": "ASKAPJ1745",
+   "ant1": "m053",
+   "ant2": "m057",
+   "time_index_in_scan": 87,
+   "times_in_scan": 282,
+   "freq_mhz": 1103.4375,
+   "neighbours_flagged_rang_3x3": 0,
+   "neighbours_flagged_tricolour_3x3": 1,
+   "abs_data": [
+    0.9762975573539734,
+    0.42681100964546204,
+    0.09012024849653244,
+    0.8740850687026978
+   ]
+  }
+ ]
+}
