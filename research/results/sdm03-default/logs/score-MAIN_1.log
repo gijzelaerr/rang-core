@@ -1,0 +1,8 @@
+15:32:35 score A0 241.70764407534293 0.531715933528083
+15:33:54 score SDa 311.1802937875287 0.21339206555018342
+15:35:13 score Sa 314.34368121650783 0.19699317115459808
+15:36:32 score Sm 271.4859473239092 0.4050676239642276
+15:37:49 score SDm03 280.0222849891528 0.3660517077392152
+15:39:07 score W-SDa 267.8455209446205 0.42133907329645753
+15:39:07 stage score ['A0=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/A0/image', 'SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/SDa/image', 'Sa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/Sa/image', 'Sm=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/Sm/image', 'SDm03=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/SDm03/image', 'W-SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/W-SDa/image'] 425.9 s
+TIME score-MAIN_1 426.69 s 3419888 KB

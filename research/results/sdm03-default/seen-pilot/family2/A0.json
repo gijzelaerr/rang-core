@@ -1,0 +1,25 @@
+{
+ "arm": "A0",
+ "state": "S1",
+ "F_uJy": 278.8636432045879,
+ "D": 0.46565737571483384,
+ "dP": 6.607483297317185e-08,
+ "model": [
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/A0/image-model.fits",
+   "flux_jy": 89.50580629527576,
+   "negative_jy": -3.8199008627489093,
+   "outside_mask_jy": 0.04665460673277266,
+   "outside_mask_pixels": 110906,
+   "pixels": 151008
+  }
+ ],
+ "report": {
+  "components": 341244,
+  "major_cycles": 10,
+  "stop": "Threshold",
+  "model_flux": 89.50580630842164,
+  "residual_mad_sigma": 7.611120559133724e-05,
+  "residual_peak_abs": 0.00022832771355751902
+ }
+}

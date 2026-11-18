@@ -1,0 +1,6 @@
+{
+ "T": 2.3467864320341932e-05,
+ "beam_arcsec": 8.198488579189842,
+ "beam_from": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/A0/image-image.fits",
+ "catalogue": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.json"
+}

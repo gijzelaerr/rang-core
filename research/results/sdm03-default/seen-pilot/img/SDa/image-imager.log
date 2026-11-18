@@ -1,0 +1,10 @@
+/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python -m rang.gemclean -name /home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image -size 4096 4096 -scale 3asec -weight briggs 0.0 -niter 1000000 -mgain 0.9 -auto-threshold 0.5 -j 8 -wgridder-accuracy 0.0001 -channels-out 8 -join-channels -fit-spectral-pol 2 -auto-mask 6.0 -data-column CORRECTED_DATA -field 0 -no-update-model-required /home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms
+/home/gijs/rang-data/outputs/floor-5-20261117/g1/P/pilot.ms: 823500 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 47.79 s read, 18.02 s weights
+auto-mask: major iteration 1, sigma 1.296296e-3 Jy, threshold 7.777777e-3 Jy; continued in the mask at gain 0.9000, threshold 7.777777e-3 Jy
+auto-mask: major iteration 2, sigma 5.456389e-4 Jy, threshold 3.273833e-3 Jy; continued in the mask at gain 0.9000, threshold 3.273833e-3 Jy
+auto-mask: major iteration 3, sigma 2.083034e-4 Jy, threshold 1.249821e-3 Jy; continued in the mask at gain 0.0792, threshold 1.041517e-4 Jy
+auto-mask: major iteration 4, sigma 8.003588e-5 Jy, threshold 4.001794e-5 Jy, in the mask
+auto-mask: major iteration 5, sigma 7.726394e-5 Jy, threshold 3.863197e-5 Jy, in the mask
+auto-mask: threshold reached in major iteration 3
+joined: 341987 components, 5 major cycles, 3865 resyncs, stop Threshold; Q/Q0 8.2026e-3
+wall 5511.17 s

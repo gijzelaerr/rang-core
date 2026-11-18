@@ -2292,3 +2292,14 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | stop28-confirm: WSClean 3.7 (`/usr/bin/wsclean`) fast / plain, H17-H24 (host nash) | 2048², `-j 8` | fast 64-272 s, plain 386-4,146 s (H17 plain 4,146 s); 2 h 50.9 min stage (lock wait included) | – | fast 8 slots, plain 3 |
 | 2026-11-18 | stop28-confirm: scores H17-H24 (GeMClean and WSClean) and the table (host nash) | 16 score jobs | 13.5-17.3 s per job, 4.0 min stage; table 5 s | – | 2 slots, 12 GB |
 | 2026-11-18 | stop28-default: `tools/check_all.py --slots 4 --mem 12` (full, `RANG_FIXTURE` outer scans), Windows host glacier | worktree, branch `stop28-default` at `13929063` | 1,547 s (lock wait excluded), 09:41-10:07 | – | PASS; pytest 1,677 passed, 68 skipped |
+| 2026-11-18 | sdm03-default: fetch of ESO137 `ms1_target.zarr` MAIN_1 and MAIN_6, channel tiles 5-8 and row columns (host nash) | 18.10 + 18.12 GB | 58 s, 55 s | 0.1 GB | 2 slots each; 8 parallel requests |
+| 2026-11-18 | sdm03-default: build (convert, verify, gainload, gaincheck, calibrate, average) MAIN_1, MAIN_6 (host nash) | 850k rows × 512 | 931 s, 932 s | 5.0 GiB | 1 slot each, side by side |
+| 2026-11-18 | sdm03-default: `rang-core selfcal` p1.yaml (one Sp round) MAIN_1, MAIN_6 (host nash) | 4096² × 3″ | 1,763 s, 1,739 s | 11.4 GiB | 8 slots each |
+| 2026-11-18 | sdm03-default: floor-6 `state` MAIN_1, MAIN_6 (host nash) | subset 32 ch | 289 s, 294 s | 4.2 GiB | 4 slots |
+| 2026-11-18 | sdm03-default: GeMClean A0 (shipped default) on scans 4, 14 and the pilot (host nash, shared, paired with SDa) | 4096², 256 ch, `-j 8` | 494, 529, 531 s | 9.2 GiB | 1e-4, auto-threshold 3, no mask |
+| 2026-11-18 | sdm03-default: GeMClean SDa (8 joined channels, 2 terms, auto-mask 6, auto-threshold 0.5, mgain 0.9) on scans 4, 14 and the pilot (host nash, shared) | 4096², 256 ch, `-j 8` | 5,961, 4,744, 5,512 s | 18.1 GiB | 9-12 × A0 |
+| 2026-11-18 | sdm03-default: GeMClean Sa, SDm03, Sm on scans 4 / 14 (host nash, shared, in pairs) | 4096², `-j 8` | Sa 1,601 / 1,992 s; SDm03 2,387 / 1,700 s; Sm 2,817 / 2,343 s | 18.1 GiB | |
+| 2026-11-18 | sdm03-default: WSClean 3.7 (`/usr/bin/wsclean`) at SDa / Sa settings on scans 4 / 14 (host nash, shared) | 4096², 256 ch, `-j 8` | SDa 1,188 / 1,227 s; Sa 911 / 1,004 s | 2.2 GiB | |
+| 2026-11-18 | sdm03-default: `g3_spectral_simulate.py` X1-X4 and D1, prep, four or five arms each, score (host nash) | 907k rows × 16 ch, 2048² | sim 33-41 s; prep 35-67 s; A0 29-35 s; SDa/Sa 101-139 s (4.5 GiB); WSClean 88-111 s (0.6 GiB); score 124-143 s | 1.8 GiB (score) | |
+| 2026-11-18 | sdm03-default: floor-6 `score` of six arms per reserve scan; post hoc cross-scan scoring (host nash) | subset 32 ch | 427 s, 474 s; cross 915 s | 3.3 GiB | 4 slots |
+| 2026-11-18 | sdm03-default: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `sdm03-default` | 734 s (lock wait excluded) | – | PASS |

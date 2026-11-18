@@ -1,0 +1,44 @@
+{
+ "argv": [
+  "/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python",
+  "-m",
+  "rang.gemclean",
+  "-name",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/A0/image",
+  "-size",
+  "2048",
+  "2048",
+  "-scale",
+  "1.5asec",
+  "-weight",
+  "briggs",
+  "0.0",
+  "-niter",
+  "1000000",
+  "-auto-threshold",
+  "3.0",
+  "-j",
+  "8",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-data-column",
+  "DATA",
+  "-field",
+  "0",
+  "-no-update-model-required",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.ms"
+ ],
+ "arm": "A0",
+ "config_keys": {
+  "scale": "1.5asec",
+  "size": [
+   2048,
+   2048
+  ],
+  "threads": 8
+ },
+ "kind": "sim",
+ "ms": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.ms",
+ "rc": 0,
+ "wall_s": 28.90535495406948
+}
