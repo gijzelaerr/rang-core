@@ -118,6 +118,38 @@ def dump(ms, r):
                 "neighbours_flagged_tricolour_3x3": int((wb[HALF - 1 : HALF + 2, HALF - 1 : HALF + 2] == 1).any(-1).sum()),
                 "abs_data": np.abs(np.asarray(t.getcol("DATA", row, 1))[0, c]).tolist(),
             })  # fmt: skip
+        # Amendment 2026-11-18 19:05 (before dump ran): the whole time x channel
+        # plane of every affected (scan, baseline), since SumThreshold windows
+        # are wider than 7 samples and the restore drops Tricolour's FLAG.
+        planes = {}
+        for cell in cells:
+            key = (cell["scan"], cell["ant1"], cell["ant2"])
+            if key in planes:
+                continue
+            a1, a2 = ants.index(cell["ant1"]), ants.index(cell["ant2"])
+            same = np.nonzero((cols["SCAN_NUMBER"] == cell["scan"]) & (cols["ANTENNA1"] == a1)
+                              & (cols["ANTENNA2"] == a2))[0]  # fmt: skip
+            same = same[np.argsort(cols["TIME"][same])]
+            pa, pb, po, pd = [], [], [], []
+            for rr in same:
+                rr = int(rr)
+                pa.append(np.asarray(flagversions.load(ms, name, rr, 1)[0], bool)[0])
+                po.append(
+                    np.asarray(flagversions.load(ms, "rang_original", rr, 1)[0], bool)[
+                        0
+                    ]
+                )
+                pb.append(np.asarray(t.getcol("FLAG", rr, 1), bool)[0])
+                pd.append(np.asarray(t.getcol("DATA", rr, 1))[0].astype(np.complex64))
+            planes[key] = {"rows": same, "rang": np.array(pa), "tricolour": np.array(pb),
+                           "original": np.array(po), "data": np.array(pd)}  # fmt: skip
+        flat = {}
+        for i, (key, v) in enumerate(planes.items()):
+            for k2, arr in v.items():
+                flat[f"p{i}_{k2}"] = arr
+        np.savez_compressed(r / "fu-3a-planes.npz", **flat)
+        P.write(r / "fu-3a-planes.json", [{"index": i, "scan": k[0], "ant1": k[1], "ant2": k[2]}
+                                          for i, k in enumerate(planes)])  # fmt: skip
     np.savez_compressed(r / "fu-3a-windows.npz", rang=np.array(win_a), tricolour=np.array(win_b),
                         abs_data=np.array(win_data))  # fmt: skip
     P.write(r / "fu-3a-cells.json", {"rang_version": name, **acc, "exact": acc["elements_differ"] == 0,
