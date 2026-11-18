@@ -621,3 +621,10 @@ J1939−6342 left 19 of 62 antennas flagged, with FPARAM 0: 0, 1, 2, 3, 6, 7, 9,
   the J1744−5144 χ and the target's compact-source scatter. The data are observatory-phased, so K, KCROSS
   and Xf are near-null and their real-size solve is untested. The CASA reference flagged 19 of 62 antennas in
   its delay solve, which is not yet understood."
+
+## Coordinator decision (2026-11-18)
+
+- **#7 is not met as frozen: 17 of 25 rows met.** The release does not wait on it. v0.3.0 ships with E2-N as a known limitation, worded as this note's suggested release text, and #7 stays open.
+- **CASA K diagnosis: yes, as v0.4 work.** CASA's delay solve flags 19 of 62 antennas, which makes the oracle suspect on every K-downstream row (3b composites, 3c, J1744−5144, target). It is labelled a "seen" rerun, and no frozen row is rescored from it.
+- **Tricolour rerun to place 3a's 73 cells: yes,** about 35 min shared on nash.
+- **`as_is` arm: deferred** until the CASA K diagnosis, because the same oracle problem would hit it too.
