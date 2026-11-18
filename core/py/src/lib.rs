@@ -2555,6 +2555,109 @@ fn cal_apply(
     }
 }
 
+/// `rang_core_cal_calwt_scale` (task calwt-terms, research/calwt-terms.md):
+/// CASA's `calwt` weight factor of a solve per row and correlation into
+/// `out` (float64 `(nrow, 4)`), from the rows' `time`, `antenna1`,
+/// `antenna2` and the packed tables that correct the solve's data (see
+/// `rang.cal_apply.pack`). Raises ValueError on invalid input and
+/// RuntimeError on a panic in the core.
+#[pyfunction]
+#[pyo3(signature = (
+    time, antenna1, antenna2, nant,
+    kind, time_interp, freq_interp, npar, k_ref_freq, slot_start, slot_offset, slot_time,
+    param_offset, params, flag_offset, term_flags, freq_offset, sol_freq,
+    threads, out
+))]
+#[allow(clippy::too_many_arguments)]
+fn cal_calwt_scale(
+    py: Python<'_>,
+    time: Ro<'_, f64>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    nant: usize,
+    kind: Ro<'_, u32>,
+    time_interp: Ro<'_, u32>,
+    freq_interp: Ro<'_, u32>,
+    npar: Ro<'_, u32>,
+    k_ref_freq: Ro<'_, f64>,
+    slot_start: Ro<'_, u64>,
+    slot_offset: Ro<'_, u64>,
+    slot_time: Ro<'_, f64>,
+    param_offset: Ro<'_, u64>,
+    params: Ro<'_, f32>,
+    flag_offset: Ro<'_, u64>,
+    term_flags: Ro<'_, u8>,
+    freq_offset: Ro<'_, u64>,
+    sol_freq: Ro<'_, f64>,
+    threads: usize,
+    mut out: Rw<'_, f64>,
+) -> PyResult<()> {
+    let nrow = len1(&time);
+    let nterm = len1(&kind);
+    let chunk = rang_core::cal::ffi_apply::ApplyChunkC {
+        nrow,
+        nchan: 0,
+        nant,
+        data: std::ptr::null(),
+        flags: std::ptr::null(),
+        time: exact_input(&time, "time", &[nrow])?,
+        antenna1: exact_input(&antenna1, "antenna1", &[nrow])?,
+        antenna2: exact_input(&antenna2, "antenna2", &[nrow])?,
+        freq: std::ptr::null(),
+        nband: 0,
+        first_chan: 0,
+    };
+    let terms = rang_core::cal::ffi_apply::ApplyTermsC {
+        nterm,
+        kind: exact_input(&kind, "kind", &[nterm])?,
+        time_interp: exact_input(&time_interp, "time_interp", &[nterm])?,
+        freq_interp: exact_input(&freq_interp, "freq_interp", &[nterm])?,
+        npar: exact_input(&npar, "npar", &[nterm])?,
+        k_ref_freq: exact_input(&k_ref_freq, "k_ref_freq", &[nterm])?,
+        slot_start: exact_input(&slot_start, "slot_start", &[nterm * (nant + 1)])?,
+        slot_offset: exact_input(&slot_offset, "slot_offset", &[nterm + 1])?,
+        slot_time: exact_input(&slot_time, "slot_time", &[len1(&slot_time)])?,
+        param_offset: exact_input(&param_offset, "param_offset", &[nterm + 1])?,
+        params: exact_input(&params, "params", &[len1(&params)])?,
+        flag_offset: exact_input(&flag_offset, "flag_offset", &[nterm + 1])?,
+        flags: exact_input(&term_flags, "term_flags", &[len1(&term_flags)])?,
+        freq_offset: exact_input(&freq_offset, "freq_offset", &[nterm + 1])?,
+        sol_freq: exact_input(&sol_freq, "sol_freq", &[len1(&sol_freq)])?,
+    };
+    let last = |a: &Ro<'_, u64>| a.as_array().iter().last().copied().unwrap_or(0) as usize;
+    for (name, end, have) in [
+        ("slot_time", last(&slot_offset), len1(&slot_time)),
+        ("params", last(&param_offset), len1(&params)),
+        ("term_flags", last(&flag_offset), len1(&term_flags)),
+        ("sol_freq", last(&freq_offset), len1(&sol_freq)),
+    ] {
+        if end > have {
+            return Err(PyValueError::new_err(format!(
+                "{name} holds {have} values, the offsets name {end}"
+            )));
+        }
+    }
+    let o = exact_output(&mut out, "out", &[nrow, 4])?;
+    // SAFETY: every pointer borrows a live NumPy buffer of the checked shape
+    // for the duration of the call; `out` is a distinct writable array.
+    let status = detach(py, || {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| unsafe {
+            rang_core::cal::ffi_apply::rang_core_cal_calwt_scale(&chunk, &terms, threads, o)
+        }))
+        .unwrap_or(2)
+    });
+    match status {
+        0 => Ok(()),
+        1 => Err(PyValueError::new_err(format!(
+            "calwt kernel failed (1): {}",
+            cal_apply_last_error()
+        ))),
+        s => Err(pyo3::exceptions::PyRuntimeError::new_err(format!(
+            "calwt kernel failed ({s}): a panic in the core"
+        ))),
+    }
+}
+
 /// `rang_core::cal::apply::apply_jones` (task C4b, research/c4b-apply-ms.md):
 /// correct (`direction` 0) or corrupt (1) `data` (complex64 `(nrow, nchan,
 /// 4)`) with `flags` (uint8, same shape) by binned general 2x2 gains
@@ -2866,6 +2969,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(closure_scores, m)?)?;
     m.add_function(wrap_pyfunction!(fluxstd_eval, m)?)?;
     m.add_function(wrap_pyfunction!(cal_apply, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_calwt_scale, m)?)?;
     // Task C2a: the gain term G (research/c2a-gain.md).
     m.add_function(wrap_pyfunction!(cal_delay::cal_delay_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_solve, m)?)?;

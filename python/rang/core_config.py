@@ -308,6 +308,51 @@ SCHEMA = {
             "of |J|^2 per hand (|G|^2 times the mean |B|^2), as CASA 6.7.6.14's "
             "polcal does; false: 1/SIGMA^2 unscaled (research/xf-gap.md)",
         ),
+        "k_calwt": _k(
+            False,
+            "bool",
+            "K solves (not KCROSS) weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables that correct the data: times F(p) F(q), F per "
+            "antenna and hand the product of CASA's calcWtScale per table "
+            "(|B|^2's channel mean, the tables that correct a K solve's data being B only); false: unscaled "
+            "(research/calwt-terms.md)",
+        ),
+        "g_calwt": _k(
+            False,
+            "bool",
+            "G solves (calmode ap or p; not F) weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables that correct the data: times F(p) F(q), F per "
+            "antenna and hand the product of CASA's calcWtScale per table "
+            "(|B|^2's channel mean of a pre-applied B (K scales by 1)); false: unscaled "
+            "(research/calwt-terms.md)",
+        ),
+        "gpol_calwt": _k(
+            False,
+            "bool",
+            "Gpol solves weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables that correct the data: times F(p) F(q), F per "
+            "antenna and hand the product of CASA's calcWtScale per table "
+            "(|B|^2's channel mean of a pre-applied B (G, K scale by 1)); false: unscaled "
+            "(research/calwt-terms.md)",
+        ),
+        "kcross_calwt": _k(
+            False,
+            "bool",
+            "KCROSS solves weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables that correct the data: times F(p) F(q), F per "
+            "antenna and hand the product of CASA's calcWtScale per table "
+            "(|B|^2's channel mean of a pre-applied B); false: unscaled "
+            "(research/calwt-terms.md)",
+        ),
+        "df_calwt": _k(
+            False,
+            "bool",
+            "Df solves weight each cell as CASA's calwt scales it by the "
+            "pre-applied tables that correct the data: times F(p) F(q), F per "
+            "antenna and hand the product of CASA's calcWtScale per table "
+            "(|G|^2 times |B|^2's channel mean); false: unscaled "
+            "(research/calwt-terms.md)",
+        ),
         "k_zero_start": _k(
             False,
             "bool",
@@ -1956,6 +2001,11 @@ HASH_DEFAULTS = {
         "bandpass_model_divided": False,
         "k_zero_start": False,
         "xf_calwt": False,
+        "k_calwt": False,
+        "g_calwt": False,
+        "gpol_calwt": False,
+        "kcross_calwt": False,
+        "df_calwt": False,
     },
     "selfcal": {"average_time": False},
 }

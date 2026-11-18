@@ -829,6 +829,123 @@ fn run(
         });
 }
 
+/// One term's CASA `calcWtScale` at one (antenna, time), per receptor (task
+/// calwt-terms, `research/calwt-terms.md` section 2): for B, G and T the
+/// mean of the squared amplitude over the solution channels unflagged after
+/// time interpolation (`BJones::calcWtScale`, as `rang.applycal._b_scale`;
+/// for a one-channel G or T this is `|g|^2`, 1 under a flag), 1 when no
+/// channel is unflagged or the antenna has no solutions. K, KCROSS, Xf, Df
+/// and P force `calWt` off in CASA and scale by 1.
+fn wt_scale(t: &Term, ant: usize, series_vals: &[f32], at: f64) -> [f64; 2] {
+    if !matches!(t.kind, Kind::B | Kind::G | Kind::T) {
+        return [1.0; 2];
+    }
+    let (s0, s1) = (t.slot_start[ant], t.slot_start[ant + 1]);
+    if s0 == s1 {
+        return [1.0; 2];
+    }
+    let per_f = t.nchan_sol * t.npar;
+    let mut tv = vec![0f32; per_f * 2];
+    let mut tf = vec![false; per_f];
+    interpolate_time(
+        t,
+        &t.slot_time[s0..s1],
+        series_vals,
+        &t.flags[s0 * per_f..s1 * per_f],
+        at,
+        &mut tv,
+        &mut tf,
+    );
+    std::array::from_fn(|h| {
+        let p = if t.npar == 1 { 0 } else { h };
+        let (mut sum, mut n) = (0f64, 0usize);
+        for c in 0..t.nchan_sol {
+            let k = c * t.npar + p;
+            if !tf[k] {
+                let a = f64::from(tv[2 * k]);
+                sum += a * a;
+                n += 1;
+            }
+        }
+        if n > 0 { sum / n as f64 } else { 1.0 }
+    })
+}
+
+/// CASA's `calwt` weight factor of a solve (task calwt-terms,
+/// `research/calwt-terms.md` section 2): per row and correlation (XX, XY,
+/// YX, YY) `F(p, h) F(q, h')` into `out` (`4 nrow` values), `F(a, h)` the
+/// product over `terms` of each term's `wt_scale` at the row's time. The
+/// caller passes the tables that correct the data of the solve; kinds that
+/// do not scale weights give 1. Only `chunk.time`, `antenna1`, `antenna2`
+/// and `nant` are read (`nchan` may be 0). Per-(antenna, time) scales are
+/// computed once for the unique times in use: memory `O(nrow + ntime nant)`.
+pub fn calwt_scale(
+    chunk: &Chunk,
+    terms: &[Term],
+    threads: usize,
+    out: &mut [f64],
+) -> Result<(), String> {
+    check(chunk, terms)?;
+    if out.len() != 4 * chunk.nrow {
+        return err("out must hold 4 values per row");
+    }
+    let body = |out: &mut [f64]| {
+        let (nrow, nant) = (chunk.nrow, chunk.nant);
+        let mut times: Vec<f64> = chunk.time.to_vec();
+        times.sort_by(|a, b| a.total_cmp(b));
+        times.dedup();
+        let ntime = times.len();
+        let tindex: Vec<usize> = chunk
+            .time
+            .iter()
+            .map(|t| times.partition_point(|x| x < t))
+            .collect();
+        let mut used = vec![false; nant * ntime];
+        for r in 0..nrow {
+            used[chunk.antenna1[r] as usize * ntime + tindex[r]] = true;
+            used[chunk.antenna2[r] as usize * ntime + tindex[r]] = true;
+        }
+        let series_all: Vec<Vec<Vec<f32>>> = terms
+            .iter()
+            .map(|t| (0..nant).into_par_iter().map(|a| series(t, a)).collect())
+            .collect();
+        let scale: Vec<[f64; 2]> = (0..nant * ntime)
+            .into_par_iter()
+            .map(|k| {
+                if !used[k] {
+                    return [1.0; 2];
+                }
+                let (a, at) = (k / ntime, times[k % ntime]);
+                let mut s = [1.0f64; 2];
+                for (t, ser) in terms.iter().zip(&series_all) {
+                    let w = wt_scale(t, a, &ser[a], at);
+                    s[0] *= w[0];
+                    s[1] *= w[1];
+                }
+                s
+            })
+            .collect();
+        out.par_chunks_mut(4).enumerate().for_each(|(r, o)| {
+            let sp = scale[chunk.antenna1[r] as usize * ntime + tindex[r]];
+            let sq = scale[chunk.antenna2[r] as usize * ntime + tindex[r]];
+            o[0] = sp[0] * sq[0];
+            o[1] = sp[0] * sq[1];
+            o[2] = sp[1] * sq[0];
+            o[3] = sp[1] * sq[1];
+        });
+    };
+    if threads == 0 {
+        body(out);
+        return Ok(());
+    }
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .build()
+        .map_err(|e| e.to_string())?;
+    pool.install(|| body(out));
+    Ok(())
+}
+
 /// A general 2x2 term on its own solution bins (task C4b): the gains of
 /// `rang.core.solve_complex`, `(time_bin, freq_bin, antenna, 2, 2)`.
 pub struct BinnedJones<'a> {
@@ -1601,5 +1718,64 @@ mod tests {
         assert!(Kind::Df.type_key() > Kind::G.type_key());
         assert!(Kind::B.type_key() < Kind::K.type_key());
         assert_eq!(Kind::K.type_key(), Kind::KCross.type_key());
+    }
+
+    /// `calwt_scale` (task calwt-terms): the product of B's channel mean of
+    /// |B|^2 over unflagged solution channels and G's |g|^2 (1 under a
+    /// flag), per receptor; K and Df scale by 1; bit-identical across
+    /// thread counts.
+    #[test]
+    fn calwt_scale_is_casa_calcwtscale() {
+        let mut rng = Rng(20261118);
+        let v = vis(&mut rng);
+        let t = terms(&mut rng);
+        let list: Vec<Term> = t.iter().map(Owned::term).collect();
+        let nrow = v.time.len();
+        let mut out = vec![0f64; 4 * nrow];
+        calwt_scale(&v.chunk(), &list, 1, &mut out).unwrap();
+        for threads in [2, 8] {
+            let mut o = vec![0f64; 4 * nrow];
+            calwt_scale(&v.chunk(), &list, threads, &mut o).unwrap();
+            assert!(o.iter().zip(&out).all(|(a, b)| a.to_bits() == b.to_bits()));
+        }
+        // Reference: G (term 0) and B (term 3) only.
+        let f = |a: usize, at: f64, h: usize| -> f64 {
+            let mut s = 1.0;
+            for (i, o) in t.iter().enumerate() {
+                let term = o.term();
+                let w = wt_scale(&term, a, &series(&term, a), at);
+                match i {
+                    0 | 3 => s *= w[h],
+                    _ => assert_eq!(w, [1.0, 1.0]),
+                }
+            }
+            s
+        };
+        for r in 0..nrow {
+            let (p, q, at) = (v.a1[r] as usize, v.a2[r] as usize, v.time[r]);
+            for (k, (h1, h2)) in [(0, 0), (0, 1), (1, 0), (1, 1)].into_iter().enumerate() {
+                let want = f(p, at, h1) * f(q, at, h2);
+                assert!((out[4 * r + k] - want).abs() <= 1e-12 * want);
+            }
+        }
+        // B alone, one antenna and time, by hand: the unflagged channels.
+        let b = t[3].term();
+        let (a, at) = (2usize, v.time[0]);
+        let per = b.nchan_sol * 2;
+        let base = b.slot_start[a] * per;
+        for h in 0..2 {
+            let (mut sum, mut n) = (0f64, 0);
+            for c in 0..b.nchan_sol {
+                let k = c * 2 + h;
+                if b.flags[base + k] == 0 {
+                    let (re, im) = (b.params[2 * (base + k)], b.params[2 * (base + k) + 1]);
+                    let amp = f64::from(re.hypot(im));
+                    sum += amp * amp;
+                    n += 1;
+                }
+            }
+            let got = wt_scale(&b, a, &series(&b, a), at)[h];
+            assert!((got - sum / n as f64).abs() <= 1e-6 * got, "{got} {}", sum / n as f64);
+        }
     }
 }
