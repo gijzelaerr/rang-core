@@ -146,6 +146,47 @@ driver passes S1-S3 that beam explicitly, 10.761531523459142″, the `beam_arcse
 `D:/rang/outputs/20261102-gemclean/bench/prep/s1/meta.json` (13.8785″ × 8.3448″). No imaging is re-run, no
 threshold or rule changes; only the three missing S1-S3 scores and the table are produced.
 
+**4, 2026-11-18, confirmation leg: written after H9-H16, their verdict and amendment 3 were seen, before any sky
+of this leg was drawn and before any run of it.** The coordinator held the default change because "switch" rested
+on amendment 3. This leg settles it with no post hoc step; nothing above changes for H9-H16.
+
+- **Skies H17-H24**, blind, drawn once: H17-H24 repeat H9-H16 in order, same recipe and declination, new seeds
+  only. H17 = H5's recipe at −45, H18 = H6 at −30, H19 = H7 at −60, H20 = H8 at −40, H21 = H1 at −5, H22 = H2 at
+  −70, H23 = H4 at −25, H24 = S3 at −50; 2048² × 1.5″, 64 antennas, 8 channels, 2 h, 8 s. Sky seeds
+  20261821-20261828, noise seeds 20261831-20261838 (no clash in any branch of the repository on 2026-11-18). Recipes
+  added to `examples/gemclean_bench_simulate.py` after this commit.
+- **Binary**: the H9-H16 binary, `nash:~/rang-data/outputs/stop28-default-20261117/bin/gemclean` (built from
+  `7621d575`, CLI default 0, sha256 `d242ef6800523838a411d6f0818c5579afa8e2efb7296ca96af606b42f4f2857`), copied
+  to this leg's `bin/` and hash-checked before the first run; a mismatch stops the leg. D passes no flag, R
+  `-stop-tolerance 0.02`, as §2. WSClean is nash's `/usr/bin/wsclean` 3.7 (amendment 2), §2's settings; the
+  H17-H24 beam is §2's (WSClean's fitted beam on its nominres fast image).
+- **Thresholds**: §4's measures and integrity checks and §5's Q-D, Q-W and saving, unchanged, on H17-H24.
+- **Seen sets, I1, I2.** Rule 1 requires every seen-set condition, I1 and I2. H1-H8 and the pilot met theirs in
+  the as-run table (`summary-asrun.json`, before amendment 3), with this binary: carried forward, read from the
+  2026-11-17 run root, not re-run. S1-S3, the only seen cases that needed amendment 3, are re-run in this leg (D,
+  R and `-stop-tolerance 0` for I1, from the 2026-11-17 `data/s{1,2,3}.ms`) and scored with the beam fixed now:
+  **the scorer's own**, as §2 states, from a `prepare --wsclean-dirty` of a WSClean `-niter 0 -make-psf` dirty
+  image and PSF at §2's nominres settings (`examples/gemclean_bench_run.sh` dirty/nominres/fast, `-j 8`, nash's
+  WSClean); no `--beam-arcsec` for S1-S3. Only if that prepare records no PSF fit (found before H17-H24 are
+  drawn) is the archived 10.761531523459142″ of amendment 3 passed instead, and the result says so. I1 is read
+  on this leg's S1-S3; I2 on every case of this leg and on the carried ones.
+- **Order**: binary check; S1-S3 dirty images, prepare, runs and scores (an end-to-end check on seen data); only
+  then H17-H24 simulated, prepared, run (D, R), WSClean fast and plain, scored; table.
+- **Retries**: a job that fails for an infrastructure reason (lock, ssh, disk, out of memory, a driver path bug)
+  may be re-run with the same command and settings, and is listed in the result. No setting, threshold, beam or
+  scorer change after any H17-H24 score is seen. A new sky without both arms and both WSClean loops scored is not
+  "switch".
+- **Decision**: **switch the default only if H17-H24 alone meet rule 1** (Q-D on all eight; Q-W on all eight
+  beyond D's own misses; mean s ≥ 1 over H17-H24; s ≥ 1 on at least four; every seen-set condition met; I1 and
+  I2 pass). Otherwise rule 2 (keep opt-in) or rule 3 (not yet) as §5 words them; both keep the default 0.
+  H9-H24 are not pooled for the verdict.
+- **Code**: main reverted `4b13f1d9` (`3c384832`) and this branch carries main, so the branch default is 0. On
+  "switch" the revert is reverted on the branch (restoring `4b13f1d9`) and the full check runs; otherwise the
+  branch stays at 0 and nothing is reverted.
+- Driver: `examples/stop28_default.py`, confirmation stages added after this commit. Run root
+  `nash:~/rang-data/outputs/stop28-confirm-20261118/`; every job `nice -n 19 ionice -c3` under the heavy lock
+  with §2's slots and memory.
+
 ## Measured result
 
 Run 2026-11-17 20:13 to 2026-11-18 02:44 NST on nash (36 cores, shared; every job `nice -n 19 ionice -c3` under
@@ -271,3 +312,107 @@ CHANGELOG.
   gemclean benchmark and E2/E5 image gates would need re-reading.
 - Owner decision, open: switch (merge `4b13f1d9` from branch `stop28-default` under the full check), or keep
   opt-in. Branch kept; raw outputs on nash kept until then.
+
+## Confirmation leg (amendment 4): measured
+
+Run 2026-11-18 06:02:14 to 09:30:42 SAST on nash (36 cores, shared; every job `nice -n 19 ionice -c3` under the
+heavy lock, §2's slots and memory), log `logs/run-confirm.log`, last line `ALL-END rc=0`. Driver
+`examples/stop28_default.py` at `0088c718` (nash worktree clean). Binary: the H9-H16 binary copied to `bin/`,
+sha256 `d242ef68…2f4f2857` equal to the amendment's (built from `7621d575`, CLI default 0). WSClean: nash's
+`/usr/bin/wsclean` 3.7. Seeds read from `data/h{17..24}.json`: sky 20261821-20261828, noise 20261831-20261838.
+H17-H24 beams (WSClean's fitted beam on its nominres fast image): 10.800, 10.762, 11.281, 10.742, 11.735, 11.910,
+10.848, 10.909″. No job was retried: `timing.tsv` has one row per job, every exit code 0. Run root
+`nash:~/rang-data/outputs/stop28-confirm-20261118/`. Compact copies:
+[results/stop28-default/confirm/](results/stop28-default/confirm/) (`summary.json`, `table.txt`, `timing.tsv`,
+`beam-s123.json`, `run-confirm.log`, `run-confirm.sh`, `driver-commit.txt`, `driver-c-bin.log`, `bin.txt`).
+
+**Verdict by amendment 4: switch the default** (rule 1 on H17-H24 alone, no pooling, no post hoc step): savings
+2, 1, 1, 1, 1, 1, 1, 1, **mean 1.125** (9/8; rule ≥ 1), **8 of 8** skies save a cycle (rule ≥ 4); Q-D on all
+eight; Q-W on all eight beyond D's own miss (H18); every seen-set condition met; I1 and I2 pass.
+
+### Blind H17-H24
+
+D default, R `-stop-tolerance 0.02`, W WSClean fast / plain. Seconds: GeMClean's `seconds.total`, provisional
+(shared host).
+
+| sky | majors D → R (W f/p) | s | comps D / R | false \|flux\| mJy D / R (W f/p) | Q/Q_truth D / R (W p) | recovery D / R (W p) | inner peak µJy D / R | R own peak / T | s D / R |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| H17 | 8 → 6 (10/7) | 2 | 442,094 / 441,916 | 87.118 / 87.048 (59.62/95.12) | 1.06281 / 1.06284 (1.06380) | 0.9971 / 0.9971 (0.9970) | 128.60 / 128.59 | 1.0017 | 84.8 / 74.7 |
+| H18 | 4 → 3 (5/4) | 1 | 35,810 / 35,807 | 1.691 / 1.681 (0.79/1.10) | 1.00567 / 1.00567 (1.00579) | 0.9965 / 0.9965 (0.9965) | 100.44 / 100.44 | 1.0003 | 23.4 / 20.0 |
+| H19 | 5 → 4 (7/6) | 1 | 37,213 / 37,186 | 1.829 / 1.829 (1.17/1.30) | 1.00435 / 1.00436 (1.00444) | 0.9194 / 0.9195 (0.9194) | 101.47 / 101.46 | 1.0021 | 27.2 / 23.7 |
+| H20 | 6 → 5 (11/7) | 1 | 167,489 / 167,415 | 97.109 / 97.079 (71.09/98.77) | 1.02364 / 1.02366 (1.02374) | 0.9979 / 0.9979 (0.9979) | 194.74 / 194.75 | 1.0040 | 45.5 / 40.4 |
+| H21 | 6 → 5 (8/6) | 1 | 81,844 / 81,825 | 55.353 / 55.343 (47.78/55.57) | 1.01089 / 1.01089 (1.01104) | 1.0021 / 1.0021 (1.0021) | 105.11 / 105.12 | 1.0013 | 55.7 / 50.6 |
+| H22 | 5 → 4 (6/5) | 1 | 59,089 / 58,997 | 0.665 / 0.665 (0.65/1.13) | 1.01140 / 1.01141 (1.01135) | 0.9987 / 0.9987 (0.9986) | 100.26 / 101.05 | 1.0106 | 31.9 / 28.1 |
+| H23 | 5 → 4 (7/6) | 1 | 70,092 / 70,090 | 17.914 / 17.914 (73.98/188.90) | 1.00402 / 1.00402 (1.00364) | 0.8041 / 0.8041 (0.8040) | 106.32 / 106.32 | 1.0005 | 33.4 / 29.4 |
+| H24 | 5 → 4 (5/5) | 1 | 41,513 / 41,511 | 0.957 / 0.957 (0.94/0.83) | 1.00852 / 1.00852 (1.00854) | 0.9982 / 0.9982 (0.9981) | 100.32 / 100.33 | 1.0003 | 28.4 / 24.2 |
+
+- **Savings 2, 1, 1, 1, 1, 1, 1, 1: mean 1.125, 8 of 8.** Every D run's last cycle started below 1.02 T
+  (1.0002-1.0106 T), so R drops it; on H17 the last two (1.00165, 1.00019 T). R's last cycle started at
+  1.042-1.279 T.
+- **Q-D passes on every sky**: false |flux| R/D 0.9941-1.0000; Q/Q_truth within 0.003 % of D's; recovery within
+  0.0001 (H19 0.9194 / 0.9195); R's own final peak 1.0003-1.0106 T (bar < 1.02); exact inner peak within 0.02 µJy of D's except
+  **H22, +0.79 µJy** (100.26 → 101.05; bar max(D, T) + 2 µJy).
+- **Q-W: D itself misses the false-flux bar on H18** (D / lower W loop 2.14, R 2.13; bar 1.6), so R passes there
+  only by the clause "where D itself misses Q-W". **Close call: H19 1.562** for both arms against 1.6. Other skies
+  0.24-1.46. Q/Q_truth within 0.09 % of W plain's (bar 0.2 %) and R's recovery ≥ W plain's on all eight.
+  Against nash's system WSClean 3.7 (amendment 2).
+- **I2 passes on every case** of this leg (S1-S3, H17-H24) and the carried ones (H1-H8, pilot).
+- Not gating: **the issue's bar of at most 5 cycles is missed on H17** (R 6); **novelty reading not met** (R is not
+  below W plain's cycles at no more false flux on H18, H19 and H24); median R/D `seconds.total` 0.88; mean over
+  H17-H24 plus the eleven seen skies (n 19, not H9-H16) 1.158.
+
+### Seen sets, I1
+
+- **S1-S3, re-run in this leg** (D, R, ε 0 from the 2026-11-17 `data/s{1,2,3}.ms`): the scorer's own beam, from
+  `prepare --wsclean-dirty` of nash's WSClean nominres dirty image and PSF, no `--beam-arcsec` passed
+  (`beam-s123.json`): **10.761531523459142″ on all three, bit-equal to amendment 3's archived value**. The S1-S3
+  scores therefore equal the earlier table's exactly: 5 → 4, 5 → 4, 4 → 3; false 4.319 / 4.279, 4.908 / 4.848,
+  1.556 / 1.516 mJy; R own peak 1.0114, 1.0136, 1.0125 T; Q-D passes on all three.
+- **I1**: `-stop-tolerance 0` byte-identical to D in model, residual, image, PSF and dirty FITS on this leg's
+  S1-S3.
+- **H1-H8 and the pilot carried, not re-run**, from `stop28-default-20261117/summary-asrun.json` (before amendment
+  3), same binary: Q-D and Q-W on H1-H8, pilot off-source |model| R/D 0.9992-0.9997 and compact-flux median R/D
+  within 0.00006 of 1, no budget stop or ascending cycle, I2 on all (the numbers of "Seen sets at 1e-4" above).
+
+### Wall times (nash, shared; from `run-confirm.log` and `timing.tsv`, lock wait included)
+
+c-bin 0 s; c-seen 10.9 min (S1-S3: WSClean dirty 48-52 s, prepare 22-23 s, GeMClean D / R / ε 0 35-48 s, scores
+13 s); c-simulate 22.6 min (54-472 s per sky); c-new 17.5 min (prepare 21-22 s, GeMClean pairs 36-101 s per job)
+in parallel with c-wsclean 2 h 50.9 min (fast 64-272 s, plain 386-4,146 s; H17 plain 4,146 s dominates);
+c-score 4.0 min (13-17 s per job); c-table 5 s. Total 3 h 28.5 min.
+
+### Code change (amendment 4, outcome switch)
+
+`git revert 3c384832` on the branch restores `4b13f1d9`: `gemclean`'s CLI default is `-stop-tolerance 0.02` on
+Stokes I, separate polarisations or channels and `-fits-mask`; 0 with `-auto-mask`, `-multiscale` and the joins
+(an explicit nonzero value refused there); `-stop-tolerance 0` the exact stop; `Settings::default()` in the core
+stays 0. `rang-core image` and the selfcal images call the CLI without `-stop-tolerance`
+(`core_pipeline.gemclean_arguments`), so they move too, except with `image.auto_mask` (or selfcal's
+`cleanmask_method: wsclean`) or `image.multiscale`. The pipeline's default image uses `-auto-threshold 3`, not an
+absolute threshold: the tolerance then applies to that run's threshold, a case this note did not measure. The
+stage hashes (`core_config.stage_hash`) hash the configuration only, so they do not change: a finished image or
+selfcal stage is not run again unless forced; CHANGELOG says so. Full check `tools/check_all.py --slots 4 --mem
+12` with `RANG_FIXTURE` the outer-scans fixture, glacier, 2026-11-18 09:41-10:07 SAST: **PASS** in 1,547 s (lock
+wait excluded; pytest 1,677 passed, 68 skipped, 1 xfailed; gain-hash gate PASS). No test or doc pins a default
+cycle count or image hash; `docs/gen_cli.py --check` passes.
+
+## For the coordinator (confirmation leg)
+
+- **Outcome switch by amendment 4, on H17-H24 alone**: savings 2, 1, 1, 1, 1, 1, 1, 1, mean 1.125 (bar ≥ 1), 8 of
+  8 (bar ≥ 4). No post hoc step: the S1-S3 beam came from the scorer's own fit and is bit-equal to amendment 3's
+  archived 10.761531523459142″, so amendment 3's input is now confirmed, not only substituted. No retries.
+- **Misses, plainly**: Q-W on H18 passes only through D's own false-flux miss (2.14 / 2.13 against 1.6; the third
+  such sky after H10, H11, H14 in the first leg, all faint-source recipes); H19 1.562 against 1.6; H22's exact
+  inner peak +0.79 µJy over D's (bar +2). Not gating, not met: at most 5 cycles (H17 at 6), novelty.
+- **Code**: commit `13929063` (revert of the revert) on branch `stop28-default`, full check PASS. The check_all
+  steps have no gemclean benchmark or E2/E5 image gate; those archive gates were not re-run, and they will read
+  default runs that end up to two cycles earlier. Re-read them at the merge, do not re-freeze them silently.
+- **Untested**: the pipeline's default image uses `-auto-threshold 3`; this note measured absolute thresholds only.
+- Raw outputs: `nash:~/rang-data/outputs/stop28-confirm-20261118` (H17-H24 MS, images; S1-S3 linked to the first
+  leg's) and `stop28-default-20261117`; delete both after the merge. Nothing merged, nothing posted on GitHub.
+
+## Coordinator decision, confirmation leg (2026-11-18)
+
+- Switch, as the owner allowed ("make it the default if you think it is best"). The confirmation leg met rule 1 on H17-H24 alone, with no post hoc step: savings 2, 1, 1, 1, 1, 1, 1, 1, a mean of 1.125, 8 of 8 skies. S1-S3's own beam fit equals amendment 3's value bit for bit. Merged with the CLI default 0.02 (revert of 3c384832).
+- Image and selfcal outputs from the pipeline change; the stage hashes do not, so finished stages need `--force`. The CHANGELOG says this.
+- Not measured, and stated as a limit: the pipeline's default `-auto-threshold 3` path; every arm used absolute thresholds. Re-read the GeMClean benchmark and the E2/E5 image archive gates at the next archive run; `check_all` does not cover them.

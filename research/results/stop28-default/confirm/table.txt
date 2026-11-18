@@ -1,0 +1,24 @@
+seen s1   D 5 R 4 s 1 false 4.319/4.279 Q 1.01359/1.01362 rec 0.9994/0.9994 exact 125.29/125.20 own 1.0114 QD True I2 True
+seen s2   D 5 R 4 s 1 false 4.908/4.848 Q 1.01517/1.01520 rec 0.9993/0.9993 exact 122.36/122.24 own 1.0136 QD True I2 True
+seen s3   D 4 R 3 s 1 false 1.556/1.516 Q 1.00987/1.00988 rec 0.9978/0.9978 exact 101.94/102.13 own 1.0125 QD True I2 True
+seen h1   D 6 R 5 s 1 false 1.428/1.428 Q 1.01417/1.01418 rec 0.9957/0.9957 exact 107.94/107.93 own 1.0004 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 9/6
+seen h2   D 7 R 5 s 2 false 6.093/6.083 Q 1.00999/1.01000 rec 0.9987/0.9987 exact 101.23/101.21 own 1.0007 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 6/5
+seen h3   D 7 R 6 s 1 false 11.769/11.769 Q 1.02541/1.02541 rec 0.9999/0.9999 exact 107.16/107.14 own 1.0002 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 9/6
+seen h4   D 5 R 4 s 1 false 5.231/5.231 Q 1.00336/1.00336 rec 0.8072/0.8072 exact 100.44/100.42 own 1.0013 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 6/5
+seen h5   D 8 R 6 s 2 false 162.280/162.270 Q 1.06867/1.06868 rec 0.9984/0.9984 exact 153.51/153.58 own 1.0003 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 10/7
+seen h6   D 4 R 4 s 0 false 0.527/0.527 Q 1.00490/1.00490 rec 0.9961/0.9961 exact 100.17/100.17 own 1.0000 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 5/4
+seen h7   D 5 R 4 s 1 false 5.720/5.700 Q 1.00515/1.00517 rec 0.9348/0.9348 exact 101.37/102.63 own 1.0194 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 7/6
+seen h8   D 7 R 5 s 2 false 111.023/110.351 Q 1.01982/1.01990 rec 0.9941/0.9941 exact 206.97/206.80 own 1.0180 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 10/7
+new h17  D 8 R 6 s 2 false 87.118/87.048 Q 1.06281/1.06284 rec 0.9971/0.9971 exact 128.60/128.59 own 1.0017 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 10/7
+new h18  D 4 R 3 s 1 false 1.691/1.681 Q 1.00567/1.00567 rec 0.9965/0.9965 exact 100.44/100.44 own 1.0003 QD True I2 True QW {'false': False, 'q': True, 'rec': True} QWd {'false': False, 'q': True, 'rec': True} W 5/4
+new h19  D 5 R 4 s 1 false 1.829/1.829 Q 1.00435/1.00436 rec 0.9194/0.9195 exact 101.47/101.46 own 1.0021 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 7/6
+new h20  D 6 R 5 s 1 false 97.109/97.079 Q 1.02364/1.02366 rec 0.9979/0.9979 exact 194.74/194.75 own 1.0040 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 11/7
+new h21  D 6 R 5 s 1 false 55.353/55.343 Q 1.01089/1.01089 rec 1.0021/1.0021 exact 105.11/105.12 own 1.0013 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 8/6
+new h22  D 5 R 4 s 1 false 0.665/0.665 Q 1.01140/1.01141 rec 0.9987/0.9987 exact 100.26/101.05 own 1.0106 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 6/5
+new h23  D 5 R 4 s 1 false 17.914/17.914 Q 1.00402/1.00402 rec 0.8041/0.8041 exact 106.32/106.32 own 1.0005 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 7/6
+new h24  D 5 R 4 s 1 false 0.957/0.957 Q 1.00852/1.00852 rec 0.9982/0.9982 exact 100.32/100.33 own 1.0003 QD True I2 True QW {'false': True, 'q': True, 'rec': True} QWd {'false': True, 'q': True, 'rec': True} W 5/5
+pilot a-3mjy {'majors': [5, 3], 'components': [58336, 58310], 'off_source_abs_jy': [8.563980102539062, 8.559176445007324], 'off_ratio': 0.9994390858602866, 'compact_median': 0.9999775115633993, 'compact_n': 42, 'budget': False, 'ascending': 0, 'seconds_total': [309.661693834, 224.489927963], 'ok': True, 'i2': True}
+pilot b-3mjy {'majors': [4, 3], 'components': [38712, 38708], 'off_source_abs_jy': [2.00709867477417, 2.006498336791992], 'off_ratio': 0.9997008926418403, 'compact_median': 1.0000039660209006, 'compact_n': 72, 'budget': False, 'ascending': 0, 'seconds_total': [240.397423674, 195.142405294], 'ok': True, 'i2': True}
+pilot a-1mjy {'majors': [7, 4], 'components': [442117, 441579], 'off_source_abs_jy': [57.53986358642578, 57.491859436035156], 'off_ratio': 0.9991657235975452, 'compact_median': 1.0000543929613335, 'compact_n': 60, 'budget': False, 'ascending': 0, 'seconds_total': [783.912076654, 628.486428693], 'ok': True, 'i2': True}
+checks {'complete': True, 'i1': True, 'i2': True, 'seen': True, 'pilot': True, 'q_d_new': True, 'q_w_new': True}
+verdict switch mean saving 1.125 skies saving 8
