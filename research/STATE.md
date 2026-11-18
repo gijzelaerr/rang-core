@@ -20,6 +20,13 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+katdal 0.24, 2026-11-18 (branch `katdal-0-24`; [mk1-katdal.md](mk1-katdal.md) deviation 3, post hoc; from the
+[2026-11-18 digest](digests/2026-11-18.md)): the `[meerkat]` extra pins `katdal==0.24` (no `pkg_resources`, so no
+setuptools pin for mvftoms); mvftoms runs as `python -m katdal.scripts.mvftoms`. Found on the way: `open_mvf` failed
+on native Windows drive paths with 0.23 as with 0.24 (katdal parses `C:` as a URL scheme; never seen because MK1 ran
+in WSL and CI does not install the extra); fixed with a `file:` prefix. `tests/test_mk1_meerkat.py`: 9 passed in WSL
+(mvftoms MS comparison included), 8 passed and 1 skipped natively. The loader does not read the L2 gains 0.24 changed.
+
 calwt-terms, 2026-11-18 (branch `calwt-terms`, follow-up of #33; [calwt-terms.md](calwt-terms.md), frozen before code, amendment 10 before any held-out set). Opt-in CASA `calwt` solve weights for K, G, Gpol, KCROSS and Df (`calibrate.k_calwt`, `g_calwt`, `gpol_calwt`, `kcross_calwt`, `df_calwt`; default false, out of the stage hash; factor from the lower-type B, G, T tables by a new Rust kernel `apply::calwt_scale`, CASA's `calcWtScale`). CARACal's chain gives a non-trivial factor only where B (or G for Df) corrects the data: K2, G2 (second round), Kg, Gg (gcal), Gpol, KCROSS, Df; G with K and every B are no-ops by construction (byte-identical, measured). Noisy held-out poldx seeds H1-H4, CASA 6.7.6.14 in WSL docker on glacier: with CASA's upstream tables shared, the key moves rang nearer CASA by 0.161× (G2), 0.178× (Gg), 0.039× (KCROSS, 1.24e-4 → 4.9e-6 ns), 0.093× (Df) in 4 of 4 sets (outcome 2, CASA-equivalence switches); K2, Kg, Gpol ≤ 1 % (outcome 3, null). Against simulated truth every key is within 0.5 % (T0), so no key earns a default; every default stays off. Controls C0-C4 pass; CASA drops Gpol intervals on the noiseless `dev` (48/64) and `held` (656/768) only. Receipts `research/results/calwt-terms/`.
 
 F4 calibrators, 2026-11-17 (branch `fp-f4-flagger`, task #10; [f4-flagger.md](f4-flagger.md), protocol frozen

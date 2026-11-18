@@ -4,13 +4,12 @@
 The archive is written with katdal's own chunk store and telstate writers
 (`rang.meerkat.write_synthetic_mvf`); no public MVF archive exists. The
 katdal tests skip without the `[meerkat]` extra; the mvftoms comparison also
-needs python-casacore and pkg_resources (setuptools<81).
+needs python-casacore. katdal 0.24 dropped pkg_resources, so no setuptools pin.
 """
 
 import importlib.util
 import subprocess
 import sys
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -42,6 +41,20 @@ def test_to_rows_maps_and_fills_missing():
     assert np.array_equal(rows[:, :, 0], array[:, :, 1])
     assert np.array_equal(rows[:, :, 3], array[:, :, 2])
     assert not rows[:, :, 1:3].any()
+
+
+def test_katdal_source_prefixes_windows_drive_paths():
+    # katdal reads "C:\..." as a URL with scheme "c"; "file:C:\..." opens.
+    assert meerkat.katdal_source(r"C:\d\1_sdp_l0.rdb") == r"file:C:\d\1_sdp_l0.rdb"
+    assert meerkat.katdal_source("D:/d/1_sdp_l0.rdb") == "file:D:/d/1_sdp_l0.rdb"
+    for passthrough in (
+        "/data/1/1_sdp_l0.rdb",
+        "1/1_sdp_l0.rdb",
+        "file:///data/1/1_sdp_l0.rdb",
+        "https://archive-gw-1.kat.ac.za/1/1_sdp_l0.full.rdb?token=x",
+        "redis://localhost:6379",
+    ):
+        assert meerkat.katdal_source(passthrough) == passthrough
 
 
 @pytest.fixture(scope="module")
@@ -170,20 +183,22 @@ def test_iter_chunks_follow_store_chunks_and_save(archive, tmp_path):
 
 @pytest.mark.skipif(
     importlib.util.find_spec("casacore") is None
-    or importlib.util.find_spec("pkg_resources") is None,
-    reason="mvftoms needs python-casacore and pkg_resources",
+    or importlib.util.find_spec("katdal") is None,
+    reason="mvftoms needs the [meerkat] extra and python-casacore",
 )
 def test_mvftoms_ms_matches_loader(archive, tmp_path):
     from rang import core_ms
 
-    mvftoms = Path(sys.executable).parent / "mvftoms.py"
-    if not mvftoms.is_file() or not core_ms.has_reader():
-        pytest.skip("mvftoms.py or the core MS reader is missing")
+    if not core_ms.has_reader():
+        pytest.skip("the core MS reader is missing")
     ms = tmp_path / "x.ms"
+    # katdal 0.24 installs mvftoms.py as an entry point (mvftoms.py.exe on
+    # Windows), so run the module instead of looking for the script file.
     subprocess.run(
         [
             sys.executable,
-            str(mvftoms),
+            "-m",
+            "katdal.scripts.mvftoms",
             "-f",
             "--quack",
             "0",

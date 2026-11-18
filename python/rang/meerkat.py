@@ -374,6 +374,20 @@ def load_saved_chunk(folder):
     return {p.stem: np.load(p) for p in sorted(Path(folder).glob("*.npy"))}
 
 
+def katdal_source(source):
+    """`source` as katdal.open needs it.
+
+    katdal parses a local path as a URL, so on Windows `C:\\x\\y.rdb` has the
+    scheme `c` and fails ("Unknown URL scheme"). A Windows drive path gets a
+    `file:` prefix, which katdal splits into scheme `file` and the path
+    unchanged; URLs and POSIX paths pass through.
+    """
+    text = str(source)
+    if len(text) > 2 and text[1] == ":" and text[0].isalpha() and text[2] in "\\/":
+        return "file:" + text
+    return text
+
+
 def open_mvf(source, *, ref_ant="", upgrade_flags=True, van_vleck="off", **kwargs):
     """Open an MVFv4 dataset (RDB URL or local `.rdb`) through katdal.
 
@@ -389,7 +403,7 @@ def open_mvf(source, *, ref_ant="", upgrade_flags=True, van_vleck="off", **kwarg
         ) from error
     started = time.perf_counter()
     dataset = katdal.open(
-        str(source),
+        katdal_source(source),
         ref_ant=ref_ant,
         upgrade_flags=upgrade_flags,
         van_vleck=van_vleck,
