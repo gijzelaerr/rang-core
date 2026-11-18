@@ -1,0 +1,14 @@
+2026-11-18T07:18:03+02:00 driver d1 start, commit 35022d00, extension 959aae392463543e
+2026-11-18T07:23:33+02:00 start simprep-D1 (4 slots, 24 GB)
+2026-11-18T07:24:17+02:00 end simprep-D1 rc 0 (TIME simprep-D1 43.48 s 1671756 KB)
+2026-11-18T07:24:17+02:00 start arm-D1-A0 (8 slots, 16 GB)
+2026-11-18T07:24:46+02:00 end arm-D1-A0 rc 0 (TIME arm-D1-A0 29.33 s 2095044 KB)
+2026-11-18T07:24:46+02:00 start arm-D1-SDa (8 slots, 16 GB)
+2026-11-18T07:26:31+02:00 end arm-D1-SDa rc 0 (TIME arm-D1-SDa 105.00 s 4479436 KB)
+2026-11-18T07:26:31+02:00 start arm-D1-Sa (8 slots, 16 GB)
+2026-11-18T07:28:16+02:00 end arm-D1-Sa rc 0 (TIME arm-D1-Sa 104.97 s 4478596 KB)
+2026-11-18T07:28:16+02:00 start arm-D1-W-SDa (8 slots, 16 GB)
+2026-11-18T07:29:51+02:00 end arm-D1-W-SDa rc 0 (TIME arm-D1-W-SDa 94.72 s 617788 KB)
+2026-11-18T07:29:51+02:00 start simscore-D1 (4 slots, 24 GB)
+2026-11-18T07:32:18+02:00 end simscore-D1 rc 0 (TIME simscore-D1 146.27 s 1861584 KB)
+2026-11-18T07:32:18+02:00 SDM03 DONE d1 rc 0

@@ -1,0 +1,1796 @@
+{
+ "bytes": 18096402293,
+ "fetched_utc": "2026-11-18T06:55:17Z",
+ "files": [
+  {
+   "bytes": 2045,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/1",
+   "sha256": "7a402b953f69bfac600a25cef23ca8fe8b56abf02900712b8905068db73fc4b4"
+  },
+  {
+   "bytes": 2041,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/3",
+   "sha256": "63a6506645ee3121dde591053129fefcb3b26564b7cd1cf2e1280f6fbccfe37b"
+  },
+  {
+   "bytes": 2059,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/2",
+   "sha256": "f51bd8668b7ee707b15bc3c75f35451bd2ea1418fd635fcdd5b1643f16e9ab5c"
+  },
+  {
+   "bytes": 2039,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/5",
+   "sha256": "0d976a9d6705fe39f285fccabef9ca46382fc7c390ddf97b56b208be67fd197a"
+  },
+  {
+   "bytes": 2054,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/4",
+   "sha256": "a757b0621aa64ac58c5ad1b16decf6b94abbc6ca4b1fff19e8b426c57213fd27"
+  },
+  {
+   "bytes": 2048,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/0",
+   "sha256": "f4c848d91966cc9881d6cdd6c5f2c73a5c754cd062f44e54b492c1e41c0fb0ed"
+  },
+  {
+   "bytes": 2047,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/7",
+   "sha256": "e50ff2f0286132df3babb5d878b8cd4ac4b1524cc249f2a988556ae805d76d9f"
+  },
+  {
+   "bytes": 2049,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/6",
+   "sha256": "3e652bbd5c6e582678acf798606eedd0b588d9d17c4a77b172f55e429049debe"
+  },
+  {
+   "bytes": 2055,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/11",
+   "sha256": "17bfc22492ed08b6187a246798e9f6d7c64ed5ecf1a1c03f40ecc235ef0d3437"
+  },
+  {
+   "bytes": 2044,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/8",
+   "sha256": "54b95a0b68ade65d0d366f1eda55c47fbf55b7c19f4c0d741bc18b43277106cc"
+  },
+  {
+   "bytes": 2065,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/9",
+   "sha256": "4b570154fd1e60de44d299654d769604a9f68d60ad613c366436bcb277211ef2"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/12",
+   "sha256": "aec1c82c6046b999add416ddc3af980f4d7146bcd7d3d106b5af157127ec6e26"
+  },
+  {
+   "bytes": 2053,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/13",
+   "sha256": "a2bbab4b7afa7f46efdb15e0561203e4869d12da5ae3752bae723d75ae443c89"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/10",
+   "sha256": "df45d2fbe4fee5347f12a832df9bc2d3b7001dbae92f15fbeac4bdc79ec56d1c"
+  },
+  {
+   "bytes": 2050,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/15",
+   "sha256": "c742f86824a689ee7679c5938ef66634901d6947a4a87162d23cc55a50b0b2f0"
+  },
+  {
+   "bytes": 2054,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/14",
+   "sha256": "73d79674f6b390092b3921b6329344aaef07dffe9c0db609d361cf6c40a7f8d9"
+  },
+  {
+   "bytes": 1466,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/0",
+   "sha256": "ff2f91af97381ca5f3a1efaca7cd90e1b4776c61f390ac2455d407f6e75c77ea"
+  },
+  {
+   "bytes": 2073,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/TIME_CENTROID/16",
+   "sha256": "b21c9f10caa1be76bbe0bd825409e1544e8d36ef8b570e7cff9444f2866eb4a1"
+  },
+  {
+   "bytes": 1434,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/3",
+   "sha256": "ec954c8fca6c9027a7f71dcde2623216ef220beb2b340e996d45633160eb5adf"
+  },
+  {
+   "bytes": 1412,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/4",
+   "sha256": "2bda18c69c9d92d976bae2f29375f1e5860e50f68d39a85ab0e75a5260617edd"
+  },
+  {
+   "bytes": 1485,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/2",
+   "sha256": "dd64d6ec79ffe10b6b290b6a634dd528fcdc7a03b78b9fe62f5bfc354dd305f7"
+  },
+  {
+   "bytes": 1408,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/5",
+   "sha256": "ed0c12de3495a67103c2a2c52be1a53cb1c7e7a09879f978a325731f36fbd859"
+  },
+  {
+   "bytes": 1420,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/1",
+   "sha256": "849e0f38ad424e6226fd1e2ae1aeb3febf2703ec7bf1af2283914df751a08289"
+  },
+  {
+   "bytes": 1464,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/6",
+   "sha256": "a1622ffdd95dae667380894f63792f2cec16e90d7cfbd59ff17a2d495efd83b9"
+  },
+  {
+   "bytes": 1448,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/8",
+   "sha256": "d5abae6a934f46117821af042b4f0a6092c64eeb9b47cba6befd12adc3ef6148"
+  },
+  {
+   "bytes": 1362,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/7",
+   "sha256": "980ae94782957dc2c47095bc5afb5fab11ae980ec28802ce53c46b5cf6b7e036"
+  },
+  {
+   "bytes": 1402,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/9",
+   "sha256": "e7a7c7292301736c81c19723a8770a69740fcb690022219be0bbee7165eb8a5f"
+  },
+  {
+   "bytes": 1443,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/10",
+   "sha256": "d34808172cb56e54f8e31e03c947eca3ec69ece269f833a8e069c8777a5eae34"
+  },
+  {
+   "bytes": 1501,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/11",
+   "sha256": "6af373759b23919afaeb7418ef799ed397c9b872f9364cc1dce3c73fbbe60939"
+  },
+  {
+   "bytes": 1430,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/12",
+   "sha256": "9a6b4cbd557e089c598bd50cde94803d937b14edc94168d62f7c42fadf28f1b2"
+  },
+  {
+   "bytes": 1494,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/13",
+   "sha256": "dbbeae4018ed8d3be6d82cca0cc0c916526c73260a024099b5adc44e6f3fcad5"
+  },
+  {
+   "bytes": 1458,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/14",
+   "sha256": "5234b00280b4ca30cac52613de21f4bffbf2403e3722be8d983ab72c6c6f2c74"
+  },
+  {
+   "bytes": 1497,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/15",
+   "sha256": "38e7e78880f321d4c9179fdf4fcb35e68276d67a1d87f18df9c8369b16c9515a"
+  },
+  {
+   "bytes": 1385,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA1/16",
+   "sha256": "62a6346253a0ea8b369199f55d69107bbf06e56563923f3827dd137a11f51804"
+  },
+  {
+   "bytes": 1463,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/1",
+   "sha256": "0b16f8c73acfb318bea98b8e2ebcd034c49a3f6294a52ddf03440712970def44"
+  },
+  {
+   "bytes": 1383,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/0",
+   "sha256": "79976e2ae36c303c5948fce1539d59ff882f5d287b5ca4b2f5c7a45509758989"
+  },
+  {
+   "bytes": 1357,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/2",
+   "sha256": "cfcb6394027c8f5ccda68d203e4d0cd3a3c7481cfe5fd15cfdc3257a8e0051df"
+  },
+  {
+   "bytes": 1364,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/5",
+   "sha256": "469901ed89c37eb74e083ccef0b11f05806ee4bbe1196ebef668f004dda4bbf9"
+  },
+  {
+   "bytes": 1370,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/4",
+   "sha256": "27e68f10e87d369fb7612e9c2fc1a6e963b21edf3c845287385af5f360af94ce"
+  },
+  {
+   "bytes": 1404,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/6",
+   "sha256": "54ee18dd8deade96e5d3dea74a3741ee7cddca31fd1833a0c412499e2c4385ae"
+  },
+  {
+   "bytes": 1497,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/3",
+   "sha256": "2bd68a077d598813a47871a1f83513ba55b0d33ad8feeb7b51b9b90e4e0f0e29"
+  },
+  {
+   "bytes": 1438,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/8",
+   "sha256": "fff2873ca0265984f30f9a6393ab3b63d54960b51c3229c3d35ccb73fd5d46fd"
+  },
+  {
+   "bytes": 1472,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/10",
+   "sha256": "b45f842257685074f9cb05c482e5969bff9b68d11b7abf587e1b8676ea78a737"
+  },
+  {
+   "bytes": 1356,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/9",
+   "sha256": "17a2ec42c1eec845abd8a520813392073fce5643305cabf3ed8daf6213720506"
+  },
+  {
+   "bytes": 1512,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/12",
+   "sha256": "e3af70585c13ef280c4d40a6106020451cbf774a63cadeb98a930beb453d9e2e"
+  },
+  {
+   "bytes": 1580,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/7",
+   "sha256": "f07c51c152ad95bfc946b76503360f385a5b7bd6c722973bceceba67d49f9fc2"
+  },
+  {
+   "bytes": 1375,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/11",
+   "sha256": "064b69cbec79f388f87d1b9f8882b8022a86afd87791cdd37b85e4534cbd0327"
+  },
+  {
+   "bytes": 1382,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/13",
+   "sha256": "afa3410d84e262148f047a255b23fb34d0ade9dd0d41b77e45da5cb0cf3b2f4e"
+  },
+  {
+   "bytes": 1354,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/16",
+   "sha256": "13ad9d78a9059a1c636bebe58bf32c4dabc017e2eb650bfe874d579b4179c8fd"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/0",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1409,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/15",
+   "sha256": "d7cc39aef3482968a22e9a92bf5547d04d4c29b1152b71eee1d0c736b62d3e92"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/1",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1545,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/ANTENNA2/14",
+   "sha256": "7d9172101dadaf6779a94869ac09d0e996ccb2d8a8182d0a30d06674ed964f0a"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/2",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/3",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/4",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/5",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/6",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/7",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/8",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/9",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/10",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/11",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/12",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/13",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/15",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/14",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/1",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1740,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/INTERVAL/16",
+   "sha256": "9513816a4bb97199a564566e76aa9c352fa56ed3091b8788cd9f635102d22b4d"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/2",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/6",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/5",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/3",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/4",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/0",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/7",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/9",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/8",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/10",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/12",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/13",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/11",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/15",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 1740,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/16",
+   "sha256": "9513816a4bb97199a564566e76aa9c352fa56ed3091b8788cd9f635102d22b4d"
+  },
+  {
+   "bytes": 1700,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/EXPOSURE/14",
+   "sha256": "d31413d0733a1f6df2f835e1c17e2a5befc752478d4c82fa866cac532ea12698"
+  },
+  {
+   "bytes": 2206,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/1",
+   "sha256": "e8e67f4bee1b787a700c2d5c4b782ddb131bac61ca8312d842270d791dda4ccf"
+  },
+  {
+   "bytes": 2263,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/2",
+   "sha256": "a817f512285c6b0a651bc69ced41ee5675ea146dbb4c49030aa071c41212808b"
+  },
+  {
+   "bytes": 2227,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/4",
+   "sha256": "fcda0f7f2df69e87afa3e6b8f00a5e9c7d73e49e1b34753aec8162093d186d35"
+  },
+  {
+   "bytes": 2203,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/3",
+   "sha256": "5b8eeaf702ad52772491f71405ae28949778e092367f636bf07ab1cdfb954cab"
+  },
+  {
+   "bytes": 2226,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/5",
+   "sha256": "5cd6d05d9c15631f2b025f8fd842a4589e9921cbdcbdefc062d2c7285c221e78"
+  },
+  {
+   "bytes": 2253,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/7",
+   "sha256": "154a1076ee35ec1102e70058bff8a93cb7261ac581a860a4a04dfe0ce307a0fa"
+  },
+  {
+   "bytes": 2183,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/0",
+   "sha256": "d4c54019443bbf5663f72515720d3c3a54622b77c2e512c4cc8629303dce2753"
+  },
+  {
+   "bytes": 2208,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/6",
+   "sha256": "4c2d15e6ebe252ba4d70bcf062f0f064c5c65d79f6b2ff21416fda8afe12fd25"
+  },
+  {
+   "bytes": 2204,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/8",
+   "sha256": "e4f33102ae71a471a586dfce3d01b00ed4940f86ccead66c4cfcff34bb01c6c0"
+  },
+  {
+   "bytes": 2266,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/9",
+   "sha256": "2984fa1ab80d5d68402a10f50c0c24743055e7d025d3fb8c23e7220cc49b536b"
+  },
+  {
+   "bytes": 2204,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/10",
+   "sha256": "eec2d74013c85bbadb0516a38ecfdcb485bd8b920928d65d231805023b5eed71"
+  },
+  {
+   "bytes": 2254,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/11",
+   "sha256": "ebc460c348363a404a2906bb126da94f5b2b53856a9ed577216c74d2e16f343c"
+  },
+  {
+   "bytes": 2206,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/12",
+   "sha256": "1a4bfecbc1417f35d6782f03c84c846293bd33747d9bb3dbaf9465c68b2cd139"
+  },
+  {
+   "bytes": 2238,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/14",
+   "sha256": "3b97e81258211497083919a3f400aaff4808105afc421373364a1b9ab737de67"
+  },
+  {
+   "bytes": 2217,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/13",
+   "sha256": "87f9baf4ce8af2420dc66522f2ca81ee6479c34c446c8131a9c2b13277cebf76"
+  },
+  {
+   "bytes": 2231,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/15",
+   "sha256": "e5b1cbf36859e9b58cc3ddaf8ad131fb39ff03f1c642c1a1b728da587377afd8"
+  },
+  {
+   "bytes": 2191,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG_ROW/16",
+   "sha256": "6b981d8ac662dce03517c240bfbd15ddabcde4092d6acafbae2300ce261f5682"
+  },
+  {
+   "bytes": 948397,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/3.0",
+   "sha256": "9195ea2a81438379638b27a52ad00b0254f09ef64e2b3c1432546f8ba4bdb32e"
+  },
+  {
+   "bytes": 948911,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/1.0",
+   "sha256": "87efb7677857f047a9778ecf34f7b9cd485560edef5b927de830f64741a5297b"
+  },
+  {
+   "bytes": 946383,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/0.0",
+   "sha256": "5067b93d1b557d7d4af0b04c84f642cb83600c473e5015a92d24f44c7f767fd0"
+  },
+  {
+   "bytes": 946848,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/6.0",
+   "sha256": "0ab0325daffc7518ff3f95b36a5c8184266ed96f472c6d94e710d05e97b78d1d"
+  },
+  {
+   "bytes": 945348,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/5.0",
+   "sha256": "dccd3e6ac89c5184c533107acc71bec71a766595a9f24f2700e236409ccb59b6"
+  },
+  {
+   "bytes": 947405,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/2.0",
+   "sha256": "835c7e1d398085c9f6e3923ad2e10c8ad606357969b01237b117b695ec08529b"
+  },
+  {
+   "bytes": 947551,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/7.0",
+   "sha256": "67e1422bd4c723ff5286594a94224b77cfd78f675268e05d3bf1504e2d41d9b9"
+  },
+  {
+   "bytes": 946952,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/4.0",
+   "sha256": "42f305a00d16f45ffc0e9b81bf2476a72c631bc1bf8df546752e1ca89e835e1b"
+  },
+  {
+   "bytes": 946973,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/8.0",
+   "sha256": "189b737e498f7fc1408ec90a2ebabaf4fddbfbeaac9f74ded1a780b22df746ea"
+  },
+  {
+   "bytes": 950382,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/10.0",
+   "sha256": "23fa2e091d7bbaa414bf74eb2f09786b0755af510edb2c9c074546c4e6c52de3"
+  },
+  {
+   "bytes": 948425,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/9.0",
+   "sha256": "36c2fe37c18e94d21e213ad8f12dcdb1a877002da21c319dc809e9fa9ee8eafa"
+  },
+  {
+   "bytes": 951105,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/12.0",
+   "sha256": "58075ce8e23f3555fb4825a926356f4e303721a5e6df7973383009e0d262f19c"
+  },
+  {
+   "bytes": 948223,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/13.0",
+   "sha256": "d0296935d5fa80a985fbb9bd99077e6f9478fad8361ee3c65ff007785d27c734"
+  },
+  {
+   "bytes": 949532,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/14.0",
+   "sha256": "1f278373a858509678bb4fccbab87ea2a0f56cfebd127d903f1ebd07d9df1cbb"
+  },
+  {
+   "bytes": 949107,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/11.0",
+   "sha256": "0943b7b5a2a7f5c06b5536146558521ee1c6ae1b8b0119767e0022831520a1e9"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/0.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/1.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/3.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 950407,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/15.0",
+   "sha256": "d972618a56d34440bb6642d0b5abe989d43d2a72a1a2a5ce73e132b2ee80eb47"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/5.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/2.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/4.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/7.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/8.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/10.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/6.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/9.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 937146,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/UVW/16.0",
+   "sha256": "f12c3fb3a25c5d3503e55bf3782c77ef5946d93651dee97ff2f679ff5e5369eb"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/13.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/12.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/14.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3249,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/16.0",
+   "sha256": "4b5ce1fdea0f950297ab0b43f929c0ca515e26c83871c447dbf45f752cd0fac1"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/0.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/1.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/15.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT/11.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/4.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/2.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/5.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/3.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/6.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/8.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/9.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/7.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/10.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/12.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/13.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/14.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/11.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/15.0",
+   "sha256": "18ce89090bffd2d8678118fb4ed57d4a9a53cbd5e897681e73d1a566fcdbd1f8"
+  },
+  {
+   "bytes": 3249,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/SIGMA/16.0",
+   "sha256": "4b5ce1fdea0f950297ab0b43f929c0ca515e26c83871c447dbf45f752cd0fac1"
+  },
+  {
+   "bytes": 190225642,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/0.6.0",
+   "sha256": "4499fdc8c5020f661281028c818d5b8670f0e91daf646fad2ed838013f4f55be"
+  },
+  {
+   "bytes": 190744018,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/0.8.0",
+   "sha256": "8e37531d890662ed5ae43fc2c5d6c678c28b5ec0f1b13a70c8e13f86e6b7dbc8"
+  },
+  {
+   "bytes": 190145048,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/0.5.0",
+   "sha256": "37ed539d66d33936c8b9ef4f3310586cf24c71b267de8f1f7336a640f627a345"
+  },
+  {
+   "bytes": 190490508,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/1.8.0",
+   "sha256": "cc36e2c26eafd45b2ef0d73fc99f59d53b7fbd4fc13b96d7645e8619b91d35f8"
+  },
+  {
+   "bytes": 190368686,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/1.7.0",
+   "sha256": "48730a7280c82ed2194e969721683053b90818c8f0b6a3bd428b2971606eb003"
+  },
+  {
+   "bytes": 190072009,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/2.5.0",
+   "sha256": "0339deee0f6ff14cd537d243d2e828c44d5840dc80707a1904b1913125181a3c"
+  },
+  {
+   "bytes": 190266312,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/2.7.0",
+   "sha256": "97e84a2b9f108d383da74b62587e0b37d3114e3d875e57a74b9654a3573d253c"
+  },
+  {
+   "bytes": 190123182,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/2.6.0",
+   "sha256": "4216459ee169c2ef2ab67b97c079c55afe622ec4ab97cc75c1e060452840b73c"
+  },
+  {
+   "bytes": 190175955,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/3.5.0",
+   "sha256": "e74b377f3e89a03f5317696ef651200cf78e7db518d180687374d2505ca1affb"
+  },
+  {
+   "bytes": 190249906,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/2.8.0",
+   "sha256": "85b49203056ed2faaf5e60d283e70284baa250678ba3269142e52f794d64bb16"
+  },
+  {
+   "bytes": 190105326,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/4.5.0",
+   "sha256": "1b8216ae881add2ddf6b0e855cd0f99c50109ab544cfbccb7a014a4ee739f050"
+  },
+  {
+   "bytes": 190240187,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/3.6.0",
+   "sha256": "30efd05f610918d9e8cc81fd217fe8750a2a000fbf5411f1eede122b1b587c7d"
+  },
+  {
+   "bytes": 190142738,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/4.6.0",
+   "sha256": "8dd2d3d796b0978535fb3a2d3e1f4e6abf44944ecdba87d37576891e76edc9f1"
+  },
+  {
+   "bytes": 190305598,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/3.8.0",
+   "sha256": "608ef36e4bbc97078c5324341d16971f73ac7f6126fb683be27efa954a25de76"
+  },
+  {
+   "bytes": 190258882,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/4.8.0",
+   "sha256": "4aa007c27e4cd162104213b9450aa784e839ad229a3fbe69d7265c424adbfb69"
+  },
+  {
+   "bytes": 190245401,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/4.7.0",
+   "sha256": "0f15a31991d131da0074cb9f2e98ecc3c738329c703c84a96619a63ee8c3082a"
+  },
+  {
+   "bytes": 190130628,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/1.5.0",
+   "sha256": "1b8590c6e99d2fcabd97708c59b2dc94e3a6666a54fe62afb3a49a97e16b3af9"
+  },
+  {
+   "bytes": 190160121,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/5.5.0",
+   "sha256": "d64c5ce025bca7c52dda3c71baf4a60e6b89687d4fa8985098a69d02ff600a26"
+  },
+  {
+   "bytes": 190308326,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/3.7.0",
+   "sha256": "72a36c0c1b0eaccbfdceb3cfbeb9470b8223990cc1f6639a52f000138227fc27"
+  },
+  {
+   "bytes": 190188240,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/1.6.0",
+   "sha256": "e0686764ab1c19e076ad2bba1ff841c4ce737d883b9b531b61a083c1c7263ca8"
+  },
+  {
+   "bytes": 190152404,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/5.6.0",
+   "sha256": "3335c074a30c89b0c72a26f245079871c67e72a151a082d492e5fed708053d1f"
+  },
+  {
+   "bytes": 190397955,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/0.7.0",
+   "sha256": "ab68710fad7a00d4cfc2bf74e1dd3d50c909594a207785b281c14c8633553db2"
+  },
+  {
+   "bytes": 190123008,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/6.5.0",
+   "sha256": "8da550edf7411c3513bb3566c532fc0a5c37c653c388aa8ad85759c372a790e2"
+  },
+  {
+   "bytes": 190138999,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/7.5.0",
+   "sha256": "bbfafcebf934e0b1af9db691726132d8ea08e20f4780183dff66a68173615228"
+  },
+  {
+   "bytes": 190241362,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/5.7.0",
+   "sha256": "f401eaa45f8be16a9f9bf2dba285d3402669061782c23dfd1bb7eee1644013c9"
+  },
+  {
+   "bytes": 190251296,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/6.8.0",
+   "sha256": "caa9d1407abc1b8b2ecd070f9c7f626fc86ec2e3e159b7f89bdd153536a84632"
+  },
+  {
+   "bytes": 190105287,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/6.6.0",
+   "sha256": "f2feba7f29830c6f2843b1d05e082f3d0e6d6a8834a460af218664fc9bbd6520"
+  },
+  {
+   "bytes": 190244981,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/6.7.0",
+   "sha256": "41e3604b9772c4736e394e7dffdd276486b9c540df54bd345924b5aba9f99bfb"
+  },
+  {
+   "bytes": 190245558,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/7.7.0",
+   "sha256": "0ef09d7f8a8706644f54d22813f1e09ad08f5982343d2016006304e317d7ce59"
+  },
+  {
+   "bytes": 190308485,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/8.7.0",
+   "sha256": "baf22b936ccc73824f8f1d7e716db5c2a8e2049d8c899d69a22077e64d58a45d"
+  },
+  {
+   "bytes": 190252821,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/8.6.0",
+   "sha256": "790393bda0f06687bcd8e5c3c85abea7fb1662bb33a279384f16039f663bdfff"
+  },
+  {
+   "bytes": 190096911,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/9.5.0",
+   "sha256": "506eea4dc9f04fe415fb01e9c34c876c1b7bd2076c366927af33895a4be10265"
+  },
+  {
+   "bytes": 190229509,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/9.7.0",
+   "sha256": "ca3a6b24b758586d7edb81b1aa25e0e026ac4279e7db5ccf1fa258bbe70eed1c"
+  },
+  {
+   "bytes": 190264129,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/7.8.0",
+   "sha256": "599aa6f0cb1b6189e06269f33bd3fadba294400518c325037adb3aa74b77218f"
+  },
+  {
+   "bytes": 190232848,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/9.8.0",
+   "sha256": "6c52f7536c993b315ef16876018b19c6ccee110b70bc9f22a642b958eafa5194"
+  },
+  {
+   "bytes": 190185080,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/7.6.0",
+   "sha256": "8a1b3ecfd59ead039227ba3c1f4456564315d316d0da93ad8d919ebb7f22a59d"
+  },
+  {
+   "bytes": 190102137,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/9.6.0",
+   "sha256": "0444b87ba2258bfe8a183108614fbe33612860569c94b0acb4a0e6b0c7cbc31d"
+  },
+  {
+   "bytes": 190199627,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/8.5.0",
+   "sha256": "7135da1d97673ad4952c235ba5d7224dc31de949d5ac1a10c5d1f1cc72cd21a2"
+  },
+  {
+   "bytes": 190377363,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/5.8.0",
+   "sha256": "46b9c2fbbdde0a85fc95f4a90ae430d945b9fd7993ad8e83416cbc9364733c80"
+  },
+  {
+   "bytes": 190271567,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/10.6.0",
+   "sha256": "31a8b465b58a43bbf38c521354c55b76d3bcbe2789cb8b0114022de7f93258b9"
+  },
+  {
+   "bytes": 190175436,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/11.5.0",
+   "sha256": "ffe9db6037f5211bc4ceb1d87eda5586e5c35b551c2cec5d85bf4aa30a773649"
+  },
+  {
+   "bytes": 190236226,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/11.6.0",
+   "sha256": "1776d62c688bccd031552b14043b205e625b2255808ad121022cf79da7e3d2e4"
+  },
+  {
+   "bytes": 190308127,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/11.7.0",
+   "sha256": "292757e073010ceb12e9b3e0879794ba6d0e95964627ce55d8507d72c0907242"
+  },
+  {
+   "bytes": 190322800,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/10.8.0",
+   "sha256": "6e64cf036cc4f4a57c5d47080e7db7bd25ed8c79a8bf4d09077762df0703b948"
+  },
+  {
+   "bytes": 190235733,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/10.5.0",
+   "sha256": "b161b0f6fced11ef66946db78ee35f376c18095e2316110a3d9c3f944b0372a2"
+  },
+  {
+   "bytes": 190375717,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/10.7.0",
+   "sha256": "1945cba64f22a85cc5dacd8dc67cd50f213adf03712ebb0a474dd87851b6c14a"
+  },
+  {
+   "bytes": 190319478,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/8.8.0",
+   "sha256": "81b9a361d2684327a6ac91048fcc2cf471491061a3910f8d8c5210bda7e53529"
+  },
+  {
+   "bytes": 190276171,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/12.5.0",
+   "sha256": "680473923bb313ecccdc111adb58e62c7c7ebe7f20afbf568d5f13cf11c50f14"
+  },
+  {
+   "bytes": 190315341,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/12.8.0",
+   "sha256": "18b1f39afe8f5929d77b0f572893fd541011d31dcf250fe6914f83b8e3fad6ea"
+  },
+  {
+   "bytes": 190277803,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/13.6.0",
+   "sha256": "6a8a6c52a62934504f683000dce6efc0e1d9112add221133d4bc6062a6c6d77d"
+  },
+  {
+   "bytes": 190319869,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/12.7.0",
+   "sha256": "c1093c7caf33cca68629d8c3c13a6dee1148dae98841cfc430858e684a04729a"
+  },
+  {
+   "bytes": 190252698,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/11.8.0",
+   "sha256": "a2a24a98df85dc20de2006a3127bbe498417d8aa93f99d4eb263657390e9f655"
+  },
+  {
+   "bytes": 190195200,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/14.5.0",
+   "sha256": "0b579d725861158f0d197db3012fb3325a110e335c2e7e92bd7e9177b0e9f588"
+  },
+  {
+   "bytes": 190286749,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/13.8.0",
+   "sha256": "ffea0ea992ecab199afdeb7e79d991df058b65c5c0882931d70eb6076e6dded8"
+  },
+  {
+   "bytes": 190377635,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/14.7.0",
+   "sha256": "55666635dd989641aed1dee574c54196739a5ce86c77a6889cb320bf27c553ca"
+  },
+  {
+   "bytes": 190257725,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/14.6.0",
+   "sha256": "0c63a75fbb8e42331169669b9139c3832b57859be5a64d1cc97a8935a30dcbbc"
+  },
+  {
+   "bytes": 190340620,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/13.7.0",
+   "sha256": "1b911a272f07a227836319ac44aa1ef9255985294cc6418626c5869658a82011"
+  },
+  {
+   "bytes": 190225440,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/15.6.0",
+   "sha256": "9c9f8a38c483b2eb2dbf8522ecc22b84fba71dd52a5afabbacef025149ebdb86"
+  },
+  {
+   "bytes": 190363620,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/15.7.0",
+   "sha256": "2cecd9f36a49415145d7e509e0934ba4c037f396f6cf4283271296d73296936e"
+  },
+  {
+   "bytes": 190320248,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/12.6.0",
+   "sha256": "882e2f4eaedef65268779a3ccf36434b76039a221c88b43f3078d3fa9e9e5d57"
+  },
+  {
+   "bytes": 190126920,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/15.5.0",
+   "sha256": "e394589e35e081a34d6dfd9fcf0cba16541621c57c344e6a992fcdd6f9802fcb"
+  },
+  {
+   "bytes": 287545,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/0.5.0",
+   "sha256": "709d114995ce4dd3bbf01c21b88de946418931f4542edb41548680cac3dc2ec8"
+  },
+  {
+   "bytes": 366082,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/0.6.0",
+   "sha256": "008ef43e10bf796505858d614994a1dc937a6d5d27122aeec81b4ec1721d41fc"
+  },
+  {
+   "bytes": 373774,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/0.7.0",
+   "sha256": "967283119af7c07bd88ea400872ff872c4987c6d968e7c2fd7d2670d915e09d4"
+  },
+  {
+   "bytes": 389574,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/0.8.0",
+   "sha256": "22acb0d8361e4658dd59dc86f5fb77bd415f547b9250c87146fb6c2326fcfc74"
+  },
+  {
+   "bytes": 242144,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/1.5.0",
+   "sha256": "55a7bdb800e934d5309cefea6b11e58520a6bcd191573d7c5ed504793bc6359e"
+  },
+  {
+   "bytes": 359541,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/1.6.0",
+   "sha256": "35b8d1a1438a659b7936fc17b6ed917477f7af277abe4cfe908e3070eac8cd1c"
+  },
+  {
+   "bytes": 186563434,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/16.5.0",
+   "sha256": "67d89867d883fca94fc8bfc3eaa796cb255a65301aadbbe1b9fe07c01bc33218"
+  },
+  {
+   "bytes": 378812,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/1.7.0",
+   "sha256": "871ceef8d16a6ce719bf0a0158edec9cb289ca8719e15c8778d6b5c0194411b9"
+  },
+  {
+   "bytes": 372516,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/1.8.0",
+   "sha256": "1393cbe21f3b9f679ed259a74ff0506e46abd305f1d6ac24abc14234567f100c"
+  },
+  {
+   "bytes": 242585,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/2.5.0",
+   "sha256": "44ffa5487b5ef0f03892b810b0dfdba5a001046458f3542c4f4d66ce89dafd65"
+  },
+  {
+   "bytes": 363396,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/2.6.0",
+   "sha256": "2dbe8782cf0ef6462c814f94807f47a58cdfc3da6d8fd6b9a4894ec1820c3d31"
+  },
+  {
+   "bytes": 381507,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/2.7.0",
+   "sha256": "8b3c22a1b595bf6bad172c362e225f80b10b9328260f4c7a9c49517468f52129"
+  },
+  {
+   "bytes": 361657,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/2.8.0",
+   "sha256": "559e3312ee862127693468fef9b2ebe9c50f80910ecd92ff788dc111b467f4c7"
+  },
+  {
+   "bytes": 226092,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/3.5.0",
+   "sha256": "14fd9e4c76a9fcdbd490f8653966c641dc16da71fc32858b16c81aead27ddcdc"
+  },
+  {
+   "bytes": 360015,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/3.6.0",
+   "sha256": "eb255b9aac3b9ce6c00622a16376648d8c359efcbb672d7691b1a307c2627f3a"
+  },
+  {
+   "bytes": 380373,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/3.7.0",
+   "sha256": "1ef6321fb2cd01dcf2e04e5958fcec8c4df5586e1d2fc8d0d79414b38f0c6de5"
+  },
+  {
+   "bytes": 359551,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/3.8.0",
+   "sha256": "4680a087097d8d453f66bd810c7c149c4cec955bbdc5b221430046dfdf1aad3a"
+  },
+  {
+   "bytes": 216792,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/4.5.0",
+   "sha256": "e00b7cc9a8be60e1bbaeaf19fd7d0d21b811ebefc96b3b902e27a911ce4d1964"
+  },
+  {
+   "bytes": 359247,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/4.6.0",
+   "sha256": "5335d463ece0ae5af8a7809e359b350e9dfe51914f3118a2332e0e67897d70c1"
+  },
+  {
+   "bytes": 379686,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/4.7.0",
+   "sha256": "2012a8566760cc83122079529e1844cdb1d92d00e56c34957eb173f01c3e9408"
+  },
+  {
+   "bytes": 359678,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/4.8.0",
+   "sha256": "1686799002ebf5501764286c2a0fc25d7b2b8c92ba6e344b2c57a80272053212"
+  },
+  {
+   "bytes": 212806,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/5.5.0",
+   "sha256": "5a7c16f90f09f39ae65ee197ca07fb0c70cc7f5e6492d0b570dc33070abe00f9"
+  },
+  {
+   "bytes": 357882,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/5.6.0",
+   "sha256": "170c785a5909ead8058a0ed41755b176393af936c9ee31aedf7feb15da075cf6"
+  },
+  {
+   "bytes": 376591,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/5.7.0",
+   "sha256": "677c74b89f8b12c4f26cb2440ff87f50c2b2cd696914bff2f7d5dc994a3a01d2"
+  },
+  {
+   "bytes": 186732471,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/16.6.0",
+   "sha256": "86c62e2dda6191c51e1aaddd5c7dc2da9fc8fd90aeaa6fd3a261ccf48faae58f"
+  },
+  {
+   "bytes": 367432,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/5.8.0",
+   "sha256": "4d0a44e106f184c09b479136f5e459160b0cec300461734d4c4f71363d03dc63"
+  },
+  {
+   "bytes": 208378,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/6.5.0",
+   "sha256": "1d2e96ffc0d1fc3de4ae50c67886386870ec49b77ff0ce33f3360efb3b793105"
+  },
+  {
+   "bytes": 351584,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/6.6.0",
+   "sha256": "e4e47d4cbf10ffe1dd227f8d328d52234a92f8bbd77269340f76f55887ab03c3"
+  },
+  {
+   "bytes": 190388667,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/14.8.0",
+   "sha256": "8464fdc5d8bf159a957594a969741e72d043b0ea195e1c1539c6e99483f26ba7"
+  },
+  {
+   "bytes": 374163,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/6.7.0",
+   "sha256": "2882646c0ac56dbe5c8b41cd3c66452d2836487bd9e00a768f886a48c8229c7b"
+  },
+  {
+   "bytes": 212336,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/7.5.0",
+   "sha256": "3e28238bd0f642775b844174a6af534109358a5a9c43fe0761cfabb4d5920e53"
+  },
+  {
+   "bytes": 360982,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/6.8.0",
+   "sha256": "80495911f4120cf0375d12b8b03df50ab1e20f3d12b8f8e6a961624bdefe5753"
+  },
+  {
+   "bytes": 186944254,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/16.8.0",
+   "sha256": "4a392a62139a13b1a103090b462a4a4cd4846d1dd2d49e04af22e5df5d075aaf"
+  },
+  {
+   "bytes": 357749,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/7.6.0",
+   "sha256": "9343c3c1c5a45643c65dd7bb49a3f221c4aee8fe1cadfacc6c17da62525e7503"
+  },
+  {
+   "bytes": 381429,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/7.7.0",
+   "sha256": "520379adaedff7a8d904441268f0206ed26fbf1253c5117968dc28d18909deae"
+  },
+  {
+   "bytes": 367483,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/7.8.0",
+   "sha256": "badf2ab48d6a9edf8de36104b5818836ed20e667231f17bb07b5bdd2e67948e0"
+  },
+  {
+   "bytes": 215241,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/8.5.0",
+   "sha256": "486d979e7b9b20ca328650dacc1b0d86e14f2a98115f5181707bdc6342725c93"
+  },
+  {
+   "bytes": 382234,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/8.7.0",
+   "sha256": "2d80469f0a0e9ad86493f8fa0abdaaee87ddd50aed5005f261ee4f787c011c5c"
+  },
+  {
+   "bytes": 351165,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/8.6.0",
+   "sha256": "5ecccda02fa679e7eccfcd05497db604276b70df88513efe11dbf492cb58da62"
+  },
+  {
+   "bytes": 367526,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/8.8.0",
+   "sha256": "0fa91e8a2c00392b6db1c6b2cfc1f9888aa6902418df300cc7c38071347ba17e"
+  },
+  {
+   "bytes": 217957,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/9.5.0",
+   "sha256": "29b330834f9c2b39f6633c861633dd495dee373d70ccfd6a67fc0254cd7fc93c"
+  },
+  {
+   "bytes": 356270,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/9.6.0",
+   "sha256": "00db553ed9ccdd347ea19c92a6e2bef262f95eedaa4a3097decfdcadcdaa92e0"
+  },
+  {
+   "bytes": 390056,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/9.7.0",
+   "sha256": "932d553f8d8a6ecf6d83a8aacbb29ccc0d80d069a7b4630a24e7d2998dbd7905"
+  },
+  {
+   "bytes": 373281,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/9.8.0",
+   "sha256": "5db23097f73e4f7be87926ad06d39dec738ebc5418419ce428bd40dac7a1176f"
+  },
+  {
+   "bytes": 216145,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/10.5.0",
+   "sha256": "e1590701ba1ec9ef6c662cc5a2ce3faf4eeb7403021f027120a7c7c5343c912a"
+  },
+  {
+   "bytes": 186871575,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/16.7.0",
+   "sha256": "efbbdf475e99e9c302c511b9eeb838e72539ce203ca51939526464e4e7052ce0"
+  },
+  {
+   "bytes": 350993,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/10.6.0",
+   "sha256": "3fe1dd6b4e0ebf32837a30853859ea45072189fcf153f16149a00b8b4253007c"
+  },
+  {
+   "bytes": 384676,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/10.7.0",
+   "sha256": "5a7999c73e8805c7c4a88756b7fb94b8ab1662e15bf9b7ef667fd16e1b1288ea"
+  },
+  {
+   "bytes": 226842,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/11.5.0",
+   "sha256": "efe83778448ff09771456b92ad040abfdf2a834bcb443a5b85a64529e84912f5"
+  },
+  {
+   "bytes": 358556,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/11.6.0",
+   "sha256": "5c5f6051dd9329282d9929ebe9e937bc9235d16fa2ec30d13cd7e6e99a40752c"
+  },
+  {
+   "bytes": 400616,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/11.7.0",
+   "sha256": "e5dbc14584cdbb9519905da3656bd2fdf6db2a393461ed0fea114a4e8f046d14"
+  },
+  {
+   "bytes": 388666,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/11.8.0",
+   "sha256": "0f4d292e9cc38dd37d91687ea0dbc7b370d8bc1d0c7051c6c6b920b903cb5dfb"
+  },
+  {
+   "bytes": 371690,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/10.8.0",
+   "sha256": "131917dbc7506a8d4241e3463dc01fbdc8376e5fbff9644c87c8dba6c7bd9717"
+  },
+  {
+   "bytes": 227948,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/12.5.0",
+   "sha256": "97a5bd366046c79be17079ef969f79953977a1846a47a272e5a26dbbbbe70e80"
+  },
+  {
+   "bytes": 358470,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/12.6.0",
+   "sha256": "69ae36fddbc4cd81992d259b0d8b59aff0caeae9c7fe10933d5d1c1aee516470"
+  },
+  {
+   "bytes": 394386,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/12.7.0",
+   "sha256": "7f403962d36ba7c6c42a8daab2e85ed1e0af0c9e95649f9a9cceff061520e520"
+  },
+  {
+   "bytes": 380930,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/12.8.0",
+   "sha256": "0a6b5cabcbfb103919559ae0e8ed9d09ed54fa6c51dc6ffb07526cc2d4b3a060"
+  },
+  {
+   "bytes": 251830,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/13.5.0",
+   "sha256": "95efb91e0ca4ba8be31ecd8d393874fcb67a875819e89ebcb57ba500bc2cc418"
+  },
+  {
+   "bytes": 378292,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/13.6.0",
+   "sha256": "e1a32e8e45f8af7b765ca2f69f4d7791d59426636c1b8cb810aa2d60a2cdd583"
+  },
+  {
+   "bytes": 407480,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/13.7.0",
+   "sha256": "d472bf650b2c8f19f598bde8dae2fa039434c2cd31041a069e32a1ed1b9536ad"
+  },
+  {
+   "bytes": 407610,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/13.8.0",
+   "sha256": "b3014a62aeeddb15f5e64e1ca3a8eda7bacd5e8b898744bb03956ff31cabfd5b"
+  },
+  {
+   "bytes": 190393704,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/15.8.0",
+   "sha256": "5ee482d26afa89fec0f87b5477e91240b2d7581e9a7cf7cb2e278f2d8c44736d"
+  },
+  {
+   "bytes": 254101,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/14.5.0",
+   "sha256": "d659f53d787f8611ea5a0f2000c63ff918f50a9cbeea66c7ed002c509cf08217"
+  },
+  {
+   "bytes": 406473,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/14.8.0",
+   "sha256": "2ee15626fc586628fbd17c276c87185b44d18b6b42b3935b3a23b1bbd8a04c2f"
+  },
+  {
+   "bytes": 381376,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/14.6.0",
+   "sha256": "8919bdbf41c9be714986d421cef6a6f439abee0c0b12237429be027dfc7d4291"
+  },
+  {
+   "bytes": 408182,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/14.7.0",
+   "sha256": "721c413311948bdaa0cdafd90b60db0be6f7333edf83684de1ad46460cdae682"
+  },
+  {
+   "bytes": 267131,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/15.5.0",
+   "sha256": "a2502168125083cd1f8b43516e9b9efa5111739be107fbd100cc3e51d32a7434"
+  },
+  {
+   "bytes": 190208493,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/DATA/13.5.0",
+   "sha256": "6a339a7d84abdc202da489fd36f83a9d6b883d0ab44a39026e101e1da6bd80e1"
+  },
+  {
+   "bytes": 388714,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/15.6.0",
+   "sha256": "d37e02c586693e38885b3d6ca1892c8e6655c0ad1a6b9317eb7f61e15aceb751"
+  },
+  {
+   "bytes": 405358,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/15.8.0",
+   "sha256": "da8faa9f04530f8235fe5a42ace288adc235c250e8b4f3a0bc59c7f4cd19db4e"
+  },
+  {
+   "bytes": 409919,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/15.7.0",
+   "sha256": "ba5e6b51a7d0f1a497bf2c5e2a7ba97c1c68306513eb8c233e4450cd2e3ccb44"
+  },
+  {
+   "bytes": 389361,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/16.6.0",
+   "sha256": "41cfb12a25f8c8f1db306e6313be6e34b9e6b1164493de0ba1702838b85676b7"
+  },
+  {
+   "bytes": 404569,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/16.7.0",
+   "sha256": "dc9ba0ff6c175124f86caafc99e536044a7a48ad5ccb9f297a8e5bef388488ef"
+  },
+  {
+   "bytes": 267544,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/16.5.0",
+   "sha256": "d606e3bc7aaacc6fb1dd32526147c0bf9806350240764d41b9609ea296d6df53"
+  },
+  {
+   "bytes": 399105,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/FLAG/16.8.0",
+   "sha256": "67c4338b360d8caa3000ba0582fbb713c213ddb433dfcb69b99047dcaae4ff52"
+  },
+  {
+   "bytes": 75072818,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/1.5.0",
+   "sha256": "cd1362df9556d978571112f4981206fa6cfc1420e429fe60a699efd45ef74c24"
+  },
+  {
+   "bytes": 75506812,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/0.7.0",
+   "sha256": "2e2d50746cca22887a3761a82835a1955f17595da8ec6465ab8936a51445c06f"
+  },
+  {
+   "bytes": 75159916,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/0.5.0",
+   "sha256": "ea3187b66d509c5bf089cdde6b803485abdcc8dfe40fbb4279e37d83c59ef510"
+  },
+  {
+   "bytes": 75040882,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/2.5.0",
+   "sha256": "782b4002e489dd4a5e0870d0631592329b250674e5d56682c8e802214afceb79"
+  },
+  {
+   "bytes": 74831355,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/1.8.0",
+   "sha256": "f0201d219a2953b22eb8fe39d23d35018c74e1d0d29f3c3a3997bb7da045591f"
+  },
+  {
+   "bytes": 76908358,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/2.6.0",
+   "sha256": "5a328cd5843f135c2f7b2d3b8faca4444650b194fa5bf7949269deee01ad8d2a"
+  },
+  {
+   "bytes": 76904751,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/1.6.0",
+   "sha256": "ff6cdb9f3c69c8d50de802d43d54daf3978d2f910d33c8d6e9780ec86455fce8"
+  },
+  {
+   "bytes": 75383231,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/2.7.0",
+   "sha256": "defb2f3fa23896bde5eae5741ab1623136cc43ae0e117e388871a433d8725949"
+  },
+  {
+   "bytes": 75038722,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/3.5.0",
+   "sha256": "9b75e5435f34dff89b407ec8e3132b44b8b1bb5e3be1d4256a59a2f589f8fae2"
+  },
+  {
+   "bytes": 75306461,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/3.7.0",
+   "sha256": "3bf9110fccabad94517976b28e1133f5fdda10e6caf40dba2b60489fdbdf459e"
+  },
+  {
+   "bytes": 76900162,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/3.6.0",
+   "sha256": "48c3753c623d31e02edb94803e5387a5a5c84a66f862c91d68fafa8bb83eac4d"
+  },
+  {
+   "bytes": 74814280,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/2.8.0",
+   "sha256": "06febbee6dc5cf577a704198c1dfdbe019364684eb231f62aa079cb3e03f8fe5"
+  },
+  {
+   "bytes": 76897876,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/0.6.0",
+   "sha256": "393db0fbce1b4903f98337b75f7f3208aac0932f7a939880ab499c94df10fd89"
+  },
+  {
+   "bytes": 74655650,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/3.8.0",
+   "sha256": "eb366fd59184deaa296853f13e9122dbc4941513e598cd53a58d0f9aac8a5073"
+  },
+  {
+   "bytes": 76897007,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/4.6.0",
+   "sha256": "e16a945f79bf67363de21838a667a17e2a162fcd5a31402c8e6670ccae19d508"
+  },
+  {
+   "bytes": 75018673,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/4.5.0",
+   "sha256": "046c2bc110f3c526bf33a4bf9f8be7939959ade54d547fcf74a6ca74952585e1"
+  },
+  {
+   "bytes": 74630166,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/4.8.0",
+   "sha256": "f7cc1d95c83ed2aaf5eed7a8d283726a344cc603148c1ce789aef0ce8f678991"
+  },
+  {
+   "bytes": 76891233,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/5.6.0",
+   "sha256": "2ee374a0c6aab25a5dbe8ab8d4cbce05028a27595cee3f1da62bf448e15cf5d2"
+  },
+  {
+   "bytes": 75006388,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/5.5.0",
+   "sha256": "c0923642cb5c1759cae03ecd520084779adf521c50bceb1e25abb01eff9bff1b"
+  },
+  {
+   "bytes": 75313121,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/4.7.0",
+   "sha256": "1f1367b0a7d936972a10a960491134430a323a36bedbe8fc2c417b8e4ebb157f"
+  },
+  {
+   "bytes": 75242866,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/5.7.0",
+   "sha256": "9dedbeef16216b114e99c499e0ad88b0362f65f9776562a26003dcec83581ccc"
+  },
+  {
+   "bytes": 74989734,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/6.5.0",
+   "sha256": "94e9fc250e7d17f5d2bb19e2b2d195373f4903f9e0774b843a8deeeb5fbd3031"
+  },
+  {
+   "bytes": 76905396,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/6.6.0",
+   "sha256": "3cafa9443840e6d1c3d708a4e18bee4033f0d3c1f0d5af00711895f507833d14"
+  },
+  {
+   "bytes": 75232580,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/6.7.0",
+   "sha256": "cca945d38caef5f5d2d18472a90e7cf86787085e5ea31f2010755fe54c5eb00c"
+  },
+  {
+   "bytes": 74728514,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/5.8.0",
+   "sha256": "81ff6649fd95d71ffc2015e51fbedcbc30bb2fcad11af84f820a0437ffe48b84"
+  },
+  {
+   "bytes": 74623314,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/6.8.0",
+   "sha256": "0a226f3f486facc9a5de4cf6dd6359c7dafb2b5c684d17a68821077745d1fd71"
+  },
+  {
+   "bytes": 75016724,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/7.5.0",
+   "sha256": "303d1fd055697c71a7fb9dbe4a935ba98a1b063d323eaa504fdeef06af47ae40"
+  },
+  {
+   "bytes": 76904321,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/7.6.0",
+   "sha256": "4b7f83ef61b3a87da6f54ca0984070896037c7813246ff61de1ef9267959fde6"
+  },
+  {
+   "bytes": 74651574,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/7.8.0",
+   "sha256": "87df618068ddbf6584d3f1234a801367392a3a1c99ca1cdcc77bdd3dfe7a631d"
+  },
+  {
+   "bytes": 75295447,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/7.7.0",
+   "sha256": "b54ec7a596dc935fa048e69ef5d9e999899d2416cf5ed87fe5e4d3fdc3c9c0f3"
+  },
+  {
+   "bytes": 75013047,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/8.5.0",
+   "sha256": "67036da98a0cd8e577fb49ec2d007d08a863d5c70bb91392b0919611bee549a3"
+  },
+  {
+   "bytes": 76901113,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/8.6.0",
+   "sha256": "0ec5e914dfae46179f576642e635501c38ea2f45129791ce499e0c425fc5bb0d"
+  },
+  {
+   "bytes": 75291017,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/8.7.0",
+   "sha256": "4e7a06bb097b307c581af1226c6ed6ce3cbc26189a6ffa8b4323c33f552565ce"
+  },
+  {
+   "bytes": 75412068,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/1.7.0",
+   "sha256": "d63e189852886131be7b63fba7d8d2331de709fb95e01fa104fcfb151bad6592"
+  },
+  {
+   "bytes": 74656301,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/8.8.0",
+   "sha256": "d259221b9aaee2e29268acea944084fcfc5a02c959713845a0588e0d7cf4b4b7"
+  },
+  {
+   "bytes": 75041133,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/9.5.0",
+   "sha256": "a3e64b3e4e6a4e34f5b4aa7d799205fb51ea213e72a8c184374fffc6c88e40ef"
+  },
+  {
+   "bytes": 76937037,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/10.6.0",
+   "sha256": "f43660defc8bc818853dc9451b3e4e8a969777ec860a1aa6c2ccec8f9a402d82"
+  },
+  {
+   "bytes": 75238090,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/9.7.0",
+   "sha256": "3f3f6aa148755a275dcb189fa182eec15370b004693b5a1f496db3993c2d5569"
+  },
+  {
+   "bytes": 74636436,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/9.8.0",
+   "sha256": "eeb167a938f3f896768984a29dcb2903f9cda7a2a08e3980f80f2584d300aca2"
+  },
+  {
+   "bytes": 75162438,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/11.5.0",
+   "sha256": "1245550b8bc9fe0e60223e191f0f2278eb8db5e3e1271390ae789111b3bb92a6"
+  },
+  {
+   "bytes": 74726368,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/10.8.0",
+   "sha256": "0423a6d7ebe6be2d1415155ef642391db21ea48fa47c32641083781ff8e9b594"
+  },
+  {
+   "bytes": 76966507,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/11.6.0",
+   "sha256": "2a477b2acdc8286270d135ba802d5b22b597875d63cf10463b81cd765d090de1"
+  },
+  {
+   "bytes": 75434205,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/11.7.0",
+   "sha256": "2494a571460d95eb50d6b0d7c0f056b7c2a19f8bddf7b11310d5c76556de38c7"
+  },
+  {
+   "bytes": 76901571,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/9.6.0",
+   "sha256": "58465d20918a4ec3649c92ea0203c66b5916e7121499f2c606ca1fc2500ba2fc"
+  },
+  {
+   "bytes": 75334487,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/10.7.0",
+   "sha256": "fee89e89855c2a450932a834ec3298a3ed048085a9a9b4420cf506123db9c501"
+  },
+  {
+   "bytes": 75230368,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/12.5.0",
+   "sha256": "08d15b0d6a05c921cead72bd07ee90596bebbed7df9ac87e32f7ef490f835d3a"
+  },
+  {
+   "bytes": 74911889,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/11.8.0",
+   "sha256": "74516b9bce9fb55ee14501a1deccb691594a35484fe08c794dde13a59280c367"
+  },
+  {
+   "bytes": 76985060,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/12.6.0",
+   "sha256": "01f1e328927c058d8e9ff6cb08e2fb172db3d81b5edbd16cc47e651050046cd6"
+  },
+  {
+   "bytes": 75476465,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/12.7.0",
+   "sha256": "78da8e577859906cccfb6e681ccc121fccbbb73026a00b90ee34db9c5207d56c"
+  },
+  {
+   "bytes": 75429788,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/13.5.0",
+   "sha256": "7fe684d9b1db198300d0867c5241d1d6e9042934763fc5323e4dfdad71aecb22"
+  },
+  {
+   "bytes": 74973188,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/12.8.0",
+   "sha256": "a8dd0efcd024e5c77e8efdad86da8a8dbb4d10710d2bed1bcd7495af41120e5a"
+  },
+  {
+   "bytes": 75557108,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/13.7.0",
+   "sha256": "3ec5c51e0d2690f7b0ff742c8549751849b532322d4fa9b8781991976f43ecd3"
+  },
+  {
+   "bytes": 75140133,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/0.8.0",
+   "sha256": "b186cc325d15bf7b1547c8d6ec1d7386c2eb419fcf83f86dd3577791ef5e0ec1"
+  },
+  {
+   "bytes": 75059960,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/13.8.0",
+   "sha256": "d32bf05eb1d2619069310e7b8210bc8b59e50e9080f9e954258b3a6c5a1d27ca"
+  },
+  {
+   "bytes": 75365771,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/14.5.0",
+   "sha256": "4620e4ec1f33e2d13dbf203d984c71f9d89cd35f96cd37ff7c4314aa7050b745"
+  },
+  {
+   "bytes": 75276086,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/15.5.0",
+   "sha256": "0cfd4c14567e7a470fb475420b74d8eb0723605b0d56e06e71d8142b3ca9e91d"
+  },
+  {
+   "bytes": 77007063,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/14.6.0",
+   "sha256": "5b8b6a96324b023533d7efa5c42a370259386456f5e821065218533b15d990da"
+  },
+  {
+   "bytes": 77014093,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/15.6.0",
+   "sha256": "ec2b8646d5750e20ef960b85e0b3737163e4a4cb1fdaebb1a1e24938e06cf1a9"
+  },
+  {
+   "bytes": 75528867,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/14.7.0",
+   "sha256": "0c2bc9a9cc5b0df167ec750d3b1d3f25a262661f4f7586ada89250de7a310aa0"
+  },
+  {
+   "bytes": 73912976,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/16.5.0",
+   "sha256": "6da9bfe7414a18fec6bc99fed8776235dde303634f331ac18a7a4b6582b3afac"
+  },
+  {
+   "bytes": 75526234,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/15.7.0",
+   "sha256": "ece5a23aaea245173b399e53f87e646a0d6c69f5deb611e1572cab7c0dfe3f54"
+  },
+  {
+   "bytes": 74109982,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/16.7.0",
+   "sha256": "e287003e9c1f10bb47bebcf4b820ed089d066a0da37fbaeac87bbd08d21f2657"
+  },
+  {
+   "bytes": 75032402,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/15.8.0",
+   "sha256": "d059bf90a128f96b15ec5700aaac2f31180f2b3f2fe006c4b27186b99036f8c0"
+  },
+  {
+   "bytes": 73618805,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/16.8.0",
+   "sha256": "6f5cb7deff298a523e9191eafd730be448127b20b5141f264a6a27fdd2bcbbc3"
+  },
+  {
+   "bytes": 75607892,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/16.6.0",
+   "sha256": "4b4028eded664dbfa5994d8ea71c0e80e339b3c7e7c2899688995d86551fcf8b"
+  },
+  {
+   "bytes": 75150690,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/10.5.0",
+   "sha256": "f0ca9fc45b4302fe4ba72d54871f7315eb583d7c47b2b49ed591175039ce9cff"
+  },
+  {
+   "bytes": 75028974,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/14.8.0",
+   "sha256": "4a6ba69a8580648f30a8c77925e19d48aec4749c7f179f1a10f9716bd06f86a8"
+  },
+  {
+   "bytes": 77029485,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_1/WEIGHT_SPECTRUM/13.6.0",
+   "sha256": "6f51328703ea274cca8bfef76ea6f022677f12eb3b91f6fd28cd8547d0d46ac9"
+  }
+ ],
+ "licence": "CC BY 4.0; cite Ramatsoku et al. 2020, A&A 636, L1",
+ "objects": 357,
+ "phase": "data",
+ "purpose": "ms1_target.zarr MAIN_1, research/sdm03-default.md",
+ "source": "https://ratt-public-data.s3.af-south-1.amazonaws.com"
+}

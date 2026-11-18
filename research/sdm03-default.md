@@ -1,7 +1,11 @@
 <!-- SPDX-License-Identifier: MIT -->
 # Rang: SDm03 as rang-core's imaging default for MeerKAT L-band continuum? (issue #13)
 
-Status at freeze, 2026-11-18: **proposed; nothing run.** Branch `sdm03-default` from main `b0388c0c`. Results go
+Status, 2026-11-18: **measured; outcome "not yet" (section 7, rule 2): GeMClean's shippable SDm03 fails the
+WSClean oracle on scan 4. The default does not change.** Without the oracle clause the outcome would be "null":
+on scan 4 every SDm03 form is worse than the shipped default, and on scan 14 every form is better. Protocol frozen
+in `aef6c48c` before any run. Amendments 1-4 came before any reserve visibility or fresh sky was read. Status at
+freeze: proposed; nothing run. Branch `sdm03-default` from main `b0388c0c`. Results go
 under "Measured result"; nothing above it changes except by dated, labelled amendment. Route:
 [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Previous note:
 [floor-6.md](floor-6.md) (section 10.1, row SDm03; coordinator decision: SDm03 is a v0.4 candidate, no default
@@ -278,4 +282,148 @@ written after the seen pilot's A0 and SDa scores were read.**
 
 ## Measured result
 
-(not yet run)
+Run 2026-11-18, 07:14-16:34 SAST, on nash (shared; every job `nice -n 19 ionice -c3` under the heavy lock, at most
+16 slots booked by this task). Code: the extension `959aae39…` was built from `aef6c48c`, which is main `b0388c0c`
+plus this note, and the Sp rounds used it too. The driver Python was at `c3d6bf72` for the main run. SciPy 1.18.1
+and Astropy 8.0.3 were added (amendment 2). WSClean was nash's `/usr/bin/wsclean` 3.7 (2026-02-16). Run root:
+`nash:~/rang-data/outputs/sdm03-default-20261118` (213 GB). Archive:
+[results/sdm03-default/](results/sdm03-default/). It holds `summary-summary.json` (the final table),
+`summary-main.json` (the as-run table, written before X4's W-Sa, the reserve W-Sa scores and the pilot's restored
+state), `provenance.json`, `timing.tsv`, every arm's `image-arm.json` (argv and config keys), GeMClean reports and
+imager logs, the state and build gates, the fetch and gain manifests, the scores, the driver logs, and the scripts
+as run. Every D below was recomputed by hand from the per-arm JSONs and agrees with the summary to three decimals.
+
+### Verdict by section 7: **not yet** (rule 2)
+
+- **Reserve.** Candidates MAIN_1 (scan 4) and MAIN_6 (scan 14) both met section 3.1's conditions. Each has one
+  field, PHASE_DIR separation 0.0″, 3,582 s and 3,590 s on target, and GKB-net groups 1 and 6 with a row gap of
+  0.0 s. Every gate passes on both:
+  - GH: `verify` identical, gain frequencies within 1 Hz, `gaincheck` correct;
+  - GS1: converged 1.0 and 0.993, 1.64 % flagged on both;
+  - HB: rel 0;
+  - GT: T / F_A0 0.181 and 0.142.
+
+  No later candidate was needed.
+- **Shipped form: SDa.** Sa would be shipped only if Sa met every switch condition, and it does not (scan 4).
+  **SDa fails O1 on scan 4.** P_gem / P_wsc is 1.359 (bound 1.25) and D_gem − D_wsc is −0.444 (bound 0.05). That
+  is rule 2, "not yet", and it takes precedence.
+- **Without O1 the outcome is null** (rule 5). SDm03 literal has D −0.354 on scan 4, below 0.10. Rule 2's second
+  clause does not hold either, since the literal form also fails on scan 4. The default stays under either
+  reading, and there is no code commit.
+
+### Reserve scans (the benefit; F on the subset, D against A0, D_ref against p1's 3 mJy image)
+
+| arm | scan 4 F (µJy) | D | D_ref | scan 14 F (µJy) | D | D_ref | wall s4 / s14 (s) | peak RSS (GiB) | components s4 / s14 | cycles s4 / s14 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| **A0** (shipped default) | 241.71 | 0 | 0.532 | 303.32 | 0 | 0.417 | 494 / 529 | 9.2 | 406,454 / 287,222 | 9 / 11 |
+| **SDa** (shippable) | 311.18 | **−0.680** | 0.213 | 236.81 | **0.398** | 0.649 | 5,961 / 4,744 | 18.1 | 281,339 / 309,017 | 5 / 5 |
+| Sa (control) | 314.34 | −0.715 | 0.197 | 237.02 | 0.397 | 0.649 | 1,601 / 1,992 | 18.1 | 94,508 / 151,710 | 4 / 5 |
+| **SDm03** (literal) | 280.02 | **−0.354** | 0.366 | 263.95 | **0.248** | 0.561 | 2,387 / 1,700 | 18.1 | 161,257 / 126,026 | 6 / 5 |
+| Sm (control) | 271.49 | −0.270 | 0.405 | 258.28 | 0.281 | 0.581 | 2,817 / 2,343 | 18.1 | 213,312 / 172,802 | 6 / 8 |
+| W-SDa (WSClean) | 267.85 | −0.236 | 0.421 | 239.58 | 0.384 | 0.641 | 1,188 / 1,227 | 2.2 | – | 6 / 6 |
+| W-Sa (WSClean) | 269.48 | −0.251 | 0.414 | 239.85 | 0.382 | 0.640 | 911 / 1,004 | 2.2 | – | – |
+
+T is 43.78 µJy (scan 4) and 43.02 µJy (scan 14). P_A0 is 5.65e-8 and 9.01e-8 Jy². Every GeMClean arm stopped on
+Threshold.
+
+- **The lever does not transfer.** On scan 14 every SDm03 form beats the default: SDa 0.398, literal 0.248. On
+  scan 4 every form is worse than the default: SDa −0.680, literal −0.354, and WSClean's SDa −0.236. On the seen
+  pilot, SDa is −0.408 (below). So two of three scans go against SDm03.
+- **The shipped default is far deeper than floor-6's baseline.** A0 (auto-threshold 3σ, unmasked, Briggs 0, 1e-4)
+  already removes 0.42-0.53 of P_ref, the excess left by p1's 3 mJy image. floor-6's 0.717 was measured against
+  that 3 mJy baseline, not against rang-core's default.
+- **The deeper threshold adds little.** D(SDa) − D(Sa) is 0.035 and 0.001. D(SDm03) − D(Sm) is −0.084 and −0.033:
+  the literal 0.3 mJy is slightly worse than 3σ in set A's mask.
+- **Cost (nash, shared).** A0 was paired with SDa. SDa took 12.1 × and 9.0 × A0's wall (5,961 s and 4,744 s),
+  so it fails C1 on both counts. RSS was 1.96 × (C2 passes). Sa's wall comes from its pair with Sm, not with A0:
+  3.2 × and 3.8 × (passes). SDa is far over C1, not within 20 % of it; the summary's `near_bound` flag is set
+  because it counts "at or above 80 % of the bound". So no exclusive pair was due under section 5, and none ran.
+- **O1 on scan 4 is a GeMClean-WSClean difference in the auto-mask stage** (post hoc, from the logs). GeMClean
+  declares the auto-mask threshold reached in major cycle 3, at σ 175 µJy (mask level 1.05 mJy). It then
+  continues inside that mask at gain 0.026 down to 0.5σ. WSClean reaches its mask level at about 0.65 mJy and
+  builds a larger mask. On scan 14, GeMClean reaches the mask in cycle 4 (0.44 mJy) and agrees with WSClean (P
+  ratio 0.976). The pilot shows the same early-cycle-3 pattern as scan 4.
+
+### Fresh skies X1-X4 (no harm and oracle; all pass)
+
+| sky | T (µJy) | F A0 / SDa / Sa / W-SDa / W-Sa (µJy) | D SDa / Sa | false flux A0 / SDa / Sa (Jy) | recovery median, \|r − 1\| median: A0 → SDa |
+| --- | ---: | --- | --- | --- | --- |
+| X1 | 23.34 | 97.33 / 33.31 / 33.29 / 33.36 / 33.33 | 0.937 / 0.937 | 1.013 / 0.036 / 0.036 | 1.016, 0.026 → 1.001, 0.015 |
+| X2 | 23.47 | 114.84 / 36.56 / 36.54 / 36.62 / 36.60 | 0.938 / 0.938 | 1.048 / 0.061 / 0.061 | 1.010, 0.022 → 1.002, 0.011 |
+| X3 | 23.50 | 54.36 / 28.56 / 28.56 / 28.58 / 28.58 | 0.890 / 0.890 | 0.320 / 0.0002 / 0.0002 | 0.995, 0.023 → 0.995, 0.016 |
+| X4 | 23.44 | 86.67 / 32.17 / 32.18 / 32.22 / 32.22 | 0.930 / 0.930 | 0.561 / 0.019 / 0.019 | 1.012, 0.023 → 1.002, 0.015 |
+
+- N1-N3 pass for SDa and Sa on every sky.
+- O1 passes on every sky (P ratio 0.992-0.996).
+- These skies have no gain errors and steep, curved spectra over 900-1670 MHz, so a one-plane MFS model leaves
+  most of the excess. They show that joined channels do no harm and match WSClean. They do not show the
+  ESO137 behaviour.
+- Cost on 2048²: A0 29-35 s; SDa and Sa 101-139 s, 4.5 GiB; WSClean 89-111 s, 0.6 GiB.
+
+### Seen data (section 3.3; reported, not in the verdict)
+
+- **Pilot** (floor-5's `g1/P/pilot.ms`, floor-6's pilot state):
+  - A0: F 278.86 µJy, D_ref 0.466, 341,244 components, 10 cycles, 531 s, 9.2 GiB.
+  - SDa: F 329.68 µJy, **D −0.408**, 5,512 s, 18.0 GiB.
+  - Sa, Sm, SDm03 and W-SDa: not run (amendment 3).
+  - floor-6's outputs on nash, the pilot state's `pilot.json` included, were removed from nash during this run
+    (not by this task). The pilot readings use the archived `research/results/floor-6/pilot/pilot.json`
+    (T 44.09 µJy, P_ref), which is identical to the one scored against.
+- **Scan 10**: not run. floor-6's `ho/P/pilot.ms` was gone when the arm started (`table.dat: No such file`).
+- **D1**: SDa D 0.938, O1 P ratio 0.995, N1-N3 pass.
+
+### Post hoc check: does A0's own-scan advantage transfer? (not gating)
+
+A0 cleans unmasked to 3σ. It puts 0.52 and 1.09 Jy into 129,024 and 104,808 pixels outside set A's mask on scans
+4 and 14, against 0.106 / 0.652 Jy (SDa) and 0 (SDm03, Sm). F is scored outside that mask on the same
+visibilities, so A0 may lower F by modelling noise and artefacts in the scored region. To test this, each scan's
+models were scored on the other scan's state (`scripts/cross.sh`). D is against the transferred A0:
+
+| models from → scored on | A0 F (µJy) | SDa D | Sa D | SDm03 D | Sm D | W-SDa D |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| scan 4 → scan 14 | 425.40 | 0.333 | 0.345 | 0.345 | 0.305 | 0.319 |
+| scan 14 → scan 4 | 391.66 | −0.237 | −0.245 | −0.024 | 0.018 | −0.280 |
+
+- Scan 4's A0 transfers worst of its own arms: 425 µJy on scan 14, against scan 14's own A0 at 303 µJy. So part of
+  A0's own-scan lead on scan 4 is fitted to that scan.
+- Scan 14's SDa transfers worse than its A0. Models from another hour angle also carry that scan's
+  direction-dependent errors, so this check bounds the confound but does not remove it.
+- **The frozen D against A0 is not a clean measure of sky-model quality.** The claim "the default already holds
+  the lever" is therefore not made. What is measured is that, under the frozen metric, no SDm03 form beats the
+  shipped default consistently on fresh scans.
+
+### Not run, and disclosures
+
+- The reserve is spent as follows:
+  - scans 4 and 14: used;
+  - scans 6 and 8: metadata, TIME and gain metadata only (amendment 4);
+  - scan 12 (E2-A's retry reserve): untouched.
+
+  The coordinator's brief was taken as the release of a0-acceptance's imaging-only reserve.
+- X4's MS was written twice: the first write was killed by the restart (amendment 4), and X4 was then simulated
+  again from its seeds. X1-X3's prep was rerun after the restart left partial folders. No score existed before
+  either.
+- The pilot's Sa, Sm, SDm03 and W-SDa, and scan 10's arms, were not run.
+
+## For the coordinator
+
+- **Outcome "not yet"; the default does not change.** GeMClean's SDa fails the WSClean oracle on scan 4 (P ratio
+  1.36). Without that clause the outcome is null: the literal SDm03 has D −0.35 on scan 4 against the shipped
+  default and +0.25 on scan 14. No code commit.
+- **floor-6's 0.717 was against p1's 3 mJy image, not the shipped default.** rang-core's bare `image` section
+  (auto-threshold 3σ, unmasked) already removes 0.42-0.53 of that excess on scans 4 and 14 (pilot 0.47).
+  Against it, every SDm03 form is scan-dependent: +0.25 to +0.40 on scan 14, −0.24 to −0.72 on scan 4 and the
+  pilot. Part of A0's lead is fitted noise in the scored region (post hoc cross-scan check). Read the frozen D
+  as "no consistent gain", not as "the default is better".
+- **Possible GeMClean defect (not posted):** with `-auto-mask 6 -mgain 0.9 -join-channels`, GeMClean sets its
+  mask one major cycle earlier than WSClean on scan 4 and the pilot, at 1.05 mJy against about 0.65 mJy, and its
+  model is then worse (P 1.36 × WSClean's). On scan 14 the two agree. This is worth a G4-masks follow-up.
+- **Cost:** SDa takes 9-12 × A0's wall (79-99 min at `-j 8`, shared). Sa takes 3.2-3.8 × (paired with Sm). Both
+  use 18.1 GiB against 9.2 GiB. GeMClean's joined-channel masked runs take 4-5 × WSClean's wall at 8 × its memory.
+- **Reserve:** ESO137 scans 4 and 14 are spent. Scans 6 and 8 remain, with only metadata read. Scan 12 is
+  untouched. The brief was taken as the release; the owner may want to confirm that.
+- **nash:** the run root `~/rang-data/outputs/sdm03-default-20261118` holds 213 GB: the reserve builds and Sp
+  MSs about 60 GB per scan, the fetched tiles 36 GB, and the images. It can be deleted; the compact readings are
+  archived. floor-6's run root was already gone from nash during this run, removed by someone else.
+- **Check:** `python tools/check_all.py --quick` on Windows, before the hand-back. The full check is left to the
+  merge check. The branch adds only research files, the driver, and simulator recipes X1-X4 (no package code).

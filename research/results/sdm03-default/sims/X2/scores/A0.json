@@ -1,0 +1,14 @@
+{
+ "F": 0.00011484267656071973,
+ "P": 1.2638099703872106e-08,
+ "T": 2.3467864320341932e-05,
+ "arm": "A0",
+ "false_flux_jy": 1.0477258828268532,
+ "files": [
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/A0/image-model.fits"
+ ],
+ "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/A0/image",
+ "recovery_abs_err_median": 0.021688328824599923,
+ "recovery_median": 1.0094758646736102,
+ "recovery_n": 40
+}

@@ -1,0 +1,41 @@
+{
+ "active_visibilities": 14515200,
+ "brightest_point_yx_flux": [
+  [
+   1008,
+   951
+  ],
+  0.474831865466698
+ ],
+ "catalogue": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.json",
+ "catalogue_sha256": "def8ad9fffcb591a07d65e69900d6ae6d542dfc3aa3ce94f5b8463288082247c",
+ "comparisons": {},
+ "core_dirty_argmax_yx": [
+  1008,
+  951
+ ],
+ "core_dirty_peak": 0.44998771766412077,
+ "datacol": "DATA",
+ "epsilon": 1e-06,
+ "field": 0,
+ "gridding_weight_sum": 2706187095.7959957,
+ "imaging_weight_sums": {
+  "count": 14515200,
+  "max_gridded_weight": 343.5426330566406,
+  "total_weight": 2706187097.408909,
+  "visibility_weight_sum": 5000000020.3125
+ },
+ "ms": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.ms",
+ "nchan": 16,
+ "nrow": 907200,
+ "q0": 0.3903333927004128,
+ "scale_arcsec": 1.5,
+ "seconds": {
+  "core_dirty_psf_eps1e-06": 10.702441259054467,
+  "read": 4.02176553895697,
+  "stokes_and_weights": 1.9854902710067108,
+  "total": 17.691852845950052
+ },
+ "size": 2048,
+ "weighting": "briggs 0.5, padded weight grid 2460"
+}

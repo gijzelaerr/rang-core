@@ -1,0 +1,12 @@
+2026-11-18T07:14:14+02:00 driver dry start, commit 35022d00, extension 959aae392463543e
+2026-11-18T07:14:14+02:00 start sim-D1 (4 slots, 16 GB)
+2026-11-18T07:14:14+02:00 start arm-pilot-A0 (8 slots, 16 GB)
+2026-11-18T07:14:55+02:00 end sim-D1 rc 0 (TIME sim-D1 41.31 s 406296 KB)
+2026-11-18T07:14:56+02:00 start simprep-D1 (4 slots, 24 GB)
+2026-11-18T07:14:56+02:00 end simprep-D1 rc 1 (TIME simprep-D1 0.26 s 43436 KB)
+2026-11-18T07:15:14+02:00 start arm-pilot-SDa (8 slots, 32 GB)
+2026-11-18T07:23:06+02:00 end arm-pilot-A0 rc 0 (TIME arm-pilot-A0 531.34 s 9618824 KB)
+2026-11-18T08:47:06+02:00 end arm-pilot-SDa rc 0 (TIME arm-pilot-SDa 5511.98 s 18920464 KB)
+2026-11-18T08:47:06+02:00 start arm-pilot-Sm (8 slots, 32 GB)
+2026-11-18T08:47:06+02:00 start arm-pilot-Sa (8 slots, 32 GB)
+2026-11-18T08:51:33+02:00 dry driver stopped by hand after the pilot A0/SDa scores (amendment 3); arm-pilot-Sa and arm-pilot-Sm killed unfinished

@@ -1,0 +1,241 @@
+{
+ "bytes": 44928,
+ "fetched_utc": "2026-11-18T06:54:06Z",
+ "files": [
+  {
+   "bytes": 1641,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/.zattrs",
+   "sha256": "1edbb527e87c092d778dedec47865b15d16c6c16636f2c057d746626e9bdf33d"
+  },
+  {
+   "bytes": 24,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/.zgroup",
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "bytes": 320,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/.zarray",
+   "sha256": "705bf5f1f4f41df4650cc27052e218dbd3fd0e23627de4294c2050b880320506"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 320,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME_CENTROID/.zarray",
+   "sha256": "705bf5f1f4f41df4650cc27052e218dbd3fd0e23627de4294c2050b880320506"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME_CENTROID/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 318,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/ANTENNA1/.zarray",
+   "sha256": "0eec899da6ec5be9a9c5193c22030e27a3f48f26f391e6b6bb7240e3692ab7ba"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/ANTENNA1/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 318,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/ANTENNA2/.zarray",
+   "sha256": "0eec899da6ec5be9a9c5193c22030e27a3f48f26f391e6b6bb7240e3692ab7ba"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/ANTENNA2/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 320,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/INTERVAL/.zarray",
+   "sha256": "705bf5f1f4f41df4650cc27052e218dbd3fd0e23627de4294c2050b880320506"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/INTERVAL/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 320,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/EXPOSURE/.zarray",
+   "sha256": "705bf5f1f4f41df4650cc27052e218dbd3fd0e23627de4294c2050b880320506"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/EXPOSURE/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 322,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/FLAG_ROW/.zarray",
+   "sha256": "10e51e4d12a4fc8659c862d87d2824406ab7d350af359224bb3fd3eed489dc35"
+  },
+  {
+   "bytes": 161,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/FLAG_ROW/.zattrs",
+   "sha256": "64bcf3167c70af701f4ab46353364644a5a3f1e05de1d785a4af6b0b2ae72ed8"
+  },
+  {
+   "bytes": 342,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/UVW/.zarray",
+   "sha256": "5e84c66777ee47b3dccc2b9d7f815d549f6134bf75afab3b87e5390783611df0"
+  },
+  {
+   "bytes": 180,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/UVW/.zattrs",
+   "sha256": "03a5e695548db0700dbc68d1bfd0d761a97e84509cdd057b7308c767868caa22"
+  },
+  {
+   "bytes": 342,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/WEIGHT/.zarray",
+   "sha256": "2f692b77a385da4cb2e831e0a93bd8ed4caa9960c3c8fd5a5786fae24d84d432"
+  },
+  {
+   "bytes": 181,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/WEIGHT/.zattrs",
+   "sha256": "700da42004f5b3097f0a4c6964de91df58b78e284a93e3ccc521509d257e44f7"
+  },
+  {
+   "bytes": 342,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/SIGMA/.zarray",
+   "sha256": "2f692b77a385da4cb2e831e0a93bd8ed4caa9960c3c8fd5a5786fae24d84d432"
+  },
+  {
+   "bytes": 181,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/SIGMA/.zattrs",
+   "sha256": "700da42004f5b3097f0a4c6964de91df58b78e284a93e3ccc521509d257e44f7"
+  },
+  {
+   "bytes": 398,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/DATA/.zarray",
+   "sha256": "2622d7a7fb0eb9b92933ba544aae4e2c2ff264caf97771073029ca94b863b782"
+  },
+  {
+   "bytes": 201,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/DATA/.zattrs",
+   "sha256": "a04ac1116930421ec6b91cb63e274d32a11109d4aa66e43f816b061b7bb2e7bb"
+  },
+  {
+   "bytes": 371,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/FLAG/.zarray",
+   "sha256": "5c65a850d34f00026722a0d75287eead349e6942498b67ebf236e877910b32f9"
+  },
+  {
+   "bytes": 201,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/FLAG/.zattrs",
+   "sha256": "a04ac1116930421ec6b91cb63e274d32a11109d4aa66e43f816b061b7bb2e7bb"
+  },
+  {
+   "bytes": 369,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/WEIGHT_SPECTRUM/.zarray",
+   "sha256": "53b47c386dcca1bc3e2bc1c77800b318a0601ee519accdeebe21bff92d2c7d35"
+  },
+  {
+   "bytes": 201,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/WEIGHT_SPECTRUM/.zattrs",
+   "sha256": "a04ac1116930421ec6b91cb63e274d32a11109d4aa66e43f816b061b7bb2e7bb"
+  },
+  {
+   "bytes": 2059,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/4",
+   "sha256": "daad9f36355d07dc02c1395c8c48c2532250b95b926731c7aab163c677f782c9"
+  },
+  {
+   "bytes": 2046,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/0",
+   "sha256": "4c9a5457a0c84cf6db01e097ad7c99bca41898eafe154b6489b37ac5ad6fbf41"
+  },
+  {
+   "bytes": 2043,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/1",
+   "sha256": "e5c8a702c1b7c1c64d276a3d23a5d925e9dd8a5dc3681e832a5e45b61aed9715"
+  },
+  {
+   "bytes": 2049,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/6",
+   "sha256": "54912ce680c85062771f3fda05168e7a5b8c611a33bf89b3b07e4872b8ebe0b1"
+  },
+  {
+   "bytes": 2040,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/5",
+   "sha256": "e68ec3d55e794fef0f9fc8c350a8cab58ca40b5488cff1029fd0fe8091db988d"
+  },
+  {
+   "bytes": 2067,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/2",
+   "sha256": "65019c73ac862117fff87c0d93e4212e9c841729366b50deffa7c22a4f20593b"
+  },
+  {
+   "bytes": 2039,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/3",
+   "sha256": "2cef82399fd36fe52b08ad53c2682b57d9c19603f0aa8616a625c2f8267f1ff6"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/7",
+   "sha256": "0bd46c26670711d510b68c1b9826419a755a1383a6e9f697c14a0f3027592472"
+  },
+  {
+   "bytes": 2073,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/9",
+   "sha256": "dc756dfa4e68be985137c24e66769f631d50ddebab8992645bf521c94b1e31a9"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/10",
+   "sha256": "ea848265946f2c9fd9049d6c8576b462d8d8970a545b318fc5a0ec48596def3d"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/14",
+   "sha256": "f616b88459b16d5aa6066f0333a05dd5052d54d05d2a3b6805f09fe761dd3e38"
+  },
+  {
+   "bytes": 2048,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/12",
+   "sha256": "a98ac962c4c6bc8924c50e317de573aa5eb5f670323510aa105768cc35b44364"
+  },
+  {
+   "bytes": 2060,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/11",
+   "sha256": "168f08f1be94e133faaf1fd471d5f9299ec900b4257bb47bc2c59158677aa3e6"
+  },
+  {
+   "bytes": 2054,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/13",
+   "sha256": "24ea5946a501de3ceaf2fb57001c3007c9042a54a1653807658abbbe4c2ff602"
+  },
+  {
+   "bytes": 2042,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/8",
+   "sha256": "b34c6d5f2ce5081bc88004517743daa710b8a2f126597385d683d65ca50cadb8"
+  },
+  {
+   "bytes": 2050,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/15",
+   "sha256": "1e2d98f3e28465ee9fde10da2098dcdad302861a5150290cad8949dd8d9e640a"
+  },
+  {
+   "bytes": 2053,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/16",
+   "sha256": "1113afeac8be35057afaab32b14f339c30ad90ed32f2658dce5986fc521704fb"
+  },
+  {
+   "bytes": 1740,
+   "key": "ESO137/ms1_target.zarr/MAIN/MAIN_3/TIME/17",
+   "sha256": "a2d7c65c10018d4409c0601baedc2abeb439d7792199366dd3410e972df35108"
+  }
+ ],
+ "licence": "CC BY 4.0; cite Ramatsoku et al. 2020, A&A 636, L1",
+ "objects": 46,
+ "phase": "meta",
+ "purpose": "ms1_target.zarr MAIN_3, research/sdm03-default.md",
+ "source": "https://ratt-public-data.s3.af-south-1.amazonaws.com"
+}

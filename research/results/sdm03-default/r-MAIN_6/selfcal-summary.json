@@ -1,0 +1,219 @@
+{
+ "chunking": {
+  "chunk_gb": 11.252288937568665,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 184357,
+   "calibrate": 184357,
+   "chain": 122905,
+   "flag": 368715,
+   "model": 184357,
+   "rows": 491620,
+   "selfcal": 262197
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/run/selfcal/ESO137-pilot/final/image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-no-update-model-required",
+     "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 23196,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "4dfc5ee1ca2250850ffd83c75e07f365101cf617cc327ec22f47e4ba7e186d13",
+     "image-image.fits": "6aa6e622408c5196eac2895df8838b1bc8fcae6e175aa078f4b0d7ff0a374a7d",
+     "image-model.fits": "a1cfa8a3f9b3cbeef01b3fd7fd7802895a6a41a761f1d575ebe9061c4c40cc32",
+     "image-psf.fits": "5b98c22cdea839d639941ffa864b6ac7dfe3ea200ff79de0e392348f0e8800d2",
+     "image-report.json": "d69b50daf5f8a76f0219b5e478845b77be36fa68cd399c51f12e4c3bc3ab2744",
+     "image-residual.fits": "5092c2a00ad6b0e3068a6bf8a286e66eac4cbba7735f932db9a6e687777d26d1"
+    },
+    "fits_mask": null,
+    "image": 2,
+    "wall_seconds": 379.1991934310645
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 223355720,
+      "cells_flagged_before": 223355720,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 150.93981611391064
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/run/selfcal/ESO137-pilot/round-1/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 39121,
+       "major_cycles": 4,
+       "stop": "Threshold"
+      },
+      "column": "DATA",
+      "files": {
+       "image-dirty.fits": "216c8a25e15e8a9a3556ccdb5cfcf1532895a2d85ebc27f1e846b5e5a55d5fff",
+       "image-image.fits": "94f957634b6c9e1fbdfbf8760b7d3a09f570a19bc07f7fd0e49ff31d34864bca",
+       "image-model.fits": "f7cd1955d30a3848b9dcb8d086b85644c09ad1e0a13cd7ad898c6eb2634a9e66",
+       "image-psf.fits": "ca87acdd67259aec3866696a6956e02cdc8ecc2a08a8168063981f21cc4bae66",
+       "image-report.json": "7238bc68c99d86aeed1278e524c1f19250f642fd35a33d501bc5d92f0a07802a",
+       "image-residual.fits": "a20cee7566876933d32ca4cd239c3908494d40d997e20848d477b1f415d2fe83"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 399.7215245809639
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/run/selfcal/ESO137-pilot/round-1/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 145.31882136699278
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.9930555555555556,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 11,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "300s",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 12,
+      "time_bins_per_scan": {
+       "2": 12
+      },
+      "type": "Sp",
+      "wall_seconds": 656.1011680710362
+     },
+     "store": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/run/selfcal/ESO137-pilot/round-1/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "300s",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261118T073326Z",
+ "gemclean": "/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python -m rang.gemclean",
+ "gemclean_sha256": "959aae392463543e4587666eb80cfa709e84988f24bbd04b4375d9e59d0bb4b4",
+ "input": {
+  "column": "DATA",
+  "copied_now": false,
+  "previous_copy": null
+ },
+ "input_column": "DATA",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 1
+}

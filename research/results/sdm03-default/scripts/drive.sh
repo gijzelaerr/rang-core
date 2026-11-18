@@ -113,6 +113,26 @@ case $MODE in
     seen_state $F6/ho $OUT/seen-s10; real_arms s10 $OUT/seen-s10 $F6/ho/P/pilot.ms; log "seen s10 rc $?"
     summary;;
   d1) sim_track D1; RC=$?;;  # the seen sky alone (rerun after the venv fix, amendment 2)
+  sims)  # X1-X3 alone (X4 ran on in the main driver) (rerun after the restart left partial outputs, amendment 4)
+    sim_track X1 --sky-seed 20261841 --noise-seed 20261851 & S1=$!
+    sim_track X2 --sky-seed 20261842 --noise-seed 20261852 & S2=$!
+    sim_track X3 --sky-seed 20261843 --noise-seed 20261853 & S3=$!
+    for p in $S1 $S2 $S3; do wait $p; r=$?; log "track pid $p rc $r"; RC=$(( RC + r )); done;;
+  wsa)  # section 6's W-Sa (Sa at matched settings), on every fresh sky and reserve scan
+    for s in X1 X2 X3 X4; do
+      d=$OUT/sims/$s
+      launch arm-$s-W-Sa 8 16 $PY $SD image W-Sa --kind sim --ms $d.ms --prefix $d.img/W-Sa/image --column DATA || RC=1
+      launch simscore-wsa-$s 4 24 $PY $SD simscore $d.prep A0=$d.img/A0/image W-Sa=$d.img/W-Sa/image || RC=1
+    done
+    for g in MAIN_6 MAIN_1; do
+      r=$OUT/r-$g
+      until [ -f $LOGS/state-$g.ok ]; do sleep 120; done
+      launch arm-$g-W-Sa 8 48 $PY $SD image W-Sa --kind eso --ms $r/P/pilot.ms --prefix $r/img/W-Sa/image --mask $MASK --column CORRECTED_DATA || RC=1
+      launch score-wsa-$g 4 16 $PY $SD real --group MAIN_4 -- score W-Sa=$r/img/W-Sa/image --out $r --held $HELD || RC=1
+    done;;
+  s10)  # scan 10 (seen, reported only): A0 alone, against floor-6's archived arms on the same state
+    seen_state $F6/ho $OUT/seen-s10
+    arm s10 A0 $F6/ho/P/pilot.ms $OUT/seen-s10 eso CORRECTED_DATA 8 16 &&       launch score-s10 4 16 $PY $SD real --group MAIN_4 -- score A0=$OUT/seen-s10/img/A0/image --out $OUT/seen-s10 --held $HELD; RC=$?;;
   summary) summary;;
 esac
 kill $SPID 2>/dev/null
