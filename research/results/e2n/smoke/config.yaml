@@ -1,0 +1,99 @@
+# e2n_dryrun.py: e2n.yaml on A1 small (development), amendment 3.
+# E2-N of research/a0-acceptance.md (6.3 row E2-N, 6.5), frozen in
+# research/e2n-native.md before any E2-N visibility was read. SARAO capture
+# block 1735268787 (SCI-20241101-KR-02), native DATA through katdal's
+# mvftoms.py (no --applycal), the calibrator scans and three target scans.
+# E2-B's full-Stokes chain (e2b.yaml, CARACal's meerkat-fullStokes defaults)
+# with J1744-5144 as the secondary in place of J1833-2103, plus E2-A's target
+# imaging and self-calibration as amended for the rerun (e2a-rerun.yaml, A0
+# rule 6 for every selfcal image). Changes against those two files, each
+# with its reason in e2n-native.md section 5:
+# - calibrate.average_freq and casa_phase_weights on (e2b-misses.md 9.26-9.27:
+#   "the key becomes the E2 configuration's for the next unseen leg");
+# - image.average_channels 2 (1,024 native channels -> 512 imaging channels,
+#   E2-A's 4,096 / 8);
+# - J0408-6545 (unpolarised, CARACal's list) corrected like the secondary,
+#   for the adapted leakage row; it is in no solve;
+# - the target corrected with the secondary's F (CARACal's transfer), not
+#   E2-A's primary-only K1 G1 B1, because this track has a gain calibrator;
+# - feed_angle_rotation -90 sets the angle mvftoms already writes (-pi/2).
+schema: rang-config
+version: 1
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [SIM-GCAL]
+  xcal: [3C286-SIM]
+  target: [SIM-TARGET]
+data:
+  weights: uniform
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+calibrate:
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: A, name: Asec}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+  polcal:
+    field: [xcal]
+    model: {source: nrao, name: 3C286}
+    feed_angle_rotation: -90
+    extendflags: true
+    terms:
+      - {type: Gpol, name: Gpol, solint: 60s, calmode: p, parang: true,
+         preapply: [K, G, B], interp: [linear, linear, linear]}
+      - {type: KCROSS, name: Kcross, solint: inf, parang: true,
+         preapply: [K, G, B, Gpol], interp: [linear, linear, linear, linear]}
+      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,
+         preapply: [K, G, B, Gpol, Kcross], interp: [linear, linear, linear, linear, nearest]}
+      - {type: Df, name: Df, field: [fcal], solint: inf, combine: scan, parang: true,
+         clip: [-0.6, 0.6], preapply: [K, G, B, Kcross, Xf],
+         interp: [linear, linear, linear, nearest, nearest]}
+apply:
+  calwt: false
+  parang: true
+  targets:
+    - field: [gcal, target]
+      tables: [K, F, B, Kcross, Xf, Df]
+      gainfield: [J1939-6342, SIM-GCAL, J1939-6342, "", "", ""]
+      interp: [linear, linear, linear, nearest, nearest, nearest]
+    - field: [fcal, xcal]
+      tables: [K, G, B, Gpol, Kcross, Xf, Df]
+      interp: [linear, linear, linear, linear, nearest, nearest, nearest]
+image:
+  fields: [target]
+  column: CORRECTED_DATA
+  size: [1024, 1024]
+  scale: 3asec
+  weight: briggs
+  robust: 0.5
+  average_channels: 2
+  channels_out: 8
+  join_channels: true
+  fit_spectral_pol: 2
+  mgain: 0.9
+  auto_mask: 5.0
+  auto_threshold: 3.0
+  multiscale: false
+selfcal:
+  rounds: 2
+  average_time: true
+  terms: [{type: Sp, solint: 120}, {type: Sa, solint: 120}]
+run:
+  stages: [flag, calibrate, apply, image, selfcal]

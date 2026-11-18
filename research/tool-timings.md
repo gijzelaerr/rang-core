@@ -2034,6 +2034,17 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-16 | ts-p1 P2: T5, 45 snapshots at 2000², wstack CPU / GPU / wgrid | tsp1-held2 | about 6.0 s / 2.5 s per snapshot | – | 8 threads; RTX 4070 Ti, f64 |
 | 2026-11-16 | ts-p1 P2: `tools/check_all.py --quick` | worktree | 214 s (lock wait excluded) | – | PASS: 504 pytest |
 | 2026-11-16 | ts-p1 P2: T6 exclusive ticket | – | not started | – | head of the queue, blocked by an IDLE 4-slot E2-A hold; withdrawn |
+| 2026-11-16 | e2n: `e2n_meta.py` run 1 (metadata plus a sparse flag fraction) | SARAO CBID 1735268787, RDB over HTTPS | 607 s, failed | 1.3 GB | `StoreUnavailable` connect timeout on a `correlator_data` chunk; WSL, 1 slot |
+| 2026-11-16 | e2n: `e2n_meta.py` run 2 (metadata only) | the same | 732 s (469 s `katdal.open`) | 1.3 GB | RDB at about 0.7 MB/s; WSL, 1 slot |
+| 2026-11-16 | e2n: `e2n_fetch.py`, katdal scan 35 (J1939-6342) | 414 chunks, 5.98 GB, plus the 328 MB RDB | 1,457 s | 1.0 GB | 4.1 MB/s overall, 8 HTTPS workers; WSL to D: over 9p |
+| 2026-11-16 | e2n: `mvftoms.py -f -a` test, katdal scan 35 | 139,934 rows × 1,024 × 4, local MVF on D: | 171 s | 3.7 GB | straight to D: over 9p, rc 0; MS 8.8 GB (with SIGMA_SPECTRUM); deleted |
+| 2026-11-16 | e2n: `tools/wheel/build.py` | worktree at 8f3e191 | 195 s (maturin) | – | 8 slots, 12 GB shared |
+| 2026-11-16 | e2n: `tools/check_all.py --quick` | worktree at e9fa922 | 924 s (lock wait excluded) | – | PASS |
+| 2026-11-16 | e2n: `e2n_fetch.py`, the rest of the selection (Windows host, WSL to D:) | 6,128 chunks, 88.6 GB in two runs (16, then 32 workers) | 16,002 s | 1.2 GB | 5.5 MB/s, the archive's rate; 3 failed (2 × HTTP 404, 1 timeout) |
+| 2026-11-16 | e2n: `e2n_fetch.py` (host nash, nice/ionice), the selection | about 4,600 chunks fetched, the tail streamed from the Windows copy | 5,975 s, then a 632 s refetch | 1.0 GB | 9-15 MB/s; upload Windows → nash about 5 MB/s |
+| 2026-11-16 | e2n: `mvftoms.py -f -a` (host nash, nice/ionice), the selection | 2,229,489 rows × 1,024 × 4, local MVF | 835 s | 5.6 GB | MS 139 GB with SIGMA_SPECTRUM, 105 GiB after |
+| 2026-11-16 | e2n: `e2n_prep_ms.py` (host nash) | e2n.ms: token check, SIGMA_SPECTRUM drop, map, flag hashes | 40 s | – | – |
+| 2026-11-16 | e2n: WSClean 3.7 build check, two images × dirty + PSF | G3 D1.ms, 1,024² | about 2 min | – | Windows host WSL docker, 4 slots |
 | 2026-11-16 | v8c-tfcrop: `tools/check_all.py --quick` | worktree after merging origin/main | 894 s (lock wait excluded) | – | PASS; takes the lock itself |
 | 2026-11-16 | lock-backfill: `tools/check_all.py --quick` | worktree, fresh .venv | 997 s (lock wait excluded; 1113 s wall) | – | PASS: 314 pytest |
 | 2026-11-16 | msv4-interop: xradio 1.3.1 `convert_msv2_to_processing_set`, defaults | 9 MSv2s (20-12480 rows) | 3.2-4.3 s each; 11.6 s for `A-casa.ms` | – | WSL, Python 3.12, under the lock (2 slots, 4 GB) |
@@ -2303,3 +2314,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | sdm03-default: `g3_spectral_simulate.py` X1-X4 and D1, prep, four or five arms each, score (host nash) | 907k rows × 16 ch, 2048² | sim 33-41 s; prep 35-67 s; A0 29-35 s; SDa/Sa 101-139 s (4.5 GiB); WSClean 88-111 s (0.6 GiB); score 124-143 s | 1.8 GiB (score) | |
 | 2026-11-18 | sdm03-default: floor-6 `score` of six arms per reserve scan; post hoc cross-scan scoring (host nash) | subset 32 ch | 427 s, 474 s; cross 915 s | 3.3 GiB | 4 slots |
 | 2026-11-18 | sdm03-default: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `sdm03-default` | 734 s (lock wait excluded) | – | PASS |
+| 2026-11-17 | e2n, host nash: `rang-core run e2n.yaml e2n.ms` (Linux wheel `9b096274…0107`, 16 slots, 96 GB, `RAYON_NUM_THREADS=16`, nice 19) | e2n.ms, 2,229,489 rows × 1,024 × 4 | 69,527 s (flag 1,984, calibrate 4,819, apply 1,319, image 11,985, selfcal 49,304) | 36.4 GB | rc 0; shared host, load mean 37 %, max 99 %; queued 1.4 h before start; indicative, not a timing claim |
+| 2026-11-18 | e2n, host nash: post chain (`e2n_nash_chain.sh`, 39 steps in one outer hold, 16 slots, 96 GB) | e2n.ms in place | 42,376 s (02:30-14:16 SAST; outer hold queued 3.3 h) | – | every step rc 0; largest steps: WSClean 3c clean 13,662 s, WSClean target oracle 10,961 s, QuartiCal averaging 4,831 s, Tricolour 1,518 s, CASA 3b sequence 1,292 s, CASA applycal 1,241 s, dask-ms 1,472 s; per-step times in `results/e2n/score/chain-steps.log` |
+| 2026-11-18 | e2n-score, host nash: `e2n_native_size.py` | rang's and CASA's K, KCROSS, Xf tables | about 2 s | – | reported-only readings |
+| 2026-11-18 | e2n-score, host nash: `tools/check_all.py --quick` under `heavy_lock.py run --slots 4 --mem 12`, nice 19 | worktree at `ad81a1e5` (research-only diff) | 57 s (lock wait excluded; 60 s with it) | – | PASS |

@@ -211,6 +211,34 @@ check of that rule, no package code changed: fresh seeds 20261751-4, 720 s 3C286
 (pass); |χ − 33°| ≤ 0.72° (pass). Frozen outcome 4: rang vs CASA Xf median 0.054° > 0.05° on the held-out set
 (χ 0.007°), and unaveraged rang differs from CASA by more (0.065°). Post hoc: CASA's `preavg` 8, 60, 300 s moves
 its Xf by ≤ 0.01°, so the difference is not pre-averaging; source not found. `preavg` stays not ported.
+E2-N scored as frozen, 2026-11-18 (branch `e2n`; [e2n-native.md](e2n-native.md) 9.4; issue #7; archive
+[results/e2n/score/](results/e2n/score/)). **Not met.**
+- The run: `rang-core run` on nash with rc 0, all five stages, 69,527 s at 36.4 GB peak (shared host,
+  indicative). The post chain's 39 steps all returned rc 0. Run root `~/rang-data/outputs/e2n-20261116/R`.
+- Met: 1, 2a-2c, 3C 286 parity (|Δp| 0.088 point, |Δχ| 0.31°), target noise and dynamic range (0.96 ×, 1.08 ×),
+  self-calibration (rms 0.971; gains against QuartiCal in the averaged form), J0408−6545 leakage (0.17 %),
+  and 3b K, KCROSS, Df and Gpol.
+- Not met: 3a (73 of 2.28e9 cells); 3b Xf (p95 2.085° against 2.0°) and both composites; 3c (dirty L∞
+  5.5e-2, compact scatter 2.7 %); J1744−5144 χ (10.3°, p ≈ 0.02 %); the target's compact scatter (13.3 %
+  against 1.5 %).
+- Reported: K, KCROSS and Xf are near-null in both arms (0.03 ns, 0.018 ns, 1.7°), so the real-size solve
+  stays untested. The 3C 286 same-scan reading is p 10.2 %, χ 39.3°. The `as_is` arm was not run.
+- Post hoc: CASA's K left 19 of 62 antennas flagged on 1934−638, and every CASA product inherits that;
+  the cause is not established.
+- Coordinator decisions are listed in the note's last section.
+
+E2-N fetched and frozen, 2026-11-16 (branch `e2n`; [e2n-native.md](e2n-native.md); issue #7). Proposal frozen
+(`8f3e191`) before any visibility of SARAO CBID 1735268787 was read (SCI-20241101-KR-02, L band 1k, 62 antennas;
+1934−638, 3C 286, J0408−6545, J1744−5144, ASKAP J1745; 5.25 h).
+- Selection: every calibrator scan and the middle three target scans (1.87 h); 6,543 of 6,545 chunks (2 absent
+  in the archive), 89 GB; MS via katdal `mvftoms.py` with no calibration applied, 2.23 M rows, 105 GiB, on nash
+  (host change, amendment 2: data refetched there; pinned oracle images run by apptainer; WSClean from the
+  CASA image's KERN 3.7 build, 1.4e-7 of the peak from the native one).
+- **DATA is observatory-phased** (XX−YY coherence 0.99977 on 1934−638, as LUNO's 0.9997): flat parallel-hand
+  phases come from the observatory, not processing. Under the frozen rule the leg is "E2-N (observatory-
+  phased)". That says nothing about cross-hand terms: 3C 286's XY phase is −176° (coherence 0.69, LUNO 1.9°),
+  so KCROSS and Xf are reported as measured. Leakage is uncorrected (1.5 %); 31.5 % of cells carry native flags.
+- Next: the rang arm on nash once its build works, then the gates as frozen.
 
 MSv4 M3 and M2, 2026-11-16 (branch `msv4-m2`; [msv4-interop.md](msv4-interop.md) sections 11 and 7, measured;
 receipts [results/msv4-interop-m3.json](results/msv4-interop-m3.json),

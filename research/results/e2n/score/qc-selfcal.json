@@ -1,0 +1,158 @@
+{
+ "oracle": "QuartiCal 0.2.7 (rang-formats-oracle:20261030) on averaged inputs (9.10)",
+ "class_b": {
+  "median": 0.0007,
+  "p95": 0.003
+ },
+ "refant": 22,
+ "model_control_met": true,
+ "unaveraged_form": {
+  "run": false,
+  "samples_per_interval": 929464320,
+  "gb_per_interval_data_model_weights": 18.5892864,
+  "wsl_memory_gb": 44,
+  "reason": "one interval of unaveraged data, model and weights exceeds WSL's memory (6.5: not checked)"
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   "shape_rang": [
+    9,
+    1,
+    62,
+    2
+   ],
+   "shape_qc": [
+    9,
+    1,
+    62,
+    2
+   ],
+   "qc_wall_s": 122.54,
+   "qc_max_rss_mb": 854.06640625,
+   "conv_iter": [
+    [
+     [
+      9
+     ],
+     [
+      10
+     ],
+     [
+      9
+     ]
+    ],
+    [
+     [
+      9
+     ],
+     [
+      10
+     ],
+     [
+      9
+     ]
+    ],
+    [
+     [
+      10
+     ],
+     [
+      11
+     ],
+     [
+      9
+     ]
+    ]
+   ],
+   "rang_flagged": 0,
+   "qc_flagged": 0,
+   "apply_flags_equal": true,
+   "products": 34038,
+   "median": 3.5556591769723585e-10,
+   "p95": 4.26874458633418e-09,
+   "max": 7.951741308306283e-08,
+   "pass": true,
+   "gain_times_equal": true
+  },
+  {
+   "round": 2,
+   "term": {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": 120,
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   },
+   "shape_rang": [
+    9,
+    1,
+    62,
+    2
+   ],
+   "shape_qc": [
+    9,
+    1,
+    62,
+    2
+   ],
+   "qc_wall_s": 124.97,
+   "qc_max_rss_mb": 825.078125,
+   "conv_iter": [
+    [
+     [
+      33
+     ],
+     [
+      25
+     ],
+     [
+      19
+     ]
+    ],
+    [
+     [
+      37
+     ],
+     [
+      49
+     ],
+     [
+      21
+     ]
+    ],
+    [
+     [
+      29
+     ],
+     [
+      39
+     ],
+     [
+      21
+     ]
+    ]
+   ],
+   "rang_flagged": 0,
+   "qc_flagged": 0,
+   "apply_flags_equal": true,
+   "products": 34038,
+   "median": 7.078093118974566e-09,
+   "p95": 3.3428685712049403e-07,
+   "max": 5.35925805956363e-06,
+   "pass": true,
+   "gain_times_equal": true
+  }
+ ]
+}

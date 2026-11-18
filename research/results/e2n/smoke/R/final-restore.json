@@ -1,0 +1,22 @@
+{
+ "restored_rows": 12480,
+ "hash": {
+  "rows": 12480,
+  "flag_sha256": "1350167bee99b37716af6e9419b70c8c8e6bdc541a5659b3da6240013a159ccd",
+  "flag_row_sha256": "3cca6d8861b43dbda84f426888fd613f763b91bcab37399b96f7bf53a4f61422"
+ },
+ "input": {
+  "ms": "/home/gijs/rang-data/outputs/e2n-20261116/dryrun/a1-small.ms",
+  "rows": 12480,
+  "cell_shape": [
+   64,
+   4
+  ],
+  "flag_sha256": "1350167bee99b37716af6e9419b70c8c8e6bdc541a5659b3da6240013a159ccd",
+  "flag_row_sha256": "3cca6d8861b43dbda84f426888fd613f763b91bcab37399b96f7bf53a4f61422"
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 1.860110481036827,
+ "met": true
+}

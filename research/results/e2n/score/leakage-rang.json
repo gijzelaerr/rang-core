@@ -1,0 +1,22 @@
+{
+ "label": "rang",
+ "column": "RANG_CORRECTED_DATA",
+ "field": "J0408-6545",
+ "field_id": 0,
+ "wsclean_exit": 0,
+ "command": "wsclean -name /o/rang -size 2048 2048 -scale 2asec -weight briggs 0.0 -make-psf -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column RANG_CORRECTED_DATA -gridder wgridder -wgridder-accuracy 0.0001 -niter 0 -no-update-model-required -j 8 -temp-dir /o/tmp -field 0 /m/e2n.ms",
+ "i_peak_jy": 16.264177322387695,
+ "i_peak_pix": [
+  1024,
+  1024
+ ],
+ "beam_major_pix": 8.679428298507702,
+ "Q_over_I": 0.0014724532664953543,
+ "Q_at_peak_over_I": 0.0014724532664953543,
+ "U_over_I": 0.001720852223629205,
+ "U_at_peak_over_I": 0.001685525340060874,
+ "V_over_I": 0.000866255690085261,
+ "V_at_peak_over_I": 0.00031892093531721993,
+ "met": true,
+ "max_over_I": 0.001720852223629205
+}

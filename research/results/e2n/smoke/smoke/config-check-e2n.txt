@@ -1,0 +1,1 @@
+research/results/e2n-scripts/e2n.yaml: valid for flag, calibrate, apply, image, selfcal

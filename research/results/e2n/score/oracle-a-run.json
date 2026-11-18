@@ -1,0 +1,57 @@
+{
+ "exit": 0,
+ "argv": [
+  "wsclean",
+  "-name",
+  "/p/oracle-a/ASKAPJ1745-clean",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.5",
+  "-niter",
+  "1000000",
+  "-mgain",
+  "0.9",
+  "-auto-threshold",
+  "3.0",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-channels-out",
+  "8",
+  "-join-channels",
+  "-fit-spectral-pol",
+  "2",
+  "-auto-mask",
+  "5.0",
+  "-multiscale",
+  "-field",
+  "3",
+  "-no-update-model-required",
+  "-gridder",
+  "wgridder",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-j",
+  "8",
+  "-temp-dir",
+  "/p/oracle-a/tmp",
+  "/c/e2n.ms"
+ ],
+ "dropped": {
+  "-name": [
+   "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms.rang-run/image/ASKAPJ1745/image"
+  ],
+  "-average-channels": [
+   "2"
+  ],
+  "-data-column": [
+   "CORRECTED_DATA"
+  ],
+  "-unit-weights": true
+ },
+ "seconds": 10955.298672095058
+}
