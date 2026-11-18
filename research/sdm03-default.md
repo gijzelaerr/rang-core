@@ -249,6 +249,19 @@ any fresh sky was drawn.**
   its own `/usr/bin/time` line). While a pair waits, smaller jobs of this driver are held back. The pilot's
   seen pairs keep the old schedule.
 
+**3, 2026-11-18 08:55 SAST, before any reserve visibility was fetched or any fresh sky was drawn. It was
+written after the seen pilot's A0 and SDa scores were read.**
+
+- The dry run is cut short. Every stage of the chain has run on seen data. D1 ran in full: simulate, prep,
+  four arms (W-SDa included) and scoring. On the pilot, A0 and SDa were imaged and scored by floor-6's scorer
+  (`score-pilot-early`), and the summary's real readings, D, D_ref and cost were evaluated on those scores.
+- The pilot's Sa, Sm, SDm03 and W-SDa had not finished, and they were stopped. The pilot's SDa took 5,512 s,
+  so the other four would have held 16 slots for about three more hours of seen data. They are reported as
+  not run. Scan 10's seen arms still run in the main run.
+- Disclosed: the seen pilot readings were known before the reserve was read. A0 gives F 278.9 µJy (D_ref
+  0.466) and SDa 329.7 µJy (D −0.41 against A0). SDa took 5,512 s and 18.0 GiB, against A0's 531 s and
+  9.2 GiB. The rule, the arms and the bars are unchanged.
+
 ## Measured result
 
 (not yet run)
