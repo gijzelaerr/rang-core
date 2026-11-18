@@ -32,8 +32,9 @@ limit, not solved (below).
   3c, the J1744−5144 χ and the target's compact scatter (13.3 % against 1.5 %)
   miss. The data are observatory-phased, so K, KCROSS and Xf are near-null and
   their real-size solve is untested. The CASA reference flagged 19 of 62
-  antennas in its delay solve, not yet understood, so the oracle is suspect on
-  the K-downstream rows. The polarisation claim still rests on LUNO (processed
+  antennas in its delay solve because the oracle gave CASA the post-`extendflags`
+  flags, not those rang solved on, so the K-downstream misses are partly an
+  oracle defect; a corrected rerun is in progress. The polarisation claim still rests on LUNO (processed
   data) plus simulation ({gh}`research/e2n-native.md`, issue #7).
 - **No direction-dependent calibration** and no facets.
 - **No learned flagger.** `rang-core flag` runs the Tricolour port only
