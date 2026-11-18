@@ -249,7 +249,7 @@ any fresh sky was drawn.**
   its own `/usr/bin/time` line). While a pair waits, smaller jobs of this driver are held back. The pilot's
   seen pairs keep the old schedule.
 
-**3, 2026-11-18 08:55 SAST, before any reserve visibility was fetched or any fresh sky was drawn. It was
+**3, 2026-11-18 08:50 SAST, before any reserve visibility was fetched or any fresh sky was drawn. It was
 written after the seen pilot's A0 and SDa scores were read.**
 
 - The dry run is cut short. Every stage of the chain has run on seen data. D1 ran in full: simulate, prep,
