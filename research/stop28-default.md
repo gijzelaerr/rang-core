@@ -146,6 +146,47 @@ driver passes S1-S3 that beam explicitly, 10.761531523459142″, the `beam_arcse
 `D:/rang/outputs/20261102-gemclean/bench/prep/s1/meta.json` (13.8785″ × 8.3448″). No imaging is re-run, no
 threshold or rule changes; only the three missing S1-S3 scores and the table are produced.
 
+**4, 2026-11-18, confirmation leg: written after H9-H16, their verdict and amendment 3 were seen, before any sky
+of this leg was drawn and before any run of it.** The coordinator held the default change because "switch" rested
+on amendment 3. This leg settles it with no post hoc step; nothing above changes for H9-H16.
+
+- **Skies H17-H24**, blind, drawn once: H17-H24 repeat H9-H16 in order, same recipe and declination, new seeds
+  only. H17 = H5's recipe at −45, H18 = H6 at −30, H19 = H7 at −60, H20 = H8 at −40, H21 = H1 at −5, H22 = H2 at
+  −70, H23 = H4 at −25, H24 = S3 at −50; 2048² × 1.5″, 64 antennas, 8 channels, 2 h, 8 s. Sky seeds
+  20261821-20261828, noise seeds 20261831-20261838 (no clash in any branch of the repository on 2026-11-18). Recipes
+  added to `examples/gemclean_bench_simulate.py` after this commit.
+- **Binary**: the H9-H16 binary, `nash:~/rang-data/outputs/stop28-default-20261117/bin/gemclean` (built from
+  `7621d575`, CLI default 0, sha256 `d242ef6800523838a411d6f0818c5579afa8e2efb7296ca96af606b42f4f2857`), copied
+  to this leg's `bin/` and hash-checked before the first run; a mismatch stops the leg. D passes no flag, R
+  `-stop-tolerance 0.02`, as §2. WSClean is nash's `/usr/bin/wsclean` 3.7 (amendment 2), §2's settings; the
+  H17-H24 beam is §2's (WSClean's fitted beam on its nominres fast image).
+- **Thresholds**: §4's measures and integrity checks and §5's Q-D, Q-W and saving, unchanged, on H17-H24.
+- **Seen sets, I1, I2.** Rule 1 requires every seen-set condition, I1 and I2. H1-H8 and the pilot met theirs in
+  the as-run table (`summary-asrun.json`, before amendment 3), with this binary: carried forward, read from the
+  2026-11-17 run root, not re-run. S1-S3, the only seen cases that needed amendment 3, are re-run in this leg (D,
+  R and `-stop-tolerance 0` for I1, from the 2026-11-17 `data/s{1,2,3}.ms`) and scored with the beam fixed now:
+  **the scorer's own**, as §2 states, from a `prepare --wsclean-dirty` of a WSClean `-niter 0 -make-psf` dirty
+  image and PSF at §2's nominres settings (`examples/gemclean_bench_run.sh` dirty/nominres/fast, `-j 8`, nash's
+  WSClean); no `--beam-arcsec` for S1-S3. Only if that prepare records no PSF fit (found before H17-H24 are
+  drawn) is the archived 10.761531523459142″ of amendment 3 passed instead, and the result says so. I1 is read
+  on this leg's S1-S3; I2 on every case of this leg and on the carried ones.
+- **Order**: binary check; S1-S3 dirty images, prepare, runs and scores (an end-to-end check on seen data); only
+  then H17-H24 simulated, prepared, run (D, R), WSClean fast and plain, scored; table.
+- **Retries**: a job that fails for an infrastructure reason (lock, ssh, disk, out of memory, a driver path bug)
+  may be re-run with the same command and settings, and is listed in the result. No setting, threshold, beam or
+  scorer change after any H17-H24 score is seen. A new sky without both arms and both WSClean loops scored is not
+  "switch".
+- **Decision**: **switch the default only if H17-H24 alone meet rule 1** (Q-D on all eight; Q-W on all eight
+  beyond D's own misses; mean s ≥ 1 over H17-H24; s ≥ 1 on at least four; every seen-set condition met; I1 and
+  I2 pass). Otherwise rule 2 (keep opt-in) or rule 3 (not yet) as §5 words them; both keep the default 0.
+  H9-H24 are not pooled for the verdict.
+- **Code**: main reverted `4b13f1d9` (`3c384832`) and this branch carries main, so the branch default is 0. On
+  "switch" the revert is reverted on the branch (restoring `4b13f1d9`) and the full check runs; otherwise the
+  branch stays at 0 and nothing is reverted.
+- Driver: `examples/stop28_default.py`, confirmation stages added after this commit. Run root
+  `nash:~/rang-data/outputs/stop28-confirm-20261118/`; every job `nice -n 19 ionice -c3` under the heavy lock
+  with §2's slots and memory.
+
 ## Measured result
 
 Run 2026-11-17 20:13 to 2026-11-18 02:44 NST on nash (36 cores, shared; every job `nice -n 19 ionice -c3` under
