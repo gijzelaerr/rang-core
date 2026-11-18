@@ -1088,7 +1088,8 @@ gemclean: usage: gemclean [options] <ms>
                             (default 0.01; 0: no floor; research/stale-floor.md)
   -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
                             (1 + e) times the threshold; the minor cycles still clean to the
-                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
+                            threshold (default 0.02; 0: the exact stop; 0 and not settable with
+                            -auto-mask, -multiscale and the joins; research/stop28-default.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
