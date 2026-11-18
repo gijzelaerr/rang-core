@@ -22,6 +22,8 @@ Skies (positions continuous, inside the inner two-thirds of 2048 x 1.5 arcsec):
          component; dec -30
     H1s  D1's recipe at dec -60 (held out: seeds given on the command line)
     H2s  D2's recipe at dec -10 (held out)
+    X1, X2  D1's recipe at dec -45, -75; X3, X4  D2's at dec -20, -50
+         (research/sdm03-default.md; seeds on the command line)
 
 Usage:
     .venv/bin/python examples/g3_spectral_simulate.py OUT.ms --sky D1 --catalogue OUT.json
@@ -48,7 +50,10 @@ ARCSEC = math.pi / (180.0 * 3600.0)
 NU0 = 1.2e9
 SEEDS = {"D1": (20261161, 20261171), "D2": (20261162, 20261172)}
 DEC = {"D1": -30.0, "D2": -30.0, "H1s": -60.0, "H2s": -10.0}
+# research/sdm03-default.md section 3.2 (fresh skies; seeds on the command line)
+DEC.update({"X1": -45.0, "X2": -75.0, "X3": -20.0, "X4": -50.0})
 RECIPE = {"D1": "points", "D2": "extended", "H1s": "points", "H2s": "extended"}
+RECIPE.update({"X1": "points", "X2": "points", "X3": "extended", "X4": "extended"})
 
 
 def spectrum(c, freq):

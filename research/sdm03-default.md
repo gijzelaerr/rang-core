@@ -224,7 +224,19 @@ A failed fetch, build, simulation or gate stops its own track and is reported. T
 
 ## Amendments
 
-(none)
+**1, 2026-11-18, before any run (implementation details the frozen text left open).**
+
+- The truth mask's beam (section 3.2) is √(BMAJ × BMIN) of A0's restored image on the same sky. It is the same
+  for every arm and is recorded in `truth.json`.
+- Recovery takes points whose channel-weighted truth flux is ≥ 50 T.
+- An output plane's channels are WSClean's contiguous equal split: 16 → 8 × 2 on the simulated skies, and
+  floor-5's 256 → 8 × 32 on ESO137.
+- The ESO137 arms run in pairs under the lock: A0 with SDa (the cost pair), Sa with Sm, SDm03 with W-SDa.
+- The driver and its environment are `research/results/sdm03-default/scripts/{drive.sh,env.sh}`. Python is
+  this branch's (`examples/sdm03_default.py`). GeMClean and the extension are built from this branch on nash,
+  and so are the Sp round's.
+- The two reserve tracks run side by side. Each takes the next candidate from the list when its own fails a
+  condition or a gate, so "the first two that pass" means the first two to pass in that order of attempts.
 
 ## Measured result
 
