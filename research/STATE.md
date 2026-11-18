@@ -20,6 +20,11 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+GeMClean `-stop-tolerance 0.02` as the default, 2026-11-18 (issue #28; branch `stop28-default`; [stop28-default.md](stop28-default.md), frozen in `c6f86fb2`, amendments 1-2 before any score, amendment 3 post hoc; archive [results/stop28-default/](results/stop28-default/); run root `nash:~/rang-data/outputs/stop28-default-20261117`, host nash):
+- Outcome **switch**, exactly on the bar: at the default 1e-4 accuracy, blind H9-H16 saved 2, 1, 1, 1, 0, 2, 0, 1 cycles, mean 1.0 (rule ≥ 1), 6 of 8 (rule ≥ 4); Q-D on all eight; Q-W beyond D's own misses (D itself misses the false-flux bar on H10, H11, H14 against nash's system WSClean 3.7); S1-S3, H1-H8 and the pilot pass; I1, I2 pass.
+- Post hoc: the as-run table said "not yet" only because S1-S3 had no beam to score with; amendment 3 passes the archived scorer beam (10.76″), and S1-S3 then pass. The coordinator can take the record without the code.
+- Code: `gemclean` defaults to 0.02 where the flag applies; 0 with `-auto-mask`, `-multiscale`, joins. Not met (not gating): at most 5 cycles (H9, H13 at 6); novelty.
+
 GeMClean multiscale with a FITS mask, 2026-11-17 (issue #35; branch `gemclean-ms-mask`; [gemclean-ms-mask.md](gemclean-ms-mask.md), protocol frozen in `51a9e5a`, post hoc section 7 in `6457155` before any PM number; archive [results/gemclean-ms-mask/](results/gemclean-ms-mask/); run root `D:\rang\outputs\gemclean-ms-mask-20261117`, host glacier):
 - No mask defect. GeMClean confines multiscale centres to the FITS mask at every scale, as radler and WSClean 3.7 do. The model's flux outside the mask comes from the scale shapes.
 - As frozen: "multiscale difference, not the mask". M1 (0 centres outside) and C (Högbom RH 1.6888 against 1.6890 Jy, nothing outside) pass. O is not met: WSClean diverged on RM (H4, 1.6σ) and on PM (the pilot with Dms03's settings).

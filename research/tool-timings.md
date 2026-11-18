@@ -2213,3 +2213,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-17 | gemclean-ms-mask RM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | H4, 2048² | 15.4 s; 89.6 s | 3.43 GiB; 1.41 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask PM1 (`-nmiter 1`): GeMClean; WSClean 3.7 | pilot, 4096² | 145.3 s; 459.2 s | 12.16 GiB; 4.82 GiB | 8 slots each |
 | 2026-11-17 | gemclean-ms-mask: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `gemclean-ms-mask` | 818 s (lock wait excluded) | – | PASS; `docs/gen_cli.py --check` PASS |
+| 2026-11-17 | stop28-default: `gemclean_bench_simulate.py` S1-S3, H1-H16 (host nash) | 1,814,400 rows × 8 | 22.8 min for all (20:13-20:36), lock wait included | – | 2 slots, 6 GB booked each; nice 19, ionice idle |
+| 2026-11-17 | stop28-default: regeneration hash check of the seen skies (host nash) | 11 MS | 26 min | – | S1, H3, H4 equal; eight copied from glacier |
+| 2026-11-17 | stop28-default: GeMClean default and ε 0.02, H9-H16 (binary `7621d575`, accuracy 1e-4, host nash) | 2048², `-j 4` | 37-91 s each (lock wait included), 17 min in all | – | 4 slots, 6 GB booked |
+| 2026-11-17 | stop28-default: GeMClean default, ε 0.02 (and ε 0 on S1-S3), S1-S3, H1-H8 (host nash) | 2048² (H3 4096²), `-j 4` | 31.7 min in all | – | 4 slots, 6/12 GB |
+| 2026-11-17 | stop28-default: WSClean 3.7 (`/usr/bin/wsclean`) fast / plain, H9-H16 (host nash) | 2048², `-j 8` | fast 70-130 s, plain 386-3,210 s (lock wait included) | – | fast 8 slots, plain 3; the native image first exited at once (no AVX-512) |
+| 2026-11-17 | stop28-default: GeMClean pilot default / ε 0.02: A 3 mJy, B 3 mJy, A 1 mJy (host nash) | 4096 × 3″, `-j 4` | `seconds.total` 310 / 224, 240 / 195, 784 / 628 s; 56.8 min stage | – | 4 slots, 20 GB |
+| 2026-11-18 | stop28-default: scoring (`gemclean_bench_compare.py score`, `gemclean_heldout_real.py`) all cases (host nash) | 19 skies, 3 pilot runs | 3 h 36 min, almost all lock wait (11,879 s queued before H15); S1-S3 rescored in 1 min | – | 2-4 slots |

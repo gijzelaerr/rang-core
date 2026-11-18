@@ -235,3 +235,25 @@ or channels, `-fits-mask`). With `-auto-mask`, `-multiscale`, `-join-channels` o
 is 0 silently and an explicit nonzero value is still refused; `-stop-tolerance 0` restores the exact stop. The core
 `Settings::default()` keeps 0 (library callers unchanged). Tests in `core/src/gemclean/cli.rs`; `docs/cli.md`;
 CHANGELOG.
+
+## For the coordinator
+
+- **Outcome 1, switch, exactly on the bar**: mean saving 8/8 = 1.0 against "≥ 1", 6 of 8 against "≥ 4". One sky
+  fewer saving a cycle would have meant keep opt-in.
+- **It rests on post hoc amendment 3.** The driver's as-run table (`summary-asrun.json`, `table-asrun.txt`) said
+  "not yet" because S1-S3 were never scored (no beam). With the archived scorer beam they pass and reproduce the
+  1e-6 development scores; nothing else moved. If you do not accept amendment 3, the as-run outcome is "not yet"
+  (incomplete) and the code commit should be left out: the research commits stand alone.
+- **Q-W passes on H10, H11 and H14 only through D's own miss** (D / lower WSClean false flux 2.55, 2.33, 1.74
+  against 1.6), against nash's system WSClean 3.7, not the archived image (amendment 2). Worth a look before
+  claiming parity with WSClean on faint-source skies; it is a default-GeMClean property, not the rule's.
+- Close calls: H7 and H8 R's own final peak 1.0194 T and 1.0180 T against < 1.02. Not met, not gating: at most
+  5 cycles (H9, H13 at 6); novelty (only H15, H16 below WSClean plain's cycles at no more false flux).
+- **Code** (separate commit): CLI default 0.02 on the supported paths, 0 with `-auto-mask`, `-multiscale` and
+  the joins (explicit nonzero still refused there), `-stop-tolerance 0` the exact stop; `Settings::default()` in
+  the core stays 0. Default GeMClean runs now end up to two cycles earlier and their `report.json` carries
+  `stop_tolerance` 0.02. `--quick` and CI do not run the archive and oracle gates: the full check
+  (`python tools/check_all.py`) is left to the merge check; gates that pin a default GeMClean run's cycle count or
+  output (the gemclean benchmark and E2/E5 image gates) may shift and should be re-read, not re-frozen silently.
+- Raw outputs stay on nash (`~/rang-data/outputs/stop28-default-20261117`, about the size of 19 MS copies);
+  delete when merged. The nash worktree is at `47ab64ef`, clean.
