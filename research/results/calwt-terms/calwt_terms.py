@@ -573,6 +573,15 @@ def truth_reads(tdir, s):
         "median": float(np.degrees(np.median(np.abs(ph[ok])))),
         "n": int(ok.sum()),
     }
+    # Amendment 10 (reported): after a constant and a slope in frequency.
+    raw = np.unwrap(np.angle(c[0, :, 1].astype(np.complex128) / ct))
+    x = (freq - freq.mean()) / 1e9
+    fit = np.vstack([np.ones(int(ok.sum())), x[ok]]).T
+    coef, *_ = np.linalg.lstsq(fit, raw[ok], rcond=None)
+    out["C_XH_fit"] = {
+        "median": float(np.degrees(np.median(np.abs(raw[ok] - fit @ coef)))),
+        "slope_ns": float(coef[1] / (2 * np.pi)),
+    }
     # C_D: gauge-free leakage against the truth in CASA's gauge.
     d, f = _leak(_tab(Path(tdir) / "Df"), nant)
     qr, fr = gauge_free(d, f)
