@@ -16,8 +16,8 @@ not passed as frozen; its gate 3b is a limitation with its cause
 same data) has measured E2-B (CARACal 6,926 s against rang 6,195 s; branch
 `e3-caracal`) and is running on E2-A. TODO-RELEASE (E3-A): replace "is running
 on E2-A" with E3-A's correctness, cost and wall-time result when `e3-caracal`
-merges. TODO-RELEASE (E2-N, issue #7): E2-N (native data) is running; replace
-this with its measured limits. Absolute polarisation angle is stated as a
+merges. E2-N (native data, issue #7) is not met as frozen: 17 of 25 rows
+({gh}`research/e2n-native.md`). Absolute polarisation angle is stated as a
 limit, not solved (below).
 ```
 
@@ -26,14 +26,15 @@ limit, not solved (below).
 - **MeerKAT L band only.** UHF and S band are not validated: a stage given
   channels outside 856-1712 MHz runs with one warning that names this page. Data from other
   telescopes runs with a warning, untested ({gh}`research/meerkat-scope.md`).
-- **Not yet tested on native MeerKAT data.** TODO-RELEASE (E2-N, issue #7):
-  replace this item with E2-N's measured limits when its scores merge. The
-  acceptance rests on simulated
-  truth (A1, E1), ESO 137-006 (a Measurement Set with raw phases, Stokes I)
-  and LUNO (processed: pre-phased DATA, processed flags and weights; full
-  polarisation), so the polarisation claim rests on processed data plus
-  simulation. A native observation (E2-N) stays open
-  ({gh}`research/a0-acceptance.md`).
+- **Native MeerKAT data: tested once, not met as frozen.** E2-N (SARAO
+  1735268787, L band, observatory-phased) runs end to end but meets 17 of 25
+  rows: 3a (73 flag cells), Xf p95 (2.085° against 2.0°), the K/G/B composites,
+  3c, the J1744−5144 χ and the target's compact scatter (13.3 % against 1.5 %)
+  miss. The data are observatory-phased, so K, KCROSS and Xf are near-null and
+  their real-size solve is untested. The CASA reference flagged 19 of 62
+  antennas in its delay solve, not yet understood, so the oracle is suspect on
+  the K-downstream rows. The polarisation claim still rests on LUNO (processed
+  data) plus simulation ({gh}`research/e2n-native.md`, issue #7).
 - **No direction-dependent calibration** and no facets.
 - **No learned flagger.** `rang-core flag` runs the Tricolour port only
   ({gh}`research/f3-flagger.md`).

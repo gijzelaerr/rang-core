@@ -11,7 +11,7 @@ the release notes are the section of this file for that version.
 
 ## 0.3.0 (TODO-RELEASE: date of the tag)
 
-<!-- TODO-RELEASE: two results are still running (E2-N, E3-A); each TODO-RELEASE line below says what replaces it.
+<!-- TODO-RELEASE: one result is still running (E3-A); each TODO-RELEASE line below says what replaces it.
      Before tagging, `git grep -n TODO-RELEASE` must find nothing outside research/. -->
 
 0.3.0's question is "can I trust the images and polarisation on my own native data, and drive it from an
@@ -20,10 +20,7 @@ agent?" (`research/roadmap.md`, v0.3.0). Its "done when" rows and their evidence
 
 ### Known limitations
 
-- **TODO-RELEASE (E2-N, issue #7): native MeerKAT data.** Until E2-N's scores merge: native MeerKAT data
-  is not tested; the acceptance rests on simulated truth, ESO 137-006 (raw phases, Stokes I) and LUNO
-  (processed, full polarisation). Replace this item with E2-N's measured limits (the gates met and
-  missed, with their numbers and E2-N's note).
+- **Native MeerKAT data (E2-N, issue #7): not met as frozen, 17 of 25 rows.** SARAO 1735268787, L band, observatory-phased: rang runs all five stages end to end (rc 0). Missed: 3a (73 of 2.28e9 flag cells), Xf p95 (2.085° against 2.0°), the K/G/B composites, 3c (dirty L∞; compact scatter 2.7 % against 1 %), the J1744−5144 χ and the target's compact-source scatter (13.3 % against 1.5 %). The data are observatory-phased, so K, KCROSS and Xf are near-null and their real-size solve is untested. The CASA reference flagged 19 of 62 antennas in its delay solve, which is not yet understood and makes the oracle suspect on the K-downstream rows (`research/e2n-native.md`).
 - **TODO-RELEASE (E3-A): the comparison with CARACal on E2-A.** E3-B is measured (CARACal 6,926 s against
   rang 6,195 s on LUNO, 3C 286 |Δp| ≤ 0.03 points, Δχ ≤ 0.22°; `research/e3-caracal.md` 10.16-10.17 on
   branch `e3-caracal`). Replace with E3-A's correctness, cost and wall-time rows when `e3-caracal` merges.
@@ -110,13 +107,13 @@ closed on GitHub; the owner closes the rest at the tag, as each outcome says.
 | 4 | Multi-node stage 2: a multi-node executor | progressed: `data.executor: spool` prototype, bit-identical, S(8) 4.67 on nash | [multinode-executor.md](https://github.com/gijzelaerr/rang-core/blob/main/research/multinode-executor.md) |
 | 5 | MSv4 / xarray-ms interoperability | progressed: `rang.msv4` read path, bit-identical on 9 MSs | [msv4-interop.md](https://github.com/gijzelaerr/rang-core/blob/main/research/msv4-interop.md) |
 | 6 | Self-calibration beyond model absorption | closed 2026-11-17: limitation (defaults unchanged under the frozen grid) | [selfcal-defaults.md](https://github.com/gijzelaerr/rang-core/blob/main/research/selfcal-defaults.md) |
-| 7 | Native MeerKAT data (E2-N) | TODO-RELEASE: E2-N running; closed or a limitation when its scores merge | [e2-acceptance.md](https://github.com/gijzelaerr/rang-core/blob/main/research/e2-acceptance.md) |
+| 7 | Native MeerKAT data (E2-N) | limitation: not met as frozen, 17 of 25 rows; stays open | [e2-acceptance.md](https://github.com/gijzelaerr/rang-core/blob/main/research/e2-acceptance.md) |
 | 8 | Open CASA tasks | progressed: V8b's fixed-rule modes at parity, FLAG_ROW 9/9; tfcrop still refused | [v8b-flagdata.md](https://github.com/gijzelaerr/rang-core/blob/main/research/v8b-flagdata.md) |
 | 9 | Time series P1: residual snapshot light curves | progressed: `rang-core lightcurve` | [ts-p1.md](https://github.com/gijzelaerr/rang-core/blob/main/research/ts-p1.md) |
 | 10 | Trained flagger (F4) | closed 2026-11-17: limitation (stopped on the calibrator cost gate; weights not shipped) | [f4-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f4-flagger.md) |
 | 11 | UHF band | progressed: scoping note; out-of-L-band warning | [uhf-scope.md](https://github.com/gijzelaerr/rang-core/blob/main/research/uhf-scope.md) |
 | 12 | GPU gridding in GeMClean | closed 2026-11-17: limitation (not faster at `-j 16`; research only, code not merged) | [gpu-grid.md](https://github.com/gijzelaerr/rang-core/blob/main/research/gpu-grid.md) |
-| 13 | The imaging floor | limitation: attributed in part (close at the tag) | [floor-6.md](https://github.com/gijzelaerr/rang-core/blob/main/research/floor-6.md) |
+| 13 | The imaging floor | closed 2026-11-18: attributed in part; SDm03 as default not yet (no switch) | [sdm03-default.md](https://github.com/gijzelaerr/rang-core/blob/main/research/sdm03-default.md) |
 | 14 | Absolute polarisation angle χ | closed 2026-11-17: limitation (stated, not gated) | [chi-offset.md](https://github.com/gijzelaerr/rang-core/blob/main/research/chi-offset.md) |
 | 22 | Join polarisations on the squared sum | closed 2026-11-17: limitation (linear sum kept; upstream agrees) | [pol-join-squared.md](https://github.com/gijzelaerr/rang-core/blob/main/research/pol-join-squared.md) |
 | 23 | Multiscale flux miss on compact sources | closed 2026-11-17: limitation (measured null) | [multiscale-flux-fix.md](https://github.com/gijzelaerr/rang-core/blob/main/research/multiscale-flux-fix.md) |
