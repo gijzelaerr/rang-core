@@ -45,6 +45,10 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 
+/// The run's stop tolerance when `-stop-tolerance` is not given, on the loops it
+/// applies to (research/stop28-default.md, outcome 1).
+const DEFAULT_STOP_TOLERANCE: f64 = 0.02;
+
 const USAGE: &str = "usage: gemclean [options] <ms>
        gemclean -version
 
@@ -64,7 +68,8 @@ const USAGE: &str = "usage: gemclean [options] <ms>
                             (default 0.01; 0: no floor; research/stale-floor.md)
   -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
                             (1 + e) times the threshold; the minor cycles still clean to the
-                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
+                            threshold (default 0.02; 0: the exact stop; 0 and not settable with
+                            -auto-mask, -multiscale and the joins; research/stop28-default.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -378,6 +383,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     let (mut mgain_given, mut misfit_given, mut to_threshold) = (false, false, false);
     let (mut certified, mut kappa) = (false, 0.5);
     let mut stale_rho: Option<f64> = None;
+    let mut stop_tolerance: Option<f64> = None;
     let mut floor = 0.01;
     let value = |i: &mut usize| -> Result<String, String> {
         *i += 1;
@@ -432,7 +438,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-stale-rule" => stale_rho = Some(number(flag, value(&mut i)?)?),
             "-stale-floor" => floor = number(flag, value(&mut i)?)?,
-            "-stop-tolerance" => a.stop_tolerance = number(flag, value(&mut i)?)?,
+            "-stop-tolerance" => stop_tolerance = Some(number(flag, value(&mut i)?)?),
             "-minor-to-threshold" => to_threshold = true,
             "-stop-rule" => match value(&mut i)?.as_str() {
                 "certified" => certified = true,
@@ -777,11 +783,18 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 .into(),
         );
     }
+    // research/stop28-default.md: 0.02 by default where the tolerance applies;
+    // the loops with their own stop keep 0 and refuse an explicit nonzero value.
+    let own_stop = a.auto_mask.is_some() || ms_on || a.join_channels || a.join_pols;
+    a.stop_tolerance = match stop_tolerance {
+        Some(e) => e,
+        None if own_stop => 0.0,
+        None => DEFAULT_STOP_TOLERANCE,
+    };
     if !(a.stop_tolerance >= 0.0 && a.stop_tolerance.is_finite()) {
         return Err("-stop-tolerance must be a finite number of at least 0".into());
     }
-    if a.stop_tolerance > 0.0 && (a.auto_mask.is_some() || ms_on || a.join_channels || a.join_pols)
-    {
+    if a.stop_tolerance > 0.0 && own_stop {
         return Err(
             "-stop-tolerance takes neither -auto-mask, -multiscale, -join-channels nor -join-polarizations: those loops have their own stop (research/gemclean-stop28.md)"
                 .into(),
@@ -1660,7 +1673,7 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
                     ("resync_every", args.resync_every.to_string()),
                     ("audit", args.audit.to_string()),
                 ];
-                // Only when set, so that the default report is unchanged.
+                // Only when nonzero, so that an exact-stop report is unchanged.
                 if args.stop_tolerance > 0.0 {
                     v.push(("stop_tolerance", num(args.stop_tolerance)));
                 }
@@ -4059,17 +4072,26 @@ mod tests {
 
     #[test]
     fn stop_tolerance_flag() {
-        // research/gemclean-stop28.md: off by default, finite and not negative,
-        // and refused on the loops with their own stop.
+        // research/stop28-default.md: 0.02 by default where it applies, 0 the
+        // exact stop, finite and not negative, and on the loops with their own
+        // stop 0 by default and an explicit nonzero value refused.
         let parse = |line: &str| {
             let raw: Vec<String> = line.split(' ').map(String::from).collect();
             parse_args(&raw)
         };
         let base = "-size 64 64 -scale 2asec -no-update-model-required";
-        assert_eq!(parse(&format!("{base} x.ms")).unwrap().stop_tolerance, 0.0);
-        let a = parse(&format!("{base} -stop-tolerance 0.02 x.ms")).unwrap();
+        let a = parse(&format!("{base} x.ms")).unwrap();
         assert_eq!(a.stop_tolerance, 0.02);
         assert_eq!(clean_settings(&a).stop_tolerance, 0.02);
+        for supported in ["-pol IQUV", "-channels-out 2", "-fits-mask m.fits"] {
+            let line = format!("{base} {supported} x.ms");
+            assert_eq!(parse(&line).unwrap().stop_tolerance, 0.02, "{line}");
+        }
+        let a = parse(&format!("{base} -stop-tolerance 0 x.ms")).unwrap();
+        assert_eq!(a.stop_tolerance, 0.0);
+        assert_eq!(clean_settings(&a).stop_tolerance, 0.0);
+        let a = parse(&format!("{base} -stop-tolerance 0.05 x.ms")).unwrap();
+        assert_eq!(a.stop_tolerance, 0.05);
         for bad in ["-0.1", "nan", "inf"] {
             assert!(
                 parse(&format!("{base} -stop-tolerance {bad} x.ms")).is_err(),
@@ -4090,7 +4112,9 @@ mod tests {
                 "{line}"
             );
             let line = format!("{base} {other} -stop-tolerance 0 x.ms");
-            assert!(parse(&line).is_ok(), "{line}");
+            assert_eq!(parse(&line).unwrap().stop_tolerance, 0.0, "{line}");
+            let line = format!("{base} {other} x.ms");
+            assert_eq!(parse(&line).unwrap().stop_tolerance, 0.0, "{line}");
         }
     }
 

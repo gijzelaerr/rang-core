@@ -1,0 +1,13 @@
+{
+ "rule": "amendment 4: the scorer's own beam (null passed); archived beam only without a fit",
+ "beam_arcsec_passed": {
+  "s1": null,
+  "s2": null,
+  "s3": null
+ },
+ "scorer_fit_arcsec": {
+  "s1": 10.761531523459142,
+  "s2": 10.761531523459142,
+  "s3": 10.761531523459142
+ }
+}
