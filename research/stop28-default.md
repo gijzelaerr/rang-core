@@ -380,3 +380,33 @@ c-bin 0 s; c-seen 10.9 min (S1-S3: WSClean dirty 48-52 s, prepare 22-23 s, GeMCl
 13 s); c-simulate 22.6 min (54-472 s per sky); c-new 17.5 min (prepare 21-22 s, GeMClean pairs 36-101 s per job)
 in parallel with c-wsclean 2 h 50.9 min (fast 64-272 s, plain 386-4,146 s; H17 plain 4,146 s dominates);
 c-score 4.0 min (13-17 s per job); c-table 5 s. Total 3 h 28.5 min.
+
+### Code change (amendment 4, outcome switch)
+
+`git revert 3c384832` on the branch restores `4b13f1d9`: `gemclean`'s CLI default is `-stop-tolerance 0.02` on
+Stokes I, separate polarisations or channels and `-fits-mask`; 0 with `-auto-mask`, `-multiscale` and the joins
+(an explicit nonzero value refused there); `-stop-tolerance 0` the exact stop; `Settings::default()` in the core
+stays 0. `rang-core image` and the selfcal images call the CLI without `-stop-tolerance`
+(`core_pipeline.gemclean_arguments`), so they move too, except with `image.auto_mask` (or selfcal's
+`cleanmask_method: wsclean`) or `image.multiscale`. The pipeline's default image uses `-auto-threshold 3`, not an
+absolute threshold: the tolerance then applies to that run's threshold, a case this note did not measure. The
+stage hashes (`core_config.stage_hash`) hash the configuration only, so they do not change: a finished image or
+selfcal stage is not run again unless forced; CHANGELOG says so. Full check `tools/check_all.py --slots 4 --mem
+12` with `RANG_FIXTURE` the outer-scans fixture, glacier, 2026-11-18 09:41-10:07 SAST: **PASS** in 1,547 s (lock
+wait excluded; pytest 1,677 passed, 68 skipped, 1 xfailed; gain-hash gate PASS). No test or doc pins a default
+cycle count or image hash; `docs/gen_cli.py --check` passes.
+
+## For the coordinator (confirmation leg)
+
+- **Outcome switch by amendment 4, on H17-H24 alone**: savings 2, 1, 1, 1, 1, 1, 1, 1, mean 1.125 (bar ≥ 1), 8 of
+  8 (bar ≥ 4). No post hoc step: the S1-S3 beam came from the scorer's own fit and is bit-equal to amendment 3's
+  archived 10.761531523459142″, so amendment 3's input is now confirmed, not only substituted. No retries.
+- **Misses, plainly**: Q-W on H18 passes only through D's own false-flux miss (2.14 / 2.13 against 1.6; the third
+  such sky after H10, H11, H14 in the first leg, all faint-source recipes); H19 1.562 against 1.6; H22's exact
+  inner peak +0.79 µJy over D's (bar +2). Not gating, not met: at most 5 cycles (H17 at 6), novelty.
+- **Code**: commit `13929063` (revert of the revert) on branch `stop28-default`, full check PASS. The check_all
+  steps have no gemclean benchmark or E2/E5 image gate; those archive gates were not re-run, and they will read
+  default runs that end up to two cycles earlier. Re-read them at the merge, do not re-freeze them silently.
+- **Untested**: the pipeline's default image uses `-auto-threshold 3`; this note measured absolute thresholds only.
+- Raw outputs: `nash:~/rang-data/outputs/stop28-confirm-20261118` (H17-H24 MS, images; S1-S3 linked to the first
+  leg's) and `stop28-default-20261117`; delete both after the merge. Nothing merged, nothing posted on GitHub.
