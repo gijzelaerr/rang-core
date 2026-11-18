@@ -37,6 +37,13 @@ before they were drawn (sky seeds 20261701-4, noise seeds 20261711-4):
         15 - 120 arcsec and 0.05 - 1 Jy, 220 arcsec inside the inner two-thirds
     H8  dec -20: 80 points, 5 mJy - 1 Jy, min-sep 10 px, and two 5 Jy points
 
+Held-out skies for research/stop28-default.md, registered in that note before
+they were drawn (sky seeds 20261801-8, noise seeds 20261811-8), each an earlier
+recipe at a new declination:
+
+    H9 = H5 at dec -45, H10 = H6 at -30, H11 = H7 at -60, H12 = H8 at -40,
+    H13 = H1 at -5, H14 = H2 at -70, H15 = H4 at -25, H16 = S3 at -50
+
 Held-out sky for research/g5-multiscale.md, its seeds given on the command
 line (--sky-seed, --noise-seed) as drawn after the multiscale build was frozen:
 
@@ -88,6 +95,7 @@ SKY_SEEDS = {
     "H6": 20261702,
     "H7": 20261703,
     "H8": 20261704,
+    **{f"H{9 + i}": 20261801 + i for i in range(8)},
 }
 NOISE_SEED = 20261104
 NOISE_SEEDS = {
@@ -99,6 +107,7 @@ NOISE_SEEDS = {
     "H6": 20261712,
     "H7": 20261713,
     "H8": 20261714,
+    **{f"H{9 + i}": 20261811 + i for i in range(8)},
 }
 DEC_BY_SKY = {
     "H1": -75.0,
@@ -109,6 +118,25 @@ DEC_BY_SKY = {
     "H6": -60.0,
     "H7": -10.0,
     "H8": -20.0,
+    "H9": -45.0,
+    "H10": -30.0,
+    "H11": -60.0,
+    "H12": -40.0,
+    "H13": -5.0,
+    "H14": -70.0,
+    "H15": -25.0,
+    "H16": -50.0,
+}
+# research/stop28-default.md: the new skies reuse earlier recipes.
+RECIPE = {
+    "H9": "H5",
+    "H10": "H6",
+    "H11": "H7",
+    "H12": "H8",
+    "H13": "H1",
+    "H14": "H2",
+    "H15": "H4",
+    "H16": "S3",
 }
 
 
@@ -169,6 +197,7 @@ def sky(name, size, scale_arcsec, min_sep, seed=None):
     if name == "none":
         return []
     rng = np.random.default_rng(SKY_SEEDS[name] if seed is None else seed)
+    name = RECIPE.get(name, name)
     half = size / 3.0  # inner two-thirds: |offset| < size/3 pixels
     centre = size // 2
 
@@ -481,6 +510,7 @@ def main(argv=None):
             "H7",
             "H8",
             "M1",
+            *RECIPE,
             "none",
         ],
         required=True,
