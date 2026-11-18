@@ -20,6 +20,18 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Auto-mask finishing cycle, 2026-11-18 (issue #36; branch `automask-cycle`; [automask-cycle.md](automask-cycle.md),
+frozen in `98cd295f` before any run; archive [results/automask-cycle/](results/automask-cycle/); run root
+`nash:~/rang-data/outputs/automask-cycle-20261118`, removed after archiving; host nash): **outcome null (rule 4);
+no code change.** Gate R holds: SHA-256 equal on 357 and 378 objects, WSClean σ 1.19 mJy then 472.9 µJy, GeMClean
+σ and start peak exact, cycle peaks bit-equal to sdm03's. The switch reads as radler 3.7's. On scan 4, after
+iteration 2's first loop (`-nmiter 2`), WSClean's residual peaks at 22.89 mJy (GeMClean 6.92 mJy at that pixel).
+1,096 pixels lie above WSClean's own 7.62 mJy stop, against none for GeMClean (scan 14: 1,837 against 78 above
+10 mJy). WSClean's iteration-3 start peak (15.42 mJy) is one of those sources (GeMClean 6.50 mJy there). Post hoc
+source read: radler's sub-minor loop tracks only the pixels above the threshold at its start and does not rescan
+afterwards. Högbom masks 1,527 / 1,520 pixels, 1,068 shared: "WSClean builds a larger mask" is not supported.
+Deviation (post hoc): `-nmiter k` skips iteration k's continuation in both imagers, so M4 is from sdm03's archive.
+
 katdal 0.24, 2026-11-18 (branch `katdal-0-24`; [mk1-katdal.md](mk1-katdal.md) deviation 3, post hoc; from the
 [2026-11-18 digest](digests/2026-11-18.md)): the `[meerkat]` extra pins `katdal==0.24` (no `pkg_resources`, so no
 setuptools pin for mvftoms); mvftoms runs as `python -m katdal.scripts.mvftoms`. Found on the way: `open_mvf` failed

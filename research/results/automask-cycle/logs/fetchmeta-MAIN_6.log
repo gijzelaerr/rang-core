@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/gijs/Worktrees/rang/automask-cycle-state/examples/sdm03_default.py", line 730, in <module>
+    main()
+    ~~~~^^
+  File "/home/gijs/Worktrees/rang/automask-cycle-state/examples/sdm03_default.py", line 717, in main
+    cmd_fetchms(a)
+    ~~~~~~~~~~~^^^
+  File "/home/gijs/Worktrees/rang/automask-cycle-state/examples/sdm03_default.py", line 199, in cmd_fetchms
+    (root / sub.name).symlink_to(sub)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/home/gijs/.local/share/uv/python/cpython-3.14.10-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 1213, in symlink_to
+    os.symlink(target, self, target_is_directory)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/home/gijs/rang-data/e2-a/ESO137/ms1_target.zarr/FLAG_CMD' -> '/home/gijs/rang-data/outputs/automask-cycle-20261118/inputs/ms1_target.zarr/FLAG_CMD'
+Command exited with non-zero status 1
+TIME fetchmeta-MAIN_6 2.64 s 69060 KB
+fetchms MAIN_6 meta: 46 objects, 44903 bytes
+TIME fetchmeta-MAIN_6 6.25 s 70052 KB
