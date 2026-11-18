@@ -115,3 +115,16 @@ against WSClean's best of `minres`, `minres -mgain 0.9`, `minres -mgain 0.95` (a
   EveryBeam; real-data speed; hosts other than glacier.
 - G2, G7 and G9's oracle cases (next-session.md: "rerun when !1068 is released") are a follow-up,
   not this task.
+
+## Amendment 1, 2026-11-18 09:40 (before any 3.8 output was seen; not post hoc)
+
+- **Hosts.** M and D run on nash (shared, `nice -n 19 ionice -c3`, nash's heavy lock), not on
+  glacier, to keep glacier free in the daytime; neither makes a timing claim. nash has no docker:
+  both native images are built there with rootless podman from the same Dockerfile (3.7 and 3.8,
+  for nash's CPU, no AVX-512), so D's 3.7 control is nash-native too. M's GeMClean side stays the
+  archived glacier run; M compares images, not times. P and T stay on glacier with glacier's images.
+- **Dockerfile.** 3.8 links shared libraries from its FetchContent dependencies
+  (`libschaapthreading.so`); the first build, which installed only the binary as for 3.7, failed
+  at start-up. 3.8 is now installed with `cmake --install` and `ldconfig`. glacier's image
+  `rang-wsclean-native:3.8`: WSClean `386ba535`, aocommon `dbee2ed9`, radler `703c1bd7`,
+  schaapcommon `35f91f80`, xtensor `f115228a`, xtl `c52350e2` (`/wsclean-deps.txt`); 119 s build.
