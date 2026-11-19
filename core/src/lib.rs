@@ -53,6 +53,7 @@ pub mod grid;
 pub mod gridder_gram;
 pub mod ism;
 pub mod jones;
+pub mod learned;
 pub mod lightcurve;
 pub mod ms;
 pub mod ms_create;

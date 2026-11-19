@@ -84,6 +84,7 @@ from . import (
     core_ms,
     core_tasks,
     core_writeback,
+    learned,
 )
 from .formats import flagversions, quartical_store
 
@@ -2808,6 +2809,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             }
             flag_writes = core_writeback.flag_writes()
             try:
+                _learned_hook(ctx, stage)
                 summary = STAGE_FUNCTIONS[stage](ctx)
             except Exception as exc:
                 attempt.update(
@@ -2855,6 +2857,49 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             run.save()
             log(f"rang-core: {stage}: done in {attempt['seconds']:.1f} s")
         return state
+
+
+def learned_observation(info):
+    """The envelope quantities of an MS (rang.learned.ENVELOPE_KEYS) that
+    `inspect_ms` gives: antenna count, baseline lengths, channel widths and
+    band edges."""
+    out = {}
+    pos = np.asarray(info.get("antenna_position", ()), float)
+    if pos.ndim == 2 and len(pos) >= 2:
+        out["antennas"] = len(pos)
+        d = np.linalg.norm(pos[:, None, :] - pos[None, :, :], axis=-1)
+        bl = d[np.triu_indices(len(pos), 1)]
+        out["baseline_m"] = (float(bl.min()), float(bl.max()))
+    width = np.abs(np.asarray(info.get("chan_width", ()), float)).ravel()
+    freq = np.asarray(info.get("chan_freq", ()), float).ravel()
+    if width.size:
+        out["channel_width_hz"] = (float(width.min()), float(width.max()))
+    if freq.size:
+        out["band_hz"] = (float(freq.min()), float(freq.max()))
+    return out
+
+
+def _learned_hook(ctx, stage):
+    """The swap contract's hook (research/dl1-contract.md): nothing for mode
+    off; else the Decision in ctx["learned"] and its receipt in the stage's
+    entry. Configuration refusals have already stopped every mode that has
+    no pipeline tenant."""
+    settings = ctx["config"][stage].get("learned")
+    if learned.is_off(settings):
+        return
+    try:
+        # A relative weights path is relative to the working directory, as in
+        # the configuration check and the stage hash.
+        decision = learned.select(stage, settings, learned_observation(ctx["info"]))
+    except learned.Refused as exc:
+        raise Refused(str(exc)) from exc
+    ctx["learned"] = decision
+    ctx["entry"]["learned"] = decision.receipt()
+    if decision.fallback:
+        ctx["log"](
+            f"rang-core: {stage}: learned mode {decision.mode} outside the envelope "
+            f"({'; '.join(decision.envelope_violations)}): the classical path runs"
+        )
 
 
 STAGE_SECTIONS_TEXT = {
