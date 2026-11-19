@@ -3,8 +3,11 @@
 Task DL1, issue #38, branch `dl1-contract` from main `dd6adc5d`. Session B of v0.4.0 wave 1.
 Implements section 4 of [dl-plan.md](dl-plan.md) under decisions 3-5 of its section 10.
 
-**Status at freeze (2026-11-19): proposed; nothing implemented, exported or measured.** Results go
-under "Measured result"; nothing above it changes except by dated, labelled amendment.
+**Status (2026-11-19, 11:10 SAST): contract implemented; F3 exported and bit-identical through it;
+runtime comparison outcome N (no crate passes; the fallback is an interpreter of our own); timings
+provisional, the final exclusive timing run is left to the coordinator.** Status at freeze
+(`061e6ea7`): proposed; nothing implemented, exported or measured. Results go under "Measured
+result"; nothing above it changes except by dated, labelled amendment.
 
 What is claimed: an engineering contract and a measured runtime choice. Nothing here claims better
 flags, calibration or images; F3's network is used only because it exists, is small and has a Rust
@@ -160,6 +163,84 @@ for shipped architectures with the chosen runtime's output as its reference (dec
    defect in the new code.
 4. Runtime bench (section 7), provisional in the daytime; final timings after 21:00.
 
+## Amendment 1, 2026-11-19, after the measurements (post hoc for all of them)
+
+- *G6's baseline.* The kernel-only cdylib (6,133,760 B) carries the core it links; a build with no
+  runtime is 111,616 B, and the candle and burn builds came out smaller than the kernel's. Sizes are
+  therefore reported both as frozen (minus the kernel build) and above the no-runtime build. No
+  verdict differs between the two.
+- *Registry names.* Section 5's `Stage(...)` is implemented as `rang.learned.Tenant`, with `Stage` as
+  an alias; the training fields (features, loss, teacher, gates) are optional and empty until DL6.
+- *Relative weights paths* resolve against the working directory (configuration check, stage hash
+  and the run hook alike), not against the configuration file as masks do.
+- *Daytime arms.* candle and burn do not build with the project's Rust 1.93 (G2); for information
+  they were built with stable 1.99, candle with protoc taken from `grpcio-tools` (PyPI), and
+  compared against the kernel built the same way (`kernel-stable`).
+
 ## Measured result
 
-Nothing yet.
+All on glacier (Windows, the owner's PC), daytime, shared host under `heavy_lock` (8 slots):
+**timings provisional**. Archive: `research/results/dl1-contract/` (`stage-hashes-dd6adc5d.json`,
+`runtimes-provisional.json`, `tract-mt-shape-a-provisional.jsonl`, `cdylib-sizes.txt`).
+
+### Contract (sections 1-6)
+
+- **off is unchanged.** Stage hashes of all 60 `rang-config` files × 5 stages equal those at
+  `dd6adc5d` (`outputs/dl1/hashes.py`). Receipts: no `learned` entry with off. One file changes:
+  `config.resolved.json` in a run directory now lists the `learned` keys (nothing hashes that file).
+  YAML 1.1 reads an unquoted `mode: off` as false; the schema maps false to off.
+- **Weights file.** F3 calibrator seed 3 exported with torch 2.15.0+cpu, onnx 1.23.2, opset 17:
+  17,673 B, `sha256 211353a2…29f8`, ops Conv, Relu ×5 then Conv, export deterministic (two runs
+  byte-equal). Header records every gate failed. Committed as
+  `tests/data/learned/f3-calibrator-seed3.onnx`.
+- **(a) passes:** the 3,433 weights read back through the Rust reader are byte-equal to
+  `flat_weights(npz)` (sha256 `51672bcb…100b`).
+- **(b) passes:** logits through the contract (file, forced, kernel) equal `f3flag_logits` with the
+  npz weights bit for bit on the F3 test scan (`tests/test_dl1_learned.py`, in CI).
+- **PyTorch against the kernel:** max |Δ logit| 1.05e-5 (p99.9 8.6e-6) over 8,262 unflagged cells
+  of the test scan; 1.34e-5 on shape A. Within 1e-4. This test skips in CI (no torch there).
+- **Refusal:** without force every mode is refused (gates); forced, a calibrate configuration is
+  refused (header of stage flag); outside the band envelope propose falls back, replace refuses
+  unless forced. In `rang-core`, every non-off mode is refused at the configuration check: no tenant
+  runs in a stage driver yet (task DL).
+
+### Runtimes (section 7), provisional timings
+
+Shape A: one plane 64 × 512 at 1 thread. Shape B: 128 planes, rayon over planes. Median of 7.
+
+| Arm | A, 1 thread | B, 1 thread | B, 8 threads | max \|Δ\| vs PyTorch | identical 1-8 threads | cdylib (above no-runtime) |
+| --- | ---: | ---: | ---: | ---: | --- | ---: |
+| kernel (1.93) | 8.9 ms | 0.99 s | 0.180 s | 1.3e-5 | yes | 6.13 MB (6.02) |
+| tract 0.23.10, no default features | 41.9 ms | 5.29 s | 1.41 s | 1.3e-5 | yes | 26.55 MB (26.44) |
+| tract, default features | 73.3 ms | 5.63 s | 1.33 s | 1.3e-5 | yes | 27.64 MB |
+| tract, own executor (multithread-mm) | 37.2 ms (4 threads 25.9) | panics | panics | 1.3e-5 | A only: yes | 30.29 MB |
+| kernel (stable 1.99) | 7.1 ms | 0.96 s | 0.161 s | 1.3e-5 | yes | 6.22 MB |
+| candle 0.11.1 (stable, borrowed protoc) | 49.2 ms | 4.86 s | 0.91 s | 1.9e-6 | yes | 5.91 MB (5.80) |
+| burn 0.22.0, flex backend (stable) | 26.8 ms | 2.61 s | 0.64 s | 1.9e-6 | yes | 4.22 MB (4.11) |
+
+tract's own executor panics (`RefCell already borrowed`) whenever it runs inside the per-plane rayon
+loop at 2 or more threads; observed under that nesting only. 16 threads were not run (daytime).
+
+| Gate | tract | candle | burn |
+| --- | --- | --- | --- |
+| G1 run-time loading | pass | pass | **fail**: code and `.bpk` weights generated from the ONNX file at build time (structural) |
+| G2 build | pass | **fail**: needs protoc (`prost-build` in its build script); also does not compile with 1.93 (E0133 in `candle-core`) | **fail**: needs rustc 1.95 |
+| G3 dynamic shape | pass (symbolic N, T, F) | pass | pass |
+| G4 licence | pass (94 crates) | pass (143) | pass (162) |
+| G5 agreement | pass, 1.3e-5 | pass, 1.9e-6 | pass, 1.9e-6 |
+| G6 size ≤ 8 MB | **fail**: +20.4 MB (26.4 MB above no runtime) | pass | pass |
+
+**Decision (frozen rule): outcome N.** No crate passes G1-G6. tract fails on G6 alone; relaxing the
+8 MB bar would be an owner decision and post hoc. The fallback is an interpreter of our own over the
+ONNX reader of section 2 (`core/src/learned.rs`). Until it exists, the hand-written kernel's
+reference is PyTorch at 1e-4 (a test that runs where torch is installed, not in CI).
+
+Also measured: the kernel is the fastest arm in every column (B at 8 threads 3.6-7.9 × faster
+than the others); every arm that ran is bit-identical across 1, 2, 4 and 8 threads; candle and burn agree
+with PyTorch 7 × closer than the kernel and tract (summation order). No limit for mode replace
+follows from thread counts up to 8; 16 is unmeasured.
+
+Not done here: the final exclusive timings (glacier from 21:00 SAST, after F5's cost gate; the
+command is `python tools/heavy_lock.py run -- .venv\Scripts\python.exe
+examples/dl1_runtimes.py outputs/dl1/runtimes-final.json --label final`, after the builds in
+`tools/dl1_runtimes/bin/`). They cannot change outcome N, which no timing enters.

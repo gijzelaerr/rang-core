@@ -141,6 +141,7 @@ exclude = [
     { path = "tools/formats-oracle/**/*", format = "sdist" },
     { path = "tools/ms-reader/**/*", format = "sdist" },
     { path = "tools/oracles/**/*", format = "sdist" },
+    { path = "tools/dl1_runtimes/**/*", format = "sdist" },
     { path = "AGENTS.md", format = "sdist" },
     { path = "CONTRIBUTING.md", format = "sdist" },
     { path = ".gitignore", format = "sdist" },

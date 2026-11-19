@@ -19,7 +19,7 @@ crate-type = ["rlib", "cdylib"]
 [dependencies]
 rang-core = { path = "../../core" }
 rayon = "1.12.0"
-tract-onnx = { version = "=0.23.10", optional = true }
+tract-onnx = { version = "=0.23.10", optional = true, default-features = false }
 # tract's own matmul threading, off by default (Executor::SingleThread).
 tract-linalg = { version = "=0.23.10", optional = true, features = ["multithread-mm"] }
 candle-core = { version = "=0.11.1", optional = true }

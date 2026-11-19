@@ -190,9 +190,14 @@ class Tenant:
     the forward. `pipeline`: whether the stage driver of `rang-core` calls
     it; a non-off mode on a stage with no pipeline tenant is a configuration
     refusal. `approximate`: the tenant's product is labelled approximate in
-    its receipt, which mode `replace` requires (dl-plan decision 3). Training
-    fields (features, loss, teacher runner, gates) are added by the tenants
-    that train (DL6, research/dl-plan.md section 4 item 6)."""
+    its receipt, which mode `replace` requires (dl-plan decision 3).
+
+    Training only (None until a tenant trains, DL6; research/dl-plan.md
+    section 4 item 6): `features(scan, ...)` the input planes, `loss` the
+    training objective, `teacher` the runner of the teacher tools, `gates`
+    the scorer of the frozen gates that fills a weights file's header.
+    `Stage` is the same type under the name research/dl1-contract.md
+    section 5 uses."""
 
     name: str
     stage: str
@@ -202,6 +207,13 @@ class Tenant:
     pipeline: bool = False
     approximate: bool = False
     doc: str = ""
+    features: object = None
+    loss: object = None
+    teacher: object = None
+    gates: object = None
+
+
+Stage = Tenant
 
 
 _REGISTRY: dict = {}
@@ -450,6 +462,13 @@ def run_dilated_cnn(decision, scan, flagged, data=None):
     return mod.rust_logits(scan, flagged, flat, data)
 
 
+def _f3_features(scan, flagged, select, data=None):
+    """F3's 15 input planes (nsel, nt, nc, 15) of the baselines `select`."""
+    from . import f3flag
+
+    return f3flag.rust_features(scan, flagged, select, data)
+
+
 register(
     Tenant(
         name="dilated-cnn-flag",
@@ -461,6 +480,7 @@ register(
         approximate=True,
         doc="F3/F4's per-baseline network (research/f3-flagger.md, f4-flagger.md); "
         "Python API only: no weights file has passed its gates",
+        features=_f3_features,
     )
 )
 
@@ -476,6 +496,7 @@ __all__ = [
     "Decision",
     "Header",
     "Refused",
+    "Stage",
     "Tenant",
     "WeightsFile",
     "config_refusals",

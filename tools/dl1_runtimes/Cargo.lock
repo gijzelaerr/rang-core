@@ -6837,7 +6837,6 @@ dependencies = [
  "tract-hir",
  "tract-nnef",
  "tract-onnx-opl",
- "tract-transformers",
 ]
 
 [[package]]
@@ -6852,17 +6851,6 @@ dependencies = [
  "rand_distr 0.6.0",
  "rustfft",
  "tract-extra",
- "tract-nnef",
-]
-
-[[package]]
-name = "tract-transformers"
-version = "0.23.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77f24c7b447fb64b64e90b2e8194d33f729efe9022ac9136c10ed2e70abb6de0"
-dependencies = [
- "float-ord",
- "rayon",
  "tract-nnef",
 ]
 

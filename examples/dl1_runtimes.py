@@ -23,9 +23,29 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BENCH = ROOT / "tools" / "dl1_runtimes"
 OUT = ROOT / "outputs" / "dl1"
-ARMS = ("kernel", "tract", "tract-mt", "candle", "burn")
-RUNTIME = {"tract-mt": "tract"}
+# Arms: <runtime>[-variant]; `-stable` arms are built with the stable
+# toolchain (candle and burn do not build with the project's 1.93), `-default`
+# with the crate's default features, `tract-mt` with tract's own executor.
+ARMS = (
+    "kernel",
+    "tract",
+    "tract-mt",
+    "tract-default",
+    "kernel-stable",
+    "candle-stable",
+    "burn-stable",
+)
 THREADS = (1, 2, 4, 8, 16)
+
+
+def runtime(arm):
+    return arm.split("-")[0]
+
+
+def feature(arm):
+    return "tract-mt" if arm == "tract-mt" else runtime(arm)
+
+
 # G4: licences compatible with GPL-3.0-only (SPDX ids, any of an OR).
 GPL_OK = {
     "MIT",
@@ -77,14 +97,19 @@ def licences(feature):
         cwd=BENCH,
         capture_output=True,
         text=True,
-        env={**os.environ, "DL1_ONNX": str(OUT / "f3-calibrator-seed3.onnx")},
+        env={
+            **os.environ,
+            "DL1_ONNX": str(OUT / "f3-calibrator-seed3.onnx"),
+            "RUSTUP_TOOLCHAIN": "stable",
+        },
     )
     seen = {}
     for line in out.stdout.splitlines():
         if "\t" not in line:
             continue
         pkg, lic = line.split("\t", 1)
-        seen[pkg.replace(" (*)", "").strip()] = lic.strip()
+        # cargo tree marks a repeated crate with "(*)" after the format.
+        seen[pkg.strip()] = lic.replace("(*)", "").strip()
     bad = {p: lic for p, lic in seen.items() if not licence_ok(lic)}
     return {"crates": len(seen), "incompatible": bad, "ok": not bad and bool(seen)}
 
@@ -94,6 +119,7 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--label", default="provisional")
     ap.add_argument("--arms", default=",".join(ARMS))
+    ap.add_argument("--threads", default=",".join(map(str, THREADS)))
     args = ap.parse_args()
     onnx = OUT / "f3-calibrator-seed3.onnx"
     planes, torch_a = OUT / "planes_a.bin", OUT / "torch_a.bin"
@@ -112,7 +138,7 @@ def main():
         if exe.is_file():
             dll = BENCH / "bin" / arm / "dl1_runtimes.dll"
             entry["cdylib_bytes"] = dll.stat().st_size if dll.is_file() else None
-            for n in THREADS:
+            for n in [int(t) for t in args.threads.split(",")]:
                 env = dict(os.environ)
                 if arm == "tract-mt":
                     env["DL1_TRACT_MT"] = "1"
@@ -120,7 +146,7 @@ def main():
                 p = subprocess.run(
                     [
                         str(exe),
-                        RUNTIME.get(arm, arm),
+                        runtime(arm),
                         str(onnx),
                         str(planes),
                         str(torch_a),
@@ -148,8 +174,7 @@ def main():
                     "a": len({r["hash_a"] for r in ok}) == 1,
                     "b": len({r["hash_b"] for r in ok}) == 1,
                 }
-        feature = {"tract-mt": "tract-mt"}.get(arm, arm)
-        entry["licences"] = licences(feature)
+        entry["licences"] = licences(feature(arm))
         result["arms"][arm] = entry
     k = result["arms"].get("kernel", {}).get("cdylib_bytes")
     for entry in result["arms"].values():

@@ -55,6 +55,9 @@ fn planes(seed: u64, n: usize) -> Vec<f32> {
 }
 
 fn median(mut v: Vec<f64>) -> f64 {
+    if v.is_empty() {
+        return f64::NAN;
+    }
     v.sort_by(|a, b| a.partial_cmp(b).unwrap());
     v[v.len() / 2]
 }
@@ -111,13 +114,16 @@ fn main() {
         Err(e) => format!("fail: {}", e.lines().next().unwrap_or("")),
     };
 
-    // Shape B.
-    let xb: Vec<Vec<f32>> = (0..NB)
+    // Shape B (DL1_ONLY_A skips it: tract's own executor panics when it
+    // runs inside the per-plane rayon loop).
+    let only_a = std::env::var("DL1_ONLY_A").is_ok();
+    let nb = if only_a { 0 } else { NB };
+    let xb: Vec<Vec<f32>> = (0..nb)
         .map(|i| planes(1000 + i as u64, 15 * NT * NC))
         .collect();
     let mut wall_b = Vec::new();
     let mut yb: Vec<Vec<f32>> = Vec::new();
-    for k in 0..9 {
+    for k in 0..if only_a { 3 } else { 9 } {
         let t = Instant::now();
         yb = xb.par_iter().map(|x| rt.run(x, NT, NC).unwrap()).collect();
         if k >= 2 {
