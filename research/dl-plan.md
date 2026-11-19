@@ -331,29 +331,98 @@ shipped weights file passed G-sub, G-drop, G-perm and G-obs; DL6 has run.
    and 5a as one-day screenings (#44); apply gets the hook and no experiment. A mode is selectable only
    if the weights file records that it passed that mode's gates; otherwise refused, with a force flag
    for experiments.
-4. **Training framework:** stay on JAX (approved 2026-11-02, existing code) or add PyTorch (released
-   R2D2/AIRI weights are likely PyTorch; DL0 confirms). Recommended: JAX for rang's own stages,
-   PyTorch only inside an oracle container for comparators.
-5. **Inference runtime:** own op graph and Rust interpreter, or a Rust runtime crate. Recommended:
-   decide from DL1's measurement.
-6. **Data:** how many more SARAO capture blocks to fetch for splits by observation (recommended: at
-   least 8 L-band blocks on different dates with different antenna sets, chosen by a frozen rule from
-   metadata only), and on which host.
-7. **Compute cap** per pilot (recommended: 24 GPU hours on glacier after 21:00, 3 seeds, before a
-   go/no-go).
-8. **Landman:** post the summary below on issue #1, and ask whether he wants a stage beyond flagging
-   (his `pfb` imaging, or the gain solve) as a shared pilot.
+4. **Training framework. Decided 2026-11-19:** "yes, pytorch for everything new". PyTorch trains
+   every learned stage from F5 on, as a training-only optional extra; the pipeline never needs it.
+   Existing JAX code (about 9,500 lines: the pointing and beam code behind the `pointing` extra, the
+   F1 adjoint, the F2-F4 trainers) is frozen history and is not ported; F5 costs a port of the F3/F4
+   network and trainer (about 400 lines, estimated a day) with a parity test against the Rust
+   inference. Where sections 4 and 5 say "JAX", read PyTorch for new stages.
+5. **Inference runtime. Decided 2026-11-19** ("agree"): ONNX is the format of every weights file
+   (exported from PyTorch; the provenance header of section 4 travels with it); a pure-Rust runtime
+   that reads ONNX runs it, picked by measurement in DL1 (#38) on F3's network (candidates from
+   memory: tract, burn, candle; speed, wheel size, agreement with PyTorch, identity across thread
+   counts, licence); hand-written kernels stay an optional fast path for shipped networks, with the
+   runtime's result as their reference; ONNX Runtime only as an optional GPU path later; an own
+   interpreter is the fallback if no crate passes. A runtime that is not bit-identical across thread
+   counts is stated as a limit for mode replace.
+6. **Data. Decided 2026-11-19:** "8 blocks on nash"; the owner issues the per-block links, the
+   session finds the blocks. Selection rule, **frozen 2026-11-19 before any archive search for this
+   task**, applied to archive metadata only:
+   - eligible: public and available in the SARAO archive; L band (856-1712 MHz), visibility product
+     `sdp_l0`, 1,024 or 4,096 channels, dumps of about 8 s; at least 2 h long; contains 1934-638 or
+     0408-65 and at least one target field; not marked bad by the archive's QA; not E2-N's block
+     1735268787 and not the observations behind LUNO, ESO137 or E2-A;
+   - spread: four blocks with 1,024 and four with 4,096 channels where the archive allows; at most
+     two blocks per calendar year; within each channelisation, the eligible blocks with the fewest
+     and the most antennas first, then the ones nearest the middle;
+   - ties: the lowest capture block ID;
+   - split, fixed by the rule and not by results: of the eight sorted by antenna count, the smallest
+     and the fifth are held out (read once), the fourth is validation, the other five train;
+   - subset per block as E2-N: every calibrator scan and the middle three target scans.
+   If the rule cannot be met (for example no eligible block below 58 antennas), the shortfall is
+   recorded and the rule is amended with a date before any visibility is read.
 
-Draft for issue #1 (not posted; the owner sees it first):
+   **Applied 2026-11-19** to the archive catalogue (archive.sarao.ac.za, owner's login; 9,409 L-band
+   records, metadata only, no visibility read). 1,998 records are public, 1,024 or 4,096 channels,
+   at least 2 h, with 1934-638 or 0408-65. Readings of the rule, written after seeing the metadata
+   and before any visibility (post hoc with respect to the metadata):
+   - "available" is the archive state AVAILABLE; ARCHIVED blocks (1,648) need restaging, which the
+     archive reports as delayed. "Not marked bad" is taken as QA "Good". 209 blocks remain.
+   - Shortfall: only one such block has 1,024 channels (E2-N's own is excluded), so the split is
+     one 1k and seven 4k. Fifteen more 1k blocks exist but are archived or without QA.
+   - "nearest the middle" is read as nearest the midpoint of the eligible antenna-count range
+     (29 to 64, so 46.5), not the median (61), which would give five near-identical arrays.
+   - Dump time is not in the catalogue; estimated from size, duration and antenna count, scaled to
+     E2-N's 8.0 s. Two 2018 MIGHTEE blocks (55 and 64 antennas, about 4 s) fail and are replaced by
+     the next in rule order. Checked from the block's own metadata before the fetch.
 
-> v0.4.0 of rang-core is planned around learned stages
-> ([dl-plan.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl-plan.md)). Flagging is
-> 3-7 % of our wall time, selfcal 65-71 %, so beside F5 we will test networks as warm starts for the
-> gain solve and as component proposals between exact major cycles, each verified by the classical
-> step. No antenna-indexed inputs; sub-array, antenna-dropout and permutation gates frozen before
-> training. One weights file per telescope and band, as you asked. Two questions: (1) would you take
-> part in the minor-cycle pilot with `pfb` as a comparator or teacher; (2) any architecture you would
-> rule in or out for variable antenna sets?
+   | Capture block | Date | Channels | Antennas | Length | Archive size | Proposal, field | Split |
+   | --- | --- | --- | --- | --- | --- | --- | --- |
+   | 1678312253 | 2023-03-08 | 4,096 | 29 | 9.1 h | 250 GB | SCI-20220822-BD-01, HD 142990 | **held out** |
+   | 1749428161 | 2025-06-09 | 4,096 | 48 | 4.0 h | 301 GB | SCI-20241102-GS-01, GRB 250520A | train |
+   | 1629213076 | 2021-08-17 | 4,096 | 56 | 8.6 h | 868 GB | SCI-20200703-MK-01, MPIfR Galactic plane | train |
+   | 1573212012 | 2019-11-08 | 4,096 | 57 | 7.7 h | 809 GB | SSV-20180721-FC-01, Galactic plane 88 | validation |
+   | 1579022459 | 2020-01-14 | 4,096 | 58 | 8.2 h | 891 GB | SSV-20180721-FC-01, Galactic plane 61 | **held out** |
+   | 1571938260 | 2019-10-24 | 4,096 | 59 | 11.4 h | 1,275 GB | SSV-20180505-FC-02, LMC mosaic | train |
+   | 1735892129 | 2025-01-03 | 1,024 | 62 | 3.7 h | 115 GB | SCI-20241101-KR-02, ASKAP J1745 (E2-N's field, another epoch) | train |
+   | 1611426666 | 2021-01-23 | 4,096 | 64 | 5.9 h | 773 GB | SCI-20180516-EB-01, MHONGOOSE J0516-37 | train |
+
+   | 1674958551 | 2023-01-29 | 4,096 | 32 | 9.0 h | 300 GB | SCI-20220822-BD-01, HD 142990 (m020 and m033-m063 only: no core) | **held out**, ninth block |
+
+   The ninth block is outside the rule: the owner added it on 2026-11-19 ("add the 9th block") as a
+   second, outer-array test of gate G-sub, chosen after the metadata were seen (post hoc, labelled).
+   It shares its proposal and field with the held-out 29-antenna block. The nine per-block links (read-only tokens, issued 2026-11-19,
+   valid about 60 days) are in `nash:~/rang-data/sarao-links-dl.txt` (mode 600, never printed). Open
+   before the fetch: each proposal's publication terms, and the dump times from each block's metadata.
+7. **Compute. Decided 2026-11-19:** "since the network is small, can we just try to use it all day and
+   see if it works? i want to make progess fast". Training runs on glacier's GPU at any hour, booked
+   through `gpu-run`; it needs no idle host, and the owner accepts a slower desktop and a yielding
+   local AI app in the daytime. Timing and exclusive runs stay from 21:00, because a busy host
+   invalidates them (the F4 lesson). Proposed with it, awaiting the owner's confirmation: the budget
+   per pilot stays counted in GPU hours (24 before a go/no-go, 48 for F5, three seeds included,
+   extension once on the owner's word), which all-day use turns into one to two days per pilot.
+8. **Landman. Decided 2026-11-19:** "dont ask him to get involved with the minor-cycle pilot, we can
+   do this ourselves right? also dont ask him architecture questions, we decide that. also for the
+   first question, just do what you think is best." So: the comment on issue #1 is a status update
+   with no questions; the pilots beyond flagging and the architecture choices are rang's own; F5 is
+   frozen without waiting for a reply (the comment of 2026-11-18 already said "unless you object, we
+   freeze"), with his review and his two replies as its inputs, and he can still comment on the
+   frozen note. Text for issue #1, posted only after the owner has seen it:
+
+> Update. rang-core 0.3.0 is out; no trained flagger ships in it. v0.4.0 is planned around learned
+> stages ([dl-plan.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl-plan.md)), and
+> F5 is its first task (#40).
+>
+> - F5 freezes now as described in my previous comment: your label scheme, `pfb hci` labels checked
+>   on injections first, gain TV as a validation measure, the per-antenna OR fallback, and a cost
+>   gate with headroom timed on an idle host. Calibrators first; one weights file for MeerKAT L band.
+> - Added before the freeze: no antenna-indexed inputs, and sub-array, antenna-dropout and
+>   permutation tests. Held-out real data now include a 29-antenna block and an outer-only
+>   32-antenna block from the SARAO archive.
+> - Cost context: flagging is 3-7 % of our wall time, self-calibration 65-71 %, so later tasks test
+>   networks in the gain solve and between major cycles.
+>
+> Results follow here when F5 has scored.
 
 ## For the coordinator
 
