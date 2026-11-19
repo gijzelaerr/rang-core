@@ -280,18 +280,53 @@ The fractions include the native flags, so they are not RFI fractions. Tricolour
 29 MB/s of MS at 8 threads and the port at about 65 MB/s, which gives about 23 h of Tricolour over
 the train and validation MSs (about 2.4 TB), split across blocks running side by side. The private
 copy of an 8.8 GB scan took about 6 min under `ionice -c3`, behind the other blocks' fetch I/O.
-Tricolour also leaves `<copy>.flagversions` beside the copy; the runner now deletes it with the copy.
+rang-core's flag stage leaves `<copy>.flagversions` beside the copy (its timestamps match the rang runs; the Tricolour and AOFlagger test left none); the runner now deletes it before each teacher and with the copy.
 
 Stage manifests were first written at 08:58 UTC (`manifests/stage{1,2,7}.json` on nash). They
 register 48 held-out stage 1 scans (42 for stage 2, 6 for stage 7) by MS hash before any training
 read. Augmentation root seeds come from SHA-256("rang dl2 stage N"); stage 1's is 960723432.
+
+## 13. Amendment 3 (2026-11-19 09:20 UTC; teacher settings, before any target scan was labelled)
+
+- **Strategy per scan class.** Section 6 named no Tricolour strategy, and the runner used CARACal's
+  calibrator strategy for every scan (as E2-N's `e2n.yaml` does for a whole MS). Changed: rang's port and
+  Tricolour use `mk_rfi_flagging_calibrator_fields_firstpass.yaml` on calibrator scans and
+  `mk_rfi_flagging_target_fields_firstpass.yaml` on target scans. Both are CARACal `8f7bb363` files:
+  ce9ac66a…1774 (the committed copy, the same bytes) and f9d4881b…6807. The target file is fetched into the
+  run root and not committed (CARACal is GPL-2.0). AOFlagger keeps `firstpass_QUV.rfis` for both
+  classes, which is what CARACal's `meerkat-defaults.yml` sets for its calibrator and target flag
+  workers. No target-scan label existed when this changed: the labels written so far are of
+  calibrator scans 1, 3 and 7 of 1735892129, and they stand. The running teacher job was stopped
+  and restarted; each file's SHA-256 is checked before use.
+- **Rerun safety.** A rang shard deletes its run directory first. Otherwise, after a crash between
+  the stage's end and the done-marker, `rang-core flag` would skip the finished stage and the native
+  flags would be saved as its label. Tested: the rerun of 1735892129 scan 3 gives the same
+  `flag.npy` (9f94a7cd…).
+- **AOFlagger read mode.** `-direct-read` for a scan whose MS exceeds 40 GB, else its default
+  (auto: in memory when it fits). It peaked at 6.3 GB on the 8.8 GB scan.
+- **Bookings.** Teacher jobs book 6 GB per thread: 8 threads on 1735892129, 1629213076 and
+  1749428161, 4 on 1571938260, 1611426666 and 1573212012.
+- **15-minute rule.** A teacher shard is one teacher on one scan. On the largest target scans (up
+  to about 270 GB of MS), a Tricolour shard is expected to take well over an hour at about 29 MB/s:
+  a stated exception, as for the conversion. A crash costs that one shard.
+- **Stage 2 route (probe, nothing built).** Each per-scan MS has SCAN_NUMBER 1, and its FIELD id
+  0 is its own source. A casacore virtual concat (`msconcat`) of 1735892129 scans 1 and 3 gave
+  166,408 rows but no FIELD subtable, and it would mix up field ids. A real merge is needed: CASA
+  `concat` in `rang-o-casa_6.7.6.14.sif` into a private MS, which remaps fields and needs no MVF.
+  The katdal scan index is in the file name and the block manifest. The stage 2 and stage 7
+  teacher runners are not built in this task (coordinator section).
 
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
   publication notice. Shipping weights trained on "freely available" archive data under GPL is the
   owner's call; no block was replaced.
-- ETA: held-out pair 3-5 h from the start of the fetch; all nine 35-57 h at E2-N's rate.
-- Held-out labels (section 5): who runs the teachers on them, and when, is your call.
+- Measured rate: one block (fetch, convert, hash) in about 40 min at 90-130 MB/s fetch; all nine
+  converted within about 3-4 h of the start. Flag teachers: about 23 h of Tricolour in all, split
+  across blocks.
+- Held-out labels (section 5): who runs the teachers on them, and when, is your call
+  (`dl2_teach.py --heldout-read`).
+- Stage 2 and stage 7 teachers are not built (amendment 3: CASA `concat` into a private MS is the
+  route). Open them as a follow-up under #41/#42 if wanted.
 - An arbitrary-command task kind for the spool (for container teachers) is not added here; open it
   under #4 if wanted.

@@ -91,9 +91,12 @@ def main(argv=None):
             "augmentation": {**AUGMENT, "root_seed": root_seed(stage)},
             "entries": entries,
         }
-        (root / "manifests" / f"stage{stage}.json").write_text(
-            json.dumps(out, indent=1) + "\n"
-        )
+        path = root / "manifests" / f"stage{stage}.json"
+        if path.exists():  # rewrite only on a change, so the hash is stable
+            old = json.loads(path.read_text())
+            if {**old, "written_utc": None} == {**out, "written_utc": None}:
+                out = old
+        path.write_text(json.dumps(out, indent=1) + "\n")
         labelled = sum(1 for e in entries if e["labels"])
         print(f"stage {stage}: {len(entries)} scans {counts}, {labelled} with labels")
     return 0

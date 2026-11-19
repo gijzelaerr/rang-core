@@ -1,0 +1,770 @@
+{
+ "stage": "1",
+ "written_utc": "2026-11-19T09:12:52Z",
+ "note": "research/dl2-data.md section 7",
+ "split_rule": "by capture block (dl-plan decision 6); held out read once",
+ "blocks": {
+  "heldout": [
+   {
+    "cbid": "1674958551",
+    "complete": true,
+    "manifest_sha256": "e4723aee97044175f07cffdf3c8e0b40f5ea72dc959d735eb4b168685f950000"
+   },
+   {
+    "cbid": "1678312253",
+    "complete": true,
+    "manifest_sha256": "157b3b2f21d4d46cf0ddb5fe6aed466af11b086e65ae810a6dd64ab93845b520"
+   }
+  ],
+  "train": [
+   {
+    "cbid": "1735892129",
+    "complete": true,
+    "manifest_sha256": "f921dc06d042373951c4df1a0871ed9facfc6ab47b10d7a2b19a608195d79e5e"
+   }
+  ]
+ },
+ "augmentation": {
+  "subarray_size": "uniform integer in [4, antennas of the block]",
+  "layout": "half uniform random subsets; half radius-limited: the N antennas nearest the array centre",
+  "dropout": "on full-array samples only: remove 1, 4 or 8 antennas, equally likely",
+  "seed_rule": "sample k uses numpy.random.default_rng([root_seed, k])",
+  "recorded_per_sample": [
+   "cbid",
+   "scan",
+   "antennas_kept",
+   "k"
+  ],
+  "no_ms_written": true,
+  "root_seed": 960723432
+ },
+ "entries": [
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 1,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "rows": 36704,
+   "ms": "ms/1674958551/scan001.ms",
+   "ms_hash": "0e9d0bd57462438eb2c7f0b1ef8750f558af78ac0c195ab6d88720a28a3a269c",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 3,
+   "class": "calibrator",
+   "target": "J1331+3030",
+   "rows": 37200,
+   "ms": "ms/1674958551/scan003.ms",
+   "ms_hash": "37c973fbf567358d56611caad83612d68142f8513442124f6ab31ade2cacc843",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 5,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 7440,
+   "ms": "ms/1674958551/scan005.ms",
+   "ms_hash": "d764baed9d9ebe74a5cdaae56f8d5d39ce08f063944bca5f38c0711ebcfa6c03",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 9,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan009.ms",
+   "ms_hash": "ed8222a659e40c8ee1512a4df00307c461256c943cf4f55fe8c21b57451620c2",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 13,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan013.ms",
+   "ms_hash": "9629b31e133bac508920d08b4da18f333400f1fc620a4465425a61be36df474c",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 17,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 7440,
+   "ms": "ms/1674958551/scan017.ms",
+   "ms_hash": "2137c034d6818829d6156bcf3d942217215146a6d3c6b26b2399f34ed576e7a4",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 21,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan021.ms",
+   "ms_hash": "c26b8144732926ada8f06fbbb9c248f5072abbd3fa6e1b2d5e4d077b79aafdf5",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 25,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan025.ms",
+   "ms_hash": "53bd8cbbb91bdb1739634740e2d7a4d2ad98faa6e8f1ce923d63a72cff545414",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 29,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan029.ms",
+   "ms_hash": "b7337f44104e60b18795e54dfcd4a7ce9dd28096fcd5aca266757ab47e855835",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 31,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111600,
+   "ms": "ms/1674958551/scan031.ms",
+   "ms_hash": "5228c9f017e3ab6ed554fe54081f574eb00178f862e483d9f41caa06ba4dd536",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 33,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan033.ms",
+   "ms_hash": "ddabf6c32c41b03d79c2b944d1249940414af93ffeba3b37e39a7529b3d716f5",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 35,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111104,
+   "ms": "ms/1674958551/scan035.ms",
+   "ms_hash": "cc1f8e2540ce627bb56605657a89cf9cbbe97d752647d9d980362612c2ee1e8f",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 37,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan037.ms",
+   "ms_hash": "df1e785653900495609a84efca83a6ece13e0eb387ebdb74aa1faf06c09de4c5",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 39,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111600,
+   "ms": "ms/1674958551/scan039.ms",
+   "ms_hash": "7badb73c00cd640dccf0477eeaf04cc21b1d4d3b0ff4b16544fcebe8b1ab4320",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 41,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan041.ms",
+   "ms_hash": "69b2b1d42af079291a72d1580d45f7300c9c38059668a6bcda739282573f7fc0",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 45,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan045.ms",
+   "ms_hash": "250b8b38910ac5cdc36c889d7829cb8a57b56f65d4c2563e56c9afe8541b3969",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 49,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan049.ms",
+   "ms_hash": "d8133c4b325db69dd3d0039a5e8bb5c950115e76afe4d6ed4b6ebc7332974f67",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 53,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan053.ms",
+   "ms_hash": "e177e46fbe2919fcc92e34e4e5b8fe0b8b8023c2395af8b05e7bbe34c7d46dc8",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 57,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan057.ms",
+   "ms_hash": "2b86298a82ea5ca397762e4397f22349ee63c12d488b068f99401421994f54bd",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 61,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 7440,
+   "ms": "ms/1674958551/scan061.ms",
+   "ms_hash": "4220993058758cca205bbea62b436776d78129f3b796e68ca43b9e7507def250",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 65,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6944,
+   "ms": "ms/1674958551/scan065.ms",
+   "ms_hash": "0716a0878d4f885a005ae8f7908585e0b81d2066a1674c0c2a92eb1f6c465ff0",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 69,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "rows": 37200,
+   "ms": "ms/1674958551/scan069.ms",
+   "ms_hash": "1747f54d40f6908df68df5d4e34b98d91f8d1c2268230c0d2875108f7aa8ef40",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 0,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "rows": 29638,
+   "ms": "ms/1678312253/scan000.ms",
+   "ms_hash": "c5325a151544054512e93c38c5abe24ee946f3b5620cf9968b2a1cbd2e5290a1",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 2,
+   "class": "calibrator",
+   "target": "J1331+3030",
+   "rows": 14616,
+   "ms": "ms/1678312253/scan002.ms",
+   "ms_hash": "6ae341c129c60d5cf0ce52b6cc8879da57f405e0e6160fcf9ade03dd06b74be6",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 4,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan004.ms",
+   "ms_hash": "2ce0ac6df99afde4284fee278eb563b63aa2aeaa44af32dc78c63d407f75000c",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 8,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6090,
+   "ms": "ms/1678312253/scan008.ms",
+   "ms_hash": "5783684777c96c2d44c69ea05cf0193faccd42e650d45ff65ad0425fe8c033ac",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 12,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan012.ms",
+   "ms_hash": "7c5a1fe7e31c3aa1f573bf14dcb7f7b5b3efdcc307419daad15b30ee42d237e4",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 16,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan016.ms",
+   "ms_hash": "14461b1afe4baaf53eb7b1e9e3d6e1d6968e867e3a1faba899abf6cc9de4e4ab",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 20,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan020.ms",
+   "ms_hash": "fc43744530583bea56ac36d1353897319e5d148de8bd06b21d8c69c2271af3b1",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 24,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6090,
+   "ms": "ms/1678312253/scan024.ms",
+   "ms_hash": "4da9054f762f74fb1f8727bb88e70ade4dc187d4bdd21339be8be9c29f26bbc2",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 28,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan028.ms",
+   "ms_hash": "1e3c39c8a0ddd897488b0dc77a65d8105446a8946da845453c105cf435c0deee",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 30,
+   "class": "calibrator",
+   "target": "J1331+3030",
+   "rows": 30450,
+   "ms": "ms/1678312253/scan030.ms",
+   "ms_hash": "a8355cb60573b607183ba186eae2d9cec3902114043c237930620323e965b532",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 32,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "rows": 30450,
+   "ms": "ms/1678312253/scan032.ms",
+   "ms_hash": "c1385fe51aacf2c7b7f1e817d41466be9c5da63dfdd9b8cfaaa871391a1ba96e",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 34,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan034.ms",
+   "ms_hash": "2f7509b0028041d325c5c993e06bd915be38de89c47aec7f2e65d5bc8e99dc76",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 36,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan036.ms",
+   "ms_hash": "191e17afe53ce3b97623c1e3343abe6d907c2042413c5850e3eb299b77ec086b",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 38,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan038.ms",
+   "ms_hash": "4aa6ef339017acf1fea246cc49b9f7d15b476619e1c5482db959c7bc3b694a3b",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 40,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan040.ms",
+   "ms_hash": "857f089847d46a760033434617d804002dd0191101e11eedf0b29957b38ab7da",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 42,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6090,
+   "ms": "ms/1678312253/scan042.ms",
+   "ms_hash": "09eca2441fd8c318a157a1af8d81dc1084daabd2f9d581520fe4e14eedef400a",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 44,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan044.ms",
+   "ms_hash": "41c3d25a400b8dd8d7fff6a42892e5913c74ae21ff3ec7d5857a6c4131a33bcf",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 46,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan046.ms",
+   "ms_hash": "6ae0d43f82fc09dac37631c286dc993677999ccc98c7a4d93527831de4ef23d8",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 50,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6090,
+   "ms": "ms/1678312253/scan050.ms",
+   "ms_hash": "2ace29eaea5321b24643affdb0a9e35fd51af566ec703b472596aa747d9446fd",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 54,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan054.ms",
+   "ms_hash": "f35b4f07422d8b6ac962777d1c510cee213fe53d47af27d49da4f1fee50643a6",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 58,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan058.ms",
+   "ms_hash": "4adb6c821dcfce143c0054decdd32cf884128102f95ce840e707b5b7d79cc748",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 60,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "rows": 30044,
+   "ms": "ms/1678312253/scan060.ms",
+   "ms_hash": "673ad8b06ab5fcb025cdb1b5d03ebddefaf2f314c788f246d9106f0f497ea5b3",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 62,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 6090,
+   "ms": "ms/1678312253/scan062.ms",
+   "ms_hash": "27679b1eacb5ac083836a08d480b2e86c7bb3b9654f8674e143bc0d6434ed024",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 66,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan066.ms",
+   "ms_hash": "5c0e03e2ab6cc3fea8399acb98d23e7af5a365b03af838fcbfbc7fa0e476fc4b",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 70,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan070.ms",
+   "ms_hash": "866a8f8d83cc077238579ece26b96ca78418f177020da248fab76da506032339",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 74,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "rows": 5684,
+   "ms": "ms/1678312253/scan074.ms",
+   "ms_hash": "8b6aa60f663c97b41e0f7428c24ea48161d446467d0bcba518f2313ecf8a0807",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 1,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "rows": 139934,
+   "ms": "ms/1735892129/scan001.ms",
+   "ms_hash": "e73c1bd25c51a42d80fa1ef290043608e6cd1076b618fa6b21164f04f46e3ad9",
+   "labels": [
+    {
+     "teacher": "rang",
+     "path": "labels/rang/1735892129/scan001",
+     "sha256sums_sha256": "a529a4dfcf2846e3e41a64b1232c4e0a55f995ee4cd194ff3061ae35bf646bee",
+     "pins": {
+      "rang": "0.3.0",
+      "core_sha256": "ce8d03ce6739d15d65a24cf8495d46527d1862f1ef69d8093c069e3f2162c3c9",
+      "commit": "127628eae0df0a60acedef5f09dc5d644552d959"
+     },
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    },
+    {
+     "teacher": "tricolour",
+     "path": "labels/tricolour/1735892129/scan001",
+     "sha256sums_sha256": "d695709b1b43d72fe61e3b2b65c2bbf8988de2958239e3f89d36017a92d96bc8",
+     "pins": {
+      "image": "rang-tricolour_0.2.1-e1.sif",
+      "image_sha256": "1fec39168c6f9c5a3bc26d367f05e9f9b7fcb302530ab9c6cbbfc88ac6c2c4e1",
+      "version": "tricolour 0.2.1 (image tag 0.2.1-e1)"
+     },
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    },
+    {
+     "teacher": "aoflagger",
+     "path": "labels/aoflagger/1735892129/scan001",
+     "sha256sums_sha256": "3e85fe43f0fb83021add05ea899d8674307346b199bd39e15db0cdfccccf5643",
+     "pins": {
+      "image": "stimela_aoflagger_1.2.0.sif",
+      "image_sha256": "fd89f5d981c1bfd8e9f2eef84c074922d3bd8ae933b45609cddce1e253610d38",
+      "version": "AOFlagger 2.13.0 (2018-11-07)"
+     },
+     "strategy_sha256": "edcb4131cae82b80e495ba719a2d0da19627586b2592f5ced400b1e9e90c69c8"
+    }
+   ]
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 3,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 26474,
+   "ms": "ms/1735892129/scan003.ms",
+   "ms_hash": "c610a145fbc8231acbe50bfe88addeb200f29c64f82605c1a62f46c7b428888b",
+   "labels": [
+    {
+     "teacher": "rang",
+     "path": "labels/rang/1735892129/scan003",
+     "sha256sums_sha256": "1a0ade3f8eba8f74400454355b1d4ec5760bded8329a5f03dafd61bd0d196587",
+     "pins": {
+      "rang": "0.3.0",
+      "core_sha256": "ce8d03ce6739d15d65a24cf8495d46527d1862f1ef69d8093c069e3f2162c3c9",
+      "commit": "de93b7aec3534b1f532ae9690f2ee1ec3a262d6b"
+     },
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    },
+    {
+     "teacher": "tricolour",
+     "path": "labels/tricolour/1735892129/scan003",
+     "sha256sums_sha256": "79cd530669c783823d829e1d66077720b24b6e87f4a0527a6e68c555c75fdd35",
+     "pins": {
+      "image": "rang-tricolour_0.2.1-e1.sif",
+      "image_sha256": "1fec39168c6f9c5a3bc26d367f05e9f9b7fcb302530ab9c6cbbfc88ac6c2c4e1"
+     },
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    },
+    {
+     "teacher": "aoflagger",
+     "path": "labels/aoflagger/1735892129/scan003",
+     "sha256sums_sha256": "26100a56cc04dc3acd97f2441879d53af1f4187e4b7650e3de38b0953d411081",
+     "pins": {
+      "image": "stimela_aoflagger_1.2.0.sif",
+      "image_sha256": "fd89f5d981c1bfd8e9f2eef84c074922d3bd8ae933b45609cddce1e253610d38"
+     },
+     "strategy_sha256": "edcb4131cae82b80e495ba719a2d0da19627586b2592f5ced400b1e9e90c69c8"
+    }
+   ]
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 7,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 26474,
+   "ms": "ms/1735892129/scan007.ms",
+   "ms_hash": "e5ae22c48cfb216b2a55826331f861252f653c5f56e4856115ec9ce75c91f0c9",
+   "labels": [
+    {
+     "teacher": "rang",
+     "path": "labels/rang/1735892129/scan007",
+     "sha256sums_sha256": "d1cf76c02be06ce01e7d3f2140888bba7e588443c4c434425af5121a7ef64e9a",
+     "pins": {
+      "rang": "0.3.0",
+      "core_sha256": "ce8d03ce6739d15d65a24cf8495d46527d1862f1ef69d8093c069e3f2162c3c9",
+      "commit": "127628eae0df0a60acedef5f09dc5d644552d959"
+     },
+     "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    }
+   ]
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 9,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 533262,
+   "ms": "ms/1735892129/scan009.ms",
+   "ms_hash": "cf6897e5b9e5abe90da87196f6187fa80895b0c7d420220ac8fdca60f84cb255",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 11,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 28365,
+   "ms": "ms/1735892129/scan011.ms",
+   "ms_hash": "8296b8b3a63afd3e16e14459f2e68158775a8c29fc983a373cd2b007fdcdde2a",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 13,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 531371,
+   "ms": "ms/1735892129/scan013.ms",
+   "ms_hash": "bc84c1ff0cb8a4ce7f28292fa192d17bf8bb4a291d37c0f2184247252985392f",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 15,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 26474,
+   "ms": "ms/1735892129/scan015.ms",
+   "ms_hash": "b5d1652e0b8114dda67dfe114eeba0f830fa749ac9727d81825a6ff5ba4fac58",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 17,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 533262,
+   "ms": "ms/1735892129/scan017.ms",
+   "ms_hash": "7d7773667dccc8b37c94545c2ff8ea7a05f33e287405e89b64b27dc1a7ae14a6",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 19,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 28365,
+   "ms": "ms/1735892129/scan019.ms",
+   "ms_hash": "f1aff9b07869b4c8b12e52bf7580810f3cdd0d0938ba3dc37e02b493b0f63c1f",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 23,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "rows": 26474,
+   "ms": "ms/1735892129/scan023.ms",
+   "ms_hash": "4e444fa6d5c1aef08f7a7dbfa6af40998cbb97710f0eb6cf16c52c3ec80b90d2",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 25,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "rows": 139934,
+   "ms": "ms/1735892129/scan025.ms",
+   "ms_hash": "74a0b9161601e8ad763d7d66faa4096b2dc4fb8694587709e868527de818d9c4",
+   "labels": []
+  }
+ ]
+}

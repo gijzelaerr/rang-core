@@ -49,20 +49,31 @@ SIF = {
 }
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
+CAL_YAML = (
+    REPO / "research/results/e2-acceptance-scripts"
+    / "mk_rfi_flagging_calibrator_fields_firstpass.yaml"
+)  # fmt: skip
+# CARACal 8f7bb363 caracal/data/meerkat_files/, fetched into ROOT/strategies/ (not
+# committed) and checked against STRATEGY_SHA256 before use (dl2-data.md amendment 3)
+TGT_YAML = Path("strategies") / "mk_rfi_flagging_target_fields_firstpass.yaml"
+RFIS = Path("strategies") / "firstpass_QUV.rfis"
 STRATEGY = {
-    "rang": REPO
-    / "research/results/e2-acceptance-scripts"
-    / "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
-    "tricolour": REPO
-    / "research/results/e2-acceptance-scripts"
-    / "mk_rfi_flagging_calibrator_fields_firstpass.yaml",
-    # CARACal 8f7bb363 caracal/data/meerkat_files/firstpass_QUV.rfis, fetched into
-    # ROOT/strategies/ (not committed); checked against AOFLAGGER_RFIS_SHA256
-    "aoflagger": Path("strategies") / "firstpass_QUV.rfis",
+    "rang": {"calibrator": CAL_YAML, "target": TGT_YAML},
+    "tricolour": {"calibrator": CAL_YAML, "target": TGT_YAML},
+    "aoflagger": {"calibrator": RFIS, "target": RFIS},
 }
-AOFLAGGER_RFIS_SHA256 = (
-    "edcb4131cae82b80e495ba719a2d0da19627586b2592f5ced400b1e9e90c69c8"
-)
+STRATEGY_SHA256 = {
+    "mk_rfi_flagging_calibrator_fields_firstpass.yaml": (
+        "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774"
+    ),
+    "mk_rfi_flagging_target_fields_firstpass.yaml": (
+        "f9d4881baf51aa551808b862ab321080b6517d13a068fd42d86e09100b666807"
+    ),
+    "firstpass_QUV.rfis": (
+        "edcb4131cae82b80e495ba719a2d0da19627586b2592f5ced400b1e9e90c69c8"
+    ),
+}
+DIRECT_READ_BYTES = 40 * 10**9  # AOFlagger -direct-read above this MS size, else auto
 RANG_VENV = REPO / ".venv"
 
 
@@ -167,14 +178,18 @@ def teach(teacher, strat, wc, work, threads, log):
             log,
         )
     if teacher == "aoflagger":
-        if sha256_file(strat) != AOFLAGGER_RFIS_SHA256:
-            raise SystemExit(f"{strat}: not CARACal's firstpass_QUV.rfis")
         shutil.copy(strat, work / "firstpass_QUV.rfis")
-        cmd = f"aoflagger -j {threads} -strategy /p/firstpass_QUV.rfis /ms/{wc.name}"
+        size = sum(q.stat().st_size for q in wc.rglob("*") if q.is_file())
+        mode = "-direct-read " if size > DIRECT_READ_BYTES else ""
+        cmd = (f"aoflagger -j {threads} {mode}-strategy /p/firstpass_QUV.rfis "
+               f"/ms/{wc.name}")  # fmt: skip
         return run(
             apptainer(SIF[teacher], [(wc.parent, "/ms"), (work, "/p")], cmd, threads),
             log,
         )
+    run_dir = work / f"run-{wc.stem}"
+    if run_dir.exists():  # a finished stage would be skipped: never reuse one
+        shutil.rmtree(run_dir)
     spool = work / f"spool-{wc.stem}"
     if spool.exists():
         shutil.rmtree(spool)
@@ -200,7 +215,7 @@ def teach(teacher, strat, wc, work, threads, log):
     ]
     try:
         res = run([RANG_VENV / "bin" / "rang-core", "flag", "--run-dir",
-                   work / f"run-{wc.stem}", cfg, wc], log, env)  # fmt: skip
+                   run_dir, cfg, wc], log, env)  # fmt: skip
     finally:
         subprocess.call([str(py), "-m", "rang.core_spool", "stop", str(spool)])
         for w in workers:
@@ -295,7 +310,12 @@ def main(argv=None):
         for d in (done[te], work[te], logs[te]):
             d.mkdir(parents=True, exist_ok=True)
         pin[te] = pins(te)
-        strat[te] = STRATEGY[te] if STRATEGY[te].is_absolute() else root / STRATEGY[te]
+        strat[te] = {}
+        for cls, path in STRATEGY[te].items():
+            path = path if path.is_absolute() else root / path
+            if sha256_file(path) != STRATEGY_SHA256[path.name]:
+                raise SystemExit(f"{path}: not the pinned CARACal file")
+            strat[te][cls] = path
     copies = root / "work" / "copies" / cbid
     for s in block["scans"]:
         n = s["scan"]
@@ -313,9 +333,11 @@ def main(argv=None):
         big = big_files(ms)
         for te in todo:
             restore(ms, wc, big)
+            shutil.rmtree(wc.with_name(wc.name + ".flagversions"), ignore_errors=True)
+            st = strat[te][s["class"]]
             before = snapshot(wc, big)
             log = logs[te] / f"scan{n:03d}.log"
-            rc, wall, rss = teach(te, strat[te], wc, work[te], a.threads, log)
+            rc, wall, rss = teach(te, st, wc, work[te], a.threads, log)
             if rc != 0:
                 raise SystemExit(f"{te} {cbid} scan {n}: rc {rc} (log {log})")
             if snapshot(wc, big) != before:
@@ -325,8 +347,8 @@ def main(argv=None):
                 shutil.rmtree(out)
             out.mkdir(parents=True)
             shape = extract(wc, out)
-            label = {"teacher": te, "pins": pin[te], "strategy": strat[te].name,
-                     "strategy_sha256": sha256_file(strat[te]), "threads": a.threads,
+            label = {"teacher": te, "pins": pin[te], "strategy": st.name,
+                     "strategy_sha256": sha256_file(st), "threads": a.threads,
                      "cbid": cbid, "scan": n, "class": s["class"],
                      "split": block["split"], "input_ms_hash": s["ms_hash"],
                      "wall_s": round(wall, 1), "peak_rss_kb": rss,
