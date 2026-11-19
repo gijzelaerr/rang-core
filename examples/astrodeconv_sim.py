@@ -876,7 +876,7 @@ def pilot_check(out, shard=0):
                 py, px = np.unravel_index(np.argmax(box), box.shape)
                 off = max(abs(py + y0 - y), abs(px + x0 - x))
                 res["orientation"].append(
-                    {"seed": s, "offset_px": int(off), "pass": off <= 1}
+                    {"seed": s, "offset_px": int(off), "pass": bool(off <= 1)}
                 )
                 ra, dec = np.radians(comps[:, 0]), np.radians(comps[:, 1])
                 sep = (
@@ -920,7 +920,7 @@ def pilot_check(out, shard=0):
                 ref = math.hypot(sd["noise_only_rms"], sd["outside_only_rms_f10"])
                 res["residual"].append(
                     {"seed": s, "residual_b_rms": rms, "noise_rms": sd["noise_only_rms"],
-                     "outside_rms": sd["outside_only_rms_f10"], "ratio": rms / ref, "pass": abs(rms / ref - 1) <= 0.20}
+                     "outside_rms": sd["outside_only_rms_f10"], "ratio": rms / ref, "pass": bool(abs(rms / ref - 1) <= 0.20)}
                 )  # fmt: skip
     res["pass"] = {
         k: all(x["pass"] for x in res[k]) and bool(res[k])

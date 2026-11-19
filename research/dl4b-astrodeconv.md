@@ -210,6 +210,47 @@ Changes (none alters a draw, the truth or the imaging settings):
 4. **Criterion 6.1 made concrete.** The peak is the dirty-image maximum in an 11×11 box around the truth pixel.
 5. **Code.** The acceptance checks are `examples/astrodeconv_sim.py pilot-check`.
 
+## Pilot result (shard 0, seeds 0-9, 2026-11-19, nash)
+
+Run root `~/rang-data/outputs/dl4b-astrodeconv-20261119/pilot-a` and `pilot-b`. Checks are in
+`results/dl4b-astrodeconv/pilot-check-000.json`.
+
+| Criterion | Result |
+| --- | --- |
+| 6.1 orientation | PASS, 10/10, offsets 0 px (9) and 1 px (1) |
+| **6.2 flux, as frozen** | **FAIL, 2/10**: model_b 3×3 sum against I is +1.7, +7.9, +3.2, −0.9, **+12.6**, +4.5, +5.3, +9.0, +5.4, **+11.9** % (seeds 0-9) |
+| 6.3 PSF | PASS, 10/10, max Δ 0 across flux sets |
+| 6.4 residual (amendment 1) | PASS, 10/10, ratio 1.00-1.04: the residual RMS is the out-of-field sidelobes (4.6-6.9 mJy at flux10) plus noise (1.7-2.1e-5 Jy) |
+| 6.5 time | PASS, 0 timeouts. 306 s per shard on one core (30 s per seed, pilot extras included); peak RSS 0.32 GB |
+| rerun | PASS: pilot-b reproduces all 30 field and 10 PSF hashes of pilot-a |
+
+**The frozen stop fired (6.2). Generation has not started.**
+
+## Amendment 2, 2026-11-19 (proposed, post hoc: written after 6.2 failed and after the tests below)
+
+The tests were run after the failure and before this amendment was proposed. Outputs are in
+`results/dl4b-astrodeconv/` (`scale-test.txt`, `flux-diag.json`, scripts beside them).
+
+1. **Prediction scale and orientation are exact.** A 1 Jy point source on a pixel centre, noise-free, seed 4's track, at 4 positions:
+   - dirty peak 1.0000 ± 2e-4, on the intended pixel;
+   - run-B model total 0.997-1.000.
+2. **The metric is biased for off-grid sources.** The same source half a pixel off the grid, at 4 positions:
+   - model total 1.000-1.005;
+   - 3×3 box sum **1.06-1.11**.
+   - Off-grid CLEAN leaves a positive core and a negative ring outside the box. Spiel's rounded positions fall anywhere within a pixel, so the frozen 6.2 metric is biased upward even for perfect data.
+3. **In-field against full sky.** Run B, noise-free:
+   - with in-image sources only, the 3×3 errors are +2.0 to +8.4 %;
+   - with all sources, −0.9 to +12.6 %.
+   - Seed 4 goes from +4.4 to +12.6 %, seed 9 from +7.1 to +11.9 %. The two failures are among the three faintest test sources (13.6 and 7.93 Jy), as an additive sidelobe error predicts.
+
+**Proposed:** replace 6.2 by item 1 (pixel-centre source, total model and dirty peak within 1 %). On the evidence above, release the 9,000. That is the coordinator's decision, not this session's. The frozen 6.2 stays recorded as FAIL.
+
+**For the benchmark half (#42):**
+
+- The truth is nearest-pixel, while the sources are off-grid by up to half a pixel.
+- WSClean's models carry negative rings.
+- Small-box flux metrics are therefore biased by +6-11 % per source even when CLEAN is right. Score fluxes on beam-convolved images or with total-flux apertures, and state it.
+
 ## 7. Label
 
 "ASTRODECONV2019 regenerated (rang, route b)": matched to spiel's job files and draws, not bit-identical
