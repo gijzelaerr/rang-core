@@ -88,7 +88,123 @@ The thesis (chapter 6, p. 92) gives `https://archive.kernsuite.info/data/`, 12 G
 2026-11-19: **the host does not resolve** from glacier (NXDOMAIN) or nash (`curl -sI` rc 6, could not
 resolve); it is a CNAME to `kern.astron.nl`, which does not exist. No headers were obtainable; no
 Zenodo copy; Wayback not checked (the archive was offline). DL4b step 0 needs the owner's copy or a
-regeneration from the thesis's specification (spiel, MIT, or rang's simulator).
+regeneration from the thesis's specification.
+
+**Regeneration, scoped 2026-11-19 (coordinator's request; nothing generated).**
+
+What the thesis states (pp. 91-93): spiel (simms, MeqTrees) made the data; MeerKAT AR1, 16 dishes;
+channel width 200-300 MHz; declination −55° to −65°; pointing and integration time vary; unresolved
+point sources; no gain errors; products dirty image, PSF, WSClean model, sky model; "10 000 image
+products". Two inconsistencies to carry, not resolve: p. 93 splits the data 94,000 / 3,000 / 3,000
+(100,000 in all), and the image size is not stated on these pages (dl-plan 1.1 says 256²).
+
+The job file. [spiel](https://github.com/gijzelaerr/spiel) (MIT, last commit `c4a8e315`, 2019-10-08)
+has seven MeerKAT-16 job files. The three `jobs/meerkat16_oleg_flux{10,100,1000}.yaml` match every
+stated number: `nant` 16, `dfreq` 200e6-300e6 (one channel at `freq0` 1,049.8 MHz), `dec_min` −55 to
+`dec_max` −65, `gain_errors` 0, 256² at 1.6″, `nsrc` 100, synthesis 7.5-8 h at `dtime` 10 s, `sefd`
+520, uniform weighting, WSClean `auto_threshold` 0.125 and `auto_mask` 5. They differ only in
+`flux_scale` (10, 100, 1000) and seeds (0-999, 1000-1999, 2000-2999): 3,000 fields, not 10,000.
+`meerkat16_oleg_512.yaml` is the same at 512² (seeds 0-3999). `meerkat16.yaml` (full band, gains on,
+Dec −30°) and both `deep2` files (Dec −85° to −75°, or −90° to 0°, 3-7 MHz) do not match. So the
+pinned specification is the `oleg_flux` triple, with the seed lists extended to the count wanted;
+which seeds made the published 10,000 is not recoverable from the repository.
+
+Semantics read from the steps: `randomize.cwl` draws dec, synthesis time and channel width uniformly
+(numpy legacy seeding; the job file's "10**" comment on `flux_scale` is stale, the code draws it
+uniformly, and min = max here); `skymodel.cwl` draws 100 fluxes as `pareto(8) × noise × flux_scale`
+with `noise = sqrt(2 Srms)`, `Srms = SEFD / sqrt(2 dt Δν N(N−1)/2)`, positions Gaussian around the
+pointing with σ = `pb_fwhm`/2 = 0.125°, spectral index −0.7 ± 0.01; `simulator.cwl` adds noise of
+`SEFD / sqrt(2 dt Δν)` per visibility through MeqTrees, unseeded. The 16 antennas
+(`data/MeerKAT16_ANTENNAS`, read with rang's table reader on nash) are m000, m002, m005, m011,
+m012, m018, m020, m042, m049, m057-m063, 29 to 7,698 m baselines; all are in rang's
+`rang/data/meerkat.itrf.txt`.
+
+Route (a), spiel's container: `docker.io/gijzelaerr/spiel` still exists, tags `latest`
+(2019-03-30, 1.12 GB compressed), `meerkat16` (2018-07-02), `add-gains`, `hdr`, `randomise_pos`;
+podman 4.9.3 on nash lists the tags and reads `latest`'s manifest (schema 2), so a pull should work
+(layers not pulled). Costs of this route: the image is KERN-3 (Ubuntu 18.04, Python 2, MeqTrees,
+WSClean of 2019); the workflow needs a CWL runner (the Makefile builds a Python 2 virtualenv for
+toil; nash has no Python 2, so cwltool with `--podman` would have to run CWL v1.0 unchanged, not
+tested); `latest` predates the repository's last commit, and which tag made the dataset is unknown;
+the noise is unseeded.
+
+Route (b), rang: every part exists. `examples/simulate_df5_field.py` (DF5-O) builds tracks from
+ITRF positions, predicts exactly (DFT or the core degridder), adds seeded radiometer noise and writes
+the MS through `rang.core_ms_write`; WSClean is in the oracle container and GeMClean in the wheel.
+Spiel's `randomize` and `skymodel` formulae are ten lines of numpy each (MIT, the owner's) and can be
+called with the same seeds, so with numpy's legacy `RandomState` (stable across versions; inferred,
+to be checked on one seed) the regenerated parameters and sky models equal spiel's draw for draw;
+uvw, noise realisation and WSClean version differ.
+
+Cost on nash, estimated, nothing timed: a field is 120 baselines × about 2,800 dumps = 3.4e5 rows
+× 1 channel. Route (b): DFT of 100 sources about 1 s, MS write under 1 s, WSClean or GeMClean on 256²
+a few seconds (the 0.125σ threshold is the unknown): about 10 s per field per core, so about 30
+core-hours for 10,000, 2-3 h at 12-16 slots; products about 1 MB per field (10-25 GB), MS about
+30-40 MB each, deleted per shard after imaging (350 GB if kept). Route (a): MeqTrees turbo-sim,
+simms and container start-up per step, about 1-3 min per field per core, 170-500 core-hours, 11-30 h
+at 16 slots, plus runner set-up. Shards of 100 seeds with done-markers either way.
+
+**Recommendation: route (b)**, matched to the thesis's numbers, not bit-identical: the `oleg_flux`
+specification, spiel's own draw formulae and seeds (0-2999 as published, extended to the count the
+DL4b protocol freezes), rang's exact predict and seeded noise, WSClean limited to one major cycle as
+the thesis's comparator plus unrestricted WSClean. Route (a) only if a bit-for-bit match of the old
+sky models is ever needed and route (b)'s seed check fails. First step, before the 10,000: one seed
+through both formulae (spiel's code and rang's port), compared; then 100 fields timed.
+
+**Owner decision, 2026-11-19** (through the coordinator), verbatim: "go with all three flux sets,
+seeds 0-2999". Route (b). So **9,000 fields**: `meerkat16_oleg_flux10`, `flux100` and `flux1000`,
+each over seeds 0-2999 (the published files gave each flux set its own 1,000 seeds). The thesis's
+count stays unresolved (10,000 on p. 92, 94,000 / 3,000 / 3,000 on p. 93); the decision fixes the
+set rang regenerates, not what the thesis meant. Consequence of the shared seeds (from the code
+below): for one seed, `randomize` and `skymodel` draw the same declination, synthesis time, channel
+width, positions, spectral indices and Pareto shape in all three sets, so the three are one field
+at three flux scales (10, 100, 1000 × the noise unit), differing only in their noise draw. Splits
+by observation must therefore be by seed, never by (seed, flux set). Generation and the one-seed
+identity check belong to the #42 session (wave 2); nothing was generated here.
+
+**Specification for the #42 session (route b), runnable from this note.**
+
+1. Source: spiel commit `c4a8e315ae65176dda4871fabd1c241904ef5232` (MIT); job files
+   `jobs/meerkat16_oleg_flux{10,100,1000}.yaml`, steps `steps/randomize.cwl`, `steps/skymodel.cwl`,
+   `steps/simulator.cwl`, `steps/simms.cwl`, `steps/wsclean.cwl`. Fixed inputs from the job files:
+   `nant` 16, `dtime` 10 s, `freq0` 1,049,833,007.8125 Hz, `nchan` 1, `ra` 63.36°, `nsrc` 100,
+   `pb_fwhm` 0.25, `sefd` 520, `synthesis` 7.5-8 h, `dfreq` 200e6-300e6, `dec` −55 to −65 (spiel's
+   `dec_min` −55, `dec_max` −65, passed to `uniform` in that order), `flux_scale` 10, 100 or 1000.
+2. Per (seed s, flux set f), draws with numpy's legacy global `RandomState`, in spiel's order:
+   `randomize`: `seed(s)`; `dec = uniform(−55, −65)`; `synthesis = uniform(7.5, 8)`;
+   `dfreq = int(uniform(200e6, 300e6))`; `flux_scale = uniform(f, f)`. `skymodel`: `seed(s)` again;
+   `Srms = 520 / sqrt(2 · 10 · dfreq · 16·15/2)`; `noise = sqrt(2 · Srms)`;
+   `fluxes = pareto(8, 100) · noise · flux_scale`; `ras = 63.36 − randn(100) · 0.125`;
+   `decs = dec − randn(100) · 0.125`; `spi = −0.7 + randn(100) · 0.01`; reference frequency `freq0`.
+   Port these lines unchanged (Python 3: `range` for `xrange`), keep the draw order.
+3. Identity check before any generation: run spiel's two snippets (from the CWL files, under
+   Python 3 with `xrange` replaced, current numpy) and rang's port for seeds 0, 1, 2999 and each
+   flux set; parameters and sky-model text equal to the printed precision (`%.5g`, `%.3g`, `%.3f`)
+   or the port is wrong. Record numpy's version.
+4. Observation: antennas m000, m002, m005, m011, m012, m018, m020, m042, m049, m057, m058, m059,
+   m060, m061, m062, m063 from `rang/data/meerkat.itrf.txt` (spiel's table lists the same names;
+   positions not compared, do it once); phase centre (63.36°, dec); `synthesis` hours of 10 s dumps
+   centred on transit (spiel's `simms.cwl` passes `--ra`, `--dec`, `--synthesis-time`, `--dtime`,
+   `--freq0`, `--dfreq`, `--nchan`, `--type casa` and no start hour angle or date, so simms's own
+   defaults applied; that they centre the track on transit is inferred, unverified: state the choice); one channel of width `dfreq` at `freq0`; XX, XY, YX, YY; tracks, uvw and
+   exact prediction as in `examples/simulate_df5_field.py` (`track`, the core DFT for point sources),
+   spectral index applied at `freq0` (a no-op for one channel); no gain errors, no smearing (state it).
+5. Noise: complex Gaussian per visibility and correlation, σ = 520 / sqrt(2 · 10 · dfreq) per real
+   and imaginary part as spiel's `noise_stddev`; seeded per (s, f) by a recorded rule (spiel's was
+   unseeded); `WEIGHT_SPECTRUM` from σ, imaged with uniform weighting as spiel did.
+6. Products per field, as the thesis lists: dirty image, PSF, sky model (a 256² image at 1.6″ with
+   the 100 components on the grid, plus the component list), WSClean model, residual and restored
+   images at 256², `-scale 1.6asec -weight uniform -niter 100000000 -mgain 1.0 -auto-threshold 0.125
+   -auto-mask 5` (spiel's settings, one major cycle per thesis p. 93 when `-mgain 0.95` is used for
+   the comparator: run both, labelled), the clean beam. WSClean from the oracle container, its
+   version recorded.
+7. Shards of 100 seeds × 3 flux sets with a done-marker and SHA-256 per product; the MS deleted
+   after imaging; outputs on nash under `~/rang-data/outputs/<task>-<date>/astrodeconv-r`, every job
+   under the heavy lock at `nice -n 19 ionice -c3`. Time one shard first and add a row to
+   `tool-timings.md`; estimate above: about 30 core-hours for 10,000 fields, so about 27 for 9,000.
+8. Label: "ASTRODECONV2019 regenerated (rang, route b)": matched to the thesis's stated numbers
+   and to spiel's draws, not bit-identical to the published set (different uvw, noise draw,
+   WSClean version).
 
 ## 2. Self-calibration cost split
 
@@ -203,5 +319,5 @@ solves. If E2-N's solves turn out iteration-bound, #41 moves to second.
   astroNNomy have none. Asking the authors is the owner's call (nobody was contacted).
 - Whether CC BY-NC MeerKAT survey images (MGCLS, MIGHTEE, SMGPS) may train weights that ship under
   GPL.
-- ASTRODECONV2019: the owner's own copy (thesis: `/scratch/datasets/astro_deconv_2019`) or a
-  regeneration.
+- ASTRODECONV2019: decided 2026-11-19, route (b), 9,000 fields (section 1.6). Still open, and not
+  blocking: which count the thesis meant (10,000 on p. 92, a 100,000 split on p. 93).
