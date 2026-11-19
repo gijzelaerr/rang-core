@@ -222,6 +222,33 @@ shard driver (`dl2_teach.py`) with done-markers; no arbitrary-command task kind 
 - Less than 2 TB free on `/home`: no new shard starts.
 - A `token=` line or a token string in any log, JSON or manifest: stop, scrub, report.
 
+## 9. Amendment 1 (2026-11-19, after the smoke test; implementation only, no visibility statistic of any block was read for it)
+
+Found on the smoke scan (train block 1735892129, katdal scan 3) and in the first hour of the fetch:
+
+- **Working copies (section 6).** Hard links to the read-only MS fail: Tricolour (dask-ms) and AOFlagger
+  open the MS read-write, so casacore opens every storage-manager file for writing ("table.f6_TSM0 could
+  not be opened: Permission denied"). nash's `/home` is ext4, with no reflink. Changed: one private full
+  copy per scan (`work/copies/<cbid>/scan<NNN>.ms`, made once, shared by the teachers in turn). Before each
+  teacher every file except the DATA, WEIGHT_SPECTRUM and SIGMA_SPECTRUM storage-manager files is restored
+  from the frozen MS, so each still starts from the native flags. After each teacher those bulk files are
+  checked unchanged: size and mtime of the `_TSM` data files, SHA-256 of their headers. The frozen MS is
+  never opened for writing and stays read-only. The copy is deleted once the scan's teachers are done.
+  Cost: one copy of the bulk data per scan, not one per teacher.
+- **Label format.** `flag.npy` is a bit-packed `uint8` array, shape (rows, ceil(chan × corr / 8)),
+  memory-mapped, not `flag.npz`.
+- **AOFlagger** in `stimela_aoflagger_1.2.0.sif` is 2.13.0 (2018-11-07). It reads CARACal's 2.9.0 XML.
+  CARACal's `firstpass_QUV.rfis` is fetched from GitHub at `8f7bb363` into the run root's `strategies/`,
+  checked against F5's SHA-256 (`edcb4131…c69c8`, matched), and not committed. Recorded in each `label.json`.
+- **mvftoms** in katdal 0.23 imports `pkg_resources`: `setuptools<81` is pinned in `.venv-dl2` (80.10.2).
+- **Smoke result.** Fetch 29 s (1.15 GB, 41 MB/s); conversion 40 s, 4.4 GB peak RSS; 26,474 rows
+  (14 dumps × 1,891 baselines); 79 files hashed; a write into the frozen MS is refused. Tricolour
+  308 s, AOFlagger 27 s, both at 4 threads.
+- **Rates and sizes, revised.** Each block's fetch runs at 90-130 MB/s on the large scans (two blocks
+  side by side), not E2-N's 9-15 MB/s, so conversion and hashing set the pace. MS size is about 1.5 ×
+  MVF on the smoke scan (1.77 GB from 1.15 GB), so the nine MSs come to about 2.9 TB, not 2.1 TB.
+  The 2 TB free-space guard is unchanged.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
