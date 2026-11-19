@@ -245,11 +245,19 @@ The tests were run after the failure and before this amendment was proposed. Out
 
 **Proposed:** replace 6.2 by item 1 (pixel-centre source, total model and dirty peak within 1 %). On the evidence above, release the 9,000. That is the coordinator's decision, not this session's. The frozen 6.2 stays recorded as FAIL.
 
+**Accepted by the coordinator, 2026-11-19, post hoc.**
+
+- The replacement check passed: dirty peak 1.0000 ± 2e-4, model total 0.997-1.000.
+- 6.2 stays recorded as FAIL: +12.6 % on seed 4 and +11.9 % on seed 9.
+- The failure is explained by the metric (an off-grid CLEAN ring outside the 3×3 box) and by sidelobes from out-of-field sources, not by the data.
+- The generation was released at 14 slots on nash.
+
 **For the benchmark half (#42):**
 
 - The truth is nearest-pixel, while the sources are off-grid by up to half a pixel.
 - WSClean's models carry negative rings.
 - Small-box flux metrics are therefore biased by +6-11 % per source even when CLEAN is right. Score fluxes on beam-convolved images or with total-flux apertures, and state it.
+- Out-of-field sidelobes are a property of the dataset, as they were in the thesis's: with all sources the 3×3 errors are −0.9 to +12.6 %, against +2.0 to +8.4 % with in-image sources only. The residual RMS is the out-of-field sidelobes (about 5 mJy at flux10), not the noise.
 
 ## 7. Label
 
