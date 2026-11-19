@@ -20,6 +20,15 @@ Update this block when a merge changes it. The log below is the record.
 
 A new paragraph goes directly under this heading.
 
+Deep-learning plan, 2026-11-19 (proposed, nothing built; [dl-plan.md](dl-plan.md); owner request of the same day:
+v0.4.0 on deep learning and the Landman collaboration). Stage shares from E2-A and E2-N: flag 3-7 %, calibrate 7-12 %,
+image 14-17 %, selfcal 65-71 %, so the largest possible gain is inside selfcal (gain warm starts, minor-cycle
+proposals), not in the flagger; the solve/imaging split inside selfcal is unsettled (61 % and 42 % in two pilot runs)
+and DL0 measures it before the pilots are ordered. Default mode "propose" (the exact classical step verifies), a
+`learned` hook on every stage, weights per stage, telescope and band, no antenna-indexed inputs, sub-array, dropout
+and permutation gates frozen before training. Tasks DL0-DL6. v0.4.0's theme is the owner's word. Decision 1
+taken the same day: #3 and #5 to v0.5.0, #4 stays in v0.4.0 (`roadmap.md` and the milestones edited). Decision 2: F5 in v0.4.0 (#40), #24 into v0.4.0, issues #37-#46; six decisions open.
+
 Auto-mask finishing cycle, 2026-11-18 (issue #36; branch `automask-cycle`; [automask-cycle.md](automask-cycle.md),
 frozen in `98cd295f` before any run; archive [results/automask-cycle/](results/automask-cycle/); run root
 `nash:~/rang-data/outputs/automask-cycle-20261118`, removed after archiving; host nash): **outcome null (rule 4);

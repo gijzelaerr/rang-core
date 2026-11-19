@@ -22,8 +22,8 @@ grouped into one GitHub milestone per release. This note replaces
 | --- | --- | --- |
 | v0.2.0 | Parity | Does one command take an unseen MeerKAT L-band MS to a calibrated, full-polarisation image, each stage matching its oracle? |
 | v0.3.0 | Science grade on real data | Can I trust the images and polarisation on my own native data, and drive it from an agent? |
-| v0.4.0 | Scale | Does it run on my cluster and on the formats the other tools are moving to, faster at the same accuracy? |
-| v0.5.0 | More of MeerKAT | UHF, S band, time-domain products and the first direction-dependent piece |
+| v0.4.0 | Deep learning (owner, 2026-11-19; was "Scale") | Which stages can a trained network speed up or approximate, and can I swap one in and retrain it for my telescope? |
+| v0.5.0 | Scale, and more of MeerKAT | Does it run on my cluster and on the newer formats? UHF, S band, time-domain products and the first direction-dependent piece |
 | v0.6.0 | Beyond the state of the art | Do any of the method proposals beat WSClean, QuartiCal and CARACal at matched cost? |
 | Later | Other telescopes | LOFAR, VLBI, beamformed pulsar and FRB search |
 
@@ -67,11 +67,19 @@ Nothing was scored from the stopped runs.
 | #7 | E3-A: CARACal against rang on E2-A, timed (branch `e3-caracal`) | rang's timed pass stopped in its image stage after 9.7 h exclusive on nash (pinned to 16 cores: flag 5,340 s, calibrate 16,898 s, apply 2,152 s, about 3.8 × the 15-16 Nov full-host rerun); CARACal's timed pass never started; partial MS deleted | rerun both timed passes from the start in one night window; decide first whether pinning to 16 cores is the matched-cost setting |
 | #7 | E2-N follow-up: CASA with the flag-state split (branch `e2n-followup`, `2e512d81`) | K flags 0 of 62 in the seen rerun; the K-downstream CASA steps were queued, not run | resume `fu_launch.sh` from `~/rang-data/outputs/e2n-followup-20261118` (201 GB kept), then `fu_kcompare.py`, `fu_compare.py`, section 2.2 |
 | — | e2a-kzero: `calibrate.k_zero_start` as default | arm 3B done; zs and zsd stopped in self-calibration round 2; off after flag and calibrate | resume from `~/rang-data/outputs/e2a-kzero-20261117` (1.8 TB kept); score; owner decides the default |
-| #1 | F5 flagger (Landman's review) | proposed, not frozen; F4's result posted to #1 on 2026-11-18, no reply yet | rewrite section 2 around F4's cost-gate stop, freeze, run (`research/f5-flagger.md` section 8) |
+| #40 | F5 flagger (Landman's review) | moved to v0.4.0 on the owner's word, 2026-11-19 (first task of [dl-plan.md](dl-plan.md)) | there |
 | — | The flag-state split in E2-A's and E2-B's 3b oracle scripts | not started | as in `research/e2n-followup.md` |
 | #34 | GeMClean's 9.3 GiB peak above the 8 GiB default | open | — |
 
-### v0.4.0: scale
+### v0.4.0: deep learning
+
+Owner, 2026-11-19: "I want 0.4.0 to be focussed on deep learning"; and on the Scale items: "Move #3, #4, #5
+to v0.5.0 [...] #4 sounds potentially useful for 0.4.0 though, so include that there." The plan, its tasks
+(DL0-DL6, Landman's F5 first) and its "done when" are in [dl-plan.md](dl-plan.md); its remaining owner
+decisions are open. #3 and #5 moved to v0.5.0; #4 stays here, to run the training-data factory's teacher
+jobs over many observations. #12 and #28 are closed (measured). Issues: #37-#46 (DL0-DL6), with #1, #4 and #24 (from v0.6.0); joint
+gain-and-image solving is a maybe, re-evaluated at #45. The table below is the Scale table as
+approved on 2026-11-13, kept for the record.
 
 | Issue | Item | Size | Depends on |
 | --- | --- | --- | --- |
@@ -90,10 +98,12 @@ Nothing was scored from the stopped runs.
 
 Scoping note: [multi-node-scope.md](multi-node-scope.md).
 
-### v0.5.0: more of MeerKAT
+### v0.5.0: scale, and more of MeerKAT
 
 | Issue | Item | Size | Depends on |
 | --- | --- | --- | --- |
+| #3 | Multi-node stage 1: chunk task API, multi-process on one node (from v0.4.0, 2026-11-19) | M | — |
+| #5 | MSv4 / xarray-ms interoperability (from v0.4.0, 2026-11-19) | L | #3's ChunkSpec |
 | #11 | UHF band | M | UHF data |
 | #18 | S band | M | #11's pattern |
 | #9 | Time series P1: residual snapshot light curves, then dynamic spectra | M | owner approves P1 |
