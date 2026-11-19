@@ -1,0 +1,40 @@
+2026-11-15T14:41:23+02:00 D: free 645 GiB (start rule 605, 9.6)
+[
+ "UVW",
+ "FLAG_CATEGORY",
+ "ANTENNA1",
+ "ANTENNA2",
+ "ARRAY_ID",
+ "DATA_DESC_ID",
+ "EXPOSURE",
+ "FEED1",
+ "FEED2",
+ "FIELD_ID",
+ "FLAG_ROW",
+ "INTERVAL",
+ "OBSERVATION_ID",
+ "PROCESSOR_ID",
+ "SCAN_NUMBER",
+ "STATE_ID",
+ "TIME",
+ "TIME_CENTROID",
+ "DATA",
+ "WEIGHT_SPECTRUM",
+ "FLAG",
+ "WEIGHT",
+ "SIGMA"
+]
+START 2026-11-15T14:41:25+02:00 cpu_load_pct=4 exclusive critical
+rang-core: flag: running
+rang-core: flag: done in 2738.0 s
+rang-core: calibrate: running
+rang-core: calibrate: done in 4389.6 s
+rang-core: apply: running
+rang-core: apply: done in 578.4 s
+rang-core: image: running
+rang-core: image: done in 5279.8 s
+rang-core: selfcal: running
+rang-core: selfcal: done in 24269.8 s
+rang-core: receipt D:/rang/outputs/e2a-20261115/e2a.ms.rang-run/receipts/run-20261115T124127Z.rang-receipt.json
+END 2026-11-16T01:02:42+02:00 rc=0
+2026-11-16T01:02:42+02:00 D: free 240 GiB
