@@ -316,6 +316,17 @@ read. Augmentation root seeds come from SHA-256("rang dl2 stage N"); stage 1's i
   The katdal scan index is in the file name and the block manifest. The stage 2 and stage 7
   teacher runners are not built in this task (coordinator section).
 
+## 14. Amendment 4 (2026-11-19 09:38 UTC; bookings, no data read)
+
+The lock audit at 09:36 UTC showed 40 of 44 slots booked against 4.8 cores in use, and a job
+waiting 5 min in the queue. The teacher jobs held 8 slots while they made the private copy, which
+is I/O only and slow under `ionice -c3`. Changed: per scan,
+[teach_block.sh](results/dl2-scripts/teach_block.sh) makes the copy under a 1-slot, 4 GB booking
+(`dl2_teach.py --copy-only`), then runs the three teachers under a T-slot booking. The jobs were
+stopped by process group and restarted; every finished shard was kept by its done-marker. A copy
+killed midway keeps read-only directory modes from `copytree`, so the runner now makes it writable
+before removing it.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the

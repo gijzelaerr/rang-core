@@ -112,7 +112,10 @@ def private_copy(ms, dest):
     marker = dest.with_name(dest.name + ".copied")
     if marker.exists():
         return
-    if dest.exists():
+    if dest.exists():  # a partial copy: copytree keeps the read-only directory modes
+        for q in [dest, *dest.rglob("*")]:
+            if q.is_dir():
+                q.chmod(0o755)
         shutil.rmtree(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ms, dest, copy_function=shutil.copyfile)
@@ -292,6 +295,11 @@ def main(argv=None):
     p.add_argument("--scans", type=int, nargs="*", default=None)
     p.add_argument("--threads", type=int, default=8)
     p.add_argument("--heldout-read", action="store_true")
+    p.add_argument(
+        "--copy-only",
+        action="store_true",
+        help="make the private copies and stop (booked as 1 slot: it is I/O only)",
+    )
     a = p.parse_args(argv)
     root, cbid = a.root.resolve(), a.cbid
     teachers = [
@@ -330,6 +338,9 @@ def main(argv=None):
             raise SystemExit(f"{ms}: manifest hash differs from the block manifest")
         wc = copies / s["ms"]
         private_copy(ms, wc)
+        if a.copy_only:
+            print(f"copy {cbid} scan {n}: ready", flush=True)
+            continue
         big = big_files(ms)
         for te in todo:
             restore(ms, wc, big)
