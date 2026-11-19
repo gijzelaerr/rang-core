@@ -202,3 +202,51 @@ def test_yaml_off_is_off():
     )
     config, errors = core_config.resolve(raw)
     assert not errors and config["flag"]["learned"]["mode"] == "off"
+
+
+# -- the interpreter, the contract's reference runtime (amendment 2) ---------------
+
+F4_FIXTURE = FIXTURE.parent / "f4-calibrator-seed2.onnx"
+
+
+@pytest.mark.parametrize("path", [FIXTURE, F4_FIXTURE])
+def test_kernel_against_reference(path):
+    """I5: the contract's kernel path against the interpreter, without PyTorch."""
+    from rang import f4flag
+
+    w = learned.load(path)
+    inputs = w.header.architecture["hyperparameters"]["inputs"]
+    mod = f3 if inputs == 15 else f4flag
+    scan = synthetic()
+    flagged = scan["input_flags"].any(-1)
+    d = learned.select("flag", on(force=True, weights=path))
+    z = learned.run_dilated_cnn(d, scan, flagged)
+    ix = f3.index(scan)
+    x = mod.rust_features(scan, flagged, np.arange(len(ix["ubl"])))
+    y = learned.run_reference(w, x.transpose(0, 3, 1, 2))
+    zr = y[:, 0][ix["bl"], ix["t"]]
+    assert np.abs(z - zr)[~flagged].max() <= 1e-4
+    assert d.receipt()["reference"] == "interpreter"
+
+
+def test_reference_refuses_garbage():
+    with pytest.raises(ValueError, match="ONNX"):
+        learned.core.extension().learned_interp_check(b"\xff\xff")
+
+
+@pytest.mark.parametrize("path", [FIXTURE, F4_FIXTURE])
+def test_reference_matches_torch(path):
+    """I2 (skips without PyTorch, so not in CI)."""
+    torch = pytest.importorskip("torch")
+    from rang import learned_torch
+
+    w = learned.load(path)
+    hp = w.header.architecture["hyperparameters"]
+    net = learned_torch.load_flat(
+        learned_torch.dilated_cnn(hp["inputs"]), learned.dilated_cnn_weights(w)
+    )
+    x = np.random.default_rng(20261119).standard_normal((1, hp["inputs"], 64, 512))
+    x = x.astype(np.float32)
+    with torch.no_grad():
+        yt = net(torch.from_numpy(x)).numpy()
+    assert np.abs(learned.run_reference(w, x) - yt).max() <= 1e-4

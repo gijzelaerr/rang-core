@@ -46,6 +46,34 @@ pub mod kernel {
     }
 }
 
+/// rang-core's own ONNX interpreter (amendment 2): the reference runtime.
+#[cfg(feature = "interp")]
+pub mod interp {
+    use rang_core::{learned, learned_interp::Interp};
+
+    pub struct Interpreter(Interp);
+
+    impl Interpreter {
+        pub fn load(path: &str) -> Result<Self, String> {
+            let buf = std::fs::read(path).map_err(|e| e.to_string())?;
+            let m = learned::read(&buf).map_err(|e| e.0)?;
+            Ok(Interpreter(Interp::load(&m).map_err(|e| e.0)?))
+        }
+    }
+
+    impl super::Runtime for Interpreter {
+        fn name(&self) -> &'static str {
+            "interp"
+        }
+        fn run(&self, x: &[f32], nt: usize, nc: usize) -> Result<Vec<f32>, String> {
+            self.0
+                .run(x, [1, 15, nt, nc])
+                .map(|(y, _)| y)
+                .map_err(|e| e.0)
+        }
+    }
+}
+
 #[cfg(feature = "tract")]
 pub mod tract {
     use tract_onnx::prelude::*;
@@ -147,6 +175,8 @@ pub fn load(name: &str, path: &str) -> Result<Box<dyn Runtime>, String> {
     match name {
         #[cfg(feature = "kernel")]
         "kernel" => Ok(Box::new(kernel::Kernel::load(path)?)),
+        #[cfg(feature = "interp")]
+        "interp" => Ok(Box::new(interp::Interpreter::load(path)?)),
         #[cfg(feature = "tract")]
         "tract" => Ok(Box::new(tract::Tract::load(path)?)),
         #[cfg(feature = "candle")]

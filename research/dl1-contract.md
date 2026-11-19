@@ -3,7 +3,9 @@
 Task DL1, issue #38, branch `dl1-contract` from main `dd6adc5d`. Session B of v0.4.0 wave 1.
 Implements section 4 of [dl-plan.md](dl-plan.md) under decisions 3-5 of its section 10.
 
-**Status (2026-11-19, 11:10 SAST): contract implemented; F3 exported and bit-identical through it;
+**Status (2026-11-19, 14:45 SAST): own ONNX interpreter (owner decision, amendment 2) implemented
+and the contract's reference runtime, gates I1-I5 passed; final timings queued for 21:00 SAST.**
+Earlier status (11:10 SAST): contract implemented; F3 exported and bit-identical through it;
 runtime comparison outcome N (no crate passes; the fallback is an interpreter of our own); timings
 provisional, the final exclusive timing run is left to the coordinator.** Status at freeze
 (`061e6ea7`): proposed; nothing implemented, exported or measured. Results go under "Measured
@@ -177,6 +179,37 @@ for shipped architectures with the chosen runtime's output as its reference (dec
   they were built with stable 1.99, candle with protoc taken from `grpcio-tools` (PyPI), and
   compared against the kernel built the same way (`kernel-stable`).
 
+## Amendment 2, 2026-11-19: owner decision, and the interpreter's gates (frozen before its code)
+
+Owner, 2026-11-19, verbatim (through the coordinator): "go with our own ONNX interpreter". G6 stays
+at 8 MB, so tract is not taken. Task DL1-I, branch `dl1-interp` from main `2ea3bf71`.
+
+The interpreter: pure Rust in the core, beside the reader (`core/src/learned_interp.rs`), no new
+dependency (rayon only). It loads an ONNX graph read by section 2's reader, checks every node at
+load time, and runs NCHW float32. Ops: Conv (any kernel, dilations, pads, strides; group 1; bias
+optional) and Relu, which are all of F3's and F4's exports; F5's ops are added when session D names
+them, by a further dated amendment before that code. Arithmetic, fixed: each output element is
+summed from 0 over (ky, kx, ci) in that order, skipping padding, then the bias is added; threads split
+the output by (n, co, row) only, so no sum depends on the thread count.
+
+Gates (all must pass; measured on F3 calibrator seed 3 and F4 calibrator seed 2,
+`f4-20261111-08-train-calibrator/seed-2/weights.npz`, sha256 `a20b1abb…d90d`, exported the same way as
+F3):
+
+| Gate | Pass |
+| --- | --- |
+| I1 ops | loads F3's and F4's ONNX files; a graph with any other op is refused at load time, naming the op and the node |
+| I2 PyTorch | max \|Δ logit\| ≤ 1e-4 against PyTorch CPU float32 on shape A (F3: the planes of section 7; F4: seeded N(0, 1) planes, 23 × 64 × 512) |
+| I3 threads | outputs bit-identical at 1, 2, 4, 8 and 16 threads (rayon pools), shapes A and B, F3 and F4; a Rust test, so it runs in CI |
+| I4 size | `_core.pyd` from `maturin develop --release` grows by less than 8 MB over the same build at `2ea3bf71` |
+| I5 reference | the kernel path of the contract (`f3flag`, `f4flag` logits) agrees with the interpreter on the F3 test scan within 1e-4, in a test that needs no PyTorch (so it runs in CI); receipts name the runtime |
+
+Decision rule: all five pass → the interpreter is the contract's reference runtime and the kernel
+its checked fast path. Any failure → recorded with the gate named; the kernel stays as it is,
+referenced to PyTorch; no gate moves. Timings (interpreter, kernel, tract for the record) are
+reported, not gating: final in an exclusive `heavy_lock` hold on glacier from 21:00 SAST, after
+session D's run.
+
 ## Measured result
 
 All on glacier (Windows, the owner's PC), daytime, shared host under `heavy_lock` (8 slots):
@@ -244,3 +277,26 @@ Not done here: the final exclusive timings (glacier from 21:00 SAST, after F5's 
 command is `python tools/heavy_lock.py run -- .venv\Scripts\python.exe
 examples/dl1_runtimes.py outputs/dl1/runtimes-final.json --label final`, after the builds in
 `tools/dl1_runtimes/bin/`). They cannot change outcome N, which no timing enters.
+
+### The interpreter (amendment 2), 2026-11-19
+
+`core/src/learned_interp.rs`, Conv and Relu, pure Rust (rayon only); Python
+`rang.learned.run_reference`; every weights file must load on it (`rang.learned.load` refuses
+otherwise); receipts carry `reference: interpreter`. The hand-written kernel stays the fast path.
+F4 calibrator seed 2 exported as `tests/data/learned/f4-calibrator-seed2.onnx` (19,861 B, sha256
+`d9e98eac…9213`, 4,009 weights byte-equal to its npz); F3's export unchanged (`211353a2…29f8`).
+
+| Gate | F3 | F4 | Verdict |
+| --- | --- | --- | --- |
+| I1 ops | loads (Conv, Relu) | loads | pass; Sigmoid refused at load as "op Sigmoid at node 0 (act)" (Rust test) |
+| I2 PyTorch, shape A | max \|Δ\| 8.6e-6 | 2.4e-5 | pass (≤ 1e-4) |
+| I3 threads 1, 2, 4, 8, 16 | bit-identical, shape A and 16 planes | bit-identical | pass (Rust test, in CI); 128-plane shape B in the final timing run |
+| I4 size | `_core.pyd` 11,237,888 → 11,287,552 B | | pass (+49,664 B against 8 MB) |
+| I5 kernel against interpreter, F3 test scan | max \|Δ\| 1.1e-5 (17.8 % of cells bit-equal) | 1.0e-5 (26.4 %) | pass (≤ 1e-4), Python test without PyTorch and Rust test, both in CI |
+
+**Decision (amendment 2's rule): all five pass; the interpreter is the contract's reference
+runtime, the kernel its checked fast path.** The kernel and the interpreter are not bit-identical:
+the kernel adds the bias first in its hidden layers and last in its head, the interpreter last
+everywhere. Provisional single-thread time on shape A (glacier, daytime): interpreter 6.6 ms,
+kernel 7.0 ms. Final timings (kernel, interpreter, tract) are queued for an exclusive hold from 21:00
+SAST after session D's run (`outputs/dl1/final-timing.sh`).

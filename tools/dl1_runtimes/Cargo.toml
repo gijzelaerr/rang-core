@@ -28,6 +28,7 @@ dl1-burn = { path = "burn", optional = true }
 
 [features]
 kernel = []
+interp = []
 tract = ["dep:tract-onnx"]
 tract-mt = ["tract", "dep:tract-linalg"]
 burn = ["dep:dl1-burn"]

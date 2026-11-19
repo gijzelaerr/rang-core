@@ -28,6 +28,7 @@ OUT = ROOT / "outputs" / "dl1"
 # with the crate's default features, `tract-mt` with tract's own executor.
 ARMS = (
     "kernel",
+    "interp",
     "tract",
     "tract-mt",
     "tract-default",
