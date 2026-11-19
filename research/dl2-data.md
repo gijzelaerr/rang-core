@@ -327,6 +327,17 @@ stopped by process group and restarted; every finished shard was kept by its don
 killed midway keeps read-only directory modes from `copytree`, so the runner now makes it writable
 before removing it.
 
+## 15. Amendment 5 (2026-11-19 12:30 UTC; scheduling, no data read)
+
+nash's disk (sda) ran at 93 % utilisation with all of DL2's jobs under `ionice -c3`. The block
+driver hashing 1611426666's 233 GB target scan 12 read at 10 MB/s, about 6.5 h for one scan. The
+teacher jobs' private copies were competing with the conversions. Changed: the teacher jobs were
+stopped (finished shards kept by their done-markers; at most one in-flight shard per job lost).
+`relaunch_teach.sh` on nash restarts them once all nine blocks have ended. With the teachers
+stopped, the hash read rose to 47 MB/s and utilisation fell to 69 %. Teacher shards measured
+before the stop: 1629213076 scan 0 (25 GB) 3,098 s for the three teachers, 1749428161 scans 0
+and 2 630 s and 515 s.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
