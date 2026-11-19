@@ -4,14 +4,14 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core 0.2.0 (released 2026-11-14 with the finish line met in part; known limitations in `CHANGELOG.md`): a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **What `main` is:** rang-core 0.3.0 (released 2026-11-19; known limitations, E2-N 17 of 25 and E3-A not run, in `CHANGELOG.md`): a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gemclean](gemclean.md) with its [benchmark](gemclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** nothing; paused on the owner's order 2026-11-13. Next session: [next-session.md](next-session.md); resume state in [handoff-2026-11-13.md](handoff-2026-11-13.md) (E2-B scored as frozen, amended arm and E2-A next, then E3 timed; open branches listed there). Of [vision.md](vision.md), V1-V4 and V6-V8 are done; the V4 digest runs weekly (Wednesdays 07:00, scheduled task `ra-ng-weekly-digest`). The [finish plan](finish-plan.md), from 2026-11-05.
+- **Running:** nothing. The long runs (E3-A timed, the E2-N follow-up, e2a-kzero) were stopped at the 0.3.0 tag on the owner's word and are v0.3.1 items ([roadmap.md](roadmap.md#v031-carry-overs-from-v030-released-2026-11-19)).
 - **Direction:** [vision.md](vision.md) (2026-11-11).
-- **Next:** v0.3.0 in [roadmap.md](roadmap.md). It first takes v0.2.0's open items: E2-B's misses, E2-A, E3 and E5. The flagger's non-TV arms wait for Landman's reply; DF5 and B1 fall outside that plan unless added.
+- **Next:** v0.3.1 carry-overs in [roadmap.md](roadmap.md), then v0.4.0.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
