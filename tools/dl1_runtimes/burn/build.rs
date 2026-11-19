@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 fn main() {
     let onnx = std::env::var("DL1_ONNX").expect("DL1_ONNX: the F3 ONNX file");
     println!("cargo:rerun-if-env-changed=DL1_ONNX");
