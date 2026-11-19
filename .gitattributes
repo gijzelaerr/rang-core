@@ -21,3 +21,4 @@ research/results/floor-6/logs/drive.log -whitespace
 tests/data/strarray/table/** binary
 # MSv2 edge cases written by python-casacore (tools/oracles/msv2-edge/fixture.py):
 tests/data/msv2-edge/t0*/** binary
+*.onnx binary

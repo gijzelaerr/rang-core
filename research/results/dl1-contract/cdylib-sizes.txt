@@ -1,0 +1,8 @@
+4217856 tools/dl1_runtimes/bin/burn-stable/dl1_runtimes.dll
+5914624 tools/dl1_runtimes/bin/candle-stable/dl1_runtimes.dll
+6220800 tools/dl1_runtimes/bin/kernel-stable/dl1_runtimes.dll
+6133760 tools/dl1_runtimes/bin/kernel/dl1_runtimes.dll
+111616 tools/dl1_runtimes/bin/none/dl1_runtimes.dll
+27641856 tools/dl1_runtimes/bin/tract-default/dl1_runtimes.dll
+30292480 tools/dl1_runtimes/bin/tract-mt/dl1_runtimes.dll
+26553856 tools/dl1_runtimes/bin/tract/dl1_runtimes.dll

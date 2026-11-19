@@ -503,7 +503,7 @@ pub(crate) fn network(
 
 /// One 3×3 dilated convolution with zero padding, bias and ReLU.
 #[allow(clippy::too_many_arguments)]
-fn conv(
+pub(crate) fn conv(
     input: &[f32],
     out: &mut [f32],
     nt: usize,

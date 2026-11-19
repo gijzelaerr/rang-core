@@ -83,6 +83,10 @@ notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.2
 mcp = ["mcp>=2.3,<3"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
+# Training and export of learned stages only (task DL1, research/dl1-contract.md;
+# dl-plan decision 4): rang.learned_torch. The pipeline never needs it, and the
+# check does not install it (its PyTorch test skips without torch).
+learned-train = ["torch>=2.5", "onnx>=1.17"]
 
 [project.scripts]
 rang-core = "rang.core_cli:main"
@@ -137,6 +141,7 @@ exclude = [
     { path = "tools/formats-oracle/**/*", format = "sdist" },
     { path = "tools/ms-reader/**/*", format = "sdist" },
     { path = "tools/oracles/**/*", format = "sdist" },
+    { path = "tools/dl1_runtimes/**/*", format = "sdist" },
     { path = "AGENTS.md", format = "sdist" },
     { path = "CONTRIBUTING.md", format = "sdist" },
     { path = ".gitignore", format = "sdist" },

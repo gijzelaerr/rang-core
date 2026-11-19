@@ -42,6 +42,8 @@ ROLES = ("fcal", "bpcal", "gcal", "xcal", "target")
 # (research/finish-plan.md; C1's steps in research/c1-calibration-chain.md, 6).
 TASKS = {
     "C7a": "polarised calibrator models (polindex, polangle, rotmeas; Q, U, V)",
+    "DL": "learned stages in rang-core (research/dl-plan.md; the contract is "
+    "research/dl1-contract.md, the first tenant F5, issue #40)",
 }
 
 TERM_TYPES = (
@@ -647,6 +649,29 @@ SCHEMA = {
     },
 }
 
+# The swap contract of learned stages (task DL1, research/dl1-contract.md): the
+# same `learned` key in every stage section, `off` by default; `off` leaves the
+# stage hash and the receipts unchanged (stage_hash, rang.learned.hash_part).
+LEARNED_KEYS = {
+    "mode": _k(
+        "off",
+        "learned_mode",
+        "off, or a learned mode (propose is the documented default when learning is "
+        "on; replace only for products labelled approximate)",
+        ("off", "propose", "settings", "replace"),
+    ),
+    "weights": _k(None, "path?", "the ONNX weights file of the learned mode"),
+    "force": _k(
+        False,
+        "bool",
+        "run a mode whose gates the weights file has not passed, or outside its "
+        "envelope (experiments only; recorded in the receipt)",
+    ),
+}
+for _stage in STAGES:
+    SCHEMA[_stage]["learned"] = LEARNED_KEYS
+del _stage
+
 # Keys of a calibration term (each refers to research/c1-calibration-chain.md,
 # 1.3). `None` means the term type's own default.
 TERM_KEYS = {
@@ -908,6 +933,10 @@ def _check_value(path, key, value, errors):
     if base == "bool":
         return value if isinstance(value, bool) else bad("true or false")
     if base == "choice":
+        return value if value in key.choices else bad(f"one of {list(key.choices)}")
+    if base == "learned_mode":
+        # YAML 1.1 reads an unquoted `off` as false.
+        value = "off" if value is False else value
         return value if value in key.choices else bad(f"one of {list(key.choices)}")
     if base in ("ints", "strs", "floats"):
         test = {
@@ -1593,6 +1622,20 @@ def refusals(config, stages):
                 )
             )
         out += _selfcal_image_refusals(config)
+    out += _learned_refusals(config, stages)
+    return out
+
+
+def _learned_refusals(config, stages):
+    """The learned modes `stages` cannot run (rang.learned.config_refusals):
+    no tenant in the pipeline is "not implemented yet" (task DL), anything
+    else an error."""
+    from . import learned
+
+    out = []
+    for path, text in learned.config_refusals(config, sorted(stages)):
+        task = "DL" if path.endswith(".mode") and "no learned tenant" in text else ""
+        out.append(Refusal(path, task, text))
     return out
 
 
@@ -2025,6 +2068,13 @@ def stage_hash(config, stage):
             section = {
                 k: v for k, v in section.items() if not (k in omit and v == omit[k])
             }
+        if name in STAGES and "learned" in section:
+            from . import learned
+
+            section = dict(section)
+            extra = learned.hash_part(section.pop("learned"))
+            if extra is not None:
+                section["learned"] = extra
         part[name] = section
     text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()

@@ -280,6 +280,10 @@ flag:
   column: DATA  # the visibilities flagged
   static_masks: tricolour  # tricolour: the two masks shipped with Tricolour 0.2.1; none
   write: replace  # replace: FLAG becomes the strategy's flags, as Tricolour writes them; or: OR with the flags already there
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 calibrate:
   model:
     source: unity  # unity: a 1 Jy point at the phase centre; column: an existing column; setjy, manual, lsm: written to MODEL_DATA on the primary fields (rang.calmodels), then solved against
@@ -326,6 +330,10 @@ calibrate:
     frame: casa  # the parallactic-angle frame (rang.cal_pol; C6's provisional owner decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north
     feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
     extendflags: false  # CASA flagdata mode=extend with CARACal's settings on the Gpol, KCROSS and Xf fields, then the Df fields, before the polcal solves
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 apply:
   column: CORRECTED_DATA  # the column written
   applymode: calflag  # as CASA applycal
@@ -333,6 +341,10 @@ apply:
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
   parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 image:
   imager: gemclean  # the imager
   gemclean: auto  # the gemclean to run; auto: the installed extension's (python -m rang.gemclean), else the path of a gemclean binary
@@ -377,6 +389,10 @@ image:
   pol: I  # polarisations, such as I or IQUV
   join_polarizations: false  # join the polarisations
   write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 selfcal:
   rounds: 2  # calibration rounds (CARACal's cal_niter): each images, predicts the model, solves and applies; a final image follows
   terms: [{type: Sp}, {type: Sa}]  # one term per round, the last repeating (CARACal's gain_matrix_type): phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope
@@ -390,6 +406,10 @@ selfcal:
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
   cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 run:
   stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):

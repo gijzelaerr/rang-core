@@ -1,0 +1,43 @@
+# The runtime comparison of task DL1 (research/dl1-contract.md, section 7).
+# Its own crate and lock file, outside core/ and the wheel: nothing here is a
+# dependency of rang-core. Build one runtime at a time:
+#   cargo build --release --features tract --bin bench_tract
+[package]
+name = "dl1-runtimes"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[workspace]
+
+[lib]
+name = "dl1_runtimes"
+path = "src/lib.rs"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+rang-core = { path = "../../core" }
+rayon = "1.12.0"
+tract-onnx = { version = "=0.23.10", optional = true, default-features = false }
+# tract's own matmul threading, off by default (Executor::SingleThread).
+tract-linalg = { version = "=0.23.10", optional = true, features = ["multithread-mm"] }
+candle-core = { version = "=0.11.1", optional = true }
+candle-onnx = { version = "=0.11.1", optional = true }
+dl1-burn = { path = "burn", optional = true }
+
+[features]
+kernel = []
+tract = ["dep:tract-onnx"]
+tract-mt = ["tract", "dep:tract-linalg"]
+burn = ["dep:dl1-burn"]
+candle = ["dep:candle-core", "dep:candle-onnx"]
+
+[[bin]]
+name = "bench"
+path = "src/main.rs"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
