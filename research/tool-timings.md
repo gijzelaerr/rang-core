@@ -2352,3 +2352,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 Stage 2 degree (`f5_eval.py degree`, 15 preparation passes) under nash heavy lock 8 slots | LUNO MAIN_7 | 72 s | 6.3 GB | nash; d = 1 |
 | 2026-11-19 | F5 Stage 2 ZE5/Z5 (`f5_eval.py stage2`) under nash heavy lock 8 slots | LUNO MAIN_7 (12 injection cases) + 3 f2sim-v scans | 1,532 s | 6.1 GB | nash; no Stop-E, no Stop-Z |
 | 2026-11-19 | F5 Stage 3 shards and audit (`f5_shards.py`) under nash heavy lock 8 slots / 48-64 GB | calibrators: validation 2 real + 3 sim; train 30 real + 9 sim | 646 s; 2,007 s | 8.3 GB; 17.9 GB | nash; audit Stop-L (0.098 % < 0.1 %) |
+| 2026-11-19 | F5 Stage 3 target real shards (`f5_shards.py --only-real`) under nash heavy lock 8 slots / 48 GB | ESO137 7 chunks × 6 realisations | 1,801 s | 5.5 GB | nash; audit passes |
+| 2026-11-19 | F5 Stage 2 ZE5/Z5 targets under nash heavy lock 8 slots | ESO137 chunk 10 (12 cases) + 2 f2sim-v scans | 3,508 s (lock wait included) | 6.7 GB | nash; no Stop-E, no Stop-Z |

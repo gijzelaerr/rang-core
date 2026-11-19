@@ -511,6 +511,33 @@ R2's truth cells for H4 and H4n are the cells the labels call positive (H4 A ≥
 a ramp from zero puts cells at A < 3 that no flagger is expected to find, and section 4 ignores
 them in training. H1-H3 keep F4's truth (every injected cell). No bar changes.
 
+**Amendment 3, 2026-11-19 ~17:50 SAST, post hoc: after the calibrators' Stop-L (Stage 3), before
+any calibrator training or any calibrator held-out read. Owner, 2026-11-19, verbatim (relayed by
+the coordinator): "go with (b)".**
+
+- *The frozen calibrator outcome stays Stop-L.* What follows is a labelled post hoc arm, **N5-ph**:
+  it can never read S or S−, and no calibrator weights from it ship.
+- *Training:* the shards already built (30 real realisations including `luno-MAIN_1-4`, 9 F-SIM
+  scans; `runs/shards/calibrator/`), section 9's procedure, seeds 1, 2, 3, median seed by
+  validation loss; τ and κ by section 9's and section 3's rules on validation MAIN_7 and f2sim-v.
+- *Scoring, read once:* the reserved LUNO scans **MAIN_8, 9, 10, 11, 13, 15**, fetched fresh
+  (receipt with sha256), with section 10's R1-R5, G-perm, G-drop, G-sub and G-chan measures, and
+  f4sim-t's calibrator scans for S1-S3. **F4's unread held-out sets (MAIN_0, 12, 14) stay unread**,
+  kept for a clean F6.
+- *Real G-sub and G-obs, both classes:* session C's held-out blocks **1678312253** (29 antennas)
+  and **1674958551** (32 outer antennas) for G-sub, and **1579022459** (58 antennas, 4,096
+  channels, 8 s dumps; converted and sha256-checked on nash, unread; primary calibrator scans
+  scan001, 071, 141, 189, 235, J0408-6545) for G-obs. Each block is read once, at scoring, through
+  `dl2_teach.py --heldout-read`; calibrator scans go to N5-ph, target scans to the target method, in
+  the same read. On these blocks the measures are section 10's R1 (F1's injections, seeds 19-21),
+  R2, R3 and R5 against T on the block, with section 8's G-sub bars on the two sub-array blocks;
+  G-obs passes if R1 ≥ T − 0.05 and R3 is within its bounds on 1579022459. The blocks use the full
+  4,096 channels; the network is fully convolutional in channels, and a scan is cut into 2,048
+  channel windows when memory needs it (whole-scan statistics per window, recorded).
+- *The fix proposed for F6:* size the injected-positive bar on validation before the freeze, and
+  pool it over a scan's realisations or guarantee a minimum number of strong (A ≥ 3) events per
+  draw, so that one weak draw cannot stop a class.
+
 ## Measured result
 
 Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-<date>` (nash).
@@ -623,6 +650,10 @@ event at 0.997, against F3's 0.024 and F4's ZE 1.000.
 - **ZE5** recall of F1's antenna-local injection (seeds 41-43): **1.000**. No Stop-E.
 - **Z5** against T: R1 0.631 against 0.920 (fails R1 by far); R3 ratio 1.08 (lower bound 0.50);
   f2sim-v S1 0.909 against 0.797, S2 0.263 against 0.316. **No Stop-Z**: training goes ahead.
+- *Targets* (ESO137 chunk 10 and f2sim-v target scans, 3,508 s including lock wait,
+  `runs/stage2-target.json`): ZE5 **1.000** (T finds 0.60 of the same antenna-local cells, e.g.
+  53,895 of 89,152 on seed 43); Z5 R1 0.785 against T 0.850, R3 1.25 (lower bound 0.05), f2sim-v
+  S1 0.965 against 0.985, S2 0.015 against 0.111. No Stop-E, **no Stop-Z** (R1 fails by 0.065).
 
 ### Cross-host check (section 2f), 2026-11-19, LUNO MAIN_7 (validation)
 
@@ -673,6 +704,15 @@ degree barely changes the work; the targets' d, if different, is noted beside th
 method fixed at Stage 4 picks its row; the other rows are reported. A dry run of one pair on ESO137
 chunk 0 (shared hold, copies running, N5W4): ratio 0.40. No copy, WSL or GPU job of F5 runs during
 the hold.
+
+### Stage 3: label audit (targets, real training scans), nash, 2026-11-19 — passes
+
+`f5_shards.py --only-real`, ESO137 chunks 0, 2, 4, 6, 8, 14, 16, 6 realisations each, L0, d = 1,
+1,801 s (`runs/shards/target/train/`): injected positives 0.52-11.2 % of eligible cells (bar
+≥ 0.1 %), ignored uninjected 10.5-23.2 % (bar ≤ 40 %; F4's L-INJ gave 47.0-64.0 % on the same
+chunks). T and A find 0.75-0.94 and 0.79-0.99 of realisation 0's injected positives. **No stop
+on the real target scans**: Landman's scheme is what lets the target class train. The F-SIM part
+and the validation chunk follow when their simulations are on nash.
 
 ### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
 
