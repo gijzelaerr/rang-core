@@ -1,0 +1,1066 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 8.0,
+ "name": "1678312253_sdp_l0",
+ "experiment_id": "20221205-0005",
+ "observer": "Barnali Das",
+ "description": "Observation of HD 142990 at L band part 2",
+ "start_utc": "2023-03-08 21:51:19.943",
+ "end_utc": "2023-03-09 06:56:26.106",
+ "dump_period_s": 7.996616971962617,
+ "dumps": 4090,
+ "channels": 4096,
+ "freq_first_hz": 856000000.0,
+ "freq_last_hz": 1711791015.625,
+ "channel_width_hz": 208984.375,
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m008",
+  "m015",
+  "m026",
+  "m027",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m035",
+  "m036",
+  "m039",
+  "m040",
+  "m046",
+  "m047",
+  "m049",
+  "m050",
+  "m052",
+  "m054",
+  "m057",
+  "m059",
+  "m061"
+ ],
+ "ref_ant": "array",
+ "spectral_windows": [
+  "<katdal.SpectralWindow ('L',)-band product='c856M4k' centre=1284.000 MHz bandwidth=856.000 MHz channels=4096 at 0x70f99d7e9730>"
+ ],
+ "targets": [
+  {
+   "name": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(1.0835862116596362, -1.1475981012312526)"
+  },
+  {
+   "name": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(4.004207819198079, -0.4253730997371013)"
+  },
+  {
+   "name": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.182599376485463, -0.4333914332089719)"
+  },
+  {
+   "name": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20220822-BD-01",
+  "sb_id_code": "20221205-0005",
+  "description": "Observation of HD 142990 at L band part 2",
+  "observer": "Barnali Das",
+  "experiment_id": "20221205-0005",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1678312283.9408832,
+   "seconds": 591.7496559252336
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 13,
+   "start": 1678312875.6905391,
+   "seconds": 103.95602063551402
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 36,
+   "start": 1678312979.6465597,
+   "seconds": 287.8782109906542
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1678313267.5247707,
+   "seconds": 47.9797018317757
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678313315.5044725,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678313427.4571102,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678313451.4469612,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678315242.6891627,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1678315266.6790137,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1678315386.6282682,
+   "seconds": 15.993233943925233
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1678315402.6215022,
+   "seconds": 1799.2388186915887
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678317201.8603208,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678317225.8501718,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678317337.8028095,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678317361.7926605,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678319153.034862,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678319177.024713,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678319288.9773507,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678319312.9672015,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678321104.2094033,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678321128.199254,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678321240.1518917,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1678321264.1417427,
+   "seconds": 1799.2388186915887
+  },
+  {
+   "scan": 23,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1678323063.3805614,
+   "seconds": 15.993233943925233
+  },
+  {
+   "scan": 24,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1678323079.3737953,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 25,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678323199.3230498,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 26,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678323223.3129008,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 27,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678325014.5551026,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 28,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678325038.5449533,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 29,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 7,
+   "start": 1678325150.497591,
+   "seconds": 55.976318803738316
+  },
+  {
+   "scan": 30,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75,
+   "start": 1678325206.4739099,
+   "seconds": 599.7462728971963
+  },
+  {
+   "scan": 31,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 11,
+   "start": 1678325806.2201827,
+   "seconds": 87.96278669158878
+  },
+  {
+   "scan": 32,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 75,
+   "start": 1678325894.1829693,
+   "seconds": 599.7462728971963
+  },
+  {
+   "scan": 33,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1678326493.9292424,
+   "seconds": 55.976318803738316
+  },
+  {
+   "scan": 34,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678326549.9055612,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 35,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678326661.8581986,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 36,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678326685.8480496,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 37,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1678328477.0902514,
+   "seconds": 31.986467887850466
+  },
+  {
+   "scan": 38,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678328509.0767193,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 39,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1678328621.029357,
+   "seconds": 31.986467887850466
+  },
+  {
+   "scan": 40,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678328653.0158248,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 41,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1678330444.2580266,
+   "seconds": 47.9797018317757
+  },
+  {
+   "scan": 42,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1678330492.2377284,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 43,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 6,
+   "start": 1678330612.1869829,
+   "seconds": 47.9797018317757
+  },
+  {
+   "scan": 44,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678330660.1666846,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 45,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1678332451.4088864,
+   "seconds": 47.9797018317757
+  },
+  {
+   "scan": 46,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678332499.3885882,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 47,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1678332611.3412259,
+   "seconds": 39.98308485981308
+  },
+  {
+   "scan": 48,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678332651.3243108,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 49,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678334442.5665126,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 50,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1678334466.5563633,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 51,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678334586.5056179,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 52,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678334610.4954689,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 53,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678336401.7376707,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 54,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678336425.7275214,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 55,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678336537.680159,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 56,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1678336561.67001,
+   "seconds": 1791.242201719626
+  },
+  {
+   "scan": 57,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678338352.9122117,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 58,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678338376.9020627,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 59,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 18,
+   "start": 1678338488.8547003,
+   "seconds": 143.9391054953271
+  },
+  {
+   "scan": 60,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1678338632.7938058,
+   "seconds": 591.7496559252336
+  },
+  {
+   "scan": 61,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1678339224.5434618,
+   "seconds": 63.97293577570093
+  },
+  {
+   "scan": 62,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1678339288.5163975,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 63,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 24,
+   "start": 1678339408.465652,
+   "seconds": 191.9188073271028
+  },
+  {
+   "scan": 64,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 205,
+   "start": 1678339600.3844595,
+   "seconds": 1639.3064792523364
+  },
+  {
+   "scan": 65,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678341239.6909387,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 66,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678341263.6807895,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 67,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678341375.6334271,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 68,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 206,
+   "start": 1678341399.6232781,
+   "seconds": 1647.303096224299
+  },
+  {
+   "scan": 69,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678343046.9263742,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 70,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678343070.9162252,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 71,
+   "state": "slew",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1678343182.8688629,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 72,
+   "state": "track",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 205,
+   "start": 1678343206.8587136,
+   "seconds": 1639.3064792523364
+  },
+  {
+   "scan": 73,
+   "state": "slew",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1678344846.165193,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 74,
+   "state": "track",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1678344870.1550438,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 75,
+   "state": "stop",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1678344982.1076815,
+   "seconds": 7.996616971962617
+  }
+ ],
+ "cross_products": 1624,
+ "vis_bytes_cross_all": 217650298880
+}

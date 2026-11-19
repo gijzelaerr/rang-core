@@ -1,0 +1,159 @@
+{
+ "cbid": "1749428161",
+ "split": "train",
+ "meta_sha256": "54c12af1c1e8008293ad22c6fd97638c50c80991eee80335562db3ddc61a556f",
+ "channels": 4096,
+ "antennas": 48,
+ "dump_period_s": 7.996616971962617,
+ "cross_products": 4512,
+ "scans": [
+  {
+   "scan": 0,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 40
+  },
+  {
+   "scan": 2,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 6,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 10,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 12,
+   "class": "target",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217
+  },
+  {
+   "scan": 14,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 16,
+   "class": "target",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217
+  },
+  {
+   "scan": 18,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 37
+  },
+  {
+   "scan": 20,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 22,
+   "class": "target",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217
+  },
+  {
+   "scan": 24,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 28,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 32,
+   "class": "calibrator",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 34,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 38
+  }
+ ],
+ "dumps": 883,
+ "mvf_bytes_estimate": 163188572160
+}

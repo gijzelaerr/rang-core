@@ -1,0 +1,575 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 7.1,
+ "name": "1749428161_sdp_l0",
+ "experiment_id": "20250529-0023",
+ "observer": "GENEVIEVE SCHROEDER",
+ "description": "GRB 250520A L-band Epoch 4",
+ "start_utc": "2025-06-09 00:17:17.026",
+ "end_utc": "2025-06-09 04:19:58.866",
+ "dump_period_s": 7.996616971962617,
+ "dumps": 1821,
+ "channels": 4096,
+ "freq_first_hz": 856000000.0,
+ "freq_last_hz": 1711791015.625,
+ "channel_width_hz": 208984.375,
+ "antennas": [
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m017",
+  "m018",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m025",
+  "m026",
+  "m027",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m050",
+  "m051",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "spectral_windows": [
+  "<katdal.SpectralWindow ('L',)-band product='c856M4k' centre=1284.000 MHz bandwidth=856.000 MHz channels=4096 at 0x70f9042c7500>"
+ ],
+ "targets": [
+  {
+   "name": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  },
+  {
+   "name": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(5.0228866904170895, -0.35107831198915157)"
+  },
+  {
+   "name": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.927542262262726, -0.20719821659155016)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20241102-GS-01",
+  "sb_id_code": "20250529-0023",
+  "description": "GRB 250520A L-band Epoch 4",
+  "observer": "GENEVIEVE SCHROEDER",
+  "experiment_id": "20250529-0023",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 40,
+   "start": 1749428241.0247555,
+   "seconds": 319.86467887850466
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 11,
+   "start": 1749428560.8894343,
+   "seconds": 87.96278669158878
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1749428648.852221,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749428768.8014755,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749428792.7913265,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749430528.0572095,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1749430552.0470605,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749430671.996315,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749430695.9861658,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749432431.2520487,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1749432455.2418997,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749432567.1945374,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749432591.1843882,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749434326.4502711,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1749434350.4401221,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749434470.3893766,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749434494.3792276,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 8,
+   "start": 1749436229.6451104,
+   "seconds": 63.97293577570093
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 37,
+   "start": 1749436293.6180463,
+   "seconds": 295.8748279626168
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1749436589.4928741,
+   "seconds": 55.976318803738316
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1749436645.469193,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749436757.4218307,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749436781.4116817,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 23,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749438516.6775644,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 24,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1749438540.6674154,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 25,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749438660.61667,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 26,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749438684.606521,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 27,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749440419.8724039,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 28,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1749440443.8622546,
+   "seconds": 111.95263760747663
+  },
+  {
+   "scan": 29,
+   "state": "slew",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1749440555.8148923,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 30,
+   "state": "track",
+   "target": "GRB250520A",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 217,
+   "start": 1749440579.8047433,
+   "seconds": 1735.2658829158877
+  },
+  {
+   "scan": 31,
+   "state": "slew",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1749442315.070626,
+   "seconds": 23.98985091588785
+  },
+  {
+   "scan": 32,
+   "state": "track",
+   "target": "J1911-2006",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1749442339.060477,
+   "seconds": 119.94925457943924
+  },
+  {
+   "scan": 33,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 5,
+   "start": 1749442459.0097315,
+   "seconds": 39.98308485981308
+  },
+  {
+   "scan": 34,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 38,
+   "start": 1749442498.9928164,
+   "seconds": 303.8714449345794
+  }
+ ],
+ "cross_products": 4512,
+ "vis_bytes_cross_all": 269233422336
+}

@@ -1,0 +1,333 @@
+{
+ "cbid": "1579022459",
+ "split": "heldout",
+ "meta_sha256": "70ac4e1a1ba0bfbbf00c5ac7432fcb3099018a6c3aaafbef8373ba6274c2c36d",
+ "channels": 4096,
+ "antennas": 58,
+ "dump_period_s": 7.9966169712,
+ "cross_products": 6612,
+ "scans": [
+  {
+   "scan": 1,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 3,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75
+  },
+  {
+   "scan": 5,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 17,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 27,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 39,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 49,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 61,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 71,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 73,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75
+  },
+  {
+   "scan": 75,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 87,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 97,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 109,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 115,
+   "class": "target",
+   "target": "T36R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29
+  },
+  {
+   "scan": 117,
+   "class": "target",
+   "target": "T36R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29
+  },
+  {
+   "scan": 119,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 121,
+   "class": "target",
+   "target": "T36R01C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29
+  },
+  {
+   "scan": 131,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 141,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 143,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 145,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 157,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 167,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 179,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 189,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 191,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 203,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 213,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7
+  },
+  {
+   "scan": 225,
+   "class": "calibrator",
+   "target": "J0828-3731",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8
+  },
+  {
+   "scan": 235,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  }
+ ],
+ "dumps": 827,
+ "mvf_bytes_estimate": 223974359040
+}
