@@ -59,6 +59,10 @@ The owner released 0.2.0 with the finish line met in part (finish-plan.md, decis
 
 ### v0.3.1: carry-overs from v0.3.0 (released 2026-11-19)
 
+**Cancelled on the owner's word, 2026-11-19: there is no v0.3.1.** The GitHub milestone is deleted; #7 and
+#34 are on the v0.4.0 milestone, F5 is #40 there. The table is kept as the resume state of the stopped
+runs; none of them is scheduled, and restarting one is an owner decision.
+
 Stopped at the 0.3.0 tag on the owner's word (2026-11-19, "focus on 0.3.0, move the long runs to 0.3.1").
 Nothing was scored from the stopped runs.
 

@@ -2328,3 +2328,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-18 | automask-cycle: `probe.py` on three MFS residuals (Windows host glacier) | 4096² | 2 s | – | 1 slot |
 | 2026-11-18 | automask-cycle: `tools/check_all.py --quick`, Windows host glacier | worktree, branch `automask-cycle` | 909 s (lock wait excluded) | – | PASS |
 | 2026-11-19 | dl-plan: `tools/check_all.py --quick` under `heavy_lock.py run --slots 4 --mem 12` (extension rebuilt) | main checkout, research-only diff (`dl-plan.md`, README, STATE) | 945 s (lock wait excluded) | – | PASS; Windows host glacier, daytime, beside another session's full check (8 slots) |
+| 2026-11-19 | dl-plan: `tools/check_all.py` (full) under `heavy_lock.py run --slots 8 --mem 24` | main checkout, research-only diff | 1,140 s (lock wait excluded) | – | PASS; Windows host glacier, daytime; commit `4bad8f05` |

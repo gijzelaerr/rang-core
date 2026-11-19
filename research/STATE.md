@@ -9,9 +9,9 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** nothing. The long runs (E3-A timed, the E2-N follow-up, e2a-kzero) were stopped at the 0.3.0 tag on the owner's word and are v0.3.1 items ([roadmap.md](roadmap.md#v031-carry-overs-from-v030-released-2026-11-19)).
+- **Running:** nothing of v0.3.x. The long runs (E3-A timed, the E2-N follow-up, e2a-kzero) were stopped at the 0.3.0 tag and v0.3.1 was cancelled on the owner's word (2026-11-19); their resume state is in [roadmap.md](roadmap.md).
 - **Direction:** [vision.md](vision.md) (2026-11-11).
-- **Next:** v0.3.1 carry-overs in [roadmap.md](roadmap.md), then v0.4.0.
+- **Next:** v0.4.0, deep learning: [dl-plan.md](dl-plan.md), issues #37-#46, Landman's F5 (#40) first.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -27,7 +27,7 @@ proposals), not in the flagger; the solve/imaging split inside selfcal is unsett
 and DL0 measures it before the pilots are ordered. Default mode "propose" (the exact classical step verifies), a
 `learned` hook on every stage, weights per stage, telescope and band, no antenna-indexed inputs, sub-array, dropout
 and permutation gates frozen before training. Tasks DL0-DL6. v0.4.0's theme is the owner's word. Decision 1
-taken the same day: #3 and #5 to v0.5.0, #4 stays in v0.4.0 (`roadmap.md` and the milestones edited). Decision 2: F5 in v0.4.0 (#40), #24 into v0.4.0, issues #37-#46; six decisions open.
+taken the same day: #3 and #5 to v0.5.0, #4 stays in v0.4.0 (`roadmap.md` and the milestones edited). Decision 2: F5 in v0.4.0 (#40), #24 into v0.4.0, issues #37-#46. v0.3.1 cancelled (milestone deleted; #7, #34 to v0.4.0). Decision 3: propose is the documented default, all three modes optional per stage; five decisions open.
 
 Auto-mask finishing cycle, 2026-11-18 (issue #36; branch `automask-cycle`; [automask-cycle.md](automask-cycle.md),
 frozen in `98cd295f` before any run; archive [results/automask-cycle/](results/automask-cycle/); run root

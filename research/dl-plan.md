@@ -322,10 +322,15 @@ shipped weights file passed G-sub, G-drop, G-perm and G-obs; DL6 has run.
    become part of 0.4.0 later, first see how quick we can make progress. so that one is a maybe. make
    new issues for all these actions. make milestones, attaches iissues to milestones." Done the same
    day: issues #37-#46 (section 8) on the v0.4.0 milestone, with #1, #4 and #24; F5 is #40 and leaves
-   the v0.3.1 carry-overs; a v0.3.1 milestone holds #7 and #34. Joint gain-and-image solving (#6's
+   the v0.3.1 carry-overs. v0.3.1 was cancelled the same day: its milestone is deleted and #7 and #34 are
+   on v0.4.0. Joint gain-and-image solving (#6's
    arm 3; #6 and #21 are closed) is a maybe, re-evaluated at DL5 (#45).
-3. **Default mode P**, mode R only for products labelled approximate; stages 3, 4 and 5a as one-day
-   screenings, 5b (apply) hook only, no pilot. Recommended: yes.
+3. **Modes. Decided 2026-11-19:** "agree with decision 3, but we can make all 3 modes optional right?"
+   Yes: every mode is an option per stage, everything `off` unless switched on. Propose is the
+   documented default when learning is on; replace only for products labelled approximate; stages 3, 4
+   and 5a as one-day screenings (#44); apply gets the hook and no experiment. A mode is selectable only
+   if the weights file records that it passed that mode's gates; otherwise refused, with a force flag
+   for experiments.
 4. **Training framework:** stay on JAX (approved 2026-11-02, existing code) or add PyTorch (released
    R2D2/AIRI weights are likely PyTorch; DL0 confirms). Recommended: JAX for rang's own stages,
    PyTorch only inside an oracle container for comparators.
