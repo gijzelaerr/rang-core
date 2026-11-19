@@ -335,7 +335,7 @@ teacher jobs' private copies were competing with the conversions. Changed: the t
 stopped (finished shards kept by their done-markers; at most one in-flight shard per job lost).
 `relaunch_teach.sh` on nash restarts them once all nine blocks have ended. With the teachers
 stopped, the hash read rose to 47 MB/s and utilisation fell to 69 %. Teacher shards measured
-before the stop: 1629213076 scan 0 (25 GB) 3,098 s for the three teachers, 1749428161 scans 0
+before the stop: 1629213076 scan 0 (25 GB, calibrator J1939-6342) 3,098 s for the three teachers, 1749428161 scans 0
 and 2 630 s and 515 s.
 
 ## 16. Measured: eight of nine blocks converted and hashed (2026-11-19 13:00 UTC)
@@ -358,21 +358,44 @@ took 3-4 h, against 37-70 min for the first ones. Block manifests, per-scan SHA-
 stage manifests at this state are committed under
 [results/dl2-data/manifests/](results/dl2-data/manifests/): stage 1 has 202 scans (91 train, 32
 validation, 79 held out) and SHA-256 4de2e863…7f79; stage 2 has 178 (1402c415…5f77); stage 7 has 24
-(3fd52c53…c89d). They are regenerated, with stable hashes, when 1611426666 and the teachers finish.
+(3fd52c53…c89d). These hashes change as labels and the last block arrive. A rerun with nothing
+new keeps them unchanged.
 
 **Still running on nash at hand-back** (all resumable by done-markers; the nash worktree
 `~/Worktrees/rang/dl2-data` and the run root must stay):
 - `run_block.sh 1611426666 --delete-mvf`: 8 scans left, among them target scans 20 and 28
-  (435 and 434 dumps, about 233 GB of MS each), with fetch, convert and hash about 1.5-2 h each.
+  (435 and 434 dumps, about 233 GB of MS each). Scan 20: fetch 940 s, conversion 1,476 s, then
+  the hash at about 12 MB/s beside the teachers, about 5 h. So the block needs about 12-16 h more
+  (amendment 6).
   To resume: `cd ~/rang-data/outputs/dl2-data-20261119 && setsid nohup ./run_block.sh 1611426666
   --delete-mvf &`.
-- The teachers (rang, Tricolour, AOFlagger) on 1735892129, 1629213076 and 1749428161 (8 threads).
-  `relaunch_teach.sh` starts 1571938260, 1573212012 and 1611426666 when 1611426666's conversion
-  ends. Rate before the pause: about 10 min per small scan, 52 min for a 25 GB target scan; the
+- The teachers (rang, Tricolour, AOFlagger) on 1735892129, 1629213076 and 1749428161 (8 threads),
+  relaunched at 13:00 UTC. `relaunch_teach.sh` then teaches 1573212012, 1571938260 and 1611426666
+  one block at a time at 4 threads, after 1611426666's conversion ends. Rate before the pause: about 10 min per small scan, 52 min for a 25 GB target scan; the
   teachers are the long pole (on the order of a day). To resume one: `setsid nohup
   ~/Worktrees/rang/dl2-data/research/results/dl2-scripts/teach_block.sh <cbid> 8 &`.
 - When both are done: `dl2_stage.py <root>`, then copy `manifests/` into
   `research/results/dl2-data/manifests/` and commit.
+
+## 17. Amendment 6 (2026-11-19 13:30 UTC; scheduling and a read-mode check, no data read)
+
+- **Relaunch.** At 13:00 UTC, with eight blocks converted, the teachers were relaunched on 1735892129,
+  1629213076 and 1749428161 (8 threads), before amendment 5's "after all nine". The second trio
+  (1573212012, 1571938260, 1611426666) runs one block at a time at 4 threads once 1611426666 is
+  converted. So DL2 never holds more than four teacher jobs, and never six copies at once.
+- **AOFlagger read mode.** `-direct-read` had not yet run on any scan, so it was checked by hand on
+  a private copy of 1735892129 scan 3 (`dl2_direct_read_check.py`, `-j 4`): `flag.npy` identical
+  to the default-read label (f20c848b…), 22.6 s, 73 MB peak RSS. Labels do not depend on the read
+  mode on this scan. `label.json` now records `aoflagger_read` (`auto` or `direct`).
+- **Target strategy checked.** 1735892129 scan 9 (target): rang and Tricolour used
+  `mk_rfi_flagging_target_fields_firstpass.yaml` (f9d4881b…), as amendment 3 says.
+- **Peaks so far, against 6 GB per thread (48 GB at 8 threads).** AOFlagger 19.7 GB on a 34 GB scan
+  (in memory); Tricolour 9.5 GB on 25 GB and 6.8 GB on 34 GB; rang's parent about 0.3 GB, with its
+  spool workers not counted. Tricolour on the 233 GB target scans is not measured yet.
+- **Augmentation (step 6) is a registered recipe, not a sampler.** The seeds and rules are in each
+  stage manifest. The metadata JSONs hold antenna names only, so "nearest the array centre" needs
+  antenna positions, which are not committed. They would go in a separate file, so that no
+  committed hash moves.
 
 ## For the coordinator
 

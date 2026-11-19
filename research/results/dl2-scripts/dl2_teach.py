@@ -171,6 +171,12 @@ def apptainer(sif, binds, cmd, threads):
             str(sif), "sh", "-c", cmd]  # fmt: skip
 
 
+def aoflagger_read(wc):
+    """'direct' above DIRECT_READ_BYTES of MS, else 'auto' (AOFlagger's default)."""
+    size = sum(q.stat().st_size for q in wc.rglob("*") if q.is_file())
+    return "direct" if size > DIRECT_READ_BYTES else "auto"
+
+
 def teach(teacher, strat, wc, work, threads, log):
     if teacher == "tricolour":
         shutil.copy(strat, work / "strategy.yaml")
@@ -182,8 +188,7 @@ def teach(teacher, strat, wc, work, threads, log):
         )
     if teacher == "aoflagger":
         shutil.copy(strat, work / "firstpass_QUV.rfis")
-        size = sum(q.stat().st_size for q in wc.rglob("*") if q.is_file())
-        mode = "-direct-read " if size > DIRECT_READ_BYTES else ""
+        mode = "-direct-read " if aoflagger_read(wc) == "direct" else ""
         cmd = (f"aoflagger -j {threads} {mode}-strategy /p/firstpass_QUV.rfis "
                f"/ms/{wc.name}")  # fmt: skip
         return run(
@@ -348,6 +353,7 @@ def main(argv=None):
             st = strat[te][s["class"]]
             before = snapshot(wc, big)
             log = logs[te] / f"scan{n:03d}.log"
+            read = aoflagger_read(wc) if te == "aoflagger" else None
             rc, wall, rss = teach(te, st, wc, work[te], a.threads, log)
             if rc != 0:
                 raise SystemExit(f"{te} {cbid} scan {n}: rc {rc} (log {log})")
@@ -363,7 +369,7 @@ def main(argv=None):
                      "cbid": cbid, "scan": n, "class": s["class"],
                      "split": block["split"], "input_ms_hash": s["ms_hash"],
                      "wall_s": round(wall, 1), "peak_rss_kb": rss,
-                     "written_utc": utc(), **shape}  # fmt: skip
+                     "written_utc": utc(), "aoflagger_read": read, **shape}  # fmt: skip
             (out / "label.json").write_text(json.dumps(label, indent=1) + "\n")
             files = ("flag.npy", "flag_row.npy", "label.json")
             sums = "".join(f"{sha256_file(out / f)}  {f}\n" for f in files)
