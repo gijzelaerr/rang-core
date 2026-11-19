@@ -4,7 +4,7 @@ This index routes collaborators to the evidence; it is not a novelty claim.
 Each entry is one report and its verdict, newest first within a section.
 
 
-- **Paused 2026-11-13:** [next-session.md](next-session.md) (brief for the next coordinator) and [handoff-2026-11-13.md](handoff-2026-11-13.md), the plan and the resume state of every open branch.
+- **Start of v0.4.0 (2026-11-19):** [next-session.md](next-session.md), the brief for the next coordinator (state on disk, standing rules, four parallel work packages, hosts); the plan is [dl-plan.md](dl-plan.md). The pause of 2026-11-13 is in [handoff-2026-11-13.md](handoff-2026-11-13.md).
 ## Start here
 
 - [Deep learning in every stage: discovery plan for v0.4.0](dl-plan.md) (proposed, 2026-11-19; nothing built): per-stage table with cost shares (flag 3-7 %, selfcal 65-71 %), teachers and go/no-go rules; three modes (propose, settings, replace); a swap contract with one weights file per stage, telescope and band; a training-data factory; design rules and frozen gates for a changing antenna set; tasks DL0-DL6; eight owner decisions (retheme of v0.4.0 first). The roadmap is unchanged until then.

@@ -398,16 +398,21 @@ shipped weights file passed G-sub, G-drop, G-perm and G-obs; DL6 has run.
    see if it works? i want to make progess fast". Training runs on glacier's GPU at any hour, booked
    through `gpu-run`; it needs no idle host, and the owner accepts a slower desktop and a yielding
    local AI app in the daytime. Timing and exclusive runs stay from 21:00, because a busy host
-   invalidates them (the F4 lesson). Proposed with it, awaiting the owner's confirmation: the budget
-   per pilot stays counted in GPU hours (24 before a go/no-go, 48 for F5, three seeds included,
-   extension once on the owner's word), which all-day use turns into one to two days per pilot.
+   invalidates them (the F4 lesson). Budget, confirmed the same day ("yeah looks good to me"): 24 GPU
+   hours per pilot before a go/no-go, 48 for F5, three seeds included, one extension on the owner's
+   word. With it: "maybe we should split training and evaluation in smaller batches so we don't waste
+   time if the computer crashes, reboots or is interrupted by my own activity". So training
+   checkpoints at least every 15 minutes and resumes from the last checkpoint; evaluation, labels and
+   teacher runs are split into shards with done-markers; no job loses more than about 15 minutes.
+   Hosts (same message): everything CPU-heavy or data-heavy on nash, only GPU work on glacier. The
+   rules as a session applies them are in [next-session.md](next-session.md).
 8. **Landman. Decided 2026-11-19:** "dont ask him to get involved with the minor-cycle pilot, we can
    do this ourselves right? also dont ask him architecture questions, we decide that. also for the
    first question, just do what you think is best." So: the comment on issue #1 is a status update
    with no questions; the pilots beyond flagging and the architecture choices are rang's own; F5 is
    frozen without waiting for a reply (the comment of 2026-11-18 already said "unless you object, we
    freeze"), with his review and his two replies as its inputs, and he can still comment on the
-   frozen note. Text for issue #1, posted only after the owner has seen it:
+   frozen note. Text for issue #1, posted on the owner's word 2026-11-19 (comment 7002083361):
 
 > Update. rang-core 0.3.0 is out; no trained flagger ships in it. v0.4.0 is planned around learned
 > stages ([dl-plan.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl-plan.md)), and
