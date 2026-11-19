@@ -22,7 +22,7 @@ that stood here is in the git history (`git show 5a5edb50:research/next-session.
   (`e2a-kzero-20261117`) and 201 GB (`e2n-followup-20261118`) of outputs. Stopping that pass or
   deleting those outputs is an owner decision; ask once, then work around it.
 - glacier: no PyTorch environment yet; the GPU is booked through `~/.gpu/gpu_run.py` (owner `rang`).
-- No unmerged branch is needed: F4's code (`core/src/f4flag.rs`, `python/rang/f4flag.py`) and note
+- One unmerged branch: `wsclean-38` (#47, WSClean 3.8 rebaseline; section below). F4's code (`core/src/f4flag.rs`, `python/rang/f4flag.py`) and note
   ([f4-flagger.md](f4-flagger.md)), F5's draft ([f5-flagger.md](f5-flagger.md)) and the spool executor
   (`python/rang/core_spool.py`, `data.executor: spool`) are on main. F4's trained calibrator weights and
   its unread held-out sets are located from f4-flagger.md (trained on nash, 2026-11-17).
@@ -82,6 +82,36 @@ Wave 2 starts when A reports (the order may change with its selfcal split):
 Only one training job holds glacier's GPU at a time; queue through `gpu-run`. nash takes many CPU
 jobs side by side: book honest slots and memory on its heavy lock and compare the lock's bookings
 with real CPU use on every wake.
+
+## Carried over: WSClean 3.8 rebaseline (#47, added 2026-11-19)
+
+Branch `wsclean-38` (worktree `~/Worktrees/rang/wsclean-38`, pushed, 67 commits behind main) holds
+[the note](https://github.com/gijzelaerr/rang-core/blob/wsclean-38/research/wsclean38-rebaseline.md)
+(sections 1-6 frozen 2026-11-18, amendments 1-2).
+
+- Measured: P passes; H-mask holds; H-ms holds. The numbers are in #47 and in section 7.
+- Open: arm T, the speed table. The first attempt's WSL driver died at 17:20 on 2026-11-18, before
+  its 21:00 start, and no job ran. The 3.7 and 3.8 images, GeMClean `6c615524` and the data are in
+  place.
+- To run it, on a night with no GPU training booked on glacier (T holds the host exclusive for
+  about 9.5 hours), from WSL:
+  `nohup bash /mnt/c/Users/gijsm/Worktrees/rang/wsclean-38/research/results/wsclean38-rebaseline-scripts/t_speed.sh >> /mnt/d/rang/outputs/wsclean38-20261118/t/driver.log 2>&1 &`
+  (the driver waits for 21:00 itself). Start it from a session that stays open, or check the next
+  morning that `t/notes.txt` exists.
+- Then, in the worktree:
+  - score with `t_score.py D:/rang/outputs/wsclean38-20261118/t` and write section 7.4 under the
+    frozen rule;
+  - status line, "For the coordinator" section, and T rows in `tool-timings.md`;
+  - README index, STATE, CHANGELOG (Dockerfile 3.8 install, `oracle_wsclean_clean.py --image`), the
+    proposal marked measured, and a pointer from `gemclean-speed.md`;
+  - merge main in, full check, merge with `--no-ff`, push only if rc == 0, read CI, comment and
+    close #47;
+  - remove the worktree, the branch and `outputs/status/wsclean38.md`. The run roots are kept
+    (`D:\rang\outputs\wsclean38-20261118`, nash `~/rang-data/outputs/wsclean38-20261118`); scratch
+    is already removed.
+- Owner decisions after T, asked once: docs wording if T changes the speed statements; 3.8 as the
+  default WSClean oracle; reruns of G2, G7 and G9.
+- Do it before #24 and #42 freeze their WSClean baselines.
 
 ## Coordinator loop
 
