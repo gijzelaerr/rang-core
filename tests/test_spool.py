@@ -155,6 +155,52 @@ def test_a_failed_spool_task_raises_in_plan_order(tmp_path):
     assert not [p for p in (spool / "done").iterdir()]
 
 
+def test_discard_waits_for_a_running_task(tmp_path):
+    """A task a live worker is still running when the parent discards writes
+    its partial afterwards; discard waits for it, so the spool ends empty of
+    the session (the race behind the plan-order test's empty-spool checks)."""
+    import threading
+
+    spool = core_spool.prepare(tmp_path / "spool")
+    sp = core_spool.Spool(spool, wait_s=30)
+    tag = f"{sp.session}-0001-00000004"
+    (spool / "tasks" / f"{tag}.json").write_text("{}")
+    worker = "livehost-1-abcdef"
+    (spool / "workers" / f"{worker}.beat").touch()
+    claim = spool / "claimed" / tag
+    claim.write_text(worker)
+
+    def finish():  # the worker's order: partial, task, claim
+        time.sleep(0.5)
+        (spool / "done" / f"{tag}.pkl").write_bytes(b"partial")
+        (spool / "tasks" / f"{tag}.json").unlink(missing_ok=True)
+        claim.unlink()
+
+    t = threading.Thread(target=finish)
+    t.start()
+    t0 = time.time()
+    sp.discard()
+    t.join()
+    assert time.time() - t0 >= 0.4  # it waited for the running task
+    for sub in ("tasks", "done", "claimed"):
+        assert not list((spool / sub).glob(f"{sp.session}-*")), sub
+
+
+def test_discard_does_not_wait_for_a_dead_worker(tmp_path):
+    spool = core_spool.prepare(tmp_path / "spool")
+    sp = core_spool.Spool(spool, wait_s=30)
+    tag = f"{sp.session}-0001-00000004"
+    dead = "deadhost-1-abcdef"
+    beat = spool / "workers" / f"{dead}.beat"
+    beat.touch()
+    os.utime(beat, (time.time() - 600, time.time() - 600))
+    (spool / "claimed" / tag).write_text(dead)
+    t0 = time.time()
+    sp.discard()
+    assert time.time() - t0 < 5
+    assert not list((spool / "claimed").iterdir())
+
+
 @needs_writer
 def test_a_lost_claim_is_requeued(tmp_path, monkeypatch):
     """A claim whose worker stopped beating goes back into the queue and is
