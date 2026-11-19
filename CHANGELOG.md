@@ -9,21 +9,40 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-## 0.3.0 (TODO-RELEASE: date of the tag)
-
-<!-- TODO-RELEASE: one result is still running (E3-A); each TODO-RELEASE line below says what replaces it.
-     Before tagging, `git grep -n TODO-RELEASE` must find nothing outside research/. -->
+## 0.3.0 (2026-11-19)
 
 0.3.0's question is "can I trust the images and polarisation on my own native data, and drive it from an
 agent?" (`research/roadmap.md`, v0.3.0). Its "done when" rows and their evidence are in
 `research/v030-readiness.md`; the release review is `research/v030-review.md`.
 
+### Highlights
+
+- **Native MeerKAT data runs end to end**: SARAO 1735268787 (L band) through flag, calibrate, apply, image
+  and self-calibration, rc 0; 17 of 25 frozen rows met against CASA (limitations below).
+- **Against CARACal's shipped strategy on LUNO (E3-B)**: rang 6,195 s against CARACal 6,926 s, 3C 286
+  |Δp| ≤ 0.03 points, Δχ ≤ 0.22°.
+- **GeMClean stops earlier by default**: `-stop-tolerance 0.02` saves a mean 1.125 major cycles on 8 of 8
+  blind skies (issue #28). `-reorder` is the default with joined polarisations (issue #32).
+- **Self-calibration fits in 8 GiB**: scan-long Sp/Sa solves are streamed, 3.6 GiB peak against 35 GiB,
+  bit-identical, 9-41 % more wall (issue #34).
+- **Opt-in CASA `calwt` weighting** for Xf, K, G, Gpol, KCROSS and Df: the Xf gap to CASA drops from
+  0.054-0.065° to 0.012° (issue #33).
+- **New**: `rang-core lightcurve` (residual snapshot light curves, issue #9); an MSv4 read path
+  (`rang.msv4`, bit-identical on 9 MSs, issue #5); a `spool` executor prototype for multi-node runs
+  (bit-identical; 4.67 × with 8 workers on one host, issue #4); an MCP server through which an agent runs the whole chain (issue #27).
+- **Measured null or negative, so no default changed**: SDm03 as the imaging default (#13); GeMClean's
+  auto-mask cycle gap, which is WSClean's fast sub-minor loop (#36); the multiscale compact-source excess
+  (+9 to +18 µJy, in WSClean too, #23); the GPU gridder (not faster at `-j 16`, #12); the trained flagger
+  (F4 stopped on its cost gate, #10); self-calibration defaults (#6).
+
 ### Known limitations
 
 - **Native MeerKAT data (E2-N, issue #7): not met as frozen, 17 of 25 rows.** SARAO 1735268787, L band, observatory-phased: rang runs all five stages end to end (rc 0). Missed: 3a (73 of 2.28e9 flag cells), Xf p95 (2.085° against 2.0°), the K/G/B composites, 3c (dirty L∞; compact scatter 2.7 % against 1 %), the J1744−5144 χ and the target's compact-source scatter (13.3 % against 1.5 %). The data are observatory-phased, so K, KCROSS and Xf are near-null and their real-size solve is untested. The CASA reference flagged 19 of 62 antennas in its delay solve because the oracle set-up gave CASA's solves the flags from after rang's calibrate-stage `extendflags`, not the flags rang solved on. That leaves those antennas no unflagged baseline to the reference antenna. The K-downstream misses are therefore partly an oracle defect; a corrected CASA rerun is in progress (`research/e2n-followup.md`) (`research/e2n-native.md`).
-- **TODO-RELEASE (E3-A): the comparison with CARACal on E2-A.** E3-B is measured (CARACal 6,926 s against
+- **The comparison with CARACal on E2-A (E3-A) is not in this release.** Its timed passes were running on
+  the release date (rang pinned to 16 cores, then CARACal's shipped strategy); the result follows in
+  `research/e3-caracal.md` and in 0.3.1. E3-B is measured (CARACal 6,926 s against
   rang 6,195 s on LUNO, 3C 286 |Δp| ≤ 0.03 points, Δχ ≤ 0.22°; `research/e3-caracal.md` 10.16-10.17 on
-  branch `e3-caracal`). Replace with E3-A's correctness, cost and wall-time rows when `e3-caracal` merges.
+  branch `e3-caracal`).
 - **`-stop-tolerance 0.02` on the pipeline's `-auto-threshold 3` path is not measured** (issue #28,
   `research/stop28-default.md`): the default switch rests on runs with absolute thresholds; the GeMClean
   benchmark and the E2/E5 image archive gates are re-read at the next archive run.
@@ -54,8 +73,11 @@ agent?" (`research/roadmap.md`, v0.3.0). Its "done when" rows and their evidence
   full criterion): on floor-3's subset of the pilot one phase-only self-calibration round takes the floor
   from 1,073 to 379 µJy. Of the 379 µJy left (8.6 × thermal), deconvolution depth and spectral modelling
   are confirmed on a held-out scan (D_h 0.201 and 0.474); masked Högbom to 0.3 mJy after the round
-  (SDm03) explains 0.717 of the held-out excess. No default changes until E2-A and E2-N are re-read
-  with it.
+  (SDm03) explains 0.717 of the held-out excess. SDm03 as the imaging default is "not yet": it fails the
+  WSClean oracle on reserve scan 4, so the default stays A0 and #13 is closed (`research/sdm03-default.md`).
+  That oracle failure rests on WSClean's fast sub-minor loop leaving 1,096 pixels above its own stop
+  (issue #36, closed null, `research/automask-cycle.md`); oracle runs comparing cycle counts or residual
+  excess now use WSClean's `-no-fast-subminor`.
 - **Self-calibration defaults are unchanged** (issue #6, `research/selfcal-defaults.md`): on the pilot the
   best cell of the frozen grid (two phase rounds at 600 s) scores 0.905 against the default's 0.892, less
   than the frozen 0.05 margin. More rounds, longer first intervals and a phase-only first round do not
@@ -96,12 +118,12 @@ agent?" (`research/roadmap.md`, v0.3.0). Its "done when" rows and their evidence
 ### Issues
 
 Every gijzelaerr/rang-core issue touched since v0.2.0 (2026-11-14), from
-`gh issue list -R gijzelaerr/rang-core --state all -L 60` on 2026-11-18. "Closed" gives the date it was
+`gh issue list -R gijzelaerr/rang-core --state all -L 60` on 2026-11-19. "Closed" gives the date it was
 closed on GitHub; the owner closes the rest at the tag, as each outcome says.
 
 | # | Title | Outcome | Note |
 | --- | --- | --- | --- |
-| 1 | Fast supervised flagger (F2) | progressed: Landman's review answered; F5 proposed, not frozen | [f5-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f5-flagger.md) |
+| 1 | Fast supervised flagger (F2) | progressed: Landman's review answered, F4's result posted; F5 proposed, not frozen | [f5-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f5-flagger.md) |
 | 2 | v0.2.0 release tracking | closed 2026-11-14; its carry-overs are 0.3.0's first rows | [v030-readiness.md](https://github.com/gijzelaerr/rang-core/blob/main/research/v030-readiness.md) |
 | 3 | Multi-node stage 1: chunk task API | progressed: chunk tasks run multi-process, bit-identical | [chunk-task-api.md](https://github.com/gijzelaerr/rang-core/blob/main/research/chunk-task-api.md) |
 | 4 | Multi-node stage 2: a multi-node executor | progressed: `data.executor: spool` prototype, bit-identical, S(8) 4.67 on nash | [multinode-executor.md](https://github.com/gijzelaerr/rang-core/blob/main/research/multinode-executor.md) |
@@ -126,6 +148,7 @@ closed on GitHub; the owner closes the rest at the tag, as each outcome says.
 | 33 | Xf rang-CASA gap | closed 2026-11-17: limitation with its cause (`calibrate.xf_calwt`, opt-in) | [xf-gap.md](https://github.com/gijzelaerr/rang-core/blob/main/research/xf-gap.md) |
 | 34 | Self-cal scan-long solve needs 37 GB | fixed (streamed Sp/Sa solves, 3.6 GiB); still open on GitHub, GeMClean's 9.3 GiB left | [selfcal-memory.md](https://github.com/gijzelaerr/rang-core/blob/main/research/selfcal-memory.md) |
 | 35 | Multiscale with a FITS mask ignores the mask | closed 2026-11-17: no defect (centres stay inside the mask; a limitation) | [gemclean-ms-mask.md](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-ms-mask.md) |
+| 36 | Auto-mask freezes a major cycle earlier than WSClean | closed 2026-11-18: null, no defect (WSClean's fast sub-minor loop leaves 1,096 px above its stop; `-no-fast-subminor` for such oracle runs) | [automask-cycle.md](https://github.com/gijzelaerr/rang-core/blob/main/research/automask-cycle.md) |
 
 Not touched since v0.2.0: #15-#20. Closed before v0.2.0 as duplicates: #21, #25, #26.
 

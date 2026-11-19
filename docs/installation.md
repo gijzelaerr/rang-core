@@ -11,7 +11,7 @@ pip install rang-core
 [GitHub release](https://github.com/gijzelaerr/rang-core/releases). To build it yourself, install
 [from source](#from-source).
 
-The current release is **0.3.0** (TODO-RELEASE: date of the tag). Its known
+The current release is **0.3.0** (2026-11-19). Its known
 limitations are in the
 [changelog](https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md).
 0.2.0 (2026-11-14) was the first with the user chain (`rang-core run`,
