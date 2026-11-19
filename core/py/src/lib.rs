@@ -3021,6 +3021,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Task DL1: the swap contract's weights-file reader (research/dl1-contract.md).
     m.add_function(wrap_pyfunction!(learned::learned_onnx_metadata, m)?)?;
     m.add_function(wrap_pyfunction!(learned::learned_dilated_cnn_weights, m)?)?;
+    // Task DL1-I: the interpreter, the contract's reference runtime.
+    m.add_function(wrap_pyfunction!(learned::learned_interp_check, m)?)?;
+    m.add_function(wrap_pyfunction!(learned::learned_interp_run, m)?)?;
     // Task TS-P1: forced photometry by the exact DFT (research/ts-p1.md).
     m.add_function(wrap_pyfunction!(lightcurve::lightcurve_dft, m)?)?;
     Ok(())

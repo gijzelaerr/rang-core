@@ -32,6 +32,8 @@ pub struct Attribute {
     pub name: String,
     pub i: Option<i64>,
     pub ints: Vec<i64>,
+    /// A string attribute (field 4), such as Conv's `auto_pad`.
+    pub s: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -204,6 +206,7 @@ fn attribute(buf: &[u8]) -> Result<Attribute, Error> {
                     a.i = Some(x as i64);
                 }
             }
+            4 => a.s = Some(string(&val)?),
             8 => push_ints(&val, &mut a.ints)?,
             _ => {}
         }
@@ -427,7 +430,7 @@ pub fn dilated_cnn_weights(
             return err(format!("Conv {k}: group must be 1"));
         }
         if let Some(a) = n.attr("auto_pad")
-            && a.i.is_some()
+            && a.s.as_deref().is_some_and(|v| v != "NOTSET")
         {
             return err(format!("Conv {k}: auto_pad not supported"));
         }

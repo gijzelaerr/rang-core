@@ -3,7 +3,9 @@
 Task DL1, issue #38, branch `dl1-contract` from main `dd6adc5d`. Session B of v0.4.0 wave 1.
 Implements section 4 of [dl-plan.md](dl-plan.md) under decisions 3-5 of its section 10.
 
-**Status (2026-11-19, 11:10 SAST): contract implemented; F3 exported and bit-identical through it;
+**Status (2026-11-19, 14:45 SAST): own ONNX interpreter (owner decision, amendment 2) implemented
+and the contract's reference runtime, gates I1-I5 passed; final timings queued for 21:00 SAST.**
+Earlier status (11:10 SAST): contract implemented; F3 exported and bit-identical through it;
 runtime comparison outcome N (no crate passes; the fallback is an interpreter of our own); timings
 provisional, the final exclusive timing run is left to the coordinator.** Status at freeze
 (`061e6ea7`): proposed; nothing implemented, exported or measured. Results go under "Measured
@@ -275,3 +277,26 @@ Not done here: the final exclusive timings (glacier from 21:00 SAST, after F5's 
 command is `python tools/heavy_lock.py run -- .venv\Scripts\python.exe
 examples/dl1_runtimes.py outputs/dl1/runtimes-final.json --label final`, after the builds in
 `tools/dl1_runtimes/bin/`). They cannot change outcome N, which no timing enters.
+
+### The interpreter (amendment 2), 2026-11-19
+
+`core/src/learned_interp.rs`, Conv and Relu, pure Rust (rayon only); Python
+`rang.learned.run_reference`; every weights file must load on it (`rang.learned.load` refuses
+otherwise); receipts carry `reference: interpreter`. The hand-written kernel stays the fast path.
+F4 calibrator seed 2 exported as `tests/data/learned/f4-calibrator-seed2.onnx` (19,861 B, sha256
+`d9e98eac…9213`, 4,009 weights byte-equal to its npz); F3's export unchanged (`211353a2…29f8`).
+
+| Gate | F3 | F4 | Verdict |
+| --- | --- | --- | --- |
+| I1 ops | loads (Conv, Relu) | loads | pass; Sigmoid refused at load as "op Sigmoid at node 0 (act)" (Rust test) |
+| I2 PyTorch, shape A | max \|Δ\| 8.6e-6 | 2.4e-5 | pass (≤ 1e-4) |
+| I3 threads 1, 2, 4, 8, 16 | bit-identical, shape A and 16 planes | bit-identical | pass (Rust test, in CI); 128-plane shape B in the final timing run |
+| I4 size | `_core.pyd` 11,237,888 → 11,287,552 B | | pass (+49,664 B against 8 MB) |
+| I5 kernel against interpreter, F3 test scan | max \|Δ\| 1.1e-5 (17.8 % of cells bit-equal) | 1.0e-5 (26.4 %) | pass (≤ 1e-4), Python test without PyTorch and Rust test, both in CI |
+
+**Decision (amendment 2's rule): all five pass; the interpreter is the contract's reference
+runtime, the kernel its checked fast path.** The kernel and the interpreter are not bit-identical:
+the kernel adds the bias first in its hidden layers and last in its head, the interpreter last
+everywhere. Provisional single-thread time on shape A (glacier, daytime): interpreter 6.6 ms,
+kernel 7.0 ms. Final timings (kernel, interpreter, tract) are queued for an exclusive hold from 21:00
+SAST after session D's run (`outputs/dl1/final-timing.sh`).

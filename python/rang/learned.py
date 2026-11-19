@@ -32,6 +32,9 @@ from . import core
 MODES = ("off", "propose", "settings", "replace")
 FORMAT = "rang.learned/1"
 HEADER_KEY = "rang.learned"
+# The contract's reference runtime (owner, 2026-11-19: "go with our own ONNX
+# interpreter"; research/dl1-contract.md amendment 2): rang_core::learned_interp.
+REFERENCE = "interpreter"
 # The configuration stages that carry the key (rang.core_config.STAGES).
 STAGES = ("flag", "calibrate", "apply", "image", "selfcal")
 DATA_CLASSES = ("calibrator", "target", "any")
@@ -167,6 +170,11 @@ def load(path):
         raise Refused(f"weights {path}: header is not JSON ({e})") from e
     except Refused as e:
         raise Refused(f"weights {path}: {e}") from e
+    try:
+        # Every weights file must run on the reference runtime (amendment 2, I1).
+        core.extension().learned_interp_check(payload)
+    except ValueError as e:
+        raise Refused(f"weights {path}: {e}") from e
     return WeightsFile(
         str(path),
         hashlib.sha256(payload).hexdigest(),
@@ -263,6 +271,7 @@ class Decision:
     envelope_violations: list
     fallback: bool
     runtime: str = "kernel"
+    reference: str = REFERENCE
 
     def receipt(self):
         """The stage receipt's `learned` entry (research/dl1-contract.md, 4)."""
@@ -283,6 +292,7 @@ class Decision:
             "fallback": self.fallback,
             "approximate": self.mode == "replace" and not self.fallback,
             "runtime": self.runtime,
+            "reference": self.reference,
         }
 
 
@@ -449,6 +459,18 @@ def dilated_cnn_weights(weights):
     )
 
 
+def run_reference(weights, x):
+    """The interpreter's output for `x` float32 (n, c, h, w): the contract's
+    reference runtime, which every fast path is checked against."""
+    import numpy as np
+
+    x = np.ascontiguousarray(x, np.float32)
+    if x.ndim != 4:
+        raise ValueError(f"x must be (n, c, h, w), not {x.shape}")
+    y, shape = core.extension().learned_interp_run(weights.payload, x, list(x.shape))
+    return np.asarray(y).reshape(shape)
+
+
 def run_dilated_cnn(decision, scan, flagged, data=None):
     """(row, chan) float32 logits of a dilated-cnn/1 flagger on one scan
     (`rang.f3flag`'s scan dict), by the Rust kernel of its feature set."""
@@ -492,6 +514,7 @@ __all__ = [
     "FORMAT",
     "HEADER_KEY",
     "MODES",
+    "REFERENCE",
     "STAGES",
     "Decision",
     "Header",
@@ -507,6 +530,7 @@ __all__ = [
     "load",
     "register",
     "run_dilated_cnn",
+    "run_reference",
     "select",
     "tenant_for",
     "tenants",
