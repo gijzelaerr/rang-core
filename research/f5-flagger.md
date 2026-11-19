@@ -610,7 +610,9 @@ and a 10 σ T6 band 0.4 nchan wide (seed 20265501); clean (antenna, block) pairs
 | 2 | 0.978 | 0.90 % |
 | 3 | 0.980 | 0.90 % |
 
-All three under the 1 % bar; **d = 1** by the rule. The 2c planes alone see F1's antenna-local
+All three under the 1 % bar; **d = 1** by the rule. *Targets* (ESO137 chunk 10, 1,064 s
+including lock wait, `runs/degree-target.json`): d 1 / 2 / 3 recall 0.997 / 0.978 / 0.972, clean
+pairs over 5 0.54 % / 1.73 % / 0.44 %: **d = 1**. The 2c planes alone see F1's antenna-local
 event at 0.997, against F3's 0.024 and F4's ZE 1.000.
 
 ### Stage 2: ZE5 and Z5 (calibrators), nash, 2026-11-19
@@ -651,6 +653,14 @@ the bar or the realisation after seeing this is post hoc; as with F4's C1(U4) (0
 the frozen reading stands. Whether a labelled post hoc calibrator arm is trained and scored (it
 could not become S or S−, and it would spend F4's unread held-out sets) is the coordinator's or
 owner's decision. Nothing has been trained; no held-out set has been read.
+
+### Copy to nash capped, 2026-11-19 15:50 SAST
+
+The owner (relayed by a network-check session): the copy filled the house's ~50 Mbit/s upload.
+Found: an orphaned copier from before the crash still ran beside the per-file one (up to seven
+streams). Both stopped by PID; the rest (F2/F4 simulated scans, glacier-only) goes as one stream
+capped at 2.5 MB/s (`outputs/dl3-f5/xfer/copy4.sh`, `throttle.py`). ESO137 MAIN_0 and both SARAO
+fetches were already on nash and verified, so no public data is still being sent.
 
 ### Stage 6 plan, fixed 2026-11-19 15:10 SAST, before the run (labelled)
 

@@ -57,6 +57,11 @@ case $STEP in
     run "shards-$K-$role" "$PY" examples/f5_shards.py "$RUNS/shards" --class "$K" --role "$role" \
       --level 0 --degree "$(degree)" --flags-from "$FLAGS" --data-root "$D" --ao-sif "$SIF"
     ;;
+  shards-train-real)
+    # Real scans only, while the simulations are still being copied; the full
+    # step later skips the finished real shards.
+    run "shards-$K-train-real" "$PY" examples/f5_shards.py "$RUNS/shards" --class "$K" --role train       --level 0 --degree "$(degree)" --flags-from "$FLAGS" --data-root "$D" --ao-sif "$SIF" --only-real
+    ;;
   tau)
     run "tau-$K" "$PY" examples/f5_tau.py "$RUNS/tau-$K" --class "$K" --weights "$RUNS/train-$K/$(cat "$RUNS/train-$K/median-seed")/weights.npz" \
       --level 0 --degree "$(degree)" --flags-from "$FLAGS" --data-root "$D"
