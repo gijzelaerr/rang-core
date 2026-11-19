@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running:** nothing of v0.3.x. The long runs (E3-A timed, the E2-N follow-up, e2a-kzero) were stopped at the 0.3.0 tag and v0.3.1 was cancelled on the owner's word (2026-11-19); their resume state is in [roadmap.md](roadmap.md).
+- **Running (v0.4.0 wave 1, 2026-11-19):** A #37 (`dl0-profile`, E2-N profile on nash), C #39 (`dl2-data`, SARAO fetch and teacher runs on nash), D #40 (`dl3-f5`, F5 frozen in `41b6160d`, training next). Nothing of v0.3.x: E3-A timed, the E2-N follow-up and e2a-kzero were stopped at the 0.3.0 tag; the kept outputs of the last two were found absent on nash on 2026-11-19, so both rerun from the start ([roadmap.md](roadmap.md)). nash cleanup on the owner's word the same day: `e3-input` (194 GB) and `e3-20261117-a-correct` (62 GB) deleted, the sadc collector stopped; three old worktrees with uncommitted edits kept.
 - **Direction:** [vision.md](vision.md) (2026-11-11).
 - **Next:** v0.4.0, deep learning: [dl-plan.md](dl-plan.md), issues #37-#46, Landman's F5 (#40) first.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
@@ -19,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+DL1, the swap contract (issue #38; branch `dl1-contract`, merged 2026-11-19; [dl1-contract.md](dl1-contract.md), frozen in `061e6ea7` before code; archive [results/dl1-contract/](results/dl1-contract/); host glacier, timings provisional): the `learned:` key on every stage, with `off` bit-identical (stage hashes of 60 configs × 5 stages unchanged); ONNX weights with a provenance header, read by `core/src/learned.rs`; `rang.learned` registry with gate and envelope refusal and receipts. F3's calibrator network exported from PyTorch (17,673 B, deterministic) runs through the contract bit-identical to `f3flag`; PyTorch against the kernel max |Δ logit| 1.05e-5. **Runtime outcome N:** no crate passes G1-G6 (tract fails G6 alone, +20.4 MB against the 8 MB bar; candle needs protoc; burn needs build-time codegen). The hand-written kernel is fastest in every column and bit-identical across 1-8 threads. Owner decision open: own ONNX interpreter (decision 5's fallback) or a post hoc G6 relaxation for tract. Final exclusive timings not run.
 
 Deep-learning plan, 2026-11-19 (proposed, nothing built; [dl-plan.md](dl-plan.md); owner request of the same day:
 v0.4.0 on deep learning and the Landman collaboration). Stage shares from E2-A and E2-N: flag 3-7 %, calibrate 7-12 %,

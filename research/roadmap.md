@@ -69,8 +69,8 @@ Nothing was scored from the stopped runs.
 | Issue | Item | State at the stop | Resume |
 | --- | --- | --- | --- |
 | #7 | E3-A: CARACal against rang on E2-A, timed (branch `e3-caracal`) | rang's timed pass stopped in its image stage after 9.7 h exclusive on nash (pinned to 16 cores: flag 5,340 s, calibrate 16,898 s, apply 2,152 s, about 3.8 × the 15-16 Nov full-host rerun); CARACal's timed pass never started; partial MS deleted | rerun both timed passes from the start in one night window; decide first whether pinning to 16 cores is the matched-cost setting |
-| #7 | E2-N follow-up: CASA with the flag-state split (branch `e2n-followup`, `2e512d81`) | K flags 0 of 62 in the seen rerun; the K-downstream CASA steps were queued, not run | resume `fu_launch.sh` from `~/rang-data/outputs/e2n-followup-20261118` (201 GB kept), then `fu_kcompare.py`, `fu_compare.py`, section 2.2 |
-| — | e2a-kzero: `calibrate.k_zero_start` as default | arm 3B done; zs and zsd stopped in self-calibration round 2; off after flag and calibrate | resume from `~/rang-data/outputs/e2a-kzero-20261117` (1.8 TB kept); score; owner decides the default |
+| #7 | E2-N follow-up: CASA with the flag-state split (branch `e2n-followup`, `2e512d81`) | K flags 0 of 62 in the seen rerun; the K-downstream CASA steps were queued, not run | rerun from the start: `~/rang-data/outputs/e2n-followup-20261118` (201 GB) was found absent on nash on 2026-11-19, so `fu_launch.sh` cannot resume; then `fu_kcompare.py`, `fu_compare.py`, section 2.2 |
+| — | e2a-kzero: `calibrate.k_zero_start` as default | arm 3B done; zs and zsd stopped in self-calibration round 2; off after flag and calibrate | rerun zs and zsd from the start: `~/rang-data/outputs/e2a-kzero-20261117` (1.8 TB) was found absent on nash on 2026-11-19; score; owner decides the default |
 | #40 | F5 flagger (Landman's review) | moved to v0.4.0 on the owner's word, 2026-11-19 (first task of [dl-plan.md](dl-plan.md)) | there |
 | — | The flag-state split in E2-A's and E2-B's 3b oracle scripts | not started | as in `research/e2n-followup.md` |
 | #34 | GeMClean's 9.3 GiB peak above the 8 GiB default | open | — |
