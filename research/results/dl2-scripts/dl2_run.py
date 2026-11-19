@@ -174,7 +174,12 @@ def main(argv=None):
              "plan_sha256": sha256_file(root / "plan" / f"{cbid}.json"),
              "katdal": katdal.__version__, "mvftoms_args": MVFTOMS + ["--quack 1 (default)"],
              "complete": complete, "scans": entries, "written_utc": utc()}  # fmt: skip
-    (root / "manifests" / f"{cbid}.json").write_text(json.dumps(block, indent=1) + "\n")
+    path = root / "manifests" / f"{cbid}.json"
+    if path.exists():  # rewrite only on a change, so the manifest's hash is stable
+        old = json.loads(path.read_text())
+        if {**old, "written_utc": None} == {**block, "written_utc": None}:
+            block = old
+    path.write_text(json.dumps(block, indent=1) + "\n")
     if a.delete_mvf and complete:
         for b in sorted(mvf.glob(f"{cbid}-*")):
             if b.is_dir() and not b.name.endswith("-receipts"):

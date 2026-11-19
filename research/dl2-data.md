@@ -249,6 +249,26 @@ Found on the smoke scan (train block 1735892129, katdal scan 3) and in the first
   MVF on the smoke scan (1.77 GB from 1.15 GB), so the nine MSs come to about 2.9 TB, not 2.1 TB.
   The 2 TB free-space guard is unchanged.
 
+## 10. Amendment 2 (2026-11-19 08:35 UTC; fetch order and manifest hygiene, no data read)
+
+- **Order.** Held-out 1579022459 was moved from last to fifth, beside train block 1749428161, because
+  #40 uses it for G-obs and the fetch runs far faster than planned. Done: 1678312253 and 1674958551,
+  then 1735892129 and 1629213076. The set, the split and the subsets are unchanged.
+- **Block manifests** are rewritten only when their content changes, so their SHA-256 stays stable on
+  a rerun. The first rerun (used to delete the pair's MVF) had changed only `written_utc`.
+
+## 11. Measured: the held-out pair (2026-11-19)
+
+| Capture block | Scans | Rows | MS | Lost chunks | Wall (fetch + convert + hash) | Block manifest SHA-256 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 1678312253 | 26 | 512,372 | 136.7 GB | 0 of 7,145 | 2,374 s | 157b3b2f…b520 |
+| 1674958551 | 22 | 558,000 | 148.8 GB | 0 of 6,329 | 2,400 s | e4723aee…0000 |
+
+Run side by side, 2 slots each; peak RSS 4.2 and 5.0 GB. MVF 77 and 83 GB (deleted after hashing,
+RDB kept), so the MS is 1.8 × MVF here. No `token=` or token string in any log, manifest or receipt.
+Only conversion, row counts and checksums were done on them (section 5). The coordinator was told at
+08:40 UTC.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
