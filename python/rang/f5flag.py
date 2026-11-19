@@ -86,9 +86,44 @@ def rust_anomaly(scan, flagged, level=0, degree=2, data=None):
     return out
 
 
+def rust_antenna(scan, flagged, level=0, degree=2, data=None):
+    """Per-antenna block quantities: z, q (nta, nja, 2, nant); tt, tf (ntv,
+    njv, nant), float64 (NaN without 2d)."""
+    args = f3._args(scan, flagged, data)
+    nta, nja, ntv, njv = core.extension().f5flag_antenna_shape(args[2], args[0])
+    nant = args[3]
+    z = np.empty((nta, nja, 2, nant))
+    q = np.empty_like(z)
+    tt = np.empty((ntv, njv, nant))
+    tf = np.empty_like(tt)
+    _call("f5flag_antenna", scan, flagged, level, degree, z, q, tt, tf, data=data)
+    return {"z": z, "q": q, "tt": tt, "tf": tf}
+
+
 def n5_flags(scan, w3, weights, tau, level=0, degree=2, data=None):
     logit = rust_logits(scan, w3, weights, level, degree, data)
     return w3 | (logit > tau), logit
+
+
+def rust_logits_anomaly(scan, flagged, weights, level=0, degree=2, data=None):
+    """Logits and W4's anomaly from one preparation pass."""
+    args = f3._args(scan, flagged, data)
+    logit = np.empty((len(scan["times"]), args[0]), np.float32)
+    anom = np.empty_like(logit)
+    w = np.require(weights, np.float32, ["C", "A"])
+    _call(
+        "f5flag_logits_anomaly", scan, flagged, level, degree, w, logit, anom, data=data
+    )
+    return logit, anom
+
+
+def method_flags(scan, w3, weights, tau, kappa=None, level=0, degree=2, data=None):
+    """The method (section 3): N5 inside W3, OR W4 at kappa when kappa is set."""
+    if kappa is None:
+        return n5_flags(scan, w3, weights, tau, level, degree, data)[0]
+    logit, anom = rust_logits_anomaly(scan, w3, weights, level, degree, data)
+    with np.errstate(invalid="ignore"):
+        return w3 | (logit > tau) | (anom > kappa)
 
 
 def w4_flags(scan, w3, kappa, level=0, degree=2, data=None, anomaly=None):
@@ -416,3 +451,194 @@ def average_channels(scan, factor=4):
         np.asarray(scan["chan_width"]).ravel()[: m * factor].reshape(m, factor).sum(1)
     )
     return out
+
+
+# -- injections (section 3) ---------------------------------------------------------
+
+TRAIN_MORPHOLOGIES = f4.TRAIN_MORPHOLOGIES + ("T7",)
+HELD_OUT = f4.HELD_OUT + ("H4", "H4n")
+CODES = TRAIN_MORPHOLOGIES + HELD_OUT
+T7_BETA = (0.1, 10.0)
+T7_POSITIVE = 0.5
+H4N_BETA = 2.0
+
+
+class Injector(f4.Injector):
+    """F4's injector with T7 (noise-like antenna-local, training) and H4, H4n
+    (slow ramps, held out). Noise-like events are tracked in `beta`, the
+    excess noise variance in units of sigma_b squared, not in `amp`."""
+
+    codes = CODES
+
+    def __init__(self, scan, eligible, sigma, rng, fixed=None):
+        super().__init__(scan, eligible, sigma, rng, fixed)
+        self.beta = np.zeros(eligible.shape, np.float32)
+
+    def _cells(self, bsel, tsel, chans):
+        ix = self.ix
+        rows = np.flatnonzero(bsel[ix["bl"]])
+        cmask = np.zeros(self.nc, bool)
+        cmask[chans] = True
+        cells = tsel[ix["t"][rows]][:, None] & cmask[None]
+        cells &= self.eligible[rows] & (self.sigma[rows] > 0)[:, None]
+        r_, c_ = np.nonzero(cells)
+        return rows[r_], c_
+
+    def add_noise(self, code, bsel, tsel, chans, beta, tfac=None):
+        """Independent complex Gaussian noise of std sqrt(beta) sigma_b per
+        component on the cells; `tfac` (nt,) scales beta per dump (H4n)."""
+        rows, c_ = self._cells(bsel, tsel, chans)
+        if not len(rows):
+            return
+        b = beta * (np.ones(self.nt) if tfac is None else tfac)[self.ix["t"][rows]]
+        s = (np.sqrt(b) * self.sigma[rows])[:, None]
+        z = s * (
+            self.rng.normal(0, 1, (len(rows), 4))
+            + 1j * self.rng.normal(0, 1, (len(rows), 4))
+        )
+        self.data[rows, c_] += z.astype(np.complex64)
+        new = b > self.beta[rows, c_]
+        self.beta[rows, c_] = np.maximum(self.beta[rows, c_], b.astype(np.float32))
+        self.morph[rows[new], c_[new]] = 1 + self.codes.index(code)
+        self.events.append({"code": code, "cells": len(rows), "beta": float(beta)})
+
+    def add_ramp(self, code, bsel, chans, tfac):
+        """Coherent fixed-strength phasor scaled per dump by `tfac` (H4)."""
+        rows, c_ = self._cells(bsel, self._all_times(), chans)
+        if not len(rows):
+            return
+        alpha = float(self.fixed) * tfac[self.ix["t"][rows]]
+        phase = self.rng.uniform(-np.pi, np.pi) + self.rng.normal(0, 0.15, len(rows))
+        w = f3._coupling(self.rng)
+        z = (alpha * self.sigma[rows] * np.exp(1j * phase))[:, None] * w[None]
+        self.data[rows, c_] += z.astype(np.complex64)
+        a = (
+            np.abs(self.data[rows, c_] - self.scan["data"][rows, c_]).max(-1)
+            / self.sigma[rows]
+        ).astype(np.float32)
+        new = a > self.amp[rows, c_]
+        self.amp[rows, c_] = np.maximum(self.amp[rows, c_], a)
+        self.morph[rows[new], c_[new]] = 1 + self.codes.index(code)
+        self.events.append({"code": code, "cells": len(rows)})
+
+    def t7(self):
+        rng = self.rng
+        k = int(rng.choice(self._live_antennas()))
+        bsel = (self.ix["ant1"] == k) | (self.ix["ant2"] == k)
+        w = f4.t6_width(rng, self.nc)
+        c0 = int(rng.integers(0, self.nc - w + 1))
+        chans = np.arange(c0, c0 + w)
+        if rng.random() < 0.5:
+            tm = self._all_times()
+        else:
+            tm = self._run(min(2, self.nt), self.nt)
+        beta = math.exp(rng.uniform(math.log(T7_BETA[0]), math.log(T7_BETA[1])))
+        self.add_noise("T7", bsel, tm, chans, beta)
+        self.events[-1].update(antenna=k, width=w)
+
+    def training(self):
+        super().training()
+        for _ in range(self.rng.integers(1, 4)):
+            self.t7()
+
+    def _ramp(self):
+        rng = self.rng
+        t0 = int(rng.integers(0, max(self.nt // 4, 1)))
+        t = np.arange(self.nt, dtype=np.float64)
+        span = max(self.nt - 1 - t0, 1)
+        r = np.clip((t - t0) / span, 0.0, 1.0)
+        return r[::-1].copy() if rng.random() < 0.5 else r
+
+    def held_out(self, code):
+        if code not in ("H4", "H4n"):
+            return super().held_out(code)
+        rng = self.rng
+        k = int(rng.choice(self._live_antennas()))
+        bsel = (self.ix["ant1"] == k) | (self.ix["ant2"] == k)
+        lo, hi = max(1, int(0.1 * self.nc)), max(2, int(0.4 * self.nc))
+        w = min(int(rng.integers(lo, hi + 1)), self.nc)
+        c0 = int(rng.integers(0, self.nc - w + 1))
+        chans = np.arange(c0, c0 + w)
+        tfac = self._ramp()
+        if code == "H4":
+            self.add_ramp("H4", bsel, chans, tfac)
+        else:
+            self.add_noise("H4n", bsel, self._all_times(), chans, H4N_BETA, tfac)
+        return None
+
+
+def r2_case(scan, eligible, sigma, code, seed):
+    """R2's held-out case at 10 sigma_b (H4n at beta 2): data, rows, chans of
+    the truth cells (A > 0; for H4n beta >= 0.5)."""
+    inj = Injector(
+        scan, eligible, sigma, np.random.default_rng(seed), fixed=f3.STRENGTH
+    )
+    inj.held_out(code)
+    truth = inj.beta >= T7_POSITIVE if code == "H4n" else inj.amp > 0
+    rows, chans = np.nonzero(truth)
+    return inj.data, rows, chans
+
+
+# -- labels (section 4) -------------------------------------------------------------
+
+
+def labels(inj, eligible, t_flag=None, a_flag=None, truth_amp=None):
+    """Landman's scheme. Positive: injected A >= 3 or T7 beta >= 0.5, or
+    simulation truth A >= 3. Ignored: T or A on the uninjected DATA (real
+    scans), 0 < A < 3, 0 < beta < 0.5, F. Negative: the rest."""
+    pos = (inj.amp >= 3) | (inj.beta >= T7_POSITIVE)
+    weak = ((inj.amp > 0) & (inj.amp < 3)) | ((inj.beta > 0) & (inj.beta < T7_POSITIVE))
+    if truth_amp is not None:
+        pos |= truth_amp >= 3
+        weak |= (truth_amp > 0) & (truth_amp < 3)
+    lab = np.zeros(eligible.shape, np.int8)
+    lab[weak] = -1
+    if t_flag is not None:
+        lab[(t_flag | a_flag) & ~pos] = -1
+    lab[pos] = 1
+    lab[~eligible] = -1
+    return lab
+
+
+def realise(scan, w3, sigma, seed, augment, t_flag=None, a_flag=None):
+    """One realisation: (injected DATA, flags before the network, labels,
+    Injector, rng)."""
+    rng = np.random.default_rng(seed)
+    inj = Injector(scan, ~w3, sigma, rng)
+    inj.training()
+    flags = f3.augment_input_flags(rng, w3, scan) if augment else w3
+    elig = ~flags
+    if t_flag is None:
+        lab = labels(inj, elig, truth_amp=scan["amp"])
+    else:
+        lab = labels(inj, elig, t_flag, a_flag)
+    return inj.data, flags, lab, inj, rng
+
+
+def subarray_draw(scan, seed, lo=24):
+    """Section 3's sub-array augmentation: a uniform count of lo to nlive - 1
+    live antennas, drawn uniformly."""
+    live = live_antennas(scan)
+    rng = np.random.default_rng(seed)
+    n = int(rng.integers(lo, len(live)))
+    return np.sort(rng.choice(live, n, replace=False))
+
+
+# -- data roots (nash) --------------------------------------------------------------
+
+
+def use_data_root(root):
+    """Point F3's and F4's loaders at a copy of D:/rang laid out the same way
+    (`<root>/outputs/...`, `<root>/data/eso137-pilot/...`), e.g. on nash."""
+    from pathlib import Path
+
+    root = Path(root)
+    out = root / "outputs"
+    f3.D_OUT = out
+    f3.INPUTS = out / "f3-20261110-02-inputs"
+    f3.FETCH = out / "f3-20261110-01-fetch" / "objects"
+    f3.ESO = root / "data" / "eso137-pilot" / "ESO137" / "ms1_target.zarr"
+    f3.F2_TRAIN = out / "f2-20261106-02-sim-train"
+    f3.F2_VAL = out / "f2-20261106-01-sim-v" / "f2sim-v"
+    f4.FETCH = out / "f4-20261111-01-fetch" / "objects"
+    f4.F4_TEST = out / "f4-20261111-02-sim-test" / "f4sim-t"

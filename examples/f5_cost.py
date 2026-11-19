@@ -63,10 +63,7 @@ def make_arm(args):
 
     def run(scan):
         w3 = f3.w3_flags(scan)
-        flags = f5.n5_flags(scan, w3, w, tau, args.level, args.degree)[0]
-        if args.kappa is not None:
-            flags |= f5.w4_flags(scan, w3, args.kappa, args.level, args.degree)
-        return flags
+        return f5.method_flags(scan, w3, w, tau, args.kappa, args.level, args.degree)
 
     return run
 

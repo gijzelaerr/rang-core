@@ -562,6 +562,30 @@ Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-
   with `√(1/n)`), not a `torch.Generator` as section 9 says, so the init is the same in any
   framework; the seeds are section 9's.
 
+### Stage 2: the plane ladder (no held-out read)
+
+- **`r̂` at L0**, 2026-11-19 12:08-12:12 SAST, glacier, native Windows, heavy lock shared 4 slots /
+  16 GB, `RAYON_NUM_THREADS=4`, LUNO MAIN_1 (training scan), U5 (init seed 0, τ 0, d = 2, the
+  degree does not change the work), 5 alternating pairs (`examples/f5_cost.py pairs`,
+  `outputs/dl3-f5/stage2-rhat-L0.json`, code `6d836527`):
+
+  | Pair | T (s) | U5 (s) | Ratio | Clean |
+  | --- | ---: | ---: | ---: | --- |
+  | 0 | 35.2 | 13.5 | 0.383 | no (1.8 other CPUs) |
+  | 1 | 34.1 | 13.5 | 0.395 | no (2.2) |
+  | 2 | 33.3 | 13.7 | 0.412 | yes |
+  | 3 | 33.2 | 13.8 | 0.415 | yes |
+  | 4 | 33.1 | 13.8 | 0.418 | yes |
+
+  **`r̂` = 0.412 ≤ 0.42: level L0 (all 33 inputs) is taken** (section 2e's rule; the median of the
+  five pairs). The margin to the ladder's bar is 0.008 and to the final bar 0.088; F4's U4 read
+  0.441-0.459 against the same T. U5 flags 0.997 of cells (untrained, τ 0); thresholding costs
+  the same at any τ.
+- *Implementation, labelled (section 2b rule 4, after `r̂`):* the method N5W4 needs W4's anomaly
+  as well as the logits; `f5flag_logits_anomaly` computes both from one preparation pass
+  (bit-identical to the two separate calls, tested), so W4 adds only the per-cell lookup. The
+  `r̂` above is for N5 alone; Stage 6 times the method chosen at Stage 4.
+
 ## For the coordinator
 
 - Frozen in its own commit before any F5 code. Held-out sets: F4's, all still unread.

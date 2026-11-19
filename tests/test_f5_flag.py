@@ -131,3 +131,102 @@ def test_bad_level_is_refused():
         f5.rust_anomaly(scan, flagged, level=3)
     with pytest.raises(RuntimeError, match="code 3"):
         f5.rust_anomaly(scan, flagged, degree=4)
+
+
+def _inj(scan, seed=5):
+    flagged = scan["input_flags"].any(-1)
+    sigma = f3.baseline_sigma(scan, ~flagged)
+    return f5.Injector(scan, ~flagged, sigma, np.random.default_rng(seed)), flagged
+
+
+def test_t7_is_noise_on_one_antenna_and_labelled_by_beta():
+    scan = _scan(nant=8, nt=8, nc=256)
+    inj, flagged = _inj(scan)
+    inj.t7()
+    ev = inj.events[-1]
+    hit = inj.beta > 0
+    rows = np.flatnonzero(hit.any(1))
+    k = ev["antenna"]
+    assert ((scan["antenna1"][rows] == k) | (scan["antenna2"][rows] == k)).all()
+    assert (inj.amp == 0).all()
+    assert np.allclose(inj.beta[hit], ev["beta"])
+    lab = f5.labels(inj, ~flagged)
+    want = 1 if ev["beta"] >= 0.5 else -1
+    assert (lab[hit & ~flagged] == want).all()
+    assert (lab[flagged] == -1).all()
+    t = np.zeros_like(flagged)
+    t[0, :10] = True
+    lab2 = f5.labels(inj, ~flagged, t, np.zeros_like(t))
+    assert (lab2[t & ~hit] == -1).all()
+
+
+def test_ramps_rise_from_zero_and_are_held_out():
+    scan = _scan(nant=8, nt=12, nc=256)
+    flagged = scan["input_flags"].any(-1)
+    sigma = f3.baseline_sigma(scan, ~flagged)
+    for code in ("H4", "H4n"):
+        _, rows, _ = f5.r2_case(scan, ~flagged, sigma, code, 31)
+        assert len(rows) > 0
+        assert code not in f5.TRAIN_MORPHOLOGIES
+    inj = f5.Injector(scan, ~flagged, sigma, np.random.default_rng(3), fixed=10.0)
+    inj.held_out("H4")
+    t = f3.index(scan)["t"]
+    per_t = [inj.amp[t == k].max() for k in range(12)]
+    assert min(per_t) < 1.0 and max(per_t) > 5.0
+
+
+def test_trainer_resumes_to_the_same_weights(tmp_path):
+    pytest.importorskip("torch")
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    rng = np.random.default_rng(0)
+    for role in ("train", "validation"):
+        d = tmp_path / "shards" / role
+        d.mkdir(parents=True)
+        for kind in ("real", "sim"):
+            x = rng.normal(0, 1, (4, 3, 256, 33)).astype(np.float16)
+            y = (rng.random((4, 3, 256)) < 0.1).astype(np.int8)
+            np.savez(d / f"{kind}.npz", x=x, y=y, kind=kind)
+    script = str(Path(__file__).resolve().parents[1] / "examples" / "f5_train.py")
+    common = [sys.executable, script, str(tmp_path / "shards")]
+    opts = ["--seed", "1", "--steps", "40", "--device", "cpu"]
+    subprocess.run([*common, str(tmp_path / "a"), *opts], check=True)
+    subprocess.run([*common, str(tmp_path / "b"), *opts, "--stop-at", "20"], check=True)
+    subprocess.run([*common, str(tmp_path / "b"), *opts], check=True)
+    wa = np.load(tmp_path / "a" / "weights.npz")["flat"]
+    wb = np.load(tmp_path / "b" / "weights.npz")["flat"]
+    assert wa.size == 3201 and np.array_equal(wa, wb)
+
+
+def test_one_pass_matches_two_and_antenna_arrays_match_numpy():
+    scan = _scan()
+    flagged = scan["input_flags"].any(-1)
+    w = f5net.flat_from_arrays(f5net.init_arrays(4, 33, True))
+    logit, anom = f5.rust_logits_anomaly(scan, flagged, w)
+    assert np.array_equal(logit, f5.rust_logits(scan, flagged, w))
+    assert np.array_equal(anom, f5.rust_anomaly(scan, flagged), equal_nan=True)
+    m = f5.method_flags(scan, flagged, w, 0.0, kappa=4.0)
+    with np.errstate(invalid="ignore"):
+        assert np.array_equal(m, flagged | (logit > 0) | (anom > 4.0))
+    r = f5.rust_antenna(scan, flagged)
+    n = f5.antenna_numpy(scan, flagged)
+    for k in ("z", "q", "tt", "tf"):
+        a, b = r[k], n[k]
+        fin = np.isfinite(b)
+        assert np.array_equal(np.isfinite(a), fin), k
+        if fin.any():
+            assert np.abs(a - b)[fin].max() <= 1e-6 * max(1.0, np.abs(b[fin]).max()), k
+    assert np.isfinite(n["z"]).any() and np.isfinite(n["q"]).any()
+
+
+def test_variance_planes_are_defined_and_match_numpy_on_256_channels():
+    scan = _scan(nant=8, nt=10, nc=256)
+    flagged = scan["input_flags"].any(-1)
+    sel = np.arange(len(f3.index(scan)["ubl"]))
+    r = f5.rust_features(scan, flagged, sel, 0, 2)
+    n = f5.features_numpy(scan, flagged, sel, 0, 2)
+    var = r[..., 28:32]
+    assert np.abs(var).max() > 0.1
+    assert np.abs(r - n).max() <= 1e-4

@@ -3021,6 +3021,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(f5flag::f5flag_features, m)?)?;
     m.add_function(wrap_pyfunction!(f5flag::f5flag_logits, m)?)?;
     m.add_function(wrap_pyfunction!(f5flag::f5flag_anomaly, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_antenna, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_antenna_shape, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_logits_anomaly, m)?)?;
     // Task TS-P1: forced photometry by the exact DFT (research/ts-p1.md).
     m.add_function(wrap_pyfunction!(lightcurve::lightcurve_dft, m)?)?;
     Ok(())

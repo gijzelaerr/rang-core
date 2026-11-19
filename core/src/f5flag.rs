@@ -910,6 +910,19 @@ pub fn logits(inp: &Inputs, level: usize, d: usize, weights: &[f32], out: &mut [
     }
     let (start, order) = rows_by_baseline(inp);
     let pr = prepare(inp, &start, &order, level, d);
+    fill_logits(inp, &pr, &start, &order, weights, out);
+    0
+}
+
+fn fill_logits(
+    inp: &Inputs,
+    pr: &Prepared,
+    start: &[usize],
+    order: &[usize],
+    weights: &[f32],
+    out: &mut [f32],
+) {
+    let nc = inp.nchan;
     let results: Vec<Vec<(usize, Vec<f32>)>> = (0..inp.nbl)
         .into_par_iter()
         .map(|b| {
@@ -917,8 +930,8 @@ pub fn logits(inp: &Inputs, level: usize, d: usize, weights: &[f32], out: &mut [
             if rows.is_empty() {
                 return Vec::new();
             }
-            let sp = split(inp, b, rows, &pr);
-            network(inp, rows, &sp, &pr, weights)
+            let sp = split(inp, b, rows, pr);
+            network(inp, rows, &sp, pr, weights)
         })
         .collect();
     for rows in results {
@@ -926,6 +939,30 @@ pub fn logits(inp: &Inputs, level: usize, d: usize, weights: &[f32], out: &mut [
             out[r * nc..(r + 1) * nc].copy_from_slice(&values);
         }
     }
+}
+
+/// Logits and W4's anomaly from one preparation pass (the method N5W4 at
+/// inference; section 2b rule 4). Errors as `logits`.
+pub fn logits_anomaly(
+    inp: &Inputs,
+    level: usize,
+    d: usize,
+    weights: &[f32],
+    logit: &mut [f32],
+    anom: &mut [f32],
+) -> i32 {
+    let code = sizes(inp, level, d);
+    if code != 0 {
+        return code;
+    }
+    let n = inp.baseline.len() * inp.nchan;
+    if logit.len() != n || anom.len() != n || weights.len() != weight_count(level) {
+        return 1;
+    }
+    let (start, order) = rows_by_baseline(inp);
+    let pr = prepare(inp, &start, &order, level, d);
+    fill_logits(inp, &pr, &start, &order, weights, logit);
+    fill_anomaly(inp, &pr, anom);
     0
 }
 
@@ -937,12 +974,17 @@ pub fn anomaly(inp: &Inputs, level: usize, d: usize, out: &mut [f32]) -> i32 {
     if code != 0 {
         return code;
     }
-    let nc = inp.nchan;
-    if out.len() != inp.baseline.len() * nc {
+    if out.len() != inp.baseline.len() * inp.nchan {
         return 1;
     }
     let (start, order) = rows_by_baseline(inp);
     let pr = prepare(inp, &start, &order, level, d);
+    fill_anomaly(inp, &pr, out);
+    0
+}
+
+fn fill_anomaly(inp: &Inputs, pr: &Prepared, out: &mut [f32]) {
+    let nc = inp.nchan;
     let an = &pr.ant;
     let g = &an.grid;
     let nant = inp.nant;
@@ -969,6 +1011,41 @@ pub fn anomaly(inp: &Inputs, level: usize, d: usize, out: &mut [f32]) -> i32 {
             *of = f3flag::max_finite(&[per_ant(p, t, f), per_ant(q, t, f)]) as f32;
         }
     });
+}
+
+/// Block shape `(nta, nja, ntv, njv)` of a scan's per-antenna quantities.
+pub fn antenna_shape(ntime: usize, nchan: usize) -> (usize, usize, usize, usize) {
+    let g = Grid::new(ntime, nchan);
+    (g.nta, g.nja, g.ntv, g.njv)
+}
+
+/// The per-antenna quantities of sections 2c-2d into `z`, `q` (`(nta, nja,
+/// 2, nant)`) and `tt`, `tf` (`(ntv, njv, nant)`, NaN without 2d), f64.
+/// Errors as `logits`.
+pub fn antenna_arrays(
+    inp: &Inputs,
+    level: usize,
+    d: usize,
+    z: &mut [f64],
+    q: &mut [f64],
+    tt: &mut [f64],
+    tf: &mut [f64],
+) -> i32 {
+    let code = sizes(inp, level, d);
+    if code != 0 {
+        return code;
+    }
+    let (nta, nja, ntv, njv) = antenna_shape(inp.ntime, inp.nchan);
+    let (na, nv) = (nta * nja * 2 * inp.nant, ntv * njv * inp.nant);
+    if z.len() != na || q.len() != na || tt.len() != nv || tf.len() != nv {
+        return 1;
+    }
+    let (start, order) = rows_by_baseline(inp);
+    let pr = prepare(inp, &start, &order, level, d);
+    z.copy_from_slice(&pr.ant.z);
+    q.copy_from_slice(&pr.ant.q);
+    tt.copy_from_slice(&pr.ant.tt);
+    tf.copy_from_slice(&pr.ant.tf);
     0
 }
 

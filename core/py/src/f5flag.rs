@@ -131,3 +131,80 @@ pub fn f5flag_anomaly(
     let out = c_slice_mut(&mut out, "out")?;
     Ok(detach(py, || f5flag::anomaly(&inp, level, degree, out)))
 }
+
+/// Block shape `(nta, nja, ntv, njv)` of `f5flag_antenna`'s arrays.
+#[pyfunction]
+pub fn f5flag_antenna_shape(ntime: usize, nchan: usize) -> (usize, usize, usize, usize) {
+    f5flag::antenna_shape(ntime, nchan)
+}
+
+/// The per-antenna quantities (sections 2c-2d) into float64 `z`, `q`
+/// (`(nta, nja, 2, nant)`) and `tt`, `tf` (`(ntv, njv, nant)`). Returns as
+/// `f5flag_features`.
+#[pyfunction]
+#[pyo3(signature = (nchan, nbl, ntime, nant, data, flags, baseline, time, ant1, ant2, level, degree, z, q, tt, tf))]
+#[allow(clippy::too_many_arguments)]
+pub fn f5flag_antenna(
+    py: Python<'_>,
+    nchan: usize,
+    nbl: usize,
+    ntime: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    flags: Ro<'_, u8>,
+    baseline: Ro<'_, u32>,
+    time: Ro<'_, u32>,
+    ant1: Ro<'_, u32>,
+    ant2: Ro<'_, u32>,
+    level: usize,
+    degree: usize,
+    mut z: Rw<'_, f64>,
+    mut q: Rw<'_, f64>,
+    mut tt: Rw<'_, f64>,
+    mut tf: Rw<'_, f64>,
+) -> PyResult<i32> {
+    let inp = inputs(
+        nchan, nbl, ntime, nant, &data, &flags, &baseline, &time, &ant1, &ant2,
+    )?;
+    let z = c_slice_mut(&mut z, "z")?;
+    let q = c_slice_mut(&mut q, "q")?;
+    let tt = c_slice_mut(&mut tt, "tt")?;
+    let tf = c_slice_mut(&mut tf, "tf")?;
+    Ok(detach(py, || {
+        f5flag::antenna_arrays(&inp, level, degree, z, q, tt, tf)
+    }))
+}
+
+/// Logits and W4's anomaly `(row, chan)` float32 from one preparation pass.
+/// Returns as `f5flag_features`.
+#[pyfunction]
+#[pyo3(signature = (nchan, nbl, ntime, nant, data, flags, baseline, time, ant1, ant2, level, degree, weights, logit, anomaly))]
+#[allow(clippy::too_many_arguments)]
+pub fn f5flag_logits_anomaly(
+    py: Python<'_>,
+    nchan: usize,
+    nbl: usize,
+    ntime: usize,
+    nant: usize,
+    data: Ro<'_, f32>,
+    flags: Ro<'_, u8>,
+    baseline: Ro<'_, u32>,
+    time: Ro<'_, u32>,
+    ant1: Ro<'_, u32>,
+    ant2: Ro<'_, u32>,
+    level: usize,
+    degree: usize,
+    weights: Ro<'_, f32>,
+    mut logit: Rw<'_, f32>,
+    mut anomaly: Rw<'_, f32>,
+) -> PyResult<i32> {
+    let inp = inputs(
+        nchan, nbl, ntime, nant, &data, &flags, &baseline, &time, &ant1, &ant2,
+    )?;
+    let weights = c_slice(&weights, "weights")?;
+    let logit = c_slice_mut(&mut logit, "logit")?;
+    let anomaly = c_slice_mut(&mut anomaly, "anomaly")?;
+    Ok(detach(py, || {
+        f5flag::logits_anomaly(&inp, level, degree, weights, logit, anomaly)
+    }))
+}
