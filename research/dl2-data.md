@@ -327,7 +327,7 @@ stopped by process group and restarted; every finished shard was kept by its don
 killed midway keeps read-only directory modes from `copytree`, so the runner now makes it writable
 before removing it.
 
-## 15. Amendment 5 (2026-11-19 12:30 UTC; scheduling, no data read)
+## 15. Amendment 5 (2026-11-19 12:02 UTC; scheduling, no data read)
 
 nash's disk (sda) ran at 93 % utilisation with all of DL2's jobs under `ionice -c3`. The block
 driver hashing 1611426666's 233 GB target scan 12 read at 10 MB/s, about 6.5 h for one scan. The
@@ -337,6 +337,42 @@ stopped (finished shards kept by their done-markers; at most one in-flight shard
 stopped, the hash read rose to 47 MB/s and utilisation fell to 69 %. Teacher shards measured
 before the stop: 1629213076 scan 0 (25 GB) 3,098 s for the three teachers, 1749428161 scans 0
 and 2 630 s and 515 s.
+
+## 16. Measured: eight of nine blocks converted and hashed (2026-11-19 13:00 UTC)
+
+| Capture block | Split | Scans | Rows | MS | Lost chunks | Wall (fetch + convert + hash) | Block manifest SHA-256 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| 1678312253 | held out | 26 | 512,372 | 136.7 GB | 0 of 7,145 | 2,374 s | 157b3b2f…b520 |
+| 1674958551 | held out | 22 | 558,000 | 148.8 GB | 0 of 6,329 | 2,400 s | e4723aee…0000 |
+| 1579022459 | held out | 31 | 1,367,031 | 364.4 GB | 0 of 18,326 | 12,874 s | 20181233…5a6d |
+| 1573212012 | validation | 32 | 1,241,688 | 331.0 GB | 0 of 17,268 | 10,882 s | 912f880a…aa92 |
+| 1735892129 | train | 11 | 2,040,389 | 136.2 GB | 0 of 6,012 | 2,185 s | f921dc06…9e5e |
+| 1629213076 | train | 20 | 931,700 | 248.3 GB | 0 of 13,420 | 4,121 s | 9a8dafde…e419 |
+| 1749428161 | train | 14 | 994,896 | 265.1 GB | 1 of 9,803 | 3,384 s | 3f8237ef…e4ef |
+| 1571938260 | train | 46 | 2,024,113 | 539.6 GB | 0 of 26,166 | 15,482 s | 44c63947…2ea8 |
+| 1611426666 | train | 9 of 17 at 13:00 UTC | | | | running | |
+
+The eight blocks hold 2.17 TB of MS, about 1.6 × the MVF estimate. Peak driver RSS was 4.2-10.2 GB.
+Blocks that ran while the disk was saturated (four conversions and three teacher copies at once)
+took 3-4 h, against 37-70 min for the first ones. Block manifests, per-scan SHA-256 files and the
+stage manifests at this state are committed under
+[results/dl2-data/manifests/](results/dl2-data/manifests/): stage 1 has 202 scans (91 train, 32
+validation, 79 held out) and SHA-256 4de2e863…7f79; stage 2 has 178 (1402c415…5f77); stage 7 has 24
+(3fd52c53…c89d). They are regenerated, with stable hashes, when 1611426666 and the teachers finish.
+
+**Still running on nash at hand-back** (all resumable by done-markers; the nash worktree
+`~/Worktrees/rang/dl2-data` and the run root must stay):
+- `run_block.sh 1611426666 --delete-mvf`: 8 scans left, among them target scans 20 and 28
+  (435 and 434 dumps, about 233 GB of MS each), with fetch, convert and hash about 1.5-2 h each.
+  To resume: `cd ~/rang-data/outputs/dl2-data-20261119 && setsid nohup ./run_block.sh 1611426666
+  --delete-mvf &`.
+- The teachers (rang, Tricolour, AOFlagger) on 1735892129, 1629213076 and 1749428161 (8 threads).
+  `relaunch_teach.sh` starts 1571938260, 1573212012 and 1611426666 when 1611426666's conversion
+  ends. Rate before the pause: about 10 min per small scan, 52 min for a 25 GB target scan; the
+  teachers are the long pole (on the order of a day). To resume one: `setsid nohup
+  ~/Worktrees/rang/dl2-data/research/results/dl2-scripts/teach_block.sh <cbid> 8 &`.
+- When both are done: `dl2_stage.py <root>`, then copy `manifests/` into
+  `research/results/dl2-data/manifests/` and commit.
 
 ## For the coordinator
 
