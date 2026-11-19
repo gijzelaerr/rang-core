@@ -235,6 +235,16 @@ def main():
         "train_seconds_this_run": t_train,
         "device": a.device,
         "gpu": torch.cuda.get_device_name(0) if a.device.startswith("cuda") else None,
+        "peak_vram_allocated_bytes": (
+            int(torch.cuda.max_memory_allocated())
+            if a.device.startswith("cuda")
+            else None
+        ),
+        "peak_vram_reserved_bytes": (
+            int(torch.cuda.max_memory_reserved())
+            if a.device.startswith("cuda")
+            else None
+        ),
         "torch": torch.__version__,
         "deterministic": True,
         "flat_sha256": hashlib.sha256(flat.tobytes()).hexdigest(),
