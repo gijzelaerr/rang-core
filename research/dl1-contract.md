@@ -177,6 +177,37 @@ for shipped architectures with the chosen runtime's output as its reference (dec
   they were built with stable 1.99, candle with protoc taken from `grpcio-tools` (PyPI), and
   compared against the kernel built the same way (`kernel-stable`).
 
+## Amendment 2, 2026-11-19: owner decision, and the interpreter's gates (frozen before its code)
+
+Owner, 2026-11-19, verbatim (through the coordinator): "go with our own ONNX interpreter". G6 stays
+at 8 MB, so tract is not taken. Task DL1-I, branch `dl1-interp` from main `2ea3bf71`.
+
+The interpreter: pure Rust in the core, beside the reader (`core/src/learned_interp.rs`), no new
+dependency (rayon only). It loads an ONNX graph read by section 2's reader, checks every node at
+load time, and runs NCHW float32. Ops: Conv (any kernel, dilations, pads, strides; group 1; bias
+optional) and Relu, which are all of F3's and F4's exports; F5's ops are added when session D names
+them, by a further dated amendment before that code. Arithmetic, fixed: each output element is
+summed from 0 over (ky, kx, ci) in that order, skipping padding, then the bias is added; threads split
+the output by (n, co, row) only, so no sum depends on the thread count.
+
+Gates (all must pass; measured on F3 calibrator seed 3 and F4 calibrator seed 2,
+`f4-20261111-08-train-calibrator/seed-2/weights.npz`, sha256 `a20b1abb…d90d`, exported the same way as
+F3):
+
+| Gate | Pass |
+| --- | --- |
+| I1 ops | loads F3's and F4's ONNX files; a graph with any other op is refused at load time, naming the op and the node |
+| I2 PyTorch | max \|Δ logit\| ≤ 1e-4 against PyTorch CPU float32 on shape A (F3: the planes of section 7; F4: seeded N(0, 1) planes, 23 × 64 × 512) |
+| I3 threads | outputs bit-identical at 1, 2, 4, 8 and 16 threads (rayon pools), shapes A and B, F3 and F4; a Rust test, so it runs in CI |
+| I4 size | `_core.pyd` from `maturin develop --release` grows by less than 8 MB over the same build at `2ea3bf71` |
+| I5 reference | the kernel path of the contract (`f3flag`, `f4flag` logits) agrees with the interpreter on the F3 test scan within 1e-4, in a test that needs no PyTorch (so it runs in CI); receipts name the runtime |
+
+Decision rule: all five pass → the interpreter is the contract's reference runtime and the kernel
+its checked fast path. Any failure → recorded with the gate named; the kernel stays as it is,
+referenced to PyTorch; no gate moves. Timings (interpreter, kernel, tract for the record) are
+reported, not gating: final in an exclusive `heavy_lock` hold on glacier from 21:00 SAST, after
+session D's run.
+
 ## Measured result
 
 All on glacier (Windows, the owner's PC), daytime, shared host under `heavy_lock` (8 slots):
