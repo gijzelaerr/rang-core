@@ -184,6 +184,32 @@ Per seed: `psf` (256², float32), `bigpsf` (512², float32) and one FITS header 
 - A failure of 1-3 stops the run and is reported. Item 4 out of bound is reported and investigated before generation.
 - **Rerun idempotence.** Shard 0 is regenerated once more, and the field hashes must be equal. This needs WSClean to be deterministic at `-j 1`; a difference is recorded, not hidden.
 
+## Amendment 1, 2026-11-19 (after a one-seed smoke test, before the pilot; post hoc, labelled)
+
+**Smoke test.** Seed 0, three flux sets, on nash, `logs/smoke.log`.
+
+What was seen:
+
+- Identity check on nash: PASS, numpy 2.5.5. On glacier: PASS with numpy 2.5.4 and 1.17.5 (`research/results/dl4b-astrodeconv/identity*.json`).
+- Seed 0: n_inside 25, PSF identical across flux sets (max Δ 0), clean beam 6.23″ × 4.75″ at PA 149°.
+- Noise-only dirty RMS was 1.8e-5 Jy. The flux10 `residual_b` peak was 34 mJy, about 16 % of the dirty peak, at every flux scale.
+  - spiel's flux unit `noise = sqrt(2·Srms)` is 0.036 Jy here, against 6.6e-4 Jy for Srms. So sources are about 10³ times the image noise even at flux10.
+  - 75 of the 100 sources lie outside the 256² image, where WSClean cannot clean them.
+  - The residual is sidelobe-limited by spiel's design, not noise-limited. Criterion 6.4 as frozen cannot hold.
+- Run A (`-mgain 1.0`) performed **2** major iterations, not 1: WSClean starts a second one when the auto-mask threshold is reached. Recorded per field as `major_a`.
+- WSClean took 22 s per inversion for 340k rows and one channel. With spiel's settings a seed took 267 s.
+
+Changes (none alters a draw, the truth or the imaging settings):
+
+1. **MS storage.** Fixed-shape `FLAG`, `WEIGHT` and `SIGMA`, and `TiledColumnStMan` for the data and spectrum columns, as `examples/c5_selfcal_sim.py` does. The indirect StandardStMan arrays made casacore's row reads slow: inversion went from 22 s to 4.7 s.
+2. **`-reorder`** on every WSClean call. One run-A call went from 7.3 s to 1.9 s. Reordering was WSClean's default in 2019 (inferred), so this is closer to spiel, not further.
+3. **Criterion 6.4 replaced.** The flux10 `residual_b` RMS must be within 20 % of sqrt(noise² + outside²).
+   - noise is the RMS of the noise-only dirty image (`DATA_NOISE`).
+   - outside is the RMS of the noise-free dirty image of the out-of-image flux10 sources (`DATA_OUTSIDE`, pilot only; in or out decided on WSClean's grid, centre pixel n/2).
+   - This tests that what WSClean leaves is the out-of-field sidelobes plus noise.
+4. **Criterion 6.1 made concrete.** The peak is the dirty-image maximum in an 11×11 box around the truth pixel.
+5. **Code.** The acceptance checks are `examples/astrodeconv_sim.py pilot-check`.
+
 ## 7. Label
 
 "ASTRODECONV2019 regenerated (rang, route b)": matched to spiel's job files and draws, not bit-identical
