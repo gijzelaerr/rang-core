@@ -988,27 +988,41 @@ fn fill_anomaly(inp: &Inputs, pr: &Prepared, out: &mut [f32]) {
     let an = &pr.ant;
     let g = &an.grid;
     let nant = inp.nant;
-    let per_ant = |p: usize, t: usize, f: usize| -> f64 {
-        let ka = g.ta[t] * g.nja + f / AMP_DF;
-        let mut v = Vec::with_capacity(6);
-        for phi in 0..2 {
-            let o = (ka * 2 + phi) * nant + p;
-            v.push(an.z[o].abs());
-            v.push(an.q[o]);
-        }
-        if has_var(pr.level) {
-            let kv = g.tv[t] * g.njv + f / VAR_DF;
-            v.push(an.tt[kv * nant + p]);
-            v.push(an.tf[kv * nant + p]);
-        }
-        f3flag::max_finite(&v)
+    // The per-antenna maximum once per block (max over finite values is
+    // order-free, so this equals the per-cell form exactly).
+    let na = g.nta * g.nja;
+    let amp: Vec<f64> = (0..na * nant)
+        .map(|kp| {
+            let (ka, p) = (kp / nant, kp % nant);
+            let mut v = [f64::NAN; 4];
+            for phi in 0..2 {
+                let o = (ka * 2 + phi) * nant + p;
+                v[2 * phi] = an.z[o].abs();
+                v[2 * phi + 1] = an.q[o];
+            }
+            f3flag::max_finite(&v)
+        })
+        .collect();
+    let var: Vec<f64> = if has_var(pr.level) {
+        (0..g.var_cells() * nant)
+            .map(|i| f3flag::max_finite(&[an.tt[i], an.tf[i]]))
+            .collect()
+    } else {
+        Vec::new()
     };
     out.par_chunks_mut(nc).enumerate().for_each(|(r, o)| {
         let b = inp.baseline[r] as usize;
         let t = inp.time[r] as usize;
         let (p, q) = (inp.ant1[b] as usize, inp.ant2[b] as usize);
         for (f, of) in o.iter_mut().enumerate() {
-            *of = f3flag::max_finite(&[per_ant(p, t, f), per_ant(q, t, f)]) as f32;
+            let ka = g.ta[t] * g.nja + f / AMP_DF;
+            let mut v = [amp[ka * nant + p], amp[ka * nant + q], f64::NAN, f64::NAN];
+            if !var.is_empty() {
+                let kv = g.tv[t] * g.njv + f / VAR_DF;
+                v[2] = var[kv * nant + p];
+                v[3] = var[kv * nant + q];
+            }
+            *of = f3flag::max_finite(&v) as f32;
         }
     });
 }

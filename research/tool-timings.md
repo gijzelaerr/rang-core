@@ -2343,3 +2343,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 Stage 2 `r̂` (`examples/f5_cost.py pairs`, U5 L0 against T, 5 pairs), `RAYON_NUM_THREADS=4`, shared 4 slots | LUNO MAIN_1 | 242 s; T 33.1-35.2 s, U5 13.5-13.8 s, `r̂` 0.412 | – | glacier, daytime; 3 of 5 pairs clean |
 | 2026-11-19 | F5 Stage 2: `tools/check_all.py --quick` | worktree `dl3-f5` | 546 s | – | PASS; glacier |
 | 2026-11-19 | F5 GPU probe: `examples/f5_train.py` (torch 2.15.0+cu132, WSL) under `gpu_run.py run --owner rang --vram 2` on two F4 calibrator shards (23 planes), 2,000 steps, then 1,000 + 1,000 resumed | RTX 4070 Ti | 47.2 s (36.7 s training, 54.5 steps/s); resumed 21.4 + 23.4 s | 3.7 GB host; GPU +373 MiB | glacier; weights bit-identical after resume |
+| 2026-11-19 | F5 N5W4 cost (`f5_cost.py pairs --kappa 5`, 3 pairs), 4 threads, shared 4 slots | LUNO MAIN_1 | about 150 s; ratio 0.427 | – | glacier; 1 of 3 pairs clean |
+| 2026-11-19 | F5 Stage 3 scripts: `tools/check_all.py --quick` | worktree `dl3-f5` | 523 s | – | PASS; glacier |

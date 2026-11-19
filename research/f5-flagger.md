@@ -506,6 +506,11 @@ bars written at the freeze cannot be met as stated; the estimators are not chang
   two orders below the log-amplitude shift of a 10 σ cross-hand event (about 2). The bar becomes
   0.02 on that case; G-perm's exactness under relabelling is unchanged and tested.
 
+**Amendment 2, 2026-11-19, before Stage 3, any training or any held-out read (pre-result).**
+R2's truth cells for H4 and H4n are the cells the labels call positive (H4 A ≥ 3, H4n β ≥ 0.5):
+a ramp from zero puts cells at A < 3 that no flagger is expected to find, and section 4 ignores
+them in training. H1-H3 keep F4's truth (every injected cell). No bar changes.
+
 ## Measured result
 
 Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-<date>` (nash).
@@ -564,7 +569,7 @@ Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-
 
 ### Stage 2: the plane ladder (no held-out read)
 
-- **`r̂` at L0**, 2026-11-19 12:08-12:12 SAST, glacier, native Windows, heavy lock shared 4 slots /
+- **`r̂` at L0**, 2026-11-19 10:08-10:12 SAST (corrected from the JSON's time; first written as 12:08), glacier, native Windows, heavy lock shared 4 slots /
   16 GB, `RAYON_NUM_THREADS=4`, LUNO MAIN_1 (training scan), U5 (init seed 0, τ 0, d = 2, the
   degree does not change the work), 5 alternating pairs (`examples/f5_cost.py pairs`,
   `outputs/dl3-f5/stage2-rhat-L0.json`, code `6d836527`):
@@ -584,7 +589,14 @@ Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-
 - *Implementation, labelled (section 2b rule 4, after `r̂`):* the method N5W4 needs W4's anomaly
   as well as the logits; `f5flag_logits_anomaly` computes both from one preparation pass
   (bit-identical to the two separate calls, tested), so W4 adds only the per-cell lookup. The
-  `r̂` above is for N5 alone; Stage 6 times the method chosen at Stage 4.
+  `r̂` above is for N5 alone; Stage 6 times the method chosen at Stage 4. The per-cell anomaly
+  lookup now takes a per-(block, antenna) maximum computed once (exactly equal; tested). N5W4 at
+  κ 5 (U5, d 2), same set-up, 3 pairs, 11:30-11:33 SAST: T 35.9 / 33.9 / 33.5 s, N5W4 15.3 /
+  14.8 / 14.3 s, ratio median 0.427 (one pair clean; `outputs/dl3-f5/stage2-w4-L0.json`).
+- *Readings fixed before Stage 3 (labelled; the note left them open):* the fit degree d is chosen
+  per class, on that class's validation scan, since each class has its own weights file. R2's
+  truth cells for the ramps are the label positives (H4: A ≥ 3; H4n: β ≥ 0.5), not every
+  injected cell (Amendment 2 below).
 
 ## For the coordinator
 

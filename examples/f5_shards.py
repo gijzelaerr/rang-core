@@ -86,8 +86,9 @@ def done(path):
 
 
 def write(path, x, y, kind, meta):
-    tmp = path.with_name(path.stem + ".tmp.npz")
-    np.savez(tmp, x=x.astype(np.float16), y=y, kind=kind, meta=json.dumps(meta))
+    tmp = path.with_suffix(".part")  # never matched by the trainer's *.npz
+    with open(tmp, "wb") as fh:
+        np.savez(fh, x=x.astype(np.float16), y=y, kind=kind, meta=json.dumps(meta))
     os.replace(tmp, path)
     path.with_suffix(".sha256").write_text(sha(path))
 
@@ -121,10 +122,13 @@ def main():
     p.add_argument("--degree", type=int, required=True)
     p.add_argument("--flags-from", type=Path, action="append", default=[])
     p.add_argument("--data-root")
+    p.add_argument("--ao-sif")
     p.add_argument("--only-real", action="store_true")
     a = p.parse_args()
     if a.data_root:
         f5.use_data_root(a.data_root)
+    if a.ao_sif:
+        f5.AO_SIF = a.ao_sif
     run = Path(os.environ["RUN_DIR"]) if a.run == "RUN" else Path(a.run)
     out = run / a.klass / a.role
     recs = out / "records"
@@ -137,7 +141,11 @@ def main():
         paths = [out / f"{name}-{k}.npz" for k in range(nreal)]
         if all(done(q) for q in paths):
             rr = [json.loads((recs / f"{q.stem}.json").read_text()) for q in paths]
-            audit["real"][spec] = {"realisations": rr, "resumed": True}
+            rec = {"realisations": rr, "resumed": True}
+            audit["real"][spec] = rec
+            reason = audit_stop(rec)
+            if reason and not audit["stop"]:
+                audit["stop"] = {"set": spec, "reason": reason}
             print(json.dumps({"skip": spec}), flush=True)
             continue
         full = f5.load(spec)
@@ -186,6 +194,14 @@ def main():
                 "t7_cells": int((inj.morph == 1 + f5.CODES.index("T7")).sum()),
                 "events": inj.events,
             }
+            if k == 0:
+                # Section 4's audit: T's and A's recall of the injected positives.
+                pos = (lab == 1) & ~native
+                n = max(int(pos.sum()), 1)
+                tt = f3.t_flags(scan, data)
+                aa, _ = f5.a_flags(scan, w3, run / "aoflag" / f"{name}-k0", data)
+                r["T_recall_injected"] = float((tt & pos).sum() / n)
+                r["A_recall_injected"] = float((aa & pos).sum() / n)
             write(path, x, y, "real", {"set": spec, "seed": seed, "sel": sel.tolist()})
             (recs / f"{path.stem}.json").write_text(json.dumps(r))
             rec["realisations"].append(r)

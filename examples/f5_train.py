@@ -109,7 +109,10 @@ def gpu_yield():
     cmd = os.environ.get("GPU_CHECK")
     if not cmd:
         return False
-    return subprocess.call(shlex.split(cmd)) == 3
+    rc = subprocess.call(shlex.split(cmd))
+    if rc not in (0, 3):
+        raise SystemExit(f"GPU_CHECK failed with exit code {rc}: {cmd}")
+    return rc == 3
 
 
 def main():
@@ -183,7 +186,7 @@ def main():
         loss.backward()
         opt.step()
         if step % 50 == 0:
-            run += float(loss)
+            run += float(loss.detach())
         if step % EVERY_STEPS == 0:
             curve.append(
                 {"step": step, "loss": run / 20, "seconds": time.perf_counter() - t1}

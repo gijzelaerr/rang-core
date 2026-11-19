@@ -15,6 +15,7 @@ Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
 see `LICENSES/MIT.txt`.
 """
 
+import json
 import math
 
 import numpy as np
@@ -569,12 +570,18 @@ class Injector(f4.Injector):
 
 def r2_case(scan, eligible, sigma, code, seed):
     """R2's held-out case at 10 sigma_b (H4n at beta 2): data, rows, chans of
-    the truth cells (A > 0; for H4n beta >= 0.5)."""
+    the truth cells: A > 0 for H1-H3 (F4's), the label positives for the
+    ramps (H4: A >= 3; H4n: beta >= 0.5; Amendment 2)."""
     inj = Injector(
         scan, eligible, sigma, np.random.default_rng(seed), fixed=f3.STRENGTH
     )
     inj.held_out(code)
-    truth = inj.beta >= T7_POSITIVE if code == "H4n" else inj.amp > 0
+    if code == "H4n":
+        truth = inj.beta >= T7_POSITIVE
+    elif code == "H4":
+        truth = inj.amp >= 3
+    else:
+        truth = inj.amp > 0
     rows, chans = np.nonzero(truth)
     return inj.data, rows, chans
 
@@ -622,6 +629,67 @@ def subarray_draw(scan, seed, lo=24):
     rng = np.random.default_rng(seed)
     n = int(rng.integers(lo, len(live)))
     return np.sort(rng.choice(live, n, replace=False))
+
+
+# -- arm A on Linux (section 5) -----------------------------------------------------
+
+AO_SIF = (
+    None  # set by use_data_root's caller on nash: the SIF of rang-aflag-aoflagger:3.5.0
+)
+
+
+def a_flags(scan, w3, workdir, data=None):
+    """Arm A: F3's `a_flags` (W3 OR AOFlagger 3.5.0 generic-default with W3 as
+    the input mask, the same container script), through apptainer when
+    `AO_SIF` is set (nash, no docker), else F3's WSL docker route."""
+    if AO_SIF is None:
+        return f3.a_flags(scan, w3, workdir, data)
+    import subprocess
+    import time
+    from pathlib import Path
+
+    ix = f3.index(scan)
+    data = scan["data"] if data is None else data
+    nbl, nt, nc = len(ix["ubl"]), ix["nt"], data.shape[1]
+    work = Path(workdir)
+    work.mkdir(parents=True, exist_ok=True)
+    vis = np.lib.format.open_memmap(
+        work / "vis.npy", "w+", np.complex64, (nbl, nt, nc, 4)
+    )
+    vis[:] = 0
+    vis[ix["bl"], ix["t"]] = data
+    vis.flush()
+    del vis
+    mask = np.ones((nbl, nt, nc), bool)
+    mask[ix["bl"], ix["t"]] = w3
+    np.save(work / "mask.npy", mask)
+    tools = Path(f3.__file__).resolve().parents[2] / "tools/oracles/aoflagger"
+    cmd = [
+        "apptainer",
+        "exec",
+        "--containall",
+        "--cleanenv",
+        "--env",
+        "PYTHONPATH=/usr/lib,OMP_NUM_THREADS=4,OPENBLAS_NUM_THREADS=1,HOME=/tmp",
+        "-B",
+        f"{work}:/io",
+        "-B",
+        f"{tools}:/tools:ro",
+        str(AO_SIF),
+        "python3",
+        "/tools/f3_aoflag.py",
+        "/io",
+    ]
+    t0 = time.perf_counter()
+    subprocess.run(cmd, check=True, capture_output=True)
+    wall = time.perf_counter() - t0
+    out = np.load(work / "flags.npy")
+    rec = json.loads((work / "aoflag.json").read_text(encoding="utf-8"))
+    rec["container_wall"] = wall
+    flags = out[ix["bl"], ix["t"]] | w3
+    for name in ("vis.npy", "mask.npy", "flags.npy"):
+        (work / name).unlink()
+    return flags, rec
 
 
 # -- data roots (nash) --------------------------------------------------------------
