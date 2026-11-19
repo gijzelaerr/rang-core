@@ -1,0 +1,353 @@
+{
+ "chunking": {
+  "chunk_gb": 7.218893349170685,
+  "chunk_rows": null,
+  "fixed_gb": 0.7811066508293152,
+  "memory_limit_gb": 8.0,
+  "rows": {
+   "apply": 7392,
+   "calibrate": 7392,
+   "chain": 4928,
+   "flag": 14784,
+   "model": 7392,
+   "rows": 19712
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-001",
+   "field_id": 1,
+   "final_image": {
+    "argv": [
+     "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\final\\image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-mgain",
+     "0.9",
+     "-auto-threshold",
+     "3.0",
+     "-wgridder-accuracy",
+     "0.0001",
+     "-average-channels",
+     "8",
+     "-channels-out",
+     "8",
+     "-join-channels",
+     "-fit-spectral-pol",
+     "2",
+     "-auto-mask",
+     "5.0",
+     "-multiscale",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "1",
+     "-scans",
+     "9,10,11",
+     "-unit-weights",
+     "-no-update-model-required",
+     "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+    ],
+    "auto_mask": 5.0,
+    "auto_threshold": 3.0,
+    "clean": {
+     "components": 389900,
+     "major_cycles": 6,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "fits_mask": null,
+    "image": 3,
+    "wall_seconds": 6020.359734999991
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 13941964800,
+      "cells_flagged_after": 7843952228,
+      "cells_flagged_before": 7843952228,
+      "input_column": "CORRECTED_1GC",
+      "output_column": "CORRECTED_DATA",
+      "rows": 850950,
+      "wall_seconds": 405.41748519999965
+     },
+     "image": {
+      "argv": [
+       "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-mgain",
+       "0.9",
+       "-auto-threshold",
+       "3.0",
+       "-wgridder-accuracy",
+       "0.0001",
+       "-average-channels",
+       "8",
+       "-channels-out",
+       "8",
+       "-join-channels",
+       "-fit-spectral-pol",
+       "2",
+       "-auto-mask",
+       "5.0",
+       "-multiscale",
+       "-data-column",
+       "CORRECTED_1GC",
+       "-field",
+       "1",
+       "-scans",
+       "9,10,11",
+       "-unit-weights",
+       "-no-update-model-required",
+       "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+      ],
+      "auto_mask": 5.0,
+      "auto_threshold": 3.0,
+      "clean": {
+       "components": 684794,
+       "major_cycles": 5,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_1GC",
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 5299.864929300005
+     },
+     "model": {
+      "added": false,
+      "channels_predicted": 4096,
+      "column": "MODEL_DATA",
+      "field": 1,
+      "model_images": 8,
+      "name": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": [
+       9,
+       10,
+       11
+      ],
+      "wall_seconds": 640.2561339999957
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 0.0,
+      "field_id": 1,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 50,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 850950,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "CORRECTED_1GC",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 20,
+       "refant_name": "m022",
+       "solint": 120,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "unit"
+      },
+      "time_bins": 4,
+      "time_bins_per_scan": {
+       "10": 4
+      },
+      "type": "Sp",
+      "wall_seconds": 2600.164254999996
+     },
+     "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-1\\gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 120,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    },
+    {
+     "apply": {
+      "cells": 13941964800,
+      "cells_flagged_after": 8082693644,
+      "cells_flagged_before": 7843952228,
+      "input_column": "CORRECTED_1GC",
+      "output_column": "CORRECTED_DATA",
+      "rows": 850950,
+      "wall_seconds": 402.40994309999223
+     },
+     "image": {
+      "argv": [
+       "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-mgain",
+       "0.9",
+       "-auto-threshold",
+       "3.0",
+       "-wgridder-accuracy",
+       "0.0001",
+       "-average-channels",
+       "8",
+       "-channels-out",
+       "8",
+       "-join-channels",
+       "-fit-spectral-pol",
+       "2",
+       "-auto-mask",
+       "5.0",
+       "-multiscale",
+       "-data-column",
+       "CORRECTED_DATA",
+       "-field",
+       "1",
+       "-scans",
+       "9,10,11",
+       "-unit-weights",
+       "-no-update-model-required",
+       "D:\\rang\\outputs\\e2a-20261115\\e2a.ms"
+      ],
+      "auto_mask": 5.0,
+      "auto_threshold": 3.0,
+      "clean": {
+       "components": 722249,
+       "major_cycles": 5,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_DATA",
+      "fits_mask": null,
+      "image": 2,
+      "wall_seconds": 5368.4865161999915
+     },
+     "model": {
+      "added": false,
+      "channels_predicted": 4096,
+      "column": "MODEL_DATA",
+      "field": 1,
+      "model_images": 8,
+      "name": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": [
+       9,
+       10,
+       11
+      ],
+      "wall_seconds": 642.6431522000057
+     },
+     "round": 2,
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 8,
+      "converged_fraction": 0.9916666666666667,
+      "field_id": 1,
+      "flagged_fraction": 0.03278688524590164,
+      "freq_bins": 1,
+      "iterations": 37,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 850950,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "CORRECTED_1GC",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 20,
+       "refant_name": "m022",
+       "solint": 120,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "unit"
+      },
+      "time_bins": 4,
+      "time_bins_per_scan": {
+       "10": 4
+      },
+      "type": "Sa",
+      "wall_seconds": 2549.2257184000046
+     },
+     "store": "D:\\rang\\outputs\\e2a-20261115\\e2a.ms.rang-run\\selfcal\\ESO137-001\\round-2\\gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 120,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261115T161755Z",
+ "gemclean": "C:\\Users\\gijsm\\Build\\tmp\\20261111-e2-wheel\\venv\\Scripts\\python.exe -m rang.gemclean",
+ "gemclean_sha256": "616b1a32ed2c203df39c18e5aba7ad6d6b30291cc57528b662e7dfb832af8e4b",
+ "input": {
+  "apply_finished": "2026-11-15T14:49:55+00:00",
+  "column": "CORRECTED_1GC",
+  "copied_from": "CORRECTED_DATA",
+  "copied_now": true
+ },
+ "input_column": "CORRECTED_1GC",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 20,
+ "restored_before": null,
+ "rounds": 2
+}
