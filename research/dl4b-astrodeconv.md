@@ -266,4 +266,14 @@ to the published set. The uvw code, noise realisation and WSClean version differ
 
 ## Measured result
 
-(empty at freeze)
+2026-11-19, host nash, commit 39b17b3f, 14 workers under the heavy lock, nice 19 + ionice -c3,
+run root `~/rang-data/outputs/dl4b-astrodeconv-20261119/astrodeconv-r` (not in git).
+
+- **300/300 shards, 9,000 fields** (3,000 seeds × flux 10/100/1000), 0 FAILED, 0 timeouts, 0 WSClean rc errors.
+- Split 8,460 / 270 / 270 fields (2,820 / 90 / 90 seeds); 3,000 `published` fields; 9,000 distinct field SHA-256, 3,000 distinct PSF SHA-256 (one per seed, shared by its three flux sets).
+- Production shard 0 = pilot-a: 30/30 field and 10/10 PSF hashes equal.
+- Wall 1:38:27 (98.5 min), user 74,878 s + sys 4,959 s (13.5 cores mean), max RSS 0.31 GB; 263-271 s per 30-field shard.
+- Medians per field, identical across flux sets within 1 iteration: run A 501-502 iterations in 2 major cycles, 1.97 s; run B 285 iterations in 4 major cycles, 4.38 s; max run-B wall 5.8 s, max run-B iterations 1,941. 22 sources inside the image (median).
+- Size 22 GB (300 shard npz + json + done markers).
+- `manifest.csv` SHA-256 `1aab25abb5817e44078d2e6745c532bfa622307a83f1547b76d4e084cf8a2a4f` (uncompressed); archived as `results/dl4b-astrodeconv/manifest.csv.gz` (`gzip -n -9`) with `run.time`, `run.meta` and PNGs `s000{0,1,2}-f1000.png`.
+- Pilot criterion 6.2 stays FAIL (amendment 2); nothing else failed. No training was done.
