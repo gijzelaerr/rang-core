@@ -2345,3 +2345,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 GPU probe: `examples/f5_train.py` (torch 2.15.0+cu132, WSL) under `gpu_run.py run --owner rang --vram 2` on two F4 calibrator shards (23 planes), 2,000 steps, then 1,000 + 1,000 resumed | RTX 4070 Ti | 47.2 s (36.7 s training, 54.5 steps/s); resumed 21.4 + 23.4 s | 3.7 GB host; GPU +373 MiB | glacier; weights bit-identical after resume |
 | 2026-11-19 | F5 N5W4 cost (`f5_cost.py pairs --kappa 5`, 3 pairs), 4 threads, shared 4 slots | LUNO MAIN_1 | about 150 s; ratio 0.427 | – | glacier; 1 of 3 pairs clean |
 | 2026-11-19 | F5 Stage 3 scripts: `tools/check_all.py --quick` | worktree `dl3-f5` | 523 s | – | PASS; glacier |
+| 2026-11-19 | F5 copy to nash (`copy2.sh`, 3 parallel tar-over-ssh streams, sha256 both sides) | `f3-20261110-01-fetch` 4.56 GB; F2 sim scans 1.58-3.15 GB each | 2,613 s (fetch); 836-1,984 s per scan | – | glacier to nash; about 2 MB/s per stream, 6 MB/s in all |
+| 2026-11-19 | `docker save` of `rang-aflag-aoflagger:3.5.0` + `apptainer build` | 159 MB gzip, 142 MB SIF | about 4 min in all | – | glacier WSL, then nash |
+| 2026-11-19 | F5 cross-host save on nash (W3, T, A via apptainer, U5 logits) under `heavy_lock.py run --slots 8` | LUNO MAIN_7 | 132 s | 2.9 GB | nash, nice 19, ionice -c3; PASS against glacier |
+| 2026-11-19 | nash to glacier rate test (142 MB over ssh) | one file | 26 s | – | 5.5 MB/s, beside three uploads |
+| 2026-11-19 | F5 Stage 2 degree (`f5_eval.py degree`, 15 preparation passes) under nash heavy lock 8 slots | LUNO MAIN_7 | 72 s | 6.3 GB | nash; d = 1 |

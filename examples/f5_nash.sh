@@ -5,7 +5,8 @@
 # (a copy of D:/rang's layout); outputs under runs/.
 #
 # Usage: bash examples/f5_nash.sh STEP [class]
-#   STEP: crosshost | degree | stage2 | shards-validation | shards-train | tau | heldout | sim
+#   STEP: crosshost | degree | stage2 | shards-validation | shards-train-real | shards-train |
+#         tau | heldout | sim
 set -eu
 source ~/.rang-env.sh
 STEP=$1

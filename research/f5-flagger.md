@@ -598,6 +598,42 @@ Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-
   truth cells for the ramps are the label positives (H4: A ≥ 3; H4n: β ≥ 0.5), not every
   injected cell (Amendment 2 below).
 
+### Stage 2: fit degree (calibrators), nash, 2026-11-19
+
+`examples/f5_eval.py degree`, LUNO MAIN_7, level 0, 8 slots, 72 s
+(`runs/degree-calibrator.json`): recall at |z| > 5 of F1's antenna-local injection (seeds 41-43)
+and a 10 σ T6 band 0.4 nchan wide (seed 20265501); clean (antenna, block) pairs over 5:
+
+| d | Recall | Clean pairs over 5 |
+| --- | ---: | ---: |
+| 1 | **0.997** | 0.84 % |
+| 2 | 0.978 | 0.90 % |
+| 3 | 0.980 | 0.90 % |
+
+All three under the 1 % bar; **d = 1** by the rule. The 2c planes alone see F1's antenna-local
+event at 0.997, against F3's 0.024 and F4's ZE 1.000.
+
+### Cross-host check (section 2f), 2026-11-19, LUNO MAIN_7 (validation)
+
+nash (`~/Worktrees/rang/dl3-f5` at `0d7837ed`, Linux build, 8 slots, 132 s) against glacier
+(Windows build, same commit's kernel for these paths; `examples/f5_crosshost.py`,
+`~/rang-data/outputs/dl3-f5-20261119/runs/crosshost-MAIN_7.json`): W3 identical; **T identical**
+(0 of 31.5 M cells differ, and 0 against glacier's cached `luno-MAIN_7-T.npy`); U5 logits p99.9
+|Δ| 1.8e-7, max 5.4e-7, 0 flag disagreements; **A** through apptainer
+(`rang-aflag-aoflagger_3.5.0.sif`, built on nash from glacier's `rang-aflag-aoflagger:3.5.0` image
+by `docker save`, receipt `outputs/dl3-f5/xfer/ao_image.*`) **identical** to the cached
+`luno-MAIN_7-A.npy`. PASS. Inputs on nash are byte copies of `D:\rang` with per-item sha256
+manifests checked on nash (`outputs/dl3-f5/xfer/*.sha256`, `copy.log`).
+
+### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
+
+glacier rebooted unannounced. Nothing of F5 ran on its GPU then. Lost: the three copy streams in
+flight to nash (each item restarts from its start; items are whole F-SIM scans of 1.6-3.2 GB at
+about 2 MB/s, so up to about 25 minutes of transfer per stream, over the 15-minute rule; the next
+copy splits scans by file). Kept: the 16 finished items (done-markers, sha256 verified on nash).
+nash was unaffected; Stage 2 there had already stopped on a missing `scipy` in F5's venv (needed by
+the F-SIM path), installed and rerun detached from glacier (`setsid`) at 13:08.
+
 ## For the coordinator
 
 - Frozen in its own commit before any F5 code. Held-out sets: F4's, all still unread.
