@@ -2350,3 +2350,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 cross-host save on nash (W3, T, A via apptainer, U5 logits) under `heavy_lock.py run --slots 8` | LUNO MAIN_7 | 132 s | 2.9 GB | nash, nice 19, ionice -c3; PASS against glacier |
 | 2026-11-19 | nash to glacier rate test (142 MB over ssh) | one file | 26 s | – | 5.5 MB/s, beside three uploads |
 | 2026-11-19 | F5 Stage 2 degree (`f5_eval.py degree`, 15 preparation passes) under nash heavy lock 8 slots | LUNO MAIN_7 | 72 s | 6.3 GB | nash; d = 1 |
+| 2026-11-19 | F5 Stage 2 ZE5/Z5 (`f5_eval.py stage2`) under nash heavy lock 8 slots | LUNO MAIN_7 (12 injection cases) + 3 f2sim-v scans | 1,532 s | 6.1 GB | nash; no Stop-E, no Stop-Z |
+| 2026-11-19 | F5 Stage 3 shards and audit (`f5_shards.py`) under nash heavy lock 8 slots / 48-64 GB | calibrators: validation 2 real + 3 sim; train 30 real + 9 sim | 646 s; 2,007 s | 8.3 GB; 17.9 GB | nash; audit Stop-L (0.098 % < 0.1 %) |

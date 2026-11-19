@@ -613,6 +613,15 @@ and a 10 σ T6 band 0.4 nchan wide (seed 20265501); clean (antenna, block) pairs
 All three under the 1 % bar; **d = 1** by the rule. The 2c planes alone see F1's antenna-local
 event at 0.997, against F3's 0.024 and F4's ZE 1.000.
 
+### Stage 2: ZE5 and Z5 (calibrators), nash, 2026-11-19
+
+`examples/f5_eval.py stage2`, LUNO MAIN_7 and f2sim-v calibrator scans, L0, d = 1, 8 slots,
+1,532 s (`runs/stage2-calibrator.json`):
+
+- **ZE5** recall of F1's antenna-local injection (seeds 41-43): **1.000**. No Stop-E.
+- **Z5** against T: R1 0.631 against 0.920 (fails R1 by far); R3 ratio 1.08 (lower bound 0.50);
+  f2sim-v S1 0.909 against 0.797, S2 0.263 against 0.316. **No Stop-Z**: training goes ahead.
+
 ### Cross-host check (section 2f), 2026-11-19, LUNO MAIN_7 (validation)
 
 nash (`~/Worktrees/rang/dl3-f5` at `0d7837ed`, Linux build, 8 slots, 132 s) against glacier
@@ -624,6 +633,36 @@ nash (`~/Worktrees/rang/dl3-f5` at `0d7837ed`, Linux build, 8 slots, 132 s) agai
 by `docker save`, receipt `outputs/dl3-f5/xfer/ao_image.*`) **identical** to the cached
 `luno-MAIN_7-A.npy`. PASS. Inputs on nash are byte copies of `D:\rang` with per-item sha256
 manifests checked on nash (`outputs/dl3-f5/xfer/*.sha256`, `copy.log`).
+
+### Stage 3: label audit (calibrators), nash, 2026-11-19 — **Stop-L as frozen**
+
+`examples/f5_shards.py`, L0, d = 1 (`runs/shards/calibrator/`; validation 646 s, train 2,007 s,
+8 slots, peak 17.9 GB). Validation (MAIN_7, 2 realisations): ignored uninjected 16.9 % and 16.5 %
+of eligible cells (bar 40 %), injected positives 0.40 % and 2.5 % (bar 0.1 %); T and A find 0.949
+and 0.940 of realisation 0's injected positives. Training (30 real realisations, 9 F-SIM scans):
+ignored uninjected 11.8-27.3 %; injected positives 0.25-13.5 % on 29 realisations and **0.098 %**
+on `luno-MAIN_1-4` (seed 20265615, a 37-antenna sub-array; its events are mostly below A = 3,
+which the labels ignore). **Section 4's frozen stop fires: "injected positives below 0.1 % on any
+realisation".** By section 11 the calibrator outcome is **Stop-L**: no training for the class.
+
+Recorded, not acted on: the bar was F4's target bar, applied to both classes at this freeze; F4's
+calibrator audit had none. The miss is 2 % below the bar on one realisation of thirty. Changing
+the bar or the realisation after seeing this is post hoc; as with F4's C1(U4) (0.458 against 0.45)
+the frozen reading stands. Whether a labelled post hoc calibrator arm is trained and scored (it
+could not become S or S−, and it would spend F4's unread held-out sets) is the coordinator's or
+owner's decision. Nothing has been trained; no held-out set has been read.
+
+### Stage 6 plan, fixed 2026-11-19 15:10 SAST, before the run (labelled)
+
+The exclusive run starts at 21:00 SAST (`examples/f5_timing.sh`), whether or not a class has
+trained weights by then: section 10's cost does not depend on the weights (F4 recorded the same;
+the work is the same at any weights and τ), so U5 stands for the trained network. Both candidate
+methods are timed (N5, and N5W4 at κ 5) at 4 and 1 threads on LUNO MAIN_1 (calibrators) and ESO137
+chunk 0 (targets), 5 pairs each, with section 10's gate, pair and reading rules; d = 1 (the fit
+degree barely changes the work; the targets' d, if different, is noted beside the reading). The
+method fixed at Stage 4 picks its row; the other rows are reported. A dry run of one pair on ESO137
+chunk 0 (shared hold, copies running, N5W4): ratio 0.40. No copy, WSL or GPU job of F5 runs during
+the hold.
 
 ### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
 
