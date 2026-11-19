@@ -60,18 +60,18 @@ pub(crate) fn quantile(v: &mut Vec<f64>, q: f64, min: usize) -> f64 {
 }
 
 /// The spectral features of one scan.
-struct Spectra {
-    nc: usize,
+pub(crate) struct Spectra {
+    pub(crate) nc: usize,
     /// Per baseline `[φ][f]`.
-    e: Vec<Vec<f64>>,
+    pub(crate) e: Vec<Vec<f64>>,
     /// `[φ][k][f]`.
-    ant: Vec<f64>,
+    pub(crate) ant: Vec<f64>,
     /// `[φ][f]`.
-    x: Vec<f64>,
-    alive: Vec<bool>,
+    pub(crate) x: Vec<f64>,
+    pub(crate) alive: Vec<bool>,
 }
 
-fn spectra(inp: &Inputs, p: &[Vec<f64>], alive: Vec<bool>) -> Spectra {
+pub(crate) fn spectra(inp: &Inputs, p: &[Vec<f64>], alive: Vec<bool>) -> Spectra {
     let nc = inp.nchan;
     let nbl = inp.nbl;
     let nant = inp.nant;

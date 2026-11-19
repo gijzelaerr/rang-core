@@ -2336,3 +2336,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 G-gate sizing (`size_gates.py`, F4 seed-2 weights), 4 threads, shared 4 slots | LUNO MAIN_7 (validation), 13 runs of W3+T+N4 | 384 s | – | glacier; per full-array run 30.6 s |
 | 2026-11-19 | uv venv + torch 2.15.0+cu132, numpy, onnx from PyPI (WSL Ubuntu) | `~/Build/tmp/20261119-f5-torch` | about 6 min | – | glacier WSL; network-bound |
 | 2026-11-19 | F5 freeze: `tools/check_all.py --quick` (self-locked, 4 slots) | worktree `dl3-f5`, research-only diff | 770 s (lock wait excluded) | – | PASS; glacier, daytime |
+| 2026-11-19 | F5 Stage 1 port parity (`examples/f5_port_parity.py`), torch 2.15.0+cpu, shared 4 slots | LUNO MAIN_7 (validation), F4 seed-2 weights | 49 s (3.2 min with lock wait) | – | glacier; PASS |
+| 2026-11-19 | F5 Stage 1: `cargo test --release --lib f5flag` (core, rebuild) under `heavy_lock.py run --slots 6` | worktree `dl3-f5` | 201 s | – | glacier; first run 2 failures (Amendment 1), then 5 passed |
+| 2026-11-19 | F5 Stage 1: `tools/check_all.py --quick` | worktree `dl3-f5`, code diff | 891 s FAIL (clippy `needless_range_loop`), then 752 s PASS | – | glacier, daytime |
+| 2026-11-19 | F5 input copy to nash (`outputs/dl3-f5/xfer/copy.sh`: tar over ssh, sha256 both sides) | `f3-20261110-02-inputs`, 4.44 GB | 1,592 s | – | glacier to nash, 2.8 MB/s including both checksums |

@@ -489,6 +489,23 @@ permission of 2026-10-29 for LUNO-derived weights (owner, 2026-11-11, item 32); 
 anything for other bands, channelisations (beyond G-chan's envelope) or telescopes; anything about
 new observations until G-obs.
 
+## Amendments
+
+**Amendment 1, 2026-11-19, after the freeze (`41b6160d`), during Stage 1 unit tests, before any
+F5 feature was computed on real data, any training or any held-out read (pre-result).** Two test
+bars written at the freeze cannot be met as stated; the estimators are not changed.
+
+- *Section 2b rule 3* asked for f32 `asinh` within 2e-6 absolute of f64 over all finite f32
+  inputs. Above |x| ≈ 3e27 the f32 result's half-ulp alone exceeds 2e-6. The bar becomes: 2e-6
+  absolute for |x| ≤ 1e6, 1e-7 relative above (`ash32_is_within_the_bar_of_f64`). Feature parity
+  (1e-4 against NumPy's f64) is unchanged.
+- *Stage 1's polish test* ("recovers synthetic γ within 0.01"): simultaneous median updates reach
+  a fixed point that is not the additive truth. On 12 antennas, γ_k = 0.1 sin(0.7 k), noise-free,
+  the largest error is 0.0159 after 5, 20 and 100 iterations, with or without damping 0.5 (0.019
+  with 0.02 noise per baseline; NumPy, glacier). The bias is per antenna and smooth in the gains,
+  two orders below the log-amplitude shift of a 10 σ cross-hand event (about 2). The bar becomes
+  0.02 on that case; G-perm's exactness under relabelling is unchanged and tested.
+
 ## Measured result
 
 Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-<date>` (nash).
@@ -524,6 +541,26 @@ Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-
 - **PyTorch environment:** `uv` venv in WSL from public PyPI, torch 2.15.0+cu132,
   `torch.cuda.is_available()` true (log `outputs/dl3-f5/torch-venv.log`). GPU memory at 09:30: 11.2
   of 12.3 GB held by another process; F4's footprint was about 0.63 GB.
+
+### Stage 1: code and parity (no held-out read)
+
+- **PyTorch port against the Rust kernels** (`rang.f5net`, `stem=False`; `examples/f5_port_parity.py`;
+  `outputs/dl3-f5/port-parity-MAIN_7.json`; glacier, torch 2.15.0+cpu, shared 4 slots, 49 s): F4's
+  trained seed-2 weights (`a20b1abb…d90d`) on LUNO MAIN_7, 16,945,620 eligible cells: logits
+  p99.9 |Δ| 9.5e-6, max 2.7e-5, flag disagreement at τ −1.0 **0**. PASS (bars 1e-4, 1e-3, 1e-5).
+  On synthetic scans the port also matches `f3flag_logits` (U3-style init, non-zero biases) and
+  `f4flag_logits`; its init equals `rang.f3net.init_params` bit for bit (`tests/test_f5_net.py`).
+- **F5 kernel** (`core/src/f5flag.rs`, `rang.f5flag`): Rust features against the NumPy reference
+  ≤ 1e-4 at levels 0, 1, 2 and degrees 1, 2, 3; split-stem Rust logits against PyTorch on the
+  materialised planes within the parity bars at every level; logits and W4's anomaly
+  bit-identical under antenna relabelling; on a synthetic 50 σ calibrator-like scan with a
+  10 σ, 80-of-256-channel scan-long band on one antenna, W4's anomaly > 5 on ≥ 0.9 of the band's
+  cells and ≤ 0.05 of the other baselines' (`tests/test_f5_flag.py`, Rust unit tests in
+  `f5flag.rs`). Weights: 3,201 / 3,169 / 3,105 at levels 0 / 1 / 2.
+- *Implementation detail, labelled:* N5's He-normal init is drawn with
+  `numpy.random.default_rng(seed)` (`rang.f5net.init_arrays`, F3's order and scale; the stem
+  with `√(1/n)`), not a `torch.Generator` as section 9 says, so the init is the same in any
+  framework; the seeds are section 9's.
 
 ## For the coordinator
 
