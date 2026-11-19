@@ -341,6 +341,7 @@ def main(argv=None):
             print(f"{te} {cbid} scan {n}: {wall:.0f} s, flagged {frac:.4f}", flush=True)
         if all((done[te] / f"{n}.done").exists() for te in teachers):
             shutil.rmtree(wc)
+            shutil.rmtree(wc.with_name(wc.name + ".flagversions"), ignore_errors=True)
             wc.with_name(wc.name + ".copied").unlink()
     return 0
 

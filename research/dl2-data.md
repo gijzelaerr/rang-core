@@ -269,6 +269,23 @@ RDB kept), so the MS is 1.8 × MVF here. No `token=` or token string in any log,
 Only conversion, row counts and checksums were done on them (section 5). The coordinator was told at
 08:40 UTC.
 
+## 12. Measured: first teacher runs (train block 1735892129, 2026-11-19)
+
+| Scan | MS | rang port (spool) | Tricolour 0.2.1 | AOFlagger 2.13.0 | rang vs Tricolour |
+| --- | ---: | --- | --- | --- | --- |
+| 3 (J1744-5144, 14 dumps) | 1.8 GB | 125 s, 0.5072, 4 workers | 308 s, 0.5072, `-nw 4` | 27 s, 0.6035, `-j 4` | bit-identical (same `flag.npy` SHA-256) |
+| 1 (J1939-6342, 74 dumps) | 8.8 GB | 135 s, 0.5797, 8 workers | 308 s, 0.5797, `-nw 8` | 115 s, 0.6920, `-j 8` | 28 of 573,169,664 cells differ (4.9e-8), all flagged by rang only, in 3 rows |
+
+The fractions include the native flags, so they are not RFI fractions. Tricolour runs at about
+29 MB/s of MS at 8 threads and the port at about 65 MB/s, which gives about 23 h of Tricolour over
+the train and validation MSs (about 2.4 TB), split across blocks running side by side. The private
+copy of an 8.8 GB scan took about 6 min under `ionice -c3`, behind the other blocks' fetch I/O.
+Tricolour also leaves `<copy>.flagversions` beside the copy; the runner now deletes it with the copy.
+
+Stage manifests were first written at 08:58 UTC (`manifests/stage{1,2,7}.json` on nash). They
+register 48 held-out stage 1 scans (42 for stage 2, 6 for stage 7) by MS hash before any training
+read. Augmentation root seeds come from SHA-256("rang dl2 stage N"); stage 1's is 960723432.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
