@@ -1,0 +1,6 @@
+/home/gijs/rang-data/outputs/automask-cycle-20261118/r-MAIN_1/P/pilot.ms: 821670 rows (CORRECTED_DATA, field 0), 256 channels into 8 output channels, MF weighting, joined, 44.85 s read, 17.07 s weights
+auto-mask: major iteration 1, sigma 1.187646e-3 Jy, threshold 7.125874e-3 Jy; continued in the mask at gain 0.9000, threshold 7.125874e-3 Jy
+auto-mask: major iteration 2, sigma 4.704606e-4 Jy, threshold 2.822764e-3 Jy
+joined: 26437 components, 2 major cycles, 197 resyncs, stop Threshold; Q/Q0 2.2664e-2
+wall 784.67 s
+TIME G-MAIN_1-n2 785.24 s 18916052 KB
