@@ -13,7 +13,7 @@ while :; do
     grep -qz "^PRIORITY=critical$" /proc/$pid/environ 2>/dev/null && continue
     left=1
     pg=$(ps -o pgid= -p $pid | tr -d " ")
-    lock=$(pgrep -g $pg -f "heavy_lock.py run" | head -1)
+    lock=$(pgrep -g $pg -f "^python3 .*heavy_lock.py run" | head -1)  # not the /usr/bin/time wrapper
     [ -z "$lock" ] && continue
     pgrep -P $lock > /dev/null && continue        # holds its slots: running
     args=$(tr "\0" " " < /proc/$pid/cmdline | sed "s#^/bin/bash ##; s#^[^ ]*teach_block.sh ##")
