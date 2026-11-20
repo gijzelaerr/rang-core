@@ -478,6 +478,8 @@ its own freeze. Prepared, not run.
   done-markers. When access returns: check `logs/teach.log` for `STAGE-END`, then copy `manifests/`
   into `results/dl2-data/manifests/` and commit. If streams died, relaunch them with
   `teach_block.sh <cbid> 6 k/N` (section 18), then run `finish_stage1.sh`.
+- Login came back by 07:59 UTC: the refusal lasted about 20 min. All 7 streams and
+  `finish_stage1.sh` were still running, and 38 of 44 slots were booked.
 
 ## For the coordinator
 
