@@ -115,11 +115,138 @@ def gpu_yield():
     return rc == 3
 
 
+class Run:
+    """One seed's model, optimiser, batch generator and checkpoint. Several runs
+    can share one process (and one copy of the shards); each run's arithmetic
+    is the same as alone, since nothing is shared between runs but the
+    read-only shards."""
+
+    def __init__(self, seed, out, nplanes, device):
+        self.seed, self.out, self.device = seed, out, device
+        out.mkdir(parents=True, exist_ok=True)
+        self.net = f5net.build(nplanes, True, seed=seed).to(device)
+        self.opt = torch.optim.Adam(
+            self.net.parameters(), lr=RATE, betas=(0.9, 0.999), eps=1e-8
+        )
+        self.rng = np.random.default_rng(1000 + seed)
+        self.ck = out / "ckpt.pt"
+        self.step, self.curve, self.run, self.resumed = 0, [], 0.0, []
+        if self.ck.exists():
+            st = load_ckpt(self.ck)
+            self.net.load_state_dict(st["net"])
+            self.opt.load_state_dict(st["opt"])
+            self.rng.bit_generator.state = st["rng"]
+            self.step, self.curve, self.run = st["step"], st["curve"], st["run"]
+            self.resumed = [*st["resumed"], self.step]
+            print(json.dumps({"seed": seed, "resumed_at": self.step}), flush=True)
+
+    def train_step(self, train, t1):
+        self.step += 1
+        rng = self.rng
+        kind = "real" if rng.random() < 0.5 else "sim"
+        pool = train[kind] or train["sim" if kind == "real" else "real"]
+        shard = pool[rng.integers(0, len(pool))]
+        xb, yb = batch(rng, shard)
+        x = torch.from_numpy(xb).to(self.device)
+        y = torch.from_numpy(yb).to(self.device)
+        loss = f5net.bce(self.net(x), y)
+        self.opt.zero_grad(set_to_none=True)
+        loss.backward()
+        self.opt.step()
+        if self.step % 50 == 0:
+            self.run += float(loss.detach())
+        if self.step % EVERY_STEPS == 0:
+            self.curve.append(
+                {
+                    "step": self.step,
+                    "loss": self.run / 20,
+                    "seconds": time.perf_counter() - t1,
+                }
+            )
+            self.run = 0.0
+            print(json.dumps({"seed": self.seed, **self.curve[-1]}), flush=True)
+
+    def checkpoint(self):
+        save_ckpt(
+            self.ck,
+            {
+                "net": self.net.state_dict(),
+                "opt": self.opt.state_dict(),
+                "rng": self.rng.bit_generator.state,
+                "step": self.step,
+                "curve": self.curve,
+                "run": self.run,
+                "resumed": self.resumed,
+            },
+        )
+
+    def finish(self, val, a, nplanes, t_load, t_train, train):
+        vl = validation_loss(self.net, val, self.device)
+        arrays = f5net.to_arrays(self.net)
+        flat = f5net.flat_from_arrays(arrays)
+        header = {
+            "stage": "flag",
+            "architecture": "f5-n5",
+            "nplanes": nplanes,
+            "seed": self.seed,
+            "steps": a.steps,
+            "validation_loss": vl,
+            "shards": str(a.shards),
+        }
+        np.savez(
+            self.out / "weights.npz",
+            flat=flat,
+            header=json.dumps(header),
+            **{f"w{i}": w for i, (w, _) in enumerate(arrays)},
+            **{f"b{i}": b for i, (_, b) in enumerate(arrays)},
+        )
+        cuda = self.device.startswith("cuda")
+        rec = {
+            **header,
+            "batch": BATCH,
+            "width": WIDTH,
+            "rate": RATE,
+            "weights": int(flat.size),
+            "curve": self.curve,
+            "resumed_at": self.resumed,
+            "load_seconds": t_load,
+            "train_seconds_this_run": t_train,
+            "seeds_in_process": a.seed,
+            "device": self.device,
+            "gpu": torch.cuda.get_device_name(0) if cuda else None,
+            "peak_vram_allocated_bytes": int(torch.cuda.max_memory_allocated())
+            if cuda
+            else None,
+            "peak_vram_reserved_bytes": int(torch.cuda.max_memory_reserved())
+            if cuda
+            else None,
+            "torch": torch.__version__,
+            "deterministic": True,
+            "flat_sha256": hashlib.sha256(flat.tobytes()).hexdigest(),
+            "train_shards": {k: [s[0] for s in v] for k, v in train.items()},
+            "validation_shards": {k: [s[0] for s in v] for k, v in val.items()},
+        }
+        (self.out / "train.json").write_text(json.dumps(rec, indent=1))
+        print(
+            json.dumps(
+                {
+                    "seed": self.seed,
+                    "validation_loss": vl,
+                    "flat_sha256": rec["flat_sha256"],
+                }
+            )
+        )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("shards", type=Path)
-    ap.add_argument("out", type=Path)
-    ap.add_argument("--seed", type=int, required=True)
+    ap.add_argument(
+        "out", type=Path, help="one seed: its directory; several: OUT/seed-K each"
+    )
+    ap.add_argument(
+        "--seed", required=True, help="a seed, or several comma-separated (one process)"
+    )
     ap.add_argument("--steps", type=int, default=30000)
     ap.add_argument(
         "--stop-at", type=int, help="save and stop after this step (resume test)"
@@ -128,131 +255,44 @@ def main():
     a = ap.parse_args()
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
-    a.out.mkdir(parents=True, exist_ok=True)
+    seeds = [int(x) for x in str(a.seed).split(",")]
     t0 = time.perf_counter()
     train = load(a.shards / "train")
     val = load(a.shards / "validation")
     t_load = time.perf_counter() - t0
     first = (train["real"] or train["sim"])[0][1]
     nplanes = int(first.shape[-1])
-    net = f5net.build(nplanes, True, seed=a.seed).to(a.device)
-    opt = torch.optim.Adam(net.parameters(), lr=RATE, betas=(0.9, 0.999), eps=1e-8)
-    rng = np.random.default_rng(1000 + a.seed)
-    torch.manual_seed(a.seed)
-    ck = a.out / "ckpt.pt"
-    step, curve, run, resumed = 0, [], 0.0, []
-    if ck.exists():
-        st = load_ckpt(ck)
-        net.load_state_dict(st["net"])
-        opt.load_state_dict(st["opt"])
-        rng.bit_generator.state = st["rng"]
-        torch.set_rng_state(st["torch_rng"])
-        if st.get("cuda_rng") is not None and a.device.startswith("cuda"):
-            torch.cuda.set_rng_state(st["cuda_rng"])
-        step, curve, run, resumed = st["step"], st["curve"], st["run"], st["resumed"]
-        resumed = [*resumed, step]
-        print(json.dumps({"resumed_at": step}), flush=True)
-
-    def checkpoint():
-        save_ckpt(
-            ck,
-            {
-                "net": net.state_dict(),
-                "opt": opt.state_dict(),
-                "rng": rng.bit_generator.state,
-                "torch_rng": torch.get_rng_state(),
-                "cuda_rng": torch.cuda.get_rng_state()
-                if a.device.startswith("cuda")
-                else None,
-                "step": step,
-                "curve": curve,
-                "run": run,
-                "resumed": resumed,
-            },
-        )
-
+    outs = [a.out] if len(seeds) == 1 else [a.out / f"seed-{s}" for s in seeds]
+    runs = [
+        Run(s, o, nplanes, a.device)
+        for s, o in zip(seeds, outs, strict=True)
+        if not (o / "weights.npz").exists()
+    ]
     t1 = time.perf_counter()
     last = time.perf_counter()
-    while step < a.steps:
-        step += 1
-        kind = "real" if rng.random() < 0.5 else "sim"
-        pool = train[kind] or train["sim" if kind == "real" else "real"]
-        shard = pool[rng.integers(0, len(pool))]
-        xb, yb = batch(rng, shard)
-        x = torch.from_numpy(xb).to(a.device)
-        y = torch.from_numpy(yb).to(a.device)
-        loss = f5net.bce(net(x), y)
-        opt.zero_grad(set_to_none=True)
-        loss.backward()
-        opt.step()
-        if step % 50 == 0:
-            run += float(loss.detach())
-        if step % EVERY_STEPS == 0:
-            curve.append(
-                {"step": step, "loss": run / 20, "seconds": time.perf_counter() - t1}
-            )
-            run = 0.0
-            print(json.dumps(curve[-1]), flush=True)
-        due = step % EVERY_STEPS == 0 or time.perf_counter() - last >= EVERY_SECONDS
-        if due or step == a.steps or step == a.stop_at:
-            checkpoint()
+    while any(r.step < a.steps for r in runs):
+        for r in runs:
+            if r.step < a.steps:
+                r.train_step(train, t1)
+        steps = {r.step for r in runs}
+        due = (
+            any(s % EVERY_STEPS == 0 for s in steps)
+            or time.perf_counter() - last >= EVERY_SECONDS
+        )
+        stop = a.stop_at is not None and a.stop_at in steps
+        if due or stop or all(r.step >= a.steps for r in runs):
+            for r in runs:
+                r.checkpoint()
             last = time.perf_counter()
-            if step == a.stop_at:
-                print(json.dumps({"stopped_at": step}), flush=True)
+            if stop:
+                print(json.dumps({"stopped_at": a.stop_at}), flush=True)
                 return
-            if step < a.steps and gpu_yield():
-                print(json.dumps({"yield_at": step}), flush=True)
+            if any(r.step < a.steps for r in runs) and gpu_yield():
+                print(json.dumps({"yield_at": sorted(steps)}), flush=True)
                 raise SystemExit(3)
     t_train = time.perf_counter() - t1
-    vl = validation_loss(net, val, a.device)
-    arrays = f5net.to_arrays(net)
-    flat = f5net.flat_from_arrays(arrays)
-    header = {
-        "stage": "flag",
-        "architecture": "f5-n5",
-        "nplanes": nplanes,
-        "seed": a.seed,
-        "steps": a.steps,
-        "validation_loss": vl,
-        "shards": str(a.shards),
-    }
-    np.savez(
-        a.out / "weights.npz",
-        flat=flat,
-        header=json.dumps(header),
-        **{f"w{i}": w for i, (w, _) in enumerate(arrays)},
-        **{f"b{i}": b for i, (_, b) in enumerate(arrays)},
-    )
-    rec = {
-        **header,
-        "batch": BATCH,
-        "width": WIDTH,
-        "rate": RATE,
-        "weights": int(flat.size),
-        "curve": curve,
-        "resumed_at": resumed,
-        "load_seconds": t_load,
-        "train_seconds_this_run": t_train,
-        "device": a.device,
-        "gpu": torch.cuda.get_device_name(0) if a.device.startswith("cuda") else None,
-        "peak_vram_allocated_bytes": (
-            int(torch.cuda.max_memory_allocated())
-            if a.device.startswith("cuda")
-            else None
-        ),
-        "peak_vram_reserved_bytes": (
-            int(torch.cuda.max_memory_reserved())
-            if a.device.startswith("cuda")
-            else None
-        ),
-        "torch": torch.__version__,
-        "deterministic": True,
-        "flat_sha256": hashlib.sha256(flat.tobytes()).hexdigest(),
-        "train_shards": {k: [s[0] for s in v] for k, v in train.items()},
-        "validation_shards": {k: [s[0] for s in v] for k, v in val.items()},
-    }
-    (a.out / "train.json").write_text(json.dumps(rec, indent=1))
-    print(json.dumps({"validation_loss": vl, "flat_sha256": rec["flat_sha256"]}))
+    for r in runs:
+        r.finish(val, a, nplanes, t_load, t_train, train)
 
 
 if __name__ == "__main__":

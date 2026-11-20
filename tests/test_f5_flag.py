@@ -230,3 +230,31 @@ def test_variance_planes_are_defined_and_match_numpy_on_256_channels():
     var = r[..., 28:32]
     assert np.abs(var).max() > 0.1
     assert np.abs(r - n).max() <= 1e-4
+
+
+def test_trainer_seeds_in_one_process_equal_separate_runs(tmp_path):
+    pytest.importorskip("torch")
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    rng = np.random.default_rng(1)
+    for role in ("train", "validation"):
+        d = tmp_path / "shards" / role
+        d.mkdir(parents=True)
+        for kind in ("real", "sim"):
+            x = rng.normal(0, 1, (4, 3, 256, 33)).astype(np.float16)
+            y = (rng.random((4, 3, 256)) < 0.1).astype(np.int8)
+            np.savez(d / f"{kind}.npz", x=x, y=y, kind=kind)
+    script = str(Path(__file__).resolve().parents[1] / "examples" / "f5_train.py")
+    sh = str(tmp_path / "shards")
+    opts = ["--steps", "30", "--device", "cpu"]
+    run = [sys.executable, script, sh]
+    subprocess.run([*run, str(tmp_path / "multi"), "--seed", "1,2", *opts], check=True)
+    for s in (1, 2):
+        subprocess.run(
+            [*run, str(tmp_path / f"single-{s}"), "--seed", str(s), *opts], check=True
+        )
+        a = np.load(tmp_path / f"single-{s}" / "weights.npz")["flat"]
+        b = np.load(tmp_path / "multi" / f"seed-{s}" / "weights.npz")["flat"]
+        assert np.array_equal(a, b)
