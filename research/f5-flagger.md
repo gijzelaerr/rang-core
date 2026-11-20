@@ -753,6 +753,32 @@ N4: 0.954 at 209,027). κ: N5 OR W4 adds 2.73 M / 1.58 M / 1.04 M / 0.76 M / 0.4
 *Targets:* the full training audit (42 real realisations and 6 F-SIM scans; 890 s on nash at 16
 slots) passes, `stop: null`; F-SIM positives 0.23-2.36 M cells per scan.
 
+### Validation dry run of the held-out scorer (N5-ph, LUNO MAIN_7), nash, 2026-11-20 — no held-out read
+
+`examples/f5_heldout.py real --validation` with N5-ph's `method.json` (seed 3, τ −3.0, N5), every
+case of section 10 on the validation scan (2,063 s, 8 slots; `runs/dryrun/`). A test of the code
+path; these are validation numbers and decide nothing:
+
+| Measure | N5-ph | N4 (F4) | T | Bar |
+| --- | ---: | ---: | ---: | --- |
+| R1 pooled / antenna-local | 1.000 / 1.000 | | 0.900 / 0.731 | ≥ T − 0.05 / − 0.10 |
+| R2 H1 / H2 / H3 / H4 / H4n | 1.00 / 0.998 / 1.00 / 0.992 / 0.946 | | 1.00 / 1.00 / 0.432 / 0.695 / 0.057 | ≥ T − 0.05 |
+| R3 added / T | 0.863 | 1.000 | | 0.5-1.5 |
+| R5 strong native consensus | **0.338** | 0.872 | 1.000 | ≥ 0.80 |
+| G-perm | exact | | | 1e-4 |
+| G-drop k = 1 / 4 / 8 | **0.14 / 0.30-0.42 / 0.49-0.59** | (F4, 11-19: 0.03 / 0.13 / 0.17) | | 0.05 / 0.20 / 0.25 |
+| G-sub core16 added (T) | 820 (8,261) | 1,209 | | R3 ≥ 0.5 × min(T, A)/T |
+| G-chan R1 / R3 | 1.000 / 0.80 | | 0.861 | reported |
+
+Readings, written before any held-out read: R5 and G-drop would fail as frozen. R5 is the cost
+section 4 predicted for Landman's scheme: strong native consensus is ignored, never positive, so
+the network learns native RFI only through injections; F4's labels, which kept it positive, give
+0.872. G-drop is F5's own: the block planes are normalised over the antennas present, and
+simultaneous median polish has a rank-dependent bias (Amendment 1), so dropping one antenna moves
+the planes of every baseline in the block; τ −3.0 puts many cells near the threshold. Neither is
+changed here: the frozen targets and the post hoc arm are scored as they stand, unless the
+coordinator or owner decides otherwise.
+
 ### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
 
 glacier rebooted unannounced. Nothing of F5 ran on its GPU then. Lost: the three copy streams in

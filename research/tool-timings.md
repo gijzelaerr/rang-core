@@ -2359,3 +2359,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | F5 reserved LUNO fetch (`f5_fetch.py`), public bucket | MAIN_8-11, 13, 15: 252 objects, 5.63 GB | 207 s | – | nash, 1 slot, 27 MB/s |
 | 2026-11-20 | F5 target train shards incl. F-SIM (`f5_shards.py`), 16 slots | 6 F-SIM scans (real ones done) | 890 s | 8.7 GB | nash; audit passes |
 | 2026-11-20 | F5 tau/kappa for N5-ph (`f5_tau.py`), 8 slots | MAIN_7 (2 realisations) + 3 f2sim-v scans | 355 s | 6.3 GB | nash |
+| 2026-11-20 | F5 held-out scorer validation dry run (`f5_heldout.py --validation`), 8 slots | LUNO MAIN_7, all section-10 cases | 2,063 s | 3.6 GB | nash; no held-out read |
