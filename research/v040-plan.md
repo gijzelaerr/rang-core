@@ -42,10 +42,10 @@ passed; the procedure is written and dry-run on F5's pipeline"), and F6/DL6 move
 
 | Night | Run | Then |
 | --- | --- | --- |
-| Fri 11-20 | F5 timing (D), then DL1 final runtime timing (B) | training resumes after |
-| Sat 11-21 | #47 arm T (about 9.5 h) | – |
-| Sun 11-22 | F6 cost gate (only if F6 changes the work per cell; F5's cost does not depend on the weights, so a retrain alone reuses it) | – |
-| Mon 11-23 | spare: DL6 if its cost differs, or a rerun | release prep |
+| Fri 11-20 (day, owner: "feel free to run it as soon as you want") | F5 timing (D, done 12:39: C1 0.365-0.409, gate passes), DL1 final runtime timing (B, done) | – |
+| Fri 11-20 night | #47 arm T (about 9.5 h, armed, waits for 21:00) | – |
+| Sat 11-21 | F6 cost gate (only if F6 changes the work per cell; F5's cost does not depend on the weights, so a retrain alone reuses it) | – |
+| Sun 11-22, Mon 11-23 | spare: DL6 if its cost differs, or a rerun | release prep |
 
 Daytime: GPU training at rang's priority; CPU work on nash, and on glacier's CPU when nash is fully
 booked (small-data compute only, 4 threads left for the owner). glacier is clear of every job from
