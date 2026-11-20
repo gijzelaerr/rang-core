@@ -480,7 +480,7 @@ its own freeze. Prepared, not run.
   `teach_block.sh <cbid> 6 k/N` (section 18), then run `finish_stage1.sh`.
 - Login came back by 07:59 UTC: the refusal lasted about 20 min. All 7 streams and
   `finish_stage1.sh` were still running, and 38 of 44 slots were booked.
-- At 10:25 UTC: 1749428161 10 of 14, 1571938260 28 of 46, 1611426666 8 of 17 (the rang port on its
+- At 10:21 UTC: 1749428161 10 of 14, 1571938260 28 of 46, 1611426666 8 of 17 (the rang port on its
   three 233 GB target scans had finished 1 of 18 chunk tasks after 2 h; its 6 workers ran at about
   35 % CPU each, disk-bound under `ionice -c3` beside the wave-2 jobs). ETA about 12-15 h.
   `finish_stage1.sh` writes the stage manifests when the last stream ends (`STAGE-END` in
