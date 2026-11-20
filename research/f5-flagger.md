@@ -538,6 +538,22 @@ the coordinator): "go with (b)".**
   pool it over a scan's realisations or guarantee a minimum number of strong (A ≥ 3) events per
   draw, so that one weak draw cannot stop a class.
 
+**Amendment 4, 2026-11-20, post hoc: written after the validation dry run predicted F (R5, G-drop)
+and before any held-out read. Owner, 2026-11-20, verbatim (relayed by the coordinator): "go with
+your recommendation, keep the SARAO blocks".**
+
+- F5 does **not** read session C's blocks 1678312253, 1674958551 and 1579022459. Section 8's G-sub
+  is scored on the frozen simulated sub-arrays only (core16, outer32 of the held-out sets; f4sim-t's
+  layout), and G-obs stays undecidable for F5, as section 8 already stated. The blocks stay unread
+  for F6. Reason: R5 and G-drop already decide the outcome on validation, and these are the only
+  real sub-array and unseen-observation held-out data on hand. Amendment 3's real G-sub and G-obs
+  are withdrawn with it.
+- N5-ph (Amendment 3) is not scored on f4sim-t's calibrator scans: f4sim-t is one of F4's held-out
+  sets, which (b) keeps unread for F6, so N5-ph reports no S1-S3. The frozen targets keep
+  section 10's f4sim-t target scans.
+- Scoring then proceeds as frozen and read once: targets on ESO137 chunks 11, 12, 13 and f4sim-t's
+  target scans; N5-ph on the reserved LUNO MAIN_8, 9, 10, 11, 13, 15.
+
 ## Measured result
 
 Runs under `outputs/dl3-f5/` (glacier, ignored) and `~/rang-data/outputs/dl3-f5-<date>` (nash).
@@ -752,6 +768,13 @@ N4: 0.954 at 209,027). κ: N5 OR W4 adds 2.73 M / 1.58 M / 1.04 M / 0.76 M / 0.4
 
 *Targets:* the full training audit (42 real realisations and 6 F-SIM scans; 890 s on nash at 16
 slots) passes, `stop: null`; F-SIM positives 0.23-2.36 M cells per scan.
+
+### Stage 4: targets, three seeds (frozen protocol), glacier GPU, 2026-11-20
+
+`examples/f5_gpu_seeds.sh`, one process, 30,000 steps per seed, 1,899 s, 20.8 GB host memory:
+validation losses seed 1 **0.0070**, seed 2 **0.0087**, seed 3 **0.0082** (weights sha256
+`d25f8cb1…`, `dd81f073…`, `61e4ea81…`); median seed **3**. τ and κ follow on nash (ESO137 chunk 10
+and the f2sim-v target scans only).
 
 ### Validation dry run of the held-out scorer (N5-ph, LUNO MAIN_7), nash, 2026-11-20 — no held-out read
 

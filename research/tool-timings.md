@@ -2360,3 +2360,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | F5 target train shards incl. F-SIM (`f5_shards.py`), 16 slots | 6 F-SIM scans (real ones done) | 890 s | 8.7 GB | nash; audit passes |
 | 2026-11-20 | F5 tau/kappa for N5-ph (`f5_tau.py`), 8 slots | MAIN_7 (2 realisations) + 3 f2sim-v scans | 355 s | 6.3 GB | nash |
 | 2026-11-20 | F5 held-out scorer validation dry run (`f5_heldout.py --validation`), 8 slots | LUNO MAIN_7, all section-10 cases | 2,063 s | 3.6 GB | nash; no held-out read |
+| 2026-11-20 | F5 target seeds 1-3 in one process (`f5_gpu_seeds.sh`) | target shards, 30,000 steps each | 1,899 s | 20.8 GB host | glacier GPU |
