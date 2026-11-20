@@ -4,12 +4,12 @@
 # 1-slot booking (I/O only), then the teachers under a THREADS-slot booking.
 # Usage: teach_block.sh CBID [THREADS] [K/N]  (K/N: only the scans at positions = K mod N,
 # so N jobs on one block take disjoint scans; amendment 7)
-# Env: TEACHERS (default rang,tricolour,aoflagger); HELDOUT=1 passes --heldout-read, only for
+# Env: PRIORITY (normal, or critical on the coordinator's word: AGENTS.md); TEACHERS (default rang,tricolour,aoflagger); HELDOUT=1 passes --heldout-read, only for
 # a consumer's single scoring read of a held-out block (dl2-data.md sections 5 and 19).
 R=~/rang-data/outputs/dl2-data-20261119
 S=~/Worktrees/rang/dl2-data/research/results/dl2-scripts
 PY=~/Worktrees/rang/dl2-data/.venv-dl2/bin/python
-LOCK="python3 $HOME/Github/rang/tools/heavy_lock.py run"
+LOCK="python3 $HOME/Github/rang/tools/heavy_lock.py run --priority ${PRIORITY:-normal}"
 T=${2:-8}
 STREAM=${3:-0/1}
 K=${STREAM%/*}; NS=${STREAM#*/}

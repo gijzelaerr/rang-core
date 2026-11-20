@@ -486,6 +486,17 @@ its own freeze. Prepared, not run.
   `finish_stage1.sh` writes the stage manifests when the last stream ends (`STAGE-END` in
   `logs/teach.log`); then copy `manifests/` into the repo and commit.
 
+## 22. Amendment 8 (2026-11-20 10:55 UTC; lock priority, no data read)
+
+The stage 1 labels of the six training blocks and the validation block are F6's training labels,
+on v0.4.0's critical path (`research/v040-plan.md`). On the coordinator's word (AGENTS.md: critical
+priority for the release's critical path only) the teacher streams book `--priority critical`:
+served before normal tickets, never preempting a running job. `teach_block.sh` takes
+`PRIORITY=critical`. [requeue_critical.sh](results/dl2-scripts/requeue_critical.sh) moves each
+running stream to it only while the stream waits in the lock queue: it stops the stream's process
+group and relaunches it with the same arguments. A teacher step that is running is never
+interrupted. Bookings stay as before: 6 slots per stream, which used about 6.2 cores.
+
 ## For the coordinator
 
 - Licence: whether weights trained on "freely available" archive data can ship under GPL is with the
