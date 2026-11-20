@@ -162,13 +162,17 @@ Then:
   T-relative bars recomputed on the same scans.
 - Score non-regression on the stage's validation sets. Never use its spent
   held-out sets.
-- Record every gate, including the undefined ones.
+- Record every gate, including the undefined ones. Read each gate entry
+  itself, not a summary list; F5's `f5_verdict.py` lists `failed: []` beside
+  an R2 entry with `pass: false`.
 - Read the outcome from the frozen table:
   - F if any defined gate fails;
   - P if every defined gate passes.
 - Set the header's `gates` from the outcome only.
 
-**R6 Cost.** Compare the following with the manifest:
+**R6 Cost.** Read this after R4, because R4's method rule can change the
+method kind (in the F5 dry run, N5 became N5W4). Compare the following with
+the manifest:
 
 - the header's `architecture`;
 - the ONNX op list and every initializer's shape;

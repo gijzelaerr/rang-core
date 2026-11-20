@@ -5,6 +5,10 @@ Task DL6 (issue #46, [dl-plan.md](dl-plan.md) section 8), branch `dl6-retrain` f
 stage has passed its gates yet;** F6 (session D, issue #40's successor) is expected to be the first.
 Results go under "Measured result"; nothing above it changes except by dated, labelled amendment.
 
+**Status (2026-11-20, 14:00 SAST): stages 0-2 done.** Note frozen (`f4ade32c`); procedure
+`docs/agents/retrain-a-stage.md` and skill `retrain-a-stage`; dry run on F5 measured (below), its
+gaps fixed in the page. Stage 3 (the agent test) waits for a passed stage (F6) and its manifest.
+
 **Done when** (issue #46): an agent retrains one passed stage for a held-out configuration from the
 procedure alone and meets the gates. **Not claimed:** novelty, better calibration or imaging, or that
 a stage generalises to a configuration it was not retrained for. A split inside one capture block is
@@ -162,7 +166,12 @@ realisations each), validation scan 19, one seed, 1,000 steps. Code: `dl3-f5` un
 worktree (`~/Worktrees/rang/dl6-dryrun`, own venv); this branch's
 [dryrun-scripts/](results/dl6-retrain/dryrun-scripts/) wrap it. Run root
 `nash:~/rang-data/outputs/dl6-dryrun-20261120/`. **Held-out scans 23 and 25 were not read.**
-Training moved to glacier's GPU on the coordinator's word (nash's queue was full).
+Training moved to glacier's GPU on the coordinator's word (nash's queue was full). Compact receipts: [dryrun/](results/dl6-retrain/dryrun/).
+
+**Reading.** Every step of R0-R6 ran from the page plus a loader; the reduced retrain stops twice
+as frozen (Stop-T at R1, Stop-L at R2), and on its own validation scan it would also fail R2's H1.
+Nothing here is a result about F5 or F6: one seed, 1,000 steps, two training scans, scored on the
+scan τ was fit on.
 
 | Step | Result | Host, wall |
 | --- | --- | --- |
@@ -175,7 +184,10 @@ Training moved to glacier's GPU on the coordinator's word (nash's queue was full
 | R2 audit | **Stop-L as frozen**: ignored uninjected 0.525 (scan 1) and 0.410 (scan 19) against 0.40; T's / A's recall of injected positives 0.38 / 0.60 on scan 1, 0.86 / 0.93 on scan 19, 0.88 / 0.89 on scan 3 | – |
 | R3 train | `f5_train.py` seed 1, 1,000 steps, CUDA under `gpu_run.py run --owner rang`: 45 s training, 56 s booked; validation loss 0.0752; flat sha256 `de7f95e2…` | glacier GPU, 12:43-12:44 SAST |
 | R4 export | `dl6_export.py`: Conv ×7, Relu ×5 only; weights byte-equal (3,201); `rang.learned.load` accepts; **I2 6.7e-6**; ONNX sha256 `1836d236…` | glacier |
-| R6 cost | header `architecture`, op set and all 14 initializer shapes equal the manifest's (3,152 multiply-adds per cell): **reuse** — but F5 has no C1/C2 reading yet, so nothing to reuse | – |
+| R4 τ, method | `f5_tau.py` through `dl6_run.py` on validation scan 19 only (F5's MAIN_7 and f2sim-v not rerun): **τ −3.5** (F5 −3.0), pooled recall 0.977, N5 adds 2,286,381 cells against T's 2,316,121; **κ 5 qualifies, method N5W4** (F5: N5, no κ qualified) | nash, 47 s |
+| R5 on validation | `f5_heldout.py real --validation` on scan 19, every case; F5's `f5_verdict.py`. The scan τ and κ were fit on, so optimistic; decides nothing. R1 1.000 (T 0.931); R1m all 1.000; **R2 H1 0.816 against T 1.000 (fails)**, H2 1.000, H3 1.000 (T 0.505), H4 1.000 (T 0.639), H4n 0.989 (T 0.366); R3 1.154; R4 J 0.446 (bar 0.250); R5 0.988; G-perm exact; G-drop k = 1 / 4 / 8: 0.036-0.044 / 0.072-0.085 / 0.111-0.155 (bars 0.05 / 0.20 / 0.25); G-sub core16 and outer32 pass; G-chan (reported) R1 1.000 (T 0.770), R3 0.683 | nash, 733 s |
+| Non-regression | **not run**: F5's validation sets (MAIN_7, f2sim-v) need F5's data root and the mixed retrain, which the reduced dry run does not make | – |
+| R6 cost | header `architecture`, op set and all 14 initializer shapes equal the manifest's (3,152 multiply-adds per cell), but the **method kind changed (N5 → N5W4)**: by section 7 the timing is **not** reused and a new exclusive run would be needed. (F5 has no C1/C2 reading yet in any case.) | – |
 
 ### Where the procedure was unclear or missing (fixed in the page unless noted)
 
@@ -202,5 +214,22 @@ Training moved to glacier's GPU on the coordinator's word (nash's queue was full
    0.40 on two of three scans): at 1k, in this block, the teachers flag far more native RFI than in
    LUNO. Not a procedure defect: a real retrain would stop here (Stop-L). F6's audit bar, sized
    anew (F6 proposal item 4), decides for the agent test.
-10. **Hosts.** nash's heavy-lock queue held the first booking 2 h 50 min; the chain runs as one
+10. **Teacher flag fractions.** In F5's band, DL2's T flags 0.44-0.51 and A 0.51-0.62 of the kept
+    cells of scans 1, 3 and 19 (input flags included), which is why the label audit stops (item 9).
+11. **R6 depends on R4.** The method rule can change the method kind (here N5 → N5W4), so the
+    cost check is read after R4's method, never from the architecture alone; the page says so.
+12. **Read gates, not summaries.** F5's `f5_verdict.py` lists `failed: []` while its own R2 entry
+    for H1 has `pass: false`; the page tells the agent to read every gate entry.
+13. **Hosts.** nash's heavy-lock queue held the first booking 2 h 50 min; the chain runs as one
     booking and stops before training so the GPU step does not hold CPU slots.
+
+## For the coordinator
+
+- Procedure, skill and index entry are on `dl6-retrain`; merge needs no owner decision.
+- Agent test (section 9) needs from F6 before it starts: a `retrain-manifest.json` per section 6
+  (tenant, ONNX file in the 2a form, cost receipts, one sha256 per data set, staged inputs), teacher
+  pins that match DL2's labels or a plan to rerun F6's teachers on 1735892129 (item 5), and F6's
+  label-audit bar (item 9: F5's bar stops this block). Held-out scans 23 and 25 are unread.
+- nash keeps the dry run's root `~/rang-data/outputs/dl6-dryrun-20261120/` (scans as npz, 1.7 GB
+  shards) and worktree `~/Worktrees/rang/dl6-dryrun` (detached at `dl3-f5`) until the agent test or
+  your word; glacier keeps only the weights and ONNX file in `D:angoutputsdl6-dryrun-20261120`.

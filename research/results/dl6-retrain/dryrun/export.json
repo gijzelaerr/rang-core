@@ -1,0 +1,104 @@
+{
+ "out": "D:/rang/outputs/dl6-dryrun-20261120/dl6-dryrun-seed1.onnx",
+ "ops": [
+  "Conv",
+  "Conv",
+  "Relu",
+  "Conv",
+  "Relu",
+  "Conv",
+  "Relu",
+  "Conv",
+  "Relu",
+  "Conv",
+  "Relu",
+  "Conv"
+ ],
+ "conv_only": true,
+ "initializer_shapes": [
+  [
+   8,
+   33,
+   1,
+   1
+  ],
+  [
+   8
+  ],
+  [
+   8,
+   8,
+   3,
+   3
+  ],
+  [
+   8
+  ],
+  [
+   8,
+   8,
+   3,
+   3
+  ],
+  [
+   8
+  ],
+  [
+   8,
+   8,
+   3,
+   3
+  ],
+  [
+   8
+  ],
+  [
+   8,
+   8,
+   3,
+   3
+  ],
+  [
+   8
+  ],
+  [
+   8,
+   8,
+   3,
+   3
+  ],
+  [
+   8
+  ],
+  [
+   1,
+   8,
+   1,
+   1
+  ],
+  [
+   1
+  ]
+ ],
+ "weights": 3201,
+ "weights_byte_equal": true,
+ "architecture": {
+  "id": "f5-n5",
+  "hyperparameters": {
+   "inputs": 33,
+   "hidden": 8,
+   "dilations": [
+    1,
+    2,
+    4,
+    8,
+    16
+   ],
+   "stem": true
+  }
+ },
+ "load": "ok",
+ "onnx_sha256": "1836d2367c8f1f6f720ee4780192abe06896ba592224d9aafcffa6e4b9747404",
+ "i2_max_abs": 6.67572021484375e-06,
+ "i2_pass": true
+}
