@@ -978,5 +978,5 @@ freezes with whichever survive, on held-out sets F5 has not read.
 > - F6 keeps your scheme and adds one rule: native cells both flaggers flag with strength ≥ 3 become
 >   positives. Your scheme's ignored set stays for cells only one flagger flags. The per-antenna
 >   planes get a fixed normalisation that does not depend on which antennas are present. F6 trains
->   on six SARAO blocks; three more (29 antennas, 32 outer antennas, an unseen observation) are held
+>   on four SARAO blocks (one more for validation); three more (29 antennas, 32 outer antennas, an unseen observation) are held
 >   out for it.
