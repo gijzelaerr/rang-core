@@ -420,25 +420,29 @@ new keeps them unchanged.
   which all fall in one mod-2 stream. Restarted at 04:43 UTC as three mod-3 streams, which take one
   each.
 
-## For the coordinator
+## 19. Coordinator decisions (2026-11-20 05:00 UTC)
 
-- Terms: no licence and no statement on derived products found; only the acknowledgement and the
-  publication notice. Shipping weights trained on "freely available" archive data under GPL is the
-  owner's call; no block was replaced.
-- Measured rate: one block (fetch, convert, hash) in about 40 min at 90-130 MB/s fetch; all nine
-  converted within about 3-4 h of the start. Flag teachers: about 23 h of Tricolour in all, split
-  across blocks.
-- Held-out labels (section 5): who runs the teachers on them, and when, is your call
-  (`dl2_teach.py --heldout-read`).
-- **Stage 2 and 7 teachers (recommendation for wave 2).** Build stage 2 first, under #41, which needs
-  it for the gain warm start. Per block, CASA `concat` (in `rang-o-casa_6.7.6.14.sif`) the
+- **Stage 2 runner: deferred.** A's DL0 puts #41 last, as a one-day screening (solver iterations are
+  0.25 % of the selfcal solve), so a day of building is not justified yet. The route stands as the
+  plan for when #41 or DL6 needs it. Per block, CASA `concat` (in `rang-o-casa_6.7.6.14.sif`) the
   calibrator-scan MSs into one private MS, because per-scan MSs all have SCAN_NUMBER 1 and their own
   FIELD ids. Apply the rang stage 1 labels first, and record that. Then run two teachers: rang
   calibrate (K, G, B; field roles from the block's tags, as e2n.yaml) and CASA gaincal and bandpass
   (E2-N's `e2n_casa3b.py` calls). Export the solutions as arrays outside the MS, with SHA-256 and
-  done-markers per block. That is 79 train and 29 validation calibrator scans, about a day to build.
-  Stage 7 under #42 comes after, with the same concat of each block's three middle target scans
-  plus stage 2's apply: GeMClean and WSClean (from `rang-o-casa`) deep models, 12 train and 3
-  validation target scans. Build it only once #24's comparison says the minor-cycle pilot goes ahead.
+  done-markers per block. That is 79 train and 29 validation calibrator scans.
+- **Stage 7 runner: waits on #42 and #24's comparison.** The same concat of each block's three middle
+  target scans plus stage 2's apply, then GeMClean and WSClean deep models (12 train and 3
+  validation target scans).
+- **Held-out labels are made at each consumer's single scoring read, not in advance.** For F5 that
+  is session D, through `dl2_teach.py --heldout-read`. This is the frozen rule of section 5, not an
+  owner decision.
+- **Shipping weights under GPL** on archive data with no stated licence: with the owner.
+
+## For the coordinator
+
+- Licence: whether weights trained on "freely available" archive data can ship under GPL is with the
+  owner (section 19); no block was replaced.
+- Stage 2 and stage 7 runners are deferred, with their route recorded (section 19).
+- Held-out labels are made at each consumer's single read (section 19).
 - An arbitrary-command task kind for the spool (for container teachers) is not added here; open it
   under #4 if wanted.
