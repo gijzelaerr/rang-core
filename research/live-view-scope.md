@@ -4,8 +4,9 @@ Written 2026-11-20 on the owner's request ("getting more insight and
 visualisations DURING the work ... a browser UI that connects to a running
 process ... integrate with other systems ... 0.5.0 or later?").
 **Status: direction decided by the owner on 2026-11-20 (section 6); the viewer
-spike is measured (section 8: both viewers work; a page of our own
-recommended, the owner to decide); nothing is built on main.** The inventory in
+spike is measured (section 8) and the viewer chosen (a page of our own);
+`rang-core watch` is implemented on branch `watch` for a 0.3.1 (section 9);
+nothing is on main yet.** The inventory in
 section 1 was read from `main` at `92e67e2f`; the candidate table in section 4
 was checked on the web and the GitHub API on 2026-11-20. No scientific or
 performance claim; tooling only.
@@ -164,7 +165,7 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 2. **Browser viewer.** Decided: the one-day spike, Rerun against a page of
    our own; the outcome picks the viewer. Outcome (section 8): by the frozen
    rule the owner decides; recommended, a page of our own, with Rerun as an
-   optional exporter later. **Open.** Bokeh/Panel and Makepad not chosen
+   optional exporter later. **Decided 2026-11-20: "own page".** Bokeh/Panel and Makepad not chosen
    (Makepad stays a possible later reader).
 3. **Placement.** Decided: the record, `rang-core watch` and the MCP tools
    right after the 0.4.0 tag, before the rest of v0.5.0; the browser view in
@@ -175,15 +176,14 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
    (`[view]`); a separate package only if it brings a dependency `rang-core`
    must not carry.
 
-6. **A reader-only `watch` during v0.4.0** (owner asked 2026-11-20: "would
+6. **A reader-only `watch` before v0.4.0** (owner asked 2026-11-20: "would
    it make sense to merge this in early since it could be a useful progress
-   tracker during 0.4.0 development?"). **Open.** Possible without touching a
-   kernel or a gate: `rang-core watch` over what already exists (`state.json`,
-   spool heartbeats, `outputs/status/*.md`, the heavy lock's queue). Checked
-   here: the local status files only; what the v0.4.0 training and nash jobs
-   write (checkpoints, shard done-markers) was not inspected, so its use for
-   them is unproven. The hook in GeMClean and the solvers stays after the tag
-   (decision 3; GeMClean is timed on 2026-11-21, #47).
+   tracker during 0.4.0 development?"). **Decided 2026-11-20:** "yes build the
+   early watch", then "no lets make it a 0.3.1! we want it in before 0.4.0".
+   This reverses the cancellation of v0.3.1 in [roadmap.md](roadmap.md)
+   (2026-11-19) for this one item. Built the same day (section 9). The hook in
+   GeMClean and the solvers stays after the 0.4.0 tag (decision 3; GeMClean is
+   timed on 2026-11-21, #47).
 
 ## 7. The spike: protocol (written 2026-11-20, before any spike code)
 
@@ -293,6 +293,44 @@ record through `/mnt/d`; it did not follow a live record on a remote disk),
 the native viewer not looked at, Rerun given about two hours of layout work by
 someone new to it.
 
+## 9. `rang-core watch` (implemented 2026-11-20, branch `watch`)
+
+One commit on `watch` from `origin/main` (`92e67e2f`); not merged.
+
+- **`rang-core watch PATH... [--once] [--json] [--interval S]`**
+  (`python/rang/watch.py`, standard library only, no `RANG_*` variable). It
+  reads and creates nothing. For a run directory (or an MS that has
+  `<ms>.rang-run` beside it): each stage's status and time in start order,
+  whether the process that marked a stage running is still there (this host
+  only; `unknown (other host)` otherwise), receipts. For a spool directory:
+  tasks waiting, claimed, done and failed, workers live by `LEASE_S`. For any
+  directory: files, bytes, the newest file and its age, the last line of the
+  newest `*.log`. Tables (`table.dat`) are not entered; a walk stops at 50,000
+  entries and says so. A full block is printed when something changed, one
+  line per tick otherwise.
+- **`tools/dev_status.py`** (not in the wheel): this host's heavy lock with
+  real CPU use (`heavy_lock.status`), the GPU bookings of `~/.gpu`, the
+  status files of this checkout and its worktrees with their age (LATE past
+  30 minutes), then `watch --once` on any directories given.
+- **What it shows for v0.4.0 work.** The training jobs write no run directory:
+  `examples/f5_train.py` writes `OUT_DIR/train.json` and `ckpt.pt`, and the
+  campaign directories under `~/rang-data/outputs` on nash hold no
+  `*.rang-run` directory one level down (listed 2026-11-20; deeper not
+  looked at; no status files were found in the worktrees there). So for those `watch` reports liveness only: the
+  newest file, its age, the last log line. Stage detail appears only for
+  `rang-core run` directories. It reports liveness, not progress, either way.
+- **Checked:** 7 tests (`tests/test_watch.py`), with `test_d1_docs.py`,
+  `test_core_cli.py` and `test_w4_5_release.py`, on Windows against the main
+  checkout's extension (not this branch's build); ruff clean on the three
+  new files; `docs/cli.md` regenerated. The commit cherry-picks onto the tag
+  `v0.3.0` without conflict and its 7 tests pass there.
+  `tools/check_all.py --quick` was **not** run: the lock queue was blocked
+  (an 11-slot hold at about 0 cores, two jobs waiting, one for 21 minutes).
+  CI on the branch is the check so far.
+- **Seen with it on the first run:** that blocked queue. `dev_status.py`
+  printed the idle hold (pid 31764, a WSL WSClean wrapper of #42) and the two
+  waiting jobs; nothing was done about it.
+
 ## For the coordinator
 
 - Branch `live-view-scope` (worktree `~/Worktrees/rang/live-view-scope`), one
@@ -304,6 +342,15 @@ someone new to it.
   `live-view-spike` (two commits, not pushed: a push would run CI with an
   undeclared `RANG_*` variable; worktree `~/Worktrees/rang/live-view-spike`
   kept because its commits are on no remote, its `core/target` deleted).
+- **0.3.1 (owner, 2026-11-20): `rang-core watch` goes out before v0.4.0.**
+  Branch `watch`, one commit, pushed; needs the merge check. For the
+  coordinator or the owner, not done here: the version bump, the tag, the
+  milestone and issue, the CHANGELOG heading (the entry is under Unreleased),
+  and the roadmap lines that say 0.3.1 is cancelled. **Open question for the
+  owner: cut 0.3.1 from `main`** (it then carries the v0.4.0 work already
+  merged, all `off` by default) **or from the tag `v0.3.0` plus this commit**
+  (it cherry-picks cleanly).
+- The viewer is decided (a page of our own); it stays a v0.5.0 item.
 - To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
   an issue on the v0.5.0 milestone for the browser view. No issue opened yet.
