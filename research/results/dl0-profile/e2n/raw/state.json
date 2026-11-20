@@ -1,0 +1,96 @@
+{
+ "config_path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/cfg/e2n.yaml",
+ "created": "2026-11-19T07:31:44+00:00",
+ "ms": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "attempts": 1,
+   "config_sha256": "3b3f3047c0d30b3c80730146922de9e212e800728aac1c93b5370dcf3ac5a7f7",
+   "finished": "2026-11-19T09:47:14+00:00",
+   "flag_version": "rang_apply_20261119T084036Z",
+   "host": "nash",
+   "pid": 2181939,
+   "previous": null,
+   "seconds": 3998.4002390489914,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate",
+    "apply"
+   ],
+   "started": "2026-11-19T08:40:35+00:00",
+   "status": "done",
+   "summary": {
+    "applymode": "calflag",
+    "calwt": false,
+    "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+    "column": "CORRECTED_DATA",
+    "flag_version": "rang_apply_20261119T084036Z",
+    "parang": true,
+    "parang_flags": "spread",
+    "rang_original_saved_now": false,
+    "restored_before": null
+   }
+  },
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "8baf5144c99ecc7fb271466aa2434da881c3e864d4c4b9b246a287a7d602acd7",
+   "finished": "2026-11-19T08:40:35+00:00",
+   "flag_version": "rang_calibrate_20261119T073144Z",
+   "host": "nash",
+   "pid": 2181939,
+   "previous": null,
+   "seconds": 4130.771127696964,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-19T07:31:44+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261119T073144Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "scans": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  },
+  "selfcal": {
+   "attempts": 1,
+   "config_sha256": "6d44b5aad321087b195d9627de40e7296a7338e8010cbdcc06ffdd398519f6fb",
+   "finished": "2026-11-19T23:34:07+00:00",
+   "flag_version": "rang_selfcal_20261119T094714Z",
+   "host": "nash",
+   "pid": 2181939,
+   "previous": null,
+   "seconds": 49612.94581587694,
+   "sections": [
+    "fields",
+    "data",
+    "image",
+    "selfcal"
+   ],
+   "started": "2026-11-19T09:47:14+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_selfcal_20261119T094714Z",
+    "gemclean": "/home/gijs/Worktrees/rang/dl0-profile/.venv/bin/python -m rang.gemclean",
+    "gemclean_sha256": "7dfc664d545cc63ea17130c1cc910fd343d0dacc7cc5ac763e2a0826bc150aa6",
+    "input_column": "CORRECTED_1GC",
+    "model_column": "MODEL_DATA",
+    "output_column": "CORRECTED_DATA",
+    "rang_original_saved_now": false,
+    "refant": 22,
+    "restored_before": null,
+    "rounds": 2
+   }
+  }
+ },
+ "telescope": "MeerKAT",
+ "updated": "2026-11-19T23:34:07+00:00",
+ "version": 1
+}

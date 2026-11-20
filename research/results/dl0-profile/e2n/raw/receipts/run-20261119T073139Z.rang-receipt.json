@@ -1,0 +1,139 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "run",
+  "/home/gijs/rang-data/outputs/dl0-profile-20261119/cfg/e2n.yaml",
+  "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms"
+ ],
+ "stage": "run",
+ "verb": null,
+ "started_utc": "2026-11-19T07:31:39+00:00",
+ "commit": null,
+ "source": {
+  "checkout": null,
+  "distribution": "rang-core",
+  "version": "0.3.0",
+  "extension_sha256": "7dfc664d545cc63ea17130c1cc910fd343d0dacc7cc5ac763e2a0826bc150aa6"
+ },
+ "environment": {
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "executable": "/home/gijs/Worktrees/rang/dl0-profile/.venv/bin/python",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.39",
+  "system": "Linux",
+  "machine": "x86_64",
+  "cpu_count": 36,
+  "rang_core": "0.3.0",
+  "extension": {
+   "path": "/home/gijs/Worktrees/rang/dl0-profile/.venv/lib/python3.12/site-packages/rang/_core.abi3.so",
+   "sha256": "7dfc664d545cc63ea17130c1cc910fd343d0dacc7cc5ac763e2a0826bc150aa6"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "16",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "16",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": "/home/gijs/rang-data/fixtures/outer_scans.zip",
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": "/home/gijs/rang-data/locks/heavy",
+   "RANG_HEAVY_SLOTS": "44",
+   "RANG_HEAVY_MEM_GB": "320",
+   "RANG_HEAVY_NICE": "19",
+   "RANG_HEAVY_LOCK_HELD": "16:64",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": "/home/gijs/rang-data/outputs",
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/cfg/e2n.yaml",
+   "kind": "file",
+   "bytes": 3814,
+   "sha256": "bf8af9593959495e9e8bae50385f22ff2db2e023140f217cd254076c1ed6db71"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms",
+   "kind": "directory",
+   "files": 79,
+   "bytes": 112278111985,
+   "listing_sha256": "9df7150bd7d410148ad9366ad11f7c95c2e64b71ff0a74e1f842c31fae4e4c2e"
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms.flagversions",
+   "kind": "directory",
+   "files": 32,
+   "bytes": 5711089917,
+   "listing_sha256": "e449599d1aac1b8e0534da56eae69816ab78d638dd9afcb1579f941ac1aeae23"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms",
+   "kind": "directory",
+   "files": 85,
+   "bytes": 331447275666,
+   "listing_sha256": "ba4f182d450b5c7fe7784d864c3b06c07de380c27e2ad270cd8894f35e78f7af",
+   "modified": true
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms.flagversions",
+   "kind": "directory",
+   "files": 50,
+   "bytes": 9137743770,
+   "listing_sha256": "be824464bd4a907e1a42d906210eecdc4d3a4b5c34911de61ac33a81cf266d3d",
+   "modified": true
+  },
+  {
+   "path": "/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms.rang-run",
+   "kind": "directory",
+   "files": 659,
+   "bytes": 9067339666,
+   "tree_sha256": "5c827cb59563b414717b24358eb24e720b6a1325fa10ea3c2f8b9b891ad3a8b7"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 57747.37183284096,
+  "cpu_seconds": 22764.121843,
+  "peak_rss_mb": 6766.53125
+ },
+ "exit": 0,
+ "verdict": null
+}
