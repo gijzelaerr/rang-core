@@ -178,7 +178,7 @@ One record, two viewers, the same input.
 
 - **Capture.** A scratch branch (not pushed) makes GeMClean append an event
   per major cycle and write a decimated residual, on the path one test run
-  takes, on a simulated MeerKAT MS under `D:ang\data`. Outputs hashed with
+  takes, on a simulated MeerKAT MS under `D:/rang/data`. Outputs hashed with
   the hook on and off and wall time noted (indicative, not the gate of
   section 2). The gain panel is fed from an existing MeerKAT-size calibration
   table converted by a script, labelled replay; no solver is instrumented.
