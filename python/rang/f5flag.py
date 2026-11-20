@@ -710,3 +710,24 @@ def use_data_root(root):
     f3.F2_VAL = out / "f2-20261106-01-sim-v" / "f2sim-v"
     f4.FETCH = out / "f4-20261111-01-fetch" / "objects"
     f4.F4_TEST = out / "f4-20261111-02-sim-test" / "f4sim-t"
+
+
+# -- the post hoc calibrator arm's held-out groups (Amendment 3) --------------------
+
+RESERVED_GROUPS = ("MAIN_8", "MAIN_9", "MAIN_10", "MAIN_11", "MAIN_13", "MAIN_15")
+RESERVED_FETCH = None  # the objects/ directory of examples/f5_fetch.py's run
+
+
+def load_reserved(group, heldout=False):
+    """A reserved LUNO group for N5-ph (Amendment 3): read once, at scoring."""
+    if group not in RESERVED_GROUPS:
+        raise ValueError(f"{group} is not a reserved group")
+    if not heldout:
+        raise PermissionError(
+            f"{group} is held out for N5-ph; pass heldout=True at scoring"
+        )
+    if RESERVED_FETCH is None:
+        raise RuntimeError(
+            "set rang.f5flag.RESERVED_FETCH to the fetch's objects/ directory"
+        )
+    return f3.read_luno(group, (RESERVED_FETCH, f3.INPUTS))
