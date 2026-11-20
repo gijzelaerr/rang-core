@@ -172,6 +172,15 @@ if the first did not reach R5).
   by the interpreter, the conv-only exporter was tested on random N5 weights (I2 3.7e-6), and the
   loader was queued on nash, all before `f4ade32c`.
 
+### Amendment 2, 2026-11-20 14:20 SAST: owner decisions (relayed by the coordinator)
+
+- **Licence of retrained weights.** Weights trained on SARAO data and shipped are **CC BY 4.0**, and
+  the header's `licence` says so, with SARAO's acknowledgement (as in [dl2-data.md](dl2-data.md)) in
+  the header's `source`. The dry run's header (`licence: MIT`) predates this and ships nothing.
+- **Host.** glacier's full CPU and GPU are DL6's until Monday 2026-11-23 at any hour, except
+  2026-11-20 21:00 to about 06:30 SAST (#47's exclusive speed table). GPU jobs still go through
+  `gpu_run.py`, CPU jobs through the heavy lock.
+
 ## Measured result
 
 ### Dry run on F5, 2026-11-20 (section 8; validation only, decides nothing)

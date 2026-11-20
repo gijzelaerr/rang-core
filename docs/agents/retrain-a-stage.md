@@ -149,7 +149,10 @@ Then:
 - Write the header. Keep the stage's header and change only these fields:
   - `envelope`: the union of the stage's and the configuration's;
   - `training`: add the new scans and their sha256;
-  - `gates`: `passed: false` until R5.
+  - `gates`: `passed: false` until R5;
+  - `licence` and `source`: weights trained on SARAO data are CC BY 4.0
+    (owner, 2026-11-20). Put SARAO's acknowledgement, the text in
+    `research/dl2-data.md`, in `source`.
 - Check the file:
   - `rang.learned.load` accepts it;
   - `rang.learned.run_reference` against PyTorch is within 1e-4 on seeded
