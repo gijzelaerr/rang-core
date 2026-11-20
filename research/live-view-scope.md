@@ -295,8 +295,9 @@ someone new to it.
 
 ## 9. `rang-core watch` (implemented 2026-11-20, branch `watch`)
 
-Two commits on `watch` from `origin/main` (`92e67e2f`): `433be2ff` and the
-fixes of a review the same day, `cf71eefb`. Not merged.
+Three commits on `watch` from `origin/main` (`92e67e2f`): `433be2ff`, the
+fixes of a review the same day (`cf71eefb`) and a missing SPDX line
+(`c8fc9e87`). Not merged.
 
 - **`rang-core watch PATH... [--once] [--json] [--interval S]`**
   (`python/rang/watch.py`, standard library only, no `RANG_*` variable). It
@@ -333,10 +334,13 @@ fixes of a review the same day, `cf71eefb`. Not merged.
   ticks at `--interval 5` on a directory a job was writing, and
   `dev_status.py` with its defaults. Both commits cherry-pick onto the tag
   `v0.3.0` without conflict; `test_watch.py` and `test_d1_docs.py` pass there
-  (15 passed, 1 skipped). `tools/check_all.py --quick` was started after the
-  second push and queued behind a blocked lock (an 11-slot hold at about
-  0 cores, two jobs waiting, one for 28 minutes); its result is in the
-  hand-back, not here.
+  (15 passed, 1 skipped; the third commit not re-run there).
+  `tools/check_all.py --quick`: PASS in 1,106 s after queueing behind a
+  blocked lock (an 11-slot hold at about 0 cores, two jobs waiting, one for
+  28 minutes); it started on `cf71eefb` and the SPDX line was committed while
+  it ran. CI: `cf71eefb` was red (`tests/test_spdx_headers.py`,
+  `tools/dev_status.py` without its line); `c8fc9e87` is green, tests on
+  Linux and Windows and docs.
 - **Seen with it on the first run:** that blocked queue. `dev_status.py`
   printed the idle hold (pid 31764, a WSL WSClean wrapper of #42) and the two
   waiting jobs; nothing was done about it.
@@ -353,7 +357,7 @@ fixes of a review the same day, `cf71eefb`. Not merged.
   undeclared `RANG_*` variable; worktree `~/Worktrees/rang/live-view-spike`
   kept because its commits are on no remote, its `core/target` deleted).
 - **0.3.1 (owner, 2026-11-20): `rang-core watch` goes out before v0.4.0.**
-  Branch `watch`, two commits, pushed; needs the merge check. Merge
+  Branch `watch`, three commits, pushed, CI green; needs the merge check. Merge
   `live-view-scope` with or before it: the changelog entry and the module
   cite this note. For the
   coordinator or the owner, not done here: the version bump, the tag, the
@@ -361,7 +365,7 @@ fixes of a review the same day, `cf71eefb`. Not merged.
   and the roadmap lines that say 0.3.1 is cancelled. **Open question for the
   owner: cut 0.3.1 from `main`** (it then carries the v0.4.0 work already
   merged, all `off` by default) **or from the tag `v0.3.0` plus this commit**
-  (both commits cherry-pick cleanly).
+  (the commits cherry-pick cleanly).
 - The viewer is decided (a page of our own); it stays a v0.5.0 item.
 - To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
