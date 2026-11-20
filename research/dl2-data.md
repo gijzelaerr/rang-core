@@ -486,7 +486,7 @@ its own freeze. Prepared, not run.
   `finish_stage1.sh` writes the stage manifests when the last stream ends (`STAGE-END` in
   `logs/teach.log`); then copy `manifests/` into the repo and commit.
 
-## 22. Amendment 8 (2026-11-20 10:55 UTC; lock priority, no data read)
+## 22. Amendment 8 (2026-11-20 10:48 UTC; lock priority, no data read)
 
 The stage 1 labels of the six training blocks and the validation block are F6's training labels,
 on v0.4.0's critical path (`research/v040-plan.md`). On the coordinator's word (AGENTS.md: critical
