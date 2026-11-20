@@ -43,7 +43,7 @@ CELL_DEG = 1.6 / 3600
 K_TRAIN = 4
 P_MAX = 6
 BATCH = 16
-LR = 3e-4
+LR = 1e-3
 CKPT_S = 15 * 60
 SAST = dt.timezone(dt.timedelta(hours=2))
 
@@ -57,6 +57,15 @@ class CAN(nn.Module):
             c = hidden
         layers.append(nn.Conv2d(c, 1, 1, bias=False))
         self.net = nn.Sequential(*layers)
+        # He init (amendment 3): torch's default gave a gain of 5e-6 through 11 layers
+        # and a zero output layer, so training starts at the empty model with
+        # healthy hidden features (He alone started 300x above it and collapsed)
+        for mod in self.net:
+            if isinstance(mod, nn.Conv2d):
+                if mod.out_channels > 1:
+                    nn.init.kaiming_normal_(mod.weight, nonlinearity="relu")
+                else:
+                    nn.init.zeros_(mod.weight)
 
     def forward(self, x):
         return self.net(x)
@@ -78,10 +87,13 @@ def _median(flat):
     return 0.5 * (srt[:, n // 2 - 1] + srt[:, n // 2])
 
 
-def step_model(net, r, m):
+def step_model(net, r, m, raw=False):
+    """m <- max(m + s f(r/s, m/s), 0); with raw=True also the unclipped update
+    (the training loss is taken on it, amendment 3)."""
     s = robust_rms(r)
     x = torch.stack([r / s[:, :, :], m / s[:, :, :]], dim=1)
-    return torch.relu(m + s * net(x)[:, 0])
+    u = m + s * net(x)[:, 0]
+    return (u, torch.relu(u)) if raw else torch.relu(u)
 
 
 def gconv(m, Gf):
@@ -203,12 +215,18 @@ def loss_fn(net, arm, d, t, Gf, k, s0):
     total = 0.0
     tb = bconv(t, k)
     for p in range(passes):
-        m = step_model(net, r, m)
-        total = total + ((bconv(m, k) - tb).abs().flatten(1).sum(1) / s0).mean()
+        u, m = step_model(net, r, m, raw=True)
+        # squared error at beam resolution (amendment 3; L1 stayed at the empty model)
+        e = (bconv(u, k) - tb) / s0[:, None, None]
+        total = total + (e**2).flatten(1).sum(1).mean()
         if p + 1 < passes:
             m = m.detach()
             r = d - gconv(m, Gf)
     return total / passes
+
+
+def empty_loss(t, k, s0):
+    return float(((bconv(t, k) / s0[:, None, None]) ** 2).flatten(1).sum(1).mean())
 
 
 def metrics(model, comps, beam_px):
@@ -251,7 +269,7 @@ def run_passes(net, arm, d, Gf, p_max=P_MAX):
 
 def validate(net, arm, data):
     net.eval()
-    recs, fals = [], []
+    recs, fals, npix = [], [], []
     for i in range(0, len(data.val), BATCH):
         idx = data.val[i : i + BATCH]
         d, _, Gf, _, _ = data.batch(idx, np.zeros(len(idx), int))
@@ -262,9 +280,15 @@ def validate(net, arm, data):
             r_, f_ = metrics(mm[j], data.comps[f], bpx)
             recs.append(r_)
             fals.append(f_)
+            npix.append(int((mm[j] > 0).sum()))
     net.train()
     rec, fal = float(np.nanmean(recs)), float(np.nanmean(fals))
-    return {"recovery": rec, "false": fal, "score": rec - fal}
+    return {
+        "recovery": rec,
+        "false": fal,
+        "score": rec - fal,
+        "npix_median": float(np.median(npix)),
+    }
 
 
 def setup(seed):
@@ -348,9 +372,20 @@ def train(args, data=None):
         opt.step()
         sched.step()
         state["step"] += 1
+        if state["step"] % 50 == 0:
+            ratio = float(loss.detach()) / empty_loss(t, k, s0)
+            state.setdefault("ratio", []).append([state["step"], ratio])
+            if state["step"] == args.abort_step and ratio > 0.9:
+                say(
+                    f"abort: loss / empty-model loss = {ratio:.3f} at step {state['step']}"
+                )
+                save(ck, net, opt, sched, state)
+                log.close()
+                return 4
         now = time.perf_counter()
         stop = in_window(dt.datetime.now(SAST), windows)
-        if now - last >= CKPT_S or stop or state["step"] >= total_steps:
+        first = state["step"] == args.first_val
+        if now - last >= CKPT_S or stop or first or state["step"] >= total_steps:
             state["train_s"] += now - t_seg
             t_seg = now
             v = (
@@ -392,7 +427,7 @@ def resume_test(args):
     device = torch.device("cuda")
     data = Data(args.packs, device, args.packs + "-psfg")
     out = Path(args.out)
-    base = {"packs": args.packs, "arm": "NP", "seed": 11, "hours": 10.0, "steps_total": 200, "validate": False, "yield_window": None, "psfg": None}  # fmt: skip
+    base = {"packs": args.packs, "arm": "NP", "seed": 11, "hours": 10.0, "steps_total": 200, "validate": False, "yield_window": None, "psfg": None, "first_val": -1, "abort_step": -1}  # fmt: skip
     a = argparse.Namespace(out=str(out / "straight"), steps_max=200, **base)
     train(a, data)
     b = argparse.Namespace(out=str(out / "resumed"), steps_max=100, **base)
@@ -445,6 +480,12 @@ def main():
     p.add_argument("--no-validate", dest="validate", action="store_false")
     p.add_argument("--psfg", help="directory of psfg-KKK.npz (NP)")
     p.add_argument("--batch", type=int, default=16)
+    p.add_argument(
+        "--first-val", type=int, default=500, help="also validate at this step"
+    )
+    p.add_argument(
+        "--abort-step", type=int, default=1000, help="exit 4 if loss/empty > 0.9 here"
+    )
     p.set_defaults(func=train)
     p = sub.add_parser("resume-test")
     p.add_argument("packs")

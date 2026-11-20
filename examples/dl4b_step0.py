@@ -34,13 +34,27 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import astrodeconv_sim as A
 
 POS = (0, 128, 255)
+
+
+def wsclean_cmd(work):
+    """WSClean's argv prefix: `wsclean`, or $DL4B_WSCLEAN with {cwd} and {uid}
+    filled (glacier: a docker run of rang-wsclean-native:3.7 with /dev/shm mounted)."""
+    import os
+    import shlex
+
+    tmpl = os.environ.get("DL4B_WSCLEAN")
+    if not tmpl:
+        return ["wsclean"]
+    return shlex.split(tmpl.format(cwd=work, uid=f"{os.getuid()}:{os.getgid()}"))
+
+
 TOL_DIRTY = 1e-4
 
 
 def ws(args, work, name):
     t = time.perf_counter()
     r = subprocess.run(
-        ["wsclean", "-j", "1", *args],
+        [*wsclean_cmd(work), "-j", "1", *args],
         check=False,
         capture_output=True,
         text=True,
@@ -147,17 +161,19 @@ def sha(path):
     return h.hexdigest()
 
 
-def psfg_shard(k, data, out):
+def psfg_shard(k, data, out, dirty10=None):
     npz = out / f"psfg-{k:03d}.npz"
     done = out / f"psfg-{k:03d}.done"
     if done.exists() and npz.exists() and done.read_text().strip() == sha(npz):
         return k, "skip"
     t = time.perf_counter()
-    z = np.load(data / f"shard-{k:03d}.npz")
-    dirty = z["dirty"]
+    if dirty10:
+        dirty = np.load(dirty10)[f"d{k:03d}"]
+    else:
+        dirty = np.load(data / f"shard-{k:03d}.npz")["dirty"][0::3]
     Gs, recs = [], []
     for i in range(10):
-        G, rec = psfg_seed(10 * k + i, dirty[3 * i])
+        G, rec = psfg_seed(10 * k + i, dirty[i])
         Gs.append(G)
         recs.append(rec)
     tmp = out / f"psfg-{k:03d}.tmp.npz"
@@ -188,7 +204,7 @@ def shards_arg(s):
 def psfg(args):
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    jobs = [(k, Path(args.data), out) for k in shards_arg(args.shards)]
+    jobs = [(k, Path(args.data), out, args.dirty10) for k in shards_arg(args.shards)]
     ctx = mp.get_context("spawn")
     with ctx.Pool(args.workers, maxtasksperchild=1) as pool:
         for k, msg in pool.imap_unordered(_worker, jobs):
@@ -288,7 +304,7 @@ def wsbase(work):
 
 def ws_logged(args, work, name):
     t = time.perf_counter()
-    r = subprocess.run(["wsclean", "-j", "1", *args], check=False, capture_output=True, text=True, cwd=work)  # fmt: skip
+    r = subprocess.run([*wsclean_cmd(work), "-j", "1", *args], check=False, capture_output=True, text=True, cwd=work)  # fmt: skip
     wall = time.perf_counter() - t
     log = r.stdout + r.stderr
     (work / f"{name}.log").write_text(log)
@@ -663,6 +679,9 @@ def main():
     p.add_argument("out")
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--shards")
+    p.add_argument(
+        "--dirty10", help="npz of flux-10 dirty images d{KKK} (no shards needed)"
+    )
     p.set_defaults(func=psfg)
     p = sub.add_parser("optol")
     p.add_argument("data")
