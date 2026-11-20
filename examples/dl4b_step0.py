@@ -129,7 +129,11 @@ def psfg_seed(seed, dirty_f10):
         b = base(work)
         ws(b + ["-niter", "0", "-data-column", "DATA", "-name", "d", str(ms)], work, "d")  # fmt: skip
         d = read(work / "d-image.fits")
-        dirty_err = float(np.abs(d - dirty_f10).max() / np.abs(dirty_f10).max())
+        dirty_err = (
+            None
+            if dirty_f10 is None
+            else float(np.abs(d - dirty_f10).max() / np.abs(dirty_f10).max())
+        )
         hdr = fits.getheader(work / "d-image.fits")
         imgs = {}
         for y0 in POS:
@@ -147,7 +151,7 @@ def psfg_seed(seed, dirty_f10):
     return G, {
         "seed": seed,
         "dirty_err_rel_peak": dirty_err,
-        "dirty_ok": dirty_err <= TOL_DIRTY,
+        "dirty_ok": None if dirty_err is None else dirty_err <= TOL_DIRTY,
         "peak": float(G[256, 256]),
         "wall_s": time.perf_counter() - t0,
     }
@@ -169,8 +173,10 @@ def psfg_shard(k, data, out, dirty10=None):
     t = time.perf_counter()
     if dirty10:
         dirty = np.load(dirty10)[f"d{k:03d}"]
-    else:
+    elif (data / f"shard-{k:03d}.npz").exists():
         dirty = np.load(data / f"shard-{k:03d}.npz")["dirty"][0::3]
+    else:
+        dirty = [None] * 10  # G depends on the uv coverage only; no regeneration check
     Gs, recs = [], []
     for i in range(10):
         G, rec = psfg_seed(10 * k + i, dirty[i])
@@ -183,7 +189,7 @@ def psfg_shard(k, data, out, dirty10=None):
     done.write_text(sha(npz))
     return (
         k,
-        f"{time.perf_counter() - t:.0f} s, dirty ok {sum(r['dirty_ok'] for r in recs)}/10",
+        f"{time.perf_counter() - t:.0f} s, dirty ok {sum(bool(r['dirty_ok']) for r in recs)}/10",
     )
 
 

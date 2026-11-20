@@ -240,8 +240,7 @@ The coordinator asked for the GPU to be filled and N1 to start before the grid P
 2. **N1 steps.** `--steps-total 5500`, about 19 min of training at 0.20 s per step, inside amendment 1's 20 min per seed. Validation time is not counted against the cap.
 3. **Packs.** The packs no longer carry G. The trainer reads G per seed from the psfg shards (`--psfg`), so N1 does not wait for them.
    - The pack build on nash (260 s, one core, I/O-light) ran outside the heavy lock: an error, recorded here.
-   - Packs: 300 files, 2.2 GB, on glacier `D:
-ang\dl4b-step0\packs`; removed after training.
+   - Packs: 300 files, 2.2 GB, on glacier `D:/rang/dl4b-step0/packs`; removed after training.
 4. **Load-time memory.** The load-time s₀ computation is chunked; computing it in one pass had peaked at 21 GiB through shared memory.
 5. **Yield windows** (SAST), passed to the trainer: 20:50-23:59 and 06:00-06:50, on top of `gpu_run.py check`.
 
@@ -271,6 +270,36 @@ Diagnosis (scripts `results/dl4b-step0/scripts/diag*.py`, glacier):
 - The 6 h cap of amendment 1 stands. Remaining: N1 3 × 20 min, NP 3 × **80 min** (was 90), 0.25 h reserve.
 
 The failed run is kept as `D:/rang/dl4b-step0/runs/N1-seed1-failed-clip`. Seed 1 is rerun from scratch under this amendment.
+
+## Amendment 4 (2026-11-20 10:50, post hoc: after N1's image-domain validation scores were seen; before any exact-cycle score, any NP training and any test read)
+
+N1's validation shows recovery above 1:
+
+| Seed | Recovery | False flux | Median pixels > 0 |
+| --- | ---: | ---: | ---: |
+| 1 | 1.20 | 0.098 | 2,488 |
+| 2 | 1.05 | 0.112 | 3,995 |
+| 3 | 1.08 | 0.091 | 1,133 |
+
+Two frozen rules reward over-recovery:
+
+- the checkpoint score `recovery − false` (section 3), where seed 1's 20 % overshoot scores best;
+- the one-sided recovery tolerance of section 5, `median(rec_NP − rec_W1) ≥ −0.02`, which a model that puts excess flux near sources passes.
+
+Both become two-sided:
+
+1. **Checkpoint score:** −|recovery − 1| − false. For N1, the checkpoint is chosen between `best.pt` and the final weights by this score from each run's recorded history. Both are kept.
+2. **Recovery tolerance:** median over fields of (|rec_NP − 1| − |rec_W1 − 1|) ≤ +0.02. The false-flux tolerance is unchanged, and the anchor's E1 comparison is unchanged.
+
+Not changed: the measures, the cycle counting, the outcome table, the test-once rule.
+
+**Also recorded here** (measured since amendment 3):
+- **Operator tolerance (section 2.2):** median 6.1 % of the residual rms over the 90 validation seeds. **PASS** against 10 %.
+- **G-convolution check:** torch's image-domain operator against numpy's, all 8 augmentation codes, worst 4.0e-7 of the peak; equivariance to 3e-16.
+- **NP batch:** 16 (peak 10.96 GiB, 0.57 s per step). Batch 32 did not fit in 12 GB. `--steps-total 8000`, 80 min per seed.
+- **Grid PSFs:** all 300 shards. Shards 1-199 came from nash (copied when nash's account was locked at about 10:00, checksums checked); shards 200-299 were built on glacier with `rang-wsclean-native:3.7` in docker; shard 0 from nash. Cross-host agreement 1.2e-7 on two seeds.
+- **Regeneration check on glacier:** 8 of 1,000 seeds missed the 1e-4 dirty-match by up to 1.1e-4. That MS carried one data column against the generator's three; G does not depend on the data.
+- **Comparators and scoring move to glacier**, so one host times both arms: the ladder runs on glacier's CPU in docker WSClean 3.7. On seed 5 its scores, cycles and iterations equal nash's.
 
 ## Measured result
 

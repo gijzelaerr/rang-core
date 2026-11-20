@@ -286,7 +286,7 @@ def validate(net, arm, data):
     return {
         "recovery": rec,
         "false": fal,
-        "score": rec - fal,
+        "score": -abs(rec - 1.0) - fal,  # amendment 4: two-sided
         "npix_median": float(np.median(npix)),
     }
 
@@ -362,6 +362,8 @@ def train(args, data=None):
     rc = 0
     while state["step"] < min(total_steps, args.steps_max or total_steps):
         if state["train_s"] + (time.perf_counter() - t_seg) >= budget:
+            state["train_s"] += time.perf_counter() - t_seg
+            t_seg = time.perf_counter()
             say("budget reached")
             break
         idx, aug = order(args.seed, len(data.train), state["step"])
@@ -416,11 +418,50 @@ def train(args, data=None):
         save(ck, net, opt, sched, state)
         say(f"steps done at {state['step']}")
     if rc == 0:
-        state["train_s"] += 0
+        if args.validate:
+            final_validate(net, opt, sched, state, args.arm, data, out, say)
         save(ck, net, opt, sched, state)
         (out / "done.json").write_text(json.dumps(state, indent=1))
     log.close()
     return rc
+
+
+def final_validate(net, opt, sched, state, arm, data, out, say):
+    """Validate the last weights if the last validation was at an earlier step."""
+    hist = state["history"]
+    if hist and hist[-1]["step"] == state["step"]:
+        return
+    v = validate(net, arm, data)
+    state["history"].append({"step": state["step"], "train_s": state["train_s"], "final": True, **v})  # fmt: skip
+    if v["score"] > state["best"]:
+        state["best"] = v["score"]
+        save(out / "best.pt", net, opt, sched, state)
+    say(f"final validation at step {state['step']}: {v}")
+
+
+def finalval(args):
+    """Final validation for a run that ended without one (budget hit before a checkpoint)."""
+    device = torch.device("cuda")
+    out = Path(args.out)
+    data = Data(args.packs, device, args.psfg)
+    c = torch.load(out / "ckpt.pt", weights_only=False)
+    net = CAN().to(device)
+    net.load_state_dict(c["net"])
+    opt = torch.optim.AdamW(net.parameters(), lr=LR, weight_decay=0.0)
+    opt.load_state_dict(c["opt"])
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: 1.0)
+    state = c["state"]
+    with open(out / "train.log", "a") as log:
+
+        def say(msg):
+            line = f"{dt.datetime.now(SAST):%Y-%m-%dT%H:%M:%S} {msg}"
+            print(line, flush=True)
+            log.write(line + chr(10))
+
+        final_validate(net, opt, sched, state, args.arm, data, out, say)
+    c["state"] = state
+    torch.save(c, out / "ckpt.pt")
+    (out / "done.json").write_text(json.dumps(state, indent=1))
 
 
 def resume_test(args):
@@ -487,6 +528,12 @@ def main():
         "--abort-step", type=int, default=1000, help="exit 4 if loss/empty > 0.9 here"
     )
     p.set_defaults(func=train)
+    p = sub.add_parser("finalval")
+    p.add_argument("packs")
+    p.add_argument("out")
+    p.add_argument("--arm", choices=("N1", "NP"), required=True)
+    p.add_argument("--psfg")
+    p.set_defaults(func=finalval)
     p = sub.add_parser("resume-test")
     p.add_argument("packs")
     p.add_argument("out")

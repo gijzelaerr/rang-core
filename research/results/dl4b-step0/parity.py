@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "examples"))
-import dl4b_step0 as S  # noqa: E402
+import dl4b_step0 as S
 
 if sys.argv[1] == "run":
     data, out, host = Path(sys.argv[2]), Path(sys.argv[3]), sys.argv[4]
@@ -20,7 +20,11 @@ if sys.argv[1] == "run":
     z = np.load(data / "shard-000.npz")
     bm = S.beams(data)
     recs, models = S.ladder_seed(5, z, 5, bm, out)
-    arr = {f"{k}_{p}": v[i] for k, v in models.items() for i, p in enumerate(("idx", "val"))}
+    arr = {
+        f"{k}_{p}": v[i]
+        for k, v in models.items()
+        for i, p in enumerate(("idx", "val"))
+    }
     for s in (0, 1):
         G, rec = S.psfg_seed(s, z["dirty"][3 * s])
         arr[f"G{s}"] = G
