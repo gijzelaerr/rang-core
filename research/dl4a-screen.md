@@ -102,6 +102,25 @@ Run root `nash:~/rang-data/outputs/dl4a-screen-<date>/`, done-marker per solve, 
 run in `research/tool-timings.md` (host nash), and a compact archive under
 `research/results/dl4a-screen/`: summaries, iterations, the product differences, the ceiling.
 
+## 7. Clarification 1 (2026-11-20, during the build, before any run)
+
+- **Where the start goes.** The selfcal Sp and Sa solves run in `rang_core::cal::diag`, the
+  diagonal solver for calmodes `p` and `ap`, not in `solve.rs`. So the start is
+  `diag::solve_from(problem, settings, start)`, and `solve` and `solve_counted` pass `None`. For
+  `phase` only the start's phase is used; it sets the kernel's parameters. For `diag_complex` the
+  gain itself is used. A gain the data leave flagged, or a zero or non-finite start, starts at unit
+  gain. The binding `cal_gain_solve` takes an optional `start`, and `cal_selfcal.solve` passes it
+  through on the one-call path only: averages, the streamed path and Sd are refused.
+- **Tests.** Rust: no start is `solve` bit for bit, for both kinds; a start at the solution stops
+  within 3 iterations at the same gains; a wrong-length start is refused. Python
+  (`tests/test_dl4a_start.py`, the four selfcal-memory terms on its awkward MS): the same two
+  properties, plus the refusals. The bound is 3, not 2: the stop test needs small updates on
+  successive iterations.
+- **A1 as run.** All intervals solve in parallel in one call. So "interval k starts from interval
+  k−1's final gains" is run as A0's converged gains shifted by one interval (interval 0 at unit
+  gain). This equals a sequential chain wherever the same-solution gate holds, which section 5
+  checks per arm.
+
 ## For the coordinator
 
 - Not started: this note is frozen first; the code and the runs follow the DL2 close-out.
