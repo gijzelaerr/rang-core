@@ -163,6 +163,14 @@ shard's per-baseline planes) and the added-cells condition summed over the real 
 (LUNO MAIN_7 or ESO137 chunk 10, plus 1573212012's scored scans). (vi) The seed rule above is
 F5's: median by validation loss.
 
+**Amendment 2d-2 (2026-11-21 00:35 SAST, before any F6 training step).** The timing run moves
+from "after the freeze" (section 3) to now: like F5's, it times the untrained network U5 (the
+weights do not change the work, only level 20's one-step factorisation does), on F5's timing sets
+(LUNO MAIN_1, ESO137 chunk 0: neither validation nor held out), so it reads no F6 result and
+nothing it measures depends on training. Protocol unchanged: `examples/f6_timing.sh` is F5's
+`f5_timing.sh` at `--level 20` (glacier, exclusive, 21:00-06:00, 5 alternating pairs against T, at 4
+and 1 threads, N5 and N5W4 at κ 5); C1 and C2 are read from it with F5's bars.
+
 ## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
 
 *Labelled post hoc (coordinator, 2026-11-20).* The bars below were set after the validation
