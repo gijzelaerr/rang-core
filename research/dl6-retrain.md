@@ -232,5 +232,5 @@ scan τ was fit on.
   label-audit bar (item 9: F5's bar stops this block). Held-out scans 23 and 25 are unread.
 - nash keeps the dry run's root `~/rang-data/outputs/dl6-dryrun-20261120/` (scans as npz, 1.7 GB
   shards) and worktree `~/Worktrees/rang/dl6-dryrun` (detached at `dl3-f5`) until the agent test or
-  your word; glacier keeps only the weights and ONNX file in `D:
-angoutputsdl6-dryrun-20261120`.
+  your word; glacier keeps only the weights and ONNX file in 
+  `D:/rang/outputs/dl6-dryrun-20261120`.
