@@ -295,7 +295,8 @@ someone new to it.
 
 ## 9. `rang-core watch` (implemented 2026-11-20, branch `watch`)
 
-Three commits on `watch` from `origin/main` (`92e67e2f`): `433be2ff`, the
+Four commits on `watch` from `origin/main` (`92e67e2f`; the fourth is the
+procedure of section 10); the first three are: `433be2ff`, the
 fixes of a review the same day (`cf71eefb`) and a missing SPDX line
 (`c8fc9e87`). Not merged.
 
@@ -345,6 +346,35 @@ fixes of a review the same day (`cf71eefb`) and a missing SPDX line
   printed the idle hold (pid 31764, a WSL WSClean wrapper of #42) and the two
   waiting jobs; nothing was done about it.
 
+## 10. The 0.3.1 release branch and use in v0.4.0 (2026-11-20)
+
+Owner, 2026-11-20: 0.3.1 is cut from the tag `v0.3.0` plus the watch commits,
+not from `main` ("go for it"), and "make use of the changes for future 0.4.0
+work, inform the 0.4.0 session".
+
+- **Branch `release-0.3.1`** (from `v0.3.0`, pushed, not tagged): the three
+  watch code commits cherry-picked; version 0.3.1 in `pyproject.toml`, the
+  three `Cargo.toml` and lock files, `CITATION.cff`, `README.md` and
+  `docs/installation.md`; a CHANGELOG section "0.3.1 (2026-11-20)".
+  `docs/index.md` and `docs/limits.md` had promised E3-A "in 0.3.1"; they now
+  say a later release, and the changelog says E3-A is not in 0.3.1. CI green
+  (tests on Linux and Windows, docs) at `d46a65bd`. Full local check
+  (`tools/check_all.py`, Windows, this branch's own extension build): PASS
+  in 1,166 s; Rust 23, 301 and 307 (GPU feature) tests; pytest 1,653
+  passed, 113 skipped, 1 xfailed; gain-hash gate PASS. The 113 skips were
+  not broken down (oracle and optional-dependency tests among them).
+- **Not done here:** the tag `v0.3.1` (it publishes to PyPI; the owner's or
+  the coordinator's step), the milestone and issue, the roadmap lines that
+  say 0.3.1 is cancelled, and wheels (the `wheels` workflow runs on the tag
+  and on pull requests, not on this branch push).
+- **For v0.4.0 work:** `docs/agents/watch-a-job.md` on branch `watch` (index
+  row and skill wrapper): `tools/dev_status.py` at every coordinator wake,
+  `rang-core watch --once` on a task's output directory when its status file
+  is written. CI green at `8e4b76ce`.
+- **The 0.4.0 coordinator session was told** by message on 2026-11-20
+  (delivered; the three branches, the merge order, the procedure, the lock
+  observations, what is left for it).
+
 ## For the coordinator
 
 - Branch `live-view-scope` (worktree `~/Worktrees/rang/live-view-scope`), one
@@ -362,10 +392,10 @@ fixes of a review the same day (`cf71eefb`) and a missing SPDX line
   cite this note. For the
   coordinator or the owner, not done here: the version bump, the tag, the
   milestone and issue, the CHANGELOG heading (the entry is under Unreleased),
-  and the roadmap lines that say 0.3.1 is cancelled. **Open question for the
-  owner: cut 0.3.1 from `main`** (it then carries the v0.4.0 work already
-  merged, all `off` by default) **or from the tag `v0.3.0` plus this commit**
-  (the commits cherry-pick cleanly).
+  and the roadmap lines that say 0.3.1 is cancelled. The base is decided: the tag
+  `v0.3.0` plus the watch commits, prepared as branch `release-0.3.1` with
+  the version bump and the CHANGELOG heading (section 10); the tag is the
+  remaining step.
 - The viewer is decided (a page of our own); it stays a v0.5.0 item.
 - To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
