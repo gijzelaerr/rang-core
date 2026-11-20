@@ -185,8 +185,9 @@ and 32 % on validation is far from that.
 - Weights in the swap contract's form: ONNX, NCHW `planes` (N, C, T, F) → `logits` (N, 1, T, F),
   Conv and Relu only (`rang.f5net.export_onnx_nchw`, `tests/test_f6_export.py`). Loading through
   `rang.learned.load` is part of F6's shipping gate.
-- Cost: if F6 changes the work per cell, a timing night (Sunday 2026-11-22); if not, F5's timing
-  stands (cost does not depend on the weights). The note says which.
+- Cost: F6 changes the work per cell (level 20's one-step factorisation replaces F5's polish of
+  the block planes), so **F5's timing does not stand: one exclusive timing run on glacier** (F5's
+  `f5_timing.sh` protocol, after the freeze, before the decision; Sunday 2026-11-22 at the latest).
 - Training host: nash's CPU if its wall is within about 2 × glacier's GPU (F5's trainer measured
   on both), else glacier's GPU through `gpu_run`. *Measured 2026-11-20:* F5's trainer, 3,000 steps on
   F5's calibrator shards, nash CPU at 8 threads: 300 s (10 steps/s), 25.6 GB; glacier's RTX 4070
