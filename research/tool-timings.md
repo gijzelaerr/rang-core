@@ -2361,3 +2361,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | F5 tau/kappa for N5-ph (`f5_tau.py`), 8 slots | MAIN_7 (2 realisations) + 3 f2sim-v scans | 355 s | 6.3 GB | nash |
 | 2026-11-20 | F5 held-out scorer validation dry run (`f5_heldout.py --validation`), 8 slots | LUNO MAIN_7, all section-10 cases | 2,063 s | 3.6 GB | nash; no held-out read |
 | 2026-11-20 | F5 target seeds 1-3 in one process (`f5_gpu_seeds.sh`) | target shards, 30,000 steps each | 1,899 s | 20.8 GB host | glacier GPU |
+| 2026-11-20 | F5 target tau/kappa (`f5_tau.py`) on glacier CPU, 12 slots (nash locked) | ESO137 chunk 10 (2 realisations) + 2 f2sim-v target scans | 37 min incl. lock wait | – | glacier; tau -6.0, kappa 4 |
+| 2026-11-20 | F5 Stage 6 exclusive timing (`examples/f5_timing.sh`, 8 cells × 5 pairs, `F5_TIMING_ANYTIME=1` on the owner's word, 11:02-12:39 SAST) | LUNO MAIN_1, ESO137 chunk 0; N5 and N5W4 against T; 4 and 1 threads | 97 min incl. one 20-min gate skip | – | glacier, exclusive hold; all cells beat (method rows C1 0.365-0.409) |

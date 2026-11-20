@@ -773,8 +773,49 @@ slots) passes, `stop: null`; F-SIM positives 0.23-2.36 M cells per scan.
 
 `examples/f5_gpu_seeds.sh`, one process, 30,000 steps per seed, 1,899 s, 20.8 GB host memory:
 validation losses seed 1 **0.0070**, seed 2 **0.0087**, seed 3 **0.0082** (weights sha256
-`d25f8cb1…`, `dd81f073…`, `61e4ea81…`); median seed **3**. τ and κ follow on nash (ESO137 chunk 10
-and the f2sim-v target scans only).
+`d25f8cb1…`, `dd81f073…`, `61e4ea81…`); median seed **3**.
+
+τ and κ (`examples/f5_tau.py` on **glacier**, 12 threads, 37 min including lock wait, nash locked;
+`D:\rang\outputs\dl3-f5-20261120-target\tau\`): **τ = −6.0**, the bottom of the grid, pooled
+validation recall **0.988** of 3.39 M positive cells (chunk 10's two realisations, two f2sim-v
+target scans), with N5 adding 124,140 cells on chunk 10's uninjected DATA against T's 2,414,858
+(N5 alone adds 5 % of T's cells at every τ of the grid; recall 0.988-0.975 from −6.0 to −3.5).
+κ: N5 OR W4 adds 3.85 M / **1.45 M** / 0.32 M / 0.18 M / 0.13 M cells at κ 3 / 4 / 5 / 6 / 8; the
+smallest κ within 1.2 × T is **4**, and P holds, so **the target method is N5W4 at κ 4**. nash's
+τ/κ run was cancelled before it started (the glacier result is the one used).
+
+### nash locked, 2026-11-20 ~10:00 SAST: targets' τ/κ and held-out read moved to glacier (labelled)
+
+nash's account was locked (login shell set to nologin) while F5's jobs ran there. Coordinator,
+2026-11-20, before either result was seen: the targets' τ/κ (validation) and then their held-out
+read (ESO137 11-13, f4sim-t's target scans) run on glacier's CPU (inputs already there; 12 of 16
+threads; shards with done-markers; clear of glacier by 20:50 for the timing run); **the glacier
+result is the one used**; if nash's τ/κ run also finished, both are reported. N5-ph's six held-out
+reads were launched on nash at about 08:15 and are not re-run: if nash does not come back, N5-ph is
+recorded as "read, results lost". Weights: target seed 3, sha256 `61e4ea81…` (copied from WSL to
+`outputs/dl3-f5/target-seed3-weights.npz`, checked).
+
+### Stage 6: the exclusive timing run, glacier, 2026-11-20 11:02-12:39 SAST
+
+Run early on the owner's word, 2026-11-20 (relayed): "i'm not doing much at the computer at the
+moment so feel free to run it as soon as you want" (`F5_TIMING_ANYTIME=1`; gate, pairs and
+exclusive hold as section 10). One interruption: another session's full check held glacier's
+shared slots 11:19-11:39; the next cell (MAIN_1, 1 thread, N5) was refused at its gate (1.31 other
+CPUs), nothing was timed, and it reran at once on an idle host. U5 stands for the trained networks
+(the cost does not depend on the weights). `outputs/dl3-f5/c1-20261120/`.
+
+| Set, threads | N5: C1 (q25-q75) | N5W4 (κ 5): C1 (q25-q75) | clean pairs N5 / N5W4 |
+| --- | --- | --- | --- |
+| LUNO MAIN_1, 4 | **0.409** (0.405-0.413) | 0.417 (0.416-0.420), provisional | 5 / 0 |
+| LUNO MAIN_1, 1 | **0.365** (0.361-0.368) | 0.369 (0.363-0.371) | 5 / 5 |
+| ESO137 chunk 0, 4 | 0.392 (0.391-0.400) | **0.397** (0.391-0.402) | 5 / 5 |
+| ESO137 chunk 0, 1 | 0.369 (0.368-0.369) | **0.371** (0.371-0.372) | 5 / 5 |
+
+Bold: the rows each class's method picks (calibrators N5-ph: N5; targets: N5W4). **C1 beats at 4
+and at 1 thread in both classes** (upper quartile ≤ 0.5), from clean pairs; F4's U4 read
+0.441-0.459 against the same T. **C2** (peak working set, separate processes, 4 threads, after the
+hold; `outputs/dl3-f5/c2-20261120/`): LUNO MAIN_1 N5 5.518 GB against T 5.518 GB, ESO137 chunk 0
+N5W4 1.626 GB against 1.626 GB: **1.00**, matches (the decode sets the peak in every arm).
 
 ### Validation dry run of the held-out scorer (N5-ph, LUNO MAIN_7), nash, 2026-11-20 — no held-out read
 
