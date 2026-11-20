@@ -182,6 +182,20 @@ here: GeMClean stops where radler may drop such a scale (not checked), and repla
 the first lanes were reading it made them end on a bash parse error (the lanes' own work had
 finished; the driver is no longer edited while a lane runs).
 
+**Amendment 3, 2026-11-21 00:50 SAST (component budget; component counts and stop reasons read, no
+convolution count, saving or P/T number read).** R1-A (9 scales) and R1-A10 ended their last major
+cycle on GeMClean's component budget (`Budget`, exactly 1,000,000 components = `-niter 1000000` of
+section 2's argv), so R1's cost is truncated and not comparable with an arm that finishes below it.
+R2-A (883,002), R3-A (884,936) and T1-A (68,469) stopped by the stop rule in every cycle. Every image
+from now on runs with `-niter 10000000` (driver `dl4c2.sh`); GeMClean is deterministic, so for an image
+that never reaches 1,000,000 components the result is identical under either budget, and the finished
+R2-A, R3-A and T1-A (and T2-A, T3-A, running under the old driver) stand. R1-A runs again; the
+truncated one is kept as `img/R1-A-budget`. R1-P had not started and is removed; R1's mask is rebuilt
+from the new R1-A and committed before R1-P runs. Rule addition, written before any saving is read: a
+case whose A or masked arm ends on the budget under `-niter 10000000` does not count (section 4).
+R3-P mask (from R3-A): 1,092,478 pixels (6.5 %), level 106 µJy, SHA-256 in
+[results/dl4c-mask/masks/R3-P.json](results/dl4c-mask/masks/R3-P.json).
+
 ## Measured result
 
 ### Stage 9, settings (re-read of seen results, 2026-11-20; no run)
