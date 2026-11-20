@@ -907,12 +907,20 @@ coordinator or owner decides otherwise.
 
 ### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
 
-glacier rebooted unannounced. Nothing of F5 ran on its GPU then. Lost: the three copy streams in
+glacier rebooted unannounced; the owner reports it was a **power failure** (2026-11-20). Nothing
+of F5 ran on its GPU then. Lost: the three copy streams in
 flight to nash (each item restarts from its start; items are whole F-SIM scans of 1.6-3.2 GB at
 about 2 MB/s, so up to about 25 minutes of transfer per stream, over the 15-minute rule; the next
 copy splits scans by file). Kept: the 16 finished items (done-markers, sha256 verified on nash).
 nash was unaffected; Stage 2 there had already stopped on a missing `scipy` in F5's venv (needed by
 the F-SIM path), installed and rerun detached from glacier (`setsid`) at 13:08.
+
+**Second crash, 2026-11-19 18:17 SAST, also a power failure (owner, 2026-11-20).** glacier went
+down eight minutes before F5's calibrator training was due to start; nothing of F5 was on the GPU.
+Lost: the night (no training, no 21:00 timing); at most one shard and one upload file in flight.
+Everything restarted from done-markers at 06:30 the next morning. *Correction:* this session first
+read the Windows log's GPU timeout events (LiveKernelEvent 141 at 18:07) as the cause; the owner
+reports both crashes were power failures, and the GPU events are not their cause.
 
 ## F6 proposal (2026-11-20, from F5's validation dry run; proposed, not frozen)
 
