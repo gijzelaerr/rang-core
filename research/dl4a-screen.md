@@ -1,6 +1,6 @@
 # DL4a (issue #41): gain warm start, a one-day screening
 
-Status: **measured 2026-11-20 (section 8): H at `solint: inf`, partial at 120 s; frozen 2026-11-20 before any code or run.** Parent: [dl-plan.md](dl-plan.md)
+Status: **measured 2026-11-20 (sections 8-9): H at `solint: inf` (headroom, not a pass), partial and N at 120 s; recommended to close without a network pilot; frozen 2026-11-20 before any code or run.** Parent: [dl-plan.md](dl-plan.md)
 stage 2, [dl0-profile.md](dl0-profile.md) sections 2-4, [v040-plan.md](v040-plan.md) (#41 last, a
 one-day screening). Later changes are dated amendments, labelled post hoc where they could have seen
 a result. Procedure: `docs/agents/propose-and-measure.md`.
@@ -162,38 +162,67 @@ same per-cell rate. Then the default's iteration time (Sp plus Sa at `inf`, abou
 pilot) becomes about 7,100 s, against an unaveraged E2-N selfcal stage of about 55,000 s: a ceiling
 of about 13 % (pilot 32 %).
 
-**Outcome under section 5's rule:**
-- **Not N:** A0 needs 13 and 37 iterations, and the ceiling is above 10 %.
-- **Not C:** the best classical starts cut iterations by 8-15 % (Sp 13 → 12; Sa 37 → 33 and
-  39 → 33), far from 50 %.
-- **`solint: inf` (the default): H, headroom.** Sp has no classical start at one interval, so B is
-  A0 with 13 iterations and 327 s left (16 %). Sa's B is A2, with 33 iterations and about 296 s
-  left (32 × 9.2 s, 15 %). Both leave at least 10 iterations and at least 10 % of the pilot's
-  selfcal stage. So a network start may be proposed, in a separate frozen note, under the dl-plan
-  stage 2 rule: wall at most 0.7 × B's. For Sa at `inf` that means at most 301 s against 430 s,
-  that is cutting at least about 130 s of B's 296 s of iterations. A converged start stops in 3
-  iterations (the tests of section 7), so the bound is reachable in principle. That a network can
-  predict such a start is not shown.
-- **`solint: 120 s`: partial.** B leaves Sp 200 s (9.9 %) and Sa 152 s (7.5 %), both under 10 %.
-  The classical saving is reported, and no network is proposed.
-- **Deviations, reported.** The 120 s medians are the global iteration counts (the stop test is
-  global), not per-interval medians, which the driver did not record. Wall times are from a shared,
-  disk-bound host and decide nothing. The E2-size share is an estimate.
+**Outcome under section 5's rule, per term and solint:**
 
-**What this means for #41.** Classical warm starts are cheap and keep the solution (all gates pass),
-but give only 8-15 % fewer iterations. In the default unaveraged configuration the iterations are
-about a third of the pilot's selfcal stage and an estimated 13 % at E2 size, so a network start has
-measurable room at `solint: inf`. In the averaged E2 configuration (dl0-profile) it has none. Any
-follow-up is the coordinator's and the owner's call: v040-plan puts #41 last, and #45 is triggered
-only if #41 or #42 passes. Nothing ships; the start argument stays on this branch.
+| Term, solint | Ceiling (frozen computation) | Best classical arm B | Outcome |
+| --- | ---: | --- | --- |
+| Sp, inf | 16.1 % | A0 (no classical start at one interval): 13 iterations | **H** by the frozen computation; on the threshold by the 8-thread cross-check below |
+| Sa, inf | 16.4 % | A2: 33 iterations, about 296 s of iterations left (15 %) | **H** |
+| Sp, 120 s | 10.7 % | A1: 12 iterations, 200 s left (9.9 %) | **partial** (not C, and under 10 % left) |
+| Sa, 120 s | 8.9 % | A2/A3: 33 iterations | **N** (ceiling under 10 %) |
+
+- **Not C anywhere.** The classical starts cut 8-15 % of the iterations (Sp 13 → 12; Sa 37 → 33
+  and 39 → 33), far from the rule's 50 %. They keep the solution: every gate passes.
+- **H is headroom, not a pass.** No network was built, and dl-plan's stage 2 rule (wall at most
+  0.7 × B) is untested. This result does not trigger #45.
+- **Thread basis (cross-check, reported).** The solve-only runs used `RAYON_NUM_THREADS=2`, while
+  the 2,029 s stage ran at 8. On the stage's own 8-thread solve walls minus the measured read
+  (Sp 310 − 118 s, Sa 427 − 104 s), the iteration time is about 192 s for Sp (9.5 % of the stage)
+  and 323 s for Sa (15.9 %). So Sa at `inf` is H on either basis, and Sp at `inf` sits at the
+  10 % threshold. The thresholds are derived from wall times on a shared host, so they carry that
+  host's noise.
+- **Deviations, reported.** The 120 s medians are the global iteration counts (the stop test is
+  global), not per-interval medians, which the driver did not record. The 120 s chain booked 16 GB
+  and peaked at 36.2 GB (under-booked; the `inf` chain booked 40 GB and peaked at 37.0 GB). The
+  driver computes seconds per iteration as (wall − wall at one iteration) / (iterations − 1),
+  whereas section 5 states (wall − read) / iterations. On Sa at `inf` that is 9.23 against
+  8.99 s, which moves no outcome. The E2-size share is an estimate.
+
+## 9. Post hoc: how close would a learned start have to be? (2026-11-20, from the saved solutions, no new run)
+
+The relative RMS distance of each start from A0's solution, over gains left unflagged:
+
+| Term, solint | Identity | A2 (Sp's solution) | A1 (shifted) | The solution's own phase (not run) |
+| --- | ---: | ---: | ---: | ---: |
+| Sa, inf | 0.208 (37 iterations) | 0.024 (33) | – | 0.011 |
+| Sa, 120 s | 0.210 (39) | 0.026 (33) | 0.045 (37) | 0.014 |
+| Sp, inf | 0.197 (13) | – | – | – |
+| Sp, 120 s | 0.198 (13) | – | 0.042 (12) | – |
+
+On Sa at `inf` the iterations fall by about 4.3 per decade of start accuracy (37 → 33 from 0.208
+to 0.024), and a start at the solution stops in 3 (section 7). The dl-plan rule needs B's wall at
+most 0.7 × 430 s = 301 s, so at most about 21 iterations after the 104 s read. Extrapolating the
+slope, that needs a start within about 4e-5 relative of the solution, nearly the solution itself.
+A start with the solution's own phase (0.011) would save only about one more iteration. This is an
+extrapolation from two points plus the converged limit, labelled post hoc. Its reading: the
+headroom of section 8 exists only for a start much more accurate than any prediction from data
+statistics is likely to be, because the solution's thermal scatter alone is far above 4e-5.
+
+**What this means for #41.** Classical warm starts are cheap and keep the solution, but give only
+8-15 % fewer iterations. In the unaveraged default the iterations are about a third of the pilot's
+selfcal stage (an estimated 13 % at E2 size), so the time is there. But using it needs a start
+within about 1e-4 of the answer, which a network is not expected to give. Recommended: close #41
+with this result (classical starts measured, no network pilot), unless the owner wants the
+`solve_from` start kept for robustness work. Nothing ships; the start argument stays on this
+branch.
 
 ## For the coordinator
 
-- Outcome: H at `solint: inf` (headroom for a learned start, about 13 % of an unaveraged E2-size
-  selfcal stage, estimated); partial at 120 s; classical starts save 8-15 % of iterations at the
-  same solution. Nothing ships. A network pilot needs its own frozen note and the owner's word
-  (v040-plan: #41 is last).
-- The branch carries `diag::solve_from` with the start (default path bit-identical, tests), for a
-  follow-up to reuse or to drop.
+- Outcome: H at `solint: inf` for Sa, and for Sp on the frozen computation (on the threshold at 8
+  threads); partial (Sp) and N (Sa) at 120 s. Classical starts save 8-15 % of iterations at the
+  same solution. H is headroom, not a pass. Post hoc (section 9), the headroom needs a start within
+  about 4e-5 of the solution, so the recommendation is to close #41 without a network pilot.
+- The branch carries `diag::solve_from` with the start (default path bit-identical, tests), to
+  reuse or to drop.
 - Left on nash: `~/rang-data/outputs/dl4a-screen-20261120/` (pilot.ms about 16 GB, models, solves,
   run); delete when the outcome is accepted.
