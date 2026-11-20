@@ -258,7 +258,10 @@ SCHEMA = {
             "null: auto, or antenna 0 when no antenna qualifies (task E2)",
         ),
         "refantmode": _k(
-            "flex", "choice", "flex or strict, as CASA", ("flex", "strict")
+            "flex",
+            "choice",
+            "flex or strict, as CASA; for K, flex also falls back along the refant list (issue #53)",
+            ("flex", "strict"),
         ),
         "refant_maxdist": _k(
             1000.0,

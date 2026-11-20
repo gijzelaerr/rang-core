@@ -55,6 +55,15 @@ limit, not solved (below).
 - **K offsets are not written to the K table**; G absorbs them, so a K table
   applied alone lacks them ({gh}`research/c2c-bandpass.md`). The delay error
   estimate is low by a factor 1.5-2 ({gh}`research/c2b-delay.md`).
+- **K reference antenna (issue #53, {gh}`research/k-refant-53.md`).** CASA's
+  K uses the first refant only and never re-references, so it flags an antenna
+  without an unflagged baseline to it, and a whole interval where the refant
+  has no data. With `refantmode: flex` (the default) rang falls back along the
+  refant list (then to the best-connected antenna) per interval, and solves an
+  antenna connected to the reference through other baselines. So rang can
+  solve K where CASA leaves it flagged; `refantmode: strict` is CASA's rule.
+  The table's reference per interval is in the solve's `refant_used`; the K
+  table's `ANTENNA2` stays -1, as CASA's.
 - **Solution TIME** differs from CASA's by up to 0.054 s (0.41 s with
   `combine`); it is reported, not gated, until CASA's centroid weighting is
   ported ({gh}`research/c2a-gain.md`).

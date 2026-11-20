@@ -1,6 +1,6 @@
 # K solve without baselines to the reference antenna (issue #53)
 
-Status: **proposed, frozen 2026-11-20 before any code.** Reported by an external tester in #51
+Status: **measured 2026-11-21 (section 6): G1, G2 and G3 pass; ships as `refantmode: flex` for K. Frozen 2026-11-20 before any code.** Reported by an external tester in #51
 (SARAO block 1680477139): when residual flagging removed every baseline to the reference antenna on a
 calibrator scan, the K solve flagged 21-23 of 62 antennas, and G, Gsec and F followed (35-39 % of
 solutions flagged). Procedure: `docs/agents/propose-and-measure.md`.
@@ -87,3 +87,43 @@ repeats a delay every 74.8 ns, and relative delays reach 100 ns. The first run f
 interval with no flagging at all (antenna 10, hand Y: truth −63.79 ns, solved +11.0 ns, one period
 apart), where the change does nothing, so the old code fails it as well. The ±50 ns case therefore
 uses 256 channels (299 ns period); the ±8 ns case keeps 64. Tolerances and the rule are unchanged.
+
+## 6. Measured (2026-11-21, nash; commit 47684e36 and its successor)
+
+- **G1, bit-identity: pass.** Quick check on nash: 345 tests passed (4 skipped), the gain-hash gate
+  passed (its K `original` slice among them), and Rust's 316 core tests passed.
+  `tests/test_k_refant_53.py::test_flex_equals_strict_bit_for_bit_with_the_refant_present` checks
+  delays, flags, errors, offsets and iterations bit for bit, for `delay` and `delay_and_offset`,
+  on a noisy simulation with 20 % of non-refant baselines and 5 % of cells flagged. The old test
+  of CASA's flagging now runs at `refantmode="strict"`, unchanged otherwise.
+- **G2, truth, noise-free: pass.** `test_flex_solves_what_casa_flags` (±8 ns at 64 channels,
+  ±50 ns at 256; both kinds): case A's interval is referenced to the next refant (`refant_used`
+  [0, 1, 0, 0]), case B's antenna is solved, no antenna with data is flagged, and every delay is
+  within 1e-6 ns of the truth. Without a listed refant with data, the best-connected antenna
+  becomes the reference.
+- **G2, truth, with noise, and G3, CASA** ([k53_g3.py](results/k53-scripts/k53_g3.py); 12 antennas,
+  4 scans of 6 integrations, 64 channels, ±8 ns, 0.3 Jy noise on 10 Jy; run root
+  `nash:~/rang-data/outputs/k53-20261121/`; [results/k53/](results/k53/)):
+
+| Check | n | Median | p95 | Max | Tolerance | Result |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| G2 class T, all solved delays: median z | 86 | −0.31 | – | – | abs at most 0.405 (std z 0.96) | pass |
+| G3, rang (flex) − CASA at m000, where both solve | 70 | 0.0005 ns | 0.0016 ns | 0.0019 ns | median 0.01, p95 0.03 | pass |
+| G3, case A interval − CASA at m001 on that scan | 22 | 0.0006 ns | 0.0014 ns | 0.0017 ns | median 0.01, p95 0.03 | pass |
+| G3, case B antenna (2 hands) − CASA composed (m001, then m000) | 2 | – | – | 0.0006 ns | 0.042 ns | pass |
+
+  CASA at m000 leaves 12 antenna-intervals unsolved (the 11 antennas of case A's interval, and case
+  B's antenna). rang with flex leaves none with data. With strict, rang flags the same as CASA.
+- **Scoring correction, labelled.** The first score of G2's bias test divided by the antenna's
+  error alone and failed (median z −0.44, bound 0.405, std 1.37). C2b's frozen definition, which
+  section 3 names, uses s² = err_p² + err_ref². With it the test passes, as above, and also apart:
+  intervals the change does not touch give −0.45 against 0.47 (N 64), the changed ones −0.08
+  against 0.80 (N 22). The tolerance is unchanged; the script was wrong.
+
+## 7. Outcome
+
+G1, G2 and G3 pass, so under section 3's rule the change ships as the behaviour of
+`refantmode: flex`, the default for K. `docs/limits.md` records that rang now solves K where CASA
+leaves it flagged, and `calibrate.refantmode`'s comment says so. Not checked: Killick's block
+1680477139 itself (not fetched here), and the downstream G, Gsec and F after a flex K (#51's
+35-39 % of flagged solutions), which follow from K's flags but were not re-run.

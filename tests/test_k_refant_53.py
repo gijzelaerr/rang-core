@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 """Issue #53 (research/k-refant-53.md, gate G2, noise-free): a K solve keeps
 the antennas that have no unflagged baseline to the reference antenna.
 Case A: every baseline to the first refant flagged in one interval (the

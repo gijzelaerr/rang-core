@@ -27,7 +27,7 @@ SEED, NOISE, FLUX = 53, 0.3, 10.0
 def cmd_make(out):
     import importlib.util
 
-    from rang import cal_delay, core_ms, core_ms_write
+    from rang import cal_delay, core_ms_write
 
     root = Path(__file__).resolve().parents[3]
     spec = importlib.util.spec_from_file_location(
@@ -57,6 +57,7 @@ def cmd_make(out):
         t.addrows(1)
         t.putcol("NAME", ["CAL"])
         t.putcol("PHASE_DIR", np.array([[[0.0, -1.0]]]))
+    _casa_subtables(ms, nrow // (NANT * (NANT - 1) // 2))
     rng = np.random.default_rng(SEED)
     tau = rng.uniform(-8, 8, (NSCAN, NANT, 2))  # ns
     nu0 = freq.mean()
@@ -88,7 +89,7 @@ def cmd_make(out):
     for mode in ("flex", "strict"):
         _, sol, _ = cal_delay.gaincal(
             ms, field_id=0, solint="inf", combine="", refant=[0, 1], refantmode=mode,
-            model_column="MODEL_DATA",
+            model_column="MODEL_DATA", weight_column="WEIGHT",
         )  # fmt: skip
         np.savez(out / f"rang-{mode}.npz", delays=sol.delays, flags=sol.flags, err=sol.err,
                  refant_used=sol.refant_used)  # fmt: skip
@@ -97,14 +98,42 @@ def cmd_make(out):
             "iterations": sol.iterations,
         }
     (out / "rang.json").write_text(json.dumps(res, indent=1) + "\n")
-    with core_ms.open_table(ms) as t:
-        print(t.nrows(), "rows;", json.dumps(res))
+    print(json.dumps(res))
+
+
+def _casa_subtables(ms, nint):
+    """OBSERVATION and FEED rows, which CASA's gaincal needs (w1's MS leaves
+    them empty)."""
+    from rang import core_ms_write
+
+    t0, t1 = 5.0e9, 5.0e9 + 8.0 * nint
+    with core_ms_write.open_table(ms / "OBSERVATION", readonly=False) as t:
+        t.addrows(1)
+        t.putcol("TIME_RANGE", np.array([[t0, t1]]))
+        t.putcol("TELESCOPE_NAME", ["MeerKAT"])
+        t.putcol("OBSERVER", ["k53"])
+        t.putcol("PROJECT", ["k53"])
+    with core_ms_write.open_table(ms / "FEED", readonly=False) as t:
+        t.addrows(NANT)
+        t.putcol("ANTENNA_ID", np.arange(NANT, dtype=np.int32))
+        t.putcol("FEED_ID", np.zeros(NANT, np.int32))
+        t.putcol("SPECTRAL_WINDOW_ID", np.full(NANT, -1, np.int32))
+        t.putcol("BEAM_ID", np.full(NANT, -1, np.int32))
+        t.putcol("NUM_RECEPTORS", np.full(NANT, 2, np.int32))
+        t.putcol("TIME", np.full(NANT, (t0 + t1) / 2))
+        t.putcol("INTERVAL", np.full(NANT, t1 - t0))
+        t.putcol("POLARIZATION_TYPE", np.array([["X", "Y"]] * NANT))
+        t.putcol("RECEPTOR_ANGLE", np.zeros((NANT, 2)))
+        t.putcol("BEAM_OFFSET", np.zeros((NANT, 2, 2)))
+        t.putcol("POSITION", np.zeros((NANT, 3)))
+        t.putcol("POL_RESPONSE", np.tile(np.eye(2, dtype=complex), (NANT, 1, 1)))
 
 
 def _add_model(ms, model):
     from rang import core_writeback as wb
 
     with wb.WriteBack(ms, stage="k53") as w:
+        w.ensure_column("MODEL_DATA")
         w.write("MODEL_DATA", 0, model)
 
 
@@ -158,20 +187,29 @@ def cmd_score(out):
     ref = rf["refant_used"]
     score = {"refant_used": ref.tolist()}
     # G2, class T: z = (rang - truth) / err per solved delay (not the reference).
-    z = []
+    # C2b's class T: s^2 = err_p^2 + err_r^2 (the reference's error too).
+    z, z_changed = [], []
     for s in range(NSCAN):
         want = tau[s] - tau[s, ref[s]]
+        er = rf["err"][s, 0, ref[s]]
         for a in range(NANT):
             if a == ref[s] or fl[s, a].any():
                 continue
-            e = rf["err"][s, 0, a]
-            z.extend(((d[s, a] - want[a]) / np.where(e > 0, e, np.nan)).tolist())
-    z = np.asarray(z)
-    z = z[np.isfinite(z)]
-    bound = 3 * 1.2533 / np.sqrt(len(z))
-    score["G2_classT"] = {"N": len(z), "median_z": float(np.median(z)), "bound": bound,
-                          "std_z": float(np.std(z)),
-                          "pass": bool(abs(np.median(z)) <= bound)}  # fmt: skip
+            e = np.sqrt(rf["err"][s, 0, a] ** 2 + er**2)
+            v = ((d[s, a] - want[a]) / np.where(e > 0, e, np.nan)).tolist()
+            changed = s == 1 or (s == 2 and a == 5)
+            (z_changed if changed else z).extend(v)
+
+    def bias(z):
+        z = np.asarray(z)
+        z = z[np.isfinite(z)]
+        bound = 3 * 1.2533 / np.sqrt(len(z))
+        return {"N": len(z), "median_z": float(np.median(z)), "bound": bound,
+                "std_z": float(np.std(z)), "pass": bool(abs(np.median(z)) <= bound)}  # fmt: skip
+
+    score["G2_classT"] = bias(z + z_changed)
+    score["G2_classT_unchanged_intervals"] = bias(z)
+    score["G2_classT_changed_only"] = bias(z_changed)
     score["solved_with_data"] = {
         "flex_flagged_with_data": int(sum(fl[s, a].any() for s in range(NSCAN) for a in range(NANT)
                                          if not (s == 1 and a == 0))),

@@ -1,0 +1,20 @@
+{
+ "flex": {
+  "refant_used": [
+   0,
+   1,
+   0,
+   0
+  ],
+  "iterations": 14
+ },
+ "strict": {
+  "refant_used": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "iterations": 14
+ }
+}
