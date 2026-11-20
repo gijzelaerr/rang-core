@@ -84,8 +84,10 @@ mcp = ["mcp>=2.3,<3"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
 # Training and export of learned stages only (task DL1, research/dl1-contract.md;
-# dl-plan decision 4): rang.learned_torch. The pipeline never needs it, and the
-# check does not install it (its PyTorch test skips without torch).
+# F5, research/f5-flagger.md; dl-plan decision 4): rang.learned_torch and
+# rang.f5net. The pipeline never needs it, and the check does not install it (its
+# PyTorch tests skip without torch). The CUDA build comes from the Linux wheel on
+# PyPI (WSL on Windows).
 learned-train = ["torch>=2.5", "onnx>=1.17"]
 
 [project.scripts]
