@@ -3,7 +3,8 @@
 Written 2026-11-20 on the owner's request ("getting more insight and
 visualisations DURING the work ... a browser UI that connects to a running
 process ... integrate with other systems ... 0.5.0 or later?").
-**Status: proposed. Nothing here is built or measured.** The inventory in
+**Status: direction decided by the owner on 2026-11-20 (section 6); nothing is
+built or measured.** The inventory in
 section 1 was read from `main` at `92e67e2f`; the candidate table in section 4
 was checked on the web and the GitHub API on 2026-11-20. No scientific or
 performance claim; tooling only.
@@ -156,17 +157,20 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 - **Later (v0.6.0 or its own package):** steering; a Makepad reader; the
   exporters to an SDP or a Grafana.
 
-## 6. Owner decisions
+## 6. Owner decisions (taken 2026-11-20)
 
-1. Record first, viewers as readers: agreed?
-2. Browser viewer: the Rerun spike against a page of our own (recommended), or
-   Bokeh/Panel, or straight to Makepad.
-3. Placement: v0.5.0 for the record, `watch`, MCP tools and the browser view;
-   steering and Makepad later. Or the record earlier, right after the 0.4.0 tag.
-4. The record on by default (recommended once the 1 % gate holds) or opt-in.
-5. In `rang-core` with extras (`[view]`), or a second package (`rang-view`;
-   [v8-open-casa.md](v8-open-casa.md) section 6 proposed `rang-inspect` for
-   the plotting stack).
+1. **Record first, viewers as readers.** Decided: yes.
+2. **Browser viewer.** Decided: the one-day spike, Rerun against a page of
+   our own; the outcome picks the viewer. Bokeh/Panel and Makepad not chosen
+   (Makepad stays a possible later reader).
+3. **Placement.** Decided: the record, `rang-core watch` and the MCP tools
+   right after the 0.4.0 tag, before the rest of v0.5.0; the browser view in
+   v0.5.0; steering later, with its own note.
+4. **Default.** Decided: the record ships off and becomes the default once
+   both gates of section 2 hold (bit-identical outputs, overhead at most 1 %).
+5. **Packaging.** Decided: the browser view is an extra of `rang-core`
+   (`[view]`); a separate package only if it brings a dependency `rang-core`
+   must not carry.
 
 ## For the coordinator
 
@@ -174,9 +178,9 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
   note and one index line; no code touched, nothing run, no heavy lock used.
   `tools/check_all.py --quick` not run; not pushed; the worktree remains
   until the branch is merged or dropped.
-- Nothing to schedule until the owner answers section 6. If approved: an issue
-  on the v0.5.0 milestone for the record and its readers, one for the browser
-  view, and the spike as a spare-slot task.
+- To schedule (section 6): the spike as a shared-slot task, any time; an
+  issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
+  an issue on the v0.5.0 milestone for the browser view. No issue opened yet.
 
 ## Sources
 
