@@ -227,6 +227,23 @@ The coordinator, 2026-11-20, after the op list and the two pre-freeze findings w
 - Nothing else changes: measures, tolerance and decision rule stand, and the outcome is recorded even if null.
 - The GPU hours not spent here (about 18) stay with #42. Step 1, at E2 scale where a cost claim is decidable, is drafted as a separate proposal ([dl4b-step1.md](dl4b-step1.md), not frozen), so the owner can decide.
 
+## Amendment 2 (2026-11-20 08:55, before any budgeted training; not post hoc)
+
+The coordinator asked for the GPU to be filled and N1 to start before the grid PSFs finish.
+
+1. **Batch size.** Measured on glacier (N1, 40 steps):
+   - batch 32: 0.20 s per step, peak 5.7 GiB;
+   - batch 64: 0.43 s per step, 8.7 GiB.
+   - The card is compute-bound from batch 32, at about 150 fields per second.
+   - **N1 trains at batch 32** (section 3 said 16). Learning rate and schedule shape are unchanged.
+   - NP's batch is set the same way (the largest of 16 and 32 that fits) when the grid PSFs land, and is recorded with the run.
+2. **N1 steps.** `--steps-total 5500`, about 19 min of training at 0.20 s per step, inside amendment 1's 20 min per seed. Validation time is not counted against the cap.
+3. **Packs.** The packs no longer carry G. The trainer reads G per seed from the psfg shards (`--psfg`), so N1 does not wait for them.
+   - The pack build on nash (260 s, one core, I/O-light) ran outside the heavy lock: an error, recorded here.
+   - Packs: 300 files, 2.2 GB, on glacier `D:ang\dl4b-step0\packs`; removed after training.
+4. **Load-time memory.** The load-time s₀ computation is chunked; computing it in one pass had peaked at 21 GiB through shared memory.
+5. **Yield windows** (SAST), passed to the trainer: 20:50-23:59 and 06:00-06:50, on top of `gpu_run.py check`.
+
 ## Measured result
 
 (empty at freeze)

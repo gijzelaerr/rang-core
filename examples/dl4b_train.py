@@ -64,9 +64,18 @@ class CAN(nn.Module):
 
 def robust_rms(x):
     flat = x.flatten(1)
-    med = flat.median(dim=1, keepdim=True).values
-    mad = (flat - med).abs().median(dim=1).values
+    med = _median(flat)[:, None]
+    mad = _median((flat - med).abs())
     return (1.4826 * mad).clamp_min(1e-12).view(-1, 1, 1)
+
+
+def _median(flat):
+    """numpy's median (mean of the two middle values), deterministic on CUDA."""
+    n = flat.shape[1]
+    srt = flat.sort(dim=1).values
+    if n % 2:
+        return srt[:, n // 2]
+    return 0.5 * (srt[:, n // 2 - 1] + srt[:, n // 2])
 
 
 def step_model(net, r, m):
@@ -107,18 +116,15 @@ def bconv(x, k):
 
 
 class Data:
-    def __init__(self, packs, device):
+    def __init__(self, packs, device, psfg=None):
         files = sorted(Path(packs).glob("pack-*.npz"))
         cols = {k: [] for k in ("seed", "flux", "split", "dirty", "tidx", "tval", "comps", "beam")}  # fmt: skip
-        gs, gseed = [], []
         for f in files:
             z = np.load(f)
             for k, v in cols.items():
                 v.append(z[k])
-            gs.append(z["G"])
-            gseed.append(z["gseed"])
         c = {k: np.concatenate(v) for k, v in cols.items()}
-        self.gseed = np.concatenate(gseed)
+        self.gseed = np.unique(c["seed"])
         gidx = {int(s): i for i, s in enumerate(self.gseed)}
         self.gi = np.array([gidx[int(s)] for s in c["seed"]])
         self.seed, self.flux, self.split = c["seed"], c["flux"], c["split"]
@@ -128,9 +134,18 @@ class Data:
         self.val = np.flatnonzero(self.split == 1)
         self.device = device
         self.dirty = torch.from_numpy(c["dirty"]).to(device)
-        self.G = torch.from_numpy(np.concatenate(gs)).to(device)
+        self.G = None
+        if psfg:
+            # G per seed from examples/dl4b_step0.py psfg shards (seeds 10k..10k+9)
+            G = np.empty((len(self.gseed), 512, 512), np.float32)
+            for k in np.unique(self.gseed // 10):
+                g = np.load(Path(psfg) / f"psfg-{k:03d}.npz")["G"]
+                for s in self.gseed[self.gseed // 10 == k]:
+                    G[gidx[int(s)]] = g[int(s) % 10]
+            self.G = torch.from_numpy(G).to(device)
         self.kern = beam_kernels(self.beam).to(device)
-        self.s0 = robust_rms(self.dirty).view(-1)
+        self.s0 = torch.cat([robust_rms(self.dirty[i : i + 256]).view(-1) for i in range(0, len(self.dirty), 256)])  # fmt: skip
+        torch.cuda.reset_peak_memory_stats()
 
     def truth(self, idx):
         t = torch.zeros(len(idx), 256 * 256, device=self.device)
@@ -145,7 +160,8 @@ class Data:
         """Fields idx with augmentation codes aug (0-7: transpose bit 4, flip-y 2,
         flip-x 1). G is flipped about offset 0 (flip then roll by 1)."""
         d, t = self.dirty[idx], self.truth(idx)
-        G, k = self.G[self.gi[idx]], self.kern[idx]
+        k = self.kern[idx]
+        G = self.G[self.gi[idx]] if self.G is not None else None
         for j, a in enumerate(aug):
             dims_img, dims = [], []
             if a & 2:
@@ -153,15 +169,20 @@ class Data:
             if a & 1:
                 dims_img.append(1)
             if dims_img:
-                d[j] = d[j].flip(dims_img)
-                t[j] = t[j].flip(dims_img)
-                k[j] = k[j].flip(dims_img)
-                g = G[j].flip(dims_img)
-                G[j] = g.roll([1] * len(dims_img), dims_img)
+                d[j] = d[j].flip(dims_img).clone()
+                t[j] = t[j].flip(dims_img).clone()
+                k[j] = k[j].flip(dims_img).clone()
+                if G is not None:
+                    g = G[j].flip(dims_img)
+                    G[j] = g.roll([1] * len(dims_img), dims_img)
             if a & 4:
-                d[j], t[j], k[j], G[j] = d[j].T, t[j].T, k[j].T, G[j].T
+                d[j], t[j], k[j] = d[j].T.clone(), t[j].T.clone(), k[j].T.clone()
+                if G is not None:
+                    G[j] = G[j].T.clone()
             del dims
-        Gf = torch.fft.rfft2(torch.fft.ifftshift(G, dim=(-2, -1)))
+        Gf = (
+            None if G is None else torch.fft.rfft2(torch.fft.ifftshift(G, dim=(-2, -1)))
+        )
         return d, t, Gf, k, self.s0[idx]
 
 
@@ -223,7 +244,8 @@ def run_passes(net, arm, d, Gf, p_max=P_MAX):
         m = torch.where(done[:, None, None], m, m_new)
         used = used + (~done).int()
         done = done | (change < 0.01 * m_new.abs().flatten(1).sum(1))
-        r = d - gconv(m, Gf)
+        if Gf is not None:
+            r = d - gconv(m, Gf)
     return m, used
 
 
@@ -292,7 +314,9 @@ def train(args, data=None):
 
     if data is None:
         t = time.perf_counter()
-        data = Data(args.packs, device)
+        data = Data(args.packs, device, args.psfg)
+        if args.arm == "NP" and data.G is None:
+            sys.exit("NP needs --psfg")
         say(f"data: {len(data.train)} train, {len(data.val)} val fields, {len(data.gseed)} G; load {time.perf_counter() - t:.0f} s; GPU mem {torch.cuda.memory_allocated() / 2**30:.2f} GiB")  # fmt: skip
     total_steps = args.steps_total
     net, opt, sched = make(args.seed, total_steps, device)
@@ -340,7 +364,7 @@ def train(args, data=None):
                 save(out / "best.pt", net, opt, sched, state)
             save(ck, net, opt, sched, state)
             say(
-                f"step {state['step']} loss {float(loss):.4f} val {v} train {state['train_s']:.0f} s"
+                f"step {state['step']} loss {float(loss):.4f} val {v} train {state['train_s']:.0f} s peak {torch.cuda.max_memory_allocated() / 2**30:.2f} GiB"
             )
             t_seg = time.perf_counter()
             last = t_seg
@@ -366,9 +390,9 @@ def train(args, data=None):
 
 def resume_test(args):
     device = torch.device("cuda")
-    data = Data(args.packs, device)
+    data = Data(args.packs, device, args.packs + "-psfg")
     out = Path(args.out)
-    base = {"packs": args.packs, "arm": "NP", "seed": 11, "hours": 10.0, "steps_total": 200, "validate": False, "yield_window": None}  # fmt: skip
+    base = {"packs": args.packs, "arm": "NP", "seed": 11, "hours": 10.0, "steps_total": 200, "validate": False, "yield_window": None, "psfg": None}  # fmt: skip
     a = argparse.Namespace(out=str(out / "straight"), steps_max=200, **base)
     train(a, data)
     b = argparse.Namespace(out=str(out / "resumed"), steps_max=100, **base)
@@ -419,6 +443,8 @@ def main():
     p.add_argument("--steps-max", type=int)
     p.add_argument("--yield-window", action="append", help="HH:MM-HH:MM in SAST")
     p.add_argument("--no-validate", dest="validate", action="store_false")
+    p.add_argument("--psfg", help="directory of psfg-KKK.npz (NP)")
+    p.add_argument("--batch", type=int, default=16)
     p.set_defaults(func=train)
     p = sub.add_parser("resume-test")
     p.add_argument("packs")
@@ -429,6 +455,8 @@ def main():
     p.add_argument("out_onnx")
     p.set_defaults(func=export)
     a = ap.parse_args()
+    global BATCH
+    BATCH = getattr(a, "batch", BATCH)
     sys.exit(a.func(a) or 0)
 
 

@@ -595,8 +595,8 @@ def pack(args):
     """Training packs for glacier: train and validation seeds only (the test
     split never leaves nash). pack-KKK.npz: seed, flux, split (0 train,
     1 validation), dirty, truth as (flat index, value) with -1 padding, comps (x, y, I, inside), beam (deg, deg, deg),
-    and per seed G."""
-    data, pg, out = Path(args.data), Path(args.psfg), Path(args.out)
+    (G per seed is read from the psfg shards by the trainer)."""
+    data, out = Path(args.data), Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     split = read_split(data)
     bm = beams(data)
@@ -606,7 +606,6 @@ def pack(args):
         if dst.exists():
             continue
         z = np.load(data / f"shard-{k:03d}.npz")
-        G = np.load(pg / f"psfg-{k:03d}.npz")["G"]
         keep = [i for i in range(10) if split[10 * k + i] != "test"]
         fi = [3 * i + j for i in keep for j in range(3)]
         seeds = np.array([10 * k + i for i in keep for _ in range(3)], np.int32)
@@ -631,8 +630,6 @@ def pack(args):
             beam=np.array(
                 [bm[(int(s), int(f))] for s, f in zip(seeds, flux)], np.float64
             ),
-            gseed=np.array([10 * k + i for i in keep], np.int32),
-            G=G[keep],
         )
         tmp.rename(dst)
         n += 1
@@ -658,7 +655,6 @@ def main():
     p.set_defaults(func=netscore)
     p = sub.add_parser("pack")
     p.add_argument("data")
-    p.add_argument("psfg")
     p.add_argument("out")
     p.add_argument("--shards")
     p.set_defaults(func=pack)
