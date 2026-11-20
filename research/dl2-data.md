@@ -468,6 +468,17 @@ its own freeze. Prepared, not run.
   teachers, for 1735892129, 1629213076, 1749428161, 1571938260, 1611426666 (train) and 1573212012
   (validation). The stage 1 manifest lists them with their SHA-256 (section 16).
 
+## 21. State at hand-back (2026-11-20 08:05 UTC)
+
+- Stage 1 teachers done on 1735892129, 1629213076 and 1573212012. Partial: 1749428161 8 of 14
+  scans, 1571938260 25 of 46, 1611426666 8 of 17. All 7 streams sat in nash's lock queue behind the
+  wave-2 jobs (44 of 44 slots booked, 17 queued at 07:20 UTC).
+- From about 08:00 UTC every ssh to nash returns "This account is currently not available", so the
+  state of the streams and of `finish_stage1.sh` is unknown from here. Everything is resumable by
+  done-markers. When access returns: check `logs/teach.log` for `STAGE-END`, then copy `manifests/`
+  into `results/dl2-data/manifests/` and commit. If streams died, relaunch them with
+  `teach_block.sh <cbid> 6 k/N` (section 18), then run `finish_stage1.sh`.
+
 ## For the coordinator
 
 - Licence: whether weights trained on "freely available" archive data can ship under GPL is with the
