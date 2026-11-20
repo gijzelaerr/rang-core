@@ -1,14 +1,17 @@
 # Licence requests to four upstream projects (drafts, not posted)
 
-Status, 2026-11-20: **drafts for the owner; nothing posted, nobody contacted.** Source of the list:
-[dl0-profile.md](../dl0-profile.md) section 5. Checked 2026-11-20 with the GitHub API (`gh api repos/...`,
-`gh issue list --state all --search "licence OR license"`): no licence issue exists, open or closed,
-on any of the four, so each needs a new issue. Maintainers are the top committers by GitHub's
-contributor count; in the drafts no one is @-mentioned (the owner decides whether to tag anyone).
+Status, 2026-11-20: **drafts for the owner; nothing posted, nobody contacted.** Revised the same day for
+two owner corrections, verbatim: "rang-core is part of the ra-ng package. we are working on ra-ng. also we
+want to be MIT, but use GPL where required." Source of the list: [dl0-profile.md](../dl0-profile.md)
+section 5. Checked 2026-11-20 with the GitHub API (`gh api repos/...`,
+`gh issue list --state all --search "licence OR license"`): no licence issue exists, open or closed, on any
+of the four, so each needs a new issue. Maintainers are the top committers by GitHub's contributor count;
+the drafts @-mention no one.
 
-What we would find compatible, for a project that is GPL-3.0-or-later
-([LICENSE](../../LICENSE)): code under GPL-3.0(-or-later) or a permissive licence (MIT, BSD-3-Clause,
-Apache-2.0); weights and data under CC BY 4.0 or CC0.
+Licence stance in the drafts: ra-ng aims to be MIT-licensed and uses GPL only where a dependency requires
+it ([mit-relicense-audit.md](../mit-relicense-audit.md)); the repository's LICENSE is still
+GPL-3.0-or-later today, so the drafts do not claim MIT. The ask: code under a permissive licence (MIT,
+BSD-3-Clause, Apache-2.0), GPL-3.0 still workable; weights under CC BY 4.0 or CC0.
 
 | Project | Repository | Licence now | Maintainers (commits) | Existing issue |
 | --- | --- | --- | --- | --- |
@@ -26,16 +29,15 @@ upstream's terms allow a licence, because the fork carries matt-bendel's code.
 
 > Hello, and thank you for releasing R2D2 and its trained series.
 >
-> We work on rang-core (<https://github.com/gijzelaerr/rang-core>), an open-source
-> GPL-3.0-or-later package for calibration and imaging of MeerKAT data. We are evaluating learned
-> deconvolution and would like to use R2D2-RI as a comparator, and possibly to train a series on
-> MeerKAT uv coverages with your training code.
+> We work on ra-ng, an open-source project for radio astronomy (MeerKAT calibration and imaging);
+> rang-core (<https://github.com/gijzelaerr/rang-core>) is its first package. We would like to use
+> R2D2-RI as a comparator for learned deconvolution, and possibly train a series on MeerKAT uv
+> coverages with your training code.
 >
-> The README's badge says GPL-3.0 and links to `LICENSE`, but `main` has no LICENSE file, and GitHub
-> reports no licence for the repository. The GPL-3.0 text is present on the `r2d2-python-v1.0` and
-> `gh-pages` branches. Could you add the licence file to `main`? GPL-3.0, or GPL-3.0-or-later, would
-> suit us; any OSI licence compatible with GPL-3.0 would too. The released weights are already CC BY
-> on the Heriot-Watt portal, which is fine for us.
+> The README's badge says GPL-3.0 and links to `LICENSE`, but `main` has no LICENSE file and GitHub
+> reports no licence (the GPL-3.0 text is on the `r2d2-python-v1.0` and `gh-pages` branches). Could you
+> add it to `main`? GPL-3.0 works for us; ra-ng aims to be MIT-licensed, so a permissive licence (MIT,
+> BSD-3-Clause, Apache-2.0) would make reuse easier, if you are open to it. The CC BY weights are fine.
 >
 > Thank you.
 
@@ -45,15 +47,13 @@ upstream's terms allow a licence, because the fork carries matt-bendel's code.
 
 > Hello, and thank you for AIRI and for publishing the denoiser shelves.
 >
-> We work on rang-core (<https://github.com/gijzelaerr/rang-core>), an open-source
-> GPL-3.0-or-later package for calibration and imaging of MeerKAT data. Your MeerKAT results with
-> AIRI make it the learned imager we would most like to compare against on our data.
+> We work on ra-ng, an open-source project for radio astronomy (MeerKAT calibration and imaging);
+> rang-core (<https://github.com/gijzelaerr/rang-core>) is its first package. Your MeerKAT results make
+> AIRI the learned imager we would most like to compare against on our data.
 >
-> On the Heriot-Watt dataset record (DOI 10.17861/aa1f43ee-2950-4fce-9140-5ace995893b0), the
-> MRI-trained shelf and its uncertainty set carry CC BY, but the astro-trained (OAID) files show no
-> licence. Could you state a licence for them, CC BY 4.0 like the MRI shelf, or CC0? That would let
-> us use and redistribute them in comparisons with attribution. The AIRI code itself is GPL-3.0,
-> which suits us.
+> On the Heriot-Watt record (DOI 10.17861/aa1f43ee-2950-4fce-9140-5ace995893b0) the MRI-trained shelf
+> carries CC BY, but the astro-trained (OAID) files show no licence. Could you state one for them,
+> CC BY 4.0 like the MRI shelf, or CC0?
 >
 > Thank you.
 
@@ -61,17 +61,17 @@ upstream's terms allow a licence, because the fork carries matt-bendel's code.
 
 **Title:** Licence for the rcGAN / RI-GAN code
 
-> Hello, and thank you for RI-GAN and for publishing the trained models on Zenodo (16529320, CC BY
-> 4.0).
+> Hello, and thank you for RI-GAN and the trained models on Zenodo (16529320, CC BY 4.0).
 >
-> We work on rang-core (<https://github.com/gijzelaerr/rang-core>), an open-source
-> GPL-3.0-or-later package for calibration and imaging of MeerKAT data. RI-GAN, trained on MeerKAT
-> uv coverages with the PSF in the network, is a natural baseline for a quick-look imaging stage
-> we are scoping, and we would like to run and compare against it.
+> We work on ra-ng, an open-source project for radio astronomy (MeerKAT calibration and imaging);
+> rang-core (<https://github.com/gijzelaerr/rang-core>) is its first package. RI-GAN, trained on
+> MeerKAT uv coverages with the PSF in the network, is a natural baseline for a quick-look imaging
+> stage we are scoping.
 >
 > The repository has no licence file, and neither has its upstream (matt-bendel/rcGAN), so we cannot
-> reuse the code. Could you add one? GPL-3.0(-or-later), MIT, BSD-3-Clause or Apache-2.0 would all
-> work for us. If the upstream's terms need settling first, we would be grateful to know.
+> reuse the code. Could you add one? ra-ng aims to be MIT-licensed, so MIT, BSD-3-Clause or Apache-2.0
+> would suit us best; GPL-3.0 would still work. If the upstream's terms need settling first, we would be
+> glad to know.
 >
 > Thank you.
 
@@ -79,17 +79,17 @@ upstream's terms allow a licence, because the fork carries matt-bendel's code.
 
 **Title:** Licence for the code and the trained classifier weights
 
-> Hello, and thank you for releasing the selfcal image classifier (de Jong et al. 2025,
-> arXiv:2508.12115) and its code.
+> Hello, and thank you for the selfcal image classifier (de Jong et al. 2025, arXiv:2508.12115) and
+> its code.
 >
-> We work on rang-core (<https://github.com/gijzelaerr/rang-core>), an open-source
-> GPL-3.0-or-later package for calibration and imaging of MeerKAT data. Your "continue or stop"
-> classifier is the closest published work to a stage we are scoping: deciding from the image
-> when self-calibration can stop. We would like to reuse the approach and compare against your
-> weights.
+> We work on ra-ng, an open-source project for radio astronomy (MeerKAT calibration and imaging);
+> rang-core (<https://github.com/gijzelaerr/rang-core>) is its first package. Your "continue or stop"
+> classifier is the closest published work to a stage we are scoping: deciding from the image when
+> self-calibration can stop.
 >
 > The repository has no licence file, and the weights that `lofar_facet_selfcal` downloads from the
-> SURF share do not state one. Could you add a licence for the code (GPL-3.0(-or-later), MIT,
-> BSD-3-Clause or Apache-2.0 would all suit us) and state one for the weights (CC BY 4.0 or CC0)?
+> SURF share do not state one. Could you add a code licence (MIT, BSD-3-Clause or Apache-2.0 would suit
+> us best, as ra-ng aims to be MIT-licensed; GPL-3.0 would still work) and state one for the weights
+> (CC BY 4.0 or CC0)?
 >
 > Thank you.
