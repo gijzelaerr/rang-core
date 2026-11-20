@@ -235,6 +235,7 @@ def solve(
     budget=None,
     average_time=False,
     stream="auto",
+    start=None,
 ):
     """Solve self-calibration `term` (a dict with `type` Sp, Sa or Sd,
     `name`, `solint`, and for Sp and Sa `freqint`; `max_iterations`,
@@ -246,7 +247,9 @@ def solve(
     research/selfcal-memory.md; Sp and Sa without `average_time`): `"auto"`
     solves an interval that does not fit `budget` streamed
     (`rang.cal_stream`, the same solution), True always, False never (the
-    refusal). Returns a `SelfcalSolution`."""
+    refusal). `start` (DL4a, research/dl4a-screen.md; Sp and Sa, the
+    one-call path): kernel gains `(ntime, nfreq, nant, 2)` to start from
+    instead of unity. Returns a `SelfcalSolution`."""
     kind = term["type"]
     if kind not in TYPES:
         raise ValueError(f"self-calibration term type must be one of {TYPES}")
@@ -281,6 +284,10 @@ def solve(
     if average_time and kind not in ("Sp", "Sa"):
         raise ValueError("average_time applies to Sp and Sa only")
     extra = {"average": True} if average_time else {"stream": stream}
+    if start is not None:
+        if kind not in ("Sp", "Sa"):
+            raise ValueError("start applies to Sp and Sa only")
+        extra["start"] = start
     if kind in ("Sp", "Sa"):
         fb, gain_freq = freq_bins(freq, term.get("freqint", "inf"))
         sol, _ = cal_gain._solve_gain_field(
