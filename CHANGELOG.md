@@ -12,7 +12,8 @@ the release notes are the section of this file for that version.
 ## 0.3.1 (2026-11-20)
 
 One addition over 0.3.0, cut from the tag `v0.3.0`; nothing else changed, and 0.3.0's known limitations
-stand.
+stand. The comparison with CARACal on E2-A (E3-A), which 0.3.0's notes announced for 0.3.1, is **not** in
+this release: its timed passes were stopped at the 0.3.0 tag and it follows in a later release.
 
 - **`rang-core watch PATH...`** follows run directories, spool directories or any output directory without
   touching them: each stage's status and time, whether the process that marked a stage running is still
