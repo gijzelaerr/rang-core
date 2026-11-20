@@ -1,21 +1,28 @@
 # DL0 (#37): literature check and stage cost profile
 
-Status, 2026-11-19: **E2-A split measured from receipts; literature checked; E2-N profiled run
-running on nash (section 2.2); DL4 order provisional until it reports.** No claim of a gain is made
-here: this note measures where the time goes and checks what exists, so that #41-#44 are ordered
-by the record rather than by memory. Nothing was trained.
+Status, 2026-11-20: **done.** E2-A split from receipts, E2-N split from one profiled run on nash
+(section 2.2), literature checked, ASTRODECONV2019 regeneration specified (owner decision of
+2026-11-19). No claim of a gain is made here: this note measures where the time goes and checks
+what exists, so that #41-#44 are ordered by the record rather than by memory. Nothing was trained.
 
-## 0. Result in four lines
+## 0. Result in five lines
 
-- In self-calibration on E2-A (24,270 s), **the GeMClean minor cycle and its image-domain resyncs are
-  63 %** of the stage; the exact major cycles (degrid and grid) are **1.6 %**; the gain solves 21 %.
+- Self-calibration, minor cycle plus its image-domain resyncs: **63 %** of the stage on E2-A
+  (24,270 s), **65 %** on E2-N (49,613 s). Exact major cycles (degrid and grid): **1.6 % and 2.3 %**.
 - So dl-plan section 1's "a network pays in imaging only by reducing the number of major cycles" does
-  not hold for GeMClean at E2-A's settings: the cost is the multiscale minor cycle, not gridding.
+  not hold for GeMClean at E2's settings: the cost is the multiscale minor cycle, not gridding.
+- Gain solves: 21 % (E2-A), 7.4 % (E2-N). On E2-N, py-spy puts **99.7 % of the selfcal solve in
+  reading and averaging rows, 0.25 % in the solver's iterations** (about 9 s of 3,695 s; 0.02 % of
+  selfcal), and 0.15 % of the calibrate stage (K, G, B, polarisation) in recognisable solver kernels.
+  This holds for the E2 configuration, which solves on time-averaged rows (`calibrate.average_time`
+  and `selfcal.average_time` true); rang's default for selfcal is `false`, and on the unaveraged
+  pilot the iterations were most of the solve (section 2.3).
 - The Sp and Sa solves start every interval at **identity** (`core/src/solve.rs`); no warm start
-  exists. Sp ran to the 50-iteration cap and Sa stopped at 37 with nearly the same wall (2,600 s,
-  2,549 s), which suggests (inferred, two term types) that iterations are not the solve's main cost.
-- Provisional order: **#42 (minor cycle) first, then #43 (mask and settings), #41 (gain warm start)
-  after E2-N's read-versus-iterate split, #44 screenings on spare slots throughout.**
+  exists, and in the E2 configuration none would pay in wall time.
+- Order: **#42 (minor cycle) first, #43 (mask and settings) second, #44 (screenings) third, #41
+  (gain warm start) last, reframed as a one-day screening.** Classical I/O fixes outweigh #41: every
+  apply is read-bound, and on E2-N (only; E2-A 1.4 %, on a local disk) the selfcal input-column copy
+  took about 5,530 s (11 %) under idle-class I/O on a shared disk.
 
 ## 1. Literature: verdicts on the candidates of dl-plan sections 3 and 6
 
@@ -231,15 +238,20 @@ solint 120 s, `average_time`), three images (4096², 3″, 8 output channels joi
 Per image: major cycles 2.3-2.5 % of the wall (5-6 cycles, 25 s each), minor cycle 62-63 %, resyncs
 28-29 %, I/O and PSF 5-6 %. What the code calls each part was read in `core/src/gemclean.rs`
 (module docs, `resync`) and `core/src/gemclean/joined.rs` (`ct.major` brackets the per-channel
-`GridMeasurement::residual`, a degrid and grid; `ct.minor` excludes resync time). The imaging data are
+`GridMeasurement::residual`, a degrid and grid; `ct.minor` excludes resync time; the joined
+`resync` makes each channel's map exact with one FFT convolution per channel on the 2n grid, no
+visibilities). The reports' resync counters (drift, tau, every, threshold) read 0 while resync time
+is 1,500-1,800 s: the counters count resyncs inside a minor cycle, and the time is the resync at
+the end of each cycle (`if since[0].steps > 0 { resync!() }`), which no counter records. The imaging data are
 averaged to 512 channels and held in memory, which is why a major cycle costs 25 s.
 
 Solves: Sp 50 iterations (the cap), converged fraction 0.0; Sa 37 iterations, converged 0.99; 4
 intervals each. The wall barely moves between 50 and 37 iterations; with the data averaged in time
 to 4 intervals the kernel's arrays are small, so the read of 850,950 rows × 4,096 channels of data
-and model is the likely cost (inferred across two term types; section 2.2 measures it).
+and model is the likely cost (inferred across two term types; section 2.2 measures it on E2-N,
+which takes the same `average_time` path).
 
-### 2.2 E2-N, profiled run on nash (running)
+### 2.2 E2-N, profiled run on nash (2026-11-19/20)
 
 E2-N's run directory is no longer on nash (only `e2n.ms` remains, 105 GB, without CORRECTED_DATA,
 MODEL_DATA or CORRECTED_1GC; its flags had been put back to the input state, 0.315 flagged), so no
@@ -258,7 +270,48 @@ receipt below the stage totals exists. One profiled run, started 2026-11-19 09:3
   `rang-core run` resumes per stage, but the selfcal stage is one unit (its round directories are made
   fresh), so an interruption loses up to the stage's progress: a stated exception to the 15-minute rule.
 
-Result: _pending._
+Ran 09:31:39 to 01:34:41 SAST, 57,780 s wall (`/usr/bin/time`), one attempt, rc 0: calibrate
+4,131 s, apply 3,998 s, selfcal 49,613 s (the original 0.2.0 run: 4,819, 1,319 and 49,304 s). Peak
+RSS 33.5 GiB. CPU 256,826 s (user 215,104, system 41,722), **4.4 cores on average against 16
+booked**. py-spy: 94,673 samples, 0 errors; main thread 57,923, three GeMClean subprocesses
+11,740-13,023 each. Archive: [results/dl0-profile/e2n](results/dl0-profile/e2n) (state, summaries,
+image reports and logs with file hashes stripped, the receipt, the py-spy raw stacks, the time file).
+
+| Part of the 49,613 s selfcal stage | Seconds | Share |
+| --- | --- | --- |
+| three GeMClean images (12,925; 11,791; 11,947) | 36,662 | 73.9 % |
+| - minor cycle (multiscale, image domain) | 22,897 | 46.2 % |
+| - resyncs | 9,466 | 19.1 % |
+| - major cycles (exact degrid and grid) | 1,155 | 2.3 % |
+| - read, weights, PSF and beams, write | 2,734 | 5.5 % |
+| input-column copy CORRECTED_DATA → CORRECTED_1GC (py-spy: 5,327 samples in `Table.getcol` under `_copy_column`) | about 5,530 | 11.1 % |
+| two solves (Sp 1,971; Sa 1,724) | 3,695 | 7.4 % |
+| two model predicts (1,030; 915) | 1,945 | 3.9 % |
+| two applies (855; 614) | 1,470 | 3.0 % |
+| rest (writeback sessions, stores) | about 310 | 0.6 % |
+
+Per image: major cycles 3.1-3.2 % of the wall (6 cycles each), minor cycle 60-64 %, resyncs
+24-27 %; 932,000-952,000 components (E2-A: 390,000-722,000), which with nash's slower, shared cores
+likely explains the 2.0-2.4 × longer images at a quarter of E2-A's channels (both image 512
+channels; not measured apart).
+
+Inside the solves (py-spy, main thread, 3,649 samples at 1 Hz): `load_averaged` 3,640 (reading the
+rows, 737 of them in `read_rows`, and averaging them into the 9 intervals; `_Field.prepare` 255),
+`_kernel` 9. **Iterations are 0.25 % of the solve, 0.02 % of selfcal.** Sp took 10 iterations
+(converged 0.996), Sa 39 (0.991), 9 intervals, 1,596,004 rows each; QuartiCal on the original
+averaged inputs took 9-11 and 19-49. Calibrate (4,131 s, 4,070 samples): G-type `gaincal` 1,448
+(1,417 in `load_averaged`), `gpol` 626 (556), `applycal` and model column set-up 611, `df` 228, `xf`
+190, `kcross` 178 (these three almost all in table reads), `bandpass` 175 (173). Over the stage:
+3,134 samples (77 %) in reads and averaging, 6 (0.15 %) in recognisable solver kernels (`_kernel`,
+`solve.<locals>.kernel`, `_df_kernel`), the other 930 in writes (`Table.putcol` 547), flag rows and
+Python glue; a solver call without a Python frame of its own would sit in those 930, so 23 % is the
+upper bound of calibrate's compute. Apply (3,998 s): 3,149 samples in `Table.getcol`.
+
+Caveats: the run used ionice idle on a shared disk, so its I/O phases (copy, apply, solves' reads)
+are upper bounds; E2-A's copy took 341 s on glacier's local D:. GeMClean's own threads are not in
+py-spy's Python stacks; its split comes from its reports. Booking: about 20,800 s of the run (calibrate,
+apply, the column copy, solves, predicts and applies) ran on about one core; by subtraction the
+images averaged about 6 cores of the 16 booked (derived, not measured per phase).
 
 ### 2.3 What the pilots already said
 
@@ -277,19 +330,25 @@ pilots must be scored at E2 size, not on the pilot, or they optimise the wrong p
   previous interval, previous round or calibrator solution is passed in, and the Python layer has no
   argument for one.
 - Sd (delay and offset) goes through `cal_delay._solve_field` with `initial_estimate=False`
-  (`cal_selfcal.py` line 300): no FFT delay start in selfcal, a zero start.
-- Stop rule: `stop_criterion` 1e-7 on the relative update, `stop_fraction` 0.99, `max_iterations`
-  50. On E2-A Sp never met it (0 of 4 intervals at 50); QuartiCal on E2-N's averaged inputs took 9-11
-  (Sp) and 19-49 (Sa) iterations (`results/e2n/score/qc-selfcal.json`).
+  (`cal_selfcal.py` line 300): no FFT delay estimate in selfcal; `offset_start=True` is passed but
+  applies "with the initial estimate only" (`cal_delay.py` docstring), so delays and offsets start
+  from zero (read from the docstring and `zero_start = zero_start and initial_estimate`, not traced
+  into the kernel).
+- Stop rule: per gain `|g_k − g_{k−1}|² / |g_{k−1}|² < stop_criterion²` (`core/src/solve.rs`,
+  `stop_criterion` 1e-7), an interval passes when `stop_fraction` 0.99 of its gains do,
+  `max_iterations` 50. On E2-A Sp never met it (0 of 4 intervals at 50); on E2-N rang took 10 (Sp) and 39 (Sa);
+  QuartiCal on E2-N's averaged inputs took 9-11 (Sp) and 19-49 (Sa) iterations
+  (`results/e2n/score/qc-selfcal.json`).
 
 So DL4a's comparison arms (dl-plan stage 2: identity, previous interval, previous round, FFT start)
 are all unimplemented except identity; the classical warm starts must be built before a network can
-be compared with them.
+be compared with them. With `average_time` the iterations cost seconds (section 2.2), so a warm start
+can matter for robustness (E2-A's Sp at the cap) but not for wall time.
 
 ## 4. Recommended order of #41-#44
 
-1. **#42 DL4b, minor-cycle proposals (stage 7), first.** It holds 63 % of selfcal on E2-A and the
-   same share of every image stage. Two changes to its framing follow from section 2.1: the gain is
+1. **#42 DL4b, minor-cycle proposals (stage 7), first.** It holds 63 % of selfcal on E2-A, 65 % on
+   E2-N, and the same share of every image stage. Two changes to its framing follow from section 2.1: the gain is
    counted in **minor-cycle work and wall** (components, sub-minor loops, resyncs), not major cycles
    alone, since major cycles are 1.6 %; and the classical comparator includes cheaper multiscale
    settings (fewer scales, larger gain), because 10 scales on 4096² with 35,605 convolutions is where
@@ -300,18 +359,23 @@ be compared with them.
    (major iteration 4 of 5 continues in the mask at reduced gain, E2-A round 1); a mask that stops
    the minor cycle earlier at equal false flux saves from the same 63 %. Settings (solint, scales,
    cut-offs) are cheap to score on the grids already run. Quick-look (10) stays last of the three.
-3. **#41 DL4a, gain warm start (stage 2), third.** Solves are 21 % of selfcal, but the evidence so
-   far (Sp at the cap costs no more than Sa at 37) says the solve is read-bound; a warm start saves
-   iterations only. Its ceiling is the iteration share that section 2.2 measures; if the read
-   dominates, the classical fix (one read shared by Sp and Sa, or solving on the averaged cells the
-   predict already touches) beats any network, and #41 is screened rather than piloted. The classical
-   warm starts of section 3 are built first either way.
-4. **#44 DL4s, screenings (3, 4, 5a), on spare slots throughout.** One day each, light; 5a has no
-   precedent and accuracy gates of 1e-4 to 1e-9.
+3. **#44 DL4s, screenings (3, 4, 5a), third, on spare slots.** One day each, light; 5a has no
+   precedent and accuracy gates of 1e-4 to 1e-9; stage 3 has a precedent (the ALMA classifier).
+4. **#41 DL4a, gain warm start (stage 2), last, as a one-day screening, not a pilot.** In the E2
+   configuration (time-averaged solves, the configuration of the acceptance runs and of CARACal's
+   estimator) the rule of dl-plan stage 2 (wall ≤ 0.7 × the best classical start) cannot be met:
+   iterations are 0.25 % of the selfcal solve and 0.15 % of the calibrate stage (23 % at most, if
+   every unattributed sample were solver compute), the rest is reading and averaging rows. What
+   remains is robustness (E2-A's Sp ran to the 50-iteration cap with converged fraction 0.0) and
+   unaveraged solving (`selfcal.average_time: false`, rang's default), where iterations dominated on
+   the pilot; the screening states which configuration it serves. The classical warm starts of
+   section 3 come before any network.
 
-To be confirmed when E2-N reports: whether E2-N's image (11,985 s for the image stage, 2.3 × E2-A's
-at a quarter of the channels) is also minor-cycle bound, and the read-versus-iterate split of its
-solves. If E2-N's solves turn out iteration-bound, #41 moves to second.
+Classical follow-ups found by the profile, outside DL4 and larger than #41's ceiling (for the
+coordinator to issue or not): the selfcal input-column copy (5,530 s, 11 % of E2-N's selfcal, read-
+bound in `Table.getcol`), the solves' read of all rows once per round (Sp and Sa read the same input
+column; one averaged read could serve both), and the heavy-lock booking of a pipeline run, which held
+16 slots for phases that use one core.
 
 ## 5. Open points for the owner
 
@@ -321,3 +385,24 @@ solves. If E2-N's solves turn out iteration-bound, #41 moves to second.
   GPL.
 - ASTRODECONV2019: decided 2026-11-19, route (b), 9,000 fields (section 1.6). Still open, and not
   blocking: which count the thesis meant (10,000 on p. 92, a 100,000 split on p. 93).
+
+## For the coordinator
+
+- Wave-2 order: **#42, #43, #44, #41** (#41 as a one-day screening). Basis: minor cycle plus resyncs
+  63 % (E2-A) and 65 % (E2-N) of selfcal; major cycles 1.6-2.3 %; solver iterations 0.25 % of E2-N's
+  selfcal solve, 0.15 % of its calibrate stage (time-averaged configuration).
+- dl-plan section 1 needs one amendment: "A network pays in imaging only by reducing the number of
+  major cycles or solver iterations, not by replacing the gridder" should read that GeMClean imaging
+  at E2 settings is minor-cycle bound (multiscale, 4096², 8 joined channels), so stage 7's gain is
+  minor-cycle work and wall, and that solver iterations are negligible in the time-averaged
+  configuration. Stage table row 2's prior can cite section 2.2.
+- #42 step 0: ASTRODECONV2019 regenerated by rang (route b), 9,000 fields, specification in 1.6.
+- Classical follow-ups, not DL (issue or not): the selfcal input-column copy (E2-N 11 %, E2-A 1.4 %),
+  one averaged read shared by Sp and Sa, read-bound apply, and heavy-lock bookings of whole pipeline
+  runs (16 slots held for single-core phases; 4.4 cores used on average).
+- Owner points: section 5.
+- Left on nash, not deleted: `~/rang-data/outputs/dl0-profile-20261119` (326 GB: the MS copy with
+  CORRECTED_DATA, MODEL_DATA and CORRECTED_1GC, the run directory, py-spy file); the worktree
+  `~/Worktrees/rang/dl0-profile` (206 MB, venv, branch `dl0-profile-nash` at origin/main, scripts
+  uncommitted copies of this branch's). Everything needed is archived in
+  [results/dl0-profile](results/dl0-profile); both can be removed.
