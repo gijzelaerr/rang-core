@@ -205,8 +205,9 @@ most 0.7 × 430 s = 301 s, so at most about 21 iterations after the 104 s read. 
 slope, that needs a start within about 4e-5 relative of the solution, nearly the solution itself.
 A start with the solution's own phase (0.011) would save only about one more iteration. This is an
 extrapolation from two points plus the converged limit, labelled post hoc. Its reading: the
-headroom of section 8 exists only for a start much more accurate than any prediction from data
-statistics is likely to be, because the solution's thermal scatter alone is far above 4e-5.
+headroom of section 8 exists only for a start far more accurate than a prediction is likely to
+be. The solution itself moves by 2.4-2.6 % between rounds (Sp's solution against Sa's) and by 4.5 %
+between neighbouring 120 s intervals (A1's distance), three orders of magnitude above 4e-5.
 
 **What this means for #41.** Classical warm starts are cheap and keep the solution, but give only
 8-15 % fewer iterations. In the unaveraged default the iterations are about a third of the pilot's
