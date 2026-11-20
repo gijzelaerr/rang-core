@@ -1,0 +1,22 @@
+/home/gijs/Worktrees/rang/dl0-profile/.venv/bin/python -m rang.gemclean -name /home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms.rang-run/selfcal/ASKAPJ1745/final/image -size 4096 4096 -scale 3asec -weight briggs 0.5 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -wgridder-accuracy 0.0001 -average-channels 2 -channels-out 8 -join-channels -fit-spectral-pol 2 -auto-mask 5.0 -multiscale -data-column CORRECTED_DATA -field 3 -unit-weights -no-update-model-required /home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms
+/home/gijs/rang-data/outputs/dl0-profile-20261119/e2n.ms: 1596004 rows (CORRECTED_DATA, field 3), 512 channels into 8 output channels, MF weighting, joined, 246.53 s read, 80.47 s weights
+multiscale: theoretic beam 4.8134" (1.6045 pixels), 10 scales, 1337 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.200000, kernel peak 1.490854e-1, 543129 components, 2.428750 Jy
+multiscale: scale 6 px, bias factor 1.6667, psf peak 0.371168, gain 0.538840, kernel peak 4.984855e-2, 57792 components, 0.441645 Jy
+multiscale: scale 13 px, bias factor 2.7778, psf peak 0.185566, gain 1.077786, kernel peak 1.838800e-2, 189988 components, 0.340932 Jy
+multiscale: scale 26 px, bias factor 4.6296, psf peak 0.073034, gain 2.738434, kernel peak 5.867765e-3, 132818 components, 0.027026 Jy
+multiscale: scale 51 px, bias factor 7.7160, psf peak 0.022332, gain 8.955784, kernel peak 1.569448e-3, 21547 components, -0.037117 Jy
+multiscale: scale 103 px, bias factor 12.8601, psf peak 0.006298, gain 31.756297, kernel peak 4.062807e-4, 3676 components, -0.020190 Jy
+multiscale: scale 205 px, bias factor 21.4335, psf peak 0.001561, gain 128.089068, kernel peak 1.052558e-4, 1264 components, -0.132673 Jy
+multiscale: scale 411 px, bias factor 35.7225, psf peak 0.000307, gain 651.309992, kernel peak 2.655318e-5, 479 components, 0.126280 Jy
+multiscale: scale 821 px, bias factor 59.5374, psf peak 0.000041, gain 4934.444922, kernel peak 6.700460e-6, 0 components, 0.000000 Jy
+multiscale: scale 1643 px, bias factor 99.2290, psf peak 0.000001, gain 238873.176820, kernel peak 1.681623e-6, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 8.042298e-5 Jy, threshold 4.021149e-4 Jy; continued in the mask at gain 0.9000, threshold 4.021149e-4 Jy
+auto-mask: major iteration 2, sigma 2.828707e-5 Jy, threshold 1.414353e-4 Jy; continued in the mask at gain 0.9000, threshold 1.414353e-4 Jy
+auto-mask: major iteration 3, sigma 2.003229e-5 Jy, threshold 1.001614e-4 Jy; continued in the mask at gain 0.9000, threshold 1.001614e-4 Jy
+auto-mask: major iteration 4, sigma 1.867145e-5 Jy, threshold 9.335726e-5 Jy; continued in the mask at gain 0.9000, threshold 9.335726e-5 Jy
+auto-mask: major iteration 5, sigma 1.614586e-5 Jy, threshold 8.072930e-5 Jy; continued in the mask at gain 0.6240, threshold 4.843758e-5 Jy
+auto-mask: major iteration 6, sigma 1.424350e-5 Jy, threshold 4.273049e-5 Jy, in the mask
+auto-mask: threshold reached in major iteration 5
+joined: 950693 components, 6 major cycles, 0 resyncs, stop Threshold; Q/Q0 3.8336e-2
+wall 11946.02 s
