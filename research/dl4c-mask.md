@@ -204,4 +204,12 @@ cost 9-12 × the default's wall, so a chooser trades wall for quality; it is not
 
 ### Stage 6, mask bound
 
-_Running (section 9, step 3: arm A started 2026-11-20 07:15 SAST)._
+Issue for amendment 2's refusal: [gijzelaerr/rang-core#54](https://github.com/gijzelaerr/rang-core/issues/54).
+
+Masks (step 4), built from the 9-scale A images and committed before any P or T image
+([results/dl4c-mask/masks](results/dl4c-mask/masks), with SHA-256): R1-P 1,481,996 pixels (8.8 % of the
+image; level 147 µJy = 5 × 29.4 µJy), R2-P 1,190,645 (7.1 %; 113 µJy), T1-T 55,316 (0.33 %; 117 µJy = 5 ×
+the simulator's Briggs image rms 23.4 µJy). For T masks the noise is the scorer's `briggs_image_rms`
+(the images use Briggs 0.5), read from the prepare step's meta.
+
+_Running (A images R3, T2, T3; P/T images queued)._
