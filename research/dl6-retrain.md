@@ -154,4 +154,53 @@ if the first did not reach R5).
 
 ## Measured result
 
-(none yet)
+### Dry run on F5, 2026-11-20 (section 8; validation only, decides nothing)
+
+F5's calibrator arm N5-ph (seed 3, τ −3.0, method N5; branch `dl3-f5` at `533d9b9f`) as the
+stand-in passed stage; rule 1's 1k split of 1735892129. Reduced as frozen: train scans 1 and 3 (two
+realisations each), validation scan 19, one seed, 1,000 steps. Code: `dl3-f5` unchanged in a nash
+worktree (`~/Worktrees/rang/dl6-dryrun`, own venv); this branch's
+[dryrun-scripts/](results/dl6-retrain/dryrun-scripts/) wrap it. Run root
+`nash:~/rang-data/outputs/dl6-dryrun-20261120/`. **Held-out scans 23 and 25 were not read.**
+Training moved to glacier's GPU on the coordinator's word (nash's queue was full).
+
+| Step | Result | Host, wall |
+| --- | --- | --- |
+| R0 manifest | written by hand from F5's note: [f5-n5ph-retrain-manifest.json](results/dl6-retrain/f5-n5ph-retrain-manifest.json); null fields: tenant, ONNX file, exporter, cost readings, sha256 per data set | – |
+| R0 entry | `envelope_violations`: `channel_width_hz 835937.5 outside [208984.375, 208984.375]` → held out; no 1735892129 scan in F5's data | glacier |
+| R1 teachers | DL2's labels used (T: rang 0.3.0 at `4bb29720`, CARACal first-pass YAML; A: **AOFlagger 2.13.0**, CARACal `firstpass_QUV.rfis`). F5's A is AOFlagger 3.5.0, generic strategy: **Stop-T by the rule**; continued, labelled | – |
+| R2 loader | `dl6_load_ms.py` (python-casacore, read-only): scans 1, 3, 19, 139,934 / 26,474 / 28,365 cross rows, no FLAG_ROW rows; MS hashes equal DL2's manifest; input flags 0.31 / 0.30 / 0.35. Against rang's own reader (`read_cells`), DATA, FLAG, ANTENNA1/2, TIME of 200 rows: **bit-equal** | nash, 168 s |
+| R2 band | F5 sees 1070.0-1497.8 MHz only (LUNO tiles 8-23); the 1k scans cut to channels 256-767 (512) to match | – |
+| R2 factory | `f5_shards.py` through `dl6_run.py` (set list, loader and flag cache patched; nothing else): validation 113 s, train 640 s, 1.7 GB of shards, peak RSS 13.4 GB | nash, 8 slots |
+| R2 audit | **Stop-L as frozen**: ignored uninjected 0.525 (scan 1) and 0.410 (scan 19) against 0.40; T's / A's recall of injected positives 0.38 / 0.60 on scan 1, 0.86 / 0.93 on scan 19, 0.88 / 0.89 on scan 3 | – |
+| R3 train | `f5_train.py` seed 1, 1,000 steps, CUDA under `gpu_run.py run --owner rang`: 45 s training, 56 s booked; validation loss 0.0752; flat sha256 `de7f95e2…` | glacier GPU, 12:43-12:44 SAST |
+| R4 export | `dl6_export.py`: Conv ×7, Relu ×5 only; weights byte-equal (3,201); `rang.learned.load` accepts; **I2 6.7e-6**; ONNX sha256 `1836d236…` | glacier |
+| R6 cost | header `architecture`, op set and all 14 initializer shapes equal the manifest's (3,152 multiply-adds per cell): **reuse** — but F5 has no C1/C2 reading yet, so nothing to reuse | – |
+
+### Where the procedure was unclear or missing (fixed in the page unless noted)
+
+1. **Export form.** F5's `export_onnx` gives Identity ×5, Transpose, Constant, Gather (NHWC input,
+   `[:, 0]`); refused by name. Fixed in section 2a and the page (R4); passed to D, whose F6 export is
+   now NCHW and Conv/Relu only (coordinator, 2026-11-20).
+2. **torch shares equal initializers through Identity nodes** (zero biases at init, or any two equal
+   tensors): the exporter must give each its own initializer (`dl6_export.py` does).
+3. **Named-set factories.** F5's factory, τ and scorer read named LUNO/ESO137 sets and F4's flag
+   cache layout; a new configuration needs a loader plus a flag cache. Allowed by R2 as written; the
+   page now names the flag-cache layout.
+4. **Band.** The procedure did not say that the configuration is cut to the stage's band; now R2.
+5. **Teacher versions.** DL2's AOFlagger (2.13.0, CARACal strategy) is not F5's (3.5.0, generic):
+   Stop-T as frozen. Either the stage's manifest pins DL2's teachers (F6 trains on DL2's labels), or
+   R1 runs the stage's own teachers on the new scans. For the agent test, F6's manifest decides.
+6. **Strategy inputs in ignored `outputs/`.** `rang.f2flag` reads CARACal's YAML from
+   `outputs/caracal-strategy-inputs-8f7bb363/` (not in git); a fresh worktree fails at W3. The
+   manifest must list staged inputs; the page now says so.
+7. **Manifest.** F5 records no tenant, ONNX file, cost readings or one sha256 per data set; the
+   stage's own note must provide them before an agent test (F6, before Monday).
+8. **Branch age.** `dl3-f5` predates the interpreter (`2d9f4c5f`), so R4's contract checks ran on
+   main's build on glacier; the stage's branch must contain main at or after `2d9f4c5f`.
+9. **Label audit on another block.** 1735892129 fails F5's label audit (ignored uninjected above
+   0.40 on two of three scans): at 1k, in this block, the teachers flag far more native RFI than in
+   LUNO. Not a procedure defect: a real retrain would stop here (Stop-L). F6's audit bar, sized
+   anew (F6 proposal item 4), decides for the agent test.
+10. **Hosts.** nash's heavy-lock queue held the first booking 2 h 50 min; the chain runs as one
+    booking and stops before training so the GPU step does not hold CPU slots.

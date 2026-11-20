@@ -52,7 +52,9 @@ receipt records:
 - the wall time and the peak RSS;
 - the sha256 of every input and output.
 
-Copy the compact ones to `research/results/` at the end. Book every job
+Copy the compact ones to `research/results/` at the end. Book each chain of CPU
+steps as a single job, stopping before training so that a GPU step never
+holds CPU slots. Book every job
 through `tools/heavy_lock.py`, using the main checkout's copy, with honest
 `--slots` and `--mem`. On nash, also run every job under `nice -n 19 ionice -c3`.
 Run from your own worktree and venv, never from the main checkout. Add a row
@@ -68,11 +70,23 @@ to `research/tool-timings.md` for each timed run.
   the configuration, which shows it is held out.
 - None of the configuration's scans appears in the manifest's train or
   validation data.
+- Your worktree contains main at or after `2d9f4c5f` (the interpreter), so
+  that R4's contract checks run on the same build.
+- The inputs the manifest lists as staged are present. These are files the
+  stage reads from ignored `outputs/`, such as CARACal's strategies in
+  `outputs/caracal-strategy-inputs-8f7bb363/`. A fresh worktree does not have
+  them, so copy them in from the stage's run, check their sha256 and record
+  the copy.
 
 **R1 Teachers.** Run the stage's teachers, at the manifest's pinned versions
 and strategies, on the train and validation scans. A teacher label file that
 already exists may be used if its receipt pins the same versions and matches
 the input sha256. If a version differs, stop (Stop-T).
+
+Labels from another campaign, such as DL2's `labels/<teacher>/`, can be
+used only if their versions and strategies match the manifest's teachers.
+The F5 dry run found DL2's AOFlagger at 2.13.0 against F5's 3.5.0, which is
+Stop-T.
 
 The held-out scans' teacher labels are made, or read, only in R5.
 
@@ -83,8 +97,17 @@ loader is the one code change allowed. The loader must:
 
 - give the same scan layout that the stage's own loaders give: cross rows,
   data, flags, antennas, times, channel frequencies and widths;
-- be checked on one scan against a reader of the MS such as python-casacore,
-  and the check must be bit-equal.
+- cut the channels to the stage's band. The stage's envelope `band_hz` gives
+  it; F5 uses 1070.0-1497.8 MHz, which is channels 256-767 of 1k;
+- be checked on one scan against rang's own MS reader
+  (`rang.core_ms_write.read_cells`), and the check must be bit-equal.
+
+If the stage's scripts read the teachers' flags from a cache, write the new
+scans' flags in that layout, for example F4's
+`<root>/<class>/flags/<name>-T.npy` and `-A.npy`, as (row, chan) bool over
+the kept rows and band. A wrapper that changes only the set list, the loader
+and the flag cache counts as the loader. `research/results/dl6-retrain/dryrun-scripts/`
+has the F5 versions (`dl6_load_ms.py`, `dl6_run.py`).
 
 Then:
 
@@ -98,7 +121,9 @@ Then:
 - Resume from checkpoints. Do not restart a seed that has a checkpoint.
 - On glacier's GPU, book every job through
   `python ~/.gpu/gpu_run.py run --owner rang -- ...`, and yield on exit code 3
-  of `gpu_run.py check`.
+  of `gpu_run.py check`. When you call it from Git Bash with
+  `wsl.exe -e bash /home/...`, set `MSYS_NO_PATHCONV=1`; otherwise the path
+  is rewritten to `C:/Program Files/Git/home/...`.
 - Exclusive or timing work on glacier starts at 21:00 SAST at the earliest.
   Other GPU work must stop before any exclusive night the coordinator has
   announced.
@@ -113,8 +138,11 @@ Then:
   - only `Conv` and `Relu` nodes;
   - input `planes` NCHW `(N, C, T, F)` and output `logits` `(N, 1, T, F)`;
   - opset 17.
+- torch's exporter shares equal initializers, such as zero biases, through
+  `Identity` nodes. Give each one its own initializer and remove those nodes.
 - If the trainer's module uses another layout, export a conv-only copy of
-  the same weights. One way is to load the flat weights into
+  the same weights. `research/results/dl6-retrain/dryrun-scripts/dl6_export.py`
+  does both for F5's N5. One way is to load the flat weights into
   `rang.learned_torch` or an equivalent NCHW module. The weights read back
   through `rang.learned.dilated_cnn_weights`, or the stage's reader, must be
   byte-equal to the trainer's.
