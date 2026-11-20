@@ -1,6 +1,6 @@
 {
  "stage": "7",
- "written_utc": "2026-11-19T13:00:10Z",
+ "written_utc": "2026-11-20T16:02:18Z",
  "note": "research/dl2-data.md section 7",
  "split_rule": "by capture block (dl-plan decision 6); held out read once",
  "blocks": {
@@ -9,6 +9,11 @@
     "cbid": "1571938260",
     "complete": true,
     "manifest_sha256": "44c63947d6e707176bf825e8fefcadd4aad32813bc38a3f2c9d8d76e971a2ea8"
+   },
+   {
+    "cbid": "1611426666",
+    "complete": true,
+    "manifest_sha256": "950706786d0a7a9bbc5acbdbe77d09562050aba2a8c8403f25cea33199a6bb80"
    },
    {
     "cbid": "1629213076",
@@ -163,6 +168,39 @@
    "rows": 47937,
    "ms": "ms/1579022459/scan121.ms",
    "ms_hash": "ea08d7edd3b6d8ede2f7c2b22619d751651a112c33f3a112669fef5751bd3c0a",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 12,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 874944,
+   "ms": "ms/1611426666/scan012.ms",
+   "ms_hash": "5ab7a2ac987d6aa35dbfe0c23ff34720cf2873cd22669b861b910260439fc685",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 20,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 876960,
+   "ms": "ms/1611426666/scan020.ms",
+   "ms_hash": "197343904b2ab83fb276a9ad9919790a45705bc42acaddc1861dd56ff20919b4",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 28,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 874944,
+   "ms": "ms/1611426666/scan028.ms",
+   "ms_hash": "3b463d637a2791c7e99d02d9b55a3c242e07fdf559cce6ccde2cf0e26cfd8b7b",
    "labels": []
   },
   {

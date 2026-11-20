@@ -1,6 +1,6 @@
 # DL2: the training-data factory (issue #39)
 
-Status: **frozen 2026-11-19, before any visibility of the nine blocks was read.** Sections 1-2 are
+Status: **stage 1 shipped 2026-11-20 (section 23); stage 2 and 7 runners deferred. Frozen 2026-11-19, before any visibility of the nine blocks was read.** Sections 1-2 are
 measured (metadata only); sections 3-8 are the plan the fetch, conversion and teacher runs follow.
 Later changes are dated amendments, labelled post hoc where they could have seen data. Parent plan:
 [dl-plan.md](dl-plan.md) sections 5, 6 and 10 (decision 6, the frozen selection rule and its
@@ -497,11 +497,52 @@ running stream to it only while the stream waits in the lock queue: it stops the
 group and relaunches it with the same arguments. A teacher step that is running is never
 interrupted. Bookings stay as before: 6 slots per stream, which used about 6.2 cores.
 
+## 23. Outcome (2026-11-20 16:02 UTC): stage 1 shipped; stage 2 and stage 7 runners deferred
+
+**Stage 1 shipped.** The last teacher stream ended at 15:56:49 UTC. `finish_stage1b.sh` (which
+requires two empty checks 120 s apart, so a re-queue gap cannot fire it early) wrote the stage
+manifests at 16:02 UTC. The counts were checked before anything was committed or announced:
+
+| Stage manifest | Scans | Train | Validation | Held out | With labels | SHA-256 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| stage1.json | 219 | 108 | 32 | 79 | 140, each with rang, Tricolour and AOFlagger | 94f512db…0b5b |
+| stage2.json | 192 | 93 | 29 | 70 | 0 (runner deferred) | 60a1974d…ef6e |
+| stage7.json | 27 | 15 | 3 | 9 | 0 (runner deferred) | 3cdd387c…c42e |
+
+- 420 labels (140 scans × 3 teachers), 52 GB, under `labels/<teacher>/<cbid>/scan<NNN>/` on nash.
+  No held-out scan has a label (section 5): they are made at each consumer's single read
+  (section 20).
+- rang's port and Tricolour 0.2.1 give a bit-identical `flag.npy` on 34 of the 140 scans; on the
+  rest they differ, on 1.0e-6 of all cells (section 24).
+- The manifests at this state are committed under
+  [results/dl2-data/manifests/](results/dl2-data/manifests/). Session D (F6) was told at 16:05 UTC.
+
+**Stage 2 and stage 7 runners: deferred to the pilot that needs them** (coordinator,
+2026-11-20, section 19). The route stays as the plan: per block, CASA `concat` of the calibrator
+scans (stage 2) or of the three middle target scans (stage 7) into a private MS, then the teachers
+of section 19. stage2.json and stage7.json register their scans and splits now, so a later runner
+only adds labels.
+
+**Wall:** fetch, conversion and hashing of all nine blocks took 2026-11-19 07:51 to 14:53 UTC. The
+stage 1 teachers took 2026-11-19 08:45 UTC to 2026-11-20 15:57 UTC. Most of that time the host
+was disk-bound and shared (sections 15, 18, 21, 22).
+
+## 24. rang's port against Tricolour 0.2.1 over the stage 1 labels (2026-11-20, a reported check)
+
+[dl2_agree.py](results/dl2-scripts/dl2_agree.py) compared the two teachers' `flag.npy` cell by cell
+on all 140 labelled scans (1,070 s on nash, 1 slot, 4.7 GB peak;
+[results/dl2-data/rang-vs-tricolour.json](results/dl2-data/rang-vs-tricolour.json)). The two differ
+on 146,864 of 146,244,866,048 cells, **1.0e-6**. rang flags 73,752 of those and Tricolour the other
+73,112, so the split is even. 34 scans are bit-identical. The worst scans are 1573212012 scan 141
+(2.2e-5) and 1571938260 scan 105 (2.0e-5), then 1.1e-5 and below. This is a port-level agreement,
+not a validated label: both teachers apply the same CARACal strategies.
+
 ## For the coordinator
 
-- Licence: whether weights trained on "freely available" archive data can ship under GPL is with the
-  owner (section 19); no block was replaced.
-- Stage 2 and stage 7 runners are deferred, with their route recorded (section 19).
-- Held-out labels are made at each consumer's single read (section 19).
-- An arbitrary-command task kind for the spool (for container teachers) is not added here; open it
-  under #4 if wanted.
+- #39 outcome: stage 1 shipped (219 scans registered, 140 train and validation scans with three
+  teachers each, held-out unlabelled); stage 2 and stage 7 runners deferred with their route
+  (sections 19, 23). Branch dl2-data, ready for your full check and merge.
+- Licence: shipping weights trained on these data under GPL is with the owner (section 19).
+- Held-out labels: made at each consumer's single read, `HELDOUT=1 teach_block.sh` (section 20).
+- Keep on nash: `~/Worktrees/rang/dl2-data` and `~/rang-data/outputs/dl2-data-20261119/` (MSs
+  2.8 TB, labels 52 GB): F6 trains on them. The private copies in `work/copies/` are gone.

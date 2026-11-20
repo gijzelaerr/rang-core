@@ -1,6 +1,6 @@
 {
  "stage": "2",
- "written_utc": "2026-11-19T13:00:10Z",
+ "written_utc": "2026-11-20T16:02:18Z",
  "note": "research/dl2-data.md section 7",
  "split_rule": "by capture block (dl-plan decision 6); held out read once",
  "blocks": {
@@ -9,6 +9,11 @@
     "cbid": "1571938260",
     "complete": true,
     "manifest_sha256": "44c63947d6e707176bf825e8fefcadd4aad32813bc38a3f2c9d8d76e971a2ea8"
+   },
+   {
+    "cbid": "1611426666",
+    "complete": true,
+    "manifest_sha256": "950706786d0a7a9bbc5acbdbe77d09562050aba2a8c8403f25cea33199a6bb80"
    },
    {
     "cbid": "1629213076",
@@ -1164,6 +1169,160 @@
    "rows": 122322,
    "ms": "ms/1579022459/scan235.ms",
    "ms_hash": "ec2986015efe978c066e3b034f16816f204a6d4991b43082b6ff8f96a539ceed",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 0,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "rows": 153216,
+   "ms": "ms/1611426666/scan000.ms",
+   "ms_hash": "cefe33532b573a00eb2ccf5fa53898b58954a18d26d487244094692cdd3f745d",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 2,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "rows": 44352,
+   "ms": "ms/1611426666/scan002.ms",
+   "ms_hash": "c2eef1814482b91e802184421d26a6424ba6e3eb7071f4c11118c62a7cad91f0",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 4,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan004.ms",
+   "ms_hash": "ae72509e43770e3e6b91e3b803f2c9ae65ae12643bdca6b70b16228992649da2",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 8,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "rows": 44352,
+   "ms": "ms/1611426666/scan008.ms",
+   "ms_hash": "a2e7b150bad75ad85f98af7c3fb25b5891db4ad4ca5d041a7e332cbf0fa0b243",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 10,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan010.ms",
+   "ms_hash": "dfbf6d816a46e8a42393a3cd7136f8651447dc0baa1339b37eab9212793afd7c",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 14,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "rows": 44352,
+   "ms": "ms/1611426666/scan014.ms",
+   "ms_hash": "cc33c12b60b06579a37bf37e61a9dff5198920a9c25d1e221095f2f6d5b3a196",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 16,
+   "class": "calibrator",
+   "target": "J1130-1449",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan016.ms",
+   "ms_hash": "efe7cbcb5efc149d264396413c68bf94a94323f2190a718d1852be55e41eea04",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 18,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 28224,
+   "ms": "ms/1611426666/scan018.ms",
+   "ms_hash": "0ec0371977be47d053255edb72b5c446dc5c8a68779755185049a874b69737f3",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 22,
+   "class": "calibrator",
+   "target": "J0521+1638",
+   "rows": 44352,
+   "ms": "ms/1611426666/scan022.ms",
+   "ms_hash": "b8ebc18560da20b870f30c716329d0da2d5010a6da9dc1844bf484f41db7242e",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 24,
+   "class": "calibrator",
+   "target": "J1130-1449",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan024.ms",
+   "ms_hash": "3740ebce875aa1387eb763d49b07f49ec87fc961842793e978c3dce27029d13e",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 26,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 28224,
+   "ms": "ms/1611426666/scan026.ms",
+   "ms_hash": "7ed2a14f9aa6f19229c8c540a5208e2e371129c525202a6a8dc4a87619d84d02",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 30,
+   "class": "calibrator",
+   "target": "J1130-1449",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan030.ms",
+   "ms_hash": "c78ac08f7018d2eecc789c63fa8107b47ae90f039194409786f1d03028f05820",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 32,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 28224,
+   "ms": "ms/1611426666/scan032.ms",
+   "ms_hash": "c9da9efde030e81a07c1eff02d7757a54f6539da0c89734bd1020b5dc53311b8",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 36,
+   "class": "calibrator",
+   "target": "J0538-4405",
+   "rows": 30240,
+   "ms": "ms/1611426666/scan036.ms",
+   "ms_hash": "0a41ace5042afcffad38376d6e06969243d36a07ee7dbe553022c472706f4b54",
    "labels": []
   },
   {
