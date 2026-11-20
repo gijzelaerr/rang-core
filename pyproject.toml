@@ -48,6 +48,10 @@ Changelog = "https://github.com/gijzelaerr/rang-core/blob/main/CHANGELOG.md"
 plot = ["matplotlib>=3.8"]
 test = ["pytest>=8", "pytest-xdist>=3.6", "pytest-timeout>=2.3"]
 pointing = ["jax>=0.4.30", "scipy>=1.12"]
+# Training learned stages (research/dl-plan.md decision 4; F5, research/f5-flagger.md):
+# PyTorch and ONNX, never needed by the pipeline. The CUDA build comes from the
+# Linux wheel on PyPI (WSL on Windows).
+learned-train = ["torch>=2.5", "onnx>=1.17"]
 beam = ["katbeam==0.1", "eidos==1.1.2"]
 # No `flagging` extra since W4-5 (research/w4-5-release.md): it pinned the
 # frozen QuartiCal 0.2.7 / Stimela 2.1.4 / python-casacore 3.8.1 stack that
