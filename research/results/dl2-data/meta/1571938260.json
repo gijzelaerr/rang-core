@@ -1,0 +1,2232 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 63.6,
+ "name": "1571938260_sdp_l0",
+ "experiment_id": "20191022-0008",
+ "observer": "Samuel Legodi",
+ "description": "LMC mosaic: epoch 16/23 ",
+ "start_utc": "2019-10-24 17:31:45.010",
+ "end_utc": "2019-10-25 04:53:43.699",
+ "dump_period_s": 7.9966169712,
+ "dumps": 5117,
+ "channels": 4096,
+ "freq_first_hz": 856000000.0,
+ "freq_last_hz": 1711791015.625,
+ "channel_width_hz": 208984.375,
+ "antennas": [
+  "m000",
+  "m002",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "spectral_windows": [
+  "<katdal.SpectralWindow ('L',)-band product='c856M4k' centre=1284.000 MHz bandwidth=856.000 MHz channels=4096 at 0x70f907938d40>"
+ ],
+ "targets": [
+  {
+   "name": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "radec": "(1.0835862116596362, -1.1476005252996582)"
+  },
+  {
+   "name": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "radec": "(1.0835862116596362, -1.1476005252996582)"
+  },
+  {
+   "name": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.2732283552308479)"
+  },
+  {
+   "name": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.2559908047989983)"
+  },
+  {
+   "name": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.2387527695534675)"
+  },
+  {
+   "name": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.221515219121618)"
+  },
+  {
+   "name": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.2042771838760873)"
+  },
+  {
+   "name": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.1870391486305567)"
+  },
+  {
+   "name": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.457506277827423, -1.1698015981987073)"
+  },
+  {
+   "name": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.4837385764848978, -1.1439450301440923)"
+  },
+  {
+   "name": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.4837385764848978, -1.1267069948985617)"
+  },
+  {
+   "name": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(1.401348854703462, 0.2904140608855964)"
+  },
+  {
+   "name": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(1.0835862116596362, -1.1476005252996582)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20180505-FC-02",
+  "sb_id_code": "20191022-0008",
+  "description": "LMC mosaic: epoch 16/23 ",
+  "observer": "Samuel Legodi",
+  "experiment_id": "20191022-0008",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 1,
+   "start": 1571938309.0084336,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 1,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1571938317.0050507,
+   "seconds": 295.8748279344
+  },
+  {
+   "scan": 2,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1571938612.8798785,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 3,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571938620.8764954,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 4,
+   "state": "slew",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571938732.829133,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 5,
+   "state": "track",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571938756.818984,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 6,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571939652.4400847,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 7,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571939668.4333186,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 8,
+   "state": "slew",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571939780.3859563,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 9,
+   "state": "track",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571939804.3758073,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 10,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571940699.996908,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 11,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571940715.9901419,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 12,
+   "state": "slew",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571940835.9393964,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 13,
+   "state": "track",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571940851.9326305,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 14,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571941747.5537312,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 15,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571941763.5469651,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 16,
+   "state": "slew",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571941883.4962196,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 17,
+   "state": "track",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571941899.4894536,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 18,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571942795.1105545,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 19,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571942819.1004055,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 20,
+   "state": "slew",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571942931.053043,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 21,
+   "state": "track",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571942955.042894,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 22,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571943850.6639946,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571943874.6538455,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571943986.6064832,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 111,
+   "start": 1571944010.596334,
+   "seconds": 887.6244838032
+  },
+  {
+   "scan": 26,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571944898.2208178,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 27,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571944922.2106688,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 28,
+   "state": "slew",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571945042.1599233,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 29,
+   "state": "track",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571945058.1531572,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 30,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571945953.7742581,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 31,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571945977.764109,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 32,
+   "state": "slew",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571946089.7167466,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 33,
+   "state": "track",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571946105.7099805,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 34,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571947001.3310814,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 35,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571947025.3209321,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 36,
+   "state": "slew",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571947137.2735698,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 37,
+   "state": "track",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571947161.2634206,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 38,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 3,
+   "start": 1571948056.8845215,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 39,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1571948080.8743725,
+   "seconds": 295.8748279344
+  },
+  {
+   "scan": 40,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1571948376.7492003,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 41,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571948384.7458172,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 42,
+   "state": "slew",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571948496.6984549,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 43,
+   "state": "track",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571948520.6883059,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 44,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571949416.3094065,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 45,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571949440.2992575,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 46,
+   "state": "slew",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571949552.2518952,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 47,
+   "state": "track",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571949576.241746,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 48,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571950471.8628469,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 49,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571950495.8526976,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 50,
+   "state": "slew",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571950607.8053353,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 51,
+   "state": "track",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571950631.7951863,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 52,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571951527.416287,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 53,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571951551.406138,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 54,
+   "state": "slew",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571951663.3587754,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 55,
+   "state": "track",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571951687.3486264,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 56,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571952582.9697273,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 57,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571952606.959578,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 58,
+   "state": "slew",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571952718.9122157,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 59,
+   "state": "track",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571952742.9020667,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 60,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571953638.5231674,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 61,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571953662.5130184,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 62,
+   "state": "slew",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571953774.4656558,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 63,
+   "state": "track",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571953798.4555068,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 64,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571954694.0766075,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 65,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571954718.0664585,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 66,
+   "state": "slew",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571954830.0190961,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 67,
+   "state": "track",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571954854.008947,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 68,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571955749.6300478,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 69,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571955773.6198988,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 70,
+   "state": "slew",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571955885.5725362,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 71,
+   "state": "track",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571955909.5623872,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 72,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571956805.183488,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 73,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571956829.173339,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 74,
+   "state": "slew",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571956941.1259766,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 75,
+   "state": "track",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571956965.1158273,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 76,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 2,
+   "start": 1571957860.7369282,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 77,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1571957876.7301621,
+   "seconds": 295.8748279344
+  },
+  {
+   "scan": 78,
+   "state": "slew",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 9,
+   "start": 1571958172.60499,
+   "seconds": 71.9695527408
+  },
+  {
+   "scan": 79,
+   "state": "track",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75,
+   "start": 1571958244.5745428,
+   "seconds": 599.74627284
+  },
+  {
+   "scan": 80,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 9,
+   "start": 1571958844.3208156,
+   "seconds": 71.9695527408
+  },
+  {
+   "scan": 81,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571958916.2903683,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 82,
+   "state": "slew",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571959036.2396228,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 83,
+   "state": "track",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571959060.2294738,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 84,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571959955.8505747,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 85,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571959979.8404255,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 86,
+   "state": "slew",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571960091.7930632,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 87,
+   "state": "track",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571960115.7829142,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 88,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571961011.4040148,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 89,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571961035.3938658,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 90,
+   "state": "slew",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571961147.3465033,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 91,
+   "state": "track",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571961171.3363543,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 92,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571962066.957455,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 93,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571962090.947306,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 94,
+   "state": "slew",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571962202.8999436,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 95,
+   "state": "track",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571962226.8897943,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 96,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571963122.5108953,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 97,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571963138.5041292,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 98,
+   "state": "slew",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571963258.4533837,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 99,
+   "state": "track",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571963274.4466176,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 100,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571964170.0677185,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 101,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571964194.0575693,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 102,
+   "state": "slew",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571964306.010207,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 103,
+   "state": "track",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571964330.000058,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 104,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571965225.6211586,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 105,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571965241.6143925,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 106,
+   "state": "slew",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571965361.563647,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 107,
+   "state": "track",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571965377.5568812,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 108,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571966273.1779819,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 109,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571966297.1678329,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 110,
+   "state": "slew",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571966409.1204703,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 111,
+   "state": "track",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571966433.1103213,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 112,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1571967328.731422,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 113,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571967336.728039,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 114,
+   "state": "slew",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571967456.6772935,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 115,
+   "state": "track",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 111,
+   "start": 1571967480.6671445,
+   "seconds": 887.6244838032
+  },
+  {
+   "scan": 116,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 2,
+   "start": 1571968368.2916284,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 117,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1571968384.2848623,
+   "seconds": 295.8748279344
+  },
+  {
+   "scan": 118,
+   "state": "slew",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 14,
+   "start": 1571968680.1596901,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 119,
+   "state": "track",
+   "target": "J0521+1638",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 74,
+   "start": 1571968792.1123278,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 120,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 12,
+   "start": 1571969383.8619838,
+   "seconds": 95.9594036544
+  },
+  {
+   "scan": 121,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571969479.8213873,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 122,
+   "state": "slew",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571969591.774025,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 123,
+   "state": "track",
+   "target": "LMC1R14C18",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571969615.7638757,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 124,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571970511.3849766,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 125,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571970535.3748276,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 126,
+   "state": "slew",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571970647.327465,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 127,
+   "state": "track",
+   "target": "LMC1R14C16",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 111,
+   "start": 1571970671.317316,
+   "seconds": 887.6244838032
+  },
+  {
+   "scan": 128,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571971558.9417999,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 129,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571971582.9316506,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 130,
+   "state": "slew",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571971702.8809054,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 131,
+   "state": "track",
+   "target": "LMC1R14C14",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571971718.8741393,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 132,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571972614.49524,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 133,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571972638.485091,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 134,
+   "state": "slew",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1571972750.4377286,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 135,
+   "state": "track",
+   "target": "LMC1R14C12",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571972758.4343455,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 136,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571973654.0554464,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 137,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571973678.0452971,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 138,
+   "state": "slew",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571973789.9979348,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 139,
+   "state": "track",
+   "target": "LMC1R14C10",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571973813.9877858,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 140,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1571974709.6088865,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 141,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1571974725.6021204,
+   "seconds": 119.949254568
+  },
+  {
+   "scan": 142,
+   "state": "slew",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571974845.551375,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 143,
+   "state": "track",
+   "target": "LMC1R14C08",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571974861.5446088,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 144,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571975757.1657097,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 145,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571975781.1555607,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 146,
+   "state": "slew",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571975893.1081982,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 147,
+   "state": "track",
+   "target": "LMC1R14C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 111,
+   "start": 1571975917.0980492,
+   "seconds": 887.6244838032
+  },
+  {
+   "scan": 148,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571976804.722533,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 149,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571976828.7123837,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 150,
+   "state": "slew",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1571976940.6650214,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 151,
+   "state": "track",
+   "target": "LMC1R15C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 112,
+   "start": 1571976964.6548724,
+   "seconds": 895.6211007744
+  },
+  {
+   "scan": 152,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1571977860.275973,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 153,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "delaycal",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1571977884.265824,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 154,
+   "state": "slew",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1571977996.2184618,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 155,
+   "state": "track",
+   "target": "LMC1R15C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 111,
+   "start": 1571978012.2116957,
+   "seconds": 887.6244838032
+  },
+  {
+   "scan": 156,
+   "state": "slew",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 3,
+   "start": 1571978899.8361795,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 157,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 37,
+   "start": 1571978923.8260303,
+   "seconds": 295.8748279344
+  },
+  {
+   "scan": 158,
+   "state": "stop",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 1,
+   "start": 1571979219.7008584,
+   "seconds": 7.9966169712
+  }
+ ],
+ "cross_products": 6844,
+ "vis_bytes_cross_all": 1147559870464
+}

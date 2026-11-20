@@ -1,0 +1,512 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 20.9,
+ "name": "1735892129_sdp_l0",
+ "experiment_id": "20241224-0024",
+ "observer": "Kovi Rose",
+ "description": "ASKAP J1745 epoch 3 (part 2)",
+ "start_utc": "2025-01-03 08:15:32.687",
+ "end_utc": "2025-01-03 11:58:23.222",
+ "dump_period_s": 8.001516859813083,
+ "dumps": 1671,
+ "channels": 1024,
+ "freq_first_hz": 856000000.0,
+ "freq_last_hz": 1711164062.5,
+ "channel_width_hz": 835937.5,
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m051",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "spectral_windows": [
+  "<katdal.SpectralWindow ('L',)-band product='bc856M1k' centre=1284.000 MHz bandwidth=856.000 MHz channels=1024 at 0x70f906315ee0>"
+ ],
+ "targets": [
+  {
+   "name": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  },
+  {
+   "name": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(4.6444265865325525, -0.9031288632770446)"
+  },
+  {
+   "name": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.647586359699184, -0.8877418466659902)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20241101-KR-02",
+  "sb_id_code": "20241224-0024",
+  "description": "ASKAP J1745 epoch 3 (part 2)",
+  "observer": "Kovi Rose",
+  "experiment_id": "20241224-0024",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "add_16k_mode",
+   "add_baseband",
+   "ants",
+   "ants_within_radius",
+   "backend",
+   "beam_quant_gain",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "dbe_centre_freq",
+   "description",
+   "disable_setting_beam_weights",
+   "dm",
+   "drift_scan",
+   "dry_run",
+   "enable_stats",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "mode",
+   "nd_params",
+   "no_capture",
+   "no_mask",
+   "observer",
+   "output_bins_fold",
+   "output_channels",
+   "output_channels_fold",
+   "output_nbit",
+   "output_npol",
+   "output_tsamp",
+   "output_tsubint",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "ptuse_start_delay",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "sched_file",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "target_duration",
+   "targets"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 2,
+   "start": 1735892136.6879492,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 1,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1735892152.6909828,
+   "seconds": 592.1122476261681
+  },
+  {
+   "scan": 2,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1735892744.8032305,
+   "seconds": 40.007584299065414
+  },
+  {
+   "scan": 3,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1735892784.8108149,
+   "seconds": 112.02123603738318
+  },
+  {
+   "scan": 4,
+   "state": "slew",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1735892896.8320508,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 5,
+   "state": "track",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 281,
+   "start": 1735892912.8350847,
+   "seconds": 2248.4262376074767
+  },
+  {
+   "scan": 6,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1735895161.2613223,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 7,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1735895177.264356,
+   "seconds": 112.02123603738318
+  },
+  {
+   "scan": 8,
+   "state": "slew",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1735895289.2855918,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 9,
+   "state": "track",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 282,
+   "start": 1735895305.2886257,
+   "seconds": 2256.4277544672896
+  },
+  {
+   "scan": 10,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1735897561.7163801,
+   "seconds": 8.001516859813083
+  },
+  {
+   "scan": 11,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1735897569.717897,
+   "seconds": 120.02275289719626
+  },
+  {
+   "scan": 12,
+   "state": "slew",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1735897689.74065,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 13,
+   "state": "track",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 281,
+   "start": 1735897705.7436836,
+   "seconds": 2248.4262376074767
+  },
+  {
+   "scan": 14,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1735899954.1699212,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 15,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1735899970.172955,
+   "seconds": 112.02123603738318
+  },
+  {
+   "scan": 16,
+   "state": "slew",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1735900082.194191,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 17,
+   "state": "track",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 282,
+   "start": 1735900098.1972246,
+   "seconds": 2256.4277544672896
+  },
+  {
+   "scan": 18,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1735902354.6249793,
+   "seconds": 8.001516859813083
+  },
+  {
+   "scan": 19,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1735902362.626496,
+   "seconds": 120.02275289719626
+  },
+  {
+   "scan": 20,
+   "state": "slew",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1735902482.6492488,
+   "seconds": 8.001516859813083
+  },
+  {
+   "scan": 21,
+   "state": "track",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 282,
+   "start": 1735902490.650766,
+   "seconds": 2256.4277544672896
+  },
+  {
+   "scan": 22,
+   "state": "slew",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1735904747.0785203,
+   "seconds": 16.003033719626167
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1735904763.081554,
+   "seconds": 112.02123603738318
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 4,
+   "start": 1735904875.10279,
+   "seconds": 32.006067439252334
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1735904907.1088574,
+   "seconds": 592.1122476261681
+  },
+  {
+   "scan": 26,
+   "state": "stop",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 1,
+   "start": 1735905499.221105,
+   "seconds": 8.001516859813083
+  }
+ ],
+ "cross_products": 7564,
+ "vis_bytes_cross_all": 103542325248
+}

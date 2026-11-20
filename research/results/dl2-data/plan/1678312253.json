@@ -1,0 +1,279 @@
+{
+ "cbid": "1678312253",
+ "split": "heldout",
+ "meta_sha256": "022992eb6008c66ef5788ed179a84cac7262d26bd1f7379aeff9c144e77fe039",
+ "channels": 4096,
+ "antennas": 29,
+ "dump_period_s": 7.996616971962617,
+ "cross_products": 1624,
+ "scans": [
+  {
+   "scan": 0,
+   "class": "calibrator",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 2,
+   "class": "calibrator",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 36
+  },
+  {
+   "scan": 4,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 8,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 12,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 16,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 20,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 24,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 28,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 30,
+   "class": "calibrator",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75
+  },
+  {
+   "scan": 32,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 75
+  },
+  {
+   "scan": 34,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 36,
+   "class": "target",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224
+  },
+  {
+   "scan": 38,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 40,
+   "class": "target",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224
+  },
+  {
+   "scan": 42,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 44,
+   "class": "target",
+   "target": "HD142990",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224
+  },
+  {
+   "scan": 46,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 50,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 54,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 58,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 60,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 62,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 66,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 70,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 74,
+   "class": "calibrator",
+   "target": "J1517-2422",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  }
+ ],
+ "dumps": 1263,
+ "mvf_bytes_estimate": 84013547520
+}

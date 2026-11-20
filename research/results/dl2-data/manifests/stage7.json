@@ -1,0 +1,372 @@
+{
+ "stage": "7",
+ "written_utc": "2026-11-20T16:02:18Z",
+ "note": "research/dl2-data.md section 7",
+ "split_rule": "by capture block (dl-plan decision 6); held out read once",
+ "blocks": {
+  "train": [
+   {
+    "cbid": "1571938260",
+    "complete": true,
+    "manifest_sha256": "44c63947d6e707176bf825e8fefcadd4aad32813bc38a3f2c9d8d76e971a2ea8"
+   },
+   {
+    "cbid": "1611426666",
+    "complete": true,
+    "manifest_sha256": "950706786d0a7a9bbc5acbdbe77d09562050aba2a8c8403f25cea33199a6bb80"
+   },
+   {
+    "cbid": "1629213076",
+    "complete": true,
+    "manifest_sha256": "9a8dafde1b7da1a77601f9453e0413381a06718e4c72377d83c3b4a50135e419"
+   },
+   {
+    "cbid": "1735892129",
+    "complete": true,
+    "manifest_sha256": "f921dc06d042373951c4df1a0871ed9facfc6ab47b10d7a2b19a608195d79e5e"
+   },
+   {
+    "cbid": "1749428161",
+    "complete": true,
+    "manifest_sha256": "3f8237ef78b8abae141352b792137eb6a520d232a89e5f191b0dc5e5185be4ef"
+   }
+  ],
+  "validation": [
+   {
+    "cbid": "1573212012",
+    "complete": true,
+    "manifest_sha256": "912f880aaf284bfb53503719f0ec6e2aa27ba21ea19be77d311d8c319488aa92"
+   }
+  ],
+  "heldout": [
+   {
+    "cbid": "1579022459",
+    "complete": true,
+    "manifest_sha256": "2018123383699c1e6f980a9258147ba312c5685543ac4ed1ec35c19a4a6e5a6d"
+   },
+   {
+    "cbid": "1674958551",
+    "complete": true,
+    "manifest_sha256": "e4723aee97044175f07cffdf3c8e0b40f5ea72dc959d735eb4b168685f950000"
+   },
+   {
+    "cbid": "1678312253",
+    "complete": true,
+    "manifest_sha256": "157b3b2f21d4d46cf0ddb5fe6aed466af11b086e65ae810a6dd64ab93845b520"
+   }
+  ]
+ },
+ "augmentation": {
+  "subarray_size": "uniform integer in [4, antennas of the block]",
+  "layout": "half uniform random subsets; half radius-limited: the N antennas nearest the array centre",
+  "dropout": "on full-array samples only: remove 1, 4 or 8 antennas, equally likely",
+  "seed_rule": "sample k uses numpy.random.default_rng([root_seed, k])",
+  "recorded_per_sample": [
+   "cbid",
+   "scan",
+   "antennas_kept",
+   "k"
+  ],
+  "no_ms_written": true,
+  "root_seed": 402320359
+ },
+ "entries": [
+  {
+   "cbid": "1571938260",
+   "split": "train",
+   "scan": 71,
+   "class": "target",
+   "target": "LMC1R15C03",
+   "rows": 191632,
+   "ms": "ms/1571938260/scan071.ms",
+   "ms_hash": "9341ca77c5118c2b2a972ae84a7687409f4b19d807b20545729786cd78a130aa",
+   "labels": []
+  },
+  {
+   "cbid": "1571938260",
+   "split": "train",
+   "scan": 75,
+   "class": "target",
+   "target": "LMC1R15C01",
+   "rows": 191632,
+   "ms": "ms/1571938260/scan075.ms",
+   "ms_hash": "9b1ddf138cfaba74e33b27a633024a1988acb44ea66cc9e5cbe9cc274ca85487",
+   "labels": []
+  },
+  {
+   "cbid": "1571938260",
+   "split": "train",
+   "scan": 83,
+   "class": "target",
+   "target": "LMC1R14C18",
+   "rows": 191632,
+   "ms": "ms/1571938260/scan083.ms",
+   "ms_hash": "9d360fd7ef27c61f40c9715c7d498ece3c503a0fd5e51d2b3feec81d76a0b255",
+   "labels": []
+  },
+  {
+   "cbid": "1573212012",
+   "split": "validation",
+   "scan": 111,
+   "class": "target",
+   "target": "N15R03C05",
+   "rows": 46284,
+   "ms": "ms/1573212012/scan111.ms",
+   "ms_hash": "09ccf5f029eae721ab14dfce0accdae015e988b1119995fa8ece3101bb8f93cb",
+   "labels": []
+  },
+  {
+   "cbid": "1573212012",
+   "split": "validation",
+   "scan": 113,
+   "class": "target",
+   "target": "N15R04C02",
+   "rows": 47880,
+   "ms": "ms/1573212012/scan113.ms",
+   "ms_hash": "78eb48d96648862a7c830dbdfa716f7ec9e9d6ec74f3f31c97d52e2ddf9d62a5",
+   "labels": []
+  },
+  {
+   "cbid": "1573212012",
+   "split": "validation",
+   "scan": 115,
+   "class": "target",
+   "target": "N15R04C04",
+   "rows": 47880,
+   "ms": "ms/1573212012/scan115.ms",
+   "ms_hash": "a92521e39c0b512bf81b5afbbad01a8d22f511554d3974d031201c6638185180",
+   "labels": []
+  },
+  {
+   "cbid": "1579022459",
+   "split": "heldout",
+   "scan": 115,
+   "class": "target",
+   "target": "T36R03C03",
+   "rows": 47937,
+   "ms": "ms/1579022459/scan115.ms",
+   "ms_hash": "42537f22da6b444d27b2e46ba85523aa19e3eefc1b79c2abfe25e9408913b42a",
+   "labels": []
+  },
+  {
+   "cbid": "1579022459",
+   "split": "heldout",
+   "scan": 117,
+   "class": "target",
+   "target": "T36R03C05",
+   "rows": 47937,
+   "ms": "ms/1579022459/scan117.ms",
+   "ms_hash": "6c803b68ca545992261a91de5c80236b4c5899b3e54f4146f28a42c0cd830ec9",
+   "labels": []
+  },
+  {
+   "cbid": "1579022459",
+   "split": "heldout",
+   "scan": 121,
+   "class": "target",
+   "target": "T36R01C01",
+   "rows": 47937,
+   "ms": "ms/1579022459/scan121.ms",
+   "ms_hash": "ea08d7edd3b6d8ede2f7c2b22619d751651a112c33f3a112669fef5751bd3c0a",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 12,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 874944,
+   "ms": "ms/1611426666/scan012.ms",
+   "ms_hash": "5ab7a2ac987d6aa35dbfe0c23ff34720cf2873cd22669b861b910260439fc685",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 20,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 876960,
+   "ms": "ms/1611426666/scan020.ms",
+   "ms_hash": "197343904b2ab83fb276a9ad9919790a45705bc42acaddc1861dd56ff20919b4",
+   "labels": []
+  },
+  {
+   "cbid": "1611426666",
+   "split": "train",
+   "scan": 28,
+   "class": "target",
+   "target": "J0516-37",
+   "rows": 874944,
+   "ms": "ms/1611426666/scan028.ms",
+   "ms_hash": "3b463d637a2791c7e99d02d9b55a3c242e07fdf559cce6ccde2cf0e26cfd8b7b",
+   "labels": []
+  },
+  {
+   "cbid": "1629213076",
+   "split": "train",
+   "scan": 54,
+   "class": "target",
+   "target": "MSGPS_L_1568",
+   "rows": 113960,
+   "ms": "ms/1629213076/scan054.ms",
+   "ms_hash": "e924961734702456a1382f4d631898da0f99f8d61c3d24d0fa2cee7a35a2421c",
+   "labels": []
+  },
+  {
+   "cbid": "1629213076",
+   "split": "train",
+   "scan": 56,
+   "class": "target",
+   "target": "MSGPS_L_1588",
+   "rows": 113960,
+   "ms": "ms/1629213076/scan056.ms",
+   "ms_hash": "3b6bed5e66d5d10e3f02ab221c5df3ec590d31c9a9cacdc1459f298ce65b5b3e",
+   "labels": []
+  },
+  {
+   "cbid": "1629213076",
+   "split": "train",
+   "scan": 58,
+   "class": "target",
+   "target": "MSGPS_L_1566",
+   "rows": 115500,
+   "ms": "ms/1629213076/scan058.ms",
+   "ms_hash": "1ee594805eff468b831cd6b25c223b7ab3c739c9d9c5d1fa3be602060aa46bfb",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 31,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111600,
+   "ms": "ms/1674958551/scan031.ms",
+   "ms_hash": "5228c9f017e3ab6ed554fe54081f574eb00178f862e483d9f41caa06ba4dd536",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 35,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111104,
+   "ms": "ms/1674958551/scan035.ms",
+   "ms_hash": "cc1f8e2540ce627bb56605657a89cf9cbbe97d752647d9d980362612c2ee1e8f",
+   "labels": []
+  },
+  {
+   "cbid": "1674958551",
+   "split": "heldout",
+   "scan": 39,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 111600,
+   "ms": "ms/1674958551/scan039.ms",
+   "ms_hash": "7badb73c00cd640dccf0477eeaf04cc21b1d4d3b0ff4b16544fcebe8b1ab4320",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 36,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan036.ms",
+   "ms_hash": "191e17afe53ce3b97623c1e3343abe6d907c2042413c5850e3eb299b77ec086b",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 40,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan040.ms",
+   "ms_hash": "857f089847d46a760033434617d804002dd0191101e11eedf0b29957b38ab7da",
+   "labels": []
+  },
+  {
+   "cbid": "1678312253",
+   "split": "heldout",
+   "scan": 44,
+   "class": "target",
+   "target": "HD142990",
+   "rows": 90944,
+   "ms": "ms/1678312253/scan044.ms",
+   "ms_hash": "41c3d25a400b8dd8d7fff6a42892e5913c74ae21ff3ec7d5857a6c4131a33bcf",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 9,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 533262,
+   "ms": "ms/1735892129/scan009.ms",
+   "ms_hash": "cf6897e5b9e5abe90da87196f6187fa80895b0c7d420220ac8fdca60f84cb255",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 13,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 531371,
+   "ms": "ms/1735892129/scan013.ms",
+   "ms_hash": "bc84c1ff0cb8a4ce7f28292fa192d17bf8bb4a291d37c0f2184247252985392f",
+   "labels": []
+  },
+  {
+   "cbid": "1735892129",
+   "split": "train",
+   "scan": 17,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "rows": 533262,
+   "ms": "ms/1735892129/scan017.ms",
+   "ms_hash": "7d7773667dccc8b37c94545c2ff8ea7a05f33e287405e89b64b27dc1a7ae14a6",
+   "labels": []
+  },
+  {
+   "cbid": "1749428161",
+   "split": "train",
+   "scan": 12,
+   "class": "target",
+   "target": "GRB250520A",
+   "rows": 244776,
+   "ms": "ms/1749428161/scan012.ms",
+   "ms_hash": "abfa0834e69d05b0da2df06177dc44be160effd84f588903f91723dcf28b2727",
+   "labels": []
+  },
+  {
+   "cbid": "1749428161",
+   "split": "train",
+   "scan": 16,
+   "class": "target",
+   "target": "GRB250520A",
+   "rows": 244776,
+   "ms": "ms/1749428161/scan016.ms",
+   "ms_hash": "2d3360e96eb96e69371f8ec1ca958fb957d0157c61358d57189a045761a87fe2",
+   "labels": []
+  },
+  {
+   "cbid": "1749428161",
+   "split": "train",
+   "scan": 22,
+   "class": "target",
+   "target": "GRB250520A",
+   "rows": 244776,
+   "ms": "ms/1749428161/scan022.ms",
+   "ms_hash": "3821bccf65bda9e57d870cc03644aa480920ffbe402f2dc3748ce6bc3d09392f",
+   "labels": []
+  }
+ ]
+}
