@@ -106,7 +106,49 @@ requirement, never from F6.
 - **G-perm, G-sub, R1-R5, S1-S3, C1, C2:** F5's frozen bars and rules, unchanged (each defined
   against T, A or a fixed requirement).
 
-## 2c. Label audit for F6 (fixed 2026-11-20 from the validation labels, before training; no network involved)
+## 2d. Gates and decision rule (committed 2026-11-20, before any F6 training step)
+
+Committed and pushed before chain 3 trains (dl-plan: gates, bounds and the decision rule before
+training). After training, the validation dry run of the complete scorer may change something
+here only as a dated, labelled amendment; then the formal freeze; then the held-out reads.
+
+| Gate | Test | Bar (source) |
+| --- | --- | --- |
+| **G-perm** | per held-out real set, live antennas relabelled by seeded permutations (seeds 20265201-03), antenna table alike | logits max abs difference ≤ 1e-4; flags differ on ≤ 1e-6 of eligible cells (F5 section 8) |
+| **G-drop** | per held-out real set, 1, 4 or 8 live antennas removed at inference (seeds 20265301-03, `default_rng(seed + 100 k)`), remaining baselines' eligible cells | added-cell change ≤ **0.05 / 0.20 / 0.25** of the full-array added cells, k = 1 / 4 / 8, **each seed** (section 2a: T's change 0, F5's bars kept) |
+| **G-sub** | core16 and outer32 synthetic sub-arrays of the held-out real sets; f4sim-t (odd antennas); **real sub-array blocks 1678312253 (29 antennas) and 1674958551 (32 outer antennas)**, R1's injections drawn on the sub-array | per sub-array, pooled over sets: R1 ≥ T_sub − 0.05; R3 ≤ 1.5 and ≥ R3's lower bound; R1 on the sub-array ≥ R1 at full array on the same sets − 0.05 (F5 section 8; real blocks per F5 Amendment 3) |
+| **G-chan** | held-out real sets averaged by 4 channels (836 kHz; mean of four, flags OR), R1's injections after averaging | R1 ≥ T − 0.05, R3 ≤ 1.5: **reported**; sets the envelope's channel width (F5 section 8) |
+| **G-obs** | **1579022459** (58 antennas, never seen in training) | R1 ≥ T − 0.05 and R3 within its bounds (F5 Amendment 3); **required for shipping**, not for the outcome |
+
+Every bar is F5's frozen bar (section 2a's rule: none sized from F6). The SARAO held-out blocks
+are read once, after the freeze, with C's runner (`TEACHERS=rang,aoflagger HELDOUT=1
+teach_block.sh <cbid> 6 k/2`) for T and A; the network reads the full 4,096 channels in 2,048
+channel windows (F5 Amendment 3). Fix 4's outer32 R3 and fix 5's R2 H2 per seed are measured on
+validation before the freeze and reported; their bars are F5's.
+
+**Seed.** Three seeds per class (1, 2, 3); the shipped seed is the median seed by validation R1
+(F5 section 9); R2 H2, G-drop and R1 are reported per seed on the held-out sets.
+
+**Decision rule (per class, first that applies; F5 section 11 otherwise unchanged).** Stop-C,
+Stop-E and Stop-Z are F5's pre-training stages and are not re-run (F5's measurements stand; level
+20 changes only the block planes' normalisation). **Stop-L**: section 2c's class-pooled audit
+stops. **F**: any of R1, R1m, R2, R3, R4 (calibrators), R5, S1, S3, G-perm, G-drop, G-sub fails, or
+C1 worse at either thread count. **H**: all quality gates pass, C1 not "beats" at 4 or at 1 thread.
+**S**: all quality gates pass, C1 beats at 4 and 1 thread, C2 not worse, P holds. **S−**: S except
+S2 or P. **Shipping** (weights in the wheel, `off` by default, section 3's ONNX form and licence):
+S or S−, and G-obs passed; a class ships without the other. Cost: section 3 says whether F5's
+timing stands or a timing run is needed (level 20 changes the work per cell); C1 and C2 are
+scored on whichever applies.
+
+## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
+
+*Labelled post hoc (coordinator, 2026-11-20).* The bars below were set after the validation
+shares in this section were seen. They are a data gate, not a performance bound, and are derived
+from F5's frozen audit (40 % ignored per realisation, 0.1 % injected positives, F4's target bars),
+loosened to a class-pooled 45 % so that one RFI-heavy scan cannot stop a class; the 0.1 % injected
+floor is F5's, unchanged. They are not tuned to the shares: the class-pooled shares seen (36.6 %,
+31.8 %) pass F5's own 40 % as well; only one scan's 41.3 % would have stopped it.
+
 
 Validation shards, L20, d = 1 (nash, `~/rang-data/outputs/dl3-f6-20261120/shards/`): calibrators
 (LUNO MAIN_7 and 29 calibrator scans of 1573212012, 2 realisations each, plus f2sim-v) pooled:
@@ -146,7 +188,13 @@ and 32 % on validation is far from that.
 - Cost: if F6 changes the work per cell, a timing night (Sunday 2026-11-22); if not, F5's timing
   stands (cost does not depend on the weights). The note says which.
 - Training host: nash's CPU if its wall is within about 2 × glacier's GPU (F5's trainer measured
-  on both), else glacier's GPU through `gpu_run`.
+  on both), else glacier's GPU through `gpu_run`. *Measured 2026-11-20:* F5's trainer, 3,000 steps on
+  F5's calibrator shards, nash CPU at 8 threads: 300 s (10 steps/s), 25.6 GB; glacier's RTX 4070
+  Ti: 44 s (68 steps/s). Per step the CPU is 6.8 × slower, but the GPU route first needs F6's
+  training shards (about 150 GB) copied to glacier at about 5 MB/s, 5-8 h, while three CPU seeds run
+  side by side in about 1 h on nash. **F6 trains on nash's CPU** (three processes of 8 threads,
+  each seed bit-reproducible on its own; CPU and GPU weights are different draws of the same
+  procedure, as F4 recorded).
 - **Licence (owner, 2026-11-20, verbatim: "yeah lets do that license, i think it is fine"):** F6's
   weights, trained on SARAO archive data, ship under **CC BY 4.0**. The ONNX header carries
   `licence: "CC-BY-4.0"` and, in `source`, SARAO's acknowledgement (from `research/dl2-data.md`,
