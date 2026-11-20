@@ -1,0 +1,12 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/apply-calwt-20261120/e2n.ms",
+ "mode": "O",
+ "fields": {},
+ "oracle": {
+  "rows": 17019,
+  "cells": 24511280,
+  "max_rel": 1.0293767835561176e-06,
+  "p99_rel": 6.014225447450856e-07,
+  "median_rel": 1.2435251201400707e-07
+ }
+}

@@ -141,6 +141,54 @@ gains to a median 0.1 %, scatter 2.3-2.5 % (p95 6 %): just outside the frozen 2 
 were set for the per-channel formula; the scatter is the solved gains' own error (interpolation of G
 between the gain calibrator's scans, B over 64 channels). Not a code failure; O decides the code.
 
-### E2-N
+### E2-N (2026-11-20 13:38-18:31 SAST, nash shared; rang-core 0.3.0)
 
-_Running._
+Copy 8 min; flags restored (0.315 → 0.638, as DL0); `run` calibrate and apply, `calwt: false` 2 h 56 min
+(F); score F and U 24 min; `apply` again with `calwt: true` 57 min (T); score T 5 min (data in the page
+cache); CASA 6.7.6.14 applycal on the target, calls rebuilt from rang's apply summary (calwt true on
+F and B as rang applied them), 1,020 s; compare. Archive: [results/apply-calwt/e2n](results/apply-calwt/e2n).
+
+**O, oracle: pass.** CASA's WEIGHT_SPECTRUM against rang's arm T on 17,019 target rows (every 50th
+evaluation pair's first dump, 24,511,280 unflagged cells): max relative difference **1.03e-6**, p99
+6.0e-7, median 1.2e-7 (bound 1e-5).
+
+**N, noise efficiency** (`e` = sqrt(S(w)/S(ideal)); lower is better; evaluation pairs only):
+
+| Field | cells | F: raw katdal | U: unity | T: `calwt: true` | T / F |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ASKAPJ1745 (target) | 141,119,350 | **1.039** | 1.078 | 1.083 | 1.042 |
+| J1744-5144 | 20,126,942 | **0.750** | 0.776 | 0.780 | 1.040 |
+
+Quintiles of |d|² w (ideal flat): F target [1.01 1.21 1.01 0.89 0.88], J1744 [1.00 1.08 1.06 0.95
+0.92]; T target [0.88 0.94 0.99 1.05 1.15], J1744 [0.86 0.93 0.99 1.05 1.17] (U has one weight value,
+so its quintiles are not defined). On J1744-5144 `e` falls below 1 for every arm: its scans are short,
+so the estimation pairs per (baseline, 16-channel block, scan) are few and the held-out 1/σ̂² weights
+are noisy; the "ideal" there is not ideal, but the three arms are scored on the same cells and compare
+with each other.
+
+### Verdict by section 6: **rule 4, null**
+
+On E2-N, `calwt: true` is worse than the raw katdal weights by 4.2 % (target) and 4.0 % (J1744-5144) in
+implied natural-weighting noise, and within 0.5 % of unity weights, as amendment 1 expected
+(channel-flat weights). The raw weights beat unity by 3.7 % and 3.4 %; held-out 1/σ̂² weights beat raw
+by 3.8 % on the target. The default stays `calwt: false`; no code change.
+
+**What this does and does not say about #48.** E2-N's raw weights are close to the noise (top quintile
+0.88, not the reporter's 1.95). The reporter's block (1680477139) was made with `mvftoms.py -f
+--chanbin 4`; E2-N with mvftoms at its native 1,024 channels and no `--chanbin`. Whether channel
+binning in mvftoms is what breaks katdal's weights there is a hypothesis this run cannot test (one block,
+not the reporter's). Either way `calwt: true` cannot be the fix: by CASA's rule it makes weights
+channel-flat, so it lands at unity weights, which the reporter measured too. A re-weighting step from
+the residual scatter (the reporter's "empirical" arm, CASA's `statwt`) is the route with a measured
+gain on both blocks (here 3.8 % against raw on the target); not built here.
+
+## For the coordinator
+
+- #48: null under the frozen rule; O passes (rang's calwt equals CASA's to 1e-6); calwt is channel-flat
+  by CASA's design (amendment 1), so it equals unity weights in shape and does not answer the issue.
+- Suggested answer on #48 (owner's words decide): E2-N's raw L0 weights are within 4 % of the
+  held-out noise and beat both unity and `calwt`; `calwt: true` makes them channel-flat (CASA's B
+  rule), hence near unity; the reporter's 2.7 × top quintile may come from `--chanbin 4` (untested);
+  a `statwt`-like stage is the candidate fix, as the reporter suggested, and needs its own note.
+- Not checked: the reporter's block, `--chanbin`, an L1 block, Briggs weighting (the reporter imaged at
+  Briggs −0.5; this measure is natural weighting).

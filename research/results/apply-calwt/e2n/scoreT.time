@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Worktrees/rang/apply-calwt/.venv/bin/python -I /home/gijs/Worktrees/rang/apply-calwt/research/results/apply-calwt/scripts/calwt_score.py /home/gijs/rang-data/outputs/apply-calwt-20261120/e2n.ms T /home/gijs/rang-data/outputs/apply-calwt-20261120/score/T.json --save-weights /home/gijs/rang-data/outputs/apply-calwt-20261120/score/T-weights.npz"
+	User time (seconds): 174.10
+	System time (seconds): 156.81
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:27.80
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7447792
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 3
+	Minor (reclaiming a frame) page faults: 59136594
+	Voluntary context switches: 103
+	Involuntary context switches: 1080
+	Swaps: 0
+	File system inputs: 4672
+	File system outputs: 544912
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
