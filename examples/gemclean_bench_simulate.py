@@ -540,6 +540,9 @@ def main(argv=None):
     p.add_argument("--sky-override", help="JSON list of components (tests)")
     p.add_argument("--sky-seed", type=int, help="the sky seed (M1 needs it)")
     p.add_argument("--noise-seed", type=int, help="the noise seed (M1 needs it)")
+    p.add_argument(
+        "--dec", type=float, help="declination in degrees (default: the sky's own)"
+    )
     args = p.parse_args(argv)
     if args.sky == "M1" and (args.sky_seed is None or args.noise_seed is None):
         p.error("M1 needs --sky-seed and --noise-seed")
@@ -548,6 +551,8 @@ def main(argv=None):
     xyz, diameter, names = antennas(args.nant)
     nant = len(names)
     dec_deg = DEC_BY_SKY.get(args.sky, DEC_DEG)
+    if args.dec is not None:
+        dec_deg = args.dec
     times, ra, dec, ant_uvw, lon = track(xyz, args.hours, args.dt, dec_deg)
     a1, a2 = np.triu_indices(nant, 1)
     nbl, ntime = len(a1), len(times)

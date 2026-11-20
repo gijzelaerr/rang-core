@@ -159,4 +159,24 @@ held by this task at once, leaving room for session D's shards. Estimated: 12 im
 
 ## Measured result
 
-_Nothing yet._
+### Stage 9, settings (re-read of seen results, 2026-11-20; no run)
+
+| Grid (note) | Observations | Setting choices | Best fixed (mean score) | Per-observation chooser | Margin (the grid's own) | Reading |
+| --- | --- | --- | --- | --- | --- | --- |
+| sdm03-default (reserve table) | 2: ESO137 scans 4 and 14 (one track) | A0, SDa, Sa, SDm03, Sm (GeMClean; WSClean arms excluded) | Sm, mean D 0.006 (A0 0, SDm03 −0.053, SDa −0.141, Sa −0.159) | scan 4 A0 (D 0), scan 14 SDa (0.398): mean 0.199 | D 0.10 (rule 4) | **headroom 0.193 > 0.10** |
+| stop28-default (H9-H16, H17-H24) | 16 blind skies (+ seen S1-S3, H1-H8, pilot) | ε ∈ {0, 0.02} | 0.02: saving ≥ 0 cycles and Q-D on all 16 | 0.02 on every sky | saving ≥ 1 cycle mean | **no headroom** (chooser = fixed) |
+| gemclean-stop28 | S1-S3, H5-H8 | ε | subsumed by stop28-default (same setting at the shipping accuracy) | – | – | not scored |
+| selfcal-defaults | 1 (the pilot and its held-out copy) | 13 cells | – | – | – | one observation: not scored |
+| automask-cycle | 2 scans | none (a diagnosis, one setting) | – | – | – | not a settings grid |
+
+**Stage 9 outcome: headroom, untrainable now** (section 5, second rule), on sdm03's mask-form grid
+alone: a per-scan choice of imaging form would beat the best fixed form by 0.193 in D against a 0.10
+margin, but the two "observations" are two scans of one track, and a settings network has nothing to
+learn from two samples. The grid that would make it trainable: sdm03's arms on #39's capture blocks
+(at least the five training blocks), scored by the same D. Cost note: the form that wins scan 14 (SDa)
+cost 9-12 × the default's wall, so a chooser trades wall for quality; it is not a cost lever for the
+63-65 %. stop28's ε shows the opposite case: a setting that is right everywhere needs no predictor.
+
+### Stage 6, mask bound
+
+_Running (section 9, step 3: arm A started 2026-11-20 07:15 SAST)._
