@@ -82,7 +82,7 @@ image)
   gated $LOCK --slots 4 --mem 40 -- $NICE env RAYON_NUM_THREADS=4 /usr/bin/time -v -o "$d/time.txt" \
     "$PY" -m rang.gemclean -name "$d/image" -j 4 -size 4096 4096 -scale 3asec \
       -weight briggs 0.5 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -wgridder-accuracy 0.0001 \
-      -channels-out 8 -join-channels -fit-spectral-pol 2 -multiscale -unit-weights \
+      -channels-out 8 -join-channels -fit-spectral-pol 2 -multiscale -multiscale-max-scales 9 -unit-weights \
       -no-update-model-required "${sel[@]}" "${mask[@]}" "$ms" > "$d/gemclean.log" 2>&1
   touch "$d/done"; log "image $c $a done"
   ;;

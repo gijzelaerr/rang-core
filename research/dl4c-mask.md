@@ -171,6 +171,17 @@ seconds of R1-A and R2-A (8 threads) are not comparable with the other images (4
 reported apart. The first prepare attempt failed on the driver's own directory (the scorer refuses an
 existing output directory); it writes to `prep/<case>/out` now.
 
+**Amendment 2, 2026-11-20 14:25 SAST (imaging settings; after R1-A and R2-A finished, their convolution
+counts not read or scored).** Four of the six A images stopped at once: GeMClean refused "the PSF
+convolved with scale 1651 (1608) has no positive peak" on R3 and T1-T3 (one scan, or a 2 h
+simulation). The automatic scale list's tenth scale (n/2.5 pixels) took 0 components on every E2-A
+and E2-N image and on R2-A. Every image of this note (A, P and T) now adds `-multiscale-max-scales 9`
+to section 2's argv; the six A images run again under it. The 10-scale R1-A and R2-A are kept as
+`img/R1-A10`, `img/R2-A10` and reported only. Two side findings for the coordinator, not acted on
+here: GeMClean stops where radler may drop such a scale (not checked), and replacing `dl4c.sh` while
+the first lanes were reading it made them end on a bash parse error (the lanes' own work had
+finished; the driver is no longer edited while a lane runs).
+
 ## Measured result
 
 ### Stage 9, settings (re-read of seen results, 2026-11-20; no run)
