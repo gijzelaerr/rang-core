@@ -4,7 +4,8 @@ Written 2026-11-20 on the owner's request ("getting more insight and
 visualisations DURING the work ... a browser UI that connects to a running
 process ... integrate with other systems ... 0.5.0 or later?").
 **Status: direction decided by the owner on 2026-11-20 (section 6); the viewer
-spike is measured (section 8: a page of our own); nothing is built on main.** The inventory in
+spike is measured (section 8: both viewers work; a page of our own
+recommended, the owner to decide); nothing is built on main.** The inventory in
 section 1 was read from `main` at `92e67e2f`; the candidate table in section 4
 was checked on the web and the GitHub API on 2026-11-20. No scientific or
 performance claim; tooling only.
@@ -161,8 +162,9 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 
 1. **Record first, viewers as readers.** Decided: yes.
 2. **Browser viewer.** Decided: the one-day spike, Rerun against a page of
-   our own; the outcome picks the viewer. Outcome (section 8): a page of our
-   own, by the frozen rule. Bokeh/Panel and Makepad not chosen
+   our own; the outcome picks the viewer. Outcome (section 8): by the frozen
+   rule the owner decides; recommended, a page of our own, with Rerun as an
+   optional exporter later. **Open.** Bokeh/Panel and Makepad not chosen
    (Makepad stays a possible later reader).
 3. **Placement.** Decided: the record, `rang-core watch` and the MCP tools
    right after the 0.4.0 tag, before the rest of v0.5.0; the browser view in
@@ -172,6 +174,16 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 5. **Packaging.** Decided: the browser view is an extra of `rang-core`
    (`[view]`); a separate package only if it brings a dependency `rang-core`
    must not carry.
+
+6. **A reader-only `watch` during v0.4.0** (owner asked 2026-11-20: "would
+   it make sense to merge this in early since it could be a useful progress
+   tracker during 0.4.0 development?"). **Open.** Possible without touching a
+   kernel or a gate: `rang-core watch` over what already exists (`state.json`,
+   spool heartbeats, `outputs/status/*.md`, the heavy lock's queue). Checked
+   here: the local status files only; what the v0.4.0 training and nash jobs
+   write (checkpoints, shard done-markers) was not inspected, so its use for
+   them is unproven. The hook in GeMClean and the solvers stays after the tag
+   (decision 3; GeMClean is timed on 2026-11-21, #47).
 
 ## 7. The spike: protocol (written 2026-11-20, before any spike code)
 
@@ -210,7 +222,7 @@ One record, two viewers, the same input.
 
 Protocol of section 7, unchanged. Archive:
 [results/live-view-spike/](results/live-view-spike/) (the scratch commit as
-`spike.patch.gz`, the captured events, both GeMClean logs, the hashes, five
+`spike.patch.gz`, the captured events, both GeMClean logs, the hashes, seven
 screenshots). Run root `D:\rang\outputs\20261120-liveview-spike`.
 
 **Capture.** S2 of the GeMClean benchmark (64 antennas, 1,814,400 rows × 8
@@ -225,22 +237,43 @@ antennas × 63 times), converted by a script, labelled replay. The replayer fed
 
 | # | Criterion | Rerun 0.43.2 | A page of our own |
 | --- | --- | --- | --- |
-| 1 | attach in progress; late join; replay | **yes**: attached at event 38, joined after the end with the full history, `.rrd` of 9.0 MB written in 3 s | **yes**: the same three; replay is the server started on a finished record |
-| 2 | gains, 64 antennas | **partly**: drawn, with a legend, when the gains were the only data; in the combined run the plots follow about a minute around the time cursor and the gains were out of view, and a zoom reset did not bring them back (not resolved in the time spent, about an hour on the layout) | **yes**: 64 lines per panel, the nearest antenna highlighted under the pointer; crowded |
-| 3 | residual with a cycle slider and stretch | **partly**: the timeline is the slider; colour map and gamma only, automatic range, so the residual has little contrast | **yes**: slider, follow-latest, linear or asinh, clip in σ (linear seen; asinh not looked at) |
+| 1 | attach in progress; late join; replay | **yes**: attached at event 38, joined after the end with the full history, `.rrd` of 9.0 MB written in 3 s. A late viewer played the history from the start at 1× (about 2.5 min to reach the present); a jump-to-latest setting was not looked for | **yes**: the same three; replay is the server started on a finished record |
+| 2 | gains, 64 antennas | **yes**, once the view has a fixed time range (`TimeAxis(view_range=...)`) and the legend is hidden; with the defaults the plots followed about a minute around the time cursor and the gains were out of view | **yes**: 64 lines per panel, the nearest antenna highlighted and named under the pointer (seen for antenna index 17); crowded |
+| 3 | residual with a cycle slider and stretch | **partly**: the timeline is the slider; the clip is set by the bridge (`DepthImage(depth_range=±10σ)`; a tensor view has colour map and gamma only); changing the clip in the viewer was not looked for | **yes**: slider, follow-latest, linear or asinh, clip in σ (all seen) |
 | 4 | log axis | **partly**: `ScalarAxis` has `range` and `zoom_lock` only; the bridge logs log10 of the values | **yes** |
 | 5 | browser; native Windows viewer | browser **yes** (in the app's embedded browser, no WebGL fault); native viewer started and loaded the `.rrd` according to its log, **not seen** | browser **yes**; no native viewer |
-| 6 | remote (WSL as the remote end, WSL's localhost forwarding in place of `ssh -L`) | **yes**, with the SDK installed on the remote end (a 754 MB venv) and two ports (web and gRPC) | **yes**, with the remote end's own `python3` and nothing installed, one port |
+| 6 | remote (WSL as the remote end, WSL's localhost forwarding in place of `ssh -L`) | **yes** on a finished record, with the SDK installed on the remote end (a 754 MB venv) and two ports (web and gRPC) | **yes** on a finished record, with the remote end's own `python3` and nothing installed, one port |
 | 7 | install; glue code | 535 MB venv on Windows (with numpy); 68 lines of bridge + 32 shared | nothing; 143 lines (server and page) + 32 shared |
 
-**By the frozen rule: a page of our own.** Rerun is not a yes on 2, 3 and 4,
-and the page passes each.
+**By the frozen rule: the owner decides.** Rerun is a yes on 1, 2 and 6 and
+partly on 3 and 4; it fails none, so neither of the rule's first two clauses
+applies. (The first write-up of this section, commit `d699d404`, scored 2 and
+3 with Rerun's defaults and read the rule as choosing the page; corrected the
+same day, after the two options above were set.) The scored difference that
+remains is the log axis and the clip control.
+
+**Recommendation: a page of our own for `rang-core view`,** on grounds
+outside the scored list: nothing to install on the remote host and one port
+(against 754 MB and two); text an agent can read; no analytics and no listener
+on every interface to manage on shared hosts; panels made for radio data (log
+axes, σ clips, later sky coordinates). Rerun gives zoom, pan and timelines for
+nothing, and its bridge is 68 lines, so it can be offered later as an optional
+exporter from the same record.
 
 Also seen, not scored:
 
-- Rerun's viewer announces anonymous usage analytics, on by default; its own
-  notice said nothing had been sent in this first session. Disabled on glacier
-  and in the WSL venv (`rerun analytics disable`).
+- Rerun collects anonymous usage analytics, on by default. The native viewer's
+  notice said nothing had been sent in its first session; the SDK bridge and
+  the web viewer ran before that with analytics on, and what they sent was
+  not checked. Disabled afterwards on glacier and in WSL
+  (`rerun analytics disable`); Rerun's configuration and an analytics
+  identifier remain under `AppData\Roaming\rerun`, `AppData\Local\rerun`
+  and WSL's `~/.config/rerun`.
+- The snapshot is right and transposed: the last residual snapshot equals
+  `img-residual.fits` block-averaged 4 × 4 to 6e-12 after a transpose, so
+  both viewers drew the sky transposed. The record has to state its axis
+  order. The negative sources at cycle 3 are in the data (minimum −6.5 mJy,
+  maximum +3.1 mJy), not made by the hook.
 - Rerun's native viewer listens for gRPC on `0.0.0.0:9876`; on a shared host
   that is every interface. Whether `serve_grpc` binds the same way was not
   checked.
@@ -255,8 +288,10 @@ Also seen, not scored:
   end, which is the case this note is about.
 
 Limits: one short run (8 major cycles, 104 s), one machine, gains from a
-simulated table, no real SSH hop, the native viewer not looked at, Rerun given
-about an hour of layout work by someone new to it.
+simulated table, no real SSH hop (the WSL test read a finished gains-only
+record through `/mnt/d`; it did not follow a live record on a remote disk),
+the native viewer not looked at, Rerun given about two hours of layout work by
+someone new to it.
 
 ## For the coordinator
 
@@ -265,8 +300,10 @@ about an hour of layout work by someone new to it.
   `tools/check_all.py --quick` not run; not pushed; the worktree remains
   until the branch is merged or dropped.
 - The spike is done (section 8); its code is a scratch commit kept only as
-  `results/live-view-spike/spike.patch.gz` (local branch `live-view-spike`,
-  not pushed, worktree removed).
+  `results/live-view-spike/spike.patch.gz` and on the local branch
+  `live-view-spike` (two commits, not pushed: a push would run CI with an
+  undeclared `RANG_*` variable; worktree `~/Worktrees/rang/live-view-spike`
+  kept because its commits are on no remote, its `core/target` deleted).
 - To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
   an issue on the v0.5.0 milestone for the browser view. No issue opened yet.
