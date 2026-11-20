@@ -100,6 +100,47 @@ L0 detector before data show it is needed.
    Calibrate and apply F, save weights; apply T. 4. CASA oracle. 5. The scoring script, committed before it
    is run on the arms. 6. Rule. 7. Code change only under rule 2 or 3, separate commit, with tests.
 
+## Amendments
+
+**Amendment 1, 2026-11-20 13:50 SAST, post hoc for S (after S's first score was read; before any E2-N
+score).** Section 2's reading was incomplete, and S's truth formula was wrong for CASA's behaviour:
+
+- Under `calwt`, CASA's B scale is **not per channel**: `BJones::calcWtScale` takes the mean of |B|² over
+  the unflagged solution channels, per antenna and receptor ([c4b-apply-ms.md](c4b-apply-ms.md) lines
+  40-47, read in CASA's source for C4b; rang follows it). With the reset from a per-row SIGMA, the
+  weights after `calwt: true` are **flat across channels within a row** (A1: max/min within a row 1.000000
+  on every row). So on katdal L0, `calwt: true` replaces katdal's raw channel shape by a channel-flat
+  weight `|G_p G_q|² ⟨|B_p|²⟩ ⟨|B_q|²⟩ / SIGMA²`: per baseline and time it scales, per channel it is
+  unity. It does not give per-channel 1/σ² weights.
+- A1 adds its noise with a constant σ after corruption ([a1-simtruth.md](a1-simtruth.md), line 66), so
+  its ideal corrected weight carries |B|² per channel. Real data do not: raw noise in correlator units
+  scales with the gains. A1 therefore cannot say which weights are right for real data; it can only
+  check CASA's formula against the true gains.
+- **S, as frozen, fails** (median ratio 0.925, |ratio − 1| p95 15.6). S is re-read post hoc against
+  CASA's formula with the true G and B: see "Measured result". The code check stays with O (CASA on the
+  same tables).
+- For the E2-N arms this means T is expected to sit near U (unity) in channel shape, differing by the
+  per-row gain-power scale. The frozen rule 2 (`e(T) ≤ 0.95 e(F)` and `e(T) ≤ e(U)`) is unchanged.
+
 ## Measured result
 
-_Nothing yet._
+### S, A1 small (2026-11-20, nash; rang-core 0.3.0; flags from the truth RFI mask, 12.05 % of cells)
+
+`rang-core run` calibrate (11.1 s) and apply (4.0 s) on E1's configuration with `calwt: true`; target
+SIM-TARGET, XX and YY, 378,193 unflagged cross cells each. Archive: `results/apply-calwt/a1/`.
+
+| Truth formula | Hand | ratio rang/truth, median | \|ratio − 1\| median | p95 | max |
+| --- | --- | ---: | ---: | ---: | ---: |
+| as frozen: \|g_p g_q\|² \|B_p B_q\|²(channel) / SIGMA² | XX | 0.9252 | 0.136 | 15.6 | 187 |
+| | YY | 0.9248 | 0.142 | 16.7 | 176 |
+| post hoc (CASA's): \|g_p g_q\|² ⟨\|B_p\|²⟩⟨\|B_q\|²⟩ / SIGMA² | XX | 0.9987 | 0.0245 | 0.0637 | 0.118 |
+| | YY | 1.0006 | 0.0229 | 0.0592 | 0.089 |
+
+**S as frozen: fail (a design error, amendment 1).** Under CASA's formula the weights follow the true
+gains to a median 0.1 %, scatter 2.3-2.5 % (p95 6 %): just outside the frozen 2 % / 5 % bounds, which
+were set for the per-channel formula; the scatter is the solved gains' own error (interpolation of G
+between the gain calibrator's scans, B over 64 channels). Not a code failure; O decides the code.
+
+### E2-N
+
+_Running._

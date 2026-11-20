@@ -1,0 +1,243 @@
+{
+ "task": "A1 simulated truth (research/a1-simtruth.md)",
+ "ms": "/home/gijs/rang-data/outputs/apply-calwt-20261120/a1/a1-small.ms",
+ "name": "a1-small",
+ "argv": [
+  "/home/gijs/Worktrees/rang/apply-calwt/.venv/lib/python3.12/site-packages/rang/simtruth_ms.py",
+  "generate",
+  "small",
+  "/home/gijs/rang-data/outputs/apply-calwt-20261120/a1",
+  "--workers",
+  "2"
+ ],
+ "noiseless": false,
+ "selection": {
+  "scans": [],
+  "max_per_scan": 0,
+  "integrations": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62,
+   63,
+   64,
+   65,
+   66,
+   67,
+   68,
+   69,
+   70,
+   71,
+   72,
+   73,
+   74,
+   75,
+   76,
+   77,
+   78,
+   79,
+   80,
+   81,
+   82,
+   83,
+   84,
+   85,
+   86,
+   87,
+   88,
+   89,
+   90,
+   91,
+   92,
+   93,
+   94,
+   95,
+   96,
+   97,
+   98,
+   99,
+   100,
+   101,
+   102,
+   103
+  ]
+ },
+ "design": {
+  "name": "small",
+  "antennas": [
+   0,
+   4,
+   8,
+   12,
+   16,
+   20,
+   24,
+   28,
+   32,
+   36,
+   40,
+   44,
+   48,
+   52,
+   56,
+   60
+  ],
+  "nchan": 64,
+  "fmin_hz": 856000000.0,
+  "fmax_hz": 1712000000.0,
+  "chan_width_hz": 13375000.0,
+  "nu0_hz": 1284000000.0,
+  "dt_s": 8.0,
+  "scan_lengths": {
+   "F": 6,
+   "X": 4,
+   "G": 2,
+   "T": 8
+  },
+  "sequence": "FXGTGTGXGTGTGXGTGTGTGXF",
+  "slew_s": 24.0,
+  "start_utc": "2024-08-18T19:09:00",
+  "seeds": {
+   "jones": 20261116,
+   "sky": 20261117,
+   "rfi": 20261118,
+   "noise": 20261119
+  },
+  "refant": 0,
+  "sefd_jy": 420.0,
+  "sigma_jy": 0.028710608935035856,
+  "tau_c_ns": 3.0
+ },
+ "nrow": 12480,
+ "nintegration": 104,
+ "nbaseline": 120,
+ "ms_bytes": 41296997,
+ "rfi": {
+  "cells": 798720,
+  "any": 96271,
+  "above_5sigma": 42244,
+  "fraction_any": 0.12053160056089744,
+  "fraction_above_5sigma": 0.0528896233974359
+ },
+ "workers": 2,
+ "chunk_integrations": 4,
+ "git": {
+  "commit": null,
+  "dirty": null
+ },
+ "versions": {
+  "python": "3.12.3",
+  "numpy": "2.5.5",
+  "astropy": "8.0.3",
+  "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.39"
+ },
+ "writer": "rang.core_ms_write (rang's casacore table writer)",
+ "seconds": {
+  "geometry": 5.624407898169011,
+  "predict": 0.9619258772581816,
+  "compute": 1.6928567730356008,
+  "write": 0.3900219462811947,
+  "loop": 1.1395807808730751,
+  "total": 11.181094808038324
+ },
+ "parallactic_range_deg": {
+  "J1939-6342": [
+   -29.012553084759972,
+   43.214107464523074
+  ],
+  "3C286-SIM": [
+   -140.97812877827178,
+   168.42144342342786
+  ],
+  "SIM-GCAL": [
+   -87.38732903886928,
+   90.52806179125399
+  ],
+  "SIM-TARGET": [
+   -79.05395876605944,
+   75.16898325501074
+  ]
+ },
+ "elevation_range_deg": {
+  "J1939-6342": [
+   52.338668964691195,
+   54.942719347779274
+  ],
+  "3C286-SIM": [
+   66.1201746076424,
+   78.96335097685126
+  ],
+  "SIM-GCAL": [
+   69.44172669402518,
+   87.74114527265782
+  ],
+  "SIM-TARGET": [
+   71.93236466062605,
+   84.59727006958657
+  ]
+ },
+ "sha256": {
+  "truth.npz": "885cf859606636d3bd27543fc8a5af4c8249f61b9c1b499e28383a12f1c52b66",
+  "truth.json": "0a23e01115fd5ef363f825dd139bd79799efbd0d7994052049c0d4a8c28eea2f",
+  "a1-small.rfi_mask.npz": "e000ab376ced9e6fdd55ae3a974be2ee79a0e8e17dd3863c7f9bfe7cb6686faf"
+ }
+}
