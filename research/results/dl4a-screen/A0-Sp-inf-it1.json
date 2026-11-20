@@ -1,0 +1,11 @@
+{
+ "arm": "A0",
+ "term": "Sp",
+ "solint": "inf",
+ "max_iterations": 1,
+ "iterations": 1,
+ "fraction": 0.0,
+ "wall_s": 118.12,
+ "ngains": 61,
+ "intervals": 1
+}

@@ -1,6 +1,6 @@
 # DL4a (issue #41): gain warm start, a one-day screening
 
-Status: **proposed, frozen 2026-11-20 before any code or run.** Parent: [dl-plan.md](dl-plan.md)
+Status: **measured 2026-11-20 (section 8): H at `solint: inf`, partial at 120 s; frozen 2026-11-20 before any code or run.** Parent: [dl-plan.md](dl-plan.md)
 stage 2, [dl0-profile.md](dl0-profile.md) sections 2-4, [v040-plan.md](v040-plan.md) (#41 last, a
 one-day screening). Later changes are dated amendments, labelled post hoc where they could have seen
 a result. Procedure: `docs/agents/propose-and-measure.md`.
@@ -121,6 +121,79 @@ run in `research/tool-timings.md` (host nash), and a compact archive under
   gain). This equals a sequential chain wherever the same-solution gate holds, which section 5
   checks per arm.
 
+## 8. Measured result (2026-11-20, nash, shared host)
+
+Run root `nash:~/rang-data/outputs/dl4a-screen-20261120/`, the dl4a-screen worktree at `ed0e90a5`.
+The pilot is the four-correlation E2 pilot, regenerated from `cal2.ms` (copied from glacier,
+8,615,076,902 bytes at both ends). The baseline `rang-core selfcal` run D took 2,029 s with a 37 GB
+peak, and reproduced selfcal-memory's iterations: Sp 13, Sa 37, one interval each, solves of 310 s
+and 427 s. The models were predicted into MODEL_R1 and MODEL_R2 in 249 s and 252 s. There were 13
+solve-only runs at 2 slots, `RAYON_NUM_THREADS=2`, 16-40 GB each. Archive:
+[results/dl4a-screen/](results/dl4a-screen/) (`score.json`, one JSON per solve).
+
+| Term, solint | Arm | Iterations | Converged | Wall (s, reported) | Products vs A0: median, p99, max relative | Gate |
+| --- | --- | ---: | ---: | ---: | --- | --- |
+| Sp, inf | A0 identity | 13 | 1.0 | 445 | – | – |
+| Sa, inf | A0 identity | 37 | 1.0 | 437 | – | – |
+| Sa, inf | A2 from Sp | 33 | 1.0 | 430 | 1.1e-7, 3.5e-7, 3.8e-7 | pass |
+| Sp, 120 s (30 intervals) | A0 identity | 13 | 1.0 | 321 | – | – |
+| Sp, 120 s | A1 previous interval | 12 | 1.0 | 191 | 3.3e-10, 3.7e-8, 1.1e-7 | pass |
+| Sa, 120 s | A0 identity | 39 | 1.0 | 282 | – | – |
+| Sa, 120 s | A1 previous interval | 37 | 0.997 | 230 | 4.1e-8, 5.3e-7, 7.0e-7 | pass |
+| Sa, 120 s | A2 from Sp | 33 | 1.0 | 231 | 3.5e-8, 4.7e-7, 6.0e-7 | pass |
+| Sa, 120 s | A3 = A2, else A1 | 33 | 1.0 | 224 | 3.5e-8, 4.7e-7, 6.0e-7 | pass |
+
+Gain flags are equal in every arm. A3 equals A2 at 120 s because every Sa interval has a matching
+Sp interval.
+
+**Ceiling** (A0 against the same solve at `max_iterations: 1`, whose read and set-up took
+101-118 s):
+
+| Term, solint | s per iteration | Most a perfect start saves | Share of the pilot's selfcal stage (2,029 s) |
+| --- | ---: | ---: | ---: |
+| Sp, inf | 27.3 | 327 s | 16.1 % |
+| Sa, inf | 9.2 | 332 s | 16.4 % |
+| Sp, 120 s | 18.2 | 218 s | 10.7 % |
+| Sa, 120 s | 4.8 | 181 s | 8.9 % |
+
+An estimate, not measured: at E2-N size an unaveraged round would hold about 10.8 × the pilot's
+cells (2,229,489 rows × 1,024 channels against 823,500 × 256). Assume the same iterations and the
+same per-cell rate. Then the default's iteration time (Sp plus Sa at `inf`, about 660 s on the
+pilot) becomes about 7,100 s, against an unaveraged E2-N selfcal stage of about 55,000 s: a ceiling
+of about 13 % (pilot 32 %).
+
+**Outcome under section 5's rule:**
+- **Not N:** A0 needs 13 and 37 iterations, and the ceiling is above 10 %.
+- **Not C:** the best classical starts cut iterations by 8-15 % (Sp 13 → 12; Sa 37 → 33 and
+  39 → 33), far from 50 %.
+- **`solint: inf` (the default): H, headroom.** Sp has no classical start at one interval, so B is
+  A0 with 13 iterations and 327 s left (16 %). Sa's B is A2, with 33 iterations and about 296 s
+  left (32 × 9.2 s, 15 %). Both leave at least 10 iterations and at least 10 % of the pilot's
+  selfcal stage. So a network start may be proposed, in a separate frozen note, under the dl-plan
+  stage 2 rule: wall at most 0.7 × B's. For Sa at `inf` that means at most 301 s against 430 s,
+  that is cutting at least about 130 s of B's 296 s of iterations. A converged start stops in 3
+  iterations (the tests of section 7), so the bound is reachable in principle. That a network can
+  predict such a start is not shown.
+- **`solint: 120 s`: partial.** B leaves Sp 200 s (9.9 %) and Sa 152 s (7.5 %), both under 10 %.
+  The classical saving is reported, and no network is proposed.
+- **Deviations, reported.** The 120 s medians are the global iteration counts (the stop test is
+  global), not per-interval medians, which the driver did not record. Wall times are from a shared,
+  disk-bound host and decide nothing. The E2-size share is an estimate.
+
+**What this means for #41.** Classical warm starts are cheap and keep the solution (all gates pass),
+but give only 8-15 % fewer iterations. In the default unaveraged configuration the iterations are
+about a third of the pilot's selfcal stage and an estimated 13 % at E2 size, so a network start has
+measurable room at `solint: inf`. In the averaged E2 configuration (dl0-profile) it has none. Any
+follow-up is the coordinator's and the owner's call: v040-plan puts #41 last, and #45 is triggered
+only if #41 or #42 passes. Nothing ships; the start argument stays on this branch.
+
 ## For the coordinator
 
-- Not started: this note is frozen first; the code and the runs follow the DL2 close-out.
+- Outcome: H at `solint: inf` (headroom for a learned start, about 13 % of an unaveraged E2-size
+  selfcal stage, estimated); partial at 120 s; classical starts save 8-15 % of iterations at the
+  same solution. Nothing ships. A network pilot needs its own frozen note and the owner's word
+  (v040-plan: #41 is last).
+- The branch carries `diag::solve_from` with the start (default path bit-identical, tests), for a
+  follow-up to reuse or to drop.
+- Left on nash: `~/rang-data/outputs/dl4a-screen-20261120/` (pilot.ms about 16 GB, models, solves,
+  run); delete when the outcome is accepted.

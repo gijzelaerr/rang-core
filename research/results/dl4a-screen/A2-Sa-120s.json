@@ -1,0 +1,11 @@
+{
+ "arm": "A2",
+ "term": "Sa",
+ "solint": "120s",
+ "max_iterations": null,
+ "iterations": 33,
+ "fraction": 1.0,
+ "wall_s": 231.29,
+ "ngains": 1830,
+ "intervals": 30
+}
