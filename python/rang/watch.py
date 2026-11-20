@@ -158,7 +158,16 @@ def spool(root, now):
     }
 
 
-def _stage(name, entry, now):
+def same_system(ms):
+    """Whether a state file's MS path is in this system's style. WSL and its
+    Windows host share a host name and not their process tables, so a run
+    started in one and watched from the other must not have its pid looked up."""
+    text = str(ms or "")
+    windows = len(text) > 1 and (text[1] == ":" or text.startswith("\\\\"))
+    return windows if os.name == "nt" else not windows
+
+
+def _stage(name, entry, now, local=True):
     status = entry.get("status")
     started, finished = _parse(entry.get("started")), _parse(entry.get("finished"))
     out = {
@@ -174,12 +183,14 @@ def _stage(name, entry, now):
     if status == "running":
         out["elapsed_s"] = None if started is None else round(now - started, 1)
         # Only this host can say whether the pid is still there.
-        if entry.get("host") == socket.gethostname():
+        if entry.get("host") != socket.gethostname():
+            out["process"] = "unknown (other host)"
+        elif not local:
+            out["process"] = "unknown (other system on this host)"
+        else:
             out["process"] = (
                 "alive" if mcp_tools._pid_alive(entry.get("pid")) else "gone"
             )
-        else:
-            out["process"] = "unknown (other host)"
     elif out["seconds"] is None and started is not None and finished is not None:
         out["seconds"] = round(finished - started, 1)
     return out
@@ -229,27 +240,35 @@ def snapshot(path, now=None):
     state_path = path / "state.json"
     if not state_path.is_file():
         return out
-    try:
-        state = mcp_tools._read_json(state_path)
-    except (OSError, ValueError) as exc:
-        out.update(kind="run", error=f"state.json: {exc}", stages=[])
-        return out
-    stages = state.get("stages") or {}
     receipts = path / "receipts"
     out.update(
         kind="run",
-        ms=state.get("ms"),
-        created=state.get("created"),
-        updated=state.get("updated"),
-        # In the order they started; state.json keeps them by name.
-        stages=sorted(
-            (_stage(name, entry or {}, now) for name, entry in stages.items()),
-            key=lambda s: (s["started"] is None, s["started"] or "", s["stage"]),
-        ),
+        ms=None,
+        stages=[],
         receipts=len(list(receipts.glob("*.rang-receipt.json")))
         if receipts.is_dir()
         else 0,
     )
+    try:
+        state = mcp_tools._read_json(state_path)
+        stages = state.get("stages") or {}
+        local = same_system(state.get("ms"))
+        out.update(
+            ms=state.get("ms"),
+            created=state.get("created"),
+            updated=state.get("updated"),
+            # In the order they started; state.json keeps them by name.
+            stages=sorted(
+                (
+                    _stage(name, entry or {}, now, local)
+                    for name, entry in stages.items()
+                ),
+                key=lambda s: (s["started"] is None, s["started"] or "", s["stage"]),
+            ),
+        )
+    except (OSError, ValueError, AttributeError, TypeError) as exc:
+        # Unreadable or half-written: say so and keep watching.
+        out["error"] = f"state.json: {type(exc).__name__}: {exc}"
     return out
 
 
@@ -274,7 +293,7 @@ def render(snap):
             if (s.get("attempts") or 1) > 1:
                 text += f" (attempt {s['attempts']})"
             lines.append(f"  {s['stage']:10s} {text}")
-        if not snap["stages"]:
+        if not snap["stages"] and not snap.get("error"):
             lines.append("  no stage has started")
         lines.append(f"  receipts: {snap['receipts']}")
     else:
@@ -338,6 +357,9 @@ def _brief(snap):
 def main(argv=None, out=None, sleep=time.sleep, ticks=None):
     """`rang-core watch PATH [PATH ...]`. `ticks` bounds the loop (tests)."""
     out = sys.stdout if out is None else out
+    if hasattr(out, "reconfigure"):
+        # A log line may hold what the console's code page cannot (σ, −).
+        out.reconfigure(errors="backslashreplace")
     parser = argparse.ArgumentParser(
         prog="rang-core watch",
         description="Follow run directories or output directories without "

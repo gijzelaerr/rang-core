@@ -32,7 +32,9 @@ def _state(tmp_path, **stage):
         "seconds": None,
         **stage,
     }
-    state = {"schema": "rang.run-state", "ms": "/data/x.ms", "stages": {"flag": entry}}
+    ms = stage.pop("ms", str(tmp_path / "x.ms"))  # this system's path style
+    entry.pop("ms", None)
+    state = {"schema": "rang.run-state", "ms": ms, "stages": {"flag": entry}}
     (tmp_path / "state.json").write_text(json.dumps(state), encoding="utf-8")
     return tmp_path
 
@@ -132,7 +134,7 @@ def test_command_line(tmp_path):
     out = io.StringIO()
     assert watch.main([str(tmp_path), "--interval", "1"], out, lambda s: None, 2) == 0
     lines = out.getvalue().splitlines()
-    assert "run of /data/x.ms" in lines[0] and "flag" in lines[1]
+    assert "run of " in lines[0] and "x.ms" in lines[0] and "flag" in lines[1]
     # The second tick: nothing but the clocks moved, so one line.
     assert "flag running" in lines[-1] and "process alive" in lines[-1]
     assert sum("run of" in line for line in lines) == 1
@@ -153,3 +155,80 @@ def test_through_rang_core(tmp_path):
         check=False,
     )
     assert done.returncode == 0 and "0 files" in done.stdout
+
+
+def test_other_system_on_the_same_host(tmp_path):
+    # WSL and its Windows host share a host name, not their process tables.
+    foreign = "/home/x/a.ms" if os.name == "nt" else "D:\\data\\a.ms"
+    (stage,) = watch.snapshot(_state(tmp_path, ms=foreign))["stages"]
+    assert stage["process"] == "unknown (other system on this host)"
+    assert watch.same_system(str(tmp_path / "a.ms"))
+
+
+def test_unreadable_state_keeps_the_watch_going(tmp_path):
+    (tmp_path / "state.json").write_text('{"stages": {"flag": {"status": "run')
+    out = io.StringIO()
+    assert watch.main([str(tmp_path)], out, lambda s: None, 2) == 0
+    text = out.getvalue()
+    assert "state.json: " in text and "no stage has started" not in text
+    (tmp_path / "state.json").write_text('{"stages": [1, 2]}')
+    assert "state.json: " in "\n".join(watch.render(watch.snapshot(tmp_path)))
+
+
+def test_log_line_the_console_cannot_encode(tmp_path):
+    line = "auto-mask: σ 8.19e-5 Jy, −3 dB"
+    (tmp_path / "gemclean.log").write_text(line + "\n", encoding="utf-8")
+    env = dict(os.environ, PYTHONIOENCODING="ascii")
+    done = subprocess.run(
+        [sys.executable, "-m", "rang.core_cli", "watch", "--once", str(tmp_path)],
+        capture_output=True,
+        env=env,
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    assert b"auto-mask: \\u03c3 8.19e-5 Jy" in done.stdout
+
+
+def test_run_directory_name_is_the_pipeline_s(tmp_path):
+    from rang import core_pipeline
+
+    ms = tmp_path / "a.ms"
+    ms.mkdir()
+    (ms / "table.dat").write_bytes(b"1")
+    run = core_pipeline.default_run_dir(ms)
+    run.mkdir()
+    _state(run)
+    assert watch.resolve(ms).resolve() == run
+
+
+def test_reader_against_the_run_s_writer(tmp_path):
+    """The pipeline rewrites state.json by replace while a watcher polls it
+    (research/v030-review.md R-01): neither side may fail."""
+    import threading
+
+    from rang import core_pipeline
+
+    _state(tmp_path)
+    path = tmp_path / "state.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    errors, stop = [], threading.Event()
+
+    def write():
+        try:
+            for k in range(300):
+                payload["updated"] = str(k)
+                core_pipeline._write_json(path, payload)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+        finally:
+            stop.set()
+
+    writer = threading.Thread(target=write)
+    writer.start()
+    reads = 0
+    while not stop.is_set():
+        snap = watch.snapshot(tmp_path)
+        assert snap["kind"] == "run"
+        reads += 1
+    writer.join()
+    assert not errors and reads > 0
