@@ -44,6 +44,7 @@ SEEDS = {  # first seed per (class, role, source); realisation k adds k
 DROPOUT_SEED = 20266901
 DROPOUT_MAX = 8
 REALISATIONS = {"train": 4, "validation": 2}
+SARAO_REALISATIONS = {"train": 2, "validation": 2}  # SARAO scans are many and large
 MAX_DUMPS = 32
 TRAIN_BLOCKS = ("1571938260", "1611426666", "1629213076", "1749428161")
 VALIDATION_BLOCK = "1573212012"
@@ -89,12 +90,13 @@ def dropout(scan, t_flag, a_flag, seed):
     return sub, t_flag[rows], a_flag[rows], [int(g) for g in gone]
 
 
-def audit_pooled(recs):
-    """Fix 3: the bars on a scan's realisations pooled."""
+def audit_pooled(recs, ignored_bar=0.40):
+    """Fix 3 (research/f6-flagger.md 2c): the bars on pooled realisations; F6 stops
+    on the class's pooled shares (ignored above 45 %), per-scan shares are reported."""
     e = sum(r["eligible"] for r in recs) or 1
     pos = sum(r["positive_injected"] for r in recs) / e
     ign = sum(r["ignored_uninjected"] for r in recs) / e
-    if ign > 0.40:
+    if ign > ignored_bar:
         return f"pooled ignored uninjected {ign:.3f} > 0.40"
     if pos < 0.001:
         return f"pooled injected positives {pos:.5f} < 0.001"
@@ -165,6 +167,7 @@ def main():
     audit = {"scans": {}, "stop": None, "level": a.level, "degree": a.degree}
     t0 = time.perf_counter()
     jobs = []
+    all_recs = []
     if ("luno" in sources and a.klass == "calibrator") or (
         "eso" in sources and a.klass == "target"
     ):
@@ -192,10 +195,13 @@ def main():
         else:
             e = item
             name = f"sarao-{e['cbid']}-scan{int(e['scan']):03d}"
-            if all(f5s.done(out / f"{name}-{k}.npz") for k in range(nreal)):
+            if all(
+                f5s.done(out / f"{name}-{k}.npz")
+                for k in range(SARAO_REALISATIONS[a.role])
+            ):
                 recs = [
                     json.loads((recs_dir / f"{name}-{k}.json").read_text())
-                    for k in range(nreal)
+                    for k in range(SARAO_REALISATIONS[a.role])
                 ]
             else:
                 scan = f5.load_sarao(
@@ -208,12 +214,24 @@ def main():
                 scan, _ = central_dumps(scan)
                 tf, af = scan["teachers"]["T"], scan["teachers"]["A"]
                 recs = realisations(
-                    name, scan, tf, af, a, out, recs_dir, s0, nreal, name
+                    name,
+                    scan,
+                    tf,
+                    af,
+                    a,
+                    out,
+                    recs_dir,
+                    s0,
+                    SARAO_REALISATIONS[a.role],
+                    name,
                 )
-        reason = audit_pooled(recs)
-        audit["scans"][name] = {"pooled_stop": reason, "realisations": len(recs)}
-        if reason and not audit["stop"]:
-            audit["stop"] = {"scan": name, "reason": reason}
+        audit["scans"][name] = {
+            "pooled_share": audit_pooled(recs),
+            "realisations": len(recs),
+        }
+        all_recs += recs
+        reason = audit_pooled(all_recs, ignored_bar=0.45)
+        audit["stop"] = {"class_pooled": reason} if reason else None
         (out / "audit.json").write_text(json.dumps(audit, indent=1))
     if "sim" in sources:
         sseed = SEEDS[(a.klass, a.role, "sim")]

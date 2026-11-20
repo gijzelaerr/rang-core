@@ -106,6 +106,21 @@ requirement, never from F6.
 - **G-perm, G-sub, R1-R5, S1-S3, C1, C2:** F5's frozen bars and rules, unchanged (each defined
   against T, A or a fixed requirement).
 
+## 2c. Label audit for F6 (fixed 2026-11-20 from the validation labels, before training; no network involved)
+
+Validation shards, L20, d = 1 (nash, `~/rang-data/outputs/dl3-f6-20261120/shards/`): calibrators
+(LUNO MAIN_7 and 29 calibrator scans of 1573212012, 2 realisations each, plus f2sim-v) pooled:
+injected positives 2.6 %, **hybrid positives 15.4 %**, ignored uninjected 36.6 % of eligible
+cells; per scan the ignored share reaches 41.3 % (1573212012/scan001). Targets (ESO137 chunk 10,
+three target scans of 1573212012): 2.8 %, 10.3 %, 31.8 %. SARAO scans carry far more native RFI
+than LUNO (AOFlagger 2.13 `firstpass_QUV` flags about 60 % of the full band), so per-scan ignored
+shares near 40 % are the data, not a fault of the labels. F5's per-realisation bars would stop the
+calibrator class on validation already (Amendment 3's lesson). **F6's audit (frozen with the note):**
+stop a class if, pooled over the class's realisations, ignored uninjected cells exceed **45 %** of
+eligible cells, or injected positives fall below **0.1 %**; per-scan shares are reported, never a
+stop. Rationale: the bar guards against label sets too sparse to train on; a class pooled at 37 %
+and 32 % on validation is far from that.
+
 ## 2b. Teachers and loaders (proposed)
 
 - **T** = rang's Tricolour port with CARACal's first-pass YAML (as F3-F5). For SARAO scans, C's
