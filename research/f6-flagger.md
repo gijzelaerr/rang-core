@@ -42,6 +42,11 @@ started beside F6's scoring after the freeze.
    removed or made irrelevant. Measured with `examples/f5_f6_probe.py` and G-drop on validation.
 3. **Label-audit bar sized on validation**, pooled over a scan's realisations or with a minimum
    number of strong (A ≥ 3) events per draw, so one weak draw cannot stop a class.
+4. **G-sub outer32 over-flagging** (F5 targets, held out: R3 1.85 on ESO137 chunk 12 against
+   1.5). Likely the same antenna-set normalisation as G-drop, but measured, not assumed: R3 on the
+   simulated outer32 layout of F6's validation scans, before and after fix 2.
+5. **R2 H2 near miss** (F5 targets, held out: 0.945 against 0.95). Reported per seed on F6's
+   validation; no special fix unless it is systematic across seeds.
 
 ## 3. Shipping form (frozen commitments)
 
