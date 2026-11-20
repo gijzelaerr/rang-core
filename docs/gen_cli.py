@@ -167,6 +167,7 @@ def page():
         _block("`lightcurve`", "rang-core lightcurve -h", _help("lightcurve"))
     )
     parts.append(_block("`mcp`", "rang-core mcp -h", _help("mcp")))
+    parts.append(_block("`watch`", "rang-core watch -h", _help("watch")))
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(
