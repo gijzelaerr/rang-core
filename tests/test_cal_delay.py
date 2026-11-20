@@ -75,7 +75,9 @@ def test_casa_k_referencing_flags_what_casa_cannot_solve():
     # antenna 4 keeps its baselines to 1-3 only.
     s["flag_row"][(s["tb"] == 1) & ((s["a1"] == 0) | (s["a2"] == 0))] = True
     s["flag_row"][(s["tb"] == 2) & (s["a1"] == 0) & (s["a2"] == 4)] = True
-    sol = run(s, refant=0)
+    # CASA's rule is `refantmode="strict"`; flex (the default) is issue #53's
+    # fallback (tests/test_k_refant_53.py).
+    sol = run(s, refant=0, refantmode="strict")
     assert not sol.flags[0].any()
     assert sol.flags[1, 0, 1:].all() and not sol.flags[1, 0, 0].any()
     assert sol.delays[1, 0, 0].tolist() == [0.0, 0.0]

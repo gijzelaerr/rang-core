@@ -322,6 +322,16 @@ fn intervals(problem: &Problem, flags_cell: &[bool]) -> Vec<Interval> {
 /// zero-padded to `ceil(2^15 / n) * n` points; `-peak` for antennas after
 /// the refant in a row (`p == refant`), `+peak` before it. Delays in seconds,
 /// `ntime_bins * nfreq_bins * nant`.
+///
+/// Issue #53 (research/k-refant-53.md): in a time bin where `refant` has no
+/// unflagged cell, the estimate is made against the antenna with the most
+/// unflagged cross cells instead (lowest index on a tie). Then an antenna
+/// with unflagged cells but no estimate (no unflagged baseline to the
+/// estimate's centre) is started through a hop: the FFT of its rows to the
+/// started antenna it shares the most unflagged cells with, added to that
+/// antenna's start. Where `refant` has data and every antenna with data has
+/// an unflagged baseline to it, neither applies and the estimate is the one
+/// above, bit for bit.
 pub fn initial_estimate(
     problem: &Problem,
     freq: &[f64],
@@ -343,108 +353,258 @@ pub fn initial_estimate(
                 .iter()
                 .take_while(|&&b| b as usize == t)
                 .count();
-        let sel: Vec<usize> = (start..end)
-            .filter(|&r| {
-                let (p, q) = (problem.antenna1[r] as usize, problem.antenna2[r] as usize);
-                (p == refant || q == refant) && p != q
+        let rows: Vec<usize> = (start..end).collect();
+        start = end;
+        let cross = |r: usize| problem.antenna1[r] != problem.antenna2[r];
+        let to = |r: usize, a: usize| {
+            cross(r) && (problem.antenna1[r] as usize == a || problem.antenna2[r] as usize == a)
+        };
+        // Unflagged cross cells per row.
+        let live: Vec<usize> = rows
+            .iter()
+            .map(|&r| {
+                if !cross(r) {
+                    return 0;
+                }
+                (0..nchan).filter(|&c| !flags_cell[r * nchan + c]).count()
             })
             .collect();
-        start = end;
+        let refant_live = rows
+            .iter()
+            .zip(&live)
+            .any(|(&r, &n)| n > 0 && to(r, refant));
+        let center = if refant_live {
+            refant
+        } else {
+            let mut cells = vec![0usize; na];
+            for (&r, &n) in rows.iter().zip(&live) {
+                cells[problem.antenna1[r] as usize] += n;
+                cells[problem.antenna2[r] as usize] += n;
+            }
+            (0..na)
+                .filter(|&a| cells[a] > 0)
+                .max_by_key(|&a| (cells[a], std::cmp::Reverse(a)))
+                .unwrap_or(refant)
+        };
+        let sel: Vec<usize> = rows.iter().copied().filter(|&r| to(r, center)).collect();
         if sel.is_empty() {
             continue;
         }
-        let mut sum = vec![[C64::ZERO; 4]; na * nchan];
-        let mut count = vec![0u64; na * nchan];
-        for &row in &sel {
+        let mut started = vec![false; nfb * na];
+        fft_pass(
+            problem,
+            flags_cell,
+            &sel,
+            center,
+            &channels,
+            &mut planner,
+            delta,
+            t,
+            &mut out,
+            &mut started,
+        );
+        for fb in 0..nfb {
+            started[fb * na + center] = true;
+        }
+        hop_pass(
+            problem,
+            flags_cell,
+            &rows,
+            &live,
+            &channels,
+            &mut planner,
+            delta,
+            t,
+            &mut out,
+            &mut started,
+        );
+    }
+    out
+}
+
+/// One FFT estimate of the antennas on `sel` (rows to `center`) against
+/// `center`, written into `out` as `initial_estimate` writes it; `started`
+/// marks the (frequency bin, antenna) pairs that had data.
+#[allow(clippy::too_many_arguments)]
+fn fft_pass(
+    problem: &Problem,
+    flags_cell: &[bool],
+    sel: &[usize],
+    center: usize,
+    channels: &[Vec<usize>],
+    planner: &mut FftPlanner<f64>,
+    delta: f64,
+    t: usize,
+    out: &mut [[f64; 2]],
+    started: &mut [bool],
+) {
+    let (na, nchan, nfb) = (problem.nant, problem.nchan, problem.nfreq_bins);
+    let refant = center;
+    let mut sum = vec![[C64::ZERO; 4]; na * nchan];
+    let mut count = vec![0u64; na * nchan];
+    for &row in sel {
+        let (p, q) = (
+            problem.antenna1[row] as usize,
+            problem.antenna2[row] as usize,
+        );
+        let ant = if p == refant { q } else { p };
+        for chan in 0..nchan {
+            let cell = row * nchan + chan;
+            if flags_cell[cell] {
+                continue;
+            }
+            let d = jones::from_f32(&problem.data[8 * cell..8 * cell + 8]);
+            let s = &mut sum[ant * nchan + chan];
+            for k in 0..4 {
+                s[k] = s[k] + d[k];
+            }
+            count[ant * nchan + chan] += 1;
+        }
+    }
+    for (s, &c) in sum.iter_mut().zip(&count) {
+        if c != 0 {
+            let c = c as f64;
+            for v in s.iter_mut() {
+                *v = C64::new(v.re / c, v.im / c);
+            }
+        }
+    }
+    for (fb, chans) in channels.iter().enumerate() {
+        if chans.is_empty() {
+            continue;
+        }
+        let nsel = chans.len();
+        let n = ESTIMATE_POINTS.div_ceil(nsel) * nsel;
+        let fft = planner.plan_fft_forward(n);
+        let val = 1.0 / (n as f64 * delta);
+        let positive = (n - 1) / 2 + 1;
+        let freq_of = |k: usize| {
+            let i = if k < positive {
+                k as i64
+            } else {
+                k as i64 - n as i64
+            };
+            i as f64 * val
+        };
+        let mut est = vec![[0f64; 2]; na];
+        let mut buffer = vec![Complex::new(0f64, 0f64); n];
+        for (a, e) in est.iter_mut().enumerate() {
+            let valid = chans
+                .iter()
+                .any(|&c| sum[a * nchan + c].iter().any(|v| v.re != 0. || v.im != 0.));
+            if !valid {
+                continue;
+            }
+            started[fb * na + a] = true;
+            for (h, corr) in [(0usize, 0usize), (1, 3)] {
+                buffer.iter_mut().for_each(|b| *b = Complex::new(0., 0.));
+                for (j, &c) in chans.iter().enumerate() {
+                    let v = sum[a * nchan + c][corr];
+                    buffer[j] = Complex::new(v.re, v.im);
+                }
+                fft.process(&mut buffer);
+                // argmax over the fftshift-ed amplitudes, first maximum.
+                let shift = n / 2;
+                let mut best_k = (n - shift) % n;
+                let mut best = buffer[best_k].re.hypot(buffer[best_k].im);
+                for s in 1..n {
+                    let k = (s + n - shift) % n;
+                    let amp = buffer[k].re.hypot(buffer[k].im);
+                    if amp > best {
+                        best = amp;
+                        best_k = k;
+                    }
+                }
+                e[h] = freq_of(best_k);
+            }
+        }
+        for &row in sel {
             let (p, q) = (
                 problem.antenna1[row] as usize,
                 problem.antenna2[row] as usize,
             );
-            let ant = if p == refant { q } else { p };
-            for chan in 0..nchan {
-                let cell = row * nchan + chan;
-                if flags_cell[cell] {
-                    continue;
-                }
-                let d = jones::from_f32(&problem.data[8 * cell..8 * cell + 8]);
-                let s = &mut sum[ant * nchan + chan];
-                for k in 0..4 {
-                    s[k] = s[k] + d[k];
-                }
-                count[ant * nchan + chan] += 1;
-            }
-        }
-        for (s, &c) in sum.iter_mut().zip(&count) {
-            if c != 0 {
-                let c = c as f64;
-                for v in s.iter_mut() {
-                    *v = C64::new(v.re / c, v.im / c);
-                }
-            }
-        }
-        for (fb, chans) in channels.iter().enumerate() {
-            if chans.is_empty() {
-                continue;
-            }
-            let nsel = chans.len();
-            let n = ESTIMATE_POINTS.div_ceil(nsel) * nsel;
-            let fft = planner.plan_fft_forward(n);
-            let val = 1.0 / (n as f64 * delta);
-            let positive = (n - 1) / 2 + 1;
-            let freq_of = |k: usize| {
-                let i = if k < positive {
-                    k as i64
-                } else {
-                    k as i64 - n as i64
-                };
-                i as f64 * val
-            };
-            let mut est = vec![[0f64; 2]; na];
-            let mut buffer = vec![Complex::new(0f64, 0f64); n];
-            for (a, e) in est.iter_mut().enumerate() {
-                let valid = chans
-                    .iter()
-                    .any(|&c| sum[a * nchan + c].iter().any(|v| v.re != 0. || v.im != 0.));
-                if !valid {
-                    continue;
-                }
-                for (h, corr) in [(0usize, 0usize), (1, 3)] {
-                    buffer.iter_mut().for_each(|b| *b = Complex::new(0., 0.));
-                    for (j, &c) in chans.iter().enumerate() {
-                        let v = sum[a * nchan + c][corr];
-                        buffer[j] = Complex::new(v.re, v.im);
-                    }
-                    fft.process(&mut buffer);
-                    // argmax over the fftshift-ed amplitudes, first maximum.
-                    let shift = n / 2;
-                    let mut best_k = (n - shift) % n;
-                    let mut best = buffer[best_k].re.hypot(buffer[best_k].im);
-                    for s in 1..n {
-                        let k = (s + n - shift) % n;
-                        let amp = buffer[k].re.hypot(buffer[k].im);
-                        if amp > best {
-                            best = amp;
-                            best_k = k;
-                        }
-                    }
-                    e[h] = freq_of(best_k);
-                }
-            }
-            for &row in &sel {
-                let (p, q) = (
-                    problem.antenna1[row] as usize,
-                    problem.antenna2[row] as usize,
-                );
-                let base = (t * nfb + fb) * na;
-                if p == refant {
-                    out[base + q] = [-est[q][0], -est[q][1]];
-                } else {
-                    out[base + p] = est[p];
-                }
+            let base = (t * nfb + fb) * na;
+            if p == refant {
+                out[base + q] = [-est[q][0], -est[q][1]];
+            } else {
+                out[base + p] = est[p];
             }
         }
     }
-    out
+}
+
+/// Issue #53: start each antenna that has unflagged cells but no estimate
+/// through the started antenna it shares the most unflagged cells with
+/// (lowest index on a tie), until no antenna can be added. Does nothing
+/// when every antenna with data is started.
+#[allow(clippy::too_many_arguments)]
+fn hop_pass(
+    problem: &Problem,
+    flags_cell: &[bool],
+    rows: &[usize],
+    live: &[usize],
+    channels: &[Vec<usize>],
+    planner: &mut FftPlanner<f64>,
+    delta: f64,
+    t: usize,
+    out: &mut [[f64; 2]],
+    started: &mut [bool],
+) {
+    let (na, nfb) = (problem.nant, problem.nfreq_bins);
+    let mut has = vec![false; na];
+    for (&r, &n) in rows.iter().zip(live) {
+        if n > 0 {
+            has[problem.antenna1[r] as usize] = true;
+            has[problem.antenna2[r] as usize] = true;
+        }
+    }
+    let ready = |started: &[bool], a: usize| (0..nfb).all(|fb| started[fb * na + a]);
+    loop {
+        let mut added = false;
+        for p in 0..na {
+            if !has[p] || ready(started, p) {
+                continue;
+            }
+            let mut shared = vec![0usize; na];
+            for (&r, &n) in rows.iter().zip(live) {
+                let (a, b) = (problem.antenna1[r] as usize, problem.antenna2[r] as usize);
+                if a == p && b != p {
+                    shared[b] += n;
+                } else if b == p && a != p {
+                    shared[a] += n;
+                }
+            }
+            let hop = (0..na)
+                .filter(|&h| h != p && shared[h] > 0 && ready(started, h))
+                .max_by_key(|&h| (shared[h], std::cmp::Reverse(h)));
+            let Some(h) = hop else { continue };
+            let sel: Vec<usize> = rows
+                .iter()
+                .copied()
+                .filter(|&r| {
+                    let (a, b) = (problem.antenna1[r] as usize, problem.antenna2[r] as usize);
+                    (a == p && b == h) || (a == h && b == p)
+                })
+                .collect();
+            let mut mine = vec![false; nfb * na];
+            let mut rel = out.to_vec();
+            fft_pass(
+                problem, flags_cell, &sel, h, channels, planner, delta, t, &mut rel, &mut mine,
+            );
+            for fb in 0..nfb {
+                if mine[fb * na + p] {
+                    let base = (t * nfb + fb) * na;
+                    let (d, via) = (rel[base + p], out[base + h]);
+                    out[base + p] = [d[0] + via[0], d[1] + via[1]];
+                    started[fb * na + p] = true;
+                    added = true;
+                }
+            }
+        }
+        if !added {
+            break;
+        }
+    }
 }
 
 /// `iabsdivsq` on one value: `0` for `0`, else `1/|v|^2`.

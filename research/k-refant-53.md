@@ -79,3 +79,11 @@ first refant.
 
 Simulation and tests on glacier (free until Saturday 20:50); CASA on nash (apptainer image), or WSL.
 Timing rows in `research/tool-timings.md`.
+
+## 5. Clarification 1 (2026-11-21, after the first test run; the simulation, not the method)
+
+The ±50 ns case of G2 at 64 channels over 856 MHz is aliased: the channel spacing of 13.375 MHz
+repeats a delay every 74.8 ns, and relative delays reach 100 ns. The first run failed in an
+interval with no flagging at all (antenna 10, hand Y: truth −63.79 ns, solved +11.0 ns, one period
+apart), where the change does nothing, so the old code fails it as well. The ±50 ns case therefore
+uses 256 channels (299 ns period); the ±8 ns case keeps 64. Tolerances and the rule are unchanged.
