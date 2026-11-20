@@ -1,5 +1,13 @@
-import json, sys
+"""DL2: rang's Tricolour port against Tricolour 0.2.1, cell by cell over every stage 1 label
+(research/dl2-data.md section 24).
+
+    python dl2_agree.py LABELS
+"""
+
+import json
+import sys
 from pathlib import Path
+
 import numpy as np
 
 L = Path(sys.argv[1])
