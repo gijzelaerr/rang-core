@@ -83,12 +83,15 @@ def main():
     }
     for name, idx in GROUPS.items():
         idx = list(idx)
-        moved = np.abs(xs[..., idx] - xf[..., idx]).max(-1) > 0.1
+        dmax = np.abs(xs[..., idx] - xf[..., idx]).max(-1)
+        moved = dmax > 0.1
         x2 = xs.copy()
         x2[..., idx] = xf[..., idx]  # this group frozen at its full-array values
         ch = int((ff ^ flags(x2))[el].sum())
         rec["groups"][name] = {
             "moved_frac": float(moved[el].mean()),
+            "moved_frac_05": float((dmax > 0.5)[el].mean()),
+            "median_abs_move": float(np.median(dmax[el])),
             "N5_change_if_frozen": ch,
             "N5_change_frac_if_frozen": ch / max(nf, 1),
         }

@@ -42,7 +42,7 @@ const FAMILIES: [[usize; 2]; 2] = [[0, 3], [1, 2]];
 /// Inputs of a ladder level (section 2e): 0 all 33, 1 without 2d, 2 also
 /// without F4's spectral planes.
 pub fn inputs(level: usize) -> Option<usize> {
-    if level >= 20 {
+    if level >= 40 || level % 10 > 2 {
         return None;
     }
     match level % 10 {
@@ -65,7 +65,34 @@ fn has_var(level: usize) -> bool {
 /// Q scaled per antenna (each antenna's own robust spread over its channel
 /// blocks), so the scale does not depend on which other antennas are present.
 pub(crate) fn per_antenna(level: usize) -> bool {
-    level >= 10
+    (level / 10) % 2 == 1
+}
+
+/// F6 (fix 2, second candidate): levels 20-22 and 30-32 replace the iterated
+/// median polish by one step: s the median over all baselines, each antenna's
+/// term the median over its own baselines of `y - s` (F4's antenna-median
+/// form, per block). No antenna's term depends on another's estimate.
+pub(crate) fn one_step(level: usize) -> bool {
+    level >= 20
+}
+
+/// The one-step antenna terms and the array term (see `one_step`).
+pub(crate) fn one_step_fit(y: &[f64], inp: &Inputs, of: &[Vec<(usize, usize)>]) -> (Vec<f64>, f64) {
+    let nant = inp.nant;
+    let mut buf = Vec::with_capacity(y.len());
+    buf.extend_from_slice(y);
+    let s = med_min(&mut buf, MIN_AGG);
+    if !s.is_finite() {
+        return (vec![f64::NAN; nant], f64::NAN);
+    }
+    let g = (0..nant)
+        .map(|p| {
+            buf.clear();
+            buf.extend(of[p].iter().map(|&(b, _)| y[b] - s));
+            med_min(&mut buf, MIN_AGG)
+        })
+        .collect();
+    (g, s)
 }
 
 /// Weights of N5 at a level: stem (n, 8) and b, five 3×3 layers 8 → 8, head.
@@ -426,6 +453,7 @@ fn factorise(
     d: usize,
     want_q: bool,
     own: bool,
+    onestep: bool,
 ) -> (Vec<f64>, Vec<f64>) {
     let nant = inp.nant;
     let ncell = nrow * ncol;
@@ -433,7 +461,11 @@ fn factorise(
         .into_par_iter()
         .map(|cell| {
             let yy = &y[cell];
-            let (g, s) = polish(yy, inp, of);
+            let (g, s) = if onestep {
+                one_step_fit(yy, inp, of)
+            } else {
+                polish(yy, inp, of)
+            };
             let mut q = Vec::new();
             if want_q {
                 let r: Vec<f64> = (0..inp.nbl)
@@ -556,6 +588,7 @@ pub(crate) fn antenna(
     d: usize,
     with_var: bool,
     own: bool,
+    onestep: bool,
 ) -> Antenna {
     let nant = inp.nant;
     let of = of_antenna(inp);
@@ -569,7 +602,7 @@ pub(crate) fn antenna(
             .map(|b| (0..na).map(|k| b.amp[k * 4 + c]).collect())
             .collect();
         let y = transpose(&per, na);
-        let (z, q) = factorise(&y, g.nta, g.nja, inp, &of, d, true, own);
+        let (z, q) = factorise(&y, g.nta, g.nja, inp, &of, d, true, own, onestep);
         zc.push(z);
         qc.push(q);
     }
@@ -610,6 +643,7 @@ pub(crate) fn antenna(
             d,
             false,
             own,
+            onestep,
         )
         .0;
         tf = factorise(
@@ -621,6 +655,7 @@ pub(crate) fn antenna(
             d,
             false,
             own,
+            onestep,
         )
         .0;
     }
@@ -677,7 +712,15 @@ pub(crate) fn prepare(
     } else {
         None
     };
-    let ant = antenna(inp, &blk, g, d, with_var, per_antenna(level));
+    let ant = antenna(
+        inp,
+        &blk,
+        g,
+        d,
+        with_var,
+        per_antenna(level),
+        one_step(level),
+    );
     Prepared {
         agg,
         spec,

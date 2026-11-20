@@ -21,6 +21,24 @@ complete (done-marker and sha256 in C's run root, `research/dl2-data.md` section
 complete calibrator scan by then is left out of F6's calibrator class, and the note says so. The
 scans the rule selects are listed here at the cut-off, before any of them is read.
 
+**Applied, 2026-11-20 (labels complete 15:57 UTC, before the cut-off; session C's
+`manifests/stage1.json`, sha256 `94f512db1d07c2c5…`, read for its scan list only, no visibility
+read):**
+
+| Block | Role | Scans (calibrator + target) | Labels |
+| --- | --- | --- | --- |
+| 1571938260 | train | 46 (43 + 3) | rang, Tricolour 0.2.1, AOFlagger 2.13.0, all complete |
+| 1611426666 | train | 17 (14 + 3) | complete |
+| 1629213076 | train | 20 (17 + 3) | complete |
+| 1749428161 | train | 14 (11 + 3) | complete |
+| 1735892129 | excluded (DL6) | 11 (8 + 3) | complete, not used |
+| 1573212012 | validation | 32 (29 + 3) | complete |
+| 1678312253, 1674958551, 1579022459 | held out | 26, 22, 31 | none, as the rule requires |
+
+So F6's SARAO training set is **97 scans (85 calibrator, 12 target) from four blocks**, and every
+training block has calibrator scans. C reports rang's Tricolour port and Tricolour 0.2.1
+bit-identical on 34 of 140 scans and differing on 106, by about 5e-8 of cells where sampled.
+
 | Role | Data |
 | --- | --- |
 | Train | the cut-off rule's scans of C's training blocks 1749428161, 1629213076, 1571938260, 1611426666 (1735892129 excluded, below); LUNO MAIN_1, 2, 4, 5, 6; ESO137 chunks 0, 2, 4, 6, 8, 14, 16; F2's simulations |
@@ -53,6 +71,17 @@ started beside F6's scoring after the freeze.
      insensitive to the antenna set (its per-cell centring and its rank-dependent fixed point),
      for example an M-estimator solved to convergence, or γ measured against a fixed reference
      set of antennas, then measured the same way before any training.
+   *Second candidate, measured 2026-11-20 on nash (same probe, `outputs/f6/probe-L{0,20,30}.json`
+   in nash's dl3-f6 worktree):* the **one-step factorisation** (kernel levels 20-22: s the median
+   over all baselines, each antenna's term the median over its own baselines of y − s, no
+   iteration; F4's antenna-median form per block) moves the block planes less when one antenna is
+   dropped: 2c on 66 % of cells (median move 0.136 asinh units) against the polish's 84 % (0.182),
+   2d on 49 % (0.098) against 78 % (0.153). One-step with the per-antenna scale (levels 30-32) is
+   in between (70 %, 59 %). The remaining move, about 0.13, is what removing one of about 55 terms
+   from a median does to a statistic normalised by its own spread (about 1/√n of it): no
+   factorisation removes it. **Decision (proposed for the freeze): level 20, plus antenna dropout
+   on every real training realisation** (dl-plan section 6 item 7), so the network learns not to
+   rely on that last bit. G-drop's bound is fixed below, independently of F6.
 3. **Label-audit bar sized on validation**, pooled over a scan's realisations or with a minimum
    number of strong (A ≥ 3) events per draw, so one weak draw cannot stop a class.
 4. **G-sub outer32 over-flagging** (F5 targets, held out: R3 1.85 on ESO137 chunk 12 against
@@ -60,6 +89,39 @@ started beside F6's scoring after the freeze.
    simulated outer32 layout of F6's validation scans, before and after fix 2.
 5. **R2 H2 near miss** (F5 targets, held out: 0.945 against 0.95). Reported per seed on F6's
    validation; no special fix unless it is systematic across seeds.
+
+## 2a. Bounds are never sized from F6 (rule fixed 2026-11-20, before any F6 validation number)
+
+Coordinator, 2026-11-20: a bound sized from the candidate's own validation result passes by
+construction. So every bound F6 freezes is derived from T, A, a predecessor's frozen bar or the
+requirement, never from F6.
+
+- **G-drop:** the reference is the classical flaggers' own change under the same antenna dropout
+  (same seeds, k = 1, 4, 8; symmetric difference of added cells on the remaining baselines). T's
+  change is **0 cells** at every k (measured 2026-11-19 on LUNO MAIN_7, F5's pre-freeze sizing:
+  T and W3 flag per baseline), and A, also per baseline, is 0 by construction. The rule (bound =
+  T's change plus a margin, or F5's bars if T's change is below them) therefore keeps **F5's
+  bars: G-drop ≤ 0.05 / 0.20 / 0.25 of the method's full-array added cells for k = 1 / 4 / 8**.
+  F4's network met them (0.03 / 0.07-0.13 / 0.13-0.17); F5's did not.
+- **G-perm, G-sub, R1-R5, S1-S3, C1, C2:** F5's frozen bars and rules, unchanged (each defined
+  against T, A or a fixed requirement).
+
+## 2b. Teachers and loaders (proposed)
+
+- **T** = rang's Tricolour port with CARACal's first-pass YAML (as F3-F5). For SARAO scans, C's
+  stage-1 `rang` labels (rang 0.3.0, the calibrator or target first-pass YAML by scan class); on
+  the training window (channels 1024-3071) a fresh T agrees with C's on 0.995 of cells (validation
+  scan 1573212012/scan051), the rest at the window's edges.
+- **A** = **AOFlagger 2.13.0 with CARACal's `firstpass_QUV.rfis`** (C's stage-1 `aoflagger`
+  labels, image `stimela_aoflagger_1.2.0.sif`), coordinator's choice of 2026-11-20: CARACal's
+  shipped MeerKAT strategy is the better MeerKAT teacher than F3-F5's AOFlagger 3.5
+  `generic-default.lua` (which ships for no telescope in particular). This differs from F5's A;
+  R4 and R5 use it. LUNO and ESO137 keep F4's cached A (3.5 generic) unless C's runner is run on
+  them, which the note will say before the freeze.
+- **Loader** `rang.f5flag.load_sarao` (rang's own MS reader): C's frozen MSs, cross-correlations,
+  FLAG_ROW rows dropped, channels 1024-3071 (LUNO's 1070-1498 MHz window of the 4,096-channel L
+  band), with C's bit-packed labels as per-row T and A. On a typical validation scan T flags 46 %
+  and A 60 % of the full band, the MS's own FLAG 17 %.
 
 ## 3. Shipping form (frozen commitments)
 
