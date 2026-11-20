@@ -207,6 +207,14 @@ def export_onnx(net, path, header, nt=16, nc=256):
     onnx.save(model, str(path))
 
 
+SARAO_ACKNOWLEDGEMENT = (
+    "The MeerKAT telescope is operated by the South African Radio Astronomy Observatory, "
+    "which is a facility of the National Research Foundation, an agency of the Department "
+    "of Science, Technology and Innovation."
+)
+WEIGHTS_LICENCE = "CC-BY-4.0"  # owner, 2026-11-20 (research/f6-flagger.md, section 3)
+
+
 def export_onnx_nchw(net, path, header, opset=17):
     """The contract's form (research/dl1-contract.md; F6, research/f6-flagger.md):
     input `planes` (N, C, T, F), output `logits` (N, 1, T, F), Conv and Relu

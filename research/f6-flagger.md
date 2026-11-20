@@ -57,3 +57,15 @@ started beside F6's scoring after the freeze.
   stands (cost does not depend on the weights). The note says which.
 - Training host: nash's CPU if its wall is within about 2 × glacier's GPU (F5's trainer measured
   on both), else glacier's GPU through `gpu_run`.
+- **Licence (owner, 2026-11-20, verbatim: "yeah lets do that license, i think it is fine"):** F6's
+  weights, trained on SARAO archive data, ship under **CC BY 4.0**. The ONNX header carries
+  `licence: "CC-BY-4.0"` and, in `source`, SARAO's acknowledgement (from `research/dl2-data.md`,
+  the archive's terms as session C recorded them): "The MeerKAT telescope is operated by the South
+  African Radio Astronomy Observatory, which is a facility of the National Research Foundation, an
+  agency of the Department of Science, Technology and Innovation." The same text goes in the
+  documentation, with the training blocks' capture block IDs, LUNO (Ben Hugo's permission of
+  2026-10-29) and ESO137 (CC BY 4.0, Ramatsoku et al. 2020). SARAO is informed at
+  publications@ska.ac.za when a paper uses the weights, as its terms ask of papers.
+- **glacier (owner, 2026-11-20: "the computer is all yours until monday"):** exclusive and timing
+  runs at any hour, no 4-thread reserve; except 2026-11-20 21:00 to about 06:30 (#47) and the AI
+  app's 06:05-06:45 slot. F6's cost night, if needed, runs whenever glacier is idle.

@@ -33,8 +33,8 @@ def header(nplanes):
         "training": {"framework": "torch"},
         "gates": {},
         "envelope": {"channel_width_hz": [208984.375, 208984.375]},
-        "licence": "test",
-        "source": "tests/test_f6_export.py",
+        "licence": f5net.WEIGHTS_LICENCE,
+        "source": "tests/test_f6_export.py; " + f5net.SARAO_ACKNOWLEDGEMENT,
     }
 
 
@@ -50,6 +50,8 @@ def test_export_loads_through_the_contract_and_matches_torch(tmp_path, stem):
     path = f5net.export_onnx_nchw(net, tmp_path / "n5.onnx", header(n))
     w = learned.load(path)
     assert set(w.ops) <= {"Conv", "Relu"}
+    assert w.header.licence == "CC-BY-4.0"
+    assert "South African Radio Astronomy Observatory" in w.header.source
     x = rng.normal(0, 1, (2, n, 12, 64)).astype(np.float32)
     with torch.no_grad():
         want = net(
