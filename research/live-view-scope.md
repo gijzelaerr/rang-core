@@ -51,7 +51,9 @@ performance claim; tooling only.
 | `outputs/status/<task>.md` | written by hand by each agent, every 30 minutes | by hand |
 
 So a stage is visible at its boundaries and through free text. Nothing
-structured is written inside one: no peak residual or image per major cycle,
+structured is written while one runs (corrected 2026-11-20: GeMClean's
+`image-report.json` holds every major cycle's peak, threshold, objective and
+times, written when the image is finished): no image per major cycle,
 nothing per solve interval, nothing inside a minor cycle (`core/src` has no
 callback or progress code; GeMClean prints with `println!`).
 
@@ -61,8 +63,9 @@ Where it would have paid, from this repository's own record:
   ([dl0-profile.md](dl0-profile.md)); nothing was visible inside those hours.
 - E2-A's frozen 0.5σ multiscale depth ran into `niter` 1e6 after 30,615 s
   ([e2-acceptance.md](e2-acceptance.md) 9.5-9.8). A peak-residual curve
-  would have shown, hours earlier, whether it was still converging (not
-  measured; the curve was never recorded).
+  would have shown, hours earlier, whether it was still converging. GeMClean
+  keeps the curve per major cycle (`Cycle`: peak, threshold, objective before
+  and after) but writes it only at the end, in `image-report.json`.
 - The K outlier of [calchain-floor.md](calchain-floor.md) (ID 50, interval 7,
   2,335 ns against 0.11 ns elsewhere) was found after the fact; a delay
   panel shows it when the solve finishes.
@@ -148,12 +151,9 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
   item 4 is good. v0.5.0 already holds two L items (#5, #15) and
   [v040-plan.md](v040-plan.md) proposes five more issues for it (#44, #45,
   #4, #7, #34); this item depends on none of them and blocks none.
-- **The spike** (one day, shared slots): the archive has no per-cycle data to
-  replay (E2-N's `gemclean.log` holds six σ values), so a scratch branch
-  writes the record from GeMClean and one solver on the public fixture or
-  the LUNO slice, and feeds it to Rerun and to a hand-written page; judge the
-  imaging and gain panels on the owner's Windows machine over a forwarded
-  port. It can run before v0.5.0 starts; the roadmap lets research run ahead.
+- **The spike** (one day, shared slots; started 2026-11-20 on the owner's
+  word; section 7). It can run before v0.5.0 starts; the roadmap lets research
+  run ahead.
 - **Later (v0.6.0 or its own package):** steering; a Makepad reader; the
   exporters to an SDP or a Grafana.
 
@@ -171,6 +171,39 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 5. **Packaging.** Decided: the browser view is an extra of `rang-core`
    (`[view]`); a separate package only if it brings a dependency `rang-core`
    must not carry.
+
+## 7. The spike: protocol (written 2026-11-20, before any spike code)
+
+One record, two viewers, the same input.
+
+- **Capture.** A scratch branch (not pushed) makes GeMClean append an event
+  per major cycle and write a decimated residual, on the path one test run
+  takes, on a simulated MeerKAT MS under `D:ang\data`. Outputs hashed with
+  the hook on and off and wall time noted (indicative, not the gate of
+  section 2). The gain panel is fed from an existing MeerKAT-size calibration
+  table converted by a script, labelled replay; no solver is instrumented.
+- **Replayer.** A script re-emits the captured record with its original
+  timing (or faster), so both viewers see the same input and live attach is
+  tested without a long run.
+- **Viewers.** Rerun, SDK and viewer pinned to one version from public PyPI in
+  the spike's own venv, fed by a bridge that follows the record; and a page
+  of our own (standard-library server, server-sent events).
+- **Scored for each viewer** (yes, partly, no; with what was seen):
+  1. attach to a run in progress; join late with the history; replay after
+     the end;
+  2. gain amplitude and phase for 64 antennas, readable;
+  3. residual image with a slider over major cycles and a stretch control;
+  4. peak residual and threshold on a log axis;
+  5. works in the browser and (Rerun) as a native Windows viewer;
+  6. one remote arrangement: record on the remote end (WSL stands in for
+     nash), view on Windows through a forwarded port;
+  7. install size, and lines of glue code written.
+- **Decision rule.** Rerun is chosen if it scores yes on 1 to 4 and 6; a page
+  of our own if Rerun fails any of those and the page passes it; otherwise
+  both outcomes are recorded and the owner decides. A blank canvas in an
+  embedded browser is not scored against a viewer before it is confirmed in a
+  normal browser or the native viewer (the WebGL case of
+  [nb-carta.md](nb-carta.md)).
 
 ## For the coordinator
 
