@@ -714,6 +714,45 @@ chunks). T and A find 0.75-0.94 and 0.79-0.99 of realisation 0's injected positi
 on the real target scans**: Landman's scheme is what lets the target class train. The F-SIM part
 and the validation chunk follow when their simulations are on nash.
 
+### Stage 4: resume test (section 9), glacier GPU, 2026-11-20 — passes
+
+Post hoc calibrator arm's shards (L0, d = 1), torch 2.15.0+cu132, deterministic settings, booked
+through `gpu_run.py run --owner rang`: seed 1 for 3,000 steps uninterrupted against 1,500 steps,
+a checkpoint and 1,500 resumed: **weights bit-identical** (max |Δ| 0.0), validation loss 0.07949
+both; seed 2 at 3,000 steps for the spread (max |Δ| of weights 1.23, validation loss 0.07806).
+3,000 steps take 44 s after a 29 s shard load; peak VRAM per single-seed process 313 MB allocated,
+524 MB reserved (`~/Build/tmp/20261119-f5-train/calibrator/resume-test.json`, `resume-a/train.json`).
+
+*Implementation, labelled:* seeds 1-3 train in one process (`examples/f5_gpu_seeds.sh`): the
+shards, about 25 GB in memory, are loaded once, and three processes would exceed WSL's 44 GB. Each
+seed keeps its own model, optimiser, batch generator and checkpoint; a test shows seeds trained
+together equal each seed alone, bit for bit. Seed 1 resumed from the checkpoint the stopped
+sequential chain had written.
+
+### Stage 4: post hoc calibrator arm N5-ph, three seeds (Amendment 3), glacier GPU, 2026-11-20
+
+`examples/f5_gpu_seeds.sh`, one process, 30,000 steps per seed, 1,589 s wall (shard load
+included), 26.2 GB host memory, 1.24 GB VRAM for the three:
+
+| Seed | Validation loss | weights sha256 |
+| --- | ---: | --- |
+| 1 | 0.0474 | `fbea6b11…` |
+| 2 | 0.0348 | `8d9f3b5b…` |
+| **3** | **0.0443** | `c659d08b…` |
+
+Median seed by validation loss: **seed 3**. The spread (0.035-0.047) is narrower than F4's
+(0.033-0.210).
+
+τ and κ (`examples/f5_tau.py`, nash, 8 slots, 355 s; `runs/tau-calibrator/`): **τ = −3.0**,
+pooled validation recall **0.963** of 3.01 M positive cells (MAIN_7 two realisations, f2sim-v
+three scans) with N5 adding 180,448 cells on MAIN_7's uninjected DATA against T's 209,120 (F4's
+N4: 0.954 at 209,027). κ: N5 OR W4 adds 2.73 M / 1.58 M / 1.04 M / 0.76 M / 0.49 M cells at
+κ 3 / 4 / 5 / 6 / 8, all above 1.2 × T (250,944), so **the method is N5** (no W4), by section
+3's rule.
+
+*Targets:* the full training audit (42 real realisations and 6 F-SIM scans; 890 s on nash at 16
+slots) passes, `stop: null`; F-SIM positives 0.23-2.36 M cells per scan.
+
 ### glacier crash, 2026-11-19 12:52 SAST (a test of the resume rule)
 
 glacier rebooted unannounced. Nothing of F5 ran on its GPU then. Lost: the three copy streams in

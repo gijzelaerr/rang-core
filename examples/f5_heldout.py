@@ -135,7 +135,12 @@ def real(a):
     run = Path(a.run) / a.set.replace(":", "-")
     run.mkdir(parents=True, exist_ok=True)
     method = Method(a.method, a.data_root)
-    full = f5.load(a.set, heldout=not a.validation)
+    if a.set.startswith("reserved:"):
+        # Amendment 3: N5-ph's held-out groups, read once.
+        f5.RESERVED_FETCH = Path(a.reserved_fetch)
+        full = f5.load_reserved(a.set.partition(":")[2], heldout=True)
+    else:
+        full = f5.load(a.set, heldout=not a.validation)
     w3 = f3.w3_flags(full)
     s_rows = f4.strength_rows(full, w3)
     a_dir = run / "aoflag"
@@ -302,6 +307,10 @@ def main():
     p.add_argument("--method", required=True)
     p.add_argument("--data-root")
     p.add_argument("--ao-sif")
+    p.add_argument(
+        "--reserved-fetch",
+        help="objects/ of examples/f5_fetch.py (sets reserved:MAIN_k)",
+    )
     p.add_argument(
         "--validation", action="store_true", help="dry run on validation sets"
     )

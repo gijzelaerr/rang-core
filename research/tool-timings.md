@@ -2354,3 +2354,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-19 | F5 Stage 3 shards and audit (`f5_shards.py`) under nash heavy lock 8 slots / 48-64 GB | calibrators: validation 2 real + 3 sim; train 30 real + 9 sim | 646 s; 2,007 s | 8.3 GB; 17.9 GB | nash; audit Stop-L (0.098 % < 0.1 %) |
 | 2026-11-19 | F5 Stage 3 target real shards (`f5_shards.py --only-real`) under nash heavy lock 8 slots / 48 GB | ESO137 7 chunks × 6 realisations | 1,801 s | 5.5 GB | nash; audit passes |
 | 2026-11-19 | F5 Stage 2 ZE5/Z5 targets under nash heavy lock 8 slots | ESO137 chunk 10 (12 cases) + 2 f2sim-v scans | 3,508 s (lock wait included) | 6.7 GB | nash; no Stop-E, no Stop-Z |
+| 2026-11-20 | F5 resume test (`f5_gpu_train.sh resume`), torch 2.15.0+cu132, `gpu_run.py --owner rang` | calibrator shards, seed 1 3,000 steps ×2 + seed 2 | 44 s per 3,000 steps + 29 s load | 313 MB VRAM allocated, 524 MB reserved | glacier GPU; bit-identical after resume |
+| 2026-11-20 | F5 N5-ph seeds 1-3 in one process (`f5_gpu_seeds.sh`) | calibrator shards, 30,000 steps each | 1,589 s | 26.2 GB host; 1.24 GB VRAM | glacier GPU, 34 % utilisation |
+| 2026-11-20 | F5 reserved LUNO fetch (`f5_fetch.py`), public bucket | MAIN_8-11, 13, 15: 252 objects, 5.63 GB | 207 s | – | nash, 1 slot, 27 MB/s |
+| 2026-11-20 | F5 target train shards incl. F-SIM (`f5_shards.py`), 16 slots | 6 F-SIM scans (real ones done) | 890 s | 8.7 GB | nash; audit passes |
+| 2026-11-20 | F5 tau/kappa for N5-ph (`f5_tau.py`), 8 slots | MAIN_7 (2 realisations) + 3 f2sim-v scans | 355 s | 6.3 GB | nash |
