@@ -100,6 +100,7 @@ other commands:
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
   mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
+  watch           PATH... [--once] [--json]: follow run or output directories, read-only
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -595,6 +596,29 @@ options:
                  version first
   --root DIR     accept only path arguments inside DIR (repeatable; default:
                  any path)
+```
+
+## `watch`
+
+```text
+$ rang-core watch -h
+usage: rang-core watch [-h] [--once] [--json] [--interval S] PATH [PATH ...]
+
+Follow run directories or output directories without touching them. Reports
+each stage's status and time, whether its process is still there, spool tasks
+and worker heartbeats, receipts, the newest file and the last log line. This
+is liveness, not progress: it cannot say how far a running stage has got.
+
+positional arguments:
+  PATH          a run directory, a Measurement Set that has one beside it
+                (<ms>.rang-run), a spool directory (data.spool), or any
+                directory a job writes into
+
+options:
+  -h, --help    show this help message and exit
+  --once        report once and exit
+  --json        one JSON object per report, on one line
+  --interval S  seconds between reports (default 30)
 ```
 
 ## `research`
