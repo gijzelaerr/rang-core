@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 """One screen for this checkout's development jobs (research/live-view-scope.md,
 owner decision 6): the heavy lock with real CPU use, the GPU bookings of
 `~/.gpu` (glacier), the status files of `outputs/status`, and `rang-core watch`
