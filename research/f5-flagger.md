@@ -1,5 +1,10 @@
 # F5: a fast supervised RFI flagger for MeerKAT L-band, fourth protocol
 
+**Outcome (2026-11-20, added after the measurements):** targets **F** (R5, G-drop, R2 H2,
+G-sub outer32 fail); calibrators **Stop-L** as frozen, and the post hoc arm N5-ph also F (R5,
+G-drop, G-sub core16). Cost passes in both classes (C1 0.365-0.409 of T, C2 1.00). No weights
+ship; F6 ([f6-flagger.md](f6-flagger.md)) takes the fixes. Details under "Measured result".
+
 Task F5 (issue #40, DL3 of [dl-plan.md](dl-plan.md), track L), branch `dl3-f5` from origin/main
 `dd6adc5d`. **Status at freeze: proposed; nothing implemented, trained or scored. No held-out set
 has been read by F4 or F5.** The draft that stood here (branch `f5-draft`, written while F4 ran) is
@@ -817,6 +822,31 @@ and at 1 thread in both classes** (upper quartile ≤ 0.5), from clean pairs; F4
 hold; `outputs/dl3-f5/c2-20261120/`): LUNO MAIN_1 N5 5.518 GB against T 5.518 GB, ESO137 chunk 0
 N5W4 1.626 GB against 1.626 GB: **1.00**, matches (the decode sets the peak in every arm).
 
+### N5-ph (post hoc calibrator arm, Amendments 3-4): reserved LUNO groups, read once (nash) — F
+
+MAIN_8, 9, 10, 11, 13, 15 (fetched fresh, `examples/f5_fetch.py`), seed 3, τ −3.0, N5;
+`examples/f5_heldout.py`, nash, 6 slots each (MAIN_8 and 11 ran unbooked after a cancel race,
+10:20); walls 51-96 min; archive [results/f5-n5ph-verdict.json](results/f5-n5ph-verdict.json).
+Post hoc: it can never read S or S−, whatever the gates say.
+
+| Gate | N5-ph | T | Bar | |
+| --- | --- | --- | --- | --- |
+| R1 pooled; antenna-local | **1.000**; 1.000 | 0.897; 0.729 | | pass |
+| R2 H1 / H2 / H3 / H4 / H4n | 1.000 / 1.000 / 0.999 / 0.987 / 0.959 | 1.000 / 1.000 / 0.424 / 0.552 / 0.054 | ≥ T − 0.05 | pass |
+| R3 per group | 1.08-1.39 | | 0.5-1.5 | pass |
+| R4 J with T | 0.08-0.11 | | ≥ J(A, T) − 0.05 | pass |
+| R5 strong native consensus | 0.33-0.49 | | ≥ 0.80 | **fail** |
+| G-perm | exact | | | pass |
+| G-drop k = 1 | 0.12-0.17 | | 0.05 | **fail** |
+| G-sub core16 R3 | 0.08-0.15 | | ≥ 0.5 × min(T, A)/T | **fail** |
+| G-sub outer32 R1 / R3 | 1.000 / 0.92-1.32 | 1.000 | | pass |
+| C1 (N5, MAIN_1) 4 / 1 threads, C2 | 0.409 / 0.365, 1.00 | | | pass |
+
+On MAIN_8, N5 adds 240,892 cells, T 214,953, A 3,427,529 (F4's N4 198,723). **Post hoc outcome
+F** (R5, G-drop, G-sub core16): the same pattern as the targets and as validation predicted;
+core16's under-flagging is the short-baseline gap F5's pre-freeze sizing found in F4's network.
+The frozen calibrator outcome stays Stop-L. Nothing ships.
+
 ### Stage 5: targets, held-out, read once (glacier, 2026-11-20) — **outcome F**
 
 ESO137 chunks 11, 12, 13 and f4sim-t's target scans, the target method N5W4 (seed 3, τ −6.0,
@@ -924,6 +954,29 @@ freezes with whichever survive, on held-out sets F5 has not read.
 
 ## For the coordinator
 
-- Frozen in its own commit before any F5 code. Held-out sets: F4's, all still unread.
-- Decisions taken at the freeze: section 13 (reversible before Stage 3).
-- Text for Landman: none needed before results; the 2026-11-19 comment covers the freeze.
+- **Outcome:** targets F (frozen rule): R1 1.000 vs T 0.865, S1-S3, G-perm, C1 0.397 / 0.371 and
+  C2 1.00 pass; R5 0.02-0.16, G-drop 0.19-0.26 (one antenna), R2 H2 0.945 and G-sub outer32 R3 1.85
+  fail. Calibrators Stop-L (frozen); post hoc N5-ph F (R5 0.33-0.49, G-drop 0.12-0.17, core16 R3).
+- **Held-out spent by F5:** ESO137 11-13, f4sim-t's target scans, reserved LUNO MAIN_8-11, 13, 15.
+  **Unread, for F6:** LUNO MAIN_0, 12, 14; f4sim-t's calibrator scans; ESO137 1, 3, 5, 7, 9, 15,
+  17; SARAO 1678312253, 1674958551, 1579022459.
+- **Merge note:** `dl3-f5` and main both add the `learned-train` extra; keep one.
+- **Draft for Landman (issue #1), for the owner to see first:**
+
+> F5 result. Calibrator and target models, MeerKAT L-band, one weights file each, 3,201 weights.
+>
+> - Speed: 0.37-0.41 of the Rust Tricolour port's wall time at 4 and 1 threads, same peak memory
+>   (F4: 0.44-0.46). Timed exclusively, five alternating pairs per cell.
+> - Injected RFI (held out, 10 σ): recall 1.000 against Tricolour's 0.87-0.90; wide one-antenna
+>   bands 1.000 against 0.72-0.73; slow ramps never seen in training 0.96-1.00 against 0.05-0.55.
+> - Your label scheme worked as intended on injections and simulation (false flags 0.017 against
+>   Tricolour's 0.097), and let the target model train at all (ignored cells 11-23 %, F4's 47-64 %).
+> - It fails two gates. Native RFI that Tricolour and AOFlagger both flag strongly is found at
+>   0.02-0.49 (bar 0.80): it is never a positive, so the network does not learn it. And the new
+>   per-antenna planes shift when an antenna is dropped: 12-26 % of flags change for one missing
+>   antenna (bar 5 %). So F5 does not ship.
+> - F6 keeps your scheme and adds one rule: native cells both flaggers flag with strength ≥ 3 become
+>   positives. Your scheme's ignored set stays for cells only one flagger flags. The per-antenna
+>   planes get a fixed normalisation that does not depend on which antennas are present. F6 trains
+>   on six SARAO blocks; three more (29 antennas, 32 outer antennas, an unseen observation) are held
+>   out for it.
