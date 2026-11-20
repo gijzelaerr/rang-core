@@ -240,10 +240,41 @@ The coordinator asked for the GPU to be filled and N1 to start before the grid P
 2. **N1 steps.** `--steps-total 5500`, about 19 min of training at 0.20 s per step, inside amendment 1's 20 min per seed. Validation time is not counted against the cap.
 3. **Packs.** The packs no longer carry G. The trainer reads G per seed from the psfg shards (`--psfg`), so N1 does not wait for them.
    - The pack build on nash (260 s, one core, I/O-light) ran outside the heavy lock: an error, recorded here.
-   - Packs: 300 files, 2.2 GB, on glacier `D:ang\dl4b-step0\packs`; removed after training.
+   - Packs: 300 files, 2.2 GB, on glacier `D:
+ang\dl4b-step0\packs`; removed after training.
 4. **Load-time memory.** The load-time s₀ computation is chunked; computing it in one pass had peaked at 21 GiB through shared memory.
 5. **Yield windows** (SAST), passed to the trainer: 20:50-23:59 and 06:00-06:50, on top of `gpu_run.py check`.
 
+## Amendment 3 (2026-11-20 09:30, post hoc: after N1 seed 1 failed; before any usable model or any exact-cycle score)
+
+**What failed.** N1 seed 1 (08:56 start) reached step 4,524 (900 s) with validation recovery 0, false flux 0, an empty model. Its loss had sat at the empty-model value (2,031) from the start, and so had the batch probe and the resume test. It was stopped by hand at 09:13.
+
+Diagnosis (scripts `results/dl4b-step0/scripts/diag*.py`, glacier):
+- torch's default Conv init gives a signal gain of 5e-6 through the 11 bias-free layers;
+- the trained checkpoint's raw outputs were all negative, so the positivity clip passed no gradient;
+- with He init alone, the output started 300 × above the empty model and Adam collapsed it back;
+- with He init and a zero output layer, the L1 loss still could not fit one batch in 600 steps. Its constant-size gradient over about 65,000 empty pixels outweighs about 260 source pixels until the features are selective;
+- a squared loss fits the same batch: the L1 ratio falls to 0.27-0.34 in 600 steps at learning rate 1e-3, with positive pixels falling to a few hundred.
+
+**Changes to section 3**, for every arm and seed from here on:
+
+1. **Init:** He-normal on the hidden 3×3 layers, zeros on the 1×1 output layer.
+2. **Loss:** the squared error of the beam-convolved **unclipped** update, Σ((b ⊛ (m + s·f) − b ⊛ truth)/s₀)², per field, mean over the batch, mean over passes. The positivity clip stays for the state passed to the next pass and for every scored model, so section 5 is unchanged.
+3. **Learning rate** 1e-3 (was 3e-4), chosen on one training batch.
+4. **Gates in the loop:**
+   - validation at step 500;
+   - exit 4 if the loss over the empty-model loss is above 0.9 at step 1,000.
+5. **Smoke result** (seed 99, full packs, 1,000 steps): validation at step 500 gave recovery 1.07, false flux 0.13, median 8,100 positive pixels; loss ratio 0.06 at step 1,000.
+
+**GPU time spent outside the seeds:**
+- about 0.45 h: the resume tests, the batch probes, the failed seed (15 min) and the diagnostics.
+- The 6 h cap of amendment 1 stands. Remaining: N1 3 × 20 min, NP 3 × **80 min** (was 90), 0.25 h reserve.
+
+The failed run is kept as `D:/rang/dl4b-step0/runs/N1-seed1-failed-clip`. Seed 1 is rerun from scratch under this amendment.
+
 ## Measured result
 
-(empty at freeze)
+- **N1 seed 1, under amendment 2's rules (failed):**
+  - 4,524 steps, 900 s, validation recovery 0 and false flux 0 (an empty model);
+  - stopped by hand at 09:13 (exit 143);
+  - superseded by amendment 3.
