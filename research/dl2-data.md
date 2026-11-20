@@ -414,7 +414,11 @@ new keeps them unchanged.
   scan). Tricolour's strategy copy is now named per scan (`strategy-scanNNN.yaml`), because two
   streams of one block share `work/tricolour/<cbid>/`. Relaunched at 04:33 UTC: two streams each
   for 1749428161, 1571938260 and 1611426666, at 6 threads (36 slots, plus a 1-slot copy step per
-  scan), with nash otherwise idle.
+  scan), with nash otherwise idle. At 04:45 UTC: 36 slots booked, 30.4 cores in use, sda 38 %
+  utilised. The rang teacher passed on 1571938260 scan 71 (763 s), the scan that had failed.
+- **1611426666 as three streams.** Its three 233 GB target scans sit at list positions 5, 9 and 13,
+  which all fall in one mod-2 stream. Restarted at 04:58 UTC as three mod-3 streams, which take one
+  each.
 
 ## For the coordinator
 
@@ -426,7 +430,15 @@ new keeps them unchanged.
   across blocks.
 - Held-out labels (section 5): who runs the teachers on them, and when, is your call
   (`dl2_teach.py --heldout-read`).
-- Stage 2 and stage 7 teachers are not built (amendment 3: CASA `concat` into a private MS is the
-  route). Open them as a follow-up under #41/#42 if wanted.
+- **Stage 2 and 7 teachers (recommendation for wave 2).** Build stage 2 first, under #41, which needs
+  it for the gain warm start. Per block, CASA `concat` (in `rang-o-casa_6.7.6.14.sif`) the
+  calibrator-scan MSs into one private MS, because per-scan MSs all have SCAN_NUMBER 1 and their own
+  FIELD ids. Apply the rang stage 1 labels first, and record that. Then run two teachers: rang
+  calibrate (K, G, B; field roles from the block's tags, as e2n.yaml) and CASA gaincal and bandpass
+  (E2-N's `e2n_casa3b.py` calls). Export the solutions as arrays outside the MS, with SHA-256 and
+  done-markers per block. That is 79 train and 29 validation calibrator scans, about a day to build.
+  Stage 7 under #42 comes after, with the same concat of each block's three middle target scans
+  plus stage 2's apply: GeMClean and WSClean (from `rang-o-casa`) deep models, 12 train and 3
+  validation target scans. Build it only once #24's comparison says the minor-cycle pilot goes ahead.
 - An arbitrary-command task kind for the spool (for container teachers) is not added here; open it
   under #4 if wanted.
