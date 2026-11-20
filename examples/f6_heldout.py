@@ -4,6 +4,7 @@ Usage:
   python examples/f6_heldout.py real RUN --set sarao:<cbid>:<scan> --method M.json
          --sarao-root C_ROOT [--validation | --heldout-read] [--data-root R] [--ao-sif S]
   python examples/f6_heldout.py real RUN --set luno:MAIN_7 ... (F5's sets, F5's loader)
+  python examples/f6_heldout.py r2 RUN --set ... --method M.json --validation (R2 only)
   python examples/f6_heldout.py sim RUN --class calibrator --method M.json [--validation]
 
 A SARAO set is one scan of session C's stage-1 manifest, cut as in training: the
@@ -96,8 +97,32 @@ def main():
         return f5_a(scan, w3, workdir, data)
 
     f5.load, f5.a_flags = load, a_flags
+    if argv and argv[0] == "r2":
+        # Fix 5: R2 per seed, on validation only, for the seeds that are not scored in full.
+        argv[0] = "real"
+        hd.real = lambda a: r2_only(hd, a)
     sys.argv = [sys.argv[0], *argv]
     hd.main()
+
+
+def r2_only(hd, a):
+    if not a.validation:
+        raise PermissionError("the R2-only mode is for validation")
+    run = Path(a.run) / a.set.replace(":", "-")
+    run.mkdir(parents=True, exist_ok=True)
+    method = hd.Method(a.method, a.data_root)
+    full = f5.load(a.set, heldout=False)
+    w3 = hd.f3.w3_flags(full)
+    for m in f5.HELD_OUT:
+        for s in hd.f3.R2_SEEDS:
+            hd.shard(
+                run,
+                f"r2-{m}-{s}",
+                lambda m=m, s=s: {
+                    "cases": hd.r1_record(full, w3, method, [("r2", m, s)])
+                },
+            )
+    print(json.dumps({"set": a.set, "r2": True}))
 
 
 if __name__ == "__main__":
