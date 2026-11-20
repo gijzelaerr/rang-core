@@ -27,6 +27,7 @@ GROUPS = {
     "F4 spectral": range(14, 22),
     "2c amplitude blocks": range(22, 28),
     "2d variance blocks": range(28, 32),
+    "2c and 2d blocks": range(22, 32),
 }
 
 
@@ -40,6 +41,7 @@ def main():
     p.add_argument("--k", type=int, default=1)
     p.add_argument("--seed", type=int, default=20265301)
     p.add_argument("--nsel", type=int, default=128)
+    p.add_argument("--level", type=int, default=0, help="10: F6's per-antenna scale")
     a = p.parse_args()
     if a.data_root:
         f5.use_data_root(a.data_root)
@@ -55,8 +57,8 @@ def main():
     rng = np.random.default_rng(1)
     sel_s = np.sort(rng.choice(len(pairs_s), min(a.nsel, len(pairs_s)), replace=False))
     sel_f = np.array([pos_f[pairs_s[i]] for i in sel_s])
-    xf = f5.rust_features(full, w3f, sel_f, 0, 1)
-    xs = f5.rust_features(sub, w3s, sel_s, 0, 1)
+    xf = f5.rust_features(full, w3f, sel_f, a.level, 1)
+    xs = f5.rust_features(sub, w3s, sel_s, a.level, 1)
     el = (xf[..., -1] == 0) & (xs[..., -1] == 0)
     flat = np.asarray(np.load(a.weights)["flat"], np.float32)
     net = f5net.build(33, True, f5net.arrays_from_flat(flat, 33, True)).eval()

@@ -42,7 +42,10 @@ const FAMILIES: [[usize; 2]; 2] = [[0, 3], [1, 2]];
 /// Inputs of a ladder level (section 2e): 0 all 33, 1 without 2d, 2 also
 /// without F4's spectral planes.
 pub fn inputs(level: usize) -> Option<usize> {
-    match level {
+    if level >= 20 {
+        return None;
+    }
+    match level % 10 {
         0 => Some(33),
         1 => Some(29),
         2 => Some(21),
@@ -51,11 +54,18 @@ pub fn inputs(level: usize) -> Option<usize> {
 }
 
 fn has_spec(level: usize) -> bool {
-    level <= 1
+    level % 10 <= 1
 }
 
 fn has_var(level: usize) -> bool {
-    level == 0
+    level.is_multiple_of(10)
+}
+
+/// F6 (research/f6-flagger.md, fix 2): levels 10-12 are levels 0-2 with z and
+/// Q scaled per antenna (each antenna's own robust spread over its channel
+/// blocks), so the scale does not depend on which other antennas are present.
+pub(crate) fn per_antenna(level: usize) -> bool {
+    level >= 10
 }
 
 /// Weights of N5 at a level: stem (n, 8) and b, five 3×3 layers 8 → 8, head.
@@ -406,6 +416,7 @@ fn mad_scale(v: &mut Vec<f64>) -> f64 {
 /// (`[cell][b]` input), fitted over channel blocks per (antenna, row of the
 /// grid), scaled per row. `ncol` channel blocks per row; returns `[cell][p]`
 /// z and, if asked, the dispersion Q.
+#[allow(clippy::too_many_arguments)]
 fn factorise(
     y: &[Vec<f64>],
     nrow: usize,
@@ -414,6 +425,7 @@ fn factorise(
     of: &[Vec<(usize, usize)>],
     d: usize,
     want_q: bool,
+    own: bool,
 ) -> (Vec<f64>, Vec<f64>) {
     let nant = inp.nant;
     let ncell = nrow * ncol;
@@ -440,10 +452,12 @@ fn factorise(
                         }
                     })
                     .collect();
-                let mut all = q.clone();
-                let mq = med_min(&mut all, 1);
-                for x in q.iter_mut() {
-                    *x /= mq;
+                if !own {
+                    let mut all = q.clone();
+                    let mq = med_min(&mut all, 1);
+                    for x in q.iter_mut() {
+                        *x /= mq;
+                    }
                 }
             }
             (g, q)
@@ -460,7 +474,28 @@ fn factorise(
         })
         .collect();
     let mut z = vec![f64::NAN; ncell * nant];
+    if own {
+        for row in 0..nrow {
+            for p in 0..nant {
+                let a = &anomaly[row * nant + p];
+                let mut buf: Vec<f64> = a.iter().copied().filter(|x| x.is_finite()).collect();
+                if buf.len() < 2 * (d + 1) {
+                    continue;
+                }
+                let sig = mad_scale(&mut buf);
+                if !(sig.is_finite() && sig > 0.0) {
+                    continue;
+                }
+                for j in 0..ncol {
+                    z[(row * ncol + j) * nant + p] = a[j] / sig;
+                }
+            }
+        }
+    }
     for row in 0..nrow {
+        if own {
+            break;
+        }
         let mut buf: Vec<f64> = (0..nant)
             .flat_map(|p| anomaly[row * nant + p].iter().copied())
             .collect();
@@ -479,6 +514,19 @@ fn factorise(
         q = vec![f64::NAN; ncell * nant];
         for (cell, (_, qc)) in solved.iter().enumerate() {
             q[cell * nant..(cell + 1) * nant].copy_from_slice(qc);
+        }
+        if own {
+            // Each antenna's dispersion relative to its own median over the row.
+            for row in 0..nrow {
+                for p in 0..nant {
+                    let mut buf: Vec<f64> =
+                        (0..ncol).map(|j| q[(row * ncol + j) * nant + p]).collect();
+                    let m = med_min(&mut buf, 1);
+                    for j in 0..ncol {
+                        q[(row * ncol + j) * nant + p] /= m;
+                    }
+                }
+            }
         }
     }
     (z, q)
@@ -501,7 +549,14 @@ fn transpose(per: &[Vec<f64>], ncell: usize) -> Vec<Vec<f64>> {
         .collect()
 }
 
-pub(crate) fn antenna(inp: &Inputs, blk: &[Blocks], g: Grid, d: usize, with_var: bool) -> Antenna {
+pub(crate) fn antenna(
+    inp: &Inputs,
+    blk: &[Blocks],
+    g: Grid,
+    d: usize,
+    with_var: bool,
+    own: bool,
+) -> Antenna {
     let nant = inp.nant;
     let of = of_antenna(inp);
     // 2c per correlation: grid rows τ, columns j; one factorisation per c.
@@ -514,7 +569,7 @@ pub(crate) fn antenna(inp: &Inputs, blk: &[Blocks], g: Grid, d: usize, with_var:
             .map(|b| (0..na).map(|k| b.amp[k * 4 + c]).collect())
             .collect();
         let y = transpose(&per, na);
-        let (z, q) = factorise(&y, g.nta, g.nja, inp, &of, d, true);
+        let (z, q) = factorise(&y, g.nta, g.nja, inp, &of, d, true, own);
         zc.push(z);
         qc.push(q);
     }
@@ -546,8 +601,28 @@ pub(crate) fn antenna(inp: &Inputs, blk: &[Blocks], g: Grid, d: usize, with_var:
     if with_var {
         let per_t: Vec<Vec<f64>> = blk.iter().map(|b| b.vt.clone()).collect();
         let per_f: Vec<Vec<f64>> = blk.iter().map(|b| b.vf.clone()).collect();
-        tt = factorise(&transpose(&per_t, nv), g.ntv, g.njv, inp, &of, d, false).0;
-        tf = factorise(&transpose(&per_f, nv), g.ntv, g.njv, inp, &of, d, false).0;
+        tt = factorise(
+            &transpose(&per_t, nv),
+            g.ntv,
+            g.njv,
+            inp,
+            &of,
+            d,
+            false,
+            own,
+        )
+        .0;
+        tf = factorise(
+            &transpose(&per_f, nv),
+            g.ntv,
+            g.njv,
+            inp,
+            &of,
+            d,
+            false,
+            own,
+        )
+        .0;
     }
     Antenna {
         grid: g,
@@ -602,7 +677,7 @@ pub(crate) fn prepare(
     } else {
         None
     };
-    let ant = antenna(inp, &blk, g, d, with_var);
+    let ant = antenna(inp, &blk, g, d, with_var, per_antenna(level));
     Prepared {
         agg,
         spec,

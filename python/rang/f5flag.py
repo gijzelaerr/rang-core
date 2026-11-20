@@ -24,7 +24,14 @@ from . import core
 from . import f3flag as f3
 from . import f4flag as f4
 
-LEVEL_INPUTS = {0: 33, 1: 29, 2: 21}
+LEVEL_INPUTS = {
+    0: 33,
+    1: 29,
+    2: 21,
+    10: 33,
+    11: 29,
+    12: 21,
+}  # 10-12: F6's per-antenna scale
 CELL_PLANES = 14
 SPEC_PLANES = 8
 AMP_PLANES = 6

@@ -40,6 +40,19 @@ started beside F6's scoring after the freeze.
 2. **Block planes robust to the antenna set** (G-drop): z, Q and 𝒯 normalised over a fixed
    reference or per baseline, not over the antennas present; the polish's rank-dependent bias
    removed or made irrelevant. Measured with `examples/f5_f6_probe.py` and G-drop on validation.
+   *Measured, 2026-11-20 14:10-14:17 SAST, glacier, validation LUNO MAIN_7, one antenna dropped
+   (seed 20265301), 128 baselines, N5-ph seed 3 at τ −3.0 (`examples/f5_f6_probe.py`,
+   `outputs/f6/probe-L*.json` in this worktree):*
+   - **Per-antenna scale alone does not help** (kernel levels 10-12: z and Q scaled by each
+     antenna's own spread over its channel blocks): the block planes still move on 86 % (2c) and
+     82 % (2d) of cells (level 0: 84 %, 78 %), and the planes' scale is not where the dependence
+     lies. Kept in the kernel as a measured negative; F6 does not use it.
+   - **Holding both block groups at their full-array values** cuts N5-ph's flag change from 0.152
+     to **0.054** (bar 0.05; F4's N4 0.027). So about two thirds of G-drop comes from the block
+     planes, and the rest from cells near τ. The fix has to make the polish solution itself
+     insensitive to the antenna set (its per-cell centring and its rank-dependent fixed point),
+     for example an M-estimator solved to convergence, or γ measured against a fixed reference
+     set of antennas, then measured the same way before any training.
 3. **Label-audit bar sized on validation**, pooled over a scan's realisations or with a minimum
    number of strong (A ≥ 3) events per draw, so one weak draw cannot stop a class.
 4. **G-sub outer32 over-flagging** (F5 targets, held out: R3 1.85 on ESO137 chunk 12 against
