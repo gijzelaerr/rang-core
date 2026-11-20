@@ -179,8 +179,10 @@ def aoflagger_read(wc):
 
 def teach(teacher, strat, wc, work, threads, log):
     if teacher == "tricolour":
-        shutil.copy(strat, work / "strategy.yaml")
-        cmd = (f"tricolour -c /p/strategy.yaml -fs polarisation -dc DATA -dpm "
+        shutil.copy(
+            strat, work / f"strategy-{wc.stem}.yaml"
+        )  # per scan: streams share work/
+        cmd = (f"tricolour -c /p/strategy-{wc.stem}.yaml -fs polarisation -dc DATA -dpm "
                f"-nw {threads} /ms/{wc.name}")  # fmt: skip
         return run(
             apptainer(SIF[teacher], [(wc.parent, "/ms"), (work, "/p")], cmd, threads),
@@ -213,7 +215,9 @@ def teach(teacher, strat, wc, work, threads, log):
     py = RANG_VENV / "bin" / "python"
     env = dict(os.environ, RAYON_NUM_THREADS="1")
     argv = [str(py), "-m", "rang.core_spool", "worker", str(spool)]
-    argv += ["--threads", "1", "--idle-exit", "120"]
+    # stopped explicitly below; planning a large scan takes minutes before the
+    # first task, so the idle exit is only a safety net for an orphaned worker
+    argv += ["--threads", "1", "--idle-exit", "3600"]
     logs = [open(work / f"worker-{wc.stem}-{i}.log", "w") for i in range(threads)]  # noqa: SIM115
     workers = [
         subprocess.Popen(
