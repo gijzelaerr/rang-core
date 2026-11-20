@@ -217,9 +217,15 @@ def main():
     res["outcome"] = (
         out if len(cost) == 2 else f"{out} (cost not yet measured: provisional)"
     )
-    res["failed"] = [
-        k for k, v in g.items() if isinstance(v, dict) and v.get("pass") is False
-    ]
+
+    def failed(name, v):
+        if isinstance(v, dict):
+            if "pass" in v and not bool(v["pass"]):
+                return [name]
+            return [f for k, x in v.items() for f in failed(f"{name}/{k}", x)]
+        return []
+
+    res["failed"] = [f for k, v in g.items() for f in failed(k, v)]
     a.out.write_text(
         json.dumps(
             res,

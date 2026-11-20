@@ -817,6 +817,38 @@ and at 1 thread in both classes** (upper quartile ≤ 0.5), from clean pairs; F4
 hold; `outputs/dl3-f5/c2-20261120/`): LUNO MAIN_1 N5 5.518 GB against T 5.518 GB, ESO137 chunk 0
 N5W4 1.626 GB against 1.626 GB: **1.00**, matches (the decode sets the peak in every arm).
 
+### Stage 5: targets, held-out, read once (glacier, 2026-11-20) — **outcome F**
+
+ESO137 chunks 11, 12, 13 and f4sim-t's target scans, the target method N5W4 (seed 3, τ −6.0,
+κ 4), `examples/f5_heldout.py` on glacier (nash locked; 12 threads; chunk 11 10:27-10:40, chunk 12
+10:40-10:49, chunk 13 12:41-12:49 after the timing hold, f4sim-t to 12:53; shards and verdict in
+`D:\rang\outputs\dl3-f5-20261120-target\heldout\`, archive
+[results/f5-target-verdict.json](results/f5-target-verdict.json)).
+
+| Gate | N5W4 | T | Bar | |
+| --- | --- | --- | --- | --- |
+| R1 pooled | **1.000** | 0.865 | ≥ T − 0.05 | pass |
+| R1m antenna-local / narrowband / single-baseline / time-burst | 1.000 / 1.000 / 0.992 / 1.000 | 0.721 / 0.988 / 1.000 / 0.882 | each ≥ T − 0.10 | pass |
+| R2 H1 / H3 / H4 / H4n | 1.000 / 1.000 / 1.000 / 1.000 | 0.891 / 0.511 / 0.287 / 0.051 | ≥ T − 0.05 | pass |
+| R2 H2 (antenna cluster) | 0.945 | 1.000 | ≥ 0.95 | **fail** (by 0.005) |
+| R3 added / T, chunks 11 / 12 / 13 | 0.43 / 0.45 / 0.36 | | 0.04-0.05 to 1.5 | pass |
+| R5 strong native consensus | 0.162 / 0.069 / 0.024 | | ≥ 0.80 | **fail** |
+| G-perm | exact (0 logit difference, 0 flags) | | 1e-4 | pass |
+| G-drop k = 1 / 4 / 8 | 0.19-0.26 / 0.30-0.46 / 0.49-0.86 | | 0.05 / 0.20 / 0.25 | **fail** |
+| G-sub core16: R1 / full-array R1 / R3 | 0.999 / 1.000 / 0.14-0.17 | 0.796 | | pass |
+| G-sub outer32: R1 / R3 | 1.000 / 0.93, **1.85**, 1.35 | 0.937 | R3 ≤ 1.5 | **fail** |
+| S1 / S2 / S3 (H1 fallback) | 1.000 / 0.017 / 1.000 | 0.904 / 0.097 / 0.769 | | pass |
+| C1 at 4 / 1 threads, C2, P | 0.397 / 0.371, 1.00, holds | | ≤ 0.5 | pass |
+| G-chan (reported) R1 / R3 | 1.000 / 0.39-0.46 | 0.68-0.70 | | |
+
+On chunk 11, N5 adds 119,238 cells and W4 1,187,154 (method 1,262,053), against T's 2,962,617 and
+A's 210,483. **By section 11 the target outcome is F** (R2, R5, G-drop, G-sub fail). Readings:
+the network finds every injected morphology at least as well as T, often far better (antenna-local
+1.000 against 0.721; slow ramps 1.000 against 0.051-0.287), and in less than half T's time; it
+misses the native RFI that T and A agree on (R5), as Landman's labels taught it, and its block
+planes move when antennas drop (G-drop), as the validation dry run predicted. Weights do not ship.
+No novelty claim.
+
 ### Validation dry run of the held-out scorer (N5-ph, LUNO MAIN_7), nash, 2026-11-20 — no held-out read
 
 `examples/f5_heldout.py real --validation` with N5-ph's `method.json` (seed 3, τ −3.0, N5), every
