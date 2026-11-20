@@ -438,6 +438,36 @@ new keeps them unchanged.
   owner decision.
 - **Shipping weights under GPL** on archive data with no stated licence: with the owner.
 
+## 20. The held-out read, prepared for F6 (2026-11-20; nothing run on held-out data)
+
+Owner, 2026-11-20, through #40: F5 does not read the three held-out blocks; F6 does, once, after
+its own freeze. Prepared, not run.
+
+- **Command** (on nash, two disjoint streams per block, rang port and AOFlagger only):
+  `cd ~/rang-data/outputs/dl2-data-20261119 && for k in 0 1; do TEACHERS=rang,aoflagger HELDOUT=1
+  setsid nohup ~/Worktrees/rang/dl2-data/research/results/dl2-scripts/teach_block.sh <cbid> 6 $k/2
+  >/dev/null 2>&1 </dev/null & done`, for each of 1678312253, 1674958551 and 1579022459.
+  `HELDOUT=1` passes `--heldout-read`. Without it, `dl2_teach.py` refuses a held-out block. The
+  start is logged in `logs/teach.log`, with the teachers and `heldout 1`.
+- **Inputs a consumer loads.** The frozen per-scan MSs `ms/<cbid>/scan<NNN>.ms` (read-only;
+  DATA, FLAG with the native observatory flags, ANTENNA, SPECTRAL_WINDOW and the other subtables),
+  which rang loads as any MS. Check them first with `manifests/<cbid>/scan<NNN>.sha256`
+  (`sha256sum -c` inside the MS directory). The scan's class and target are in
+  `manifests/<cbid>.json`.
+- **Outputs.** `labels/<teacher>/<cbid>/scan<NNN>/`: `flag.npy` (FLAG after the teacher, uint8
+  bit-packed per row with `numpy.packbits(axis=1)` over C-ordered (chan, corr), shape (rows,
+  ceil(chan × corr / 8)), rows in MS row order); `flag_row.npy` (bool, rows); `label.json`
+  (teacher, pins, strategy and its SHA-256, `aoflagger_read`, wall, peak RSS, input MS hash, rows,
+  chan, corr, flagged fraction including the native flags); `SHA256SUMS`. Unpack one row with
+  `np.unpackbits(a[r])[: chan * corr].reshape(chan, corr)`. Done-markers are in
+  `done/<teacher>/<cbid>/<scan>.done`.
+- **Wall, estimated** from the train blocks (nash shared, disk-bound): about 2 h each for
+  1678312253 (137 GB) and 1674958551 (149 GB), and about 5 h for 1579022459 (364 GB). All three
+  side by side take about 5 h at 36 slots.
+- **Train and validation labels** for F6's training are at the same paths, with all three
+  teachers, for 1735892129, 1629213076, 1749428161, 1571938260, 1611426666 (train) and 1573212012
+  (validation). The stage 1 manifest lists them with their SHA-256 (section 16).
+
 ## For the coordinator
 
 - Licence: whether weights trained on "freely available" archive data can ship under GPL is with the
