@@ -154,15 +154,31 @@ if the first did not reach R5).
 
 ## Amendments
 
-(none)
+### Amendment 1, 2026-11-20 14:10 SAST (post hoc: written after the dry run's results)
+
+- **Band.** Rule 1's configuration is 1k channels **cut to the stage's band** (the header's
+  `band_hz`): for F5 and F6, 1070.0-1497.8 MHz, channels 256-767 of 1,024. Section 3 said 1,024
+  channels; the dry run used 256-767 from the start of its data steps, and the agent test uses the
+  same cut.
+- **Host.** The dry run's training ran on glacier's GPU (`gpu_run.py`, owner rang) on the
+  coordinator's word, not on nash's CPU (sections 8 and 10).
+- **Reductions beyond section 8.** Two realisations per scan instead of six, no F-SIM scans, no mix
+  with the stage's own shards, τ and κ on scan 19 only (not on F5's MAIN_7 and f2sim-v), and no
+  non-regression run.
+- **The page differs from section 2 as frozen:** extra R0 checks (branch age, staged inputs), the
+  flag cache in R2, the export's Identity rule in R4, and R6 read after R4's method. These are the
+  dry run's fixes, listed under "Where the procedure was unclear".
+- **Before the freeze** (not results, recorded for completeness): F5's export was found refused
+  by the interpreter, the conv-only exporter was tested on random N5 weights (I2 3.7e-6), and the
+  loader was queued on nash, all before `f4ade32c`.
 
 ## Measured result
 
 ### Dry run on F5, 2026-11-20 (section 8; validation only, decides nothing)
 
 F5's calibrator arm N5-ph (seed 3, τ −3.0, method N5; branch `dl3-f5` at `533d9b9f`) as the
-stand-in passed stage; rule 1's 1k split of 1735892129. Reduced as frozen: train scans 1 and 3 (two
-realisations each), validation scan 19, one seed, 1,000 steps. Code: `dl3-f5` unchanged in a nash
+stand-in passed stage; rule 1's 1k split of 1735892129. Reduced as frozen (train scans 1 and 3, validation scan 19, one seed, 1,000 steps) and further
+by Amendment 1 (two realisations, no F-SIM, no mix, τ on scan 19 only). Code: `dl3-f5` unchanged in a nash
 worktree (`~/Worktrees/rang/dl6-dryrun`, own venv); this branch's
 [dryrun-scripts/](results/dl6-retrain/dryrun-scripts/) wrap it. Run root
 `nash:~/rang-data/outputs/dl6-dryrun-20261120/`. **Held-out scans 23 and 25 were not read.**
@@ -178,14 +194,14 @@ scan τ was fit on.
 | R0 manifest | written by hand from F5's note: [f5-n5ph-retrain-manifest.json](results/dl6-retrain/f5-n5ph-retrain-manifest.json); null fields: tenant, ONNX file, exporter, cost readings, sha256 per data set | – |
 | R0 entry | `envelope_violations`: `channel_width_hz 835937.5 outside [208984.375, 208984.375]` → held out; no 1735892129 scan in F5's data | glacier |
 | R1 teachers | DL2's labels used (T: rang 0.3.0 at `4bb29720`, CARACal first-pass YAML; A: **AOFlagger 2.13.0**, CARACal `firstpass_QUV.rfis`). F5's A is AOFlagger 3.5.0, generic strategy: **Stop-T by the rule**; continued, labelled | – |
-| R2 loader | `dl6_load_ms.py` (python-casacore, read-only): scans 1, 3, 19, 139,934 / 26,474 / 28,365 cross rows, no FLAG_ROW rows; MS hashes equal DL2's manifest; input flags 0.31 / 0.30 / 0.35. Against rang's own reader (`read_cells`), DATA, FLAG, ANTENNA1/2, TIME of 200 rows: **bit-equal** | nash, 168 s |
+| R2 loader | `dl6_load_ms.py` (python-casacore, read-only): scans 1, 3, 19, 139,934 / 26,474 / 28,365 cross rows, no FLAG_ROW rows; each scan's hash (sha256 of its DL2 `.sha256` file list, DL2's definition) equals DL2's manifest; input flags 0.31 / 0.30 / 0.35. Against rang's own reader (`read_cells`), DATA, FLAG, ANTENNA1/2, TIME of 200 rows of scan 19 (scans 1 and 3 not checked): **bit-equal** | nash, 168 s |
 | R2 band | F5 sees 1070.0-1497.8 MHz only (LUNO tiles 8-23); the 1k scans cut to channels 256-767 (512) to match | – |
 | R2 factory | `f5_shards.py` through `dl6_run.py` (set list, loader and flag cache patched; nothing else): validation 113 s, train 640 s, 1.7 GB of shards, peak RSS 13.4 GB | nash, 8 slots |
-| R2 audit | **Stop-L as frozen**: ignored uninjected 0.525 (scan 1) and 0.410 (scan 19) against 0.40; T's / A's recall of injected positives 0.38 / 0.60 on scan 1, 0.86 / 0.93 on scan 19, 0.88 / 0.89 on scan 3 | – |
+| R2 audit | **Stop-L as frozen**: ignored uninjected 0.525 (scan 1), 0.423 (scan 3) and 0.410 (scan 19) against 0.40 (realisation 0; the audit records the first stop per run); T's / A's recall of injected positives 0.38 / 0.60 on scan 1, 0.86 / 0.93 on scan 19, 0.88 / 0.89 on scan 3 | – |
 | R3 train | `f5_train.py` seed 1, 1,000 steps, CUDA under `gpu_run.py run --owner rang`: 45 s training, 56 s booked; validation loss 0.0752; flat sha256 `de7f95e2…` | glacier GPU, 12:43-12:44 SAST |
 | R4 export | `dl6_export.py`: Conv ×7, Relu ×5 only; weights byte-equal (3,201); `rang.learned.load` accepts; **I2 6.7e-6**; ONNX sha256 `1836d236…` | glacier |
 | R4 τ, method | `f5_tau.py` through `dl6_run.py` on validation scan 19 only (F5's MAIN_7 and f2sim-v not rerun): **τ −3.5** (F5 −3.0), pooled recall 0.977, N5 adds 2,286,381 cells against T's 2,316,121; **κ 5 qualifies, method N5W4** (F5: N5, no κ qualified) | nash, 47 s |
-| R5 on validation | `f5_heldout.py real --validation` on scan 19, every case; F5's `f5_verdict.py`. The scan τ and κ were fit on, so optimistic; decides nothing. R1 1.000 (T 0.931); R1m all 1.000; **R2 H1 0.816 against T 1.000 (fails)**, H2 1.000, H3 1.000 (T 0.505), H4 1.000 (T 0.639), H4n 0.989 (T 0.366); R3 1.154; R4 J 0.446 (bar 0.250); R5 0.988; G-perm exact; G-drop k = 1 / 4 / 8: 0.036-0.044 / 0.072-0.085 / 0.111-0.155 (bars 0.05 / 0.20 / 0.25); G-sub core16 and outer32 pass; G-chan (reported) R1 1.000 (T 0.770), R3 0.683 | nash, 733 s |
+| R5 on validation | `f5_heldout.py real --validation` on scan 19, every case; F5's `f5_verdict.py`. The scan τ and κ were fit on, so optimistic; decides nothing. R1 1.000 (T 0.931); R1m all 1.000; **R2 H1 0.816 against T 1.000 (fails)**, H2 1.000, H3 1.000 (T 0.505), H4 1.000 (T 0.639), H4n 0.989 (T 0.366); R3 1.154; R4 J 0.446 (bar 0.250); R5 0.988; G-perm exact; G-drop k = 1 / 4 / 8: 0.036-0.044 / 0.072-0.085 / 0.111-0.155 (bars 0.05 / 0.20 / 0.25); G-sub core16 and outer32 pass; G-chan R1 1.000 (T 0.770), R3 0.683 (run by F5's scorer; undefined at 1k by section 4, 3.3 MHz channels, not a gate) | nash, 733 s |
 | Non-regression | **not run**: F5's validation sets (MAIN_7, f2sim-v) need F5's data root and the mixed retrain, which the reduced dry run does not make | – |
 | R6 cost | header `architecture`, op set and all 14 initializer shapes equal the manifest's (3,152 multiply-adds per cell), but the **method kind changed (N5 → N5W4)**: by section 7 the timing is **not** reused and a new exclusive run would be needed. (F5 has no C1/C2 reading yet in any case.) | – |
 
@@ -211,8 +227,10 @@ scan τ was fit on.
 8. **Branch age.** `dl3-f5` predates the interpreter (`2d9f4c5f`), so R4's contract checks ran on
    main's build on glacier; the stage's branch must contain main at or after `2d9f4c5f`.
 9. **Label audit on another block.** 1735892129 fails F5's label audit (ignored uninjected above
-   0.40 on two of three scans): at 1k, in this block, the teachers flag far more native RFI than in
-   LUNO. Not a procedure defect: a real retrain would stop here (Stop-L). F6's audit bar, sized
+   0.40 on all three scans): at 1k, in this block, the teachers flag far more native RFI than in
+   LUNO. Not from DL2's labels alone: on scan 19 F5's own T adds 2,253,411 cells and its own
+   AOFlagger 3.5.0 3,478,947 (0.234 and 0.361 of 9,626,489 eligible; the scorer's run), against
+   DL2's T 2,316,121 and 0.410 ignored by DL2's T or A. Not a procedure defect: a real retrain would stop here (Stop-L). F6's audit bar, sized
    anew (F6 proposal item 4), decides for the agent test.
 10. **Teacher flag fractions.** In F5's band, DL2's T flags 0.44-0.51 and A 0.51-0.62 of the kept
     cells of scans 1, 3 and 19 (input flags included), which is why the label audit stops (item 9).
