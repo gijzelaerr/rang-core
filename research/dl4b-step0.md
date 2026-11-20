@@ -215,6 +215,18 @@ Common to every arm: the dataset's settings `-size 256 256 -scale 1.6asec -weigh
 
 Every nash job runs under `~/Github/rang/tools/heavy_lock.py run --slots N --mem G` at `nice -n 19 ionice -c3`. Every glacier GPU job runs through `~/.gpu/gpu_run.py run --owner rang`. No job loses more than 15 minutes.
 
+## Amendment 1 (2026-11-20, before any training; not post hoc)
+
+The coordinator, 2026-11-20, after the op list and the two pre-freeze findings were sent: because step 0 cannot decide cost, keep it small.
+
+- **Step 0 is capped at about 6 GPU hours with three seeds**, out of #42's 24. This replaces section 3's budget of 18 h:
+  - N1: 20 min per seed (1 h);
+  - NP: 90 min per seed (4.5 h);
+  - 0.5 h reserve for the resume test and validation passes.
+  - The cosine schedule length (`--steps-total`) is set per arm from the step rate measured in the resume test, so that the schedule ends at the cap. It is recorded with the run.
+- Nothing else changes: measures, tolerance and decision rule stand, and the outcome is recorded even if null.
+- The GPU hours not spent here (about 18) stay with #42. Step 1, at E2 scale where a cost claim is decidable, is drafted as a separate proposal ([dl4b-step1.md](dl4b-step1.md), not frozen), so the owner can decide.
+
 ## Measured result
 
 (empty at freeze)
