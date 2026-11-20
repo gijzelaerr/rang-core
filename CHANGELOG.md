@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- **`rang-core watch PATH...`** follows run directories, spool directories or any output directory without
+  touching them: each stage's status and time, whether the process that marked a stage running is still
+  there (this host only), spool tasks and worker heartbeats, receipts, the newest file and the last log
+  line; `--once`, `--json`, `--interval`. It shows liveness, not progress: nothing yet says how far a
+  running stage has got (`research/live-view-scope.md`).
+
 ## 0.3.0 (2026-11-19)
 
 0.3.0's question is "can I trust the images and polarisation on my own native data, and drive it from an
