@@ -3,8 +3,8 @@
 Written 2026-11-20 on the owner's request ("getting more insight and
 visualisations DURING the work ... a browser UI that connects to a running
 process ... integrate with other systems ... 0.5.0 or later?").
-**Status: direction decided by the owner on 2026-11-20 (section 6); nothing is
-built or measured.** The inventory in
+**Status: direction decided by the owner on 2026-11-20 (section 6); the viewer
+spike is measured (section 8: a page of our own); nothing is built on main.** The inventory in
 section 1 was read from `main` at `92e67e2f`; the candidate table in section 4
 was checked on the web and the GitHub API on 2026-11-20. No scientific or
 performance claim; tooling only.
@@ -161,7 +161,8 @@ QuartiCal's and pfb-imaging's dashboards; forums and mailing lists.
 
 1. **Record first, viewers as readers.** Decided: yes.
 2. **Browser viewer.** Decided: the one-day spike, Rerun against a page of
-   our own; the outcome picks the viewer. Bokeh/Panel and Makepad not chosen
+   our own; the outcome picks the viewer. Outcome (section 8): a page of our
+   own, by the frozen rule. Bokeh/Panel and Makepad not chosen
    (Makepad stays a possible later reader).
 3. **Placement.** Decided: the record, `rang-core watch` and the MCP tools
    right after the 0.4.0 tag, before the rest of v0.5.0; the browser view in
@@ -205,13 +206,68 @@ One record, two viewers, the same input.
   normal browser or the native viewer (the WebGL case of
   [nb-carta.md](nb-carta.md)).
 
+## 8. The spike: outcome (measured 2026-11-20, host glacier, Windows)
+
+Protocol of section 7, unchanged. Archive:
+[results/live-view-spike/](results/live-view-spike/) (the scratch commit as
+`spike.patch.gz`, the captured events, both GeMClean logs, the hashes, five
+screenshots). Run root `D:\rang\outputs\20261120-liveview-spike`.
+
+**Capture.** S2 of the GeMClean benchmark (64 antennas, 1,814,400 rows × 8
+channels), 2048², multiscale with auto-mask, 4 threads, shared host. With
+`RANG_RECORD_DIR` set GeMClean wrote 8 events and 8 residuals (512², 1 MB
+each; 8.1 MB in all). All five FITS outputs have the same SHA-256 with the
+hook on and off. GeMClean's own wall: 103.70 s off, 100.77 s on (one run
+each, shared host: indicative only, no overhead resolved; not the 1 % gate).
+Gains: `truth.G` of `fp-a1-20261106-simtruth` (a simulated truth table, 64
+antennas × 63 times), converted by a script, labelled replay. The replayer fed
+63 + 8 events over 153 s to both viewers at the original spacing.
+
+| # | Criterion | Rerun 0.43.2 | A page of our own |
+| --- | --- | --- | --- |
+| 1 | attach in progress; late join; replay | **yes**: attached at event 38, joined after the end with the full history, `.rrd` of 9.0 MB written in 3 s | **yes**: the same three; replay is the server started on a finished record |
+| 2 | gains, 64 antennas | **partly**: drawn, with a legend, when the gains were the only data; in the combined run the plots follow about a minute around the time cursor and the gains were out of view, and a zoom reset did not bring them back (not resolved in the time spent, about an hour on the layout) | **yes**: 64 lines per panel, the nearest antenna highlighted under the pointer; crowded |
+| 3 | residual with a cycle slider and stretch | **partly**: the timeline is the slider; colour map and gamma only, automatic range, so the residual has little contrast | **yes**: slider, follow-latest, linear or asinh, clip in σ (linear seen; asinh not looked at) |
+| 4 | log axis | **partly**: `ScalarAxis` has `range` and `zoom_lock` only; the bridge logs log10 of the values | **yes** |
+| 5 | browser; native Windows viewer | browser **yes** (in the app's embedded browser, no WebGL fault); native viewer started and loaded the `.rrd` according to its log, **not seen** | browser **yes**; no native viewer |
+| 6 | remote (WSL as the remote end, WSL's localhost forwarding in place of `ssh -L`) | **yes**, with the SDK installed on the remote end (a 754 MB venv) and two ports (web and gRPC) | **yes**, with the remote end's own `python3` and nothing installed, one port |
+| 7 | install; glue code | 535 MB venv on Windows (with numpy); 68 lines of bridge + 32 shared | nothing; 143 lines (server and page) + 32 shared |
+
+**By the frozen rule: a page of our own.** Rerun is not a yes on 2, 3 and 4,
+and the page passes each.
+
+Also seen, not scored:
+
+- Rerun's viewer announces anonymous usage analytics, on by default; its own
+  notice said nothing had been sent in this first session. Disabled on glacier
+  and in the WSL venv (`rerun analytics disable`).
+- Rerun's native viewer listens for gRPC on `0.0.0.0:9876`; on a shared host
+  that is every interface. Whether `serve_grpc` binds the same way was not
+  checked.
+- Rerun draws on one canvas, so an agent reading the page sees no text; the
+  page's status line and numbers are ordinary text.
+- The page's cost is still to come: no zoom or pan, hand-written plots, and the
+  panels of section 2 beyond these three.
+- A first capture attempt queued behind a job that held 11 of 16 slots at
+  about 0 cores; rerun at 4 slots. `heavy_lock.py run -- bash script` started
+  WSL's bash on Windows; Git Bash has to be named in full.
+- During the 104 s run without the hook the log showed two lines until the
+  end, which is the case this note is about.
+
+Limits: one short run (8 major cycles, 104 s), one machine, gains from a
+simulated table, no real SSH hop, the native viewer not looked at, Rerun given
+about an hour of layout work by someone new to it.
+
 ## For the coordinator
 
 - Branch `live-view-scope` (worktree `~/Worktrees/rang/live-view-scope`), one
   note and one index line; no code touched, nothing run, no heavy lock used.
   `tools/check_all.py --quick` not run; not pushed; the worktree remains
   until the branch is merged or dropped.
-- To schedule (section 6): the spike as a shared-slot task, any time; an
+- The spike is done (section 8); its code is a scratch commit kept only as
+  `results/live-view-spike/spike.patch.gz` (local branch `live-view-spike`,
+  not pushed, worktree removed).
+- To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
   an issue on the v0.5.0 milestone for the browser view. No issue opened yet.
 
