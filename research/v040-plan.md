@@ -58,11 +58,19 @@ booked (small-data compute only, 4 threads left for the owner). glacier is clear
 - **Chains on nash drive themselves** (`setsid`, done-markers, the next stage started by the
   previous one), never by a watcher on glacier: a glacier freeze then costs nothing on nash.
 - **Sessions end their turns while jobs run**, or the coordinator's messages queue behind them.
-- glacier's GPU driver times out every few hours (LiveKernelEvent 141, five events
-  2026-11-19 18:07 to 2026-11-20 06:41, most with nothing of rang on the card) and hung the host
-  twice on 2026-11-19; every job resumes from a checkpoint after a reboot.
+- glacier lost power twice on 2026-11-19 (owner, 2026-11-20; not the GPU, although its driver
+  also logs timeouts every few hours); every job resumes from a checkpoint after a reboot.
 
-## Owner questions (each with the default acted on if no answer)
+## Owner answers, 2026-11-20
+
+- Fork and dispositions: "sounds good for now"; #4, #7, #34, #44, #45 moved to v0.5.0 the same day.
+- Weights trained on SARAO archive data ship under CC BY 4.0, with SARAO's acknowledgement in the
+  weights header and the docs: "yeah lets do that license, i think it is fine".
+- glacier: "the computer is all yours until monday" (exclusive and timing runs at any hour until
+  2026-11-23; the other GPU user's 06:05-06:45 slot stays).
+- No 0.3.1: "people should just use master for the latest and greatest"; the watch ships in 0.4.0.
+
+## Owner questions as first asked (defaults, kept for the record)
 
 1. The fork above: default as written.
 2. #4, #7, #34, #44, #45 to v0.5.0: default yes.
