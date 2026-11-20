@@ -205,3 +205,55 @@ def export_onnx(net, path, header, nt=16, nc=256):
     p.key = "rang.learned"
     p.value = json.dumps(header, sort_keys=True)
     onnx.save(model, str(path))
+
+
+def export_onnx_nchw(net, path, header, opset=17):
+    """The contract's form (research/dl1-contract.md; F6, research/f6-flagger.md):
+    input `planes` (N, C, T, F), output `logits` (N, 1, T, F), Conv and Relu
+    nodes only (no permute, no slicing), dynamic N, T, F; `header` (a full
+    `rang.learned` header) in metadata_props under "rang.learned". The
+    stem, if any, is the first (1×1, linear) Conv."""
+    import json
+
+    import onnx
+    import torch
+    from torch import nn
+
+    class NCHW(nn.Module):
+        def __init__(self, inner):
+            super().__init__()
+            self.inner = inner
+
+        def forward(self, x):
+            h = x
+            if self.inner.stem is not None:
+                h = self.inner.stem(h)
+            for c in self.inner.convs:
+                h = torch.relu(c(h))
+            return self.inner.head(h)
+
+    wrapped = NCHW(net.eval()).eval()
+    x = torch.zeros(1, net.nplanes, 8, 16)
+    torch.onnx.export(
+        wrapped,
+        (x,),
+        str(path),
+        input_names=["planes"],
+        output_names=["logits"],
+        dynamic_axes={
+            "planes": {0: "N", 2: "T", 3: "F"},
+            "logits": {0: "N", 2: "T", 3: "F"},
+        },
+        opset_version=opset,
+        dynamo=False,
+        do_constant_folding=False,
+    )
+    model = onnx.load(str(path))
+    del model.metadata_props[:]
+    entry = model.metadata_props.add()
+    entry.key = "rang.learned"
+    entry.value = json.dumps(header, sort_keys=True)
+    model.producer_name = "rang.f5net"
+    onnx.checker.check_model(model)
+    onnx.save(model, str(path))
+    return path
