@@ -295,14 +295,18 @@ someone new to it.
 
 ## 9. `rang-core watch` (implemented 2026-11-20, branch `watch`)
 
-One commit on `watch` from `origin/main` (`92e67e2f`); not merged.
+Two commits on `watch` from `origin/main` (`92e67e2f`): `433be2ff` and the
+fixes of a review the same day, `cf71eefb`. Not merged.
 
 - **`rang-core watch PATH... [--once] [--json] [--interval S]`**
   (`python/rang/watch.py`, standard library only, no `RANG_*` variable). It
   reads and creates nothing. For a run directory (or an MS that has
   `<ms>.rang-run` beside it): each stage's status and time in start order,
   whether the process that marked a stage running is still there (this host
-  only; `unknown (other host)` otherwise), receipts. For a spool directory:
+  only; `unknown (other host)` otherwise, and `unknown (other system on this
+  host)` when the MS path is not in this system's style, because WSL and
+  Windows on glacier share the host name and not their pids), receipts. An
+  unreadable or half-written `state.json` is reported and the watch goes on. For a spool directory:
   tasks waiting, claimed, done and failed, workers live by `LEASE_S`. For any
   directory: files, bytes, the newest file and its age, the last line of the
   newest `*.log`. Tables (`table.dat`) are not entered; a walk stops at 50,000
@@ -319,14 +323,20 @@ One commit on `watch` from `origin/main` (`92e67e2f`); not merged.
   looked at; no status files were found in the worktrees there). So for those `watch` reports liveness only: the
   newest file, its age, the last log line. Stage detail appears only for
   `rang-core run` directories. It reports liveness, not progress, either way.
-- **Checked:** 7 tests (`tests/test_watch.py`), with `test_d1_docs.py`,
-  `test_core_cli.py` and `test_w4_5_release.py`, on Windows against the main
-  checkout's extension (not this branch's build); ruff clean on the three
-  new files; `docs/cli.md` regenerated. The commit cherry-picks onto the tag
-  `v0.3.0` without conflict and its 7 tests pass there.
-  `tools/check_all.py --quick` was **not** run: the lock queue was blocked
-  (an 11-slot hold at about 0 cores, two jobs waiting, one for 21 minutes).
-  CI on the branch is the check so far.
+- **Checked:** 12 tests (`tests/test_watch.py`), among them a reader
+  polling while the pipeline's own writer replaces `state.json` 300 times
+  (the R-01 pattern), a log line the console cannot encode, and the
+  run-directory name against `core_pipeline.default_run_dir`; with
+  `test_d1_docs.py`, `test_core_cli.py` and `test_w4_5_release.py`, on Windows
+  against the main checkout's extension (not this branch's build); ruff clean
+  on the three new files; `docs/cli.md` regenerated. Run by hand: three
+  ticks at `--interval 5` on a directory a job was writing, and
+  `dev_status.py` with its defaults. Both commits cherry-pick onto the tag
+  `v0.3.0` without conflict; `test_watch.py` and `test_d1_docs.py` pass there
+  (15 passed, 1 skipped). `tools/check_all.py --quick` was started after the
+  second push and queued behind a blocked lock (an 11-slot hold at about
+  0 cores, two jobs waiting, one for 28 minutes); its result is in the
+  hand-back, not here.
 - **Seen with it on the first run:** that blocked queue. `dev_status.py`
   printed the idle hold (pid 31764, a WSL WSClean wrapper of #42) and the two
   waiting jobs; nothing was done about it.
@@ -343,13 +353,15 @@ One commit on `watch` from `origin/main` (`92e67e2f`); not merged.
   undeclared `RANG_*` variable; worktree `~/Worktrees/rang/live-view-spike`
   kept because its commits are on no remote, its `core/target` deleted).
 - **0.3.1 (owner, 2026-11-20): `rang-core watch` goes out before v0.4.0.**
-  Branch `watch`, one commit, pushed; needs the merge check. For the
+  Branch `watch`, two commits, pushed; needs the merge check. Merge
+  `live-view-scope` with or before it: the changelog entry and the module
+  cite this note. For the
   coordinator or the owner, not done here: the version bump, the tag, the
   milestone and issue, the CHANGELOG heading (the entry is under Unreleased),
   and the roadmap lines that say 0.3.1 is cancelled. **Open question for the
   owner: cut 0.3.1 from `main`** (it then carries the v0.4.0 work already
   merged, all `off` by default) **or from the tag `v0.3.0` plus this commit**
-  (it cherry-picks cleanly).
+  (both commits cherry-pick cleanly).
 - The viewer is decided (a page of our own); it stays a v0.5.0 item.
 - To schedule (section 6): an
   issue for the record, `watch` and the MCP tools, first after the 0.4.0 tag;
