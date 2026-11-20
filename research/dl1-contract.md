@@ -3,8 +3,9 @@
 Task DL1, issue #38, branch `dl1-contract` from main `dd6adc5d`. Session B of v0.4.0 wave 1.
 Implements section 4 of [dl-plan.md](dl-plan.md) under decisions 3-5 of its section 10.
 
-**Status (2026-11-19, 14:45 SAST): own ONNX interpreter (owner decision, amendment 2) implemented
-and the contract's reference runtime, gates I1-I5 passed; final timings queued for 21:00 SAST.**
+**Status (2026-11-20, 12:50 SAST): done. Own ONNX interpreter (owner decision, amendment 2) is the
+contract's reference runtime, gates I1-I5 passed; final exclusive timings measured (below).**
+Earlier status (2026-11-19, 14:45 SAST): interpreter implemented, final timings queued.
 Earlier status (11:10 SAST): contract implemented; F3 exported and bit-identical through it;
 runtime comparison outcome N (no crate passes; the fallback is an interpreter of our own); timings
 provisional, the final exclusive timing run is left to the coordinator.** Status at freeze
@@ -300,3 +301,29 @@ the kernel adds the bias first in its hidden layers and last in its head, the in
 everywhere. Provisional single-thread time on shape A (glacier, daytime): interpreter 6.6 ms,
 kernel 7.0 ms. Final timings (kernel, interpreter, tract) are queued for an exclusive hold from 21:00
 SAST after session D's run (`outputs/dl1/final-timing.sh`).
+
+### Final timings, glacier, 2026-11-20 (exclusive)
+
+The 2026-11-19 waiter died in glacier's crash at 18:17 SAST. On 2026-11-20 the owner freed glacier
+in the daytime (relayed by the coordinator), and the run started straight after session D's F5
+exclusive timing ended: `heavy_lock.py run --` (exclusive), 10:39:53-10:42:21 UTC (12:39-12:42
+SAST), 148 s. Host glacier, AMD Family 25 Model 97 (16 logical CPUs), native Windows, the builds of
+`tools/dl1_runtimes/bin/<arm>/` from 3d31f915. Shapes as above (A one plane 64 × 512; B 128
+planes, rayon over planes); median of 7. Archive
+[runtimes-final.json](results/dl1-contract/runtimes-final.json).
+
+| Arm | A, 1 thread | B, 1 | B, 2 | B, 4 | B, 8 | B, 16 | max \|Δ\| vs PyTorch | identical 1-16 threads (A, B) | cdylib above kernel |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| kernel | 6.8 ms | 0.881 s | 0.522 s | 0.246 s | 0.142 s | 0.136 s | 1.3e-5 | yes, yes | 0 (6,133,760 B) |
+| **interpreter** | 6.7 ms | 0.852 s | 0.447 s | 0.246 s | 0.166 s | 0.178 s | 8.6e-6 | yes, yes | +18,432 B |
+| tract 0.23.10 (no default features) | 34.8 ms | 4.59 s | 2.40 s | 1.40 s | 1.00 s | 0.99 s | 1.3e-5 | yes, yes | +20,420,096 B |
+
+- **I3 at full shape B: pass.** The interpreter's 128-plane output is bit-identical at 1, 2, 4, 8
+  and 16 threads (one hash per shape over five processes); so are the kernel's and tract's.
+- The interpreter matches the kernel at 1-4 threads (0.97 × at 1 thread, 0.86 × at 2, 1.00 × at 4)
+  and is 1.17 × and 1.31 × slower at 8 and 16, where the kernel's per-plane loop scales better; it
+  is 5.4 × (1 thread) to 5.6 × (16 threads) faster than tract. Shape A: the interpreter parallelises
+  rows inside one plane (1.9 ms at 8 threads), the kernel does not (6.9-7.0 ms at every count).
+- Size: the interpreter arm's cdylib is 18 kB above the kernel's (the wheel measure, I4, is
+  +49,664 B); tract's is +20.4 MB, as provisional.
+- Nothing here changes outcome N or amendment 2's decision; no timing enters either rule.
