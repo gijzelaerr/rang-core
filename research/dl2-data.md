@@ -39,7 +39,8 @@ Confluence's REST API, page IDs given):
 acknowledgement and the publication notice. No block's terms forbid publishing derived weights, so
 **no block is replaced.** Every weights file trained on these data carries the acknowledgement in
 its header and its documentation. Whether "freely available" with no stated licence suffices for
-shipping weights under rang's GPL is an owner decision (coordinator section).
+shipping weights under rang's GPL is an owner decision (coordinator section). *Decided 2026-11-20
+(section 19): the weights ship under CC BY 4.0, with the acknowledgement.*
 
 Public state: taken from the owner's catalogue read of 2026-11-19 (dl-plan decision 6: state
 AVAILABLE, public). The archive's per-block open date is behind the owner's login and is not
@@ -436,7 +437,9 @@ new keeps them unchanged.
 - **Held-out labels are made at each consumer's single scoring read, not in advance.** For F5 that
   is session D, through `dl2_teach.py --heldout-read`. This is the frozen rule of section 5, not an
   owner decision.
-- **Shipping weights under GPL** on archive data with no stated licence: with the owner.
+- **Licence of trained weights. Owner decision, 2026-11-20** (through the coordinator): "yeah lets
+  do that license, i think it is fine". Weights trained on these SARAO data ship under **CC BY 4.0**.
+  SARAO's acknowledgement (section 1) goes in the weights header and in the documentation.
 
 ## 20. The held-out read, prepared for F6 (2026-11-20; nothing run on held-out data)
 
@@ -542,7 +545,7 @@ not a validated label: both teachers apply the same CARACal strategies.
 - #39 outcome: stage 1 shipped (219 scans registered, 140 train and validation scans with three
   teachers each, held-out unlabelled); stage 2 and stage 7 runners deferred with their route
   (sections 19, 23). Branch dl2-data, ready for your full check and merge.
-- Licence: shipping weights trained on these data under GPL is with the owner (section 19).
+- Licence: CC BY 4.0 for the weights, with SARAO's acknowledgement (owner, 2026-11-20; section 19).
 - Held-out labels: made at each consumer's single read, `HELDOUT=1 teach_block.sh` (section 20).
 - Keep on nash: `~/Worktrees/rang/dl2-data` and `~/rang-data/outputs/dl2-data-20261119/` (MSs
   2.8 TB, labels 52 GB): F6 trains on them. The private copies in `work/copies/` are gone.
