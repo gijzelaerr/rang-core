@@ -788,6 +788,44 @@ copy splits scans by file). Kept: the 16 finished items (done-markers, sha256 ve
 nash was unaffected; Stage 2 there had already stopped on a missing `scipy` in F5's venv (needed by
 the F-SIM path), installed and rerun detached from glacier (`setsid`) at 13:08.
 
+## F6 proposal (2026-11-20, from F5's validation dry run; proposed, not frozen)
+
+Written after F5's validation dry run and before any F5 held-out read. Each fix is first
+measured on validation only (MAIN_7, f2sim-v and F4's validation and training scans); F6 then
+freezes with whichever survive, on held-out sets F5 has not read.
+
+1. **Labels: hybrid positives.** Landman's scheme stays for injected and simulated cells, and
+   for native cells T or A flag alone (ignored). Native cells flagged by both T and A with strength
+   s ≥ 3 on the uninjected DATA become positive again (F4's L-A1s rule), so the network learns
+   native RFI that two established flaggers agree on. Target: R5 ≥ 0.80 on MAIN_7 (N5-ph 0.338,
+   F4's N4 0.872) without losing R1 or R3. Cost: new shards and three seeds, about 1 h of nash and
+   30 min of GPU per class. On targets the same rule needs F4's audit check that strong consensus
+   stays under 10 % of eligible cells.
+2. **Block planes robust to the antenna set.** G-drop changes 0.14 of N5-ph's flags for one
+   dropped antenna (bar 0.05). Candidates, measured with `examples/f5_f6_probe.py` (which plane
+   group drives the change) before any retraining: (a) normalise z and Q by a fixed robust scale
+   per block (the median over antennas of the per-antenna MAD over channel blocks) instead of the
+   MAD over all antennas and blocks; (b) replace simultaneous median polish by an M-estimator
+   (Huber) solved to convergence, which has no rank-dependent fixed-point bias (Amendment 1);
+   (c) train with antenna dropout on every realisation (section 3 used sub-arrays on a quarter).
+   *Measured, 2026-11-20, validation MAIN_7, one antenna dropped (seed 20265301), 128 baselines,
+   N5-ph seed 3 at τ −3.0 (`examples/f5_f6_probe.py`, `outputs/dl3-f5/f6-probe-k1.json`, glacier,
+   4 slots):* N5's flags change on 0.152 of its 14,275 flagged cells. Share of eligible cells whose
+   plane moves by more than 0.1 (asinh units): F3 residuals 0, F3 antenna and array medians 0.005,
+   F4 spectral 0.004, **2c amplitude blocks 0.836, 2d variance blocks 0.780**. With 2c held at its
+   full-array values the change is 0.103, with 2d held 0.110. So the block planes move almost
+   everywhere when one antenna goes: their scale (one MAD over all antennas and blocks) and the
+   polish's fixed point both depend on the set, consistent with (a) and (b). The residual 0.10
+   with either group held points also at cells near τ (item 3).
+3. **Threshold margin.** τ −3.0 leaves many cells near the threshold; G-drop counts flips.
+   Proposed: G-drop scores flags with a ±0.5 logit dead band reported beside the frozen count, and
+   τ's rule prefers the larger τ among those within 0.005 of the best recall.
+4. **Label-audit bar sized before the freeze** (Amendment 3): injected-positive share pooled over a
+   scan's realisations, or a minimum number of strong (A ≥ 3) events per draw.
+5. **Unread sets for F6:** LUNO MAIN_0, 12, 14 and ESO137 11-13 (F4's), session C's blocks
+   1678312253, 1674958551 and 1579022459, unless F5 spends them (coordinator's question to the
+   owner, 2026-11-20).
+
 ## For the coordinator
 
 - Frozen in its own commit before any F5 code. Held-out sets: F4's, all still unread.
