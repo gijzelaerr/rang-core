@@ -397,7 +397,7 @@ new keeps them unchanged.
   antenna positions, which are not committed. They would go in a separate file, so that no
   committed hash moves.
 
-## 18. Amendment 7 (2026-11-20 04:35 UTC; teacher failures and parallel streams, no data read)
+## 18. Amendment 7 (2026-11-20 04:29 UTC; teacher failures and parallel streams, no data read)
 
 - **State at 04:26 UTC.** 1611426666 was converted at 14:53 UTC on 2026-11-19: 17 of 17 scans,
   20,099 s. All nine blocks are converted and hashed. Stage 1 teachers are done for 1735892129
@@ -412,12 +412,12 @@ new keeps them unchanged.
 - **Parallel streams.** `teach_block.sh CBID T K/N` runs the scans at positions congruent to K
   mod N, so N jobs on one block take disjoint scans (done-markers and private copies are per
   scan). Tricolour's strategy copy is now named per scan (`strategy-scanNNN.yaml`), because two
-  streams of one block share `work/tricolour/<cbid>/`. Relaunched at 04:33 UTC: two streams each
+  streams of one block share `work/tricolour/<cbid>/`. Relaunched at 04:29 UTC: two streams each
   for 1749428161, 1571938260 and 1611426666, at 6 threads (36 slots, plus a 1-slot copy step per
-  scan), with nash otherwise idle. At 04:45 UTC: 36 slots booked, 30.4 cores in use, sda 38 %
+  scan), with nash otherwise idle. At 04:40 UTC: 36 slots booked, 30.4 cores in use, sda 38 %
   utilised. The rang teacher passed on 1571938260 scan 71 (763 s), the scan that had failed.
 - **1611426666 as three streams.** Its three 233 GB target scans sit at list positions 5, 9 and 13,
-  which all fall in one mod-2 stream. Restarted at 04:58 UTC as three mod-3 streams, which take one
+  which all fall in one mod-2 stream. Restarted at 04:43 UTC as three mod-3 streams, which take one
   each.
 
 ## For the coordinator
