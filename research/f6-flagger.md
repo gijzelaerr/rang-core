@@ -126,8 +126,9 @@ teach_block.sh <cbid> 6 k/2`) for T and A; the network reads the full 4,096 chan
 channel windows (F5 Amendment 3). Fix 4's outer32 R3 and fix 5's R2 H2 per seed are measured on
 validation before the freeze and reported; their bars are F5's.
 
-**Seed.** Three seeds per class (1, 2, 3); the shipped seed is the median seed by validation R1
-(F5 section 9); R2 H2, G-drop and R1 are reported per seed on the held-out sets.
+**Seed.** Three seeds per class (1, 2, 3); the shipped seed is the median seed by validation loss
+(F5 section 9; corrected in Amendment 2d-1, 2d first said "by validation R1"); R2 H2, G-drop and R1
+are reported per seed on validation, and the held-out sets score the median seed.
 
 **Decision rule (per class, first that applies; F5 section 11 otherwise unchanged).** Stop-C,
 Stop-E and Stop-Z are F5's pre-training stages and are not re-run (F5's measurements stand; level
@@ -139,6 +140,28 @@ S2 or P. **Shipping** (weights in the wheel, `off` by default, section 3's ONNX 
 S or S−, and G-obs passed; a class ships without the other. Cost: section 3 says whether F5's
 timing stands or a timing run is needed (level 20 changes the work per cell); C1 and C2 are
 scored on whichever applies.
+
+**Amendment 2d-1 (2026-11-20 23:50 SAST, before any F6 training step and before any F6
+network output; no held-out data read).** Fixes what 2d left to the scorer, for cost and for
+consistency with training. (i) A SARAO set is one scan of C's stage-1 manifest, cut as in
+training: channels 1024-3071 (1070-1498 MHz, LUNO's window) and the central 32 dumps; this replaces
+2d's "full 4,096 channels in 2,048-channel windows", so the shipped envelope is the window trained
+on. (ii) Which SARAO scans are scored, by rule, per block and class: every target scan, and for
+calibrators the first scan of each distinct calibrator source in the manifest. Validation
+1573212012: calibrator scans 1 (J1331+3030), 3 (J1939-6342), 5 (J2011-0644); targets 111, 113,
+115. The held-out blocks get the same rule at the read; their source lists are in the manifest's
+metadata, already listed for C's runner, not data. (iii) T is F5's T on the cut scan (as for LUNO
+and ESO137; the injected cases need it); A is C's AOFlagger 2.13 `firstpass_QUV` label on the same
+cells OR W3. (iv) Pooling: R1-R5, G-perm, G-drop, G-chan and synthetic G-sub (core16, outer32)
+pool over all of the class's held-out real sets (F4/F5 sets and the three SARAO blocks). Real G-sub:
+the scans of 1678312253 (29 antennas) and 1674958551 (32 outer antennas), each block pooled, R1 ≥
+T − 0.05 and R3 within its bounds (the full-array comparison does not exist for these blocks and is
+not applied). G-obs: 1579022459's scans pooled, the same bars. Code: `examples/f6_heldout.py`
+(F5's scorer, SARAO loader, manifest split enforced) and `examples/f6_verdict.py`. (v) τ and κ
+(`examples/f6_tau.py`): F5's rule, with the positives of every F6 validation shard (logits on the
+shard's per-baseline planes) and the added-cells condition summed over the real validation scans
+(LUNO MAIN_7 or ESO137 chunk 10, plus 1573212012's scored scans). (vi) The seed rule above is
+F5's: median by validation loss.
 
 ## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
 
