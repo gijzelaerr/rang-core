@@ -14,7 +14,7 @@ the gates they miss are listed below and in `CHANGELOG.md`
 not passed as frozen; its gate 3b is a limitation with its cause
 ({gh}`research/e2a-3b-k.md`). E3 (CARACal's shipped MeerKAT strategy on the
 same data) has measured E2-B (CARACal 6,926 s against rang 6,195 s; branch
-`e3-caracal`) and was still running on E2-A at the release (0.3.1 reports it). E2-N (native data, issue #7) is not met as frozen: 17 of 25 rows
+`e3-caracal`) and was still running on E2-A at the release (a later release reports it). E2-N (native data, issue #7) is not met as frozen: 17 of 25 rows
 ({gh}`research/e2n-native.md`). Absolute polarisation angle is stated as a
 limit, not solved (below).
 ```

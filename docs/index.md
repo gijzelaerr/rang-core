@@ -26,7 +26,7 @@ one, at 2.0–2.4 times the memory on the real pilot with its current defaults
 ({gh}`research/g7-defaults.md`). The acceptance on real data (E2) has reported and
 misses some gates, as does native data (E2-N, 17 of 25 rows); the comparison
 with CARACal (E3) has measured E2-B; E2-A was still
-running at the release and follows in 0.3.1; {doc}`limits` lists what is known.
+running at the release and follows in a later release; {doc}`limits` lists what is known.
 ```
 
 ## Where to start

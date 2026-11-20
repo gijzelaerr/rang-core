@@ -5,8 +5,8 @@ visualisations DURING the work ... a browser UI that connects to a running
 process ... integrate with other systems ... 0.5.0 or later?").
 **Status: direction decided by the owner on 2026-11-20 (section 6); the viewer
 spike is measured (section 8) and the viewer chosen (a page of our own);
-`rang-core watch` is implemented on branch `watch` for a 0.3.1 (section 9);
-nothing is on main yet.** The inventory in
+`rang-core watch` is on main (merged 2026-11-20, `be20d89c`); there is no
+0.3.1 release (owner, 2026-11-20, section 11).** The inventory in
 section 1 was read from `main` at `92e67e2f`; the candidate table in section 4
 was checked on the web and the GitHub API on 2026-11-20. No scientific or
 performance claim; tooling only.
@@ -415,3 +415,10 @@ work, inform the 0.4.0 session".
   [trackio](https://huggingface.co/docs/trackio/en/index),
   [Dask dashboard](https://docs.dask.org/en/latest/dashboard.html).
 - Licences and last pushes: the GitHub API, 2026-11-20.
+
+## 11. No 0.3.1 release (owner, 2026-11-20)
+
+Owner, 2026-11-20, after the release branch had passed its check: "ach never mind the tag, people
+should just use master for the latest and greatest". No tag `v0.3.1` and no PyPI upload; branch
+`release-0.3.1` (`d46a65bd`) stays unmerged as a record. `live-view-scope` and `watch` were merged to
+main by the coordinator on 2026-11-20 (`be20d89c`); the watch ships in the next release (0.4.0).
