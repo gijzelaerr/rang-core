@@ -157,6 +157,20 @@ held by this task at once, leaving room for session D's shards. Estimated: 12 im
    mask hashes) before any P or T image. 5. P and T images. 6. Scores; rule of section 4. 7. Stage 9 re-read,
    any time. 8. Stage 6C only under rule 2.
 
+## Amendments
+
+**Amendment 1, 2026-11-20 09:30 SAST (bookings; before any A image finished, no result seen).** The
+coordinator's booking audit: R1-A and R2-A held 8 slots each at `-j 8` and used 2.2 and 4.8 cores
+while nash was at 44 of 44 slots with critical work queued. Every later image runs at `-j 4`,
+`RAYON_NUM_THREADS=4`, booked `--slots 4 --mem 40`; simulations used one core (100 % CPU, 6 min, 1.2
+GB) and are booked `--slots 1 --mem 4`; the scorer's prepare `--slots 4 --mem 32`. At most two of this
+task's jobs run or wait for the lock at once (a file-locked gate in `dl4c.sh`). The primary cost
+measure (`convolutions`, sub-minor loops, major cycles) does not depend on the thread count (GeMClean
+is identical across thread counts, [x1-crossplatform.md](x1-crossplatform.md)); minor and resync
+seconds of R1-A and R2-A (8 threads) are not comparable with the other images (4 threads) and are
+reported apart. The first prepare attempt failed on the driver's own directory (the scorer refuses an
+existing output directory); it writes to `prep/<case>/out` now.
+
 ## Measured result
 
 ### Stage 9, settings (re-read of seen results, 2026-11-20; no run)
