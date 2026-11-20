@@ -397,6 +397,25 @@ new keeps them unchanged.
   antenna positions, which are not committed. They would go in a separate file, so that no
   committed hash moves.
 
+## 18. Amendment 7 (2026-11-20 04:35 UTC; teacher failures and parallel streams, no data read)
+
+- **State at 04:26 UTC.** 1611426666 was converted at 14:53 UTC on 2026-11-19: 17 of 17 scans,
+  20,099 s. All nine blocks are converted and hashed. Stage 1 teachers are done for 1735892129
+  (11 scans), 1629213076 (20) and 1573212012 (32). 1749428161 had 4 of 14 scans, 1571938260 19 of
+  46, 1611426666 1 of 17.
+- **Two failures, one cause.** The rang teacher stopped on the first large target scan of two blocks
+  (1749428161 scan 12, 19:18 UTC on 2026-11-19; 1571938260 scan 71, 03:30 UTC). Its spool workers
+  started with `--idle-exit 120`. On a large scan the parent plans for more than 120 s before its
+  first task, so the workers had exited ("0 tasks") and the parent stopped after 600 s with no live
+  worker. Each job then ended rc 1. Changed: idle exit 3600 s, as a safety net only, since the
+  runner stops its workers explicitly. No label was written by a failed shard; reruns redo the scan.
+- **Parallel streams.** `teach_block.sh CBID T K/N` runs the scans at positions congruent to K
+  mod N, so N jobs on one block take disjoint scans (done-markers and private copies are per
+  scan). Tricolour's strategy copy is now named per scan (`strategy-scanNNN.yaml`), because two
+  streams of one block share `work/tricolour/<cbid>/`. Relaunched at 04:33 UTC: two streams each
+  for 1749428161, 1571938260 and 1611426666, at 6 threads (36 slots, plus a 1-slot copy step per
+  scan), with nash otherwise idle.
+
 ## For the coordinator
 
 - Terms: no licence and no statement on derived products found; only the acknowledgement and the
