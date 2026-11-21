@@ -66,7 +66,17 @@ running the helper has it; otherwise ``/proc`` on Linux and WSL, or the Win32
 API through ctypes on Windows) and prints it next to the booked slots. A hold
 whose tree uses under ``IDLE_PER_SLOT`` (5 %) of one core per booked slot is
 marked IDLE; a hold of the other system (WSL from Windows and back) shows
-``n/a``. The last line is ``booked N slots, using ~M cores``. It only reports:
+``n/a``. The last line is ``booked N slots, using ~M cores``.
+
+WSL from Windows (added 2026-11-21): a hold launched through ``wsl.exe`` is
+one idle process on the Windows side. On Windows ``status`` therefore also
+reads WSL's process table (one ``wsl.exe python3`` call before and one after
+the sample) and adds, per hold, the CPU of the WSL processes carrying the
+hold's ``RANG_HEAVY_LOCK_PID`` (``run`` sets it and passes it in ``WSLENV``),
+and of the trees running its ``wsl ... --`` command (holds started before the
+marker); holds registered from WSL are measured by their pid's tree. Such a
+hold prints ``incl. WSL``. Not counted: Docker containers, whose processes
+are children of containerd, not of the hold. It only reports:
 nothing is ever stopped or released automatically.
 
 Conservative backfill (added 2026-11-16, research/lock-backfill.md): strict
@@ -677,9 +687,21 @@ def nested_note(who: str, slots: int, mem: float, environ=None) -> bool:
     return True
 
 
+PID_VAR = "RANG_HEAVY_LOCK_PID"
+
+
 def _child_env(slots: int, mem: float) -> dict:
     env = dict(os.environ)
     env[HELD_VAR] = f"{slots}:{mem:g}"
+    # The hold's pid, for `status` to find its processes inside WSL (a hold
+    # launched through wsl.exe shows ~0 cores on the Windows side). WSLENV
+    # carries it, and only it, across into WSL.
+    env[PID_VAR] = str(os.getpid())
+    if sys.platform == "win32":
+        names = [v for v in env.get("WSLENV", "").split(":") if v]
+        if not any(v.split("/")[0] == PID_VAR for v in names):
+            names.append(PID_VAR)
+        env["WSLENV"] = ":".join(names)
     return env
 
 
@@ -869,6 +891,118 @@ def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float |
     return out
 
 
+# One python3 inside WSL reads every process's stat, the hold marker in its
+# environment and its command line (one wsl.exe call, about 0.5 s on glacier).
+WSL_PROBE = r"""
+import os
+tick = os.sysconf("SC_CLK_TCK")
+for p in os.listdir("/proc"):
+    if not p.isdigit():
+        continue
+    try:
+        f = open("/proc/%s/stat" % p).read().rsplit(")", 1)[1].split()
+        cpu = (int(f[11]) + int(f[12])) / tick
+        mark = "-"
+        try:
+            for kv in open("/proc/%s/environ" % p, "rb").read().split(b"\0"):
+                if kv.startswith(b"RANG_HEAVY_LOCK_PID="):
+                    mark = kv.split(b"=", 1)[1].decode()
+                    break
+        except OSError:
+            pass
+        cmd = open("/proc/%s/cmdline" % p, "rb").read().replace(b"\0", b" ")
+        cmd = " ".join(cmd.decode(errors="replace").split())
+        print(p, f[1], cpu, mark, cmd, sep="\t")
+    except (OSError, IndexError, ValueError):
+        pass
+"""
+
+WslTable = dict[int, tuple[int, float, str, str]]
+
+
+def parse_wsl_table(text: str) -> WslTable:
+    """{pid: (parent pid, CPU seconds, hold marker or "-", command line)}."""
+    out: WslTable = {}
+    for line in text.splitlines():
+        parts = line.split("\t", 4)
+        if len(parts) < 4:
+            continue
+        try:
+            pid, ppid, cpu = int(parts[0]), int(parts[1]), float(parts[2])
+        except ValueError:
+            continue
+        out[pid] = (ppid, cpu, parts[3], parts[4] if len(parts) > 4 else "")
+    return out
+
+
+def wsl_table(timeout: float = 10.0) -> WslTable | None:
+    """WSL's process table seen from Windows, or None (no WSL, or it failed)."""
+    if sys.platform != "win32":
+        return None
+    try:
+        p = subprocess.run(
+            ["wsl.exe", "-e", "python3", "-c", WSL_PROBE],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    table = parse_wsl_table(p.stdout)
+    return table or None
+
+
+def wsl_tail(command: str) -> str | None:
+    """The command a `wsl ... -- cmd` (or `-e`/`--exec`) hold runs inside WSL."""
+    tokens = command.split()
+    if not tokens or Path(tokens[0].replace("\\", "/")).name.lower() not in (
+        "wsl",
+        "wsl.exe",
+    ):
+        return None
+    for sep in ("--", "-e", "--exec"):
+        if sep in tokens:
+            rest = tokens[tokens.index(sep) + 1 :]
+            return " ".join(rest) or None
+    return None
+
+
+def wsl_hold_cores(
+    before: WslTable, after: WslTable, hold: dict, seconds: float
+) -> float | None:
+    """Cores a hold's processes inside WSL used between two tables, or None
+    when none is found. A hold registered from WSL is its pid's tree; a
+    Windows hold is every WSL process carrying its marker (PID_VAR), and the
+    trees of the processes running its `wsl ... --` command (holds started
+    before the marker)."""
+    shell = {pid: (v[0], v[1]) for pid, v in after.items()}
+    pid = int(hold["pid"])
+    found: set[int] = set()
+    if hold.get("system") == "wsl":
+        found = _tree(shell, pid)
+    else:
+        mark = str(pid)
+        roots = [q for q, v in after.items() if v[2] == mark]
+        tail = wsl_tail(str(hold.get("command", "")))
+        if tail:
+            tail = " ".join(tail.split())
+            roots += [
+                q
+                for q, v in after.items()
+                if v[3] == tail and after.get(v[0], (0, 0.0, "", ""))[3] != tail
+            ]
+        for r in roots:
+            found |= _tree(shell, r)
+    if not found or seconds <= 0:
+        return None
+    # A process started during the sample used all its CPU inside it.
+    used = sum(
+        max(0.0, after[q][1] - before.get(q, (0, 0.0, "", ""))[1]) for q in found
+    )
+    return used / seconds
+
+
 def use_note(slots: int, cores: float | None) -> str:
     if cores is None:
         return "use n/a"
@@ -884,12 +1018,33 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
     holds = [j for j in shared if j.get("system") == here]
     if owner and owner.get("system") == here:
         holds.append(owner)
+    every = [*shared, *([owner] if owner else [])]
+    probe = here == "windows" and bool(every)
+    w0 = wsl_table() if probe else None
+    t0 = time.monotonic()
     cores = tree_cores([int(j["pid"]) for j in holds], sample_s) if holds else {}
+    if not holds and w0 is not None:
+        time.sleep(sample_s)
+    w1 = wsl_table() if w0 is not None else None
+    wsl_s = time.monotonic() - t0
+    wsl: dict[int, float | None] = {}
+    if w0 is not None and w1 is not None:
+        for j in every:
+            wsl[int(j["pid"])] = wsl_hold_cores(w0, w1, j, wsl_s)
+
+    def total(j: dict) -> float | None:
+        win = cores.get(int(j["pid"])) if j.get("system") == here else None
+        inside = wsl.get(int(j["pid"]))
+        if inside is None:
+            return win
+        return (win or 0.0) + inside
 
     def note(j: dict, slots: int) -> str:
-        if j.get("system") != here:
+        c = total(j)
+        if j.get("system") != here and c is None:
             return f"use n/a, held from {j.get('system')}"
-        return use_note(slots, cores.get(int(j["pid"])))
+        extra = " incl. WSL" if wsl.get(int(j["pid"])) is not None else ""
+        return use_note(slots, c) + extra
 
     booked, using = 0, 0.0
     if d.exists():
@@ -897,8 +1052,7 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
         if owner:
             booked += CAPACITY_SLOTS
             line += f"; {note(owner, CAPACITY_SLOTS)}"
-            if owner.get("system") == here:
-                using += cores.get(int(owner["pid"])) or 0.0
+            using += total(owner) or 0.0
         print(line)
     else:
         print("exclusive: free")
@@ -908,16 +1062,13 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
     for j in shared:
         slots = int(j.get("slots") or 0)
         booked += slots
-        if j.get("system") == here:
-            using += cores.get(int(j["pid"])) or 0.0
+        using += total(j) or 0.0
         mark = ", backfilled" if j.get("backfill") else ""
         print(
             f"  {slots} slots {j['mem']:g} GB pid {j['pid']} "
             f"({note(j, slots)}{mark}): {j['command'][:140]}"
         )
-    away = sum(
-        1 for j in [*shared, *([owner] if owner else [])] if j.get("system") != here
-    )
+    away = sum(1 for j in every if j.get("system") != here and total(j) is None)
     tail = f" ({away} holds of the other system not measured)" if away else ""
     q = queue_dir(d)
     waiting = sorted(q.glob("*.json")) if q.exists() else []
