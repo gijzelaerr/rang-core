@@ -43,6 +43,24 @@ on nash before the owner's decision; no held-out set is read.
   finishes: does any calibration also fix G-drop on ESO137? (Expected no: G-drop compares flags
   under dropout, and calibration is per baseline.)
 
+**D1 measured (2026-11-21, nash; `~/rang-data/outputs/f7-d1-20261121/`).** Seed 2, balanced
+real batches, 30,000 steps in 6,544 s (12 threads); validation loss 0.110 (F6's seed 2: 0.082, on
+SARAO-dominated validation shards). `f6_tau.py`: N5W4, τ −4.5, κ 3, as F6. Uninjected validation
+DATA, added cells against T:
+
+| Set | N5 | W4 | method (N5 ∪ W4) | T | A | R3 (method) | R5 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| LUNO MAIN_7 | 1,580,028 (F6: 2,727,768) | 2,170,869 | 2,896,444 | 209,120 | 2,744,976 | **13.9** (F6 16.9) | 0.993 |
+| 1573212012 scan 1 | 41,984,280 | 19,337,688 | 45,279,514 | 44,755,207 | 40,264,157 | 1.01 | 0.977 |
+| scan 3 | 44,392,429 | 24,128,564 | 46,742,335 | 49,460,290 | 42,893,083 | 0.95 | 0.984 |
+| scan 5 | 4,241,059 | 4,986,228 | 6,021,010 | 5,098,743 | 10,230,054 | 1.18 | 0.999 |
+
+Reading: balanced sampling cuts the network's LUNO cells by 42 % and keeps SARAO in place, but N5
+alone is still 7.6 × T on LUNO, and W4 (the anomaly arm; κ 3, independent of the network) adds
+2.17M cells there by itself (10.4 × T). P1 alone does not fix the calibrators. Two things follow
+for the proposal: W4's κ needs a per-observation rule or W4 must go for low-flag-rate data, and
+the network needs P2 (or P3) on top of P1. The full verdict (every gate) lands in the same run root.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 

@@ -2380,3 +2380,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-21 | F6 target seeds 1-3 in one process (same), 12 threads | 35 GB train + 8.4 GB validation shards | 14,561 s | 49.3 GB against 56 GB booked | nash CPU, beside the calibrator run |
 | 2026-11-21 | F6 tau/kappa (`f6_tau.py`), 8 slots | calibrator validation shards + MAIN_7 + 3 SARAO scans | 582 s | 29.1 GB | nash |
 | 2026-11-21 | F6 validation scorer (`f6_heldout.py --validation`), 6 slots per set | calibrator: sim 717 s; LUNO MAIN_7 2,515 s; SARAO 1573212012 scan 5 4,904 s | as listed | 3.2-4.3 GB | nash; no held-out read |
+| 2026-11-21 | F7 D1 calibrator seed 2, source-balanced real batches (`f5_train.py --balance-real`, memory-mapped), 12 threads | F6's calibrator shards, 30,000 steps | 6,544 s | 148 GB (mapped pages) against 160 GB booked | nash CPU; validation-only diagnostic |
