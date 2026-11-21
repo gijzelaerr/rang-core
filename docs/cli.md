@@ -298,7 +298,7 @@ calibrate:
     rotmeas: null  # manual: rotation measure, rad m^-2
     lsm: null  # a Tigger .lsm sky model, such as pks1934-638.lsm
   refant: null  # reference antenna: a name, an id, a list or auto (CARACal's choice); null: auto, or antenna 0 when no antenna qualifies (task E2)
-  refantmode: flex  # flex or strict, as CASA
+  refantmode: flex  # flex or strict, as CASA; for K, flex also falls back along the refant list (issue #53)
   refant_maxdist: 1000.0  # refant auto: metres from the array centre at most (CARACal's maxdist)
   refant_minbase: 150.0  # refant auto: metres to every other antenna at least (CARACal's minbase)
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150

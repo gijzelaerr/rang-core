@@ -2401,3 +2401,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | DL4a: round models into MODEL_R1, MODEL_R2 (`core_pipeline._selfcal_model`), 4 slots | the pilot | 249 s; 252 s | 5.7 GB | host nash |
 | 2026-11-20 | DL4a: 13 solve-only runs (`cal_selfcal.solve`, one-call, `stream=False`), 2 slots each, `RAYON_NUM_THREADS=2` | the pilot, Sp/Sa at inf and 120 s, arms A0-A3 and A0 at max_iterations 1 | 101-445 s each (see research/dl4a-screen.md section 8) | 36.2-37.0 GB | host nash, shared, disk-bound; wall reported only |
 | 2026-11-20 | scp of `cal2.ms` glacier to nash | 8.1 GB | 1,611 s | – | about 5 MB/s |
+| 2026-11-21 | k-refant-53: `k53_g3.py make` (simulated MS, rang `gaincal` K flex and strict), 2 slots | 12 ant, 4 scans, 64 ch | about 1 s | – | host nash |
+| 2026-11-21 | k-refant-53: CASA 6.7.6.14 `gaincal(gaintype='K')`, three runs (`rang-o-casa_6.7.6.14.sif`, apptainer) | the same MS | 10 s | – | host nash |
+| 2026-11-21 | k-refant-53: `tools/check_all.py --quick`, three runs (note-only, code, after fixes) | branch k-refant-53 | about 5-12 min each, lock waits excluded | – | host nash (glacier's lock was held by an idle 14-slot job) |
