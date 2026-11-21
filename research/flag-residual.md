@@ -162,6 +162,60 @@ no ablation is gated.
    and its tests; G-Q. 4. `mode: calibrators` on A1 and E2-N; G-S, G-F, G-D. 5. `mode: all` on E2-N.
    6. Outcome. Implementation starts after #43's outcome is recorded (coordinator's order).
 
+## Amendments
+
+**Amendment 1, 2026-11-21 12:10 SAST (the reporter's v6 and v7 read after the freeze; before any
+code or run).** As the reporter states them, read as data:
+
+- v6: v5's residual flags on the calibrators, then LCP's final SumThreshold on the corrected target;
+  calibration clean (0 % of K/G/Gsec/F solutions flagged); target 9.0σ (LCP 13.0σ).
+- v6 also names what the earlier runs missed: LCP's "basic flagging" before Tricolour, `flagdata
+  manual` on 850-900 MHz, 1658-1800 MHz and 1419.8-1421.3 MHz (all baselines), on 15 satellite and
+  transmitter bands with `uvrange <600 m`, and zero clipping. The satellite step is what flags 77 % of
+  LCP's 0-100 m baselines.
+- v7: those manual steps (done with `rang-core flagdata`), 1GC, residual flags **on the calibrators
+  only**, re-solve (tripwire 0 %), LCP's narrow+broad SumThreshold on the corrected target: 10.8σ, the
+  best of the reporter's series (LCP 13.0σ); fluxes and 3C 286's p and χ unchanged; the remaining
+  target excess on long baselines is attributed to L0's default online flags (about 37 % against L1's
+  29 %), not tested.
+
+Consequences for this note, decided before any code:
+
+- The calibrator arm (`mode: calibrators`) is the primary deliverable; its gates are unchanged.
+- The target arm (`mode: all`, uv-binned) stays frozen as written but runs only after the calibrator
+  outcome, and the reporter's evidence that residual flagging on a diffuse target does not reach the
+  sensitivity of known-band flagging is recorded as its prior.
+- A MeerKAT L-band "known RFI" preset (the reporter's band lists, with the satellite bands below 600 m)
+  is **not** part of #51: it is a separate, cheap first-stage item (`rang-core flagdata` already parses
+  CASA's keywords), named for the coordinator, with LCP's lists to be checked against their source
+  before use.
+- Not checked: which online flag categories katdal applies to L0 by default against SDP's L1 (the
+  reporter's last point); named for the coordinator.
+
+**Amendment 2, 2026-11-21 (implementation choices; written with the code, before any run on data).**
+
+- **Statistics unit: one (field, scan) block**, not the whole field: the calibrator median model, the
+  antenna noise levels, the median z² and the persistence sums are per scan. A calibrator field's
+  residual at E2-N's size is several GB per field; per scan it fits the booked memory. A scan holds one
+  field, so the median model is still "the field's".
+- **`method: quartical` in the pipeline uses the same residual as `rang`** (corrected minus the scan's
+  median), not QuartiCal's uncorrected `data − g M g^H`; one chunk per scan; diagonal correlations,
+  unwhitened, `max_deviation` 0 (QuartiCal's defaults). G-Q tests the kernel on identical arrays, as
+  section 2 says; the residual's definition is not part of the oracle.
+- **Flags around the calibrator apply:** the residuals are formed by `applycal` into CORRECTED_DATA on
+  the calibrator fields (calflag adds solution flags), so the flags are saved as the CASA flag version
+  `<calibrate version>_residual_pre` first and restored after the apply; only the residual flags are
+  then added. The chain's own flag-writing steps (A term, extendflags) run again in the re-solve.
+- **Tripwire input:** the flagged fraction of each K, G (G, Gsec), B and F table's solutions, read from
+  the CASA tables' FLAG column after the re-solve (the step summaries carry no such number); written
+  with the first pass's fractions to `calibrate/residual.json`.
+- **Targets (`mode: all`) are not implemented in this commit**; the config accepts `off` and
+  `calibrators` only until the calibrator outcome (amendment 1).
+- Rust: `core/src/flag_residual.rs` (MIT, QuartiCal's notice), bindings `rang._core.flag_residual_*`,
+  orchestration `python/rang/flag_residual.py` and `core_pipeline.residual_flag_pass`; with `mode: off`
+  no code path changes and no stage hash changes (`flag.residual` is left out of the flag stage's hash
+  and enters calibrate's only when not off; tests in `tests/test_flag_residual.py`).
+
 ## Measured result
 
 _Nothing yet._
