@@ -21,6 +21,7 @@ blocks).
 """
 
 import time
+import warnings
 from dataclasses import dataclass
 
 import numpy as np
@@ -194,19 +195,38 @@ def weights_of(var, group, nchan, chanbin, ncorr=4):
     return per.astype(np.float32)
 
 
-def row_weight(wsp):
-    """WEIGHT per row and correlation: the mean of the positive weights over
-    the channels (0 when none)."""
-    pos = wsp > 0
-    with np.errstate(invalid="ignore", divide="ignore"):
-        mean = np.sum(wsp, 1) / np.maximum(pos.sum(1), 1)
-    return np.where(pos.any(1), mean, 0.0).astype(np.float32)
+def row_weight(wsp, flag):
+    """WEIGHT per row and correlation as CASA's statwt sets it: the median of
+    the row's new weights over its unflagged channels with a positive weight
+    (0 when none)."""
+    use = (wsp > 0) & ~np.asarray(flag, bool)
+    x = np.where(use, wsp.astype(np.float64), np.nan)
+    with np.errstate(all="ignore"), warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        med = np.nanmedian(x, axis=1)
+    return np.where(use.any(1), med, 0.0).astype(np.float32)
 
 
-def stage(w, rows, settings, chunk_rows, chans_per_read=None):
+# Bytes per cell-correlation an estimate holds at once (CORRECTED and MODEL
+# complex64, FLAG, the residual or V), for sizing the channel slices.
+READ_BYTES = 40
+
+
+def chans_for(nrow, nchan, ncorr, chanbin, budget_bytes):
+    """Channels per read so that one scan's slice fits `budget_bytes` (a
+    multiple of `chanbin`, at least one block)."""
+    if not budget_bytes:
+        return nchan
+    per_chan = max(1, nrow * ncorr * READ_BYTES)
+    n = int(budget_bytes // per_chan) // int(chanbin) * int(chanbin)
+    return max(int(chanbin), min(nchan, n))
+
+
+def stage(w, rows, settings, chunk_rows, chans_per_read=None, budget_bytes=None):
     """The re-weighting stage on the MS rows `rows` through the write-back
-    session `w`, one scan at a time; returns a summary. Rows outside `rows`
-    keep their weights."""
+    session `w`, one scan at a time, each read in channel slices that fit
+    `budget_bytes` (or `chans_per_read` channels); returns a summary. Rows
+    outside `rows` keep their weights."""
     started = time.perf_counter()
     rows = np.unique(np.asarray(rows, np.int64))
     nchan, ncorr = w.cell
@@ -216,8 +236,11 @@ def stage(w, rows, settings, chunk_rows, chans_per_read=None):
     tables, offset = [], 0
     for s in np.unique(scans):
         sel = np.flatnonzero(scans == s)
-        group, var = estimate(w.read_rows, rows[sel], settings, nchan,
-                              chans_per_read=chans_per_read)  # fmt: skip
+        step = chans_per_read or chans_for(len(sel), nchan, ncorr, settings.chanbin,
+                                           budget_bytes)  # fmt: skip
+        group, var = estimate(
+            w.read_rows, rows[sel], settings, nchan, chans_per_read=step
+        )
         gid[sel] = group.astype(np.int64) + offset
         offset += var.shape[0]
         tables.append(var)
@@ -235,7 +258,7 @@ def stage(w, rows, settings, chunk_rows, chans_per_read=None):
         wt = w.read("WEIGHT", start, n)
         new = weights_of(var, gid[here[mine]], nchan, settings.chanbin, ncorr)
         ws[mine] = new
-        wt[mine] = row_weight(new)
+        wt[mine] = row_weight(new, w.read("FLAG", start, n)[mine])
         w.write("WEIGHT_SPECTRUM", start, ws)
         w.write("WEIGHT", start, wt)
         written += int(mine.sum())

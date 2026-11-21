@@ -2165,6 +2165,8 @@ def stage_apply(ctx):
                 reweight.session_rows(w, fields, scans),
                 reweight.Settings.of(rw),
                 plan.rows("apply"),
+                # Half the limit for the estimate's slices (the rest: the session).
+                budget_bytes=float(config["data"]["memory_limit_gb"]) * 2**30 / 2,
             )
             reweighted["fields"] = fields
         executor_record = ex.describe()

@@ -2401,3 +2401,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | DL4a: round models into MODEL_R1, MODEL_R2 (`core_pipeline._selfcal_model`), 4 slots | the pilot | 249 s; 252 s | 5.7 GB | host nash |
 | 2026-11-20 | DL4a: 13 solve-only runs (`cal_selfcal.solve`, one-call, `stream=False`), 2 slots each, `RAYON_NUM_THREADS=2` | the pilot, Sp/Sa at inf and 120 s, arms A0-A3 and A0 at max_iterations 1 | 101-445 s each (see research/dl4a-screen.md section 8) | 36.2-37.0 GB | host nash, shared, disk-bound; wall reported only |
 | 2026-11-20 | scp of `cal2.ms` glacier to nash | 8.1 GB | 1,611 s | – | about 5 MB/s |
+| 2026-11-21 | apply-reweight: `rw_g12.py` make (two simulated MSs and rang's weights), CASA 6.7.6.14 `statwt` (two copies), score; at 64 and 256 channels, and with flags at minsamp 200 | 16 ant, 3 scans, 20 dumps | make 4 s, statwt 16 s at 64 channels | – | host nash |

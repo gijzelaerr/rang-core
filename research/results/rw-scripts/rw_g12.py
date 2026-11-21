@@ -13,13 +13,22 @@ from the stage's own estimator (`rang.reweight.estimate`, `weights_of`).
 """
 
 import json
+import os
 import shutil
 import sys
 from pathlib import Path
 
 import numpy as np
 
-NANT, NINT, NSCAN, NCHAN = 16, 20, 3, 64
+# NCHAN 64 as frozen; revision 1 (research/apply-reweight.md section 8) runs RW_NCHAN=256,
+# where a 16-channel block spans 1/16 of the band instead of 1/4.
+NANT, NINT, NSCAN = 16, 20, 3
+NCHAN = int(os.environ.get("RW_NCHAN", "64"))
+# G1 with flags (after the advisor's review, 2026-11-21): RW_FLAGS=1 flags 60 % of the cells on
+# antenna 0's baselines in scan 2 and all of baseline 1-2 in scan 3, and RW_MINSAMP sets minsamp
+# for rang and statwt alike, so blocks fall short and the flag clause is exercised.
+FLAGS = os.environ.get("RW_FLAGS") == "1"
+MINSAMP = int(os.environ.get("RW_MINSAMP", "2"))
 SEED, SIGMA0, FLUX, CHANBIN = 55, 0.5, 10.0, 16
 
 
@@ -61,7 +70,13 @@ def make_ms(path, rfi, w1):
         a1, a2 = t.getcol("ANTENNA1"), t.getcol("ANTENNA2")
         scan = (np.arange(nrow) // pairs) // NINT
         t.putcol("SCAN_NUMBER", (scan + 1).astype(np.int32))
-        t.putcol("FLAG", np.zeros((nrow, NCHAN, 4), bool))
+        flag = np.zeros((nrow, NCHAN, 4), bool)
+        if FLAGS:
+            frng = np.random.default_rng(SEED + 7)
+            on0 = (scan == 1) & ((a1 == 0) | (a2 == 0))
+            flag[on0] = frng.uniform(size=(int(on0.sum()), NCHAN, 1)) < 0.6
+            flag[(scan == 2) & (a1 == 1) & (a2 == 2)] = True
+        t.putcol("FLAG", flag)
         t.putcol("FLAG_ROW", np.zeros(nrow, bool))
         t.putcol("WEIGHT", np.ones((nrow, 4), np.float32))
         t.putcol("SIGMA", np.ones((nrow, 4), np.float32))
@@ -143,7 +158,7 @@ def cmd_make(out):
         arms = {}
         for mode in ("residual", "stokes_v"):
             for stat in ("classic", "mad"):
-                arms[f"{mode}-{stat}"] = rang_weights(ms, mode, stat, 2, 0)
+                arms[f"{mode}-{stat}"] = rang_weights(ms, mode, stat, MINSAMP, 0)
         np.savez_compressed(out / f"{name}-rang.npz", **arms)
     print("made", out)
 
@@ -159,14 +174,15 @@ def cmd_casa(out):
             shutil.rmtree(dst)
         shutil.copytree(src, dst)
         casatasks.statwt(vis=str(dst), datacolumn="residual", chanbin=CHANBIN,
-                         timebin="100000s", statalg="classic", minsamp=2)  # fmt: skip
+                         timebin="100000s", statalg="classic", minsamp=MINSAMP)  # fmt: skip
         tb = casatools.table()
         tb.open(str(dst))
         ws = tb.getcol("WEIGHT_SPECTRUM")  # (corr, chan, row)
         fl = tb.getcol("FLAG")
+        wt = tb.getcol("WEIGHT")  # (corr, row)
         tb.close()
         np.savez_compressed(out / f"{name}-casa.npz", ws=np.transpose(ws, (2, 1, 0)),
-                            flag=np.transpose(fl, (2, 1, 0)))  # fmt: skip
+                            flag=np.transpose(fl, (2, 1, 0)), weight=wt.T)  # fmt: skip
         res[name] = {"cells": int(ws.size), "flagged": int(fl.sum())}
     (out / "casa.json").write_text(json.dumps(res) + "\n")
 
@@ -198,7 +214,23 @@ def cmd_score(out):
         g1 = {"cells": int(both.sum()), "max_rel": float(rel.max()),
               "median_rel": float(np.median(rel)), "ratio_median": float(np.median(r[both] / c[both])),
               "zero_equals_statwt_flags": bool(np.array_equal(r == 0, casa["flag"]))}  # fmt: skip
-        g1["pass"] = bool(g1["max_rel"] <= 1e-5 and g1["zero_equals_statwt_flags"])
+        from rang import core_ms, reweight
+
+        with core_ms.open_table(out / f"{name}.ms") as tt:
+            flag_in = tt.getcol("FLAG")
+        # Cells rang leaves at weight 0: those of short blocks (minsamp), and statwt flags exactly
+        # those on top of the input flags.
+        new_flags = casa["flag"] & ~flag_in
+        g1["short_block_cells"] = int((r == 0).sum())
+        g1["zero_equals_statwt_new_flags"] = bool(
+            np.array_equal((r == 0) & ~flag_in, new_flags)
+        )
+        wt_rang = reweight.row_weight(r, casa["flag"])
+        ok = ~casa["flag"].all(1)
+        relw = np.abs(wt_rang[ok] - casa["weight"][ok]) / casa["weight"][ok]
+        g1["weight_max_rel"] = float(relw.max()) if relw.size else 0.0
+        g1["pass"] = bool(g1["max_rel"] <= 1e-5 and g1["zero_equals_statwt_new_flags"]
+                          and g1["weight_max_rel"] <= 1e-5)  # fmt: skip
         arms = {}
         for k in rang.files:
             w = rang[k]
@@ -206,6 +238,12 @@ def cmd_score(out):
             arms[k] = {"median_ratio": float(np.median(ratio)), "e": e_of(w, sigma2),
                        "pass": bool(0.98 <= np.median(ratio) <= 1.02 and e_of(w, sigma2) <= 1.01)}  # fmt: skip
         arms["unity"] = {"e": e_of(np.ones_like(sigma2, np.float32), sigma2)}
+        # The floor of any block-constant weight: 1 / the block's mean true variance.
+        nb = sigma2.shape[1] // CHANBIN
+        blk = sigma2.reshape(sigma2.shape[0], nb, CHANBIN, 4).mean(2)
+        arms["block_ideal"] = {
+            "e": e_of((1 / np.repeat(blk, CHANBIN, axis=1)).astype(np.float32), sigma2)
+        }
         score[name] = {"G1": g1, "G2": arms}
     (out / "score.json").write_text(json.dumps(score, indent=1) + "\n")
     print(json.dumps(score, indent=1))
