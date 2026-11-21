@@ -121,6 +121,7 @@ contributing
 
 cli
 mcp
+learned
 concepts/index
 api/index
 ```
