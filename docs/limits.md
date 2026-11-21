@@ -36,9 +36,34 @@ limit, not solved (below).
   data) plus simulation ({gh}`research/e2n-native.md`, issue #7).
 - **No direction-dependent calibration** and no facets.
 - **No learned flagger.** `rang-core flag` runs the Tricolour port only
-  ({gh}`research/f3-flagger.md`).
+  ({gh}`research/f3-flagger.md`). The learned-stage contract is in place
+  ({doc}`learned`), but no weights file ships (below).
 - **GPU paths need a source build** with the core's `gpu` feature; the wheels
   are CPU only ({doc}`installation`).
+
+## Learned stages (0.4.0)
+
+0.4.0 adds the contract for learned stages ({doc}`learned`): the `learned:`
+key, ONNX weights files, refusal and the interpreter. It does not add a
+learned stage that you can turn on:
+
+- **No shipped weights.** F5's flagger did not pass its gates: targets
+  outcome F, calibrators stopped at the label audit ({gh}`research/f5-flagger.md`,
+  issue #40). F6 is still running; unless it passes before the release, every
+  `learned:` mode other than `off` needs your own weights file and, without
+  passed gates, `force: true`.
+- **The learned pilots were null or failed:**
+  - warm starts for the gain solver saved only 8-15 % of iterations, so no
+    network was tried (DL4a, issue #41, null);
+  - an iterated learned deconvolution step put +0.07 to +0.12 of false flux
+    against +0.01, on 270 held-out fields (DL4b step 0, issue #42, outcome F).
+- **The interpreter runs `Conv` and `Relu` only.** A weights file with any
+  other operator is refused at load. Exports must be NCHW, without the
+  Transpose, Gather or Identity nodes that torch's exporter can add.
+- **Retraining for another configuration** (1k channels, a core-only
+  sub-array) has a procedure ({doc}`agents/retrain-a-stage`), dry-run
+  on F5 only. Its agent test waits for a stage that passed.
+- **`learned:` on `apply`** is a hook with no network.
 
 ## Flagging
 

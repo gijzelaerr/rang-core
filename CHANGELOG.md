@@ -9,11 +9,51 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
-- **`rang-core watch PATH...`** follows run directories, spool directories or any output directory without
-  touching them: each stage's status and time, whether the process that marked a stage running is still
-  there (this host only), spool tasks and worker heartbeats, receipts, the newest file and the last log
-  line; `--once`, `--json`, `--interval`. It shows liveness, not progress: nothing yet says how far a
-  running stage has got (`research/live-view-scope.md`).
+- **Learned stages, contract and interpreter ([#38](https://github.com/gijzelaerr/rang-core/issues/38))**: a `learned:` key on every stage (`mode: off` by
+  default, propose, settings, replace; `off` bit-identical on 60 configurations × 5 stages), ONNX
+  weights files with a `rang.learned/1` header, refusal by gates, header and envelope with an explicit
+  `force`, and receipts. rang's own ONNX interpreter (`Conv`, `Relu`; pure Rust, +49,664 B in the
+  extension) is the reference runtime: PyTorch agreement 8.6e-6 (F3) and 2.4e-5 (F4), bit-identical at
+  1-16 threads; the hand-written kernel is its fast path, within 1.1e-5. Final timing, 128 planes: the
+  interpreter takes 0.852 s at 1 thread and 0.166 s at 8 (kernel 0.881 / 0.142 s, tract 4.59 / 1.00 s);
+  no runtime crate passed the frozen gates (tract +20.4 MB against 8 MB). See `docs/learned.md`.
+- **Data factory for learned stages ([#39](https://github.com/gijzelaerr/rang-core/issues/39))**: 219 SARAO L-band scans of 9 capture blocks registered
+  with SHA-256 manifests, and 140 training and validation scans labelled by the rang Tricolour port,
+  Tricolour 0.2.1 and AOFlagger 2.13.0 (52 GB). Weights trained on these data are CC BY 4.0 with
+  SARAO's acknowledgement (owner, 2026-11-20).
+- **F5 supervised flagger ([#40](https://github.com/gijzelaerr/rang-core/issues/40)): no weights shipped.** Targets: outcome F (R1 1.000 against
+  Tricolour's 0.865 and cost C1 0.365-0.409 pass, but R5, G-drop, R2 H2 and G-sub outer32 fail).
+  Calibrators: stopped at the label audit (Stop-L), and a post hoc arm also failed (F). F6 follows.
+- **DL4a, classical warm starts for the gain solver ([#41](https://github.com/gijzelaerr/rang-core/issues/41)): null.** A one-day screening found warm
+  starts saving 8-15 % of iterations, so no network pilot followed. The optional gain start
+  (`diag::solve_from`) is bit-identical without a start.
+- **DL4b, a learned deconvolution step ([#42](https://github.com/gijzelaerr/rang-core/issues/42) step 0): outcome F.** An iterated mode-P CNN, tested
+  once on 270 regenerated ASTRODECONV2019 fields, gave false flux +0.07 to +0.12 against +0.01, and
+  4-7 inversions against 3. Nothing ships.
+- **Retraining a passed learned stage for another configuration ([#46](https://github.com/gijzelaerr/rang-core/issues/46))**:
+  an agent procedure (`docs/agents/retrain-a-stage.md`, skill `retrain-a-stage`) with frozen rules
+  (`research/dl6-retrain.md`). The held-out configuration is 1k channels (block 1735892129, scans 23
+  and 25 unread). The dry run on F5 ran every step and found 13 gaps in the procedure, now fixed. The
+  agent test waits for a stage that passes.
+- **`rang-core watch PATH...`** shows each stage's status and time and whether its process is still
+  alive. It also lists spool tasks and worker heartbeats, receipts, the newest file and the last log
+  line; options `--once`, `--json` and `--interval`. It watches run directories, spool directories or
+  any output directory without changing them. It shows liveness, not progress
+  (`research/live-view-scope.md`).
+- **K with `refantmode: flex` ([#53](https://github.com/gijzelaerr/rang-core/issues/53))**: an antenna with no unflagged baseline to the reference is
+  solved through other baselines (a fallback centre plus hops): truth within 1e-6 ns, CASA within
+  0.0016 ns p95, and bit-identical where the reference's baselines are present. `strict` keeps CASA's
+  rule.
+- **GeMClean multiscale ([#54](https://github.com/gijzelaerr/rang-core/issues/54))**: an automatic scale whose PSF-convolved peak is not positive (about
+  n / 2.5 px on sparse coverage) is dropped with a warning, and listed as `dropped_scales` in the
+  report, instead of stopping the run. With nothing dropped, all 45 FITS of a 4096², 8-channel run are
+  byte-identical to before. (radler keeps such a scale with gain g / peak.)
+- **`apply` with `calwt` ([#48](https://github.com/gijzelaerr/rang-core/issues/48)): null.** It equals CASA's applycal to 1e-6 but is channel-flat by
+  CASA's rule, and on E2-N it is 4 % worse than raw weights. The default stays `false`.
+- **Heavy lock**: `tools/heavy_lock.py status` now counts CPU inside WSL for holds launched through
+  `wsl.exe`. A WSL busy loop now reads 1.0 core, where it read 0.0 (IDLE). It also shows each hold's
+  resident memory, summed over its process tree, against the booked GB, and flags holds over their
+  booking with `OVER`.
 
 ## 0.3.0 (2026-11-19)
 
