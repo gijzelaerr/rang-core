@@ -93,3 +93,23 @@ def test_child_env_carries_the_hold_pid_into_wsl(monkeypatch):
     assert hl.HELD_VAR not in env["WSLENV"]
     monkeypatch.setenv("WSLENV", f"{hl.PID_VAR}")
     assert hl._child_env(2, 4.0)["WSLENV"] == hl.PID_VAR
+
+
+def test_tree_cores_counts_a_busy_child_under_a_waiting_wrapper():
+    """The holder waits (`do_wait`) while its child works: the tree's CPU is
+    the child's (nash, 2026-11-21: F6's holds looked idle; the tree sum was
+    right, the jobs were in I/O wait)."""
+    import subprocess
+    import time
+
+    busy = "import time\nt = time.time()\nwhile time.time() - t < 4: pass\n"
+    wrapper = (
+        f"import subprocess, sys\nsubprocess.call([sys.executable, '-c', {busy!r}])\n"
+    )
+    p = subprocess.Popen([sys.executable, "-c", wrapper])
+    try:
+        time.sleep(1.0)
+        cores = hl.tree_cores([p.pid], 1.5)[p.pid]
+    finally:
+        p.wait(timeout=30)
+    assert cores is not None and cores > 0.5, cores

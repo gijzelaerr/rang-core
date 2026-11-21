@@ -76,7 +76,12 @@ hold's ``RANG_HEAVY_LOCK_PID`` (``run`` sets it and passes it in ``WSLENV``),
 and of the trees running its ``wsl ... --`` command (holds started before the
 marker); holds registered from WSL are measured by their pid's tree. Such a
 hold prints ``incl. WSL``. Not counted: Docker containers, whose processes
-are children of containerd, not of the hold. It only reports:
+are children of containerd, not of the hold.
+
+The figure is one ``SAMPLE_S`` snapshot of the whole tree (children and
+grandchildren included). A job in I/O or swap wait reads low even when
+``ps``'s ``%CPU``, an average over the process's life, reads high (F6 on
+nash, 2026-11-21). It only reports:
 nothing is ever stopped or released automatically.
 
 Conservative backfill (added 2026-11-16, research/lock-backfill.md): strict
