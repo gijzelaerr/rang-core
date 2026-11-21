@@ -186,6 +186,26 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
 - If the smoke gate fails, stop and report before any budgeted training.
 - If simulation of the 160 training skies exceeds 12 h of the host, train on what exists, with the count recorded.
 
+## Amendment 1 (2026-11-21 07:35, post hoc: after seed 1 collapsed; before any budgeted seed, exact-cycle score or gated read)
+
+**What failed.**
+- Seed 1 (06:51 start, batch 8, learning rate 1e-3) stayed at the empty model: validation relative L2 1.000 at step 500.
+- The abort gate stopped it at step 1,000: loss over the empty-model loss was 1.000.
+- The smoke run (seed 99, same settings) had learned (0.159 at step 500, 0.138 at step 1,000), so the collapse is seed-dependent. The likely cause is dead ReLUs after large first updates; it was not diagnosed further.
+
+**Changes to section 4**, for every seed:
+- **Learning-rate warm-up:** linear over the first 500 steps, then cosine to 0 over the rest.
+- **Gradient-norm clipping at 1.0.**
+- Seed 1 is rerun from scratch; the failed run is kept as `runs/seed1-failed-collapse`.
+- Test, seed 1, 700 steps: validation relative L2 0.128 at step 600; loss ratio 0.76 at step 50 and 0.015-0.08 from step 350. Script: `results/dl4b-step1/test-warm.sh`.
+
+**Settings fixed by section 4's probes** (pre-registered there to be set after the probe):
+- **Batch 8:** 1.47 s per step, 5.4 GiB peak. Batch 16 exceeded the card's memory.
+- **Per-pass backward** (gradients identical to the summed loss, a quarter of the memory); the resume test passes bit-identically with it.
+- **Schedule:** 12,000 steps, about 5 h at 1.43-1.47 s per step.
+
+**GPU time so far** (counted against the 3 h reserve): smoke 24 min, failed seed 1 25 min, warm-up test 17 min, resume tests and probes about 15 min, so about 1.35 h. Seeds 1-3 at 5 h each bring the total to about 16.4 of 18 h.
+
 ## Measured result
 
 (empty at freeze)
