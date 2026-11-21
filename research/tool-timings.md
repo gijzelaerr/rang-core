@@ -2404,3 +2404,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-21 | k-refant-53: `k53_g3.py make` (simulated MS, rang `gaincal` K flex and strict), 2 slots | 12 ant, 4 scans, 64 ch | about 1 s | – | host nash |
 | 2026-11-21 | k-refant-53: CASA 6.7.6.14 `gaincal(gaintype='K')`, three runs (`rang-o-casa_6.7.6.14.sif`, apptainer) | the same MS | 10 s | – | host nash |
 | 2026-11-21 | k-refant-53: `tools/check_all.py --quick`, three runs (note-only, code, after fixes) | branch k-refant-53 | about 5-12 min each, lock waits excluded | – | host nash (glacier's lock was held by an idle 14-slot job) |
+| 2026-11-20 | apply-calwt (#48): E2-N `rang-core run` calibrate + apply (`calwt: false`), rang-core 0.3.0, `heavy_lock.py run --slots 2 --mem 16`, `RAYON_NUM_THREADS=2`, nice 19, **host nash** (shared) | E2-N, 2,229,489 rows × 1,024 ch | 10,546 s (2 h 56 min) | 5.5 GiB | copy 8 min, flag restore 4 min before it |
+| 2026-11-20 | apply-calwt: `rang-core run --force apply` with `calwt: true`, same booking, **host nash** | the same | 3,450 s | 9.1 GiB | |
+| 2026-11-20 | apply-calwt: `calwt_score.py` F+U / T (Stokes V dump differences, two fields), `--slots 2 --mem 24`, **host nash** | target 141 M + J1744-5144 20 M evaluation cells | 1,425 s / 328 s (page cache) | 9.5 / 7.1 GiB | |
+| 2026-11-20 | apply-calwt: CASA 6.7.6.14 applycal (apptainer, `calwt` as rang's summary), target only, `--slots 4`, **host nash** | ASKAPJ1745, 1.6 M rows | 1,020 s | – | rc 0 |
+| 2026-11-20 | apply-calwt: A1 small generate + `rang-core run` calibrate, apply, **host nash** | A1 small | 37 s; calibrate 11.1 s, apply 4.0 s | 0.3 GiB | |
