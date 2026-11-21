@@ -172,8 +172,8 @@ def main(cal_ms, raw_ms, out):
                     "S": S[a],
                     "e": math.sqrt(S[a] / S["ideal"]),
                 }
-                if a != "U" and qw[a]:
-                    q = np.concatenate(qw[a], axis=1)
+                q = np.concatenate(qw[a], axis=1) if a != "U" and qw[a] else None
+                if q is not None and q.shape[1]:
                     edges = np.quantile(q[0], [0.2, 0.4, 0.6, 0.8])
                     which = np.searchsorted(edges, q[0], side="right")
                     overall = float(q[1].mean())
@@ -181,7 +181,11 @@ def main(cal_ms, raw_ms, out):
                         float(q[1][which == j].mean() / overall) for j in range(5)
                     ]
             fr["R_vs_F"] = fr["R"]["e"] / fr["F"]["e"] - 1
+            if not fr["R"]["cells"]:
+                fr["R_note"] = "no R weight: every block below minsamp at the defaults"
             result["fields"][name] = fr
+            with open(out, "w") as fh:  # after each field, so a later failure keeps it
+                json.dump(result, fh, indent=1)
     result["seconds"] = time.perf_counter() - t0
     with open(out, "w") as fh:
         json.dump(result, fh, indent=1)

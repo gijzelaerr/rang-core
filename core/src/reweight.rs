@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //! Empirical visibility variances per block (issue #55, research/apply-reweight.md):
 //! the statistics of a statwt-like re-weighting stage. For every block of one
 //! group of rows (a baseline within a time block) and `chanbin` channels, the
