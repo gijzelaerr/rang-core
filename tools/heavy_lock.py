@@ -76,7 +76,18 @@ hold's ``RANG_HEAVY_LOCK_PID`` (``run`` sets it and passes it in ``WSLENV``),
 and of the trees running its ``wsl ... --`` command (holds started before the
 marker); holds registered from WSL are measured by their pid's tree. Such a
 hold prints ``incl. WSL``. Not counted: Docker containers, whose processes
-are children of containerd, not of the hold. It only reports:
+are children of containerd, not of the hold.
+
+The figure is one ``SAMPLE_S`` snapshot of the whole tree (children and
+grandchildren included). A job in I/O or swap wait reads low even when
+``ps``'s ``%CPU``, an average over the process's life, reads high (F6 on
+nash, 2026-11-21).
+
+Memory (added 2026-11-21): each hold also shows its tree's resident set
+(WSL side included) against its booked GB, ``OVER`` when above it, and the
+last line the total and the number of holds over their booking. Resident
+memory is an upper bound (pages shared between processes count once each);
+swapped-out pages are not counted. It only reports:
 nothing is ever stopped or released automatically.
 
 Conservative backfill (added 2026-11-16, research/lock-backfill.md): strict
@@ -872,6 +883,85 @@ def _tree(table: dict[int, tuple[int, float]], root: int) -> set[int]:
     return seen
 
 
+def _win_rss(pid: int) -> int | None:
+    import ctypes
+    from ctypes import wintypes
+
+    class Counters(ctypes.Structure):
+        _fields_ = [
+            ("cb", wintypes.DWORD),
+            ("PageFaultCount", wintypes.DWORD),
+            ("PeakWorkingSetSize", ctypes.c_size_t),
+            ("WorkingSetSize", ctypes.c_size_t),
+            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+            ("PagefileUsage", ctypes.c_size_t),
+            ("PeakPagefileUsage", ctypes.c_size_t),
+        ]
+
+    k = ctypes.windll.kernel32
+    k.OpenProcess.restype = wintypes.HANDLE
+    h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+    if not h:
+        return None
+    c = Counters()
+    c.cb = ctypes.sizeof(Counters)
+    try:
+        if not k.K32GetProcessMemoryInfo(wintypes.HANDLE(h), ctypes.byref(c), c.cb):
+            return None
+    finally:
+        k.CloseHandle(wintypes.HANDLE(h))
+    return int(c.WorkingSetSize)
+
+
+def rss_table(roots: list[int]) -> dict[int, tuple[int, int]]:
+    """{pid: (parent pid, resident bytes)} of the trees of `roots` (this system)."""
+    out: dict[int, tuple[int, int]] = {}
+    if sys.platform == "win32":
+        parents = _win_parents()
+        shell = {pid: (ppid, 0.0) for pid, ppid in parents.items()}
+        keep: set[int] = set()
+        for root in roots:
+            keep |= _tree(shell, root)
+        for pid in keep:
+            r = _win_rss(pid)
+            if r is not None:
+                out[pid] = (parents[pid], r)
+        return out
+    try:
+        import psutil
+    except ImportError:
+        psutil = None
+    if psutil is not None:
+        for p in psutil.process_iter(["pid", "ppid", "memory_info"]):
+            m = p.info.get("memory_info")
+            if m is not None:
+                out[p.info["pid"]] = (p.info["ppid"] or 0, int(m.rss))
+        return out
+    page = os.sysconf("SC_PAGE_SIZE")
+    for stat in Path("/proc").glob("[0-9]*/stat"):
+        try:
+            ppid = int(stat.read_text().rsplit(")", 1)[1].split()[1])
+            pages = int((stat.parent / "statm").read_text().split()[1])
+            out[int(stat.parent.name)] = (ppid, pages * page)
+        except (OSError, IndexError, ValueError):
+            continue
+    return out
+
+
+def tree_rss(pids: list[int]) -> dict[int, int | None]:
+    """Resident bytes summed over each pid's tree (an upper bound: pages
+    shared between processes count once per process)."""
+    table = rss_table(pids)
+    shell = {pid: (v[0], 0.0) for pid, v in table.items()}
+    return {
+        pid: (sum(table[q][1] for q in _tree(shell, pid)) if pid in table else None)
+        for pid in pids
+    }
+
+
 def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float | None]:
     """Cores each pid's process tree used over one sample (None: not measurable)."""
     before = process_table(pids)
@@ -896,6 +986,7 @@ def tree_cores(pids: list[int], sample_s: float = SAMPLE_S) -> dict[int, float |
 WSL_PROBE = r"""
 import os
 tick = os.sysconf("SC_CLK_TCK")
+page = os.sysconf("SC_PAGE_SIZE")
 for p in os.listdir("/proc"):
     if not p.isdigit():
         continue
@@ -912,26 +1003,29 @@ for p in os.listdir("/proc"):
             pass
         cmd = open("/proc/%s/cmdline" % p, "rb").read().replace(b"\0", b" ")
         cmd = " ".join(cmd.decode(errors="replace").split())
-        print(p, f[1], cpu, mark, cmd, sep="\t")
+        rss = int(open("/proc/%s/statm" % p).read().split()[1]) * page
+        print(p, f[1], cpu, rss, mark, cmd, sep="\t")
     except (OSError, IndexError, ValueError):
         pass
 """
 
-WslTable = dict[int, tuple[int, float, str, str]]
+WslTable = dict[int, tuple[int, float, str, str, int]]
 
 
 def parse_wsl_table(text: str) -> WslTable:
-    """{pid: (parent pid, CPU seconds, hold marker or "-", command line)}."""
+    """{pid: (parent pid, CPU seconds, hold marker or "-", command line,
+    resident bytes)} from the probe's lines `pid ppid cpu rss mark cmd`."""
     out: WslTable = {}
     for line in text.splitlines():
-        parts = line.split("\t", 4)
-        if len(parts) < 4:
+        parts = line.split("\t", 5)
+        if len(parts) < 5:
             continue
         try:
             pid, ppid, cpu = int(parts[0]), int(parts[1]), float(parts[2])
+            rss = int(parts[3])
         except ValueError:
             continue
-        out[pid] = (ppid, cpu, parts[3], parts[4] if len(parts) > 4 else "")
+        out[pid] = (ppid, cpu, parts[4], parts[5] if len(parts) > 5 else "", rss)
     return out
 
 
@@ -968,14 +1062,11 @@ def wsl_tail(command: str) -> str | None:
     return None
 
 
-def wsl_hold_cores(
-    before: WslTable, after: WslTable, hold: dict, seconds: float
-) -> float | None:
-    """Cores a hold's processes inside WSL used between two tables, or None
-    when none is found. A hold registered from WSL is its pid's tree; a
-    Windows hold is every WSL process carrying its marker (PID_VAR), and the
-    trees of the processes running its `wsl ... --` command (holds started
-    before the marker)."""
+def wsl_hold_procs(after: WslTable, hold: dict) -> set[int]:
+    """A hold's processes inside WSL. A hold registered from WSL is its pid's
+    tree; a Windows hold is every WSL process carrying its marker (PID_VAR),
+    and the trees of the processes running its `wsl ... --` command (holds
+    started before the marker)."""
     shell = {pid: (v[0], v[1]) for pid, v in after.items()}
     pid = int(hold["pid"])
     found: set[int] = set()
@@ -994,6 +1085,15 @@ def wsl_hold_cores(
             ]
         for r in roots:
             found |= _tree(shell, r)
+    return found
+
+
+def wsl_hold_cores(
+    before: WslTable, after: WslTable, hold: dict, seconds: float
+) -> float | None:
+    """Cores a hold's processes inside WSL used between two tables, or None
+    when none is found (`wsl_hold_procs`)."""
+    found = wsl_hold_procs(after, hold)
     if not found or seconds <= 0:
         return None
     # A process started during the sample used all its CPU inside it.
@@ -1008,6 +1108,15 @@ def use_note(slots: int, cores: float | None) -> str:
         return "use n/a"
     idle = " IDLE" if cores < IDLE_PER_SLOT * slots else ""
     return f"using ~{cores:.1f} cores{idle}"
+
+
+def mem_note(booked_gb: float, rss_bytes: int | None) -> str:
+    """Resident memory of the tree against the booking; OVER when above it."""
+    if rss_bytes is None:
+        return ""
+    gb = rss_bytes / 1e9
+    over = " OVER" if booked_gb > 0 and gb > booked_gb else ""
+    return f", {gb:.1f}/{booked_gb:g} GB resident{over}"
 
 
 def status(d: Path, sample_s: float = SAMPLE_S) -> None:
@@ -1028,9 +1137,24 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
     w1 = wsl_table() if w0 is not None else None
     wsl_s = time.monotonic() - t0
     wsl: dict[int, float | None] = {}
+    wsl_rss: dict[int, int] = {}
     if w0 is not None and w1 is not None:
         for j in every:
             wsl[int(j["pid"])] = wsl_hold_cores(w0, w1, j, wsl_s)
+            procs = wsl_hold_procs(w1, j)
+            if procs:
+                wsl_rss[int(j["pid"])] = sum(w1[q][4] for q in procs)
+    rss = tree_rss([int(j["pid"]) for j in holds]) if holds else {}
+
+    def booked_gb(j: dict) -> float:
+        return CAPACITY_MEM_GB if j is owner else float(j.get("mem") or 0)
+
+    def resident(j: dict) -> int | None:
+        mine = rss.get(int(j["pid"])) if j.get("system") == here else None
+        inside = wsl_rss.get(int(j["pid"]))
+        if mine is None and inside is None:
+            return None
+        return (mine or 0) + (inside or 0)
 
     def total(j: dict) -> float | None:
         win = cores.get(int(j["pid"])) if j.get("system") == here else None
@@ -1044,7 +1168,7 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
         if j.get("system") != here and c is None:
             return f"use n/a, held from {j.get('system')}"
         extra = " incl. WSL" if wsl.get(int(j["pid"])) is not None else ""
-        return use_note(slots, c) + extra
+        return use_note(slots, c) + extra + mem_note(booked_gb(j), resident(j))
 
     booked, using = 0, 0.0
     if d.exists():
@@ -1094,7 +1218,20 @@ def status(d: Path, sample_s: float = SAMPLE_S) -> None:
             else:
                 kind += f"; later tickets may backfill until {limit / 60:g} min"
         print(f"queue {i}: {t.stem} ({kind})")
-    print(f"booked {booked} slots, using ~{using:.1f} cores{tail}")
+    res = {int(j["pid"]): resident(j) for j in every}
+    res_gb = sum(r for r in res.values() if r) / 1e9
+    over = sum(
+        1
+        for j in every
+        if res[int(j["pid"])] is not None
+        and booked_gb(j) > 0
+        and res[int(j["pid"])] / 1e9 > booked_gb(j)
+    )
+    over_note = f", {over} OVER their booking" if over else ""
+    print(
+        f"booked {booked} slots, using ~{using:.1f} cores, "
+        f"{res_gb:.1f} GB resident{over_note}{tail}"
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
