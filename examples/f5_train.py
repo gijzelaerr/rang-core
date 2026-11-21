@@ -46,6 +46,7 @@ WIDTH = 256
 RATE = 1e-3
 EVERY_STEPS = 1000
 EVERY_SECONDS = 600
+BALANCE_REAL = False
 
 
 def npz_memmap(path, name):
@@ -177,6 +178,13 @@ class Run:
         rng = self.rng
         kind = "real" if rng.random() < 0.5 else "sim"
         pool = train[kind] or train["sim" if kind == "real" else "real"]
+        if BALANCE_REAL and kind == "real":
+            # F7 D1 (research/f7-flagger.md): half the real batches from SARAO shards, half
+            # from the F4-era sets (LUNO, ESO137); off by default (F5, F6 unchanged).
+            sarao = [s for s in pool if s[0].startswith("sarao-")]
+            other = [s for s in pool if not s[0].startswith("sarao-")]
+            if sarao and other:
+                pool = sarao if rng.random() < 0.5 else other
         shard = pool[rng.integers(0, len(pool))]
         xb, yb = batch(rng, shard)
         x = torch.from_numpy(xb).to(self.device)
@@ -284,7 +292,14 @@ def main():
         "--stop-at", type=int, help="save and stop after this step (resume test)"
     )
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    ap.add_argument(
+        "--balance-real",
+        action="store_true",
+        help="F7 D1: real batches half SARAO, half F4-era shards",
+    )
     a = ap.parse_args()
+    global BALANCE_REAL
+    BALANCE_REAL = a.balance_real
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
     seeds = [int(x) for x in str(a.seed).split(",")]
