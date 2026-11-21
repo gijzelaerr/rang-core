@@ -1,0 +1,30 @@
+{
+ "format": "rang.learned/1",
+ "stage": "flag",
+ "data_class": "calibrator",
+ "telescope": "MeerKAT",
+ "band": "L",
+ "architecture": {},
+ "inputs": {"features": "f5flag", "tensor": "planes", "layout": "NCHW", "shape": ["N", 33, "T", "F"], "level": 0, "degree": 1},
+ "outputs": {"tensor": "logits", "layout": "NCHW", "shape": ["N", 1, "T", "F"]},
+ "normalisation": {"features": "rang.f5flag (research/f5-flagger.md section 2)"},
+ "training": {
+  "framework": "PyTorch (DL6 dry run of F5's recipe, reduced: 1 seed, 1,000 steps, CPU)",
+  "seed": 1,
+  "steps": 1000,
+  "source": "F5 N5-ph recipe (research/f5-flagger.md, Amendment 3) plus DL2 1735892129 scans 1, 3 (train), 19 (validation)",
+  "teachers": [
+   {"name": "rang Tricolour port (T)", "version": "rang 0.3.0, DL2 labels/rang"},
+   {"name": "AOFlagger (A)", "version": "2.13.0 stimela image, CARACal firstpass_QUV.rfis (DL2 labels/aoflagger); F5 uses 3.5.0"}
+  ],
+  "tau": null
+ },
+ "gates": {
+  "propose": {"passed": false, "rule": "research/dl6-retrain.md#5-outcome-first-that-applies", "scores": {"outcome": "dry run, decides nothing"}},
+  "settings": {"passed": false, "rule": "research/dl6-retrain.md", "scores": {}},
+  "replace": {"passed": false, "rule": "research/dl6-retrain.md", "scores": {}}
+ },
+ "envelope": {"channel_width_hz": [208984.375, 835937.5], "band_hz": [856.0e6, 1712.0e6]},
+ "licence": "MIT",
+ "source": "research/dl6-retrain.md section 8; SARAO data acknowledgement as research/dl2-data.md"
+}

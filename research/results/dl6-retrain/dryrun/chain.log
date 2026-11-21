@@ -1,0 +1,10 @@
+2026-11-20T10:13:35Z start shards-validation
+2026-11-20T10:15:28Z shards-validation rc=0
+2026-11-20T10:15:28Z start shards-train
+2026-11-20T10:26:08Z shards-train rc=0
+2026-11-20T10:26:08Z awaiting glacier training
+2026-11-20T11:23:30Z start tau
+2026-11-20T11:24:17Z tau rc=0
+2026-11-20T11:24:17Z start validation
+2026-11-20T11:36:30Z validation rc=0
+2026-11-20T11:36:30Z chain done
