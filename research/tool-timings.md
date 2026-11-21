@@ -2382,3 +2382,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-21 | F6 validation scorer (`f6_heldout.py --validation`), 6 slots per set | calibrator: sim 717 s; LUNO MAIN_7 2,515 s; SARAO 1573212012 scan 5 4,904 s | as listed | 3.2-4.3 GB | nash; no held-out read |
 | 2026-11-21 | F7 D1 calibrator seed 2, source-balanced real batches (`f5_train.py --balance-real`, memory-mapped), 12 threads | F6's calibrator shards, 30,000 steps | 6,544 s | 148 GB (mapped pages) against 160 GB booked | nash CPU; validation-only diagnostic |
 | 2026-11-21 | F7 D2 plane-movement probe (`f5_f6_probe.py --level 20`), 8 slots, 4 runs | ESO137 chunk 10 and SARAO 111, k = 1 and 8, 128 baselines | about 1-2 min each | – | nash; validation-only diagnostic |
+| 2026-11-21 | F7 D3 level-40 shards (`f6_shards.py --level 40`): calibrator validation / train, 8 / 12 slots | F6's scans and seeds | 4,535 s / 15,461 s | 26.5 / 33.4 GB | nash; validation-only diagnostic |
+| 2026-11-21 | F7 D3 level-40 shards: target validation / train, 8 / 12 slots | F6's scans and seeds | 4,363 s / 6,955 s | 20.8 / 164.6 GB | nash |
+| 2026-11-21 | F7 D3 training, seed 2, level 40, balanced (`f5_train.py --balance-real`), 12 threads | calibrator / target shards, 30,000 steps | 4,261 s / 5,067 s | 147.7 / 49.3 GB (mapped) | nash CPU, both side by side |
+| 2026-11-21 | F7 D3 tau and validation scorer, level 40 | calibrator / target | tau 705 / 484 s; scorer per SARAO scan up to 7,861 s, ESO137 chunk 10 1,305 s | 2.9-29.5 GB | nash |

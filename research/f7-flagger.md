@@ -59,7 +59,12 @@ Reading: balanced sampling cuts the network's LUNO cells by 42 % and keeps SARAO
 alone is still 7.6 × T on LUNO, and W4 (the anomaly arm; κ 3, independent of the network) adds
 2.17M cells there by itself (10.4 × T). P1 alone does not fix the calibrators. Two things follow
 for the proposal: W4's κ needs a per-observation rule or W4 must go for low-flag-rate data, and
-the network needs P2 (or P3) on top of P1. The full verdict (every gate) lands in the same run root.
+the network needs P2 (or P3) on top of P1. Full verdict (every gate, validation;
+`val-verdict-calibrator.json` in the run root): F on R3 (LUNO MAIN_7 13.9), synthetic G-sub, and
+now also G-drop on MAIN_7 (worst seed draw 0.056 / 0.179 / 0.262 against 0.05 / 0.20 / 0.25; F6:
+0.047 / 0.141 / 0.209); SARAO's G-drop ≤ 0.036 / 0.101 / 0.202, R1 1.00 (T 0.77), R2 above T in
+every morphology, S1 and S3 pass. Balanced sampling makes the network more sensitive to the
+antenna set on LUNO, the set it now sees more of.
 
 **D2 measured (2026-11-21, validation only, nash; `~/rang-data/outputs/f7-d2-20261121/`).**
 `examples/f5_f6_probe.py --level 20` with F6's target weights (seed 2, τ −4.5), 128 baselines,
@@ -80,6 +85,57 @@ change is also inflated by ESO137's low flag count (54k cells on 128 baselines a
 1.57M): the same mechanism as LUNO's, a low-flag-rate observation. Both point to P2 (per-observation
 normalisation of the planes) before P4; ESO137's 512 channels make the per-channel spectral
 statistics noisier, which P4 (1k-channel SARAO blocks) would address in training.
+
+**D3 measured, targets (2026-11-21, validation only, nash; `~/rang-data/outputs/f7-d3-20261121/`).**
+P2 (level 40, per-observation plane scale; kernel 4de582ea, F6's levels pinned unchanged) plus P1
+(balanced real batches), seed 2, F6's scans and seeds re-sharded at level 40; validation loss
+0.0335 (F6 seed 2: 0.0366); `f6_tau.py`: N5W4, τ −4.0, κ 4. Complete scorer and verdict on
+ESO137 chunk 10 and 1573212012's target scans:
+
+| Gate | D3 targets | F6 targets | Bar |
+| --- | --- | --- | --- |
+| R1 (T) | 1.000 (0.913) | 1.000 (0.913) | ≥ T − 0.05 |
+| R2, worst morphology | 0.989 (H4n) | 0.996 | ≥ T − 0.05 |
+| R3 ESO137 / SARAO | 0.31 / 1.17 | 0.42 / 1.16 | lower bound to 1.5 |
+| R5 ESO137 / SARAO | 0.808 / 0.992 | 0.893 / 0.992 | ≥ 0.80 |
+| G-drop ESO137, k = 1 / 4 / 8 | **0.096 / 0.200 / 0.287** | 0.110 / 0.217 / 0.350 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.015 / 0.040 / 0.082 | 0.014 / 0.037 / 0.081 | as above |
+| G-sub core16 / outer32 | pass / **pass** (outer32 R3 on ESO 1.22) | pass / fail (1.94) | R3 ≤ 1.5 |
+| S1 / S2 / S3 | pass | pass | |
+
+Reading: P2 + P1 fixes the targets' outer32 over-flagging and leaves one failure, G-drop on
+ESO137 chunk 10 (down 13-18 %, still above every bar; k = 4 is at 0.200 against 0.20). R5 on
+ESO137 loses margin (0.81 against 0.80). For F7: the targets' remaining gap is the antenna-set
+sensitivity on a 512-channel low-flag-rate observation; D2 names the spectral planes as the largest
+single lever, so the next target candidate is P4 (1k-channel SARAO data in training) or a spectral
+plane robust to the antenna set, not more normalisation.
+
+**D3 measured, calibrators (2026-11-21, validation only; same run root).** Validation loss
+0.116 (D1 0.110, F6 0.082); `f6_tau.py`: N5W4, τ −5.0, κ 3.
+
+| Gate | D3 calibrators | D1 (P1 only) | F6 | Bar |
+| --- | --- | --- | --- | --- |
+| R3 LUNO MAIN_7 (N5 alone) | **17.8** (11.4) | 13.9 (7.6) | 16.9 (13.0) | ≤ 1.5 |
+| R3 SARAO | 0.99 | 0.99 | 1.00 | |
+| G-drop LUNO, k = 1 / 4 / 8 | **0.111 / 0.214 / 0.401** | 0.056 / 0.179 / 0.262 | 0.047 / 0.141 / 0.209 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.040 / 0.077 / 0.129 | 0.036 / 0.101 / 0.202 | 0.036 / 0.100 / 0.196 | as above |
+| R1 (T) / R2 worst / R5 LUNO, SARAO | 1.00 (0.77) / 0.962 H2 / 0.987, 0.968 | pass | pass | |
+
+Reading: for calibrators P2 makes LUNO worse on both failing gates; the per-observation scale
+amplifies LUNO's quiet residuals (its bulk scale is small, so dividing by it pushes ordinary cells
+up). SARAO stays inside every bar, with G-drop improved.
+
+**What D1-D3 decide for F7 (validation only; nothing here is held out).**
+- *Targets:* P2 + P1 leaves one failure, G-drop on ESO137 (0.29 at k = 8). F7's target candidate:
+  P2 + P1 plus an antenna-set-robust spectral plane or P4 (1k-channel data), measured first on
+  ESO137 chunk 10's G-drop.
+- *Calibrators:* neither P1 nor P2 closes LUNO (best: P1, N5 at 7.6 × T). The network carries
+  SARAO's flag level into LUNO whatever the input scale; W4 alone adds 10 × T there. What is left
+  is P3 (more LUNO-like, low-flag-rate observations in training) and the owner's R3 question
+  (section 3); W4 needs its own per-observation rule. Without new low-flag-rate training data, a
+  calibrator F7 is not within reach on these diagnostics.
+- *Cost:* level 40 adds one more split pass over all baselines (the scale), so C1 would need a new
+  timing run if P2 enters F7.
 
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
