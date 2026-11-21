@@ -61,7 +61,7 @@ learned stage that you can turn on:
   other operator is refused at load. Exports must be NCHW, without the
   Transpose, Gather or Identity nodes that torch's exporter can add.
 - **Retraining for another configuration** (1k channels, a core-only
-  sub-array) has a procedure, `docs/agents/retrain-a-stage.md` on branch `dl6-retrain`, dry-run
+  sub-array) has a procedure ({doc}`agents/retrain-a-stage`), dry-run
   on F5 only. Its agent test waits for a stage that passed.
 - **`learned:` on `apply`** is a hook with no network.
 

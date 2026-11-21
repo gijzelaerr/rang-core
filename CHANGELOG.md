@@ -30,6 +30,11 @@ the release notes are the section of this file for that version.
 - **DL4b, a learned deconvolution step ([#42](https://github.com/gijzelaerr/rang-core/issues/42) step 0): outcome F.** An iterated mode-P CNN, tested
   once on 270 regenerated ASTRODECONV2019 fields, gave false flux +0.07 to +0.12 against +0.01, and
   4-7 inversions against 3. Nothing ships.
+- **Retraining a passed learned stage for another configuration ([#46](https://github.com/gijzelaerr/rang-core/issues/46))**:
+  an agent procedure (`docs/agents/retrain-a-stage.md`, skill `retrain-a-stage`) with frozen rules
+  (`research/dl6-retrain.md`). The held-out configuration is 1k channels (block 1735892129, scans 23
+  and 25 unread). The dry run on F5 ran every step and found 13 gaps in the procedure, now fixed. The
+  agent test waits for a stage that passes.
 - **`rang-core watch PATH...`** shows each stage's status and time and whether its process is still
   alive. It also lists spool tasks and worker heartbeats, receipts, the newest file and the last log
   line; options `--once`, `--json` and `--interval`. It watches run directories, spool directories or

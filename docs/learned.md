@@ -121,5 +121,5 @@ Training needs the `learned-train` extra (`torch`, `onnx`); the pipeline never
 imports it. Exports must use the Conv/Relu, NCHW form above. Retraining a
 stage that passed its gates for another configuration (another channel width
 or a sub-array class) follows the agent procedure
-`docs/agents/retrain-a-stage.md` (branch `dl6-retrain`) and its frozen rules in
-`research/dl6-retrain.md`.
+{doc}`agents/retrain-a-stage` and its frozen rules in
+{gh}`research/dl6-retrain.md`.
