@@ -6,7 +6,7 @@
 # weights do not change the work, so U5 (untrained) stands for the trained
 # network; the method fixed at Stage 4 picks its row. A gate refusal (exit 4:
 # other processes above one logical CPU over 10 s) waits 15 min and retries,
-# until 06:00. Each finished JSON is a done-marker; a rerun skips it.
+# until 06:00 (or F6_TIMING_UNTIL's hour in a granted slot). Each finished JSON is a done-marker; a rerun skips it.
 #
 # Usage (Git Bash on glacier): bash examples/f6_timing.sh OUT_DIR
 set -u
@@ -22,7 +22,9 @@ for set in luno:MAIN_1 eso:0; do
       [ -f "$OUT/$name.json" ] && grep -q '"reading"' "$OUT/$name.json" && continue
       while true; do
         h=$(date +%H)
-        if [ "$h" -ge 6 ] && [ "$h" -lt 21 ]; then echo "$name: outside 21:00-06:00, stop" >> "$OUT/timing.log"; exit 5; fi
+        if [ -n "${F6_TIMING_UNTIL:-}" ]; then  # a granted daytime slot (coordinator), until this hour
+          if [ "$h" -ge "$F6_TIMING_UNTIL" ]; then echo "$name: slot ends at $F6_TIMING_UNTIL:00, stop" >> "$OUT/timing.log"; exit 5; fi
+        elif [ "$h" -ge 6 ] && [ "$h" -lt 21 ]; then echo "$name: outside 21:00-06:00, stop" >> "$OUT/timing.log"; exit 5; fi
         kap=(); [ "$arm" = N5W4 ] && kap=(--kappa 5)
         RAYON_NUM_THREADS=$thr python "$LOCK" run -- "$PY" "$W/examples/f5_cost.py" pairs "$OUT/$name.json" \
           --set "$set" --arm U5 --level 20 --degree 1 "${kap[@]}" --pairs 5 --gate >> "$OUT/$name.log" 2>&1

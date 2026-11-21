@@ -171,6 +171,38 @@ nothing it measures depends on training. Protocol unchanged: `examples/f6_timing
 `f5_timing.sh` at `--level 20` (glacier, exclusive, 21:00-06:00, 5 alternating pairs against T, at 4
 and 1 threads, N5 and N5W4 at κ 5); C1 and C2 are read from it with F5's bars.
 
+**Amendment 2d-3 (2026-11-21 07:45 SAST; post hoc: written after the calibrator validation dry
+run, before any held-out read; coordinator's instruction; cut-off 14:00 SAST).** The dry run
+(median seed 2, τ −4.5, κ 3, N5W4) passes every gate on validation except R3 on LUNO MAIN_7
+(16.9 × T; bar 1.5) and, through it, synthetic G-sub; SARAO 1573212012's R3 is 1.00. T flags 1.2 %
+of LUNO's eligible cells and about 55 % of SARAO's, and the τ rule sums added cells over the real
+validation sets, so LUNO's level is invisible to it. On LUNO N5 alone needs τ ≥ 0.3 and W4 adds
+234k cells (> T's 209k) even at κ 16, so no single raw τ meets both sets with margin (measured,
+seed 2). The fix tried is threshold-side only, written here before any variant is computed:
+
+- *Constraints.* No T or A at inference (C1 stays valid); invariant to the antenna set (G-drop);
+  no retraining (that would be F7); W4 off (it alone breaks LUNO at every κ, above). The bars are
+  unchanged. The whole scorer is rerun on validation (every gate), not R3 alone.
+- *Candidates* (the network's logits ℓ unchanged; per baseline b, over that baseline's eligible
+  (time, channel) cells of the scan):
+  - **K1, per-baseline location:** flag ℓ − median_b(ℓ) > τ′.
+  - **K2, per-baseline robust z:** flag (ℓ − median_b(ℓ)) / (1.4826 MAD_b(ℓ)) > τ′.
+  - **K3, per-scan location:** flag ℓ − median(ℓ) > τ′, the median over all eligible cells of the
+    scan (on the shards: over the shard's baselines, recorded as an approximation).
+  K1 and K2 depend only on the baseline's own logits, so they add no antenna-set dependence.
+- *τ′ per candidate:* on F6's grid shifted to the candidate's scale (K1, K3: −2 to 12 in 0.5;
+  K2: 0 to 12 in 0.25), the largest pooled recall on the validation shards' positives such that the
+  added cells on **each** real validation set (not their sum) do not exceed T's.
+- *Selection.* A candidate qualifies if, with its τ′, every gate passes on validation and R3 lies
+  inside both bars with margin on every real validation set of both classes: R3 ≥ 1.1 × its lower
+  bound and R3 ≤ 1.35. Among the qualifying candidates, the largest pooled R1, then K1 before K3
+  before K2 (fewest statistics). None qualifies by 14:00: freeze as written (calibrators F on
+  validation; LUNO MAIN_0, 12, 14 and the three SARAO blocks not read, kept for F7), targets as
+  they stand.
+- *Every variant tried* is recorded below with its τ′, per-set R3, R1, R5 and G-drop, pass or not.
+- *Diagnostic, not acted on:* the share of the method's LUNO added cells that A also flags; R3's
+  anchor T may be what is unstable across observations (a gate question for F7 and the owner).
+
 ## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
 
 *Labelled post hoc (coordinator, 2026-11-20).* The bars below were set after the validation

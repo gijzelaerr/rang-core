@@ -2373,3 +2373,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-20 | F5 tau/kappa for N5-ph (`f5_tau.py`), 8 slots | MAIN_7 (2 realisations) + 3 f2sim-v scans | 355 s | 6.3 GB | nash |
 | 2026-11-20 | F5 held-out scorer validation dry run (`f5_heldout.py --validation`), 8 slots | LUNO MAIN_7, all section-10 cases | 2,063 s | 3.6 GB | nash; no held-out read |
 | 2026-11-20 | F5 target seeds 1-3 in one process (`f5_gpu_seeds.sh`) | target shards, 30,000 steps each | 1,899 s | 20.8 GB host | glacier GPU |
+| 2026-11-20 | F6 calibrator training shards (`f6_shards.py --role train`, L20 d1), 16 slots | LUNO train sets + 85 SARAO calibrator scans (4 blocks), 2-4 realisations | 12,956 s + 880 s rerun to mark | 33.2 GB | nash; IO-bound beside other jobs |
+| 2026-11-21 | F6 target training shards (`f6_shards.py --role train`), 12 slots | ESO137 train chunks + 12 SARAO target scans | 9,527 s | **164 GB peak against 80 GB booked** | nash; under-booked, part of the 2026-11-21 swap; book ≥ 180 GB next time |
+| 2026-11-21 | F6 per-seed trainers, heap-loaded shards (stopped) | calibrator shards 117 GB, 3 processes x 6 threads | stopped after 4,000-7,568 steps | 76-113 GB each against 40 GB booked | nash; drove 171 GB of swap; replaced by memory-mapped shards (057676f7) |
+| 2026-11-21 | F6 calibrator seeds 1-3 in one process (`f5_train.py --seed 1,2,3`, memory-mapped shards), 12 threads | 117 GB train + 29 GB validation shards, 30,000 steps each | 8,226 s | 153 GB (mapped pages) against 160 GB booked | nash CPU |
+| 2026-11-21 | F6 target seeds 1-3 in one process (same), 12 threads | 35 GB train + 8.4 GB validation shards | 14,561 s | 49.3 GB against 56 GB booked | nash CPU, beside the calibrator run |
+| 2026-11-21 | F6 tau/kappa (`f6_tau.py`), 8 slots | calibrator validation shards + MAIN_7 + 3 SARAO scans | 582 s | 29.1 GB | nash |
+| 2026-11-21 | F6 validation scorer (`f6_heldout.py --validation`), 6 slots per set | calibrator: sim 717 s; LUNO MAIN_7 2,515 s; SARAO 1573212012 scan 5 4,904 s | as listed | 3.2-4.3 GB | nash; no held-out read |
