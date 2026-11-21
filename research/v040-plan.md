@@ -61,6 +61,10 @@ booked (small-data compute only, 4 threads left for the owner). glacier is clear
 - glacier lost power twice on 2026-11-19 (owner, 2026-11-20; not the GPU, although its driver
   also logs timeouts every few hours); every job resumes from a checkpoint after a reboot.
 
+## Release rule (owner, 2026-11-21)
+
+"I think we should release it as soon it is good ready and complete, why would we set a deadline". The dated fork is withdrawn. 0.4.0 is released when #42 step 1 and #47 have landed and the full check passes; DL6's agent test (no passed stage: F5 and F6 both F) is a known limitation, and F7 is v0.5.0 (branch `f7-draft`).
+
 ## Owner answers, 2026-11-20
 
 - Fork and dispositions: "sounds good for now"; #4, #7, #34, #44, #45 moved to v0.5.0 the same day.
