@@ -196,6 +196,19 @@ case whose A or masked arm ends on the budget under `-niter 10000000` does not c
 R3-P mask (from R3-A): 1,092,478 pixels (6.5 %), level 106 µJy, SHA-256 in
 [results/dl4c-mask/masks/R3-P.json](results/dl4c-mask/masks/R3-P.json).
 
+**Amendment 4, 2026-11-21 20:30 SAST (a stop rule for R1-A; no saving, P/T or R1 number read).** R1-A
+under `-niter 10000000` has run 18 h (GeMClean process since 02:30 SAST, about 3 cores) past its
+earlier 1,000,000-component budget. Whether its residual peak and threshold still fall cannot be read:
+GeMClean writes its per-cycle lines only when it ends, and R1-A's log holds the data-read line alone.
+Rule (coordinator's proposal, written before deciding): R1-A stops at 24 h of GeMClean wall time
+(2026-11-22 02:30 SAST) if it has not ended; it is then recorded as **not converged**, R1 does not
+count (section 4), R1-P is not run, and #43 is scored on R2, R3 and T1-T3 under the frozen rule
+unchanged (so at most five cases can count; "fewer than four count" still means null). If R1-A ends by
+itself before the deadline, its components and stop reason decide as in amendment 3. Either way, R1-A's
+behaviour is recorded as a GeMClean finding for the coordinator: the auto-masked multiscale clean of
+E2-N's scan 6 at E2's settings did not reach its stop within 1,000,000 components, while scans 8 and 10
+stopped at 883,002 and 884,936.
+
 ## Measured result
 
 ### Stage 9, settings (re-read of seen results, 2026-11-20; no run)
