@@ -42,10 +42,24 @@ def main():
     p.add_argument("--seed", type=int, default=20265301)
     p.add_argument("--nsel", type=int, default=128)
     p.add_argument("--level", type=int, default=0, help="10: F6's per-antenna scale")
+    p.add_argument(
+        "--sarao-root", help="F7 D2: sets sarao:<cbid>:<scan> (validation only)"
+    )
     a = p.parse_args()
     if a.data_root:
         f5.use_data_root(a.data_root)
-    full = f5.load(a.set)
+    if a.set.startswith("sarao:"):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "f6_heldout", Path(__file__).resolve().parent / "f6_heldout.py"
+        )
+        f6h = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(f6h)
+        f6h.SARAO_ROOT = a.sarao_root
+        full = f6h.load_sarao_set(a.set, heldout=False)
+    else:
+        full = f5.load(a.set)
     keep = f5.drop_draw(full, a.k, a.seed)
     sub, _ = f5.subarray(full, keep)
     w3f = f3.w3_flags(full)

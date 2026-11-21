@@ -61,6 +61,26 @@ alone is still 7.6 × T on LUNO, and W4 (the anomaly arm; κ 3, independent of t
 for the proposal: W4's κ needs a per-observation rule or W4 must go for low-flag-rate data, and
 the network needs P2 (or P3) on top of P1. The full verdict (every gate) lands in the same run root.
 
+**D2 measured (2026-11-21, validation only, nash; `~/rang-data/outputs/f7-d2-20261121/`).**
+`examples/f5_f6_probe.py --level 20` with F6's target weights (seed 2, τ −4.5), 128 baselines,
+G-drop's first draw (seed 20265301). Share of eligible cells whose plane moves by > 0.1 (median
+move, asinh units), and N5's change with that group frozen at its full-array value:
+
+| Set, k dropped | N5 flags (128 baselines) | N5 change | F4 spectral moved (median) | 2c+2d blocks moved (median) | change, spectral frozen | change, blocks frozen |
+| --- | --- | --- | --- | --- | --- | --- |
+| ESO137 chunk 10, k = 1 | 57,125 | 0.084 | 7 % (0.05) | 85 % (0.18) | 0.074 | 0.051 |
+| ESO137 chunk 10, k = 8 | 53,798 | **0.319** | **99.99 % (0.29)** | 99.98 % (0.58) | **0.205** | 0.267 |
+| SARAO 111, k = 1 | 1,520,565 | 0.012 | 3 % (0.04) | 44 % (0.09) | 0.009 | 0.010 |
+| SARAO 111, k = 8 | 1,568,012 | 0.037 | 66 % (0.12) | 98 % (0.29) | 0.030 | 0.027 |
+
+Reading: on ESO137 the planes move two to three times as far under the same dropout as on SARAO
+(spectral 0.29 against 0.12, blocks 0.58 against 0.29 at k = 8), and no single group explains the
+change; the spectral planes are the largest single lever (0.32 → 0.21 when frozen). The relative
+change is also inflated by ESO137's low flag count (54k cells on 128 baselines against SARAO's
+1.57M): the same mechanism as LUNO's, a low-flag-rate observation. Both point to P2 (per-observation
+normalisation of the planes) before P4; ESO137's 512 channels make the per-channel spectral
+statistics noisier, which P4 (1k-channel SARAO blocks) would address in training.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
