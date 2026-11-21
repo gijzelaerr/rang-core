@@ -12,12 +12,17 @@ i_g="-size 4096 4096 -scale 3asec -weight briggs 0.5 -niter 20000 -mgain 0.9 -au
 i_w="-size 4096 4096 -scale 3asec -weight briggs 0.5 -channels-out 8 -join-channels -fit-spectral-pol 2 -multiscale -data-column DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -no-small-inversion -j 4 -niter 20000 -mgain 0.9 -auto-threshold 3.0 -auto-mask 5 -field 3"
 for arm in "$@"; do
   o=$R/$arm; mkdir -p $o/tmp
+  cmd=""
   case $arm in
+    mq|mq2) cmd="$R/gemclean-main -name $o/image $q_g -memory-report $R/q.ms" ;;
+    aq|aq2) cmd="$R/gemclean-arm -name $o/image $q_g -memory-report $R/q.ms" ;;
+    ai) cmd="$R/gemclean-arm -name $o/image $i_g -memory-report $R/i.ms" ;;
     gq) cmd="$R/gemclean-main -name $o/image $q_g -memory-report $R/q.ms" ;;
     wq) cmd="wsclean -name $o/w -temp-dir $o/tmp $q_w $R/q.ms" ;;
     gi) cmd="$R/gemclean-main -name $o/image $i_g -memory-report $R/i.ms" ;;
     wi) cmd="wsclean -name $o/w -temp-dir $o/tmp $i_w $R/i.ms" ;;
   esac
+  [ -z "$cmd" ] && { echo "unknown arm $arm" >> $R/profile.log; continue; }
   s=$(date +%s)
   /usr/bin/time -v -o $o/time.txt $cmd > $o/log.txt 2>&1
   echo "$(date -u +%FT%TZ) $arm rc=$? $(( $(date +%s) - s )) s peak $(grep Maximum $o/time.txt)" >> $R/profile.log

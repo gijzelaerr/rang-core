@@ -1,0 +1,306 @@
+diff --git a/core/src/gemclean.rs b/core/src/gemclean.rs
+index ddfc8e08..73f2512c 100644
+--- a/core/src/gemclean.rs
++++ b/core/src/gemclean.rs
+@@ -122,6 +122,22 @@ pub(crate) struct ConvolverBuffers {
+     rows: Vec<C64>,
+     /// Per row of the input: not all zero. A zero row's spectrum is not stored.
+     nonzero: Vec<bool>,
++    /// A kernel spectrum read back from its file (research/gemclean-mem-32.md,
++    /// arm A), and which one it is: (file, offset).
++    spectrum: Vec<C64>,
++    loaded: Option<(usize, u64)>,
++}
++
++/// Where a [`Convolver`]'s kernel spectrum is: in memory, or in a temporary
++/// file (`-reorder`'s, research/gemclean-mem-32.md arm A), read back with the
++/// same bits into the caller's work space for each use.
++enum Spectrum {
++    Memory(Vec<C64>),
++    OnDisk {
++        file: Arc<scratch::TempFile>,
++        offset: u64,
++        len: usize,
++    },
+ }
+ 
+ /// Columns of the half spectrum transformed together: a task's work space then
+@@ -150,7 +166,7 @@ type ConvolverWork = (Vec<C64>, Vec<C64>);
+ pub struct Convolver {
+     n: usize,
+     /// The kernel's half spectrum, `[kx][ky]`, `keep × m`.
+-    spectrum: Vec<C64>,
++    spectrum: Spectrum,
+     /// Half-spectrum columns kept, the lowest `kx`, at most `m/2 + 1`.
+     keep: usize,
+     /// The rms over the `2n` grid of the part of the kernel left out.
+@@ -185,7 +201,7 @@ impl Convolver {
+         let half = m / 2 + 1;
+         let mut c = Convolver {
+             n,
+-            spectrum: Vec::new(),
++            spectrum: Spectrum::Memory(Vec::new()),
+             keep: half,
+             dropped_rms: 0.0,
+             forward,
+@@ -215,10 +231,33 @@ impl Convolver {
+         c.dropped_rms = dropped_rms(&spectrum, m, c.keep);
+         spectrum.truncate(c.keep * m);
+         spectrum.shrink_to_fit();
+-        c.spectrum = spectrum;
++        c.spectrum = Spectrum::Memory(spectrum);
+         Ok(c)
+     }
+ 
++    /// Move the kernel spectrum to `file` (research/gemclean-mem-32.md, arm
++    /// A): each use reads it back, bit for bit, into the work space it is
++    /// given, so the results do not change. Its bytes held then are zero.
++    pub fn spill_spectrum(&mut self, file: &Arc<scratch::TempFile>) -> Result<(), String> {
++        if let Spectrum::Memory(v) = &self.spectrum {
++            let offset = file.append_c64(v)?;
++            self.spectrum = Spectrum::OnDisk {
++                file: Arc::clone(file),
++                offset,
++                len: v.len(),
++            };
++        }
++        Ok(())
++    }
++
++    /// Bytes of the kernel spectrum held in memory.
++    pub fn spectrum_bytes(&self) -> usize {
++        match &self.spectrum {
++            Spectrum::Memory(v) => memory::bytes_of(v),
++            Spectrum::OnDisk { .. } => 0,
++        }
++    }
++
+     /// Half-spectrum columns kept and their number without the band limit.
+     pub fn columns(&self) -> (usize, usize) {
+         (self.keep, self.n + 1)
+@@ -309,6 +348,11 @@ impl Convolver {
+     pub fn apply_into(&self, input: &[f64], out: &mut [f64]) {
+         let mut guard = self.buffers.lock().expect("no panic while convolving");
+         self.apply_into_with(input, out, &mut guard);
++        // A spectrum read back from its file is not kept between calls here.
++        if let Spectrum::OnDisk { .. } = self.spectrum {
++            guard.spectrum = Vec::new();
++            guard.loaded = None;
++        }
+     }
+ 
+     /// [`Convolver::apply_into`] with the caller's work space `buffers`
+@@ -328,7 +372,26 @@ impl Convolver {
+         let keep = self.keep;
+         assert_eq!(input.len(), n * n, "input must be n × n");
+         assert_eq!(out.len(), n * n, "output must be n × n");
+-        let ConvolverBuffers { rows, nonzero } = buffers;
++        let ConvolverBuffers {
++            rows,
++            nonzero,
++            spectrum: read_back,
++            loaded,
++        } = buffers;
++        let spectrum: &[C64] = match &self.spectrum {
++            Spectrum::Memory(v) => v,
++            Spectrum::OnDisk { file, offset, len } => {
++                let id = (Arc::as_ptr(file) as usize, *offset);
++                if *loaded != Some(id) {
++                    read_back.resize(*len, ZERO);
++                    if let Err(e) = file.read_c64_into(*offset, read_back) {
++                        panic!("gemclean: reading a beam spectrum back failed: {e}");
++                    }
++                    *loaded = Some(id);
++                }
++                read_back
++            }
++        };
+         rows.resize(n * keep, ZERO);
+         nonzero.resize(n, false);
+         self.forward_rows(n, |y, x| input[y * n + x], n, rows, nonzero);
+@@ -336,7 +399,6 @@ impl Convolver {
+         let scale = 1.0 / (m * m) as f64;
+         let stride = m + COLUMN_PAD;
+         let nonzero: &[bool] = nonzero;
+-        let spectrum: &[C64] = &self.spectrum;
+         let shared = SyncPtr(rows.as_mut_ptr());
+         // Each task takes a block of columns out of the half spectra of the
+         // rows, convolves them, and puts the first n rows of the result back.
+@@ -669,7 +731,7 @@ impl Beam {
+                 "beam: patch and rings",
+                 bytes_of(&self.patch_values) + bytes_of(&self.ring),
+             ),
+-            ("beam: spectrum", bytes_of(&self.convolver.spectrum)),
++            ("beam: spectrum", self.convolver.spectrum_bytes()),
+             (
+                 "beam: row spectra (resync work space)",
+                 bytes_of(&buffers.rows) + bytes_of(&buffers.nonzero),
+@@ -677,6 +739,13 @@ impl Beam {
+         ]
+     }
+ 
++    /// Move the resync spectrum to `file` (`-reorder`'s temporary file,
++    /// research/gemclean-mem-32.md arm A); the resyncs read it back with the
++    /// same bits.
++    pub fn spill_spectrum(&mut self, file: &Arc<scratch::TempFile>) -> Result<(), String> {
++        self.convolver.spill_spectrum(file)
++    }
++
+     /// The rms of the part of the beam the resyncs leave out.
+     pub fn dropped_rms(&self) -> f64 {
+         self.convolver.dropped_rms()
+@@ -2376,6 +2445,52 @@ mod tests {
+         }
+     }
+ 
++    /// research/gemclean-mem-32.md arm A: a spectrum moved to the temporary
++    /// file gives the same bits, through its own buffers and through a work
++    /// space shared with another convolver, and holds no bytes.
++    #[test]
++    fn a_spilled_spectrum_gives_the_same_bits() {
++        let n = 24;
++        let m = 2 * n;
++        let mut rng = Rng(31);
++        let k1: Vec<f64> = (0..m * m).map(|_| rng.next() - 0.5).collect();
++        let k2: Vec<f64> = (0..m * m).map(|_| rng.next() - 0.5).collect();
++        let mut input = vec![0.0; n * n];
++        for (i, v) in input.iter_mut().enumerate() {
++            if i % 7 == 0 {
++                *v = rng.next() - 0.5;
++            }
++        }
++        let file = Arc::new(
++            scratch::TempFile::create(scratch::temp_path(
++                Some(&std::env::temp_dir()),
++                "spilled-spectrum-test",
++                "beams",
++            ))
++            .unwrap(),
++        );
++        for band in [n + 1, 9] {
++            let a1 = Convolver::with_band(n, &k1, band).unwrap();
++            let a2 = Convolver::with_band(n, &k2, band).unwrap();
++            let mut b1 = Convolver::with_band(n, &k1, band).unwrap();
++            let mut b2 = Convolver::with_band(n, &k2, band).unwrap();
++            b1.spill_spectrum(&file).unwrap();
++            b2.spill_spectrum(&file).unwrap();
++            assert!(a1.spectrum_bytes() > 0);
++            assert_eq!(b1.spectrum_bytes(), 0);
++            let bits = |v: &[f64]| v.iter().map(|x| x.to_bits()).collect::<Vec<_>>();
++            assert_eq!(bits(&a1.apply(&input)), bits(&b1.apply(&input)));
++            // One shared work space, alternating convolvers (the joined resync).
++            let mut shared = ConvolverBuffers::default();
++            let (mut x, mut y) = (vec![0.0; n * n], vec![0.0; n * n]);
++            for (a, b) in [(&a1, &b1), (&a2, &b2), (&a1, &b1), (&a2, &b2)] {
++                a.apply_into(&input, &mut x);
++                b.apply_into_with(&input, &mut y, &mut shared);
++                assert_eq!(bits(&x), bits(&y));
++            }
++        }
++    }
++
+     #[test]
+     fn convolver_handles_odd_sides_and_empty_rows() {
+         for n in [7usize, 9, 16] {
+diff --git a/core/src/gemclean/cli.rs b/core/src/gemclean/cli.rs
+index 32da36d4..e846436d 100644
+--- a/core/src/gemclean/cli.rs
++++ b/core/src/gemclean/cli.rs
+@@ -2428,6 +2428,8 @@ fn run_channels(
+         }
+     }
+     let model_json = update_model(args)?;
++    // -memory-report on this path too (research/gemclean-mem-32.md, arm 0).
++    let memory_json = memory_section(args);
+     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
+     let report = obj(&[
+         ("tool", text("gemclean")),
+@@ -2494,6 +2496,7 @@ fn run_channels(
+             "peak_memory_bytes",
+             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
+         ),
++        ("memory", memory_json),
+     ]);
+     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
+     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
+@@ -2691,8 +2694,13 @@ impl<T: Real + Send + Sync> PolBuild<T> {
+                 } else {
+                     n + 1
+                 };
+-                self.beams
+-                    .push(Beam::from_double_band(n, &psf2n, args.patch, columns)?);
++                let mut beam = Beam::from_double_band(n, &psf2n, args.patch, columns)?;
++                // -reorder: the resync spectrum waits in the file too
++                // (research/gemclean-mem-32.md, arm A); the same bits come back.
++                if let Some(f) = &self.vis_file {
++                    beam.spill_spectrum(f)?;
++                }
++                self.beams.push(beam);
+                 if p == 0 {
+                     self.restoring.push(gemclean::fit_restoring_beam(
+                         n,
+diff --git a/core/src/gemclean/scratch.rs b/core/src/gemclean/scratch.rs
+index 35b5af8b..19812747 100644
+--- a/core/src/gemclean/scratch.rs
++++ b/core/src/gemclean/scratch.rs
+@@ -157,6 +157,34 @@ impl TempFile {
+     }
+ }
+ 
++impl TempFile {
++    /// Append double-precision complex values; their offset (a beam's
++    /// resync spectrum, research/gemclean-mem-32.md arm A).
++    pub fn append_c64(&self, v: &[Complex<f64>]) -> Result<u64, String> {
++        self.append_with(v.len(), 16, |a, b, buf| {
++            for x in &v[a..b] {
++                buf.extend_from_slice(&x.re.to_le_bytes());
++                buf.extend_from_slice(&x.im.to_le_bytes());
++            }
++        })
++    }
++
++    /// Read the values written by [`TempFile::append_c64`] at `offset` into
++    /// `out` (its length is the count), bit for bit.
++    pub fn read_c64_into(&self, offset: u64, out: &mut [Complex<f64>]) -> Result<(), String> {
++        let mut at = 0;
++        self.read_with(offset, out.len(), 16, |b| {
++            for c in b.chunks_exact(16) {
++                out[at] = Complex::new(
++                    f64::from_le_bytes(c[..8].try_into().expect("8 bytes")),
++                    f64::from_le_bytes(c[8..].try_into().expect("8 bytes")),
++                );
++                at += 1;
++            }
++        })
++    }
++}
++
+ impl Drop for TempFile {
+     fn drop(&mut self) {
+         // Closed before it is removed: Windows does not remove an open file.
+@@ -218,4 +246,25 @@ mod tests {
+         drop(f);
+         assert!(!path.exists());
+     }
++
++    #[test]
++    fn double_complex_values_come_back_bit_for_bit() {
++        let dir = std::env::temp_dir();
++        let path = temp_path(Some(&dir), "scratch-test-c64", "t");
++        let f = TempFile::create(path).unwrap();
++        let pad = f.append_f32(&[1.0, 2.0, 3.0]).unwrap();
++        assert_eq!(pad, 0);
++        let a: Vec<Complex<f64>> = (0..400_000)
++            .map(|i| Complex::new((i as f64).sin() * 1e-7, -(i as f64).sqrt()))
++            .chain([Complex::new(f64::NAN, -0.0), Complex::new(f64::MIN_POSITIVE / 2.0, 1e308)])
++            .collect();
++        let o = f.append_c64(&a).unwrap();
++        assert_eq!(o, 12);
++        let mut b = vec![Complex::new(0.0, 0.0); a.len()];
++        f.read_c64_into(o, &mut b).unwrap();
++        assert!(a
++            .iter()
++            .zip(&b)
++            .all(|(x, y)| x.re.to_bits() == y.re.to_bits() && x.im.to_bits() == y.im.to_bits()));
++    }
+ }
