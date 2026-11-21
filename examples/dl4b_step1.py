@@ -23,6 +23,20 @@ opgate SKIES SCRATCH OUT_JSON
     against WSClean's exact predict + inversion of the same crop model, inside
     the crop: relative rms error, median <= 0.10 at both positions.
 
+score SKIES --names V1,... --arms W1,... OUT_JSON
+    rml-gap's frozen measures (examples/rml_gap_score.py) per sky and arm: the
+    truth control (band-limited truth, relative L2 <= 0.002, group ratios within
+    0.002), then relative L2 on the beam, false flux (|model| outside every
+    group) over the total true flux, extended groups failing measure 3, and
+    positions; sigma from 1.4826 MAD of W1's residual outside every group.
+
+parm SKIES SCRATCH --names V1,... --onnx LABEL=PATH --taus 3,5 --kmax 3
+    Arm P (section 3): per sky and tau, passes k = 1..KMAX of the network
+    (ONNX Runtime, 16 threads) with the beam threshold, each followed by
+    WSClean -predict of the model; after pass k, `-continue` with W1's
+    settings (scored as P at K = k), and the residual for pass k+1 by
+    `-niter 0 -subtract-model`. Times of every step are kept.
+
 WSClean runs as `wsclean` or $DL4B_WSCLEAN (see examples/dl4b_step0.py).
 """
 
@@ -259,6 +273,132 @@ def opgate(a):
     print(json.dumps({k: v for k, v in out.items() if k != "per_crop"}))
 
 
+def score(a):
+    sys.path.insert(0, str(HERE))
+    import rml_gap_score as R
+
+    skies = Path(a.skies)
+    out = {}
+    for name in a.names.split(","):
+        d = skies / name
+        cat = json.loads((d / "catalogue.json").read_text())
+        comps = R.components(cat)
+        b = json.loads((d / "beam.json").read_text())["beam_px"]
+        bt = np.load(d / "bt.npy").astype(np.float64)
+        label, grps = R.groups(comps, SIZE, b)
+        r1 = np.load(d / "arms" / "W1-residual.npy")
+        outside = r1[label == 0]
+        sigma = float(1.4826 * np.median(np.abs(outside - np.median(outside))))
+        ftot = float(sum(c[2] for c in comps))
+        bl = R.bandlimited_truth(comps, SIZE)
+        rc = R.measures(R.model_on_beam(bl, b), bt, bl, label, grps, b, sigma)
+        ratios = [g["F_M"] / g["F_T"] for g in rc["groups"]]
+        control = {"relative_l2": rc["relative_l2"], "ratio_min": min(ratios), "ratio_max": max(ratios)}  # fmt: skip
+        control["pass"] = bool(control["relative_l2"] <= 0.002 and abs(control["ratio_min"] - 1) <= 0.002 and abs(control["ratio_max"] - 1) <= 0.002)  # fmt: skip
+        sky = {"beam_px": b, "sigma": sigma, "true_flux": ftot, "groups": len(grps), "extended_groups": sum(g["extended"] for g in grps), "control": control, "arms": {}}  # fmt: skip
+        for arm in a.arms.split(","):
+            mp_ = d / "arms" / f"{arm}-model.npy"
+            if not mp_.exists():
+                continue
+            model = np.load(mp_).astype(np.float64)
+            rec = R.measures(
+                R.model_on_beam(model, b), bt, model, label, grps, b, sigma
+            )
+            ext = [g for g in rec["groups"] if g["extended"]]
+            js = d / "arms" / f"{arm}.json"
+            sky["arms"][arm] = {
+                "relative_l2": rec["relative_l2"],
+                "relative_l2_extended": rec.get("relative_l2_extended"),
+                "relative_l2_points": rec.get("relative_l2_points"),
+                "false_flux": rec["false_flux_abs"] / ftot,
+                "extended_failing": sum(not g["flux_pass"] for g in ext),
+                "positions_failed": len(rec["positions_failed"]),
+                "model_flux": rec["model_flux_total"],
+                **(json.loads(js.read_text()) if js.exists() else {}),
+            }
+            print(name, arm, {k: round(v, 4) if isinstance(v, float) else v for k, v in sky["arms"][arm].items() if k in ("relative_l2", "false_flux", "extended_failing", "deconvolution_s", "major", "wall_s")}, flush=True)  # fmt: skip
+        out[name] = sky
+        print(name, "control", control, flush=True)
+    Path(a.out_json).write_text(json.dumps(out, indent=1))
+
+
+def robust_rms(x):
+    med = float(np.median(x))
+    return max(1.4826 * float(np.median(np.abs(x - med))), 1e-12)
+
+
+def peak_beam(model, beam_px):
+    """B * m with B the circular common beam at peak 1 (Jy per beam)."""
+    sys.path.insert(0, str(HERE))
+    import rml_gap_score as R
+
+    sb = beam_px * R.FWHM_TO_SIGMA
+    return R.model_on_beam(model, beam_px) * (2 * np.pi * sb * sb)
+
+
+def parm(a):
+    import onnxruntime as ort
+    from astropy.io import fits
+
+    skies, scr = Path(a.skies), Path(a.scratch)
+    label, path = a.onnx.split("=", 1)
+    so = ort.SessionOptions()
+    so.intra_op_num_threads = a.infer_threads
+    sess = ort.InferenceSession(path, so, providers=["CPUExecutionProvider"])
+    for name in a.names.split(","):
+        d, w = skies / name, scr / name
+        ms = w / f"{name}.ms"
+        b = json.loads((d / "beam.json").read_text())["beam_px"]
+        hdr = fits.getheader(w / "W1-model.fits")
+        dirty = np.load(d / "dirty.npy").astype(np.float32)
+        for tau in [float(t) for t in a.taus.split(",")]:
+            tag = f"P-{label}-t{tau:g}"
+            js = d / "arms" / f"{tag}-K{a.kmax}.json"
+            if js.exists():
+                continue
+            m = np.zeros_like(dirty)
+            r = dirty
+            steps = []
+            for k in range(1, a.kmax + 1):
+                st = {"k": k}
+                s = robust_rms(r)
+                t = time.perf_counter()
+                y = sess.run(None, {"x": np.stack([r / s, m / s])[None].astype(np.float32)})[0][0, 0]  # fmt: skip
+                st["infer_s"] = time.perf_counter() - t
+                m = np.maximum(m + s * y, 0).astype(np.float32)
+                keep = peak_beam(m.astype(np.float64), b) > a_tau(tau) * s
+                m = np.where(keep, m, 0).astype(np.float32)
+                st["model_flux"] = float(m.sum())
+                st["model_pixels"] = int((m > 0).sum())
+                nm = f"{tag}-K{k}"
+                fits.writeto(w / f"{nm}-model.fits", m[None, None], hdr, overwrite=True)
+                st["predict_s"] = run([*wsclean_cmd(w), "-j", "16", *IMG, "-predict", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}-p.log", w)  # fmt: skip
+                t = time.perf_counter()
+                run([*wsclean_cmd(w), "-j", "16", *IMG, *COMMON, *ARMS["W1"], "-continue", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}.log", w)  # fmt: skip
+                st["continue_wall_s"] = time.perf_counter() - t
+                st.update({f"continue_{k2}": v for k2, v in ws_times((d / "arms" / f"{nm}.log").read_text()).items()})  # fmt: skip
+                np.save(d / "arms" / f"{nm}-model.npy", read(w / f"{nm}-model.fits")[0])
+                np.save(d / "arms" / f"{nm}-proposal.npy", m)
+                for f in w.glob(f"{nm}-*.fits"):
+                    f.unlink()
+                steps.append(st)
+                (d / "arms" / f"{nm}.json").write_text(json.dumps({"sky": name, "arm": nm, "tau": tau, "steps": steps}, indent=1))  # fmt: skip
+                print(time.strftime("%H:%M:%S"), name, nm, {kk: round(v, 1) if isinstance(v, float) else v for kk, v in st.items()}, flush=True)  # fmt: skip
+                if k < a.kmax:
+                    # the residual of m for the next pass: MODEL_DATA still holds m's
+                    # prediction (-continue ran with -no-update-model-required)
+                    t = time.perf_counter()
+                    run([*wsclean_cmd(w), "-j", "16", *IMG, "-niter", "0", "-subtract-model", "-no-update-model-required", "-name", str(w / f"{nm}r"), str(ms)], d / "arms" / f"{nm}r.log", w)  # fmt: skip
+                    steps[-1]["residual_s"] = time.perf_counter() - t
+                    r = read(w / f"{nm}r-dirty.fits")[0]
+                    for f in w.glob(f"{nm}r-*.fits"):
+                        f.unlink()
+
+
+def a_tau(tau):
+    return tau
+
+
 def prep_sky(d):
     sys.path.insert(0, str(HERE))
     import rml_gap_score as R
@@ -305,6 +445,21 @@ def main():
     p.add_argument("scratch")
     p.add_argument("out_json")
     p.set_defaults(func=opgate)
+    p = sub.add_parser("score")
+    p.add_argument("skies")
+    p.add_argument("out_json")
+    p.add_argument("--names", required=True)
+    p.add_argument("--arms", default="W1,W2,W3,W4,W5")
+    p.set_defaults(func=score)
+    p = sub.add_parser("parm")
+    p.add_argument("skies")
+    p.add_argument("scratch")
+    p.add_argument("--names", required=True)
+    p.add_argument("--onnx", required=True)
+    p.add_argument("--taus", default="3,5")
+    p.add_argument("--kmax", type=int, default=3)
+    p.add_argument("--infer-threads", type=int, default=16)
+    p.set_defaults(func=parm)
     p = sub.add_parser("prep")
     p.add_argument("skies")
     p.add_argument("--workers", type=int, default=4)
