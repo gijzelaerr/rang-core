@@ -55,8 +55,9 @@ def _block(w, rows):
     return start, stop - start, rows - start
 
 
-def flag_block(w, rows, cfg, nant, column="CORRECTED_DATA"):
-    """Flags for one (field, scan) block; writes them and returns a record."""
+def flag_block(w, rows, cfg, nant, column="CORRECTED_DATA", write=True):
+    """Flags for one (field, scan) block against the flags now in the MS;
+    writes them (or not) and returns (record, new (row, chan) bool)."""
     start, n, idx = _block(w, rows)
     data = w.read(column, start, n)[idx]
     flag = w.read("FLAG", start, n)
@@ -90,10 +91,11 @@ def flag_block(w, rows, cfg, nant, column="CORRECTED_DATA"):
     before = sub.any(-1)
     added = new & ~before
     cross = a1 != a2
-    flag[idx] = sub | new[..., None]
-    w.write_flags(start, flag)
+    if write:
+        flag[idx] = sub | new[..., None]
+        w.write_flags(start, flag)
     v = np.abs(0.5 * (res[..., 1] - res[..., 2]))
-    return {
+    rec = {
         "rows": int(nrow),
         "flagged_before": float(before[cross].mean()) if cross.any() else 0.0,
         "flagged_after": float((before | new)[cross].mean()) if cross.any() else 0.0,
@@ -103,16 +105,28 @@ def flag_block(w, rows, cfg, nant, column="CORRECTED_DATA"):
         if (~(before | new)[cross]).any()
         else None,
     }
+    return rec, added
 
 
-def flag_fields(w, fields, cfg, nant, names, scans=None):
-    """Flag every (field, scan) block of `fields`; a summary per block."""
-    out = []
+def or_flags(w, rows, new):
+    """OR `new` ((row, chan) bool, rows as `rows`) into FLAG in every correlation."""
+    start, n, idx = _block(w, rows)
+    flag = w.read("FLAG", start, n)
+    flag[idx] |= new[..., None]
+    w.write_flags(start, flag)
+
+
+def flag_fields(w, fields, cfg, nant, names, scans=None, write=True):
+    """Flags for every (field, scan) block of `fields`: (summary per block,
+    {(field, scan): (rows, new flags)}). With `write`, they are OR-ed into
+    FLAG at once; otherwise the caller writes them (`or_flags`)."""
+    out, new = [], {}
     for (f, s), rows in sorted(_rows_by_scan(w, fields, scans).items()):
-        rec = flag_block(w, rows, cfg, nant)
+        rec, added = flag_block(w, rows, cfg, nant, write=write)
         rec.update({"field": names[f], "field_id": f, "scan": s})
         out.append(rec)
-    return out
+        new[(f, s)] = (rows, added)
+    return out, new
 
 
 TRIPWIRE_TYPES = ("K", "G", "B", "F")
@@ -139,4 +153,11 @@ def tripwire(steps, limit):
     return any(v > limit for v in frac.values()), frac
 
 
-__all__ = ["BLOCK", "flag_block", "flag_fields", "solution_flag_fractions", "tripwire"]
+__all__ = [
+    "BLOCK",
+    "flag_block",
+    "flag_fields",
+    "or_flags",
+    "solution_flag_fractions",
+    "tripwire",
+]

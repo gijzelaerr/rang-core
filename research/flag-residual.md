@@ -216,6 +216,25 @@ Consequences for this note, decided before any code:
   no code path changes and no stage hash changes (`flag.residual` is left out of the flag stage's hash
   and enters calibrate's only when not off; tests in `tests/test_flag_residual.py`).
 
+**Amendment 3, 2026-11-22 01:00 SAST, post hoc (the first E2-N `on` run was read: its tripwire
+fired).** The first E2-N `on` run stopped at the tripwire: after the re-solve, K, G, Gsec and F had
+30.6 % of their solutions flagged (19 of 62 antennas: m000-m003, m006, m007, m009, m011, m012, m015,
+m016, m018, m021, m023, m026, m030, m031, m043, m047) and B 53.9 %, against K, G, Gsec, F 0 % and B
+29.7 % in the first pass. The residual flags themselves added only 0.1-0.4 percentage points per
+calibrator scan. Diagnosis: those 19 antennas have no unflagged J1939-6342 cell to the reference
+antenna m022 in the flags the chain leaves behind (in the `off` run too); the first pass's K solved
+before the chain's later flag-writing steps, but amendment 2's restore point was the flags after the
+whole chain, so the re-solve's K started from them. That is a defect of this note's design (amendment
+2's restore point), not evidence about residual flagging. Fix, before any further run: the residual
+flags are found on the cells still valid after the first pass's chain and calflag apply, the flags
+are then put back to the calibrate stage's own starting version (`rang_calibrate_<time>`, the flags
+before the stage wrote anything), and the residual flags are OR-ed into those, so the re-solve differs
+from the first pass by the residual flags alone. The E2-N `on` and A1 `on` arms run again under the
+fix; the first runs' records are archived. Side finding for the coordinator, not acted on here: on
+E2-N the stage-off chain flags B for about 30 % of solutions and leaves 19 antennas without a J1939
+baseline to m022 after its own flag steps, close to the 19 antennas CASA's K solve flagged on this
+block ([e2n-native.md](e2n-native.md)).
+
 ## Measured result
 
 _Nothing yet._

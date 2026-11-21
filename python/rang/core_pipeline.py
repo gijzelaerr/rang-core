@@ -1903,10 +1903,13 @@ def _chain_solve(ctx, terms, out_dir, model_column, masks, scans, version, plan)
 
 
 def residual_flag_pass(ctx, result, plan, scans):
-    """Issue #51 (research/flag-residual.md section 3): apply the chain's
-    tables to the calibrator fields (into CORRECTED_DATA, as `apply` will),
-    put the flags back as they were before that apply, then add the residual
-    flags (`rang.flag_residual`). Returns the record for `residual.json`."""
+    """Issue #51 (research/flag-residual.md section 3, amendment 3): apply
+    the first pass's tables to the calibrator fields (into CORRECTED_DATA,
+    calflag), find the residual flags on the cells still valid after that
+    apply, put the flags back to the calibrate stage's starting version (the
+    flags before this stage wrote), and OR the residual flags into them, so
+    that the re-solve differs from the first pass by the residual flags only.
+    Returns the record for `residual.json`."""
     from . import applycal, flag_residual
 
     config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
@@ -1915,10 +1918,7 @@ def residual_flag_pass(ctx, result, plan, scans):
     cal_ids = sorted(resolve_fields(roles, config, info, "flag.residual"))
     made = {name: entry for name, entry in result["tables"].items()}
     targets = apply_targets(config, info, complex_fields(config, info))
-    pre = f"{stage_version(ctx, 'calibrate')}_residual_pre"
-    core_writeback.backup_flags(
-        ms, pre, comment="rang: flags before flag.residual's calibrator apply"
-    )
+    pre = stage_version(ctx, "calibrate")
     parang = apply_parang_args(config)
     applied = []
     with writeback_session(ctx, "calibrate") as (w, _):
@@ -1943,11 +1943,13 @@ def residual_flag_pass(ctx, result, plan, scans):
             applied.append(
                 {"fields": [info["fields"][f] for f in sel], "tables": names}
             )
+        blocks, new = flag_residual.flag_fields(
+            w, cal_ids, rcfg, len(info["antennas"]), info["fields"], scans, write=False
+        )
     core_writeback.restore_flags(ms, pre)
     with writeback_session(ctx, "calibrate") as (w, _):
-        blocks = flag_residual.flag_fields(
-            w, cal_ids, rcfg, len(info["antennas"]), info["fields"], scans
-        )
+        for rows, added in new.values():
+            flag_residual.or_flags(w, rows, added)
     return {
         "settings": dict(rcfg),
         "fields": [info["fields"][f] for f in cal_ids],
