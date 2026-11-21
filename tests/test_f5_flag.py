@@ -258,3 +258,39 @@ def test_trainer_seeds_in_one_process_equal_separate_runs(tmp_path):
         a = np.load(tmp_path / f"single-{s}" / "weights.npz")["flat"]
         b = np.load(tmp_path / "multi" / f"seed-{s}" / "weights.npz")["flat"]
         assert np.array_equal(a, b)
+
+
+@pytest.mark.parametrize("level", [10, 20, 30])
+def test_f6_levels_keep_relabelling_exact(level):
+    scan = _scan(nant=8, nt=6, nc=256)
+    flagged = scan["input_flags"].any(-1)
+    w = f5net.flat_from_arrays(f5net.init_arrays(2, 33, True))
+    z0 = f5.rust_logits(scan, flagged, w, level, 1)
+    s2, _ = f5.relabel(scan, 20265201)
+    assert np.array_equal(f5.rust_logits(s2, flagged, w, level, 1), z0)
+    assert not np.array_equal(f5.rust_logits(scan, flagged, w, 0, 1), z0)
+
+
+def test_hybrid_positives_only_add_native_strong_cells():
+    scan = _scan(nant=8, nt=8, nc=256)
+    inj, flagged = _inj(scan)
+    inj.t7()
+    t = np.zeros_like(flagged)
+    t[:20, :40] = True
+    strong = t & ~flagged
+    base = f5.labels(inj, ~flagged, t, t)
+    hyb = f5.labels(inj, ~flagged, t, t, strong=strong)
+    native = (inj.amp == 0) & (inj.beta == 0)
+    assert (hyb[strong & native] == 1).all()
+    assert np.array_equal(hyb[~(strong & native)], base[~(strong & native)])
+
+
+def test_unpack_labels_reads_cs_packing(tmp_path):
+    rng = np.random.default_rng(0)
+    bits = rng.random((5, 16, 4)) < 0.3
+    np.save(tmp_path / "flag.npy", np.packbits(bits.reshape(5, -1), axis=1))
+    np.save(tmp_path / "flag_row.npy", np.array([0, 0, 1, 0, 0], np.uint8))
+    got = f5._unpack_labels(tmp_path, 5, 16, 4, slice(4, 12))
+    want = bits[:, 4:12].any(-1)
+    want[2] = True
+    assert np.array_equal(got, want)

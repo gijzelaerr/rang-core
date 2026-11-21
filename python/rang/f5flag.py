@@ -24,7 +24,8 @@ from . import core
 from . import f3flag as f3
 from . import f4flag as f4
 
-LEVEL_INPUTS = {0: 33, 1: 29, 2: 21}
+# F6 variants (core/src/f5flag.rs): +10 per-antenna scale, +20 one-step factorisation.
+LEVEL_INPUTS = {b + 10 * k: n for k in range(4) for b, n in ((0, 33), (1, 29), (2, 21))}
 CELL_PLANES = 14
 SPEC_PLANES = 8
 AMP_PLANES = 6
@@ -589,7 +590,7 @@ def r2_case(scan, eligible, sigma, code, seed):
 # -- labels (section 4) -------------------------------------------------------------
 
 
-def labels(inj, eligible, t_flag=None, a_flag=None, truth_amp=None):
+def labels(inj, eligible, t_flag=None, a_flag=None, truth_amp=None, strong=None):
     """Landman's scheme. Positive: injected A >= 3 or T7 beta >= 0.5, or
     simulation truth A >= 3. Ignored: T or A on the uninjected DATA (real
     scans), 0 < A < 3, 0 < beta < 0.5, F. Negative: the rest."""
@@ -603,11 +604,16 @@ def labels(inj, eligible, t_flag=None, a_flag=None, truth_amp=None):
     if t_flag is not None:
         lab[(t_flag | a_flag) & ~pos] = -1
     lab[pos] = 1
+    if strong is not None:
+        # F6's hybrid positives (research/f6-flagger.md, fix 1): native cells T and A
+        # both flag with strength s >= 3 on the uninjected DATA.
+        native = (inj.amp == 0) & (inj.beta == 0)
+        lab[strong & native] = 1
     lab[~eligible] = -1
     return lab
 
 
-def realise(scan, w3, sigma, seed, augment, t_flag=None, a_flag=None):
+def realise(scan, w3, sigma, seed, augment, t_flag=None, a_flag=None, strong=None):
     """One realisation: (injected DATA, flags before the network, labels,
     Injector, rng)."""
     rng = np.random.default_rng(seed)
@@ -618,8 +624,15 @@ def realise(scan, w3, sigma, seed, augment, t_flag=None, a_flag=None):
     if t_flag is None:
         lab = labels(inj, elig, truth_amp=scan["amp"])
     else:
-        lab = labels(inj, elig, t_flag, a_flag)
+        lab = labels(inj, elig, t_flag, a_flag, strong=strong)
     return inj.data, flags, lab, inj, rng
+
+
+def hybrid_strong(scan, w3, t_flag, a_flag, bar=3.0, data=None):
+    """F6's hybrid-positive cells: T and A both flag, strength s >= bar on the
+    uninjected DATA (s as F4: max of the residual and spectral planes)."""
+    s = f4.strength_rows(scan, w3, data)
+    return t_flag & a_flag & ~w3 & (s >= bar)
 
 
 def subarray_draw(scan, seed, lo=24):
@@ -731,3 +744,83 @@ def load_reserved(group, heldout=False):
             "set rang.f5flag.RESERVED_FETCH to the fetch's objects/ directory"
         )
     return f3.read_luno(group, (RESERVED_FETCH, f3.INPUTS))
+
+
+# -- F6: SARAO archive scans (research/f6-flagger.md, section 1) ---------------------
+
+SARAO_CHANS = slice(
+    1024, 3072
+)  # LUNO's window of the 4,096-channel L band, 1070-1498 MHz
+SARAO_TEACHERS = {
+    "T": "rang",
+    "A": "aoflagger",
+}  # A: AOFlagger 2.13, CARACal's firstpass_QUV
+
+
+def _unpack_labels(path, nrow, nchan_all, ncorr, chans):
+    """C's flag.npy (bit-packed per row over C-order (chan, corr)) as (row, chan)
+    bool, any over correlations, cut to `chans`."""
+    from pathlib import Path
+
+    packed = np.load(Path(path) / "flag.npy")
+    bits = np.unpackbits(packed, axis=1, count=nchan_all * ncorr).astype(bool)
+    bits = bits.reshape(nrow, nchan_all, ncorr)[:, chans]
+    frow = np.load(Path(path) / "flag_row.npy").astype(bool)
+    return bits.any(-1) | frow[:, None]
+
+
+def load_sarao(
+    ms, klass, label_root=None, cbid=None, scan_name=None, chans=SARAO_CHANS
+):
+    """One SARAO scan (C's frozen MS) as F5's scan dict; with `label_root`, also
+    the teachers' flags under scan["teachers"] ({"T", "A"}: (row, chan) bool in
+    the dict's rows). Autocorrelations and FLAG_ROW rows are dropped, as for LUNO."""
+    from pathlib import Path
+
+    from . import core_ms
+
+    ms = Path(ms)
+    if scan_name is not None and str(scan_name).isdigit():
+        scan_name = f"scan{int(scan_name):03d}"  # C's manifest gives the number
+    with core_ms.open_table(ms) as t:
+        nrow = t.nrows
+        a1 = np.asarray(t.getcol("ANTENNA1"), np.int32)
+        a2 = np.asarray(t.getcol("ANTENNA2"), np.int32)
+        frow = np.asarray(t.getcol("FLAG_ROW"), bool)
+        keep = (a1 != a2) & ~frow
+        times = np.asarray(t.getcol("TIME"), np.float64)
+        data = np.asarray(t.getcol("DATA", chans=chans), np.complex64)
+        flag = np.asarray(t.getcol("FLAG", chans=chans), bool)
+    with core_ms.open_table(ms / "ANTENNA") as t:
+        pos = np.asarray(t.getcol("POSITION"), np.float64)
+    with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
+        freq_all = np.asarray(t.getcol("CHAN_FREQ")[0], np.float64)
+        width_all = np.asarray(t.getcol("CHAN_WIDTH")[0], np.float64)
+    with core_ms.open_table(ms / "POLARIZATION") as t:
+        corr = np.asarray(t.getcol("CORR_TYPE")[0], np.int32)
+    scan = {
+        "data": np.ascontiguousarray(data[keep]),
+        "input_flags": np.ascontiguousarray(flag[keep]),
+        "antenna1": np.ascontiguousarray(a1[keep]),
+        "antenna2": np.ascontiguousarray(a2[keep]),
+        "times": np.ascontiguousarray(times[keep]),
+        "antenna_position": pos,
+        "chan_freq": np.ascontiguousarray(freq_all[chans]),
+        "chan_width": np.ascontiguousarray(width_all[chans]),
+        "corr_type": corr,
+        "nant": len(pos),
+        "klass": klass,
+        "field": f"SARAO {cbid} {scan_name or ms.name}",
+    }
+    if label_root is not None:
+        scan["teachers"] = {
+            k: _unpack_labels(
+                Path(label_root) / v / str(cbid) / (scan_name or ms.stem),
+                nrow,
+                len(freq_all),
+                len(corr),
+                chans,
+            )[keep]
+            for k, v in SARAO_TEACHERS.items()
+        }
+    return scan
