@@ -66,8 +66,9 @@ a1)
   if ! shard a1-cfg; then
     cp "$WT/research/results/e1-chain-scripts/e1_config.yaml" "$A/e1.yaml"
     cp "$WT/research/results/e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml" "$A/"
-    "$PY" -I "$S/fr_cfg.py" "$A/e1.yaml" "$A/a1-off.yaml" off
-    "$PY" -I "$S/fr_cfg.py" "$A/e1.yaml" "$A/a1-on.yaml" calibrators
+    # A1 full's flux-calibrator interval needs 9.4 GiB (default limit 8): 24, inside the 32 GB booking.
+    "$PY" -I "$S/fr_cfg.py" "$A/e1.yaml" "$A/a1-off.yaml" off 24
+    "$PY" -I "$S/fr_cfg.py" "$A/e1.yaml" "$A/a1-on.yaml" calibrators 24
     mark a1-cfg
   fi
   for arm in off on; do
