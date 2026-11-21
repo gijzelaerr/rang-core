@@ -26,14 +26,21 @@ hl = _load()
 
 
 def table(rows):
-    """rows: (pid, ppid, cpu, mark, cmd) -> the probe's text, parsed."""
-    text = "\n".join("\t".join(map(str, r)) for r in rows) + "\nnot a row\n"
-    return hl.parse_wsl_table(text)
+    """rows: (pid, ppid, cpu, mark, cmd[, rss]) -> the probe's text, parsed."""
+    lines = []
+    for r in rows:
+        pid, ppid, cpu, mark, cmd = r[:5]
+        rss = r[5] if len(r) > 5 else 0
+        lines.append("\t".join(map(str, (pid, ppid, cpu, rss, mark, cmd))))
+    return hl.parse_wsl_table("\n".join(lines) + "\nnot a row\n")
 
 
-def test_parse_keeps_command_lines_with_tabs_out():
-    t = table([(10, 1, 2.5, "-", "bash -lc echo hi"), (11, 10, 0.0, "77", "")])
-    assert t == {10: (1, 2.5, "-", "bash -lc echo hi"), 11: (10, 0.0, "77", "")}
+def test_parse_reads_cpu_rss_marker_and_command():
+    t = table([(10, 1, 2.5, "-", "bash -lc echo hi", 4096), (11, 10, 0.0, "77", "")])
+    assert t == {
+        10: (1, 2.5, "-", "bash -lc echo hi", 4096),
+        11: (10, 0.0, "77", "", 0),
+    }
 
 
 def test_wsl_tail():
@@ -113,3 +120,40 @@ def test_tree_cores_counts_a_busy_child_under_a_waiting_wrapper():
     finally:
         p.wait(timeout=30)
     assert cores is not None and cores > 0.5, cores
+
+
+def test_wsl_resident_memory_of_a_hold():
+    after = table(
+        [
+            (5, 1, 1.0, "4242", "a", 3 * 10**9),
+            (6, 5, 1.0, "4242", "b", 2 * 10**9),
+            (7, 1, 0, "-", "c", 9),
+        ]
+    )
+    procs = hl.wsl_hold_procs(after, {"system": "windows", "pid": 4242, "command": "x"})
+    assert procs == {5, 6}
+    assert sum(after[q][4] for q in procs) == 5 * 10**9
+
+
+def test_mem_note_flags_a_hold_over_its_booking():
+    assert hl.mem_note(8, 5 * 10**9) == ", 5.0/8 GB resident"
+    assert hl.mem_note(8, 9 * 10**9) == ", 9.0/8 GB resident OVER"
+    assert hl.mem_note(0, 9 * 10**9) == ", 9.0/0 GB resident"
+    assert hl.mem_note(8, None) == ""
+
+
+def test_tree_rss_sums_a_child_that_holds_memory():
+    import subprocess
+    import time
+
+    child = "b = bytearray(300 * 2**20)\nimport time\ntime.sleep(5)\n"
+    wrapper = (
+        f"import subprocess, sys\nsubprocess.call([sys.executable, '-c', {child!r}])\n"
+    )
+    p = subprocess.Popen([sys.executable, "-c", wrapper])
+    try:
+        time.sleep(2.0)
+        rss = hl.tree_rss([p.pid])[p.pid]
+    finally:
+        p.wait(timeout=30)
+    assert rss is not None and rss > 300 * 2**20, rss
