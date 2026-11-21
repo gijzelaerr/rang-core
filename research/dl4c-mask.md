@@ -228,4 +228,6 @@ the simulator's Briggs image rms 23.4 µJy). For T masks the noise is the scorer
 
 T3-T (from T3-A, 107,486 components, stop rule): 52,605 pixels (0.31 %), level 117 µJy.
 
-_Running (A images R1, T2; P/T images queued)._
+T2-T (from T2-A, 93,731 components, stop rule): 78,934 pixels (0.47 %), level 117 µJy.
+
+_Running (A image R1; P/T images queued)._
