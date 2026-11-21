@@ -48,11 +48,43 @@ EVERY_STEPS = 1000
 EVERY_SECONDS = 600
 
 
-def load(role_dir):
+def npz_memmap(path, name):
+    """A member of an uncompressed .npz (np.savez) as a read-only memmap: the
+    shards stay in the page cache, shared between processes, not in each
+    trainer's heap (F6 on nash, 2026-11-21: 117 GB of shards per trainer)."""
+    import zipfile
+
+    with zipfile.ZipFile(path) as zf:
+        info = zf.getinfo(f"{name}.npy")
+        if info.compress_type != zipfile.ZIP_STORED:
+            return np.load(path)[name]
+    with open(path, "rb") as f:
+        f.seek(info.header_offset)
+        head = f.read(30)
+        nlen = int.from_bytes(head[26:28], "little")
+        xlen = int.from_bytes(head[28:30], "little")
+        f.seek(info.header_offset + 30 + nlen + xlen)
+        version = np.lib.format.read_magic(f)
+        read = (
+            np.lib.format.read_array_header_1_0
+            if version == (1, 0)
+            else np.lib.format.read_array_header_2_0
+        )
+        shape, order, dtype = read(f)
+        offset = f.tell()
+    return np.memmap(path, dtype, "r", offset, shape, order="F" if order else "C")
+
+
+def load(role_dir, mmap=True):
     shards = {"real": [], "sim": []}
     for p in sorted(Path(role_dir).glob("*.npz")):
         z = np.load(p)
-        shards[str(z["kind"])].append((p.name, z["x"], z["y"]))
+        kind = str(z["kind"])
+        if mmap:
+            x, y = npz_memmap(p, "x"), npz_memmap(p, "y")
+        else:
+            x, y = z["x"], z["y"]
+        shards[kind].append((p.name, x, y))
     return shards
 
 
