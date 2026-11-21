@@ -1,9 +1,12 @@
 # F6: a fast supervised RFI flagger for MeerKAT L-band, fifth protocol (draft)
 
 Task F6 (issue #40, after F5; v0.4.0's critical path to DL6, #46), branch `dl3-f6` from origin/main
-`92e67e2f` with `dl3-f5` merged. **Status: draft, not frozen. Nothing of F6 trained, and no F6 data
-read.** It freezes only after the complete scorer has run on validation, every gate and stop bar
-included, with bounds sized by F6's own network (coordinator, 2026-11-20). The owner's fork
+`92e67e2f` with `dl3-f5` merged. **Outcome (2026-11-21, frozen, section 2e and Amendment 2d-5):
+both classes F on validation; no held-out set read; nothing ships.** Calibrators fail R3 on LUNO
+MAIN_7 (16.9 × T); targets fail G-drop (0.35 at k = 8) and G-sub outer32 on ESO137 chunk 10. Every
+SARAO validation scan passes every gate in both classes; R5 rose from F5's 0.338 to 0.98-0.996.
+LUNO MAIN_0/12/14, ESO137 chunks 1/3/5/7/9/15/17, f4sim-t and the three SARAO held-out blocks stay
+unread for F7. Bounds were never sized from F6 (section 2a). The owner's fork
 (2026-11-20, `research/v040-plan.md`): if F6 has not passed by Monday 2026-11-23 21:00 SAST,
 0.4.0 ships on Tuesday with DL6 as a known limitation.
 
@@ -250,6 +253,61 @@ Reason: the owner's "keep the SARAO blocks" saved them for an F6 candidate that 
 target pass is the only route to shipped weights (DL6) by Monday. Spending them on an outcome
 validation has already decided would waste them. Both branches are fixed before the result.
 
+## 2e. Freeze (2026-11-21 10:15 SAST): validation dry run of the complete scorer, both classes
+
+Training (nash CPU, memory-mapped shards; section 3, tool-timings): three seeds per class, 30,000
+steps; calibrator validation losses 0.0803 / 0.0818 / 0.1029, target 0.0358 / 0.0366 / 0.0499;
+median seed **2** in both classes. τ and κ (`f6_tau.py`): calibrators **N5W4, τ −4.5, κ 3**
+(`tau-calibrator/method.json`, sha256 `7a9ffde1…`, weights `a238a1f2…`); targets **N5W4, τ −4.5,
+κ 4** (`tau-target/method.json`, sha256 `d5c8dede…`, weights `7677c03e…`). Run root
+`nash:~/rang-data/outputs/dl3-f6-20261120/`; verdicts in `research/results/f6-val-verdict-*.json`.
+
+| Gate (validation) | Calibrators: LUNO MAIN_7 + 1573212012 scans 1, 3, 5 | Targets: ESO137 chunk 10 + 1573212012 scans 111, 113, 115 |
+| --- | --- | --- |
+| R1 (T) | 1.000 (0.773) pass | 1.000 (0.913) pass |
+| R2 H2 (T), per seed 1 / 2 / 3 | 0.993 / 0.982 / 0.988 (0.980) pass | 1.000 / 1.000 / 0.999 (1.000) pass |
+| R3 | MAIN_7 **16.9 fail**; SARAO 1.00 pass | ESO 0.42 pass; SARAO 1.16 pass |
+| R4 (calibrators) | pass on every set | – |
+| R5 | 0.996, 0.983 pass (F5: 0.338) | 0.893, 0.992 pass |
+| G-perm | 0 / 0 pass | pass |
+| G-drop k = 1 / 4 / 8, worst seed | MAIN_7 0.047 / 0.141 / 0.209; SARAO ≤ 0.036 / 0.100 / 0.196 pass | **ESO 0.110 / 0.217 / 0.350 fail**; SARAO ≤ 0.081 pass |
+| G-sub core16 / outer32 (synthetic) | **fail** / **fail** (R3 on MAIN_7 15.9 / 18.2) | pass / **fail** (R3 on ESO 1.94) |
+| G-chan (reported) | MAIN_7 R3 7.4; SARAO 0.82-0.89 | reported in the verdict file |
+| S1 / S2 / S3 | pass / pass / pass | pass / pass / pass |
+
+**Fixes 1-5, measured.** Hybrid positives (fix 1): R5 0.338 → 0.98-0.996. Antenna-set-robust block
+planes and dropout training (fix 2): G-drop passes on every SARAO scan and on LUNO, fails on ESO137
+chunk 10 (0.35 at k = 8). Pooled audit (fix 3): no Stop-L. Outer32 over-flagging (fix 4): still
+there on the F4-era sets (LUNO 18.2, ESO 1.94), absent on SARAO. R2 H2 per seed (fix 5): passes for
+every seed. **Every failure is on an F4-era set (LUNO MAIN_7, ESO137 chunk 10); every SARAO
+validation scan passes every gate.**
+
+**Frozen outcome on validation (decision rule, 2d).** Calibrators **F** (R3 on LUNO MAIN_7, G-sub
+through the same), as 2d-4 fixed before the target verdict. Targets fail G-drop and G-sub outer32
+on ESO137 chunk 10: 2d-4's *fail* branch, so the three SARAO held-out blocks stay whole. Timing
+note: the target verdict file was written at 09:53:16, the 2d-4 commit (ff4325a9) at 09:53:28; 2d-4's
+branches were written at 09:30 and its S2 exemption does not apply, by the coordinator's ruling
+(moot: S2 passes).
+
+**Amendment 2d-5 (2026-11-21 10:25 SAST; coordinator's message of 10:20, "do not let chain 6 read
+ESO137 chunks 1, 3, 5, 7, 9, 15, 17 or f4sim-t"; F5 precedent: Amendment 3 kept SARAO's blocks
+unread once the outcome was decided on validation).** **Both classes F on validation**
+(calibrators: R3 on LUNO MAIN_7, G-sub through the same; targets: G-drop and G-sub outer32 on
+ESO137 chunk 10). **No held-out set is read.** LUNO MAIN_0, 12, 14, ESO137 chunks 1, 3, 5, 7, 9,
+15, 17, f4sim-t and the three SARAO blocks (1678312253, 1674958551, 1579022459, calibrator and
+target scans) stay unread for F7. Chain 6 was stopped at 10:22, before the freeze marker; it had
+read nothing (no `held-target/` directory, no teacher run on the blocks). The Sunday timing run is
+cancelled: no candidate needs the cost gate (C1 from the two finished cells, LUNO MAIN_1 at 4
+threads: N5 0.374, N5W4 0.376 of T, both "beats", is recorded, not scored). Nothing ships.
+
+**F7's starting point.** Every SARAO validation scan (1573212012: calibrator scans 1, 3, 5; target
+scans 111, 113, 115) passes every gate in both classes, R3 0.82-1.16 against T. Every failure is on
+F4-era data: LUNO MAIN_7 (calibrators: the network adds 2.73M cells where T adds 0.21M and A 2.74M,
+and 1.8M of them are flagged by neither teacher) and ESO137 chunk 10 at 512 channels (targets:
+G-drop 0.35 at k = 8, outer32 R3 1.94). Threshold-side calibration does not close the LUNO gap
+(2d-3). The gap follows the data: SARAO's flag level (T about 55 % of cells) against LUNO's (1.2 %)
+and ESO137's channelisation.
+
 ## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
 
 *Labelled post hoc (coordinator, 2026-11-20).* The bars below were set after the validation
@@ -318,3 +376,40 @@ and 32 % on validation is far from that.
 - **glacier (owner, 2026-11-20: "the computer is all yours until monday"):** exclusive and timing
   runs at any hour, no 4-thread reserve; except 2026-11-20 21:00 to about 06:30 (#47) and the AI
   app's 06:05-06:45 slot. F6's cost night, if needed, runs whenever glacier is idle.
+
+## 4. For the coordinator (2026-11-21)
+
+- Outcome: both classes **F on validation**; no held-out set read (Amendment 2d-5); nothing ships.
+  DL6 (#46) has no passed stage from F6: the owner's fork applies (0.4.0 on Tuesday with DL6 as a
+  known limitation) unless F7 passes by Monday 21:00.
+- What worked: hybrid positives (R5 0.338 → 0.98-0.996), level 20 one-step factorisation plus
+  antenna dropout (G-drop passes on every SARAO and LUNO set), pooled audit (no Stop-L), R2 H2 per
+  seed above T for every seed, G-perm exactly 0.
+- What failed: LUNO MAIN_7 R3 16.9 (calibrators), ESO137 chunk 10 G-drop 0.35 and outer32 R3 1.94
+  (targets). All on F4-era data; every SARAO validation scan passes every gate. Threshold-side
+  calibration (K1-K3) does not close the LUNO gap.
+- Kept unread for F7: LUNO MAIN_0, 12, 14; ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t; SARAO
+  blocks 1678312253, 1674958551, 1579022459 (all scans).
+- Host lessons: per-seed trainers heap-loaded 117 GB of shards and swapped nash (171 GB); the
+  trainer now memory-maps shards (057676f7). The target shard job peaked at 164 GB against 80 GB
+  booked. Record true peaks in tool-timings before booking.
+- Recorded, not selectable: K2 and K3 on targets (R3 with margin on ESO and SARAO), scored in full on
+  validation in `val-target-K2/`, `val-target-K3/` for F7.
+- Merge: `dl3-f6` carries F5's branch; the duplicate `learned-train` extra is resolved here, check
+  `pyproject.toml` when merging into main.
+
+### Draft for Landman (for the owner; not sent)
+
+F6, MeerKAT L-band, trained on 4 SARAO blocks (97 scans) plus F4's LUNO/ESO137 sets; validated on
+SARAO block 1573212012, LUNO MAIN_7, ESO137 chunk 10. 3,201 weights, conv-only.
+
+- SARAO validation, both classes: every gate passes. Recall of strong T∧A consensus 0.98-0.99
+  (F5: 0.34); added cells 0.82-1.16 × T; 1-8 antennas dropped change ≤ 0.04 / 0.10 / 0.20 of the
+  flags.
+- LUNO MAIN_7 (calibrator): flags 3.5M cells where T flags 0.21M and AOFlagger 2.74M; 1.8M of them
+  neither flags. One threshold does not hold across a 45× difference in flag rate between the
+  SARAO and LUNO observations; per-baseline or per-scan threshold calibration does not fix it.
+- ESO137 (target, 512 channels): sensitive to the antenna set (0.35 change with 8 dropped).
+- Outcome: not shipped. Held-out sets kept unread. Next: train with the flag-rate gap in view
+  (per-observation normalisation or LUNO-like data in training), not a threshold tweak.
+- Cost (not scored): 0.37 × T's wall time at 4 threads on LUNO MAIN_1.
