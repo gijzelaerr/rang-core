@@ -68,6 +68,8 @@ Step 0 could not decide cost: the minor cycle was about 1 % of a 256² field's w
 
 **Seeds.** For each sky name X (T001-T160, V1-V4, G1-G4), the sky seed and noise seed are the first and next 8 hex digits, as integers, of `sha256("<freeze commit> X")`. `<freeze commit>` is the full hash of the commit that adds this note. The rule is rml-gap's. They are recorded in a second commit before any sky is simulated; a collision with an existing seed moves on by 8 digits.
 
+**Seed record** (2026-11-21, written after the freeze commit `bf11092215bc7a6c8fa49bb5668a042266c0e7bb`, before any sky is simulated): 168 skies, no collision. The table is `results/dl4b-step1/seeds.json`. Examples: G1 (H4) sky **1145306936**, noise **315645864**; T001 (S3) sky **2091146829**, noise **2507257797**. Nothing is redrawn.
+
 **Products per sky,** WSClean 3.7 (`rang-wsclean-native:3.7`, docker on glacier, or native on nash; step 0 found them equal in 3,780 runs):
 - dirty image and PSF, 4096², Briggs 0.5, MFS over the 8 channels (`-channels-out 1`);
 - truth catalogue.
