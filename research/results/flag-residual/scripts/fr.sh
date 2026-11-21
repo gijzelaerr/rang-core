@@ -19,7 +19,7 @@ case ${1:-} in
 setup)
   if ! shard setup; then
     cd "$WT"
-    uv venv -q -p 3.12 .venv
+    uv venv -q --clear -p 3.12 .venv
     $NICE uv pip install -q -p .venv/bin/python --index-url https://pypi.org/simple maturin numpy scipy astropy pyyaml
     $LOCK --slots 8 --mem 16 -- $NICE env CARGO_BUILD_JOBS=8 bash -c \
       "cd $WT && VIRTUAL_ENV=$WT/.venv $WT/.venv/bin/maturin develop --release -q" > "$R/logs/build.log" 2>&1
