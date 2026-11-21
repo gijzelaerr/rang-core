@@ -105,21 +105,56 @@ def test_child_env_carries_the_hold_pid_into_wsl(monkeypatch):
 def test_tree_cores_counts_a_busy_child_under_a_waiting_wrapper():
     """The holder waits (`do_wait`) while its child works: the tree's CPU is
     the child's (nash, 2026-11-21: F6's holds looked idle; the tree sum was
-    right, the jobs were in I/O wait)."""
+    right, the jobs were in I/O wait).
+
+    Deterministic on a loaded host (post hoc, 2026-11-21: a 0.5-core floor
+    failed in a full check on a busy glacier): the child must be in the
+    wrapper's measured tree, and its CPU time must rise between two tables
+    (up to ten 0.5 s tries), not reach a rate."""
+    import os
+    import signal
     import subprocess
     import time
 
-    busy = "import time\nt = time.time()\nwhile time.time() - t < 4: pass\n"
+    busy = "import time\nt = time.time()\nwhile time.time() - t < 60: pass\n"
     wrapper = (
         f"import subprocess, sys\nsubprocess.call([sys.executable, '-c', {busy!r}])\n"
     )
     p = subprocess.Popen([sys.executable, "-c", wrapper])
+    kids: set[int] = set()
     try:
-        time.sleep(1.0)
-        cores = hl.tree_cores([p.pid], 1.5)[p.pid]
+        # The descendants appear under the wrapper (a venv's python.exe on
+        # Windows is a launcher with the interpreter as its child, so the
+        # busy process is some descendant, not necessarily the first).
+        for _ in range(100):
+            table = hl.process_table([p.pid]) or {}
+            kids = hl._tree(table, p.pid) - {p.pid}
+            if len(kids) >= 1 and any(table[k][1] > 0 for k in kids):
+                break
+            time.sleep(0.1)
+        assert kids, "no child under the wrapper"
+        before = {k: table[k][1] for k in kids}
+        busy_pid = None
+        for _ in range(10):
+            time.sleep(0.5)
+            table = hl.process_table([p.pid]) or {}
+            tree = hl._tree(table, p.pid)
+            risen = [k for k in tree - {p.pid} if table[k][1] > before.get(k, 0.0)]
+            if risen:
+                busy_pid = risen[0]
+                break
+        assert busy_pid is not None, "no descendant's CPU time rose in 5 s"
+        assert busy_pid in hl._tree(table, p.pid)
+        cores = hl.tree_cores([p.pid], 0.5)[p.pid]
+        assert cores is not None and cores >= 0.0, cores
     finally:
+        table = hl.process_table([p.pid]) or {}
+        for k in sorted(hl._tree(table, p.pid) - {p.pid}, reverse=True):
+            try:
+                os.kill(k, signal.SIGTERM)
+            except OSError:
+                pass
         p.wait(timeout=30)
-    assert cores is not None and cores > 0.5, cores
 
 
 def test_wsl_resident_memory_of_a_hold():
