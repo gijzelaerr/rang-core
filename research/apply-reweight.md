@@ -1,6 +1,6 @@
 # An empirical re-weighting stage after apply (issue #55)
 
-Status: **measured 2026-11-21 (sections 7-9): G0 and G1 pass, G2 fails after its one revision, so under section 5 the stage does not ship; G3 recorded. Frozen 2026-11-21 before any code.** Follows #48, closed null in
+Status: **measured 2026-11-21 (sections 7-9): G0 and G1 pass, G2 fails after its one revision, so under section 5 the stage does not ship; G3: R 3.2 % below raw on the E2-N target (section 10). Frozen 2026-11-21 before any code.** Follows #48, closed null in
 [apply-calwt](https://github.com/gijzelaerr/rang-core/blob/apply-calwt/research/apply-calwt.md)
 (branch `apply-calwt`, 95b4d9f9). That note found that `calwt: true` is CASA's rule, which is
 channel-flat, so it cannot remove the bandpass shape that katdal's raw L0 `WEIGHT_SPECTRUM` carries.
@@ -169,3 +169,30 @@ follow-up would need is its own frozen note: classic as the default (it passes o
 a MAD bound set from MAD's efficiency, and an RFI clause that uses MAD's known bias. G3 (E2-N) is
 recorded in section 10 for the issue's implied image-noise change; under section 5 it decides
 nothing here.
+
+## 10. G3, E2-N held out (2026-11-21, nash)
+
+[rw_g3.py](results/rw-scripts/rw_g3.py) at b5bcbb84 on apply-calwt's calibrated E2-N
+(`outputs/apply-calwt-20261120/e2n.ms`, CORRECTED_DATA) with raw weights from
+`outputs/e2n-20261116/e2n.ms`; R is `stokes_v`, `mad`, the defaults, fitted on the dumps of even
+pairs only. 2,446 s wall, 39.7 GB peak, `--slots 2 --mem 40`. Archive:
+[g3.json](results/apply-reweight/g3.json).
+
+| field | cells | e raw | e unity | e R | R vs raw |
+|---|---|---|---|---|---|
+| ASKAPJ1745 (target) | 141.1 M | 1.0395 | 1.0783 | **1.0060** | **-3.2 %** |
+| J1744-5144 | 20.1 M | 0.7501 | 0.7755 | no cells | - |
+
+- Quintiles of w|d|^2 over its mean on the target (flat = 1): raw 1.01, 1.21, 1.01, 0.89, 0.88;
+  R 1.05, 1.00, 0.98, 0.98, 0.99. R's weights follow the noise; raw's do not.
+- J1744-5144: its scans are 14-15 dumps, so a per-scan block of 16 channels holds about
+  120 Stokes V samples on the fit dumps, below `minsamp` 200; with every block of a baseline empty,
+  `smooth` has nothing to fill from, and every weight is 0. At the defaults the stage zeroes such
+  fields' weights (section 7's limitation); a `timebin` longer than a scan, or a smaller `minsamp`,
+  would be needed. Its e below 1 means the even-pair sigma estimate is a poor reference on 14-dump
+  scans, not that raw beats ideal.
+- Under section 5, R beats raw by more than 2 % on the target, so the docs would recommend
+  `stokes_v` for native L0 data. The stage does not ship (section 9), so this changes nothing on
+  `main`; it is the measured image-noise case for a follow-up with classic as the default (G2's
+  passing statistic). The target number is MAD's; classic was not run on E2-N.
+
