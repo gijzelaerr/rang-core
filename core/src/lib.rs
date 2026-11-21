@@ -65,6 +65,7 @@ pub mod ms_write;
 pub mod multifile;
 pub mod predict;
 pub mod prox_solver;
+pub mod reweight;
 pub mod robust;
 pub mod sara;
 pub mod solve;
