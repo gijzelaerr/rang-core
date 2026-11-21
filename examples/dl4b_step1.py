@@ -372,9 +372,9 @@ def parm(a):
                 st["model_pixels"] = int((m > 0).sum())
                 nm = f"{tag}-K{k}"
                 fits.writeto(w / f"{nm}-model.fits", m[None, None], hdr, overwrite=True)
-                st["predict_s"] = run([*wsclean_cmd(w), "-j", "16", *IMG, "-predict", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}-p.log", w)  # fmt: skip
+                st["predict_s"] = run([*wsclean_cmd(w), "-j", str(a.threads), *IMG, "-predict", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}-p.log", w)  # fmt: skip
                 t = time.perf_counter()
-                run([*wsclean_cmd(w), "-j", "16", *IMG, *COMMON, *ARMS["W1"], "-continue", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}.log", w)  # fmt: skip
+                run([*wsclean_cmd(w), "-j", str(a.threads), *IMG, *COMMON, *ARMS["W1"], "-continue", "-name", str(w / nm), str(ms)], d / "arms" / f"{nm}.log", w)  # fmt: skip
                 st["continue_wall_s"] = time.perf_counter() - t
                 st.update({f"continue_{k2}": v for k2, v in ws_times((d / "arms" / f"{nm}.log").read_text()).items()})  # fmt: skip
                 np.save(d / "arms" / f"{nm}-model.npy", read(w / f"{nm}-model.fits")[0])
@@ -388,7 +388,7 @@ def parm(a):
                     # the residual of m for the next pass: MODEL_DATA still holds m's
                     # prediction (-continue ran with -no-update-model-required)
                     t = time.perf_counter()
-                    run([*wsclean_cmd(w), "-j", "16", *IMG, "-niter", "0", "-subtract-model", "-no-update-model-required", "-name", str(w / f"{nm}r"), str(ms)], d / "arms" / f"{nm}r.log", w)  # fmt: skip
+                    run([*wsclean_cmd(w), "-j", str(a.threads), *IMG, "-niter", "0", "-subtract-model", "-no-update-model-required", "-name", str(w / f"{nm}r"), str(ms)], d / "arms" / f"{nm}r.log", w)  # fmt: skip
                     steps[-1]["residual_s"] = time.perf_counter() - t
                     r = read(w / f"{nm}r-dirty.fits")[0]
                     for f in w.glob(f"{nm}r-*.fits"):
@@ -459,6 +459,7 @@ def main():
     p.add_argument("--taus", default="3,5")
     p.add_argument("--kmax", type=int, default=3)
     p.add_argument("--infer-threads", type=int, default=16)
+    p.add_argument("--threads", type=int, default=16, help="WSClean -j")
     p.set_defaults(func=parm)
     p = sub.add_parser("prep")
     p.add_argument("skies")

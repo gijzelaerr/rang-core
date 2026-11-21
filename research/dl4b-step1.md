@@ -208,4 +208,21 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
 
 ## Measured result
 
-(empty at freeze)
+**Operational record (not results):**
+
+- **Premature P validation, seed 1 (operator error).**
+  - The P validation for seed 1 started at 08:18, while seed 1 was still training. Its trigger matched the old `seed 1 rc=4` line of the collapsed run in `runs/status.log` (amendment 1).
+  - It used the `best.pt` of the training run then in progress, saved around step 1,100 (image-domain validation relative L2 0.22), not the run's final `best.pt`.
+  - V1-V3 completed at WSClean `-j 16`; V4 was stopped at 11:58.
+  - No choice uses it. Its 123 files are kept apart in `early-s1/` and its ONNX as `seed1-early.onnx`.
+  - What was seen in its log: the `-continue` deconvolution times. On V3 they were 285-312 s against W1's 137 s.
+  - The rerun waits for seed 1's `done.json` only.
+- **Duplicate and concurrent lanes, seed 1 (operator error).**
+  - The rerun started at 12:59, in two lanes, one per τ. A stopped waiter had already launched its lanes, and re-arming it launched duplicates; a leftover also started scoring partial results.
+  - Worse, the lanes shared each validation sky's MS. P writes MODEL_DATA and reads it back, so concurrent lanes overwrite each other. A WSClean temporary-file clash on V1 exposed it at 13:12.
+  - Everything from 12:59 is discarded (`discarded-s1-1259/`), unread.
+  - From 13:20 each lane has a private copy of the four validation MSs (`lane-t3/`, `lane-t5/`), and lanes are started directly, never by a chained waiter.
+- **Trainer killed by WSL's out-of-memory killer at 13:33.**
+  - The trainer holds the training skies in memory (20 GB). With two P lanes (up to 15 GB each) and the lane MS copies, WSL's 43 GB was exceeded.
+  - Seed 2 resumed from its 13:30 checkpoint (step 2,313), losing about 3 min. Resumes are bit-identical, so the run is unchanged.
+  - From then on P runs one lane at a time while a trainer runs.
