@@ -203,6 +203,53 @@ seed 2). The fix tried is threshold-side only, written here before any variant i
 - *Diagnostic, not acted on:* the share of the method's LUNO added cells that A also flags; R3's
   anchor T may be what is unstable across observations (a gate question for F7 and the owner).
 
+**Amendment 2d-3, variants tried (2026-11-21 09:05 SAST; measured on validation, median seed 2;
+`examples/f6_calib.py` on nash, `~/rang-data/outputs/dl3-f6-20261120/calib-<class>/`).** R3 per
+real validation set at each candidate's τ′. The lower bar is 0.5 min(T, A) / T: 0.5 on MAIN_7,
+0.45, 0.43 and 0.5 on 1573212012's calibrator scans 1, 3 and 5, 0.053 on ESO137 chunk 10, 0.5 on
+the SARAO target scans. Margin: 1.1 × lower to 1.35.
+
+| Class | Candidate | τ′ | shard recall | R3 per set | R3 margin |
+| --- | --- | --- | --- | --- | --- |
+| calibrator | K1 per-baseline location | 8.0 | 0.777 | MAIN_7 0.785; scans 1, 3, 5: 0.318, 0.438, 0.519 | fails (SARAO low) |
+| calibrator | K2 per-baseline robust z | 4.5 | 0.302 | 0.786; 0.072, 0.121, 0.295 | fails |
+| calibrator | K3 per-scan location | 8.0 | 0.824 | 0.838; 0.324, 0.431, 0.525 | fails |
+| target | K1 | 6.5 | 0.953 | ESO137 chunk 10 0.050; scans 111, 113, 115: 0.927, 0.898, 0.969 | fails (ESO low) |
+| target | K2 | 1.25 | 0.926 | 0.624; 0.877, 0.941, 0.967 | passes |
+| target | K3 | 6.5 | 0.982 | 0.196; 0.917, 0.911, 0.988 | passes |
+
+No candidate qualifies: the rule asks for the margin in both classes, and no calibrator candidate
+has it (LUNO's "added ≤ T" pins τ′ and leaves SARAO under its lower bar). By the rule F6 freezes
+as written. K2 and K3 for targets are scored in full on validation as recorded, non-selectable
+variants for F7.
+
+*Diagnostic (not acted on).* LUNO MAIN_7, frozen τ −4.5: N5 adds 2,727,768 cells; A also flags
+792,710 of them (29 %), T 164,754 (6 %). On the SARAO calibrator scans the overlap is 69-92 % with
+each teacher. So about 1.8M of N5's LUNO cells are flagged by neither teacher: the network carries
+SARAO's flag level (T flags about 55 % there, 1.2 % on LUNO) into LUNO. R3's anchor T is not the
+main problem on LUNO; a per-observation flag-rate gap is, and threshold-side calibration does not
+remove it.
+
+**Amendment 2d-4 (2026-11-21 09:30 SAST; coordinator; written and committed before the
+frozen-method target dry run's verdict is read).** The calibrator class freezes as written:
+**F on validation** (R3 on LUNO MAIN_7, synthetic G-sub; 2d-3 found no qualifying calibration).
+LUNO MAIN_0, 12, 14 and the calibrator scans of the three SARAO held-out blocks are not read; they
+stay whole for F7. The target class's held-out read depends on its validation dry run (frozen
+method: median seed, τ and κ from `f6_tau.py`), by this rule fixed before the result:
+
+- *The dry run passes every validation gate* (R1, R1m, R2, R3 on ESO137 chunk 10 and on the SARAO
+  validation block, R5, G-perm, G-drop, synthetic G-sub, S1, S3; `examples/f6_verdict.py`'s failed
+  list empty apart from S2 and cost; S2 is exempt because in F5's frozen decision rule, section 11, which F6 keeps, S2 never decides F or shipping: a failed S2 only turns S into S−, and S2 is measured again on f4sim-t at the held-out read; cost is measured on Sunday): read the **target scans** of 1678312253 (36, 40, 44),
+  1674958551 (31, 35, 39) and 1579022459 (115, 117, 121) once, for real G-sub and G-obs, with C's
+  teachers (`dl2_teach.py --heldout-read`, T = rang, A = AOFlagger 2.13 `firstpass_QUV`), their
+  calibrator scans unread; then ESO137 chunks 1, 3, 5, 7, 9, 15, 17 and f4sim-t.
+- *It fails any gate:* the three blocks stay whole for F7; only ESO137 chunks 1, 3, 5, 7, 9, 15,
+  17 and f4sim-t are read, to record the outcome.
+
+Reason: the owner's "keep the SARAO blocks" saved them for an F6 candidate that could pass, and a
+target pass is the only route to shipped weights (DL6) by Monday. Spending them on an outcome
+validation has already decided would waste them. Both branches are fixed before the result.
+
 ## 2c. Label audit for F6 (post hoc: fixed 2026-11-20 after the validation label shares were seen; before training; no network involved)
 
 *Labelled post hoc (coordinator, 2026-11-20).* The bars below were set after the validation

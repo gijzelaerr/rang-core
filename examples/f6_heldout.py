@@ -17,9 +17,12 @@ Every case is one shard, F5's layout, so f5_verdict.py reads the result unchange
 
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 
+import numpy as np
+from rang import f3flag as f3
 from rang import f5flag as f5
 
 HERE = Path(__file__).resolve().parent
@@ -65,6 +68,49 @@ def load_sarao_set(spec, heldout):
     return scan_
 
 
+def calibrate(kind, logit, eligible, groups):
+    """Calibrated score of `logit` (cells, chan) given eligibility and a row -> group map
+    (baseline for K1/K2, a single group for K3)."""
+    out = np.full(logit.shape, -np.inf, np.float32)
+    order = np.argsort(groups, kind="stable")
+    bounds = np.flatnonzero(np.diff(groups[order])) + 1
+    for rows in np.split(order, bounds):
+        v = logit[rows]
+        e = eligible[rows]
+        if not e.any():
+            continue
+        m = np.median(v[e])
+        if kind == "K2":
+            s = 1.4826 * np.median(np.abs(v[e] - m))
+            out[rows] = (v - m) / max(s, 1e-6)
+        else:
+            out[rows] = v - m
+    return out
+
+
+def calibrated_arms(hd):
+    """Amendment 2d-3: when the method file names a calibration (K1-K3), N5 thresholds the
+    calibrated score instead of the raw logit; the logits returned (G-perm) stay raw."""
+    raw = hd.Method.arms
+
+    def arms(self, scan, w3, data=None):
+        kind = self.rec.get("calibration")
+        if not kind:
+            return raw(self, scan, w3, data)
+        logit = f5.rust_logits(scan, w3, self.w, self.level, self.degree, data)
+        el = ~w3
+        bl = f3.index(scan)["bl"].astype(np.int64)
+        groups = np.zeros(len(bl), np.int64) if kind == "K3" else bl
+        cal = calibrate(kind, logit, el, groups)
+        out = {"N": w3, "N5": w3 | (cal > self.tau)}
+        out["method"] = out["N5"]
+        if self.n4 is not None:
+            out["N4"] = hd.f4.n4_flags(scan, w3, self.n4, hd.N4_TAU, data)[0]
+        return out, logit
+
+    hd.Method.arms = arms
+
+
 def main():
     global SARAO_ROOT, HELDOUT_READ
     argv = list(sys.argv[1:])
@@ -77,6 +123,7 @@ def main():
         HELDOUT_READ = True
         argv.remove("--heldout-read")
     hd = _module("f5_heldout")
+    calibrated_arms(hd)
     f5_load, f5_a = f5.load, f5.a_flags
 
     def load(spec, heldout=False):
@@ -85,6 +132,11 @@ def main():
         return f5_load(spec, heldout=heldout)
 
     def a_flags(scan, w3, workdir, data=None):
+        cache = os.environ.get("F6_A_FROM")  # reuse the set's A from an earlier run
+        if cache and data is None:
+            p = Path(cache) / Path(workdir).parent.parent.name / "A.npy"
+            if p.exists():
+                return np.load(p), {"source": f"cached {p}"}
         if "teachers" in scan:
             if data is not None:
                 raise ValueError("C's A labels exist for the uninjected data only")
