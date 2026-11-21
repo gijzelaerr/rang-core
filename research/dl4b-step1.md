@@ -62,6 +62,7 @@ On held-out simulated MeerKAT truth skies at E2 scale, mode P (a network propose
   - simulation, comparators and scoring on nash, shared;
   - **exclusive timing** of the gated runs on glacier after 21:00 (the owner's timing window), about 2-3 nights: 8 skies × (2 network arms + 3 classical) at about 1-2 h per 4096² run.
 - **Data on glacier:** PSF patches and truth skies only (a few GB), copied to D: and removed after.
+- **Host availability** (owner through the coordinator, 2026-11-20): "the computer is all yours until monday". glacier's full CPU and GPU, at any hour, through Monday 2026-11-23, except #47's exclusive speed table (2026-11-20 21:00 to about 06:30) and the AI app's daily 06:05-06:45 slot. The 18 GPU hours and the exclusive timing nights fit inside that window. Simulation can then also run on glacier's CPU in docker WSClean 3.7, which step 0 checked against nash: 3,780 runs with identical cycle and iteration counts.
 
 ## 6. Decision rule (to be frozen; the shape only)
 

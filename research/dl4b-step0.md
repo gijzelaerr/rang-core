@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 # DL4b (#42) step 0: one-pass anchor and iterated mode P on ASTRODECONV2019 (regenerated)
 
-**Status at freeze, 2026-11-20: proposed; nothing trained, no comparator run.**
+**Status at freeze, 2026-11-20: proposed; nothing trained, no comparator run.** **Outcome, 2026-11-21: F (fail): the iterated network's false flux misses the tolerance on all three seeds; anchor consistent with the thesis; minor-cycle cost null, as expected** ("Measured result").
 
 - Branch `dl4b-step0` from main `0df6b5da`, with `origin/dl0-profile` (`6dd70c86`) merged.
 - Route: [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md).
@@ -307,3 +307,80 @@ Not changed: the measures, the cycle counting, the outcome table, the test-once 
   - 4,524 steps, 900 s, validation recovery 0 and false flux 0 (an empty model);
   - stopped by hand at 09:13 (exit 143);
   - superseded by amendment 3.
+
+### Outcome (test split, read once, 2026-11-21 02:05)
+
+**Decision (b): F (fail). No NP seed is inside the tolerance.**
+
+- Every seed misses on false flux. The median false flux minus W1's is +0.122, +0.080 and +0.071 (seeds 1-3), against the +0.01 allowed. Every WSClean arm has a median false flux of 0.
+- The two-sided recovery clause passes for all three seeds (median |rec − 1| − |rec_W1 − 1| = −0.05, −0.13, −0.07). This is because WSClean under-recovers: W1's median recovery is 0.83.
+- Inversions: NP median 7, 7, 4 (6, 6 and 3 passes) against W\* = W4's 3. The stop rule (model change < 1 %) rarely fired.
+
+**Anchor (a): consistent with the thesis.** One-pass N1 is worse than WSClean run A on E1 for all three seeds: median paired difference +3.05, +1.48 and +1.44 (WSClean run A's median E1 is 5.08).
+
+**Test split, 270 fields** (medians; E1 per in-image flux; exact cycle for every arm):
+
+| Arm | Recovery | False flux | E1 | E2 (residual rms) | Inversions | Minor cycle or inference, s |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Z (empty) | 0 | 0 | 13.05 | 0.0824 | 1 | – |
+| WA (`-mgain 1.0`) | 0.863 | 0 | 5.08 | 0.0660 | 2 | 0.013 |
+| W1 (`-mgain 0.8`) | 0.832 | 0 | 4.99 | 0.0562 | 4 | 0.022 |
+| W4 = W\* (`-mgain 0.9`) | 0.857 | 0 | 4.95 | 0.0561 | 3 | 0.019 |
+| W5 (multiscale) | 0.909 | 0 | 4.65 | 0.0558 | 4 | 0.081 |
+| W6 (multiscale 0,4, gain 0.2) | 0.904 | 0 | 4.72 | 0.0559 | 4 | 0.063 |
+| T (truth) | 1 | 0 | 0 | 0.0578 | – | – |
+| N1 seed 1 / 2 / 3 | 1.23 / 1.08 / 1.10 | 0.081 / 0.094 / 0.075 | 8.25 / 6.46 / 6.53 | 0.057-0.058 | 2 | 0.078 |
+| NP seed 1 / 2 / 3 | 1.12 / 1.01 / 1.10 | 0.129 / 0.085 / 0.078 | 6.67 / 4.92 / 5.94 | 0.056-0.057 | 7 / 7 / 4 | 0.47 / 0.47 / 0.24 |
+
+**Also reported, deciding nothing:**
+
+1. **Iteration helps.** NP beats N1 on E1 for every seed. NP seed 2 is the only arm close to WSClean on E1 (4.92 against WA's 5.08 and W1's 4.99), with recovery 1.01 against WSClean's 0.83-0.91. Its false flux is still 0.085.
+2. **Minor-cycle cost is null, as expected** (section 1): network inference is 0.078 s per pass (ONNX Runtime, one thread, glacier, shared host) against WSClean's 0.013-0.022 s of deconvolution per field. That is 4-25 × more, with or without iteration.
+3. **Scale equivariance holds.** The bias-free network gives the same medians for flux sets 10, 100 and 1000 to 4 significant figures, for every seed (`summary-test.json` `per_flux`).
+4. **Residuals are set by out-of-field sources.** E2 is the same for every arm with a model, the truth arm included (0.056-0.066), so it does not separate the arms.
+5. **Where the false flux comes from (reading, not measured).** The networks' false flux lies beyond two beams of any of the 100 sources, so it is flux placed on sidelobe structure. In WSClean, auto-masking at 5 σ (σ dominated by those sidelobes) prevents this; nothing in the networks does. A threshold or mask on the proposal is the obvious next lever; it is not tried here.
+6. **Validation gave the same picture** (`summary-validation.json`): N1 false flux 0.08-0.10, NP 0.08-0.13.
+
+**Cost and provenance:**
+
+- **GPU** (glacier, RTX 4070 Ti): about 4.9 h of the 6 h cap.
+  - N1: 3 × about 19.5 min.
+  - NP: 4,845 s, 2,980 s and 4,138 s (seed 3 in two segments around the owner's 16:00-24:00 window, resumed bit-identically from step 4,542).
+  - Plus the failed N1 seed 1 (15 min), the probes, the resume tests and the diagnostics.
+- **CPU** (glacier, WSL, docker `rang-wsclean-native:3.7`):
+  - grid PSFs 200-299: 1 h 17 min at 11 slots (1-199 from nash);
+  - ladder: 18 groups;
+  - exact-cycle scoring: validation 14 + 31 + 11 min, test 45 min at 15 slots.
+- **Choices**, all fixed before the test read (`results/dl4b-step0/choices.json`):
+  - W\* = W4, from validation;
+  - N1: the final weights; earlier validated steps had been overwritten (amendment 4);
+  - NP: `best.pt` at steps 2,081, 5,418 and 2,676.
+- **Weights:** `results/dl4b-step0/onnx/` holds six ONNX opset-17 files. Each has the ops Conv and Relu only and 92,768 weights, and matches PyTorch to at most 1.3e-7.
+- **Archive:** `results/dl4b-step0/`. It holds:
+  - `summary-{validation,test}.json`, `wstar-validation.json`, `operator-tolerance.json`, `choices.json`;
+  - `per-field-scores.tar.gz` (every field, arm and pass);
+  - the scripts.
+- **Cross-host check:** glacier's ladder against nash's, 540 fields × 7 arms. Major and minor iteration counts are equal in all 3,780 runs; recovery differs by at most 8e-4.
+
+**Not done:**
+- No G-sub, G-drop or G-chan gates: one array on this dataset.
+- No E2-scale cost; that is step 1 ([dl4b-step1.md](dl4b-step1.md)).
+- No rang-interpreter timing; ONNX Runtime was used.
+- No threshold or mask on the networks' proposals (item 5 above).
+
+## For the coordinator
+
+1. **Outcome F** under the frozen rule, amended four times (dated, labelled; amendments 3 and 4 post hoc, before any exact-cycle or test score). The failure is false flux. The iterated form helps quality (NP seed 2 matches WSClean on E1) but adds inversions, and minor-cycle cost is null on 256² fields, as written before the run.
+2. **Data finding, for #42 and anyone using ASTRODECONV2019:** the stored 512² PSF is not the 256² images' operator (section 0). The thesis's "residual = dirty − PSF ⊛ model" fails by 28 % of the residual rms. Any reuse must go through the exact cycle or the grid PSFs (`D:/rang/dl4b-step0/psfg`, 300 shards; not archived, regenerable with `dl4b_step0.py psfg`).
+3. **Infrastructure that step 1 reuses:**
+   - the bias-free CAN trainer with bit-identical resume and yield windows;
+   - exact-cycle scoring with WSClean in docker;
+   - the docker WSClean 3.7 on glacier, matching nash's native 3.7 in 3,780 of 3,780 runs.
+4. **Host notes:**
+   - heavy_lock sees ~0 cores for WSL jobs (it measures `wsl.exe`).
+   - Git Bash rewrites `/mnt/...` in arguments: use `MSYS2_ARG_CONV_EXCL="*"`.
+   - Git Bash's `date -u` is off by 2 h on glacier.
+5. **Clean-up:**
+   - nash's step-0 run root is removed. `nash:~/rang-data/outputs/dl4b-astrodeconv-20261119/{pilot-a,pilot-b,smoke-s0.npz}` (about 150 MB) remain, removable on your word.
+   - glacier's `D:/rang/dl4b-step0` (packs 2.2 GB, PSFs 3 GB, eval 0.26 GB, runs) stays while step 1 may reuse the trainer and checkpoints. Remove after step 1.
+   - Nothing of step 0 runs on glacier or nash now.

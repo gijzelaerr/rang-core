@@ -15,7 +15,7 @@ for K in "$@"; do
   mkdir -p "$OUT"
   /usr/bin/time -f "wall %e s rss %M KB" -a -o "$OUT/time.txt" "$PY" "$H/examples/dl4b_train.py" train "$D/packs" "$OUT" \
     --arm "$ARM" --seed "$K" --hours "${HOURS}" --steps-total "$STEPS" --batch "$BATCH" $EXTRA \
-    --yield-window 20:50-23:59 --yield-window 06:00-06:50 >> "$OUT/stdout.log" 2>&1
+    ${YIELD:---yield-window 20:50-23:59 --yield-window 06:00-06:50} >> "$OUT/stdout.log" 2>&1
   rc=$?
   echo "$(date +%FT%T) $ARM seed $K rc=$rc" >> "$D/runs/status.log"
   [ $rc -ne 0 ] && exit $rc
