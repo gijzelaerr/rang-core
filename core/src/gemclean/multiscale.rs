@@ -431,6 +431,9 @@ pub struct Multiscale {
     /// Shape convolvers and twice-convolved PSF sets built (the cache).
     pub convolvers_built: u64,
     pub twice_built: u64,
+    /// Scales dropped because the PSF convolved with them has no positive
+    /// peak (issue #54): (scale in pixels, that peak).
+    pub dropped: Vec<(f64, f64)>,
 }
 
 fn embed_kernel(n: usize, side: usize, values: &[f64]) -> Vec<f64> {
@@ -801,6 +804,36 @@ pub fn run_multiscale_masked<M: Measurement>(
             flux: 0.0,
         });
     }
+    // radler's `Transform` is circular on the n × n PSF: the shape summed
+    // with the PSF wrapped around its edges, at the centre. Post hoc
+    // (research/g5-multiscale.md): the linear sum missed radler's by 3e-4
+    // at the 922-pixel scale of S2. Issue #54 (research/gemclean-54.md): a
+    // scale whose convolved PSF has no positive peak (the largest automatic
+    // scale on sparse coverage, about n / 2.5 pixels) is dropped with a
+    // warning; radler keeps it with gain `g / peak`. Scale 0, or no scale
+    // left, is still an error. A run that drops nothing is unchanged.
+    let mut dropped = Vec::new();
+    let mut kept_values = Vec::with_capacity(values.len());
+    let mut kept = Vec::with_capacity(scales.len());
+    for (mut sc, &v) in scales.into_iter().zip(&values) {
+        let psf_peak = circular_peak(&psf_int, n, &sc.kernel, sc.kernel_side);
+        if psf_peak > 0.0 && psf_peak.is_finite() {
+            sc.psf_peak = psf_peak;
+            kept.push(sc);
+            kept_values.push(v);
+        } else if v == 0.0 {
+            return Err(format!(
+                "the PSF convolved with scale {v} has no positive peak"
+            ));
+        } else {
+            dropped.push((v, psf_peak));
+        }
+    }
+    if kept.is_empty() {
+        return Err("no multiscale scale has a PSF with a positive peak".into());
+    }
+    let scales = kept;
+    let values = kept_values;
     // One convolver holds a (n + 1) × 2n half spectrum and an n × (n + 1)
     // work space, complex; a twice-convolved PSF is n × n per channel.
     let convolver_bytes = 3 * n * (n + 1) * 16;
@@ -837,21 +870,8 @@ pub fn run_multiscale_masked<M: Measurement>(
         run.masks = vec![vec![false; n * n]; count];
     }
     let mut another_prev = true;
-    for i in 0..count {
-        // radler's `Transform` is circular on the n × n PSF: the shape summed
-        // with the PSF wrapped around its edges, at the centre. Post hoc
-        // (research/g5-multiscale.md): the linear sum missed radler's by 3e-4
-        // at the 922-pixel scale of S2.
-        let sc = &run.scales[i];
-        let psf_peak = circular_peak(&psf_int, n, &sc.kernel, sc.kernel_side);
-        if !(psf_peak > 0.0 && psf_peak.is_finite()) {
-            return Err(format!(
-                "the PSF convolved with scale {} has no positive peak",
-                run.scales[i].scale
-            ));
-        }
-        run.scales[i].psf_peak = psf_peak;
-        run.scales[i].gain = s.gain / psf_peak;
+    for sc in run.scales.iter_mut() {
+        sc.gain = s.gain / sc.psf_peak;
     }
     let peaks: Vec<f64> = run.scales.iter().map(|sc| sc.psf_peak).collect();
     for (sc, b) in run
@@ -1300,6 +1320,7 @@ pub fn run_multiscale_masked<M: Measurement>(
         convolutions: run.convolutions,
         convolvers_built: run.convolvers.built,
         twice_built: run.twice.built,
+        dropped,
     })
 }
 
@@ -1336,6 +1357,15 @@ impl Multiscale {
         if !settings.allow_negative {
             extra.push(("allow_negative", "false".to_string()));
         }
+        // Issue #54, only when a scale was dropped (the default report is unchanged).
+        if !self.dropped.is_empty() {
+            let d: Vec<String> = self
+                .dropped
+                .iter()
+                .map(|&(v, p)| obj(&[("scale_pixels", num(v)), ("psf_peak", num(p))]))
+                .collect();
+            extra.push(("dropped_scales", arr(&d)));
+        }
         let mut fields = vec![
             ("shape", text(settings.shape.name())),
             ("scale_bias", num(settings.scale_bias)),
@@ -1362,6 +1392,11 @@ impl Multiscale {
 
     /// WSClean's scale lines (`ConvolvePsfs`) and summary.
     pub fn print_scales(&self) {
+        for &(v, p) in &self.dropped {
+            println!(
+                "warning: multiscale scale {v} px dropped: the PSF convolved with it has no positive peak ({p:e})"
+            );
+        }
         for s in &self.scales {
             println!(
                 "multiscale: scale {} px, bias factor {:.4}, psf peak {:.6}, gain {:.6}, kernel peak {:.6e}, {} components, {:.6} Jy",
@@ -1537,6 +1572,62 @@ mod tests {
             let total: f64 = out.joined.model[0].iter().sum();
             assert!((total - 1.0).abs() < 0.01, "{total}");
         }
+    }
+
+    /// Issue #54: a scale whose PSF-convolved peak is not positive (here the
+    /// PSF lowered by a constant, as sparse coverage without short spacings
+    /// does at the largest automatic scale) is dropped with a warning; the run
+    /// cleans on the others and reports the dropped scale.
+    #[test]
+    fn a_scale_without_a_positive_psf_peak_is_dropped() {
+        let n = 64;
+        let mut sky = vec![0.0; n * n];
+        sky[30 * n + 33] = 1.0;
+        let m = measurement(n, &sky);
+        let psf2n = m.psf_image(2 * n).unwrap();
+        let beam = Beam::from_double(n, &psf2n, 16).unwrap();
+        let mut psf = vec![0.0; n * n];
+        for i in 0..n {
+            for j in 0..n {
+                psf[i * n + j] = psf2n[(i + n / 2) * 2 * n + j + n / 2] - 0.02;
+            }
+        }
+        let shape = MultiscaleSettings::default().shape;
+        let peak = |v: f64| {
+            let (side, kernel) = shape_function(v, n, shape);
+            circular_peak(&psf, n, &kernel, side)
+        };
+        assert!(
+            peak(4.0) > 0.0 && peak(24.0) <= 0.0,
+            "{} {}",
+            peak(4.0),
+            peak(24.0)
+        );
+        let settings = Settings {
+            threshold: 1e-3,
+            max_components: 2_000,
+            cycle_stop: CycleStop::PeakFraction(0.8),
+            ..Settings::default()
+        };
+        let ms = MultiscaleSettings {
+            scales: vec![0.0, 4.0, 24.0],
+            ..MultiscaleSettings::default()
+        };
+        let out =
+            run_multiscale(&[(&m, &beam, &psf[..])], &[1.0], None, &settings, &ms, 0.1).unwrap();
+        let kept: Vec<f64> = out.scales.iter().map(|s| s.scale).collect();
+        assert_eq!(kept, vec![0.0, 4.0]);
+        assert_eq!(out.dropped.len(), 1);
+        assert_eq!(out.dropped[0].0, 24.0);
+        assert!(out.dropped[0].1 <= 0.0);
+        assert!(out.scales.iter().map(|s| s.components).sum::<usize>() > 0);
+        let json = out.to_json(&ms, None);
+        assert!(json.contains("\"dropped_scales\""), "{json}");
+        // Scale 0 with no positive peak is still an error.
+        let flat = vec![-1.0; n * n];
+        let err = run_multiscale(&[(&m, &beam, &flat[..])], &[1.0], None, &settings, &ms, 0.1)
+            .unwrap_err();
+        assert!(err.contains("scale 0 has no positive peak"), "{err}");
     }
 
     /// `-no-negative`: every component, and so the model, is non-negative.
