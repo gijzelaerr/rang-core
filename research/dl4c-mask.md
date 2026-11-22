@@ -1,6 +1,6 @@
 # Rang: a learned clean mask and learned stage settings, staged on their headroom (#43, DL4c)
 
-Status at freeze, 2026-11-20: **proposed; nothing run.** Branch `dl4c-mask` from origin/main `0df6b5da`.
+Status, 2026-11-22: **measured; stage 6 rule 1, null (no case meets its quality bounds; median convolution saving 0.41); stage 9 headroom, untrainable now; stage 10 not started.** Status at freeze, 2026-11-20: proposed; nothing run. Branch `dl4c-mask` from origin/main `0df6b5da`.
 Route: [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Plan:
 [dl-plan.md](dl-plan.md) stage table rows 6, 9 and 10; order and cost basis:
 [dl0-profile.md](dl0-profile.md) section 4 (final form in commit `6dd70c86` of branch `dl0-profile`). Host:
@@ -243,4 +243,45 @@ T3-T (from T3-A, 107,486 components, stop rule): 52,605 pixels (0.31 %), level 1
 
 T2-T (from T2-A, 93,731 components, stop rule): 78,934 pixels (0.47 %), level 117 µJy.
 
-_Running (A image R1; P/T images queued)._
+**Measured, 2026-11-22 (nash shared; rang-core 0.3.0 GeMClean, 9 scales, `-j 4`; R2-A, R3-A, T1-A to
+T3-A at `-niter 1000000` (stop rule in every cycle), every masked arm at `-niter 10000000`; R1 stopped
+under amendment 4).** Scorer `dl4c_score.py` (`9b28118c`, `--stopped` `e5c3b09b`, beam `475d4513`);
+archive [results/dl4c-mask/score](results/dl4c-mask/score) (`score.json`, every image report and log,
+the bench scores).
+
+| Case | convolutions A → arm | h | sub-minor loops | major cycles | wall A → arm (s) | quality | counts |
+| --- | --- | ---: | --- | --- | --- | --- | --- |
+| R1 (scan 6) | – | – | – | – | stopped at 24 h | not converged (amendment 4) | no |
+| R2 (scan 8), P | 24,167 → 19,296 | 0.202 | 1,091 → 795 | 7 → 6 | 18,728 → 15,105 | σ 1.117 × A (≤ 1.02), model flux 3.01 × A (± 2 %), restored diff 3.33 σ (≤ 0.1) | no |
+| R3 (scan 10), P | 20,663 → 16,761 | 0.189 | 1,014 → 751 | 6 → 6 | 16,582 → 14,276 | σ 1.106 ×, flux 3.10 ×, diff 3.20 σ | no |
+| T1, T | 23,925 → 10,648 | 0.555 | 847 → 393 | 5 → 4 | 13,807 → 7,591 | false \|flux\| 12.1 against 6.0 mJy (≤ 1.1 ×); recovery 0.9903 against 0.9922; Q/Q_truth 1.0021 against 1.0022 | no |
+| T2, T | 18,095 → 10,751 | 0.406 | 715 → 404 | 5 → 4 | 11,059 → 7,602 | false 23.0 against 9.9 mJy; recovery 0.9851 / 0.9859; Q 1.0030 / 1.0031 | no |
+| T3, T | 14,931 → 8,601 | 0.424 | 597 → 384 | 5 → 4 | 11,719 → 6,824 | false 13.2 against 4.0 mJy; recovery 0.9619 / 0.9641; Q 1.0034 / 1.0036 | no |
+
+Median h over the five scored cases **0.406**; cases that count **0 of 5**.
+
+**Verdict by section 4: rule 1, null; nothing trains (stage 6C is not started).** The saving is real
+in cost (a truth mask from the first cycle cuts convolutions by 41-56 % and one major cycle on every
+simulation; a posterior mask by 19-20 % on real scans) but never at equal quality, the condition of H6:
+
+- on simulations the truth mask doubles to triples the false |flux| (likely components placed inside
+  the dilated truth region that the auto-mask's per-scale masks keep out; inferred, not measured), while recovery and
+  the misfit stay within bounds;
+- on real data the posterior mask lets the clean take up diffuse emission the auto-mask does not
+  reach (model flux 3.0-3.1 × A's), and the image differs from A's by 3.2-3.3 σ over A's 5σ region with
+  a 10-12 % higher residual σ: a different image, not the same image cheaper.
+
+So the best mask a predictor could supply does not reproduce the automatic mask's result at lower cost;
+a learned mask cannot do better than that bound. Not tested: a mask of the auto-mask's own shape (the
+union of its per-scale masks) given from the first cycle, which is the classical form of the question;
+R1 (scan 6) itself, which did not stop within 24 h or 1,000,000 components (amendment 4's finding).
+
+## For the coordinator
+
+- #43 outcome: stage 6 **null** (rule 1: 0 of 5 cases meet their quality bounds; median convolution
+  saving 0.41; R1 stopped at 24 h, not converged); stage 9 **headroom, untrainable now** (sdm03 only,
+  two scans); stage 10 not started. No network trained; no GPU used.
+- GeMClean findings (candidate issues): rang-core#54 (the tenth automatic scale refuses on one scan or a
+  2 h simulation); R1 (E2-N scan 6) did not reach its stop within 1,000,000 components or 24 h while
+  scans 8 and 10 stopped at about 884,000 (amendment 4).
+- Open classical question, not run: the auto-mask's own union given as a FITS mask from cycle 1.

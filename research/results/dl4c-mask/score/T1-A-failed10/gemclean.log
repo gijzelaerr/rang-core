@@ -1,0 +1,9 @@
+heavy_lock: waiting for head 01795162399688492806-linux-1706312.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795162589457922931-linux-1709640.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795162997361119058-linux-1716560.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795163483531196904-linux-1722276.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795163910184512906-linux-1726372.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795164867965566865-linux-1734872.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+/home/gijs/rang-data/outputs/dl4c-mask-20261120/sim/T1/sim.ms: 1814400 rows (DATA, field 0), 64 channels into 8 output channels, MF weighting, joined, 217.85 s read, 25.89 s weights
+gemclean: the PSF convolved with scale 1607.9307951810158 has no positive peak
