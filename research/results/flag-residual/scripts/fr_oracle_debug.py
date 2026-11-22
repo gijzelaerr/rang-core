@@ -37,11 +37,14 @@ for c in (0, 3):
             continue
         mre, sre = est["re"][2][b]
         mim, sim = est["im"][2][b]
-        vre, vim = res[row, :, c].real, res[row, :, c].imag
-        dev = ((vre - mre) / sre) ** 2 + ((vim - mim) / sim) ** 2
-        gdev = ((vre - est["re"][0]) / est["re"][1]) ** 2 + ((vim - est["im"][0]) / est["im"][1]) ** 2
+        w = res[row, :, c]
+        # QuartiCal: |complex cell - real median| / mad, for both the re and im medians
+        dev = (np.abs(w - mre) / sre) ** 2 + (np.abs(w - mim) / sim) ** 2
+        gdev = (np.abs(w - est["re"][0]) / est["re"][1]) ** 2 + (np.abs(w - est["im"][0]) / est["im"][1]) ** 2
         out[row] |= (dev > 25) | (gdev > 100)
 print("numpy restatement flagged", out.mean(), "vs quartical diff", (out != q).mean(), "vs rang diff", (out != r).mean())
 d = np.argwhere(q != r)[:5]
+print("differing rows (first 10 distinct):", sorted(set(np.argwhere(q != r)[:, 0].tolist()))[:10])
+print("differing on flagged cells:", int(((q != r) & (flag == 1)).sum()), "unflagged:", int(((q != r) & (flag != 1)).sum()))
 for i, j in d:
     print("row", i, "chan", j, "a1", a1[i], "a2", a2[i], "q", q[i, j], "r", r[i, j], "np", out[i, j], "flag", flag[i, j])

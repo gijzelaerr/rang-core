@@ -259,6 +259,13 @@ was already flagged (larger residuals there). The port now uses the complex magn
 precision, `hypot`); G-Q is read again after the E2-N `on` run frees the shared extension. `method:
 rang` is not affected.
 
+*Addendum to amendment 5, 2026-11-22 06:30 SAST (G-Q's second reading: 1.40 % of cells differing).*
+A NumPy restatement with complex magnitudes now matches QuartiCal's kernels exactly (0 cells differ),
+so the remaining difference was the port's: QuartiCal subtracts the **imaginary-part median from the
+complex cell** too (`np.abs(wres - med_pq_im)` shifts the real part, not the imaginary part), and the
+port shifted the imaginary part. This looks unintended in QuartiCal, but the `quartical` arm reproduces
+QuartiCal as it is; the port now does the same. G-Q is read a third time.
+
 ## Measured result
 
 _Nothing yet._

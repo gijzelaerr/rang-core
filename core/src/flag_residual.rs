@@ -464,17 +464,20 @@ pub fn flags_quartical(
                 }
             }
             for c in 0..nchan {
-                // QuartiCal subtracts a real median from the complex whitened
-                // residual and takes the complex magnitude (`np.abs(wres[row,
-                // chan, corr] - med_pq_re)`): both terms see the whole cell.
+                // QuartiCal subtracts each real median (of the real part, and of
+                // the imaginary part) from the complex whitened residual and
+                // takes the complex magnitude: `np.abs(wres[row, chan, corr] -
+                // med_pq_im)` shifts the real part by the imaginary median.
+                // Reproduced as is (the oracle arm), research/flag-residual.md
+                // amendment 5.
                 let (vre, vim) = (part(r, c, k, 0), part(r, c, k, 1));
                 let bre = (vre - med_re).hypot(vim) / mad_re;
-                let bim = vre.hypot(vim - med_im) / mad_im;
+                let bim = (vre - med_im).hypot(vim) / mad_im;
                 if ((bre * bre + bim * bim) as f64) > bl_t2 {
                     out[r * nchan + c] = 1;
                 }
                 let gre = (vre - gmed_re).hypot(vim) / gmad_re;
-                let gim = vre.hypot(vim - gmed_im) / gmad_im;
+                let gim = (vre - gmed_im).hypot(vim) / gmad_im;
                 if ((gre * gre + gim * gim) as f64) > gbl_t2 {
                     out[r * nchan + c] = 1;
                 }
