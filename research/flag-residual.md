@@ -235,6 +235,17 @@ E2-N the stage-off chain flags B for about 30 % of solutions and leaves 19 anten
 baseline to m022 after its own flag steps, close to the 19 antennas CASA's K solve flagged on this
 block ([e2n-native.md](e2n-native.md)).
 
+**Amendment 4, 2026-11-22 03:10 SAST, post hoc (the second E2-N `on` run was read: its tripwire fired
+on B alone).** Under amendment 3's fix the re-solve keeps every antenna: K, G, Gsec and F 0.0 % of
+solutions flagged, as in the first pass; B 29.71 % against 29.69 % in the first pass. The tripwire still
+stopped the run, because section 3 froze it as an absolute 5 % ceiling and E2-N's stage-off chain
+already flags 29.7 % of B (amendment 3's side finding). An absolute ceiling therefore stops every run
+on this block whatever the residual flags do. The reporter's 5 % was measured on a block where the
+stage-off fractions were near zero. Change, before any score: the tripwire fires when a table's
+flagged fraction **rises** by more than `tripwire` between the first pass and the re-solve (the same
+comparison as gate G-S, whose +1 percentage point bound is unchanged). The E2-N `on` arm runs a third
+time; the second run's record is archived with the first.
+
 ## Measured result
 
 _Nothing yet._

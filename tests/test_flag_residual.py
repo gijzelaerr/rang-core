@@ -109,3 +109,12 @@ def test_unquoted_off_in_yaml_is_off():
     config, errors = core_config.resolve(raw)
     assert not errors
     assert config["flag"]["residual"]["mode"] == "off"
+
+
+def test_tripwire_is_relative_to_the_first_pass(monkeypatch):
+    monkeypatch.setattr(
+        flag_residual, "solution_flag_fractions", lambda steps, types=None: {"B": 0.30}
+    )
+    assert not flag_residual.tripwire([], 0.05, {"B": 0.297})[0]
+    assert flag_residual.tripwire([], 0.05, {"B": 0.20})[0]
+    assert flag_residual.tripwire([], 0.05)[0]

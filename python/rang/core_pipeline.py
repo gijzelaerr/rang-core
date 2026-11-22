@@ -1858,15 +1858,17 @@ def stage_calibrate_chain(ctx):
     if residual is not None:
         from . import flag_residual
 
-        fired, frac = flag_residual.tripwire(result["steps"], rcfg["tripwire"])
+        fired, frac = flag_residual.tripwire(
+            result["steps"], rcfg["tripwire"], residual["solutions_flagged_before"]
+        )
         residual["solutions_flagged_after"] = frac
         residual["tripwire_fired"] = fired
         _write_json(out_dir / "residual.json", residual)
         if fired:
             raise StageFailed(
-                f"flag.residual: more than {rcfg['tripwire']:.0%} of the solutions of "
-                f"{[k for k, v in frac.items() if v > rcfg['tripwire']]} are flagged "
-                f"after the re-solve ({frac}); see {out_dir / 'residual.json'}"
+                f"flag.residual: the flagged fraction of the solutions rose by more than "
+                f"{rcfg['tripwire']:.0%} in the re-solve ({residual['solutions_flagged_before']}"
+                f" -> {frac}); see {out_dir / 'residual.json'}"
             )
     return _calibrate_chain_summary(
         ctx, config, info, cal, terms, result, models, restored, scans, version, plan,

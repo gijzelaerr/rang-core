@@ -147,10 +147,14 @@ def solution_flag_fractions(steps, types=None):
     return out
 
 
-def tripwire(steps, limit):
-    """(fired, {table: flagged solution fraction}) over K, G (G, Gsec), B and F."""
+def tripwire(steps, limit, before=None):
+    """(fired, {table: flagged solution fraction}) over K, G (G, Gsec), B and
+    F. With `before` ({table: fraction} of the first pass; amendment 4) it
+    fires when a table's fraction rose by more than `limit`; without, when
+    it exceeds `limit`."""
     frac = solution_flag_fractions(steps, TRIPWIRE_TYPES)
-    return any(v > limit for v in frac.values()), frac
+    base = before or {}
+    return any(v - base.get(k, 0.0) > limit for k, v in frac.items()), frac
 
 
 __all__ = [

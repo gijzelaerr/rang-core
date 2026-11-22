@@ -256,8 +256,8 @@ SCHEMA = {
             "tripwire": _k(
                 0.05,
                 "float",
-                "fail the stage when more than this fraction of the K, G, B, Gsec and F "
-                "solutions are flagged after the re-solve",
+                "fail the stage when the flagged fraction of the K, G, B, Gsec or F "
+                "solutions rises by more than this in the re-solve",
             ),
         },
     },

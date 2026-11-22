@@ -288,7 +288,7 @@ flag:
     global_sigma: 10.0  # quartical only: threshold_global
     persist: 3.0  # rang only: a baseline's channel or dump whose mean z^2 exceeds this times the block's median
     guard: 0.8  # rang only: no calibrator baseline is pushed past this flagged fraction
-    tripwire: 0.05  # fail the stage when more than this fraction of the K, G, B, Gsec and F solutions are flagged after the re-solve
+    tripwire: 0.05  # fail the stage when the flagged fraction of the K, G, B, Gsec or F solutions rises by more than this in the re-solve
   learned:
     mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
