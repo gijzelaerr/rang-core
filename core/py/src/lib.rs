@@ -72,6 +72,7 @@ mod f3flag;
 mod f4flag;
 mod f5flag;
 mod flag_extend;
+mod flag_residual;
 mod gemclean_cli;
 mod gemclean_predict;
 mod learned;
@@ -3006,6 +3007,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Task E0: CASA's flagdata mode=extend (research/e0-refant-extend.md).
     m.add_function(wrap_pyfunction!(flag_extend::flag_extend, m)?)?;
+    m.add_function(wrap_pyfunction!(flag_residual::flag_residual_rang, m)?)?;
+    m.add_function(wrap_pyfunction!(flag_residual::flag_residual_quartical, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        flag_residual::flag_residual_median_model,
+        m
+    )?)?;
     // Task F2: the learned flagger's inference (research/f2-flagger.md).
     m.add_function(wrap_pyfunction!(cnnflag::cnnflag_logits, m)?)?;
     // Task G6: gemclean's model prediction (research/g6-predict.md).

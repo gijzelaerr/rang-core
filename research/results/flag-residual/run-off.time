@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Worktrees/rang/flag-residual/.venv/bin/python -m rang.core_cli run /home/gijs/rang-data/outputs/flag-residual-20261121/cfg/e2n-off.yaml /home/gijs/rang-data/outputs/flag-residual-20261121/e2n-off.ms"
+	User time (seconds): 5059.59
+	System time (seconds): 2686.51
+	Percent of CPU this job got: 104%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:04:00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5783636
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 893017422
+	Voluntary context switches: 94963
+	Involuntary context switches: 27082
+	Swaps: 0
+	File system inputs: 362031960
+	File system outputs: 480824376
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

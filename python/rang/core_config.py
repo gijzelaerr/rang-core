@@ -224,6 +224,42 @@ SCHEMA = {
             "or: OR with the flags already there",
             ("replace", "or"),
         ),
+        "residual": {
+            "mode": _k(
+                "off",
+                "choice",
+                "residual flagging inside calibrate, then a re-solve (issue #51, "
+                "research/flag-residual.md): off; calibrators: the calibrator fields "
+                "against their per-scan median",
+                ("off", "calibrators"),
+            ),
+            "method": _k(
+                "rang",
+                "choice",
+                "rang: antenna-factorised noise, persistence and guard; quartical: "
+                "QuartiCal 0.2.7's mad_flags on the same residual",
+                ("rang", "quartical"),
+            ),
+            "sigma": _k(5.0, "float", "cell threshold (quartical: threshold_bl)"),
+            "global_sigma": _k(10.0, "float", "quartical only: threshold_global"),
+            "persist": _k(
+                3.0,
+                "float",
+                "rang only: a baseline's channel or dump whose mean z^2 exceeds this "
+                "times the block's median",
+            ),
+            "guard": _k(
+                0.8,
+                "float",
+                "rang only: no calibrator baseline is pushed past this flagged fraction",
+            ),
+            "tripwire": _k(
+                0.05,
+                "float",
+                "fail the stage when the flagged fraction of the K, G, B, Gsec or F "
+                "solutions rises by more than this in the re-solve",
+            ),
+        },
     },
     "calibrate": {
         "model": {
@@ -900,6 +936,9 @@ def _check_value(path, key, value, errors):
         value = (
             [_number(v) for v in value] if isinstance(value, list) else _number(value)
         )
+    if base == "choice" and value is False and "off" in (key.choices or ()):
+        # YAML 1.1 reads an unquoted `off` as false (flag.residual.mode).
+        value = "off"
     if value is None:
         if optional or key.default is None:
             return None
@@ -2078,7 +2117,13 @@ def stage_hash(config, stage):
             extra = learned.hash_part(section.pop("learned"))
             if extra is not None:
                 section["learned"] = extra
+        if name == "flag" and "residual" in section:
+            # flag.residual acts inside calibrate (issue #51), not the flag stage.
+            section = {k: v for k, v in section.items() if k != "residual"}
         part[name] = section
+    residual = (config.get("flag") or {}).get("residual") or {}
+    if stage == "calibrate" and residual.get("mode", "off") != "off":
+        part["flag.residual"] = residual
     text = json.dumps(part, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -2105,7 +2150,8 @@ def _flow(value):
             + "]"
         )
     if isinstance(value, str) and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.\-/]*", value):
-        return value if value not in ("null", "true", "false", "inf", "int") else text
+        yaml_words = ("null", "true", "false", "inf", "int", "off", "on", "yes", "no")
+        return value if value.lower() not in yaml_words else text
     return text
 
 
