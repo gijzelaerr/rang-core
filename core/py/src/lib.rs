@@ -77,6 +77,7 @@ mod gemclean_cli;
 mod gemclean_predict;
 mod learned;
 mod lightcurve;
+mod reweight;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
 type Rw<'py, T> = PyReadwriteArrayDyn<'py, T>;
@@ -3015,6 +3016,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     )?)?;
     // Task F2: the learned flagger's inference (research/f2-flagger.md).
     m.add_function(wrap_pyfunction!(cnnflag::cnnflag_logits, m)?)?;
+    m.add_function(wrap_pyfunction!(reweight::reweight_variances, m)?)?;
     // Task G6: gemclean's model prediction (research/g6-predict.md).
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_block_rows, m)?)?;
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_channel_map, m)?)?;

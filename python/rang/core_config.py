@@ -492,6 +492,40 @@ SCHEMA = {
             "what is applied to which fields (empty: every complex term to the "
             "fields it was solved on)",
         ),
+        "reweight": {
+            "mode": _k(
+                "off",
+                "learned_mode",
+                "empirical weights after apply (issue #55, research/apply-reweight.md): "
+                "off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear "
+                "feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as "
+                "CASA statwt(datacolumn='residual')",
+                ("off", "residual", "stokes_v"),
+            ),
+            "chanbin": _k(16, "int", "reweight: channels per block"),
+            "timebin": _k(
+                "scan",
+                "str",
+                "reweight: scan (one block per scan) or seconds, such as 120s",
+            ),
+            "statistic": _k(
+                "mad",
+                "choice",
+                "reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance",
+                ("classic", "mad"),
+            ),
+            "minsamp": _k(
+                200,
+                "int",
+                "reweight: valid samples a block needs, else it is filled or 0",
+            ),
+            "smooth": _k(
+                5,
+                "int",
+                "reweight: running median over channel blocks that fills short blocks, "
+                "then the baseline's median (0: none, short blocks get weight 0)",
+            ),
+        },
     },
     "image": {
         "imager": _k("gemclean", "choice", "the imager", ("gemclean",)),
@@ -2093,6 +2127,17 @@ HASH_DEFAULTS = {
         "df_calwt": False,
     },
     "selfcal": {"average_time": False},
+    # Issue #55: the re-weighting stage at its default (off) leaves apply's hash.
+    "apply": {
+        "reweight": {
+            "mode": "off",
+            "chanbin": 16,
+            "timebin": "scan",
+            "statistic": "mad",
+            "minsamp": 200,
+            "smooth": 5,
+        }
+    },
 }
 
 

@@ -350,6 +350,13 @@ apply:
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
   parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
+  reweight:
+    mode: off  # empirical weights after apply (issue #55, research/apply-reweight.md): off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as CASA statwt(datacolumn='residual')
+    chanbin: 16  # reweight: channels per block
+    timebin: scan  # reweight: scan (one block per scan) or seconds, such as 120s
+    statistic: mad  # reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance
+    minsamp: 200  # reweight: valid samples a block needs, else it is filled or 0
+    smooth: 5  # reweight: running median over channel blocks that fills short blocks, then the baseline's median (0: none, short blocks get weight 0)
   learned:
     mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
