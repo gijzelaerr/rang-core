@@ -1,6 +1,6 @@
 """WSClean 3.7 arms of big-plan task DF5-O (research/df5o-deconv-oracles.md, section 2.1).
 
-    python examples/oracle_wsclean_clean.py run FIELD_DIR RUN_DIR ARM [--repeat K]
+    python examples/oracle_wsclean_clean.py run FIELD_DIR RUN_DIR ARM [--repeat K] [--image IMAGE]
     python examples/oracle_wsclean_clean.py msread-check FIELD_DIR OUT.json [--image IMAGE]
     python examples/oracle_wsclean_clean.py msread MS          (inside a container)
 
@@ -167,7 +167,7 @@ def cmd_run(args):
     # (deviation D2): it images a copy, removed after the run once its
     # columns are checked unchanged against field.json.
     shutil.copytree(field_dir / "field.ms", out / "field.ms")
-    proc, wall, cmd = docker(field_dir, out, command)
+    proc, wall, cmd = docker(field_dir, out, command, image=args.image)
     (out / "wsclean.log").write_text(proc.stdout + "\n--- stderr ---\n" + proc.stderr)
     check, _, _ = docker(
         field_dir,
@@ -184,7 +184,7 @@ def cmd_run(args):
     rec = {
         "arm": args.arm,
         "repeat": args.repeat,
-        "image": IMAGE,
+        "image": args.image,
         "wsclean_args": wargs,
         "docker_command": cmd,
         "returncode": proc.returncode,
@@ -293,6 +293,8 @@ def main():
     r.add_argument("run")
     r.add_argument("arm")
     r.add_argument("--repeat", type=int, default=1)
+    # research/wsclean38-rebaseline.md: the native 3.7 and 3.8 images (rang-wsclean-native:*).
+    r.add_argument("--image", default=IMAGE)
     m = sub.add_parser("msread")
     m.add_argument("ms")
     c = sub.add_parser("msread-check")

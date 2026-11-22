@@ -2,6 +2,9 @@
 
 Status, 2026-11-17: **measured: no mask defect.**
 
+*2026-11-18:* restated against WSClean 3.8 in [wsclean38-rebaseline.md](wsclean38-rebaseline.md) section 7.2:
+3.8 still diverges on RM and PM, so this outcome stands; on PM1 3.8 agrees with GeMClean to 3e-4 Jy.
+
 - **Provenance.** The protocol (sections 1-5) was frozen in `51a9e5a` before any run. The post hoc
   section 7 was committed in `6457155`, before any PM number was read.
 - **As frozen:** "multiscale difference, not the mask". M1 and C pass. O is not met, because

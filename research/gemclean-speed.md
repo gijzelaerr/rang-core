@@ -2,6 +2,7 @@
 
 Status, 2026-11-04: **measured against WSClean built for this CPU; no claim of novelty.** At `-j 16` GeMClean is faster on all seven
 skies, narrowly on H2 and H3. At `-j 1` WSClean is faster on H1-H3 at its best setting tried. GeMClean uses 3-5 times the memory.
+2026-11-22, against WSClean 3.8 ([wsclean38-rebaseline.md](wsclean38-rebaseline.md) 7.4, #47): the `-j 16` statement holds; at `-j 1` with coarse gridding GeMClean now leads on S1-S3 too, because 3.8's `minres` is 6-23 % slower than 3.7's at one thread. WSClean is faster on H1-H3, as written. Host unchanged (3.7 within 6 % of these medians).
 2026-11-05, task G1: `-beam-band` is kept, off by default. Over 12 interleaved pairs with coarse gridding (`-single -wgridder-accuracy 1e-4`) it saves 11-16 % of the wall on H2 and H3 at both thread counts, but only 4-5 % on S1. On H2 about half of that is one major cycle fewer. The images agree with flag off well inside the bounds written first ([result](#-beam-band-on-and-off-interleaved-measured-task-g1)).
 Archives: [results/gemclean-speed-native.json](results/gemclean-speed-native.json) (this pass),
 [results/gemclean-speed.json](results/gemclean-speed.json) (the SSE2 package). Outputs: `D:\rang\outputs\20261104-speed`

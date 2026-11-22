@@ -9,6 +9,7 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- **WSClean 3.8 rebaseline ([#47](https://github.com/gijzelaerr/rang-core/issues/47))**: GeMClean's WSClean statements re-measured against 3.8 (`research/wsclean38-rebaseline.md`). Parity, the mask and the multiscale results hold. The speed table changes only at one thread with coarse gridding, where WSClean 3.8's `minres` is 6-23 % slower than 3.7's. `tools/oracles/wsclean-native/Dockerfile` builds 3.8 (`--build-arg WSCLEAN_TAG=v3.8`, `cmake --install` and `ldconfig` for its FetchContent shared libraries, dependency commits in `/wsclean-deps.txt`); `examples/oracle_wsclean_clean.py run --image` selects the WSClean image.
 - **Learned stages, contract and interpreter ([#38](https://github.com/gijzelaerr/rang-core/issues/38))**: a `learned:` key on every stage (`mode: off` by
   default, propose, settings, replace; `off` bit-identical on 60 configurations × 5 stages), ONNX
   weights files with a `rang.learned/1` header, refusal by gates, header and envelope with an explicit
