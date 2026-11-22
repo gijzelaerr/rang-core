@@ -1,0 +1,18 @@
+image-MFS: Q/Q0 1.6928e-01 rms 2.361e-05 peak 2.732e-04 flux 8.4740 (179.3 s)
+image-MFS: Q/Q0 1.6926e-01 rms 2.360e-05 peak 1.858e-04 flux 8.4766 (180.7 s)
+image-MFS: Q/Q0 1.9127e-01 rms 2.363e-05 peak 2.405e-04 flux 8.2618 (169.9 s)
+image-MFS: Q/Q0 1.9126e-01 rms 2.363e-05 peak 2.781e-04 flux 8.2544 (170.0 s)
+image-MFS: Q/Q0 1.5133e-01 rms 2.360e-05 peak 2.553e-04 flux 7.8794 (193.8 s)
+image-MFS: Q/Q0 1.5131e-01 rms 2.358e-05 peak 2.096e-04 flux 7.8950 (195.6 s)
+{
+ "median_h": 0.4058579718154186,
+ "counting_R": 0,
+ "counting_T": 0,
+ "outcome": "null"
+}
+R1 stopped (amendment 4): does not count
+R2 h=0.202 does not count
+R3 h=0.189 does not count
+T1 h=0.555 does not count
+T2 h=0.406 does not count
+T3 h=0.424 does not count

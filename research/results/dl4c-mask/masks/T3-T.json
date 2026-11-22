@@ -1,0 +1,17 @@
+{
+ "mask": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/masks/T3-T.fits",
+ "sha256": "c88aedeef66fe1084695a2409ec985acfdd6977a007ae932dfd492347e6bc00a",
+ "pixels": 52605,
+ "fraction": 0.003135502338409424,
+ "mode": "truth",
+ "noise_jy": 2.3414240792274703e-05,
+ "level_jy": 0.00011707120396137351,
+ "core_pixels": 34188,
+ "dilation_px": 5.398264675175074,
+ "beam_px": [
+  5.398264675175074,
+  3.069849912108575,
+  -22.78320724567041
+ ],
+ "a_dir": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/img/T3-A"
+}
