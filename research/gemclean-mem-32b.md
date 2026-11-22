@@ -1,6 +1,6 @@
 # GeMClean memory, phase 5 (issues #32, #34): the Stokes I channel path's visibilities
 
-Branch `gemclean-mem-32b` from origin/main `b1fa64a1`. **Frozen 2026-11-22 before any code.** Phase 4
+Branch `gemclean-mem-32b` from origin/main `b1fa64a1`. **Frozen 2026-11-22 before any code**; measured the same day: V1 meets its bars (sweep pending), V2 not adopted. Phase 4
 is [gemclean-mem-32.md](gemclean-mem-32.md): its case I (E2-N target, Stokes I, multiscale,
 4096², 8 joined channels) peaks at 40.17 GB against WSClean 3.7's 11.02 GB (3.6 ×). This is resource
 work with no scientific claim. Results go under "Measured"; later changes are dated amendments.
@@ -63,6 +63,33 @@ No speed or quality claim. The multiscale minor cycle's +12.7 GB (scale images a
 caches) and the beams (exteriors and spectra, 9.7 GB) are left as they are: phase 4 showed the spectra
 spill costs time, and the multiscale caches are their own proposal.
 
-## Measured
+## Measured (2026-11-22, nash, shared)
 
-(none yet)
+Code: [results/gemclean-mem-32b/arms-v1-v2.patch](results/gemclean-mem-32b/arms-v1-v2.patch) on
+`b1fa64a1` (one binary; V2 is that binary with `-reorder -temp-dir`). Main's binary was built from
+the same worktree before the patch. The three case I runs went side by side in one hold
+(`heavy_lock.py run --slots 12 --mem 130`, 07:56-09:50 UTC). Receipts:
+[results/gemclean-mem-32b/](results/gemclean-mem-32b/).
+
+| Arm | Peak RSS | × main | Wall | × main | FITS (45) and mask against main |
+| --- | ---: | ---: | ---: | ---: | --- |
+| main | 40.17 GB | | 6,881 s | | |
+| V1 | 37.93 GB | **0.944** (bar 0.95) | 6,834 s | **0.993** (bar 1.05) | byte-identical |
+| V2 | 34.23 GB | **0.852** (bar 0.85) | 6,861 s | **0.997** (bar 1.10) | byte-identical; no file left |
+
+- **V1:** memory and wall bars met; case I identity met. **G8's identity sweep and
+  `gemclean_memory.rs` were not run** (the owner paused work, 2026-11-22), so V1 is **not yet
+  adopted**. It is adopted if those two pass with this patch; no new measurement is needed.
+- **V2: not adopted.** Memory 0.852 against 0.85, by 0.002 × (about 80 MB). The rule is as frozen and
+  no second pair was run.
+- Stated factor against WSClean 3.7 (11.02 GB): main 3.6 ×, V1 3.4 ×, V2 3.1 ×.
+- The code is kept as a patch, not on the branch, until the sweep has run.
+
+## For the coordinator
+
+- Phase 5: V1 (compacted channel measurements) 0.944 × memory, 0.993 × wall, images identical. It
+  waits only for the G8 sweep and the memory tests to be adopted. V2 is not adopted (0.852 against
+  0.85).
+- nash keeps `~/rang-data/outputs/gemclean-mem-32b/` (binaries, logs) and the worktree
+  `~/Worktrees/rang/gemclean-mem-32b`. Phase 4's `i.ms` and `q.ms` (82 GB) stay too, for the sweep's
+  follow-up.

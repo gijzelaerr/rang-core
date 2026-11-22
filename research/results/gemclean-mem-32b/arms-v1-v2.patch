@@ -1,0 +1,76 @@
+diff --git a/core/src/gemclean/cli.rs b/core/src/gemclean/cli.rs
+index 9d321df6..240095b4 100644
+--- a/core/src/gemclean/cli.rs
++++ b/core/src/gemclean/cli.rs
+@@ -106,8 +106,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
+   -no-plan-reuse            replan every gridder call (same images, for comparison)
+   -reorder                  with several polarisations: keep each polarisation's read and each
+                             entry's visibilities in temporary files, read back where used (same
+-                            images, less memory; research/gemclean-memory2.md); ignored, with a
+-                            warning, for one polarisation; with -channel-range or
++                            images, less memory; research/gemclean-memory2.md); with one
++                            polarisation and -channels-out > 1 only the channels' visibilities
++                            (research/gemclean-mem-32b.md); else ignored, with a warning, for one
++                            polarisation; with -channel-range or
+                             -average-channels > 1 each polarisation is read whole first
+   -temp-dir <dir>           where -reorder's files and the joined runs' dirty-image spill files
+                             (<name>-dirty-<n>.spill) go (default: the directory of -name)
+@@ -1345,10 +1347,15 @@ fn run(raw: &[String]) -> Result<(), String> {
+ fn temp_warnings(args: &Args) -> Vec<String> {
+     let mut out = Vec::new();
+     let spectral_sel = args.channel_range.is_some() || args.average_channels > 1;
+-    if args.reorder && args.pols.len() < 2 {
++    if args.reorder && args.pols.len() < 2 && args.channels_out < 2 {
+         out.push(
+-            "-reorder is ignored with one polarisation (it acts on several -pol entries)".into(),
++            "-reorder is ignored with one polarisation and one output channel (it acts on \
++             several -pol entries or -channels-out > 1)"
++                .into(),
+         );
++    } else if args.reorder && args.pols.len() < 2 {
++        // research/gemclean-mem-32b.md, arm V2: only the channels' visibilities
++        // go to the temporary file; the read is as without -reorder.
+     } else if args.reorder && spectral_sel {
+         out.push(
+             "-reorder with -channel-range or -average-channels > 1: each polarisation is read \
+@@ -1938,6 +1945,17 @@ fn deconvolve_channels<T: Real + Send + Sync>(
+             .map(|b| b.max(args.tapers.gaussian_beam))
+             .reduce(f64::min)
+     });
++    // -reorder on a multi-channel Stokes I run: one temporary file for the
++    // compacted visibilities (research/gemclean-mem-32b.md, arm V2).
++    let vis_file = if args.reorder && args.plan_reuse {
++        Some(Arc::new(TempFile::create(scratch::temp_path(
++            args.temp_dir.as_deref(),
++            &args.name,
++            "vis",
++        ))?))
++    } else {
++        None
++    };
+     for (k, c) in chans.into_iter().enumerate() {
+         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
+             c.uvw,
+@@ -1970,6 +1988,14 @@ fn deconvolve_channels<T: Real + Send + Sync>(
+             }
+         }
+         psfs.push(psf);
++        // Only the active visibilities, sorted, from here on, as on the
++        // polarisation path (research/gemclean-mem-32b.md, arm V1); with
++        // -reorder they wait in the temporary file between residuals (arm V2).
++        let m = if args.plan_reuse { m.compacted()? } else { m };
++        let m = match &vis_file {
++            Some(f) => m.on_disk(f)?,
++            None => m,
++        };
+         measurements.push(m);
+         memory::mark(&format!("channel {}: psf and beam", measurements.len() - 1));
+     }
+@@ -3870,6 +3896,7 @@ mod tests {
+             "-size 64 64 -scale 2asec x.ms",
+             "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -reorder -temp-dir t x.ms",
+             "-size 64 64 -scale 2asec -pol iquv -no-update-model-required -join-polarizations -temp-dir t x.ms",
++            "-size 64 64 -scale 2asec -channels-out 4 -reorder -temp-dir t x.ms",
+         ] {
+             assert!(temp_warnings(&args_of(line)).is_empty(), "{line}");
+         }
