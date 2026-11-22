@@ -40,7 +40,7 @@ did hash-copy || { lock 1 4 "$PY" "$F/fu_hash.py" "$MS" "$INPUT" "$R/fu-copy-has
 did hash-original-before || { lock 1 4 "$PY" "$F/fu_hash.py" "$SRC/e2n.ms" "$INPUT" "$R/fu-original-hash-before.json" && mark hash-original-before; } \
   || { note "original hash differs from 9.1"; exit 2; }
 if ! did wheel; then
-  lock 2 4 bash -c "uv venv -q -p 3.14 '$RUN/wheel-venv' && uv pip install -q -p '$RUN/wheel-venv/bin/python' '$WHEEL[imaging]'" \
+  lock 2 4 bash -c "uv venv -q -p 3.14 '$RUN/wheel-venv' && uv pip install -q -p '$RUN/wheel-venv/bin/python' '$WHEEL[imaging]' psutil" \
     || { note "wheel venv failed"; exit 2; }
   got=$("$WPY" -c "import rang._core as c, hashlib; print(hashlib.sha256(open(c.__file__,'rb').read()).hexdigest())")
   echo "{\"extension\": \"$got\", \"e2n_receipt\": \"$EXT_SHA\", \"equal\": $([ "$got" = "$EXT_SHA" ] && echo true || echo false)}" > "$R/wheel-check.json"

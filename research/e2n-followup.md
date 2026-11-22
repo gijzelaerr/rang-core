@@ -240,3 +240,71 @@ on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not par
   - E3-A was stopped at the 0.3.0 tag and is not scheduled, so 1.2's night window has no job to protect.
   - The launcher was started with the hold on. If it reaches the hold, it is restarted from its markers with
     `HOLD=0`. While held, it is only sleeping.
+- **Wheel venv,** 2026-11-22 10:27, before any rang output: E2-N's chain runs `e2_diskguard.py` with the wheel
+  venv's Python, which needs `psutil`. `psutil` 7.2.2 was added to the wheel venv (rang itself is unchanged), and
+  the launcher's wheel step now installs it.
+
+## Resume and scoring (written 2026-11-22 when work paused; the rerun runs unattended)
+
+**State at the pause.**
+- [fu_rerun.sh](results/e2n-followup/scripts/fu_rerun.sh) runs on nash with `HOLD=0`, from the worktree
+  `~/Worktrees/rang/e2n-followup` (branch `e2n-followup`).
+- Run root: `~/rang-data/outputs/e2n-followup-20261122`.
+- Markers done: copy, hash-copy, hash-original-before, wheel (extension `9c42ea72…83ed`, equal to E2-N's).
+- rang's `run` (stages flag to image; 16 slots, 96 GB) started at 10:28 SAST and should take about 5.5 h. Then the
+  launcher goes on by itself: `rang-gate1`, `rang-prep-inplace`, `rang-rows-snap-rang`, `rang-restore`,
+  `flagversions`, `fu-to-leakage` (casa-prep-a to leakage-casa, with k-only-m058 and k-only-e2n),
+  `hash-original-mid`, `fu-target` (target-wsclean to final-restore) and `hash-original-after`.
+- Logs: `R/rerun.log` (one line per marker; it ends with "finished" or the step that stopped),
+  `R/chain-steps.log`, `R/chain.out`.
+
+**Resume.**
+- If `R/rerun.log` names a stop, read the end of `R/chain.out`, fix the cause, and start the launcher again. It
+  skips every step that has a marker in `R/done/`:
+
+  `cd ~/Worktrees/rang/e2n-followup && HOLD=0 nohup bash research/results/e2n-followup/scripts/fu_rerun.sh >> ~/rang-data/outputs/e2n-followup-20261122/fu-rerun.out 2>&1 &`
+
+- A stop inside the rang segment, or inside `fu-to-leakage` or `fu-target`, reruns that whole segment: its steps
+  have no marker of their own.
+- The `restore` step needs E2-N's `INPUT` hashes. Its `g2a.json` must read `met: true` before Tricolour or CASA
+  reads the copy.
+
+**Checks when it has finished.**
+- `R/wheel-check.json`: `equal: true`.
+- `R/fu-copy-hash.json`, and `fu-original-hash-{before,mid,after}.json`: `equal: true`. The original MS is
+  untouched.
+- `R/fu-flagversions.json`: rang's rang_original, flag, calibrate and apply versions against E2-N's surviving
+  ones. `all_equal: true` means rang's side is reproduced. A difference is recorded first, and the CASA rows are
+  then read as against the rerun's rang, not E2-N's.
+- `R/casa3b-n-prep.json` (prep-b): the restored FLAG hash equals `58120750…1705`. fu_casa3b stops otherwise.
+- `R/g2a.json` `met: true` after `restore`, and `R/final-restore.json` at the end.
+
+**Scoring (section 2.2, read under 1.2's prediction: CASA's K on the flag stage's flags flags 0 of 62; the m058
+probe flags 0).**
+1. Per-antenna K, run in the formats image (python-casacore):
+
+   `apptainer exec -B ~/rang-data/outputs/e2n-followup-20261122/R:/r -B ~/Worktrees/rang/e2n-followup:/w ~/rang-data/oracle-images/rang-formats-oracle_20261030.sif /opt/qc/bin/python /w/research/results/e2n-followup/scripts/fu_kcompare.py /r/rang-run/calibrate/K /r/k-only-e2n/K /r/casa/tables/K /r/k-only-m058/K /w/research/results/e2n-followup/probe/k-probe.json /r/fu-kcompare.json`
+
+   Check the table paths against `R/rang-run/calibrate/` and `R/casa/` first: `casa/tables/` is where
+   `e2n_casa3b` writes.
+2. The K-downstream rows beside E2-N's:
+
+   `.venv/bin/python research/results/e2n-followup/scripts/fu_compare.py research/results/e2n/score ~/rang-data/outputs/e2n-followup-20261122/R ~/rang-data/outputs/e2n-followup-20261122/R/fu-compare.json`
+
+3. Archive the compact records in `research/results/e2n-followup/rerun/`:
+   - fu-kcompare.json, fu-compare.json, g3b.json, rows.json, row-target.json and leakage-casa.json;
+   - fu-flagversions.json, wheel-check.json, the hash JSONs, chain-steps.log and rerun.log.
+
+   No MS and no FITS.
+4. Write 2.2 as frozen:
+   - flagged antennas in the follow-up's K against E2-N's 19, and the m058 probe;
+   - each K-downstream row: E2-N's value, then the follow-up's, beside the frozen tolerance, read "seen, post hoc";
+   - 3c and the selfcal rows are not rerun (1.2).
+5. Add the tool-timings rows (host nash: the copy, the wheel builds of 336 s, rang's run, the CASA steps, the
+   target WSClean), plus the README index line and the STATE paragraph.
+6. Quick check on nash, commit, push `e2n-followup`, and read CI.
+
+**Clean-up after scoring.**
+- Remove the detached worktree `~/Worktrees/rang/e2n` (`99a5261`, used only to rebuild E2-N's wheel) and
+  `~/Build/tmp/20261122-e2n-wheel`.
+- Keep the run root until the coordinator has read 2.2. It holds a 105 GB MS copy plus rang's columns.
