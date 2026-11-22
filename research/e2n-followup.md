@@ -201,3 +201,33 @@ on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not par
   and E2-B's 3b scripts is a later task, not done here.
 - **Per-step flag dump on m007–m050, scan 7: yes,** shared and short only (section 2.3).
 - **`as_is` arm: deferred** until the rerun's rows are in.
+
+## Amendment, 2026-11-22: rerun from the start (post hoc; written before any rerun output)
+
+- **What was lost.**
+  - The follow-up's run root `e2n-followup-20261118` (201 GB) was found absent on 2026-11-19.
+  - By 2026-11-22, E2-N's own `R/` was gone too: `rang-run`, `rows-rang.npy`, CASA's tables and the leakage records.
+  - What is left: E2-N's `e2n.ms` with its flag versions, and the archives in `results/e2n/`. The MS's 9.1 hashes
+    are checked before use.
+- **Rang's side is regenerated first,** in a new run root, `~/rang-data/outputs/e2n-followup-20261122`:
+  - **Binary:** E2-N's own, rang-core 0.2.0 from PyPI. Its extension's SHA-256 is checked against E2-N's receipt
+    (`9c42ea72…83ed`).
+  - **Steps:** E2-N's chain steps, unchanged (`e2n_nash_chain.sh`): columns-before, run, gate1, archive,
+    prep-inplace, rows-snap-rang and restore.
+  - **Configuration:** [e2n-rerun.yaml](results/e2n-followup/scripts/e2n-rerun.yaml) is E2-N's, but for
+    `run.stages` [flag, calibrate, apply, image]. Selfcal is dropped, because its rows do not move (1.2).
+  - **Checks:** the rerun's flag versions are hashed against E2-N's surviving ones
+    ([fu_flagversions.py](results/e2n-followup/scripts/fu_flagversions.py)). prep-b's check of 3b's FLAG hash
+    `58120750…1705` is kept.
+- **E2-N's CASA K is regenerated** for [fu_kcompare.py](results/e2n-followup/scripts/fu_kcompare.py): step
+  `k-only-e2n` runs K alone on the flags after calibrate, with E2-N's refant list. That is E2-N's 3b K call.
+- **Job 2 (Tricolour, 2.1) is not rerun.** Its records are archived, and it reads nothing that was lost. Section
+  2.3's per-step flag dump is not part of this rerun.
+- **#53 (K's refant fallback, on main since 2026-11-21) is not in this run.**
+  - Rang's arm is 0.2.0, and the oracle is CASA.
+  - It would not change rang's K here in any case. Rang solves K on the flag stage's flags, where no baseline is
+    wholly flagged (1.1: 0 of 1,891). The fallback has nothing to act on.
+- **The night hold of 1.2 is kept:** target-wsclean does not start between 19:00 and 06:00 SAST. `HOLD=0` lifts
+  it, on the coordinator's word only.
+- **Launcher:** [fu_rerun.sh](results/e2n-followup/scripts/fu_rerun.sh). It is self-driving and leaves a
+  done-marker per step in `R/done/`, so a second start resumes.

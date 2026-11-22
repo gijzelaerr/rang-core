@@ -29,6 +29,7 @@ tricolour-restore 1 4 TRI restore
 casa-prep-a 1 8 FU prep-a
 casa-run-a 4 32 FU run-a
 k-only-m058 4 32 KONLY
+k-only-e2n 4 32 KONLY_E2N
 casa-prep-b 1 8 FU prep-b
 casa-run-b 4 32 FU run-b
 score3b 1 16 SCORE3B
@@ -57,6 +58,9 @@ while read -r step slots mem kind rest; do
                       restore) cmd=("$WPY" "$F/fu_tricolour.py" restore "$MS" "$R" "$INPUT") ;; esac ;;
     FU) cmd=("$WPY" "$F/fu_casa3b.py" $rest "$MS" "$R") ;;
     KONLY) cmd=("$WPY" "$F/fu_casa3b.py" k-only "$MS" "$R" "$KVERSION" m058 m058) ;;
+    # E2-N's CASA K regenerated (its R/ was removed): K alone on the flags after calibrate,
+    # E2-N's refant list (amendment 2026-11-22); fu_kcompare.py's E2N_CASA_K.
+    KONLY_E2N) cmd=("$WPY" "$F/fu_casa3b.py" k-only "$MS" "$R" "$KVERSION" e2n) ;;
     CASA) cmd=(nash e2n_casa3b $rest "$MS" "$R") ;;
     SCORE3B) cmd=(nash e2n_score3b "$R" "$MS") ;;
     ROWSNAP_CASA) cmd=(nash e2n_rows snap casa "$MS" CORRECTED_DATA FLAG "$R/rows-casa.npy") ;;
