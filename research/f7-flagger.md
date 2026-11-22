@@ -137,6 +137,14 @@ up). SARAO stays inside every bar, with G-drop improved.
 - *Cost:* level 40 adds one more split pass over all baselines (the scale), so C1 would need a new
   timing run if P2 enters F7.
 
+**D4 (proposed 2026-11-22 03:15 SAST, before it runs; validation only).** Targets only: level 42,
+the same per-observation scaling and balanced batches as D3 but without F4's spectral planes and
+2d's variance planes (21 inputs; the kernel's existing level, no code change). D2 found the
+spectral planes the largest single lever on ESO137's G-drop. Same scans and seeds, seed 2,
+`f6_tau.py`, the complete validation scorer. Question: does G-drop on ESO137 chunk 10 fall below
+0.05 / 0.20 / 0.25 while every other target gate (ESO137 and SARAO) keeps passing? Run root
+`nash:~/rang-data/outputs/f7-d4-20261122/`; bookings from D3's measured peaks + 30 % or more.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
