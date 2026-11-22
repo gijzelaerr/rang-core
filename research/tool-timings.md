@@ -2386,3 +2386,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-21 | F7 D3 level-40 shards: target validation / train, 8 / 12 slots | F6's scans and seeds | 4,363 s / 6,955 s | 20.8 / 164.6 GB | nash |
 | 2026-11-21 | F7 D3 training, seed 2, level 40, balanced (`f5_train.py --balance-real`), 12 threads | calibrator / target shards, 30,000 steps | 4,261 s / 5,067 s | 147.7 / 49.3 GB (mapped) | nash CPU, both side by side |
 | 2026-11-21 | F7 D3 tau and validation scorer, level 40 | calibrator / target | tau 705 / 484 s; scorer per SARAO scan up to 7,861 s, ESO137 chunk 10 1,305 s | 2.9-29.5 GB | nash |
+| 2026-11-22 | F7 D4 level-42 target shards, validation / train, 8 / 12 slots | F6's target scans and seeds | 977 s / 6,233 s | 20.0 / 164.2 GB | nash; validation-only diagnostic |
+| 2026-11-22 | F7 D5 G-drop by arm (`f7_gdrop_arms.py`), 8 slots | ESO137 chunk 10, F6 and D3 target methods, 9 draws each | 78 s / 99 s | 3.3 GB | nash |

@@ -145,6 +145,38 @@ spectral planes the largest single lever on ESO137's G-drop. Same scans and seed
 0.05 / 0.20 / 0.25 while every other target gate (ESO137 and SARAO) keeps passing? Run root
 `nash:~/rang-data/outputs/f7-d4-20261122/`; bookings from D3's measured peaks + 30 % or more.
 
+**D4 measured, ESO137 chunk 10 (2026-11-22 06:25 SAST, validation only).** Level 42, seed 2,
+validation loss 0.0349; `f6_tau.py`: N5W4, τ −3.5, κ 3. G-drop **0.10 / 0.34 / 0.55** (D3 0.096 /
+0.200 / 0.287); R5 **0.686** (fails 0.80); outer32 R3 1.495; R3 0.31. Removing the spectral and
+2d planes makes the targets worse: they carry signal the network needs, and the instability is
+not theirs alone. W4 (κ 3) now adds more cells than N5 (429,441 against 342,699). The full verdict
+lands in `nash:~/rang-data/outputs/f7-d4-20261122/`.
+
+**D5 (proposed 2026-11-22 06:30 SAST, before it runs; validation only, no training).** G-drop on
+ESO137 chunk 10 split by arm: N5 alone (logit > τ), W4 alone (anomaly > κ), and the method, for
+F6's target method (L20, τ −4.5, κ 4) and D3's (L40, τ −4.0, κ 4), G-drop's draws (k = 1, 4, 8;
+seeds 20265301-03). `examples/f7_gdrop_arms.py`. Question: how much of the ESO137 G-drop failure
+is W4's, the anomaly arm without learned weights?
+
+**D5 measured (2026-11-22 06:40 SAST, validation only; `nash:~/rang-data/outputs/f7-d5-20261122/`).**
+G-drop on ESO137 chunk 10 by arm, worst of seeds 20265301-03 (bars 0.05 / 0.20 / 0.25):
+
+| Method | N5 alone, k = 1 / 4 / 8 | W4 alone (κ 4) | method (N5 ∪ W4) |
+| --- | --- | --- | --- |
+| F6 targets (L20, τ −4.5) | 0.095 / 0.163 / 0.325 | 0.204 / 0.456 / 0.802 | 0.110 / 0.217 / 0.350 |
+| D3 targets (L40, τ −4.0) | **0.066 / 0.118 / 0.220** | 0.204 / 0.456 / 0.802 | 0.096 / 0.200 / 0.287 |
+
+Reading: W4, the anomaly arm with no learned weights, is the unstable part (0.80 at k = 8); D3's
+network alone passes G-drop at k = 4 and 8 and misses k = 1 (0.066 against 0.05). P2 + P1 cut the
+network's own sensitivity by 30-32 %.
+
+**D6 (proposed 2026-11-22 06:45 SAST, before it runs; validation only, no training).** D3's target
+weights and τ (−4.0) with W4 off (method N5), through the complete validation scorer and verdict on
+ESO137 chunk 10 and 1573212012's target scans (A cached from F6's run). Question: does N5 alone
+pass every target gate but G-drop at k = 1, and what does dropping W4 cost R1, R5 and S3? This
+is a method choice made after D5's numbers, so if F7 adopts it, F7 must re-select κ by a rule
+written before its own validation read.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
