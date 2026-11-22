@@ -153,6 +153,11 @@ def main():
     p.add_argument("--sarao-root", required=True)
     p.add_argument("--ao-sif")
     p.add_argument("--sources", default="luno,eso,sarao,sim")
+    p.add_argument(
+        "--f4-realisations",
+        type=int,
+        help="F7 D7: realisations per F4-era (LUNO, ESO137) scan instead of REALISATIONS",
+    )
     a = p.parse_args()
     f5.use_data_root(a.data_root)
     if a.ao_sif:
@@ -162,7 +167,7 @@ def main():
     recs_dir = out / "records"
     recs_dir.mkdir(parents=True, exist_ok=True)
     sources = set(a.sources.split(","))
-    nreal = REALISATIONS[a.role]
+    nreal = a.f4_realisations or REALISATIONS[a.role]
     seed = SEEDS[(a.klass, a.role, "real")]
     audit = {"scans": {}, "stop": None, "level": a.level, "degree": a.degree}
     t0 = time.perf_counter()

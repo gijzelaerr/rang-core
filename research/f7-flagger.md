@@ -200,6 +200,14 @@ more step on single-antenna robustness on the 512-channel set (P4's 1k-channel d
 numbers, so an F7 target protocol must re-select τ, κ (or W4's removal) and the level by rules
 written before its own validation read, and the held-out sets of section 0 decide it.
 
+**D7 (proposed 2026-11-22 09:10 SAST, before it runs; validation only).** Targets: D3's recipe
+(level 40, balanced batches, seed 2) with **eight dropout realisations per ESO137 training chunk**
+instead of four (realisations 4-7 new, seeds continuing F6's series; dropout 0-8 antennas as
+before); every other training shard is D3's, unchanged. No 1k-channel data (1735892129 is DL6's
+held-out configuration). τ by `f6_tau.py`, W4 off (as D6), the complete validation scorer.
+Question: does G-drop on ESO137 at k = 1 fall to ≤ 0.05 with k = 4, 8 and every other target gate
+still passing, R5 on ESO137 included? Run root `nash:~/rang-data/outputs/f7-d7-20261122/`.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
