@@ -1,0 +1,139 @@
+/home/gijs/rang-data/outputs/gemclean-mem-32-20261121/i.ms: 1596004 rows (DATA, field 3), 512 channels into 8 output channels, MF weighting, joined, 360.26 s read, 69.70 s weights
+multiscale: theoretic beam 4.8134" (1.6045 pixels), 10 scales, 242 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.100000, kernel peak 1.490854e-1, 12446 components, 1.228410 Jy
+multiscale: scale 6 px, bias factor 1.6667, psf peak 0.438852, gain 0.227867, kernel peak 4.984855e-2, 913 components, -0.018985 Jy
+multiscale: scale 13 px, bias factor 2.7778, psf peak 0.253876, gain 0.393893, kernel peak 1.838800e-2, 3389 components, 0.372890 Jy
+multiscale: scale 26 px, bias factor 4.6296, psf peak 0.120750, gain 0.828157, kernel peak 5.867765e-3, 2274 components, 0.059129 Jy
+multiscale: scale 51 px, bias factor 7.7160, psf peak 0.042711, gain 2.341323, kernel peak 1.569448e-3, 563 components, 0.005308 Jy
+multiscale: scale 103 px, bias factor 12.8601, psf peak 0.011788, gain 8.483507, kernel peak 4.062807e-4, 324 components, 0.001732 Jy
+multiscale: scale 205 px, bias factor 21.4335, psf peak 0.002873, gain 34.808082, kernel peak 1.052558e-4, 79 components, -0.008531 Jy
+multiscale: scale 411 px, bias factor 35.7225, psf peak 0.000560, gain 178.515655, kernel peak 2.655318e-5, 12 components, -0.003621 Jy
+multiscale: scale 821 px, bias factor 59.5374, psf peak 0.000072, gain 1390.370957, kernel peak 6.700460e-6, 0 components, 0.000000 Jy
+multiscale: scale 1643 px, bias factor 99.2290, psf peak 0.000001, gain 75634.232836, kernel peak 1.681623e-6, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 3.635124e-5 Jy, threshold 1.817562e-4 Jy; continued in the mask at gain 0.9000, threshold 1.817562e-4 Jy
+auto-mask: major iteration 2, sigma 1.978622e-5 Jy, threshold 9.893110e-5 Jy; continued in the mask at gain 0.9000, threshold 9.893110e-5 Jy
+auto-mask: major iteration 3, sigma 1.836694e-5 Jy, threshold 9.183469e-5 Jy; continued in the mask at gain 0.9000, threshold 9.183469e-5 Jy
+auto-mask: major iteration 4, sigma 1.792337e-5 Jy, threshold 8.961686e-5 Jy
+joined: 20000 components, 3 major cycles, 0 resyncs, stop Components; Q/Q0 5.4487e-1
+memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):
+  read                       held   9.846  most  29.458  rss   9.851  peak rss  29.461  swap  0.000
+  weights                    held  12.508  most  29.267  rss  12.533  peak rss  29.461  swap  0.000
+  channel 0: psf and beam    held  14.325  most  14.776  rss  14.366  peak rss  29.461  swap  0.000
+  channel 1: psf and beam    held  16.051  most  16.959  rss  16.100  peak rss  29.461  swap  0.000
+  channel 2: psf and beam    held  17.621  most  18.364  rss  17.662  peak rss  29.461  swap  0.000
+  channel 3: psf and beam    held  19.035  most  19.437  rss  19.066  peak rss  29.461  swap  0.000
+  channel 4: psf and beam    held  20.688  most  21.518  rss  20.722  peak rss  29.461  swap  0.000
+  channel 5: psf and beam    held  22.416  most  23.319  rss  22.458  peak rss  29.461  swap  0.000
+  channel 6: psf and beam    held  23.753  most  24.258  rss  23.776  peak rss  29.461  swap  0.000
+  channel 7: psf and beam    held  25.129  most  25.673  rss  25.158  peak rss  29.461  swap  0.000
+  multiscale: scales         held  24.788  most  25.800  rss  24.803  peak rss  29.461  swap  0.000
+  residual: grid             held  27.698  most  27.783  rss  27.616  peak rss  29.461  swap  0.000
+  residual: grid             held  28.942  most  29.067  rss  28.900  peak rss  29.461  swap  0.000
+  residual: grid             held  28.995  most  29.109  rss  28.952  peak rss  29.461  swap  0.000
+  residual: grid             held  28.948  most  29.129  rss  28.903  peak rss  29.461  swap  0.000
+  residual: grid             held  29.878  most  29.984  rss  29.832  peak rss  29.860  swap  0.000
+  residual: grid             held  30.751  most  30.878  rss  30.711  peak rss  30.739  swap  0.000
+  residual: grid             held  30.452  most  30.885  rss  30.410  peak rss  30.840  swap  0.000
+  residual: grid             held  30.856  most  30.924  rss  30.813  peak rss  30.842  swap  0.000
+  cycle 1: minor             held  37.849  most  38.923  rss  37.930  peak rss  39.000  swap  0.000
+  residual: predict          held  39.566  most  39.670  rss  39.647  peak rss  39.742  swap  0.000
+  residual: grid             held  39.499  most  39.659  rss  39.580  peak rss  39.742  swap  0.000
+  residual: predict          held  40.401  most  40.508  rss  40.484  peak rss  40.579  swap  0.000
+  residual: grid             held  40.334  most  40.514  rss  40.420  peak rss  40.579  swap  0.000
+  residual: predict          held  40.123  most  40.468  rss  40.209  peak rss  40.579  swap  0.000
+  residual: grid             held  40.056  most  40.219  rss  40.142  peak rss  40.579  swap  0.000
+  residual: predict          held  39.916  most  40.190  rss  40.003  peak rss  40.579  swap  0.000
+  residual: grid             held  39.849  most  39.957  rss  39.935  peak rss  40.579  swap  0.000
+  residual: predict          held  40.475  most  40.581  rss  40.561  peak rss  40.656  swap  0.000
+  residual: grid             held  40.408  most  40.579  rss  40.494  peak rss  40.656  swap  0.000
+  residual: predict          held  40.938  most  41.045  rss  41.025  peak rss  41.120  swap  0.000
+  residual: grid             held  40.871  most  41.025  rss  40.957  peak rss  41.120  swap  0.000
+  residual: predict          held  40.426  most  41.005  rss  40.512  peak rss  41.120  swap  0.000
+  residual: grid             held  40.359  most  40.473  rss  40.445  peak rss  41.120  swap  0.000
+  residual: predict          held  40.598  most  40.702  rss  40.684  peak rss  41.120  swap  0.000
+  residual: grid             held  40.531  most  40.661  rss  40.617  peak rss  41.120  swap  0.000
+  cycle 2: minor             held  37.849  most  40.665  rss  37.935  peak rss  41.120  swap  0.000
+  residual: predict          held  39.566  most  39.670  rss  39.652  peak rss  41.120  swap  0.000
+  residual: grid             held  39.499  most  39.639  rss  39.585  peak rss  41.120  swap  0.000
+  residual: predict          held  40.401  most  40.508  rss  40.487  peak rss  41.120  swap  0.000
+  residual: grid             held  40.334  most  40.503  rss  40.420  peak rss  41.120  swap  0.000
+  residual: predict          held  40.123  most  40.468  rss  40.210  peak rss  41.120  swap  0.000
+  residual: grid             held  40.056  most  40.237  rss  40.144  peak rss  41.120  swap  0.000
+  residual: predict          held  39.916  most  40.190  rss  40.004  peak rss  41.120  swap  0.000
+  residual: grid             held  39.849  most  39.955  rss  39.937  peak rss  41.120  swap  0.000
+  residual: predict          held  40.475  most  40.581  rss  40.563  peak rss  41.120  swap  0.000
+  residual: grid             held  40.408  most  40.576  rss  40.496  peak rss  41.120  swap  0.000
+  residual: predict          held  40.938  most  41.045  rss  41.027  peak rss  41.121  swap  0.000
+  residual: grid             held  40.871  most  41.025  rss  40.960  peak rss  41.121  swap  0.000
+  residual: predict          held  40.426  most  41.005  rss  40.515  peak rss  41.121  swap  0.000
+  residual: grid             held  40.359  most  40.469  rss  40.447  peak rss  41.121  swap  0.000
+  residual: predict          held  40.598  most  40.703  rss  40.687  peak rss  41.121  swap  0.000
+  residual: grid             held  40.531  most  40.660  rss  40.620  peak rss  41.121  swap  0.000
+  cycle 3: minor             held  37.849  most  40.665  rss  37.938  peak rss  41.121  swap  0.000
+  residual: predict          held  39.566  most  39.670  rss  39.655  peak rss  41.121  swap  0.000
+  residual: grid             held  39.499  most  39.659  rss  39.588  peak rss  41.121  swap  0.000
+  residual: predict          held  40.401  most  40.509  rss  40.490  peak rss  41.121  swap  0.000
+  residual: grid             held  40.334  most  40.526  rss  40.429  peak rss  41.121  swap  0.000
+  residual: predict          held  40.124  most  40.468  rss  40.219  peak rss  41.121  swap  0.000
+  residual: grid             held  40.057  most  40.236  rss  40.151  peak rss  41.121  swap  0.000
+  residual: predict          held  39.917  most  40.191  rss  40.012  peak rss  41.121  swap  0.000
+  residual: grid             held  39.850  most  39.957  rss  39.945  peak rss  41.121  swap  0.000
+  residual: predict          held  40.475  most  40.582  rss  40.570  peak rss  41.121  swap  0.000
+  residual: grid             held  40.408  most  40.582  rss  40.503  peak rss  41.121  swap  0.000
+  residual: predict          held  40.939  most  41.046  rss  41.034  peak rss  41.129  swap  0.000
+  residual: grid             held  40.872  most  41.030  rss  40.967  peak rss  41.129  swap  0.000
+  residual: predict          held  40.426  most  41.006  rss  40.521  peak rss  41.129  swap  0.000
+  residual: grid             held  40.359  most  40.472  rss  40.454  peak rss  41.129  swap  0.000
+  residual: predict          held  40.599  most  40.703  rss  40.694  peak rss  41.129  swap  0.000
+  residual: grid             held  40.532  most  40.660  rss  40.626  peak rss  41.129  swap  0.000
+  clean: end                 held  32.676  most  40.666  rss  32.800  peak rss  41.129  swap  0.000
+  write                      held   5.235  most  32.676  rss   5.403  peak rss  41.129  swap  0.000
+memory by buffer (GB):
+heap at its highest: 41.045 GB, during the phase ended by "residual: predict"; blocks of 1 MiB or more then:
+     65 x     134217728 bytes     8.724 GB
+     10 x     537001984 bytes     5.370 GB
+      8 x     536739848 bytes     4.294 GB
+      4 x     815217664 bytes     3.261 GB
+     10 x     268500992 bytes     2.685 GB
+      4 x     407608832 bytes     1.630 GB
+      2 x     814742944 bytes     1.629 GB
+      4 x     367313408 bytes     1.469 GB
+      1 x     814894080 bytes     0.815 GB
+      1 x     814642688 bytes     0.815 GB
+      1 x     814197696 bytes     0.814 GB
+      1 x     814018048 bytes     0.814 GB
+      1 x     740393296 bytes     0.740 GB
+      1 x     657291848 bytes     0.657 GB
+     17 x      33587208 bytes     0.571 GB
+      1 x     461198320 bytes     0.461 GB
+      1 x     423047040 bytes     0.423 GB
+      1 x     407447040 bytes     0.407 GB
+      1 x     407371472 bytes     0.407 GB
+      1 x     407321344 bytes     0.407 GB
+      1 x     407098848 bytes     0.407 GB
+      1 x     407009024 bytes     0.407 GB
+      1 x     406099968 bytes     0.406 GB
+      1 x     370196648 bytes     0.370 GB
+      1 x     368342792 bytes     0.368 GB
+      1 x     328645924 bytes     0.329 GB
+      1 x     316154440 bytes     0.316 GB
+      8 x      38213328 bytes     0.306 GB
+      1 x     230599160 bytes     0.231 GB
+      1 x     211523520 bytes     0.212 GB
+      1 x     203049984 bytes     0.203 GB
+      3 x      67108864 bytes     0.201 GB
+      1 x     184171396 bytes     0.184 GB
+     10 x      16777216 bytes     0.168 GB
+      1 x     158077220 bytes     0.158 GB
+      2 x      38198160 bytes     0.076 GB
+      2 x      38186376 bytes     0.076 GB
+      2 x      38157096 bytes     0.076 GB
+     40 x       1050624 bytes     0.042 GB
+      2 x      19035936 bytes     0.038 GB
+      1 x      21648200 bytes     0.022 GB
+      1 x       5418632 bytes     0.005 GB
+      3 x       1572864 bytes     0.005 GB
+      1 x       2097152 bytes     0.002 GB
+      1 x       1364552 bytes     0.001 GB
+  smaller blocks                             0.039 GB
+wall 5875.81 s

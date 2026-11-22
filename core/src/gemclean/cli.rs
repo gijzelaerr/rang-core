@@ -2428,6 +2428,8 @@ fn run_channels(
         }
     }
     let model_json = update_model(args)?;
+    // -memory-report on this path too (research/gemclean-mem-32.md, arm 0).
+    let memory_json = memory_section(args);
     let argv: Vec<String> = raw.iter().map(|s| text(s)).collect();
     let report = obj(&[
         ("tool", text("gemclean")),
@@ -2494,6 +2496,7 @@ fn run_channels(
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("memory", memory_json),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());

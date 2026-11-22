@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/rang-data/outputs/gemclean-mem-32-20261121/gemclean-arm -name /home/gijs/rang-data/outputs/gemclean-mem-32-20261121/ai/image -size 4096 4096 -scale 3asec -weight briggs 0.5 -niter 20000 -mgain 0.9 -auto-threshold 3.0 -auto-mask 5 -wgridder-accuracy 0.0001 -channels-out 8 -join-channels -fit-spectral-pol 2 -multiscale -average-channels 2 -data-column DATA -field 3 -no-update-model-required -j 4 -memory-report /home/gijs/rang-data/outputs/gemclean-mem-32-20261121/i.ms"
+	User time (seconds): 15569.86
+	System time (seconds): 2281.30
+	Percent of CPU this job got: 303%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:37:56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 40165132
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1095089316
+	Voluntary context switches: 528842
+	Involuntary context switches: 38632
+	Swaps: 0
+	File system inputs: 17615872
+	File system outputs: 5899064
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
