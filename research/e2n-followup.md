@@ -210,8 +210,13 @@ on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not par
   - What is left: E2-N's `e2n.ms` with its flag versions, and the archives in `results/e2n/`. The MS's 9.1 hashes
     are checked before use.
 - **Rang's side is regenerated first,** in a new run root, `~/rang-data/outputs/e2n-followup-20261122`:
-  - **Binary:** E2-N's own, rang-core 0.2.0 from PyPI. Its extension's SHA-256 is checked against E2-N's receipt
-    (`9c42ea72…83ed`).
+  - **Binary:** E2-N's own wheel, rebuilt and bit-identical in its extension (`9c42ea72…83ed`, E2-N's receipt).
+    - The PyPI rang-core 0.2.0 wheel is a different build. Its extension is `a256225c…a62f`, so the launcher
+      stopped at its check.
+    - E2-N's wheel was built on nash by `tools/wheel/build.py` at `99a5261` (toolchain 1.93.1, maturin 1.16.0,
+      `--locked`), from `~/Worktrees/rang/e2n`.
+    - A first rebuild from another path gave `9fce7fc4…`, because the source path is embedded in the extension.
+      Rebuilt from E2-N's path, it gives `9c42ea72…83ed`.
   - **Steps:** E2-N's chain steps, unchanged (`e2n_nash_chain.sh`): columns-before, run, gate1, archive,
     prep-inplace, rows-snap-rang and restore.
   - **Configuration:** [e2n-rerun.yaml](results/e2n-followup/scripts/e2n-rerun.yaml) is E2-N's, but for
@@ -231,3 +236,7 @@ on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not par
   it, on the coordinator's word only.
 - **Launcher:** [fu_rerun.sh](results/e2n-followup/scripts/fu_rerun.sh). It is self-driving and leaves a
   done-marker per step in `R/done/`, so a second start resumes.
+- **Scheduling change, 2026-11-22, on the coordinator's word (not a method change): `HOLD=0`.**
+  - E3-A was stopped at the 0.3.0 tag and is not scheduled, so 1.2's night window has no job to protect.
+  - The launcher was started with the hold on. If it reaches the hold, it is restarted from its markers with
+    `HOLD=0`. While held, it is only sleeping.

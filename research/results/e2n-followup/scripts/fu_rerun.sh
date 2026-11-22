@@ -16,7 +16,10 @@ RUN=${RUN:-$HOME/rang-data/outputs/e2n-followup-20261122}
 R=$RUN/R
 MS=$RUN/e2n.ms
 INPUT=$W/research/results/e2n/flaghash-input.json
-WPY=$RUN/wheel-venv/bin/python        # rang-core 0.2.0: E2-N's rang arm
+WPY=$RUN/wheel-venv/bin/python        # E2-N's rang arm
+# E2-N's wheel, rebuilt: tools/wheel/build.py at 99a5261 from ~/Worktrees/rang/e2n (the source
+# path is embedded in the extension; the PyPI 0.2.0 wheel is another build).
+WHEEL=${WHEEL:-$(ls $HOME/Build/tmp/20261122-e2n-wheel/dist/rang_core-0.2.0-*.whl)}
 PY=$W/.venv/bin/python                # the worktree's rang: scripts and oracles
 CONFIG=$F/e2n-rerun.yaml
 EXT_SHA=9c42ea724253fd47da3e8ca3fd194ac862e2cd4e5702ec0c86f6d3370de683ed
@@ -37,11 +40,11 @@ did hash-copy || { lock 1 4 "$PY" "$F/fu_hash.py" "$MS" "$INPUT" "$R/fu-copy-has
 did hash-original-before || { lock 1 4 "$PY" "$F/fu_hash.py" "$SRC/e2n.ms" "$INPUT" "$R/fu-original-hash-before.json" && mark hash-original-before; } \
   || { note "original hash differs from 9.1"; exit 2; }
 if ! did wheel; then
-  lock 2 4 bash -c "uv venv -q -p 3.14 '$RUN/wheel-venv' && uv pip install -q -p '$RUN/wheel-venv/bin/python' rang-core==0.2.0" \
+  lock 2 4 bash -c "uv venv -q -p 3.14 '$RUN/wheel-venv' && uv pip install -q -p '$RUN/wheel-venv/bin/python' '$WHEEL[imaging]'" \
     || { note "wheel venv failed"; exit 2; }
   got=$("$WPY" -c "import rang._core as c, hashlib; print(hashlib.sha256(open(c.__file__,'rb').read()).hexdigest())")
   echo "{\"extension\": \"$got\", \"e2n_receipt\": \"$EXT_SHA\", \"equal\": $([ "$got" = "$EXT_SHA" ] && echo true || echo false)}" > "$R/wheel-check.json"
-  [ "$got" = "$EXT_SHA" ] || { note "rang-core 0.2.0 extension differs from E2-N's ($got)"; exit 2; }
+  [ "$got" = "$EXT_SHA" ] || { note "rebuilt extension differs from E2-N's ($got)"; exit 2; }
   mark wheel
 fi
 # rang's side: E2-N's chain (e2n_nash_chain.sh) steps, unchanged, on this run root.
