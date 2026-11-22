@@ -121,6 +121,25 @@ def last_line(path, limit=MAX_LINE):
     return None
 
 
+# GeMClean's per-major-cycle progress line (issue #56).
+_CYCLE_MARK = "gemclean cycle "
+
+
+def last_cycle_line(path, limit=MAX_LINE):
+    """The last GeMClean progress line in the end of a log (issue #56), or None."""
+    try:
+        with open(path, "rb") as fh:
+            fh.seek(0, os.SEEK_END)
+            fh.seek(max(fh.tell() - 65536, 0))
+            lines = fh.read().decode("utf-8", "replace").splitlines()
+    except OSError:
+        return None
+    for line in reversed(lines):
+        if line.startswith(_CYCLE_MARK):
+            return line.strip()[:limit]
+    return None
+
+
 def _relative(path, root):
     try:
         return Path(path).relative_to(root).as_posix()
@@ -236,6 +255,7 @@ def snapshot(path, now=None):
             "file": _relative(name, path),
             "age_s": round(now - mtime, 1),
             "last_line": last_line(name),
+            "gemclean_cycle": last_cycle_line(name),
         }
     state_path = path / "state.json"
     if not state_path.is_file():
@@ -318,6 +338,9 @@ def render(snap):
         lines.append(
             f"  {log['file']} ({duration(log['age_s'])} ago): {log['last_line']}"
         )
+        cycle = log.get("gemclean_cycle")
+        if cycle and cycle != log["last_line"]:
+            lines.append(f"  last cycle: {cycle}")
     return lines
 
 
