@@ -1,0 +1,50 @@
+{
+ "pairs": {
+  "K1-t3": {
+   "median_rel_l2_over_W1": 1.5312628030827935,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 787.5217047990029,
+   "median_total_wall_s": 835.990489031501
+  },
+  "K2-t3": {
+   "median_rel_l2_over_W1": 1.6776343427713303,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 691.018051929006,
+   "median_total_wall_s": 775.6916794064964
+  },
+  "K3-t3": {
+   "median_rel_l2_over_W1": 1.6872607091302576,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 722.9885977640024,
+   "median_total_wall_s": 837.6486545540029
+  },
+  "K1-t5": {
+   "median_rel_l2_over_W1": 1.5231073979796383,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 759.7905438530022,
+   "median_total_wall_s": 811.8432258329995
+  },
+  "K2-t5": {
+   "median_rel_l2_over_W1": 1.6226001803425982,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 696.6248005274829,
+   "median_total_wall_s": 774.2585604794731
+  },
+  "K3-t5": {
+   "median_rel_l2_over_W1": 1.6395089684562871,
+   "inside_count": 0,
+   "inside_all": false,
+   "median_minor_cycle_s": 700.1580148024842,
+   "median_total_wall_s": 805.3701724859857
+  }
+ },
+ "choice": "K1-t5",
+ "rule": "no pair inside for every seed: lowest median relative L2 over W1's; outcome F expected",
+ "W1_median_deconvolution_s": 433.4787265,
+ "W5_median_deconvolution_s": 364.57219
+}

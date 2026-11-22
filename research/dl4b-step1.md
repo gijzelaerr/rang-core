@@ -208,6 +208,30 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
 
 ## Measured result
 
+### Validation choices (recorded 2026-11-22 07:35, before any gated sky is read)
+
+**Validation ladder:**
+- Scorer control passes on V1-V4 (band-limited truth relative L2 2.5e-8).
+- Crop-operator gate passes: median 0.2 % at the centre, 1.4 % at a corner.
+- **W\* = W5** (`-mgain 0.9`): the only arm cheaper than W1 inside the tolerance on all four skies. Median deconvolution 364.5 s, against W1's 433.5 s.
+- File: `results/dl4b-step1/wstar-validation.json`.
+
+**P on validation** (3 seeds × 4 skies × K ∈ {1, 2, 3} × τ ∈ {3, 5}; WSClean `-j 4` in lanes, inference at 4 threads; `results/dl4b-step1/ktau-validation.json` and `score-val-P-s{1,2,3}.json`):
+
+| K, τ | Median relative L2 / W1 | Inside (of 12 seed-sky cases) |
+| --- | ---: | ---: |
+| 1, 3 | 1.53 | 0 |
+| 2, 3 | 1.68 | 0 |
+| 3, 3 | 1.69 | 0 |
+| **1, 5** | **1.52** | 0 |
+| 2, 5 | 1.62 | 0 |
+| 3, 5 | 1.64 | 0 |
+
+- **No pair is inside the tolerance for any seed on any validation sky.** Relative L2 runs 1.14-2.25 × W1's. False flux exceeds W1's by up to 0.04 (V2, V4).
+- By section 3's fallback the gated read uses **K = 1, τ = 5**, the lowest median relative L2.
+- **Expected outcome, stated now, before the gated read: F.**
+- P's validation costs (median minor cycle 700-790 s) were measured in 4-thread lanes and do not compare with the ladder's `-j 15` times. The gated read times every arm alike, exclusively at `-j 16`.
+
 **Operational record (not results):**
 
 - **Premature P validation, seed 1 (operator error).**
