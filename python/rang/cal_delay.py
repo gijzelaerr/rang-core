@@ -93,6 +93,39 @@ def _interval_costs(gains, data, model, weights, cells, a1, a2, tb, dims):
     return cost
 
 
+def _direct(p, q, r, nant):
+    """Every antenna on these live rows has a live row to `r` (issue #53:
+    the case in which flex is CASA's rule, bit for bit)."""
+    on = np.zeros(nant, bool)
+    on[p] = True
+    on[q] = True
+    to = np.zeros(nant, bool)
+    m = (p == r) | (q == r)
+    to[np.where(p == r, q, p)[m]] = True
+    on[r] = False
+    return not (on & ~to).any()
+
+
+def _connected(p, q, r, nant):
+    """The antennas reachable from `r` over the live rows `(p, q)`, `r`
+    excluded (issue #53)."""
+    adj = [[] for _ in range(nant)]
+    for a, b in zip(p.tolist(), q.tolist()):
+        adj[a].append(b)
+        adj[b].append(a)
+    seen = np.zeros(nant, bool)
+    seen[r] = True
+    stack = [r]
+    while stack:
+        a = stack.pop()
+        for b in adj[a]:
+            if not seen[b]:
+                seen[b] = True
+                stack.append(b)
+    seen[r] = False
+    return seen
+
+
 def _keep_better(fft, zero, data, model, weights, flag, flag_row, a1, a2, tb, dims):
     """`zero_start`: per interval the run (FFT start or zero start) with the
     lower residual; returns the merged run and the intervals taken from the
@@ -137,6 +170,7 @@ def solve(
     offset_start=True,
     trace=False,
     zero_start=False,
+    refantmode="flex",
 ):
     """Solve one delay term on arrays (rows, chans, 4 correlations).
 
@@ -158,9 +192,18 @@ def solve(
     cells is kept (the FFT start, on the refant baselines only, can land on
     a sidelobe in a sparsely sampled interval, from which Gauss-Newton
     converges to a wrong delay); `trace` counts the FFT run only. False:
-    one run, as before."""
+    one run, as before. `refantmode` (issue #53, research/k-refant-53.md;
+    with `casa_rules`): `"flex"`, per interval the reference is the first
+    antenna of `refant` with unflagged data, else the antenna with the most
+    unflagged cross cells, and an antenna is solved when it is connected to
+    the reference through unflagged baselines (CASA's K uses the first refant
+    and its direct baselines only); `"strict"`, CASA's rule exactly. Where the
+    first refant has data and every antenna with data has an unflagged
+    baseline to it, both give CASA's result bit for bit."""
     if kind not in KINDS:
         raise ValueError(f"kind must be one of {KINDS}")
+    if refantmode not in ("flex", "strict"):
+        raise ValueError("refantmode must be flex or strict")
     refants = [int(r) for r in np.atleast_1d(refant)]
     if not refants or any(r < 0 or r >= nant for r in refants):
         raise ValueError("refant out of range")
@@ -261,24 +304,60 @@ def solve(
     kernel_flags = pflags.reshape(shape) != 0
     flags = np.repeat(kernel_flags[..., None], 2, axis=-1)
     err = err.reshape(*shape, 2) * 1e9
+    refant_used = np.full(ntime, r0, np.int32)
     if casa_rules:
         # CASA's KJones: an antenna needs an unflagged cell on its baseline to
         # the refant; delays referenced to the refant, which is unflagged at 0.
+        # Flex (issue #53): per interval the reference is the first refant
+        # with data (else the best-connected antenna), and an antenna needs a
+        # path of unflagged baselines to it.
         cells = ~_cell_flags(data, weights, flag.astype(bool), flag_row)
-        to_ref = ((a1 == r0) | (a2 == r0)) & (a1 != a2)
-        other = np.where(a1 == r0, a2, a1).astype(np.int64)
+        cross = a1 != a2
+        live = cells.any(1) & cross
+        live_f = np.stack([cells[:, fb == f].any(1) & cross for f in range(nfreq)], 1)
+        tbi = tb.astype(np.int64)
+        ref = np.full(ntime, r0, np.int64)
+        if refantmode == "flex":
+            for t in range(ntime):
+                rows = live & (tbi == t)
+                if not rows.any():
+                    continue
+                on = np.zeros(nant, np.int64)
+                n = cells[rows].sum(1)
+                np.add.at(on, a1[rows].astype(np.int64), n)
+                np.add.at(on, a2[rows].astype(np.int64), n)
+                ok = (on > 0) & ~kernel_flags[t].all(0)
+                pick = [r for r in refants if ok[r]]
+                if pick:
+                    ref[t] = pick[0]
+                elif ok.any():
+                    ref[t] = int(np.argmax(np.where(ok, on, -1)))
+        refant_used = ref.astype(np.int32)
         linked = np.zeros(shape, bool)
-        for f in range(nfreq):
-            rows = to_ref & cells[:, fb == f].any(1)
-            linked[tb[rows].astype(np.int64), f, other[rows]] = True
-        ref_ok = ~flags[:, :, r0, :]
+        for t in range(ntime):
+            sel = tbi == t
+            for f in range(nfreq):
+                rows = sel & live_f[:, f]
+                p, q = a1[rows].astype(np.int64), a2[rows].astype(np.int64)
+                if refantmode == "strict" or ref[t] == r0 and _direct(p, q, r0, nant):
+                    other = np.where(p == r0, q, p)[(p == r0) | (q == r0)]
+                    linked[t, f, other] = True
+                else:
+                    linked[t, f] = _connected(p, q, int(ref[t]), nant)
+        rt = ref[:, None, None, None]
+        tau_ref = np.take_along_axis(tau, np.broadcast_to(rt, (ntime, nfreq, 1, 2)), 2)
+        phi_ref = np.take_along_axis(phi, np.broadcast_to(rt, (ntime, nfreq, 1, 2)), 2)
+        ref_ok = ~np.take_along_axis(
+            flags, np.broadcast_to(rt, (ntime, nfreq, 1, 2)), 2
+        )
         flags |= ~linked[..., None]
-        tau = np.where(ref_ok[:, :, None, :], tau - tau[:, :, r0 : r0 + 1, :], tau)
-        phi = np.where(ref_ok[:, :, None, :], phi - phi[:, :, r0 : r0 + 1, :], phi)
-        flags |= ~ref_ok[:, :, None, :]
-        flags[:, :, r0, :] = False
-        tau[:, :, r0, :] = 0.0
-        phi[:, :, r0, :] = 0.0
+        tau = np.where(ref_ok, tau - tau_ref, tau)
+        phi = np.where(ref_ok, phi - phi_ref, phi)
+        flags |= ~ref_ok
+        it = np.arange(ntime)
+        flags[it, :, ref, :] = False
+        tau[it, :, ref, :] = 0.0
+        phi[it, :, ref, :] = 0.0
         tau[flags] = 0.0
         phi[flags] = 0.0
         err[flags] = 0.0
@@ -292,7 +371,7 @@ def solve(
         err=err,
         iterations=int(iterations),
         converged_fraction=float(fraction),
-        refant_used=np.full(ntime, r0, np.int32),
+        refant_used=refant_used,
         kernel_flags=kernel_flags,
         gain_flags=gflags.reshape(ntime, nchan, nant) != 0,
         gains=out_gains,
@@ -346,7 +425,9 @@ def gaincal(
     `(CalTable, DelaySolution, info)`; `kind` and `offset_start` as `solve`, recorded in
     `sol.settings`, with the offsets left out of the table (G absorbs them).
     `refant` is an antenna index or name
-    (or a list, of which K uses the first); `refantmode`, `minsnr` and
+    (or a list); `refantmode` as `solve` (issue #53: `flex`, the default,
+    falls back along the list and solves antennas connected to the
+    reference through other baselines; `strict` is CASA's K); `minsnr` and
     `minblperant` are accepted and not applied, as CASA's K does not apply
     them. `gaintable` CalTables or paths; `model` an array `(row, chan, 4)`
     for the field's rows instead of `model_column`. With tables to
@@ -393,7 +474,7 @@ def gaincal(
     )
     sol, row_w = _solve_field(
         fld, tb, budget=budget, what=f"gaincal K field {field_id}", nant=nant,
-        chan_freq=freq, refant=refants, casa_rules=casa_rules,
+        chan_freq=freq, refant=refants, casa_rules=casa_rules, refantmode=refantmode,
         initial_estimate=initial_estimate, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction, kind=kind,
         offset_start=offset_start, zero_start=zero_start,

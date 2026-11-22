@@ -1022,6 +1022,7 @@ TOP_LEVEL = {
     "check": "[--rust | --python | --all]: the full local checks, portable",
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
     "mcp": "[--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)",
+    "watch": "PATH... [--once] [--json]: follow run or output directories, read-only",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
 # time; the cabs call the same functions.
@@ -1728,6 +1729,10 @@ def dispatch(argv=None):
         from . import mcp_server
 
         return mcp_server.main(argv[1:])
+    if argv[0] == "watch":
+        from . import watch
+
+        return watch.main(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:

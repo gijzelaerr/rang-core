@@ -1,0 +1,15 @@
+16:18:45 score A0 425.4000931010391 -0.15837550310217322
+16:20:12 score SDa 348.30131145855205 0.22740407986527408
+16:21:39 score Sa 345.27007253303856 0.2410006596182377
+16:23:05 score Sm 355.54264324302704 0.19444210907470724
+16:24:33 score SDm03 345.20926174904054 0.24127220950517334
+16:26:03 score W-SDa 351.94618069760935 0.2108976993138139
+16:26:04 stage score ['A0=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/A0/image', 'SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/SDa/image', 'Sa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/Sa/image', 'Sm=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/Sm/image', 'SDm03=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/SDm03/image', 'W-SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/img/W-SDa/image'] 477.5 s
+16:26:41 score A0 391.6602727703799 -0.25538126865637045
+16:28:02 score SDa 435.10660624775437 -0.5530645376470691
+16:29:21 score Sa 436.5125124721665 -0.5632200380159125
+16:30:40 score Sm 388.2559494262778 -0.23337750450254285
+16:32:00 score SDm03 396.33815704124464 -0.28592999092764604
+16:33:20 score W-SDa 442.5239070998096 -0.6070125978914377
+16:33:20 stage score ['A0=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/A0/image', 'SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/SDa/image', 'Sa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/Sa/image', 'Sm=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/Sm/image', 'SDm03=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/SDm03/image', 'W-SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image'] 435.0 s
+TIME cross 914.87 s 3422632 KB

@@ -1,51 +1,67 @@
 # v0.3.0 readiness tracker
 
-Status, 2026-11-17: **release-ready except the four results still running** (E2-N and E3-A on nash, the
-selfcal-defaults grid on branch `floor-4`, the E2-A 3b K follow-up on branch `e2a-3b-k`). The two
-licence-notice findings B-01 and B-02 have their notices on branch `v030-fix` ([v030-review.md](v030-review.md)
-section 5.1); **B-02 leaves one owner decision**: radler is LGPL-3.0-only, so while GeMClean follows it the
-extension can be conveyed under GPL version 3 only (`LICENSE` and the package metadata unchanged). Written on branch
-`v030-ready` from origin/main `9b4542cb`. Nothing here is tagged or released. The release review is
-[v030-review.md](v030-review.md). The plan is [roadmap.md](roadmap.md) (v0.3.0 section).
+Status, 2026-11-18: **release-ready except three results still running**: E2-N (#7, nash), E3-A (the
+comparison with CARACal on E2-A, nash) and the owner's decision on #28's stop tolerance (switch the default
+or keep it opt-in). The version is bumped to 0.3.0 on branch `release-030` (task release-030, from
+origin/main `09604d60`), with the CHANGELOG section `0.3.0` written and one `TODO-RELEASE` placeholder for
+each of the three (section 6). The delta pass over what merged since the review (section 7) found five
+false statements in the shipped docs and CHANGELOG, all fixed on `release-030`, and no blocker left open.
+Nothing is tagged or released. Earlier status (2026-11-17, branch `v030-ready`, main `9b4542cb`): four
+results running and the licence notices B-01, B-02 open; all four and `v030-fix` have since merged. The
+release review is [v030-review.md](v030-review.md); the plan is [roadmap.md](roadmap.md) (v0.3.0 section).
 
 States: **met** (the evidence closes it), **outcome recorded** (a measured result, fixed or a documented
 limit), **running** (a result still to come, with where it lands), **open**.
+
+## 0. Merged since 2026-11-17's tracker (`git log --first-parent 9b4542cb..origin/main`)
+
+`v030-ready` (`41bc3efb`), `uhf-scope` (`a3d21bcf`), `floor-4` with the selfcal-defaults grid (`c1f7b016`),
+`mit-audit` (`8439b717`) and `mit-own` (`1596c76d`), `f5-draft` (`9a94a31f`), `e2a-3b-k` (`f0c5e630`),
+`v030-fix` (`e57faddb`) and the GPL-3.0-only metadata (`11fdd993`), `multinode-executor` (`2987035d`),
+`floor-5` (`7d78828e`), `calchain-floor` (`37d8d43d`), `selfcal-memory` (`281a1a79`), `gemclean-memory3`
+(`9c6516f1`), `gemclean-ms-mask` (`02f1d39b`), `fp-f4-flagger` (`5de12d16`), `floor-6` (`0ea106bd`),
+`gpu-grid` research (`c34c79ad`, code not merged), `xf-gap` (`798d1713`), `stop28-default` research
+(`b0388c0c`, code held on its branch), `calwt-terms` (`6c615524`), digest 2026-11-18 (`31750e14`),
+`katdal-0-24` (`affe3530`), `digest-skill-oai` (`09604d60`).
 
 ## 1. "Done when" (roadmap.md, v0.3.0)
 
 | Item | State | Evidence | Still to come |
 | --- | --- | --- | --- |
-| #7 has run; "native data not tested" gone or replaced by measured limits | **running** | E2-N smoke met (branch `e2n`, `793c645`, e2-acceptance 9.3); the rang arm runs on nash (`~/rang-data/outputs/e2n-20261116/R/`, `chain-steps.log`), the post chain starts after it | E2-N's scores (merge of `e2n`); then the CHANGELOG line "Native MeerKAT data is not tested" is replaced by its measured limits |
-| χ is gated or stated as a limit | **met (stated as a limit)** | [chi-offset.md](chi-offset.md) section 11, coordinator decisions 2026-11-17: RM-corrected χ(λ²=0) 29.4°, 3.6° from 33°, a limit, not gated; 10.1 per-product note; 10.3 closed by [xf-avg-fix.md](xf-avg-fix.md) and [xf-preavg.md](xf-preavg.md). CHANGELOG Unreleased, Known limitations | a frozen RM-term follow-up, listed for later (not v0.3.0) |
-| #6 ends in a recorded outcome | **running** | arms 1-2 measured, no arm meets T2 ([selfcal-arms.md](selfcal-arms.md)); one Sp round removes most of the pilot's floor ([floor-3.md](floor-3.md), [floor-4](https://github.com/gijzelaerr/rang-core/blob/84392cdd/research/floor-4.md)) | the selfcal-defaults grid (branch `floor-4`, `research/selfcal-defaults.md`; 10 runs scored, N120-N600 and X running on nash); its outcome is #6's |
-| #22 ends in a recorded outcome | **outcome recorded: documented limit** | upstream read 2026-11-17 (section 4): radler !238 merged (keeps the linear join on every path), WSClean !1068 merged, neither in a release; GeMClean already matches; CHANGELOG known limitation | none |
-| #23 ends in a recorded outcome | **outcome recorded: measured null, documented limit** | [multiscale-flux-fix.md](multiscale-flux-fix.md) 8.1: no arm passes on both fields; +9 to +18 µJy median excess on compact sources ≥ 20σ_ap in WSClean and GeMClean alike; CHANGELOG known limitation | none (automatic scales on DF5-O is a separate decision, 8.8) |
-| #13 ends in a recorded outcome | **outcome recorded (merge of `floor-4` pending)** | [floor-3.md](floor-3.md) (merged): H1 attributed under floor-3's standard, share 0.88; floor-4 (branch `floor-4`, pushed result commit [`84392cdd`](https://github.com/gijzelaerr/rang-core/blob/84392cdd/research/floor-4.md)): H1 attributed under imaging-floor's full criterion, share D_T1p 0.83, T1p specific; XX−YY phase real and invisible to Stokes I; 8.6 × thermal after one round remains unexplained | the coordinator merges `floor-4` (with the grid) |
-| tfcrop is at parity or still refused | **met (still refused)** | [v8-tfcrop.md](v8-tfcrop.md) fails as frozen; [v8c-tfcrop-poly.md](v8c-tfcrop-poly.md) null; `tfcrop.ENABLED = False`, the refusal names the note | none |
-| An agent can run the chain through MCP | **met** | `tests/test_mcp_chain.py`: a scripted JSON-RPC 2.0 client over stdio drives `rang-core mcp --allow-write` through listobs, config_check, run (plan, then the confirmed token) and run_status until flag, calibrate, apply, image and selfcal are done on the public fixture; receipt [results/v030-mcp/](results/v030-mcp/). It found a Windows race that failed the run (R-01, fixed here) | none |
+| #7 has run; "native data not tested" gone or replaced by measured limits | **running** | E2-N smoke met (branch `e2n`, `793c645`, e2-acceptance 9.3); the rang arm and post chain on nash (`~/rang-data/outputs/e2n-20261116/`) | E2-N's scores (merge of `e2n`); then the `TODO-RELEASE (E2-N)` items in CHANGELOG 0.3.0, `docs/limits.md` (box and Scope) and `docs/index.md` become its measured limits |
+| χ is gated or stated as a limit | **met (stated as a limit)** | [chi-offset.md](chi-offset.md) section 11: RM-corrected χ(λ²=0) 29.4°, 3.6° from 33°; #14 closed 2026-11-17 | an RM-term follow-up, later |
+| #6 ends in a recorded outcome | **outcome recorded: documented limit** | [selfcal-defaults.md](selfcal-defaults.md) section 8: best cell P2@600 D_ho 0.905 against the default's 0.892, under the 0.05 margin; default unchanged; #6 closed 2026-11-17 | none |
+| #22 ends in a recorded outcome | **outcome recorded: documented limit** | section 4; #22 closed 2026-11-17 | none |
+| #23 ends in a recorded outcome | **outcome recorded: measured null, documented limit** | [multiscale-flux-fix.md](multiscale-flux-fix.md) 8.1; #23 closed 2026-11-17 | none |
+| #13 ends in a recorded outcome | **outcome recorded: attributed in part, documented limit** | [floor-4.md](floor-4.md) (H1 share 0.83), [floor-5.md](floor-5.md) (J2), [floor-6.md](floor-6.md) (held out: depth D_h 0.201, spectral 0.474; SDm03 0.717; no default before E2-A and E2-N are re-read) | the owner closes #13 at the tag |
+| tfcrop is at parity or still refused | **met (still refused)** | [v8-tfcrop.md](v8-tfcrop.md), [v8c-tfcrop-poly.md](v8c-tfcrop-poly.md) | none |
+| An agent can run the chain through MCP | **met** | `tests/test_mcp_chain.py`, [results/v030-mcp/](results/v030-mcp/) | none |
 
 ## 2. Carried over from v0.2.0 (#2)
 
 | Item | State | Evidence | Still to come |
 | --- | --- | --- | --- |
-| E2-B Gpol | **met** (A3) | [e2b-misses.md](e2b-misses.md) 9.27: `calibrate.casa_phase_weights` 0.00038° (class B 0.1°); off by default, E3 turns it on | none |
-| E2-B K G B composites | **met** (A2, matched inputs) | e2b-misses 9.4: both composites met when CASA solves on rang's flags and weights; the frozen miss was an oracle input error | none |
-| E2-B CASA applycal (2b) | **met** | e2b-misses 9.25, confirmed 9.29: 0 of 408,827,131 cells over class C, flags exact | none |
-| E2-B image gate 3c | **dirty met; cleaned with the mask a known limitation** | e2b-misses 9.29: dirty 2.0e-7 to 3.3e-7; cleaned compact scatter 1.18 % (bound 1 %); coordinator decision 2026-11-16 | none |
-| E2-B 1830−211 χ, transfer χ, leakage 0.30 % | **known limitations** (proposed in e2b-misses table, owner decision 2 of e2b-misses "For the coordinator") | e2b-misses sections 5-7; chi-offset section 11 for the transfer χ | the owner may set new tolerances instead (A0 rule 1) |
-| E2-A scored | **outcome recorded: not met as frozen** | [e2-acceptance.md](e2-acceptance.md) 9.13-9.14: gates 1, 2a-c, flux, target noise, selfcal rms met; 3b composite, 3c, target compact scatter not met; 3c and target compact a known limitation | — |
-| E2-A 3b composite | **running** | [e2a-3b-diag.md](e2a-3b-diag.md): part B time averaging (fixed behind `calibrate.bandpass_model_divided`), part K estimators | the K follow-up (branch `e2a-3b-k`, `research/e2a-3b-k.md`; CASA arms on nash); a confirmation leg on the reserve data is proposed, not run |
-| E3 against CARACal (timed) | **E3-B met; E3-A running** | [e3-caracal.md](https://github.com/gijzelaerr/rang-core/blob/e3-caracal/research/e3-caracal.md) 10.16-10.17 (branch `e3-caracal`): E3-B timed CARACal 6,926 s against rang 6,195 s, 3C 286 \|Δp\| ≤ 0.03 points, Δχ ≤ 0.22° | E3-A correctness, cost and timed runs on nash (driver `~/Build/tmp/20261117-e3-drive/drive.sh` on nash); merge of `e3-caracal` |
-| The E5 review | **done for main at `9b4542cb`** | [v030-review.md](v030-review.md) | a delta pass over what the four running results merge |
+| E2-B Gpol | **met** (A3) | [e2b-misses.md](e2b-misses.md) 9.27 | none |
+| E2-B K G B composites | **met** (A2, matched inputs) | e2b-misses 9.4 | none |
+| E2-B CASA applycal (2b) | **met** | e2b-misses 9.25, 9.29 | none |
+| E2-B image gate 3c | **dirty met; cleaned with the mask a known limitation** | e2b-misses 9.29 | none |
+| E2-B 1830−211 χ, transfer χ, leakage 0.30 % | **known limitations** | e2b-misses sections 5-7 | the owner may set new tolerances instead (A0 rule 1) |
+| E2-A scored | **outcome recorded: not met as frozen** | [e2-acceptance.md](e2-acceptance.md) 9.13-9.14 | — |
+| E2-A 3b composite | **outcome recorded: documented limitation with its cause** | [e2a-3b-k.md](e2a-3b-k.md), coordinator decisions 2026-11-17: CASA's K biased against truth; the subset's 1.1e-3 is one `minsnr`-flagged G1 solution; reserve not spent | the shared noise-free floor (3.7e-4 to 5.7e-4) under #2 for v0.4.0 |
+| E3 against CARACal (timed) | **E3-B met; E3-A running** | [e3-caracal.md](https://github.com/gijzelaerr/rang-core/blob/e3-caracal/research/e3-caracal.md) 10.16-10.17 (branch `e3-caracal`) | E3-A on nash; merge of `e3-caracal`; then the `TODO-RELEASE (E3-A)` items in CHANGELOG 0.3.0, `docs/limits.md` and `docs/index.md` |
+| The E5 review | **done for main at `9b4542cb`; delta pass done for `09604d60`** | [v030-review.md](v030-review.md); section 7 here | a delta pass over `e2n` and `e3-caracal` when they merge |
 
 ## 3. Other v0.3.0 rows (not in "Done when")
 
 | Issue | State | Evidence |
 | --- | --- | --- |
 | #8 open CASA tasks | progressed: V8b's fixed-rule modes at parity, FLAG_ROW 9/9 on a fresh LUNO split; tfcrop refused | [v8b-flagdata.md](v8b-flagdata.md), [v8-tfcrop.md](v8-tfcrop.md) |
-| #10 trained flagger F4 | open: calibrator parity and label audit done, targets stopped at the label audit; training not run | `outputs/status/f4-flagger.md`, [f3-flagger.md](f3-flagger.md) |
-| #27 piece 1 | met (MCP server merged for 0.2.0; chain demonstrated here); piece 2 is v0.6.0 | [mcp-server.md](mcp-server.md), section 1 |
-| #33 Xf rang-CASA 0.054° on held-out 3C 286 | known limitation, open, low priority | [xf-preavg.md](xf-preavg.md) |
+| #10 trained flagger F4 | closed 2026-11-17: F4 stopped on its calibrator cost gate C1(U4) (0.458, 0.459 against 0.45), weights not shipped; F5 proposed | [f4-flagger.md](f4-flagger.md), [f5-flagger.md](f5-flagger.md) |
+| #27 piece 1 | met; piece 2 is v0.6.0 | [mcp-server.md](mcp-server.md), section 1 |
+| #33 Xf rang-CASA gap | closed 2026-11-17: the cause is CASA's `calwt` weighting; `calibrate.xf_calwt` (opt-in) 0.012°; the other terms in calwt-terms (opt-in) | [xf-gap.md](xf-gap.md), [calwt-terms.md](calwt-terms.md) |
+| #28 stop tolerance | `-stop-tolerance` shipped opt-in; the default switch is an open owner decision (switch only under post hoc amendment 3) | [stop28-default.md](stop28-default.md), coordinator decision 2026-11-18 |
+| #34 selfcal memory | fixed: streamed Sp/Sa solves, 3.6 GiB at the 8 GiB limit; GeMClean's 9.3 GiB on the pilot left; issue still open | [selfcal-memory.md](selfcal-memory.md) |
+| #35 multiscale with a FITS mask | closed 2026-11-17: no defect, a documented limit | [gemclean-ms-mask.md](gemclean-ms-mask.md) |
 
 ## 4. #22 upstream check (read 2026-11-17, GitLab APIs, read only)
 
@@ -66,56 +82,68 @@ limit), **running** (a result still to come, with where it lands), **open**.
 
 ## 5. Issues at v0.3.0
 
-From `gh issue list -R gijzelaerr/rang-core --state all -L 60`, read 2026-11-17 (no issue was opened,
-closed or commented from this branch). "Close at release" is a proposal for the owner or coordinator.
-
-| # | Title | State at v0.3.0 | Evidence |
-| --- | --- | --- | --- |
-| 33 | Xf: 0.05° rang-CASA gap on held-out 3C 286 simulations | open, known limitation | [xf-preavg.md](xf-preavg.md) |
-| 32 | GeMClean joined-IQUV memory is 10-22x WSClean's | progressed: by default 15.9-16.5 GiB on the large fields (8.2-8.4 × WSClean), 8.4 GiB on J1833−2103; with `-reorder` 9.1 GiB (4.7 ×) and 7.2 GiB (5.4 ×); open | [gemclean-memory.md](gemclean-memory.md), [gemclean-memory2.md](gemclean-memory2.md) |
-| 31 | test_waiters_acquire_in_ticket_order is flaky under host load | closed 2026-11-15 (in this release) | `61767423`, merged `02631b86` |
-| 30 | Flaky: test_confirmed_gemclean[False] | closed 2026-11-15 (in this release); its run-state form found and fixed here (R-01) | `61767423`; [v030-review.md](v030-review.md) R-01 |
-| 28 | GeMClean close-to-threshold stop rule | progressed (`-stop-tolerance`, off by default); milestone v0.4.0 | [gemclean-stop28.md](gemclean-stop28.md) |
-| 27 | MCP server and agent benchmark | progressed: piece 1 met (chain demonstrated); piece 2 open (v0.6.0) | section 1; [results/v030-mcp/](results/v030-mcp/) |
-| 26 | P1 snapshot light curves | closed 2026-11-13, duplicate of #9 | — |
-| 25 | F4 antenna-domain arm | closed 2026-11-13, duplicate of #10 | — |
-| 24 | CLEAN against RML/learned imagers | open, unchanged (v0.6.0) | — |
-| 23 | Multiscale flux miss on compact sources | **close at release**: measured null, documented limit | [multiscale-flux-fix.md](multiscale-flux-fix.md) 8.1 |
-| 22 | Join polarisations on the squared sum | **close at release**: kept as the linear sum, documented limit (upstream agrees) | section 4 |
-| 21 | Joint self-calibration | closed 2026-11-13, duplicate of #6 | — |
-| 20 | Method proposals from the digest | open, unchanged (v0.6.0) | — |
-| 19, 17, 16 | Beamformed time series; VLBI; LOFAR | open, unchanged (Later) | — |
-| 18, 11 | S band; UHF | open, unchanged (v0.5.0) | — |
-| 15 | Direction-dependent calibration | open, unchanged (v0.5.0) | — |
-| 14 | Absolute χ | **close at release**: stated as a limit (chi-offset 11); the RM-term follow-up and #33 stay | [chi-offset.md](chi-offset.md) section 11 |
-| 13 | The imaging floor | **close at release, after `floor-4` merges**: H1 attributed under imaging-floor's full criterion (share 0.83); the 8.6 × thermal remainder a documented limit | [floor-3.md](floor-3.md), floor-4 `84392cdd` |
-| 12 | GPU gridding in GeMClean | progressed on branch `gpu-grid` (not merged); v0.4.0 | STATE 2026-11-16 |
-| 10 | Trained flagger F4 | open, unchanged since 2026-11-13 (targets need a label decision) | `outputs/status/f4-flagger.md` |
-| 9 | Time series P1 | progressed: `rang-core lightcurve`, met on the held-out simulation under post hoc amendments; T6 met on nash | [ts-p1.md](ts-p1.md) |
-| 8 | Open CASA tasks | progressed: tfcrop still refused (V8, V8c) | [v8-tfcrop.md](v8-tfcrop.md) |
-| 7 | Native MeerKAT data (E2-N) | running; close when E2-N's scores merge | branch `e2n` |
-| 6 | Self-calibration beyond model absorption | running; close when the selfcal-defaults grid merges with an outcome | branch `floor-4` |
-| 5 | MSv4 / xarray-ms | progressed: read path bit-identical (M1-M3); v0.4.0 | [msv4-interop.md](msv4-interop.md) |
-| 4 | Multi-node stage 2 | open, unchanged (v0.4.0) | — |
-| 3 | Multi-node stage 1 | progressed: chunk task API merged, identity gate passed, timing points on nash | [chunk-task-api.md](chunk-task-api.md) |
-| 2 | v0.2.0 release tracking | closed 2026-11-14; its carry-overs are section 2 | — |
-| 1 | Fast supervised flagger (F2) | open, unchanged | [f2-flagger.md](f2-flagger.md) |
+The table, one row per issue touched since v0.2.0 with its outcome and note, is in `CHANGELOG.md`, section
+0.3.0, "Issues" (from `gh issue list -R gijzelaerr/rang-core --state all -L 60`, read 2026-11-18; no issue
+was opened, closed or commented from this branch). Open on GitHub and to close at the tag (a proposal for
+the owner): #13 (attributed in part, documented limit), #34 (fixed; GeMClean's 9.3 GiB left, which could
+move to a new issue), #7 when E2-N merges. #28 stays open (milestone v0.4.0) whatever the default decision.
+Already closed: #6, #10, #12, #14, #22, #23, #30, #31, #33, #35.
 
 ## 6. Left before tagging
 
-1. B-01 and B-02 ([v030-review.md](v030-review.md) section 3): notices done on branch `v030-fix` (section 5.1,
-   read in the upstream sources). Open: the owner's decision on the package licence expression given
-   radler's LGPL-3.0-only and WSClean's "GPL 3" (section 5.5, owner decision 1), and msutils' conflicting
-   licence statements (owner decision 2).
-2. Merge the four running results (`e2n`, `e3-caracal`, `floor-4`, `e2a-3b-k`) and run the review's delta
-   pass over them; replace the "native data not tested" limitation with E2-N's measured limits.
-3. E6 as in 0.2.0: the version bump in `pyproject.toml` (and what follows it), the CHANGELOG section
-   `0.3.0` from Unreleased (the "Issues" draft is in the CHANGELOG already), docs/limits.md's E3 line.
-4. Issues to close at the release (the owner posts): #14, #22, #23 now; #13, #6 and #7 when their branches
-   merge.
+1. **E2-N (#7)**: merge `e2n` with its scores; replace every `TODO-RELEASE (E2-N)` (CHANGELOG 0.3.0 Known
+   limitations and the #7 row of Issues; `docs/limits.md` box and Scope item; `docs/index.md`) with its
+   measured limits.
+2. **E3-A**: merge `e3-caracal`; replace `TODO-RELEASE (E3-A)` (CHANGELOG 0.3.0; `docs/limits.md` box;
+   `docs/index.md`) with E3-A's correctness, cost and wall-time rows.
+3. **#28**: the owner decides. Keep opt-in: drop the TODO marker from the CHANGELOG item and the #28 row.
+   Switch: merge `4b13f1d9` (branch `stop28-default`) under the full check, re-read the gemclean benchmark
+   and the E2/E5 image gates, move the item to "Changed" and note that image and selfcal stage hashes change.
+4. A delta pass (section 7's method) over `e2n` and `e3-caracal` when they merge.
+5. At the tag: the date in `## 0.3.0 (TODO-RELEASE: date of the tag)` and in `docs/installation.md`;
+   `git grep -n TODO-RELEASE -- ':!research'` must then find nothing; the full check on the release commit.
+6. Owner items from the review still open: E5-36 (`pypi` environment protection), E5-47 ("Development
+   Status :: 3 - Alpha"); msutils' conflicting licence statements (v030-review 5.5, owner decision 2).
+
+## 7. Delta pass over what merged since the review (2026-11-18, origin/main `09604d60`)
+
+Method: [v030-review.md](v030-review.md) section 1, scoped to `git diff 9b4542cb 09604d60` (the merges in
+section 0) and to the statements the release ships (CHANGELOG, `docs/`, README, notices). Done by hand on
+this branch, read only on the code; the checks named below were run, not assumed.
+
+**Release-blocking (false statements in what ships), all fixed on `release-030`:**
+
+| ID | Finding | Fix |
+| --- | --- | --- |
+| D-01 | CHANGELOG Unreleased carried the licence-metadata entry twice; the second said "ra-ng's own files keep `GPL-3.0-or-later`", and the Licence limitation said "rang-core's own code stays GPL-3.0-or-later". Both false since `mit-own` (own files MIT) | duplicate removed; the Licence limitation restated (package GPL-3.0-only, own files MIT, derived files keep their GPL lines) |
+| D-02 | `docs/limits.md` and the CHANGELOG limitation gave `-reorder` as opt-in, with phase-2 figures (15.9-16.5 GiB "by default"); since `gemclean-memory3` it is the default with `-join-polarizations` (7.7 / 5.7 GiB) and writes about 28 GB of temporary files by default, which a killed run leaves | limits.md memory item and a CHANGELOG limitation rewritten from gemclean-memory3 |
+| D-03 | CHANGELOG and limits.md: Xf's 0.054° gap "the cause is not found"; `xf-gap` found it (CASA's `calwt`) and closed #33 | both restated with `calibrate.xf_calwt` (opt-in, 0.012°) |
+| D-04 | limits.md: "floor-4 on its branch", and the 379 µJy "not explained"; floor-4, -5 and -6 have merged and attribute part of it | limits.md floor item and the CHANGELOG #13 limitation rewritten from floor-6's coordinator decisions |
+| D-05 | CHANGELOG: eight entries and the "Drafted ... still running" paragraph sat above Known limitations, outside the changes list; the Issues list was the 2026-11-17 draft (#6, #10, #12 and #33 since closed; #34 and #35 not in it) | entries moved under "Changes since 0.2.0"; Issues rebuilt from today's `gh` output, one row per issue |
+
+**Should-fix and notes (not fixed here):**
+
+| ID | Class | Finding |
+| --- | --- | --- |
+| D-06 | fixed (release-030) | `rang/mcp_tools.py`'s gemclean allowlist has `-stop-tolerance` but neither `-no-reorder` nor `-temp-dir`: with `-reorder` now the default, an agent's joined-polarisation run writes its temporary files beside `-name` with no way to move or avoid them (B-25, now more relevant) |
+| D-07 | should-fix | `-reorder`'s temporary files survive a killed run (B-26), now by default; documented, not cleaned up |
+| D-08 | note | `data.executor: spool`: partials are pickles; the spool is refused when not private on POSIX only (`core_spool.py`), on Windows any user who can write the spool directory can run code in a worker. The CHANGELOG states the POSIX rule; a Windows ACL check or a line in the docs is owed |
+| D-09 | note | `calwt_scale` (`core/src/cal/apply.rs`) and `rang.applycal._b_scale` follow CASA's `BJones::calcWtScale`; the notices named `StandardVisCal.cc` for the bandpass port only. Pointer added to `THIRD-PARTY-NOTICES.txt` here (no new licence text: CASA's notice was already there). The G and T form (`SolvableVisJones::calcWtScale`, `SolvableVisCal.cc`) has no pointer; add it once read in the source |
+| D-10 | note | The notices and `docs/licence.md` name katdal 0.23 as the translation source of `rang/meerkat.py`; the `[meerkat]` extra now pins 0.24. Correct as written (the source version), no change |
+| D-11 | note | If #28's default switches, B-21 (a run ended by `-stop-tolerance` reports `StopReason::Threshold`) becomes user-visible in every `-report.json` |
+
+**Checked, no finding:** every new calibrate key (`k_zero_start`, `xf_calwt`, `k_calwt`, `g_calwt`,
+`gpol_calwt`, `kcross_calwt`, `df_calwt`) is in `HASH_DEFAULTS` at false; `data.spool` and `spool_wait_s`
+are in `RESOURCE_KEYS`; the one new `RANG_*` name in `python/`, `core/`, `src/` (`RANG_SOLVE_TRACE`) is in
+`rang.core.ENVIRONMENT`; `docs/cli.md` lists `-no-reorder` and the phase-3 `-reorder` text; README and
+`docs/licence.md` state own code MIT, package GPL-3.0-only; the four radler-derived GeMClean files keep
+`GPL-3.0-or-later AND LGPL-3.0-only`. Research-only merges (`gpu-grid`, `stop28-default`, `floor-5`,
+`floor-6`, `uhf-scope`, `f5-draft`, `fp-f4-flagger`, the digest) ship no code.
 
 ## For the coordinator
 
-Branch `v030-ready`. Running items are named with their branch or nash path above; nothing here waits on
-this branch. The MCP chain test needs `RANG_FIXTURE` and the `mcp` extra (it skips in CI without them);
-it ran here on Windows (5 of 5 passes, receipt in results/v030-mcp/).
+Branch `release-030` (version 0.3.0, CHANGELOG section, docs, this tracker). Do not tag until section 6
+items 1-3 and 5 are done; `git grep -n TODO-RELEASE -- ':!research'` lists every placeholder. README and
+`docs/installation.md` say 0.3.0 is the current release from the merge on, so merge this close to the tag.
+No new release blocker is open; D-06 is the one should-fix worth doing before the tag (two allowlist
+entries and a test). Open owner decisions: #28's default; E5-36, E5-47; msutils (review 5.5).

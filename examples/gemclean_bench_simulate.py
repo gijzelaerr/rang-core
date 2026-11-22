@@ -44,6 +44,9 @@ recipe at a new declination:
     H9 = H5 at dec -45, H10 = H6 at -30, H11 = H7 at -60, H12 = H8 at -40,
     H13 = H1 at -5, H14 = H2 at -70, H15 = H4 at -25, H16 = S3 at -50
 
+Its confirmation leg (amendment 4) repeats them as H17-H24, same recipes and
+declinations, sky seeds 20261821-8, noise seeds 20261831-8.
+
 Held-out sky for research/g5-multiscale.md, its seeds given on the command
 line (--sky-seed, --noise-seed) as drawn after the multiscale build was frozen:
 
@@ -96,6 +99,7 @@ SKY_SEEDS = {
     "H7": 20261703,
     "H8": 20261704,
     **{f"H{9 + i}": 20261801 + i for i in range(8)},
+    **{f"H{17 + i}": 20261821 + i for i in range(8)},
 }
 NOISE_SEED = 20261104
 NOISE_SEEDS = {
@@ -108,6 +112,7 @@ NOISE_SEEDS = {
     "H7": 20261713,
     "H8": 20261714,
     **{f"H{9 + i}": 20261811 + i for i in range(8)},
+    **{f"H{17 + i}": 20261831 + i for i in range(8)},
 }
 DEC_BY_SKY = {
     "H1": -75.0,
@@ -127,6 +132,9 @@ DEC_BY_SKY = {
     "H15": -25.0,
     "H16": -50.0,
 }
+# research/stop28-default.md amendment 4: H17-H24 repeat H9-H16 with new seeds.
+for _i in range(8):
+    DEC_BY_SKY[f"H{17 + _i}"] = DEC_BY_SKY[f"H{9 + _i}"]
 # research/stop28-default.md: the new skies reuse earlier recipes.
 RECIPE = {
     "H9": "H5",
@@ -138,6 +146,7 @@ RECIPE = {
     "H15": "H4",
     "H16": "S3",
 }
+RECIPE.update({f"H{17 + i}": RECIPE[f"H{9 + i}"] for i in range(8)})
 
 
 def _sha(path):

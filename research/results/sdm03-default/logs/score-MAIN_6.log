@@ -1,0 +1,9 @@
+heavy_lock: waiting for head 01794995337053770398-linux-1360421.json, past its 15 min drain limit (draining)
+12:18:17 score A0 303.3151322145013 0.4169827548231084
+12:19:44 score SDa 236.80990097640327 0.6492930479010138
+12:21:11 score Sa 237.02491529928315 0.6486341582319367
+12:22:36 score Sm 258.2789548864042 0.5805522773359937
+12:24:02 score SDm03 263.9488931527291 0.5614028100790289
+12:25:28 score W-SDa 239.584422534216 0.6407448804610528
+12:25:28 stage score ['A0=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/A0/image', 'SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/SDa/image', 'Sa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/Sa/image', 'Sm=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/Sm/image', 'SDm03=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/SDm03/image', 'W-SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/W-SDa/image'] 471.7 s
+TIME score-MAIN_6 474.06 s 3420700 KB

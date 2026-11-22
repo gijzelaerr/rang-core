@@ -1,0 +1,14 @@
+{
+ "dirty": {
+  "peak": 0.4403374493122101,
+  "linf": 5.960464477539063e-08,
+  "linf_over_peak": 1.353612890942861e-07,
+  "identical": false
+ },
+ "psf": {
+  "peak": 1.0,
+  "linf": 1.1920928955078125e-07,
+  "linf_over_peak": 1.1920928955078125e-07,
+  "identical": false
+ }
+}

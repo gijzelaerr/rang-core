@@ -1,0 +1,10 @@
+heavy_lock: waiting for head 01795153395285863061-linux-3869179.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795154053753896681-linux-3875766.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795154072850574280-linux-3876020.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795155040588277477-linux-4019336.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795155255060654323-linux-4069136.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795156439561470759-linux-150986.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for head 01795156668968885773-linux-205276.json, past its 15 min drain limit (draining)
+{"ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1735892129/scan001.ms", "ms_hash": "e73c1bd25c51a42d80fa1ef290043608e6cd1076b618fa6b21164f04f46e3ad9", "rows_ms": 139934, "rows_kept": 139934, "shape": [139934, 1024, 4], "flagged_input": 0.308352992317472, "wall_s": 99.4}
+{"ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1735892129/scan003.ms", "ms_hash": "c610a145fbc8231acbe50bfe88addeb200f29c64f82605c1a62f46c7b428888b", "rows_ms": 26474, "rows_kept": 26474, "shape": [26474, 1024, 4], "flagged_input": 0.29948117396726504, "wall_s": 20.5}
+{"ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1735892129/scan019.ms", "ms_hash": "f1aff9b07869b4c8b12e52bf7580810f3cdd0d0938ba3dc37e02b493b0f63c1f", "rows_ms": 28365, "rows_kept": 28365, "shape": [28365, 1024, 4], "flagged_input": 0.34948201561949144, "wall_s": 47.8}

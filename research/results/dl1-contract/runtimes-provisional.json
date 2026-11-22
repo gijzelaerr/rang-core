@@ -1,0 +1,490 @@
+{
+ "arms": {
+  "burn-stable": {
+   "built": true,
+   "cdylib_bytes": 4217856,
+   "g6_delta_bytes": -1915904,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 162,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.026833,
+     "b_s": 2.613566,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000316,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "burn",
+     "threads": 1,
+     "wall_s": 24.780544799999916
+    },
+    {
+     "a_s": 0.02341,
+     "b_s": 1.41539,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000234,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "burn",
+     "threads": 2,
+     "wall_s": 14.816227000002982
+    },
+    {
+     "a_s": 0.03162,
+     "b_s": 1.011906,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000261,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "burn",
+     "threads": 4,
+     "wall_s": 10.337072099995567
+    },
+    {
+     "a_s": 0.041049,
+     "b_s": 0.640755,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000296,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "burn",
+     "threads": 8,
+     "wall_s": 7.157028900001023
+    }
+   ]
+  },
+  "candle-stable": {
+   "built": true,
+   "cdylib_bytes": 5914624,
+   "g6_delta_bytes": -219136,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 143,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.049218,
+     "b_s": 4.857281,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000138,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "candle",
+     "threads": 1,
+     "wall_s": 45.64230659999885
+    },
+    {
+     "a_s": 0.024722,
+     "b_s": 2.594217,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000158,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "candle",
+     "threads": 2,
+     "wall_s": 24.908166399996844
+    },
+    {
+     "a_s": 0.01446,
+     "b_s": 1.421829,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000175,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "candle",
+     "threads": 4,
+     "wall_s": 13.749290899999323
+    },
+    {
+     "a_s": 0.012236,
+     "b_s": 0.90563,
+     "g3": "pass",
+     "hash_a": "5fa5163171ca41d6",
+     "hash_b": "93452150d1036226",
+     "load_s": 0.000146,
+     "max_abs_vs_torch": 1.907e-06,
+     "p999_abs_vs_torch": 1.907e-06,
+     "rc": 0,
+     "runtime": "candle",
+     "threads": 8,
+     "wall_s": 9.146015199999965
+    }
+   ]
+  },
+  "kernel": {
+   "built": true,
+   "cdylib_bytes": 6133760,
+   "g6_delta_bytes": 0,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 16,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.008887,
+     "b_s": 0.986705,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000144,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 1,
+     "wall_s": 10.068739500005904
+    },
+    {
+     "a_s": 0.008646,
+     "b_s": 0.575917,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000156,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 2,
+     "wall_s": 6.13870780000434
+    },
+    {
+     "a_s": 0.007519,
+     "b_s": 0.283438,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000136,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 4,
+     "wall_s": 3.714790099998936
+    },
+    {
+     "a_s": 0.007405,
+     "b_s": 0.179886,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000202,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 8,
+     "wall_s": 2.665995200004545
+    }
+   ]
+  },
+  "kernel-stable": {
+   "built": true,
+   "cdylib_bytes": 6220800,
+   "g6_delta_bytes": 87040,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 16,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.007088,
+     "b_s": 0.955824,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000167,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 1,
+     "wall_s": 9.857098299995414
+    },
+    {
+     "a_s": 0.006889,
+     "b_s": 0.456999,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000126,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 2,
+     "wall_s": 5.135794199995871
+    },
+    {
+     "a_s": 0.006902,
+     "b_s": 0.248669,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000125,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 4,
+     "wall_s": 3.24041899999429
+    },
+    {
+     "a_s": 0.006825,
+     "b_s": 0.160908,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000148,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 8,
+     "wall_s": 2.5119657999966876
+    }
+   ]
+  },
+  "tract": {
+   "built": true,
+   "cdylib_bytes": 26553856,
+   "g6_delta_bytes": 20420096,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 94,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.041934,
+     "b_s": 5.293477,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006573,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 1,
+     "wall_s": 49.39237519999733
+    },
+    {
+     "a_s": 0.040792,
+     "b_s": 2.921245,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.0065,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 2,
+     "wall_s": 27.78663840000081
+    },
+    {
+     "a_s": 0.039941,
+     "b_s": 1.880371,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006274,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 4,
+     "wall_s": 18.298309400001017
+    },
+    {
+     "a_s": 0.039756,
+     "b_s": 1.413991,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.00646,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 8,
+     "wall_s": 14.130598600000667
+    }
+   ]
+  },
+  "tract-default": {
+   "built": true,
+   "cdylib_bytes": 27641856,
+   "g6_delta_bytes": 21508096,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 94,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.07328,
+     "b_s": 5.625634,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.010899,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 1,
+     "wall_s": 56.30536949999805
+    },
+    {
+     "a_s": 0.039305,
+     "b_s": 3.033753,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006289,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 2,
+     "wall_s": 27.514581099996576
+    },
+    {
+     "a_s": 0.037131,
+     "b_s": 1.725526,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006092,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 4,
+     "wall_s": 16.713840999997046
+    },
+    {
+     "a_s": 0.04031,
+     "b_s": 1.327193,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006616,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 8,
+     "wall_s": 13.271537599997828
+    }
+   ]
+  },
+  "tract-mt": {
+   "built": true,
+   "cdylib_bytes": 30292480,
+   "g6_delta_bytes": 24158720,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 94,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.04604,
+     "b_s": 4.898579,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.011566,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 1,
+     "wall_s": 48.56535160000203
+    },
+    {
+     "rc": 3221226505,
+     "stderr": "0x7ffeb7776985 - RtlWow64GetCurrentMachine\n  28:     0x7ffeb76c9f3d - RtlRaiseException\n  29:     0x7ffeb502569a - RaiseException\n  30:     0x7ffe936d55a9 - CxxThrowException\n  31:     0x7ff6ed5ffd1d - <unknown>\n  32:     0x7ff6ed5ffbf5 - <unknown>\n  33:     0x7ff6ed61171f - <unknown>\n  34:     0x7ff6ed6278d3 - <unknown>\n  35:     0x7ff6ed627604 - <unknown>\n  36:     0x7ff6ed62199f - <unknown>\n  37:     0x7ff6ed61184e - <unknown>\n  38:     0x7ff6eeeac67d - <unknown>\n  39:     0x7ff6eeeac020 - <unknown>\n  40:     0x7ff6eeeabfef - <unknown>\n  41:     0x7ff6ee394aee - <unknown>\n  42:     0x7ff6ed5db033 - <unknown>\n  43:     0x7ff6ed5f3d38 - <unknown>\n  44:     0x7ff6ed5c0ae1 - <unknown>\n  45:     0x7ff6ed5b4d1b - <unknown>\n  46:     0x7ff6ed5c0ca7 - <unknown>\n  47:     0x7ff6ed5b4d1b - <unknown>\n  48:     0x7ff6ed5c0ca7 - <unknown>\n  49:     0x7ff6ed5b4d1b - <unknown>\n  50:     0x7ff6ed5c0ca7 - <unknown>\n  51:     0x7ff6ed5c1859 - <unknown>\n  52:     0x7ff6eeeb08e5 - <unknown>\n  53:     0x7ff6eef321b6 - <unknown>\n  54:     0x7ff6ee89d5f4 - <unknown>\n  55:     0x7ff6ee965149 - <unknown>\n  56:     0x7ff6ee3964c5 - <unknown>\n  57:     0x7ff6ed5db033 - <unknown>\n  58:     0x7ff6ed5f3d38 - <unknown>\n  59:     0x7ff6ed5c0ae1 - <unknown>\n  60:     0x7ff6ed5b4d1b - <unknown>\n  61:     0x7ff6ed5c0ca7 - <unknown>\n  62:     0x7ff6ed5b4d1b - <unknown>\n  63:     0x7ff6ed5c0ca7 - <unknown>\n  64:     0x7ff6ed5b4d1b - <unknown>\n  65:     0x7ff6ed5c0ca7 - <unknown>\n  66:     0x7ff6ed5b4d1b - <unknown>\n  67:     0x7ff6ed5c15f8 - <unknown>\n  68:     0x7ff6eeeb09f6 - <unknown>\n  69:     0x7ff6ed6027de - <unknown>\n  70:     0x7ff6ed605219 - <unknown>\n  71:     0x7ff6ed60577c - <unknown>\n  72:     0x7ff6ed61ad69 - <unknown>\n  73:     0x7ffeb656dda7 - BaseThreadInitThunk\n  74:     0x7ffeb7779c5c - RtlUserThreadStart\n\nthread '<unnamed>' (1924) panicked at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf\\library\\std\\src\\thread\\local.rs:757:38:\nRefCell already borrowed\nstack backtrace:\n   0:    ",
+     "threads": 2,
+     "wall_s": 1.3791577000010875
+    },
+    {
+     "rc": 3221226505,
+     "stderr": "lRaiseException\n  29:     0x7ffeb502569a - RaiseException\n  30:     0x7ffe936d55a9 - CxxThrowException\n  31:     0x7ff6ed5ffd1d - <unknown>\n  32:     0x7ff6ed5ffbf5 - <unknown>\n  33:     0x7ff6ed61171f - <unknown>\n  34:     0x7ff6ed6278d3 - <unknown>\n  35:     0x7ff6ed627604 - <unknown>\n  36:     0x7ff6ed62199f - <unknown>\n  37:     0x7ff6ed61184e - <unknown>\n  38:     0x7ff6eeeac67d - <unknown>\n  39:     0x7ff6eeeac020 - <unknown>\n  40:     0x7ff6eeeabfef - <unknown>\n  41:     0x7ff6ee394aee - <unknown>\n  42:     0x7ff6ed5db033 - <unknown>\n  43:     0x7ff6ed5f3d38 - <unknown>\n  44:     0x7ff6ed5c0ae1 - <unknown>\n  45:     0x7ff6ed5b4d1b - <unknown>\n  46:     0x7ff6ed5c0ca7 - <unknown>\n  47:     0x7ff6ed5c1859 - <unknown>\n  48:     0x7ff6eeeb08e5 - <unknown>\n  49:     0x7ff6eef321b6 - <unknown>\n  50:     0x7ff6ee89d5f4 - <unknown>\n  51:     0x7ff6ee965149 - <unknown>\n  52:     0x7ff6ee3964c5 - <unknown>\n  53:     0x7ff6ed5db033 - <unknown>\n  54:     0x7ff6ed5f3d38 - <unknown>\n  55:     0x7ff6ed5c0ae1 - <unknown>\n  56:     0x7ff6ed5b4d1b - <unknown>\n  57:     0x7ff6ed5c0ca7 - <unknown>\n  58:     0x7ff6ed5b4d1b - <unknown>\n  59:     0x7ff6ed5c0ca7 - <unknown>\n  60:     0x7ff6ed5b4d1b - <unknown>\n  61:     0x7ff6ed5c0ca7 - <unknown>\n  62:     0x7ff6ed5b4d1b - <unknown>\n  63:     0x7ff6ed5c0ca7 - <unknown>\n  64:     0x7ff6ed5c1859 - <unknown>\n  65:     0x7ff6eeeb09f6 - <unknown>\n  66:     0x7ff6ed6027de - <unknown>\n  67:     0x7ff6ed605219 - <unknown>\n  68:     0x7ff6ed60577c - <unknown>\n  69:     0x7ff6ed61ad69 - <unknown>\n  70:     0x7ffeb656dda7 - BaseThreadInitThunk\n  71:     0x7ffeb7779c5c - RtlUserThreadStart\n\nthread '<unnamed>' (30880) panicked at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf\\library\\std\\src\\thread\\local.rs:757:38:\nRefCell already borrowed\n\nthread '<unnamed>' (34056) panicked at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf\\library\\std\\src\\thread\\local.rs:757:38:\nRefCell already borrowed\nstack backtrace:\n   0:     0x7ff6ed6318d2 - <unknown>\n ",
+     "threads": 4,
+     "wall_s": 1.6499502000006032
+    },
+    {
+     "rc": 3221226505,
+     "stderr": "is_exception_typeof\n  24:     0x7ffe936d2dd8 - is_exception_typeof\n  25:     0x7ffe936eb8f8 - _CxxFrameHandler3\n  26:     0x7ffeb781ab3f - _chkstk\n  27:     0x7ffeb7776985 - RtlWow64GetCurrentMachine\n  28:     0x7ffeb76c9f3d - RtlRaiseException\n  29:     0x7ffeb502569a - RaiseException\n  30:     0x7ffe936d55a9 - CxxThrowException\n  31:     0x7ff6ed5ffd1d - <unknown>\n  32:     0x7ff6ed5ffbf5 - <unknown>\n  33:     0x7ff6ed61171f - <unknown>\n  34:     0x7ff6ed6278d3 - <unknown>\n  35:     0x7ff6ed627604 - <unknown>\n  36:     0x7ff6ed62199f - <unknown>\n  37:     0x7ff6ed61184e - <unknown>\n  38:     0x7ff6eeeac67d - <unknown>\n  39:     0x7ff6eeeac020 - <unknown>\n  40:     0x7ff6eeeabfef - <unknown>\n  41:     0x7ff6ee394aee - <unknown>\n  42:     0x7ff6ed5db033 - <unknown>\n  43:     0x7ff6ed5f3d38 - <unknown>\n  44:     0x7ff6ed5c0ae1 - <unknown>\n  45:     0x7ff6ed5c1859 - <unknown>\n  46:     0x7ff6eeeb08e5 - <unknown>\n  47:     0x7ff6eef321b6 - <unknown>\n  48:     0x7ff6ee89d5f4 - <unknown>\n  49:     0x7ff6ee965149 - <unknown>\n  50:     0x7ff6ee3964c5 - <unknown>\n  51:     0x7ff6ed5db033 - <unknown>\n  52:     0x7ff6ed5f3d38 - <unknown>\n  53:     0x7ff6ed5c0ae1 - <unknown>\n  54:     0x7ff6ed5b4d1b - <unknown>\n  55:     0x7ff6ed5c0ca7 - <unknown>\n  56:     0x7ff6ed5b4d1b - <unknown>\n  57:     0x7ff6ed5c0ca7 - <unknown>\n  58:     0x7ff6ed5b4d1b - <unknown>\n  59:     0x7ff6ed5c0ca7 - <unknown>\n  60:     0x7ff6ed5b4d1b - <unknown>\n  61:     0x7ff6ed5c0ca7 - <unknown>\n  62:     0x7ff6ed5c1859 - <unknown>\n  63:     0x7ff6eeeb09f6 - <unknown>\n  64:     0x7ff6ed6027de - <unknown>\n  65:     0x7ff6ed605219 - <unknown>\n  66:     0x7ff6ed60577c - <unknown>\n  67:     0x7ff6ed61ad69 - <unknown>\n  68:     0x7ffeb656dda7 - BaseThreadInitThunk\n  69:     0x7ffeb7779c5c - RtlUserThreadStart\n\nthread '<unnamed>' (28840) panicked at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf\\library\\std\\src\\thread\\local.rs:757:38:\nRefCell already borrowed\nstack backtrace:\n   0:     0x7ff6ed6318d2 - <unknown>",
+     "threads": 8,
+     "wall_s": 2.0095404000021517
+    }
+   ]
+  }
+ },
+ "cpu": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+ "finished_utc": "2026-11-19T08:38:43Z",
+ "host": "glacier",
+ "label": "provisional",
+ "onnx": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\chunk-task-api-946978\\outputs\\dl1\\f3-calibrator-seed3.onnx",
+ "started_utc": "2026-11-19T08:30:46Z"
+}

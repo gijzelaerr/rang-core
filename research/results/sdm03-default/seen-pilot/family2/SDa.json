@@ -1,0 +1,81 @@
+{
+ "arm": "SDa",
+ "state": "S1",
+ "F_uJy": 329.68328518873477,
+ "D": 0.24770776974408187,
+ "dP": 3.5148695941670944e-08,
+ "model": [
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0000-model.fits",
+   "flux_jy": 90.35924148862676,
+   "negative_jy": -1.6444622893373548,
+   "outside_mask_jy": 0.08371979915244765,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0001-model.fits",
+   "flux_jy": 88.87180043846104,
+   "negative_jy": -1.354631441206834,
+   "outside_mask_jy": 0.09108132880646735,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0002-model.fits",
+   "flux_jy": 87.38435929732282,
+   "negative_jy": -1.1542415213984896,
+   "outside_mask_jy": 0.09844285776489414,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0003-model.fits",
+   "flux_jy": 85.89691825036425,
+   "negative_jy": -1.0025461527038715,
+   "outside_mask_jy": 0.10580438629403943,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0004-model.fits",
+   "flux_jy": 84.40947710647742,
+   "negative_jy": -0.8717462123604491,
+   "outside_mask_jy": 0.11316591584909474,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0005-model.fits",
+   "flux_jy": 82.92203601320188,
+   "negative_jy": -0.7596151680281196,
+   "outside_mask_jy": 0.12052744390530279,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0006-model.fits",
+   "flux_jy": 81.43459492276591,
+   "negative_jy": -0.7091985114745967,
+   "outside_mask_jy": 0.12788897313799907,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  },
+  {
+   "file": "/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image-0007-model.fits",
+   "flux_jy": 79.94715383126959,
+   "negative_jy": -0.7335415729758097,
+   "outside_mask_jy": 0.135250502247807,
+   "outside_mask_pixels": 1065,
+   "pixels": 13965
+  }
+ ],
+ "report": {
+  "components": 341987,
+  "major_cycles": 5,
+  "stop": "Threshold",
+  "model_flux": 85.25126456329039,
+  "residual_mad_sigma": 7.695840171904756e-05,
+  "residual_peak_abs": 0.003086046639696466
+ }
+}

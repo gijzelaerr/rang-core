@@ -1,0 +1,964 @@
+{
+ "detail": {
+  "D_SDa": [
+   0.398462129550595,
+   -0.6797666005938936
+  ],
+  "D_SDm03": [
+   0.2477114638557602,
+   -0.35376865806473634
+  ],
+  "D_Sa": [
+   0.3973319920211686,
+   -0.714785717343126
+  ],
+  "cost": {
+   "MAIN_1": {
+    "SDa": {
+     "C1": false,
+     "C2": true,
+     "near_bound": true,
+     "rss_ratio": 1.9577227423813903,
+     "wall_ratio": 12.065743664480609
+    },
+    "Sa": {
+     "C1": true,
+     "C2": true,
+     "near_bound": false,
+     "rss_ratio": 1.9573629658146172,
+     "wall_ratio": 3.2412355274876528
+    }
+   },
+   "MAIN_6": {
+    "SDa": {
+     "C1": false,
+     "C2": true,
+     "near_bound": true,
+     "rss_ratio": 1.95802904026006,
+     "wall_ratio": 8.96460829144779
+    },
+    "Sa": {
+     "C1": true,
+     "C2": true,
+     "near_bound": false,
+     "rss_ratio": 1.9582137232251018,
+     "wall_ratio": 3.7633309398737764
+    }
+   }
+  },
+  "no_harm": {
+   "SDa": {
+    "X1": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X2": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X3": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X4": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    }
+   },
+   "Sa": {
+    "X1": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X2": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X3": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    },
+    "X4": {
+     "N1": true,
+     "N2": true,
+     "N3": true,
+     "pass": true
+    }
+   }
+  },
+  "oracle_SDa": {
+   "MAIN_1": {
+    "P_ratio": 1.3593589927194256,
+    "dD": -0.4440616767360054,
+    "pass": false
+   },
+   "MAIN_6": {
+    "P_ratio": 0.9762058576898459,
+    "dD": 0.014661946127112524,
+    "pass": true
+   },
+   "X1": {
+    "P_ratio": 0.9946357008351725,
+    "dD": 0.0003411472570973295,
+    "pass": true
+   },
+   "X2": {
+    "P_ratio": 0.9944651984325403,
+    "dD": 0.00034621771679699265,
+    "pass": true
+   },
+   "X3": {
+    "P_ratio": 0.9957952678696574,
+    "dD": 0.00046266700799046934,
+    "pass": true
+   },
+   "X4": {
+    "P_ratio": 0.9923924790842371,
+    "dD": 0.0005342448617030593,
+    "pass": true
+   }
+  },
+  "shipped_form": "SDa"
+ },
+ "outcome": "not yet",
+ "real": {
+  "MAIN_1": {
+   "GT_A0": 0.181143988433341,
+   "P_A0": 5.650555647141492e-08,
+   "P_ref": 1.2066512725306143e-07,
+   "T": 4.3783886682634024e-05,
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "D_ref": 0.5317159335280832,
+     "F_uJy": 241.70764407534293,
+     "P": 5.650555647141492e-08,
+     "cost": {
+      "rss_gib": 9.235179901123047,
+      "wall_s": 494.04
+     },
+     "report": {
+      "components": 406454,
+      "major_cycles": 9,
+      "model_flux": 90.3004396136538,
+      "residual_mad_sigma": 6.713731071673692e-05,
+      "residual_peak_abs": 0.00020140170818194747,
+      "stop": "Threshold"
+     }
+    },
+    "SDa": {
+     "D": -0.6797666005938936,
+     "D_ref": 0.21339206555018342,
+     "F_uJy": 311.1802937875287,
+     "P": 9.491614650865492e-08,
+     "cost": {
+      "rss_gib": 18.07992172241211,
+      "wall_s": 5960.96
+     },
+     "report": {
+      "components": 281339,
+      "major_cycles": 5,
+      "model_flux": 85.9958761332216,
+      "residual_mad_sigma": 7.16462161598074e-05,
+      "residual_peak_abs": 0.0027894307845409997,
+      "stop": "Threshold"
+     }
+    },
+    "SDm03": {
+     "D": -0.35376865806473634,
+     "D_ref": 0.3660517077392154,
+     "F_uJy": 280.0222849891528,
+     "P": 7.649545135750855e-08,
+     "cost": {
+      "rss_gib": 18.108875274658203,
+      "wall_s": 2387.43
+     },
+     "report": {
+      "components": 161257,
+      "major_cycles": 6,
+      "model_flux": 88.54684782151467,
+      "residual_mad_sigma": 6.338416785613078e-05,
+      "residual_peak_abs": 0.006209054146206843,
+      "stop": "Threshold"
+     }
+    },
+    "Sa": {
+     "D": -0.714785717343126,
+     "D_ref": 0.19699317115459808,
+     "F_uJy": 314.34368121650783,
+     "P": 9.689492118770774e-08,
+     "cost": {
+      "rss_gib": 18.07659912109375,
+      "wall_s": 1601.3
+     },
+     "report": {
+      "components": 94508,
+      "major_cycles": 4,
+      "model_flux": 85.90707481252957,
+      "residual_mad_sigma": 7.25136837626411e-05,
+      "residual_peak_abs": 0.0025519428208794145,
+      "stop": "Threshold"
+     }
+    },
+    "Sm": {
+     "D": -0.2704518872872024,
+     "D_ref": 0.4050676239642276,
+     "F_uJy": 271.4859473239092,
+     "P": 7.178759086132267e-08,
+     "cost": {
+      "rss_gib": 18.115276336669922,
+      "wall_s": 2816.93
+     },
+     "report": {
+      "components": 213312,
+      "major_cycles": 6,
+      "model_flux": 89.2546712896382,
+      "residual_mad_sigma": 6.170799158377665e-05,
+      "residual_peak_abs": 0.006139164975867674,
+      "stop": "Threshold"
+     }
+    },
+    "W-SDa": {
+     "D": -0.23570492385788824,
+     "D_ref": 0.42133907329645776,
+     "F_uJy": 267.8455209446205,
+     "P": 6.982419435705737e-08,
+     "cost": {
+      "rss_gib": 2.1732864379882812,
+      "wall_s": 1187.7
+     },
+     "report": {}
+    },
+    "W-Sa": {
+     "D": -0.2512945752149872,
+     "D_ref": 0.41403868796407606,
+     "F_uJy": 269.4849253951385,
+     "P": 7.07050962821856e-08,
+     "cost": {
+      "rss_gib": 2.174266815185547,
+      "wall_s": 910.7
+     },
+     "report": {}
+    }
+   },
+   "gates": {
+    "GH": true,
+    "GS1": true,
+    "GT": true,
+    "HB": true
+   }
+  },
+  "MAIN_6": {
+   "GT_A0": 0.14182897065957784,
+   "P_A0": 9.014944599718949e-08,
+   "P_ref": 1.5462569373884902e-07,
+   "T": 4.301887298745648e-05,
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "D_ref": 0.4169827548231084,
+     "F_uJy": 303.3151322145013,
+     "P": 9.014944599718949e-08,
+     "cost": {
+      "rss_gib": 9.232955932617188,
+      "wall_s": 529.22
+     },
+     "report": {
+      "components": 287222,
+      "major_cycles": 11,
+      "model_flux": 88.02142563844421,
+      "residual_mad_sigma": 8.220122745431127e-05,
+      "residual_peak_abs": 0.00024659803602844477,
+      "stop": "Threshold"
+     }
+    },
+    "SDa": {
+     "D": 0.398462129550595,
+     "D_ref": 0.649293047901014,
+     "F_uJy": 236.80990097640327,
+     "P": 5.4228305767343005e-08,
+     "cost": {
+      "rss_gib": 18.07839584350586,
+      "wall_s": 4744.25
+     },
+     "report": {
+      "components": 309017,
+      "major_cycles": 5,
+      "model_flux": 86.01805562818312,
+      "residual_mad_sigma": 5.835981689208234e-05,
+      "residual_peak_abs": 0.0013908053419648852,
+      "stop": "Threshold"
+     }
+    },
+    "SDm03": {
+     "D": 0.2477114638557602,
+     "D_ref": 0.5614028100790289,
+     "F_uJy": 263.9488931527291,
+     "P": 6.781839476343988e-08,
+     "cost": {
+      "rss_gib": 18.099140167236328,
+      "wall_s": 1700.12
+     },
+     "report": {
+      "components": 126026,
+      "major_cycles": 5,
+      "model_flux": 85.47165275530982,
+      "residual_mad_sigma": 5.98450055765623e-05,
+      "residual_peak_abs": 0.006414768919972056,
+      "stop": "Threshold"
+     }
+    },
+    "Sa": {
+     "D": 0.3973319920211686,
+     "D_ref": 0.6486341582319368,
+     "F_uJy": 237.02491529928315,
+     "P": 5.4330187039521427e-08,
+     "cost": {
+      "rss_gib": 18.080101013183594,
+      "wall_s": 1991.63
+     },
+     "report": {
+      "components": 151710,
+      "major_cycles": 5,
+      "model_flux": 85.99491580439005,
+      "residual_mad_sigma": 5.8493152373645796e-05,
+      "residual_peak_abs": 0.0011248223793771809,
+      "stop": "Threshold"
+     }
+    },
+    "Sm": {
+     "D": 0.2805569198270581,
+     "D_ref": 0.5805522773359939,
+     "F_uJy": 258.2789548864042,
+     "P": 6.48573951041023e-08,
+     "cost": {
+      "rss_gib": 18.100452423095703,
+      "wall_s": 2343.46
+     },
+     "report": {
+      "components": 172802,
+      "major_cycles": 8,
+      "model_flux": 86.0411358628865,
+      "residual_mad_sigma": 5.8460495789651615e-05,
+      "residual_peak_abs": 0.006361311250923709,
+      "stop": "Threshold"
+     }
+    },
+    "W-SDa": {
+     "D": 0.3838001834234825,
+     "D_ref": 0.6407448804610528,
+     "F_uJy": 239.584422534216,
+     "P": 5.555007208794283e-08,
+     "cost": {
+      "rss_gib": 2.1721725463867188,
+      "wall_s": 1227.47
+     },
+     "report": {}
+    },
+    "W-Sa": {
+     "D": 0.38239844768800646,
+     "D_ref": 0.6399276443540897,
+     "F_uJy": 239.84799607468346,
+     "P": 5.567643778793046e-08,
+     "cost": {
+      "rss_gib": 2.1735763549804688,
+      "wall_s": 1004.32
+     },
+     "report": {}
+    }
+   },
+   "gates": {
+    "GH": true,
+    "GS1": true,
+    "GT": true,
+    "HB": true
+   }
+  }
+ },
+ "seen": {
+  "pilot": {
+   "GT_A0": 0.1581068029974759,
+   "P_A0": 7.582098231750173e-08,
+   "P_ref": 1.4189581529067358e-07,
+   "T": 4.409023909930619e-05,
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "D_ref": 0.46565737571483384,
+     "F_uJy": 278.8636432045879,
+     "P": 7.582098231750173e-08,
+     "cost": {
+      "rss_gib": 9.173225402832031,
+      "wall_s": 531.34
+     },
+     "report": {
+      "components": 341244,
+      "major_cycles": 10,
+      "model_flux": 89.50580630842164,
+      "residual_mad_sigma": 7.611120559133724e-05,
+      "residual_peak_abs": 0.00022832771355751902,
+      "stop": "Threshold"
+     }
+    },
+    "SDa": {
+     "D": -0.4078836238496245,
+     "D_ref": 0.24770776974408187,
+     "F_uJy": 329.68328518873477,
+     "P": 1.0674711934900263e-07,
+     "cost": {
+      "rss_gib": 18.043960571289062,
+      "wall_s": 5511.98
+     },
+     "report": {
+      "components": 341987,
+      "major_cycles": 5,
+      "model_flux": 85.25126456329039,
+      "residual_mad_sigma": 7.695840171904756e-05,
+      "residual_peak_abs": 0.003086046639696466,
+      "stop": "Threshold"
+     }
+    }
+   },
+   "gates": {
+    "GH": null,
+    "GS1": true,
+    "GT": true,
+    "HB": true
+   }
+  },
+  "s10": {
+   "arms": {}
+  }
+ },
+ "seen_sims": {
+  "D1": {
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "F": 0.00010335145593413121,
+     "P": 1.0132423756735177e-08,
+     "T": 2.343287619925236e-05,
+     "arm": "A0",
+     "false_flux_jy": 1.0130178110011911,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/A0/image-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/A0/image",
+     "recovery_abs_err_median": 0.022894441097755625,
+     "recovery_median": 1.0120579265784078,
+     "recovery_n": 40
+    },
+    "SDa": {
+     "D": 0.938024327898842,
+     "F": 3.430835844669473e-05,
+     "P": 6.279637723374017e-10,
+     "T": 2.343287619925236e-05,
+     "arm": "SDa",
+     "false_flux_jy": 0.026932669701161524,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/SDa/image",
+     "recovery_abs_err_median": 0.014596653342215049,
+     "recovery_median": 1.0019637609950347,
+     "recovery_n": 320
+    },
+    "Sa": {
+     "D": 0.9381517951394512,
+     "F": 3.428953057727586e-05,
+     "P": 6.266722202404482e-10,
+     "T": 2.343287619925236e-05,
+     "arm": "Sa",
+     "false_flux_jy": 0.026932669701161524,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/Sa/image",
+     "recovery_abs_err_median": 0.014596653342215049,
+     "recovery_median": 1.001700873520171,
+     "recovery_n": 320
+    },
+    "W-SDa": {
+     "D": 0.9372307662610115,
+     "F": 3.442534185884691e-05,
+     "P": 6.360044751289896e-10,
+     "T": 2.343287619925236e-05,
+     "arm": "W-SDa",
+     "false_flux_jy": 0.02585802594515417,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/D1.img/W-SDa/image",
+     "recovery_abs_err_median": 0.014635077198938085,
+     "recovery_median": 1.001812846663593,
+     "recovery_n": 320
+    }
+   }
+  }
+ },
+ "sims": {
+  "X1": {
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "F": 9.732566100909392e-05,
+     "P": 8.927449846825552e-09,
+     "T": 2.3341688971270086e-05,
+     "arm": "A0",
+     "false_flux_jy": 1.0125621086863248,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/A0/image-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/A0/image",
+     "recovery_abs_err_median": 0.02609281495573601,
+     "recovery_median": 1.0160908438354026,
+     "recovery_n": 40
+    },
+    "SDa": {
+     "D": 0.9367452800962616,
+     "F": 3.330972505961486e-05,
+     "P": 5.647033395156229e-10,
+     "T": 2.3341688971270086e-05,
+     "arm": "SDa",
+     "false_flux_jy": 0.035798873417354264,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image",
+     "recovery_abs_err_median": 0.015039589598096592,
+     "recovery_median": 1.0013116057145144,
+     "recovery_n": 320
+    },
+    "Sa": {
+     "D": 0.936912007332835,
+     "F": 3.328737500171087e-05,
+     "P": 5.632148904730143e-10,
+     "T": 2.3341688971270086e-05,
+     "arm": "Sa",
+     "false_flux_jy": 0.035798873417354264,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/Sa/image",
+     "recovery_abs_err_median": 0.015290528166235329,
+     "recovery_median": 1.001245677726487,
+     "recovery_n": 320
+    },
+    "W-SDa": {
+     "D": 0.9364041328391642,
+     "F": 3.335540973478295e-05,
+     "P": 5.677489145437416e-10,
+     "T": 2.3341688971270086e-05,
+     "arm": "W-SDa",
+     "false_flux_jy": 0.03641721938912748,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-SDa/image",
+     "recovery_abs_err_median": 0.015427366723356983,
+     "recovery_median": 1.001155843247808,
+     "recovery_n": 320
+    },
+    "W-Sa": {
+     "D": 0.9365594384154641,
+     "F": 3.333461977932109e-05,
+     "P": 5.663624318003932e-10,
+     "T": 2.3341688971270086e-05,
+     "arm": "W-Sa",
+     "false_flux_jy": 0.036417233925179836,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/W-Sa/image",
+     "recovery_abs_err_median": 0.015394068079064183,
+     "recovery_median": 1.0011560500404109,
+     "recovery_n": 320
+    }
+   }
+  },
+  "X2": {
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "F": 0.00011484267656071973,
+     "P": 1.2638099703872106e-08,
+     "T": 2.3467864320341932e-05,
+     "arm": "A0",
+     "false_flux_jy": 1.0477258828268532,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/A0/image-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/A0/image",
+     "recovery_abs_err_median": 0.021688328824599923,
+     "recovery_median": 1.0094758646736102,
+     "recovery_n": 40
+    },
+    "SDa": {
+     "D": 0.9377933488239792,
+     "F": 3.65638416412242e-05,
+     "P": 7.861738598065427e-10,
+     "T": 2.3467864320341932e-05,
+     "arm": "SDa",
+     "false_flux_jy": 0.0612959532416211,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/SDa/image",
+     "recovery_abs_err_median": 0.011025845905609455,
+     "recovery_median": 1.00206258709389,
+     "recovery_n": 320
+    },
+    "Sa": {
+     "D": 0.9379314785768382,
+     "F": 3.653996193177846e-05,
+     "P": 7.84428162217841e-10,
+     "T": 2.3467864320341932e-05,
+     "arm": "Sa",
+     "false_flux_jy": 0.0612959532416211,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/Sa/image",
+     "recovery_abs_err_median": 0.011026191864251689,
+     "recovery_median": 1.0016057107162109,
+     "recovery_n": 320
+    },
+    "W-SDa": {
+     "D": 0.9374471311071823,
+     "F": 3.662362693110349e-05,
+     "P": 7.90549393830671e-10,
+     "T": 2.3467864320341932e-05,
+     "arm": "W-SDa",
+     "false_flux_jy": 0.060790156606974594,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-SDa/image",
+     "recovery_abs_err_median": 0.011186203872480482,
+     "recovery_median": 1.0014463106852245,
+     "recovery_n": 320
+    },
+    "W-Sa": {
+     "D": 0.9375777720299499,
+     "F": 3.660107917235918e-05,
+     "P": 7.888983408233269e-10,
+     "T": 2.3467864320341932e-05,
+     "arm": "W-Sa",
+     "false_flux_jy": 0.0608372498354434,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X2.img/W-Sa/image",
+     "recovery_abs_err_median": 0.011202334999838026,
+     "recovery_median": 1.0014458033948819,
+     "recovery_n": 320
+    }
+   }
+  },
+  "X3": {
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "F": 5.4361749273266767e-05,
+     "P": 2.4030697252054836e-09,
+     "T": 2.349744792193476e-05,
+     "arm": "A0",
+     "false_flux_jy": 0.32004647229314287,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/A0/image-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/A0/image",
+     "recovery_abs_err_median": 0.022843107697715803,
+     "recovery_median": 0.9948406403598773,
+     "recovery_n": 20
+    },
+    "SDa": {
+     "D": 0.8904278315777405,
+     "F": 2.8555903409009568e-05,
+     "P": 2.6330956066064806e-10,
+     "T": 2.349744792193476e-05,
+     "arm": "SDa",
+     "false_flux_jy": 0.00015313145864459337,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/SDa/image",
+     "recovery_abs_err_median": 0.015842558020330855,
+     "recovery_median": 0.994855319863426,
+     "recovery_n": 160
+    },
+    "Sa": {
+     "D": 0.8902611115294546,
+     "F": 2.8562917557653398e-05,
+     "P": 2.637102005612686e-10,
+     "T": 2.349744792193476e-05,
+     "arm": "Sa",
+     "false_flux_jy": 0.00015313145864459337,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/Sa/image",
+     "recovery_abs_err_median": 0.015842558020330855,
+     "recovery_median": 0.9945168470350096,
+     "recovery_n": 160
+    },
+    "W-SDa": {
+     "D": 0.8899651645697501,
+     "F": 2.8575364224878004e-05,
+     "P": 2.644213817404015e-10,
+     "T": 2.349744792193476e-05,
+     "arm": "W-SDa",
+     "false_flux_jy": 0.00011050893332806741,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-SDa/image",
+     "recovery_abs_err_median": 0.016771679441885512,
+     "recovery_median": 0.9946574991226992,
+     "recovery_n": 160
+    },
+    "W-Sa": {
+     "D": 0.88976021261963,
+     "F": 2.8583980730662636e-05,
+     "P": 2.649138955668567e-10,
+     "T": 2.349744792193476e-05,
+     "arm": "W-Sa",
+     "false_flux_jy": 0.00011050886220740963,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X3.img/W-Sa/image",
+     "recovery_abs_err_median": 0.016771658959996105,
+     "recovery_median": 0.9944577685862476,
+     "recovery_n": 160
+    }
+   }
+  },
+  "X4": {
+   "arms": {
+    "A0": {
+     "D": 0.0,
+     "F": 8.666813805103701e-05,
+     "P": 6.961871851657734e-09,
+     "T": 2.3441294793075653e-05,
+     "arm": "A0",
+     "false_flux_jy": 0.5610061386105372,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/A0/image-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/A0/image",
+     "recovery_abs_err_median": 0.022713897846237285,
+     "recovery_median": 1.0115604656549635,
+     "recovery_n": 20
+    },
+    "SDa": {
+     "D": 0.9303083634453118,
+     "F": 3.216641951479712e-05,
+     "P": 4.851842428260452e-10,
+     "T": 2.3441294793075653e-05,
+     "arm": "SDa",
+     "false_flux_jy": 0.0187778348640604,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/SDa/image",
+     "recovery_abs_err_median": 0.015205499354678298,
+     "recovery_median": 1.002444583235785,
+     "recovery_n": 160
+    },
+    "Sa": {
+     "D": 0.9302261495734686,
+     "F": 3.217531517859804e-05,
+     "P": 4.857566052662457e-10,
+     "T": 2.3441294793075653e-05,
+     "arm": "Sa",
+     "false_flux_jy": 0.0187778348640604,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/Sa/image",
+     "recovery_abs_err_median": 0.015388501557694001,
+     "recovery_median": 1.002388589024886,
+     "recovery_n": 160
+    },
+    "W-SDa": {
+     "D": 0.9297741185836087,
+     "F": 3.222418173773392e-05,
+     "P": 4.889035870906287e-10,
+     "T": 2.3441294793075653e-05,
+     "arm": "W-SDa",
+     "false_flux_jy": 0.018462896920680313,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-SDa/image",
+     "recovery_abs_err_median": 0.01548806252157442,
+     "recovery_median": 1.0028609970376041,
+     "recovery_n": 160
+    },
+    "W-Sa": {
+     "D": 0.929971488335762,
+     "F": 3.220285431052066e-05,
+     "P": 4.875295241687436e-10,
+     "T": 2.3441294793075653e-05,
+     "arm": "W-Sa",
+     "false_flux_jy": 0.01842760023895425,
+     "files": [
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0000-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0001-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0002-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0003-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0004-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0005-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0006-model.fits",
+      "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image-0007-model.fits"
+     ],
+     "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X4.img/W-Sa/image",
+     "recovery_abs_err_median": 0.015413453387160603,
+     "recovery_median": 1.0026381877090929,
+     "recovery_n": 160
+    }
+   }
+  }
+ }
+}

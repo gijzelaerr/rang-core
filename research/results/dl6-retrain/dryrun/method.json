@@ -1,0 +1,10 @@
+{
+ "class": "calibrator",
+ "weights": "/home/gijs/rang-data/outputs/dl6-dryrun-20261120/train/seed-1/weights.npz",
+ "weights_sha256": "16c55a9af58949a81830f48bcf30318e9d45ca1d6a00e9764cd2c3048fa6673d",
+ "level": 0,
+ "degree": 1,
+ "tau": -3.5,
+ "kappa": 5.0,
+ "method": "N5W4"
+}

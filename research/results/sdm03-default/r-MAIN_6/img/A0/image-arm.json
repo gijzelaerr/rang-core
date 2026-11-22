@@ -1,0 +1,44 @@
+{
+ "argv": [
+  "/home/gijs/Worktrees/rang/sdm03-default/.venv/bin/python",
+  "-m",
+  "rang.gemclean",
+  "-name",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/img/A0/image",
+  "-size",
+  "4096",
+  "4096",
+  "-scale",
+  "3asec",
+  "-weight",
+  "briggs",
+  "0.0",
+  "-niter",
+  "1000000",
+  "-auto-threshold",
+  "3.0",
+  "-j",
+  "8",
+  "-wgridder-accuracy",
+  "0.0001",
+  "-data-column",
+  "CORRECTED_DATA",
+  "-field",
+  "0",
+  "-no-update-model-required",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms"
+ ],
+ "arm": "A0",
+ "config_keys": {
+  "scale": "3asec",
+  "size": [
+   4096,
+   4096
+  ],
+  "threads": 8
+ },
+ "kind": "eso",
+ "ms": "/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/pilot.ms",
+ "rc": 0,
+ "wall_s": 528.9775125890737
+}

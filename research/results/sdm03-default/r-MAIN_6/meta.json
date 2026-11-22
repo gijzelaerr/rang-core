@@ -1,0 +1,24 @@
+{
+ "zarr": "/home/gijs/rang-data/outputs/sdm03-default-20261118/inputs/ms1_target.zarr",
+ "main": "MAIN_6",
+ "rows": 850950,
+ "row_chunks": 18,
+ "field_ids": [
+  0
+ ],
+ "scans": [
+  14
+ ],
+ "phase_dir_sep_arcsec": [
+  0.0
+ ],
+ "ntime": 450,
+ "time_first": 5064175599.157047,
+ "time_last": 5064179189.638075,
+ "span_s": 3590.4810276031494,
+ "nfield_rows": 1,
+ "data_desc_id": 0,
+ "one_field": true,
+ "phase_ok": true,
+ "span_ok": true
+}

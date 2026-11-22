@@ -1,8 +1,9 @@
 # Proposal: restate GeMClean's WSClean comparisons against WSClean 3.8
 
-Status: **proposed, 2026-11-18 (digest [2026-11-18](../digests/2026-11-18.md), rank 1).
-Nothing built or measured. A re-measurement of existing results against the
-current release of the oracle; no novelty claim. Owner approval needed.**
+Status: **measured, 2026-11-22: [wsclean38-rebaseline.md](../wsclean38-rebaseline.md) (approved by the owner
+2026-11-18). P passes; H-mask and H-ms hold; the speed table changes only in pair B at `-j 1`.**
+Proposed 2026-11-18 (digest [2026-11-18](../digests/2026-11-18.md), rank 1): a re-measurement of existing
+results against the current release of the oracle; no novelty claim.
 
 ## Why now
 

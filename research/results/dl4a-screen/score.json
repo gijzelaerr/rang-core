@@ -1,0 +1,155 @@
+{
+ "arms": {
+  "A0-Sa-120s": {
+   "arm": "A0",
+   "term": "Sa",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 39,
+   "fraction": 1.0,
+   "wall_s": 281.93,
+   "ngains": 1830,
+   "intervals": 30
+  },
+  "A0-Sa-inf": {
+   "arm": "A0",
+   "term": "Sa",
+   "solint": "inf",
+   "max_iterations": null,
+   "iterations": 37,
+   "fraction": 1.0,
+   "wall_s": 436.5,
+   "ngains": 61,
+   "intervals": 1
+  },
+  "A0-Sp-120s": {
+   "arm": "A0",
+   "term": "Sp",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 13,
+   "fraction": 1.0,
+   "wall_s": 321.31,
+   "ngains": 1830,
+   "intervals": 30
+  },
+  "A0-Sp-inf": {
+   "arm": "A0",
+   "term": "Sp",
+   "solint": "inf",
+   "max_iterations": null,
+   "iterations": 13,
+   "fraction": 1.0,
+   "wall_s": 445.19,
+   "ngains": 61,
+   "intervals": 1
+  },
+  "A1-Sa-120s": {
+   "arm": "A1",
+   "term": "Sa",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 37,
+   "fraction": 0.9966666666666667,
+   "wall_s": 229.83,
+   "ngains": 1830,
+   "intervals": 30,
+   "flags_equal": true,
+   "rel_median": 4.1274367267651947e-08,
+   "rel_p99": 5.336603730350228e-07,
+   "rel_max": 7.030722984177996e-07,
+   "eligible": true
+  },
+  "A1-Sp-120s": {
+   "arm": "A1",
+   "term": "Sp",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 12,
+   "fraction": 1.0,
+   "wall_s": 190.65,
+   "ngains": 1830,
+   "intervals": 30,
+   "flags_equal": true,
+   "rel_median": 3.29571108884421e-10,
+   "rel_p99": 3.676634517548241e-08,
+   "rel_max": 1.1004113146003904e-07,
+   "eligible": true
+  },
+  "A2-Sa-120s": {
+   "arm": "A2",
+   "term": "Sa",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 33,
+   "fraction": 1.0,
+   "wall_s": 231.29,
+   "ngains": 1830,
+   "intervals": 30,
+   "flags_equal": true,
+   "rel_median": 3.5377894782068253e-08,
+   "rel_p99": 4.6627089560106874e-07,
+   "rel_max": 6.025874813426727e-07,
+   "eligible": true
+  },
+  "A2-Sa-inf": {
+   "arm": "A2",
+   "term": "Sa",
+   "solint": "inf",
+   "max_iterations": null,
+   "iterations": 33,
+   "fraction": 1.0,
+   "wall_s": 429.88,
+   "ngains": 61,
+   "intervals": 1,
+   "flags_equal": true,
+   "rel_median": 1.060291426208187e-07,
+   "rel_p99": 3.4492103104170645e-07,
+   "rel_max": 3.834670788932426e-07,
+   "eligible": true
+  },
+  "A3-Sa-120s": {
+   "arm": "A3",
+   "term": "Sa",
+   "solint": "120s",
+   "max_iterations": null,
+   "iterations": 33,
+   "fraction": 1.0,
+   "wall_s": 223.93,
+   "ngains": 1830,
+   "intervals": 30,
+   "flags_equal": true,
+   "rel_median": 3.5377894782068253e-08,
+   "rel_p99": 4.6627089560106874e-07,
+   "rel_max": 6.025874813426727e-07,
+   "eligible": true
+  }
+ },
+ "gate": {
+  "median_rel": 1e-05,
+  "p99_rel": 0.0001
+ },
+ "ceiling": {
+  "Sa-120s": {
+   "read_setup_s": 101.13,
+   "s_per_iteration": 4.757894736842106,
+   "max_saving_s": 180.8
+  },
+  "Sa-inf": {
+   "read_setup_s": 104.05,
+   "s_per_iteration": 9.234722222222222,
+   "max_saving_s": 332.45
+  },
+  "Sp-120s": {
+   "read_setup_s": 103.29,
+   "s_per_iteration": 18.168333333333333,
+   "max_saving_s": 218.01999999999998
+  },
+  "Sp-inf": {
+   "read_setup_s": 118.12,
+   "s_per_iteration": 27.25583333333333,
+   "max_saving_s": 327.07
+  }
+ },
+ "baseline_selfcal_summary": "/home/gijs/rang-data/outputs/dl4a-screen-20261120/D/run/selfcal/summary.json"
+}

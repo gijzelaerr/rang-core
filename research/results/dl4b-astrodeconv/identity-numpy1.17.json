@@ -1,0 +1,135 @@
+{
+ "pass": true,
+ "spiel_python": "C:/Users/gijsm/AppData/Local/Temp/claude/1d6bcf42210f0ace/ffe30287-512e-47f7-b333-41a5c654efdc/scratchpad/old-np/Scripts/python.exe",
+ "spiel_numpy": "1.17.5",
+ "spiel_python_version": "3.8.20",
+ "port_numpy": "2.5.4",
+ "cases": [
+  {
+   "seed": 0,
+   "flux": 10,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "c7af5ef3cfa290e823decbd6d5a8bb35cb4164a43f4111b89d0c9c0ad09b53b1",
+   "spiel_sha256": "c7af5ef3cfa290e823decbd6d5a8bb35cb4164a43f4111b89d0c9c0ad09b53b1",
+   "params": {
+    "dec": -60.488135039273246,
+    "synthesis": 7.85759468318621,
+    "dfreq": 260276337,
+    "flux_scale": 10.0
+   }
+  },
+  {
+   "seed": 0,
+   "flux": 100,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "9ed6003fedc773402563e4a193ce5f7489cf493f67f0eea2ec26ad0f2728f077",
+   "spiel_sha256": "9ed6003fedc773402563e4a193ce5f7489cf493f67f0eea2ec26ad0f2728f077",
+   "params": {
+    "dec": -60.488135039273246,
+    "synthesis": 7.85759468318621,
+    "dfreq": 260276337,
+    "flux_scale": 100.0
+   }
+  },
+  {
+   "seed": 0,
+   "flux": 1000,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "c29c9d5ef4ee8af48bedd826dc9fec05112331e01c8d97774ef24a6ef7833274",
+   "spiel_sha256": "c29c9d5ef4ee8af48bedd826dc9fec05112331e01c8d97774ef24a6ef7833274",
+   "params": {
+    "dec": -60.488135039273246,
+    "synthesis": 7.85759468318621,
+    "dfreq": 260276337,
+    "flux_scale": 1000.0
+   }
+  },
+  {
+   "seed": 1,
+   "flux": 10,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "497cd24ccfbdc65ba1131370186b4342fe3ba47d6c34f935ab1d82a860125821",
+   "spiel_sha256": "497cd24ccfbdc65ba1131370186b4342fe3ba47d6c34f935ab1d82a860125821",
+   "params": {
+    "dec": -59.17022004702574,
+    "synthesis": 7.860162246721079,
+    "dfreq": 200011437,
+    "flux_scale": 10.0
+   }
+  },
+  {
+   "seed": 1,
+   "flux": 100,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "0135b4df05d51b5f9ed4eda045b04c069f618fa85e82a54d8c912908840643ec",
+   "spiel_sha256": "0135b4df05d51b5f9ed4eda045b04c069f618fa85e82a54d8c912908840643ec",
+   "params": {
+    "dec": -59.17022004702574,
+    "synthesis": 7.860162246721079,
+    "dfreq": 200011437,
+    "flux_scale": 100.0
+   }
+  },
+  {
+   "seed": 1,
+   "flux": 1000,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "b59546221e254b3c6fb26ea0a18a41d25e694ee5413d7949a9105157bdb51dbc",
+   "spiel_sha256": "b59546221e254b3c6fb26ea0a18a41d25e694ee5413d7949a9105157bdb51dbc",
+   "params": {
+    "dec": -59.17022004702574,
+    "synthesis": 7.860162246721079,
+    "dfreq": 200011437,
+    "flux_scale": 1000.0
+   }
+  },
+  {
+   "seed": 2999,
+   "flux": 10,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "7de54ce452a8b2407c59f1856c0328e1f4c85ce40e54514fdcbb210c0f6f227f",
+   "spiel_sha256": "7de54ce452a8b2407c59f1856c0328e1f4c85ce40e54514fdcbb210c0f6f227f",
+   "params": {
+    "dec": -63.334714925014325,
+    "synthesis": 7.950918727346542,
+    "dfreq": 292381945,
+    "flux_scale": 10.0
+   }
+  },
+  {
+   "seed": 2999,
+   "flux": 100,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "d02c1456533f3352a3831ca041f8d14091f2eff32ac206cbc7b7dfa6f9113453",
+   "spiel_sha256": "d02c1456533f3352a3831ca041f8d14091f2eff32ac206cbc7b7dfa6f9113453",
+   "params": {
+    "dec": -63.334714925014325,
+    "synthesis": 7.950918727346542,
+    "dfreq": 292381945,
+    "flux_scale": 100.0
+   }
+  },
+  {
+   "seed": 2999,
+   "flux": 1000,
+   "randomize_equal": true,
+   "skymodel_equal": true,
+   "skymodel_sha256": "a775a4980c2fe575d32c93b48d9b4c1bf039057b4d6e44ff3722d6a05f32daeb",
+   "spiel_sha256": "a775a4980c2fe575d32c93b48d9b4c1bf039057b4d6e44ff3722d6a05f32daeb",
+   "params": {
+    "dec": -63.334714925014325,
+    "synthesis": 7.950918727346542,
+    "dfreq": 292381945,
+    "flux_scale": 1000.0
+   }
+  }
+ ]
+}

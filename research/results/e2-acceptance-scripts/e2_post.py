@@ -694,7 +694,9 @@ def applycal_spec(r, ms_inside):
         assert len(names) == len(tabs)
         for f in entry["fields"]:
             calls.append({
-                "vis": ms_inside, "field": f, "scan": ",".join(str(x) for x in entry["scans"]),
+                # no data.scans (E2-N): every scan, CASA's empty selection
+                "vis": ms_inside, "field": f,
+                "scan": ",".join(str(x) for x in entry["scans"] or ()),
                 "gaintable": [f"/p/rang-run/calibrate/{n}" for n in names],
                 "gainfield": [t["gainfield"] for t in tabs],
                 "interp": [t["interp"] for t in tabs],

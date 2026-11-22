@@ -1,0 +1,616 @@
+{
+ "source": "https://ratt-public-data.s3.af-south-1.amazonaws.com",
+ "licence": "CC BY 4.0; cite Ramatsoku et al. 2020, A&A 636, L1",
+ "purpose": "GKB-net gains for ms1_target.zarr MAIN_4, research/floor-6.md",
+ "fetched_utc": "2026-11-18T06:54:59Z",
+ "files": [
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/.zattrs",
+   "bytes": 1496,
+   "sha256": "38731090eccf5ccfea4b1430df5763cf5739897846fd58d12f39e81703f1260f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_time/0",
+   "bytes": 593,
+   "sha256": "a1cdae508a8edcf012407b45a8452f7c5ed90e8b6dd39ca45d344f3bda066ccb"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_time/1",
+   "bytes": 593,
+   "sha256": "e35e316cf8d9e68f10d94c206e1c1744bc717e582342bfdf07d73a3cba67bd17"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_0/gain_time/2",
+   "bytes": 598,
+   "sha256": "1d8fc7636de4b0d4268bf6e0d9874c2512ef27e5e8b4b814c9ea08c29b802bfa"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "e5e3cffe24774329b5112f561b75c7a14e4fdbd906b7172316a1ad8cf1546504"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gains/.zarray",
+   "bytes": 440,
+   "sha256": "612b9345272407ec50c9dbdaf295bac0e880bb7349b3970faa7ca631cfcdf038"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "58af29d636d19c717859d9413575716852e5288fa2d49d81f4039ec2741d3ee7"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/.zattrs",
+   "bytes": 1496,
+   "sha256": "b2c76ea02205c44d2c99552e2018da5682e8a34f2266c2b8d5ab2c62ad6ee357"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_time/0",
+   "bytes": 608,
+   "sha256": "9b2f7f59b19e7feca9dd34f35d68e27400011df9a2154106fe30d75319514392"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_time/1",
+   "bytes": 599,
+   "sha256": "1d21c2c85ee40a3d5e2df45dc90c0748b67ca058a4ef081d23942faff3bced3a"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_1/gain_time/2",
+   "bytes": 589,
+   "sha256": "9507e88d6fb3b58b47c1711e259ab648ebec923cf93c08f76268f0789ff7ca83"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/.zattrs",
+   "bytes": 1496,
+   "sha256": "8b2e66f70da265d5c636b2439d34209f19ce3788385aa514e77c5eac0fa88190"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_time/0",
+   "bytes": 595,
+   "sha256": "09b7fc7f910133b446e3278a071674a1253a74c4aa2b892667e4a367145fbdb0"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_time/1",
+   "bytes": 593,
+   "sha256": "8429e8780e599de2b05cdd55344a643e62e988fdb446e17372f752d23ad80e63"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_2/gain_time/2",
+   "bytes": 596,
+   "sha256": "926972a80ac1541c57ef8c6de24b4c627e745f50548a8fb40ec74ae0539192d0"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/.zattrs",
+   "bytes": 1496,
+   "sha256": "dfac7d18f3c39b969a9a835567e1e1280b88eea781404e74777d82e8d71c247d"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_time/0",
+   "bytes": 600,
+   "sha256": "f2963aa3eee83c9d7ee36aa8d67acf4d02fd331e790e063428020c18a84eb249"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_time/1",
+   "bytes": 587,
+   "sha256": "07f7889667b8b116640340fd9ab35e7124952cc0db708b05c5ebcfbaac762bc5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_3/gain_time/2",
+   "bytes": 587,
+   "sha256": "ff33d9985b2ea23a168362a6c425a117fbeaf2674ecf6080f6c10626abb82fe6"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/.zattrs",
+   "bytes": 1497,
+   "sha256": "06dca4dfb19991f9a36db0c1f71ce3cc648c86e5e78c67cf75ef1d9921b6b449"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_time/0",
+   "bytes": 593,
+   "sha256": "13e7f6667a6d4e3295a8da8f6b44265fd46c7d13fa5404d7c3fb736bcd74e2a2"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_time/1",
+   "bytes": 595,
+   "sha256": "7a78cccd65ff5a4fff1c3eb4705733b8780594ff9aa2b15bed1f0fb0bf2ebc29"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_4/gain_time/2",
+   "bytes": 607,
+   "sha256": "42c8cbef1baaeb54d0e78192ca6c3d8437c9a11d3b4eaeed98fb3c2156f6718c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/.zattrs",
+   "bytes": 1497,
+   "sha256": "3cc6b1b64d961d5be2c2b5629e7fa4294372f11b49d2f1b6d7ff191a9ce2f853"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_time/0",
+   "bytes": 597,
+   "sha256": "3030df0b46332c91d0c22cbe91dbab3ec99ab6b3827a20b366dc14f0ec97934a"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_time/1",
+   "bytes": 591,
+   "sha256": "6be893459d7e0b452f7b156093eb3a494388e0aef0439c03ccb39e5601f0caa5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_5/gain_time/2",
+   "bytes": 592,
+   "sha256": "520c9418bf39aa627e2e3fffbd84c2ac6eb310cec17b2aa3eed3054961ed07b0"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_time/.zarray",
+   "bytes": 315,
+   "sha256": "4508e9e49141c36c30a4c20c66c72e3c7e5550aa02a362228f692b7be45ccc0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_time/.zattrs",
+   "bytes": 158,
+   "sha256": "eb1e7db61bd1808c40c1d5321da45fe6e927bd665462b2d4f0a161beffaf1a8f"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_freq/.zarray",
+   "bytes": 316,
+   "sha256": "1398bbac09d9ee946a4296e03187154631472ab56af4a8d6425598cabb9e9528"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_freq/.zattrs",
+   "bytes": 158,
+   "sha256": "98ac5a397fbe6c8284fbc0bbbe1d27540bd2c23493b80ddee9a1e6f30d68225c"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/.zarray",
+   "bytes": 440,
+   "sha256": "1936d0638cd12bda07903062d648723f42f3dcd84194e3b57f2c09a22e343d06"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/.zattrs",
+   "bytes": 267,
+   "sha256": "ad3b5a56b56e7bfc3ec23af29a92e1771eed579bec74704f1cca0389a6680489"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/.zarray",
+   "bytes": 386,
+   "sha256": "1f68f1402a3281e1b00bb49f72e495aab6ee1100e46fe7d71ae78d3ea9db81b5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/.zattrs",
+   "bytes": 240,
+   "sha256": "3768505d0edaf2421374476e8f2c2dea0658e7a45fca425829f11736f26acb7e"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/.zattrs",
+   "bytes": 1497,
+   "sha256": "23bb19b14910dd35faf38751e0737559e6206f65ccbc5952a7e4a2e919da43d8"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/.zgroup",
+   "bytes": 24,
+   "sha256": "2383746e67b4bcc2762b3f100f06c3fa2d5f149ab5a8e5da5d33521464a01959"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_time/0",
+   "bytes": 602,
+   "sha256": "7f5e8811913d5dd74e1ce6fc38eeb20a9c7bd145383c351153967a796580e41a"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_time/1",
+   "bytes": 595,
+   "sha256": "2e6719b5a22822b8294fbda578ca516df6840b43f1f410d171db12905c1e31d3"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_time/2",
+   "bytes": 598,
+   "sha256": "1ac4c36c7241ee3352e61691b74fa5a1d8608ca91eb6245f6f3fd7489039ac46"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_freq/2",
+   "bytes": 901,
+   "sha256": "7fdae42cbd7626010c1a9ead765223559322b341306172060d0bde1333ddd5d5"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/0.2.0.0.0",
+   "bytes": 58094896,
+   "sha256": "f3a1aaeae04e6f58b32c7ad4eb52d11fd539275a22f9987f1b2cbcb30d255127"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/0.2.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/1.2.0.0.0",
+   "bytes": 58247489,
+   "sha256": "0a72d295d15d37f9e653bc417476ad79cd50966a5287f047e3bd691b2a40c8a6"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/1.2.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/2.2.0.0.0",
+   "bytes": 58378563,
+   "sha256": "25ee9e78b6669306b874d4d194cabb1b4cdd8d6eee68ee8e5af395e6916c0c89"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/2.2.0.0",
+   "bytes": 9762,
+   "sha256": "86c252403f79a18b192b32ed9d4dca40b0f4ed761df236008832395e15850991"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_freq/3",
+   "bytes": 896,
+   "sha256": "7fd940a715dad2291cd4ac1c2c459b486b0669837bd7cd487514ff1b4be27137"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/0.3.0.0.0",
+   "bytes": 58122249,
+   "sha256": "6af48ad4ad5ce697ad35d1dd304b0aa7e35b529715072e60788bdaa8f0512fba"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/0.3.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/1.3.0.0.0",
+   "bytes": 58148951,
+   "sha256": "78a576c75a82cacefae4e9695d53ef08059bd676a289a1920789ebb50f017a24"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/1.3.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/2.3.0.0.0",
+   "bytes": 58198497,
+   "sha256": "3a9693d40c269074c902de3523be41afd5eac6e254abc145e5c77c428893c561"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/2.3.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_freq/4",
+   "bytes": 1057,
+   "sha256": "054a6ffa62bcc5de469c167ce19cc23b06eb343f52d0f641e48d8740159554be"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/0.4.0.0.0",
+   "bytes": 58705817,
+   "sha256": "060dced19eb55ef3a2445cc5afc83f46a52ef81a1e18e62de4197ef31990914a"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/0.4.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/1.4.0.0.0",
+   "bytes": 58721890,
+   "sha256": "ace5059f84438dd8c87eb983ba17e5f52aee0fde1ed9172410b94e1b990aac0b"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/1.4.0.0",
+   "bytes": 9739,
+   "sha256": "97400eff5adf7fbfa8156ed8fef3cdf91519aa553ed09e5ee4ca900f27266299"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gains/2.4.0.0.0",
+   "bytes": 58672036,
+   "sha256": "a5f2153f82647a6fe3fcb81483fda218f9a4cbf45652ff434dbe2632db922bdc"
+  },
+  {
+   "key": "ESO137/ms1_gains.qc/GKB-net/GKB-net_6/gain_flags/2.4.0.0",
+   "bytes": 12205,
+   "sha256": "582771b8825f4af47682ffa18656b75150d25e95851b3894af71dbe1e35073ba"
+  }
+ ],
+ "groups": {
+  "0": {
+   "ntime": 450,
+   "max_row_gap_s": 24405.674984931946
+  },
+  "1": {
+   "ntime": 449,
+   "max_row_gap_s": 20351.390195846558
+  },
+  "2": {
+   "ntime": 450,
+   "max_row_gap_s": 16273.115555763245
+  },
+  "3": {
+   "ntime": 450,
+   "max_row_gap_s": 12202.837491989136
+  },
+  "4": {
+   "ntime": 450,
+   "max_row_gap_s": 8124.562851905823
+  },
+  "5": {
+   "ntime": 450,
+   "max_row_gap_s": 4070.2780628204346
+  },
+  "6": {
+   "ntime": 450,
+   "max_row_gap_s": 0.0
+  },
+  "7": null,
+  "8": null,
+  "9": null,
+  "10": null,
+  "11": null,
+  "12": null,
+  "13": null,
+  "14": null,
+  "15": null
+ },
+ "chosen": 6,
+ "freq_chunks": [
+  2,
+  3,
+  4
+ ],
+ "time_chunks": 3,
+ "gain_freq_chunk": 256,
+ "bytes": 525422493
+}

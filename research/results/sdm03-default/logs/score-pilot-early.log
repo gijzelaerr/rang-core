@@ -1,0 +1,5 @@
+heavy_lock: waiting for shared jobs to fit
+08:48:59 score A0 278.8636432045879 0.46565737571483384
+08:50:35 score SDa 329.68328518873477 0.24770776974408187
+08:50:36 stage score ['A0=/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/A0/image', 'SDa=/home/gijs/rang-data/outputs/sdm03-default-20261118/seen-pilot/img/SDa/image'] 136.1 s
+TIME score-pilot-early 139.62 s 3413708 KB

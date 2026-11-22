@@ -1,0 +1,127 @@
+{
+ "cbid": "1735892129",
+ "split": "train",
+ "meta_sha256": "22d930ede36494c1064d6382e8b41af9a6368a3c63e09a79a91a4d657b548b94",
+ "channels": 1024,
+ "antennas": 62,
+ "dump_period_s": 8.001516859813083,
+ "cross_products": 7564,
+ "scans": [
+  {
+   "scan": 1,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  },
+  {
+   "scan": 3,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 7,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 9,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 282
+  },
+  {
+   "scan": 11,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 13,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 281
+  },
+  {
+   "scan": 15,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 17,
+   "class": "target",
+   "target": "ASKAP J1745",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 282
+  },
+  {
+   "scan": 19,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15
+  },
+  {
+   "scan": 23,
+   "class": "calibrator",
+   "target": "J1744-5144",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14
+  },
+  {
+   "scan": 25,
+   "class": "calibrator",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74
+  }
+ ],
+ "dumps": 1079,
+ "mvf_bytes_estimate": 83574333440
+}

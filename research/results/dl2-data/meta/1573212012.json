@@ -1,0 +1,2982 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 41.4,
+ "name": "1573212012_sdp_l0",
+ "experiment_id": "20191027-0010",
+ "observer": "Marisa Geyer",
+ "description": "Galactic plane 88",
+ "start_utc": "2019-11-08 11:21:54.451",
+ "end_utc": "2019-11-08 19:05:18.688",
+ "dump_period_s": 7.9966169712,
+ "dumps": 3477,
+ "channels": 4096,
+ "freq_first_hz": 856000000.0,
+ "freq_last_hz": 1711791015.625,
+ "channel_width_hz": 208984.375,
+ "antennas": [
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m031",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "spectral_windows": [
+  "<katdal.SpectralWindow ('L',)-band product='c856M4k' centre=1284.000 MHz bandwidth=856.000 MHz channels=4096 at 0x70f8b19eedb0>"
+ ],
+ "targets": [
+  {
+   "name": "J1331+3030",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "radec": "(5.146179657660055, -1.1119861122853516)"
+  },
+  {
+   "name": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(5.285017690774118, -0.11753628959347147)"
+  },
+  {
+   "name": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.025590496316637, 0.17131570161159007)"
+  },
+  {
+   "name": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.0337084589999765, 0.18659121107598933)"
+  },
+  {
+   "name": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.041872236576179, 0.20185460019836082)"
+  },
+  {
+   "name": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.013796433896285, 0.16765244943712643)"
+  },
+  {
+   "name": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.021876581112498, 0.1829434729393212)"
+  },
+  {
+   "name": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.03000036156001, 0.19822383054053153)"
+  },
+  {
+   "name": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.010060702076496, 0.17927246374595976)"
+  },
+  {
+   "name": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.0181452126158375, 0.19456785057128453)"
+  },
+  {
+   "name": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(5.02627335638648, 0.2098535411229871)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20180721-SP-01",
+  "sb_id_code": "20191027-0010",
+  "description": "Galactic plane 88",
+  "observer": "Marisa Geyer",
+  "experiment_id": "20191027-0010",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal",
+    "polcal"
+   ],
+   "dumps": 1,
+   "start": 1573212118.448964,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 1,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal",
+    "polcal"
+   ],
+   "dumps": 74,
+   "start": 1573212126.4455812,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 2,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 14,
+   "start": 1573212718.195237,
+   "seconds": 111.9526375968
+  },
+  {
+   "scan": 3,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 74,
+   "start": 1573212830.1478746,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 4,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1573213421.8975303,
+   "seconds": 47.9797018272
+  },
+  {
+   "scan": 5,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573213469.8772323,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 6,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1573213533.850168,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 7,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573213557.840019,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 8,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573213789.7419112,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 9,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573213805.735145,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 10,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573214045.633654,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 11,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573214053.6302712,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 12,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573214293.5287802,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 13,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573214301.5253973,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 14,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573214533.4272895,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 15,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573214549.4205234,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 16,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1573214789.3190324,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 17,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573214813.3088834,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 18,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1573214877.281819,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 19,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573214901.27167,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 20,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573215141.1701791,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 21,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573215157.1634133,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 22,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573215389.0653052,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573215397.0619223,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573215628.9638145,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573215644.9570484,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 26,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1573215884.8555574,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 27,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573215908.8454084,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 28,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1573215972.8183444,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 29,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573215996.808195,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 30,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573216236.7067044,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 31,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573216244.7033212,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 32,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573216476.6052134,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 33,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573216484.6018305,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 34,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573216724.5003395,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 35,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573216732.4969566,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 36,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573216964.3988488,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 37,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573216980.3920827,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 38,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1573217220.2905917,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 39,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573217244.2804427,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 40,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1573217308.2533784,
+   "seconds": 23.9898509136
+  },
+  {
+   "scan": 41,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573217332.2432294,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 42,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573217572.1417384,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 43,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573217580.1383555,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 44,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573217812.0402477,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 45,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573217828.0334816,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 46,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573218067.9319906,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 47,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573218075.9286077,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 48,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 10,
+   "start": 1573218307.8305,
+   "seconds": 79.966169712
+  },
+  {
+   "scan": 49,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 74,
+   "start": 1573218387.7966695,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 50,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1573218979.5463254,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 51,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573218995.5395594,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 52,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573219051.5158782,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 53,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573219059.512495,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 54,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573219299.4110043,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 55,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573219307.4076211,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 56,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573219547.3061304,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 57,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573219563.2993643,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 58,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573219795.2012565,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 59,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573219803.1978734,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 60,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573220043.0963826,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 61,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573220051.0929995,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 62,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573220290.9915087,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 63,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573220298.9881256,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 64,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573220354.9644444,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 65,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573220386.9509122,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 66,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573220626.8494215,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 67,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573220634.8460383,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 68,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573220866.7479305,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 69,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573220874.7445476,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 70,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573221114.6430566,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 71,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573221122.6396737,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 72,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1573221354.541566,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 73,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573221386.5280337,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 74,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573221450.5009694,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 75,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573221482.4874375,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 76,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573221714.3893297,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 77,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573221722.3859465,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 78,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573221962.2844558,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 79,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573221970.2810726,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 80,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573222210.1795819,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 81,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573222226.1728158,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 82,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573222458.074708,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 83,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573222474.067942,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 84,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1573222705.969834,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 85,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573222737.956302,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 86,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573222801.9292376,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 87,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573222809.9258547,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 88,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573223041.8277469,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 89,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573223049.8243637,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 90,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573223289.722873,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 91,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573223305.716107,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 92,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573223537.617999,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 93,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573223553.611233,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 94,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 13,
+   "start": 1573223785.5131252,
+   "seconds": 103.9560206256
+  },
+  {
+   "scan": 95,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 74,
+   "start": 1573223889.4691458,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 96,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 11,
+   "start": 1573224481.2188015,
+   "seconds": 87.9627866832
+  },
+  {
+   "scan": 97,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573224569.1815882,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 98,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573224633.154524,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 99,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573224641.151141,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 100,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573224873.053033,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 101,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573224881.0496502,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 102,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573225120.9481592,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 103,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573225136.9413931,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 104,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573225368.8432853,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 105,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573225384.8365192,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 106,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573225616.7384114,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 107,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573225632.7316453,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 108,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1573225864.6335375,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 109,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573225896.6200056,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 110,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573225960.5929413,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 111,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573225968.5895581,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 112,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573226200.4914503,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 113,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573226216.4846842,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 114,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573226456.3831935,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 115,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573226464.3798103,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 116,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573226704.2783196,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 117,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573226712.2749367,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 118,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573226944.1768286,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 119,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573226952.1734457,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 120,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573227016.1463814,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 121,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573227048.1328495,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 122,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573227280.0347414,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 123,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573227296.0279756,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 124,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573227527.9298675,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 125,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573227543.9231017,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 126,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573227775.8249936,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 127,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573227791.8182278,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 128,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573228031.7167368,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 129,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573228039.7133539,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 130,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1573228279.611863,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 131,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573228311.5983307,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 132,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573228375.5712667,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 133,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573228407.5577345,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 134,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573228639.4596267,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 135,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573228655.4528606,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 136,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573228887.3547528,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 137,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573228895.3513696,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 138,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573229135.249879,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 139,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573229143.2464957,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 140,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 1,
+   "start": 1573229383.145005,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 141,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 74,
+   "start": 1573229391.1416218,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 142,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 11,
+   "start": 1573229982.8912778,
+   "seconds": 87.9627866832
+  },
+  {
+   "scan": 143,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573230070.8540645,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 144,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573230126.8303833,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 145,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573230134.8270001,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 146,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573230374.7255094,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 147,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573230390.7187433,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 148,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573230622.6206355,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 149,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573230638.6138694,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 150,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573230870.5157616,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 151,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573230886.5089955,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 152,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573231118.4108877,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 153,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573231134.4041216,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 154,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1573231366.3060138,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 155,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573231406.2890987,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 156,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1573231462.2654173,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 157,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573231502.2485023,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 158,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573231734.1503944,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 159,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573231750.1436284,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 160,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573231982.0455205,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 161,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573231998.0387545,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 162,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573232229.9406466,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 163,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573232245.9338806,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 164,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573232477.8357728,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 165,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573232485.8323898,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 166,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573232549.8053255,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 167,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573232581.7917933,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 168,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573232821.6903026,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 169,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573232829.6869195,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 170,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573233069.5854287,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 171,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573233085.5786626,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 172,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573233317.4805548,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 173,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573233333.4737887,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 174,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573233565.375681,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 175,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573233581.3689148,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 176,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573233813.270807,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 177,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573233821.2674239,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 178,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573233885.2403598,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 179,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573233893.2369766,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 180,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573234125.1388688,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 181,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573234141.1321027,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 182,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573234381.030612,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 183,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573234389.0272288,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 184,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573234628.925738,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 185,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573234636.922355,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 186,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 8,
+   "start": 1573234868.8242471,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 187,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 75,
+   "start": 1573234932.797183,
+   "seconds": 599.74627284
+  },
+  {
+   "scan": 188,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573235532.5434558,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 189,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573235540.5400727,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 190,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1573235596.5163915,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 191,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573235636.4994764,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 192,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573235868.4013686,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 193,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573235884.3946025,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 194,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573236116.2964947,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 195,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573236132.2897286,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 196,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573236364.1916208,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 197,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573236380.1848547,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 198,
+   "state": "slew",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573236612.086747,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 199,
+   "state": "track",
+   "target": "N15R03C03",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573236620.0833638,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 200,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1573236859.981873,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 201,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573236867.9784899,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 202,
+   "state": "slew",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1573236923.9548087,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 203,
+   "state": "track",
+   "target": "N15R03C05",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573236963.9378936,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 204,
+   "state": "slew",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573237195.8397858,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 205,
+   "state": "track",
+   "target": "N15R04C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 30,
+   "start": 1573237203.8364027,
+   "seconds": 239.898509136
+  },
+  {
+   "scan": 206,
+   "state": "slew",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573237443.734912,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 207,
+   "state": "track",
+   "target": "N15R04C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573237459.7281458,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 208,
+   "state": "slew",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 1,
+   "start": 1573237691.630038,
+   "seconds": 7.9966169712
+  },
+  {
+   "scan": 209,
+   "state": "track",
+   "target": "N15R04C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573237699.626655,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 210,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1573237931.528547,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 211,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573237971.511632,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 212,
+   "state": "slew",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1573238035.4845679,
+   "seconds": 31.9864678848
+  },
+  {
+   "scan": 213,
+   "state": "track",
+   "target": "N15R02C02",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573238067.4710357,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 214,
+   "state": "slew",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573238299.372928,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 215,
+   "state": "track",
+   "target": "N15R02C04",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573238315.3661618,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 216,
+   "state": "slew",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573238547.268054,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 217,
+   "state": "track",
+   "target": "N15R02C06",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573238563.261288,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 218,
+   "state": "slew",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1573238795.16318,
+   "seconds": 15.9932339424
+  },
+  {
+   "scan": 219,
+   "state": "track",
+   "target": "N15R03C01",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 29,
+   "start": 1573238811.156414,
+   "seconds": 231.9018921648
+  },
+  {
+   "scan": 220,
+   "state": "slew",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1573239043.0583062,
+   "seconds": 39.983084856
+  },
+  {
+   "scan": 221,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1573239083.041391,
+   "seconds": 55.9763187984
+  },
+  {
+   "scan": 222,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1573239139.0177097,
+   "seconds": 63.9729357696
+  },
+  {
+   "scan": 223,
+   "state": "track",
+   "target": "J2011-0644",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 9,
+   "start": 1573239202.9906456,
+   "seconds": 71.9695527408
+  },
+  {
+   "scan": 224,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 6,
+   "start": 1573239274.9601984,
+   "seconds": 47.9797018272
+  },
+  {
+   "scan": 225,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 74,
+   "start": 1573239322.9399002,
+   "seconds": 591.7496558688
+  },
+  {
+   "scan": 226,
+   "state": "stop",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 1,
+   "start": 1573239914.6895561,
+   "seconds": 7.9966169712
+  }
+ ],
+ "cross_products": 6384,
+ "vis_bytes_cross_all": 727356801024
+}

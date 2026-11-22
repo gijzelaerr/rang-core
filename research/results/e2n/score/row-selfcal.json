@@ -1,0 +1,20 @@
+{
+ "field": "ASKAPJ1745",
+ "image_1": {
+  "rms_jy": 2.9046475498540996e-05,
+  "peak_jy": 0.1580834835767746,
+  "dynamic_range": 5442.432545205532
+ },
+ "final": {
+  "rms_jy": 2.8218213667559858e-05,
+  "peak_jy": 0.14924120903015137,
+  "dynamic_range": 5288.825536172108
+ },
+ "ratio_after_before": 0.9714849455307326,
+ "limit": 1.02,
+ "met": true,
+ "sigma_jy": 1.7623081739466074e-05,
+ "pixels": 1675924,
+ "masked": 540697,
+ "gains": "qc-selfcal.json (9.10's amended form)"
+}

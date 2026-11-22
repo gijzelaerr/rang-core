@@ -1,0 +1,258 @@
+{
+ "orientation": [
+  {
+   "seed": 0,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 1,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 2,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 3,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 4,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 5,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 6,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 7,
+   "offset_px": 1,
+   "pass": true
+  },
+  {
+   "seed": 8,
+   "offset_px": 0,
+   "pass": true
+  },
+  {
+   "seed": 9,
+   "offset_px": 0,
+   "pass": true
+  }
+ ],
+ "flux": [
+  {
+   "seed": 0,
+   "I": 21.8,
+   "rel_err": 0.01675558527675247,
+   "pass": true
+  },
+  {
+   "seed": 1,
+   "I": 16.9,
+   "rel_err": 0.07927818975505052,
+   "pass": true
+  },
+  {
+   "seed": 2,
+   "I": 20.2,
+   "rel_err": 0.03192810965056481,
+   "pass": true
+  },
+  {
+   "seed": 3,
+   "I": 12.7,
+   "rel_err": -0.00857670100655139,
+   "pass": true
+  },
+  {
+   "seed": 4,
+   "I": 13.6,
+   "rel_err": 0.1262583031373865,
+   "pass": false
+  },
+  {
+   "seed": 5,
+   "I": 18.9,
+   "rel_err": 0.04528235379980994,
+   "pass": true
+  },
+  {
+   "seed": 6,
+   "I": 27.2,
+   "rel_err": 0.05336792328778439,
+   "pass": true
+  },
+  {
+   "seed": 7,
+   "I": 19.2,
+   "rel_err": 0.08992358048756932,
+   "pass": true
+  },
+  {
+   "seed": 8,
+   "I": 23.5,
+   "rel_err": 0.053601204080784504,
+   "pass": true
+  },
+  {
+   "seed": 9,
+   "I": 7.93,
+   "rel_err": 0.11876736673400812,
+   "pass": false
+  }
+ ],
+ "psf": [
+  {
+   "seed": 0,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 1,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 2,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 3,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 4,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 5,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 6,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 7,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 8,
+   "max_rel_diff": 0.0,
+   "pass": true
+  },
+  {
+   "seed": 9,
+   "max_rel_diff": 0.0,
+   "pass": true
+  }
+ ],
+ "residual": [
+  {
+   "seed": 0,
+   "residual_b_rms": 0.005921314470469952,
+   "noise_rms": 1.7854346879175864e-05,
+   "outside_rms": 0.005781401414424181,
+   "ratio": 1.0241956594583992,
+   "pass": true
+  },
+  {
+   "seed": 1,
+   "residual_b_rms": 0.005145551636815071,
+   "noise_rms": 2.098399454553146e-05,
+   "outside_rms": 0.005029574036598206,
+   "ratio": 1.0230502258603882,
+   "pass": true
+  },
+  {
+   "seed": 2,
+   "residual_b_rms": 0.005626568105071783,
+   "noise_rms": 1.8883265511249192e-05,
+   "outside_rms": 0.005498265381902456,
+   "ratio": 1.0233290922676206,
+   "pass": true
+  },
+  {
+   "seed": 3,
+   "residual_b_rms": 0.004596901126205921,
+   "noise_rms": 1.9768789570662193e-05,
+   "outside_rms": 0.004604722373187542,
+   "ratio": 0.9982922728177792,
+   "pass": true
+  },
+  {
+   "seed": 4,
+   "residual_b_rms": 0.005073581822216511,
+   "noise_rms": 1.7410353393643163e-05,
+   "outside_rms": 0.004976177122443914,
+   "ratio": 1.0195679623797986,
+   "pass": true
+  },
+  {
+   "seed": 5,
+   "residual_b_rms": 0.0069151162169873714,
+   "noise_rms": 1.916312612593174e-05,
+   "outside_rms": 0.006917397025972605,
+   "ratio": 0.9996664433624842,
+   "pass": true
+  },
+  {
+   "seed": 6,
+   "residual_b_rms": 0.005704018287360668,
+   "noise_rms": 1.8866898244596086e-05,
+   "outside_rms": 0.005587293766438961,
+   "ratio": 1.020885245379819,
+   "pass": true
+  },
+  {
+   "seed": 7,
+   "residual_b_rms": 0.005328809376806021,
+   "noise_rms": 1.8811770132742822e-05,
+   "outside_rms": 0.005224439315497875,
+   "ratio": 1.019970663021574,
+   "pass": true
+  },
+  {
+   "seed": 8,
+   "residual_b_rms": 0.004838730674237013,
+   "noise_rms": 1.794605668692384e-05,
+   "outside_rms": 0.004655907396227121,
+   "ratio": 1.0392592288648417,
+   "pass": true
+  },
+  {
+   "seed": 9,
+   "residual_b_rms": 0.005875703878700733,
+   "noise_rms": 1.9008637536899187e-05,
+   "outside_rms": 0.005835351534187794,
+   "ratio": 1.0069098099992848,
+   "pass": true
+  }
+ ],
+ "timeouts": 0,
+ "pass": {
+  "orientation": true,
+  "flux": false,
+  "psf": true,
+  "residual": true,
+  "time": true
+ }
+}

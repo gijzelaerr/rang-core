@@ -17,7 +17,9 @@ anything on its own: work that changes the repository ends in a pull request
 | {doc}`image-a-meerkat-ms` | an astronomer with a MeerKAT Measurement Set | a FITS image, its receipts and a short run record |
 | {doc}`propose-and-measure` | an algorithm scientist with an idea | a frozen proposal note, a measurement against an oracle, and a pull request |
 | {doc}`use-the-mcp-server` | an agent with rang-core's MCP server and a user's MS | read-only answers, and runs or images only after the user confirmed a plan |
+| {doc}`retrain-a-stage` | an agent retraining a passed learned stage for a held-out configuration | a weights file with a new envelope, the stage's gates re-scored, receipts and a note |
 | {doc}`check-and-ci` | any agent session with a changed branch | a quick local check, a pushed branch with a green CI run, and the oracle gates left to one full check |
+| {doc}`watch-a-job` | any session or person with a job in progress | a status read from the job's own files (`rang-core watch`, `tools/dev_status.py`): liveness, not progress |
 
 ```{toctree}
 :hidden:
@@ -26,5 +28,7 @@ answer-a-question
 image-a-meerkat-ms
 propose-and-measure
 check-and-ci
+watch-a-job
+retrain-a-stage
 use-the-mcp-server
 ```

@@ -1,6 +1,6 @@
 # Rang: GeMClean's WSClean comparisons restated against WSClean 3.8
 
-Status, 2026-11-18: **proposed; sections 1-6 frozen in this commit, before any WSClean 3.8 run.**
+Status, 2026-11-22: **measured (section 7). P passes; H-mask and H-ms hold; T's outcome is changed: in pair B at `-j 1`, S1-S3 move into GeMClean's lead against 3.8, because 3.8's `minres` is 6-23 % slower at one thread. Pair A and every `-j 16` lead set are unchanged; no host change.** Sections 1-6 frozen 2026-11-18 before any WSClean 3.8 run; amendments 1-2 dated.
 Results go in section 7; any later change to sections 1-6 is dated and labelled post hoc.
 
 Proposal: [proposals/wsclean-3-8-rebaseline.md](proposals/wsclean-3-8-rebaseline.md), from the
@@ -202,3 +202,102 @@ Both versions print "Theoretic beam = 5.4''" on S1 and fit 13.88″ × 8.34″, 
   no python-casacore. Each run imaged a copy of the MS that was deleted afterwards; the field
   itself was mounted read-only.
 - Wall (nash, shared, nice 19, no timing claim): 3.7 2,232 s, 3.8 1,875 s.
+
+### 7.4 T, speed table (glacier, exclusive, 2026-11-21 21:04 to 2026-11-22 02:09): outcome **changed**
+
+Driver [t_speed.sh](results/wsclean38-rebaseline-scripts/t_speed.sh), exit 0: three repeats
+(83, 84 and 87 min), then the `-mgain 0.9` and `-mgain 0.95` cells (22 and 29 min), ending well
+before 07:00. Scored by the frozen [t_score.py](results/wsclean38-rebaseline-scripts/t_score.py).
+The compact tables and the clean-runs reading come from
+[t_tables.py](results/wsclean38-rebaseline-scripts/t_tables.py), which reports only and decides
+nothing. Archive: [t-score.json](results/wsclean38-rebaseline/t-score.json),
+[t-notes.txt](results/wsclean38-rebaseline/t-notes.txt),
+[t-compact.md](results/wsclean38-rebaseline/t-compact.md),
+[t-clean-reading.json](results/wsclean38-rebaseline/t-clean-reading.json). The FITS and logs stay
+in `D:\rang\outputs\wsclean38-20261118\t` (308 job records).
+
+**Spoiled runs.** 20 jobs in 18 cells had another process above half a core before or after:
+
+| process | jobs |
+| --- | ---: |
+| chrome | 11 |
+| svchost | 6 |
+| MsMpEng | 2 |
+| BackgroundDownload | 1 |
+| dwm | 1 |
+
+(One job had both MsMpEng and dwm, so the rows sum to 21.)
+- Two repeated cells have two spoiled runs each: 3.7 S1 nominres `-j 16`, and GeMClean coarse H1
+  `-j 16`. So not every cell keeps two clean runs, and the rule ran on all runs, as section 5 says.
+- The driver does not rerun spoiled jobs at the end, although time allowed. None was repeated.
+- Both readings:
+
+| set | all runs (the rule) | clean runs only (reported) |
+| --- | --- | --- |
+| B `-j 16` 3.8 | S1-S3, H1, H3, H4 | S1-S3, H1, **H2**, H3, H4 |
+
+- Every other lead set is the same in both readings.
+- H2's change in the clean reading comes from dropping the one spoiled `-mgain 0.9` run, so H2 at
+  `-j 16` is on the edge in pair B (gc/WSClean 1.01-1.03 in all runs).
+
+**Lead sets** (skies where GeMClean's median is lower):
+
+| pair | threads | 3.7 | 3.8 |
+| --- | --- | --- | --- |
+| A, default against `nominres` (1e-6) | 16 | all seven | all seven |
+| A | 1 | all seven | all seven |
+| B, coarse against WSClean's best `minres` (1e-4) | 16 | S1-S3, H1, H3, H4 | S1-S3, H1, H3, H4 |
+| B | 1 | H4 | **S1, S2, S3**, H4 |
+
+- **As frozen: outcome changed.** In B at `-j 1`, S1, S2 and S3 move into GeMClean's lead
+  against 3.8.
+- Ratios gc / WSClean best, 3.7 then 3.8: S1 1.05 then 0.94, S2 1.04 then 0.95, S3 1.12 then 0.99.
+- WSClean's best at `-j 1` is `-mgain 0.9` on every sky for both versions, and those cells are one
+  run each. S3's 0.99 is within a single run's noise.
+- The other three pair-by-threads sets are unchanged.
+
+**3.8 against 3.7** (3.8's median faster or slower than 3.7's by more than the larger repeat
+spread; the full table is in t-compact.md):
+
+| setting | `-j 16` | `-j 1` |
+| --- | --- | --- |
+| `minres` | slower on S2 (1.060) and S3 (1.044); faster on H3 (0.964); level on S1, H1, H2, H4 | **slower on all seven**, 1.059 (H3) to 1.229 (S1); S1 64.0 s against 52.1 s |
+| `nominres` | level on all seven | level, except faster on S2 (0.981) |
+
+- The `-mgain` cells are one run each, with spread 0. Any difference gets a verdict, so they are
+  read as indications only:
+  - `-j 16`: between 0.979 and 1.077, mixed;
+  - `-j 1`: slower on all 14, 1.018 to 1.144.
+- In short: at one thread, WSClean 3.8's `minres` (1e-4) path is 6-23 % slower than 3.7's. At
+  1e-6, `nominres`, the two versions are level. At 16 threads they are level within a few percent.
+
+**Host control.** Tonight's 3.7 medians against gemclean-speed's 2026-11-04 medians: every ratio
+lies between 0.942 and 1.040. No sky differs by more than 10 %, so there is **no host change**.
+
+| | lowest ratio | highest ratio |
+| --- | ---: | ---: |
+| `-j 16` minres | 0.960 | 1.040 |
+| `-j 16` nominres | 0.942 | 1.024 |
+| `-j 1` minres | 0.968 | 1.002 |
+| `-j 1` nominres | 0.956 | 1.000 |
+
+**What this does to H-speed** (reported; any change to docs wording is the owner's decision,
+section 6):
+- "At `-j 16` GeMClean is faster on all seven skies" holds against both versions in pair A.
+  In pair B it holds on six of seven against both, missing H2 at 1.03 and 1.01.
+- "At `-j 1` WSClean is faster on H1-H3 at its best setting" is exactly true against 3.8 tonight.
+  Against tonight's 3.7, whose best is the one-run `-mgain 0.9` cell, WSClean is also faster on
+  S1-S3.
+
+## For the coordinator
+
+- All four arms measured. T is changed, but only in pair B at `-j 1` (S1-S3). WSClean 3.8 is
+  6-23 % slower than 3.7 at one thread with `minres`, and level elsewhere.
+- Owner decisions, asked once:
+  - docs wording for gemclean-speed's `-j 1` statement. It is exactly true against 3.8; against 3.7
+    tonight, WSClean's one-run `-mgain 0.9` cell is also faster on S1-S3;
+  - whether 3.8 becomes the speed oracle;
+  - whether the 3.8 `-j 1` minres slowdown is worth a WSClean issue (U-style finding; not filed).
+- Run roots kept: `D:\rang\outputs\wsclean38-20261118` (T's FITS, 308 job records) and
+  `nash:~/rang-data/outputs/wsclean38-20261118`.
+

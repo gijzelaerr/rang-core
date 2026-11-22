@@ -1,0 +1,268 @@
+{
+ "arms": {
+  "interp": {
+   "built": true,
+   "cdylib_bytes": 6152192,
+   "g6_delta_bytes": 18432,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 16,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.006721,
+     "b_s": 0.852372,
+     "g3": "pass",
+     "hash_a": "3de8b05815d00f14",
+     "hash_b": "12c012fc769506b6",
+     "load_s": 0.000189,
+     "max_abs_vs_torch": 8.583e-06,
+     "p999_abs_vs_torch": 6.378e-06,
+     "rc": 0,
+     "runtime": "interp",
+     "threads": 1,
+     "wall_s": 8.687957800008007
+    },
+    {
+     "a_s": 0.003872,
+     "b_s": 0.446565,
+     "g3": "pass",
+     "hash_a": "3de8b05815d00f14",
+     "hash_b": "12c012fc769506b6",
+     "load_s": 0.000116,
+     "max_abs_vs_torch": 8.583e-06,
+     "p999_abs_vs_torch": 6.378e-06,
+     "rc": 0,
+     "runtime": "interp",
+     "threads": 2,
+     "wall_s": 4.983359899997595
+    },
+    {
+     "a_s": 0.002552,
+     "b_s": 0.245731,
+     "g3": "pass",
+     "hash_a": "3de8b05815d00f14",
+     "hash_b": "12c012fc769506b6",
+     "load_s": 0.00014,
+     "max_abs_vs_torch": 8.583e-06,
+     "p999_abs_vs_torch": 6.378e-06,
+     "rc": 0,
+     "runtime": "interp",
+     "threads": 4,
+     "wall_s": 3.169994299998507
+    },
+    {
+     "a_s": 0.001928,
+     "b_s": 0.165517,
+     "g3": "pass",
+     "hash_a": "3de8b05815d00f14",
+     "hash_b": "12c012fc769506b6",
+     "load_s": 0.000125,
+     "max_abs_vs_torch": 8.583e-06,
+     "p999_abs_vs_torch": 6.378e-06,
+     "rc": 0,
+     "runtime": "interp",
+     "threads": 8,
+     "wall_s": 2.41904579999391
+    },
+    {
+     "a_s": 0.002024,
+     "b_s": 0.178019,
+     "g3": "pass",
+     "hash_a": "3de8b05815d00f14",
+     "hash_b": "12c012fc769506b6",
+     "load_s": 0.000146,
+     "max_abs_vs_torch": 8.583e-06,
+     "p999_abs_vs_torch": 6.378e-06,
+     "rc": 0,
+     "runtime": "interp",
+     "threads": 16,
+     "wall_s": 2.5361794000054942
+    }
+   ]
+  },
+  "kernel": {
+   "built": true,
+   "cdylib_bytes": 6133760,
+   "g6_delta_bytes": 0,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 16,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.006769,
+     "b_s": 0.881206,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.009987,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 1,
+     "wall_s": 8.98500139999669
+    },
+    {
+     "a_s": 0.006802,
+     "b_s": 0.522309,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000112,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 2,
+     "wall_s": 5.676875000004657
+    },
+    {
+     "a_s": 0.006921,
+     "b_s": 0.245589,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000117,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 4,
+     "wall_s": 3.2073600000003353
+    },
+    {
+     "a_s": 0.006967,
+     "b_s": 0.1424,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000142,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 8,
+     "wall_s": 2.2997408999945037
+    },
+    {
+     "a_s": 0.006933,
+     "b_s": 0.135892,
+     "g3": "pass",
+     "hash_a": "36d67e30b9fec75d",
+     "hash_b": "2f68dce3cee474e6",
+     "load_s": 0.000143,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 8.821e-06,
+     "rc": 0,
+     "runtime": "kernel",
+     "threads": 16,
+     "wall_s": 2.1910137999948347
+    }
+   ]
+  },
+  "tract": {
+   "built": true,
+   "cdylib_bytes": 26553856,
+   "g6_delta_bytes": 20420096,
+   "identical_across_threads": {
+    "a": true,
+    "b": true
+   },
+   "licences": {
+    "crates": 94,
+    "incompatible": {},
+    "ok": true
+   },
+   "runs": [
+    {
+     "a_s": 0.034841,
+     "b_s": 4.591196,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.006774,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 1,
+     "wall_s": 43.299907799999346
+    },
+    {
+     "a_s": 0.034446,
+     "b_s": 2.401829,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.005946,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 2,
+     "wall_s": 22.922383299999638
+    },
+    {
+     "a_s": 0.036337,
+     "b_s": 1.403624,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.005929,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 4,
+     "wall_s": 13.88448170000629
+    },
+    {
+     "a_s": 0.03462,
+     "b_s": 1.000403,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.005919,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 8,
+     "wall_s": 10.288405100000091
+    },
+    {
+     "a_s": 0.034888,
+     "b_s": 0.989949,
+     "g3": "pass",
+     "hash_a": "290a7dc551f1da04",
+     "hash_b": "886668978f78b25d",
+     "load_s": 0.005902,
+     "max_abs_vs_torch": 1.335e-05,
+     "p999_abs_vs_torch": 9.06e-06,
+     "rc": 0,
+     "runtime": "tract",
+     "threads": 16,
+     "wall_s": 10.169829699996626
+    }
+   ]
+  }
+ },
+ "cpu": "AMD64 Family 25 Model 97 Stepping 2, AuthenticAMD",
+ "finished_utc": "2026-11-20T10:42:21Z",
+ "host": "glacier",
+ "label": "final",
+ "onnx": "C:\\Users\\gijsm\\Github\\rang\\.claude\\worktrees\\chunk-task-api-946978\\outputs\\dl1\\f3-calibrator-seed3.onnx",
+ "started_utc": "2026-11-20T10:39:53Z"
+}

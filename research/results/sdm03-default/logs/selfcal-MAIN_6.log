@@ -1,0 +1,4 @@
+rang-core: selfcal: running
+rang-core: selfcal: done in 1733.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_6/P/run/receipts/selfcal-20261118T071322Z.rang-receipt.json
+TIME selfcal-MAIN_6 1739.30 s 11909188 KB

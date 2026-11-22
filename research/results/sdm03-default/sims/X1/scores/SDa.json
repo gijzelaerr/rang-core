@@ -1,0 +1,21 @@
+{
+ "F": 3.330972505961486e-05,
+ "P": 5.647033395156229e-10,
+ "T": 2.3341688971270086e-05,
+ "arm": "SDa",
+ "false_flux_jy": 0.035798873417354264,
+ "files": [
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0000-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0001-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0002-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0003-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0004-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0005-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0006-model.fits",
+  "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image-0007-model.fits"
+ ],
+ "prefix": "/home/gijs/rang-data/outputs/sdm03-default-20261118/sims/X1.img/SDa/image",
+ "recovery_abs_err_median": 0.015039589598096592,
+ "recovery_median": 1.0013116057145144,
+ "recovery_n": 320
+}

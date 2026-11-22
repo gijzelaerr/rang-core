@@ -1,0 +1,5 @@
+heavy_lock: waiting for shared jobs to fit
+rang-core: selfcal: running
+rang-core: selfcal: done in 1758.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/run/receipts/selfcal-20261118T071929Z.rang-receipt.json
+TIME selfcal-MAIN_1 1762.66 s 11922672 KB

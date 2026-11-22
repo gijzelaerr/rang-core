@@ -1,0 +1,23 @@
+D:\rang\data\20261102-gemclean-bench-sims\s2.ms: 1814400 of 1814400 rows selected (field 0, DATA), 8 channels 1312.5000-1487.5000 MHz, 14515200 visibilities weighted, weight sum 2659151193.441615 (4.32 s read, 0.25 s weights)
+beam: peak 1.000002622604, patch ±64, f 9.0835e-3 outside the patch; 2049 of 2049 spectrum columns, -0.00e0 left out; restoring beam 13.878" × 8.345" PA -29.81° (2209 pixels fitted); PSF 3.14 s, FFT 0.11 s
+multiscale: theoretic beam 5.4005" (3.6003 pixels), 8 scales, 503 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000003, gain 0.199999, kernel peak 4.821489e-2, 125368 components, 10.961629 Jy
+multiscale: scale 14 px, bias factor 1.6667, psf peak 0.432750, gain 0.462160, kernel peak 1.453667e-2, 1387 components, 0.023254 Jy
+multiscale: scale 29 px, bias factor 2.7778, psf peak 0.251015, gain 0.796766, kernel peak 4.505117e-3, 744 components, -0.001746 Jy
+multiscale: scale 58 px, bias factor 4.6296, psf peak 0.111149, gain 1.799393, kernel peak 1.269564e-3, 194 components, 1.729554 Jy
+multiscale: scale 115 px, bias factor 7.7160, psf peak 0.033678, gain 5.938574, kernel peak 3.275130e-4, 42 components, 0.245556 Jy
+multiscale: scale 230 px, bias factor 12.8601, psf peak 0.008054, gain 24.832251, kernel peak 8.319198e-5, 0 components, 0.000000 Jy
+multiscale: scale 461 px, bias factor 21.4335, psf peak 0.001624, gain 123.119202, kernel peak 2.113586e-5, 0 components, 0.000000 Jy
+multiscale: scale 922 px, bias factor 35.7225, psf peak 0.000227, gain 880.786015, kernel peak 5.328275e-6, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 1.971806e-3 Jy, threshold 9.859031e-3 Jy; continued in the mask at gain 0.8000, threshold 9.859031e-3 Jy
+auto-mask: major iteration 2, sigma 4.115561e-4 Jy, threshold 2.057780e-3 Jy; continued in the mask at gain 0.8000, threshold 2.057780e-3 Jy
+auto-mask: major iteration 3, sigma 1.217612e-4 Jy, threshold 6.088058e-4 Jy; continued in the mask at gain 0.8000, threshold 6.088058e-4 Jy
+auto-mask: major iteration 4, sigma 5.607168e-5 Jy, threshold 2.803584e-4 Jy; continued in the mask at gain 0.8000, threshold 2.803584e-4 Jy
+auto-mask: major iteration 5, sigma 3.732672e-5 Jy, threshold 1.866336e-4 Jy; continued in the mask at gain 0.8000, threshold 1.866336e-4 Jy
+auto-mask: major iteration 6, sigma 2.817282e-5 Jy, threshold 1.408641e-4 Jy; continued in the mask at gain 0.8000, threshold 1.408641e-4 Jy
+auto-mask: major iteration 7, sigma 2.569272e-5 Jy, threshold 1.284636e-4 Jy; continued in the mask at gain 0.6430, threshold 7.707816e-5 Jy
+auto-mask: major iteration 8, sigma 2.470401e-5 Jy, threshold 7.411202e-5 Jy, in the mask
+auto-mask: threshold reached in major iteration 7
+127735 components, 8 major cycles, 0 resyncs, stop Threshold; Q/Q0 2.1291e-3; tau min NaN median NaN; minor 42.73 s (corrections 0.000 s), resync 31.07 s, major 13.33 s
+wall 100.77 s
+exit 0

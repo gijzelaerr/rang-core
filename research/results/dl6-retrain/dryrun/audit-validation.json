@@ -1,0 +1,240 @@
+{
+ "real": {
+  "dl2:1735892129:scan019": {
+   "flags_from": "/home/gijs/rang-data/outputs/dl2-data-20261119/labels",
+   "realisations": [
+    {
+     "seed": 20265701,
+     "augmented": false,
+     "subarray": null,
+     "positive_injected": 1155737,
+     "ignored": 4215780,
+     "ignored_uninjected": 3945326,
+     "negative": 4254972,
+     "eligible": 9626489,
+     "t6_cells": 912,
+     "t7_cells": 212790,
+     "events": [
+      {
+       "code": "T1",
+       "cells": 26610,
+       "alpha": 76.6890714992661
+      },
+      {
+       "code": "T1",
+       "cells": 25632,
+       "alpha": 179.73484753878554
+      },
+      {
+       "code": "T1",
+       "cells": 53220,
+       "alpha": 127.58274597350045
+      },
+      {
+       "code": "T1",
+       "cells": 28506,
+       "alpha": 1.8299421318151505e-11
+      },
+      {
+       "code": "T2",
+       "cells": 3782,
+       "alpha": 4.417307807534997
+      },
+      {
+       "code": "T2",
+       "cells": 11618,
+       "alpha": 0.04136948806931291
+      },
+      {
+       "code": "T2",
+       "cells": 3708,
+       "alpha": 0.00011289109736302151
+      },
+      {
+       "code": "T3",
+       "cells": 317,
+       "alpha": 36.16136219502533
+      },
+      {
+       "code": "T4",
+       "cells": 14,
+       "alpha": 4.385869687230301
+      },
+      {
+       "code": "T4",
+       "cells": 98,
+       "alpha": 24.069061138935506
+      },
+      {
+       "code": "T5",
+       "cells": 491336,
+       "alpha": 9.817353910282936
+      },
+      {
+       "code": "T5",
+       "cells": 632353,
+       "alpha": 53.85251154112011
+      },
+      {
+       "code": "T6",
+       "cells": 1034,
+       "alpha": 4.059917778729135,
+       "width": 11
+      },
+      {
+       "code": "T7",
+       "cells": 682,
+       "beta": 3.3740479385726863,
+       "antenna": 8,
+       "width": 11
+      },
+      {
+       "code": "T7",
+       "cells": 162698,
+       "beta": 5.073729575292168,
+       "antenna": 32,
+       "width": 219
+      },
+      {
+       "code": "T7",
+       "cells": 50157,
+       "beta": 0.13335974965992817,
+       "antenna": 52,
+       "width": 92
+      }
+     ],
+     "T_recall_injected": 0.8595978150738447,
+     "A_recall_injected": 0.9268129340844846
+    },
+    {
+     "seed": 20265702,
+     "augmented": false,
+     "subarray": null,
+     "positive_injected": 606290,
+     "ignored": 4732098,
+     "ignored_uninjected": 4433851,
+     "negative": 4288101,
+     "eligible": 9626489,
+     "t6_cells": 61939,
+     "t7_cells": 24810,
+     "events": [
+      {
+       "code": "T1",
+       "cells": 13233,
+       "alpha": 1.754175371680324
+      },
+      {
+       "code": "T2",
+       "cells": 15128,
+       "alpha": 50.229574011595425
+      },
+      {
+       "code": "T2",
+       "cells": 22692,
+       "alpha": 0.0932472417528648
+      },
+      {
+       "code": "T2",
+       "cells": 18280,
+       "alpha": 37.26690500856643
+      },
+      {
+       "code": "T2",
+       "cells": 6414,
+       "alpha": 31.845100589318985
+      },
+      {
+       "code": "T3",
+       "cells": 1680,
+       "alpha": 109.04212353094613
+      },
+      {
+       "code": "T3",
+       "cells": 3416,
+       "alpha": 23.636952914599064
+      },
+      {
+       "code": "T3",
+       "cells": 224,
+       "alpha": 14.680662608346296
+      },
+      {
+       "code": "T4",
+       "cells": 42,
+       "alpha": 96.79026557794
+      },
+      {
+       "code": "T4",
+       "cells": 56,
+       "alpha": 45.401788732988635
+      },
+      {
+       "code": "T4",
+       "cells": 18,
+       "alpha": 255.1631984592676
+      },
+      {
+       "code": "T4",
+       "cells": 72,
+       "alpha": 9.117673151600139
+      },
+      {
+       "code": "T4",
+       "cells": 112,
+       "alpha": 15.841251592159656
+      },
+      {
+       "code": "T4",
+       "cells": 56,
+       "alpha": 119.67427816115165
+      },
+      {
+       "code": "T5",
+       "cells": 512621,
+       "alpha": 0.0001123796641196083
+      },
+      {
+       "code": "T5",
+       "cells": 418918,
+       "alpha": 115.64030443714483
+      },
+      {
+       "code": "T6",
+       "cells": 11479,
+       "alpha": 157.0557475778774,
+       "width": 68
+      },
+      {
+       "code": "T6",
+       "cells": 50460,
+       "alpha": 234.02867481861566,
+       "width": 58
+      },
+      {
+       "code": "T7",
+       "cells": 12630,
+       "beta": 0.21694733323529672,
+       "antenna": 0,
+       "width": 58
+      },
+      {
+       "code": "T7",
+       "cells": 12180,
+       "beta": 0.8436057016536553,
+       "antenna": 21,
+       "width": 14
+      }
+     ]
+    }
+   ],
+   "seconds": 108.94564701407216
+  }
+ },
+ "sim": {},
+ "stop": {
+  "set": "dl2:1735892129:scan019",
+  "reason": "ignored uninjected 0.410 > 0.40"
+ },
+ "level": 0,
+ "degree": 1
+}

@@ -100,6 +100,7 @@ other commands:
   check           [--rust | --python | --all]: the full local checks, portable
   formats         check PATH | convert IN OUT: read and write the tools' formats
   mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
+  watch           PATH... [--once] [--json]: follow run or output directories, read-only
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -280,6 +281,10 @@ flag:
   column: DATA  # the visibilities flagged
   static_masks: tricolour  # tricolour: the two masks shipped with Tricolour 0.2.1; none
   write: replace  # replace: FLAG becomes the strategy's flags, as Tricolour writes them; or: OR with the flags already there
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 calibrate:
   model:
     source: unity  # unity: a 1 Jy point at the phase centre; column: an existing column; setjy, manual, lsm: written to MODEL_DATA on the primary fields (rang.calmodels), then solved against
@@ -293,7 +298,7 @@ calibrate:
     rotmeas: null  # manual: rotation measure, rad m^-2
     lsm: null  # a Tigger .lsm sky model, such as pks1934-638.lsm
   refant: null  # reference antenna: a name, an id, a list or auto (CARACal's choice); null: auto, or antenna 0 when no antenna qualifies (task E2)
-  refantmode: flex  # flex or strict, as CASA
+  refantmode: flex  # flex or strict, as CASA; for K, flex also falls back along the refant list (issue #53)
   refant_maxdist: 1000.0  # refant auto: metres from the array centre at most (CARACal's maxdist)
   refant_minbase: 150.0  # refant auto: metres to every other antenna at least (CARACal's minbase)
   uvrange: ""  # baselines used by G, B, F and polcal solves, such as >150
@@ -326,6 +331,10 @@ calibrate:
     frame: casa  # the parallactic-angle frame (rang.cal_pol; C6's provisional owner decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north
     feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
     extendflags: false  # CASA flagdata mode=extend with CARACal's settings on the Gpol, KCROSS and Xf fields, then the Df fields, before the polcal solves
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 apply:
   column: CORRECTED_DATA  # the column written
   applymode: calflag  # as CASA applycal
@@ -333,6 +342,10 @@ apply:
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
   parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 image:
   imager: gemclean  # the imager
   gemclean: auto  # the gemclean to run; auto: the installed extension's (python -m rang.gemclean), else the path of a gemclean binary
@@ -377,6 +390,10 @@ image:
   pol: I  # polarisations, such as I or IQUV
   join_polarizations: false  # join the polarisations
   write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 selfcal:
   rounds: 2  # calibration rounds (CARACal's cal_niter): each images, predicts the model, solves and applies; a final image follows
   terms: [{type: Sp}, {type: Sa}]  # one term per round, the last repeating (CARACal's gain_matrix_type): phase then amplitude (owner decision 1 of C1); Sd is CARACal's Fslope
@@ -390,6 +407,10 @@ selfcal:
   clean_cutoff: []  # per image, the auto_threshold (sigma) of image 1, 2, ..., the final image, the last repeating (CARACal's clean_cutoff); []: image.auto_threshold
   cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
+  learned:
+    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    weights: null  # the ONNX weights file of the learned mode
+    force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 run:
   stages: ["flag", "calibrate", "apply", "image", "selfcal"]  # stages of rang-core run, executed in the order flag, calibrate, apply, image, selfcal
 # A calibration term (calibrate.*.terms, selfcal.terms):
@@ -595,6 +616,29 @@ options:
                  version first
   --root DIR     accept only path arguments inside DIR (repeatable; default:
                  any path)
+```
+
+## `watch`
+
+```text
+$ rang-core watch -h
+usage: rang-core watch [-h] [--once] [--json] [--interval S] PATH [PATH ...]
+
+Follow run directories or output directories without touching them. Reports
+each stage's status and time, whether its process is still there, spool tasks
+and worker heartbeats, receipts, the newest file and the last log line. This
+is liveness, not progress: it cannot say how far a running stage has got.
+
+positional arguments:
+  PATH          a run directory, a Measurement Set that has one beside it
+                (<ms>.rang-run), a spool directory (data.spool), or any
+                directory a job writes into
+
+options:
+  -h, --help    show this help message and exit
+  --once        report once and exit
+  --json        one JSON object per report, on one line
+  --interval S  seconds between reports (default 30)
 ```
 
 ## `research`
@@ -1093,7 +1137,8 @@ gemclean: usage: gemclean [options] <ms>
                             (default 0.01; 0: no floor; research/stale-floor.md)
   -stop-tolerance <e>       also end the run when the exact peak after a major cycle is below
                             (1 + e) times the threshold; the minor cycles still clean to the
-                            threshold (default 0: the exact stop; research/gemclean-stop28.md)
+                            threshold (default 0.02; 0: the exact stop; 0 and not settable with
+                            -auto-mask, -multiscale and the joins; research/stop28-default.md)
   -stop-rule <rule>         certified: end a cycle at the proved rule, kappa |r_p| <= the bound on
                             the beam error at the pick (research/stop-rule-theorem.md); wins over
                             the other rules. The default is the rules above
@@ -1274,6 +1319,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_HEAVY_MEM_GB` | 48 | process | GB the heavy lock shares out | `research/speedup-tools.md` | `tools/heavy_lock.py` |
 | `RANG_HEAVY_NICE` | unset (no change of priority) | process | POSIX only: `heavy_lock.py run` starts its command under `nice -n N`, with `ionice -c3` at 19; for hosts shared with other people (nash) | `research/nash-host.md` | `tools/heavy_lock.py` |
 | `RANG_HEAVY_LOCK_HELD` | unset | process | `<slots>:<mem GB>`, set by `heavy_lock.py run` for its command; a nested `run` or check inside it does not queue again | `research/speedup-tools.md` | `tools/heavy_lock.py` |
+| `RANG_HEAVY_LOCK_PID` | unset | process | the hold's pid, set by `heavy_lock.py run` for its command and passed into WSL through `WSLENV`, so that `status` counts the hold's CPU inside WSL | `research/speedup-tools.md` | `tools/heavy_lock.py` |
 | `RANG_HEAVY_DRAIN_MIN` | 15 | process | minutes later tickets may backfill past a queue head that does not fit (a ticket's own `run --drain` wins); 0: strict first come, first served | `research/lock-backfill.md` | `tools/heavy_lock.py` |
 | `RANG_ARCHIVE_OUTPUTS` | unset (`outputs/` of this checkout; a mangled UNC path is repaired) | input | directory holding the archived campaign outputs the full check's gain-hash gate reads | `research/speedup-tools.md` | `python/rang/check.py` |
 | `RANG_CORE_BACKEND` | unset | refused | the removed ctypes backend; anything but `extension` is refused | `research/p7-architecture.md` | `python/rang/core.py` |
