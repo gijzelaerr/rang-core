@@ -246,6 +246,19 @@ flagged fraction **rises** by more than `tripwire` between the first pass and th
 comparison as gate G-S, whose +1 percentage point bound is unchanged). The E2-N `on` arm runs a third
 time; the second run's record is archived with the first.
 
+**Amendment 5, 2026-11-22 03:40 SAST (G-Q's first reading failed; rule 1: the kernel is fixed first).**
+G-Q on the first scan of J1939-6342 (scan 14; taken from the `off` copy's CORRECTED_DATA, which serves
+only as an array both kernels read; 139,934 rows × 128 channels): QuartiCal 0.2.7's numba kernels
+flagged 82.5 % of cells, rang's port 62.7 %, 19.8 % differing (bound 1e-6). A NumPy restatement of
+section 2's reading reproduced rang's flags exactly, so the port followed the reading, and the reading was
+wrong: `compute_mad_flags` receives the **complex** whitened residual, so `np.abs(wres[row, chan,
+corr] - med_pq_re)` is the magnitude of the complex cell minus a real median (the imaginary part
+included), and likewise for the imaginary-part median and the global terms; the per-baseline and global
+medians and MADs are of the real and imaginary parts separately, as section 2 says. Every differing cell
+was already flagged (larger residuals there). The port now uses the complex magnitudes (single
+precision, `hypot`); G-Q is read again after the E2-N `on` run frees the shared extension. `method:
+rang` is not affected.
+
 ## Measured result
 
 _Nothing yet._

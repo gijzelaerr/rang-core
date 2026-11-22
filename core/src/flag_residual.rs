@@ -464,14 +464,17 @@ pub fn flags_quartical(
                 }
             }
             for c in 0..nchan {
+                // QuartiCal subtracts a real median from the complex whitened
+                // residual and takes the complex magnitude (`np.abs(wres[row,
+                // chan, corr] - med_pq_re)`): both terms see the whole cell.
                 let (vre, vim) = (part(r, c, k, 0), part(r, c, k, 1));
-                let bre = (vre - med_re).abs() / mad_re;
-                let bim = (vim - med_im).abs() / mad_im;
+                let bre = (vre - med_re).hypot(vim) / mad_re;
+                let bim = vre.hypot(vim - med_im) / mad_im;
                 if ((bre * bre + bim * bim) as f64) > bl_t2 {
                     out[r * nchan + c] = 1;
                 }
-                let gre = (vre - gmed_re).abs() / gmad_re;
-                let gim = (vim - gmed_im).abs() / gmad_im;
+                let gre = (vre - gmed_re).hypot(vim) / gmad_re;
+                let gim = vre.hypot(vim - gmed_im) / gmad_im;
                 if ((gre * gre + gim * gim) as f64) > gbl_t2 {
                     out[r * nchan + c] = 1;
                 }
