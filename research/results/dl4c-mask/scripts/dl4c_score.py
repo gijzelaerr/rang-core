@@ -80,23 +80,33 @@ def real_quality(a, p):
     return q
 
 
-def bench(root, case, d, py, script):
+def beam_arcsec(a):
+    """The A image's restoring beam, sqrt(BMAJ BMIN) in arcsec (the scorer's
+    "within one beam" radius; the same for both arms of a case)."""
+    with fits.open(a / "image-MFS-image.fits") as h:
+        hd = h[0].header
+    return 3600.0 * float(np.sqrt(hd["BMAJ"] * hd["BMIN"]))
+
+
+def bench(root, case, d, py, script, beam):
     out = d / "bench-score.json"
     if not out.is_file():
         subprocess.run(
             [py, "-I", script, "score", str(root / "prep" / case / "out"),
              str(root / "sim" / case / "catalogue.json"), str(d), str(out),
-             "--jobs", "image-MFS"],
+             "--jobs", "image-MFS", "--beam-arcsec", f"{beam:.6f}"],
             check=True,
         )  # fmt: skip
     return json.loads(out.read_text())["jobs"]["image-MFS"]
 
 
 def sim_quality(root, case, a, t, py, script):
-    ba, bt = bench(root, case, a, py, script), bench(root, case, t, py, script)
+    beam = beam_arcsec(a)
+    ba, bt = bench(root, case, a, py, script, beam), bench(root, case, t, py, script, beam)
     ra = (ba.get("recovery_all") or {}).get("flux_weighted")
     rt = (bt.get("recovery_all") or {}).get("flux_weighted")
     q = {
+        "beam_arcsec": beam,
         "false_flux_abs_a": ba["false_flux_abs"],
         "false_flux_abs_arm": bt["false_flux_abs"],
         "recovery_a": ra,
