@@ -19,6 +19,7 @@ LINE = re.compile(
     r"^gemclean cycle (\d+): peak (\S+), threshold (\S+), (\d+) components so far, ([\d.]+) s$"
 )
 
+
 def test_one_line_per_major_cycle_before_the_report(tmp_path):
     ms = g8.tiny_ms(tmp_path / "tiny.ms")
     log = tmp_path / "gemclean.log"
@@ -36,7 +37,11 @@ def test_one_line_per_major_cycle_before_the_report(tmp_path):
     summary, m = next((i, m) for i, m in stop if m)
     cycles = int(m.group(2))
     assert sum(1 for _, m in stop if m) == 1
-    found = [(i, LINE.match(t)) for i, t in enumerate(text) if t.startswith("gemclean cycle ")]
+    found = [
+        (i, LINE.match(t))
+        for i, t in enumerate(text)
+        if t.startswith("gemclean cycle ")
+    ]
     assert len(found) == cycles >= 1
     assert all(m for _, m in found), [text[i] for i, m in found if not m]
     numbers = [int(m.group(1)) for _, m in found]
