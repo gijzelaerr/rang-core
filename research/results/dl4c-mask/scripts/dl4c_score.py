@@ -112,7 +112,9 @@ def sim_quality(root, case, a, t, py, script):
     return q
 
 
-def main(root, out):
+def main(root, out, stopped=()):
+    """`stopped`: cases stopped under a rule (amendment 4): recorded as not
+    converged, not counting, and left out of the median."""
     root = Path(root)
     wt = Path(__file__).resolve().parents[4]
     py = sys.executable
@@ -120,6 +122,9 @@ def main(root, out):
     cases = {}
     for case, arm in CASES.items():
         a, m = root / "img" / f"{case}-A", root / "img" / f"{case}-{arm}"
+        if case in stopped:
+            cases[case] = {"stopped": True, "counts": False}
+            continue
         if not ((a / "done").exists() and (m / "done").exists()):
             cases[case] = {"missing": True}
             continue
@@ -128,13 +133,13 @@ def main(root, out):
         h = 1 - cm["convolutions"] / ca["convolutions"]
         counts = q["pass"] and not ca["budget"] and not cm["budget"]
         cases[case] = {"arm": arm, "cost_a": ca, "cost_arm": cm, "quality": q, "h": h, "counts": counts}
-    done = [c for c in cases.values() if not c.get("missing")]
+    done = [c for c in cases.values() if not c.get("missing") and not c.get("stopped")]
     hs = [c["h"] for c in done]
     med = float(np.median(hs)) if hs else None
     n_r = sum(1 for k, c in cases.items() if k[0] == "R" and c.get("counts"))
     n_t = sum(1 for k, c in cases.items() if k[0] == "T" and c.get("counts"))
     n = n_r + n_t
-    if len(done) < len(CASES):
+    if len(done) < len(CASES) - len(stopped):
         outcome = "incomplete"
     elif med < 0.20 or n < 4:
         outcome = "null"
@@ -146,9 +151,12 @@ def main(root, out):
     Path(out).write_text(json.dumps(res, indent=1, default=float))
     print(json.dumps({k: v for k, v in res.items() if k != "cases"}, indent=1))
     for k, c in cases.items():
-        if not c.get("missing"):
+        if c.get("stopped"):
+            print(k, "stopped (amendment 4): does not count")
+        elif not c.get("missing"):
             print(k, "h=%.3f" % c["h"], "counts" if c["counts"] else "does not count")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    stop = sys.argv[sys.argv.index("--stopped") + 1].split(",") if "--stopped" in sys.argv else []
+    main(sys.argv[1], sys.argv[2], tuple(stop))
