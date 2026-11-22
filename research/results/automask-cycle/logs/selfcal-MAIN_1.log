@@ -1,0 +1,4 @@
+rang-core: selfcal: running
+rang-core: selfcal: done in 1732.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/automask-cycle-20261118/r-MAIN_1/P/run/receipts/selfcal-20261118T165210Z.rang-receipt.json
+TIME selfcal-MAIN_1 1736.82 s 11925288 KB

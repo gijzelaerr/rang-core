@@ -353,6 +353,15 @@ ENVIRONMENT = (
         "tools/heavy_lock.py",
     ),
     _v(
+        "RANG_HEAVY_LOCK_PID",
+        "unset",
+        "process",
+        "the hold's pid, set by `heavy_lock.py run` for its command and passed into "
+        "WSL through `WSLENV`, so that `status` counts the hold's CPU inside WSL",
+        "speedup-tools",
+        "tools/heavy_lock.py",
+    ),
+    _v(
         "RANG_HEAVY_DRAIN_MIN",
         "15",
         "process",

@@ -1,0 +1,42 @@
+{
+ "_comment": "DL6 dry run (research/dl6-retrain.md section 8): F5's calibrator arm N5-ph stands in for a passed stage. It has NOT passed. Written by hand from research/f5-flagger.md on branch dl3-f5 at 533d9b9f; fields F5 does not record are null with the reason.",
+ "stage": "flag",
+ "tenant": null,
+ "tenant_missing": "F5 registers no rang.learned tenant yet ('f5-n5' proposed, section 2e)",
+ "note": "research/f5-flagger.md (branch dl3-f5), Amendment 3 (N5-ph)",
+ "commit": "533d9b9f",
+ "weights": {"path": "nash:~/rang-data/outputs/dl3-f5-20261119/runs/train-calibrator/seed-3/weights.npz", "sha256": "c659d08bb1bf6eb897be51586f0ed01703406b69874c2bd03e5d57cfb35bc6b3", "onnx": null, "onnx_missing": "F5 exports no ONNX file yet; its export_onnx form is refused by the interpreter"},
+ "architecture": {"id": "f5-n5", "hyperparameters": {"inputs": 33, "hidden": 8, "dilations": [1, 2, 4, 8, 16], "stem": true}},
+ "ops": ["Conv", "Relu"],
+ "initializer_shapes": [[8, 33, 1, 1], [8], [8, 8, 3, 3], [8], [8, 8, 3, 3], [8], [8, 8, 3, 3], [8], [8, 8, 3, 3], [8], [8, 8, 3, 3], [8], [1, 8, 1, 1], [1]],
+ "features": {"id": "f5flag", "level": 0, "degree": 1},
+ "labels": {"rule": "Landman's scheme, research/f5-flagger.md section 4 (positive injected A >= 3 or T7 beta >= 0.5; ignored T or A on uninjected DATA)"},
+ "factory": {"command": "examples/f5_shards.py RUN --class calibrator --role train|validation --level 0 --degree 1 --flags-from DIR --ao-sif SIF", "seeds": "SEEDS in examples/f5_shards.py; sub-array seeds 20265801 + index", "realisations": {"train": 6, "validation": 2}},
+ "trainer": {"command": "examples/f5_gpu_seeds.sh SHARDS OUT (examples/f5_train.py --seed 1,2,3 --steps 30000)", "steps": 30000, "seeds": [1, 2, 3], "budget_gpu_h": 48},
+ "exporter": null,
+ "tau_rule": "research/f5-flagger.md section 9 (examples/f5_tau.py)",
+ "method_rule": "research/f5-flagger.md section 3 (kappa, N5 or N5W4)",
+ "method": {"tau": -3.0, "kappa": null, "kind": "N5"},
+ "gates": [
+  {"name": "R1", "bar": ">= T - 0.05", "section": "10"},
+  {"name": "R1m", "bar": "each >= T - 0.10", "section": "10"},
+  {"name": "R2", "bar": "each >= T - 0.05", "section": "10"},
+  {"name": "R3", "bar": "<= 1.5 and >= 0.5 min(T, A)/T", "section": "10"},
+  {"name": "R4", "bar": ">= J(A, T) - 0.05", "section": "10"},
+  {"name": "R5", "bar": ">= 0.80", "section": "10"},
+  {"name": "G-perm", "bar": "logits 1e-4, flags 1e-6", "section": "8"},
+  {"name": "G-drop", "bar": "0.05 / 0.20 / 0.25", "section": "8"},
+  {"name": "G-sub", "bar": "section 8", "section": "8"}
+ ],
+ "cost": {"c1": null, "c2": null, "receipts": null, "cost_missing": "F5's exclusive timing (Stage 6) has no reading for N5-ph yet"},
+ "data": {
+  "train": [{"name": "LUNO MAIN_1, 2, 4, 5, 6 (tiles 8-23)", "sha256": null}, {"name": "f2sim-1..3", "sha256": null}],
+  "validation": [{"name": "LUNO MAIN_7", "sha256": null}, {"name": "f2sim-v", "sha256": null}],
+  "heldout_spent": ["LUNO MAIN_8-11, 13, 15 (Amendment 3)"],
+  "sha256_missing": "F5 keeps fetch receipts per run (f3-20261110-01-fetch, f4-20261111-01-fetch), not one sha256 per set"
+ },
+ "teachers": [
+  {"name": "T: rang Tricolour port, first-pass calibrator YAML", "version": "rang at the F5 commit", "strategy": "rang.f2flag.STRATEGIES['calibrator']", "sha256": null},
+  {"name": "A: AOFlagger", "version": "3.5.0 (rang-aflag-aoflagger_3.5.0.sif)", "strategy": "generic", "sha256": null}
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "stage": "flag",
+ "architecture": "f5-n5",
+ "nplanes": 33,
+ "seed": 1,
+ "steps": 1000,
+ "validation_loss": 0.07523372557418731,
+ "shards": "/home/gijsm/Build/tmp/20261120-dl6-dryrun/shards/calibrator",
+ "batch": 32,
+ "width": 256,
+ "rate": 0.001,
+ "weights": 3201,
+ "curve": [
+  {
+   "step": 1000,
+   "loss": 0.10150754675269127,
+   "seconds": 45.22511767500055
+  }
+ ],
+ "resumed_at": [],
+ "load_seconds": 1.5253111649999482,
+ "train_seconds_this_run": 45.24341007400017,
+ "seeds_in_process": "1",
+ "device": "cuda",
+ "gpu": "NVIDIA GeForce RTX 4070 Ti",
+ "peak_vram_allocated_bytes": 257390592,
+ "peak_vram_reserved_bytes": 367001600,
+ "torch": "2.15.0+cu132",
+ "deterministic": true,
+ "flat_sha256": "de7f95e2994c0ffb8f2f197c5e5f0dcfd8d39619b3702c4cc33e91edb780fce1",
+ "train_shards": {
+  "real": [
+   "dl2-1735892129-scan001-0.npz",
+   "dl2-1735892129-scan001-1.npz",
+   "dl2-1735892129-scan003-0.npz",
+   "dl2-1735892129-scan003-1.npz"
+  ],
+  "sim": []
+ },
+ "validation_shards": {
+  "real": [
+   "dl2-1735892129-scan019-0.npz",
+   "dl2-1735892129-scan019-1.npz"
+  ],
+  "sim": []
+ }
+}

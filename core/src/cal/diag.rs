@@ -697,7 +697,21 @@ pub struct Trace {
 /// Solve one diagonal term as QuartiCal 0.2.7 does (`diag_complex` or
 /// `phase`), with QuartiCal's referencing when `reference_antenna` is set.
 pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> {
-    solve_traced(problem, settings, None)
+    solve_traced(problem, settings, None, None)
+}
+
+/// `solve` from `start` instead of unit gains (DL4a, research/dl4a-screen.md):
+/// `start` holds one diagonal gain per solution in `Solution::gains`' layout
+/// (time bin, frequency bin, antenna). For `phase` only the start's phase is
+/// used (the kernel's parameters); for `diag_complex` the gain itself. A gain
+/// the data leave hard-flagged, or a non-finite or zero start, starts at unit
+/// gain as today. `start = None` is `solve`, bit for bit.
+pub fn solve_from(
+    problem: &Problem,
+    settings: &Settings,
+    start: Option<&[[C64; 2]]>,
+) -> Result<Solution, Error> {
+    solve_traced(problem, settings, None, start)
 }
 
 /// `solve`, also returning its `Trace`: the same loop with the counts that
@@ -705,7 +719,7 @@ pub fn solve(problem: &Problem, settings: &Settings) -> Result<Solution, Error> 
 /// chunks of intervals (task W3b). Recording changes no arithmetic.
 pub fn solve_counted(problem: &Problem, settings: &Settings) -> (Result<Solution, Error>, Trace) {
     let mut trace = Trace::default();
-    let result = solve_traced(problem, settings, Some(&mut trace));
+    let result = solve_traced(problem, settings, Some(&mut trace), None);
     (result, trace)
 }
 
@@ -713,6 +727,7 @@ fn solve_traced(
     problem: &Problem,
     settings: &Settings,
     mut trace: Option<&mut Trace>,
+    start: Option<&[[C64; 2]]>,
 ) -> Result<Solution, Error> {
     check(problem, settings)?;
     let na = problem.nant;
@@ -729,6 +744,29 @@ fn solve_traced(
     // init_flags leaves gains without data hard-flagged; the phase kernel's
     // parameter flags start from them too (update_param_flags runs on every
     // iteration before they are read).
+    if let Some(start) = start {
+        if start.len() != ngains {
+            return Err(Error::Shape("start: one gain pair per solution"));
+        }
+        for (state, g0) in states.iter_mut().zip(start) {
+            if state.flag != 0 || !g0.iter().all(|g| g.re.is_finite() && g.im.is_finite()) {
+                continue;
+            }
+            if g0.iter().any(|g| g.re == 0. && g.im == 0.) {
+                continue;
+            }
+            match settings.kind {
+                Kind::Phase => {
+                    state.params = [g0[0].im.atan2(g0[0].re), g0[1].im.atan2(g0[1].re)];
+                    state.gain = std::array::from_fn(|k| {
+                        C64::new(state.params[k].cos(), state.params[k].sin())
+                    });
+                }
+                Kind::DiagComplex => state.gain = *g0,
+            }
+            state.km1_gain = state.gain;
+        }
+    }
     let stop2 = settings.stop_criterion * settings.stop_criterion;
     let kind = settings.kind;
     let iterations = settings.max_iterations.max(1);
@@ -1207,5 +1245,52 @@ mod tests {
         }
         let ratio = out[0] / out[1];
         assert!(ratio > 7. && ratio < 13., "{ratio}");
+    }
+
+    #[test]
+    fn solve_from_none_is_solve_and_a_converged_start_stops_early() {
+        // DL4a: no start is today's solve bit for bit; a start at the solution
+        // stops within three iterations (the stop test needs small updates in a
+        // row) at the same gains.
+        let s = sim(6, 4, 8, 0.5, false);
+        for kind in [Kind::DiagComplex, Kind::Phase] {
+            let settings = Settings::new(kind);
+            let a = solve(&problem(&s), &settings).unwrap();
+            let b = solve_from(&problem(&s), &settings, None).unwrap();
+            assert_eq!(a.iterations, b.iterations);
+            assert_eq!(a.flags, b.flags);
+            for (x, y) in a.gains.iter().zip(&b.gains) {
+                for k in 0..2 {
+                    assert_eq!(x[k].re.to_bits(), y[k].re.to_bits());
+                    assert_eq!(x[k].im.to_bits(), y[k].im.to_bits());
+                }
+            }
+            let c = solve_from(&problem(&s), &settings, Some(&a.gains)).unwrap();
+            assert!(c.iterations <= 3, "{kind:?}: {} iterations", c.iterations);
+            assert!(
+                a.iterations > c.iterations,
+                "{kind:?}: {} vs {}",
+                a.iterations,
+                c.iterations
+            );
+            for (x, y) in a.gains.iter().zip(&c.gains) {
+                for k in 0..2 {
+                    assert!(
+                        (x[k] - y[k]).norm2() < 1e-12,
+                        "{kind:?}: {:?} {:?}",
+                        x[k],
+                        y[k]
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn solve_from_refuses_a_start_of_the_wrong_length() {
+        let s = sim(6, 4, 8, 0.5, false);
+        let settings = Settings::new(Kind::DiagComplex);
+        let start = vec![[ONE, ONE]; 3];
+        assert!(solve_from(&problem(&s), &settings, Some(&start)).is_err());
     }
 }

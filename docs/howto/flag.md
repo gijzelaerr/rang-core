@@ -47,9 +47,10 @@ There is no `rang-core` command for it yet.
 
 ## What is not there
 
-- No learned flagger: F1, F2 and F3 stopped or failed as frozen and none was
-  proposed for `rang-core flag` ({gh}`research/f3-flagger.md`,
-  {doc}`../research/index`, section 7).
+- No learned flagger: F1 to F5 stopped or failed as frozen, and none ships
+  ({gh}`research/f3-flagger.md`, {gh}`research/f5-flagger.md`,
+  {doc}`../research/index`, section 7). `flag.learned` accepts a weights file
+  of your own under the contract of {doc}`../learned`.
 - No AOFlagger strategy runner. The SumThreshold kernel agrees with
   AOFlagger's at kernel level and differs at stage level
   ({gh}`research/a-flag-aoflagger.md`).

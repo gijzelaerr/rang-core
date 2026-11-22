@@ -1,0 +1,17 @@
+{
+ "mask": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/masks/R1-P.fits",
+ "sha256": "5109dbff2d8c96d0e1fae408b007ebc825c2402b4c4cb1e0597240d8d403a55f",
+ "pixels": 1481996,
+ "fraction": 0.0883338451385498,
+ "mode": "posterior",
+ "sigma_jy": 2.9424101971562777e-05,
+ "level_jy": 0.0001471205098578139,
+ "core_pixels": 423151,
+ "dilation_px": 5.231141116477369,
+ "beam_px": [
+  5.231141116477369,
+  2.5657840027020025,
+  89.49149490306701
+ ],
+ "a_dir": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/img/R1-A"
+}

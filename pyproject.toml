@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "rang-core"
-version = "0.2.0"
+version = "0.3.0"
 description = "ra-ng's Rust core: MeerKAT flagging, calibration and imaging, driven from Python (import rang)"
 requires-python = ">=3.10"
 license = "GPL-3.0-only"
@@ -83,6 +83,12 @@ notebook = ["matplotlib>=3.8", "pandas>=2.1", "ipywidgets>=8.1", "ipykernel>=6.2
 mcp = ["mcp>=2.3,<3"]
 # The documentation site (research/d1-docs.md): Sphinx with MyST notebooks, executed by papermill.
 docs = ["sphinx>=9.2", "furo>=2025.12", "myst-nb>=1.4", "papermill>=2.7"]
+# Training and export of learned stages only (task DL1, research/dl1-contract.md;
+# F5, research/f5-flagger.md; dl-plan decision 4): rang.learned_torch and
+# rang.f5net. The pipeline never needs it, and the check does not install it (its
+# PyTorch tests skip without torch). The CUDA build comes from the Linux wheel on
+# PyPI (WSL on Windows).
+learned-train = ["torch>=2.5", "onnx>=1.17"]
 
 [project.scripts]
 rang-core = "rang.core_cli:main"
@@ -137,6 +143,7 @@ exclude = [
     { path = "tools/formats-oracle/**/*", format = "sdist" },
     { path = "tools/ms-reader/**/*", format = "sdist" },
     { path = "tools/oracles/**/*", format = "sdist" },
+    { path = "tools/dl1_runtimes/**/*", format = "sdist" },
     { path = "AGENTS.md", format = "sdist" },
     { path = "CONTRIBUTING.md", format = "sdist" },
     { path = ".gitignore", format = "sdist" },

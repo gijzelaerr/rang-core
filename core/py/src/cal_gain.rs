@@ -118,8 +118,16 @@ fn problem<'a>(
 /// `phase` (calmode `p`); `refant < 0` for no QuartiCal referencing. Writes
 /// `gains` (complex128 viewed as float64, `ngain * 4`), `flags` (int8,
 /// `ngain`), `snr` and `err` (float32, `ngain * 2`, CASA's statistics at
-/// the solution). Returns (iterations, converged fraction).
+/// the solution). Returns (iterations, converged fraction). `start`
+/// (optional, float64 viewing complex128, `ngain * 4` in the layout of
+/// `gains`): the gains to start from instead of unity (DL4a,
+/// research/dl4a-screen.md; `diag::solve_from`); None is today's solve.
 #[pyfunction]
+#[pyo3(signature = (
+    nrow, nchan, ntime, nfreq, nant, data, weights, model, flag, flag_row, antenna1, antenna2,
+    time_bin, freq_bin, kind, max_iterations, stop_criterion, stop_fraction, refant, gains,
+    flags, snr, err, start=None
+))]
 #[allow(clippy::too_many_arguments)]
 pub fn cal_gain_solve(
     py: Python<'_>,
@@ -146,6 +154,7 @@ pub fn cal_gain_solve(
     mut flags: Rw<'_, i8>,
     mut snr: Rw<'_, f32>,
     mut err: Rw<'_, f32>,
+    start: Option<Ro<'_, f64>>,
 ) -> PyResult<(usize, f64)> {
     let a = arrays(
         nrow, nchan, &data, &weights, &model, &flag, &flag_row, &antenna1, &antenna2, &time_bin,
@@ -171,9 +180,18 @@ pub fn cal_gain_solve(
         stop_fraction,
         reference_antenna: usize::try_from(refant).ok(),
     };
+    let start: Option<Vec<[C64; 2]>> = match &start {
+        None => None,
+        Some(s) => Some(
+            exact(s, "start", 4 * ngain)?
+                .chunks(4)
+                .map(|c| [C64::new(c[0], c[1]), C64::new(c[2], c[3])])
+                .collect(),
+        ),
+    };
     let p = problem(&a, nrow, nchan, ntime, nfreq, nant);
     let result = detach(py, || {
-        let solution = diag::solve(&p, &settings)?;
+        let solution = diag::solve_from(&p, &settings, start.as_deref())?;
         let stats = diag::solution_statistics(&p, &solution.gains, &solution.flags)?;
         Ok::<_, diag::Error>((solution, stats))
     });

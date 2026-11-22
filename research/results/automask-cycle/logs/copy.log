@@ -1,0 +1,25 @@
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.dat': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f5': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f2': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.lock': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f0_TSM0': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f1_TSM0': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f2_TSM0': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f3': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f3i': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/ANTENNA': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/DATA_DESCRIPTION': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/FEED': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/FLAG_CMD': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/FIELD': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/HISTORY': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/OBSERVATION': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/POINTING': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/POLARIZATION': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/PROCESSOR': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/SPECTRAL_WINDOW': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/STATE': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f1': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.info': No such file or directory
+cp: cannot stat '/home/gijs/rang-data/outputs/sdm03-default-20261118/r-MAIN_1/P/pilot.ms/table.f0': No such file or directory
+cp: preserving permissions for ‘inputs/scan4/pilot.ms’: No such file or directory

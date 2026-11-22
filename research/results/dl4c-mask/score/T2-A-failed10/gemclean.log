@@ -1,0 +1,16 @@
+heavy_lock: waiting for head 01795171269221118554-linux-1800890.json, which fits
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json (no room to backfill)
+heavy_lock: waiting for critical head 00795172103314724852-linux-1809281.json (no backfill past it)
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json (no room to backfill)
+heavy_lock: waiting for critical head 00795172338261592293-linux-1811586.json (no backfill past it)
+heavy_lock: waiting for critical head 00795172347652409800-linux-1811963.json (no backfill past it)
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json (no room to backfill)
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for critical head 00795172800379103344-linux-1816814.json (no backfill past it)
+heavy_lock: waiting for critical head 00795172829391474620-linux-1817019.json (no backfill past it)
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for critical head 00795173005805303997-linux-1819243.json (no backfill past it)
+heavy_lock: waiting for head 01795171499590940846-linux-1803486.json, past its 15 min drain limit (draining)
+heavy_lock: waiting for shared jobs to fit
+/home/gijs/rang-data/outputs/dl4c-mask-20261120/sim/T2/sim.ms: 1814400 rows (DATA, field 0), 64 channels into 8 output channels, MF weighting, joined, 82.41 s read, 17.68 s weights
+gemclean: the PSF convolved with scale 1607.9307951810158 has no positive peak

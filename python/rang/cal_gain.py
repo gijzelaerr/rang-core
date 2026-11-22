@@ -275,12 +275,15 @@ def _kernel(
     stop_criterion,
     stop_fraction,
     trace=False,
+    start=None,
 ):
     """`solve`'s kernel part, per interval: CASA's `minblperant`, then the
     solve with CASA's statistics. Returns a dict of the per-interval arrays
     (`gains`, `kernel_flags`, `snr`, `err`, `ok`) and `iterations`,
     `fraction`; with `trace` (task W3b) instead `(counts, error, ngains)`
-    of the counted kernel (`rang.cal_chunks.replayed`)."""
+    of the counted kernel (`rang.cal_chunks.replayed`). `start` (DL4a,
+    research/dl4a-screen.md): gains `(ntime, nfreq, nant, 2)` to start from
+    instead of unity; None is today's solve."""
     data = np.ascontiguousarray(data, np.complex64)
     nrow, nchan = data.shape[:2]
     model = np.ascontiguousarray(np.broadcast_to(model, data.shape), np.complex64)
@@ -378,6 +381,17 @@ def _kernel(
         gf,
         snr,
         err,
+        **(
+            {}
+            if start is None
+            else {
+                "start": np.ascontiguousarray(
+                    np.broadcast_to(start, (ntime, nfreq, nant, 2)), np.complex128
+                )
+                .reshape(-1)
+                .view(np.float64)
+            }
+        ),
     )
     return {
         "gains": g.view(np.complex128).reshape(ntime, nfreq, nant, 2),
@@ -833,7 +847,7 @@ def phase_only(data, model, weights, flag):
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
     average_freq=False, average_psi=None, casa_phase_weights=False, stream=False,
-    **opts,
+    start=None, **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -855,7 +869,9 @@ def _solve_gain_field(
     averages, one frequency bin per `freq_bin`): `"auto"` streams the solve
     (`rang.cal_stream`, the same solution, `snr` and `err` NaN) when one
     solution interval does not fit `budget`, True always, False never.
-    Returns `(GainSolution, row weights)`."""
+    `start` (DL4a, research/dl4a-screen.md): kernel gains `(ntime, nfreq,
+    nant, 2)` to start from; one-call path only (no chunks, no stream, no
+    averages), refused otherwise. Returns `(GainSolution, row weights)`."""
     import dataclasses
 
     from . import cal_chunks, core_chunks
@@ -866,6 +882,10 @@ def _solve_gain_field(
         raise ValueError("average_freq needs one frequency bin")
     if casa_phase_weights and not (average_freq and fld.model_divided):
         raise ValueError("casa_phase_weights needs average_freq and model-divided rows")
+    if start is not None and (average or average_freq or stream is True):
+        raise ValueError("start: the one-call path only (no averages, no stream)")
+    if start is not None:
+        stream = False
     if per_channel:
         freq_bin = np.arange(nchan)
     elif freq_bin is not None:
@@ -945,8 +965,11 @@ def _solve_gain_field(
                 casa_rules=opts["casa_rules"], max_iterations=max_iterations,
                 stop_criterion=opts["stop_criterion"], stop_fraction=stop_fraction,
                 trace=trace,
+                start=None if start is None or trace else start,
             )  # fmt: skip
 
+        if start is not None and len(chunks) != 1:
+            raise ValueError("start: the solve must fit one chunk (raise the budget)")
         results, replay = cal_chunks.replayed(
             chunks,
             run,

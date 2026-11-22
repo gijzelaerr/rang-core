@@ -24,8 +24,9 @@ flaggers stopped or failed as frozen ({doc}`research/index`, section 7). The
 reference imager GeMClean is faster than WSClean on 16 threads, not always on
 one, at 2.0–2.4 times the memory on the real pilot with its current defaults
 ({gh}`research/g7-defaults.md`). The acceptance on real data (E2) has reported and
-misses some gates; the comparison with CARACal (E3) and native data (E2-N) are
-still running; {doc}`limits` lists what is known.
+misses some gates, as does native data (E2-N, 17 of 25 rows); the comparison
+with CARACal (E3) has measured E2-B; E2-A was still
+running at the release and follows in a later release; {doc}`limits` lists what is known.
 ```
 
 ## Where to start
@@ -120,6 +121,7 @@ contributing
 
 cli
 mcp
+learned
 concepts/index
 api/index
 ```

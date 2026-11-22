@@ -70,9 +70,11 @@ mod clean;
 mod cnnflag;
 mod f3flag;
 mod f4flag;
+mod f5flag;
 mod flag_extend;
 mod gemclean_cli;
 mod gemclean_predict;
+mod learned;
 mod lightcurve;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -3017,6 +3019,18 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(f3flag::f3flag_logits, m)?)?;
     m.add_function(wrap_pyfunction!(f4flag::f4flag_features, m)?)?;
     m.add_function(wrap_pyfunction!(f4flag::f4flag_logits, m)?)?;
+    // Task DL1: the swap contract's weights-file reader (research/dl1-contract.md).
+    m.add_function(wrap_pyfunction!(learned::learned_onnx_metadata, m)?)?;
+    m.add_function(wrap_pyfunction!(learned::learned_dilated_cnn_weights, m)?)?;
+    // Task DL1-I: the interpreter, the contract's reference runtime.
+    m.add_function(wrap_pyfunction!(learned::learned_interp_check, m)?)?;
+    m.add_function(wrap_pyfunction!(learned::learned_interp_run, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_features, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_logits, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_anomaly, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_antenna, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_antenna_shape, m)?)?;
+    m.add_function(wrap_pyfunction!(f5flag::f5flag_logits_anomaly, m)?)?;
     // Task TS-P1: forced photometry by the exact DFT (research/ts-p1.md).
     m.add_function(wrap_pyfunction!(lightcurve::lightcurve_dft, m)?)?;
     Ok(())

@@ -1,0 +1,23 @@
+	Command being timed: "wsclean -name /home/gijs/rang-data/outputs/gemclean-mem-32-20261121/wq/w -temp-dir /home/gijs/rang-data/outputs/gemclean-mem-32-20261121/wq/tmp -size 2048 2048 -scale 2asec -weight briggs 0.0 -channels-out 8 -join-channels -pol IQUV -join-polarizations -data-column DATA -gridder wgridder -wgridder-accuracy 0.0001 -no-update-model-required -no-small-inversion -j 4 -niter 1000000 -mgain 0.9 -auto-threshold 3.0 -auto-mask 5 -field 1 /home/gijs/rang-data/outputs/gemclean-mem-32-20261121/q.ms"
+	User time (seconds): 3538.80
+	System time (seconds): 120.27
+	Percent of CPU this job got: 272%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 22:22.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1412852
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 105
+	Minor (reclaiming a frame) page faults: 32282621
+	Voluntary context switches: 156175
+	Involuntary context switches: 37919
+	Swaps: 0
+	File system inputs: 18112
+	File system outputs: 81337464
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

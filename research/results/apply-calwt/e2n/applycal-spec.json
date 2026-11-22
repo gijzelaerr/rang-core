@@ -1,0 +1,42 @@
+[
+ {
+  "vis": "/c/e2n.ms",
+  "field": "ASKAPJ1745",
+  "scan": "",
+  "gaintable": [
+   "/p/rang-run/calibrate/K",
+   "/p/rang-run/calibrate/F",
+   "/p/rang-run/calibrate/B",
+   "/p/rang-run/calibrate/Kcross",
+   "/p/rang-run/calibrate/Xf",
+   "/p/rang-run/calibrate/Df"
+  ],
+  "gainfield": [
+   "J1939-6342",
+   "J1744-5144",
+   "J1939-6342",
+   "",
+   "",
+   ""
+  ],
+  "interp": [
+   "linear",
+   "linear",
+   "linear",
+   "nearest",
+   "nearest",
+   "nearest"
+  ],
+  "calwt": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false
+  ],
+  "parang": true,
+  "applymode": "calflag",
+  "flagbackup": false
+ }
+]

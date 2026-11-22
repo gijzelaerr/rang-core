@@ -1,0 +1,422 @@
+{
+ "examples/ms-to-image/config.yaml": {
+  "apply": "dcb74c1cf40302b722648311edac310a1de20ddb5030223cf5666054347e5e81",
+  "calibrate": "4c47c7ca6af45cef7cbce99643d1108ee047de19b4e0a2208909e7677cea5e98",
+  "flag": "6ee32a71c2d64df073faa4e8d7a8a4794fde16002b1ac479bd09f611602fcdae",
+  "image": "9983bf71c5a581b779a8b9216e5101840932d8f208984c4f656f9ee07fb7e373",
+  "selfcal": "18576c659c61af1db743dbea45b189628254575c13cd8162496e1e15543d84a9"
+ },
+ "research/results/calchain-floor/receipts/const/arm-f50.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/const/arm-lin.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/const/arm-near.yaml": {
+  "apply": "196010db7b4c3ab286375b237990a9ee0803d386bd603c5af300c7060ead4f11",
+  "calibrate": "8682629783d0e1d2d25b91daa7d0564af444a0582c84150ca593b72ed8735ee6",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/const/arm-strict.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/const/arm-zs.yaml": {
+  "apply": "a0796197e7f1eefbf409c6bdbe03515a1b4fdf1904188eea28e0f23a53026c8e",
+  "calibrate": "ecfd81f6336f9215261250e4c70a1f2188c19ef2168f9e14ffecd14443a3eff7",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/const/void-zs.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/arm-lin.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/arm-lin2.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/arm-near.yaml": {
+  "apply": "196010db7b4c3ab286375b237990a9ee0803d386bd603c5af300c7060ead4f11",
+  "calibrate": "8682629783d0e1d2d25b91daa7d0564af444a0582c84150ca593b72ed8735ee6",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/arm-strict.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/arm-zs.yaml": {
+  "apply": "a0796197e7f1eefbf409c6bdbe03515a1b4fdf1904188eea28e0f23a53026c8e",
+  "calibrate": "ecfd81f6336f9215261250e4c70a1f2188c19ef2168f9e14ffecd14443a3eff7",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/calchain-floor/receipts/stepped/void-zs.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/chi-offset/dryrun-b-config.yaml": {
+  "apply": "79f5bec9cdbbd2de07c12ac3c2ef0544f41af87b300e470e4236faa3a1600baf",
+  "calibrate": "dd58b9cf6c26f718c4f41b77ce455546846e77aa20c46dff85cdcdc35ee9d110",
+  "flag": "318544ab792b8d7fce4b9d501aed064c2bac173b9e08b31df1e55a19734cc830",
+  "image": "92238dddda2082085b89660750fe61da98e22dbf6722c7dab74e9f53857c5435",
+  "selfcal": "4ccfcde8ae66effbd6cad5adf89497e5a679c81734e2077de6320fcdf2f7f32b"
+ },
+ "research/results/e1-chain-scripts/e1_config.yaml": {
+  "apply": "f4d71501491cdd8033cab9846c1b93f3b6c672dd1cc897e0d575f67ef45dc433",
+  "calibrate": "934e63701086ad2d790fa5f7c1b43701bf17d0bf2a54467e2f0356f357545977",
+  "flag": "638cde72d4f253951f068ecc7aa4d88d5c944f36f9ceaa9586e02792eff80186",
+  "image": "a1bd0719e5aa7fde33e7099b51fb1e6164c3964fdc77159fceda730395c7171b",
+  "selfcal": "46d3e2a2a0d4ad35f0a332224e20953dff7256c2d6c6894fef5880b1e94c5750"
+ },
+ "research/results/e2-acceptance-scripts/e2a-rerun.yaml": {
+  "apply": "5446c1c130f88787a391ca8b8b6536281195e1772be3e5931542b267a8a434fa",
+  "calibrate": "b9820ea46c95f55a17c86036435126ebd71fa0b99d9b92af7e9d83f622473f2a",
+  "flag": "a0180cc529727a55e1463cd3c5dddc68c3e7cc381cd7ff274b4b62e9019736a7",
+  "image": "358c8ce0c372f4bfd9de5a1324b1f757f409cb26601f9a5ff6d71efd3a612475",
+  "selfcal": "eb549081e5cf655237be4c6accea876a7b33c375d476a8b572717a07ad6292a0"
+ },
+ "research/results/e2-acceptance-scripts/e2a.yaml": {
+  "apply": "5446c1c130f88787a391ca8b8b6536281195e1772be3e5931542b267a8a434fa",
+  "calibrate": "b9820ea46c95f55a17c86036435126ebd71fa0b99d9b92af7e9d83f622473f2a",
+  "flag": "a0180cc529727a55e1463cd3c5dddc68c3e7cc381cd7ff274b4b62e9019736a7",
+  "image": "358c8ce0c372f4bfd9de5a1324b1f757f409cb26601f9a5ff6d71efd3a612475",
+  "selfcal": "150089ab0a1fab9e6dc05222304bc03ad11ba673a20f57992d335623f80411e4"
+ },
+ "research/results/e2-acceptance-scripts/e2b-amended-dev.yaml": {
+  "apply": "37f1a2fb31537b160756f32e4d058928ffb57d41288cc1987a9e21fc707e85c9",
+  "calibrate": "a6132a5029d57042ad36b001b13b146196efca644a247060dcc5debbdb4cadea",
+  "flag": "7a437befcc1f3c89ac717204deacae3a0ee1529102a62e632ea86794614d418e",
+  "image": "875b662107a4d0d4870ff739d4821a11bf021c12b637bb49cd9e7e468b1a899b",
+  "selfcal": "3dac02a2f82b04ead9efaaa3052055ea710f23ee0b4556874f3ea880e84e261b"
+ },
+ "research/results/e2-acceptance-scripts/e2b-amended.yaml": {
+  "apply": "73b211e2d46328be7607c562d5a7cf8b88fe5a0a1c17708425c0a59c7e6e2439",
+  "calibrate": "cf970b58070febfcbc9280d9f65d462c44a3230e02df6b143864d084443db5dc",
+  "flag": "79b99d25f4cbfd7d023c165f3361dc971d48110669054cf9ae12efa5951872e9",
+  "image": "b123b5505e11d2d000a2237e146fb51cbb4986be739512aa8a3fa48376dd1c00",
+  "selfcal": "baf67af36f7d20c70a7fa6ec64c4430b1c185dc3b685b64af670836c532a2933"
+ },
+ "research/results/e2-acceptance-scripts/e2b-dev.yaml": {
+  "apply": "35e981abd87f19bbf760e2745477242a6a319af6f6e99bbc00ebb5e9c91c0eb4",
+  "calibrate": "1b7ace554d7ceec6944be8da908b7b919c2e6eed9c0e463d847166b52449963b",
+  "flag": "7a437befcc1f3c89ac717204deacae3a0ee1529102a62e632ea86794614d418e",
+  "image": "875b662107a4d0d4870ff739d4821a11bf021c12b637bb49cd9e7e468b1a899b",
+  "selfcal": "3dac02a2f82b04ead9efaaa3052055ea710f23ee0b4556874f3ea880e84e261b"
+ },
+ "research/results/e2-acceptance-scripts/e2b.yaml": {
+  "apply": "052da85fa349ffa64bf749fa4aff50282589068e85001a8047482a1a986dfc95",
+  "calibrate": "87a93d612e5bda51f3fadd8d08297ac34546cfed8ed5007b394fbd2c22ab154e",
+  "flag": "79b99d25f4cbfd7d023c165f3361dc971d48110669054cf9ae12efa5951872e9",
+  "image": "b123b5505e11d2d000a2237e146fb51cbb4986be739512aa8a3fa48376dd1c00",
+  "selfcal": "baf67af36f7d20c70a7fa6ec64c4430b1c185dc3b685b64af670836c532a2933"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/a-try1-multiscale/config.yaml": {
+  "apply": "5eb5af7b6337151c5af74fd326d878d264d0ee85c9f70833142f68e85e098acd",
+  "calibrate": "f7c0d31652f744e9cc281a0a11c34b514b71a432ba8f244c0ba1429f3814132f",
+  "flag": "4c84a889509c126a3df68cd8db75cafa30e74ffbed969a26458cc08f391b4d1e",
+  "image": "fac2e83170ad0e2da307c40475fe1bd0def23b9705021121c52c2be3eec7859b",
+  "selfcal": "434fb0d0046bbd6a86b2d744a020318077acc218868bbea96c049854c7f197f0"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/a-wheel/config.yaml": {
+  "apply": "5eb5af7b6337151c5af74fd326d878d264d0ee85c9f70833142f68e85e098acd",
+  "calibrate": "f7c0d31652f744e9cc281a0a11c34b514b71a432ba8f244c0ba1429f3814132f",
+  "flag": "4c84a889509c126a3df68cd8db75cafa30e74ffbed969a26458cc08f391b4d1e",
+  "image": "2893856c0ec1e0be227256bdb07fabdeddb9daf89d135c28db80717e4bfda7ea",
+  "selfcal": "29b5c7f3a38e24cbce6cb5872ffc74a503ba5a15e26b8987e7c62077292c7558"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/a/config.yaml": {
+  "apply": "5eb5af7b6337151c5af74fd326d878d264d0ee85c9f70833142f68e85e098acd",
+  "calibrate": "f7c0d31652f744e9cc281a0a11c34b514b71a432ba8f244c0ba1429f3814132f",
+  "flag": "4c84a889509c126a3df68cd8db75cafa30e74ffbed969a26458cc08f391b4d1e",
+  "image": "2893856c0ec1e0be227256bdb07fabdeddb9daf89d135c28db80717e4bfda7ea",
+  "selfcal": "29b5c7f3a38e24cbce6cb5872ffc74a503ba5a15e26b8987e7c62077292c7558"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/b-wheel/config.yaml": {
+  "apply": "79f5bec9cdbbd2de07c12ac3c2ef0544f41af87b300e470e4236faa3a1600baf",
+  "calibrate": "dd58b9cf6c26f718c4f41b77ce455546846e77aa20c46dff85cdcdc35ee9d110",
+  "flag": "318544ab792b8d7fce4b9d501aed064c2bac173b9e08b31df1e55a19734cc830",
+  "image": "92238dddda2082085b89660750fe61da98e22dbf6722c7dab74e9f53857c5435",
+  "selfcal": "4ccfcde8ae66effbd6cad5adf89497e5a679c81734e2077de6320fcdf2f7f32b"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/b-wheel2/config.yaml": {
+  "apply": "79f5bec9cdbbd2de07c12ac3c2ef0544f41af87b300e470e4236faa3a1600baf",
+  "calibrate": "dd58b9cf6c26f718c4f41b77ce455546846e77aa20c46dff85cdcdc35ee9d110",
+  "flag": "318544ab792b8d7fce4b9d501aed064c2bac173b9e08b31df1e55a19734cc830",
+  "image": "92238dddda2082085b89660750fe61da98e22dbf6722c7dab74e9f53857c5435",
+  "selfcal": "4ccfcde8ae66effbd6cad5adf89497e5a679c81734e2077de6320fcdf2f7f32b"
+ },
+ "research/results/e2-acceptance/dev-archive/e2-20261111-12-dryrun/b/config.yaml": {
+  "apply": "79f5bec9cdbbd2de07c12ac3c2ef0544f41af87b300e470e4236faa3a1600baf",
+  "calibrate": "dd58b9cf6c26f718c4f41b77ce455546846e77aa20c46dff85cdcdc35ee9d110",
+  "flag": "318544ab792b8d7fce4b9d501aed064c2bac173b9e08b31df1e55a19734cc830",
+  "image": "92238dddda2082085b89660750fe61da98e22dbf6722c7dab74e9f53857c5435",
+  "selfcal": "4ccfcde8ae66effbd6cad5adf89497e5a679c81734e2077de6320fcdf2f7f32b"
+ },
+ "research/results/e2-acceptance/e1b/config-04-e1b-auto.yaml": {
+  "apply": "35e3728972eb8a638ff61d35a3bee365cda8e45390097af55b55de73d8d03b90",
+  "calibrate": "ed83fddb1766c4eb71260074d588970a214dac64e689496c7a1a58f8f8f26251",
+  "flag": "638cde72d4f253951f068ecc7aa4d88d5c944f36f9ceaa9586e02792eff80186",
+  "image": "a1bd0719e5aa7fde33e7099b51fb1e6164c3964fdc77159fceda730395c7171b",
+  "selfcal": "fb843169cd3be0ef1ea7e3038e65160f5d557dbbf54ce0d9226aa35669dd7d2d"
+ },
+ "research/results/e2-acceptance/e1b/config-05-e1b-m000.yaml": {
+  "apply": "f4d71501491cdd8033cab9846c1b93f3b6c672dd1cc897e0d575f67ef45dc433",
+  "calibrate": "934e63701086ad2d790fa5f7c1b43701bf17d0bf2a54467e2f0356f357545977",
+  "flag": "638cde72d4f253951f068ecc7aa4d88d5c944f36f9ceaa9586e02792eff80186",
+  "image": "a1bd0719e5aa7fde33e7099b51fb1e6164c3964fdc77159fceda730395c7171b",
+  "selfcal": "46d3e2a2a0d4ad35f0a332224e20953dff7256c2d6c6894fef5880b1e94c5750"
+ },
+ "research/results/e2-acceptance/e2a-rerun/post/e2a-flux.yaml": {
+  "apply": "8bcb2523c7bf4109af20aab65768f59cde1b92aeef7505b9ca3cd835262f8182",
+  "calibrate": "4c3789d725a3ae7b4ebd2adbfdecd2749ebad039d67e11772ec85ec062386104",
+  "flag": "e8667a516717fa136158a29741b4e3a015e61a4c47bea41854adf1a74da3c4ff",
+  "image": "981e5a89ca40f710ae44aabec54536ed17f03bca0046cdc5d09f9a61239213e6",
+  "selfcal": "579c9b7f4a6922e68ec22b874c1137507fd14a0cf096f4492802ff36cafc2e54"
+ },
+ "research/results/e2a-3b-diag/pinned/e2a-rerun.yaml": {
+  "apply": "5446c1c130f88787a391ca8b8b6536281195e1772be3e5931542b267a8a434fa",
+  "calibrate": "b9820ea46c95f55a17c86036435126ebd71fa0b99d9b92af7e9d83f622473f2a",
+  "flag": "a0180cc529727a55e1463cd3c5dddc68c3e7cc381cd7ff274b4b62e9019736a7",
+  "image": "358c8ce0c372f4bfd9de5a1324b1f757f409cb26601f9a5ff6d71efd3a612475",
+  "selfcal": "eb549081e5cf655237be4c6accea876a7b33c375d476a8b572717a07ad6292a0"
+ },
+ "research/results/e2a-3b-diag/receipts/rang-r0.yaml": {
+  "apply": "75b914816fdefa716c4a63f26b905ba9c9a0892a7c4ce6a78fe3d86dc1c6fb91",
+  "calibrate": "1a24730b2fdc796a2dba4f89085bc468ab1952906dc0ff517b720882566430dd",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-diag/receipts/rang-ti.yaml": {
+  "apply": "75b914816fdefa716c4a63f26b905ba9c9a0892a7c4ce6a78fe3d86dc1c6fb91",
+  "calibrate": "1a24730b2fdc796a2dba4f89085bc468ab1952906dc0ff517b720882566430dd",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-diag/receipts/rang-ts.yaml": {
+  "apply": "75b914816fdefa716c4a63f26b905ba9c9a0892a7c4ce6a78fe3d86dc1c6fb91",
+  "calibrate": "1a24730b2fdc796a2dba4f89085bc468ab1952906dc0ff517b720882566430dd",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-diag/receipts/rang-tt.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-diag/receipts/rang-tts.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/rang-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/rang-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/rang-uf.yaml": {
+  "apply": "63f4aaa38cb5474ad561c3c1d06cce006ae584f39f7ac37f0dc071519b616855",
+  "calibrate": "408a7a5f3b9d9b2e81a71fe7c0576111ed20f9ae7dd0d2f6a7a755333b5f1216",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s0-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s0-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s0f-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s0f-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s1-20261171-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s1-20261171-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s1-20261171-uf.yaml": {
+  "apply": "63f4aaa38cb5474ad561c3c1d06cce006ae584f39f7ac37f0dc071519b616855",
+  "calibrate": "408a7a5f3b9d9b2e81a71fe7c0576111ed20f9ae7dd0d2f6a7a755333b5f1216",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s1-20261172-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s1-20261172-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s2-20261171-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s2-20261171-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s2-20261172-d.yaml": {
+  "apply": "6a5cee9480f55844235a799d1e310422583f0cde58121d0989314c94d3252426",
+  "calibrate": "5ea5f1e7c1ace051cede6a2f5e6288d589af008326d47494da862f8c610d4d51",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2a-3b-k/receipts/sim-s2-20261172-u.yaml": {
+  "apply": "d3642d446fc193c0784f4c22a51765aac75d6e73a4d34b06baf5d4b0d529472f",
+  "calibrate": "43c5798260bf23b990e2c70aeaa1adfceb69054cad2f481224b1f4caf722cb1a",
+  "flag": "897ee530ac0829288227964b5044fabbce9e83faa734ffab8c03cd0907b49194",
+  "image": "04af4ac32adbb683624e528d6838a9c01a79008b6f8cde43692cecec0de28092",
+  "selfcal": "2bbdc32496e044d656206bd1a4a4088b7a240ccf6e03a2b97e1ae72ae00884ef"
+ },
+ "research/results/e2n-scripts/e2n.yaml": {
+  "apply": "3b3f3047c0d30b3c80730146922de9e212e800728aac1c93b5370dcf3ac5a7f7",
+  "calibrate": "8baf5144c99ecc7fb271466aa2434da881c3e864d4c4b9b246a287a7d602acd7",
+  "flag": "31dd09383f8f9a7802bdaf42a432e922b1732701e852693fc38dbe9f24f98b02",
+  "image": "9e4519e076dc32d40790635e291f36b175c34932c46080c872ce1e2d455fb37a",
+  "selfcal": "6d44b5aad321087b195d9627de40e7296a7338e8010cbdcc06ffdd398519f6fb"
+ },
+ "research/results/e2n/smoke/config.yaml": {
+  "apply": "99e7016feeab4203ac680fbb7e89f970dfc49c1c4916723eee2afe204fb77ef0",
+  "calibrate": "ebe6dc1ce6d992d2ea87285d48c41aefb351c2e10fd56aa790da7f11773eaa54",
+  "flag": "638cde72d4f253951f068ecc7aa4d88d5c944f36f9ceaa9586e02792eff80186",
+  "image": "05361fadbf91b3821be2f44552050b18903eea2c32d6b0854d40d0a19544a03f",
+  "selfcal": "8deeba5d230cfddf93394dc92c6ded91c28772d413e83e00c65b51b053563ecd"
+ },
+ "research/results/floor-3/p1.yaml": {
+  "apply": "f152dce05b5a926ac0bfd06520f80c63b8f63e5c82eac1385b5f375492f8bd7e",
+  "calibrate": "1fcd13e64cb86aa9d4af9b31361444e17c6cdd734d07ec26857c991622524ee8",
+  "flag": "43deed80b2da184399b9504efedb884d36f25e7932b9582870d56b2740a0b587",
+  "image": "76d4c52ef724adb6a42dee015306ae4edb1a16fdd60672f6f6800dfe6e138953",
+  "selfcal": "7ed8dcb21d3a210ca64cdb26908a0eb2b33634c2188fd1f9c1e0bd4d9948eb74"
+ },
+ "research/results/floor-3/pl.yaml": {
+  "apply": "f152dce05b5a926ac0bfd06520f80c63b8f63e5c82eac1385b5f375492f8bd7e",
+  "calibrate": "1fcd13e64cb86aa9d4af9b31361444e17c6cdd734d07ec26857c991622524ee8",
+  "flag": "43deed80b2da184399b9504efedb884d36f25e7932b9582870d56b2740a0b587",
+  "image": "76d4c52ef724adb6a42dee015306ae4edb1a16fdd60672f6f6800dfe6e138953",
+  "selfcal": "bb4acb585ff418f6f9ab43a1987df0364aacbd21328f60aaeccbecd98dbd732f"
+ },
+ "research/results/selfcal-memory/config-default.yaml": {
+  "apply": "f152dce05b5a926ac0bfd06520f80c63b8f63e5c82eac1385b5f375492f8bd7e",
+  "calibrate": "1fcd13e64cb86aa9d4af9b31361444e17c6cdd734d07ec26857c991622524ee8",
+  "flag": "43deed80b2da184399b9504efedb884d36f25e7932b9582870d56b2740a0b587",
+  "image": "76d4c52ef724adb6a42dee015306ae4edb1a16fdd60672f6f6800dfe6e138953",
+  "selfcal": "6cb4e110734ab6739955c11022e06fd3bf06e39c886ffe1b163a8101870a3549"
+ },
+ "tests/data/w2/e2a.yaml": {
+  "apply": "e2d0d27541cac6cc35a06003a11a37017ca8590ca8cc92ad3b6acf1fa0b5913b",
+  "calibrate": "2da69d08a3a5bca9aec51292c314c09e2e4968d4273e9e7081c9ed95a58cce6b",
+  "flag": "a855970f8a78bff2a33806687bcc0ec39336866fbe3e31224e85209b4ff8e1cf",
+  "image": "6295b39bc5aeeb378f33f4dceecd0b99498573a39c2e18c4ff25aa438bbccbf4",
+  "selfcal": "565ade525ea051f5ae7dbf47f2ecea9cf1aca996f3437c64379b5f4254deb0c6"
+ },
+ "tests/data/w2/e2b.yaml": {
+  "apply": "5785491c8ddb3c63f541c4afe958bca3ebd3871027f33403bd81857cb41a1807",
+  "calibrate": "10ae222a2daece01e473d8688a7bec66170d5e8a2819da79f60c933c7b6f1dc4",
+  "flag": "79b99d25f4cbfd7d023c165f3361dc971d48110669054cf9ae12efa5951872e9",
+  "image": "22ba9859307132eeaca0a3896c4c5c8cbf511b33761fc82b77b89d7f48fddef9",
+  "selfcal": "91e52662b2da3fe11eccfe5928f918604a64f6270143062d933230e73a7875ce"
+ },
+ "tools/oracles/ts-p1/run-arm.yaml": {
+  "apply": "5de3316a99fd0ddbc416ac4610aab5279eec5e1df162bf46784179a9beae3ab8",
+  "calibrate": "935030473fb750d0f51542d1942ff56cf2d6f9c29d2f4fd5a641507515954ee6",
+  "flag": "3250a294c1d622d87e7892c7db96b6f2a6f7bd2d33d6eb4b898f1787590da4b2",
+  "image": "30022abae263b93f264e74528afd3a2492362ef78ba860a5207d545081779cf5",
+  "selfcal": "fce8935bbb60720556bce7e08f793ca5655252e2d56440f9a49cd30671ebb38f"
+ }
+}

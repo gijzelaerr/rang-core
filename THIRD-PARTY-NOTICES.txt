@@ -186,7 +186,7 @@ GNU Library General Public License, version 2 or any later version.
 Copyright (C) 2008
 Associated Universities, Inc. Washington DC, USA.
 
-StandardVisCal.cc (synthesis/MeasurementComponents; B Jones); followed in core/src/cal/bandpass.rs; python/rang/cal_bandpass.py.
+StandardVisCal.cc (synthesis/MeasurementComponents; B Jones); followed in core/src/cal/bandpass.rs; python/rang/cal_bandpass.py; BJones::calcWtScale (the calwt weight factor) in python/rang/applycal.py and core/src/cal/apply.rs (calwt_scale, used by the calibrate.*_calwt keys).
 GNU Library General Public License, version 2 or any later version.
 Copyright (C) 1996,1997,1998,1999,2000,2001,2002,2003,2011
 Associated Universities, Inc. Washington DC, USA.

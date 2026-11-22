@@ -1,0 +1,9 @@
+{
+ "written": "2026-11-21, after validation, before any test read",
+ "W*": "W4 (-mgain 0.9), chosen on the validation split by section 4's rule with amendment 4's two-sided recovery (results/dl4b-step0/wstar-validation.json)",
+ "N1": {"seed1": "ckpt.pt step 4997 (final; best.pt equal)", "seed2": "ckpt.pt step 5500", "seed3": "ckpt.pt step 5500",
+        "rule": "amendment 4 score between best.pt and final weights; earlier validated steps were overwritten and are not available"},
+ "NP": {"seed1": "best.pt step 2081", "seed2": "best.pt step 5418", "seed3": "best.pt step 2676",
+        "rule": "best.pt by amendment 4's score (image-domain validation every 15 min and at step 500)"},
+ "onnx": "D:/rang/dl4b-step0/onnx/{N1,NP}-seed{1,2,3}.onnx, ops Conv and Relu, 92,768 weights each"
+}

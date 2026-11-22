@@ -239,8 +239,36 @@ class Spool:
                     "(start one: python -m rang.core_spool worker SPOOL)"
                 )
 
-    def discard(self):
-        """Remove this session's specs, claims and results left over."""
+    def _running(self, now):
+        """This session's claims held by a live worker (or still being written)."""
+        live = self._live_workers(now)
+        out = []
+        for claim in (self.root / "claimed").glob(f"{self.session}-*"):
+            try:
+                worker = _retry(claim.read_text, encoding="utf-8").strip()
+                made = claim.stat().st_mtime
+            except FileNotFoundError:
+                continue  # finished meanwhile
+            if worker in live or (not worker and now - made <= LEASE_S):
+                out.append(claim)
+        return out
+
+    def discard(self, wait_s=None):
+        """Remove this session's specs, claims and results left over.
+
+        The queued specs go first, so no worker starts another one (a worker
+        that claims a removed spec drops the claim). A task a live worker is
+        running still writes its partial after that, so this waits, at most
+        `wait_s` (default: the spool's), until no live worker holds one of
+        this session's claims, and only then removes results and claims:
+        the spool is left empty of this session, whatever the timing."""
+        for p in (self.root / "tasks").glob(f"{self.session}-*"):
+            _unlink(p)
+        deadline = time.time() + (self.wait_s if wait_s is None else float(wait_s))
+        for _ in _sleeper():
+            now = time.time()
+            if not self._running(now) or now > deadline:
+                break
         for sub in ("tasks", "done", "claimed"):
             for p in (self.root / sub).glob(f"{self.session}-*"):
                 _unlink(p)

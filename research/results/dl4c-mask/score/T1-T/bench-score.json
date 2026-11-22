@@ -1,0 +1,78 @@
+{
+ "beam_arcsec": 11.631454,
+ "briggs_noise": 2.3403956359609126e-05,
+ "jobs": {
+  "image-MFS": {
+   "between_1_and_2_beams_flux": 0.016497792054232515,
+   "dynamic_range": 9332.180199245875,
+   "exact_residual_inner_peak_abs": 0.00029293718248229577,
+   "exact_residual_inner_rms": 2.3677306724078357e-05,
+   "exact_vs_imager_residual_inner_linf": 0.00023716542918124345,
+   "extended": {
+    "flux": 6.598772619212102,
+    "flux_error": 0.015825497596321902,
+    "negative_flux": -0.008094787591928276,
+    "pixels": 100017,
+    "true_flux": 6.58294712161578
+   },
+   "false_flux_abs": 0.012124589643344352,
+   "false_flux_negative": -0.006652257904991949,
+   "false_flux_positive": 0.0054723317383524005,
+   "false_pixels": 16671540,
+   "log": {},
+   "model_fits_sha256": "78099a4c11350a9a4832cdc33872604f09beb6f9d8ce84e85f149ef62db48bff",
+   "model_flux_negative": -0.6816886587102724,
+   "model_flux_total": 8.47657994547857,
+   "model_pixels": 16777216,
+   "name": "image-MFS",
+   "q": 0.046539726299776644,
+   "q_over_q0": 0.1692589118028103,
+   "q_over_q_truth": 1.0020661872936172,
+   "recovery_all": {
+    "flux_weighted": 0.9903133157933776,
+    "mean": 0.994260139469927,
+    "n": 30,
+    "std": 0.008534391571899941
+   },
+   "recovery_by_decade": {
+    "0.001-0.01 Jy": {
+     "mean": 0.997755336762277,
+     "min": 0.9833308044764062,
+     "n": 9,
+     "std": 0.008331519101108891
+    },
+    "0.01-0.1 Jy": {
+     "mean": 0.9946227991191602,
+     "min": 0.98540865076663,
+     "n": 14,
+     "std": 0.004158854793694755
+    },
+    "0.1-1 Jy": {
+     "mean": 0.9890409950812951,
+     "min": 0.9729162746889953,
+     "n": 7,
+     "std": 0.012045965792990953
+    }
+   },
+   "residual_fits_sha256": "f6e005419425ba47de51b1c08a5e24f4a928757a62395ce87539b97070cdfaf0",
+   "residual_inner_peak_abs": 0.0001857928145909682,
+   "residual_inner_rms": 2.360137403741061e-05,
+   "residual_inner_rms_over_noise": 1.0084352267098817,
+   "residual_rms": 2.351084286345978e-05,
+   "restored_peak": 0.22025227546691895,
+   "restoring_beam_arcsec": [
+    14.966070744460145,
+    9.03982871625239
+   ],
+   "score_seconds": 180.67707584612072,
+   "time": {},
+   "total_flux_error": 0.012925545998141885,
+   "true_flux_total": 8.463654399480427
+  }
+ },
+ "prep": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/prep/T1/out",
+ "q0": 0.2749617482711709,
+ "q_truth": 0.04644376478311403,
+ "run": "/home/gijs/rang-data/outputs/dl4c-mask-20261120/img/T1-T",
+ "timing_status": "PROVISIONAL (contended): shared host, not for speed comparisons"
+}

@@ -1,0 +1,3 @@
+18:20:42 meta {'zarr': '/home/gijs/rang-data/outputs/automask-cycle-20261118/inputs/ms1_target.zarr', 'main': 'MAIN_6', 'rows': 850950, 'row_chunks': 18, 'field_ids': [0], 'scans': [14], 'phase_dir_sep_arcsec': [0.0], 'ntime': 450, 'time_first': 5064175599.157047, 'time_last': 5064179189.638075, 'span_s': 3590.4810276031494, 'nfield_rows': 1, 'data_desc_id': 0, 'one_field': True, 'phase_ok': True, 'span_ok': True}
+18:20:42 stage meta [] 0.0 s
+TIME meta-MAIN_6 0.65 s 82448 KB
