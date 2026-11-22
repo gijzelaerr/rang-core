@@ -7,6 +7,8 @@ documentation and `rang.__version__` follow it, and
 builds, tests and publishes that version (`.github/workflows/wheels.yml`);
 the release notes are the section of this file for that version.
 
+## Unreleased
+
 ## 0.4.0 (2026-11-22)
 
 0.4.0's question is whether learned stages can sit inside the chain without changing a single classical
