@@ -729,6 +729,7 @@ fn joined<M: Measurement>(
         }
         let dq_exact = q_next - q;
         let gap = dq_exact - predicted;
+        super::progress(cycles.len(), peak.abs(), threshold, steps.len(), start);
         cycles.push(Cycle {
             index: cycles.len(),
             components: steps.len() - cycle_taken,
