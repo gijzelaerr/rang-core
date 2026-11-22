@@ -177,6 +177,29 @@ pass every target gate but G-drop at k = 1, and what does dropping W4 cost R1, R
 is a method choice made after D5's numbers, so if F7 adopts it, F7 must re-select κ by a rule
 written before its own validation read.
 
+**D4 full verdict (2026-11-22 07:31 SAST):** F on R5 (ESO137 0.686) and G-drop (ESO137); every
+SARAO target gate passes.
+
+**D6 measured (2026-11-22 08:51 SAST, validation only; `nash:~/rang-data/outputs/f7-d6-20261122/`).**
+D3's target weights, τ −4.0, W4 off (N5 only). Complete scorer and verdict:
+
+| Gate | D6 | D3 (N5W4) | F6 | Bar |
+| --- | --- | --- | --- | --- |
+| R1 (T) | 1.000 (0.913) | 1.000 | 1.000 | ≥ T − 0.05 |
+| R2 worst (T) | 0.901 H3 (0.568) | 0.989 | 0.996 | ≥ T − 0.05 |
+| R3 ESO137 / SARAO | 0.25 / 1.02 | 0.31 / 1.17 | 0.42 / 1.16 | lower bound to 1.5 |
+| R5 ESO137 / SARAO | **0.801** / 0.992 | 0.808 / 0.992 | 0.893 / 0.992 | ≥ 0.80 |
+| G-drop ESO137, k = 1 / 4 / 8 | **0.066** / 0.118 / 0.220 | 0.096 / 0.200 / 0.287 | 0.110 / 0.217 / 0.350 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.013 / 0.032 / 0.064 | 0.015 / 0.040 / 0.082 | 0.014 / 0.037 / 0.081 | |
+| G-sub core16 / outer32, S1-S3 | pass | pass | outer32 fail | |
+
+Reading: with W4 off the targets fail one gate, G-drop on ESO137 at k = 1 (0.066 against 0.05);
+R5 on ESO137 sits on its bar (0.801). **Targets are within reach for F7**: P1 + P2, N5 only, and one
+more step on single-antenna robustness on the 512-channel set (P4's 1k-channel data, or dropout of
+1 antenna weighted up in training). Every choice in D1-D6 was made after seeing validation
+numbers, so an F7 target protocol must re-select τ, κ (or W4's removal) and the level by rules
+written before its own validation read, and the held-out sets of section 0 decide it.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
