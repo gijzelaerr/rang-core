@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Worktrees/rang/flag-residual/.venv/bin/python -m rang.core_cli run /home/gijs/rang-data/outputs/flag-residual-20261121/a1/a1-off.yaml /home/gijs/rang-data/outputs/flag-residual-20261121/a1/a1-off.ms"
+	User time (seconds): 3591.58
+	System time (seconds): 1193.66
+	Percent of CPU this job got: 120%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:05:57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 14420952
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 64
+	Minor (reclaiming a frame) page faults: 372264093
+	Voluntary context switches: 57074
+	Involuntary context switches: 18371
+	Swaps: 0
+	File system inputs: 208649040
+	File system outputs: 248032744
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

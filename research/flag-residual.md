@@ -1,6 +1,6 @@
 # Rang: a classical residual flagging stage, `flag.residual` (issue #51)
 
-Status at freeze, 2026-11-21: **proposed; nothing built or run.** Branch `flag-residual` from origin/main
+Status, 2026-11-22: **measured; outcome 5, null (`mode: calibrators`): G-Q and G-S pass, G-F fails narrowly, G-D fails; default stays off; targets not built.** Status at freeze, 2026-11-21: proposed; nothing built or run. Branch `flag-residual` from origin/main
 `5478c019`, for v0.5.0 (coordinator, 2026-11-21). Route:
 [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Host: nash for every
 measurement (`nice -n 19 ionice -c3`, main checkout's `tools/heavy_lock.py run`, booked by measured
@@ -268,4 +268,66 @@ QuartiCal as it is; the port now does the same. G-Q is read a third time.
 
 ## Measured result
 
-_Nothing yet._
+Run 2026-11-21/22 on nash (shared; branch extension built on nash; `nice -n 19 ionice -c3`, heavy lock
+2 slots and 32 GB per run, 4-8 for builds and scoring). Run root
+`nash:~/rang-data/outputs/flag-residual-20261121`. Archive [results/flag-residual](results/flag-residual):
+`score.json` (scorer `fr_score.py`), `oracle/gate-q.json`, the `on` runs' `residual.json` (first, second
+and final E2-N run; A1), the time files. Settings: the reporter's (sigma 5, persist 3, guard 0.8,
+tripwire 0.05; amendment 4's relative tripwire), `method: rang`, `mode: calibrators`.
+
+**Order of reading, stated plainly:** the gates G-S, G-F and G-D were read (06:17-06:40) before G-Q's
+third reading passed (07:42); section 6's rule 1 says nothing else is read while G-Q fails. The
+`rang` arm does not use the QuartiCal-mode kernel that G-Q checks, and no number was changed after G-Q.
+
+**G-Q (oracle), third reading: pass.** E2-N J1939-6342 scan 14, channels 0-127, 139,934 rows (17,911,552
+cells): rang's `quartical` kernel and QuartiCal 0.2.7's own kernels (in `rang-formats-oracle:20261030`)
+flag the same 14,776,552 cells; 0 differ (bound 1e-6). First reading 19.8 % and second 1.40 % differing
+(amendment 5 and its addendum).
+
+**G-S (solutions intact): pass.** Flagged solution fractions, `off` → `on`: K, G, Gsec, F, Gpol, Kcross
+0 → 0; B 29.69 → 29.71 %; Xf 17.97 → 18.46 %; Df 33.20 → 33.73 % (bound +1 point). Antennas without an
+unflagged cell to the reference antenna m022 after the run: J1939-6342 19 and 19, J1331+3030 35 and 35,
+J1744-5144 0 and 0 (none lost). The tripwire did not fire.
+
+**G-F (flux and polarisation): fails on one clause.** J1744-5144's fluxscale 7.1793 → 7.1801 Jy
+(+0.01 %; bound 0.5 %); 3C 286 p 9.964 → 9.959 % (bound 0.2 points) and χ 39.56 → 39.62° (bound 0.5°);
+J1939-6342's residual polarisation 0.079 → 0.086 % ("not higher": **higher**, by 0.008 points).
+
+**G-D (downstream): fails.**
+
+| Measure | `off` | `on` | Bound | |
+| --- | ---: | ---: | --- | --- |
+| E2-N implied noise, J1939-6342 (on/off) | | 0.9991 | ≤ 0.98 | fail |
+| E2-N implied noise, J1744-5144 | | 0.9986 | ≤ 0.98 | fail |
+| E2-N implied noise, J1331+3030 | | 1.0021 | ≤ 0.98 | fail |
+| A1 recall of `above_5sigma` cells (calibrator fields, after the run) | 0.403 | 0.451 | ≥ 0.9 | fail |
+| A1 false flags on cells clean in `any` | 0.197 | 0.283 | ≤ 0.02 | fail |
+| A1 B shape error (median) | 4.31e-5 | 4.87e-5 | on ≤ off | fail |
+
+On E2-N the stage added 0.1-0.4 percentage points of flags per calibrator scan (the cells left after the
+flag stage are already mostly clean) and changed nothing measurable. On A1, with only online flags, it
+found 4.8 points more of the injected RFI and flagged 8.6 points more clean cells; the `off` arm's own
+numbers come from the chain's A term (Tricolour on the secondary), extendflags and calflag.
+
+### Verdict by section 6: **outcome 5, null**
+
+The stage runs safely after amendments 3 and 4 (no solution lost, flux and 3C 286 unchanged), but it does
+not lower the calibrators' noise on E2-N, and on A1 it adds more false flags than it recovers RFI. The
+default stays `off`; `flag.residual` stays experimental (not in the recipes); the target arm
+(amendment 1) is not built.
+
+Costs (`/usr/bin/time`, nash shared, 2 threads): E2-N `run` calibrate+apply 2 h 04 min (`off`) and
+2 h 54 min (`on`, final run: calibrate 8,838 s with the residual pass and the re-solve, apply 1,595 s);
+A1 full 1 h 06 min (`off`) and 1 h 31 min (`on`); A1 generation 7 min.
+
+## For the coordinator
+
+- #51: **null** (outcome 5); G-Q exact after two port fixes; three design faults of this note found and
+  fixed on the way (amendments 3-5), each recorded.
+- QuartiCal finding (not reported anywhere): `compute_mad_flags` measures |complex cell − real median|
+  for both the real-part and imaginary-part medians, so the imaginary median shifts the real part
+  (amendment 5's addendum); `rang` reproduces it in the `quartical` arm only.
+- Side finding: E2-N's stage-off chain flags B for 29.7 % of solutions and leaves 19 antennas without a
+  J1939-6342 baseline to m022 (35 on 3C 286), close to the 19 antennas CASA's K solve flagged on this block.
+- Not done: targets (`mode: all`), the reporter's known-RFI band preset (amendment 1), katdal's L0
+  online-flag categories.
