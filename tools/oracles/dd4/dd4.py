@@ -4,6 +4,8 @@
     python tools/oracles/dd4/dd4.py setup SUBMS CATALOGUE.json RUN
     python tools/oracles/dd4/dd4.py rang RUN [--di]        # arm R, or arm DI
     python tools/oracles/dd4/dd4.py oracle RUN SCRATCH     # arm O (WSL QuartiCal, WSClean)
+    python tools/oracles/dd4/dd4.py control RUN SCRATCH    # C0 (A1, A2)
+    python tools/oracles/dd4/dd4.py control1 RUN SCRATCH   # C0', C1 (A4)
     python tools/oracles/dd4/dd4.py score RUN
 
 The loop and the shared minor cycle are DD3c's (`tools/oracles/dd3/dd3.py`,
@@ -163,7 +165,6 @@ def facet_models(ctx, model):
 def residual_image(ctx, models, gains):
     """The flat-gain facet image (1/c per facet, DD2b's convention) of
     DATA - sum_f G_p,f M_f G_q,f^H."""
-    from rang import core_wgridder
 
     c, block, ndir = ctx["c"], ctx["block"], ctx["ndir"]
     a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
@@ -172,6 +173,15 @@ def residual_image(ctx, models, gains):
         gp, gq = gains[block, 0, a1, f], gains[block, 0, a2, f]
         r[..., 0] -= gp[:, None, 0] * models[:, :, f, 0] * np.conj(gq[:, None, 0])
         r[..., 3] -= gp[:, None, 1] * models[:, :, f, 3] * np.conj(gq[:, None, 1])
+    return facet_image(ctx, r, gains)
+
+
+def facet_image(ctx, r, gains):
+    """The flat-gain facet image of the four-correlation visibilities r."""
+    from rang import core_wgridder
+
+    c, block, ndir = ctx["c"], ctx["block"], ctx["ndir"]
+    a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
     w = c["w_I"]
     image = np.zeros((NY, NX))
     for f in range(ndir):
@@ -416,6 +426,45 @@ def control_c0(run, scratch):
     print(json.dumps(rec))
 
 
+def control_c1(run, scratch):
+    """Amendment A4's controls on the four-correlation copy: C0' (WSClean's
+    dirty image, no facets) and C1 (its flat-gain facet image of DATA with
+    arm O's cycle-0 gains) against rang, each within 1e-3 of the peak over
+    interior pixels; c1d, the same facet image with -diagonal-visibilities
+    on the two-correlation MS, is reported for contrast (A3)."""
+    from rang import core_wgridder
+
+    ctx = context(run)
+    c = ctx["c"]
+    out = run / "C1"
+    d0 = run / "O" / "cycle-0"
+    run_wsl("step4_c1.sh", dd3.to_wsl(ctx["st"]["subms"]), scratch, dd3.to_wsl(out),
+            dd3.to_wsl(d0 / "solved.h5"), dd3.to_wsl(run / "facets.reg"))  # fmt: skip
+    vis = 0.5 * (c["DATA"][..., 0].astype(complex) + c["DATA"][..., 3])
+    mine0 = core_wgridder.fits_image(c["UVW"], c["freq"], vis, c["w_I"], NX, NY,
+                                     dd2.SCALE_ARCSEC, epsilon=EPS)["dirty"]  # fmt: skip
+    g = np.load(d0 / "gains.npz")
+    gains = np.array(g["gains"], complex)
+    gains[np.broadcast_to(g["flags"][..., None] != 0, gains.shape)] = 1.0  # as write_h5
+    mine1 = facet_image(ctx, c["DATA"].astype(np.complex128), gains)
+    interior = ctx["interior"]
+    rec = {}
+    for key, mine, fits in (("C0p", mine0, "c0p-dirty.fits"), ("C1", mine1, "c1-image-pb.fits"),
+                            ("C1_diagonal", mine1, "c1d-image-pb.fits")):  # fmt: skip
+        theirs = dd2.read_fits(out / fits)
+        d = np.abs(mine - theirs)[interior].max() / np.abs(theirs).max()
+        scale = []
+        for f in range(ctx["ndir"]):
+            sel = interior & (ctx["idx"] == f)
+            scale.append(
+                float((theirs[sel] * mine[sel]).sum() / (mine[sel] ** 2).sum())
+            )
+        rec[key] = {"rel_diff": float(d), "peak": float(np.abs(theirs).max()),
+                    "scale_theirs_over_mine_per_facet": scale, "pass": bool(d <= 1e-3)}  # fmt: skip
+    (out / "c1.json").write_text(json.dumps(rec, indent=1))
+    print(json.dumps(rec, indent=1))
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     cmd = argv[0]
@@ -427,6 +476,8 @@ def main(argv=None):
         arm_o(Path(argv[1]), argv[2])
     elif cmd == "control":
         control_c0(Path(argv[1]), argv[2])
+    elif cmd == "control1":
+        control_c1(Path(argv[1]), argv[2])
     elif cmd == "score":
         score(Path(argv[1]))
     else:
