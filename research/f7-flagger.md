@@ -345,8 +345,8 @@ LUNO (D1 0.056 at k = 1) and synthetic G-sub also failed in D1.
 and 0.549-0.570 (MAIN_7: 0.469, 0.550): the same kind of observation as MAIN_7.
 
 **D10 measured (2026-11-23 15:39 SAST, nash, validation only; `nash:~/rang-data/outputs/f7-d10-20261123/`,
-verdict `val-verdict-calibrator.json`).** Training 2.6 h (12 threads); `f6_tau.py` τ as recorded in
-`method.json`; W4 off. Outcome **F** on R3 LUNO MAIN_7, G-drop LUNO MAIN_7 and G-sub (core16 and
+verdict `val-verdict-calibrator.json`).** Training 2.6 h (12 threads); `f6_tau.py` τ −5.0; W4
+off. Outcome **F** on R3 LUNO MAIN_7, G-drop LUNO MAIN_7 and G-sub (core16 and
 outer32 fail only through their MAIN_7 R3, 8.1 each). On MAIN_7 the network adds 1,696,671 cells
 against T's 209,120 (A 2,744,976): **R3 8.11** (bar ≤ 1.5; D1's N5 alone 7.6, F6 13.0); R5 0.983.
 G-drop on MAIN_7, worst draw 0.053 / 0.148 / 0.207 (bars 0.05 / 0.20 / 0.25). SARAO keeps every
