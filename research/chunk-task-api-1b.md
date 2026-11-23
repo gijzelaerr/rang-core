@@ -27,9 +27,9 @@ work: no novelty is claimed; the gate is identity, timing is reported for #4's d
 
 Run 2026-11-23 on glacier under the heavy lock (4 slots), this branch's extension (`core/` and `src/` equal to
 `e071bdab`'s), work directory `outputs/probe/t1` in the worktree. Every output was equal at 1, 2, 4 and 1
-threads: K `54f471feâ€¦`, G `f6384568â€¦`, B `5b76d15eâ€¦`, Gpol `44f7bf5aâ€¦`, KCROSS `c136f41dâ€¦`, Xf `f0103c97â€¦`,
-Df `1409240eâ€¦`; after applycal with P and calwt, CORRECTED_DATA `b3d8b5b7â€¦`, FLAG `3bcfac8fâ€¦`, WEIGHT
-`df17181bâ€¦`. **PASS.** Limit: the test MS is small (4 antennas), so rayon may not have split some loops; the
+threads: K `54f471feÃ¢â‚¬Â¦`, G `f6384568Ã¢â‚¬Â¦`, B `5b76d15eÃ¢â‚¬Â¦`, Gpol `44f7bf5aÃ¢â‚¬Â¦`, KCROSS `c136f41dÃ¢â‚¬Â¦`, Xf `f0103c97Ã¢â‚¬Â¦`,
+Df `1409240eÃ¢â‚¬Â¦`; after applycal with P and calwt, CORRECTED_DATA `b3d8b5b7Ã¢â‚¬Â¦`, FLAG `3bcfac8fÃ¢â‚¬Â¦`, WEIGHT
+`df17181bÃ¢â‚¬Â¦`. **PASS.** Limit: the test MS is small (4 antennas), so rayon may not have split some loops; the
 identity arms of section 3 at `threads: 4` against U at 4 threads (P4 runs one thread per worker) test the
 large sets.
 
@@ -43,7 +43,7 @@ large sets.
   chunk and writes its partial, so the default runs the same code as the pool.
 - `applycal.applycal` gains `executor=None` (inline). With an executor that is not inline, and every table given
   as a **path**, the chunks become `apply-casa` specs: `start`, `n`, the table paths, interp, the field maps
-  (per table, field Ã¢â€ â€™ table field or `pooled`), the fields, scans, `applymode`, the calwt flags, the output
+  (per table, field ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ table field or `pooled`), the fields, scans, `applymode`, the calwt flags, the output
   column and the P settings; P's angle tables (computed once in the parent over the whole field, as now) travel
   as arrays. A worker reads the tables from their paths once per process (cached by path, size and mtime).
 - Reduce in plan order through the stage's `WriteBack` session: the output column, FLAG, and WEIGHT and
@@ -183,7 +183,7 @@ little. This section replaces it, on this branch's final code.
   a point; three attempts).
 - **Case W** of section 2 plus stage 1's flag: flag, calibrate (the chain of section 2's W) and apply, each on a
   fresh copy in the run root's own copy of `w3.ms` (file SHA-256 checked against D:'s).
-- **Thread budget T = 16**, N Ã¢Ë†Ë† {1, 2, 4, 8} at `threads: 16`, `memory_limit_gb: 32`; baseline B main `e071bdab`
+- **Thread budget T = 16**, N ÃƒÂ¢Ã‹â€ Ã‹â€  {1, 2, 4, 8} at `threads: 16`, `memory_limit_gb: 32`; baseline B main `e071bdab`
   at `RAYON_NUM_THREADS=16`, `memory_limit_gb: 32`. One repeat per point (5 points, about 3 h); a second and third
   repeat only if the lock stays idle.
 - **Reported:** wall per stage, S(N) = t(N1)/t(N), efficiency S(N)/N, time to the first task, peak RSS of the
@@ -195,7 +195,7 @@ little. This section replaces it, on this branch's final code.
 
 Code: branch `chunk-api-3`, `5375c029` (the code), harness at `6d2e94e3`. Oracle U: main `e071bdab` from the
 detached worktree `C:\Users\gijsm\Worktrees\rang\cta1b-oracle-e071bdab` with this branch's `_core.pyd` (SHA-256
-`6023d006…`; `git diff e071bdab -- core/ src/` empty). Host glacier, shared under the heavy lock at normal priority.
+`6023d006â€¦`; `git diff e071bdab -- core/ src/` empty). Host glacier, shared under the heavy lock at normal priority.
 Run root `D:\rang\outputs\cta1b-20261123-02` (hashes, logs and summaries kept; MS copies deleted); verdict copied to
 [results/chunk-task-api-1b-identity.json](results/chunk-task-api-1b-identity.json).
 
@@ -208,7 +208,7 @@ asked of P4 on the small sets, not in any result (below).
 | C (A1 small, chain + CASA apply) | 162 | identical | identical | identical | none; 2 `apply-casa` | 148 `chain-chunk`; 3,566 `apply-casa` |
 | P (poldx, pol chain, parang apply) | 243 | identical | identical | identical | none; 3 `apply-casa` | 528 `chain-chunk`; 5,349 `apply-casa` |
 | M (C with a two-field G, calwt apply) | 189 | identical | identical | identical | 2 `chain-field`; 2 `apply-casa` | 148 `chain-chunk`, 2 `chain-field`; 3,566 `apply-casa` |
-| W (`w3.ms`, K/G/B chain) | 81 | identical | identical | (not run) | 82 `chain-chunk`; 10 `apply-casa` | – |
+| W (`w3.ms`, K/G/B chain) | 81 | identical | identical | (not run) | 82 `chain-chunk`; 10 `apply-casa` | â€“ |
 
 "Identical": every MS column after calibrate and after apply, the flag versions, every file under
 `<run>/calibrate/` byte for byte, and the cleaned summaries; every stage command exited 0.
@@ -241,6 +241,15 @@ nash's lock had 32-40 of 44 shared slots booked through the task, so no idle win
 closed at 2 of 15 points. Prepared on nash for the coordinator: the branch worktree `~/Worktrees/rang/chunk-api-3`
 (venv and extension built by its quick check), the oracle `~/Worktrees/rang/cta1b-oracle-e071bdab`, and
 `tools/oracles/chunk_tasks/timing_1b.py matrix RUN`, which queues each point only when the lock is idle.
+The driver was started on nash on 2026-11-23 at 08:55 SAST without a session (pid 307375, nice 19, branch commit
+`5c72f877`, whose `python/`, `core/` and `src/` equal `5375c029`'s), run root
+`~/rang-data/outputs/cta1b-nash-20261123/` with its own copy of `w3.ms` (all 65 files equal to D:'s by SHA-256,
+`inputs/hashcheck.txt`), log `driver.log`, one line per point in `status.txt`. When it ends:
+`timing_1b.py report RUN`, then the table of section 5 here.
+
+**Found in passing (not this task's code):** `tests/test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure`
+fails on nash (Linux, with `RANG_FIXTURE` set) on this branch **and on main `e071bdab`** with the same extension:
+calibrate exits 0 where the test expects a stage failure. CI does not see it (no fixture there).
 
 ## For the coordinator
 
