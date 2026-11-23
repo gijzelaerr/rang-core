@@ -1970,6 +1970,9 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             }
         }
         psfs.push(psf);
+        // Only the active visibilities, sorted, from here on, as on the
+        // polarisation path (research/gemclean-mem-32b.md, arm V1).
+        let m = if args.plan_reuse { m.compacted()? } else { m };
         measurements.push(m);
         memory::mark(&format!("channel {}: psf and beam", measurements.len() - 1));
     }
