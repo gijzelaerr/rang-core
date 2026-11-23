@@ -18,6 +18,9 @@ Layers, each usable alone:
   antenna (`refantmode` `flex` or `strict`) over all intervals; with
   `casa_rules=False` the kernel is QuartiCal's alone, referenced as
   QuartiCal references it (the class A configuration).
+- `solve_dd(...)`: one direction-dependent `diag_complex` term on arrays,
+  one model per facet direction (task DD1, research/dd1-facet-gains.md;
+  `core/src/cal/diag_dd.rs`), QuartiCal's rules only.
 - `gaincal(...)`: the Measurement Set route, as CASA `gaincal(gaintype='G')`:
   select the field, pre-apply earlier tables through `rang.cal_apply`
   (lower VisCal types correct DATA, equal or higher types corrupt the
@@ -224,6 +227,80 @@ def solve(
         casa_rules=casa_rules, max_iterations=max_iterations,
         stop_criterion=stop_criterion, stop_fraction=stop_fraction,
     )  # fmt: skip
+
+
+@dataclass
+class DDSolution:
+    """One direction-dependent term: gains (time bin, frequency bin, antenna,
+    direction, hand) and their flags (1 hard-flagged)."""
+
+    gains: np.ndarray
+    flags: np.ndarray
+    iterations: int
+    converged_fraction: float
+
+
+def solve_dd(
+    data,
+    models,
+    weights,
+    flag,
+    flag_row,
+    antenna1,
+    antenna2,
+    time_bin,
+    *,
+    nant,
+    freq_bin=None,
+    refant=0,
+    pinned_directions=(),
+    max_iterations=50,
+    stop_criterion=1e-7,
+    stop_fraction=0.99,
+):
+    """Solve one direction-dependent `diag_complex` term (task DD1,
+    research/dd1-facet-gains.md): `models` is (rows, chans, directions, 4),
+    one model per facet direction; the kernel is `core/src/cal/diag_dd.rs`
+    (QuartiCal 0.2.7 with `G.direction_dependent=true`). `refant=None` leaves
+    the gains unreferenced; `pinned_directions` as QuartiCal's
+    `G.pinned_directions` (default here: none). No CASA rules."""
+    ext = _extension()
+    data = np.asarray(data)
+    nrow, nchan = data.shape[:2]
+    models = np.asarray(models)
+    if models.ndim != 4 or models.shape[:2] != (nrow, nchan) or models.shape[3] != 4:
+        raise ValueError("models must be (rows, chans, directions, 4)")
+    ndir = models.shape[2]
+    time_bin = np.ascontiguousarray(time_bin, np.uint32)
+    freq_bin = (
+        np.zeros(nchan, np.uint32)
+        if freq_bin is None
+        else np.ascontiguousarray(freq_bin, np.uint32)
+    )
+    ntime = int(time_bin.max()) + 1 if nrow else 0
+    nfreq = int(freq_bin.max()) + 1 if nchan else 0
+    ngain = ntime * nfreq * nant * ndir
+    gains = np.zeros(4 * ngain)
+    flags = np.zeros(ngain, np.int8)
+    iterations, fraction = ext.cal_gain_solve_dd(
+        nrow, nchan, ntime, nfreq, nant, ndir,
+        _floats(data).ravel(),
+        np.ascontiguousarray(weights, np.float32).ravel(),
+        _floats(models).ravel(),
+        np.ascontiguousarray(flag, np.uint8).ravel(),
+        np.ascontiguousarray(flag_row, np.uint8).ravel(),
+        np.ascontiguousarray(antenna1, np.uint32),
+        np.ascontiguousarray(antenna2, np.uint32),
+        time_bin, freq_bin, int(max_iterations), float(stop_criterion),
+        float(stop_fraction), -1 if refant is None else int(refant),
+        [int(d) for d in pinned_directions], gains, flags,
+    )  # fmt: skip
+    return DDSolution(
+        gains=gains.view(np.complex128).reshape(ntime, nfreq, nant, ndir, 2),
+        flags=flags.reshape(ntime, nfreq, nant, ndir),
+        iterations=int(iterations),
+        converged_fraction=float(fraction),
+    )
 
 
 def finite_cells(data, model, weights, flag):

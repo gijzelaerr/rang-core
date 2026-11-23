@@ -13,6 +13,8 @@
 //! and Xf, and `leakage` solves Df (task C6, `research/c6-polterms.md`).
 //! `diag_stream` runs `diag`'s solve over its cells in blocks, for solution
 //! intervals too large to hold (issue #34, `research/selfcal-memory.md`).
+//! `diag_dd` solves the direction-dependent `diag_complex` term, one gain
+//! per facet direction (task DD1, `research/dd1-facet-gains.md`).
 
 pub mod apply;
 pub mod bandpass;
@@ -20,6 +22,7 @@ pub mod crosshand;
 pub mod delay;
 pub mod delay_offset;
 pub mod diag;
+pub mod diag_dd;
 pub mod diag_stream;
 pub mod ffi_apply;
 pub mod fluxscale;

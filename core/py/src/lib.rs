@@ -2977,6 +2977,7 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Task C2a: the gain term G (research/c2a-gain.md).
     m.add_function(wrap_pyfunction!(cal_delay::cal_delay_solve, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_solve, m)?)?;
+    m.add_function(wrap_pyfunction!(cal_gain::cal_gain_solve_dd, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_minblperant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_gain::cal_gain_apply_refant, m)?)?;
     m.add_function(wrap_pyfunction!(cal_apply_jones, m)?)?;
