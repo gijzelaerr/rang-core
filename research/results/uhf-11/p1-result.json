@@ -1,0 +1,36 @@
+{
+ "criterion": "differing cells / cells <= 1e-06 and FLAG_ROW equal",
+ "scans": {
+  "1611426666-scan004": {
+   "cells_packed": 495452160,
+   "differ": 0,
+   "rang_only": 0,
+   "fraction": 0.0,
+   "flag_row_equal": true,
+   "rang_flagged": 0.578598321177972,
+   "tricolour_flagged": 0.578598321177972,
+   "pass": true
+  },
+  "1735892129-scan001": {
+   "cells_packed": 573169664,
+   "differ": 0,
+   "rang_only": 0,
+   "fraction": 0.0,
+   "flag_row_equal": true,
+   "rang_flagged": 0.6602558575046986,
+   "tricolour_flagged": 0.6602558575046986,
+   "pass": true
+  },
+  "1735892129-scan003": {
+   "cells_packed": 108437504,
+   "differ": 0,
+   "rang_only": 0,
+   "fraction": 0.0,
+   "flag_row_equal": true,
+   "rang_flagged": 0.46073996686607616,
+   "tricolour_flagged": 0.46073996686607616,
+   "pass": true
+  }
+ },
+ "pass": true
+}

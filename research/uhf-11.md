@@ -213,6 +213,72 @@ development set exists. What is proposed:
 (Filled in after the runs; nothing below this line was known when sections
 1-7 were frozen.)
 
+### 8.1 Port check P1: **pass**, flag for flag (2026-11-23)
+
+Run root `~/rang-data/outputs/uhf11-p1-20261123/` on nash; scripts
+[p1_run.sh](results/uhf-11/p1_run.sh), [p1_compare.py](results/uhf-11/p1_compare.py);
+result [p1-result.json](results/uhf-11/p1-result.json), timings
+[p1-timings.txt](results/uhf-11/p1-timings.txt).
+
+| Scan | Cells | Differ | FLAG_ROW | Flagged (both) | DL2 calibrator strategy, same scan |
+| --- | ---: | ---: | --- | ---: | ---: |
+| 1735892129 scan 3 (J1744-5144, 1k) | 108,437,504 | 0 | equal | 0.4607 | 0.5072 |
+| 1735892129 scan 1 (J1939-6342, 1k) | 573,169,664 | 0 | equal | 0.6603 | 0.5797 |
+| 1611426666 scan 4 (J0538-4405, 4k) | 495,452,160 | 0 | equal | 0.5786 | 0.4898 |
+
+- **Final flags are identical on all three scans** (0 of 1.18e9 cells). The
+  frozen limit was 1e-6, so the port reproduces Tricolour 0.2.1 with
+  `outlier_nsigma` 30, three major iterations and the `uvrange 0~700`
+  static mask.
+- Fractions include the native flags, so they are not RFI fractions. The
+  UHF strategy flags more than the L-band calibrator strategy on two of the
+  three scans. Read on L-band data, this says nothing about UHF RFI.
+- **Wall (Tricolour / rang):** 311/231 s, 609/362 s and 615/322 s. Both
+  had 4 threads on a shared host. Not a timing run.
+- **Setup failures before the run.** Three attempts failed before any
+  teacher's flags were extracted:
+  - the DL2 MSs are frozen read-only, and `cp -a` kept the mode;
+  - the release-040 venv has no python-casacore, so extraction now uses
+    the system python3.
+
+  The criteria were not touched.
+
+### 8.2 PKS 0408-65
+
+- rang's cubic against CARACal's setjy manual fit (`CARACAL_0408`, made by
+  CARACal's own `convert_pb_to_casaspi` on nash at `8f7bb363`):
+  - 4.5e-9 relative over 544-843 MHz;
+  - 4.2e-11 over 843-1712 MHz;
+  - 9.2e-7 over 1.7-20 GHz.
+- The same run reproduced `CARACAL_1934`'s digits.
+- Values: 39.69 Jy at 544 MHz (extrapolated), 26.61 Jy at 843 MHz and
+  12.29 Jy at 1712 MHz.
+- Tests: `tests/test_fluxstd.py` (0408 tests).
+
+### 8.3 Band detection and the UHF fixture
+
+- `meerkat.band` and the band-naming warning pass their tests.
+- The UHF fixture opens in katdal 0.24 with channel centres 544.0-1065.3
+  MHz (24 channels of 22.67 MHz).
+- `tests/test_mk1_meerkat.py`: 11 passed, 1 skipped (mvftoms needs
+  casacore). These ran in a scratch venv with the `[meerkat]` extra. CI has
+  no katdal, so it skips them.
+- Not checked: whether CARACal's flag worker accepts `flagger: tricolour`
+  with `strategy: firstpass_UHF.yaml` as drafted in
+  [caracal-uhf-draft.yml](results/uhf-11/caracal-uhf-draft.yml).
+
+### 8.4 The gate
+
+Not run. On 2026-11-23 the owner was asked for UHF archive links
+(`~/rang-data/sarao-link-uhf*.txt`). A watcher waits for them; the scope
+section 5 rule then applies before any visibility is read.
+
 ## For the coordinator
 
-(Filled in at hand-back.)
+- Branch `uhf-11`. Data-free pieces implemented and checked. P1 passes
+  bit for bit. The gate is unrun, blocked on D1 (links requested
+  2026-11-23).
+- Merge is safe without the gate. L-band behaviour is unchanged:
+  - masks are untouched;
+  - the warning's condition is the same;
+  - the L fixture is the default.
