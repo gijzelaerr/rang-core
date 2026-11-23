@@ -1,0 +1,136 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "lightcurve",
+  "scan10-512.ms",
+  "--positions",
+  "tsp2-real.positions.csv",
+  "--out",
+  "lc-real-control",
+  "--field",
+  "0",
+  "--column",
+  "DATA",
+  "--size",
+  "2048",
+  "--scale",
+  "2asec",
+  "--channels-out",
+  "16",
+  "--candidates",
+  "5"
+ ],
+ "stage": "lightcurve",
+ "verb": null,
+ "started_utc": "2026-11-23T08:26:10+00:00",
+ "commit": {
+  "head": "edb36c9692dc9a964dc306b45bfd98265e65848d",
+  "dirty": true
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/p1-lightcurves",
+  "distribution": "rang-core",
+  "version": "0.4.0",
+  "extension_sha256": "f02cb0df7d8ce66e087edf78f981fc2f1d785d697bce3a39dc53f3cca357f4fa"
+ },
+ "environment": {
+  "python": "3.13.16 (main, Oct  3 2026, 01:04:41) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Worktrees/rang/p1-lightcurves/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.4.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/p1-lightcurves/python/rang/_core.pyd",
+   "sha256": "f02cb0df7d8ce66e087edf78f981fc2f1d785d697bce3a39dc53f3cca357f4fa"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": null,
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": null,
+   "RANG_HEAVY_SLOTS": null,
+   "RANG_HEAVY_MEM_GB": null,
+   "RANG_HEAVY_NICE": null,
+   "RANG_HEAVY_LOCK_HELD": "4:12",
+   "RANG_HEAVY_LOCK_PID": "1899464",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "scan10-512.ms",
+   "kind": "directory",
+   "files": 98,
+   "bytes": 69992900003,
+   "listing_sha256": "39de395d1e88984a3888ebefc520394908368611f5a9dbae1c2e6a1bc1a730ef"
+  },
+  {
+   "path": "tsp2-real.positions.csv",
+   "kind": "file",
+   "bytes": 267,
+   "sha256": "821f26406c720cb18b2ccd20de7fa6084dfa4b7f28e42a4a2e8fa983af10b883"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "lc-real-control",
+   "kind": "directory",
+   "files": 4,
+   "bytes": 11307934,
+   "tree_sha256": "17f6649b8c75da4cfd5ceaace7d7bf4073cdd56a0ba6200aabfbf6f052293d2d"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 388.86942250002176,
+  "cpu_seconds": 1586.34375,
+  "peak_rss_mb": 364.734375
+ },
+ "exit": 0,
+ "verdict": null
+}

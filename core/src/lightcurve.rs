@@ -141,9 +141,203 @@ pub fn dft_sums(
     Ok(total)
 }
 
+/// The DFT sums of one interval per channel group (task TS-P2,
+/// `research/ts-p2.md` section 2): `numerator[s * groups + g]` per position s
+/// and group g, `weight_sum[g]` and `samples[g]`. Group g holds the channels
+/// g·K to (g + 1)·K − 1, K = nchan / groups (`groups` must divide nchan).
+#[derive(Clone, Debug, PartialEq)]
+pub struct GroupedSums {
+    pub groups: usize,
+    pub numerator: Vec<f64>,
+    pub weight_sum: Vec<f64>,
+    pub samples: Vec<u64>,
+}
+
+impl GroupedSums {
+    /// `(nsrc × groups)` fluxes, row-major by position (NaN where a group has
+    /// no weighted sample).
+    pub fn fluxes(&self) -> Vec<f64> {
+        self.numerator
+            .iter()
+            .enumerate()
+            .map(|(k, n)| {
+                let w = self.weight_sum[k % self.groups];
+                if w > 0.0 { n / w } else { f64::NAN }
+            })
+            .collect()
+    }
+}
+
+/// `dft_sums` per channel group: the same arguments plus `groups`, the sums
+/// over fixed blocks of rows in parallel, added in block order (bit-identical
+/// at any thread count). `dft_sums` itself is unchanged, so P1's outputs do
+/// not move.
+pub fn dft_sums_grouped(
+    uvw: &[f64],
+    freq: &[f64],
+    vis: &[f32],
+    weight: &[f32],
+    lm: &[f64],
+    groups: usize,
+) -> Result<GroupedSums, String> {
+    let nchan = freq.len();
+    if groups == 0 || nchan == 0 || !nchan.is_multiple_of(groups) {
+        return Err(format!(
+            "channel groups ({groups}) must divide the channels ({nchan})"
+        ));
+    }
+    if !uvw.len().is_multiple_of(3) {
+        return Err("uvw must hold nrow × 3 values".into());
+    }
+    let nrow = uvw.len() / 3;
+    if vis.len() != 2 * nrow * nchan || weight.len() != nrow * nchan {
+        return Err(format!(
+            "vis must hold 2 × {nrow} × {nchan} and weight {nrow} × {nchan} values"
+        ));
+    }
+    if !lm.len().is_multiple_of(2) {
+        return Err("lm must hold nsrc × 2 values".into());
+    }
+    let nsrc = lm.len() / 2;
+    let per = nchan / groups;
+    let mut nm1 = Vec::with_capacity(nsrc);
+    for s in 0..nsrc {
+        let (l, m) = (lm[2 * s], lm[2 * s + 1]);
+        let r2 = l * l + m * m;
+        if !(l.is_finite() && m.is_finite()) || r2 >= 1.0 {
+            return Err(format!("position {s}: l² + m² must be below one"));
+        }
+        nm1.push(-r2 / ((1.0 - r2).sqrt() + 1.0));
+    }
+    let scale: Vec<f64> = freq
+        .iter()
+        .map(|f| -2.0 * std::f64::consts::PI * f / SPEED_OF_LIGHT)
+        .collect();
+    let empty = || GroupedSums {
+        groups,
+        numerator: vec![0.0; nsrc * groups],
+        weight_sum: vec![0.0; groups],
+        samples: vec![0; groups],
+    };
+    let blocks: Vec<Result<GroupedSums, String>> = (0..nrow.div_ceil(BLOCK_ROWS))
+        .into_par_iter()
+        .map(|b| {
+            let mut out = empty();
+            for r in b * BLOCK_ROWS..((b + 1) * BLOCK_ROWS).min(nrow) {
+                let (u, v, w) = (uvw[3 * r], uvw[3 * r + 1], uvw[3 * r + 2]);
+                let base: Vec<f64> = (0..nsrc)
+                    .map(|s| u * lm[2 * s] + v * lm[2 * s + 1] + w * nm1[s])
+                    .collect();
+                for (c, sc) in scale.iter().enumerate() {
+                    let k = r * nchan + c;
+                    let wt = weight[k] as f64;
+                    if wt == 0.0 {
+                        continue;
+                    }
+                    let (re, im) = (vis[2 * k] as f64, vis[2 * k + 1] as f64);
+                    if !(re.is_finite() && im.is_finite() && wt.is_finite()) {
+                        return Err(format!("row {r} channel {c}: non-finite sample"));
+                    }
+                    let g = c / per;
+                    out.weight_sum[g] += wt;
+                    out.samples[g] += 1;
+                    for (s, b) in base.iter().enumerate() {
+                        let (sin, cos) = (sc * b).sin_cos();
+                        out.numerator[s * groups + g] += wt * (re * cos - im * sin);
+                    }
+                }
+            }
+            Ok(out)
+        })
+        .collect();
+    let mut total = empty();
+    for block in blocks {
+        let block = block?;
+        for (t, n) in total.numerator.iter_mut().zip(&block.numerator) {
+            *t += n;
+        }
+        for (t, n) in total.weight_sum.iter_mut().zip(&block.weight_sum) {
+            *t += n;
+        }
+        for (t, n) in total.samples.iter_mut().zip(&block.samples) {
+            *t += n;
+        }
+    }
+    Ok(total)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn grouped_sums_add_up_to_the_ungrouped_ones_and_follow_the_spectrum() {
+        let freq: Vec<f64> = (0..8).map(|k| 0.9e9 + 0.1e9 * k as f64).collect();
+        let uvw = uvw(200);
+        let (l, m) = (0.003, 0.002);
+        // A source whose flux doubles in the upper half of the band.
+        let lo = predicted(&uvw, &freq, l, m, 1.0);
+        let hi = predicted(&uvw, &freq, l, m, 2.0);
+        let vis: Vec<f32> = (0..lo.len())
+            .map(|k| if (k / 2) % 8 < 4 { lo[k] } else { hi[k] })
+            .collect();
+        let mut weight = vec![1.0f32; 200 * 8];
+        weight[5] = 0.0;
+        let lm = [l, m, 0.0, 0.0];
+        let g = dft_sums_grouped(&uvw, &freq, &vis, &weight, &lm, 2).unwrap();
+        let f = g.fluxes();
+        assert!(
+            (f[0] - 1.0).abs() < 1e-6 && (f[1] - 2.0).abs() < 1e-6,
+            "{f:?}"
+        );
+        let one = dft_sums(&uvw, &freq, &vis, &weight, &lm).unwrap();
+        assert_eq!(g.samples.iter().sum::<u64>(), one.samples);
+        assert_eq!(g.weight_sum.iter().sum::<f64>(), one.weight_sum);
+        for s in 0..2 {
+            let num: f64 = g.numerator[2 * s] + g.numerator[2 * s + 1];
+            let scale = one.numerator[s].abs().max(1.0);
+            assert!((num - one.numerator[s]).abs() <= 1e-9 * scale);
+        }
+        let single = dft_sums_grouped(&uvw, &freq, &vis, &weight, &lm, 1).unwrap();
+        assert_eq!(single.weight_sum[0], one.weight_sum);
+    }
+
+    #[test]
+    fn grouped_sums_refuse_a_bad_grouping_and_leave_an_empty_group_nan() {
+        let freq = [1.0e9, 1.1e9, 1.2e9, 1.3e9];
+        let uvw = uvw(10);
+        let vis = predicted(&uvw, &freq, 0.0, 0.0, 1.0);
+        let mut weight = vec![1.0f32; 40];
+        assert!(dft_sums_grouped(&uvw, &freq, &vis, &weight, &[0.0, 0.0], 3).is_err());
+        assert!(dft_sums_grouped(&uvw, &freq, &vis, &weight, &[0.0, 0.0], 0).is_err());
+        for r in 0..10 {
+            weight[4 * r + 2] = 0.0;
+            weight[4 * r + 3] = 0.0;
+        }
+        let g = dft_sums_grouped(&uvw, &freq, &vis, &weight, &[0.0, 0.0], 2).unwrap();
+        let f = g.fluxes();
+        assert!((f[0] - 1.0).abs() < 1e-6 && f[1].is_nan(), "{f:?}");
+        assert_eq!(g.samples, vec![20, 0]);
+    }
+
+    #[test]
+    fn grouped_sums_independent_of_the_thread_count() {
+        let freq = [1.0e9, 1.3e9, 1.5e9, 1.7e9];
+        let uvw = uvw(1000);
+        let vis: Vec<f32> = (0..8000)
+            .map(|k| ((k * 7919) % 1000) as f32 * 1e-3)
+            .collect();
+        let weight = vec![1.0f32; 4000];
+        let lm = [0.01, 0.002, -0.003, 0.004];
+        let run = |n| {
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(n)
+                .build()
+                .unwrap()
+                .install(|| dft_sums_grouped(&uvw, &freq, &vis, &weight, &lm, 2).unwrap())
+        };
+        assert_eq!(run(1), run(4));
+    }
 
     /// A point source of flux `s` at (l, m) as the predictor writes it.
     fn predicted(uvw: &[f64], freq: &[f64], l: f64, m: f64, s: f64) -> Vec<f32> {

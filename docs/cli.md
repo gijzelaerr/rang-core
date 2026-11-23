@@ -570,7 +570,7 @@ usage: rang-core lightcurve [-h] [--position [NAME=]RA,DEC] [--positions CSV]
                             [--interval-steps INTERVAL_STEPS] [--size SIZE]
                             [--scale SCALE] [--no-images] [--fits]
                             [--candidates SIGMA] [--gridder {wgrid,wstack}]
-                            [--device {cpu,gpu}]
+                            [--device {cpu,gpu}] [--channels-out M]
                             ms
 
 Light curves at given positions from the residual (data column minus
@@ -612,6 +612,10 @@ options:
                         snapshot gridder: the exact wgridder (default) or
                         w-stacking
   --device {cpu,gpu}    device of the wstack gridder (gpu needs the gpu build)
+  --channels-out M      also a dynamic spectrum: the DFT flux per interval in
+                        M equal groups of contiguous channels (M must divide
+                        the channels; WSClean's -channels-out grouping), in
+                        DIR/dynspec.csv (research/ts-p2.md)
 ```
 
 ## `mcp`

@@ -1,0 +1,31 @@
+{
+ "T1": {
+  "max_relative": 3.631058989276575e-07,
+  "median_relative": 1.1166996712141072e-07,
+  "worst_interval": 426,
+  "pass": true
+ },
+ "T2c": {
+  "max_over_sigma": 9.982895649010363e-07,
+  "pixels_equal_rang": [
+   true,
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "pass": true
+ },
+ "flag_row_rows": 27000,
+ "T1_flag_row_ignored": {
+  "max_relative": 3.37255585885603e-07,
+  "median_relative": 1.1371564791369664e-07,
+  "pass": true
+ },
+ "T2c_flag_row_ignored": {
+  "max_over_sigma": 9.982895649010363e-07,
+  "pass": true
+ },
+ "outside_grid_total": 0
+}

@@ -15,6 +15,13 @@ position:
   normalisation), with the pixel's offset from the position;
 - `sigma_meas_jy`: 1.4826 times the median absolute deviation of that image.
 
+With `channels_out` M (task TS-P2, research/ts-p2.md), also a dynamic
+spectrum per position: the same DFT over each of M equal groups of
+contiguous channels (`rang._core.lightcurve_dft_grouped`; WSClean's
+`-channels-out M` grouping, M must divide the channels), written to
+`dynspec.csv`. A group with no weighted sample gives NaN (`null` in JSON).
+The light curve itself does not change with M.
+
 Stokes I and its weight follow WSClean's `-pol I` (`core_weights.stokes_i`):
 `I = (XX + YY) / 2`, weight `min(4 w_XX, 4 w_YY)`, zero when a hand is
 flagged; FLAG_ROW rows weigh zero. Rows: the field, data description 0,
@@ -42,6 +49,8 @@ from . import core, core_grid, core_model, core_ms, core_weights, core_wgridder
 
 __all__ = [
     "LightcurveError",
+    "channel_groups",
+    "dft_grouped",
     "light_curves",
     "lm_from_radec",
     "parse_position",
@@ -224,6 +233,39 @@ def dft(uvw, freq, vis, weight, lm):
     return flux, float(wsum), int(samples)
 
 
+def channel_groups(freq, channels_out):
+    """The groups of `channels_out` (M): a list of (first channel, last
+    channel, mean frequency in Hz) of M equal contiguous groups; refuses
+    when M does not divide the channels."""
+    nchan = len(freq)
+    m = int(channels_out)
+    if m < 1 or nchan % m:
+        raise LightcurveError(
+            f"--channels-out {channels_out} must divide the {nchan} channels"
+        )
+    k = nchan // m
+    return [(g * k, (g + 1) * k - 1, float(np.mean(freq[g * k : (g + 1) * k])))
+            for g in range(m)]  # fmt: skip
+
+
+def dft_grouped(uvw, freq, vis, weight, lm, groups):
+    """(flux (position, group), weight sum per group, samples per group) of
+    one interval by the Rust kernel; NaN where a group has no weight."""
+    num, wsum, samples = core.extension().lightcurve_dft_grouped(
+        np.ascontiguousarray(uvw, np.float64),
+        np.ascontiguousarray(freq, np.float64),
+        np.ascontiguousarray(vis, np.complex64),
+        np.ascontiguousarray(weight, np.float32),
+        np.ascontiguousarray(lm, np.float64).reshape(-1, 2),
+        int(groups),
+    )
+    wsum = np.asarray(wsum, np.float64)
+    num = np.asarray(num, np.float64).reshape(-1, int(groups))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        flux = np.where(wsum > 0, num / np.where(wsum > 0, wsum, 1.0), np.nan)
+    return flux, wsum, np.asarray(samples, np.int64)
+
+
 def snapshot(
     uvw,
     freq,
@@ -377,11 +419,14 @@ def light_curves(
     gridder="wgrid",
     device="cpu",
     candidate_sigma=None,
+    channels_out=None,
 ):
     """Light curves of `positions` ((name, ra_deg, dec_deg) tuples) in the
     residual of `field` (id or name). `model_column=None` uses the data
     column alone. `on_snapshot(k, image, header)` receives each snapshot
-    image (for FITS output). Returns a dict: settings, intervals, positions
+    image (for FITS output). `channels_out` M adds the dynamic spectrum
+    (`dynspec_*` arrays and `dynspec_groups`; research/ts-p2.md). Returns a
+    dict: settings, intervals, positions
     and per-interval arrays."""
     ms = Path(ms)
     started = time.perf_counter()
@@ -394,6 +439,7 @@ def light_curves(
     _one_data_description(ms, field_id, field_name)
     column, model_column, weight_column = _columns(ms, column, model_column)
     freq, corr, centre = core_model.band(ms, field_id)
+    groups = None if channels_out is None else channel_groups(freq, channels_out)
     if list(corr) != LINEAR:
         raise LightcurveError(
             f"CORR_TYPE {corr}: four linear correlations XX, XY, YX, YY required "
@@ -429,6 +475,7 @@ def light_curves(
             "gridder": gridder,
             "device": device,
             "candidate_sigma": candidate_sigma,
+            "channels_out": None if groups is None else len(groups),
         },
         "positions": [
             {
@@ -446,6 +493,11 @@ def light_curves(
         ],
         "nchan": len(freq),
     }
+    if groups is not None:
+        out["dynspec_groups"] = [
+            {"group": g, "first_channel": a, "last_channel": b, "freq_hz": f}
+            for g, (a, b, f) in enumerate(groups)
+        ]
     with core_ms.open_table(ms) as t:
         times = t.getcol_rows("TIME", rows)
         order = np.lexsort((rows, times))
@@ -466,6 +518,10 @@ def light_curves(
                 "outside_grid",
             )
         }
+        if groups is not None:
+            arrays.update(
+                {"dynspec_flux_jy": [], "dynspec_weight_sum": [], "dynspec_samples": []}
+            )
         seconds = {"read": 0.0, "dft": 0.0, "image": 0.0}
         found = []
         lo = 0
@@ -479,6 +535,11 @@ def light_curves(
             )
             t1 = time.perf_counter()
             flux, wsum, samples = dft(uvw, freq, vis, weight, lm)
+            if groups is not None:
+                gflux, gw, gn = dft_grouped(uvw, freq, vis, weight, lm, len(groups))
+                arrays["dynspec_flux_jy"].append(gflux.tolist())
+                arrays["dynspec_weight_sum"].append(gw.tolist())
+                arrays["dynspec_samples"].append(gn.tolist())
             t2 = time.perf_counter()
             snap_flux = [None] * len(positions)
             sigma = None
@@ -570,6 +631,30 @@ def write_outputs(result, out_dir):
             writer.writerow(keys)
             for c in result["candidates"]:
                 writer.writerow([_cell(c[k]) for k in keys])
+    if result.get("dynspec_groups") is not None:
+        keys = ("interval", "time_mjd_s", "position", "group", "first_channel",
+                "last_channel", "freq_hz", "flux_jy", "weight_sum", "samples")  # fmt: skip
+        with open(out_dir / "dynspec.csv", "w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f, lineterminator="\n")
+            writer.writerow(keys)
+            for k in range(result["intervals"]):
+                for s, pos in enumerate(result["positions"]):
+                    for g in result["dynspec_groups"]:
+                        j = g["group"]
+                        writer.writerow(
+                            [
+                                k,
+                                repr(result["time_mjd_s"][k]),
+                                pos["name"],
+                                j,
+                                g["first_channel"],
+                                g["last_channel"],
+                                repr(g["freq_hz"]),
+                                repr(float(result["dynspec_flux_jy"][k][s][j])),
+                                repr(float(result["dynspec_weight_sum"][k][j])),
+                                result["dynspec_samples"][k][j],
+                            ]
+                        )
     with open(out_dir / "lightcurve.csv", "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f, lineterminator="\n")
         writer.writerow(CSV_COLUMNS)
