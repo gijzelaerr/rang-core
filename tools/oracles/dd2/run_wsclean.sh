@@ -62,7 +62,7 @@ for case in C0 C1 C2 I; do
     I)  read -ra extra <<< "$(facets solved)" ;;
   esac
   wsc "image-$case" -name "/w/img-$case" "${common[@]}" -weight natural -niter 0 \
-    -data-column DATA -no-update-model-required "${extra[@]}" /w/img.ms
+    ${FEATHER:+-feather-size "$FEATHER"} -data-column DATA -no-update-model-required "${extra[@]}" /w/img.ms
   cp "$scratch/img-$case-dirty.fits" "$run/wsc/image-$case-dirty.fits"
   cp "$scratch/img-$case-image.fits" "$run/wsc/image-$case-image.fits"
   if [ -e "$scratch/img-$case-image-pb.fits" ]; then cp "$scratch/img-$case-image-pb.fits" "$run/wsc/image-$case-image-pb.fits"; fi
