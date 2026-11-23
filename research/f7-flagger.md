@@ -334,6 +334,27 @@ planes 0-7, 14-32 are identical between the two arms (blocks 22-31 carry level 6
 both), and D9b's planes 8-13 equal asinh(dz(sinh u)) of D9a's within float16 rounding (max 0.004 over all ten shards; the shards store asinh-compressed
 inputs). The shards are sound.
 
+**D9b measured, complete target validation scorer (2026-11-23 17:07 SAST, nash;
+`f7-d9b-20261123/val-target/`, verdict `val-verdict-target.json`).** Seed 2, level 70, τ −4.5, W4
+off. Outcome **H (cost not yet measured)**, no gate failed. Against D7 (level 40, seed 2):
+
+| Gate | D9b | D7 | Bar |
+| --- | --- | --- | --- |
+| R1 (T 0.913) | 1.00 | 1.00 | ≥ T − 0.05 |
+| R2 H1 / H2 / H3 / H4 / H4n | 1.00 / 1.00 / 0.928 / 1.00 / 0.987 | 1.00 / 1.00 / 0.914 / 0.998 / 0.974 | ≥ T |
+| R3 ESO137 / SARAO | 0.367 / 0.99 | 0.254 / 0.995 | in bars |
+| R5 ESO137 / SARAO | 0.875 / 0.993 | 0.809 / 0.993 | as frozen |
+| G-drop ESO137, worst at k = 1 / 4 / 8 | **0.032 / 0.059 / 0.122** | 0.065 / 0.115 / 0.197 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO 111 / 113 / 115, worst at k = 1 | 0.011 / 0.008 / 0.007 | ≤ 0.014 | 0.05 |
+| G-sub core16 / outer32 | pass / pass | pass / pass | |
+| S1 / S2 / S3 | pass (1.00 / 0.006 / 0.999) | pass | |
+
+Reading: the dead zone does not cost R1, R2 or R5; R2's H3/H4n and R5 on ESO137 rise. D9b is the
+first F7 candidate to pass every target quality gate on validation. By the freeze rule above the
+candidate is level 70; seeds 1 and 3 are training (`d9b-seeds.sh`), then the median seed is chosen
+and must pass the screen and, if it is not seed 2, the complete scorer, before the held-out read
+and the cost timing.
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
