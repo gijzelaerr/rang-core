@@ -7,10 +7,12 @@ Issue #9 (gijzelaerr/rang-core), time series. The owner approved P1 on
 simulated transients and one real track. Branch `p1-lightcurves`. Written
 2026-11-23.
 
-**Status 2026-11-23: implemented and measured (section 10).** P2 met on the
-held-out simulation. Real track (E2-A scan 10, injected transients): parity
-with WSClean and the DFT met for P1 and P2, every pulse recovered; the bias
-gates T3a and D3 not met (the residual's own mean at the positions).
+**Status 2026-11-23: implemented and measured (section 10).** As frozen:
+**P2 met on the held-out simulation**; on the real track (E2-A scan 10,
+injected transients) **P1 not met (T3a)** and **P2 not met (D3)**. Every
+parity gate against WSClean and the DFT is met there (T1, T2a-c, D1, D2,
+D4), and every injected pulse is recovered (T3d); the two bias gates fail on
+the uninjected residual's own mean at the positions.
 
 **Status at freeze: proposed. Nothing in this note is built or measured.** It
 is committed before any code that tests it. Later changes are dated
@@ -321,7 +323,11 @@ WSClean `-j 8` 778 s.
 
 ### 10.3 Real track: E2-A's ESO137 scan 10 with injected transients
 
-**Residual (4.2).** Every check of the replay held exactly:
+**Residual (4.2).** Every check of the replay held exactly. The counts
+reproduce E2-A's flags; the CORRECTED_DATA values are checked only by the
+bright-source subtraction below. The replay ran with the main checkout's venv
+(rang at `origin/main`, which this branch does not change in `applycal` or
+`cal_selfcal`):
 - Step 2: 10,747,830,624 flagged cells in the MS and 7,843,952,228 in
   ESO137-001 after restoring `rang_selfcal_20261115T161755Z` (189 s).
 - Step 3: K1, G1, B1 applied, flagged cells unchanged at 10,747,830,624, as
@@ -368,6 +374,7 @@ axis):
 | D3 | A +0.015, B +0.008, C +0.095, D −0.018, E −0.192 σ_dyn (F +0.185) | 0.035 | **not met** (C, E) |
 | D4 | 3.1e-14 σ_meas | 1e-6 | **met** |
 | T3b, D3b | χ² 0.37-1.31 (band), 2.3-6.7 (cells) | reported | – |
+| D5 | no empty group at M = 16 on this MS | – | not applicable |
 | D2 | 1.5e-6 σ_dyn against the WSClean `-intervals-out 450 -channels-out 16` pixel (1024² at 2″, 929 s at `-j 8`); CRVAL3 offset 0 Hz | 1e-3 | **met** |
 | T4 (control) | positive 14,220 at ≥ 5σ and 1,914 at ≥ 7σ; negative 272 and 8 | reported | – |
 
@@ -380,33 +387,37 @@ axis):
   injected signal exactly.
 - The offsets are the uninjected residual's own time-mean at each position:
   −0.91, −0.30, −0.49, −0.04, −1.06 and +0.75 mJy at A-F, that is −14.6σ to
-  +12.1σ of a 450-point mean. E2-A's own final residual (Briggs 0.5) is 0.00-
-  0.09 mJy at the same pixels (robust rms 22 µJy), so the offsets come with the
-  natural weighting of the snapshots: unmodelled or mis-subtracted large-scale
-  flux and the sidelobes of the 0.2-1 % errors on the brightest sources.
+  +12.1σ of a 450-point mean. E2-A's own final residual (Briggs 0.5, with
+  `-unit-weights`) is 0.00-0.09 mJy at the same pixels (robust rms 22 µJy).
+- **The data weights carry most of it** (second post hoc check,
+  `examples/ts_p2_diag_weights.py`,
+  [results/ts-p2/diag-weights-real.json](results/ts-p2/diag-weights-real.json)):
+  with every nonzero Stokes I weight set to one, the control's time-means at
+  A-F become +0.19, +0.10, +0.18, +0.13, +0.03 and +0.20 mJy (from −0.91 to
+  +0.75), and the snapshot σ of intervals 0, 90, 180, 270 and 360 falls from
+  1.21-1.75 to 0.89-1.23 mJy. The split MS's WEIGHT_SPECTRUM, which the scope
+  note already calls untrusted on MeerKAT (section 4), weights the residual
+  differently from the unit weights E2-A's model was fitted with. The rest
+  (0.03-0.20 mJy, 0.03-0.21 of the unit-weight σ) is not explained here:
+  likely the sidelobes of the 0.2-1 % errors on the brightest sources and
+  unmodelled large-scale flux; unverified.
 - The same structure gives the positive excess of candidates (T4: 14,220
   positive against 272 negative at 5σ).
 - So, as frozen, the real-track bias gates fail on the residual floor, not on
   the light-curve or dynamic-spectrum code. The gates stand as frozen; this is
   recorded as not met.
 
-### 10.4 Outcome
+### 10.4 Outcome (decision rule of section 6, as frozen)
 
-| Claim | Outcome |
-| --- | --- |
-| P2 on simulation (`tsp2-held`) | **met**, every gate as frozen |
-| P1 parity on real data (T1, T2a-c, T3c) | **met**: WSClean 3.6e-7 of the peak, the DFT 1.0e-6 σ_meas |
-| P1 recovery on real data (T3d) | **met**: 7 of 7 pulses |
-| P1 bias on real data (T3a) | **not met**: A, B, C, E at −0.23 to −0.81 σ_meas against 0.141 |
-| P2 parity on real data (D1, D2, D4) | **met**: 5.0e-12 and 1.5e-6 σ_dyn |
-| P2 bias on real data (D3) | **not met**: C +0.095, E −0.192 σ_dyn against 0.035 |
+| Claim | Verdict | Gates |
+| --- | --- | --- |
+| P2 on simulation (`tsp2-held`) | **met** | D1-D5, D3b all pass |
+| P1 on real data | **not met (T3a)** | T1 3.6e-7 of the peak, T2a-c ≤ 1.0e-6 σ_meas, T3c, T3d (7/7 pulses) pass; T3a A, B, C, E at −0.23 to −0.81 σ_meas against 0.141 |
+| P2 on real data | **not met (D3)** | D1 5.0e-12, D2 1.5e-6, D4 3.1e-14 σ pass; D3 C +0.095, E −0.192 σ_dyn against 0.035; D5 not applicable |
 
-The real-track bias failures come from the natural-weighted residual's own
-mean at the positions (post hoc diagnostic, 10.3), which the frozen gate
-counts against the product; injected minus uninjected matches the
-injections to 1e-8 σ. The roadmap's v0.5.0 gate ("within tolerance of WSClean
-`-intervals-out` and an exact DFT") is met on simulations and on real data;
-the scope note's real-residual bias gate is not.
+Post hoc (10.3, not a gate): injected minus uninjected matches the
+injections to 1e-8 σ, so the two failures are the residual's own mean at the
+positions, which the frozen gates count against the product.
 
 ## 11. For the coordinator
 
@@ -417,12 +428,26 @@ the scope note's real-residual bias gate is not.
   follow-up could subtract an uninjected control (as 10.3's diagnostic does)
   or a deep residual image, under a new protocol and seed (`tsp2-real2`);
   not done.
-- **Residual floor.** Snapshot σ_meas 1.32 mJy (about 16 × thermal), positive
-  5σ candidates 52 × the negative ones: the residual of the brightest sources
-  (0.2-1 % of 0.15-0.57 Jy) and large-scale flux dominate. That limits blind
-  search on this field, not forced photometry.
+- **Weights.** `rang-core lightcurve` uses the MS's WEIGHT_SPECTRUM (as
+  WSClean does by default). On this MS that moves the residual's mean at the
+  positions by up to 1.1 mJy against unit weights, and raises σ by about
+  40 % (10.3). A unit-weight or reweighted option, gated by a new protocol, is
+  the obvious follow-up; it is not built.
+- **Residual floor.** Snapshot σ_meas 1.32 mJy (about 16 × thermal; 0.9-1.2
+  mJy with unit weights), positive 5σ candidates 52 × the negative ones. That
+  limits blind search on this field, not forced photometry.
 - **Not done.** T7 (ω Cen, SARAO token), a real known variable, and a
   `rang-core run` arm with `--channels-out`.
+- **The roadmap's v0.5.0 gate** ("P1 is within tolerance of WSClean
+  `-intervals-out` and an exact DFT"): every parity gate is met on
+  simulations and on real data, while P1 on real data is not met as frozen
+  here (T3a). Whether the parity gates satisfy the roadmap gate is the
+  coordinator's decision.
+- **Scan 10's status** rests on this note's reading of e2-acceptance.md
+  9.13-9.14 (E2-A scored, verdict as frozen, rerun on the reserve); ts-p1.md
+  section 12 (held out) was not formally superseded.
+- **JSON change.** `lightcurve.json` gains `settings.channels_out` (null
+  without the option); `lightcurve.csv` is byte-identical (the test).
 - **Checks.** Quick check PASS and CI green at `f50b063e`; the full check
   (`python tools/check_all.py`) and `wheels` are left to the merge check.
 - **Data kept:** `D:\rang\outputs\p1-lightcurves-20261123\scan10-512.ms`
