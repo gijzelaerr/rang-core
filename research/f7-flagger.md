@@ -294,6 +294,24 @@ at new kernel levels, levels 0-42 unchanged (pinned hashes for 0, 20 and, on Lin
 - Questions: does k = 1 on ESO137 fall to ≤ 0.040 (screen), and what does the dead zone cost R1,
   R2 and R5 (a real antenna anomaly now enters 2 units lower)?
 
+*D9 measured, screen (2026-11-23 15:41 SAST, nash; run roots above, chain log
+`f7-d9-20261123/chain.log`).* Both arms 86 training shards (56 ESO137), as D7. N5 change on ESO137
+chunk 10 per draw (20265301 / 02 / 03), W4 off:
+
+| Arm | Level | Train (s) | Val. loss | τ | k = 1 | k = 4 | k = 8 | Screen |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| D7 (seed 2) | 40 | 5,107 | 0.0344 | −4.0 | 0.060 / 0.063 / 0.065 | 0.115 | 0.197 | F |
+| D9a | 60 | 5,000 | 0.0367 | −4.0 | 0.047 / 0.055 / 0.050 | 0.098 / 0.095 / 0.089 | 0.194 / 0.143 / 0.149 | F (k = 1) |
+| D9b | 70 | 4,096 | 0.0421 | −4.5 | 0.029 / 0.031 / 0.032 | 0.059 / 0.054 / 0.049 | 0.122 / 0.102 / 0.101 | **pass** |
+
+Reading: the dead zone on the 2c/2d block planes alone takes about a fifth off k = 1; with F3's
+medians too (D9b) k = 1 halves, below the screen with margin, and k = 4 and 8 fall as well, as
+D8 predicted (2c + 2d frozen 0.030-0.033, all pooled 0.002-0.003). Validation loss rises (0.034 →
+0.042) and τ moves to −4.5. By the screening rule D9b goes to the complete target validation
+scorer (ESO137 chunk 10, 1573212012 scans 111/113/115, simulations; A reused from D7's run),
+`research/results/f7/d9b-val.sh`, verdict `f7-d9b-20261123/val-verdict-target.json`. The open
+question is what the dead zone costs R1, R2 and R5 there. D9a stops here.
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
@@ -325,6 +343,18 @@ LUNO (D1 0.056 at k = 1) and synthetic G-sub also failed in D1.
 *D10 shards (2026-11-23 07:53 SAST, nash, 1,275 s, 7.6 GB peak):* 24 new LUNO shards, no audit stop;
 223 calibrator training shards, 44 LUNO. T and A on the reserved groups over all cells, 0.446-0.467
 and 0.549-0.570 (MAIN_7: 0.469, 0.550): the same kind of observation as MAIN_7.
+
+**D10 measured (2026-11-23 15:39 SAST, nash, validation only; `nash:~/rang-data/outputs/f7-d10-20261123/`,
+verdict `val-verdict-calibrator.json`).** Training 2.6 h (12 threads); `f6_tau.py` τ as recorded in
+`method.json`; W4 off. Outcome **F** on R3 LUNO MAIN_7, G-drop LUNO MAIN_7 and G-sub (core16 and
+outer32 fail only through their MAIN_7 R3, 8.1 each). On MAIN_7 the network adds 1,696,671 cells
+against T's 209,120 (A 2,744,976): **R3 8.11** (bar ≤ 1.5; D1's N5 alone 7.6, F6 13.0); R5 0.983.
+G-drop on MAIN_7, worst draw 0.053 / 0.148 / 0.207 (bars 0.05 / 0.20 / 0.25). SARAO keeps every
+gate: R3 0.96, R5 0.981, G-drop ≤ 0.032 / 0.108 / 0.229; R1 1.00 (T 0.77), R2 worst 0.863 (H4n,
+T 0.48), S1-S3 pass. Reading: 24 more LUNO training shards (20 → 44, half of every real batch) do
+not move the network's LUNO level; it still flags about 8 × T there. Under the owner's ruling
+(R3 against the frozen T, pass only at ≤ 1.5 on MAIN_7) **calibrators are F for F7**; this was
+their last arm. LUNO MAIN_0/12/14 stay unread.
 
 **Training host (2026-11-23 10:15 SAST).** F7's arms train on nash's CPU, not glacier's GPU: a
 shard copied nash → glacier ran at 0.7 MB/s (211 MB in 300 s, scp), so D10's calibrator shards
