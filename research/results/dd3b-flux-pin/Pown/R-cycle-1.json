@@ -1,0 +1,13 @@
+{
+ "iterations": 65,
+ "fraction": 0.9908854166666666,
+ "calmode": "p",
+ "scales": null,
+ "seconds_solve": 13.446780400001444,
+ "seconds_image": 11.241250700026285,
+ "hogbom": {
+  "sigma": 0.00160172437423983,
+  "stop": 0.00800862187119915,
+  "n": 438
+ }
+}

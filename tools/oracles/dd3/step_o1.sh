@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
 # DD3 arm O, steps 1-2: per-facet model columns from WSClean predicts, then
-# QuartiCal 0.2.7's DD solve. Usage: step_o1.sh SCRATCH CYCLEDIR
+# QuartiCal 0.2.7's DD solve. Usage: step_o1.sh SCRATCH CYCLEDIR [GTYPE]
+# GTYPE: diag_complex (default) or phase (DD3b arm P).
 source "$(dirname "$0")/common.sh"
-s=$1; d=$2; log="$d/o1.log"; : > "$log"
+s=$1; d=$2; gtype=${3:-diag_complex}; log="$d/o1.log"; : > "$log"
 for f in 0 1 2 3; do
   cp "$d/facet$f-model.fits" "$s/pf$f-model.fits"
   wsc "$s" "$log" -predict -name "/w/pf$f" "${grid[@]}" /w/dd1.ms
@@ -24,6 +25,6 @@ rm -rf "$s/gains" "$s/qclogs"
     solver.threads=1 mad_flags.enable=false output.flags=false output.overwrite=true \
     output.gain_directory="$s/gains" output.log_directory="$s/qclogs" \
     dask.threads=1 dask.scheduler=single-threaded \
-    G.type=diag_complex G.direction_dependent=true G.pinned_directions="[]" \
+    G.type="$gtype" G.direction_dependent=true G.pinned_directions="[]" \
     G.time_interval=4 G.freq_interval=0 >> "$log" 2>&1 )
 rm -rf "$d/gains"; cp -r "$s/gains" "$d/gains"
