@@ -222,6 +222,39 @@ and block statistics, not in how often training saw a dropout. Next candidates f
 training loss that pairs each realisation with its k = 1 dropout (consistency), or block and scale
 statistics that exclude the baseline's own antennas; both need code, both validation-only first.
 
+**D8 (proposed 2026-11-23 07:40 SAST, before it runs; validation only, no training).** D2's k = 1
+row on ESO137 (not its k = 8 row, which D4 followed) names the 2c and 2d blocks as the k = 1 lever:
+0.084 → 0.051 with both frozen, 0.074 with the spectral planes frozen. A mechanism from the code:
+at level 40 (`own` false) each block's z is an antenna's one-step median over its ~60 baselines,
+less a smooth fit over channel blocks, divided by the row's pooled MAD. On a quiet observation that
+MAD is mostly the medians' own jitter, so removing one of ~60 baselines from a median moves z by
+about 1/√60 of its spread (≈ 0.13), whatever the training saw; this would explain D2's 85 % of
+cells moved (median 0.18) and why D7's extra dropout realisations did not lower k = 1. D8 runs
+`examples/f5_f6_probe.py` (extended: the 2c z and Q planes apart, every pooled plane at once,
+every plane at once, the flipped cells' logit margin, the logit move, and change at τ from −5 to
+−2 on the same logits) with D7's weights, level 40, τ −4.0, on ESO137 chunk 10 at k = 1 for G-drop's
+three draws (20265301-03), 256 baselines, and on SARAO 1573212012 scan 111 at k = 1 (first draw)
+for contrast. Question: does freezing the pooled planes take k = 1 below 0.04, and which group
+carries it? If the blocks carry it, the next arm is a feature-side fix (a dead zone on the block
+planes, or a noise-referenced floor on their scale) at a new level, levels 0-42 unchanged.
+Run root `nash:~/rang-data/outputs/f7-d8-20261123/`.
+
+**Seed spread (proposed 2026-11-23 07:40 SAST, before it runs; validation only).** Every arm so far
+is training seed 2 alone. D7's recipe (its shards, unchanged) trained with seeds 1 and 3, τ by
+`f6_tau.py` per seed, W4 off, screened by `examples/f7_gdrop_arms.py` on ESO137 chunk 10. Question:
+how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Run root
+`nash:~/rang-data/outputs/f7-seeds-20261123/`.
+
+**Screening and freeze rules for F7's target arms (written 2026-11-23 07:40 SAST, before D8 and
+every later arm).** (1) An arm is screened on ESO137 chunk 10 with `f7_gdrop_arms.py` (G-drop's
+three draws at k = 1, 4, 8, N5 arm); it goes to the complete validation scorer only if its worst
+draw is ≤ 0.040 at k = 1, ≤ 0.16 at k = 4 and ≤ 0.20 at k = 8 (margin for the held-out set's
+seven ESO137 chunks, every draw of which must pass the 0.05 / 0.20 / 0.25 bars). (2) A candidate
+freezes only after the complete scorer on validation passes every target gate, with τ (and κ or
+W4's removal) chosen by `f6_tau.py`'s rule and the level fixed in this note before that read;
+then three seeds are trained and selected as in F6, the cost gate is timed, and the held-out sets
+are read once.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
