@@ -6,7 +6,7 @@ any code that tests them and before any WSClean output was read; later
 changes are dated amendments, labelled post hoc where they could have seen a
 result.
 
-Status: **measured 2026-11-23**: H and arm P (facet predict with per-facet gains) **pass** against WSClean 3.7 (3.0e-7 of the peak, limit 1e-4); arm I (facet imaging) **not measured**: the imaging control C0 fails without facets (5.0e-3 of the peak, limit 1e-3), a setup outcome under section 6 (section 7).
+Status: **measured 2026-11-23**: H and arm P (facet predict with per-facet gains) **pass** against WSClean 3.7 (3.0e-7 of the peak, limit 1e-4); arm I (facet imaging) **not measured**. The first run's 0.5 % no-facet imaging gap was a setup mismatch (A3, A4); with a Nyquist-sampled 3″ grid and `-no-min-grid-resolution` (run `-03`) the no-facet and unit-gain imaging controls match WSClean to 4e-8 and 8e-8 and arm P to 3.7e-7. The normalisation control C2 still fails (1.3e-2 of the peak, limit 1e-3), so arm I is unread (A5).
 
 ## 1. What DD2 is, and what it is not
 
@@ -179,6 +179,9 @@ imaging half is not done.
 
 ## 8. For the coordinator
 
+(Updated 2026-11-23 after A3-A5: the imaging gap is closed as setup, and
+the remaining C2 difference is below.)
+
 - Mergeable as the predict half of DD2: the H5parm export and facet region
   writer (`tools/oracles/dd2/dd2.py`), and the DD cap evidence (88
   iterations, 1.9e-6 on P3). No core code changed.
@@ -250,3 +253,36 @@ DF2b and the GeMClean benchmark, the runs that matched WSClean to 1e-5 or
 better, also passed `-no-min-grid-resolution`. *Addendum (frozen):* rerun as
 `-03` with `-no-min-grid-resolution` added to every WSClean call, everything
 else as A3.
+
+**A5, 2026-11-23, run `-03` results and post hoc diagnosis of C2.** Run
+`D:/rang/outputs/dd2-20261123-03` (WSClean with A4. The prepare and rang
+outputs are copied from `-02`, since they do not depend on WSClean's
+settings. Archive `results/dd2-facet-imaging/run-03/compare.json`; `-02` is
+`results/dd2-facet-imaging/run-02-compare.json`):
+
+| Case | relative difference | gate |
+| --- | --- | --- |
+| predict C0 / C1 / **P** | 4.5e-6 / 3.1e-7 / **3.7e-7** | pass (1e-4) |
+| image C0 dirty, image | 4.0e-8 | pass (1e-3) |
+| image C1 dirty, image-pb | 7.9e-8 (boundary band 3.4e-8) | pass |
+| C2 candidate (a): dirty / image-pb, facet d1 | 1.3e-2 / 6.8e-3 | fail |
+| C2 candidate (b): dirty / image-pb, facet d1 | 3.3e-1 / 4.1e-1 | fail |
+
+So the gridding matches WSClean, and so do facets with unit gains. The 0.5 %
+gap of run `-01` is closed: setup, not a gridding difference.
+
+C2, post hoc and not gated. On facet d1, the best single scale between
+rang's uncorrected-normalisation image and WSClean's gives
+1/scale² = 8.012 for `-dirty.fits` and 1/scale = 8.022 for `-image-pb.fits`.
+Candidate (a) is c = 8.031, within 0.24 % of both. Candidate (b) is 4.52.
+So the scaling convention is (a): dirty times 1/sqrt(c), flat gain times 1/c.
+But after the best scale a residual of 1.3e-2 (dirty) remains. With d1's gain
+non-unit, the facets with **unit** gains also differ from rang's
+(identical, by C1) plain dirty image: up to 1.7e-2 in facet d0, 5e-3 to
+1.5e-2 at every distance from the boundaries, except deep inside facet d2
+(5.3e-8 beyond 300 pixels). WSClean's image of a facet therefore depends on
+another facet's gains. Rang's model (each facet imaged from all visibilities
+corrected by that facet's own gains) does not have this, and the source read
+in section 2 does not explain it. It is a real difference in facet-imaging
+behaviour, not in gridding. Its mechanism is open: candidates are the facet
+sub-image boxes with padding, and the stitching. Arm I is not read.

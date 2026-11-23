@@ -1,0 +1,95 @@
+{
+ "note": "research/dd2-facet-imaging.md",
+ "predict_C0": {
+  "max_abs_parallel": 2.176018564053466e-05,
+  "rel_parallel": 4.4978700251724675e-06,
+  "max_abs_cross": 0.0,
+  "pass": true
+ },
+ "predict_C1": {
+  "max_abs_parallel": 1.4936881168057522e-06,
+  "rel_parallel": 3.087480556701643e-07,
+  "max_abs_cross": 0.0,
+  "pass": true
+ },
+ "predict_P": {
+  "max_abs_parallel": 2.081900739261267e-06,
+  "rel_parallel": 3.6789576073947255e-07,
+  "max_abs_cross": 0.0,
+  "pass": true
+ },
+ "image_C0": {
+  "dirty": {
+   "peak_wsc": 1.5023725032806396,
+   "max_abs_interior": 5.960464477539063e-08,
+   "rel_interior": 3.9673679227512205e-08,
+   "rel_boundary_band": 4.9592099034390256e-09,
+   "pass": true
+  },
+  "image": {
+   "peak_wsc": 1.5023725032806396,
+   "max_abs_interior": 5.960464477539063e-08,
+   "rel_interior": 3.9673679227512205e-08,
+   "rel_boundary_band": 4.9592099034390256e-09,
+   "pass": true
+  }
+ },
+ "image_C1": {
+  "dirty": {
+   "peak_wsc": 1.5023725032806396,
+   "max_abs_interior": 1.1920928955078125e-07,
+   "rel_interior": 7.934735845502441e-08,
+   "rel_boundary_band": 3.378461746717836e-08,
+   "pass": true
+  },
+  "image": {
+   "peak_wsc": 1.5023725032806396,
+   "max_abs_interior": 1.1920928955078125e-07,
+   "rel_interior": 7.934735845502441e-08,
+   "rel_boundary_band": 3.378461746717836e-08,
+   "pass": true
+  }
+ },
+ "image_C2": {
+  "a": {
+   "dirty": {
+    "peak_wsc": 1.1176934242248535,
+    "max_abs_interior": 0.014193873852491379,
+    "rel_interior": 0.01269925504154698,
+    "rel_boundary_band": 0.01472145263618651,
+    "pass": false
+   },
+   "image": {
+    "peak_wsc": 0.7406694889068604,
+    "max_abs_interior": 0.005008518695831299,
+    "rel_interior": 0.006762150690483111,
+    "rel_boundary_band": 0.056973077600606194,
+    "pass": false
+   }
+  },
+  "b": {
+   "dirty": {
+    "peak_wsc": 1.1176934242248535,
+    "max_abs_interior": 0.3728867769241333,
+    "rel_interior": 0.333621697007602,
+    "rel_boundary_band": 0.02211138617531004,
+    "pass": false
+   },
+   "image": {
+    "peak_wsc": 0.7406694889068604,
+    "max_abs_interior": 0.3070547580718994,
+    "rel_interior": 0.4145638002789551,
+    "rel_boundary_band": 0.041110865363599286,
+    "pass": false
+   }
+  }
+ },
+ "C2_candidate": null,
+ "controls_pass": false,
+ "arm_P": {
+  "max_abs_parallel": 2.081900739261267e-06,
+  "rel_parallel": 3.6789576073947255e-07,
+  "max_abs_cross": 0.0,
+  "pass": true
+ }
+}
