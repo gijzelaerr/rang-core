@@ -6,8 +6,8 @@
     "differences": [],
     "files_compared": 162,
     "walls_s": {
-     "calibrate": 3.5,
-     "apply": 1.3
+     "calibrate": 5.0,
+     "apply": 2.9
     }
    },
    "P4": {
@@ -15,8 +15,8 @@
     "differences": [],
     "files_compared": 162,
     "walls_s": {
-     "calibrate": 3.6,
-     "apply": 2.0
+     "calibrate": 4.9,
+     "apply": 2.3
     }
    },
    "P2T": {
@@ -24,8 +24,8 @@
     "differences": [],
     "files_compared": 162,
     "walls_s": {
-     "calibrate": 64.0,
-     "apply": 20.3
+     "calibrate": 74.2,
+     "apply": 22.5
     }
    },
    "U_walls_s": {
@@ -39,8 +39,8 @@
     "differences": [],
     "files_compared": 243,
     "walls_s": {
-     "calibrate": 5.5,
-     "apply": 5.3
+     "calibrate": 6.0,
+     "apply": 5.1
     }
    },
    "P4": {
@@ -48,8 +48,8 @@
     "differences": [],
     "files_compared": 243,
     "walls_s": {
-     "calibrate": 6.8,
-     "apply": 8.0
+     "calibrate": 5.7,
+     "apply": 5.8
     }
    },
    "P2T": {
@@ -57,8 +57,8 @@
     "differences": [],
     "files_compared": 243,
     "walls_s": {
-     "calibrate": 82.3,
-     "apply": 35.5
+     "calibrate": 72.7,
+     "apply": 41.9
     }
    },
    "U_walls_s": {
@@ -72,8 +72,8 @@
     "differences": [],
     "files_compared": 189,
     "walls_s": {
-     "calibrate": 3.5,
-     "apply": 1.7
+     "calibrate": 4.5,
+     "apply": 2.0
     }
    },
    "P4": {
@@ -81,8 +81,8 @@
     "differences": [],
     "files_compared": 189,
     "walls_s": {
-     "calibrate": 4.0,
-     "apply": 2.4
+     "calibrate": 5.2,
+     "apply": 2.9
     }
    },
    "P2T": {
@@ -90,8 +90,8 @@
     "differences": [],
     "files_compared": 189,
     "walls_s": {
-     "calibrate": 63.4,
-     "apply": 29.0
+     "calibrate": 122.1,
+     "apply": 53.5
     }
    },
    "U_walls_s": {
@@ -105,8 +105,8 @@
     "differences": [],
     "files_compared": 81,
     "walls_s": {
-     "calibrate": 526.7,
-     "apply": 28.5
+     "calibrate": 566.5,
+     "apply": 40.4
     }
    },
    "P4": {
@@ -114,8 +114,8 @@
     "differences": [],
     "files_compared": 81,
     "walls_s": {
-     "calibrate": 586.2,
-     "apply": 22.7
+     "calibrate": 524.9,
+     "apply": 34.2
     }
    },
    "U_walls_s": {
