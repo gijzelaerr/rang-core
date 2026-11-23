@@ -15,7 +15,9 @@
 #   FIRST  the first step to run (default r1)
 set -u
 H=$(cd "$(dirname "$0")" && (pwd -W 2>/dev/null || pwd))
-S=$H/../e2-acceptance-scripts
+# SCRIPTS: the scorer directory of a checkout with a built extension (the
+# scorer puts its checkout's python/ first on sys.path); byte-equal files.
+S=${SCRIPTS:-$H/../e2-acceptance-scripts}
 G="$PY $H/g3r.py"
 LOG=$R/chain-steps.log
 NICE=()

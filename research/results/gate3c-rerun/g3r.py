@@ -242,7 +242,10 @@ def logcheck(r, label):
 def diff(a, b, tag, out):
     """R3: WSClean dirty images in A against those in B (same names), max
     |difference| over the peak of B, per image."""
-    from e1b_score import _open
+    from astropy.io import fits
+
+    def _open(path):
+        return (np.squeeze(fits.getdata(path)).astype(np.float64),)
 
     per = {}
     for p in sorted(Path(b).glob(f"{tag}-dirty-*-dirty.fits")):
