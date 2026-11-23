@@ -1,0 +1,10 @@
+{
+ "iterations": 88,
+ "fraction": 0.9934895833333334,
+ "calmode": "ap",
+ "scales": null,
+ "h5_roundtrip": true,
+ "seconds_solve": 66.42224059998989,
+ "seconds_image": 10.595010699995328,
+ "log_tail": ""
+}

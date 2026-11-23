@@ -15,7 +15,7 @@ ARM (DD3b, research/dd3b-flux-pin.md): `base` (DD3, default), `P` (phase-only
 DD solves in cycles 0 and 1, then amplitude and phase) or `N` (amplitude and
 phase, each direction's mean |g| scaled to 1 after every solve, both arms);
 `Pown` is P with each direction's own gain in the phase J^H r (rang only,
-DD3b amendment A1).
+DD3b amendment A1); `C` keeps M0's catalogue fluxes fixed (DD3c).
 """
 
 import importlib.util
@@ -81,7 +81,7 @@ def setup(sim, run, arm="base"):
     from rang import core_grid, core_wgridder
 
     run.mkdir(parents=True, exist_ok=False)
-    if arm not in ("base", "P", "Pown", "N"):
+    if arm not in ("base", "P", "Pown", "N", "C"):
         raise SystemExit(f"unknown arm {arm!r}")
     (run / "arm.json").write_text(json.dumps({"arm": arm}))
     c = dd2.read_ms(Path(sim) / "dd1.ms")
@@ -128,14 +128,26 @@ def context(run):
     }  # fmt: skip
 
 
-def hogbom(residual, psf, interior):
+def search_mask(run, ctx, arm):
+    """The shared rule's peak-search pixels: DD3's facet interior; DD3c arm
+    C also leaves out a 5 x 5 box around each catalogue source of M0, so
+    their fluxes stay fixed (research/dd3c-catalogue-pin.md)."""
+    mask = np.array(ctx["interior"], bool)
+    if arm == "C":
+        m0 = np.load(run / "model0.npy")
+        for y, x in zip(*np.nonzero(m0), strict=True):
+            mask[max(y - 2, 0) : y + 3, max(x - 2, 0) : x + 3] = False
+    return mask
+
+
+def hogbom(residual, psf, interior, search=None):
     """The shared minor cycle (section 2, step 4): components {(y, x): flux}
     and the residual after them."""
     res = np.array(residual, np.float64)
     sigma = 1.4826 * float(np.median(np.abs(res[interior] - np.median(res[interior]))))
     stop = max(SIGMAS * sigma, FLOOR)
     comps = {}
-    keep = np.asarray(interior, bool)
+    keep = np.asarray(interior if search is None else search, bool)
     for _ in range(MAX_COMPONENTS):
         k = int(np.argmax(np.where(keep, np.abs(res), 0.0)))
         y, x = divmod(k, NX)
@@ -254,7 +266,9 @@ def arm_r(run):
         comps = None
         new_model = model
         if k < NCYCLE:
-            comps, _, hinfo = hogbom(residual, psf, ctx["interior"])
+            comps, _, hinfo = hogbom(
+                residual, psf, ctx["interior"], search_mask(run, ctx, arm)
+            )
             info["hogbom"] = hinfo
             new_model = add_components(model, comps)
         save_cycle(
@@ -343,7 +357,9 @@ def arm_o(run, scratch):
         comps = None
         new_model = model
         if k < NCYCLE:
-            comps, _, hinfo = hogbom(residual, psf, ctx["interior"])
+            comps, _, hinfo = hogbom(
+                residual, psf, ctx["interior"], search_mask(run, ctx, arm)
+            )
             info["hogbom"] = hinfo
             new_model = add_components(model, comps)
         save_cycle(d, model, gains, flags, residual, comps, info)
