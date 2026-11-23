@@ -8,7 +8,7 @@ before any image of this rerun existed. It was written after both legs' 3c value
 had been read (they are in the notes above), so every reading here is **seen,
 post hoc**. No frozen verdict is rescored by it.
 
-Status: **protocol frozen, not yet measured.**
+Status: **E2-A dirty measured 2026-11-23: the gap remains (not setup).** E2-N running on nash.
 
 ## 1. Why
 
@@ -173,4 +173,37 @@ Not in scope: CASA, the target oracle row, any other gate.
 
 ## 6. Results
 
-(Not yet measured.)
+### 6.1 E2-A (glacier, `D:ang\outputs\gate3c-rerun-20261123`), 2026-11-23
+
+- Apply regenerated with the rebuilt `b2d80dcd` wheel (extension `3ee950bd…`, not the frozen `616b1a32…`).
+  The first attempt failed on absolute table paths in the copied `calibrate/summary.json`. They were
+  repointed to the copy, and the second attempt took 1,486 s with rc 0.
+- **R1 met** (FLAG equals `flags.rang_selfcal_20261115T161755Z`). **R2 met** (`97c43a7b…`).
+- **R3 not met:** the 3″ WSClean dirty images differ from the archived `wsclean3c-a-nosi` ones by
+  1.8e-7 to 1.0e-5 of the peak (limit 1e-6). The regenerated products are therefore labelled as not
+  bit-reproducing the original. The difference is 500 × below the gap and 10 × below the 1e-4 band.
+- **R4 met:** C3 reads 4.972e-3 against the recorded 4.973e-3. Per channel it matches to 3 digits.
+- WSClean logs show no "Minimal inversion size" line. maxuvw reaches 43,244 λ, so Nyquist is at least
+  2.385″.
+- **Arm N (2″, 6144²): dirty L∞ 4.974e-3** (channels 0-3: 3.8e-3 to 5.0e-3; 4-7: 1.2e-3 to 1.4e-3; MFS
+  2.7e-3), and 2.96e-3 within 0.7°. That is **not met** as frozen.
+  - **Class: remains**, because N > C/10, and N is essentially C.
+  - WSClean's gridded counts rise only in channels 5-7, by at most 0.24 %. The 3″ grid dropped almost
+    nothing.
+  - The audit's grid explanation does not hold for E2-A.
+- **Not run:** arm D (memory; 4,096 unaveraged channels, about 44 GB) and the compact row (memory,
+  section 3).
+- Timings: copy 320 s, wheel build 319 s, apply 1,486 s, WSClean 3″ dirty 1,340 s, WSClean 2″ dirty
+  1,529 s, GeMClean 2″ dirty 2,166 s.
+
+### 6.2 E2-N (nash, `~/rang-data/outputs/gate3c-rerun-20261123`), in progress
+
+- Apply regenerated with E2-N's bit-identical wheel (`9c42ea72…`). Attempt 1 hit the same path issue.
+  Attempt 2 took 2,409 s with rc 0, and its config hash `3b3f3047…` equals the follow-up's (R2 met).
+- **R1 met** (FLAG equals `flags.rang_selfcal_20261117T072854Z`).
+- **R4 met:** C3 reads 5.499e-2 against the recorded 5.50e-2, and 3.29e-3 within 0.7°. Every channel
+  reads 4.2e-2 to 5.5e-2, a flat profile and not a channel-smearing one.
+- No minimal-inversion line. maxuvw 42,842 λ gives Nyquist ≥ 2.41″.
+- Arm N's WSClean dirty is done (480 s). GeMClean's arm N dirty, then D and the clean arms, were
+  running at hand-back (`chain.sh`, log `chain-steps.log`). To score: `g3c-n-dirty.json`,
+  `g3c-d-dirty.json`, `g3c-n.json`.

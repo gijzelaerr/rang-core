@@ -1815,6 +1815,8 @@ Costs (shared slots): post chain 13.3 h (WSClean 3c clean 26,057 s, dirty 3,367 
 daskms 2,894 s; applycal in place 3,138 s over 9p; compare 2,700 s; qc-avg 3,315 s; QuartiCal 246 s);
 3b CASA 3,236 s; oracle WSClean 26,837 s; flux run 2,053 s. They are in tool-timings.md.
 
+- **Gate 3c rerun on a Nyquist grid (post hoc, 2026-11-23):** 2″ × 6144² with `-no-min-grid-resolution` gives dirty L∞ 4.97e-3, the same as at 3″, so the gap is not grid setup ([gate3c-rerun.md](gate3c-rerun.md) 6.1).
+
 ### 9.14 Coordinator decisions on E2-A (2026-11-17, owner delegated)
 
 - The verdict stands as frozen: E2-A is not passed (6.6). A rerun after a fix uses the reserve data under

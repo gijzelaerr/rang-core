@@ -600,6 +600,8 @@ J1939−6342 left 19 of 62 antennas flagged, with FPARAM 0: 0, 1, 2, 3, 6, 7, 9,
   neither is the cause of CASA's K flags.
 - A CASA rerun after a fix would be "seen" (section 8).
 
+- **Gate 3c rerun on a Nyquist grid (post hoc, 2026-11-23):** see [gate3c-rerun.md](gate3c-rerun.md) 6.2 (in progress at writing).
+
 ## For the coordinator
 
 - **#7 is not met as frozen.** E2-N (observatory-phased) ran once: the rang arm with rc 0 and all five
