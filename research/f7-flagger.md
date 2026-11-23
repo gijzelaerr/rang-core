@@ -245,7 +245,7 @@ is training seed 2 alone. D7's recipe (its shards, unchanged) trained with seeds
 how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Run root
 `nash:~/rang-data/outputs/f7-seeds-20261123/`.
 
-*Seed spread measured (2026-11-23 14:24 SAST, nash; same run root).* Training 5,528 s (seed 1) and
+*Seed spread measured (2026-11-23 12:24 SAST, nash; same run root; time corrected 16:05, nash's clock is SAST).* Training 5,528 s (seed 1) and
 5,525 s (seed 3), 56 GB peak each; validation loss 0.0322 and 0.0319 (seed 2: 0.0344). `f6_tau.py`
 τ −3.0 (seed 1) and −4.0 (seed 3); W4 off. Screen on ESO137 chunk 10, N5 change per draw
 (20265301 / 02 / 03):
@@ -311,6 +311,24 @@ D8 predicted (2c + 2d frozen 0.030-0.033, all pooled 0.002-0.003). Validation lo
 scorer (ESO137 chunk 10, 1573212012 scans 111/113/115, simulations; A reused from D7's run),
 `research/results/f7/d9b-val.sh`, verdict `f7-d9b-20261123/val-verdict-target.json`. The open
 question is what the dead zone costs R1, R2 and R5 there. D9a stops here.
+
+**D9b freeze rule (written 2026-11-23 16:05 SAST, before D9b's complete-scorer verdict is read;
+targets only).** If D9b passes every target gate on validation, the target candidate is fixed as:
+kernel level 70 (dead zone half-width 2 on planes 22, 23, 25, 26, 28-31 and 8-13, after the
+per-observation scale), degree 1, D7's recipe (F6's scans and seeds, balanced real batches, eight
+dropout realisations per ESO137 training chunk, 30,000 steps) on D9b's shards, W4 off. Seeds 1 and
+3 are trained on the same shards; `f6_tau.py` then selects as F6 did: the median of seeds 1-3 by
+validation loss, τ by its rule on that seed. The selected seed must itself pass the ESO137 screen
+and the complete target validation scorer before the held-out sets are read; if it is not seed 2
+and fails, the outcome is recorded F (not a switch to another seed). Then the cost gate is timed
+(exclusive) and the held-out target sets are read once: SARAO 1678312253, 1674958551, 1579022459;
+ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. If D9b fails a gate, the half-width is not retuned
+on validation; a new arm needs its own dated proposal.
+
+*Chain provenance (checked 16:05 SAST).* D9b's surviving branch ran from the chain logged at
+6a02e022; `git diff 6a02e022 b1d4d894` touches only `examples/f6_shards.py`'s `--reserved-luno`
+path (unused by D9) and `d10.sh`. D9b's validation shards were written by two concurrent jobs
+(07:32-08:27 SAST, one of them from the duplicate chain); their integrity check is recorded below.
 
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
