@@ -351,7 +351,7 @@ apply:
   parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
   reweight:
-    mode: off  # empirical weights after apply (issue #55, research/apply-reweight.md): off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as CASA statwt(datacolumn='residual')
+    mode: "off"  # empirical weights after apply (issue #55, research/apply-reweight.md): off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as CASA statwt(datacolumn='residual')
     chanbin: 16  # reweight: channels per block
     timebin: scan  # reweight: scan (one block per scan) or seconds, such as 120s
     statistic: mad  # reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance
