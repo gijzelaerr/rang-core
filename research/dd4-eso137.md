@@ -17,6 +17,8 @@ Status: **partly measured 2026-11-23, setup outcome on arm O (A3, A4).**
   rang to 1.1e-7.
 - So gates L and S are not read, no arm O cycle was rerun, and the gain
   over DI is provisional (section 7).
+- The follow-up with cap 500, DI0 as the frozen baseline and an extended
+  start model is [dd4b-eso137.md](dd4b-eso137.md).
 
 ## 1. What DD4 is, and what is not claimed
 
