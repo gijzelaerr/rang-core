@@ -352,3 +352,36 @@ single direction's gains absorb the incomplete start model of the extended
 added: one direction, pinned, so the gains stay at the publisher's DI
 calibration and only the deconvolution loop runs. DI0 is reported beside
 the frozen comparison and does not replace it.
+
+**A4, 2026-11-23, setup fix, post hoc (after arm O's cycle 0, before any
+gate L or S was read).** Arm O images a four-correlation copy of the
+subset, so that WSClean takes DD2b's validated four-correlation path
+instead of `-diagonal-visibilities` (A3), whose flat-gain facet image came
+out 1.93-1.94 × rang's in every facet.
+- *The copy* `sub4.ms`, made on WSL ext4 from `sub.ms` by
+  `tools/oracles/dd4/to_four_corr.py`: correlations XX, XY, YX, YY
+  (`CORR_TYPE` 9, 10, 11, 12). XX and YY are the subset's own data, flags,
+  weights and sigmas. XY and YX hold zero data and are flagged. Their
+  `WEIGHT_SPECTRUM` and `WEIGHT` follow A2's rule, `min(w_XX, w_YY)`, so
+  any Stokes I weight WSClean forms from the four hands equals rang's.
+- *Fallback, fixed now:* if control C0′ below shows that WSClean drops a
+  visibility whose cross hands are flagged, the copy is rebuilt with XY and
+  YX unflagged (still zero data, same weights). The cross hands carry no
+  signal and do not enter Stokes I.
+- *What uses which MS:* WSClean's corrupted facet predict, the residual
+  column and the flat-gain facet image (step 3) run on `sub4.ms`, without
+  `-diagonal-visibilities`. QuartiCal's solve and its per-facet model
+  predicts (steps 1-2) stay on the two-correlation `sub.ms`, as in cycle 0
+  (A3), since `diag_complex` uses the parallel hands only.
+- *Controls before any cycle is rerun,* each within A1's 1e-3 of the peak
+  over interior pixels:
+  - **C0′:** WSClean's dirty image of `sub4.ms` (no facets) against rang's
+    C0 image;
+  - **C1:** WSClean's flat-gain facet image (`-image-pb.fits`,
+    `-feather-size 0`) of `DATA` in `sub4.ms` with arm O's cycle-0 gains
+    applied, against rang's `residual_image` of the same data with the same
+    gains and a zero model.
+  If either fails with a factor near 1.94, the outcome stays "setup".
+- Arm O is rerun from cycle 0 in a fresh scratch, and gates L and S and the
+  gain over DI are then read as frozen in sections 5-6. DI0 stays reported
+  only (A3).
