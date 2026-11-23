@@ -1,0 +1,847 @@
+{
+ "freeze_commit": "bf11092215bc7a6c8fa49bb5668a042266c0e7bb",
+ "rule": "sha256('<freeze commit> <name>'): first and next 8 hex digits as integers; moved by 8 digits on a collision",
+ "collisions_moved": 0,
+ "skies": {
+  "T001": {
+   "recipe": "S3",
+   "sky_seed": 2091146829,
+   "noise_seed": 2507257797
+  },
+  "T002": {
+   "recipe": "S3",
+   "sky_seed": 2871646680,
+   "noise_seed": 4104144510
+  },
+  "T003": {
+   "recipe": "S3",
+   "sky_seed": 928285080,
+   "noise_seed": 155362888
+  },
+  "T004": {
+   "recipe": "S3",
+   "sky_seed": 2375699533,
+   "noise_seed": 4124646978
+  },
+  "T005": {
+   "recipe": "S3",
+   "sky_seed": 166783797,
+   "noise_seed": 3136849745
+  },
+  "T006": {
+   "recipe": "S3",
+   "sky_seed": 1726530582,
+   "noise_seed": 4078019133
+  },
+  "T007": {
+   "recipe": "S3",
+   "sky_seed": 941029206,
+   "noise_seed": 1545722785
+  },
+  "T008": {
+   "recipe": "S3",
+   "sky_seed": 2159302493,
+   "noise_seed": 4106716574
+  },
+  "T009": {
+   "recipe": "S3",
+   "sky_seed": 79486897,
+   "noise_seed": 2046167448
+  },
+  "T010": {
+   "recipe": "S3",
+   "sky_seed": 2031355019,
+   "noise_seed": 2113827864
+  },
+  "T011": {
+   "recipe": "S3",
+   "sky_seed": 2196221545,
+   "noise_seed": 2351718709
+  },
+  "T012": {
+   "recipe": "S3",
+   "sky_seed": 2139837332,
+   "noise_seed": 4164894478
+  },
+  "T013": {
+   "recipe": "S3",
+   "sky_seed": 1642020263,
+   "noise_seed": 596166538
+  },
+  "T014": {
+   "recipe": "S3",
+   "sky_seed": 3903606864,
+   "noise_seed": 2323044982
+  },
+  "T015": {
+   "recipe": "S3",
+   "sky_seed": 2145532955,
+   "noise_seed": 1480942049
+  },
+  "T016": {
+   "recipe": "S3",
+   "sky_seed": 2489013829,
+   "noise_seed": 4231234542
+  },
+  "T017": {
+   "recipe": "S3",
+   "sky_seed": 3591874213,
+   "noise_seed": 4135085322
+  },
+  "T018": {
+   "recipe": "S3",
+   "sky_seed": 1726462174,
+   "noise_seed": 986260947
+  },
+  "T019": {
+   "recipe": "S3",
+   "sky_seed": 2842785314,
+   "noise_seed": 2509681424
+  },
+  "T020": {
+   "recipe": "S3",
+   "sky_seed": 2082492174,
+   "noise_seed": 3550080924
+  },
+  "T021": {
+   "recipe": "S3",
+   "sky_seed": 3471844312,
+   "noise_seed": 3872239202
+  },
+  "T022": {
+   "recipe": "S3",
+   "sky_seed": 637749516,
+   "noise_seed": 1156931243
+  },
+  "T023": {
+   "recipe": "S3",
+   "sky_seed": 2848787954,
+   "noise_seed": 1804004549
+  },
+  "T024": {
+   "recipe": "S3",
+   "sky_seed": 229011133,
+   "noise_seed": 178828578
+  },
+  "T025": {
+   "recipe": "S3",
+   "sky_seed": 413980533,
+   "noise_seed": 2815815466
+  },
+  "T026": {
+   "recipe": "S3",
+   "sky_seed": 3413480885,
+   "noise_seed": 606311932
+  },
+  "T027": {
+   "recipe": "S3",
+   "sky_seed": 2639862086,
+   "noise_seed": 1886787568
+  },
+  "T028": {
+   "recipe": "S3",
+   "sky_seed": 3402776851,
+   "noise_seed": 2100373278
+  },
+  "T029": {
+   "recipe": "S3",
+   "sky_seed": 3302629410,
+   "noise_seed": 1272251388
+  },
+  "T030": {
+   "recipe": "S3",
+   "sky_seed": 139812014,
+   "noise_seed": 35943764
+  },
+  "T031": {
+   "recipe": "S3",
+   "sky_seed": 2442971973,
+   "noise_seed": 2031196911
+  },
+  "T032": {
+   "recipe": "S3",
+   "sky_seed": 189248089,
+   "noise_seed": 1238709158
+  },
+  "T033": {
+   "recipe": "S3",
+   "sky_seed": 4010405347,
+   "noise_seed": 1463035381
+  },
+  "T034": {
+   "recipe": "S3",
+   "sky_seed": 2764500958,
+   "noise_seed": 91173701
+  },
+  "T035": {
+   "recipe": "S3",
+   "sky_seed": 214167282,
+   "noise_seed": 1611979879
+  },
+  "T036": {
+   "recipe": "S3",
+   "sky_seed": 1908405264,
+   "noise_seed": 1455511511
+  },
+  "T037": {
+   "recipe": "S3",
+   "sky_seed": 3592442476,
+   "noise_seed": 2399143141
+  },
+  "T038": {
+   "recipe": "S3",
+   "sky_seed": 1222409524,
+   "noise_seed": 3612207392
+  },
+  "T039": {
+   "recipe": "S3",
+   "sky_seed": 3540865233,
+   "noise_seed": 4059609947
+  },
+  "T040": {
+   "recipe": "S3",
+   "sky_seed": 3540068694,
+   "noise_seed": 2057510906
+  },
+  "T041": {
+   "recipe": "H5",
+   "sky_seed": 837169286,
+   "noise_seed": 556876106
+  },
+  "T042": {
+   "recipe": "H5",
+   "sky_seed": 101397184,
+   "noise_seed": 4095140589
+  },
+  "T043": {
+   "recipe": "H5",
+   "sky_seed": 3826720481,
+   "noise_seed": 2081548930
+  },
+  "T044": {
+   "recipe": "H5",
+   "sky_seed": 3443151451,
+   "noise_seed": 738446711
+  },
+  "T045": {
+   "recipe": "H5",
+   "sky_seed": 712310590,
+   "noise_seed": 215492535
+  },
+  "T046": {
+   "recipe": "H5",
+   "sky_seed": 3952262426,
+   "noise_seed": 2682870879
+  },
+  "T047": {
+   "recipe": "H5",
+   "sky_seed": 1474877181,
+   "noise_seed": 622431176
+  },
+  "T048": {
+   "recipe": "H5",
+   "sky_seed": 2917755492,
+   "noise_seed": 2387104729
+  },
+  "T049": {
+   "recipe": "H5",
+   "sky_seed": 4003244824,
+   "noise_seed": 3818572625
+  },
+  "T050": {
+   "recipe": "H5",
+   "sky_seed": 3056750367,
+   "noise_seed": 3515179406
+  },
+  "T051": {
+   "recipe": "H5",
+   "sky_seed": 3701644921,
+   "noise_seed": 1514176376
+  },
+  "T052": {
+   "recipe": "H5",
+   "sky_seed": 3698000899,
+   "noise_seed": 1295633782
+  },
+  "T053": {
+   "recipe": "H5",
+   "sky_seed": 2233314127,
+   "noise_seed": 1519657201
+  },
+  "T054": {
+   "recipe": "H5",
+   "sky_seed": 1171705673,
+   "noise_seed": 1554187352
+  },
+  "T055": {
+   "recipe": "H5",
+   "sky_seed": 2916487753,
+   "noise_seed": 313671296
+  },
+  "T056": {
+   "recipe": "H5",
+   "sky_seed": 1939451921,
+   "noise_seed": 1604619516
+  },
+  "T057": {
+   "recipe": "H5",
+   "sky_seed": 1547970485,
+   "noise_seed": 2845006465
+  },
+  "T058": {
+   "recipe": "H5",
+   "sky_seed": 494564390,
+   "noise_seed": 88286538
+  },
+  "T059": {
+   "recipe": "H5",
+   "sky_seed": 3441313210,
+   "noise_seed": 2546502183
+  },
+  "T060": {
+   "recipe": "H5",
+   "sky_seed": 2647576044,
+   "noise_seed": 765389385
+  },
+  "T061": {
+   "recipe": "H5",
+   "sky_seed": 2421896767,
+   "noise_seed": 1777314772
+  },
+  "T062": {
+   "recipe": "H5",
+   "sky_seed": 1205206928,
+   "noise_seed": 427605212
+  },
+  "T063": {
+   "recipe": "H5",
+   "sky_seed": 1432868609,
+   "noise_seed": 2477751004
+  },
+  "T064": {
+   "recipe": "H5",
+   "sky_seed": 1026126584,
+   "noise_seed": 3807949081
+  },
+  "T065": {
+   "recipe": "H5",
+   "sky_seed": 29235249,
+   "noise_seed": 483559167
+  },
+  "T066": {
+   "recipe": "H5",
+   "sky_seed": 4051770074,
+   "noise_seed": 3970910706
+  },
+  "T067": {
+   "recipe": "H5",
+   "sky_seed": 2038561369,
+   "noise_seed": 1052103748
+  },
+  "T068": {
+   "recipe": "H5",
+   "sky_seed": 2753925172,
+   "noise_seed": 917041606
+  },
+  "T069": {
+   "recipe": "H5",
+   "sky_seed": 2534822585,
+   "noise_seed": 72248252
+  },
+  "T070": {
+   "recipe": "H5",
+   "sky_seed": 2883029541,
+   "noise_seed": 1549609718
+  },
+  "T071": {
+   "recipe": "H5",
+   "sky_seed": 987390108,
+   "noise_seed": 186338035
+  },
+  "T072": {
+   "recipe": "H5",
+   "sky_seed": 2085776629,
+   "noise_seed": 2385839613
+  },
+  "T073": {
+   "recipe": "H5",
+   "sky_seed": 4157409125,
+   "noise_seed": 1672742026
+  },
+  "T074": {
+   "recipe": "H5",
+   "sky_seed": 2094006335,
+   "noise_seed": 736042231
+  },
+  "T075": {
+   "recipe": "H5",
+   "sky_seed": 1410720242,
+   "noise_seed": 2584560465
+  },
+  "T076": {
+   "recipe": "H5",
+   "sky_seed": 2762958122,
+   "noise_seed": 2269706123
+  },
+  "T077": {
+   "recipe": "H5",
+   "sky_seed": 2627724718,
+   "noise_seed": 4224799870
+  },
+  "T078": {
+   "recipe": "H5",
+   "sky_seed": 730643492,
+   "noise_seed": 3864602771
+  },
+  "T079": {
+   "recipe": "H5",
+   "sky_seed": 3524925923,
+   "noise_seed": 3995917573
+  },
+  "T080": {
+   "recipe": "H5",
+   "sky_seed": 4150185347,
+   "noise_seed": 764408390
+  },
+  "T081": {
+   "recipe": "H6",
+   "sky_seed": 3306221491,
+   "noise_seed": 447269629
+  },
+  "T082": {
+   "recipe": "H6",
+   "sky_seed": 1598728731,
+   "noise_seed": 2148161496
+  },
+  "T083": {
+   "recipe": "H6",
+   "sky_seed": 1128204095,
+   "noise_seed": 4126530292
+  },
+  "T084": {
+   "recipe": "H6",
+   "sky_seed": 2616215519,
+   "noise_seed": 3121321461
+  },
+  "T085": {
+   "recipe": "H6",
+   "sky_seed": 2121326966,
+   "noise_seed": 881833317
+  },
+  "T086": {
+   "recipe": "H6",
+   "sky_seed": 245317817,
+   "noise_seed": 4270487166
+  },
+  "T087": {
+   "recipe": "H6",
+   "sky_seed": 2602140422,
+   "noise_seed": 3212729142
+  },
+  "T088": {
+   "recipe": "H6",
+   "sky_seed": 4077046850,
+   "noise_seed": 2627720971
+  },
+  "T089": {
+   "recipe": "H6",
+   "sky_seed": 100575601,
+   "noise_seed": 1428061149
+  },
+  "T090": {
+   "recipe": "H6",
+   "sky_seed": 1128318052,
+   "noise_seed": 2899562889
+  },
+  "T091": {
+   "recipe": "H6",
+   "sky_seed": 2728287211,
+   "noise_seed": 4013016570
+  },
+  "T092": {
+   "recipe": "H6",
+   "sky_seed": 2296862185,
+   "noise_seed": 41925024
+  },
+  "T093": {
+   "recipe": "H6",
+   "sky_seed": 1777336600,
+   "noise_seed": 860098501
+  },
+  "T094": {
+   "recipe": "H6",
+   "sky_seed": 2811591374,
+   "noise_seed": 1047560489
+  },
+  "T095": {
+   "recipe": "H6",
+   "sky_seed": 3994311693,
+   "noise_seed": 356908457
+  },
+  "T096": {
+   "recipe": "H6",
+   "sky_seed": 73378299,
+   "noise_seed": 565926806
+  },
+  "T097": {
+   "recipe": "H6",
+   "sky_seed": 2170252337,
+   "noise_seed": 2443561546
+  },
+  "T098": {
+   "recipe": "H6",
+   "sky_seed": 2352695233,
+   "noise_seed": 803711655
+  },
+  "T099": {
+   "recipe": "H6",
+   "sky_seed": 1656475031,
+   "noise_seed": 3730203643
+  },
+  "T100": {
+   "recipe": "H6",
+   "sky_seed": 2258902717,
+   "noise_seed": 2927178770
+  },
+  "T101": {
+   "recipe": "H7",
+   "sky_seed": 3781254047,
+   "noise_seed": 3864905846
+  },
+  "T102": {
+   "recipe": "H7",
+   "sky_seed": 1493234929,
+   "noise_seed": 2833530774
+  },
+  "T103": {
+   "recipe": "H7",
+   "sky_seed": 2426610605,
+   "noise_seed": 2588094857
+  },
+  "T104": {
+   "recipe": "H7",
+   "sky_seed": 2316829282,
+   "noise_seed": 2540556452
+  },
+  "T105": {
+   "recipe": "H7",
+   "sky_seed": 2943012530,
+   "noise_seed": 3126970104
+  },
+  "T106": {
+   "recipe": "H7",
+   "sky_seed": 1210716616,
+   "noise_seed": 2749729982
+  },
+  "T107": {
+   "recipe": "H7",
+   "sky_seed": 2756019148,
+   "noise_seed": 3733274259
+  },
+  "T108": {
+   "recipe": "H7",
+   "sky_seed": 2121344353,
+   "noise_seed": 438686957
+  },
+  "T109": {
+   "recipe": "H7",
+   "sky_seed": 3142734172,
+   "noise_seed": 418431814
+  },
+  "T110": {
+   "recipe": "H7",
+   "sky_seed": 1297053185,
+   "noise_seed": 4102386970
+  },
+  "T111": {
+   "recipe": "H7",
+   "sky_seed": 61237792,
+   "noise_seed": 3484340703
+  },
+  "T112": {
+   "recipe": "H7",
+   "sky_seed": 3745476322,
+   "noise_seed": 2444870815
+  },
+  "T113": {
+   "recipe": "H7",
+   "sky_seed": 3893529031,
+   "noise_seed": 1970898811
+  },
+  "T114": {
+   "recipe": "H7",
+   "sky_seed": 2751489471,
+   "noise_seed": 3446686477
+  },
+  "T115": {
+   "recipe": "H7",
+   "sky_seed": 3538465490,
+   "noise_seed": 1982870289
+  },
+  "T116": {
+   "recipe": "H7",
+   "sky_seed": 1978432246,
+   "noise_seed": 2313599167
+  },
+  "T117": {
+   "recipe": "H7",
+   "sky_seed": 2164563033,
+   "noise_seed": 329961050
+  },
+  "T118": {
+   "recipe": "H7",
+   "sky_seed": 120312923,
+   "noise_seed": 3844163684
+  },
+  "T119": {
+   "recipe": "H7",
+   "sky_seed": 2399117433,
+   "noise_seed": 4152588857
+  },
+  "T120": {
+   "recipe": "H7",
+   "sky_seed": 2070352137,
+   "noise_seed": 1338038156
+  },
+  "T121": {
+   "recipe": "H7",
+   "sky_seed": 4294552821,
+   "noise_seed": 3581153536
+  },
+  "T122": {
+   "recipe": "H7",
+   "sky_seed": 3116857196,
+   "noise_seed": 928023682
+  },
+  "T123": {
+   "recipe": "H7",
+   "sky_seed": 4024590892,
+   "noise_seed": 436730152
+  },
+  "T124": {
+   "recipe": "H7",
+   "sky_seed": 2423441576,
+   "noise_seed": 3098396532
+  },
+  "T125": {
+   "recipe": "H7",
+   "sky_seed": 2726620570,
+   "noise_seed": 1319250936
+  },
+  "T126": {
+   "recipe": "H7",
+   "sky_seed": 4067877122,
+   "noise_seed": 2079417125
+  },
+  "T127": {
+   "recipe": "H7",
+   "sky_seed": 263598226,
+   "noise_seed": 1078987755
+  },
+  "T128": {
+   "recipe": "H7",
+   "sky_seed": 3542405736,
+   "noise_seed": 626405851
+  },
+  "T129": {
+   "recipe": "H7",
+   "sky_seed": 4021662578,
+   "noise_seed": 3404242872
+  },
+  "T130": {
+   "recipe": "H7",
+   "sky_seed": 1345265306,
+   "noise_seed": 598429508
+  },
+  "T131": {
+   "recipe": "H4",
+   "sky_seed": 2676149227,
+   "noise_seed": 4282213778
+  },
+  "T132": {
+   "recipe": "H4",
+   "sky_seed": 873004036,
+   "noise_seed": 2872081590
+  },
+  "T133": {
+   "recipe": "H4",
+   "sky_seed": 2835153751,
+   "noise_seed": 132203214
+  },
+  "T134": {
+   "recipe": "H4",
+   "sky_seed": 332721498,
+   "noise_seed": 1900539064
+  },
+  "T135": {
+   "recipe": "H4",
+   "sky_seed": 2885025041,
+   "noise_seed": 3701267674
+  },
+  "T136": {
+   "recipe": "H4",
+   "sky_seed": 1467007508,
+   "noise_seed": 4237690140
+  },
+  "T137": {
+   "recipe": "H4",
+   "sky_seed": 3990807504,
+   "noise_seed": 1267006467
+  },
+  "T138": {
+   "recipe": "H4",
+   "sky_seed": 1446741102,
+   "noise_seed": 3923355542
+  },
+  "T139": {
+   "recipe": "H4",
+   "sky_seed": 2952144801,
+   "noise_seed": 668542524
+  },
+  "T140": {
+   "recipe": "H4",
+   "sky_seed": 132962109,
+   "noise_seed": 414598491
+  },
+  "T141": {
+   "recipe": "H4",
+   "sky_seed": 748277415,
+   "noise_seed": 3499242793
+  },
+  "T142": {
+   "recipe": "H4",
+   "sky_seed": 521246578,
+   "noise_seed": 1582714949
+  },
+  "T143": {
+   "recipe": "H4",
+   "sky_seed": 1826404730,
+   "noise_seed": 1116005230
+  },
+  "T144": {
+   "recipe": "H4",
+   "sky_seed": 2680470266,
+   "noise_seed": 1515057403
+  },
+  "T145": {
+   "recipe": "H4",
+   "sky_seed": 3902481591,
+   "noise_seed": 930592658
+  },
+  "T146": {
+   "recipe": "H4",
+   "sky_seed": 3059429503,
+   "noise_seed": 3283208119
+  },
+  "T147": {
+   "recipe": "H4",
+   "sky_seed": 1862974907,
+   "noise_seed": 180891156
+  },
+  "T148": {
+   "recipe": "H4",
+   "sky_seed": 2222802331,
+   "noise_seed": 1245162512
+  },
+  "T149": {
+   "recipe": "H4",
+   "sky_seed": 3193579787,
+   "noise_seed": 3297238328
+  },
+  "T150": {
+   "recipe": "H4",
+   "sky_seed": 55695371,
+   "noise_seed": 2826599999
+  },
+  "T151": {
+   "recipe": "H4",
+   "sky_seed": 624444502,
+   "noise_seed": 2209027369
+  },
+  "T152": {
+   "recipe": "H4",
+   "sky_seed": 3709470919,
+   "noise_seed": 2078228102
+  },
+  "T153": {
+   "recipe": "H4",
+   "sky_seed": 3333422606,
+   "noise_seed": 1233454355
+  },
+  "T154": {
+   "recipe": "H4",
+   "sky_seed": 2352268332,
+   "noise_seed": 3333676743
+  },
+  "T155": {
+   "recipe": "H4",
+   "sky_seed": 3193674012,
+   "noise_seed": 3418802979
+  },
+  "T156": {
+   "recipe": "H4",
+   "sky_seed": 490794771,
+   "noise_seed": 3125695381
+  },
+  "T157": {
+   "recipe": "H4",
+   "sky_seed": 2865209027,
+   "noise_seed": 529405373
+  },
+  "T158": {
+   "recipe": "H4",
+   "sky_seed": 2741141605,
+   "noise_seed": 695844837
+  },
+  "T159": {
+   "recipe": "H4",
+   "sky_seed": 198152782,
+   "noise_seed": 2628583251
+  },
+  "T160": {
+   "recipe": "H4",
+   "sky_seed": 2141766500,
+   "noise_seed": 3297646639
+  },
+  "V1": {
+   "recipe": "H4",
+   "sky_seed": 2746137647,
+   "noise_seed": 3633546818
+  },
+  "V2": {
+   "recipe": "H7",
+   "sky_seed": 144294256,
+   "noise_seed": 942474942
+  },
+  "V3": {
+   "recipe": "H6",
+   "sky_seed": 1648778570,
+   "noise_seed": 1526786528
+  },
+  "V4": {
+   "recipe": "H5",
+   "sky_seed": 965735187,
+   "noise_seed": 3722368869
+  },
+  "G1": {
+   "recipe": "H4",
+   "sky_seed": 1145306936,
+   "noise_seed": 315645864
+  },
+  "G2": {
+   "recipe": "M1",
+   "sky_seed": 3382450338,
+   "noise_seed": 3725178264
+  },
+  "G3": {
+   "recipe": "H7",
+   "sky_seed": 2258006059,
+   "noise_seed": 838424049
+  },
+  "G4": {
+   "recipe": "H6",
+   "sky_seed": 41091326,
+   "noise_seed": 2002279400
+  }
+ }
+}

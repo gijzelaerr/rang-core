@@ -1,0 +1,45 @@
+13:19:42 G1 W1 575 s 549.004877
+13:29:12 G1 W5 570 s 549.925433
+13:37:16 G2 W1 483 s 456.992251
+13:46:32 G2 W5 556 s 536.127627
+13:54:35 G3 W1 482 s 456.507319
+14:01:59 G3 W5 444 s 423.446191
+14:05:08 G4 W1 188 s 167.264388
+14:08:06 G4 W5 178 s 160.513923
+G1 W1 {'relative_l2': 0.0039, 'false_flux': 0.0003, 'extended_failing': 0, 'wall_s': 572.8178, 'deconvolution_s': 547.2377, 'major': 7}
+G1 W5 {'relative_l2': 0.0036, 'false_flux': 0.0002, 'extended_failing': 0, 'wall_s': 567.3423, 'deconvolution_s': 547.499, 'major': 5}
+G1 P-s1-t5-K1 {'relative_l2': 0.0057, 'false_flux': 0.0018, 'extended_failing': 0}
+G1 P-s2-t5-K1 {'relative_l2': 0.007, 'false_flux': 0.0088, 'extended_failing': 0}
+G1 P-s3-t5-K1 {'relative_l2': 0.0059, 'false_flux': 0.0012, 'extended_failing': 0}
+G1 P-s1r2-t5-K1 {'relative_l2': 0.0057, 'false_flux': 0.0017, 'extended_failing': 0}
+G1 P-s2r2-t5-K1 {'relative_l2': 0.007, 'false_flux': 0.0088, 'extended_failing': 0}
+G1 P-s3r2-t5-K1 {'relative_l2': 0.006, 'false_flux': 0.0012, 'extended_failing': 0}
+G1 control {'relative_l2': 2.5661399480607224e-08, 'ratio_min': 0.9999999942899579, 'ratio_max': 1.0000000056310572, 'pass': True}
+G2 W1 {'relative_l2': 0.0052, 'false_flux': 0.0005, 'extended_failing': 0, 'wall_s': 481.7791, 'deconvolution_s': 455.9785, 'major': 7}
+G2 W5 {'relative_l2': 0.005, 'false_flux': 0.0004, 'extended_failing': 0, 'wall_s': 556.8523, 'deconvolution_s': 536.3246, 'major': 5}
+G2 P-s1-t5-K1 {'relative_l2': 0.0063, 'false_flux': 0.0015, 'extended_failing': 0}
+G2 P-s2-t5-K1 {'relative_l2': 0.008, 'false_flux': 0.0089, 'extended_failing': 0}
+G2 P-s3-t5-K1 {'relative_l2': 0.0068, 'false_flux': 0.0026, 'extended_failing': 0}
+G2 P-s1r2-t5-K1 {'relative_l2': 0.0062, 'false_flux': 0.0014, 'extended_failing': 0}
+G2 P-s2r2-t5-K1 {'relative_l2': 0.0081, 'false_flux': 0.0089, 'extended_failing': 0}
+G2 P-s3r2-t5-K1 {'relative_l2': 0.0068, 'false_flux': 0.0027, 'extended_failing': 0}
+G2 control {'relative_l2': 2.567514776037902e-08, 'ratio_min': 0.9999999940975839, 'ratio_max': 1.0000000042421524, 'pass': True}
+G3 W1 {'relative_l2': 0.0028, 'false_flux': 0.0012, 'extended_failing': 0, 'wall_s': 492.2317, 'deconvolution_s': 466.1285, 'major': 7}
+G3 W5 {'relative_l2': 0.0028, 'false_flux': 0.0021, 'extended_failing': 0, 'wall_s': 448.8065, 'deconvolution_s': 428.542, 'major': 5}
+G3 P-s1-t5-K1 {'relative_l2': 0.0039, 'false_flux': 0.0256, 'extended_failing': 0}
+G3 P-s2-t5-K1 {'relative_l2': 0.0049, 'false_flux': 0.0366, 'extended_failing': 0}
+G3 P-s3-t5-K1 {'relative_l2': 0.0045, 'false_flux': 0.0189, 'extended_failing': 0}
+G3 P-s1r2-t5-K1 {'relative_l2': 0.0039, 'false_flux': 0.0261, 'extended_failing': 0}
+G3 P-s2r2-t5-K1 {'relative_l2': 0.0049, 'false_flux': 0.0354, 'extended_failing': 0}
+G3 P-s3r2-t5-K1 {'relative_l2': 0.0045, 'false_flux': 0.0187, 'extended_failing': 0}
+G3 control {'relative_l2': 2.467513383512134e-08, 'ratio_min': 0.9999999959073813, 'ratio_max': 1.0000000040352008, 'pass': True}
+G4 W1 {'relative_l2': 0.0068, 'false_flux': 0.0004, 'extended_failing': 0, 'wall_s': 186.851, 'deconvolution_s': 166.033, 'major': 5}
+G4 W5 {'relative_l2': 0.0067, 'false_flux': 0.0007, 'extended_failing': 0, 'wall_s': 177.7472, 'deconvolution_s': 159.7011, 'major': 4}
+G4 P-s1-t5-K1 {'relative_l2': 0.0099, 'false_flux': 0.0014, 'extended_failing': 0}
+G4 P-s2-t5-K1 {'relative_l2': 0.0118, 'false_flux': 0.0088, 'extended_failing': 0}
+G4 P-s3-t5-K1 {'relative_l2': 0.0092, 'false_flux': 0.0003, 'extended_failing': 0}
+G4 P-s1r2-t5-K1 {'relative_l2': 0.0099, 'false_flux': 0.0014, 'extended_failing': 0}
+G4 P-s2r2-t5-K1 {'relative_l2': 0.0117, 'false_flux': 0.0084, 'extended_failing': 0}
+G4 P-s3r2-t5-K1 {'relative_l2': 0.0092, 'false_flux': 0.0003, 'extended_failing': 0}
+G4 control {'relative_l2': 2.552183139668295e-08, 'ratio_min': 0.9999999935524146, 'ratio_max': 1.0000000068510675, 'pass': True}
+wrepeat done 2026-11-22T14:09:15
