@@ -186,6 +186,13 @@ ang`.
    - Second arm, pre-registered with it: labels without `s`.
    - Landman's expert labels are asked for as an independent held-out check, not as a dependency.
 
+## Owner decisions (2026-11-23, v0.5.0)
+
+- F7's R3 stays as frozen (against Tricolour). The calibrator model passes only if the extra LUNO training data brings LUNO MAIN_7 to R3 <= 1.5; otherwise calibrators are F, and a targets-only stage may ship.
+- #11 UHF: the owner fetches the SARAO archive links for public UHF tracks.
+- #9 P1 (residual snapshot light curves) approved for v0.5.0.
+- #15's first direction-dependent piece: faceted imaging with per-facet gain solutions.
+
 ## For the coordinator
 
 - One milestone per release on GitHub.
