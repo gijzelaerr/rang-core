@@ -196,6 +196,8 @@ SEEDS = {
             ("tsp2-dev", 20262301),
             ("tsp2-held", 20262311),
             ("tsp2-real", 20262321),
+            # TS-P3 (research/ts-p3.md 2): the real track's second injection.
+            ("tsp2-real2", 20262331),
         )
     },
     # TS-P1 protocol 2 (research/ts-p1.md 13.1): flags and weights seeds too.

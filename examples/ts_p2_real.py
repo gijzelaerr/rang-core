@@ -58,8 +58,8 @@ UNIT_INTERVALS = 10
 
 
 class _Design:
-    def __init__(self, dt):
-        self.seeds = dict(st.SEEDS[CASE])
+    def __init__(self, dt, case=CASE):
+        self.seeds = dict(st.SEEDS[case])
         self.dt = dt
 
 
@@ -163,7 +163,17 @@ def layout(d, ntime, centre, mask):
     return out, spectra, redraws
 
 
-def inject(ms, mfs_image, truth_path):
+def inject(
+    ms,
+    mfs_image,
+    truth_path,
+    case=CASE,
+    injected="INJECTED_DATA",
+    residual="RESIDUAL_DATA",
+):
+    """`case` names the layout seed; `injected` and `residual` the columns
+    written (TS-P3, research/ts-p3.md 2: `tsp2-real2` into INJECTED2_DATA
+    and RESIDUAL2_DATA)."""
     started = time.perf_counter()
     ms = Path(ms)
     freq, _, centre = core_model.band(ms, FIELD)
@@ -171,13 +181,13 @@ def inject(ms, mfs_image, truth_path):
         times_all = t.getcol("TIME")
         interval = float(np.median(t.getcol("INTERVAL")))
         names = t.colnames()
-    for col in ("INJECTED_DATA", "RESIDUAL_DATA"):
+    for col in (injected, residual):
         if col in names:
             raise SystemExit(f"{ms} already has {col}")
     unique = np.unique(times_all)
     ntime = len(unique)
     unit, unit_sigmas = flux_unit(ms)
-    d = _Design(interval)
+    d = _Design(interval, case)
     mask = avoid_mask(mfs_image)
     lay, spectra, redraws = layout(d, ntime, centre, mask)
     step = SCALE_ARCSEC * st.ARCSEC
@@ -193,10 +203,10 @@ def inject(ms, mfs_image, truth_path):
     points = p1.unit_points(srcs)
     arrays = [st._component_arrays([p]) for p in points]
     with core_writeback.WriteBack(
-        ms, flag_backup="tsp2_inject", stage="tsp2-inject"
+        ms, flag_backup=f"{case}_inject".replace("-", "_"), stage=f"{case}-inject"
     ) as w:
-        w.ensure_column("INJECTED_DATA", init="data")
-        w.ensure_column("RESIDUAL_DATA", init="data")
+        w.ensure_column(injected, init="data")
+        w.ensure_column(residual, init="data")
         for start, n in w.chunks():
             data = np.asarray(w.read("DATA", start, n))
             model = np.asarray(w.read("MODEL_DATA", start, n))
@@ -212,11 +222,12 @@ def inject(ms, mfs_image, truth_path):
             out = data.astype(np.complex128)
             out[..., 0] += stokes
             out[..., 3] += stokes
-            injected = out.astype(np.complex64)
-            w.write("INJECTED_DATA", start, injected)
-            w.write("RESIDUAL_DATA", start, (injected - model).astype(np.complex64))
+            vis = out.astype(np.complex64)
+            w.write(injected, start, vis)
+            w.write(residual, start, (vis - model).astype(np.complex64))
     truth = {
-        "case": CASE,
+        "case": case,
+        "columns": [injected, residual],
         "field_id": FIELD,
         "scale_arcsec": SCALE_ARCSEC,
         "unit_jy": unit,
@@ -285,6 +296,8 @@ def main(argv=None):
     a.add_argument("ms")
     a.add_argument("mfs_image")
     a.add_argument("truth")
+    a.add_argument("--case", default=CASE)
+    a.add_argument("--columns", nargs=2, default=["INJECTED_DATA", "RESIDUAL_DATA"])
     b = sub.add_parser("score-p1")
     for k in ("ms", "truth", "lc_dir", "wsclean", "out"):
         b.add_argument(k)
@@ -293,7 +306,7 @@ def main(argv=None):
     c.add_argument("out")
     args = p.parse_args(argv)
     if args.cmd == "inject":
-        inject(args.ms, args.mfs_image, args.truth)
+        inject(args.ms, args.mfs_image, args.truth, args.case, *args.columns)
     elif args.cmd == "score-p1":
         score_p1(args.ms, args.truth, args.lc_dir, args.wsclean, args.out)
     else:

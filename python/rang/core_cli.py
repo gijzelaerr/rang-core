@@ -1594,6 +1594,14 @@ def _lightcurve_command(argv, options, pinned):
         "of contiguous channels (M must divide the channels; WSClean's "
         "-channels-out grouping), in DIR/dynspec.csv (research/ts-p2.md)",
     )
+    parser.add_argument(
+        "--weights",
+        choices=("ms", "unit"),
+        default="ms",
+        help="visibility weights: the MS's WEIGHT_SPECTRUM (else WEIGHT; the "
+        "default) or unit, every correlation 1 with flags still applied, as "
+        "gemclean -unit-weights (research/ts-p3.md)",
+    )
     args = parser.parse_args(argv)
     from . import core_grid
     from . import lightcurve as lc
@@ -1680,6 +1688,7 @@ def _lightcurve_command(argv, options, pinned):
             device=args.device,
             candidate_sigma=args.candidates,
             channels_out=args.channels_out,
+            weights=args.weights,
         )
         lc.write_outputs(result, out)
     except (lc.LightcurveError, OSError, KeyError) as exc:

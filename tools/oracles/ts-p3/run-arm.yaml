@@ -1,0 +1,26 @@
+# TS-P3 (research/ts-p3.md 1c, run A-run; reported apart from parity gates
+# A1-A3): the ts-p1 4.2 arm with spectral imaging. GeMClean images the whole
+# hour of a copy of tsp2-dev from CORRECTED_DATA in 4 joined output channels
+# with a 2-term spectral fit and writes its deep model into MODEL_DATA; then
+# `rang-core lightcurve --channels-out 16` runs on the result.
+schema: rang-config
+version: 1
+fields:
+  target: [SIM-TARGET]
+image:
+  fields: [target]
+  column: CORRECTED_DATA
+  size: [2048, 2048]
+  scale: 2asec
+  weight: briggs
+  robust: 0.0
+  niter: 100000
+  auto_threshold: 3.0
+  mgain: 0.8
+  channels_out: 4
+  join_channels: true
+  fit_spectral_pol: 2
+  threads: 8
+  write_model: true
+run:
+  stages: [image]

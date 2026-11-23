@@ -20,7 +20,10 @@ spectrum per position: the same DFT over each of M equal groups of
 contiguous channels (`rang._core.lightcurve_dft_grouped`; WSClean's
 `-channels-out M` grouping, M must divide the channels), written to
 `dynspec.csv`. A group with no weighted sample gives NaN (`null` in JSON).
-The light curve itself does not change with M.
+The light curve itself does not change with M. `weights="unit"` (TS-P3,
+research/ts-p3.md) weighs every correlation 1 in place of WEIGHT_SPECTRUM,
+flags still applied, as gemclean's `-unit-weights`; the default "ms" is
+unchanged.
 
 Stokes I and its weight follow WSClean's `-pol I` (`core_weights.stokes_i`):
 `I = (XX + YY) / 2`, weight `min(4 w_XX, 4 w_YY)`, zero when a hand is
@@ -60,6 +63,10 @@ __all__ = [
 ARCSEC = math.pi / (180.0 * 3600.0)
 LINEAR = [9, 10, 11, 12]
 MAD_TO_SIGMA = 1.482602218505602
+# --weights (research/ts-p3.md 1a): "ms" reads WEIGHT_SPECTRUM (else WEIGHT);
+# "unit" weighs every correlation 1, flags still applied (gemclean's
+# -unit-weights).
+WEIGHTS = ("ms", "unit")
 CSV_COLUMNS = (
     "interval",
     "time_mjd_s",
@@ -207,7 +214,10 @@ def _residual(t, rows, column, model_column, weight_column, nchan):
     data = _read(t, column, rows)
     if model_column is not None:
         data = data - _read(t, model_column, rows)
-    weights = _read(t, weight_column, rows)
+    if weight_column is None:  # --weights unit: every correlation weighs 1
+        weights = np.ones(data.shape, np.float32)
+    else:
+        weights = _read(t, weight_column, rows)
     if weights.ndim == 2:  # WEIGHT: one value per correlation
         weights = np.broadcast_to(weights[:, None, :], data.shape)
     flags = _read(t, "FLAG", rows)
@@ -420,6 +430,7 @@ def light_curves(
     device="cpu",
     candidate_sigma=None,
     channels_out=None,
+    weights="ms",
 ):
     """Light curves of `positions` ((name, ra_deg, dec_deg) tuples) in the
     residual of `field` (id or name). `model_column=None` uses the data
@@ -438,6 +449,10 @@ def light_curves(
     field_id, field_name = _field_id(ms, field)
     _one_data_description(ms, field_id, field_name)
     column, model_column, weight_column = _columns(ms, column, model_column)
+    if weights not in WEIGHTS:
+        raise LightcurveError(f"weights must be one of {', '.join(WEIGHTS)}")
+    if weights == "unit":
+        weight_column = None
     freq, corr, centre = core_model.band(ms, field_id)
     groups = None if channels_out is None else channel_groups(freq, channels_out)
     if list(corr) != LINEAR:
@@ -476,6 +491,7 @@ def light_curves(
             "device": device,
             "candidate_sigma": candidate_sigma,
             "channels_out": None if groups is None else len(groups),
+            "weights": weights,
         },
         "positions": [
             {

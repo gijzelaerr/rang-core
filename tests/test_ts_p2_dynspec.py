@@ -152,3 +152,31 @@ def _pos_csv(truth, where):
         for s in truth["sources"]:
             w.writerow([s["name"], repr(s["ra_deg"]), repr(s["dec_deg"])])
     return path
+
+
+def test_unit_weights_are_scored_and_the_default_is_unchanged(small, tmp_path):
+    """TS-P3 (research/ts-p3.md 1a, U5): `--weights ms` equals no option byte
+    for byte; `unit` changes the fluxes of a set with unequal weights and
+    still matches the scorer's NumPy DFT with unit weights."""
+    ms, truth_path, truth = small
+    pos = _pos_csv(truth, tmp_path)
+    base = ["--no-receipt", "lightcurve", str(ms), "--positions", str(pos),
+            "--field", str(truth["field_id"]), "--size", "256", "--scale", "2asec",
+            "--channels-out", str(GROUPS)]  # fmt: skip
+    for name, extra in (("plain", []), ("ms", ["--weights", "ms"]),
+                        ("unit", ["--weights", "unit"])):  # fmt: skip
+        core_cli.dispatch([*base, "--out", str(tmp_path / name), *extra])
+    for f in ("lightcurve.csv", "dynspec.csv"):
+        assert (tmp_path / "plain" / f).read_bytes() == (
+            tmp_path / "ms" / f
+        ).read_bytes()
+    unit = json.loads((tmp_path / "unit/lightcurve.json").read_text(encoding="utf-8"))
+    plain = json.loads((tmp_path / "plain/lightcurve.json").read_text(encoding="utf-8"))
+    assert (
+        unit["settings"]["weights"] == "unit" and plain["settings"]["weights"] == "ms"
+    )
+    assert unit["flux_jy"] != plain["flux_jy"]
+    res = measure.score(ms, truth_path, tmp_path / "unit")
+    assert res["D1"]["pass"] and res["D4"]["pass"], (res["D1"], res["D4"])
+    with pytest.raises(SystemExit):
+        core_cli.dispatch([*base, "--out", str(tmp_path / "bad"), "--weights", "x"])
