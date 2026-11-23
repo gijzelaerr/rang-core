@@ -1597,10 +1597,11 @@ def _lightcurve_command(argv, options, pinned):
     parser.add_argument(
         "--weights",
         choices=("ms", "unit"),
-        default="ms",
-        help="visibility weights: the MS's WEIGHT_SPECTRUM (else WEIGHT; the "
-        "default) or unit, every correlation 1 with flags still applied, as "
-        "gemclean -unit-weights (research/ts-p3.md)",
+        default="unit",
+        help="visibility weights: unit (the default), every correlation 1 with "
+        "flags still applied, as gemclean -unit-weights; or ms, the MS's "
+        "WEIGHT_SPECTRUM (else WEIGHT), the default before 0.5.0, which "
+        "reproduces earlier light curves (research/ts-p3.md, ts-p4.md)",
     )
     args = parser.parse_args(argv)
     from . import core_grid

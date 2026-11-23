@@ -1,0 +1,87 @@
+{
+ "V1": {
+  "files": {
+   "lightcurve.csv": true,
+   "dynspec.csv": true,
+   "candidates.csv": true
+  },
+  "pass": true
+ },
+ "V2": {
+  "files": {
+   "lightcurve.csv": true,
+   "dynspec.csv": true,
+   "candidates.csv": true
+  },
+  "pass": true
+ },
+ "settings_weights": {
+  "new": "unit",
+  "old": "ms"
+ },
+ "V3": {
+  "max_relative": 4.773467298234e-07,
+  "median_relative": 2.3968761066945573e-07,
+  "worst_interval": 276,
+  "pass": true
+ },
+ "V4": {
+  "wsclean_max_over_sigma": 1.4419728687572112e-06,
+  "numpy_max_over_sigma": 2.362878762234894e-12,
+  "pass": true
+ },
+ "V5": {
+  "wsclean_max_over_sigma": 1.1069258242968467e-06,
+  "numpy_max_over_sigma": 2.581720144536172e-12,
+  "crval3_max_offset_hz": 0.0,
+  "pass": true
+ },
+ "V6": {
+  "D4": {
+   "max_over_sigma": 1.324274156451111e-14,
+   "pass": true
+  },
+  "D5": {
+   "empty_groups": [
+    15
+   ],
+   "json_not_null": [],
+   "csv_not_nan_rows": 0,
+   "pass": true,
+   "gated": true
+  },
+  "pass": true
+ },
+ "V7": {
+  "max_abs_change_over_sigma": 4.966083675366378,
+  "pass": true
+ },
+ "reported": {
+  "D3": {
+   "A": -0.013765899760378491,
+   "B": 0.013960950102982006,
+   "C": 0.004537507664507899,
+   "D": -0.014071027896149581,
+   "E": -0.005434696058207384,
+   "F": -0.01685790907268308
+  },
+  "D3b": {
+   "A": 1.1230914345749112,
+   "B": 1.0442412032932473,
+   "C": 1.0753747319822964,
+   "D": 1.0914450151945998,
+   "E": 1.1030584548487519,
+   "F": 1.0772893945259812
+  }
+ },
+ "gates": {
+  "V1": true,
+  "V2": true,
+  "V3": true,
+  "V4": true,
+  "V5": true,
+  "V6": true,
+  "V7": true
+ },
+ "all_pass": true
+}

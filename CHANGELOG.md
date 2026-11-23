@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
+  every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,
+  snapshot and candidate of a run without `--weights` changes on a Measurement Set whose weights
+  are not all equal. `--weights ms` (the MS's WEIGHT_SPECTRUM, else WEIGHT) reproduces earlier
+  outputs byte for byte. Why: on E2-A's ESO137 scan 10 unit weights cut the snapshot rms by 28 %
+  and the residual's offsets at forced positions from up to 1.19 to at most 0.15 mJy (#9,
+  `research/ts-p3.md`, `research/ts-p4.md`).
+- `rang-core lightcurve --channels-out M`: dynamic spectra, the DFT flux per interval in M equal
+  channel groups; `--weights unit|ms` (#9, `research/ts-p2.md`, `research/ts-p3.md`).
 - GeMClean: a Stokes I run keeps only each channel's active visibilities and weights, sorted, after
   its PSF (as the polarisation path does): case I (E2-N, 4096² multiscale, 8 channels) peaks at 37.9
   GB instead of 40.2 (0.944 ×), wall 0.993 ×, images byte-identical (#32, `research/gemclean-mem-32b.md`).

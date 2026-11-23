@@ -80,14 +80,16 @@ def beams(weight, phi):
     return out
 
 
-def read_interval(t, rows):
+def read_interval(t, rows, unit=False):
     """The residual of `rows` as the product should read it, formed here:
     CORRECTED_DATA (else DATA) - MODEL_DATA, WEIGHT_SPECTRUM (else WEIGHT),
     FLAG and FLAG_ROW (protocol 2, research/ts-p1.md 13.1)."""
     names = t.colnames()
     column = "CORRECTED_DATA" if "CORRECTED_DATA" in names else "DATA"
     data = t.getcol_rows(column, rows) - t.getcol_rows("MODEL_DATA", rows)
-    if "WEIGHT_SPECTRUM" in names:
+    if unit:  # the run's --weights unit (research/ts-p3.md 1a, ts-p4.md)
+        wt = np.ones(data.shape, np.float32)
+    elif "WEIGHT_SPECTRUM" in names:
         wt = t.getcol_rows("WEIGHT_SPECTRUM", rows)
     else:
         wt = np.broadcast_to(t.getcol_rows("WEIGHT", rows)[:, None, :], data.shape)
@@ -97,7 +99,7 @@ def read_interval(t, rows):
     return np.asarray(t.getcol_rows("UVW", rows), np.float64), vis, weight
 
 
-def oracle(ms, truth):
+def oracle(ms, truth, unit=False):
     """Per interval: NumPy DFT fluxes and expected dirty values (T2a, T3)."""
     with core_ms.open_table(Path(ms) / "SPECTRAL_WINDOW") as sw:
         freq = np.asarray(sw.getcol("CHAN_FREQ", 0, 1)[0], np.float64)
@@ -111,7 +113,7 @@ def oracle(ms, truth):
         )
         for k, when in enumerate(truth["time_mjd_s"]):
             rows = np.flatnonzero(keep & (times == when))
-            uvw, vis, weight = read_interval(t, rows)
+            uvw, vis, weight = read_interval(t, rows, unit)
             phi = phases(uvw, freq, lm)
             dft.append(numpy_dft(vis, weight, phi))
             expected.append(beams(weight, phi) @ injected[k])
@@ -146,7 +148,7 @@ def score(ms, truth_path, lc_dir, wsclean=None, flag_row_ignored=False):
     snap = np.array(lc["flux_snapshot_jy"], np.float64)
     sigma_meas = np.array(lc["sigma_meas_jy"], np.float64)
     injected = np.array(truth["flux_jy"])
-    dft, expected = oracle(ms, truth)
+    dft, expected = oracle(ms, truth, lc["settings"].get("weights") == "unit")
     res = {"case": truth["case"], "sigma_snap_jy": sig, "intervals": n}
     res["sigma_meas_jy"] = {
         "median": float(np.median(sigma_meas)),

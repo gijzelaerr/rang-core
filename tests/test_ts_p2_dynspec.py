@@ -154,10 +154,11 @@ def _pos_csv(truth, where):
     return path
 
 
-def test_unit_weights_are_scored_and_the_default_is_unchanged(small, tmp_path):
-    """TS-P3 (research/ts-p3.md 1a, U5): `--weights ms` equals no option byte
-    for byte; `unit` changes the fluxes of a set with unequal weights and
-    still matches the scorer's NumPy DFT with unit weights."""
+def test_unit_weights_are_the_default_and_scored(small, tmp_path):
+    """TS-P4 (research/ts-p4.md; TS-P3 U5 re-pointed): no option equals
+    `--weights unit` byte for byte; `ms` (the earlier default) changes the
+    fluxes of a set with unequal weights; both match the scorer's NumPy DFT
+    with their own weights."""
     ms, truth_path, truth = small
     pos = _pos_csv(truth, tmp_path)
     base = ["--no-receipt", "lightcurve", str(ms), "--positions", str(pos),
@@ -168,15 +169,14 @@ def test_unit_weights_are_scored_and_the_default_is_unchanged(small, tmp_path):
         core_cli.dispatch([*base, "--out", str(tmp_path / name), *extra])
     for f in ("lightcurve.csv", "dynspec.csv"):
         assert (tmp_path / "plain" / f).read_bytes() == (
-            tmp_path / "ms" / f
+            tmp_path / "unit" / f
         ).read_bytes()
-    unit = json.loads((tmp_path / "unit/lightcurve.json").read_text(encoding="utf-8"))
+    msw = json.loads((tmp_path / "ms/lightcurve.json").read_text(encoding="utf-8"))
     plain = json.loads((tmp_path / "plain/lightcurve.json").read_text(encoding="utf-8"))
-    assert (
-        unit["settings"]["weights"] == "unit" and plain["settings"]["weights"] == "ms"
-    )
-    assert unit["flux_jy"] != plain["flux_jy"]
-    res = measure.score(ms, truth_path, tmp_path / "unit")
-    assert res["D1"]["pass"] and res["D4"]["pass"], (res["D1"], res["D4"])
+    assert msw["settings"]["weights"] == "ms" and plain["settings"]["weights"] == "unit"
+    assert msw["flux_jy"] != plain["flux_jy"]
+    for name in ("unit", "ms"):
+        res = measure.score(ms, truth_path, tmp_path / name)
+        assert res["D1"]["pass"] and res["D4"]["pass"], (name, res["D1"], res["D4"])
     with pytest.raises(SystemExit):
         core_cli.dispatch([*base, "--out", str(tmp_path / "bad"), "--weights", "x"])

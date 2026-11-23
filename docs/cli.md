@@ -617,10 +617,11 @@ options:
                         M equal groups of contiguous channels (M must divide
                         the channels; WSClean's -channels-out grouping), in
                         DIR/dynspec.csv (research/ts-p2.md)
-  --weights {ms,unit}   visibility weights: the MS's WEIGHT_SPECTRUM (else
-                        WEIGHT; the default) or unit, every correlation 1 with
-                        flags still applied, as gemclean -unit-weights
-                        (research/ts-p3.md)
+  --weights {ms,unit}   visibility weights: unit (the default), every
+                        correlation 1 with flags still applied, as gemclean
+                        -unit-weights; or ms, the MS's WEIGHT_SPECTRUM (else
+                        WEIGHT), the default before 0.5.0, which reproduces
+                        earlier light curves (research/ts-p3.md, ts-p4.md)
 ```
 
 ## `mcp`
