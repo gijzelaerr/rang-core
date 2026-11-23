@@ -9,6 +9,7 @@
 #   SCRATCH  a fresh directory on WSL's ext4  (MS copies)
 # MODEL_DATA of each predict is exported as RUN/wsc/predict-<case>.npy with
 # python-casacore from QC_VENV (DD1's QuartiCal venv).
+# FEATHER: when set, -feather-size FEATHER on the image calls (DD2b, research/dd2b-facet-coupling.md).
 set -euo pipefail
 sim=$(realpath -m "$1"); run=$(realpath -m "$2"); scratch=$(realpath -m "$3")
 venv=${QC_VENV:-$HOME/Build/tmp/20261123-dd15/venv-qc027}
@@ -61,7 +62,7 @@ for case in C0 C1 C2 I; do
     I)  read -ra extra <<< "$(facets solved)" ;;
   esac
   wsc "image-$case" -name "/w/img-$case" "${common[@]}" -weight natural -niter 0 \
-    -data-column DATA -no-update-model-required "${extra[@]}" /w/img.ms
+    ${FEATHER:+-feather-size "$FEATHER"} -data-column DATA -no-update-model-required "${extra[@]}" /w/img.ms
   cp "$scratch/img-$case-dirty.fits" "$run/wsc/image-$case-dirty.fits"
   cp "$scratch/img-$case-image.fits" "$run/wsc/image-$case-image.fits"
   if [ -e "$scratch/img-$case-image-pb.fits" ]; then cp "$scratch/img-$case-image-pb.fits" "$run/wsc/image-$case-image-pb.fits"; fi
