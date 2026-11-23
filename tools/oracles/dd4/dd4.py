@@ -2,11 +2,12 @@
 """DD4: the catalogue-pinned DD loop on ESO 137-006 (research/dd4-eso137.md).
 
     python tools/oracles/dd4/dd4.py setup SUBMS CATALOGUE.json RUN
-    python tools/oracles/dd4/dd4.py rang RUN [--di]        # arm R, or arm DI
+    python tools/oracles/dd4/dd4.py rang RUN [--di|--di0] [--cap N --name ARM --model0 NPY]
     python tools/oracles/dd4/dd4.py oracle RUN SCRATCH     # arm O (WSL QuartiCal, WSClean)
     python tools/oracles/dd4/dd4.py control RUN SCRATCH    # C0 (A1, A2)
     python tools/oracles/dd4/dd4.py control1 RUN SCRATCH   # C0', C1 (A4)
     python tools/oracles/dd4/dd4.py score RUN
+    python tools/oracles/dd4/dd4.py scoreb RUN             # DD4b (research/dd4b-eso137.md)
 
 The loop and the shared minor cycle are DD3c's (`tools/oracles/dd3/dd3.py`,
 arm C); this driver generalises them to the field's directions, real
@@ -196,23 +197,26 @@ def facet_image(ctx, r, gains):
     return image
 
 
-def arm_r(run, di=False, di0=False):
+def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None):
     """Arm R, or DI (one direction, free), or DI0 (one direction, pinned:
-    the publisher's DI calibration only; DD4 amendment A3, post hoc)."""
+    the publisher's DI calibration only; DD4 amendment A3, post hoc).
+    `cap`, `name` and `model0` are DD4b's (research/dd4b-eso137.md): the
+    iteration cap, the arm's directory name and its start model."""
     from rang import cal_gain
 
     ctx = context(run, di or di0, di0)
     c = ctx["c"]
     psf = np.load(run / "psf.npy")
-    model = np.load(run / "model0.npy")
-    arm = "DI0" if di0 else ("DI" if di else "R")
+    model = np.load(model0 if model0 else run / "model0.npy")
+    arm = name or ("DI0" if di0 else ("DI" if di else "R"))
+    caps = dict(CAP, max_iterations=cap) if cap else CAP
     for k in range(NCYCLE + 1):
         t0 = time.perf_counter()
         models = facet_models(ctx, model)
         sol = cal_gain.solve_dd(
             c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
             c["ANTENNA1"], c["ANTENNA2"], ctx["block"], nant=len(c["ant_names"]), refant=0,
-            pinned_directions=ctx["pinned"], **CAP,
+            pinned_directions=ctx["pinned"], **caps,
         )  # fmt: skip
         t1 = time.perf_counter()
         residual = residual_image(ctx, models, sol.gains)
@@ -333,6 +337,79 @@ def measures(run, ctx, arm, psf, sigma):
     out.update(field_rms=rms, peak=float(restored.max()), dynamic_range=float(restored.max() / rms),
                field_pixels=int(v.size))  # fmt: skip
     return out
+
+
+def score_b(run):
+    """DD4b's measures and rules (research/dd4b-eso137.md, section 3)."""
+    ctx = context(run)
+    psf = np.load(run / "psf.npy")
+    sigma = restoring_beam(psf)
+    arms = [a for a in ("R", "DI0", "R500", "R500x", "DI0x")
+            if (run / a / f"cycle-{NCYCLE}").exists()]  # fmt: skip
+    m = {a: measures(run, ctx, a, psf, sigma) for a in arms}
+    rec = {
+        "note": "research/dd4b-eso137.md",
+        "restoring_sigma_px": sigma,
+        "measures": m,
+    }
+    conv = {}
+    for a in ("R", "R500", "R500x"):
+        if a not in arms:
+            continue
+        cyc = [json.loads((run / a / f"cycle-{k}" / "info.json").read_text())
+               for k in range(NCYCLE + 1)]  # fmt: skip
+        off = [(c["fraction"] - 0.25) / 0.75 for c in cyc]
+        its = [c["iterations"] for c in cyc]
+        g = np.load(run / a / f"cycle-{NCYCLE}" / "gains.npz")
+        amp = np.abs(g["gains"])
+        ok = g["flags"] == 0
+        per = {f"d{f}": [float(np.median(amp[..., f, :][ok[..., f]])),
+                         float(np.std(amp[..., f, :][ok[..., f]]))]
+               for f in range(amp.shape[3])}  # fmt: skip
+        verdict = ("converges" if all(o >= 0.99 for o in off) and max(its) < 500
+                   else "partly" if max(off) > 0.10 else "does not converge")  # fmt: skip
+        conv[a] = {"offaxis_fraction": off, "iterations": its, "verdict": verdict,
+                   "final_gain_median_abs_and_std": per}  # fmt: skip
+    rec["convergence"] = conv
+
+    def versus(a, b):
+        r = {
+            k: m[a]["offaxis_rms"][k] / m[b]["offaxis_rms"][k]
+            for k in m[a]["offaxis_rms"]
+        }
+        q = float(np.median(list(r.values())))
+        dr_ok = m[a]["dynamic_range"] >= m[b]["dynamic_range"]
+        v = (
+            "DD helps"
+            if (q <= 0.90 and dr_ok)
+            else ("DD worse" if q >= 1.05 else "null")
+        )
+        return {"rms_ratio": r, "q": q, "dr_ratio": m[a]["dynamic_range"] / m[b]["dynamic_range"],
+                "verdict": v}  # fmt: skip
+
+    if {"R500", "DI0"} <= set(arms):
+        rec["R500_vs_DI0"] = versus("R500", "DI0")
+    if {"R500x", "DI0x"} <= set(arms):
+        rec["R500x_vs_DI0x"] = versus("R500x", "DI0x")
+        rho = m["R500x"]["offaxis_rms"]["d1"] / m["DI0x"]["offaxis_rms"]["d1"]
+        half = m["R500x"]["offaxis_rms"]["d1"] <= 0.5 * m["R500"]["offaxis_rms"]["d1"]
+        v = ("supported" if (rho <= 1.0 and half) else
+             "not supported" if rho >= 2.0 else "inconclusive")  # fmt: skip
+        rec["d1_test"] = {"rho": rho, "d1_R500x_le_half_R500": bool(half), "verdict": v}
+    if {"R", "R500"} <= set(arms):
+        nant = len(ctx["c"]["ant_names"])
+        p, q = np.triu_indices(nant, 1)
+        ga = np.load(run / "R" / "cycle-0" / "gains.npz")["gains"]
+        gb = np.load(run / "R500" / "cycle-0" / "gains.npz")["gains"]
+        d = np.abs(
+            ga[:, :, p] * np.conj(ga[:, :, q]) - gb[:, :, p] * np.conj(gb[:, :, q])
+        )
+        rec["cycle0_gain_product_change_150_to_500"] = {
+            f"d{f}": [float(np.median(d[..., f, :])), float(d[..., f, :].max())]
+            for f in range(d.shape[3])
+        }
+    (run / "scoreb.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    print(json.dumps(rec, indent=1))
 
 
 def score(run):
@@ -471,13 +548,22 @@ def main(argv=None):
     if cmd == "setup":
         setup(Path(argv[1]), Path(argv[2]), Path(argv[3]))
     elif cmd == "rang":
-        arm_r(Path(argv[1]), di="--di" in argv, di0="--di0" in argv)
+        opt = {
+            k: argv[argv.index(k) + 1]
+            for k in ("--cap", "--name", "--model0")
+            if k in argv
+        }
+        arm_r(Path(argv[1]), di="--di" in argv, di0="--di0" in argv,
+              cap=int(opt["--cap"]) if "--cap" in opt else None, name=opt.get("--name"),
+              model0=opt.get("--model0"))  # fmt: skip
     elif cmd == "oracle":
         arm_o(Path(argv[1]), argv[2])
     elif cmd == "control":
         control_c0(Path(argv[1]), argv[2])
     elif cmd == "control1":
         control_c1(Path(argv[1]), argv[2])
+    elif cmd == "scoreb":
+        score_b(Path(argv[1]))
     elif cmd == "score":
         score(Path(argv[1]))
     else:
