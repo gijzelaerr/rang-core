@@ -241,3 +241,44 @@ def test_public_source_drops_the_token():
         == "https://archive-gw-1.kat.ac.za/1/1_sdp_l0.full.rdb"
     )
     assert meerkat.public_source("/data/1/1_sdp_l0.rdb") == "/data/1/1_sdp_l0.rdb"
+
+
+# Issue #11 (research/uhf-11.md sections 4-5): bands behind the MeerKAT boundary.
+
+
+def test_band_detection():
+    assert meerkat.band(np.linspace(856e6, 1711.79e6, 4096)) == "L"
+    assert meerkat.band(np.linspace(544e6, 1087.87e6, 4096)) == "UHF"
+    assert meerkat.band([1750e6, 2625e6]) == "S"
+    assert meerkat.band([900e6, 1000e6]) == "L"  # the overlap is L, the validated band
+    assert meerkat.band([544e6, 1500e6]) is None
+    assert meerkat.band([]) is None and meerkat.band(None) is None
+
+
+def test_band_warning_names_the_band():
+    from rang import core_pipeline as pipe
+
+    assert pipe.band_warning(np.linspace(856e6, 1711.79e6, 8)) is None
+    text = pipe.band_warning(np.linspace(544e6, 1087.87e6, 8))
+    assert "MeerKAT UHF band" in text and "only L band is validated" in text
+    assert "no single MeerKAT band" in pipe.band_warning([544e6, 1500e6])
+
+
+def test_uhf_fixture_band(tmp_path):
+    pytest.importorskip("katdal", reason="needs the [meerkat] extra")
+    fx = meerkat.write_synthetic_mvf(
+        tmp_path,
+        band="UHF",
+        n_ants=4,
+        n_dumps=12,
+        n_chans=24,
+        dump_chunk=4,
+        chan_chunk=8,
+    )
+    loader = meerkat.open_mvf(fx["rdb"])
+    freqs = np.asarray(loader.dataset.freqs)
+    assert meerkat.band(freqs) == "UHF"
+    assert freqs.min() >= 544e6 - 1 and freqs.max() <= 1088e6
+    assert fx["params"]["band"] == "UHF"
+    with pytest.raises(ValueError, match="band"):
+        meerkat.write_synthetic_mvf(tmp_path / "x", band="S")

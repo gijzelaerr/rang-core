@@ -17,6 +17,14 @@ Every standard is a log-polynomial `log10 S = sum_k a_k x^k`,
   table (`_f32`). With that, the port equals `setjy` to 2e-14 relative on
   0.05-50 GHz (FS1 oracle run
   `outputs/fs1-20261030-01`, `-03`).
+- **CARACal 2016** holds PKS 0408-65 (J0408-6545), which CASA has no
+  compiled model for: CARACal's `southern_calibrators.txt` cubic (epoch 2016,
+  log10 nu/MHz), valid 843 MHz-20 GHz by that file's header, evaluated
+  exactly in double. CARACal hands `setjy(standard='manual')` a curve_fit of
+  the same cubic over 0.8-1.8 GHz (`CARACAL_0408`); the two agree to the
+  limit `tests/test_fluxstd.py` states (issue #11, research/uhf-11.md
+  section 3). Most of UHF lies below 843 MHz: there it needs
+  `extrapolate=True`.
 - **manual** is `setjy(standard='manual')`:
   `S = S0 (nu/nu0)^(sum_k spix_k log10(nu/nu0)^k)`, all in double.
 - **Perley-Butler 2017** is transcribed from Perley & Butler (2017, ApJS
@@ -193,6 +201,13 @@ _PB2017 = {
 # representation fix, research/fs2-casarundata.md; the digits did not change).
 _PB2017_VERIFIED = frozenset({"3C123", "3C286", "3C295", "Hercules A"})
 
+# --- PKS 0408-65 -------------------------------------------------------------
+# CARACal 8f7bb363 caracal/data/southern_calibrators.txt, `name=0408-65
+# epoch=2016`: log10 S = a + b x + c x^2 + d x^3, x = log10(nu/MHz), S in Jy;
+# "Generally valid from 843MHz (SUMSS) to 20GHz (ATCA)" (its header).
+CARACAL_0408_MHZ = (-0.9790, 3.3662, -1.1216, 0.0861)
+CARACAL_0408_RANGE = (843.0 * MHZ, 20.0 * GHZ)
+
 # Names CASA 6.7.6 recognised in the oracle (each alias gave identical values).
 ALIASES = {
     "0137+331": "3C48",
@@ -202,6 +217,10 @@ ALIASES = {
     "J1331+3030": "3C286",
     "J1939-6342": "1934-638",
     "PKS1934-638": "1934-638",
+    # 0408-65 is in no CASA standard; these names follow CARACal and MeerKAT catalogues.
+    "J0408-6545": "0408-65",
+    "PKS0408-65": "0408-65",
+    "0408-658": "0408-65",
 }
 STANDARD_ALIASES = {
     "PB2010": "Perley-Butler 2010",
@@ -211,6 +230,8 @@ STANDARD_ALIASES = {
     "Stevens-Reynolds 2016": "Stevens-Reynolds 2016",
     "PB2017": "Perley-Butler 2017",
     "Perley-Butler 2017": "Perley-Butler 2017",
+    "caracal": "CARACal 2016",
+    "CARACal 2016": "CARACal 2016",
 }
 
 
@@ -266,6 +287,12 @@ def _models():
             "Perley & Butler 2017 Table 5 (paper-transcribed; differs from CASA's "
             "table, research/fs2-casarundata.md)", ok,
         )  # fmt: skip
+    models["CARACal 2016", "0408-65"] = Model(
+        "CARACal 2016", "0408-65", (Piece(0.0, INF, MHZ, CARACAL_0408_MHZ),),
+        CARACAL_0408_RANGE, "843 MHz-20 GHz (southern_calibrators.txt header)",
+        "CARACal 8f7bb363 southern_calibrators.txt, 0408-65 epoch 2016, exact cubic "
+        "(no CASA-compiled model; CARACal's setjy manual fit is CARACAL_0408)", True,
+    )  # fmt: skip
     return models
 
 
@@ -347,6 +374,21 @@ CARACAL_1934 = {
     "fluxdensity": 14.907688923,
     "reffreq_hz": 1.4e9,
     "spix": (-0.19473727, -1.38432520, 0.60533435, 1.43e-06),
+}
+
+
+# CARACal's manual model for PKS 0408-65: its catalog_parser.convert_pb_to_casaspi
+# (curve_fit over 0.8-1.8 GHz) of CARACAL_0408_MHZ, run at 8f7bb363 on 2026-11-23
+# (research/uhf-11.md section 8). The same run gives CARACAL_1934 above.
+CARACAL_0408 = {
+    "fluxdensity": 15.523235461976729,
+    "reffreq_hz": 1.4e9,
+    "spix": (
+        -1.1345095964241985,
+        -0.3089551282372074,
+        0.08610004964581237,
+        1.8195423333847356e-07,
+    ),
 }
 
 

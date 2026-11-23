@@ -63,6 +63,40 @@ FLAG_NAMES = tuple(name for name, _ in FLAG_BITS_TABLE)
 NATIVE_FLAGS = ("static", "cam", "data_lost", "ingest_rfi", "predicted_rfi")
 TRACK_STATES = ("track", "scan")
 
+# Nominal digitised bands, Hz (SARAO SSA-0003C-001 rev 02; S band is the MPIfR
+# receiver's 1750-3500 MHz). Issue #11 (research/uhf-11.md section 4): only L
+# is validated; the others are named, not supported.
+BANDS_HZ = {
+    "UHF": (544.0e6, 1088.0e6),
+    "L": (856.0e6, 1712.0e6),
+    "S": (1750.0e6, 3500.0e6),
+}
+BAND_SLACK_HZ = 1.0e3
+# The synthetic archive's band settings: (bandwidth, centre, sub_band, sub_product).
+# L is the 4k wideband product as on the archive; UHF's names follow the same
+# pattern (`c544M4k`, band `u`) and are not read from a real archive.
+FIXTURE_BANDS = {
+    "L": (856e6, 1284e6, "l", "c856M4k"),
+    "UHF": (544e6, 816e6, "u", "c544M4k"),
+}
+
+
+def band(chan_freq):
+    """The MeerKAT band holding every channel centre: "L", "UHF" or "S", else
+    None (empty, or spanning bands). L wins inside the 856-1088 MHz overlap,
+    since L is the validated band."""
+    if chan_freq is None:
+        return None
+    freq = np.asarray(chan_freq, np.float64).ravel()
+    if freq.size == 0:
+        return None
+    lo, hi = float(freq.min()), float(freq.max())
+    for name in ("L", "UHF", "S"):
+        b_lo, b_hi = BANDS_HZ[name]
+        if lo >= b_lo - BAND_SLACK_HZ and hi <= b_hi + BAND_SLACK_HZ:
+            return name
+    return None
+
 
 def has_katdal():
     """True when the `[meerkat]` extra is installed."""
@@ -444,6 +478,7 @@ def write_synthetic_mvf(
     shuffle=True,
     sync_time=1700000000.0,
     int_time=7.997,
+    band="L",
 ):
     """Write a small MVFv4 archive under `root` with katdal's own writers.
 
@@ -453,7 +488,8 @@ def write_synthetic_mvf(
     track scans on two targets around a slew, every flag bit used, an
     `sdp_l1_flags` stream that differs from L0, one deleted visibility chunk
     and one zero autocorrelation. Returns a dict with the paths, the stored
-    arrays and the parameters.
+    arrays and the parameters. `band` is "L" (default) or "UHF"
+    (`FIXTURE_BANDS`; issue #11).
 
     The telstate key layout and the chunk_info records are adapted from
     katdal 0.23's test helpers `_make_fake_stream` / `make_fake_data_source`
@@ -468,6 +504,9 @@ def write_synthetic_mvf(
     from katdal.chunkstore_npy import NpyFileChunkStore
     from katsdptelstate.rdb_writer import RDBWriter
 
+    if band not in FIXTURE_BANDS:
+        raise ValueError(f"band {band!r}: one of {sorted(FIXTURE_BANDS)}")
+    bandwidth, centre_freq, sub_band, sub_product = FIXTURE_BANDS[band]
     root = Path(root)
     root.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(seed)
@@ -552,8 +591,8 @@ def write_synthetic_mvf(
         cs_view["first_timestamp"] = first_timestamp
         s_view["sync_time"] = sync_time
         s_view["int_time"] = int_time
-        s_view["bandwidth"] = 856e6
-        s_view["center_freq"] = 1284e6
+        s_view["bandwidth"] = bandwidth
+        s_view["center_freq"] = centre_freq
         s_view["n_chans"] = n_chans
         s_view["n_bls"] = n_bls
         s_view["bls_ordering"] = np.array(bls)
@@ -568,8 +607,8 @@ def write_synthetic_mvf(
     telstate["capture_block_id"] = cbid
     telstate["stream_name"] = "sdp_l0"
     telstate["sub_pool_resources"] = ",".join(["cbf_1", "sdp_1"] + names)
-    telstate["sub_band"] = "l"
-    telstate["sub_product"] = "c856M4k"
+    telstate["sub_band"] = sub_band
+    telstate["sub_product"] = sub_product
     telstate["obs_params"] = {
         "observer": "rang MK1 fixture",
         "description": "synthetic MVFv4 archive (research/mk1-katdal.md)",
@@ -633,6 +672,7 @@ def write_synthetic_mvf(
             "seed": seed,
             "sync_time": sync_time,
             "int_time": int_time,
+            "band": band,
             "first_timestamp": first_timestamp,
             "scan_edges": edges,
             "activity": activity,
@@ -642,12 +682,14 @@ def write_synthetic_mvf(
 
 
 __all__ = [
+    "BANDS_HZ",
     "CORR_NAMES",
     "CORR_TYPES",
     "FLAG_BITS_TABLE",
     "FLAG_NAMES",
     "NATIVE_FLAGS",
     "MvfLoader",
+    "band",
     "flag_mask",
     "has_katdal",
     "load_saved_chunk",
