@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running (v0.5.0, 2026-11-23):** F7 (`f7-draft`, targets-only stage first; calibrators wait on P3 data or the owner's R3 answer), #3 chunk task API (`chunk-api-3`), #11 UHF (`uhf-11`, blocked on UHF archive links from the owner), #7 E2-N CASA chain on nash (`e2n-followup`, self-driving), #32 V1 measured on `gemclean-mem-32b` (0.944 × memory, adoption waits).
+- **Running (v0.5.0, 2026-11-23):** F7 (`f7-draft`, targets-only stage first; calibrators wait on P3 data or the owner's R3 answer), #3 chunk task API (`chunk-api-3`), #11 UHF (`uhf-11`, blocked on UHF archive links from the owner), #7 E2-N CASA chain on nash (`e2n-followup`, self-driving), #3 timing on nash; #9 P2 dynamic spectra (`p1-lightcurves`); DD2 next for #15.
 - **Direction:** [vision.md](vision.md) (2026-11-11).
 - **Next:** v0.5.0, scale and more of MeerKAT ([roadmap.md](roadmap.md)). Owner questions open: UHF data links, F7's R3 anchor, P1 for #9, the first DD piece for #15.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
@@ -19,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+DD1 merged, 2026-11-23 (#15; [dd1-facet-gains.md](dd1-facet-gains.md), frozen 722940b6, amendment A1 before any oracle read). QuartiCal 0.2.7's direction-dependent diag_complex solve ported to Rust (`core/src/cal/diag_dd.rs`, `rang.cal_gain.solve_dd`). Gate A, parity with QuartiCal: passes on P1-P4 (gains to 7.0e-16). Gate T, truth on the noiseless case: fails at the frozen 50 iterations (3.6e-4 against 1e-4); P3-long reaches 1.2e-8 at 140 iterations, so the outcome is algorithmic non-convergence of QuartiCal's update, not a port error. Runs in `D:/rang/outputs/dd1-20261123-01`. Coordinator decision: DD2's frozen note sets the DD term's iteration cap from P3-long; a faster DD update is a separate proposal. Also merged today: #32 V1 (`gemclean-mem-32b`, 0.944 × memory, images identical).
 
 v0.4.0 released, 2026-11-23. Merged #42 (`dl4b-step0`: step 0 F, step 1 F, relative L2 1.22-1.79 × W1's and slower than W\*) and `release-040`; full check passed, tag `v0.4.0` at `6d6396ee`; wheels workflow green on all 5 platforms, published to PyPI and as the GitHub release. Closed #40, #42, #51, #55, #56 and the v0.4.0 milestone; #46 and #1 moved to v0.5.0, #24 to v0.6.0. v0.5.0 sessions started: F7, #3, #11.
 

@@ -367,3 +367,90 @@ pub fn cal_gain_apply_refant(
     used.copy_from_slice(&out.refant);
     Ok(out.used_alternate)
 }
+
+/// Solve one direction-dependent `diag_complex` term (task DD1,
+/// research/dd1-facet-gains.md; `rang_core::cal::diag_dd`): `model` holds
+/// `nrow * nchan * ndir * 8` floats (complex64 per cell, then direction,
+/// then correlation); `pinned` lists QuartiCal's `G.pinned_directions`;
+/// `refant < 0` for no referencing. Writes `gains` (complex128 viewed as
+/// float64, `ngain * 4`, `ngain = ntime * nfreq * nant * ndir` in the layout
+/// time bin, frequency bin, antenna, direction) and `flags` (int8, `ngain`).
+/// Returns (iterations, converged fraction).
+#[pyfunction]
+#[pyo3(signature = (
+    nrow, nchan, ntime, nfreq, nant, ndir, data, weights, model, flag, flag_row, antenna1,
+    antenna2, time_bin, freq_bin, max_iterations, stop_criterion, stop_fraction, refant, pinned,
+    gains, flags
+))]
+#[allow(clippy::too_many_arguments)]
+pub fn cal_gain_solve_dd(
+    py: Python<'_>,
+    nrow: usize,
+    nchan: usize,
+    ntime: usize,
+    nfreq: usize,
+    nant: usize,
+    ndir: usize,
+    data: Ro<'_, f32>,
+    weights: Ro<'_, f32>,
+    model: Ro<'_, f32>,
+    flag: Ro<'_, u8>,
+    flag_row: Ro<'_, u8>,
+    antenna1: Ro<'_, u32>,
+    antenna2: Ro<'_, u32>,
+    time_bin: Ro<'_, u32>,
+    freq_bin: Ro<'_, u32>,
+    max_iterations: usize,
+    stop_criterion: f64,
+    stop_fraction: f64,
+    refant: i64,
+    pinned: Vec<usize>,
+    mut gains: Rw<'_, f64>,
+    mut flags: Rw<'_, i8>,
+) -> PyResult<(usize, f64)> {
+    use rang_core::cal::diag_dd;
+    let cells = nrow
+        .checked_mul(nchan)
+        .ok_or_else(|| PyValueError::new_err("nrow * nchan overflows"))?;
+    let model_len = cells
+        .checked_mul(ndir)
+        .and_then(|x| x.checked_mul(8))
+        .ok_or_else(|| PyValueError::new_err("model size overflows"))?;
+    let p = Problem {
+        nrow,
+        nchan,
+        ntime_bins: ntime,
+        nfreq_bins: nfreq,
+        nant,
+        data: exact(&data, "data", 8 * cells)?,
+        weights: exact(&weights, "weights", 4 * cells)?,
+        model: Model::Stored(exact(&model, "model", model_len)?),
+        flag: exact(&flag, "flag", 4 * cells)?,
+        flag_row: exact(&flag_row, "flag_row", nrow)?,
+        antenna1: exact(&antenna1, "antenna1", nrow)?,
+        antenna2: exact(&antenna2, "antenna2", nrow)?,
+        time_bin: exact(&time_bin, "time_bin", nrow)?,
+        freq_bin: exact(&freq_bin, "freq_bin", nchan)?,
+    };
+    let ngain = ntime
+        .checked_mul(nfreq)
+        .and_then(|x| x.checked_mul(nant))
+        .and_then(|x| x.checked_mul(ndir))
+        .ok_or_else(|| PyValueError::new_err("ntime * nfreq * nant * ndir overflows"))?;
+    let gains = exact_mut(&mut gains, "gains", 4 * ngain)?;
+    let flags = exact_mut(&mut flags, "flags", ngain)?;
+    let settings = diag_dd::Settings {
+        max_iterations,
+        stop_criterion,
+        stop_fraction,
+        reference_antenna: usize::try_from(refant).ok(),
+        pinned_directions: pinned,
+    };
+    let solution = detach(py, || diag_dd::solve(&p, ndir, &settings))
+        .map_err(|e| PyValueError::new_err(format!("{e}")))?;
+    for (i, g) in solution.gains.iter().enumerate() {
+        gains[4 * i..4 * i + 4].copy_from_slice(&[g[0].re, g[0].im, g[1].re, g[1].im]);
+    }
+    flags.copy_from_slice(&solution.flags);
+    Ok((solution.iterations, solution.converged_fraction))
+}
