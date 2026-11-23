@@ -239,3 +239,14 @@ difference on a Nyquist-sampled one.
   times `1/c`. `-image.fits` is reported, not gated.
 - All controls (C0, C1, C2) and both arms (P, I) are rerun, P included,
   since the grid changed.
+
+**A4, 2026-11-23, setup, after reading run `-02`.** At 3″ WSClean 3.7
+switches on its minimal-inversion grid ("Minimal inversion size: 3751 ×
+3751" without facets, "2043 × 1387" per facet), which the 4″ run had not
+used. Run `-02` (recorded, not a gate): predict C0 1.1e-3, C1 2.8e-3, P
+2.9e-3 of the peak; image C0 3.1e-4 (pass), C1 2.8e-3 (boundary band
+1.1e-2); C2 matches neither candidate (a: dirty 1.3e-2, image-pb 6.8e-3).
+DF2b and the GeMClean benchmark, the runs that matched WSClean to 1e-5 or
+better, also passed `-no-min-grid-resolution`. *Addendum (frozen):* rerun as
+`-03` with `-no-min-grid-resolution` added to every WSClean call, everything
+else as A3.

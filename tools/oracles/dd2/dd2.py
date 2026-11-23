@@ -446,7 +446,7 @@ def compare(run):
         for kind in ("dirty", "image")
     }
     rec["image_C1"] = {
-        kind: i_gate(r[f"I_C1_a_{kind}"], read_fits(wfile(w, "C1", kind)), interior)
+        kind: i_gate(r[f"I_C1_a_{kind}"], wfile(w, "C1", kind), interior)
         for kind in ("dirty", "image")
     }
     c2 = {}
@@ -454,7 +454,7 @@ def compare(run):
         c2[cand] = {
             kind: i_gate(
                 r[f"I_C2_{cand}_{kind}"],
-                read_fits(wfile(w, "C2", kind)),
+                wfile(w, "C2", kind),
                 interior,
                 C2_FACET,
                 idx,
@@ -473,7 +473,7 @@ def compare(run):
     if rec["C2_candidate"]:
         k = rec["C2_candidate"]
         rec["arm_I"] = {
-            kind: i_gate(r[f"I_I_{k}_{kind}"], read_fits(wfile(w, "I", kind)), interior)
+            kind: i_gate(r[f"I_I_{k}_{kind}"], wfile(w, "I", kind), interior)
             for kind in ("dirty", "image")
         }
         rec["arm_I_image_fits_reported"] = i_gate(
