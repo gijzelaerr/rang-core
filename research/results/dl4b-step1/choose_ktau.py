@@ -36,8 +36,12 @@ if ok:
     out["choice"] = min(ok, key=lambda p: out["pairs"][p]["median_minor_cycle_s"])
     out["rule"] = "inside for every seed on every validation sky; lowest median cost"
 else:
-    out["choice"] = min(out["pairs"], key=lambda p: out["pairs"][p]["median_rel_l2_over_W1"])
-    out["rule"] = "no pair inside for every seed: lowest median relative L2 over W1's; outcome F expected"
+    out["choice"] = min(
+        out["pairs"], key=lambda p: out["pairs"][p]["median_rel_l2_over_W1"]
+    )
+    out["rule"] = (
+        "no pair inside for every seed: lowest median relative L2 over W1's; outcome F expected"
+    )
 out["W1_median_deconvolution_s"] = st.median(lad[v]["arms"]["W1"]["deconvolution_s"] for v in ("V1", "V2", "V3", "V4"))  # fmt: skip
 out["W5_median_deconvolution_s"] = st.median(lad[v]["arms"]["W5"]["deconvolution_s"] for v in ("V1", "V2", "V3", "V4"))  # fmt: skip
 Path(sys.argv[2]).write_text(json.dumps(out, indent=1))

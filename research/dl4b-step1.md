@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 # DL4b (#42) step 1: learned minor-cycle proposals at 4096² multiscale
 
-**Status, frozen 2026-11-21: proposed; nothing simulated, trained or run.**
+**Status, frozen 2026-11-21: proposed; nothing simulated, trained or run.** **Outcome, 2026-11-22: F (fail): P outside the tolerance on all 4 gated skies for all 3 seeds (relative L2 1.22-1.79 × W1's) and slower than W\* (minor cycle 1.10-1.93 ×); as stated before the read** ("Measured result").
 
 - Branch `dl4b-step0`, after step 0's outcome F ([dl4b-step0.md](dl4b-step0.md)).
 - Route: [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md).
@@ -208,6 +208,48 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
 
 ## Measured result
 
+### Outcome (gated skies G1-G4, read once, 2026-11-22; scored with every repeat 14:09)
+
+**F (fail), as stated before the read.** For all three seeds, P is outside the tolerance on all 4 gated skies, so it fails the quality clause. It is also slower than W\*.
+
+| Sky | W1 relative L2 | P relative L2 / W1 (seeds 1 / 2 / 3) | P false flux − W1's | Minor cycle, s: W1 / W\* / P (seeds 1 / 2 / 3) | Total wall, s: W\* / P (seeds 1 / 2 / 3) |
+| --- | ---: | --- | --- | --- | --- |
+| G1 (H4, dec −45) | 0.0041 | 1.46 / 1.79 / 1.51 | +0.0015 / +0.0085 / +0.0009 | 548 / 549 / 629, 691, 605 | 569 / 667, 727, 642 |
+| G2 (M1, dec −60) | 0.0052 | 1.22 / 1.55 / 1.31 | +0.0010 / +0.0084 / +0.0021 | 456 / 536 / 610, 648, 589 | 557 / 647, 687, 626 |
+| G3 (H7, dec −10) | 0.0028 | 1.39 / 1.76 / 1.60 | +0.0245 / +0.0354 / +0.0178 | 461 / 426 / 535, 558, 500 | 446 / 573, 594, 537 |
+| G4 (H6, dec −30) | 0.0068 | 1.45 / 1.73 / 1.36 | +0.0011 / +0.0085 / −0.0001 | 167 / 160 / 252, 309, 185 | 178 / 287, 343, 219 |
+
+**Reading the table.**
+- **Quality.** Relative L2 is 1.22-1.79 × W1's against the 1.10 allowed. False flux stays inside its +0.01 allowance except on G3, the H7 sky with Gaussians on points, at +0.018 to +0.035. Extended groups fail measure 3 on no arm.
+- **Cost.** P's minor cycle (`-continue` deconvolution plus one 8 s inference) is 1.10-1.93 × W\*'s, against the ≤ 0.5 × that G required. Its total wall is above W\*'s on every sky and seed.
+- **Why it is slower.** Starting `-continue` from the network's thresholded proposal does not shorten WSClean's multiscale schedule. WSClean re-derives its mask and threshold and spends longer cleaning the proposal's errors than it would have spent from zero. The pre-freeze test (section 0) had shown that continuing saves little even from WSClean's own 1-cycle model; here the start is worse.
+- **Repeat timings.** The two exclusive timings per arm agree to within a few per cent (`decision-gated.json`).
+- **Seeds.** Seed 2 is the worst on every sky.
+- **W\* on the gated skies.** W5, chosen on validation, is not cheaper than W1 on G1 and G2 (549 against 548 s, 536 against 456 s). The rule compares P against W\*, and P loses to both.
+
+**Cost and provenance:**
+- **GPU:** about 15.7 of 18 h. Training: 17,555 s, 17,146 s and 16,976 s for seeds 1-3, plus the smoke run, the failed seed 1 and the probes (amendment 1).
+- **CPU (glacier, docker WSClean 3.7):**
+  - simulation 50 min for 168 skies;
+  - validation ladder about 2.3 h;
+  - P validation about 12 lane-hours (4 threads);
+  - gated read 08:35-13:08, plus the W repeats 13:09-14:09, in exclusive holds at `-j 16`.
+- **Archive** (`results/dl4b-step1/`):
+  - `score-gated.json`, `decision-gated.json` (every clause per sky and seed);
+  - `score-val-P-s{1,2,3}.json`, `ktau-validation.json`, `wstar-validation.json`, `score-validation-ladder.json`, `opgate.json`;
+  - the scripts (`decide_gated.py`, `choose_ktau.py`, `gated.sh`, `gated-wrepeat.sh`, the lane and waiter scripts) and the gated logs;
+  - three ONNX weight files, `onnx/seed{1,2,3}.onnx`: Conv and Relu, 208,272 weights each.
+- **Data:** the 168 skies stay on glacier's WSL disk (`~/Build/tmp/20261121-dl4b-step1`, 22 GB plus MS copies) and `D:/rang/dl4b-step1` (12 GB). They are removable on the coordinator's word.
+
+**What it means for #42.**
+- Neither step 0 (256² points) nor step 1 (4096² multiscale) shows a gain from mode-P proposals with this network family.
+- At 256² the minor cycle was too cheap to matter.
+- At 4096² the proposal is worse than WSClean's own model and makes the classical finish slower, not faster.
+- A different design would be needed to revisit this, and is not proposed here:
+  - a network that emits WSClean-compatible multiscale components;
+  - a finish that keeps WSClean's schedule state;
+  - or a learned mask instead of a learned model (#43).
+
 ### Validation choices (recorded 2026-11-22 07:35, before any gated sky is read)
 
 **Validation ladder:**
@@ -234,6 +276,8 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
 
 **Operational record (not results):**
 
+- **Gated read, timing order (operational amendment; method unchanged).** `gated.sh` passed `--tag "-r2"` to the ladder, and argparse read `-r2` as an option, so the second W1 and W5 timing on every gated sky never started. The second P timings ran as planned. The missing W repeats run after the main read, in a separate exclusive hold inside the same window (`gated-wrepeat.sh`, `--tag=-r2`). The order per sky becomes W1, W5, P × 3, P × 3 (repeat), and the W repeats come at the end. Every arm is still timed twice, exclusively, at `-j 16`.
+
 - **Premature P validation, seed 1 (operator error).**
   - The P validation for seed 1 started at 08:18, while seed 1 was still training. Its trigger matched the old `seed 1 rc=4` line of the collapsed run in `runs/status.log` (amendment 1).
   - It used the `best.pt` of the training run then in progress, saved around step 1,100 (image-domain validation relative L2 0.22), not the run's final `best.pt`.
@@ -250,3 +294,21 @@ G is labelled "at 4096² multiscale in WSClean on simulated 64-dish skies"; it i
   - The trainer holds the training skies in memory (20 GB). With two P lanes (up to 15 GB each) and the lane MS copies, WSL's 43 GB was exceeded.
   - Seed 2 resumed from its 13:30 checkpoint (step 2,313), losing about 3 min. Resumes are bit-identical, so the run is unchanged.
   - From then on P runs one lane at a time while a trainer runs.
+
+## For the coordinator
+
+1. **Outcome F** (gated, read once), as stated before the read.
+   - P is outside the tolerance on all 4 skies for all 3 seeds: relative L2 1.22-1.79 × W1's.
+   - It is also slower than W\* = W5: minor cycle 1.10-1.93 ×, and a higher total wall.
+   - Amendment 1 (warm-up and gradient clip, post hoc after a collapsed seed) is the only protocol change. The gated `--tag` fault changed the timing order only.
+2. **#42 overall:**
+   - step 0: F;
+   - step 1: F.
+   - Mode-P proposals from this network family do not beat WSClean at either scale. The findings to keep: ASTRODECONV2019's PSF error (step 0), and that `-continue` from a proposal does not shorten WSClean's multiscale schedule (section 0 and the gated read).
+3. **Operator errors on this run, all recorded and none in the result:** a premature validation start on a mid-training checkpoint; duplicate lanes on shared MSs (discarded); a WSL out-of-memory kill (bit-identical resume); a launcher hung in `cmd.exe` (restarted).
+4. **Clean-up on your word:**
+   - glacier `~/Build/tmp/20261121-dl4b-step1` (about 40 GB with lane MS copies);
+   - `D:/rang/dl4b-step1` (12 GB plus runs);
+   - `D:/rang/dl4b-step0` (about 6 GB);
+   - the torch venv `~/Build/tmp/20261120-dl4b-torch`.
+   - Nothing of mine runs on glacier or nash. The GPU booking was yours and has expired.
