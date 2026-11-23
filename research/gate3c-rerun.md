@@ -173,7 +173,7 @@ Not in scope: CASA, the target oracle row, any other gate.
 
 ## 6. Results
 
-### 6.1 E2-A (glacier, `D:ang\outputs\gate3c-rerun-20261123`), 2026-11-23
+### 6.1 E2-A (glacier, `D:/rang/outputs/gate3c-rerun-20261123`), 2026-11-23
 
 - Apply regenerated with the rebuilt `b2d80dcd` wheel (extension `3ee950bd…`, not the frozen `616b1a32…`).
   The first attempt failed on absolute table paths in the copied `calibrate/summary.json`. They were
