@@ -4,6 +4,9 @@ Issue #9. Owner decision of 2026-11-23, relayed by the coordinator: make
 `--weights unit` the default. Branch `ts-p4` from `origin/main` at
 `3e26dd49` (it holds ts-p3's merge `db571c35`). Written 2026-11-23.
 
+**Status 2026-11-23: implemented and measured (section 7): met, V1-V7 all
+pass.**
+
 **Status at freeze: proposed. Nothing in this note is built or measured.** It
 is committed before the code change. Later changes are dated amendments in
 section 6.
@@ -88,4 +91,32 @@ recorded with its numbers; no tolerance changes.
 
 ## 7. Measured result
 
-(none yet)
+Run root `D:\rang\outputs\ts-p4-20261123` (deleted after scoring), host
+glacier, shared slots. L-old ran with this branch at `88b5e09c` before any
+code change (`results/ts-p4/lc-old.code.txt`); L-new, L-ms and L-unit with
+the change (committed as `eaded5bc`, product code identical to the runs).
+`tsp2-dev` regenerated in about 90 s; each lightcurve run 59-81 s (4 slots).
+WSClean 3.7 `-j 8` on the unit-weighted ext4 copy (`unit_copy.sh ... none`):
+`-intervals-out 450` in 80 s, with `-channels-out 16` in 815 s.
+Scores: [results/ts-p4/verify.json](results/ts-p4/verify.json); CSV hashes:
+[results/ts-p4/csv-sha256.txt](results/ts-p4/csv-sha256.txt).
+
+| Gate | Reading | Bound | Outcome |
+| --- | --- | --- | --- |
+| V1 | `lightcurve.csv`, `dynspec.csv`, `candidates.csv` of L-ms equal L-old's | byte-identical | **met** |
+| V2 | the same files of L-new equal L-unit's | byte-identical | **met** |
+| V3 | L-new snapshots against WSClean: max 4.8e-7 of the peak (median 2.4e-7; worst interval 276) | 1e-5 | **met** |
+| V4 | band DFT against WSClean's pixel 1.4e-6 σ, against NumPy (unit weights) 2.4e-12 σ | 1e-3 σ | **met** |
+| V5 | cells against WSClean `-channels-out` 1.1e-6 σ, against NumPy 2.6e-12 σ; CRVAL3 offset 0 Hz | 1e-3 σ | **met** |
+| V6 | group-weighted mean against the band 1.3e-14 σ; group 15 null throughout | 1e-6 σ; null | **met** |
+| V7 | L-new differs from L-old by up to 5.0 σ_snap in `flux_jy` | > 0 | **met** |
+
+`settings.weights` reads `"unit"` in L-new and `"ms"` in L-old. Tests: the
+default equals `--weights unit` byte for byte and `--weights ms` changes the
+fluxes (`tests/test_ts_p2_dynspec.py`); the P1 protocol-2 test now runs both
+weightings against the NumPy oracle (`tests/test_ts_p1_lightcurve.py`; the
+P1 scorer reads the run's weights). Quick check PASS.
+
+**Met.** The default is the unit-weight path verified in ts-p3 (U1-U4 on the
+real track) and here on a simulation with unequal weights; `--weights ms`
+reproduces the earlier default byte for byte.
