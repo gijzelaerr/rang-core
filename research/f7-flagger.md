@@ -427,7 +427,7 @@ run with `--heldout-read`; every other chunk keeps F4's guard (`tests/test_f6_he
 and the verdict, so every held-out set is still scored once.
 
 **F7 held-out outcome, targets (2026-11-24 01:04 SAST, nash, read once; code 39878574;
-`nash:~/rang-data/outputs/f7-d9b-20261123/held-verdict-target.json`, run `held-target/`).
+`nash:~/rang-data/outputs/f7-d9b-20261123/held-verdict-target.json`, copy `results/f7/d9b-held-verdict-target.json`, run `held-target/`).
 Outcome F: nothing ships.** The frozen candidate (seed 2, τ −4.5, level 70, N5) fails three
 gates on complete held-out sets, and one on a degenerate set:
 
