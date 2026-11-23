@@ -9,6 +9,7 @@
 #   SCRATCH  a fresh directory on WSL's ext4  (MS copies)
 # MODEL_DATA of each predict is exported as RUN/wsc/predict-<case>.npy with
 # python-casacore from QC_VENV (DD1's QuartiCal venv).
+# FEATHER: when set, -feather-size FEATHER on the image calls (DD2b, research/dd2b-facet-coupling.md).
 set -euo pipefail
 sim=$(realpath -m "$1"); run=$(realpath -m "$2"); scratch=$(realpath -m "$3")
 venv=${QC_VENV:-$HOME/Build/tmp/20261123-dd15/venv-qc027}
