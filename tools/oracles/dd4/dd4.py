@@ -74,10 +74,10 @@ def read_sub(ms):
     w = c["WEIGHT_SPECTRUM"].astype(np.float64)
     wxx = np.where(flag[..., 0], 0.0, w[..., 0])
     wyy = np.where(flag[..., 3], 0.0, w[..., 3])
-    with np.errstate(divide="ignore", invalid="ignore"):
-        # Stokes I weight from the parallel hands: 4 / (1/w_xx + 1/w_yy).
-        wi = np.where((wxx > 0) & (wyy > 0), 4.0 / (1.0 / wxx + 1.0 / wyy), 0.0)
-    c["w_I"] = wi
+    # Stokes I gridding weight as WSClean 3.7 forms it from the parallel
+    # hands: min(w_xx, w_yy), zero where either is flagged (DD4 amendment A2;
+    # its PSF then matches WSClean's to 4.9e-8).
+    c["w_I"] = np.where((wxx > 0) & (wyy > 0), np.minimum(wxx, wyy), 0.0)
     return c
 
 

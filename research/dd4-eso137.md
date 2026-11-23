@@ -229,3 +229,26 @@ unflagged parallel hands. Section 4 did not state it. A control C0 (both
 arms' dirty image of the subset, no facets, within 1e-3 of the peak, as
 DD2) is added. It must pass before gate L is read; if it fails, that is a
 setup outcome.
+
+**A2, 2026-11-23, setup. C0 failed and was diagnosed (post hoc) before any
+gate was read.** C0's first run, with the harmonic Stokes I weight of A1,
+differed by 5.3e-3 of the peak, against a limit of 1e-3.
+- Both codes grid the same 30,800,924 visibilities. There are no
+  autocorrelations, no visibilities beyond the grid, and no zero or
+  non-finite unflagged data.
+- So the difference is the weight. On this MS `w_XX` and `w_YY` differ
+  (median ratio 1.06, 1-99 % range 0.94-1.27).
+- Against WSClean's `-make-psf`, rang's PSF with each candidate weight:
+
+  | Weight | PSF difference |
+  | --- | --- |
+  | harmonic | 3.3e-3 |
+  | sum | 3.7e-3 |
+  | `w_XX` | 7.9e-3 |
+  | `w_YY` | 1.2e-3 |
+  | **`min(w_XX, w_YY)`** | **4.9e-8** |
+
+- So WSClean 3.7 grids Stokes I with the smaller of the two parallel-hand
+  weights. Rang's imaging weight is now that (the solver still uses each
+  correlation's own weight), and C0 is rerun.
+- DD1-DD3b are unaffected, since their simulations have equal weights.
