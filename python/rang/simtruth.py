@@ -182,6 +182,22 @@ SEEDS = {
             ("tsp1-noise2", 20261641),
         )
     },
+    # TS-P2 (research/ts-p2.md 4.1, 4.2): dynamic-spectrum simulations and
+    # the real track's injections, keys as tsp1-held2.
+    **{
+        name: dict(
+            zip(
+                ("jones", "sky", "noise", "layout", "rfi", "flags", "weights"),
+                range(s0, s0 + 7),
+                strict=True,
+            )
+        )
+        for name, s0 in (
+            ("tsp2-dev", 20262301),
+            ("tsp2-held", 20262311),
+            ("tsp2-real", 20262321),
+        )
+    },
     # TS-P1 protocol 2 (research/ts-p1.md 13.1): flags and weights seeds too.
     "tsp1-held2": {
         "jones": 20261621,

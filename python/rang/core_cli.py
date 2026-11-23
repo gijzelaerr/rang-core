@@ -1586,6 +1586,14 @@ def _lightcurve_command(argv, options, pinned):
         default="cpu",
         help="device of the wstack gridder (gpu needs the gpu build)",
     )
+    parser.add_argument(
+        "--channels-out",
+        type=int,
+        metavar="M",
+        help="also a dynamic spectrum: the DFT flux per interval in M equal groups "
+        "of contiguous channels (M must divide the channels; WSClean's "
+        "-channels-out grouping), in DIR/dynspec.csv (research/ts-p2.md)",
+    )
     args = parser.parse_args(argv)
     from . import core_grid
     from . import lightcurve as lc
@@ -1671,6 +1679,7 @@ def _lightcurve_command(argv, options, pinned):
             gridder=args.gridder,
             device=args.device,
             candidate_sigma=args.candidates,
+            channels_out=args.channels_out,
         )
         lc.write_outputs(result, out)
     except (lc.LightcurveError, OSError, KeyError) as exc:
