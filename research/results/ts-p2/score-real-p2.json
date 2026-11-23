@@ -246,6 +246,45 @@
   "min": 0.0011948558788732683,
   "max": 0.0019446715458073668
  },
+ "D2": {
+  "max_over_sigma": 1.5005231991496322e-06,
+  "crval3_max_offset_hz": 0.0,
+  "pixels": [
+   [
+    449,
+    576
+   ],
+   [
+    779,
+    553
+   ],
+   [
+    452,
+    66
+   ],
+   [
+    568,
+    776
+   ],
+   [
+    358,
+    187
+   ],
+   [
+    442,
+    346
+   ]
+  ],
+  "pixels_equal_rang": [
+   false,
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "pass": true
+ },
  "gates": {
   "D1": true,
   "D3": false,
@@ -254,8 +293,9 @@
   "T2b": true,
   "T3a": false,
   "T3c": true,
-  "T3d": true
+  "T3d": true,
+  "D2": true
  },
  "all_pass": false,
- "seconds": 143.25223579996964
+ "seconds": 534.1908714000019
 }

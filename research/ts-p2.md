@@ -7,6 +7,11 @@ Issue #9 (gijzelaerr/rang-core), time series. The owner approved P1 on
 simulated transients and one real track. Branch `p1-lightcurves`. Written
 2026-11-23.
 
+**Status 2026-11-23: implemented and measured (section 10).** P2 met on the
+held-out simulation. Real track (E2-A scan 10, injected transients): parity
+with WSClean and the DFT met for P1 and P2, every pulse recovered; the bias
+gates T3a and D3 not met (the residual's own mean at the positions).
+
 **Status at freeze: proposed. Nothing in this note is built or measured.** It
 is committed before any code that tests it. Later changes are dated
 amendments in section 9, labelled post hoc when they could have seen a result.
@@ -346,7 +351,11 @@ scope note 4). A and B were redrawn once each by the 30″ rule. Truth in
 - **T2c** 1.0e-6 σ_meas against 1e-3: **met**; WSClean's WCS pixel equals
   rang's at all six positions. No sample lies beyond the 2″ grid.
 
-**Gates without WSClean** (`--real`, σ_meas and σ_dyn,g = 0.9-5.2 mJy):
+**The other gates** (`--real`, σ_meas and σ_dyn,g = 0.9-5.2 mJy;
+[results/ts-p2/score-real-p2.json](results/ts-p2/score-real-p2.json); D2's
+`pixels_equal_rang` reads false only because rang's pixel indices are on the
+2048² grid and WSClean's D2 images are 1024², an offset of 512 in each
+axis):
 
 | Gate | Reading | Bound | Outcome |
 | --- | --- | --- | --- |
@@ -359,6 +368,7 @@ scope note 4). A and B were redrawn once each by the 30″ rule. Truth in
 | D3 | A +0.015, B +0.008, C +0.095, D −0.018, E −0.192 σ_dyn (F +0.185) | 0.035 | **not met** (C, E) |
 | D4 | 3.1e-14 σ_meas | 1e-6 | **met** |
 | T3b, D3b | χ² 0.37-1.31 (band), 2.3-6.7 (cells) | reported | – |
+| D2 | 1.5e-6 σ_dyn against the WSClean `-intervals-out 450 -channels-out 16` pixel (1024² at 2″, 929 s at `-j 8`); CRVAL3 offset 0 Hz | 1e-3 | **met** |
 | T4 (control) | positive 14,220 at ≥ 5σ and 1,914 at ≥ 7σ; negative 272 and 8 | reported | – |
 
 **Why T3a and D3 fail (post hoc diagnostic, not a gate:
@@ -379,3 +389,42 @@ scope note 4). A and B were redrawn once each by the 30″ rule. Truth in
 - So, as frozen, the real-track bias gates fail on the residual floor, not on
   the light-curve or dynamic-spectrum code. The gates stand as frozen; this is
   recorded as not met.
+
+### 10.4 Outcome
+
+| Claim | Outcome |
+| --- | --- |
+| P2 on simulation (`tsp2-held`) | **met**, every gate as frozen |
+| P1 parity on real data (T1, T2a-c, T3c) | **met**: WSClean 3.6e-7 of the peak, the DFT 1.0e-6 σ_meas |
+| P1 recovery on real data (T3d) | **met**: 7 of 7 pulses |
+| P1 bias on real data (T3a) | **not met**: A, B, C, E at −0.23 to −0.81 σ_meas against 0.141 |
+| P2 parity on real data (D1, D2, D4) | **met**: 5.0e-12 and 1.5e-6 σ_dyn |
+| P2 bias on real data (D3) | **not met**: C +0.095, E −0.192 σ_dyn against 0.035 |
+
+The real-track bias failures come from the natural-weighted residual's own
+mean at the positions (post hoc diagnostic, 10.3), which the frozen gate
+counts against the product; injected minus uninjected matches the
+injections to 1e-8 σ. The roadmap's v0.5.0 gate ("within tolerance of WSClean
+`-intervals-out` and an exact DFT") is met on simulations and on real data;
+the scope note's real-residual bias gate is not.
+
+## 11. For the coordinator
+
+- **E2-A's scan 10** was used as development data (4.2, 8); no held-out claim
+  is made on it. `tsp2-held` and the `tsp2-real` injection seed are spent.
+- **The real-data bias gate** (scope note T3, frozen here at 3/√N σ_meas)
+  measures the residual floor at the position as much as the product. A
+  follow-up could subtract an uninjected control (as 10.3's diagnostic does)
+  or a deep residual image, under a new protocol and seed (`tsp2-real2`);
+  not done.
+- **Residual floor.** Snapshot σ_meas 1.32 mJy (about 16 × thermal), positive
+  5σ candidates 52 × the negative ones: the residual of the brightest sources
+  (0.2-1 % of 0.15-0.57 Jy) and large-scale flux dominate. That limits blind
+  search on this field, not forced photometry.
+- **Not done.** T7 (ω Cen, SARAO token), a real known variable, and a
+  `rang-core run` arm with `--channels-out`.
+- **Checks.** Quick check PASS and CI green at `f50b063e`; the full check
+  (`python tools/check_all.py`) and `wheels` are left to the merge check.
+- **Data kept:** `D:\rang\outputs\p1-lightcurves-20261123\scan10-512.ms`
+  (the replayed, split, predicted and injected MS) and its run logs; the
+  replay copy, simulation MSes and WSL scratch are deleted.

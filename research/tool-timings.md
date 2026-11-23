@@ -2466,3 +2466,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-23 | ts-p2: WSClean 3.7 `-intervals-out 450 -channels-out 16`, 1024² 2″, `-j 8` tsp2-dev / tsp2-held (host glacier) | 7,650 images | 549 / 778 s | 100 / 100 MB | dev attempt 1 stopped at interval 1 (script deleted channel images) |
 | 2026-11-23 | ts-p2: `rang-core lightcurve --size 2048 --scale 2asec --channels-out 16 --candidates 5` real control / injected (`--fits`) (4 slots each, concurrent) (host glacier) | 450 intervals × 512 ch, 6 positions | 391 / 421 s | – | E2-A scan 10 |
 | 2026-11-23 | ts-p2: WSClean 3.7 `-intervals-out 450`, 2048² 2″, `-j 8`, real track (host glacier) | 450 snapshots, 512 ch | 323 s | 298 MB | P1 T1 oracle |
+| 2026-11-23 | ts-p2: WSClean 3.7 `-intervals-out 450 -channels-out 16`, 1024² 2″, `-j 8`, real track (host glacier) | 7,650 images, 512 ch | 929 s | 109 MB | P2 D2 oracle |
