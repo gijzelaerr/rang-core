@@ -328,7 +328,11 @@ on validation; a new arm needs its own dated proposal.
 *Chain provenance (checked 16:05 SAST).* D9b's surviving branch ran from the chain logged at
 6a02e022; `git diff 6a02e022 b1d4d894` touches only `examples/f6_shards.py`'s `--reserved-luno`
 path (unused by D9) and `d10.sh`. D9b's validation shards were written by two concurrent jobs
-(07:32-08:27 SAST, one of them from the duplicate chain); their integrity check is recorded below.
+(07:32-08:27 SAST, one of them from the duplicate chain). *Integrity (16:20 SAST):* every
+`.sha256` sidecar of D9a's and D9b's ten validation shards matches; labels, `kind`, `meta` and
+planes 0-7, 14-32 are identical between the two arms (blocks 22-31 carry level 60's dead zone in
+both), and D9b's planes 8-13 equal asinh(dz(sinh u)) of D9a's (the shards store asinh-compressed
+inputs). The shards are sound.
 
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
