@@ -8,7 +8,7 @@ before any image of this rerun existed. It was written after both legs' 3c value
 had been read (they are in the notes above), so every reading here is **seen,
 post hoc**. No frozen verdict is rescored by it.
 
-Status: **E2-A dirty measured 2026-11-23: the gap remains (not setup).** E2-N running on nash.
+Status: **E2-A dirty measured 2026-11-23: the gap remains (not setup); arm D (2026-11-24) puts it on rang's channel averaging.** E2-N running on nash.
 
 ## 1. Why
 
@@ -191,10 +191,20 @@ Not in scope: CASA, the target oracle row, any other gate.
   - WSClean's gridded counts rise only in channels 5-7, by at most 0.24 %. The 3″ grid dropped almost
     nothing.
   - The audit's grid explanation does not hold for E2-A.
-- **Not run:** arm D (memory; 4,096 unaveraged channels, about 44 GB) and the compact row (memory,
-  section 3).
+- **Arm D (diagnostic, not gated; run 2026-11-23 23:43 to 2026-11-24 00:04, after F7's timing run): dirty L∞
+  9.19e-6** of WSClean's peak (channels 0-7: 1.1e-6 to 9.2e-6; MFS 5.5e-6), 9.19e-6 within 0.7°. It is arm N
+  with `-average-channels 1` (GeMClean read all 4,096 channels of the same 823,500 rows), scored against
+  arm N's WSClean dirty images (`g3c-d-dirty.json`, `results/gate3c-rerun/e2a/`).
+  - **Reading (section 5): D ≤ 1e-4, so what remains of E2-A's gap is rang's channel averaging**, a
+    difference of configuration, not of imager. D is 540 × below N and inside the wgridder-accuracy band
+    E2-B 9.17 measured (2.0e-6 to 2.2e-5). It is still above 1e-6, as section 5 expects at accuracy 1e-4.
+  - Post hoc details: the run was launched by `armd-launch.sh` (chain.sh from `d-dirty`, `DARM=1`) on the
+    same regenerated products as arm N (R3 not met, R4 met; above). The memory estimate that kept arm D
+    out of the first run (about 44 GB) did not bind with the host otherwise idle; it was booked at 8 slots,
+    48 GB, and its peak resident set was not recorded (21.9 GB a minute in).
+- **Not run:** the compact row (memory, section 3).
 - Timings: copy 320 s, wheel build 319 s, apply 1,486 s, WSClean 3″ dirty 1,340 s, WSClean 2″ dirty
-  1,529 s, GeMClean 2″ dirty 2,166 s.
+  1,529 s, GeMClean 2″ dirty 2,166 s; arm D GeMClean 2″ dirty unaveraged 1,242 s (alone on the host), its scoring 17 s.
 
 ### 6.2 E2-N (nash, `~/rang-data/outputs/gate3c-rerun-20261123`), in progress
 

@@ -1,0 +1,39 @@
+{
+ "oracle": "D:\\rang\\outputs\\gate3c-rerun-20261123\\ws-n",
+ "rang_images": "D:\\rang\\outputs\\gate3c-rerun-20261123\\d-dirty\\rang-run\\image\\ESO137-001",
+ "channels_out": 8,
+ "dirty_only": true,
+ "dirty": {
+  "max_over_peak": 9.185953193682113e-06,
+  "per_image": {
+   "0000": 4.20867753929303e-06,
+   "0001": 8.129302565925993e-06,
+   "0002": 1.7745919729074656e-06,
+   "0003": 1.1035061146265188e-06,
+   "0004": 9.185953193682113e-06,
+   "0005": 4.612337811464926e-06,
+   "0006": 7.133848810437196e-06,
+   "0007": 5.718125026803711e-06,
+   "MFS": 5.459111818987388e-06
+  },
+  "tolerance": 1e-06,
+  "met": false,
+  "reported": {
+   "inner_two_thirds": 9.185953193682113e-06,
+   "border5": 9.185953193682113e-06,
+   "within_0p7deg": 9.185953193682113e-06,
+   "median_max": 2.2840673881526288e-07
+  }
+ },
+ "caveat": "WSClean grids 4,096 channels, GeMClean 512 averaged (9.10)",
+ "gates": {
+  "dirty_linf": false,
+  "q_over_q0": "not checked",
+  "model_data_predict": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0",
+  "model_data_predict"
+ ]
+}

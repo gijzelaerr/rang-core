@@ -14,3 +14,8 @@
 2026-11-23T17:26:13+02:00 START score-n-dirty slots=1 mem=24
 2026-11-23T17:26:47+02:00 END score-n-dirty rc=0 34s
 2026-11-23T17:26:47+02:00 chain finished
+2026-11-23T23:43:32+02:00 START d-dirty slots=8 mem=48
+2026-11-24T00:04:14+02:00 END d-dirty rc=0 1242s
+2026-11-24T00:04:14+02:00 START score-d-dirty slots=1 mem=24
+2026-11-24T00:04:31+02:00 END score-d-dirty rc=0 17s
+2026-11-24T00:04:31+02:00 chain finished
