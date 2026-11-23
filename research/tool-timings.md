@@ -2390,3 +2390,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-22 | F7 D5 G-drop by arm (`f7_gdrop_arms.py`), 8 slots | ESO137 chunk 10, F6 and D3 target methods, 9 draws each | 78 s / 99 s | 3.3 GB | nash |
 | 2026-11-22 | F7 D7 extra ESO137 shards (`f6_shards.py --sources eso --f4-realisations 8`), 12 slots | 7 ESO137 training chunks, realisations 4-7 | 846 s | **5.8 GB against 180 GB booked** | nash; booked from the whole target shard job's peak; ESO-only jobs book about 8 GB |
 | 2026-11-22 | F7 D7 training seed 2 (level 40, balanced), 12 threads, and tau | 86 target shards, 30,000 steps | 5,107 s; tau 512 s | 55.9 GB (mapped) against 64; 17 GB | nash CPU |
+| 2026-11-23 | F7 D9b cost gate C1 (`examples/f7_timing.sh`, `f5_cost.py pairs`), exclusive | ESO137 chunk 0, U5 level 70 vs T, 5 pairs at 4 and 1 threads | T 10.6 / 38.8 s, N5 5.4 / 18.9 s per pass; whole run 21:00-23:43 (CPU gate waited 2 h 38 min) | 1.63 GB both (C2) | glacier |
+| 2026-11-23 | F7 held-out SARAO labels (`dl2_teach.py rang,aoflagger --heldout-read`), 8 slots each | 3 blocks x 3 scans | 20:55-21:49 | 48 GB booked | nash |
