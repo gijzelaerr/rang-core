@@ -11,7 +11,9 @@
 # SRC_MS is copied to OUTDIR (new, ext4) unless it already lies inside it.
 # OUTDIR gets w-tNNNN-GGGG-dirty.fits (GROUPS > 1) or w-tNNNN-dirty.fits,
 # wsclean.log and timing.txt ("wall_s max_rss_kb exit"). The -image.fits
-# copies (equal to the dirty images at -niter 0) are deleted as they appear.
+# copies (equal to the dirty images at -niter 0) are deleted as they appear
+# when GROUPS = 1, and after the run otherwise (WSClean reads the channel
+# images back to form the MFS image of each interval).
 set -euo pipefail
 src=$1; out=$(realpath -m "$2"); field=$3; intervals=$4; groups=$5
 size=$6; scale=$7; threads=${8:-8}
@@ -21,7 +23,9 @@ if [ ! -d "$out/$name" ]; then cp -r "$src" "$out/$name"; fi
 chan=()
 if [ "$groups" -gt 1 ]; then chan=(-channels-out "$groups"); fi
 trap 'touch "$out/.done"' EXIT
-( while [ ! -e "$out/.done" ]; do rm -f "$out"/w-t*-image.fits; sleep 5; done ) &
+if [ "$groups" -eq 1 ]; then
+  ( while [ ! -e "$out/.done" ]; do rm -f "$out"/w-t*-image.fits; sleep 5; done ) &
+fi
 docker run --rm --user "$(id -u):$(id -g)" --network none -e HOME=/tmp \
   -e OMP_NUM_THREADS="$threads" -v "$out:$out" -w "$out" rang-wsclean-native:3.7 \
   /usr/bin/time -f "%e %M %x" -o "$out/timing.txt" \
