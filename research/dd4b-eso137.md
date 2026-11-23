@@ -6,7 +6,11 @@ Sections 1-4 are frozen 2026-11-23, before the code that runs them; later
 changes are dated amendments. Section 3's d1 test is post hoc: its guess
 came from DD4's provisional numbers.
 
-Status: **proposed.**
+Status: **measured 2026-11-23, rang only (no oracle).** The off-axis DD
+solve does not converge at 500 iterations. R500 against DI0 reads "DD
+helps" (`q₀` = 0.65, DR 2.0 ×), and the d1 test reads "supported"
+(`ρ` = 0.61). Neither is checked against QuartiCal and WSClean, and the
+unconverged gains make both readings fragile (section 5).
 
 ## 1. What changes from DD4, and what stays on record
 
@@ -86,4 +90,57 @@ results go to `research/results/dd4b-eso137/`.
 
 ## 5. Measured result
 
-Not yet run.
+Run root `D:/rang/outputs/dd4-20261123/run-02` (arms `R500/`, `R500x/`,
+`DI0x/`, `scoreb.json`); archive [results/dd4b-eso137/](results/dd4b-eso137/).
+Host glacier, shared, R500 and R500x side by side at 8 threads each, then DI0x.
+Code at `5dcbb869`.
+
+**Convergence: does not converge.** Off-axis converged fraction per cycle,
+with every solve at the cap:
+
+| Arm | cap | cycles 0-4 | verdict |
+| --- | --- | --- | --- |
+| R (DD4) | 150 | 0.001, 0.002, 0.004, 0.005, 0.006 | does not converge |
+| R500 | 500 | 0.024, 0.002, 0.003, 0.005, 0.007 | does not converge |
+| R500x | 500 | 0.020, 0.021, 0.022, 0.021, 0.020 | does not converge |
+
+- The gains are not determined. Between caps 150 and 500, the cycle-0 gain
+  products of d1-d3 change by a median of 0.58, 3.5 and 3.2, and by up to
+  3e3-4e4.
+- Final-cycle `|g|` (median, standard deviation) in R500: d1 0.57 (0.58),
+  d2 0.43 (3.8), d3 1.28 (9.3).
+- So the solver wanders and does not stall near a solution.
+
+**Measures (final cycle 4; rms in mJy):**
+
+| Arm | rms d1 | rms d2 | rms d3 | field rms | DR |
+| --- | --- | --- | --- | --- | --- |
+| R (DD4, cap 150) | 45.1 | 5.0 | 1.5 | 2.0 | 675 |
+| DI0 | 12.7 | 11.6 | 4.0 | 4.6 | 304 |
+| **R500** | 53.5 | 7.5 | 1.3 | 2.2 | 608 |
+| R500x | 5.6 | 0.37 | 0.48 | 0.77 | 1736 |
+| DI0x | 9.2 | 8.3 | 2.7 | 3.2 | 428 |
+
+**DD against DI0 (decision measure).** The per-direction ratios are d1
+4.22, d2 0.65 and d3 0.33. So `q₀` = 0.65 and DR 2.0 ×, and the reading is
+**"DD helps (rang only)"** under section 3. d1 is still 4.2 × worse.
+
+**The d1 test (post hoc): supported.** `ρ` = rms_d1(R500x) / rms_d1(DI0x)
+= 0.61, and rms_d1 falls from 53.5 to 5.6 mJy, which is under half of R500's.
+With ESO 137-006's extended emission in the start model, d1 is better than
+DI0x. R500x against DI0x reads `q` = 0.18 and DR 4.1 ×, also reported only.
+
+**Caveats, for the owner before any claim.**
+- Each "DD helps" reading is a lower residual with free per-facet gains
+  that have not converged. The gains spread by a factor of up to 10 and
+  move by orders of magnitude between caps. A lower residual from
+  unconstrained gains can be absorption of unmodelled flux, not better
+  calibration.
+- d2's residual in R500x, 0.37 mJy, is the kind of number such absorption
+  would give. Nothing here separates the two.
+- There is no oracle: arm O is blocked by DD4 A4's failed facet-imaging
+  control.
+- The thermal expectation is about 31 µJy; every arm is above it.
+
+Cost (shared host, two arms at once): R500 3275 s and R500x 3308 s for 5
+cycles (solve 307-337 s per cycle at 500 iterations); DI0x 380 s.
