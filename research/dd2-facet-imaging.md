@@ -185,11 +185,15 @@ the remaining C2 difference is below.)
 - Mergeable as the predict half of DD2: the H5parm export and facet region
   writer (`tools/oracles/dd2/dd2.py`), and the DD cap evidence (88
   iterations, 1.9e-6 on P3). No core code changed.
-- Not done: facet imaging (arm I). Next step, frozen before it runs: find
-  why rang's dirty image of `dd1.ms` differs from WSClean 3.7's by 0.5 % of
-  the peak without facets (A2's diagnostics narrow it to the uv weighting
-  or gridding of WSClean's PSF), then rerun C0-C2 with `-image-pb.fits` as
-  the flat-gain product, then arm I.
+- Not done: facet imaging (arm I). The 0.5 % gap is closed as setup
+  (A3, A4). Future rang-vs-WSClean image comparisons need a Nyquist pixel
+  (WSClean drops visibilities beyond the unpadded grid's uv range) and
+  `-no-min-grid-resolution`. What is left is C2 (A5): WSClean's image of a
+  facet changes with another facet's gains, by up to 1.7e-2 of the peak.
+  The next step is to read WSClean's facet gridding and stitching
+  (`msgriddermanager.cpp`, `facetimage.cc`) for that coupling, then
+  decide whether rang copies it or the comparison excludes it. That
+  decision is a frozen addendum, before arm I is read.
 - WSClean's predict reads `<name>-model-pb.fits` when facet solutions are
   applied (A1); DD3's major cycle must write that file.
 
