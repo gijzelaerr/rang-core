@@ -42,7 +42,7 @@ const FAMILIES: [[usize; 2]; 2] = [[0, 3], [1, 2]];
 /// Inputs of a ladder level (section 2e): 0 all 33, 1 without 2d, 2 also
 /// without F4's spectral planes.
 pub fn inputs(level: usize) -> Option<usize> {
-    if level >= 50 || level % 10 > 2 {
+    if level >= 80 || (50..60).contains(&level) || level % 10 > 2 {
         return None;
     }
     match level % 10 {
@@ -65,7 +65,7 @@ fn has_var(level: usize) -> bool {
 /// Q scaled per antenna (each antenna's own robust spread over its channel
 /// blocks), so the scale does not depend on which other antennas are present.
 pub(crate) fn per_antenna(level: usize) -> bool {
-    (level / 10) % 2 == 1
+    matches!(level / 10, 1 | 3)
 }
 
 /// F6 (fix 2, second candidate): levels 20-22 and 30-32 replace the iterated
@@ -84,6 +84,24 @@ pub(crate) fn one_step(level: usize) -> bool {
 pub(crate) fn per_observation(level: usize) -> bool {
     level >= 40
 }
+
+/// F7 D9 (research/f7-flagger.md): levels 60-62 are levels 40-42 with a dead
+/// zone on the pooled block planes (2c's z, 2d's four) after the
+/// per-observation scale, `sign(v) max(|v| - DEAD_ZONE, 0)`, so a block
+/// statistic at noise level (where one antenna more or less moves it by about
+/// 1/sqrt(N) of its spread) reaches the network as 0. Levels 70-72 also put
+/// F3's antenna and array medians (planes 8-13) through it.
+pub(crate) fn dead_zone(level: usize, k: usize) -> bool {
+    let blocks = matches!(k, 22 | 23 | 25 | 26) || (28..32).contains(&k);
+    match level / 10 {
+        6 => blocks,
+        7 => blocks || (8..14).contains(&k),
+        _ => false,
+    }
+}
+
+/// D9's dead-zone half-width, in units of the per-observation scale.
+pub(crate) const DEAD_ZONE: f64 = 2.0;
 
 /// Planes with a per-observation scale: F3's 14, F4's 8, 2c's 6, 2d's 4.
 const SCALED: usize = CELL_PLANES + SPEC_PLANES + AMP_PLANES + VAR_PLANES;
@@ -823,6 +841,10 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
     let res = residuals(inp, rows);
     let alive = res.alive;
     let sc = |k: usize, v: f64| match &pr.scale {
+        Some(s) if dead_zone(pr.level, k) => {
+            let x = v / s[k];
+            (x.abs() - DEAD_ZONE).max(0.0).copysign(x)
+        }
         Some(s) => v / s[k],
         None => v,
     };

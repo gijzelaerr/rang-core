@@ -25,7 +25,11 @@ from . import f3flag as f3
 from . import f4flag as f4
 
 # F6 variants (core/src/f5flag.rs): +10 per-antenna scale, +20 one-step factorisation.
-LEVEL_INPUTS = {b + 10 * k: n for k in range(5) for b, n in ((0, 33), (1, 29), (2, 21))}
+LEVEL_INPUTS = {
+    b + 10 * k: n
+    for k in (0, 1, 2, 3, 4, 6, 7)  # F7 D9: 60s and 70s (core/src/f5flag.rs dead_zone)
+    for b, n in ((0, 33), (1, 29), (2, 21))
+}
 CELL_PLANES = 14
 SPEC_PLANES = 8
 AMP_PLANES = 6

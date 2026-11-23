@@ -319,6 +319,11 @@ F6_FEATURE_HASHES = {
             "3368f34a3e66283338bad1946a4a77eb142cdf04baa07e1b1510389137dec21c",
             "4cb8f315e1d44761fe2cc47c6d4ff1c61ba5a44230a9ac82ee69d39e69cd40b7",
         ),
+        # F7 D9: level 40 pinned 2026-11-23 on nash before the dead-zone levels.
+        40: (
+            "40b31a7708f7014f969bdc636f5b1f90d9b176578d1d99da4c33313b3f5f018e",
+            "13f436acabb10c7f459ef9b9f3686ad13b83759c6419abe85d4c5979c51a2b11",
+        ),
     },
 }
 
@@ -332,14 +337,14 @@ def _f7_inputs(level):
     return scan, flagged, x, f5.rust_logits(scan, flagged, w, level, 1)
 
 
-@pytest.mark.parametrize("level", [0, 20])
+@pytest.mark.parametrize("level", [0, 20, 40])
 def test_f6_features_are_unchanged_by_f7(level):
     import hashlib
     import sys
 
     pinned = F6_FEATURE_HASHES.get(sys.platform)
-    if pinned is None:
-        pytest.skip("hashes pinned on Windows and Linux only")
+    if pinned is None or level not in pinned:
+        pytest.skip("hashes pinned on Windows and Linux only (level 40: Linux)")
     _, _, x, z = _f7_inputs(level)
     got = tuple(
         hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest() for a in (x, z)
@@ -368,3 +373,29 @@ def test_f7_level40_keeps_relabelling_exact():
     w = f5net.flat_from_arrays(f5net.init_arrays(2, 33, True))
     s2, _ = f5.relabel(scan, 20265201)
     assert np.array_equal(f5.rust_logits(s2, flagged, w, 40, 1), z0)
+
+
+# F7 D9 (research/f7-flagger.md): levels 60 and 70 are level 40 with a dead zone
+# of half-width 2 (per-observation units) on the pooled planes.
+@pytest.mark.parametrize(
+    ("level", "planes"), [(60, (22, 23, 25, 26, 28, 29, 30, 31)), (70, None)]
+)
+def test_f7_dead_zone_levels(level, planes):
+    if planes is None:
+        planes = (8, 9, 10, 11, 12, 13, 22, 23, 25, 26, 28, 29, 30, 31)
+    _, _, x40, _ = _f7_inputs(40)
+    _, _, xd, _ = _f7_inputs(level)
+    for k in range(x40.shape[-1]):
+        a, b = x40[..., k].astype(np.float64), xd[..., k].astype(np.float64)
+        if k not in planes:
+            assert np.array_equal(a, b), k
+            continue
+        want = np.sign(np.sinh(a)) * np.maximum(np.abs(np.sinh(a)) - 2.0, 0.0)
+        assert np.allclose(np.sinh(b), want, rtol=1e-5, atol=1e-5), k
+
+
+def test_f7_dead_zone_level_keeps_relabelling_exact():
+    scan, flagged, _, z0 = _f7_inputs(70)
+    w = f5net.flat_from_arrays(f5net.init_arrays(2, 33, True))
+    s2, _ = f5.relabel(scan, 20265201)
+    assert np.array_equal(f5.rust_logits(s2, flagged, w, 70, 1), z0)
