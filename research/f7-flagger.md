@@ -245,6 +245,39 @@ is training seed 2 alone. D7's recipe (its shards, unchanged) trained with seeds
 how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Run root
 `nash:~/rang-data/outputs/f7-seeds-20261123/`.
 
+**D8 measured, ESO137 (2026-11-23 09:25 SAST, validation only; `nash:~/rang-data/outputs/f7-d8-20261123/`).**
+D7's weights, level 40, τ −4.0, k = 1, 256 baselines. N5's change on those baselines, and with a
+group frozen at its full-array values:
+
+| Draw | flags | change | 2c z | 2d | 2c + 2d | F3 medians | spectral | 2c Q | all pooled |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 20265301 | 96,542 | 0.054 | 0.042 | 0.049 | 0.030 | 0.047 | 0.052 | 0.052 | 0.002 |
+| 20265302 | 90,660 | 0.061 | 0.046 | 0.057 | 0.033 | 0.054 | 0.059 | 0.059 | 0.003 |
+| 20265303 | 98,742 | 0.056 | 0.043 | 0.050 | 0.030 | 0.050 | 0.053 | 0.053 | 0.002 |
+
+Flipped cells sit a median 0.09 logits from τ (90 % within 0.29); logits move a median 0.10. The
+change does not depend on τ (0.053-0.057 for τ from −5 to −2 on the same logits), so this is not a
+threshold-density effect. Reading: the per-baseline planes carry none of it; the pooled planes carry
+all of it, 2c z and 2d most (2c + 2d frozen 0.030-0.033), F3's antenna and array medians the next
+part (with them, 0.002-0.003). The mechanism of the D8 proposal fits: noise-level pooled statistics
+moving by 1/√N.
+
+**D9 (proposed 2026-11-23 09:30 SAST, before its code or run; validation only).** Feature-side fix
+at new kernel levels, levels 0-42 unchanged (pinned hashes for 0, 20 and, on Linux, 40):
+- **D9a, level 60:** level 40 with a dead zone on the pooled block planes (2c z, the four 2d
+  planes) after the per-observation scale: v → sign(v) max(|v| − 2, 0), half-width 2 in
+  per-observation units (≈ 2σ of a noise-level z), so a noise-level block statistic reaches the
+  network as 0 and a real antenna anomaly passes, shifted by 2. Q, the spectral planes and the
+  per-baseline planes unchanged.
+- **D9b, level 70:** D9a plus the same dead zone on F3's antenna and array medians (planes 8-13).
+- Half-width 2 is fixed here, before any number; it is not tuned on validation.
+- Each arm: D7's recipe (F6's scans and seeds, balanced real batches, eight dropout realisations
+  per ESO137 training chunk, seed 2, 30,000 steps) re-sharded at its level, τ by `f6_tau.py`, W4 off,
+  then the screening rule below. An arm that passes the screen goes to the complete validation
+  scorer. Run roots `nash:~/rang-data/outputs/f7-d9a-20261123/` and `f7-d9b-20261123/`.
+- Questions: does k = 1 on ESO137 fall to ≤ 0.040 (screen), and what does the dead zone cost R1,
+  R2 and R5 (a real antenna anomaly now enters 2 units lower)?
+
 **Screening and freeze rules for F7's target arms (written 2026-11-23 07:40 SAST, before D8 and
 every later arm).** (1) An arm is screened on ESO137 chunk 10 with `f7_gdrop_arms.py` (G-drop's
 three draws at k = 1, 4, 8, N5 arm); it goes to the complete validation scorer only if its worst
