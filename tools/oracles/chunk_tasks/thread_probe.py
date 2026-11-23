@@ -79,7 +79,7 @@ def child(work):
             min_data_fraction=0.5,
             minsnr=0.0,
             **common,
-        )[0]  # fmt: skip
+        )[0]
     )
     run = work / f"apply-{os.environ['RAYON_NUM_THREADS']}.ms"
     shutil.rmtree(run, ignore_errors=True)

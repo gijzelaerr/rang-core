@@ -453,6 +453,105 @@ def flag_corrected(
     return out
 
 
+# -- chunk tasks of the chain (research/chunk-task-api-1b.md 1.2) -------------------
+
+SOLVERS = {"solve_one": "_solve_one", "solve_pol": "_solve_pol"}
+
+
+def _jsonable(value):
+    if isinstance(value, dict):
+        return {str(k): _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (set, frozenset)):
+        return [_jsonable(v) for v in sorted(value)]
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    return value
+
+
+def recipe(fn, ms, term, field_id, tables, common):
+    """A JSON-able description of one `_solve_one` or `_solve_pol` call (`fn`
+    `solve_one` or `solve_pol`) that a worker runs with the parent's code:
+    the term, the field, the earlier tables by their paths (every table is
+    written before the next term starts) and `common` with its
+    `ChainBudget` as numbers. None when the call cannot be described so (a
+    pre-applied table without a path, or a term or setting that does not
+    survive JSON unchanged)."""
+    import dataclasses
+    import json
+
+    used = {n: tables[n] for n in term.get("preapply", ())}
+    if any(not t.get("path") for t in used.values()):
+        return None
+    common = dict(common)
+    budget = common.pop("budget", None)
+    out = {
+        "fn": fn,
+        "ms": str(ms),
+        "term": _jsonable(term),
+        "field": int(field_id),
+        "tables": {
+            n: {"path": str(t["path"]), "type": t["type"]} for n, t in used.items()
+        },
+        "common": _jsonable(common),
+        "budget": None if budget is None else dataclasses.asdict(budget),
+        "solve_calwt": "solve_calwt" in common,
+    }
+    # The worker must see what the parent sees: values that JSON changes
+    # (tuples become lists, non-string keys strings) are refused here.
+    if json.loads(json.dumps(out["term"])) != term or (
+        json.loads(json.dumps(out["common"]))
+        != {k: (sorted(v) if k == "solve_calwt" else v) for k, v in common.items()}
+    ):
+        return None
+    return out
+
+
+def from_recipe(r, read_table):
+    """`(fn, ms, term, field_id, tables, common)` of a recipe; `read_table`
+    reads a table from its path."""
+    from . import core_chunks
+
+    common = dict(r["common"])
+    if r["solve_calwt"]:
+        common["solve_calwt"] = frozenset(common["solve_calwt"])
+    if r["budget"] is not None:
+        common["budget"] = core_chunks.ChainBudget(**r["budget"])
+    tables = {
+        n: {"table": read_table(t["path"]), "type": t["type"], "path": t["path"]}
+        for n, t in r["tables"].items()
+    }
+    fn = globals()[SOLVERS[r["fn"]]]
+    return fn, Path(r["ms"]), r["term"], int(r["field"]), tables, common
+
+
+def _solve_fields(fn_name, ms, term, tables, common, executor):
+    """The results of `fn_name` (`solve_one` or `solve_pol`) on every field of
+    `term`, in field order: here, each field's replayed solve sent to
+    `executor` by chunk (`cal_chunks.Dispatch`); or, for two fields or more
+    and an executor that is not inline, each field one `chain-field` task."""
+    from . import cal_chunks, core_tasks
+
+    fn = globals()[SOLVERS[fn_name]]
+    fields = list(term["fields"])
+    pooled = executor is not None and not executor.inline
+    recipes = [
+        recipe(fn_name, ms, term, f, tables, common) if pooled else None for f in fields
+    ]
+    if pooled and len(fields) > 1 and all(r is not None for r in recipes):
+        specs = [core_tasks.chain_field_spec(r, i) for i, r in enumerate(recipes)]
+        return list(executor.map(specs))
+    out = []
+    for f, r in zip(fields, recipes):
+        d = None if r is None else cal_chunks.Dispatch(executor, r)
+        with cal_chunks.dispatching(d):
+            out.append(fn(ms, term, f, tables, common))
+    return out
+
+
 def run(
     ms,
     terms,
@@ -474,6 +573,7 @@ def run(
     k_zero_start=False,
     xf_calwt=False,
     solve_calwt=(),
+    executor=None,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -522,8 +622,11 @@ def run(
     research/calwt-terms.md; `calibrate.k_calwt`, `g_calwt`, `gpol_calwt`,
     `kcross_calwt`, `df_calwt`): the solve types of `CALWT_TYPES` whose
     weights are scaled by CASA's `calwt` factor of the tables that correct
-    their data (`rang.cal_gain.calwt_factor`; F is not). Returns `{"tables": {name:
-    {...}}, "steps": [...]}`."""
+    their data (`rang.cal_gain.calwt_factor`; F is not). `executor` (a
+    `rang.core_tasks.Executor`; default inline): the K, G, B and
+    polarisation solves go through it by chunk or by field
+    (research/chunk-task-api-1b.md 1.2), with the same tables. Returns
+    `{"tables": {name: {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -559,8 +662,8 @@ def run(
         step = {"type": kind, "name": name, "fields": list(term["fields"])}
         if kind in ("K", "G", "B"):
             made, records = [], []
-            for f in term["fields"]:
-                table, sol, info = _solve_one(ms, term, f, tables, common)
+            solved = _solve_fields("solve_one", ms, term, tables, common, executor)
+            for f, (table, sol, info) in zip(term["fields"], solved):
                 made.append(table)
                 records.append(_solution_record(sol, info, f))
             table = (
@@ -657,8 +760,8 @@ def run(
             continue
         elif kind in POLARISATION:
             made, records = [], []
-            for f in term["fields"]:
-                table, record = _solve_pol(ms, term, f, tables, common)
+            solved = _solve_fields("solve_pol", ms, term, tables, common, executor)
+            for table, record in solved:
                 made.append(table)
                 records.append(record)
             table = (

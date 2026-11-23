@@ -563,6 +563,7 @@ def _solve_field(fld, tb, *, budget, what, average=False, **opts):
             run,
             max_iterations=opts["max_iterations"],
             stop_fraction=opts["stop_fraction"],
+            row_w=row_w,
         )
     sol = results[0]
     if replay is not None:

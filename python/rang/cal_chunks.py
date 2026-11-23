@@ -31,6 +31,8 @@ one-call solve bit for bit (research/w3b-chainchunks.md, section 3).
 Averaging changes the estimator (CASA's); it is off unless asked for.
 """
 
+import contextlib
+import contextvars
 import hashlib
 import itertools
 import weakref
@@ -373,7 +375,93 @@ def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
     }
 
 
-def replayed(chunks, run, *, max_iterations, stop_fraction):
+# -- chunk tasks of a replayed solve (research/chunk-task-api-1b.md 1.2) ---------
+
+
+@dataclass
+class Dispatch:
+    """Set (`dispatching`) around a chain solve in the parent: the first
+    replayed solve of more than one chunk inside it sends its chunks to
+    `executor` as `chain-chunk` tasks of `recipe` (a JSON-able description
+    of the solve, `rang.cal_chain.recipe`); later replayed solves run
+    here."""
+
+    executor: object
+    recipe: dict
+    calls: int = 0
+
+
+@dataclass
+class Only:
+    """Set in a worker running a `chain-chunk` task: the first replayed
+    solve runs chunk `index` only, for `max_iterations` with
+    `stop_fraction` (`trace`: counted) and raises `ChunkDone`."""
+
+    index: int
+    max_iterations: int
+    stop_fraction: float
+    trace: bool
+
+
+class ChunkDone(Exception):
+    """The result of the one chunk an `Only` asked for."""
+
+    def __init__(self, result):
+        super().__init__("chunk done")
+        self.result = result
+
+
+_DISPATCH = contextvars.ContextVar("rang_chain_dispatch", default=None)
+
+
+@contextlib.contextmanager
+def dispatching(value):
+    """`value` (a `Dispatch`, an `Only` or None) for the replayed solves
+    inside the block."""
+    token = _DISPATCH.set(value)
+    try:
+        yield value
+    finally:
+        _DISPATCH.reset(token)
+
+
+# Fill of a worker's row-weight array before its chunk runs: a NaN payload
+# no arithmetic produces, so the positions the chunk wrote are exactly those
+# whose bits differ from it.
+_UNWRITTEN = np.array([0x7FF8DEAD0000BEEF], np.uint64).view(np.float64)[0]
+
+
+def _written(row_w):
+    bits = np.asarray(row_w, np.float64).view(np.uint64)
+    return np.flatnonzero(bits != np.uint64(0x7FF8DEAD0000BEEF))
+
+
+def _dispatched(d, nchunks, max_iterations, stop_fraction, trace):
+    """The partials of every chunk of `d`'s solve, run by its executor in
+    chunk order."""
+    from . import core_tasks
+
+    specs = [
+        core_tasks.chain_chunk_spec(d.recipe, i, max_iterations, stop_fraction, trace)
+        for i in range(nchunks)
+    ]
+    return list(d.executor.map(specs))
+
+
+def _only(only, chunks, run, row_w):
+    """In a worker: run the chunk `only` names and raise its result."""
+    chunk = chunks[only.index]
+    if only.trace:
+        raise ChunkDone(run(chunk, only.max_iterations, only.stop_fraction, True))
+    if row_w is None:
+        raise ValueError("a dispatched chunk needs the solve's row weights")
+    row_w[:] = _UNWRITTEN
+    result = run(chunk, only.max_iterations, only.stop_fraction, False)
+    pos = _written(row_w)
+    raise ChunkDone((result, pos, np.array(row_w[pos])))
+
+
+def replayed(chunks, run, *, max_iterations, stop_fraction, row_w=None):
     """Solve `chunks` with the stop test of the one-call solve.
 
     `run(chunk, max_iterations, stop_fraction, trace)` solves one chunk and
@@ -385,12 +473,31 @@ def replayed(chunks, run, *, max_iterations, stop_fraction):
     converged fraction are the one-call solve's; a solver error is raised
     when no stop comes before the earliest error iteration of any chunk;
     pass 2 solves every chunk for `j + 1` iterations with the stop test off.
-    Returns `(results, (iterations, converged fraction) or None)`."""
+    Returns `(results, (iterations, converged fraction) or None)`.
+
+    Chunk tasks (research/chunk-task-api-1b.md 1.2): inside `dispatching`
+    of a `Dispatch`, the first call of more than one chunk runs both passes'
+    chunks as `chain-chunk` tasks of the executor, and `row_w` (the solve's
+    row-weight array, which `run` fills in pass 2) receives each chunk's
+    row weights from its task; inside an `Only` (a worker), the first call
+    runs one chunk and raises `ChunkDone`."""
+    d = _DISPATCH.get()
+    if d is not None:
+        _DISPATCH.set(None)  # later replayed solves of the recipe run here
+    if isinstance(d, Only):
+        _only(d, chunks, run, row_w)
     if len(chunks) == 1:
         return [run(chunks[0], max_iterations, stop_fraction, False)], None
+    if isinstance(d, Dispatch) and d.executor.inline:
+        d = None
+    if d is not None and row_w is None:
+        raise ValueError("a dispatched solve needs its row weights (row_w)")
+    if d is None:
+        traced = (run(c, max_iterations, STOP_OFF, True) for c in chunks)
+    else:
+        traced = _dispatched(d, len(chunks), max_iterations, STOP_OFF, True)
     totals, ngains, first = None, 0, None
-    for c in chunks:
-        counts, error, n = run(c, max_iterations, STOP_OFF, True)
+    for counts, error, n in traced:
         counts = np.asarray(counts, np.int64).reshape(-1, 2)
         ngains += int(n)
         if error is not None and (first is None or error[0] < first[0]):
@@ -411,7 +518,13 @@ def replayed(chunks, run, *, max_iterations, stop_fraction):
         if first is not None:
             raise ValueError(first[1])
         j = len(totals) - 1
-    results = [run(c, j + 1, STOP_OFF, False) for c in chunks]
+    if d is None:
+        results = [run(c, j + 1, STOP_OFF, False) for c in chunks]
+    else:
+        results = []
+        for result, pos, values in _dispatched(d, len(chunks), j + 1, STOP_OFF, False):
+            row_w[pos] = values
+            results.append(result)
     return results, (j + 1, float(fraction))
 
 
