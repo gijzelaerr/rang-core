@@ -7,8 +7,13 @@ pointing later. Sections 1-6 are frozen 2026-11-23, before any code that
 tests them and before the catalogue was queried; later changes are dated
 amendments.
 
-Status: **proposed; blocked on the catalogue download** (section 3: the
-download needs the owner's explicit go-ahead for the named files).
+Status: **partly measured 2026-11-23, setup outcome on arm O.**
+- Rang's loop (R) and the two baselines (DI, DI0) ran.
+- The oracle arm O stopped at a setup mismatch: WSClean's
+  `-diagonal-visibilities` facet image differs from rang's by a uniform
+  factor of 1.93-1.94 per facet.
+- So gates L and S are not read, and the gain over DI is provisional
+  (section 7).
 
 ## 1. What DD4 is, and what is not claimed
 
@@ -187,7 +192,83 @@ Reported, not gated:
 
 ## 7. Measured result
 
-Not yet measured.
+Run `D:/rang/outputs/dd4-20261123/run-02`. It holds `setup.json`, `C0/`,
+`R/`, `DI/`, `DI0/` and `O/cycle-0` (cycles 0-4 of each rang arm), plus
+`score-rang-only.json`. The archive is
+[results/dd4-eso137/](results/dd4-eso137/). Host glacier, shared, rang at
+8 threads.
+
+**C0 (A1, A2): pass.** Rang's dirty image of the subset matches WSClean's to
+1.1e-7 of the peak, with WSClean's Stokes I weight `min(w_XX, w_YY)`.
+
+**Arm O: setup outcome, gates L and S not read.** Cycle 0 completed:
+QuartiCal in 651 s, then WSClean's corrupted predict and facet image with
+`-diagonal-visibilities` (A3).
+
+| | value |
+| --- | --- |
+| gain products, median R-O difference per direction | 0 (pinned d0), 1.6e-6, 1.3e-5, 1.4e-5 |
+| gain products, maximum R-O difference | 1.1e-2, 1.8e-1, 5.1e-2 |
+| flags | equal (538 flagged gains) |
+| best scale O/R of the flat-gain residual, per facet | 1.942, 1.929, 1.927, 1.942 |
+
+- In cycle 0 both solvers stop at the 150 cap with a converged fraction of
+  0.25, which is the pinned direction only. The maxima are on gains that
+  have not converged.
+- The residual images differ by close to a factor 2 in every facet,
+  including the pinned d0. The difference is in WSClean's imaging, not the
+  gains.
+- DD2b validated the four-correlation path (7.5e-8). The diagonal-visibility
+  path, which this two-correlation MS forces, has a different flat-gain
+  normalisation, not yet characterised.
+- Arm O was stopped after cycle 0, since its later cycles would
+  deconvolve a mis-scaled residual.
+
+**Rang arms, provisional (final cycle 4, no oracle check):**
+
+| Measure | R (DD, d0 pinned) | DI (frozen: free, one direction) | DI0 (post hoc: DI gains only) |
+| --- | --- | --- | --- |
+| rms near d1 (0.97 Jy at 0.25°) | 45.1 mJy | 462 mJy | **12.7 mJy** |
+| rms near d2 (98 mJy at 0.38°) | **5.0 mJy** | 151 mJy | 11.6 mJy |
+| rms near d3 (83 mJy at 0.83°) | **1.5 mJy** | 260 mJy | 4.0 mJy |
+| field rms | **2.0 mJy** | 118 mJy | 4.6 mJy |
+| dynamic range | **675** | 234 | 304 |
+
+- **Against the frozen DI arm:** `q` = 0.033 and DR 2.9 ×, so the reading
+  would be "DD helps". But the frozen DI arm diverges, because its one free
+  direction absorbs the incomplete model (A3). That reading is not
+  meaningful and is not claimed.
+- **Against DI0 (post hoc):**
+  - `q` = 0.43 and DR 2.2 ×.
+  - d2, d3 and the field are 2.3-2.7 × better.
+  - d1 is 3.6 × worse. d1 sits 15′ from ESO 137-006 and is probably part
+    of its extended emission, which the start model lacks, so its facet's
+    gains absorb that structure. That is a post hoc guess, not tested.
+- Both rang arms are far above the 31 µJy thermal expectation, so
+  deconvolving the extended source is the limit here.
+- In R the DD solve hits the 150 cap in every cycle (converged fraction
+  0.25).
+
+**Outcome under section 6: setup.** The oracle's facet imaging is not
+comparable on a two-correlation MS without a characterised normalisation, so
+no gate is read. The rang numbers above are provisional and are not a
+result of this note.
+
+**Next steps:**
+1. Write the subset as a four-correlation MS (XY and YX zero and
+   flagged), so that WSClean takes DD2b's validated path; or run a
+   C2-style control on the diagonal mode.
+2. Rerun arm O.
+3. Read L, S and the gain over DI as frozen.
+
+Separately, the DD solve does not converge on real data within the cap, and
+d1's facet takes extended structure. Both are for the owner before any
+claim.
+
+Cost (indicative, shared host):
+- rang R about 2.2 min per cycle (solve 75-90 s, image 31-41 s, 5 cycles);
+- DI about 35 s per cycle;
+- QuartiCal cycle 0 651 s at 8.4 GB peak.
 
 ## Amendments
 
