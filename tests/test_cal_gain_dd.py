@@ -68,3 +68,16 @@ def test_solve_dd_pinned_and_shape_errors():
         cal_gain.solve_dd(data, models[:, :, :, :2], *args, nant=nant)
     with pytest.raises(ValueError):
         cal_gain.solve_dd(data, models, *args, nant=nant, pinned_directions=[2])
+
+
+def test_solve_dd_phase_is_unit_modulus_and_referenced():
+    _, data, models, a1, a2, tb, nant = simulate()
+    nrow, nchan = data.shape[:2]
+    for last in (True, False):
+        sol = cal_gain.solve_dd(
+            data, models, np.ones((nrow, nchan, 4)), np.zeros((nrow, nchan, 4), bool),
+            np.zeros(nrow, bool), a1, a2, tb, nant=nant, refant=0, calmode="p",
+            phase_last_direction_gain=last, max_iterations=50,
+        )  # fmt: skip
+        assert np.allclose(np.abs(sol.gains), 1, atol=1e-12)
+        assert np.allclose(np.angle(sol.gains[:, 0, 0]), 0, atol=1e-12)

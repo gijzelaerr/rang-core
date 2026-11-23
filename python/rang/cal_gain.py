@@ -257,13 +257,19 @@ def solve_dd(
     max_iterations=50,
     stop_criterion=1e-7,
     stop_fraction=0.99,
+    calmode="ap",
+    phase_last_direction_gain=True,
 ):
     """Solve one direction-dependent `diag_complex` term (task DD1,
     research/dd1-facet-gains.md): `models` is (rows, chans, directions, 4),
     one model per facet direction; the kernel is `core/src/cal/diag_dd.rs`
     (QuartiCal 0.2.7 with `G.direction_dependent=true`). `refant=None` leaves
     the gains unreferenced; `pinned_directions` as QuartiCal's
-    `G.pinned_directions` (default here: none). No CASA rules."""
+    `G.pinned_directions` (default here: none). No CASA rules.
+    `calmode="p"` solves QuartiCal's `phase` term with the direction axis
+    instead (DD3b, research/dd3b-flux-pin.md); `phase_last_direction_gain`
+    keeps QuartiCal 0.2.7's use of the last direction's gain in every
+    direction's `J^H r` (`False`: each direction's own)."""
     ext = _extension()
     data = np.asarray(data)
     nrow, nchan = data.shape[:2]
@@ -294,6 +300,7 @@ def solve_dd(
         time_bin, freq_bin, int(max_iterations), float(stop_criterion),
         float(stop_fraction), -1 if refant is None else int(refant),
         [int(d) for d in pinned_directions], gains, flags,
+        KINDS[calmode], bool(phase_last_direction_gain),
     )  # fmt: skip
     return DDSolution(
         gains=gains.view(np.complex128).reshape(ntime, nfreq, nant, ndir, 2),

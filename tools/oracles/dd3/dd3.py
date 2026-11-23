@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 """DD3: the direction-dependent self-calibration loop (research/dd3-selfcal-loop.md).
 
-    python tools/oracles/dd3/dd3.py setup SIMDIR RUN        # PSF, facets, start model
+    python tools/oracles/dd3/dd3.py setup SIMDIR RUN [ARM]  # PSF, facets, start model
     python tools/oracles/dd3/dd3.py rang RUN                # arm R, all cycles
     python tools/oracles/dd3/dd3.py oracle RUN SCRATCH      # arm O (WSL QuartiCal, WSClean)
     python tools/oracles/dd3/dd3.py compare RUN             # gates L and T
@@ -10,6 +10,10 @@ Each arm writes RUN/<arm>/cycle-<k>/{model.npy, gains.npz, residual.npy,
 components.npz} for k = 0..4 (cycle 4: the final solve and residual, no
 minor cycle). Arm O's WSL steps are `step_o1.sh` (model columns and
 QuartiCal) and `step_o2.sh` (corrupted predict, residual column, image).
+
+ARM (DD3b, research/dd3b-flux-pin.md): `base` (DD3, default), `P` (phase-only
+DD solves in cycles 0 and 1, then amplitude and phase) or `N` (amplitude and
+phase, each direction's mean |g| scaled to 1 after every solve, both arms).
 """
 
 import importlib.util
@@ -41,15 +45,43 @@ SIGMAS = 5.0
 FLOOR = 1e-3
 EDGE = dd2.EDGE_PX
 REF_T1 = 3.10e-3  # DD2 prepare.json P1_under_cap_truth median (section 3)
+PHASE_CYCLES = 2  # DD3b arm P: cycles 0 and 1 phase-only
+
+
+def arm_of(run):
+    p = run / "arm.json"
+    return json.loads(p.read_text())["arm"] if p.exists() else "base"
+
+
+def calmode(arm, k):
+    return "p" if arm == "P" and k < PHASE_CYCLES else "ap"
+
+
+def normalise(arm, gains, flags):
+    """DD3b arm N: each direction's gains divided by the mean |g| over its
+    unflagged gains (all intervals, antennas, hands); other arms unchanged."""
+    if arm != "N":
+        return gains, None
+    g = np.array(gains, complex)
+    scales = []
+    for d in range(g.shape[3]):
+        ok = flags[:, :, :, d] == 0
+        s = float(np.abs(g[:, :, :, d][ok]).mean())
+        g[:, :, :, d] /= s
+        scales.append(s)
+    return g, scales
 
 
 # -- shared pieces ------------------------------------------------------------------
 
 
-def setup(sim, run):
+def setup(sim, run, arm="base"):
     from rang import core_grid, core_wgridder
 
     run.mkdir(parents=True, exist_ok=False)
+    if arm not in ("base", "P", "N"):
+        raise SystemExit(f"unknown arm {arm!r}")
+    (run / "arm.json").write_text(json.dumps({"arm": arm}))
     c = dd2.read_ms(Path(sim) / "dd1.ms")
     truth = dict(np.load(Path(sim) / "truth.npz"))
     centres = dd2.centres_lm(truth)
@@ -200,18 +232,22 @@ def arm_r(run):
     model = np.load(run / "model0.npy")
     nant = len(c["ant_names"])
     data = c["DATA"].astype(np.complex128)
+    arm = arm_of(run)
     for k in range(NCYCLE + 1):
         t0 = time.perf_counter()
         models = facet_models(c, model, idx)
         sol = cal_gain.solve_dd(
             c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
             c["ANTENNA1"], c["ANTENNA2"], block, nant=nant, refant=0, **CAP,
+            calmode=calmode(arm, k),
         )  # fmt: skip
+        gains, scales = normalise(arm, sol.gains, sol.flags)
         t1 = time.perf_counter()
-        residual = flat_gain_image(c, data - corrupt(c, models, sol.gains, block), sol.gains,
+        residual = flat_gain_image(c, data - corrupt(c, models, gains, block), gains,
                                    block, idx)  # fmt: skip
         t2 = time.perf_counter()
         info = {"iterations": sol.iterations, "fraction": sol.converged_fraction,
+                "calmode": calmode(arm, k), "scales": scales,
                 "seconds_solve": t1 - t0, "seconds_image": t2 - t1}  # fmt: skip
         comps = None
         new_model = model
@@ -220,7 +256,7 @@ def arm_r(run):
             info["hogbom"] = hinfo
             new_model = add_components(model, comps)
         save_cycle(
-            run / "R" / f"cycle-{k}", model, sol.gains, sol.flags, residual, comps, info
+            run / "R" / f"cycle-{k}", model, gains, sol.flags, residual, comps, info
         )
         print(f"R cycle {k}: {json.dumps(info)}", flush=True)
         model = new_model
@@ -278,6 +314,7 @@ def arm_o(run, scratch):
     model = np.load(run / "model0.npy")
     o = run / "O"
     o.mkdir(exist_ok=True)
+    arm = arm_of(run)
     wsl("step_o0.sh", to_wsl(ctx["sim"]), scratch)
     for k in range(NCYCLE + 1):
         d = o / f"cycle-{k}"
@@ -287,8 +324,11 @@ def arm_o(run, scratch):
             write_fits(d / f"facet{f}-model.fits", np.where(idx == f, model, 0.0), hdr)
         write_fits(d / "full-model.fits", model, hdr)
         write_fits(d / "full-model-pb.fits", model, hdr)
-        log1 = wsl("step_o1.sh", scratch, to_wsl(d))
+        gtype = "phase" if calmode(arm, k) == "p" else "diag_complex"
+        log1 = wsl("step_o1.sh", scratch, to_wsl(d), gtype)
         gains, flags, qinfo = qc_gains(d / "gains")
+        gains, scales = normalise(arm, gains, flags)
+        qinfo.update(calmode=calmode(arm, k), scales=scales)
         ok = dd2.write_h5(
             d / "solved.h5", gains, flags, c, ctx["centres_t"], ctx["centres"]
         )
@@ -402,7 +442,7 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     cmd = argv[0]
     if cmd == "setup":
-        setup(Path(argv[1]), Path(argv[2]))
+        setup(Path(argv[1]), Path(argv[2]), *(argv[3:4] or ["base"]))
     elif cmd == "rang":
         arm_r(Path(argv[1]))
     elif cmd == "oracle":

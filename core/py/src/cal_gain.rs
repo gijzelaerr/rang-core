@@ -372,7 +372,9 @@ pub fn cal_gain_apply_refant(
 /// research/dd1-facet-gains.md; `rang_core::cal::diag_dd`): `model` holds
 /// `nrow * nchan * ndir * 8` floats (complex64 per cell, then direction,
 /// then correlation); `pinned` lists QuartiCal's `G.pinned_directions`;
-/// `refant < 0` for no referencing. Writes `gains` (complex128 viewed as
+/// `refant < 0` for no referencing; `kind` 0 `diag_complex`, 1 `phase`
+/// (DD3b, research/dd3b-flux-pin.md), with `phase_last_direction_gain` as
+/// `diag_dd::Settings`. Writes `gains` (complex128 viewed as
 /// float64, `ngain * 4`, `ngain = ntime * nfreq * nant * ndir` in the layout
 /// time bin, frequency bin, antenna, direction) and `flags` (int8, `ngain`).
 /// Returns (iterations, converged fraction).
@@ -380,7 +382,7 @@ pub fn cal_gain_apply_refant(
 #[pyo3(signature = (
     nrow, nchan, ntime, nfreq, nant, ndir, data, weights, model, flag, flag_row, antenna1,
     antenna2, time_bin, freq_bin, max_iterations, stop_criterion, stop_fraction, refant, pinned,
-    gains, flags
+    gains, flags, kind=0, phase_last_direction_gain=true
 ))]
 #[allow(clippy::too_many_arguments)]
 pub fn cal_gain_solve_dd(
@@ -407,6 +409,8 @@ pub fn cal_gain_solve_dd(
     pinned: Vec<usize>,
     mut gains: Rw<'_, f64>,
     mut flags: Rw<'_, i8>,
+    kind: u32,
+    phase_last_direction_gain: bool,
 ) -> PyResult<(usize, f64)> {
     use rang_core::cal::diag_dd;
     let cells = nrow
@@ -445,6 +449,12 @@ pub fn cal_gain_solve_dd(
         stop_fraction,
         reference_antenna: usize::try_from(refant).ok(),
         pinned_directions: pinned,
+        kind: match kind {
+            0 => diag_dd::Kind::DiagComplex,
+            1 => diag_dd::Kind::Phase,
+            _ => return Err(PyValueError::new_err("kind must be 0 (ap) or 1 (p)")),
+        },
+        phase_last_direction_gain,
     };
     let solution = detach(py, || diag_dd::solve(&p, ndir, &settings))
         .map_err(|e| PyValueError::new_err(format!("{e}")))?;

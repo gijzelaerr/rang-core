@@ -59,8 +59,22 @@ use crate::jones::{self, C64, Jones};
 use crate::solve::Problem;
 use rayon::prelude::*;
 
-/// Numbness of the divergence ladder in `update_gain_flags`.
+/// Numbness of the divergence ladder in `update_gain_flags` (`diag_complex`).
 const NUMBNESS: f64 = 1e-6;
+/// Numbness of the `phase` kernel (`update_gain_flags(..., numbness=1e9)`).
+const NUMBNESS_PHASE: f64 = 1e9;
+/// Conjugate-gradient stopping threshold on `r^T r` (generalised `invert`).
+const CG_TOLERANCE: f64 = 1e-30;
+
+/// The two kernels (task DD3b, research/dd3b-flux-pin.md, adds `Phase`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum Kind {
+    /// QuartiCal `diag_complex`: amplitude and phase per hand.
+    #[default]
+    DiagComplex,
+    /// QuartiCal `phase` with a direction axis: phase per hand.
+    Phase,
+}
 /// Trend above which `finalize_gain_flags` hard-flags a gain.
 const TREND_LIMIT: f64 = 1e-6;
 /// `invert` (non-generalised): no update below this determinant.
@@ -78,6 +92,12 @@ pub struct Settings {
     pub reference_antenna: Option<usize>,
     /// QuartiCal's `G.pinned_directions` (its default is `[0]`).
     pub pinned_directions: Vec<usize>,
+    pub kind: Kind,
+    /// `phase` only: use, as QuartiCal 0.2.7 does, the gain of the **last**
+    /// direction in every direction's `J^H r` (its `gains_p[active_term]`
+    /// holds the last direction after the direction loop of
+    /// `compute_jhj_jhr`). `false` uses each direction's own gain.
+    pub phase_last_direction_gain: bool,
 }
 
 impl Default for Settings {
@@ -90,6 +110,8 @@ impl Default for Settings {
             stop_fraction: 0.99,
             reference_antenna: Some(0),
             pinned_directions: Vec::new(),
+            kind: Kind::DiagComplex,
+            phase_last_direction_gain: true,
         }
     }
 }
@@ -214,6 +236,13 @@ struct GainState {
     trend: f64,
     jhj: [C64; 2],
     jhr: [C64; 2],
+    /// `phase`: parameters, their flag, real `J^H J` (2x2), `J^H r`, and
+    /// the warm-started update.
+    params: [f64; 2],
+    param_flag: bool,
+    jhj_r: [f64; 4],
+    jhr_r: [f64; 2],
+    update_r: [f64; 2],
     flag: i8,
 }
 
@@ -224,8 +253,20 @@ const FRESH: GainState = GainState {
     trend: 0.,
     jhj: [C64::ZERO; 2],
     jhr: [C64::ZERO; 2],
+    params: [0., 0.],
+    param_flag: false,
+    jhj_r: [0.; 4],
+    jhr_r: [0.; 2],
+    update_r: [0.; 2],
     flag: 1,
 };
+
+/// The kernel and its options, as `run_interval` needs them.
+#[derive(Clone, Copy)]
+struct Mode {
+    kind: Kind,
+    last_direction_gain: bool,
+}
 
 struct CellRef {
     cell: usize,
@@ -293,11 +334,86 @@ fn elem_complex(rop: &Jones, w: &[f64; 4], res: &Jones, jhr: &mut [C64; 2], jhj:
     jhj[1] = jhj[1] + real_scale(r3, w[3]) * r3.conj();
 }
 
+/// `iabsdivsq` on one value: `0` for `0`, else `1/|v|^2`.
+fn absdivsq(v: C64) -> C64 {
+    if v.re == 0. && v.im == 0. {
+        C64::ZERO
+    } else {
+        C64::new(1. / (v.re * v.re + v.im * v.im), 0.)
+    }
+}
+
+/// `compute_jhwj_jhwr_elem` of `phase` (four correlations, lop = I), as
+/// `diag::elem_phase`.
+fn elem_phase(
+    rop: &Jones,
+    w: &[f64; 4],
+    gain: &[C64; 2],
+    res: &Jones,
+    jhr: &mut [f64; 2],
+    jhj: &mut [f64; 4],
+) {
+    let res = [res[0], C64::ZERO, C64::ZERO, res[3]];
+    let lr = jones::mul(&IDENTITY, rop);
+    let normf: Jones = std::array::from_fn(|k| absdivsq(lr[k]));
+    let res: Jones = std::array::from_fn(|k| res[k] * normf[k]);
+    let res = jones::mul(&IDENTITY, &jones::mul(&res, rop));
+    let (r_0, r_3) = (res[0], res[3]);
+    let (gc_0, gc_3) = (gain[0].conj(), gain[1].conj());
+    let minus_i = C64::new(-0., -1.);
+    jhr[0] += (minus_i * gc_0 * r_0).re;
+    jhr[1] += (minus_i * gc_3 * r_3).re;
+    let w_0 = normf[0] * C64::new(w[0], 0.);
+    let w_3 = normf[3] * C64::new(w[3], 0.);
+    let (jh_00, jh_33) = (ONE * rop[0], ONE * rop[3]);
+    let jhwj_00 = jh_00 * w_0 * jh_00.conj();
+    let jhwj_33 = jh_33 * w_3 * jh_33.conj();
+    jhj[0] += jhwj_00.re;
+    jhj[3] += jhwj_33.re;
+}
+
+/// Generalised `invert`: conjugate gradients on the real 2x2 system,
+/// warm-started from `x`, at most two steps (as `diag`).
+fn conjugate_gradient(a: &[f64; 4], b: &[f64; 2], x: &mut [f64; 2]) -> Result<(), Error> {
+    let mat_vec = |v: &[f64; 2]| [a[0] * v[0] + a[1] * v[1], a[2] * v[0] + a[3] * v[1]];
+    let dot = |u: &[f64; 2], v: &[f64; 2]| u[0] * v[0] + u[1] * v[1];
+    let ax = mat_vec(x);
+    let mut r = [b[0] - ax[0], b[1] - ax[1]];
+    let mut p = r;
+    let mut r_k = dot(&r, &r);
+    if r_k == 0. {
+        return Ok(());
+    }
+    for _ in 0..2 {
+        let ap = mat_vec(&p);
+        let denom = dot(&p, &ap);
+        if denom == 0. {
+            return Err(Error::ZeroDivision);
+        }
+        let alpha = r_k / denom;
+        for i in 0..2 {
+            x[i] += alpha * p[i];
+            r[i] -= alpha * ap[i];
+        }
+        let r_next = dot(&r, &r);
+        if r_next < CG_TOLERANCE {
+            break;
+        }
+        let beta = r_next / r_k;
+        for i in 0..2 {
+            p[i] = p[i] * beta + r[i];
+        }
+        r_k = r_next;
+    }
+    Ok(())
+}
+
 /// `compute_jhj_jhr` for one interval's gains (indexed `antenna * ndir + d`).
 fn accumulate(
     problem: &Problem,
     models: &[f32],
     ndir: usize,
+    mode: Mode,
     cells: &[CellRef],
     states: &mut [GainState],
     rop_pq: &mut [Jones],
@@ -306,6 +422,8 @@ fn accumulate(
     for s in states.iter_mut() {
         s.jhj = [C64::ZERO; 2];
         s.jhr = [C64::ZERO; 2];
+        s.jhj_r = [0.; 4];
+        s.jhr_r = [0.; 2];
     }
     let adj_identity = jones::adjoint(&IDENTITY);
     for c in cells {
@@ -325,16 +443,47 @@ fn accumulate(
                 v_pq[k] = v_pq[k] + v_pqd[k];
             }
         }
-        for k in 0..4 {
-            r[k] = r[k] - v_pq[k];
+        match mode.kind {
+            Kind::DiagComplex => {
+                for k in 0..4 {
+                    r[k] = r[k] - v_pq[k];
+                }
+            }
+            Kind::Phase => {
+                // absv1_idiv_absv2(v, r): |v|/|r| (0 where r is 0); r *= it.
+                for k in 0..4 {
+                    let n = if r[k].re == 0. && r[k].im == 0. {
+                        C64::ZERO
+                    } else {
+                        C64::new((v_pq[k].norm2() / r[k].norm2()).sqrt(), 0.)
+                    };
+                    r[k] = r[k] * n - v_pq[k];
+                }
+            }
         }
         let wr_pq: Jones = std::array::from_fn(|k| real_scale(r[k], w[k]));
         let wr_qp = jones::adjoint(&wr_pq);
         for d in 0..ndir {
-            let sp = &mut states[p * ndir + d];
-            elem_complex(&rop_pq[d], &w, &wr_pq, &mut sp.jhr, &mut sp.jhj);
-            let sq = &mut states[q * ndir + d];
-            elem_complex(&rop_qp[d], &w, &wr_qp, &mut sq.jhr, &mut sq.jhj);
+            match mode.kind {
+                Kind::DiagComplex => {
+                    let sp = &mut states[p * ndir + d];
+                    elem_complex(&rop_pq[d], &w, &wr_pq, &mut sp.jhr, &mut sp.jhj);
+                    let sq = &mut states[q * ndir + d];
+                    elem_complex(&rop_qp[d], &w, &wr_qp, &mut sq.jhr, &mut sq.jhj);
+                }
+                Kind::Phase => {
+                    let dg = if mode.last_direction_gain {
+                        ndir - 1
+                    } else {
+                        d
+                    };
+                    let (gp, gq) = (states[p * ndir + dg].gain, states[q * ndir + dg].gain);
+                    let sp = &mut states[p * ndir + d];
+                    elem_phase(&rop_pq[d], &w, &gp, &wr_pq, &mut sp.jhr_r, &mut sp.jhj_r);
+                    let sq = &mut states[q * ndir + d];
+                    elem_phase(&rop_qp[d], &w, &gq, &wr_qp, &mut sq.jhr_r, &mut sq.jhj_r);
+                }
+            }
         }
     }
 }
@@ -352,28 +501,57 @@ fn update_complex(jhj: &[C64; 2], jhr: &[C64; 2]) -> Result<[C64; 2], Error> {
 
 /// `compute_update`, `finalize_update` (DD: halved on every iteration,
 /// nothing for a pinned direction) and `update_gain_flags` for one gain.
+///
+/// `phase`: conjugate gradients warm-started from the previous update, the
+/// parameters updated without halving (QuartiCal's `phase`
+/// `finalize_update`), numbness 1e9, then `update_param_flags`.
 fn step_gain(
     state: &mut GainState,
+    kind: Kind,
     pinned: bool,
     loop_idx: usize,
     stop2: f64,
 ) -> Result<(bool, bool), Error> {
-    let update = update_complex(&state.jhj, &state.jhr)?;
-    if !pinned {
-        if state.flag == 1 {
-            state.gain = [ONE, ONE];
-        } else {
-            for (g, u) in state.gain.iter_mut().zip(update) {
-                let u = divide(u, C64::new(2., 0.))?;
-                *g = *g + u;
+    match kind {
+        Kind::DiagComplex => {
+            let update = update_complex(&state.jhj, &state.jhr)?;
+            if !pinned {
+                if state.flag == 1 {
+                    state.gain = [ONE, ONE];
+                } else {
+                    for (g, u) in state.gain.iter_mut().zip(update) {
+                        let u = divide(u, C64::new(2., 0.))?;
+                        *g = *g + u;
+                    }
+                }
             }
+            Ok(flag_ladder(state, loop_idx, stop2, NUMBNESS))
+        }
+        Kind::Phase => {
+            conjugate_gradient(&state.jhj_r, &state.jhr_r, &mut state.update_r)?;
+            if !pinned {
+                if state.flag == 1 {
+                    state.params = [0., 0.];
+                    state.gain = [ONE, ONE];
+                } else {
+                    for k in 0..2 {
+                        state.params[k] += state.update_r[k];
+                        state.gain[k] = C64::new(state.params[k].cos(), state.params[k].sin());
+                    }
+                }
+            }
+            let result = flag_ladder(state, loop_idx, stop2, NUMBNESS_PHASE);
+            state.param_flag = state.flag == 1;
+            if state.param_flag {
+                state.params = [0., 0.];
+            }
+            Ok(result)
         }
     }
-    Ok(flag_ladder(state, loop_idx, stop2))
 }
 
 /// `update_gain_flags` for one gain.
-fn flag_ladder(state: &mut GainState, loop_idx: usize, stop2: f64) -> (bool, bool) {
+fn flag_ladder(state: &mut GainState, loop_idx: usize, stop2: f64, numbness: f64) -> (bool, bool) {
     if state.flag == 1 {
         return (false, true);
     }
@@ -402,9 +580,9 @@ fn flag_ladder(state: &mut GainState, loop_idx: usize, stop2: f64) -> (bool, boo
     if km0_abs2_diff / km1_abs2 < stop2 {
         state.flag = 0;
         converged = true;
-    } else if km0_trend < km1_trend && km1_trend < NUMBNESS {
+    } else if km0_trend < km1_trend && km1_trend < numbness {
         state.flag = 0;
-    } else if km0_trend > km1_trend && km1_trend > NUMBNESS {
+    } else if km0_trend > km1_trend && km1_trend > numbness {
         state.flag = if state.flag != 0 { 1 } else { -1 };
     }
     if state.flag == 1 {
@@ -417,12 +595,16 @@ fn flag_ladder(state: &mut GainState, loop_idx: usize, stop2: f64) -> (bool, boo
 #[derive(Clone, Copy)]
 struct Snapshot {
     gain: [C64; 2],
+    params: [f64; 2],
+    param_flag: bool,
     trend: f64,
     flag: i8,
 }
 
 const EMPTY_SNAPSHOT: Snapshot = Snapshot {
     gain: [ONE, ONE],
+    params: [0., 0.],
+    param_flag: false,
     trend: 0.,
     flag: 0,
 };
@@ -437,6 +619,7 @@ fn run_interval(
     problem: &Problem,
     models: &[f32],
     ndir: usize,
+    mode: Mode,
     pinned: &[bool],
     cells: &[CellRef],
     stop2: f64,
@@ -457,6 +640,7 @@ fn run_interval(
             problem,
             models,
             ndir,
+            mode,
             cells,
             states,
             &mut rop_pq,
@@ -464,7 +648,7 @@ fn run_interval(
         );
         let (mut converged, mut flagged) = (0usize, 0usize);
         for (g, state) in states.iter_mut().enumerate() {
-            match step_gain(state, pinned[g % ndir], loop_idx, stop2) {
+            match step_gain(state, mode.kind, pinned[g % ndir], loop_idx, stop2) {
                 Ok((c, x)) => {
                     converged += usize::from(c);
                     flagged += usize::from(x);
@@ -483,6 +667,8 @@ fn run_interval(
         for (snapshot, state) in row.iter_mut().zip(states.iter()) {
             *snapshot = Snapshot {
                 gain: state.gain,
+                params: state.params,
+                param_flag: state.param_flag,
                 trend: state.trend,
                 flag: state.flag,
             };
@@ -500,8 +686,9 @@ fn converged_fraction(converged: usize, flagged: usize, ngains: usize) -> f64 {
     }
 }
 
-/// Solve one direction-dependent `diag_complex` term as QuartiCal 0.2.7
-/// does, with `ndir` model directions in `problem.model` (see `check`).
+/// Solve one direction-dependent term (`settings.kind`: `diag_complex` or
+/// `phase`) as QuartiCal 0.2.7 does, with `ndir` model directions in
+/// `problem.model` (see `check`).
 pub fn solve(problem: &Problem, ndir: usize, settings: &Settings) -> Result<Solution, Error> {
     check(problem, ndir, settings)?;
     let Model::Stored(models) = problem.model else {
@@ -530,6 +717,10 @@ pub fn solve(problem: &Problem, ndir: usize, settings: &Settings) -> Result<Solu
     let mut snapshots = vec![EMPTY_SNAPSHOT; EPOCH * ngains];
     let mut k0 = 0;
     let chunk = width.max(1);
+    let mode = Mode {
+        kind: settings.kind,
+        last_direction_gain: settings.phase_last_direction_gain,
+    };
     let (j, fraction) = loop {
         let n = EPOCH.min(iterations - k0);
         let records: Vec<EpochRecord> = states
@@ -541,6 +732,7 @@ pub fn solve(problem: &Problem, ndir: usize, settings: &Settings) -> Result<Solu
                     problem,
                     models,
                     ndir,
+                    mode,
                     &pinned,
                     &cells[interval],
                     stop2,
@@ -602,7 +794,16 @@ pub fn solve(problem: &Problem, ndir: usize, settings: &Settings) -> Result<Solu
         && width > 0
     {
         for interval in finals.chunks_mut(width) {
-            reference_gains(interval, ndir, r);
+            match settings.kind {
+                Kind::DiagComplex => reference_gains(interval, ndir, r),
+                Kind::Phase => reference_params(interval, ndir, r),
+            }
+        }
+    } else if settings.kind == Kind::Phase {
+        for s in finals.iter_mut() {
+            if s.flag != 0 {
+                s.gain = [ONE, ONE];
+            }
         }
     }
     Ok(Solution {
@@ -628,6 +829,31 @@ fn reference_gains(interval: &mut [Snapshot], ndir: usize, r: usize) {
         for s in interval.iter_mut().skip(d).step_by(ndir) {
             let g = jones::mul(&diag(&s.gain), &diag(&rg));
             s.gain = [g[0], g[3]];
+            if s.flag != 0 {
+                s.gain = [ONE, ONE];
+            }
+        }
+    }
+}
+
+/// `reference_params` of `phase` for one interval, per direction: the
+/// parameters minus the reference antenna's of the same direction (where not
+/// flagged), the gains rebuilt, then the flags applied (as
+/// `diag::reference_params`).
+fn reference_params(interval: &mut [Snapshot], ndir: usize, r: usize) {
+    for d in 0..ndir {
+        let rp = interval[r * ndir + d].params;
+        for s in interval.iter_mut().skip(d).step_by(ndir) {
+            if !s.param_flag {
+                s.params = [s.params[0] - rp[0], s.params[1] - rp[1]];
+            }
+            s.gain = [
+                C64::new(s.params[0].cos(), s.params[0].sin()),
+                C64::new(s.params[1].cos(), s.params[1].sin()),
+            ];
+            if s.param_flag {
+                s.params = [0., 0.];
+            }
             if s.flag != 0 {
                 s.gain = [ONE, ONE];
             }
@@ -765,6 +991,7 @@ mod tests {
             stop_fraction: 1.0,
             reference_antenna: None,
             pinned_directions: Vec::new(),
+            ..Settings::default()
         };
         let sol = solve(&problem(&s, &s.models), ndir, &settings).unwrap();
         assert!(sol.flags.iter().all(|&f| f == 0));
@@ -840,5 +1067,48 @@ mod tests {
             solve(&problem(&s, &s.models), ndir, &bad),
             Err(Error::Settings(_))
         ));
+    }
+
+    #[test]
+    fn phase_one_direction_equals_di_phase_kernel() {
+        // With one direction the DD phase kernel is QuartiCal's DI `phase`
+        // (no halving in either), so it equals `diag`'s Phase solve.
+        let s = sim(1);
+        let p = problem(&s, &s.models);
+        let dd = Settings {
+            kind: Kind::Phase,
+            ..Settings::default()
+        };
+        let mut di = diag::Settings::new(diag::Kind::Phase);
+        di.max_iterations = dd.max_iterations;
+        let a = solve(&p, 1, &dd).unwrap();
+        let b = diag::solve(&p, &di).unwrap();
+        assert_eq!(a.flags, b.flags);
+        assert_eq!(a.iterations, b.iterations);
+        for (x, y) in a.gains.iter().zip(&b.gains) {
+            assert_eq!(x, y);
+        }
+    }
+
+    #[test]
+    fn phase_dd_gains_are_unit_modulus_and_referenced() {
+        let ndir = 3;
+        let s = sim(ndir);
+        let settings = Settings {
+            kind: Kind::Phase,
+            phase_last_direction_gain: false,
+            max_iterations: 100,
+            ..Settings::default()
+        };
+        let sol = solve(&problem(&s, &s.models), ndir, &settings).unwrap();
+        let width = s.nant * ndir;
+        for (g, gain) in sol.gains.iter().enumerate() {
+            for h in gain {
+                assert!((h.norm2() - 1.).abs() < 1e-12);
+            }
+            if (g % width) / ndir == 0 {
+                assert!(gain.iter().all(|h| h.im.abs() < 1e-12));
+            }
+        }
     }
 }

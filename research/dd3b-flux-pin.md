@@ -94,3 +94,24 @@ remaining option, and it is not tested here.
 ## 5. Measured result
 
 Not yet measured.
+
+## Amendments
+
+**A1, 2026-11-23, setup, before any loop ran (source reading).** QuartiCal
+0.2.7's `phase` kernel fills `gains_p[active_term]` inside the direction
+loop of `compute_jhj_jhr` (`gains/phase/kernel.py`). After the loop that
+variable holds the **last** direction's gains, and it is then passed to
+`compute_jhwj_jhwr_elem` for **every** direction, where `J^H r` uses
+`-i conj(g)`. So every direction's phase update is computed with direction
+`n_dir − 1`'s gain.
+
+- `diag_complex` does not use the gain there, so DD1-DD3 are unaffected.
+- With one direction the two agree. A unit test shows the DD `phase` kernel
+  then equals rang's DI `phase` solve bit for bit.
+- Rang's `phase` kind keeps this behaviour by default
+  (`phase_last_direction_gain=True`), so that gate L compares like with
+  like. The setting `False` uses each direction's own gain.
+- Arm P is run as frozen (QuartiCal's behaviour). A rang-only arm **P′**,
+  with each direction's own gain, is added. It is reported against T, not
+  gated.
+- The upstream report is not filed; that is an owner decision.
