@@ -310,6 +310,12 @@ LUNO (D1 0.056 at k = 1) and synthetic G-sub also failed in D1.
 223 calibrator training shards, 44 LUNO. T and A on the reserved groups over all cells, 0.446-0.467
 and 0.549-0.570 (MAIN_7: 0.469, 0.550): the same kind of observation as MAIN_7.
 
+**Training host (2026-11-23 10:15 SAST).** F7's arms train on nash's CPU, not glacier's GPU: a
+shard copied nash → glacier ran at 0.7 MB/s (211 MB in 300 s, scp), so D10's calibrator shards
+(154 GB) would take about 2.5 days and a D9 target arm's (46 GB) about 18 h, against 1.4-1.8 h per
+CPU trainer on nash; the SARAO MSs live on nash only, so the shards cannot be built on glacier.
+Agreed with the coordinator.
+
 **Screening and freeze rules for F7's target arms (written 2026-11-23 07:40 SAST, before D8 and
 every later arm).** (1) An arm is screened on ESO137 chunk 10 with `f7_gdrop_arms.py` (G-drop's
 three draws at k = 1, 4, 8, N5 arm); it goes to the complete validation scorer only if its worst
