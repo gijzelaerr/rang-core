@@ -295,6 +295,7 @@ def rang_snapshots(ms, lc_dir, lc):
                 epsilon=s["epsilon"],
                 gridder=s.get("gridder", "wgrid"),
                 device=s.get("device", "cpu"),
+                weights=s.get("weights", "ms"),
                 on_snapshot=lambda k, image, header: images.put(image),
             )
         finally:
@@ -364,7 +365,9 @@ def flag_row_ignored_stream(ms, lc):
             data = t.getcol_rows(s["column"], sel)
             if s["model_column"]:
                 data = data - t.getcol_rows(s["model_column"], sel)
-            if s["weight_column"] == "WEIGHT_SPECTRUM":
+            if s.get("weights") == "unit":  # research/ts-p3.md 1a
+                wt = np.ones(data.shape, np.float32)
+            elif s["weight_column"] == "WEIGHT_SPECTRUM":
                 wt = t.getcol_rows("WEIGHT_SPECTRUM", sel)
             else:
                 wt = np.broadcast_to(

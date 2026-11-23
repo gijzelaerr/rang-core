@@ -571,6 +571,7 @@ usage: rang-core lightcurve [-h] [--position [NAME=]RA,DEC] [--positions CSV]
                             [--scale SCALE] [--no-images] [--fits]
                             [--candidates SIGMA] [--gridder {wgrid,wstack}]
                             [--device {cpu,gpu}] [--channels-out M]
+                            [--weights {ms,unit}]
                             ms
 
 Light curves at given positions from the residual (data column minus
@@ -616,6 +617,10 @@ options:
                         M equal groups of contiguous channels (M must divide
                         the channels; WSClean's -channels-out grouping), in
                         DIR/dynspec.csv (research/ts-p2.md)
+  --weights {ms,unit}   visibility weights: the MS's WEIGHT_SPECTRUM (else
+                        WEIGHT; the default) or unit, every correlation 1 with
+                        flags still applied, as gemclean -unit-weights
+                        (research/ts-p3.md)
 ```
 
 ## `mcp`

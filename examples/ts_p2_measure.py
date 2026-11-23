@@ -56,7 +56,9 @@ def read_residual(t, rows, settings):
     data = t.getcol_rows(settings["column"], rows)
     if settings.get("model_column"):
         data = data - t.getcol_rows(settings["model_column"], rows)
-    if "WEIGHT_SPECTRUM" in names:
+    if settings.get("weights") == "unit":  # research/ts-p3.md 1a
+        wt = np.ones(data.shape, np.float32)
+    elif "WEIGHT_SPECTRUM" in names:
         wt = t.getcol_rows("WEIGHT_SPECTRUM", rows)
     else:
         wt = np.broadcast_to(t.getcol_rows("WEIGHT", rows)[:, None, :], data.shape)
