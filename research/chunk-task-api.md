@@ -75,7 +75,7 @@ change.
 | flag | one (field, ddid, scan) group, or one block of its consecutive baselines on the group's full time grid (`flag-block`) | new FLAG of its rows, counts, seconds | none; the parent writes blocks in order | yes |
 | calibrate, `complex` term, partition in one chunk | `solve-whole` | gains, flags, iterations, converged fraction | between terms | yes |
 | calibrate, `complex` term, chunked partition | pass 1 `solve-pass1` (stop off, trace), then pass 2 `solve-pass2` (`max_iterations = j + 1`) | pass 1: per-iteration counts; pass 2: the chunk's gains and flags | pass 1 of every chunk of the term, then the stop replay per partition (`core_chunks.replay_stop`), then pass 2 | yes |
-| apply, `complex` table (`applycal.apply_complex`) | one row chunk (`apply-rows`) with the time-bin slices of the gains its rows use | the output column and the new FLAG of its rows, counts | between tables of a target (table k reads the column that kâˆ’1 wrote) and between targets | yes |
+| apply, `complex` table (`applycal.apply_complex`) | one row chunk (`apply-rows`) with the time-bin slices of the gains its rows use | the output column and the new FLAG of its rows, counts | between tables of a target (table k reads the column that k−1 wrote) and between targets | yes |
 | calibrate, models (`calmodels.set_model`) | not split | | | no: in the parent, as now |
 | calibrate, chain terms K, G, B, A, F, Gpol, KCROSS, Xf, Df (`cal_chain.run`) | not split | | | no: in the parent, as now |
 | apply, CASA tables (`applycal.applycal`) | not split | | | no: in the parent, as now |
@@ -85,7 +85,7 @@ Where this departs from the issue's wording:
 
 - **Flag splits by baseline block, not by channel block.** SumThreshold and the other Tricolour windows run along
   frequency, so a channel cut would change the flags. Baselines are independent, and W3 split by them bit for bit. The
-  issue's "per scan Ã— channel block" is therefore per scan Ã— baseline block here.
+  issue's "per scan × channel block" is therefore per scan × baseline block here.
 - **The chain terms stay serial in stage 1.** W3b's chunk loop sits inside `cal_gain`, `cal_delay`, `cal_bandpass`,
   `cal_pol` and `cal_fluxscale`, behind pre-applies and the reference-antenna and gauge passes over whole fields.
   Turning it into tasks is its own change:
@@ -115,7 +115,7 @@ Where this departs from the issue's wording:
 - `_solve_term` and `solve_partition`: built on the same plan, map and reduce. `solve_partition` keeps its signature
   (tests call it) and runs inline.
 - `applycal.apply_complex`: the row-chunk loop becomes plan, map and reduce. It takes `executor=None` (inline).
-- `core_config`: the three keys, `RESOURCE_KEYS`, and their validation (`processes` â‰¥ 1, `threads` â‰¥ 1 or null).
+- `core_config`: the three keys, `RESOURCE_KEYS`, and their validation (`processes` ≥ 1, `threads` ≥ 1 or null).
 - `core_chunks.budget`: `limit / processes`.
 - `docs/cli.md`: regenerated.
 - No Rust changes. `git diff 30d9412 -- core/ src/` stays empty.
@@ -125,14 +125,14 @@ Where this departs from the issue's wording:
 Every arm runs on a fresh copy of the MS in `D:\rang\outputs\cta-20261113-<nn>\<case>-<arm>\`. The sources are read
 only. Inputs not already on D: are copied to `D:\rang\outputs\cta-20261113-inputs\`: O-CASA's slice from the WSL
 checkout, CARACal's strategy at `8f7bb363` (equal to `research/results/e2-acceptance-scripts/`'s copy), and the public
-fixture `outer_scans.zip` (sha256 `d4dae56fâ€¦`).
+fixture `outer_scans.zip` (sha256 `d4dae56f…`).
 
 | Case | MS | Stages | Configuration |
 | --- | --- | --- | --- |
-| F | the public fixture, `1672727931_sdp_l0_scan_9.ms` (140 rows Ã— 4096 ch, 4 antennas, J1939-6342) | flag, calibrate, apply | W3's complex configuration (CARACal's first-pass strategy; setjy; Gint `int`/16, G2 `2`/512, Gchan `inf`/1), fcal only |
+| F | the public fixture, `1672727931_sdp_l0_scan_9.ms` (140 rows × 4096 ch, 4 antennas, J1939-6342) | flag, calibrate, apply | W3's complex configuration (CARACal's first-pass strategy; setjy; Gint `int`/16, G2 `2`/512, Gchan `inf`/1), fcal only |
 | S | A1 small `D:\rang\outputs\fp-a1-20261106-simtruth\small\a1-small.ms` | flag, calibrate, apply | W3's case S |
 | O | O-CASA's slice (copy in `cta-20261113-inputs`) | flag, calibrate, apply | W3's case O |
-| W | W3's whole-array set `D:\rang\outputs\w3\data\w3.ms` (40,320 rows Ã— 4096 ch, 8.0 GB) | flag, calibrate, apply | W3's case W |
+| W | W3's whole-array set `D:\rang\outputs\w3\data\w3.ms` (40,320 rows × 4096 ch, 8.0 GB) | flag, calibrate, apply | W3's case W |
 | C | A1 small | calibrate, apply | W3b's case C (K, G, B, A; Gsec, Asec, F): chain, serial |
 | P | C6w's poldx `D:\rang\outputs\c6w-20261106-01\prepared.ms` | calibrate, apply | W3b's case P (K, G, B; F; Gpol, KCROSS, Xf, Df; parang): chain, serial |
 
@@ -198,8 +198,8 @@ then decide nothing on their own: they are reported as scaling efficiency for th
 
 - **Command:** `heavy_lock.py run -- <harness> timing W N` (exclusive).
 - **Case W:** flag, calibrate, apply, each on a fresh copy.
-- **Thread budget:** T = 16. N âˆˆ {1, 2, 4, 8} with `threads: 16`, so 16/N rayon threads per process.
-- **Memory:** `memory_limit_gb: 32`, so each worker gets â‰¥ 4 GiB, and N = 1 chunks as at 32 GiB.
+- **Thread budget:** T = 16. N ∈ {1, 2, 4, 8} with `threads: 16`, so 16/N rayon threads per process.
+- **Memory:** `memory_limit_gb: 32`, so each worker gets ≥ 4 GiB, and N = 1 chunks as at 32 GiB.
 - **Baseline:** main `30d9412` at `RAYON_NUM_THREADS=16` and `memory_limit_gb: 32`.
 - **Repeats:** 3 per point, in rotating order.
 - **Reported:**
@@ -216,7 +216,7 @@ then decide nothing on their own: they are reported as scaling efficiency for th
 No exclusive window came on the workstation, so section 5 runs on nash
 ([nash-host.md](nash-host.md): 2 x Xeon E5-2695 v4, 36 cores, 503 GB, shared
 with other users). The protocol is otherwise unchanged: case W, flag,
-calibrate and apply on a fresh copy each, T = 16, N âˆˆ {1, 2, 4, 8} with
+calibrate and apply on a fresh copy each, T = 16, N ∈ {1, 2, 4, 8} with
 `threads: 16`, `memory_limit_gb: 32`, the baseline, three repeats in rotating
 order, and the reported quantities. No timing run exists at this commit.
 
@@ -232,7 +232,7 @@ order, and the reported quantities. No timing run exists at this commit.
 `tools/oracles/nash/timed.py`:
 - before and after: load1 and each user's CPU (`top -bn2 -d 5`, second
   frame);
-- during: foreign load = (host busy CPU-s from `/proc/stat` âˆ’ the stage's own
+- during: foreign load = (host busy CPU-s from `/proc/stat` − the stage's own
   CPU-s from `wait4`) / wall, in cores. It counts everything outside the timed
   process tree, other users' jobs and any job of ours outside the lock alike.
 - A stage starts only when the host's busy CPU over 30 s is at most 2.0 cores
@@ -268,7 +268,7 @@ N1. Each point runs under its own exclusive hold.
   reader, `run.py`'s `table_hashes`) equals that of `D:\rang\outputs\w3\data\w3.ms`.
   Otherwise the D: copy is copied to nash and its file hashes are checked.
 - The strategy is CARACal's first pass from
-  `research/results/e2-acceptance-scripts/` (SHA-256 `ce9ac66aâ€¦`, equal to
+  `research/results/e2-acceptance-scripts/` (SHA-256 `ce9ac66a…`, equal to
   the copy in `cta-20261113-inputs`).
 
 **Measurements the protocol named but did not define.**
@@ -308,7 +308,7 @@ queued again, as the first remaining point, once the lock is idle.
 
 Measured 2026-11-14. Code: branch commit `abdfb5a`, run from the pinned worktree `~/Worktrees/rang/cta-run-abdfb5a`.
 Oracle U: main `30d9412` (`~/Worktrees/rang/cta-oracle-30d9412`). The extension build is the same in both, `_core.pyd`
-sha256 `acbae192â€¦`. Run directory: `D:\rang\outputs\cta-20261114-01`, with `verdict.json` copied to
+sha256 `acbae192…`. Run directory: `D:\rang\outputs\cta-20261114-01`, with `verdict.json` copied to
 [results/chunk-task-api-identity.json](results/chunk-task-api-identity.json). Host: the Windows host in `STATE.md`,
 shared under the heavy lock at normal priority. All arms ran under two tickets: F, O, S, C, P with 4 slots and 4 GB,
 and W with 4 slots and 20 GB. Each arm ran inside its ticket in `batch.sh` (in the run directory), with the same arm
@@ -334,9 +334,9 @@ Stage walls in s, flag / calibrate / apply. These were taken on a shared host an
 | --- | --- | --- | --- | --- |
 | F | 2.7 / 2.6 / 2.6 | 2.6 / 2.1 / 1.9 | 4.6 / 3.9 / 3.6 | 3.9 / 6.6 / 4.4 |
 | S | 5.2 / 2.4 / 3.1 | 4.7 / 2.4 / 2.8 | 5.5 / 3.3 / 2.7 | 57.3 / 24.8 / 30.2 |
-| C | â€“ / 4.5 / 1.7 | â€“ / 4.3 / 1.7 | â€“ / 4.5 / 1.7 | â€“ / 75.3 / 44.0 |
-| P | â€“ / 10.1 / 5.6 | â€“ / 7.2 / 6.2 | â€“ / 7.2 / 6.0 | â€“ / 86.1 / 75.5 |
-| W | 220.6 / 277.6 / 48.4 | 213.9 / 499.7 / 74.0 | 271.8 / 501.1 / 33.9 | â€“ |
+| C | – / 4.5 / 1.7 | – / 4.3 / 1.7 | – / 4.5 / 1.7 | – / 75.3 / 44.0 |
+| P | – / 10.1 / 5.6 | – / 7.2 / 6.2 | – / 7.2 / 6.0 | – / 86.1 / 75.5 |
+| W | 220.6 / 277.6 / 48.4 | 213.9 / 499.7 / 74.0 | 271.8 / 501.1 / 33.9 | – |
 
 On the small sets, P4 costs 1-2 s per stage. That is the time to spawn the worker processes, and at this size nothing
 offsets it. P2T is 10-20 times slower on S, C and P because `chunk_rows: 7` cuts the data into many small chunks; it
@@ -372,8 +372,8 @@ figure exists yet, so nothing below is the section 5 result.
 - Case W: D:'s `w3.ms`, copied to `~/rang-data/outputs/w3/data/w3.ms`; all 65
   files match by SHA-256. The nash regeneration was not used: its DATA column
   differs (the other columns are equal).
-- Strategy: SHA-256 `ce9ac66aâ€¦`.
-- Code: `abdfb5a` and `30d9412` with `_core` `05fae3f0â€¦`, as 5.1 says.
+- Strategy: SHA-256 `ce9ac66a…`.
+- Code: `abdfb5a` and `30d9412` with `_core` `05fae3f0…`, as 5.1 says.
 - Run directory: `~/rang-data/outputs/cta-nash-20261116/` on nash. Each point
   is `W-<config>-r<repeat>/`, holding `done.json` with every reading, the
   hashes after each stage and `tasks.log`. `status.txt` sits in the run
@@ -384,9 +384,9 @@ figure exists yet, so nothing below is the section 5 result.
 
 | Point | Stage | Wall, s | CPU-s (cores used) | Peak RSS, GB | Time to first task, s | Foreign load, cores | load1 before / after |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| W-B-r0 | flag | 177.96 | 1,865 (10.5) | 2.64 | â€“ | 0.37 | 2.14 / 11.58 |
-| W-B-r0 | calibrate | 201.05 | 1,280 (6.4) | 6.26 | â€“ | 0.26 | 2.72 / 9.98 |
-| W-B-r0 | apply | 196.52 | 213 (1.1) | 13.09 | â€“ | 0.29 | 2.27 / 1.98 |
+| W-B-r0 | flag | 177.96 | 1,865 (10.5) | 2.64 | – | 0.37 | 2.14 / 11.58 |
+| W-B-r0 | calibrate | 201.05 | 1,280 (6.4) | 6.26 | – | 0.26 | 2.72 / 9.98 |
+| W-B-r0 | apply | 196.52 | 213 (1.1) | 13.09 | – | 0.29 | 2.27 / 1.98 |
 | W-N1-r0 | flag | 171.50 | 1,820 (10.6) | 2.69 | 28.0 | 0.19 | 2.23 / 11.01 |
 | W-N1-r0 | calibrate | 200.58 | 1,289 (6.4) | 6.26 | 54.8 | 0.26 | 2.79 / 10.16 |
 | W-N1-r0 | apply | 196.08 | 218 (1.1) | 13.08 | 41.4 | 0.24 | 1.63 / 1.29 |
@@ -419,7 +419,7 @@ figure exists yet, so nothing below is the section 5 result.
 - **Stage 1's identity gate passes.** There are 17 comparisons on the W3 and W3b sets, all bit-identical. P1 is
   today's path, so E2 is unchanged.
 - **Timing runs: not run.** They need an exclusive hold, so they are for you to batch after E2: section 5, case W,
-  N âˆˆ {1, 2, 4, 8} at T = 16, 3 repeats, about 8 h (2 repeats about 5 h). **Before they start,** `run.py` needs the
+  N ∈ {1, 2, 4, 8} at T = 16, 3 repeats, about 8 h (2 repeats about 5 h). **Before they start,** `run.py` needs the
   `timing` mode that section 5 names. It does not exist yet. It is about an hour of harness work: the `arm` code with
   the section 5 config, repeats and a spawn-time record.
 - **Check W calibrate first.** At N = 1 it took 500 s against 278 s on a shared host (section 6). The matrix's first
