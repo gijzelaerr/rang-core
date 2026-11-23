@@ -40,6 +40,8 @@ date -u +%FT%TZ > "$run/wsc/started.txt"
 for case in C0 C1 P; do
   cp -r "$sim/dd1.ms" "$scratch/$case.ms"
   cp "$scratch/model.fits" "$scratch/pred-$case-model.fits"
+  # With facet solutions WSClean 3.7 predicts from the flat-gain model <name>-model-pb.fits (amendment A1).
+  cp "$scratch/model.fits" "$scratch/pred-$case-model-pb.fits"
   case $case in
     C0) extra=() ;;
     C1) read -ra extra <<< "$(facets unit)" ;;

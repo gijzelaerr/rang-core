@@ -124,3 +124,12 @@ under `heavy_lock`, indicative (shared host).
 ## 7. Measured result
 
 Not yet measured.
+
+## Amendments
+
+**A1, 2026-11-23, setup (no output compared yet).** With
+`-apply-facet-solutions`, WSClean 3.7's `-predict` reads the flat-gain model
+`<name>-model-pb.fits`, not `<name>-model.fits` (C1's first run stopped with
+a CFITSIO error on the missing file; C0 had run). The run script now writes
+the same model image under both names; nothing else changes. Run `-01` is
+restarted into a fresh scratch directory.
