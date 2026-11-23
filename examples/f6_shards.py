@@ -158,6 +158,11 @@ def main():
         type=int,
         help="F7 D7: realisations per F4-era (LUNO, ESO137) scan instead of REALISATIONS",
     )
+    p.add_argument(
+        "--reserved-luno",
+        help="F7 D10 (P3): the reserved LUNO groups' fetch (objects/ of "
+        "f5-20261120-reserved-fetch), added to calibrator training; T and A computed as F4's",
+    )
     a = p.parse_args()
     f5.use_data_root(a.data_root)
     if a.ao_sif:
@@ -181,9 +186,39 @@ def main():
     if "sarao" in sources:
         for e in sarao_scans(a.sarao_root, a.klass, a.role):
             jobs.append(("sarao", e))
+    if a.reserved_luno:
+        # Appended last, so every earlier scan keeps its seed (s0 by job index).
+        if (a.klass, a.role) != ("calibrator", "train"):
+            raise SystemExit("--reserved-luno is for calibrator training only")
+        f5.RESERVED_FETCH = Path(a.reserved_luno)
+        for g in f5.RESERVED_GROUPS:
+            jobs.append(("reserved", g))
     for i, (kind, item) in enumerate(jobs):
         s0 = seed + 1000 * i
-        if kind == "f4":
+        if kind == "reserved":
+            name = f"luno-{item}"
+            n_r = REALISATIONS[a.role]
+            if all(f5s.done(out / f"{name}-{k}.npz") for k in range(n_r)):
+                recs = [
+                    json.loads((recs_dir / f"{name}-{k}.json").read_text())
+                    for k in range(n_r)
+                ]
+            else:
+                scan = f5.load_reserved(item, heldout=True)
+                cache = run / a.klass / "flags"
+                cache.mkdir(parents=True, exist_ok=True)
+                tp, ap = cache / f"{name}-T.npy", cache / f"{name}-A.npy"
+                if tp.exists() and ap.exists():
+                    tf, af = np.load(tp), np.load(ap)
+                else:
+                    tf = f3.t_flags(scan)
+                    af, _ = f5.a_flags(scan, f3.w3_flags(scan), run / "aoflag" / name)
+                    np.save(tp, tf)
+                    np.save(ap, af)
+                recs = realisations(
+                    name, scan, tf, af, a, out, recs_dir, s0, n_r, f"luno:{item}"
+                )
+        elif kind == "f4":
             spec_ = item
             name = spec_.replace(":", "-")
             if all(f5s.done(out / f"{name}-{k}.npz") for k in range(nreal)):
