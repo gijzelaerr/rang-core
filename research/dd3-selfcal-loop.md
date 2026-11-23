@@ -143,3 +143,12 @@ indicative.
 ## 6. Measured result
 
 Not yet measured.
+
+## Amendments
+
+**A1, 2026-11-23, clarification before any code ran.** The shared minor
+cycle (section 2, step 4) searches for peaks only over pixels at least
+3 pixels inside their facet and the image edge. These are the same pixels
+over which σ is taken and gate L's residual tolerance applies. DD2b's
+boundary band (polygon rasterisation at feather size 0) differs between the
+two codes by up to 4e-2, and would otherwise steer the components.
