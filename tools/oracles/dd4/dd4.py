@@ -1,0 +1,423 @@
+# SPDX-License-Identifier: MIT
+"""DD4: the catalogue-pinned DD loop on ESO 137-006 (research/dd4-eso137.md).
+
+    python tools/oracles/dd4/dd4.py setup SUBMS CATALOGUE.json RUN
+    python tools/oracles/dd4/dd4.py rang RUN [--di]        # arm R, or arm DI
+    python tools/oracles/dd4/dd4.py oracle RUN SCRATCH     # arm O (WSL QuartiCal, WSClean)
+    python tools/oracles/dd4/dd4.py score RUN
+
+The loop and the shared minor cycle are DD3c's (`tools/oracles/dd3/dd3.py`,
+arm C); this driver generalises them to the field's directions, real
+flags and weights, the pinned direction d0 and the 2880² grid.
+"""
+
+import importlib.util
+import json
+import math
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+
+HERE = Path(__file__).resolve().parent
+
+
+def _load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+dd3 = _load("dd3", HERE.parent / "dd3" / "dd3.py")
+dd2 = dd3.dd2
+NX = NY = 2880
+for mod in (dd2, dd3):  # DD4's grid (section 4)
+    mod.NX = mod.NY = NX
+DELTA, EPS, CAP = dd2.DELTA, dd2.EPS, dd2.CAP
+NCYCLE, EDGE = dd3.NCYCLE, dd3.EDGE
+ANNULUS = (5, 40)  # pixels, section 5
+FIELD_EXCLUDE_PX = 40  # 2' at 3"
+FIELD_MIN_JY = 0.005
+
+
+def read_sub(ms):
+    from rang import core_ms
+
+    t = core_ms.open_table(str(ms))
+    c = {k: t.getcol(k) for k in ("TIME", "ANTENNA1", "ANTENNA2", "UVW", "DATA",
+                                   "WEIGHT_SPECTRUM", "FLAG", "FLAG_ROW")}  # fmt: skip
+    ant = core_ms.open_table(str(Path(ms) / "ANTENNA"))
+    c["ant_names"] = [str(n) for n in ant.getcol("NAME")]
+    c["ant_pos"] = np.asarray(ant.getcol("POSITION"), float)
+    fld = core_ms.open_table(str(Path(ms) / "FIELD"))
+    c["phase_dir"] = np.asarray(fld.getcol("PHASE_DIR"), float).reshape(-1, 2)[0]
+    spw = core_ms.open_table(str(Path(ms) / "SPECTRAL_WINDOW"))
+    c["freq"] = np.asarray(spw.getcol("CHAN_FREQ"), float).reshape(-1)
+    if c["DATA"].shape[-1] == 2:
+        # The pilot stores XX and YY only: rang's solver takes four
+        # correlations, so the cross hands are zero with zero weight.
+        for key, dtype in (
+            ("DATA", np.complex64),
+            ("WEIGHT_SPECTRUM", np.float32),
+            ("FLAG", bool),
+        ):
+            two = c[key]
+            four = np.zeros(two.shape[:2] + (4,), dtype)
+            four[..., 0], four[..., 3] = two[..., 0], two[..., 1]
+            if key == "FLAG":
+                four[..., 1] = four[..., 2] = two[..., 0] | two[..., 1]
+            c[key] = four
+        c["ncorr_ms"] = 2
+    flag = c["FLAG"].astype(bool) | c["FLAG_ROW"].astype(bool)[:, None, None]
+    w = c["WEIGHT_SPECTRUM"].astype(np.float64)
+    wxx = np.where(flag[..., 0], 0.0, w[..., 0])
+    wyy = np.where(flag[..., 3], 0.0, w[..., 3])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        # Stokes I weight from the parallel hands: 4 / (1/w_xx + 1/w_yy).
+        wi = np.where((wxx > 0) & (wyy > 0), 4.0 / (1.0 / wxx + 1.0 / wyy), 0.0)
+    c["w_I"] = wi
+    return c
+
+
+def setup(subms, catalogue, run):
+    from rang import core_grid, core_wgridder
+
+    run.mkdir(parents=True, exist_ok=False)
+    cat = json.loads(Path(catalogue).read_text())
+    c = read_sub(subms)
+    dirs = cat["directions"]
+    centres = np.array([[d["l"], d["m"]] for d in dirs])
+    (run / "facets.reg").write_text(
+        dd2.region_text(dd2.voronoi_polygons(centres), centres, c["phase_dir"]),
+        encoding="utf-8",
+    )
+    psf = core_wgridder.fits_image(
+        c["UVW"], c["freq"], np.ones(c["w_I"].shape, complex), c["w_I"], 2 * NX, 2 * NY,
+        dd2.SCALE_ARCSEC, epsilon=EPS,
+    )["psf"]  # fmt: skip
+    np.save(run / "psf.npy", psf)
+    m0 = np.zeros((NY, NX))
+    pins = []
+    for comp in cat["model_components"]:
+        x = round(NX / 2 - comp["l"] / DELTA)
+        y = round(NY / 2 + comp["m"] / DELTA)
+        if 0 <= x < NX and 0 <= y < NY:
+            m0[y, x] += comp["s_app"]
+    for d in dirs[1:]:
+        pins.append([round(NY / 2 + d["m"] / DELTA), round(NX / 2 - d["l"] / DELTA)])
+    np.save(run / "model0.npy", m0)
+    hdr = core_grid.wcs_header(c["phase_dir"], NX, NY, dd2.SCALE_ARCSEC, c["freq"])
+    hdr["BUNIT"] = "JY/PIXEL"
+    (run / "header.json").write_text(json.dumps(hdr))
+    (run / "setup.json").write_text(json.dumps({
+        "subms": str(subms), "catalogue": str(catalogue), "ndir": len(dirs),
+        "centres": centres.tolist(), "pins": pins,
+        "model0_flux": float(m0.sum()), "nrow": len(c["TIME"]), "nchan": len(c["freq"]),
+        "weights_equal_xx_yy": bool(np.array_equal(c["WEIGHT_SPECTRUM"][..., 0], c["WEIGHT_SPECTRUM"][..., 3])),
+    }, indent=1))  # fmt: skip
+    print((run / "setup.json").read_text())
+
+
+def context(run, di=False):
+    st = json.loads((run / "setup.json").read_text())
+    c = read_sub(st["subms"])
+    centres = np.array(st["centres"])
+    if di:
+        centres = centres[:1]
+    l, m = dd2.pixel_lm()
+    idx, margin = dd2.facet_index_and_margin(l, m, centres)
+    if di:
+        margin = np.full(idx.shape, 1e9)
+    _, _, block, centres_t = dd2.interval_axes(c)
+    xg, yg = np.meshgrid(np.arange(NX), np.arange(NY))
+    interior = (margin >= EDGE) & (xg >= EDGE) & (xg < NX - EDGE) & (
+        yg >= EDGE) & (yg < NY - EDGE)  # fmt: skip
+    search = interior.copy()
+    for y, x in st["pins"]:
+        search[max(y - 2, 0) : y + 3, max(x - 2, 0) : x + 3] = False
+    return {"st": st, "c": c, "centres": centres, "ndir": len(centres), "idx": idx,
+            "interior": interior, "search": search, "block": block, "centres_t": centres_t,
+            "pinned": [0] if len(centres) > 1 else []}  # fmt: skip
+
+
+def facet_models(ctx, model):
+    from rang import core_wgridder
+
+    c, ndir = ctx["c"], ctx["ndir"]
+    out = np.zeros(c["DATA"].shape[:2] + (ndir, 4), np.complex64)
+    for f in range(ndir):
+        v = core_wgridder.dirty2vis(
+            uvw=c["UVW"], freq=c["freq"],
+            dirty=np.ascontiguousarray(np.where(ctx["idx"] == f, model, 0.0).T),
+            pixsize_x=DELTA, pixsize_y=DELTA, epsilon=EPS, flip_v=True, flip_w=True,
+        )  # fmt: skip
+        out[:, :, f, 0] = v
+        out[:, :, f, 3] = v
+    return out
+
+
+def residual_image(ctx, models, gains):
+    """The flat-gain facet image (1/c per facet, DD2b's convention) of
+    DATA - sum_f G_p,f M_f G_q,f^H."""
+    from rang import core_wgridder
+
+    c, block, ndir = ctx["c"], ctx["block"], ctx["ndir"]
+    a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
+    r = c["DATA"].astype(np.complex128)
+    for f in range(ndir):
+        gp, gq = gains[block, 0, a1, f], gains[block, 0, a2, f]
+        r[..., 0] -= gp[:, None, 0] * models[:, :, f, 0] * np.conj(gq[:, None, 0])
+        r[..., 3] -= gp[:, None, 1] * models[:, :, f, 3] * np.conj(gq[:, None, 1])
+    w = c["w_I"]
+    image = np.zeros((NY, NX))
+    for f in range(ndir):
+        gp, gq = gains[block, 0, a1, f], gains[block, 0, a2, f]
+        vis = 0.5 * (np.conj(gp[:, None, 0]) * r[..., 0] * gq[:, None, 0]
+                     + np.conj(gp[:, None, 1]) * r[..., 3] * gq[:, None, 1])  # fmt: skip
+        img = core_wgridder.fits_image(c["UVW"], c["freq"], vis, w, NX, NY, dd2.SCALE_ARCSEC,
+                                       epsilon=EPS)["dirty"]  # fmt: skip
+        cf = dd2.correction(gp, gq, w, "a")
+        sel = ctx["idx"] == f
+        image[sel] = img[sel] / cf
+    return image
+
+
+def arm_r(run, di=False):
+    from rang import cal_gain
+
+    ctx = context(run, di)
+    c = ctx["c"]
+    psf = np.load(run / "psf.npy")
+    model = np.load(run / "model0.npy")
+    arm = "DI" if di else "R"
+    for k in range(NCYCLE + 1):
+        t0 = time.perf_counter()
+        models = facet_models(ctx, model)
+        sol = cal_gain.solve_dd(
+            c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
+            c["ANTENNA1"], c["ANTENNA2"], ctx["block"], nant=len(c["ant_names"]), refant=0,
+            pinned_directions=ctx["pinned"], **CAP,
+        )  # fmt: skip
+        t1 = time.perf_counter()
+        residual = residual_image(ctx, models, sol.gains)
+        t2 = time.perf_counter()
+        info = {"iterations": sol.iterations, "fraction": sol.converged_fraction,
+                "seconds_solve": t1 - t0, "seconds_image": t2 - t1}  # fmt: skip
+        comps, new_model = None, model
+        if k < NCYCLE:
+            comps, _, hinfo = dd3.hogbom(residual, psf, ctx["interior"], ctx["search"])
+            info["hogbom"] = hinfo
+            new_model = dd3.add_components(model, comps)
+        dd3.save_cycle(
+            run / arm / f"cycle-{k}", model, sol.gains, sol.flags, residual, comps, info
+        )
+        print(f"{arm} cycle {k}: {json.dumps(info)}", flush=True)
+        model = new_model
+        del models
+
+
+def arm_o(run, scratch):
+    ctx = context(run)
+    c, ndir = ctx["c"], ctx["ndir"]
+    psf = np.load(run / "psf.npy")
+    hdr = json.loads((run / "header.json").read_text())
+    model = np.load(run / "model0.npy")
+    o = run / "O"
+    o.mkdir(exist_ok=True)
+    pinned = "[" + ",".join(map(str, ctx["pinned"])) + "]"
+    run_wsl("step4_o0.sh", dd3.to_wsl(ctx["st"]["subms"]), scratch, ndir)
+    for k in range(NCYCLE + 1):
+        d = o / f"cycle-{k}"
+        d.mkdir(parents=True, exist_ok=True)
+        t0 = time.perf_counter()
+        for f in range(ndir):
+            dd3.write_fits(
+                d / f"facet{f}-model.fits", np.where(ctx["idx"] == f, model, 0.0), hdr
+            )
+        dd3.write_fits(d / "full-model.fits", model, hdr)
+        dd3.write_fits(d / "full-model-pb.fits", model, hdr)
+        log1 = run_wsl("step4_o1.sh", scratch, dd3.to_wsl(d), ndir, pinned)
+        gains, flags, qinfo = dd3.qc_gains(d / "gains")
+        ok = dd2.write_h5(
+            d / "solved.h5", gains, flags, c, ctx["centres_t"], ctx["centres"]
+        )
+        t1 = time.perf_counter()
+        log2 = run_wsl(
+            "step4_o2.sh", scratch, dd3.to_wsl(d), dd3.to_wsl(run / "facets.reg")
+        )
+        residual = dd2.read_fits(d / "resid-image-pb.fits")
+        t2 = time.perf_counter()
+        info = {**qinfo, "h5_roundtrip": ok, "seconds_solve": t1 - t0,
+                "seconds_image": t2 - t1, "log_tail": (log1 + log2)[-400:]}  # fmt: skip
+        comps, new_model = None, model
+        if k < NCYCLE:
+            comps, _, hinfo = dd3.hogbom(residual, psf, ctx["interior"], ctx["search"])
+            info["hogbom"] = hinfo
+            new_model = dd3.add_components(model, comps)
+        dd3.save_cycle(d, model, gains, flags, residual, comps, info)
+        print(f"O cycle {k}: {json.dumps({a: b for a, b in info.items() if a != 'log_tail'})}",
+              flush=True)  # fmt: skip
+        model = new_model
+
+
+def run_wsl(script, *args):
+    import subprocess
+
+    cmd = [
+        "wsl",
+        "-d",
+        "Ubuntu",
+        "--",
+        "bash",
+        dd3.to_wsl(HERE / script),
+        *map(str, args),
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if r.returncode != 0:
+        raise RuntimeError(f"{script} failed: {r.stdout[-2000:]} {r.stderr[-2000:]}")
+    return r.stdout
+
+
+# -- scoring --------------------------------------------------------------------------
+
+
+def restoring_beam(psf):
+    """A circular Gaussian fitted to the PSF main lobe: sigma from the
+    half-power area of the central lobe (pixels)."""
+    cy, cx = NY, NX
+    sub = psf[cy - 30 : cy + 31, cx - 30 : cx + 31]
+    area = float((sub >= 0.5).sum())  # pixels above half power
+    fwhm = 2.0 * math.sqrt(area / math.pi)
+    return fwhm / (2 * math.sqrt(2 * math.log(2)))
+
+
+def measures(run, ctx, arm, psf, sigma):
+    from scipy.ndimage import gaussian_filter
+
+    d = run / arm / f"cycle-{NCYCLE}"
+    res = np.load(d / "residual.npy").astype(float)
+    model = np.load(d / "model.npy")
+    yy, xx = np.indices(res.shape)
+    out = {"offaxis_rms": {}}
+    for k, (y, x) in enumerate(ctx["st"]["pins"]):
+        r = np.hypot(yy - y, xx - x)
+        sel = (r >= ANNULUS[0]) & (r <= ANNULUS[1]) & ctx["interior"]
+        v = res[sel]
+        out["offaxis_rms"][f"d{k + 1}"] = float(
+            1.4826 * np.median(np.abs(v - np.median(v)))
+        )
+    # Field rms: interior pixels at least 2' from every model component >= 5 mJy.
+    far = np.ones(res.shape, bool)
+    for y, x in zip(*np.nonzero(model >= FIELD_MIN_JY), strict=True):
+        far[max(y - FIELD_EXCLUDE_PX, 0):y + FIELD_EXCLUDE_PX + 1,
+            max(x - FIELD_EXCLUDE_PX, 0):x + FIELD_EXCLUDE_PX + 1] = False  # fmt: skip
+    v = res[far & ctx["interior"]]
+    rms = float(1.4826 * np.median(np.abs(v - np.median(v))))
+    restored = gaussian_filter(model, sigma) * (2 * math.pi * sigma * sigma) + res
+    out.update(field_rms=rms, peak=float(restored.max()), dynamic_range=float(restored.max() / rms),
+               field_pixels=int(v.size))  # fmt: skip
+    return out
+
+
+def score(run):
+    ctx = context(run)
+    psf = np.load(run / "psf.npy")
+    sigma = restoring_beam(psf)
+    rec = {"note": "research/dd4-eso137.md", "restoring_sigma_px": sigma, "L": {}}
+    # Gate L, per cycle (R against O), DD3's tolerances.
+    first_fail = None
+    nant = len(ctx["c"]["ant_names"])
+    p, q = np.triu_indices(nant, 1)
+    for k in range(NCYCLE + 1):
+        dr, do = run / "R" / f"cycle-{k}", run / "O" / f"cycle-{k}"
+        cr, co = dd3.comps_of(dr), dd3.comps_of(do)
+        same = set(cr) == set(co)
+        flux_ok = same and all(
+            abs(cr[a] - co[a]) <= 1e-5 + 1e-4 * abs(co[a]) for a in cr
+        )
+        gr, go = np.load(dr / "gains.npz"), np.load(do / "gains.npz")
+        pr = gr["gains"][:, :, p] * np.conj(gr["gains"][:, :, q])
+        po = go["gains"][:, :, p] * np.conj(go["gains"][:, :, q])
+        ok_flags = (gr["flags"][:, :, p] == 0) & (gr["flags"][:, :, q] == 0)
+        gdiff = float(
+            np.abs(pr - po)[np.broadcast_to(ok_flags[..., None], pr.shape)].max()
+        )
+        flags_eq = bool(np.array_equal(gr["flags"], go["flags"]))
+        rr, ro = np.load(dr / "residual.npy"), np.load(do / "residual.npy")
+        rdiff = float(np.abs(rr - ro)[ctx["interior"]].max() / np.abs(ro).max())
+        ok = same and flux_ok and gdiff <= 1e-5 and flags_eq and rdiff <= 1e-3
+        if not ok and first_fail is None:
+            first_fail = k
+        rec["L"][k] = {"components": [len(cr), len(co)], "same_pixels": same, "flux_ok": flux_ok,
+                       "gain_product_max_abs_diff": gdiff, "flags_equal": flags_eq,
+                       "residual_rel_diff": rdiff, "pass": bool(ok)}  # fmt: skip
+    rec["L_first_fail"] = first_fail
+    m = {arm: measures(run, ctx, arm, psf, sigma) for arm in ("R", "O", "DI")}
+    rec["measures"] = m
+    ratio_ro = {
+        k: m["R"]["offaxis_rms"][k] / m["O"]["offaxis_rms"][k]
+        for k in m["R"]["offaxis_rms"]
+    }
+    dr_ro = m["R"]["dynamic_range"] / m["O"]["dynamic_range"]
+    tol = 0.001 if first_fail is None else 0.02
+    rec["S"] = {"rms_ratio_R_over_O": ratio_ro, "dr_ratio_R_over_O": dr_ro, "tolerance": tol,
+                "pass": bool(all(abs(v - 1) <= tol for v in ratio_ro.values()) and abs(dr_ro - 1) <= tol)}  # fmt: skip
+    ratio_di = {
+        k: m["R"]["offaxis_rms"][k] / m["DI"]["offaxis_rms"][k]
+        for k in m["R"]["offaxis_rms"]
+    }
+    qv = float(np.median(list(ratio_di.values())))
+    dr_ok = m["R"]["dynamic_range"] >= m["DI"]["dynamic_range"]
+    verdict = (
+        "DD helps" if (qv <= 0.90 and dr_ok) else ("DD worse" if qv >= 1.05 else "null")
+    )
+    rec["gain_over_DI"] = {"rms_ratio_R_over_DI": ratio_di, "q": qv, "dr_R_ge_DI": bool(dr_ok),
+                           "verdict": verdict}  # fmt: skip
+    (run / "score.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    print(json.dumps(rec, indent=1))
+
+
+def control_c0(run, scratch):
+    """Amendment A1's control: rang's dirty image of the subset against
+    WSClean's (no facets), within 1e-3 of the peak over interior pixels."""
+    from rang import core_wgridder
+
+    ctx = context(run, di=True)
+    c = ctx["c"]
+    out = run / "C0"
+    run_wsl("step4_c0.sh", dd3.to_wsl(ctx["st"]["subms"]), scratch, dd3.to_wsl(out))
+    vis = 0.5 * (c["DATA"][..., 0].astype(complex) + c["DATA"][..., 3])
+    mine = core_wgridder.fits_image(c["UVW"], c["freq"], vis, c["w_I"], NX, NY,
+                                    dd2.SCALE_ARCSEC, epsilon=EPS)["dirty"]  # fmt: skip
+    theirs = dd2.read_fits(out / "c0-dirty.fits")
+    d = np.abs(mine - theirs)[ctx["interior"]].max() / np.abs(theirs).max()
+    rec = {
+        "rel_diff": float(d),
+        "peak": float(np.abs(theirs).max()),
+        "pass": bool(d <= 1e-3),
+    }
+    (out / "c0.json").write_text(json.dumps(rec, indent=1))
+    print(json.dumps(rec))
+
+
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    cmd = argv[0]
+    if cmd == "setup":
+        setup(Path(argv[1]), Path(argv[2]), Path(argv[3]))
+    elif cmd == "rang":
+        arm_r(Path(argv[1]), di="--di" in argv)
+    elif cmd == "oracle":
+        arm_o(Path(argv[1]), argv[2])
+    elif cmd == "control":
+        control_c0(Path(argv[1]), argv[2])
+    elif cmd == "score":
+        score(Path(argv[1]))
+    else:
+        raise SystemExit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

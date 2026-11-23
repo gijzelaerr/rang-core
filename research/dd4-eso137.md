@@ -188,3 +188,44 @@ Reported, not gated:
 ## 7. Measured result
 
 Not yet measured.
+
+## Amendments
+
+**A1, 2026-11-23, before any loop ran.**
+
+*The catalogue was downloaded with the owner's yes, relayed by the
+coordinator.*
+- It is in `results/dd4-eso137/catalogue/`, with `QUERY.md` recording the
+  URLs, the UTC times and the SHA-256 of each file.
+- The primary CDS VizieR server refused the automated request and returned
+  a "Page unavailable" page. The same queries were served by the CfA VizieR
+  mirror, with server version V7.6.1.
+- The tables used:
+  - RACS-low DR1 `J/other/PASA/38.58`, its Gaussian component tables
+    `gausscut` and `gaussreg` (`Fgauss`, mJy);
+  - RACS-mid DR1 `J/other/PASA/41.3`, its component table `gcompsm`
+    (`Ftot`, mJy).
+- 339 RACS-low components fall in the image; 257 of them match a RACS-mid
+  component within 10″.
+
+*Facet directions by section 4's rule (`tools/oracles/dd4/catalogue.py`).*
+Only three off-axis components qualify, which is still at least two:
+
+| Direction | Component | ρ | `S_1043` (α) | `B` | `S_app` |
+| --- | --- | --- | --- | --- | --- |
+| d1 | RACS_1633-62A_8018 | 0.248° | 1.052 Jy (−1.87) | 0.918 | 0.965 Jy |
+| d2 | RACS_1633-62A_8326 | 0.383° | 0.121 Jy (−1.22) | 0.813 | 0.098 Jy |
+| d3 | RACS_1633-62A_7234 | 0.826° | 0.229 Jy (−0.99) | 0.361 | 0.083 Jy |
+
+The start model holds 152 components of at least 5 mJy, 92.6 Jy apparent in
+total.
+
+*The subset* `D:/rang/outputs/dd4-20261123/sub.ms` was made with CASA 6.7.6.14
+`split(spw='0:96~159', datacolumn='data', keepflags=True)` in
+`rang-o-casa:6.7.6.14`.
+
+*The Stokes I gridding weight* in rang is `4 / (1/w_XX + 1/w_YY)` over
+unflagged parallel hands. Section 4 did not state it. A control C0 (both
+arms' dirty image of the subset, no facets, within 1e-3 of the peak, as
+DD2) is added. It must pass before gate L is read; if it fails, that is a
+setup outcome.
