@@ -47,14 +47,20 @@ limit, not solved (below).
 key, ONNX weights files, refusal and the interpreter. It does not add a
 learned stage that you can turn on:
 
-- **No shipped weights.** F5's flagger did not pass its gates: targets
-  outcome F, calibrators stopped at the label audit ({gh}`research/f5-flagger.md`,
-  issue #40). F6 is still running; unless it passes before the release, every
-  `learned:` mode other than `off` needs your own weights file and, without
-  passed gates, `force: true`.
+- **No shipped weights.** Neither flagger passed its gates (issue #40):
+  - F5: targets outcome F, calibrators stopped at the label audit
+    ({gh}`research/f5-flagger.md`).
+  - F6: F as well ({gh}`research/f6-flagger.md`). It passed every gate on SARAO
+    validation but failed on the older LUNO and ESO137 sets, where the
+    calibrators flag 16.9 × the Tricolour port's cells.
+
+  Every `learned:` mode other than `off` therefore needs your own weights file
+  and, without passed gates, `force: true`.
 - **The learned pilots were null or failed:**
   - warm starts for the gain solver saved only 8-15 % of iterations, so no
     network was tried (DL4a, issue #41, null);
+  - learned clean masks needed 19-20 % fewer convolutions on real scans but
+    reached equal quality in 0 of 5 cases (DL4c, issue #43, null);
   - an iterated learned deconvolution step put +0.07 to +0.12 of false flux
     against +0.01, on 270 held-out fields (DL4b step 0, issue #42, outcome F).
 - **The interpreter runs `Conv` and `Relu` only.** A weights file with any
