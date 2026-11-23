@@ -345,6 +345,13 @@ MAIN_7 and about 55 % of SARAO; A flags 16 % of LUNO. On LUNO the network sits n
 
 Any change is the owner's, dated, and made before F7 trains.
 
+**Owner's ruling (2026-11-23, relayed by the coordinator):** R3 stays as frozen (option 1),
+judged against Tricolour; the calibrator model passes only if the new LUNO training data (D10)
+brings LUNO MAIN_7 to R3 ≤ 1.5, otherwise calibrators are F. Read here as: T is unchanged, F3-F7's
+teacher (rang's run of the Tricolour-derived CARACal strategy, `f3flag.t_flags`; on SARAO the DL2
+`rang` labels), and the bar 0.5 min(T, A) / T ≤ R3 ≤ 1.5 is unchanged. D10 is the calibrators'
+last arm.
+
 ## 4. Data and splits (proposed, unchanged from F6 unless the owner widens scope)
 
 Training: F6's (four SARAO blocks, LUNO and ESO137 training sets, simulations). Validation: F6's
