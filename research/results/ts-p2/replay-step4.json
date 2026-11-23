@@ -1,0 +1,34 @@
+{
+ "ms": "D:\\rang\\outputs\\p1-lightcurves-20261123\\e2a-replay.ms",
+ "rang_run": "D:\\rang\\outputs\\e2a-20261115\\rang-run",
+ "steps": {
+  "4_selfcal": {
+   "round1": {
+    "store": "D:\\rang\\outputs\\e2a-20261115\\rang-run\\selfcal\\ESO137-001\\round-1\\gains.qc",
+    "bins": 4,
+    "gain_time_equal": true,
+    "max_gain_time_diff_s": 0.0,
+    "invalid_antenna_bins": 4
+   },
+   "round2": {
+    "store": "D:\\rang\\outputs\\e2a-20261115\\rang-run\\selfcal\\ESO137-001\\round-2\\gains.qc",
+    "bins": 4,
+    "gain_time_equal": true,
+    "max_gain_time_diff_s": 0.0,
+    "invalid_antenna_bins": 8
+   },
+   "apply": {
+    "input_column": "CORRECTED_DATA",
+    "output_column": "CORRECTED_DATA",
+    "rows": 850950,
+    "cells": 13941964800,
+    "cells_flagged_before": 7843952228,
+    "cells_flagged_after": 8082693644
+   },
+   "flagged_field": 8082693644,
+   "flagged_ms": 10986572040,
+   "check": true,
+   "seconds": 571.4952588999877
+  }
+ }
+}

@@ -270,8 +270,112 @@ about 330 GB on D: (195 GB copy + 137 GB CORRECTED_DATA), deleted once
 
 ## 9. Amendments
 
-(none)
+None to the protocol. Code freeze: `f50b063e` (quick check PASS, CI green).
+Oracle-script fix during dev (6, "fails on dev"), not a protocol change:
+`edb36c96`. WSClean dev attempt 1 stopped at interval 1 because the script
+deleted the per-channel `-image.fits` while WSClean still reads them to form
+the MFS image; the script now deletes them after the run when M > 1.
 
 ## 10. Measured result
 
-(none yet)
+Run root `D:\rang\outputs\p1-lightcurves-20261123` (host glacier, shared
+slots under the heavy lock). Simulations in `sim/`.
+
+### 10.1 `tsp2-dev` (code `f50b063e`)
+
+- Generated in 93 s (8.5 GB). `rang-core lightcurve --size 1024 --scale 2asec
+  --channels-out 16`: 55 s wall (4 slots). WSClean 3.7 `-j 8`: 549 s, peak
+  RSS 100 MB (attempt 2).
+- **D1** 2.8e-12 σ; finite cells identical; weight sums equal exactly.
+- **D2** 8.3e-7 σ; WSClean's CRVAL3 equals each group's mean frequency
+  exactly (0 Hz), so `-channels-out 16` groups channels as the product does;
+  the WCS pixel equals rang's at all six positions.
+- **D3** |bias| ≤ 0.021σ against 3/√6750 = 0.037σ (A −0.0007, B +0.014,
+  C +0.005, D −0.018, E −0.010, F −0.021).
+- **D3b** χ² 0.956-1.016 within 1 ± 0.052.
+- **D4** 1.7e-14 σ_snap. **D5** group 15 empty: null in JSON and `nan` in
+  CSV for every interval and position.
+- Dev passes every gate, so `tsp2-held` is run.
+
+### 10.2 `tsp2-held` (read once, code `f50b063e`)
+
+Layout drawn from seed 20262314: pixels A (0, 0), B (−246, 111),
+C (253, 372), D (−240, 124), E (310, −183), F (143, 110). Lightcurve 57 s,
+WSClean `-j 8` 778 s.
+
+| Gate | Reading | Bound | Outcome |
+| --- | --- | --- | --- |
+| D1 | 2.3e-12 σ; finite cells and weight sums identical | 1e-3 σ | **met** |
+| D2 | 1.8e-6 σ; CRVAL3 offset 0 Hz; WCS pixel = rang's at all six | 1e-3 σ | **met** |
+| D3 | \|bias\| ≤ 0.023σ (A +0.006, B −0.009, C +0.023, D −0.003, E −0.001, F +0.012) | 0.037σ | **met** |
+| D3b | χ² 0.986-1.025 | 0.948-1.052 | **met** |
+| D4 | 1.3e-14 σ_snap | 1e-6 | **met** |
+| D5 | group 15 empty: null / `nan` everywhere | – | **met** |
+
+**P2 is met on the held-out simulation, as frozen.** `tsp2-held` is now spent.
+
+### 10.3 Real track: E2-A's ESO137 scan 10 with injected transients
+
+**Residual (4.2).** Every check of the replay held exactly:
+- Step 2: 10,747,830,624 flagged cells in the MS and 7,843,952,228 in
+  ESO137-001 after restoring `rang_selfcal_20261115T161755Z` (189 s).
+- Step 3: K1, G1, B1 applied, flagged cells unchanged at 10,747,830,624, as
+  E2-A's apply (1,314 s).
+- Step 4: round 2's Sa store applied; rebuilt bin times equal the store's
+  (difference 0 s, 4 bins); ESO137-001 then has 8,082,693,644 flagged cells,
+  E2-A round 2's count exactly (571 s). Attempt 1 of step 4 stopped before any
+  write on a flag-shape error in the replay script (`read_store` gives flags
+  per antenna, the solution per hand); fixed and resumed (`--selfcal-only`).
+- CASA split: 1,245 s, 850,950 rows, 512 channels, 21 GB. 27,450 FLAG_ROW
+  rows: 27,000 cross-correlation rows (60 per integration) and 450 others.
+  WSClean ignores FLAG_ROW (ts-p1.md 15.3); both comparisons are below.
+- `gemclean -predict` of E2-A's eight final model images: 823,500 rows in 90 s.
+- Subtraction check (not a gate): at the five brightest sources of E2-A's
+  final image (0.15-0.57 Jy/beam), DATA − MODEL keeps 0.2-1.1 % of the DFT
+  flux in intervals 0 and 200.
+
+**Injection.** u = 1.748 mJy (median σ_meas of intervals 0-9; over all 450
+the median σ_meas is 1.316 mJy, 1.19-1.94 mJy, against about 0.08 mJy thermal,
+scope note 4). A and B were redrawn once each by the 30″ rule. Truth in
+[results/ts-p2/tsp2-real.truth.json](results/ts-p2/tsp2-real.truth.json).
+
+**P1 against WSClean 3.7** (`-intervals-out 450`, 2048² at 2″, 323 s at
+`-j 8`; [results/ts-p2/score-real-p1.json](results/ts-p2/score-real-p1.json)):
+- **T1** max 3.6e-7 of the snapshot peak (median 1.1e-7; worst interval
+  426) against 1e-5: **met**. With FLAG_ROW ignored, 3.4e-7.
+- **T2c** 1.0e-6 σ_meas against 1e-3: **met**; WSClean's WCS pixel equals
+  rang's at all six positions. No sample lies beyond the 2″ grid.
+
+**Gates without WSClean** (`--real`, σ_meas and σ_dyn,g = 0.9-5.2 mJy):
+
+| Gate | Reading | Bound | Outcome |
+| --- | --- | --- | --- |
+| T2a | 7.3e-13 σ_meas | 1e-3 | **met** |
+| T2b | 6.5e-7 σ_meas | 1e-3 | **met** |
+| T3a | mean(flux − expected): A −0.69, B −0.23, C −0.37, D −0.03, E −0.81 σ_meas (F, the control, +0.57) | 0.141 | **not met** (A, B, C, E) |
+| T3c | interval times = TIME | equal | **met** |
+| T3d | all 7 pulses ≥ 7σ recovered, S/N 8.5-18.7 at every bright integration, best interval inside each pulse | as frozen | **met** |
+| D1 | 5.0e-12 σ_dyn | 1e-3 | **met** |
+| D3 | A +0.015, B +0.008, C +0.095, D −0.018, E −0.192 σ_dyn (F +0.185) | 0.035 | **not met** (C, E) |
+| D4 | 3.1e-14 σ_meas | 1e-6 | **met** |
+| T3b, D3b | χ² 0.37-1.31 (band), 2.3-6.7 (cells) | reported | – |
+| T4 (control) | positive 14,220 at ≥ 5σ and 1,914 at ≥ 7σ; negative 272 and 8 | reported | – |
+
+**Why T3a and D3 fail (post hoc diagnostic, not a gate:
+`examples/ts_p2_diag_linear.py`,
+[results/ts-p2/diag-linear-real.json](results/ts-p2/diag-linear-real.json)).**
+- Injected run minus uninjected run against the injections' expected dirty
+  value: |bias| ≤ 1.3e-8 σ_meas over the band and ≤ 6e-9 σ_dyn per cell; the
+  largest single difference is 4.9e-7 σ_meas. The product recovers the
+  injected signal exactly.
+- The offsets are the uninjected residual's own time-mean at each position:
+  −0.91, −0.30, −0.49, −0.04, −1.06 and +0.75 mJy at A-F, that is −14.6σ to
+  +12.1σ of a 450-point mean. E2-A's own final residual (Briggs 0.5) is 0.00-
+  0.09 mJy at the same pixels (robust rms 22 µJy), so the offsets come with the
+  natural weighting of the snapshots: unmodelled or mis-subtracted large-scale
+  flux and the sidelobes of the 0.2-1 % errors on the brightest sources.
+- The same structure gives the positive excess of candidates (T4: 14,220
+  positive against 272 negative at 5σ).
+- So, as frozen, the real-track bias gates fail on the residual floor, not on
+  the light-curve or dynamic-spectrum code. The gates stand as frozen; this is
+  recorded as not met.
