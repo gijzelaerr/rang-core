@@ -168,7 +168,7 @@ in both arms.**
 **Cost (indicative):**
 - rang about 5 min per arm;
 - QuartiCal + WSClean about 10 min per arm;
-- QuartiCal's phase cycles about 120 s each at the 150 cap.
+- QuartiCal's phase cycles about 150 s each at the 150 cap (149 s in cycle 0).
 
 ## 6. For the coordinator
 
