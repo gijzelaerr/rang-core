@@ -351,6 +351,8 @@ brings LUNO MAIN_7 to R3 ≤ 1.5, otherwise calibrators are F. Read here as: T i
 teacher (rang's run of the Tricolour-derived CARACal strategy, `f3flag.t_flags`; on SARAO the DL2
 `rang` labels), and the bar 0.5 min(T, A) / T ≤ R3 ≤ 1.5 is unchanged. D10 is the calibrators'
 last arm.
+Confirmed by the coordinator the same day: "Tricolour" was shorthand for the frozen T; D10 is
+scored against the frozen T, no gate change.
 
 ## 4. Data and splits (proposed, unchanged from F6 unless the owner widens scope)
 
