@@ -22,7 +22,7 @@ for case in $cases; do
     slots=4; mem=4
     [ "$arm" = P2T ] && slots=2
     if [ "$case" = W ]; then
-      mem=20; [ "$arm" = P4 ] && mem=12
+      mem=24  # amendment 2: memory_limit_gb 20 in every W arm
     fi
     start=$(date +%s)
     $lock run --slots $slots --mem $mem -- "$py" "$here/run_1b.py" arm "$run" "$case" "$arm"

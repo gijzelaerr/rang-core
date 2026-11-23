@@ -27,9 +27,9 @@ work: no novelty is claimed; the gate is identity, timing is reported for #4's d
 
 Run 2026-11-23 on glacier under the heavy lock (4 slots), this branch's extension (`core/` and `src/` equal to
 `e071bdab`'s), work directory `outputs/probe/t1` in the worktree. Every output was equal at 1, 2, 4 and 1
-threads: K `54f471fe…`, G `f6384568…`, B `5b76d15e…`, Gpol `44f7bf5a…`, KCROSS `c136f41d…`, Xf `f0103c97…`,
-Df `1409240e…`; after applycal with P and calwt, CORRECTED_DATA `b3d8b5b7…`, FLAG `3bcfac8f…`, WEIGHT
-`df17181b…`. **PASS.** Limit: the test MS is small (4 antennas), so rayon may not have split some loops; the
+threads: K `54f471feâ€¦`, G `f6384568â€¦`, B `5b76d15eâ€¦`, Gpol `44f7bf5aâ€¦`, KCROSS `c136f41dâ€¦`, Xf `f0103c97â€¦`,
+Df `1409240eâ€¦`; after applycal with P and calwt, CORRECTED_DATA `b3d8b5b7â€¦`, FLAG `3bcfac8fâ€¦`, WEIGHT
+`df17181bâ€¦`. **PASS.** Limit: the test MS is small (4 antennas), so rayon may not have split some loops; the
 identity arms of section 3 at `threads: 4` against U at 4 threads (P4 runs one thread per worker) test the
 large sets.
 
@@ -43,7 +43,7 @@ large sets.
   chunk and writes its partial, so the default runs the same code as the pool.
 - `applycal.applycal` gains `executor=None` (inline). With an executor that is not inline, and every table given
   as a **path**, the chunks become `apply-casa` specs: `start`, `n`, the table paths, interp, the field maps
-  (per table, field â†’ table field or `pooled`), the fields, scans, `applymode`, the calwt flags, the output
+  (per table, field Ã¢â€ â€™ table field or `pooled`), the fields, scans, `applymode`, the calwt flags, the output
   column and the P settings; P's angle tables (computed once in the parent over the whole field, as now) travel
   as arrays. A worker reads the tables from their paths once per process (cached by path, size and mtime).
 - Reduce in plan order through the stage's `WriteBack` session: the output column, FLAG, and WEIGHT and
@@ -122,6 +122,14 @@ with rang's reader in 128 MiB row chunks (stage 1's `tools/oracles/chunk_tasks/r
 comparison): W's apply uses the default targets (each term on the fields it was solved on, the fcal), as W3b's
 `WHOLE` configuration has no apply section; "apply K, G, B to every field" above is withdrawn.
 
+**Amendment 2** (2026-11-23, after run `cta1b-20261123-02`'s W arms were refused and before any W comparison; C, P
+and M had been compared, their protocol is unchanged): (a) amendment 1 was wrong: a chain run needs explicit
+`apply.targets`, and W's apply was refused in U and P1 alike (exit 2), so W applies `{field: [fcal], tables: [K, G,
+B]}`; (b) at the default 8 GiB, P4 gives each process 2 GiB, and one K or G interval of W's fcal needs 3.587 GiB:
+preflight refused P4's calibrate before writing (the designed refusal, 1.4). Every W arm (U, P1, P4) therefore runs
+at `memory_limit_gb: 20` (5 GiB per P4 process) with a 24 GB booking. The refused W arms are kept as
+`W-*.void-amendment2` in the run root.
+
 Arms:
 
 - **U, today's single process (the oracle):** main `e071bdab`'s Python from a detached worktree
@@ -175,7 +183,7 @@ little. This section replaces it, on this branch's final code.
   a point; three attempts).
 - **Case W** of section 2 plus stage 1's flag: flag, calibrate (the chain of section 2's W) and apply, each on a
   fresh copy in the run root's own copy of `w3.ms` (file SHA-256 checked against D:'s).
-- **Thread budget T = 16**, N âˆˆ {1, 2, 4, 8} at `threads: 16`, `memory_limit_gb: 32`; baseline B main `e071bdab`
+- **Thread budget T = 16**, N Ã¢Ë†Ë† {1, 2, 4, 8} at `threads: 16`, `memory_limit_gb: 32`; baseline B main `e071bdab`
   at `RAYON_NUM_THREADS=16`, `memory_limit_gb: 32`. One repeat per point (5 points, about 3 h); a second and third
   repeat only if the lock stays idle.
 - **Reported:** wall per stage, S(N) = t(N1)/t(N), efficiency S(N)/N, time to the first task, peak RSS of the

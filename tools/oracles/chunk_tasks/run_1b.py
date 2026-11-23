@@ -56,7 +56,13 @@ fields: {fcal: [J1939-6342]}
       - {type: G, name: G, solint: int, preapply: [K], interp: [linear]}
       - {type: B, name: B, solint: inf, combine: scan, preapply: [K, G],
          interp: [linear, linear]}
+apply:
+  targets:
+    - {field: [fcal], tables: [K, G, B]}
 """
+# Amendment 2: every W arm at this limit, so that P4's share per process
+# (5 GiB) holds one K or G interval of the fcal (3.6 GiB).
+W_LIMIT_GB = 20
 
 
 def config_text(case, arm, ms):
@@ -68,7 +74,8 @@ def config_text(case, arm, ms):
         assert F_TERM in text, "case C's F term moved"
         text = text.replace(F_TERM, TWO_FIELDS)
         return text.replace("apply:\n  targets:", "apply:\n  calwt: true\n  targets:")
-    block = ("data:\n" + "".join(f"  {d}\n" for d in lines)) if lines else ""
+    lines = [*lines, f"memory_limit_gb: {W_LIMIT_GB}"]
+    block = "data:\n" + "".join(f"  {d}\n" for d in lines)
     return WHOLE % {"data": block}
 
 
@@ -92,6 +99,9 @@ def tasks_check(run):
             got = {}
             for stage in ("calibrate", "apply"):
                 path = d / "work.ms.rang-run" / stage / "summary.json"
+                if not path.is_file():
+                    got[stage] = {}
+                    continue
                 summary = json.loads(path.read_text(encoding="utf-8"))
                 got[stage] = summary.get("chunking", {}).get("tasks", {})
             want = {"apply": "apply-casa"}
