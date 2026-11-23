@@ -1,0 +1,15 @@
+   Compiling rang-core v0.4.0 (C:\Users\gijsm\Worktrees\rang\gemclean-mem-32b\core)
+    Finished `release` profile [optimized] target(s) in 1m 22s
+     Running tests\gemclean_memory.rs (target\release\deps\gemclean_memory-ebd23288db66d63d.exe)
+
+running 3 tests
+test joined_iquv_peak_heap_stays_under_the_frozen_bound ... ok
+test joined_clean_images_stay_under_the_frozen_bound ... ok
+test reorder_keeps_the_bytes_and_lowers_the_peak_heap ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 16.59s
+
+
+real	1m38.895s
+user	0m0.030s
+sys	0m0.000s

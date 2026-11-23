@@ -1,0 +1,6 @@
+2026-11-22T07:50:46Z main built
+2026-11-22T07:55:52Z arm built
+2026-11-22T09:49:46Z v1 rc=0 6834 s 	Maximum resident set size (kbytes): 37932000
+2026-11-22T09:50:13Z v2 rc=0 6861 s 	Maximum resident set size (kbytes): 34232372
+2026-11-22T09:50:33Z main1 rc=0 6881 s 	Maximum resident set size (kbytes): 40169396
+2026-11-22T09:50:44Z pass done

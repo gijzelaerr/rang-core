@@ -9,6 +9,10 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- GeMClean: a Stokes I run keeps only each channel's active visibilities and weights, sorted, after
+  its PSF (as the polarisation path does): case I (E2-N, 4096² multiscale, 8 channels) peaks at 37.9
+  GB instead of 40.2 (0.944 ×), wall 0.993 ×, images byte-identical (#32, `research/gemclean-mem-32b.md`).
+
 ## 0.4.0 (2026-11-22)
 
 0.4.0's question is whether learned stages can sit inside the chain without changing a single classical
