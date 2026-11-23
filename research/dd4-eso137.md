@@ -7,13 +7,16 @@ pointing later. Sections 1-6 are frozen 2026-11-23, before any code that
 tests them and before the catalogue was queried; later changes are dated
 amendments.
 
-Status: **partly measured 2026-11-23, setup outcome on arm O.**
+Status: **partly measured 2026-11-23, setup outcome on arm O (A3, A4).**
 - Rang's loop (R) and the two baselines (DI, DI0) ran.
-- The oracle arm O stopped at a setup mismatch: WSClean's
-  `-diagonal-visibilities` facet image differs from rang's by a uniform
-  factor of 1.93-1.94 per facet.
-- So gates L and S are not read, and the gain over DI is provisional
-  (section 7).
+- The oracle arm O stopped at a setup mismatch. On the two-correlation MS
+  (A3), WSClean's `-diagonal-visibilities` facet image is 1.93-1.94 ×
+  rang's per facet. On a four-correlation copy (A4) it is exactly half of
+  that, 0.96-0.98 × rang's, and fails A1's 1e-3 control by 3.0e-2, with
+  unit gains as well. WSClean's own no-facet image of the copy matches
+  rang to 1.1e-7.
+- So gates L and S are not read, no arm O cycle was rerun, and the gain
+  over DI is provisional (section 7).
 
 ## 1. What DD4 is, and what is not claimed
 
@@ -249,17 +252,48 @@ QuartiCal in 651 s, then WSClean's corrupted predict and facet image with
 - In R the DD solve hits the 150 cap in every cycle (converged fraction
   0.25).
 
+**A4 controls (2026-11-23), on the four-correlation copy:** fail, so arm O
+was not rerun. Run `D:/rang/outputs/dd4-20261123/run-02/C1` and `C1-unit`;
+archive [results/dd4-eso137/C1/](results/dd4-eso137/C1/).
+
+| Control | max difference / peak | best scale WSClean/rang, facets d0-d3 | |
+| --- | --- | --- | --- |
+| C0′: dirty image, no facets | **1.1e-7** | 1.0000 (all) | pass |
+| C1: flat-gain facet image, arm O's cycle-0 gains | **3.0e-2** | 0.973, 0.959, 0.970, 0.974 | **fail** |
+| C1 with unit gains | 3.0e-2 | 0.973, 0.975, 0.969, 0.973 | fail |
+| for contrast: two-correlation MS, `-diagonal-visibilities`, cycle-0 gains | 4.9e-1 | 1.946, 1.918, 1.939, 1.948 | fail |
+| the same, unit gains | 4.9e-1 | 1.946, 1.951, 1.938, 1.947 | fail |
+
+- Every facet call gridded all 30,800,924 visibilities, so the flagged
+  cross hands did not drop data. A4's fallback (unflagged cross hands) was
+  not triggered.
+- The diagonal-visibility image is 2.000 × the four-correlation one in
+  every facet, so A3's factor is a missing ½ in Stokes I on that path.
+- The remaining 2-4 % is on WSClean's facet-solution path itself. It is
+  there with unit gains and in the pinned facet d0, whose gains are exactly
+  1, so it is not the gains or the 1/c correction. It is also not a weight
+  rule: rang's facet image with `min`, harmonic, sum, `w_XX` or `w_YY`
+  weights leaves 3.0e-2 in every case (`c1-weight-candidates.json`).
+  WSClean's log gives a different effective visibility count on that path
+  (11.87 M four-correlation and 23.74 M diagonal, against 25.32 M without
+  facets). Its weighting with facet solutions therefore differs from its
+  plain Stokes I weighting on this MS, which has real flags and unequal
+  `w_XX`, `w_YY`. DD2b's simulations had neither.
+- The diagnosis stopped there, as instructed (a short look at the
+  normalisation only).
+
 **Outcome under section 6: setup.** The oracle's facet imaging is not
 comparable on a two-correlation MS without a characterised normalisation, so
 no gate is read. The rang numbers above are provisional and are not a
 result of this note.
 
-**Next steps:**
-1. Write the subset as a four-correlation MS (XY and YX zero and
-   flagged), so that WSClean takes DD2b's validated path; or run a
-   C2-style control on the diagonal mode.
-2. Rerun arm O.
-3. Read L, S and the gain over DI as frozen.
+**Next steps (after A4):**
+1. Find WSClean 3.7's Stokes I weighting with `-apply-facet-solutions`
+   (source, `gridding/msgriddermanager.cpp`), or run C1 on a copy with
+   `w_XX = w_YY` and no flags, to separate the two causes.
+2. Then amend: either rang's facet image adopts that weight (arm R and DI
+   rerun) or the O comparison uses a matched MS.
+3. Rerun arm O, read L, S and the gain over DI as frozen.
 
 Separately, the DD solve does not converge on real data within the cap, and
 d1's facet takes extended structure. Both are for the owner before any
@@ -268,7 +302,9 @@ claim.
 Cost (indicative, shared host):
 - rang R about 2.2 min per cycle (solve 75-90 s, image 31-41 s, 5 cycles);
 - DI about 35 s per cycle;
-- QuartiCal cycle 0 651 s at 8.4 GB peak.
+- QuartiCal cycle 0 651 s at 8.4 GB peak;
+- the A4 controls (copy, conversion, three WSClean images, rang's two
+  images) about 2.2 min.
 
 ## Amendments
 
