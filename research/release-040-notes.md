@@ -1,8 +1,8 @@
 # rang-core 0.4.0: release notes (draft for the GitHub release)
 
 Drafted 2026-11-22 on branch `release-040` from the CHANGELOG's 0.4.0 section. The coordinator tags
-`v0.4.0` after #42 step 1 is merged; the tag publishes the wheels to PyPI. Before tagging, replace the
-two "OUTCOME PENDING" lines (Known limitations and the #42 row) with step 1's result.
+`v0.4.0` after #42 step 1 is merged; the tag publishes the wheels to PyPI. #42 step 1's
+outcome (F) was filled in on 2026-11-23.
 
 ---
 
@@ -49,8 +49,9 @@ first part is met: every learned path is `off` by default, bit-identical to 0.3.
 - **No learned stage passed, so no weights ship and every `learned:` mode needs your own weights file**
   (and `force: true` without passed gates). DL6's agent test (a fresh agent retrains a passed stage
   from the procedure alone) therefore did not run ([#46](https://github.com/gijzelaerr/rang-core/issues/46)).
-- **#42 step 1** (learned minor-cycle proposals on real data): OUTCOME PENDING (the read lands on
-  2026-11-22; filled in at the tag).
+- **#42 step 1** (learned minor-cycle proposals on real data): outcome F. On the four gated MeerKAT
+  skies the learned proposal P is outside the tolerance for all three seeds (relative L2 1.22-1.79 × W1's)
+  and slower than the best classical setting W\* (minor cycle 1.10-1.93 ×); `research/dl4b-step1.md`.
 - **WSClean 3.8 is 6-23 % slower than 3.7 at `-j 1` on the minres path** ([#47](https://github.com/gijzelaerr/rang-core/issues/47)): GeMClean's
   coarse imaging now leads WSClean at one thread on S1, S2, S3 and H4. At 16 threads, and without
   minres, the two versions are level.
@@ -76,7 +77,7 @@ gijzelaerr/rang-core` on 2026-11-22. Open issues are moved at the tag, as each o
 | 39 | DL2: training-data factory | closed 2026-11-20: stage 1 shipped (219 scans registered, 140 labelled) | [dl2-data.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl2-data.md) |
 | 40 | DL3: F5 flagger | F5 and F6 F; nothing ships; F7 for v0.5.0 | [f6-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f6-flagger.md) |
 | 41 | DL4a: gain-solve warm start | closed 2026-11-20: null (8-15 % of iterations; no network pilot) | [dl4a-screen.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4a-screen.md) |
-| 42 | DL4b: minor-cycle proposals | step 0 F; step 1 OUTCOME PENDING | [dl4b-step0.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4b-step0.md) |
+| 42 | DL4b: minor-cycle proposals | step 0 F; step 1 F | [dl4b-step0.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4b-step0.md), [dl4b-step1.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4b-step1.md) |
 | 43 | DL4c: mask, quick-look, settings | closed 2026-11-22: stage 6 null, stage 9 headroom only, quick-look not started | [dl4c-mask.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4c-mask.md) |
 | 44 | DL4s: one-day screenings | moved to v0.5.0 | |
 | 45 | DL5: combined learned selfcal | moved to v0.5.0 (needed a DL4 pass) | |
