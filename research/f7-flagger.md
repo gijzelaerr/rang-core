@@ -278,6 +278,31 @@ at new kernel levels, levels 0-42 unchanged (pinned hashes for 0, 20 and, on Lin
 - Questions: does k = 1 on ESO137 fall to ≤ 0.040 (screen), and what does the dead zone cost R1,
   R2 and R5 (a real antenna anomaly now enters 2 units lower)?
 
+**Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
+(separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
+class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
+suitable data exists.
+
+**P3 survey (2026-11-23 09:50 SAST; training data only, no held-out label read).** T's (rang port)
+flag rate on every SARAO calibrator training scan of DL2's four training blocks (85 scans; 1735892129
+left out as DL6's), over all cells of the label: 0.47-0.69, median about 0.58. **No SARAO training scan is LUNO-like** (T on LUNO
+MAIN_7: 1.2 % of eligible cells). F6 already trains on all 85. The low-flag-rate data that exists
+is F4-era LUNO: the groups **MAIN_8, 9, 10, 11, 13, 15**, reserved since F4 for F5's post hoc arm
+N5-ph and fetched on nash (`dl3-f5-20261119/d/outputs/f5-20261120-reserved-fetch/`, 5.3 GB,
+receipt), never trained on, and not among F7's held-out sets (section 0: MAIN_0, 12, 14).
+Using them as F7 calibrator training data takes them out of any later held-out use; recorded here.
+
+**D10 (proposed 2026-11-23 09:55 SAST, before its code or run; validation only; calibrators).** P3 on
+top of D1 (the best calibrator arm so far): F6's calibrator shards at level 20 (unchanged, linked)
+plus four realisations of each of LUNO MAIN_8, 9, 10, 11, 13, 15 (T and A computed as F4 did:
+`f3.t_flags`, AOFlagger 3.5.0 through `f5.a_flags`), so LUNO's real training shards go from 20 to
+44. Balanced real batches (half LUNO, half SARAO), seed 2, 30,000 steps; τ by `f6_tau.py`; **W4 off**
+(D1: W4 alone adds 10 × T on LUNO), fixed before the run. The complete calibrator validation scorer
+on LUNO MAIN_7, 1573212012 scans 1, 3, 5 and the simulations. Question: does R3 on LUNO MAIN_7 fall
+to ≤ 1.5 while SARAO keeps every gate (D1, N5 alone: 7.6 × T)? Run root
+`nash:~/rang-data/outputs/f7-d10-20261123/`. A pass here does not freeze calibrators: G-drop on
+LUNO (D1 0.056 at k = 1) and synthetic G-sub also failed in D1.
+
 **Screening and freeze rules for F7's target arms (written 2026-11-23 07:40 SAST, before D8 and
 every later arm).** (1) An arm is screened on ESO137 chunk 10 with `f7_gdrop_arms.py` (G-drop's
 three draws at k = 1, 4, 8, N5 arm); it goes to the complete validation scorer only if its worst
