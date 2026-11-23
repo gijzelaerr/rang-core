@@ -1,8 +1,12 @@
 # F7: a fast supervised RFI flagger for MeerKAT L-band, sixth protocol (proposal, not frozen)
 
-Proposal for v0.5.0, drafted 2026-11-21 after F6 ([f6-flagger.md](f6-flagger.md)). **Status:
-proposal. The owner decides scope; nothing here is frozen.** Validation-only diagnostics may run
-on nash before the owner's decision; no held-out set is read.
+Proposal for v0.5.0, drafted 2026-11-21 after F6 ([f6-flagger.md](f6-flagger.md)). **Status
+(2026-11-24): measured, outcome F for both classes; nothing ships.** Calibrators F on validation
+(D10, LUNO MAIN_7 R3 8.11). Targets: D9b passed every validation gate, was frozen and read once on
+the held-out sets; it fails G-drop at k = 1 on SARAO 1678312253 scans 36 and 40 (0.060, 0.059
+against 0.05), R5 on ESO137 chunk 7 (0.758 against 0.80) and R3 on the one-dump chunk 17
+("F7 held-out outcome" below). Cost: C1 0.503 / 0.486 at 4 / 1 threads, not S. Every held-out
+set listed below is now read.
 
 ## 0. Starting point (F6, frozen 2026-11-21)
 
@@ -421,6 +425,36 @@ reads a reserved chunk with `f3.read_eso`, the reader F4's guard calls, only for
 run with `--heldout-read`; every other chunk keeps F4's guard (`tests/test_f6_heldout.py`). Then
 `d9b-held.sh` runs again: it skips the finished SARAO and simulation sets and runs the ESO137 sets
 and the verdict, so every held-out set is still scored once.
+
+**F7 held-out outcome, targets (2026-11-24 01:04 SAST, nash, read once; code 39878574;
+`nash:~/rang-data/outputs/f7-d9b-20261123/held-verdict-target.json`, run `held-target/`).
+Outcome F: nothing ships.** The frozen candidate (seed 2, τ −4.5, level 70, N5) fails three
+gates on complete held-out sets, and one on a degenerate set:
+
+| Gate | Set | Measured | Bar |
+| --- | --- | ---: | ---: |
+| G-drop k = 1 / 4 / 8 (worst draw) | SARAO 1678312253 scan 36 | **0.060** / 0.067 / 0.184 | 0.05 / 0.20 / 0.25 |
+| G-drop | SARAO 1678312253 scan 40 | **0.059** / 0.066 / 0.175 | same |
+| R5 | ESO137 chunk 7 | **0.758** | ≥ 0.80 |
+| R3 | ESO137 chunk 17 | **17.1** | ≤ 1.5 |
+
+Passing: R1 1.00 (T 0.894) and every morphology; R2 0.970-1.00 (T 0.24-0.98); R3 SARAO 0.94 /
+1.44 / 0.89 and ESO137 chunks 1-15 0.32-0.48; R5 SARAO 0.980 / 0.994 / 0.999, ESO137 chunks 1, 3,
+5, 9, 15 0.828-0.903; G-perm 0 everywhere; G-drop on the other 14 sets (worst 0.043 / 0.075 /
+0.161); G-sub core16, outer32, real29, real32outer; G-obs (1579022459, R3 0.89); S1 0.993
+(T 0.904), S2 0.007 (T 0.097), S3 0.998 (T 0.769). Reported, not gated: G-chan R3 1.50-4.30 on
+the 1678312253 and 1674958551 scans.
+
+Reading. Chunk 17 is the MS's 950-row tail, one integration (F4 recorded it as one dump): its R3
+of 17.1 rests on 11 strong cells and its G-sub could not run (`f5_heldout.py` G-sub stops on an
+empty time axis; `held-eso-17.log`). It was in F6's frozen held-out list and is kept in the
+verdict, not dropped post hoc; without it the outcome is still F. The real failures are G-drop at
+k = 1 on two of the three 1678312253 scans (29 antennas): dropping one antenna changes
+5.9-6.0 % of the added flags against a 5 % bar, the k = 1 floor D9b's dead zone fixed on ESO137
+(0.029-0.032) but not on a small array; and R5 on ESO137 chunk 7, the chunk with the most strong
+native RFI (84,312 strong cells, 2.3-3.6 × the others), where recall drops to 0.758. Cost
+(measured above) would have given H, not S. Calibrators: F (D10). Every held-out target set is now
+read; a later arm needs new held-out data.
 
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
