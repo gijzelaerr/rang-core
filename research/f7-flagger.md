@@ -259,7 +259,7 @@ how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Ru
 Reading: seeds move k = 1 by about ±0.01 around 0.065 and none reaches the 0.05 bar, let alone the
 0.040 screen; the floor is the recipe's, not a seed's. Seed selection cannot pass this gate.
 `tau-s12.time` (12,701 s) includes about 3.3 h waiting in the lock behind a duplicate D9b job from
-a chain restart (killed 12:20 SAST); it is not τ's compute time.
+a chain restart (killed 12:12 SAST); it is not τ's compute time.
 
 **D8 measured, ESO137 (2026-11-23 09:25 SAST, validation only; `nash:~/rang-data/outputs/f7-d8-20261123/`).**
 D7's weights, level 40, τ −4.0, k = 1, 256 baselines. N5's change on those baselines, and with a
