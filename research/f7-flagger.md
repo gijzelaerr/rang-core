@@ -208,6 +208,20 @@ held-out configuration). τ by `f6_tau.py`, W4 off (as D6), the complete validat
 Question: does G-drop on ESO137 at k = 1 fall to ≤ 0.05 with k = 4, 8 and every other target gate
 still passing, R5 on ESO137 included? Run root `nash:~/rang-data/outputs/f7-d7-20261122/`.
 
+**D7 measured (2026-11-22 13:12 SAST, validation only; `nash:~/rang-data/outputs/f7-d7-20261122/`).**
+86 target training shards (56 ESO137); training 5,107 s, validation loss 0.0344 (D3 0.0335);
+`f6_tau.py` τ −4.0; W4 off. Complete verdict: F on one gate, **G-drop on ESO137 at k = 1: 0.060 /
+0.063 / 0.065 per seed** (bar 0.05; D6 0.066), k = 4 0.115, k = 8 **0.197** (D6 0.220). Every other
+target gate passes: R1 1.00 (T 0.913), R2 worst 0.914 (H3), R3 ESO137 0.25 and SARAO 1.00, R5
+ESO137 **0.809** and SARAO 0.993, SARAO G-drop ≤ 0.014 / 0.032 / 0.064, core16, outer32, S1-S3.
+
+Reading: doubling ESO137's dropout realisations moves k = 8 by 10 % and k = 1 hardly at all
+(0.066 → 0.065). The k = 1 change is a floor of about 6 % that more of the same augmentation does
+not lower: it sits in which cells cross τ when one antenna's baselines leave the per-observation
+and block statistics, not in how often training saw a dropout. Next candidates for that gate: a
+training loss that pairs each realisation with its k = 1 dropout (consistency), or block and scale
+statistics that exclude the baseline's own antennas; both need code, both validation-only first.
+
 A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
 scope decision and a proposal section committed before its measurement.
 
