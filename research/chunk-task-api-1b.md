@@ -193,10 +193,11 @@ little. This section replaces it, on this branch's final code.
 
 ## 6. Results (measured 2026-11-23)
 
-Code: branch `chunk-api-3`, `5375c029` (the code), harness at `6d2e94e3`. Oracle U: main `e071bdab` from the
+Code: branch `chunk-api-3`, `c37a8699` (`5375c029` plus the row-weight fix below), harness at `6d2e94e3`. Oracle U: main `e071bdab` from the
 detached worktree `C:\Users\gijsm\Worktrees\rang\cta1b-oracle-e071bdab` with this branch's `_core.pyd` (SHA-256
 `6023d006…`; `git diff e071bdab -- core/ src/` empty). Host glacier, shared under the heavy lock at normal priority.
-Run root `D:\rang\outputs\cta1b-20261123-02` (hashes, logs and summaries kept; MS copies deleted); verdict copied to
+Run root `D:\rang\outputs\cta1b-20261123-03` (P1, P4 and P2T on `c37a8699`; U's arms copied from `-02`, whose code is
+main's and unchanged; hashes, logs and summaries kept, MS copies deleted); verdict copied to
 [results/chunk-task-api-1b-identity.json](results/chunk-task-api-1b-identity.json).
 
 **Verdict: criteria 1-5 pass on every case and arm; criterion 6 fails as frozen on C-P4 and P-P4; criterion 7
@@ -219,14 +220,21 @@ asked of P4 on the small sets, not in any result (below).
   ("one chunk per group or partition"); the criterion should have asked `chain-chunk` of P2T and W-P4 only. Where
   there was more than one chunk, the chunks went through the pool and the results were identical: C-P2T, P-P2T,
   M-P2T and W-P4.
-- **Criterion 7.** `tests/test_chunk_tasks_1b.py`, 6 tests, pass on Windows; with the related suites (W3, W3b,
-  c4b, c2e, c6w, spool, calwt, Xf calwt, fluxscale, reweight, c5 selfcal) 110 passed, 4 skipped. CI's `tests` on
-  Linux and Windows: see the pull request or the hand-back.
-- **Walls** (s, calibrate / apply; shared host, **not timing results**): W U 421.4 / 28.2, P1 526.7 / 28.5,
-  P4 586.2 / 22.7. P4 ran one rayon thread per worker against U's four. Every `chain-chunk` task re-runs its
-  recipe up to the replayed solve (the field's metadata, model and solution bins, the earlier tables read from
-  disk) before its chunk, which costs per task what the parent pays once per solve; whether that or host load
-  explains P4 > U is for section 5 to measure.
+- **Criterion 7.** `tests/test_chunk_tasks_1b.py`, 9 tests, pass on Windows: spec round trips; CASA apply with
+  calwt and with P at 2 processes; CalTables staying inline; G and Gpol by `chain-chunk`; a failing task raising
+  after the partials before it; the chain command with and without a two-field term. With the related suites (W3,
+  W3b, c4b, c2e, c6w, spool, calwt, Xf calwt, fluxscale, reweight, c5 selfcal) 110 passed, 4 skipped at
+  `5375c029`; `check_all.py --quick` on `c37a8699` PASS on glacier (338 passed, gain-hash gate PASS); CI `tests`
+  green on Linux and Windows.
+- **A cost found and fixed between runs -02 and -03.** At 5 GiB per process W-P4 cut B into 17 channel chunks
+  (34 tasks over the two passes), and every one re-read all rows of the fcal at all channels for the row weights
+  (the solution times), which the serial path reads once per field and memoises. In `c37a8699` the counted pass
+  skips them (it never uses them) and pass 2 memoises them per recipe in each worker. Run -02 (on `5375c029`)
+  gave the same identity verdict; its W walls were calibrate U 421.4, P1 526.7, P4 586.2 s.
+- **Walls** (s, calibrate / apply; shared host, **not timing results**): W U 421.4 / 28.2, P1 566.5 / 40.4,
+  P4 524.9 / 34.2. P4 ran one rayon thread per worker against U's four. Each `chain-chunk` task still re-runs its
+  recipe up to the replayed solve (the field's metadata, model, solution bins and earlier tables) before its chunk;
+  section 5 measures what that costs.
 
 **Void and refused runs, kept.**
 - `D:\rang\outputs\cta1b-20261123-01-void`: C, P and M arms failed while writing their configuration (the harness's
@@ -241,10 +249,13 @@ nash's lock had 32-40 of 44 shared slots booked through the task, so no idle win
 closed at 2 of 15 points. Prepared on nash for the coordinator: the branch worktree `~/Worktrees/rang/chunk-api-3`
 (venv and extension built by its quick check), the oracle `~/Worktrees/rang/cta1b-oracle-e071bdab`, and
 `tools/oracles/chunk_tasks/timing_1b.py matrix RUN`, which queues each point only when the lock is idle.
-The driver was started on nash on 2026-11-23 at 08:55 SAST without a session (pid 307375, nice 19, branch commit
-`5c72f877`, whose `python/`, `core/` and `src/` equal `5375c029`'s), run root
-`~/rang-data/outputs/cta1b-nash-20261123/` with its own copy of `w3.ms` (all 65 files equal to D:'s by SHA-256,
-`inputs/hashcheck.txt`), log `driver.log`, one line per point in `status.txt`. When it ends:
+The driver runs on nash without a session (started 2026-11-23 09:20 SAST, pid 311413, nice 19, branch commit
+`c37a8699`; a first start at 08:55 on `5c72f877` was stopped before any point, its log kept as
+`driver-5c72f877-stopped.log`), run root `~/rang-data/outputs/cta1b-nash-20261123/` with its own copy of `w3.ms`
+(all 65 files equal to D:'s by SHA-256, `inputs/hashcheck.txt`), log `driver.log`, one line per point in
+`status.txt`. Smoke test before the start: `rang-core config check` of the B and N8 configurations against that
+copy, valid for flag, calibrate and apply (N8: 4 GiB per process). A point whose stage fails still writes
+`done.json` and is reported as failed, not retried. When it ends:
 `timing_1b.py report RUN`, then the table of section 5 here.
 
 **Found in passing (not this task's code):** `tests/test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure`
@@ -254,15 +265,20 @@ calibrate exits 0 where the test expects a stage failure. CI does not see it (no
 ## For the coordinator
 
 - **What #3 still lacked is built:** CASA-table apply by row chunk and the chain solves (K, G, B, Gpol; by chunk of
-  the stop replay and by field) go through `data.processes` / `data.executor` (local pool and spool alike). F, the
+  the stop replay and by field) go through `data.processes` (the local pool; the spool executor takes the same
+  specs, but no spool run of the three new task kinds was made). F, the
   A step, Df's gauge, the KCROSS/Xf/Df chunk loops, averaged and streamed solves stay serial (1.2). No new key, no
   Rust change.
 - **Identity:** bit-identical to main `e071bdab` on A1, poldx, a two-field chain and `w3.ms` in every arm.
   Criterion 6 failed as worded on two small-set P4 arms that had nothing to split (6, post hoc reading); your call
   whether that blocks the merge.
 - **Image:** not built; DL0's ceiling (1.3) makes a per-channel split worth about 2 % of self-calibration.
-- **Timing:** not obtained (6.1); stage 1's matrix closed at 2/15. Overhead to watch: each `chain-chunk` task
-  rebuilds its field before its chunk.
+- **Timing:** not obtained yet (6.1): the driver waits on nash for an idle lock; stage 1's matrix closed at 2/15.
+  Overhead to watch: each `chain-chunk` task rebuilds its field before its chunk.
 - **Not run:** the full `python tools/check_all.py` (oracle and archive gates) on this branch.
-- **Kept:** `D:\rang\outputs\cta1b-20261123-02` (hashes, logs), the `-01-void` root, the oracle worktrees on glacier
-  and nash (each with a KEEP note) until merge.
+- **Found in passing:** `test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure` fails on main
+  too, with the fixture (6.1).
+- **Kept:** `D:\rang\outputs\cta1b-20261123-03` and `-02` (hashes, logs), the `-01-void` root, the oracle worktrees
+  on glacier and nash (each with a KEEP note), and on nash `~/rang-data/outputs/cta1b-nash-20261123` (8 GB
+  `w3.ms` copy, the driver) and `~/Build/tmp/20261123-chunk-api-3` (build log, smoke configs), until the matrix
+  ends and the branch merges.
