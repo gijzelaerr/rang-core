@@ -19,6 +19,9 @@ HERE = Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parent))
 import run as base  # stage 1's harness
 
+# Stage 1's configurations, kept before `install` replaces the hook.
+BASE_CONFIG_TEXT = base.config_text
+
 SOURCES = {
     "C": base.SOURCES["C"],
     "P": base.SOURCES["P"],
@@ -59,9 +62,9 @@ fields: {fcal: [J1939-6342]}
 def config_text(case, arm, ms):
     lines = base.ARMS[arm]
     if case in ("C", "P"):
-        return base.config_text(case, arm, ms)
+        return BASE_CONFIG_TEXT(case, arm, ms)
     if case == "M":
-        text = base.config_text("C", arm, ms)
+        text = BASE_CONFIG_TEXT("C", arm, ms)
         assert F_TERM in text, "case C's F term moved"
         text = text.replace(F_TERM, TWO_FIELDS)
         return text.replace("apply:\n  targets:", "apply:\n  calwt: true\n  targets:")

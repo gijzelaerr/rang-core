@@ -48,6 +48,8 @@ MAX_ATTEMPTS = 3
 STAGES = ("flag", "calibrate", "apply")
 THREADS = 16
 MAX_FOREIGN = 2.0
+# The script `matrix` runs each point with (timing_1b.py sets itself).
+SCRIPT = Path(__file__).resolve()
 
 
 def _data_lines(config):
@@ -162,7 +164,7 @@ def matrix(run):
                     time.sleep(60)
                 proc = subprocess.run(
                     [sys.executable, lock, "run", "--",
-                     sys.executable, str(HERE / "timing.py"), "point", str(run),
+                     sys.executable, str(SCRIPT), "point", str(run),
                      config, str(repeat)],
                     check=False,
                 )  # fmt: skip
