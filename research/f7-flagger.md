@@ -382,7 +382,7 @@ target scans); ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. T and A computed in
 frozen (G-drop every draw on every set against 0.05 / 0.20 / 0.25). The outcome is recorded
 whatever it is; the cost gate (tonight, glacier) completes it. Calibrators: F, nothing read.
 
-*Amendment H1 (2026-11-23 21:05 SAST, post hoc on procedure, not on the method or a gate; no
+*Amendment H1 (2026-11-23 20:55 SAST, post hoc on procedure, not on the method or a gate; no
 result read).* The held-out chain started 20:46. Its nine SARAO jobs stopped at label loading
 (`labels/rang/<cbid>/scanNNN/flag.npy` missing): DL2 shipped the held-out blocks unlabelled
 (dl2-data's stage 1 outcome), and F6 never ran a teacher on them. No SARAO set was scored. The
