@@ -6,7 +6,7 @@ any code that tests them and before any WSClean output was read; later
 changes are dated amendments, labelled post hoc where they could have seen a
 result.
 
-Status: **proposed**.
+Status: **measured 2026-11-23**: H and arm P (facet predict with per-facet gains) **pass** against WSClean 3.7 (3.0e-7 of the peak, limit 1e-4); arm I (facet imaging) **not measured**: the imaging control C0 fails without facets (5.0e-3 of the peak, limit 1e-3), a setup outcome under section 6 (section 7).
 
 ## 1. What DD2 is, and what it is not
 
@@ -123,7 +123,72 @@ under `heavy_lock`, indicative (shared host).
 
 ## 7. Measured result
 
-Not yet measured.
+Run `D:/rang/outputs/dd2-20261123-01` (prepare, rang and compare outputs;
+WSClean products, logs and timings in `wsc/`); WSClean 3.7 `4f395b28`
+(`rang-wsclean-native:3.7`); archive
+[results/dd2-facet-imaging/](results/dd2-facet-imaging/) (`prepare.json`,
+`rang.json`, `compare.json`, `facets.reg`). Host glacier, shared; rang at
+`RAYON_NUM_THREADS=8`.
+
+**Gains under the frozen DD cap (150, 1e-7, 0.99).** DD1's P1 data stop at
+88 iterations (converged fraction 0.9935, nothing flagged); truth error
+median 3.1e-3, unchanged from DD1 at 50. DD1's noiseless P3 under the same
+rule: 88 iterations, max relative product error **1.9e-6** (DD1's gate T,
+1e-4, would pass). No QuartiCal run at this cap (parity was measured at 50).
+
+**H: pass.** All three H5parms (`unit`, `c2`, `solved`) read back equal;
+every MS antenna is in the H5parm; each integration's nearest H5parm time is
+its own interval's centre. 28 components kept, none within 3 pixels of a
+facet boundary (per facet 9, 9, 3, 7).
+
+**Predict controls and arm P: pass.**
+
+| Case | max abs parallel-hand diff | relative to max \|V\| | cross hands |
+| --- | --- | --- | --- |
+| C0 (no facets, no solutions) | 2.9e-6 Jy | 6.0e-7 | 0 |
+| C1 (facets, unit gains) | 1.5e-6 Jy | 3.0e-7 | 0 |
+| **P (facets, solved gains)** | 1.7e-6 Jy | **3.0e-7** | 0 |
+
+So rang's H5parm export, the facet regions (polygon, point, direction
+name) and the facet-to-direction mapping reproduce WSClean's
+`-apply-facet-solutions` predict to float32 rounding.
+
+**Imaging controls: C0 fails, so arm I is not read (setup outcome).**
+
+| Control | dirty, rel. interior diff | image | boundary band |
+| --- | --- | --- | --- |
+| C0 (no facets) | **5.0e-3** (limit 1e-3) | 5.0e-3 | 2.6e-4 |
+| C1 (facets, unit gains) | 5.0e-3 | 5.0e-3 | 2.6e-4 |
+| C2, candidate (a) / (b), facet d1 | 1.3e-2 / 3.3e-1 | 6.5e-1 / 3.7e-1 | – |
+
+The mismatch exists without facets or solutions, so it is between rang's
+`fits_image` and WSClean 3.7's dirty image of this MS, not in the facet
+code. C2 picks no candidate; it also shows that WSClean writes `-image.fits`
+and `-image-pb.fits` (and `-beam.fits`) when facet solutions are applied,
+so the frozen expectation "`-image.fits` carries 1/c" was wrong: the
+flat-gain product is presumably `-image-pb.fits` (amendment A2).
+
+**Cost (indicative).** WSClean `-j 8`: predict 1.8-2.4 s, image 1.7-3.4 s,
+0.24-0.41 GB. Rang (8 threads): predict 4.7-5.6 s, facet image 6.6-8.4 s per
+case (four full-field grids, as section 1 says).
+
+**Outcome under section 6.** H and P pass: facet prediction with per-facet
+gains matches WSClean. Imaging is a setup outcome: the no-facet control
+fails, the cause is open (amendment A2), arm I is not measured, and DD2's
+imaging half is not done.
+
+## 8. For the coordinator
+
+- Mergeable as the predict half of DD2: the H5parm export and facet region
+  writer (`tools/oracles/dd2/dd2.py`), and the DD cap evidence (88
+  iterations, 1.9e-6 on P3). No core code changed.
+- Not done: facet imaging (arm I). Next step, frozen before it runs: find
+  why rang's dirty image of `dd1.ms` differs from WSClean 3.7's by 0.5 % of
+  the peak without facets (A2's diagnostics narrow it to the uv weighting
+  or gridding of WSClean's PSF), then rerun C0-C2 with `-image-pb.fits` as
+  the flat-gain product, then arm I.
+- WSClean's predict reads `<name>-model-pb.fits` when facet solutions are
+  applied (A1); DD3's major cycle must write that file.
 
 ## Amendments
 
@@ -133,3 +198,17 @@ Not yet measured.
 a CFITSIO error on the missing file; C0 had run). The run script now writes
 the same model image under both names; nothing else changes. Run `-01` is
 restarted into a fresh scratch directory.
+
+**A2, 2026-11-23, post hoc (after C0-C2 were read; arm I unread).**
+Diagnostics of C0, not part of any gate. The difference is not geometric:
+the four bright sources' peak positions agree to under 0.005 pixel at up to
+600 pixels from the centre, the peaks to 5e-5. Rang's dirty image is
+WSClean's times 0.997 plus a PSF-shaped residual of about 0.3 % of each
+source's peak, at every source including the centre. WSClean's own PSF
+(`-make-psf`) differs from rang's by 4.9e-3: 0.7474 against 0.7425 one pixel
+from the centre, equal further out (WSClean's PSF is slightly broader).
+Ruled out: the w sign (flipping it gives 0.72), `divide_by_n` (5.0e-3),
+single precision (5.0e-3), a frequency (uv) scale of ±0.1-0.3 % (worse in
+every case). Open: WSClean's weighting or gridding of this MS (the predict
+direction matches to 3e-7). For the rerun, the flat-gain comparison product
+is to be `-image-pb.fits`, a change made after reading C2.

@@ -1,0 +1,81 @@
+{
+ "note": "research/dd2-facet-imaging.md",
+ "cap": {
+  "max_iterations": 150,
+  "stop_criterion": 1e-07,
+  "stop_fraction": 0.99
+ },
+ "guard_nearest_time": true,
+ "solve": {
+  "iterations": 88,
+  "converged_fraction": 0.9934895833333334,
+  "flagged": 0,
+  "seconds": 1.498977199953515
+ },
+ "P3_under_cap": {
+  "iterations": 88,
+  "converged_fraction": 0.9934895833333334,
+  "truth": {
+   "max": 1.928908900015891e-06,
+   "median": 1.9623753371773703e-07,
+   "p95": 7.432712081179671e-07,
+   "per_direction": {
+    "d0": {
+     "median": 2.861104865999509e-07,
+     "p95": 8.940602271221653e-07
+    },
+    "d1": {
+     "median": 9.898669028898085e-08,
+     "p95": 3.585805857158742e-07
+    },
+    "d2": {
+     "median": 1.7165165910516196e-07,
+     "p95": 4.483926035212367e-07
+    },
+    "d3": {
+     "median": 2.980564701267325e-07,
+     "p95": 9.198828287215739e-07
+    }
+   }
+  }
+ },
+ "P1_under_cap_truth": {
+  "max": 0.02915183478894783,
+  "median": 0.0030958851596573243,
+  "p95": 0.010696768498561784,
+  "per_direction": {
+   "d0": {
+    "median": 0.002974915502601822,
+    "p95": 0.006279928218862986
+   },
+   "d1": {
+    "median": 0.0014522768451228304,
+    "p95": 0.0030660018108673083
+   },
+   "d2": {
+    "median": 0.003676603413982188,
+    "p95": 0.007740231127319954
+   },
+   "d3": {
+    "median": 0.00692419428992239,
+    "p95": 0.014559971798907377
+   }
+  }
+ },
+ "H_roundtrip": {
+  "unit": true,
+  "c2": true,
+  "solved": true
+ },
+ "guard_antennas": true,
+ "components": {
+  "kept": 28,
+  "dropped_near_boundary": 0,
+  "per_facet": [
+   9,
+   9,
+   3,
+   7
+  ]
+ }
+}
