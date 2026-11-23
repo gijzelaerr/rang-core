@@ -245,6 +245,22 @@ is training seed 2 alone. D7's recipe (its shards, unchanged) trained with seeds
 how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Run root
 `nash:~/rang-data/outputs/f7-seeds-20261123/`.
 
+*Seed spread measured (2026-11-23 14:24 SAST, nash; same run root).* Training 5,528 s (seed 1) and
+5,525 s (seed 3), 56 GB peak each; validation loss 0.0322 and 0.0319 (seed 2: 0.0344). `f6_tau.py`
+τ −3.0 (seed 1) and −4.0 (seed 3); W4 off. Screen on ESO137 chunk 10, N5 change per draw
+(20265301 / 02 / 03):
+
+| Seed | k = 1 | k = 4 | k = 8 | Screen (≤ 0.040 / 0.16 / 0.20) |
+| --- | --- | --- | --- | --- |
+| 1 | 0.068 / 0.073 / 0.074 | 0.133 / 0.126 / 0.125 | 0.221 / 0.187 / 0.196 | F |
+| 2 (D7) | 0.060 / 0.063 / 0.065 | 0.115 (complete scorer) | 0.197 | F |
+| 3 | 0.055 / 0.061 / 0.061 | 0.104 / 0.103 / 0.098 | 0.205 / 0.162 / 0.163 | F |
+
+Reading: seeds move k = 1 by about ±0.01 around 0.065 and none reaches the 0.05 bar, let alone the
+0.040 screen; the floor is the recipe's, not a seed's. Seed selection cannot pass this gate.
+`tau-s12.time` (12,701 s) includes about 3.3 h waiting in the lock behind a duplicate D9b job from
+a chain restart (killed 12:20 SAST); it is not τ's compute time.
+
 **D8 measured, ESO137 (2026-11-23 09:25 SAST, validation only; `nash:~/rang-data/outputs/f7-d8-20261123/`).**
 D7's weights, level 40, τ −4.0, k = 1, 256 baselines. N5's change on those baselines, and with a
 group frozen at its full-array values:
