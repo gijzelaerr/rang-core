@@ -61,6 +61,17 @@ convention (the circular wrap of the feather mask when a facet touches the
 image edge). Neither changes the visibilities or the per-facet gridding,
 which C1 confirms: the same pipeline with unit gains matches rang to 7.9e-8.
 
+**Correction, 2026-11-23 (upstream reply, post hoc).** Reported as
+[aroffringa/wsclean#210](https://gitlab.com/aroffringa/wsclean/-/work_items/210). WSClean's author
+confirmed the band is a real bug in 3.7, fixed in master, but with a different cause from the one
+above. For a facet touching the left image border, schaapcommon clips the trimmed box to the
+image (min x = 0) but lets the convolution box extend past it by the feather radius
+(min x = -32), so `needs_padding` is true. 3.7 passed those coordinates to a helper taking
+`size_t`; the negative minimum underflowed, `clipped_subtract(0, -32)` returned 0 instead of 32,
+and the mask was convolved unpadded and circularly. Master does the subtraction in signed
+integers (now in `main/jobs/facetstitchjob.cpp`). Our reading "not padded on that side because
+the boxes are equal" was wrong; the effect and the workaround (`-feather-size 0`) stand.
+
 ## 2. Decision (frozen before arm I is read)
 
 **The comparison excludes feathering; rang does not copy it.** Rang's facet
