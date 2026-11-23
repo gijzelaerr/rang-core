@@ -49,7 +49,7 @@ for s in $SCANS; do
     fi
     t2=$(date +%s.%N)
     out=$ROOT/labels/$teacher/$key; mkdir -p "$out"
-    "$VENV/bin/python" -I - "$wc" "$out" <<'PY'
+    python3 -I - "$wc" "$out" <<'PY'  # system python3 has python-casacore
 import sys, numpy as np
 from casacore.tables import table
 t = table(sys.argv[1], readonly=True, ack=False)
