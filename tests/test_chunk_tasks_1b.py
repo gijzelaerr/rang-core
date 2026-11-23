@@ -176,3 +176,84 @@ def test_the_chain_stages_do_not_depend_on_the_process_count(tmp_path, two_field
     assert pool["tasks"]["calibrate"].get("chain-chunk", 0) > 0
     if two_fields:
         assert pool["tasks"]["calibrate"].get("chain-field", 0) == 2
+
+
+@pytest.fixture(scope="module")
+def pol_ms(cal_ms, tmp_path_factory):
+    pytest.importorskip("astropy")
+    from test_c6w_polwire import _with_feed
+
+    return _with_feed(
+        Path(shutil.copytree(cal_ms, tmp_path_factory.mktemp("pol") / "x.ms"))
+    )
+
+
+def test_gpol_runs_its_chunks_in_workers(pol_ms, tmp_path):
+    """A Gpol solve (P-rotated model, a pre-applied K read from its path)
+    through `chain-chunk` tasks equals the serial solve."""
+    k = cal_delay.gaincal(pol_ms, field_id=0, refant=0, model=unit(pol_ms, 0),
+                          weight_column="WEIGHT")[0]  # fmt: skip
+    applycal.caltable.write(k, tmp_path / "K")
+    tables = {
+        "K": {"table": k, "type": "K", "fields": [0], "path": str(tmp_path / "K")}
+    }
+    term = {"type": "Gpol", "name": "Gpol", "fields": [1], "solint": "int",
+            "combine": "", "refant": 0, "refantmode": "flex", "minsnr": 3.0,
+            "minblperant": 2, "uvrange": "", "preapply": ["K"], "interp": [],
+            "max_iterations": 50, "stop_criterion": 1e-7, "stop_fraction": 0.99,
+            "model": "unit", "parang": True, "frame": "casa"}  # fmt: skip
+    common = {"model_column": "MODEL_DATA", "weight_column": "WEIGHT",
+              "budget": budget(400, rows=7)}  # fmt: skip
+    one = cal_chain._solve_pol(pol_ms, term, 1, tables, common)
+    r = cal_chain.recipe("solve_pol", pol_ms, term, 1, tables, common)
+    assert r is not None
+    with core_tasks.executor({"data": {"processes": 2, "threads": 2}}) as ex:
+        with cal_chunks.dispatching(cal_chunks.Dispatch(ex, r)):
+            got = cal_chain._solve_pol(pol_ms, term, 1, tables, common)
+        tasks = ex.describe()["tasks"]
+    assert cal_chain._sha(one[0]) == cal_chain._sha(got[0])
+    assert one[1] == got[1]
+    assert tasks["chain-chunk"] >= 4
+
+
+def test_apply_with_parang_does_not_depend_on_the_process_count(pol_ms, tmp_path):
+    k = cal_delay.gaincal(pol_ms, field_id=0, refant=0, model=unit(pol_ms, 0),
+                          weight_column="WEIGHT")[0]  # fmt: skip
+    applycal.caltable.write(k, tmp_path / "K")
+    out = {}
+    for arm, processes in (("one", 1), ("pool", 2)):
+        ms = Path(shutil.copytree(pol_ms, tmp_path / arm / "x.ms"))
+        with core_tasks.executor(
+            {"data": {"processes": processes, "threads": 2}}
+        ) as ex:
+            out[arm] = _apply(ms, [str(tmp_path / "K")], ex, parang=True)
+            out[arm + " tasks"] = ex.describe().get("tasks", {})
+    assert out["one"] == out["pool"]
+    assert out["pool tasks"].get("apply-casa", 0) > 1
+
+
+def test_a_failing_task_raises_after_the_partials_before_it(cal_ms, tmp_path):
+    """The pool yields the partials in plan order and raises a task's error
+    at its turn: the reduce has every earlier partial, none after."""
+    k = cal_delay.gaincal(cal_ms, field_id=0, refant=0, model=unit(cal_ms, 0),
+                          weight_column="WEIGHT")[0]  # fmt: skip
+    applycal.caltable.write(k, tmp_path / "K")
+    info = applycal.ms_info(Path(cal_ms))
+    ctx = applycal.ApplyContext(
+        tables=[k], interp=["linear"], maps=[applycal.field_map(k, "", info)],
+        fields=[0, 1], scan=None, applymode="calflag", column="DATA",
+        weighted=[False], spectrum=True, sigma_spectrum=False, nchan=16, info=info,
+        threads=0, parang=False, angle_tables={}, parang_flags="spread",
+    )  # fmt: skip
+    specs = core_tasks.plan_apply_casa(
+        cal_ms, [(0, 7), (7, 7), (14, 7), (21, 7)], ctx, [str(tmp_path / "K")]
+    )
+    specs[2].params["tables"] = [str(tmp_path / "missing")]
+    seen = []
+    with (
+        core_tasks.executor({"data": {"processes": 2, "threads": 2}}) as ex,
+        pytest.raises(Exception),  # noqa: B017 (the reader's own error)
+    ):
+        for part in ex.map(specs):
+            seen.append(part["start"])
+    assert seen == [0, 7]

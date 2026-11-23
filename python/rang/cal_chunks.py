@@ -154,25 +154,47 @@ def load(reader, rows, chunk, names, prepare, block_rows):
         out[key] = np.ascontiguousarray(value) if value.ndim >= 2 else value
     del got
     if "row_w" in out:
-        out["row_w"] = whole_row_weights(reader, rows, pos, names, prepare, block_rows)
+        task = _TASK.get()
+        if task is not None and task[1]:
+            # The counted pass of a chunk task: its row weights are not used
+            # (only pass 2's are), so the whole rows are not read for them.
+            del out["row_w"]
+        else:
+            out["row_w"] = whole_row_weights(
+                reader, rows, pos, names, prepare, block_rows,
+                task_key=None if task is None else task[0],
+            )  # fmt: skip
     return out
 
 
 # Per field (the owner of its `prepare`), the rows' weight sums of whole
 # rows by the set of rows they were taken over: 8 bytes a row.
 _ROW_WEIGHTS = weakref.WeakKeyDictionary()
+# The same in a worker, where each chunk task builds its field anew: by
+# recipe (`task_key`), the most recent few kept (research/chunk-task-api-1b.md
+# section 6: without it every channel chunk re-read the whole field).
+_TASK_ROW_WEIGHTS = {}
+_TASK_ROW_WEIGHTS_KEEP = 4
+# (recipe key, counted pass) of the chunk task running in this worker, or None.
+_TASK = contextvars.ContextVar("rang_chain_task", default=None)
 
 
-def whole_row_weights(reader, rows, pos, names, prepare, block_rows):
+def whole_row_weights(reader, rows, pos, names, prepare, block_rows, task_key=None):
     """`row_w` of field rows `pos` from whole rows (all channels), read and
     prepared in blocks of `block_rows` rows as the one-call solve prepares
-    them; memoised per field and set of rows."""
-    owner = getattr(prepare, "__self__", prepare)
+    them; memoised per field and set of rows (in a chunk task, per recipe
+    `task_key`)."""
     key = (len(pos), hashlib.sha256(np.ascontiguousarray(pos, np.int64)).hexdigest())
-    try:
-        memo = _ROW_WEIGHTS.setdefault(owner, {})
-    except TypeError:  # an owner without weak references: no memo
-        memo = {}
+    if task_key is not None:
+        memo = _TASK_ROW_WEIGHTS.setdefault(task_key, {})
+        while len(_TASK_ROW_WEIGHTS) > _TASK_ROW_WEIGHTS_KEEP:
+            _TASK_ROW_WEIGHTS.pop(next(iter(_TASK_ROW_WEIGHTS)))
+    else:
+        owner = getattr(prepare, "__self__", prepare)
+        try:
+            memo = _ROW_WEIGHTS.setdefault(owner, {})
+        except TypeError:  # an owner without weak references: no memo
+            memo = {}
     if key in memo:
         return memo[key]
     row_w = np.empty(len(pos))
@@ -388,7 +410,6 @@ class Dispatch:
 
     executor: object
     recipe: dict
-    calls: int = 0
 
 
 @dataclass
@@ -401,6 +422,7 @@ class Only:
     max_iterations: int
     stop_fraction: float
     trace: bool
+    key: str = ""  # the recipe's identity (the worker's row-weight memo)
 
 
 class ChunkDone(Exception):
@@ -451,12 +473,16 @@ def _dispatched(d, nchunks, max_iterations, stop_fraction, trace):
 def _only(only, chunks, run, row_w):
     """In a worker: run the chunk `only` names and raise its result."""
     chunk = chunks[only.index]
-    if only.trace:
-        raise ChunkDone(run(chunk, only.max_iterations, only.stop_fraction, True))
-    if row_w is None:
-        raise ValueError("a dispatched chunk needs the solve's row weights")
-    row_w[:] = _UNWRITTEN
-    result = run(chunk, only.max_iterations, only.stop_fraction, False)
+    token = _TASK.set((only.key or None, bool(only.trace)))
+    try:
+        if only.trace:
+            raise ChunkDone(run(chunk, only.max_iterations, only.stop_fraction, True))
+        if row_w is None:
+            raise ValueError("a dispatched chunk needs the solve's row weights")
+        row_w[:] = _UNWRITTEN
+        result = run(chunk, only.max_iterations, only.stop_fraction, False)
+    finally:
+        _TASK.reset(token)
     pos = _written(row_w)
     raise ChunkDone((result, pos, np.array(row_w[pos])))
 

@@ -29,6 +29,7 @@ import base64
 import collections
 import contextlib
 import functools
+import hashlib
 import json
 import os
 import tempfile
@@ -358,9 +359,10 @@ def _run_chain_chunk(spec, source):
     fn, ms, term, field_id, tables, common = cal_chain.from_recipe(
         p["recipe"], _read_caltable
     )
+    key = hashlib.sha256(json.dumps(p["recipe"], sort_keys=True).encode()).hexdigest()
     only = cal_chunks.Only(
         int(p["chunk"]), int(p["max_iterations"]), float(p["stop_fraction"]),
-        bool(p["trace"]),
+        bool(p["trace"]), key,
     )  # fmt: skip
     try:
         with cal_chunks.dispatching(only):
