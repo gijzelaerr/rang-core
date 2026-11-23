@@ -1,0 +1,15 @@
+{
+ "iterations": 150,
+ "fraction": 0.0,
+ "calmode": "p",
+ "scales": null,
+ "h5_roundtrip": true,
+ "seconds_solve": 148.6141922000097,
+ "seconds_image": 8.697595499979798,
+ "log_tail": "",
+ "hogbom": {
+  "sigma": 0.003782949888036819,
+  "stop": 0.018914749440184096,
+  "n": 135
+ }
+}
