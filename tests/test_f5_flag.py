@@ -309,6 +309,15 @@ F6_FEATURE_HASHES = {
             "e403e88da4329220f7e5b81fc2e982804609c688f601754eb8660068f1375189",
             "d06dcecea52986aba87101c9a97db7b36109740d0d7091c6ee0571353bc23c48",
         ),
+        # F7: levels 40 and 70 pinned 2026-11-23 on glacier at D9b's freeze (0 and 20 reproduced).
+        40: (
+            "022d443ae73eb1d5cb818c526b78a95549e2840a50c5ac5acc3d978fcbe328ef",
+            "47eeeff3d435431c16f6f79b5e8801d969ccf1dd3c980ffb45e946bd393f76b4",
+        ),
+        70: (
+            "8db1aa0cba64142443252991ab1f61c6a079c772bdf8503f5179f01dedeffa04",
+            "55f947015193933514b892bd7856d72c5ac514989091b608b555cf8fdc035ae4",
+        ),
     },
     "linux": {
         0: (
@@ -324,6 +333,11 @@ F6_FEATURE_HASHES = {
             "40b31a7708f7014f969bdc636f5b1f90d9b176578d1d99da4c33313b3f5f018e",
             "13f436acabb10c7f459ef9b9f3686ad13b83759c6419abe85d4c5979c51a2b11",
         ),
+        # F7: level 70 (D9b, the target candidate) pinned 2026-11-23 on nash, the build that trained it.
+        70: (
+            "8e14f64b261f19d928d8b4197d8737fc661927979d13549c9c75d1d4aa30291f",
+            "4d716f4996d262a8799f184474d5c6e7906c23e2f314fca5c95ee2b777695fe2",
+        ),
     },
 }
 
@@ -337,14 +351,14 @@ def _f7_inputs(level):
     return scan, flagged, x, f5.rust_logits(scan, flagged, w, level, 1)
 
 
-@pytest.mark.parametrize("level", [0, 20, 40])
+@pytest.mark.parametrize("level", [0, 20, 40, 70])
 def test_f6_features_are_unchanged_by_f7(level):
     import hashlib
     import sys
 
     pinned = F6_FEATURE_HASHES.get(sys.platform)
     if pinned is None or level not in pinned:
-        pytest.skip("hashes pinned on Windows and Linux only (level 40: Linux)")
+        pytest.skip("hashes pinned on Windows and Linux only")
     _, _, x, z = _f7_inputs(level)
     got = tuple(
         hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest() for a in (x, z)
