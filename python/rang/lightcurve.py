@@ -20,10 +20,11 @@ spectrum per position: the same DFT over each of M equal groups of
 contiguous channels (`rang._core.lightcurve_dft_grouped`; WSClean's
 `-channels-out M` grouping, M must divide the channels), written to
 `dynspec.csv`. A group with no weighted sample gives NaN (`null` in JSON).
-The light curve itself does not change with M. `weights="unit"` (TS-P3,
-research/ts-p3.md) weighs every correlation 1 in place of WEIGHT_SPECTRUM,
-flags still applied, as gemclean's `-unit-weights`; the default "ms" is
-unchanged.
+The light curve itself does not change with M. Weights: the default
+`weights="unit"` (TS-P3 and TS-P4, research/ts-p3.md, research/ts-p4.md)
+weighs every correlation 1 in place of WEIGHT_SPECTRUM, flags still applied,
+as gemclean's `-unit-weights`; `weights="ms"`, the default before TS-P4,
+reads WEIGHT_SPECTRUM (else WEIGHT) and reproduces earlier outputs.
 
 Stokes I and its weight follow WSClean's `-pol I` (`core_weights.stokes_i`):
 `I = (XX + YY) / 2`, weight `min(4 w_XX, 4 w_YY)`, zero when a hand is
@@ -63,9 +64,10 @@ __all__ = [
 ARCSEC = math.pi / (180.0 * 3600.0)
 LINEAR = [9, 10, 11, 12]
 MAD_TO_SIGMA = 1.482602218505602
-# --weights (research/ts-p3.md 1a): "ms" reads WEIGHT_SPECTRUM (else WEIGHT);
-# "unit" weighs every correlation 1, flags still applied (gemclean's
-# -unit-weights).
+# --weights (research/ts-p3.md 1a): "unit", the default since TS-P4
+# (research/ts-p4.md), weighs every correlation 1, flags still applied
+# (gemclean's -unit-weights); "ms" reads WEIGHT_SPECTRUM (else WEIGHT), the
+# earlier default.
 WEIGHTS = ("ms", "unit")
 CSV_COLUMNS = (
     "interval",
@@ -430,7 +432,7 @@ def light_curves(
     device="cpu",
     candidate_sigma=None,
     channels_out=None,
-    weights="ms",
+    weights="unit",
 ):
     """Light curves of `positions` ((name, ra_deg, dec_deg) tuples) in the
     residual of `field` (id or name). `model_column=None` uses the data

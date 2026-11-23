@@ -193,13 +193,22 @@ def test_protocol2_small_simulation_matches_the_numpy_oracle(tmp_path):
         ["tsp1-held2", str(tmp_path), "--ntime", "40", "--nant", "8", "--nchan", "16"]
     )  # fmt: skip
     truth = json.loads((tmp_path / "tsp1-held2.truth.json").read_text(encoding="utf-8"))
-    res = lc.light_curves(ms, positions(truth), field=3, size=SIZE, scale_arcsec=4.0)
+    # The MS's spectral, unequal weights (`weights="ms"`, the default before
+    # TS-P4, research/ts-p4.md); the default unit weights are checked below.
+    res = lc.light_curves(
+        ms, positions(truth), field=3, size=SIZE, scale_arcsec=4.0, weights="ms"
+    )
     assert res["settings"]["column"] == "CORRECTED_DATA"
     assert res["settings"]["weight_column"] == "WEIGHT_SPECTRUM"
     dft, _ = measure.oracle(ms, truth)
     sig = np.array(truth["sigma_snap_interval_jy"])[:, None]
     flux = np.array(res["flux_jy"])
     assert np.max(np.abs(flux - dft) / sig) < 1e-6
+    unit = lc.light_curves(ms, positions(truth), field=3, images=False)
+    assert unit["settings"]["weights"] == "unit"
+    dft_unit, _ = measure.oracle(ms, truth, unit=True)
+    assert np.max(np.abs(np.array(unit["flux_jy"]) - dft_unit) / sig) < 1e-6
+    assert not np.allclose(unit["flux_jy"], res["flux_jy"])
     snap = np.array(res["flux_snapshot_jy"], float)
     ok = np.isfinite(snap)
     assert np.max(np.abs(snap - flux)[ok] / np.broadcast_to(sig, snap.shape)[ok]) < 1e-3
