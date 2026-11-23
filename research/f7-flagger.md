@@ -368,6 +368,22 @@ separate processes) with F5's bars (≤ 0.8 beats, > 1.2 worse). The outcome fol
 rule: H unless C1 beats at 4 and 1 threads and C2 is not worse (S), F if C1 is worse at either.
 Run root `glacier:D:/rang/outputs/f7-cost-20261123/`. Calibrators are not timed (F).
 
+**D9b cost measured (2026-11-23 23:38-23:43 SAST, glacier, exclusive, code 0155b2fa; `f7_timing.sh`,
+`timing.log`).** The 10 s CPU gate refused eight times from 21:35 (host not idle; retried every
+900 s) and passed at 23:38. ESO137 chunk 0, 48,353 rows, 24.8 M cells, U5 at level 70, five
+alternating pairs, every pair clean (other CPUs 0.22-0.35):
+
+| Run | T (s) | N5 (s) | Ratio median | q25 | q75 | Reading |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| C1, 4 threads | 10.5-10.7 | 5.39-5.41 | 0.503 | 0.499 | **0.504** | matches (q75 > 0.5) |
+| C1, 1 thread | 38.6-39.0 | 18.8-18.9 | 0.486 | 0.486 | 0.486 | beats |
+| C2, 4 threads | 1,626.6 MB | 1,626.7 MB | 1.000 | | | matches |
+
+U5 flags 0.998 of cells (untrained, τ 0), T 0.400, as in F5's Stage 2. **Cost does not beat**:
+C1 at 4 threads misses the 0.5 bar by 0.004 on the upper quartile, C2 is equal; nothing is worse.
+By the frozen decision rule the target outcome stays **H** (quality as the held-out read decides,
+cost not S), not changed post hoc. Files `c1-eso-0-t{4,1}-N5.{json,log}`, `c2-eso-0-{T,F5}.json`.
+
 **F7 target freeze (2026-11-23 20:50 SAST, before any held-out read).** Seeds 1 and 3 on D9b's
 shards (training 7,395 s and 16,895 s wall, the latter mostly lock wait; validation loss 0.0390 and
 0.0524; seed 2: 0.0421). `f6_tau.py` over seeds 1-3 selects the median by validation loss,
