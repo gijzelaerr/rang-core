@@ -61,7 +61,9 @@ def bins(c, ti, fi):
     return time_bin, freq_bin, int(time_bin.max()) + 1, int(freq_bin.max()) + 1
 
 
-def solve(c, case):
+def solve(c, case, **stop):
+    """`stop`: max_iterations, stop_criterion, stop_fraction overrides
+    (amendment A1's P3-long); the frozen settings otherwise."""
     from rang import cal_gain
 
     col, ti, fi, pinned = CASES[case]
@@ -70,7 +72,7 @@ def solve(c, case):
     sol = cal_gain.solve_dd(
         c[col], c["MODEL"], c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
         c["ANTENNA1"], c["ANTENNA2"], time_bin, nant=c["nant"], freq_bin=freq_bin,
-        refant=0, pinned_directions=pinned,
+        refant=0, pinned_directions=pinned, **stop,
     )  # fmt: skip
     seconds = time.perf_counter() - t0
     return {
@@ -89,8 +91,14 @@ def quartical(qcdir, case):
     if len(parts) != 1:
         raise ValueError(f"{case}: {len(parts)} partitions, expected 1")
     v = parts[0].variables
+    g = np.asarray(v["gains"].data)
+    if g.shape[-1] == 4:  # diag_complex on four correlations: XX, XY, YX, YY
+        offdiag = float(np.abs(g[..., [1, 2]]).max())
+        if offdiag != 0.0:
+            raise ValueError(f"{case}: off-diagonal gains {offdiag}")
+        g = g[..., [0, 3]]
     return {
-        "gains": np.asarray(v["gains"].data),
+        "gains": g,
         "flags": np.asarray(v["gain_flags"].data),
         "iterations": int(np.asarray(v["conv_iter"].data).ravel()[0]),
         "fraction": float(np.asarray(v["conv_perc"].data).ravel()[0]),
@@ -162,7 +170,14 @@ def timing(sim, threads):
     for n in threads:
         env = dict(os.environ, RAYON_NUM_THREADS=str(n))
         r = subprocess.run(
-            [sys.executable, __file__, str(sim), "-", "-", "--solve-only"],
+            [
+                sys.executable,
+                str(Path(__file__).resolve()),
+                str(sim),
+                "-",
+                "-",
+                "--solve-only",
+            ],
             env=env,
             capture_output=True,
             text=True,
@@ -200,14 +215,31 @@ def main(argv=None):
             entry["truth_rang"] = truth_stat(r, truth, case, nant)
             entry["truth_quartical"] = truth_stat(o, truth, case, nant)
         record["cases"][case] = entry
+    long = solve(c, "P3", max_iterations=2000, stop_criterion=1e-10, stop_fraction=1.0)
+    record["P3_long"] = {
+        "iterations": long["iterations"],
+        "fraction": long["fraction"],
+        "truth": truth_stat(long, truth, "P3", nant),
+    }
     t3 = record["cases"]["P3"]["truth_rang"]["max"]
-    record["T"] = {"P3_max_rel": t3, "pass": bool(t3 <= TOL_T)}
+    record["T"] = {
+        "P3_max_rel": t3,
+        "pass": bool(t3 <= TOL_T),
+        "P3_long_max_rel": record["P3_long"]["truth"]["max"],
+        "P3_long_pass": bool(record["P3_long"]["truth"]["max"] <= TOL_T),
+    }
     record["A_all_pass"] = all(e["A"]["pass"] for e in record["cases"].values())
-    record["timing_rang"] = timing(sim, [int(x) for x in a.threads.split(",")])
+    record["rayon_num_threads"] = os.environ.get("RAYON_NUM_THREADS")
     Path(a.out).write_text(json.dumps(record, indent=1), encoding="utf-8")
-    print(json.dumps({k: record[k] for k in ("A_all_pass", "T")}))
+    print(json.dumps({k: record[k] for k in ("A_all_pass", "T")}), flush=True)
     for case, e in record["cases"].items():
-        print(case, json.dumps(e["A"]))
+        print(case, json.dumps(e["A"]), flush=True)
+    try:
+        record["timing_rang"] = timing(sim, [int(x) for x in a.threads.split(",")])
+    except (OSError, subprocess.CalledProcessError) as err:
+        record["timing_rang"] = {"error": repr(err)}
+    Path(a.out).write_text(json.dumps(record, indent=1), encoding="utf-8")
+    print(json.dumps(record["timing_rang"]))
 
 
 if __name__ == "__main__":

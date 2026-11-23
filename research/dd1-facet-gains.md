@@ -7,7 +7,7 @@ Branch `dd-facets-15`. Sections 1-6 are frozen 2026-11-23, before any code
 that tests them; later changes are dated amendments at the end, labelled post
 hoc where they could have seen a result.
 
-Status: **proposed** (section 7 records the measurement when it exists).
+Status: **measured 2026-11-23**: gate A (parity with QuartiCal) passes on P1-P4; gate T misses at 50 iterations and passes on amendment A1's P3-long, so the outcome is **algorithmic non-convergence** (section 7).
 
 ## 1. What exists, and what earlier work says
 
@@ -172,7 +172,67 @@ solver time from its log, on glacier under `heavy_lock`.
 
 ## 7. Measured result
 
-Not yet measured.
+Run `D:/rang/outputs/dd1-20261123-01` (simulation from `sim.py`, regenerated
+from b6ec8d50 into `-02` with every column identical; QuartiCal stores and
+logs in `qc/`, versions in `qc/versions.txt`; `compare.json`, archived as
+[results/dd1-facet-gains.json](results/dd1-facet-gains.json)). Host glacier,
+shared and loaded; rang's gate solves at `RAYON_NUM_THREADS=8`.
+
+**Gate A, parity: pass on every case.**
+
+| Case | flags | max abs gain diff | max abs product diff | iterations (rang, QC) | converged fraction (both) |
+| --- | --- | --- | --- | --- | --- |
+| P1 | equal | 5.0e-16 | 1.3e-15 | 50, 50 | 0.00098 |
+| P2 | equal | 7.0e-16 | 1.6e-15 | 50, 50 | 0.0 |
+| P3 | equal | 5.0e-16 | 1.3e-15 | 50, 50 | 0.00098 |
+| P4 | equal | 6.7e-16 | 1.8e-15 | 50, 50 | 0.251 |
+
+QuartiCal stores a `diag_complex` term on four-correlation data with four
+gain correlations; the off-diagonals are exactly zero and the parallel hands
+are compared.
+
+**Gate T, truth (P3, noiseless): fails at the frozen settings, passes on
+P3-long.** Relative product error against the truth (median, 95th
+percentile, max), rang and QuartiCal identical:
+
+| Case | median | p95 | max |
+| --- | --- | --- | --- |
+| P3 (50 iterations, stopped by the cap) | 5e-5 | 1.6e-4 | **3.6e-4** (limit 1e-4) |
+| P3-long (stop fraction 1.0, 1e-10) | – | – | **1.2e-8** after 140 iterations |
+| P1 (noisy, 4 × 8 s, all channels) | 3.1e-3 | 1.1e-2 | 2.9e-2 |
+| P2 (noisy, 8 s, 4 channels) | 1.8e-2 | 5.1e-2 | 1.5e-1 |
+
+P1 per direction (median): d0 3.0e-3, d1 (2 Jy) 1.5e-3, d2 3.7e-3, d3
+(0.4 Jy) 6.9e-3, ordered as the facets' flux.
+
+**Outcome under section 6 and A1: algorithmic non-convergence.** The port is
+QuartiCal's to rounding (gate A); QuartiCal's DD update, with its update
+halved on every iteration and directions uncoupled, has not converged after
+the 50 iterations rang and CARACal use (converged fraction 0.1 % on P1 and
+P3, 25 % on P4 where one direction is pinned); 140 iterations reach the
+truth to 1.2e-8. At 50 iterations the residual convergence error (3.6e-4) is
+about a tenth of the noise error on P1 (median 3.1e-3), so it is small but
+not negligible on bright facets. A better DD update (coupled directions, or
+no permanent halving) is a candidate for a later proposal, not part of DD1.
+
+**Cost (indicative, not gated; shared loaded host).** rang in-process, all
+four cases 50 iterations: 4.1-4.5 s at 1 thread, 0.82-1.06 s at 8 threads
+(including the Python marshalling). QuartiCal 0.2.7 whole process at one
+thread: 28.9-56.5 s, its graph execution 24.9-48.4 s with Numba compilation
+included; its log gives no solver-only time, so no ratio is claimed.
+
+## 8. For the coordinator
+
+- DD1 is the solve only and is merge-ready as parity with QuartiCal: new
+  module `core/src/cal/diag_dd.rs`, binding `cal_gain_solve_dd`, Python
+  `rang.cal_gain.solve_dd`, no existing path touched (gain-hash gate passes).
+- Open owner decision: the DD iteration cap. At 50 iterations the DD solve is
+  not converged on this layout; 140 suffice here. Either raise the cap for
+  the DD term in rang's recipes (still QuartiCal's algorithm), or scope a
+  better DD update as its own proposal.
+- Next piece: DD2 (facet imaging with per-facet gains against WSClean
+  `-facet-regions` and `-apply-facet-solutions`); needs an H5parm export of
+  `solve_dd`'s gains and its own frozen tolerance.
 
 ## Amendments
 
