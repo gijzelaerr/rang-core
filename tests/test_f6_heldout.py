@@ -43,3 +43,18 @@ def test_split_guard(tmp_path):
     with pytest.raises(KeyError):
         w.load_sarao_set("sarao:9:9", heldout=False)
     assert w.sarao_entry(str(tmp_path), "3", "007")["split"] == "heldout"
+
+
+def test_reserved_eso_guard(monkeypatch):
+    w = _wrapper()
+    monkeypatch.setattr(w.f3, "read_eso", lambda chunk: {"chunk": chunk})
+    w.HELDOUT_READ = False
+    with pytest.raises(PermissionError, match="held out"):
+        w.load_eso_set("eso:1", heldout=True)
+    with pytest.raises(PermissionError, match="held out"):
+        w.load_eso_set("eso:17", heldout=False)
+    assert w.load_eso_set("eso:10", heldout=False) is None  # F4's guard decides
+    w.HELDOUT_READ = True
+    with pytest.raises(PermissionError, match="held out"):
+        w.load_eso_set("eso:3", heldout=False)
+    assert w.load_eso_set("eso:15", heldout=True) == {"chunk": 15}

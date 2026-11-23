@@ -411,6 +411,17 @@ docs and scripts only; Tricolour is not needed by the scorer and is not run). Th
 `d9b-held.sh` runs again; it skips the finished ESO137 and simulation sets, so every held-out set
 is still scored once. Chain `research/results/f7/d9b-held-labels.sh`.
 
+*Amendment H2 (2026-11-24 00:30 SAST, post hoc on procedure, not on the method or a gate; no
+ESO137 result read).* All nine SARAO sets and f4sim-t were scored. The seven ESO137 jobs stopped at
+load: `f4flag.load_eso` refuses F4's reserved chunks 1, 3, 5, 7, 9, 15, 17, which F6's design
+(section 4 of `research/f6-flagger.md`) names as its held-out target chunks; F6 never reached a
+held-out read, so the path was never run. The verdict step then stopped on the missing ESO137
+files and wrote no verdict (`held-verdict.log` holds only the traceback). Fix: `f6_heldout.py`
+reads a reserved chunk with `f3.read_eso`, the reader F4's guard calls, only for a held-out scoring
+run with `--heldout-read`; every other chunk keeps F4's guard (`tests/test_f6_heldout.py`). Then
+`d9b-held.sh` runs again: it skips the finished SARAO and simulation sets and runs the ESO137 sets
+and the verdict, so every held-out set is still scored once.
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
