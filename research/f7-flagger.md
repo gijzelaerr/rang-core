@@ -368,6 +368,20 @@ separate processes) with F5's bars (≤ 0.8 beats, > 1.2 worse). The outcome fol
 rule: H unless C1 beats at 4 and 1 threads and C2 is not worse (S), F if C1 is worse at either.
 Run root `glacier:D:/rang/outputs/f7-cost-20261123/`. Calibrators are not timed (F).
 
+**F7 target freeze (2026-11-23 20:50 SAST, before any held-out read).** Seeds 1 and 3 on D9b's
+shards (training 7,395 s and 16,895 s wall, the latter mostly lock wait; validation loss 0.0390 and
+0.0524; seed 2: 0.0421). `f6_tau.py` over seeds 1-3 selects the median by validation loss,
+**seed 2**, τ **−4.5** (`f7-d9b-20261123/method3.json`); its screen reproduces D9b's exactly
+(0.029-0.032 / 0.049-0.059 / 0.101-0.122), and seed 2 is the weights the complete validation
+scorer passed. **Frozen:** `f7-d9b-20261123/method-frozen.json` = `method3.json` (class target,
+level 70, degree 1, τ −4.5, N5, W4 off, weights sha256
+`d196a343f84f61746baf506cadbd0ebb1fd912877315c4002ca629437df2a5e2`), kernel at e7466499 (level-70
+hashes pinned on Linux and Windows). Held-out read, once, by `research/results/f7/d9b-held.sh`:
+SARAO 1678312253 scans 36/40/44, 1674958551 31/35/39, 1579022459 115/117/121 (DL2's held-out
+target scans); ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. T and A computed in the run, gates as
+frozen (G-drop every draw on every set against 0.05 / 0.20 / 0.25). The outcome is recorded
+whatever it is; the cost gate (tonight, glacier) completes it. Calibrators: F, nothing read.
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
