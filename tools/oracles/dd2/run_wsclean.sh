@@ -19,7 +19,7 @@ cp "$run/model.fits" "$scratch/model.fits"
 cp "$run/facets.reg" "$scratch/facets.reg"
 cp -r "$run/h5" "$scratch/h5"
 docker run --rm --entrypoint "" "$image" cat /wsclean-commit.txt > "$run/wsc/wsclean-commit.txt"
-common=(-gridder wgridder -wgridder-accuracy 1e-6 -size 2400 2400 -scale 4asec -pol I -j 8)
+common=(-gridder wgridder -wgridder-accuracy 1e-6 -size 3200 3200 -scale 3asec -pol I -j 8)
 facets() { echo -facet-regions /w/facets.reg -apply-facet-solutions "/w/h5/$1.h5" amplitude000,phase000; }
 wsc() {  # name, args...
   local name=$1; shift
@@ -64,5 +64,6 @@ for case in C0 C1 C2 I; do
     -data-column DATA -no-update-model-required "${extra[@]}" /w/img.ms
   cp "$scratch/img-$case-dirty.fits" "$run/wsc/image-$case-dirty.fits"
   cp "$scratch/img-$case-image.fits" "$run/wsc/image-$case-image.fits"
+  if [ -e "$scratch/img-$case-image-pb.fits" ]; then cp "$scratch/img-$case-image-pb.fits" "$run/wsc/image-$case-image-pb.fits"; fi
 done
 date -u +%FT%TZ > "$run/wsc/finished.txt"

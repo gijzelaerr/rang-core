@@ -23,8 +23,8 @@ from pathlib import Path
 
 import numpy as np
 
-NX = NY = 2400
-SCALE_ARCSEC = 4.0
+NX = NY = 3200
+SCALE_ARCSEC = 3.0
 EDGE_PX = 3
 CAP = {"max_iterations": 150, "stop_criterion": 1e-7, "stop_fraction": 0.99}
 EPS = 1e-7
@@ -417,6 +417,14 @@ def read_fits(path):
     return np.asarray(fits.getdata(str(path)), float)[0, 0]
 
 
+def wfile(w, case, kind):
+    """WSClean's product for `kind`: the dirty image, or the flat-gain image
+    (`-image-pb.fits` when facet solutions were applied, amendment A3)."""
+    if kind == "image" and (w / f"image-{case}-image-pb.fits").exists():
+        return read_fits(w / f"image-{case}-image-pb.fits")
+    return read_fits(w / f"image-{case}-{kind}.fits")
+
+
 def compare(run):
     sim = Path(json.loads((run / "sim.json").read_text())["sim"])
     truth = dict(np.load(sim / "truth.npz"))
@@ -438,9 +446,7 @@ def compare(run):
         for kind in ("dirty", "image")
     }
     rec["image_C1"] = {
-        kind: i_gate(
-            r[f"I_C1_a_{kind}"], read_fits(w / f"image-C1-{kind}.fits"), interior
-        )
+        kind: i_gate(r[f"I_C1_a_{kind}"], read_fits(wfile(w, "C1", kind)), interior)
         for kind in ("dirty", "image")
     }
     c2 = {}
@@ -448,7 +454,7 @@ def compare(run):
         c2[cand] = {
             kind: i_gate(
                 r[f"I_C2_{cand}_{kind}"],
-                read_fits(w / f"image-C2-{kind}.fits"),
+                read_fits(wfile(w, "C2", kind)),
                 interior,
                 C2_FACET,
                 idx,
@@ -467,11 +473,12 @@ def compare(run):
     if rec["C2_candidate"]:
         k = rec["C2_candidate"]
         rec["arm_I"] = {
-            kind: i_gate(
-                r[f"I_I_{k}_{kind}"], read_fits(w / f"image-I-{kind}.fits"), interior
-            )
+            kind: i_gate(r[f"I_I_{k}_{kind}"], read_fits(wfile(w, "I", kind)), interior)
             for kind in ("dirty", "image")
         }
+        rec["arm_I_image_fits_reported"] = i_gate(
+            r[f"I_I_{k}_image"], read_fits(w / "image-I-image.fits"), interior
+        )
     rec["arm_P"] = rec["predict_P"]
     (run / "compare.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
     print(json.dumps(rec, indent=1))

@@ -212,3 +212,30 @@ single precision (5.0e-3), a frequency (uv) scale of ±0.1-0.3 % (worse in
 every case). Open: WSClean's weighting or gridding of this MS (the predict
 direction matches to 3e-7). For the rerun, the flat-gain comparison product
 is to be `-image-pb.fits`, a change made after reading C2.
+
+**A3, 2026-11-23, post hoc diagnosis of C0, then a frozen addendum (before
+any rerun).** *Diagnosis.* Earlier parity runs (DF2b, the GeMClean
+benchmark) also passed `-no-min-grid-resolution`; adding it leaves C0 at
+5.0e-3 (WSClean logs that small inversion is not used here). The two PSFs'
+Fourier transforms have a constant ratio 1.002985 at every uv radius, and
+`1.002985 × PSF_rang − PSF_WSClean` is 0.002985 at the centre pixel and
+below 5e-6 everywhere else: WSClean leaves out a set of visibilities spread
+over the uv plane holding 0.2985 % of the weight. 0.2976 % of the
+visibilities have |u| or |v| beyond 1/(2Δ) = 25,783 λ, the Nyquist limit of
+the unpadded 4″ grid (longest |u|, |v| 30,400 λ; Nyquist pixel 3.39″),
+which gives f/(1−f) = 0.2985 %. So WSClean 3.7 drops visibilities outside
+the unpadded image's uv range, and rang's gridder keeps them. This is a
+**setup mismatch**: DD2's 4″ pixel undersamples the longest baselines. It
+is a difference of behaviour on undersampled images, not a gridding
+difference on a Nyquist-sampled one.
+
+*Addendum (frozen).* Rerun as `dd2-20261123-02` with everything in sections
+3-6 unchanged except the following.
+- The image grid is 3200 × 3200 pixels of 3″, which keeps the 2.67° field
+  and is below the 3.39″ Nyquist pixel. The model image and the facet masks
+  follow it. Components are again dropped within 3 pixels of a boundary.
+- C2 and arm I compare `-dirty.fits` with rang's facet image times
+  `1/sqrt(c)`, and **`-image-pb.fits`** (the flat-gain product) with rang's
+  times `1/c`. `-image.fits` is reported, not gated.
+- All controls (C0, C1, C2) and both arms (P, I) are rerun, P included,
+  since the grid changed.
