@@ -355,6 +355,19 @@ candidate is level 70; seeds 1 and 3 are training (`d9b-seeds.sh`), then the med
 and must pass the screen and, if it is not seed 2, the complete scorer, before the held-out read
 and the cost timing.
 
+**D9b cost gate (proposed 2026-11-23 17:30 SAST, before the run; targets only).** F5's Stage 6
+protocol (`research/f5-flagger.md` section 10) unchanged except the level: `examples/f7_timing.sh`
+times U5 (untrained; the weights do not change the work, level 70's dead zone and one-step fit do)
+at **level 70**, degree 1, method N5 (W4 off) against T (full first-pass YAML) on ESO137 chunk 0
+(neither validation nor held out), `RAYON_NUM_THREADS` 4 and 1, five alternating pairs, the 10 s
+CPU gate, exclusive under `heavy_lock` on glacier from 21:00 SAST (glacier's own `f7-draft`
+worktree venv, built from the main checkout's frozen requirements plus psutil, `maturin develop
+--release` at the commit the run logs). C1 is read with F5's bars (beats: upper quartile ≤ 0.5 at
+both thread counts; worse: median > 1.1 at either); C2 (peak working set, T and N5, 4 threads,
+separate processes) with F5's bars (≤ 0.8 beats, > 1.2 worse). The outcome follows F5's decision
+rule: H unless C1 beats at 4 and 1 threads and C2 is not worse (S), F if C1 is worse at either.
+Run root `glacier:D:/rang/outputs/f7-cost-20261123/`. Calibrators are not timed (F).
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
