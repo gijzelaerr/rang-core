@@ -13,7 +13,9 @@ QuartiCal) and `step_o2.sh` (corrupted predict, residual column, image).
 
 ARM (DD3b, research/dd3b-flux-pin.md): `base` (DD3, default), `P` (phase-only
 DD solves in cycles 0 and 1, then amplitude and phase) or `N` (amplitude and
-phase, each direction's mean |g| scaled to 1 after every solve, both arms).
+phase, each direction's mean |g| scaled to 1 after every solve, both arms);
+`Pown` is P with each direction's own gain in the phase J^H r (rang only,
+DD3b amendment A1).
 """
 
 import importlib.util
@@ -54,7 +56,7 @@ def arm_of(run):
 
 
 def calmode(arm, k):
-    return "p" if arm == "P" and k < PHASE_CYCLES else "ap"
+    return "p" if arm in ("P", "Pown") and k < PHASE_CYCLES else "ap"
 
 
 def normalise(arm, gains, flags):
@@ -79,7 +81,7 @@ def setup(sim, run, arm="base"):
     from rang import core_grid, core_wgridder
 
     run.mkdir(parents=True, exist_ok=False)
-    if arm not in ("base", "P", "N"):
+    if arm not in ("base", "P", "Pown", "N"):
         raise SystemExit(f"unknown arm {arm!r}")
     (run / "arm.json").write_text(json.dumps({"arm": arm}))
     c = dd2.read_ms(Path(sim) / "dd1.ms")
@@ -239,7 +241,7 @@ def arm_r(run):
         sol = cal_gain.solve_dd(
             c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
             c["ANTENNA1"], c["ANTENNA2"], block, nant=nant, refant=0, **CAP,
-            calmode=calmode(arm, k),
+            calmode=calmode(arm, k), phase_last_direction_gain=arm != "Pown",
         )  # fmt: skip
         gains, scales = normalise(arm, sol.gains, sol.flags)
         t1 = time.perf_counter()

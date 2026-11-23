@@ -409,6 +409,7 @@ fn conjugate_gradient(a: &[f64; 4], b: &[f64; 2], x: &mut [f64; 2]) -> Result<()
 }
 
 /// `compute_jhj_jhr` for one interval's gains (indexed `antenna * ndir + d`).
+#[allow(clippy::too_many_arguments)]
 fn accumulate(
     problem: &Problem,
     models: &[f32],
