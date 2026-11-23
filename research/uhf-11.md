@@ -273,6 +273,36 @@ Not run. On 2026-11-23 the owner was asked for UHF archive links
 (`~/rang-data/sarao-link-uhf*.txt`). A watcher waits for them; the scope
 section 5 rule then applies before any visibility is read.
 
+## Amendment 1 (2026-11-23, post hoc: after sections 8.1 and 8.2 were measured)
+
+- **Section 3's claim is replaced.** It said the model is exactly what CARACal hands `setjy`. Reading
+  CARACal's `catalog_parser.convert_pb_to_casaspi` showed that CARACal hands `setjy` a `curve_fit` of
+  the cubic over 0.8-1.8 GHz, not an exact conversion. So:
+  - rang's model is the exact cubic;
+  - CARACal's fit is kept as `fluxstd.CARACAL_0408`;
+  - the test against the fit has limits set **after** measuring it: 1e-8 below 843 MHz (4.5e-9
+    measured) and 1e-10 above (4.2e-11 measured).
+- **The frozen checks stand as written.** Both exact manual-spix conversions, at 1.284 GHz and 816 MHz,
+  hold to 1e-12 over 0.544-20 GHz (`test_0408_exact_manual_conversion`), and so does the direct
+  evaluation (`test_0408_cubic_and_aliases`).
+- **What `verified=True` rests on.** CASA has no compiled 0408-65 model, and no `setjy` run on 0408-65
+  was made here. It rests on two things together:
+  - FS1's pin of `fluxstd.manual` to `setjy(standard='manual')`;
+  - the exact conversion above.
+- **The user path was run.** `calmodels.Standard(standard="caracal")` on a field named `J0408-6545`
+  resolves to the model (24.93 Jy at 900 MHz). The manual path's keys are `flux_jy`, `spix` and
+  `reffreq_hz` (`core_config`). `docs/limits.md` was corrected to them.
+- **Section 2's mask-line labels are not sourced.** That is GSM at 915-960 MHz, transponders near
+  1030/1090 MHz, and DME at 1040/1051 MHz. Treat them as not checked. What stands is that both mask
+  files are what Tricolour 0.2.1 loads: the port loads them as Tricolour does, `core-d-tricolour.md`
+  section 2, and P1 is flag for flag with both.
+- **Before any UHF visibility is read, two points go to the coordinator:**
+  - R4 decides eligibility. The four J1331+3030 MeerKLASS blocks show no 1934-638 or 0408-65 scan in
+    their paper's table, so whether they are eligible is checked from RDB metadata.
+  - If only MeerKLASS (on-the-fly target) blocks qualify, the gate's imaging rows cannot run as carried
+    over. That gate change goes to the coordinator and a dated amendment before any run.
+  - Fetches are sized from metadata first, at 2 s dumps, keeping 150 GB free on nash.
+
 ## For the coordinator
 
 - Branch `uhf-11`. Data-free pieces implemented and checked. P1 passes

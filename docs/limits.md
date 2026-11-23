@@ -25,8 +25,9 @@ limit, not solved (below).
   channels outside 856-1712 MHz runs with one warning that names this page and
   the band it detected. PKS 0408−65 has a flux model (setjy standard `caracal`,
   CARACal's 2016 cubic, valid from 843 MHz, so it refuses most of UHF; there
-  `model.source: manual` with `rang.fluxstd.CARACAL_0408` is what CARACal
-  gives CASA), but no UHF track has been calibrated yet
+  `calibrate.model.source: manual` with `flux_jy`, `spix` and `reffreq_hz` from
+  `rang.fluxstd.CARACAL_0408` is what CARACal gives CASA), but no UHF track has
+  been calibrated yet
   ({gh}`research/uhf-11.md`). Data from other
   telescopes runs with a warning, untested ({gh}`research/meerkat-scope.md`).
 - **Native MeerKAT data: tested once, not met as frozen.** E2-N (SARAO

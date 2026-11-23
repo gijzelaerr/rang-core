@@ -231,3 +231,21 @@ def test_caracal_1934_from_the_same_conversion():
     assert fluxstd.CARACAL_1934["fluxdensity"] == pytest.approx(
         14.907688923070978, rel=1e-10
     )
+
+
+def test_0408_exact_manual_conversion():
+    # Frozen check (research/uhf-11.md section 3): the cubic re-expanded exactly
+    # around nu0 is a three-term setjy manual model; FS1 pins manual to setjy.
+    from math import comb
+
+    c = fluxstd.CARACAL_0408_MHZ
+    nu = np.geomspace(0.544e9, 20e9, 201)
+    rang = fluxstd.flux("0408-65", nu, "caracal", extrapolate=True)[:, 0]
+    for nu0 in (1.284e9, 0.816e9):
+        x0 = np.log10(nu0 / 1e6)
+        b = [
+            sum(c[k] * comb(k, j) * x0 ** (k - j) for k in range(j, 4))
+            for j in range(4)
+        ]
+        man = fluxstd.manual(nu, 10 ** b[0], nu0, b[1:])
+        assert np.max(np.abs(man / rang - 1)) < 1e-12
