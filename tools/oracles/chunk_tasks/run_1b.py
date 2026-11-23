@@ -17,7 +17,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve()
 sys.path.insert(0, str(HERE.parent))
-import run as base  # noqa: E402  (stage 1's harness)
+import run as base  # stage 1's harness
 
 SOURCES = {
     "C": base.SOURCES["C"],
