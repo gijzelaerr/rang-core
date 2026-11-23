@@ -2474,3 +2474,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-23 | ts-p2: WSClean 3.7 `-intervals-out 450`, 2048² 2″, `-j 8`, real track (host glacier) | 450 snapshots, 512 ch | 323 s | 298 MB | P1 T1 oracle |
 | 2026-11-23 | ts-p2: WSClean 3.7 `-intervals-out 450 -channels-out 16`, 1024² 2″, `-j 8`, real track (host glacier) | 7,650 images, 512 ch | 929 s | 109 MB | P2 D2 oracle |
 | 2026-11-23 | ts-p2: post hoc diagnostics `ts_p2_diag_linear.py` and `ts_p2_diag_weights.py` (2 and 4 slots) (host glacier) | real track, 450 intervals | about 10 and 15 min | – | not gates |
+| 2026-11-23 | ts-p3: `rang-core run` run-arm (image: GeMClean 4 joined channels, fit 2, 2048² 2″, 8 threads) on tsp2-dev, then `lightcurve --channels-out 16` (host glacier) | 907,200 rows × 64 ch | 128 s + 59 s | – | stopped on 100,000 components |
+| 2026-11-23 | ts-p3: `ts_p2_real.py inject` tsp2-real2 (4 slots) (host glacier) | 850,950 rows × 512 ch | – | – | INJECTED2_DATA, RESIDUAL2_DATA |
+| 2026-11-23 | ts-p3: `rang-core lightcurve --size 2048 --scale 2asec --channels-out 16 --candidates 5`, 4 runs (ctl/inj × ms/unit), 4 slots each, concurrent (host glacier) | 450 intervals × 512 ch | 464 s (inj-ms), 346 s (inj-unit, `--fits`) | – | shared host |
+| 2026-11-23 | ts-p3: unit-weight ext4 copy for WSClean (`unit_copy.sh`, cp over 9p + python-casacore in `rang-o-casa`) (host glacier) | 92 GB | 660 s + 32 s | – | WEIGHT_SPECTRUM := 1 |
+| 2026-11-23 | ts-p3: WSClean 3.7 `-intervals-out 450` 2048² 2″ / `-intervals-out 450 -channels-out 16` 1024² 2″, `-j 8`, unit-weight copy (host glacier) | 450 / 7,650 images, 512 ch | 265 / 764 s | 298 / 110 MB | oracles for U1, U2c, U4 |

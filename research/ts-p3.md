@@ -4,6 +4,11 @@ Issue #9 (gijzelaerr/rang-core), time series; follow-up of
 [ts-p2.md](ts-p2.md) on the coordinator's brief of 2026-11-23. Branch
 `ts-p3`. Written 2026-11-23.
 
+**Status 2026-11-23: implemented and measured (section 9).** As frozen,
+**(a) met**, **(b) met** for both weightings, **(c) met**. With unit weights
+the uncontrolled bias at the positions falls from up to 0.90 to at most 0.16
+σ_meas (reported, not gated).
+
 **Status at freeze: proposed. Nothing in this note is built or measured.** It
 is committed before any code that tests it. Later changes are dated
 amendments in section 8, labelled post hoc when they could have seen a result.
@@ -155,4 +160,137 @@ run root, the ext4 copy about 90 GB on WSL's disk. Timings go into
 
 ## 9. Measured result
 
-(none yet)
+Run root `D:\rang\outputs\p1-lightcurves-20261123` (host glacier, shared
+slots). Code freeze `d12123c9` (quick check PASS).
+
+### 9.1 (c) The run arm (A-run)
+
+- `tsp2-dev` regenerated from its seeds (92 s). `rang-core run
+  tools/oracles/ts-p3/run-arm.yaml`: rc 0, 128 s (GeMClean 89 s, 8 threads):
+  4 joined output channels, 2-term spectral fit, Briggs 0, 2048² at 2″; it
+  stopped on the component limit (100,000 components, 7 major cycles,
+  final peak 3.8e-5 Jy against the 3σ threshold 1.5e-5 Jy), not on the
+  threshold. Then `rang-core lightcurve --size 1024 --scale 2asec
+  --channels-out 16`: 59 s.
+- Scorer: [results/ts-p3/score_run_arm.py](results/ts-p3/score_run_arm.py),
+  [results/ts-p3/score-run-arm.json](results/ts-p3/score-run-arm.json).
+
+| Gate | Reading | Bound | Outcome |
+| --- | --- | --- | --- |
+| A1 | 2.7e-12 σ_k,g against NumPy on the run's residual | 1e-3 | **met** |
+| A2 | 9.9e-15 σ_snap | 1e-6 | **met** |
+| A3 | 7 of 7 pulses; lowest S/N 5.0 (C) | ts-p1 T3d | **met** |
+
+**(c) met.** Reported (named in 4): per-cell bias against truth A −0.12,
+B −0.15, C −0.05, **D +0.48**, **E −1.61**, F −0.03 σ_k,g; χ² 1.03-1.28
+except E 4.14. E's deep-model absorption appears as predicted (E's mean of
+10σ_snap is about 2.5 σ_k,g per cell; −1.61 of it remains). D's positive
+bias was not predicted; a CLEAN residual or a model component near D is
+likely; unverified. σ_meas is 1.22 × σ_snap (the deep model's errors in the
+snapshots). Group 15 (all flagged) is null throughout.
+
+### 9.2 Injection `tsp2-real2`
+
+INJECTED2_DATA and RESIDUAL2_DATA written into `scan10-512.ms`; u = 1.748 mJy
+(as ts-p2, MS weights). Pixels A (−40, 81), B (214, 165), C (444, 73),
+D (−123, −240), E (−168, −318), F (27, −178); redraws by the 30″ rule A 3,
+C 2, D 1, F 1. Truth in
+[results/ts-p3/tsp2-real2.truth.json](results/ts-p3/tsp2-real2.truth.json).
+Four lightcurve runs (2048² at 2″, `--channels-out 16`, `--candidates 5`,
+4 slots each, concurrent): R-ctl-ms, R-ctl-unit, R-inj-ms 464 s, R-inj-unit
+346 s (`--fits`).
+
+### 9.3 (b) Control-referenced bias, MS weights
+
+[results/ts-p3/score3-ms.json](results/ts-p3/score3-ms.json), σ_meas
+1.318 mJy (median).
+
+| Gate | Reading (worst of A-E) | Bound | Outcome |
+| --- | --- | --- | --- |
+| C1 | 8.7e-9 σ_meas | 1e-3 | **met** |
+| C2 | 5.5e-7 σ_meas | 1e-3 | **met** |
+| C3 | 5.6e-9 σ_dyn | 1e-3 | **met** |
+| C4 | 2.9e-6 σ_dyn | 1e-3 | **met** |
+| C5 | 7 of 7 pulses; lowest S/N 6.8 | ts-p1 T3d | **met** |
+
+Also met on this run (the ts-p2 parity gates, reported): band DFT against
+NumPy 1.8e-12 σ_meas, snapshot pixel against the DFT 1.4e-6 σ_meas, cells
+against NumPy 7.7e-12 σ_dyn. Reported, uncontrolled (ts-p2's T3a and D3 on a
+fresh layout): band bias A −0.52, B +0.00, C +0.27, D +0.42, E −0.90,
+F +0.12 σ_meas; cell bias −0.18 to +0.10 σ_dyn. As in ts-p2, the residual's
+own mean at the positions is at the 0.1-1 σ_meas level with MS weights.
+
+### 9.4 (a) Unit weights
+
+WSClean 3.7 on the ext4 copy with WEIGHT_SPECTRUM = 1 (`unit_copy.sh`, 660 s
+copy over 9p and 32 s rewrite): `-intervals-out 450` 2048² at 2″ in 265 s
+(298 MB), and `-channels-out 16` 1024² at 2″ in 764 s (110 MB), both
+`-j 8`. Scores in [results/ts-p3/score3-unit.json](results/ts-p3/score3-unit.json).
+
+| Gate | Reading | Bound | Outcome |
+| --- | --- | --- | --- |
+| U1 | 3.3e-7 of the snapshot peak (median 8.3e-8; worst interval 124) | 1e-5 | **met** |
+| U2a | 1.9e-12 σ_meas | 1e-3 | **met** |
+| U2b | 2.8e-6 σ_meas | 1e-3 | **met** |
+| U2c | 1.8e-6 σ_meas; WCS pixel = rang's at all six | 1e-3 | **met** |
+| U3 | 6.3e-12 σ_dyn | 1e-3 | **met** |
+| U4 | 3.2e-6 σ_dyn; CRVAL3 offset 0 Hz | 1e-3 | **met** |
+| U5 | the test (`--weights ms` = no option, both CSVs byte-identical; unit differs and scores); on real data R-ctl-ms's `candidates.csv` is byte-identical to ts-p2's merged-code control run (SHA-256 `fd1842b1…`) and its σ_meas equal in all 450 intervals | equal | **met** |
+
+U5 departs from 4's wording ("on R-inj-ms against ts-p2's code path"): the
+injected columns differ from ts-p2's, so the uninjected control, whose
+candidates and σ_meas do not depend on the positions, is the comparison.
+
+### 9.5 (b) Control-referenced bias, unit weights
+
+σ_meas 0.953 mJy (median; 1.318 with MS weights).
+
+| Gate | Reading (worst of A-E) | Bound | Outcome |
+| --- | --- | --- | --- |
+| C1 | 1.6e-8 σ_meas | 1e-3 | **met** |
+| C2 | 7.3e-7 σ_meas | 1e-3 | **met** |
+| C3 | 4.5e-9 σ_dyn | 1e-3 | **met** |
+| C4 | 2.5e-6 σ_dyn | 1e-3 | **met** |
+| C5 | 7 of 7 pulses; lowest S/N 10.3 (6.8 with MS weights) | ts-p1 T3d | **met** |
+
+**Reported (not gated), uncontrolled on the same layout:**
+
+| | MS weights | unit weights |
+| --- | --- | --- |
+| σ_meas (median) | 1.318 mJy | 0.953 mJy |
+| control mean at A-F | −0.69, +0.01, +0.35, +0.56, −1.19, +0.16 mJy | +0.11, +0.10, −0.06, −0.15, +0.01, −0.13 mJy |
+| band bias A-E (σ_meas), ts-p2's T3a bound 0.141 | −0.52, +0.00, +0.27, +0.42, −0.90 | +0.11, +0.11, −0.06, −0.16, +0.01 |
+| cell bias A-E (σ_dyn), D3 bound 0.035 | −0.18 to +0.10 | −0.16 to +0.09 |
+| T4 control, ≥ 5σ / ≥ 7σ, positive (negative) | 14,220 (272) / 1,914 (8) | 3,144 (4,661) / 558 (764) |
+
+With unit weights the band bias at A-E would pass ts-p2's 0.141 bound at
+four of five positions (D at −0.16 would not); the cell bias would still fail
+D3 at A, B and E. The candidate excess flips sign: positive with MS weights,
+negative with unit weights. This is seen once, on one layout, after ts-p2;
+it is a reading, not a gate.
+
+### 9.6 Outcome (section 5, as frozen)
+
+| Part | Verdict | Key numbers |
+| --- | --- | --- |
+| (a) `--weights unit` | **met** | WSClean 3.3e-7 of the peak, pixels 1.8e-6 / 3.2e-6 σ, DFT ≤ 6.3e-12 σ; default unchanged |
+| (b) control-referenced bias | **met** (MS and unit) | worst ≤ 1.6e-8 σ (means), ≤ 2.9e-6 σ (any cell); 7/7 pulses both |
+| (c) run arm | **met** | parity 2.7e-12 σ, 7/7 pulses; E absorbed (−1.61 σ per cell) as named |
+
+## 10. For the coordinator
+
+- **(b) is an exactness gate by construction** (noise and residual sky
+  cancel); its pass shows the product recovers injected signals exactly on
+  real UVW, weights and flags, not that the residual is clean.
+- **Weights.** Unit weights cut σ_meas by 28 % and the residual offsets at
+  the positions from up to 1.2 mJy to at most 0.15 mJy on this field, where
+  E2-A's model was made with `-unit-weights`. Making `unit` the default, or
+  following the imaging stage's weights automatically, is a product
+  decision (it would change P1/P2 outputs; a new protocol). Not done.
+- **Run arm.** GeMClean stopped on the 100,000-component limit, not the
+  threshold; D's +0.48σ per-cell bias is unexplained (unverified).
+- **Checks.** Quick check PASS on the code freeze and after; the full check
+  and `wheels` are left to the merge check.
+- **Cleanup.** The run root `D:\rang\outputs\p1-lightcurves-20261123` and
+  the WSL scratch `~/Build/tmp/20261123-ts-p3` are deleted after scoring; the
+  compact archive is [results/ts-p3/](results/ts-p3/).
