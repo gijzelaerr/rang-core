@@ -126,10 +126,12 @@ def context(run, di=False):
     centres = np.array(st["centres"])
     if di:
         centres = centres[:1]
-    l, m = dd2.pixel_lm()
-    idx, margin = dd2.facet_index_and_margin(l, m, centres)
-    if di:
+    if di:  # one direction: the whole image is one facet
+        idx = np.zeros((NY, NX), int)
         margin = np.full(idx.shape, 1e9)
+    else:
+        l, m = dd2.pixel_lm()
+        idx, margin = dd2.facet_index_and_margin(l, m, centres)
     _, _, block, centres_t = dd2.interval_axes(c)
     xg, yg = np.meshgrid(np.arange(NX), np.arange(NY))
     interior = (margin >= EDGE) & (xg >= EDGE) & (xg < NX - EDGE) & (
