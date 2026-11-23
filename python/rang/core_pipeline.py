@@ -1842,7 +1842,45 @@ def stage_calibrate_chain(ctx):
     scans = config["data"]["scans"] or None
     version = stage_version(ctx, "calibrate")
     plan = core_chunks.budget(config, info)
-    result = cal_chain.run(
+    rcfg = config["flag"]["residual"]
+    residual = None
+    if rcfg["mode"] != "off":
+        # Issue #51: solve, flag the calibrators' residuals, solve again.
+        first = out_dir / "residual-pass1"
+        first.mkdir()
+        result = _chain_solve(
+            ctx, terms, first, model_column, masks, scans, version, plan
+        )
+        residual = residual_flag_pass(ctx, result, plan, scans)
+    result = _chain_solve(
+        ctx, terms, out_dir, model_column, masks, scans, version, plan
+    )
+    if residual is not None:
+        from . import flag_residual
+
+        fired, frac = flag_residual.tripwire(
+            result["steps"], rcfg["tripwire"], residual["solutions_flagged_before"]
+        )
+        residual["solutions_flagged_after"] = frac
+        residual["tripwire_fired"] = fired
+        _write_json(out_dir / "residual.json", residual)
+        if fired:
+            raise StageFailed(
+                f"flag.residual: the flagged fraction of the solutions rose by more than "
+                f"{rcfg['tripwire']:.0%} in the re-solve ({residual['solutions_flagged_before']}"
+                f" -> {frac}); see {out_dir / 'residual.json'}"
+            )
+    return _calibrate_chain_summary(
+        ctx, config, info, cal, terms, result, models, restored, scans, version, plan,
+        refant_auto, residual,
+    )  # fmt: skip
+
+
+def _chain_solve(ctx, terms, out_dir, model_column, masks, scans, version, plan):
+    """One `rang.cal_chain.run` of the calibrate stage's chain into `out_dir`."""
+    config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
+    cal = config["calibrate"]
+    return cal_chain.run(
         ms,
         terms,
         out_dir=out_dir,
@@ -1864,6 +1902,89 @@ def stage_calibrate_chain(ctx):
             kind for key, kind in CALWT_KEYS.items() if cal.get(key)
         ],  # calwt-terms
     )
+
+
+def residual_flag_pass(ctx, result, plan, scans):
+    """Issue #51 (research/flag-residual.md section 3, amendment 3): apply
+    the first pass's tables to the calibrator fields (into CORRECTED_DATA,
+    calflag), find the residual flags on the cells still valid after that
+    apply, put the flags back to the calibrate stage's starting version (the
+    flags before this stage wrote), and OR the residual flags into them, so
+    that the re-solve differs from the first pass by the residual flags only.
+    Returns the record for `residual.json`."""
+    from . import applycal, flag_residual
+
+    config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
+    rcfg = config["flag"]["residual"]
+    roles = [r for r in ("fcal", "bpcal", "gcal", "xcal") if config["fields"].get(r)]
+    cal_ids = sorted(resolve_fields(roles, config, info, "flag.residual"))
+    made = {name: entry for name, entry in result["tables"].items()}
+    targets = apply_targets(config, info, complex_fields(config, info))
+    pre = stage_version(ctx, "calibrate")
+    parang = apply_parang_args(config)
+    applied = []
+    with writeback_session(ctx, "calibrate") as (w, _):
+        for fields, names, target in targets:
+            sel = [f for f in fields if f in cal_ids]
+            if not sel or not all(n in made for n in names):
+                continue
+            applycal.applycal(
+                ms,
+                [made[n]["path"] for n in names],
+                interp=list(target["interp"]) or ["linear"],
+                gainfield=list(target["gainfield"]) or [""],
+                calwt=[False],
+                field=sel,
+                applymode="calflag",
+                column="CORRECTED_DATA",
+                session=w,
+                chunk_rows=plan.rows("apply"),
+                scan=scans,
+                **parang,
+            )
+            applied.append(
+                {"fields": [info["fields"][f] for f in sel], "tables": names}
+            )
+        blocks, new = flag_residual.flag_fields(
+            w, cal_ids, rcfg, len(info["antennas"]), info["fields"], scans, write=False
+        )
+    core_writeback.restore_flags(ms, pre)
+    with writeback_session(ctx, "calibrate") as (w, _):
+        for rows, added in new.values():
+            flag_residual.or_flags(w, rows, added)
+    return {
+        "settings": dict(rcfg),
+        "fields": [info["fields"][f] for f in cal_ids],
+        "applied": applied,
+        "pre_version": pre,
+        "solutions_flagged_before": flag_residual.solution_flag_fractions(
+            result["steps"], flag_residual.TRIPWIRE_TYPES
+        ),
+        "blocks": blocks,
+    }
+
+
+def apply_parang_args(config):
+    """The parallactic-angle keywords of `applycal` as the apply stage passes them."""
+    cfg = config["apply"]
+    if not cfg["parang"]:
+        return {}
+    angle = config["calibrate"]["polcal"]["feed_angle_rotation"]
+    return {
+        "parang": True,
+        "frame": config["calibrate"]["polcal"]["frame"],
+        "receptor_angle": None if angle is None else float(np.deg2rad(angle)),
+        "parang_flags": cfg["parang_flags"],
+    }
+
+
+def _calibrate_chain_summary(
+    ctx, config, info, cal, terms, result, models, restored, scans, version, plan,
+    refant_auto, residual,
+):  # fmt: skip
+    """The calibrate stage's summary of a chain run (`summary.json`)."""
+    run = ctx["run"]
+    out_dir = run.path / "calibrate"
     steps = result["steps"]
     for step, term in zip(steps, terms):
         if term["type"] == "A":
@@ -1906,6 +2027,17 @@ def stage_calibrate_chain(ctx):
     }
     if refant_auto is not None:
         summary["refant_auto"] = refant_auto
+    if residual is not None:
+        summary["residual"] = {
+            k: residual[k]
+            for k in (
+                "settings",
+                "fields",
+                "solutions_flagged_before",
+                "solutions_flagged_after",
+                "tripwire_fired",
+            )
+        }
     if cal["polcal"]["terms"]:
         summary["polcal"] = {
             "frame": cal["polcal"]["frame"],
@@ -2152,6 +2284,23 @@ def stage_apply(ctx):
                     executor=ex,
                 )
                 applied.append(result)
+        reweighted = None
+        rw = cfg["reweight"]
+        if rw["mode"] != "off":
+            # Issue #55 (research/apply-reweight.md): empirical weights on the
+            # rows of the fields applied to, after the tables.
+            from . import reweight
+
+            fields = sorted({int(f) for fs, _, _ in targets for f in fs})
+            reweighted = reweight.stage(
+                w,
+                reweight.session_rows(w, fields, scans),
+                reweight.Settings.of(rw),
+                plan.rows("apply"),
+                # Half the limit for the estimate's slices (the rest: the session).
+                budget_bytes=float(config["data"]["memory_limit_gb"]) * 2**30 / 2,
+            )
+            reweighted["fields"] = fields
         executor_record = ex.describe()
     summary = {
         "chunking": {**plan.describe(), **executor_record},
@@ -2165,6 +2314,7 @@ def stage_apply(ctx):
         "restored_before": restored,
         "applied": applied,
         "warnings": warnings,
+        **({"reweight": reweighted} if reweighted is not None else {}),
         **written,
     }
     _write_json(run.stage_dir("apply", fresh=True) / "summary.json", summary)

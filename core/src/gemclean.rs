@@ -74,6 +74,37 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
+/// Per-major-cycle progress lines on stdout (issue #56). Off for library
+/// callers; the `gemclean` command turns them on (`cli::main`).
+static PROGRESS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Turn the per-major-cycle progress lines on or off for this process.
+pub fn set_progress(on: bool) {
+    PROGRESS.store(on, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// One progress line as a major cycle ends (when turned on): the cycle
+/// number (from 1), the exact peak the cycle started from, its threshold,
+/// the components so far and the wall seconds since the run started; flushed
+/// at once. Reads only; changes nothing of the run.
+pub(crate) fn progress(cycle: usize, peak: f64, threshold: f64, components: usize, start: Instant) {
+    if !PROGRESS.load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
+    use std::io::Write;
+    let mut out = std::io::stdout().lock();
+    let _ = writeln!(
+        out,
+        "gemclean cycle {}: peak {:.4e}, threshold {:.4e}, {} components so far, {:.1} s",
+        cycle + 1,
+        peak,
+        threshold,
+        components,
+        start.elapsed().as_secs_f64()
+    );
+    let _ = out.flush();
+}
+
 type C64 = Complex<f64>;
 
 const ZERO: C64 = Complex { re: 0.0, im: 0.0 };
@@ -1834,6 +1865,7 @@ pub fn run_masked<M: Measurement>(
         };
         let dq_exact = q_next - q;
         let gap = dq_exact - predicted;
+        progress(cycles.len(), peak.abs(), threshold, steps.len(), start);
         cycles.push(Cycle {
             index: cycles.len(),
             components: steps.len() - cycle_taken,
@@ -2950,6 +2982,37 @@ mod tests {
             }
             assert_eq!(out.model, reference.model);
         }
+    }
+
+    /// Issue #56: the progress lines only read; a run with them on is bit-identical.
+    #[test]
+    fn progress_lines_change_nothing() {
+        let s = sampling(160, 23);
+        let vis = data(&s, 23);
+        let m = DftMeasurement {
+            sampling: &s,
+            grid: GRID,
+            vis: &vis,
+        };
+        let psf = clean::psf(&s, &GRID);
+        let beam = Beam::from_double(GRID.n, &double(&psf), 5).unwrap();
+        let settings = Settings {
+            threshold: 1e-3,
+            max_components: 400,
+            ..Settings::default()
+        };
+        let off = run(&m, &beam, &settings, None).unwrap();
+        set_progress(true);
+        let on = run(&m, &beam, &settings, None);
+        set_progress(false);
+        let on = on.unwrap();
+        assert_eq!(on.steps.len(), off.steps.len());
+        assert_eq!(on.cycles.len(), off.cycles.len());
+        for (a, b) in on.steps.iter().zip(&off.steps) {
+            assert_eq!(a.pixel, b.pixel);
+            assert_eq!(a.peak.to_bits(), b.peak.to_bits());
+        }
+        assert_eq!(on.model, off.model);
     }
 
     #[test]

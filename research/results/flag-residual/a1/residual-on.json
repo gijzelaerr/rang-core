@@ -1,0 +1,364 @@
+{
+ "applied": [
+  {
+   "fields": [
+    "3C286-SIM"
+   ],
+   "tables": [
+    "K",
+    "G",
+    "B",
+    "Gpol",
+    "Kcross",
+    "Xf",
+    "Df"
+   ]
+  },
+  {
+   "fields": [
+    "J1939-6342"
+   ],
+   "tables": [
+    "K",
+    "G",
+    "B",
+    "Kcross",
+    "Xf",
+    "Df"
+   ]
+  },
+  {
+   "fields": [
+    "SIM-GCAL"
+   ],
+   "tables": [
+    "K",
+    "F",
+    "B",
+    "Kcross",
+    "Xf",
+    "Df"
+   ]
+  }
+ ],
+ "blocks": [
+  {
+   "added": 2172126,
+   "counts": {
+    "added": 2172126,
+    "cell_rule": 2951774,
+    "cells": 23224320,
+    "guarded_baselines": 1296,
+    "persist_chan": 5822656,
+    "persist_dump": 7891070
+   },
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.09352807746362433,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 1,
+   "v_rms_kept": 0.28946220874786377
+  },
+  {
+   "added": 3198729,
+   "counts": {
+    "added": 3198729,
+    "cell_rule": 2722541,
+    "cells": 23224320,
+    "guarded_baselines": 1073,
+    "persist_chan": 5317751,
+    "persist_dump": 7110132
+   },
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.13773186900628306,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 23,
+   "v_rms_kept": 0.21140457689762115
+  },
+  {
+   "added": 965915,
+   "counts": {
+    "added": 965915,
+    "cell_rule": 991919,
+    "cells": 15482880,
+    "guarded_baselines": 1175,
+    "persist_chan": 811883,
+    "persist_dump": 8165944
+   },
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.0623860031208664,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 2,
+   "v_rms_kept": 0.2695850431919098
+  },
+  {
+   "added": 1384161,
+   "counts": {
+    "added": 1384161,
+    "cell_rule": 1233551,
+    "cells": 15482880,
+    "guarded_baselines": 1159,
+    "persist_chan": 1481928,
+    "persist_dump": 7517249
+   },
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.08939945281498016,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 8,
+   "v_rms_kept": 0.2947258949279785
+  },
+  {
+   "added": 1329950,
+   "counts": {
+    "added": 1329950,
+    "cell_rule": 1261600,
+    "cells": 15482880,
+    "guarded_baselines": 1257,
+    "persist_chan": 1692747,
+    "persist_dump": 7984828
+   },
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.08589810164517196,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 14,
+   "v_rms_kept": 0.34319496154785156
+  },
+  {
+   "added": 1036226,
+   "counts": {
+    "added": 1036226,
+    "cell_rule": 981935,
+    "cells": 15482880,
+    "guarded_baselines": 1048,
+    "persist_chan": 835167,
+    "persist_dump": 7243705
+   },
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.06692721250826719,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 22,
+   "v_rms_kept": 0.2702418863773346
+  },
+  {
+   "added": 158693,
+   "counts": {
+    "added": 158693,
+    "cell_rule": 27435,
+    "cells": 3911230,
+    "guarded_baselines": 903,
+    "persist_chan": 27034,
+    "persist_dump": 119936
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.515266281208664,
+   "flagged_before": 0.4947671234292328,
+   "rows": 30240,
+   "scan": 3,
+   "v_rms_kept": 0.06320040673017502
+  },
+  {
+   "added": 170178,
+   "counts": {
+    "added": 170178,
+    "cell_rule": 51893,
+    "cells": 3916664,
+    "guarded_baselines": 935,
+    "persist_chan": 106094,
+    "persist_dump": 130512
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5160479187334656,
+   "flagged_before": 0.4940651868386243,
+   "rows": 30240,
+   "scan": 5,
+   "v_rms_kept": 0.06325619667768478
+  },
+  {
+   "added": 407143,
+   "counts": {
+    "added": 407143,
+    "cell_rule": 205650,
+    "cells": 3877904,
+    "guarded_baselines": 1033,
+    "persist_chan": 424516,
+    "persist_dump": 225348
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5516646773726852,
+   "flagged_before": 0.4990720072751323,
+   "rows": 30240,
+   "scan": 7,
+   "v_rms_kept": 0.06339704245328903
+  },
+  {
+   "added": 400866,
+   "counts": {
+    "added": 400866,
+    "cell_rule": 213835,
+    "cells": 3860267,
+    "guarded_baselines": 1044,
+    "persist_chan": 452884,
+    "persist_dump": 221941
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5531321046213624,
+   "flagged_before": 0.501350265583664,
+   "rows": 30240,
+   "scan": 9,
+   "v_rms_kept": 0.0634671077132225
+  },
+  {
+   "added": 121054,
+   "counts": {
+    "added": 121054,
+    "cell_rule": 11798,
+    "cells": 3894195,
+    "guarded_baselines": 902,
+    "persist_chan": 14504,
+    "persist_dump": 106210
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5126047608713624,
+   "flagged_before": 0.49696761842757936,
+   "rows": 30240,
+   "scan": 11,
+   "v_rms_kept": 0.06321749836206436
+  },
+  {
+   "added": 461549,
+   "counts": {
+    "added": 461549,
+    "cell_rule": 251882,
+    "cells": 3904906,
+    "guarded_baselines": 1078,
+    "persist_chan": 585051,
+    "persist_dump": 220702
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5552045872602513,
+   "flagged_before": 0.4955840257109788,
+   "rows": 30240,
+   "scan": 13,
+   "v_rms_kept": 0.06329844146966934
+  },
+  {
+   "added": 425004,
+   "counts": {
+    "added": 425004,
+    "cell_rule": 292227,
+    "cells": 3906721,
+    "guarded_baselines": 1123,
+    "persist_chan": 679490,
+    "persist_dump": 211836
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5502494367972883,
+   "flagged_before": 0.4953495732060185,
+   "rows": 30240,
+   "scan": 15,
+   "v_rms_kept": 0.06311595439910889
+  },
+  {
+   "added": 126687,
+   "counts": {
+    "added": 126687,
+    "cell_rule": 15909,
+    "cells": 3880027,
+    "guarded_baselines": 902,
+    "persist_chan": 16520,
+    "persist_dump": 104889
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5151625537367724,
+   "flagged_before": 0.49879776889054234,
+   "rows": 30240,
+   "scan": 17,
+   "v_rms_kept": 0.06325199455022812
+  },
+  {
+   "added": 163796,
+   "counts": {
+    "added": 163796,
+    "cell_rule": 20131,
+    "cells": 3908805,
+    "guarded_baselines": 902,
+    "persist_chan": 17961,
+    "persist_dump": 137331
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5162387101107804,
+   "flagged_before": 0.4950803726438492,
+   "rows": 30240,
+   "scan": 19,
+   "v_rms_kept": 0.0632137879729271
+  },
+  {
+   "added": 246207,
+   "counts": {
+    "added": 246207,
+    "cell_rule": 54909,
+    "cells": 3884391,
+    "guarded_baselines": 908,
+    "persist_chan": 60444,
+    "persist_dump": 161796
+   },
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5300378224206349,
+   "flagged_before": 0.49823404947916666,
+   "rows": 30240,
+   "scan": 21,
+   "v_rms_kept": 0.06327584385871887
+  }
+ ],
+ "fields": [
+  "J1939-6342",
+  "3C286-SIM",
+  "SIM-GCAL"
+ ],
+ "pre_version": "rang_calibrate_20261121T224121Z",
+ "settings": {
+  "global_sigma": 10.0,
+  "guard": 0.8,
+  "method": "rang",
+  "mode": "calibrators",
+  "persist": 3.0,
+  "sigma": 5.0,
+  "tripwire": 0.05
+ },
+ "solutions_flagged_after": {
+  "B": 0.00103759765625,
+  "F": 0.0,
+  "G": 0.0,
+  "Gsec": 0.0,
+  "K": 0.0
+ },
+ "solutions_flagged_before": {
+  "B": 0.0,
+  "F": 0.0,
+  "G": 0.0,
+  "Gsec": 0.0,
+  "K": 0.0
+ },
+ "tripwire_fired": false
+}

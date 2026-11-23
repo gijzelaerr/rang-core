@@ -9,6 +9,89 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+## 0.4.0 (2026-11-22)
+
+0.4.0's question is whether learned stages can sit inside the chain without changing a single classical
+result, and whether any of them earns its place (`research/dl-plan.md`, `research/v040-plan.md`). The
+first part is met: every learned path is `off` by default, bit-identical to 0.3.0 on 60 configurations
+× 5 stages. The second is not: no learned stage passed its frozen gates, so no weights ship.
+
+### Highlights
+
+- **The learned-stage contract ([#38](https://github.com/gijzelaerr/rang-core/issues/38))**: a `learned:` key on every stage. Weights come as ONNX files
+  with a `rang.learned/1` header, and a mode runs only if its frozen gates passed, unless forced.
+  rang's own interpreter runs them (`Conv` and `Relu` only, pure Rust, +49,664 B): 0.852 s at 1 thread
+  and 0.166 s at 8 for 128 planes, within 2.4e-5 of PyTorch, bit-identical at 1-16 threads. See
+  `docs/learned.md`.
+- **A SARAO data factory ([#39](https://github.com/gijzelaerr/rang-core/issues/39))**: 219 L-band scans of 9 capture blocks registered with SHA-256
+  manifests; 140 scans labelled by the rang Tricolour port, Tricolour 0.2.1 and AOFlagger 2.13.0
+  (52 GB). Weights trained on them are CC BY 4.0, with SARAO's acknowledgement.
+- **A retrain procedure for agents ([#46](https://github.com/gijzelaerr/rang-core/issues/46))**: `docs/agents/retrain-a-stage.md`, frozen rules, a
+  held-out configuration (1k channels, block 1735892129), and a dry run on F5 that found and fixed
+  13 gaps.
+- **`rang-core watch`**: liveness of runs, spools and output directories, without touching them.
+- **Fixes**:
+  - K under `refantmode: flex` solves an antenna with no unflagged baseline to the reference
+    ([#53](https://github.com/gijzelaerr/rang-core/issues/53); truth within 1e-6 ns).
+  - GeMClean multiscale drops a scale whose convolved PSF has no positive peak, instead of stopping
+    ([#54](https://github.com/gijzelaerr/rang-core/issues/54); images byte-identical where nothing is dropped).
+  - `-memory-report` now covers the joined-channel path ([#32](https://github.com/gijzelaerr/rang-core/issues/32)).
+  - The heavy lock counts CPU inside WSL and audits resident memory against bookings.
+- **Measured, nothing shipped**:
+  - F5 and F6 flaggers: F ([#40](https://github.com/gijzelaerr/rang-core/issues/40)). F6's SARAO validation passes every gate in both classes; it fails
+    on the F4-era LUNO and ESO137 sets.
+  - Gain-solver warm starts, stage 2: null ([#41](https://github.com/gijzelaerr/rang-core/issues/41); 8-15 % of iterations).
+  - Learned clean masks, stage 6: null ([#43](https://github.com/gijzelaerr/rang-core/issues/43); 19-20 % fewer convolutions, 0 of 5 cases at equal
+    quality).
+  - Learned minor-cycle proposals, step 0: F ([#42](https://github.com/gijzelaerr/rang-core/issues/42); false flux +0.07 to +0.12 against +0.01).
+  - `apply` with `calwt`: null ([#48](https://github.com/gijzelaerr/rang-core/issues/48); 4 % worse on E2-N).
+  - GeMClean's beam spectra on disk: 0.811 × memory at 1.140 × wall, not adopted ([#32](https://github.com/gijzelaerr/rang-core/issues/32)).
+
+### Known limitations
+
+- **No learned stage passed, so no weights ship and every `learned:` mode needs your own weights file**
+  (and `force: true` without passed gates). DL6's agent test (a fresh agent retrains a passed stage
+  from the procedure alone) therefore did not run ([#46](https://github.com/gijzelaerr/rang-core/issues/46)).
+- **#42 step 1** (learned minor-cycle proposals on real data): outcome F. On the four gated MeerKAT
+  skies the learned proposal P is outside the tolerance for all three seeds (relative L2 1.22-1.79 × W1's)
+  and slower than the best classical setting W\* (minor cycle 1.10-1.93 ×); `research/dl4b-step1.md`.
+- **WSClean 3.8 is 6-23 % slower than 3.7 at `-j 1` on the minres path** ([#47](https://github.com/gijzelaerr/rang-core/issues/47)): GeMClean's
+  coarse imaging now leads WSClean at one thread on S1, S2, S3 and H4. At 16 threads, and without
+  minres, the two versions are level.
+- **GeMClean's memory is 7.4 × WSClean 3.7's on E2-N joined IQUV at 2048², and 3.6 × on Stokes I
+  multiscale at 4096²** (10.43 / 1.41 GB; 40.2 / 11.0 GB; [#32](https://github.com/gijzelaerr/rang-core/issues/32), `research/gemclean-mem-32.md`).
+- 0.3.0's limitations still hold (below), apart from those listed as fixed here.
+
+### Issues
+
+Milestone v0.4.0, and the other issues touched since 0.3.0, from `gh issue list -R
+gijzelaerr/rang-core` on 2026-11-22. Open issues are moved at the tag, as each outcome says.
+
+| # | Title | Outcome | Note |
+| --- | --- | --- | --- |
+| 1 | Fast supervised flagger | progressed: F5 and F6 results posted to Landman; F7 drafted for v0.5.0 | [f6-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f6-flagger.md) |
+| 12 | GPU gridding in GeMClean | closed 2026-11-17: limitation (GPU 18-52 % slower at `-j 16`; code on branch `gpu-grid`) | [gpu-grid.md](https://github.com/gijzelaerr/rang-core/blob/main/research/gpu-grid.md) |
+| 24 | CLEAN against RML/learned imagers | progressed: pfb sara also worse than GeMClean at upstream's own preset (N2, 5.05 ×) | [rml-gap.md](https://github.com/gijzelaerr/rang-core/blob/main/research/rml-gap.md) |
+| 28 | Close-to-threshold stop rule | closed 2026-11-18: `-stop-tolerance 0.02` the default (shipped in 0.3.0) | [stop28-default.md](https://github.com/gijzelaerr/rang-core/blob/main/research/stop28-default.md) |
+| 32 | GeMClean joined-IQUV memory | progressed: E2-N profile, memory report on the joined-channel path; spectra spill not adopted (time) | [gemclean-mem-32.md](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-mem-32.md) |
+| 34 | Self-cal scan-long solve memory | moved to v0.5.0 (GeMClean's share is #32's) | [selfcal-memory.md](https://github.com/gijzelaerr/rang-core/blob/main/research/selfcal-memory.md) |
+| 37 | DL0: literature and cost profile | closed 2026-11-20: done (selfcal minor cycle and resyncs 63-65 % of selfcal) | [dl0-profile.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl0-profile.md) |
+| 38 | DL1: contract, weights format, registry | closed 2026-11-20: done (own ONNX interpreter, gates I1-I5 pass) | [dl1-contract.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl1-contract.md) |
+| 39 | DL2: training-data factory | closed 2026-11-20: stage 1 shipped (219 scans registered, 140 labelled) | [dl2-data.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl2-data.md) |
+| 40 | DL3: F5 flagger | F5 and F6 F; nothing ships; F7 for v0.5.0 | [f6-flagger.md](https://github.com/gijzelaerr/rang-core/blob/main/research/f6-flagger.md) |
+| 41 | DL4a: gain-solve warm start | closed 2026-11-20: null (8-15 % of iterations; no network pilot) | [dl4a-screen.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4a-screen.md) |
+| 42 | DL4b: minor-cycle proposals | step 0 F; step 1 F | [dl4b-step0.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4b-step0.md), [dl4b-step1.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4b-step1.md) |
+| 43 | DL4c: mask, quick-look, settings | closed 2026-11-22: stage 6 null, stage 9 headroom only, quick-look not started | [dl4c-mask.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl4c-mask.md) |
+| 44 | DL4s: one-day screenings | moved to v0.5.0 | |
+| 45 | DL5: combined learned selfcal | moved to v0.5.0 (needed a DL4 pass) | |
+| 46 | DL6: retrain-a-stage procedure | procedure and dry run done; the agent test waits for a passed stage | [dl6-retrain.md](https://github.com/gijzelaerr/rang-core/blob/main/research/dl6-retrain.md) |
+| 47 | WSClean 3.8 rebaseline | closed 2026-11-22: done (parity holds; 3.8 slower at `-j 1` minres) | [wsclean38-rebaseline.md](https://github.com/gijzelaerr/rang-core/blob/main/research/wsclean38-rebaseline.md) |
+| 48 | Native L0 weights (`calwt`) | null: default stays `false` | [apply-calwt.md](https://github.com/gijzelaerr/rang-core/blob/main/research/apply-calwt.md) |
+| 53 | K drops an antenna without a baseline to the refant | closed 2026-11-21: fixed (`refantmode: flex`) | [k-refant-53.md](https://github.com/gijzelaerr/rang-core/blob/main/research/k-refant-53.md) |
+| 54 | Multiscale stops on a scale without a positive PSF peak | closed 2026-11-21: fixed (scale dropped with a warning) | [gemclean-54.md](https://github.com/gijzelaerr/rang-core/blob/main/research/gemclean-54.md) |
+
+### Changes since 0.3.0
+
 - **WSClean 3.8 rebaseline ([#47](https://github.com/gijzelaerr/rang-core/issues/47))**: GeMClean's WSClean statements re-measured against 3.8 (`research/wsclean38-rebaseline.md`). Parity, the mask and the multiscale results hold. The speed table changes only at one thread with coarse gridding, where WSClean 3.8's `minres` is 6-23 % slower than 3.7's. `tools/oracles/wsclean-native/Dockerfile` builds 3.8 (`--build-arg WSCLEAN_TAG=v3.8`, `cmake --install` and `ldconfig` for its FetchContent shared libraries, dependency commits in `/wsclean-deps.txt`); `examples/oracle_wsclean_clean.py run --image` selects the WSClean image.
 - **Learned stages, contract and interpreter ([#38](https://github.com/gijzelaerr/rang-core/issues/38))**: a `learned:` key on every stage (`mode: off` by
   default, propose, settings, replace; `off` bit-identical on 60 configurations × 5 stages), ONNX
@@ -24,7 +107,12 @@ the release notes are the section of this file for that version.
   SARAO's acknowledgement (owner, 2026-11-20).
 - **F5 supervised flagger ([#40](https://github.com/gijzelaerr/rang-core/issues/40)): no weights shipped.** Targets: outcome F (R1 1.000 against
   Tricolour's 0.865 and cost C1 0.365-0.409 pass, but R5, G-drop, R2 H2 and G-sub outer32 fail).
-  Calibrators: stopped at the label audit (Stop-L), and a post hoc arm also failed (F). F6 follows.
+  Calibrators: stopped at the label audit (Stop-L), and a post hoc arm also failed (F).
+- **F6 flagger (#40): F, no weights shipped** (`research/f6-flagger.md`). Hybrid positives lift R5
+  from F5's 0.338 to 0.98-0.996; antenna-dropout training passes G-drop on every SARAO and LUNO set;
+  every SARAO validation scan passes every gate in both classes. Failed on F4-era data: calibrators
+  R3 16.9 × T on LUNO MAIN_7 (T flags 45 × fewer cells there than on SARAO), targets G-drop 0.350 at
+  8 antennas and outer32 R3 1.94 on ESO137. No held-out set read; F7 drafted for v0.5.0.
 - **DL4a, classical warm starts for the gain solver ([#41](https://github.com/gijzelaerr/rang-core/issues/41)): null.** A one-day screening found warm
   starts saving 8-15 % of iterations, so no network pilot followed. The optional gain start
   (`diag::solve_from`) is bit-identical without a start.
@@ -36,6 +124,17 @@ the release notes are the section of this file for that version.
   (`research/dl6-retrain.md`). The held-out configuration is 1k channels (block 1735892129, scans 23
   and 25 unread). The dry run on F5 ran every step and found 13 gaps in the procedure, now fixed. The
   agent test waits for a stage that passes.
+- **DL0 ([#37](https://github.com/gijzelaerr/rang-core/issues/37))**: literature verdicts and the selfcal cost split (GeMClean minor cycle
+  and resyncs 63 % (E2-A) and 65 % (E2-N) of selfcal, major cycles 1.6-2.3 %).
+- **DL4c, learned clean mask ([#43](https://github.com/gijzelaerr/rang-core/issues/43)): null.** Masking from cycle 1 needs 19-20 % fewer
+  convolutions on real E2-N scans and 41-56 % fewer on simulations, but 0 of 5 cases reach equal
+  quality. Stage 9 (settings): headroom, nothing trainable now; quick-look not started.
+- **GeMClean memory, phase 4 ([#32](https://github.com/gijzelaerr/rang-core/issues/32))**: `-memory-report` covers the joined-channel path.
+  E2-N profile against WSClean 3.7: 7.4 × on joined IQUV (2048²), 3.6 × on Stokes I multiscale
+  (4096²). Beam spectra in the `-reorder` file give 0.811 × memory at 1.140 × wall, over the frozen
+  1.10, so they are kept as a patch, not merged.
+- **GPU gridding ([#12](https://github.com/gijzelaerr/rang-core/issues/12)): closed as a limitation.** GPU 18-52 % slower than the CPU at
+  `-j 16`; the code stays on branch `gpu-grid`.
 - **`rang-core watch PATH...`** shows each stage's status and time and whether its process is still
   alive. It also lists spool tasks and worker heartbeats, receipts, the newest file and the last log
   line; options `--once`, `--json` and `--interval`. It watches run directories, spool directories or

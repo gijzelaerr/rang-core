@@ -312,9 +312,15 @@ def save(path, net, opt, sched, state):
     os.replace(tmp, path)
 
 
+def parse_windows(specs):
+    """Daily 'HH:MM-HH:MM' or dated 'YYYY-MM-DDTHH:MM/YYYY-MM-DDTHH:MM' (SAST)."""
+    return [w.split("/") if "/" in w else w.split("-") for w in (specs or [])]
+
+
 def in_window(now, windows):
     hm = now.strftime("%H:%M")
-    return any(a <= hm < b for a, b in windows)
+    full = now.strftime("%Y-%m-%dT%H:%M")
+    return any((a <= full < b) if "T" in a else (a <= hm < b) for a, b in windows)
 
 
 def gpu_check():
@@ -355,7 +361,7 @@ def train(args, data=None):
         torch.cuda.set_rng_state_all(c["rng_cuda"])
         torch.set_rng_state(c["rng"])
         say(f"resume at step {state['step']}, train {state['train_s']:.0f} s")
-    windows = [w.split("-") for w in (args.yield_window or [])]
+    windows = parse_windows(args.yield_window)
     budget = args.hours * 3600
     last = time.perf_counter()
     t_seg = time.perf_counter()

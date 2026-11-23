@@ -281,8 +281,16 @@ flag:
   column: DATA  # the visibilities flagged
   static_masks: tricolour  # tricolour: the two masks shipped with Tricolour 0.2.1; none
   write: replace  # replace: FLAG becomes the strategy's flags, as Tricolour writes them; or: OR with the flags already there
+  residual:
+    mode: "off"  # residual flagging inside calibrate, then a re-solve (issue #51, research/flag-residual.md): off; calibrators: the calibrator fields against their per-scan median
+    method: rang  # rang: antenna-factorised noise, persistence and guard; quartical: QuartiCal 0.2.7's mad_flags on the same residual
+    sigma: 5.0  # cell threshold (quartical: threshold_bl)
+    global_sigma: 10.0  # quartical only: threshold_global
+    persist: 3.0  # rang only: a baseline's channel or dump whose mean z^2 exceeds this times the block's median
+    guard: 0.8  # rang only: no calibrator baseline is pushed past this flagged fraction
+    tripwire: 0.05  # fail the stage when the flagged fraction of the K, G, B, Gsec or F solutions rises by more than this in the re-solve
   learned:
-    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 calibrate:
@@ -332,7 +340,7 @@ calibrate:
     feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
     extendflags: false  # CASA flagdata mode=extend with CARACal's settings on the Gpol, KCROSS and Xf fields, then the Df fields, before the polcal solves
   learned:
-    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 apply:
@@ -342,8 +350,15 @@ apply:
   parang: false  # correct by the parallactic angle after the tables, in calibrate.polcal.frame (needed when Gpol, KCROSS, Xf or Df are applied)
   parang_flags: spread  # P's flags: spread, CASA's (a cell with any correlation flagged after the tables is flagged in all four); none, the tables' flags only
   targets: []  # what is applied to which fields (empty: every complex term to the fields it was solved on)
+  reweight:
+    mode: "off"  # empirical weights after apply (issue #55, research/apply-reweight.md): off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as CASA statwt(datacolumn='residual')
+    chanbin: 16  # reweight: channels per block
+    timebin: scan  # reweight: scan (one block per scan) or seconds, such as 120s
+    statistic: mad  # reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance
+    minsamp: 200  # reweight: valid samples a block needs, else it is filled or 0
+    smooth: 5  # reweight: running median over channel blocks that fills short blocks, then the baseline's median (0: none, short blocks get weight 0)
   learned:
-    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 image:
@@ -391,7 +406,7 @@ image:
   join_polarizations: false  # join the polarisations
   write_model: false  # predict the model images into MODEL_DATA after imaging, as WSClean does (through write-back; task G6)
   learned:
-    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 selfcal:
@@ -408,7 +423,7 @@ selfcal:
   cleanmask_method: []  # per image, the mask: wsclean (gemclean's -auto-mask at cleanmask_thr), none, or a FITS mask path (relative to this file; {field} is the field name); the last repeating (CARACal's cleanmask_method); []: image's mask settings
   cleanmask_thr: []  # per image, the automatic mask's sigma where cleanmask_method is wsclean, the last repeating (CARACal's cleanmask_thr)
   learned:
-    mode: off  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
+    mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 run:

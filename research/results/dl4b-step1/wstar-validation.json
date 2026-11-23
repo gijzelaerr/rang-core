@@ -1,0 +1,15 @@
+{
+ "written": "2026-11-21 08:10, from the validation ladder only, before any P run with a training seed",
+ "rule": "section 3: the arm among W1-W5 with the lowest median deconvolution time whose quality is inside section 5's tolerance against W1; 'inside' read as inside on all four validation skies (recorded here before any P result)",
+ "per_arm": {
+  "W1": {"rel_l2_ratio": [1.0, 1.0, 1.0, 1.0], "inside_all": true, "median_deconvolution_s": 433.5},
+  "W2": {"rel_l2_ratio": [1.246, 1.463, 0.989, 0.948], "inside_all": false, "median_deconvolution_s": 318.0},
+  "W3": {"rel_l2_ratio": [1.011, 1.005, 0.982, 1.075], "inside_all": true, "median_deconvolution_s": 620.5},
+  "W4": {"rel_l2_ratio": [1.204, 1.401, 0.976, 1.074], "inside_all": false, "median_deconvolution_s": 491.5},
+  "W5": {"rel_l2_ratio": [1.029, 1.033, 0.961, 1.075], "inside_all": true, "median_deconvolution_s": 364.5}
+ },
+ "W*": "W5 (-mgain 0.9)",
+ "crop_operator_gate": {"median_centre": 0.0021, "median_corner": 0.0135, "tolerance": 0.10, "pass": true},
+ "scorer_control": "pass on V1-V4 (band-limited truth relative L2 2.5e-8, group ratios 1 +- 1e-8)",
+ "plumbing_test_not_a_result": "smoke checkpoint (seed 99) through arm P on V3, tau 5, K 1-2: continue deconvolution 174 / 229 s against W1's 137 s"
+}

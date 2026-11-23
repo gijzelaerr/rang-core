@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Worktrees/rang/flag-residual/.venv/bin/python -m rang.core_cli run --force calibrate --force apply /home/gijs/rang-data/outputs/flag-residual-20261121/a1/a1-on.yaml /home/gijs/rang-data/outputs/flag-residual-20261121/a1/a1-on.ms"
+	User time (seconds): 6349.12
+	System time (seconds): 1539.52
+	Percent of CPU this job got: 143%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:31:23
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 14493012
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 562200650
+	Voluntary context switches: 343928
+	Involuntary context switches: 16511
+	Swaps: 0
+	File system inputs: 11564448
+	File system outputs: 278144832
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1221,6 +1221,7 @@ pub fn run_multiscale_masked<M: Measurement>(
         let components = steps.len() - taken_before;
         let dq_exact = q_next - q;
         let gap = dq_exact - predicted;
+        super::progress(cycles.len(), first_peak, threshold, steps.len(), start);
         cycles.push(Cycle {
             index: cycles.len(),
             components,

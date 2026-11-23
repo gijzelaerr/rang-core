@@ -1,0 +1,1 @@
+{"ops": ["Conv", "Relu"], "max_abs_diff_vs_torch": 3.055902197957039e-10, "weights": 208272}

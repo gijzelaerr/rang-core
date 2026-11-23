@@ -1,0 +1,85 @@
+08:39:52 G1 W1 573 s 547.237679
+08:49:19 G1 W5 567 s 547.498958
+09:00:08 G1 P-s1-t5-K1 {'k': 1, 'infer_s': 7.8, 'model_flux': 7.4, 'model_pixels': 29100, 'predict_s': 14.5, 'continue_wall_s': 625.1, 'continue_inversion_s': 11.6, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 602.0, 'continue_major': 6}
+09:12:22 G1 P-s2-t5-K1 {'k': 1, 'infer_s': 8.4, 'model_flux': 12.5, 'model_pixels': 40648, 'predict_s': 12.9, 'continue_wall_s': 710.3, 'continue_inversion_s': 11.8, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 687.2, 'continue_major': 6}
+09:23:02 G1 P-s3-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 8.0, 'model_pixels': 26715, 'predict_s': 13.0, 'continue_wall_s': 618.1, 'continue_inversion_s': 13.2, 'continue_prediction_s': 7.2, 'continue_deconvolution_s': 593.0, 'continue_major': 6}
+usage: dl4b_step1.py ladder [-h] --names NAMES [--arms ARMS]
+                            [--threads THREADS] [--tag TAG]
+                            skies scratch
+dl4b_step1.py ladder: error: argument --tag: expected one argument
+09:34:30 G1 P-s1r2-t5-K1 {'k': 1, 'infer_s': 8.2, 'model_flux': 7.4, 'model_pixels': 29100, 'predict_s': 13.4, 'continue_wall_s': 664.3, 'continue_inversion_s': 12.2, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 640.7, 'continue_major': 6}
+09:46:34 G1 P-s2r2-t5-K1 {'k': 1, 'infer_s': 7.6, 'model_flux': 12.5, 'model_pixels': 40648, 'predict_s': 13.1, 'continue_wall_s': 702.2, 'continue_inversion_s': 11.9, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 679.0, 'continue_major': 6}
+09:57:22 G1 P-s3r2-t5-K1 {'k': 1, 'infer_s': 7.8, 'model_flux': 8.0, 'model_pixels': 26715, 'predict_s': 13.1, 'continue_wall_s': 625.5, 'continue_inversion_s': 12.0, 'continue_prediction_s': 7.2, 'continue_deconvolution_s': 602.0, 'continue_major': 6}
+10:05:25 G2 W1 482 s 455.978511
+10:14:42 G2 W5 557 s 536.324583
+10:25:27 G2 P-s1-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 6.8, 'model_pixels': 35343, 'predict_s': 15.0, 'continue_wall_s': 621.8, 'continue_inversion_s': 11.8, 'continue_prediction_s': 7.1, 'continue_deconvolution_s': 598.5, 'continue_major': 6}
+10:36:56 G2 P-s2-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 10.5, 'model_pixels': 35501, 'predict_s': 13.2, 'continue_wall_s': 665.7, 'continue_inversion_s': 13.7, 'continue_prediction_s': 8.4, 'continue_deconvolution_s': 639.2, 'continue_major': 7}
+10:47:21 G2 P-s3-t5-K1 {'k': 1, 'infer_s': 7.6, 'model_flux': 6.8, 'model_pixels': 28081, 'predict_s': 13.1, 'continue_wall_s': 603.0, 'continue_inversion_s': 11.9, 'continue_prediction_s': 7.2, 'continue_deconvolution_s': 579.4, 'continue_major': 6}
+usage: dl4b_step1.py ladder [-h] --names NAMES [--arms ARMS]
+                            [--threads THREADS] [--tag TAG]
+                            skies scratch
+dl4b_step1.py ladder: error: argument --tag: expected one argument
+10:58:13 G2 P-s1r2-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 6.8, 'model_pixels': 35343, 'predict_s': 13.1, 'continue_wall_s': 629.6, 'continue_inversion_s': 12.1, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 606.2, 'continue_major': 6}
+11:09:42 G2 P-s2r2-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 10.5, 'model_pixels': 35501, 'predict_s': 13.0, 'continue_wall_s': 666.8, 'continue_inversion_s': 13.3, 'continue_prediction_s': 8.2, 'continue_deconvolution_s': 640.9, 'continue_major': 7}
+11:20:12 G2 P-s3r2-t5-K1 {'k': 1, 'infer_s': 8.1, 'model_flux': 6.8, 'model_pixels': 28081, 'predict_s': 13.1, 'continue_wall_s': 606.7, 'continue_inversion_s': 12.2, 'continue_prediction_s': 7.1, 'continue_deconvolution_s': 583.2, 'continue_major': 6}
+11:28:25 G3 W1 492 s 466.128531
+11:35:54 G3 W5 449 s 428.54204
+11:45:24 G3 P-s1-t5-K1 {'k': 1, 'infer_s': 7.7, 'model_flux': 4.8, 'model_pixels': 10248, 'predict_s': 14.6, 'continue_wall_s': 546.3, 'continue_inversion_s': 12.2, 'continue_prediction_s': 7.2, 'continue_deconvolution_s': 522.5, 'continue_major': 6}
+11:55:34 G3 P-s2-t5-K1 {'k': 1, 'infer_s': 7.7, 'model_flux': 6.3, 'model_pixels': 16774, 'predict_s': 13.1, 'continue_wall_s': 588.0, 'continue_inversion_s': 11.9, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 564.8, 'continue_major': 6}
+12:04:20 G3 P-s3-t5-K1 {'k': 1, 'infer_s': 8.1, 'model_flux': 5.1, 'model_pixels': 12599, 'predict_s': 13.0, 'continue_wall_s': 502.9, 'continue_inversion_s': 12.0, 'continue_prediction_s': 7.1, 'continue_deconvolution_s': 479.5, 'continue_major': 6}
+usage: dl4b_step1.py ladder [-h] --names NAMES [--arms ARMS]
+                            [--threads THREADS] [--tag TAG]
+                            skies scratch
+dl4b_step1.py ladder: error: argument --tag: expected one argument
+12:13:58 G3 P-s1r2-t5-K1 {'k': 1, 'infer_s': 8.3, 'model_flux': 4.8, 'model_pixels': 10248, 'predict_s': 13.0, 'continue_wall_s': 555.2, 'continue_inversion_s': 12.0, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 531.9, 'continue_major': 6}
+12:23:40 G3 P-s2r2-t5-K1 {'k': 1, 'infer_s': 7.8, 'model_flux': 6.3, 'model_pixels': 16774, 'predict_s': 13.1, 'continue_wall_s': 558.9, 'continue_inversion_s': 12.0, 'continue_prediction_s': 7.3, 'continue_deconvolution_s': 535.2, 'continue_major': 6}
+12:32:51 G3 P-s3r2-t5-K1 {'k': 1, 'infer_s': 7.5, 'model_flux': 5.1, 'model_pixels': 12599, 'predict_s': 13.2, 'continue_wall_s': 528.6, 'continue_inversion_s': 13.2, 'continue_prediction_s': 7.0, 'continue_deconvolution_s': 504.1, 'continue_major': 6}
+12:35:59 G4 W1 187 s 166.03303499999998
+12:38:57 G4 W5 178 s 159.701132
+12:43:47 G4 P-s1-t5-K1 {'k': 1, 'infer_s': 7.9, 'model_flux': 6.0, 'model_pixels': 7676, 'predict_s': 15.0, 'continue_wall_s': 266.0, 'continue_inversion_s': 10.6, 'continue_prediction_s': 5.9, 'continue_deconvolution_s': 245.0, 'continue_major': 5}
+12:49:25 G4 P-s2-t5-K1 {'k': 1, 'infer_s': 7.7, 'model_flux': 6.8, 'model_pixels': 18720, 'predict_s': 13.2, 'continue_wall_s': 315.4, 'continue_inversion_s': 10.4, 'continue_prediction_s': 5.7, 'continue_deconvolution_s': 295.0, 'continue_major': 5}
+12:53:05 G4 P-s3-t5-K1 {'k': 1, 'infer_s': 7.8, 'model_flux': 5.6, 'model_pixels': 9509, 'predict_s': 13.0, 'continue_wall_s': 197.5, 'continue_inversion_s': 10.6, 'continue_prediction_s': 5.8, 'continue_deconvolution_s': 176.8, 'continue_major': 5}
+usage: dl4b_step1.py ladder [-h] --names NAMES [--arms ARMS]
+                            [--threads THREADS] [--tag TAG]
+                            skies scratch
+dl4b_step1.py ladder: error: argument --tag: expected one argument
+12:57:52 G4 P-s1r2-t5-K1 {'k': 1, 'infer_s': 7.7, 'model_flux': 6.0, 'model_pixels': 7676, 'predict_s': 13.6, 'continue_wall_s': 263.7, 'continue_inversion_s': 10.7, 'continue_prediction_s': 5.8, 'continue_deconvolution_s': 242.7, 'continue_major': 5}
+13:03:43 G4 P-s2r2-t5-K1 {'k': 1, 'infer_s': 7.9, 'model_flux': 6.8, 'model_pixels': 18720, 'predict_s': 13.0, 'continue_wall_s': 328.1, 'continue_inversion_s': 11.2, 'continue_prediction_s': 6.0, 'continue_deconvolution_s': 306.5, 'continue_major': 5}
+13:07:25 G4 P-s3r2-t5-K1 {'k': 1, 'infer_s': 7.6, 'model_flux': 5.6, 'model_pixels': 9509, 'predict_s': 13.2, 'continue_wall_s': 198.8, 'continue_inversion_s': 10.7, 'continue_prediction_s': 5.8, 'continue_deconvolution_s': 177.9, 'continue_major': 5}
+G1 W1 {'relative_l2': 0.0039, 'false_flux': 0.0003, 'extended_failing': 0, 'wall_s': 572.8178, 'deconvolution_s': 547.2377, 'major': 7}
+G1 W5 {'relative_l2': 0.0036, 'false_flux': 0.0002, 'extended_failing': 0, 'wall_s': 567.3423, 'deconvolution_s': 547.499, 'major': 5}
+G1 P-s1-t5-K1 {'relative_l2': 0.0057, 'false_flux': 0.0018, 'extended_failing': 0}
+G1 P-s2-t5-K1 {'relative_l2': 0.007, 'false_flux': 0.0088, 'extended_failing': 0}
+G1 P-s3-t5-K1 {'relative_l2': 0.0059, 'false_flux': 0.0012, 'extended_failing': 0}
+G1 P-s1r2-t5-K1 {'relative_l2': 0.0057, 'false_flux': 0.0017, 'extended_failing': 0}
+G1 P-s2r2-t5-K1 {'relative_l2': 0.007, 'false_flux': 0.0088, 'extended_failing': 0}
+G1 P-s3r2-t5-K1 {'relative_l2': 0.006, 'false_flux': 0.0012, 'extended_failing': 0}
+G1 control {'relative_l2': 2.5661399480607224e-08, 'ratio_min': 0.9999999942899579, 'ratio_max': 1.0000000056310572, 'pass': True}
+G2 W1 {'relative_l2': 0.0052, 'false_flux': 0.0005, 'extended_failing': 0, 'wall_s': 481.7791, 'deconvolution_s': 455.9785, 'major': 7}
+G2 W5 {'relative_l2': 0.005, 'false_flux': 0.0004, 'extended_failing': 0, 'wall_s': 556.8523, 'deconvolution_s': 536.3246, 'major': 5}
+G2 P-s1-t5-K1 {'relative_l2': 0.0063, 'false_flux': 0.0015, 'extended_failing': 0}
+G2 P-s2-t5-K1 {'relative_l2': 0.008, 'false_flux': 0.0089, 'extended_failing': 0}
+G2 P-s3-t5-K1 {'relative_l2': 0.0068, 'false_flux': 0.0026, 'extended_failing': 0}
+G2 P-s1r2-t5-K1 {'relative_l2': 0.0062, 'false_flux': 0.0014, 'extended_failing': 0}
+G2 P-s2r2-t5-K1 {'relative_l2': 0.0081, 'false_flux': 0.0089, 'extended_failing': 0}
+G2 P-s3r2-t5-K1 {'relative_l2': 0.0068, 'false_flux': 0.0027, 'extended_failing': 0}
+G2 control {'relative_l2': 2.567514776037902e-08, 'ratio_min': 0.9999999940975839, 'ratio_max': 1.0000000042421524, 'pass': True}
+G3 W1 {'relative_l2': 0.0028, 'false_flux': 0.0012, 'extended_failing': 0, 'wall_s': 492.2317, 'deconvolution_s': 466.1285, 'major': 7}
+G3 W5 {'relative_l2': 0.0028, 'false_flux': 0.0024, 'extended_failing': 0, 'wall_s': 448.8065, 'deconvolution_s': 428.542, 'major': 5}
+G3 P-s1-t5-K1 {'relative_l2': 0.0039, 'false_flux': 0.0256, 'extended_failing': 0}
+G3 P-s2-t5-K1 {'relative_l2': 0.0049, 'false_flux': 0.0366, 'extended_failing': 0}
+G3 P-s3-t5-K1 {'relative_l2': 0.0045, 'false_flux': 0.0189, 'extended_failing': 0}
+G3 P-s1r2-t5-K1 {'relative_l2': 0.0039, 'false_flux': 0.0261, 'extended_failing': 0}
+G3 P-s2r2-t5-K1 {'relative_l2': 0.0049, 'false_flux': 0.0354, 'extended_failing': 0}
+G3 P-s3r2-t5-K1 {'relative_l2': 0.0045, 'false_flux': 0.0187, 'extended_failing': 0}
+G3 control {'relative_l2': 2.467513383512134e-08, 'ratio_min': 0.9999999959073813, 'ratio_max': 1.0000000040352008, 'pass': True}
+G4 W1 {'relative_l2': 0.0068, 'false_flux': 0.0004, 'extended_failing': 0, 'wall_s': 186.851, 'deconvolution_s': 166.033, 'major': 5}
+G4 W5 {'relative_l2': 0.0067, 'false_flux': 0.0007, 'extended_failing': 0, 'wall_s': 177.7472, 'deconvolution_s': 159.7011, 'major': 4}
+G4 P-s1-t5-K1 {'relative_l2': 0.0099, 'false_flux': 0.0014, 'extended_failing': 0}
+G4 P-s2-t5-K1 {'relative_l2': 0.0118, 'false_flux': 0.0088, 'extended_failing': 0}
+G4 P-s3-t5-K1 {'relative_l2': 0.0092, 'false_flux': 0.0003, 'extended_failing': 0}
+G4 P-s1r2-t5-K1 {'relative_l2': 0.0099, 'false_flux': 0.0014, 'extended_failing': 0}
+G4 P-s2r2-t5-K1 {'relative_l2': 0.0117, 'false_flux': 0.0084, 'extended_failing': 0}
+G4 P-s3r2-t5-K1 {'relative_l2': 0.0092, 'false_flux': 0.0003, 'extended_failing': 0}
+G4 control {'relative_l2': 2.552183139668295e-08, 'ratio_min': 0.9999999935524146, 'ratio_max': 1.0000000068510675, 'pass': True}
+gated done 2026-11-22T13:08:35

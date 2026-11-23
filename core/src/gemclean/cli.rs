@@ -3831,6 +3831,8 @@ fn data_rows_total(ms: &Path) -> Option<u64> {
 /// of it (the binary then exits with 101). Rust's stdout is flushed.
 pub fn main(args: &[String]) -> i32 {
     crate::wgridder::set_default_plane_group(crate::wgridder::PLANE_GROUP);
+    // Issue #56: one flushed line per major cycle, so a long run shows its progress.
+    crate::gemclean::set_progress(true);
     let code = match run(args) {
         Ok(()) => 0,
         Err(e) => {

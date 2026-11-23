@@ -4,14 +4,14 @@
 
 Update this block when a merge changes it. The log below is the record.
 
-- **What `main` is:** rang-core 0.3.0 (released 2026-11-19; known limitations, E2-N 17 of 25 and E3-A not run, in `CHANGELOG.md`): a tested research demonstrator, one Rust core reached through the extension `rang._core`, one command line `rang-core`, wheels for five platforms and the [documentation site](https://pythonic.nl/rang-core/).
+- **What `main` is:** rang-core 0.4.0 (released 2026-11-23, tag `v0.4.0` at `6d6396ee`, on PyPI; [release notes](release-040-notes.md)): deep learning as an option per stage (the `learned:` key, ONNX weights through rang's own interpreter, off by default), `rang-core watch`, flag.residual and re-weighting stages (off by default). No learned stage passed its gates (F5, F6, #41, #42, #43 F or null), so DL6's agent test is a known limitation.
 - **Merged:** the port and simplification (P1–P12, W1, X1, X2), the table writer (E3–E6), the exact gridder (DF1, DF2a–c), the deconvolution oracles (DF5-O), the file formats (DF-IO), CLEAN theory and its major cycles, B1-0 to B1-3, the docs (D1–D3), the [final review](w4-review.md) and its fixes W4-1 to W4-8, the reference imager [gemclean](gemclean.md) with its [benchmark](gemclean-benchmark.md) and the flagged [Gram operator](gridder-theory.md) (their times provisional); see the [research index](README.md).
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running (v0.4.0 wave 1, 2026-11-19):** A #37 (`dl0-profile`, E2-N profile on nash), C #39 (`dl2-data`, SARAO fetch and teacher runs on nash), D #40 (`dl3-f5`, F5 frozen in `41b6160d`, training next). Nothing of v0.3.x: E3-A timed, the E2-N follow-up and e2a-kzero were stopped at the 0.3.0 tag; the kept outputs of the last two were found absent on nash on 2026-11-19, so both rerun from the start ([roadmap.md](roadmap.md)). nash cleanup on the owner's word the same day: `e3-input` (194 GB) and `e3-20261117-a-correct` (62 GB) deleted, the sadc collector stopped; three old worktrees with uncommitted edits kept.
+- **Running (v0.5.0, 2026-11-23):** F7 (`f7-draft`, targets-only stage first; calibrators wait on P3 data or the owner's R3 answer), #3 chunk task API (`chunk-api-3`), #11 UHF (`uhf-11`, blocked on UHF archive links from the owner), #7 E2-N CASA chain on nash (`e2n-followup`, self-driving), #32 V1 measured on `gemclean-mem-32b` (0.944 × memory, adoption waits).
 - **Direction:** [vision.md](vision.md) (2026-11-11).
-- **Next:** v0.4.0, deep learning: [dl-plan.md](dl-plan.md), issues #37-#46, Landman's F5 (#40) first.
+- **Next:** v0.5.0, scale and more of MeerKAT ([roadmap.md](roadmap.md)). Owner questions open: UHF data links, F7's R3 anchor, P1 for #9, the first DD piece for #15.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
 - **Open items:** the [todo at close](big-plan.md#todo-at-close-2026-11-03).
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
@@ -19,6 +19,8 @@ Update this block when a merge changes it. The log below is the record.
 ## Log (newest first)
 
 A new paragraph goes directly under this heading.
+
+v0.4.0 released, 2026-11-23. Merged #42 (`dl4b-step0`: step 0 F, step 1 F, relative L2 1.22-1.79 × W1's and slower than W\*) and `release-040`; full check passed, tag `v0.4.0` at `6d6396ee`; wheels workflow green on all 5 platforms, published to PyPI and as the GitHub release. Closed #40, #42, #51, #55, #56 and the v0.4.0 milestone; #46 and #1 moved to v0.5.0, #24 to v0.6.0. v0.5.0 sessions started: F7, #3, #11.
 
 WSClean 3.8 rebaseline, 2026-11-22 (issue #47; branch `wsclean-38`; [wsclean38-rebaseline.md](wsclean38-rebaseline.md), sections 1-6 frozen 2026-11-18 before any 3.8 run, amendments 1-2). Arm T ran exclusive on glacier from 21:04 to 02:09 (3 repeats, then the `-mgain` cells; 20 jobs marked spoiled by chrome, svchost, MsMpEng, BackgroundDownload and dwm, so the rule ran on all runs). **Outcome changed**: pair B (GeMClean coarse against WSClean's best `minres`, 1e-4) at `-j 1` gains S1, S2 and S3 against 3.8 (gc/WSClean 0.94, 0.95, 0.99; against 3.7 1.05, 1.04, 1.12). WSClean 3.8's `minres` is slower than 3.7's on all seven skies at one thread (1.06-1.23 ×; S1 64.0 against 52.1 s), and level at 1e-6 and at 16 threads. Pair A (1e-6) leads on all seven at both thread counts and versions. Host control: 3.7 within 6 % of 2026-11-04 on every sky. With P, H-mask and H-ms (2026-11-18), all four arms are measured; docs wording and 3.8 as the speed oracle are owner decisions.
 
