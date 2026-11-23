@@ -7,7 +7,7 @@ spool executor (#4). Still serial in the parent: CASA-table apply (`applycal.app
 F, Gpol, KCROSS, Xf, Df; `cal_chain.run`) and image. Branch `chunk-api-3`, from main `e071bdab`. Infrastructure
 work: no novelty is claimed; the gate is identity, timing is reported for #4's decisions.
 
-**Status, 2026-11-23: proposed.** Sections 0 to 5 are frozen before any code of this note is written.
+**Status, 2026-11-23: implemented and measured (section 6).** Sections 0 to 5 were frozen in `fce3f82c` before any code; amendments 1 and 2 are dated. Identity criteria 1-5 pass everywhere; criterion 6 fails as worded on two small-set P4 arms; timing not obtained.
 
 ## 0. Probes before the design (not comparisons)
 
@@ -190,3 +190,70 @@ little. This section replaces it, on this branch's final code.
   largest process, foreign load, identity of each point against B (criteria 1-4).
 - If no idle window comes before the hand-back, the points are reported as not obtained and the driver's
   command is left for the coordinator.
+
+## 6. Results (measured 2026-11-23)
+
+Code: branch `chunk-api-3`, `5375c029` (the code), harness at `6d2e94e3`. Oracle U: main `e071bdab` from the
+detached worktree `C:\Users\gijsm\Worktrees\rang\cta1b-oracle-e071bdab` with this branch's `_core.pyd` (SHA-256
+`6023d006…`; `git diff e071bdab -- core/ src/` empty). Host glacier, shared under the heavy lock at normal priority.
+Run root `D:\rang\outputs\cta1b-20261123-02` (hashes, logs and summaries kept; MS copies deleted); verdict copied to
+[results/chunk-task-api-1b-identity.json](results/chunk-task-api-1b-identity.json).
+
+**Verdict: criteria 1-5 pass on every case and arm; criterion 6 fails as frozen on C-P4 and P-P4; criterion 7
+passes.** So by section 3's decision rule the gate **does not pass as frozen**. The failure is in what criterion 6
+asked of P4 on the small sets, not in any result (below).
+
+| Case | Files compared | P1 | P4 | P2T | Tasks in P4 (calibrate; apply) | Tasks in P2T |
+| --- | ---: | --- | --- | --- | --- | --- |
+| C (A1 small, chain + CASA apply) | 162 | identical | identical | identical | none; 2 `apply-casa` | 148 `chain-chunk`; 3,566 `apply-casa` |
+| P (poldx, pol chain, parang apply) | 243 | identical | identical | identical | none; 3 `apply-casa` | 528 `chain-chunk`; 5,349 `apply-casa` |
+| M (C with a two-field G, calwt apply) | 189 | identical | identical | identical | 2 `chain-field`; 2 `apply-casa` | 148 `chain-chunk`, 2 `chain-field`; 3,566 `apply-casa` |
+| W (`w3.ms`, K/G/B chain) | 81 | identical | identical | (not run) | 82 `chain-chunk`; 10 `apply-casa` | – |
+
+"Identical": every MS column after calibrate and after apply, the flag versions, every file under
+`<run>/calibrate/` byte for byte, and the cleaned summaries; every stage command exited 0.
+
+- **Criterion 6 (post hoc reading, not a change of the criterion).** On C and P at P4 the default 8 GiB gives
+  2 GiB per process, in which every solve of these small sets fits one chunk, so `replayed` has nothing to
+  dispatch (a single chunk is solved in the parent, 1.2). Stage 1's note said the same of P4 on the small sets
+  ("one chunk per group or partition"); the criterion should have asked `chain-chunk` of P2T and W-P4 only. Where
+  there was more than one chunk, the chunks went through the pool and the results were identical: C-P2T, P-P2T,
+  M-P2T and W-P4.
+- **Criterion 7.** `tests/test_chunk_tasks_1b.py`, 6 tests, pass on Windows; with the related suites (W3, W3b,
+  c4b, c2e, c6w, spool, calwt, Xf calwt, fluxscale, reweight, c5 selfcal) 110 passed, 4 skipped. CI's `tests` on
+  Linux and Windows: see the pull request or the hand-back.
+- **Walls** (s, calibrate / apply; shared host, **not timing results**): W U 421.4 / 28.2, P1 526.7 / 28.5,
+  P4 586.2 / 22.7. P4 ran one rayon thread per worker against U's four. Every `chain-chunk` task re-runs its
+  recipe up to the replayed solve (the field's metadata, model and solution bins, the earlier tables read from
+  disk) before its chunk, which costs per task what the parent pays once per solve; whether that or host load
+  explains P4 > U is for section 5 to measure.
+
+**Void and refused runs, kept.**
+- `D:\rang\outputs\cta1b-20261123-01-void`: C, P and M arms failed while writing their configuration (the harness's
+  config hook called itself), before any stage ran; W-U was stopped mid-calibrate when the oracle worktree was
+  removed by another session's cleanup pass. No verdict drawn; `VOID.txt` in it.
+- `W-*.void-amendment2` in the run root: W's first arms, refused at apply in U and P1 (no `apply.targets`) and at
+  calibrate in P4 (2 GiB per process), which led to amendment 2.
+
+### 6.1 Timing (section 5): not obtained
+
+nash's lock had 32-40 of 44 shared slots booked through the task, so no idle window came. Stage 1's matrix stays
+closed at 2 of 15 points. Prepared on nash for the coordinator: the branch worktree `~/Worktrees/rang/chunk-api-3`
+(venv and extension built by its quick check), the oracle `~/Worktrees/rang/cta1b-oracle-e071bdab`, and
+`tools/oracles/chunk_tasks/timing_1b.py matrix RUN`, which queues each point only when the lock is idle.
+
+## For the coordinator
+
+- **What #3 still lacked is built:** CASA-table apply by row chunk and the chain solves (K, G, B, Gpol; by chunk of
+  the stop replay and by field) go through `data.processes` / `data.executor` (local pool and spool alike). F, the
+  A step, Df's gauge, the KCROSS/Xf/Df chunk loops, averaged and streamed solves stay serial (1.2). No new key, no
+  Rust change.
+- **Identity:** bit-identical to main `e071bdab` on A1, poldx, a two-field chain and `w3.ms` in every arm.
+  Criterion 6 failed as worded on two small-set P4 arms that had nothing to split (6, post hoc reading); your call
+  whether that blocks the merge.
+- **Image:** not built; DL0's ceiling (1.3) makes a per-channel split worth about 2 % of self-calibration.
+- **Timing:** not obtained (6.1); stage 1's matrix closed at 2/15. Overhead to watch: each `chain-chunk` task
+  rebuilds its field before its chunk.
+- **Not run:** the full `python tools/check_all.py` (oracle and archive gates) on this branch.
+- **Kept:** `D:\rang\outputs\cta1b-20261123-02` (hashes, logs), the `-01-void` root, the oracle worktrees on glacier
+  and nash (each with a KEEP note) until merge.
