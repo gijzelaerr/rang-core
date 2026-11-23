@@ -382,6 +382,19 @@ target scans); ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. T and A computed in
 frozen (G-drop every draw on every set against 0.05 / 0.20 / 0.25). The outcome is recorded
 whatever it is; the cost gate (tonight, glacier) completes it. Calibrators: F, nothing read.
 
+*Amendment H1 (2026-11-23 21:05 SAST, post hoc on procedure, not on the method or a gate; no
+result read).* The held-out chain started 20:46. Its nine SARAO jobs stopped at label loading
+(`labels/rang/<cbid>/scanNNN/flag.npy` missing): DL2 shipped the held-out blocks unlabelled
+(dl2-data's stage 1 outcome), and F6 never ran a teacher on them. No SARAO set was scored. The
+chain's parent was stopped before its verdict step, so no partial verdict exists. The ESO137 and
+f4sim-t jobs, which need no DL2 label, run on unchanged. T and A for the nine held-out target scans
+are built with DL2's runner and pins, unchanged: `dl2_teach.py ROOT rang,aoflagger CBID --scans ...
+--heldout-read --threads 8` (rang core sha256 `ce8d03ce...` and stimela AOFlagger 2.13 image
+`fd89f5d9...`, both identical to the validation labels' pins; dl2-data commits since 4bb29720 touch
+docs and scripts only; Tricolour is not needed by the scorer and is not run). Then
+`d9b-held.sh` runs again; it skips the finished ESO137 and simulation sets, so every held-out set
+is still scored once. Chain `research/results/f7/d9b-held-labels.sh`.
+
 **Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
 (separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
 class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
