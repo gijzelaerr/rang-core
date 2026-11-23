@@ -173,3 +173,24 @@ solver time from its log, on glacier under `heavy_lock`.
 ## 7. Measured result
 
 Not yet measured.
+
+## Amendments
+
+**A1, 2026-11-23, before any oracle or P-case result was read** (the unit
+tests' figures below had been seen). Gate T's decision rule has a gap: with
+stop fraction 0.99 and criterion 1e-7, P3 can stop before 50 iterations and
+still miss 1e-4 on the maximum, which section 6 would call a truth failure.
+Added, tolerance unchanged: a rang-only diagnostic **P3-long** (P3's data and
+intervals, stop fraction 1.0, criterion 1e-10, 2000 iterations). If P3 fails
+gate T and P3-long passes, the outcome is the algorithmic non-convergence
+outcome (the stopping rule ends the slow Jacobi iteration early), not a truth
+failure; if P3-long also fails, the truth-failure branch stands.
+
+Seen before this amendment (unit tests of `diag_dd.rs`, noiseless, no
+noise): on a poorly conditioned array (7 antennas, 3 channels with nearly
+equal models, 4 time bins) the worst relative product error was 3.5e-8 after
+38 iterations with one direction, 1.3e-2 after 200 with two, 0.26 after 200
+and 1.6e-2 after 2000 with three: QuartiCal's DD update converges slowly when
+the directions' models are not well separated over a solution interval. On a
+better conditioned case (10 antennas, 4 channels, directions separated in
+phase per channel) it is the unit test, gated at 1e-6.
