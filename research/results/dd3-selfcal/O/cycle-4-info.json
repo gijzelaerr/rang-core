@@ -1,0 +1,8 @@
+{
+ "iterations": 88,
+ "fraction": 0.9931640625,
+ "h5_roundtrip": true,
+ "seconds_solve": 54.41827030002605,
+ "seconds_image": 9.364954199991189,
+ "log_tail": ""
+}

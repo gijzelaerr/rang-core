@@ -1,0 +1,13 @@
+{
+ "iterations": 88,
+ "fraction": 0.9921875,
+ "h5_roundtrip": true,
+ "seconds_solve": 61.0241490000044,
+ "seconds_image": 10.049587399989832,
+ "log_tail": "",
+ "hogbom": {
+  "sigma": 8.037219051675493e-05,
+  "stop": 0.001,
+  "n": 119
+ }
+}

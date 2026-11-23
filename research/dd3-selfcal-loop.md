@@ -5,7 +5,7 @@ section 2). Branch `dd3-selfcal`. Sections 1-5 are frozen 2026-11-23,
 before any code that tests them; later changes are dated amendments,
 labelled post hoc where they could have seen a result.
 
-Status: **proposed**.
+Status: **measured 2026-11-23**: gate L (loop parity) **passes** every cycle. Gate T fails in both arms alike, so the outcome is **truth failure of the loop, not of the port**: the facet d3 gain and model flux trade off (section 6).
 
 ## 1. What DD3 is
 
@@ -142,7 +142,85 @@ indicative.
 
 ## 6. Measured result
 
-Not yet measured.
+Run `D:/rang/outputs/dd3-20261123-01`:
+- `R/` and `O/cycle-0..4` (models, gains, residuals, components), plus
+  `armR.log`, `armO.log` and `compare.json`.
+- WSClean 3.7 `4f395b28` and QuartiCal 0.2.7, in the venvs and images of
+  DD1 and DD2.
+- Rang from main `fe091771`, through the main checkout's environment.
+- Archive: [results/dd3-selfcal/](results/dd3-selfcal/).
+- Host glacier, shared, rang at 8 threads.
+
+**Gate L: pass at every cycle.**
+
+| Cycle | components (R, O) | same pixels, fluxes | max \|ΔP\| gains | flags | residual (rel.) | solver iterations (R = O) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 69, 69 | yes | 1.6e-6 | equal | 1.8e-6 | 108 |
+| 1 | 119, 119 | yes | 1.3e-6 | equal | 1.0e-5 | 90 |
+| 2 | 119, 119 | yes | 1.3e-6 | equal | 4.6e-5 | 88 |
+| 3 | 32, 32 | yes | 1.2e-6 | equal | 1.3e-4 | 88 |
+| 4 (final) | – | – | 1.4e-6 | equal | 1.6e-4 | 88 |
+
+QuartiCal at `iter_recipe=[150]` stops at the same iteration as `solve_dd`
+in every cycle, which extends DD1's parity to the frozen cap.
+
+The residual difference grows slowly with the cycle, from 1.8e-6 to
+1.6e-4, against a limit of 1e-3. The likely cause is float32 rounding in the
+model columns and images compounding through the model, not a diverging
+choice.
+
+**Gate T: fails in both arms, with identical numbers.**
+
+| Measure | start model M₀ | final, R and O | limit |
+| --- | --- | --- | --- |
+| T1 median gain-product error | 3.79e-2 | **3.89e-3** | ≤ 3.72e-3: **fail** |
+| T1 per direction d0-d3 | – | 3.4e-3, 2.2e-3, 3.9e-3, **2.5e-2** | – |
+| T2 bright-source flux ratios | 1, 1, 1, 1 | 0.9992, 0.9985, 1.0000, **0.9777** | within 2 %: **fail** (d3) |
+| T2 faint sources (≥ 30 mJy) | – | 0.985-1.044 | within 10 %: pass |
+| T3 false flux | – | 0.42 % | ≤ 1 %: pass |
+
+Self-calibration cuts the gain error tenfold, from the start model's 3.8e-2
+to 3.9e-3. Facets d0 and d2 come within 1.15 × the complete-model reference and
+d1 within 1.5 × (the d0, d1 and d2 medians are 3.4e-3, 2.2e-3 and 3.9e-3, against
+the complete-model solve's 3.0e-3, 1.5e-3 and 3.7e-3, DD2 `prepare.json`).
+
+Facet d3 (the 0.4 Jy centre, the faintest facet) does not.
+- Post hoc, its gain products are 2.46 % high in amplitude against the
+  truth (median `|P|/|P_true|` = 1.0246 at cycle 4; 0.997-1.003 at cycle 0
+  and in the other facets).
+- Its model flux is 2.2 % low (0.9777).
+- The product 1.0246 × 0.9777 = 1.0018. The loop moved flux between the
+  facet's gains and its model.
+
+This is the amplitude degeneracy of a DD term: per direction, a common
+scale of `|g|²` and the facet's model flux give the same visibilities.
+Nothing in the loop pins the scale once the model is updated. It is
+inherent in this loop (QuartiCal and WSClean do the same, to 1e-6), not a
+port error.
+
+**Outcome under section 4: truth failure of the loop.** L holds and T1 and
+T2 fail in both arms, through facet d3's gain-flux degeneracy. The rang DD
+self-calibration loop is QuartiCal and WSClean's, cycle for cycle.
+
+**Cost (indicative):**
+- Arm R: 4:32 for 5 cycles, each about 8 s solve, 11 s images and about
+  30 s Högbom.
+- Arm O: 9:29, each QuartiCal process 54-79 s, against 1.5-2 s for
+  `solve_dd` in the same cycle. WSClean predicts and images take about
+  10 s per cycle.
+
+## 7. For the coordinator
+
+- Mergeable as the DD loop with parity to QuartiCal and WSClean. Tools only
+  (`tools/oracles/dd3/`); no core change.
+- Owner decision for the loop itself: the per-facet flux scale is free.
+  Candidates, each its own proposal:
+  - hold facet amplitudes fixed (phase-only DD, as CARACal's first dE
+    rounds do);
+  - normalise each direction's mean `|g|` to 1 after each solve;
+  - keep the start model's catalogue fluxes fixed.
+  The decision belongs before DD4 (real data), where the d3-like facets are
+  the faint ones.
 
 ## Amendments
 
