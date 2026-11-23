@@ -252,3 +252,22 @@ differed by 5.3e-3 of the peak, against a limit of 1e-3.
   weights. Rang's imaging weight is now that (the solver still uses each
   correlation's own weight), and C0 is rerun.
 - DD1-DD3b are unaffected, since their simulations have equal weights.
+
+**A3, 2026-11-23, setup and a reported baseline.**
+
+*Setup.* With facet solutions, WSClean 3.7 refuses the pilot's
+two-correlation MS: "This mode requires the four polarizations to be present
+in the measurement set". This happened in arm O, cycle 0, at step 3, before
+any gate was read. The facet calls now pass `-diagonal-visibilities`, which
+reads XX and YY and applies the solutions to each hand. That is the
+per-hand correction rang applies. Arm O is restarted from a fresh scratch
+copy.
+
+*Baseline (post hoc, reported only).* The frozen DI arm (one direction,
+amplitude and phase, nothing pinned) leaves a residual σ of 0.22-0.31 Jy
+in cycles 0-1, against the DD arm's 2-3 mJy. With nothing pinned, the
+single direction's gains absorb the incomplete start model of the extended
+80 Jy source. Its verdict is read as frozen. A second baseline **DI0** is
+added: one direction, pinned, so the gains stay at the publisher's DI
+calibration and only the deconvolution loop runs. DI0 is reported beside
+the frozen comparison and does not replace it.

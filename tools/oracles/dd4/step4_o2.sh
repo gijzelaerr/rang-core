@@ -7,7 +7,7 @@ source "$(dirname "$0")/common4.sh"
 s=$1; d=$2; reg=$3; log="$d/o2.log"; : > "$log"
 cp "$reg" "$s/facets.reg"; cp "$d/solved.h5" "$s/solved.h5"
 cp "$d/full-model.fits" "$s/po-model.fits"; cp "$d/full-model-pb.fits" "$s/po-model-pb.fits"
-facets=(-facet-regions /w/facets.reg -apply-facet-solutions /w/solved.h5 amplitude000,phase000)
+facets=(-facet-regions /w/facets.reg -apply-facet-solutions /w/solved.h5 amplitude000,phase000 -diagonal-visibilities)
 wsc "$s" "$log" -predict -name /w/po "${grid[@]}" "${facets[@]}" /w/sub.ms
 py - "$s/sub.ms" <<'PY'
 import sys, casacore.tables as pt

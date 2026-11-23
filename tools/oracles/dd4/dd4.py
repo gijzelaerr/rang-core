@@ -120,7 +120,7 @@ def setup(subms, catalogue, run):
     print((run / "setup.json").read_text())
 
 
-def context(run, di=False):
+def context(run, di=False, di0=False):
     st = json.loads((run / "setup.json").read_text())
     c = read_sub(st["subms"])
     centres = np.array(st["centres"])
@@ -141,7 +141,7 @@ def context(run, di=False):
         search[max(y - 2, 0) : y + 3, max(x - 2, 0) : x + 3] = False
     return {"st": st, "c": c, "centres": centres, "ndir": len(centres), "idx": idx,
             "interior": interior, "search": search, "block": block, "centres_t": centres_t,
-            "pinned": [0] if len(centres) > 1 else []}  # fmt: skip
+            "pinned": [0] if (len(centres) > 1 or di0) else []}  # fmt: skip
 
 
 def facet_models(ctx, model):
@@ -186,14 +186,16 @@ def residual_image(ctx, models, gains):
     return image
 
 
-def arm_r(run, di=False):
+def arm_r(run, di=False, di0=False):
+    """Arm R, or DI (one direction, free), or DI0 (one direction, pinned:
+    the publisher's DI calibration only; DD4 amendment A3, post hoc)."""
     from rang import cal_gain
 
-    ctx = context(run, di)
+    ctx = context(run, di or di0, di0)
     c = ctx["c"]
     psf = np.load(run / "psf.npy")
     model = np.load(run / "model0.npy")
-    arm = "DI" if di else "R"
+    arm = "DI0" if di0 else ("DI" if di else "R")
     for k in range(NCYCLE + 1):
         t0 = time.perf_counter()
         models = facet_models(ctx, model)
@@ -356,7 +358,10 @@ def score(run):
                        "gain_product_max_abs_diff": gdiff, "flags_equal": flags_eq,
                        "residual_rel_diff": rdiff, "pass": bool(ok)}  # fmt: skip
     rec["L_first_fail"] = first_fail
-    m = {arm: measures(run, ctx, arm, psf, sigma) for arm in ("R", "O", "DI")}
+    arms = [
+        a for a in ("R", "O", "DI", "DI0") if (run / a / f"cycle-{NCYCLE}").exists()
+    ]
+    m = {arm: measures(run, ctx, arm, psf, sigma) for arm in arms}
     rec["measures"] = m
     ratio_ro = {
         k: m["R"]["offaxis_rms"][k] / m["O"]["offaxis_rms"][k]
@@ -377,6 +382,13 @@ def score(run):
     )
     rec["gain_over_DI"] = {"rms_ratio_R_over_DI": ratio_di, "q": qv, "dr_R_ge_DI": bool(dr_ok),
                            "verdict": verdict}  # fmt: skip
+    if "DI0" in m:  # amendment A3, post hoc, reported only
+        r0 = {
+            k: m["R"]["offaxis_rms"][k] / m["DI0"]["offaxis_rms"][k]
+            for k in m["R"]["offaxis_rms"]
+        }
+        rec["reported_vs_DI0"] = {"rms_ratio_R_over_DI0": r0, "q": float(np.median(list(r0.values()))),
+                                  "dr_R_over_DI0": m["R"]["dynamic_range"] / m["DI0"]["dynamic_range"]}  # fmt: skip
     (run / "score.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
     print(json.dumps(rec, indent=1))
 
@@ -410,7 +422,7 @@ def main(argv=None):
     if cmd == "setup":
         setup(Path(argv[1]), Path(argv[2]), Path(argv[3]))
     elif cmd == "rang":
-        arm_r(Path(argv[1]), di="--di" in argv)
+        arm_r(Path(argv[1]), di="--di" in argv, di0="--di0" in argv)
     elif cmd == "oracle":
         arm_o(Path(argv[1]), argv[2])
     elif cmd == "control":
