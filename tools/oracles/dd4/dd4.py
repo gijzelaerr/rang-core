@@ -413,8 +413,39 @@ def score_b(run):
     print(json.dumps(rec, indent=1))
 
 
-def score(run):
-    ctx = context(run)
+def flux_close(a, b):
+    """Gate L's component-flux tolerance (section 5)."""
+    return abs(a - b) <= 1e-5 + 1e-4 * abs(b)
+
+
+def up_to_rule(cr, co, stop, rel=1e-4):
+    """Whether two component lists {(y, x): flux} differ only through a tie
+    or a near-threshold choice of the shared rule (DD3 section 4: two
+    components within `rel` of each other, or a component within `rel` of
+    the stop level). Lists that do not differ are not this case."""
+    only_r = {a: cr[a] for a in set(cr) - set(co)}
+    only_o = {a: co[a] for a in set(co) - set(cr)}
+    both = [a for a in set(cr) & set(co) if not flux_close(cr[a], co[a])]
+    if not (only_r or only_o or both):
+        return False
+    level = dd3.GAIN * stop
+
+    def near(f):
+        return abs(abs(f) - level) <= rel * level
+
+    def tie(f, others):
+        return any(abs(f - g) <= rel * abs(g) for g in others)
+
+    ok_r = all(near(f) or tie(f, only_o.values()) for f in only_r.values())
+    ok_o = all(near(f) or tie(f, only_r.values()) for f in only_o.values())
+    ok_b = all(near(cr[a]) or near(co[a]) for a in both)
+    return bool(ok_r and ok_o and ok_b)
+
+
+def score(run, r="R", o="O", di="DI", out="score.json", ctx=None):
+    """Gates L and S (R against O) and the gain over DI, as frozen in
+    section 5; DD4c reuses them with its own arm names."""
+    ctx = context(run) if ctx is None else ctx
     psf = np.load(run / "psf.npy")
     sigma = restoring_beam(psf)
     rec = {"note": "research/dd4-eso137.md", "restoring_sigma_px": sigma, "L": {}}
@@ -423,12 +454,10 @@ def score(run):
     nant = len(ctx["c"]["ant_names"])
     p, q = np.triu_indices(nant, 1)
     for k in range(NCYCLE + 1):
-        dr, do = run / "R" / f"cycle-{k}", run / "O" / f"cycle-{k}"
+        dr, do = run / r / f"cycle-{k}", run / o / f"cycle-{k}"
         cr, co = dd3.comps_of(dr), dd3.comps_of(do)
         same = set(cr) == set(co)
-        flux_ok = same and all(
-            abs(cr[a] - co[a]) <= 1e-5 + 1e-4 * abs(co[a]) for a in cr
-        )
+        flux_ok = same and all(flux_close(cr[a], co[a]) for a in cr)
         gr, go = np.load(dr / "gains.npz"), np.load(do / "gains.npz")
         pr = gr["gains"][:, :, p] * np.conj(gr["gains"][:, :, q])
         po = go["gains"][:, :, p] * np.conj(go["gains"][:, :, q])
@@ -442,42 +471,53 @@ def score(run):
         ok = same and flux_ok and gdiff <= 1e-5 and flags_eq and rdiff <= 1e-3
         if not ok and first_fail is None:
             first_fail = k
+        rule = False
+        if not ok and first_fail == k:
+            # Parity up to the rule only when the components alone differ,
+            # through a tie or a near-threshold choice (section 5, frozen).
+            stop = (
+                json.loads((dr / "info.json").read_text()).get("hogbom", {}).get("stop")
+            )
+            rule = bool(gdiff <= 1e-5 and flags_eq and rdiff <= 1e-3 and stop is not None
+                        and up_to_rule(cr, co, stop))  # fmt: skip
+            rec["L_parity_up_to_rule"] = rule
         rec["L"][k] = {"components": [len(cr), len(co)], "same_pixels": same, "flux_ok": flux_ok,
                        "gain_product_max_abs_diff": gdiff, "flags_equal": flags_eq,
                        "residual_rel_diff": rdiff, "pass": bool(ok)}  # fmt: skip
     rec["L_first_fail"] = first_fail
     arms = [
-        a for a in ("R", "O", "DI", "DI0") if (run / a / f"cycle-{NCYCLE}").exists()
+        a
+        for a in dict.fromkeys((r, o, di, "DI0"))
+        if (run / a / f"cycle-{NCYCLE}").exists()
     ]
     m = {arm: measures(run, ctx, arm, psf, sigma) for arm in arms}
     rec["measures"] = m
     ratio_ro = {
-        k: m["R"]["offaxis_rms"][k] / m["O"]["offaxis_rms"][k]
-        for k in m["R"]["offaxis_rms"]
+        k: m[r]["offaxis_rms"][k] / m[o]["offaxis_rms"][k] for k in m[r]["offaxis_rms"]
     }
-    dr_ro = m["R"]["dynamic_range"] / m["O"]["dynamic_range"]
-    tol = 0.001 if first_fail is None else 0.02
+    dr_ro = m[r]["dynamic_range"] / m[o]["dynamic_range"]
+    # 2 % only with parity up to the rule; any other L failure keeps 0.1 %.
+    tol = 0.02 if rec.get("L_parity_up_to_rule") else 0.001
     rec["S"] = {"rms_ratio_R_over_O": ratio_ro, "dr_ratio_R_over_O": dr_ro, "tolerance": tol,
                 "pass": bool(all(abs(v - 1) <= tol for v in ratio_ro.values()) and abs(dr_ro - 1) <= tol)}  # fmt: skip
     ratio_di = {
-        k: m["R"]["offaxis_rms"][k] / m["DI"]["offaxis_rms"][k]
-        for k in m["R"]["offaxis_rms"]
+        k: m[r]["offaxis_rms"][k] / m[di]["offaxis_rms"][k] for k in m[r]["offaxis_rms"]
     }
     qv = float(np.median(list(ratio_di.values())))
-    dr_ok = m["R"]["dynamic_range"] >= m["DI"]["dynamic_range"]
+    dr_ok = m[r]["dynamic_range"] >= m[di]["dynamic_range"]
     verdict = (
         "DD helps" if (qv <= 0.90 and dr_ok) else ("DD worse" if qv >= 1.05 else "null")
     )
     rec["gain_over_DI"] = {"rms_ratio_R_over_DI": ratio_di, "q": qv, "dr_R_ge_DI": bool(dr_ok),
                            "verdict": verdict}  # fmt: skip
-    if "DI0" in m:  # amendment A3, post hoc, reported only
+    if "DI0" in m and di != "DI0":  # amendment A3, post hoc, reported only
         r0 = {
-            k: m["R"]["offaxis_rms"][k] / m["DI0"]["offaxis_rms"][k]
-            for k in m["R"]["offaxis_rms"]
+            k: m[r]["offaxis_rms"][k] / m["DI0"]["offaxis_rms"][k]
+            for k in m[r]["offaxis_rms"]
         }
         rec["reported_vs_DI0"] = {"rms_ratio_R_over_DI0": r0, "q": float(np.median(list(r0.values()))),
-                                  "dr_R_over_DI0": m["R"]["dynamic_range"] / m["DI0"]["dynamic_range"]}  # fmt: skip
-    (run / "score.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+                                  "dr_R_over_DI0": m[r]["dynamic_range"] / m["DI0"]["dynamic_range"]}  # fmt: skip
+    (run / out).write_text(json.dumps(rec, indent=1), encoding="utf-8")
     print(json.dumps(rec, indent=1))
 
 
@@ -637,7 +677,12 @@ def main(argv=None):
     elif cmd == "scoreb":
         score_b(Path(argv[1]))
     elif cmd == "score":
-        score(Path(argv[1]))
+        opt = {
+            k[2:]: argv[argv.index(k) + 1]
+            for k in ("--r", "--o", "--di", "--out")
+            if k in argv
+        }
+        score(Path(argv[1]), **opt)
     else:
         raise SystemExit(__doc__)
 
