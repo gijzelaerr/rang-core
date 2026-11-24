@@ -6,7 +6,7 @@ scans into a private MS.
 
 `casa`: CASA `concat` of the source MSs (read only) into OUT.ms, as dl2-data.md
 19's stage 2 route. `scans`: SCAN_NUMBER of OUT.ms set to each source's katdal
-scan index (every source has SCAN_NUMBER 1), by the source's TIME range; then
+scan index + 1 (every source has SCAN_NUMBER 1), by the source's TIME range; then
 checks the row sum against the manifest and the field names, and writes
 OUT.ms.check.json.
 """
@@ -67,7 +67,7 @@ def renumber(scans, out):
         sel = (time >= lo - 1e-3) & (time <= hi + 1e-3)
         if (sn[sel] != 0).any():
             raise SystemExit(f"scan {s['scan']}: time range overlaps another source")
-        sn[sel] = s["scan"]
+        sn[sel] = s["scan"] + 1  # katdal index + 1: index 0 exists, 0 marks unmatched
         ranges.append({"scan": s["scan"], "rows_source": n, "rows_matched": int(sel.sum()),
                        "rows_manifest": s["rows"], "t0": lo, "t1": hi})  # fmt: skip
     if (sn == 0).any():
