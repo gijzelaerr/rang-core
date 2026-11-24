@@ -266,8 +266,9 @@ under `calibrate/`, the cleaned summaries).
   calibrate and 41-43 s into apply, so about 50 s of each calibrate and 40 s of each apply is serial set-up before
   any work reaches the pool; with that subtracted, calibrate's pooled part goes from about 630 s to about 370 s.
   Cores used in calibrate rise only from 3.7 (N1) to 6.8 (N8) of 16.
-- Flag does not go through the pool (chunk-task-api 1.x); its wall rises 6-14 % at N2-N8 (179 to 189-205 s), with
-  the same CPU seconds, from the per-process thread split.
+- Flag (stage 1's `flag-block` tasks) does not speed up: 5 groups give 5 blocks at N1 and 8 blocks at N8 (2 threads
+  per process), and its wall rises 6-14 % at N2-N8 (179 to 189-205 s, not monotonic in N) with about the same CPU
+  seconds. Single repeat; not diagnosed.
 - Peak resident set of the largest process falls with N (calibrate 17.0 to 1.8 GB), which is what the memory
   limit per process is for.
 - One repeat per point, so no spread is reported; S(N) is read from single walls.
@@ -296,7 +297,7 @@ strict in the test's config; `tests/test_v030_fix.py` 7 passed on nash with the 
 - **Image:** not built; DL0's ceiling (1.3) makes a per-channel split worth about 2 % of self-calibration.
 - **Timing (6.1, nash, exclusive, one repeat):** N1 equals main within 0.8 %; calibrate S(8) 1.65 (681 to 417 s),
   apply S(8) 1.38 (94 to 68 s), efficiency 0.21 / 0.17; about 50 s / 40 s serial before the first task; flag
-  unchanged to 14 % slower. Identity against main at every point.
+  6-14 % slower at N2-N8 (single repeat, not diagnosed). Identity against main at every point.
 - **Not run:** the full `python tools/check_all.py` (oracle and archive gates) on this branch.
 - **Found in passing:** `test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure` fails on main
   too, with the fixture: its premise went stale with #53's K flex default; the test now pins K to strict (6.1).
