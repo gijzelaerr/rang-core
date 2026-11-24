@@ -243,24 +243,45 @@ asked of P4 on the small sets, not in any result (below).
 - `W-*.void-amendment2` in the run root: W's first arms, refused at apply in U and P1 (no `apply.targets`) and at
   calibrate in P4 (2 GiB per process), which led to amendment 2.
 
-### 6.1 Timing (section 5): not obtained
+### 6.1 Timing (section 5), measured 2026-11-24 on nash
 
-nash's lock had 32-40 of 44 shared slots booked through the task, so no idle window came. Stage 1's matrix stays
-closed at 2 of 15 points. Prepared on nash for the coordinator: the branch worktree `~/Worktrees/rang/chunk-api-3`
-(venv and extension built by its quick check), the oracle `~/Worktrees/rang/cta1b-oracle-e071bdab`, and
-`tools/oracles/chunk_tasks/timing_1b.py matrix RUN`, which queues each point only when the lock is idle.
-The driver runs on nash without a session (started 2026-11-23 09:20 SAST, pid 311413, nice 19, branch commit
-`c37a8699`; a first start at 08:55 on `5c72f877` was stopped before any point, its log kept as
-`driver-5c72f877-stopped.log`), run root `~/rang-data/outputs/cta1b-nash-20261123/` with its own copy of `w3.ms`
-(all 65 files equal to D:'s by SHA-256, `inputs/hashcheck.txt`), log `driver.log`, one line per point in
-`status.txt`. Smoke test before the start: `rang-core config check` of the B and N8 configurations against that
-copy, valid for flag, calibrate and apply (N8: 4 GiB per process). A point whose stage fails still writes
-`done.json` and is reported as failed, not retried. When it ends:
-`timing_1b.py report RUN`, then the table of section 5 here.
+The driver (6.1 as first written: started 2026-11-23 09:20 SAST, pid 311413, on `c37a8699`; B on main `e071bdab`)
+found its idle window on 2026-11-24 and ran the five points 05:26-07:12 SAST, one repeat each (r0; no second repeat
+was queued). Run root `~/rang-data/outputs/cta1b-nash-20261123/` (`w3.ms` copy checked against D:'s by SHA-256),
+`timing_1b.py report RUN` copied to [results/chunk-task-api-1b-timing.json](results/chunk-task-api-1b-timing.json).
+Every stage exited 0; foreign load 0.17-0.31 cores on every stage (void rule 2.0: no point void). **Identity
+against B (criteria 1-4): no difference at any point** (every MS column after each stage, flag versions, the files
+under `calibrate/`, the cleaned summaries).
+
+| Point | flag (s) | calibrate (s) | apply (s) | S(N) calibrate / apply | efficiency calibrate / apply | first task, calibrate / apply (s) | peak RSS calibrate / apply (GB) |
+| --- | ---: | ---: | ---: | --- | --- | --- | --- |
+| B (main, rayon 16) | 178.7 | 681.0 | 93.8 | – | – | – | 17.0 / 14.5 |
+| N1 | 179.1 | 686.2 | 94.8 | 1.00 / 1.00 | 1.00 / 1.00 | none (serial) | 17.0 / 14.5 |
+| N2 | 189.2 | 559.3 | 81.2 | 1.23 / 1.17 | 0.61 / 0.58 | 56.3 / 41.3 | 8.5 / 8.7 |
+| N4 | 204.7 | 464.0 | 74.1 | 1.48 / 1.28 | 0.37 / 0.32 | 51.3 / 41.0 | 3.5 / 7.0 |
+| N8 | 195.6 | 417.0 | 68.5 | 1.65 / 1.38 | 0.21 / 0.17 | 48.5 / 43.0 | 1.8 / 4.5 |
+
+- N1 equals B within 0.8 % on every stage: the executor at one process costs nothing measurable.
+- Calibrate gains 1.65 × at 8 processes (681 to 417 s), apply 1.38 ×. The first task starts 48-56 s into
+  calibrate and 41-43 s into apply, so about 50 s of each calibrate and 40 s of each apply is serial set-up before
+  any work reaches the pool; with that subtracted, calibrate's pooled part goes from about 630 s to about 370 s.
+  Cores used in calibrate rise only from 3.7 (N1) to 6.8 (N8) of 16.
+- Flag does not go through the pool (chunk-task-api 1.x); its wall rises 6-14 % at N2-N8 (179 to 189-205 s), with
+  the same CPU seconds, from the per-process thread split.
+- Peak resident set of the largest process falls with N (calibrate 17.0 to 1.8 GB), which is what the memory
+  limit per process is for.
+- One repeat per point, so no spread is reported; S(N) is read from single walls.
 
 **Found in passing (not this task's code):** `tests/test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure`
 fails on nash (Linux, with `RANG_FIXTURE` set) on this branch **and on main `e071bdab`** with the same extension:
 calibrate exits 0 where the test expects a stage failure. CI does not see it (no fixture there).
+
+Diagnosed 2026-11-24: the test's premise went stale with #53 (`47684e36`, K `refantmode: flex` by default). With
+refant m000, whose baselines to m001 and m003 the example strategy flags, K now solves every antenna through the
+connected baselines (flagged fraction 0.0), and G then solves with an alternate reference (flagged 0.25,
+`used_alternate_refant`), so calibrate writes solutions and exits 0. With `refantmode: strict` on the test's K term
+the run fails as R-02 expects ("gaincal wrote no solutions for field 0"). Fixed on this branch by pinning K to
+strict in the test's config; `tests/test_v030_fix.py` 7 passed on nash with the fixture. No code change.
 
 ## For the coordinator
 
@@ -273,11 +294,12 @@ calibrate exits 0 where the test expects a stage failure. CI does not see it (no
   Criterion 6 failed as worded on two small-set P4 arms that had nothing to split (6, post hoc reading); your call
   whether that blocks the merge.
 - **Image:** not built; DL0's ceiling (1.3) makes a per-channel split worth about 2 % of self-calibration.
-- **Timing:** not obtained yet (6.1): the driver waits on nash for an idle lock; stage 1's matrix closed at 2/15.
-  Overhead to watch: each `chain-chunk` task rebuilds its field before its chunk.
+- **Timing (6.1, nash, exclusive, one repeat):** N1 equals main within 0.8 %; calibrate S(8) 1.65 (681 to 417 s),
+  apply S(8) 1.38 (94 to 68 s), efficiency 0.21 / 0.17; about 50 s / 40 s serial before the first task; flag
+  unchanged to 14 % slower. Identity against main at every point.
 - **Not run:** the full `python tools/check_all.py` (oracle and archive gates) on this branch.
 - **Found in passing:** `test_v030_fix.py::test_fully_flagged_gaincal_ends_run_with_a_stage_failure` fails on main
-  too, with the fixture (6.1).
+  too, with the fixture: its premise went stale with #53's K flex default; the test now pins K to strict (6.1).
 - **Kept:** `D:\rang\outputs\cta1b-20261123-03` and `-02` (hashes, logs), the `-01-void` root, the oracle worktrees
   on glacier and nash (each with a KEEP note), and on nash `~/rang-data/outputs/cta1b-nash-20261123` (8 GB
   `w3.ms` copy, the driver) and `~/Build/tmp/20261123-chunk-api-3` (build log, smoke configs), until the matrix

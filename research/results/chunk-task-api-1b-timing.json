@@ -1,0 +1,368 @@
+{
+ "points": {
+  "W-B-r0": {
+   "identity": [],
+   "flag": {
+    "wall_s": 178.66,
+    "own_cpu_s": 1911.0,
+    "max_rss_kb": 2688524,
+    "foreign_cores": 0.18,
+    "load1_before": 0.79,
+    "load1_after": 12.24,
+    "first_task_s": 29.23,
+    "cores_used": 10.7
+   },
+   "calibrate": {
+    "wall_s": 680.98,
+    "own_cpu_s": 2551.1,
+    "max_rss_kb": 16601796,
+    "foreign_cores": 0.19,
+    "load1_before": 2.97,
+    "load1_after": 6.58,
+    "first_task_s": null,
+    "cores_used": 3.75
+   },
+   "apply": {
+    "wall_s": 93.78,
+    "own_cpu_s": 107.9,
+    "max_rss_kb": 14189624,
+    "foreign_cores": 0.23,
+    "load1_before": 1.37,
+    "load1_after": 1.16,
+    "first_task_s": null,
+    "cores_used": 1.15
+   }
+  },
+  "W-N1-r0": {
+   "identity": [],
+   "flag": {
+    "wall_s": 179.14,
+    "own_cpu_s": 1918.9,
+    "max_rss_kb": 2687360,
+    "foreign_cores": 0.17,
+    "load1_before": 0.59,
+    "load1_after": 10.76,
+    "first_task_s": 28.91,
+    "cores_used": 10.71
+   },
+   "calibrate": {
+    "wall_s": 686.15,
+    "own_cpu_s": 2548.3,
+    "max_rss_kb": 16563840,
+    "foreign_cores": 0.19,
+    "load1_before": 2.61,
+    "load1_after": 6.6,
+    "first_task_s": null,
+    "cores_used": 3.71
+   },
+   "apply": {
+    "wall_s": 94.76,
+    "own_cpu_s": 108.9,
+    "max_rss_kb": 14189656,
+    "foreign_cores": 0.23,
+    "load1_before": 1.35,
+    "load1_after": 1.21,
+    "first_task_s": null,
+    "cores_used": 1.15
+   }
+  },
+  "W-N2-r0": {
+   "identity": [],
+   "flag": {
+    "wall_s": 189.21,
+    "own_cpu_s": 1928.4,
+    "max_rss_kb": 2631084,
+    "foreign_cores": 0.18,
+    "load1_before": 0.63,
+    "load1_after": 8.22,
+    "first_task_s": 28.78,
+    "cores_used": 10.19
+   },
+   "calibrate": {
+    "wall_s": 559.3,
+    "own_cpu_s": 2597.0,
+    "max_rss_kb": 8335160,
+    "foreign_cores": 0.2,
+    "load1_before": 2.1,
+    "load1_after": 6.63,
+    "first_task_s": 56.3,
+    "cores_used": 4.64
+   },
+   "apply": {
+    "wall_s": 81.21,
+    "own_cpu_s": 131.0,
+    "max_rss_kb": 8465416,
+    "foreign_cores": 0.22,
+    "load1_before": 1.4,
+    "load1_after": 1.64,
+    "first_task_s": 41.29,
+    "cores_used": 1.61
+   }
+  },
+  "W-N4-r0": {
+   "identity": [],
+   "flag": {
+    "wall_s": 204.72,
+    "own_cpu_s": 1867.8,
+    "max_rss_kb": 2470156,
+    "foreign_cores": 0.19,
+    "load1_before": 0.64,
+    "load1_after": 6.59,
+    "first_task_s": 28.68,
+    "cores_used": 9.12
+   },
+   "calibrate": {
+    "wall_s": 464.02,
+    "own_cpu_s": 2502.9,
+    "max_rss_kb": 3407468,
+    "foreign_cores": 0.2,
+    "load1_before": 1.78,
+    "load1_after": 6.91,
+    "first_task_s": 51.33,
+    "cores_used": 5.39
+   },
+   "apply": {
+    "wall_s": 74.09,
+    "own_cpu_s": 118.5,
+    "max_rss_kb": 6846804,
+    "foreign_cores": 0.23,
+    "load1_before": 1.32,
+    "load1_after": 2.36,
+    "first_task_s": 41.04,
+    "cores_used": 1.6
+   }
+  },
+  "W-N8-r0": {
+   "identity": [],
+   "flag": {
+    "wall_s": 195.61,
+    "own_cpu_s": 1848.6,
+    "max_rss_kb": 1427340,
+    "foreign_cores": 0.31,
+    "load1_before": 0.77,
+    "load1_after": 7.44,
+    "first_task_s": 29.99,
+    "cores_used": 9.45
+   },
+   "calibrate": {
+    "wall_s": 417.01,
+    "own_cpu_s": 2819.4,
+    "max_rss_kb": 1731432,
+    "foreign_cores": 0.2,
+    "load1_before": 2.0,
+    "load1_after": 8.8,
+    "first_task_s": 48.53,
+    "cores_used": 6.76
+   },
+   "apply": {
+    "wall_s": 68.48,
+    "own_cpu_s": 113.1,
+    "max_rss_kb": 4382756,
+    "foreign_cores": 0.23,
+    "load1_before": 1.47,
+    "load1_after": 2.06,
+    "first_task_s": 42.98,
+    "cores_used": 1.65
+   }
+  }
+ },
+ "configs": {
+  "B": {
+   "median_wall_s": {
+    "flag": 178.66,
+    "calibrate": 680.98,
+    "apply": 93.78
+   },
+   "walls_s": {
+    "flag": [
+     178.66
+    ],
+    "calibrate": [
+     680.98
+    ],
+    "apply": [
+     93.78
+    ]
+   },
+   "first_task_s": {
+    "flag": [
+     29.23
+    ],
+    "calibrate": [],
+    "apply": []
+   }
+  },
+  "N1": {
+   "median_wall_s": {
+    "flag": 179.14,
+    "calibrate": 686.15,
+    "apply": 94.76
+   },
+   "walls_s": {
+    "flag": [
+     179.14
+    ],
+    "calibrate": [
+     686.15
+    ],
+    "apply": [
+     94.76
+    ]
+   },
+   "first_task_s": {
+    "flag": [
+     28.91
+    ],
+    "calibrate": [],
+    "apply": []
+   },
+   "speedup": {
+    "flag": 1.0,
+    "calibrate": 1.0,
+    "apply": 1.0
+   },
+   "efficiency": {
+    "flag": 1.0,
+    "calibrate": 1.0,
+    "apply": 1.0
+   },
+   "spawn_overhead_s": {
+    "flag": 0.0,
+    "calibrate": null,
+    "apply": null
+   }
+  },
+  "N2": {
+   "median_wall_s": {
+    "flag": 189.21,
+    "calibrate": 559.3,
+    "apply": 81.21
+   },
+   "walls_s": {
+    "flag": [
+     189.21
+    ],
+    "calibrate": [
+     559.3
+    ],
+    "apply": [
+     81.21
+    ]
+   },
+   "first_task_s": {
+    "flag": [
+     28.78
+    ],
+    "calibrate": [
+     56.3
+    ],
+    "apply": [
+     41.29
+    ]
+   },
+   "speedup": {
+    "flag": 0.947,
+    "calibrate": 1.227,
+    "apply": 1.167
+   },
+   "efficiency": {
+    "flag": 0.473,
+    "calibrate": 0.614,
+    "apply": 0.584
+   },
+   "spawn_overhead_s": {
+    "flag": -0.13,
+    "calibrate": null,
+    "apply": null
+   }
+  },
+  "N4": {
+   "median_wall_s": {
+    "flag": 204.72,
+    "calibrate": 464.02,
+    "apply": 74.09
+   },
+   "walls_s": {
+    "flag": [
+     204.72
+    ],
+    "calibrate": [
+     464.02
+    ],
+    "apply": [
+     74.09
+    ]
+   },
+   "first_task_s": {
+    "flag": [
+     28.68
+    ],
+    "calibrate": [
+     51.33
+    ],
+    "apply": [
+     41.04
+    ]
+   },
+   "speedup": {
+    "flag": 0.875,
+    "calibrate": 1.479,
+    "apply": 1.279
+   },
+   "efficiency": {
+    "flag": 0.219,
+    "calibrate": 0.37,
+    "apply": 0.32
+   },
+   "spawn_overhead_s": {
+    "flag": -0.23,
+    "calibrate": null,
+    "apply": null
+   }
+  },
+  "N8": {
+   "median_wall_s": {
+    "flag": 195.61,
+    "calibrate": 417.01,
+    "apply": 68.48
+   },
+   "walls_s": {
+    "flag": [
+     195.61
+    ],
+    "calibrate": [
+     417.01
+    ],
+    "apply": [
+     68.48
+    ]
+   },
+   "first_task_s": {
+    "flag": [
+     29.99
+    ],
+    "calibrate": [
+     48.53
+    ],
+    "apply": [
+     42.98
+    ]
+   },
+   "speedup": {
+    "flag": 0.916,
+    "calibrate": 1.645,
+    "apply": 1.384
+   },
+   "efficiency": {
+    "flag": 0.115,
+    "calibrate": 0.206,
+    "apply": 0.173
+   },
+   "spawn_overhead_s": {
+    "flag": 1.08,
+    "calibrate": null,
+    "apply": null
+   }
+  }
+ }
+}
