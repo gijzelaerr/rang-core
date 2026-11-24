@@ -1,0 +1,9 @@
+import json, sys
+p, old, new = sys.argv[1:4]
+d = json.load(open(p, encoding="utf-8")); n = [0]
+def w(x):
+    if isinstance(x, dict): return {k: w(v) for k, v in x.items()}
+    if isinstance(x, list): return [w(v) for v in x]
+    if isinstance(x, str) and old in x: n[0] += 1; return x.replace(old, new)
+    return x
+d = w(d); json.dump(d, open(p, "w", encoding="utf-8"), indent=1); print(p, n[0])

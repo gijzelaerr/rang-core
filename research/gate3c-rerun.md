@@ -8,7 +8,7 @@ before any image of this rerun existed. It was written after both legs' 3c value
 had been read (they are in the notes above), so every reading here is **seen,
 post hoc**. No frozen verdict is rescored by it.
 
-Status: **E2-A dirty measured 2026-11-23: the gap remains (not setup); arm D (2026-11-24) puts it on rang's channel averaging.** E2-N running on nash.
+Status: **both legs measured (E2-A 2026-11-23/24, E2-N 2026-11-24): on both the gap remains (not grid setup), and arm D puts it on rang's channel averaging** (E2-A 9.19e-6, E2-N 1.13e-6). E2-N's compact row is not met (scatter 2.81 %, original 2.68 %).
 
 ## 1. Why
 
@@ -206,14 +206,35 @@ Not in scope: CASA, the target oracle row, any other gate.
 - Timings: copy 320 s, wheel build 319 s, apply 1,486 s, WSClean 3″ dirty 1,340 s, WSClean 2″ dirty
   1,529 s, GeMClean 2″ dirty 2,166 s; arm D GeMClean 2″ dirty unaveraged 1,242 s (alone on the host), its scoring 17 s.
 
-### 6.2 E2-N (nash, `~/rang-data/outputs/gate3c-rerun-20261123`), in progress
+### 6.2 E2-N (nash, `~/rang-data/outputs/gate3c-rerun-20261123`), 2026-11-23 to 2026-11-24
 
 - Apply regenerated with E2-N's bit-identical wheel (`9c42ea72…`). Attempt 1 hit the same path issue.
   Attempt 2 took 2,409 s with rc 0, and its config hash `3b3f3047…` equals the follow-up's (R2 met).
 - **R1 met** (FLAG equals `flags.rang_selfcal_20261117T072854Z`).
+- **R3** is not defined for E2-N (no archived 3″ WSClean dirty FITS survives).
 - **R4 met:** C3 reads 5.499e-2 against the recorded 5.50e-2, and 3.29e-3 within 0.7°. Every channel
   reads 4.2e-2 to 5.5e-2, a flat profile and not a channel-smearing one.
-- No minimal-inversion line. maxuvw 42,842 λ gives Nyquist ≥ 2.41″.
-- Arm N's WSClean dirty is done (480 s). GeMClean's arm N dirty, then D and the clean arms, were
-  running at hand-back (`chain.sh`, log `chain-steps.log`). To score: `g3c-n-dirty.json`,
-  `g3c-d-dirty.json`, `g3c-n.json`.
+- No minimal-inversion line in any of the three WSClean logs. maxuvw 42,842 λ gives Nyquist ≥ 2.41″, so
+  the grid is 2″ and 6144².
+- **Arm N (2″, 6144²): dirty L∞ 5.457e-2** (channels 0-7: 4.3e-2 to 5.5e-2; MFS 4.80e-2), and 3.58e-3
+  within 0.7°. That is **not met** as frozen.
+  - **Class: remains**, because N > C/10 (5.5e-3); N is essentially C (5.499e-2).
+  - WSClean's gridded counts at 2″ equal the 3″ ones in channels 0-3 and rise in channels 4-7 by at most
+    0.30 % (channel 7). The 3″ grid dropped almost nothing, as on E2-A.
+- **Arm D (diagnostic, not gated): dirty L∞ 1.13e-6** of WSClean's peak (channels 0-7: 3.6e-7 to 1.13e-6;
+  MFS 5.6e-7), 2.1e-7 within 0.7°. It is arm N with `-average-channels 1` (GeMClean read all 1,024
+  channels of the same 1,596,004 rows), scored against arm N's WSClean dirty images.
+  - **Reading (section 5): D ≤ 1e-4, so what remains of E2-N's gap is rang's channel averaging**, a
+    difference of configuration, not of imager. D is 48,000 × below N and just above 1e-6.
+- **Compact row (arm N clean): not met as frozen.** Inner 0.7°: n 324, median 0.9966, robust scatter
+  **2.81 %** (limit 1 %), beside the original 2.68 % (n 312, median 0.9964). By section 5 the scatter is
+  not setup, and the gap is read as remaining. Reported, not gated: inner two thirds n 513, median 0.992,
+  scatter 2.80 %; full image n 567, median 0.988, scatter 3.09 %; spectral index median |Δα| 0.0095
+  (n 51); off-source rms ratio 0.946. GeMClean stopped on its threshold after 1,000,000 components and 6
+  major cycles (Q/Q0 4.16e-2).
+  - Not measured: a clean arm with `-average-channels 1`, so the compact scatter is not attributed.
+- Timings (nash, nice/ionice, shared slots): R1 flag hash 867 s; WSClean 3″ dirty 368 s; WSClean 2″
+  dirty 480 s; GeMClean 2″ dirty 1,091 s; arm D GeMClean 2″ dirty unaveraged 1,167 s; GeMClean 2″ clean
+  31,010 s (8 slots); WSClean 2″ clean 41,536 s (`-j 8`, concurrently); scoring 31-143 s. Archive
+  [results/gate3c-rerun/e2n/](results/gate3c-rerun/e2n/) (scores, logs, step log, run records; the three ad hoc nash
+  helpers as `*.py.txt`, bytes as run, so ruff leaves them alone).

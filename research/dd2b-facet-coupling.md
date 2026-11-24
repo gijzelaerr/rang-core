@@ -141,8 +141,8 @@ estimated from 7,698 m at the band's top frequency.
 
 | Note | Compared (reported agreement) | Pixel vs Nyquist | `-no-min-grid-resolution` | Risk |
 | --- | --- | --- | --- | --- |
-| [e2n-native](e2n-native.md), gate 3c and compact row | dirty L∞ 5.50e-2 (the same with `-no-small-inversion`); 3.3e-3 within 0.7°; compact scatter 2.68 % | 3″ vs about 2.35″ (856-1711 MHz), **under** | as frozen no; diagnostic yes | **high**: the largest gap, never separated from the channel-averaging explanation |
-| [e2-acceptance](e2-acceptance.md), E2-A gate 3c and target compact row | 4096² dirty L∞ 4.97e-3; 2.7e-3 within 0.7° | 3″ vs about 2.35-2.5″, **under** | as frozen no; diagnostic yes | **medium**: dropped long baselines never tested |
+| [e2n-native](e2n-native.md), gate 3c and compact row | dirty L∞ 5.50e-2 (the same with `-no-small-inversion`); 3.3e-3 within 0.7°; compact scatter 2.68 % | 3″ vs about 2.35″ (856-1711 MHz), **under** | as frozen no; diagnostic yes | **high**: the largest gap, never separated from the channel-averaging explanation. Rerun 2026-11-24 ([gate3c-rerun](gate3c-rerun.md) 6.2): 2″ reads 5.46e-2, so not the grid; unaveraged arm D 1.13e-6, so rang's channel averaging; compact scatter 2.81 % |
+| [e2-acceptance](e2-acceptance.md), E2-A gate 3c and target compact row | 4096² dirty L∞ 4.97e-3; 2.7e-3 within 0.7° | 3″ vs about 2.35-2.5″, **under** | as frozen no; diagnostic yes | **medium**: dropped long baselines never tested. Rerun 2026-11-23/24 ([gate3c-rerun](gate3c-rerun.md) 6.1): 2″ reads 4.97e-3, so not the grid; unaveraged arm D 9.19e-6, so rang's channel averaging |
 | e2-acceptance, E2-B gate 3c | receipts on WSClean's default grid (minimal inversion 1165-1440 logged) | 2″, OK | no | low: cause already given in [e2b-misses](e2b-misses.md) 9.12; the rerun is an owner decision |
 | [gemclean-benchmark](gemclean-benchmark.md) (and [gemclean](gemclean.md)) | dirty, `nominres` arm, 2.3e-7; the `minres` arms 9.2e-4 / 2.5e-3 | 1.5″ vs 2.70″, OK | both arms, labelled | low: the headline Q range mixes in the labelled `minres` arms |
 | [ts-p1](ts-p1.md), T1 | snapshot against WSClean `-intervals-out`; WSClean dropped 530 of 129,024 samples, fixed to 2.7e-7 (amendment 9.1, 2″) | frozen 4″ vs 2.53″ under; amended OK | yes | none now; `rang-core lightcurve` still defaults to 1024² at 4″ (warns via `outside_grid`) |
@@ -174,3 +174,8 @@ Skipped (no rang image compared with a WSClean image):
   explanation needs a Nyquist pixel with `-no-min-grid-resolution`, or a
   rang image with the out-of-grid visibilities removed, as TS-P1 9.1 did.
   That is an owner decision.
+- 2026-11-24, post hoc: the owner approved that rerun
+  ([gate3c-rerun](gate3c-rerun.md)). On both legs the Nyquist grid changes
+  nothing (E2-A 4.97e-3, E2-N 5.46e-2); with `-average-channels 1` the gap
+  falls to 9.19e-6 and 1.13e-6. What remains is rang's channel averaging,
+  not the grid and not the imager.
