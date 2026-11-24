@@ -6,7 +6,7 @@ Issue #15. Follows [dd4d-eso137.md](dd4d-eso137.md) (DD4d),
 2026-11-24, relayed by the coordinator. Sections 1-7 are frozen 2026-11-24,
 before the code that runs them. Later changes are dated amendments.
 
-Status: **measured 2026-11-24: model error in the bright d0 facet reproduces the real failure; no parity by DD4's gates.** With an exact model (A, B) the off-axis solves are noise-limited and 0.91-1.0 "partly" or converged. A catalogue-only model (C) gives 0.02 at every interval to the whole scan, as on real data; the difference between two real clean models (E) gives 0-0.04 at 4 × 8 s, and its d0 facet alone (E0) 0.03-0.05. Pins (P) and a 1 % d0 gain error (D) do not. Parity on arm B (section 8): rang and QuartiCal agree to 1e-6 in median but fail gates L and S on unconverged cells and noise-level residuals.
+Status: **measured 2026-11-24: missing extended emission in the model (arm C) reproduces the real failure, by section 5's table read with A1's levels; no parity by DD4's gates.** With an exact model (A, B) the off-axis solves are noise-limited, 0.91-1.0 of cells. A catalogue-only model (C) gives 0.02 at 4 × 8 s and 0.000 at 16, 64 and 450 × 8 s, as on real data (0-0.017). Post hoc arm E (the difference between two real clean models) gives 0-0.04 at 4 × 8 s but recovers at the whole scan; its d0 facet alone (E0) gives 0.03-0.05. Pins (P) and a 1 % d0 gain error (D) do not reproduce it. Parity on arm B (section 8): rang and QuartiCal agree to about 1e-6 in median but fail gates L and S on unconverged cells and noise-level residuals.
 
 ## 1. Question and hypotheses
 
@@ -284,26 +284,30 @@ not); E, E0 and E1 are post hoc arms (A1, A2).
   error drops `phase` to 0.17, still above 0.10.
 - **Model error reproduces the real failure.** Two arms reproduce it:
   - C, the catalogue-only model with no extended emission (S_b − S_a,
-    DD4's M₀ on real data): at every interval, up to the whole scan, as on
-    real data;
-  - E, the difference between two clean models of the real data (DI0c's
+    DD4's M₀ on real data): 0.02 at 4 × 8 s and 0.000 at 16, 64 and
+    450 × 8 s, as on real data;
+  - E (post hoc, A1), the difference between two clean models of the real data (DI0c's
     against M₀ᶜ): at 4 × 8 s in both kinds and at 16 × 8 s. Unlike the
     real data, it recovers at longer intervals: "partly" at 64 × 8 s and
     converged (biased) at the whole scan.
 - **Which facet's error (A2's diagnostics).** E0, d0's error alone
   (+2.64 Jy net, 8.09 Jy in absolute value), gives 0.046, 0.027 and 0.027,
   nearly all of E's failure. E1, d1's error alone (−0.27 Jy, 2.18 Jy), stays
-  "partly" (0.988, 0.965, 0.948), close to B. So the factor is **model error
-  in the bright d0 facet**. The pinned d0 cannot absorb it, so it leaks into
-  the free off-axis gains, which are fitted to signals 10-1000 × weaker.
-  d1's own error biases d1 but does not break it. Missing extended emission
-  (C) breaks all three directions at every interval.
+  "partly" (0.988, 0.965, 0.948), close to B. So within E, the d0 facet's
+  model error carries the failure. E0 and E1 differ in the size of the
+  error (8.09 against 2.18 Jy in absolute value) as well as in the facet,
+  so this does not separate "d0" from "larger". A2 fixed these as
+  diagnostics; they do not change the outcome below. A mechanism (the
+  pinned d0 cannot absorb its error, so the free off-axis gains, fitted to
+  signals 10-1000 × weaker, take it up) fits the numbers but is not
+  tested.
 - **Section 5's frozen table**, with "converges" read as "above 0.10 in
   d1-d3" (A1): A, B and P converge, C does not, so the outcome is **missing
   extended emission in the model**. D, run unconditionally (A1), converges
   in that sense. At the frozen 0.99 per direction, no arm converges in all
-  of d1-d3, so the frozen table would read "layout or SNR". A1 explains why
-  that reading is set aside.
+  of d1-d3 at 4 × 8 s, so the frozen table would read "layout or SNR"
+  (A's longer intervals were not run, as A1 allows). A1 explains why that
+  reading is set aside.
 - **Interpretation (post hoc, not tested).** On real data DD4d's model was
   M₀ᶜ, not the catalogue, and the solves fail even at the whole scan. E
   converges there, and C does not. So the real model error in M₀ᶜ is most
@@ -324,36 +328,39 @@ WSClean 3.7 at `DD4_J=2` for both. Five major cycles (0-4).
 
 | | `diag_complex` (Rd / Od, QuartiCal 0.2.7) | `phase` (Rp / Op, v0.2.8-dev) |
 | --- | --- | --- |
-| aggregate converged fraction, cycle 0 | 0.98661 / 0.98661 | 0.87887 / 0.87887 |
+| aggregate converged fraction | 0.986613 / 0.986613, equal to the last digit in every cycle | cycle 0: 0.878872 / 0.878872, equal to the last digit; cycle 4: 0.980 / 0.967 |
 | Högbom components per cycle | 0 / 0 in every cycle | 3109 / 3106, 1139 / 1184, 230 / 236, 115 / 121 |
 | gain products, max over unflagged cells (gate 1e-5) | 1.07e-5, every cycle | 1.32 (cycle 0), then 2.0 |
 | median, d1-d3 (reported) | 2.2e-7, 9.4e-7, 1.1e-6 | cycle 0: 4.1e-7, 2.4e-6, 2.2e-6; cycles 1-4: 3.5e-3 to 3.2e-2 |
-| fraction of cells within 1e-5, d1-d3 (reported) | 1.000, 1.000, 1.000 (d3 0.99999) | cycle 0: 0.968, 0.888, 0.916; then 0.000-0.002 |
+| fraction of cells within 1e-5, d1-d3 (reported) | 1.000000, 1.000000, 0.999995 | cycle 0: 0.968, 0.888, 0.916; then 0.000-0.002 |
 | flags equal | yes, every cycle | no: 1, 4 and 7 cells differ in d1-d3 at cycle 0 |
-| residual, max diff / max |O| (gate 1e-3) | 8.5e-2 | 1.5e-2 (cycle 0), then 4.1-6.0e-2 |
+| residual, max diff over the interior / max of O (gate 1e-3) | 8.5e-2 | 1.5e-2 (cycle 0), then 4.1-6.0e-2 |
 | gate S: off-axis rms R/O, d1-d3 (tol 1e-3) | 1.0055, 1.0050, 1.0011; DR 1.0017 | 1.0060, 1.0429, 1.0301; DR 0.9929 |
 | `e_d` against truth, cycle 4, d1-d3, R / O | 5.09e-3, 3.50e-2, 5.09e-2 / the same to 3 digits | 0.0315, 0.172, 0.149 / 0.0314, 0.171, 0.149 |
 
 - **`diag_complex`: parity failure at cycle 0, on gain products (1.07e-5
   against 1e-5) and the residual (8.5e-2 against 1e-3).** Flags and
   components are equal. With the truth as the model, Högbom adds nothing,
-  so every cycle repeats cycle 0. The gain miss is in d3's cells that have
-  not met the step test at cap 500 (A2 expected this). Every other measure
-  agrees to 1e-6. The residual gate is relative to the peak of a pure-noise
-  residual: the residual rms is 30.0 µJy in both codes (thermal 31 µJy). The
-  rms of the difference over the central 2160² pixels is 1.8 µJy (6 % of the
-  noise), with a 120 µJy maximum (reported, post hoc). Gate S fails at 0.1 %
-  by 0.1-0.55 %, in proportion to that difference.
+  so every cycle repeats cycle 0. The gain miss is in d3 (max 1.07e-5;
+  d1 2.3e-6, d2 8.3e-6). That it lies on d3's cells that have not met the
+  step test at cap 500, as A2 expected, is likely but not checked. The
+  medians agree to 1e-6. The residual gate is relative to the peak of a
+  pure-noise residual (164 µJy). Over the gate's interior pixels the
+  residual rms is 30.1 µJy in both codes (thermal 31 µJy), the rms of the
+  difference 1.55 µJy (5 % of the noise) and its maximum 13.9 µJy (reported,
+  post hoc). Gate S fails at 0.1 % by 0.1-0.55 %.
 - **`phase`: parity failure at cycle 0, on flags (1-7 cells), gain products
   (max 1.32) and the residual (1.5e-2).** The aggregate fraction is
-  identical to five digits, and 89-97 % of cells agree within 1e-5. The few
-  differing cells change Högbom's components from cycle 0 (3109 against
-  3106). After that the two loops have different models, so their gains
+  equal to the last digit at cycle 0, and 89-97 % of cells agree within
+  1e-5. Högbom's components differ from cycle 0 (3109 against 3106),
+  presumably through the differing cells and the residual they leave (not
+  tested). After that the two loops have different models, and their gains
   differ by a median of 4e-3 to 3e-2. Both loops reach the same `e_d`
-  against truth to 1 % in every cycle.
+  against truth to within 1.1 % in every cycle.
 - In both codes and kinds, some off-axis direction stays below 0.99 in every
   cycle: Rd's d3 at 0.956; Rp at 0.85-0.97. Only rang's per-direction
-  measure is available. QuartiCal's aggregate equals rang's.
+  measure is available. QuartiCal's aggregate equals rang's in every
+  `diag_complex` cycle and at `phase` cycle 0.
 - **Reading:** no "parity" by DD4's gates in either kind. The two codes
   agree to the limit of unconverged cells at cap 500 and of the predictors'
   noise-level differences. The phase comparison is against v0.2.8-dev, so
@@ -369,8 +376,8 @@ the time).**
 | 4 × 8 s `phase` point | 1,457-1,957 s |
 | C at 16 / 64 / 450 × 8 s | 517 / 1,530 / 4,076 s |
 | E at 450 × 8 s (245 iterations, 2 slots) | 2,088 s |
-| rang loop Rd / Rp (5 cycles, 8 slots) | 4,819 / 14,663 s wall |
-| oracle Od / Op (5 cycles, 2 slots) | 20,417 / 18,186 s wall; QuartiCal 3,341-3,766 / 2,505-3,659 s per cycle, 8.4 GB |
+| rang loop Rd / Rp (5 cycles, 8 slots) | 545-634 / 1,368-1,960 s per cycle (solves and image), 2,864 / 8,574 s in all; walls 4,819 / 14,663 s include lock waits |
+| oracle Od / Op (5 cycles, 2 slots) | 3,906-4,391 / 3,056-4,066 s per cycle, of which QuartiCal 3,341-3,766 / 2,505-3,659 s (8.4 GB); walls 20,417 / 18,186 s |
 | `dd5.py score` / `looptruth` | 47-1,835 s / 111-1,722 s (lock waits included where long) |
 
 ## Amendments
@@ -487,7 +494,7 @@ were read).**
 - `dd5.py gainstats RUN R O OUT` writes A2's reported companions of gate L
   (median, fraction within 1e-5, maximum, flag differences, per cycle and
   direction): `b/gainstats-diag.json`, `b/gainstats-phase.json`.
-- The residual-difference rms and maximum over the central 2160² pixels
+- The residual-difference rms and maximum over gate L's interior pixels
   (section 8) are a post hoc reading, from the saved `residual.npy` files.
 - C's longer intervals were run because C fell to ≤ 0.10 (A2). E0 and E1
   were run in `diag_complex` only, as A2 fixed.
