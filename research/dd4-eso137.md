@@ -498,3 +498,10 @@ solves do not converge (DD4b).
   not chased (the coordinator's "cheap steps").
 - The upstream report is drafted at `outputs/drafts/wsclean-facet-weights.md`
   in the main checkout. It is not posted.
+
+**Note, 2026-11-24 (owner decision, relayed by the coordinator).** DD4's own
+frozen gates L and S (cap 150, `diag_complex`, M₀) stay unread on the
+oracle. DD4b showed that those off-axis solves do not converge: 0.1-0.6 %
+of cells at cap 150, 0.2-2.4 % at cap 500. Two non-converged trajectories
+part regardless of the port, so a parity reading would not test it. Parity
+moves to a converging interval ([dd4d-eso137.md](dd4d-eso137.md)).
