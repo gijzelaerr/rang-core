@@ -9,7 +9,7 @@ Update this block when a merge changes it. The log below is the record.
 - **Closed as null, as tested:** a gain-TV-guided threshold flagging policy ([verdict](flagging-verdict.md)); beam and pointing at [B1-3](b1-3-pointing-selfcal.md).
 - **Flagger, closed as frozen:** a flagger trained on gain TV, NO-GO at its [go/no-go test](f1-tv-flagger.md) on LUNO 1934−638 alone; and a supervised fast flagger ([F2](f2-flagger.md), outcome F: fast, but does not generalise to real data).
 - **To reopen beam and pointing:** first a deeper ESO137 field model (an external catalogue, an owner decision).
-- **Running (v0.5.0, 2026-11-23):** F7 (`f7-draft`, targets-only stage first; calibrators wait on P3 data or the owner's R3 answer), #3 chunk task API (`chunk-api-3`), #11 UHF (`uhf-11`, blocked on UHF archive links from the owner), #7 E2-N CASA chain on nash (`e2n-followup`, self-driving), #3 timing on nash; #9 P2 dynamic spectra (`p1-lightcurves`); DD2 next for #15.
+- **Running (v0.5.0, 2026-11-24):** #15 DD4c on ESO137 (`dd4-eso137`: phase-only off-axis, frozen extended start model, DI0 baseline; WSClean facet-weight control A5), gate 3c E2-N on nash (`gate3c-rerun`; E2-A arm D done), #3 chunk task API (`chunk-api-3`, timing on nash), #11 UHF (`uhf-11`, blocked on UHF archive links), #7 E2-N CASA chain on nash (`e2n-followup`).
 - **Direction:** [vision.md](vision.md) (2026-11-11).
 - **Next:** v0.5.0, scale and more of MeerKAT ([roadmap.md](roadmap.md)). Owner questions open: UHF data links, F7's R3 anchor, P1 for #9, the first DD piece for #15.
 - **User items** ([big plan](big-plan.md#user-items-not-blocking)): decide whether to test the flagger's non-TV arms; put the result to Landman; forward the observer's native data when it arrives.
@@ -17,6 +17,8 @@ Update this block when a merge changes it. The log below is the record.
 - **Older history:** everything before 2026-10-29 is in [STATE-history.md](STATE-history.md), unedited.
 
 ## Log (newest first)
+
+F7, 2026-11-24 (issue #46 blocked; branch `f7-draft`, merged; [f7-flagger.md](f7-flagger.md), amendments H1, H2): **outcome F for both classes; nothing ships.** Calibrators F on validation (D10 left LUNO MAIN_7 at R3 8.11, bar 1.5). Targets: D9b seed 2 (level 70, τ −4.5) passed every validation gate, then failed three on the single held-out read: G-drop k=1 on SARAO 1678312253 scans 36/40 (0.060, 0.059; bar 0.05), R5 on ESO137 chunk 7 (0.758; bar 0.80), R3 on chunk 17 (17.1; the 950-row tail, F without it too). Cost C1 0.503 at 4 threads, 0.486 at 1. Every held-out target set is now used; a later arm needs new held-out data. DL6 (#46) stays a known limitation.
 
 A new paragraph goes directly under this heading.
 
