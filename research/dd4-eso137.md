@@ -423,3 +423,49 @@ out 1.93-1.94 × rang's in every facet.
 - Arm O is rerun from cycle 0 in a fresh scratch, and gates L and S and the
   gain over DI are then read as frozen in sections 5-6. DI0 stays reported
   only (A3).
+
+**A5, 2026-11-24, setup diagnosis and fix, post hoc (before any gate L or S
+was read).** Two steps, as the coordinator decided after A4's C1 failed.
+
+*Source reading (WSClean 3.7 `4f395b28`, schaapcommon `b553fd25`; read
+only).*
+- With `-pol I` and facet solutions, WSClean reads all four correlations
+  (`main/settings.cpp` 693-694; gain mode kFull, `gridding/gainmode.h`
+  72-89).
+- Each hand keeps its own weight, `4 w_p`, or 0 when that hand is flagged
+  (`external/schaapcommon/src/reordering/reordering.cc` 336-384). Without
+  facet solutions, Stokes I takes `4 min(w_XX, w_YY)` instead, and is zero
+  when either hand is flagged (459-480). That is the path A2 matched.
+- The facet correction sum is weighted by the XX weight only, with the
+  comment "Assumes that the weights of the polarizations are the same"
+  (`gridding/visibilitymodifier.h` 836-844).
+- So the flat-gain image is
+  `I_pb = Σ(w_X V_X′ + w_Y V_Y′) / (2 Σ w_X S)`, with `S` the Stokes I
+  Mueller term (1 for unit gains). That is `(1 + Σw_Y/Σw_X)/2` ≈ 0.97 of
+  rang's when `w_XX/w_YY` ≈ 1.06, which explains A4's 0.96-0.98 with or
+  without gains.
+- With `-diagonal-visibilities`, Stokes I is `XX + YY` without the ½
+  (`gridding/msgridderdata.h` 40-48), which explains A3's 2.000 ×.
+- This is a WSClean simplification that is wrong when the hands' weights
+  or flags differ. An upstream report is drafted, not posted
+  (`outputs/drafts/wsclean-facet-weights.md`).
+
+*Controls, each within A1's 1e-3 of the peak, with arm O's cycle-0 gains:*
+- **E1:** rang's emulation of that formula (`facet_image_wsclean37`)
+  against A4's C1 image. This confirms the reading.
+- **C2e:** WSClean on an equal-weight, unflagged four-correlation copy
+  (every weight 1, nothing flagged, flagged data zeroed), against rang
+  with the same weights and data.
+- **C2m:** WSClean on the *matched* copy, against rang's normal facet image.
+  In the matched copy both hands carry `min(w_XX, w_YY)` and the flag
+  `XX | YY`.
+
+*Setup fix (fixed now, used if C2m passes).* WSClean's facet steps (step
+3) run on the matched copy, which grids exactly the Stokes I rang grids
+(A2). QuartiCal's steps stay on the two-correlation `sub.ms` with each
+hand's own weight, as rang's solver does. Then the oracle arm is rerun and
+L and S are read. The rerun uses DD4c's settings
+([dd4c-eso137.md](dd4c-eso137.md)), since QuartiCal's `G.type=phase` with
+`G.pinned_directions=[0]` is that solve. DD4's own frozen settings (cap
+150, `diag_complex`, M₀) are not rerun on the oracle, because their DD
+solves do not converge (DD4b).

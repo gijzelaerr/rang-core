@@ -6,6 +6,7 @@
     python tools/oracles/dd4/dd4.py oracle RUN SCRATCH     # arm O (WSL QuartiCal, WSClean)
     python tools/oracles/dd4/dd4.py control RUN SCRATCH    # C0 (A1, A2)
     python tools/oracles/dd4/dd4.py control1 RUN SCRATCH   # C0', C1 (A4)
+    python tools/oracles/dd4/dd4.py control2 RUN SCRATCH   # C2m, C2e, E1 (A5)
     python tools/oracles/dd4/dd4.py score RUN
     python tools/oracles/dd4/dd4.py scoreb RUN             # DD4b (research/dd4b-eso137.md)
 
@@ -542,6 +543,75 @@ def control_c1(run, scratch):
     print(json.dumps(rec, indent=1))
 
 
+def facet_image_wsclean37(ctx, gains):
+    """WSClean 3.7's flat-gain facet image (-image-pb) with facet solutions on
+    a four-correlation MS, as its source does it (DD4 amendment A5): each hand
+    gridded with its own weight, the correction sum weighted by w_XX only:
+    sum(w_X V_X' + w_Y V_Y') / (2 sum w_X S), S the Stokes I Mueller term."""
+    from rang import core_wgridder
+
+    c, block, ndir = ctx["c"], ctx["block"], ctx["ndir"]
+    a1, a2 = c["ANTENNA1"], c["ANTENNA2"]
+    flag = c["FLAG"].astype(bool) | c["FLAG_ROW"].astype(bool)[:, None, None]
+    w = c["WEIGHT_SPECTRUM"].astype(np.float64)
+    wx = np.where(flag[..., 0], 0.0, w[..., 0])
+    wy = np.where(flag[..., 3], 0.0, w[..., 3])
+    ww = wx + wy
+    image = np.zeros((NY, NX))
+    for f in range(ndir):
+        gp, gq = gains[block, 0, a1, f], gains[block, 0, a2, f]
+        num = (wx * np.conj(gp[:, None, 0]) * c["DATA"][..., 0] * gq[:, None, 0]
+               + wy * np.conj(gp[:, None, 1]) * c["DATA"][..., 3] * gq[:, None, 1])  # fmt: skip
+        vis = np.where(ww > 0, num / np.where(ww > 0, ww, 1.0), 0.0)
+        img = core_wgridder.fits_image(c["UVW"], c["freq"], vis, ww, NX, NY, dd2.SCALE_ARCSEC,
+                                       epsilon=EPS)["dirty"]  # fmt: skip
+        s_i = 0.5 * (np.abs(gp[:, 0]) ** 2 * np.abs(gq[:, 0]) ** 2
+                     + np.abs(gp[:, 1]) ** 2 * np.abs(gq[:, 1]) ** 2)  # fmt: skip
+        scale = ww.sum() / (2.0 * (wx * s_i[:, None]).sum())
+        sel = ctx["idx"] == f
+        image[sel] = img[sel] * scale
+    return image
+
+
+def control_c2(run, scratch):
+    """Amendment A5's controls: WSClean's facet image with arm O's cycle-0
+    gains on the matched copy (C2m) and on the equal-weight unflagged copy
+    (C2e) against rang; and rang's emulation of WSClean 3.7's facet weighting
+    against A4's C1 image (E1). Each within 1e-3 of the peak."""
+    ctx = context(run)
+    c = ctx["c"]
+    out = run / "C2"
+    d0 = run / "O" / "cycle-0"
+    if not (out / "c2e-image-pb.fits").exists():
+        run_wsl("step4_c2.sh", dd3.to_wsl(ctx["st"]["subms"]), scratch, dd3.to_wsl(out),
+                dd3.to_wsl(d0 / "solved.h5"), dd3.to_wsl(run / "facets.reg"))  # fmt: skip
+    g = np.load(d0 / "gains.npz")
+    gains = np.array(g["gains"], complex)
+    gains[np.broadcast_to(g["flags"][..., None] != 0, gains.shape)] = 1.0  # as write_h5
+    images = {"C2m": (facet_image(ctx, c["DATA"].astype(np.complex128), gains), out / "c2m-image-pb.fits"),
+              "E1": (facet_image_wsclean37(ctx, gains), run / "C1" / "c1-image-pb.fits")}  # fmt: skip
+    flag = c["FLAG"].astype(bool) | c["FLAG_ROW"].astype(bool)[:, None, None]
+    w_i = c["w_I"]
+    c["w_I"] = np.ones(w_i.shape)
+    images["C2e"] = (facet_image(ctx, np.where(flag, 0, c["DATA"]).astype(np.complex128), gains),
+                     out / "c2e-image-pb.fits")  # fmt: skip
+    c["w_I"] = w_i
+    rec = {}
+    for key, (mine, fits) in images.items():
+        theirs = dd2.read_fits(fits)
+        d = np.abs(mine - theirs)[ctx["interior"]].max() / np.abs(theirs).max()
+        scale = []
+        for f in range(ctx["ndir"]):
+            sel = ctx["interior"] & (ctx["idx"] == f)
+            scale.append(
+                float((theirs[sel] * mine[sel]).sum() / (mine[sel] ** 2).sum())
+            )
+        rec[key] = {"rel_diff": float(d), "scale_theirs_over_mine_per_facet": scale,
+                    "pass": bool(d <= 1e-3)}  # fmt: skip
+    (out / "c2.json").write_text(json.dumps(rec, indent=1))
+    print(json.dumps(rec, indent=1))
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     cmd = argv[0]
@@ -562,6 +632,8 @@ def main(argv=None):
         control_c0(Path(argv[1]), argv[2])
     elif cmd == "control1":
         control_c1(Path(argv[1]), argv[2])
+    elif cmd == "control2":
+        control_c2(Path(argv[1]), argv[2])
     elif cmd == "scoreb":
         score_b(Path(argv[1]))
     elif cmd == "score":
