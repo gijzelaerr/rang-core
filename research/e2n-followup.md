@@ -192,7 +192,53 @@ Causes:
 effect. Gate 3a stays not met as frozen. Placing the 68 to a strategy step would need both flaggers' per-step flags
 on m007–m050, scan 7; that is a small run (one baseline, 14 dumps) and not part of this job.
 
-### 2.2 Job 1: CASA's K
+### 2.2 Job 1: CASA's K (measured 2026-11-23, scored 2026-11-24; seen, post hoc)
+
+Rerun under the 2026-11-22 amendment, run root `~/rang-data/outputs/e2n-followup-20261122/` on nash; launcher
+`fu_rerun.sh` finished 2026-11-23 12:19 SAST. It stopped once at `casa-prep-a` (2026-11-22 16:10, `psutil` missing
+in a second Python, `R/chain.out`) and was resumed from its markers on 2026-11-23 05:53. Archive
+[results/e2n-followup/rerun/](results/e2n-followup/rerun/) (JSON records and logs, no MS, no FITS).
+
+**Checks (all met).** Extension equals E2-N's (`wheel-check.json`, `9c42ea72…83ed`). The copy and the original
+`e2n.ms` hash equal before, mid and after (`fu-copy-hash.json`, `fu-original-hash-{before,mid,after}.json`), so
+the original is untouched. Rang's flag versions (rang_original, flag, calibrate, apply) equal E2-N's surviving ones
+(`fu-flagversions.json`, `all_equal: true`), so rang's side is reproduced and the CASA rows read against E2-N's
+rang. prep-b's restored FLAG hash is `58120750…1705`; `g2a.json` and `final-restore.json` `met: true`.
+
+**K (prediction of 1.2: confirmed).** CASA's K on the flag stage's flags flags **0 of 62** antennas; E2-N's CASA K,
+regenerated (`k-only-e2n`, the after-calibrate flags), flags E2-N's same **19** (0, 1, 2, 3, 6, 7, 9, 11, 12, 15,
+16, 18, 21, 23, 26, 29, 30, 41, 45); the m058 probe on the after-calibrate flags flags **0**, as predicted, so the
+refant-baseline mechanism holds. Rang's K flags 0. |Δτ| rang against the follow-up's CASA K: median 1.24e-3 ns,
+p95 4.73e-3, max 8.9e-3 (n 124 = 62 × 2); against E2-N's CASA K 1.09e-3 / 3.72e-3 (n 86). E2-N's and the
+follow-up's CASA K agree to 1.8e-4 ns median where both solve (`fu-kcompare.json`).
+
+**K-downstream rows: E2-N's value, then the follow-up's, beside the frozen tolerance** (`fu-compare.json`; every
+follow-up value is seen, post hoc, and none is E2-N's outcome).
+
+| Row | E2-N | Follow-up | Tolerance | Follow-up reads |
+| --- | --- | --- | --- | --- |
+| 3b K | 1.09e-3 / 3.72e-3 ns (n 86), flags differ 38 | 1.24e-3 / 4.73e-3 ns (n 124), flags differ 0 | ≤ 0.01, ≤ 0.03 ns | within |
+| 3b KCROSS | 1.13e-3 ns | 1.27e-3 ns | ≤ 0.02 ns | within |
+| 3b Xf | 0.249° / **2.085°** | 0.110° / 0.525° (n 840) | ≤ 0.5°, ≤ 2.0° | within |
+| 3b Df | 1.47e-4 / 4.88e-4 | 2.93e-5 / 1.81e-4 | ≤ 1e-3, ≤ 5e-3 | within |
+| 3b Gpol | 0.022° | 0.0026° | ≤ 0.1° | within |
+| 3b fcal K G B composite | **1.85e-3 / 1.68e-2** | 1.65e-5 / 8.35e-4 (flags differ 0) | 7e-4, 3e-3 | within |
+| 3b gcal K F B composite | **2.43e-3 / 1.69e-2** | 2.87e-5 / 8.31e-4 (flags differ 0) | 7e-4, 3e-3 | within |
+| J1744−5144 | 6 bins; \|ΔI\| 0.095 %, \|Δp\| 0.010 pt, **\|Δχ\| 10.3°** | 7 bins; \|ΔI\| 0.0015 %, \|Δp\| 0.0016 pt, **\|Δχ\| 4.88°** | 1 %, 0.1 pt, 1° | **outside** (χ) |
+| 3C 286 parity | \|Δp\| 0.088 pt, \|Δχ\| 0.31° | \|Δp\| 0.027 pt, \|Δχ\| 0.20° | 0.1 pt, 0.5° | within |
+| J0408−6545 leakage, CASA arm | Q 0.143, U 0.163, V 0.086 % | Q 0.149, U 0.171, V 0.078 % | each ≤ 0.3 % | within |
+| Target compact (≤ 0.7°, n 316) | median 0.9901, **scatter 13.3 %** | median 0.9961, **scatter 2.40 %** | within 1 %, ≤ 1.5 % | **outside** (scatter) |
+| Target noise, dynamic range | 0.960 ×, 1.078 × | 1.014 ×, 0.981 × | ≤ 1.2 ×, ≥ 0.8 × | within |
+
+Also reported (no E2-N row): G relative median / p95 4.9e-4 / 9.7e-4 (E2-N) to 7.8e-5 / 3.1e-4; B 1.8e-3 /
+9.3e-3 to 1.2e-3 / 6.5e-3.
+
+**Reading.** With each CASA solve on the flags rang solved it on, CASA's K keeps all 62 antennas, and every 3b row,
+including Xf's p95 and both composites that E2-N missed, falls within its frozen tolerance; parity, leakage and the
+target's noise stay within. Two rows stay outside: J1744−5144's χ (4.88° against 1°, now on 7 bins; E2-N 10.3°) and
+the target's compact scatter (2.40 % against 1.5 %; E2-N 13.3 %). Neither is attributed here.
+- **Not rerun (1.2):** 3c (no CASA table enters it; see [gate3c-rerun.md](gate3c-rerun.md) 6.2) and the
+  self-calibration rows.
 
 ## Coordinator decisions (2026-11-18 evening, post hoc, after 2.1 and the K diagnosis)
 
