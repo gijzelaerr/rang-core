@@ -1,0 +1,15 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/gate3c-rerun-20261123/e2n.ms",
+ "version": "/home/gijs/rang-data/outputs/gate3c-rerun-20261123/e2n.ms.flagversions/flags.rang_selfcal_20261117T072854Z",
+ "ms_hash": {
+  "rows": 2229489,
+  "flag_sha256": "581207506477b3ccc7ff5f9ee27977f33b554449c0f759eeda985af87f501705",
+  "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+ },
+ "version_hash": {
+  "rows": 2229489,
+  "flag_sha256": "581207506477b3ccc7ff5f9ee27977f33b554449c0f759eeda985af87f501705",
+  "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+ },
+ "equal": true
+}

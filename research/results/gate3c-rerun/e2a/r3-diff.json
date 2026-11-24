@@ -1,0 +1,18 @@
+{
+ "a": "ws-c3",
+ "b": "D:/rang/outputs/e2a-20261115/wsclean3c-a-nosi",
+ "per_image": {
+  "ESO137m001-dirty-0000-dirty.fits": 5.211667806535858e-06,
+  "ESO137m001-dirty-0001-dirty.fits": 4.983156577353186e-06,
+  "ESO137m001-dirty-0002-dirty.fits": 3.2264389030236785e-07,
+  "ESO137m001-dirty-0003-dirty.fits": 1.8440438627961292e-07,
+  "ESO137m001-dirty-0004-dirty.fits": 4.427416012139621e-06,
+  "ESO137m001-dirty-0005-dirty.fits": 1.1540022400465705e-06,
+  "ESO137m001-dirty-0006-dirty.fits": 1.0054248124991852e-05,
+  "ESO137m001-dirty-0007-dirty.fits": 1.6765587366193992e-06,
+  "ESO137m001-dirty-MFS-dirty.fits": 2.5216057873837576e-06
+ },
+ "max": 1.0054248124991852e-05,
+ "tolerance": 1e-06,
+ "met": false
+}

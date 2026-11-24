@@ -1,0 +1,3 @@
+2026-11-23T19:49:25+02:00 armd waiter: waiting for pid 22496 (F7 timing chain)
+2026-11-23T23:43:32+02:00 armd waiter: pid 22496 gone, D: free 553G
+2026-11-24T00:04:31+02:00 armd chain rc=0
