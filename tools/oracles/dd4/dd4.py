@@ -234,7 +234,7 @@ def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None, calmode="a
         models = facet_models(ctx, model)
         args = (c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
                 c["ANTENNA1"], c["ANTENNA2"], ctx["block"])  # fmt: skip
-        kw = {"nant": len(c["ant_names"]), "refant": 0, "pinned_directions": ctx["pinned"],
+        kw = {"nant": len(c["ant_names"]), "refant": None if perdir else 0, "pinned_directions": ctx["pinned"],
                   "calmode": calmode, "phase_last_direction_gain": not own_gain}  # fmt: skip
         sol = cal_gain.solve_dd(*args, **kw, **caps)
         t1 = time.perf_counter()
@@ -512,7 +512,7 @@ def grid_point(run, kind, ti, model0, out):
     models = facet_models(ctx, np.load(model0))
     args = (c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
             c["ANTENNA1"], c["ANTENNA2"], ctx["block"])  # fmt: skip
-    kw = {"nant": len(c["ant_names"]), "refant": 0, "pinned_directions": ctx["pinned"],
+    kw = {"nant": len(c["ant_names"]), "refant": None, "pinned_directions": ctx["pinned"],
           "calmode": "p" if kind == "phase" else "ap", "phase_last_direction_gain": False}  # fmt: skip
     caps = dict(CAP, max_iterations=500)
     t0 = time.perf_counter()
