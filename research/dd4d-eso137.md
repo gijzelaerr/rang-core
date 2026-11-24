@@ -129,3 +129,17 @@ Not yet run.
 - The step-2 loop records the measure with `refant=None` solves as well.
   Its science solve keeps `refant=0` (DD4).
 
+- *Check of the measure (2026-11-24, `diag_complex` at 64 integrations, 20
+  and 60 iterations).*
+  - Two solves with the same cap are identical (maximum difference 0), so
+    the measure is not seeing run-to-run noise.
+  - The unflagged off-axis cells keep moving. The median relative change
+    per iteration, `|Δg|²/|g|²`, falls from 7.5e-6 to 3.0e-7 (d1) and from
+    4.4e-4 to 4.0e-5 (d2) between iteration 20 and 60, against the 1e-14
+    test.
+  - The cells that do not move are the flagged ones, about 19 % in d2 and
+    d3, whose gains are set to 1. Flags also change between successive
+    iterations.
+  - The solver's aggregate count (0.274-0.276) is above 0.25 by about this
+    flag bookkeeping, not by converged unflagged cells.
+  - So the per-direction measure (unflagged cells only) stands.
