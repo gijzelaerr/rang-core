@@ -105,3 +105,27 @@ DD4, as before. Each cycle records Rd's per-direction convergence.
 ## 6. Measured result
 
 Not yet run.
+
+## Amendments
+
+**A1, 2026-11-24, measure fix, post hoc (after one grid point,
+`diag_complex` at 64 integrations; no decision was read).**
+- The per-direction measure compared the solver's *referenced* output
+  gains. Referencing rotates every gain of an interval by the reference
+  antenna's gain (`reference_gains` in `core/src/cal/diag_dd.rs`). So the
+  reference antenna's own change between iteration n and n + 1 counts
+  against every cell, and the measure overstates non-convergence.
+- The solver's own test is on the unreferenced iterates.
+- **Fix:** the grid's two solves run with `refant=None`. The measure is
+  then exactly the solver's step test, per cell. The gain products, which
+  the predict, the imaging and gate L use, do not depend on the reference.
+- The first point (`diag_complex`, 64) read 0.0 in d1-d3 by the old
+  measure; it is rerun. The solver's aggregate fraction there was 0.276,
+  that is 3.5 % of the off-axis cells.
+- DD4c's per-direction numbers used the same referenced measure. Their
+  verdict does not change, because the solver's aggregate fraction was 0.25
+  there: no off-axis cell converged by the solver's own count. A note is
+  added to DD4c.
+- The step-2 loop records the measure with `refant=None` solves as well.
+  Its science solve keeps `refant=0` (DD4).
+
