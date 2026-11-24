@@ -996,6 +996,16 @@ fn deconvolve<T: Real + Send + Sync>(
             ("seconds", num(floor.seconds)),
         ]);
     }
+    // From here on only residuals read the measurement (the gram operator's
+    // exact pass too), so only the active visibilities, sorted, are kept, as
+    // on the channel and polarisation paths (research/selfcal-mem-34.md):
+    // residuals keep their bits.
+    let measurement = if args.plan_reuse {
+        measurement.compacted()?
+    } else {
+        measurement
+    };
+    memory::mark("compacted");
     let settings = Settings {
         gain: args.gain,
         cycle_stop: args.cycle_stop,
