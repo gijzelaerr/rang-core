@@ -1,0 +1,102 @@
+{
+ "run": "D:\\rang\\outputs\\dd5-20261124\\e1",
+ "model": "D:/rang/outputs/dd5-20261124/b/sky.npy",
+ "kind": "diag_complex",
+ "ti": 4,
+ "seconds_per_solution": 32,
+ "cap": 500,
+ "stop_fraction": 0.99,
+ "level": [
+  "converges",
+  "partly",
+  "partly",
+  "partly"
+ ],
+ "step_stats": [
+  {
+   "median": 0.0,
+   "p90": 0.0,
+   "flag_changes": 0
+  },
+  {
+   "median": 0.0,
+   "p90": 0.0,
+   "flag_changes": 0
+  },
+  {
+   "median": 0.0,
+   "p90": 0.0,
+   "flag_changes": 0
+  },
+  {
+   "median": 0.0,
+   "p90": 3.657709498643511e-36,
+   "flag_changes": 0
+  }
+ ],
+ "stopped_before_cap": false,
+ "empty_cells": 113,
+ "flagged_per_direction": [
+  113,
+  113,
+  113,
+  119
+ ],
+ "flagged_on_empty_cells": [
+  113,
+  113,
+  113,
+  113
+ ],
+ "nint": 113,
+ "iterations": 500,
+ "iterations_second": 501,
+ "fraction": 0.9750313491185365,
+ "perdir_converged": [
+  1.0,
+  0.987905604719764,
+  0.9646017699115044,
+  0.9477413640389726
+ ],
+ "converges": false,
+ "e_d": [
+  0.0,
+  0.0543671552927987,
+  0.12004554757887521,
+  0.13613770351122678
+ ],
+ "ehat_d": [
+  0.001548848272313845,
+  0.004851437444193724,
+  0.03498195203731926,
+  0.04999736712193086
+ ],
+ "e_over_ehat": [
+  0.0,
+  11.2064013847826,
+  3.4316423351906966,
+  2.72289745136422
+ ],
+ "accurate": [
+  true,
+  false,
+  false,
+  false
+ ],
+ "flagged_offaxis": 345,
+ "phase_std_rad": [
+  0.0,
+  0.5464639811954861,
+  0.5771590421237598,
+  0.5268485962456225
+ ],
+ "amp_median": [
+  1.0,
+  0.9724324934248969,
+  1.0019427672101315,
+  1.0049217296352162
+ ],
+ "seconds_predict": 33.18772139999783,
+ "seconds_solve": 253.1408118000254,
+ "seconds_second_solve": 262.6744340999867
+}

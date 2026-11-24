@@ -4,8 +4,9 @@
     python tools/oracles/dd5/dd5.py noise OUT.json            # section 2's k
     python tools/oracles/dd5/dd5.py sim SKY OUTDIR [--nonoise] [--d0err]
     python tools/oracles/dd5/dd5.py grid RUN KIND TI MODEL OUT.json
-    python tools/oracles/dd5/dd5.py looptruth RUN ARM          # stage 5, e_d per cycle
-    python tools/oracles/dd5/dd5.py score RUN R O OUT.json     # stage 5, gates L and S
+    python tools/oracles/dd5/dd5.py looptruth RUN ARM TI [--phase]  # stage 5, e_d per cycle
+    python tools/oracles/dd5/dd5.py score RUN R O OUT.json [TI]  # stage 5, gates L and S
+    python tools/oracles/dd5/dd5.py gainstats RUN R O OUT.json  # A2, reported beside L
 
 SKY is a (S_a, catalogue), b (S_b, M0c), p (S_p, S_b with the d2 and d3
 pins halved), e (S_e, DI0c's cycle-4 model; amendment A1), or e0 / e1
@@ -351,15 +352,50 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
     print(json.dumps(rec), flush=True)
 
 
-def loop_truth(run, arm, ti):
-    """Stage 5: e_d per cycle of a loop arm against the truth gains."""
+def loop_truth(run, arm, ti, phase_only=False):
+    """Stage 5: e_d per cycle of a loop arm against the truth gains;
+    `phase_only` (post hoc, for the A2 phase parity arms) normalises both
+    products to unit modulus, as section 4 does for `phase`."""
     run = Path(run)
     ctx = dd4.context(run, ti=ti)
     rec = {}
     for k in range(dd4.NCYCLE + 1):
         g = np.load(run / arm / f"cycle-{k}" / "gains.npz")
-        rec[k] = truth_error(run, ctx, g["gains"], g["flags"], ti, False)
+        rec[k] = truth_error(run, ctx, g["gains"], g["flags"], ti, phase_only)
     (run / f"{arm}-truth.json").write_text(json.dumps(rec, indent=1))
+    print(json.dumps(rec))
+
+
+def gain_stats(run, r, o, out):
+    """Amendment A2's reported-not-gated companions of gate L, per cycle and
+    direction: median |P_R - P_O| over cells unflagged in both, the fraction
+    within 1e-5, the maximum, and the gain cells whose flags differ."""
+    run = Path(run)
+    rec = {}
+    for k in range(dd4.NCYCLE + 1):
+        gr = np.load(run / r / f"cycle-{k}" / "gains.npz")
+        go = np.load(run / o / f"cycle-{k}" / "gains.npz")
+        nant = gr["gains"].shape[2]
+        p, q = np.triu_indices(nant, 1)
+        pr = gr["gains"][:, :, p] * np.conj(gr["gains"][:, :, q])
+        po = go["gains"][:, :, p] * np.conj(go["gains"][:, :, q])
+        fr, fo = gr["flags"], go["flags"]
+        ok = (
+            (fr[:, :, p] == 0)
+            & (fr[:, :, q] == 0)
+            & (fo[:, :, p] == 0)
+            & (fo[:, :, q] == 0)
+        )
+        d = np.abs(pr - po)
+        rec[k] = []
+        for f in range(pr.shape[3]):
+            v = d[:, :, :, f][
+                np.broadcast_to(ok[:, :, :, f, None], d[:, :, :, f].shape)
+            ]
+            rec[k].append({"median": float(np.median(v)), "frac_le_1e-5": float((v <= 1e-5).mean()),
+                           "max": float(v.max()), "flag_differs": int(((fr[..., f] == 0) != (fo[..., f] == 0)).sum()),
+                           "flagged_R": int((fr[..., f] != 0).sum()), "flagged_O": int((fo[..., f] != 0).sum())})  # fmt: skip
+    (run / out).write_text(json.dumps(rec, indent=1))
     print(json.dumps(rec))
 
 
@@ -384,7 +420,9 @@ def main(argv=None):
         grid_point(argv[1], argv[2], int(argv[3]), argv[4], argv[5], cap=int(opt.get("--cap", 500)),
                    stop_fraction=float(opt["--stop-fraction"]) if "--stop-fraction" in opt else None)  # fmt: skip
     elif cmd == "looptruth":
-        loop_truth(argv[1], argv[2], int(argv[3]))
+        loop_truth(argv[1], argv[2], int(argv[3]), phase_only="--phase" in argv)
+    elif cmd == "gainstats":
+        gain_stats(argv[1], argv[2], argv[3], argv[4])
     elif cmd == "score":
         run = Path(argv[1])
         dd4.score(run, r=argv[2], o=argv[3], di=argv[2], out=argv[4],
