@@ -6,7 +6,7 @@ Issue #15. Follows [dd4d-eso137.md](dd4d-eso137.md) (DD4d),
 2026-11-24, relayed by the coordinator. Sections 1-7 are frozen 2026-11-24,
 before the code that runs them. Later changes are dated amendments.
 
-Status: **proposed, frozen 2026-11-24.**
+Status: **running, 2026-11-24.** N0 read "setup" on its convergence half; truth recovery passes, so the stop rule is overridden by amendment A1 (post hoc).
 
 ## 1. Question and hypotheses
 
@@ -228,4 +228,62 @@ Not yet run.
 
 ## Amendments
 
-None.
+**A1, 2026-11-24, post hoc (after N0, before any noisy arm was read).**
+
+*Setup measured.* The noise scale is k = 0.529 (`noise.json`): 0.24 Jy per
+part at the median weight 9.2, and 31.0 µJy thermal Stokes I image noise,
+which is DD4's 31 µJy expectation.
+
+*N0 reads "setup" by the frozen rule, on its convergence half only.*
+- Truth recovery passes by four orders: `e_d` = 1.2e-8, 7.8e-8 and 2.1e-7
+  in d1-d3, against 1e-3.
+- The per-direction fractions at cap 500 are 0.987, 0.934 and 0.869,
+  against 0.99. The solver stopped at the cap with its aggregate fraction
+  0.947.
+- 354 off-axis gains are flagged: 113 per direction are cells with no
+  unflagged data (one antenna). d3 has 15 more, in a noise-free exact
+  problem.
+
+*Why the stop rule is overridden.* It was there to catch a broken
+simulation or solver, and N0 rules that out. The coordinator is told it was
+overridden. Two facts constrain the rest:
+- N0's 0.87-0.99 is far from the real data's 0-0.017 (DD4d). The strict
+  criterion alone does not explain ESO137. That gap is what DD5 must
+  explain.
+- "Each of d1-d3 ≥ 0.99" is close to unreachable when the solver stops by
+  its own test. Its fraction is the mean over four directions with the
+  pinned d0 at 1, so it stops at an off-axis mean of about 0.987.
+
+*Amended reading (fixed now):*
+- N0's truth-recovery half gates the noisy arms. It passes.
+- Factor attribution uses DD4c section 3's three levels per direction:
+  ≥ 0.99 converges, > 0.10 partly, ≤ 0.10 does not converge.
+- **A factor reproduces the real data** if its arm falls to ≤ 0.10 in some
+  off-axis direction at 4 × 8 s where arm A, at the same kind, stays
+  above 0.10. Section 5's table is read with "converges" replaced by
+  "above 0.10 in d1-d3". The frozen 0.99 verdict is still recorded, with
+  whether the solver stopped before the cap.
+- Arms stay at cap 500, for comparison with DD4d. Stage 3 runs the longer
+  intervals for every (arm, kind) that does not reach 0.99 at 4 × 8 s, as
+  frozen, but only while the host allows. 4 × 8 s is the primary reading.
+- Arm D runs unconditionally, because its trigger ("not reproduced") can
+  no longer fire as frozen.
+- **New arm E:** sky S_e = DI0c's cycle-4 model
+  (`run-02/DI0c/cycle-4/model.npy`, SHA-256 `2da55706…0a6a03`, 50.2 Jy),
+  and the model M₀ᶜ (47.8 Jy). The two clean models of the same real data
+  differ by 10.4 Jy in summed absolute value over 2,604 pixels. On real
+  data DI0c's residual is 8-9 mJy rms near d1 and d2, against 31 µJy
+  thermal, and no other arm puts model error of that size next to the weak
+  directions. E reproduces the real data under the rule above if it falls
+  to ≤ 0.10 where A and B do not.
+- **Diagnostic:** N0 again at cap 2000 with the first solve's stop fraction
+  1. It records, per direction, the median and 90th percentile of
+  `|Δg|²/|g|²` between the two solves and the cells that change flag.
+  Reaching ≥ 0.99 means slow convergence that the cap cuts off; a plateau
+  means a stall.
+- Stage 5's choice of configuration, its cap and its convergence
+  precondition are rewritten in a later amendment, after the diagnostic and
+  before any parity run.
+- The grid's records add, from now on: each direction's level, those step
+  statistics, flagged cells per direction and how many lie on cells with no
+  data.
