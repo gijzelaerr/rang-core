@@ -198,11 +198,28 @@ def facet_image(ctx, r, gains):
     return image
 
 
-def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None):
+def per_direction_converged(g1, g2, f1, f2, stop=CAP["stop_criterion"]):
+    """Per direction, the fraction of unflagged solution cells whose relative
+    change between two solves one iteration apart is below the solver's own
+    test, |dg|^2 / |g|^2 < stop^2 (DD4c section 3)."""
+    d2 = (np.abs(g2 - g1) ** 2).sum(-1)
+    n2 = (np.abs(g1) ** 2).sum(-1)
+    ok = (f1 == 0) & (f2 == 0) & (n2 > 0)
+    conv = ok & (d2 < stop * stop * np.where(n2 > 0, n2, 1.0))
+    return [
+        float(conv[..., f].sum() / max(ok[..., f].sum(), 1)) for f in range(g1.shape[3])
+    ]
+
+
+def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None, calmode="ap",
+          own_gain=False, perdir=False):  # fmt: skip
     """Arm R, or DI (one direction, free), or DI0 (one direction, pinned:
     the publisher's DI calibration only; DD4 amendment A3, post hoc).
     `cap`, `name` and `model0` are DD4b's (research/dd4b-eso137.md): the
-    iteration cap, the arm's directory name and its start model."""
+    iteration cap, the arm's directory name and its start model. `calmode`
+    "p", `own_gain` and `perdir` are DD4c's (research/dd4c-eso137.md): the
+    phase-only solve, each direction's own gain in its update, and the
+    per-direction convergence from a second solve one iteration longer."""
     from rang import cal_gain
 
     ctx = context(run, di or di0, di0)
@@ -214,16 +231,25 @@ def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None):
     for k in range(NCYCLE + 1):
         t0 = time.perf_counter()
         models = facet_models(ctx, model)
-        sol = cal_gain.solve_dd(
-            c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
-            c["ANTENNA1"], c["ANTENNA2"], ctx["block"], nant=len(c["ant_names"]), refant=0,
-            pinned_directions=ctx["pinned"], **caps,
-        )  # fmt: skip
+        args = (c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
+                c["ANTENNA1"], c["ANTENNA2"], ctx["block"])  # fmt: skip
+        kw = {"nant": len(c["ant_names"]), "refant": 0, "pinned_directions": ctx["pinned"],
+                  "calmode": calmode, "phase_last_direction_gain": not own_gain}  # fmt: skip
+        sol = cal_gain.solve_dd(*args, **kw, **caps)
         t1 = time.perf_counter()
+        extra = {}
+        if perdir:
+            more = dict(caps, max_iterations=sol.iterations + 1, stop_fraction=1.0)
+            sol2 = cal_gain.solve_dd(*args, **kw, **more)
+            extra = {"perdir_converged": per_direction_converged(
+                sol.gains, sol2.gains, sol.flags, sol2.flags), "iterations_second": sol2.iterations,
+                "seconds_second_solve": time.perf_counter() - t1}  # fmt: skip
+            del sol2
+            t1 = time.perf_counter()
         residual = residual_image(ctx, models, sol.gains)
         t2 = time.perf_counter()
         info = {"iterations": sol.iterations, "fraction": sol.converged_fraction,
-                "seconds_solve": t1 - t0, "seconds_image": t2 - t1}  # fmt: skip
+                "seconds_solve": t1 - t0, "seconds_image": t2 - t1, **extra}  # fmt: skip
         comps, new_model = None, model
         if k < NCYCLE:
             comps, _, hinfo = dd3.hogbom(residual, psf, ctx["interior"], ctx["search"])
@@ -237,13 +263,15 @@ def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None):
         del models
 
 
-def arm_o(run, scratch):
+def arm_o(run, scratch, gtype="diag_complex", cap=150, name="O", model0=None):
+    """Arm O; DD4c's Oc with `gtype` "phase", `cap` 500 and its start model.
+    Step 3 runs on DD4 A5's matched four-correlation copy."""
     ctx = context(run)
     c, ndir = ctx["c"], ctx["ndir"]
     psf = np.load(run / "psf.npy")
     hdr = json.loads((run / "header.json").read_text())
-    model = np.load(run / "model0.npy")
-    o = run / "O"
+    model = np.load(model0 if model0 else run / "model0.npy")
+    o = run / name
     o.mkdir(exist_ok=True)
     pinned = "[" + ",".join(map(str, ctx["pinned"])) + "]"
     run_wsl("step4_o0.sh", dd3.to_wsl(ctx["st"]["subms"]), scratch, ndir)
@@ -257,7 +285,7 @@ def arm_o(run, scratch):
             )
         dd3.write_fits(d / "full-model.fits", model, hdr)
         dd3.write_fits(d / "full-model-pb.fits", model, hdr)
-        log1 = run_wsl("step4_o1.sh", scratch, dd3.to_wsl(d), ndir, pinned)
+        log1 = run_wsl("step4_o1.sh", scratch, dd3.to_wsl(d), ndir, pinned, gtype, cap)
         gains, flags, qinfo = dd3.qc_gains(d / "gains")
         ok = dd2.write_h5(
             d / "solved.h5", gains, flags, c, ctx["centres_t"], ctx["centres"]
@@ -276,7 +304,7 @@ def arm_o(run, scratch):
             info["hogbom"] = hinfo
             new_model = dd3.add_components(model, comps)
         dd3.save_cycle(d, model, gains, flags, residual, comps, info)
-        print(f"O cycle {k}: {json.dumps({a: b for a, b in info.items() if a != 'log_tail'})}",
+        print(f"{name} cycle {k}: {json.dumps({a: b for a, b in info.items() if a != 'log_tail'})}",
               flush=True)  # fmt: skip
         model = new_model
 
@@ -410,6 +438,55 @@ def score_b(run):
             for f in range(d.shape[3])
         }
     (run / "scoreb.json").write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    print(json.dumps(rec, indent=1))
+
+
+def score_c(run):
+    """DD4c's convergence per direction and Rc (and Rq) against DI0c
+    (research/dd4c-eso137.md, section 3)."""
+    ctx = context(run)
+    psf = np.load(run / "psf.npy")
+    sigma = restoring_beam(psf)
+    arms = [
+        a for a in ("Rc", "Rq", "DI0c", "Oc") if (run / a / f"cycle-{NCYCLE}").exists()
+    ]
+    m = {a: measures(run, ctx, a, psf, sigma) for a in arms}
+    rec = {"note": "research/dd4c-eso137.md", "measures": m, "convergence": {}}
+    for a in ("Rc", "Rq"):
+        if a not in arms:
+            continue
+        cyc = [json.loads((run / a / f"cycle-{k}" / "info.json").read_text())
+               for k in range(NCYCLE + 1)]  # fmt: skip
+        per = np.array([c["perdir_converged"] for c in cyc])  # cycles x directions
+        verdict = {}
+        for f in range(1, per.shape[1]):
+            col = per[:, f]
+            verdict[f"d{f}"] = ("converges" if (col >= 0.99).all()
+                                else "partly" if (col > 0.10).any() else "does not converge")  # fmt: skip
+        g = np.load(run / a / f"cycle-{NCYCLE}" / "gains.npz")["gains"]
+        rec["convergence"][a] = {
+            "perdir_converged": per.tolist(), "verdict": verdict,
+            "iterations": [c["iterations"] for c in cyc], "fraction": [c["fraction"] for c in cyc],
+            "final_phase_std_rad": [float(np.std(np.angle(g[..., f, :]))) for f in range(g.shape[3])],
+        }  # fmt: skip
+    for a in ("Rc", "Rq"):
+        if a in m and "DI0c" in m:
+            r = {
+                k: m[a]["offaxis_rms"][k] / m["DI0c"]["offaxis_rms"][k]
+                for k in m[a]["offaxis_rms"]
+            }
+            q = float(np.median(list(r.values())))
+            dr_ok = m[a]["dynamic_range"] >= m["DI0c"]["dynamic_range"]
+            v = (
+                "DD helps"
+                if (q <= 0.90 and dr_ok)
+                else ("DD worse" if q >= 1.05 else "null")
+            )
+            rec[f"{a}_vs_DI0c"] = {"rms_ratio": r, "q0": q, "verdict": v,
+                                   "dr_ratio": m[a]["dynamic_range"] / m["DI0c"]["dynamic_range"]}  # fmt: skip
+    (run / "scorec-convergence.json").write_text(
+        json.dumps(rec, indent=1), encoding="utf-8"
+    )
     print(json.dumps(rec, indent=1))
 
 
@@ -665,15 +742,25 @@ def main(argv=None):
         }
         arm_r(Path(argv[1]), di="--di" in argv, di0="--di0" in argv,
               cap=int(opt["--cap"]) if "--cap" in opt else None, name=opt.get("--name"),
-              model0=opt.get("--model0"))  # fmt: skip
+              model0=opt.get("--model0"), calmode="p" if "--phase" in argv else "ap",
+              own_gain="--own-gain" in argv, perdir="--perdir" in argv)  # fmt: skip
     elif cmd == "oracle":
-        arm_o(Path(argv[1]), argv[2])
+        opt = {
+            k: argv[argv.index(k) + 1]
+            for k in ("--cap", "--name", "--model0")
+            if k in argv
+        }
+        arm_o(Path(argv[1]), argv[2], gtype="phase" if "--phase" in argv else "diag_complex",
+              cap=int(opt.get("--cap", 150)), name=opt.get("--name", "O"),
+              model0=opt.get("--model0"))  # fmt: skip
     elif cmd == "control":
         control_c0(Path(argv[1]), argv[2])
     elif cmd == "control1":
         control_c1(Path(argv[1]), argv[2])
     elif cmd == "control2":
         control_c2(Path(argv[1]), argv[2])
+    elif cmd == "scorec":
+        score_c(Path(argv[1]))
     elif cmd == "scoreb":
         score_b(Path(argv[1]))
     elif cmd == "score":
