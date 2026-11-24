@@ -174,3 +174,13 @@ separate the two.
 - DI0c: 348 s.
 - Oc: 13,414 s, with QuartiCal `phase` at 2369-2596 s per cycle. Oc booked
   8 slots but QuartiCal used about one core.
+
+## Amendments
+
+**A1, 2026-11-24, post hoc (from DD4d A1).** Section 5's per-direction
+fractions compared referenced gains. Referencing rotates each interval's
+gains by the reference antenna's gain, so they overstate non-convergence.
+The verdict "does not converge" stands on the solver's own aggregate count:
+fraction 0.25 in every cycle of Rc and Rq, the pinned d0 only, so no
+off-axis cell converged.
+

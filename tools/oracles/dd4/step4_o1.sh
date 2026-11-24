@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: MIT
 # DD4 arm O, steps 1-2: per-facet model columns from WSClean predicts, then
 # QuartiCal 0.2.7's DD solve (GTYPE diag_complex, or phase for DD4c; ITERS its cap).
-# Usage: step4_o1.sh SCRATCH CYCLEDIR NDIR PINNED [GTYPE] [ITERS]
+# Usage: step4_o1.sh SCRATCH CYCLEDIR NDIR PINNED [GTYPE] [ITERS] [TI]
 source "$(dirname "$0")/common4.sh"
-s=$1; d=$2; n=$3; pinned=$4; gtype=${5:-diag_complex}; iters=${6:-150}; log="$d/o1.log"; : > "$log"
+s=$1; d=$2; n=$3; pinned=$4; gtype=${5:-diag_complex}; iters=${6:-150}; ti=${7:-4}; log="$d/o1.log"; : > "$log"
 recipe=""
 for f in $(seq 0 $((n - 1))); do
   cp "$d/facet$f-model.fits" "$s/pf$f-model.fits"
@@ -27,5 +27,5 @@ rm -rf "$s/gains" "$s/qclogs"
     output.gain_directory="$s/gains" output.log_directory="$s/qclogs" \
     dask.threads=1 dask.scheduler=single-threaded \
     G.type="$gtype" G.direction_dependent=true G.pinned_directions="$pinned" \
-    G.time_interval=4 G.freq_interval=0 >> "$log" 2>&1 )
+    G.time_interval="$ti" G.freq_interval=0 >> "$log" 2>&1 )
 rm -rf "$d/gains"; cp -r "$s/gains" "$d/gains"
