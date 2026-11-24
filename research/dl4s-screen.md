@@ -74,6 +74,66 @@ time- and frequency-averaged model-divided cells (the CASA estimator, already in
 `average_freq` and `casa_phase_weights`) catch it. Count the outliers caught by none, per block and term.
 Host nash, one shard per block, `--slots 2 --mem 16`. One day.
 
+### 2.4 Readings of 2.3 (2026-11-24, post hoc to the freeze, before any solution of the nine blocks was solved or seen)
+
+Branch `dl4s-stage3` from origin/main `6f438bc9`; issue #44. Written on glacier after reading the
+block manifests (`results/dl2-data/manifests/`, table descriptors only) and rang's code, before any
+calibrate run on the nine blocks. Every item is a reading needed to run 2.3's words; none was chosen
+from a result.
+
+- **"Fetched and converted."** All nine blocks are converted per scan and hashed (dl2-data.md 18).
+  `rang-core calibrate` takes one MS, and per-scan MSs each have SCAN_NUMBER 1 and their own FIELD
+  ids, so each block's selected calibrator scans are merged first by the deferred stage 2 route
+  (dl2-data.md 19): CASA `concat` in `rang-o-casa_6.7.6.14.sif` into a private MS in this task's run
+  root, SCAN_NUMBER then set to the katdal scan index of each source MS (by its time range). The
+  frozen per-scan MSs are only read. Each concat is deleted after its tables and screen are saved.
+- **Held-out blocks.** 2.3 names all nine. F6 kept 1678312253, 1674958551 and 1579022459 unread for
+  F7, and F7 has read them (STATE 2026-11-24); no later reservation is on record. They are run,
+  after the six train and validation blocks, and read once, for this count only.
+- **Flag state.** The flagger is a present rule. Each concat gets rang's flag stage with E2-N's
+  flag section (`mk_rfi_flagging_calibrator_fields_firstpass.yaml`) before calibrate, the same for
+  all nine (the held-out blocks have no stage 1 labels, by dl2-data.md 5).
+- **Field roles, mechanically from each block's scan tags.** Primary (`fcal`, `bpcal`):
+  J1939-6342 where a `bpcal` scan of it exists, else J0408-6545. Secondary (`gcal`): every field with
+  a `gaincal` tag. Scans of other fields (polarisation calibrators, J0408-6545 where J1939-6342 is
+  primary, as in E2-N where J0408-6545 is in no solve) are not merged. The `polcal` section is
+  dropped: 2.3 screens K, G and B, most polarisation calibrators here are not 3C 286, and E2-N's polcal
+  model is 3C 286's. Primary model: E2-N's setjy (Stevens-Reynolds 2016) for J1939-6342; rang has no
+  model of J0408-6545 (fs1-flux-standards.md 314-325), so where it is primary (1571938260, 1579022459,
+  1611426666) the model is `unity`. The screen compares each antenna with itself over intervals, so a
+  flux scale common to the intervals cancels in K and in a relative deviation. Everything else of
+  E2-N's calibrate section is kept (refant auto, uvrange > 150, average_time, average_freq,
+  casa_phase_weights, solint inf, Asec, F), with `run.stages: [flag, calibrate]`.
+- **Intervals.** E2-N's terms solve at `solint: inf`, one solution per scan, so "intervals" are the
+  scans of a field. The median is per antenna, hand (and channel for B) **and field** (gain
+  calibrators of different flux differ in amplitude by design). Fewer than two unflagged intervals:
+  no median, no outlier possible; reported. This differs from E2-A's one instance, which was in a
+  60 s K1 (e2a-rerun.yaml); 2.3 fixes E2-N's section, so it is a limit of the probe, stated here
+  before the run.
+- **Measures.** K: |τ − median τ| > 0.1 ns. G-type (G, Gsec, F) and B: the frozen screen
+  (e2a-3b-diag `d0_tables.outliers`) used a complex relative difference; a median of a complex gain
+  whose phase follows the refant over hours is not defined by it. Primary reading: amplitude,
+  | |g| − median |g| | / median |g| > 0.1. Second reading, reported beside it: complex,
+  |g − m| / |m| with m the median of the real and the imaginary parts.
+- **Catches.** (a) rang's flags: the solution is flagged in rang's table (minsnr 3 and minblperant
+  4, the defaults; under E2-N's section rang's G-type SNR is already computed on time- and
+  frequency-averaged model-divided cells, cal_gain `_solve_gain_field`). (b) The CASA-estimator SNR
+  rule: the G-type solution of the same antenna, hand, field and scan (G for K, G, B; Gsec for Gsec
+  and F) is flagged under (a). (c) `k_zero_start`: an outlier of the key-off arm absent from the
+  key-on arm. The count is the key-on arm's outliers caught by neither (a) nor (b); the key-off
+  arm is reported.
+- **Instances.** An event is one (block, field, antenna, scan) holding at least one uncaught
+  outlier, attributed to its most upstream term in the order K, G, B, Gsec, F (a K outlier and the
+  G it spoils are one event). Independent instances (2.2: different capture blocks or terms) are
+  the distinct (block, term) pairs of the events. Rule 2.2 is read on that number: < 3 null, ≥ 3
+  pilot. Also reported, as a second reading: the same count restricted to outliers that exceed
+  five times their own PARAMERR (a deviation the solution's noise does not explain). If the two
+  readings give different outcomes, both are recorded and the frozen literal one is the outcome.
+- **Smoke first.** Train block 1735892129 (29.6 GB) runs the whole chain before any other block;
+  its result is read with the others, nothing is tuned on it.
+- **Host and bookings.** nash, one shard per block, `--slots 2 --mem 16` for calibrate as frozen;
+  the concat and flag steps book their own honest figures.
+
 ## 3. Stage 4: polarisation terms (reading of seen results)
 
 - **Cost:** about 2 % of the run (section 1), mostly reads; a warm start cannot save wall time
