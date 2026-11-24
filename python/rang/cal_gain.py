@@ -1059,6 +1059,7 @@ def _solve_gain_field(
             run,
             max_iterations=opts["max_iterations"],
             stop_fraction=opts["stop_fraction"],
+            row_w=row_w,
         )
     if replay is None:
         raw = results[0]

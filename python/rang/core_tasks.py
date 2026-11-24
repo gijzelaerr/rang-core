@@ -29,6 +29,7 @@ import base64
 import collections
 import contextlib
 import functools
+import hashlib
 import json
 import os
 import tempfile
@@ -280,7 +281,154 @@ def _run_apply(spec, source):
     }
 
 
-RUNNERS = {"flag-block": _run_flag, "solve": _run_solve, "apply-rows": _run_apply}
+def _stamp(path):
+    """A cache key of a table on disk: its path and the time and size of its
+    `table.dat` (a table written again in the same process is read again)."""
+    p = Path(path)
+    dat = p / "table.dat"
+    st = (dat if dat.exists() else p).stat()
+    return str(p), st.st_mtime_ns, st.st_size
+
+
+@functools.lru_cache(maxsize=32)
+def _caltable(stamp):
+    from .formats import caltable
+
+    return caltable.read(stamp[0])
+
+
+@functools.lru_cache(maxsize=4)
+def _ms_info(ms):
+    from . import applycal
+
+    return applycal.ms_info(Path(ms))
+
+
+def _run_apply_casa(spec, source):
+    """One row chunk of `applycal.applycal` (research/chunk-task-api-1b.md
+    1.1): the tables read from their paths, P's angle tables from the
+    spec."""
+    from . import applycal, cal_apply
+
+    a, p = spec.arrays, spec.params
+    angle_tables = {
+        int(f): (a[f"angle_times{f}"], a[f"angle_q{f}"]) for f in p["angle_fields"]
+    }
+    ctx = applycal.ApplyContext(
+        tables=[_caltable(_stamp(t)) for t in p["tables"]],
+        interp=list(p["interp"]),
+        maps=[
+            # `cal_apply.POOLED` itself: `_apply_rows` tests it by identity.
+            {
+                int(f): (cal_apply.POOLED if v == cal_apply.POOLED else int(v))
+                for f, v in m.items()
+            }
+            for m in p["maps"]
+        ],
+        fields=list(p["fields"]),
+        scan=p["scan"],
+        applymode=p["applymode"],
+        column=p["column"],
+        weighted=list(p["weighted"]),
+        spectrum=bool(p["spectrum"]),
+        sigma_spectrum=bool(p["sigma_spectrum"]),
+        nchan=int(p["nchan"]),
+        info=_ms_info(spec.ms),
+        threads=int(p["threads"]),
+        parang=bool(p["parang"]),
+        angle_tables=angle_tables,
+        parang_flags=p["parang_flags"],
+    )
+    return applycal._apply_rows(source, int(p["start"]), int(p["n"]), ctx)
+
+
+def _read_caltable(path):
+    return _caltable(_stamp(path))
+
+
+def _run_chain_chunk(spec, source):
+    """One chunk of a replayed chain solve (research/chunk-task-api-1b.md
+    1.2): the recipe runs with the parent's code up to its first replayed
+    solve, which runs this chunk only (`cal_chunks.Only`). Pass 1 returns
+    `(counts, error, gains)`, pass 2 `(result, row positions, row
+    weights)`. The source is not used: the solve opens its own readers, as
+    in the parent."""
+    from . import cal_chain, cal_chunks
+
+    p = spec.params
+    fn, ms, term, field_id, tables, common = cal_chain.from_recipe(
+        p["recipe"], _read_caltable
+    )
+    key = hashlib.sha256(json.dumps(p["recipe"], sort_keys=True).encode()).hexdigest()
+    only = cal_chunks.Only(
+        int(p["chunk"]), int(p["max_iterations"]), float(p["stop_fraction"]),
+        bool(p["trace"]), key,
+    )  # fmt: skip
+    try:
+        with cal_chunks.dispatching(only):
+            fn(ms, term, field_id, tables, common)
+    except cal_chunks.ChunkDone as done:
+        return done.result
+    raise RuntimeError(
+        f"chain-chunk {spec.key}: the recipe finished without reaching its replayed solve"
+    )
+
+
+def _run_chain_field(spec, source):
+    """One field of a chain term, solved whole by the recipe (its replayed
+    solves chunked here, under this process's budget)."""
+    from . import cal_chain
+
+    fn, ms, term, field_id, tables, common = cal_chain.from_recipe(
+        spec.params["recipe"], _read_caltable
+    )
+    return fn(ms, term, field_id, tables, common)
+
+
+RUNNERS = {
+    "flag-block": _run_flag,
+    "solve": _run_solve,
+    "apply-rows": _run_apply,
+    "apply-casa": _run_apply_casa,
+    "chain-chunk": _run_chain_chunk,
+    "chain-field": _run_chain_field,
+}
+
+
+def chain_chunk_spec(recipe, chunk, max_iterations, stop_fraction, trace):
+    """A `chain-chunk` spec: chunk `chunk` of the first replayed solve of
+    `recipe` (`rang.cal_chain.recipe`), pass 1 (`trace`) or pass 2."""
+    return ChunkSpec(
+        "calibrate",
+        "chain-chunk",
+        int(chunk),
+        recipe["ms"],
+        {
+            "term": recipe["term"].get("name"),
+            "field": recipe["field"],
+            "chunk": int(chunk),
+            "pass": 1 if trace else 2,
+        },
+        {
+            "recipe": recipe,
+            "chunk": int(chunk),
+            "max_iterations": int(max_iterations),
+            "stop_fraction": float(stop_fraction),
+            "trace": bool(trace),
+        },
+    )
+
+
+def chain_field_spec(recipe, index):
+    """A `chain-field` spec: the whole solve of `recipe` on its field."""
+    return ChunkSpec(
+        "calibrate",
+        "chain-field",
+        int(index),
+        recipe["ms"],
+        {"term": recipe["term"].get("name"), "field": recipe["field"]},
+        {"recipe": recipe},
+    )
 
 
 # -- plans ---------------------------------------------------------------------------
@@ -451,6 +599,46 @@ def plan_apply(ms, chunks, row_part, row_bin, grids, input_column, column, threa
     return specs
 
 
+def plan_apply_casa(ms, chunks, ctx, paths):
+    """`applycal.applycal`'s specs: one per row chunk `(start, n)`, with
+    the tables by `paths` and the call's settings (`ctx`, an
+    `applycal.ApplyContext`); P's angle tables as arrays. A chunk with no
+    selected row gives a None partial, as the serial loop skips it."""
+    params = {
+        "tables": list(paths),
+        "interp": list(ctx.interp),
+        "maps": [{str(f): v for f, v in m.items()} for m in ctx.maps],
+        "fields": [int(f) for f in ctx.fields],
+        "scan": ctx.scan,
+        "applymode": ctx.applymode,
+        "column": ctx.column,
+        "weighted": [bool(w) for w in ctx.weighted],
+        "spectrum": bool(ctx.spectrum),
+        "sigma_spectrum": bool(ctx.sigma_spectrum),
+        "nchan": int(ctx.nchan),
+        "threads": int(ctx.threads),
+        "parang": bool(ctx.parang),
+        "parang_flags": ctx.parang_flags,
+        "angle_fields": sorted(int(f) for f in ctx.angle_tables),
+    }
+    arrays = {}
+    for f, (times, q) in ctx.angle_tables.items():
+        arrays[f"angle_times{int(f)}"] = np.asarray(times)
+        arrays[f"angle_q{int(f)}"] = np.asarray(q)
+    return [
+        ChunkSpec(
+            "apply",
+            "apply-casa",
+            i,
+            str(ms),
+            {"start": int(start), "n": int(n)},
+            {**params, "start": int(start), "n": int(n)},
+            arrays,
+        )
+        for i, (start, n) in enumerate(chunks)
+    ]
+
+
 # -- the executor ----------------------------------------------------------------------
 
 
@@ -509,6 +697,8 @@ class Executor:
         self.spool_wait_s = spool_wait_s
         self._pool = None
         self._spool = None
+        # Tasks mapped, by kind (the stage's `chunking` record).
+        self.counts = collections.Counter()
 
     @property
     def inline(self):
@@ -526,6 +716,8 @@ class Executor:
             "processes": self.processes,
             "threads_per_process": self.threads_per_process,
         }
+        if self.counts:
+            out["tasks"] = dict(sorted(self.counts.items()))
         if self.kind == "spool":
             out["spool"] = str(self.spool)
             if self._spool is not None:
@@ -546,6 +738,8 @@ class Executor:
         return self._pool
 
     def map(self, specs, source=None):
+        specs = list(specs)
+        self.counts.update(s.kind for s in specs)
         if self.inline:
             for spec in specs:
                 yield run(spec, source)

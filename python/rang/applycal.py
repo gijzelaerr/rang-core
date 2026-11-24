@@ -33,6 +33,8 @@ nearest on the sky (the only one when the table has one; a tie is an error).
 their own solution bins (`rang.cal_apply.apply_jones`).
 """
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from . import cal_apply, core_ms, core_tasks, core_writeback
@@ -289,6 +291,170 @@ def _load(t):
     return t if isinstance(t, caltable.CalTable) else caltable.read(t)
 
 
+def _all_paths(gaintable):
+    """True when every table is given by its path (a worker can read it)."""
+    return all(not isinstance(t, caltable.CalTable) for t in gaintable)
+
+
+@dataclass
+class ApplyContext:
+    """What one row chunk of `applycal` needs besides its rows
+    (research/chunk-task-api-1b.md 1.1): the tables, the settings resolved
+    once per call, and P's angle tables of the fields."""
+
+    tables: list
+    interp: list
+    maps: list  # per table {MS field id: table FIELD_ID or cal_apply.POOLED}
+    fields: list
+    scan: list | None
+    applymode: str
+    column: str
+    weighted: list
+    spectrum: bool
+    sigma_spectrum: bool
+    nchan: int
+    info: dict
+    threads: int
+    parang: bool
+    angle_tables: dict  # {field id: (times, angles)}
+    parang_flags: str
+
+    @property
+    def write_weights(self):
+        return any(self.weighted)
+
+
+def _apply_rows(source, start, nrow, ctx):
+    """The partial of one row chunk `(start, nrow)` read from `source` (the
+    `WriteBack` session or a reader): the output column, the new FLAG and,
+    with calwt, WEIGHT and WEIGHT_SPECTRUM of the chunk, the counts and the
+    uncovered (table, field, spw); None when no row of the chunk is
+    selected. Never writes."""
+    from . import cal_pol
+    from .core_chunks import _getter
+
+    read = _getter(source)
+    tables, interp, maps, info = ctx.tables, ctx.interp, ctx.maps, ctx.info
+    spectrum, nchan = ctx.spectrum, ctx.nchan
+    c = {
+        k: read(k, start, nrow)
+        for k in ("FIELD_ID", "DATA_DESC_ID", "TIME", "ANTENNA1", "ANTENNA2")
+    }
+    sel = np.isin(c["FIELD_ID"], ctx.fields)
+    if ctx.scan is not None:
+        sel &= np.isin(read("SCAN_NUMBER", start, nrow), ctx.scan)
+    if not sel.any():
+        return None
+    uncovered = set()
+    data = read("DATA", start, nrow)
+    flag = read("FLAG", start, nrow)
+    out = read(ctx.column, start, nrow)
+    new_flag = flag.copy()
+    weight = wspec = None
+    if ctx.write_weights:
+        sigma = read("SIGMA", start, nrow)
+        sigsp = read("SIGMA_SPECTRUM", start, nrow) if ctx.sigma_spectrum else None
+        weight = read("WEIGHT", start, nrow)
+        wspec = read("WEIGHT_SPECTRUM", start, nrow) if spectrum else None
+    keys = np.stack([c["FIELD_ID"], c["DATA_DESC_ID"]], axis=1)[sel]
+    rows_sel = np.flatnonzero(sel)
+    for fid, ddid in np.unique(keys, axis=0):
+        idx = rows_sel[(keys[:, 0] == fid) & (keys[:, 1] == ddid)]
+        spw = info["spw_of_ddid"][int(ddid)]
+        freqs = info["chan_freq"][spw]
+        use, strict_flag = [], False
+        for i, t in enumerate(tables):
+            tf = maps[i][int(fid)]
+            rows_t = t.column("SPECTRAL_WINDOW_ID") == spw
+            if tf is not cal_apply.POOLED:
+                rows_t &= t.column("FIELD_ID") == tf
+            if rows_t.any():
+                use.append(i)
+            else:
+                uncovered.add((i, int(fid), spw))
+                strict_flag |= ctx.applymode == "calflagstrict"
+        group = {k: v[idx] for k, v in c.items()}
+        if len(use) < len(tables):
+            # `VisEquation::VBOKforCalApply` fails when any term has
+            # no calibration for the buffer: `Calibrater::correct2`
+            # then neither initialises CORRECTED_DATA nor resets the
+            # weights there; `calflagstrict` flags every cell.
+            if strict_flag:
+                new_flag[idx] = True
+            continue
+        if tables:
+            got, gflag = cal_apply.apply(
+                data[idx],
+                flag[idx],
+                group["TIME"],
+                group["ANTENNA1"],
+                group["ANTENNA2"],
+                freqs,
+                tables,
+                spw=spw,
+                interp=interp,
+                threads=ctx.threads,
+                nant=info["nant"],
+                table_fields=[maps[i][int(fid)] for i in use],
+            )
+        else:
+            got, gflag = data[idx], flag[idx]
+        if ctx.parang:
+            angles = cal_pol.table_angles(
+                ctx.angle_tables[int(fid)],
+                group["TIME"],
+                group["ANTENNA1"],
+                group["ANTENNA2"],
+            )
+            got = cal_pol.rotate(got, *angles, inverse=True)
+            gflag = cal_pol.spread_flags(gflag, ctx.parang_flags)
+        out[idx] = got
+        new_flag[idx] = gflag
+        if ctx.write_weights:
+            if spectrum:
+                _, ws = _reset_weights(
+                    sigma[idx],
+                    None if sigsp is None else sigsp[idx],
+                    nchan,
+                    True,
+                )
+            else:
+                ws, _ = _reset_weights(sigma[idx], None, nchan, False)
+                ws = ws[:, None, :]
+            for i in use:
+                if not ctx.weighted[i]:
+                    continue
+                s = _weight_scale(
+                    tables[i].kind,
+                    tables[i],
+                    interp[i],
+                    spw,
+                    maps[i][int(fid)],
+                    group,
+                    freqs,
+                    info["nant"],
+                )
+                if not spectrum:
+                    s = s[:, :1, :]
+                ws = (ws * s).astype(np.float32)
+            if spectrum:
+                wspec[idx] = ws
+                weight[idx] = _median_over_channels(ws)
+            else:
+                weight[idx] = ws[:, 0, :]
+    return {
+        "start": int(start),
+        "rows": int(sel.sum()),
+        "before": int(flag[sel].sum()),
+        "after": int(new_flag[sel].sum()),
+        "out": out,
+        "flag": new_flag,
+        "weight": weight,
+        "wspec": wspec,
+        "uncovered": sorted(uncovered),
+    }
+
+
 def applycal(
     ms,
     gaintable,
@@ -308,6 +474,7 @@ def applycal(
     frame="casa",
     receptor_angle=None,
     parang_flags="spread",
+    executor=None,
 ):
     """Apply CASA calibration tables (paths or `CalTable`s) to `ms` as CASA
     `applycal` (module docstring). `session` lets a caller pass an open
@@ -320,8 +487,10 @@ def applycal(
     the chunking. `parang_flags` is P's flag rule
     (`rang.cal_pol.spread_flags`): `spread`, CASA's, flags all four
     correlations of a cell with any one flagged after the tables; `none`
-    keeps the tables' flags (rang before task df-flag-rule). Returns a
-    summary."""
+    keeps the tables' flags (rang before task df-flag-rule). `executor` (a
+    `rang.core_tasks.Executor`; default inline): with tables given as paths,
+    the row chunks are `apply-casa` tasks run by it and written here in
+    plan order (research/chunk-task-api-1b.md 1.1). Returns a summary."""
     from pathlib import Path
 
     ms = Path(ms)
@@ -400,128 +569,49 @@ def applycal(
             summary["frame"] = frame
             if receptor_angle is not None:
                 summary["receptor_angle"] = float(receptor_angle)
+        ctx = ApplyContext(
+            tables=tables,
+            interp=interp,
+            maps=maps,
+            fields=fields,
+            scan=None if scan is None else [int(s) for s in np.atleast_1d(scan)],
+            applymode=applymode,
+            column=column,
+            weighted=weighted,
+            spectrum=spectrum,
+            sigma_spectrum="SIGMA_SPECTRUM" in has,
+            nchan=nchan,
+            info=info,
+            threads=threads,
+            parang=bool(parang),
+            angle_tables=angle_tables if parang else {},
+            parang_flags=parang_flags,
+        )
+        chunks = list(w.chunks(chunk_rows))
+        executor = executor or core_tasks.INLINE
+        paths = [str(t) for t in gaintable] if _all_paths(gaintable) else None
+        if executor.inline or paths is None:
+            # In this process (tables given as CalTables have no path a
+            # worker could read; research/chunk-task-api-1b.md 1.1).
+            partials = (_apply_rows(w, start, nrow, ctx) for start, nrow in chunks)
+        else:
+            specs = core_tasks.plan_apply_casa(ms, chunks, ctx, paths)
+            partials = executor.map(specs, w)
         uncovered = set()
-        for start, nrow in w.chunks(chunk_rows):
-            c = {
-                k: w.read(k, start, nrow)
-                for k in ("FIELD_ID", "DATA_DESC_ID", "TIME", "ANTENNA1", "ANTENNA2")
-            }
-            sel = np.isin(c["FIELD_ID"], fields)
-            if scan is not None:
-                sel &= np.isin(
-                    w.read("SCAN_NUMBER", start, nrow),
-                    [int(s) for s in np.atleast_1d(scan)],
-                )
-            if not sel.any():
+        for part in partials:
+            if part is None:
                 continue
-            data = w.read("DATA", start, nrow)
-            flag = w.read("FLAG", start, nrow)
-            out = w.read(column, start, nrow)
-            new_flag = flag.copy()
+            start = part["start"]
+            uncovered.update(part["uncovered"])
+            summary["rows"] += part["rows"]
+            summary["cells_flagged_before"] += part["before"]
+            summary["cells_flagged_after"] += part["after"]
+            w.write(column, start, part["out"])
+            w.write_flags(start, part["flag"])
             if write_weights:
-                sigma = w.read("SIGMA", start, nrow)
-                sigsp = (
-                    w.read("SIGMA_SPECTRUM", start, nrow)
-                    if "SIGMA_SPECTRUM" in has
-                    else None
-                )
-                weight = w.read("WEIGHT", start, nrow)
-                wspec = w.read("WEIGHT_SPECTRUM", start, nrow) if spectrum else None
-            keys = np.stack([c["FIELD_ID"], c["DATA_DESC_ID"]], axis=1)[sel]
-            rows_sel = np.flatnonzero(sel)
-            for fid, ddid in np.unique(keys, axis=0):
-                idx = rows_sel[(keys[:, 0] == fid) & (keys[:, 1] == ddid)]
-                spw = info["spw_of_ddid"][int(ddid)]
-                freqs = info["chan_freq"][spw]
-                use, strict_flag = [], False
-                for i, t in enumerate(tables):
-                    tf = maps[i][int(fid)]
-                    rows_t = t.column("SPECTRAL_WINDOW_ID") == spw
-                    if tf is not cal_apply.POOLED:
-                        rows_t &= t.column("FIELD_ID") == tf
-                    if rows_t.any():
-                        use.append(i)
-                    else:
-                        uncovered.add((i, int(fid), spw))
-                        strict_flag |= applymode == "calflagstrict"
-                group = {k: v[idx] for k, v in c.items()}
-                if len(use) < len(tables):
-                    # `VisEquation::VBOKforCalApply` fails when any term has
-                    # no calibration for the buffer: `Calibrater::correct2`
-                    # then neither initialises CORRECTED_DATA nor resets the
-                    # weights there; `calflagstrict` flags every cell.
-                    if strict_flag:
-                        new_flag[idx] = True
-                    continue
-                if tables:
-                    got, gflag = cal_apply.apply(
-                        data[idx],
-                        flag[idx],
-                        group["TIME"],
-                        group["ANTENNA1"],
-                        group["ANTENNA2"],
-                        freqs,
-                        tables,
-                        spw=spw,
-                        interp=interp,
-                        threads=threads,
-                        nant=info["nant"],
-                        table_fields=[maps[i][int(fid)] for i in use],
-                    )
-                else:
-                    got, gflag = data[idx], flag[idx]
-                if parang:
-                    angles = cal_pol.table_angles(
-                        angle_tables[int(fid)],
-                        group["TIME"],
-                        group["ANTENNA1"],
-                        group["ANTENNA2"],
-                    )
-                    got = cal_pol.rotate(got, *angles, inverse=True)
-                    gflag = cal_pol.spread_flags(gflag, parang_flags)
-                out[idx] = got
-                new_flag[idx] = gflag
-                if write_weights:
-                    if spectrum:
-                        _, ws = _reset_weights(
-                            sigma[idx],
-                            None if sigsp is None else sigsp[idx],
-                            nchan,
-                            True,
-                        )
-                    else:
-                        ws, _ = _reset_weights(sigma[idx], None, nchan, False)
-                        ws = ws[:, None, :]
-                    for i in use:
-                        if not weighted[i]:
-                            continue
-                        s = _weight_scale(
-                            tables[i].kind,
-                            tables[i],
-                            interp[i],
-                            spw,
-                            maps[i][int(fid)],
-                            group,
-                            freqs,
-                            info["nant"],
-                        )
-                        if not spectrum:
-                            s = s[:, :1, :]
-                        ws = (ws * s).astype(np.float32)
-                    if spectrum:
-                        wspec[idx] = ws
-                        weight[idx] = _median_over_channels(ws)
-                    else:
-                        weight[idx] = ws[:, 0, :]
-            summary["rows"] += int(sel.sum())
-            summary["cells_flagged_before"] += int(flag[sel].sum())
-            summary["cells_flagged_after"] += int(new_flag[sel].sum())
-            w.write(column, start, out)
-            w.write_flags(start, new_flag)
-            if write_weights:
-                w.write("WEIGHT", start, weight)
+                w.write("WEIGHT", start, part["weight"])
                 if spectrum:
-                    w.write("WEIGHT_SPECTRUM", start, wspec)
+                    w.write("WEIGHT_SPECTRUM", start, part["wspec"])
         summary["uncovered"] = [
             {"table": i, "field": info["fields"][f], "spw": s}
             for i, f, s in sorted(uncovered)

@@ -1844,17 +1844,19 @@ def stage_calibrate_chain(ctx):
     plan = core_chunks.budget(config, info)
     rcfg = config["flag"]["residual"]
     residual = None
-    if rcfg["mode"] != "off":
-        # Issue #51: solve, flag the calibrators' residuals, solve again.
-        first = out_dir / "residual-pass1"
-        first.mkdir()
+    with core_tasks.executor(config) as ex:  # research/chunk-task-api-1b.md
+        if rcfg["mode"] != "off":
+            # Issue #51: solve, flag the calibrators' residuals, solve again.
+            first = out_dir / "residual-pass1"
+            first.mkdir()
+            result = _chain_solve(
+                ctx, terms, first, model_column, masks, scans, version, plan, ex
+            )
+            residual = residual_flag_pass(ctx, result, plan, scans)
         result = _chain_solve(
-            ctx, terms, first, model_column, masks, scans, version, plan
+            ctx, terms, out_dir, model_column, masks, scans, version, plan, ex
         )
-        residual = residual_flag_pass(ctx, result, plan, scans)
-    result = _chain_solve(
-        ctx, terms, out_dir, model_column, masks, scans, version, plan
-    )
+        executor_record = ex.describe()
     if residual is not None:
         from . import flag_residual
 
@@ -1872,12 +1874,15 @@ def stage_calibrate_chain(ctx):
             )
     return _calibrate_chain_summary(
         ctx, config, info, cal, terms, result, models, restored, scans, version, plan,
-        refant_auto, residual,
+        refant_auto, residual, executor_record,
     )  # fmt: skip
 
 
-def _chain_solve(ctx, terms, out_dir, model_column, masks, scans, version, plan):
-    """One `rang.cal_chain.run` of the calibrate stage's chain into `out_dir`."""
+def _chain_solve(
+    ctx, terms, out_dir, model_column, masks, scans, version, plan, executor=None
+):  # fmt: skip
+    """One `rang.cal_chain.run` of the calibrate stage's chain into `out_dir`,
+    its solves through `executor` (research/chunk-task-api-1b.md)."""
     config, info, ms = ctx["config"], ctx["info"], ctx["ms"]
     cal = config["calibrate"]
     return cal_chain.run(
@@ -1901,6 +1906,7 @@ def _chain_solve(ctx, terms, out_dir, model_column, masks, scans, version, plan)
         solve_calwt=[
             kind for key, kind in CALWT_KEYS.items() if cal.get(key)
         ],  # calwt-terms
+        executor=executor,
     )
 
 
@@ -1980,7 +1986,7 @@ def apply_parang_args(config):
 
 def _calibrate_chain_summary(
     ctx, config, info, cal, terms, result, models, restored, scans, version, plan,
-    refant_auto, residual,
+    refant_auto, residual, executor_record=None,
 ):  # fmt: skip
     """The calibrate stage's summary of a chain run (`summary.json`)."""
     run = ctx["run"]
@@ -2023,6 +2029,7 @@ def _calibrate_chain_summary(
                 }
                 for _, term, f, chunks in chain_chunk_plans(config, info, plan)
             ],
+            **(executor_record or {}),
         },
     }
     if refant_auto is not None:
@@ -2261,6 +2268,7 @@ def stage_apply(ctx):
                     session=w,
                     chunk_rows=plan.rows("apply"),
                     scan=scans,
+                    executor=ex,
                     **parang,
                 )
                 result["tables_applied"] = names
