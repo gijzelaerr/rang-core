@@ -63,7 +63,7 @@ does not. Frequency chunks are tried only if the full band converges at
 | --- | --- | --- |
 | **Rd** | rang, the chosen kind, interval T*, d0 pinned, cap 500 | rang |
 | **DI0c** | none (DI0, frozen in DD4b; DD4c's run is reused, since the interval does not act on a pinned direction) | rang, one facet |
-| **Od** | QuartiCal 0.2.7, the same kind (`G.type`), `G.time_interval` = T*, `G.freq_interval=0`, `iter_recipe=[500]`, `G.pinned_directions=[0]` | WSClean 3.7 on DD4 A5's matched copy |
+| **Od** | QuartiCal 0.2.7, the same kind (`G.type`), `G.time_interval` = T*, `G.freq_interval=0`, `iter_recipe=[500]`, `G.pinned_directions=[0]` | WSClean 3.7 on DD4 A5's matched copy (the workaround for [aroffringa/wsclean#211](https://gitlab.com/aroffringa/wsclean/-/issues/211)) |
 
 Some details by kind:
 - With `phase`, the parity arm uses QuartiCal's last-direction gain in rang

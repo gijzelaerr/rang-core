@@ -452,8 +452,10 @@ only).*
 - With `-diagonal-visibilities`, Stokes I is `XX + YY` without the ½
   (`gridding/msgridderdata.h` 40-48), which explains A3's 2.000 ×.
 - This is a WSClean simplification that is wrong when the hands' weights
-  or flags differ. An upstream report is drafted, not posted
-  (`outputs/drafts/wsclean-facet-weights.md`).
+  or flags differ. The upstream report, drafted at
+  `outputs/drafts/wsclean-facet-weights.md`, was posted by the coordinator
+  with the owner's approval on 2026-11-24 as
+  [aroffringa/wsclean#211](https://gitlab.com/aroffringa/wsclean/-/issues/211).
 
 *Controls, each within A1's 1e-3 of the peak, with arm O's cycle-0 gains:*
 - **E1:** rang's emulation of that formula (`facet_image_wsclean37`)
@@ -496,8 +498,9 @@ solves do not converge (DD4b).
   not explained either. The copy un-flags 52.7 M visibilities, against
   30.8 M usable, and zeroes the flagged data in both codes. It is recorded,
   not chased (the coordinator's "cheap steps").
-- The upstream report is drafted at `outputs/drafts/wsclean-facet-weights.md`
-  in the main checkout. It is not posted.
+- The upstream report is
+  [aroffringa/wsclean#211](https://gitlab.com/aroffringa/wsclean/-/issues/211),
+  posted 2026-11-24 with the owner's approval.
 
 **Note, 2026-11-24 (owner decision, relayed by the coordinator).** DD4's own
 frozen gates L and S (cap 150, `diag_complex`, M₀) stay unread on the
