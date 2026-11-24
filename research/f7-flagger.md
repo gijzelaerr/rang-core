@@ -1,0 +1,557 @@
+# F7: a fast supervised RFI flagger for MeerKAT L-band, sixth protocol (proposal, not frozen)
+
+Proposal for v0.5.0, drafted 2026-11-21 after F6 ([f6-flagger.md](f6-flagger.md)). **Status
+(2026-11-24): measured, outcome F for both classes; nothing ships.** Calibrators F on validation
+(D10, LUNO MAIN_7 R3 8.11). Targets: D9b passed every validation gate, was frozen and read once on
+the held-out sets; it fails G-drop at k = 1 on SARAO 1678312253 scans 36 and 40 (0.060, 0.059
+against 0.05), R5 on ESO137 chunk 7 (0.758 against 0.80) and R3 on the one-dump chunk 17
+("F7 held-out outcome" below). Cost: C1 0.503 / 0.486 at 4 / 1 threads, not S. Every held-out
+set listed below is now read.
+
+## 0. Starting point (F6, frozen 2026-11-21)
+
+- Every SARAO validation scan (1573212012: calibrator scans 1, 3, 5; target scans 111, 113, 115)
+  passes every gate in both classes: R3 0.82-1.16 × T, R5 0.98-0.99, G-drop ≤ 0.04 / 0.10 / 0.20.
+- Calibrators fail on **LUNO MAIN_7**: the network adds 2.73M cells, T 0.21M, A 2.74M, and 1.8M
+  of the network's cells are flagged by neither teacher. T flags 1.2 % of LUNO's eligible cells
+  and about 55 % of SARAO's (45×). Threshold-side calibration (K1-K3) does not close the gap.
+- Targets fail on **ESO137 chunk 10** (512 channels): G-drop 0.11 / 0.22 / 0.35 at k = 1 / 4 / 8,
+  outer32 R3 1.94. The targets' real training batches are already half ESO137 (28 of 52 real
+  shards), so more ESO137 data alone is unlikely to be the fix; the calibrators' are 10 % LUNO
+  (20 of 190).
+- Held out, unread, for F7: LUNO MAIN_0, 12, 14; ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t;
+  SARAO 1678312253 (29 antennas), 1674958551 (32 outer antennas), 1579022459 (58 antennas, unseen
+  observation; G-obs), all scans.
+
+## 1. Candidate fixes (proposed)
+
+| # | Fix | Targets | Cost to try |
+| --- | --- | --- | --- |
+| P1 | **Source-balanced sampling**: real batches drawn equally from F4-era sets and SARAO | LUNO R3 (calibrators) | one retrain, no new shards |
+| P2 | **Per-observation input normalisation**: the per-cell planes divided by a robust per-observation scale (e.g. the scan's median of the per-baseline σ planes), so the input does not carry the observation's flag level | LUNO R3, ESO137 | Rust kernel change, new shards, retrain |
+| P3 | **More LUNO-like and ESO-like data**: further F4-era groups, or SARAO observations with low flag rates, in training | LUNO R3 | data selection, new shards, retrain |
+| P4 | **SARAO 1k-channel and sub-array blocks** for diversity (1735892129 excluded so far for DL6) | ESO137 (channel count), G-sub | new shards, retrain; channelisation enters G-chan |
+| P5 | **K2/K3 for targets** (F6 2d-3: R3 with margin on ESO137 and SARAO; scored in full on validation in F6's run root, `val-target-K2/`, `val-target-K3/`) | target R3 | none; does not address G-drop |
+
+## 2. Cheap diagnostics first (validation only, nash)
+
+- **D1 (P1, calibrators).** Retrain seed 2 only on F6's calibrator shards with source-balanced
+  real batches (`f5_train.py --balance-real`: half the real batches from `luno-*` shards, half
+  from `sarao-*`), 30,000 steps, 12 threads; then `f6_tau.py` and the complete validation scorer.
+  Question: does R3 on LUNO MAIN_7 fall to ≤ 1.5 while every SARAO validation scan keeps passing
+  every gate? Read on validation only; no bar changes. About 3 h on nash.
+- **D2 (targets, diagnosis).** The plane-movement probe (`examples/f5_f6_probe.py --level 20`) on
+  ESO137 chunk 10 under the G-drop draws: which planes move when antennas drop on a 512-channel
+  set, against the same on a SARAO target scan. Minutes; it chooses between P2 and P4 for targets.
+- **D3 (P5, recorded).** K2/K3 target variants' complete validation verdicts, when F6's chain 5
+  finishes: does any calibration also fix G-drop on ESO137? (Expected no: G-drop compares flags
+  under dropout, and calibration is per baseline.)
+
+**D1 measured (2026-11-21, nash; `~/rang-data/outputs/f7-d1-20261121/`).** Seed 2, balanced
+real batches, 30,000 steps in 6,544 s (12 threads); validation loss 0.110 (F6's seed 2: 0.082, on
+SARAO-dominated validation shards). `f6_tau.py`: N5W4, τ −4.5, κ 3, as F6. Uninjected validation
+DATA, added cells against T:
+
+| Set | N5 | W4 | method (N5 ∪ W4) | T | A | R3 (method) | R5 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| LUNO MAIN_7 | 1,580,028 (F6: 2,727,768) | 2,170,869 | 2,896,444 | 209,120 | 2,744,976 | **13.9** (F6 16.9) | 0.993 |
+| 1573212012 scan 1 | 41,984,280 | 19,337,688 | 45,279,514 | 44,755,207 | 40,264,157 | 1.01 | 0.977 |
+| scan 3 | 44,392,429 | 24,128,564 | 46,742,335 | 49,460,290 | 42,893,083 | 0.95 | 0.984 |
+| scan 5 | 4,241,059 | 4,986,228 | 6,021,010 | 5,098,743 | 10,230,054 | 1.18 | 0.999 |
+
+Reading: balanced sampling cuts the network's LUNO cells by 42 % and keeps SARAO in place, but N5
+alone is still 7.6 × T on LUNO, and W4 (the anomaly arm; κ 3, independent of the network) adds
+2.17M cells there by itself (10.4 × T). P1 alone does not fix the calibrators. Two things follow
+for the proposal: W4's κ needs a per-observation rule or W4 must go for low-flag-rate data, and
+the network needs P2 (or P3) on top of P1. Full verdict (every gate, validation;
+`val-verdict-calibrator.json` in the run root): F on R3 (LUNO MAIN_7 13.9), synthetic G-sub, and
+now also G-drop on MAIN_7 (worst seed draw 0.056 / 0.179 / 0.262 against 0.05 / 0.20 / 0.25; F6:
+0.047 / 0.141 / 0.209); SARAO's G-drop ≤ 0.036 / 0.101 / 0.202, R1 1.00 (T 0.77), R2 above T in
+every morphology, S1 and S3 pass. Balanced sampling makes the network more sensitive to the
+antenna set on LUNO, the set it now sees more of.
+
+**D2 measured (2026-11-21, validation only, nash; `~/rang-data/outputs/f7-d2-20261121/`).**
+`examples/f5_f6_probe.py --level 20` with F6's target weights (seed 2, τ −4.5), 128 baselines,
+G-drop's first draw (seed 20265301). Share of eligible cells whose plane moves by > 0.1 (median
+move, asinh units), and N5's change with that group frozen at its full-array value:
+
+| Set, k dropped | N5 flags (128 baselines) | N5 change | F4 spectral moved (median) | 2c+2d blocks moved (median) | change, spectral frozen | change, blocks frozen |
+| --- | --- | --- | --- | --- | --- | --- |
+| ESO137 chunk 10, k = 1 | 57,125 | 0.084 | 7 % (0.05) | 85 % (0.18) | 0.074 | 0.051 |
+| ESO137 chunk 10, k = 8 | 53,798 | **0.319** | **99.99 % (0.29)** | 99.98 % (0.58) | **0.205** | 0.267 |
+| SARAO 111, k = 1 | 1,520,565 | 0.012 | 3 % (0.04) | 44 % (0.09) | 0.009 | 0.010 |
+| SARAO 111, k = 8 | 1,568,012 | 0.037 | 66 % (0.12) | 98 % (0.29) | 0.030 | 0.027 |
+
+Reading: on ESO137 the planes move two to three times as far under the same dropout as on SARAO
+(spectral 0.29 against 0.12, blocks 0.58 against 0.29 at k = 8), and no single group explains the
+change; the spectral planes are the largest single lever (0.32 → 0.21 when frozen). The relative
+change is also inflated by ESO137's low flag count (54k cells on 128 baselines against SARAO's
+1.57M): the same mechanism as LUNO's, a low-flag-rate observation. Both point to P2 (per-observation
+normalisation of the planes) before P4; ESO137's 512 channels make the per-channel spectral
+statistics noisier, which P4 (1k-channel SARAO blocks) would address in training.
+
+**D3 measured, targets (2026-11-21, validation only, nash; `~/rang-data/outputs/f7-d3-20261121/`).**
+P2 (level 40, per-observation plane scale; kernel 4de582ea, F6's levels pinned unchanged) plus P1
+(balanced real batches), seed 2, F6's scans and seeds re-sharded at level 40; validation loss
+0.0335 (F6 seed 2: 0.0366); `f6_tau.py`: N5W4, τ −4.0, κ 4. Complete scorer and verdict on
+ESO137 chunk 10 and 1573212012's target scans:
+
+| Gate | D3 targets | F6 targets | Bar |
+| --- | --- | --- | --- |
+| R1 (T) | 1.000 (0.913) | 1.000 (0.913) | ≥ T − 0.05 |
+| R2, worst morphology | 0.989 (H4n) | 0.996 | ≥ T − 0.05 |
+| R3 ESO137 / SARAO | 0.31 / 1.17 | 0.42 / 1.16 | lower bound to 1.5 |
+| R5 ESO137 / SARAO | 0.808 / 0.992 | 0.893 / 0.992 | ≥ 0.80 |
+| G-drop ESO137, k = 1 / 4 / 8 | **0.096 / 0.200 / 0.287** | 0.110 / 0.217 / 0.350 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.015 / 0.040 / 0.082 | 0.014 / 0.037 / 0.081 | as above |
+| G-sub core16 / outer32 | pass / **pass** (outer32 R3 on ESO 1.22) | pass / fail (1.94) | R3 ≤ 1.5 |
+| S1 / S2 / S3 | pass | pass | |
+
+Reading: P2 + P1 fixes the targets' outer32 over-flagging and leaves one failure, G-drop on
+ESO137 chunk 10 (down 13-18 %, still above every bar; k = 4 is at 0.200 against 0.20). R5 on
+ESO137 loses margin (0.81 against 0.80). For F7: the targets' remaining gap is the antenna-set
+sensitivity on a 512-channel low-flag-rate observation; D2 names the spectral planes as the largest
+single lever, so the next target candidate is P4 (1k-channel SARAO data in training) or a spectral
+plane robust to the antenna set, not more normalisation.
+
+**D3 measured, calibrators (2026-11-21, validation only; same run root).** Validation loss
+0.116 (D1 0.110, F6 0.082); `f6_tau.py`: N5W4, τ −5.0, κ 3.
+
+| Gate | D3 calibrators | D1 (P1 only) | F6 | Bar |
+| --- | --- | --- | --- | --- |
+| R3 LUNO MAIN_7 (N5 alone) | **17.8** (11.4) | 13.9 (7.6) | 16.9 (13.0) | ≤ 1.5 |
+| R3 SARAO | 0.99 | 0.99 | 1.00 | |
+| G-drop LUNO, k = 1 / 4 / 8 | **0.111 / 0.214 / 0.401** | 0.056 / 0.179 / 0.262 | 0.047 / 0.141 / 0.209 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.040 / 0.077 / 0.129 | 0.036 / 0.101 / 0.202 | 0.036 / 0.100 / 0.196 | as above |
+| R1 (T) / R2 worst / R5 LUNO, SARAO | 1.00 (0.77) / 0.962 H2 / 0.987, 0.968 | pass | pass | |
+
+Reading: for calibrators P2 makes LUNO worse on both failing gates; the per-observation scale
+amplifies LUNO's quiet residuals (its bulk scale is small, so dividing by it pushes ordinary cells
+up). SARAO stays inside every bar, with G-drop improved.
+
+**What D1-D3 decide for F7 (validation only; nothing here is held out).**
+- *Targets:* P2 + P1 leaves one failure, G-drop on ESO137 (0.29 at k = 8). F7's target candidate:
+  P2 + P1 plus an antenna-set-robust spectral plane or P4 (1k-channel data), measured first on
+  ESO137 chunk 10's G-drop.
+- *Calibrators:* neither P1 nor P2 closes LUNO (best: P1, N5 at 7.6 × T). The network carries
+  SARAO's flag level into LUNO whatever the input scale; W4 alone adds 10 × T there. What is left
+  is P3 (more LUNO-like, low-flag-rate observations in training) and the owner's R3 question
+  (section 3); W4 needs its own per-observation rule. Without new low-flag-rate training data, a
+  calibrator F7 is not within reach on these diagnostics.
+- *Cost:* level 40 adds one more split pass over all baselines (the scale), so C1 would need a new
+  timing run if P2 enters F7.
+
+**D4 (proposed 2026-11-22 03:15 SAST, before it runs; validation only).** Targets only: level 42,
+the same per-observation scaling and balanced batches as D3 but without F4's spectral planes and
+2d's variance planes (21 inputs; the kernel's existing level, no code change). D2 found the
+spectral planes the largest single lever on ESO137's G-drop. Same scans and seeds, seed 2,
+`f6_tau.py`, the complete validation scorer. Question: does G-drop on ESO137 chunk 10 fall below
+0.05 / 0.20 / 0.25 while every other target gate (ESO137 and SARAO) keeps passing? Run root
+`nash:~/rang-data/outputs/f7-d4-20261122/`; bookings from D3's measured peaks + 30 % or more.
+
+**D4 measured, ESO137 chunk 10 (2026-11-22 06:25 SAST, validation only).** Level 42, seed 2,
+validation loss 0.0349; `f6_tau.py`: N5W4, τ −3.5, κ 3. G-drop **0.10 / 0.34 / 0.55** (D3 0.096 /
+0.200 / 0.287); R5 **0.686** (fails 0.80); outer32 R3 1.495; R3 0.31. Removing the spectral and
+2d planes makes the targets worse: they carry signal the network needs, and the instability is
+not theirs alone. W4 (κ 3) now adds more cells than N5 (429,441 against 342,699). The full verdict
+lands in `nash:~/rang-data/outputs/f7-d4-20261122/`.
+
+**D5 (proposed 2026-11-22 06:30 SAST, before it runs; validation only, no training).** G-drop on
+ESO137 chunk 10 split by arm: N5 alone (logit > τ), W4 alone (anomaly > κ), and the method, for
+F6's target method (L20, τ −4.5, κ 4) and D3's (L40, τ −4.0, κ 4), G-drop's draws (k = 1, 4, 8;
+seeds 20265301-03). `examples/f7_gdrop_arms.py`. Question: how much of the ESO137 G-drop failure
+is W4's, the anomaly arm without learned weights?
+
+**D5 measured (2026-11-22 06:40 SAST, validation only; `nash:~/rang-data/outputs/f7-d5-20261122/`).**
+G-drop on ESO137 chunk 10 by arm, worst of seeds 20265301-03 (bars 0.05 / 0.20 / 0.25):
+
+| Method | N5 alone, k = 1 / 4 / 8 | W4 alone (κ 4) | method (N5 ∪ W4) |
+| --- | --- | --- | --- |
+| F6 targets (L20, τ −4.5) | 0.095 / 0.163 / 0.325 | 0.204 / 0.456 / 0.802 | 0.110 / 0.217 / 0.350 |
+| D3 targets (L40, τ −4.0) | **0.066 / 0.118 / 0.220** | 0.204 / 0.456 / 0.802 | 0.096 / 0.200 / 0.287 |
+
+Reading: W4, the anomaly arm with no learned weights, is the unstable part (0.80 at k = 8); D3's
+network alone passes G-drop at k = 4 and 8 and misses k = 1 (0.066 against 0.05). P2 + P1 cut the
+network's own sensitivity by 30-32 %.
+
+**D6 (proposed 2026-11-22 06:45 SAST, before it runs; validation only, no training).** D3's target
+weights and τ (−4.0) with W4 off (method N5), through the complete validation scorer and verdict on
+ESO137 chunk 10 and 1573212012's target scans (A cached from F6's run). Question: does N5 alone
+pass every target gate but G-drop at k = 1, and what does dropping W4 cost R1, R5 and S3? This
+is a method choice made after D5's numbers, so if F7 adopts it, F7 must re-select κ by a rule
+written before its own validation read.
+
+**D4 full verdict (2026-11-22 07:31 SAST):** F on R5 (ESO137 0.686) and G-drop (ESO137); every
+SARAO target gate passes.
+
+**D6 measured (2026-11-22 08:51 SAST, validation only; `nash:~/rang-data/outputs/f7-d6-20261122/`).**
+D3's target weights, τ −4.0, W4 off (N5 only). Complete scorer and verdict:
+
+| Gate | D6 | D3 (N5W4) | F6 | Bar |
+| --- | --- | --- | --- | --- |
+| R1 (T) | 1.000 (0.913) | 1.000 | 1.000 | ≥ T − 0.05 |
+| R2 worst (T) | 0.901 H3 (0.568) | 0.989 | 0.996 | ≥ T − 0.05 |
+| R3 ESO137 / SARAO | 0.25 / 1.02 | 0.31 / 1.17 | 0.42 / 1.16 | lower bound to 1.5 |
+| R5 ESO137 / SARAO | **0.801** / 0.992 | 0.808 / 0.992 | 0.893 / 0.992 | ≥ 0.80 |
+| G-drop ESO137, k = 1 / 4 / 8 | **0.066** / 0.118 / 0.220 | 0.096 / 0.200 / 0.287 | 0.110 / 0.217 / 0.350 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO, worst | 0.013 / 0.032 / 0.064 | 0.015 / 0.040 / 0.082 | 0.014 / 0.037 / 0.081 | |
+| G-sub core16 / outer32, S1-S3 | pass | pass | outer32 fail | |
+
+Reading: with W4 off the targets fail one gate, G-drop on ESO137 at k = 1 (0.066 against 0.05);
+R5 on ESO137 sits on its bar (0.801). **Targets are within reach for F7**: P1 + P2, N5 only, and one
+more step on single-antenna robustness on the 512-channel set (P4's 1k-channel data, or dropout of
+1 antenna weighted up in training). Every choice in D1-D6 was made after seeing validation
+numbers, so an F7 target protocol must re-select τ, κ (or W4's removal) and the level by rules
+written before its own validation read, and the held-out sets of section 0 decide it.
+
+**D7 (proposed 2026-11-22 09:10 SAST, before it runs; validation only).** Targets: D3's recipe
+(level 40, balanced batches, seed 2) with **eight dropout realisations per ESO137 training chunk**
+instead of four (realisations 4-7 new, seeds continuing F6's series; dropout 0-8 antennas as
+before); every other training shard is D3's, unchanged. No 1k-channel data (1735892129 is DL6's
+held-out configuration). τ by `f6_tau.py`, W4 off (as D6), the complete validation scorer.
+Question: does G-drop on ESO137 at k = 1 fall to ≤ 0.05 with k = 4, 8 and every other target gate
+still passing, R5 on ESO137 included? Run root `nash:~/rang-data/outputs/f7-d7-20261122/`.
+
+**D7 measured (2026-11-22 13:12 SAST, validation only; `nash:~/rang-data/outputs/f7-d7-20261122/`).**
+86 target training shards (56 ESO137); training 5,107 s, validation loss 0.0344 (D3 0.0335);
+`f6_tau.py` τ −4.0; W4 off. Complete verdict: F on one gate, **G-drop on ESO137 at k = 1: 0.060 /
+0.063 / 0.065 per seed** (bar 0.05; D6 0.066), k = 4 0.115, k = 8 **0.197** (D6 0.220). Every other
+target gate passes: R1 1.00 (T 0.913), R2 worst 0.914 (H3), R3 ESO137 0.25 and SARAO 1.00, R5
+ESO137 **0.809** and SARAO 0.993, SARAO G-drop ≤ 0.014 / 0.032 / 0.064, core16, outer32, S1-S3.
+
+Reading: doubling ESO137's dropout realisations moves k = 8 by 10 % and k = 1 hardly at all
+(0.066 → 0.065). The k = 1 change is a floor of about 6 % that more of the same augmentation does
+not lower: it sits in which cells cross τ when one antenna's baselines leave the per-observation
+and block statistics, not in how often training saw a dropout. Next candidates for that gate: a
+training loss that pairs each realisation with its k = 1 dropout (consistency), or block and scale
+statistics that exclude the baseline's own antennas; both need code, both validation-only first.
+
+**D8 (proposed 2026-11-23 07:40 SAST, before it runs; validation only, no training).** D2's k = 1
+row on ESO137 (not its k = 8 row, which D4 followed) names the 2c and 2d blocks as the k = 1 lever:
+0.084 → 0.051 with both frozen, 0.074 with the spectral planes frozen. A mechanism from the code:
+at level 40 (`own` false) each block's z is an antenna's one-step median over its ~60 baselines,
+less a smooth fit over channel blocks, divided by the row's pooled MAD. On a quiet observation that
+MAD is mostly the medians' own jitter, so removing one of ~60 baselines from a median moves z by
+about 1/√60 of its spread (≈ 0.13), whatever the training saw; this would explain D2's 85 % of
+cells moved (median 0.18) and why D7's extra dropout realisations did not lower k = 1. D8 runs
+`examples/f5_f6_probe.py` (extended: the 2c z and Q planes apart, every pooled plane at once,
+every plane at once, the flipped cells' logit margin, the logit move, and change at τ from −5 to
+−2 on the same logits) with D7's weights, level 40, τ −4.0, on ESO137 chunk 10 at k = 1 for G-drop's
+three draws (20265301-03), 256 baselines, and on SARAO 1573212012 scan 111 at k = 1 (first draw)
+for contrast. Question: does freezing the pooled planes take k = 1 below 0.04, and which group
+carries it? If the blocks carry it, the next arm is a feature-side fix (a dead zone on the block
+planes, or a noise-referenced floor on their scale) at a new level, levels 0-42 unchanged.
+Run root `nash:~/rang-data/outputs/f7-d8-20261123/`.
+
+**Seed spread (proposed 2026-11-23 07:40 SAST, before it runs; validation only).** Every arm so far
+is training seed 2 alone. D7's recipe (its shards, unchanged) trained with seeds 1 and 3, τ by
+`f6_tau.py` per seed, W4 off, screened by `examples/f7_gdrop_arms.py` on ESO137 chunk 10. Question:
+how far do seeds spread on ESO137's k = 1 (D7 seed 2: 0.060 / 0.063 / 0.065)? Run root
+`nash:~/rang-data/outputs/f7-seeds-20261123/`.
+
+*Seed spread measured (2026-11-23 12:24 SAST, nash; same run root; time corrected 16:05, nash's clock is SAST).* Training 5,528 s (seed 1) and
+5,525 s (seed 3), 56 GB peak each; validation loss 0.0322 and 0.0319 (seed 2: 0.0344). `f6_tau.py`
+τ −3.0 (seed 1) and −4.0 (seed 3); W4 off. Screen on ESO137 chunk 10, N5 change per draw
+(20265301 / 02 / 03):
+
+| Seed | k = 1 | k = 4 | k = 8 | Screen (≤ 0.040 / 0.16 / 0.20) |
+| --- | --- | --- | --- | --- |
+| 1 | 0.068 / 0.073 / 0.074 | 0.133 / 0.126 / 0.125 | 0.221 / 0.187 / 0.196 | F |
+| 2 (D7) | 0.060 / 0.063 / 0.065 | 0.115 (complete scorer) | 0.197 | F |
+| 3 | 0.055 / 0.061 / 0.061 | 0.104 / 0.103 / 0.098 | 0.205 / 0.162 / 0.163 | F |
+
+Reading: seeds move k = 1 by about ±0.01 around 0.065 and none reaches the 0.05 bar, let alone the
+0.040 screen; the floor is the recipe's, not a seed's. Seed selection cannot pass this gate.
+`tau-s12.time` (12,701 s) includes about 3.3 h waiting in the lock behind a duplicate D9b job from
+a chain restart (killed 12:12 SAST); it is not τ's compute time.
+
+**D8 measured, ESO137 (2026-11-23 09:25 SAST, validation only; `nash:~/rang-data/outputs/f7-d8-20261123/`).**
+D7's weights, level 40, τ −4.0, k = 1, 256 baselines. N5's change on those baselines, and with a
+group frozen at its full-array values:
+
+| Draw | flags | change | 2c z | 2d | 2c + 2d | F3 medians | spectral | 2c Q | all pooled |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 20265301 | 96,542 | 0.054 | 0.042 | 0.049 | 0.030 | 0.047 | 0.052 | 0.052 | 0.002 |
+| 20265302 | 90,660 | 0.061 | 0.046 | 0.057 | 0.033 | 0.054 | 0.059 | 0.059 | 0.003 |
+| 20265303 | 98,742 | 0.056 | 0.043 | 0.050 | 0.030 | 0.050 | 0.053 | 0.053 | 0.002 |
+
+Flipped cells sit a median 0.09 logits from τ (90 % within 0.29); logits move a median 0.10. The
+change does not depend on τ (0.053-0.057 for τ from −5 to −2 on the same logits), so this is not a
+threshold-density effect. Reading: the per-baseline planes carry none of it; the pooled planes carry
+all of it, 2c z and 2d most (2c + 2d frozen 0.030-0.033), F3's antenna and array medians the next
+part (with them, 0.002-0.003). The mechanism of the D8 proposal fits: noise-level pooled statistics
+moving by 1/√N.
+
+**D9 (proposed 2026-11-23 09:30 SAST, before its code or run; validation only).** Feature-side fix
+at new kernel levels, levels 0-42 unchanged (pinned hashes for 0, 20 and, on Linux, 40):
+- **D9a, level 60:** level 40 with a dead zone on the pooled block planes (2c z, the four 2d
+  planes) after the per-observation scale: v → sign(v) max(|v| − 2, 0), half-width 2 in
+  per-observation units (≈ 2σ of a noise-level z), so a noise-level block statistic reaches the
+  network as 0 and a real antenna anomaly passes, shifted by 2. Q, the spectral planes and the
+  per-baseline planes unchanged.
+- **D9b, level 70:** D9a plus the same dead zone on F3's antenna and array medians (planes 8-13).
+- Half-width 2 is fixed here, before any number; it is not tuned on validation.
+- Each arm: D7's recipe (F6's scans and seeds, balanced real batches, eight dropout realisations
+  per ESO137 training chunk, seed 2, 30,000 steps) re-sharded at its level, τ by `f6_tau.py`, W4 off,
+  then the screening rule below. An arm that passes the screen goes to the complete validation
+  scorer. Run roots `nash:~/rang-data/outputs/f7-d9a-20261123/` and `f7-d9b-20261123/`.
+- Questions: does k = 1 on ESO137 fall to ≤ 0.040 (screen), and what does the dead zone cost R1,
+  R2 and R5 (a real antenna anomaly now enters 2 units lower)?
+
+*D9 measured, screen (2026-11-23 15:41 SAST, nash; run roots above, chain log
+`f7-d9-20261123/chain.log`).* Both arms 86 training shards (56 ESO137), as D7. N5 change on ESO137
+chunk 10 per draw (20265301 / 02 / 03), W4 off:
+
+| Arm | Level | Train (s) | Val. loss | τ | k = 1 | k = 4 | k = 8 | Screen |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| D7 (seed 2) | 40 | 5,107 | 0.0344 | −4.0 | 0.060 / 0.063 / 0.065 | 0.115 | 0.197 | F |
+| D9a | 60 | 5,000 | 0.0367 | −4.0 | 0.047 / 0.055 / 0.050 | 0.098 / 0.095 / 0.089 | 0.194 / 0.143 / 0.149 | F (k = 1) |
+| D9b | 70 | 4,096 | 0.0421 | −4.5 | 0.029 / 0.031 / 0.032 | 0.059 / 0.054 / 0.049 | 0.122 / 0.102 / 0.101 | **pass** |
+
+Reading: the dead zone on the 2c/2d block planes alone takes about a fifth off k = 1; with F3's
+medians too (D9b) k = 1 halves, below the screen with margin, and k = 4 and 8 fall as well, as
+D8 predicted (2c + 2d frozen 0.030-0.033, all pooled 0.002-0.003). Validation loss rises (0.034 →
+0.042) and τ moves to −4.5. By the screening rule D9b goes to the complete target validation
+scorer (ESO137 chunk 10, 1573212012 scans 111/113/115, simulations; A reused from D7's run),
+`research/results/f7/d9b-val.sh`, verdict `f7-d9b-20261123/val-verdict-target.json`. The open
+question is what the dead zone costs R1, R2 and R5 there. D9a stops here.
+
+**D9b freeze rule (written 2026-11-23 16:05 SAST, before D9b's complete-scorer verdict is read;
+targets only).** If D9b passes every target gate on validation, the target candidate is fixed as:
+kernel level 70 (dead zone half-width 2 on planes 22, 23, 25, 26, 28-31 and 8-13, after the
+per-observation scale), degree 1, D7's recipe (F6's scans and seeds, balanced real batches, eight
+dropout realisations per ESO137 training chunk, 30,000 steps) on D9b's shards, W4 off. Seeds 1 and
+3 are trained on the same shards; `f6_tau.py` then selects as F6 did: the median of seeds 1-3 by
+validation loss, τ by its rule on that seed. The selected seed must itself pass the ESO137 screen
+and the complete target validation scorer before the held-out sets are read; if it is not seed 2
+and fails, the outcome is recorded F (not a switch to another seed). Then the cost gate is timed
+(exclusive) and the held-out target sets are read once: SARAO 1678312253, 1674958551, 1579022459;
+ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. If D9b fails a gate, the half-width is not retuned
+on validation; a new arm needs its own dated proposal.
+
+*Chain provenance (checked 16:05 SAST).* D9b's surviving branch ran from the chain logged at
+6a02e022; `git diff 6a02e022 b1d4d894` touches only `examples/f6_shards.py`'s `--reserved-luno`
+path (unused by D9) and `d10.sh`. D9b's validation shards were written by two concurrent jobs
+(07:32-08:27 SAST, one of them from the duplicate chain). *Integrity (16:20 SAST):* every
+`.sha256` sidecar of D9a's and D9b's ten validation shards matches; labels, `kind`, `meta` and
+planes 0-7, 14-32 are identical between the two arms (blocks 22-31 carry level 60's dead zone in
+both), and D9b's planes 8-13 equal asinh(dz(sinh u)) of D9a's within float16 rounding (max 0.004 over all ten shards; the shards store asinh-compressed
+inputs). The shards are sound.
+
+**D9b measured, complete target validation scorer (2026-11-23 17:07 SAST, nash;
+`f7-d9b-20261123/val-target/`, verdict `val-verdict-target.json`).** Seed 2, level 70, τ −4.5, W4
+off. Outcome **H (cost not yet measured)**, no gate failed. Against D7 (level 40, seed 2):
+
+| Gate | D9b | D7 | Bar |
+| --- | --- | --- | --- |
+| R1 (T 0.913) | 1.00 | 1.00 | ≥ T − 0.05 |
+| R2 H1 / H2 / H3 / H4 / H4n | 1.00 / 1.00 / 0.928 / 1.00 / 0.987 | 1.00 / 1.00 / 0.914 / 0.998 / 0.974 | ≥ T |
+| R3 ESO137 / SARAO | 0.367 / 0.99 | 0.254 / 0.995 | in bars |
+| R5 ESO137 / SARAO | 0.875 / 0.993 | 0.809 / 0.993 | as frozen |
+| G-drop ESO137, worst at k = 1 / 4 / 8 | **0.032 / 0.059 / 0.122** | 0.065 / 0.115 / 0.197 | 0.05 / 0.20 / 0.25 |
+| G-drop SARAO 111 / 113 / 115, worst at k = 1 | 0.011 / 0.008 / 0.007 | ≤ 0.014 | 0.05 |
+| G-sub core16 / outer32 | pass / pass | pass / pass | |
+| S1 / S2 / S3 | pass (1.00 / 0.006 / 0.999) | pass | |
+
+Reading: the dead zone does not cost R1, R2 or R5; R2's H3/H4n and R5 on ESO137 rise. D9b is the
+first F7 candidate to pass every target quality gate on validation. By the freeze rule above the
+candidate is level 70; seeds 1 and 3 are training (`d9b-seeds.sh`), then the median seed is chosen
+and must pass the screen and, if it is not seed 2, the complete scorer, before the held-out read
+and the cost timing.
+
+**D9b cost gate (proposed 2026-11-23 17:30 SAST, before the run; targets only).** F5's Stage 6
+protocol (`research/f5-flagger.md` section 10) unchanged except the level: `examples/f7_timing.sh`
+times U5 (untrained; the weights do not change the work, level 70's dead zone and one-step fit do)
+at **level 70**, degree 1, method N5 (W4 off) against T (full first-pass YAML) on ESO137 chunk 0
+(neither validation nor held out), `RAYON_NUM_THREADS` 4 and 1, five alternating pairs, the 10 s
+CPU gate, exclusive under `heavy_lock` on glacier from 21:00 SAST (glacier's own `f7-draft`
+worktree venv, built from the main checkout's frozen requirements plus psutil, `maturin develop
+--release` at the commit the run logs). C1 is read with F5's bars (beats: upper quartile ≤ 0.5 at
+both thread counts; worse: median > 1.1 at either); C2 (peak working set, T and N5, 4 threads,
+separate processes) with F5's bars (≤ 0.8 beats, > 1.2 worse). The outcome follows F5's decision
+rule: H unless C1 beats at 4 and 1 threads and C2 is not worse (S), F if C1 is worse at either.
+Run root `glacier:D:/rang/outputs/f7-cost-20261123/`. Calibrators are not timed (F).
+
+**D9b cost measured (2026-11-23 23:38-23:43 SAST, glacier, exclusive, code 0155b2fa; `f7_timing.sh`,
+`timing.log`).** The 10 s CPU gate refused eight times from 21:35 (host not idle; retried every
+900 s) and passed at 23:38. ESO137 chunk 0, 48,353 rows, 24.8 M cells, U5 at level 70, five
+alternating pairs, every pair clean (other CPUs 0.22-0.35):
+
+| Run | T (s) | N5 (s) | Ratio median | q25 | q75 | Reading |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| C1, 4 threads | 10.5-10.7 | 5.39-5.41 | 0.503 | 0.499 | **0.504** | matches (q75 > 0.5) |
+| C1, 1 thread | 38.6-39.0 | 18.8-18.9 | 0.486 | 0.486 | 0.486 | beats |
+| C2, 4 threads | 1,626.6 MB | 1,626.7 MB | 1.000 | | | matches |
+
+U5 flags 0.998 of cells (untrained, τ 0), T 0.400, as in F5's Stage 2. **Cost does not beat**:
+C1 at 4 threads misses the 0.5 bar by 0.004 on the upper quartile, C2 is equal; nothing is worse.
+By the frozen decision rule the target outcome stays **H** (quality as the held-out read decides,
+cost not S), not changed post hoc. Files `c1-eso-0-t{4,1}-N5.{json,log}`, `c2-eso-0-{T,F5}.json`.
+
+**F7 target freeze (2026-11-23 20:50 SAST, before any held-out read).** Seeds 1 and 3 on D9b's
+shards (training 7,395 s and 16,895 s wall, the latter mostly lock wait; validation loss 0.0390 and
+0.0524; seed 2: 0.0421). `f6_tau.py` over seeds 1-3 selects the median by validation loss,
+**seed 2**, τ **−4.5** (`f7-d9b-20261123/method3.json`); its screen reproduces D9b's exactly
+(0.029-0.032 / 0.049-0.059 / 0.101-0.122), and seed 2 is the weights the complete validation
+scorer passed. **Frozen:** `f7-d9b-20261123/method-frozen.json` = `method3.json` (class target,
+level 70, degree 1, τ −4.5, N5, W4 off, weights sha256
+`d196a343f84f61746baf506cadbd0ebb1fd912877315c4002ca629437df2a5e2`), kernel at e7466499 (level-70
+hashes pinned on Linux and Windows). Held-out read, once, by `research/results/f7/d9b-held.sh`:
+SARAO 1678312253 scans 36/40/44, 1674958551 31/35/39, 1579022459 115/117/121 (DL2's held-out
+target scans); ESO137 chunks 1, 3, 5, 7, 9, 15, 17; f4sim-t. T and A computed in the run, gates as
+frozen (G-drop every draw on every set against 0.05 / 0.20 / 0.25). The outcome is recorded
+whatever it is; the cost gate (tonight, glacier) completes it. Calibrators: F, nothing read.
+
+*Amendment H1 (2026-11-23 20:55 SAST, post hoc on procedure, not on the method or a gate; no
+result read).* The held-out chain started 20:46. Its nine SARAO jobs stopped at label loading
+(`labels/rang/<cbid>/scanNNN/flag.npy` missing): DL2 shipped the held-out blocks unlabelled
+(dl2-data's stage 1 outcome), and F6 never ran a teacher on them. No SARAO set was scored. The
+chain's parent was stopped before its verdict step, so no partial verdict exists. The ESO137 and
+f4sim-t jobs, which need no DL2 label, run on unchanged. T and A for the nine held-out target scans
+are built with DL2's runner and pins, unchanged: `dl2_teach.py ROOT rang,aoflagger CBID --scans ...
+--heldout-read --threads 8` (rang core sha256 `ce8d03ce...` and stimela AOFlagger 2.13 image
+`fd89f5d9...`, both identical to the validation labels' pins; dl2-data commits since 4bb29720 touch
+docs and scripts only; Tricolour is not needed by the scorer and is not run). Then
+`d9b-held.sh` runs again; it skips the finished ESO137 and simulation sets, so every held-out set
+is still scored once. Chain `research/results/f7/d9b-held-labels.sh`.
+
+*Amendment H2 (2026-11-24 00:30 SAST, post hoc on procedure, not on the method or a gate; no
+ESO137 result read).* All nine SARAO sets and f4sim-t were scored. The seven ESO137 jobs stopped at
+load: `f4flag.load_eso` refuses F4's reserved chunks 1, 3, 5, 7, 9, 15, 17, which F6's design
+(section 4 of `research/f6-flagger.md`) names as its held-out target chunks; F6 never reached a
+held-out read, so the path was never run. The verdict step then stopped on the missing ESO137
+files and wrote no verdict (`held-verdict.log` holds only the traceback). Fix: `f6_heldout.py`
+reads a reserved chunk with `f3.read_eso`, the reader F4's guard calls, only for a held-out scoring
+run with `--heldout-read`; every other chunk keeps F4's guard (`tests/test_f6_heldout.py`). Then
+`d9b-held.sh` runs again: it skips the finished SARAO and simulation sets and runs the ESO137 sets
+and the verdict, so every held-out set is still scored once.
+
+**F7 held-out outcome, targets (2026-11-24 01:04 SAST, nash, read once; code 39878574;
+`nash:~/rang-data/outputs/f7-d9b-20261123/held-verdict-target.json`, copy `results/f7/d9b-held-verdict-target.json`, run `held-target/`).
+Outcome F: nothing ships.** The frozen candidate (seed 2, τ −4.5, level 70, N5) fails three
+gates on complete held-out sets, and one on a degenerate set:
+
+| Gate | Set | Measured | Bar |
+| --- | --- | ---: | ---: |
+| G-drop k = 1 / 4 / 8 (worst draw) | SARAO 1678312253 scan 36 | **0.060** / 0.067 / 0.184 | 0.05 / 0.20 / 0.25 |
+| G-drop | SARAO 1678312253 scan 40 | **0.059** / 0.066 / 0.175 | same |
+| R5 | ESO137 chunk 7 | **0.758** | ≥ 0.80 |
+| R3 | ESO137 chunk 17 | **17.1** | ≤ 1.5 |
+
+Passing: R1 1.00 (T 0.894) and every morphology; R2 0.970-1.00 (T 0.24-0.98); R3 SARAO 0.94 /
+1.44 / 0.89 and ESO137 chunks 1-15 0.32-0.48; R5 SARAO 0.980 / 0.994 / 0.999, ESO137 chunks 1, 3,
+5, 9, 15 0.828-0.903; G-perm 0 everywhere; G-drop on the other 14 sets (worst 0.043 / 0.075 /
+0.161); G-sub core16, outer32, real29, real32outer; G-obs (1579022459, R3 0.89); S1 0.993
+(T 0.904), S2 0.007 (T 0.097), S3 0.998 (T 0.769). Reported, not gated: G-chan R3 1.50-4.30 on
+the 1678312253 and 1674958551 scans.
+
+Reading. Chunk 17 is the MS's 950-row tail, one integration (F4 recorded it as one dump): its R3
+of 17.1 rests on 11 strong cells and its G-sub could not run (`f5_heldout.py` G-sub stops on an
+empty time axis; `held-eso-17.log`). It was in F6's frozen held-out list and is kept in the
+verdict, not dropped post hoc; without it the outcome is still F. The real failures are G-drop at
+k = 1 on two of the three 1678312253 scans (29 antennas): dropping one antenna changes
+5.9-6.0 % of the added flags against a 5 % bar, the k = 1 floor D9b's dead zone fixed on ESO137
+(0.029-0.032) but not on a small array; and R5 on ESO137 chunk 7, the chunk with the most strong
+native RFI (84,312 strong cells, 2.3-3.6 × the others), where recall drops to 0.758. Cost
+(measured above) would have given H, not S. Calibrators: F (D10). Every held-out target set is now
+read; a later arm needs new held-out data.
+
+**Coordinator, 2026-11-23 09:45 SAST (relayed):** a targets-only stage may freeze and ship
+(separate calibrator and target weights; calibrators recorded F, `learned:` refuses the calibrator
+class). R3 stays as frozen until the owner rules (asked). Run P3 beside the target arms if
+suitable data exists.
+
+**P3 survey (2026-11-23 09:50 SAST; training data only, no held-out label read).** T's (rang port)
+flag rate on every SARAO calibrator training scan of DL2's four training blocks (85 scans; 1735892129
+left out as DL6's), over all cells of the label: 0.47-0.69, median about 0.58. *Correction
+(10:00 SAST):* this all-cell rate does not separate LUNO-like scans: on LUNO, T over all cells is
+0.45-0.61 too (F4's cache; MAIN_7 0.469), because W3's and the input flags dominate it; the 1.2 %
+is T's added cells over eligible ones. What does hold: F6 already trains on all 85 SARAO scans, so
+SARAO offers no new training data for P3. The low-flag-rate data that exists
+is F4-era LUNO: the groups **MAIN_8, 9, 10, 11, 13, 15**, reserved since F4 for F5's post hoc arm
+N5-ph and fetched on nash (`dl3-f5-20261119/d/outputs/f5-20261120-reserved-fetch/`, 5.3 GB,
+receipt), never trained on, and not among F7's held-out sets (section 0: MAIN_0, 12, 14).
+Using them as F7 calibrator training data takes them out of any later held-out use; recorded here.
+
+**D10 (proposed 2026-11-23 09:55 SAST, before its code or run; validation only; calibrators).** P3 on
+top of D1 (the best calibrator arm so far): F6's calibrator shards at level 20 (unchanged, linked)
+plus four realisations of each of LUNO MAIN_8, 9, 10, 11, 13, 15 (T and A computed as F4 did:
+`f3.t_flags`, AOFlagger 3.5.0 through `f5.a_flags`), so LUNO's real training shards go from 20 to
+44. Balanced real batches (half LUNO, half SARAO), seed 2, 30,000 steps; τ by `f6_tau.py`; **W4 off**
+(D1: W4 alone adds 10 × T on LUNO), fixed before the run. The complete calibrator validation scorer
+on LUNO MAIN_7, 1573212012 scans 1, 3, 5 and the simulations. Question: does R3 on LUNO MAIN_7 fall
+to ≤ 1.5 while SARAO keeps every gate (D1, N5 alone: 7.6 × T)? Run root
+`nash:~/rang-data/outputs/f7-d10-20261123/`. A pass here does not freeze calibrators: G-drop on
+LUNO (D1 0.056 at k = 1) and synthetic G-sub also failed in D1.
+
+*D10 shards (2026-11-23 07:53 SAST, nash, 1,275 s, 7.6 GB peak):* 24 new LUNO shards, no audit stop;
+223 calibrator training shards, 44 LUNO. T and A on the reserved groups over all cells, 0.446-0.467
+and 0.549-0.570 (MAIN_7: 0.469, 0.550): the same kind of observation as MAIN_7.
+
+**D10 measured (2026-11-23 15:39 SAST, nash, validation only; `nash:~/rang-data/outputs/f7-d10-20261123/`,
+verdict `val-verdict-calibrator.json`).** Training 2.6 h (12 threads); `f6_tau.py` τ −5.0; W4
+off. Outcome **F** on R3 LUNO MAIN_7, G-drop LUNO MAIN_7 and G-sub (core16 and
+outer32 fail only through their MAIN_7 R3, 8.1 each). On MAIN_7 the network adds 1,696,671 cells
+against T's 209,120 (A 2,744,976): **R3 8.11** (bar ≤ 1.5; D1's N5 alone 7.6, F6 13.0); R5 0.983.
+G-drop on MAIN_7, worst draw 0.053 / 0.148 / 0.207 (bars 0.05 / 0.20 / 0.25). SARAO keeps every
+gate: R3 0.96, R5 0.981, G-drop ≤ 0.032 / 0.108 / 0.229; R1 1.00 (T 0.77), R2 worst 0.863 (H4n,
+T 0.48), S1-S3 pass. Reading: 24 more LUNO training shards (20 → 44, half of every real batch) do
+not move the network's LUNO level; it still flags about 8 × T there. Under the owner's ruling
+(R3 against the frozen T, pass only at ≤ 1.5 on MAIN_7) **calibrators are F for F7**; this was
+their last arm. LUNO MAIN_0/12/14 stay unread.
+
+**Training host (2026-11-23 10:15 SAST).** F7's arms train on nash's CPU, not glacier's GPU: a
+shard copied nash → glacier ran at 0.7 MB/s (211 MB in 300 s, scp), so D10's calibrator shards
+(154 GB) would take about 2.5 days and a D9 target arm's (46 GB) about 18 h, against 1.4-1.8 h per
+CPU trainer on nash; the SARAO MSs live on nash only, so the shards cannot be built on glacier.
+Agreed with the coordinator.
+
+**Screening and freeze rules for F7's target arms (written 2026-11-23 07:40 SAST, before D8 and
+every later arm).** (1) An arm is screened on ESO137 chunk 10 with `f7_gdrop_arms.py` (G-drop's
+three draws at k = 1, 4, 8, N5 arm); it goes to the complete validation scorer only if its worst
+draw is ≤ 0.040 at k = 1, ≤ 0.16 at k = 4 and ≤ 0.20 at k = 8 (margin for the held-out set's
+seven ESO137 chunks, every draw of which must pass the 0.05 / 0.20 / 0.25 bars). (2) A candidate
+freezes only after the complete scorer on validation passes every target gate, with τ (and κ or
+W4's removal) chosen by `f6_tau.py`'s rule and the level fixed in this note before that read;
+then three seeds are trained and selected as in F6, the cost gate is timed, and the held-out sets
+are read once.
+
+A diagnostic decides nothing alone: a fix enters F7's frozen protocol only through the owner's
+scope decision and a proposal section committed before its measurement.
+
+## 3. Gate question for the owner (no decision taken here)
+
+R3 bounds the method's added cells by T's: 0.5 min(T, A) / T ≤ R3 ≤ 1.5. T flags 1.2 % of LUNO
+MAIN_7 and about 55 % of SARAO; A flags 16 % of LUNO. On LUNO the network sits near A's level
+(but 1.8M of its cells are neither teacher's). Options:
+
+1. **Keep R3 against T** (F3-F6's rule): a flagger must match T's level per observation.
+2. **R3 against a teacher band**: min(T, A) / 2 ≤ added ≤ 1.5 max(T, A), so an observation where
+   the teachers disagree by 13× does not decide the gate by itself.
+3. **R3 against the consensus**: added within bounds of T ∪ A, plus a cap on cells neither teacher
+   flags (the 1.8M on LUNO would then fail directly, and stay visible).
+4. **R3 per observation class**: separate bars for low-flag-rate observations, sized from T and A
+   only (never from the candidate), before any F7 number.
+
+Any change is the owner's, dated, and made before F7 trains.
+
+**Owner's ruling (2026-11-23, relayed by the coordinator):** R3 stays as frozen (option 1),
+judged against Tricolour; the calibrator model passes only if the new LUNO training data (D10)
+brings LUNO MAIN_7 to R3 ≤ 1.5, otherwise calibrators are F. Read here as: T is unchanged, F3-F7's
+teacher (rang's run of the Tricolour-derived CARACal strategy, `f3flag.t_flags`; on SARAO the DL2
+`rang` labels), and the bar 0.5 min(T, A) / T ≤ R3 ≤ 1.5 is unchanged. D10 is the calibrators'
+last arm.
+Confirmed by the coordinator the same day: "Tricolour" was shorthand for the frozen T; D10 is
+scored against the frozen T, no gate change.
+
+## 4. Data and splits (proposed, unchanged from F6 unless the owner widens scope)
+
+Training: F6's (four SARAO blocks, LUNO and ESO137 training sets, simulations). Validation: F6's
+(1573212012; LUNO MAIN_7; ESO137 chunk 10). Held out: section 0's list, read once after an F7
+freeze. 1735892129 (1,024 channels) stays excluded unless P4 is in scope.
+
+## 5. Coordinator
+
+- Ready to run now (validation only, honest booking: 12 slots, 160 GB for D1's trainer by F6's
+  measured peak of 153 GB with mapped shards): D1, D2.
+- Needs the owner: scope among P1-P5, and the R3 question (section 3).

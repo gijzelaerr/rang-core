@@ -28,7 +28,14 @@ GROUPS = {
     "2c amplitude blocks": range(22, 28),
     "2d variance blocks": range(28, 32),
     "2c and 2d blocks": range(22, 32),
+    # F7 D8 (validation only): the 2c z and Q planes apart, and every plane
+    # that pools over baselines at once.
+    "2c z": (22, 23, 25, 26),
+    "2c Q": (24, 27),
+    "all pooled (medians, spectral, blocks)": range(8, 32),
+    "all planes": range(32),
 }
+TAUS = (-5.0, -4.5, -4.0, -3.5, -3.0, -2.5, -2.0)
 
 
 def main():
@@ -42,10 +49,24 @@ def main():
     p.add_argument("--seed", type=int, default=20265301)
     p.add_argument("--nsel", type=int, default=128)
     p.add_argument("--level", type=int, default=0, help="10: F6's per-antenna scale")
+    p.add_argument(
+        "--sarao-root", help="F7 D2: sets sarao:<cbid>:<scan> (validation only)"
+    )
     a = p.parse_args()
     if a.data_root:
         f5.use_data_root(a.data_root)
-    full = f5.load(a.set)
+    if a.set.startswith("sarao:"):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "f6_heldout", Path(__file__).resolve().parent / "f6_heldout.py"
+        )
+        f6h = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(f6h)
+        f6h.SARAO_ROOT = a.sarao_root
+        full = f6h.load_sarao_set(a.set, heldout=False)
+    else:
+        full = f5.load(a.set)
     keep = f5.drop_draw(full, a.k, a.seed)
     sub, _ = f5.subarray(full, keep)
     w3f = f3.w3_flags(full)
@@ -63,11 +84,15 @@ def main():
     flat = np.asarray(np.load(a.weights)["flat"], np.float32)
     net = f5net.build(33, True, f5net.arrays_from_flat(flat, 33, True)).eval()
 
-    def flags(x):
+    def logits(x):
         with torch.no_grad():
-            return net(torch.from_numpy(np.ascontiguousarray(x))).numpy() > a.tau
+            return net(torch.from_numpy(np.ascontiguousarray(x))).numpy()
 
-    ff, fs = flags(xf), flags(xs)
+    def flags(x):
+        return logits(x) > a.tau
+
+    lf, ls = logits(xf), logits(xs)
+    ff, fs = lf > a.tau, ls > a.tau
     base = int((ff ^ fs)[el].sum())
     nf = int(ff[el].sum())
     rec = {
@@ -81,8 +106,29 @@ def main():
         "N5_change_frac": base / max(nf, 1),
         "groups": {},
     }
+    # F7 D8: how far from τ the flipped cells sit, how far logits move, and the
+    # change fraction at other thresholds on the same logits.
+    flip = (ff ^ fs) & el
+    dl = np.abs(ls - lf)[el]
+    near = np.abs(lf - a.tau)[el] < 1.0
+    rec["flipped_margin_quantiles"] = {
+        q: float(np.quantile(np.abs(lf - a.tau)[flip], q)) if flip.any() else None
+        for q in (0.5, 0.9, 0.99)
+    }
+    rec["logit_move_median"] = float(np.median(dl))
+    rec["logit_move_median_near_tau"] = (
+        float(np.median(dl[near])) if near.any() else None
+    )
+    rec["density_near_tau_per_flag"] = float(near.sum() / max(int(ff[el].sum()), 1))
+    rec["tau_sweep"] = {
+        str(t): int(((lf > t) ^ (ls > t))[el].sum()) / max(int((lf > t)[el].sum()), 1)
+        for t in TAUS
+    }
+    print(json.dumps({k: rec[k] for k in rec if k not in ("groups",)}), flush=True)
     for name, idx in GROUPS.items():
         idx = list(idx)
+        if max(idx) >= xf.shape[-1] - 1:
+            continue
         dmax = np.abs(xs[..., idx] - xf[..., idx]).max(-1)
         moved = dmax > 0.1
         x2 = xs.copy()

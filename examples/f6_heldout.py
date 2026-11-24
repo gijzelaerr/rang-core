@@ -47,6 +47,21 @@ def sarao_entry(root, cbid, scan):
     raise KeyError(f"{cbid} scan {scan} not in the stage-1 manifest")
 
 
+def load_eso_set(spec, heldout):
+    """ESO137 for F6/F7. F6's held-out target chunks are F4's reserved
+    chunks 1, 3, 5, 7, 9, 15, 17 (F5 read 11-13), which `f4flag.load_eso`
+    refuses: they are read only by a held-out scoring run with
+    `--heldout-read`. Every other chunk keeps F4's guard."""
+    from rang import f4flag as f4
+
+    chunk = int(spec.split(":")[1])
+    if chunk in f4.ESO_RESERVED:
+        if not (heldout and HELDOUT_READ):
+            raise PermissionError(f"{spec} is held out; pass --heldout-read at scoring")
+        return f3.read_eso(chunk)
+    return None
+
+
 def load_sarao_set(spec, heldout):
     _, cbid, scan = spec.split(":")
     e = sarao_entry(SARAO_ROOT, cbid, scan)
@@ -129,6 +144,10 @@ def main():
     def load(spec, heldout=False):
         if spec.startswith("sarao:"):
             return load_sarao_set(spec, heldout)
+        if spec.startswith("eso:"):
+            scan = load_eso_set(spec, heldout)
+            if scan is not None:
+                return scan
         return f5_load(spec, heldout=heldout)
 
     def a_flags(scan, w3, workdir, data=None):

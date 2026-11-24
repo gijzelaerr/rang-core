@@ -42,7 +42,7 @@ const FAMILIES: [[usize; 2]; 2] = [[0, 3], [1, 2]];
 /// Inputs of a ladder level (section 2e): 0 all 33, 1 without 2d, 2 also
 /// without F4's spectral planes.
 pub fn inputs(level: usize) -> Option<usize> {
-    if level >= 40 || level % 10 > 2 {
+    if level >= 80 || (50..60).contains(&level) || level % 10 > 2 {
         return None;
     }
     match level % 10 {
@@ -65,7 +65,7 @@ fn has_var(level: usize) -> bool {
 /// Q scaled per antenna (each antenna's own robust spread over its channel
 /// blocks), so the scale does not depend on which other antennas are present.
 pub(crate) fn per_antenna(level: usize) -> bool {
-    (level / 10) % 2 == 1
+    matches!(level / 10, 1 | 3)
 }
 
 /// F6 (fix 2, second candidate): levels 20-22 and 30-32 replace the iterated
@@ -75,6 +75,38 @@ pub(crate) fn per_antenna(level: usize) -> bool {
 pub(crate) fn one_step(level: usize) -> bool {
     level >= 20
 }
+
+/// F7 diagnostic D3 (research/f7-flagger.md, P2): levels 40-42 are levels 20-22
+/// with every plane divided, before its asinh, by a robust per-observation
+/// scale (1.4826 × the median |value| over all baselines' eligible cells, on a
+/// fixed time-channel subsample). Levels below 40 never compute or apply it,
+/// so F5's and F6's features are unchanged.
+pub(crate) fn per_observation(level: usize) -> bool {
+    level >= 40
+}
+
+/// F7 D9 (research/f7-flagger.md): levels 60-62 are levels 40-42 with a dead
+/// zone on the pooled block planes (2c's z, 2d's four) after the
+/// per-observation scale, `sign(v) max(|v| - DEAD_ZONE, 0)`, so a block
+/// statistic at noise level (where one antenna more or less moves it by about
+/// 1/sqrt(N) of its spread) reaches the network as 0. Levels 70-72 also put
+/// F3's antenna and array medians (planes 8-13) through it.
+pub(crate) fn dead_zone(level: usize, k: usize) -> bool {
+    let blocks = matches!(k, 22 | 23 | 25 | 26) || (28..32).contains(&k);
+    match level / 10 {
+        6 => blocks,
+        7 => blocks || (8..14).contains(&k),
+        _ => false,
+    }
+}
+
+/// D9's dead-zone half-width, in units of the per-observation scale.
+pub(crate) const DEAD_ZONE: f64 = 2.0;
+
+/// Planes with a per-observation scale: F3's 14, F4's 8, 2c's 6, 2d's 4.
+const SCALED: usize = CELL_PLANES + SPEC_PLANES + AMP_PLANES + VAR_PLANES;
+/// Cells (and channels) sampled for the scale: index ≡ 0 mod this stride.
+const SCALE_STRIDE: usize = 64;
 
 /// The one-step antenna terms and the array term (see `one_step`).
 pub(crate) fn one_step_fit(y: &[f64], inp: &Inputs, of: &[Vec<(usize, usize)>]) -> (Vec<f64>, f64) {
@@ -674,6 +706,7 @@ pub(crate) struct Prepared {
     pub(crate) spec: Option<Spectra>,
     pub(crate) ant: Antenna,
     pub(crate) level: usize,
+    pub(crate) scale: Option<Vec<f64>>,
 }
 
 pub(crate) fn prepare(
@@ -721,12 +754,71 @@ pub(crate) fn prepare(
         per_antenna(level),
         one_step(level),
     );
-    Prepared {
+    let mut pr = Prepared {
         agg,
         spec,
         ant,
         level,
+        scale: None,
+    };
+    if per_observation(level) {
+        pr.scale = Some(observation_scale(inp, start, order, &pr));
     }
+    pr
+}
+
+/// P2's per-observation scales (see `per_observation`): every baseline's
+/// unscaled planes, sampled on cells and channels whose index is ≡ 0 mod
+/// `SCALE_STRIDE` and on every block, so the multiset (and the median) does
+/// not depend on the order or labels of the antennas.
+fn observation_scale(inp: &Inputs, start: &[usize], order: &[usize], pr: &Prepared) -> Vec<f64> {
+    let nc = inp.nchan;
+    let ncell = inp.ntime * nc;
+    let per: Vec<Vec<Vec<f64>>> = (0..inp.nbl)
+        .into_par_iter()
+        .map(|b| {
+            let rows = &order[start[b]..start[b + 1]];
+            let sp = split(inp, b, rows, pr);
+            let mut v: Vec<Vec<f64>> = vec![Vec::new(); SCALED];
+            if !sp.alive {
+                return v;
+            }
+            let un = |x: f32| (x as f64).sinh().abs();
+            for c in (0..ncell).step_by(SCALE_STRIDE) {
+                let src = &sp.cell[c * 15..c * 15 + 15];
+                if src[14] != 0.0 {
+                    continue;
+                }
+                for k in 0..CELL_PLANES {
+                    v[k].push(un(src[k]));
+                }
+            }
+            if !sp.spec.is_empty() {
+                for f in (0..nc).step_by(SCALE_STRIDE) {
+                    for j in 0..SPEC_PLANES {
+                        v[CELL_PLANES + j].push(un(sp.spec[f * SPEC_PLANES + j]));
+                    }
+                }
+            }
+            for (i, x) in sp.amp.iter().enumerate() {
+                v[CELL_PLANES + SPEC_PLANES + i % AMP_PLANES].push(un(*x));
+            }
+            for (i, x) in sp.var.iter().enumerate() {
+                v[CELL_PLANES + SPEC_PLANES + AMP_PLANES + i % VAR_PLANES].push(un(*x));
+            }
+            v
+        })
+        .collect();
+    (0..SCALED)
+        .map(|k| {
+            let mut all: Vec<f64> = per.iter().flat_map(|v| v[k].iter().copied()).collect();
+            if all.is_empty() {
+                return 1.0;
+            }
+            let s = MAD_SCALE * median(&mut all);
+            if s > 1e-12 { s } else { 1.0 }
+        })
+        .collect()
 }
 
 /// One baseline's planes by resolution: per cell F3's 14 and the mask
@@ -748,6 +840,14 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
     let nant = inp.nant;
     let res = residuals(inp, rows);
     let alive = res.alive;
+    let sc = |k: usize, v: f64| match &pr.scale {
+        Some(s) if dead_zone(pr.level, k) => {
+            let x = v / s[k];
+            (x.abs() - DEAD_ZONE).max(0.0).copysign(x)
+        }
+        Some(s) => v / s[k],
+        None => v,
+    };
     let mut cell = vec![0f32; ncell * 15];
     let (p, q) = (inp.ant1[b] as usize, inp.ant2[b] as usize);
     let agg = &pr.agg;
@@ -761,8 +861,8 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
             continue;
         }
         for k in 0..4 {
-            cell[o + k] = ash32(res.rt[c * 4 + k]);
-            cell[o + 4 + k] = ash32(res.rf[c * 4 + k]);
+            cell[o + k] = ash32(sc(k, res.rt[c * 4 + k]));
+            cell[o + 4 + k] = ash32(sc(4 + k, res.rf[c * 4 + k]));
         }
         for x in 0..2 {
             let base = x * (nant + 1);
@@ -770,9 +870,9 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
                 agg[(base + p) * ncell + c] as f64,
                 agg[(base + q) * ncell + c] as f64,
             );
-            cell[o + 8 + 3 * x] = ash32(mx);
-            cell[o + 9 + 3 * x] = ash32(mn);
-            cell[o + 10 + 3 * x] = ash32(agg[(base + nant) * ncell + c] as f64);
+            cell[o + 8 + 3 * x] = ash32(sc(8 + 3 * x, mx));
+            cell[o + 9 + 3 * x] = ash32(sc(9 + 3 * x, mn));
+            cell[o + 10 + 3 * x] = ash32(sc(10 + 3 * x, agg[(base + nant) * ncell + c] as f64));
         }
     }
     let mut spec = Vec::new();
@@ -784,10 +884,11 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
                     let a = (phi * nant) * nc;
                     let (mx, mn) = pair64(s.ant[a + p * nc + f], s.ant[a + q * nc + f]);
                     let k = f * SPEC_PLANES + 4 * phi;
-                    spec[k] = ash32(s.e[b][phi * nc + f]);
-                    spec[k + 1] = ash32(mx);
-                    spec[k + 2] = ash32(mn);
-                    spec[k + 3] = ash32(s.x[phi * nc + f]);
+                    let j = CELL_PLANES + 4 * phi;
+                    spec[k] = ash32(sc(j, s.e[b][phi * nc + f]));
+                    spec[k + 1] = ash32(sc(j + 1, mx));
+                    spec[k + 2] = ash32(sc(j + 2, mn));
+                    spec[k + 3] = ash32(sc(j + 3, s.x[phi * nc + f]));
                 }
             }
         }
@@ -802,9 +903,10 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
             let (mx, mn) = pair64(an.z[o + p], an.z[o + q]);
             let (qmx, _) = pair64(an.q[o + p], an.q[o + q]);
             let t = k * AMP_PLANES + 3 * phi;
-            amp[t] = ash32(mx);
-            amp[t + 1] = ash32(mn);
-            amp[t + 2] = ash32(qmx);
+            let j = CELL_PLANES + SPEC_PLANES + 3 * phi;
+            amp[t] = ash32(sc(j, mx));
+            amp[t + 1] = ash32(sc(j + 1, mn));
+            amp[t + 2] = ash32(sc(j + 2, qmx));
         }
     }
     let mut var = Vec::new();
@@ -815,10 +917,11 @@ pub(crate) fn split(inp: &Inputs, b: usize, rows: &[usize], pr: &Prepared) -> Sp
             let (a, bq) = pair64(an.tt[k * nant + p], an.tt[k * nant + q]);
             let (c, dq) = pair64(an.tf[k * nant + p], an.tf[k * nant + q]);
             let t = k * VAR_PLANES;
-            var[t] = ash32(a);
-            var[t + 1] = ash32(bq);
-            var[t + 2] = ash32(c);
-            var[t + 3] = ash32(dq);
+            let j = CELL_PLANES + SPEC_PLANES + AMP_PLANES;
+            var[t] = ash32(sc(j, a));
+            var[t + 1] = ash32(sc(j + 1, bq));
+            var[t + 2] = ash32(sc(j + 2, c));
+            var[t + 3] = ash32(sc(j + 3, dq));
         }
     }
     Split {

@@ -1,0 +1,12 @@
+{
+ "class": "target",
+ "weights": "/home/gijs/rang-data/outputs/f7-d9b-20261123/train-target/seed-2/weights.npz",
+ "weights_sha256": "d196a343f84f61746baf506cadbd0ebb1fd912877315c4002ca629437df2a5e2",
+ "level": 70,
+ "degree": 1,
+ "tau": -4.5,
+ "kappa": null,
+ "method": "N5",
+ "seed": "seed-2",
+ "note": "F7 D9b freeze candidate: level 70, median seed, W4 off"
+}
