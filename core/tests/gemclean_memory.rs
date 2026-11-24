@@ -390,3 +390,77 @@ fn joined_clean_images_stay_under_the_frozen_bound() {
     );
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+/// The bytes of the report buffer `label`.
+fn buffer_bytes(report: &str, label: &str) -> u64 {
+    let key = format!("\"label\": \"{label}\", \"bytes\": ");
+    let i = report
+        .find(&key)
+        .unwrap_or_else(|| panic!("no buffer {label}"))
+        + key.len();
+    report[i..]
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect::<String>()
+        .parse()
+        .unwrap()
+}
+
+/// A single-image Stokes I run (the self-calibration images, issue #34,
+/// research/selfcal-mem-34.md) keeps only the active visibilities and
+/// weights through its clean: on the `-reorder` case (30 % of the cells
+/// weighted) the measurement's visibilities are at most 0.4 of the read's
+/// dense Stokes I visibilities, and its weights at most 0.4 of the dense
+/// gridding weights (both 1.0 before, whatever the weights' precision).
+#[test]
+fn single_image_keeps_only_the_active_visibilities() {
+    let dir = std::env::temp_dir().join(format!("gemclean-single-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let ms = dir.join("case.ms");
+    write_case(&ms, NANT, REORDER_DUMPS, REORDER_NCHAN);
+    let side = REORDER_SIDE.to_string();
+    let out = Command::new(gemclean_binary())
+        .args(["-name", dir.join("g").to_str().unwrap()])
+        .args(["-size", &side, &side, "-scale", "4asec"])
+        .args([
+            "-weight",
+            "briggs",
+            "0",
+            "-niter",
+            "100000",
+            "-mgain",
+            "0.9",
+            "-auto-threshold",
+            "3",
+        ])
+        .args(["-data-column", "DATA", "-no-update-model-required"])
+        .args(["-memory-report", "-j", "2", ms.to_str().unwrap()])
+        .output()
+        .unwrap();
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        out.status.success(),
+        "{stdout}{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let report = std::fs::read_to_string(dir.join("g-report.json")).unwrap();
+    if !report.contains("\"buffers\"") {
+        println!("the binary's allocator does not count; nothing to check");
+        std::fs::remove_dir_all(&dir).unwrap();
+        return;
+    }
+    let vis = buffer_bytes(&report, "measurement: visibilities");
+    let dense_vis = buffer_bytes(&report, "read: Stokes I visibilities");
+    let wgt = buffer_bytes(&report, "measurement: weights");
+    let dense_wgt = buffer_bytes(&report, "weights: gridding weights");
+    println!("visibilities {vis} of {dense_vis} bytes, weights {wgt} of {dense_wgt}");
+    assert!(
+        vis * 5 <= dense_vis * 2,
+        "the single-image measurement holds {vis} bytes of visibilities, over 0.4 × {dense_vis}"
+    );
+    assert!(
+        wgt * 5 <= dense_wgt * 2,
+        "the single-image measurement holds {wgt} bytes of weights, over 0.4 × {dense_wgt}"
+    );
+    std::fs::remove_dir_all(&dir).unwrap();
+}
