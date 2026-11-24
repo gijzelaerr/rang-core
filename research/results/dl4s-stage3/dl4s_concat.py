@@ -20,7 +20,13 @@ def casa(scans, out):
     from casatasks import concat
 
     vis = [s["ms"] for s in scans["scans"]]
-    concat(vis=vis, concatvis=out, copypointing=False, timesort=False)
+    # the sources are read-only (dl2-data.md 4): copy the first without its
+    # modes, then append the rest to it (concat's own copy keeps the modes
+    # and then fails to move POINTING)
+    import shutil
+
+    shutil.copytree(vis[0], out, copy_function=shutil.copyfile)
+    concat(vis=vis[1:], concatvis=out, copypointing=False, timesort=False)
 
 
 def renumber(scans, out):
