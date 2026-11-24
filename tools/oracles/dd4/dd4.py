@@ -8,6 +8,7 @@
     python tools/oracles/dd4/dd4.py control1 RUN SCRATCH   # C0', C1 (A4)
     python tools/oracles/dd4/dd4.py control2 RUN SCRATCH   # C2m, C2e, E1 (A5)
     python tools/oracles/dd4/dd4.py score RUN
+    python tools/oracles/dd4/dd4.py grid RUN KIND TI MODEL0 OUT  # DD4d step 1
     python tools/oracles/dd4/dd4.py scoreb RUN             # DD4b (research/dd4b-eso137.md)
 
 The loop and the shared minor cycle are DD3c's (`tools/oracles/dd3/dd3.py`,
@@ -124,7 +125,7 @@ def setup(subms, catalogue, run):
     print((run / "setup.json").read_text())
 
 
-def context(run, di=False, di0=False):
+def context(run, di=False, di0=False, ti=4):
     st = json.loads((run / "setup.json").read_text())
     c = read_sub(st["subms"])
     centres = np.array(st["centres"])
@@ -136,7 +137,7 @@ def context(run, di=False, di0=False):
     else:
         l, m = dd2.pixel_lm()
         idx, margin = dd2.facet_index_and_margin(l, m, centres)
-    _, _, block, centres_t = dd2.interval_axes(c)
+    _, _, block, centres_t = dd2.interval_axes(c, ti)  # ti integrations (DD4d)
     xg, yg = np.meshgrid(np.arange(NX), np.arange(NY))
     interior = (margin >= EDGE) & (xg >= EDGE) & (xg < NX - EDGE) & (
         yg >= EDGE) & (yg < NY - EDGE)  # fmt: skip
@@ -212,7 +213,7 @@ def per_direction_converged(g1, g2, f1, f2, stop=CAP["stop_criterion"]):
 
 
 def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None, calmode="ap",
-          own_gain=False, perdir=False):  # fmt: skip
+          own_gain=False, perdir=False, ti=4):  # fmt: skip
     """Arm R, or DI (one direction, free), or DI0 (one direction, pinned:
     the publisher's DI calibration only; DD4 amendment A3, post hoc).
     `cap`, `name` and `model0` are DD4b's (research/dd4b-eso137.md): the
@@ -222,7 +223,7 @@ def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None, calmode="a
     per-direction convergence from a second solve one iteration longer."""
     from rang import cal_gain
 
-    ctx = context(run, di or di0, di0)
+    ctx = context(run, di or di0, di0, ti)
     c = ctx["c"]
     psf = np.load(run / "psf.npy")
     model = np.load(model0 if model0 else run / "model0.npy")
@@ -263,10 +264,11 @@ def arm_r(run, di=False, di0=False, cap=None, name=None, model0=None, calmode="a
         del models
 
 
-def arm_o(run, scratch, gtype="diag_complex", cap=150, name="O", model0=None):
+def arm_o(run, scratch, gtype="diag_complex", cap=150, name="O", model0=None, ti=4):
     """Arm O; DD4c's Oc with `gtype` "phase", `cap` 500 and its start model.
-    Step 3 runs on DD4 A5's matched four-correlation copy."""
-    ctx = context(run)
+    Step 3 runs on DD4 A5's matched four-correlation copy; `ti` is DD4d's
+    solution interval in integrations."""
+    ctx = context(run, ti=ti)
     c, ndir = ctx["c"], ctx["ndir"]
     psf = np.load(run / "psf.npy")
     hdr = json.loads((run / "header.json").read_text())
@@ -285,7 +287,9 @@ def arm_o(run, scratch, gtype="diag_complex", cap=150, name="O", model0=None):
             )
         dd3.write_fits(d / "full-model.fits", model, hdr)
         dd3.write_fits(d / "full-model-pb.fits", model, hdr)
-        log1 = run_wsl("step4_o1.sh", scratch, dd3.to_wsl(d), ndir, pinned, gtype, cap)
+        log1 = run_wsl(
+            "step4_o1.sh", scratch, dd3.to_wsl(d), ndir, pinned, gtype, cap, ti
+        )
         gains, flags, qinfo = dd3.qc_gains(d / "gains")
         ok = dd2.write_h5(
             d / "solved.h5", gains, flags, c, ctx["centres_t"], ctx["centres"]
@@ -310,7 +314,12 @@ def arm_o(run, scratch, gtype="diag_complex", cap=150, name="O", model0=None):
 
 
 def run_wsl(script, *args):
+    import os
     import subprocess
+
+    env = dict(os.environ)
+    if "DD4_J" in env:  # WSClean threads (DD4d section 5), passed into WSL
+        env["WSLENV"] = ":".join(x for x in (env.get("WSLENV"), "DD4_J/u") if x)
 
     cmd = [
         "wsl",
@@ -321,7 +330,7 @@ def run_wsl(script, *args):
         dd3.to_wsl(HERE / script),
         *map(str, args),
     ]
-    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    r = subprocess.run(cmd, capture_output=True, text=True, check=False, env=env)
     if r.returncode != 0:
         raise RuntimeError(f"{script} failed: {r.stdout[-2000:]} {r.stderr[-2000:]}")
     return r.stdout
@@ -490,6 +499,39 @@ def score_c(run):
         json.dumps(rec, indent=1), encoding="utf-8"
     )
     print(json.dumps(rec, indent=1))
+
+
+def grid_point(run, kind, ti, model0, out):
+    """DD4d step 1: one cycle-0 solve at interval `ti` (integrations), kind
+    "phase" (each direction's own gain) or "diag_complex", with the
+    per-direction convergence of DD4c section 3."""
+    from rang import cal_gain
+
+    ctx = context(run, ti=ti)
+    c = ctx["c"]
+    models = facet_models(ctx, np.load(model0))
+    args = (c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
+            c["ANTENNA1"], c["ANTENNA2"], ctx["block"])  # fmt: skip
+    kw = {"nant": len(c["ant_names"]), "refant": 0, "pinned_directions": ctx["pinned"],
+          "calmode": "p" if kind == "phase" else "ap", "phase_last_direction_gain": False}  # fmt: skip
+    caps = dict(CAP, max_iterations=500)
+    t0 = time.perf_counter()
+    sol = cal_gain.solve_dd(*args, **kw, **caps)
+    t1 = time.perf_counter()
+    sol2 = cal_gain.solve_dd(*args, **kw, **dict(caps, max_iterations=sol.iterations + 1,
+                                                  stop_fraction=1.0))  # fmt: skip
+    t2 = time.perf_counter()
+    per = per_direction_converged(sol.gains, sol2.gains, sol.flags, sol2.flags)
+    rec = {"kind": kind, "ti": ti, "seconds_per_solution": 8 * ti, "nint": int(ctx["block"].max()) + 1,
+           "iterations": sol.iterations, "fraction": sol.converged_fraction,
+           "perdir_converged": per, "converges": bool(all(x >= 0.99 for x in per[1:])),
+           "flagged_offaxis": int((sol.flags[..., 1:] != 0).sum()),
+           "phase_std_rad": [float(np.std(np.angle(sol.gains[..., f, :]))) for f in range(ctx["ndir"])],
+           "amp_median": [float(np.median(np.abs(sol.gains[..., f, :]))) for f in range(ctx["ndir"])],
+           "seconds_solve": t1 - t0, "seconds_second_solve": t2 - t1}  # fmt: skip
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    Path(out).write_text(json.dumps(rec, indent=1))
+    print(json.dumps(rec), flush=True)
 
 
 def flux_close(a, b):
@@ -739,22 +781,26 @@ def main(argv=None):
     elif cmd == "rang":
         opt = {
             k: argv[argv.index(k) + 1]
-            for k in ("--cap", "--name", "--model0")
+            for k in ("--cap", "--name", "--model0", "--ti")
             if k in argv
         }
         arm_r(Path(argv[1]), di="--di" in argv, di0="--di0" in argv,
               cap=int(opt["--cap"]) if "--cap" in opt else None, name=opt.get("--name"),
               model0=opt.get("--model0"), calmode="p" if "--phase" in argv else "ap",
-              own_gain="--own-gain" in argv, perdir="--perdir" in argv)  # fmt: skip
+              own_gain="--own-gain" in argv, perdir="--perdir" in argv,
+              ti=int(opt.get("--ti", 4)))  # fmt: skip
     elif cmd == "oracle":
         opt = {
             k: argv[argv.index(k) + 1]
-            for k in ("--cap", "--name", "--model0")
+            for k in ("--cap", "--name", "--model0", "--ti")
             if k in argv
         }
         arm_o(Path(argv[1]), argv[2], gtype="phase" if "--phase" in argv else "diag_complex",
               cap=int(opt.get("--cap", 150)), name=opt.get("--name", "O"),
-              model0=opt.get("--model0"))  # fmt: skip
+              model0=opt.get("--model0"), ti=int(opt.get("--ti", 4)))  # fmt: skip
+    elif cmd == "grid":
+        # dd4.py grid RUN KIND TI MODEL0 OUT.json (DD4d step 1)
+        grid_point(Path(argv[1]), argv[2], int(argv[3]), argv[4], argv[5])
     elif cmd == "control":
         control_c0(Path(argv[1]), argv[2])
     elif cmd == "control1":
