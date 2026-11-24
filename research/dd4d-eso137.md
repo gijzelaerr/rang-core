@@ -6,7 +6,10 @@ Branch `dd4-eso137`. Owner decision 2026-11-24, relayed by the coordinator.
 Sections 1-5 are frozen 2026-11-24, before the code that runs them. Later
 changes are dated amendments.
 
-Status: **proposed.**
+Status: **measured 2026-11-24: no converging interval in the grid.** No
+off-axis direction converges at any time interval from 32 s to the whole
+1 h scan, for either kind. So, as frozen, step 2 (the loop and oracle parity
+at T*) is not run.
 
 ## 1. Hypothesis
 
@@ -104,7 +107,51 @@ DD4, as before. Each cycle records Rd's per-direction convergence.
 
 ## 6. Measured result
 
-Not yet run.
+Run root `D:/rang/outputs/dd4-20261123/run-02/grid/`; archive
+[results/dd4d-eso137/grid/](results/dd4d-eso137/grid/). Host glacier, shared.
+Code at `57f4af42`, with the A1 measure.
+
+**Converged fraction of unflagged off-axis cells (d1, d2, d3) at 500
+iterations:**
+
+| kind | 4 × 8 s (113 intervals) | 16 × 8 s (29) | 64 × 8 s (8) | 450 × 8 s (1, whole scan) |
+| --- | --- | --- | --- | --- |
+| `diag_complex` | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | 0.017, 0, 0 |
+| `phase` | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 |
+
+- Every solve reached the cap of 500 iterations. The pinned d0 is 1.0
+  throughout.
+- Flagged off-axis gains fall with the interval:
+  - `diag_complex`: 1,876 at 4 × 8 s, 511, 205, then 41 at the whole scan;
+  - `phase`: 9,456 at 4 × 8 s, 2,329, 539, then 16 at the whole scan.
+- The phase spread over antennas in d1-d3 falls from 1.0-1.5 rad at
+  4 × 8 s to 0.3-0.6 rad at the whole scan. It is still large for a
+  1 h, full-band solution.
+- `diag_complex` puts d2's median amplitude at 0.66-0.73 at every interval,
+  and d3's at 0.64-0.79 below the whole scan. That is a steady 30 % deficit.
+  It suggests that the catalogue flux of d2's component (98 mJy, apparent)
+  is too high for the data, or that the facet models are degenerate. This
+  is a post hoc observation, not tested.
+
+**Outcome (section 2): no converging interval in the grid.** So the
+outcome is that the loop and the oracle are not run.
+- More signal per solution, up to 1 h × 64 channels per gain, does not make
+  the off-axis solves converge.
+- So the non-convergence is not, or not only, a lack of signal. A more
+  likely cause is a degeneracy in the model: the directions' predicted
+  visibilities overlap, or the pinned catalogue fluxes disagree with the
+  data. Either is for a new note. Neither is tested here.
+
+**Cost (shared host):**
+
+| kind | 4 × 8 s | 16 × 8 s | 64 × 8 s | whole scan |
+| --- | --- | --- | --- | --- |
+| `diag_complex` | 1727 s | 836 s | 520 s | 2665 s |
+| `phase` | 1065 s | 1085 s | 1138 s | 7098 s |
+
+- The two solves per point are each about half the wall time.
+- A whole-scan solve has one interval, so it runs on one thread. It was
+  booked at 2 slots after the coordinator's 10:15 check.
 
 ## Amendments
 

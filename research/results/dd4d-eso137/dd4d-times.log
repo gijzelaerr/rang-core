@@ -1,0 +1,29 @@
+diag_complex-t450 start 2026-11-24T09:59:02+02:00
+phase-t450 start 2026-11-24T09:59:02+02:00
+phase-t450 end 2026-11-24T10:16:15+02:00 rc=127 wall=1033s
+diag_complex-t450 end 2026-11-24T10:16:15+02:00 rc=127 wall=1033s
+phase-t64 start 2026-11-24T10:16:15+02:00
+diag_complex-t64 start 2026-11-24T10:16:15+02:00
+--- rebooked 2026-11-24T10:17:34+02:00: ti=450 points restarted at 2 slots (single interval, one thread); others 8 slots sequential
+phase-t450 start 2026-11-24T10:17:43+02:00 slots=2
+diag_complex-t450 start 2026-11-24T10:17:43+02:00 slots=2
+diag_complex-t64 start 2026-11-24T10:17:43+02:00 slots=8
+diag_complex-t64 end 2026-11-24T10:26:50+02:00 rc=0 wall=547s
+phase-t64 start 2026-11-24T10:26:50+02:00 slots=8
+--- A1 restart 2026-11-24T10:29:04+02:00: unreferenced measure (af868609, 57f4af42)
+phase-t450 start 2026-11-24T10:29:14+02:00 slots=2
+diag_complex-t450 start 2026-11-24T10:29:14+02:00 slots=2
+diag_complex-t64 start 2026-11-24T10:29:14+02:00 slots=8
+diag_complex-t64 end 2026-11-24T10:37:54+02:00 rc=0 wall=520s
+phase-t64 start 2026-11-24T10:37:54+02:00 slots=8
+phase-t64 end 2026-11-24T10:56:52+02:00 rc=0 wall=1138s
+diag_complex-t16 start 2026-11-24T10:56:52+02:00 slots=8
+diag_complex-t16 end 2026-11-24T11:10:48+02:00 rc=0 wall=836s
+phase-t16 start 2026-11-24T11:10:48+02:00 slots=8
+diag_complex-t450 end 2026-11-24T11:13:39+02:00 rc=0 wall=2665s
+phase-t16 end 2026-11-24T11:28:53+02:00 rc=0 wall=1085s
+diag_complex-t4 start 2026-11-24T11:28:53+02:00 slots=8
+diag_complex-t4 end 2026-11-24T11:57:40+02:00 rc=0 wall=1727s
+phase-t4 start 2026-11-24T11:57:40+02:00 slots=8
+phase-t4 end 2026-11-24T12:15:25+02:00 rc=0 wall=1065s
+phase-t450 end 2026-11-24T12:27:32+02:00 rc=0 wall=7098s

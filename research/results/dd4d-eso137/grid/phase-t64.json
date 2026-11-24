@@ -1,0 +1,30 @@
+{
+ "kind": "phase",
+ "ti": 64,
+ "seconds_per_solution": 512,
+ "nint": 8,
+ "iterations": 500,
+ "fraction": 0.25,
+ "perdir_converged": [
+  1.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "converges": false,
+ "flagged_offaxis": 539,
+ "phase_std_rad": [
+  0.0,
+  0.9337633146256764,
+  0.8242824880039792,
+  0.7592888499457141
+ ],
+ "amp_median": [
+  1.0,
+  1.0,
+  1.0,
+  1.0
+ ],
+ "seconds_solve": 567.0521016999846,
+ "seconds_second_solve": 536.9577954999986
+}

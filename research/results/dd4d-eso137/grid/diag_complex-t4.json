@@ -1,0 +1,30 @@
+{
+ "kind": "diag_complex",
+ "ti": 4,
+ "seconds_per_solution": 32,
+ "nint": 113,
+ "iterations": 500,
+ "fraction": 0.26501973967087517,
+ "perdir_converged": [
+  1.0,
+  0.0,
+  0.0,
+  0.0
+ ],
+ "converges": false,
+ "flagged_offaxis": 1876,
+ "phase_std_rad": [
+  0.0,
+  0.5046953550937958,
+  1.4623449569490854,
+  1.4004161111835822
+ ],
+ "amp_median": [
+  1.0,
+  0.9780660650924631,
+  0.725193597268126,
+  0.7875332893072842
+ ],
+ "seconds_solve": 182.9883409999893,
+ "seconds_second_solve": 179.32741849997547
+}
