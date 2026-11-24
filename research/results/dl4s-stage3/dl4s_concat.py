@@ -26,6 +26,12 @@ def casa(scans, out):
     import shutil
 
     shutil.copytree(vis[0], out, copy_function=shutil.copyfile)
+    import os
+
+    for d, _, files in os.walk(out):
+        os.chmod(d, 0o755)
+        for f in files:
+            os.chmod(os.path.join(d, f), 0o644)
     concat(vis=vis[1:], concatvis=out, copypointing=False, timesort=False)
 
 
