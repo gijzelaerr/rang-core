@@ -448,7 +448,9 @@ def score_c(run):
     psf = np.load(run / "psf.npy")
     sigma = restoring_beam(psf)
     arms = [
-        a for a in ("Rc", "Rq", "DI0c", "Oc") if (run / a / f"cycle-{NCYCLE}").exists()
+        a
+        for a in ("Rc", "Rq", "DI0c", "Oc")
+        if (run / a / f"cycle-{NCYCLE}" / "info.json").exists()
     ]
     m = {a: measures(run, ctx, a, psf, sigma) for a in arms}
     rec = {"note": "research/dd4c-eso137.md", "measures": m, "convergence": {}}
