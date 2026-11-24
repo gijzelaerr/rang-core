@@ -154,9 +154,9 @@ def simulate(name, outdir, nonoise=False, d0err=False, k=None):
     for f in range(ndir):
         for h, (hh, corr) in enumerate(((0, 0), (1, 3))):
             gp, gq = g[block4, a1, f, hh], g[block4, a2, f, hh]
-            data[..., h] += (gp[:, None] * models[:, :, f, corr] * np.conj(gq[:, None])).astype(
-                np.complex64
-            )
+            data[..., h] += (
+                gp[:, None] * models[:, :, f, corr] * np.conj(gq[:, None])
+            ).astype(np.complex64)
     del models
     if not nonoise:
         w = c["WEIGHT_SPECTRUM"][..., [0, 3]].astype(np.float64)
@@ -176,7 +176,9 @@ def simulate(name, outdir, nonoise=False, d0err=False, k=None):
     st2 = dict(st, subms=str(ms), dd5={"sky": name, "nonoise": nonoise, "d0err": d0err,
                                        "k": k, "seeds": SEEDS, "pin_scale": PIN_SCALE})  # fmt: skip
     (outdir / "setup.json").write_text(json.dumps(st2, indent=1))
-    np.savez(outdir / "truth.npz", gains=g, block=BLOCK, k=k if k is not None else np.nan)
+    np.savez(
+        outdir / "truth.npz", gains=g, block=BLOCK, k=k if k is not None else np.nan
+    )
     rec = {"sky": name, "sky_flux": float(s.sum()), "sky_sha256": hashlib.sha256(s.tobytes()).hexdigest(),
            "nblock": nblock, "nonoise": nonoise, "d0err": d0err, "k": k,
            "seconds": time.perf_counter() - t0}  # fmt: skip
@@ -306,10 +308,18 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
     k = float(json.loads((run / "setup.json").read_text())["dd5"]["k"] or 0.0)
     gains, flags = np.asarray(sol.gains), np.asarray(sol.flags)
     e = truth_error(run, ctx, gains, flags, ti, kind == "phase")
-    ehat = predicted_error(ctx, models, k, ti) if k > 0 else [float("nan")] * ctx["ndir"]
+    ehat = (
+        predicted_error(ctx, models, k, ti) if k > 0 else [float("nan")] * ctx["ndir"]
+    )
     conv = [x >= 0.99 for x in per]
-    level = ["converges" if x >= 0.99 else "partly" if x > 0.10 else "does not converge" for x in per]
-    flagged_empty = [int(((flags[..., f] != 0) & empty[:, None, :]).sum()) for f in range(ctx["ndir"])]
+    level = [
+        "converges" if x >= 0.99 else "partly" if x > 0.10 else "does not converge"
+        for x in per
+    ]
+    flagged_empty = [
+        int(((flags[..., f] != 0) & empty[:, None, :]).sum())
+        for f in range(ctx["ndir"])
+    ]
     rec = {"run": str(run), "model": str(model), "kind": kind, "ti": ti, "seconds_per_solution": 8 * ti,
            "cap": cap, "stop_fraction": caps["stop_fraction"], "level": level, "step_stats": steps,
            "stopped_before_cap": bool(sol.iterations < cap), "empty_cells": int(empty.sum()),
@@ -319,7 +329,7 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
            "iterations_second": sol2.iterations, "fraction": sol.converged_fraction,
            "perdir_converged": per, "converges": bool(all(conv[1:])),
            "e_d": e, "ehat_d": ehat,
-           "e_over_ehat": [a / b if b and b == b else float("nan") for a, b in zip(e, ehat, strict=True)],
+           "e_over_ehat": [a / b if b and not math.isnan(b) else float("nan") for a, b in zip(e, ehat, strict=True)],
            "accurate": [bool(conv[f] and e[f] <= 2 * ehat[f]) for f in range(len(e))],
            "flagged_offaxis": int((flags[..., 1:] != 0).sum()),
            "phase_std_rad": [float(np.std(np.angle(gains[..., f, :]))) for f in range(ctx["ndir"])],
@@ -353,9 +363,15 @@ def main(argv=None):
         k = None
         if "--nonoise" not in argv:
             k = json.loads(Path(argv[argv.index("--k") + 1]).read_text())["k"]
-        simulate(argv[1], argv[2], nonoise="--nonoise" in argv, d0err="--d0err" in argv, k=k)
+        simulate(
+            argv[1], argv[2], nonoise="--nonoise" in argv, d0err="--d0err" in argv, k=k
+        )
     elif cmd == "grid":
-        opt = {k: argv[argv.index(k) + 1] for k in ("--cap", "--stop-fraction") if k in argv}
+        opt = {
+            k: argv[argv.index(k) + 1]
+            for k in ("--cap", "--stop-fraction")
+            if k in argv
+        }
         grid_point(argv[1], argv[2], int(argv[3]), argv[4], argv[5], cap=int(opt.get("--cap", 500)),
                    stop_fraction=float(opt["--stop-fraction"]) if "--stop-fraction" in opt else None)  # fmt: skip
     elif cmd == "looptruth":
