@@ -8,7 +8,8 @@
     python tools/oracles/dd5/dd5.py score RUN R O OUT.json     # stage 5, gates L and S
 
 SKY is a (S_a, catalogue), b (S_b, M0c), p (S_p, S_b with the d2 and d3
-pins halved) or e (S_e, DI0c's cycle-4 model; amendment A1). Each OUTDIR is a DD4 run directory (setup.json, psf.npy,
+pins halved), e (S_e, DI0c's cycle-4 model; amendment A1), or e0 / e1
+(S_e in facet d0 / d1 only, M0c elsewhere; amendment A2). Each OUTDIR is a DD4 run directory (setup.json, psf.npy,
 header.json, facets.reg, model0.npy) whose subset MS is the simulated copy,
 so `tools/oracles/dd4/dd4.py rang|oracle` run on it unchanged.
 """
@@ -83,6 +84,14 @@ def sky(name):
         return m
     if name == "e":  # amendment A1: DI0c's cycle-4 model as the sky
         return np.load(REAL_RUN / "DI0c" / "cycle-4" / "model.npy")
+    if name in ("e0", "e1"):  # amendment A2: S_e in one facet only, M0c elsewhere
+        e = np.load(REAL_RUN / "DI0c" / "cycle-4" / "model.npy")
+        l, mm = dd2.pixel_lm()
+        idx, _ = dd2.facet_index_and_margin(l, mm, np.array(st["centres"]))
+        sel = idx == int(name[1])
+        m = m.copy()
+        m[sel] = e[sel]
+        return m
     if name == "p":
         m = m.copy()
         for y, x in st["pins"][1:]:  # d2, d3

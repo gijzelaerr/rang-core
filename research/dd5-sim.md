@@ -287,3 +287,47 @@ overridden. Two facts constrain the rest:
 - The grid's records add, from now on: each direction's level, those step
   statistics, flagged cells per direction and how many lie on cells with no
   data.
+
+**A2, 2026-11-24, post hoc (after A, B, P, D and E at 4 × 8 s were read;
+before C was read and before any oracle run).**
+
+*Diagnostic arms E0 and E1 (post hoc, after E).* E's model error is the
+difference between two clean models of the real data. By facet, DI0c minus
+M₀ᶜ is +2.64 Jy net (8.09 Jy in absolute value) in d0, −0.27 Jy (2.18 Jy)
+in d1, +0.013 Jy (0.081 Jy) in d2 and 0 in d3. To find which facet's error
+breaks the solves:
+- **E0:** sky = M₀ᶜ with facet d0 replaced by DI0c's model; model M₀ᶜ.
+- **E1:** the same with facet d1 replaced.
+- `diag_complex` at 4 × 8 s, read by A1's rule. These are diagnostics. They
+  do not change the factor outcome, which is read on E.
+
+*Longer intervals.* E and, if it reproduces the real data, C run 16, 64
+and 450 × 8 s in `diag_complex` (450 at 2 slots). The other arms stay at
+4 × 8 s, as A1 allows.
+
+*Stage 5 rewritten (fixed now).*
+- **Configuration:** `diag_complex` at 4 × 8 s in the first of C, B and A
+  whose off-axis directions are all above 0.10 there ("partly" or better).
+  The start model is as in section 6.
+- **A second, `phase` parity** in the same arm and interval. Rang uses each
+  direction's own gain (`phase_last_direction_gain=False`).
+- **Oracle versions:**
+  - `diag_complex` against QuartiCal **0.2.7**, the version rang ports (the
+    DD4 venv);
+  - `phase` against QuartiCal **v0.2.8-dev at
+    `d54c46b99dc059df678e8e2866883e3440073c2d`**. QuartiCal's maintainer
+    replied on ratt-ru/QuartiCal#459 (2026-11-24) that the DD phase bug is
+    fixed on that branch. It is installed from the public GitHub source,
+    with dependencies from PyPI, in its own venv
+    (`~/Build/tmp/20261124-dd5-qc/venv` on WSL ext4). The branch holds 17
+    commits after 0.2.7, among them the shared solver loop (#430) and
+    ANTENNA2's transposed JHJ weights (#456). So a `phase` difference can
+    come from any of them, not only #459.
+  - WSClean 3.7 on DD4 A5's matched copy for both.
+- **Gates:** L and S as in DD4 section 5, unchanged. At cap 500 up to about
+  5 % of d3's cells have not met the step test (B: 0.956). Gate L takes the
+  maximum over unflagged cells, so it can fail on those cells alone. The
+  median gain-product difference and the fraction of cells within 1e-5 are
+  therefore reported beside it, not gated.
+- **Bookings:** rang loops 8 slots each; oracle arms 2 slots each
+  (QuartiCal single-threaded, WSClean `DD4_J=2`).

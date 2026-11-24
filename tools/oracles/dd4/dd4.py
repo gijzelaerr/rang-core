@@ -318,8 +318,9 @@ def run_wsl(script, *args):
     import subprocess
 
     env = dict(os.environ)
-    if "DD4_J" in env:  # WSClean threads (DD4d section 5), passed into WSL
-        env["WSLENV"] = ":".join(x for x in (env.get("WSLENV"), "DD4_J/u") if x)
+    for var in ("DD4_J", "QC_VENV"):  # WSClean threads (DD4d section 5); DD5 A2's
+        if var in env:  # QuartiCal venv (a WSL path), passed into WSL
+            env["WSLENV"] = ":".join(x for x in (env.get("WSLENV"), f"{var}/u") if x)
 
     cmd = [
         "wsl",
