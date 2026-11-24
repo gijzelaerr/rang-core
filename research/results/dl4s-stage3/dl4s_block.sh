@@ -31,11 +31,11 @@ step() { # name slots mem -- command...
 }
 cd "$B"
 step plan 1 2 -- "$PY" "$S/dl4s_plan.py" "$DL2/manifests/$CBID.json" "$S/../e2n-scripts/e2n.yaml" "$B"
-cp -n "$S/../e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml" "$B/"
+cp --update=none "$S/../e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml" "$B/"
 if [ ! -e "$B/done/concat" ]; then rm -rf "$MS"; fi
 step concat 1 8 -- apptainer exec --containall --env HOME=/tmp --env OMP_NUM_THREADS=1 \
   --bind "$DL2:$DL2:ro" --bind "$R:$R" --bind "$S:$S:ro" --pwd /tmp "$SIF" \
-  python3 "$S/dl4s_concat.py" casa "$B/scans.json" "$MS"
+  /opt/casa/bin/python -I "$S/dl4s_concat.py" casa "$B/scans.json" "$MS"
 step scans 1 8 -- "$PY" "$S/dl4s_concat.py" scans "$B/scans.json" "$MS"
 export RAYON_NUM_THREADS=4
 step flag 4 24 -- "$RC" flag "$B/off.yaml" "$MS" --run-dir "$B/run-flag"
