@@ -469,3 +469,27 @@ L and S are read. The rerun uses DD4c's settings
 `G.pinned_directions=[0]` is that solve. DD4's own frozen settings (cap
 150, `diag_complex`, M₀) are not rerun on the oracle, because their DD
 solves do not converge (DD4b).
+
+*A5 result (2026-11-24).* Run `run-02/C2`; archive
+[results/dd4-eso137/C2/](results/dd4-eso137/C2/).
+
+| Control | max difference / peak | best scale WSClean/rang, d0-d3 | |
+| --- | --- | --- | --- |
+| **E1:** rang's emulation of WSClean's formula against A4's C1 | **2.8e-4** | 1.0000, 0.9989, 1.0002, 1.0001 | pass |
+| **C2m:** matched copy against rang | **2.9e-4** | 1.0000, 0.9989, 1.0002, 1.0001 | **pass** |
+| C2e: equal-weight unflagged copy against rang | 3.3e-2 | 1.034, 1.0004, 1.0003, 1.0000 | fail |
+
+- E1 brings A4's 3.0e-2 down to 2.8e-4, so the source reading explains the
+  3 %.
+- The matched copy passes A1's limit, so the setup fix stands and the oracle
+  is rerun (DD4c's Oc).
+- The 2.8-2.9e-4 left in both is in facet d1: a scale of 0.9989, the same in
+  E1 and C2m. So it is not the weighting. It is not explained here; DD2b's
+  simulated facets reached 7.5e-8.
+- C2e fails in d0 only, at 3.4 %, with d1-d3 within 4e-4. With all weights 1
+  and nothing flagged, the source reading predicts agreement. So this is
+  not explained either. The copy un-flags 52.7 M visibilities, against
+  30.8 M usable, and zeroes the flagged data in both codes. It is recorded,
+  not chased (the coordinator's "cheap steps").
+- The upstream report is drafted at `outputs/drafts/wsclean-facet-weights.md`
+  in the main checkout. It is not posted.
