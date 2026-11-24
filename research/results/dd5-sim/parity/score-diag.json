@@ -1,0 +1,112 @@
+{
+ "note": "research/dd4-eso137.md",
+ "restoring_sigma_px": 1.9757036218112078,
+ "L": {
+  "0": {
+   "components": [
+    0,
+    0
+   ],
+   "same_pixels": true,
+   "flux_ok": true,
+   "gain_product_max_abs_diff": 1.0670494317713162e-05,
+   "flags_equal": true,
+   "residual_rel_diff": 0.08487854152917862,
+   "pass": false
+  },
+  "1": {
+   "components": [
+    0,
+    0
+   ],
+   "same_pixels": true,
+   "flux_ok": true,
+   "gain_product_max_abs_diff": 1.0670494317713162e-05,
+   "flags_equal": true,
+   "residual_rel_diff": 0.08487854152917862,
+   "pass": false
+  },
+  "2": {
+   "components": [
+    0,
+    0
+   ],
+   "same_pixels": true,
+   "flux_ok": true,
+   "gain_product_max_abs_diff": 1.0670494317713162e-05,
+   "flags_equal": true,
+   "residual_rel_diff": 0.08487854152917862,
+   "pass": false
+  },
+  "3": {
+   "components": [
+    0,
+    0
+   ],
+   "same_pixels": true,
+   "flux_ok": true,
+   "gain_product_max_abs_diff": 1.0670494317713162e-05,
+   "flags_equal": true,
+   "residual_rel_diff": 0.08487854152917862,
+   "pass": false
+  },
+  "4": {
+   "components": [
+    0,
+    0
+   ],
+   "same_pixels": true,
+   "flux_ok": true,
+   "gain_product_max_abs_diff": 1.0670494317713162e-05,
+   "flags_equal": true,
+   "residual_rel_diff": 0.08487854152917862,
+   "pass": false
+  }
+ },
+ "L_parity_up_to_rule": false,
+ "L_first_fail": 0,
+ "measures": {
+  "Rd": {
+   "offaxis_rms": {
+    "d1": 2.9445980034870443e-05,
+    "d2": 2.8216053971846122e-05,
+    "d3": 2.887705511479339e-05
+   },
+   "field_rms": 3.0012353402638323e-05,
+   "peak": 1.3612752130360295,
+   "dynamic_range": 45357.1632578591,
+   "field_pixels": 7703007
+  },
+  "Od": {
+   "offaxis_rms": {
+    "d1": 2.9284701205449434e-05,
+    "d2": 2.807496372370224e-05,
+    "d3": 2.8844835089329732e-05
+   },
+   "field_rms": 3.0064279244545133e-05,
+   "peak": 1.361273976067756,
+   "dynamic_range": 45278.78300341245,
+   "field_pixels": 7703007
+  }
+ },
+ "S": {
+  "rms_ratio_R_over_O": {
+   "d1": 1.0055072724932224,
+   "d2": 1.0050254828299126,
+   "d3": 1.0011170119490673
+  },
+  "dr_ratio_R_over_O": 1.0017310592124515,
+  "tolerance": 0.001,
+  "pass": false
+ },
+ "gain_over_DI": {
+  "rms_ratio_R_over_DI": {
+   "d1": 1.0,
+   "d2": 1.0,
+   "d3": 1.0
+  },
+  "q": 1.0,
+  "dr_R_ge_DI": true,
+  "verdict": "null"
+ }
+}

@@ -1,0 +1,58 @@
+{
+ "run": "D:\\rang\\outputs\\dd5-20261124\\a0",
+ "model": "D:/rang/outputs/dd5-20261124/a0/sky.npy",
+ "kind": "diag_complex",
+ "ti": 4,
+ "seconds_per_solution": 32,
+ "nint": 113,
+ "iterations": 500,
+ "iterations_second": 501,
+ "fraction": 0.9474266740453791,
+ "perdir_converged": [
+  1.0,
+  0.9867256637168141,
+  0.934070796460177,
+  0.8691796008869179
+ ],
+ "converges": false,
+ "e_d": [
+  0.0,
+  1.165978782380627e-08,
+  7.813910278642894e-08,
+  2.116830891366671e-07
+ ],
+ "ehat_d": [
+  NaN,
+  NaN,
+  NaN,
+  NaN
+ ],
+ "e_over_ehat": [
+  NaN,
+  NaN,
+  NaN,
+  NaN
+ ],
+ "accurate": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "flagged_offaxis": 354,
+ "phase_std_rad": [
+  0.0,
+  0.5462256348784001,
+  0.5722237481742203,
+  0.5441145284135106
+ ],
+ "amp_median": [
+  1.0,
+  0.9935737837524032,
+  1.003662048653593,
+  1.001558272859504
+ ],
+ "seconds_predict": 20.97748269996373,
+ "seconds_solve": 155.98024679999799,
+ "seconds_second_solve": 231.86808060004842
+}
