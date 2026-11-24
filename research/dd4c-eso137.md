@@ -6,7 +6,15 @@ decisions 2026-11-24, relayed by the coordinator. Sections 1-4 are frozen
 2026-11-24, before the code that runs them; later changes are dated
 amendments.
 
-Status: **proposed.**
+Status: **measured 2026-11-24.**
+- **Convergence:** no off-axis direction converges. 0.4-1.8 % of cells
+  converge in every cycle, in both phase kernels.
+- **Rc against DI0c:** `q₀` = 0.56 and DR 2.6 ×, which reads "DD helps
+  (rang only)".
+- **Parity (Rq against Oc):** fails from cycle 0, on the gain products. Both
+  phase solves wander without converging, as in DD3b.
+- So the DD reading is not oracle-checked, and its gains are not
+  determined.
 
 ## 1. Hypothesis and what changes
 
@@ -103,4 +111,66 @@ to `research/results/dd4c-eso137/`.
 
 ## 5. Measured result
 
-Not yet run.
+Run root `D:/rang/outputs/dd4-20261123/run-02` (arms `Rc/`, `Rq/`, `DI0c/`,
+`Oc/`; `scorec.json`, `scorec-convergence.json`); archive
+[results/dd4c-eso137/](results/dd4c-eso137/). Host glacier, shared. Code at
+`ca369756`; `c558bbd6` only fixes which arms the scorer counts.
+
+**Convergence per direction: no direction converges.** Every solve
+stopped at 500 iterations. The table gives each direction's converged
+fraction, cycles 0-4.
+
+| Arm | d1 | d2 | d3 | verdict |
+| --- | --- | --- | --- | --- |
+| Rc (own gain) | 0.018, 0.016, 0.016, 0.017, 0.017 | 0.007, 0.015, 0.011, 0.011, 0.012 | 0.013, 0.010, 0.010, 0.010, 0.008 | does not converge (all three) |
+| Rq (last-direction gain) | 0.012, 0.013, 0.010, 0.014, 0.011 | 0.014, 0.009, 0.006, 0.008, 0.004 | 0.008, 0.009, 0.007, 0.007, 0.008 | does not converge (all three) |
+
+- The final-cycle phase spread is 1.0-1.2 rad in d1-d3 (Rc), against 0 in
+  the pinned d0.
+- About 14,000 off-axis gains are flagged by the solver's divergence
+  ladder, against 538 in DD4's amplitude-and-phase cycle 0.
+- Phase only does not make the off-axis solve converge on this field at
+  4 × 8 s, with either kernel.
+
+**Measures (final cycle 4; rms in mJy):**
+
+| Arm | rms d1 | rms d2 | rms d3 | field rms | DR |
+| --- | --- | --- | --- | --- | --- |
+| **Rc** | 5.11 | 1.98 | 1.77 | 1.25 | 1096 |
+| Rq | 4.89 | 2.09 | 1.61 | 1.23 | 1114 |
+| Oc | 7.09 | 4.13 | 5.63 | 2.67 | 517 |
+| **DI0c** | 9.20 | 8.33 | 2.72 | 3.23 | 428 |
+
+**DD against DI0 (decision measure).**
+- Rc against DI0c: d1 0.56, d2 0.24, d3 0.65. So `q₀` = 0.56 and DR
+  2.56 ×, which reads **"DD helps (rang only)"** under section 3.
+- Rq against DI0c gives `q₀` = 0.53 and DR 2.61 ×.
+- Unlike DD4b's R500, every direction is better than DI0, d1 included.
+
+**Parity (Rq against Oc): parity failure at cycle 0, on the gain
+products.**
+- Cycle 0: median R-O difference 0.66, 0.78 and 0.77 in d1-d3; maximum 2.0;
+  flags differ (14,339 against 14,276). The residual differs by 0.26 of the
+  peak.
+- The component lists differ from cycle 0 (2,776 against 2,500). They part
+  further later (3,074 against 150 in cycle 3), as Oc's residual changes.
+- This is not parity up to the rule (`L_parity_up_to_rule` false), so gate
+  S is read at the frozen 0.1 %: rms ratios R/O 0.69, 0.51, 0.29 and DR
+  ratio 2.16. It fails.
+- The cause is the same as DD3b's arm P. Neither phase solve converges,
+  so the two trajectories part. QuartiCal#459's last-direction gain is on
+  both sides here (Rq), so this run does not separate the bug from the
+  non-convergence.
+
+**Outcome under section 3: parity failure.** Rc's "DD helps" reading
+stays rang only. Its gains are not determined, so the lower residual can
+again be absorption of unmodelled flux by free phases. This run does not
+separate the two.
+
+**Cost (shared host):**
+- Rc: 6607 s for 5 cycles. Each solve took 945-995 s, plus 457-465 s for
+  the second solve that measures per-direction convergence.
+- Rq: 6137 s (solves 911-1072 s).
+- DI0c: 348 s.
+- Oc: 13,414 s, with QuartiCal `phase` at 2369-2596 s per cycle. Oc booked
+  8 slots but QuartiCal used about one core.

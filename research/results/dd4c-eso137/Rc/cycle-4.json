@@ -1,0 +1,14 @@
+{
+ "iterations": 500,
+ "fraction": 0.25,
+ "seconds_solve": 926.0789275999996,
+ "seconds_image": 30.315930300042965,
+ "perdir_converged": [
+  1.0,
+  0.016770186335403725,
+  0.012283894449499545,
+  0.008333333333333333
+ ],
+ "iterations_second": 501,
+ "seconds_second_solve": 446.5715041999938
+}

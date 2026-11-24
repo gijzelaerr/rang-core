@@ -19,6 +19,11 @@ Status: **partly measured 2026-11-23, setup outcome on arm O (A3, A4).**
   over DI is provisional (section 7).
 - The follow-up with cap 500, DI0 as the frozen baseline and an extended
   start model is [dd4b-eso137.md](dd4b-eso137.md).
+- A5 (2026-11-24) explains the 3 %: WSClean 3.7 weights each hand by its
+  own weight and its correction sum by `w_XX` only. A matched copy passes
+  (2.9e-4). The oracle was rerun with DD4c's settings
+  ([dd4c-eso137.md](dd4c-eso137.md)): parity fails at cycle 0, on the gain
+  products, because neither DD phase solve converges.
 
 ## 1. What DD4 is, and what is not claimed
 
