@@ -444,11 +444,10 @@ fn single_image_keeps_only_the_active_visibilities() {
         String::from_utf8_lossy(&out.stderr)
     );
     let report = std::fs::read_to_string(dir.join("g-report.json")).unwrap();
-    if !report.contains("\"buffers\"") {
-        println!("the binary's allocator does not count; nothing to check");
-        std::fs::remove_dir_all(&dir).unwrap();
-        return;
-    }
+    assert!(
+        report.contains("\"buffers\""),
+        "the binary's allocator does not count"
+    );
     let vis = buffer_bytes(&report, "measurement: visibilities");
     let dense_vis = buffer_bytes(&report, "read: Stokes I visibilities");
     let wgt = buffer_bytes(&report, "measurement: weights");

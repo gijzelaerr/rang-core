@@ -23,8 +23,10 @@ the release notes are the section of this file for that version.
   GB instead of 40.2 (0.944 ×), wall 0.993 ×, images byte-identical (#32, `research/gemclean-mem-32b.md`).
 - GeMClean: a single-image run (one channel out, as every self-calibration image) also keeps only the
   active visibilities and weights, sorted, after its beam: the default `rang-core selfcal` on the E2
-  pilot (4096², `-j 8`) peaks at 7.53 GiB instead of 9.30, within the default `data.memory_limit_gb: 8`;
-  images and gain stores byte-identical (#34, `research/selfcal-mem-34.md`).
+  pilot copy of the self-calibration grid (4096², `-j 8`, 63 % of cells flagged) peaks at 7.53 GiB
+  instead of 9.30, within the default `data.memory_limit_gb: 8`; images and gain stores byte-identical.
+  GeMClean still reads no memory limit; a lightly flagged MS of that size needs about 11 GB (estimate)
+  (#34, `research/selfcal-mem-34.md`).
 
 ## 0.4.0 (2026-11-22)
 

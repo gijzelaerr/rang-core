@@ -1,7 +1,8 @@
 # Rang: the default self-calibration run within the default memory limit, the image stage (issue #34)
 
 Status, 2026-11-24: **measured (section 6): stage A passes E and P; the default self-calibration on the
-pilot peaks at 7.53 GiB (was 9.30) under the default 8 GiB, images and gain stores identical.** Frozen in
+grid's pilot copy (63 % of cells flagged) peaks at 7.53 GiB (was 9.30) under the default 8 GiB, images
+and gain stores identical; a lightly flagged MS of that size would not fit (post hoc estimate, section 6).** Frozen in
 `68be3fa9` before any code; sections 1-5 unchanged since. Branch `selfcal-mem-34`.
 Host for the measurements: **nash** ([nash-host.md](nash-host.md)), heavy lock, `nice -n 19 ionice -c3`.
 Follows [selfcal-memory.md](selfcal-memory.md).
@@ -122,21 +123,35 @@ Where the peak is now: GeMClean's heap peaks at 8.04 GB in the 2n PSF pass (dens
 shared host, so this is no speed figure. M0's FITS differ from the 2026-11-17 run's (GeMClean changed
 between, as section 1 expected); its gain stores were not archived then, so that comparison is not made.
 
-**Outcome.** Stage A passes E and P: it is kept. The default self-calibration on the pilot runs within the
-default `data.memory_limit_gb: 8`, whole run included. Stage B and gate Q were not needed. Item 1 of #34
-(solve) and item 3 (planner) were done in `281a1a79`; this closes the remaining part. The margin is 6 %
-of the limit on this pilot at 4096²; GeMClean still does not read `data.memory_limit_gb`, so a larger
-image or MS can exceed it (section 7). No novelty or speed claim.
+**Outcome.** Stage A passes E and P: it is kept. The default self-calibration on the grid's pilot copy runs
+within the default `data.memory_limit_gb: 8`, whole run included. Stage B and gate Q were not needed. Item
+1 of #34 (solve) and item 3 (planner) were done in `281a1a79`. No novelty or speed claim.
+
+**Post hoc, 2026-11-24 (after the measurements): how far the fit carries, an estimate.** The pilot copy
+is the grid's: 128 of 256 channels are flagged for the hold-out, so only 76.1 M of its 203 M cells are
+weighted. M1's report (`report-M1-round1.json`) holds 44 bytes per weighted cell through the clean
+(visibilities 8, weights 8, the plan's sorted index 8, its stored sorted values 16, the permutation 4: 3.35
+GB) on top of 4.68 GB that does not depend on the flags (images, grids, beam), for the clean's 8.03 GB. The
+2n PSF pass (8.04 GB) holds the dense arrays, which depend on the cells, not on the flags. By that count
+8 GiB holds about 89 M weighted cells at 4096² and `-j 8`, 17 % more than this copy. The same MS without
+the hold-out (about twice the weighted cells) would need about 11.4 GB with stage A and about 12 GB on
+main. These are estimates from the buffer report, not runs. So the gate is met on the frozen case, and
+the default limit is not met on a lightly flagged pilot-size MS; GeMClean still reads no limit
+(`selfcal-memory.md` made the same caveat for the solve's figure).
 
 ## 7. For the coordinator
 
 - **Branch `selfcal-mem-34`, not merged.** `tools/check_all.py --quick` on glacier; CI on the branch; the
   full check (oracles, archive) is left to the merge check.
-- **#34 can close** after the merge: the default run fits at 8 GiB (7.53 GiB whole run). The brief's 37 GB
-  and "13.6 against 11.7" figures were from before `281a1a79`.
-- **Open, not done here:** GeMClean has no memory limit of its own, and no estimate of its peak is
-  checked against `data.memory_limit_gb` (stage B of section 2 was not needed). Whether to add one is an
-  owner decision; the next peak to cut is the 2n PSF pass (8.04 GB here).
+- **Decision: close #34 or keep it open.** The frozen gate is met: the default run on the grid's pilot
+  copy fits at 8 GiB (7.53 GiB whole run). But that copy has 63 % of its cells flagged; by the post hoc
+  estimate (section 6) the same MS without the hold-out needs about 11.4 GB. Options: close on the frozen
+  gate; or keep #34 open for a GeMClean estimate checked against `data.memory_limit_gb` (stage B, not
+  built) or a measured run on the un-held-out base. The brief's 37 GB and "13.6 against 11.7" figures
+  were from before `281a1a79`; the planner figure is unchanged from there (1.138 × at 600 s), and no
+  GeMClean estimate exists.
+- **Next peaks to cut** (GeMClean): the 2n PSF pass (8.04 GB here, dense arrays held), and the plan's
+  stored sorted values (16 B per weighted cell).
 - **Left on nash:** `~/rang-data/outputs/selfcal-mem-34-20261124/` (2.3 GB: the M0 and M1 run
   directories, main's and the branch's `gemclean` binaries) and the worktree
   `~/Worktrees/rang/selfcal-mem-34` until the merge. The `cal2.ms` copy, the base and both pilot copies
