@@ -16,23 +16,39 @@ import sys
 from pathlib import Path
 
 
-def casa(scans, out):
-    from casatasks import concat
-
-    vis = [s["ms"] for s in scans["scans"]]
-    # the sources are read-only (dl2-data.md 4): copy the first without its
-    # modes, then append the rest to it (concat's own copy keeps the modes
-    # and then fails to move POINTING)
+def _copy(src, dst):
+    """A writable copy of a read-only MS (CASA concat opens its inputs
+    read/write; the sources stay untouched)."""
+    import os
     import shutil
 
-    shutil.copytree(vis[0], out, copy_function=shutil.copyfile)
-    import os
-
-    for d, _, files in os.walk(out):
+    shutil.copytree(src, dst, copy_function=shutil.copyfile)
+    for d, _, files in os.walk(dst):
         os.chmod(d, 0o755)
         for f in files:
             os.chmod(os.path.join(d, f), 0o644)
-    concat(vis=vis[1:], concatvis=out, copypointing=False, timesort=False)
+
+
+def casa(scans, out):
+    import shutil
+    import time
+
+    from casatasks import concat
+
+    vis = [s["ms"] for s in scans["scans"]]
+    stage = Path(f"{out}.stage")
+    t0 = time.time()
+    _copy(vis[0], out)
+    rest = []
+    for v in vis[1:]:
+        dst = stage / Path(v).name
+        _copy(v, dst)
+        rest.append(str(dst))
+    t1 = time.time()
+    concat(vis=rest, concatvis=out, copypointing=False, timesort=False)
+    t2 = time.time()
+    shutil.rmtree(stage)
+    print(json.dumps({"copy_s": round(t1 - t0, 1), "concat_s": round(t2 - t1, 1)}))
 
 
 def renumber(scans, out):
