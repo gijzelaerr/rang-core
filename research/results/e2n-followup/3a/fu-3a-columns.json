@@ -1,0 +1,82 @@
+{
+ "baseline": "m007-m050",
+ "scan": 7,
+ "times": 14,
+ "flag_all_time_frac": 0.6,
+ "columns": [
+  {
+   "chan": 374,
+   "differ": 1,
+   "rang_flagged_of_14": 10,
+   "tricolour_flagged_of_14": 9
+  },
+  {
+   "chan": 835,
+   "differ": 14,
+   "rang_flagged_of_14": 14,
+   "tricolour_flagged_of_14": 0
+  },
+  {
+   "chan": 848,
+   "differ": 3,
+   "rang_flagged_of_14": 4,
+   "tricolour_flagged_of_14": 7
+  },
+  {
+   "chan": 855,
+   "differ": 9,
+   "rang_flagged_of_14": 14,
+   "tricolour_flagged_of_14": 5
+  },
+  {
+   "chan": 856,
+   "differ": 1,
+   "rang_flagged_of_14": 1,
+   "tricolour_flagged_of_14": 2
+  },
+  {
+   "chan": 857,
+   "differ": 1,
+   "rang_flagged_of_14": 13,
+   "tricolour_flagged_of_14": 14
+  },
+  {
+   "chan": 876,
+   "differ": 3,
+   "rang_flagged_of_14": 14,
+   "tricolour_flagged_of_14": 11
+  },
+  {
+   "chan": 882,
+   "differ": 14,
+   "rang_flagged_of_14": 14,
+   "tricolour_flagged_of_14": 0
+  },
+  {
+   "chan": 920,
+   "differ": 8,
+   "rang_flagged_of_14": 6,
+   "tricolour_flagged_of_14": 14
+  },
+  {
+   "chan": 922,
+   "differ": 4,
+   "rang_flagged_of_14": 10,
+   "tricolour_flagged_of_14": 14
+  },
+  {
+   "chan": 923,
+   "differ": 9,
+   "rang_flagged_of_14": 5,
+   "tricolour_flagged_of_14": 14
+  },
+  {
+   "chan": 966,
+   "differ": 1,
+   "rang_flagged_of_14": 4,
+   "tricolour_flagged_of_14": 3
+  }
+ ],
+ "cells_differ": 68,
+ "cells_in_columns_where_one_arm_flags_all_14": 62
+}
