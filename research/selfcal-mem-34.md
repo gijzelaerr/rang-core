@@ -137,6 +137,9 @@ image or MS can exceed it (section 7). No novelty or speed claim.
 - **Open, not done here:** GeMClean has no memory limit of its own, and no estimate of its peak is
   checked against `data.memory_limit_gb` (stage B of section 2 was not needed). Whether to add one is an
   owner decision; the next peak to cut is the 2n PSF pass (8.04 GB here).
-- **Left on nash:** `~/rang-data/outputs/selfcal-mem-34-20261124/` (the `cal2.ms` copy 8.1 GB, base and
-  two pilot copies, both runs, binaries) and the scratch checkout `~/Build/tmp/20261124-selfcal-mem-34/arm`.
-  Deleted when this task ends (see the hand-back).
+- **Left on nash:** `~/rang-data/outputs/selfcal-mem-34-20261124/` (2.3 GB: the M0 and M1 run
+  directories, main's and the branch's `gemclean` binaries) and the worktree
+  `~/Worktrees/rang/selfcal-mem-34` until the merge. The `cal2.ms` copy, the base and both pilot copies
+  (64 GB), the sweep's outputs and the scratch checkout are deleted.
+- **Memory test** (`core/tests/gemclean_memory.rs`, new case): passes on the branch (visibilities 0.30,
+  weights 0.15 of the dense arrays) and fails on main's binary (`GEMCLEAN_MEMORY_BIN`, 1.00), nash.
