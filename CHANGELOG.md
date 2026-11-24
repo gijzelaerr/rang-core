@@ -21,6 +21,10 @@ the release notes are the section of this file for that version.
 - GeMClean: a Stokes I run keeps only each channel's active visibilities and weights, sorted, after
   its PSF (as the polarisation path does): case I (E2-N, 4096² multiscale, 8 channels) peaks at 37.9
   GB instead of 40.2 (0.944 ×), wall 0.993 ×, images byte-identical (#32, `research/gemclean-mem-32b.md`).
+- GeMClean: a single-image run (one channel out, as every self-calibration image) also keeps only the
+  active visibilities and weights, sorted, after its beam: the default `rang-core selfcal` on the E2
+  pilot (4096², `-j 8`) peaks at 7.53 GiB instead of 9.30, within the default `data.memory_limit_gb: 8`;
+  images and gain stores byte-identical (#34, `research/selfcal-mem-34.md`).
 
 ## 0.4.0 (2026-11-22)
 

@@ -1,0 +1,11 @@
+09:44:15 expand base 823500 87.7 s
+09:44:15 stage base None wall_s 87.7
+base 87.98 s 1411744 KB
+09:44:47 stage prepare D wall_s 31.8
+prepare 32.10 s 199020 KB
+== 2026-11-24T07:44:47Z load 4.78 3.45 2.08 M0 start
+rang-core: selfcal: running
+rang-core: selfcal: done in 2516.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-mem-34-20261124/M0/run/receipts/selfcal-20261124T074447Z.rang-receipt.json
+selfcal 2533.43 s 9748640 KB
+== 2026-11-24T08:27:00Z load 13.21 11.96 11.06 M0 end
