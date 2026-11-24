@@ -1,0 +1,2432 @@
+WARNING: Overriding HOME environment variable with APPTAINERENV_HOME is not permitted
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  856-963 (128)
+  +-J- 1  I   1  0  1  1  0  0  963-1070 (128)
+  +-J- 2  I   2  0  2  2  0  0  1070-1177 (128)
+  +-J- 3  I   3  0  3  3  0  0  1177-1284 (128)
+  +-J- 4  I   4  0  4  4  0  0  1284-1391 (128)
+  +-J- 5  I   5  0  5  5  0  0  1391-1498 (128)
+  +-J- 6  I   6  0  6  6  0  0  1498-1605 (128)
+  +-J- 7  I   7  0  7  7  0  0  1605-1712 (128)
+WARNING: This measurement set has no or an invalid WEIGHT_SPECTRUM column; will use less informative WEIGHT column.
+Reordering /c/e2n.ms into 8 x 1 parts.
+Reordering: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Initializing model visibilities: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Precalculating MF weights for Briggs'(0.5) weighting...
+Opening reordered part 0 for /c/e2n.ms
+Opening reordered part 1 for /c/e2n.ms
+Opening reordered part 2 for /c/e2n.ms
+Opening reordered part 3 for /c/e2n.ms
+Opening reordered part 4 for /c/e2n.ms
+Opening reordered part 5 for /c/e2n.ms
+Opening reordered part 6 for /c/e2n.ms
+Opening reordered part 7 for /c/e2n.ms
+ == Constructing PSF ==
+Detected 503.8 GB of system memory, usage not limited.
+Opening reordered part 0 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00202763:19817.7] lambdas, maxuvw=24704.9 lambda)
+Theoretic beam = 8.35''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+Fitting beam... major=16.13'', minor=9.59'', PA=96.48 deg, theoretical=8.35''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 1 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0022255:23193] lambdas, maxuvw=27452.2 lambda)
+Theoretic beam = 7.51''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+Fitting beam... major=16.15'', minor=9.86'', PA=96.23 deg, theoretical=7.51''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 2 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00265665:24819.1] lambdas, maxuvw=30049.4 lambda)
+Theoretic beam = 6.86''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+Fitting beam... major=15.33'', minor=8.2'', PA=93.71 deg, theoretical=6.86''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 3 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00583252:27597.9] lambdas, maxuvw=32925.5 lambda)
+Theoretic beam = 6.26''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+Fitting beam... major=11.46'', minor=6.72'', PA=96.39 deg, theoretical=6.26''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 4 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00298869:30169] lambdas, maxuvw=35694.4 lambda)
+Theoretic beam = 5.78''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+Fitting beam... major=14.93'', minor=8.55'', PA=98.3 deg, theoretical=5.78''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 5 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00313567:32200.3] lambdas, maxuvw=38441.7 lambda)
+Theoretic beam = 5.37''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+Fitting beam... major=11.24'', minor=6.65'', PA=97.94 deg, theoretical=5.37''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 6 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00357097:34170] lambdas, maxuvw=41189.1 lambda)
+Theoretic beam = 5.01''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+Fitting beam... major=10.48'', minor=5.85'', PA=99.21 deg, theoretical=5.01''.
+Writing psf image... DONE
+ == Constructing PSF ==
+Opening reordered part 7 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00361808:35919.8] lambdas, maxuvw=42841.8 lambda)
+Theoretic beam = 4.81''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+Fitting beam... major=9.97'', minor=5.7'', PA=96.86 deg, theoretical=4.81''.
+Writing psf image... DONE
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+Writing dirty image...
+ == Deconvolving (1) ==
+Estimated standard deviation of background noise: 75.32 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 790.77 µJy, 10: 595.72 µJy, 19: 445.74 µJy, 39: 293.02 µJy, 77: 185.62 µJy, 154: 110.36 µJy, 308: 58.06 µJy, 616: 26.96 µJy, 1233: 9.85 µJy, 2465: 1.49 µJy}
+Starting multi-scale cleaning. Start peak=1.07 Jy, major iteration threshold=106.83 mJy
+Iteration 3, scale 0 px : 778.77 mJy at 3274,1485
+Iteration 6, scale 0 px : 567.73 mJy at 3274,1485
+Iteration 9, scale 0 px : 413.87 mJy at 3274,1485
+Iteration 12, scale 0 px : 303.61 mJy at 3273,1485
+Iteration 15, scale 0 px : 224 mJy at 3273,1485
+Iteration 18, scale 0 px : 164.27 mJy at 3274,1485
+Iteration 25, scale 0 px : 129.75 mJy at 3987,3631
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 32, scale 10 px : 109.23 mJy at 3267,3620
+(13) Iteration 33, scale 0 px : 101.67 mJy at 3273,1484
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Continuing image-based deconvolution with auto-mask.
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 217.08 µJy, 10: 172.41 µJy, 19: 135.05 µJy, 39: 94.52 µJy, 77: 62.88 µJy, 154: 39.51 µJy, 308: 22.87 µJy, 616: 12.03 µJy, 1233: 4.71 µJy, 2465: 1.14 µJy}
+Starting multi-scale cleaning. Start peak=101.67 mJy, major iteration threshold=10.17 mJy
+Iteration 41, scale 0 px : 80.04 mJy at 3987,3630
+Iteration 48, scale 10 px : 68.3 mJy at 3267,3620
+Iteration 51, scale 0 px : 62.69 mJy at 3274,1485
+Iteration 56, scale 0 px : 49.61 mJy at 3267,3619
+Iteration 64, scale 10 px : 43.56 mJy at 3267,3620
+Iteration 67, scale 10 px : 34.48 mJy at 3267,3620
+Iteration 70, scale 0 px : 38.43 mJy at 3273,1484
+Iteration 75, scale 0 px : 30.42 mJy at 3987,3630
+Iteration 80, scale 0 px : 23.88 mJy at 3273,1484
+Iteration 88, scale 10 px : 22.6 mJy at 3267,3620
+Iteration 91, scale 10 px : 17.94 mJy at 3267,3620
+Iteration 94, scale 0 px : 18.61 mJy at 3987,3631
+Iteration 99, scale 0 px : 14.58 mJy at 3274,1485
+Iteration 104, scale 10 px : 14.28 mJy at 3267,3620
+Iteration 107, scale 10 px : 11.4 mJy at 3267,3620
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 109, scale 0 px : 11.57 mJy at 3987,3631
+(13) Iteration 112, scale 0 px : 9.92 mJy at 3273,1484
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Assigning from 8 to 8 channels...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+ == Deconvolving (2) ==
+Estimated standard deviation of background noise: 27.96 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 150.81 µJy, 10: 119.39 µJy, 19: 93.95 µJy, 39: 66.25 µJy, 77: 44.51 µJy, 154: 27.07 µJy, 308: 14.86 µJy, 616: 7.55 µJy, 1233: 2.91 µJy, 2465: 440.89 nJy}
+Starting multi-scale cleaning. Start peak=90.17 mJy, major iteration threshold=9.02 mJy
+Iteration 115, scale 10 px : 70.98 mJy at 3740,2208
+Iteration 119, scale 0 px : 60.78 mJy at 3350,4140
+Iteration 124, scale 10 px : 55.8 mJy at 3740,2208
+Iteration 129, scale 19 px : 44.42 mJy at 1940,3348
+Iteration 134, scale 0 px : 47.9 mJy at 3269,3625
+Iteration 145, scale 0 px : 37.98 mJy at 3439,3073
+Iteration 163, scale 19 px : 31.02 mJy at 1958,3365
+Iteration 170, scale 0 px : 29.22 mJy at 3602,4266
+Iteration 193, scale 10 px : 24.98 mJy at 1958,3365
+Iteration 205, scale 0 px : 23.12 mJy at 3157,2699
+Iteration 227, scale 39 px : 22.05 mJy at 1699,2867
+Iteration 230, scale 19 px : 19.07 mJy at 1942,3349
+Iteration 240, scale 0 px : 18.44 mJy at 2295,2045
+Iteration 276, scale 39 px : 16.3 mJy at 1699,2870
+Iteration 279, scale 10 px : 15.33 mJy at 1943,3350
+Iteration 303, scale 0 px : -14.61 mJy at 3270,1469
+Iteration 366, scale 0 px : -12.08 mJy at 3279,1479
+Iteration 451, scale 19 px : 13.08 mJy at 1699,2859
+Iteration 461, scale 19 px : 10.38 mJy at 2473,3674
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 477, scale 10 px : 9.78 mJy at 1945,3351
+(13) Iteration 484, scale 0 px : -9.65 mJy at 3257,1490
+(12) Iteration 512, scale 0 px : 9.13 mJy at 3286,1479
+(11) Iteration 513, scale 10 px : 9.09 mJy at 3250,1493
+(10) Iteration 514, scale 0 px : 9 mJy at 3350,4140
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Continuing image-based deconvolution with auto-mask.
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 74.46 µJy, 10: 55.98 µJy, 19: 43.27 µJy, 39: 31.29 µJy, 77: 21.68 µJy, 154: 14.05 µJy, 308: 8.71 µJy, 616: 5.24 µJy, 1233: 2.34 µJy, 2465: 458.51 nJy}
+Starting multi-scale cleaning. Start peak=9 mJy, major iteration threshold=900.44 µJy
+Iteration 626, scale 10 px : 8.86 mJy at 2472,3675
+Iteration 638, scale 39 px : 8.84 mJy at 1699,2870
+Iteration 641, scale 19 px : 8.66 mJy at 2492,3670
+Iteration 659, scale 19 px : -6.92 mJy at 3263,1481
+Iteration 685, scale 0 px : -7.5 mJy at 3257,1490
+Iteration 772, scale 10 px : 6.55 mJy at 3297,1472
+Iteration 792, scale 0 px : -5.97 mJy at 3270,1503
+Iteration 895, scale 19 px : -5.61 mJy at 3263,1481
+Iteration 914, scale 10 px : 5.02 mJy at 3297,1472
+Iteration 940, scale 0 px : -4.91 mJy at 3257,1493
+Iteration 1034, scale 19 px : -5.12 mJy at 3740,2207
+Iteration 1044, scale 19 px : 4.02 mJy at 1702,2881
+Iteration 1068, scale 0 px : 4.78 mJy at 3739,2209
+Iteration 1082, scale 0 px : 3.83 mJy at 1945,3351
+Iteration 1199, scale 10 px : 3.91 mJy at 3250,1493
+Iteration 1209, scale 10 px : 3.06 mJy at 3250,1493
+Iteration 1238, scale 19 px : -5.24 mJy at 3740,2207
+Iteration 1242, scale 19 px : -3.93 mJy at 3740,2207
+Iteration 1249, scale 19 px : 3.13 mJy at 1698,2858
+Iteration 1268, scale 0 px : 4.44 mJy at 3740,2206
+Iteration 1273, scale 0 px : 3.44 mJy at 3739,2210
+Iteration 1321, scale 0 px : 2.75 mJy at 3269,1500
+Iteration 1435, scale 39 px : 2.85 mJy at 1699,2871
+Iteration 1438, scale 39 px : 2.19 mJy at 1699,2871
+Iteration 1441, scale 19 px : -5.09 mJy at 3740,2207
+Iteration 1445, scale 19 px : -3.81 mJy at 3740,2207
+Iteration 1449, scale 19 px : -2.88 mJy at 3740,2207
+Iteration 1457, scale 19 px : -2.24 mJy at 3263,1481
+Iteration 1487, scale 0 px : 3.83 mJy at 3740,2206
+Iteration 1492, scale 0 px : 2.98 mJy at 3739,2209
+Iteration 1498, scale 0 px : 2.32 mJy at 3741,2205
+Iteration 1584, scale 10 px : 2.45 mJy at 3250,1493
+Iteration 1596, scale 10 px : 1.95 mJy at 2472,3675
+Iteration 1625, scale 19 px : -4.14 mJy at 3740,2207
+Iteration 1629, scale 19 px : -3.1 mJy at 3740,2207
+Iteration 1634, scale 19 px : -2.34 mJy at 3740,2207
+Iteration 1641, scale 0 px : 3.05 mJy at 3740,2206
+Iteration 1646, scale 0 px : 2.38 mJy at 3739,2210
+Iteration 1656, scale 0 px : 1.88 mJy at 3267,3619
+Iteration 1763, scale 19 px : -3.67 mJy at 3740,2207
+Iteration 1767, scale 19 px : -2.74 mJy at 3740,2207
+Iteration 1772, scale 19 px : -2.19 mJy at 1940,3348
+Iteration 1779, scale 19 px : 1.7 mJy at 3282,1456
+Iteration 1803, scale 10 px : 2.31 mJy at 1943,3350
+Iteration 1809, scale 10 px : 1.84 mJy at 1943,3350
+Iteration 1849, scale 10 px : -1.47 mJy at 3274,1483
+Iteration 1886, scale 0 px : 2.7 mJy at 3740,2206
+Iteration 1898, scale 19 px : -2.66 mJy at 3263,1481
+Iteration 1904, scale 19 px : -2.05 mJy at 3263,1481
+Iteration 1914, scale 0 px : 2.28 mJy at 3739,2210
+Iteration 1936, scale 0 px : -1.81 mJy at 3277,1473
+Iteration 1982, scale 0 px : 1.57 mJy at 3262,1491
+Iteration 2041, scale 19 px : -2.81 mJy at 3740,2207
+Iteration 2045, scale 19 px : -2.16 mJy at 1940,3348
+Iteration 2051, scale 19 px : -1.7 mJy at 1940,3348
+Iteration 2058, scale 19 px : 1.41 mJy at 1946,3352
+Iteration 2083, scale 19 px : 1.12 mJy at 1702,2881
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 2117, scale 0 px : 2.29 mJy at 3740,2206
+Iteration 2124, scale 10 px : -2.08 mJy at 3267,3620
+Iteration 2136, scale 10 px : 1.62 mJy at 1943,3350
+Iteration 2150, scale 0 px : 1.93 mJy at 3267,3620
+Iteration 2159, scale 0 px : 1.54 mJy at 1937,3346
+Iteration 2188, scale 0 px : 1.3 mJy at 3262,1491
+Iteration 2263, scale 10 px : -2.16 mJy at 3267,3620
+Iteration 2271, scale 10 px : -1.71 mJy at 3274,1483
+Iteration 2280, scale 10 px : -1.34 mJy at 3274,1483
+Iteration 2298, scale 10 px : 1.11 mJy at 3269,3625
+(13) Iteration 2330, scale 0 px : 2.14 mJy at 3267,3620
+Iteration 2336, scale 0 px : 1.65 mJy at 3275,1482
+Iteration 2345, scale 0 px : 1.31 mJy at 3267,3620
+Iteration 2360, scale 0 px : 1.07 mJy at 3262,1491
+(12) Iteration 2417, scale 0 px : 897.98 µJy at 3262,1491
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Assigning from 8 to 8 channels...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+ == Deconvolving (3) ==
+Estimated standard deviation of background noise: 19.35 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 58.89 µJy, 10: 44.73 µJy, 19: 33.91 µJy, 39: 23.09 µJy, 77: 14.98 µJy, 154: 9.55 µJy, 308: 6.24 µJy, 616: 4.12 µJy, 1233: 1.89 µJy, 2465: 312.78 nJy}
+Starting multi-scale cleaning. Start peak=-11.42 mJy, major iteration threshold=1.14 mJy
+Iteration 2425, scale 10 px : -9.76 mJy at 3296,1501
+Iteration 2437, scale 19 px : 8.48 mJy at 3264,1513
+Iteration 2447, scale 0 px : 8.48 mJy at 3259,1500
+Iteration 2473, scale 10 px : -7.74 mJy at 3296,1501
+Iteration 2489, scale 10 px : 6.19 mJy at 3278,1506
+Iteration 2560, scale 0 px : 6.65 mJy at 3267,1493
+Iteration 2606, scale 0 px : 5.31 mJy at 3267,1493
+Iteration 2750, scale 10 px : -4.77 mJy at 3296,1501
+Iteration 2809, scale 0 px : 4.4 mJy at 3269,3619
+Iteration 2973, scale 19 px : -4.06 mJy at 3289,1448
+Iteration 2998, scale 10 px : 3.82 mJy at 3297,1479
+Iteration 3078, scale 0 px : -3.68 mJy at 3281,1496
+Iteration 3272, scale 0 px : -3.05 mJy at 3308,1495
+Iteration 3585, scale 19 px : -3.16 mJy at 3368,1417
+Iteration 3637, scale 10 px : -2.78 mJy at 3294,1502
+Iteration 3750, scale 19 px : -2.52 mJy at 3187,1534
+Iteration 3840, scale 0 px : -2.49 mJy at 3271,1486
+Iteration 4226, scale 10 px : -2.21 mJy at 3299,1514
+Iteration 4378, scale 0 px : -2.06 mJy at 3277,1474
+Iteration 4870, scale 39 px : 2.04 mJy at 3353,1405
+Iteration 4879, scale 19 px : 2 mJy at 3208,1478
+Iteration 4977, scale 19 px : 1.6 mJy at 1916,3560
+Iteration 5292, scale 10 px : -1.87 mJy at 3299,1514
+Iteration 5360, scale 0 px : 1.77 mJy at 3269,3619
+Iteration 5837, scale 0 px : 1.64 mJy at 3274,1480
+Iteration 6155, scale 0 px : 1.56 mJy at 3294,1486
+Iteration 6402, scale 10 px : 1.48 mJy at 3205,1520
+Iteration 6575, scale 0 px : -1.43 mJy at 3295,1490
+Iteration 7073, scale 0 px : -2.37 mJy at 3279,1496
+Iteration 7076, scale 0 px : -1.74 mJy at 3279,1496
+Iteration 7092, scale 0 px : 1.49 mJy at 3283,1498
+Iteration 7169, scale 0 px : 1.61 mJy at 3278,1488
+Iteration 7177, scale 0 px : -1.42 mJy at 3277,1474
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 7337, scale 0 px : 1.43 mJy at 3278,1494
+Iteration 7363, scale 0 px : -1.35 mJy at 3277,1474
+(13) Iteration 7390, scale 19 px : 1.32 mJy at 3376,1430
+(12) Iteration 7471, scale 10 px : -1.3 mJy at 3253,1512
+(11) Iteration 7516, scale 0 px : 1.27 mJy at 3279,1473
+(10) Iteration 7532, scale 0 px : -1.3 mJy at 3279,1496
+(9) Iteration 7543, scale 0 px : 1.25 mJy at 3279,1498
+(8) Iteration 7552, scale 0 px : -1.22 mJy at 3276,1486
+(7) Iteration 7558, scale 0 px : 1.22 mJy at 3286,1482
+(6) Iteration 7565, scale 0 px : -1.25 mJy at 3284,1472
+(5) Iteration 7575, scale 39 px : -1.19 mJy at 3267,3621
+(4) Iteration 7578, scale 0 px : 1.19 mJy at 3285,1485
+(3) Iteration 7583, scale 0 px : -1.19 mJy at 3277,1474
+(2) Iteration 7594, scale 0 px : -1.2 mJy at 3279,1496
+(1) Iteration 7600, scale 0 px : -1.21 mJy at 3277,1474
+(0) Iteration 7608, scale 0 px : 1.29 mJy at 3279,1484
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Continuing image-based deconvolution with auto-mask.
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 37.76 µJy, 10: 29.92 µJy, 19: 23.66 µJy, 39: 16.87 µJy, 77: 11.26 µJy, 154: 7.65 µJy, 308: 5.55 µJy, 616: 3.86 µJy, 1233: 1.77 µJy, 2465: 343.23 nJy}
+Starting multi-scale cleaning. Start peak=1.29 mJy, major iteration threshold=128.59 µJy
+Iteration 8379, scale 0 px : -2.24 mJy at 3282,1487
+Iteration 8382, scale 0 px : 1.66 mJy at 3274,1483
+Iteration 8387, scale 0 px : 1.36 mJy at 3279,1479
+Iteration 8415, scale 0 px : -1.28 mJy at 3278,1491
+Iteration 8468, scale 19 px : 1.2 mJy at 3314,1482
+Iteration 8639, scale 10 px : 1.19 mJy at 3236,1468
+Iteration 8835, scale 0 px : -1.18 mJy at 3276,1485
+Iteration 9176, scale 0 px : 1.28 mJy at 3279,1484
+Iteration 9185, scale 0 px : -1.05 mJy at 3276,1485
+Iteration 9978, scale 19 px : 1.08 mJy at 3314,1482
+Iteration 10070, scale 10 px : -986.04 µJy at 3301,1527
+Iteration 10295, scale 39 px : -970.02 µJy at 3267,3621
+Iteration 10305, scale 19 px : 932.91 µJy at 3314,1482
+Iteration 10407, scale 0 px : 941.82 µJy at 3351,4141
+Iteration 11012, scale 0 px : 964.43 µJy at 3257,1490
+Iteration 11024, scale 0 px : -840.39 µJy at 3276,1485
+Iteration 11775, scale 10 px : 818.32 µJy at 3343,1450
+Iteration 11977, scale 19 px : 800.46 µJy at 3370,1440
+Iteration 12089, scale 39 px : -763.65 µJy at 3267,3621
+Iteration 12099, scale 0 px : 740.62 µJy at 3291,1483
+Iteration 13042, scale 0 px : 880.83 µJy at 3274,1480
+Iteration 13046, scale 0 px : 822.49 µJy at 3274,1483
+Iteration 13057, scale 0 px : -1.03 mJy at 3271,1484
+Iteration 13064, scale 0 px : -866.95 µJy at 3259,1489
+Iteration 13093, scale 0 px : 749.37 µJy at 3257,1490
+Iteration 13216, scale 0 px : 712.1 µJy at 3291,1483
+Iteration 13549, scale 0 px : -2.15 mJy at 3271,1484
+Iteration 13552, scale 0 px : -1.63 mJy at 3276,1485
+Iteration 13557, scale 0 px : -1.21 mJy at 3271,1484
+Iteration 13569, scale 0 px : 980.69 µJy at 3271,1486
+Iteration 13790, scale 0 px : 2.36 mJy at 3275,1482
+Iteration 13796, scale 0 px : -1.79 mJy at 3262,1492
+Iteration 13810, scale 0 px : 1.43 mJy at 3267,1481
+Iteration 13833, scale 0 px : -1.2 mJy at 3276,1479
+Iteration 13888, scale 0 px : 1.95 mJy at 3271,1486
+Iteration 13891, scale 0 px : 1.42 mJy at 3271,1486
+Iteration 13922, scale 0 px : -2.16 mJy at 3269,1488
+Iteration 13927, scale 0 px : 1.71 mJy at 3277,1485
+Iteration 13938, scale 0 px : -1.71 mJy at 3274,1485
+Iteration 13947, scale 0 px : 1.86 mJy at 3277,1485
+Iteration 13953, scale 0 px : -1.75 mJy at 3274,1485
+Iteration 13958, scale 0 px : 1.71 mJy at 3271,1486
+Iteration 13968, scale 0 px : -1.89 mJy at 3274,1485
+Iteration 13971, scale 0 px : 1.71 mJy at 3277,1485
+Iteration 14047, scale 0 px : -2.5 mJy at 3279,1482
+Iteration 14051, scale 0 px : -1.98 mJy at 3279,1482
+Iteration 14061, scale 0 px : 1.73 mJy at 3277,1485
+Iteration 14212, scale 0 px : 1.68 mJy at 3265,1490
+Iteration 14234, scale 0 px : 1.64 mJy at 3274,1483
+Iteration 14239, scale 0 px : -1.63 mJy at 3274,1485
+Iteration 14246, scale 0 px : 1.59 mJy at 3274,1483
+Iteration 14256, scale 0 px : -1.66 mJy at 3274,1485
+Iteration 14260, scale 0 px : 1.55 mJy at 3274,1483
+Iteration 14277, scale 0 px : -1.69 mJy at 3274,1485
+Iteration 14280, scale 0 px : 1.52 mJy at 3274,1483
+Iteration 14382, scale 0 px : -1.62 mJy at 3279,1482
+Iteration 14392, scale 0 px : 1.32 mJy at 3283,1482
+Iteration 14620, scale 0 px : -1.32 mJy at 3284,1473
+Iteration 14633, scale 0 px : 1.2 mJy at 3278,1473
+Iteration 14797, scale 0 px : -1.12 mJy at 3268,1476
+Iteration 14888, scale 0 px : -1.05 mJy at 3289,1483
+Iteration 14958, scale 0 px : 1.02 mJy at 3291,1483
+Iteration 14986, scale 0 px : -971.28 µJy at 3289,1483
+Iteration 15233, scale 0 px : 2.05 mJy at 3284,1489
+Iteration 15237, scale 0 px : 1.62 mJy at 3278,1491
+Iteration 15243, scale 0 px : 1.26 mJy at 3283,1482
+Iteration 15262, scale 0 px : 1.06 mJy at 3290,1485
+Iteration 15302, scale 0 px : 991.19 µJy at 3277,1486
+Iteration 15343, scale 0 px : -976.95 µJy at 3279,1488
+Iteration 15358, scale 0 px : 895.12 µJy at 3277,1486
+Iteration 15656, scale 0 px : -991.23 µJy at 3283,1485
+Iteration 15662, scale 0 px : 804.45 µJy at 3283,1488
+Iteration 16152, scale 19 px : -969.94 µJy at 3284,1489
+Iteration 16158, scale 10 px : 873.01 µJy at 3246,1478
+Iteration 16164, scale 10 px : 698.29 µJy at 3212,1447
+Iteration 16326, scale 0 px : 754.3 µJy at 3283,1488
+Iteration 16612, scale 19 px : -1.03 mJy at 3284,1489
+Iteration 16617, scale 0 px : 1.01 mJy at 3274,1478
+Iteration 16620, scale 0 px : 797.88 µJy at 3274,1478
+Iteration 16635, scale 0 px : -764.22 µJy at 3276,1476
+Iteration 16662, scale 19 px : -836.39 µJy at 3284,1489
+Iteration 16671, scale 19 px : 667.34 µJy at 3314,1426
+Iteration 16812, scale 0 px : 779.85 µJy at 3283,1488
+Iteration 16827, scale 0 px : 631.49 µJy at 3274,1483
+Iteration 17999, scale 10 px : 674.02 µJy at 3297,1472
+Iteration 18032, scale 0 px : 640.38 µJy at 3285,1478
+Iteration 18043, scale 0 px : -596.09 µJy at 3282,1479
+Iteration 18286, scale 0 px : 688.39 µJy at 3271,1483
+Iteration 18291, scale 0 px : -563.04 µJy at 3274,1485
+Iteration 19056, scale 0 px : -961.88 µJy at 3268,1476
+Iteration 19059, scale 0 px : 721.04 µJy at 3257,1488
+Iteration 19072, scale 19 px : -738.27 µJy at 3284,1489
+Iteration 19078, scale 19 px : -586.84 µJy at 3355,4141
+Iteration 19209, scale 0 px : 702.61 µJy at 3283,1488
+Iteration 19214, scale 0 px : -569.25 µJy at 3269,1495
+Iteration 19344, scale 0 px : 600.64 µJy at 3271,1483
+Iteration 19357, scale 10 px : 596.39 µJy at 3297,1472
+Iteration 19453, scale 39 px : -551.76 µJy at 3325,1386
+Iteration 19465, scale 0 px : -522.32 µJy at 3274,1485
+Iteration 19993, scale 19 px : -670.21 µJy at 3284,1489
+Iteration 19997, scale 19 px : -532.46 µJy at 3284,1489
+Iteration 20104, scale 0 px : 608.09 µJy at 3271,1486
+Iteration 20112, scale 0 px : -526.81 µJy at 3270,1485
+Iteration 20244, scale 0 px : 573.31 µJy at 3279,1482
+Iteration 20254, scale 10 px : -523.84 µJy at 3294,1460
+Iteration 20402, scale 0 px : 480.61 µJy at 3293,1462
+Iteration 21401, scale 19 px : -615.14 µJy at 3284,1489
+Iteration 21405, scale 0 px : 584.34 µJy at 3271,1486
+Iteration 21412, scale 0 px : -472.36 µJy at 3270,1485
+Iteration 21672, scale 19 px : -626.14 µJy at 3284,1489
+Iteration 21676, scale 0 px : 589.43 µJy at 3271,1483
+Iteration 21681, scale 0 px : -468.46 µJy at 3253,1493
+Iteration 21824, scale 19 px : -571.43 µJy at 3284,1489
+Iteration 21829, scale 19 px : -445.32 µJy at 3355,4141
+Iteration 22027, scale 10 px : -503.35 µJy at 3294,1460
+Iteration 22062, scale 0 px : 487.66 µJy at 3271,1486
+Iteration 22092, scale 0 px : -448.95 µJy at 3270,1485
+Iteration 22471, scale 0 px : 491.85 µJy at 3271,1486
+Iteration 22490, scale 0 px : -424.79 µJy at 3270,1485
+Iteration 23052, scale 0 px : 500.66 µJy at 3264,1490
+Iteration 23062, scale 10 px : -473.11 µJy at 3294,1460
+Iteration 23122, scale 39 px : -424.51 µJy at 3325,1386
+Iteration 23135, scale 0 px : -399.1 µJy at 3266,1489
+Iteration 23967, scale 0 px : 587.3 µJy at 3279,1482
+Iteration 23971, scale 19 px : -573.49 µJy at 3284,1489
+Iteration 23975, scale 19 px : -432.97 µJy at 3284,1489
+Iteration 24027, scale 0 px : 500.88 µJy at 3279,1491
+Iteration 24038, scale 10 px : -482.72 µJy at 3297,1480
+Iteration 24049, scale 10 px : 381.16 µJy at 1700,2865
+Iteration 24344, scale 19 px : -450.71 µJy at 3284,1489
+Iteration 24349, scale 0 px : 436.41 µJy at 3280,1491
+Iteration 24386, scale 0 px : -415.74 µJy at 3266,1489
+Iteration 24437, scale 0 px : 427.92 µJy at 3269,1489
+Iteration 24446, scale 0 px : -416.14 µJy at 3272,1490
+Iteration 24472, scale 0 px : 416.45 µJy at 3269,1489
+Iteration 24489, scale 0 px : -428.83 µJy at 3266,1489
+Iteration 24498, scale 0 px : 400.27 µJy at 3269,1489
+Iteration 24891, scale 0 px : 504.39 µJy at 3273,1478
+Iteration 24903, scale 0 px : 418.42 µJy at 3283,1487
+Iteration 25035, scale 19 px : -485.47 µJy at 3284,1489
+Iteration 25039, scale 0 px : -467.81 µJy at 3274,1481
+Iteration 25044, scale 0 px : 383.42 µJy at 3283,1487
+Iteration 25438, scale 19 px : -526.2 µJy at 3284,1489
+Iteration 25442, scale 19 px : -395.72 µJy at 3284,1489
+Iteration 25528, scale 0 px : -410.22 µJy at 3276,1476
+Iteration 25569, scale 0 px : 400.18 µJy at 3279,1482
+Iteration 25593, scale 0 px : -390.67 µJy at 3282,1482
+Iteration 25624, scale 0 px : 395.42 µJy at 3279,1482
+Iteration 25634, scale 0 px : -403.87 µJy at 3282,1482
+Iteration 25642, scale 0 px : 367.43 µJy at 3283,1482
+Iteration 26287, scale 0 px : 474.85 µJy at 3264,1487
+Iteration 26294, scale 0 px : -373.1 µJy at 3287,1482
+Iteration 26395, scale 39 px : -347.87 µJy at 3325,1386
+Iteration 26414, scale 10 px : -477.59 µJy at 3297,1480
+Iteration 26421, scale 10 px : 382.72 µJy at 3293,1502
+Iteration 26461, scale 19 px : -428.94 µJy at 3284,1489
+Iteration 26472, scale 19 px : -339.59 µJy at 3349,4138
+Iteration 26648, scale 0 px : 413.18 µJy at 3297,1479
+Iteration 26667, scale 0 px : 330.87 µJy at 3290,1485
+Iteration 27954, scale 10 px : -478.98 µJy at 3297,1480
+Iteration 27961, scale 10 px : -376.72 µJy at 3283,1487
+Iteration 27989, scale 0 px : 390.42 µJy at 3297,1479
+Iteration 28010, scale 0 px : 322.57 µJy at 3283,1482
+Iteration 28376, scale 10 px : -450.91 µJy at 3297,1480
+Iteration 28381, scale 0 px : -425.87 µJy at 3274,1485
+Iteration 28385, scale 0 px : -337.82 µJy at 3259,1489
+Iteration 28436, scale 10 px : -423.96 µJy at 3283,1487
+Iteration 28442, scale 10 px : -337.78 µJy at 3294,1460
+Iteration 28586, scale 0 px : 373.2 µJy at 3297,1479
+Iteration 28596, scale 0 px : 309.98 µJy at 3274,1483
+Iteration 29534, scale 19 px : -615.33 µJy at 3284,1489
+Iteration 29537, scale 19 px : -488.05 µJy at 3284,1489
+Iteration 29541, scale 19 px : -387.91 µJy at 3284,1489
+Iteration 29555, scale 0 px : 441.65 µJy at 3290,1482
+Iteration 29564, scale 0 px : 351.26 µJy at 3283,1487
+Iteration 29594, scale 0 px : 314.9 µJy at 3269,1496
+Iteration 29848, scale 19 px : -494.3 µJy at 3284,1489
+Iteration 29852, scale 19 px : -371.05 µJy at 3284,1489
+Iteration 29868, scale 19 px : -296.61 µJy at 2492,3670
+Iteration 30037, scale 10 px : -404.38 µJy at 3297,1480
+Iteration 30044, scale 10 px : -316.41 µJy at 3178,1556
+Iteration 30159, scale 0 px : 365.46 µJy at 3298,1481
+Iteration 30178, scale 0 px : 297.87 µJy at 3301,1452
+Iteration 30508, scale 10 px : -376.69 µJy at 3297,1480
+Iteration 30515, scale 10 px : -299.69 µJy at 3260,1500
+Iteration 30617, scale 0 px : 348.75 µJy at 3297,1479
+Iteration 30627, scale 0 px : -277.86 µJy at 3283,1498
+Iteration 31575, scale 0 px : 329.47 µJy at 3269,1489
+Iteration 31588, scale 39 px : -308.6 µJy at 3267,3621
+Iteration 31607, scale 39 px : -245.42 µJy at 3267,3621
+Iteration 31628, scale 19 px : -468.52 µJy at 3284,1489
+Iteration 31632, scale 19 px : -352.27 µJy at 3284,1489
+Iteration 31648, scale 10 px : -399.4 µJy at 3297,1480
+Iteration 31653, scale 10 px : 316.65 µJy at 3263,3618
+Iteration 31679, scale 10 px : -254.27 µJy at 3243,1492
+Iteration 31989, scale 0 px : 370.13 µJy at 3298,1481
+Iteration 31997, scale 0 px : 295.73 µJy at 3298,1482
+Iteration 32066, scale 19 px : -471.89 µJy at 3284,1489
+Iteration 32069, scale 19 px : -376.82 µJy at 3284,1489
+Iteration 32075, scale 19 px : -296.69 µJy at 3240,1464
+Iteration 32114, scale 19 px : -237.65 µJy at 3375,1400
+Iteration 32324, scale 0 px : 369.68 µJy at 3284,1492
+Iteration 32331, scale 10 px : -348.18 µJy at 3297,1480
+Iteration 32338, scale 10 px : -271.7 µJy at 3297,1480
+Iteration 32368, scale 0 px : 320.2 µJy at 3298,1481
+Iteration 32395, scale 0 px : -259.33 µJy at 3279,1496
+Iteration 33323, scale 0 px : 309.28 µJy at 3292,1470
+Iteration 33339, scale 0 px : 251.67 µJy at 3272,1494
+Iteration 33841, scale 0 px : 319.8 µJy at 3279,1482
+Iteration 33849, scale 0 px : -254.38 µJy at 3274,1481
+Iteration 33957, scale 0 px : -251.44 µJy at 3277,1474
+Iteration 34051, scale 0 px : -260.64 µJy at 3259,1489
+Iteration 34085, scale 0 px : 231.43 µJy at 3283,1482
+Iteration 36338, scale 19 px : -531.68 µJy at 3284,1489
+Iteration 36342, scale 19 px : -399.09 µJy at 3284,1489
+Iteration 36349, scale 0 px : -453.88 µJy at 3274,1481
+Iteration 36354, scale 10 px : -446.85 µJy at 3297,1480
+Iteration 36358, scale 10 px : -354.2 µJy at 3297,1480
+Iteration 36365, scale 0 px : 358.45 µJy at 3271,1483
+Iteration 36374, scale 0 px : -289.6 µJy at 3291,1483
+Iteration 36406, scale 19 px : -386.68 µJy at 3284,1489
+Iteration 36410, scale 10 px : -353.93 µJy at 3297,1480
+Iteration 36416, scale 10 px : -275.43 µJy at 3260,1500
+Iteration 36457, scale 19 px : -320.54 µJy at 3240,1464
+Iteration 36473, scale 19 px : -253.92 µJy at 3263,1481
+Iteration 36516, scale 0 px : 349.19 µJy at 3297,1479
+Iteration 36524, scale 0 px : 275.67 µJy at 3284,1492
+Iteration 36561, scale 10 px : -337.77 µJy at 3297,1480
+Iteration 36566, scale 10 px : 259.54 µJy at 3236,1468
+Iteration 36613, scale 0 px : 318.41 µJy at 3297,1479
+Iteration 36618, scale 0 px : 255.26 µJy at 3299,1477
+Iteration 36709, scale 0 px : -231.4 µJy at 3265,1491
+Iteration 36962, scale 10 px : -333.37 µJy at 3297,1480
+Iteration 36969, scale 10 px : -265.04 µJy at 3260,1500
+Iteration 37008, scale 0 px : 274.94 µJy at 3297,1479
+Iteration 37019, scale 0 px : -221.89 µJy at 3269,1500
+Iteration 37420, scale 19 px : -473.74 µJy at 3284,1489
+Iteration 37424, scale 19 px : -359.8 µJy at 3284,1489
+Iteration 37430, scale 10 px : -353.77 µJy at 3297,1480
+Iteration 37435, scale 10 px : -270.27 µJy at 3297,1480
+Iteration 37472, scale 19 px : -291.01 µJy at 3284,1489
+Iteration 37493, scale 0 px : 301.39 µJy at 3283,1490
+Iteration 37504, scale 0 px : 241.07 µJy at 3278,1488
+Iteration 37561, scale 19 px : -397.02 µJy at 3284,1489
+Iteration 37565, scale 19 px : -303.96 µJy at 3284,1489
+Iteration 37572, scale 10 px : -298.71 µJy at 3297,1480
+Iteration 37578, scale 10 px : 229.73 µJy at 3162,1559
+Iteration 37776, scale 0 px : 291.84 µJy at 3297,1479
+Iteration 37788, scale 19 px : -282.92 µJy at 3284,1489
+Iteration 37804, scale 19 px : -225.88 µJy at 3240,1464
+Iteration 37942, scale 0 px : 299.11 µJy at 3283,1487
+Iteration 37961, scale 0 px : -238.79 µJy at 3304,1469
+Iteration 38072, scale 0 px : -209.59 µJy at 3276,1486
+Iteration 39340, scale 19 px : -460.64 µJy at 3284,1489
+Iteration 39344, scale 19 px : -352.19 µJy at 3284,1489
+Iteration 39348, scale 10 px : -321.09 µJy at 3297,1480
+Iteration 39353, scale 10 px : 253.53 µJy at 3269,1450
+Iteration 39388, scale 19 px : -278.91 µJy at 3284,1489
+Iteration 39402, scale 0 px : 298.7 µJy at 3283,1490
+Iteration 39412, scale 0 px : 237.85 µJy at 3297,1479
+Iteration 39456, scale 19 px : -364.22 µJy at 3284,1489
+Iteration 39460, scale 19 px : -279.6 µJy at 3284,1489
+Iteration 39464, scale 19 px : -221.62 µJy at 3263,1481
+Iteration 39532, scale 0 px : 279.29 µJy at 3283,1490
+Iteration 39541, scale 10 px : -264.29 µJy at 3297,1480
+Iteration 39557, scale 39 px : -250.64 µJy at 3267,3621
+Iteration 39577, scale 39 px : -196.66 µJy at 3267,3621
+Iteration 39600, scale 19 px : -266.42 µJy at 3284,1489
+Iteration 39605, scale 10 px : 265.4 µJy at 3270,3625
+Iteration 39616, scale 10 px : 208.36 µJy at 3263,3618
+Iteration 39813, scale 0 px : 277.33 µJy at 3298,1481
+Iteration 39823, scale 19 px : -276.34 µJy at 3162,1559
+Iteration 39831, scale 19 px : -216.9 µJy at 3284,1489
+Iteration 39874, scale 0 px : 257.31 µJy at 3284,1492
+Iteration 39900, scale 10 px : 246.12 µJy at 3162,1559
+Iteration 39909, scale 10 px : -198.11 µJy at 3178,1556
+Iteration 40048, scale 0 px : 262.56 µJy at 3298,1481
+Iteration 40067, scale 0 px : -210.44 µJy at 3268,1491
+Iteration 40292, scale 0 px : -204.25 µJy at 3269,3617
+Iteration 40534, scale 0 px : 215.23 µJy at 3269,1496
+Iteration 40572, scale 0 px : -198.58 µJy at 3269,1495
+Iteration 41881, scale 0 px : 611.48 µJy at 3280,1491
+Iteration 41885, scale 0 px : 476.04 µJy at 3279,1491
+Iteration 41891, scale 0 px : 373.81 µJy at 3283,1487
+Iteration 41899, scale 0 px : -301.77 µJy at 3279,1488
+Iteration 41927, scale 0 px : -241.31 µJy at 3286,1479
+Iteration 42019, scale 0 px : -223.52 µJy at 3270,1496
+Iteration 42127, scale 0 px : -286.59 µJy at 3279,1488
+Iteration 42133, scale 0 px : 225.32 µJy at 3283,1482
+Iteration 42260, scale 0 px : -260.22 µJy at 3282,1479
+Iteration 42270, scale 0 px : 206.88 µJy at 3290,1479
+Iteration 42618, scale 0 px : 232.33 µJy at 3279,1479
+Iteration 42634, scale 0 px : -189.66 µJy at 3269,1495
+Iteration 45460, scale 0 px : -794.73 µJy at 3272,1490
+Iteration 45465, scale 0 px : 628.89 µJy at 3283,1490
+Iteration 45474, scale 0 px : -499.66 µJy at 3275,1492
+Iteration 45502, scale 0 px : 455.31 µJy at 3277,1485
+Iteration 45522, scale 0 px : -424.83 µJy at 3276,1486
+Iteration 45544, scale 0 px : -336.6 µJy at 3272,1490
+Iteration 45649, scale 19 px : -615.58 µJy at 3284,1489
+Iteration 45656, scale 19 px : -474.4 µJy at 3284,1489
+Iteration 45662, scale 19 px : -375.12 µJy at 3284,1489
+Iteration 45668, scale 19 px : -294.38 µJy at 3284,1489
+Iteration 45685, scale 0 px : 491.27 µJy at 3283,1490
+Iteration 45688, scale 0 px : 385.64 µJy at 3283,1487
+Iteration 45695, scale 0 px : 305.79 µJy at 3284,1492
+Iteration 45726, scale 0 px : 271.81 µJy at 3271,1483
+Iteration 45834, scale 0 px : 226.3 µJy at 3302,1486
+Iteration 46299, scale 19 px : -474.28 µJy at 3284,1489
+Iteration 46305, scale 19 px : -371.01 µJy at 3284,1489
+Iteration 46311, scale 19 px : -288.84 µJy at 3284,1489
+Iteration 46320, scale 19 px : 225.86 µJy at 3368,1417
+Iteration 46373, scale 0 px : 359.88 µJy at 3283,1489
+Iteration 46376, scale 0 px : 284.68 µJy at 3278,1488
+Iteration 46388, scale 0 px : 226.63 µJy at 3278,1494
+Iteration 46449, scale 0 px : -205.38 µJy at 3279,1496
+Iteration 47013, scale 0 px : -272.23 µJy at 3272,1490
+Iteration 47018, scale 0 px : -216.67 µJy at 3287,1482
+Iteration 47059, scale 0 px : 204.87 µJy at 3283,1489
+Iteration 47182, scale 0 px : -208.43 µJy at 3284,1489
+Iteration 47197, scale 0 px : 203.54 µJy at 3283,1489
+Iteration 47261, scale 19 px : -451.14 µJy at 3284,1489
+Iteration 47266, scale 19 px : -360.9 µJy at 3284,1489
+Iteration 47272, scale 19 px : -276.24 µJy at 3284,1489
+Iteration 47279, scale 19 px : -211.62 µJy at 3284,1489
+Iteration 47345, scale 0 px : 325.19 µJy at 3283,1489
+Iteration 47349, scale 0 px : 259.09 µJy at 3284,1492
+Iteration 47359, scale 0 px : 206.14 µJy at 3278,1494
+Iteration 47417, scale 0 px : -188.71 µJy at 3284,1489
+Iteration 47917, scale 10 px : -392.86 µJy at 3297,1480
+Iteration 47922, scale 10 px : -299.81 µJy at 3297,1480
+Iteration 47935, scale 10 px : 239.54 µJy at 3246,1471
+Iteration 47985, scale 10 px : 199.24 µJy at 3293,1455
+Iteration 48124, scale 0 px : 263.29 µJy at 3298,1482
+Iteration 48133, scale 0 px : 209.87 µJy at 3278,1488
+Iteration 48195, scale 10 px : -251.04 µJy at 3283,1487
+Iteration 48201, scale 10 px : -199.93 µJy at 3297,1480
+Iteration 48241, scale 0 px : 240.15 µJy at 3283,1487
+Iteration 48250, scale 0 px : 191.99 µJy at 3283,1484
+Iteration 48481, scale 0 px : 199.46 µJy at 3296,1474
+Iteration 48505, scale 0 px : 177.79 µJy at 3278,1488
+Iteration 50235, scale 19 px : -450.29 µJy at 3284,1489
+Iteration 50241, scale 19 px : -357.14 µJy at 3284,1489
+Iteration 50247, scale 0 px : 340.67 µJy at 3280,1491
+Iteration 50253, scale 0 px : -267.54 µJy at 3279,1496
+Iteration 50267, scale 19 px : -328.25 µJy at 3284,1489
+Iteration 50272, scale 19 px : -259.84 µJy at 3284,1489
+Iteration 50286, scale 10 px : -285.91 µJy at 3297,1480
+Iteration 50291, scale 10 px : 224.98 µJy at 3246,1471
+Iteration 50321, scale 0 px : 268.71 µJy at 3283,1489
+Iteration 50330, scale 0 px : 214.25 µJy at 3283,1487
+Iteration 50409, scale 19 px : -329.98 µJy at 3284,1489
+Iteration 50414, scale 19 px : -255.56 µJy at 3284,1489
+Iteration 50422, scale 19 px : 202.74 µJy at 3180,1552
+Iteration 50481, scale 0 px : 249.28 µJy at 3283,1487
+Iteration 50491, scale 10 px : -240.3 µJy at 3297,1480
+Iteration 50500, scale 10 px : 191.21 µJy at 3246,1471
+Iteration 50641, scale 0 px : 235.9 µJy at 3298,1481
+Iteration 50652, scale 0 px : -187.07 µJy at 3288,1478
+Iteration 50996, scale 0 px : 170.41 µJy at 3285,1473
+Iteration 52106, scale 19 px : -283.47 µJy at 3284,1489
+Iteration 52116, scale 39 px : -263.15 µJy at 3267,3621
+Iteration 52128, scale 10 px : -250.42 µJy at 3297,1480
+Iteration 52139, scale 0 px : 244.22 µJy at 3279,1482
+Iteration 52143, scale 19 px : -243.27 µJy at 3283,1489
+Iteration 52160, scale 19 px : -192.35 µJy at 3308,1506
+Iteration 52256, scale 0 px : 229.28 µJy at 3283,1489
+Iteration 52265, scale 39 px : -228.74 µJy at 3353,1405
+Iteration 52278, scale 10 px : 223.42 µJy at 3162,1559
+Iteration 52300, scale 10 px : 178.68 µJy at 3263,3618
+Iteration 52506, scale 0 px : 240.6 µJy at 3298,1481
+Iteration 52512, scale 0 px : 190.7 µJy at 3258,1502
+Iteration 52594, scale 39 px : -220.8 µJy at 3267,3621
+Iteration 52604, scale 39 px : -172.93 µJy at 3267,3621
+Iteration 52627, scale 0 px : 184.88 µJy at 3266,3623
+Iteration 52676, scale 0 px : 191.56 µJy at 3277,1486
+Iteration 52684, scale 0 px : -165.09 µJy at 3276,1485
+Iteration 54038, scale 0 px : -489.12 µJy at 3275,1478
+Iteration 54041, scale 0 px : -367.77 µJy at 3270,1478
+Iteration 54047, scale 19 px : -411.75 µJy at 3284,1489
+Iteration 54052, scale 19 px : -313.24 µJy at 3284,1489
+Iteration 54057, scale 19 px : 248.73 µJy at 3180,1552
+Iteration 54077, scale 0 px : 282.58 µJy at 3273,1484
+Iteration 54097, scale 0 px : 241.47 µJy at 3273,1475
+Iteration 54128, scale 10 px : -232.66 µJy at 3297,1480
+Iteration 54144, scale 0 px : -207.6 µJy at 3269,1488
+Iteration 54478, scale 19 px : -292.13 µJy at 3283,1489
+Iteration 54484, scale 19 px : -224.1 µJy at 3283,1489
+Iteration 54506, scale 0 px : -229.18 µJy at 3277,1474
+Iteration 54519, scale 0 px : -183.85 µJy at 3269,1488
+Iteration 54686, scale 0 px : -350.36 µJy at 3276,1485
+Iteration 54689, scale 19 px : -286.61 µJy at 3283,1489
+Iteration 54694, scale 19 px : -220.9 µJy at 3283,1489
+Iteration 54709, scale 0 px : 287.45 µJy at 3278,1488
+Iteration 54714, scale 0 px : 224.95 µJy at 3274,1480
+Iteration 54725, scale 10 px : -223 µJy at 3297,1480
+Iteration 54736, scale 10 px : 182.8 µJy at 3270,3625
+Iteration 54823, scale 19 px : -225.38 µJy at 3283,1489
+Iteration 54839, scale 0 px : 207.32 µJy at 3298,1481
+Iteration 54871, scale 0 px : 206.76 µJy at 3275,1482
+Iteration 54878, scale 0 px : -200.86 µJy at 3274,1481
+Iteration 54893, scale 0 px : 208.24 µJy at 3275,1482
+Iteration 54898, scale 0 px : -197.72 µJy at 3274,1481
+Iteration 54984, scale 0 px : 245.19 µJy at 3274,1480
+Iteration 54987, scale 0 px : -220.53 µJy at 3274,1481
+Iteration 55033, scale 0 px : 253.52 µJy at 3274,1483
+Iteration 55037, scale 0 px : -194.42 µJy at 3274,1481
+Iteration 55487, scale 0 px : -400.93 µJy at 3276,1485
+Iteration 55490, scale 0 px : -292.28 µJy at 3276,1485
+Iteration 55493, scale 19 px : -225.7 µJy at 3283,1489
+Iteration 55502, scale 0 px : 212.62 µJy at 3275,1482
+Iteration 55524, scale 0 px : 176.33 µJy at 3267,1479
+Iteration 56737, scale 0 px : -297.88 µJy at 3277,1474
+Iteration 56740, scale 0 px : -218.68 µJy at 3288,1473
+Iteration 56760, scale 19 px : -245.44 µJy at 3283,1489
+Iteration 56768, scale 19 px : -193.72 µJy at 3283,1489
+Iteration 56809, scale 10 px : 199.64 µJy at 3162,1559
+Iteration 56840, scale 0 px : -192.64 µJy at 3276,1479
+Iteration 56886, scale 0 px : 174.84 µJy at 3274,1480
+Iteration 57074, scale 19 px : -227.69 µJy at 3283,1489
+Iteration 57082, scale 19 px : -181.03 µJy at 3308,1506
+Iteration 57156, scale 10 px : 201.62 µJy at 3162,1559
+Iteration 57181, scale 10 px : 160.67 µJy at 3310,1503
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 57451, scale 19 px : -232.02 µJy at 3162,1559
+Iteration 57459, scale 0 px : 212.87 µJy at 3298,1481
+Iteration 57477, scale 0 px : 168.73 µJy at 3741,2206
+Iteration 57756, scale 19 px : 202 µJy at 3179,1554
+Iteration 57779, scale 0 px : 181.97 µJy at 3279,1479
+Iteration 57798, scale 0 px : -167.63 µJy at 3274,1481
+Iteration 57909, scale 19 px : -200.21 µJy at 3283,1489
+Iteration 57919, scale 19 px : -160.11 µJy at 3283,1489
+(13) Iteration 58094, scale 0 px : 169.5 µJy at 3283,1489
+Iteration 58161, scale 0 px : -164.9 µJy at 3274,1481
+Iteration 58244, scale 0 px : 173.32 µJy at 3275,1482
+Iteration 58258, scale 0 px : -169.16 µJy at 3274,1481
+Iteration 58292, scale 0 px : 165.75 µJy at 3275,1482
+Iteration 58321, scale 0 px : -164.52 µJy at 3274,1481
+Iteration 58358, scale 0 px : 168.59 µJy at 3275,1482
+Iteration 58372, scale 0 px : -159.91 µJy at 3274,1481
+(12) Iteration 59152, scale 0 px : 220.78 µJy at 3271,1483
+Iteration 59156, scale 0 px : 165.48 µJy at 3290,1479
+Iteration 59224, scale 0 px : -177.71 µJy at 3279,1488
+Iteration 59230, scale 0 px : 158.27 µJy at 3277,1486
+(11) Iteration 59385, scale 10 px : -205.56 µJy at 3740,2208
+Iteration 59406, scale 10 px : 169.44 µJy at 3270,3625
+Iteration 59494, scale 0 px : 185.3 µJy at 3739,2209
+Iteration 59521, scale 0 px : -147.24 µJy at 3291,1483
+(10) Iteration 59649, scale 39 px : -224.17 µJy at 3353,1405
+Iteration 59659, scale 19 px : -211.34 µJy at 3162,1559
+Iteration 59675, scale 10 px : -209.35 µJy at 3740,2208
+Iteration 59681, scale 10 px : -168.36 µJy at 3267,3620
+Iteration 59758, scale 19 px : -197.93 µJy at 3162,1559
+Iteration 59778, scale 39 px : -186.67 µJy at 3353,1405
+Iteration 59792, scale 0 px : 180.45 µJy at 3268,3619
+Iteration 59813, scale 0 px : -144.25 µJy at 3296,1472
+(9) Iteration 59928, scale 10 px : -204.32 µJy at 3740,2208
+Iteration 59936, scale 19 px : -193.81 µJy at 3283,1489
+Iteration 59955, scale 39 px : -171.84 µJy at 3353,1405
+Iteration 59969, scale 10 px : 185.57 µJy at 3270,3625
+Iteration 59984, scale 10 px : -158.1 µJy at 3297,1480
+(8) Iteration 60107, scale 19 px : -197.93 µJy at 3162,1559
+Iteration 60128, scale 0 px : -180.55 µJy at 3298,1476
+Iteration 60149, scale 0 px : 149.55 µJy at 3266,3623
+(7) Iteration 60254, scale 10 px : -194.17 µJy at 3740,2208
+Iteration 60264, scale 19 px : -180.96 µJy at 3283,1489
+Iteration 60291, scale 39 px : -177.01 µJy at 3353,1405
+Iteration 60301, scale 10 px : 176.71 µJy at 3162,1559
+Iteration 60328, scale 10 px : -148.89 µJy at 3267,3620
+(6) Iteration 60393, scale 19 px : -194.73 µJy at 3162,1559
+Iteration 60410, scale 0 px : -180.41 µJy at 3298,1476
+Iteration 60428, scale 0 px : 143.24 µJy at 3283,1489
+(5) Iteration 60518, scale 10 px : -189.58 µJy at 3740,2208
+Iteration 60527, scale 19 px : -178.41 µJy at 3263,1481
+Iteration 60551, scale 39 px : -168.81 µJy at 3353,1405
+Iteration 60563, scale 10 px : 167.64 µJy at 3270,3625
+Iteration 60603, scale 0 px : 171.36 µJy at 3739,2209
+Iteration 60625, scale 0 px : 140.74 µJy at 3279,1473
+(4) Iteration 60690, scale 10 px : -192.99 µJy at 3740,2208
+Iteration 60697, scale 19 px : -182.38 µJy at 3162,1559
+Iteration 60719, scale 19 px : 144.77 µJy at 3368,1417
+(3) Iteration 60812, scale 19 px : 222.58 µJy at 3264,1513
+Iteration 60819, scale 19 px : 174.85 µJy at 3264,1513
+Iteration 60826, scale 10 px : 182.02 µJy at 3246,1471
+Iteration 60854, scale 39 px : -167.3 µJy at 3353,1405
+Iteration 60862, scale 0 px : 163.09 µJy at 3258,1502
+Iteration 60964, scale 0 px : 186.63 µJy at 3264,1488
+Iteration 60968, scale 10 px : -186.29 µJy at 3740,2208
+Iteration 60973, scale 10 px : -147.66 µJy at 3267,3620
+(2) Iteration 61055, scale 19 px : -180.26 µJy at 3162,1559
+Iteration 61075, scale 0 px : 167.42 µJy at 3740,2206
+Iteration 61172, scale 0 px : 229.9 µJy at 3264,1483
+Iteration 61176, scale 0 px : 189.46 µJy at 3257,1490
+Iteration 61191, scale 0 px : -156.01 µJy at 3277,1474
+(1) Iteration 61874, scale 0 px : -215.13 µJy at 3269,1474
+Iteration 61885, scale 0 px : -180.54 µJy at 3276,1479
+Iteration 61917, scale 0 px : -177.79 µJy at 3277,1474
+Iteration 61932, scale 0 px : 164.92 µJy at 3277,1476
+Iteration 62012, scale 0 px : -169.74 µJy at 3277,1474
+Iteration 62022, scale 0 px : 152.16 µJy at 3277,1476
+(0) Iteration 62167, scale 10 px : -192.72 µJy at 3740,2208
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Assigning from 8 to 8 channels...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+ == Deconvolving (4) ==
+Estimated standard deviation of background noise: 17.88 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 33.54 µJy, 10: 27.34 µJy, 19: 21.69 µJy, 39: 15.52 µJy, 77: 10.46 µJy, 154: 7.35 µJy, 308: 5.4 µJy, 616: 3.83 µJy, 1233: 1.8 µJy, 2465: 305.7 nJy}
+Starting multi-scale cleaning. Start peak=-2.99 mJy, major iteration threshold=299.06 µJy
+Iteration 62170, scale 0 px : -2.23 mJy at 3274,1489
+Iteration 62177, scale 0 px : -1.78 mJy at 3274,1489
+Iteration 62188, scale 0 px : -1.42 mJy at 3297,1463
+Iteration 62239, scale 19 px : 1.24 mJy at 3363,1448
+Iteration 62295, scale 10 px : -1.17 mJy at 3213,1521
+Iteration 62396, scale 0 px : -1.17 mJy at 3317,1451
+Iteration 62551, scale 0 px : -940.17 µJy at 3197,1518
+Iteration 63122, scale 19 px : -999.19 µJy at 3196,1637
+Iteration 63295, scale 10 px : 887.88 µJy at 3190,1494
+Iteration 63589, scale 39 px : -858.9 µJy at 3469,1423
+Iteration 63648, scale 19 px : 802.21 µJy at 3112,1712
+Iteration 64043, scale 0 px : 796.54 µJy at 3289,1490
+Iteration 64830, scale 0 px : 843.97 µJy at 3277,1483
+Iteration 64836, scale 0 px : -733.14 µJy at 3280,1482
+Iteration 65536, scale 10 px : -709.77 µJy at 3240,1510
+Iteration 66139, scale 39 px : 676.38 µJy at 3930,815
+Iteration 66341, scale 0 px : 661.25 µJy at 3253,1495
+Iteration 67322, scale 19 px : 671.07 µJy at 3096,1557
+Iteration 67774, scale 19 px : 569.39 µJy at 3031,1724
+Iteration 69288, scale 10 px : 606.73 µJy at 3227,1488
+Iteration 69905, scale 0 px : 592.06 µJy at 3277,1488
+Iteration 71168, scale 0 px : -672.83 µJy at 3280,1495
+Iteration 71173, scale 0 px : -534.69 µJy at 3272,1467
+Iteration 73185, scale 308 px : -553.95 µJy at 3336,3349
+Iteration 73188, scale 77 px : -548.8 µJy at 3589,1252
+Iteration 73225, scale 39 px : -541.47 µJy at 3958,800
+Iteration 73517, scale 10 px : 526.48 µJy at 3406,1326
+Iteration 74320, scale 0 px : -505.37 µJy at 3274,1457
+Iteration 75286, scale 616 px : 492.63 µJy at 1925,767
+Iteration 75294, scale 19 px : 491.4 µJy at 3097,1556
+Iteration 76664, scale 0 px : 486.03 µJy at 3277,1483
+Iteration 77554, scale 0 px : -451.67 µJy at 3276,1485
+Iteration 79936, scale 0 px : -463.59 µJy at 3280,1495
+Iteration 79997, scale 39 px : -445.25 µJy at 2295,2044
+Iteration 80841, scale 0 px : 445.18 µJy at 3270,1483
+Iteration 81425, scale 0 px : -573.43 µJy at 3273,1482
+Iteration 81429, scale 0 px : -438.1 µJy at 3259,1484
+Iteration 82083, scale 0 px : -467.18 µJy at 3281,1485
+Iteration 82109, scale 308 px : -444.82 µJy at 3330,3348
+Iteration 82123, scale 77 px : 442.71 µJy at 2010,1134
+Iteration 82209, scale 10 px : 435.92 µJy at 3420,1412
+Iteration 83690, scale 19 px : 427.64 µJy at 3097,1556
+Iteration 85265, scale 0 px : 396.77 µJy at 3264,1478
+Iteration 89143, scale 0 px : 716.09 µJy at 3276,1470
+Iteration 89147, scale 0 px : -540.52 µJy at 3270,1475
+Iteration 89157, scale 0 px : -431.94 µJy at 3260,1477
+Iteration 89231, scale 0 px : -448.44 µJy at 3282,1475
+Iteration 89245, scale 0 px : 454.78 µJy at 3278,1473
+Iteration 89252, scale 0 px : -415.58 µJy at 3275,1472
+Iteration 89372, scale 0 px : 495.54 µJy at 3278,1473
+Iteration 89375, scale 0 px : -382.07 µJy at 3275,1472
+Iteration 91152, scale 0 px : 442.59 µJy at 3273,1474
+Iteration 91162, scale 0 px : 374.63 µJy at 3286,1473
+Iteration 92190, scale 616 px : 395.92 µJy at 855,4356
+Iteration 92215, scale 0 px : 386.28 µJy at 3271,1469
+Iteration 92319, scale 0 px : -384.74 µJy at 3276,1490
+Iteration 92388, scale 154 px : 383.36 µJy at 2267,2396
+Iteration 92439, scale 39 px : -378.71 µJy at 4384,3929
+Iteration 93766, scale 19 px : 373.85 µJy at 3450,1415
+Iteration 96590, scale 77 px : -364.06 µJy at 2461,1777
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 96714, scale 10 px : 362.87 µJy at 3482,1250
+(13) Iteration 98044, scale 308 px : 354.67 µJy at 3659,3129
+(12) Iteration 98057, scale 0 px : 353.01 µJy at 3278,1473
+(11) Iteration 98452, scale 0 px : -338.37 µJy at 3266,1495
+(10) Iteration 98583, scale 0 px : 342.67 µJy at 3271,1469
+(9) Iteration 98660, scale 39 px : 333.27 µJy at 3052,1549
+(8) Iteration 98778, scale 0 px : -332.63 µJy at 3266,1495
+(7) Iteration 98838, scale 0 px : 323.52 µJy at 3273,1495
+(6) Iteration 98879, scale 19 px : -319.78 µJy at 3075,1717
+(5) Iteration 99001, scale 0 px : -317.5 µJy at 3265,1506
+(4) Iteration 99037, scale 0 px : 320.77 µJy at 3269,1497
+(3) Iteration 99056, scale 0 px : -317.37 µJy at 3275,1468
+(2) Iteration 99080, scale 0 px : 325.86 µJy at 3269,1497
+(1) Iteration 99109, scale 0 px : -330.33 µJy at 3271,1496
+(0) Iteration 99121, scale 0 px : 326.61 µJy at 3269,1497
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Continuing image-based deconvolution with auto-mask.
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 27.64 µJy, 10: 22.3 µJy, 19: 18.31 µJy, 39: 13.48 µJy, 77: 9.18 µJy, 154: 6.46 µJy, 308: 4.75 µJy, 616: 3.34 µJy, 1233: 1.55 µJy, 2465: 288.94 nJy}
+Starting multi-scale cleaning. Start peak=326.61 µJy, major iteration threshold=89.42 µJy (final)
+Iteration 105353, scale 0 px : -344.74 µJy at 3278,1499
+Iteration 105372, scale 10 px : 323.25 µJy at 3108,1535
+Iteration 107420, scale 19 px : 322.43 µJy at 3097,1556
+Iteration 110267, scale 39 px : -312.76 µJy at 2747,1665
+Iteration 111557, scale 616 px : 313.55 µJy at 855,4356
+Iteration 111589, scale 77 px : 301.8 µJy at 3895,1810
+Iteration 111823, scale 0 px : 298.27 µJy at 3275,1498
+Iteration 115537, scale 0 px : -438.21 µJy at 3271,1491
+Iteration 115542, scale 0 px : -345.92 µJy at 3267,1482
+Iteration 115579, scale 0 px : 297.43 µJy at 3281,1500
+Iteration 116029, scale 308 px : -293.02 µJy at 3430,3339
+Iteration 116053, scale 0 px : -287.71 µJy at 3278,1499
+Iteration 117294, scale 0 px : 296.48 µJy at 3270,1483
+Iteration 117391, scale 10 px : -288.6 µJy at 3397,1389
+Iteration 119020, scale 154 px : -285.81 µJy at 1584,3205
+Iteration 119060, scale 19 px : 283.03 µJy at 3466,1460
+Iteration 121800, scale 0 px : -285.44 µJy at 3272,1482
+Iteration 122386, scale 0 px : 290.55 µJy at 3271,1480
+Iteration 122471, scale 0 px : -272.91 µJy at 3272,1482
+Iteration 124250, scale 0 px : -624.39 µJy at 3285,1490
+Iteration 124253, scale 0 px : -455.18 µJy at 3285,1490
+Iteration 124260, scale 0 px : 394.13 µJy at 3282,1489
+Iteration 124281, scale 0 px : -314.45 µJy at 3288,1479
+Iteration 124558, scale 0 px : -556.6 µJy at 3276,1485
+Iteration 124561, scale 0 px : -406.34 µJy at 3276,1485
+Iteration 124576, scale 0 px : 325.45 µJy at 3270,1483
+Iteration 124689, scale 0 px : -311.79 µJy at 3272,1491
+Iteration 124846, scale 0 px : 321.09 µJy at 3289,1490
+Iteration 124865, scale 0 px : -313.35 µJy at 3276,1485
+Iteration 124902, scale 0 px : 301.29 µJy at 3278,1484
+Iteration 124961, scale 0 px : -284.14 µJy at 3279,1488
+Iteration 125247, scale 0 px : 332.85 µJy at 3277,1487
+Iteration 125250, scale 0 px : -293.26 µJy at 3279,1488
+Iteration 125304, scale 0 px : 290.91 µJy at 3281,1489
+Iteration 125320, scale 0 px : -286.65 µJy at 3279,1488
+Iteration 125358, scale 39 px : -270.69 µJy at 2680,1578
+Iteration 126569, scale 0 px : 266.54 µJy at 3277,1487
+Iteration 128133, scale 0 px : -285.52 µJy at 3288,1479
+Iteration 128181, scale 0 px : -275.27 µJy at 3276,1485
+Iteration 128293, scale 0 px : -265.41 µJy at 3288,1479
+Iteration 128630, scale 0 px : 254.56 µJy at 3272,1495
+Iteration 130260, scale 0 px : -281.64 µJy at 3288,1479
+Iteration 130292, scale 0 px : 228.51 µJy at 3291,1479
+Iteration 138285, scale 0 px : -427.12 µJy at 3275,1481
+Iteration 138290, scale 0 px : -330.17 µJy at 3289,1487
+Iteration 138301, scale 0 px : -263.16 µJy at 3276,1479
+Iteration 138345, scale 0 px : -298.65 µJy at 3270,1488
+Iteration 138353, scale 0 px : -237.28 µJy at 3277,1496
+Iteration 138599, scale 0 px : 296.65 µJy at 3277,1484
+Iteration 138602, scale 0 px : 232.38 µJy at 3289,1490
+Iteration 138687, scale 19 px : 262.19 µJy at 3180,1636
+Iteration 140343, scale 10 px : -256.8 µJy at 3397,1389
+Iteration 141169, scale 77 px : 252.54 µJy at 2453,2145
+Iteration 141380, scale 616 px : 247.18 µJy at 1921,767
+Iteration 141412, scale 39 px : -241.62 µJy at 2992,1486
+Iteration 142513, scale 308 px : 236.48 µJy at 3784,4270
+Iteration 142537, scale 0 px : -233.99 µJy at 3279,1488
+Iteration 142594, scale 154 px : 225.41 µJy at 3601,2082
+Iteration 142646, scale 19 px : -223.53 µJy at 3545,1421
+Iteration 146492, scale 10 px : -220.54 µJy at 2994,1565
+Iteration 148502, scale 0 px : -232.42 µJy at 3272,1482
+Iteration 148706, scale 0 px : 215.41 µJy at 3270,1483
+Iteration 150530, scale 0 px : -250.11 µJy at 3272,1482
+Iteration 150545, scale 0 px : 206.14 µJy at 3270,1483
+Iteration 152840, scale 0 px : -282.73 µJy at 3269,1478
+Iteration 152849, scale 0 px : -223.35 µJy at 3275,1476
+Iteration 153017, scale 0 px : 222.02 µJy at 3281,1489
+Iteration 153053, scale 0 px : -219.53 µJy at 3279,1488
+Iteration 153112, scale 77 px : -212.47 µJy at 2886,2316
+Iteration 153329, scale 39 px : -207.83 µJy at 2992,1486
+Iteration 154689, scale 10 px : -207.09 µJy at 3397,1389
+Iteration 155720, scale 0 px : 211.48 µJy at 3281,1489
+Iteration 155992, scale 0 px : -228.33 µJy at 3279,1488
+Iteration 156013, scale 0 px : 205.41 µJy at 3277,1484
+Iteration 156932, scale 0 px : -319.26 µJy at 3272,1485
+Iteration 156936, scale 0 px : -252.35 µJy at 3293,1480
+Iteration 156955, scale 0 px : 222.75 µJy at 3277,1487
+Iteration 157057, scale 0 px : -235.98 µJy at 3272,1482
+Iteration 157069, scale 0 px : 231.31 µJy at 3274,1483
+Iteration 157076, scale 0 px : -215.12 µJy at 3272,1482
+Iteration 157398, scale 0 px : -287.03 µJy at 3269,1478
+Iteration 157402, scale 0 px : -226.04 µJy at 3265,1486
+Iteration 157445, scale 0 px : 232.55 µJy at 3289,1484
+Iteration 157460, scale 19 px : -209.39 µJy at 3347,1422
+Iteration 158720, scale 0 px : -203.3 µJy at 3292,1484
+Iteration 159471, scale 0 px : 229.96 µJy at 3274,1483
+Iteration 159495, scale 0 px : -197.49 µJy at 3279,1482
+Iteration 161029, scale 0 px : -263.47 µJy at 3273,1487
+Iteration 161037, scale 0 px : -241.97 µJy at 3275,1489
+Iteration 161057, scale 0 px : 201.12 µJy at 3267,1491
+Iteration 161351, scale 616 px : 202.36 µJy at 1394,2257
+Iteration 161384, scale 0 px : 202.41 µJy at 3294,1486
+Iteration 161455, scale 0 px : -188.17 µJy at 3279,1482
+Iteration 163746, scale 0 px : 216.99 µJy at 3271,1480
+Iteration 163778, scale 0 px : -185.6 µJy at 3279,1488
+Iteration 164909, scale 0 px : 238.86 µJy at 3281,1489
+Iteration 164918, scale 0 px : 190.72 µJy at 3283,1496
+Iteration 165223, scale 0 px : 235.26 µJy at 3277,1487
+Iteration 165233, scale 0 px : 187.6 µJy at 3271,1480
+Iteration 165558, scale 0 px : 211.07 µJy at 3281,1489
+Iteration 165575, scale 10 px : -192.24 µJy at 3307,1394
+Iteration 166637, scale 0 px : 185.99 µJy at 3281,1482
+Iteration 167194, scale 0 px : 232.14 µJy at 3277,1487
+Iteration 167200, scale 0 px : -196.97 µJy at 3279,1488
+Iteration 167274, scale 0 px : 217.59 µJy at 3281,1489
+Iteration 167278, scale 0 px : -183.19 µJy at 3279,1488
+Iteration 167959, scale 0 px : -204.36 µJy at 3283,1490
+Iteration 167987, scale 19 px : -185.38 µJy at 3375,1400
+Iteration 170789, scale 308 px : 185.39 µJy at 2144,784
+Iteration 170825, scale 39 px : 181.01 µJy at 3492,1425
+Iteration 172107, scale 77 px : -178.49 µJy at 2886,2316
+Iteration 172311, scale 0 px : 178.45 µJy at 3284,1492
+Iteration 174018, scale 0 px : 215.15 µJy at 3271,1480
+Iteration 174032, scale 0 px : -179.86 µJy at 3267,1482
+Iteration 174368, scale 0 px : 194 µJy at 3269,1477
+Iteration 174407, scale 154 px : -178.08 µJy at 1584,3205
+Iteration 174447, scale 0 px : -172.43 µJy at 3269,1478
+Iteration 176363, scale 0 px : 230.91 µJy at 3278,1484
+Iteration 176369, scale 0 px : -183.14 µJy at 3280,1501
+Iteration 176488, scale 19 px : -182.13 µJy at 3263,1526
+Iteration 176931, scale 10 px : -169.96 µJy at 3307,1394
+Iteration 178737, scale 0 px : 169.97 µJy at 3281,1500
+Iteration 180453, scale 0 px : 348.95 µJy at 3277,1481
+Iteration 180456, scale 0 px : -278.46 µJy at 3281,1485
+Iteration 180464, scale 0 px : -212.36 µJy at 3281,1485
+Iteration 180493, scale 0 px : -189.04 µJy at 3279,1488
+Iteration 180626, scale 0 px : -197.61 µJy at 3275,1486
+Iteration 180634, scale 0 px : -174.1 µJy at 3286,1482
+Iteration 180937, scale 0 px : 196.9 µJy at 3277,1484
+Iteration 180950, scale 0 px : -171.4 µJy at 3277,1483
+Iteration 181306, scale 0 px : 228.36 µJy at 3271,1486
+Iteration 181316, scale 0 px : 193.58 µJy at 3270,1483
+Iteration 181344, scale 0 px : -192.25 µJy at 3276,1485
+Iteration 181354, scale 0 px : 174.67 µJy at 3277,1487
+Iteration 182513, scale 0 px : -237.74 µJy at 3272,1482
+Iteration 182521, scale 0 px : 192.82 µJy at 3277,1481
+Iteration 182583, scale 0 px : -194.95 µJy at 3277,1483
+Iteration 182588, scale 0 px : 180.36 µJy at 3274,1483
+Iteration 182645, scale 0 px : -187.18 µJy at 3277,1483
+Iteration 182654, scale 0 px : 172.05 µJy at 3277,1481
+Iteration 183037, scale 0 px : -191.94 µJy at 3272,1485
+Iteration 183048, scale 0 px : -157.31 µJy at 3283,1490
+Iteration 188194, scale 0 px : 239.35 µJy at 3281,1482
+Iteration 188201, scale 0 px : -191.44 µJy at 3280,1501
+Iteration 188249, scale 10 px : -197.73 µJy at 3251,1469
+Iteration 188254, scale 39 px : 184.93 µJy at 3371,1480
+Iteration 188289, scale 19 px : -177.59 µJy at 3283,1444
+Iteration 188833, scale 0 px : 168.91 µJy at 3268,1473
+Iteration 189099, scale 0 px : 196.02 µJy at 3277,1487
+Iteration 189104, scale 0 px : -171.58 µJy at 3279,1488
+Iteration 189196, scale 0 px : -181.74 µJy at 3273,1487
+Iteration 189210, scale 0 px : -256.53 µJy at 3276,1485
+Iteration 189219, scale 0 px : -203.35 µJy at 3271,1478
+Iteration 189245, scale 0 px : 173.64 µJy at 3275,1492
+Iteration 189385, scale 0 px : 189.89 µJy at 3277,1487
+Iteration 189392, scale 0 px : -160.71 µJy at 3279,1488
+Iteration 189830, scale 0 px : 182.21 µJy at 3281,1489
+Iteration 189845, scale 19 px : -171.17 µJy at 3263,1526
+Iteration 190637, scale 616 px : 163.29 µJy at 1394,2257
+Iteration 190673, scale 0 px : -162.8 µJy at 3279,1488
+Iteration 190829, scale 0 px : 181.72 µJy at 3285,1490
+Iteration 190836, scale 0 px : -156.84 µJy at 3283,1490
+Iteration 191671, scale 0 px : 194.95 µJy at 3281,1489
+Iteration 191682, scale 0 px : -161.37 µJy at 3279,1480
+Iteration 191833, scale 0 px : 190.26 µJy at 3277,1487
+Iteration 191837, scale 10 px : -172.05 µJy at 3251,1469
+Iteration 191909, scale 0 px : -162.84 µJy at 3279,1488
+Iteration 191995, scale 0 px : 169.58 µJy at 3281,1489
+Iteration 192007, scale 39 px : 159.76 µJy at 3371,1480
+Iteration 193342, scale 0 px : -157.25 µJy at 3279,1488
+Iteration 193778, scale 0 px : 207.92 µJy at 3289,1490
+Iteration 193785, scale 0 px : 165.55 µJy at 3284,1492
+Iteration 193859, scale 0 px : 152.18 µJy at 3289,1485
+Iteration 195744, scale 0 px : 228.69 µJy at 3284,1492
+Iteration 195748, scale 0 px : 173.6 µJy at 3271,1480
+Iteration 195796, scale 19 px : -171.88 µJy at 3263,1526
+Iteration 195926, scale 0 px : -164.08 µJy at 3286,1493
+Iteration 195993, scale 77 px : 151.03 µJy at 2453,2145
+Iteration 196236, scale 19 px : -148.66 µJy at 3263,1526
+Iteration 199671, scale 10 px : 164.79 µJy at 3179,1596
+Iteration 200033, scale 0 px : 154.99 µJy at 3205,1596
+Iteration 200429, scale 0 px : -157.17 µJy at 3269,1478
+Iteration 200496, scale 19 px : -149.62 µJy at 3263,1526
+Iteration 200575, scale 0 px : -149.16 µJy at 3286,1493
+Iteration 201820, scale 0 px : 176.93 µJy at 3284,1492
+Iteration 201839, scale 0 px : 167.23 µJy at 3270,1483
+Iteration 201868, scale 0 px : 140.53 µJy at 3284,1492
+Iteration 206013, scale 0 px : 259.84 µJy at 3277,1481
+Iteration 206016, scale 0 px : 200.89 µJy at 3277,1481
+Iteration 206030, scale 0 px : -184.71 µJy at 3277,1483
+Iteration 206052, scale 0 px : 178.59 µJy at 3277,1481
+Iteration 206069, scale 0 px : -161.25 µJy at 3277,1483
+Iteration 206191, scale 19 px : -167.12 µJy at 3263,1526
+Iteration 206201, scale 10 px : -157.76 µJy at 3252,1539
+Iteration 206543, scale 39 px : 157.7 µJy at 3371,1480
+Iteration 206721, scale 0 px : 152.32 µJy at 3277,1481
+Iteration 206928, scale 0 px : -163.86 µJy at 3277,1483
+Iteration 206935, scale 0 px : -138.14 µJy at 3283,1490
+Iteration 209767, scale 0 px : 208.11 µJy at 3284,1492
+Iteration 209771, scale 0 px : 162.13 µJy at 3279,1491
+Iteration 209822, scale 19 px : -174.96 µJy at 3263,1526
+Iteration 209830, scale 19 px : -138.82 µJy at 3258,1541
+Iteration 211730, scale 308 px : 147.88 µJy at 3048,4085
+Iteration 211765, scale 0 px : 146.08 µJy at 3262,1492
+Iteration 212033, scale 0 px : 155.21 µJy at 3278,1484
+Iteration 212062, scale 19 px : -147.78 µJy at 3263,1526
+Iteration 212071, scale 10 px : 143.53 µJy at 3259,1450
+Iteration 213200, scale 39 px : 145.64 µJy at 3153,1545
+Iteration 213881, scale 154 px : -141.89 µJy at 1584,3205
+Iteration 213937, scale 0 px : 140.57 µJy at 3253,1538
+Iteration 214524, scale 0 px : 170.93 µJy at 3277,1487
+Iteration 214533, scale 0 px : -138.08 µJy at 3281,1485
+Iteration 214956, scale 0 px : 167.71 µJy at 3277,1484
+Iteration 214959, scale 0 px : -143.15 µJy at 3276,1485
+Iteration 215042, scale 0 px : -140.41 µJy at 3277,1483
+Iteration 215153, scale 0 px : -144.01 µJy at 3276,1485
+Iteration 215183, scale 616 px : 132.88 µJy at 1394,2257
+Iteration 215224, scale 19 px : -146.82 µJy at 3283,1444
+Iteration 215251, scale 19 px : -122.27 µJy at 3376,1432
+Iteration 218815, scale 10 px : 177.74 µJy at 3325,1425
+Iteration 218818, scale 10 px : -135.85 µJy at 3276,1513
+Iteration 219611, scale 39 px : -142.16 µJy at 3149,1516
+Iteration 219815, scale 0 px : -140.85 µJy at 3326,1424
+Iteration 220145, scale 0 px : 143.4 µJy at 3271,1486
+Iteration 220203, scale 0 px : 135.95 µJy at 3277,1487
+Iteration 220925, scale 0 px : 148.53 µJy at 3271,1480
+Iteration 220951, scale 0 px : -130.48 µJy at 3272,1482
+Iteration 223267, scale 0 px : 196.44 µJy at 3262,1492
+Iteration 223281, scale 0 px : 155.29 µJy at 3275,1492
+Iteration 223341, scale 0 px : -157.27 µJy at 3267,1482
+Iteration 223352, scale 0 px : 145.58 µJy at 3277,1487
+Iteration 223466, scale 0 px : -149.01 µJy at 3276,1485
+Iteration 223483, scale 0 px : 128.52 µJy at 3277,1487
+Iteration 226254, scale 0 px : 211.32 µJy at 3270,1483
+Iteration 226262, scale 0 px : 168.02 µJy at 3271,1486
+Iteration 226283, scale 0 px : -149.93 µJy at 3272,1482
+Iteration 226366, scale 0 px : 125.7 µJy at 3271,1489
+Iteration 228543, scale 0 px : -181.33 µJy at 3286,1482
+Iteration 228555, scale 0 px : -173.54 µJy at 3271,1485
+Iteration 228569, scale 0 px : -159.01 µJy at 3264,1491
+Iteration 228600, scale 0 px : 135.81 µJy at 3268,1491
+Iteration 228766, scale 0 px : 132.11 µJy at 3277,1486
+Iteration 228890, scale 77 px : 130.19 µJy at 4010,1224
+Iteration 229077, scale 39 px : 130.39 µJy at 3371,1480
+Iteration 229859, scale 0 px : 123.02 µJy at 3269,1477
+Iteration 231785, scale 0 px : 158.94 µJy at 3284,1492
+Iteration 231808, scale 10 px : 158.21 µJy at 3325,1425
+Iteration 231826, scale 10 px : 125.9 µJy at 3259,1450
+Iteration 232909, scale 0 px : -137.36 µJy at 3326,1424
+Iteration 233026, scale 0 px : 140.32 µJy at 3280,1482
+Iteration 233055, scale 0 px : -140.41 µJy at 3276,1485
+Iteration 233071, scale 0 px : 122.67 µJy at 3277,1481
+Iteration 234057, scale 0 px : 167.37 µJy at 3277,1487
+Iteration 234066, scale 0 px : 133.11 µJy at 3271,1489
+Iteration 234165, scale 0 px : -135.79 µJy at 3276,1485
+Iteration 234185, scale 0 px : 120.52 µJy at 3277,1484
+Iteration 236158, scale 0 px : 164.11 µJy at 3274,1485
+Iteration 236175, scale 0 px : -130.97 µJy at 3281,1474
+Iteration 236292, scale 0 px : 125.85 µJy at 3277,1487
+Iteration 236392, scale 0 px : -134.87 µJy at 3276,1485
+Iteration 236405, scale 0 px : 109.41 µJy at 3277,1481
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 245812, scale 19 px : -191.93 µJy at 3283,1444
+Iteration 245820, scale 0 px : -174.26 µJy at 3279,1488
+Iteration 245832, scale 10 px : 158.12 µJy at 3325,1425
+Iteration 245840, scale 19 px : -153.96 µJy at 3263,1526
+Iteration 245877, scale 39 px : -156.05 µJy at 3149,1516
+Iteration 245884, scale 0 px : -142.37 µJy at 3272,1485
+Iteration 245936, scale 0 px : -128.78 µJy at 3272,1482
+Iteration 246041, scale 19 px : -144.98 µJy at 3263,1526
+Iteration 246060, scale 0 px : 133.84 µJy at 3270,1483
+Iteration 246080, scale 10 px : 133.37 µJy at 3325,1425
+Iteration 246127, scale 39 px : -131.52 µJy at 3149,1516
+Iteration 246166, scale 19 px : -134.36 µJy at 3283,1444
+Iteration 246213, scale 19 px : -119.34 µJy at 3376,1432
+Iteration 246888, scale 0 px : 127.01 µJy at 3281,1445
+Iteration 246988, scale 0 px : -145.65 µJy at 3270,1488
+Iteration 246992, scale 0 px : -116.39 µJy at 3270,1488
+Iteration 247791, scale 0 px : -182.86 µJy at 3267,1482
+Iteration 247795, scale 0 px : 134.02 µJy at 3284,1492
+Iteration 247833, scale 19 px : -157.73 µJy at 3283,1444
+Iteration 247840, scale 10 px : 143.25 µJy at 3325,1425
+Iteration 247848, scale 10 px : 114.53 µJy at 3299,1500
+Iteration 249238, scale 39 px : -136.75 µJy at 3149,1516
+Iteration 249244, scale 19 px : -128.71 µJy at 3394,1456
+Iteration 249275, scale 0 px : -124.68 µJy at 3277,1483
+Iteration 249393, scale 0 px : 123.01 µJy at 3270,1483
+Iteration 249468, scale 0 px : -118.28 µJy at 3267,1482
+Iteration 249648, scale 19 px : -137.6 µJy at 3283,1444
+Iteration 249662, scale 19 px : -108.54 µJy at 3182,1524
+(13) Iteration 251178, scale 39 px : -124.97 µJy at 3149,1516
+Iteration 251606, scale 0 px : 120.61 µJy at 3281,1445
+Iteration 251712, scale 308 px : 116.91 µJy at 3784,4270
+Iteration 251754, scale 154 px : -113.42 µJy at 2998,923
+Iteration 251832, scale 77 px : 112.94 µJy at 4010,1224
+Iteration 252044, scale 0 px : -109.49 µJy at 3272,1484
+(12) Iteration 253243, scale 0 px : 128.32 µJy at 3274,1485
+Iteration 253264, scale 0 px : -109.57 µJy at 3268,1489
+(11) Iteration 254067, scale 0 px : -154.67 µJy at 3260,1486
+Iteration 254072, scale 0 px : 125.11 µJy at 3271,1489
+Iteration 254104, scale 0 px : -128.4 µJy at 3281,1485
+Iteration 254130, scale 0 px : -119.25 µJy at 3279,1480
+Iteration 254224, scale 39 px : -109.23 µJy at 3149,1516
+(10) Iteration 255442, scale 0 px : 109.18 µJy at 3275,1492
+(9) Iteration 255757, scale 0 px : 108.2 µJy at 3269,1477
+(8) Iteration 255884, scale 0 px : 110.2 µJy at 3278,1456
+(7) Iteration 255990, scale 0 px : 111.79 µJy at 3281,1489
+Iteration 256085, scale 0 px : 114.77 µJy at 3272,1448
+Iteration 256145, scale 616 px : 107.5 µJy at 3248,2728
+(6) Iteration 256182, scale 0 px : -103.74 µJy at 3276,1448
+(5) Iteration 256447, scale 0 px : 248.46 µJy at 3279,1450
+Iteration 256451, scale 0 px : 196.59 µJy at 3275,1445
+Iteration 256456, scale 0 px : 156.98 µJy at 3275,1445
+Iteration 256477, scale 0 px : -157.58 µJy at 3272,1443
+Iteration 256482, scale 0 px : 140.74 µJy at 3275,1445
+Iteration 256535, scale 19 px : -146.93 µJy at 3283,1444
+Iteration 256545, scale 0 px : 141.48 µJy at 3287,1442
+Iteration 256567, scale 0 px : -133.12 µJy at 3290,1446
+Iteration 256648, scale 0 px : 144.47 µJy at 3285,1447
+Iteration 256655, scale 10 px : 131.29 µJy at 3325,1425
+Iteration 256680, scale 0 px : -129.21 µJy at 3284,1449
+Iteration 256750, scale 0 px : 134.26 µJy at 3279,1450
+Iteration 256762, scale 19 px : -159.01 µJy at 3283,1444
+Iteration 256765, scale 19 px : -122.11 µJy at 3283,1444
+Iteration 256800, scale 0 px : 127.8 µJy at 3285,1447
+Iteration 256848, scale 0 px : -117.41 µJy at 3273,1443
+Iteration 257092, scale 0 px : 129.92 µJy at 3287,1442
+Iteration 257099, scale 0 px : -105.72 µJy at 3273,1443
+(4) Iteration 257704, scale 0 px : 236.89 µJy at 3290,1467
+Iteration 257707, scale 0 px : 172.69 µJy at 3290,1467
+Iteration 257713, scale 0 px : -135.26 µJy at 3288,1469
+Iteration 257743, scale 19 px : -139.19 µJy at 3283,1444
+Iteration 257754, scale 10 px : 139.2 µJy at 3273,1442
+Iteration 257764, scale 10 px : 110.59 µJy at 3398,1450
+(3) Iteration 258302, scale 0 px : -122.78 µJy at 3273,1443
+Iteration 258469, scale 0 px : -127.16 µJy at 3292,1463
+Iteration 258476, scale 19 px : -125.9 µJy at 3283,1444
+Iteration 258491, scale 0 px : 115.8 µJy at 3294,1464
+Iteration 258659, scale 0 px : -122.59 µJy at 3293,1465
+Iteration 258671, scale 0 px : 117.27 µJy at 3294,1464
+Iteration 258744, scale 0 px : 138.96 µJy at 3275,1445
+Iteration 258752, scale 0 px : 113.18 µJy at 3272,1459
+Iteration 259262, scale 0 px : -132.05 µJy at 3288,1439
+Iteration 259278, scale 0 px : -110.16 µJy at 3274,1457
+(2) Iteration 259589, scale 19 px : -150.39 µJy at 3283,1444
+Iteration 259593, scale 19 px : 113.9 µJy at 3168,1517
+Iteration 259729, scale 0 px : -127.76 µJy at 3297,1462
+Iteration 259743, scale 0 px : -102.63 µJy at 3276,1485
+(1) Iteration 260041, scale 19 px : -140.03 µJy at 3283,1444
+Iteration 260044, scale 19 px : -110.23 µJy at 3263,1526
+(0) Iteration 260224, scale 10 px : 121.98 µJy at 3325,1425
+Cleaning finished because the final threshold was reached.
+Assigning from 8 to 8 channels...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+ == Deconvolving (5) ==
+Estimated standard deviation of background noise: 16.76 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 24.09 µJy, 10: 19.93 µJy, 19: 15.98 µJy, 39: 11.84 µJy, 77: 8.11 µJy, 154: 5.59 µJy, 308: 3.92 µJy, 616: 2.6 µJy, 1233: 1.16 µJy, 2465: 214.84 nJy}
+Starting multi-scale cleaning. Start peak=-589.76 µJy, major iteration threshold=83.8 µJy (final)
+Iteration 260247, scale 0 px : -470.28 µJy at 3134,1561
+Iteration 260380, scale 19 px : -425.99 µJy at 2939,1636
+Iteration 260429, scale 0 px : 390.61 µJy at 3306,1449
+Iteration 260821, scale 39 px : 373.06 µJy at 3933,1117
+Iteration 260917, scale 10 px : -367.73 µJy at 3042,1757
+Iteration 261121, scale 77 px : -341.45 µJy at 3789,806
+Iteration 261200, scale 19 px : -341.39 µJy at 3695,1306
+Iteration 261721, scale 0 px : 333.08 µJy at 3277,1501
+Iteration 262641, scale 0 px : -294.89 µJy at 3311,1444
+Iteration 264427, scale 39 px : -301.4 µJy at 2890,1427
+Iteration 265250, scale 10 px : -299.1 µJy at 3042,1758
+Iteration 265871, scale 0 px : 292.98 µJy at 3290,1488
+Iteration 266022, scale 154 px : -287.18 µJy at 2959,534
+Iteration 266131, scale 308 px : -284.62 µJy at 267,4475
+Iteration 266165, scale 19 px : 280.81 µJy at 3544,1438
+Iteration 267918, scale 616 px : 271.13 µJy at 4980,774
+Iteration 267943, scale 77 px : 270.34 µJy at 3090,761
+Iteration 268347, scale 10 px : 254.39 µJy at 2942,1614
+Iteration 270604, scale 0 px : 257.15 µJy at 3171,1557
+Iteration 273346, scale 0 px : 253.99 µJy at 3268,1502
+Iteration 273744, scale 39 px : -248.31 µJy at 3680,1266
+Iteration 275623, scale 0 px : 240.77 µJy at 3280,1500
+Iteration 277534, scale 0 px : -241.56 µJy at 3282,1499
+Iteration 277788, scale 19 px : -237 µJy at 3612,1418
+Iteration 281069, scale 0 px : 237.34 µJy at 3280,1500
+Iteration 281673, scale 154 px : -233.7 µJy at 1729,3211
+Iteration 281893, scale 77 px : -230.63 µJy at 2336,2304
+Iteration 282423, scale 308 px : -226.68 µJy at 556,3728
+Iteration 282508, scale 616 px : -222.26 µJy at 2239,4508
+Iteration 282542, scale 0 px : -217.88 µJy at 3282,1499
+Iteration 287442, scale 0 px : -222.05 µJy at 3261,1515
+Iteration 287635, scale 10 px : 212.43 µJy at 3603,1413
+Iteration 290756, scale 39 px : -211.45 µJy at 3680,1266
+Iteration 293810, scale 19 px : -206.95 µJy at 3003,1547
+Iteration 297594, scale 0 px : 202.67 µJy at 3288,1436
+Iteration 301904, scale 0 px : 244.22 µJy at 3325,1432
+Iteration 301917, scale 0 px : 194.25 µJy at 3253,1494
+Iteration 305489, scale 0 px : 234.82 µJy at 3320,1435
+Iteration 305505, scale 0 px : -185.98 µJy at 3264,1522
+Iteration 310181, scale 0 px : 234.06 µJy at 3321,1440
+Iteration 310195, scale 0 px : -187.85 µJy at 3282,1443
+Iteration 310896, scale 0 px : -218.24 µJy at 3270,1487
+Iteration 310910, scale 0 px : 182.46 µJy at 3269,1483
+Iteration 313433, scale 0 px : -478.05 µJy at 3276,1490
+Iteration 313436, scale 0 px : -348.5 µJy at 3276,1490
+Iteration 313442, scale 0 px : 287.66 µJy at 3274,1488
+Iteration 313467, scale 0 px : 260.81 µJy at 3275,1492
+Iteration 313491, scale 0 px : -282.27 µJy at 3276,1490
+Iteration 313496, scale 0 px : 242.8 µJy at 3274,1488
+Iteration 313548, scale 0 px : -245.14 µJy at 3270,1487
+Iteration 313555, scale 0 px : 224.58 µJy at 3274,1488
+Iteration 313694, scale 0 px : -204.63 µJy at 3280,1503
+Iteration 313937, scale 0 px : -224.8 µJy at 3265,1487
+Iteration 313947, scale 0 px : 193.35 µJy at 3268,1487
+Iteration 314191, scale 0 px : -211.14 µJy at 3270,1487
+Iteration 314199, scale 154 px : -194.08 µJy at 4036,3173
+Iteration 314598, scale 0 px : 192.18 µJy at 3268,1487
+Iteration 314744, scale 0 px : -217.08 µJy at 3265,1487
+Iteration 314749, scale 0 px : 193.39 µJy at 3268,1487
+Iteration 314807, scale 0 px : -189.97 µJy at 3270,1487
+Iteration 314921, scale 77 px : -188.75 µJy at 2336,2304
+Iteration 316195, scale 10 px : 184.47 µJy at 3433,1361
+Iteration 320291, scale 308 px : -184.26 µJy at 3335,3862
+Iteration 320439, scale 39 px : -180.97 µJy at 3658,1539
+Iteration 325053, scale 19 px : 179.76 µJy at 3260,1408
+Iteration 330685, scale 0 px : 179 µJy at 3253,1494
+Iteration 333289, scale 0 px : 201.45 µJy at 3270,1483
+Iteration 333337, scale 0 px : -173.46 µJy at 3268,1482
+Iteration 336619, scale 0 px : -194.59 µJy at 3286,1493
+Iteration 336681, scale 0 px : 162.06 µJy at 3284,1492
+Iteration 347662, scale 0 px : -247 µJy at 3287,1511
+Iteration 347673, scale 0 px : -195.78 µJy at 3255,1496
+Iteration 347773, scale 0 px : -167.17 µJy at 3268,1482
+Iteration 348619, scale 0 px : 194.44 µJy at 3265,1481
+Iteration 348630, scale 616 px : -175.42 µJy at 2163,4475
+Iteration 348692, scale 19 px : -165.62 µJy at 3515,1302
+Iteration 356004, scale 77 px : 165.2 µJy at 2376,1625
+Iteration 357320, scale 0 px : -160.34 µJy at 3271,1488
+Iteration 359988, scale 0 px : -230.12 µJy at 3244,1492
+Iteration 359993, scale 0 px : 184.71 µJy at 3252,1488
+Iteration 360039, scale 10 px : 162.16 µJy at 3449,1452
+Iteration 363725, scale 0 px : -162.36 µJy at 3268,1482
+Iteration 364495, scale 0 px : -187.49 µJy at 3250,1493
+Iteration 364502, scale 0 px : 152.1 µJy at 3248,1491
+Iteration 373035, scale 0 px : 251.9 µJy at 3281,1483
+Iteration 373040, scale 0 px : -199.01 µJy at 3259,1495
+Iteration 373085, scale 0 px : 164.15 µJy at 3262,1506
+Iteration 373447, scale 39 px : -158.76 µJy at 3889,1420
+Iteration 377808, scale 154 px : -157.87 µJy at 2770,3787
+Iteration 378162, scale 0 px : -155.99 µJy at 3282,1468
+Iteration 378910, scale 0 px : -164.41 µJy at 3277,1497
+Iteration 378969, scale 19 px : 151.58 µJy at 3564,1406
+Iteration 386831, scale 308 px : -147.48 µJy at 285,774
+Iteration 387067, scale 10 px : 145.6 µJy at 3181,1422
+Iteration 394665, scale 19 px : 151.65 µJy at 2977,1569
+Iteration 395237, scale 0 px : 148.03 µJy at 3274,1497
+Iteration 399611, scale 0 px : 190.69 µJy at 3253,1494
+Iteration 399620, scale 0 px : -151.63 µJy at 3263,1480
+Iteration 400182, scale 0 px : -152.8 µJy at 3280,1503
+Iteration 400388, scale 0 px : 143.74 µJy at 3277,1473
+Iteration 405149, scale 0 px : -185.81 µJy at 3269,1470
+Iteration 405168, scale 0 px : 149.81 µJy at 3265,1477
+Iteration 405604, scale 0 px : 158.55 µJy at 3268,1488
+Iteration 405644, scale 0 px : -141.84 µJy at 3270,1487
+Iteration 410135, scale 0 px : -234.86 µJy at 3284,1489
+Iteration 410138, scale 0 px : -186.83 µJy at 3282,1491
+Iteration 410160, scale 0 px : 170.96 µJy at 3287,1490
+Iteration 410226, scale 0 px : -144.96 µJy at 3266,1488
+Iteration 411146, scale 0 px : -180.44 µJy at 3279,1488
+Iteration 411151, scale 0 px : 144.77 µJy at 3295,1490
+Iteration 411551, scale 77 px : -141.27 µJy at 3265,2250
+Iteration 413915, scale 39 px : 142.24 µJy at 3728,1432
+Iteration 419008, scale 616 px : 138.32 µJy at 5395,3890
+Iteration 419072, scale 0 px : 137.52 µJy at 3303,1503
+Iteration 424716, scale 0 px : -167.65 µJy at 3299,1503
+Iteration 424746, scale 0 px : 133.88 µJy at 3256,1529
+Iteration 431267, scale 0 px : -176.69 µJy at 3294,1506
+Iteration 431288, scale 0 px : -144.86 µJy at 3335,1436
+Iteration 431635, scale 0 px : -144.09 µJy at 3322,1430
+Iteration 431759, scale 19 px : 135.6 µJy at 3640,1266
+Iteration 442651, scale 10 px : 134.96 µJy at 3463,1377
+Iteration 446903, scale 0 px : 135.36 µJy at 3281,1489
+Iteration 448813, scale 0 px : -153.09 µJy at 3266,1494
+Iteration 448864, scale 0 px : -136.86 µJy at 3268,1482
+Iteration 449623, scale 0 px : 141.4 µJy at 3266,1490
+Iteration 449741, scale 0 px : -144.03 µJy at 3269,1490
+Iteration 449764, scale 154 px : 132.01 µJy at 982,1872
+Iteration 450247, scale 308 px : 125.86 µJy at 5672,1213
+Iteration 450445, scale 77 px : -127.12 µJy at 2768,1631
+Iteration 452384, scale 0 px : 124.85 µJy at 3270,1492
+Iteration 474522, scale 0 px : -199.32 µJy at 3261,1486
+Iteration 474534, scale 0 px : 158.98 µJy at 3267,1480
+Iteration 474630, scale 10 px : -148.71 µJy at 3249,1566
+Iteration 474653, scale 0 px : 146.21 µJy at 3281,1489
+Iteration 474811, scale 0 px : -133.33 µJy at 3279,1488
+Iteration 475482, scale 0 px : -146.82 µJy at 3276,1485
+Iteration 475510, scale 0 px : 130.01 µJy at 3279,1490
+Iteration 476114, scale 0 px : -160.33 µJy at 3279,1488
+Iteration 476119, scale 0 px : -126.05 µJy at 3267,1489
+Iteration 477547, scale 0 px : -141.13 µJy at 3282,1491
+Iteration 477597, scale 0 px : 123.92 µJy at 3281,1489
+Iteration 480424, scale 0 px : 138.14 µJy at 3264,1488
+Iteration 480489, scale 39 px : -125.17 µJy at 2626,1667
+Iteration 489330, scale 19 px : 123.43 µJy at 3564,1406
+Iteration 501066, scale 0 px : -122.31 µJy at 3272,1484
+Iteration 504661, scale 0 px : 146.13 µJy at 3264,1492
+Iteration 504688, scale 0 px : -125.95 µJy at 3267,1489
+Iteration 505197, scale 0 px : -141.99 µJy at 3272,1484
+Iteration 505209, scale 0 px : -114.48 µJy at 3252,1492
+Iteration 529894, scale 0 px : 199.74 µJy at 3257,1480
+Iteration 529900, scale 0 px : 156.36 µJy at 3268,1505
+Iteration 529957, scale 0 px : 127.22 µJy at 3272,1503
+Iteration 530468, scale 0 px : -197.05 µJy at 3278,1482
+Iteration 530473, scale 0 px : -151.46 µJy at 3280,1488
+Iteration 530495, scale 0 px : -127 µJy at 3276,1485
+Iteration 530721, scale 0 px : 131.81 µJy at 3277,1487
+Iteration 530749, scale 19 px : -122.76 µJy at 3399,1330
+Iteration 532575, scale 10 px : 117.95 µJy at 3599,1254
+Iteration 540259, scale 0 px : -116.99 µJy at 3276,1485
+Iteration 542781, scale 0 px : 169.75 µJy at 3268,1449
+Iteration 542789, scale 0 px : -132.47 µJy at 3271,1476
+Iteration 542874, scale 0 px : 124.28 µJy at 3271,1480
+Iteration 543032, scale 616 px : 116.15 µJy at 5671,2638
+Iteration 543115, scale 0 px : 113.6 µJy at 3267,1525
+Iteration 547431, scale 0 px : 164.41 µJy at 3273,1476
+Iteration 547437, scale 0 px : 131.25 µJy at 3271,1486
+Iteration 547529, scale 0 px : -114.83 µJy at 3275,1476
+Iteration 548824, scale 0 px : -136.78 µJy at 3265,1491
+Iteration 548850, scale 0 px : 109.17 µJy at 3249,1533
+Iteration 558595, scale 0 px : 146.34 µJy at 3264,1431
+Iteration 558620, scale 0 px : 117.98 µJy at 3268,1502
+Iteration 559061, scale 0 px : 115.87 µJy at 3271,1480
+Iteration 559377, scale 154 px : -113.07 µJy at 2661,3730
+Iteration 560092, scale 77 px : -111.36 µJy at 4206,1726
+Iteration 562911, scale 39 px : 112.59 µJy at 3734,1424
+Iteration 571937, scale 0 px : -111.61 µJy at 3267,1489
+Iteration 573137, scale 0 px : -118.88 µJy at 3254,1461
+Iteration 573257, scale 10 px : -108.4 µJy at 3430,1465
+Iteration 586424, scale 10 px : -119.29 µJy at 3356,1406
+Iteration 586448, scale 0 px : -112.18 µJy at 3339,1389
+Iteration 587748, scale 0 px : 134.62 µJy at 3251,1469
+Iteration 587757, scale 0 px : 115.99 µJy at 3276,1483
+Iteration 587928, scale 19 px : -111.71 µJy at 3786,1101
+Iteration 596833, scale 0 px : 110.87 µJy at 3245,1465
+Iteration 598067, scale 0 px : -127.34 µJy at 3242,1466
+Iteration 598081, scale 0 px : -101.69 µJy at 3247,1534
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 611627, scale 0 px : 173.96 µJy at 3258,1488
+Iteration 611636, scale 0 px : -141.68 µJy at 3265,1483
+Iteration 611684, scale 0 px : 115.58 µJy at 3272,1503
+Iteration 612161, scale 0 px : -127.86 µJy at 3278,1482
+Iteration 612184, scale 0 px : -111.48 µJy at 3273,1486
+Iteration 612737, scale 0 px : -125.43 µJy at 3265,1491
+Iteration 612757, scale 0 px : 100.72 µJy at 3272,1475
+(13) Iteration 616980, scale 0 px : 285.93 µJy at 3271,1469
+Iteration 616983, scale 0 px : 208.45 µJy at 3271,1469
+Iteration 616989, scale 0 px : -163.59 µJy at 3274,1471
+Iteration 617014, scale 0 px : -130.64 µJy at 3274,1471
+Iteration 617089, scale 0 px : 121.31 µJy at 3267,1471
+Iteration 617185, scale 19 px : -126.64 µJy at 3397,1404
+Iteration 617211, scale 0 px : -123.46 µJy at 3269,1471
+Iteration 617258, scale 0 px : 112.59 µJy at 3267,1471
+Iteration 617824, scale 0 px : -182.68 µJy at 3264,1472
+Iteration 617827, scale 0 px : -133.18 µJy at 3264,1472
+Iteration 617840, scale 0 px : 108.2 µJy at 3267,1471
+Iteration 618742, scale 0 px : 115.07 µJy at 3269,1477
+Iteration 618820, scale 0 px : -104.63 µJy at 3271,1476
+(12) Iteration 621137, scale 0 px : 115.67 µJy at 3261,1490
+Iteration 621202, scale 0 px : 101.85 µJy at 3263,1482
+(11) Iteration 622606, scale 0 px : -123.98 µJy at 3272,1482
+Iteration 622621, scale 0 px : 99.08 µJy at 3290,1471
+(10) Iteration 623512, scale 0 px : 114.15 µJy at 3274,1488
+Iteration 623557, scale 308 px : -102.87 µJy at 1613,3805
+(9) Iteration 623762, scale 39 px : 102.02 µJy at 3718,1448
+(8) Iteration 632144, scale 19 px : -100.65 µJy at 2942,1542
+(7) Iteration 643208, scale 10 px : 110.02 µJy at 3481,1236
+Iteration 643848, scale 10 px : -95.22 µJy at 3370,1358
+(6) Iteration 647522, scale 77 px : 98.41 µJy at 1993,1714
+(5) Iteration 648341, scale 0 px : -98.04 µJy at 3273,1486
+(4) Iteration 649674, scale 0 px : -105.04 µJy at 3272,1482
+Iteration 650177, scale 0 px : 112.58 µJy at 3270,1483
+Iteration 650209, scale 0 px : -101.53 µJy at 3276,1485
+(3) Iteration 650886, scale 0 px : -107.79 µJy at 3273,1474
+Iteration 651021, scale 0 px : -96.47 µJy at 3270,1487
+(2) Iteration 651484, scale 0 px : -101.76 µJy at 3272,1482
+(1) Iteration 651843, scale 0 px : -95.91 µJy at 3284,1489
+(0) Iteration 652116, scale 0 px : -100.42 µJy at 3276,1490
+Cleaning finished because the final threshold was reached.
+Auto-masking threshold reached; continuing next major iteration with deeper threshold and mask.
+Continuing image-based deconvolution with auto-mask.
+Peak was decreased by 83% in this iteration; using major loop gain of 0.412697 to finish this iteration.
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.1, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.213889, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.479285, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=1.37203, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=4.39402, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=15.7302, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=64.1901, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=325.289, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=2473.74, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=118807, kernel peak=7.50617e-07
+RMS per scale: {0: 17.1 µJy, 10: 13.58 µJy, 19: 10.48 µJy, 39: 7.3 µJy, 77: 4.54 µJy, 154: 2.82 µJy, 308: 1.82 µJy, 616: 1.14 µJy, 1233: 532.34 nJy, 2465: 194.26 nJy}
+Starting multi-scale cleaning. Start peak=-100.42 µJy, major iteration threshold=58.98 µJy
+Iteration 658518, scale 0 px : 121.43 µJy at 3264,1549
+Iteration 658540, scale 0 px : -98.35 µJy at 3284,1489
+Iteration 665562, scale 0 px : -138.88 µJy at 3272,1482
+Iteration 665571, scale 0 px : -112.57 µJy at 3281,1473
+Iteration 665700, scale 10 px : 107.27 µJy at 3124,1681
+Iteration 665881, scale 0 px : -103.69 µJy at 3281,1485
+Iteration 666576, scale 0 px : 106.88 µJy at 3276,1475
+Iteration 666660, scale 0 px : -99.68 µJy at 3269,1479
+Iteration 668490, scale 0 px : -105.73 µJy at 3262,1488
+Iteration 668667, scale 0 px : 103.9 µJy at 3270,1483
+Iteration 668823, scale 19 px : 99.52 µJy at 3130,1674
+Iteration 678591, scale 0 px : -97.15 µJy at 3270,1487
+Iteration 683935, scale 0 px : 111.79 µJy at 3278,1486
+Iteration 684011, scale 0 px : -91.76 µJy at 3244,1539
+Iteration 705761, scale 0 px : 137.61 µJy at 3281,1489
+Iteration 705782, scale 0 px : 109.35 µJy at 3251,1482
+Iteration 706102, scale 0 px : -105.52 µJy at 3267,1489
+Iteration 706286, scale 0 px : 104.34 µJy at 3268,1488
+Iteration 706398, scale 10 px : -96.79 µJy at 3456,1456
+Iteration 713716, scale 0 px : -97.11 µJy at 3267,1489
+Iteration 714957, scale 0 px : 111.99 µJy at 3264,1488
+Iteration 714981, scale 0 px : -104.11 µJy at 3266,1488
+Iteration 715059, scale 616 px : 96.6 µJy at 4870,5834
+Iteration 715122, scale 0 px : 95.3 µJy at 3270,1469
+Iteration 716218, scale 0 px : -115.15 µJy at 3270,1487
+Iteration 716230, scale 0 px : 93.86 µJy at 3268,1488
+Iteration 717484, scale 0 px : -100.76 µJy at 3267,1489
+Iteration 717572, scale 154 px : 95.11 µJy at 173,3838
+Iteration 718058, scale 39 px : -92.06 µJy at 2484,1495
+Iteration 731759, scale 308 px : -93.13 µJy at 5434,312
+Iteration 731879, scale 0 px : 91.31 µJy at 3268,1488
+Iteration 737165, scale 0 px : -114.71 µJy at 3270,1487
+Iteration 737185, scale 0 px : 93.15 µJy at 3281,1493
+Iteration 738005, scale 0 px : -105.67 µJy at 3276,1485
+Iteration 738031, scale 0 px : 88.85 µJy at 3278,1486
+Iteration 745340, scale 0 px : -124.23 µJy at 3279,1488
+Iteration 745352, scale 0 px : 102.41 µJy at 3274,1485
+Iteration 745521, scale 0 px : 102.9 µJy at 3274,1488
+Iteration 745542, scale 0 px : -91.48 µJy at 3270,1487
+Iteration 746781, scale 0 px : -106.81 µJy at 3272,1482
+Iteration 746796, scale 0 px : -85.44 µJy at 3262,1471
+Iteration 761931, scale 0 px : -130.76 µJy at 3272,1484
+Iteration 761945, scale 0 px : 104.53 µJy at 3283,1487
+Iteration 762106, scale 0 px : -95.81 µJy at 3282,1468
+Iteration 762455, scale 0 px : -102.07 µJy at 3270,1487
+Iteration 762477, scale 19 px : 93.11 µJy at 3130,1674
+Iteration 772469, scale 77 px : 92.86 µJy at 1993,1714
+Iteration 774112, scale 0 px : 90.33 µJy at 3265,1474
+Iteration 775046, scale 0 px : 108.5 µJy at 3276,1483
+Iteration 775056, scale 0 px : -86.37 µJy at 3273,1498
+Iteration 778201, scale 0 px : 174.14 µJy at 3267,1480
+Iteration 778204, scale 0 px : 126.95 µJy at 3267,1480
+Iteration 778215, scale 0 px : 105.81 µJy at 3274,1485
+Iteration 778280, scale 0 px : -96.39 µJy at 3266,1487
+Iteration 778450, scale 0 px : -92.08 µJy at 3276,1485
+Iteration 778692, scale 0 px : -93.09 µJy at 3263,1480
+Iteration 778741, scale 0 px : 86.19 µJy at 3261,1479
+Iteration 780955, scale 0 px : 127.35 µJy at 3281,1493
+Iteration 780965, scale 0 px : -100.92 µJy at 3263,1480
+Iteration 781024, scale 0 px : 91.16 µJy at 3261,1479
+Iteration 781341, scale 0 px : 90.08 µJy at 3280,1497
+Iteration 781471, scale 10 px : 88.19 µJy at 3116,1472
+Iteration 792301, scale 0 px : -86.87 µJy at 3266,1488
+Iteration 793759, scale 0 px : -97.83 µJy at 3282,1491
+Iteration 793792, scale 0 px : 83.8 µJy at 3279,1490
+Iteration 800139, scale 0 px : -117.53 µJy at 3280,1495
+Iteration 800154, scale 0 px : -96.7 µJy at 3276,1477
+Iteration 800255, scale 0 px : 94.93 µJy at 3281,1489
+Iteration 800298, scale 0 px : 87.97 µJy at 3268,1488
+Iteration 800801, scale 0 px : 86.78 µJy at 3277,1486
+Iteration 801156, scale 0 px : 92.86 µJy at 3264,1488
+Iteration 801189, scale 39 px : -83.89 µJy at 2623,1673
+Iteration 812705, scale 19 px : 83.33 µJy at 3433,1439
+Iteration 830498, scale 616 px : 84.98 µJy at 4870,5834
+Iteration 830554, scale 0 px : -85 µJy at 3279,1480
+Iteration 831788, scale 0 px : 97.4 µJy at 3268,1488
+Iteration 831822, scale 0 px : 80.41 µJy at 3287,1490
+Iteration 844956, scale 0 px : 116.06 µJy at 3270,1483
+Iteration 844969, scale 0 px : -92.1 µJy at 3276,1477
+Iteration 845239, scale 0 px : -93.14 µJy at 3270,1487
+Iteration 845261, scale 0 px : 91.07 µJy at 3271,1486
+Iteration 845324, scale 0 px : -85.58 µJy at 3270,1487
+Iteration 845922, scale 0 px : 93.99 µJy at 3271,1486
+Iteration 845936, scale 0 px : -86.21 µJy at 3270,1487
+Iteration 846171, scale 154 px : 83.99 µJy at 4785,2001
+Iteration 846529, scale 0 px : 81.67 µJy at 3268,1488
+Iteration 848753, scale 0 px : 97.93 µJy at 3277,1501
+Iteration 848780, scale 0 px : -79.93 µJy at 3277,1493
+Iteration 852599, scale 0 px : -134.74 µJy at 3261,1529
+Iteration 852610, scale 0 px : 107.04 µJy at 3252,1502
+Iteration 852641, scale 0 px : 89.25 µJy at 3261,1531
+Iteration 852840, scale 0 px : -98.26 µJy at 3260,1533
+Iteration 852845, scale 0 px : 85.58 µJy at 3261,1531
+Iteration 853119, scale 0 px : -86.26 µJy at 3257,1537
+Iteration 853188, scale 77 px : 81.72 µJy at 4532,1277
+Iteration 855789, scale 0 px : -80.77 µJy at 3275,1490
+Iteration 857443, scale 0 px : 93.46 µJy at 3280,1498
+Iteration 857475, scale 0 px : -78.03 µJy at 3273,1474
+Iteration 865910, scale 0 px : -129.98 µJy at 3263,1480
+Iteration 865915, scale 0 px : -100.81 µJy at 3263,1480
+Iteration 865958, scale 0 px : 95.3 µJy at 3265,1481
+Iteration 866017, scale 0 px : 82.92 µJy at 3257,1480
+Iteration 866776, scale 0 px : -89.83 µJy at 3286,1488
+Iteration 866821, scale 0 px : 85.82 µJy at 3275,1491
+Iteration 866958, scale 0 px : -82.58 µJy at 3275,1490
+Iteration 867216, scale 0 px : -80.89 µJy at 3277,1498
+Iteration 867702, scale 0 px : 82.92 µJy at 3275,1498
+Iteration 867827, scale 0 px : -79.98 µJy at 3277,1498
+Iteration 868524, scale 0 px : -82.67 µJy at 3279,1488
+Iteration 868643, scale 10 px : -78.26 µJy at 3430,1464
+Iteration 884089, scale 0 px : -80.33 µJy at 3270,1487
+Iteration 884936, scale 308 px : -78.96 µJy at 5434,313
+Iteration 885167, scale 0 px : -78.68 µJy at 3282,1491
+Iteration 886762, scale 39 px : 78.08 µJy at 3716,1451
+Iteration 893709, scale 0 px : -77.12 µJy at 3276,1477
+Iteration 896962, scale 0 px : -91.61 µJy at 3279,1488
+Iteration 896981, scale 0 px : 73.83 µJy at 3281,1489
+Iteration 909831, scale 0 px : -105.63 µJy at 3269,1490
+Iteration 909862, scale 0 px : 88.45 µJy at 3263,1482
+Iteration 910060, scale 0 px : -76.96 µJy at 3269,1471
+Iteration 912037, scale 0 px : 90.24 µJy at 3258,1487
+Iteration 912077, scale 0 px : -76.38 µJy at 3273,1479
+Iteration 913145, scale 0 px : 88.24 µJy at 3279,1490
+Iteration 913179, scale 0 px : 71.99 µJy at 3277,1476
+Subminor loop is near minor loop threshold. Initiating countdown.
+(14) Iteration 917731, scale 0 px : 92.72 µJy at 3278,1486
+Iteration 917773, scale 0 px : -76.15 µJy at 3264,1483
+Iteration 918548, scale 19 px : -77.28 µJy at 3761,1339
+Iteration 929952, scale 0 px : -76.27 µJy at 3268,1482
+Iteration 930366, scale 0 px : -77.8 µJy at 3270,1487
+Iteration 930487, scale 10 px : -73.6 µJy at 3433,1428
+(13) Iteration 939256, scale 19 px : -74.41 µJy at 3487,1391
+Iteration 945473, scale 0 px : -73.95 µJy at 3272,1484
+Iteration 948072, scale 0 px : 78.82 µJy at 3270,1483
+Iteration 948248, scale 0 px : -75.18 µJy at 3266,1488
+Iteration 948885, scale 0 px : 77.44 µJy at 3267,1480
+Iteration 949000, scale 0 px : -77.03 µJy at 3267,1489
+Iteration 949085, scale 77 px : 73.51 µJy at 4542,1262
+(12) Iteration 951823, scale 39 px : 74.03 µJy at 3717,1449
+Iteration 956267, scale 616 px : 70.66 µJy at 686,436
+(11) Iteration 956320, scale 154 px : 70.31 µJy at 481,5990
+(10) Iteration 956615, scale 0 px : -69.05 µJy at 3279,1488
+(9) Iteration 958185, scale 0 px : -101.02 µJy at 3267,1489
+Iteration 958190, scale 0 px : 79.24 µJy at 3284,1481
+Iteration 958314, scale 0 px : 72.65 µJy at 3271,1480
+(8) Iteration 960301, scale 0 px : 104.01 µJy at 3281,1476
+Iteration 960308, scale 0 px : 82.25 µJy at 3281,1483
+Iteration 960370, scale 0 px : -80.29 µJy at 3281,1485
+Iteration 960411, scale 0 px : 71.94 µJy at 3281,1483
+(7) Iteration 961692, scale 0 px : 99 µJy at 3277,1486
+Iteration 961698, scale 0 px : 78.22 µJy at 3264,1481
+Iteration 961794, scale 0 px : 90.57 µJy at 3270,1483
+Iteration 961800, scale 0 px : 72.2 µJy at 3270,1483
+(6) Iteration 962882, scale 0 px : -100.22 µJy at 3268,1482
+Iteration 962889, scale 0 px : -79.87 µJy at 3274,1474
+Iteration 963016, scale 0 px : 102.13 µJy at 3277,1486
+Iteration 963027, scale 0 px : 80.73 µJy at 3277,1481
+Iteration 963101, scale 0 px : -87.57 µJy at 3268,1482
+Iteration 963109, scale 0 px : 73.98 µJy at 3270,1483
+Iteration 964347, scale 0 px : 97.37 µJy at 3258,1487
+Iteration 964357, scale 0 px : -79.01 µJy at 3263,1480
+Iteration 964456, scale 0 px : 86.94 µJy at 3268,1491
+Iteration 964467, scale 0 px : -73.49 µJy at 3265,1491
+(5) Iteration 965395, scale 0 px : 82.5 µJy at 3281,1483
+Iteration 965422, scale 0 px : -70.6 µJy at 3271,1476
+(4) Iteration 966154, scale 0 px : 87.38 µJy at 3271,1480
+Iteration 966165, scale 0 px : -70.46 µJy at 3269,1482
+(3) Iteration 966615, scale 0 px : 70.55 µJy at 3258,1488
+(2) Iteration 966900, scale 0 px : 72.53 µJy at 3277,1484
+(1) Iteration 967128, scale 308 px : -68.61 µJy at 5434,312
+(0) Iteration 967222, scale 0 px : -68.37 µJy at 3276,1485
+Minor loop finished, continuing cleaning after inversion/prediction round.
+Assigning from 8 to 8 channels...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+ == Deconvolving (6) ==
+Estimated standard deviation of background noise: 13.77 µJy
+Scale info:
+- Scale 0, bias factor=1, psfpeak=1, gain=0.2, kernel peak=0.0796642
+- Scale 10, bias factor=1.7, psfpeak=0.467532, gain=0.427778, kernel peak=0.032686
+- Scale 19, bias factor=2.8, psfpeak=0.208644, gain=0.95857, kernel peak=0.0095738
+- Scale 39, bias factor=4.6, psfpeak=0.0728846, gain=2.74406, kernel peak=0.00260782
+- Scale 77, bias factor=7.7, psfpeak=0.0227582, gain=8.78803, kernel peak=0.000713849
+- Scale 154, bias factor=12.9, psfpeak=0.00635721, gain=31.4604, kernel peak=0.000182704
+- Scale 308, bias factor=21.4, psfpeak=0.00155787, gain=128.38, kernel peak=4.67785e-05
+- Scale 616, bias factor=35.7, psfpeak=0.000307419, gain=650.577, kernel peak=1.18376e-05
+- Scale 1233, bias factor=59.5, psfpeak=4.04247e-05, gain=4947.47, kernel peak=2.97929e-06
+- Scale 2465, bias factor=99.2, psfpeak=8.41698e-07, gain=237615, kernel peak=7.50617e-07
+RMS per scale: {0: 15.25 µJy, 10: 11.75 µJy, 19: 9.09 µJy, 39: 6.09 µJy, 77: 3.71 µJy, 154: 2.29 µJy, 308: 1.47 µJy, 616: 955.11 nJy, 1233: 486.25 nJy, 2465: 115.57 nJy}
+Starting multi-scale cleaning. Start peak=-505.04 µJy, major iteration threshold=50.5 µJy
+Iteration 967225, scale 10 px : -406.27 µJy at 3274,1488
+Iteration 967228, scale 10 px : -308.11 µJy at 3274,1483
+Iteration 967232, scale 0 px : -252.25 µJy at 3275,1490
+Iteration 967240, scale 10 px : -206.11 µJy at 3274,1483
+Iteration 967243, scale 0 px : 186.54 µJy at 3281,1484
+Iteration 967263, scale 0 px : 151.33 µJy at 3279,1467
+Iteration 967316, scale 19 px : -141.82 µJy at 3076,1650
+Iteration 967332, scale 10 px : 128.6 µJy at 3382,1244
+Iteration 967369, scale 77 px : 127.58 µJy at 5171,1088
+Iteration 967372, scale 0 px : 125.14 µJy at 3248,1526
+Iteration 967617, scale 39 px : -122.1 µJy at 3754,1111
+Iteration 967639, scale 0 px : -120.06 µJy at 3260,1503
+Iteration 967776, scale 616 px : 113.31 µJy at 3845,5834
+Iteration 967777, scale 19 px : 112.83 µJy at 3680,849
+Iteration 967970, scale 308 px : 109.87 µJy at 4685,4913
+Iteration 967974, scale 0 px : -105.45 µJy at 3317,1450
+Iteration 968674, scale 0 px : 107.21 µJy at 3280,1479
+Iteration 968748, scale 10 px : 104.33 µJy at 2981,1660
+Iteration 968994, scale 77 px : -101.53 µJy at 4538,2096
+Iteration 969050, scale 0 px : -97.42 µJy at 3251,1512
+Iteration 969816, scale 0 px : 102.58 µJy at 3254,1512
+Iteration 969868, scale 39 px : 97.64 µJy at 3814,2429
+Iteration 970152, scale 154 px : -96.78 µJy at 1065,3859
+Iteration 970165, scale 19 px : 93.18 µJy at 3831,1359
+Iteration 971118, scale 10 px : 89.28 µJy at 3098,1667
+Iteration 972015, scale 0 px : -89.49 µJy at 3273,1484
+Iteration 973369, scale 0 px : 102.54 µJy at 3270,1483
+Iteration 973388, scale 0 px : -85.07 µJy at 3238,1508
+Iteration 974755, scale 0 px : 94.89 µJy at 3264,1488
+Iteration 974797, scale 616 px : -84.81 µJy at 618,1086
+Iteration 974802, scale 0 px : 84.07 µJy at 3184,1538
+Iteration 975484, scale 0 px : -89.01 µJy at 3278,1493
+Iteration 975562, scale 19 px : -83.06 µJy at 3399,1551
+Iteration 977362, scale 77 px : -81.35 µJy at 4742,1170
+Iteration 977649, scale 39 px : 81.01 µJy at 3586,914
+Iteration 978745, scale 0 px : 79.87 µJy at 3276,1495
+Iteration 980483, scale 0 px : -84.11 µJy at 3292,1463
+Iteration 980638, scale 308 px : -79.44 µJy at 428,664
+Iteration 980654, scale 0 px : 77.5 µJy at 3258,1433
+Iteration 982305, scale 0 px : -100.12 µJy at 3271,1485
+Iteration 982314, scale 0 px : -81.28 µJy at 3278,1493
+Iteration 982552, scale 0 px : 88.91 µJy at 3271,1489
+Iteration 982564, scale 0 px : -78.78 µJy at 3274,1489
+Iteration 982857, scale 0 px : 92.5 µJy at 3265,1489
+Iteration 982864, scale 10 px : 77.13 µJy at 3033,1641
+Iteration 985000, scale 154 px : 75.14 µJy at 3465,5590
+Iteration 985058, scale 19 px : 74.63 µJy at 2944,1656
+Iteration 987922, scale 0 px : 74.13 µJy at 3275,1491
+Iteration 990358, scale 0 px : 108.56 µJy at 3271,1489
+Iteration 990365, scale 0 px : -83.82 µJy at 3260,1480
+Iteration 990473, scale 0 px : 85.78 µJy at 3279,1505
+Iteration 990487, scale 0 px : -77.5 µJy at 3282,1506
+Iteration 990804, scale 0 px : 134.71 µJy at 3286,1506
+Iteration 990807, scale 0 px : 104.3 µJy at 3280,1500
+Iteration 990811, scale 0 px : -90.51 µJy at 3289,1505
+Iteration 990834, scale 0 px : 79.57 µJy at 3279,1505
+Iteration 990993, scale 0 px : 83.91 µJy at 3281,1493
+Iteration 991021, scale 0 px : 80.36 µJy at 3286,1491
+Iteration 991074, scale 0 px : -82.92 µJy at 3284,1489
+Iteration 991092, scale 0 px : 81.93 µJy at 3286,1491
+Iteration 991106, scale 0 px : -78.39 µJy at 3267,1489
+Iteration 991238, scale 0 px : 83.05 µJy at 3281,1489
+Iteration 991258, scale 0 px : -75.14 µJy at 3284,1489
+Iteration 991753, scale 0 px : 81.87 µJy at 3265,1489
+Iteration 991806, scale 0 px : -76.19 µJy at 3284,1489
+Iteration 992015, scale 0 px : 77.67 µJy at 3270,1483
+Iteration 992093, scale 0 px : -70.26 µJy at 3284,1497
+Iteration 995915, scale 0 px : 91.95 µJy at 3267,1480
+Iteration 995937, scale 19 px : 76.79 µJy at 3370,1343
+Iteration 995982, scale 10 px : 75.81 µJy at 3178,1557
+Iteration 996481, scale 0 px : -75.46 µJy at 3260,1480
+Iteration 996771, scale 0 px : 90.91 µJy at 3277,1501
+Iteration 996780, scale 0 px : 71.97 µJy at 3277,1501
+Iteration 997339, scale 0 px : 76.39 µJy at 3273,1476
+Iteration 997429, scale 0 px : 72.12 µJy at 3277,1501
+Iteration 997759, scale 0 px : 89.39 µJy at 3300,1425
+Iteration 997767, scale 0 px : 72.35 µJy at 3294,1462
+Iteration 997981, scale 0 px : -82.97 µJy at 3277,1482
+Iteration 997992, scale 616 px : 68.88 µJy at 3695,4893
+Iteration 998001, scale 39 px : -68.48 µJy at 2747,1978
+Iteration 1000000, scale 10 px : 69.12 µJy at 3365,1500
+Cleaning finished because maximum number of iterations was reached.
+Assigning from 8 to 8 channels...
+Writing model image...
+ == Converting model image to visibilities ==
+Opening reordered part 0 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 1 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 2 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 3 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 4 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 5 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 6 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Converting model image to visibilities ==
+Opening reordered part 7 for /c/e2n.ms
+Loading metadata...
+Predicting 1596004 rows...
+Writing...
+ == Constructing image ==
+Opening reordered part 0 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+6 major iterations were performed.
+Rendering sources to restored image (beam=9.59''-16.13'', PA=96.48 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=9.86''-16.15'', PA=96.23 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=8.2''-15.33'', PA=93.71 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=6.72''-11.46'', PA=96.39 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=8.55''-14.93'', PA=98.3 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=6.65''-11.24'', PA=97.94 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=5.85''-10.48'', PA=99.21 deg)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam=5.7''-9.97'', PA=96.86 deg)... DONE
+Writing restored image... DONE
+Multi-scale cleaning summary:
+- Scale 0 px, nr of components cleaned: 569755 (2.45 Jy)
+- Scale 10 px, nr of components cleaned: 124927 (437.71 mJy)
+- Scale 19 px, nr of components cleaned: 178146 (275.19 mJy)
+- Scale 39 px, nr of components cleaned: 100477 (79.62 mJy)
+- Scale 77 px, nr of components cleaned: 20627 (-55.55 mJy)
+- Scale 154 px, nr of components cleaned: 3807 (-9.69 mJy)
+- Scale 308 px, nr of components cleaned: 1562 (-56.23 mJy)
+- Scale 616 px, nr of components cleaned: 699 (130.74 mJy)
+- Scale 1233 px, nr of components cleaned: 0 (0 Jy)
+- Scale 2465 px, nr of components cleaned: 0 (0 Jy)
+Total: 1000000 components (3.25 Jy)
+Inversion: 00:44:05.243842, prediction: 00:24:47.600287, deconvolution: 10:17:15.309781
+Cleaning up temporary files...
+Fitting beam... major=12.97'', minor=7.5'', PA=97.69 deg, theoretical=4.81''.
+Writing /p/ws-n/ASKAPJ1745-clean-MFS-psf.fits...
+Writing /p/ws-n/ASKAPJ1745-clean-MFS-dirty.fits...
+Writing /p/ws-n/ASKAPJ1745-clean-MFS-residual.fits...
+Writing /p/ws-n/ASKAPJ1745-clean-MFS-model.fits...
+Rendering sources to restored image (beam=7.5''-12.97'', PA=97.69 deg)... DONE
+Writing /p/ws-n/ASKAPJ1745-clean-MFS-image.fits...

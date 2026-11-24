@@ -211,9 +211,11 @@ Not in scope: CASA, the target oracle row, any other gate.
 - Apply regenerated with E2-N's bit-identical wheel (`9c42ea72…`). Attempt 1 hit the same path issue.
   Attempt 2 took 2,409 s with rc 0, and its config hash `3b3f3047…` equals the follow-up's (R2 met).
 - **R1 met** (FLAG equals `flags.rang_selfcal_20261117T072854Z`).
-- **R3** is not defined for E2-N (no archived 3″ WSClean dirty FITS survives).
+- **R3** is defined for E2-A only (section 3).
 - **R4 met:** C3 reads 5.499e-2 against the recorded 5.50e-2, and 3.29e-3 within 0.7°. Every channel
   reads 4.2e-2 to 5.5e-2, a flat profile and not a channel-smearing one.
+  (2026-11-24, post hoc: arm D below measures the opposite of that reading; a flat profile across the 8
+  output channels does not rule out channel averaging as the cause.)
 - No minimal-inversion line in any of the three WSClean logs. maxuvw 42,842 λ gives Nyquist ≥ 2.41″, so
   the grid is 2″ and 6144².
 - **Arm N (2″, 6144²): dirty L∞ 5.457e-2** (channels 0-7: 4.3e-2 to 5.5e-2; MFS 4.80e-2), and 3.58e-3

@@ -1,0 +1,47 @@
+rang-core: apply: running (was done)
+rang-core: receipt /home/gijs/rang-data/outputs/gate3c-rerun-20261123/n/rang-run/receipts/apply-20261123T132750Z.rang-receipt.json
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_cli.py", line 1790, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_cli.py", line 1258, in main
+    dispatch(argv)
+    ~~~~~~~~^^^^^^
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_cli.py", line 1681, in dispatch
+    return _pipeline(argv, options, pinned)
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_cli.py", line 1343, in _pipeline
+    state = core_pipeline.execute(
+        config, args.config, ms, stages, run_dir=run_dir, force=force, log=log
+    )
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_pipeline.py", line 2740, in execute
+    summary = STAGE_FUNCTIONS[stage](ctx)
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/core_pipeline.py", line 2048, in stage_apply
+    result = applycal.applycal(
+        ms,
+    ...<10 lines>...
+        **parang,
+    )
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/applycal.py", line 336, in applycal
+    tables = [_load(t) for t in gaintable]
+              ~~~~~^^^
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/applycal.py", line 289, in _load
+    return t if isinstance(t, caltable.CalTable) else caltable.read(t)
+                                                      ~~~~~~~~~~~~~^^^
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/formats/caltable.py", line 143, in read
+    keywords = table_keywords(path)
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/formats/_aipsio.py", line 227, in table_keywords
+    return _record(_table_desc(path))
+                   ~~~~~~~~~~~^^^^^^
+  File "/home/gijs/Build/tmp/20261123-gate3c-rerun/e2n-venv/lib/python3.14/site-packages/rang/formats/_aipsio.py", line 205, in _table_desc
+    c = _Cursor((Path(path) / "table.dat").read_bytes())
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/gijs/.local/share/uv/python/cpython-3.14.10-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gijs/.local/share/uv/python/cpython-3.14.10-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/gijs/rang-data/outputs/e2n-followup-20261122/e2n.ms.rang-run/calibrate/K/table.dat'
+apply rc=1 592s
