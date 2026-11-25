@@ -241,3 +241,17 @@ flags of `rang.msv4.flag` and of the MSv2 command converted, and gets back
 any saved flags bit for bit. It says nothing about calibration or imaging
 on MSv4 (M5), parallel writes, object storage or throughput, nor about
 stores written by tools other than xradio 1.3.1 and xarray-ms 0.5.14.
+
+## 7. Amendment A1: the exit code of a refused interrupted write (2026-11-25, post hoc, before any run)
+
+Written while implementing, before any measurement run; nothing has been
+compared. Section 4's K2(a) says a fresh run directory after an
+interrupted write is "refused, exit 2". On an MSv2 the command does not do
+that: `core_pipeline.stage_flag` calls `restore_before` after the stage is
+marked `running`, its `Refused` becomes `StageFailed`, and the command
+reports `rang-core flag: failed: flag: an earlier write-back ...`, exit 1,
+the stage entry `failed`, nothing written. The store route is built to do
+the same (the gate's other clause: the outcome classes are the MSv2
+side's). K2(a) is read as: the exit code equals the MSv2 side's (1), the
+message names `rang.msv4_flags.restore_flags` and the version, the store is
+unchanged. Nothing else in sections 3 to 6 changes.
