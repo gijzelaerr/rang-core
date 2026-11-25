@@ -283,7 +283,7 @@ Run root `D:\rang\outputs\msv4-cli-20261125` (1.7 GB), host glacier
 (Windows), code `33d8b684`, the main checkout's `.venv` with `PYTHONPATH` at
 the worktree's `python/` (extension copied from the main checkout; `core/`
 and `src/` are unchanged on the branch), heavy lock 2 slots 4 GB,
-`RAYON_NUM_THREADS=2`. One run (01) of every step; xcheck run 01 stopped at
+`RAYON_NUM_THREADS=2`. M6's run root was only read (nothing in it newer than 08:50, before run 01). One run (01) of every step; xcheck run 01 stopped at
 start-up (the rebuilt xradio venv lacked dask, which `open_processing_set`
 needs; dask 2026.11.0 added), run 02 is the receipt's.
 
@@ -362,3 +362,6 @@ New module `rang.msv4_flags`; `core_pipeline.inspect_store`,
 `run_flag` (bytes unchanged, C1). No new `RANG_*` variable. The xradio
 reader venv in `~/Build/tmp/20261125-msv4-cli` is removed at hand-back; the
 run root on D: is kept until merge (1.7 GB).
+`rang-core run` with `run.stages: [flag]` on a store is covered by a unit
+test on m05, not by the measurement. No GitHub issue was opened for the
+task above.
