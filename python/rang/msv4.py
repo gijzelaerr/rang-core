@@ -38,6 +38,7 @@ store is opened.
 """
 
 import hashlib
+import re
 import time as _time
 from pathlib import Path
 
@@ -334,17 +335,92 @@ def _strategy(config, config_path):
     return path, text
 
 
-def _selected_fields(tokens, names):
+# xradio 1.3.1 names a field `<MSv2 name>_<FIELD_ID>` (research/msv4-cli.md A3).
+_FIELD_SUFFIX = re.compile(r"^(.+)_(0|[1-9][0-9]*)$")
+
+
+def _field_source_nodes(node):
+    return [
+        child
+        for child in node.children.values()
+        if str(child.attrs.get("type", "")).startswith("field_and_source")
+    ]
+
+
+def field_map(parts):
+    """{stored field name: (MSv2 FIELD name, FIELD id or None)} of a store's
+    partitions (research/msv4-cli.md amendment A3). A `FIELD_ID` variable
+    over a field-and-source `field_name` gives the id, and the name loses
+    `_<id>` only when it ends so. Without one, on a store every partition of
+    which xradio wrote, every name must be `<stem>_<id>` with one stem per id
+    in the whole store; then the stem and id are the MSv2 ones. Otherwise
+    (xarray-ms, a name or id that fails) the names stay and the ids are
+    None."""
+    names, declared, writers = set(), {}, set()
+    for part in parts:
+        names.update(str(f) for f in part.field_name)
+        creator = part.node.attrs.get("creator") or {}
+        writers.add(str(creator.get("software_name", "")))
+        for fs in _field_source_nodes(part.node):
+            ds = fs.ds
+            if "field_name" not in ds.coords:
+                continue
+            stored = [str(v) for v in np.atleast_1d(ds["field_name"].values)]
+            names.update(stored)
+            if "FIELD_ID" in ds.data_vars and ds["FIELD_ID"].dims == ("field_name",):
+                ids = np.atleast_1d(np.asarray(ds["FIELD_ID"].values)).tolist()
+                for name, fid in zip(stored, ids):
+                    declared[name] = int(fid)
+    same = {n: (n, None) for n in names}
+    if declared:
+        out = dict(same)
+        for name, fid in declared.items():
+            suffix = f"_{fid}"
+            stem = name.removesuffix(suffix)
+            out[name] = (stem or name, fid)
+        return out
+    if writers != {"xradio"}:
+        return same
+    out, stems = {}, {}
+    for name in names:
+        match = _FIELD_SUFFIX.match(name)
+        if match is None:
+            return same
+        stem, fid = match.group(1), int(match.group(2))
+        if stems.setdefault(fid, stem) != stem:
+            return same
+        out[name] = (stem, fid)
+    return out
+
+
+def _selected_fields(tokens, fmap):
+    """The stored field names `flag.fields` selects: a token is a field's
+    MSv2 name or its stored name (A3); None for all."""
     tokens = [str(t) for t in (tokens or ["all"])]
     if "all" in tokens:
         return None
-    missing = [t for t in tokens if t not in names]
+    out, missing, clash = set(), [], []
+    for token in tokens:
+        by_name = {s for s, (n, _) in fmap.items() if n == token}
+        by_store = {token} if token in fmap else set()
+        if by_store and by_name - by_store:
+            clash.append(
+                f"{token!r} is the stored name of {sorted(by_store)} and the "
+                f"MSv2 name of {sorted(by_name - by_store)}"
+            )
+        elif by_name or by_store:
+            out |= by_name | by_store
+        else:
+            missing.append(token)
+    if clash:
+        raise ValueError("flag.fields: ambiguous on this store: " + "; ".join(clash))
     if missing:
+        known = sorted({n for n, _ in fmap.values()} | set(fmap))
         raise ValueError(
             f"flag.fields {missing}: an MSv4 store takes all or field names "
-            f"({sorted(names)}); roles and ids are not read here"
+            f"({known}); roles and ids are not read here"
         )
-    return set(tokens)
+    return out
 
 
 def _groups(rows, field, scan, pindex):
@@ -419,11 +495,10 @@ def prepare_flag(store, config, config_path=None):
     if not ps.names:
         raise ValueError(f"{store}: no visibility partition")
     parts = ps.partitions(data_group)
-    names = set()
     for part in parts:
-        names.update(str(f) for f in part.field_name)
         part.metadata()  # refused here when the store lacks what the kernel reads
-    fields = _selected_fields(cfg["fields"], names)
+    fmap = field_map(parts)
+    fields = _selected_fields(cfg["fields"], fmap)
     return {
         "column": column,
         "data_group": data_group,
@@ -433,6 +508,7 @@ def prepare_flag(store, config, config_path=None):
         "masks": masks,
         "scans": scans,
         "fields": fields,
+        "field_map": fmap,
         "parts": parts,
         "telescope": telescope(ps),
     }
@@ -459,6 +535,7 @@ def run_flag(store, config, plan, max_rows=None, on_write=None):
     column, data_group = plan["column"], plan["data_group"]
     text, masks = plan["text"], plan["masks"]
     scans, fields, parts = plan["scans"], plan["fields"], plan["parts"]
+    fmap = plan.get("field_map") or field_map(parts)
     store = Path(store)
     summary = {
         "store": str(store),
@@ -524,7 +601,7 @@ def run_flag(store, config, plan, max_rows=None, on_write=None):
                     "blocks": blocks,
                     "groups": [
                         {
-                            "field": field_names[k[0]],
+                            **_field_record(fmap, field_names[k[0]]),
                             "scan": scan_names[k[2]],
                             "rows": len(idx),
                             "flagged_before": b / (len(idx) * cells),
@@ -539,6 +616,12 @@ def run_flag(store, config, plan, max_rows=None, on_write=None):
         summary["executor"] = ex.describe()
     summary["seconds"] = _time.perf_counter() - t_start
     return summary
+
+
+def _field_record(fmap, stored):
+    """A group's `field` (MSv2 name), `field_id` and `store_field` (A3)."""
+    name, fid = fmap.get(stored, (stored, None))
+    return {"field": name, "field_id": fid, "store_field": stored}
 
 
 def _write_flags(zarr, store, part, ti, bi, new):

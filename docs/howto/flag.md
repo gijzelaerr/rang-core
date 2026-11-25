@@ -55,10 +55,12 @@ equal those the MSv2 command writes, converted by xradio 1.3.1 or
 xarray-ms 0.5.14. Its differences from an MS:
 
 - `flag.column` is `DATA`, `CORRECTED_DATA` or `MODEL_DATA` (the data groups
-  `base`, `corrected`, `model`); `flag.fields` takes field names as the
-  store holds them (not ids or roles): xradio 1.3.1 writes
-  `<name>_<FIELD_ID>` (`J1939-6342_0`), xarray-ms the MSv2 name;
-  `data.scans` matches the scan names;
+  `base`, `corrected`, `model`); `flag.fields` takes MSv2 field names
+  (`J1939-6342`), not ids or roles. xradio 1.3.1 stores a field as
+  `<name>_<FIELD_ID>` (`J1939-6342_0`); that stored name also works, and
+  `flag/summary.json` reports each group's MSv2 `field`, its `field_id` and
+  the `store_field`. xarray-ms keeps the MSv2 name and no id (`field_id`
+  null). `data.scans` matches the scan names;
 - the run directory is `<store>.rang-run`, as for an MS;
 - flag versions go to `<store>.flagversions/`, named as for an MS
   (`rang_original`, `rang_flag_<UTC time>`), each a byte copy of every
