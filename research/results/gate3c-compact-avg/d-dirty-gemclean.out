@@ -1,0 +1,15 @@
+/home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/e2n.ms: 1596004 rows (CORRECTED_DATA, field 3), 1024 channels into 8 output channels, MF weighting, joined, 501.25 s read, 213.11 s weights
+multiscale: theoretic beam 4.8146" (2.4073 pixels), 10 scales, 0 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.100000, kernel peak 7.966419e-2, 0 components, 0.000000 Jy
+multiscale: scale 10 px, bias factor 1.6667, psf peak 0.467532, gain 0.213889, kernel peak 3.268600e-2, 0 components, 0.000000 Jy
+multiscale: scale 19 px, bias factor 2.7778, psf peak 0.208644, gain 0.479285, kernel peak 9.573801e-3, 0 components, 0.000000 Jy
+multiscale: scale 39 px, bias factor 4.6296, psf peak 0.072885, gain 1.372029, kernel peak 2.607823e-3, 0 components, 0.000000 Jy
+multiscale: scale 77 px, bias factor 7.7160, psf peak 0.022758, gain 4.394003, kernel peak 7.138489e-4, 0 components, 0.000000 Jy
+multiscale: scale 154 px, bias factor 12.8601, psf peak 0.006357, gain 15.730117, kernel peak 1.827039e-4, 0 components, 0.000000 Jy
+multiscale: scale 308 px, bias factor 21.4335, psf peak 0.001558, gain 64.189902, kernel peak 4.677855e-5, 0 components, 0.000000 Jy
+multiscale: scale 616 px, bias factor 35.7225, psf peak 0.000307, gain 325.288249, kernel peak 1.183759e-5, 0 components, 0.000000 Jy
+multiscale: scale 1233 px, bias factor 59.5374, psf peak 0.000040, gain 2473.747489, kernel peak 2.979287e-6, 0 components, 0.000000 Jy
+multiscale: scale 2465 px, bias factor 99.2290, psf peak 0.000001, gain 118817.007215, kernel peak 7.506167e-7, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 7.531617e-5 Jy, threshold 3.765808e-4 Jy
+joined: 0 components, 0 major cycles, 0 resyncs, stop Components; Q/Q0 1.0000e0
+wall 2270.65 s

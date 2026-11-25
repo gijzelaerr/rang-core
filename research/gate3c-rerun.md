@@ -8,7 +8,7 @@ before any image of this rerun existed. It was written after both legs' 3c value
 had been read (they are in the notes above), so every reading here is **seen,
 post hoc**. No frozen verdict is rescored by it.
 
-Status: **both legs measured (E2-A 2026-11-23/24, E2-N 2026-11-24): on both the gap remains (not grid setup), and arm D puts it on rang's channel averaging** (E2-A 9.19e-6, E2-N 1.13e-6). E2-N's compact row is not met (scatter 2.81 %, original 2.68 %).
+Status: **both legs measured (E2-A 2026-11-23/24, E2-N 2026-11-24): on both the gap remains (not grid setup), and arm D puts it on rang's channel averaging** (E2-A 9.19e-6, E2-N 1.13e-6). E2-N's compact row is not met (scatter 2.81 %, original 2.68 %). Section 7 (post hoc diagnostic, 2026-11-25): without channel averaging, E2-N's compact scatter is 1.31 % (median 1.0001) against a matched averaged control of 2.41 %, so it is mostly the averaging; it is within 1.5 % but not within 3c's 1 %, and the control did not reproduce 6.2's 2.81 % because of WSClean's run-to-run play.
 
 ## 1. Why
 
@@ -240,3 +240,159 @@ Not in scope: CASA, the target oracle row, any other gate.
   31,010 s (8 slots); WSClean 2″ clean 41,536 s (`-j 8`, concurrently); scoring 31-143 s. Archive
   [results/gate3c-rerun/e2n/](results/gate3c-rerun/e2n/) (scores, logs, step log, run records; the three ad hoc nash
   helpers as `*.py.txt`, bytes as run, so ruff leaves them alone).
+
+## 7. Diagnostic: E2-N's compact scatter without channel averaging (post hoc, 2026-11-24)
+
+**Post hoc and seen, labelled as a diagnostic.** It was written on 2026-11-24 on branch `gate3c-compact-avg`,
+after 6.2 had been read and before any product of this section existed. No frozen verdict changes: gate 3c on
+E2-N stays not met, and so does its compact row.
+
+**Hypothesis.** Arm D shows that E2-N's dirty gap is rang's channel averaging (1.13e-6 without it). The open
+question is whether the compact scatter of the CLEAN row (2.81 %, 6.2) is the averaging too. If it is, GeMClean
+run with `-average-channels 1` brings the inner-0.7° scatter to WSClean's within tolerance.
+
+**Arms** (nash, run root `~/rang-data/outputs/gate3c-compact-avg-20261124`):
+
+| Arm | rang | WSClean | Role |
+| --- | --- | --- | --- |
+| U (`d-clean`) | 6.2's n-clean argv with `-average-channels 1` and nothing else changed (6144², 2″, multiscale, `-niter` 1,000,000, auto-mask 5, auto-threshold 3; only `-name` differs) | `ws-n-clean` rerun, as 6.2 (`g3r.py wsclean … n clean 8`, `-j 8`, `-no-min-grid-resolution`) | the reading |
+| A (`n-clean`, control) | 6.2's n-clean argv unchanged (`-average-channels 2`) | the same `ws-n-clean` | ties the new products to 2.81 %; same WSClean, so A and U differ only in the averaging |
+| Dirty pair (control and timed piece) | `n-dirty` (averaged), `d-dirty` (unaveraged) | `ws-n-dirty` | must reproduce 5.457e-2 and 1.13e-6 |
+
+`g3r.py` ([results/gate3c-rerun/g3r.py](results/gate3c-rerun/g3r.py)) builds every argv unchanged. The `d-`
+prefix sets `-average-channels 1`, and the `clean` suffix keeps the clean settings. Before launch, U's argv is
+printed and diffed against the archived `n-clean-gemclean-run.json`: only `-name` and `-average-channels` may
+differ. Each GeMClean arm runs with `RAYON_NUM_THREADS` equal to its booked slots, the same value for every arm.
+6.2 set none, so it probably used all 36 cores on an 8-slot booking. Thread count is not expected to change the
+images beyond rounding; the A/B pair shares it either way.
+
+**Inputs are regenerated.** By 2026-11-24 nothing of 6.2 survives on nash: not `gate3c-rerun-20261123`, not the
+follow-up's root with its calibration tables, not the wheel venv. Neither 6.2's FITS nor its WSClean clean
+images remain. Only `e2n-20261116/e2n.ms` and its flag versions remain, and they are read, never written. The
+route is the follow-up's (e2n-followup.md, amendment of 2026-11-22):
+1. Copy `e2n.ms` and `.flagversions` into the run root. Check the copy against 9.1 (`fu_hash.py`,
+   `results/e2n/flaghash-input.json`).
+2. Rebuild E2-N's wheel at `99a5261` from `~/Worktrees/rang/e2n` (`tools/wheel/build.py`, 1.93.1, maturin
+   1.16.0; the source path is embedded). The extension must equal `9c42ea72…83ed`, or the work stops.
+3. Run `rang-core run e2n-rerun.yaml` (the follow-up's file, unchanged: stages flag, calibrate, apply, image)
+   at 16 slots / 96 GB. Its image stage gives `c3/rang-run`, which g3r reads for the argv and
+   `config.resolved.json`.
+4. Checks:
+   - **R1:** FLAG equals `flags.rang_selfcal_20261117T072854Z`.
+   - **R2:** the apply entry's config hash equals `3b3f3047…`.
+   - **Flag versions:** the original, flag, calibrate and apply versions all equal E2-N's
+     (`fu_flagversions.py`).
+   - Any failure stops the work.
+5. `unit` (the matched state), then the dirty pair, then the three clean jobs concurrently.
+
+**Controls and their reading.**
+- **Dirty pair.** `n-dirty` must read 5.457e-2 within 1 % relative. `d-dirty` must read at most 1e-5 and within
+  2× of 1.13e-6.
+- **A.** A must reproduce 2.81 % within 0.3 percentage points. The original 2.68 % and 6.2's 2.81 % differ by
+  0.13 points, so 0.3 is about twice the observed run-to-run play. If A misses, the reading is still made, but on
+  the matched pair (A against U), and labelled "against products that do not reproduce 6.2".
+- **WSClean.** The new `ws-n-clean.out` is compared with the archived one: major iterations, components and
+  final threshold.
+- **Depth.** The stop reason, the component count and the major cycles of A and U are recorded beside 6.2's
+  (Threshold, 1,000,000, 6). If U stops differently, depth is a confound and is named in the reading.
+
+**Limits: two, both reported.**
+- **Gate 3c's frozen compact tolerance** (section 2, A0 6.1 row 3c): median within 0.5 % of 1 and robust
+  scatter ≤ 1 %. 6.2's 2.81 % was scored against this.
+- **The brief's 1.5 %:** median within 1 % and scatter ≤ 1.5 %. This is the target-oracle row's tolerance
+  (e2n-native.md, rang against CASA-corrected data imaged by WSClean; e2n-followup's 2.40 %).
+- This arm does not test the target-oracle row: that row's oracle chain is CASA's, not WSClean on rang's data.
+
+**Reading (frozen here).** Let s_U and s_A be the inner-0.7° robust scatters of U and A, scored by
+`e2_score3c_a.py` against the new `ws-n` products.
+
+| s_U | Reading |
+| --- | --- |
+| ≤ 1.0 %, with the median within 0.5 % | the compact scatter is the averaging too: 3c's compact row would be met without it |
+| 1.0-1.5 % | mostly the averaging: within the 1.5 % band, but not within 3c's 1 % |
+| > 1.5 %, and s_A − s_U ≥ 0.3 points | the averaging is part of it; the rest is not attributed |
+| > 1.5 %, and s_A − s_U < 0.3 points | the scatter is not the averaging; it is not attributed |
+
+The median is reported beside each reading. If A is not run, 2.81 % stands in for s_A.
+
+**Compute budget.**
+- **Regeneration:** about 6.5 h. That is copy 6 min, wheel 6 min, the run about 5.5 h (the follow-up's
+  19,759 s), R1 and the flag versions 30 min, and the dirty pair about 45 min.
+- **Clean jobs, concurrently:**
+  - WSClean (8 slots / 48 GB) took 41,536 s in 6.2 and sets the floor.
+  - A (12 slots / 80 GB) took 31,010 s in 6.2.
+  - U (12 slots / 104 GB) is estimated from the dirty pair. In 6.2 the unaveraged dirty took 1,167 s against
+    1,091 s, the factor 2 of E2-N's averaging (not E2-A's 8). U should therefore be about A plus six major
+    cycles' extra gridding, roughly 9-12 h.
+- **Total:** about 20 h of wall time, 32 slots at peak.
+- **Projection checks:** U is projected from the dirty pair before the cleans start, and again from GeMClean's
+  log at its first major cycle.
+- **Frozen subset fallback.** If either projection puts U beyond 30 h on nash, U, A and WSClean are all rerun
+  at 3072² × 2″. That field has a half-width of 0.85°, so it still holds every inner-0.7° source. The reading
+  is then labelled "3072² subset".
+- Peak RSS is recorded with `/usr/bin/time -v`.
+
+### 7.1 Results (nash, `~/rang-data/outputs/gate3c-compact-avg-20261124`)
+
+- **Regeneration.**
+  - The copy took 3,630 s, and its 9.1 FLAG hash is met.
+  - The wheel was rebuilt at `99a5261` from `~/Worktrees/rang/e2n` in 350 s. Its extension `9c42ea72…83ed`
+    equals E2-N's.
+  - `rang-core run` (flag to image, 16 slots) took 49,898 s, against the follow-up's 19,759 s. The host was
+    loaded at 40 of 36 cores.
+  - **R1 met** (FLAG equals `flags.rang_selfcal_20261117T072854Z`). **R2 met** (apply `3b3f3047…`). **The flag
+    versions all equal E2-N's.**
+- **Dirty pair (control and timed piece), `RAYON_NUM_THREADS` 12.**
+  - n-dirty reads **5.4568e-2** against 5.457e-2, and d-dirty **1.132e-6** against 1.13e-6. Both reproduce.
+  - GeMClean took 2,132 s averaged and 2,273 s unaveraged (×1.07; peak RSS 44.4 and 55.2 GB). WSClean 2″
+    dirty took 1,273 s.
+- **Projection.**
+  - 6.2's n-dirty took 1,091 s on an unset thread count; here n-dirty took 2,132 s at 12 threads on a loaded
+    host. That ratio puts A at about 60,000 s and U at about 65,000 s (18 h). This is under the 30 h fallback,
+    so the full 6144² arms run.
+  - The three clean jobs started 2026-11-25 03:06 SAST. U's running argv was diffed against
+    `n-clean-gemclean-run.json`: only the venv, `-name`, the MS path and `-average-channels` (2 → 1) differ.
+- **Clean jobs**, run 2026-11-25 03:06 to 20:17. The host was shared and loaded at about 40 of 36 cores.
+
+| Arm | Wall | Peak RSS | Stop | Inner 0.7° (n, median, robust scatter) | Inner two thirds | Full image | Off-source rms ratio | median abs(Δα) (n 50) |
+| --- | ---: | ---: | --- | --- | --- | --- | ---: | ---: |
+| A (`-average-channels 2`) | 50,547 s | 61.3 GB | Threshold, 6 major cycles, 1,000,000 components, Q/Q0 4.16e-2 | 321, 0.9961, **2.41 %** | 507, 0.991, 2.57 % | 567, 0.988, 2.82 % | 0.915 | 0.0108 |
+| U (`-average-channels 1`) | 56,353 s | 72.4 GB | Components, 5 major cycles, 1,000,000 components, Q/Q0 4.67e-2 | 323, **1.0001**, **1.31 %** | 509, 1.000, 1.13 % | 568, 1.000, 1.11 % | 0.892 | 0.0068 |
+| WSClean 3.7 (`-j 8`) | 61,850 s | 28.6 GB | 1,000,000 components (3.22 Jy) | – | – | – | – | – |
+
+  - **Radial medians** (0-0.35°, 0.35-0.7°, 0.7-1.0°, 1.0-1.4° and 1.4-2.5°):
+    - A: 1.001, 0.995, 0.985, 0.967 and 0.939. The ratio falls with radius, as bandwidth smearing from the
+      averaging does.
+    - U: 0.998, 1.002, 1.000, 0.997 and 0.999. The ratio is flat.
+  - Scores: `g3c-n.json` (A) and `g3c-d.json` (U), both against the same new `ws-n`.
+- **Controls.**
+  - **A against 6.2: not reproduced.** A reads 2.41 % against 2.81 %, a difference of 0.40 points. That is
+    outside the frozen 0.3-point band, so the reading below is labelled "against products that do not
+    reproduce 6.2" and is made on the matched pair.
+  - **The difference is WSClean's.** A's GeMClean log equals 6.2's to every printed digit: each auto-mask
+    sigma and threshold, the stop and Q/Q0. The new WSClean clean departs from the archived one from its
+    third major iteration on: start peak −2.91 against −2.99 mJy, 12 against 11 minor-cycle starts, and
+    3.22 against 3.25 Jy in its 1,000,000 components. The data were the same, the binary the same and `-j 8`
+    the same. WSClean's multi-threaded multiscale clean therefore moves this row by about 0.4 points from run
+    to run, which is more than the 0.13 points assumed when the band was frozen.
+  - **Depth.** U hit the 1,000,000-component cap during its sixth minor cycle and stopped on Components
+    after 5 major cycles (Q/Q0 4.67e-2). A stopped on Threshold after 6 (4.16e-2). U is slightly shallower,
+    so depth is a confound. A shallower clean is expected to raise the scatter, not lower it.
+- **Reading (section 7 rule), against products that do not reproduce 6.2.** s_U = 1.31 %, with the median
+  1.0001.
+  - That falls in the band "**mostly the averaging**": within the brief's 1.5 % (median within 1 %), but not
+    within 3c's frozen 1 %.
+  - On the matched pair, s_A − s_U = 1.10 points. s_U is 1.10 points below 6.2's 2.81 %, and 1.37 points
+    below the e2n-followup target compact scatter of 2.40 %, which comes from a different oracle chain and is
+    not tested here.
+  - The median moves from 0.9961 to 1.0001, and the radial fall-off disappears.
+  - The remaining 1.31 % is not attributed. It is at most about 1 point above WSClean's own run-to-run play
+    measured here.
+  - The frozen verdicts do not change: gate 3c on E2-N is not met, and so is its compact row.
+- **Timings** (nash, nice/ionice, shared): copy 3,630 s; hash 123 s; wheel 350 s; `rang-core run` 49,898 s
+  (peak RSS 35.1 GB); R1 143 s; flag versions 475 s; unit 12 s; WSClean dirty 1,273 s; GeMClean dirty 2,132 s
+  and 2,273 s; the clean jobs as in the table; scoring 286 s and 201 s.
+- **Archive:** [results/gate3c-compact-avg/](results/gate3c-compact-avg/) holds the launcher `gca.sh`, the step
+  log, the `/usr/bin/time -v` records, the checks (copy hash, wheel, R1, R2, flag versions), the GeMClean and
+  WSClean logs and run records, the scores, and the run directory's `state.json`, `config.resolved.json` and
+  image summary. The run root was deleted after archiving.
