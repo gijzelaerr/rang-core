@@ -507,6 +507,9 @@ Status: **measured, M2 pass.**
     with `CORRECTED_DATA`; the MSv4 path stays read-and-flag only. Settling
     it (which weight each data group takes, measured against the MSv2 path)
     is a later task, with its own amendment.
+- **M6 (2026-11-25, proposed in [msv4-flag-write.md](msv4-flag-write.md)):** the flag
+  stage on a store through #3's chunk tasks, `FLAG` written back, the round
+  trip checked against each writer's conversion of the MS flagged as MSv2.
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.
