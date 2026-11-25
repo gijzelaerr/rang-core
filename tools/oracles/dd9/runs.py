@@ -31,6 +31,7 @@ DD8_SCORE = (
 )
 CAPS = [500, 2000]
 ARMS_B = ("b0", "bP", "bM", "bR", "bL")
+VARIANT = {"bGS": "I2"}  # A3, post hoc: b0 with Gauss-Seidel over directions
 
 
 def truth(root):
@@ -464,7 +465,7 @@ def as4(res, dirmap):
     }
 
 
-def partb(root, base="O"):
+def partb(root, base="O", arms=None):
     """Section 5's arms on O (base O) or O-H (base O-H: held-out dropped)."""
     root = Path(root)
     tr = truth(root)
@@ -477,10 +478,10 @@ def partb(root, base="O"):
             json.loads((dd9.DD8_ROOT / "heldout.json").read_text())["pairs"]
         )
     rec = {}
-    for arm in ARMS_B:
+    for arm in arms.split(",") if arms else ARMS_B:
         t0 = time.perf_counter()
         S, P, m, dirmap = arm_problem(path, arm, drop)
-        res = dd9.run(P, CAPS)
+        res = dd9.run(P, CAPS, variant=VARIANT.get(arm, "default"))
         res4 = {K: as4(res[K], dirmap) for K in CAPS}
         m4 = [m[d] for d in dirmap] if dirmap else m
         save(root / "solve" / f"{base}-{arm}.npz", res4)
@@ -499,9 +500,10 @@ def partb(root, base="O"):
         rec[arm]["seconds"] = time.perf_counter() - t0
         print(arm, json.dumps(rec[arm]["cap500"], default=float), flush=True)
     rec["lambda"] = k / dd9.SIGMA_A**2
-    if base == "O":
+    if base == "O" and not arms:
         rec["rule"] = rule_b(rec)
-    dd9.write_json(root / "solve" / f"partb-{base}.json", rec)
+    tag = f"-{arms.replace(',', '-')}" if arms else ""
+    dd9.write_json(root / "solve" / f"partb-{base}{tag}.json", rec)
 
 
 def rule_b(rec):
@@ -583,7 +585,7 @@ def partc_validate(root):
     print(json.dumps(rec, indent=1, default=float))
 
 
-def partc_real(root):
+def partc_real(root, arms=None):
     """Section 6's real arms: RM, d0 free, the 145 bad and 169 held-out
     baselines removed; scored on the held-out ones."""
     root = Path(root)
@@ -599,14 +601,19 @@ def partc_real(root):
     drop = held_mask | bad_mask
     rule = json.loads((root / "solve" / "partb-O.json").read_text())["rule"]
     best = rule["best"]
-    arms = ["b0", best] if best else ["b0", "bM", "bR", "bL"]
-    rec = {"best_from_O": best, "dropped_baselines": int(drop.sum()), "bad": int(bad_mask.sum()),
+    given = arms
+    if arms:
+        arms = ["b0", *arms.split(",")]
+        best = arms[1]
+    else:
+        arms = ["b0", best] if best else ["b0", "bM", "bR", "bL"]
+    rec = {"best_from_O": rule["best"], "compared": best, "dropped_baselines": int(drop.sum()), "bad": int(bad_mask.sum()),
            "heldout": int(held_mask.sum()), "arms": {}}  # fmt: skip
     sols = {}
     for arm in arms:
         t0 = time.perf_counter()
         _, P, m, dirmap = arm_problem(path, arm, drop)
-        res = dd9.run(P, [500])
+        res = dd9.run(P, [500], variant=VARIANT.get(arm, "default"))
         r4 = as4(res[500], dirmap)
         m4 = [m[d] for d in dirmap] if dirmap else m
         save(root / "solve" / f"real-{arm}.npz", {500: r4})
@@ -629,7 +636,8 @@ def partc_real(root):
         pr = sc["pairs"][f"real-b0 - real-{best}"]
         rec["reading"] = ("the constraint predicts better" if pr["significant"] and pr["median"] > 0 else
                           "the constraint predicts worse" if pr["significant"] else "no difference")  # fmt: skip
-    dd9.write_json(root / "score" / "real.json", rec)
+    tag = f"-{given.replace(',', '-')}" if given else ""
+    dd9.write_json(root / "score" / f"real{tag}.json", rec)
     print(json.dumps(rec, indent=1, default=float))
 
 

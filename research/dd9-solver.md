@@ -348,3 +348,17 @@ interval but the short last one, for all O-X intervals
 same-fixed-point check, these are the default map's rates at its own fixed
 point. A ρ_full above 1 there means the default (Jacobi, halved) iteration
 is linearly unstable at the solution in that interval.
+
+**A3, 2026-11-26, post hoc (after I2 was read on B-X and O-X: it closes
+O-X's gap at cap 500; part (b) not yet read).** Two arms are added and
+reported only. Neither changes a frozen reading or enters section 5's
+best-arm choice.
+- **bGS**: b0 (O, M₀ᶜ, d0 free, 4 × 8 s) with I2's Gauss-Seidel update,
+  caps 500 and 2000. It is scored as section 5's arms are (truth error, d3
+  tails), and asks whether the update that converges on the exact model
+  also converges with the wrong one, and whether it is then accurate.
+- **real-bGS**: the real arm of section 6 (RM, the 145 bad and the 169
+  held-out baselines removed, cap 500) with I2's update, beside real-b0.
+  It gets fractions, d3 tails and the robust held-out pair against
+  real-b0. Its reading would be "predictive quality only" unless the O-H
+  validation tracks.
