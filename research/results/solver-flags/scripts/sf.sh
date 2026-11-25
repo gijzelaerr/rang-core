@@ -16,6 +16,8 @@ log() { echo "$(date -Is) $*" >> "$R/logs/driver.log"; }
 shard() { [ -e "$R/done.$1" ]; }
 mark() { touch "$R/done.$1"; log "$1 done"; }
 ARM=${2:-}
+# A1 moved to glacier (2026-11-25, nash's queue blocked on memory): skip.a1 makes nash skip it.
+case ${1:-}:${2:-} in a1-gen:*|a1:*|oracle:a1) [ -e "$R/skip.a1" ] && { log "$1 $ARM skipped (skip.a1)"; exit 0; };; esac
 
 case ${1:-} in
 setup)
