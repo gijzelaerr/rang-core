@@ -155,7 +155,7 @@ def rang(sub, out, kind):
     work = out / "rang.ms"
     if work.exists():
         shutil.rmtree(work)
-    _copy(sub, work)
+    shutil.copytree(sub, work)  # rang keeps table.lock (its writer needs it)
     with core_ms.open_table(work) as t:
         field = int(np.unique(t.getcol("FIELD_ID"))[0])
     cfg = dict(core_config.resolve({"schema": "rang-config", "version": 1})[0]["calibrate"]["solver_flags"])  # fmt: skip
