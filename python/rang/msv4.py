@@ -24,11 +24,19 @@ Rows are time-major in `baseline_id` order. A `(time, baseline)` cell whose
 missing MSv2 rows so; their `FLAG` pads differ) and is dropped. Channels and
 correlations are in the store's order (xradio sorts channels by frequency).
 
+`flag(store, config)` runs the flag stage on a store and writes `FLAG` back
+into it (research/msv4-flag-write.md): the stage's chunk tasks
+(`core_tasks.plan_flag`, `core_tasks.run`, any executor) over each
+partition's rows, then one writer that changes only the flag variable's
+values. It keeps no flag versions: flag a copy of a store you want to keep.
+
 The schema is read as is; no telescope is assumed. xarray, zarr 3 and
 numcodecs come from the optional `[msv4]` extra and are imported only when a
 store is opened.
 """
 
+import hashlib
+import time as _time
 from pathlib import Path
 
 import numpy as np
@@ -41,6 +49,9 @@ DTYPES = {
     "weight": (np.dtype("float32"),),
     "uvw": (np.dtype("float64"),),
 }
+CORR_CODES = {"RR": 5, "RL": 6, "LR": 7, "LL": 8, "XX": 9, "XY": 10, "YX": 11, "YY": 12}
+# `flag.column` to the data group it reads (research/msv4-flag-write.md 3).
+COLUMN_GROUPS = {"DATA": "base", "CORRECTED_DATA": "corrected", "MODEL_DATA": "model"}
 
 
 def has_msv4():
@@ -170,6 +181,50 @@ class Partition:
     def nbaseline(self):
         return len(self.antenna1)
 
+    def cells(self):
+        """(time index, baseline index) of every row `rows()` yields, in its
+        order (pads dropped by the same rule): UVW first, VISIBILITY only at
+        the times where some cell's UVW is all NaN."""
+        if getattr(self, "_cells", None) is None:
+            uvw = np.asarray(self.ds[self.variables["uvw"]].values)
+            pad = np.isnan(uvw).all(axis=2)
+            vis = self.ds[self.variables["correlated_data"]]
+            for t in np.flatnonzero(pad.any(axis=1)):
+                v = np.asarray(vis.isel(time=int(t)).values)
+                pad[t] &= np.isnan(v).reshape(v.shape[0], -1).all(axis=1)
+            ti, bi = np.nonzero(~pad)
+            self._cells = (ti.astype(np.int64), bi.astype(np.int64))
+        return self._cells
+
+    def metadata(self):
+        """The flag kernel's metadata from the store: antenna positions in
+        `antenna_names` order, channel frequencies and widths, correlation
+        codes. Refused (ValueError) when the store lacks one."""
+        ant = self.node["antenna_xds"].ds
+        if "ANTENNA_POSITION" not in ant:
+            raise ValueError(f"{self.name}: antenna_xds has no ANTENNA_POSITION")
+        pos = np.asarray(
+            ant["ANTENNA_POSITION"].transpose("antenna_name", ...).values, np.float64
+        )
+        width = self.ds["frequency"].attrs.get("channel_width")
+        if isinstance(width, dict):
+            width = width.get("data")
+        if width is None:
+            raise ValueError(f"{self.name}: frequency has no channel_width")
+        width = np.broadcast_to(
+            np.asarray(width, np.float64), self.frequency.shape
+        ).astype(np.float64)
+        unknown = [p for p in self.polarization if p not in CORR_CODES]
+        if unknown:
+            raise ValueError(f"{self.name}: polarization {unknown} has no MSv2 code")
+        corr = np.asarray([CORR_CODES[p] for p in self.polarization], np.int32)
+        return {
+            "antenna_position": pos,
+            "chan_freq": np.asarray(self.frequency, np.float64),
+            "chan_width": width,
+            "corr_type": corr,
+        }
+
     def chunks(self, time_rows=None):
         """Row chunks of `time_rows` times each (all times by default)."""
         ntime = len(self.time)
@@ -212,3 +267,244 @@ class Partition:
             "PADS": int(pad.sum()),
         }
         return out
+
+
+# -- the flag stage on a store (research/msv4-flag-write.md) -----------------------
+
+
+class RowSource:
+    """A chunk task's reader of one partition: `getcol_rows(name, rows,
+    chans)` for the rows `Partition.rows()` yields (indices in its order).
+    `DATA`, `CORRECTED_DATA` and `MODEL_DATA` read the data group's
+    correlated data, `FLAG` its flag (bool; uint8 under the M1 rule)."""
+
+    def __init__(self, partition):
+        self.partition = partition
+        self.ti, self.bi = partition.cells()
+
+    def getcol_rows(self, name, rows, chans=None):
+        part = self.partition
+        if name in COLUMN_GROUPS:
+            var = part.variables["correlated_data"]
+        elif name == "FLAG":
+            var = part.variables["flag"]
+        else:
+            raise ValueError(f"{part.name}: the MSv4 row source has no column {name}")
+        rows = np.asarray(rows, np.int64)
+        ti, bi = self.ti[rows], self.bi[rows]
+        t0, t1 = int(ti.min()), int(ti.max()) + 1
+        block = np.asarray(part.ds[var].isel(time=slice(t0, t1)).values)
+        if name == "FLAG":
+            block = part._flag_as_bool(block)
+        out = block[ti - t0, bi]
+        if chans is not None:
+            out = out[:, chans]
+        return np.ascontiguousarray(out)
+
+
+def row_source(store, partition, data_group="base"):
+    """The `RowSource` of `partition` in the store at `store` (a worker's)."""
+    return RowSource(open_processing_set(store).partition(partition, data_group))
+
+
+def _strategy(config, config_path):
+    from . import core_flag
+
+    value = config["flag"]["strategy"]
+    if value is None:
+        raise ValueError("flag.strategy is required")
+    path = Path(value).expanduser()
+    if not path.is_absolute() and config_path is not None:
+        path = Path(config_path).resolve().parent / path
+    if not path.is_file():
+        raise ValueError(f"flag.strategy: {path} not found")
+    text = path.read_text(encoding="utf-8")
+    core_flag.parse_strategy(text)  # refused here, not in a worker
+    return path, text
+
+
+def _selected_fields(tokens, names):
+    tokens = [str(t) for t in (tokens or ["all"])]
+    if "all" in tokens:
+        return None
+    missing = [t for t in tokens if t not in names]
+    if missing:
+        raise ValueError(
+            f"flag.fields {missing}: an MSv4 store takes all or field names "
+            f"({sorted(names)}); roles and ids are not read here"
+        )
+    return set(tokens)
+
+
+def _groups(rows, field, scan, pindex):
+    """{(field code, partition, scan code): row indices} and the names."""
+    field_names = sorted({str(f) for f in field[rows]})
+    scan_names = sorted({str(s) for s in scan[rows]})
+    fcode = {f: i for i, f in enumerate(field_names)}
+    scode = {s: i for i, s in enumerate(scan_names)}
+    key = np.asarray(
+        [[fcode[str(field[r])], pindex, scode[str(scan[r])]] for r in rows],
+        np.int64,
+    ).reshape(-1, 3)
+    groups = {}
+    if len(rows):
+        uniq, inverse = np.unique(key, axis=0, return_inverse=True)
+        inverse = np.asarray(inverse).reshape(-1)
+        groups = {
+            tuple(int(v) for v in k): rows[inverse == i] for i, k in enumerate(uniq)
+        }
+    return groups, field_names, scan_names
+
+
+def flag(store, config, config_path=None, max_rows=None):
+    """Run the flag stage on the processing set at `store` and write `FLAG`
+    into it (research/msv4-flag-write.md). `config` is a resolved ra-ng
+    configuration (`core_config.validate`) or the path of one. Each
+    partition's groups (per field and scan) become `core_tasks.plan_flag`
+    specs, mapped by `core_tasks.executor(config)`; the partials are written
+    after the map, by this process only, into the flag variable's values.
+    `max_rows` cuts a larger group into blocks of baselines. Returns a
+    summary."""
+    import zarr
+
+    from . import core_config, core_flag, core_tasks
+
+    if isinstance(config, (str, Path)):
+        config_path = Path(config)
+        config = core_config.validate_file(config, ["flag"])
+    cfg = config["flag"]
+    if cfg.get("flagger", "tricolour") != "tricolour":
+        raise ValueError(f"flag.flagger {cfg['flagger']!r}: only tricolour on MSv4")
+    learned = cfg.get("learned") or {}
+    if learned.get("mode", "off") != "off":
+        raise ValueError("flag.learned: learned modes are not run on MSv4")
+    column = cfg["column"]
+    if column not in COLUMN_GROUPS:
+        raise ValueError(
+            f"flag.column {column!r}: an MSv4 store takes {list(COLUMN_GROUPS)}"
+        )
+    data_group = COLUMN_GROUPS[column]
+    strategy_path, text = _strategy(config, config_path)
+    if cfg["static_masks"] == "tricolour":
+        mask_files = core_flag.static_mask_files()
+        masks = [core_flag.load_static_mask(p) for p in mask_files]
+    else:
+        mask_files, masks = [], []
+    scans = {str(s) for s in (config["data"].get("scans") or [])}
+    store = Path(store)
+    ps = open_processing_set(store)
+    if ps.refused:
+        raise ValueError(f"{store}: partitions refused: {ps.refused}")
+    parts = ps.partitions(data_group)
+    names = set()
+    for part in parts:
+        names.update(str(f) for f in part.field_name)
+    fields = _selected_fields(cfg["fields"], names)
+    summary = {
+        "store": str(store),
+        "strategy": str(strategy_path),
+        "strategy_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "static_masks": [p.name for p in mask_files],
+        "write": cfg["write"],
+        "column": column,
+        "data_group": data_group,
+        "partitions": [],
+    }
+    t_start = _time.perf_counter()
+    with core_tasks.executor(config) as ex:
+        for pindex, part in enumerate(parts):
+            source = RowSource(part)
+            ti, bi = source.ti, source.bi
+            meta = part.metadata()
+            field = part.field_name[ti]
+            scan = part.scan_name[ti]
+            keep = np.ones(len(ti), bool)
+            if fields is not None:
+                keep &= np.isin(field.astype(str), sorted(fields))
+            if scans:
+                keep &= np.isin(scan.astype(str), sorted(scans))
+            rows = np.flatnonzero(keep)
+            groups, field_names, scan_names = _groups(rows, field, scan, pindex)
+            info = {
+                "rows": {
+                    "ANTENNA1": part.antenna1[bi],
+                    "ANTENNA2": part.antenna2[bi],
+                    "TIME": part.time[ti],
+                },
+                **meta,
+            }
+            limit = len(ti) + 1 if max_rows is None else int(max_rows)
+            specs, blocks = core_tasks.plan_flag(
+                store, info, groups, limit, column, cfg["write"], text, masks
+            )
+            for spec in specs:
+                spec.params["msv4"] = {"partition": part.name, "data_group": data_group}
+            # No store write while tasks are in flight (a worker may be
+            # reading the chunk): keep the partials, write after the map.
+            new = {}
+            totals = [[0, 0, 0.0] for _ in groups]
+            for spec, result in zip(specs, ex.map(specs, source)):
+                for r, f in zip(result["rows"], result["flag"]):
+                    new[int(r)] = f
+                total = totals[spec.key["group"]]
+                total[0] += result["before"]
+                total[1] += result["after"]
+                total[2] += result["seconds"]
+            record = _write_flags(zarr, store, part, ti, bi, new)
+            cells = int(len(part.frequency) * len(part.polarization))
+            summary["partitions"].append(
+                {
+                    "name": part.name,
+                    "rows": len(ti),
+                    "rows_flagged": len(rows),
+                    "blocks": blocks,
+                    "groups": [
+                        {
+                            "field": field_names[k[0]],
+                            "scan": scan_names[k[2]],
+                            "rows": len(idx),
+                            "flagged_before": b / (len(idx) * cells),
+                            "flagged_after": a / (len(idx) * cells),
+                            "core_seconds": sec,
+                        }
+                        for (k, idx), (b, a, sec) in zip(groups.items(), totals)
+                    ],
+                    **record,
+                }
+            )
+        summary["executor"] = ex.describe()
+    summary["seconds"] = _time.perf_counter() - t_start
+    return summary
+
+
+def _write_flags(zarr, store, part, ti, bi, new):
+    """Write the flags `new` ({row: (chan, corr) bool}) of `part` into its
+    flag variable, one time chunk at a time; pads and rows not in `new`
+    keep their stored values, and the stored dtype is kept."""
+    var = part.variables["flag"]
+    record = {"flag_variable": var, "time_writes": 0}
+    rows = np.asarray(sorted(new), np.int64)
+    if not len(rows):
+        return record
+    array = zarr.open_array(store=str(Path(store) / part.name / var), mode="r+")
+    if tuple(array.shape[:2]) != (len(part.time), part.nbaseline):
+        raise ValueError(f"{part.name}: {var} has shape {array.shape}")
+    step = int(array.chunks[0]) or len(part.time)
+    t_rows = ti[rows]
+    for c0 in range(0, len(part.time), step):
+        c1 = min(c0 + step, len(part.time))
+        here = rows[(t_rows >= c0) & (t_rows < c1)]
+        if not len(here):
+            continue
+        block = np.asarray(array[c0:c1])
+        values = np.stack([new[int(r)] for r in here])
+        block[ti[here] - c0, bi[here]] = values.astype(block.dtype)
+        array[c0:c1] = block
+        record["time_writes"] += 1
+    digest = hashlib.sha256()
+    for r in rows:
+        digest.update(np.ascontiguousarray(new[int(r)]).tobytes())
+    record["flag_dtype"] = str(array.dtype)
+    record["flagged_cells"] = int(sum(int(new[int(r)].sum()) for r in rows))
+    record["flag_sha256"] = digest.hexdigest()
+    return record
