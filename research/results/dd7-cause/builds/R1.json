@@ -1,0 +1,7 @@
+{
+ "arm": "R1",
+ "bad_baselines_in_subset": 145,
+ "weight_share_bad": 0.040687297432904806,
+ "rows_flagged": 65250,
+ "seconds": 3.226235300011467
+}

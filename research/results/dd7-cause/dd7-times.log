@@ -1,0 +1,77 @@
+setup start 2026-11-25T13:37:04+02:00 slots=2 mem=10 dd7.py setup D:/rang/outputs/dd7-20261125
+setup end 2026-11-25T14:05:00+02:00 rc=0 wall=1676s
+deep start 2026-11-25T14:05:00+02:00 slots=8 mem=16 dd6.py deep D:/rang/outputs/dd7-20261125/real D:/rang/outputs/dd7-20261125/deep-real 8
+deep end 2026-11-25T14:09:46+02:00 rc=0 wall=286s
+compose start 2026-11-25T14:09:46+02:00 slots=1 mem=4 dd7.py compose D:/rang/outputs/dd7-20261125
+compose end 2026-11-25T14:09:50+02:00 rc=0 wall=4s
+prep start 2026-11-25T14:09:50+02:00 slots=4 mem=15 dd7.py prep D:/rang/outputs/dd7-20261125
+real-MF-4 start 2026-11-25T14:09:50+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/real-MF-4.json --free
+prep end 2026-11-25T14:11:21+02:00 rc=0 wall=91s
+real-P-4 start 2026-11-25T14:11:22+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/real-P-4.json
+real-MF-4 end 2026-11-25T14:24:22+02:00 rc=0 wall=872s
+real-P-4 end 2026-11-25T14:25:16+02:00 rc=0 wall=835s
+real-MF-64 start 2026-11-25T14:25:16+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 64 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/real-MF-64.json --free
+build-R1 start 2026-11-25T14:25:26+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 R1
+build-R1 end 2026-11-25T15:20:51+02:00 rc=0 wall=3325s
+R1 start 2026-11-25T15:20:51+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/R1 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/R1.json --free
+R1 end 2026-11-25T15:33:26+02:00 rc=0 wall=755s
+build-I0 start 2026-11-25T15:33:26+02:00 slots=2 mem=12 dd7.py build D:/rang/outputs/dd7-20261125 I0
+build-I0 end 2026-11-25T15:34:20+02:00 rc=0 wall=54s
+I0-pin start 2026-11-25T15:34:20+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/I0 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/I0-pin.json
+real-MF-64 end 2026-11-25T15:35:13+02:00 rc=0 wall=4197s
+g4 start 2026-11-25T15:35:13+02:00 slots=1 mem=2 dd7.py g4 D:/rang/outputs/dd7-20261125
+g4 end 2026-11-25T15:35:23+02:00 rc=0 wall=10s
+resid start 2026-11-25T15:35:24+02:00 slots=4 mem=15 dd7.py resid D:/rang/outputs/dd7-20261125
+resid end 2026-11-25T15:41:42+02:00 rc=0 wall=378s
+stats start 2026-11-25T15:41:42+02:00 slots=4 mem=15 dd7.py stats D:/rang/outputs/dd7-20261125
+stats end 2026-11-25T15:42:24+02:00 rc=0 wall=42s
+build-T0 start 2026-11-25T15:43:21+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 T0
+build-T0 end 2026-11-25T15:43:28+02:00 rc=0 wall=7s
+T0-free start 2026-11-25T15:43:28+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T0 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T0-free.json --free
+T0-pin start 2026-11-25T15:43:41+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T0 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T0-pin.json
+I0-pin end 2026-11-25T15:48:24+02:00 rc=0 wall=844s
+build-R1c start 2026-11-25T15:49:30+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 R1c
+build-R1c end 2026-11-25T15:49:34+02:00 rc=0 wall=4s
+R1c start 2026-11-25T15:49:34+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/R1c 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/R1c.json --free
+T0-free end 2026-11-25T15:58:43+02:00 rc=0 wall=915s
+build-TSa start 2026-11-25T15:58:43+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 TSa
+build-TSa end 2026-11-25T15:59:05+02:00 rc=0 wall=22s
+TSa start 2026-11-25T15:59:05+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/TSa 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/TSa.json --free
+T0-pin end 2026-11-25T15:59:43+02:00 rc=0 wall=962s
+build-TSb start 2026-11-25T15:59:43+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 TSb
+R1c end 2026-11-25T16:03:17+02:00 rc=0 wall=823s
+build-TSb end 2026-11-25T16:12:42+02:00 rc=0 wall=779s
+TSb start 2026-11-25T16:12:42+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/TSb 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/TSb.json --free
+TSa end 2026-11-25T16:25:57+02:00 rc=0 wall=1612s
+build-T1 start 2026-11-25T16:25:57+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 T1
+build-T1 end 2026-11-25T16:26:03+02:00 rc=0 wall=6s
+T1 start 2026-11-25T16:26:03+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T1 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T1.json --free
+TSb end 2026-11-25T16:26:39+02:00 rc=0 wall=837s
+I0-free start 2026-11-25T16:26:39+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/I0 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/I0-free.json --free
+T1 end 2026-11-25T16:39:35+02:00 rc=0 wall=812s
+R2 start 2026-11-25T16:39:35+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 4 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd7-20261125/grid/R2.json --free
+I0-free end 2026-11-25T16:40:12+02:00 rc=0 wall=813s
+build-R3 start 2026-11-25T16:40:12+02:00 slots=4 mem=15 dd7.py build D:/rang/outputs/dd7-20261125 R3
+build-R3 end 2026-11-25T16:42:27+02:00 rc=0 wall=135s
+R3 start 2026-11-25T16:42:27+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/R3 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/R3.json --free
+R2 end 2026-11-25T16:54:22+02:00 rc=0 wall=888s
+build-T2 start 2026-11-25T16:54:23+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 T2
+build-T2 end 2026-11-25T16:54:29+02:00 rc=0 wall=6s
+T2 start 2026-11-25T16:54:29+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T2 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T2.json --free
+R3 end 2026-11-25T16:55:46+02:00 rc=0 wall=799s
+build-T4 start 2026-11-25T16:55:46+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 T4
+build-T4 end 2026-11-25T16:55:52+02:00 rc=0 wall=6s
+T4 start 2026-11-25T16:55:52+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T4 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T4.json --free
+R1-64 start 2026-11-25T16:56:03+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/R1 64 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/R1-64.json --free
+T2 end 2026-11-25T17:09:38+02:00 rc=0 wall=909s
+build-T3 start 2026-11-25T17:09:38+02:00 slots=2 mem=10 dd7.py build D:/rang/outputs/dd7-20261125 T3
+T4 end 2026-11-25T17:11:02+02:00 rc=0 wall=910s
+R1-64 end 2026-11-25T17:12:11+02:00 rc=0 wall=968s
+R3-64 start 2026-11-25T17:12:11+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/R3 64 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/R3-64.json --free
+build-T3 end 2026-11-25T18:01:15+02:00 rc=0 wall=3097s
+T3 start 2026-11-25T18:01:15+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/T3 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd7-20261125/grid/T3.json --free
+T3 end 2026-11-25T18:14:40+02:00 rc=0 wall=805s
+L2000 start 2026-11-25T18:14:40+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd7-20261125/grid/L2000.json --free --cap 2000
+R3-64 end 2026-11-25T18:16:55+02:00 rc=0 wall=3884s
+R2-64 start 2026-11-25T18:16:55+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 64 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd7-20261125/grid/R2-64.json --free
+R2-64 end 2026-11-25T18:32:45+02:00 rc=0 wall=950s

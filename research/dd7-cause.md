@@ -6,7 +6,7 @@ brief 2026-11-25. A diagnostic, not a fix: no claim of better calibration or
 imaging follows from it. Sections 1-7 are frozen 2026-11-25, before the code
 that runs them and before any measurement. Later changes are dated amendments.
 
-Status: **proposed** (nothing measured).
+Status: **measured 2026-11-25: the real off-axis facets' model is what the simulations lack.** Replacing it with the deep clean in every facet (R2) is the only arm that lifts the real d0-free solve at 4 × 8 s (0.304, 0.297, 0.297; DD6 MF-4 0.066, 0.042, 0.011), but at 64 × 8 s that model does worse than DD6's (0.25 against 0.75-0.79, reported only), so it is not simply a better model. Flagging the 145 bad baselines helps (R1: 0.123, 0.104, 0.072; a weight-matched control does not). The real d0 gain error (0.094 rad, static per antenna) inserted into simulation B breaks the pinned solve (0, 0, 0) and is absorbed exactly when d0 is free, which explains DD6's "M fails". The real additive residual, its spectral part, its noise and its bad-baseline part each leave B lifted, so the cause is not in the additive residual.
 
 ## 1. Question
 
@@ -240,6 +240,96 @@ against T0 free) / R3; 3 ↔ TS / R3; 4 ↔ none / R2; 5 ↔ T3 / none.
   go into [tool-timings.md](tool-timings.md). Built MS copies (about 2 GB
   each) are deleted at the end; the archive keeps the records.
 
+## 9. Measured result
+
+Run root `D:/rang/outputs/dd7-20261125/` (`real/`, `b/`, one directory per
+built arm, `grid/`, `times.log`); archive [results/dd7-cause/](results/dd7-cause/).
+Host glacier, shared; the main checkout's extension, DD7 changes no Rust.
+All points `diag_complex`, cap 500, every one ran to the cap. Fractions are
+d1, d2, d3 (d0 in brackets); step = per-direction median `|Δg|²/|g|²`
+(d3 shown); `e/ê` for d1-d3 on B-based arms.
+
+**Setup and stage 1:** A2 (G1-G4 pass, the real points equal DD6 to every
+digit; the ranking).
+
+**Stage 2, simulation B with an inserted real property (bases: B pinned
+0.997, 0.993, 0.956; BF 0.988, 0.974, 0.939, e/ê 1.0-1.1):**
+
+| Arm | d0 | d1, d2, d3 (d0) | e/ê d1-d3 | Reading |
+| --- | --- | --- | --- | --- |
+| T0, R64 added | free | 0.800, 0.775, 0.761 (0.797) | 12, 11, 12 | neither (drops 0.19, 0.20, 0.18, below 0.20) |
+| T0 | pinned | 0.930, 0.915, 0.884 | 12, 11, 12 | neither |
+| T1, R64 on the 145 bad baselines | free | 0.992, 0.978, 0.948 | 4.5, 3.3, 3.0 | neither |
+| T4, R64 on the other baselines | free | 0.926, 0.907, 0.903 | 12, 9.7, 9.3 | neither |
+| T2, R64 under 400 m | free | 0.981, 0.967, 0.948 | 4.9, 2.9, 2.7 | neither |
+| T3, R64 phase-scrambled | free | 0.984, 0.963, 0.939 | 1.8, 1.4, 1.4 | neither |
+| TSa, R64 without its in-band linear term | free | 0.907, 0.886, 0.876 | 9.9, 9.1, 9.0 | neither |
+| TSb, the linear term alone | free | 0.994, 0.983, 0.965 | 5.1, 3.8, 3.4 | neither |
+| **I0, real MF-4 d0 gains as d0's truth** | **pinned** | **0.0006, 0, 0** | 17, 28, 20 | **reproduces** |
+| I0 | free | 0.992, 0.977, 0.974 (0.999) | 1.08, 1.01, 1.03 | neither; accurate |
+
+**Stage 2, candidates removed from the real data (real MF-4: 0.066, 0.042,
+0.011, d3 step 1.2e-7):**
+
+| Arm | d1, d2, d3 (d0) | d3 step | Reading |
+| --- | --- | --- | --- |
+| R1, the 145 bad baselines flagged | 0.123, 0.104, 0.072 (0.218) | 5.6e-8 | **helps** (min +0.061) |
+| R1c, 145 weight-matched other baselines flagged (A3) | 0.028, 0.018, 0.0003 (0.074) | 2.5e-7 | worse: R1's help is specific |
+| **R2, the deep model in every facet** | **0.304, 0.297, 0.297 (0.368)** | **1.6e-9** | **restores** (lifted at 4 × 8 s) |
+| R3, DI pre-solve (per 8 s and 8 channels) then MF-4 | 0.043, 0.021, 0.009 (0.120) | 2.8e-7 | neither |
+| R1-64 (conditional) | 0.875, 0.875, 0.875 (0.881) | 6e-33 | every interval but the 2-integration last one (MF-64: 0.794, 0.754, 0.752) |
+| R3-64 (conditional) | 0.810, 0.752, 0.755 (0.873) | 5e-30 | as MF-64: no help |
+| R2-64 (reported only, A4) | **0.254, 0.255, 0.256** (0.307) | 3.9e-11 | **worse than MF-64**: only intervals 0 and 1 converge |
+| L2000, real MF-4 at cap 2000 | L2000-TBD | | |
+
+- R2's off-axis gains sit near 1 (median |g| 1.000, 1.001, 0.973; phase
+  spread 0.13, 0.24, 0.40 rad) against MF-4's (0.978, 0.977, 0.811; 0.36,
+  0.50, 1.19 rad). Its lift is all or nothing per interval like DD6's: 33 of
+  113 intervals converge in all of d1-d3 (MF-4: 1), 76 not at all.
+- The DI pre-solve (R3) converged (154 iterations, 0.990) with amplitudes
+  0.986-1.023 (p10-p90) and cut d0's phase spread in the following MF-4
+  from 0.097 to 0.021 rad, without lifting d1-d3.
+
+**Outcome per candidate (section 7's table):**
+
+| Candidate | Insertion | Removal | Reading |
+| --- | --- | --- | --- |
+| 4. off-axis model incompleteness | no arm | R2 restores at 4 × 8 s | **necessary on real data** by the frozen table; sufficiency not tested (no insertion arm); not monotone in interval (R2-64, below) |
+| 1. baseline-based misfit (145 baselines) | T1 neither | R1 helps, R1c not | **necessary on real data, not sufficient alone** |
+| 2. d0 gain error from the DI chain | I0-pinned reproduces | R3 neither | **sufficient in simulation**: it alone explains why real M (d0 pinned) fails; free, d0 absorbs it exactly (I0-free accurate) |
+| 3. spectral structure | TSb neither | R3 neither | **not the cause** |
+| 5. noise | T3 neither | none | **not the cause** |
+
+- **T0 governs the rest:** the real additive residual added to an exact
+  simulation does not reproduce the real failure (d0 free 0.76-0.80; T0
+  pinned 0.88-0.93). So the cause is **not in the additive residual**. That
+  fits candidate 4: R64 is the residual after the real MF-64 gains, and a
+  wrong off-axis model is absorbed into those gains, not left in R64.
+- **The answer to DD7's question:** what the simulations lack is that the
+  real off-axis facets' model is wrong. In B, d1-d3's model is the truth;
+  on real data it is M₀ᶜ's off-axis part, against which the deep clean
+  finds 4.43 Jy in d1 (M₀ᶜ 2.83), 0.77 Jy in d2 (0.45) and 0.05 Jy in d3
+  (0.20, four times too bright). DD5's C and E put their errors elsewhere
+  (C everywhere and large, E mostly in d0). Second, smaller: the 145
+  baselines' misfit. The d0 gain error (0.094 rad static per antenna)
+  accounts for "M fails, MF lifts", as DD6 found, and nothing more.
+- **The caveat (R2-64, reported only):** at 64 × 8 s the deep model in
+  every facet does worse than RM (0.25 against 0.75-0.79): intervals 0
+  and 1 converge, the other six do not. So the deep off-axis model is not
+  simply a better model. It changes which solves settle, and at 512 s it
+  settles fewer. The off-axis model is where the real data differ from the
+  simulations, but "a deeper unit-gain clean of the off-axis facets" is not
+  the fix.
+- Not shown: that the deep off-axis model is right (it was made from the
+  same data with unit gains, so part of the DD effects is in it), that any
+  lifted real gains are accurate, or anything about images.
+
+**Cost (glacier, shared; walls include lock waits).** A 4 × 8 s point:
+predict 43-57 s, each solve 338-433 s, walls 755-1,612 s; a 64 × 8 s point
+the same per solve; builds 4-135 s of work (walls up to 3,325 s in the
+queue); setup 15 s of work; deep clean 285 s; R64 378 s; stage 1 42 s.
+Rows in [tool-timings.md](tool-timings.md).
+
 ## Amendments
 
 **A1, 2026-11-25, setup (code written, nothing run or read).**
@@ -293,3 +383,7 @@ hold about 7.9 %. The control is now built by pairing each bad baseline,
 in random order (seed 7702), with the unused other baseline of nearest
 unflagged weight; the ±10 % check stands. R1, R1c, I0-pin and the setup
 lane ran alongside stage 1; none was read before A2.
+
+**A4, 2026-11-25, post hoc (after R2 was read).** R2 at 64 × 8 s (R2-64)
+runs on section 8's spare point, reported only; it changes no reading. It
+shows how far the restored solve goes at DD6's lifted interval.
