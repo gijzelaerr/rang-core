@@ -255,13 +255,13 @@ def fixed_point(root):
     print(json.dumps(rec, indent=1, default=float))
 
 
-def jac(root, base, start=0, stop=None):
+def jac(root, base, start=0, stop=None, at="default"):
     """Section 4's linearised rates on one base at the default's cap-2000 gains."""
     root = Path(root)
     sums = {"B-X": "B-M0c", "O-X": "O-skyO"}[base]
     S = dd9.Sums(root / "sums" / f"{sums}.npz")
     P = dd9.Problem(S, np.arange(S.nblock), [1] * 4)
-    d0 = load(root / "solve" / f"{base}-default.npz", 2000, 4)
+    d0 = load(root / "solve" / f"{base}-{at}.npz", 2000, 4)
     g = np.stack(d0["g"], -1)  # (nint, nant, 2, D)
     f = np.stack(d0["f"], -1)  # (nint, nant, D)
     stop = S.nblock if stop is None else int(stop)
@@ -308,7 +308,9 @@ def jac(root, base, start=0, stop=None):
         print(j, json.dumps(row["hands"][0] and {k: row["hands"][0][k] for k in ("rho_full", "rho_within", "rho_I1", "rho_I2", "rho_I3")}),
               f"{time.perf_counter() - t0:.0f}s", flush=True)  # fmt: skip
     dd9.write_json(
-        root / "jac" / f"{base}-{start}-{stop}.json", {"base": base, "rows": out}
+        (root / "jac" if at == "default" else root / "jac" / f"at-{at}")
+        / f"{base}-{start}-{stop}.json",
+        {"base": base, "rows": out},
     )
 
 

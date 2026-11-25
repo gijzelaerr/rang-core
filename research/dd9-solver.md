@@ -335,3 +335,16 @@ O rebuilt, sums built; no DD9 solve on O, B or real data run or read).**
   kernel on synthetic data, with flags identical and gains to 1e-9 at
   1-40 iterations, pinned and free. I1-I3 reach the default's fixed point
   there.
+
+**A2, 2026-11-26, post hoc (after section 4's frozen readings Ra1, Ra2 and
+the I1, I2, I4 points were read; I3 and part (b) not yet read).** Section 4
+restricts Ra1 and Ra2 to the 88 intervals converged at cap 2000 in both
+B-X and O-X; O-X's 25 never-converged intervals sit outside them, and the
+linearisation at their cap-2000 state gives ρ_full above 1. Reported only,
+changing no frozen reading: the default map (and its per-direction blocks)
+is linearised again at I2's cap-2000 gains, which converged in every O-X
+interval but the short last one, for all O-X intervals
+(`jac ROOT O-X START STOP I2`, written to `jac/at-I2/`). If I2 passes the
+same-fixed-point check, these are the default map's rates at its own fixed
+point. A ρ_full above 1 there means the default (Jacobi, halved) iteration
+is linearly unstable at the solution in that interval.
