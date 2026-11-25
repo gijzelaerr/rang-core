@@ -1,0 +1,27 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/weights-k-20261125/A/e2n.ms",
+ "arm": "A",
+ "flagged_before": 0.3149291156060593,
+ "rows_restored": 2229489,
+ "primary_flag_sha256": {
+  "flag": "de13000880a17a6c22d3afbaf8cdbeb98cedc43d9949af17233949569503448d",
+  "flag_row": "3d0f8551e929f75f1d47f0886486258ec6753b5c895ea4ed0dc8a2204ddd66d2"
+ },
+ "aftercal_primary_flag_sha256": {
+  "flag": "da5154de6b034419c234bfc1beb5674e4ec66ef1c31dbd93536ff3ccaa4d43fc",
+  "flag_row": "3d0f8551e929f75f1d47f0886486258ec6753b5c895ea4ed0dc8a2204ddd66d2"
+ },
+ "flagged_after": 0.6379873063471607,
+ "primary": {
+  "baselines": 1891,
+  "baselines_wholly_flagged": 0,
+  "no_data": [],
+  "cut_off_from_m022": [],
+  "cut_off_from_m058": []
+ },
+ "antenna_ids": {
+  "m022": 22,
+  "m058": 56
+ },
+ "seconds": 245.36995982704684
+}

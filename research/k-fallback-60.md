@@ -120,7 +120,42 @@ apply-calwt's timing); C calibrate only. Timing rows in [tool-timings.md](tool-t
 
 ## 6. Measured
 
-Nothing yet.
+**Synthetic, through the pipeline (2026-11-25, glacier):** [tests/test_k_fallback_60.py](../tests/test_k_fallback_60.py),
+8 antennas, `rang-core run` calibrate with K, G, B and refant list [m000, m001]: (i) baselines 0-3 and 0-5
+flagged: flex flags no K, G or B solution and K is the truth to < 0.02 ns; strict flags K for exactly
+antennas 3 and 5; (ii) every baseline of m000 flagged: K, G and B flag only m000 and K is the truth
+referenced to m001. **Pass** (3 tests, in the quick check).
+
+**E2-N (2026-11-25, nash shared, nice 19; branch at `5b11b83c` for the scorer; rang-core 0.4.0 + this
+branch):** run root `nash:~/rang-data/outputs/weights-k-20261125/`; archive [results/k60/](results/k60/).
+
+- **Inputs.** Arm B's J1939−6342 FLAG and FLAG_ROW hashes equal the after-calibrate version's
+  (`da5154de…`, `3d0f8551…`, `prep-B.json`); 351 of 1,891 baselines wholly flagged; the cut-off set
+  from m022 is the 19 of e2n-followup; no antenna without data. `refant: auto` picked m022, m023, m024
+  (CARACal's string) in A and B, so A1's oracle applies as is.
+- **Runs.** A: calibrate and apply 1 h 49 min, 5.8 GB peak; B: 2 h 10 min, 5.8 GB.
+
+| Gate | Measured | Tolerance | Result |
+| --- | --- | --- | --- |
+| K1, K flags in B | 0 of 62 antennas (A: 0) | only antennas without data (none) | **pass** |
+| K2, B − CASA K at m058, both re-referenced to m058, all antennas and hands | median 4.6e-4 ns, p95 1.61e-3, max 2.95e-3 (n 124) | ≤ 0.01, ≤ 0.03 ns | **pass** |
+| K2, the 19 cut-off antennas only | median 4.2e-4, p95 1.60e-3, max 1.87e-3 (n 38) | – | – |
+| K3, B − A over the 19 (both to m058) | median 7.9e-5, p95 4.4e-4, max 6.8e-4 ns (n 38) | ≤ 0.01, ≤ 0.03 ns | **pass** |
+| D1, flagged solutions B − A | G 0, **B +3.5 pt** (29.7 → 33.2 %), Gsec 0, F 0 | ≤ +1 pt each | **fail (B)** |
+| D2, target flagged after calflag apply | A 64.93 %, B 64.93 % (+0.00 pt) | ≤ +1 pt | **pass** |
+
+- **Scoring correction, labelled.** The scorer's first K2 read gave a constant 0.0535 ns on every antenna:
+  the archived CASA delays are stored with m022 at 0 (their m022 entry is 0), not m058, so they were
+  re-referenced to m058 as well (`k60_score.py`, commit after `5b11b83c`). Tolerance unchanged.
+- **D1's bandpass trace (rule 3,** [k60_btrace.py](results/weights-k-scripts/k60_btrace.py),
+  `k60-btrace.json`): of the 4,466 B cells (antenna, channel, hand) flagged in B and not in A, **3,830
+  (86 %) have fewer than `minblperant` (4) baselines longer than 150 m with any unflagged cell in B's
+  input**: no data to solve from, because B's input is the after-`extendflags` state, whose
+  growtime/growfreq rules flag whole channels. Cells flagged although at least 4 such baselines have data
+  are **fewer** in B than in A (1,434 against 1,516). So the extra B flags follow the arm's own data loss,
+  not the cut-off refant; the frozen +1 pt bound did not allow for the data the perturbation itself
+  removes (a design limit of D1, stated, not re-scored). No term is at fault, so rule 3 has nothing to fix.
+- **Arm C (strict):** pending at the time of writing (queued on nash).
 
 ## 7. Outcome
 
