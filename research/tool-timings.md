@@ -2538,3 +2538,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-25 | gemclean-57 run F: `gemclean.exe`, flags + NaN + `-average-channels 2`, -j8 (host glacier) | simf256 | 1 335 s | – | 4 majors, no crash |
 | 2026-11-25 | gemclean-57 run AVX2: as A, -j8, `RANG_WGRIDDER_SIMD=avx2 -simd avx2` (host glacier) | sim128 | 2 313 s | – | 5 majors, no crash |
 | 2026-11-25 | gemclean-57 dbg1: debug `gemclean.exe`, reported options at `-size 1024`, -j4 (host glacier) | flagged 80 640 rows x 64 ch | 1 104 s | – | no assert, no crash |
+| 2026-11-25 | gemclean-57 stack bisect: `gemclean.exe -size 2048 -nmiter 1`, `RUST_MIN_STACK` 96 KiB-512 KiB at -j16 and -j128 (host glacier, 16 slots) | sim128 | 71-132 s per pass; overflows after 1-19 s | – | -j128 needs 256-512 KiB |
+| 2026-11-25 | gemclean-57 stack, full options `-nmiter 1 -j 128`, 1/2/2/4 MiB (host glacier, 16 slots) | sim128 | 721-738 s each | ~43 GB | 4 of 4 exit 0 |
+| 2026-11-25 | gemclean-57 `stack57` harness: set-up phases at 128/16 threads; `theoretic_beam` loops at 128-1024 threads pinned to 4 cores (host glacier) | 1.75 M rows x 1 or 64 ch | 22 s per phase pass; loops 0.3-37 s | – | no overflow at 2 MiB |

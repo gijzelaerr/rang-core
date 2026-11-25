@@ -1,6 +1,6 @@
 # gemclean-57: SIGSEGV at gridding start on a 10.6 h MeerKAT track (#57)
 
-Status: **open, not reproduced** (2026-11-25). Five simulated runs completed cleanly. Two of them match the
+Status: **open, not reproduced** (2026-11-25). Every simulated run at the reported options completed cleanly. Two of them match the
 failing run's rows and visibilities per output channel. An audit found no 32-bit index or size in the
 path that this shape could overflow. No fix is merged. The next step is the reporter's backtrace
 (draft request in `outputs/drafts/gemclean-57-reply.md`).
@@ -70,27 +70,72 @@ Run AVX2 repeated A at -j8 with `RANG_WGRIDDER_SIMD=avx2 -simd avx2`, so the gri
 kernels took their AVX2 paths. It exited 0 after 5 majors in 2 313 s, so the AVX2 path is covered as
 well as AVX-512.
 
-Run B8 is queued on nash and has not run yet; its outcome is not part of this note. It uses
-`run-b8.sh` (log `run-b8/log.txt`, gdb backtrace on a fault). The run is the Linux release binary, which
-reports stack overflows and uses `HugePageAlloc`, under gdb with
-`-channels-out 8 -fit-spectral-pol 4` on sim128 and an 80 GB booking.
+Run B8, the nash Linux binary under gdb with 8 output channels at -j8, was cancelled before it ran.
+Every -j8 arm had been null, and B8 held an 80 GB ticket in a blocked queue.
 
-What these rule out:
+### Reporter's facts (2026-11-25, via the coordinator; reported, not verified)
+
+- **Intermittent:** the identical command on the same MS ran clean twice (07:51; 09:38, 80 000
+  components in 4 479 s) and segfaulted on the third run (11:00). Two wsclean jobs ran throughout; a
+  disk-heavy job had just started when it crashed.
+- **Host:** AMD EPYC 9555P (Zen 5, AVX-512), 128 threads, `ulimit -s 8192`, no `RANG_`/`RAYON_`/`RUST_`
+  variables, wheel 0.3.0.
+
+Intermittency on fixed input points away from a size limit and towards a race, or towards
+scheduling-dependent stack depth at 128 threads.
+
+### Stack depth against thread count (measured; hazard, not shown to be #57)
+
+Without `-j`, gemclean runs in rayon's default global pool. Its threads have 2 MiB stacks; `cli.rs`
+sets no `stack_size`. Inside the extension, a stack overflow is a silent SIGSEGV.
+
+| case | threads | `RUST_MIN_STACK` | result |
+| --- | ---: | ---: | --- |
+| sim128 `-size 2048 -nmiter 1`, 16 cores | 16 | 96, 128, 192, 256, 512 KiB | all exit 0 |
+| same | 128 | 96, 128, 192 KiB | overflow within 1-9 s |
+| same | 128 | 256 KiB | overflow right after the weights line, the reported place |
+| same | 128 | 512 KiB | exit 0 |
+| sim128 full options `-size 10240 -nmiter 1`, 16 cores | 128 | 1, 2, 2, 4 MiB | 4 of 4 exit 0, 720-738 s |
+| `stack57 beam`: `theoretic_beam` alone, 1 or 64 channels, pinned to 4 cores | 128 | 256 KiB | exit 0 |
+| same | 128, 256, 512, 1024 | 2 MiB | exit 0 (500 loops at 1 channel, 100 loops at 64 channels) |
+
+Findings:
+- The stack need grows with the thread count: under 96 KiB at 16 threads, 256-512 KiB at 128.
+- No case reached the 2 MiB default. The full-size run passed even at 1 MiB, and oversubscription to
+  1024 threads on 4 cores did not overflow 2 MiB.
+- So the margin at the default is at least 2x on these hosts. Whether a 128-core Zen 5 under I/O
+  load crosses it is open, and only the reporter's backtrace can decide it.
+- The same hazard applies to every rayon user in the extension, not only gemclean.
+
+What decides it in the backtrace:
+- **Stack overflow:** the fault address (`$_siginfo._sifields._sigfault.si_addr`) lies just below
+  `$rsp`, under hundreds of repeating rayon join/steal frames.
+- **Race or corruption:** a fault address far from `$rsp`. The next arm is then a ThreadSanitizer build
+  of the stack57 harness on Linux.
+
+What these runs rule out:
 - 1.12e8 visibilities per channel at n = 10240 with the reported clean settings;
 - the Linux huge-page allocator at that load, on the released wheel;
 - zero-weight rows, channels and cells, NaN data and `-average-channels`;
-- a large per-thread stack need at 8 threads (gridding needs under 128 KB).
+- the AVX2 and AVX-512 paths at 8-16 threads;
+- a stack need near 2 MiB at up to 1024 threads on 4 cores.
 
 What they do not cover:
 - 8 output channels at full load (about 3x the memory of runs A and W030);
-- the reporter's thread count, CPU and environment;
+- 128 real cores;
+- the reporter's machine under concurrent I/O load;
 - real uv coverage, with 31 antennas and the field-3 selection from a multi-field MS.
 
 ## Next
 
-1. **The reporter's backtrace** (`gdb -batch -ex run -ex bt ...`), plus `nproc`, CPU flags, `ulimit -s`,
-   `RANG_*`/`RAYON_*`, and one rerun each with `RUST_MIN_STACK=1073741824` and with `-j 8`. Draft in
-   `outputs/drafts/gemclean-57-reply.md`; the owner approves posting.
-2. **Full-shape run on nash** (8 x 64 channels, about 100 GB) with the Linux binary under gdb, once
+1. **The reporter's backtrace** (running on their side 2026-11-25), with `si_addr` against `$rsp` and the
+   frame count of the faulting thread. If it is clean, rerun with `RUST_MIN_STACK=1073741824` and with
+   `-j 8`. The draft follow-up is in `outputs/drafts/gemclean-57-reply.md`; the owner approves posting.
+2. **If it is a stack overflow:** give every pool gemclean runs in an explicit `stack_size` (in
+   `cli::run`, both the global and the private branch, also without `-j`), sized from the table above
+   with a wide margin (for example 64 MiB, reserved rather than committed). Add a regression test that
+   builds its pool through the same function, and consider the same for the extension's other rayon
+   users.
+3. **Full-shape run on nash** (8 x 64 channels, about 100 GB) with the Linux binary under gdb, once
    the queue has room. `sim::simulate` holds the cube several times over, so 512 or more channels
    needs a chunked writer.
