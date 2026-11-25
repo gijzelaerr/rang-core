@@ -203,7 +203,47 @@ All real-data measures are **held out**: R's weights are estimated from the dump
 
 ## 8. Measured
 
-Nothing yet.
+### 8.1 Simulations: T, G1, Q (2026-11-25, glacier shared slots; WSL for CASA and QuartiCal)
+
+Script [w48_sim.py](results/weights-k-scripts/w48_sim.py); run roots `D:ang\outputs\weights-k-20261125\sim`
+(first run) and `...\sim-r1` (revision R1); archive [results/weights-48/](results/weights-48/). Arms at the
+stage defaults (chanbin 16, minsamp 200, smooth 5, fill true), 256 channels; e is against the true σ,
+floor 1.0071 (block-ideal), unity 1.2091 (1.2458 on baseline-excess).
+
+| Case | Arm | First run: median, e | R1: median, e | R1 gate |
+| --- | --- | --- | --- | --- |
+| clean | stokes_v clipped | 1.0008, 1.0370 | 1.0026, **1.0087** | pass (floor + 0.0016) |
+| | residual clipped | 1.0004, 1.0369 | 1.0016, 1.0087 | pass |
+| | stokes_v classic / mad | 1.0006, 1.0368 / 1.0026, 1.0398 | 1.0022, 1.0087 / 1.0068, 1.0116 | – (mad floor + 0.0045) |
+| rfi (100×, 1 %) | stokes_v clipped | 1.0025, 1.0370 | 1.0030, 1.0088 | pass |
+| | residual clipped | 1.0000, 1.0369 | 1.0015, 1.0087 | pass |
+| | stokes_v classic / mad | 0.0107, 1.14 / 0.958, 1.040 | 0.0108, 2.95 / 0.960, 1.0117 | – |
+| rfi-low (3-5×, 2 %), reported | stokes_v clipped | 0.928, 1.0374 | 0.929, 1.0095 | – |
+| | residual clipped | 0.972, 1.0371 | 0.973, 1.0091 | – |
+| | stokes_v classic / mad | 0.769, 1.039 / 0.943, 1.040 | 0.772, 1.0130 / 0.947, 1.0117 | – |
+| short (14, 8, 14 dumps) | stokes_v clipped | 1.0016, 1.0308 | 1.0019, 1.0091; 0 cells at weight 0 | pass |
+| | residual clipped | – | 1.0029, 1.0091; 0 | pass |
+| baseline-excess | stokes_v clipped | 1.0005, 1.0372 | 1.0018, 1.0087 | pass |
+| | residual clipped | – | 1.0022, 1.0087 | pass |
+
+- **First run (as frozen): T fails for every statistic** (section 9 R1: the smoothing, not the statistic).
+- **R1: T passes for `clipped` in every gated case and both modes.** `classic` passes clean cases and
+  collapses with RFI (0.011); `mad` misses e by 0.003 on clean data and the RFI median for `stokes_v`.
+- rfi-low: the computed bias of the clip for that mixture is 1.029 per correlation (expected median
+  0.972); `residual` reads 0.973, `stokes_v` 0.929, lower because V carries the outliers of both XY and
+  YX (twice the outlier fraction). Reported, not gated.
+- short: the 8-dump scan's blocks (128 V samples < 200) are filled from the same baseline pooled over the
+  three scans (1,920 blocks for `stokes_v`, 7,680 per-correlation for `residual`); none reach the array
+  median; no unflagged cell at weight 0.
+- **G1, CASA statwt** (6.7.6.14 in `rang-o-casa:6.7.6.14`, WSL docker, `residual`/`classic`, minsamp 2,
+  smooth 0, fill false): max relative difference **0.0** over 7,372,800 cells. Pass.
+- **Q, QuartiCal 0.2.7 `solver.robust`** (diag_complex G, per-scan chunks of 16 channels, `iter_recipe
+  [25, 25]`, 47 s for both): e **1.0509** (clean) and **1.0964** (rfi), against 1.0087 and 1.0088 for
+  `clipped`; its weights carry one covariance per chunk, so they follow the channel shape but not the
+  per-antenna one (raw scale 0.53 of 1/σ², removed before e).
+
+**Rule 1: met (after R1).** `clipped` and the fills ship; `statistic: clipped` is the stage's default;
+`mode` stays `off`.
 
 ## 9. Amendments
 

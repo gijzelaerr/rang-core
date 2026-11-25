@@ -42,7 +42,7 @@ class Settings:
     mode: str = "off"
     chanbin: int = 16
     timebin: str = "scan"
-    statistic: str = "mad"
+    statistic: str = "clipped"
     minsamp: int = 200
     smooth: int = 5
     fill: bool = True

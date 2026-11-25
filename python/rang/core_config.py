@@ -509,7 +509,7 @@ SCHEMA = {
                 "reweight: scan (one block per scan) or seconds, such as 120s",
             ),
             "statistic": _k(
-                "mad",
+                "clipped",
                 "choice",
                 "reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance; "
                 "clipped, a 3-sigma clipped variance, robust and as efficient as classic "
@@ -2142,7 +2142,7 @@ HASH_DEFAULTS = {
             "mode": "off",
             "chanbin": 16,
             "timebin": "scan",
-            "statistic": "mad",
+            "statistic": "clipped",
             "minsamp": 200,
             "smooth": 5,
             "fill": True,

@@ -267,5 +267,10 @@
    "pass": false
   }
  },
+ "G1": {
+  "cells": 7372800,
+  "max_rel": 0.0,
+  "pass": true
+ },
  "T_clipped_pass": false
 }
