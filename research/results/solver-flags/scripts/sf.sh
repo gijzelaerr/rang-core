@@ -2,7 +2,7 @@
 # solver-flags (#58, #59), research/solver-flags.md section 7: shards with done-markers on nash.
 #   bash sf.sh setup | qcvenv | e2n ARM | a1-gen | a1 ARM | oracle | score
 set -euo pipefail
-WT=$HOME/Worktrees/rang/solver-flags
+WT=${SF_WT:-$HOME/Worktrees/rang/solver-flags}  # arm R runs from its own frozen worktree
 PY=$WT/.venv/bin/python
 S=$WT/research/results/solver-flags/scripts
 SRC=$HOME/rang-data/outputs/e2n-20261116
@@ -20,7 +20,7 @@ ARM=${2:-}
 case ${1:-} in
 setup)
   # Rebuilt for every code change: the marker is the commit.
-  head=$(git -C "$WT" rev-parse --short HEAD)
+  head=$(basename "$WT")-$(git -C "$WT" rev-parse --short HEAD)
   if ! shard "setup-$head"; then
     cd "$WT"
     [ -x .venv/bin/python ] || uv venv -q -p 3.12 .venv
