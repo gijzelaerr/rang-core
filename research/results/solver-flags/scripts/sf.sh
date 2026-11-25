@@ -91,5 +91,33 @@ a1)
     grep -q "apply: done" "$R/logs/a1-run-$ARM.log" && mark "a1-run-$ARM"
   fi
   ;;
-*) echo "usage: sf.sh setup|qcvenv|e2n ARM|a1-gen|a1 ARM" >&2; exit 2;;
+oracle)
+  # ARM-independent: cases cut from M0 after its run (flags before calibrate).
+  # $2: e2n or a1. The QuartiCal runs book 4 slots and 96 GB (one chunk per scan).
+  O=$R/oracle-$2
+  mkdir -p "$O"
+  if [ "$2" = e2n ]; then SRCMS=$R/e2n-M0.ms; FIELD=J1939-6342; KINDS="G B"; else SRCMS=$R/a1/a1-M0.ms; FIELD=J1939-6342; KINDS="G"; fi
+  ver=$(grep -o "^rang_calibrate_[0-9TZ]*" "$SRCMS.flagversions/FLAG_VERSION_LIST" | head -1)
+  if ! shard "oracle-$2-cut"; then
+    rm -rf "$O/sub.ms"
+    $LOCK --slots 1 --mem 16 -- $NICE "$QC/bin/python" -I "$S/sf_oracle.py" cut "$SRCMS" "$FIELD" "$ver" "$O/sub.ms" > "$R/logs/oracle-$2-cut.log" 2>&1
+    mark "oracle-$2-cut"
+  fi
+  for k in $KINDS; do
+    if ! shard "oracle-$2-qc-$k"; then
+      rm -rf "$O/$k/qc-1" "$O/$k/qc-2"
+      $LOCK --slots 4 --mem 96 -- $NICE "$QC/bin/python" -I "$S/sf_oracle.py" qc "$O/sub.ms" "$O/$k" "$k" 4 > "$R/logs/oracle-$2-qc-$k.log" 2>&1
+      mark "oracle-$2-qc-$k"
+    fi
+    if ! shard "oracle-$2-rang-$k"; then
+      $LOCK --slots 2 --mem 48 -- $NICE env RAYON_NUM_THREADS=2 "$PY" -I "$S/sf_oracle.py" rang "$O/sub.ms" "$O/$k" "$k" > "$R/logs/oracle-$2-rang-$k.log" 2>&1
+      mark "oracle-$2-rang-$k"
+    fi
+    $NICE "$PY" -I "$S/sf_oracle.py" compare "$O/$k" "$k" "$O/compare-$k.json" > "$R/logs/oracle-$2-compare-$k.log" 2>&1
+  done
+  ;;
+score)
+  $NICE "$PY" -I "$S/sf_score.py" "$R" "$R/score.json" > "$R/logs/score.log" 2>&1
+  ;;
+*) echo "usage: sf.sh setup|qcvenv|e2n ARM|a1-gen|a1 ARM|oracle e2n|a1|score" >&2; exit 2;;
 esac
