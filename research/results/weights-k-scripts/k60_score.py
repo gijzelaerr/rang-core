@@ -104,6 +104,9 @@ def main(root, kcompare, out):
     if "B" in taus:
         tau, flag = taus["B"]
         rel = tau - tau[m058]
+        # Both sides re-referenced to m058: the archived CASA delays are stored referenced to
+        # m022 (their m022 entry is 0), whatever refant the probe solved at.
+        casa = casa - casa[m058]
         both = ~flag & ~casa_flag[:, None] & np.isfinite(casa)
         rec["K1_no_data_antennas"] = prep["B"]["primary"].get("no_data", [])
         rec["K2_B_vs_casa_m058"] = stats((rel - casa)[both])
