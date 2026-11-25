@@ -155,11 +155,20 @@ branch):** run root `nash:~/rang-data/outputs/weights-k-20261125/`; archive [res
   are **fewer** in B than in A (1,434 against 1,516). So the extra B flags follow the arm's own data loss,
   not the cut-off refant; the frozen +1 pt bound did not allow for the data the perturbation itself
   removes (a design limit of D1, stated, not re-scored). No term is at fault, so rule 3 has nothing to fix.
-- **Arm C (strict):** pending at the time of writing (queued on nash).
+- **Arm C (strict, calibrate only, 1 h 36 min, 5.5 GB): the v4 failure, reproduced in rang.** K flags exactly the
+  19 cut-off antennas (CASA's rule on the chain path), and G, Gsec, F and Gpol follow with 30.65 % of solutions
+  flagged, B with 53.6 % (A: 29.7 %), as #51's v4 run (21-23 antennas, 35-39 %). C: **pass**.
 
 ## 7. Outcome
 
-Not yet.
+K1, K2, K3, D2, C and the synthetic pipeline tests pass; D1 fails for the bandpass (+3.5 pt against +1 pt).
+Under rule 3 the bandpass's extra flags were traced: 86 % of them have fewer than `minblperant` baselines
+with data in the arm's input, and the flags with data enough do not grow (1,434 against 1,516), so no term
+is at fault and there is nothing to fix. **#60's K part is met by #53's `refantmode: flex`, as shipped in
+0.4.0**, on real native data and through `rang-core run`: with 19 antennas cut off from the refant, flex
+flags no K solution and matches CASA at a refant that reaches them to 4.6e-4 ns, where strict (CASA's
+rule) loses 19 antennas and 31 % of every downstream gain. No solver change; the branch adds the pipeline
+tests, this record and a `docs/limits.md` line. D1 is recorded as failed as frozen, with its cause.
 
 ## 8. Amendments
 

@@ -9,6 +9,11 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- K with antennas cut off from the reference antenna (#60): no change needed. #53's `refantmode: flex`
+  (the default since 0.4.0) was verified through `rang-core run` and on E2-N's real flags that cut 19
+  antennas off m022: no K solution flagged, delays within 4.6e-4 ns (median) of CASA K at a refant that
+  reaches them, target flags unchanged; `strict` reproduces the 0.3.0 failure (19 antennas, 31 % of G,
+  Gsec and F) (`research/k-fallback-60.md`).
 - `apply.reweight` (off by default): a new statistic, `clipped`, an iteratively 3σ-clipped variance
   with the exact truncation factor, now the stage's default (was `mad`). On simulations with known
   noise it is as efficient as statwt's `classic` (e within 0.0017 of the block-ideal floor, `mad`

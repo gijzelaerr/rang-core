@@ -94,7 +94,11 @@ learned stage that you can turn on:
   antenna connected to the reference through other baselines. So rang can
   solve K where CASA leaves it flagged; `refantmode: strict` is CASA's rule.
   The table's reference per interval is in the solve's `refant_used`; the K
-  table's `ANTENNA2` stays -1, as CASA's.
+  table's `ANTENNA2` stays -1, as CASA's. Measured on native data through
+  `rang-core run` (issue #60, {gh}`research/k-fallback-60.md`): on E2-N with 19
+  antennas cut off from the refant m022, flex flags no K solution and agrees
+  with CASA K at m058 to 4.6e-4 ns (median); strict loses those 19 and 31 % of
+  G, Gsec and F.
 - **Solution TIME** differs from CASA's by up to 0.054 s (0.41 s with
   `combine`); it is reported, not gated, until CASA's centroid weighting is
   ported ({gh}`research/c2a-gain.md`).
