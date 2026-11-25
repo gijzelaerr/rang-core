@@ -106,7 +106,7 @@ w48A|w48c4)
   # #48 held-out arms (research/weights-48.md section 4) on arm A's MS or on c4's.
   if [ "$1" = w48A ]; then M=$R/A/e2n.ms; RAW=$SRC/e2n.ms; CB=16; CW=$R/cfg/e2n-ca-calwt.yaml; O=$R/w48/A
   else M=$R/c4/e2n-c4.ms; RAW=$M; CB=4; CW=$R/cfg/e2n-c4-calwt.yaml; O=$R/w48/c4; fi
-  need=runA; [ "$1" = w48c4 ] && need=runc4
+  need=runA; [ "$1" = w48c4 ] && need=runc4; shard build || { echo "build not done"; exit 1; }
   shard $need || { echo "$need not done"; exit 1; }
   mkdir -p "$O"
   W="$LOCK --slots 4 --mem 48 -- $NICE env RAYON_NUM_THREADS=4 $PY -I $S/w48_real.py"
