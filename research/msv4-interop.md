@@ -513,7 +513,10 @@ Status: **measured, M2 pass.**
 - **M7 (2026-11-25, measured, partial: [msv4-cli.md](msv4-cli.md)):**
   `rang-core flag CONFIG STORE` with run directory, store flag versions and
   journal; one miss, the summary's group key on xradio stores (field names
-  `<name>_<FIELD_ID>`).
+  `<name>_<FIELD_ID>`). Follow-up (2026-11-25, post hoc, amendment A3 of
+  msv4-cli.md, branch `msv4-fields`): groups report the MSv2 field name and
+  id, `flag.fields` takes MSv2 names on xradio stores; C1 and C6 re-measured,
+  **pass** on both writers (c9 C6 not measured, no MSv2 run).
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.

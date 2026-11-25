@@ -4,7 +4,9 @@
 the write path is [msv4-flag-write.md](msv4-flag-write.md), M6, pass).
 Status: **measured, partial** (section 9: C1 to C5 and C7 hold on every
 measured case of both arms; C6 misses on the xradio arm only, on the group
-key, because xradio 1.3.1 names fields `<name>_<FIELD_ID>`). Sections 1 to 6
+key, because xradio 1.3.1 names fields `<name>_<FIELD_ID>`). Post hoc
+follow-up (amendment A3, section 10; result section 11): MSv2 field names
+and ids in the groups; C1 and C6 re-measured, **pass** on both arms. Sections 1 to 6
 were frozen in the commit that adds this note, before any code; amendments
 A1 and A2 before any run. Later changes are dated and labelled post
 hoc. No performance or science claim: the step checks that the command line
@@ -341,7 +343,7 @@ measured.)
 
 **For users:** on an xradio store `flag.fields` takes xradio's names
 (`J1939-6342_0`), not the MSv2's; xarray-ms keeps the MSv2 names. The
-how-to says so.
+how-to says so. (Superseded by A3, section 10: MSv2 names work on both.)
 
 **Task (proposed, for the coordinator):** decide the group's `field` on a
 store: keep the store's name (now), or report the MSv2 name and id where
@@ -414,6 +416,38 @@ case C6 cannot tell an id read from the suffix from a stripped `_0`. Unit
 tests cover nonzero ids, a stem that is itself `<x>_<digits>`, the
 collision refusal and the xarray-ms pass-through.
 
+## 11. Measured result of A3 (2026-11-25, post hoc)
+
+**Outcome under section 10's rule: pass.** Receipt
+[results/msv4-fields/receipt-01.json](results/msv4-fields/receipt-01.json),
+harness [msv4_fields.py](results/msv4-fields/msv4_fields.py) (imports M7's
+`msv4_cli.py`: its `cli` and `products` steps unchanged), step logs and
+run-directory snapshots beside it. Run root
+`D:\rang\outputs\msv4-fields-20261125` (570 MB), host glacier (Windows),
+code `929667dd` (fix `6e6746a4`), the main checkout's `.venv` with
+`PYTHONPATH` at the worktree's `python/` (extension copied from the main
+checkout; `core/`, `src/` unchanged), heavy lock 2 slots 4 GB,
+`RAYON_NUM_THREADS=2`. M6's root only read. One run (01); an earlier start
+stopped before any step (the lock's `bash` was WSL's, the worktree path
+unknown there; nothing written) and was restarted with Git Bash.
+
+| measure | xradio | xms-auto |
+| --- | --- | --- |
+| C1 CLI = `rang.msv4.flag` (every file) | 11/11 match | 11/11 match |
+| C6 run directory products (M7's frozen comparator) | 10/10 match | 10/10 match |
+| `field_id` = MSv2 group's (xradio) / null (xms-auto) | 10/10 match | 10/10 match |
+
+(c9 has no MSv2 run: C6 not measured; c10 reported, matches.)
+
+- c6x, xradio: 23 groups, stored names `J1939-6342_0`, `3C286-SIM_1`,
+  `SIM-GCAL_2`, `SIM-TARGET_3` reported as the MSv2 names with ids 0 to 3,
+  equal to the MSv2 run's `field_id`; xarray-ms: the same names, ids null.
+  Every other case has one field, id 0 (section 10's caveat).
+- C4 rerun inside M7's `cli` step: 22/22 match. `flag_sha256` differs from
+  the MSv2's on every case, as in section 9 (row order; reported).
+- Cost (reported): `rang-core flag` on a store 3.8-13.2 s per command; the
+  `cli` step 282 s (M7: 262 s).
+
 ## For the coordinator
 
 Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2 `c0153729`
@@ -431,3 +465,12 @@ run root on D: is kept until merge (1.7 GB).
 `rang-core run` with `run.stages: [flag]` on a store is covered by a unit
 test on m05, not by the measurement. No GitHub issue was opened for the
 task above.
+
+Follow-up, branch `msv4-fields` (A3, post hoc): amendment `c59c61a2`
+(before code), fix `6e6746a4`, harness `929667dd`, records after. **Pass**:
+C1 and C6 hold on both writers, every measured case. Deviation from the
+decision: an interferometric xradio 1.3.1 store keeps no field id outside
+the name (the converter drops `field_id`), so the id comes from xradio's
+`_<FIELD_ID>` naming, gated by the writer and checked store-wide, and is
+checked against the MSv2 run's `field_id`; only c6x has ids other than 0.
+Run root `D:\rang\outputs\msv4-fields-20261125` (570 MB) kept until merge.

@@ -1,0 +1,44 @@
+{
+ "config_path": "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+ "created": "2026-11-25T08:45:55+00:00",
+ "ms": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11-cli.ps.zarr",
+ "schema": "rang.run-state",
+ "stages": {
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "72e84560019464702192c68b152b22bb3eee4ea02f92b6d5ea0c78825b837f0a",
+   "finished": "2026-11-25T08:45:57+00:00",
+   "flag_version": "rang_flag_20261125T084555Z",
+   "host": "glacier",
+   "pid": 433576,
+   "previous": null,
+   "seconds": 1.4414080000133254,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-25T08:45:55+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "data_group": "base",
+    "flag_sha256": "dcd68f1594af09e8418d8d4c215ae56083f00106257141b5e42cc96c9fe3e53a",
+    "flag_version": "rang_flag_20261125T084555Z",
+    "flagged_after": 0.8064121791294643,
+    "flagged_before": 0.468267822265625,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 140,
+    "steps": 12,
+    "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11-cli.ps.zarr",
+    "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  }
+ },
+ "telescope": "MeerKAT",
+ "updated": "2026-11-25T08:45:57+00:00",
+ "version": 1
+}
