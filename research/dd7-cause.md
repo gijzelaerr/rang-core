@@ -284,3 +284,12 @@ error (2, rank kept); 3. baseline-based misfit (1, 12 %); 4. off-axis
 incompleteness (4, rank kept); 5. noise (5). Stage 2 runs in this order
 (TS, then I0 and R3, then T1/T4 and R1/R1c, then R2, then T3), with T0
 first in each lane as the umbrella.
+
+**A3, 2026-11-25, setup fix (after R1 and I0-pin were read, before R1c
+was built).** R1c's random draw cannot meet ±10 % of R1's weight share in
+20,000 draws: the 145 bad baselines are 7.9 % of the baselines but 4.1 %
+of the unflagged weight (short, heavily flagged), so random sets of 145
+hold about 7.9 %. The control is now built by pairing each bad baseline,
+in random order (seed 7702), with the unused other baseline of nearest
+unflagged weight; the ±10 % check stands. R1, R1c, I0-pin and the setup
+lane ran alongside stage 1; none was read before A2.

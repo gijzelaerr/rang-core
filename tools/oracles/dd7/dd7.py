@@ -87,8 +87,10 @@ def linear_term(z, ok):
 def matched_control(
     bl_weight, exclude, count, target, rng, tol=CONTROL_TOL, draws=20000
 ):
-    """`count` baseline indices outside `exclude`, drawn at random until
-    their weight share is within `tol` (relative) of `target`."""
+    """`count` baseline indices outside `exclude` whose weight share is
+    within `tol` (relative) of `target`: random draws first; if none match
+    (A3), each excluded baseline, in random order, is paired with the unused
+    other baseline of nearest weight (ties broken at random)."""
     pool = np.flatnonzero(~exclude)
     total = bl_weight.sum()
     for i in range(draws):
@@ -96,6 +98,16 @@ def matched_control(
         share = bl_weight[pick].sum() / total
         if abs(share / target - 1.0) <= tol:
             return np.sort(pick), float(share), i + 1
+    free = list(rng.permutation(pool))
+    pick = []
+    for b in rng.permutation(np.flatnonzero(exclude))[:count]:
+        fw = bl_weight[np.array(free)]
+        j = int(np.argmin(np.abs(fw - bl_weight[b])))
+        pick.append(free.pop(j))
+    pick = np.array(pick)
+    share = bl_weight[pick].sum() / total
+    if abs(share / target - 1.0) <= tol:
+        return np.sort(pick), float(share), -1
     raise RuntimeError("no matched control within tolerance")
 
 

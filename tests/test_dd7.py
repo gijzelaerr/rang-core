@@ -96,3 +96,15 @@ def test_regen_noise_matches_dd5_draw():
     np.testing.assert_allclose(
         n[1, 2, 1], sd * (ref[1, 2, 1, 0] + 1j * ref[1, 2, 1, 1]), rtol=1e-6
     )
+
+
+def test_matched_control_falls_back_to_nearest_weight():
+    w = np.concatenate([np.full(20, 0.1), np.linspace(0.05, 3.0, 180)])
+    exclude = np.zeros(200, bool)
+    exclude[:20] = True
+    target = w[:20].sum() / w.sum()
+    pick, share, ndraw = dd7.matched_control(
+        w, exclude, 20, target, np.random.default_rng(7), draws=50
+    )
+    assert ndraw == -1 and len(set(pick)) == 20 and not exclude[pick].any()
+    assert abs(share / target - 1) <= dd7.CONTROL_TOL
