@@ -511,8 +511,10 @@ SCHEMA = {
             "statistic": _k(
                 "mad",
                 "choice",
-                "reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance",
-                ("classic", "mad"),
+                "reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance; "
+                "clipped, a 3-sigma clipped variance, robust and as efficient as classic "
+                "(issue #48, research/weights-48.md)",
+                ("classic", "mad", "clipped"),
             ),
             "minsamp": _k(
                 200,
@@ -524,6 +526,13 @@ SCHEMA = {
                 "int",
                 "reweight: running median over channel blocks that fills short blocks, "
                 "then the baseline's median (0: none, short blocks get weight 0)",
+            ),
+            "fill": _k(
+                True,
+                "bool",
+                "reweight: fill blocks still short after smooth from the same baseline "
+                "pooled over the field's scans, then the scan's median over baselines "
+                "(issue #48); false: they get weight 0, as statwt",
             ),
         },
     },
@@ -2136,6 +2145,7 @@ HASH_DEFAULTS = {
             "statistic": "mad",
             "minsamp": 200,
             "smooth": 5,
+            "fill": True,
         }
     },
 }

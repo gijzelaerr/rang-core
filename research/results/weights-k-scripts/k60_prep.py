@@ -13,7 +13,6 @@ import sys
 import time
 
 import numpy as np
-
 from rang import core_ms, core_ms_write, core_writeback
 from rang.formats import flagversions
 
@@ -42,7 +41,9 @@ def cut_off(ms, fid, names):
     out = {"baselines": len(allbl), "baselines_wholly_flagged": len(allbl - bl)}
     for name, a in names.items():
         linked = {q if p == a else p for p, q in bl if a in (p, q)}
-        out[f"cut_off_from_{name}"] = [x for x in range(nant) if x != a and x not in linked]
+        out[f"cut_off_from_{name}"] = [
+            x for x in range(nant) if x != a and x not in linked
+        ]
     return out
 
 
@@ -82,7 +83,7 @@ def main(ms, arm, out):
         finally:
             w.close()
         rec["primary_rows_from"] = AFTERCAL
-        rec["primary_rows"] = int(len(rows))
+        rec["primary_rows"] = len(rows)
     rec["flagged_after"] = fraction(ms)
     rec["primary"] = cut_off(ms, fid, names)
     rec["antenna_ids"] = names

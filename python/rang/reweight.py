@@ -11,13 +11,19 @@ Per baseline, time block (a scan, or `timebin` seconds within one) and block of
   `statwt(datacolumn='residual')`.
 
 A block's variance is `(var_re + var_im) / 2` (statwt's), by `classic` (statwt's
-estimator, divisor N) or `mad` (`(1.4826 MAD)^2`, robust to RFI residue), in
-the Rust core (`rang_core::reweight`). Blocks with fewer than `minsamp` valid
-samples are filled when `smooth > 0` (a running median of width `smooth` over
-the baseline's blocks, then the baseline's median) or get weight 0. Weights
-`1 / variance` go to WEIGHT_SPECTRUM, and WEIGHT gets each correlation's mean
-over the row's weighted channels; flags are not changed (statwt flags empty
-blocks).
+estimator, divisor N), `mad` (`(1.4826 MAD)^2`, robust to RFI residue) or
+`clipped` (issue #48, research/weights-48.md: an iteratively 3-sigma clipped
+variance with the exact truncation factor, as efficient as `classic` on
+Gaussian noise and robust to large outliers), in the Rust core
+(`rang_core::reweight`). Blocks with fewer than `minsamp` valid samples are
+filled, in order: when `smooth > 0`, a running median of width `smooth` over the
+group's blocks, then the group's median; when `fill` (issue #48), the same
+baseline and channel block pooled over the field's scans (the count-weighted
+mean of their estimates, when the pooled count reaches `minsamp`), then the
+median over the scan's baselines of that channel block. What stays empty gets
+weight 0. Weights `1 / variance` go to WEIGHT_SPECTRUM, and WEIGHT gets each
+correlation's median over the row's weighted channels; flags are not changed
+(statwt flags empty blocks).
 """
 
 import time
@@ -27,7 +33,7 @@ from dataclasses import dataclass
 import numpy as np
 
 MODES = ("off", "residual", "stokes_v")
-STATISTICS = ("classic", "mad")
+STATISTICS = ("classic", "mad", "clipped")
 XY, YX = 1, 2
 
 
@@ -39,6 +45,7 @@ class Settings:
     statistic: str = "mad"
     minsamp: int = 200
     smooth: int = 5
+    fill: bool = True
 
     @classmethod
     def of(cls, cfg):
@@ -118,8 +125,10 @@ def _nanmedian(x):
     return np.median(x) if x.size else np.nan
 
 
-def _groups(ms_rows, a1, a2, times, scans, timebin):
-    """Group index per row: (scan, time block, baseline) in first-seen order."""
+def _groups(ms_rows, a1, a2, times, scans, timebin, fields=None):
+    """Group index per row: (scan, time block, baseline) in sorted order, the
+    number of groups, and the groups' keys `(ngroup, 5)`: field (0 without
+    `fields`), scan, time block, antenna, antenna."""
     if timebin is None:
         tblock = np.zeros(len(times), np.int64)
     else:
@@ -129,13 +138,17 @@ def _groups(ms_rows, a1, a2, times, scans, timebin):
             tblock[m] = np.floor((times[m] - times[m].min()) / timebin).astype(np.int64)
     lo, hi = np.minimum(a1, a2), np.maximum(a1, a2)
     key = np.stack([scans, tblock, lo, hi], 1)
-    _, inverse = np.unique(key, axis=0, return_inverse=True)
-    return inverse.reshape(-1).astype(np.uint32), int(inverse.max()) + 1 if len(
-        key
-    ) else 0
+    uniq, inverse = np.unique(key, axis=0, return_inverse=True)
+    inverse = inverse.reshape(-1)
+    fld = np.zeros(len(uniq), np.int64)
+    if fields is not None and len(key):
+        fld[inverse] = np.asarray(fields, np.int64)
+    keys = np.concatenate([fld[:, None], uniq.reshape(-1, 4).astype(np.int64)], 1)
+    ngroup = int(inverse.max()) + 1 if len(key) else 0
+    return inverse.astype(np.uint32), ngroup, keys
 
 
-def estimate(read, rows, settings, nchan, fit=None, chans_per_read=None):
+def estimate(read, rows, settings, nchan, fit=None, chans_per_read=None, details=False):
     """Variances per (group, block[, correlation]) for the MS `rows` (one
     scan or several; groups never cross scans).
 
@@ -145,17 +158,21 @@ def estimate(read, rows, settings, nchan, fit=None, chans_per_read=None):
     row of the rows the statistics may use (default all). Returns
     `(group per row, var)`: var `(ngroup, nblock)` for `stokes_v` (the
     per-correlation variance `2 var(V)`) or `(ngroup, nblock, 4)` for
-    `residual`, after `regularise`."""
+    `residual`, after `regularise`. With `details`, a third item: a dict with
+    the groups' `keys` (`_groups`), the `raw` estimate of every block with a
+    sample and its `count`, for `fill`."""
     rows = np.asarray(rows, np.int64)
     a1, a2 = read("ANTENNA1", rows, None), read("ANTENNA2", rows, None)
     times, scans = read("TIME", rows, None), read("SCAN_NUMBER", rows, None)
-    group, ngroup = _groups(rows, a1, a2, times, scans, settings.timebin_s())
+    fields = read("FIELD_ID", rows, None) if details else None
+    group, ngroup, keys = _groups(rows, a1, a2, times, scans, settings.timebin_s(),
+                                  fields)  # fmt: skip
     flag_row = read("FLAG_ROW", rows, None).astype(bool) | (a1 == a2)
     if fit is not None:
         flag_row = flag_row | ~np.asarray(fit, bool)
     cb, stat, ms_ = int(settings.chanbin), settings.statistic, int(settings.minsamp)
     step = nchan if not chans_per_read else max(cb, int(chans_per_read) // cb * cb)
-    parts = []
+    parts, counts = [], []
     for c0 in range(0, nchan, step):
         chans = slice(c0, min(nchan, c0 + step))
         corrected = read("CORRECTED_DATA", rows, chans)
@@ -163,23 +180,112 @@ def estimate(read, rows, settings, nchan, fit=None, chans_per_read=None):
         if settings.mode == "stokes_v":
             v = (corrected[..., XY] - corrected[..., YX]) / 2j
             ok = ~(flag[..., XY] | flag[..., YX])
-            var, _ = block_variances(v, ok, group, ngroup, cb, stat, ms_)
+            var, count = block_variances(v, ok, group, ngroup, cb, stat, 1)
             parts.append(2.0 * var)
+            counts.append(count)
             continue
         res = corrected - read("MODEL_DATA", rows, chans)
-        per = []
+        per, cnt = [], []
         for c in range(res.shape[-1]):
-            var, _ = block_variances(
-                res[..., c], ~flag[..., c], group, ngroup, cb, stat, ms_
+            var, count = block_variances(
+                res[..., c], ~flag[..., c], group, ngroup, cb, stat, 1
             )
             per.append(var)
+            cnt.append(count)
         parts.append(np.stack(per, -1))
-    var = np.concatenate(parts, axis=1)
+        counts.append(np.stack(cnt, -1))
+    raw = np.concatenate(parts, axis=1)
+    count = np.concatenate(counts, axis=1)
+    var = np.where(count >= max(1, ms_), raw, np.nan)
     if var.ndim == 2:
-        return group, regularise(var, settings.smooth)
-    return group, np.stack(
-        [regularise(var[..., c], settings.smooth) for c in range(var.shape[-1])], -1
-    )
+        var = regularise(var, settings.smooth)
+    else:
+        var = np.stack(
+            [regularise(var[..., c], settings.smooth) for c in range(var.shape[-1])],
+            -1,
+        )
+    if details:
+        return group, var, {"keys": keys, "raw": raw, "count": count}
+    return group, var
+
+
+def fill(var, keys, raw, count, minsamp):
+    """Fill the NaN blocks of `var` (the groups of several scans,
+    concatenated; `keys` as `_groups`') in order: (1) the same field,
+    baseline and channel block pooled over its groups in every scan and time
+    block, the count-weighted mean of their `raw` estimates, when the pooled
+    `count` reaches `minsamp`; (2) the median over the baselines of the same
+    scan and time block of the finite values of that channel block. Returns
+    `(var, filled)`, `filled` the number of blocks (per correlation) filled at
+    each step."""
+    var = var.copy()
+    count = np.asarray(count)
+    raw = np.where((count > 0) & np.isfinite(raw), raw, 0.0)
+    filled = {"pooled": 0, "array": 0}
+    if not len(keys):
+        return var, filled
+    _, bl = np.unique(keys[:, [0, 3, 4]], axis=0, return_inverse=True)
+    bl = bl.reshape(-1)
+    shape = (int(bl.max()) + 1, *var.shape[1:])
+    wsum, csum = np.zeros(shape), np.zeros(shape)
+    np.add.at(wsum, bl, raw * count)
+    np.add.at(csum, bl, count.astype(np.float64))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        pooled = np.where(csum >= max(1, int(minsamp)), wsum / csum, np.nan)
+    hole = ~np.isfinite(var)
+    take = hole & np.isfinite(pooled[bl])
+    var[take] = pooled[bl][take]
+    filled["pooled"] = int(take.sum())
+    _, tb = np.unique(keys[:, [1, 2]], axis=0, return_inverse=True)
+    tb = tb.reshape(-1)
+    for t in np.unique(tb):
+        m = tb == t
+        block = var[m]
+        hole = ~np.isfinite(block)
+        if not hole.any():
+            continue
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            med = np.nanmedian(block, axis=0)
+        take = hole & np.isfinite(med)[None]
+        block[take] = np.broadcast_to(med, block.shape)[take]
+        var[m] = block
+        filled["array"] += int(take.sum())
+    return var, filled
+
+
+def estimate_rows(read, rows, settings, nchan, fit=None, chans_for_scan=None):
+    """`estimate` scan by scan over `rows`, then `fill` across the scans when
+    `settings.fill`. `chans_for_scan(nrow)` gives the channels per read for a
+    scan of `nrow` rows (default all); `fit` as `estimate`'s, per row of
+    `rows`. Returns `(gid, var, filled)`: `gid` the group of each of `rows` (in
+    `rows`' order) in the concatenated `var`."""
+    rows = np.asarray(rows, np.int64)
+    scans = read("SCAN_NUMBER", rows, None)
+    gid = np.zeros(len(rows), np.int64)
+    tables, keys, raws, counts, offset = [], [], [], [], 0
+    for s in np.unique(scans):
+        sel = np.flatnonzero(scans == s)
+        step = chans_for_scan(len(sel)) if chans_for_scan else None
+        group, var, extra = estimate(
+            read, rows[sel], settings, nchan,
+            fit=None if fit is None else np.asarray(fit, bool)[sel],
+            chans_per_read=step, details=True,
+        )  # fmt: skip
+        gid[sel] = group.astype(np.int64) + offset
+        offset += var.shape[0]
+        tables.append(var)
+        keys.append(extra["keys"])
+        raws.append(extra["raw"])
+        counts.append(extra["count"])
+    filled = {"pooled": 0, "array": 0}
+    if not tables:
+        return gid, np.zeros((0, 1)), filled
+    var = np.concatenate(tables, 0)
+    if settings.fill:
+        var, filled = fill(var, np.concatenate(keys, 0), np.concatenate(raws, 0),
+                           np.concatenate(counts, 0), settings.minsamp)  # fmt: skip
+    return gid, var, filled
 
 
 def weights_of(var, group, nchan, chanbin, ncorr=4):
@@ -230,25 +336,17 @@ def stage(w, rows, settings, chunk_rows, chans_per_read=None, budget_bytes=None)
     started = time.perf_counter()
     rows = np.unique(np.asarray(rows, np.int64))
     nchan, ncorr = w.cell
-    scans = w.read_rows("SCAN_NUMBER", rows)
-    # Per row of `rows`: the index of its group in the concatenated table.
-    gid = np.zeros(len(rows), np.int64)
-    tables, offset = [], 0
-    for s in np.unique(scans):
-        sel = np.flatnonzero(scans == s)
-        step = chans_per_read or chans_for(len(sel), nchan, ncorr, settings.chanbin,
+
+    def step(nrow):
+        return chans_per_read or chans_for(nrow, nchan, ncorr, settings.chanbin,
                                            budget_bytes)  # fmt: skip
-        group, var = estimate(
-            w.read_rows, rows[sel], settings, nchan, chans_per_read=step
-        )
-        gid[sel] = group.astype(np.int64) + offset
-        offset += var.shape[0]
-        tables.append(var)
-    var = np.concatenate(tables, 0) if tables else np.zeros((0, 1))
+
+    gid, var, filled = estimate_rows(w.read_rows, rows, settings, nchan,
+                                     chans_for_scan=step)  # fmt: skip
     w.ensure_column("WEIGHT_SPECTRUM")
     pos = np.full(w.nrows, -1, np.int64)
     pos[rows] = np.arange(len(rows))
-    written = 0
+    written = zero_unflagged = 0
     for start, n in w.chunks(chunk_rows):
         here = pos[start : start + n]
         mine = here >= 0
@@ -258,7 +356,9 @@ def stage(w, rows, settings, chunk_rows, chans_per_read=None, budget_bytes=None)
         wt = w.read("WEIGHT", start, n)
         new = weights_of(var, gid[here[mine]], nchan, settings.chanbin, ncorr)
         ws[mine] = new
-        wt[mine] = row_weight(new, w.read("FLAG", start, n)[mine])
+        flag = np.asarray(w.read("FLAG", start, n)[mine], bool)
+        wt[mine] = row_weight(new, flag)
+        zero_unflagged += int(np.count_nonzero((new == 0) & ~flag))
         w.write("WEIGHT_SPECTRUM", start, ws)
         w.write("WEIGHT", start, wt)
         written += int(mine.sum())
@@ -270,6 +370,9 @@ def stage(w, rows, settings, chunk_rows, chans_per_read=None, budget_bytes=None)
         "statistic": settings.statistic,
         "minsamp": int(settings.minsamp),
         "smooth": int(settings.smooth),
+        "fill": bool(settings.fill),
+        "filled_blocks": filled,
+        "unflagged_cells_at_weight_0": zero_unflagged,
         "rows": written,
         "groups": int(var.shape[0]),
         "blocks_with_weight": float(finite.mean()) if finite.size else 0.0,
