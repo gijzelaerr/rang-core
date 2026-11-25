@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # A Slurm cluster in rootless podman containers on one host
 # (research/multinode-2.md section 1.2): one controller `ctl` (also the login
 # node: the parent `rang-core` runs there) and NODES compute nodes n1..nN,

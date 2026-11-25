@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
 # An OpenPBS cluster in rootless podman containers on one host
 # (research/multinode-2.md section 1.2): a server `pbs` (pbs_server,
 # pbs_sched, pbs_comm and the PostgreSQL datastore; also the login node, where
