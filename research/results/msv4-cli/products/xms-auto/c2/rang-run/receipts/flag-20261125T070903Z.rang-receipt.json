@@ -1,0 +1,136 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "flag",
+  "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+  "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c2-cli.ps.zarr"
+ ],
+ "stage": "flag",
+ "verb": null,
+ "started_utc": "2026-11-25T07:09:03+00:00",
+ "commit": {
+  "head": "33d8b684beb68a5091b3838e594c014e6668a357",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/msv4-cli",
+  "distribution": "rang-core",
+  "version": "0.4.0",
+  "extension_sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.4.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/msv4-cli/python/rang/_core.pyd",
+   "sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "2",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": null,
+   "RANG_HEAVY_SLOTS": null,
+   "RANG_HEAVY_MEM_GB": null,
+   "RANG_HEAVY_NICE": null,
+   "RANG_HEAVY_LOCK_HELD": "2:4",
+   "RANG_HEAVY_LOCK_PID": "1250204",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/msv4-next-20261125/config-DATA-p1.yaml",
+   "kind": "file",
+   "bytes": 81,
+   "sha256": "e793476baa760bc57f58efc20d3661a92872a68ada131fdb52f4245021ee34fb"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c2-cli.ps.zarr",
+   "kind": "directory",
+   "files": 80,
+   "bytes": 4160027,
+   "listing_sha256": "43c2e008ba996ccd204bc9f86e8ffeb5cc364cbd1796e485efad78936808b50c"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c2-cli.ps.zarr",
+   "kind": "directory",
+   "files": 80,
+   "bytes": 4157957,
+   "listing_sha256": "ae9ce81ae1029b15b6bb26d783c6563ff2dde5c592a1a19936ad965d7c04d005",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c2-cli.ps.zarr.flagversions",
+   "kind": "directory",
+   "files": 10,
+   "bytes": 11512,
+   "tree_sha256": "89bb10444c6b80ff27f0c3a70d740695949354741455577119e906d1aa39dee0"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c2-cli.ps.zarr.rang-run",
+   "kind": "directory",
+   "files": 4,
+   "bytes": 8062,
+   "tree_sha256": "82ac4f5e4becc6dc09162672009217399764741712ca73b322e39c0b14dde024"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 5.1121732000028715,
+  "cpu_seconds": 5.0,
+  "peak_rss_mb": 113.515625
+ },
+ "exit": 0,
+ "verdict": null
+}

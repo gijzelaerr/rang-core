@@ -1,0 +1,117 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1
+  ],
+  "chunk_gb": 7.37499463558197,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6250053644180298,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 3866621,
+   "calibrate": 3866621,
+   "chain": 2577747,
+   "flag": 7733242,
+   "model": 3866621,
+   "rows": 10310989,
+   "selfcal": 5499194
+  },
+  "tasks": {
+   "flag-block": 2
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "3ac39bb4f0a4cf6736894201c90d693abba0546c526580caf163045143edd6a8",
+ "flag_version": "rang_flag_20261125T071131Z",
+ "flagged_after": 0.9074074074074074,
+ "flagged_before": 0.22106481481481483,
+ "groups": [
+  {
+   "core_seconds": 0.0036145999911241233,
+   "field": "F0",
+   "flagged_after": 0.7222222222222222,
+   "flagged_before": 0.22569444444444445,
+   "partition": "c9_partition_000",
+   "rows": 18,
+   "scan": "1"
+  },
+  {
+   "core_seconds": 0.003079499991144985,
+   "field": "F0",
+   "flagged_after": 1.0,
+   "flagged_before": 0.21875,
+   "partition": "c9_partition_001",
+   "rows": 18,
+   "scan": "1"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "uint8",
+   "flag_sha256": "28f9ff16b09caa7c4f72be63311d460385abc58e4e7590d134738c7d5372e181",
+   "flag_variable": "FLAG",
+   "flagged_cells": 208,
+   "groups": [
+    {
+     "core_seconds": 0.0036145999911241233,
+     "field": "F0",
+     "flagged_after": 0.7222222222222222,
+     "flagged_before": 0.22569444444444445,
+     "rows": 18,
+     "scan": "1"
+    }
+   ],
+   "name": "c9_partition_000",
+   "rows": 18,
+   "rows_flagged": 18,
+   "selected_flagged_after": 208,
+   "selected_flagged_before": 65,
+   "time_writes": 1
+  },
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "uint8",
+   "flag_sha256": "6c6897240943a4e1218c0016a09d07f5ce5f57fe99c390cad571e4c2adb30015",
+   "flag_variable": "FLAG",
+   "flagged_cells": 576,
+   "groups": [
+    {
+     "core_seconds": 0.003079499991144985,
+     "field": "F0",
+     "flagged_after": 1.0,
+     "flagged_before": 0.21875,
+     "rows": 18,
+     "scan": "1"
+    }
+   ],
+   "name": "c9_partition_001",
+   "rows": 18,
+   "rows_flagged": 18,
+   "selected_flagged_after": 576,
+   "selected_flagged_before": 126,
+   "time_writes": 1
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 36,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c9-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

@@ -510,6 +510,10 @@ Status: **measured, M2 pass.**
 - **M6 (2026-11-25, measured, pass: [msv4-flag-write.md](msv4-flag-write.md)):** the flag
   stage on a store through #3's chunk tasks, `FLAG` written back, the round
   trip checked against each writer's conversion of the MS flagged as MSv2.
+- **M7 (2026-11-25, measured, partial: [msv4-cli.md](msv4-cli.md)):**
+  `rang-core flag CONFIG STORE` with run directory, store flag versions and
+  journal; one miss, the summary's group key on xradio stores (field names
+  `<name>_<FIELD_ID>`).
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.

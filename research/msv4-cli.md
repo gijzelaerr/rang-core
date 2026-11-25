@@ -2,8 +2,11 @@
 
 2026-11-25, branch `msv4-cli`, gijzelaerr/rang-core issue #5 step M7 (v0.5.0;
 the write path is [msv4-flag-write.md](msv4-flag-write.md), M6, pass).
-Status: **proposed, frozen** (sections 1 to 6 are frozen in the commit that
-adds this note, before any code). Later changes are dated and labelled post
+Status: **measured, partial** (section 9: C1 to C5 and C7 hold on every
+measured case of both arms; C6 misses on the xradio arm only, on the group
+key, because xradio 1.3.1 names fields `<name>_<FIELD_ID>`). Sections 1 to 6
+were frozen in the commit that adds this note, before any code; amendments
+A1 and A2 before any run. Later changes are dated and labelled post
 hoc. No performance or science claim: the step checks that the command line
 on a store gives the bits of `rang.msv4.flag` and of the MSv2 command, keeps
 flag versions that round-trip exactly, and handles an interrupted write as
@@ -267,3 +270,95 @@ restoring `rang_rerun_<UTC>` gives `before`; and a version saved of the
 flagged store after the forced rerun (`rang.msv4_flags.save(store,
 "m7_flagged")`), restored after `rang_original`, gives `rang-p1` (a round
 trip of a flagged state). Nothing else changes.
+
+## 9. Measured result (2026-11-25)
+
+**Outcome under the frozen rule: partial** on the `xradio` arm (C6 misses,
+everything else holds); the `xms-auto` arm is **met** on every measure.
+Receipt [results/msv4-cli/receipt-01.json](results/msv4-cli/receipt-01.json),
+harness [msv4_cli.py](results/msv4-cli/msv4_cli.py), step logs beside it
+(`cli.json`, `kill.json`, `refuse.json`, `products.json`, `xcheck-02.json`),
+first-run run directories in [results/msv4-cli/products/](results/msv4-cli/products/).
+Run root `D:\rang\outputs\msv4-cli-20261125` (1.7 GB), host glacier
+(Windows), code `33d8b684`, the main checkout's `.venv` with `PYTHONPATH` at
+the worktree's `python/` (extension copied from the main checkout; `core/`
+and `src/` are unchanged on the branch), heavy lock 2 slots 4 GB,
+`RAYON_NUM_THREADS=2`. One run (01) of every step; xcheck run 01 stopped at
+start-up (the rebuilt xradio venv lacked dask, which `open_processing_set`
+needs; dask 2026.11.0 added), run 02 is the receipt's.
+
+| measure | xradio | xms-auto |
+| --- | --- | --- |
+| C1 CLI = `rang.msv4.flag` (every file) | 11/11 match | 11/11 match |
+| C2 CLI = MSv2 command converted (O1) | 10/10 match, c9 not measured | 10/10 match, c9 not measured |
+| C3 schema issues unchanged | 11/11 match | 11/11 match |
+| C4 versions round trip | 11/11 match | 11/11 match |
+| C5 interrupted writes, c5 and c6x | match | match |
+| C6 run directory products | **10/10 mismatch on `groups`** | 10/10 match |
+| C7 refusals (c5 store) | match | |
+
+(11 = c1 to c5, c6x, c8, c9, c10, c11, c11c; c10 is reported, c7 not
+measured.)
+
+- **C1:** every store `rang-core flag` wrote is byte-identical, file for
+  file, to M6's `rang-p1`, c9 (two partitions, 4 and 8 channels) included.
+- **C2, C3:** as M6: only the writers' timestamps differ from `oracle`
+  (excluded: they differ between `before` and `control`); schema issues as
+  on `before`.
+- **C4:** `rang_original` restored gives `before` byte for byte; `--force`
+  gives `rang-p1` again (restoring `rang_flag_<UTC>` after saving
+  `rang_rerun_<UTC>`); `rang_rerun_<UTC>` restored gives `before`; a saved
+  flagged version restored after `rang_original` gives `rang-p1` (A2).
+- **C5:** K1 (kill before any put): journal `written: []`, store unchanged;
+  the next run, same or fresh run directory, exits 0 with `rang-p1`; MSv2
+  the same. K2 (kill after the first partition's write): c6x's store holds
+  `rang-p1`'s FLAG in partition 0 and `before`'s in partitions 1 to 3, both
+  writers; a fresh run directory exits 1 (A1), names
+  `rang.msv4_flags.restore_flags` and the version, store unchanged; the same
+  run directory exits 0 with `rang-p1`. The MSv2 copies of c5 and c6x give
+  the same exit codes and end on the MSv2 run's FLAG (c6x's MSv2 FLAG is
+  mixed after the kill too). K3: the restore gives `before`, journal
+  `restored`; a fresh run directory then exits 0 with `rang-p1`; MSv2 the
+  same.
+- **C6:** with xarray-ms's stores the run directory matches the MSv2 run's
+  in every compared item. With xradio's, every item matches except
+  `groups`: xradio 1.3.1 writes `field_name` as `<name>_<FIELD_ID>`
+  (`J1939-6342_0`), and the store route reports the store's names (section
+  3), so the frozen key (field name, scan) differs. Post hoc, no rule: with
+  the `_<digits>` suffix stripped, the groups are equal in rows and both
+  fractions on all 10 cases (23 groups on c6x), and the suffix equals the
+  MSv2 group's `field_id` in every group. `flag_sha256` differs from the
+  MSv2's on every case (reported: the reader's row order is not the MS's).
+- **C7:** `calibrate`, `apply`, `image`, `selfcal` and `run` with
+  `[flag, calibrate]` exit 2 naming the store and M5; `flag.fields: ['0']`
+  exits 2; `config check` exits 0, and 2 with `['0']`; the store, its absent
+  `.flagversions` and absent run-directory state unchanged. Reported:
+  `rang-core watch --once --json` on a store's run directory exits 0.
+- **Cost** (reported, no claim): `rang-core flag` on a store 3.2-11.1 s wall
+  per command (stage 0.6-7.4 s; c6x 7.4 s against its MSv2 run's 6.7 s; c8
+  1.1 s against the MSv2 stage's 4.7 s, the gaps); the C4 sequence 3.4-12.6 s
+  per case.
+
+**For users:** on an xradio store `flag.fields` takes xradio's names
+(`J1939-6342_0`), not the MSv2's; xarray-ms keeps the MSv2 names. The
+how-to says so.
+
+**Task (proposed, for the coordinator):** decide the group's `field` on a
+store: keep the store's name (now), or report the MSv2 name and id where
+the writer encodes them; and whether `flag.fields` should accept MSv2 names
+on an xradio store. Either is a post hoc change with its own small gate.
+
+## For the coordinator
+
+Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2
+(before any run), code `33d8b684`, records after. **Partial** under the
+frozen rule. The command on a store gives `rang.msv4.flag`'s bytes and the
+MSv2 command's flags converted (both writers, every measured case); flag
+versions round-trip byte for byte; interrupted writes are refused and
+recovered as on an MSv2 (same exit codes); other stages are refused. The
+one miss is C6's group key on xradio stores (field names `<name>_<id>`).
+New module `rang.msv4_flags`; `core_pipeline.inspect_store`,
+`stage_flag_store`; `rang.msv4.flag` split into `prepare_flag` and
+`run_flag` (bytes unchanged, C1). No new `RANG_*` variable. The xradio
+reader venv in `~/Build/tmp/20261125-msv4-cli` is removed at hand-back; the
+run root on D: is kept until merge (1.7 GB).

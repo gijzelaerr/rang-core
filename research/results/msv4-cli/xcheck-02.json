@@ -1,0 +1,273 @@
+{
+ "c1/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c1_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c1/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c1_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c1_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c1_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c10/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c10_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c10/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c10_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c10_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c10_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c11/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c11_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c11/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c11_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c11c/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c11_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c11c/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c11_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c2/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c2_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c2/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c2_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c2_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c2_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c3/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c3_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c3/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c3_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c3_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c3_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c4/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c4_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c4/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c4_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c4_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c4_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c5/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c5_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c5/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c5_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c5_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c5_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c6x/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c6x_partition_000:attrs",
+   "/c6x_partition_001:attrs",
+   "/c6x_partition_002:attrs",
+   "/c6x_partition_003:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c6x/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c6x_0:attrs",
+   "/c6x_1:attrs",
+   "/c6x_2:attrs",
+   "/c6x_3:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c8/xms-auto": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c8_partition_000:attrs"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  }
+ },
+ "c8/xradio": {
+  "c2": "match",
+  "c3": "match",
+  "counted": [],
+  "differs": [
+   "/c8_0:attrs"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c8_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "cli": "\n * Schema issue with ['/c8_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c9/xms-auto": {
+  "c2": "not measured",
+  "c3": "match",
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  },
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ },
+ "c9/xradio": {
+  "c2": "not measured",
+  "c3": "match",
+  "schema_issues": {
+   "before": "No schema issues found",
+   "cli": "No schema issues found"
+  },
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ },
+ "versions": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "xarray": "2026.9.0",
+  "xradio": "1.3.1",
+  "zarr": "3.4.2"
+ }
+}
