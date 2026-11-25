@@ -354,9 +354,10 @@ apply:
     mode: "off"  # empirical weights after apply (issue #55, research/apply-reweight.md): off; stokes_v, from V = (XY - YX)/2i of the corrected data (linear feeds, empty V sky); residual, from CORRECTED_DATA - MODEL_DATA, as CASA statwt(datacolumn='residual')
     chanbin: 16  # reweight: channels per block
     timebin: scan  # reweight: scan (one block per scan) or seconds, such as 120s
-    statistic: mad  # reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance
+    statistic: mad  # reweight: mad, (1.4826 MAD)^2, robust; classic, CASA statwt's variance; clipped, a 3-sigma clipped variance, robust and as efficient as classic (issue #48, research/weights-48.md)
     minsamp: 200  # reweight: valid samples a block needs, else it is filled or 0
     smooth: 5  # reweight: running median over channel blocks that fills short blocks, then the baseline's median (0: none, short blocks get weight 0)
+    fill: true  # reweight: fill blocks still short after smooth from the same baseline pooled over the field's scans, then the scan's median over baselines (issue #48); false: they get weight 0, as statwt
   learned:
     mode: "off"  # off, or a learned mode (propose is the documented default when learning is on; replace only for products labelled approximate)
     weights: null  # the ONNX weights file of the learned mode

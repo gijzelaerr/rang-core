@@ -14,7 +14,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from rang import caltable, core_ms, core_ms_write
+from rang import core_ms, core_ms_write
+from rang.formats import caltable
 
 ROOT = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(

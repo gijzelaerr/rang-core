@@ -50,7 +50,7 @@ fn clipped(re: &mut [f64], im: &mut [f64]) -> f64 {
     let mut mr = median(&mut re.to_vec());
     let mut mi = median(&mut im.to_vec());
     let mut v = 0.5 * (mad(re) + mad(im));
-    if !(v > 0.0) {
+    if v.is_nan() || v <= 0.0 {
         return 0.5 * (classic(&zr) + classic(&zi));
     }
     let k = truncation_factor(CLIP);
@@ -90,7 +90,7 @@ fn clipped(re: &mut [f64], im: &mut [f64]) -> f64 {
             }
         }
         v = ss / (2.0 * nk) / k;
-        if !(v > 0.0) {
+        if v.is_nan() || v <= 0.0 {
             return 0.5 * (classic(&zr) + classic(&zi));
         }
     }
