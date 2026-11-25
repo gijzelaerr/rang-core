@@ -1023,6 +1023,7 @@ TOP_LEVEL = {
     "formats": "check PATH | convert IN OUT: read and write the tools' formats",
     "mcp": "[--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)",
     "watch": "PATH... [--once] [--json]: follow run or output directories, read-only",
+    "spool": "submit | status | stop SPOOL: spool workers, local or by Slurm or PBS",
 }
 # The stage functions that `run` (and `trend mirror`) call, looked up at call
 # time; the cabs call the same functions.
@@ -1752,6 +1753,10 @@ def dispatch(argv=None):
         from . import watch
 
         return watch.main(argv[1:])
+    if argv[0] == "spool":
+        from . import core_launch
+
+        return core_launch.main(argv[1:])
     if argv[0] == "research":
         return _research(argv[1:], options, pinned)
     if argv[0] in STAGES or argv[0] in RESEARCH_TOP_LEVEL:

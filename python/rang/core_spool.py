@@ -325,7 +325,13 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
 
     mine = build()
     worker = f"{socket.gethostname()}-{os.getpid()}-{uuid.uuid4().hex[:6]}"
-    info = dict(mine, host=socket.gethostname(), pid=os.getpid(), threads=threads)
+    info = dict(
+        mine,
+        host=socket.gethostname(),
+        pid=os.getpid(),
+        threads=threads,
+        scheduler_job=scheduler_job(),
+    )
     (root / "workers" / f"{worker}.json").write_text(
         json.dumps(info) + "\n", encoding="utf-8", newline="\n"
     )
@@ -375,8 +381,33 @@ def serve(spool, threads=None, idle_exit=None, log=print, max_tasks=None):
         beat.halt.set()
         for suffix in (".beat", ".json"):
             _unlink(root / "workers" / f"{worker}{suffix}")
-    log(f"spool worker {worker}: {ran} tasks, exiting")
+    log(f"spool worker {worker}: {ran} tasks, {_cpu_s():.1f} CPU-s, exiting")
     return ran
+
+
+# The batch scheduler's ids of this process, when a scheduler started it
+# (`rang-core spool submit`, research/multinode-2.md): recorded with the
+# worker, so `rang-core spool status` and a node-loss test can map a claim
+# to its job.
+SCHEDULER_IDS = (
+    "SLURM_JOB_ID",
+    "SLURM_ARRAY_JOB_ID",
+    "SLURM_ARRAY_TASK_ID",
+    "SLURMD_NODENAME",
+    "PBS_JOBID",
+    "PBS_ARRAY_INDEX",
+    "PBS_ARRAYID",
+)
+
+
+def scheduler_job():
+    return {k: os.environ[k] for k in SCHEDULER_IDS if os.environ.get(k)}
+
+
+def _cpu_s():
+    """CPU-seconds of this process (user + system), all its threads."""
+    t = os.times()
+    return t.user + t.system
 
 
 def stop(spool):
