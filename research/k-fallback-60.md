@@ -128,4 +128,13 @@ Not yet.
 
 ## 8. Amendments
 
-None yet.
+**A1, 2026-11-25 07:35 SAST, before any arm has run (copies still in progress; no rang or CASA K on
+arm B's flags read).** O1 and O2 already exist: e2n-followup's rerun ran CASA 6.7.6.14 `gaincal`
+K alone on exactly this flag state (`fu_casa3b.py k-only`; restored FLAG SHA-256 `58120750…1705`,
+equal to E2-N's `rang_apply_20261117T034709Z`), at m022 (`k-only-e2n`: the 19 flagged) and at m058
+(`k-only-m058`: 0 flagged), with E2-N's `casa_calls` K arguments. Its per-antenna delays are
+archived in [results/e2n-followup/rerun/fu-kcompare.json](results/e2n-followup/rerun/fu-kcompare.json)
+(`casa_e2n_tau_ns`, `casa_probe_m058_tau_ns`). K2 is scored against those archived values instead of
+a new CASA run; arm B's J1939−6342 FLAG and FLAG_ROW hashes are recorded by `k60_prep.py` and
+checked against that state's (the J1939 rows of the version) before scoring. A new CASA run is made
+only if the hashes differ. Tolerances and rule unchanged.
