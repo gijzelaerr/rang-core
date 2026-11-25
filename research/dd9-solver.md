@@ -309,4 +309,29 @@ QuartiCal beyond DD6's parity status.
 
 ## Amendments
 
-None yet.
+**A1, 2026-11-26, setup (code written and unit-tested on synthetic data,
+O rebuilt, sums built; no DD9 solve on O, B or real data run or read).**
+- O rebuilt (`dd8.insert`): GO passes; every `build.json` number equals
+  DD8's and `sky.npy` has DD8's SHA-256.
+- I1's rule as frozen in section 4 had QuartiCal's DI rule reversed:
+  QuartiCal (and `core/src/cal/diag.rs`) halves the update when `loop_idx`
+  is even and takes the full step when it is odd. I1 is that rule. The
+  predicted rate `sqrt(ρ(J_½ J_1))` is unchanged.
+- Section 4's runs (B-X, O-X, I1-I4) run without the global stop, so every
+  interval runs to cap 2000 and N_conv is defined for each. The cap-500
+  readings are unaffected: DD6's B-F-4 and DD8's O-X ran to the cap
+  without reaching the stop fraction, and GR checks the cap-500 values with
+  the stop active.
+- I4 runs the intervals one after another (the warm start needs the
+  previous interval's result), each to its cap without the global stop;
+  cap 500 and cap 2000 are separate sequential passes.
+- Part (b) keeps the global stop at 0.99, as the Rust kernel does; its
+  "cap 2000" is the solve with at most 2000 iterations.
+- bM is scored in four-direction form, with d3's gain equal to d1's. This
+  is exactly the merged model column.
+- N_pred per interval uses the larger ρ_full of the two hands, since
+  convergence needs both.
+- The unit tests (`tests/test_dd9.py`) show the reference equals the Rust
+  kernel on synthetic data, with flags identical and gains to 1e-9 at
+  1-40 iterations, pinned and free. I1-I3 reach the default's fixed point
+  there.
