@@ -1,0 +1,9 @@
+rang-core: flag: running
+rang-core: flag: done in 9164.2 s
+rang-core: calibrate: running
+rang-core: calibrate: done in 11923.9 s
+rang-core: apply: running
+rang-core: apply: done in 5214.7 s
+rang-core: image: running
+rang-core: image: done in 23531.8 s
+rang-core: receipt /home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/c3/rang-run/receipts/run-20261124T094914Z.rang-receipt.json

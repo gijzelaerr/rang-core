@@ -8,7 +8,7 @@ before any image of this rerun existed. It was written after both legs' 3c value
 had been read (they are in the notes above), so every reading here is **seen,
 post hoc**. No frozen verdict is rescored by it.
 
-Status: **both legs measured (E2-A 2026-11-23/24, E2-N 2026-11-24): on both the gap remains (not grid setup), and arm D puts it on rang's channel averaging** (E2-A 9.19e-6, E2-N 1.13e-6). E2-N's compact row is not met (scatter 2.81 %, original 2.68 %).
+Status: **both legs measured (E2-A 2026-11-23/24, E2-N 2026-11-24): on both the gap remains (not grid setup), and arm D puts it on rang's channel averaging** (E2-A 9.19e-6, E2-N 1.13e-6). E2-N's compact row is not met (scatter 2.81 %, original 2.68 %). Section 7 (post hoc diagnostic, 2026-11-25): without channel averaging, E2-N's compact scatter is 1.31 % (median 1.0001) against a matched averaged control of 2.41 %, so it is mostly the averaging; it is within 1.5 % but not within 3c's 1 %, and the control did not reproduce 6.2's 2.81 % because of WSClean's run-to-run play.
 
 ## 1. Why
 
@@ -352,3 +352,47 @@ The median is reported beside each reading. If A is not run, 2.81 % stands in fo
     so the full 6144² arms run.
   - The three clean jobs started 2026-11-25 03:06 SAST. U's running argv was diffed against
     `n-clean-gemclean-run.json`: only the venv, `-name`, the MS path and `-average-channels` (2 → 1) differ.
+- **Clean jobs**, run 2026-11-25 03:06 to 20:17. The host was shared and loaded at about 40 of 36 cores.
+
+| Arm | Wall | Peak RSS | Stop | Inner 0.7° (n, median, robust scatter) | Inner two thirds | Full image | Off-source rms ratio | median abs(Δα) (n 50) |
+| --- | ---: | ---: | --- | --- | --- | --- | ---: | ---: |
+| A (`-average-channels 2`) | 50,547 s | 61.3 GB | Threshold, 6 major cycles, 1,000,000 components, Q/Q0 4.16e-2 | 321, 0.9961, **2.41 %** | 507, 0.991, 2.57 % | 567, 0.988, 2.82 % | 0.915 | 0.0108 |
+| U (`-average-channels 1`) | 56,353 s | 72.4 GB | Components, 5 major cycles, 1,000,000 components, Q/Q0 4.67e-2 | 323, **1.0001**, **1.31 %** | 509, 1.000, 1.13 % | 568, 1.000, 1.11 % | 0.892 | 0.0068 |
+| WSClean 3.7 (`-j 8`) | 61,850 s | 28.6 GB | 1,000,000 components (3.22 Jy) | – | – | – | – | – |
+
+  - **Radial medians** (0-0.35°, 0.35-0.7°, 0.7-1.0°, 1.0-1.4° and 1.4-2.5°):
+    - A: 1.001, 0.995, 0.985, 0.967 and 0.939. The ratio falls with radius, as bandwidth smearing from the
+      averaging does.
+    - U: 0.998, 1.002, 1.000, 0.997 and 0.999. The ratio is flat.
+  - Scores: `g3c-n.json` (A) and `g3c-d.json` (U), both against the same new `ws-n`.
+- **Controls.**
+  - **A against 6.2: not reproduced.** A reads 2.41 % against 2.81 %, a difference of 0.40 points. That is
+    outside the frozen 0.3-point band, so the reading below is labelled "against products that do not
+    reproduce 6.2" and is made on the matched pair.
+  - **The difference is WSClean's.** A's GeMClean log equals 6.2's to every printed digit: each auto-mask
+    sigma and threshold, the stop and Q/Q0. The new WSClean clean departs from the archived one from its
+    third major iteration on: start peak −2.91 against −2.99 mJy, 12 against 11 minor-cycle starts, and
+    3.22 against 3.25 Jy in its 1,000,000 components. The data were the same, the binary the same and `-j 8`
+    the same. WSClean's multi-threaded multiscale clean therefore moves this row by about 0.4 points from run
+    to run, which is more than the 0.13 points assumed when the band was frozen.
+  - **Depth.** U hit the 1,000,000-component cap during its sixth minor cycle and stopped on Components
+    after 5 major cycles (Q/Q0 4.67e-2). A stopped on Threshold after 6 (4.16e-2). U is slightly shallower,
+    so depth is a confound. A shallower clean is expected to raise the scatter, not lower it.
+- **Reading (section 7 rule), against products that do not reproduce 6.2.** s_U = 1.31 %, with the median
+  1.0001.
+  - That falls in the band "**mostly the averaging**": within the brief's 1.5 % (median within 1 %), but not
+    within 3c's frozen 1 %.
+  - On the matched pair, s_A − s_U = 1.10 points. s_U is 1.10 points below 6.2's 2.81 %, and 1.37 points
+    below the e2n-followup target compact scatter of 2.40 %, which comes from a different oracle chain and is
+    not tested here.
+  - The median moves from 0.9961 to 1.0001, and the radial fall-off disappears.
+  - The remaining 1.31 % is not attributed. It is at most about 1 point above WSClean's own run-to-run play
+    measured here.
+  - The frozen verdicts do not change: gate 3c on E2-N is not met, and so is its compact row.
+- **Timings** (nash, nice/ionice, shared): copy 3,630 s; hash 123 s; wheel 350 s; `rang-core run` 49,898 s
+  (peak RSS 35.1 GB); R1 143 s; flag versions 475 s; unit 12 s; WSClean dirty 1,273 s; GeMClean dirty 2,132 s
+  and 2,273 s; the clean jobs as in the table; scoring 286 s and 201 s.
+- **Archive:** [results/gate3c-compact-avg/](results/gate3c-compact-avg/) holds the launcher `gca.sh`, the step
+  log, the `/usr/bin/time -v` records, the checks (copy hash, wheel, R1, R2, flag versions), the GeMClean and
+  WSClean logs and run records, the scores, and the run directory's `state.json`, `config.resolved.json` and
+  image summary. The run root was deleted after archiving.
