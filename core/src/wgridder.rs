@@ -1259,6 +1259,7 @@ impl Setup {
 /// (each chunk's visibilities placed in row-channel order), then a stable
 /// sort by first plane within each tile.
 fn layout<T: Real>(setup: &Setup, bl: &Baselines, act: &Activity) -> Layout {
+    trace_plan("layout", setup);
     let tiling = Tiling::new::<T>(setup);
     let nrow = bl.coord.len();
     let nchan = bl.f_over_c.len();
@@ -1757,6 +1758,16 @@ const COL_BLOCK: usize = 8;
 
 fn czero<T: Real>() -> Complex<T> {
     Complex::new(T::zero(), T::zero())
+}
+
+/// `RANG_GEMCLEAN_TRACE`: the start of a gridder stage and its plan.
+fn trace_plan(stage: &str, setup: &Setup) {
+    if crate::gemclean::memory::tracing() {
+        crate::gemclean::memory::trace(&format!(
+            "wgridder {stage}: {} x {} image, grid {} x {}, support {}, {} planes, {} visibilities",
+            setup.nx, setup.ny, setup.nu, setup.nv, setup.supp, setup.nplanes, setup.plan.nvis
+        ));
+    }
 }
 
 /// Optional phase-timing report on stderr (`RANG_WGRIDDER_TIMING` set).
@@ -2583,6 +2594,7 @@ fn grid_images_from<T: Real>(
     prestored: bool,
     mut timer: Timer,
 ) -> Plan {
+    trace_plan(if prestored { "grid (residual)" } else { "grid" }, setup);
     // A dirty image alone stores data values; a PSF (alone or with the
     // dirty image) stores unit values, the dirty value formed per plane.
     let both = dirty.is_some() && psf.is_some();
@@ -3046,6 +3058,7 @@ fn degrid_images<T: Real>(
     sorted: bool,
     mut timer: Timer,
 ) -> Plan {
+    trace_plan("degrid", setup);
     let (nx, ny) = (setup.nx, setup.ny);
     // The corrected copy of the image (dirty2grid_pre / apply_global_corrections).
     let mut image: Vec<T> = dirty.to_vec();
