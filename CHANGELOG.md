@@ -9,6 +9,15 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `apply.reweight` (off by default): a new statistic, `clipped`, an iteratively 3σ-clipped variance
+  with the exact truncation factor, now the stage's default (was `mad`). On simulations with known
+  noise it is as efficient as statwt's `classic` (e within 0.0017 of the block-ideal floor, `mad`
+  0.0045) and keeps its median ratio at 1.003 with 1 % of 100× outliers (`classic` 0.011, `mad`
+  0.96). Blocks short of `minsamp` are now filled from the same baseline pooled over the field's
+  scans, then from the scan's median over baselines (`fill: true`; `false` gives statwt's weight 0),
+  so short calibrator scans no longer get weight 0. **Behaviour change for a non-off mode:** `smooth`
+  now fills only the short blocks, as documented; it used to replace every block by the running
+  median, which flattened the channel shape of the weights (#48, `research/weights-48.md`).
 - **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
   every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,
   snapshot and candidate of a run without `--weights` changes on a Measurement Set whose weights
