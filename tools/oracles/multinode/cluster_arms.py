@@ -170,11 +170,14 @@ def _killer(sp, spool, record, halt, cwd):
                 "unix": time.time(),
             }
             if sp["event"] == "cancel":
-                jid = job.get("SLURM_JOB_ID") or job.get("PBS_JOBID")
                 if sp["scheduler"] == "slurm":
+                    # ARRAY_TASK, not SLURM_JOB_ID: the last task's job id
+                    # equals the array's, and `scancel <array id>` cancels
+                    # every task (the void SlKill run of 2026-11-25).
+                    jid = f"{job['SLURM_ARRAY_JOB_ID']}_{job['SLURM_ARRAY_TASK_ID']}"
                     cmd = ["scancel", jid]
                 else:
-                    cmd = ["qdel", "-W", "force", jid]
+                    cmd = ["qdel", "-W", "force", job["PBS_JOBID"]]
                 p = login(sp["scheduler"], cmd, cwd)
                 ev["command"] = cmd
                 ev["exit"] = p.returncode
