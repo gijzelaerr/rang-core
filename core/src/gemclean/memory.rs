@@ -271,6 +271,7 @@ fn resident() -> (Option<u64>, Option<u64>, Option<u64>) {
 
 /// End the current phase under `label` and start the next.
 pub fn mark(label: &str) {
+    trace(label);
     if !counting() {
         return;
     }
@@ -287,6 +288,32 @@ pub fn mark(label: &str) {
         swap,
     };
     PHASES.lock().expect("no panic while recording").push(phase);
+}
+
+/// With `RANG_GEMCLEAN_TRACE` set, one line on stderr per stage as it is
+/// reached: seconds since the first line, the stage, the thread count and
+/// the resident set (Linux). Unbuffered, so the last line before a crash
+/// names the stage that crashed (issue #57, research/gemclean-57.md).
+pub fn trace(label: &str) {
+    static START: std::sync::OnceLock<Option<std::time::Instant>> = std::sync::OnceLock::new();
+    let Some(t0) = START
+        .get_or_init(|| std::env::var_os("RANG_GEMCLEAN_TRACE").map(|_| std::time::Instant::now()))
+    else {
+        return;
+    };
+    let rss = resident()
+        .0
+        .map_or(String::new(), |b| format!(", rss {:.2} GB", b as f64 / 1e9));
+    eprintln!(
+        "gemclean trace {:.3} s: {label} ({} threads{rss})",
+        t0.elapsed().as_secs_f64(),
+        rayon::current_num_threads()
+    );
+}
+
+/// Whether [`trace`] prints (`RANG_GEMCLEAN_TRACE` set).
+pub fn tracing() -> bool {
+    std::env::var_os("RANG_GEMCLEAN_TRACE").is_some()
 }
 
 /// Record the size of a buffer.

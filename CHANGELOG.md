@@ -9,6 +9,11 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- **`RANG_GEMCLEAN_TRACE`** (new, output only): one unbuffered stderr line as each gemclean and
+  w-gridder stage starts (read, weights, each channel's 2n PSF, each grid, degrid and layout pass with
+  its grid, support, planes and visibility count, each residual), with seconds, threads and resident
+  set, so the last line before a crash names the stage. For #57 (an intermittent SIGSEGV, not yet
+  reproduced; `research/gemclean-57.md`). Images are unchanged.
 - **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
   every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,
   snapshot and candidate of a run without `--weights` changes on a Measurement Set whose weights

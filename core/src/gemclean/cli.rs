@@ -1948,7 +1948,9 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             .map(|b| b.max(args.tapers.gaussian_beam))
             .reduce(f64::min)
     });
+    memory::trace("theoretic beams done");
     for (k, c) in chans.into_iter().enumerate() {
+        memory::trace(&format!("channel {k}: measurement and 2n PSF"));
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
             c.freq,
