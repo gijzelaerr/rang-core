@@ -4,7 +4,9 @@
 the write path is [msv4-flag-write.md](msv4-flag-write.md), M6, pass).
 Status: **measured, partial** (section 9: C1 to C5 and C7 hold on every
 measured case of both arms; C6 misses on the xradio arm only, on the group
-key, because xradio 1.3.1 names fields `<name>_<FIELD_ID>`). Sections 1 to 6
+key, because xradio 1.3.1 names fields `<name>_<FIELD_ID>`). Post hoc
+follow-up (amendment A3, section 10; result section 11): MSv2 field names
+and ids in the groups; C1 and C6 re-measured, **pass** on both arms. Sections 1 to 6
 were frozen in the commit that adds this note, before any code; amendments
 A1 and A2 before any run. Later changes are dated and labelled post
 hoc. No performance or science claim: the step checks that the command line
@@ -341,12 +343,110 @@ measured.)
 
 **For users:** on an xradio store `flag.fields` takes xradio's names
 (`J1939-6342_0`), not the MSv2's; xarray-ms keeps the MSv2 names. The
-how-to says so.
+how-to says so. (Superseded by A3, section 10: MSv2 names work on both.)
 
 **Task (proposed, for the coordinator):** decide the group's `field` on a
 store: keep the store's name (now), or report the MSv2 name and id where
 the writer encodes them; and whether `flag.fields` should accept MSv2 names
 on an xradio store. Either is a post hoc change with its own small gate.
+
+## 10. Amendment A3: MSv2 field names on xradio stores (2026-11-25, **post hoc**, after run 01)
+
+Written after section 9's run 01 and before any code of the fix (branch
+`msv4-fields`), on the coordinator's decision of 2026-11-25: a store's
+group reports the MSv2 field name and field id, with the `_<id>` suffix
+stripped only when it equals the field's id; `flag.fields` takes the MSv2
+name on an xradio store, the stored name staying an alias.
+
+**Probe (read, not run).** xradio 1.3.1
+(`measurement_set/_utils/_msv2/create_field_and_source_xds.py`) writes every
+field name as `NAME + "_" + FIELD_ID` and then drops `field_id` from the
+field-and-source dataset; for single-dish data it keeps a `FIELD_ID` data
+variable over `field_name`. An interferometric xradio store therefore holds
+the id only in the name's suffix: no attribute, coordinate or variable of
+the partitions, their `field_and_source_base_xds` or the root carries it
+(c6x's store checked). xarray-ms 0.5.14 keeps the MSv2 name and no id.
+**Deviation:** "the id from the store's metadata" cannot be met on an
+interferometric xradio store; the rule below takes the id from xradio's
+documented naming, gated by the writer, anchored, and checked store-wide,
+and C6 checks it against the MSv2 run's `field_id`.
+
+**Rule** (`rang.msv4`, one map per store, from stored name to MSv2 name and
+id):
+
+1. Where a partition's field-and-source dataset has a `FIELD_ID` variable
+   over `field_name`, that is the id; the suffix is stripped only where the
+   stored name ends in exactly `_<that id>`.
+2. Otherwise, only when every partition's `creator.software_name` is
+   `xradio`: every field name of the store (the per-time `field_name` of
+   every partition and the field-and-source `field_name`) must match
+   `^(.+)_(0|[1-9][0-9]*)$`, and each id must have one stem in the whole
+   store; then the stem is the MSv2 name and the digits the id. If any name
+   or id fails, no name is changed (all or none) and the ids are null.
+3. Any other writer (xarray-ms): the name as stored, id null.
+
+**Group record:** `field` is the MSv2 name, `field_id` the id (null when
+unknown), `store_field` the stored name; `scan`, `partition`, `rows`, the
+fractions and `core_seconds` as before. Grouping, row order, the task plan
+and the written bytes stay keyed on stored names (C1 cannot move).
+
+**`flag.fields`:** a token selects every field whose MSv2 name or stored
+name equals it (two fields with one MSv2 name are both selected, as
+`core_pipeline.resolve_fields` does on an MSv2). A token that is one
+field's MSv2 name and another field's stored name is refused (exit 2, both
+named). Ids and roles stay refused on a store (C7 unchanged).
+
+**Measurement (re-run of C1 and C6, rule restated).** New run root
+`D:\rang\outputs\msv4-fields-20261125`; M6's root read only, every store a
+copy in the new root; runs numbered from 01. Cases as section 4.
+
+- **C1 (deciding):** every store `rang-core flag` writes is byte-identical,
+  file for file, to M6's `rang-p1` of the case and arm.
+- **C6 (deciding):** the run-directory products equal the MSv2 run's, as
+  section 4 defines them, on every case with an MSv2 run (c9 has none), for
+  **both** backends (`xradio` and `xms-auto` deciding); the comparator is
+  M7's `products` step with its frozen keys, unchanged. Declared addition:
+  on `xradio` every group's `field_id` equals the MSv2 group's of the same
+  (field, scan); on `xms-auto` it is null (asserted).
+- **Pass:** C1 and C6 hold on every measured case of both arms. **Fail**
+  otherwise; then the fix is not offered.
+
+**Caveat:** only c6x has field ids other than 0 (1, 2, 3); on every other
+case C6 cannot tell an id read from the suffix from a stripped `_0`. Unit
+tests cover nonzero ids, a stem that is itself `<x>_<digits>`, the
+collision refusal and the xarray-ms pass-through.
+
+## 11. Measured result of A3 (2026-11-25, post hoc)
+
+**Outcome under section 10's rule: pass.** Receipt
+[results/msv4-fields/receipt-01.json](results/msv4-fields/receipt-01.json),
+harness [msv4_fields.py](results/msv4-fields/msv4_fields.py) (imports M7's
+`msv4_cli.py`: its `cli` and `products` steps unchanged), step logs and
+run-directory snapshots beside it. Run root
+`D:\rang\outputs\msv4-fields-20261125` (570 MB), host glacier (Windows),
+code `929667dd` (fix `6e6746a4`), the main checkout's `.venv` with
+`PYTHONPATH` at the worktree's `python/` (extension copied from the main
+checkout; `core/`, `src/` unchanged), heavy lock 2 slots 4 GB,
+`RAYON_NUM_THREADS=2`. M6's root only read. One run (01); an earlier start
+stopped before any step (the lock's `bash` was WSL's, the worktree path
+unknown there; nothing written) and was restarted with Git Bash.
+
+| measure | xradio | xms-auto |
+| --- | --- | --- |
+| C1 CLI = `rang.msv4.flag` (every file) | 11/11 match | 11/11 match |
+| C6 run directory products (M7's frozen comparator) | 10/10 match | 10/10 match |
+| `field_id` = MSv2 group's (xradio) / null (xms-auto) | 10/10 match | 10/10 match |
+
+(c9 has no MSv2 run: C6 not measured; c10 reported, matches.)
+
+- c6x, xradio: 23 groups, stored names `J1939-6342_0`, `3C286-SIM_1`,
+  `SIM-GCAL_2`, `SIM-TARGET_3` reported as the MSv2 names with ids 0 to 3,
+  equal to the MSv2 run's `field_id`; xarray-ms: the same names, ids null.
+  Every other case has one field, id 0 (section 10's caveat).
+- C4 rerun inside M7's `cli` step: 22/22 match. `flag_sha256` differs from
+  the MSv2's on every case, as in section 9 (row order; reported).
+- Cost (reported): `rang-core flag` on a store 3.8-13.2 s per command; the
+  `cli` step 282 s (M7: 262 s).
 
 ## For the coordinator
 
@@ -365,3 +465,12 @@ run root on D: is kept until merge (1.7 GB).
 `rang-core run` with `run.stages: [flag]` on a store is covered by a unit
 test on m05, not by the measurement. No GitHub issue was opened for the
 task above.
+
+Follow-up, branch `msv4-fields` (A3, post hoc): amendment `c59c61a2`
+(before code), fix `6e6746a4`, harness `929667dd`, records after. **Pass**:
+C1 and C6 hold on both writers, every measured case. Deviation from the
+decision: an interferometric xradio 1.3.1 store keeps no field id outside
+the name (the converter drops `field_id`), so the id comes from xradio's
+`_<FIELD_ID>` naming, gated by the writer and checked store-wide, and is
+checked against the MSv2 run's `field_id`; only c6x has ids other than 0.
+Run root `D:\rang\outputs\msv4-fields-20261125` (570 MB) kept until merge.

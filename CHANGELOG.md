@@ -14,6 +14,10 @@ the release notes are the section of this file for that version.
   flag versions (`<store>.flagversions/`, byte copies of each partition's flag variable;
   `rang.msv4_flags.restore_flags`) and write-back journal. Other stages refuse a store (M5)
   (#5, `research/msv4-cli.md`).
+- On an xradio 1.3.1 store `flag.fields` takes the MSv2 field name (`J1939-6342`), the stored
+  `<name>_<FIELD_ID>` (`J1939-6342_0`) staying an alias, and the flag summary's groups report the
+  MSv2 `field`, `field_id` and `store_field`, so the run directory equals the MSv2 run's on both
+  writers; the flags written are unchanged (#5, `research/msv4-cli.md` amendment A3).
 
 - **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
   every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,

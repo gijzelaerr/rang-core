@@ -102,6 +102,10 @@ def test_cli_equals_api_and_keeps_a_run_directory(tmp_path, m05):
         p["name"] for p in summary["partitions"]
     }
     assert 0 <= summary["flagged_before"] <= summary["flagged_after"] <= 1
+    # xradio's `F0_0` is reported as the MSv2 field F0, id 0 (msv4-cli.md A3).
+    assert {
+        (g["field"], g["field_id"], g["store_field"]) for g in summary["groups"]
+    } == {("F0", 0, "F0_0")}
     from rang import msv4_flags
 
     assert [n for n, _ in msv4_flags.versions(store)] == [
@@ -268,3 +272,85 @@ def test_other_stages_and_bad_configs_are_refused_before_writing(tmp_path, m05):
     with pytest.raises(SystemExit) as exc:
         _cli("config", "check", bad, store, "--stage", "flag")
     assert exc.value.code == 2
+
+
+# --- MSv2 field names on a store (research/msv4-cli.md amendment A3) ----------
+
+
+class _Node:
+    def __init__(self, attrs, children=None, ds=None):
+        self.attrs, self.children, self.ds = attrs, children or {}, ds
+
+
+class _Part:
+    def __init__(self, names, writer="xradio", fs_names=None, fs_ids=None):
+        import numpy as np
+        import xarray as xr
+
+        self.field_name = np.asarray(names, dtype=object)
+        fs = xr.Dataset(coords={"field_name": list(fs_names or sorted(set(names)))})
+        if fs_ids is not None:
+            fs["FIELD_ID"] = ("field_name", list(fs_ids))
+        node = _Node({"type": "field_and_source"}, ds=fs)
+        self.node = _Node(
+            {"creator": {"software_name": writer}},
+            {"field_and_source_base_xds": node},
+        )
+
+
+def test_field_map_strips_xradio_ids():
+    parts = [_Part(["A_0", "A_0", "B_3"]), _Part(["A_1_4", "C_12"])]
+    assert msv4.field_map(parts) == {
+        "A_0": ("A", 0),
+        "B_3": ("B", 3),
+        "A_1_4": ("A_1", 4),
+        "C_12": ("C", 12),
+    }
+
+
+@pytest.mark.parametrize(
+    "specs",  # (names, writer) per partition, built in the test (xarray optional)
+    [
+        [(["A_0", "B"], "xradio")],  # one name without an id: none stripped
+        [(["A_1"], "xradio"), (["B_1"], "xradio")],  # one id, two stems
+        [(["A_01"], "xradio")],  # not xradio's decimal id
+        [(["NGC_1234"], "xarray-ms")],
+        [(["A_0"], "xradio"), (["B_1"], "xarray-ms")],  # mixed writers
+    ],
+)
+def test_field_map_keeps_names_it_cannot_read(specs):
+    fmap = msv4.field_map([_Part(names, writer=w) for names, w in specs])
+    assert fmap and all(fmap[n] == (n, None) for n in fmap)
+
+
+def test_field_map_reads_a_field_id_variable():
+    part = _Part(["S_7", "T_7"], writer="xarray-ms", fs_ids=[7, 2])
+    assert msv4.field_map([part]) == {"S_7": ("S", 7), "T_7": ("T_7", 2)}
+
+
+def test_fields_take_msv2_and_stored_names():
+    fmap = msv4.field_map([_Part(["A_0", "A_2", "B_1", "A_1_4"])])
+    sel = msv4._selected_fields
+    assert sel(["all"], fmap) is None
+    assert sel(["A"], fmap) == {"A_0", "A_2"}  # one MSv2 name, two ids: both
+    assert sel(["A_2"], fmap) == {"A_2"}  # the stored name as an alias
+    assert sel(["B", "A_1_4"], fmap) == {"B_1", "A_1_4"}
+    with pytest.raises(ValueError, match="roles and ids"):
+        sel(["0"], fmap)
+    fmap = msv4.field_map([_Part(["A_1", "A_1_4"])])
+    with pytest.raises(ValueError, match="ambiguous"):
+        sel(["A_1"], fmap)  # stored name of A (1), MSv2 name of A_1 (4)
+    assert sel(["A_1_4"], fmap) == {"A_1_4"}
+
+
+@pytest.mark.parametrize("token", ["F0", "F0_0"])
+def test_cli_fields_by_msv2_or_stored_name(tmp_path, m05, token):
+    store = _store(tmp_path, m05)
+    config = tmp_path / "c.yaml"
+    config.write_text(
+        f"version: 1\nflag: {{strategy: {STRATEGY.as_posix()}, fields: [{token}]}}\n",
+        encoding="utf-8",
+    )
+    _cli("config", "check", config, store, "--stage", "flag")
+    _cli("flag", config, store)
+    assert _files(store) == m05[1]  # F0 is the store's one field
