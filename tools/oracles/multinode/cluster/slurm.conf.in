@@ -1,0 +1,28 @@
+# A containerised Slurm cluster for research/multinode-2.md (rootless podman).
+ClusterName=rangmn
+SlurmctldHost=ctl
+SlurmUser=root
+SlurmdUser=root
+AuthType=auth/munge
+CredType=cred/munge
+ProctrackType=proctrack/linuxproc
+TaskPlugin=task/none
+SelectType=select/cons_tres
+SelectTypeParameters=CR_Core_Memory
+JobAcctGatherType=jobacct_gather/linux
+JobAcctGatherFrequency=10
+SchedulerType=sched/backfill
+StateSaveLocation=/var/spool/slurmctld
+SlurmdSpoolDir=/var/spool/slurmd
+SlurmctldPidFile=/run/slurmctld.pid
+SlurmdPidFile=/run/slurmd.pid
+ReturnToService=2
+SlurmdTimeout=30
+InactiveLimit=0
+KillWait=10
+MpiDefault=none
+SlurmdParameters=config_overrides
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdLogFile=/var/log/slurm/slurmd.log
+NodeName=n[1-@NODES@] CPUs=@CPUS@ RealMemory=@MEM_MB@ State=UNKNOWN
+PartitionName=main Nodes=ALL Default=YES MaxTime=INFINITE State=UP OverSubscribe=NO
