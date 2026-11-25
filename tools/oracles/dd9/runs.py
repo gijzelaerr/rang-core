@@ -599,7 +599,8 @@ def partc_real(root, arms=None):
     bad_mask = S0.mask_of(dd7.bad_pairs())
     assert not (held_mask & bad_mask).any()
     drop = held_mask | bad_mask
-    rule = json.loads((root / "solve" / "partb-O.json").read_text())["rule"]
+    pbo = root / "solve" / "partb-O.json"
+    rule = json.loads(pbo.read_text())["rule"] if pbo.exists() else {"best": None}
     best = rule["best"]
     given = arms
     if arms:
@@ -628,10 +629,12 @@ def partc_real(root, arms=None):
     )
     sc = score_set(S0, sols, np.flatnonzero(held_mask), k, "real")
     rec["score"] = sc
-    val = json.loads((root / "score" / "O-H.json").read_text())
-    rec["called"] = (
-        "accuracy proxy" if val["tracks_truth_on_O"] else "predictive quality only"
-    )
+    vp = root / "score" / "O-H.json"
+    if vp.exists():
+        val = json.loads(vp.read_text())
+        rec["called"] = (
+            "accuracy proxy" if val["tracks_truth_on_O"] else "predictive quality only"
+        )
     if best:
         pr = sc["pairs"][f"real-b0 - real-{best}"]
         rec["reading"] = ("the constraint predicts better" if pr["significant"] and pr["median"] > 0 else
