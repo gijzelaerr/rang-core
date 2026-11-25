@@ -1,13 +1,14 @@
 ---
 name: rang-digest
-description: Weekly ra-ng literature digest. Searches arXiv and release APIs for new work in RFI flagging, calibration, imaging, MeerKAT/SKA-Mid, LOFAR 2.0, pulsars/FRBs/GRBs, VLBI/EHT and agentic tools; writes research/digests/<date>.md and at most five proposal stubs in research/proposals/; never edits code; ends with a commit on a branch for the coordinator. Use when asked for "the digest", "this week's literature", or task V4.
+description: Weekly ra-ng literature digest. Searches arXiv and release APIs for new work in RFI flagging, calibration, imaging, MeerKAT/SKA-Mid, LOFAR 2.0, pulsars/FRBs/GRBs, VLBI/EHT and agentic tools; writes research/digests/<date>.md and at most five proposal stubs in research/proposals/; opens a GitHub issue on a release milestone for each stub and each result-changing oracle or dependency release; never edits code; ends with a commit on a branch for the coordinator. Use when asked for "the digest", "this week's literature", or task V4.
 ---
 
 # rang-digest: the weekly literature digest
 
 Owner's cadence: one digest a week (2026-11-11). Skills propose and measure;
 they never merge (research/vision.md section 6). This skill **writes markdown
-only**.
+and opens investigation issues only** (owner, 2026-11-25): it never edits
+code, comments on or closes existing issues, or touches pull requests.
 
 ## Allowed paths
 
@@ -111,6 +112,34 @@ exists; pick a new slug and link the old one.
    comparison against the state of the art the AGENTS.md novelty rule needs,
    including a tuned strongest baseline, not a weak one; owner decisions.
    Do not repeat an open proposal; extend it in a new file if needed.
+7b. **Issues** (owner, 2026-11-25), so later agents can pick the work up.
+   Open one GitHub issue (`gh issue create`, repository `gijzelaerr/rang-core`)
+   for each proposal stub, and one for each oracle-pin or dependency release
+   that changes results rang relies on (a fixed bug or changed default in an
+   oracle such as PRESTO, WSClean, QuartiCal, CASA, or a pinned dependency
+   such as katdal). Nothing else gets an issue: other relevant items stay in
+   the digest. At most seven issues a week.
+   - **Duplicates first:** `gh issue list --state all --search "<keywords>"`;
+     if an open issue already covers it, do not open one; name it in the
+     digest instead. Never comment on, edit or close an existing issue.
+   - **Title:** `Investigate: <what>` (under 80 characters).
+   - **Body** (the tracker is public: facts and links only, no private
+     names, chats, hosts' credentials or unpublished data): the source (paper
+     link or release notes), one paragraph on what it could change in rang
+     naming the file, stage or issue it touches, the stub's path on the
+     digest branch (`research/proposals/<slug>.md`), the closed lines it must
+     not reopen without an owner decision, and "Opened by the weekly digest
+     <date>; nothing built or measured."
+   - **Labels:** `enhancement` plus the matching `area: ...` or `telescope:
+     ...` label from `gh label list`; never create labels.
+   - **Milestone:** choose per item from `research/roadmap.md` and
+     `gh api repos/gijzelaerr/rang-core/milestones`: the open release whose
+     theme or issues it serves (for example v0.5.0 for UHF, S band, scale and
+     time-domain products), the next one if it extends a task already there,
+     `Later` if no release covers it. Say why in one line in the body. Never
+     create milestones.
+   - Put each issue's number next to its stub in the digest's ranked list,
+     and in the stub's status line, before committing.
 8. **Verify.** Extract every arXiv ID from the new files and re-query with
    `id_list`; compare title and first author; fix or drop mismatches. If
    the API is still rate-limited, use the `arXivRaw` `GetRecord` fetches
@@ -129,7 +158,7 @@ exists; pick a new slug and link the old one.
     (`gijsmolenaar@gmail.com`), message `digest <date>: ...`, **no
     co-author trailer or AI footer**. Do not push to main. Hand back in at most
     15 lines, numbers first: item count per area, the ranked proposals one
-    line each, the branch name.
+    line each with their issue numbers and milestones, the branch name.
 
 ## Not in this skill
 
