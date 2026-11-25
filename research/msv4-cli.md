@@ -348,6 +348,72 @@ store: keep the store's name (now), or report the MSv2 name and id where
 the writer encodes them; and whether `flag.fields` should accept MSv2 names
 on an xradio store. Either is a post hoc change with its own small gate.
 
+## 10. Amendment A3: MSv2 field names on xradio stores (2026-11-25, **post hoc**, after run 01)
+
+Written after section 9's run 01 and before any code of the fix (branch
+`msv4-fields`), on the coordinator's decision of 2026-11-25: a store's
+group reports the MSv2 field name and field id, with the `_<id>` suffix
+stripped only when it equals the field's id; `flag.fields` takes the MSv2
+name on an xradio store, the stored name staying an alias.
+
+**Probe (read, not run).** xradio 1.3.1
+(`measurement_set/_utils/_msv2/create_field_and_source_xds.py`) writes every
+field name as `NAME + "_" + FIELD_ID` and then drops `field_id` from the
+field-and-source dataset; for single-dish data it keeps a `FIELD_ID` data
+variable over `field_name`. An interferometric xradio store therefore holds
+the id only in the name's suffix: no attribute, coordinate or variable of
+the partitions, their `field_and_source_base_xds` or the root carries it
+(c6x's store checked). xarray-ms 0.5.14 keeps the MSv2 name and no id.
+**Deviation:** "the id from the store's metadata" cannot be met on an
+interferometric xradio store; the rule below takes the id from xradio's
+documented naming, gated by the writer, anchored, and checked store-wide,
+and C6 checks it against the MSv2 run's `field_id`.
+
+**Rule** (`rang.msv4`, one map per store, from stored name to MSv2 name and
+id):
+
+1. Where a partition's field-and-source dataset has a `FIELD_ID` variable
+   over `field_name`, that is the id; the suffix is stripped only where the
+   stored name ends in exactly `_<that id>`.
+2. Otherwise, only when every partition's `creator.software_name` is
+   `xradio`: every field name of the store (the per-time `field_name` of
+   every partition and the field-and-source `field_name`) must match
+   `^(.+)_(0|[1-9][0-9]*)$`, and each id must have one stem in the whole
+   store; then the stem is the MSv2 name and the digits the id. If any name
+   or id fails, no name is changed (all or none) and the ids are null.
+3. Any other writer (xarray-ms): the name as stored, id null.
+
+**Group record:** `field` is the MSv2 name, `field_id` the id (null when
+unknown), `store_field` the stored name; `scan`, `partition`, `rows`, the
+fractions and `core_seconds` as before. Grouping, row order, the task plan
+and the written bytes stay keyed on stored names (C1 cannot move).
+
+**`flag.fields`:** a token selects every field whose MSv2 name or stored
+name equals it (two fields with one MSv2 name are both selected, as
+`core_pipeline.resolve_fields` does on an MSv2). A token that is one
+field's MSv2 name and another field's stored name is refused (exit 2, both
+named). Ids and roles stay refused on a store (C7 unchanged).
+
+**Measurement (re-run of C1 and C6, rule restated).** New run root
+`D:\rang\outputs\msv4-fields-20261125`; M6's root read only, every store a
+copy in the new root; runs numbered from 01. Cases as section 4.
+
+- **C1 (deciding):** every store `rang-core flag` writes is byte-identical,
+  file for file, to M6's `rang-p1` of the case and arm.
+- **C6 (deciding):** the run-directory products equal the MSv2 run's, as
+  section 4 defines them, on every case with an MSv2 run (c9 has none), for
+  **both** backends (`xradio` and `xms-auto` deciding); the comparator is
+  M7's `products` step with its frozen keys, unchanged. Declared addition:
+  on `xradio` every group's `field_id` equals the MSv2 group's of the same
+  (field, scan); on `xms-auto` it is null (asserted).
+- **Pass:** C1 and C6 hold on every measured case of both arms. **Fail**
+  otherwise; then the fix is not offered.
+
+**Caveat:** only c6x has field ids other than 0 (1, 2, 3); on every other
+case C6 cannot tell an id read from the suffix from a stripped `_0`. Unit
+tests cover nonzero ids, a stem that is itself `<x>_<digits>`, the
+collision refusal and the xarray-ms pass-through.
+
 ## For the coordinator
 
 Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2 `c0153729`
