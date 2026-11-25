@@ -250,3 +250,37 @@ against T0 free) / R3; 3 ↔ TS / R3; 4 ↔ none / R2; 5 ↔ T3 / none.
   2/64. The constant term's share is reported beside it.
 - The stage-1 inputs need G4's MF-4 and MF-64 points, so the order is: G1-G3,
   G4, `resid`, stage 1, the ranking amendment, then stage 2.
+
+**A2, 2026-11-25, the stage-1 ranking (section 5's frozen rule; after
+G1-G4 and stage 1, before any stage-2 arm was read).** G1-G4 pass: S1
+exact; RM 63.999 Jy, deep 65.771 Jy, as DD6; B's signal equals its predict
+to 2.7e-6 Jy; real P-4, MF-4 and MF-64 equal DD6 to every digit
+(`results/dd7-cause/setup/`). Stage 1 (`results/dd7-cause/stage1/stats.json`)
+on R64:
+- χ² 1.95: after the best real solve, the residual holds as much power
+  beyond k/w as the noise itself.
+- Candidate 1: the 145 bad baselines (4.1 % of the weight here) hold
+  12.4 % of the excess (χ² 3.87 against 1.87 elsewhere); baselines under
+  400 m 8.2 %. 84 % of the excess is on 400-4000 m baselines.
+- Candidate 3: the linear term across the band holds 0.116 of `Σ|z|²`
+  against 0.017 for noise, so 0.099, about 20 % of the excess; it peaks at
+  1-2 km (0.145). The constant term (frequency-flat, per row) holds 0.311
+  against 0.017, about 60 % of the excess; no candidate claims it by the
+  rule.
+- Candidate 5: k per hand 0.521 and 0.524 (ratio 0.995), flat to 0.3 %
+  over weight deciles and length bins; tails beyond 5σ 1.9e-5 (Gaussian
+  5.7e-7), too few to matter in power.
+- Candidate 2: d0's phase spread in MF-4 is 0.097 rad, of which the static
+  per-antenna part is 0.094 rad and the time-variable part 0.022 rad
+  (median), with a 0.005 rad median step between 32 s intervals; above
+  0.02 rad, so it keeps its rank. Amplitude 0.976-1.029 (p10-p90).
+- Candidate 4: the deep model has 4.43, 0.77 and 0.05 Jy in d1-d3 against
+  RM's 2.83, 0.45 and 0.20 Jy.
+- S1e: the per-interval off-axis fraction correlates weakly with χ²
+  (Spearman −0.28) and flags (−0.13).
+
+**Ranking:** 1. spectral structure (3, 20 % of the excess); 2. d0's gain
+error (2, rank kept); 3. baseline-based misfit (1, 12 %); 4. off-axis
+incompleteness (4, rank kept); 5. noise (5). Stage 2 runs in this order
+(TS, then I0 and R3, then T1/T4 and R1/R1c, then R2, then T3), with T0
+first in each lane as the umbrella.
