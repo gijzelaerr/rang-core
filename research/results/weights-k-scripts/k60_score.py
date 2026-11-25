@@ -79,7 +79,7 @@ def main(root, kcompare, out):
     taus = {}
     for arm in "ABC":
         cal = root / arm / "e2n.ms.rang-run" / "calibrate"
-        if not cal.exists():
+        if not (cal / "summary.json").exists():
             continue
         summ = json.loads((cal / "summary.json").read_text())
         r = {"refant_auto": summ.get("refant_auto"), "tables": {},
