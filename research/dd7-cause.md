@@ -239,3 +239,14 @@ against T0 free) / R3; 3 ↔ TS / R3; 4 ↔ none / R2; 5 ↔ T3 / none.
 - Expected 900-1,500 s per 4 × 8 s point (DD6), L2000 about 4×. Wall times
   go into [tool-timings.md](tool-timings.md). Built MS copies (about 2 GB
   each) are deleted at the end; the archive keeps the records.
+
+## Amendments
+
+**A1, 2026-11-25, setup (code written, nothing run or read).**
+- S1c's expectation for pure noise is wrong as frozen: the linear term
+  alone carries one complex degree of freedom per (row, hand), so its share
+  of `Σ|z|²` is `(rows × hands) / Σ n_unflagged`, about 1/64, not 2/64. The
+  code computes that exact expectation; the ranking rule uses it in place of
+  2/64. The constant term's share is reported beside it.
+- The stage-1 inputs need G4's MF-4 and MF-64 points, so the order is: G1-G3,
+  G4, `resid`, stage 1, the ranking amendment, then stage 2.
