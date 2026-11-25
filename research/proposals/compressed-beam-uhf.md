@@ -1,6 +1,7 @@
 # Proposal: a compact frequency-transformed beam model for MeerKAT UHF
 
-Status: **proposed, 2026-11-25 (digest [2026-11-25](../digests/2026-11-25.md), rank 1).
+Status: **proposed, 2026-11-25 (digest [2026-11-25](../digests/2026-11-25.md), rank 1;
+issue [#61](https://github.com/gijzelaerr/rang-core/issues/61), v0.5.0).
 Nothing built or measured. A storage and accuracy claim for a beam model;
 no calibration claim. Beam and pointing calibration (B1-3) stays closed.**
 

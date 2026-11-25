@@ -1,6 +1,7 @@
 # Proposal: Stokes V light curves and the TRON IV burst as a real-data control
 
-Status: **proposed, 2026-11-25 (digest [2026-11-25](../digests/2026-11-25.md), rank 2).
+Status: **proposed, 2026-11-25 (digest [2026-11-25](../digests/2026-11-25.md), rank 2;
+issue [#62](https://github.com/gijzelaerr/rang-core/issues/62), v0.6.0).
 Nothing built or measured. A correctness and detection claim on one
 published event; no novelty claim.**
 
