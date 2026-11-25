@@ -7,7 +7,7 @@ imaging follows from it. Sections 1-8 are frozen 2026-11-25, before the code
 that runs them and before any measurement. Later changes are dated
 amendments, written before the reading they affect.
 
-Status: **proposed** (frozen, nothing run).
+Status: **measured 2026-11-25.** Q1: the real-size off-axis model gap inserted into the exact simulation B (O) reproduces the real d0-free failure and its pattern (O-F 0.018, 0.009, 0.000 at cap 500; lifted at cap 2000, 0.486, 0.424, 0.308, and at 64 × 8 s), with gains 15-295 × the noise prediction off wherever it converges; by the frozen table the reading is **confounded**, because the exact-model control also slows (O-X 0.540, 0.464, 0.449, weakens) while staying accurate (e/ê 1.1-1.2). Q2: the held-out-baseline measure passes V1 and V2 and is indistinct on V3, so on real data it reads predictive quality only; it shows that with RM the weak facet d3's gains run away (|g| to 58 at cap 500, 156 at cap 2000), so held-out H rises (27, 1,525; in sample 1.77) as the converged fraction rises. Q3: the cap is partly the limit at 16 × 8 s (L2000-16 0.581, 0.460, 0.384) and mostly at 64 × 8 s (0.917, 0.877, 0.877). Flagging the 145 bad baselines adds to the deep off-axis model, specifically (R12 0.902, 0.876, 0.872; control 0.219, 0.171, 0.168) and repairs its 64 × 8 s loss (min 0.875).
 
 ## 1. Questions
 
@@ -268,11 +268,165 @@ QuartiCal 0.2.7 in flags, fraction and iterations.
 
 ## 9. Measured result
 
-Not yet measured.
+Run root `D:/rang/outputs/dd8-20261125/` (`O/`, `R1/`, `R1c/`, `B-H/`,
+`O-H/`, `real-H/`, `grid/`, `score/`, `times.log`); archive
+[results/dd8-offaxis/](results/dd8-offaxis/). Host glacier, shared; the main
+checkout's extension (DD8 changes no Rust). Every DD point ran to its cap.
+Fractions are d1, d2, d3 (d0 in brackets); step is the d3 median
+`|Δg|²/|g|²`. 15 DD points and 3 DI references were run, inside section 8's
+cap; the spare was not used.
+
+**Setup gates: all pass.** G1 (fluxes equal DD7's to 1e-6 Jy); GH (A1;
+169 baselines, 9.65 % of the weight); GO (signed Δ +1.604, +0.323,
+−0.155 Jy; `DATA_B − n − predict(B)` 2.7e-6 Jy, `DATA_O − n − predict(O)`
+7.6e-6 Jy); GR (R1 65,250 rows; R1c's baselines equal DD7's); V1 (truth
+gains on B-H: H = 1.0004 ± 0.0004). The inserted error is larger than its
+net: Σ|DEEP − M₀ᶜ| is 21.2, 4.1 and 2.8 Jy per facet against nets of 1.6,
+0.32 and −0.15 Jy.
+
+### Q1: the insertion (bases BF 0.988, 0.974, 0.939; B pinned 0.997, 0.993, 0.956)
+
+| Point | d1, d2, d3 (d0) | step | e/ê d1-d3 | Rule |
+| --- | --- | --- | --- | --- |
+| **O-F** (M₀ᶜ, d0 free) | **0.018, 0.009, 0.000** (0.094) | 1.4e-7 | 72, 15, 20 | **reproduces** |
+| O-P (M₀ᶜ, d0 pinned) | 0.0001, 0, 0 | 5.1e-7 | 74, 21, 20 | reproduces |
+| **O-X** (sky O exact, d0 free) | **0.540, 0.464, 0.449** (0.639) | 1.4e-11 | 1.2, 1.1, 1.1 | **weakens** (drops 0.45-0.51) |
+| O-F-2000 (cap 2000) | 0.486, 0.424, 0.308 (0.705) | 1.8e-11 | 72, 15, 20 | lifted |
+| O-F-64 (64 × 8 s) | 0.306, 0.271, 0.134 (0.579) | 1.4e-9 | 295, 52, 72 | lifted |
+| *real MF-4 (DD7)* | *0.066, 0.042, 0.011 (0.152)* | *1.2e-7* | – | |
+| *real L2000 (DD7)* | *0.530, 0.501, 0.465 (0.705)* | *2.6e-13* | – | |
+| *real MF-64 (DD6)* | *0.794, 0.754, 0.752 (0.875)* | – | – | |
+
+- **Frozen reading: confounded.** O-F reproduces and O-X weakens, which is
+  section 3's second row: the inserted sky slows the solve even with an
+  exact model, so candidate 4 is not identified as a model error alone.
+- **Real pattern: reproduced** (frozen rule: reproduces at cap 500, lifted at
+  cap 2000 and at 64 × 8 s). At cap 500 O-F sits at the real MF-4's level
+  with the same d3 step (1.4e-7 against 1.2e-7); at cap 2000 it lands on
+  the real L2000 (d0 0.705 in both; d1-d3 0.31-0.49 against 0.47-0.53).
+  At 64 × 8 s it is lifted but well below real MF-64 (0.13-0.31 against
+  0.75-0.79).
+- **What the confound leaves (interpretation, not a frozen reading):** O-X
+  and O-F differ only in the model. With the exact model the solve is slower
+  than B but accurate (e/ê 1.1-1.2); with M₀ᶜ it is at the real failure
+  level at cap 500 and, where it converges (cap 2000, 64 × 8 s), converges
+  to gains 15-295 × the noise prediction off. So the deep off-axis sky (more
+  structure: 21 Jy of absolute pixel flux in d1) slows the solve, and the
+  model error both slows it further and makes it wrong. On the simulation
+  that matches the real data best, convergence certifies nothing.
+- O-P (the real M analogue) is at the floor like real M; no row changes.
+
+### Q2: the held-out measure (169 baselines, 76,050 rows; cells touching a flagged gain dropped: 6.7 % B-H, 7.8 % O-H, 16.6 % real-H)
+
+**Validation.** V1 passes (above). **V2 passes:** on BH-F, ΔH in d1-d3 is
+3.286 ± 0.443, 0.0958 ± 0.0069, 0.0303 ± 0.0022 against the truth's 3.285,
+0.0961, 0.0306 (all > 7 SE, ratio ≥ 0.99). **V3 is indistinct:**
+H(truth gains, M₀ᶜ) − H(OH-F) = 1.60 ± 0.98 (OH-F e/ê 69, 15, 19; OH-F's
+in-sample H 1.55, held-out 3.39). So by section 4 the real readings are
+**predictive quality only**.
+
+| Base | Solution | H held-out | H in sample | ΔH d0, d1, d2, d3 (reading) |
+| --- | --- | --- | --- | --- |
+| B-H | truth | 1.000 | 1.000 | –, 3.29, 0.096, 0.031 (all informative) |
+| B-H | BH-F | 1.002 | 0.999 | −0.0003, 3.29, 0.096, 0.030 (inf.) |
+| B-H | BH-DI / unit | 4.23 / 4.40 | 4.17 / 4.87 | |
+| O-H | truth with sky O / with M₀ᶜ | 1.000 / 4.99 | 1.000 / 4.29 | |
+| O-H | OH-F | 3.39 ± 0.91 | 1.55 | 0.007, 4.33 (inf.), 0.081 (inf.), −1.32 ± 0.84 |
+| O-H | OH-DI / unit | 5.77 / 6.59 | 5.31 / 6.59 | |
+| real-H | unit (RM) / unit (DEEP) | 6.08 / 2.42 | 5.53 / 2.42 | |
+| real-H | RH-DI | 3.72 ± 0.31 | 3.21 | |
+| real-H | RH-MF | 27.4 ± 25.3 | 1.77 | 0.89 (inf.), 2.77 (inf.), 0.017, −25.2 ± 25.2 |
+| real-H | RH-L2000 | 1,525 ± 1,527 | 1.77 | −0.59, 2.36 (inf.), 0.11, −1,522 ± 1,527 |
+| real-H | R2H (DEEP) | **1.55 ± 0.13** | 1.32 | 0.90, −0.015, −0.024, −0.010 (all uninf.) |
+
+**Frozen real readings (predictive quality only):**
+- RH-L2000 against RH-MF: **no difference** (−1,497 ± 1,502).
+- R2H against RH-MF: **the same** (−25.9 ± 25.3, not significant).
+- DD against DI: RH-MF **no difference**, RH-L2000 **no difference**, R2H
+  **beats DI** (−2.17 ± 0.30).
+- Bridge: RH-MF 0.029, 0.025, 0.012 against DD7's MF-4 0.066, 0.042, 0.011:
+  **comparable**. RH-L2000 (0.496, 0.458, 0.370) is near DD7's L2000.
+
+**Why the clustered SE is so large (post hoc, reported only).** The RM
+solutions' held-out excess sits on one baseline: per-baseline H medians are
+1.65 (RH-MF), 1.66 (RH-L2000), 1.23 (R2H), 2.61 (RH-DI), 1.36 (unit DEEP);
+the worst baseline reads 6,315 (RH-MF) and 381,000 (RH-L2000) against 17.6
+(R2H); without it the means are 2.28, 5.95 and 1.43. The cause is d3, the
+facet with about 0.2 Jy in RM: its gains run away where nothing constrains
+them (|g| p99 13.8 and maximum 58.6 at cap 500, 16.3 and 155.8 at cap 2000;
+R2H: 1.94 and 8.1), so the product `g_p g_q*` on a held-out pair of two such
+antennas predicts nonsense. 500 → 2000 iterations makes this worse, and the
+convergence test raises its fraction at the same time. OH-F shows the same
+sign in d3 (−1.32). So on real data a converged fraction can rise while the
+solution's prediction of unseen baselines gets worse; the held-out score
+sees what the convergence test does not, but as a mean over baselines it is
+dominated by the runaway cells and needs a robust form (a per-baseline
+median, or a cap on |g|) to read differences.
+- Limitations as frozen: RM and DEEP were cleaned from all baselines, so the
+  unit-gain DEEP prediction (median 1.36) is not an independent result;
+  V3 could not separate absorption from accuracy here.
+- Not on the H copies, so no held-out score: R12. Note that R2 on the H copy
+  (R2H 0.118, 0.101, 0.104) is much lower than DD7's R2 (0.304, 0.297,
+  0.297): removing 169 random baselines costs it most of its lift, while
+  removing the 145 bad ones (R12) nearly triples it.
+
+### Q3: iterations and R1 + R2 (on the unchanged data)
+
+| Point | d1, d2, d3 (d0) | step | Reading |
+| --- | --- | --- | --- |
+| L2000-16 | 0.581, 0.460, 0.384 (0.810) | 4.2e-12 | G 0.55, 0.43, 0.37: **partly iterations**; still moving |
+| L2000-64 | 0.917, 0.877, 0.877 (0.998) | 2.4e-33 | G 1.51, 1.02, 1.01: **mostly iterations** |
+| (L2000-4, DD7, post hoc) | 0.530, 0.501, 0.465 | 2.6e-13 | G 0.50, 0.48, 0.46: partly |
+| **R12** (R1 copy, DEEP) | **0.902, 0.876, 0.872** (0.957) | 3.6e-34 | **R1 adds to R2** (control below 0.347) |
+| R1cR2 (control) | 0.219, 0.171, 0.168 (0.298) | 1.2e-9 | below R2 |
+| **R12-64** | 0.877, 0.877, 0.875 (0.958) | 7.8e-34 | **repairs** R2's loss at 64 × 8 s (min 0.875 ≥ 0.702) |
+
+- The section-5 ceiling was wrong at 64 × 8 s: at cap 2000 d1 reaches 0.917,
+  above 7/8, so the 2-integration last interval converges in part, and G
+  above 1 means "at or past the assumed ceiling". The reading is the same.
+- R12 at 4 × 8 s (min 0.872) reaches what the real solve otherwise reaches
+  only at 64 × 8 s, at cap 500. The control flags weight-matched baselines and
+  does worse than R2 alone, so the gain is specific to the 145. This is a
+  diagnostic: the deep model is still the unit-gain clean, not adopted.
+
+**Cost (glacier, shared; walls include lock waits).** A cap-500 point:
+predict 46-53 s, each solve 371-464 s, walls 846-4,219 s; a cap-2000 point:
+each solve 1,545-1,937 s, walls 3,581-5,782 s; DI references 24-38 s of
+solve (84-131 iterations, 0.99); insertion build 151 s; copies 15-193 s of
+work (walls to 1,504 s); scores 115-189 s. Rows in
+[tool-timings.md](tool-timings.md).
 
 ## 10. For the coordinator
 
-Not yet written.
+- **The real failure is reproduced in simulation for the first time:** B with
+  the real-size off-axis model gap (O) fails, lifts at cap 2000 and at
+  64 × 8 s, like the real data, and its gains are wrong by 15-300 × the
+  noise wherever it converges. By the frozen table it is "confounded" (the
+  deep off-axis sky also slows an exact-model solve, which stays accurate).
+  O is the testbed to use: it has a truth and behaves like the real data.
+- **Convergence is not a usable target on this field:** more iterations raise
+  the fraction (L2000 at 4, 16, 64 × 8 s; 64 × 8 s is mostly iterations)
+  while, with RM, d3's gains run away and held-out prediction gets worse. The
+  held-out score sees the off-axis gains exactly in B (V2) but did not
+  separate accuracy from absorption (V3 indistinct), and its mean is
+  dominated by one baseline; freeze a robust form (per-baseline median, or
+  trimmed) before using it as a criterion.
+- **Flag the 145 bad baselines in any DD recipe for this field:** with the
+  deep model they lift 4 × 8 s to 0.87-0.90 at cap 500 (control 0.17-0.22)
+  and keep 64 × 8 s at the ceiling.
+- **Recommended DD9 (frozen before code):** on O, where the truth is known,
+  test the fixes for the off-axis model and the runaway weak-facet gains
+  against truth error, not convergence: (a) an off-axis model rebuilt from
+  DD-corrected facet images (DD3's loop) against M₀ᶜ and the unit-gain DEEP;
+  (b) a constraint on the weak facets (d3: merge it, regularise its
+  amplitude, or solve it at a longer interval); both with the 145 baselines'
+  residual added to O so it carries the bad-baseline effect too. Then carry
+  the winner to real data with the robust held-out score.
+- Do not adopt the unit-gain deep clean: R12's lift uses it as a diagnostic
+  only, and R2 alone collapses when 9 % of the baselines are held out
+  (R2H 0.10-0.12).
+- Run root `D:/rang/outputs/dd8-20261125/`: built MS copies deleted at the
+  end; records, gains and scores kept (see the hand-back).
 
 ## Amendments
 
@@ -286,3 +440,10 @@ Not yet written.
   A median above 1e-14 means more than half the cells have not converged, so
   some direction has dropped by more than 0.20 and the drop clause already
   applies: the change alters no reading.
+
+**A2, 2026-11-25, post hoc (after O-F, L2000-64 and the real-H score were read).**
+- The per-baseline medians, the mean without the worst baseline and the gain
+  amplitude tails in section 9's Q2 are reported only; they change no frozen
+  reading.
+- Section 5's ceiling 7/8 at 64 × 8 s is exceeded at cap 2000 (d1 0.917);
+  G above 1 is read as "at or past the ceiling"; the reading stands.

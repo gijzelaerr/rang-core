@@ -1,0 +1,11 @@
+{
+ "arm": "R1c",
+ "bad_baselines_in_subset": 145,
+ "weight_share_bad": 0.040687297432904806,
+ "control_weight_share": 0.040671263668060044,
+ "control_draws": -1,
+ "control_equals_dd7": true,
+ "rows_flagged": 65250,
+ "GR_pass": true,
+ "seconds": 4.032496199943125
+}
