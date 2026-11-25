@@ -1,0 +1,106 @@
+{
+ "c5/xradio": {
+  "apply": {
+   "argv": [
+    "apply",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 0.53,
+   "stderr_tail": "rang-core apply: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr is an MSv4 store: only the flag stage runs on one, not apply (no weighted stage takes MSv4 input until the base weights are settled: research/msv4-interop.md, M5)\n"
+  },
+  "bad_fields": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\refuse-configs\\fields-0.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 2.741,
+   "stderr_tail": "rang-core flag: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr: flag.fields ['0']: an MSv4 store takes all or field names (['J1939-6342_0']); roles and ids are not read here\n"
+  },
+  "c7": "match",
+  "calibrate": {
+   "argv": [
+    "calibrate",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 0.5,
+   "stderr_tail": "rang-core calibrate: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr is an MSv4 store: only the flag stage runs on one, not calibrate (no weighted stage takes MSv4 input until the base weights are settled: research/msv4-interop.md, M5)\n"
+  },
+  "config_check": {
+   "argv": [
+    "config",
+    "check",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr",
+    "--stage",
+    "flag"
+   ],
+   "returncode": 0,
+   "seconds": 2.923,
+   "stderr_tail": ""
+  },
+  "config_check_bad": {
+   "argv": [
+    "config",
+    "check",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\refuse-configs\\fields-0.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr",
+    "--stage",
+    "flag"
+   ],
+   "returncode": 2,
+   "seconds": 2.467,
+   "stderr_tail": "rang-core config check: D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr: flag.fields ['0']: an MSv4 store takes all or field names (['J1939-6342_0']); roles and ids are not read here\n"
+  },
+  "config_text": "version: 1\ndata: {processes: 1}\nflag: {strategy: strategy.yaml, column: DATA}\n",
+  "flagversions_absent": true,
+  "image": {
+   "argv": [
+    "image",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 0.55,
+   "stderr_tail": "rang-core image: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr is an MSv4 store: only the flag stage runs on one, not image (no weighted stage takes MSv4 input until the base weights are settled: research/msv4-interop.md, M5)\n"
+  },
+  "run": {
+   "argv": [
+    "run",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\refuse-configs\\run-flag-calibrate.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 0.517,
+   "stderr_tail": "rang-core run: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr is an MSv4 store: only the flag stage runs on one, not calibrate (no weighted stage takes MSv4 input until the base weights are settled: research/msv4-interop.md, M5)\n"
+  },
+  "selfcal": {
+   "argv": [
+    "selfcal",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr"
+   ],
+   "returncode": 2,
+   "seconds": 0.512,
+   "stderr_tail": "rang-core selfcal: refused\nD:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-refuse.ps.zarr is an MSv4 store: only the flag stage runs on one, not selfcal (no weighted stage takes MSv4 input until the base weights are settled: research/msv4-interop.md, M5)\n"
+  },
+  "state_absent": true,
+  "store_unchanged": true,
+  "watch": {
+   "argv": [
+    "watch",
+    "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-cli.ps.zarr.rang-run",
+    "--once",
+    "--json"
+   ],
+   "returncode": 0,
+   "seconds": 0.305,
+   "stderr_tail": ""
+  }
+ }
+}

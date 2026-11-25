@@ -1,0 +1,728 @@
+{
+ "c5/msv2": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.573,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k1a.ms"
+    ],
+    "returncode": 0,
+    "seconds": 1.683,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/msv2/c5-k1a.ms.rang-run/receipts/flag-20261125T071339Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.479,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k1b.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-msv2-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 1.73,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.8 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-msv2-k1b/receipts/flag-20261125T071342Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "rang-p1",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k2.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-msv2-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 0.706,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-msv2-k2-other/receipts/flag-20261125T071345Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k2.ms (stage 'flag') did not finish and was not made by this run directory; call rang.core_writeback.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\msv2\\\\c5-k2.ms', 'rang_flag_20261125T071344Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071344Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k2.ms",
+    "pid": 1241208,
+    "stage": "flag",
+    "started": "2026-11-25T07:13:44+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.531,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k2"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k2.ms"
+    ],
+    "returncode": 0,
+    "seconds": 1.611,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 0.9 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/msv2/c5-k2.ms.rang-run/receipts/flag-20261125T071346Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.46,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c5-k3.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-msv2-k3"
+    ],
+    "returncode": 0,
+    "seconds": 1.7,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.8 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-msv2-k3/receipts/flag-20261125T071349Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071348Z",
+   "restored_is_before": true
+  }
+ },
+ "c5/xms-auto": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.436,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k1a.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 4.001,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 1.1 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c5-k1a.ps.zarr.rang-run/receipts/flag-20261125T071307Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.439,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k1b.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xms-auto-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 3.954,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xms-auto-k1b/receipts/flag-20261125T071315Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "rang-p1",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k2.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xms-auto-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 2.884,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xms-auto-k2-other/receipts/flag-20261125T071323Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k2.ps.zarr (stage 'flag') did not finish and was not made by this run directory; call rang.msv4_flags.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\ps\\\\xms-auto\\\\c5-k2.ps.zarr', 'rang_flag_20261125T071321Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071321Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k2.ps.zarr",
+    "pid": 666296,
+    "stage": "flag",
+    "started": "2026-11-25T07:13:21+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.405,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "partitions_after_kill": {
+    "c5_partition_000": "rang-p1"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k2.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 4.032,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 1.1 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c5-k2.ps.zarr.rang-run/receipts/flag-20261125T071326Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.384,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c5-k3.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xms-auto-k3"
+    ],
+    "returncode": 0,
+    "seconds": 3.849,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xms-auto-k3/receipts/flag-20261125T071333Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071332Z",
+   "restored_is_before": true
+  }
+ },
+ "c5/xradio": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.458,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k1a.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 3.912,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xradio/c5-k1a.ps.zarr.rang-run/receipts/flag-20261125T071235Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.372,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k1b.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xradio-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 3.888,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xradio-k1b/receipts/flag-20261125T071242Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "rang-p1",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k2.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xradio-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 2.842,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xradio-k2-other/receipts/flag-20261125T071250Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k2.ps.zarr (stage 'flag') did not finish and was not made by this run directory; call rang.msv4_flags.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\ps\\\\xradio\\\\c5-k2.ps.zarr', 'rang_flag_20261125T071248Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071248Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k2.ps.zarr",
+    "pid": 1095468,
+    "stage": "flag",
+    "started": "2026-11-25T07:12:48+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.368,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "partitions_after_kill": {
+    "c5_0": "rang-p1"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k2.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 3.713,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 1.0 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xradio/c5-k2.ps.zarr.rang-run/receipts/flag-20261125T071252Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.375,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c5-k3.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c5-xradio-k3"
+    ],
+    "returncode": 0,
+    "seconds": 3.879,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.9 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c5-xradio-k3/receipts/flag-20261125T071300Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071258Z",
+   "restored_is_before": true
+  }
+ },
+ "c6x/msv2": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.444,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k1a.ms"
+    ],
+    "returncode": 0,
+    "seconds": 7.241,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 6.3 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/msv2/c6x-k1a.ms.rang-run/receipts/flag-20261125T071553Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.537,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k1b.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-msv2-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 6.862,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 5.9 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-msv2-k1b/receipts/flag-20261125T071602Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "mixed",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k2.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-msv2-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 0.701,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-msv2-k2-other/receipts/flag-20261125T071610Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k2.ms (stage 'flag') did not finish and was not made by this run directory; call rang.core_writeback.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\msv2\\\\c6x-k2.ms', 'rang_flag_20261125T071609Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071609Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k2.ms",
+    "pid": 1022536,
+    "stage": "flag",
+    "started": "2026-11-25T07:16:09+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.412,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k2"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k2.ms"
+    ],
+    "returncode": 0,
+    "seconds": 6.968,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 6.1 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/msv2/c6x-k2.ms.rang-run/receipts/flag-20261125T071611Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 1.42,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "msv2-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\msv2\\c6x-k3.ms",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-msv2-k3"
+    ],
+    "returncode": 0,
+    "seconds": 6.578,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 5.7 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-msv2-k3/receipts/flag-20261125T071619Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071618Z",
+   "restored_is_before": true
+  }
+ },
+ "c6x/xms-auto": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 4.482,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k1a.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 10.879,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 7.2 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c6x-k1a.ps.zarr.rang-run/receipts/flag-20261125T071450Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 4.564,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k1b.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xms-auto-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 10.574,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 6.7 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xms-auto-k1b/receipts/flag-20261125T071506Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "mixed",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k2.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xms-auto-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 3.431,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xms-auto-k2-other/receipts/flag-20261125T071522Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k2.ps.zarr (stage 'flag') did not finish and was not made by this run directory; call rang.msv4_flags.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\ps\\\\xms-auto\\\\c6x-k2.ps.zarr', 'rang_flag_20261125T071520Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071520Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k2.ps.zarr",
+    "pid": 853344,
+    "stage": "flag",
+    "started": "2026-11-25T07:15:20+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 4.555,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "partitions_after_kill": {
+    "c6x_partition_000": "rang-p1",
+    "c6x_partition_001": "before",
+    "c6x_partition_002": "before",
+    "c6x_partition_003": "before"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k2.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 10.864,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 7.1 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xms-auto/c6x-k2.ps.zarr.rang-run/receipts/flag-20261125T071525Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 4.469,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c6x-k3.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xms-auto-k3"
+    ],
+    "returncode": 0,
+    "seconds": 10.346,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 6.7 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xms-auto-k3/receipts/flag-20261125T071541Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071539Z",
+   "restored_is_before": true
+  }
+ },
+ "c6x/xradio": {
+  "k1a": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.684,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k1a.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 8.896,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 5.9 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xradio/c6x-k1a.ps.zarr.rang-run/receipts/flag-20261125T071355Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k1b": {
+   "final_is_reference": true,
+   "journal_written": [],
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.606,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k1"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k1b.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xradio-k1b"
+    ],
+    "returncode": 0,
+    "seconds": 8.763,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 5.8 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xradio-k1b/receipts/flag-20261125T071408Z.rang-receipt.json\n"
+   },
+   "unchanged_after_kill": true
+  },
+  "k2": {
+   "after_kill_is": "mixed",
+   "fresh": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k2.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xradio-k2-other"
+    ],
+    "returncode": 1,
+    "seconds": 2.938,
+    "stderr_tail": "rang-core: flag: running\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xradio-k2-other/receipts/flag-20261125T071421Z.rang-receipt.json\nrang-core flag: failed: flag: an earlier write-back on D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k2.ps.zarr (stage 'flag') did not finish and was not made by this run directory; call rang.msv4_flags.restore_flags('D:\\\\rang\\\\outputs\\\\msv4-cli-20261125\\\\ps\\\\xradio\\\\c6x-k2.ps.zarr', 'rang_flag_20261125T071419Z') first\n"
+   },
+   "fresh_names_restore": true,
+   "fresh_unchanged": true,
+   "journal": {
+    "flag_backup": "rang_flag_20261125T071419Z",
+    "host": "glacier",
+    "initialising": [],
+    "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k2.ps.zarr",
+    "pid": 1327156,
+    "stage": "flag",
+    "started": "2026-11-25T07:14:19+00:00",
+    "state": "open",
+    "written": [
+     "FLAG"
+    ],
+    "written_before_put": true
+   },
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.574,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "partitions_after_kill": {
+    "c6x_0": "rang-p1",
+    "c6x_1": "before",
+    "c6x_2": "before",
+    "c6x_3": "before"
+   },
+   "same": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k2.ps.zarr"
+    ],
+    "returncode": 0,
+    "seconds": 8.968,
+    "stderr_tail": "rang-core: flag: running (was running)\nrang-core: flag: done in 5.9 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/ps/xradio/c6x-k2.ps.zarr.rang-run/receipts/flag-20261125T071424Z.rang-receipt.json\n"
+   },
+   "same_final_is_reference": true
+  },
+  "k3": {
+   "final_is_reference": true,
+   "journal_state": "restored",
+   "kill": {
+    "returncode": 9,
+    "seconds": 3.554,
+    "stderr_tail": "rang-core: flag: running\n",
+    "where": "store-k2"
+   },
+   "next": {
+    "argv": [
+     "flag",
+     "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c6x-k3.ps.zarr",
+     "--run-dir",
+     "D:\\rang\\outputs\\msv4-cli-20261125\\rundirs\\c6x-xradio-k3"
+    ],
+    "returncode": 0,
+    "seconds": 8.775,
+    "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 5.8 s\nrang-core: receipt D:/rang/outputs/msv4-cli-20261125/rundirs/c6x-xradio-k3/receipts/flag-20261125T071436Z.rang-receipt.json\n"
+   },
+   "restored_from": "rang_flag_20261125T071435Z",
+   "restored_is_before": true
+  }
+ }
+}

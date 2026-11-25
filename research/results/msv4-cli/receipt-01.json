@@ -1,0 +1,217 @@
+{
+ "c5": {
+  "c5/xms-auto": "match",
+  "c5/xradio": "match",
+  "c6x/xms-auto": "match",
+  "c6x/xradio": "match"
+ },
+ "c7": "match",
+ "not_measured": {
+  "c7": "source MS deleted (M6 amendment A1)",
+  "c9": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ },
+ "table": {
+  "c1/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 8.262
+  },
+  "c1/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 8.118
+  },
+  "c10/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 3.984
+  },
+  "c10/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 3.767
+  },
+  "c11/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 4.233
+  },
+  "c11/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 4.06
+  },
+  "c11c/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 4.086
+  },
+  "c11c/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 3.961
+  },
+  "c2/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 7.173
+  },
+  "c2/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 7.504
+  },
+  "c3/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 3.622
+  },
+  "c3/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 6.888
+  },
+  "c4/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 3.983
+  },
+  "c4/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 3.959
+  },
+  "c5/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "match",
+   "c6": "match",
+   "seconds": 4.035
+  },
+  "c5/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "match",
+   "c6": "mismatch",
+   "seconds": 4.635
+  },
+  "c6x/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "match",
+   "c6": "match",
+   "seconds": 11.117
+  },
+  "c6x/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "match",
+   "c6": "mismatch",
+   "seconds": 10.789
+  },
+  "c8/xms-auto": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "match",
+   "seconds": 4.281
+  },
+  "c8/xradio": {
+   "c1": "match",
+   "c2": "match",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "mismatch",
+   "seconds": 4.164
+  },
+  "c9/xms-auto": {
+   "c1": "match",
+   "c2": "not measured",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "not measured",
+   "seconds": 3.186
+  },
+  "c9/xradio": {
+   "c1": "match",
+   "c2": "not measured",
+   "c3": "match",
+   "c4": "match",
+   "c5": "-",
+   "c6": "not measured",
+   "seconds": 3.336
+  }
+ },
+ "verdict": {
+  "xms-auto": "pass",
+  "xradio": "partial"
+ }
+}

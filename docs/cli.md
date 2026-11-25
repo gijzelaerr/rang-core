@@ -84,7 +84,7 @@ $ rang-core -h
 usage: rang-core [--receipt PATH | --no-receipt] [--no-pin-threads] COMMAND ...
 
 commands for a Measurement Set (each takes a config.yaml and an MS):
-  flag            CONFIG MS: flag with the Tricolour port, writing FLAG
+  flag            CONFIG MS: flag with the Tricolour port, writing FLAG (an MSv4 store too)
   calibrate       CONFIG MS: solve the calibration terms, writing tables
   apply           CONFIG MS: apply the complex solutions, writing CORRECTED_DATA
   image           CONFIG MS: image with gemclean
@@ -112,13 +112,15 @@ prints every configuration key with its default.
 $ rang-core flag -h
 usage: rang-core flag [-h] [--run-dir RUN_DIR] [--force] config ms
 
-flag with the Tricolour port, writing FLAG. Validates the configuration for
-the stages it runs first. A finished stage is skipped, or refused when its
-configuration changed, unless forced. A failed or stale one runs again.
+flag with the Tricolour port, writing FLAG (an MSv4 store too). Validates the
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -139,7 +141,8 @@ configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -161,7 +164,8 @@ runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -182,7 +186,8 @@ forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -204,7 +209,8 @@ runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -225,7 +231,8 @@ configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
