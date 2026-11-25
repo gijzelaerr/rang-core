@@ -205,8 +205,8 @@ All real-data measures are **held out**: R's weights are estimated from the dump
 
 ### 8.1 Simulations: T, G1, Q (2026-11-25, glacier shared slots; WSL for CASA and QuartiCal)
 
-Script [w48_sim.py](results/weights-k-scripts/w48_sim.py); run roots `D:ang\outputs\weights-k-20261125\sim`
-(first run) and `...\sim-r1` (revision R1); archive [results/weights-48/](results/weights-48/). Arms at the
+Script [w48_sim.py](results/weights-k-scripts/w48_sim.py); run roots `D:/rang/outputs/weights-k-20261125/sim`
+(first run) and `.../sim-r1` (revision R1); archive [results/weights-48/](results/weights-48/). Arms at the
 stage defaults (chanbin 16, minsamp 200, smooth 5, fill true), 256 channels; e is against the true σ,
 floor 1.0071 (block-ideal), unity 1.2091 (1.2458 on baseline-excess).
 
