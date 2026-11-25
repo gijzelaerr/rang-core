@@ -116,7 +116,10 @@ def regularise(var, smooth):
             [_nanmedian(row[max(0, i - half) : i + half + 1]) for i in range(n)]
         )
         sm = np.where(np.isfinite(sm), sm, np.nanmedian(row))
-        out[g] = sm
+        # Issue #48 revision R1 (research/weights-48.md section 9): only the NaN
+        # blocks are filled, as this docstring says; #55's code replaced every
+        # block by the running median, which flattens the channel shape.
+        out[g] = np.where(np.isfinite(row), row, sm)
     return out
 
 

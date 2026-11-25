@@ -207,4 +207,17 @@ Nothing yet.
 
 ## 9. Amendments
 
-None yet.
+**R1, 2026-11-25 12:40 SAST, post hoc: the one revision rule 1 allows, after T's first score was read
+(simulations only; no real-data arm has run).** T as first run, at the stage defaults (`smooth: 5`):
+**every** statistic, `classic` included, sits at e = floor + 0.024 to 0.033 on every clean case
+(clean: classic 1.0368, clipped 1.0370, mad 1.0398; floor 1.0071), so T fails for all of them, while
+#55's revision 1 reached floor + 0.0016 with `classic` at `smooth: 0`. Cause, read in the code: #55's
+`regularise` replaces **every** block by the 5-block running median, not only the short ones, although
+its docstring ("Fill NaN blocks"), the config comment ("fills short blocks") and this note's section 1
+(fill 2) all describe a fill. A 5 × 16-channel median cannot follow s(ν)'s bump at 256 channels. The
+statistic is not the cause: `clipped` equals `classic` to 0.0002 in e on every case, and is the only
+one near 1 in median ratio on `rfi` (1.0025, 1.0000; classic 0.011, mad 0.958 and 0.977).
+**Revision:** `regularise` fills only the blocks below `minsamp` (the fill order of section 1, now as
+the code does it); everything else, bounds and rule unchanged; T re-run on every case. The first
+run's score is archived beside the revision's. This changes the stage's weights for any non-off mode
+with `smooth > 0` (the off default is untouched); stated in the CHANGELOG.

@@ -75,6 +75,7 @@ def test_regularise_fills_short_blocks():
     var = np.array([[1.0, np.nan, 3.0, np.nan, 5.0], [np.nan] * 5])
     out = reweight.regularise(var, 3)
     assert np.isfinite(out[0]).all() and np.isnan(out[1]).all()
+    assert out[0, 0] == 1.0 and out[0, 2] == 3.0 and out[0, 4] == 5.0  # kept (#48 R1)
     assert np.array_equal(reweight.regularise(var, 0), var, equal_nan=True)
 
 
