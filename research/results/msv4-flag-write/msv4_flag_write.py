@@ -104,15 +104,17 @@ def _flag_cells(ms):
     from rang import core_ms
 
     with core_ms.open_table(ms) as t:
-        flag = np.asarray(t.getcol("FLAG"), bool)
+        try:
+            flag = np.asarray(t.getcol("FLAG"), bool)
+        except OSError:  # variable cell shape (c9): row by row, flattened
+            flag = np.concatenate(
+                [np.asarray(t.getcol("FLAG", r, 1), bool).ravel() for r in range(t.nrows)]
+            )
     return flag, hashlib.sha256(np.ascontiguousarray(flag).tobytes()).hexdigest()
 
 
 def msv2(root, only=None):
     root = Path(root)
-    exe = Path(sys.executable).with_name(
-        "rang-core.exe" if os.name == "nt" else "rang-core"
-    )
     for case, (src, column) in RUNS.items():
         if only and case not in only:
             continue
@@ -125,7 +127,14 @@ def msv2(root, only=None):
         before, sha_before = _flag_cells(dst)
         t0 = time.perf_counter()
         proc = subprocess.run(
-            [str(exe), "flag", str(config_path(root, column)), str(dst)],
+            [
+                sys.executable,
+                "-m",
+                "rang.core_cli",
+                "flag",
+                str(config_path(root, column)),
+                str(dst),
+            ],
             capture_output=True,
             check=False,
             text=True,
