@@ -331,3 +331,24 @@ The median is reported beside each reading. If A is not run, 2.81 % stands in fo
   at 3072² × 2″. That field has a half-width of 0.85°, so it still holds every inner-0.7° source. The reading
   is then labelled "3072² subset".
 - Peak RSS is recorded with `/usr/bin/time -v`.
+
+### 7.1 Results (nash, `~/rang-data/outputs/gate3c-compact-avg-20261124`)
+
+- **Regeneration.**
+  - The copy took 3,630 s, and its 9.1 FLAG hash is met.
+  - The wheel was rebuilt at `99a5261` from `~/Worktrees/rang/e2n` in 350 s. Its extension `9c42ea72…83ed`
+    equals E2-N's.
+  - `rang-core run` (flag to image, 16 slots) took 49,898 s, against the follow-up's 19,759 s. The host was
+    loaded at 40 of 36 cores.
+  - **R1 met** (FLAG equals `flags.rang_selfcal_20261117T072854Z`). **R2 met** (apply `3b3f3047…`). **The flag
+    versions all equal E2-N's.**
+- **Dirty pair (control and timed piece), `RAYON_NUM_THREADS` 12.**
+  - n-dirty reads **5.4568e-2** against 5.457e-2, and d-dirty **1.132e-6** against 1.13e-6. Both reproduce.
+  - GeMClean took 2,132 s averaged and 2,273 s unaveraged (×1.07; peak RSS 44.4 and 55.2 GB). WSClean 2″
+    dirty took 1,273 s.
+- **Projection.**
+  - 6.2's n-dirty took 1,091 s on an unset thread count; here n-dirty took 2,132 s at 12 threads on a loaded
+    host. That ratio puts A at about 60,000 s and U at about 65,000 s (18 h). This is under the 30 h fallback,
+    so the full 6144² arms run.
+  - The three clean jobs started 2026-11-25 03:06 SAST. U's running argv was diffed against
+    `n-clean-gemclean-run.json`: only the venv, `-name`, the MS path and `-average-channels` (2 → 1) differ.
