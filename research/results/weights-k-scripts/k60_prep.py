@@ -47,6 +47,28 @@ def cut_off(ms, fid, names):
     return out
 
 
+def primary_hash(ms, fid, version=None):
+    """SHA-256 of FLAG and of FLAG_ROW over the field's rows in row order, of the MS or of
+    a flag version."""
+    import hashlib
+
+    with core_ms.open_table(ms) as t:
+        rows = np.flatnonzero(t.getcol("FIELD_ID") == fid)
+        hf, hr = hashlib.sha256(), hashlib.sha256()
+        breaks = np.flatnonzero(np.diff(rows) != 1) + 1
+        for run in np.split(rows, breaks):
+            for s in range(0, len(run), STEP):
+                start, n = int(run[s]), int(min(STEP, len(run) - s))
+                if version is None:
+                    f = t.getcol("FLAG", start, n)
+                    r = t.getcol("FLAG_ROW", start, n)
+                else:
+                    f, r = flagversions.load(ms, version, start, n)
+                hf.update(np.ascontiguousarray(f, bool).tobytes())
+                hr.update(np.ascontiguousarray(r, bool).tobytes())
+    return {"flag": hf.hexdigest(), "flag_row": hr.hexdigest()}
+
+
 def fraction(ms):
     with core_ms.open_table(ms) as t:
         flagged = total = 0
@@ -84,6 +106,8 @@ def main(ms, arm, out):
             w.close()
         rec["primary_rows_from"] = AFTERCAL
         rec["primary_rows"] = len(rows)
+    rec["primary_flag_sha256"] = primary_hash(ms, fid)
+    rec["aftercal_primary_flag_sha256"] = primary_hash(ms, fid, version=AFTERCAL)
     rec["flagged_after"] = fraction(ms)
     rec["primary"] = cut_off(ms, fid, names)
     rec["antenna_ids"] = names
