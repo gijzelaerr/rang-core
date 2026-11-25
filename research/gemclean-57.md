@@ -118,13 +118,41 @@ What these runs rule out:
 - the Linux huge-page allocator at that load, on the released wheel;
 - zero-weight rows, channels and cells, NaN data and `-average-channels`;
 - the AVX2 and AVX-512 paths at 8-16 threads;
-- a stack need near 2 MiB at up to 1024 threads on 4 cores.
+- a stack need near 2 MiB at up to 1024 threads on 4 cores;
+- a data race in rang's own code under ThreadSanitizer at -j16 and -j64 (small size);
+- a crash in 30 repeated -j128 runs (20 Windows, 10 with the Linux wheel).
 
 What they do not cover:
 - 8 output channels at full load (about 3x the memory of runs A and W030);
 - 128 real cores;
 - the reporter's machine under concurrent I/O load;
 - real uv coverage, with 31 antennas and the field-3 selection from a multi-field MS.
+
+### Repeats and ThreadSanitizer (measured)
+
+**Repeated runs at -j128** (options as the report except `-size 2048 -scale 5.5asec -channels-out 2
+-fit-spectral-pol 2`, sim128, default stacks):
+- 20 of 20 exit 0 with the Windows binary on glacier (155-160 s each, `repeat-j128.log`);
+- 10 of 10 exit 0 with the 0.3.0 wheel on Linux (glacier WSL, `-X faulthandler`, 185-205 s each,
+  `repeat-wsl-j128.log`).
+
+**ThreadSanitizer** (nash):
+- **Build:** nightly with `-Zsanitizer=thread -Zbuild-std` (`tsan-build.sh`). A planted `static mut`
+  race was reported first, which shows the instrumentation works.
+- **Options:** as the report except `-size 512 -scale 22asec`, including `-average-channels 2
+  -channels-out 8 -fit-spectral-pol 4`.
+- **tsan1, `simf-small.ms` (flagged, NaN, so the dense residual path), -j16:** 0 reports, exit 0,
+  682 s.
+- **tsan2, `sim-small.ms` (unflagged, so the compacted sorted path), -j64:** 35 reports, exit 66
+  (TSan's code), 2 772 s.
+  - Every one is a write by a worker into its own job-deque buffer (1 KiB, allocated in
+    `rayon_core::Registry::new`) racing with a `crossbeam_deque::Stealer::steal` read.
+  - That is crossbeam's speculative steal read, which it validates by a compare-and-swap afterwards:
+    the known benign false-positive class, not a race in rang's data.
+  - The reporting stacks were up to 221 frames deep, nested `join_context` / `wait_until_cold`
+    steals. This shows the nesting behind the stack-depth table above.
+
+No report involves the gridder, the CLEAN kernels, the convolver or the allocator.
 
 ## Next
 
