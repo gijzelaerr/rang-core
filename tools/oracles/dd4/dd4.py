@@ -199,6 +199,17 @@ def facet_image(ctx, r, gains):
     return image
 
 
+def per_cell_converged(g1, g2, f1, f2, stop=CAP["stop_criterion"]):
+    """Per solution cell (time, freq, antenna, direction): unflagged in both
+    solves and |dg|^2 / |g|^2 < stop^2 between two solves one iteration
+    apart (DD4c section 3; DD6 reads parity on these cells)."""
+    g1, g2 = np.asarray(g1), np.asarray(g2)
+    d2 = (np.abs(g2 - g1) ** 2).sum(-1)
+    n2 = (np.abs(g1) ** 2).sum(-1)
+    ok = (np.asarray(f1) == 0) & (np.asarray(f2) == 0) & (n2 > 0)
+    return ok & (d2 < stop * stop * np.where(n2 > 0, n2, 1.0))
+
+
 def per_direction_converged(g1, g2, f1, f2, stop=CAP["stop_criterion"]):
     """Per direction, the fraction of unflagged solution cells whose relative
     change between two solves one iteration apart is below the solver's own

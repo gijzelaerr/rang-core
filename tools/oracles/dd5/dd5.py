@@ -101,14 +101,15 @@ def sky(name):
     raise SystemExit(f"unknown sky {name}")
 
 
-def noise_scale(out):
+def noise_scale(out, run=REAL_RUN, m0c=M0C):
     """Section 2: k from adjacent-channel differences of the real residual
-    DATA - (unit-gain predict of M0c), against WEIGHT_SPECTRUM."""
+    DATA - (unit-gain predict of M0c), against WEIGHT_SPECTRUM. `run` and
+    `m0c` default to DD4's run (DD6 passes its regenerated subset)."""
     t0 = time.perf_counter()
-    assert sha256(M0C) == M0C_SHA
-    ctx = dd4.context(REAL_RUN)
+    assert sha256(m0c) == M0C_SHA
+    ctx = dd4.context(Path(run))
     c = ctx["c"]
-    models = dd4.facet_models(ctx, np.load(M0C))
+    models = dd4.facet_models(ctx, np.load(m0c))
     r = c["DATA"].astype(np.complex64) - models.sum(axis=2)
     del models
     flag = c["FLAG"].astype(bool) | c["FLAG_ROW"].astype(bool)[:, None, None]
@@ -288,9 +289,11 @@ def empty_cells(ctx, ti):
     return n == 0
 
 
-def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
+def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None, pinned=None):
     """Section 3: DD4d's grid solve (and the one-longer solve for the
-    per-direction measure) on a simulated run, with section 4's measures."""
+    per-direction measure) on a simulated run, with section 4's measures.
+    `pinned` overrides the run's pinned directions (DD6: `[]` leaves d0
+    free); a run without `truth.npz` (real data, DD6) gets no `e_d`."""
     from rang import cal_gain
 
     run = Path(run)
@@ -300,6 +303,8 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
     models = dd4.facet_models(ctx, np.load(model))
     args = (c["DATA"], models, c["WEIGHT_SPECTRUM"], c["FLAG"], c["FLAG_ROW"],
             c["ANTENNA1"], c["ANTENNA2"], ctx["block"])  # fmt: skip
+    if pinned is not None:
+        ctx["pinned"] = list(pinned)
     kw = {"nant": len(c["ant_names"]), "refant": None, "pinned_directions": ctx["pinned"],
           "calmode": "p" if kind == "phase" else "ap", "phase_last_direction_gain": False}  # fmt: skip
     caps = dict(dd4.CAP, max_iterations=cap)
@@ -315,9 +320,14 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
     steps = step_stats(np.asarray(sol.gains), np.asarray(sol2.gains), np.asarray(sol.flags),
                        np.asarray(sol2.flags))  # fmt: skip
     empty = empty_cells(ctx, ti)
-    k = float(json.loads((run / "setup.json").read_text())["dd5"]["k"] or 0.0)
+    k = float(
+        (json.loads((run / "setup.json").read_text()).get("dd5") or {}).get("k") or 0.0
+    )
     gains, flags = np.asarray(sol.gains), np.asarray(sol.flags)
-    e = truth_error(run, ctx, gains, flags, ti, kind == "phase")
+    if (run / "truth.npz").exists():
+        e = truth_error(run, ctx, gains, flags, ti, kind == "phase")
+    else:
+        e = [float("nan")] * ctx["ndir"]
     ehat = (
         predicted_error(ctx, models, k, ti) if k > 0 else [float("nan")] * ctx["ndir"]
     )
@@ -331,6 +341,7 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
         for f in range(ctx["ndir"])
     ]
     rec = {"run": str(run), "model": str(model), "kind": kind, "ti": ti, "seconds_per_solution": 8 * ti,
+           "pinned": list(ctx["pinned"]),
            "cap": cap, "stop_fraction": caps["stop_fraction"], "level": level, "step_stats": steps,
            "stopped_before_cap": bool(sol.iterations < cap), "empty_cells": int(empty.sum()),
            "flagged_per_direction": [int((flags[..., f] != 0).sum()) for f in range(ctx["ndir"])],
@@ -348,7 +359,10 @@ def grid_point(run, kind, ti, model, out, cap=500, stop_fraction=None):
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(rec, indent=1))
-    np.savez_compressed(out.with_suffix(".npz"), gains=gains, flags=flags)
+    conv_mask = dd4.per_cell_converged(sol.gains, sol2.gains, sol.flags, sol2.flags)
+    np.savez_compressed(
+        out.with_suffix(".npz"), gains=gains, flags=flags, converged=conv_mask
+    )
     print(json.dumps(rec), flush=True)
 
 

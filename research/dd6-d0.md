@@ -247,4 +247,9 @@ Not yet measured.
 
 ## Amendments
 
-None yet.
+**A1, 2026-11-25, setup (before any deep model existed; no result read).**
+GeMClean refused section 3's command at start-up: `-local-rms is not
+implemented` (research/g4-masks.md). The frozen command is run without
+`-local-rms`; the auto-mask (4 σ) and auto-threshold (1.5 σ) then use
+GeMClean's global noise estimate. Nothing else changes. The two refused runs
+lasted under a second and wrote no model.
