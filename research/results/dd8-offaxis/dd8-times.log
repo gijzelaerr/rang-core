@@ -1,0 +1,58 @@
+gates start 2026-11-25T20:58:53+02:00 slots=1 mem=4 dd8.py gates D:/rang/outputs/dd8-20261125
+gates end 2026-11-25T20:58:56+02:00 rc=0 wall=3s
+draw start 2026-11-25T20:58:56+02:00 slots=2 mem=6 dd8.py draw D:/rang/outputs/dd8-20261125
+draw end 2026-11-25T20:58:57+02:00 rc=0 wall=1s
+L2000-64 start 2026-11-25T20:59:23+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd7-20261125/real 64 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd8-20261125/grid/L2000-64.json --free --cap 2000
+L2000-16 start 2026-11-25T20:59:23+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd7-20261125/real 16 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd8-20261125/grid/L2000-16.json --free --cap 2000
+insert start 2026-11-25T20:59:23+02:00 slots=4 mem=15 dd8.py insert D:/rang/outputs/dd8-20261125
+holdout-real start 2026-11-25T20:59:23+02:00 slots=2 mem=10 dd8.py holdout D:/rang/outputs/dd8-20261125 D:/rang/outputs/dd7-20261125/real real-H
+rebuild-R1 start 2026-11-25T20:59:23+02:00 slots=2 mem=10 dd8.py rebuild D:/rang/outputs/dd8-20261125 R1
+holdout-B start 2026-11-25T20:59:23+02:00 slots=2 mem=10 dd8.py holdout D:/rang/outputs/dd8-20261125 D:/rang/outputs/dd7-20261125/b B-H
+rebuild-R1 end 2026-11-25T20:59:38+02:00 rc=0 wall=15s
+R12 start 2026-11-25T20:59:38+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/R1 4 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd8-20261125/grid/R12.json --free
+holdout-B end 2026-11-25T20:59:46+02:00 rc=0 wall=23s
+BH-F start 2026-11-25T20:59:46+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/B-H 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/BH-F.json --free
+insert end 2026-11-25T21:02:25+02:00 rc=0 wall=182s
+O-F start 2026-11-25T21:02:25+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/O-F.json --free
+holdout-real end 2026-11-25T21:02:36+02:00 rc=0 wall=193s
+RH-L2000 start 2026-11-25T21:02:36+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/real-H 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd8-20261125/grid/RH-L2000.json --free --cap 2000
+RH-MF start 2026-11-25T21:02:53+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/real-H 4 D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd8-20261125/grid/RH-MF.json --free
+R12 end 2026-11-25T21:17:10+02:00 rc=0 wall=1052s
+R12-64 start 2026-11-25T21:17:10+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/R1 64 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd8-20261125/grid/R12-64.json --free
+BH-F end 2026-11-25T21:31:09+02:00 rc=0 wall=1883s
+BH-DI start 2026-11-25T21:31:09+02:00 slots=4 mem=10 dd8.py di D:/rang/outputs/dd8-20261125/B-H D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/BH-DI.json
+O-F end 2026-11-25T21:46:28+02:00 rc=0 wall=2643s
+O-P start 2026-11-25T21:46:28+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/O-P.json
+O-F-2000 start 2026-11-25T21:46:54+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/O-F-2000.json --free --cap 2000
+L2000-16 end 2026-11-25T21:59:04+02:00 rc=0 wall=3581s
+L2000-64 end 2026-11-25T22:04:56+02:00 rc=0 wall=3934s
+RH-MF end 2026-11-25T22:13:12+02:00 rc=0 wall=4219s
+R2H start 2026-11-25T22:13:12+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/real-H 4 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd8-20261125/grid/R2H.json --free
+BH-DI end 2026-11-25T22:14:03+02:00 rc=0 wall=2574s
+holdout-O start 2026-11-25T22:14:04+02:00 slots=2 mem=10 dd8.py holdout D:/rang/outputs/dd8-20261125 D:/rang/outputs/dd8-20261125/O O-H
+score-B start 2026-11-25T22:14:12+02:00 slots=4 mem=15 dd8.py score D:/rang/outputs/dd8-20261125/B-H D:/rang/outputs/dd8-20261125/score/B-H.json truth=D:/rang/outputs/dd7-20261125/b/sky.npy:truth unit=D:/rang/outputs/dd7-20261125/b/sky.npy:unit BH-F=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/BH-F.npz:4 BH-DI=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/BH-DI.npz:4
+R12-64 end 2026-11-25T22:25:32+02:00 rc=0 wall=4102s
+rebuild-R1c start 2026-11-25T22:25:32+02:00 slots=2 mem=10 dd8.py rebuild D:/rang/outputs/dd8-20261125 R1c
+O-P end 2026-11-25T22:31:27+02:00 rc=0 wall=2699s
+O-X start 2026-11-25T22:31:27+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O 4 D:/rang/outputs/dd8-20261125/O/sky.npy D:/rang/outputs/dd8-20261125/grid/O-X.json --free
+RH-L2000 end 2026-11-25T22:38:58+02:00 rc=0 wall=5782s
+holdout-O end 2026-11-25T22:39:07+02:00 rc=0 wall=1504s
+OH-F start 2026-11-25T22:39:07+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O-H 4 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/OH-F.json --free
+score-B end 2026-11-25T22:41:08+02:00 rc=0 wall=1616s
+rebuild-R1c end 2026-11-25T22:41:17+02:00 rc=0 wall=945s
+R1cR2 start 2026-11-25T22:41:17+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/R1c 4 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd8-20261125/grid/R1cR2.json --free
+R2H end 2026-11-25T22:45:23+02:00 rc=0 wall=1931s
+RH-DI start 2026-11-25T22:45:23+02:00 slots=4 mem=10 dd8.py di D:/rang/outputs/dd8-20261125/real-H D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd8-20261125/grid/RH-DI.json
+O-X end 2026-11-25T22:55:51+02:00 rc=0 wall=1464s
+OH-F end 2026-11-25T23:09:11+02:00 rc=0 wall=1804s
+OH-DI start 2026-11-25T23:09:11+02:00 slots=4 mem=10 dd8.py di D:/rang/outputs/dd8-20261125/O-H D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/OH-DI.json
+RH-DI end 2026-11-25T23:14:08+02:00 rc=0 wall=1725s
+score-real start 2026-11-25T23:14:17+02:00 slots=4 mem=15 dd8.py score D:/rang/outputs/dd8-20261125/real-H D:/rang/outputs/dd8-20261125/score/real-H.json unit=D:/rang/outputs/dd7-20261125/models/RM.npy:unit unit-DEEP=D:/rang/outputs/dd7-20261125/models/DEEP.npy:unit RH-DI=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-DI.npz:4 RH-MF=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-MF.npz:4 RH-L2000=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-L2000.npz:4 R2H=D:/rang/outputs/dd7-20261125/models/DEEP.npy:D:/rang/outputs/dd8-20261125/grid/R2H.npz:4
+OH-DI end 2026-11-25T23:14:52+02:00 rc=0 wall=341s
+score-O start 2026-11-25T23:15:01+02:00 slots=4 mem=15 dd8.py score D:/rang/outputs/dd8-20261125/O-H D:/rang/outputs/dd8-20261125/score/O-H.json truth-M0c=D:/rang/outputs/dd7-20261125/b/sky.npy:truth truth-O=D:/rang/outputs/dd8-20261125/O-H/sky.npy:truth unit=D:/rang/outputs/dd7-20261125/b/sky.npy:unit OH-F=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/OH-F.npz:4 OH-DI=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/OH-DI.npz:4
+score-real end 2026-11-25T23:18:06+02:00 rc=0 wall=229s
+score-O end 2026-11-25T23:21:10+02:00 rc=0 wall=369s
+O-F-2000 end 2026-11-25T23:21:27+02:00 rc=0 wall=5673s
+O-F-64 start 2026-11-25T23:21:27+02:00 slots=4 mem=15 dd8.py grid D:/rang/outputs/dd8-20261125/O 64 D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd8-20261125/grid/O-F-64.json --free
+R1cR2 end 2026-11-25T23:23:18+02:00 rc=0 wall=2521s
+O-F-64 end 2026-11-25T23:35:33+02:00 rc=0 wall=846s

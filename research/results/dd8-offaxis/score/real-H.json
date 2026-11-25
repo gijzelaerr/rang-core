@@ -1,0 +1,278 @@
+{
+ "run": "D:\\rang\\outputs\\dd8-20261125\\real-H",
+ "k": 0.5291444414416615,
+ "entries": [
+  "unit=D:/rang/outputs/dd7-20261125/models/RM.npy:unit",
+  "unit-DEEP=D:/rang/outputs/dd7-20261125/models/DEEP.npy:unit",
+  "RH-DI=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-DI.npz:4",
+  "RH-MF=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-MF.npz:4",
+  "RH-L2000=D:/rang/outputs/dd7-20261125/models/RM.npy:D:/rang/outputs/dd8-20261125/grid/RH-L2000.npz:4",
+  "R2H=D:/rang/outputs/dd7-20261125/models/DEEP.npy:D:/rang/outputs/dd8-20261125/grid/R2H.npz:4"
+ ],
+ "rows_heldout": 76050,
+ "heldout_rows_dropped_flagged_gain": 0.16557527942143324,
+ "insample_rows_dropped_flagged_gain": 0.12559659923776023,
+ "results": {
+  "unit": {
+   "H_heldout": 6.07671851136006,
+   "H_heldout_se": 0.6300942156966546,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 5.530701440607534
+  },
+  "unit-DEEP": {
+   "H_heldout": 2.420493335578521,
+   "H_heldout_se": 0.3984757028423963,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 2.422907481908177
+  },
+  "RH-DI": {
+   "H_heldout": 3.7188782857892626,
+   "H_heldout_se": 0.3114463120661988,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 2.3578402280309416,
+     "se": 0.5639795950178323,
+     "reading": "informative"
+    }
+   ],
+   "H_insample": 3.2062931883255787
+  },
+  "RH-MF": {
+   "H_heldout": 27.433820687905293,
+   "H_heldout_se": 25.295318889809487,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.885085046412635,
+     "se": 0.2577035411107809,
+     "reading": "informative"
+    },
+    {
+     "dir": 1,
+     "dH": 2.772456976824204,
+     "se": 0.48099157435978623,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.017365919285167744,
+     "se": 0.01715785815721708,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": -25.178745236484964,
+     "se": 25.203758773770023,
+     "reading": "uninformative"
+    }
+   ],
+   "heldout_rows_offaxis_converged_fraction": 0.009833275552333827,
+   "H_heldout_converged_rows": 2.1155798642822345,
+   "H_heldout_other_rows": 27.687006071839285,
+   "H_insample": 1.7689050382052023
+  },
+  "RH-L2000": {
+   "H_heldout": 1524.7108229185949,
+   "H_heldout_se": 1526.8737155468248,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": -0.5871431665785569,
+     "se": 1.253862680516225,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 2.3604064009639663,
+     "se": 0.7089399151259881,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.10919803256550556,
+     "se": 0.10271375958960305,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": -1522.4548055373307,
+     "se": 1526.7810375394138,
+     "reading": "uninformative"
+    }
+   ],
+   "heldout_rows_offaxis_converged_fraction": 0.36118377509533867,
+   "H_heldout_converged_rows": 2.426067386766881,
+   "H_heldout_other_rows": 2370.734908065944,
+   "H_insample": 1.7677964525484724
+  },
+  "R2H": {
+   "H_heldout": 1.5459011790726191,
+   "H_heldout_se": 0.13109558434537788,
+   "cells_heldout": 5499790,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.8951163869110594,
+     "se": 0.3149930346843995,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": -0.014917601041720428,
+     "se": 0.022512520764942538,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 2,
+     "dH": -0.023983447441431844,
+     "se": 0.009647439402175932,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": -0.010416602903122501,
+     "se": 0.004816017691140722,
+     "reading": "uninformative"
+    }
+   ],
+   "heldout_rows_offaxis_converged_fraction": 0.10930063979324908,
+   "H_heldout_converged_rows": 1.6508955799240348,
+   "H_heldout_other_rows": 1.5335202559469077,
+   "H_insample": 1.323371310044349
+  }
+ },
+ "pairs": {
+  "unit - unit-DEEP": {
+   "dH": 3.656225175781539,
+   "se": 0.4720231411048676,
+   "reading": "unit-DEEP predicts better"
+  },
+  "unit - RH-DI": {
+   "dH": 2.3578402255707975,
+   "se": 0.5639795945410171,
+   "reading": "RH-DI predicts better"
+  },
+  "unit - RH-MF": {
+   "dH": -21.35710217654522,
+   "se": 24.89614990398235,
+   "reading": "no difference"
+  },
+  "unit - RH-L2000": {
+   "dH": -1518.634104407235,
+   "se": 1526.470483615697,
+   "reading": "no difference"
+  },
+  "unit - R2H": {
+   "dH": 4.530817332287441,
+   "se": 0.6066518451042175,
+   "reading": "R2H predicts better"
+  },
+  "unit-DEEP - RH-DI": {
+   "dH": -1.2983849502107414,
+   "se": 0.40418944130053325,
+   "reading": "unit-DEEP predicts better"
+  },
+  "unit-DEEP - RH-MF": {
+   "dH": -25.013327352326765,
+   "se": 24.95833309081807,
+   "reading": "no difference"
+  },
+  "unit-DEEP - RH-L2000": {
+   "dH": -1522.2903295830167,
+   "se": 1526.5366449494718,
+   "reading": "no difference"
+  },
+  "unit-DEEP - R2H": {
+   "dH": 0.8745921565059019,
+   "se": 0.34226161432528374,
+   "reading": "no difference"
+  },
+  "RH-DI - RH-MF": {
+   "dH": -23.714942402116012,
+   "se": 25.190675854386843,
+   "reading": "no difference"
+  },
+  "RH-DI - RH-L2000": {
+   "dH": -1520.9919446328058,
+   "se": 1526.768126944251,
+   "reading": "no difference"
+  },
+  "RH-DI - R2H": {
+   "dH": 2.1729771067166435,
+   "se": 0.30327243666835946,
+   "reading": "R2H predicts better"
+  },
+  "RH-MF - RH-L2000": {
+   "dH": -1497.2770022306897,
+   "se": 1501.5788475361132,
+   "reading": "no difference"
+  },
+  "RH-MF - R2H": {
+   "dH": 25.88791950883265,
+   "se": 25.274277562454927,
+   "reading": "no difference"
+  },
+  "RH-L2000 - R2H": {
+   "dH": 1523.164921739523,
+   "se": 1526.8529262187124,
+   "reading": "no difference"
+  }
+ },
+ "seconds": 188.62871059996542
+}
