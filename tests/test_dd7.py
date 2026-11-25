@@ -99,7 +99,9 @@ def test_regen_noise_matches_dd5_draw():
 
 
 def test_matched_control_falls_back_to_nearest_weight():
-    w = np.concatenate([np.full(20, 0.1), np.linspace(0.05, 3.0, 180)])
+    w = np.concatenate(
+        [np.full(20, 0.1), np.linspace(0.08, 0.12, 60), np.full(120, 3.0)]
+    )
     exclude = np.zeros(200, bool)
     exclude[:20] = True
     target = w[:20].sum() / w.sum()
