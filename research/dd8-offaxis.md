@@ -276,4 +276,13 @@ Not yet written.
 
 ## Amendments
 
-None yet.
+**A1, 2026-11-25, setup (lanes started, no solve point finished or read).**
+- GH needed seed 8803 (8801 and 8802 left an antenna off every held-out
+  baseline): 169 held-out baselines, 9.65 % of the unflagged weight, all 61
+  antennas; per bin 3, 8, 24, 44, 29, 46, 15. G1 passes.
+- The bases' step medians are exactly 0 (B pinned and BF: more than half the
+  cells repeat to the last bit), so section 3's "step median rises by
+  ≥ 100×" is read as "step median above 1e-14" (the converged threshold).
+  A median above 1e-14 means more than half the cells have not converged, so
+  some direction has dropped by more than 0.20 and the drop clause already
+  applies: the change alters no reading.
