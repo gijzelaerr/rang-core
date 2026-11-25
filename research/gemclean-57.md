@@ -66,8 +66,14 @@ path that this shape could overflow. No fix is merged. The next step is the repo
 | dbg1 | glacier Windows **debug** build (overflow checks, debug asserts), -j4 | flagged 80 640 rows x 64 ch | `-size 1024 -scale 11asec`, otherwise as the report (`-average-channels 2 -channels-out 8 -fit-spectral-pol 4`) | exit 0, 4 majors, 1 104 s |
 | stack | glacier Windows, `-size 2048 -nmiter 1`, -j8 | sim128 | `RUST_MIN_STACK` 64 KB / 128 KB / 256 KB | 64 KB: overflow at start (expected); 128 KB and 256 KB: exit 0 |
 
-Run AVX2 (A with `RANG_WGRIDDER_SIMD=avx2 -simd avx2`) and run B8 (nash, Linux binary under gdb,
-`-channels-out 8 -fit-spectral-pol 4` on sim128) were still to come when this note was written.
+Run AVX2 repeated A at -j8 with `RANG_WGRIDDER_SIMD=avx2 -simd avx2`, so the gridder and the clean
+kernels took their AVX2 paths. It exited 0 after 5 majors in 2 313 s, so the AVX2 path is covered as
+well as AVX-512.
+
+Run B8 is queued on nash and has not run yet; its outcome is not part of this note. It uses
+`run-b8.sh` (log `run-b8/log.txt`, gdb backtrace on a fault). The run is the Linux release binary, which
+reports stack overflows and uses `HugePageAlloc`, under gdb with
+`-channels-out 8 -fit-spectral-pol 4` on sim128 and an 80 GB booking.
 
 What these rule out:
 - 1.12e8 visibilities per channel at n = 10240 with the reported clean settings;
