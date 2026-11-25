@@ -109,7 +109,7 @@ w48A|w48c4)
   need=runA; [ "$1" = w48c4 ] && need=runc4; shard build || { echo "build not done"; exit 1; }
   shard $need || { echo "$need not done"; exit 1; }
   mkdir -p "$O"
-  W="$LOCK --slots 4 --mem 48 -- $NICE env RAYON_NUM_THREADS=4 $PY -I $S/w48_real.py"
+  W="$LOCK --slots 4 --mem 16 -- $NICE env RAYON_NUM_THREADS=4 $PY -I $S/w48_real.py"
   for F in J1744-5144 J0408-6545 ASKAPJ1745; do
     for arm in raw unity rmad rclip; do
       tag=$1.$F.$arm
