@@ -51,7 +51,7 @@ e2n)
   fi
   if ! shard "cfg-$ARM"; then
     cp "$WT/research/results/e2n-scripts/e2n.yaml" "$WT/research/results/e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml" "$R/cfg/"
-    [ "$ARM" = R ] || cp "$WT/python/rang/data/mk_rfi_flagging_mild.yaml" "$R/cfg/"
+    [ "$ARM" = R ] || cp "$S/../mk_rfi_flagging_mild.yaml" "$R/cfg/"
     "$PY" -I "$S/sf_cfg.py" "$R/cfg/e2n.yaml" "$R/cfg/e2n-$ARM.yaml" "$ARM"
     mark "cfg-$ARM"
   fi
@@ -76,7 +76,7 @@ a1)
   if ! shard "a1-cfg-$ARM"; then
     cp "$WT/research/results/e1-chain-scripts/e1_config.yaml" "$A/e1.yaml"
     cp "$WT/research/results/e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml" "$A/"
-    [ "$ARM" = R ] || cp "$WT/python/rang/data/mk_rfi_flagging_mild.yaml" "$A/"
+    [ "$ARM" = R ] || cp "$S/../mk_rfi_flagging_mild.yaml" "$A/"
     # A1 full's flux-calibrator interval needs 9.4 GiB (flag-residual): 24, inside the 32 GB booking.
     "$PY" -I "$S/sf_cfg.py" "$A/e1.yaml" "$A/a1-$ARM.yaml" "$ARM" 24
     mark "a1-cfg-$ARM"

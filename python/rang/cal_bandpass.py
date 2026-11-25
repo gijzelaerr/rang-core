@@ -163,6 +163,7 @@ def bandpass(
     budget=None,
     average_time=False,
     model_divided=False,
+    solver_flags=None,
 ):
     """`bandpass(bandtype='B')` on one field of a single-window MS: returns
     `(CalTable, BandpassSolution, info)`. Defaults are CASA 6.7.6.14's
@@ -226,16 +227,27 @@ def bandpass(
     tb, keys = cal_gain.solint_bins(
         m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine
     )
-    gsol, row_w = cal_gain._solve_gain_field(
-        fld, tb, nchan=len(freq), per_channel=True, budget=budget,
-        what=f"bandpass field {field_id}", nant=nant, calmode="ap", refant=refants,
-        refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
-        positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
-        stop_criterion=stop_criterion, stop_fraction=stop_fraction,
-        **({"average": True} if average_time else {}),
-    )  # fmt: skip
-    sol = _finish(gsol, fillgaps, casa_rules)
-    del gsol
+
+    def solve_once():
+        gsol, row_w = cal_gain._solve_gain_field(
+            fld, tb, nchan=len(freq), per_channel=True, budget=budget,
+            what=f"bandpass field {field_id}", nant=nant, calmode="ap", refant=refants,
+            refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
+            positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
+            stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+            **({"average": True} if average_time else {}),
+        )  # fmt: skip
+        return _finish(gsol, fillgaps, casa_rules), row_w
+
+    sol, row_w = solve_once()
+    sf_record = None
+    if solver_flags is not None:
+        # Issue #58 (research/solver-flags.md 3.1): flag passes and re-solves.
+        from . import solver_flags as _sf
+
+        sol, row_w, sf_record = _sf.rounds(
+            fld, tb, sol, solver_flags["cfg"], solver_flags["write"], solve_once
+        )
     sol.settings.update(
         {"weights": sigma_column if tables else weight_column, "uvrange": uvrange,
          "solint": solint, "combine": combine}
@@ -248,6 +260,8 @@ def bandpass(
     scans = fld.scans(tb, len(keys))
     table = to_caltable(sol, times, span, scans, field_id=field_id, ms=ms)
     info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
+    if sf_record is not None:
+        info["solver_flags"] = sf_record
     return table, sol, info
 
 

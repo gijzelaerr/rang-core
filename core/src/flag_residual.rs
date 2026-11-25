@@ -16,6 +16,12 @@
 //!   `compute_gbl_mad_and_med`, `compute_mad_flags`), on one QuartiCal data
 //!   chunk, unwhitened, in single precision as QuartiCal's numba kernels.
 //!
+//! Flags at the gain solve (`calibrate.solver_flags`, issue #58,
+//! `research/solver-flags.md`): [`diag_residual`] forms a diagonal term's
+//! parallel-hand residual `d - g_p m g_q^*`, and [`solver_flags`] runs either
+//! rule on one solution interval's chunk, then a minimum-sample rule and a
+//! per-baseline guard.
+//!
 //! Portions are a Rust translation of QuartiCal 0.2.7's
 //! `quartical/flagging/flagging_kernels.py`, distributed under the MIT
 //! License:
@@ -522,6 +528,225 @@ pub fn median_model(
     Ok(out.into_iter().flatten().collect())
 }
 
+/// The residual of a diagonal gain term on the parallel hands (issue #58,
+/// `research/solver-flags.md` 3.1): `r = d - g_p m g_q^*` per hand, from
+/// `(row, chan, 4)` data and model (complex64 as f32 pairs), the gains
+/// `(ntime, nfreq, nant, 2)` complex128 as f64 pairs, each row's interval
+/// `time_bin` and each channel's `freq_bin`. Returns the residual `(row,
+/// chan, 2)` complex64 as f32 pairs and a `(row, chan)` byte that is 1
+/// where a gain of either antenna is flagged (`gain_flags` `(ntime, nfreq,
+/// nant, 2)`, nonzero flagged) or not finite.
+#[allow(clippy::too_many_arguments)]
+pub fn diag_residual(
+    data: &[f32],
+    model: &[f32],
+    nrow: usize,
+    nchan: usize,
+    a1: &[u32],
+    a2: &[u32],
+    time_bin: &[u32],
+    freq_bin: &[u32],
+    gains: &[f64],
+    gain_flags: &[u8],
+    ntime: usize,
+    nfreq: usize,
+    nant: usize,
+) -> Result<(Vec<f32>, Vec<u8>), String> {
+    let cells = nrow * nchan;
+    if data.len() != cells * 8 || model.len() != cells * 8 {
+        return Err("data and model must be (row, chan, 4) complex".into());
+    }
+    if a1.len() != nrow || a2.len() != nrow || time_bin.len() != nrow {
+        return Err("antenna1, antenna2 and time_bin must have one entry per row".into());
+    }
+    if freq_bin.len() < nchan {
+        return Err("freq_bin must have one entry per channel".into());
+    }
+    let ngain = ntime * nfreq * nant * 2;
+    if gains.len() != ngain * 2 || gain_flags.len() != ngain {
+        return Err("gains must be (ntime, nfreq, nant, 2) complex, gain_flags the same".into());
+    }
+    for r in 0..nrow {
+        if time_bin[r] as usize >= ntime || a1[r] as usize >= nant || a2[r] as usize >= nant {
+            return Err(format!("row {r}: interval or antenna out of range"));
+        }
+    }
+    if freq_bin[..nchan].iter().any(|&f| f as usize >= nfreq) {
+        return Err("freq_bin out of range".into());
+    }
+    let mut res = vec![0.0_f32; cells * 4];
+    let mut bad = vec![0u8; cells];
+    if nchan == 0 {
+        return Ok((res, bad));
+    }
+    res.par_chunks_mut(nchan * 4)
+        .zip(bad.par_chunks_mut(nchan))
+        .enumerate()
+        .for_each(|(r, (rrow, brow))| {
+            let (p, q, t) = (a1[r] as usize, a2[r] as usize, time_bin[r] as usize);
+            for c in 0..nchan {
+                let f = freq_bin[c] as usize;
+                let base = (t * nfreq + f) * nant;
+                for (h, k) in [(0usize, 0usize), (1, 3)] {
+                    let (ip, iq) = ((base + p) * 2 + h, (base + q) * 2 + h);
+                    let gp = (gains[2 * ip], gains[2 * ip + 1]);
+                    let gq = (gains[2 * iq], gains[2 * iq + 1]);
+                    let finite = gp.0.is_finite()
+                        && gp.1.is_finite()
+                        && gq.0.is_finite()
+                        && gq.1.is_finite();
+                    if gain_flags[ip] != 0 || gain_flags[iq] != 0 || !finite {
+                        brow[c] = 1;
+                    }
+                    let i = ((r * nchan + c) * 4 + k) * 2;
+                    let (mr, mi) = (model[i] as f64, model[i + 1] as f64);
+                    // g_p m, then times conj(g_q).
+                    let (ar, ai) = (gp.0 * mr - gp.1 * mi, gp.0 * mi + gp.1 * mr);
+                    let (vr, vi) = (ar * gq.0 + ai * gq.1, ai * gq.0 - ar * gq.1);
+                    let o = (c * 2 + h) * 2;
+                    rrow[o] = (data[i] as f64 - vr) as f32;
+                    rrow[o + 1] = (data[i + 1] as f64 - vi) as f32;
+                }
+            }
+        });
+    Ok((res, bad))
+}
+
+/// Settings of [`solver_flags`] (`calibrate.solver_flags`).
+#[derive(Clone, Copy, Debug)]
+pub struct SolverSettings {
+    /// QuartiCal's `mad_flags` rule; otherwise the rang rule.
+    pub quartical: bool,
+    pub sigma: f64,
+    /// QuartiCal's `threshold_global` (quartical only).
+    pub global_sigma: f64,
+    /// The rang rule's persistence factor (rang only).
+    pub persist: f64,
+    /// The rang rule's channels per noise block (rang only).
+    pub block: usize,
+    /// Largest flagged fraction new flags may take a baseline to within the
+    /// chunk (1 or more: no guard).
+    pub guard: f64,
+    /// A baseline with fewer unflagged cells in the chunk gets no new flags.
+    pub min_cells: usize,
+}
+
+/// What [`solver_flags`] did on one chunk.
+#[derive(Clone, Debug, Default)]
+pub struct SolverCounts {
+    pub cells: u64,
+    pub input_flagged: u64,
+    /// Cells the rule flagged that were not flagged before.
+    pub rule: u64,
+    pub sparse_baselines: u64,
+    pub guarded_baselines: u64,
+    pub added: u64,
+}
+
+/// New flags of one statistics chunk (one solution interval, every
+/// channel): the rule on the parallel-hand residual `res` `(row, chan, 2)`
+/// complex64 as f32 pairs, with `flag` `(row, chan)` the cells that take no
+/// part (nonzero), then `min_cells` and `guard` per baseline. Returns the
+/// `(row, chan)` bytes of cells to flag (none already flagged, none on an
+/// autocorrelation) and the counts. `dump` is each row's dump index (the
+/// rang rule's persistence over the band).
+#[allow(clippy::too_many_arguments)]
+pub fn solver_flags(
+    res: &[f32],
+    flag: &[u8],
+    nrow: usize,
+    nchan: usize,
+    a1: &[u32],
+    a2: &[u32],
+    dump: &[u32],
+    nant: usize,
+    s: &SolverSettings,
+) -> Result<(Vec<u8>, SolverCounts), String> {
+    check(nrow, nchan, 2, res, a1, a2)?;
+    if flag.len() != nrow * nchan || dump.len() != nrow {
+        return Err("flag must be (row, chan), dump one per row".into());
+    }
+    if a1.iter().chain(a2).any(|&a| a as usize >= nant) {
+        return Err("antenna out of range".into());
+    }
+    let input: Vec<u8> = flag.iter().map(|&f| u8::from(f != 0)).collect();
+    let mut new = if s.quartical {
+        flags_quartical(
+            res,
+            &input,
+            nrow,
+            nchan,
+            2,
+            a1,
+            a2,
+            nant,
+            &[0, 1],
+            s.sigma,
+            s.global_sigma,
+            0.0,
+        )?
+    } else {
+        let per_corr: Vec<u8> = input.iter().flat_map(|&f| [f, f]).collect();
+        let rs = RangSettings {
+            sigma: s.sigma,
+            persist: s.persist,
+            block: s.block,
+            guard: 1.0,
+        };
+        flags_rang(res, &per_corr, nrow, nchan, 2, a1, a2, dump, nant, &rs)?.0
+    };
+    let mut counts = SolverCounts {
+        cells: (nrow * nchan) as u64,
+        ..Default::default()
+    };
+    for r in 0..nrow {
+        let auto = a1[r] == a2[r];
+        for c in 0..nchan {
+            let i = r * nchan + c;
+            counts.input_flagged += u64::from(input[i]);
+            if input[i] != 0 || auto {
+                new[i] = 0;
+            }
+            counts.rule += u64::from(new[i] != 0);
+        }
+    }
+    // Per baseline: cells, already flagged, new.
+    let nbl = nant * nant;
+    let mut tot = vec![0u64; nbl];
+    let mut was = vec![0u64; nbl];
+    let mut add = vec![0u64; nbl];
+    let bl = |r: usize| a1[r] as usize * nant + a2[r] as usize;
+    for r in 0..nrow {
+        let b = bl(r);
+        tot[b] += nchan as u64;
+        for c in 0..nchan {
+            let i = r * nchan + c;
+            was[b] += u64::from(input[i]);
+            add[b] += u64::from(new[i] != 0);
+        }
+    }
+    let mut drop = vec![false; nbl];
+    for b in 0..nbl {
+        if add[b] == 0 {
+            continue;
+        }
+        if tot[b] - was[b] < s.min_cells as u64 {
+            drop[b] = true;
+            counts.sparse_baselines += 1;
+        } else if s.guard < 1.0 && (was[b] + add[b]) as f64 > s.guard * tot[b] as f64 {
+            drop[b] = true;
+            counts.guarded_baselines += 1;
+        }
+    }
+    for r in 0..nrow {
+        if drop[bl(r)] {
+            new[r * nchan..(r + 1) * nchan].fill(0);
+        }
+    }
+    counts.added = new.iter().map(|&x| u64::from(x != 0)).sum();
+    Ok((new, counts))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -720,5 +945,174 @@ mod tests {
         let flag = vec![0u8, 0, 1];
         let m = median_model(&data, &flag, 3, 1, 1).unwrap();
         assert_eq!(m, vec![2.0, 0.0]);
+    }
+
+    /// Rows of every cross baseline of `nant` antennas over `ndump` dumps.
+    fn layout(nant: usize, ndump: usize) -> (Vec<u32>, Vec<u32>, Vec<u32>) {
+        let (mut a1, mut a2, mut dump) = (Vec::new(), Vec::new(), Vec::new());
+        for d in 0..ndump {
+            for p in 0..nant {
+                for q in (p + 1)..nant {
+                    a1.push(p as u32);
+                    a2.push(q as u32);
+                    dump.push(d as u32);
+                }
+            }
+        }
+        (a1, a2, dump)
+    }
+
+    #[test]
+    #[allow(clippy::needless_range_loop)]
+    fn diag_residual_is_zero_on_the_model_corrupted_by_the_gains() {
+        let (nant, nchan) = (4usize, 3usize);
+        let (a1, a2, _) = layout(nant, 2);
+        let nrow = a1.len();
+        let tb: Vec<u32> = (0..nrow).map(|r| (r / 6) as u32).collect();
+        let fb = vec![0u32, 0, 1];
+        let (ntime, nfreq) = (2usize, 2usize);
+        let mut seed = 7u64;
+        let mut gains = vec![0.0f64; ntime * nfreq * nant * 2 * 2];
+        for g in gains.iter_mut() {
+            *g = 0.5 + lcg(&mut seed);
+        }
+        let mut model = vec![0.0f32; nrow * nchan * 8];
+        for m in model.iter_mut() {
+            *m = (lcg(&mut seed) - 0.5) as f32;
+        }
+        let mut data = vec![0.0f32; nrow * nchan * 8];
+        for r in 0..nrow {
+            for c in 0..nchan {
+                for (h, k) in [(0usize, 0usize), (1, 3)] {
+                    let gi = |a: u32| {
+                        let i = (((tb[r] as usize * nfreq + fb[c] as usize) * nant + a as usize)
+                            * 2
+                            + h)
+                            * 2;
+                        (gains[i], gains[i + 1])
+                    };
+                    let (gp, gq) = (gi(a1[r]), gi(a2[r]));
+                    let i = ((r * nchan + c) * 4 + k) * 2;
+                    let (mr, mi) = (model[i] as f64, model[i + 1] as f64);
+                    let ar = gp.0 * mr - gp.1 * mi;
+                    let ai = gp.0 * mi + gp.1 * mr;
+                    data[i] = (ar * gq.0 + ai * gq.1) as f32;
+                    data[i + 1] = (ai * gq.0 - ar * gq.1) as f32;
+                }
+            }
+        }
+        let mut gflags = vec![0u8; ntime * nfreq * nant * 2];
+        gflags[((nfreq + 1) * nant + 2) * 2 + 1] = 1; // time 1, bin 1, antenna 2, y
+        let (res, bad) = diag_residual(
+            &data, &model, nrow, nchan, &a1, &a2, &tb, &fb, &gains, &gflags, ntime, nfreq, nant,
+        )
+        .unwrap();
+        assert!(res.iter().all(|v| v.abs() < 1e-6));
+        for r in 0..nrow {
+            for c in 0..nchan {
+                let expect = tb[r] == 1 && fb[c] == 1 && (a1[r] == 2 || a2[r] == 2);
+                assert_eq!(bad[r * nchan + c] == 1, expect, "row {r} chan {c}");
+            }
+        }
+    }
+
+    fn noise(nrow: usize, nchan: usize, seed: u64) -> Vec<f32> {
+        let mut seed = seed;
+        (0..nrow * nchan * 4)
+            .map(|_| gauss(&mut seed) as f32)
+            .collect()
+    }
+
+    fn settings(quartical: bool) -> SolverSettings {
+        SolverSettings {
+            quartical,
+            sigma: 5.0,
+            global_sigma: 10.0,
+            persist: 3.0,
+            block: 16,
+            guard: 1.0,
+            min_cells: 0,
+        }
+    }
+
+    #[test]
+    fn solver_flags_find_rfi_with_both_rules() {
+        let (nant, nchan) = (8usize, 32usize);
+        let (a1, a2, dump) = layout(nant, 30);
+        let nrow = a1.len();
+        for quartical in [true, false] {
+            let mut res = noise(nrow, nchan, 11);
+            let hits = [(5usize, 3usize), (40, 20), (300, 9)];
+            for &(r, c) in &hits {
+                res[(r * nchan + c) * 4] = 80.0;
+            }
+            let flag = vec![0u8; nrow * nchan];
+            let (new, counts) = solver_flags(
+                &res,
+                &flag,
+                nrow,
+                nchan,
+                &a1,
+                &a2,
+                &dump,
+                nant,
+                &settings(quartical),
+            )
+            .unwrap();
+            for &(r, c) in &hits {
+                assert_eq!(new[r * nchan + c], 1, "quartical {quartical}: ({r}, {c})");
+            }
+            assert!(counts.added < (nrow * nchan / 100) as u64, "{counts:?}");
+            assert_eq!(counts.added, new.iter().map(|&v| v as u64).sum::<u64>());
+        }
+    }
+
+    #[test]
+    fn solver_flags_keep_input_flags_and_obey_guard_and_min_cells() {
+        let (nant, nchan) = (6usize, 16usize);
+        let (a1, a2, dump) = layout(nant, 20);
+        let nrow = a1.len();
+        let mut res = noise(nrow, nchan, 3);
+        // Baseline (0, 1) is RFI over most of its cells; (0, 2) almost all flagged.
+        let mut flag = vec![0u8; nrow * nchan];
+        for r in 0..nrow {
+            if a1[r] == 0 && a2[r] == 1 && dump[r] % 5 != 0 {
+                for c in 0..nchan {
+                    res[(r * nchan + c) * 4] = 200.0;
+                }
+            }
+            if a1[r] == 0 && a2[r] == 2 {
+                for c in 0..nchan {
+                    if !(dump[r] == 0 && c < 4) {
+                        flag[r * nchan + c] = 1;
+                    }
+                }
+                res[(r * nchan) * 4] = 200.0;
+            }
+        }
+        let mut s = settings(true);
+        let (open, _) = solver_flags(&res, &flag, nrow, nchan, &a1, &a2, &dump, nant, &s).unwrap();
+        let bl01: Vec<usize> = (0..nrow).filter(|&r| a1[r] == 0 && a2[r] == 1).collect();
+        assert!(bl01.iter().any(|&r| open[r * nchan] == 1));
+        for (i, &f) in flag.iter().enumerate() {
+            if f != 0 {
+                assert_eq!(open[i], 0, "an input flag is not new");
+            }
+        }
+        s.guard = 0.5;
+        s.min_cells = 5;
+        let (new, counts) =
+            solver_flags(&res, &flag, nrow, nchan, &a1, &a2, &dump, nant, &s).unwrap();
+        assert!(
+            bl01.iter()
+                .all(|&r| new[r * nchan..(r + 1) * nchan].iter().all(|&v| v == 0))
+        );
+        for r in 0..nrow {
+            if a1[r] == 0 && a2[r] == 2 {
+                assert!(new[r * nchan..(r + 1) * nchan].iter().all(|&v| v == 0));
+            }
+        }
+        assert!(counts.guarded_baselines >= 1, "{counts:?}");
+        assert_eq!(counts.sparse_baselines, 1, "{counts:?}");
     }
 }

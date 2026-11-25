@@ -254,6 +254,34 @@ Cases are cut from M0's MS after its flag stage:
 
    Each is named for the coordinator.
 
+## Amendments
+
+**Amendment 1, 2026-11-25 07:00 SAST (implementation choices, written with the code, before any M
+arm or oracle case ran; arm R had started and needs none of this code).**
+
+- **3.2, location.** The mild strategy is `research/results/solver-flags/mk_rfi_flagging_mild.yaml`, not
+  package data. It is a cut of a CARACal file, and CARACal's strategy copies have an open licence-notice
+  item (STATE, MIT audit), so it stays with the other copies outside the wheel. The content is as
+  frozen; a check against the e2n-scripts copy shows its first three steps byte-identical, trailing
+  spaces aside.
+- **3.3, single frequency.** Channels are selected by `rang.flagdata`'s CASA `spw` rule
+  (research/v8b-flagdata.md): a range takes the channels whose centre lies inside it. A range between
+  two centres, which includes `1600MHz` unless a centre is exactly 1600 MHz, takes both neighbouring
+  channels, as CASA does. The note's "the channel that contains it" was wrong for CASA.
+- **3.3, refusal.** The refusal runs at the `flag` stage only, because `config check` does not open the
+  MS's OBSERVATION table.
+  - The check: TELESCOPE_NAME is MeerKAT or MKAT, and the window is inside 856-1712 MHz with 1 MHz of
+    slack.
+  - The preset is OR-ed into FLAG before the strategy, and again after it, because `write: replace`
+    would otherwise drop it.
+- **3.1, executor.** With `data.processes` > 1, `solver_flags` is refused. The flag pass writes FLAG
+  from the calibrate process, and a multi-field term on the pool solves its fields in workers.
+  Chunked, replayed and streamed solves in one process are unaffected.
+- **3.1, where flags can land.** Cells the solve excludes get no flags: rows outside the term's
+  `uvrange` (`>150` on E2-N), and cells flagged by a pre-applied table's `calflag`. Each pass reads the
+  whole field, then writes its flags, so a second table object never opens while the writer holds the
+  lock.
+
 ## Measured result
 
 Not yet measured.

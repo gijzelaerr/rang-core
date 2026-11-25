@@ -9,6 +9,20 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `calibrate.solver_flags` (off by default; #58, `research/solver-flags.md`): residual flags at the gain
+  solve. After each G or B solve, the residual `d - g_p m g_q^*` of the unaveraged cells is flagged per
+  solution interval by QuartiCal 0.2.7's `mad_flags` rule (`mode: quartical`) or the antenna-factorised
+  rule of `flag.residual` (`mode: rang`), with a per-baseline guard (`guard`, 0.8) and a minimum sample
+  (`min_cells`). The flags are written to FLAG and the term is solved again (`rounds`, 2), with a
+  relative tripwire on the solutions. `data.processes` 1 only. Measured outcome: see the note.
+- `flag.known_rfi: meerkat_l` (default `none`; #59): MeerKAT L-band known RFI before the strategy.
+  Three ranges are flagged on all baselines (850-900, 1658-1800 and 1419.8-1421.3 MHz), and 15
+  satellite and transmitter bands on baselines shorter than 600 m. The lists are oxkat's, from SARAO's
+  MeerKAT Cookbook (`rang.meerkat.KNOWN_RFI_L_ALL`, `KNOWN_RFI_L_SHORT`). Channels are selected as CASA
+  `flagdata` selects `spw`. Non-MeerKAT or non-L-band data are refused.
+- A mild raw strategy for the measurement of #58: the first three steps of CARACal's calibrator
+  first pass (`research/results/solver-flags/mk_rfi_flagging_mild.yaml`, not package data).
+
 - **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
   every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,
   snapshot and candidate of a run without `--weights` changes on a Measurement Set whose weights

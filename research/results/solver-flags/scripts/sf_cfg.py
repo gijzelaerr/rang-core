@@ -17,7 +17,8 @@ MILD = "mk_rfi_flagging_mild.yaml"
 
 
 def main(src, dst, arm, memory=None):
-    cfg = yaml.safe_load(open(src, encoding="utf-8"))
+    with open(src, encoding="utf-8") as fh:
+        cfg = yaml.safe_load(fh)
     if memory is not None:
         cfg.setdefault("data", {})["memory_limit_gb"] = float(memory)
     cfg.setdefault("run", {})["stages"] = ["flag", "calibrate", "apply"]

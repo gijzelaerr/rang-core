@@ -27,6 +27,45 @@ channels and is not a recommendation for real data.
 A strategy is also what calibrate's `A` term runs on the corrected
 calibrators (`strategy` on the term; {doc}`calibrate`).
 
+## Known RFI: MeerKAT L band
+
+```yaml
+flag:
+  known_rfi: meerkat_l   # default none
+```
+
+- **Where it runs:** before the strategy, and again after it, OR-ed into FLAG on the stage's fields.
+- **All baselines:** 850-900 MHz, 1658-1800 MHz and the Galactic HI line (1419.8-1421.3 MHz).
+- **Baselines shorter than 600 m:** 15 satellite and transmitter bands (GSM, GPS, GLONASS, Galileo,
+  Iridium, Inmarsat and others).
+- **Source of the lists:** oxkat, from SARAO's MeerKAT Cookbook ({gh}`python/rang/meerkat.py`).
+- **Channel selection:** as CASA `flagdata` selects `spw='*:<range>'`.
+- **Refusals:** the stage refuses data that is not MeerKAT or not L band (issue #59,
+  {gh}`research/solver-flags.md`).
+
+## Flags at the gain solve
+
+```yaml
+calibrate:
+  solver_flags:
+    mode: quartical   # off (default) | quartical | rang
+    terms: [G, B]
+    rounds: 2
+    guard: 0.8
+```
+
+After each G (G, Gsec) or B solve, the residual of the unaveraged cells is flagged per solution
+interval:
+
+- **`quartical`:** QuartiCal 0.2.7's `mad_flags` rule;
+- **`rang`:** the antenna-factorised rule of `flag.residual`.
+
+The new flags are written to FLAG and the term is solved again. A baseline is never pushed past
+`guard` flagged within an interval. The stage fails if a re-solve flags more of the term's solutions
+than `tripwire` allows. It needs `data.processes: 1`.
+
+What was measured, and against what, is in {gh}`research/solver-flags.md`.
+
 ## Flag versions and restore
 
 Before the first write ever made to an MS, rang-core saves FLAG as the CASA

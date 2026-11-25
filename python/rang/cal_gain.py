@@ -1135,6 +1135,7 @@ def gaincal(
     average_psi=None,
     casa_phase_weights=False,
     solve_calwt=False,
+    solver_flags=None,
 ):
     """`gaincal(gaintype='G')` on one field of one spectral window: returns
     `(CalTable, GainSolution, info)`. `refant` is an antenna index or name
@@ -1171,7 +1172,11 @@ def gaincal(
     (`phase_only`); research/e2b-misses.md 9.26. Task calwt-terms:
     `solve_calwt` (`calibrate.g_calwt`, `gpol_calwt`) scales the weights
     by CASA's `calwt` factor of the pre-applied tables that correct the
-    data (`calwt_factor`), after the SIGMA reset and before anything else."""
+    data (`calwt_factor`), after the SIGMA reset and before anything else.
+    Issue #58: `solver_flags` (`{"cfg": calibrate.solver_flags, "write":
+    rang.solver_flags.or_writer(...)}`) runs flag passes on the residual and
+    re-solves (`rang.solver_flags.rounds`); `info["solver_flags"]` is the
+    record."""
     if casa_phase_weights and not average_freq:
         raise ValueError("casa_phase_weights needs average_freq (CASA averages first)")
     ms = Path(ms)
@@ -1221,17 +1226,29 @@ def gaincal(
     fld.model_divided = divide
     m = fld.meta
     tb, keys = solint_bins(m["TIME"], m["SCAN_NUMBER"], m["FIELD_ID"], solint, combine)
-    sol, row_w = _solve_gain_field(
-        fld, tb, nchan=len(freq), per_channel=False, budget=budget,
-        what=f"gaincal field {field_id}", nant=nant, calmode=calmode, refant=refants,
-        refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
-        positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
-        stop_criterion=stop_criterion, stop_fraction=stop_fraction,
-        **({"average": True} if average_time else {}),
-        **({"average_psi": average_psi} if average_time else {}),
-        **({"average_freq": True} if average_freq else {}),
-        **({"casa_phase_weights": True} if divide else {}),
-    )  # fmt: skip
+
+    def solve_once():
+        return _solve_gain_field(
+            fld, tb, nchan=len(freq), per_channel=False, budget=budget,
+            what=f"gaincal field {field_id}", nant=nant, calmode=calmode, refant=refants,
+            refantmode=refantmode, minsnr=minsnr, minblperant=minblperant,
+            positions=positions, casa_rules=casa_rules, max_iterations=max_iterations,
+            stop_criterion=stop_criterion, stop_fraction=stop_fraction,
+            **({"average": True} if average_time else {}),
+            **({"average_psi": average_psi} if average_time else {}),
+            **({"average_freq": True} if average_freq else {}),
+            **({"casa_phase_weights": True} if divide else {}),
+        )  # fmt: skip
+
+    sol, row_w = solve_once()
+    sf_record = None
+    if solver_flags is not None:
+        # Issue #58 (research/solver-flags.md 3.1): flag passes and re-solves.
+        from . import solver_flags as _sf
+
+        sol, row_w, sf_record = _sf.rounds(
+            fld, tb, sol, solver_flags["cfg"], solver_flags["write"], solve_once
+        )
     if sol.flags.all():
         raise NoSolutions(
             f"gaincal wrote no solutions for field {field_id} (every solution flagged)"
@@ -1249,6 +1266,7 @@ def gaincal(
         "frequency": freq,
         "spw": spw,
         **({"calwt": True} if solve_calwt else {}),
+        **({"solver_flags": sf_record} if sf_record is not None else {}),
     }
     return table, sol, info
 
