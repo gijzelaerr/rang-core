@@ -115,6 +115,17 @@ def test_cli_equals_api_and_keeps_a_run_directory(tmp_path, m05):
     assert _files(store) == m05[1]
 
 
+def test_run_with_the_flag_stage_only(tmp_path, m05):
+    store = _store(tmp_path, m05)
+    config = _config(tmp_path / "c.yaml", "run: {stages: [flag]}\n")
+    state = _cli("run", config, store)
+    assert state["stages"]["flag"]["status"] == "done"
+    assert _files(store) == m05[1]
+    state = _cli("run", config, store, "--force", "flag")
+    assert state["stages"]["flag"]["attempts"] == 2
+    assert _files(store) == m05[1]
+
+
 def test_versions_round_trip(tmp_path, m05):
     from rang import msv4_flags
 

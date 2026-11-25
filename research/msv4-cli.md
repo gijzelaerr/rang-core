@@ -350,7 +350,7 @@ on an xradio store. Either is a post hoc change with its own small gate.
 
 ## For the coordinator
 
-Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2
+Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2 `c0153729`
 (before any run), code `33d8b684`, records after. **Partial** under the
 frozen rule. The command on a store gives `rang.msv4.flag`'s bytes and the
 MSv2 command's flags converted (both writers, every measured case); flag
