@@ -196,3 +196,26 @@ parallel or scale, that object storage works, or anything about throughput.
 ## 7. Measured result
 
 Not run yet.
+
+## 8. Amendment A1: c6 and c7 sources (2026-11-25, before any run)
+
+Written after the freeze and before any conversion, flag run or check;
+nothing has been compared. Found while writing the harness: the two
+archived MSs behind c6 and c7 (`D:\rang\c3a\c3a-20261106-01\A-casa.ms`,
+`D:\rang\outputs\c7a-20261106-03\M1-casa.ms`) no longer exist (their run
+roots were cleaned after msv4-interop.md). Their 2026-11-16 stores remain,
+but O1 needs the MSv2.
+
+- **c6 → c6x:** `D:\rang\outputs\e0-20261106-05\X3\casa.ms`, the same A1
+  simulated-truth layout as c6 (listobs: 12480 rows, 4 fields, 23 scans, one
+  spectral window, four scan intents, so xradio writes several partitions by
+  `OBS_MODE`). It covers what c6 was in the list for: several fields and
+  scans, groups rebuilt from per-time names, several partitions.
+- **c7:** booked `not measured` (source MS deleted). Nothing else in the list
+  has 70 % prior flags; `write: replace` makes prior flags matter only
+  through the strategy's `combine_with_input_flags` step, which every case
+  exercises.
+- Every source MS is copied into the run root (`ms-src/`) before use, so the
+  run does not depend on other tasks' directories.
+
+Sections 3 to 6 are otherwise unchanged.
