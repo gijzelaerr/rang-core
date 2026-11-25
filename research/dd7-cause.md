@@ -6,7 +6,7 @@ brief 2026-11-25. A diagnostic, not a fix: no claim of better calibration or
 imaging follows from it. Sections 1-7 are frozen 2026-11-25, before the code
 that runs them and before any measurement. Later changes are dated amendments.
 
-Status: **measured 2026-11-25: the real off-axis facets' model is what the simulations lack.** Replacing it with the deep clean in every facet (R2) is the only arm that lifts the real d0-free solve at 4 × 8 s (0.304, 0.297, 0.297; DD6 MF-4 0.066, 0.042, 0.011), but at 64 × 8 s that model does worse than DD6's (0.25 against 0.75-0.79, reported only), so it is not simply a better model. Flagging the 145 bad baselines helps (R1: 0.123, 0.104, 0.072; a weight-matched control does not). The real d0 gain error (0.094 rad, static per antenna) inserted into simulation B breaks the pinned solve (0, 0, 0) and is absorbed exactly when d0 is free, which explains DD6's "M fails". The real additive residual, its spectral part, its noise and its bad-baseline part each leave B lifted, so the cause is not in the additive residual.
+Status: **measured 2026-11-25. The real 4 × 8 s failure is slow convergence, not a stall: unchanged real MF-4 is lifted at cap 2000 (0.530, 0.501, 0.465; L2000). At the frozen cap 500, by the frozen table: the off-axis model incompleteness is necessary on real data (R2), the 145 bad baselines are necessary but not sufficient alone (R1, T1), d0's gain error is sufficient in simulation for the pinned failure only (I0), spectral structure and noise are not the cause; the cause is not in the additive residual (T0).** With the deep clean as the model of every facet (R2), the real d0-free solve is lifted at 4 × 8 s for the first time (0.304, 0.297, 0.297; DD6 0.066, 0.042, 0.011), but at 64 × 8 s the same model does worse than DD6's (0.25 against 0.75-0.79, reported only), so it is not a better model, only a different one. Flagging the 145 bad baselines helps (0.123, 0.104, 0.072; a weight-matched control does not) and at 64 × 8 s converges every interval but the short last one. The real d0 gain error (0.094 rad, static per antenna) inserted into simulation B breaks the pinned solve (0, 0, 0) and is absorbed exactly when d0 is free. No off-axis insertion arm was frozen; DD6's arm C, which lacks off-axis emission, comes closest to the real pattern (post hoc).
 
 ## 1. Question
 
@@ -280,7 +280,7 @@ digit; the ranking).
 | R1-64 (conditional) | 0.875, 0.875, 0.875 (0.881) | 6e-33 | every interval but the 2-integration last one (MF-64: 0.794, 0.754, 0.752) |
 | R3-64 (conditional) | 0.810, 0.752, 0.755 (0.873) | 5e-30 | as MF-64: no help |
 | R2-64 (reported only, A4) | **0.254, 0.255, 0.256** (0.307) | 3.9e-11 | **worse than MF-64**: only intervals 0 and 1 converge |
-| L2000, real MF-4 at cap 2000 | L2000-TBD | | |
+| **L2000, real MF-4 at cap 2000** | **0.530, 0.501, 0.465 (0.705)** | **2.6e-13** | **lifted: slow convergence, not a stall** (step medians 4-6 orders below cap 500's; still at the cap) |
 
 - R2's off-axis gains sit near 1 (median |g| 1.000, 1.001, 0.973; phase
   spread 0.13, 0.24, 0.40 rad) against MF-4's (0.978, 0.977, 0.811; 0.36,
@@ -305,14 +305,29 @@ digit; the ranking).
   pinned 0.88-0.93). So the cause is **not in the additive residual**. That
   fits candidate 4: R64 is the residual after the real MF-64 gains, and a
   wrong off-axis model is absorbed into those gains, not left in R64.
-- **The answer to DD7's question:** what the simulations lack is that the
-  real off-axis facets' model is wrong. In B, d1-d3's model is the truth;
-  on real data it is M₀ᶜ's off-axis part, against which the deep clean
-  finds 4.43 Jy in d1 (M₀ᶜ 2.83), 0.77 Jy in d2 (0.45) and 0.05 Jy in d3
-  (0.20, four times too bright). DD5's C and E put their errors elsewhere
-  (C everywhere and large, E mostly in d0). Second, smaller: the 145
-  baselines' misfit. The d0 gain error (0.094 rad static per antenna)
-  accounts for "M fails, MF lifts", as DD6 found, and nothing more.
+- **L2000 reframes every reading above.** Real MF-4, unchanged, is lifted
+  at cap 2000 (0.530, 0.501, 0.465) and still moving. So the real failure at
+  4 × 8 s is slow convergence that cap 500 cuts off, not a stall. B converges
+  inside 500 iterations; the real data converge several times slower. The
+  frozen readings are at cap 500, so "restores" (R2) and "helps" (R1) mean
+  "speeds up the solve enough to show inside the cap", and "reproduces"
+  (I0-pinned) means "slows it below the cap". Which property slows the real
+  solve is what the arms rank.
+- **What this says about DD7's question (interpretation, not a frozen
+  reading):** the property the exact simulation B lacks, and the one whose
+  removal changes the real solve most, is a wrong off-axis model. On real
+  data the off-axis facets carry M₀ᶜ's off-axis part, against which the deep
+  clean finds 4.43 Jy in d1 (M₀ᶜ 2.83), 0.77 Jy in d2 (0.45) and 0.05 Jy in
+  d3 (0.20). B has an exact model and E's error sits mostly in d0. DD6's C
+  does lack off-axis emission (7.2 Jy in d1, 0.25 Jy in d2), and post hoc it
+  is the arm nearest the real pattern: C-X (d0 exact, pinned) 0.166, 0.107,
+  0.094, and C-MF 0.20, 0.12, 0.10 / 0.15, 0.06, 0.04 / 0.75, 0.75, 0.75
+  at 4, 16 and 64 × 8 s against real MF's 0.07, 0.04, 0.01 / 0.12, 0.09,
+  0.04 / 0.79, 0.75, 0.75 (`results/dd6-d0/grid/`). That is the nearest
+  thing to an insertion arm for candidate 4, and it was not frozen here.
+- The bad-baseline reading rests on R1 at 4 × 8 s (min +0.061 against the
+  0.05 bar, with R1c worse) and on R1-64; R1-64 differs from MF-64 in one
+  interval (interval 1) and has no control at 64 × 8 s.
 - **The caveat (R2-64, reported only):** at 64 × 8 s the deep model in
   every facet does worse than RM (0.25 against 0.75-0.79): intervals 0
   and 1 converge, the other six do not. So the deep off-axis model is not
@@ -329,6 +344,24 @@ predict 43-57 s, each solve 338-433 s, walls 755-1,612 s; a 64 × 8 s point
 the same per solve; builds 4-135 s of work (walls up to 3,325 s in the
 queue); setup 15 s of work; deep clean 285 s; R64 378 s; stage 1 42 s.
 Rows in [tool-timings.md](tool-timings.md).
+
+## 10. For the coordinator
+
+- The real d0-free solve at 4 × 8 s is not stuck; it is slow (L2000:
+  lifted at cap 2000). DD4-DD6's "does not converge" readings at cap 500
+  should be read as "has not converged in 500 iterations".
+- Recommended DD8, frozen before code: (1) an off-axis insertion into B at
+  the real size (sky B plus DEEP − M₀ᶜ in d1-d3, model M₀ᶜ there), which
+  is the missing insertion arm for candidate 4; (2) an accuracy measure on
+  real data in place of the step test (for example held-out-baseline
+  prediction error), since convergence does not certify accuracy (DD6
+  C-MF-64); (3) R1 and R2 combined, and real MF at cap 2000 at 16 and
+  64 × 8 s, to see how much of the gap is iterations.
+- Do not adopt the unit-gain deep clean as the off-axis model: it lifts
+  4 × 8 s and hurts 64 × 8 s (R2-64).
+- Run root kept: `D:/rang/outputs/dd7-20261125/` with `real/sub.ms`, `b/`,
+  `models/`, `grid/` (gains `.npz`) and logs; the eleven built arm copies
+  and `R64.npy` deleted.
 
 ## Amendments
 

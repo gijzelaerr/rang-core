@@ -75,3 +75,4 @@ L2000 start 2026-11-25T18:14:40+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs
 R3-64 end 2026-11-25T18:16:55+02:00 rc=0 wall=3884s
 R2-64 start 2026-11-25T18:16:55+02:00 slots=4 mem=15 dd7.py grid D:/rang/outputs/dd7-20261125/real 64 D:/rang/outputs/dd7-20261125/models/DEEP.npy D:/rang/outputs/dd7-20261125/grid/R2-64.json --free
 R2-64 end 2026-11-25T18:32:45+02:00 rc=0 wall=950s
+L2000 end 2026-11-25T19:02:40+02:00 rc=0 wall=2880s

@@ -2555,3 +2555,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-25 | dd7: stage-1 statistics (`dd7.py stats`) (host glacier, 4 slots shared) | 61.6 M unflagged cells | 42 s | – | |
 | 2026-11-25 | dd7: arm builds, MS copy and DATA/FLAG rewrite (`dd7.py build`) (host glacier, 2 slots shared) | 823,500 rows | 4-22 s of work (walls to 3,325 s in the lock queue) | – | 11 arms |
 | 2026-11-25 | dd7: R3 DI pre-solve, one direction, per 8 s and 8 channels, cap 500, and the corrected MS (host glacier, 4 slots shared) | 52.7 M cells, 1 direction | 135 s wall incl. predict | – | 154 iterations, 0.990 |
+| 2026-11-25 | dd7: L2000, real MF-4 at cap 2000 and its 2001-iteration second solve (host glacier, 4 slots shared) | 52.7 M cells, 4 directions | solves 1,455 s and 1,372 s; 2,880 s wall | – | still at the cap |
