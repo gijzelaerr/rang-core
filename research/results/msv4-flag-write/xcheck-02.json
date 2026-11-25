@@ -1,0 +1,535 @@
+{
+ "c1/xms-auto": {
+  "nondeterministic": [
+   "/c1_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c1_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c1_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c1_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c1/xradio": {
+  "nondeterministic": [
+   "/c1_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c1_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c1_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c1_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c1_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c1_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c1_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c10/xms-auto": {
+  "nondeterministic": [
+   "/c10_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c10_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c10_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c10_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c10/xradio": {
+  "nondeterministic": [
+   "/c10_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c10_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c10_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c10_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c10_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c10_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c10_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c11/xms-auto": {
+  "nondeterministic": [
+   "/c11_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c11_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c11_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c11_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c11/xradio": {
+  "nondeterministic": [
+   "/c11_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c11_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c11_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c11_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c11c/xms-auto": {
+  "nondeterministic": [
+   "/c11_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c11_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c11_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c11_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c11c/xradio": {
+  "nondeterministic": [
+   "/c11_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c11_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c11_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c11_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c11_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c2/xms-auto": {
+  "nondeterministic": [
+   "/c2_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c2_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c2_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c2_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c2/xradio": {
+  "nondeterministic": [
+   "/c2_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c2_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c2_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c2_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c2_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c2_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c2_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c3/xms-auto": {
+  "nondeterministic": [
+   "/c3_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c3_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c3_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c3_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c3/xradio": {
+  "nondeterministic": [
+   "/c3_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c3_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c3_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c3_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c3_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c3_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c3_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c4/xms-auto": {
+  "nondeterministic": [
+   "/c4_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c4_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c4_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c4_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c4/xradio": {
+  "nondeterministic": [
+   "/c4_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c4_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c4_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c4_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c4_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c4_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c4_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c5/xms-auto": {
+  "nondeterministic": [
+   "/c5_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c5_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c5_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c5_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c5/xradio": {
+  "nondeterministic": [
+   "/c5_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c5_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c5_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c5_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c5_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c5_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c5_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c6x/xms-auto": {
+  "nondeterministic": [
+   "/c6x_partition_000:attrs",
+   "/c6x_partition_001:attrs",
+   "/c6x_partition_002:attrs",
+   "/c6x_partition_003:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c6x_partition_000:attrs",
+   "/c6x_partition_001:attrs",
+   "/c6x_partition_002:attrs",
+   "/c6x_partition_003:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c6x_partition_000:attrs",
+   "/c6x_partition_001:attrs",
+   "/c6x_partition_002:attrs",
+   "/c6x_partition_003:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c6x_partition_000:var:FLAG",
+   "/c6x_partition_001:var:FLAG",
+   "/c6x_partition_002:var:FLAG",
+   "/c6x_partition_003:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c6x/xradio": {
+  "nondeterministic": [
+   "/c6x_0:attrs",
+   "/c6x_1:attrs",
+   "/c6x_2:attrs",
+   "/c6x_3:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c6x_0:attrs",
+   "/c6x_1:attrs",
+   "/c6x_2:attrs",
+   "/c6x_3:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c6x_0:attrs",
+   "/c6x_1:attrs",
+   "/c6x_2:attrs",
+   "/c6x_3:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c6x_0:var:FLAG",
+   "/c6x_1:var:FLAG",
+   "/c6x_2:var:FLAG",
+   "/c6x_3:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c8/xms-auto": {
+  "nondeterministic": [
+   "/c8_partition_000:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c8_partition_000:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c8_partition_000:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c8_partition_000:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c8/xradio": {
+  "nondeterministic": [
+   "/c8_0:attrs"
+  ],
+  "o1": "match",
+  "o1_differs": [
+   "/c8_0:attrs"
+  ],
+  "o1_differs_counted": [],
+  "o1_differs_excluded": [
+   "/c8_0:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c8_0:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "\n * Schema issue with ['/c8_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "oracle": "\n * Schema issue with ['/c8_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')",
+   "rang": "\n * Schema issue with ['/c8_0/pointing_xds'].coords['time_pointing'].attrs['type']: Disallowed literal value! (expected: 'time_pointing' found: 'time')"
+  }
+ },
+ "c9/xms-auto": {
+  "nondeterministic": [
+   "/c9_partition_000:attrs",
+   "/c9_partition_001:attrs"
+  ],
+  "o1": "mismatch",
+  "o1_differs": [
+   "/c9_partition_000:attrs",
+   "/c9_partition_000:var:FLAG",
+   "/c9_partition_001:attrs",
+   "/c9_partition_001:var:FLAG"
+  ],
+  "o1_differs_counted": [
+   "/c9_partition_000:var:FLAG",
+   "/c9_partition_001:var:FLAG"
+  ],
+  "o1_differs_excluded": [
+   "/c9_partition_000:attrs",
+   "/c9_partition_001:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c9_partition_000:var:FLAG",
+   "/c9_partition_001:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "c9/xradio": {
+  "nondeterministic": [
+   "/c9_0:attrs",
+   "/c9_1:attrs"
+  ],
+  "o1": "mismatch",
+  "o1_differs": [
+   "/c9_0:attrs",
+   "/c9_0:var:FLAG",
+   "/c9_1:attrs",
+   "/c9_1:var:FLAG"
+  ],
+  "o1_differs_counted": [
+   "/c9_0:var:FLAG",
+   "/c9_1:var:FLAG"
+  ],
+  "o1_differs_excluded": [
+   "/c9_0:attrs",
+   "/c9_1:attrs"
+  ],
+  "o3": "match",
+  "rang_vs_before": [
+   "/c9_0:var:FLAG",
+   "/c9_1:var:FLAG"
+  ],
+  "schema_issues": {
+   "before": "No schema issues found",
+   "oracle": "No schema issues found",
+   "rang": "No schema issues found"
+  }
+ },
+ "versions": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "xarray": "2026.9.0",
+  "xradio": "1.3.1",
+  "zarr": "3.4.2"
+ }
+}

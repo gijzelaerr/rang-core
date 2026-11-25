@@ -177,7 +177,16 @@ def convert(root, only=None, arms=ARMS):
         if case == src:
             jobs += [(case, "before", root / "ms-src" / f"{src}.ms")]
             jobs += [(case, "control", root / "ms-src" / f"{src}.ms")]
-        jobs += [(case, "oracle", root / "msv2" / f"{case}.ms")]
+        oracle = root / "msv2" / f"{case}.ms"
+        if case != src:
+            # The writers name partitions after the MS: convert the flagged
+            # copy under its source's name, so the trees' paths agree (run 02).
+            named = root / "msv2-named" / case / f"{src}.ms"
+            if named.exists():
+                shutil.rmtree(named)
+            shutil.copytree(oracle, named)
+            oracle = named
+        jobs += [(case, "oracle", oracle)]
     for case, kind, ms in jobs:
         for arm in arms:
             out = Path(_native(store(root, arm, case, kind)))

@@ -2,7 +2,7 @@
 
 2026-11-25, branch `msv4-next`, gijzelaerr/rang-core issue #5 (v0.5.0; the
 read path is [msv4-interop.md](msv4-interop.md), its M1 to M3 and M2 done).
-Status: **proposed, frozen**. Sections 1 to 6 are frozen in the commit that
+Status: **measured, pass** (section 7; frozen 2026-11-25 before code, amendment A1 before any run). Sections 1 to 6 are frozen in the commit that
 adds this note, before any code that writes an MSv4 store. Later changes are
 dated and labelled post hoc. The note makes no performance or science claim:
 it checks that a write path returns the same bits as the MSv2 path and as
@@ -193,9 +193,73 @@ when it converts the MS ra-ng flagged as MSv2, and touches nothing else. It
 does not say that calibration or imaging run on MSv4 (M5), that writes are
 parallel or scale, that object storage works, or anything about throughput.
 
-## 7. Measured result
+## 7. Measured result (2026-11-25)
 
-Not run yet.
+**Outcome under the frozen rule: pass** (`xradio` arm); the `xms-auto` arm
+is met on every measured case too. Receipt
+[results/msv4-flag-write/receipt-02.json](results/msv4-flag-write/receipt-02.json),
+harness [msv4_flag_write.py](results/msv4-flag-write/msv4_flag_write.py), run
+root `D:\rang\outputs\msv4-next-20261125`, host glacier (Windows; WSL for the
+writers), code `78857afe` (harness fixes after it, no change to `rang`).
+
+| case | rows | MSv2 cells changed | O1 xradio / xms-auto | O2 | O3 | O4 | O5 |
+| --- | ---: | ---: | --- | --- | --- | --- | --- |
+| c1-c4 | 20 each | 106,752-111,726 of 327,680 | match / match | match | match | match | yes |
+| c5 | 140 | 775,622 of 2,293,760 | match / match | match | match | match (p2, blocks) | yes |
+| c6x | 12,480 (4 partitions) | 1,200,708 of 6,389,760 | match / match | match | match | match | yes |
+| c8 (pads) | 136 | 784,619 of 2,228,224 | match / match | match | match | match | yes |
+| c11, c11c | 140 | 775,622 | match / match | match | match | match | yes |
+| c9 | 36 | not measured | | | | | |
+| c7 | | not measured (A1) | | | | | |
+| c10 (reported) | 140 | 775,622 | match / match | match | match | match | yes |
+
+- **O1:** the only items that differ between `oracle` and `rang-p1` are the
+  partitions' attributes, and they also differ between `before` and
+  `control`; key by key
+  ([attrs-rang-vs-oracle.json](results/msv4-flag-write/attrs-rang-vs-oracle.json),
+  [attrs_diff.py](results/msv4-flag-write/attrs_diff.py)) they are
+  `creation_date` and the data groups' `date`, the writers' conversion
+  timestamps. Every data variable and coordinate, `FLAG` included and pads
+  included (c8: 4 pads in both writers; c6x: 1664 in xarray-ms's grid), is
+  bit-identical. `rang-p1` differs from `before` only in `FLAG`.
+- **O2:** 1 file changed per partition in the xradio stores (one chunk), 2-20
+  in xarray-ms's (more chunks); none outside the flag variable's `c/`.
+- **O3:** unchanged: xradio's store keeps its one `pointing_xds` issue,
+  xarray-ms's has none.
+- **O4:** `data.processes: 2` and c5's `max_rows: 40` give stores
+  byte-identical to the inline run.
+- **Read back** by `rang.msv4`: every MSv2 row's `FLAG` equals the flagged
+  MS's by key (12480/12480 on c6x).
+- **c9 not measured:** `rang-core flag` refuses the MSv2 (two cell shapes,
+  task W4's refusal), while `rang.msv4.flag` flags both partitions (4 and 8
+  channels). The unit test checks those flags against the kernel on the
+  MSv2's rows instead (`tests/test_msv4.py`, m05 is c9's MS).
+- **Runs:** msv2 run 01 (after two harness start-up fixes that ran no
+  stage); conversions run 01, then run 02 for c11c's oracle only. Its flagged
+  copy was named `c11c.ms`, so the writers named its partition `c11c_0`, not
+  `c11_0`: a harness naming bug, booked as an O1 mismatch in
+  [xcheck-01.json](results/msv4-flag-write/xcheck-01.json). Converted again
+  under the source's name, O1 matches
+  ([xcheck-02.json](results/msv4-flag-write/xcheck-02.json)). The rule is
+  read on run 02.
+
+**Observations, no rule:**
+
+- c11c (`CORRECTED_DATA = (0.5-0.25j) × DATA`) gets exactly c11's flags: this
+  strategy is invariant to a complex scale, so c11c shows the data-group
+  plumbing, not that another column changes the flags.
+- c10: the MSv2 stage does not read `FLAG_ROW` either (same counts as c5), so
+  the writers' loss of `FLAG_ROW` (M3) changes nothing for this stage.
+- Cost under the shared lock (4 slots, `RAYON_NUM_THREADS=4`), no claim:
+  `rang-core flag` 1.5-8.0 s wall per case (stage 0.4-6.7 s; c8's gaps 4.7 s
+  against c5's 0.8 s); `rang.msv4.flag` inline 0.3-6.6 s (18.5 s for the
+  first call of the process, start-up), with two processes 5.7-18 s (spawn
+  start-up dominates at these sizes). Conversions 1.8-19.5 s each.
+
+**What this leaves of #5:** the CLI route (`rang-core flag CONFIG STORE`,
+with run directory and flag versions for a store), M5 (base weights) before
+calibrate or image take MSv4, and the Rust reader, object storage,
+throughput and parallel per-chunk writes. See section 9.
 
 ## 8. Amendment A1: c6 and c7 sources (2026-11-25, before any run)
 
@@ -219,3 +283,28 @@ but O1 needs the MSv2.
   run does not depend on other tasks' directories.
 
 Sections 3 to 6 are otherwise unchanged.
+
+## 9. Next steps (proposed)
+
+- **M7:** `rang-core flag CONFIG STORE` (and `rang-core run` with only the
+  flag stage) on a store: run directory, state and receipt; a flag backup as
+  a sibling store or a variable, whichever xradio's schema check accepts.
+- **M5 (owner or coordinator):** the weight a weighted stage takes per data
+  group, so calibrate can take MSv4 under the same round-trip gate
+  (`CORRECTED_DATA` against the writers).
+- **Later:** parallel per-chunk writes (needs chunks smaller than a
+  partition; the xradio stores here hold one chunk per variable), a `zarrs`
+  reader, object storage.
+
+## For the coordinator
+
+Branch `msv4-next`: note `72399ed0` (frozen before code), A1 `ed3ff0e2`
+(before any run), code `78857afe`, records after. **Pass**: the flag stage
+through #3's chunk tasks on an MSv4 store writes exactly the flags each
+writer stores when it converts the MS flagged as MSv2 (9 measured cases, both
+writers), nothing else changes, schema issues unchanged, processes 1 = 2.
+New public API `rang.msv4.flag`; `core_tasks.run` opens an MSv4 source for
+specs that name one. No CLI change, no new `RANG_*` variable. c6/c7's
+archived MSs were deleted; c6x substitutes. Oracle venvs in
+`~/Build/tmp/20261125-msv4-*` removed at the end; run root kept on D: until
+merge (414 MB + stores).
