@@ -7,7 +7,7 @@ imaging follows from it. Sections 1-8 are frozen 2026-11-25, before the code
 that runs them and before any measurement. Later changes are dated
 amendments, written before the reading they affect.
 
-Status: **measured 2026-11-25.** Q1: the real-size off-axis model gap inserted into the exact simulation B (O) reproduces the real d0-free failure and its pattern (O-F 0.018, 0.009, 0.000 at cap 500; lifted at cap 2000, 0.486, 0.424, 0.308, and at 64 × 8 s), with gains 15-295 × the noise prediction off wherever it converges; by the frozen table the reading is **confounded**, because the exact-model control also slows (O-X 0.540, 0.464, 0.449, weakens) while staying accurate (e/ê 1.1-1.2). Q2: the held-out-baseline measure passes V1 and V2 and is indistinct on V3, so on real data it reads predictive quality only; it shows that with RM the weak facet d3's gains run away (|g| to 58 at cap 500, 156 at cap 2000), so held-out H rises (27, 1,525; in sample 1.77) as the converged fraction rises. Q3: the cap is partly the limit at 16 × 8 s (L2000-16 0.581, 0.460, 0.384) and mostly at 64 × 8 s (0.917, 0.877, 0.877). Flagging the 145 bad baselines adds to the deep off-axis model, specifically (R12 0.902, 0.876, 0.872; control 0.219, 0.171, 0.168) and repairs its 64 × 8 s loss (min 0.875).
+Status: **measured 2026-11-25.** Q1: the real-size off-axis model gap inserted into the exact simulation B (O) reproduces the real d0-free failure and its pattern (O-F 0.018, 0.009, 0.000 at cap 500; lifted at cap 2000, 0.486, 0.424, 0.308, and at 64 × 8 s), with gains 15-295 × the noise prediction off wherever it converges; by the frozen table the reading is **confounded**, because the exact-model control also slows (O-X 0.540, 0.464, 0.449, weakens) while staying accurate (e/ê 1.1-1.2). Q2: the held-out-baseline measure passes V1 and V2 and is indistinct on V3, so on real data it reads predictive quality only; by the frozen pair rules RH-L2000 and RH-MF do not differ, R2H and RH-MF do not differ, and only R2H beats DI. Post hoc (A2, A3): the RM solutions' held-out mean is carried by one or two of 169 baselines, where the weak facet d3's gains run away (|g| to 58 at cap 500, 156 at cap 2000, also on the unchanged data); those rows are mostly ones the convergence test already marks unconverged. Q3: the cap is partly the limit at 16 × 8 s (L2000-16 0.581, 0.460, 0.384) and mostly at 64 × 8 s (0.917, 0.877, 0.877). Flagging the 145 bad baselines adds to the deep off-axis model, specifically (R12 0.902, 0.876, 0.872; control 0.219, 0.171, 0.168) and repairs its 64 × 8 s loss (min 0.875).
 
 ## 1. Questions
 
@@ -355,13 +355,16 @@ the worst baseline reads 6,315 (RH-MF) and 381,000 (RH-L2000) against 17.6
 facet with about 0.2 Jy in RM: its gains run away where nothing constrains
 them (|g| p99 13.8 and maximum 58.6 at cap 500, 16.3 and 155.8 at cap 2000;
 R2H: 1.94 and 8.1), so the product `g_p g_q*` on a held-out pair of two such
-antennas predicts nonsense. 500 → 2000 iterations makes this worse, and the
-convergence test raises its fraction at the same time. OH-F shows the same
-sign in d3 (−1.32). So on real data a converged fraction can rise while the
-solution's prediction of unseen baselines gets worse; the held-out score
-sees what the convergence test does not, but as a mean over baselines it is
-dominated by the runaway cells and needs a robust form (a per-baseline
-median, or a cap on |g|) to read differences.
+antennas predicts nonsense. OH-F shows the same sign in d3 (−1.32). The
+frozen split by convergence (section 4) places it: held-out H on rows whose
+off-axis cells converged against the rest is 2.12 against 27.7 (RH-MF, 1 %
+of rows converged), 2.43 against 2,371 (RH-L2000, 36 %) and 1.65 against
+1.53 (R2H, 11 %). So the runaway sits mostly in rows the convergence test
+already marks unconverged; the held-out score does not, on this evidence,
+see much that the test misses, and as a mean over baselines it is dominated
+by a few cells and needs a robust form (a per-baseline median, or a cap on
+|g|) to read differences. The worse-with-iterations impression rests on one
+or two of 169 baselines (medians 1.65 and 1.66) and is post hoc.
 - Limitations as frozen: RM and DEEP were cleaned from all baselines, so the
   unit-gain DEEP prediction (median 1.36) is not an independent result;
   V3 could not separate absorption from accuracy here.
@@ -398,35 +401,43 @@ work (walls to 1,504 s); scores 115-189 s. Rows in
 
 ## 10. For the coordinator
 
-- **The real failure is reproduced in simulation for the first time:** B with
-  the real-size off-axis model gap (O) fails, lifts at cap 2000 and at
-  64 × 8 s, like the real data, and its gains are wrong by 15-300 × the
-  noise wherever it converges. By the frozen table it is "confounded" (the
-  deep off-axis sky also slows an exact-model solve, which stays accurate).
-  O is the testbed to use: it has a truth and behaves like the real data.
-- **Convergence is not a usable target on this field:** more iterations raise
-  the fraction (L2000 at 4, 16, 64 × 8 s; 64 × 8 s is mostly iterations)
-  while, with RM, d3's gains run away and held-out prediction gets worse. The
-  held-out score sees the off-axis gains exactly in B (V2) but did not
-  separate accuracy from absorption (V3 indistinct), and its mean is
-  dominated by one baseline; freeze a robust form (per-baseline median, or
-  trimmed) before using it as a criterion.
-- **Flag the 145 bad baselines in any DD recipe for this field:** with the
-  deep model they lift 4 × 8 s to 0.87-0.90 at cap 500 (control 0.17-0.22)
-  and keep 64 × 8 s at the ceiling.
-- **Recommended DD9 (frozen before code):** on O, where the truth is known,
-  test the fixes for the off-axis model and the runaway weak-facet gains
-  against truth error, not convergence: (a) an off-axis model rebuilt from
-  DD-corrected facet images (DD3's loop) against M₀ᶜ and the unit-gain DEEP;
-  (b) a constraint on the weak facets (d3: merge it, regularise its
-  amplitude, or solve it at a longer interval); both with the 145 baselines'
-  residual added to O so it carries the bad-baseline effect too. Then carry
-  the winner to real data with the robust held-out score.
+- **Q1, frozen: confounded; real pattern reproduced.** B with the real-size
+  off-axis model gap (O) fails at cap 500, lifts at cap 2000 and at
+  64 × 8 s, like the real data, and its gains are 15-300 × the noise
+  prediction off, on converged cells as on all (A3). The exact-model control
+  O-X also slows (weakens) but stays accurate (e/ê 1.1-1.2). O is the
+  simulation that behaves most like the real data, and it has a truth.
+- **Q2: V1 and V2 pass, V3 indistinct; real readings are predictive quality
+  only, and by the frozen pair rules mostly "no difference"** (RH-L2000 vs
+  RH-MF; R2H vs RH-MF); R2H beats DI. Post hoc: RM's d3 gains run away (on
+  the unchanged data too, A3), mostly in rows already marked unconverged; the
+  score's mean is carried by one or two baselines. Freeze a robust form
+  (per-baseline median or trimmed mean) before using it as a criterion.
+  V3 indistinct has no row in section 6: accuracy on real data still needs
+  another route.
+- **Q3: partly iterations at 16 × 8 s, mostly at 64 × 8 s** (section 6 has
+  rows only for "mostly at 16 and 64" and "not"; this mixed result has no
+  frozen row). At 64 × 8 s the cap is the limit; at 4 and 16 it is part of
+  it.
+- **R1 adds to R2, specifically, and repairs 64 × 8 s** (convergence only:
+  R12 has no held-out or truth check; a scored R12 belongs in DD9). The
+  frozen row: flagging the 145 belongs in any DD recipe for this field.
+- **Recommended DD9 (frozen before code), on O with the truth:** section 6's
+  "confounded" row says look at the solver on O-X first: why an exact
+  deep off-axis sky converges at half B's rate (per-facet step history,
+  weak-facet conditioning). Departing from section 6 in adding a second arm,
+  because A3 shows the d3 runaway on real data, on O and at short intervals,
+  and not with the DEEP model or at 64 × 8 s: a weak-facet constraint (d3
+  merged, amplitude-regularised, or solved at a longer interval), scored
+  against truth error. Model work (an off-axis model from DD-corrected
+  facet images) comes after, on O plus the 145 baselines' residual.
 - Do not adopt the unit-gain deep clean: R12's lift uses it as a diagnostic
-  only, and R2 alone collapses when 9 % of the baselines are held out
-  (R2H 0.10-0.12).
-- Run root `D:/rang/outputs/dd8-20261125/`: built MS copies deleted at the
-  end; records, gains and scores kept (see the hand-back).
+  only, and R2 alone drops to 0.10-0.12 when 9 % of the baselines are held
+  out (R2H).
+- Checks: `tools/check_all.py --quick` PASS; the full check (oracles,
+  archives) is left to the coordinator's merge check. DD8 changes no Rust.
+- Run root `D:/rang/outputs/dd8-20261125/` (203 MB): built MS copies deleted;
+  records, gains and scores kept.
 
 ## Amendments
 
@@ -447,3 +458,21 @@ work (walls to 1,504 s); scores 115-189 s. Rows in
   reading.
 - Section 5's ceiling 7/8 at 64 × 8 s is exceeded at cap 2000 (d1 0.917);
   G above 1 is read as "at or past the ceiling"; the reading stands.
+
+**A3, 2026-11-25, post hoc (after every point and score was read; on the
+advisor review of the draft).** From the kept gains (`scripts/posthoc.py`,
+`posthoc.json`), reported only, changing no frozen reading:
+- e/ê on pairs converged in both antennas, d1-d3: O-F-2000 73.5, 15.5,
+  20.0 (all cells 72.0, 15.4, 20.0); O-F-64 293, 48, 51 (295, 52, 72);
+  O-X 1.2, 1.1, 1.1; BH-F 1.1, 1.0, 1.0. So "wrong where it converges"
+  holds on O.
+- d3 |g| on the unchanged data (p99, max, cells > 10): real MF-4 (DD7) 11.1,
+  42, 136; L2000-4 (DD7) 15.6, 135, 231; L2000-16 14.5, 120, 61; L2000-64
+  5.1, 19, 1; R2 (DD7) 2.0, 7.7, 0; R12 1.8, 2.8, 0; O-F 13.8, 91, 259;
+  O-F-2000 17.4, 784, 319. The runaway is not a hold-out effect: it comes
+  with M₀ᶜ's d3 model (0.20 Jy) at 4-16 × 8 s, not with DEEP's (0.05 Jy) nor
+  at 64 × 8 s. It is spread over 19-29 antennas and most intervals, not the
+  last one; some runaway cells pass the convergence test (27 in L2000-4, 28
+  in RH-L2000, 50 in O-F-2000, 0 at cap 500).
+- The converged/other split of held-out H (section 4, frozen as reported)
+  was omitted from the first draft and is now in section 9.
