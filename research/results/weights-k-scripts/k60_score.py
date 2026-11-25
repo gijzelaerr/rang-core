@@ -82,7 +82,8 @@ def main(root, kcompare, out):
         if not cal.exists():
             continue
         summ = json.loads((cal / "summary.json").read_text())
-        r = {"refant": summ.get("refant"), "tables": {}}
+        r = {"refant_auto": summ.get("refant_auto"), "tables": {},
+             "steps": [{"name": s.get("name"), "solutions": s.get("solutions")} for s in summ["steps"]]}
         for name in TABLES:
             if (cal / name).exists():
                 frac, n = flag_fraction(table(cal / name))
