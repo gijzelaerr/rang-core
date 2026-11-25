@@ -1,0 +1,10 @@
+{
+ "note": "research/dd5-sim.md section 2",
+ "k": 0.5291444414416615,
+ "n_samples": 120630140,
+ "median_weight": 9.22608757019043,
+ "sigma_vis_per_part_at_median_weight_jy": 0.23948500888363816,
+ "implied_stokes_i_image_sigma_jy": 3.101581665088368e-05,
+ "m0c_sha256": "619891d38b8d7508d6c3d95ee8fb2dfc6ec9ba9eb6d589379bd5ea1e30f4914a",
+ "seconds": 66.79867899999954
+}

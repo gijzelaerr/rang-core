@@ -1,0 +1,74 @@
+realms start 2026-11-25T06:03:01+02:00 slots=2 mem=12 args=realms D:/rang/outputs/dd6-20261125/real
+C-F start 2026-11-25T06:03:01+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 4 D:/rang/outputs/dd5-20261124/a/sky.npy D:/rang/outputs/dd6-20261125/grid/C-F-4.json --free
+deep-b start 2026-11-25T06:03:01+02:00 slots=8 mem=16 args=deep D:/rang/outputs/dd5-20261124/b D:/rang/outputs/dd6-20261125/deep-b 8
+deep-b end 2026-11-25T06:03:12+02:00 rc=0 wall=11s
+deep-e start 2026-11-25T06:03:12+02:00 slots=8 mem=16 args=deep D:/rang/outputs/dd5-20261124/e D:/rang/outputs/dd6-20261125/deep-e 8
+deep-e end 2026-11-25T06:03:12+02:00 rc=0 wall=0s
+realms end 2026-11-25T06:03:27+02:00 rc=0 wall=26s
+noise start 2026-11-25T06:03:28+02:00 slots=4 mem=15 args=noise D:/rang/outputs/dd6-20261125/real D:/rang/outputs/dd6-20261125/real/noise.json
+deep-b, deep-e: void (gemclean refused -local-rms; amendment A1)
+deep-b2 start 2026-11-25T06:03:53+02:00 slots=8 mem=16 args=deep D:/rang/outputs/dd5-20261124/b D:/rang/outputs/dd6-20261125/deep-b 8
+noise end 2026-11-25T06:04:36+02:00 rc=0 wall=68s
+S2 start 2026-11-25T06:04:36+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 4 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/real-P-4.json
+deep-b2 end 2026-11-25T06:09:18+02:00 rc=0 wall=326s
+deep-e2 start 2026-11-25T06:09:19+02:00 slots=8 mem=16 args=deep D:/rang/outputs/dd5-20261124/e D:/rang/outputs/dd6-20261125/deep-e 8
+deep-real start 2026-11-25T06:16:57+02:00 slots=8 mem=16 args=deep D:/rang/outputs/dd6-20261125/real D:/rang/outputs/dd6-20261125/deep-real 8
+C-F end 2026-11-25T06:17:04+02:00 rc=0 wall=843s
+E-F start 2026-11-25T06:17:04+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/e 4 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/E-F-4.json --free
+deep-e2 end 2026-11-25T06:21:55+02:00 rc=0 wall=756s
+S2 end 2026-11-25T06:23:53+02:00 rc=0 wall=1157s
+real-F start 2026-11-25T06:24:14+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 4 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/real-F-4.json --free
+deep-real end 2026-11-25T06:26:20+02:00 rc=0 wall=563s
+mc-C start 2026-11-25T06:26:20+02:00 slots=4 mem=15 args=modelcheck D:/rang/outputs/dd5-20261124/b D:/rang/outputs/dd6-20261125/models/mc-C.json D:/rang/outputs/dd5-20261124/a/sky.npy D:/rang/outputs/dd6-20261125/models/CM.npy D:/rang/outputs/dd6-20261125/models/CX.npy --sky D:/rang/outputs/dd5-20261124/b/sky.npy
+mc-real start 2026-11-25T06:26:33+02:00 slots=4 mem=15 args=modelcheck D:/rang/outputs/dd6-20261125/real D:/rang/outputs/dd6-20261125/models/mc-real.json D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/models/RM.npy
+E-F end 2026-11-25T06:38:13+02:00 rc=0 wall=1269s
+BF start 2026-11-25T06:38:13+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 4 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/B-F-4.json --free
+real-F end 2026-11-25T06:41:25+02:00 rc=0 wall=1031s
+mc-E start 2026-11-25T06:41:25+02:00 slots=4 mem=15 args=modelcheck D:/rang/outputs/dd5-20261124/e D:/rang/outputs/dd6-20261125/models/mc-E.json D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/models/EM.npy D:/rang/outputs/dd6-20261125/models/EX.npy --sky D:/rang/outputs/dd5-20261124/e/sky.npy
+mc-C end 2026-11-25T06:49:06+02:00 rc=0 wall=1366s
+C-M start 2026-11-25T06:49:06+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 4 D:/rang/outputs/dd6-20261125/models/CM.npy D:/rang/outputs/dd6-20261125/grid/C-M-4.json
+mc-real end 2026-11-25T06:52:37+02:00 rc=0 wall=1565s
+real-M start 2026-11-25T06:52:38+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 4 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-M-4.json
+mc-E end 2026-11-25T07:01:32+02:00 rc=0 wall=1207s
+E-M start 2026-11-25T07:01:32+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/e 4 D:/rang/outputs/dd6-20261125/models/EM.npy D:/rang/outputs/dd6-20261125/grid/E-M-4.json
+real-F-16 start 2026-11-25T07:05:42+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 16 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/real-F-16.json --free
+BF end 2026-11-25T07:06:27+02:00 rc=0 wall=1694s
+C-X start 2026-11-25T07:06:27+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 4 D:/rang/outputs/dd6-20261125/models/CX.npy D:/rang/outputs/dd6-20261125/grid/C-X-4.json
+C-M end 2026-11-25T07:15:14+02:00 rc=0 wall=1568s
+C-MF start 2026-11-25T07:15:14+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 4 D:/rang/outputs/dd6-20261125/models/CM.npy D:/rang/outputs/dd6-20261125/grid/C-MF-4.json --free
+real-M end 2026-11-25T07:24:26+02:00 rc=0 wall=1908s
+real-MF start 2026-11-25T07:24:27+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 4 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-MF-4.json --free
+E-M end 2026-11-25T07:32:50+02:00 rc=0 wall=1878s
+E-MF start 2026-11-25T07:32:51+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/e 4 D:/rang/outputs/dd6-20261125/models/EM.npy D:/rang/outputs/dd6-20261125/grid/E-MF-4.json --free
+real-F-16 end 2026-11-25T07:41:20+02:00 rc=0 wall=2138s
+real-F-64 start 2026-11-25T07:41:21+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 64 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/real-F-64.json --free
+C-X end 2026-11-25T07:49:27+02:00 rc=0 wall=2580s
+E-X start 2026-11-25T07:49:27+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/e 4 D:/rang/outputs/dd6-20261125/models/EX.npy D:/rang/outputs/dd6-20261125/grid/E-X-4.json
+real-MF end 2026-11-25T08:01:18+02:00 rc=0 wall=2211s
+C-MF end 2026-11-25T08:01:27+02:00 rc=0 wall=2773s
+E-MF end 2026-11-25T08:05:42+02:00 rc=0 wall=1971s
+real-F-64 end 2026-11-25T08:15:38+02:00 rc=0 wall=2057s
+real-F-450 start 2026-11-25T08:15:38+02:00 slots=2 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 450 D:/rang/outputs/dd5-20261124/b/sky.npy D:/rang/outputs/dd6-20261125/grid/real-F-450.json --free
+E-X end 2026-11-25T09:17:42+02:00 rc=0 wall=5295s
+real-M-16 start 2026-11-25T09:18:31+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 16 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-M-16.json
+real-MF-16 start 2026-11-25T09:18:31+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 16 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-MF-16.json --free
+real-M-16 end 2026-11-25T09:31:50+02:00 rc=0 wall=799s
+real-M-64 start 2026-11-25T09:31:50+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 64 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-M-64.json
+real-MF-16 end 2026-11-25T09:32:01+02:00 rc=0 wall=810s
+real-MF-64 start 2026-11-25T09:32:01+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 64 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-MF-64.json --free
+real-M-64 end 2026-11-25T09:45:04+02:00 rc=0 wall=794s
+real-M-450 start 2026-11-25T09:45:05+02:00 slots=2 mem=15 args=grid D:/rang/outputs/dd6-20261125/real 450 D:/rang/outputs/dd6-20261125/models/RM.npy D:/rang/outputs/dd6-20261125/grid/real-M-450.json
+real-F-450 end 2026-11-25T09:50:45+02:00 rc=0 wall=5707s
+real-MF-64 end 2026-11-25T09:58:34+02:00 rc=0 wall=1593s
+real-M-450 end 2026-11-25T10:28:35+02:00 rc=0 wall=2610s
+parity-MF64 start 2026-11-25T10:31:02+02:00 slots=4 mem=15 args=parity D:/rang/outputs/dd6-20261125/grid/real-MF-64.json /home/gijsm/Build/tmp/20261125-dd6/par-MF64 D:/rang/outputs/dd6-20261125/parity-MF64
+C-MF-16 start 2026-11-25T10:31:12+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 16 D:/rang/outputs/dd6-20261125/models/CM.npy D:/rang/outputs/dd6-20261125/grid/C-MF-16.json --free
+parity-MF64 end 2026-11-25T10:40:44+02:00 rc=1 wall=582s
+parity-MF64: void (Git Bash rewrote the WSL scratch path; rerun as parity-MF64b)
+parity-MF64b start 2026-11-25T10:42:35+02:00 slots=4 mem=15 args=parity D:/rang/outputs/dd6-20261125/grid/real-MF-64.json /home/gijsm/Build/tmp/20261125-dd6/par-MF64b D:/rang/outputs/dd6-20261125/parity-MF64
+C-MF-16 end 2026-11-25T10:44:16+02:00 rc=0 wall=784s
+C-MF-64 start 2026-11-25T10:44:16+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 64 D:/rang/outputs/dd6-20261125/models/CM.npy D:/rang/outputs/dd6-20261125/grid/C-MF-64.json --free
+C-MF-64 end 2026-11-25T11:01:57+02:00 rc=0 wall=1061s
+C-F-64 start 2026-11-25T11:01:57+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 64 D:/rang/outputs/dd5-20261124/a/sky.npy D:/rang/outputs/dd6-20261125/grid/C-F-64.json --free
+parity-MF64b end 2026-11-25T11:34:36+02:00 rc=0 wall=3121s
+C-F-64 end 2026-11-25T11:55:04+02:00 rc=0 wall=3187s
