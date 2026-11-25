@@ -127,6 +127,37 @@ jobs:
           VIRTUAL_ENV=$PWD/.venv "$py" -m maturin develop --release --locked \
             --extras test,imaging,formats,casacure,pointing,beam,mcp,msv4
           "$py" -c "import rang.core as c; print('backend', c.backend_name())"
+      # A one-node Slurm cluster, so tests/test_spool_launch.py submits real
+      # spool workers with sbatch --array (research/multinode-2.md 1.3). The
+      # runner is a VM with systemd, where Ubuntu's Slurm 23.11 runs as is.
+      - name: Slurm (one node)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq slurmd slurmctld munge >/dev/null
+          host=$(hostname -s)
+          mem=$(( $(free -m | awk '/^Mem:/ {print $2}') - 2048 ))
+          sudo mkdir -p /var/spool/slurmctld /var/spool/slurmd
+          sudo chown slurm:slurm /var/spool/slurmctld
+          cat <<EOF | sudo tee /etc/slurm/slurm.conf >/dev/null
+          ClusterName=ci
+          SlurmctldHost=$host
+          SlurmUser=slurm
+          AuthType=auth/munge
+          ProctrackType=proctrack/linuxproc
+          TaskPlugin=task/none
+          SelectType=select/cons_tres
+          SelectTypeParameters=CR_Core_Memory
+          StateSaveLocation=/var/spool/slurmctld
+          SlurmdSpoolDir=/var/spool/slurmd
+          ReturnToService=2
+          MpiDefault=none
+          NodeName=$host CPUs=$(nproc) RealMemory=$mem State=UNKNOWN
+          PartitionName=ci Nodes=ALL Default=YES MaxTime=INFINITE State=UP
+          EOF
+          sudo systemctl restart munge slurmctld slurmd
+          for _ in $(seq 30); do sinfo -h -o %T | grep -q idle && break; sleep 2; done
+          sinfo
       - name: pytest
         run: |
           "$PY" -m pytest -q -ra

@@ -10,6 +10,7 @@ from source ({doc}`../installation`; 0.1.0 on PyPI lacks the chain) and the
 | {doc}`calibrate` | CARACal's 1GC terms (K, G, B, A, F), polarisation (Gpol, KCROSS, Xf, Df), apply, self-calibration, memory |
 | {doc}`flag` | the Tricolour port, strategies, static masks, flag versions and restore |
 | {doc}`check-results` | receipts, stage summaries, tables, images, and how to compare with CARACal or WSClean |
+| {doc}`cluster` | flag, solve and apply with spool workers from a Slurm job array or a PBS array job |
 | {doc}`../limits` | what rang does not do and where it differs from the tools it was checked against |
 
 ```{warning}
@@ -29,4 +30,5 @@ image-your-ms
 calibrate
 flag
 check-results
+cluster
 ```
