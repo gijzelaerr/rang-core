@@ -309,17 +309,17 @@ def test_field_map_strips_xradio_ids():
 
 
 @pytest.mark.parametrize(
-    "parts",
+    "specs",  # (names, writer) per partition, built in the test (xarray optional)
     [
-        [_Part(["A_0", "B"])],  # one name without an id: none stripped
-        [_Part(["A_1"]), _Part(["B_1"])],  # one id, two stems
-        [_Part(["A_01"])],  # not xradio's decimal id
-        [_Part(["NGC_1234"], writer="xarray-ms")],
-        [_Part(["A_0"]), _Part(["B_1"], writer="xarray-ms")],  # mixed writers
+        [(["A_0", "B"], "xradio")],  # one name without an id: none stripped
+        [(["A_1"], "xradio"), (["B_1"], "xradio")],  # one id, two stems
+        [(["A_01"], "xradio")],  # not xradio's decimal id
+        [(["NGC_1234"], "xarray-ms")],
+        [(["A_0"], "xradio"), (["B_1"], "xarray-ms")],  # mixed writers
     ],
 )
-def test_field_map_keeps_names_it_cannot_read(parts):
-    fmap = msv4.field_map(parts)
+def test_field_map_keeps_names_it_cannot_read(specs):
+    fmap = msv4.field_map([_Part(names, writer=w) for names, w in specs])
     assert fmap and all(fmap[n] == (n, None) for n in fmap)
 
 
