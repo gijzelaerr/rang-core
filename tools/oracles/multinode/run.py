@@ -31,6 +31,7 @@ tools/oracles/nash/timed.py, whose wait4 covers the workers. The environment:
 
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -44,6 +45,7 @@ CHECKOUT = HERE.parents[2]
 sys.path.insert(0, str(HERE.parent / "chunk_tasks"))
 sys.path.insert(0, str(HERE.parent / "nash"))
 
+import cluster_arms
 import run as cta
 
 STAGES = ("flag", "calibrate", "apply")
@@ -55,6 +57,9 @@ W_GB = 2  # per worker (section 4)
 
 def arm_settings(case, arm):
     """(data lines, workers, threads per worker, RAYON_NUM_THREADS, kill)."""
+    sp = cluster_arms.spec(case, arm)
+    if sp and sp["workers"]:  # research/multinode-2.md: workers from a scheduler
+        return sp["data"], sp["workers"], sp["threads"], sp["threads"], False
     if arm == "O":
         return [], 0, None, 4, False
     if case == "F":
@@ -162,6 +167,8 @@ def stage(d, name):
     if _protected(d / "work.ms"):
         raise SystemExit(f"refused: {d / 'work.ms'} is under a protected path")
     py, code = _python(), Path(a["code"])
+    if a.get("cluster"):
+        return cluster_arms.stage(d, name, a, py, code)
     env = dict(os.environ, PYTHONPATH=str(code), RAYON_NUM_THREADS=str(a["rayon"]))
     spool = d / "spool"
     if spool.exists():
@@ -234,9 +241,26 @@ def arm(run, case, arm_name):
     a = {"case": case, "arm": arm_name, "code": str(code), "data": lines,
          "workers": workers, "threads": threads, "rayon": rayon, "kill": kill,
          "source": str(source), "build": _build(py, code),
+         "cluster": cluster_arms.spec(case, arm_name),
          "host": os.uname().nodename if hasattr(os, "uname") else os.environ.get("COMPUTERNAME")}  # fmt: skip
     (d / "arm.json").write_text(json.dumps(a, indent=1) + "\n")
     record = dict(a, stages={})
+    if a["cluster"]:
+        record["cluster_up"] = cluster_arms.up(a["cluster"])
+    try:
+        _stages(d, ms, py, record)
+    finally:
+        if a["cluster"]:
+            cluster_arms.down(a["cluster"])
+    shutil.rmtree(ms)
+    fv = d / "work.ms.flagversions"
+    if fv.exists():
+        shutil.rmtree(fv)
+    (d / "done.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
+    return 0
+
+
+def _stages(d, ms, py, record):
     for name in STAGES:
         cmd = [py, str(HERE / "run.py"), "stage", str(d), name]
         log = d / f"{name}.log"
@@ -260,12 +284,6 @@ def arm(run, case, arm_name):
         (d / f"hashes-{name}.json").write_text(
             json.dumps(cta.hashes(ms), indent=1) + "\n", encoding="utf-8"
         )
-    shutil.rmtree(ms)
-    fv = d / "work.ms.flagversions"
-    if fv.exists():
-        shutil.rmtree(fv)
-    (d / "done.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8")
-    return 0
 
 
 # -- verdict and report ---------------------------------------------------------------
@@ -356,12 +374,16 @@ def report(run):
                 row[stage]["spool"] = s["chunking"]["spool_counts"]
         row["total_wall_s"] = round(sum(r["wall_s"] for r in p["stages"].values()), 2)
         out["points"][name] = row
-    s1 = out["points"].get("S1")
+    # Step 1's S<N> points, or multinode-2's Sl<N> (Slurm) and Pb<N> (PBS),
+    # both against Sl1 (no Pb1 is run).
+    one = "Sl1" if "Sl1" in out["points"] else "S1"
+    s1 = out["points"].get(one)
     if s1:
         for name, row in out["points"].items():
-            if not name.startswith("S"):
+            m = re.fullmatch(r"(S|Sl|Pb)(\d+)", name)
+            if not m:
                 continue
-            n = int(name[1:])
+            n = int(m.group(2))
             sc = {}
             for stage in [*STAGES, "total"]:
                 key = "total_wall_s" if stage == "total" else stage
@@ -374,13 +396,14 @@ def report(run):
             out["scaling"][name] = sc
         inline = out["points"].get("I")
         if inline:
+            out["base"] = one
             out["overhead_S1_over_I"] = {
                 stage: round(s1[stage]["wall_s"] / inline[stage]["wall_s"], 3)
                 for stage in STAGES
             } | {"total": round(s1["total_wall_s"] / inline["total_wall_s"], 3)}
     plans = {}
     for name in out["points"]:
-        if name.startswith("S"):
+        if re.fullmatch(r"(S|Sl|Pb)\d+", name):
             plans[name] = {
                 st: (out["points"][name][st].get("spool") or {}).get("plan_sha256")
                 for st in STAGES

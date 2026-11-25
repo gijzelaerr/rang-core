@@ -12,13 +12,15 @@
 #   pbs_cluster.sh kill NODE       # node loss: SIGKILL the container
 #   pbs_cluster.sh restart NODE    # bring a killed node back
 #   pbs_cluster.sh exec CMD...     # run CMD on the server (login node)
+#
+# The server (and login node) gets CTL_CPUS (default 4) and CTL_MEM_MB
+# (default 16000).
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 NET=rang-pbs
 SUBNET=10.89.77
 IMAGE=localhost/rang-pbs:master
 PREFIX=rangpbs
-STATE="${XDG_RUNTIME_DIR:-/tmp}/rangpbs.args"
 
 hosts() {  # --add-host for the server and every node
   local n=$1 out=(--add-host "pbs:$SUBNET.10")
@@ -49,14 +51,25 @@ start() {  # name ip server|mom SHARED NODES CPUS MEM MOUNTS...
     "${vols[@]}" -w "$shared" "$IMAGE" bash -c "$boot" >/dev/null
 }
 
+wait_free() {  # every one of $1 nodes free, within 180 s
+  local free
+  for _ in $(seq 90); do
+    free=$(podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a 2>/dev/null | grep -c "state = free" || true)
+    [ "$free" = "$1" ] && { podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -aSj; return 0; }
+    sleep 2
+  done
+  podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a || true
+  echo "nodes not free after 180 s" >&2
+  return 1
+}
+
 cmd=${1:?usage}; shift
 case "$cmd" in
 up)
   SHARED=$1; NODES=$2; CPUS=$3; MEM=$4; shift 4
-  printf '%q ' "$SHARED" "$NODES" "$CPUS" "$MEM" "$@" > "$STATE"
   nice -n 19 podman build -q -t "$IMAGE" -f "$HERE/Containerfile.pbs" "$HERE" >/dev/null
   podman network exists "$NET" || podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
-  start pbs "$SUBNET.10" server "$SHARED" "$NODES" 2 4000 "$@"
+  start pbs "$SUBNET.10" server "$SHARED" "$NODES" "${CTL_CPUS:-4}" "${CTL_MEM_MB:-16000}" "$@"
   for i in $(seq 1 "$NODES"); do
     start "m$i" "$SUBNET.$((10 + i))" mom "$SHARED" "$NODES" "$CPUS" "$MEM" "$@"
   done
@@ -74,20 +87,16 @@ up)
     q "set node m$i resources_available.ncpus = $CPUS"
     q "set node m$i resources_available.mem = ${MEM}mb"
   done
-  for _ in $(seq 60); do
-    free=$(podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a 2>/dev/null | grep -c "state = free" || true)
-    [ "$free" = "$NODES" ] && { podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -aSj; exit 0; }
-    sleep 2
-  done
-  podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a || true
-  echo "nodes not free after 120 s" >&2; exit 1 ;;
+  echo "$NODES" > "$SHARED/cluster-pbs.nodes"
+  wait_free "$NODES" ;;
 down)
   podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
   podman network exists "$NET" && podman network rm "$NET" >/dev/null || true ;;
 kill)
   podman kill -s KILL "$PREFIX-$1" >/dev/null ;;
 restart)
-  podman start "$PREFIX-$1" >/dev/null ;;
+  podman start "$PREFIX-$1" >/dev/null
+  wait_free "$(cat "$(podman inspect -f '{{.Config.WorkingDir}}' "$PREFIX-pbs")/cluster-pbs.nodes")" ;;
 exec)
   podman exec -w "$PWD" "$PREFIX-pbs" "$@" ;;
 *) echo "unknown command $cmd" >&2; exit 2 ;;
