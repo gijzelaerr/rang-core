@@ -49,6 +49,19 @@ in it).
 - Torque: no maintained release (the open-source project ended with 6.1); no test bed is attempted. Its script
   dialect is tested as text only and labelled untested.
 
+### 0.3.1 PBS result (2026-11-25, added after the freeze, as 0.3 allows)
+
+- OpenPBS master `cd7ab5ed` builds on Debian 13 in 6 min 43 s (4 slots, nash); image 2.0 GB. A server container
+  (`pbs_server`, `pbs_sched`, `pbs_comm`, PostgreSQL) and two `pbs_mom` containers on a podman network with fixed
+  addresses come up `free` with `acl_roots = root`, `flatuid = true` and `$usecp *:/ /` (output copied on the
+  shared filesystem); each node's `resources_available` is set to its container's `--cpus` and `--memory`.
+  `qsub -J 0-3 -l select=1:ncpus=1:mem=500mb` ran two subjobs on each node, at nice 19, as uid 0.
+- PBS refuses a non-rerunnable array job (`qsub: cannot submit non-rerunable Array Job`), so 1.1's `-r n` cannot
+  apply to PBS arrays. The launcher marks only a one-worker PBS job `-r n`; a subjob that PBS reruns after a node
+  loss is one more spool worker, which changes no result. A correction of 1.1 forced by the scheduler, recorded
+  before any rang arm ran on PBS.
+- So the PBS arms of section 2 run (`tools/oracles/multinode/cluster/pbs_cluster.sh`).
+
 ## 1. Design (proposed)
 
 ### 1.1 The launcher: `rang-core spool`
