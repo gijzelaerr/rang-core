@@ -32,7 +32,9 @@ SCRIPTS = {
 LOGIN = {"slurm": "rangmn-ctl", "pbs": "rangpbs-pbs"}
 NODE = {"slurm": "rangmn-{}", "pbs": "rangpbs-{}"}
 PATH = "/opt/pbs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-CTL_CPUS, CTL_MEM_MB = 4, 16000
+CTL_CPUS = 4
+# The login node's memory: the parent's reduce. Case F's MS is small.
+CTL_MEM_MB = {"F": 4000, "W": 16000}
 IDLE_EXIT_S = 180
 
 
@@ -54,6 +56,10 @@ def spec(case, arm):
     """The cluster arm `arm` of `case`, or None (O and I: the login node)."""
     if not enabled():
         return None
+    return dict(_spec(case, arm), ctl_mem_mb=CTL_MEM_MB[case])
+
+
+def _spec(case, arm):
     if arm in ("O", "I"):
         return _f("slurm", 0, None, 1, 1, 2000, None, [])
     if case == "F":
@@ -88,7 +94,7 @@ def booking(sp, rayon):
     """(slots, GB) for the whole cluster of one arm: the containers' caps
     (login node plus every node), so no container can use more than booked."""
     slots = CTL_CPUS + sp["nodes"] * sp["cpus"]
-    gb = -(-(CTL_MEM_MB + sp["nodes"] * sp["mem_mb"]) // 1000)
+    gb = -(-(sp["ctl_mem_mb"] + sp["nodes"] * sp["mem_mb"]) // 1000)
     return slots, gb
 
 
@@ -96,8 +102,8 @@ def _mounts():
     return [m for m in os.environ.get("RANG_MN_MOUNTS", "").split(os.pathsep) if m]
 
 
-def _script(sched, *args, check=True):
-    env = dict(os.environ, CTL_CPUS=str(CTL_CPUS), CTL_MEM_MB=str(CTL_MEM_MB))
+def _script(sched, *args, check=True, ctl_mem_mb=4000):
+    env = dict(os.environ, CTL_CPUS=str(CTL_CPUS), CTL_MEM_MB=str(ctl_mem_mb))
     return subprocess.run(
         ["bash", str(SCRIPTS[sched]), *map(str, args)],
         env=env,
@@ -112,7 +118,14 @@ def up(sp):
         _script(other, "down", check=False)
     shared = os.environ["RANG_MN_SHARED"]
     p = _script(
-        sp["scheduler"], "up", shared, sp["nodes"], sp["cpus"], sp["mem_mb"], *_mounts()
+        sp["scheduler"],
+        "up",
+        shared,
+        sp["nodes"],
+        sp["cpus"],
+        sp["mem_mb"],
+        *_mounts(),
+        ctl_mem_mb=sp["ctl_mem_mb"],
     )
     return p.stdout
 
