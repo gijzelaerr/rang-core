@@ -6,7 +6,7 @@ Issue #15. Follows [dd5-sim.md](dd5-sim.md) (DD5, section 8 and A3),
 Coordinator brief 2026-11-25. Sections 1-7 are frozen 2026-11-25, before the
 code that runs them and before any run. Later changes are dated amendments.
 
-Status: **proposed 2026-11-25.** Nothing built or run.
+Status: **measured 2026-11-25: by the frozen table, "both are needed" (MF only), and only weakly.** With d0 free and the deeper d0 model together, the real off-axis solves are lifted at 64 × 8 s alone (0.794, 0.754, 0.752 in d1-d3). That is below A's level (0.90), so the loop is not run. The lift is all or nothing per interval: 6 of 8 intervals. Its accuracy on real data is unknown. Parity with QuartiCal 0.2.7 fails on the gain products (up to 5.4e-5 against 1e-5). d0 free alone and the deeper model alone lift nothing on real data at any interval. The simulations do not reproduce that pattern.
 
 ## 1. Question and hypotheses
 
@@ -243,7 +243,142 @@ level (all of d1-d3 ≥ 0.90) at an interval T*.
 
 ## 8. Measured result
 
-Not yet measured.
+Run root `D:/rang/outputs/dd6-20261125/` (`real/`, `deep-*/`, `models/`,
+`grid/`, `parity-MF64/`, `times.log`); archive
+[results/dd6-d0/](results/dd6-d0/). Host glacier, shared. Every run used the
+main checkout's extension, built at `cd6cf276`; DD6 changes no Rust. The
+first jobs (S1, k, S2, C-F, the deep cleans) started from the uncommitted
+worktree at 06:03. That code was committed unchanged in `3b8403f6`, apart
+from formatting and A1's flag. Fractions are given for d1, d2 and d3,
+`diag_complex`, cap 500.
+
+**Setup.**
+- **S1 passes:** every compared column of the rebuilt `sub.ms` equals
+  `cal2.ms` channels 96-159 exactly, and `DATA` reads back equal.
+- k on the rebuilt subset is 0.5291444414416615, DD5's value to every
+  digit.
+- **S2 passes:** real, d0 pinned, M₀ᶜ, 4 × 8 s gives 0, 0, 0, with 1,876
+  flagged off-axis gains, as in DD4d.
+
+**The deeper d0 model and M0.** Each GeMClean run (A1's command) stopped at
+its threshold after 6 major cycles: 254,501 (C), 303,755 (E) and 84,377
+(real) components, in 275, 756 and 563 s.
+
+| Dataset | Unit-gain residual rms in facet d0, base → M (mJy) | Σ\|model − sky\| in facet d0, base → M (Jy) | M0 |
+| --- | --- | --- | --- |
+| real | 6.958 → 1.613 (robust 6.067 → 1.418) | – | **pass** |
+| C | 101.8 → 1.462 (X: 1.740) | 124.05 → 83.00 | **pass** |
+| E | 2.539 → 0.961 (X: 1.321) | 8.09 → **94.70** | **fail** |
+
+E fails M0 as frozen. So E-M and E-MF are read as **no better model built**,
+not as tests of H-M. Post hoc, not rescored: the multiscale model is nonzero
+on every pixel, and a pixel-wise L1 against a point-component truth counts
+that spread as error even where the residual falls.
+
+**Simulation, 4 × 8 s** (converged fraction d1, d2, d3; `e_d / ê_d` for d0
+(free arms only) and d1-d3):
+
+| Arm | C (sky M₀ᶜ, model catalogue) | E (sky DI0c, model M₀ᶜ) |
+| --- | --- | --- |
+| P (DD5) | 0.020, 0.022, 0.025 | 0.036, 0.004, 0.000 |
+| F | 0, 0, 0: **not lifted**; d0 median \|g\| 0.223; e/ê 6317, 367, 93, 36 | 0.947, 0.932, 0.838: **lifted, biased**; e/ê 31, 15, 6.8, 7.9 |
+| M | 0.253, 0.186, 0.166: **lifted, biased**; e/ê 254, 65, 22 | 0.990, 0.983, 0.974; e/ê 20, 5.9, 4.7 (M0 failed: no better model built) |
+| MF | 0.202, 0.116, **0.0998**: **not lifted** (d3 below 0.10 by 0.0002) | 0.981, 0.968, 0.956; e/ê 9.4, 19, 5.6, 4.1 (M0 failed) |
+| X (d0 exact) | 0.166, 0.107, **0.094**: **not lifted** | 0.988, 0.964, 0.948: **lifted, biased**; e/ê 11, 3.8, 2.8 |
+
+- **BF (B with d0 free): no harm.** It gives 0.988, 0.974 and 0.939 (B
+  pinned: 0.997, 0.993, 0.956), with e/ê 1.16, 1.08, 1.02 and 1.03, all
+  ≤ 2. d0's median \|g\| is 1.000, with a phase spread of 0.001 rad.
+- **C.** Freeing d0 lets d0 absorb the model's excess flux (92.6 Jy against
+  a 47.8 Jy sky): d0's \|g\| goes to 0.22, and nothing converges. The deeper
+  model lifts C, but the off-axis gains stay wrong by 22-254 ê, since C's
+  d1-d3 facets still lack their emission.
+- **The X diagnostic.** X (d0 exact) stays below M on C, and the frozen
+  diagnostic has no row for that. Reported as measured; no explanation is
+  tested.
+- **E.** Every remedy lifts E, and every one is biased (e/ê 2.8-31).
+- No simulated arm is **lifted, accurate**.
+
+**Real data** (stop at the first interval that lifts, section 3):
+
+| Arm | 4 × 8 s | 16 × 8 s | 64 × 8 s | 450 × 8 s |
+| --- | --- | --- | --- | --- |
+| P (S2) | 0, 0, 0 | – | – | – |
+| F | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | 0.067, 0, 0 |
+| M | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | **0.100**, 0, 0 (not above 0.10) |
+| MF | 0.066, 0.042, 0.011 | 0.116, 0.085, 0.038 | **0.794, 0.754, 0.752: lifted** | not run (stop rule) |
+
+- Free d0 stays near 1 on real data: median \|g\| 1.043-1.047 (F),
+  1.002-1.003 (MF), phase spread 0.10-0.14 rad.
+- MF cuts the flagged off-axis gains from DD4d's 1,876 (S2) to 385 at
+  4 × 8 s and 25 at 64 × 8 s (8 of them empty cells).
+- Every real point ran to the cap of 500.
+
+**Outcome (section 5's table): MF only, so "both are needed"**, but only at
+64 × 8 s (512 s solutions), at 0.794, 0.754 and 0.752.
+- That is below A's level (0.90), so stage 5 (the loop, `q₀` against DI0x)
+  is **not run**.
+- Neither remedy alone lifts the real solves at any interval up to the whole
+  scan.
+- The simulations do not predict this pattern. In C, M lifts and MF does
+  not; in E, F alone already lifts. So the real data still hold a cause that DD5's
+  simulations do not have.
+
+**What the 64 × 8 s lift is (A2, post hoc).** See
+[per-interval.json](results/dd6-d0/grid/per-interval.json).
+- It is all or nothing per interval. In d1-d3, intervals 0 and 2-6
+  converge fully, interval 1 converges to 0.35, 0.03 and 0.00, and the last
+  interval is 0.00 in all three.
+- The last interval holds 2 integrations (450 − 7 × 64). d0's 0.875 is
+  interval 1 at 0.93 and that interval at 0.07.
+- Without the last interval the fractions are 0.907, 0.862 and 0.857
+  (d0 0.990).
+- So at 64 × 8 s a frozen 0.90 level is close to out of reach by
+  construction. That is a flaw of the rule, found post hoc. The loop is not
+  run either way.
+- Lifted does not mean accurate. The reported-only C-MF at 64 × 8 s (A2) is
+  lifted the same way (0.750, 0.753, 0.750, six of eight intervals) with
+  e/ê 918, 235 and 19. C's off-axis model is wrong by construction, so this
+  shows only that the step test does not certify accuracy. It does not show
+  that the real MF-64 gains are biased; their accuracy is unknown.
+- On real MF-64 the unflagged gain amplitudes span 10th-90th percentiles of
+  0.13-1.14 (d1), 0.74-1.33 (d2) and 0.46-1.86 (d3). d3's median reads
+  exactly 1.0 only because its 18 flagged unit gains sit in the middle of
+  that spread.
+
+**Parity (section 5): parity failure, on the gain products.** Configuration:
+real MF at 64 × 8 s, d0 free, the deeper model, against QuartiCal 0.2.7
+(`G.pinned_directions=[]`, `G.time_interval=64`).
+
+| Quantity | Result |
+| --- | --- |
+| flags | equal (0 cells differ) |
+| aggregate converged fraction | 0.7931214174048984 in both |
+| iterations | 500 / 500 |
+| gain products, max over converged pairs (gate 1e-5) | d0 4.5e-7, d1 2.1e-6, **d2 1.93e-5, d3 5.41e-5** |
+| max over all unflagged pairs (reported) | 6.3e-4 (d3) |
+| median over unflagged pairs (reported) | 3.2e-7 |
+| converged pairs within 1e-5 (reported) | 99.46 % (476 of 88,474 above) |
+| rang refant=0 against the grid solve (products) | 3.2e-14 |
+
+The two codes agree in flags, fraction and iteration count, and to about
+1e-7-1e-6 in median. On the weak directions d2 and d3, even cells that pass
+the step test differ by up to 5 × the gate. Their predicts differ (WSClean
+3.7 against ducc at ε 1e-7), which is the likely source; that is not tested.
+The reading stays parity failure.
+
+**Cost (glacier, shared; walls include lock waits where noted).**
+
+| Step | Time |
+| --- | --- |
+| S1 rebuild of `sub.ms` | 16 s |
+| k (`dd6.py noise`) | 68 s wall |
+| GeMClean deep clean (8 slots) | 275 s (C), 756 s (E), 563 s (real) |
+| `modelcheck`, 2-3 models (4 slots) | 1,207-1,565 s wall |
+| grid point, 4 × 8 s (predict and both solves, 4 slots) | 47-76 s predict, 376-544 s per solve; walls 843-5,295 s with lock waits |
+| grid point, 16 / 64 × 8 s | 381-482 / 360-428 s per solve |
+| grid point, 450 × 8 s (2 slots) | 1,093-1,327 s per solve (F 450: 5,707 s wall with lock wait) |
+| parity: rang solve, refant 0 / QuartiCal 0.2.7 with WSClean predicts | 546 s / 2,568 s (QuartiCal 2,410 s, 8.3 GB peak) |
 
 ## Amendments
 
@@ -253,3 +388,23 @@ implemented` (research/g4-masks.md). The frozen command is run without
 `-local-rms`; the auto-mask (4 σ) and auto-threshold (1.5 σ) then use
 GeMClean's global noise estimate. Nothing else changes. The two refused runs
 lasted under a second and wrote no model.
+
+**A2, 2026-11-25, post hoc (after every frozen point and the parity solve
+were read).**
+- *Reported-only simulation intervals* (section 3 allows them while the host
+  is free). Run while the parity solve ran:
+  - C-MF at 16 × 8 s: 0.147, 0.056, 0.036;
+  - C-MF at 64 × 8 s: 0.750, 0.753, 0.750, e/ê 918, 235, 19;
+  - C-F at 64 × 8 s: recorded in the archive if it finished before the
+    hand-back (`grid/C-F-64.json`).
+  None of them changes a reading.
+- *Per-interval reading* of the 16 and 64 × 8 s points, the fraction
+  without the 2-integration last interval, and gain amplitude percentiles:
+  `results/dd6-d0/grid/per-interval.json`. These are the basis of section
+  8's "what the 64 × 8 s lift is".
+- *The parity solve was run twice.* The first try (582 s wall) failed at the
+  oracle step: Git Bash's path conversion turned the WSL scratch path
+  `/home/...` into `C:/Program Files/Git/home/...`. WSL then made a
+  directory named `C:` inside the worktree (6.5 GB, two MS copies; untracked,
+  left for the coordinator to delete). `job.sh` now sets
+  `MSYS_NO_PATHCONV=1`. The rerun is the one reported.
