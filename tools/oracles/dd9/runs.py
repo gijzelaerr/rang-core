@@ -162,7 +162,7 @@ def parta(root, base, variants="default,I1,I2,I3,I4"):
             rec[v]["N_conv"] = nconv.tolist()
             rec[v]["s0"] = np.median(np.sqrt(h["step"][0]), axis=-1).tolist()
         print(v, json.dumps(rec[v]["cap500"]), flush=True)
-    dd9.write_json(root / "solve" / f"{base}.json", rec)
+        dd9.write_json(root / "solve" / f"{base}-{v}.json", rec[v])
 
 
 def warm_sequential(S, K):
@@ -223,7 +223,10 @@ def fixed_point(root):
                 ),
             }
     ra = {
-        b: json.loads((root / "solve" / f"{b}.json").read_text())
+        b: {
+            v: json.loads((root / "solve" / f"{b}-{v}.json").read_text())
+            for v in ("default", "I1", "I2", "I3", "I4")
+        }
         for b in ("B-X", "O-X")
     }
     mn = lambda r: min(r["cap500"]["fraction"][1:])
@@ -329,7 +332,7 @@ def readings_a(root):
         for p in sorted((root / "jac").glob(f"{base}-*.json")):
             rows += json.loads(p.read_text())["rows"]
         rows.sort(key=lambda r: r["interval"])
-        sj = json.loads((root / "solve" / f"{base}.json").read_text())["default"]
+        sj = json.loads((root / "solve" / f"{base}-default.json").read_text())
         nconv, s0 = np.array(sj["N_conv"]), np.array(sj["s0"])
         rf, tw, wd, npred, r1, r2, r3 = [], [], [], [], [], [], []
         for r in rows:
