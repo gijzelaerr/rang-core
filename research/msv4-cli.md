@@ -255,3 +255,15 @@ the same (the gate's other clause: the outcome classes are the MSv2
 side's). K2(a) is read as: the exit code equals the MSv2 side's (1), the
 message names `rang.msv4_flags.restore_flags` and the version, the store is
 unchanged. Nothing else in sections 3 to 6 changes.
+
+## 8. Amendment A2: C4's last step (2026-11-25, post hoc, before any run)
+
+Found by the unit test, before any measurement run. C4 says restoring
+`rang_rerun_<UTC>` "(the flagged store) gives `rang-p1`". It does not, by
+the MSv2 rule section 3 copies: `rang_rerun_<UTC>` holds the flags a forced
+rerun replaced, and in C4's order those are `rang_original`'s (restored
+just before the rerun). C4's last step is replaced by two:
+restoring `rang_rerun_<UTC>` gives `before`; and a version saved of the
+flagged store after the forced rerun (`rang.msv4_flags.save(store,
+"m7_flagged")`), restored after `rang_original`, gives `rang-p1` (a round
+trip of a flagged state). Nothing else changes.
