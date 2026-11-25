@@ -100,14 +100,18 @@ def cmd_weights(cal_ms, raw_ms, field, arm, out, chanbin="16"):
     pos = np.full(int(rows.max()) + 1, -1, np.int64)
     pos[rows] = np.arange(len(rows))
     zero_unflagged = cells = 0
-    raw = core_ms.open_table(raw_ms) if arm == "raw" else None
+    same = Path(raw_ms).resolve() == Path(cal_ms).resolve()
+    raw = core_ms.open_table(raw_ms) if arm == "raw" and not same else None
     w = core_ms_write.open_table(cal_ms, readonly=False)
     try:
         for start, n in _runs(rows):
             idx = pos[start : start + n]
             flag = w.getcol("FLAG", start, n).astype(bool)
             if arm == "raw":
-                ws = raw.getcol("WEIGHT_SPECTRUM", start, n).astype(np.float32)
+                # RAW_MS is CAL_MS (c4: no other copy): its weights as apply left them, read
+                # before they are first overwritten (the raw arm runs first on each field).
+                src = w if raw is None else raw
+                ws = src.getcol("WEIGHT_SPECTRUM", start, n).astype(np.float32)
             elif arm == "unity":
                 ws = np.ones(flag.shape, np.float32)
             elif arm == "calwt":

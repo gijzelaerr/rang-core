@@ -39,6 +39,8 @@ def cut_off(ms, fid, names):
     bl = set(zip(a1[cross & live].tolist(), a2[cross & live].tolist()))
     allbl = set(zip(a1[cross].tolist(), a2[cross].tolist()))
     out = {"baselines": len(allbl), "baselines_wholly_flagged": len(allbl - bl)}
+    live_ants = {a for pq in bl for a in pq}
+    out["no_data"] = [x for x in range(nant) if x not in live_ants]
     for name, a in names.items():
         linked = {q if p == a else p for p, q in bl if a in (p, q)}
         out[f"cut_off_from_{name}"] = [
