@@ -28,7 +28,9 @@ correlations are in the store's order (xradio sorts channels by frequency).
 into it (research/msv4-flag-write.md): the stage's chunk tasks
 (`core_tasks.plan_flag`, `core_tasks.run`, any executor) over each
 partition's rows, then one writer that changes only the flag variable's
-values. It keeps no flag versions: flag a copy of a store you want to keep.
+values. It keeps no flag versions: flag a copy of a store you want to keep,
+or use `rang-core flag CONFIG STORE` (research/msv4-cli.md), which keeps a
+run directory, flag versions and a journal (`rang.msv4_flags`).
 
 The schema is read as is; no telescope is assumed. xarray, zarr 3 and
 numcodecs come from the optional `[msv4]` extra and are imported only when a
@@ -52,6 +54,15 @@ DTYPES = {
 CORR_CODES = {"RR": 5, "RL": 6, "LR": 7, "LL": 8, "XX": 9, "XY": 10, "YX": 11, "YY": 12}
 # `flag.column` to the data group it reads (research/msv4-flag-write.md 3).
 COLUMN_GROUPS = {"DATA": "base", "CORRECTED_DATA": "corrected", "MODEL_DATA": "model"}
+
+
+def is_store(path):
+    """True when `path` is a zarr directory (`zarr.json` or `.zgroup`) and
+    not a casacore table (`table.dat`): the stores `rang-core` takes."""
+    path = Path(path)
+    if not path.is_dir() or (path / "table.dat").exists():
+        return False
+    return (path / "zarr.json").is_file() or (path / ".zgroup").is_file()
 
 
 def has_msv4():
@@ -356,22 +367,32 @@ def _groups(rows, field, scan, pindex):
     return groups, field_names, scan_names
 
 
-def flag(store, config, config_path=None, max_rows=None):
+def flag(store, config, config_path=None, max_rows=None, on_write=None):
     """Run the flag stage on the processing set at `store` and write `FLAG`
     into it (research/msv4-flag-write.md). `config` is a resolved ra-ng
     configuration (`core_config.validate`) or the path of one. Each
     partition's groups (per field and scan) become `core_tasks.plan_flag`
     specs, mapped by `core_tasks.executor(config)`; the partials are written
     after the map, by this process only, into the flag variable's values.
-    `max_rows` cuts a larger group into blocks of baselines. Returns a
-    summary."""
-    import zarr
-
-    from . import core_config, core_flag, core_tasks
+    `max_rows` cuts a larger group into blocks of baselines.
+    `on_write(partition)` is called before each partition's write (the
+    command line's journal). Returns a summary."""
+    from . import core_config
 
     if isinstance(config, (str, Path)):
         config_path = Path(config)
         config = core_config.validate_file(config, ["flag"])
+    plan = prepare_flag(store, config, config_path)
+    return run_flag(store, config, plan, max_rows=max_rows, on_write=on_write)
+
+
+def prepare_flag(store, config, config_path=None):
+    """What `flag` reads before it runs, checked: the column's data group,
+    the strategy, the masks, the field and scan selection and the
+    partitions. Raises ValueError for what a store cannot take (the
+    command line refuses these before anything is written)."""
+    from . import core_flag
+
     cfg = config["flag"]
     if cfg.get("flagger", "tricolour") != "tricolour":
         raise ValueError(f"flag.flagger {cfg['flagger']!r}: only tricolour on MSv4")
@@ -395,16 +416,55 @@ def flag(store, config, config_path=None, max_rows=None):
     ps = open_processing_set(store)
     if ps.refused:
         raise ValueError(f"{store}: partitions refused: {ps.refused}")
+    if not ps.names:
+        raise ValueError(f"{store}: no visibility partition")
     parts = ps.partitions(data_group)
     names = set()
     for part in parts:
         names.update(str(f) for f in part.field_name)
+        part.metadata()  # refused here when the store lacks what the kernel reads
     fields = _selected_fields(cfg["fields"], names)
+    return {
+        "column": column,
+        "data_group": data_group,
+        "strategy_path": strategy_path,
+        "text": text,
+        "mask_files": mask_files,
+        "masks": masks,
+        "scans": scans,
+        "fields": fields,
+        "parts": parts,
+        "telescope": telescope(ps),
+    }
+
+
+def telescope(ps):
+    """`overall_telescope_name` of the first partition's `antenna_xds`."""
+    for name in ps.names:
+        node = ps.tree[name]
+        if "antenna_xds" in node.children:
+            value = node["antenna_xds"].attrs.get("overall_telescope_name")
+            if value:
+                return str(value)
+    return ""
+
+
+def run_flag(store, config, plan, max_rows=None, on_write=None):
+    """`flag` with the checked `plan` of `prepare_flag`."""
+    import zarr
+
+    from . import core_tasks
+
+    cfg = config["flag"]
+    column, data_group = plan["column"], plan["data_group"]
+    text, masks = plan["text"], plan["masks"]
+    scans, fields, parts = plan["scans"], plan["fields"], plan["parts"]
+    store = Path(store)
     summary = {
         "store": str(store),
-        "strategy": str(strategy_path),
+        "strategy": str(plan["strategy_path"]),
         "strategy_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
-        "static_masks": [p.name for p in mask_files],
+        "static_masks": [p.name for p in plan["mask_files"]],
         "write": cfg["write"],
         "column": column,
         "data_group": data_group,
@@ -450,6 +510,8 @@ def flag(store, config, config_path=None, max_rows=None):
                 total[0] += result["before"]
                 total[1] += result["after"]
                 total[2] += result["seconds"]
+            if on_write is not None and new:
+                on_write(part.name)  # the journal records FLAG before the put
             record = _write_flags(zarr, store, part, ti, bi, new)
             cells = int(len(part.frequency) * len(part.polarization))
             summary["partitions"].append(
@@ -457,6 +519,8 @@ def flag(store, config, config_path=None, max_rows=None):
                     "name": part.name,
                     "rows": len(ti),
                     "rows_flagged": len(rows),
+                    "selected_flagged_before": int(sum(t[0] for t in totals)),
+                    "selected_flagged_after": int(sum(t[1] for t in totals)),
                     "blocks": blocks,
                     "groups": [
                         {

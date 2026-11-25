@@ -45,6 +45,38 @@ flagversions.restore("my.ms", "rang_original")
 or in CASA, `flagmanager(vis="my.ms", mode="restore", versionname="rang_original")`.
 There is no `rang-core` command for it yet.
 
+## An MSv4 store
+
+`rang-core flag CONFIG STORE` (and `rang-core run` with `run.stages: [flag]`)
+flags an MSv4 processing set (xradio schema 4, Zarr; the `[msv4]` extra) in
+place, writing only the values of each partition's flag variable
+({gh}`research/msv4-cli.md`, {gh}`research/msv4-flag-write.md`). The flags
+equal those the MSv2 command writes, converted by xradio 1.3.1 or
+xarray-ms 0.5.14. Its differences from an MS:
+
+- `flag.column` is `DATA`, `CORRECTED_DATA` or `MODEL_DATA` (the data groups
+  `base`, `corrected`, `model`); `flag.fields` takes field names as the
+  store holds them (not ids or roles); `data.scans` matches the scan names;
+- the run directory is `<store>.rang-run`, as for an MS;
+- flag versions go to `<store>.flagversions/`, named as for an MS
+  (`rang_original`, `rang_flag_<UTC time>`), each a byte copy of every
+  partition's flag variable. CASA's `flagmanager` cannot read them:
+
+```python
+from rang import msv4_flags
+
+print(msv4_flags.versions("my.ps.zarr"))         # [(name, comment), ...]
+msv4_flags.restore_flags("my.ps.zarr", "rang_original")
+```
+
+- after a write that was killed, the next run from another run directory
+  is refused until you restore (the message names the call); a rerun from
+  the same run directory restores its own version first, as for an MS;
+- only the flag stage: calibrate, apply, image and selfcal refuse a store
+  until the weight each data group takes is settled
+  ({gh}`research/msv4-interop.md`, M5). `FLAG_ROW` is lost in conversion: OR
+  it into `FLAG` before converting.
+
 ## What is not there
 
 - No learned flagger: F1 to F5 stopped or failed as frozen, and none ships

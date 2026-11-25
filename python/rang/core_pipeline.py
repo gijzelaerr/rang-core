@@ -48,6 +48,11 @@ fields, and image when `data.scans` leaves out a scan of an imaged field or
 on a data description other than 0.
 Autocorrelations are flagged and corrected but left out of the solve.
 
+An MSv4 store (`rang.msv4.is_store`, research/msv4-cli.md) takes the flag
+stage only (no weighted stage takes MSv4 input until the base weights are
+settled, research/msv4-interop.md M5): the same run directory, with flag
+versions and the journal in `<store>.flagversions/` (`rang.msv4_flags`).
+
 Memory (task W3, research/w3-chunking.md): `flag`, `calibrate` and `apply`
 read no visibility column whole. Chunk sizes follow from
 `data.memory_limit_gb` (`rang.core_chunks`): `flag` takes blocks of
@@ -1027,7 +1032,9 @@ def check_config(config_path, ms=None, stages=None, all_stages=False):
     )
     config = core_config.validate(raw, stages, source=Path(config_path))
     warnings = []
-    if ms:
+    if ms and is_store(ms):
+        inspect_store(config, config_path, ms, stages)
+    elif ms:
         info = inspect_ms(ms)
         preflight(config, info, stages)
         missing = _missing_masks(config, config_path, stages)
@@ -1086,6 +1093,177 @@ def _missing_masks(config, config_path, stages):
         for key, value in masks
         if not _resolve_mask(value, config_path).exists()
     ]
+
+
+# -- MSv4 stores (research/msv4-cli.md) -------------------------------------------
+
+
+def is_store(path):
+    """True when `path` is an MSv4 store (a zarr directory, no table.dat)."""
+    from . import msv4
+
+    return msv4.is_store(path)
+
+
+def refuse_store_stages(store, stages):
+    """Refused unless `stages` are the flag stage only."""
+    other = [s for s in stages if s != "flag"]
+    if other:
+        raise Refused(
+            f"{store} is an MSv4 store: only the flag stage runs on one, not "
+            f"{', '.join(other)} (no weighted stage takes MSv4 input until the "
+            "base weights are settled: research/msv4-interop.md, M5)"
+        )
+
+
+def inspect_store(config, config_path, store, stages):
+    """What the stages need to know of an MSv4 store, refusing (before
+    anything is written) a stage other than flag and whatever
+    `rang.msv4.prepare_flag` refuses."""
+    from . import msv4
+
+    store = Path(store)
+    refuse_store_stages(store, stages)
+    if not msv4.has_msv4():
+        raise Refused(
+            f"{store} is an MSv4 store: rang.msv4 needs the extra, "
+            "pip install 'rang-core[msv4]' (Python 3.11+)"
+        )
+    if "flag" not in stages:
+        return {"kind": "msv4", "telescope": "", "nrows": 0, "cell": (1, 1)}
+    try:
+        plan = msv4.prepare_flag(store, config, config_path)
+    except (ValueError, KeyError, OSError) as exc:
+        raise Refused(f"{store}: {exc}") from exc
+    nrows = sum(len(p.cells()[0]) for p in plan["parts"])
+    cell = max(
+        ((len(p.frequency), len(p.polarization)) for p in plan["parts"]),
+        key=lambda c: c[0] * c[1],
+    )
+    return {
+        "kind": "msv4",
+        "telescope": plan["telescope"],
+        "nrows": int(nrows),
+        "cell": cell,
+        "partitions": [p.name for p in plan["parts"]],
+    }
+
+
+def restore_before_store(store, entry):
+    """`restore_before` for a store: the flags saved before this stage's
+    last attempt back (the flags they replace saved first as
+    `rang_rerun_<UTC time>`), or None."""
+    from . import msv4_flags
+
+    journal = msv4_flags.read_journal(store)
+    prior = entry.get("flag_version")
+    unfinished = core_writeback.flags_unfinished(journal)
+    if unfinished and (not prior or journal.get("flag_backup") != prior):
+        raise Refused(
+            f"an earlier write-back on {store} (stage {journal.get('stage')!r}) did "
+            "not finish and was not made by this run directory; call "
+            f"rang.msv4_flags.restore_flags({str(store)!r}, "
+            f"{journal.get('flag_backup')!r}) first"
+        )
+    if prior and msv4_flags.exists(store, prior):
+        saved = _version_name(store, "rerun")
+        msv4_flags.backup_flags(
+            store, saved, comment=f"rang: flags replaced by restoring {prior}"
+        )
+        entry["saved_before_restore"] = saved
+        msv4_flags.restore_flags(store, prior)
+        return prior
+    return None
+
+
+def _store_flags(store, data_group, rows_per_read):
+    """(sha256 of FLAG in the reader's row order, partition by partition,
+    flagged cells, cells) of the store as it is now."""
+    from . import msv4
+
+    digest = hashlib.sha256()
+    flagged = cells = 0
+    for part in msv4.open_processing_set(store).partitions(data_group):
+        source = msv4.RowSource(part)
+        nrows = len(source.ti)
+        step = max(1, int(rows_per_read))
+        for start in range(0, nrows, step):
+            flag = source.getcol_rows(
+                "FLAG", np.arange(start, min(start + step, nrows))
+            )
+            digest.update(np.ascontiguousarray(flag).tobytes())
+            flagged += int(flag.sum())
+            cells += int(flag.size)
+            del flag
+    return digest.hexdigest(), flagged, cells
+
+
+def stage_flag_store(ctx):
+    """The flag stage on an MSv4 store, in `stage_flag`'s order: restore
+    what the last attempt saved, `rang_original` if absent, the attempt's
+    `rang_flag_<time>` recorded, the session (version saved, journal open),
+    `rang.msv4.run_flag` with FLAG journalled before its first write."""
+    from . import msv4, msv4_flags
+
+    config, store, run = ctx["config"], ctx["ms"], ctx["run"]
+    cfg = config["flag"]
+    restored = restore_before_store(store, ctx["entry"])
+    try:
+        plan = msv4.prepare_flag(store, config, ctx["config_path"])
+    except ValueError as exc:
+        raise StageFailed(str(exc)) from exc
+    budget = core_chunks.budget(config, ctx["info"])
+    if core_writeback.flags_unfinished(msv4_flags.read_journal(store)):
+        raise Refused(f"{store}: an unfinished write-back must be restored first")
+    saved = msv4_flags.backup_flags(
+        store, ORIGINAL, comment="rang: flags before the first write"
+    )
+    version = _version_name(store, "flag")
+    ctx["entry"]["flag_version"] = version
+    run.save()
+    with msv4_flags.WriteSession(
+        store, flag_backup=version, stage="flag", comment="rang: flags before flag"
+    ) as w:
+        result = msv4.run_flag(
+            store,
+            config,
+            plan,
+            max_rows=budget.rows("flag"),
+            on_write=w.mark_flag_write,
+        )
+    digest, total_after, total_cells = _store_flags(
+        store, plan["data_group"], budget.rows("rows")
+    )
+    groups, blocks, before_selected, after_selected = [], [], 0, 0
+    for part in result["partitions"]:
+        blocks.extend(part["blocks"])
+        before_selected += part["selected_flagged_before"]
+        after_selected += part["selected_flagged_after"]
+        groups.extend({"partition": part["name"], **g} for g in part["groups"])
+    total_before = total_after - after_selected + before_selected
+    strategy_path = _resolve_path(cfg["strategy"], ctx["config_path"])
+    summary = {
+        "strategy": str(strategy_path),
+        "strategy_sha256": hashlib.sha256(plan["text"].encode("utf-8")).hexdigest(),
+        "steps": len(core_flag.parse_strategy(plan["text"])),
+        "static_masks": {p.name: _sha256_file(p) for p in plan["mask_files"]},
+        "write": cfg["write"],
+        "column": cfg["column"],
+        "restored_before": restored,
+        "groups": groups,
+        "rows_flagged": sum(p["rows_flagged"] for p in result["partitions"]),
+        "flagged_before": total_before / total_cells,
+        "flagged_after": total_after / total_cells,
+        "flag_sha256": digest,
+        "flag_version": version,
+        "rang_original_saved_now": saved,
+        "chunking": {**budget.describe(), "blocks": blocks, **result["executor"]},
+        "store": str(store),
+        "data_group": plan["data_group"],
+        "partitions": result["partitions"],
+    }
+    _write_json(run.stage_dir("flag") / "summary.json", summary)
+    return summary
 
 
 def stage_flag(ctx):
@@ -2885,17 +3063,24 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
     ms = Path(ms).resolve()
     stages = [s for s in core_config.STAGES if s in stages]
     force = set(core_config.STAGES if "all" in force else force)
-    info = inspect_ms(ms)
-    preflight(config, info, stages)
+    store = is_store(ms)
+    if store:
+        info = inspect_store(config, config_path, ms, stages)
+    else:
+        info = inspect_ms(ms)
+        preflight(config, info, stages)
     missing = _missing_masks(config, config_path, stages)
     if missing:
         raise Refused("; ".join(missing))
+    functions = (
+        dict(STAGE_FUNCTIONS, flag=stage_flag_store) if store else STAGE_FUNCTIONS
+    )
     run = RunDir(run_dir or default_run_dir(ms), ms)
     with run.locked():
         state = run.state
         state["config_path"] = str(Path(config_path).resolve())
         state["telescope"] = info["telescope"]
-        for text in scope_warnings(info):
+        for text in [] if store else scope_warnings(info):
             log(f"rang-core: warning: {text}")
         conflicts = []
         for stage in stages:  # before anything runs
@@ -2968,7 +3153,7 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
             flag_writes = core_writeback.flag_writes()
             try:
                 _learned_hook(ctx, stage)
-                summary = STAGE_FUNCTIONS[stage](ctx)
+                summary = functions[stage](ctx)
             except Exception as exc:
                 attempt.update(
                     status="failed",
@@ -3082,6 +3267,8 @@ __all__ = [
     "find_gemclean",
     "gemclean_arguments",
     "inspect_ms",
+    "inspect_store",
+    "is_store",
     "resolve_fields",
     "restore_before",
     "solution_grid",

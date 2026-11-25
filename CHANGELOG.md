@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `rang-core flag CONFIG STORE` (and `rang-core run` with `run.stages: [flag]`) on an MSv4
+  processing set: the flag stage through `rang.msv4.flag` with the MSv2 command's run directory,
+  flag versions (`<store>.flagversions/`, byte copies of each partition's flag variable;
+  `rang.msv4_flags.restore_flags`) and write-back journal. Other stages refuse a store (M5)
+  (#5, `research/msv4-cli.md`).
+
 - **Behaviour change: `rang-core lightcurve` now uses unit weights by default** (`--weights unit`:
   every correlation weighs 1, flags still applied, as `gemclean -unit-weights`). Every flux, σ_meas,
   snapshot and candidate of a run without `--weights` changes on a Measurement Set whose weights

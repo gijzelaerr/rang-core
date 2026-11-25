@@ -8,7 +8,7 @@ from source ({doc}`../installation`; 0.1.0 on PyPI lacks the chain) and the
 | --- | --- |
 | {doc}`image-your-ms` | the configuration for your fields, `config check`, `run`, resume, the run directory, `gemclean` directly |
 | {doc}`calibrate` | CARACal's 1GC terms (K, G, B, A, F), polarisation (Gpol, KCROSS, Xf, Df), apply, self-calibration, memory |
-| {doc}`flag` | the Tricolour port, strategies, static masks, flag versions and restore |
+| {doc}`flag` | the Tricolour port, strategies, static masks, flag versions and restore, an MSv4 store |
 | {doc}`check-results` | receipts, stage summaries, tables, images, and how to compare with CARACal or WSClean |
 | {doc}`../limits` | what rang does not do and where it differs from the tools it was checked against |
 
