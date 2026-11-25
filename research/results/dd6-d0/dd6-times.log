@@ -71,3 +71,4 @@ C-MF-64 start 2026-11-25T10:44:16+02:00 slots=4 mem=15 args=grid D:/rang/outputs
 C-MF-64 end 2026-11-25T11:01:57+02:00 rc=0 wall=1061s
 C-F-64 start 2026-11-25T11:01:57+02:00 slots=4 mem=15 args=grid D:/rang/outputs/dd5-20261124/b 64 D:/rang/outputs/dd5-20261124/a/sky.npy D:/rang/outputs/dd6-20261125/grid/C-F-64.json --free
 parity-MF64b end 2026-11-25T11:34:36+02:00 rc=0 wall=3121s
+C-F-64 end 2026-11-25T11:55:04+02:00 rc=0 wall=3187s

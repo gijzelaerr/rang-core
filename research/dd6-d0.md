@@ -395,8 +395,7 @@ were read).**
   is free). Run while the parity solve ran:
   - C-MF at 16 × 8 s: 0.147, 0.056, 0.036;
   - C-MF at 64 × 8 s: 0.750, 0.753, 0.750, e/ê 918, 235, 19;
-  - C-F at 64 × 8 s: recorded in the archive if it finished before the
-    hand-back (`grid/C-F-64.json`).
+  - C-F at 64 × 8 s: 0, 0, 0, d0 median \|g\| 0.207, e/ê up to 24,600 (d0).
   None of them changes a reading.
 - *Per-interval reading* of the 16 and 64 × 8 s points, the fraction
   without the 2-integration last interval, and gain amplitude percentiles:
