@@ -712,9 +712,10 @@ class Local:
         As = self.A.sum(0)  # (nbl, D, D)
         vp = gq[..., :, None] * np.conj(gq[..., None, :]) * As[None]
         vq = gp[..., :, None] * np.conj(gp[..., None, :]) * np.conj(As)[None]
-        return np.einsum("ab,kbde->kade", self.Ep, vp) + np.einsum(
-            "ab,kbde->kade", self.Eq, vq
-        )
+        out = np.tensordot(self.Ep, vp, axes=([1], [1])) + np.tensordot(
+            self.Eq, vq, axes=([1], [1])
+        )  # (nant, K, D, D)
+        return out.transpose(1, 0, 2, 3)
 
 
 def jacobian(loc, g0, variant="default", rel_step=1e-6, chunk=64):
