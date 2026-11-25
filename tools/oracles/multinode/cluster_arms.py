@@ -256,13 +256,14 @@ def stage(d, name, a, py, code):
     if killer:
         killer.join()
     if launch:
-        login(
-            sched,
-            [py, "-m", "rang.core_cli", "spool", "stop", spool.as_posix(), "--cancel"],
-            d,
-            env,
-        )
+        # The stop file first, so running workers exit on their own and log
+        # their CPU-seconds; then cancel what is left (pending array tasks).
+        stop = [py, "-m", "rang.core_cli", "spool", "stop", spool.as_posix()]
+        login(sched, stop, d, env)
         t1 = time.time()
+        while _jobs_left(sched, launch["job_id"], d) and time.time() - t1 < 60:
+            time.sleep(2)
+        login(sched, [*stop, "--cancel"], d, env)
         while _jobs_left(sched, launch["job_id"], d) and time.time() - t1 < 240:
             time.sleep(2)
         record["jobs_left_after_s"] = round(time.time() - t1, 1)

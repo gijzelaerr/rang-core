@@ -19,7 +19,24 @@ LOCK="$HOME/Github/rang/tools/heavy_lock.py"
 PY=${RANG_MN_PYTHON:?}
 export RANG_MN_CLUSTER=1
 mkdir -p "$RUN"
+if [ "${ONE_TICKET:-0}" = 1 ] && [ -z "${RANG_HEAVY_LOCK_HELD:-}" ]; then
+  # One ticket for every arm, sized to the largest (the arms run one at a
+  # time): fewer waits in a long queue, never more than one arm's caps.
+  read -r slots mem < <(cd "$HERE" && "$PY" -c "
+import sys, cluster_arms as c
+b = [c.booking(c.spec('$CASE', a), None) for a in sys.argv[1:]]
+print(max(x for x, _ in b), max(g for _, g in b))" "$@")
+  echo "== $(date -Is) $CASE $*: one ticket, $slots slots $mem GB"
+  exec python3 "$LOCK" run --slots "$slots" --mem "$mem" -- \
+    nice -n 19 ionice -c3 bash "$0" "$RUN" "$CASE" "$@"
+fi
 for arm in "$@"; do
+  if [ -n "${RANG_HEAVY_LOCK_HELD:-}" ]; then
+    echo "== $(date -Is) $CASE-$arm: inside the held ticket"
+    "$PY" "$HERE/run.py" arm "$RUN" "$CASE" "$arm"
+    echo "== $(date -Is) $CASE-$arm: done"
+    continue
+  fi
   read -r slots mem < <(cd "$HERE" && "$PY" -c "
 import cluster_arms as c
 s, g = c.booking(c.spec('$CASE', '$arm'), None)
