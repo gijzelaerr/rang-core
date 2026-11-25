@@ -307,4 +307,4 @@ New public API `rang.msv4.flag`; `core_tasks.run` opens an MSv4 source for
 specs that name one. No CLI change, no new `RANG_*` variable. c6/c7's
 archived MSs were deleted; c6x substitutes. Oracle venvs in
 `~/Build/tmp/20261125-msv4-*` removed at the end; run root kept on D: until
-merge (414 MB + stores).
+merge (3.5 GB).
