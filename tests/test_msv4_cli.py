@@ -144,7 +144,7 @@ def test_restore_refuses_another_array(tmp_path, m05):
     msv4_flags.save(store, "v")
     name, var = msv4_flags.flag_variables(store)[0]
     meta = store / name / var / "zarr.json"
-    meta.write_text(meta.read_text().replace('"FLAG"', '"FLAG" '), encoding="utf-8")
+    meta.write_bytes(meta.read_bytes() + b" ")  # same JSON, other bytes
     with pytest.raises(ValueError, match="not the array"):
         msv4_flags.restore(store, "v")
 
