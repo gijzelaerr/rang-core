@@ -138,6 +138,11 @@ def run(spec, source=None):
     fn = RUNNERS[spec.kind]
     if source is not None:
         return fn(spec, source)
+    store = spec.params.get("msv4")
+    if store:  # a partition of an MSv4 store (research/msv4-flag-write.md)
+        from . import msv4
+
+        return fn(spec, msv4.row_source(spec.ms, **store))
     from . import core_ms
 
     with core_ms.open_table(spec.ms) as reader:

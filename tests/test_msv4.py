@@ -232,3 +232,178 @@ def test_missing_extra_names_it(monkeypatch, tmp_path):
     monkeypatch.setattr(msv4, "has_msv4", lambda: False)
     with pytest.raises(ImportError, match=r"rang-core\[msv4\]"):
         msv4.open_processing_set(tmp_path / "x.ps.zarr")
+
+
+# -- the flag stage on a store (research/msv4-flag-write.md) ------------------------
+
+STRATEGY = (
+    Path(__file__).resolve().parents[1]
+    / "research"
+    / "results"
+    / "e2-acceptance-scripts"
+    / "mk_rfi_flagging_calibrator_fields_firstpass.yaml"
+)
+
+
+def _config(tmp_path, data=""):
+    path = tmp_path / "flag.yaml"
+    path.write_text(
+        f"version: 1\n{data}flag: {{strategy: {STRATEGY.as_posix()}}}\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def _files(path):
+    return {
+        p.relative_to(path).as_posix(): p.read_bytes()
+        for p in sorted(Path(path).rglob("*"))
+        if p.is_file()
+    }
+
+
+def _with_metadata(tree):
+    """The synthetic tree with what the flag kernel reads from a store."""
+    import xarray as xr
+
+    ds = tree["p0"].to_dataset(inherit=False)
+    ds["frequency"].attrs["channel_width"] = {"data": 1e6, "units": "Hz"}
+    ant = xr.Dataset(
+        {
+            "ANTENNA_POSITION": (
+                ("antenna_name", "cartesian_pos_label"),
+                np.array(
+                    [
+                        [5109e3, 2006e3, -3239e3],
+                        [5109e3, 2006.1e3, -3239e3],
+                        [5109.1e3, 2006e3, -3239e3],
+                    ]
+                ),
+            )
+        },
+        coords={"antenna_name": ["a0", "a1", "a2"]},
+    )
+    return xr.DataTree.from_dict({"/p0": ds, "/p0/antenna_xds": ant})
+
+
+@pytest.mark.parametrize("flag_kind", ["bool", "uint8"])
+def test_flag_writes_only_flag_values_and_keeps_pads(tmp_path, flag_kind):
+    tree, _ = _tree(flag=_uint8 if flag_kind == "uint8" else None)
+    path = tmp_path / "ps.zarr"
+    _with_metadata(tree).to_zarr(str(path))
+    before = _files(path)
+    stored = np.asarray(msv4.open_processing_set(path).tree["p0"].ds["FLAG"].values)
+    summary = msv4.flag(path, _config(tmp_path))
+    after = _files(path)
+    changed = {k for k in before if before[k] != after.get(k)} | (
+        set(after) - set(before)
+    )
+    assert all(k.startswith("p0/FLAG/c/") for k in changed)
+    (part,) = summary["partitions"]
+    assert part["rows"] == 8 and part["rows_flagged"] == 8
+    assert part["flag_dtype"] == flag_kind
+    now = np.asarray(msv4.open_processing_set(path).tree["p0"].ds["FLAG"].values)
+    assert now.dtype == stored.dtype
+    assert now[1, 2].tobytes() == stored[1, 2].tobytes()  # the pad is not written
+    rows = msv4.open_processing_set(path).partition("p0").rows()
+    assert rows["FLAG"].shape == (8, 5, 2)
+
+
+def test_flag_refuses_ids_and_unknown_columns(tmp_path):
+    tree, _ = _tree()
+    path = tmp_path / "ps.zarr"
+    _with_metadata(tree).to_zarr(str(path))
+    from rang import core_config
+
+    config = core_config.validate_file(_config(tmp_path), ["flag"])
+    for key, value, message in (
+        ("fields", ["0"], "field names"),
+        ("column", "WEIGHTED", "an MSv4 store takes"),
+    ):
+        bad = {**config, "flag": {**config["flag"], key: value}}
+        with pytest.raises(ValueError, match=message):
+            msv4.flag(path, bad, _config(tmp_path))
+
+
+def test_flag_equals_the_kernel_on_the_msv2_at_any_process_count(tmp_path):
+    """m05 (two windows, 4 and 8 channels; `rang-core flag` refuses its two
+    cell shapes): `rang.msv4.flag` on the xradio 1.3.1 store equals the
+    Tricolour kernel on the MSv2's rows per window, field and scan with the
+    MSv2's metadata, by key; a pool of two processes writes the same bytes."""
+    import shutil
+
+    from rang import core_flag, core_ms
+
+    if not core_ms.has_reader():
+        pytest.skip("core library built without the reader")
+    with zipfile.ZipFile(DATA / "m05.zip") as z:
+        z.extractall(tmp_path)
+    ms = tmp_path / "m05.ms"
+    strategies = core_flag.parse_strategy(STRATEGY.read_text(encoding="utf-8"))
+    masks = [core_flag.load_static_mask(f) for f in core_flag.static_mask_files()]
+    with core_ms.open_table(ms) as t:
+        ref = {
+            c: np.asarray(t.getcol(c))
+            for c in ("TIME", "ANTENNA1", "ANTENNA2", "DATA_DESC_ID", "FIELD_ID")
+        }
+        ref["SCAN_NUMBER"] = np.asarray(t.getcol("SCAN_NUMBER"))
+        cells = {
+            c: [t.getcol(c, r, 1)[0] for r in range(t.nrows)] for c in ("DATA", "FLAG")
+        }
+    with core_ms.open_table(ms / "ANTENNA") as t:
+        names = [str(n) for n in t.getcol("NAME")]
+        positions = np.asarray(t.getcol("POSITION"), np.float64)
+    with core_ms.open_table(ms / "DATA_DESCRIPTION") as t:
+        dd_spw = t.getcol("SPECTRAL_WINDOW_ID")
+    with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
+        freq = [t.getcol("CHAN_FREQ", r, 1)[0] for r in range(t.nrows)]
+        width = [t.getcol("CHAN_WIDTH", r, 1)[0] for r in range(t.nrows)]
+    with core_ms.open_table(ms / "POLARIZATION") as t:
+        corr = np.asarray(t.getcol("CORR_TYPE", 0, 1)[0], np.int32)
+    want = {}
+    keys = np.stack([ref["FIELD_ID"], ref["DATA_DESC_ID"], ref["SCAN_NUMBER"]], 1)
+    for k in np.unique(keys, axis=0):
+        idx = np.flatnonzero((keys == k).all(axis=1))
+        spw = dd_spw[k[1]]
+        out = core_flag.flag_rows(
+            np.stack([cells["DATA"][r] for r in idx]),
+            np.stack([cells["FLAG"][r] for r in idx]),
+            ref["ANTENNA1"][idx],
+            ref["ANTENNA2"][idx],
+            ref["TIME"][idx],
+            positions,
+            np.asarray(freq[spw], np.float64),
+            np.asarray(width[spw], np.float64),
+            corr,
+            strategies,
+            masks=masks,
+            want_intensity=False,
+            want_stages=False,
+            time_grid=np.unique(ref["TIME"][idx]),
+        )["flags"]
+        for r, f in zip(idx, out):
+            key = (ref["TIME"][r], names[ref["ANTENNA1"][r]], names[ref["ANTENNA2"][r]])
+            want[(*key, len(freq[spw]))] = f
+    stores = {}
+    for arm, data in (("one", ""), ("pool", "data: {processes: 2}\n")):
+        out = tmp_path / f"{arm}.ps.zarr"
+        shutil.copytree(tmp_path / "m05.ps.zarr", out)
+        (tmp_path / arm).mkdir()
+        msv4.flag(out, _config(tmp_path / arm, data))
+        stores[arm] = _files(out)
+    assert stores["one"] == stores["pool"]
+    seen = 0
+    for part in msv4.open_processing_set(tmp_path / "one.ps.zarr").partitions():
+        rows = part.rows()
+        for i, (tm, a, b) in enumerate(
+            zip(rows["TIME"], rows["ANTENNA1"], rows["ANTENNA2"])
+        ):
+            key = (
+                tm,
+                part.antenna_names[a],
+                part.antenna_names[b],
+                len(part.frequency),
+            )
+            assert rows["FLAG"][i].tobytes() == want[key].tobytes()
+            seen += 1
+    assert seen == len(ref["TIME"])
