@@ -391,3 +391,5 @@ tools/wheel/run_installed.py,102,a,-,-,-,0
 tools/wheel/smoke.py,62,a,-,-,-,0
 tools/wheel/test.py,307,a,-,-,-,0
 tools/wheel/test.sh,139,a,-,-,-,0
+tests/test_dd11.py,48,a,-,-,-,0
+tools/oracles/dd11/dd11.py,623,a,-,-,-,0
