@@ -90,6 +90,7 @@ from . import (
     core_tasks,
     core_writeback,
     learned,
+    meerkat,
 )
 from .formats import flagversions, quartical_store
 
@@ -292,9 +293,10 @@ def scope_warnings(info):
 
 # MeerKAT L band, the only band rang is validated on (research/uhf-scope.md,
 # decision D6; research/meerkat-scope.md). Channel centres outside it (UHF
-# 544-1088 MHz, S band) are warned about, not refused.
-L_BAND_HZ = (856.0e6, 1712.0e6)
-_BAND_SLACK_HZ = 1.0e3
+# 544-1088 MHz, S band) are warned about, not refused; the band is named
+# (`meerkat.band`, issue #11).
+L_BAND_HZ = meerkat.BANDS_HZ["L"]
+_BAND_SLACK_HZ = meerkat.BAND_SLACK_HZ
 
 
 def band_warning(chan_freq):
@@ -308,10 +310,12 @@ def band_warning(chan_freq):
     lo, hi = float(freq.min()), float(freq.max())
     if lo >= L_BAND_HZ[0] - _BAND_SLACK_HZ and hi <= L_BAND_HZ[1] + _BAND_SLACK_HZ:
         return None
+    name = meerkat.band(freq)
+    which = f"MeerKAT {name} band" if name else "no single MeerKAT band"
     return (
-        f"channels at {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz reach outside MeerKAT L band "
-        f"({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz): only L band is "
-        "validated; see docs/limits.md"
+        f"channels at {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz ({which}) reach outside MeerKAT "
+        f"L band ({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz): only L band "
+        "is validated; see docs/limits.md"
     )
 
 

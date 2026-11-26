@@ -22,7 +22,13 @@ limit, not solved (below).
 ## Scope
 
 - **MeerKAT L band only.** UHF and S band are not validated: a stage given
-  channels outside 856-1712 MHz runs with one warning that names this page. Data from other
+  channels outside 856-1712 MHz runs with one warning that names this page and
+  the band it detected. PKS 0408−65 has a flux model (setjy standard `caracal`,
+  CARACal's 2016 cubic, valid from 843 MHz, so it refuses most of UHF; there
+  `calibrate.model.source: manual` with `flux_jy`, `spix` and `reffreq_hz` from
+  `rang.fluxstd.CARACAL_0408` is what CARACal gives CASA), but no UHF track has
+  been calibrated yet
+  ({gh}`research/uhf-11.md`). Data from other
   telescopes runs with a warning, untested ({gh}`research/meerkat-scope.md`).
 - **Native MeerKAT data: tested once, not met as frozen.** E2-N (SARAO
   1735268787, L band, observatory-phased) runs end to end but meets 17 of 25

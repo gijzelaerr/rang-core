@@ -1,0 +1,69 @@
+# DRAFT, NOT RUN, NOT FROZEN (research/uhf-11.md section 7; owner decision D4).
+# CARACal 8f7bb363 configuration for the UHF gate's CARACal arm, written from
+# sample_configurations/meerkat-defaults.yml with the UHF changes of
+# research/uhf-scope.md 0.5 and 2.7. Frozen only once a development set exists.
+schema_version: 1.2.0
+general:
+  prefix: uhf11
+getdata:
+  dataid: ['']
+  extension: ms
+obsconf:
+  refant: '0'            # set from the development set's scan table at freeze
+transform:
+  enable: true
+  field: calibrators
+  label_out: cal
+  split_field: {enable: true, col: data}
+prep:
+  enable: true
+  label_in: cal
+  field: calibrators
+  specweights: {enable: true, mode: uniform}
+flag:
+  enable: true
+  field: calibrators
+  label_in: cal
+  flag_autocorr: {enable: true}
+  flag_spw:
+    # meerkat-defaults' 856~880 MHz and 1658~1800 MHz edges are L band; UHF
+    # band edges are proposed from the data at freeze (none flagged here).
+    enable: false
+  flag_mask:
+    # meerkat.rfimask.npy is CARACal's L-band mask; the UHF arm relies on
+    # Tricolour's static masks (both, as Tricolour loads them) instead.
+    enable: false
+  flag_rfi:
+    enable: true
+    flagger: tricolour
+    tricolour:
+      strategy: firstpass_UHF.yaml
+crosscal:
+  enable: true
+  uvrange: '>150'
+  label_in: cal
+  set_model:
+    enable: true
+    # meerkat_skymodel: true would load the L-band pks1934-638.lsm on UHF data
+    # (uhf-scope 0.5); the UHF crystalball field models are used instead.
+    meerkat_skymodel: false
+    meerkat_crystalball_skymodel: true
+  primary:
+    reuse_existing_gains: true
+    order: KGBAKGB
+    combine: ["", "", "", null, "", "", scan]
+    solint: [inf, inf, inf, null, 60s, 60s, inf]
+    calmode: [a, ap, ap, null, a, ap, ap]
+    b_fillgaps: 70
+  secondary:
+    order: KGAKF
+    apply: B
+    combine: ["", "", null, "", ""]
+    solint: [inf, inf, null, inf, inf]
+    calmode: [a, ap, null, a, ap]
+  apply_cal:
+    applyto: [gcal, bpcal]
+selfcal:
+  enable: false          # the gate images with fixed geometry, below
+  img_npix: 6144         # proposed for D5: 6,144 x 3" = 5.1 deg (uhf-scope 2.7)
+  img_cell: 3

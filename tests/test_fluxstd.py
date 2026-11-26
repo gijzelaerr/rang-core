@@ -188,3 +188,64 @@ def test_fs2_1934_not_in_casa_tables(fs2):
     assert "1934-638" in fields
     with pytest.raises(ValueError, match="not in"):
         fluxstd.flux("1934-638", [1.4e9], "PB2017")
+
+
+# Issue #11 (research/uhf-11.md section 3): PKS 0408-65 under "CARACal 2016".
+
+
+def test_0408_cubic_and_aliases():
+    nu = np.geomspace(0.843e9, 20e9, 41)
+    x = np.log10(nu / 1e6)
+    a, b, c, d = fluxstd.CARACAL_0408_MHZ
+    want = 10 ** (a + b * x + c * x**2 + d * x**3)
+    got = fluxstd.flux("0408-65", nu, "caracal")[:, 0]
+    assert np.max(np.abs(got / want - 1)) < 1e-12
+    for alias in ("J0408-6545", "PKS0408-65", "0408-658"):
+        assert np.array_equal(fluxstd.flux(alias, nu, "CARACal 2016")[:, 0], got)
+    assert np.all(fluxstd.flux("0408-65", nu, "caracal")[:, 1:] == 0)
+
+
+def test_0408_refuses_below_843_mhz_unless_extrapolate():
+    uhf = np.linspace(544e6, 1088e6, 9)
+    with pytest.raises(ValueError, match="outside"):
+        fluxstd.flux("J0408-6545", uhf, "caracal")
+    s = fluxstd.flux("J0408-6545", uhf, "caracal", extrapolate=True)[:, 0]
+    assert np.all(np.isfinite(s)) and np.all(s > 0)
+    with pytest.raises(ValueError, match="not in"):
+        fluxstd.flux("J0408-6545", uhf, "SR2016")
+
+
+def test_0408_against_caracal_manual_fit():
+    # CARACal gives setjy a curve_fit of the same cubic (CARACAL_0408); FS1
+    # pins fluxstd.manual to setjy. Measured 2026-11-23: 4.5e-9 below 843 MHz, 4.2e-11 above (note s8).
+    lim = {(0.544e9, 0.843e9): 1e-8, (0.843e9, 1.712e9): 1e-10}
+    for (lo, hi), tol in lim.items():
+        nu = np.linspace(lo, hi, 513)
+        rang = fluxstd.flux("0408-65", nu, "caracal", extrapolate=True)[:, 0]
+        cara = fluxstd.manual(nu, **fluxstd.CARACAL_0408)
+        assert np.max(np.abs(cara / rang - 1)) < tol
+
+
+def test_caracal_1934_from_the_same_conversion():
+    # The 2026-11-23 run of CARACal's conversion reproduced CARACAL_1934's digits.
+    assert fluxstd.CARACAL_1934["fluxdensity"] == pytest.approx(
+        14.907688923070978, rel=1e-10
+    )
+
+
+def test_0408_exact_manual_conversion():
+    # Frozen check (research/uhf-11.md section 3): the cubic re-expanded exactly
+    # around nu0 is a three-term setjy manual model; FS1 pins manual to setjy.
+    from math import comb
+
+    c = fluxstd.CARACAL_0408_MHZ
+    nu = np.geomspace(0.544e9, 20e9, 201)
+    rang = fluxstd.flux("0408-65", nu, "caracal", extrapolate=True)[:, 0]
+    for nu0 in (1.284e9, 0.816e9):
+        x0 = np.log10(nu0 / 1e6)
+        b = [
+            sum(c[k] * comb(k, j) * x0 ** (k - j) for k in range(j, 4))
+            for j in range(4)
+        ]
+        man = fluxstd.manual(nu, 10 ** b[0], nu0, b[1:])
+        assert np.max(np.abs(man / rang - 1)) < 1e-12

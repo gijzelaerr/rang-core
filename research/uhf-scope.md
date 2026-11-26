@@ -525,3 +525,41 @@ which read the token into memory and scrub it from every log.
 - D4 and D5 wait for data: they are frozen only once a development set exists.
 - D1, D2, D7 and D8 are the owner's: they involve archive access on the owner's account or contact with SARAO.
 - The anonymous MVF capture block found in passing is recorded only. It is not fetched, until D7 is answered.
+
+## Resume steps (2026-11-23, session closed while waiting for links)
+
+Session uhf-11 stopped its link watcher on the owner's request. The
+coordinator resumes UHF once the owner saves archive links on nash as
+`~/rang-data/sarao-link-uhf*.txt` (mode 600). State: branch `uhf-11`
+(last commit before this section 78c34ac6, CI green), P1 passed, the
+gate drafts in `research/results/uhf-11/` are unrun and unfrozen; full
+plan in `research/uhf-11.md` (sections 7, 8, amendment 1).
+
+1. Check: `ssh gijs@nash.ru.ac.za 'ls ~/rang-data/sarao-link-uhf*.txt | wc -l'`.
+   Print counts only, never file contents; read each token into memory and
+   scrub it from every log (method of
+   `research/results/dl2-scripts/dl2_meta.py` and
+   `research/results/e2n-scripts/e2n_fetch.py`); grep every log, JSON and
+   manifest for `token=` after each run.
+2. Metadata only: open each block's RDB (telstate, sensors), write one
+   scrubbed JSON per block under `research/results/uhf-11/meta/`. No
+   visibilities.
+3. Apply section 5's frozen rule R1-R5 to each block; R4 (1934−638 or
+   0408−65 tracked) is the discriminating one. If only on-the-fly MeerKLASS
+   blocks qualify, put the gate change to the coordinator before any run.
+   Skip held-out/validation blocks 1678312253, 1579022459, 1674958551,
+   1573212012; do not fetch C1 or C5 until D2 and D7 are answered.
+4. Size the fetch from metadata (2 s dumps); keep 150 GB free on nash and D:.
+5. Before reading any visibility: a dated amendment in `research/uhf-11.md`
+   freezing D4/D5 tolerances, the development/held-out split and the final
+   CARACal config and CASA script (from the drafts). Commit and push it.
+6. Fetch into an own run root `~/rang-data/outputs/uhf11-gate-<yyyymmdd>/`
+   under `nice -n 19 ionice -c3` and the main checkout's
+   `tools/heavy_lock.py run --slots N --mem G`, setsid with done-markers
+   (pattern of `research/results/uhf-11/p1_run.sh`: copy, `chmod -R u+w`,
+   chmod before rm).
+7. Run rang, CARACal (UHF strategy) and CASA; score against the frozen
+   tolerances; record the outcome, nulls included, in `research/uhf-11.md`,
+   timing rows in `research/tool-timings.md`, `STATE.md`.
+8. `python tools/check_all.py --quick`, push `uhf-11`, read CI, fix red runs;
+   no merge to main by the session.

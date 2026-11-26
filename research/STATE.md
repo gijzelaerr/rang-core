@@ -237,6 +237,14 @@ needs a login). So no visibilities fetched, no listobs or config check; nash hol
 (SARAO's UHF 1934-638 and 0407-65 field models, the memo, holography beam metrics) in `~/rang-data/uhf/reference/`
 with SHA-256. Found in passing: an anonymous MVF capture block (`1775040570`, engineering test) in SARAO's public
 bucket. Eight owner decisions (D1 archive blocks first).
+UHF second leg, 2026-11-23 (branch `uhf-11`; [uhf-11.md](uhf-11.md), proposal frozen before code). Issue #11,
+data-free pieces: PKS 0408-65 flux model (`fluxstd` standard `caracal`, CARACal's 2016 cubic, 843 MHz-20 GHz, refuses
+below unless extrapolate; equals CARACal's setjy manual fit to 4.5e-9 over 544-843 MHz); `meerkat.band` and a band-naming
+warning (L still the only validated band); a UHF synthetic MVF fixture. Port check P1: rang's Tricolour port equals
+Tricolour 0.2.1 with CARACal's `firstpass_UHF.yaml` flag for flag on three DL2 train calibrator scans (0 of 1.18e9 cells;
+L-band data, a port check, not the UHF gate). Static masks unchanged: both are what Tricolour loads, and the L mask's
+entries below 1088 MHz are site RFI. Gate (CARACal + CASA on a UHF track) not run: no UHF archive link yet (D1); candidate
+blocks from MeerKLASS UHF DR1 listed; CARACal/CASA UHF configurations drafted, not frozen.
 v0.3.0 readiness, 2026-11-17 (branch `v030-ready`; [v030-readiness.md](v030-readiness.md),
 [v030-review.md](v030-review.md), receipt [results/v030-mcp/](results/v030-mcp/)):
 - Tracker of every "Done when" item and #2 carry-over. Met: χ stated as a limit (chi-offset section 11, coordinator
