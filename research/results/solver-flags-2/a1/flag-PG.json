@@ -1,0 +1,184 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 10.951425552368164,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 1.048574447631836,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 179428,
+   "calibrate": 179428,
+   "chain": 119618,
+   "flag": 358856,
+   "model": 179428,
+   "rows": 478475,
+   "selfcal": 255186
+  },
+  "tasks": {
+   "flag-block": 12
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "3f0b318963664a6640bb7437c2a4c0adbf45d0e65cdf96b5f40230f981a1fcb6",
+ "flag_version": "rang_flag_20261126T061057Z",
+ "flagged_after": 0.2790525227479807,
+ "flagged_before": 0.2790525227479807,
+ "groups": [
+  {
+   "core_seconds": 0.2825586999533698,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.2636791087962963,
+   "flagged_before": 0.2636791087962963,
+   "rows": 90720,
+   "scan": 1
+  },
+  {
+   "core_seconds": 0.30299110000487417,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.2659014343584656,
+   "flagged_before": 0.2659014343584656,
+   "rows": 90720,
+   "scan": 23
+  },
+  {
+   "core_seconds": 0.10805519996210933,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25711908895502644,
+   "flagged_before": 0.25711908895502644,
+   "rows": 30240,
+   "scan": 3
+  },
+  {
+   "core_seconds": 0.09727849997580051,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25576430224867724,
+   "flagged_before": 0.25576430224867724,
+   "rows": 30240,
+   "scan": 5
+  },
+  {
+   "core_seconds": 0.09523119998630136,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25440951554232805,
+   "flagged_before": 0.25440951554232805,
+   "rows": 30240,
+   "scan": 7
+  },
+  {
+   "core_seconds": 0.10787430009804666,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25400545634920635,
+   "flagged_before": 0.25400545634920635,
+   "rows": 30240,
+   "scan": 9
+  },
+  {
+   "core_seconds": 0.11599439999554306,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25354197668650796,
+   "flagged_before": 0.25354197668650796,
+   "rows": 30240,
+   "scan": 11
+  },
+  {
+   "core_seconds": 0.1041829000459984,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.2541005291005291,
+   "flagged_before": 0.2541005291005291,
+   "rows": 30240,
+   "scan": 13
+  },
+  {
+   "core_seconds": 0.09563699993304908,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.2544332837301587,
+   "flagged_before": 0.2544332837301587,
+   "rows": 30240,
+   "scan": 15
+  },
+  {
+   "core_seconds": 0.09980769990943372,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.2548016906415344,
+   "flagged_before": 0.2548016906415344,
+   "rows": 30240,
+   "scan": 17
+  },
+  {
+   "core_seconds": 0.0943142999894917,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.25639415922619047,
+   "flagged_before": 0.25639415922619047,
+   "rows": 30240,
+   "scan": 19
+  },
+  {
+   "core_seconds": 0.09051999996881932,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.2588898189484127,
+   "flagged_before": 0.2588898189484127,
+   "rows": 30240,
+   "scan": 21
+  }
+ ],
+ "known_rfi": {
+  "added": 128266416,
+  "after_strategy": 0,
+  "cells": 495452160,
+  "channels_all": 31,
+  "channels_short": 92,
+  "preset": "meerkat_l",
+  "short_m": 600.0
+ },
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 483840,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 3,
+ "strategy": "D:\\rang\\outputs\\solver-flags-2-20261126\\a1\\sf2_preset_only.yaml",
+ "strategy_sha256": "13825b928861c510f16e4f0ec7f64f2e5a18368c010cc8562ebcb09d5562be6a",
+ "write": "replace"
+}

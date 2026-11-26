@@ -304,7 +304,7 @@ flag:
 calibrate:
   solver_flags:
     mode: "off"  # residual flags at the gain solve (issue #58, research/solver-flags.md): after each G or B solve, flags on the residual d - g_p m g_q^* per solution interval, then a re-solve; off; quartical: QuartiCal 0.2.7's mad_flags rule; rang: antenna-factorised noise and persistence
-    terms: ["G", "B"]  # the solve types flagged: G (G, Gsec), B
+    terms: ["G", "B"]  # the terms flagged: a type, G (every G term, such as G and Gsec) or B, or the name of a G or B term, such as Gsec
     rounds: 2  # flag passes, each followed by a re-solve of the term
     sigma: 5.0  # cell threshold (QuartiCal: threshold_bl)
     global_sigma: 10.0  # quartical only: threshold_global

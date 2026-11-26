@@ -1,0 +1,23 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/solver-flags-2-20261126/e2n-PBG.ms",
+ "src": "/home/gijs/rang-data/outputs/solver-flags-2-20261126/e2n-R.ms",
+ "version": "rang_calibrate_20261125T180010Z",
+ "fields": {
+  "J1331+3030": {
+   "rows": 139934,
+   "flagged_elements": 0.6862699697937956,
+   "flagged_cross_cells": 0.6862699697937956
+  },
+  "ASKAPJ1745": {
+   "rows": 1596004,
+   "flagged_elements": 0.6493074577536695,
+   "flagged_cross_cells": 0.6493074577536695
+  },
+  "J0408-6545": {
+   "rows": 139934,
+   "flagged_elements": 0.6096702075286385,
+   "flagged_cross_cells": 0.6096702075286385
+  }
+ },
+ "seconds": 183.77632853318937
+}

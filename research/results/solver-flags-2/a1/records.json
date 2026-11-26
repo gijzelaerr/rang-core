@@ -1,0 +1,160 @@
+{
+ "R": {
+  "recall_above_5sigma": 0.9460776185382512,
+  "false_flag_clean": 0.45921646334776217,
+  "per_field": {
+   "J1939-6342": {
+    "recall_above_5sigma": 0.8790074960057389,
+    "false_flag_clean": 0.3466923743440238
+   },
+   "SIM-GCAL": {
+    "recall_above_5sigma": 0.9863525749120693,
+    "false_flag_clean": 0.5268443829125963
+   }
+  },
+  "solver_flags": []
+ },
+ "P0": {
+  "recall_above_5sigma": 0.6647863522920293,
+  "false_flag_clean": 0.25252699941714546,
+  "per_field": {
+   "J1939-6342": {
+    "recall_above_5sigma": 0.7438010138225822,
+    "false_flag_clean": 0.2876597275328462
+   },
+   "SIM-GCAL": {
+    "recall_above_5sigma": 0.6173388164016275,
+    "false_flag_clean": 0.2314119356815674
+   }
+  },
+  "solver_flags": []
+ },
+ "PB": {
+  "recall_above_5sigma": 0.759682566392557,
+  "false_flag_clean": 0.32910141798190023,
+  "per_field": {
+   "J1939-6342": {
+    "recall_above_5sigma": 0.9967284532959941,
+    "false_flag_clean": 0.4916440493658728
+   },
+   "SIM-GCAL": {
+    "recall_above_5sigma": 0.6173388164016275,
+    "false_flag_clean": 0.2314119356815674
+   }
+  },
+  "solver_flags": [
+   {
+    "term": "B",
+    "field_id": 0,
+    "added": 7889015,
+    "resolved": 2,
+    "solutions_flagged_first": 0.11328125,
+    "solutions_flagged_last": 0.11328125,
+    "passes": [
+     {
+      "cells": 46448640,
+      "input_flagged": 13573953,
+      "added": 6096211
+     },
+     {
+      "cells": 46448640,
+      "input_flagged": 19670164,
+      "added": 1792804
+     }
+    ]
+   }
+  ]
+ },
+ "PG": {
+  "recall_above_5sigma": 0.8382449070045579,
+  "false_flag_clean": 0.38492039792293914,
+  "per_field": {
+   "J1939-6342": {
+    "recall_above_5sigma": 0.7438010138225822,
+    "false_flag_clean": 0.2876597275328462
+   },
+   "SIM-GCAL": {
+    "recall_above_5sigma": 0.8949575464638603,
+    "false_flag_clean": 0.4433748751126591
+   }
+  },
+  "solver_flags": [
+   {
+    "term": "Gsec",
+    "field_id": 2,
+    "added": 16225549,
+    "resolved": 2,
+    "solutions_flagged_first": 0.0,
+    "solutions_flagged_last": 0.0,
+    "passes": [
+     {
+      "cells": 77414400,
+      "input_flagged": 21421311,
+      "added": 13028792
+     },
+     {
+      "cells": 77414400,
+      "input_flagged": 34450103,
+      "added": 3196757
+     }
+    ]
+   }
+  ]
+ },
+ "PBG": {
+  "recall_above_5sigma": 0.9333044843890983,
+  "false_flag_clean": 0.4615126746597081,
+  "per_field": {
+   "J1939-6342": {
+    "recall_above_5sigma": 0.9967284532959941,
+    "false_flag_clean": 0.4916440493658728
+   },
+   "SIM-GCAL": {
+    "recall_above_5sigma": 0.8952190078113363,
+    "false_flag_clean": 0.44340346619556587
+   }
+  },
+  "solver_flags": [
+   {
+    "term": "B",
+    "field_id": 0,
+    "added": 7889015,
+    "resolved": 2,
+    "solutions_flagged_first": 0.11328125,
+    "solutions_flagged_last": 0.11328125,
+    "passes": [
+     {
+      "cells": 46448640,
+      "input_flagged": 13573953,
+      "added": 6096211
+     },
+     {
+      "cells": 46448640,
+      "input_flagged": 19670164,
+      "added": 1792804
+     }
+    ]
+   },
+   {
+    "term": "Gsec",
+    "field_id": 2,
+    "added": 16228107,
+    "resolved": 2,
+    "solutions_flagged_first": 0.0,
+    "solutions_flagged_last": 0.0,
+    "passes": [
+     {
+      "cells": 77414400,
+      "input_flagged": 21421311,
+      "added": 13028835
+     },
+     {
+      "cells": 77414400,
+      "input_flagged": 34450146,
+      "added": 3199272
+     }
+    ]
+   }
+  ]
+ }
+}

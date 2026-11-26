@@ -1,0 +1,151 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   3
+  ],
+  "chunk_gb": 7.042780250310898,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.9572197496891022,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 28847,
+   "calibrate": 28847,
+   "chain": 19231,
+   "flag": 57694,
+   "model": 28847,
+   "rows": 76925,
+   "selfcal": 41027
+  },
+  "tasks": {
+   "flag-block": 11
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "a8b6b40a89543c172979840bb4eb60fe246479a82ab4a6fa33a89793e9d4f3c4",
+ "flag_version": "rang_flag_20261126T061251Z",
+ "flagged_after": 0.6087175408909564,
+ "flagged_before": 0.6064544946200046,
+ "groups": [
+  {
+   "core_seconds": 1.4374457220546901,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.41596269128437335,
+   "flagged_before": 0.4025034087837359,
+   "rows": 26474,
+   "scan": 3
+  },
+  {
+   "core_seconds": 1.5688907441217452,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.40965384079663064,
+   "flagged_before": 0.398396600866062,
+   "rows": 26474,
+   "scan": 4
+  },
+  {
+   "core_seconds": 1.4579098380636424,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.39202776190790967,
+   "flagged_before": 0.3779845209273721,
+   "rows": 26474,
+   "scan": 5
+  },
+  {
+   "core_seconds": 1.5357916748616844,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.3932005664755987,
+   "flagged_before": 0.38009440903398145,
+   "rows": 26474,
+   "scan": 7
+  },
+  {
+   "core_seconds": 1.4407964441925287,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.39114135271870515,
+   "flagged_before": 0.37756237915620044,
+   "rows": 26474,
+   "scan": 9
+  },
+  {
+   "core_seconds": 1.5308373039588332,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.41380838373655915,
+   "flagged_before": 0.40300678997554207,
+   "rows": 28365,
+   "scan": 11
+  },
+  {
+   "core_seconds": 1.4010735189076513,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.3684307230088955,
+   "flagged_before": 0.355845870447184,
+   "rows": 26474,
+   "scan": 12
+  },
+  {
+   "core_seconds": 1.4545700140297413,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.37615756998611843,
+   "flagged_before": 0.36351538486168034,
+   "rows": 26474,
+   "scan": 13
+  },
+  {
+   "core_seconds": 7.551018935162574,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 4,
+   "flagged_after": 0.3932938432694163,
+   "flagged_before": 0.37658167303146034,
+   "rows": 139934,
+   "scan": 14
+  }
+ ],
+ "known_rfi": {
+  "added": 85559973,
+  "after_strategy": 0,
+  "cells": 1448415232,
+  "channels_all": 119,
+  "channels_short": 363,
+  "preset": "meerkat_l",
+  "short_m": 600.0
+ },
+ "rang_original_saved_now": false,
+ "restored_before": null,
+ "rows_flagged": 353617,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 3,
+ "strategy": "/home/gijs/rang-data/outputs/solver-flags-2-20261126/cfg/sf2_preset_only.yaml",
+ "strategy_sha256": "13825b928861c510f16e4f0ec7f64f2e5a18368c010cc8562ebcb09d5562be6a",
+ "write": "replace"
+}

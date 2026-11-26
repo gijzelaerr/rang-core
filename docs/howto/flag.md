@@ -64,6 +64,10 @@ calibrate:
 E2-N, after the preset and a mild raw strategy, it lowered J1744-5144's flux by 1.0 % and raised the
 calibrators' noise ({gh}`research/solver-flags.md`). A G solve with the bandpass not yet applied
 (the primary G) flags on a residual that still holds the band's shape.
+A follow-up with the preset as the only raw flagging on the calibrators and flags at B and Gsec
+(`terms: [B, Gsec]`) cut the calibrators' noise 3-9x against the preset alone, but left it 4-7 % above
+CARACal's harsh strategy and lowered J1744-5144's flux by 0.5 %: also null
+({gh}`research/solver-flags-2.md`).
 
 After each G (G, Gsec) or B solve, the residual of the unaveraged cells is flagged per solution
 interval:
@@ -74,6 +78,9 @@ interval:
 The new flags are written to FLAG and the term is solved again. A baseline is never pushed past
 `guard` flagged within an interval. The stage fails if a re-solve flags more of the term's solutions
 than `tripwire` allows. It needs `data.processes: 1`.
+
+`terms` takes a type, `G` (every G term) or `B`, or the name of a G or B term: `terms: [B, Gsec]`
+flags the bandpass and the secondary's G, and leaves the primary G alone.
 
 What was measured, and against what, is in {gh}`research/solver-flags.md`.
 
