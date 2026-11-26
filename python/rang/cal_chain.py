@@ -313,6 +313,8 @@ def _solution_record(sol, info, field_id):
     settings = getattr(sol, "settings", None) or {}
     if "zero_start_intervals" in settings:  # research/k-ambiguity.md
         out["zero_start_intervals"] = [int(i) for i in settings["zero_start_intervals"]]
+    if settings.get("half_period_delays"):  # research/k-ambiguity.md
+        out["half_period_delays"] = settings["half_period_delays"]
     return out
 
 

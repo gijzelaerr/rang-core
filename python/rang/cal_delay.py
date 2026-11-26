@@ -37,6 +37,7 @@ Not here: KCROSS (`rang.cal_pol.kcross`, task C6), several windows or fields in 
 `combine='spw'`, and CASA's FFT-only estimator.
 """
 
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -496,6 +497,12 @@ def gaincal(
     times, _ = fld.solution_times(tb, row_w, len(keys))
     scans = fld.scans(tb, len(keys))
     table = to_caltable(sol, times, scans, field_id=field_id, ms=ms)
+    half = half_period_delays(sol, freq, names=names, scans=scans)
+    if half:  # research/k-ambiguity.md: recorded and warned, the table unchanged
+        sol.settings["half_period_delays"] = half
+        warnings.warn(
+            half_period_message(half, field_id), HalfPeriodDelay, stacklevel=2
+        )
     info = {"rows": len(rows), "intervals": keys, "time_bin": tb, "frequency": freq}
     if solve_calwt:
         info["calwt"] = True
@@ -593,6 +600,69 @@ def _solve_field(fld, tb, *, budget, what, average=False, **opts):
     return sol, row_w
 
 
+# The FFT start's padded length (core/src/cal/delay.rs `ESTIMATE_POINTS`),
+# for `half_period_delays`' one-bin label.
+FFT_POINTS = 1 << 15
+
+
+class HalfPeriodDelay(UserWarning):
+    """A K solution near +-1/(2 dnu) (research/k-ambiguity.md)."""
+
+
+def half_period_delays(sol, freq, *, names=None, scans=None):
+    """The unflagged solutions of `sol` with |delay| >= 1/(4 dnu) (dnu the
+    channel width): a quarter period or less from +-1/(2 dnu), the delay of
+    data that alternate in sign channel to channel, as m054's from scan 50 of
+    block 1678312253 (research/k-ambiguity.md). A flipped antenna's K is
+    +-1/(2 dnu) plus its own delay against the refant, so the window is a
+    quarter period (1,196 ns at 4,096 channels over 856 MHz), not one FFT bin
+    (0.146 ns there, which m054 met only because its own delay was 0.13 ns);
+    no antenna delay is near it, and E2-A's ID 50 sidelobe solution (2,335 ns)
+    is in it too. Such a K fits its own interval but not its neighbours, so
+    interpolating it is wrong. A list of `{"interval", "scan", "antenna",
+    "name", "hand", "delay_ns", "from_half_period_ns", "within_one_bin"}`;
+    empty when none."""
+    freq = np.asarray(freq, float)
+    if len(freq) < 2:
+        return []
+    dnu = abs(freq[1] - freq[0])
+    n = -(-FFT_POINTS // len(freq)) * len(freq)
+    half, width = 0.5e9 / dnu, 1e9 / (n * dnu)
+    tau = np.asarray(sol.delays)[:, 0]
+    off = np.abs(tau) - half
+    near = (np.abs(tau) >= half / 2) & ~np.asarray(sol.flags)[:, 0]
+    out = []
+    for t, a, h in zip(*np.nonzero(near)):
+        out.append({
+            "interval": int(t),
+            "scan": None if scans is None else int(scans[t]),
+            "antenna": int(a),
+            "name": None if names is None else str(names[a]),
+            "hand": "XY"[h],
+            "delay_ns": round(float(tau[t, a, h]), 3),
+            "from_half_period_ns": round(float(off[t, a, h]), 3),
+            "within_one_bin": bool(abs(off[t, a, h]) <= width),
+        })  # fmt: skip
+    return out
+
+
+def half_period_message(half, field_id):
+    """The warning for `half_period_delays`' list."""
+    seen = sorted({(d["interval"], d["scan"], d["antenna"], d["name"]) for d in half})
+    where = "; ".join(
+        f"{n or a} interval {t}" + ("" if s is None else f" (scan {s})")
+        for t, s, a, n in seen
+    )
+    values = ", ".join(f"{d['delay_ns']:+.2f} ns" for d in half[:4])
+    return (
+        f"gaincal K field {field_id}: {len(half)} delay(s) within a quarter period "
+        f"of +-1/(2 dnu) ({where}; {values}{', ...' if len(half) > 4 else ''}): the data "
+        "may alternate in sign channel to channel, and interpolating this K across "
+        "intervals is then wrong; check the scans with "
+        "research/results/k-ambiguity/ka_scan.py (research/k-ambiguity.md)"
+    )
+
+
 def to_caltable(sol, times, scans, *, field_id, ms, spw=0):
     """The CASA `K Jones` table of `sol` (one delay bin): one row per
     (interval, antenna), `FPARAM (1, 2)` float32 ns, the window one channel
@@ -638,4 +708,11 @@ def to_caltable(sol, times, scans, *, field_id, ms, spw=0):
     )
 
 
-__all__ = ["DelaySolution", "gaincal", "solve", "to_caltable"]
+__all__ = [
+    "DelaySolution",
+    "HalfPeriodDelay",
+    "gaincal",
+    "half_period_delays",
+    "solve",
+    "to_caltable",
+]

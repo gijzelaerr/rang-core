@@ -139,3 +139,57 @@ def test_sign_alternating_channels_keep_the_half_period_delay():
     assert np.abs(turns - np.round(turns)).max() < 1e-6
     assert 1 not in on.settings["zero_start_intervals"]
     assert np.abs(on.delays[0, 0] - want[0]).max() < 1e-6
+
+
+def _flipped(seed=0):
+    """Antenna 4 of a noise-free simulation multiplied by (-1)^channel in
+    interval 1 (m054's step, research/k-ambiguity.md)."""
+    s = simulate(nant=6, ntime=2, nchan=256, scale=0.5, seed=seed)
+    flip = np.where(np.arange(256) % 2, -1, 1)[:, None]
+    for r in np.flatnonzero((s["tb"] == 1) & ((s["a1"] == 4) | (s["a2"] == 4))):
+        s["data"][r] = s["data"][r] * flip
+    return s
+
+
+def test_half_period_delays_name_the_flipped_antenna():
+    from rang import cal_delay
+
+    s = _flipped()
+    sol = run(s, refant=0, kind="delay_and_offset", **TIGHT)
+    names = [f"m{i:03d}" for i in range(6)]
+    half = cal_delay.half_period_delays(sol, s["freq"], names=names, scans=[3, 5])
+    assert {(d["interval"], d["antenna"], d["hand"]) for d in half} == {
+        (1, 4, "X"),
+        (1, 4, "Y"),
+    }
+    period = 1e9 / (s["freq"][1] - s["freq"][0])
+    for d in half:
+        assert d["scan"] == 5 and d["name"] == "m004"
+        # its delay against the refant: two delays of up to 0.5 ns
+        assert abs(abs(d["delay_ns"]) - period / 2) < 1.0
+        assert abs(d["from_half_period_ns"] - (abs(d["delay_ns"]) - period / 2)) < 1e-2
+    msg = cal_delay.half_period_message(half, 0)
+    assert "m004 interval 1 (scan 5)" in msg and "ka_scan.py" in msg
+    # interval 0 and the other antennas: none
+    assert not cal_delay.half_period_delays(run(simulate(nant=6, ntime=2, nchan=256, scale=0.5),
+                                                refant=0, kind="delay_and_offset", **TIGHT),
+                                            s["freq"])  # fmt: skip
+
+
+def test_half_period_record_and_unchanged_delays():
+    """The record carries the list; the delays are the solver's, unchanged."""
+    from rang import cal_chain, cal_delay
+
+    s = _flipped()
+    sol = run(s, refant=0, kind="delay_and_offset", **TIGHT)
+    before = np.array(sol.delays, copy=True)
+    sol.settings["half_period_delays"] = cal_delay.half_period_delays(sol, s["freq"])
+    rec = cal_chain._solution_record(
+        sol, {"rows": len(s["tb"]), "intervals": [0, 1]}, 0
+    )
+    assert rec["half_period_delays"] == sol.settings["half_period_delays"]
+    assert np.array_equal(sol.delays, before)
+    sol.settings["half_period_delays"] = []
+    assert "half_period_delays" not in cal_chain._solution_record(
+        sol, {"rows": len(s["tb"]), "intervals": [0, 1]}, 0
+    )

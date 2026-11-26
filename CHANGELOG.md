@@ -9,6 +9,10 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- K solves warn (`rang.cal_delay.HalfPeriodDelay`) when a solution is within a quarter period of
+  ±1/(2Δν), the delay of data that alternate in sign channel to channel, naming the antenna,
+  interval, scan and value, and record it as `half_period_delays` in the K solution record of the
+  calibrate summary. K tables are unchanged (`research/k-ambiguity.md`).
 - `calibrate.k_zero_start`: each K solution record in the calibrate summary now carries
   `zero_start_intervals` (the intervals taken from the zero start), and a field solved in chunks
   reports every chunk's intervals in the field's numbering, not the first chunk's only. K tables are
