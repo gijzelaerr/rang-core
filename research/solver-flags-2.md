@@ -1,6 +1,6 @@
 # Rang: flags at the gain solve after a mild raw start (issue #58, follow-up)
 
-Status, 2026-11-26: **proposed; frozen before any arm ran.** Branch `solver-flags-2` from origin/main
+Status, 2026-11-26: **measured; outcome 4, null (PB and PBG fail G-S, PG fails G-F; all fail G-N and G-A). Defaults unchanged.** Frozen before any arm ran. Branch `solver-flags-2` from origin/main
 `9c6b725c`, for v0.5.0. Route: [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md).
 This note follows [solver-flags.md](solver-flags.md), which measured outcome 4 (null) because its
 "mild" raw strategy was not mild. Its kernel, oracle and gates are reused here unchanged except as
@@ -170,3 +170,118 @@ own, the note says that the preset start needs no solver flags on E2-N.
    entries.
 6. **Not built here:** target-field solver flags, K's fallback (#60), weights (#48), the CASA fluxscale
    check.
+
+## Measured result
+
+Run 2026-11-26, code 9b61c9ce (branch; the arms' rang is the section 3 change on main 9c6b725c).
+
+- **E2-N:** nash (shared; `nice -n 19 ionice -c3`; nash's lock, 3 slots and 32 GB per arm, four at
+  once), run root `nash:~/rang-data/outputs/solver-flags-2-20261126`. R is the first note's MS, moved
+  there.
+- **A1:** glacier (4 slots, 16 GB, two at a time), run root `D:\rang\outputs\solver-flags-2-20261126`.
+- **Archive:** [results/solver-flags-2](results/solver-flags-2): `gates.json` (the outcome),
+  `e2n/records.json` and `a1/records.json` (`sf2_score.py`), the flag-stage summaries, the copied-row
+  checks (`rows-*.json`), and the time files.
+
+**Stop rules: none fired.**
+
+- The copied rows (J1331+3030, ASKAPJ1745, J0408-6545 on E2-N; 3C286-SIM and SIM-TARGET on A1) equal
+  R's flag stage exactly: 0.686270, 0.649307 and 0.609670 of elements on E2-N, against R's summary
+  0.68627, 0.649307 and 0.60967.
+- P0's flag stage leaves J1939-6342 at 39.33 % and J1744-5144 at 39.52 % flagged (section 2: 39.3 and
+  39.5 %). The preset adds everything; the strategy adds nothing.
+- **Rule 1:** the pass records name only each arm's terms (PB: B on J1939-6342; PG: Gsec on
+  J1744-5144; PBG: both).
+
+**E2-N, after `apply`** (R and the first note's M0 for reference):
+
+| Arm | J1939-6342 flagged | J1744-5144 flagged | √(S/S_R) J1939 | √(S/S_R) J1744 | √(S/S_R) target | J1744 flux (Jy) | 3C 286 p, χ | Target V rms / R |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| R | 67.4 % | 56.9 % | 1 | 1 | 1 | 7.1793 | 9.964 %, 39.56° | 1 |
+| M0 (first note) | 85.8 % | 77.7 % | 1.47 | 1.32 | 1.04 | 7.1828 | 9.753 %, 39.42° | – |
+| P0 | 44.4 % | 39.5 % | 3.09 | 9.28 | 1.001 | 7.1854 | 9.913 %, 40.16° | 1.002 |
+| PB | 61.6 % | 39.5 % | 1.04 | 9.06 | 0.999 | 7.1762 | 9.812 %, 39.89° | 0.999 |
+| PG | 44.4 % | 44.1 % | 3.09 | 1.07 | 1.000 | 7.1514 | 9.913 %, 40.16° | 1.001 |
+| PBG | 61.6 % | 44.0 % | 1.04 | 1.07 | 0.998 | 7.1482 | 9.812 %, 39.89° | 0.998 |
+
+- **Passes (E2-N, both rounds):**
+  - B on J1939-6342: 13.5 M then 4.1 M cells. The flagged B solutions go from 15.8 % to 17.1 %.
+  - Gsec on J1744-5144: 8.2 M then 1.7 M cells (PBG 8.1 M, 1.7 M). Its solutions stay at 0 % flagged.
+- **A1, G-A on J1939-6342 and SIM-GCAL** (R: recall 0.946, false flags 0.459):
+
+  | Arm | Recall `above_5sigma` | False flags on clean cells |
+  | --- | ---: | ---: |
+  | P0 | 0.665 | 0.253 |
+  | PB | 0.760 | 0.329 |
+  | PG | 0.838 | 0.385 |
+  | PBG | 0.933 | 0.462 |
+
+**Gates.**
+
+| Gate | PB | PG | PBG |
+| --- | --- | --- | --- |
+| G-S (against P0) | **fail**: Df +2.24 points of solutions, B +1.26 (bound +1) | pass | **fail**: as PB |
+| G-F (against R) | pass: flux −0.04 %, p −0.15 points, χ +0.33° | **fail**: χ +0.61° (bound 0.5°); flux −0.39 % | pass: flux −0.43 %, p −0.15, χ +0.33° |
+| G-K (against R) | pass (−5.7, −17.4 points) | pass (−23.0, −12.8) | pass (−5.7, −12.9) |
+| G-N (against R) | fail (1.04, 9.06; target 0.999) | fail (3.09, 1.07; target 1.000) | fail (1.04, 1.07; target 0.998) |
+| G-V (against R) | pass (0.999) | pass (1.001) | pass (0.998) |
+| G-A (against P0) | fail: recall +0.095, false +0.077 | fail: false +0.132 | fail: false +0.209 (recall +0.268) |
+| Outcome (section 6) | 4 | 4 | 4 |
+
+- PG's χ is P0's. PG flags nothing on 3C 286's chain (B and primary G are P0's), so its G-F failure is
+  the preset start, not Gsec's flags. The frozen rule still counts it.
+- PB's and PBG's G-S failure is two downstream solution fractions: B's own (+1.26 points) and Df's
+  (+2.24 points, the leakage term solved on J1939-6342 after B). No antenna lost its refant cells,
+  and the tripwire (+5 points) did not fire.
+
+**Reported, not gated.**
+
+- **P0 against R (the preset start alone):** G-K and G-V pass; G-F fails on χ (+0.61°); G-N fails
+  badly (3.09 and 9.28). The preset alone leaves most of the calibrators' RFI in.
+- **What the flags at the solve do on this start (PBG against P0):**
+  - implied noise 0.34× on J1939-6342 and 0.12× on J1744-5144;
+  - 17.2 and 4.5 more points of flags;
+  - A1 recall +0.27, at +0.21 false flags.
+  - They remove most of the RFI the start leaves, but not down to R's noise: 1.04× and 1.07×, against
+    a bound of 0.98×.
+- **Against the first note's M0:** PBG keeps 24 and 34 points more data, at 0.71× and 0.81× of M0's
+  noise on J1939-6342 and J1744-5144 and 0.96× on the target. So the preset start fixes the first
+  note's confound.
+- **Gsec amplitude bias, again.** Gsec's amplitudes are 0.9978 (PG) and 0.9974 (PBG) of P0's (median;
+  p5-p95 0.995-1.002), and J1744-5144's flux drops 0.47 % and 0.52 % against P0. This is the first
+  note's −1.07 % reading at half the size, in the same direction. Here it stays inside G-F's 0.5 %
+  bound against R only because P0's flux is 0.09 % above R's. B's amplitudes are 1.0003 (p5-p95
+  0.999-1.008) and primary G's 1.0000.
+- **By baseline length (PBG against R), J1939-6342:** fewer flags below 1 km (0.59-0.69 against
+  0.72-0.89), more beyond 1 km (0.50-0.62 against 0.47-0.54). The B pass flags long baselines that R
+  keeps. J1744-5144 is below R's fraction in every bin.
+- **Costs (E2-N, 3 threads):** calibrate P0 4,328 s, PB 4,786 s, PG 5,708 s, PBG 6,457 s, so the
+  passes and re-solves cost +11 %, +32 % and +49 % of P0's calibrate. R's first-note calibrate was
+  5,858 s, with its flag stage 6,976 s against P0's 593 s. Whole runs: P0 1 h 54 min, PBG 2 h 27 min,
+  R 4 h 21 min.
+
+### Verdict by section 6: **outcome 4, null**
+
+- Every candidate fails G-S or G-F (PB and PBG G-S, PG G-F), and each also fails G-N and G-A.
+- **#58's question is answered, negatively, for both starts the first note named.**
+  - The static-mask start is too harsh to test (section 2).
+  - On the preset start, QuartiCal-rule flags at B and Gsec cut the calibrators' implied noise by
+    3-9×, but leave it 4-7 % above the harsh CARACal strategy's, while keeping 6-13 points more data.
+  - On A1 they find RFI at roughly 1:1 with clean cells (+0.27 recall, +0.21 false flags).
+  - Their Gsec flags lower J1744-5144's flux by about 0.5 %.
+- **Defaults:** no change. `solver_flags` stays experimental (documented, with this result).
+  `terms` by name ships with it, off by default.
+
+## For the coordinator
+
+- **#58 closes as null** on two frozen tests. Recommend closing the issue with this note. The tester's
+  external residual script is not replaced by rang's flags at the solve on E2-N.
+- **Next, if anyone wants it:**
+  - one arm with the harsh strategy's SumThreshold passes on the preset start and no `uvcontsub_flagger`;
+  - the CASA fluxscale check of the Gsec bias;
+  - flags at the solve after a re-solve with B applied to primary G.
+
+  None is planned here.
+- **Run roots deleted** on both hosts (the archive holds the records). The first task's inputs are
+  deleted too: nash run root, worktrees `solver-flags` and `solver-flags-base`, QuartiCal venv;
+  glacier root and WSL venv.
