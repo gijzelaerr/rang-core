@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # `wgs84_to_ecef` follows msutils 1.2.0 (`MSUtils/flag_stats.py`;
-# Copyright (c) 2016 SKA South Africa; GPL, see THIRD-PARTY-NOTICES.txt);
+# Copyright (c) 2016 SKA South Africa; GPL-2.0-or-later up to msutils 3.0.0,
+# owner 2026-11-26; see THIRD-PARTY-NOTICES.txt);
 # `get_refant` is reimplemented from CARACal (docs/licence.md).
 """CARACal's automatic reference antenna (`refant: auto`), task E0.
 

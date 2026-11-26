@@ -373,6 +373,12 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+oxkat 421d14c5 (GPL-3.0, Ian Heywood): oxkat/config.py's MeerKAT L-band
+CAL_1GC_BAD_FREQS, CAL_1GC_BL_FREQS and CAL_1GC_BL_FLAG_UVRANGE (frequency
+ranges citing SARAO's MeerKAT Cookbook), copied with their comments into
+python/rang/meerkat.py (KNOWN_RFI_L_*), which is therefore GPL-3.0-or-later
+AND BSD-3-Clause.
+
 katdal 0.23 (BSD-3-Clause): its test helpers, adapted in
 python/rang/meerkat.py. LICENSE.txt, verbatim:
 
@@ -509,8 +515,11 @@ the Free Software Foundation, either version 3 of the License, or
 The three statements conflict: the metadata names version 2 with no "or
 later", setup.py names version 3 or later. If "GNU GPL v2" is the licence,
 these lines cannot be combined with GPL-3.0 code; if setup.py's notice is,
-they can. This is an open owner decision (research/v030-review.md 5.5); the
-function is not rewritten here.
+they can. Settled by the owner on 2026-11-26 (research/STATE.md): msutils'
+changelog (now shinobi-dosho/msutils, 3.1.0) states that releases up to 3.0.0
+were GPL-2.0-or-later and 3.1.0 onwards Apache-2.0, so these lines are
+GPL-2.0-or-later, compatible with GPL-3.0-or-later. The function is not
+rewritten here.
 
 schaapcommon b553fd25 reordering.cc (notice above) is also followed in
 core/src/gemclean/input.rs (stokes_cell).

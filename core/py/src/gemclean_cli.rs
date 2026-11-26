@@ -2,8 +2,8 @@
 //! `rang._core.gemclean_main`: GeMClean's command line inside the extension,
 //! for the wheel's console script `gemclean` (task G8, `research/g8-wheel.md`).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 use pyo3::prelude::*;
 use std::io::Write;

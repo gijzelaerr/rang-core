@@ -3,8 +3,8 @@
 //! (`rang_core::cnnflag`, task F2, `research/f2-flagger.md`), for
 //! `rang.f2flag`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 
 use crate::{Ro, Rw, c_slice, c_slice_mut, detach};
 use pyo3::prelude::*;

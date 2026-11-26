@@ -4,8 +4,8 @@
 //! `crosshand` and `leakage` (task C6, `research/c6-polterms.md`), for
 //! `rang.cal_pol`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Complex inputs are complex64 arrays viewed as float32 pairs; every array
 //! must be C-contiguous with the stated length (a ValueError names it). A
