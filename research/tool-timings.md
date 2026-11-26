@@ -2618,3 +2618,10 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd11: R-Q6, Q6's loop on the real subset with 145 baselines flagged, 6 cycles + scored solve (host glacier, 8 slots shared) | 52.7 M cells | 9,579 s (lock wait included) | – | |
 | 2026-11-26 | dd11: ATm, truth gains with AL's row masks, 3 cycles + scored solve, run from the worktree's rang copy (host glacier, 8 slots shared) | 52.7 M cells | 2,189 s (lock wait included) | – | includes 1 unneeded solve (A1) |
 | 2026-11-26 | dd11: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd11-start | 1,157 s (lock wait excluded) | – | PASS |
+| 2026-11-26 | k-ambiguity: copy scan032 + scan060 (16 GB) into the run root (host nash, 1 slot) | 1678312253 | 55 s | – | |
+| 2026-11-26 | k-ambiguity: `maturin develop --release` of the branch (host nash, 8 slots; second, package-level build not timed) | branch k-ambiguity | 356 s | 1.5 GB | |
+| 2026-11-26 | k-ambiguity: rang-core flag, E2-N first-pass calibrator strategy (host nash, 4 slots, RAYON 4) | scan060.ms, 30,044 rows | 184 s | 3.3 GB | |
+| 2026-11-26 | k-ambiguity: rang-core calibrate, K alone, key off / on, arrays captured (host nash, 2 slots, RAYON 2) | scan060.ms | 180 s / 170 s | 2.6 / 2.1 GB | 21 iterations, one interval |
+| 2026-11-26 | k-ambiguity: `ka_probe.py` (five K re-solves of one interval) (host nash, 1 slot) | captured arrays | 69 s / 70 s | 1.6 GB | |
+| 2026-11-26 | k-ambiguity: `ka_raw.py` over all 20 scans, each copied, read, deleted (host nash, 1 slot) | block 1678312253 | 128 s | 0.7 GB | scan 60 alone 5 s |
+| 2026-11-26 | k-ambiguity: `tools/check_all.py --quick` (host glacier, 4 slots shared), three runs | branch k-ambiguity | 640 s FAIL (bare venv), 323 s FAIL (ruff format, one test), 71 s PASS (lock wait excluded) | – | |

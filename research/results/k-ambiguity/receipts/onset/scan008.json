@@ -1,0 +1,556 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/k-ambiguity-20261126/tmp/scan008.ms",
+ "ant": {
+  "9-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.02049557026475668,
+    0.022601633332669735
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "10-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0017232991522178054,
+    0.0036650432739406824
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "11-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.007037813542410731,
+    0.008503463584929705
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "12-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.002606468857266009,
+    0.004593918565660715
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "13-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0022437588777393103,
+    0.00332807342056185
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "14-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0003440348373260349,
+    0.00020267771469661966
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "15-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.020919346250593662,
+    0.020654852502048016
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "16-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0010784793994389474,
+    0.002358002937398851
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "17-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0005361804942367598,
+    0.000990827480563894
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "18-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.001498280733358115,
+    0.0014679368468932807
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "19-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.00148538633948192,
+    0.0012308929581195116
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "20-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0016035122098401189,
+    0.0004339845763752237
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "21-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.03289064206182957,
+    0.02733627427369356
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "22-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0012399618281051517,
+    0.0018034125096164644
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "23-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0014410477597266436,
+    0.0022604636615142226
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "24-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.005617090733721852,
+    0.004624147200956941
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "25-26": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0010580281377770007,
+    0.001077878288924694
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "25-27": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.005290124332532287,
+    0.0031456351280212402
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "25-28": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0010809444938786328,
+    0.003530283458530903
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "0-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0003664165851660073,
+    0.00028652569744735956
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "1-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.00044981368409935385,
+    0.000768147554481402
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "2-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.00030267279362306,
+    0.00023584646987728775
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "3-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.00027203319768887013,
+    0.00021378846577135846
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "4-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.008228258229792118,
+    0.003761921776458621
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "5-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.00018351383914705366,
+    0.0002781127404887229
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "6-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0001833151327446103,
+    0.00019475159933790565
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "7-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0005095928499940783,
+    0.00029900156368967146
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "8-25": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0004348787770140916,
+    0.00208512251265347
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  }
+ },
+ "dumps": 15,
+ "ant_unflagged_channel_parity_even_odd_X": [
+  552112,
+  548653
+ ],
+ "control": {
+  "1-3": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0013441252522170544,
+    0.0030900711426511407
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "0-7": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.002481237519532442,
+    0.0032085233833640814
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "8-11": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0015032622031867504,
+    0.006141379242762923
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "0-16": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.004304650705307722,
+    0.00517999054864049
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "4-18": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.001176339079393074,
+    0.003020780044607818
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "16-20": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0010599837405607104,
+    0.0008993709925562143
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "10-22": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.002735234913416207,
+    0.003812904004007578
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  },
+  "3-27": {
+   "dumps": 15,
+   "median_abs_step_rad": [
+    0.0760374665260315,
+    0.063002098351717
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    14,
+    14
+   ]
+  }
+ },
+ "control_unflagged_channel_parity_even_odd_X": [
+  156290,
+  155530
+ ]
+}

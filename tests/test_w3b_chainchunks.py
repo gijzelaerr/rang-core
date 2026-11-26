@@ -100,6 +100,27 @@ def test_the_counted_kernels_reproduce_the_stop():
     assert converged / (ngains - flagged) == one["fraction"]
 
 
+def test_chunked_k_zero_start_reports_every_chunk(cal_ms):
+    """research/k-ambiguity.md: with `zero_start` a field solved in chunks
+    (here one `int` interval per chunk) reports the zero-start intervals of
+    every chunk in the field's numbering; before, the first chunk's list
+    only, so at most [0]. With the key on the chunked solve is not bit for
+    bit the one-call one (the zero run's stop is not replayed; 3e-6 ns
+    here), so near-tie intervals may differ between the two lists."""
+    common = {"field_id": 0, "refant": 0, "weight_column": "WEIGHT", "model": unit(cal_ms, 0),
+              "zero_start": True}  # fmt: skip
+    one = cal_delay.gaincal(cal_ms, solint="int", **common)
+    chunked = cal_delay.gaincal(cal_ms, solint="int", budget=budget(400), **common)
+    nint = one[1].delays.shape[0]
+    kept = chunked[1].settings["zero_start_intervals"]
+    assert kept == sorted(set(kept)) and all(0 <= i < nint for i in kept)
+    assert len(kept) > 1 and max(kept) > 0
+    assert (
+        len(set(kept) & set(one[1].settings["zero_start_intervals"])) >= len(kept) - 2
+    )
+    assert np.abs(one[1].delays - chunked[1].delays).max() < 1e-4
+
+
 @pytest.mark.parametrize("stop", [0.5, 0.99, 1.0])
 def test_replayed_chunked_k_g_b_equal_one_call(cal_ms, stop):
     """Stops early (0.5), at the default, and runs to the maximum (1.0)."""

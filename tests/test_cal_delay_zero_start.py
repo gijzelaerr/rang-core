@@ -77,3 +77,65 @@ def test_config_key_defaults_off_and_leaves_the_stage_hash():
     assert core_config.stage_hash(gone, "calibrate") == before
     on = dict(config, calibrate=dict(config["calibrate"], k_zero_start=True))
     assert core_config.stage_hash(on, "calibrate") != before
+
+
+def _rows(s, t):
+    """The rows of interval `t` of a simulation, as an interval-0 problem."""
+    keep = s["tb"] == t
+    out = {k: (v[keep] if isinstance(v, np.ndarray) and len(v) == len(keep) else v)
+           for k, v in s.items()}  # fmt: skip
+    out["tb"] = np.zeros(int(keep.sum()), np.int64)
+    return out
+
+
+def test_chunked_zero_start_intervals_count_every_chunk():
+    """research/k-ambiguity.md: a field solved in chunks of whole intervals
+    reported the first chunk's `zero_start_intervals` only, numbered from
+    0; the field's list is every chunk's, offset by the chunks before it."""
+    from rang import cal_delay
+
+    s = sparse(0)
+    one = run(s, refant=0, kind="delay_and_offset", zero_start=True, **TIGHT)
+    parts = [run(_rows(s, t), refant=0, kind="delay_and_offset", zero_start=True, **TIGHT)
+             for t in (0, 1)]  # fmt: skip
+    # Interval 0 converges to truth from either start, so whether it is in a
+    # list is a float tie; interval 1 is the zero start's on any split.
+    assert 1 in one.settings["zero_start_intervals"]
+    assert 0 in parts[1].settings["zero_start_intervals"]  # chunk 2's own numbering
+    merged = cal_delay.zero_kept_of_chunks(parts)
+    first = parts[0].settings["zero_start_intervals"]
+    assert 1 not in first  # the old record: the first chunk's list only
+    assert merged == first + [1 + i for i in parts[1].settings["zero_start_intervals"]]
+    assert 1 in merged
+
+
+def test_solution_record_carries_zero_start_intervals():
+    from rang import cal_chain
+
+    s = sparse(0)
+    on = run(s, refant=0, kind="delay_and_offset", zero_start=True, **TIGHT)
+    off = run(s, refant=0, kind="delay_and_offset", **TIGHT)
+    info = {"rows": len(s["tb"]), "intervals": [0, 1]}
+    assert (
+        cal_chain._solution_record(on, info, 0)["zero_start_intervals"]
+        == (on.settings["zero_start_intervals"])
+    )
+    assert "zero_start_intervals" not in cal_chain._solution_record(off, info, 0)
+
+
+def test_sign_alternating_channels_keep_the_half_period_delay():
+    """research/k-ambiguity.md (block 1678312253, antenna 25 from scan 50):
+    an antenna whose data alternate in sign channel to channel has the delay
+    +- 1/(2 dnu) on its own data; the key keeps that FFT run (a zero start
+    cannot reach it) and the solution is the data's, not a solver defect."""
+    s = simulate(nant=6, ntime=2, nchan=256, scale=0.5)
+    flip = np.where(np.arange(256) % 2, -1, 1)[:, None]
+    for r in np.flatnonzero((s["tb"] == 1) & ((s["a1"] == 4) | (s["a2"] == 4))):
+        s["data"][r] = s["data"][r] * flip
+    want = s["tau"] - s["tau"][:, 0:1]
+    on = run(s, refant=0, kind="delay_and_offset", zero_start=True, **TIGHT)
+    period = 1e9 / (s["freq"][1] - s["freq"][0])
+    turns = (on.delays[1, 0, 4] - want[1, 4] - period / 2) / period
+    assert np.abs(turns - np.round(turns)).max() < 1e-6
+    assert 1 not in on.settings["zero_start_intervals"]
+    assert np.abs(on.delays[0, 0] - want[0]).max() < 1e-6

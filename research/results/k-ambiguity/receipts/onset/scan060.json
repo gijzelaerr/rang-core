@@ -1,0 +1,556 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/k-ambiguity-20261126/ms/scan060.ms",
+ "ant": {
+  "9-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141469955444336,
+    3.141436815261841
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "10-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1413768529891968,
+    3.141393780708313
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "11-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414488554000854,
+    3.1414895057678223
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "12-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415270566940308,
+    3.141518235206604
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "13-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415441036224365,
+    3.141510844230652
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "14-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1413744688034058,
+    3.1415072679519653
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "15-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141525387763977,
+    3.14152193069458
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "16-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415051221847534,
+    3.1414573192596436
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "17-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414635181427,
+    3.141469717025757
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "18-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415003538131714,
+    3.141479969024658
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "19-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415340900421143,
+    3.1413817405700684
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "20-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141500949859619,
+    3.1415034532546997
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "21-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141513228416443,
+    3.1414434909820557
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "22-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415141820907593,
+    3.141494393348694
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "23-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415250301361084,
+    3.14151394367218
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "24-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1413822174072266,
+    3.1415038108825684
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "25-26": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415486335754395,
+    3.141512632369995
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "25-27": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141444206237793,
+    3.141405701637268
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "25-28": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141464591026306,
+    3.1414434909820557
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "0-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141507625579834,
+    3.1414636373519897
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "1-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1415315866470337,
+    3.141499876976013
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "2-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414103507995605,
+    3.14147412776947
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "3-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414090394973755,
+    3.1415101289749146
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "4-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414886713027954,
+    3.1415144205093384
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "5-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414657831192017,
+    3.1415107250213623
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "6-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.141480326652527,
+    3.1415154933929443
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "7-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.1414272785186768,
+    3.1414283514022827
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "8-25": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    3.14152991771698,
+    3.14152991771698
+   ],
+   "dumps_with_step_gt_pi/2": [
+    74,
+    74
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  }
+ },
+ "dumps": 74,
+ "ant_unflagged_channel_parity_even_odd_X": [
+  1870590,
+  1868210
+ ],
+ "control": {
+  "1-3": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    0.000277440674835816,
+    0.00016234867507591844
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "0-7": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    9.777362720342353e-05,
+    0.00011254586934228428
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "8-11": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    0.00015420747513417155,
+    8.691716357134283e-05
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "0-16": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    0.00018502259626984596,
+    0.00021192590793361887
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "4-18": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    0.00020511694310698658,
+    5.47467188880546e-05
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "16-20": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    8.038703526835889e-05,
+    8.675798744661734e-05
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "10-22": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    0.00032815104350447655,
+    0.0003339051181683317
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  },
+  "3-27": {
+   "dumps": 74,
+   "median_abs_step_rad": [
+    9.303198748966679e-05,
+    0.00019928540132241324
+   ],
+   "dumps_with_step_gt_pi/2": [
+    0,
+    0
+   ],
+   "dumps_with_8_pairs": [
+    74,
+    74
+   ]
+  }
+ },
+ "control_unflagged_channel_parity_even_odd_X": [
+  425382,
+  425384
+ ]
+}

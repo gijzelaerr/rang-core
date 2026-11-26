@@ -9,6 +9,10 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `calibrate.k_zero_start`: each K solution record in the calibrate summary now carries
+  `zero_start_intervals` (the intervals taken from the zero start), and a field solved in chunks
+  reports every chunk's intervals in the field's numbering, not the first chunk's only. K tables are
+  unchanged (`research/k-ambiguity.md`).
 - `rang.cal_gain.solve_dd(..., direction_update="gauss-seidel")` (`diag_dd::DirectionUpdate::GaussSeidel`,
   the extension's `cal_gain_solve_dd(..., direction_update=1)`): an optional Gauss-Seidel sweep over
   directions in the direction-dependent `diag_complex` kernel, each direction updated from the
