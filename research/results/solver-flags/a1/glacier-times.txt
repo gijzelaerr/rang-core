@@ -1,0 +1,8 @@
+a1-gen 2023 s
+a1-run-R 4709 s
+a1-run-M0 1616 s
+a1-run-M1 1946 s
+a1-run-M2 3549 s
+o4-rang 0 s rc=0
+o4-rang 51 s rc=1
+o4-rang 69 s rc=0

@@ -1,6 +1,6 @@
 # Rang: residual flags inside the gain solve, a mild raw strategy and a MeerKAT known-RFI preset (issues #58, #59)
 
-Status, 2026-11-25: **proposed; frozen before any code or run.** Branch `solver-flags` from origin/main
+Status, 2026-11-26: **measured; outcome 4, null (G-F fails; G-K, G-N and G-A fail too). The oracle passes: QuartiCal 0.2.7 `mad_flags` is reproduced cell for cell. Defaults stay off.** Frozen 2026-11-25 before any code or run. Branch `solver-flags` from origin/main
 `de22d05e`, for v0.5.0 (the testers' priorities 2 and 4, Killick for Prof. O. Smirnov). Route:
 [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Results go under
 "Measured result"; nothing above it changes except by a dated, labelled amendment.
@@ -282,6 +282,158 @@ arm or oracle case ran; arm R had started and needs none of this code).**
   whole field, then writes its flags, so a second table object never opens while the writer holds the
   lock.
 
+**Amendment 2, 2026-11-26 03:30 SAST (post hoc: deviations found while reading, before the gates
+were scored).**
+
+- **A1 ran on glacier, not nash.** On the coordinator's word, A1 ran on glacier (Git Bash, glacier's
+  lock, 4 slots and 16 GB, `memory_limit_gb` 12), because nash's queue was blocked on memory. Same
+  code, 99a4e04a.
+- **O1 and O3 were cut from the wrong flag version, and their reading stands.**
+  - The cut took the first `rang_calibrate_*` version in `e2n-M0.ms.flagversions`. That is the copied
+    E2-N run's `rang_calibrate_20261117T022650Z`, the flags after E2-N's harsh flag stage of 17
+    November, not M0's own.
+  - O1 and O3 test the kernel on identical arrays, so the reading holds. The input is the harsh chain's
+    flag state, 61.7 % flagged.
+  - O4 used M0's own version.
+- **Arm R ran from a frozen worktree.** It used `solver-flags-base` at 669eeab1: main plus the note,
+  before any branch code. `mode: off` is bit-identical by test, so R is the branch's `off`.
+
 ## Measured result
 
-Not yet measured.
+Run 2026-11-25/26.
+
+- **E2-N:** on nash (shared; `nice -n 19 ionice -c3`; nash's lock, 3 slots and 32 GB per arm), run
+  root `nash:~/rang-data/outputs/solver-flags-20261125`.
+- **A1:** on glacier, run root `D:\rang\outputs\solver-flags-20261125`.
+- **Code:** 99a4e04a; arm R at 669eeab1.
+- **Archive:** [results/solver-flags](results/solver-flags):
+  - `e2n/score.json` (sf_score.py) and `e2n/flag-*.json`;
+  - `a1/score.json` and `a1/flag-*.json`;
+  - `oracle-*/compare-*.json`;
+  - the time files.
+
+**Oracle: pass.**
+
+| Case | Cells | QuartiCal new | rang new | Differ | Bound | Re-solve products (max, median) |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| O1, E2-N J1939-6342 G | 143,292,416 | 9,078,219 | 9,078,219 | 0 | ≤ 1e-4 | 1.1e-15, 1.4e-16 (O2: pass) |
+| O3, E2-N J1939-6342 B | 143,292,416 | 9,948,796 | 9,948,796 | 60 (4.2e-7) | ≤ 1e-4 | 3.6e-4, 2.1e-8 (not gated) |
+| O4, A1 J1939-6342 G (2 scans) | 46,448,640 | 1,582,526 | 1,582,526 | 0 | ≤ 1e-4 | 1.6e-15, 3.0e-17 |
+
+O3's 60 differing cells split 30 and 30. They sit at the threshold: the per-channel gains behind them
+differ by at most 7.9e-8 before the pass. Its re-solves then differ by those 60 cells.
+
+**The flag stage on E2-N (all cells, after the stage).**
+
+- R: 31.5 → 63.8 %.
+- M0-M2:
+  - the preset adds 557.0 M cells (6.1 %; 119 channels on all baselines, 363 below 600 m), so the
+    online 31.5 % becomes 37.6 %;
+  - the mild strategy then takes it to **71.2 %**.
+- **The "mild" arms start more flagged than the harsh one.**
+  - By baseline length, M0 is flagged at 0.68-0.88 on every bin. R is at 0.36-0.49 beyond 1 km.
+  - A1 shows the same: R 29.1 %, M0 66.3 %.
+  - On A1 the preset alone flags 12.1 % of a sample of baselines longer than 2 km, and 48 % below
+    600 m.
+  - After the strategy, about 60 % of A1's channels are flagged whole on every baseline, in the preset's
+    short-baseline bands.
+- **Not tested:** how CARACal's first three steps, given the preset's flags as input, flag beyond them
+  on long baselines.
+
+**Flags at the solve (M1's passes, E2-N):**
+
+| Term, field | Pass 1 added | Pass 2 added | Cells | Solutions flagged, first → last |
+| --- | ---: | ---: | ---: | --- |
+| G, J1939-6342 | 3,465,483 | 739,628 | 143,292,416 | 0 → 0 |
+| B, J1939-6342 | 1,096,489 | 277,904 | 143,292,416 | 0.679 → 0.679 |
+| Gsec, J1744-5144 | 2,492,578 | 1,128,016 | 218,811,392 | 0 → 0 |
+
+**Gates for M1.**
+
+- **G-S (against M0): pass.**
+  - No term's flagged-solution fraction rose.
+  - No antenna lost its last cell to m022.
+  - The tripwire did not fire.
+  - Every M arm has B at 67.9 % of solutions flagged (R 29.7 %) and Xf at 66.8 % (R 18.0 %). This
+    comes from the flag stage, not the passes: M0 shows it too.
+- **G-F (against R): fails.**
+  - J1744-5144's fluxscale: 7.1058 against 7.1793 Jy (−1.02 %; bound 0.5 %). M0 and M2 both give
+    7.1828, so the drop is M1's.
+  - 3C 286: p 9.753 % against 9.964 % (−0.21 points; bound 0.2), χ 39.42° against 39.56°. M0 shows
+    the same p and χ, so this is the flag stage's.
+  - J1939-6342's residual polarisation: 0.066 % against 0.079 %.
+  - Under the M arms' flags many channels are empty, so `stokes()`'s Stokes I median is diluted. p and
+    χ are ratios within a block and are not affected.
+- **G-K (against R): fails.** J1939-6342 67.4 → 90.4 %; J1744-5144 56.9 → 79.8 %; J1331+3030
+  74.4 → 73.9 %.
+- **G-N (against R): fails.** sqrt(S_M1 / S_R): J1939-6342 1.84, J1744-5144 1.37, J1331+3030 0.976,
+  target 1.04.
+- **G-V (target): pass.** Stokes V rms of kept cells 0.1439 against 0.1491 (0.965).
+- **G-A (A1, against M0): fails.**
+
+  | Arm | Recall | False flags |
+  | --- | ---: | ---: |
+  | R | 0.920 | 0.423 |
+  | M0 | 0.9934 | 0.784 |
+  | M1 | 0.9955 | 0.809 |
+  | M2 | 0.995 | 0.795 |
+
+  M1 against M0: recall +0.002 (bound +0.10, which M0's own 0.993 leaves no room for); false flags
+  +0.025 (bound +0.02).
+
+**Reported, not gated.**
+
+- **M2 against M1:** the separate `flag.residual` stage changes almost nothing over M0 (J1939-6342
+  85.8 against 85.8 %; S 1.720e-9 against 1.718e-9). M1 adds 4.6 points on J1939-6342 and its S is
+  1.56× M0's.
+- **M0 against R:** the preset plus the mild strategy is worse on every calibrator except 3C 286
+  (S 0.954× R's).
+
+### Verdict by section 6: **outcome 4, null**
+
+- **Kernel.** rang's flags at the solve reproduce QuartiCal 0.2.7's `mad_flags` exactly on E2-N and A1
+  (O1, O4). The re-solve's gains match QuartiCal's second run to 1e-15 (O2).
+- **The arms do not test the hypothesis.** The "mild" raw strategy combined with the known-RFI preset
+  is not mild: it leaves E2-N 71 % flagged, against the harsh strategy's 64 %.
+- **On that start, the flags at the solve hurt.**
+  - They add 0.5-2.4 % per term.
+  - J1744-5144's flux drops 1.0 %.
+  - The calibrators' implied noise rises 1.4-1.8×.
+  - On A1 they find little of the injected RFI that the flag stage had not already removed.
+- **What ships.**
+  - Defaults stay off.
+  - `solver_flags` stays an experimental option, documented but not in the recipes.
+  - The preset ships off by default; its unit tests are its gate (section 6, outcome 4).
+- **Not answered:** whether flags at the solve replace a harsh raw strategy when the raw strategy is
+  really mild, with no preset before it or the preset after it.
+
+Costs (nash shared, 3 threads, `/usr/bin/time`):
+
+- **E2-N `run` (flag, calibrate, apply):**
+
+  | Arm | Wall | Flag | Calibrate | Apply |
+  | --- | --- | ---: | ---: | ---: |
+  | R | 4 h 21 min | 6,976 s | 5,858 s | 2,820 s |
+  | M0 | 4 h 17 min | 6,125 s | 5,439 s | 3,824 s |
+  | M1 | 5 h 00 min | 5,775 s | **8,297 s** | 3,890 s |
+  | M2 | 5 h 11 min | – | 10,014 s | – |
+
+  The passes and two re-solves of G, B and Gsec cost M1 2,858 s of calibrate over M0.
+- **QuartiCal:** O1 241 s and 27.2 GB; O3 959 s and 26.9 GB.
+- **rang's oracle side:** G 365 s; B 957 s.
+- **A1 on glacier (4 threads):** R 4,709 s, M0 1,616 s, M1 1,946 s, M2 3,549 s; generation 2,023 s.
+
+## For the coordinator
+
+- **#58: null as frozen.**
+  - The mechanism is exact against QuartiCal.
+  - The arms were confounded by the preset and the strategy's cascade.
+  - Two post hoc arms would answer it (about 9 h on nash): M0′, the mild strategy without the preset,
+    and M1′, M0′ plus `solver_flags`.
+- **#59: ships off by default.**
+  - Applied before a SumThreshold strategy, it multiplies flagging on E2-N and A1.
+  - Untested: the preset after the strategy, and LCP's order (`flagdata`, then Tricolour on corrected
+    data).
+  - The LCP band-list question is drafted in `outputs/drafts/solver-flags-lcp-bands.md`, not posted.
+- **K's fallback (#60): no change.** In R, 19 antennas still have no J1939-6342 cell to m022; in the
+  M arms, 14.
