@@ -310,6 +310,9 @@ def _solution_record(sol, info, field_id):
             out[key] = value if isinstance(value, (bool, int, float)) else str(value)
     if "solver_flags" in info:  # issue #58
         out["solver_flags"] = info["solver_flags"]
+    settings = getattr(sol, "settings", None) or {}
+    if "zero_start_intervals" in settings:  # research/k-ambiguity.md
+        out["zero_start_intervals"] = [int(i) for i in settings["zero_start_intervals"]]
     return out
 
 
@@ -683,7 +686,7 @@ def run(
         if kind in ("K", "G", "B"):
             made, records = [], []
             use = common
-            if sf is not None and kind in ("G", "B") and kind in sf["cfg"]["terms"]:
+            if sf is not None and _sf.selects(sf["cfg"]["terms"], kind, name):
                 use = {**common, "solver_flags": sf}
             solved = _solve_fields("solve_one", ms, term, tables, use, executor)
             for f, (table, sol, info) in zip(term["fields"], solved):

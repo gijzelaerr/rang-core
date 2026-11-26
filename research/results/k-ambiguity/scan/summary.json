@@ -1,0 +1,134 @@
+{
+ "hits": [
+  {
+   "block": "1629213076",
+   "antenna": "m044",
+   "where": [
+    "scan058"
+   ],
+   "min_fraction": 0.614,
+   "min_coherence": 0.107
+  },
+  {
+   "block": "1629213076",
+   "antenna": "m045",
+   "where": [
+    "scan058"
+   ],
+   "min_fraction": 0.508,
+   "min_coherence": 0.019
+  },
+  {
+   "block": "1629213076",
+   "antenna": "m050",
+   "where": [
+    "scan058"
+   ],
+   "min_fraction": 0.504,
+   "min_coherence": 0.111
+  },
+  {
+   "block": "1629213076",
+   "antenna": "m059",
+   "where": [
+    "scan058"
+   ],
+   "min_fraction": 0.504,
+   "min_coherence": 0.022
+  },
+  {
+   "block": "1629213076",
+   "antenna": "m061",
+   "where": [
+    "scan054",
+    "scan056",
+    "scan058"
+   ],
+   "min_fraction": 0.568,
+   "min_coherence": 0.039
+  },
+  {
+   "block": "1629213076",
+   "antenna": "m063",
+   "where": [
+    "scan054",
+    "scan058"
+   ],
+   "min_fraction": 0.634,
+   "min_coherence": 0.077
+  },
+  {
+   "block": "1678312253",
+   "antenna": "m054",
+   "where": [
+    "scan050",
+    "scan054",
+    "scan058",
+    "scan060",
+    "scan062",
+    "scan066",
+    "scan070",
+    "scan074"
+   ],
+   "min_fraction": 1.0,
+   "min_coherence": 0.86
+  }
+ ],
+ "scanned": {
+  "1571938260": {
+   "ms": 46,
+   "scans": 46,
+   "max_fraction_not_hit": 0.4515086206896552
+  },
+  "1573212012": {
+   "ms": 32,
+   "scans": 32,
+   "max_fraction_not_hit": 0.2226190476190476
+  },
+  "1579022459": {
+   "ms": 31,
+   "scans": 31,
+   "max_fraction_not_hit": 0.3569267997580157
+  },
+  "1611426666": {
+   "ms": 17,
+   "scans": 17,
+   "max_fraction_not_hit": 0.20594795539033459
+  },
+  "1629213076": {
+   "ms": 20,
+   "scans": 20,
+   "max_fraction_not_hit": 0.45406060606060605
+  },
+  "1674958551": {
+   "ms": 22,
+   "scans": 22,
+   "max_fraction_not_hit": 0.0
+  },
+  "1678312253": {
+   "ms": 26,
+   "scans": 26,
+   "max_fraction_not_hit": 0.036585365853658534
+  },
+  "1735892129": {
+   "ms": 11,
+   "scans": 11,
+   "max_fraction_not_hit": 0.0
+  },
+  "1749428161": {
+   "ms": 14,
+   "scans": 14,
+   "max_fraction_not_hit": 0.41072654181782525
+  },
+  "e2a": {
+   "ms": 1,
+   "scans": 3,
+   "max_fraction_not_hit": 0.0017702448210922786
+  },
+  "e2n": {
+   "ms": 1,
+   "scans": 14,
+   "max_fraction_not_hit": 0.06451990632318501
+  }
+ }
+}

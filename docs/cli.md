@@ -101,6 +101,7 @@ other commands:
   formats         check PATH | convert IN OUT: read and write the tools' formats
   mcp             [--allow-write] [--root DIR]: serve these tools to an agent (MCP, stdio)
   watch           PATH... [--once] [--json]: follow run or output directories, read-only
+  spool           submit | status | stop SPOOL: spool workers, local or by Slurm or PBS
 
 `rang-core COMMAND -h` describes a command. `rang-core config defaults`
 prints every configuration key with its default.
@@ -304,7 +305,7 @@ flag:
 calibrate:
   solver_flags:
     mode: "off"  # residual flags at the gain solve (issue #58, research/solver-flags.md): after each G or B solve, flags on the residual d - g_p m g_q^* per solution interval, then a re-solve; off; quartical: QuartiCal 0.2.7's mad_flags rule; rang: antenna-factorised noise and persistence
-    terms: ["G", "B"]  # the solve types flagged: G (G, Gsec), B
+    terms: ["G", "B"]  # the terms flagged: a type, G (every G term, such as G and Gsec) or B, or the name of a G or B term, such as Gsec
     rounds: 2  # flag passes, each followed by a re-solve of the term
     sigma: 5.0  # cell threshold (QuartiCal: threshold_bl)
     global_sigma: 10.0  # quartical only: threshold_global
@@ -683,6 +684,90 @@ options:
   --once        report once and exit
   --json        one JSON object per report, on one line
   --interval S  seconds between reports (default 30)
+```
+
+## `spool`
+
+```text
+$ rang-core spool -h
+usage: rang-core spool [-h] {submit,status,stop} ...
+
+Start, follow and stop the workers of a spool executor (data.executor: spool)
+on this host or through Slurm or PBS (research/multinode-2.md). The MS, the
+spool and this Python environment must be on a filesystem every node mounts at
+the same path.
+
+positional arguments:
+  {submit,status,stop}
+    submit              start workers: local processes, a Slurm job array or a
+                        PBS array job
+    status              workers, tasks and launches of a spool (read-only)
+    stop                ask the workers to exit; --cancel also cancels the
+                        jobs
+
+options:
+  -h, --help            show this help message and exit
+```
+
+```text
+$ rang-core spool submit -h
+usage: rang-core spool submit [-h] --scheduler {local,slurm,pbs,torque}
+                              --workers WORKERS [--threads THREADS]
+                              [--mem-gb MEM_GB] [--walltime WALLTIME]
+                              [--idle-exit IDLE_EXIT] [--name NAME]
+                              [--python PYTHON] [--dry-run] [--clear-stop]
+                              [--json] [--directive DIRECTIVE]
+                              spool
+
+Write a worker script into SPOOL/launch/ and submit it (one worker per array
+task). --directive adds a line to the script's header, e.g.
+--directive=--account=X (Slurm) or --directive='-q normal' (PBS).
+
+positional arguments:
+  spool                 the spool directory (data.spool), absolute
+
+options:
+  -h, --help            show this help message and exit
+  --scheduler {local,slurm,pbs,torque}
+  --workers WORKERS     number of workers
+  --threads THREADS     threads per worker
+  --mem-gb MEM_GB       memory per worker, GB
+  --walltime WALLTIME   [D-]HH:MM:SS per worker
+  --idle-exit IDLE_EXIT
+                        a worker exits after this many idle seconds (default
+                        600)
+  --name NAME           the job name
+  --python PYTHON       the workers' interpreter (default: this one)
+  --dry-run             write the script, submit nothing
+  --clear-stop          remove a stop file left in SPOOL
+  --json                print the launch record as JSON
+  --directive DIRECTIVE
+                        an extra scheduler directive for the script's header
+                        (repeatable)
+```
+
+```text
+$ rang-core spool status -h
+usage: rang-core spool status [-h] [--json] spool
+
+positional arguments:
+  spool
+
+options:
+  -h, --help  show this help message and exit
+  --json
+```
+
+```text
+$ rang-core spool stop -h
+usage: rang-core spool stop [-h] [--cancel] spool
+
+positional arguments:
+  spool
+
+options:
+  -h, --help  show this help message and exit
+  --cancel    scancel / qdel the recorded jobs
 ```
 
 ## `research`

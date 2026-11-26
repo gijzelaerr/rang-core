@@ -1,0 +1,63 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1629213076/scan054.ms",
+ "nant": 56,
+ "channels_read": [
+  1792,
+  2304
+ ],
+ "scans": [
+  1
+ ],
+ "hits": [
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 53,
+   "name": "m061",
+   "rows": [
+    4070,
+    4070
+   ],
+   "flipped": [
+    2721,
+    2902
+   ],
+   "step_angle": [
+    2.3869,
+    2.4003
+   ],
+   "coherence": [
+    0.1045,
+    0.1255
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 55,
+   "name": "m063",
+   "rows": [
+    4070,
+    4070
+   ],
+   "flipped": [
+    2580,
+    2913
+   ],
+   "step_angle": [
+    -1.7863,
+    -2.09
+   ],
+   "coherence": [
+    0.0771,
+    0.1732
+   ]
+  }
+ ],
+ "max_fraction_not_hit": 0.2594594594594595,
+ "rows_used_total": 455840,
+ "fields_by_scan": {
+  "1": 0
+ },
+ "max_coherence_not_hit": 0.22622346344620659
+}

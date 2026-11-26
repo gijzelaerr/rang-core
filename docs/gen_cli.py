@@ -168,6 +168,11 @@ def page():
     )
     parts.append(_block("`mcp`", "rang-core mcp -h", _help("mcp")))
     parts.append(_block("`watch`", "rang-core watch -h", _help("watch")))
+    parts.append(_block("`spool`", "rang-core spool -h", _help("spool")))
+    for verb in ("submit", "status", "stop"):
+        parts.append(
+            f"```text\n$ rang-core spool {verb} -h\n{_help('spool', verb)}\n```\n"
+        )
     parts.append(_block("`research`", "rang-core research -h", _help("research")))
     for stage, entry in STAGES.items():
         parts.append(

@@ -3,8 +3,8 @@
 //! `rang_core::clean_certified` on the exact wgridder
 //! (`research/clean-certified-imaging.md`), for `rang.core_clean`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Inputs are borrowed NumPy arrays, outputs caller-owned arrays (the model
 //! and the exact residual, `side × side` in the gridder layout; one row of

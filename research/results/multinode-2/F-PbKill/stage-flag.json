@@ -1,0 +1,55 @@
+{
+ "stage": "flag",
+ "cluster": {
+  "scheduler": "pbs",
+  "workers": 2,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 2",
+   "chunk_rows: 7"
+  ],
+  "event": "cancel",
+  "ctl_mem_mb": 4000
+ },
+ "nodes_ready": {
+  "exit": 0,
+  "sinfo": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\nm2              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\n"
+ },
+ "launch": {
+  "id": "20261126T113117-393ffb13",
+  "job_id": "0[].pbs",
+  "command": [
+   "qsub",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-PbKill/spool/launch/20261126T113117-393ffb13/worker.sh"
+  ]
+ },
+ "killed": {
+  "owner": "m1-78-c36c64",
+  "claim": "797-5cdc1fd4-0001-00000000",
+  "host": "m1",
+  "job": {
+   "PBS_JOBID": "0[0].pbs",
+   "PBS_ARRAY_INDEX": "0"
+  },
+  "unix": 1795692678.636093,
+  "command": [
+   "qdel",
+   "-W",
+   "force",
+   "0[0].pbs"
+  ],
+  "exit": 0
+ },
+ "driver_wall_s": 63.97,
+ "jobs_left_after_s": 4.0,
+ "workers_cpu": {
+  "m2-78-7f2964": {
+   "tasks": 10,
+   "cpu_s": 3.8
+  }
+ }
+}

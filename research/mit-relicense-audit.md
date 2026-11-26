@@ -613,3 +613,123 @@ A file not yet listed passes if its line is bare `MIT` (new own code is MIT by
 the owner's rule); with any other line it fails until it is added to
 `spdx.py`'s `HELD` with its class. `test_a_bare_mit_on_a_derived_file_fails`
 shows a bare `MIT` on a derived file is caught.
+
+## Update 2026-11-26: the provenance register
+
+The owner, 2026-11-26: "keep track of the license per file or code piece so we
+can decide which ones to rewrite later". Owner decisions the same day
+(research/STATE.md): radler-derived code stays as it is and is rewritten
+later; msutils was GPL-2.0-or-later up to 3.0.0 (Apache-2.0 from 3.1.0).
+Branch `licence-register`. Only the register, licence lines and licence prose
+changed; no code behaviour.
+
+**The register.** [results/mit-relicense-audit/files.csv](results/mit-relicense-audit/files.csv)
+is now edited by hand and is the source of truth. `classify.py` no longer
+writes it from a table of its own: it checks coverage, refreshes `lines`
+(`--lines`) and prints the totals and the candidates below. Two columns are new:
+- `piece`, the derived functions or sections, so a rewrite can be chosen per piece;
+- `decision`, the owner's decision for that row.
+
+**Scope.** Every tracked `.py`, `.sh`, `.rs`, `.cc` and `.wgsl` file under
+`python/rang`, `core/src`, `core/py/src`, `src` and **all of `tools/`**, plus
+the audit's 158 rows for `tests/`. New tests are not required to have a row.
+The scope is wider than section 1's 392 shipped files (`tools/` was only
+`check.py` and `wheel/`), so the totals here are not comparable with section 1.
+
+**Enforced.** `tests/test_licence_register.py` and `tools/prepush_check.py`
+(standard library, part of the one-second pre-push check) refuse a file in
+scope without a row, and a row without a file. The test also requires each
+derived row to name its upstream, licence, upstream files and piece. Own new
+code is one line: `<path>,<lines>,a,-,-,-,0,-,-`.
+
+**Rows added since d4b13e9b (2026-11-17).** 173 files had no row: 26 shipped
+and 147 in `tools/`. Each one's head, its upstream mentions and the research
+note it cites were read.
+- Class a: 162 files. These include the F4/F5 flaggers, `learned_interp.rs`, `diag_stream.rs`, `cal_stream`, `core_spool`, `watch`, `solver_flags.py`, `flag_residual.py`, every binding in `core/py/src`, and every new `tools/` script (the DD1-DD10, ts-p2/p3, multinode and chunk-task drivers call WSClean, QuartiCal and CASA as oracles; nothing is transcribed). The five `tools/` files that `spdx.py` holds as GPL keep their classes (2 b-copyleft, 2 c-src, 1 d).
+- **b-permissive (QuartiCal 0.2.7, MIT, notice present):**
+  - `core/src/flag_residual.rs`: `flags_quartical`, the `mad_flags` port, about 140 lines;
+  - `core/src/cal/diag_dd.rs`: the direction-dependent `diag_complex` and `phase` kernels, about 600 lines. Its helpers copied from `diag.rs` are QuartiCal's; the CASA SNR part is not among them.
+  - `test_quartical_translations_keep_the_mit_notice` now covers both.
+- **c-src (CASA), now `GPL-3.0-or-later`:** `core/src/reweight.rs` and `python/rang/reweight.py`.
+  - Their statwt rules were read in casa6's source (`StatWtVarianceAndWeightCalculator`, `StatWtTVI::weight`; apply-reweight.md 2 and 7). WEIGHT changed from a mean to the median after that reading.
+  - casadocs' statwt page states the same rules: `(v_r + v_i)/2`, divisor N, and WEIGHT as the median of WEIGHT_SPECTRUM. A restatement from the documentation therefore costs about 0 lines.
+  - Under the audit's c-src rule ("when in doubt, a file stays GPL"), their SPDX lines went from `MIT` to `GPL-3.0-or-later`.
+- **c (documentation or format), MIT:**
+  - `core/src/learned.rs`: the field numbers of `onnx.proto`, an Apache-2.0 interface;
+  - `python/rang/msv4_flags.py`, and `msv4.py` reclassified from a. They follow the MSv4 layout of xradio 1.3.1, whose source was read (msv4-interop.md 5), and of xarray-ms 0.5.14. Both are BSD-3-Clause.
+
+**Reclassified.** `python/rang/meerkat.py` goes from b-permissive to **d**.
+Its `KNOWN_RFI_L_*` lists (issue #59) are oxkat `421d14c5`'s `config.py`
+L-band lists, copied with their order and comments (checked against oxkat at
+that commit). oxkat is GPL-3.0, and so is the SARAO MeerKAT Cookbook that
+they cite. They are facts (frequency ranges). Under the same rule as the simms
+positions in `docs/_extra/interferometer/index.html`, the file is now
+`GPL-3.0-or-later AND BSD-3-Clause`. Its notice is in THIRD-PARTY-NOTICES.txt,
+and `test_ported_files_name_the_upstream_licence_too` pins it.
+
+**Header and prose fixes.**
+- 17 MIT files (16 bindings in `core/py/src`, and `core/src/f4flag.rs`) still said "Licensed under the GNU General Public License, version 3 or (at your option) any later version" in a comment. They now name the MIT License, as Step 1 did for 32 files.
+- `cal_refant.py`, `docs/licence.md` and THIRD-PARTY-NOTICES.txt record the msutils settlement. The four radler files carry "rewrite later (owner 2026-11-26)" in `decision`.
+
+**Changed files whose class stands.** Since d4b13e9b, own code was added to
+GPL files. The pieces that follow upstream rules are named:
+- `apply.rs` `calwt_scale`, after CASA `calcWtScale`;
+- the calwt opt-ins in `cal_gain.py`, `cal_pol.py` and `cal_apply.py`;
+- `cal_delay.py`'s refantmode flex and `zero_start`, for which KJones.cc was read (a deviation from CASA, own logic);
+- `multiscale.rs`'s dropped-scale rule;
+- `wgridder.rs` and `cli.rs`'s `RANG_GEMCLEAN_TRACE` lines (gemclean-57, own).
+
+None changes a class. Their derived-line estimates are kept, since the
+additions are c-src rules, not transcriptions.
+
+**Totals** (`classify.py`; the register, including the `tests/` rows):
+
+| Class | Files | Lines | Derived lines (est.) |
+| --- | ---: | ---: | ---: |
+| a | 478 | 131,817 | 0 |
+| b-permissive | 9 | 10,482 | 6,445 |
+| b-copyleft | 27 | 32,766 | 14,555 |
+| c-src | 36 | 28,538 | 1,192 |
+| c | 12 | 5,465 | 0 |
+| d | 3 | 3,182 | 2,280 |
+| **total** | **565** | **212,250** | **24,472** |
+
+Without `tests/`, the five directories hold 407 files and 179,210 lines. Of
+them, 63 files and 63,701 lines are in the copyleft classes (b-copyleft, c-src
+and d; five of these files are oracle tools).
+
+**Rewrite candidates, per piece** (copyleft classes; derived lines from the
+register; cost from section 4 unless marked new):
+
+| Piece | Files | Derived | Upstream | Licence | Cost | Decision |
+| --- | --- | ---: | --- | --- | --- | --- |
+| SSM, StManArrayFile, FilebufIO, BucketCache, TSMCube writers; IncrementalStMan; MultiFile; tile shapes | `ms_write.rs`, `ism.rs`, `multifile.rs`, `tiled.rs` | 6,760 | casacore 3.8.1 | LGPL-2.0/2.1-or-later | L 1-2 days, or R 3-5k lines, 3-4 weeks (4.1) | - |
+| ducc0 wgridder and KernelDB | `wgridder.rs` | 3,550 | ducc0 0.42.0 | GPL-2.0-or-later | R 2.5-3.5k lines, 4-6 weeks, or permission (4.2) | - |
+| MS v2 and NewCalTable schema strings (data) | `ms_schema.rs` | 2,130 | casacore 3.8.1, CASA 6.7.6 | LGPL-2.0-or-later | expert opinion; 0 to 2,130 (4.6) | - |
+| w-stacking gridder; WGSL shader; imaging weights and tapers; `kernel_reference` | `grid.rs`, `gpu/shader.rs`, `weights.rs`, `core_grid.py` | 1,650 | WSClean 3.6/3.7 | GPL-3.0 | gridder 700-900 lines plus shaders; weights 300-400 lines, 1 week (4.3) | - |
+| multiscale; auto-mask; `-pol` and Stokes; joined flow | `multiscale.rs`, `mask.rs`, `stokes.rs`, `joined.rs` | 1,245 | radler 76fe4474, aocommon aa4d6a47, WSClean 3.7 | LGPL-3.0-only; GPL-3.0 | 1.5-1.8k lines with the schaapcommon parts, 2-3 weeks (4.4) | **rewrite later (owner 2026-11-26)** |
+| CASA kernels: fluxscale, refant rules, fillgaps, trackPhase, KCROSS peak, extend | `fluxscale.rs`, `reference.rs`, `bandpass.rs`, `apply.rs`, `crosshand.rs`, `flag_extend.rs` | 807 | casa6 9269a52 | LGPL-2.0/2.1-or-later | about 1,100-1,300 lines with the CASA rules below (4.5) | - |
+| WSClean CLI behaviour, predict, Stokes I and angle rules (c-src) | `gemclean/cli.rs`, `gemclean/predict.rs`, `core_model.py`, `core_weights.py`, `correct.rs` | 385 | WSClean 3.6/3.7 | GPL-3.0 | restate as documented behaviour (4.4) | - |
+| CARACal recipe, defaults and worker order (c-src) | `core_pipeline.py`, `core_config.py`, `cal_chain.py`, `cal_selfcal.py`, `cal_apply.py`, `cal_refant.py` `get_refant` | 370 | CARACal 8f7bb363 | GPL-2.0 | restate, 300-400 lines of rewording (4.5) | - |
+| Tigger HTML writer; sky-model readers | `formats/sky.py` | 170 (+ ~400 c-src) | Tigger, Crystalball 0.4.3, DDFacet 1.0, killMS 3.3.0 | GPL-2.0(-or-later) | 150 + 400 (4.6) | - |
+| restoring-beam fit; `stokes_cell`; spectral conventions | `gemclean.rs`, `input.rs`, `spectral.rs` | 129 | schaapcommon b553fd25, WSClean 3.7 | GPL-3.0-or-later | 120 lines (4.4) | - |
+| CASA-rule test references | `tests/test_e0_refant_extend.py`, `test_cal_fluxscale.py`, `test_a3_casa_phase_weights.py` | 123 | casa6 | LGPL | delete; 0 (4.6) | - |
+| CASA calibration rules (c-src) | `cal_gain.py`, `cal_delay.py`, `cal_bandpass.py`, `cal_fluxscale.py`, `applycal.py`, `calmodels.py`, `flag_extend.py`, `cal/diag.rs` SNR, `cal/leakage.rs`, `caltable.rs`, `formats/caltable.py` | 110 | CASA | GPL-2.0+/LGPL-2.0+ | part of the 300-400 lines of rewording (4.5) | - |
+| `parallactic_angle_casa` | `cal_pol.py` | 70 | casacore measures | LGPL-2.0-or-later | 70 lines (4.5) | - |
+| statwt estimator and WEIGHT median (c-src) | `reweight.rs`, `reweight.py` | 0 | casa6 | LGPL-2.0-or-later | new: restate from casadocs statwt, about 0 lines | - |
+| `EidosBeam._reconstruct` | `beam_holography.py` | 24 | EIDOS 1.1.2 | GPL-3.0 | drop, or 24 lines (4.6) | - |
+| oxkat L-band RFI lists | `meerkat.py` `KNOWN_RFI_L_*` | 20 | oxkat 421d14c5 | GPL-3.0 (facts) | new: about 20 lines, re-sourced from primary allocations (ITU, GNSS operators) and checked against #59's flagged fraction | - |
+| `wgs84_to_ecef` | `cal_refant.py` | 20 | msutils 1.2.0 | **GPL-2.0-or-later** (owner 2026-11-26) | 10 lines from NIMA TR8350.2 (4.6) | licence settled |
+| MS reader, AipsIO, table.dat, H5parm, killMS formats (c-src) | `ms.rs`, `aipsio.rs`, `ms_create.rs`, `ms_desc.rs`, `_aipsio.py`, `h5parm.py`, `killms.py` | 0 (format) | casacore 3.8.1, losoto 2.7.1, killMS 3.3.0 | LGPL-2.0-or-later, GPL | keep (format), or restate (4.6) | - |
+| oracle tools (not shipped): AOFlagger and Tricolour bridges, CARACal crosscal calls, the old `_field_angles` | `tools/oracles/aoflagger/*` (3), `casa/crosscal.py`, `w3b/angles_memory.py` | 464 | AOFlagger 3.5, Tricolour 0.2.1, CARACal 8f7bb363, CASA | GPL | new: none needed for the package; mark or keep under GPL (step 7) | - |
+
+The shipped pieces sum to about 17,600 derived lines. The largest four make up
+14,090 of them: the casacore writer, the ducc0 wgridder, the schema strings,
+and the WSClean gridder and weights.
+
+**For the coordinator.**
+- `files.csv` is a single file that every branch adding a source file now touches, so expect merge conflicts in it. Resolve them by keeping both rows (the rows are sorted by path).
+- A branch that was in flight before this one merges goes red until it adds its rows.
+- Three shipped files went from `MIT` to `GPL-3.0-or-later` on this branch, and their headers say why. Confirm them before merging:
+  - `meerkat.py`, for oxkat's lists (about 20 lines, re-sourced cheaply);
+  - `reweight.rs` and `reweight.py`, for the statwt source reading (0 lines to restate).

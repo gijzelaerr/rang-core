@@ -281,7 +281,12 @@ SCHEMA = {
                 "mad_flags rule; rang: antenna-factorised noise and persistence",
                 ("off", "quartical", "rang"),
             ),
-            "terms": _k(["G", "B"], "strs", "the solve types flagged: G (G, Gsec), B"),
+            "terms": _k(
+                ["G", "B"],
+                "strs",
+                "the terms flagged: a type, G (every G term, such as G and Gsec) or B, "
+                "or the name of a G or B term, such as Gsec",
+            ),
             "rounds": _k(
                 2, "int", "flag passes, each followed by a re-solve of the term"
             ),
@@ -1767,9 +1772,20 @@ def _solver_flag_refusals(config, no):
     if sf["mode"] == "off":
         return
     where = "calibrate.solver_flags"
-    bad = sorted(set(sf["terms"]) - {"G", "B"})
+    cal = config["calibrate"]
+    names = {
+        t.get("name")
+        for s in CALIBRATE_SECTIONS
+        for t in cal[s]["terms"]
+        if t.get("type") in ("G", "B")
+    }
+    bad = sorted(set(sf["terms"]) - {"G", "B"} - names)
     if bad or not sf["terms"]:
-        no(f"{where}.terms", "#58", f"G and B only, not {bad or 'none'}")
+        no(
+            f"{where}.terms",
+            "#58",
+            f"G, B or the name of a G or B term only, not {bad or 'none'}",
+        )
     if sf["rounds"] < 1:
         no(f"{where}.rounds", "#58", "at least 1")
     if not 0.0 < sf["guard"] <= 1.0:

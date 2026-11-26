@@ -1,0 +1,22 @@
+# OpenPBS (the open-source PBS Professional) built from source on Debian 13,
+# the same base as the Slurm image (research/multinode-2.md 0.3). One image
+# serves the server (pbs_server, pbs_sched, pbs_comm, PostgreSQL datastore)
+# and the execution hosts (pbs_mom).
+FROM docker.io/library/debian:trixie
+RUN apt-get update -qq \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends \
+      git ca-certificates gcc g++ make libtool libhwloc-dev libx11-dev libxt-dev \
+      libedit-dev libical-dev ncurses-dev perl postgresql postgresql-server-dev-all \
+      postgresql-contrib python3-dev tcl-dev tk-dev swig libexpat-dev libssl-dev \
+      libxext-dev libxft-dev autoconf automake m4 pkg-config sudo procps iproute2 \
+      hostname libcjson-dev >/dev/null \
+ && rm -rf /var/lib/apt/lists/*
+# master after #2714 (2026-04-10): v23.06.06 includes eval.h, which Python 3.11
+# removed, and Debian 13 has Python 3.13.
+ARG OPENPBS_REF=cd7ab5edaf03dcac2f1cb9e2f42d75eb117d468a
+RUN git clone -q https://github.com/openpbs/openpbs /src/openpbs \
+ && cd /src/openpbs && git checkout -q "$OPENPBS_REF" && ./autogen.sh >/dev/null \
+ && ./configure --prefix=/opt/pbs >/dev/null \
+ && make -j"$(nproc)" >/dev/null && make install >/dev/null \
+ && /opt/pbs/libexec/pbs_postinstall >/dev/null \
+ && chmod 4755 /opt/pbs/sbin/pbs_iff /opt/pbs/sbin/pbs_rcp

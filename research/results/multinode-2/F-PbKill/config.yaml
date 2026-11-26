@@ -1,0 +1,15 @@
+version: 1
+fields: {fcal: [J1939-6342]}
+data:
+  executor: spool
+  spool: "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-PbKill/spool"
+  processes: 2
+  chunk_rows: 7
+flag: {strategy: /home/gijs/Worktrees/rang/multinode-2/research/results/e2-acceptance-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml}
+calibrate:
+  model: {source: setjy}
+  primary:
+    terms:
+      - {type: complex, name: Gint, solint: int, freqint: 16}
+      - {type: complex, name: G2, solint: 2, freqint: 512}
+      - {type: complex, name: Gchan, solint: inf, freqint: 1}

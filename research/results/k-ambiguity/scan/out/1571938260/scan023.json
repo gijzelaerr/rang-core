@@ -1,0 +1,14 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1571938260/scan023.ms",
+ "nant": 59,
+ "scans": [
+  1
+ ],
+ "hits": [],
+ "max_fraction_not_hit": 0.0,
+ "rows_used_total": 95816,
+ "fields_by_scan": {
+  "1": 0
+ },
+ "max_coherence_not_hit": 0.9852200311712717
+}

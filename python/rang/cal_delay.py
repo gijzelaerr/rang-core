@@ -506,6 +506,19 @@ _PER_INTERVAL = ("delays", "flags", "err", "kernel_flags", "gain_flags", "gains"
                  "refant_used")  # fmt: skip
 
 
+def zero_kept_of_chunks(results):
+    """`zero_start_intervals` of a field solved in chunks of whole intervals
+    (`results`, the chunks' `DelaySolution`s in order): each chunk counts its
+    intervals from 0, so its kept intervals are offset by the intervals of
+    the chunks before it (research/k-ambiguity.md; before, the field kept
+    the first chunk's list only)."""
+    kept, t0 = [], 0
+    for r in results:
+        kept += [t0 + int(i) for i in r.settings.get("zero_start_intervals", ())]
+        t0 += r.delays.shape[0]
+    return kept
+
+
 def _solve_field(fld, tb, *, budget, what, average=False, **opts):
     """`solve` on the rows of `fld` (`rang.cal_gain._Field`) in chunks of
     whole intervals under `budget` (task W3b; None: one call), the stop test
@@ -567,6 +580,9 @@ def _solve_field(fld, tb, *, budget, what, average=False, **opts):
         )
     sol = results[0]
     if replay is not None:
+        if "zero_start_intervals" in sol.settings:
+            # before the merge below, which replaces results[0]'s arrays
+            sol.settings["zero_start_intervals"] = zero_kept_of_chunks(results)
         for key in _PER_INTERVAL:
             parts = [getattr(r, key) for r in results]
             if parts[0] is not None:

@@ -9,14 +9,17 @@ code MIT"):
 | What | Licence | Why |
 | --- | --- | --- |
 | ra-ng's own code: every file the audit classes as own original (a) or as reimplemented from papers, documentation or black-box behaviour (c), in `core/`, `python/rang`, `src/`, `tests/`, `tools/` and the research scripts: 441 files, 129,462 lines with the next row | **MIT** ({gh}`LICENSES/MIT.txt`) | The owner wrote it and holds its copyright |
-| Translations of permissive upstreams: QuartiCal 0.2.7 (`core/src/solve.rs`, `cal/delay.rs`, `cal/delay_offset.rs`); Tricolour 0.2.1 (`core/src/sumthreshold.rs`, `python/rang/core_flag.py`); codex-africanus 0.4.4 (`core/src/predict.rs`); katdal 0.23 (`python/rang/meerkat.py`); c-blosc 1.21.6 (`core/src/blosc.rs`) | **MIT** for the QuartiCal files (QuartiCal is MIT), **MIT AND BSD-3-Clause** for the others | The upstream licence allows it; the upstream notice stays in the file and in {gh}`THIRD-PARTY-NOTICES.txt` |
+| Translations of permissive upstreams: QuartiCal 0.2.7 (`core/src/solve.rs`, `cal/delay.rs`, `cal/delay_offset.rs`); Tricolour 0.2.1 (`core/src/sumthreshold.rs`, `python/rang/core_flag.py`); codex-africanus 0.4.4 (`core/src/predict.rs`); katdal 0.23 (`python/rang/meerkat.py`, GPL since 2026-11-26 for its oxkat lists, next rows); c-blosc 1.21.6 (`core/src/blosc.rs`) | **MIT** for the QuartiCal files (QuartiCal is MIT), **MIT AND BSD-3-Clause** for the others | The upstream licence allows it; the upstream notice stays in the file and in {gh}`THIRD-PARTY-NOTICES.txt` |
 | Code translated or derived from GPL or LGPL upstreams (the audit's b-copyleft class; with the next row 64 files, 61,685 lines): the casacore table writer (`ms_write.rs`, `ism.rs`, `multifile.rs`, `tiled.rs`), the ducc0 wgridder (`wgridder.rs`), WSClean's gridder and weights (`grid.rs`, `weights.rs`, `gpu/shader.rs`, `core_grid.py`), GeMClean's radler, aocommon and schaapcommon parts (`gemclean.rs`, `gemclean/mask.rs`, `multiscale.rs`, `stokes.rs`, `input.rs`), the CASA kernels (`cal/apply.rs`, `bandpass.rs`, `crosshand.rs`, `fluxscale.rs`, `reference.rs`, `flag_extend.rs`), `cal_pol.py`, `cal_refant.py`, `formats/sky.py`, `beam_holography.py`, `tests/test_e0_refant_extend.py` | **GPL-3.0-or-later**, with `AND LGPL-3.0-only` (radler), `AND BSD-3-Clause` (codex-africanus regexes in `sky.py`) or `AND SunPro` (fdlibm in `shader.rs`) where the SPDX line names them | The upstream's copyleft licence covers what the translation carries over |
-| Code written to rules or formats read in GPL or LGPL source (the audit's c-src class: the MS reader and AipsIO, the CASA calibration rules, the CARACal recipe, the WSClean CLI conventions, `joined.rs`, the killMS and H5parm formats, two CASA-rule test references) and the unclear class d (`ms_schema.rs`) | **GPL-3.0-or-later** (`joined.rs` also `AND LGPL-3.0-only`, `cal/diag.rs` also `AND MIT`) | Kept as they are to be safe until a licensing expert has judged them |
+| Code written to rules or formats read in GPL or LGPL source (the audit's c-src class: the MS reader and AipsIO, the CASA calibration rules, the CARACal recipe, the WSClean CLI conventions, `joined.rs`, the killMS and H5parm formats, two CASA-rule test references) and the unclear class d (`ms_schema.rs`; the oxkat known-RFI lists in `meerkat.py`, `GPL-3.0-or-later AND BSD-3-Clause`) | **GPL-3.0-or-later** (`joined.rs` also `AND LGPL-3.0-only`, `cal/diag.rs` also `AND MIT`) | Kept as they are to be safe until a licensing expert has judged them |
 | Files with no SPDX line (the notebooks, examples and documentation; every shipped file has one) | GPL-3.0-or-later, the repository's {gh}`LICENSE` | Not stamped in this step |
 | **The distributed package** (the wheels, the sdist and the extension `rang._core`) | **GPL-3.0-only** | It combines the GPL and LGPL parts above with the MIT code. WSClean's sources say "GPL 3" without "or later", and radler is LGPL-3.0-only, conveyed here under GPL version 3 (LGPL-3.0 section 2(b)) |
 
 The per-file list is {gh}`research/results/mit-relicense-audit/spdx.csv`, and
 {gh}`tests/test_spdx_headers.py` checks every file's SPDX line against it.
+The provenance register {gh}`research/results/mit-relicense-audit/files.csv`
+names each source file's class, upstream, licence and derived pieces;
+{gh}`tests/test_licence_register.py` requires a row for every source file.
 The root crate `rang-sim` is MIT: every file in it is own code. The MIT files
 can be reused under MIT on their own; whoever takes a GPL or LGPL file, or
 the package as a whole, takes it under that licence.
@@ -35,10 +38,11 @@ New work avoids adding GPL- or LGPL-derived code beyond what a task needs
 `python/rang/cal_refant.py`'s `wgs84_to_ecef` is the standard WGS84
 geodetic-to-geocentric conversion, which is published formula, not expression.
 It follows msutils 1.2.0's order of operations so that `refant: auto` picks the
-same antenna as CARACal. msutils' own metadata gives two different GPL versions
-(v2 in its LICENSE, 3.0-or-later in setup.py). The conversion is treated as the
-standard formula, not as a copyrightable part of msutils (coordinator decision,
-2026-11-17). If that view is challenged, the function is rewritten from the
+same antenna as CARACal. msutils' changelog states that releases up to 3.0.0
+were GPL-2.0-or-later (Apache-2.0 from 3.1.0), so those lines are
+GPL-2.0-or-later, compatible with the package (owner, 2026-11-26). The
+conversion is also treated as the standard formula, not as a copyrightable part
+of msutils (coordinator decision, 2026-11-17). If that view is challenged, the function is rewritten from the
 WGS84 definition (NGA TR8350.2) and checked against the same refant tests.
 
 | Ported or bundled | Upstream licence, as the reports record it |

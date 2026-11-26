@@ -56,6 +56,13 @@ def settings(cfg):
     }
 
 
+def selects(terms, kind, name):
+    """True when `calibrate.solver_flags.terms` flags the term of type `kind`
+    named `name`: G and B terms only, by type (G, B) or by name, such as
+    Gsec (research/solver-flags-2.md section 3)."""
+    return kind in ("G", "B") and (kind in terms or name in terms)
+
+
 def _freq_bins(sol, nchan):
     nfreq = sol.gains.shape[1]
     if nfreq == 1:

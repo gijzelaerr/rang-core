@@ -1,0 +1,41 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1678312253/scan070.ms",
+ "nant": 29,
+ "channels_read": [
+  1792,
+  2304
+ ],
+ "scans": [
+  1
+ ],
+ "hits": [
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 25,
+   "name": "m054",
+   "rows": [
+    392,
+    392
+   ],
+   "flipped": [
+    392,
+    392
+   ],
+   "step_angle": [
+    3.1212,
+    3.1208
+   ],
+   "coherence": [
+    0.8922,
+    0.8603
+   ]
+  }
+ ],
+ "max_fraction_not_hit": 0.03571428571428571,
+ "rows_used_total": 22736,
+ "fields_by_scan": {
+  "1": 0
+ },
+ "max_coherence_not_hit": 0.9030627077154751
+}

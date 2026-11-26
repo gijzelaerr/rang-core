@@ -1,0 +1,50 @@
+{
+ "stage": "flag",
+ "cluster": {
+  "scheduler": "pbs",
+  "workers": 4,
+  "threads": 2,
+  "nodes": 4,
+  "cpus": 2,
+  "mem_mb": 6000,
+  "mem_gb": 5,
+  "data": [
+   "processes: 4",
+   "memory_limit_gb: 8"
+  ],
+  "event": null,
+  "ctl_mem_mb": 16000
+ },
+ "nodes_ready": {
+  "exit": 0,
+  "sinfo": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      6gb/6gb     2/2     0/0     0/0 --\nm2              free                 0     0      0      6gb/6gb     2/2     0/0     0/0 --\nm3              free                 0     0      0      6gb/6gb     2/2     0/0     0/0 --\nm4              free                 0     0      0      6gb/6gb     2/2     0/0     0/0 --\n"
+ },
+ "launch": {
+  "id": "20261126T145321-efaa2ab0",
+  "job_id": "0[].pbs",
+  "command": [
+   "qsub",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Pb4/spool/launch/20261126T145321-efaa2ab0/worker.sh"
+  ]
+ },
+ "driver_wall_s": 302.06,
+ "jobs_left_after_s": 3.3,
+ "workers_cpu": {
+  "m2-78-a98528": {
+   "tasks": 5,
+   "cpu_s": 416.1
+  },
+  "m4-78-0d157d": {
+   "tasks": 4,
+   "cpu_s": 413.1
+  },
+  "m3-78-c67a23": {
+   "tasks": 4,
+   "cpu_s": 511.9
+  },
+  "m1-78-5d07ab": {
+   "tasks": 4,
+   "cpu_s": 430.5
+  }
+ }
+}

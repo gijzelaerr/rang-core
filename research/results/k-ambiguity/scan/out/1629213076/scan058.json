@@ -1,0 +1,151 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/dl2-data-20261119/ms/1629213076/scan058.ms",
+ "nant": 56,
+ "channels_read": [
+  1792,
+  2304
+ ],
+ "scans": [
+  1
+ ],
+ "hits": [
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 38,
+   "name": "m044",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    2534,
+    2535
+   ],
+   "step_angle": [
+    -2.2869,
+    -2.328
+   ],
+   "coherence": [
+    0.1066,
+    0.1353
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 39,
+   "name": "m045",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    2429,
+    2094
+   ],
+   "step_angle": [
+    -2.0555,
+    -2.025
+   ],
+   "coherence": [
+    0.0392,
+    0.0191
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 43,
+   "name": "m050",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    2473,
+    2080
+   ],
+   "step_angle": [
+    -1.8515,
+    -1.5788
+   ],
+   "coherence": [
+    0.145,
+    0.1105
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 52,
+   "name": "m059",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    2337,
+    2079
+   ],
+   "step_angle": [
+    -2.7857,
+    -2.9075
+   ],
+   "coherence": [
+    0.0716,
+    0.0223
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 53,
+   "name": "m061",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    3363,
+    3368
+   ],
+   "step_angle": [
+    3.0817,
+    2.9647
+   ],
+   "coherence": [
+    0.1436,
+    0.1201
+   ]
+  },
+  {
+   "scan": 1,
+   "field_id": 0,
+   "antenna": 55,
+   "name": "m063",
+   "rows": [
+    4125,
+    4125
+   ],
+   "flipped": [
+    3130,
+    3139
+   ],
+   "step_angle": [
+    -2.6817,
+    -2.795
+   ],
+   "coherence": [
+    0.1024,
+    0.0856
+   ]
+  }
+ ],
+ "max_fraction_not_hit": 0.45406060606060605,
+ "rows_used_total": 462000,
+ "fields_by_scan": {
+  "1": 0
+ },
+ "max_coherence_not_hit": 0.23217900810087716
+}
