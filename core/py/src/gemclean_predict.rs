@@ -3,8 +3,8 @@
 //! (`rang_core::gemclean::predict`, `research/g6-predict.md`) for
 //! `rang.core_model` (the `rang-core image` path through W1's `WriteBack`).
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The caller reads UVW through its write-back session and passes the rows
 //! in the binary's blocks (`gemclean_block_rows`), so both paths call the

@@ -3,8 +3,8 @@
 //! `rang_core::lightcurve` (task TS-P1, `research/ts-p1.md`), for
 //! `rang.lightcurve`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! `uvw` is float64 `(nrow, 3)`, `freq` float64 `(nchan,)`, `vis` complex64
 //! `(nrow, nchan)`, `weight` float32 `(nrow, nchan)` and `lm` float64
