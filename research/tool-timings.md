@@ -2625,3 +2625,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | k-ambiguity: `ka_probe.py` (five K re-solves of one interval) (host nash, 1 slot) | captured arrays | 69 s / 70 s | 1.6 GB | |
 | 2026-11-26 | k-ambiguity: `ka_raw.py` over all 20 scans, each copied, read, deleted (host nash, 1 slot) | block 1678312253 | 128 s | 0.7 GB | scan 60 alone 5 s |
 | 2026-11-26 | k-ambiguity: `tools/check_all.py --quick` (host glacier, 4 slots shared), three runs | branch k-ambiguity | 640 s FAIL (bare venv), 323 s FAIL (ruff format, one test), 71 s PASS (lock wait excluded) | – | |
+| 2026-11-26 | k-ambiguity-2: `ka_scan.py` over 220 per-scan MSs of nine DL4s blocks + E2-N's MS (2.9 TB; 512 channels, large MSs row-sampled) (host nash, two runners × 3 workers, 1 slot each, shared) | dl2-data, e2n.ms | 12,351 s | – | 1 MS/min on 30 GB scans; 218 GB target scans 40-60 min each even sampled |
+| 2026-11-26 | k-ambiguity-2: `ka_scan.py` on E2-A's MS (host glacier, 1 slot) | e2a.ms, 195 GB | 4,200 s (lock wait included) | – | |

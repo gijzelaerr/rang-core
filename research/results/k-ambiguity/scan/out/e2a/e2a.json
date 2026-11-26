@@ -1,0 +1,22 @@
+{
+ "ms": "D:/rang/outputs/e2a-20261115/e2a.ms",
+ "nant": 61,
+ "channels_read": [
+  1792,
+  2304
+ ],
+ "scans": [
+  9,
+  10,
+  11
+ ],
+ "hits": [],
+ "max_fraction_not_hit": 0.0017702448210922786,
+ "rows_used_total": 3693728,
+ "fields_by_scan": {
+  "9": 0,
+  "10": 1,
+  "11": 0
+ },
+ "max_coherence_not_hit": 0.9998967298181187
+}
