@@ -452,10 +452,10 @@ no row dropped; cycle 0 is A0.
 DD7's real subset, the 145 bad baselines flagged in memory (65,250 rows, the
 setup gate), RM as the start, Gauss-Seidel at cap 500, d0 free.
 
-| Point | fractions d0-d3 | d3 \|g\| p99 / max (cells > 10) | flagged d0-d3 | residual rms d1-d3 interiors | image weight kept |
+| Point | fractions d0-d3 | d3 \|g\| p99 / max (cells > 10) | flagged d0-d3 | residual rms d1-d3 interiors / thermal σ | image weight kept |
 | --- | --- | --- | --- | --- | --- |
-| **R0** (RM) | 0.231, 0.137, 0.124, **0.080** | 10.8 / 33 (169) | 113, 113, 117, 249 | 1.48 mJy | 11.9 % |
-| **RL** (loop M₃) | 0.970, 0.937, 0.922, **0.914** | 2.34 / **11.6** (2) | 113, 116, 114, 119 | 0.61 mJy | 50.3 % |
+| **R0** (RM) | 0.231, 0.137, 0.124, **0.080** | 10.8 / 33 (169) | 113, 113, 117, 249 | 1.48 / 0.092 mJy (16.1 ×) | 11.9 % |
+| **RL** (loop M₃) | 0.970, 0.937, 0.922, **0.914** | 2.34 / **11.6** (2) | 113, 116, 114, 119 | 0.61 / 0.045 mJy (13.7 ×) | 50.3 % |
 
 - **Frozen reading: lifts** (min d1-d3 0.080 to 0.914, against the 0.280
   bar); **d3 not tamed** (p99 2.34 meets ≤ 3, the maximum 11.6 misses
@@ -464,15 +464,18 @@ setup gate), RM as the start, Gauss-Seidel at cap 500, d0 free.
   3.6 mJy); global fraction 0.143, 0.720, 0.858, 0.936; image weight kept
   11.9 %, 39.2 %, 47.0 %, 50.3 %.
 - On O the same loop also converged (min 0.922) while d1's truth error rose,
-  so this lift is convergence, not accuracy. The residual rms falls 2.4 ×,
-  but on O a model the gains can fit lowers the residual too.
+  so this lift is convergence, not accuracy. The residual rms falls from
+  1.48 to 0.61 mJy, but mostly because the images keep 50 % of the weight
+  instead of 12 %: against the thermal σ of the kept weight it falls from
+  16.1 × to 13.7 ×. On O a model the gains can fit lowers the residual too.
 - For comparison only (other flags): DD9's real-bGS, with the 145 and the
   169 held-out baselines removed, read 0.119, 0.023, 0.018, 0.018.
 
 **Cost.** Loop walls (8 slots booked; Högbom single-threaded): AL 5,602 s,
 AT 5,235 s, ALu 7,704 s, RL 8,378 s, AX 2,333 s (lock waits included).
-Points: 19 Rust solves within section 9's cap (K1c 1, K2b 2, AX 2, AL 5 (A0's
-2 included), AT 2, R0 and RL 5), plus ALu's 4 (A1, post hoc, cycle 0 reused).
+Points: 19 Rust solves within section 9's cap (K1c 1, K2b 2, AX 2, AL 6
+(A0's 2 included), AT 2, R0 and RL 6), plus ALu's 4 (A1, post hoc, cycle 0
+reused).
 AX is bitwise equal to K2b (the global stop never fired), so section 9's
 reuse would have been exact. No spare, no failed solve, no contingent K1c.
 The quick check failed once (the research index entry and the K2a test's
@@ -503,13 +506,23 @@ global stop) and then passed; CI `tests` and `docs` green on the branch.
     converges (min 0.92).
   - Post hoc, ALu (untrusted gains set to 1 instead of dropping rows)
     improves every facet every cycle: d1 0.305, G 0.14.
+  - Caveat: AL's "d1 gets worse" was measured with only 2-27 % of the
+    weight in its images (the frozen row-drop rule). ALu keeps all the
+    weight and d1 improves, so the frozen wording's mechanism (gains that
+    absorbed the gap) is not isolated from the weight loss.
 - **Real (frozen): lifts** (min d1-d3 0.080 to 0.914). d3 is not tamed
   (max 11.6), and O does not support reading the lift as better gains.
+  - RL used the same row-drop rule as AL (11.9-50.3 % of the weight kept).
+    RLu was not run, by A1.
 - **Recommended DD11, per section 7's row "AT closes, AL not":**
   - Find a bootstrap that keeps the gains from absorbing the gap, on O
     against truth: phase-only first cycles, longer first intervals, or an
     amplitude constraint.
   - Start from ALu's image rule, which is the better of the two on O.
+  - Caveat: at ALu's cycle 0, 76 % of d3's gains are untrusted and set to
+    1, so its first images are largely unit-gain images there. Its first
+    Högbom adds the same flux as AT's (0.41 Jy). This is not the unit-gain
+    deep clean the brief excludes, but it is close to it in d3.
   - Run more cycles: ALu still improves at cycle 3.
   - Consider faster minor cycles: Högbom takes 400 s per cycle on one core.
 - **Owner decision:** whether Gauss-Seidel should become the DD recipe's
@@ -542,3 +555,12 @@ AL's cycle-1 solve finished and before any AX, AT or RL record).**
   the reading section 5's rule would give.
 - RLu (the same change on real data) runs only if ALu would read "closes"
   or "partly"; otherwise it is not run, and that is reported.
+
+**A2, 2026-11-26, a correction to section 3 (after every reading; it
+changes none).** Section 3 says the Jacobi path's functions, including
+`run_interval`'s loop, are left textually unchanged. `accumulate` and
+`step_gain` are unchanged, but in `run_interval` the call to `accumulate`
+now sits in the `else` branch of the Gauss-Seidel test. The `step_gain` call
+now takes `pinned || gauss_seidel`, so the sweep's gains get the ladder
+only. For the default both are the same statements as before. K1a-K1c prove
+the default bit-identical.
