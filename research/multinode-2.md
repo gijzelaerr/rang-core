@@ -335,6 +335,12 @@ Every void attempt is kept in the run root and its stage records in the archive.
 - **CI's Slurm step** ends with an idle check that fails the step (added after 6.1's runs), so a cluster that does
   not come up turns the run red instead of skipping the test silently.
 
+### 6.5 Checks of the branch
+
+`python tools/check_all.py --quick` on glacier: PASS at `2100cd0e` (1,471 s) and at `a22c8228`, after both merges
+of main (1,301 s, gain-hash gate PASS). CI `tests` green at `a22c8228` (run `45854539049`), its Linux job running the
+Slurm test (no skip). The full check is not run on the branch.
+
 ### 6.4 What this does not show
 
 Section 5 stands: one host, a bind-mounted local disk as the shared filesystem, one clock, uid 0 inside the
