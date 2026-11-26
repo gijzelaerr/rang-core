@@ -523,12 +523,15 @@ def model_error(ctx, model, sky):
             "net_flux_truth": [float(sky[idx == f].sum()) for f in range(4)]}  # fmt: skip
 
 
-ARMS = {"AL": ("O", "solved"), "AT": ("O", "truth"), "RL": ("real", "solved")}
+# ALu and RLu: amendment A1 (post hoc), untrusted gains set to 1 in the images.
+ARMS = {"AL": ("O", "solved"), "AT": ("O", "truth"), "RL": ("real", "solved"),
+        "ALu": ("O", "unit"), "RLu": ("real", "unit")}  # fmt: skip
 START = {"O": DD7_ROOT / "b" / "sky.npy", "real": DD7_ROOT / "models" / "RM.npy"}
 
 
 def loop(root, arm):
-    """Section 5 (AL, AT) and section 6 (RL). Resumable per cycle."""
+    """Section 5 (AL, AT), section 6 (RL) and A1 (ALu, RLu). Resumable per
+    cycle."""
     root = Path(root)
     base, gain_source = ARMS[arm]
     ctx = base_ctx(root, base)
@@ -557,9 +560,18 @@ def loop(root, arm):
         if sky is not None:
             info["model_error"] = model_error(ctx, model, sky)
         scored = cyc == 0 or cyc == NCYCLE
-        need_solve = gain_source == "solved" or cyc == NCYCLE
+        need_solve = gain_source in ("solved", "unit") or cyc == NCYCLE
         gains = flags = None
-        if need_solve:
+        reuse = out.parent / arm[:-1] / "cycle-0"
+        if gain_source == "unit" and cyc == 0:
+            # A1: cycle 0 is the frozen arm's cycle-0 solve (the same solve).
+            z = np.load(reuse / "gains.npz")
+            gains, flags = z["gains"], z["flags"]
+            info["solve"] = json.loads((reuse / "info.json").read_text())["solve"]
+            info["solve_reused_from"] = str(reuse)
+            d.mkdir(parents=True, exist_ok=True)
+            np.savez_compressed(d / "gains.npz", **{key: z[key] for key in z.files})
+        elif need_solve:
             res = solve(ctx, models, "gauss-seidel", second=scored)
             sol = res["sol"]
             gains, flags = np.asarray(sol.gains), np.asarray(sol.flags)
@@ -582,6 +594,15 @@ def loop(root, arm):
                 ig = truth
                 w = c["w_I"]
                 info["excluded_weight_share"] = 0.0
+            elif gain_source == "unit":
+                a = np.abs(gains)
+                bad = (flags != 0) | (a < TRUST[0]).any(-1) | (a > TRUST[1]).any(-1)
+                ig = np.where(bad[..., None], 1.0 + 0j, gains)
+                w = c["w_I"]
+                info["excluded_weight_share"] = 0.0
+                info["untrusted_gain_share"] = [
+                    float(bad[..., f].mean()) for f in range(4)
+                ]
             else:
                 ig = gains
                 rows = trusted_rows(ctx, gains, flags)
