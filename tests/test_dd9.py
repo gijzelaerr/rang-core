@@ -100,7 +100,7 @@ def build(sy):
     return Mem(A, b, s, n, p, q, sy["nant"])
 
 
-def rust(sy, cap, pinned=()):
+def rust(sy, cap, pinned=(), direction_update="jacobi"):
     cal_gain = pytest.importorskip("rang.cal_gain")
     models = np.zeros(sy["data"].shape[:2] + (len(sy["vis"]), 4), np.complex64)
     for d, v in enumerate(sy["vis"]):
@@ -108,7 +108,7 @@ def rust(sy, cap, pinned=()):
     sol = cal_gain.solve_dd(sy["data"], models, sy["weights"], sy["flag"], sy["flag_row"], sy["a1"], sy["a2"],
                             sy["tindex"] // dd9.BLOCK, nant=sy["nant"], refant=None, pinned_directions=list(pinned),
                             max_iterations=cap, stop_criterion=1e-7, stop_fraction=1.0, calmode="ap",
-                            phase_last_direction_gain=False)  # fmt: skip
+                            phase_last_direction_gain=False, direction_update=direction_update)  # fmt: skip
     return np.asarray(sol.gains)[:, 0], np.asarray(sol.flags)[:, 0]
 
 
@@ -120,6 +120,22 @@ def test_reference_equals_rust_kernel(cap, pinned):
     res = dd9.run(P, [cap], stop_fraction=2.0)[cap]
     g, f = dd9.stack_sol(res["g"], res["f"])
     gr, fr = rust(sy, cap, pinned)
+    assert np.array_equal(f[:, 0], fr)
+    assert np.abs(g[:, 0] - gr).max() < 1e-9
+
+
+@pytest.mark.parametrize(
+    "cap,pinned", [(1, ()), (3, ()), (40, ()), (40, (0,)), (40, (2,))]
+)
+def test_reference_gauss_seidel_equals_rust_option(cap, pinned):
+    """DD10 gate K2a (research/dd10-gs.md): the kernel's Gauss-Seidel option
+    against DD9's reference arm I2."""
+    sy = synthetic()
+    S = build(sy)
+    P = dd9.Problem(S, np.arange(S.nblock), [1] * S.ndir, pinned=pinned)
+    res = dd9.run(P, [cap], variant="I2", stop_fraction=2.0)[cap]
+    g, f = dd9.stack_sol(res["g"], res["f"])
+    gr, fr = rust(sy, cap, pinned, "gauss-seidel")
     assert np.array_equal(f[:, 0], fr)
     assert np.abs(g[:, 0] - gr).max() < 1e-9
 

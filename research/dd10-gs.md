@@ -317,4 +317,35 @@ reported, not gated); anything about QuartiCal beyond K1's consequence.
   end; records stay in the run root and a compact archive in
   `results/dd10-gs/`.
 
+## 10. Measured result
+
+Run root `D:/rang/outputs/dd10-20261126/`. Host glacier, shared, under the
+main checkout's `heavy_lock.py`.
+
+**Setup.** O rebuilt (230 s): GO passes; every `build.json` number equals
+DD8's; `sky.npy` has DD8's SHA-256.
+
+**K1b: pass.** 64 default-settings solves (two synthetic problems; refant 0
+and None; d0 pinned and free; `ap` and `p`; caps 1, 5, 50, 300): gains and
+flags SHA-256, iterations and fraction identical between the main checkout's
+extension and the branch's (`k1b/compare.json`).
+
+**Section 4 (reference, read before any Rust reading of the option):**
+- **T1: a fixed point of the default update.** At I2's cap-2000 solution,
+  on the 110 intervals where I2 has converged, one default iteration moves
+  no free gain by more than 1.6e-15 relative (median of the per-interval
+  maxima 7.8e-16).
+- **T2: only the flag ladder.** I2 started with the default's cap-2000 flags
+  imposed reproduces the default's answer on the slow intervals: products
+  median 2.5e-10, p99 1.4e-7 (max 1.5e-6) on 38 of the 41 (531,846 cells),
+  against median 3.9e-4, p99 0.026 (max 0.40) for I2 without them (DD9's
+  failing comparison). The other 3 slow intervals are excluded: the imposed
+  run flagged 3 more d3 gains there. On all 85 intervals the default
+  converges with equal flags: median 1.7e-15, p99 7.2e-8. On the 25
+  intervals the default never converges (no default answer): median 5.6e-9,
+  p99 2.0e-6. Wall 843 s (2 slots), T2's 2001 iterations 841 s.
+- So DD9's same-fixed-point failure is the flag ladder only: both updates
+  have the same fixed points, and the default reaches a different answer
+  only where its ladder has flagged gains it cannot converge.
+
 ## Amendments
