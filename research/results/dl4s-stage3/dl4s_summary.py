@@ -38,7 +38,13 @@ def main(blocks, out):
                         }
                         for n, v in x["terms"].items()
                     },
-                    "instances": x["instances"],
+                    "instances": {
+                        k: {
+                            "events": len(e["events"]),
+                            "block_terms": e["block_terms"],
+                        }
+                        for k, e in x["instances"].items()
+                    },
                 }
         b["uncaught_on_amplitude"] = {
             n: [
