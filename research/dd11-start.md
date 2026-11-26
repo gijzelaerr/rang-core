@@ -358,9 +358,10 @@ Per arm:
   A longer interval does not stop the absorption, as DD9 found for d3.
 - **P6 (Jacobi phase-only start)** fails at the start.
   - The Jacobi `phase` term converges nowhere at cap 500 with four facets
-    (global fraction 0.000 in both start cycles) and flags 2,232-3,849
-    gains per direction.
-  - Its d1 phase error is 0.67 and 0.57, against 0.20 for A0's `ap` solve.
+    (global fraction 0.000 in both start cycles) and flags 2,232, 560,
+    3,849 and 3,733 gains in d0-d3 (cycle 0).
+  - Its d1 phase-only error is 0.650 and 0.547 in the two start cycles,
+    against 0.199 for A0's `ap` solve.
   - Its start images build a worse model (first Högbom −0.11 Jy), from
     which the Gauss-Seidel cycles recover only to 0.314.
   - This tests the phase-only solver available, not phase-only starts in
@@ -373,8 +374,9 @@ Per arm:
 - Model net flux in d1 at M₆ (truth 4.43 Jy, M₀ᶜ 2.83): U6 3.31, Q6 3.56,
   L6 3.30, P6 3.07, AT6 3.60. Σ|M − sky O| in d1 rises in every arm (33-37
   against 21.2), as in DD10 (point components on extended emission).
-- Untrusted d3 gains under rule U fall from 76 % at cycle 0 to 2 % at
-  cycle 5 in every solved arm; Q6 has 39 % at cycle 1 (U6 21 %).
+- Untrusted d3 gains under rule U fall to 2 % by cycle 5 in every solved
+  arm, from 76 % at cycle 0 (P6: 54 %, its phase-only flags); Q6 has 39 %
+  at cycle 1 (U6 21 %).
 
 **Confounds (frozen):**
 - **Absorption: "the trusted solved gains absorb the gap"** (S_ATs,d1 0.25,
@@ -400,6 +402,10 @@ gap".**
 - Best arm Q6 (no harm, lowest d1).
 - No start closes. Q6 helps against U6, L6 has no effect, P6 hurts, and
   more cycles help.
+- Both "helps" readings are narrow: Q6 is 0.894 × U6 and U6 is 0.895 ×
+  ALu, against a 0.9 bar. The solves are deterministic, so a rerun gives
+  the same numbers, but a slightly different rule or sky could move either
+  reading.
 - Q6 closes 31 % of d1's gap to the exact sky, 56 % of DD10's truth-gain
   control's gain and 48 % of AT6's.
 
@@ -418,6 +424,10 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
 - **Frozen reading: lifts** (min d1-d3 0.080 to 0.961, bar 0.280); **tames
   d3** (p99 1.83 ≤ 3, max 3.8 ≤ 10); **supported by O** in the frozen
   rule's sense (Q6 reads "partly" on O).
+- **What the real run compares.** R-Q6 differs from DD10's RL in three
+  ways at once: rule U instead of the row drop, six cycles instead of
+  three, and the unit-amplitude start. No real U6 was run, so the lift
+  over RL and the tamer d3 cannot be credited to the start.
 - **Convergence alone is not evidence.**
   - On O every solved arm converged (min d1-d3 0.91-0.99), while d1's
     truth error stayed at 0.24-0.31, 47-57 × the noise prediction.
@@ -463,6 +473,8 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
     0.273 for the same loop without the start (U6) and 0.128 for the
     truth-gain control at six cycles (AT6).
   - No start closes half of d1's gap.
+  - The margin is narrow: Q6 is 0.894 × U6 (bar 0.9), and more cycles are
+    0.895 × ALu (bar 0.9). Keeping Q6's start rests on a 1 % margin.
 - **Per arm, against the frozen table:**
   - U6 partly (0.273; more cycles help: 0.895 × ALu's 3-cycle 0.305).
   - Q6 partly, helps (0.894 × U6).
@@ -483,6 +495,8 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
   rule's sense.**
   - Min d1-d3 0.080 to 0.961; d3 |g| max 3.8 against DD10's RL 11.6.
   - The residual is 9.7 × thermal against RL's 13.7 ×.
+  - R-Q6 changes the image rule, the cycle count and the start together
+    against RL; none of the difference is attributable to the start alone.
   - This is convergence, not accuracy. On O the same loop leaves d1 at
     47 × the noise prediction.
 - **Recommended next step (section 8, row "partly"):** DD12 on O, frozen
@@ -500,7 +514,7 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
   faster in NumPy. A real speed-up needs compiled code: exposing
   `core/src/clean.rs::hogbom` with a search mask would be a small binding.
 - **Checks:** `python tools/check_all.py --quick` CHECK_RESULT. CI on the
-  branch CI_RESULT. No Rust or library change, so the oracle gates are
+  branch: CI_RESULT. No Rust or library change, so the oracle gates are
   unchanged; the full check is left to the coordinator's merge check.
 - **Disk:** the rebuilt O MS and the PSF arrays are deleted. The run root
   keeps 4.1 GB (models, residual images, gains, records). Archive:
@@ -526,3 +540,11 @@ changes no frozen rule or reading.**
   queue. The frozen best-arm choice, made after L6's scored point, picked Q6,
   so R-Q6 is the section-7 run; had it picked another arm, that arm's real
   run would have followed and R-Q6 would have been reported only.
+
+**A2, 2026-11-26, a correction to A1 (after every reading; it changes no
+reading).** A1 says R-Q6 was queued when U6, Q6 and P6 were "near their
+ends". At 12:11 U6 and Q6 had finished and their scored d1 (0.273 and
+0.244) had been read; P6 was at its final solve and L6 at cycle 4. So the
+early queue was chosen with knowledge of O's results for two of the four
+eligible arms. The frozen best-arm rule, applied after L6 and P6 were
+scored, gives Q6 as well.
