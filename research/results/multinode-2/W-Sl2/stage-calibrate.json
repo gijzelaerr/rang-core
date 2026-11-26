@@ -1,0 +1,43 @@
+{
+ "stage": "calibrate",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 2,
+  "threads": 2,
+  "nodes": 2,
+  "cpus": 2,
+  "mem_mb": 6000,
+  "mem_gb": 5,
+  "data": [
+   "processes: 2",
+   "memory_limit_gb: 4"
+  ],
+  "event": null,
+  "ctl_mem_mb": 16000
+ },
+ "nodes_ready": {
+  "exit": 0,
+  "sinfo": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      2   idle n[1-2]\n"
+ },
+ "launch": {
+  "id": "20261126T141205-5433598f",
+  "job_id": "3",
+  "command": [
+   "sbatch",
+   "--parsable",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl2/spool/launch/20261126T141205-5433598f/worker.sh"
+  ]
+ },
+ "driver_wall_s": 700.03,
+ "jobs_left_after_s": 2.8,
+ "workers_cpu": {
+  "n2-107-a3f0f1": {
+   "tasks": 66,
+   "cpu_s": 1104.9
+  },
+  "n1-107-c54a76": {
+   "tasks": 66,
+   "cpu_s": 1087.5
+  }
+ }
+}

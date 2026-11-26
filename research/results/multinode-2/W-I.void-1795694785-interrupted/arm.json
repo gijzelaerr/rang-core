@@ -1,0 +1,30 @@
+{
+ "case": "W",
+ "arm": "I",
+ "code": "/home/gijs/Worktrees/rang/multinode-2/python",
+ "data": [
+  "memory_limit_gb: 2"
+ ],
+ "workers": 0,
+ "threads": null,
+ "rayon": 2,
+ "kill": false,
+ "source": "/home/gijs/rang-data/outputs/w3/data/w3.ms",
+ "build": {
+  "version": "0.4.0",
+  "core_sha256": "6e4a595d827c1fd342ef5a3ded1710297e4e682182df10f20f2e00e81d97b8c2"
+ },
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 0,
+  "threads": null,
+  "nodes": 1,
+  "cpus": 1,
+  "mem_mb": 2000,
+  "mem_gb": null,
+  "data": [],
+  "event": null,
+  "ctl_mem_mb": 16000
+ },
+ "host": "nash"
+}

@@ -13,6 +13,13 @@ the release notes are the section of this file for that version.
   `zero_start_intervals` (the intervals taken from the zero start), and a field solved in chunks
   reports every chunk's intervals in the field's numbering, not the first chunk's only. K tables are
   unchanged (`research/k-ambiguity.md`).
+- `rang-core spool submit | status | stop` (`rang.core_launch`): start the workers of the spool
+  executor (`data.executor: spool`) as a Slurm job array (`sbatch --array`), a PBS Professional /
+  OpenPBS array job (`qsub -J`), a Torque array job (`qsub -t`, untested) or local processes;
+  follow them and stop or cancel them. Spool workers record their scheduler job ids and print their
+  CPU-seconds on exit. On Slurm 24.11 and OpenPBS clusters in containers, flag, calibrate and apply
+  are bit-identical to one process, with a cancelled worker or a killed node recovered by the
+  lease. How-to: `docs/howto/cluster.md` (#4, `research/multinode-2.md`).
 - `rang.cal_gain.solve_dd(..., direction_update="gauss-seidel")` (`diag_dd::DirectionUpdate::GaussSeidel`,
   the extension's `cal_gain_solve_dd(..., direction_update=1)`): an optional Gauss-Seidel sweep over
   directions in the direction-dependent `diag_complex` kernel, each direction updated from the

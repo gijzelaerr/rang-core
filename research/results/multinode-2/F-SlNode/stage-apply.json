@@ -1,0 +1,61 @@
+{
+ "stage": "apply",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 3,
+  "threads": 1,
+  "nodes": 3,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 3",
+   "chunk_rows: 7"
+  ],
+  "event": "node",
+  "ctl_mem_mb": 4000
+ },
+ "nodes_ready": {
+  "exit": 0,
+  "sinfo": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      3   idle n[1-3]\n"
+ },
+ "launch": {
+  "id": "20261126T121236-c4c47c52",
+  "job_id": "7",
+  "command": [
+   "sbatch",
+   "--parsable",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-SlNode/spool/launch/20261126T121236-c4c47c52/worker.sh"
+  ]
+ },
+ "killed": {
+  "owner": "n2-108-0f60d4",
+  "claim": "415-5f55abe6-0001-00000000",
+  "host": "n2",
+  "job": {
+   "SLURM_JOB_ID": "9",
+   "SLURM_ARRAY_JOB_ID": "7",
+   "SLURM_ARRAY_TASK_ID": "1",
+   "SLURMD_NODENAME": "n2"
+  },
+  "unix": 1795695157.6714237,
+  "killed_container": "rangmn-n2",
+  "exit": 0
+ },
+ "driver_wall_s": 3.8,
+ "jobs_left_after_s": 46.1,
+ "workers_cpu": {
+  "n3-50-41611d": {
+   "tasks": 28,
+   "cpu_s": 0.7
+  },
+  "n1-80-b61593": {
+   "tasks": 29,
+   "cpu_s": 0.7
+  }
+ },
+ "restart": {
+  "host": "n2",
+  "exit": 0
+ }
+}

@@ -566,3 +566,8 @@ tools/wheel/smoke.py,62,a,-,-,-,0,-,-
 tools/wheel/test.py,307,a,-,-,-,0,-,-
 tools/wheel/test.sh,139,a,-,-,-,0,-,-
 tests/test_dd11.py,48,a,-,-,-,0,-,-
+python/rang/core_launch.py,536,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster/pbs_cluster.sh,115,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster/slurm_cluster.sh,107,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster_arms.py,302,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster_points.sh,51,a,-,-,-,0,-,-

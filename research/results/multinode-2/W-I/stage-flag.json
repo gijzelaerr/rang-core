@@ -1,0 +1,16 @@
+{
+ "stage": "flag",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 0,
+  "threads": null,
+  "nodes": 1,
+  "cpus": 1,
+  "mem_mb": 2000,
+  "mem_gb": null,
+  "data": [],
+  "event": null,
+  "ctl_mem_mb": 16000
+ },
+ "driver_wall_s": 924.08
+}
