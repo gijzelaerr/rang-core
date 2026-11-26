@@ -11,7 +11,7 @@ use rang_core::reweight::{self, Statistic};
 /// Write `var` (float64, `ngroup * nblock`; NaN where a block has fewer than
 /// `minsamp` valid samples) and `count` (uint64, the same shape): `values`
 /// float32 view of complex64 `(row, chan)`, `valid` uint8 `(row, chan)`,
-/// `group` uint32 per row; `statistic` "classic" (CASA statwt's) or "mad".
+/// `group` uint32 per row; `statistic` "classic" (CASA statwt's), "mad" or "clipped".
 #[pyfunction]
 #[pyo3(signature = (nchan, chanbin, ngroup, values, valid, group, statistic, minsamp, var, count))]
 #[allow(clippy::too_many_arguments)]
@@ -31,7 +31,12 @@ pub fn reweight_variances(
     let statistic = match statistic {
         "classic" => Statistic::Classic,
         "mad" => Statistic::Mad,
-        _ => return Err(PyValueError::new_err("statistic must be classic or mad")),
+        "clipped" => Statistic::Clipped,
+        _ => {
+            return Err(PyValueError::new_err(
+                "statistic must be classic, mad or clipped",
+            ));
+        }
     };
     let (values, valid, group) = (
         c_slice(&values, "values")?,

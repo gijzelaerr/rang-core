@@ -1,0 +1,134 @@
+{
+ "filled_blocks": {
+  "clean": {
+   "stokes_v-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-clipped": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-clipped": {
+    "pooled": 0,
+    "array": 0
+   }
+  },
+  "rfi": {
+   "stokes_v-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-clipped": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-clipped": {
+    "pooled": 0,
+    "array": 0
+   }
+  },
+  "rfi-low": {
+   "stokes_v-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-clipped": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-clipped": {
+    "pooled": 0,
+    "array": 0
+   }
+  },
+  "short": {
+   "stokes_v-classic": {
+    "pooled": 1920,
+    "array": 0
+   },
+   "stokes_v-mad": {
+    "pooled": 1920,
+    "array": 0
+   },
+   "stokes_v-clipped": {
+    "pooled": 1920,
+    "array": 0
+   },
+   "residual-classic": {
+    "pooled": 7680,
+    "array": 0
+   },
+   "residual-mad": {
+    "pooled": 7680,
+    "array": 0
+   },
+   "residual-clipped": {
+    "pooled": 7680,
+    "array": 0
+   }
+  },
+  "baseline-excess": {
+   "stokes_v-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "stokes_v-clipped": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-classic": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-mad": {
+    "pooled": 0,
+    "array": 0
+   },
+   "residual-clipped": {
+    "pooled": 0,
+    "array": 0
+   }
+  }
+ }
+}

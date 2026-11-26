@@ -9,6 +9,24 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- K with antennas cut off from the reference antenna (#60): no change needed. #53's `refantmode: flex`
+  (the default since 0.4.0) was verified through `rang-core run` and on E2-N's real flags that cut 19
+  antennas off m022: no K solution flagged, delays within 4.6e-4 ns (median) of CASA K at a refant that
+  reaches them, target flags unchanged; `strict` reproduces the 0.3.0 failure (19 antennas, 31 % of G,
+  Gsec and F) (`research/k-fallback-60.md`).
+- `apply.reweight` (off by default): a new statistic, `clipped`, an iteratively 3σ-clipped variance
+  with the exact truncation factor, now the stage's default (was `mad`). On simulations with known
+  noise it is as efficient as statwt's `classic` (e within 0.0017 of the block-ideal floor, `mad`
+  0.0045) and keeps its median ratio at 1.003 with 1 % of 100× outliers (`classic` 0.011, `mad`
+  0.96). Blocks short of `minsamp` are now filled from the same baseline pooled over the field's
+  scans, then from the scan's median over baselines (`fill: true`; `false` gives statwt's weight 0),
+  so short calibrator scans no longer get weight 0. **Behaviour change for a non-off mode:** `smooth`
+  now fills only the short blocks, as documented; it used to replace every block by the running
+  median, which flattened the channel shape of the weights. The stage now warns when unflagged cells
+  are left at weight 0. Measured on E2-N held out: thermal noise of natural weighting 1.7-3.6 %
+  lower than with the raw L0 weights, but 5 % worse at Briggs −0.5 on the target, because the scan
+  variance takes up slowly varying V on baselines under 150 m; the stage stays off by default
+  (#48, `research/weights-48.md`).
 - `calibrate.k_zero_start`: each K solution record in the calibrate summary now carries
   `zero_start_intervals` (the intervals taken from the zero start), and a field solved in chunks
   reports every chunk's intervals in the field's numbering, not the first chunk's only. K tables are

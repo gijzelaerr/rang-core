@@ -42,7 +42,7 @@ def test_classic_is_statwts_variance():
             assert abs(var[g, b] / want - 1) < 1e-12
 
 
-@pytest.mark.parametrize("statistic", ["classic", "mad"])
+@pytest.mark.parametrize("statistic", ["classic", "mad", "clipped"])
 def test_known_noise_is_recovered(statistic):
     rng = np.random.default_rng(7)
     nrow, nchan, ngroup = 4000, 32, 4
@@ -75,6 +75,7 @@ def test_regularise_fills_short_blocks():
     var = np.array([[1.0, np.nan, 3.0, np.nan, 5.0], [np.nan] * 5])
     out = reweight.regularise(var, 3)
     assert np.isfinite(out[0]).all() and np.isnan(out[1]).all()
+    assert out[0, 0] == 1.0 and out[0, 2] == 3.0 and out[0, 4] == 5.0  # kept (#48 R1)
     assert np.array_equal(reweight.regularise(var, 0), var, equal_nan=True)
 
 
@@ -149,3 +150,69 @@ def test_on_writes_the_applied_fields_weights_only(tmp_path, mode):
     assert (ws[cal] > 0).mean() > 0.5
     assert np.array_equal(wt[tgt], wt0[tgt])
     assert not np.array_equal(wt[cal], wt0[cal])
+
+
+# Issue #48 (research/weights-48.md): the clipped statistic and the fills.
+
+
+def test_clipped_resists_rfi_and_matches_classic_when_clean():
+    rng = np.random.default_rng(48)
+    v = rng.normal(size=(4000, 16)) + 1j * rng.normal(size=(4000, 16))
+    group = np.zeros(4000, np.uint32)
+    ok = np.ones(v.shape, bool)
+
+    def var(x, stat):
+        return reweight.block_variances(
+            x.astype(np.complex64), ok, group, 1, 16, stat, 1
+        )[0][0, 0]
+
+    clean_clip, clean_classic = var(v, "clipped"), var(v, "classic")
+    assert abs(clean_clip / clean_classic - 1) < 0.003
+    dirty = v.copy()
+    dirty[rng.uniform(size=v.shape) < 0.01] *= 100
+    assert abs(var(dirty, "clipped") / clean_clip - 1) < 0.01
+    assert var(dirty, "classic") > 10
+
+
+def test_fill_pools_over_scans_then_takes_the_array_median():
+    # groups: (field, scan, tblock, a, b); baseline 0-1 short in scan 1, fine in 2
+    keys = np.array([[0, 1, 0, 0, 1], [0, 1, 0, 0, 2], [0, 2, 0, 0, 1],
+                     [0, 2, 0, 0, 2], [0, 3, 0, 1, 2], [0, 3, 0, 0, 2]])  # fmt: skip
+    raw = np.array(
+        [[2.0, 9.0], [4.0, 4.0], [2.0, 9.0], [4.0, 4.0], [7.0, 7.0], [5.0, 5.0]]
+    )
+    count = np.array(
+        [[50, 50], [300, 300], [100, 300], [300, 300], [10, 10], [300, 300]]
+    )
+    var = np.where(count >= 200, raw, np.nan)
+    out, filled = reweight.fill(var, keys, raw, count, 200)
+    # 0-1 block 0: pooled count 150 < 200, so the scan's array median (4.0)
+    assert out[0, 0] == 4.0 and out[2, 0] == 4.0
+    # 0-1 block 1: pooled over scans 1 and 2, (50*9 + 300*9) / 350
+    assert out[0, 1] == 9.0 and out[2, 1] == 9.0
+    # 1-2 in scan 3: only baseline 1-2 there has nothing; the median of 0-2's
+    assert out[4, 0] == 5.0 and out[4, 1] == 5.0
+    assert filled == {"pooled": 1, "array": 4}
+    assert np.isfinite(out).all()
+
+
+@needs_writer
+def test_fill_leaves_no_unflagged_cell_at_weight_zero_on_short_scans(tmp_path):
+    ms = w2.make_ms(tmp_path / "x.ms", ncorr=4)
+    extra = (
+        "run: {stages: [flag, calibrate, apply]}\n"
+        "apply: {reweight: {mode: stokes_v, chanbin: 4, minsamp: 100000, smooth: 0}}\n"
+    )
+    config = w2.write_config(tmp_path, extra)
+    w2.cli("run", config, ms)
+    summary = _summary(ms)["reweight"]
+    # no block reaches minsamp, so every one is filled or left empty
+    assert summary["fill"] is True
+    assert summary["unflagged_cells_at_weight_0"] > 0  # nothing pools to 100000 either
+    assert any("apply.reweight" in w for w in _summary(ms)["warnings"])
+
+    ms2 = w2.make_ms(tmp_path / "y.ms", ncorr=4)
+    config2 = w2.write_config(tmp_path, extra.replace("100000", "4"))
+    w2.cli("run", config2, ms2)
+    s2 = _summary(ms2)["reweight"]
+    assert s2["unflagged_cells_at_weight_0"] == 0

@@ -9,7 +9,11 @@
 //! mean, `(var_re + var_im) / 2`, as CASA's `statwt` computes it
 //! (`StatWtVarianceAndWeightCalculator::computeVariance`, divisor N). `Classic` is
 //! statwt's estimator; `Mad` the Gaussian-scaled median absolute deviation,
-//! `(1.4826 MAD)^2`, robust to RFI residue.
+//! `(1.4826 MAD)^2`, robust to RFI residue; `Clipped` (issue #48,
+//! `research/weights-48.md`) an iteratively clipped variance of the complex
+//! samples with the exact truncation factor of a circular Gaussian: as efficient
+//! as `Classic` on Gaussian noise, and outliers above 3 sigma in amplitude
+//! removed whole.
 
 use rayon::prelude::*;
 
@@ -18,10 +22,83 @@ use rayon::prelude::*;
 pub enum Statistic {
     Classic,
     Mad,
+    Clipped,
 }
 
 /// MAD to standard deviation for Gaussian data.
 pub const MAD_SCALE: f64 = 1.4826;
+
+/// `Clipped`'s threshold on `u = |z - m|^2 / (2 v)`, which is Exp(1) for a
+/// circular complex Gaussian of per-part variance `v`: 9, 3 sigma in amplitude.
+pub const CLIP: f64 = 9.0;
+/// `Clipped`'s most passes.
+pub const CLIP_PASSES: usize = 20;
+
+/// `E[u | u <= c]` for `u ~ Exp(1)`: `1 - c e^-c / (1 - e^-c)`, the factor by
+/// which a mean of `u` over the kept samples underestimates 1.
+pub fn truncation_factor(c: f64) -> f64 {
+    let e = (-c).exp();
+    1.0 - c * e / (1.0 - e)
+}
+
+/// The clipped variance (per part) of the samples `(re, im)`: start from the
+/// per-part medians and the MAD variance; keep `u <= CLIP`; the centre is the
+/// kept samples' mean and the variance their mean `|z - m|^2 / 2` divided by
+/// `truncation_factor(CLIP)`; repeat until the kept set does not change (at
+/// most `CLIP_PASSES`). Falls back to `classic` when the MAD is 0 or fewer
+/// than two samples are kept.
+fn clipped(re: &mut [f64], im: &mut [f64]) -> f64 {
+    let n = re.len();
+    let (zr, zi): (Vec<f64>, Vec<f64>) = (re.to_vec(), im.to_vec());
+    let mut mr = median(&mut re.to_vec());
+    let mut mi = median(&mut im.to_vec());
+    let mut v = 0.5 * (mad(re) + mad(im));
+    if v.is_nan() || v <= 0.0 {
+        return 0.5 * (classic(&zr) + classic(&zi));
+    }
+    let k = truncation_factor(CLIP);
+    let mut keep = vec![false; n];
+    for pass in 0..CLIP_PASSES {
+        let limit = CLIP * 2.0 * v;
+        let mut changed = false;
+        let mut kept = 0usize;
+        for i in 0..n {
+            let (dr, di) = (zr[i] - mr, zi[i] - mi);
+            let k_i = dr * dr + di * di <= limit;
+            changed |= k_i != keep[i];
+            keep[i] = k_i;
+            kept += k_i as usize;
+        }
+        if kept < 2 {
+            return 0.5 * (classic(&zr) + classic(&zi));
+        }
+        if pass > 0 && !changed {
+            break;
+        }
+        let nk = kept as f64;
+        let (mut sr, mut si) = (0.0, 0.0);
+        for i in 0..n {
+            if keep[i] {
+                sr += zr[i];
+                si += zi[i];
+            }
+        }
+        mr = sr / nk;
+        mi = si / nk;
+        let mut ss = 0.0;
+        for i in 0..n {
+            if keep[i] {
+                let (dr, di) = (zr[i] - mr, zi[i] - mi);
+                ss += dr * dr + di * di;
+            }
+        }
+        v = ss / (2.0 * nk) / k;
+        if v.is_nan() || v <= 0.0 {
+            return 0.5 * (classic(&zr) + classic(&zi));
+        }
+    }
+    v
+}
 
 fn classic(x: &[f64]) -> f64 {
     let n = x.len() as f64;
@@ -54,6 +131,7 @@ pub fn block_variance(re: &mut [f64], im: &mut [f64], statistic: Statistic) -> O
     let (vr, vi) = match statistic {
         Statistic::Classic => (classic(re), classic(im)),
         Statistic::Mad => (mad(re), mad(im)),
+        Statistic::Clipped => return Some(clipped(re, im)),
     };
     Some(0.5 * (vr + vi))
 }
@@ -153,6 +231,63 @@ mod tests {
         im[7] = -1e6;
         let dirty = block_variance(&mut re, &mut im, Statistic::Mad).unwrap();
         assert!((dirty / clean - 1.0).abs() < 0.1, "{clean} {dirty}");
+    }
+
+    /// A deterministic standard normal stream (Box-Muller on an LCG).
+    fn normals(n: usize, seed: u64) -> Vec<f64> {
+        let mut x = seed;
+        let mut u = || {
+            x = x
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            ((x >> 11) as f64 + 0.5) / (1u64 << 53) as f64
+        };
+        (0..n)
+            .map(|_| (-2.0 * u().ln()).sqrt() * (2.0 * std::f64::consts::PI * u()).cos())
+            .collect()
+    }
+
+    #[test]
+    fn truncation_factor_matches_the_exponential_mean() {
+        // E[u | u <= 9] by quadrature of u e^-u on [0, 9], over P(u <= 9).
+        let (c, m) = (9.0f64, 200_000);
+        let h = c / m as f64;
+        let mut num = 0.0;
+        for i in 0..m {
+            let u = (i as f64 + 0.5) * h;
+            num += u * (-u).exp() * h;
+        }
+        let expected = num / (1.0 - (-c).exp());
+        assert!((truncation_factor(c) - expected).abs() < 1e-9);
+        assert!((truncation_factor(CLIP) - 0.998_890).abs() < 1e-6);
+    }
+
+    #[test]
+    fn clipped_is_unbiased_on_gaussian_noise_and_ignores_large_outliers() {
+        let n = 200_000;
+        let (mut re, mut im) = (normals(n, 1), normals(n, 2));
+        for v in re.iter_mut().chain(im.iter_mut()) {
+            *v *= 2.0; // per-part variance 4
+        }
+        let clean = block_variance(&mut re.clone(), &mut im.clone(), Statistic::Clipped).unwrap();
+        let classic = block_variance(&mut re.clone(), &mut im.clone(), Statistic::Classic).unwrap();
+        assert!((clean / 4.0 - 1.0).abs() < 0.01, "{clean}");
+        assert!((clean / classic - 1.0).abs() < 0.002, "{clean} {classic}");
+        for i in (0..n).step_by(100) {
+            re[i] = 200.0; // 1 % of samples at 100 sigma
+            im[i] = -200.0;
+        }
+        let dirty = block_variance(&mut re, &mut im, Statistic::Clipped).unwrap();
+        assert!((dirty / clean - 1.0).abs() < 0.002, "{clean} {dirty}");
+    }
+
+    #[test]
+    fn clipped_falls_back_to_classic_when_the_mad_is_zero() {
+        let mut re = vec![1.0, 1.0, 1.0, 5.0];
+        let mut im = vec![0.0; 4];
+        let v = block_variance(&mut re.clone(), &mut im.clone(), Statistic::Clipped).unwrap();
+        let c = block_variance(&mut re, &mut im, Statistic::Classic).unwrap();
+        assert_eq!(v.to_bits(), c.to_bits());
     }
 
     #[test]

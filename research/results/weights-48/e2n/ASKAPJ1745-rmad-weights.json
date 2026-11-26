@@ -1,0 +1,24 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/A/e2n.ms",
+ "field": "ASKAPJ1745",
+ "arm": "rmad",
+ "chanbin": 16,
+ "settings": {
+  "mode": "stokes_v",
+  "chanbin": 16,
+  "timebin": "scan",
+  "statistic": "mad",
+  "minsamp": 200,
+  "smooth": 5,
+  "fill": true
+ },
+ "filled_blocks": {
+  "pooled": 0,
+  "array": 0
+ },
+ "blocks_finite": 1.0,
+ "rows": 1596004,
+ "heldout_unflagged_cells": 1141001532,
+ "heldout_unflagged_cells_at_weight_0": 0,
+ "seconds": 1088.2223185480107
+}

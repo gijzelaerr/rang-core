@@ -17,7 +17,7 @@ core/py/src/gemclean_predict.rs,90,a,-,-,-,0,-,-
 core/py/src/learned.rs,76,a,-,-,-,0,-,-
 core/py/src/lib.rs,3051,a,-,-,-,0,-,-
 core/py/src/lightcurve.rs,68,a,-,-,-,0,-,-
-core/py/src/reweight.rs,57,a,-,-,-,0,-,-
+core/py/src/reweight.rs,62,a,-,-,-,0,-,-
 core/src/aipsio.rs,815,c-src,casacore,LGPL-2.0-or-later,"AipsIO.cc, TypeIO.cc, RecordDesc.cc, RecordRep.cc",0,AipsIO and record format reader (format),-
 core/src/bin/gemclean.rs,26,a,-,-,-,0,-,-
 core/src/bin/gram_solver_bench.rs,904,a,-,-,-,0,-,-
@@ -101,7 +101,7 @@ core/src/ms_write.rs,6610,b-copyleft,casacore,LGPL-2.0-or-later,"casacore 3.8.1 
 core/src/multifile.rs,796,b-copyleft,casacore,LGPL-2.0-or-later,"casacore MultiFile, MultiFileBase",600,MultiFile container,-
 core/src/predict.rs,260,b-permissive,codex-africanus,BSD-3-Clause,"0.4.4 rime/wsclean_predict.py, model/wsclean/spec_model.py",180,wsclean_predict and spectral model,-
 core/src/prox_solver.rs,1509,a,-,-,-,0,-,-
-core/src/reweight.rs,200,c-src,CASA,LGPL-2.0-or-later (casa6),"casa6 master StatWtVarianceAndWeightCalculator::computeVariance, read 2026-11-21 (apply-reweight.md 2); the same rules are in casadocs' statwt page ((v_r + v_i)/2, divisor N, weight 1/v)",0,"block_variance classic (statwt estimator; restate from casadocs, about 0 lines)",-
+core/src/reweight.rs,335,c-src,CASA,LGPL-2.0-or-later (casa6),"casa6 master StatWtVarianceAndWeightCalculator::computeVariance, read 2026-11-21 (apply-reweight.md 2); the same rules are in casadocs' statwt page ((v_r + v_i)/2, divisor N, weight 1/v)",0,"block_variance classic (statwt estimator; restate from casadocs, about 0 lines)",-
 core/src/robust.rs,52,a,-,-,-,0,-,-
 core/src/sara.rs,493,a,-,-,-,0,-,-
 core/src/solve.rs,2431,b-permissive,QuartiCal,MIT,QuartiCal 0.2.7 complex kernel and flagging,2000,QuartiCal complex kernel and flagging,-
@@ -143,7 +143,7 @@ python/rang/core_clean.py,170,a,-,-,-,0,-,-
 python/rang/core_cli.py,1857,a,-,-,-,0,-,-
 python/rang/core_closure.py,441,a,-,-,-,0,-,-
 python/rang/core_compare.py,1662,a,-,-,-,0,-,-
-python/rang/core_config.py,2345,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 selfcal_worker image(), schema defaults",60,CARACal selfcal image() and schema defaults,-
+python/rang/core_config.py,2371,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 selfcal_worker image(), schema defaults",60,CARACal selfcal image() and schema defaults,-
 python/rang/core_controls.py,54,a,-,-,-,0,-,-
 python/rang/core_fetch.py,583,a,-,-,-,0,-,-
 python/rang/core_flag.py,359,b-permissive,Tricolour,BSD-3-Clause,"Tricolour 0.2.1 defaults, load_mask (SPDX line GPL only)",45,Tricolour defaults and load_mask,-
@@ -160,7 +160,7 @@ python/rang/core_ms.py,135,a,-,-,-,0,-,-
 python/rang/core_ms_write.py,892,a,-,-,-,0,-,-
 python/rang/core_patches.py,195,a,-,-,-,0,-,-
 python/rang/core_paths.py,22,a,-,-,-,0,-,-
-python/rang/core_pipeline.py,3352,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 crosscal, polcal and selfcal worker recipe",310,"CARACal crosscal, polcal and selfcal recipe",-
+python/rang/core_pipeline.py,3360,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 crosscal, polcal and selfcal worker recipe",310,"CARACal crosscal, polcal and selfcal recipe",-
 python/rang/core_policy.py,236,a,-,-,-,0,-,-
 python/rang/core_proposals.py,279,a,-,-,-,0,-,-
 python/rang/core_prospective.py,255,a,-,-,-,0,-,-
@@ -232,7 +232,7 @@ python/rang/oracles/casacure.py,166,a,-,-,-,0,-,-
 python/rang/pointing.py,722,a,-,-,-,0,-,-
 python/rang/pointing_selfcal.py,1755,a,-,-,-,0,-,-
 python/rang/projector.py,153,a,-,-,-,0,-,-
-python/rang/reweight.py,291,c-src,CASA,LGPL-2.0-or-later (casa6),"casa6 master StatWtTVI::weight, read 2026-11-21; WEIGHT changed from a mean to the median after reading it (apply-reweight.md 7); casadocs statwt states the same median rule",0,"WEIGHT from WEIGHT_SPECTRUM (statwt's median; restate from casadocs, about 0 lines)",-
+python/rang/reweight.py,397,c-src,CASA,LGPL-2.0-or-later (casa6),"casa6 master StatWtTVI::weight, read 2026-11-21; WEIGHT changed from a mean to the median after reading it (apply-reweight.md 7); casadocs statwt states the same median rule",0,"WEIGHT from WEIGHT_SPECTRUM (statwt's median; restate from casadocs, about 0 lines)",-
 python/rang/rusage.py,76,a,-,-,-,0,-,-
 python/rang/simtruth.py,1175,a,-,-,-,0,-,-
 python/rang/simtruth_ms.py,600,a,-,-,-,0,-,-
