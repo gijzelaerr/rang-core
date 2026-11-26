@@ -1,0 +1,317 @@
+{
+ "ms": "/home/gijs/rang-data/uhf-s/ms/1726220298.ms",
+ "token_check": {
+  "subtables": [
+   "ANTENNA",
+   "DATA_DESCRIPTION",
+   "FEED",
+   "FLAG_CMD",
+   "FIELD",
+   "HISTORY",
+   "OBSERVATION",
+   "POINTING",
+   "POLARIZATION",
+   "PROCESSOR",
+   "SPECTRAL_WINDOW",
+   "STATE",
+   "SOURCE"
+  ],
+  "hits": []
+ },
+ "columns_before": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM",
+  "SIGMA_SPECTRUM"
+ ],
+ "columns": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM"
+ ],
+ "fields": [
+  "J0408-6545",
+  "J1331+3030",
+  "J1605-1734",
+  "HD142184",
+  "J1939-6342"
+ ],
+ "rows": 2083290,
+ "scans": [
+  {
+   "scan": 1,
+   "field": [
+    "J0408-6545"
+   ],
+   "rows": 134520,
+   "dumps": 76,
+   "time_first": 5232937184.828062,
+   "time_last": 5232937783.904234
+  },
+  {
+   "scan": 2,
+   "field": [
+    "J1331+3030"
+   ],
+   "rows": 65490,
+   "dumps": 37,
+   "time_first": 5232937903.719436,
+   "time_last": 5232938191.275993
+  },
+  {
+   "scan": 3,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232938247.189752,
+   "time_last": 5232938359.017308
+  },
+  {
+   "scan": 4,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232940204.171814,
+   "time_last": 5232940308.011685
+  },
+  {
+   "scan": 5,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232942153.166231,
+   "time_last": 5232942264.993748
+  },
+  {
+   "scan": 6,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232944110.148254,
+   "time_last": 5232944213.988125
+  },
+  {
+   "scan": 7,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232946059.142672,
+   "time_last": 5232946170.970188
+  },
+  {
+   "scan": 8,
+   "field": [
+    "HD142184"
+   ],
+   "rows": 398250,
+   "dumps": 225,
+   "time_first": 5232946194.933245,
+   "time_last": 5232947984.173992
+  },
+  {
+   "scan": 9,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232948016.124694,
+   "time_last": 5232948119.964565
+  },
+  {
+   "scan": 10,
+   "field": [
+    "HD142184"
+   ],
+   "rows": 398250,
+   "dumps": 225,
+   "time_first": 5232948151.915307,
+   "time_last": 5232949941.156055
+  },
+  {
+   "scan": 11,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232949965.119112,
+   "time_last": 5232950076.946629
+  },
+  {
+   "scan": 12,
+   "field": [
+    "J1331+3030"
+   ],
+   "rows": 65490,
+   "dumps": 37,
+   "time_first": 5232950140.848112,
+   "time_last": 5232950428.404629
+  },
+  {
+   "scan": 13,
+   "field": [
+    "J1939-6342"
+   ],
+   "rows": 130980,
+   "dumps": 74,
+   "time_first": 5232950532.2445,
+   "time_last": 5232951115.345301
+  },
+  {
+   "scan": 14,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232951179.246744,
+   "time_last": 5232951291.074302
+  },
+  {
+   "scan": 15,
+   "field": [
+    "HD142184"
+   ],
+   "rows": 396480,
+   "dumps": 224,
+   "time_first": 5232951323.025003,
+   "time_last": 5232953104.278066
+  },
+  {
+   "scan": 16,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232953136.228807,
+   "time_last": 5232953248.056364
+  },
+  {
+   "scan": 17,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232955093.21087,
+   "time_last": 5232955197.050741
+  },
+  {
+   "scan": 18,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232957050.192933,
+   "time_last": 5232957154.0328045
+  },
+  {
+   "scan": 19,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232959015.162681,
+   "time_last": 5232959126.990197
+  },
+  {
+   "scan": 20,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 26550,
+   "dumps": 15,
+   "time_first": 5232960980.132389,
+   "time_last": 5232961091.959946
+  },
+  {
+   "scan": 21,
+   "field": [
+    "J1605-1734"
+   ],
+   "rows": 24780,
+   "dumps": 14,
+   "time_first": 5232962945.102138,
+   "time_last": 5232963048.942009
+  },
+  {
+   "scan": 22,
+   "field": [
+    "J1939-6342"
+   ],
+   "rows": 132750,
+   "dumps": 75,
+   "time_first": 5232963184.732622,
+   "time_last": 5232963775.821068
+  }
+ ],
+ "receptor_angle": [
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ],
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ]
+ ],
+ "chan_freq_first_last": [
+  544000000.0,
+  1087867187.5
+ ],
+ "seconds": 682.8953656428494
+}

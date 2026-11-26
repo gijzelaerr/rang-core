@@ -2613,3 +2613,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | uhf-s-fetch: `uhfs_prep_ms.py` on 1752418159 (host nash, 1 slot shared) | 1,437,408 rows | 183 s | 0.29 GB | token check, SIGMA_SPECTRUM removed, FLAG hashes |
 | 2026-11-26 | uhf-s-fetch: `sha256sum` of every file of 1752418159.ms (host nash, 1 slot shared, ionice idle) | 288.7 GB, 77 files | 1,988 s | – | 145 MB/s |
 | 2026-11-26 | uhf-s-fetch: DATA-state probe on 1752418159 (host nash, 1 slot shared) | 3 fields × 800 rows × 32 ch | 1 s | – | native, unphased (coherence 0.013) |
+| 2026-11-26 | uhf-s-fetch: fetch of 1726220298's selection and reserve (host nash, 1 slot shared, 6 workers, 40 MB/s cap) | 35,912 chunks, 24 scans | 12,221 s (488.5 GB, 39.97 MB/s) | – | at the cap; 24 flag chunks lost, confirmed |
+| 2026-11-26 | uhf-s-fetch: `mvftoms.py -f -a` of 1726220298's selection (host nash, 4 slots shared) | 22 scans, 4,096 ch, 60 antennas | 3,737 s | 7.3 GB | 102 % CPU; MS 418.4 GB, 2,083,290 rows |
+| 2026-11-26 | uhf-s-fetch: prep and `sha256sum` of 1726220298.ms (host nash, 1 slot shared each) | 418.4 GB, 77 files | 683 s; 2,276 s | 0.31 GB | |

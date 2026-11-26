@@ -312,11 +312,38 @@ Receipts in [results/uhf-s-fetch/1752418159/](results/uhf-s-fetch/1752418159/).
   their real size. This is the question e2n-native.md amendment 3 moved to "a
   later leg on another capture block". Every gate is read as frozen.
 
+## 4.2 Held-out block 1726220298: fetched, converted, hashed; not read (2026-11-26)
+
+Receipts are in [results/uhf-s-fetch/1726220298/](results/uhf-s-fetch/1726220298/).
+**No visibility, flag or weight of H was read.** The steps below read
+metadata and hashes only, and section 8's DATA-state probe is D's alone.
+
+- **Fetch** (the selection plus the reserve: 24 katdal scans): 35,912 chunks
+  (32,656 in `sdp-l0`, 3,256 in `sdp-l1-flags`). The first pass took
+  12,221 s for 488.5 GB, 39.97 MB/s (the cap). **24 flag chunks were lost**
+  (HTTP 404); two later passes found the same 24, and `fetch.done` was written
+  at 17:29 UTC. RDB SHA-256 `7e070672…fc74`. The chunk manifest SHA-256 is
+  `bc88e24c…7ec6` (on nash).
+- **Conversion** (`--scans 0,2,4,8,12,16,20,22,24,26,28,30,32,34,36,38,42,46,50,54,58,60`,
+  without the reserve): rc 0 in 3,737 s, 7.3 GB peak, 102 % CPU. Prep took
+  683 s; no token anywhere; SIGMA_SPECTRUM removed.
+- **The MS** `~/rang-data/uhf-s/ms/1726220298.ms`: 418,403,354,393 B, 2,083,290
+  rows, 4,096 × 4. Fields: J0408-6545, J1331+3030, J1605-1734, HD142184,
+  J1939-6342. Its 22 MS scans map to the katdal list in order, as predicted:
+  MS 1 is 0408-65; 2 and 12 are 3C 286; 13 and 22 are 1934-638; 8, 10 and 15 are
+  HD142184 (katdal 22, 26, 36); the rest are J1605-1734.
+- **Hashes.** FLAG `14181651…2a71`, FLAG_ROW `bcb6b669…a216`; the 77 files in
+  [ms-sha256.txt](results/uhf-s-fetch/1726220298/ms-sha256.txt) (its SHA-256 is
+  `9424212d…dfd2`; 2,276 s).
+- **Smoke 8.1:** `config check` against the MS (rang-core 0.4.0):
+  `uhf-heldout.yaml` is valid for all five stages, `uhf-heldout-3c.yaml` for
+  image.
+
 ## For the coordinator
 
 - **Since amendment 2:** development block 1752418159 is fetched, converted
-  and hashed (section 4.1): native, unphased. H 1726220298 is fetching, then
-  the two S blocks. Calibration waits for the frozen code (uhf-gate.md
+  and hashed (section 4.1): native, unphased. H 1726220298 is fetched, converted
+  and hashed, not read (4.2); the two S blocks are fetching. Calibration waits for the frozen code (uhf-gate.md
   section 4: a main merge carrying the protocol).
 - **First four blocks: fetched nothing.** All four blocks pass the frozen rule, but their chunks
   are not on the archive's object store (0 objects listed; the control lists
