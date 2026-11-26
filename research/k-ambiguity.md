@@ -180,6 +180,34 @@ intervals change sides (one-call [3, 7, 11, 16, 17, 18], chunked [7, 9, 11, 16, 
 K was one chunk, so it is not affected; a fix (trace both runs, or replay the zero run's own stop)
 belongs with any decision to make the key a default.
 
+## 9. Every antenna of every DL4s block, E2-A and E2-N (2026-11-26, coordinator's request after the merge)
+
+Asked: is m054 one antenna or a pattern? `ka_scan.py` (read only; nash: the 220 dl2 per-scan MSs
+of the nine DL4s blocks and E2-N's `e2n.ms`; glacier: E2-A's `e2a.ms`) takes every row, per
+parallel hand, through section 7's step (circular mean of angle(V[k+1] V[k]*) over unflagged
+pairs, at least 8) on channels 1,792-2,303 (512 mid-band channels; 11 MSs read before that change
+used the full band). Per (scan, antenna) it counts usable and flipped (|step| > π/2) rows and sums
+the rows' unit steps (angle; coherence = |sum| / pairs). A **hit**: more than half the antenna's
+rows flipped in both hands and the summed angle beyond π/2. Validated first on 1678312253 scan 60:
+m054 alone, 2,072 / 2,072 rows, angle 3.140 / 3.141 rad, coherence 0.99; every other antenna at
+most 3.6 % (its baseline to m054). After 158 MSs, MSs with more than 200,000 rows were read in 200
+evenly spaced 1,000-row chunks (`chunks_read` in each output); a step lasting a scan shows in any
+sample. Wall: nash 12,351 s (two runners, three workers each, shared with other jobs); glacier
+4,200 s for E2-A with its lock wait. Outputs: [scan/](results/k-ambiguity/scan/) (per-MS JSON,
+`summary.json`).
+
+| Block | Antenna | Scans | min fraction flipped | min coherence | Reading |
+| --- | --- | --- | ---: | ---: | --- |
+| 1678312253 | m054 | 50, 54, 58, 60, 62, 66, 70, 74 (every scan from 50; 32-46 clean) | 1.00 | 0.86 | **sign flip** |
+| 1629213076 | m044, m045, m050, m059, m061, m063 | 54, 56, 58 (MSGPS target fields) | 0.50-0.63 | 0.02-0.11 | noise: half the rows by chance, no coherent step |
+
+No hit in 1571938260 (46 MSs, 59 antennas), 1573212012 (32), 1579022459 (31), 1611426666 (17),
+1674958551 (22), 1735892129 (11), 1749428161 (14), E2-A (61 antennas, 3 scans; largest non-hit
+fraction 0.18 %) or E2-N (62 antennas, 14 scans; 6.5 %). Largest non-hit fraction in any MS 0.45
+(target scans). So the π step is **one antenna in one block** of eleven observations, from one
+time onwards, both hands, every baseline: a single event, not a pattern of the telescope or of
+the conversion.
+
 ## For the coordinator
 
 - Cause found, **not a rang solver defect**: m054 (index 25) in block 1678312253 carries
@@ -194,4 +222,4 @@ belongs with any decision to make the key a default.
   E2-A and 1678312253 outcomes unchanged by construction, not re-run). No CASA K run.
 - Not fixed: with the key on, a chunked K is not bitwise the one-call K (3e-6 ns; the zero run's
   stop is not replayed); matters only if the key becomes a default (section 8).
-- Open: whether the same step appears in other blocks; `ka_raw.py` takes seconds per MS.
+- Section 9: the step is m054 in 1678312253 only, across the nine DL4s blocks, E2-A and E2-N.
