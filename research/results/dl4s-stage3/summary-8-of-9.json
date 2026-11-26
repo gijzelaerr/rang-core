@@ -1,0 +1,3758 @@
+{
+ "blocks": {
+  "1573212012": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 11,
+      "uncaught": 11,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "B": {
+      "outliers": 671,
+      "uncaught": 0,
+      "solutions": 2801664,
+      "flagged": 848524,
+      "no_median": 780216,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 2508,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 22
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 3192,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6,
+       "1": 22
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 6,
+      "block_terms": [
+       "1573212012:K"
+      ]
+     },
+     "significant": {
+      "events": 6,
+      "block_terms": [
+       "1573212012:K"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 11,
+      "uncaught": 11,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "G": {
+      "outliers": 198,
+      "uncaught": 198,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "B": {
+      "outliers": 677,
+      "uncaught": 0,
+      "solutions": 2801664,
+      "flagged": 848524,
+      "no_median": 780216,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "Gsec": {
+      "outliers": 977,
+      "uncaught": 977,
+      "solutions": 2508,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 22
+      }
+     },
+     "F": {
+      "outliers": 1175,
+      "uncaught": 1175,
+      "solutions": 3192,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6,
+       "1": 22
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 538,
+      "block_terms": [
+       "1573212012:F",
+       "1573212012:G",
+       "1573212012:Gsec",
+       "1573212012:K"
+      ]
+     },
+     "significant": {
+      "events": 537,
+      "block_terms": [
+       "1573212012:F",
+       "1573212012:G",
+       "1573212012:Gsec",
+       "1573212012:K"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 11,
+      "uncaught": 11,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "B": {
+      "outliers": 671,
+      "uncaught": 0,
+      "solutions": 2801664,
+      "flagged": 848524,
+      "no_median": 780216,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 2508,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 22
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 3192,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6,
+       "1": 22
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 6,
+      "block_terms": [
+       "1573212012:K"
+      ]
+     },
+     "significant": {
+      "events": 6,
+      "block_terms": [
+       "1573212012:K"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 11,
+      "uncaught": 11,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "G": {
+      "outliers": 198,
+      "uncaught": 198,
+      "solutions": 684,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "B": {
+      "outliers": 677,
+      "uncaught": 0,
+      "solutions": 2801664,
+      "flagged": 848524,
+      "no_median": 780216,
+      "intervals_per_field": {
+       "0": 6
+      }
+     },
+     "Gsec": {
+      "outliers": 977,
+      "uncaught": 977,
+      "solutions": 2508,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 22
+      }
+     },
+     "F": {
+      "outliers": 1175,
+      "uncaught": 1175,
+      "solutions": 3192,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 6,
+       "1": 22
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 538,
+      "block_terms": [
+       "1573212012:F",
+       "1573212012:G",
+       "1573212012:Gsec",
+       "1573212012:K"
+      ]
+     },
+     "significant": {
+      "events": 537,
+      "block_terms": [
+       "1573212012:F",
+       "1573212012:G",
+       "1573212012:Gsec",
+       "1573212012:K"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [
+     {
+      "field": 0,
+      "antenna": 43,
+      "interval": 0,
+      "scan": 4,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10501675307750702,
+      "value": "-0.004339502",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 43,
+      "interval": 0,
+      "scan": 4,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10437851399183273,
+      "value": "0.09320529",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 51,
+      "interval": 0,
+      "scan": 4,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11156895756721497,
+      "value": "-0.10187802",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 51,
+      "interval": 0,
+      "scan": 4,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11292050778865814,
+      "value": "-0.179901",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 0,
+      "scan": 4,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.13472522795200348,
+      "value": "-0.1772311",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 0,
+      "scan": 4,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.1409146785736084,
+      "value": "-0.25533792",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 53,
+      "interval": 0,
+      "scan": 4,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.14398077130317688,
+      "value": "-0.1784255",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 53,
+      "interval": 0,
+      "scan": 4,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.1442708671092987,
+      "value": "-0.23310688",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 51,
+      "interval": 1,
+      "scan": 50,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10091066360473633,
+      "value": "-0.16789116",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 1,
+      "scan": 50,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10519681870937347,
+      "value": "-0.1477027",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 1,
+      "scan": 50,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.1096385046839714,
+      "value": "-0.22406176",
+      "significant_5sigma": true
+     }
+    ],
+    "G": [],
+    "B": [],
+    "Gsec": [],
+    "F": []
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1579022459": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "B": {
+      "outliers": 580,
+      "uncaught": 42,
+      "solutions": 2375680,
+      "flagged": 716340,
+      "no_median": 669670,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "Gsec": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 2320,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 20
+      }
+     },
+     "F": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 2900,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5,
+       "1": 20
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 31,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 21,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:Gsec"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "G": {
+      "outliers": 84,
+      "uncaught": 84,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "B": {
+      "outliers": 580,
+      "uncaught": 44,
+      "solutions": 2375680,
+      "flagged": 716340,
+      "no_median": 669670,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "Gsec": {
+      "outliers": 680,
+      "uncaught": 680,
+      "solutions": 2320,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 20
+      }
+     },
+     "F": {
+      "outliers": 762,
+      "uncaught": 762,
+      "solutions": 2900,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5,
+       "1": 20
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 420,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:G",
+       "1579022459:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 408,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:G",
+       "1579022459:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "B": {
+      "outliers": 580,
+      "uncaught": 42,
+      "solutions": 2375680,
+      "flagged": 716340,
+      "no_median": 669670,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "Gsec": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 2320,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 20
+      }
+     },
+     "F": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 2900,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5,
+       "1": 20
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 31,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 21,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:Gsec"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "G": {
+      "outliers": 84,
+      "uncaught": 84,
+      "solutions": 580,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "B": {
+      "outliers": 580,
+      "uncaught": 44,
+      "solutions": 2375680,
+      "flagged": 716340,
+      "no_median": 669670,
+      "intervals_per_field": {
+       "0": 5
+      }
+     },
+     "Gsec": {
+      "outliers": 680,
+      "uncaught": 680,
+      "solutions": 2320,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 20
+      }
+     },
+     "F": {
+      "outliers": 762,
+      "uncaught": 762,
+      "solutions": 2900,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 5,
+       "1": 20
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 420,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:G",
+       "1579022459:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 408,
+      "block_terms": [
+       "1579022459:B",
+       "1579022459:G",
+       "1579022459:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [
+     {
+      "field": 0,
+      "antenna": 28,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 196,
+      "uncaught_channels": 2,
+      "max_dev": 0.13797251880168915,
+      "value": "(0.99052095+0.041980945j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 38,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 123,
+      "uncaught_channels": 2,
+      "max_dev": 0.16757628321647644,
+      "value": "(0.952597-0.03864161j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 38,
+      "interval": 0,
+      "scan": 2,
+      "pol": 1,
+      "channels": 125,
+      "uncaught_channels": 1,
+      "max_dev": 0.10573948174715042,
+      "value": "(1.0865871+0.018331857j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 40,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 115,
+      "uncaught_channels": 1,
+      "max_dev": 0.11136037111282349,
+      "value": "(1.1295894+6.026157e-05j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 42,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 163,
+      "uncaught_channels": 1,
+      "max_dev": 0.10617830604314804,
+      "value": "(0.8627837-0.03286516j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 204,
+      "uncaught_channels": 1,
+      "max_dev": 0.10182272642850876,
+      "value": "(1.2980379+0.11926972j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 46,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 150,
+      "uncaught_channels": 3,
+      "max_dev": 0.15051685273647308,
+      "value": "(0.82455-0.07074093j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 0,
+      "scan": 2,
+      "pol": 0,
+      "channels": 270,
+      "uncaught_channels": 8,
+      "max_dev": 0.10998375713825226,
+      "value": "(1.1426778-0.06027508j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 52,
+      "interval": 0,
+      "scan": 2,
+      "pol": 1,
+      "channels": 368,
+      "uncaught_channels": 106,
+      "max_dev": 0.1091039627790451,
+      "value": "(1.1824338-0.06557432j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 42,
+      "interval": 1,
+      "scan": 72,
+      "pol": 0,
+      "channels": 93,
+      "uncaught_channels": 1,
+      "max_dev": 0.10617830604314804,
+      "value": "(1.0680115-0.0336201j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 1,
+      "scan": 72,
+      "pol": 0,
+      "channels": 81,
+      "uncaught_channels": 1,
+      "max_dev": 0.10558164119720459,
+      "value": "(1.1868938+0.0050804475j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 1,
+      "scan": 72,
+      "pol": 1,
+      "channels": 88,
+      "uncaught_channels": 1,
+      "max_dev": 0.1074439138174057,
+      "value": "(1.1523086-0.03991854j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 46,
+      "interval": 1,
+      "scan": 72,
+      "pol": 0,
+      "channels": 63,
+      "uncaught_channels": 2,
+      "max_dev": 0.15051685273647308,
+      "value": "(1.1205034-0.027882224j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 46,
+      "interval": 1,
+      "scan": 72,
+      "pol": 1,
+      "channels": 61,
+      "uncaught_channels": 1,
+      "max_dev": 0.10514072328805923,
+      "value": "(1.1189313+0.018172624j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 49,
+      "interval": 1,
+      "scan": 72,
+      "pol": 0,
+      "channels": 54,
+      "uncaught_channels": 10,
+      "max_dev": 0.15249517560005188,
+      "value": "(1.0554672+0.0071246778j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 50,
+      "interval": 1,
+      "scan": 72,
+      "pol": 0,
+      "channels": 58,
+      "uncaught_channels": 15,
+      "max_dev": 0.14112067222595215,
+      "value": "(1.0914766+0.019145245j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 50,
+      "interval": 1,
+      "scan": 72,
+      "pol": 1,
+      "channels": 62,
+      "uncaught_channels": 8,
+      "max_dev": 0.14767780900001526,
+      "value": "(1.1246343-0.01217793j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 50,
+      "interval": 2,
+      "scan": 142,
+      "pol": 0,
+      "channels": 48,
+      "uncaught_channels": 1,
+      "max_dev": 0.11696265637874603,
+      "value": "(1.0490255-0.010199336j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 0,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 162,
+      "uncaught_channels": 92,
+      "max_dev": 0.12243126332759857,
+      "value": "(0.7419642+0.24375287j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 4,
+      "interval": 3,
+      "scan": 190,
+      "pol": 1,
+      "channels": 129,
+      "uncaught_channels": 1,
+      "max_dev": 0.15446807444095612,
+      "value": "(0.9818568+0.00536758j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 20,
+      "interval": 3,
+      "scan": 190,
+      "pol": 1,
+      "channels": 128,
+      "uncaught_channels": 1,
+      "max_dev": 0.13496503233909607,
+      "value": "(1.041166+0.01756036j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 26,
+      "interval": 3,
+      "scan": 190,
+      "pol": 1,
+      "channels": 56,
+      "uncaught_channels": 1,
+      "max_dev": 0.19818052649497986,
+      "value": "(0.87037516+0.0488908j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 40,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 98,
+      "uncaught_channels": 3,
+      "max_dev": 0.12284527719020844,
+      "value": "(0.9688515+0.03746483j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 44,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 125,
+      "uncaught_channels": 2,
+      "max_dev": 0.10916129499673843,
+      "value": "(1.0558167-0.015937682j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 88,
+      "uncaught_channels": 1,
+      "max_dev": 0.159520223736763,
+      "value": "(0.97925836-0.019855736j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 46,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 57,
+      "uncaught_channels": 1,
+      "max_dev": 0.17509792745113373,
+      "value": "(0.9672436-0.02439008j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 49,
+      "interval": 3,
+      "scan": 190,
+      "pol": 0,
+      "channels": 79,
+      "uncaught_channels": 3,
+      "max_dev": 0.13550108671188354,
+      "value": "(0.92893636-0.026593383j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 49,
+      "interval": 3,
+      "scan": 190,
+      "pol": 1,
+      "channels": 86,
+      "uncaught_channels": 2,
+      "max_dev": 0.11603381484746933,
+      "value": "(1.0139985-0.016690956j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 0,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 217,
+      "uncaught_channels": 137,
+      "max_dev": 0.12740963697433472,
+      "value": "(0.7525952+0.22963448j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 15,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 52,
+      "uncaught_channels": 1,
+      "max_dev": 0.10793883353471756,
+      "value": "(0.9356677+0.022004366j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 33,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 91,
+      "uncaught_channels": 3,
+      "max_dev": 0.1213051974773407,
+      "value": "(0.98730713-0.04082717j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 33,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 106,
+      "uncaught_channels": 2,
+      "max_dev": 0.1035180538892746,
+      "value": "(1.0676016+0.0070551243j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 43,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 85,
+      "uncaught_channels": 22,
+      "max_dev": 0.16410183906555176,
+      "value": "(1.4479443-0.049778495j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 43,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 85,
+      "uncaught_channels": 19,
+      "max_dev": 0.1523793488740921,
+      "value": "(1.4005579+0.049142227j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 154,
+      "uncaught_channels": 4,
+      "max_dev": 0.14047297835350037,
+      "value": "(1.016811-0.009893163j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 45,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 132,
+      "uncaught_channels": 3,
+      "max_dev": 0.17550581693649292,
+      "value": "(0.94401926-0.055236828j)",
+      "significant_5sigma": false
+     },
+     {
+      "field": 0,
+      "antenna": 50,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 135,
+      "uncaught_channels": 17,
+      "max_dev": 0.19037947058677673,
+      "value": "(0.7703557-0.027630039j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 50,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 175,
+      "uncaught_channels": 26,
+      "max_dev": 0.3744316101074219,
+      "value": "(0.6614714+0.020736028j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 53,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 210,
+      "uncaught_channels": 17,
+      "max_dev": 0.1817663311958313,
+      "value": "(0.98775977-0.014710415j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 53,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 236,
+      "uncaught_channels": 14,
+      "max_dev": 0.16274312138557434,
+      "value": "(0.9563386+0.045788422j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 57,
+      "interval": 4,
+      "scan": 236,
+      "pol": 0,
+      "channels": 214,
+      "uncaught_channels": 23,
+      "max_dev": 0.13149338960647583,
+      "value": "(1.1548262-0.05728741j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 57,
+      "interval": 4,
+      "scan": 236,
+      "pol": 1,
+      "channels": 212,
+      "uncaught_channels": 21,
+      "max_dev": 0.12886942923069,
+      "value": "(1.0439137+0.042267058j)",
+      "significant_5sigma": false
+     }
+    ],
+    "Gsec": [
+     {
+      "field": 1,
+      "antenna": 28,
+      "interval": 6,
+      "scan": 76,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10193922370672226,
+      "value": "(0.08048911+0.74213445j)",
+      "significant_5sigma": true
+     }
+    ],
+    "F": [
+     {
+      "field": 1,
+      "antenna": 28,
+      "interval": 6,
+      "scan": 76,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10268183797597885,
+      "value": "(0.2578103+2.387359j)",
+      "significant_5sigma": true
+     }
+    ]
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1611426666": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 524288,
+      "flagged": 171024,
+      "no_median": 524288,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 768,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 896,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 524288,
+      "flagged": 171024,
+      "no_median": 524288,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 274,
+      "uncaught": 274,
+      "solutions": 768,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 274,
+      "uncaught": 274,
+      "solutions": 896,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 142,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 142,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 524288,
+      "flagged": 171024,
+      "no_median": 524288,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 768,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 1,
+      "uncaught": 1,
+      "solutions": 896,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 128,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 524288,
+      "flagged": 171024,
+      "no_median": 524288,
+      "intervals_per_field": {
+       "0": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 274,
+      "uncaught": 274,
+      "solutions": 768,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 274,
+      "uncaught": 274,
+      "solutions": 896,
+      "flagged": 0,
+      "no_median": 128,
+      "intervals_per_field": {
+       "0": 1,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 142,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 142,
+      "block_terms": [
+       "1611426666:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [],
+    "Gsec": [
+     {
+      "field": 1,
+      "antenna": 0,
+      "interval": 0,
+      "scan": 5,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10712780803442001,
+      "value": "(-1.1217248-0.10763331j)",
+      "significant_5sigma": true
+     }
+    ],
+    "F": [
+     {
+      "field": 1,
+      "antenna": 0,
+      "interval": 0,
+      "scan": 5,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10691776126623154,
+      "value": "(-2.8766994-0.2757438j)",
+      "significant_5sigma": true
+     }
+    ]
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1629213076": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 296,
+      "uncaught": 1,
+      "solutions": 1376256,
+      "flagged": 469860,
+      "no_median": 478338,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 1344,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 1680,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1629213076:B"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1629213076:B"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 46,
+      "uncaught": 46,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 303,
+      "uncaught": 16,
+      "solutions": 1376256,
+      "flagged": 469860,
+      "no_median": 478338,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 155,
+      "uncaught": 155,
+      "solutions": 1344,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     },
+     "F": {
+      "outliers": 202,
+      "uncaught": 202,
+      "solutions": 1680,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 122,
+      "block_terms": [
+       "1629213076:B",
+       "1629213076:F",
+       "1629213076:G",
+       "1629213076:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 122,
+      "block_terms": [
+       "1629213076:B",
+       "1629213076:F",
+       "1629213076:G",
+       "1629213076:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 296,
+      "uncaught": 1,
+      "solutions": 1376256,
+      "flagged": 469860,
+      "no_median": 478338,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 1344,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 1680,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1629213076:B"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1629213076:B"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 46,
+      "uncaught": 46,
+      "solutions": 336,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 303,
+      "uncaught": 16,
+      "solutions": 1376256,
+      "flagged": 469860,
+      "no_median": 478338,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 155,
+      "uncaught": 155,
+      "solutions": 1344,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     },
+     "F": {
+      "outliers": 202,
+      "uncaught": 202,
+      "solutions": 1680,
+      "flagged": 0,
+      "no_median": 112,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 6,
+       "2": 3,
+       "3": 1,
+       "4": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 122,
+      "block_terms": [
+       "1629213076:B",
+       "1629213076:F",
+       "1629213076:G",
+       "1629213076:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 122,
+      "block_terms": [
+       "1629213076:B",
+       "1629213076:F",
+       "1629213076:G",
+       "1629213076:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [
+     {
+      "field": 0,
+      "antenna": 29,
+      "interval": 2,
+      "scan": 119,
+      "pol": 0,
+      "channels": 115,
+      "uncaught_channels": 112,
+      "max_dev": 0.11267577856779099,
+      "value": "(0.83504164-0.06503725j)",
+      "significant_5sigma": true
+     }
+    ],
+    "Gsec": [],
+    "F": []
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1674958551": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 262144,
+      "flagged": 92056,
+      "no_median": 262144,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 1024,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 16
+      }
+     },
+     "F": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 1088,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "0": 16,
+       "1": 1
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 3,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 3,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 262144,
+      "flagged": 92056,
+      "no_median": 262144,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 561,
+      "uncaught": 561,
+      "solutions": 1024,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 16
+      }
+     },
+     "F": {
+      "outliers": 561,
+      "uncaught": 561,
+      "solutions": 1088,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "0": 16,
+       "1": 1
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 369,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 369,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 262144,
+      "flagged": 92056,
+      "no_median": 262144,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 1024,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 16
+      }
+     },
+     "F": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 1088,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "0": 16,
+       "1": 1
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 3,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 3,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 64,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 262144,
+      "flagged": 92056,
+      "no_median": 262144,
+      "intervals_per_field": {
+       "1": 1
+      }
+     },
+     "Gsec": {
+      "outliers": 561,
+      "uncaught": 561,
+      "solutions": 1024,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 16
+      }
+     },
+     "F": {
+      "outliers": 561,
+      "uncaught": 561,
+      "solutions": 1088,
+      "flagged": 0,
+      "no_median": 64,
+      "intervals_per_field": {
+       "0": 16,
+       "1": 1
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 369,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 369,
+      "block_terms": [
+       "1674958551:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [],
+    "Gsec": [
+     {
+      "field": 0,
+      "antenna": 16,
+      "interval": 14,
+      "scan": 62,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10072162747383118,
+      "value": "(0.87637776-0.4515741j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 16,
+      "interval": 14,
+      "scan": 62,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11271683126688004,
+      "value": "(0.19574346+0.8835048j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 30,
+      "interval": 14,
+      "scan": 62,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10544709116220474,
+      "value": "(0.5119697+0.757555j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 30,
+      "interval": 15,
+      "scan": 66,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10943171381950378,
+      "value": "(-0.5952216+0.6886818j)",
+      "significant_5sigma": true
+     }
+    ],
+    "F": [
+     {
+      "field": 0,
+      "antenna": 16,
+      "interval": 14,
+      "scan": 62,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10180141776800156,
+      "value": "(0.59534574-0.30748585j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 16,
+      "interval": 14,
+      "scan": 62,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11340747773647308,
+      "value": "(0.1333744+0.6002657j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 30,
+      "interval": 14,
+      "scan": 62,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10526121407747269,
+      "value": "(0.3501191+0.5142034j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 30,
+      "interval": 15,
+      "scan": 66,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.10905283689498901,
+      "value": "(-0.4041635+0.46943313j)",
+      "significant_5sigma": true
+     }
+    ]
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1678312253": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "G": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "B": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 475136,
+      "flagged": 175454,
+      "no_median": 189880,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 22,
+      "uncaught": 8,
+      "solutions": 1044,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18
+      }
+     },
+     "F": {
+      "outliers": 26,
+      "uncaught": 12,
+      "solutions": 1160,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18,
+       "1": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 6,
+      "block_terms": [
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     },
+     "significant": {
+      "events": 6,
+      "block_terms": [
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "G": {
+      "outliers": 8,
+      "uncaught": 8,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "B": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 475136,
+      "flagged": 175454,
+      "no_median": 189880,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 185,
+      "uncaught": 171,
+      "solutions": 1044,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18
+      }
+     },
+     "F": {
+      "outliers": 194,
+      "uncaught": 180,
+      "solutions": 1160,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18,
+       "1": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 92,
+      "block_terms": [
+       "1678312253:F",
+       "1678312253:G",
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     },
+     "significant": {
+      "events": 91,
+      "block_terms": [
+       "1678312253:G",
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "G": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "B": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 475136,
+      "flagged": 175454,
+      "no_median": 189880,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 22,
+      "uncaught": 8,
+      "solutions": 1044,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18
+      }
+     },
+     "F": {
+      "outliers": 26,
+      "uncaught": 12,
+      "solutions": 1160,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18,
+       "1": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 6,
+      "block_terms": [
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     },
+     "significant": {
+      "events": 6,
+      "block_terms": [
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "G": {
+      "outliers": 8,
+      "uncaught": 8,
+      "solutions": 116,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "B": {
+      "outliers": 4,
+      "uncaught": 4,
+      "solutions": 475136,
+      "flagged": 175454,
+      "no_median": 189880,
+      "intervals_per_field": {
+       "1": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 185,
+      "uncaught": 171,
+      "solutions": 1044,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18
+      }
+     },
+     "F": {
+      "outliers": 194,
+      "uncaught": 180,
+      "solutions": 1160,
+      "flagged": 14,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 18,
+       "1": 2
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 92,
+      "block_terms": [
+       "1678312253:F",
+       "1678312253:G",
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     },
+     "significant": {
+      "events": 91,
+      "block_terms": [
+       "1678312253:G",
+       "1678312253:Gsec",
+       "1678312253:K"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 1196.2603759765625,
+      "value": "0.1322825",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 1196.25927734375,
+      "value": "0.10384093",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 1196.2603759765625,
+      "value": "-2392.3884",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 1196.2591552734375,
+      "value": "-2392.4146",
+      "significant_5sigma": true
+     }
+    ],
+    "G": [
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19598284363746643,
+      "value": "(-0.2819614+0.2473268j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19833190739154816,
+      "value": "(0.04461099-0.3672307j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19598284363746643,
+      "value": "(-0.1428793-0.20775265j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.1983318030834198,
+      "value": "(0.2404508+0.058558185j)",
+      "significant_5sigma": true
+     }
+    ],
+    "B": [
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 0,
+      "channels": 87,
+      "uncaught_channels": 87,
+      "max_dev": 0.19850100576877594,
+      "value": "(4.061661-1.2893109j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 1,
+      "channels": 87,
+      "uncaught_channels": 87,
+      "max_dev": 0.1967516392469406,
+      "value": "(4.253341-1.5707941j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 0,
+      "channels": 87,
+      "uncaught_channels": 87,
+      "max_dev": 0.19850094616413116,
+      "value": "(2.8197925+0.4125204j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 1,
+      "channels": 87,
+      "uncaught_channels": 87,
+      "max_dev": 0.19675156474113464,
+      "value": "(3.0304317+0.27916893j)",
+      "significant_5sigma": true
+     }
+    ],
+    "Gsec": [
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 14,
+      "scan": 63,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3105749785900116,
+      "value": "(-0.07364937-0.16817583j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 14,
+      "scan": 63,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3457391858100891,
+      "value": "(0.15634425+0.072462745j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 15,
+      "scan": 67,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.30433186888694763,
+      "value": "(-0.07701963-0.16848902j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 15,
+      "scan": 67,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3467109203338623,
+      "value": "(0.15722816+0.069896676j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 16,
+      "scan": 71,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.2910718321800232,
+      "value": "(-0.09026563-0.16581172j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 16,
+      "scan": 71,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3375511169433594,
+      "value": "(0.16393845+0.059719894j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 17,
+      "scan": 75,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.2817104756832123,
+      "value": "(-0.068766825-0.17849378j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 17,
+      "scan": 75,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3306884765625,
+      "value": "(0.15925848+0.07558451j)",
+      "significant_5sigma": true
+     }
+    ],
+    "F": [
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19598284363746643,
+      "value": "(-0.2819614+0.2473268j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 0,
+      "scan": 33,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19833190739154816,
+      "value": "(0.04461099-0.3672307j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.19598284363746643,
+      "value": "(-0.1428793-0.20775265j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 1,
+      "antenna": 25,
+      "interval": 1,
+      "scan": 61,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.1983318030834198,
+      "value": "(0.2404508+0.058558185j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 14,
+      "scan": 63,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.31239625811576843,
+      "value": "(-0.051363222-0.11762427j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 14,
+      "scan": 63,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3462533950805664,
+      "value": "(0.10933378+0.050831866j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 15,
+      "scan": 67,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3043838441371918,
+      "value": "(-0.0538607-0.118147515j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 15,
+      "scan": 67,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.34572699666023254,
+      "value": "(0.11022725+0.049103215j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 16,
+      "scan": 71,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.28964948654174805,
+      "value": "(-0.0633583-0.11647893j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 16,
+      "scan": 71,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3354884386062622,
+      "value": "(0.11514047+0.041989774j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 17,
+      "scan": 75,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.2803988456726074,
+      "value": "(-0.04818509-0.12538226j)",
+      "significant_5sigma": true
+     },
+     {
+      "field": 0,
+      "antenna": 25,
+      "interval": 17,
+      "scan": 75,
+      "pol": 1,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.3287324607372284,
+      "value": "(0.11181531+0.053148646j)",
+      "significant_5sigma": true
+     }
+    ]
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1735892129": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 253952,
+      "flagged": 64256,
+      "no_median": 68976,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 744,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 992,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 0,
+      "block_terms": []
+     },
+     "significant": {
+      "events": 0,
+      "block_terms": []
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "G": {
+      "outliers": 40,
+      "uncaught": 40,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 253952,
+      "flagged": 64256,
+      "no_median": 68976,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 186,
+      "uncaught": 186,
+      "solutions": 744,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 227,
+      "uncaught": 227,
+      "solutions": 992,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 117,
+      "block_terms": [
+       "1735892129:F",
+       "1735892129:G",
+       "1735892129:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 117,
+      "block_terms": [
+       "1735892129:F",
+       "1735892129:G",
+       "1735892129:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 253952,
+      "flagged": 64256,
+      "no_median": 68976,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 744,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 992,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 0,
+      "block_terms": []
+     },
+     "significant": {
+      "events": 0,
+      "block_terms": []
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "G": {
+      "outliers": 40,
+      "uncaught": 40,
+      "solutions": 248,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "B": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 253952,
+      "flagged": 64256,
+      "no_median": 68976,
+      "intervals_per_field": {
+       "0": 2
+      }
+     },
+     "Gsec": {
+      "outliers": 186,
+      "uncaught": 186,
+      "solutions": 744,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 6
+      }
+     },
+     "F": {
+      "outliers": 227,
+      "uncaught": 227,
+      "solutions": 992,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 2,
+       "1": 6
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 117,
+      "block_terms": [
+       "1735892129:F",
+       "1735892129:G",
+       "1735892129:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 117,
+      "block_terms": [
+       "1735892129:F",
+       "1735892129:G",
+       "1735892129:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [],
+    "Gsec": [],
+    "F": []
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  },
+  "1749428161": {
+   "off/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 276,
+      "uncaught": 0,
+      "solutions": 1179648,
+      "flagged": 368596,
+      "no_median": 366672,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 2,
+      "uncaught": 1,
+      "solutions": 768,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 8
+      }
+     },
+     "F": {
+      "outliers": 2,
+      "uncaught": 1,
+      "solutions": 1056,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 8
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1749428161:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1749428161:Gsec"
+      ]
+     }
+    }
+   },
+   "off/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 17,
+      "uncaught": 17,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 284,
+      "uncaught": 0,
+      "solutions": 1179648,
+      "flagged": 368596,
+      "no_median": 366672,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 208,
+      "uncaught": 206,
+      "solutions": 768,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 8
+      }
+     },
+     "F": {
+      "outliers": 225,
+      "uncaught": 223,
+      "solutions": 1056,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 8
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 133,
+      "block_terms": [
+       "1749428161:G",
+       "1749428161:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 133,
+      "block_terms": [
+       "1749428161:G",
+       "1749428161:Gsec"
+      ]
+     }
+    }
+   },
+   "on/amplitude": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 276,
+      "uncaught": 0,
+      "solutions": 1179648,
+      "flagged": 368596,
+      "no_median": 366672,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 2,
+      "uncaught": 1,
+      "solutions": 768,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 8
+      }
+     },
+     "F": {
+      "outliers": 2,
+      "uncaught": 1,
+      "solutions": 1056,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 8
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 1,
+      "block_terms": [
+       "1749428161:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 1,
+      "block_terms": [
+       "1749428161:Gsec"
+      ]
+     }
+    }
+   },
+   "on/complex": {
+    "terms": {
+     "K": {
+      "outliers": 0,
+      "uncaught": 0,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "G": {
+      "outliers": 17,
+      "uncaught": 17,
+      "solutions": 288,
+      "flagged": 0,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "B": {
+      "outliers": 284,
+      "uncaught": 0,
+      "solutions": 1179648,
+      "flagged": 368596,
+      "no_median": 366672,
+      "intervals_per_field": {
+       "0": 3
+      }
+     },
+     "Gsec": {
+      "outliers": 208,
+      "uncaught": 206,
+      "solutions": 768,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "1": 8
+      }
+     },
+     "F": {
+      "outliers": 225,
+      "uncaught": 223,
+      "solutions": 1056,
+      "flagged": 2,
+      "no_median": 0,
+      "intervals_per_field": {
+       "0": 3,
+       "1": 8
+      }
+     }
+    },
+    "instances": {
+     "literal": {
+      "events": 133,
+      "block_terms": [
+       "1749428161:G",
+       "1749428161:Gsec"
+      ]
+     },
+     "significant": {
+      "events": 133,
+      "block_terms": [
+       "1749428161:G",
+       "1749428161:Gsec"
+      ]
+     }
+    }
+   },
+   "uncaught_on_amplitude": {
+    "K": [],
+    "G": [],
+    "B": [],
+    "Gsec": [
+     {
+      "field": 1,
+      "antenna": 14,
+      "interval": 6,
+      "scan": 29,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11544743180274963,
+      "value": "(0.98682487-5.551115e-17j)",
+      "significant_5sigma": true
+     }
+    ],
+    "F": [
+     {
+      "field": 1,
+      "antenna": 14,
+      "interval": 6,
+      "scan": 29,
+      "pol": 0,
+      "channels": 1,
+      "uncaught_channels": 1,
+      "max_dev": 0.11520551890134811,
+      "value": "(0.71010464-5.991849e-17j)",
+      "significant_5sigma": true
+     }
+    ]
+   },
+   "k_zero_start_removed": [],
+   "k_zero_start_added": []
+  }
+ },
+ "instances": {
+  "on/amplitude/literal": {
+   "n": 9,
+   "pairs": [
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1674958551:Gsec",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1749428161:Gsec"
+   ]
+  },
+  "on/amplitude/significant": {
+   "n": 9,
+   "pairs": [
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1674958551:Gsec",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1749428161:Gsec"
+   ]
+  },
+  "on/complex/literal": {
+   "n": 22,
+   "pairs": [
+    "1573212012:F",
+    "1573212012:G",
+    "1573212012:Gsec",
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:G",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1629213076:F",
+    "1629213076:G",
+    "1629213076:Gsec",
+    "1674958551:Gsec",
+    "1678312253:F",
+    "1678312253:G",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1735892129:F",
+    "1735892129:G",
+    "1735892129:Gsec",
+    "1749428161:G",
+    "1749428161:Gsec"
+   ]
+  },
+  "on/complex/significant": {
+   "n": 21,
+   "pairs": [
+    "1573212012:F",
+    "1573212012:G",
+    "1573212012:Gsec",
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:G",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1629213076:F",
+    "1629213076:G",
+    "1629213076:Gsec",
+    "1674958551:Gsec",
+    "1678312253:G",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1735892129:F",
+    "1735892129:G",
+    "1735892129:Gsec",
+    "1749428161:G",
+    "1749428161:Gsec"
+   ]
+  },
+  "off/amplitude/literal": {
+   "n": 9,
+   "pairs": [
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1674958551:Gsec",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1749428161:Gsec"
+   ]
+  },
+  "off/amplitude/significant": {
+   "n": 9,
+   "pairs": [
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1674958551:Gsec",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1749428161:Gsec"
+   ]
+  },
+  "off/complex/literal": {
+   "n": 22,
+   "pairs": [
+    "1573212012:F",
+    "1573212012:G",
+    "1573212012:Gsec",
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:G",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1629213076:F",
+    "1629213076:G",
+    "1629213076:Gsec",
+    "1674958551:Gsec",
+    "1678312253:F",
+    "1678312253:G",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1735892129:F",
+    "1735892129:G",
+    "1735892129:Gsec",
+    "1749428161:G",
+    "1749428161:Gsec"
+   ]
+  },
+  "off/complex/significant": {
+   "n": 21,
+   "pairs": [
+    "1573212012:F",
+    "1573212012:G",
+    "1573212012:Gsec",
+    "1573212012:K",
+    "1579022459:B",
+    "1579022459:G",
+    "1579022459:Gsec",
+    "1611426666:Gsec",
+    "1629213076:B",
+    "1629213076:F",
+    "1629213076:G",
+    "1629213076:Gsec",
+    "1674958551:Gsec",
+    "1678312253:G",
+    "1678312253:Gsec",
+    "1678312253:K",
+    "1735892129:F",
+    "1735892129:G",
+    "1735892129:Gsec",
+    "1749428161:G",
+    "1749428161:Gsec"
+   ]
+  }
+ }
+}

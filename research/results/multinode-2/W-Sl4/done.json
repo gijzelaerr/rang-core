@@ -1,0 +1,373 @@
+{
+ "case": "W",
+ "arm": "Sl4",
+ "code": "/home/gijs/Worktrees/rang/multinode-2/python",
+ "data": [
+  "processes: 4",
+  "memory_limit_gb: 8"
+ ],
+ "workers": 4,
+ "threads": 2,
+ "rayon": 2,
+ "kill": false,
+ "source": "/home/gijs/rang-data/outputs/w3/data/w3.ms",
+ "build": {
+  "version": "0.4.0",
+  "core_sha256": "6e4a595d827c1fd342ef5a3ded1710297e4e682182df10f20f2e00e81d97b8c2"
+ },
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 4,
+  "threads": 2,
+  "nodes": 4,
+  "cpus": 2,
+  "mem_mb": 6000,
+  "mem_gb": 5,
+  "data": [
+   "processes: 4",
+   "memory_limit_gb: 8"
+  ],
+  "event": null,
+  "ctl_mem_mb": 16000
+ },
+ "host": "nash",
+ "stages": {
+  "flag": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4",
+    "flag"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 2.77,
+   "load1_before": 3.32,
+   "users_cpu_before": {
+    "gijs": 271.1,
+    "netdata": 8.6
+   },
+   "started": "2026-11-26T16:31:36+0200",
+   "started_unix": 1795703496.882517,
+   "exit": 0,
+   "wall_s": 295.02,
+   "own_cpu_s": 3.7,
+   "max_rss_kb": 38880,
+   "host_busy_cpu_s": 2736.7,
+   "foreign_cores": 9.26,
+   "host_busy_cores_10s": [
+    4.13,
+    3.84,
+    3.96,
+    10.71,
+    11.58,
+    10.29,
+    10.9,
+    10.55,
+    11.59,
+    10.93,
+    11.81,
+    11.73,
+    12.73,
+    13.08,
+    11.44,
+    12.09,
+    11.7,
+    11.44,
+    12.04,
+    13.26,
+    11.1,
+    11.26,
+    10.17,
+    7.42,
+    6.79,
+    5.33,
+    3.47,
+    3.64,
+    3.26
+   ],
+   "load1_after": 6.42,
+   "users_cpu_after": {
+    "gijs": 152.6,
+    "netdata": 8.2
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "flag",
+    "cluster": {
+     "scheduler": "slurm",
+     "workers": 4,
+     "threads": 2,
+     "nodes": 4,
+     "cpus": 2,
+     "mem_mb": 6000,
+     "mem_gb": 5,
+     "data": [
+      "processes: 4",
+      "memory_limit_gb: 8"
+     ],
+     "event": null,
+     "ctl_mem_mb": 16000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      4   idle n[1-4]\n"
+    },
+    "launch": {
+     "id": "20261126T143137-6c6a3b6a",
+     "job_id": "1",
+     "command": [
+      "sbatch",
+      "--parsable",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4/spool/launch/20261126T143137-6c6a3b6a/worker.sh"
+     ]
+    },
+    "driver_wall_s": 290.79,
+    "jobs_left_after_s": 2.8,
+    "workers_cpu": {
+     "n2-50-0747fd": {
+      "tasks": 4,
+      "cpu_s": 492.9
+     },
+     "n1-50-df07c6": {
+      "tasks": 4,
+      "cpu_s": 416.6
+     },
+     "n3-50-841911": {
+      "tasks": 5,
+      "cpu_s": 442.9
+     },
+     "n4-50-e34290": {
+      "tasks": 4,
+      "cpu_s": 389.1
+     }
+    }
+   }
+  },
+  "calibrate": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4",
+    "calibrate"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 1.77,
+   "load1_before": 3.18,
+   "users_cpu_before": {
+    "gijs": 150.9,
+    "netdata": 8.2,
+    "root": 7.6
+   },
+   "started": "2026-11-26T16:38:16+0200",
+   "started_unix": 1795703896.909433,
+   "exit": 0,
+   "wall_s": 408.01,
+   "own_cpu_s": 4.0,
+   "max_rss_kb": 306660,
+   "host_busy_cpu_s": 2975.4,
+   "foreign_cores": 7.28,
+   "host_busy_cores_10s": [
+    2.99,
+    2.67,
+    2.74,
+    2.8,
+    2.67,
+    5.44,
+    8.67,
+    8.72,
+    8.72,
+    8.65,
+    5.73,
+    8.36,
+    8.57,
+    8.56,
+    8.43,
+    5.76,
+    8.43,
+    8.53,
+    8.34,
+    8.27,
+    7.07,
+    7.96,
+    8.6,
+    8.17,
+    8.18,
+    6.68,
+    9.51,
+    8.64,
+    8.81,
+    8.78,
+    8.68,
+    9.06,
+    6.02,
+    5.07,
+    9.28,
+    8.78,
+    8.43,
+    9.09,
+    8.6,
+    6.65
+   ],
+   "load1_after": 7.52,
+   "users_cpu_after": {
+    "gijs": 153.9,
+    "netdata": 9.0,
+    "root": 2.4
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "calibrate",
+    "cluster": {
+     "scheduler": "slurm",
+     "workers": 4,
+     "threads": 2,
+     "nodes": 4,
+     "cpus": 2,
+     "mem_mb": 6000,
+     "mem_gb": 5,
+     "data": [
+      "processes: 4",
+      "memory_limit_gb: 8"
+     ],
+     "event": null,
+     "ctl_mem_mb": 16000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      4   idle n[1-4]\n"
+    },
+    "launch": {
+     "id": "20261126T143817-5807c11c",
+     "job_id": "5",
+     "command": [
+      "sbatch",
+      "--parsable",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4/spool/launch/20261126T143817-5807c11c/worker.sh"
+     ]
+    },
+    "driver_wall_s": 403.81,
+    "jobs_left_after_s": 2.8,
+    "workers_cpu": {
+     "n1-96-58c953": {
+      "tasks": 32,
+      "cpu_s": 526.4
+     },
+     "n4-96-eabab5": {
+      "tasks": 32,
+      "cpu_s": 539.9
+     },
+     "n3-96-6844cc": {
+      "tasks": 35,
+      "cpu_s": 566.0
+     },
+     "n2-96-6a4b2d": {
+      "tasks": 33,
+      "cpu_s": 561.8
+     }
+    }
+   }
+  },
+  "apply": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4",
+    "apply"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 1.76,
+   "load1_before": 2.62,
+   "users_cpu_before": {
+    "gijs": 152.3,
+    "netdata": 8.6,
+    "root": 13.7
+   },
+   "started": "2026-11-26T16:47:30+0200",
+   "started_unix": 1795704450.848805,
+   "exit": 0,
+   "wall_s": 113.47,
+   "own_cpu_s": 3.7,
+   "max_rss_kb": 306924,
+   "host_busy_cpu_s": 451.9,
+   "foreign_cores": 3.95,
+   "host_busy_cores_10s": [
+    3.24,
+    2.93,
+    2.95,
+    3.08,
+    5.24,
+    4.53,
+    4.53,
+    4.84,
+    4.25,
+    5.33,
+    3.43
+   ],
+   "load1_after": 4.12,
+   "users_cpu_after": {
+    "gijs": 155.3,
+    "netdata": 8.4,
+    "root": 2.6
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "apply",
+    "cluster": {
+     "scheduler": "slurm",
+     "workers": 4,
+     "threads": 2,
+     "nodes": 4,
+     "cpus": 2,
+     "mem_mb": 6000,
+     "mem_gb": 5,
+     "data": [
+      "processes: 4",
+      "memory_limit_gb: 8"
+     ],
+     "event": null,
+     "ctl_mem_mb": 16000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      4   idle n[1-4]\n"
+    },
+    "launch": {
+     "id": "20261126T144731-9d456918",
+     "job_id": "9",
+     "command": [
+      "sbatch",
+      "--parsable",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/W-Sl4/spool/launch/20261126T144731-9d456918/worker.sh"
+     ]
+    },
+    "driver_wall_s": 109.33,
+    "jobs_left_after_s": 2.8,
+    "workers_cpu": {
+     "n4-151-259a2e": {
+      "tasks": 13,
+      "cpu_s": 31.1
+     },
+     "n2-151-d72cb5": {
+      "tasks": 14,
+      "cpu_s": 29.4
+     },
+     "n3-151-bc9072": {
+      "tasks": 13,
+      "cpu_s": 29.5
+     },
+     "n1-151-f4fc1a": {
+      "tasks": 14,
+      "cpu_s": 33.9
+     }
+    }
+   }
+  }
+ },
+ "cluster_up": "PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST\nmain*        up   infinite      4   idle n[1-4]\n"
+}

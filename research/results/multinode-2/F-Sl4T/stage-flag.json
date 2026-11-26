@@ -1,0 +1,47 @@
+{
+ "stage": "flag",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 4,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 2,
+  "mem_mb": 8000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 4",
+   "chunk_rows: 7"
+  ],
+  "event": null,
+  "ctl_mem_mb": 4000
+ },
+ "launch": {
+  "id": "20261125T165354-66e2b9a9",
+  "job_id": "1",
+  "command": [
+   "sbatch",
+   "--parsable",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Sl4T/spool/launch/20261125T165354-66e2b9a9/worker.sh"
+  ]
+ },
+ "driver_wall_s": 4.53,
+ "jobs_left_after_s": 0.7,
+ "workers_cpu": {
+  "n1-69-1caf9d": {
+   "tasks": 2,
+   "cpu_s": 1.0
+  },
+  "n1-68-b30145": {
+   "tasks": 3,
+   "cpu_s": 1.4
+  },
+  "n2-68-1e188e": {
+   "tasks": 3,
+   "cpu_s": 1.4
+  },
+  "n2-69-048c59": {
+   "tasks": 2,
+   "cpu_s": 1.0
+  }
+ }
+}

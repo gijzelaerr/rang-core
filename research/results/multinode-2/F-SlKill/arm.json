@@ -1,0 +1,34 @@
+{
+ "case": "F",
+ "arm": "SlKill",
+ "code": "/home/gijs/Worktrees/rang/multinode-2/python",
+ "data": [
+  "processes: 2",
+  "chunk_rows: 7"
+ ],
+ "workers": 2,
+ "threads": 1,
+ "rayon": 1,
+ "kill": false,
+ "source": "/home/gijs/rang-data/fixtures/outer_scans/1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.4.0",
+  "core_sha256": "6e4a595d827c1fd342ef5a3ded1710297e4e682182df10f20f2e00e81d97b8c2"
+ },
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 2,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 2",
+   "chunk_rows: 7"
+  ],
+  "event": "cancel",
+  "ctl_mem_mb": 4000
+ },
+ "host": "nash"
+}

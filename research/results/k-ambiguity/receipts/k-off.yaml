@@ -1,0 +1,32 @@
+schema: rang-config
+version: 1
+data:
+  weights: uniform
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+fields:
+  fcal:
+  - J1939-6342
+  bpcal:
+  - J1939-6342
+calibrate:
+  model:
+    source: setjy
+    standard: Stevens-Reynolds 2016
+  refant: auto
+  uvrange: '>150'
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field:
+    - fcal
+    terms:
+    - type: K
+      name: K
+      solint: inf
+  k_zero_start: false
+run:
+  stages:
+  - flag
+  - calibrate

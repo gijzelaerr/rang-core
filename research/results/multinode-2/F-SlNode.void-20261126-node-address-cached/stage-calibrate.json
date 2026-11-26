@@ -1,0 +1,22 @@
+{
+ "stage": "calibrate",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 3,
+  "threads": 1,
+  "nodes": 3,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 3",
+   "chunk_rows: 7"
+  ],
+  "event": "node",
+  "ctl_mem_mb": 4000
+ },
+ "nodes_ready": {
+  "exit": 1,
+  "sinfo": "Thu Nov 26 11:22:48 2026\nNODELIST   NODES PARTITION       STATE CPUS    S:C:T MEMORY TMP_DISK WEIGHT AVAIL_FE REASON              \nn1             1     main*        idle 1       1:1:1   4000        0      1   (null) none                \nn2             1     main*        idle 1       1:1:1   4000        0      1   (null) none                \nn3             1     main*       down* 1       1:1:1   4000        0      1   (null) Not responding : Not\n"
+ }
+}

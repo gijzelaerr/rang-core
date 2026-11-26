@@ -475,6 +475,7 @@ tools/oracles/dd1/compare.py,246,a,-,-,-,0,-,-
 tools/oracles/dd1/run_qc.sh,42,a,-,-,-,0,-,-
 tools/oracles/dd1/sim.py,254,a,-,-,-,0,-,-
 tools/oracles/dd10/dd10.py,732,a,-,-,-,0,-,-
+tools/oracles/dd11/dd11.py,623,a,-,-,-,0,-,-
 tools/oracles/dd2/dd2.py,503,a,-,-,-,0,-,-
 tools/oracles/dd2/run_wsclean.sh,70,a,-,-,-,0,-,-
 tools/oracles/dd3/common.sh,12,a,-,-,-,0,-,-
@@ -564,3 +565,9 @@ tools/wheel/run_installed.py,102,a,-,-,-,0,-,-
 tools/wheel/smoke.py,62,a,-,-,-,0,-,-
 tools/wheel/test.py,307,a,-,-,-,0,-,-
 tools/wheel/test.sh,139,a,-,-,-,0,-,-
+tests/test_dd11.py,48,a,-,-,-,0,-,-
+python/rang/core_launch.py,536,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster/pbs_cluster.sh,115,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster/slurm_cluster.sh,107,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster_arms.py,302,a,-,-,-,0,-,-
+tools/oracles/multinode/cluster_points.sh,51,a,-,-,-,0,-,-

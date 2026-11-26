@@ -1,0 +1,212 @@
+{
+ "loop/U6/cycle-0/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-0\\info.json",
+  "sha256": "303df7154b1d2ad29be39d02ece9d27258911b6ec88f5d06cc00cb5064242e7c",
+  "source_sha256": "303df7154b1d2ad29be39d02ece9d27258911b6ec88f5d06cc00cb5064242e7c"
+ },
+ "loop/U6/cycle-0/gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-0\\gains.npz",
+  "sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b",
+  "source_sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b"
+ },
+ "loop/U6/cycle-0/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-0\\next_model.npy",
+  "sha256": "91db319ee1598768638b57a2ba1972b29d7838f083ffdfb60bf7c2afdb9fdde5",
+  "source_sha256": "91db319ee1598768638b57a2ba1972b29d7838f083ffdfb60bf7c2afdb9fdde5"
+ },
+ "loop/U6/cycle-0/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-0\\residual.npy",
+  "sha256": "a7ca6a649c6061d2ff896e5377b609fea376924c0f2893b3e045235112012618",
+  "source_sha256": "a7ca6a649c6061d2ff896e5377b609fea376924c0f2893b3e045235112012618"
+ },
+ "loop/U6/cycle-1/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-1\\info.json",
+  "sha256": "eafb2dba0b5873a53d9a15eb6025586715727a31735ad5ab542cbd779b49ea06",
+  "source_sha256": "eafb2dba0b5873a53d9a15eb6025586715727a31735ad5ab542cbd779b49ea06"
+ },
+ "loop/U6/cycle-1/gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-1\\gains.npz",
+  "sha256": "5d3c7282eac7b4d901d59e4fae93735a1650d048ab43464c1843b3a45ba9fd88",
+  "source_sha256": "5d3c7282eac7b4d901d59e4fae93735a1650d048ab43464c1843b3a45ba9fd88"
+ },
+ "loop/U6/cycle-1/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-1\\next_model.npy",
+  "sha256": "c3338d8f3ed1e7be2eb6dc893c6830f7bae090fdc895c30726edc1dbc608e275",
+  "source_sha256": "c3338d8f3ed1e7be2eb6dc893c6830f7bae090fdc895c30726edc1dbc608e275"
+ },
+ "loop/U6/cycle-1/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-1\\residual.npy",
+  "sha256": "5c299f6c68564b30a8f6ec10159e8c295f1359e68575648d96f5b7b1e3464106",
+  "source_sha256": "5c299f6c68564b30a8f6ec10159e8c295f1359e68575648d96f5b7b1e3464106"
+ },
+ "loop/U6/cycle-2/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-2\\info.json",
+  "sha256": "5b1933b53e03040601e4c088c0844b1219bf65631a0aa4f0e67985dd60b00f5c",
+  "source_sha256": "5b1933b53e03040601e4c088c0844b1219bf65631a0aa4f0e67985dd60b00f5c"
+ },
+ "loop/U6/cycle-2/gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-2\\gains.npz",
+  "sha256": "4f76d5416e1b2b8f0522626927d6658cd25a94fe390eb8cb279054035ffe8c4f",
+  "source_sha256": "4f76d5416e1b2b8f0522626927d6658cd25a94fe390eb8cb279054035ffe8c4f"
+ },
+ "loop/U6/cycle-2/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-2\\next_model.npy",
+  "sha256": "6f15a72ad980f3fb960caec11aed2c96e2fbd849a6733e3731d0bc0c2594ab65",
+  "source_sha256": "6f15a72ad980f3fb960caec11aed2c96e2fbd849a6733e3731d0bc0c2594ab65"
+ },
+ "loop/U6/cycle-2/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-2\\residual.npy",
+  "sha256": "8ac6527faa5777527275dd9057543ffef3a5f5fd9ce9e155161bc48ea3eae4e4",
+  "source_sha256": "8ac6527faa5777527275dd9057543ffef3a5f5fd9ce9e155161bc48ea3eae4e4"
+ },
+ "loop/AT6/cycle-0/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-0\\info.json",
+  "sha256": "839bf92477e7effe27960afa23c15d6ad8b1395822d7e6b82bfc958dc614856f",
+  "source_sha256": "839bf92477e7effe27960afa23c15d6ad8b1395822d7e6b82bfc958dc614856f"
+ },
+ "loop/AT6/cycle-0/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-0\\next_model.npy",
+  "sha256": "408f63afb574c72669225bc7f7733c7bb6cd7028bb66e8e17e125e87c452505f",
+  "source_sha256": "408f63afb574c72669225bc7f7733c7bb6cd7028bb66e8e17e125e87c452505f"
+ },
+ "loop/AT6/cycle-0/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-0\\residual.npy",
+  "sha256": "81d0c206cd1a1257cfaf3056f80b3f1e824465c72df7e56bfbc911f9afec9241",
+  "source_sha256": "81d0c206cd1a1257cfaf3056f80b3f1e824465c72df7e56bfbc911f9afec9241"
+ },
+ "loop/AT6/cycle-1/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-1\\info.json",
+  "sha256": "27d30eb76a8f06fde2f293611226ccf492ce5d49865576d189aa5d4a30639a19",
+  "source_sha256": "27d30eb76a8f06fde2f293611226ccf492ce5d49865576d189aa5d4a30639a19"
+ },
+ "loop/AT6/cycle-1/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-1\\next_model.npy",
+  "sha256": "2ab0a619726bd127c190207d067ae90f28414545250381f8a02bf41281c997da",
+  "source_sha256": "2ab0a619726bd127c190207d067ae90f28414545250381f8a02bf41281c997da"
+ },
+ "loop/AT6/cycle-1/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-1\\residual.npy",
+  "sha256": "9308b3eb7da46dea8db14a1810ef6368a71409c94a5560f7c8536a13e4068bc6",
+  "source_sha256": "9308b3eb7da46dea8db14a1810ef6368a71409c94a5560f7c8536a13e4068bc6"
+ },
+ "loop/AT6/cycle-2/info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-2\\info.json",
+  "sha256": "d55040beaec445b4ff4222dba09f646d0552bbc9aaebff554816ccd7e594b0fa",
+  "source_sha256": "d55040beaec445b4ff4222dba09f646d0552bbc9aaebff554816ccd7e594b0fa"
+ },
+ "loop/AT6/cycle-2/next_model.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-2\\next_model.npy",
+  "sha256": "82d7e5305a0f6aa2cebf92f0462e025277f89efa7c4b390fa4c80d54fa081db1",
+  "source_sha256": "82d7e5305a0f6aa2cebf92f0462e025277f89efa7c4b390fa4c80d54fa081db1"
+ },
+ "loop/AT6/cycle-2/residual.npy": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-2\\residual.npy",
+  "sha256": "64dac55cc991c091e88da91483660f4797ff8af9a439e4b250c50f35bd4c2386",
+  "source_sha256": "64dac55cc991c091e88da91483660f4797ff8af9a439e4b250c50f35bd4c2386"
+ },
+ "reuse/AL-cycle-0-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-0\\gains.npz",
+  "sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b",
+  "source_sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b"
+ },
+ "reuse/AL-cycle-1-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-1\\gains.npz",
+  "sha256": "ee15bd04064a6f523a58eb723f577596aa2c5a58af896c265e08a577b15d5d38",
+  "source_sha256": "ee15bd04064a6f523a58eb723f577596aa2c5a58af896c265e08a577b15d5d38"
+ },
+ "reuse/AL-cycle-2-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-2\\gains.npz",
+  "sha256": "9531f6c02bac7d5d441f77e811175174a079420f55e8856117a5a118e22591b0",
+  "source_sha256": "9531f6c02bac7d5d441f77e811175174a079420f55e8856117a5a118e22591b0"
+ },
+ "loop/U6/cycle-3/reuse_gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-3\\gains.npz",
+  "sha256": "4b502a60b1752509cc0fa47ffe78e973224ab52e9902cd9ce36104440b927e39",
+  "source_sha256": "4b502a60b1752509cc0fa47ffe78e973224ab52e9902cd9ce36104440b927e39"
+ },
+ "loop/U6/cycle-3/reuse_info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-3\\info.json",
+  "sha256": "63b3da8a9ba3f775cade167d7724d1c2993532137d8d10d3d9d9b321d9a9354a",
+  "source_sha256": "63b3da8a9ba3f775cade167d7724d1c2993532137d8d10d3d9d9b321d9a9354a"
+ },
+ "loop/Q6/cycle-0/reuse_gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-0\\gains.npz",
+  "sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b",
+  "source_sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b"
+ },
+ "loop/Q6/cycle-0/reuse_info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-0\\info.json",
+  "sha256": "8dd8cee9f33544eda8a0f5362c34aea521b43c17a74ae7571eba6c426dc5cb12",
+  "source_sha256": "8dd8cee9f33544eda8a0f5362c34aea521b43c17a74ae7571eba6c426dc5cb12"
+ },
+ "loop/ATs/cycle-0/reuse_gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-0\\gains.npz",
+  "sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b",
+  "source_sha256": "fd92297e6f8baa0e6566f99d809b00ac843da91741310405d2288dc02881df9b"
+ },
+ "loop/ATs/cycle-0/reuse_info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-0\\info.json",
+  "sha256": "8dd8cee9f33544eda8a0f5362c34aea521b43c17a74ae7571eba6c426dc5cb12",
+  "source_sha256": "8dd8cee9f33544eda8a0f5362c34aea521b43c17a74ae7571eba6c426dc5cb12"
+ },
+ "reuse/R0-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\RL\\cycle-0\\gains.npz",
+  "sha256": "9df4342ee3802ad35ba19c51afa4c77c26e03795fdc59cc34656716090fdfa64",
+  "source_sha256": "9df4342ee3802ad35ba19c51afa4c77c26e03795fdc59cc34656716090fdfa64"
+ },
+ "reuse/R0-info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\RL\\cycle-0\\info.json",
+  "sha256": "9c0881b36cc607fbc746c3d4865c87455eceebeec75526b55ab8277cb721d5ba",
+  "source_sha256": "9c0881b36cc607fbc746c3d4865c87455eceebeec75526b55ab8277cb721d5ba"
+ },
+ "reuse/AT-final-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-3\\gains.npz",
+  "sha256": "639b65d0eb610494bb835968e65e5c9a4156af059da25496b2a7bb6bac1c6135",
+  "source_sha256": "639b65d0eb610494bb835968e65e5c9a4156af059da25496b2a7bb6bac1c6135"
+ },
+ "reuse/ALu-final-info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\ALu\\cycle-3\\info.json",
+  "sha256": "63b3da8a9ba3f775cade167d7724d1c2993532137d8d10d3d9d9b321d9a9354a",
+  "source_sha256": "63b3da8a9ba3f775cade167d7724d1c2993532137d8d10d3d9d9b321d9a9354a"
+ },
+ "reuse/AT-final-info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AT\\cycle-3\\info.json",
+  "sha256": "82f7cd705a96e19b5fa23f03b5bd4e04141ed370f54567e6dd2f96c2d7072ed2",
+  "source_sha256": "82f7cd705a96e19b5fa23f03b5bd4e04141ed370f54567e6dd2f96c2d7072ed2"
+ },
+ "reuse/AL-final-info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\AL\\cycle-3\\info.json",
+  "sha256": "cf57833aa4aba656c2fbbc87685f1c963d321cfbffe568cc25e55c0289360579",
+  "source_sha256": "cf57833aa4aba656c2fbbc87685f1c963d321cfbffe568cc25e55c0289360579"
+ },
+ "reuse/RL-final-info.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\loop\\RL\\cycle-3\\info.json",
+  "sha256": "574909f0bb2b803870bcd52cf54bcc0d6a3391e4cab8a1dd71e4b180923e3449",
+  "source_sha256": "574909f0bb2b803870bcd52cf54bcc0d6a3391e4cab8a1dd71e4b180923e3449"
+ },
+ "reuse/AX-gains.npz": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\points\\AX-OX-gs.npz",
+  "sha256": "9c3bc955ff244e3e3d4dcccba114230223ba00128d2a686fe8960419039d309b",
+  "source_sha256": "9c3bc955ff244e3e3d4dcccba114230223ba00128d2a686fe8960419039d309b"
+ },
+ "reuse/AX.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\points\\AX-OX-gs.json",
+  "sha256": "04e3b4bef496884add41c0ea7f1525ec14024fc8518e44dc99bf20f53c692de7",
+  "source_sha256": "04e3b4bef496884add41c0ea7f1525ec14024fc8518e44dc99bf20f53c692de7"
+ },
+ "reuse/dd10-score.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\score.json",
+  "sha256": "e3d50df7ba403885bf17aa240cfef35be1520e6098d6f0873353077d90219285",
+  "source_sha256": "e3d50df7ba403885bf17aa240cfef35be1520e6098d6f0873353077d90219285"
+ },
+ "reuse/psf-O.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\psf\\O.json",
+  "sha256": "bd53deceea3b3c957a07474fabc5783aa44cfda678c57bbd7abdbcadb3cd0650",
+  "source_sha256": "bd53deceea3b3c957a07474fabc5783aa44cfda678c57bbd7abdbcadb3cd0650"
+ },
+ "reuse/psf-real.json": {
+  "from": "D:\\rang\\outputs\\dd10-20261126\\psf\\real.json",
+  "sha256": "98d61050f644855f58f9e483d47fbc73dc92f6221b5cd34045751a796a22ced0",
+  "source_sha256": "98d61050f644855f58f9e483d47fbc73dc92f6221b5cd34045751a796a22ced0"
+ }
+}
