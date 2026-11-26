@@ -70,7 +70,7 @@ up)
   SHARED=$1; NODES=$2; CPUS=$3; MEM=$4; shift 4
   nice -n 19 podman build -q -t "$IMAGE" -f "$HERE/Containerfile.pbs" "$HERE" >/dev/null
   # A fresh network every time (as slurm_cluster.sh).
-  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null || true
   if podman network exists "$NET"; then podman network rm "$NET" >/dev/null; fi
   podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
   start pbs "$SUBNET.10" server "$SHARED" "$NODES" "${CTL_CPUS:-4}" "${CTL_MEM_MB:-16000}" "$@"
@@ -100,7 +100,7 @@ up)
   echo "$NODES" > "$SHARED/cluster-pbs.nodes"
   wait_free "$NODES" ;;
 down)
-  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null || true
   podman network exists "$NET" && podman network rm "$NET" >/dev/null || true ;;
 kill)
   podman kill -s KILL "$PREFIX-$1" >/dev/null ;;

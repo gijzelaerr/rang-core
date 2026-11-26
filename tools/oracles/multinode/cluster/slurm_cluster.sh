@@ -58,7 +58,7 @@ up)
   # (the void SlNode rerun of 2026-11-26).
   # A fresh network every time: one left by an earlier run may lack the
   # subnet the fixed addresses need (podman exit 125, 2026-11-26).
-  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null || true
   if podman network exists "$NET"; then podman network rm "$NET" >/dev/null; fi
   podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
   hosts=(--add-host "ctl:$SUBNET.10")
@@ -92,7 +92,7 @@ up)
   done
   wait_idle "$NODES" ;;
 down)
-  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null || true
   podman network exists "$NET" && podman network rm "$NET" >/dev/null || true ;;
 kill)
   podman kill -s KILL "$PREFIX-$1" >/dev/null ;;
