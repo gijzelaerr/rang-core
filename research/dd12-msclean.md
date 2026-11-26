@@ -7,7 +7,18 @@ them and before any measurement. Later changes are dated amendments,
 committed before the reading they affect, and labelled post hoc where they
 follow a reading.
 
-Status: **proposed (frozen).**
+Status: **measured 2026-11-26.**
+- **Frozen answer: "no: multi-scale hurts in this loop".** Minor cycle S
+  (GeMClean's multi-scale, as frozen) makes d1 worse at both N: MS6 0.562
+  against Q6's 0.244 (2.30 ×), MS12 0.516 against Q12's 0.207 (2.49 ×). It
+  also hurts with the truth gains: ATM6 0.376 against AT6's 0.128, ATM12
+  0.266 against AT12's 0.093.
+- **Why (A2, post hoc):** about 0.5 Jy per cycle of negative multi-scale
+  flux falls in DD4's pin boxes and is clipped by the frozen spill rule,
+  leaving a positive ring round each pinned source; d1's net model flux
+  reaches 5.2-5.3 Jy (truth 4.43).
+- **More cycles help:** Q12 reaches d1 0.207 (0.848 × Q6, G_d1 0.42), the
+  best arm; AT12 reaches 0.093 (G 0.75). No real arm (the rule is not met).
 
 ## 1. Question and hypotheses
 
@@ -279,6 +290,115 @@ accuracy. Otherwise no real arm runs, and the note says why.
   [tool-timings.md](tool-timings.md). The rebuilt O MS and the PSF arrays
   are deleted at the end; records stay in the run root, a compact archive
   in `results/dd12-msclean/`. D: stays above 150 GB free.
+
+## 10. Measured result
+
+Run root `D:/rang/outputs/dd12-20261126/`. Host glacier, shared, under the
+main checkout's `heavy_lock.py`; every loop 8 slots, 20 GB booked (11.5-16
+GB resident). Archive `results/dd12-msclean/` (per-cycle records,
+`score.json`, gates, `spill.json`, `reuse.json`, `times.log`).
+
+**Setup.** O rebuilt (223 s): DD11's setup gate passes. The PSF peak equals
+DD10's. Reused files and their SHA-256 are in `reuse.json`.
+
+**Gate M: pass.** M1: the binding's residual equals dirty − B m (SciPy FFT)
+to 1.1e-16 (2.8e-16 of max |dirty|). M2 (`tests/test_dd12.py`) passes.
+**Pilot T:** 41.5 s for five scales, so five scales are used. O's
+theoretic beam b = 2.535 px; scales 0, 10.1, 20.3, 40.6, 81.1 px (radler's
+0, 4b, 8b, 16b, 32b), biases 1, 1.67, 2.78, 4.63, 7.72. The pilot already
+showed what the loop then did every cycle: the 5,000-component cap is hit
+before the threshold, and the 10-px scale takes −0.84 Jy.
+
+**Gate R: pass** (after A1). Q6's cycle-0 residual from A0's gains is
+bitwise equal to DD11's, `hogbom_fast` on it gives DD11's M₁ bitwise, and
+the cycle-1 solve with DD11's M₁ gives DD11's gains and flags bitwise.
+DD11's Q6 and AT6 records are reused as section 2 says.
+
+### The arms on O (sections 4 and 6)
+
+Every scored point: Rust Gauss-Seidel, 4 × 8 s, d0 free, cap 500. Q6 and
+AT6 are DD11's scored points (reused, gate R). References: A0 0.352, 0.544,
+1.000; AX 0.0078, 0.0334, 0.0523.
+
+| Point | e d1, d2, d3 | G d1, d2, d3 | S_AT d1 | e/ê d1-d3 | fractions d0-d3 | d3 \|g\| p99 / max | d1 Σ\|M − sky\| / net Jy | Reading |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Q6 (DD11) | 0.244, 0.301, 0.365 | 0.313, 0.476, 0.670 | 0.48 (AT6) | 47, 8.3, 7.0 | 0.983, 0.950, 0.947, 0.948 | 1.83 / 2.5 | 34.5 / 3.56 | partly |
+| **Q12** | **0.207**, 0.343, 0.301 | **0.420**, 0.394, 0.737 | 0.56 (AT12) | 42, 9.3, 5.8 | 0.988, 0.958, 0.957, 0.956 | 1.65 / 2.0 | 37.8 / 3.38 | **partly** |
+| **MS6** | 0.562, 0.389, 0.327 | −0.613, 0.304, 0.710 | −0.94 (AT6) | 153, 14, 6.8 | 0.967, 0.892, 0.886, 0.887 | 1.52 / 1.8 | 29.8 / 5.34 | **no** |
+| **MS12** | 0.516, 0.404, 0.281 | −0.479, 0.274, 0.758 | −0.64 (AT12) | 157, 16, 6.0 | 0.991, 0.976, 0.967, 0.965 | 1.46 / 1.7 | 34.3 / 5.17 | **no** |
+| AT6 (DD11, control) | 0.128, 0.279, 0.387 | 0.649, 0.520, 0.647 | 1 | 22, 8.0, 7.8 | 0.994, 0.975, 0.974, 0.974 | 1.95 / 2.9 | 36.8 / 3.60 | closes |
+| AT12 (control) | 0.093, 0.243, 0.300 | 0.753, 0.589, 0.738 | 1 | 15, 7.0, 6.0 | 0.982, 0.933, 0.921, 0.922 | 1.68 / 2.2 | 43.2 / 3.82 | closes |
+| ATM6 (control) | 0.376, 0.388, 0.459 | −0.072, 0.306, 0.571 | −0.11 (AT6) | 78, 13, 9.9 | 0.982, 0.966, 0.965, 0.965 | 1.83 / 2.9 | 30.2 / 4.25 | no |
+| ATM12 (control) | 0.266, 0.300, 0.346 | 0.249, 0.478, 0.690 | 0.33 (AT12) | 49, 10, 7.5 | 0.987, 0.958, 0.956, 0.956 | 1.60 / 2.2 | 37.2 / 4.20 | partly |
+
+No arm harms d2 or d3 against A0. S against the matched ATM control is in
+`score.json`; it is not meaningful where that control is itself worse than
+A0 in d1 (ATM6).
+
+**Frozen readings (section 6):**
+- **Deconvolver, MS against Q:** MS6/Q6 2.30 × in d1: **hurts**; MS12/Q12
+  2.49 ×: **hurts** (d2 1.29 × and 1.18 ×, d3 0.90 × and 0.93 ×).
+  Mechanism: d1 Σ|M − sky O| 0.86 × at N 6 (**less pixel error**) and 0.91 ×
+  at N 12 (**similar**). S has less pixel error and a far worse truth error,
+  so the pixel measure does not track the gains here, as section 6 warned.
+- **Controls (H-ceil):** ATM6/AT6 2.93 ×, ATM12/AT12 2.87 ×: **multi-scale
+  lowers the ceiling** with the truth gains too, so the failure is in the
+  deconvolver as configured, not in absorption.
+- **More cycles (H-cyc): help.** Q12 0.207 ≤ 0.9 × 0.244 (0.848 ×) without
+  harm. AT12 against AT6: 0.093 against 0.128 (0.72 ×). d1 in Q12's solves
+  (cycle 6 is Q6's scored point): 0.244, 0.234, 0.228, 0.221, 0.215, 0.211,
+  scored 0.207; about 0.006 per cycle and slowing.
+- MS6 against Q12: 2.71 × in d1.
+- **DD12's answer (frozen): "no: multi-scale hurts in this loop"** (MS
+  hurts at both N; no MS arm closes). **Best arm: Q12** (partly, G_d1 0.42,
+  56 % of AT12's gain). The real arm is not run: section 7 needs an MS best
+  arm that helps.
+
+**Minor cycle S per cycle (MS12).** Every cycle stopped at the 5,000-
+component cap (never at the threshold), in one image-domain cycle.
+Increment flux by cycle (Jy, after the clip): +1.39, +0.28, +0.33, +0.58,
++0.20, −0.01, +0.15, +0.02, +0.21, −0.15, +0.50, −1.10. d1 net model flux
+2.83 at M₀ᶜ, 4.20 after cycle 0, 5.34 at M₆, 5.92 at M₁₂ (truth 4.43); Q12
+stays at 3.4-3.6. Clipped d1 flux per cycle −0.53, −0.50, −0.29, then −0.03
+to −0.14. d1's e jumps from 0.352 to 0.557 after the first S cycle and then
+falls by 0.004-0.02 per cycle.
+
+**Spill (A2, post hoc, `spill.json`).** On the saved cycle-0 and cycle-1
+residuals of MS12 and ATM12, 0.48-0.52 Jy of the clipped flux (about 85 %
+of the clipped absolute flux) lies within 16 px of the three pin boxes, all
+of it negative; 0.01-0.07 Jy lies in d0. Round the pins S keeps +0.54 to
++0.63 Jy at cycle 0. The pins' 5 × 5 search exclusion lets S's 10-81 px
+shapes, centred just outside the boxes, carry negative flux into them; the
+frozen clip removes it and leaves a positive ring. The Högbom arms cannot
+spill (point components only on search pixels). This is a property of S
+with these masks and the clip rule, not a test of multi-scale CLEAN as
+such; a per-scale mask eroded round the pins was not tested.
+
+**Cost.** Loop walls (8 slots booked, lock waits included): MS12 11,948 s;
+Q12 8,253 s (six new cycles); ATM12 4,280 s; AT12 2,880 s. Per step: a GS
+solve 260-770 s, an image set 34-50 s, minor cycle S 21-45 s, H 185-272 s.
+Solves: Q12 7, MS12 14, AT12 2, ATM12 4, gate R 1: 28, the run cap without
+spares.
+
+## 11. For the coordinator
+
+- **Frozen answer: "no: multi-scale hurts in this loop".** GeMClean's
+  multi-scale minor cycle as frozen (WSClean defaults, five automatic scales
+  to 81 px, clipped to the search pixels) makes d1 2.3-2.5 × worse than
+  Högbom at matched N, and 2.9 × worse even with the truth gains.
+- **Cause (A2, post hoc):** negative scale components spill into the pin
+  boxes; the clip keeps a +0.5 Jy ring per cycle round the pins. This tests
+  the masks and the clip, not multi-scale CLEAN in general.
+- **Best arm Q12:** Q6's loop to 12 cycles, d1 0.207 (G 0.42, partly), d2
+  0.343, d3 0.301; truth-gain control AT12 0.093. More cycles help
+  (0.848 ×), about 0.006 per cycle and slowing.
+- **Next:** if multi-scale stays a lever, a new note that fixes the pin
+  problem first (subtract the pinned sources from the images, or a per-scale
+  mask eroded by ⌈s/2⌉ round the pins and facet edges; reach the threshold
+  rather than the cap), gated on the truth-gain control (ATM against AT)
+  before any solved-gain arm. Otherwise the loop with Högbom and N ≥ 12 is
+  the working recipe; its gap to AT12 (0.207 against 0.093) is absorption
+  in the trusted gains (DD11's ATs).
 
 ## Amendments
 

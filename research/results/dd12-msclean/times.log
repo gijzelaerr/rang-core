@@ -1,0 +1,24 @@
+reuse start 2026-11-26T17:15:53+02:00 slots=1 mem=2 tools/oracles/dd12/dd12.py reuse D:/rang/outputs/dd12-20261126
+reuse end 2026-11-26T17:15:56+02:00 rc=0 wall=3s
+insertO start 2026-11-26T17:15:56+02:00 slots=2 mem=10 tools/oracles/dd8/dd8.py insert D:/rang/outputs/dd12-20261126
+insertO end 2026-11-26T17:19:39+02:00 rc=0 wall=223s
+setup start 2026-11-26T17:19:39+02:00 slots=1 mem=2 tools/oracles/dd12/dd12.py setup D:/rang/outputs/dd12-20261126
+setup end 2026-11-26T17:19:40+02:00 rc=0 wall=1s
+psf-O start 2026-11-26T17:19:40+02:00 slots=4 mem=10 tools/oracles/dd12/dd12.py psf D:/rang/outputs/dd12-20261126 O
+psf-O end 2026-11-26T17:20:25+02:00 rc=0 wall=45s
+gater start 2026-11-26T17:20:25+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py gater D:/rang/outputs/dd12-20261126
+gatem start 2026-11-26T17:20:25+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py gatem D:/rang/outputs/dd12-20261126
+gatem end 2026-11-26T17:23:32+02:00 rc=0 wall=187s
+loop-MS12 start 2026-11-26T17:24:04+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py loop D:/rang/outputs/dd12-20261126 MS12
+loop-ATM12 start 2026-11-26T17:24:04+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py loop D:/rang/outputs/dd12-20261126 ATM12
+gater end 2026-11-26T17:39:22+02:00 rc=0 wall=1137s
+gater-part1 start 2026-11-26T17:40:01+02:00 slots=4 mem=14 tools/oracles/dd12/dd12.py gater D:/rang/outputs/dd12-20261126 part1
+loop-ATM12 end 2026-11-26T18:35:24+02:00 rc=0 wall=4280s
+gater-part1 end 2026-11-26T18:42:25+02:00 rc=0 wall=3744s
+loop-Q12 start 2026-11-26T18:42:34+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py loop D:/rang/outputs/dd12-20261126 Q12
+spill start 2026-11-26T18:42:47+02:00 slots=4 mem=8 tools/oracles/dd12/dd12.py spill D:/rang/outputs/dd12-20261126
+spill end 2026-11-26T18:46:35+02:00 rc=0 wall=228s
+loop-MS12 end 2026-11-26T20:43:12+02:00 rc=0 wall=11948s
+loop-Q12 end 2026-11-26T21:00:07+02:00 rc=0 wall=8253s
+loop-AT12 start 2026-11-26T21:00:07+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py loop D:/rang/outputs/dd12-20261126 AT12
+loop-AT12 end 2026-11-26T21:48:07+02:00 rc=0 wall=2880s

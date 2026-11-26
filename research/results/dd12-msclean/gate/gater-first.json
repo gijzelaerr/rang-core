@@ -1,0 +1,11 @@
+{
+ "residual_bitwise": true,
+ "residual_max_abs_diff": 0.0,
+ "residual_rel": 0.0,
+ "next_model_bitwise": false,
+ "seconds_1": 355.9009857000001,
+ "cycle1_gains_bitwise": true,
+ "cycle1_flags_bitwise": true,
+ "seconds_2": 773.3035435000002,
+ "R_pass": false
+}
