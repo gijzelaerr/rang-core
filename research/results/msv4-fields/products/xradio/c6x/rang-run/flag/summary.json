@@ -1,0 +1,640 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 7.373140335083008,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6268596649169922,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 241603,
+   "calibrate": 241603,
+   "chain": 161068,
+   "flag": 483206,
+   "model": 241603,
+   "rows": 644274,
+   "selfcal": 343613
+  },
+  "tasks": {
+   "flag-block": 23
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "d6919428181b4be50adfc39e6c36fc5fd0328609d0f20fe782a1f1a6814fd552",
+ "flag_version": "rang_flag_20261125T084340Z",
+ "flagged_after": 0.313368890224359,
+ "flagged_before": 0.12545760717147436,
+ "groups": [
+  {
+   "core_seconds": 0.289386700023897,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.3023654513888889,
+   "flagged_before": 0.10625,
+   "partition": "c6x_0",
+   "rows": 720,
+   "scan": "1",
+   "store_field": "J1939-6342_0"
+  },
+  {
+   "core_seconds": 0.27172620000783354,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.349609375,
+   "flagged_before": 0.19914279513888888,
+   "partition": "c6x_0",
+   "rows": 720,
+   "scan": "23",
+   "store_field": "J1939-6342_0"
+  },
+  {
+   "core_seconds": 0.23153619997901842,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3868489583333333,
+   "flagged_before": 0.2594401041666667,
+   "partition": "c6x_1",
+   "rows": 480,
+   "scan": "14",
+   "store_field": "3C286-SIM_1"
+  },
+  {
+   "core_seconds": 0.20848309999564663,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.311474609375,
+   "flagged_before": 0.10625,
+   "partition": "c6x_1",
+   "rows": 480,
+   "scan": "2",
+   "store_field": "3C286-SIM_1"
+  },
+  {
+   "core_seconds": 0.23817330005113035,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.34109700520833336,
+   "flagged_before": 0.17109375,
+   "partition": "c6x_1",
+   "rows": 480,
+   "scan": "22",
+   "store_field": "3C286-SIM_1"
+  },
+  {
+   "core_seconds": 0.23407200002111495,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3433919270833333,
+   "flagged_before": 0.17109375,
+   "partition": "c6x_1",
+   "rows": 480,
+   "scan": "8",
+   "store_field": "3C286-SIM_1"
+  },
+  {
+   "core_seconds": 0.22099990001879632,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3072591145833333,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "11",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.22194439999293536,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.34169921875,
+   "flagged_before": 0.16276041666666666,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "13",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.2127256999956444,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.30836588541666665,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "15",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.21302150003612041,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3107096354166667,
+   "flagged_before": 0.11393229166666667,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "17",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.21626840002136305,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.30901692708333334,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "19",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.20230119995540008,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.31126302083333335,
+   "flagged_before": 0.11393229166666667,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "21",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.2144193999702111,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.2974609375,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "3",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.20189309999113902,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.30345052083333335,
+   "flagged_before": 0.11393229166666667,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "5",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.22581409994745627,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3021158854166667,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "7",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.21083429997088388,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.31031901041666665,
+   "flagged_before": 0.10625,
+   "partition": "c6x_2",
+   "rows": 240,
+   "scan": "9",
+   "store_field": "SIM-GCAL_2"
+  },
+  {
+   "core_seconds": 0.29813629999989644,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.30071614583333334,
+   "flagged_before": 0.10625,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "10",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.2775928999762982,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2995198567708333,
+   "flagged_before": 0.10625,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "12",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.301570100011304,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.3060221354166667,
+   "flagged_before": 0.11822916666666666,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "16",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.29987719998462126,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.302587890625,
+   "flagged_before": 0.109130859375,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "18",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.29095329996198416,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.30233561197916664,
+   "flagged_before": 0.10721028645833333,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "20",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.2791288000298664,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.3044352213541667,
+   "flagged_before": 0.10817057291666667,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "4",
+   "store_field": "SIM-TARGET_3"
+  },
+  {
+   "core_seconds": 0.2733940000180155,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.3023763020833333,
+   "flagged_before": 0.10721028645833333,
+   "partition": "c6x_3",
+   "rows": 960,
+   "scan": "6",
+   "store_field": "SIM-TARGET_3"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1,
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "bdecf4546ff0c0d4262859f3619a7ce9877c44cdc9309d90b28211bada5854d3",
+   "flag_variable": "FLAG",
+   "flagged_cells": 240344,
+   "groups": [
+    {
+     "core_seconds": 0.289386700023897,
+     "field": "J1939-6342",
+     "field_id": 0,
+     "flagged_after": 0.3023654513888889,
+     "flagged_before": 0.10625,
+     "rows": 720,
+     "scan": "1",
+     "store_field": "J1939-6342_0"
+    },
+    {
+     "core_seconds": 0.27172620000783354,
+     "field": "J1939-6342",
+     "field_id": 0,
+     "flagged_after": 0.349609375,
+     "flagged_before": 0.19914279513888888,
+     "rows": 720,
+     "scan": "23",
+     "store_field": "J1939-6342_0"
+    }
+   ],
+   "name": "c6x_0",
+   "rows": 1440,
+   "rows_flagged": 1440,
+   "selected_flagged_after": 240344,
+   "selected_flagged_before": 112580,
+   "time_writes": 1
+  },
+  {
+   "blocks": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "15c681cec2cc18e1e5285e9f0c459f4d47a87dd7712a13aec05f81bf1739d725",
+   "flag_variable": "FLAG",
+   "flagged_cells": 339840,
+   "groups": [
+    {
+     "core_seconds": 0.23153619997901842,
+     "field": "3C286-SIM",
+     "field_id": 1,
+     "flagged_after": 0.3868489583333333,
+     "flagged_before": 0.2594401041666667,
+     "rows": 480,
+     "scan": "14",
+     "store_field": "3C286-SIM_1"
+    },
+    {
+     "core_seconds": 0.20848309999564663,
+     "field": "3C286-SIM",
+     "field_id": 1,
+     "flagged_after": 0.311474609375,
+     "flagged_before": 0.10625,
+     "rows": 480,
+     "scan": "2",
+     "store_field": "3C286-SIM_1"
+    },
+    {
+     "core_seconds": 0.23817330005113035,
+     "field": "3C286-SIM",
+     "field_id": 1,
+     "flagged_after": 0.34109700520833336,
+     "flagged_before": 0.17109375,
+     "rows": 480,
+     "scan": "22",
+     "store_field": "3C286-SIM_1"
+    },
+    {
+     "core_seconds": 0.23407200002111495,
+     "field": "3C286-SIM",
+     "field_id": 1,
+     "flagged_after": 0.3433919270833333,
+     "flagged_before": 0.17109375,
+     "rows": 480,
+     "scan": "8",
+     "store_field": "3C286-SIM_1"
+    }
+   ],
+   "name": "c6x_1",
+   "rows": 1920,
+   "rows_flagged": 1920,
+   "selected_flagged_after": 339840,
+   "selected_flagged_before": 173968,
+   "time_writes": 1
+  },
+  {
+   "blocks": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "7fccc8547437ed8aa441c79ce768a12cda8dedd9f40c2e13ace9ddc6a3d67934",
+   "flag_variable": "FLAG",
+   "flagged_cells": 381132,
+   "groups": [
+    {
+     "core_seconds": 0.22099990001879632,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.3072591145833333,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "11",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.22194439999293536,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.34169921875,
+     "flagged_before": 0.16276041666666666,
+     "rows": 240,
+     "scan": "13",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.2127256999956444,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.30836588541666665,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "15",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.21302150003612041,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.3107096354166667,
+     "flagged_before": 0.11393229166666667,
+     "rows": 240,
+     "scan": "17",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.21626840002136305,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.30901692708333334,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "19",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.20230119995540008,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.31126302083333335,
+     "flagged_before": 0.11393229166666667,
+     "rows": 240,
+     "scan": "21",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.2144193999702111,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.2974609375,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "3",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.20189309999113902,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.30345052083333335,
+     "flagged_before": 0.11393229166666667,
+     "rows": 240,
+     "scan": "5",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.22581409994745627,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.3021158854166667,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "7",
+     "store_field": "SIM-GCAL_2"
+    },
+    {
+     "core_seconds": 0.21083429997088388,
+     "field": "SIM-GCAL",
+     "field_id": 2,
+     "flagged_after": 0.31031901041666665,
+     "flagged_before": 0.10625,
+     "rows": 240,
+     "scan": "9",
+     "store_field": "SIM-GCAL_2"
+    }
+   ],
+   "name": "c6x_2",
+   "rows": 2400,
+   "rows_flagged": 2400,
+   "selected_flagged_after": 381132,
+   "selected_flagged_before": 140336,
+   "time_writes": 1
+  },
+  {
+   "blocks": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "77c121a954ec535d84e58e40a4f72e15b9da83ed8fb862ec254d83743ab1472f",
+   "flag_variable": "FLAG",
+   "flagged_cells": 1041036,
+   "groups": [
+    {
+     "core_seconds": 0.29813629999989644,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.30071614583333334,
+     "flagged_before": 0.10625,
+     "rows": 960,
+     "scan": "10",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.2775928999762982,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.2995198567708333,
+     "flagged_before": 0.10625,
+     "rows": 960,
+     "scan": "12",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.301570100011304,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.3060221354166667,
+     "flagged_before": 0.11822916666666666,
+     "rows": 960,
+     "scan": "16",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.29987719998462126,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.302587890625,
+     "flagged_before": 0.109130859375,
+     "rows": 960,
+     "scan": "18",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.29095329996198416,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.30233561197916664,
+     "flagged_before": 0.10721028645833333,
+     "rows": 960,
+     "scan": "20",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.2791288000298664,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.3044352213541667,
+     "flagged_before": 0.10817057291666667,
+     "rows": 960,
+     "scan": "4",
+     "store_field": "SIM-TARGET_3"
+    },
+    {
+     "core_seconds": 0.2733940000180155,
+     "field": "SIM-TARGET",
+     "field_id": 3,
+     "flagged_after": 0.3023763020833333,
+     "flagged_before": 0.10721028645833333,
+     "rows": 960,
+     "scan": "6",
+     "store_field": "SIM-TARGET_3"
+    }
+   ],
+   "name": "c6x_3",
+   "rows": 6720,
+   "rows_flagged": 6720,
+   "selected_flagged_after": 1041036,
+   "selected_flagged_before": 374760,
+   "time_writes": 1
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 12480,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c6x-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

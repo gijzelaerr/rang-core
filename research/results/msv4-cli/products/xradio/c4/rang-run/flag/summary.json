@@ -1,0 +1,82 @@
+{
+ "chunking": {
+  "blocks": [
+   1
+  ],
+  "chunk_gb": 7.374997019767761,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6250029802322388,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 7551,
+   "calibrate": 7551,
+   "chain": 5034,
+   "flag": 15103,
+   "model": 7551,
+   "rows": 20138,
+   "selfcal": 10740
+  },
+  "tasks": {
+   "flag-block": 1
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "30fbdb50b023f02294309e20fd9b49ad4fffc7bd1bd75dd39edd81f9e178f672",
+ "flag_version": "rang_flag_20261125T070942Z",
+ "flagged_after": 0.7715576171875,
+ "flagged_before": 0.430596923828125,
+ "groups": [
+  {
+   "core_seconds": 0.3974731999915093,
+   "field": "J1939-6342_0",
+   "flagged_after": 0.7715576171875,
+   "flagged_before": 0.430596923828125,
+   "partition": "c4_0",
+   "rows": 20,
+   "scan": "8"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "30fbdb50b023f02294309e20fd9b49ad4fffc7bd1bd75dd39edd81f9e178f672",
+   "flag_variable": "FLAG",
+   "flagged_cells": 252824,
+   "groups": [
+    {
+     "core_seconds": 0.3974731999915093,
+     "field": "J1939-6342_0",
+     "flagged_after": 0.7715576171875,
+     "flagged_before": 0.430596923828125,
+     "rows": 20,
+     "scan": "8"
+    }
+   ],
+   "name": "c4_0",
+   "rows": 20,
+   "rows_flagged": 20,
+   "selected_flagged_after": 252824,
+   "selected_flagged_before": 141098,
+   "time_writes": 1
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 20,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c4-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

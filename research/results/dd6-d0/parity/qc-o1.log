@@ -1,0 +1,189 @@
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+Reading /w/pf0-model.fits...
+ == Converting model image to visibilities ==
+Precalculating weights for uniform weighting...
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Detected 43.1 GB of system memory, usage not limited.
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Determining min and max w & theoretical beam size... DONE (w=[0.000985378:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading metadata...
+Predicting 823500 rows...
+Writing...
+Inversion: 00:00:00, prediction: 00:00:19.378473, cleaning: 00:00:00
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+Reading /w/pf1-model.fits...
+ == Converting model image to visibilities ==
+Precalculating weights for uniform weighting...
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Detected 43.1 GB of system memory, usage not limited.
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Determining min and max w & theoretical beam size... DONE (w=[0.000985378:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading metadata...
+Predicting 823500 rows...
+Writing...
+Inversion: 00:00:00, prediction: 00:00:19.362390, cleaning: 00:00:00
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+Reading /w/pf2-model.fits...
+ == Converting model image to visibilities ==
+Precalculating weights for uniform weighting...
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Detected 43.1 GB of system memory, usage not limited.
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Determining min and max w & theoretical beam size... DONE (w=[0.000985378:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading metadata...
+Predicting 823500 rows...
+Writing...
+Inversion: 00:00:00, prediction: 00:00:15.542676, cleaning: 00:00:00
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+Reading /w/pf3-model.fits...
+ == Converting model image to visibilities ==
+Precalculating weights for uniform weighting...
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Detected 43.1 GB of system memory, usage not limited.
+Opening /w/sub.ms, spw 0 with contiguous MS reader.
+Determining min and max w & theoretical beam size... DONE (w=[0.000985378:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading metadata...
+Predicting 823500 rows...
+Writing...
+Inversion: 00:00:00, prediction: 00:00:14.202386, cleaning: 00:00:00
+[32m2026-11-25 10:54:29[0m | [1mINFO[0m | [36mparser[0m:[36mlog_final_config[0m | [1mFinal configuration state:
+
+[34m------------------------------------input_ms------------------------------------[0m[1m
+input_ms.path                /home/gijsm/Build/tmp/20261125-dd6/par-MF64b/sub.ms
+input_ms.data_column                                                        DATA
+input_ms.sigma_column                                                       None
+input_ms.weight_column                                           WEIGHT_SPECTRUM
+input_ms.time_chunk                                                            0
+input_ms.freq_chunk                                                            0
+input_ms.is_bda                                                            False
+input_ms.group_by                    ['SCAN_NUMBER', 'FIELD_ID', 'DATA_DESC_ID']
+input_ms.select_corr                                                        None
+input_ms.select_fields                                                        []
+input_ms.select_ddids                                                         []
+input_ms.select_uv_range                                              [0.0, 0.0]
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m----------------------------------input_model-----------------------------------[0m[1m
+input_model.recipe                           MODEL_D0:MODEL_D1:MODEL_D2:MODEL_D3
+input_model.beam                                                            None
+input_model.beam_l_axis                                                        X
+input_model.beam_m_axis                                                        Y
+input_model.invert_uvw                                                      True
+input_model.source_chunks                                                    500
+input_model.apply_p_jones                                                  False
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m-------------------------------------output-------------------------------------[0m[1m
+output.gain_directory               /home/gijsm/Build/tmp/20261125-dd6/par-MF64b
+                                                                          /gains
+output.log_directory                /home/gijsm/Build/tmp/20261125-dd6/par-MF64b
+                                                                         /qclogs
+output.log_to_terminal                                                      True
+output.overwrite                                                            True
+output.products                                                             None
+output.columns                                                              None
+output.flags                                                               False
+output.apply_p_jones_inv                                                   False
+output.subtract_directions                                                  None
+output.net_gains                                                            None
+output.compute_baseline_corrections                                        False
+output.apply_baseline_corrections                                          False
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m-----------------------------------mad_flags------------------------------------[0m[1m
+mad_flags.enable                                                           False
+mad_flags.whitening                                                     disabled
+mad_flags.threshold_bl                                                       5.0
+mad_flags.threshold_global                                                  10.0
+mad_flags.max_deviation                                                      0.0
+mad_flags.use_off_diagonals                                                False
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m-------------------------------------solver-------------------------------------[0m[1m
+solver.terms                                                               ['G']
+solver.iter_recipe                                                         [500]
+solver.propagate_flags                                                      True
+solver.collapse_chain                                                       True
+solver.robust                                                              False
+solver.threads                                                                 1
+solver.convergence_fraction                                                 0.99
+solver.convergence_criteria                                                1e-07
+solver.reference_antenna                                                       0
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m--------------------------------------dask--------------------------------------[0m[1m
+dask.threads                                                                   1
+dask.workers                                                                   1
+dask.address                                                                None
+dask.scheduler                                                   single-threaded
+dask.scheduler_plugin                                                       True
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[34m---------------------------------------G----------------------------------------[0m[1m
+G.type                                                              diag_complex
+G.solve_per                                                              antenna
+G.scalar                                                                   False
+G.direction_dependent                                                       True
+G.pinned_directions                                                           []
+G.time_interval                                                               64
+G.freq_interval                                                                0
+G.load_from                                                                 None
+G.interp_mode                                                               reim
+G.interp_method                                                         2dlinear
+G.respect_scan_boundaries                                                   True
+G.initial_estimate                                                         False
+[34m--------------------------------------------------------------------------------[0m[1m
+
+[0m
+[32m2026-11-25 10:54:29[0m | [1mINFO[0m | [36mpreprocess[0m:[36mtranscribe_recipe[0m | [1mThe following model sources were obtained from --input-model-recipe: 
+   Columns: {'MODEL_D3', 'MODEL_D2', 'MODEL_D0', 'MODEL_D1'} 
+   Sky Models: None[0m
+[32m2026-11-25 10:54:29[0m | [1mINFO[0m | [36mms_handler[0m:[36mread_xds_list[0m | [1mAntenna table indicates 61 antennas were present for this observation.[0m
+[32m2026-11-25 10:54:29[0m | [1mINFO[0m | [36mms_handler[0m:[36mread_xds_list[0m | [1mPolarization table indicates 2 correlations are present in the measurement set - ['XX', 'YY'].[0m
+[32m2026-11-25 10:54:29[0m | [1mINFO[0m | [36mms_handler[0m:[36mread_xds_list[0m | [1mField table indicates phase centre is at (4.255039994310009 -1.0630073253375796).[0m
+[32m2026-11-25 10:54:34[0m | [32m[1mSUCCESS[0m | [36mexecutor[0m:[36m_execute[0m | [32m[1m5.03 seconds taken to build graph.[0m
+[32m2026-11-25 10:54:34[0m | [1mINFO[0m | [36mexecutor[0m:[36m_execute[0m | [1mComputation starting. Please be patient - log messages will only appear per completed chunk.[0m
+[32m2026-11-25 11:34:26[0m | [1mINFO[0m | [36mlogging[0m:[36mlog_chisq[0m | [1m
+    FLD: 0 SPW: 0 SCN: 2 T_CHUNK: 0 F_CHUNK: 0 [38;2;35;209;139mCHISQ: 6.91 -> 2.06[0m[1m[0m
+[32m2026-11-25 11:34:29[0m | [32m[1mSUCCESS[0m | [36mexecutor[0m:[36m_execute[0m | [32m[1m2394.97 seconds taken to execute graph.[0m
+[32m2026-11-25 11:34:29[0m | [1mINFO[0m | [36mlogging[0m:[36mlog_summary_stats[0m | [1m
+Final post-solve chi-squared summary, colourised by deviation from the mean:
+[38;2;35;209;139m <= 3*sigma [0m[1m [38;2;245;245;67m <= 5*sigma [0m[1m [38;2;255;128;0m <= 10*sigma [0m[1m [38;2;241;76;76m > 10*sigma [0m[1m      
+  CHUNK  FLD0   
+         SPW0   
+         SCN2   
+    
+  T0F0   [38;2;35;209;139m2.06[0m[1m   
+[0m

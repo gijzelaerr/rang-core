@@ -1,0 +1,15 @@
+{
+ "finished": "2026-11-25T07:11:31+00:00",
+ "flag_backup": "rang_flag_20261125T071131Z",
+ "host": "glacier",
+ "initialising": [],
+ "ms": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c9-cli.ps.zarr",
+ "pid": 1026844,
+ "stage": "flag",
+ "started": "2026-11-25T07:11:31+00:00",
+ "state": "closed",
+ "written": [
+  "FLAG"
+ ],
+ "written_before_put": true
+}

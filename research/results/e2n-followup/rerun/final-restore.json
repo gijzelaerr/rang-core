@@ -1,0 +1,22 @@
+{
+ "restored_rows": 2229489,
+ "hash": {
+  "rows": 2229489,
+  "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+  "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+ },
+ "input": {
+  "ms": "/home/gijs/rang-data/outputs/e2n-20261116/e2n.ms",
+  "rows": 2229489,
+  "cell_shape": [
+   1024,
+   4
+  ],
+  "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+  "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+ },
+ "drop_exit": 0,
+ "rang_run_moved_to": null,
+ "seconds": 243.95952417189255,
+ "met": true
+}

@@ -1,0 +1,98 @@
+/home/gijsm/Build/tmp/20261124-dd4-c2/sub4m.ms 823500 (64, 4) [ True  True  True  True]
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+    J- 1  I   0  0  0  0  1  0  1030-1057 (64)
+    J- 2  I   0  0  0  0  2  0  1030-1057 (64)
+    J- 3  I   0  0  0  0  3  0  1030-1057 (64)
+Reordering /w/sub4m.ms into 1 x 1 parts.
+Reordering: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Precalculating weights for natural weighting...
+Opening reordered part 0 for /w/sub4m.ms
+ == Constructing image ==
+Detected 43.1 GB of system memory, usage not limited.
+Opening reordered part 0 for /w/sub4m.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0115024:16871.5] lambdas, maxuvw=27122.2 lambda)
+Theoretic beam = 7.61''
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 30800924, effective count after weighting: 12661681.786519
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4m.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0115024:16871.5] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 30800924, effective count after weighting: 12661681.786519
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4m.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0115024:16871.5] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 30800924, effective count after weighting: 12661681.786519
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4m.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0115024:16871.5] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 30800924, effective count after weighting: 12661681.786519
+Stitching facets onto full image...
+Writing dirty image...
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Inversion: 00:00:16.973839, prediction: 00:00:00, deconvolution: 00:00:00
+Cleaning up temporary files...
+/home/gijsm/Build/tmp/20261124-dd4-c2/sub4e.ms 823500 (64, 4) [False False False False]
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  1030-1057 (64)
+    J- 1  I   0  0  0  0  1  0  1030-1057 (64)
+    J- 2  I   0  0  0  0  2  0  1030-1057 (64)
+    J- 3  I   0  0  0  0  3  0  1030-1057 (64)
+Reordering /w/sub4e.ms into 1 x 1 parts.
+Reordering: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Precalculating weights for natural weighting...
+Opening reordered part 0 for /w/sub4e.ms
+ == Constructing image ==
+Detected 43.1 GB of system memory, usage not limited.
+Opening reordered part 0 for /w/sub4e.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.000716862:16889.4] lambdas, maxuvw=27122.2 lambda)
+Theoretic beam = 7.61''
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 52704000, effective count after weighting: 52704000.000000
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4e.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.000716862:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 52704000, effective count after weighting: 52704000.000000
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4e.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.000716862:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 52704000, effective count after weighting: 52704000.000000
+ == Constructing image ==
+Opening reordered part 0 for /w/sub4e.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.000716862:16889.4] lambdas, maxuvw=27122.2 lambda)
+Loading data in memory...
+Gridding 823500 rows...
+Gridded visibility count: 52704000, effective count after weighting: 52704000.000000
+Stitching facets onto full image...
+Writing dirty image...
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Inversion: 00:00:21.593936, prediction: 00:00:00, deconvolution: 00:00:00
+Cleaning up temporary files...

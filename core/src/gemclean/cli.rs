@@ -996,6 +996,16 @@ fn deconvolve<T: Real + Send + Sync>(
             ("seconds", num(floor.seconds)),
         ]);
     }
+    // From here on only residuals read the measurement (the gram operator's
+    // exact pass too), so only the active visibilities, sorted, are kept, as
+    // on the channel and polarisation paths (research/selfcal-mem-34.md):
+    // residuals keep their bits.
+    let measurement = if args.plan_reuse {
+        measurement.compacted()?
+    } else {
+        measurement
+    };
+    memory::mark("compacted");
     let settings = Settings {
         gain: args.gain,
         cycle_stop: args.cycle_stop,
@@ -1938,7 +1948,9 @@ fn deconvolve_channels<T: Real + Send + Sync>(
             .map(|b| b.max(args.tapers.gaussian_beam))
             .reduce(f64::min)
     });
+    memory::trace("theoretic beams done");
     for (k, c) in chans.into_iter().enumerate() {
+        memory::trace(&format!("channel {k}: measurement and 2n PSF"));
         let m: GridMeasurement<T> = GridMeasurement::from_single_unprepared(
             c.uvw,
             c.freq,

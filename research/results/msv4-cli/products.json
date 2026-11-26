@@ -1,0 +1,170 @@
+{
+ "c1/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3940909000230022,
+  "seconds_store": 1.0178550999844447
+ },
+ "c1/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.3940909000230022,
+  "seconds_store": 1.0588998000021093
+ },
+ "c10/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.7874154999735765,
+  "seconds_store": 1.1246593000250868
+ },
+ "c10/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.7874154999735765,
+  "seconds_store": 1.0159060999867506
+ },
+ "c11/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.9325622000033036,
+  "seconds_store": 1.0592127999989316
+ },
+ "c11/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.9325622000033036,
+  "seconds_store": 1.0455236000125296
+ },
+ "c11c/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8612953000119887,
+  "seconds_store": 1.0607581000076607
+ },
+ "c11c/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.8612953000119887,
+  "seconds_store": 1.0220211999840103
+ },
+ "c2/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3766108999843709,
+  "seconds_store": 0.9806803000392392
+ },
+ "c2/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.3766108999843709,
+  "seconds_store": 1.0262392000295222
+ },
+ "c3/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3741081999614835,
+  "seconds_store": 0.5664779999642633
+ },
+ "c3/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.3741081999614835,
+  "seconds_store": 0.9147934999782592
+ },
+ "c4/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.36901069997111335,
+  "seconds_store": 0.7168475000071339
+ },
+ "c4/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.36901069997111335,
+  "seconds_store": 0.6712418000097387
+ },
+ "c5/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8060737000196241,
+  "seconds_store": 1.1147500000079162
+ },
+ "c5/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 0.8060737000196241,
+  "seconds_store": 1.178435800014995
+ },
+ "c6x/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 6.72466250002617,
+  "seconds_store": 7.246223599999212
+ },
+ "c6x/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 6.72466250002617,
+  "seconds_store": 7.4429665000061505
+ },
+ "c8/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 4.67025740002282,
+  "seconds_store": 1.1130745999980718
+ },
+ "c8/xradio": {
+  "c6": "mismatch",
+  "flag_sha256_equal": false,
+  "misses": [
+   "groups"
+  ],
+  "seconds_msv2": 4.67025740002282,
+  "seconds_store": 1.1029213999863714
+ },
+ "c9/xms-auto": {
+  "c6": "not measured",
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ },
+ "c9/xradio": {
+  "c6": "not measured",
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ }
+}

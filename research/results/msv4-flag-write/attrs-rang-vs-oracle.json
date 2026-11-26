@@ -1,0 +1,90 @@
+{
+ "c1/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c1/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c2/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c2/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c3/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c3/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c4/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c4/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c5/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c5/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c6x/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c6x/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c8/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c8/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c10/xradio": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c10/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date"
+ ],
+ "c11/xradio": [
+  ".creation_date",
+  ".data_groups.base.date",
+  ".data_groups.corrected.date",
+  ".data_groups.model.date"
+ ],
+ "c11/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date",
+  ".data_groups.corrected.date",
+  ".data_groups.model.date"
+ ],
+ "c11c/xradio": [
+  ".creation_date",
+  ".data_groups.base.date",
+  ".data_groups.corrected.date",
+  ".data_groups.model.date"
+ ],
+ "c11c/xms-auto": [
+  ".creation_date",
+  ".data_groups.base.date",
+  ".data_groups.corrected.date",
+  ".data_groups.model.date"
+ ]
+}

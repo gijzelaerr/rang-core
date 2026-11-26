@@ -1,0 +1,150 @@
+{
+ "c1/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3940909000230022,
+  "seconds_store": 0.6670363000012003
+ },
+ "c1/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3940909000230022,
+  "seconds_store": 0.603961699991487
+ },
+ "c10/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.7874154999735765,
+  "seconds_store": 1.2015761000220664
+ },
+ "c10/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.7874154999735765,
+  "seconds_store": 1.1983738000271842
+ },
+ "c11/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.9325622000033036,
+  "seconds_store": 1.4414080000133254
+ },
+ "c11/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.9325622000033036,
+  "seconds_store": 1.7814988999743946
+ },
+ "c11c/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8612953000119887,
+  "seconds_store": 1.5179983000271022
+ },
+ "c11c/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8612953000119887,
+  "seconds_store": 1.422011599992402
+ },
+ "c2/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3766108999843709,
+  "seconds_store": 0.5840094000450335
+ },
+ "c2/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3766108999843709,
+  "seconds_store": 0.6297879000194371
+ },
+ "c3/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3741081999614835,
+  "seconds_store": 0.7432836999651045
+ },
+ "c3/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.3741081999614835,
+  "seconds_store": 0.6341680999612436
+ },
+ "c4/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.36901069997111335,
+  "seconds_store": 0.705135700001847
+ },
+ "c4/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.36901069997111335,
+  "seconds_store": 0.7016493999981321
+ },
+ "c5/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8060737000196241,
+  "seconds_store": 1.280084700032603
+ },
+ "c5/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 0.8060737000196241,
+  "seconds_store": 1.2146292999968864
+ },
+ "c6x/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 6.72466250002617,
+  "seconds_store": 7.996888099994976
+ },
+ "c6x/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 6.72466250002617,
+  "seconds_store": 6.960877600009553
+ },
+ "c8/xms-auto": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 4.67025740002282,
+  "seconds_store": 1.2724669000017457
+ },
+ "c8/xradio": {
+  "c6": "match",
+  "flag_sha256_equal": false,
+  "misses": [],
+  "seconds_msv2": 4.67025740002282,
+  "seconds_store": 1.3026321000070311
+ },
+ "c9/xms-auto": {
+  "c6": "not measured",
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ },
+ "c9/xradio": {
+  "c6": "not measured",
+  "why": "the MSv2 command refuses two cell shapes (M6, task W4)"
+ }
+}

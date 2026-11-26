@@ -180,7 +180,8 @@ in both arms.**
 - Owner decisions:
   - **DD4's flux pin:** the catalogue-flux pin, as a DD3c on the same
     simulation, or accept the unpinned loop (T1 3.9e-3).
-  - **Upstream report (not filed):** QuartiCal 0.2.7's DD `phase` uses the
+  - **Upstream report** (posted 2026-11-23 as
+    [ratt-ru/QuartiCal#459](https://github.com/ratt-ru/QuartiCal/issues/459)): QuartiCal 0.2.7's DD `phase` uses the
     last direction's gain in every direction's `J^H r`, and on this
     simulation it then does not converge.
 
@@ -204,3 +205,5 @@ variable holds the **last** direction's gains, and it is then passed to
   with each direction's own gain, is added. It is reported against T, not
   gated.
 - The upstream report is not filed; that is an owner decision.
+  *Update 2026-11-23:* the owner posted it as
+  [ratt-ru/QuartiCal#459](https://github.com/ratt-ru/QuartiCal/issues/459).

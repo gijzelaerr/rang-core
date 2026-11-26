@@ -1,0 +1,1344 @@
+{
+ "c1/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.12,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084213Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c1-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 3.855,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c1-cli.ps.zarr.rang-run/receipts/flag-20261125T084210Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c1-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.732,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c1-cli.ps.zarr.rang-run/receipts/flag-20261125T084206Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c1",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c1-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084208Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084208Z",
+   "rang_rerun_20261125T084213Z",
+   "rang_flag_20261125T084213Z",
+   "m7_flagged"
+  ]
+ },
+ "c1/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 7.126,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084201Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c1-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.329,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c1-cli.ps.zarr.rang-run/receipts/flag-20261125T084158Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c1-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.288,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c1-cli.ps.zarr.rang-run/receipts/flag-20261125T084154Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c1",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c1-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084157Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084157Z",
+   "rang_rerun_20261125T084201Z",
+   "rang_flag_20261125T084201Z",
+   "m7_flagged"
+  ]
+ },
+ "c10/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.978,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084533Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c10-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 6.426,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.8 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c10-cli.ps.zarr.rang-run/receipts/flag-20261125T084530Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c10-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.467,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.2 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c10-cli.ps.zarr.rang-run/receipts/flag-20261125T084524Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c10",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c10-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084527Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084527Z",
+   "rang_rerun_20261125T084533Z",
+   "rang_flag_20261125T084533Z",
+   "m7_flagged"
+  ]
+ },
+ "c10/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.069,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084521Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c10-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.716,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.2 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c10-cli.ps.zarr.rang-run/receipts/flag-20261125T084518Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c10-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.399,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.2 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c10-cli.ps.zarr.rang-run/receipts/flag-20261125T084512Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c10",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c10-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084515Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084515Z",
+   "rang_rerun_20261125T084521Z",
+   "rang_flag_20261125T084521Z",
+   "m7_flagged"
+  ]
+ },
+ "c11/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 7.305,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084602Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 6.303,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c11-cli.ps.zarr.rang-run/receipts/flag-20261125T084559Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.944,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c11-cli.ps.zarr.rang-run/receipts/flag-20261125T084552Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c11",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084555Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084555Z",
+   "rang_rerun_20261125T084602Z",
+   "rang_flag_20261125T084602Z",
+   "m7_flagged"
+  ]
+ },
+ "c11/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 7.348,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084549Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 6.632,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c11-cli.ps.zarr.rang-run/receipts/flag-20261125T084545Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 7.538,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.8 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c11-cli.ps.zarr.rang-run/receipts/flag-20261125T084537Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c11",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084541Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084541Z",
+   "rang_rerun_20261125T084549Z",
+   "rang_flag_20261125T084549Z",
+   "m7_flagged"
+  ]
+ },
+ "c11c/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 7.403,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084632Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-CORRECTED_DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11c-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 6.659,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.5 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c11c-cli.ps.zarr.rang-run/receipts/flag-20261125T084628Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-CORRECTED_DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11c-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 6.277,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.5 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c11c-cli.ps.zarr.rang-run/receipts/flag-20261125T084621Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c11c",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c11c-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084624Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084624Z",
+   "rang_rerun_20261125T084632Z",
+   "rang_flag_20261125T084632Z",
+   "m7_flagged"
+  ]
+ },
+ "c11c/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 7.032,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084617Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-CORRECTED_DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11c-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 6.313,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.5 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c11c-cli.ps.zarr.rang-run/receipts/flag-20261125T084614Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-CORRECTED_DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11c-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 6.772,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c11c-cli.ps.zarr.rang-run/receipts/flag-20261125T084607Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c11c",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11c-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084610Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084610Z",
+   "rang_rerun_20261125T084617Z",
+   "rang_flag_20261125T084617Z",
+   "m7_flagged"
+  ]
+ },
+ "c2/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.498,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084230Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c2-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.286,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c2-cli.ps.zarr.rang-run/receipts/flag-20261125T084227Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c2-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 3.823,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c2-cli.ps.zarr.rang-run/receipts/flag-20261125T084223Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c2",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c2-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084225Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084225Z",
+   "rang_rerun_20261125T084230Z",
+   "rang_flag_20261125T084230Z",
+   "m7_flagged"
+  ]
+ },
+ "c2/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.304,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084221Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c2-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.064,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c2-cli.ps.zarr.rang-run/receipts/flag-20261125T084219Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c2-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.062,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c2-cli.ps.zarr.rang-run/receipts/flag-20261125T084215Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c2",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c2-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084217Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084217Z",
+   "rang_rerun_20261125T084221Z",
+   "rang_flag_20261125T084221Z",
+   "m7_flagged"
+  ]
+ },
+ "c3/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 5.294,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084250Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c3-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.023,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c3-cli.ps.zarr.rang-run/receipts/flag-20261125T084246Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c3-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.147,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c3-cli.ps.zarr.rang-run/receipts/flag-20261125T084241Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c3",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c3-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084244Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084244Z",
+   "rang_rerun_20261125T084250Z",
+   "rang_flag_20261125T084250Z",
+   "m7_flagged"
+  ]
+ },
+ "c3/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.966,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084239Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c3-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.721,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c3-cli.ps.zarr.rang-run/receipts/flag-20261125T084236Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c3-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.336,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.6 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c3-cli.ps.zarr.rang-run/receipts/flag-20261125T084232Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c3",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c3-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084234Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084234Z",
+   "rang_rerun_20261125T084239Z",
+   "rang_flag_20261125T084239Z",
+   "m7_flagged"
+  ]
+ },
+ "c4/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 5.303,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084311Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c4-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.06,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c4-cli.ps.zarr.rang-run/receipts/flag-20261125T084307Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c4-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.098,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c4-cli.ps.zarr.rang-run/receipts/flag-20261125T084302Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c4",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c4-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084305Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084305Z",
+   "rang_rerun_20261125T084311Z",
+   "rang_flag_20261125T084311Z",
+   "m7_flagged"
+  ]
+ },
+ "c4/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 5.367,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084300Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c4-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.116,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr.rang-run/receipts/flag-20261125T084257Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c4-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.91,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.7 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr.rang-run/receipts/flag-20261125T084252Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c4",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c4-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084255Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084255Z",
+   "rang_rerun_20261125T084300Z",
+   "rang_flag_20261125T084300Z",
+   "m7_flagged"
+  ]
+ },
+ "c5/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.436,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084334Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c5-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.938,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.3 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c5-cli.ps.zarr.rang-run/receipts/flag-20261125T084330Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c5-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.453,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.3 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c5-cli.ps.zarr.rang-run/receipts/flag-20261125T084324Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c5",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c5-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084327Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084327Z",
+   "rang_rerun_20261125T084334Z",
+   "rang_flag_20261125T084334Z",
+   "m7_flagged"
+  ]
+ },
+ "c5/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.046,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084321Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c5-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.66,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.3 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c5-cli.ps.zarr.rang-run/receipts/flag-20261125T084318Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c5-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.211,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.2 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c5-cli.ps.zarr.rang-run/receipts/flag-20261125T084313Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c5",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c5-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084316Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084316Z",
+   "rang_rerun_20261125T084321Z",
+   "rang_flag_20261125T084322Z",
+   "m7_flagged"
+  ]
+ },
+ "c6x/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 14.23,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084418Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c6x-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 12.583,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 7.8 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c6x-cli.ps.zarr.rang-run/receipts/flag-20261125T084415Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c6x-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 13.228,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 8.0 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c6x-cli.ps.zarr.rang-run/receipts/flag-20261125T084401Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c6x",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c6x-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084405Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084405Z",
+   "rang_rerun_20261125T084418Z",
+   "rang_flag_20261125T084419Z",
+   "m7_flagged"
+  ]
+ },
+ "c6x/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 12.038,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084352Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c6x-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 11.073,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 6.8 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c6x-cli.ps.zarr.rang-run/receipts/flag-20261125T084349Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c6x-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 11.678,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 7.0 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c6x-cli.ps.zarr.rang-run/receipts/flag-20261125T084337Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c6x",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c6x-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084340Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084340Z",
+   "rang_rerun_20261125T084352Z",
+   "rang_flag_20261125T084352Z",
+   "m7_flagged"
+  ]
+ },
+ "c8/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.093,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084450Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c8-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.621,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c8-cli.ps.zarr.rang-run/receipts/flag-20261125T084447Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c8-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.508,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.3 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c8-cli.ps.zarr.rang-run/receipts/flag-20261125T084441Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c8",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c8-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084444Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084444Z",
+   "rang_rerun_20261125T084450Z",
+   "rang_flag_20261125T084450Z",
+   "m7_flagged"
+  ]
+ },
+ "c8/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 6.025,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084438Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c8-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 5.673,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 1.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c8-cli.ps.zarr.rang-run/receipts/flag-20261125T084435Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c8-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 5.69,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 1.3 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c8-cli.ps.zarr.rang-run/receipts/flag-20261125T084429Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c8",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c8-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084432Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084432Z",
+   "rang_rerun_20261125T084438Z",
+   "rang_flag_20261125T084438Z",
+   "m7_flagged"
+  ]
+ },
+ "c9/xms-auto": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.724,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084510Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c9-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.345,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.5 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c9-cli.ps.zarr.rang-run/receipts/flag-20261125T084507Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c9-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.553,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.5 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xms-auto/c9-cli.ps.zarr.rang-run/receipts/flag-20261125T084502Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xms-auto\\c9",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c9-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084505Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084505Z",
+   "rang_rerun_20261125T084510Z",
+   "rang_flag_20261125T084510Z",
+   "m7_flagged"
+  ]
+ },
+ "c9/xradio": {
+  "c1": "match",
+  "c4": "match",
+  "c4_seconds": 4.948,
+  "c4_steps": [
+   [
+    "restore rang_original == before",
+    true
+   ],
+   [
+    "--force == rang-p1",
+    true
+   ],
+   [
+    "restore rang_rerun_20261125T084500Z == before",
+    true
+   ],
+   [
+    "restore rang_original again == before",
+    true
+   ],
+   [
+    "restore m7_flagged == rang-p1",
+    true
+   ]
+  ],
+  "forced": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c9-cli.ps.zarr",
+    "--force"
+   ],
+   "returncode": 0,
+   "seconds": 4.602,
+   "stderr_tail": "rang-core: flag: running (was done)\nrang-core: flag: done in 0.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c9-cli.ps.zarr.rang-run/receipts/flag-20261125T084457Z.rang-receipt.json\n"
+  },
+  "run": {
+   "argv": [
+    "flag",
+    "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+    "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c9-cli.ps.zarr"
+   ],
+   "returncode": 0,
+   "seconds": 4.156,
+   "stderr_tail": "rang-core: flag: running\nrang-core: flag: done in 0.4 s\nrang-core: receipt D:/rang/outputs/msv4-fields-20261125/ps/xradio/c9-cli.ps.zarr.rang-run/receipts/flag-20261125T084453Z.rang-receipt.json\n"
+  },
+  "snapshot": "D:\\rang\\outputs\\msv4-fields-20261125\\products\\xradio\\c9",
+  "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c9-cli.ps.zarr",
+  "versions_after_run": [
+   "rang_original",
+   "rang_flag_20261125T084456Z"
+  ],
+  "versions_end": [
+   "rang_original",
+   "rang_flag_20261125T084456Z",
+   "rang_rerun_20261125T084500Z",
+   "rang_flag_20261125T084501Z",
+   "m7_flagged"
+  ]
+ }
+}

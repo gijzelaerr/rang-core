@@ -1,0 +1,362 @@
+{
+ "chunking": {
+  "chunk_gb": 7.2522889375686646,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 118821,
+   "calibrate": 118821,
+   "chain": 79214,
+   "flag": 237643,
+   "model": 118821,
+   "rows": 316857,
+   "selfcal": 168990
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "/home/gijs/Build/tmp/20261124-selfcal-mem-34/arm/.venv/bin/python",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/final/image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-no-update-model-required",
+     "-memory-report",
+     "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/D/pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 25052,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "6d31182d9a48c281a4b7e53d47dd4d86fddbca25bfab695b501d5de29443b023",
+     "image-image.fits": "caedc27af2ad279d88ca1a3d35841e83149ed199c18875015f425b51929bb86e",
+     "image-model.fits": "16cb6fbcddcffda277ae13d65fb3049632afdeba88b0c2a4dd276facb4bda32a",
+     "image-psf.fits": "8395897f77b18a556ce944fcd38b8b43b2c2f1debee08ec79c4af3744a9aed12",
+     "image-report.json": "ca4cfa4e2ca84ab6ca49fcf3f7ccc6f2c52b8bb910963288e0250c99fdbad916",
+     "image-residual.fits": "43234b896b4d91292a037bbe0e10b9adcc7f9a835e18e7f04ccfb33ae13ba070"
+    },
+    "fits_mask": null,
+    "image": 3,
+    "wall_seconds": 238.37368247006088
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 141.52850630600005
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Build/tmp/20261124-selfcal-mem-34/arm/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-1/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "-memory-report",
+       "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/D/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 59049,
+       "major_cycles": 3,
+       "stop": "Threshold"
+      },
+      "column": "DATA",
+      "files": {
+       "image-dirty.fits": "362380aafdf2ccb0470309c951fa13bedae649f4cc4cca15453e364f45122c3f",
+       "image-image.fits": "62bf3a7ab80092d35e05db9a1895b4b1ce68bf318cdc4f719e4e2f7e79d3934d",
+       "image-model.fits": "1522108bd53b2d7db24b795ba39e9085a1ea7a429eeb8931797b79ffad4ac1a4",
+       "image-psf.fits": "107c1676dc888bb7fe5d0bacbe6715272acd0d7ef1bddce82b9884c11b46a870",
+       "image-report.json": "8af114328ca6bd2d3cd8b8eae4a467f7cba0b0561a069b341ee457afc1c61c61",
+       "image-residual.fits": "abe57bb850bd6a22679348696c193b2823a0d0b9d7a174c6ccbe158f709f5083"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 251.81227237707935
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-1/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 138.20943161007017
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 13,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "streamed": {
+        "block_rows": 78141,
+        "cells": 76089333,
+        "file_bytes": 7000218636,
+        "read_block": 1048576,
+        "read_seconds": 113.32222830690444,
+        "seconds": 332.68578310497105
+       },
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 1,
+      "time_bins_per_scan": {
+       "2": 1
+      },
+      "type": "Sp",
+      "wall_seconds": 333.367553306045
+     },
+     "store": "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-1/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    },
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "input_column": "DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 91.62847988097928
+     },
+     "image": {
+      "argv": [
+       "/home/gijs/Build/tmp/20261124-selfcal-mem-34/arm/.venv/bin/python",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-2/image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "CORRECTED_DATA",
+       "-field",
+       "0",
+       "-no-update-model-required",
+       "-memory-report",
+       "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/D/pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 26214,
+       "major_cycles": 3,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_DATA",
+      "files": {
+       "image-dirty.fits": "2d3d0e47e838c3d6e8b5968cd1377c7c79815d58ceba71c4ee315e84abe96f0f",
+       "image-image.fits": "05859d990f2b1439168de94e8ec691a89eda60ff6f3cdfd9c32986e5e9679939",
+       "image-model.fits": "867397989914e3cfc26ce75fdbeb6ae8786f7ea81b2a4f75459e2db0a1a4dca0",
+       "image-psf.fits": "9d4ef0fc0c64758c413912c25eebfed5385b8012a105a5a8ead5464a17deaade",
+       "image-report.json": "29218791afb1fd7e6fca706bc68e4e72a49d51c4294c3963e48e2172379bee67",
+       "image-residual.fits": "196b089831b96b0fb78ee52269f058b93623321ea6dfe3375dba8110d8dca9cd"
+      },
+      "fits_mask": null,
+      "image": 2,
+      "wall_seconds": 236.9411974628456
+     },
+     "model": {
+      "added": false,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-2/image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 126.1725098171737
+     },
+     "round": 2,
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 37,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": "inf",
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "streamed": {
+        "block_rows": 78141,
+        "cells": 76089333,
+        "file_bytes": 7000218636,
+        "read_block": 1048576,
+        "read_seconds": 111.46139902900904,
+        "seconds": 519.6773585970514
+       },
+       "uvrange": "",
+       "weights": "WEIGHT_SPECTRUM"
+      },
+      "time_bins": 1,
+      "time_bins_per_scan": {
+       "2": 1
+      },
+      "type": "Sa",
+      "wall_seconds": 520.3105843809899
+     },
+     "store": "/home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/selfcal/ESO137-pilot/round-2/gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": "inf",
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261124T080812Z",
+ "gemclean": "/home/gijs/Build/tmp/20261124-selfcal-mem-34/arm/.venv/bin/python -m rang.gemclean",
+ "gemclean_sha256": "f87dca3f22784341526481b32c88490504b26d9d629c9ebe4ff7d883f4444053",
+ "input": {
+  "column": "DATA",
+  "copied_now": false,
+  "previous_copy": null
+ },
+ "input_column": "DATA",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 2
+}

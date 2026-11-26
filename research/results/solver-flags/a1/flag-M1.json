@@ -1,0 +1,305 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 10.951425552368164,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 1.048574447631836,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 179428,
+   "calibrate": 179428,
+   "chain": 119618,
+   "flag": 358856,
+   "model": 179428,
+   "rows": 478475,
+   "selfcal": 255186
+  },
+  "tasks": {
+   "flag-block": 23
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "7a6559e200a34f0f405ca77975e8ac809ace90860f034097daf06f8d350ae03e",
+ "flag_version": "rang_flag_20261125T111126Z",
+ "flagged_after": 0.6633868243986055,
+ "flagged_before": 0.2560828971068333,
+ "groups": [
+  {
+   "core_seconds": 5.005339399969671,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.6769739652226632,
+   "flagged_before": 0.2636791087962963,
+   "rows": 90720,
+   "scan": 1
+  },
+  {
+   "core_seconds": 4.250570500036702,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.6769442549878748,
+   "flagged_before": 0.2659014343584656,
+   "rows": 90720,
+   "scan": 23
+  },
+  {
+   "core_seconds": 3.1299790000193752,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.6773372912533069,
+   "flagged_before": 0.2600366340112434,
+   "rows": 60480,
+   "scan": 2
+  },
+  {
+   "core_seconds": 3.2512161000049673,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.6754501746445106,
+   "flagged_before": 0.25515227141203706,
+   "rows": 60480,
+   "scan": 8
+  },
+  {
+   "core_seconds": 3.501086200005375,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.6776161153480489,
+   "flagged_before": 0.2545045882936508,
+   "rows": 60480,
+   "scan": 14
+  },
+  {
+   "core_seconds": 3.904601799964439,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.6781350756448413,
+   "flagged_before": 0.2598999669312169,
+   "rows": 60480,
+   "scan": 22
+  },
+  {
+   "core_seconds": 2.63993369997479,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6771417204034391,
+   "flagged_before": 0.25711908895502644,
+   "rows": 30240,
+   "scan": 3
+  },
+  {
+   "core_seconds": 2.3517670999863185,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6764683314732143,
+   "flagged_before": 0.25576430224867724,
+   "rows": 30240,
+   "scan": 5
+  },
+  {
+   "core_seconds": 2.389448000001721,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6760438626405423,
+   "flagged_before": 0.25440951554232805,
+   "rows": 30240,
+   "scan": 7
+  },
+  {
+   "core_seconds": 2.4568497000145726,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6781849371693122,
+   "flagged_before": 0.25400545634920635,
+   "rows": 30240,
+   "scan": 9
+  },
+  {
+   "core_seconds": 2.2943000000086613,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6761447482638889,
+   "flagged_before": 0.25354197668650796,
+   "rows": 30240,
+   "scan": 11
+  },
+  {
+   "core_seconds": 2.335667100036517,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6758043723131614,
+   "flagged_before": 0.2541005291005291,
+   "rows": 30240,
+   "scan": 13
+  },
+  {
+   "core_seconds": 2.3858768999925815,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6761853091931217,
+   "flagged_before": 0.2544332837301587,
+   "rows": 30240,
+   "scan": 15
+  },
+  {
+   "core_seconds": 2.25336159998551,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6751045025214947,
+   "flagged_before": 0.2548016906415344,
+   "rows": 30240,
+   "scan": 17
+  },
+  {
+   "core_seconds": 2.270323599979747,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6771173063409391,
+   "flagged_before": 0.25639415922619047,
+   "rows": 30240,
+   "scan": 19
+  },
+  {
+   "core_seconds": 2.163552800018806,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.6774494150958995,
+   "flagged_before": 0.2588898189484127,
+   "rows": 30240,
+   "scan": 21
+  },
+  {
+   "core_seconds": 12.171892500016838,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.658614185474537,
+   "flagged_before": 0.25722485739087303,
+   "rows": 302400,
+   "scan": 4
+  },
+  {
+   "core_seconds": 19.32567549997475,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.6577718744833002,
+   "flagged_before": 0.2558284763558201,
+   "rows": 302400,
+   "scan": 6
+  },
+  {
+   "core_seconds": 13.831929700041655,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.6588031296502976,
+   "flagged_before": 0.2540589347718254,
+   "rows": 302400,
+   "scan": 10
+  },
+  {
+   "core_seconds": 20.54936230002204,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.6574243034887566,
+   "flagged_before": 0.25365606398809526,
+   "rows": 302400,
+   "scan": 12
+  },
+  {
+   "core_seconds": 13.829463200003374,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.657684978505291,
+   "flagged_before": 0.25455093625992065,
+   "rows": 302400,
+   "scan": 16
+  },
+  {
+   "core_seconds": 16.90061870001955,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.6596735749421296,
+   "flagged_before": 0.25492885044642855,
+   "rows": 302400,
+   "scan": 18
+  },
+  {
+   "core_seconds": 20.440720200014766,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.6614164548197752,
+   "flagged_before": 0.2567922763723545,
+   "rows": 302400,
+   "scan": 20
+  }
+ ],
+ "known_rfi": {
+  "added": 745401344,
+  "after_strategy": 0,
+  "cells": 2910781440,
+  "channels_all": 31,
+  "channels_short": 92,
+  "preset": "meerkat_l",
+  "short_m": 600.0
+ },
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 2842560,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 5,
+ "strategy": "D:\\rang\\outputs\\solver-flags-20261125\\a1\\mk_rfi_flagging_mild.yaml",
+ "strategy_sha256": "d9afac2774c302114f14b563bfbd64aa2956c1c501bb8e94de34af6eef4fce1e",
+ "write": "replace"
+}

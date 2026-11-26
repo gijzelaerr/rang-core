@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "C:\Users\gijsm\Worktrees\rang\msv4-cli\research\results\msv4-cli\msv4_cli.py", line 772, in <module>
+    main(sys.argv[1:])
+  File "C:\Users\gijsm\Worktrees\rang\msv4-cli\research\results\msv4-cli\msv4_cli.py", line 768, in main
+    steps[step]()
+  File "C:\Users\gijsm\Worktrees\rang\msv4-cli\research\results\msv4-cli\msv4_cli.py", line 765, in <lambda>
+    "xcheck": lambda: xcheck(root, rest[0]), "check": lambda: check(root, rest[0], rest[1])}  # fmt: skip
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Worktrees\rang\msv4-cli\research\results\msv4-cli\msv4_cli.py", line 624, in xcheck
+    trees = {k: open_processing_set(str(p)) for k, p in paths.items()}
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261125-msv4-cli\xradio-venv\Lib\site-packages\xradio\measurement_set\open_processing_set.py", line 48, in open_processing_set
+    ps_xdt = xr.open_datatree(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261125-msv4-cli\xradio-venv\Lib\site-packages\xarray\backends\api.py", line 1096, in open_datatree
+    tree = _datatree_from_backend_datatree(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261125-msv4-cli\xradio-venv\Lib\site-packages\xarray\backends\api.py", line 364, in _datatree_from_backend_datatree
+    path: _chunk_ds(
+          ^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261125-msv4-cli\xradio-venv\Lib\site-packages\xarray\backends\api.py", line 234, in _chunk_ds
+    chunkmanager = guess_chunkmanager(chunked_array_type)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gijsm\Build\tmp\20261125-msv4-cli\xradio-venv\Lib\site-packages\xarray\namedarray\parallelcompat.py", line 116, in guess_chunkmanager
+    raise ImportError(
+ImportError: chunk manager 'dask' is not available. Please make sure 'dask' is installed and importable.

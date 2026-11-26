@@ -1,0 +1,65 @@
+{
+ "stages": {
+  "original": {
+   "new": "flags.rang_original",
+   "e2n": "flags.rang_original",
+   "new_hash": {
+    "rows": 2229489,
+    "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "e2n_hash": {
+    "rows": 2229489,
+    "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "equal": true
+  },
+  "flag": {
+   "new": "flags.rang_flag_20261122T083241Z",
+   "e2n": "flags.rang_flag_20261117T015729Z",
+   "new_hash": {
+    "rows": 2229489,
+    "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "e2n_hash": {
+    "rows": 2229489,
+    "flag_sha256": "50c7ea355c44176e8915fff0939e1fb86a7f70694cc9c4d35f715c616639194e",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "equal": true
+  },
+  "calibrate": {
+   "new": "flags.rang_calibrate_20261122T090409Z",
+   "e2n": "flags.rang_calibrate_20261117T022650Z",
+   "new_hash": {
+    "rows": 2229489,
+    "flag_sha256": "c35e5123dd2380bc6adbc096d17aa95b615200d1e434df47da29ffa55f7c4b99",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "e2n_hash": {
+    "rows": 2229489,
+    "flag_sha256": "c35e5123dd2380bc6adbc096d17aa95b615200d1e434df47da29ffa55f7c4b99",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "equal": true
+  },
+  "apply": {
+   "new": "flags.rang_apply_20261122T102710Z",
+   "e2n": "flags.rang_apply_20261117T034709Z",
+   "new_hash": {
+    "rows": 2229489,
+    "flag_sha256": "581207506477b3ccc7ff5f9ee27977f33b554449c0f759eeda985af87f501705",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "e2n_hash": {
+    "rows": 2229489,
+    "flag_sha256": "581207506477b3ccc7ff5f9ee27977f33b554449c0f759eeda985af87f501705",
+    "flag_row_sha256": "f2809997961fa1ced781221b958a940aef4997d296900fbb8e56adf4b2ca2ec9"
+   },
+   "equal": true
+  }
+ },
+ "all_equal": true
+}

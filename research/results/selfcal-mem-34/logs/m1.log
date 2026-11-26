@@ -1,0 +1,18 @@
+🍹 Building a mixed python/rust project
+🐍 Found CPython 3.14 at /home/gijs/Build/tmp/20261124-selfcal-mem-34/arm/.venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 38 packages in 1ms
+📦 Built wheel for abi3 Python ≥ 3.10 to /tmp/.tmpRXPagM/rang_core-0.4.0-cp310-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed rang-core-0.4.0
+build 342.01 s 1504876 KB
+09:55:33 stage base None wall_s 0.0
+base 2.61 s 43012 KB
+09:56:06 stage prepare D wall_s 32.7
+prepare 33.00 s 199116 KB
+== 2026-11-24T07:56:06Z load 9.03 9.96 6.91 M1 start
+rang-core: selfcal: running
+rang-core: selfcal: done in 2081.7 s
+rang-core: receipt /home/gijs/rang-data/outputs/selfcal-mem-34-20261124/m1root/M1/run/receipts/selfcal-20261124T075606Z.rang-receipt.json
+selfcal 2086.93 s 7890824 KB
+== 2026-11-24T08:30:53Z load 12.45 12.10 11.28 M1 end

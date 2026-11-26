@@ -1,0 +1,39 @@
+{
+ "oracle": "/home/gijs/rang-data/outputs/gate3c-rerun-20261123/ws-n",
+ "rang_images": "/home/gijs/rang-data/outputs/gate3c-rerun-20261123/n-dirty/rang-run/image/ASKAPJ1745",
+ "channels_out": 8,
+ "dirty_only": true,
+ "dirty": {
+  "max_over_peak": 0.05456837364009654,
+  "per_image": {
+   "0000": 0.05230811929259929,
+   "0001": 0.04701350052639983,
+   "0002": 0.04866861691868962,
+   "0003": 0.05456837364009654,
+   "0004": 0.04256221429574669,
+   "0005": 0.04741500312043294,
+   "0006": 0.046311930012279054,
+   "0007": 0.048623942820889415,
+   "MFS": 0.04796075322596556
+  },
+  "tolerance": 1e-06,
+  "met": false,
+  "reported": {
+   "inner_two_thirds": 0.05456837364009654,
+   "border5": 0.05456837364009654,
+   "within_0p7deg": 0.003579404628702137,
+   "median_max": 3.4893107654131614e-05
+  }
+ },
+ "caveat": "WSClean grids 4,096 channels, GeMClean 512 averaged (9.10)",
+ "gates": {
+  "dirty_linf": false,
+  "q_over_q0": "not checked",
+  "model_data_predict": "not checked"
+ },
+ "met_where_checked": false,
+ "not_checked": [
+  "q_over_q0",
+  "model_data_predict"
+ ]
+}

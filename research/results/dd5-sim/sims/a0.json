@@ -1,0 +1,10 @@
+{
+ "sky": "a",
+ "sky_flux": 92.59491011445564,
+ "sky_sha256": "590204964def1061c5cffd1c7f3fad39e1e5a6a8cfefe27aab21ac1ee33bd78a",
+ "nblock": 113,
+ "nonoise": true,
+ "d0err": false,
+ "k": null,
+ "seconds": 39.09892299998319
+}

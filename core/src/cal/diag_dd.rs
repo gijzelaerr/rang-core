@@ -48,6 +48,12 @@
 //! - referencing is per direction, to the reference antenna's gain of the
 //!   same direction.
 //!
+//! `Settings::direction_update` (task DD10, research/dd10-gs.md) selects
+//! QuartiCal's update above (`Jacobi`, the default, unchanged) or a
+//! Gauss-Seidel sweep over directions, which DD9 (research/dd9-solver.md)
+//! found stable where the Jacobi update is not; it has no QuartiCal
+//! counterpart.
+//!
 //! Scope: one term (no chain), four correlations, one chunk, no robust
 //! reweighting, no MAD flags. Every solution interval runs `EPOCH`
 //! iterations on its own on rayon's pool and the global stop test is
@@ -75,6 +81,21 @@ pub enum Kind {
     /// QuartiCal `phase` with a direction axis: phase per hand.
     Phase,
 }
+/// How one iteration updates the directions (task DD10,
+/// research/dd10-gs.md).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum DirectionUpdate {
+    /// QuartiCal 0.2.7: every direction's update from one residual at the
+    /// gains entering the iteration (Jacobi over directions).
+    #[default]
+    Jacobi,
+    /// Gauss-Seidel over directions (DD9's reference arm I2): direction d's
+    /// `J^H J` and `J^H r` from the residual after directions `0..d` were
+    /// updated in this iteration; the same halved per-direction update; the
+    /// flag ladder on every gain after the sweep. `diag_complex` only.
+    GaussSeidel,
+}
+
 /// Trend above which `finalize_gain_flags` hard-flags a gain.
 const TREND_LIMIT: f64 = 1e-6;
 /// `invert` (non-generalised): no update below this determinant.
@@ -98,6 +119,8 @@ pub struct Settings {
     /// holds the last direction after the direction loop of
     /// `compute_jhj_jhr`). `false` uses each direction's own gain.
     pub phase_last_direction_gain: bool,
+    /// Jacobi (QuartiCal's, the default) or Gauss-Seidel over directions.
+    pub direction_update: DirectionUpdate,
 }
 
 impl Default for Settings {
@@ -112,6 +135,7 @@ impl Default for Settings {
             pinned_directions: Vec::new(),
             kind: Kind::DiagComplex,
             phase_last_direction_gain: true,
+            direction_update: DirectionUpdate::Jacobi,
         }
     }
 }
@@ -225,6 +249,13 @@ fn check(problem: &Problem, ndir: usize, settings: &Settings) -> Result<(), Erro
             "stop criterion and fraction must be finite",
         ));
     }
+    if settings.direction_update == DirectionUpdate::GaussSeidel
+        && settings.kind != Kind::DiagComplex
+    {
+        return Err(Error::Settings(
+            "the Gauss-Seidel direction update needs diag_complex",
+        ));
+    }
     Ok(())
 }
 
@@ -266,6 +297,7 @@ const FRESH: GainState = GainState {
 struct Mode {
     kind: Kind,
     last_direction_gain: bool,
+    gauss_seidel: bool,
 }
 
 struct CellRef {
@@ -489,6 +521,72 @@ fn accumulate(
     }
 }
 
+/// The Gauss-Seidel direction sweep of one iteration (`diag_complex`, task
+/// DD10, research/dd10-gs.md): for each free direction d in order, its
+/// `J^H J` and `J^H r` from the residual at the current gains (directions
+/// `0..d` already updated), then its update exactly as `step_gain`'s (halved;
+/// flagged gains held at 1). The flag ladder runs afterwards in
+/// `run_interval`, with the update already applied.
+#[allow(clippy::too_many_arguments)]
+fn gauss_seidel_sweep(
+    problem: &Problem,
+    models: &[f32],
+    ndir: usize,
+    pinned: &[bool],
+    cells: &[CellRef],
+    states: &mut [GainState],
+    rop_pq: &mut [Jones],
+    rop_qp: &mut [Jones],
+) -> Result<(), Error> {
+    let adj_identity = jones::adjoint(&IDENTITY);
+    for d in (0..ndir).filter(|&d| !pinned[d]) {
+        for s in states.iter_mut().skip(d).step_by(ndir) {
+            s.jhj = [C64::ZERO; 2];
+            s.jhr = [C64::ZERO; 2];
+        }
+        for c in cells {
+            let (p, q, cell) = (c.p as usize, c.q as usize, c.cell);
+            let w: [f64; 4] = std::array::from_fn(|k| f64::from(problem.weights[4 * cell + k]));
+            let mut r = jones::from_f32(&problem.data[8 * cell..8 * cell + 8]);
+            let mut v_pq: Jones = [C64::ZERO; 4];
+            for e in 0..ndir {
+                let base = 8 * (cell * ndir + e);
+                let m = jones::from_f32(&models[base..base + 8]);
+                let dp = diag(&states[p * ndir + e].gain);
+                let dq = diag(&states[q * ndir + e].gain);
+                rop_pq[e] = jones::mul(&dq, &jones::adjoint(&m));
+                rop_qp[e] = jones::mul(&dp, &m);
+                let v_pqe =
+                    jones::mul(&jones::mul(&adj_identity, &dp), &jones::adjoint(&rop_pq[e]));
+                for k in 0..4 {
+                    v_pq[k] = v_pq[k] + v_pqe[k];
+                }
+            }
+            for k in 0..4 {
+                r[k] = r[k] - v_pq[k];
+            }
+            let wr_pq: Jones = std::array::from_fn(|k| real_scale(r[k], w[k]));
+            let wr_qp = jones::adjoint(&wr_pq);
+            let sp = &mut states[p * ndir + d];
+            elem_complex(&rop_pq[d], &w, &wr_pq, &mut sp.jhr, &mut sp.jhj);
+            let sq = &mut states[q * ndir + d];
+            elem_complex(&rop_qp[d], &w, &wr_qp, &mut sq.jhr, &mut sq.jhj);
+        }
+        for state in states.iter_mut().skip(d).step_by(ndir) {
+            let update = update_complex(&state.jhj, &state.jhr)?;
+            if state.flag == 1 {
+                state.gain = [ONE, ONE];
+            } else {
+                for (g, u) in state.gain.iter_mut().zip(update) {
+                    let u = divide(u, C64::new(2., 0.))?;
+                    *g = *g + u;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Non-generalised `invert` then `v1_imul_v2(b, x, x)` on the diagonal.
 fn update_complex(jhj: &[C64; 2], jhr: &[C64; 2]) -> Result<[C64; 2], Error> {
     let det = jhj[0] * jhj[1] - C64::ZERO * C64::ZERO;
@@ -637,19 +735,38 @@ fn run_interval(
     let mut rop_qp = vec![IDENTITY; ndir];
     for j in 0..n {
         let loop_idx = k0 + j;
-        accumulate(
-            problem,
-            models,
-            ndir,
-            mode,
-            cells,
-            states,
-            &mut rop_pq,
-            &mut rop_qp,
-        );
+        if mode.gauss_seidel {
+            // The sweep applies the updates; `step_gain` below then runs the
+            // flag ladder only (as for a pinned direction).
+            if let Err(error) = gauss_seidel_sweep(
+                problem,
+                models,
+                ndir,
+                pinned,
+                cells,
+                states,
+                &mut rop_pq,
+                &mut rop_qp,
+            ) {
+                record.error = Some((loop_idx, error));
+                return record;
+            }
+        } else {
+            accumulate(
+                problem,
+                models,
+                ndir,
+                mode,
+                cells,
+                states,
+                &mut rop_pq,
+                &mut rop_qp,
+            );
+        }
         let (mut converged, mut flagged) = (0usize, 0usize);
         for (g, state) in states.iter_mut().enumerate() {
-            match step_gain(state, mode.kind, pinned[g % ndir], loop_idx, stop2) {
+            let no_update = pinned[g % ndir] || mode.gauss_seidel;
+            match step_gain(state, mode.kind, no_update, loop_idx, stop2) {
                 Ok((c, x)) => {
                     converged += usize::from(c);
                     flagged += usize::from(x);
@@ -721,6 +838,7 @@ pub fn solve(problem: &Problem, ndir: usize, settings: &Settings) -> Result<Solu
     let mode = Mode {
         kind: settings.kind,
         last_direction_gain: settings.phase_last_direction_gain,
+        gauss_seidel: settings.direction_update == DirectionUpdate::GaussSeidel,
     };
     let (j, fraction) = loop {
         let n = EPOCH.min(iterations - k0);
@@ -1089,6 +1207,91 @@ mod tests {
         for (x, y) in a.gains.iter().zip(&b.gains) {
             assert_eq!(x, y);
         }
+    }
+
+    fn gauss_seidel() -> Settings {
+        Settings {
+            direction_update: DirectionUpdate::GaussSeidel,
+            ..Settings::default()
+        }
+    }
+
+    #[test]
+    fn gauss_seidel_one_direction_equals_jacobi_exactly() {
+        // With one direction the sweep forms the same residual, normal
+        // equations and halved update as the Jacobi path.
+        let s = sim(1);
+        let p = problem(&s, &s.models);
+        for (refant, iterations) in [(Some(0), 1), (None, 7), (Some(3), 60)] {
+            let jacobi = Settings {
+                max_iterations: iterations,
+                reference_antenna: refant,
+                ..Settings::default()
+            };
+            let gs = Settings {
+                max_iterations: iterations,
+                reference_antenna: refant,
+                ..gauss_seidel()
+            };
+            let a = solve(&p, 1, &jacobi).unwrap();
+            let b = solve(&p, 1, &gs).unwrap();
+            assert_eq!(a.flags, b.flags);
+            assert_eq!(a.iterations, b.iterations);
+            assert_eq!(a.converged_fraction, b.converged_fraction);
+            assert_eq!(a.gains, b.gains);
+        }
+    }
+
+    #[test]
+    fn gauss_seidel_reaches_the_jacobi_fixed_point() {
+        // Both updates are stationary exactly where every free direction's
+        // J^H r vanishes; on a noiseless problem without flags both reach
+        // the truth (up to the per-direction phase gauge), and so each other.
+        let ndir = 3;
+        let s = sim(ndir);
+        let tight = |update| Settings {
+            max_iterations: 400,
+            stop_criterion: 1e-12,
+            stop_fraction: 1.0,
+            reference_antenna: Some(0),
+            direction_update: update,
+            ..Settings::default()
+        };
+        let p = problem(&s, &s.models);
+        let a = solve(&p, ndir, &tight(DirectionUpdate::Jacobi)).unwrap();
+        let b = solve(&p, ndir, &tight(DirectionUpdate::GaussSeidel)).unwrap();
+        assert!(a.flags.iter().chain(&b.flags).all(|&f| f == 0));
+        let worst = a
+            .gains
+            .iter()
+            .zip(&b.gains)
+            .flat_map(|(x, y)| (0..2).map(move |h| (x[h] - y[h]).norm2().sqrt()))
+            .fold(0., f64::max);
+        assert!(worst < 1e-9, "Jacobi and Gauss-Seidel differ by {worst}");
+    }
+
+    #[test]
+    fn gauss_seidel_pins_and_rejects_phase() {
+        let ndir = 2;
+        let s = sim(ndir);
+        let p = problem(&s, &s.models);
+        let pinned = Settings {
+            reference_antenna: None,
+            pinned_directions: vec![0],
+            max_iterations: 10,
+            ..gauss_seidel()
+        };
+        let sol = solve(&p, ndir, &pinned).unwrap();
+        for (g, gain) in sol.gains.iter().enumerate() {
+            if g % ndir == 0 {
+                assert_eq!(*gain, [ONE, ONE]);
+            }
+        }
+        let phase = Settings {
+            kind: Kind::Phase,
+            ..gauss_seidel()
+        };
+        assert!(matches!(solve(&p, ndir, &phase), Err(Error::Settings(_))));
     }
 
     #[test]

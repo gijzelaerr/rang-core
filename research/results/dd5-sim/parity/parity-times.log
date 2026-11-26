@@ -1,0 +1,14 @@
+Od start 2026-11-24T14:57:20 QC_VENV= DD4_J=2 args=tools/oracles/dd4/dd4.py oracle D:/rang/outputs/dd5-20261124/b /home/gijsm/Build/tmp/20261124-dd5-qc/Od --cap 500 --name Od --model0 D:/rang/outputs/dd5-20261124/b/sky.npy --ti 4
+Op start 2026-11-24T14:57:24 QC_VENV=/home/gijsm/Build/tmp/20261124-dd5-qc/venv DD4_J=2 args=tools/oracles/dd4/dd4.py oracle D:/rang/outputs/dd5-20261124/b /home/gijsm/Build/tmp/20261124-dd5-qc/Op --phase --cap 500 --name Op --model0 D:/rang/outputs/dd5-20261124/b/sky.npy --ti 4
+Rd start 2026-11-24T14:57:28 QC_VENV= DD4_J=2 args=tools/oracles/dd4/dd4.py rang D:/rang/outputs/dd5-20261124/b --cap 500 --perdir --name Rd --model0 D:/rang/outputs/dd5-20261124/b/sky.npy --ti 4
+Rp start 2026-11-24T14:57:33 QC_VENV= DD4_J=2 args=tools/oracles/dd4/dd4.py rang D:/rang/outputs/dd5-20261124/b --cap 500 --perdir --phase --own-gain --name Rp --model0 D:/rang/outputs/dd5-20261124/b/sky.npy --ti 4
+Rd end 2026-11-24T16:17:48 rc=0 wall=4819s
+Rp end 2026-11-24T19:01:56 rc=0 wall=14663s
+Op end 2026-11-24T20:00:30 rc=0 wall=18186s
+looptruth Rd wall=14880s
+looptruth Rp wall=5173s
+looptruth Op rc=0 wall=1722s
+score phase rc=0 wall=47s
+Od end 2026-11-24T20:37:38 rc=0 wall=20417s
+score diag rc=0 wall=1835s
+looptruth Od rc=0 wall=111s

@@ -84,7 +84,7 @@ $ rang-core -h
 usage: rang-core [--receipt PATH | --no-receipt] [--no-pin-threads] COMMAND ...
 
 commands for a Measurement Set (each takes a config.yaml and an MS):
-  flag            CONFIG MS: flag with the Tricolour port, writing FLAG
+  flag            CONFIG MS: flag with the Tricolour port, writing FLAG (an MSv4 store too)
   calibrate       CONFIG MS: solve the calibration terms, writing tables
   apply           CONFIG MS: apply the complex solutions, writing CORRECTED_DATA
   image           CONFIG MS: image with gemclean
@@ -112,13 +112,15 @@ prints every configuration key with its default.
 $ rang-core flag -h
 usage: rang-core flag [-h] [--run-dir RUN_DIR] [--force] config ms
 
-flag with the Tricolour port, writing FLAG. Validates the configuration for
-the stages it runs first. A finished stage is skipped, or refused when its
-configuration changed, unless forced. A failed or stale one runs again.
+flag with the Tricolour port, writing FLAG (an MSv4 store too). Validates the
+configuration for the stages it runs first. A finished stage is skipped, or
+refused when its configuration changed, unless forced. A failed or stale one
+runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -139,7 +141,8 @@ configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -161,7 +164,8 @@ runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -182,7 +186,8 @@ forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -204,7 +209,8 @@ runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -225,7 +231,8 @@ configuration changed, unless forced. A failed or stale one runs again.
 
 positional arguments:
   config             the configuration (rang-core config defaults)
-  ms                 the Measurement Set, written in place
+  ms                 the Measurement Set, written in place (flag and run: or
+                     an MSv4 store, flag stage only)
 
 options:
   -h, --help         show this help message and exit
@@ -281,6 +288,7 @@ flag:
   column: DATA  # the visibilities flagged
   static_masks: tricolour  # tricolour: the two masks shipped with Tricolour 0.2.1; none
   write: replace  # replace: FLAG becomes the strategy's flags, as Tricolour writes them; or: OR with the flags already there
+  known_rfi: none  # a known-RFI preset OR-ed into FLAG before the strategy (issue #59, research/solver-flags.md 3.3): none; meerkat_l: MeerKAT L band, three ranges on all baselines and 15 satellite and transmitter bands below 600 m (oxkat's lists, rang.meerkat.KNOWN_RFI_L)
   residual:
     mode: "off"  # residual flagging inside calibrate, then a re-solve (issue #51, research/flag-residual.md): off; calibrators: the calibrator fields against their per-scan median
     method: rang  # rang: antenna-factorised noise, persistence and guard; quartical: QuartiCal 0.2.7's mad_flags on the same residual
@@ -294,6 +302,16 @@ flag:
     weights: null  # the ONNX weights file of the learned mode
     force: false  # run a mode whose gates the weights file has not passed, or outside its envelope (experiments only; recorded in the receipt)
 calibrate:
+  solver_flags:
+    mode: "off"  # residual flags at the gain solve (issue #58, research/solver-flags.md): after each G or B solve, flags on the residual d - g_p m g_q^* per solution interval, then a re-solve; off; quartical: QuartiCal 0.2.7's mad_flags rule; rang: antenna-factorised noise and persistence
+    terms: ["G", "B"]  # the solve types flagged: G (G, Gsec), B
+    rounds: 2  # flag passes, each followed by a re-solve of the term
+    sigma: 5.0  # cell threshold (QuartiCal: threshold_bl)
+    global_sigma: 10.0  # quartical only: threshold_global
+    persist: 3.0  # rang only: a baseline's channel or dump whose mean z^2 exceeds this times the interval's median
+    guard: 0.8  # no baseline is pushed past this flagged fraction within a solution interval (1: off)
+    min_cells: 8  # a baseline with fewer unflagged cells in an interval gets none
+    tripwire: 0.05  # fail the stage when a term's flagged-solution fraction rises by more than this between its first solve and its last re-solve
   model:
     source: unity  # unity: a 1 Jy point at the phase centre; column: an existing column; setjy, manual, lsm: written to MODEL_DATA on the primary fields (rang.calmodels), then solved against
     column: MODEL_DATA  # the model column for source: column
@@ -1321,6 +1339,7 @@ Every `RANG_*` variable that the package or the Rust core reads. Each receipt re
 | `RANG_GEMCLEAN_SIMD` | unset (the best the CPU has) | speed | `scalar`, `avx2` or `avx512` caps gemclean's kernels; the gather sum agrees to rounding only | `research/gemclean.md` | `core/src/gemclean/kernels.rs` |
 | `RANG_WGRIDDER_SIMD` | unset (AVX-512 where available) | speed | `avx2` or `baseline` caps the w-gridder's instruction set | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_WGRIDDER_PLANE_GROUP` | 1; 4 within 2 GiB of grids in gemclean | speed | w-planes gridded together; 1 takes the least memory | `research/gemclean.md` | `core/src/wgridder.rs` |
+| `RANG_GEMCLEAN_TRACE` | unset | output | one line on stderr as each gemclean and w-gridder stage starts (seconds, stage, threads, resident set), to locate a crash | `research/gemclean-57.md` | `core/src/gemclean/memory.rs` |
 | `RANG_WGRIDDER_TIMING` | unset | output | phase timings of the w-gridder on stderr | `research/df2-wgridder-speed.md` | `core/src/wgridder.rs` |
 | `RANG_C1_LIB` | no longer read | retired | was a prebuilt closure-score library loaded through ctypes (C1); W4-3 moved the kernel into the extension | `research/w4-3-kernels.md` | `-` |
 | `RANG_P6` | unset (the frozen calls) | result | `1` runs the signal track's ported guard and influence functions | `research/p6-python-hotspots.md` | `python/rang/core_signal.py` |

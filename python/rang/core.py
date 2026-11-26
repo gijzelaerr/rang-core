@@ -163,6 +163,15 @@ ENVIRONMENT = (
         "core/src/wgridder.rs",
     ),
     _v(
+        "RANG_GEMCLEAN_TRACE",
+        "unset",
+        "output",
+        "one line on stderr as each gemclean and w-gridder stage starts (seconds, "
+        "stage, threads, resident set), to locate a crash",
+        "gemclean-57",
+        "core/src/gemclean/memory.rs",
+    ),
+    _v(
         "RANG_WGRIDDER_TIMING",
         "unset",
         "output",

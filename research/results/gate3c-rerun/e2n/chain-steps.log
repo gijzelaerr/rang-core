@@ -1,0 +1,26 @@
+2026-11-23T16:19:34+02:00 START r1 slots=1 mem=4
+2026-11-23T16:49:59+02:00 START r1 slots=1 mem=4
+2026-11-23T17:04:26+02:00 END r1 rc=0 867s
+2026-11-23T17:04:26+02:00 START unit slots=1 mem=4
+2026-11-23T17:04:32+02:00 END unit rc=0 6s
+2026-11-23T17:04:32+02:00 START ws-c3-dirty slots=4 mem=16
+2026-11-23T17:10:40+02:00 END ws-c3-dirty rc=0 368s
+2026-11-23T17:10:40+02:00 START score-c3 slots=1 mem=16
+2026-11-23T17:11:11+02:00 END score-c3 rc=0 31s
+2026-11-23T17:11:11+02:00 START ws-n-dirty slots=4 mem=24
+2026-11-23T17:11:11+02:00 START n-dirty slots=8 mem=32
+2026-11-23T17:19:11+02:00 END ws-n-dirty rc=0 480s
+2026-11-23T17:29:22+02:00 END n-dirty rc=0 1091s
+2026-11-23T17:29:22+02:00 START score-n-dirty slots=1 mem=24
+2026-11-23T17:30:16+02:00 END score-n-dirty rc=0 54s
+2026-11-23T17:30:16+02:00 START d-dirty slots=8 mem=48
+2026-11-23T17:49:43+02:00 END d-dirty rc=0 1167s
+2026-11-23T17:49:43+02:00 START score-d-dirty slots=1 mem=24
+2026-11-23T17:50:38+02:00 END score-d-dirty rc=0 55s
+2026-11-23T17:50:38+02:00 START ws-n-clean slots=8 mem=48
+2026-11-23T17:50:38+02:00 START n-clean slots=8 mem=80
+2026-11-24T02:27:28+02:00 END n-clean rc=0 31010s
+2026-11-24T05:22:54+02:00 END ws-n-clean rc=0 41536s
+2026-11-24T05:22:54+02:00 START score-n slots=1 mem=24
+2026-11-24T05:25:17+02:00 END score-n rc=0 143s
+2026-11-24T05:25:17+02:00 chain finished

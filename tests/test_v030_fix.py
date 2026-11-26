@@ -58,6 +58,9 @@ def fixture_scan(tmp_path_factory):
 # As tests/test_mcp_chain.py, with refant m000: the example strategy flags
 # baselines m000-m001 and m000-m003 entirely on this scan, so with m000 as the
 # only reference every G solution is flagged (found by the chain test, R-02).
+# K is pinned to `refantmode: strict`: since #53 (research/k-refant-53.md) K's
+# default `flex` solves every antenna through connected baselines, G then
+# solves with an alternate refant and the run no longer fails.
 R02_CONFIG = """\
     version: 1
     fields:
@@ -72,7 +75,7 @@ R02_CONFIG = """\
       primary:
         field: [fcal]
         terms:
-          - {{type: K, name: K, solint: inf}}
+          - {{type: K, name: K, solint: inf, refantmode: strict}}
           - {{type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}}
     run:
       stages: [flag, calibrate]

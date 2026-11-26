@@ -358,6 +358,10 @@ F-P2T, S-P2T and C-P2T). A power cut at about 17:30 on 2026-11-13 then killed th
 
 ### 6.1 Timing runs on nash (amendment 2, section 5.1): 2 of 15 points, the rest deferred
 
+**Closed 2026-11-23 (dated, post hoc):** the matrix ends at these 2 of 15 points, not completed. Its driver and the
+pinned worktrees are gone from nash and `abdfb5a` is superseded; the timing moves to
+[chunk-task-api-1b.md](chunk-task-api-1b.md) section 5 on that branch's code.
+
 **Status, 2026-11-17 04:30 SAST.** Two points are measured: W-B-r0 and
 W-N1-r0. The other 13 wait for an idle lock (the scheduling rule above). The
 driver keeps going on nash without a session and queues each point only when

@@ -1,0 +1,136 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "flag",
+  "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+  "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c4-cli.ps.zarr"
+ ],
+ "stage": "flag",
+ "verb": null,
+ "started_utc": "2026-11-25T08:42:52+00:00",
+ "commit": {
+  "head": "929667dd318657452cb46983285b59beb99e27f1",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/msv4-fields",
+  "distribution": "rang-core",
+  "version": "0.4.0",
+  "extension_sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.4.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/msv4-fields/python/rang/_core.pyd",
+   "sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "2",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": null,
+   "RANG_HEAVY_SLOTS": null,
+   "RANG_HEAVY_MEM_GB": null,
+   "RANG_HEAVY_NICE": null,
+   "RANG_HEAVY_LOCK_HELD": "2:4",
+   "RANG_HEAVY_LOCK_PID": "565068",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/msv4-next-20261125/config-DATA-p1.yaml",
+   "kind": "file",
+   "bytes": 81,
+   "sha256": "e793476baa760bc57f58efc20d3661a92872a68ada131fdb52f4245021ee34fb"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr",
+   "kind": "directory",
+   "files": 73,
+   "bytes": 4014983,
+   "listing_sha256": "5a2aa7bc2f60c25e836eee772707c352b033eec0180aeade96eeaffa874d3384"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr",
+   "kind": "directory",
+   "files": 73,
+   "bytes": 4011089,
+   "listing_sha256": "e1c13afd2d984bf005a741ec726d2c123d2356f3d08915ee015553e8e9247e35",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr.flagversions",
+   "kind": "directory",
+   "files": 8,
+   "bytes": 20921,
+   "tree_sha256": "baaeae10f5920376929b843565f1fb6ab677f6645d8e62eebec91444f2c0b66f"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-fields-20261125/ps/xradio/c4-cli.ps.zarr.rang-run",
+   "kind": "directory",
+   "files": 4,
+   "bytes": 8142,
+   "tree_sha256": "c2585cad8977fe214755ffdefa6aaf247a739adef379b887039ec5f2db66f3c5"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 3.816472199978307,
+  "cpu_seconds": 4.1875,
+  "peak_rss_mb": 116.08203125
+ },
+ "exit": 0,
+ "verdict": null
+}

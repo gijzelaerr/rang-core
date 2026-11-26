@@ -1,0 +1,9 @@
+{
+ "src": "/home/gijs/rang-data/outputs/solver-flags-20261125/e2n-M0.ms",
+ "field": "J1939-6342",
+ "field_id": 4,
+ "version": "rang_calibrate_20261117T022650Z",
+ "rows": 139934,
+ "first_row": 2089555,
+ "flagged": 0.6167948065025297
+}

@@ -1,0 +1,7 @@
+{
+ "iterations": 500,
+ "fraction": 0.25,
+ "h5_roundtrip": true,
+ "seconds_solve": 2610.6237454999937,
+ "seconds_image": 50.65760480001336
+}

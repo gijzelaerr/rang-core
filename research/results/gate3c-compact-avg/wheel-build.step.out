@@ -1,0 +1,6 @@
+python 3.14.10 linux x86_64 rust 1.93.1 maturin 1.16.0 RUSTFLAGS=-C target-cpu=x86-64
+## rustc: rustc --version
+   0.1 s, exit 0
+## wheel: uv tool run --from maturin==1.16.0 maturin build --release --locked --out /home/gijs/Build/tmp/20261124-gate3c-compact-avg/wheel/dist --interpreter /home/gijs/Github/rang/.venv/bin/python
+   343.4 s, exit 0
+5ca7ce8b387b6a026fe03b06d1f3ff485c6aab2bcb7c0ba865c155e3ee496ded  dist/rang_core-0.2.0-cp310-abi3-manylinux_2_35_x86_64.whl  4945149

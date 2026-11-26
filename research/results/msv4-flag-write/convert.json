@@ -1,0 +1,312 @@
+{
+ "c1/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c1.ms",
+  "outcome": "written",
+  "seconds": 3.339
+ },
+ "c1/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c1.ms",
+  "outcome": "written",
+  "seconds": 1.907
+ },
+ "c1/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c1.ms",
+  "outcome": "written",
+  "seconds": 3.023
+ },
+ "c1/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c1.ms",
+  "outcome": "written",
+  "seconds": 3.314
+ },
+ "c1/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c1.ms",
+  "outcome": "written",
+  "seconds": 3.411
+ },
+ "c1/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c1.ms",
+  "outcome": "written",
+  "seconds": 3.364
+ },
+ "c10/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c10.ms",
+  "outcome": "written",
+  "seconds": 3.961
+ },
+ "c10/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c10.ms",
+  "outcome": "written",
+  "seconds": 4.519
+ },
+ "c10/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c10.ms",
+  "outcome": "written",
+  "seconds": 4.49
+ },
+ "c10/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c10.ms",
+  "outcome": "written",
+  "seconds": 3.843
+ },
+ "c10/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c10.ms",
+  "outcome": "written",
+  "seconds": 3.686
+ },
+ "c10/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c10.ms",
+  "outcome": "written",
+  "seconds": 6.325
+ },
+ "c11/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c11.ms",
+  "outcome": "written",
+  "seconds": 6.446
+ },
+ "c11/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c11.ms",
+  "outcome": "written",
+  "seconds": 5.103
+ },
+ "c11/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c11.ms",
+  "outcome": "written",
+  "seconds": 4.441
+ },
+ "c11/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c11.ms",
+  "outcome": "written",
+  "seconds": 6.245
+ },
+ "c11/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c11.ms",
+  "outcome": "written",
+  "seconds": 5.632
+ },
+ "c11/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c11.ms",
+  "outcome": "written",
+  "seconds": 6.109
+ },
+ "c11c/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2-named/c11c/c11.ms",
+  "outcome": "written",
+  "seconds": 7.405
+ },
+ "c11c/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2-named/c11c/c11.ms",
+  "outcome": "written",
+  "seconds": 7.53
+ },
+ "c2/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c2.ms",
+  "outcome": "written",
+  "seconds": 3.203
+ },
+ "c2/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c2.ms",
+  "outcome": "written",
+  "seconds": 1.844
+ },
+ "c2/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c2.ms",
+  "outcome": "written",
+  "seconds": 3.316
+ },
+ "c2/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c2.ms",
+  "outcome": "written",
+  "seconds": 3.05
+ },
+ "c2/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c2.ms",
+  "outcome": "written",
+  "seconds": 3.387
+ },
+ "c2/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c2.ms",
+  "outcome": "written",
+  "seconds": 3.755
+ },
+ "c3/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c3.ms",
+  "outcome": "written",
+  "seconds": 11.005
+ },
+ "c3/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c3.ms",
+  "outcome": "written",
+  "seconds": 2.356
+ },
+ "c3/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c3.ms",
+  "outcome": "written",
+  "seconds": 5.373
+ },
+ "c3/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c3.ms",
+  "outcome": "written",
+  "seconds": 3.379
+ },
+ "c3/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c3.ms",
+  "outcome": "written",
+  "seconds": 3.389
+ },
+ "c3/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c3.ms",
+  "outcome": "written",
+  "seconds": 4.592
+ },
+ "c4/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c4.ms",
+  "outcome": "written",
+  "seconds": 3.173
+ },
+ "c4/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c4.ms",
+  "outcome": "written",
+  "seconds": 3.315
+ },
+ "c4/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c4.ms",
+  "outcome": "written",
+  "seconds": 4.084
+ },
+ "c4/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c4.ms",
+  "outcome": "written",
+  "seconds": 3.239
+ },
+ "c4/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c4.ms",
+  "outcome": "written",
+  "seconds": 3.514
+ },
+ "c4/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c4.ms",
+  "outcome": "written",
+  "seconds": 8.58
+ },
+ "c5/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c5.ms",
+  "outcome": "written",
+  "seconds": 6.121
+ },
+ "c5/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c5.ms",
+  "outcome": "written",
+  "seconds": 2.363
+ },
+ "c5/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c5.ms",
+  "outcome": "written",
+  "seconds": 7.848
+ },
+ "c5/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c5.ms",
+  "outcome": "written",
+  "seconds": 4.98
+ },
+ "c5/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c5.ms",
+  "outcome": "written",
+  "seconds": 3.545
+ },
+ "c5/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c5.ms",
+  "outcome": "written",
+  "seconds": 3.94
+ },
+ "c6x/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c6x.ms",
+  "outcome": "written",
+  "seconds": 16.892
+ },
+ "c6x/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c6x.ms",
+  "outcome": "written",
+  "seconds": 19.427
+ },
+ "c6x/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c6x.ms",
+  "outcome": "written",
+  "seconds": 19.545
+ },
+ "c6x/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c6x.ms",
+  "outcome": "written",
+  "seconds": 11.196
+ },
+ "c6x/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c6x.ms",
+  "outcome": "written",
+  "seconds": 13.736
+ },
+ "c6x/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c6x.ms",
+  "outcome": "written",
+  "seconds": 13.669
+ },
+ "c8/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c8.ms",
+  "outcome": "written",
+  "seconds": 6.593
+ },
+ "c8/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c8.ms",
+  "outcome": "written",
+  "seconds": 2.322
+ },
+ "c8/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c8.ms",
+  "outcome": "written",
+  "seconds": 7.606
+ },
+ "c8/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c8.ms",
+  "outcome": "written",
+  "seconds": 4.941
+ },
+ "c8/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c8.ms",
+  "outcome": "written",
+  "seconds": 5.549
+ },
+ "c8/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c8.ms",
+  "outcome": "written",
+  "seconds": 4.626
+ },
+ "c9/xms-auto/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c9.ms",
+  "outcome": "written",
+  "seconds": 5.025
+ },
+ "c9/xms-auto/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c9.ms",
+  "outcome": "written",
+  "seconds": 4.518
+ },
+ "c9/xms-auto/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c9.ms",
+  "outcome": "written",
+  "seconds": 5.487
+ },
+ "c9/xradio/before": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c9.ms",
+  "outcome": "written",
+  "seconds": 4.685
+ },
+ "c9/xradio/control": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/ms-src/c9.ms",
+  "outcome": "written",
+  "seconds": 7.83
+ },
+ "c9/xradio/oracle": {
+  "ms": "/mnt/d/rang/outputs/msv4-next-20261125/msv2/c9.ms",
+  "outcome": "written",
+  "seconds": 5.273
+ }
+}

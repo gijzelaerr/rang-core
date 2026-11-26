@@ -1,0 +1,116 @@
+{
+ "cases": {
+  "c1/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c1/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c10/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c10/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c11/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c11/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c11c/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c11c/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c2/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c2/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c3/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c3/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c4/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c4/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c5/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c5/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c6x/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c6x/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c8/xms-auto": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c8/xradio": {
+   "c1": "match",
+   "c6": "match",
+   "field_ids": "match"
+  },
+  "c9/xms-auto": {
+   "c1": "match",
+   "c6": "not measured",
+   "field_ids": "not measured"
+  },
+  "c9/xradio": {
+   "c1": "match",
+   "c6": "not measured",
+   "field_ids": "not measured"
+  }
+ },
+ "outcome": "pass",
+ "rule": "research/msv4-cli.md section 10 (A3): C1 and C6 (+ field_id) on every measured deciding case of both arms"
+}

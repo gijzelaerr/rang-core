@@ -112,6 +112,11 @@ Scoping note: [multi-node-scope.md](multi-node-scope.md).
 | #18 | S band | M | #11's pattern |
 | #9 | Time series P1: residual snapshot light curves, then dynamic spectra | M | owner approves P1 |
 | #15 | Direction-dependent calibration and facets, first piece | L | a scoping note; #4 helps |
+| #57 | GeMClean segfault on long tracks (3.6e9 visibilities), first of the testers' list | S-M | — |
+| #58 | Flagging inside the solver (QuartiCal-style MAD flags per solve) with a mild raw strategy | M | #51 |
+| #48 | Weights that track the noise: empirical weights from the residuals | M | — |
+| #59 | MeerKAT known-RFI preset (LCP's bands) | S | — |
+| #60 | K solve fallback when the baseline to the reference antenna is flagged | S-M | — |
 
 **Done when:**
 
@@ -192,6 +197,7 @@ ang`.
 - #11 UHF: the owner fetches the SARAO archive links for public UHF tracks.
 - #9 P1 (residual snapshot light curves) approved for v0.5.0.
 - #15's first direction-dependent piece: faceted imaging with per-facet gain solutions.
+- 2026-11-25: the testers' list for 0.5.0 (Killick for Oleg Smirnov, after RCW57 and rho Oph), worst first: #57, #58, #48, #59, #60. All five join v0.5.0.
 
 ## For the coordinator
 

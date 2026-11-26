@@ -1,0 +1,13 @@
+import sys, numpy as np, casacore.tables as pt
+ms, field = sys.argv[1], int(sys.argv[2])
+t = pt.table(ms, ack=False)
+s = pt.taql(f"select UVW, FLAG_ROW from $t where FIELD_ID=={field} and ANTENNA1!=ANTENNA2")
+uvw = s.getcol("UVW"); fr = s.getcol("FLAG_ROW")
+spw = pt.table(ms + "/SPECTRAL_WINDOW", ack=False); f = spw.getcol("CHAN_FREQ")[0]
+c = 299792458.0
+um = np.abs(uvw[:, 0]).max(); vm = np.abs(uvw[:, 1]).max()
+um2 = np.abs(uvw[~fr, 0]).max(); vm2 = np.abs(uvw[~fr, 1]).max()
+lam = c / f.max()
+m = max(um, vm) / lam
+print(dict(rows=len(uvw), fmax=f.max(), fmin=f.min(), nchan=len(f), umax_m=um, vmax_m=vm, unflagged_umax=um2, unflagged_vmax=vm2,
+           nyquist_arcsec=np.degrees(1/(2*m))*3600, maxbl_m=np.hypot(uvw[:,0],uvw[:,1]).max()))

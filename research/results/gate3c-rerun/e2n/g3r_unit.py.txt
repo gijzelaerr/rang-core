@@ -1,0 +1,20 @@
+
+import json, sys
+import numpy as np
+from casacore.tables import table, makecoldesc
+ms, out = sys.argv[1:3]
+t = table(ms, readonly=False, ack=False)
+cols = t.colnames()
+assert "G3R_WEIGHT" not in cols and "CORRECTED_DATA" in cols
+n = t.nrows()
+t.renamecol("WEIGHT_SPECTRUM", "G3R_WEIGHT_SPECTRUM")
+t.renamecol("WEIGHT", "G3R_WEIGHT")
+desc = t.getcoldesc("G3R_WEIGHT")
+t.addcols(makecoldesc("WEIGHT", desc),
+          {"TYPE": "StandardStMan", "NAME": "G3RUnitWeight", "SPEC": {}})
+w = np.ones((n, t.getcell("G3R_WEIGHT", 0).shape[0]), np.float32)
+t.putcol("WEIGHT", w)
+rec = {"columns": t.colnames(), "rows": n}
+t.close()
+json.dump(rec, open(out, "w"), indent=1)
+print(json.dumps(rec))

@@ -1,0 +1,39 @@
+$ C:\Users\gijsm\Worktrees\rang\dd9-solver\.venv\Scripts\python.exe C:\Users\gijsm\Worktrees\rang\dd9-solver\tools\check.py --skip core-clippy-gpu,core-test-gpu --pytest-paths tests/test_d1_docs.py,tests/test_dd9.py,tests/test_w4_8_docs.py --json C:\Users\gijsm\Worktrees\rang\dd9-solver\outputs\check\20261126T004127Z-quick.json
+RANG_ARCHIVE_OUTPUTS default: \\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs
+## root-fmt
+## core-fmt
+## ext-fmt
+## ruff
+All checks passed!
+## ruff-format
+604 files already formatted
+## diff-check
+## root-build
+## root-test
+test result: ok. 23 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.16s
+## root-clippy
+## core-build
+## core-test
+test result: ok. 333 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.57s
+## core-clippy
+## ext-build
+🍹 Building a mixed python/rust project
+🐍 Not using a specific python interpreter (automatically generating windows import library)
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 38 packages in 8ms
+📦 Built wheel for abi3 Python ≥ 3.10 to C:\Users\gijsm\AppData\Local\Temp\.tmpD1jdP2\rang_core-0.4.0-cp310-abi3-win_amd64.whl
+✏️ Setting installed package as editable
+🛠 Installed rang-core-0.4.0
+## ext-clippy
+## pytest
+...................sss.....                                              [100%]
+24 passed, 3 skipped in 42.72s
+## gain-hashes
+  ok   slice_original
+  ok   fixture_D
+  ok   luno_iterations
+  ok   luno_converged_fraction
+  ok   luno_gain_flags
+gain-hash gate: PASS (11.35 s, archive \\wsl.localhost\Ubuntu\home\gijsm\Github\rang\outputs)
+## overall: PASS
+check_all: PASS in 908 s (lock wait excluded); log C:\Users\gijsm\Worktrees\rang\dd9-solver\outputs\check\20261126T004127Z-quick.log

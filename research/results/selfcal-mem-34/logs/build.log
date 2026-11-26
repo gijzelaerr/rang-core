@@ -1,0 +1,8 @@
+🍹 Building a mixed python/rust project
+🐍 Found CPython 3.14 at /home/gijs/Worktrees/rang/selfcal-mem-34/.venv/bin/python
+🔗 Found pyo3 bindings with abi3-py3.10 support
+Checked 38 packages in 17ms
+📦 Built wheel for abi3 Python ≥ 3.10 to /tmp/.tmpqdF6SZ/rang_core-0.4.0-cp310-abi3-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed rang-core-0.4.0
+build 340.16 s 1504504 KB

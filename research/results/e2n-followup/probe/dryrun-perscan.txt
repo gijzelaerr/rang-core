@@ -1,0 +1,4 @@
+rang_calibrate_20261116T221634Z scan 1 antennas with no unflagged cell on the baseline to m008: [10]
+rang_calibrate_20261116T221634Z scan 23 antennas with no unflagged cell on the baseline to m008: [10]
+rang_apply_20261116T221642Z scan 1 antennas with no unflagged cell on the baseline to m008: [0, 1, 3, 5, 10]
+rang_apply_20261116T221642Z scan 23 antennas with no unflagged cell on the baseline to m008: [0, 1, 3, 10, 13]

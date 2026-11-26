@@ -1,0 +1,16 @@
+{
+ "run": "D:\\rang\\outputs\\dd8-20261125\\real-H",
+ "model": "D:/rang/outputs/dd7-20261125/models/RM.npy",
+ "ti": 4,
+ "cap": 500,
+ "iterations": 131,
+ "fraction": 0.9905604719764012,
+ "flagged": 113,
+ "amp_p10_p50_p90": [
+  0.6391141108410414,
+  0.9949726347907044,
+  1.0314311279839534
+ ],
+ "seconds_predict": 16.14717989997007,
+ "seconds_solve": 37.69220980000682
+}

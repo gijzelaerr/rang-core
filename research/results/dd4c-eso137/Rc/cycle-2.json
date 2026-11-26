@@ -1,0 +1,19 @@
+{
+ "iterations": 500,
+ "fraction": 0.25,
+ "seconds_solve": 925.3238303000107,
+ "seconds_image": 30.7517168999766,
+ "perdir_converged": [
+  1.0,
+  0.01632,
+  0.010757946210268949,
+  0.010401188707280832
+ ],
+ "iterations_second": 501,
+ "seconds_second_solve": 451.9446641000104,
+ "hogbom": {
+  "sigma": 0.0016394329399252333,
+  "stop": 0.008197164699626166,
+  "n": 3231
+ }
+}

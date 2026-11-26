@@ -1,0 +1,120 @@
+{
+ "config_path": "/home/gijs/Worktrees/rang/gate3c-rerun/research/results/e2n-scripts/e2n.yaml",
+ "created": "2026-11-22T08:28:53+00:00",
+ "ms": "/home/gijs/rang-data/outputs/gate3c-rerun-20261123/e2n.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "attempts": 3,
+   "config_sha256": "3b3f3047c0d30b3c80730146922de9e212e800728aac1c93b5370dcf3ac5a7f7",
+   "finished": "2026-11-23T14:19:33+00:00",
+   "flag_version": "rang_apply_20261123T134523Z",
+   "host": "nash",
+   "pid": 537872,
+   "previous": "failed",
+   "saved_before_restore": "rang_rerun_20261123T133927Z",
+   "seconds": 2406.1125676580705,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate",
+    "apply"
+   ],
+   "started": "2026-11-23T13:39:27+00:00",
+   "status": "done",
+   "summary": {
+    "applymode": "calflag",
+    "calwt": false,
+    "calwt_note": "a complex (general Jones) term does not scale weights, as CASA; of the CASA tables only G, B and T do (rang.applycal)",
+    "column": "CORRECTED_DATA",
+    "flag_version": "rang_apply_20261123T134523Z",
+    "parang": true,
+    "parang_flags": "spread",
+    "rang_original_saved_now": false,
+    "restored_before": "rang_apply_20261123T133358Z"
+   }
+  },
+  "calibrate": {
+   "attempts": 1,
+   "config_sha256": "8baf5144c99ecc7fb271466aa2434da881c3e864d4c4b9b246a287a7d602acd7",
+   "finished": "2026-11-22T10:27:10+00:00",
+   "flag_version": "rang_calibrate_20261122T090409Z",
+   "host": "nash",
+   "pid": 3680018,
+   "previous": null,
+   "seconds": 4980.5635064099915,
+   "sections": [
+    "fields",
+    "data",
+    "calibrate"
+   ],
+   "started": "2026-11-22T09:04:09+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_calibrate_20261122T090409Z",
+    "k_offsets": "rang's K table holds the delays only and its phase offsets are left for G (research/c2c-bandpass.md, decision 2)",
+    "model": "setjy",
+    "restored_before": null,
+    "scans": null,
+    "weight_column": "unit",
+    "weights": "uniform"
+   }
+  },
+  "flag": {
+   "attempts": 1,
+   "config_sha256": "31dd09383f8f9a7802bdaf42a432e922b1732701e852693fc38dbe9f24f98b02",
+   "finished": "2026-11-22T09:04:09+00:00",
+   "flag_version": "rang_flag_20261122T083241Z",
+   "host": "nash",
+   "pid": 3680018,
+   "previous": null,
+   "seconds": 2116.6533703610767,
+   "sections": [
+    "fields",
+    "data",
+    "flag"
+   ],
+   "started": "2026-11-22T08:28:53+00:00",
+   "status": "done",
+   "summary": {
+    "column": "DATA",
+    "flag_sha256": "c35e5123dd2380bc6adbc096d17aa95b615200d1e434df47da29ffa55f7c4b99",
+    "flag_version": "rang_flag_20261122T083241Z",
+    "flagged_after": 0.6379873063471607,
+    "flagged_before": 0.3149291156060593,
+    "rang_original_saved_now": true,
+    "restored_before": null,
+    "rows_flagged": 2229489,
+    "steps": 12,
+    "strategy": "/home/gijs/Worktrees/rang/e2n-followup/research/results/e2n-followup/scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+    "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+    "write": "replace"
+   }
+  },
+  "image": {
+   "attempts": 1,
+   "config_sha256": "9e4519e076dc32d40790635e291f36b175c34932c46080c872ce1e2d455fb37a",
+   "finished": "2026-11-22T13:57:26+00:00",
+   "host": "nash",
+   "pid": 3680018,
+   "previous": null,
+   "seconds": 11299.835368274013,
+   "sections": [
+    "fields",
+    "data",
+    "image"
+   ],
+   "stale_since": "apply 2026-11-23T14:19:33+00:00",
+   "started": "2026-11-22T10:49:06+00:00",
+   "status": "stale",
+   "summary": {
+    "column": "CORRECTED_DATA",
+    "gemclean": "/home/gijs/rang-data/outputs/e2n-followup-20261122/wheel-venv/bin/python -m rang.gemclean",
+    "gemclean_sha256": "9c42ea724253fd47da3e8ca3fd194ac862e2cd4e5702ec0c86f6d3370de683ed"
+   }
+  }
+ },
+ "telescope": "MeerKAT",
+ "updated": "2026-11-23T14:19:33+00:00",
+ "version": 1
+}
