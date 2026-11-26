@@ -7,7 +7,17 @@ frozen 2026-11-26, before the code that runs them and before any
 measurement. Later changes are dated amendments, committed before the
 reading they affect.
 
-Status: **proposed 2026-11-26.**
+Status: **measured 2026-11-26.**
+- **On O (frozen): partly.** The best start, Q6 (unit-amplitude gains in
+  the first two cycles' images), brings d1's truth error from 0.352 to
+  0.244 (G_d1 0.31) without harm; the same loop without it reaches 0.273
+  (U6), the truth-gain control 0.128 (AT6). L6 (16 × 8 s) has no effect;
+  P6 (Jacobi phase-only) hurts, because that solver does not converge with
+  four facets.
+- **Confounds:** the trusted solved gains absorb the gap (ATs); DD10's
+  row-drop weight loss alone wrecks even a truth-gain loop (ATm).
+- **Real (frozen):** Q6's loop lifts (min d1-d3 0.080 to 0.961) and tames
+  d3 (max 3.8); convergence, not accuracy.
 
 ## 1. Question and hypotheses
 
@@ -277,11 +287,227 @@ untrusted share per facet.
 
 ## 10. Measured result
 
-(not yet measured)
+Run root `D:/rang/outputs/dd11-20261126/`. Host glacier, shared, under the
+main checkout's `heavy_lock.py`; every loop 8 slots, 20 GB booked (about
+11.5 GB resident).
+
+**Setup.** O rebuilt (239 s): GO passes, every `build.json` number equals
+DD10's, `sky.npy` has DD8's SHA-256 (`setup-gate.json`). PSF peaks equal
+DD10's. Reused files and their SHA-256 are in `reuse.json`. AT6's extra
+cycle-3 solve (A1) reproduces DD10's AT final solve bitwise.
+
+**Gate F: pass.** On DD10's ALu cycle-0 and cycle-1 residuals the fast
+Högbom gives the same 1,203 and 1,489 components in the same order, fluxes
+bitwise equal, the same σ and stop (`gatef.json`). It is only 1.4-1.7 ×
+faster (262 s and 251 s against 357 s and 424 s, one core, busy host): the
+flat gather over most of the image costs about what the slice did. In the
+loops a Högbom cycle took 200-310 s.
+
+**Diagnostic D (zero solves; `diag.json`).** Per facet d1, d2, d3, on
+unflagged cells against the truth products:
+
+| Gains | e | phase-only e | median \|amp ratio − 1\| | median amp bias |
+| --- | --- | --- | --- | --- |
+| A0 (M₀ᶜ) | 0.352, 0.544, 1.000 | 0.199, 0.385, 0.903 | 0.231, 0.259, 0.933 | −0.160, −0.090, −0.675 |
+| ALu final (M₃) | 0.305, 0.345, 0.536 | 0.125, 0.255, 0.258 | 0.244, 0.133, 0.367 | −0.164, −0.031, +0.056 |
+| AT final (M₃) | 0.161, 0.312, 0.500 | 0.071, 0.199, 0.257 | 0.120, 0.155, 0.342 | −0.086, −0.032, −0.091 |
+| AX (exact) | 0.008, 0.033, 0.052 | 0.005, 0.019, 0.030 | 0.005, 0.019, 0.030 | 0.000, 0.000, 0.000 |
+
+In d1 the absorbed gap sits in both amplitude and phase: A0's products are
+16 % low in amplitude and 0.20 rad off. ALu's three cycles fix most of d1's
+phase (0.20 to 0.12 rad), not its amplitude (bias −0.16 before and after).
+The truth-gain loop halves both.
+
+### The arms on O (sections 4 and 6)
+
+Every scored point: Rust Gauss-Seidel, 4 × 8 s, d0 free, cap 500, on the
+arm's M₆ (M₃ for ATm and ATs). e on converged cells is within 0.001 of e
+on all cells in every arm. References (DD10): A0 0.352, 0.544, 1.000; AX
+0.0078, 0.0334, 0.0523; AT 0.161, 0.312, 0.500; ALu 0.305, 0.345, 0.536.
+
+| Arm | e d1, d2, d3 | G d1, d2, d3 | S_AT d1 (S_AT6 d1) | e/ê d1-d3 | fractions d0-d3 | d3 \|g\| p99 / max | Reading | Against U6 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **U6** | 0.273, 0.301, 0.397 | 0.227, 0.476, 0.636 | 0.41 (0.35) | 57, 8.3, 7.1 | 0.992, 0.991, 0.991, 0.988 | 1.86 / 2.6 | **partly** | - |
+| **Q6** | **0.244**, 0.301, 0.365 | **0.313**, 0.476, 0.670 | 0.56 (0.48) | 47, 8.3, 7.0 | 0.983, 0.950, 0.947, 0.948 | 1.83 / 2.5 | **partly** | **helps** (0.894 ×) |
+| **L6** | 0.277, 0.301, 0.396 | 0.218, 0.476, 0.637 | 0.39 (0.34) | 57, 8.3, 7.2 | 0.994, 0.983, 0.982, 0.983 | 1.86 / 2.6 | **partly** | **no effect** (1.01 ×) |
+| **P6** | 0.314, 0.391, 0.412 | 0.109, 0.300, 0.620 | 0.20 (0.17) | 55, 9.8, 7.9 | 0.978, 0.924, 0.912, 0.913 | 1.87 / 2.6 | **no** | **hurts** (1.15 ×) |
+| AT6 (control) | 0.128, 0.279, 0.387 | 0.649, 0.520, 0.647 | 1.17 (1) | 22, 8.0, 7.8 | 0.994, 0.975, 0.974, 0.974 | 1.95 / 2.9 | closes | - |
+| ATs (control) | 0.304, 0.344, 0.503 | 0.139, 0.392, 0.524 | 0.25 | 61, 9.6, 9.5 | 0.999, 0.989, 0.984, 0.983 | 2.27 / 3.2 | no | - |
+| ATm (control) | 0.911, 1.039, 1.201 | −1.627, −0.970, −0.212 | −2.93 | 368, 40, 24 | 0.004, 0.000, 0.000, 0.000 | 5.69 / 9.7 | no (with harm) | - |
+
+No eligible arm harms d2 or d3 (only the control ATm does). e in d1 per cycle (cycles 0-5, then the scored
+point; "nc" marks a start solve whose e is not comparable, section 3):
+- U6: 0.352, 0.334, 0.315, 0.305, 0.295, 0.284, **0.273**.
+- Q6: 0.352, 0.304, 0.289, 0.285, 0.269, 0.254, **0.244**.
+- L6: nc 0.351, nc 0.335, 0.317, 0.307, 0.298, 0.286, **0.277**.
+- P6: nc 0.669, nc 0.571, 0.330, 0.317, 0.317, 0.316, **0.314**.
+- AT6 (from the A1 solves): -, -, -, 0.161, 0.148, 0.137, **0.128**.
+- ATs: 0.352, 0.337, 0.316, **0.304**.
+
+Per arm:
+- **Q6 (unit amplitude in the start images)** is the only start that
+  helps.
+  - Its first Högbom adds 0.53 Jy (U6 and AT 0.41), its second 0.29 Jy
+    (U6 0.12): with amplitudes set to 1, the residual images show more of
+    the missing flux.
+  - Its lead over U6 holds to the scored point (d1 0.244 against 0.273, d3
+    0.365 against 0.397).
+  - Its solves converge less (min d1-d3 0.947 against 0.988), which does
+    not change its truth error (0.244 on converged cells too).
+- **L6 (16 × 8 s start)** stays within 0.004 of U6 in d1 from cycle 2 on.
+  A longer interval does not stop the absorption, as DD9 found for d3.
+- **P6 (Jacobi phase-only start)** fails at the start.
+  - The Jacobi `phase` term converges nowhere at cap 500 with four facets
+    (global fraction 0.000 in both start cycles) and flags 2,232-3,849
+    gains per direction.
+  - Its d1 phase error is 0.67 and 0.57, against 0.20 for A0's `ap` solve.
+  - Its start images build a worse model (first Högbom −0.11 Jy), from
+    which the Gauss-Seidel cycles recover only to 0.314.
+  - This tests the phase-only solver available, not phase-only starts in
+    general.
+- **More cycles help.** U6 reaches 0.273, against ALu's 0.305 at 3 cycles
+  (0.895 ×, bar 0.9).
+  - d1 improves by about 0.01 per cycle; U6 reads "partly" (G_d1 0.227).
+  - AT6 also improves per cycle (0.161 at 3, 0.128 at 6). The truth-gain
+    control's gain from cycles 3-5 is 0.033, U6's 0.032.
+- Model net flux in d1 at M₆ (truth 4.43 Jy, M₀ᶜ 2.83): U6 3.31, Q6 3.56,
+  L6 3.30, P6 3.07, AT6 3.60. Σ|M − sky O| in d1 rises in every arm (33-37
+  against 21.2), as in DD10 (point components on extended emission).
+- Untrusted d3 gains under rule U fall from 76 % at cycle 0 to 2 % at
+  cycle 5 in every solved arm; Q6 has 39 % at cycle 1 (U6 21 %).
+
+**Confounds (frozen):**
+- **Absorption: "the trusted solved gains absorb the gap"** (S_ATs,d1 0.25,
+  bar 0.5). With O's truth gains replacing only the untrusted gains and all
+  weight kept, three cycles reach d1 0.304. ALu, with those gains set to 1,
+  reaches the same 0.305, against AT's 0.161. The untrusted gains and their
+  substitute do not matter; the trusted gains carry the absorbed gap.
+- **Weight loss: "weight loss alone stops it"** (G_ATm,d1 −1.63, bar 0.2).
+  - With O's truth gains but AL's row masks (2.1 %, 5.1 % and 26.6 % of
+    the weight kept) and the full-weight PSF, the loop wrecks the model:
+    d1 0.911, d2 1.039, d3 1.201, and the scored solve converges nowhere
+    (min 0.000).
+  - Its Högbom cycles stop at 41, 63 and 51 mJy (σ of the masked images)
+    and add +1.7, −7.7 and +10.5 Jy: the deconvolution diverges with a PSF
+    that does not match the images' weights.
+  - AL itself, with the same masks, stayed at 0.395 because its solved
+    gains had absorbed most of the gap, so its residual images held
+    little to clean (stop 13 mJy, net 0.008 Jy). DD10's AL therefore did
+    not isolate absorption; ATs, with all weight, shows it.
+
+**Frozen answer: "partly: the best start (Q6) closes G_d1 0.313 of the
+gap".**
+- Best arm Q6 (no harm, lowest d1).
+- No start closes. Q6 helps against U6, L6 has no effect, P6 hurts, and
+  more cycles help.
+- Q6 closes 31 % of d1's gap to the exact sky, 56 % of DD10's truth-gain
+  control's gain and 48 % of AT6's.
+
+### One real reading (section 7)
+
+R-Q6: DD7's real subset with the 145 bad baselines flagged (65,250 rows),
+RM, Q6's start (unit-amplitude images in cycles 0-1), rule U, six cycles,
+then the scored point. R0 is DD10's RL cycle-0 solve, reused.
+
+| Point | fractions d0-d3 | d3 \|g\| p99 / max (cells > 10) | flagged d0-d3 | residual rms d1-d3 / thermal σ | weight in images |
+| --- | --- | --- | --- | --- | --- |
+| R0 (RM) | 0.231, 0.137, 0.124, **0.080** | 10.8 / 33 (169) | 113, 113, 117, 249 | 1.48 / 0.092 mJy (16.1 ×), DD10's row drop | 11.9 % |
+| DD10 RL (row drop, 3 cycles) | 0.970, 0.937, 0.922, **0.914** | 2.34 / 11.6 (2) | 113, 116, 114, 119 | 0.61 / 0.045 mJy (13.7 ×) | 50.3 % |
+| **R-Q6** | 0.999, 0.988, 0.970, **0.961** | 1.83 / **3.8** (0) | 113, 113, 114, 116 | 0.31 / 0.032 mJy (9.7 ×) | 100 % (rule U) |
+
+- **Frozen reading: lifts** (min d1-d3 0.080 to 0.961, bar 0.280); **tames
+  d3** (p99 1.83 ≤ 3, max 3.8 ≤ 10); **supported by O** in the frozen
+  rule's sense (Q6 reads "partly" on O).
+- **Convergence alone is not evidence.**
+  - On O every solved arm converged (min d1-d3 0.91-0.99), while d1's
+    truth error stayed at 0.24-0.31, 47-57 × the noise prediction.
+  - DD10's AL converged while d1 got worse.
+  - On O, Q6 closes 31 % of d1's gap. The real run says only that the same
+    loop converges and stays tame there, not how accurate its gains are.
+- Cycles (Högbom components and stop): 1,032 (3.2 mJy), 1,282 (2.4), 1,218
+  (2.2), 2,119 (2.1), 2,849 (1.9), 3,139 (1.7).
+  - Global fraction 0.143, 0.661, 0.791, 0.853, 0.931, 0.985, 0.979.
+  - Untrusted d3 gains 55 %, 18 %, 9.1 %, 6.7 %, 3.6 %, 2.6 %, 2.0 %.
+- The residual rms over the d1-d3 interiors falls from 0.64 mJy (cycle 0)
+  to 0.31 mJy, 9.7 × the thermal σ of all the weight. RL's 13.7 × is
+  against the thermal σ of its kept 50 %. On O a model the gains can fit
+  also lowers the residual, so this is not an accuracy claim.
+
+**Cost.** Loop walls (8 slots booked; lock waits included):
+
+| Loop | Wall |
+| --- | --- |
+| U6 (three new cycles) | 2,989 s |
+| Q6 | 6,433 s |
+| P6 | 11,330 s |
+| L6 | 9,446 s |
+| AT6 | 6,508 s |
+| ATs | 8,440 s |
+| R-Q6 | 9,579 s |
+| ATm | 2,189 s |
+
+- Per step: a Gauss-Seidel solve took 690-810 s at 8 slots on a busy host
+  (16 × 8 s: 803-809 s), a Jacobi phase solve 593-595 s, a facet image set
+  32-58 s, a Högbom cycle 200-310 s (one core).
+- Solves: U6 4, Q6 7, P6 8, L6 8, AT6 2 + 3 (A1), ATm 2 + 1 (A1), ATs 4,
+  R-Q6 7. That is 46, the run cap with its spares; no solve failed.
 
 ## 11. For the coordinator
 
-(after the measurement)
+- **Frozen answer: partly.**
+  - The best start is **Q6**: Gauss-Seidel `ap` solves, gains set to unit
+    amplitude (phase kept) in the first two cycles' images, untrusted gains
+    set to 1 (rule U), six cycles.
+  - It brings d1's truth error from 0.352 to **0.244** (G_d1 0.31; 56 % of
+    DD10's truth-gain control's gain, 48 % of AT6's) without harm, against
+    0.273 for the same loop without the start (U6) and 0.128 for the
+    truth-gain control at six cycles (AT6).
+  - No start closes half of d1's gap.
+- **Per arm, against the frozen table:**
+  - U6 partly (0.273; more cycles help: 0.895 × ALu's 3-cycle 0.305).
+  - Q6 partly, helps (0.894 × U6).
+  - L6 partly, no effect (16 × 8 s does not stop absorption).
+  - P6 no, hurts: the Jacobi `phase` term does not converge with four
+    facets (fraction 0.000), so the phase-only start is untestable with the
+    solver available.
+- **Confounds:**
+  - ATs: the trusted solved gains absorb the gap (truth in place of the
+    untrusted gains gives 0.304, the same as ALu's 0.305).
+  - ATm: AL's weight loss alone, with the full-weight PSF, wrecks even a
+    truth-gain loop (d1 0.911). So DD10's "the solved gains absorb the
+    gap" reading came from a confounded arm; ATs now shows it directly.
+  - Diagnostic D: d1's absorbed gap is 16 % in amplitude and 0.2 rad in
+    phase. Rule U's cycles fix the phase, not the amplitude, which is why a
+    unit-amplitude start helps.
+- **Real (frozen): lifts and tames d3; "supported by O" only in the frozen
+  rule's sense.**
+  - Min d1-d3 0.080 to 0.961; d3 |g| max 3.8 against DD10's RL 11.6.
+  - The residual is 9.7 × thermal against RL's 13.7 ×.
+  - This is convergence, not accuracy. On O the same loop leaves d1 at
+    47 × the noise prediction.
+- **Recommended next step (section 8, row "partly"):** DD12 on O, frozen
+  before code, keeping Q6's start and rule U. The deconvolver is the
+  remaining lever: point-component Högbom adds pixel error on extended d1
+  emission (Σ|M − sky| 21 to 34) and d1 gains about 0.01 per cycle.
+  - Arms: a multi-scale or per-facet clean in the loop, using an existing
+    minor cycle (GeMClean's multi-scale) rather than a new one.
+  - Also a longer run of the Q6 loop (12 cycles) as the cycles-only
+    reference, scored against AT at the same N.
+  - The unit-amplitude rule could also be tried for more than two cycles.
+- **Not adopted:** the unit-gain deep clean, merging d3, the robust
+  held-out score.
+- **Infrastructure:** the fast Högbom is bitwise equal but only 1.5 ×
+  faster in NumPy. A real speed-up needs compiled code: exposing
+  `core/src/clean.rs::hogbom` with a search mask would be a small binding.
+- **Checks:** `python tools/check_all.py --quick` CHECK_RESULT. CI on the
+  branch CI_RESULT. No Rust or library change, so the oracle gates are
+  unchanged; the full check is left to the coordinator's merge check.
+- **Disk:** the rebuilt O MS and the PSF arrays are deleted. The run root
+  keeps 4.1 GB (models, residual images, gains, records). Archive:
+  `results/dd11-start/`.
+- **Procedure:** ATm ran from the worktree's `python/` with a copy of
+  main's `_core.pyd`; the other loops used the main venv, which locked main's
+  `_core.pyd` during the coordinator's merge check (DD11 only, now stopped).
 
 ## Amendments
 

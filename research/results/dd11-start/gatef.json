@@ -1,0 +1,41 @@
+{
+ "cases": {
+  "ALu-cycle-0": {
+   "n_dd3": 1203,
+   "n_fast": 1203,
+   "same_pixels_in_order": true,
+   "fluxes_bitwise": true,
+   "info_dd3": {
+    "sigma": 0.0006677946423058074,
+    "stop": 0.0033389732115290368,
+    "n": 1203
+   },
+   "info_fast": {
+    "sigma": 0.0006677946423058074,
+    "stop": 0.0033389732115290368,
+    "n": 1203
+   },
+   "seconds_dd3": 357.0103534000227,
+   "seconds_fast": 261.65586619998794
+  },
+  "ALu-cycle-1": {
+   "n_dd3": 1489,
+   "n_fast": 1489,
+   "same_pixels_in_order": true,
+   "fluxes_bitwise": true,
+   "info_dd3": {
+    "sigma": 0.0004259151213350378,
+    "stop": 0.002129575606675189,
+    "n": 1489
+   },
+   "info_fast": {
+    "sigma": 0.0004259151213350378,
+    "stop": 0.002129575606675189,
+    "n": 1489
+   },
+   "seconds_dd3": 424.1233632999938,
+   "seconds_fast": 251.48232750000898
+  }
+ },
+ "F_pass": true
+}
