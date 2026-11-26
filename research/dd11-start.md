@@ -514,7 +514,7 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
   faster in NumPy. A real speed-up needs compiled code: exposing
   `core/src/clean.rs::hogbom` with a search mask would be a small binding.
 - **Checks:** `python tools/check_all.py --quick` PASS (1,157 s, from the worktree's own .venv). CI on the
-  branch: CI_RESULT. No Rust or library change, so the oracle gates are
+  branch: `tests` and `docs` green (runs 45840023753, 45840023535). No Rust or library change, so the oracle gates are
   unchanged; the full check is left to the coordinator's merge check.
 - **Disk:** the rebuilt O MS and the PSF arrays are deleted. The run root
   keeps 4.1 GB (models, residual images, gains, records). Archive:
