@@ -646,7 +646,7 @@ def score(root):
         k: ax[k]
         for k in ("e_d", "e_over_ehat", "perdir_converged", "d3_amp", "iterations")
     }
-    for arm in ("AL", "AT"):
+    for arm in ("AL", "AT", "ALu"):  # ALu: A1, reported only
         f = root / "loop" / arm / f"cycle-{NCYCLE}" / "info.json"
         if not f.exists():
             continue
@@ -660,7 +660,7 @@ def score(root):
         cycles = []
         for cyc in range(NCYCLE + 1):
             ci = rd(root / "loop" / arm / f"cycle-{cyc}" / "info.json")
-            cycles.append({k: ci.get(k) for k in ("model_error", "hogbom", "excluded_weight_share",
+            cycles.append({k: ci.get(k) for k in ("model_error", "hogbom", "excluded_weight_share", "untrusted_gain_share",
                                                     "residual_sigma_d1_d3", "thermal_sigma")}
                           | {"e_d": (ci.get("solve") or {}).get("e_d")})  # fmt: skip
         rec[arm] = {
