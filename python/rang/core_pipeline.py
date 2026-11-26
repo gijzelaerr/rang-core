@@ -2557,6 +2557,14 @@ def stage_apply(ctx):
                 budget_bytes=float(config["data"]["memory_limit_gb"]) * 2**30 / 2,
             )
             reweighted["fields"] = fields
+            if reweighted["unflagged_cells_at_weight_0"]:
+                # Issue #48 (research/weights-48.md A2): a field whose every block is short of
+                # minsamp (one short scan) has nothing to fill from.
+                warnings.append(
+                    f"apply.reweight: {reweighted['unflagged_cells_at_weight_0']} unflagged "
+                    "cells got weight 0 (every block of their baseline and scan below minsamp "
+                    "and nothing to fill from); lower minsamp or use a longer timebin"
+                )
         executor_record = ex.describe()
     summary = {
         "chunking": {**plan.describe(), **executor_record},

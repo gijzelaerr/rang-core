@@ -209,6 +209,7 @@ def test_fill_leaves_no_unflagged_cell_at_weight_zero_on_short_scans(tmp_path):
     # no block reaches minsamp, so every one is filled or left empty
     assert summary["fill"] is True
     assert summary["unflagged_cells_at_weight_0"] > 0  # nothing pools to 100000 either
+    assert any("apply.reweight" in w for w in _summary(ms)["warnings"])
 
     ms2 = w2.make_ms(tmp_path / "y.ms", ncorr=4)
     config2 = w2.write_config(tmp_path, extra.replace("100000", "4"))
