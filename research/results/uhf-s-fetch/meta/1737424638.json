@@ -1,0 +1,694 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 11.6,
+ "name": "1737424638_sdp_l0",
+ "experiment_id": "20241226-0018",
+ "observer": "Henrik Edler",
+ "description": "M49_UHF setting repeat",
+ "start_utc": "2025-01-21 01:58:35.162",
+ "end_utc": "2025-01-21 06:38:57.221",
+ "dump_period_s": 7.987681882352941,
+ "dumps": 2106,
+ "channels": 4096,
+ "freq_first_hz": 544000000.0,
+ "freq_last_hz": 1087867187.5,
+ "channel_width_hz": 132812.5,
+ "spw": {
+  "centre_freq_hz": 816000000.0,
+  "bandwidth_hz": 544000000.0,
+  "num_chans": 4096,
+  "product": "c544M4k",
+  "band": "UHF"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m009",
+  "m010",
+  "m011",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m051",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "J0408-6545",
+   "aliases": [
+    "0408-658"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(1.0835862116596362, -1.1475981012312526)"
+  },
+  {
+   "name": "J1150-0023",
+   "aliases": [
+    "1148-001"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(3.1011497387184765, -0.006953197814472964)"
+  },
+  {
+   "name": "NGC4472",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(3.2715767768525925, 0.13718869697092761)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1939-6342",
+   "aliases": [
+    "1934-638"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20241101-HE-01",
+  "sb_id_code": "20241226-0018",
+  "description": "M49_UHF setting repeat",
+  "observer": "Henrik Edler",
+  "experiment_id": "20241226-0018",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 77,
+   "start": 1737424719.1563067,
+   "seconds": 615.0515049411765
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1737425334.2078116,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737425454.0230398,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1737425565.8505862,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737425589.813632,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737427387.0420554,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1737427411.0051012,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1737427530.8203294,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737427546.7956932,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737429344.0241165,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1737429367.9871624,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1737429487.8023906,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737429511.7654362,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737431308.9938598,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737431332.9569054,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1737431444.7844517,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1737431476.7351792,
+   "seconds": 1789.2407416470587
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 5,
+   "start": 1737433265.975921,
+   "seconds": 39.93840941176471
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 74,
+   "start": 1737433305.9143302,
+   "seconds": 591.0884592941177
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 12,
+   "start": 1737433897.0027895,
+   "seconds": 95.8521825882353
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1737433992.8549721,
+   "seconds": 591.0884592941177
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1737434583.9434314,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737434703.7586596,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 16,
+   "start": 1737434815.586206,
+   "seconds": 127.80291011764706
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1737434943.389116,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737434967.352162,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 26,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737436764.5805852,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 27,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737436788.543631,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 28,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1737436900.3711774,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 29,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737436924.334223,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 30,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737438721.5626466,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 31,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737438745.5256922,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 32,
+   "state": "slew",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1737438857.3532386,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 33,
+   "state": "track",
+   "target": "NGC4472",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1737438881.3162842,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 34,
+   "state": "slew",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1737440678.5447078,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 35,
+   "state": "track",
+   "target": "J1150-0023",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1737440702.5077534,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 36,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 16,
+   "start": 1737440814.3352997,
+   "seconds": 127.80291011764706
+  },
+  {
+   "scan": 37,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 75,
+   "start": 1737440942.1382098,
+   "seconds": 599.0761411764706
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 7320,
+ "cross_products": 7080,
+ "vis_bytes_cross_all": 488586608640,
+ "track_dumps": 2004,
+ "rule": {
+  "band": "UHF",
+  "receiver_band_hz": [
+   544000000.0,
+   1088000000.0
+  ],
+  "channel_span_hz": 544000000.0,
+  "stream_bandwidth_hz": 544000000.0,
+  "flux_calibrators": [
+   "PKS 0408-65",
+   "PKS 1934-638"
+  ],
+  "polarisation_calibrators": [
+   "3C 286"
+  ],
+  "track_scans": 20,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1737424638"
+}

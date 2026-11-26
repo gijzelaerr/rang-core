@@ -1,0 +1,43 @@
+{
+ "cbid": "1737424638",
+ "rdb": "1737424638_sdp_l0.full.rdb",
+ "rdb_sha256": "58f52d29a59d96276aac1391874d32923a7de539072c2fd33bd534d55a887268",
+ "selection": {
+  "scans": [
+   0
+  ],
+  "dumps": 77,
+  "channels": 4096,
+  "products": 7320
+ },
+ "chunks_by_bucket": {
+  "1737424638-sdp-l0": 1544,
+  "1737424638-sdp-l1-flags": 154
+ },
+ "chunks_total": 1698,
+ "already_present": 0,
+ "hashed_after": 0,
+ "workers": 6,
+ "max_mbps": 40.0,
+ "progress": {
+  "utc": "2026-11-26T07:11:15Z",
+  "seconds": 102.7,
+  "chunks_done": 0,
+  "chunks_total": 1698,
+  "bytes_this_run": 0,
+  "mb_per_s": 0.0,
+  "failed": 0,
+  "lost": 1698,
+  "final": true
+ },
+ "failed": [],
+ "katdal": "0.23",
+ "lost_count": 1698,
+ "lost_first": [
+  "1737424638-sdp-l0/correlator_data/00000_00000_00000.npy",
+  "1737424638-sdp-l0/correlator_data/00000_00256_00000.npy",
+  "1737424638-sdp-l0/correlator_data/00000_00512_00000.npy",
+  "1737424638-sdp-l0/correlator_data/00000_01024_00000.npy",
+  "1737424638-sdp-l0/correlator_data/00000_01280_00000.npy"
+ ]
+}

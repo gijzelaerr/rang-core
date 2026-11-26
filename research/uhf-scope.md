@@ -525,3 +525,43 @@ which read the token into memory and scrub it from every log.
 - D4 and D5 wait for data: they are frozen only once a development set exists.
 - D1, D2, D7 and D8 are the owner's: they involve archive access on the owner's account or contact with SARAO.
 - The anonymous MVF capture block found in passing is recorded only. It is not fetched, until D7 is answered.
+
+## Coordinator decisions, 2026-11-26 (data in hand; owner: "do whatever is best")
+
+D1 was taken by the owner on 2026-11-26: four public blocks, two UHF and two S
+band ([uhf-s-fetch.md](uhf-s-fetch.md)). For the rest of section 8 the owner
+delegated; these are taken by the coordinator's task `uhf-s-fetch`, on this
+note's own recommendations, after reading the four blocks' metadata only.
+
+- **D2 Polcal-Primer (C1): left out.** No one is asked. Public archive blocks
+  now meet section 5, so a teaching-only, core-only, 100 MHz set adds nothing to
+  the gate.
+- **D3 Calibrator models:**
+  - 1934-638 at UHF: the DOI field model (Hugo 2021, `hhhy-4r55`) in every
+    rang and CASA arm, read at run time from nash; CARACal's arm keeps its own
+    shipped catalogue and E3 reports the difference
+    ([uhf-gate.md](uhf-gate.md) section 3).
+  - Shipping: unchanged from 2026-11-17 (no CC BY-NC material in the package).
+  - 0408-65 below 843 MHz: not used in any solve. On the held-out block it is a
+    check source; its flux against CARACal's cubic and the DOI component is
+    reported, not gated.
+- **D4 CARACal arm: approved as recommended:** `firstpass_UHF.yaml`,
+  `meerkat_skymodel: false` with `meerkat_crystalball_skymodel: true`, no
+  L-band `chans` flag or mask. Frozen as `results/uhf-gate/caracal-uhf.yml`.
+- **D5 New gate numbers: frozen in [uhf-gate.md](uhf-gate.md) section 5:**
+  - J0408-6545 leakage ≤ 0.5 % (held-out block);
+  - J0408-6545 flux transfer, rang against CASA, within 1 %;
+  - a model row at 1e-5;
+  - the geometry, 6,144 × 3″, and the scorer's field limit, 1.0°.
+  - The 3C 286 transfer is reported only: one scan per block, and no RM
+    correction.
+- **D6 stands** (the warning, 2026-11-17).
+- **D7 C5: not used, and SARAO is not asked now.** Nothing in the gate needs
+  it. Recorded only.
+- **D8 SARAO policy 4.2.3 and 4.2.4: for the owner.** These data are used
+  exactly as 4.2.4 describes ("for technical purposes (e.g. development of
+  imaging algorithms)"). The task proceeds under the public-data clause 4.1,
+  with the acknowledgement, as E2-N did. **Recommendation: the owner asks SARAO
+  once, for all bands, before results from these blocks are published.** The
+  same message can ask SARAO to restage the four blocks (uhf-s-fetch.md 3.1).
+  Nothing was sent.

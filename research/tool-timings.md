@@ -2600,3 +2600,7 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd10: DD3 loop on O, 3 Högbom cycles + final solve: AL (solved gains), AT (truth gains), ALu (A1) (host glacier, 8 slots shared) | 52.7 M cells, 2880² facet images | AL 5,602 s; AT 5,235 s; ALu 7,704 s (lock waits included) | – | per cycle: predict 26-34 s, GS solve 595-737 s, images 22-45 s, Högbom 400-421 s (one core) |
 | 2026-11-26 | dd10: DD3 loop on the real subset with 145 baselines flagged (RL), 3 cycles + final solve (host glacier, 8 slots shared) | 52.7 M cells | 8,378 s (lock wait included) | – | |
 | 2026-11-26 | dd10: `tools/check_all.py --quick`, second run (host glacier, 4 slots shared) | branch dd10-gs | 136 s (lock wait excluded; 4,448 s with it) | – | PASS |
+| 2026-11-26 | uhf-s-fetch: uv venv, katdal 0.23 + katsdptelstate 1.0.0 + python-casacore 3.8.1 (host nash) | public PyPI | 20 s | – | setuptools < 81 added after (katdal imports pkg_resources) |
+| 2026-11-26 | uhf-s-fetch: `uhfs_meta.py`, four RDBs over the network (host nash, 1 slot shared, nice 19) | 1737424638, 1740534088, 1729932377, 1690097605 | 53 s | 1.57 GB | RDB opens 7.5-11.6 s each |
+| 2026-11-26 | uhf-s-fetch: smoke fetch of 1737424638 scan 0 (host nash, 1 slot shared, 6 workers, 40 MB/s cap) | 1,698 chunks | 103 s | – | 0 bytes: every chunk HTTP 404 (not staged) |
+| 2026-11-26 | uhf-s-fetch: `uhfs_stagecheck.py`, S3 listings of four blocks; control on DL2's nine (host nash) | 13 blocks | 2 s each run | – | four blocks 0 objects; control lists objects for all nine |
