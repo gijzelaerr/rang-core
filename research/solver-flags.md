@@ -298,6 +298,27 @@ were scored).**
 - **Arm R ran from a frozen worktree.** It used `solver-flags-base` at 669eeab1: main plus the note,
   before any branch code. `mode: off` is bit-identical by test, so R is the branch's `off`.
 
+**Order of reading, stated plainly (2026-11-26 06:50 SAST).**
+
+- Amendment 2 was written after the E2-N scores were read (about 04:05), not before. It is stamped
+  03:30, the time its first item was found.
+- A1's G-A numbers (25 November, afternoon) and M1's E2-N pass records (22:30) were read before any
+  oracle case had passed (O4 at about 16:00 on the 25th; O1 at 23:16). Section 6 rule 1 says nothing
+  else is read while the oracle is unread.
+- No number or setting was changed after any of these readings.
+
+**Amendment 3, 2026-11-26 06:50 SAST (post hoc diagnostics, after the outcome was read; they change
+no gate).**
+
+- **P0 on A1.** A flag-only run of the mild strategy without the preset (`a1-P0`, glacier, 411 s of
+  flag stage). It tests whether the preset causes the over-flagging. It does not (Measured result).
+- **Two cheap reads on E2-N's archived products:**
+  - the per-block share of the oracle passes' flags (`oracle-e2n/*/rang-new.npy`);
+  - the gain amplitudes of M1 against M0 (G, B, Gsec tables).
+- **Numbers corrected from the first reading:**
+  - "0.5-2.4 % per term" was wrong; it is 2.9 / 1.0 / 1.7 % of cells;
+  - "1.4-1.8×" was M1 against R; against M0 it is 1.25 / 1.04.
+
 ## Measured result
 
 Run 2026-11-25/26.
@@ -337,8 +358,13 @@ differ by at most 7.9e-8 before the pass. Its re-solves then differ by those 60 
     600 m.
   - After the strategy, about 60 % of A1's channels are flagged whole on every baseline, in the preset's
     short-baseline bands.
-- **Not tested:** how CARACal's first three steps, given the preset's flags as input, flag beyond them
-  on long baselines.
+- **The preset is not the cause (post hoc P0, amendment 3).** On A1, CARACal's first three steps
+  alone, without the preset, flag 53.2 % of cells against the full harsh strategy's 29.1 %, and 0.888 of
+  the short-list channels on baselines longer than 2 km. With the preset OR-ed in after them, the total
+  is 65.6 %; with the preset before them (M0), 66.4 %. So the "mild" cut is the over-flagger, not the
+  preset. One reading, not tested: in the full strategy the later `uvcontsub_flagger` passes do not
+  OR with their input from cycle 0, so they replace the first SumThreshold's flags rather than add to
+  them. Not checked on E2-N, where the preset alone adds 6.1 %.
 
 **Flags at the solve (M1's passes, E2-N):**
 
@@ -393,13 +419,24 @@ differ by at most 7.9e-8 before the pass. Its re-solves then differ by those 60 
 
 - **Kernel.** rang's flags at the solve reproduce QuartiCal 0.2.7's `mad_flags` exactly on E2-N and A1
   (O1, O4). The re-solve's gains match QuartiCal's second run to 1e-15 (O2).
-- **The arms do not test the hypothesis.** The "mild" raw strategy combined with the known-RFI preset
-  is not mild: it leaves E2-N 71 % flagged, against the harsh strategy's 64 %.
-- **On that start, the flags at the solve hurt.**
-  - They add 0.5-2.4 % per term.
-  - J1744-5144's flux drops 1.0 %.
-  - The calibrators' implied noise rises 1.4-1.8×.
-  - On A1 they find little of the injected RFI that the flag stage had not already removed.
+- **The arms do not test the hypothesis.** The "mild" raw strategy is not mild. With the preset it
+  leaves E2-N 71 % flagged, against the harsh strategy's 64 %. On A1 the cut flags 53 % on its own
+  (P0), against the full strategy's 29 %.
+- **What the flags at the solve did on that start (M1 against M0, its own share):**
+  - they added 2.9 %, 1.0 % and 1.7 % of all cells for G, B and Gsec, which is 11 %, 4 % and 6 % of
+    the cells left unflagged before the passes;
+  - J1744-5144's flux changed by −1.07 % (7.1058 against 7.1828 Jy), past the frozen bound. The change
+    follows Gsec: its amplitudes are 0.996 of M0's (median; p5-p95 0.994-0.999), while primary G's are
+    1.0002 and B's 1.0000. One reading, not tested: clipping on |d − g m g*| against a unit point model
+    removes upward excursions first, and lowers the gain;
+  - implied noise sqrt(S_M1 / S_M0): 1.25 on J1939-6342, 1.04 on J1744-5144, 1.00 on J1331+3030 and
+    the target. Against R it is 1.84 and 1.37, and most of that is the flag stage;
+  - on A1 they found 0.2 points more of the injected RFI and flagged 2.5 points more clean cells.
+- **Primary G flags on a residual that still holds the band.** Primary G pre-applies only K; B is
+  solved after it. On the oracle scan, G's pass flags 6-29 % of unflagged cells per 64-channel block,
+  most at the band's edges (0.29 and 0.25 against 0.09 mid-band). B's pass flags 3-23 %. QuartiCal's
+  own pass, on the same G residual, does the same (O1). It is the rule on this residual, not a port
+  difference.
 - **What ships.**
   - Defaults stay off.
   - `solver_flags` stays an experimental option, documented but not in the recipes.
@@ -427,13 +464,18 @@ Costs (nash shared, 3 threads, `/usr/bin/time`):
 
 - **#58: null as frozen.**
   - The mechanism is exact against QuartiCal.
-  - The arms were confounded by the preset and the strategy's cascade.
-  - Two post hoc arms would answer it (about 9 h on nash): M0′, the mild strategy without the preset,
-    and M1′, M0′ plus `solver_flags`.
+  - The arms were confounded by the "mild" strategy, which over-flags on its own (P0 on A1).
+  - What would answer it:
+    - a mild raw start that is mild: online flags plus the static mask, or the preset alone;
+    - `solver_flags` with `terms: [B]`, or G only after B, so that primary G does not flag on the band's
+      shape;
+    - an explicit check of the Gsec amplitude bias on J1744-5144 against CASA's fluxscale.
+
+    About 9 h on nash per E2-N arm.
 - **#59: ships off by default.**
-  - Applied before a SumThreshold strategy, it multiplies flagging on E2-N and A1.
-  - Untested: the preset after the strategy, and LCP's order (`flagdata`, then Tricolour on corrected
-    data).
+  - On A1, before or after the cut strategy it adds the same (66.4 against 65.6 %). On E2-N it adds
+    6.1 % on its own.
+  - Untested: LCP's order (`flagdata`, then Tricolour on corrected data).
   - The LCP band-list question is drafted in `outputs/drafts/solver-flags-lcp-bands.md`, not posted.
 - **K's fallback (#60): no change.** In R, 19 antennas still have no J1939-6342 cell to m022; in the
   M arms, 14.

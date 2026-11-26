@@ -43,6 +43,12 @@ flag:
 - **Refusals:** the stage refuses data that is not MeerKAT or not L band (issue #59,
   {gh}`research/solver-flags.md`).
 
+:::{note}
+The preset adds 6.1 % of E2-N's cells. Do not pair it with a cut of CARACal's first pass. On A1, that
+cut's first three steps alone flagged 53 % of cells, against 29 % for the full strategy
+({gh}`research/solver-flags.md`).
+:::
+
 ## Flags at the gain solve
 
 ```yaml
@@ -53,6 +59,11 @@ calibrate:
     rounds: 2
     guard: 0.8
 ```
+
+**Experimental; measured null.** It reproduces QuartiCal 0.2.7's `mad_flags` cell for cell. On
+E2-N, after the preset and a mild raw strategy, it lowered J1744-5144's flux by 1.0 % and raised the
+calibrators' noise ({gh}`research/solver-flags.md`). A G solve with the bandpass not yet applied
+(the primary G) flags on a residual that still holds the band's shape.
 
 After each G (G, Gsec) or B solve, the residual of the unaveraged cells is flagged per solution
 interval:

@@ -2539,3 +2539,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-25 | solver-flags: O4, QuartiCal 0.2.7 in WSL (uv venv, ext4 scratch) and rang on Windows, A1 J1939-6342 (181,440 rows × 256 ch), host glacier (4 / 2 slots) | 46 M cells | cut 175 s; QuartiCal two runs 106 s; rang 69 s | – | – |
 | 2026-11-26 | solver-flags: `sf_score.py` on the four E2-N arms, **host nash** (4 slots, 24 GB) | 4 × E2-N | 4,504 s | – | – |
 | 2026-11-25 | solver-flags: `tools/check_all.py --quick`, host glacier | worktree | 2,030 s (FAIL: clippy, test fixture), then 1,036 s (PASS) | – | lock wait excluded |
+| 2026-11-26 | solver-flags (post hoc P0): A1 `rang-core run` flag stage only, the mild strategy without the preset, host glacier (`heavy_lock.py run --slots 4 --mem 12`, 4 threads) | A1 full, 2,842,560 rows × 256 ch | flag 411 s (4,848 s with the lock wait) | – | one earlier attempt refused: its config was not written |
