@@ -597,6 +597,47 @@ def spill(root, arms=("ATM12", "MS12"), cycles=(0, 1)):
     write_json(root / "spill.json", rec)
 
 
+# -- post hoc diagnostic A3: model flux at the pins, per cycle (zero solves) ---------
+
+
+def pinflux(root, arms=("MS12", "ATM12", "Q12", "AT12")):
+    """Model flux inside each pin box and in the 16 px ring round it, per
+    cycle's M_k, against sky O's (no solve, no image)."""
+    from scipy import ndimage
+
+    root = Path(root)
+    ctx = dd11.masks_ctx(root / "O")
+    st = json.loads((root / "O" / "setup.json").read_text())
+    sky = np.load(root / "O" / "sky.npy")
+    zones = {}
+    for i, (y, x) in enumerate(st["pins"]):
+        box = np.zeros(sky.shape, bool)
+        box[max(y - 2, 0) : y + 3, max(x - 2, 0) : x + 3] = True
+        ring = ndimage.binary_dilation(box, iterations=16) & ~box
+        zones[f"pin{i}-d{int(ctx['idx'][y, x])}"] = (box, ring)
+    rec = {
+        "sky": {
+            z: [float(sky[b].sum()), float(sky[r].sum())] for z, (b, r) in zones.items()
+        }
+    }
+    for arm in arms:
+        rows = []
+        models = [np.load(START["O"])]
+        for k in range(12):
+            f = root / "loop" / arm / f"cycle-{k}" / "next_model.npy"
+            if f.exists():
+                models.append(np.load(f))
+        for k, m in enumerate(models):
+            rows.append(
+                {
+                    z: [float(m[b].sum()), float(m[r].sum())]
+                    for z, (b, r) in zones.items()
+                }
+            )
+        rec[arm] = rows
+    write_json(root / "pinflux.json", rec)
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     cmd = argv[0] if argv else ""
@@ -612,6 +653,8 @@ def main(argv=None):
         gatem(argv[1])
     elif cmd == "loop":
         loop(argv[1], argv[2])
+    elif cmd == "pinflux":
+        pinflux(argv[1])
     elif cmd == "spill":
         spill(argv[1])
     elif cmd == "score":

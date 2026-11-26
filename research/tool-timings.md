@@ -2624,3 +2624,5 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd12: gate R (Q6 cycle-0 residual + Högbom, cycle-1 GS solve) and its A1 rerun of part 1 (host glacier, 8 and 4 slots shared) | 52.7 M cells | 1,137 s (part 1 356 s, solve 773 s); rerun 402 s (3,744 s with lock wait) | – | bitwise |
 | 2026-11-26 | dd12: loops on O, 8 slots shared each: MS12 (12 cycles, multi-scale), Q12 (cycles 6-12, Högbom), ATM12 (truth gains, multi-scale), AT12 (truth gains, cycles 6-12) | 52.7 M cells, 2880² facet images | MS12 11,948 s; Q12 8,253 s; ATM12 4,280 s; AT12 2,880 s (lock waits included); GS solve 260-770 s, image 34-50 s, multi-scale 21-45 s, Högbom 185-272 s | – | |
 | 2026-11-26 | dd12: spill diagnostic (A2), multi-scale rerun on four saved residuals (host glacier, 4 slots shared) | 2880² | 228 s | – | |
+| 2026-11-26 | dd12: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd12-msclean | 813 s (lock wait excluded) | – | PASS |
+| 2026-11-26 | dd12: pin-flux diagnostic (A3), zero solves (host glacier, 1 slot shared) | 49 models of 2880² | 5 s | – | |

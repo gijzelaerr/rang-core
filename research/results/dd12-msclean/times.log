@@ -22,3 +22,5 @@ loop-MS12 end 2026-11-26T20:43:12+02:00 rc=0 wall=11948s
 loop-Q12 end 2026-11-26T21:00:07+02:00 rc=0 wall=8253s
 loop-AT12 start 2026-11-26T21:00:07+02:00 slots=8 mem=20 tools/oracles/dd12/dd12.py loop D:/rang/outputs/dd12-20261126 AT12
 loop-AT12 end 2026-11-26T21:48:07+02:00 rc=0 wall=2880s
+pinflux start 2026-11-26T22:04:41+02:00 slots=1 mem=4 tools/oracles/dd12/dd12.py pinflux D:/rang/outputs/dd12-20261126
+pinflux end 2026-11-26T22:04:45+02:00 rc=0 wall=5s

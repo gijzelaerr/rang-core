@@ -477,7 +477,7 @@ tools/oracles/dd1/run_qc.sh,42,a,-,-,-,0,-,-
 tools/oracles/dd1/sim.py,254,a,-,-,-,0,-,-
 tools/oracles/dd10/dd10.py,732,a,-,-,-,0,-,-
 tools/oracles/dd11/dd11.py,623,a,-,-,-,0,-,-
-tools/oracles/dd12/dd12.py,567,a,-,-,-,0,-,-
+tools/oracles/dd12/dd12.py,667,a,-,-,-,0,-,-
 tools/oracles/dd2/dd2.py,503,a,-,-,-,0,-,-
 tools/oracles/dd2/run_wsclean.sh,70,a,-,-,-,0,-,-
 tools/oracles/dd3/common.sh,12,a,-,-,-,0,-,-

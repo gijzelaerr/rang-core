@@ -13,10 +13,12 @@ Status: **measured 2026-11-26.**
   against Q6's 0.244 (2.30 ×), MS12 0.516 against Q12's 0.207 (2.49 ×). It
   also hurts with the truth gains: ATM6 0.376 against AT6's 0.128, ATM12
   0.266 against AT12's 0.093.
-- **Why (A2, post hoc):** about 0.5 Jy per cycle of negative multi-scale
-  flux falls in DD4's pin boxes and is clipped by the frozen spill rule,
-  leaving a positive ring round each pinned source; d1's net model flux
-  reaches 5.2-5.3 Jy (truth 4.43).
+- **Not answered:** whether a better deconvolver closes more of the gap.
+  This S is worse than Högbom even with the truth gains. Its cause is not
+  established (A2, A3, post hoc). S's negative components spill into d1's
+  pin box and are clipped, but the kept flux round the pin matches the
+  sky, and the d1 overshoot (5.2-5.9 Jy net against 4.43) is elsewhere.
+  Every S cycle stops at the 5,000-component cap with mixed-sign scales.
 - **More cycles help:** Q12 reaches d1 0.207 (0.848 × Q6, G_d1 0.42), the
   best arm; AT12 reaches 0.093 (G 0.75). No real arm (the rule is not met).
 
@@ -348,7 +350,12 @@ A0 in d1 (ATM6).
   harm. AT12 against AT6: 0.093 against 0.128 (0.72 ×). d1 in Q12's solves
   (cycle 6 is Q6's scored point): 0.244, 0.234, 0.228, 0.221, 0.215, 0.211,
   scored 0.207; about 0.006 per cycle and slowing.
-- MS6 against Q12: 2.71 × in d1.
+- MS6 against Q12: 2.71 × in d1, at about 0.44 × the cycle time (the
+  sum of the cycles' `seconds`: MS6's cycles 0-6 5,314 s, Q12's cycles 0-12
+  12,061 s; the reused cycle-0 solve and Q12's reused cycle-6 scored solve
+  are not counted).
+- Q12's d2 rose from 0.301 (Q6) to 0.343 (1.14 ×, inside the 1.2 harm bar)
+  while AT12's d2 fell from 0.279 to 0.243.
 - **DD12's answer (frozen): "no: multi-scale hurts in this loop"** (MS
   hurts at both N; no MS arm closes). **Best arm: Q12** (partly, G_d1 0.42,
   56 % of AT12's gain). The real arm is not run: section 7 needs an MS best
@@ -358,21 +365,32 @@ A0 in d1 (ATM6).
 component cap (never at the threshold), in one image-domain cycle.
 Increment flux by cycle (Jy, after the clip): +1.39, +0.28, +0.33, +0.58,
 +0.20, −0.01, +0.15, +0.02, +0.21, −0.15, +0.50, −1.10. d1 net model flux
-2.83 at M₀ᶜ, 4.20 after cycle 0, 5.34 at M₆, 5.92 at M₁₂ (truth 4.43); Q12
-stays at 3.4-3.6. Clipped d1 flux per cycle −0.53, −0.50, −0.29, then −0.03
-to −0.14. d1's e jumps from 0.352 to 0.557 after the first S cycle and then
-falls by 0.004-0.02 per cycle.
+2.83 at M₀ᶜ, 4.20 after cycle 0, 5.34 at M₆, 5.92 at M₁₁, 5.17 at M₁₂
+(truth 4.43); Q12 stays at 3.4-3.6, ATM12 at 4.2. Clipped d1 flux per cycle
+−0.53, −0.50, −0.29, then −0.03 to −0.14. d1's e goes 0.352, 0.557 (after
+the first S cycle), 0.634, then falls by 0.004-0.02 per cycle to 0.516.
 
 **Spill (A2, post hoc, `spill.json`).** On the saved cycle-0 and cycle-1
 residuals of MS12 and ATM12, 0.48-0.52 Jy of the clipped flux (about 85 %
 of the clipped absolute flux) lies within 16 px of the three pin boxes, all
 of it negative; 0.01-0.07 Jy lies in d0. Round the pins S keeps +0.54 to
-+0.63 Jy at cycle 0. The pins' 5 × 5 search exclusion lets S's 10-81 px
-shapes, centred just outside the boxes, carry negative flux into them; the
-frozen clip removes it and leaves a positive ring. The Högbom arms cannot
-spill (point components only on search pixels). This is a property of S
-with these masks and the clip rule, not a test of multi-scale CLEAN as
-such; a per-scale mask eroded round the pins was not tested.
++0.63 Jy at cycle 0 (+0.01 to +0.06 at cycle 1). The clip is real: S's
+10-81 px shapes centred just outside the 5 × 5 boxes carry negative flux
+into them, in d1 only (d2 and d3 clip under 0.003 Jy).
+
+**Pin flux (A3, post hoc, `pinflux.json`, zero solves).** It does not show
+the clip to be the error. In the 16 px ring round d1's pin, sky O holds
+1.20 Jy; M₀ᶜ 0.52; MS12 1.08-1.16 from M₁ on; ATM12 0.92-1.05; Q12
+0.50-0.85; AT12 0.63-0.69. The S models are closer to the sky there than
+the Högbom ones. The box itself is never cleaned (M₀ᶜ's 0.97 Jy against sky
+O's 0.24 Jy, the same in every arm). MS's d1 overshoot (5.2-5.9 Jy net
+against 4.43) is not at the pin, and ATM's d1 net flux (4.2) is near the
+truth while ATM is still 2.9 × worse than AT. **The cause is not
+established.** What A2 and A3 leave as candidates is untested: every S
+cycle stops at the 5,000-component cap with mixed signs across scales
+(scale 0 positive, the 10 px scale about −0.8 Jy per cycle), so S's
+increment is a partial, sign-mixed model; the pin-box clip is a smaller,
+local effect.
 
 **Cost.** Loop walls (8 slots booked, lock waits included): MS12 11,948 s;
 Q12 8,253 s (six new cycles); ATM12 4,280 s; AT12 2,880 s. Per step: a GS
@@ -386,19 +404,27 @@ spares.
   multi-scale minor cycle as frozen (WSClean defaults, five automatic scales
   to 81 px, clipped to the search pixels) makes d1 2.3-2.5 × worse than
   Högbom at matched N, and 2.9 × worse even with the truth gains.
-- **Cause (A2, post hoc):** negative scale components spill into the pin
-  boxes; the clip keeps a +0.5 Jy ring per cycle round the pins. This tests
-  the masks and the clip, not multi-scale CLEAN in general.
+- **What was not tested:** ATM fails against AT, so "does a better
+  deconvolver close more of the gap" is not answered. This S, as
+  configured (component cap reached every cycle, mixed-sign scales, clip),
+  is not a better deconvolver of these facet residuals even with the truth
+  gains.
+- **Cause not established (A2, A3, post hoc):** S's negative components
+  spill into d1's pin box and are clipped (about 0.5 Jy in cycles 0-1), but
+  the kept flux round the pin matches sky O's better than Högbom's does, and
+  the d1 overshoot is elsewhere. Untested candidate: the 5,000-component
+  cap with mixed signs across scales.
 - **Best arm Q12:** Q6's loop to 12 cycles, d1 0.207 (G 0.42, partly), d2
   0.343, d3 0.301; truth-gain control AT12 0.093. More cycles help
   (0.848 ×), about 0.006 per cycle and slowing.
-- **Next:** if multi-scale stays a lever, a new note that fixes the pin
-  problem first (subtract the pinned sources from the images, or a per-scale
-  mask eroded by ⌈s/2⌉ round the pins and facet edges; reach the threshold
-  rather than the cap), gated on the truth-gain control (ATM against AT)
-  before any solved-gain arm. Otherwise the loop with Högbom and N ≥ 12 is
-  the working recipe; its gap to AT12 (0.207 against 0.093) is absorption
-  in the trusted gains (DD11's ATs).
+- **Next:** if multi-scale stays a lever, a new note on the truth-gain
+  control only (ATM against AT, two scored solves per arm), varying what A2
+  and A3 leave open: the threshold reached instead of the 5,000 cap, fewer
+  or smaller scales, a per-scale mask eroded by ⌈s/2⌉ round the pins and
+  facet edges. A solved-gain arm only after ATM beats AT. Otherwise the
+  loop with Högbom and N ≥ 12 is the working recipe, with two caveats: d2
+  rose 0.301 to 0.343 from 6 to 12 cycles (AT12's fell), and the gap to
+  AT12 (0.207 against 0.093) is DD11's absorption in the trusted gains.
 
 ## Amendments
 
@@ -410,7 +436,11 @@ gave the residual bitwise equal (max |Δ| 0) and the cycle-1 solve's gains
 and flags bitwise equal, but a different M₁ (from the float32 input). Part
 (1) is rerun with the float64 residual as Högbom's input; part (2) is kept.
 MS12 and ATM12 had started (they reuse only A0's gains, whose solve part (2)
-confirms).
+confirms). Correction (2026-11-26, after every reading): A0's gains are
+confirmed by part (1), the bitwise residual made with them, not part (2).
+Procedure deviation: MS12 and ATM12 were started before gate R, called
+blocking in section 5, had passed; they reuse no Q6 or AT6 file, and gate R
+then passed.
 
 **A2, 2026-11-26, post hoc diagnostic (after ATM12's records and its M₆
 and M₁₂ scored points were read; before any MS12, Q12 or AT12 scored point
@@ -419,3 +449,11 @@ the 5,000-component cap every cycle and the clip removed about −0.5 Jy of
 d1 flux per cycle. Diagnostic `spill` reruns minor cycle S on the saved
 (float32) cycle-0 and cycle-1 residuals of ATM12 and MS12 and locates the
 clipped flux: in d0, within 16 px of a pin box, elsewhere. Reported only.
+
+**A3, 2026-11-26, post hoc diagnostic (after every reading). It changes no
+frozen rule or reading.** Diagnostic `pinflux` sums each arm's model M_k
+inside each pin box and in the 16 px ring round it, against sky O, from the
+kept `next_model.npy` files (no solve, no image). It replaces A2's first
+reading ("the clip leaves a positive ring round each pinned source", in the
+commit of the results) with section 10's: the ring flux is near the sky's,
+and the cause is not established.
