@@ -17,6 +17,7 @@ core/py/src/gemclean_predict.rs,90,a,-,-,-,0,-,-
 core/py/src/learned.rs,76,a,-,-,-,0,-,-
 core/py/src/lib.rs,3051,a,-,-,-,0,-,-
 core/py/src/lightcurve.rs,68,a,-,-,-,0,-,-
+core/py/src/multiscale_image.rs,232,a,-,-,-,0,-,-
 core/py/src/reweight.rs,57,a,-,-,-,0,-,-
 core/src/aipsio.rs,815,c-src,casacore,LGPL-2.0-or-later,"AipsIO.cc, TypeIO.cc, RecordDesc.cc, RecordRep.cc",0,AipsIO and record format reader (format),-
 core/src/bin/gemclean.rs,26,a,-,-,-,0,-,-
@@ -476,6 +477,7 @@ tools/oracles/dd1/run_qc.sh,42,a,-,-,-,0,-,-
 tools/oracles/dd1/sim.py,254,a,-,-,-,0,-,-
 tools/oracles/dd10/dd10.py,732,a,-,-,-,0,-,-
 tools/oracles/dd11/dd11.py,623,a,-,-,-,0,-,-
+tools/oracles/dd12/dd12.py,567,a,-,-,-,0,-,-
 tools/oracles/dd2/dd2.py,503,a,-,-,-,0,-,-
 tools/oracles/dd2/run_wsclean.sh,70,a,-,-,-,0,-,-
 tools/oracles/dd3/common.sh,12,a,-,-,-,0,-,-
@@ -566,3 +568,4 @@ tools/wheel/smoke.py,62,a,-,-,-,0,-,-
 tools/wheel/test.py,307,a,-,-,-,0,-,-
 tools/wheel/test.sh,139,a,-,-,-,0,-,-
 tests/test_dd11.py,48,a,-,-,-,0,-,-
+tests/test_dd12.py,45,a,-,-,-,0,-,-
