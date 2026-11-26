@@ -1,7 +1,7 @@
 # Rang: one-day screenings of stages 3, 4 and 5a for a learned replacement (#44, DL4s)
 
 Status at freeze, 2026-11-20: **proposed; stages 4 and 5a decided from the record (section 5), stage 3's
-probe not run.** Status 2026-11-26: stage 3's probe run on eight of nine blocks (2.4-2.7), outcome
+probe not run.** Status 2026-11-26: stage 3's probe run (2.4-2.7; eight blocks complete, the ninth's key-off arm only), outcome
 **pilot** by the 2.4 count, one new delay-ambiguity instance by class. Branch `dl4s-screen` from origin/main `92e67e2f`. Route:
 [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Plan:
 [dl-plan.md](dl-plan.md) stage table rows 3, 4, 5a ("one-day screenings, outcome recorded"); cost basis:
@@ -146,8 +146,8 @@ from a result.
   per field, so the screen does not depend on it.
 - Bookings: concat 1 slot / 8 GB, flag 4 slots / 24 GB (`RAYON_NUM_THREADS=4`), calibrate as
   frozen, 2 slots / 16 GB. Wall time: 2.3's "one day" was not met: eight blocks ended between
-  2026-11-24 10:43 and 2026-11-26 09:43 SAST; 1571938260 (41 primary scans, 319 GB) was still in
-  its key-off calibrate at hand-back (section 2.6).
+  2026-11-24 10:43 and 2026-11-26 09:43 SAST; 1571938260 (41 primary scans, 319 GB) failed after
+  about 40 h of its key-off calibrate (section 2.6).
 - Positive control (glacier, E2-A's archived rang K1, G1, B1 at `D:\rang\outputs\e2a-20261115`,
   [control/](results/dl4s-stage3/control/)): the screen finds ID 50, K1 interval 7 (2,335 /
   2,291 ns) as the only K1 outlier of 14 intervals, and ID 50's G1 intervals 6-8 (amplitude
@@ -174,16 +174,23 @@ Key-on arm, amplitude reading (2.4's count); outliers / caught by neither (a) no
 | 1678312253 (held out) | 2 | 4 / 4 | 4 / 4 | 4 / 4 | 22 / 8 | 26 / 12 | K, Gsec |
 | 1674958551 (held out) | 1 (no median) | – | – | – | 4 / 4 | 4 / 4 | Gsec |
 | 1579022459 (held out) | 5 | 0 | 0 | 580 / 42 | 1 / 1 | 1 / 1 | B, Gsec |
-| 1571938260 (train) | 41 | running | | | | | |
+| 1571938260 (train), key-off arm only | 41 | 5 / 5 | 4 / 4 | 4,838 / 703 | 3 / 3 | failed | K, G, B |
 
 **Independent instances by 2.4's reading: 9 (block, term) pairs on eight blocks**, the same in the
 5-sigma reading and in the key-off arm. The complex reading gives 22 (21 at 5 sigma), mostly the
 G-type phase following the refant over hours, as 2.4 expected. `k_zero_start` changed nothing: K
 tables are bitwise equal between the arms on every block (the key is `true` in every key-on
-`config.resolved.json`; rang does not record whether the zero start won an interval). The ninth
-block can only add pairs.
+`config.resolved.json`; rang does not record whether the zero start won an interval). The ninth block, 1571938260, has J0408-6545 as both primary and its only gain calibrator, so 2.4's
+mechanical roles made F's transfer field the reference field: `fluxscale` stopped with "Cannot find
+solutions for transfer field(s)" after K, G, B and Gsec were written, so its key-on arm never ran
+(a defect of the 2.4 field-role reading for this block, not rerun: another 40 h could not change the
+outcome). Its key-off tables were screened with the key-off arm standing in for the key-on one
+(`blocks/1571938260/screen-offonly.json`; archive
+[summary-1571938260-off-only.json](results/dl4s-stage3/summary-1571938260-off-only.json)): K, G, B
+add three pairs, **12 in all**.
 
-**Outcome under rule 2.2 as read in 2.4: pilot (≥ 3).** Recorded as the frozen outcome.
+**Outcome under rule 2.2 as read in 2.4: pilot (≥ 3; 9 on eight complete blocks, 12 with the ninth's
+key-off arm).** Recorded as the frozen outcome.
 
 ### 2.7 What the instances are (2026-11-26, post hoc reading of the result, not a rule)
 
@@ -200,11 +207,16 @@ block can only add pairs.
   idea of 2.4, which 2.4 applied only within one field: 8 pairs rather than 9. With E2-A's, the
   record holds **two** instances of this class, below 2.2's three.
 - **K 0.10-0.14 ns from the median:** 1573212012, antennas 43, 51-53, first one or two of six
-  scans. Threshold-level; cause not examined.
+  scans; 1571938260, antenna index 55, scans 38-40 of 41 (0.10-0.12 ns). Threshold-level; cause not
+  examined.
+- **One G amplitude collapse without a K cause:** 1571938260, antenna index 25, primary scan 8 of 41,
+  Y: 0.88 below its median (G and Gsec, same field), unflagged, K normal there. The same look as
+  E2-A's ID 50 G1 intervals 6-8, which sat downstream of its K; one instance.
 - **Gsec / F 10.1-11.5 %:** single gain-calibrator scans in 1749428161, 1611426666, 1674958551,
   1579022459. Threshold-level; cause not examined.
-- **B channels 10-55 %:** 1579022459 (42 rows × hand, 1-26 channels each, J0408-6545 under a unity
-  model), 1629213076 (antenna 29, one scan, 112 channels at 11 %). Cause not examined.
+- **B channels 10-69 %:** 1579022459 (42 rows × hand, 1-26 channels each, J0408-6545 under a unity
+  model), 1571938260 (703 rows × hand over 59 antennas, median 2 channels each, J0408-6545 unity),
+  1629213076 (antenna 29, one scan, 112 channels at 11 %). Cause not examined.
 
 So the pilot outcome rests on threshold-level deviations of mixed kinds; the one demonstrable solver
 failure class has two instances (one here), and the classical key meant for it did not fix the new
@@ -246,7 +258,7 @@ A1) is written; this task did not write it.
 
 | Stage | Outcome | Basis |
 | --- | --- | --- |
-| 3 | **pilot** (rule 2.2 as read in 2.4, 2026-11-26; eight of nine blocks) | 9 uncaught (block, term) pairs; by class (2.7, post hoc) only one new delay-ambiguity instance, two with E2-A's; `k_zero_start` moved nothing |
+| 3 | **pilot** (rule 2.2 as read in 2.4, 2026-11-26) | 9 uncaught (block, term) pairs on eight blocks, 12 with 1571938260's key-off arm; by class (2.7, post hoc) only one new delay-ambiguity instance, two with E2-A's; `k_zero_start` moved nothing |
 | 4 | **null** (post hoc reading) | about 2 % of the run, mostly reads; no rang failure class |
 | 5a | **null** (post hoc reading) | ≤ 7.6 % of selfcal; coarse gridder already shipped; no neural degridder exists |
 
@@ -260,7 +272,8 @@ A1) is written; this task did not write it.
   antenna index 25, −2,392 ns) that `k_zero_start` did not fix. Open decisions: write 2.2's pilot
   note or not; and, classically, why the key missed that interval (re-solve that scan with the key,
   and look at the antenna's channels), which is a rang K defect lead, not a network task.
-  1571938260 was still in calibrate at hand-back; its driver writes `screen.json` and deletes its
-  concat by itself; rerun `dl4s_summary.py` then.
+  1571938260's key-on arm did not run (F's fluxscale has no transfer field when J0408-6545 is both
+  primary and gain calibrator); its key-off arm is screened. Lead seen in passing: one unflagged
+  88 % G amplitude collapse (1571938260, antenna index 25, scan 8).
 - Classical items seen, not opened: an SNR rule on averaged cells for G (e2a-3b-k 475-478); rang's
   Gpol iteration counts where CASA stops at 50.
