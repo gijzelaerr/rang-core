@@ -391,3 +391,6 @@ tools/wheel/run_installed.py,102,a,-,-,-,0
 tools/wheel/smoke.py,62,a,-,-,-,0
 tools/wheel/test.py,307,a,-,-,-,0
 tools/wheel/test.sh,139,a,-,-,-,0
+core/src/reweight.rs,332,a,-,-,-,0
+core/py/src/reweight.rs,62,a,-,-,-,0
+python/rang/reweight.py,394,a,-,-,-,0
