@@ -1,4 +1,7 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Follows CASA statwt's rules as read in casa6's source (LGPL-2.0-or-later);
+# casadocs' statwt page states the same rules (research/mit-relicense-audit.md,
+# update 2026-11-26).
 """Empirical re-weighting after apply (issue #55, research/apply-reweight.md):
 a statwt-like stage, `apply.reweight`, off by default.
 

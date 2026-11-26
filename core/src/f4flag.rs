@@ -4,8 +4,8 @@
 //! cross-correlation baseline, and F3's five-layer dilated 3×3 network with
 //! 23 inputs, in f32.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! The spectral planes compare each baseline's time-median spectrum `P` with
 //! the median over the other baselines `B`, per correlation family (parallel

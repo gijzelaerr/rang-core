@@ -49,7 +49,9 @@ A pre-push hook (`tools/githooks/pre-push`, enabled for the main checkout
 and every worktree by `git config core.hooksPath tools/githooks`) runs
 `tools/prepush_check.py` in about a second. It refuses the push when a note
 in `research/` is missing from `research/README.md`, a source file lacks its
-SPDX line, or ruff fails, which were the causes of most red branch runs.
+SPDX line or its row in the provenance register
+`research/results/mit-relicense-audit/files.csv` (own new code:
+`<path>,<lines>,a,-,-,-,0,-,-`; CONTRIBUTING.md "Licence headers"), or ruff fails, which were the causes of most red branch runs.
 This includes the first push of a frozen proposal: add the note's index line
 in the same commit.
 
