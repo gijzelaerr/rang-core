@@ -261,3 +261,21 @@ one near 1 in median ratio on `rfi` (1.0025, 1.0000; classic 0.011, mad 0.958 an
 the code does it); everything else, bounds and rule unchanged; T re-run on every case. The first
 run's score is archived beside the revision's. This changes the stage's weights for any non-off mode
 with `smooth > 0` (the off default is untouched); stated in the CHANGELOG.
+
+**A2, 2026-11-26 15:05 SAST, post hoc: after the I gate's first read on the held-out fields
+(J1744−5144 and J0408−6545: raw, unity, rmad, rclip; nothing on the target or c4 read).** The natural
+V images give rclip/raw 0.760 and 0.745 (tile medians), while N gives a −1.7 % and −3.6 % change, and
+on J0408−6545 the natural rms exceeds the Briggs −0.5 rms in every arm (raw 82.6 against 57.5 µJy),
+which thermal noise does not do; 4-6 of 16 tiles were dropped for V peaks. So the gate's premise (V
+sky empty, image rms = noise) is in doubt on these bright calibrators. A diagnostic is added before
+the outcome is worded ([w48_blratio.py](results/weights-k-scripts/w48_blratio.py)): per baseline
+and block, R's variance over a scan against the dump-difference variance (which cancels anything
+constant over 8 s), binned by baseline length, on the even-pair dumps of arm B's MS (calibrated as A
+up to the J1939 flags; A's MS is busy with the arms). Flat near 1: R tracks noise and the rule stands.
+Rising on short baselines: R takes up slowly varying V sky, the I numbers are recorded as frozen with
+the premise violation stated, and no default-on recommendation is made. The rule is not changed.
+Also: the `rmad` arm is `mad` at the post-R1 defaults (fill-only smoothing), not #55's shipped
+behaviour; and section 1's "no unflagged cell gets weight 0 while any baseline in its scan has data"
+is too strong: a single-scan field whose every block is below `minsamp` (c4 J0408−6545 at chanbin 4,
+held out: 148 V samples per block) gets weight 0 on all its cells (20.8 M); the stage now warns when
+that happens.
