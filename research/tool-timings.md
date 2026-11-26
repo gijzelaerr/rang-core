@@ -2590,3 +2590,13 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | solver-flags: `sf_score.py` on the four E2-N arms, **host nash** (4 slots, 24 GB) | 4 × E2-N | 4,504 s | – | – |
 | 2026-11-25 | solver-flags: `tools/check_all.py --quick`, host glacier | worktree | 2,030 s (FAIL: clippy, test fixture), then 1,036 s (PASS) | – | lock wait excluded |
 | 2026-11-26 | solver-flags (post hoc P0): A1 `rang-core run` flag stage only, the mild strategy without the preset, host glacier (`heavy_lock.py run --slots 4 --mem 12`, 4 threads) | A1 full, 2,842,560 rows × 256 ch | flag 411 s (4,848 s with the lock wait) | – | one earlier attempt refused: its config was not written |
+| 2026-11-26 | dd10: O rebuilt by `dd8.insert` (host glacier, 2 slots shared) | DD7's B, 2.5 GB copy | 230 s | – | GO pass |
+| 2026-11-26 | dd10: fixed-point tests T1, T2 in DD9's reference (I2 with the default's flags imposed, 2001 iterations) (host glacier, 2 slots shared) | O-skyO sums | 843 s (T2 841 s) | – | |
+| 2026-11-26 | dd10: Rust `solve_dd` default (Jacobi), O-X, cap 500, branch extension (host glacier, 8 slots shared) | 52.7 M cells, 4 directions | 392 s wall; predict 44 s, solve 246 s | – | bitwise equal to DD8's |
+| 2026-11-26 | dd10: Rust `solve_dd` Gauss-Seidel, O-X, cap 500 and 501, no global stop (host glacier, 8 slots shared) | 52.7 M cells, 4 directions | 1,464 s wall; solves 672 s and 742 s | – | 2.7 × the default per iteration |
+| 2026-11-26 | dd10: PSF (`fits_image`, 5760², w_I) on O and on the real subset with 145 baselines flagged (host glacier, 4 slots shared) | 52.7 M cells | 42-43 s | – | |
+| 2026-11-26 | dd10: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd10-gs | 1,057 s (lock wait excluded) | – | FAIL: index entry and K2a test setup, both fixed |
+| 2026-11-26 | dd10: Rust Gauss-Seidel O-X with stop fraction 0.99 (AX), cap 500 and 501 (host glacier, 8 slots shared) | 52.7 M cells, 4 directions | 2,333 s wall (lock wait included); solves 718 s and 672 s | – | bitwise equal to K2b |
+| 2026-11-26 | dd10: DD3 loop on O, 3 Högbom cycles + final solve: AL (solved gains), AT (truth gains), ALu (A1) (host glacier, 8 slots shared) | 52.7 M cells, 2880² facet images | AL 5,602 s; AT 5,235 s; ALu 7,704 s (lock waits included) | – | per cycle: predict 26-34 s, GS solve 595-737 s, images 22-45 s, Högbom 400-421 s (one core) |
+| 2026-11-26 | dd10: DD3 loop on the real subset with 145 baselines flagged (RL), 3 cycles + final solve (host glacier, 8 slots shared) | 52.7 M cells | 8,378 s (lock wait included) | – | |
+| 2026-11-26 | dd10: `tools/check_all.py --quick`, second run (host glacier, 4 slots shared) | branch dd10-gs | 136 s (lock wait excluded; 4,448 s with it) | – | PASS |

@@ -1,0 +1,57 @@
+{
+ "slow_intervals": 41,
+ "never_intervals": 25,
+ "T1": {
+  "intervals_I2_converged": 110,
+  "max_rel_step_on_converged": 1.559561937507305e-15,
+  "median_of_interval_max": 7.84183076270159e-16,
+  "max_rel_step_all_intervals": 5.409952904425293e-07,
+  "reading": "a fixed point of the default update"
+ },
+ "T2_seconds": 841.3747565000085,
+ "T2": {
+  "extra_flags_per_direction": [
+   0,
+   0,
+   0,
+   3
+  ],
+  "slow_with_equal_flags": 38,
+  "slow": {
+   "cells": 531846,
+   "median": 2.489058606342853e-10,
+   "p99": 1.4269206565719554e-07,
+   "max": 1.5379429719995046e-06
+  },
+  "default_converged_with_equal_flags": 85,
+  "default_converged": {
+   "cells": 1196898,
+   "median": 1.698314660101103e-15,
+   "p99": 7.166191685888111e-08,
+   "max": 1.5379429719995046e-06
+  },
+  "never": {
+   "cells": 59512,
+   "median": 5.628051963474863e-09,
+   "p99": 2.0212905741288993e-06,
+   "max": 9.54348160856645e-06
+  },
+  "reading": "only the flag ladder"
+ },
+ "reported": {
+  "I2_vs_default_slow": {
+   "cells": 564430,
+   "median": 0.00038572423924437696,
+   "p99": 0.026174018206209477,
+   "max": 0.4002895871155807
+  },
+  "imposed_I2_converged_intervals": 106,
+  "imposed_fraction": [
+   0.9933490984333432,
+   0.9651711924439197,
+   0.968052063304245,
+   0.9649435531788473
+  ]
+ },
+ "seconds": 842.1933118000161
+}

@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `rang.cal_gain.solve_dd(..., direction_update="gauss-seidel")` (`diag_dd::DirectionUpdate::GaussSeidel`,
+  the extension's `cal_gain_solve_dd(..., direction_update=1)`): an optional Gauss-Seidel sweep over
+  directions in the direction-dependent `diag_complex` kernel, each direction updated from the
+  residual after the ones before it, then the flag ladder on every gain. DD9 found QuartiCal's
+  Jacobi DD update linearly unstable at the solution on a deep off-axis sky; the sweep is stable
+  there. `ap` only; no QuartiCal counterpart. The default (`"jacobi"`) is unchanged, bit for bit
+  (#15, `research/dd10-gs.md`).
 - `rang-core flag CONFIG STORE` (and `rang-core run` with `run.stages: [flag]`) on an MSv4
   processing set: the flag stage through `rang.msv4.flag` with the MSv2 command's run directory,
   flag versions (`<store>.flagversions/`, byte copies of each partition's flag variable;

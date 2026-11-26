@@ -41,6 +41,7 @@ from . import cal_apply, core_ms
 from .formats import caltable
 
 KINDS = {"ap": 0, "p": 1}
+DIRECTION_UPDATES = {"jacobi": 0, "gauss-seidel": 1}  # diag_dd::DirectionUpdate (DD10)
 # VisCal::Type order (C1 section 1.1): lower types correct the data while G
 # is solved, equal or higher types corrupt the model.
 TYPE_ORDER = ("B", "K", "Kcross", "G", "J", "Df", "Xf", "C", "P", "E", "T", "F")
@@ -259,6 +260,7 @@ def solve_dd(
     stop_fraction=0.99,
     calmode="ap",
     phase_last_direction_gain=True,
+    direction_update="jacobi",
 ):
     """Solve one direction-dependent `diag_complex` term (task DD1,
     research/dd1-facet-gains.md): `models` is (rows, chans, directions, 4),
@@ -269,7 +271,13 @@ def solve_dd(
     `calmode="p"` solves QuartiCal's `phase` term with the direction axis
     instead (DD3b, research/dd3b-flux-pin.md); `phase_last_direction_gain`
     keeps QuartiCal 0.2.7's use of the last direction's gain in every
-    direction's `J^H r` (`False`: each direction's own)."""
+    direction's `J^H r` (`False`: each direction's own).
+    `direction_update="gauss-seidel"` updates the directions one after
+    another, each from the residual after the ones before it (DD10,
+    research/dd10-gs.md; `ap` only); the default `"jacobi"` is QuartiCal's
+    update, unchanged."""
+    if direction_update not in DIRECTION_UPDATES:
+        raise ValueError(f"direction_update must be one of {sorted(DIRECTION_UPDATES)}")
     ext = _extension()
     data = np.asarray(data)
     nrow, nchan = data.shape[:2]
@@ -301,6 +309,7 @@ def solve_dd(
         float(stop_fraction), -1 if refant is None else int(refant),
         [int(d) for d in pinned_directions], gains, flags,
         KINDS[calmode], bool(phase_last_direction_gain),
+        DIRECTION_UPDATES[direction_update],
     )  # fmt: skip
     return DDSolution(
         gains=gains.view(np.complex128).reshape(ntime, nfreq, nant, ndir, 2),
