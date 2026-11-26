@@ -109,14 +109,14 @@ w48A|w48c4)
   need=runA; [ "$1" = w48c4 ] && need=runc4; shard build || { echo "build not done"; exit 1; }
   shard $need || { echo "$need not done"; exit 1; }
   mkdir -p "$O"
-  W="$LOCK --slots 4 --mem 16 -- $NICE env RAYON_NUM_THREADS=4 $PY -I $S/w48_real.py"
+  W="$LOCK --slots 8 --mem 24 -- $NICE env RAYON_NUM_THREADS=8 $PY -I $S/w48_real.py"
   for F in J1744-5144 J0408-6545 ASKAPJ1745; do
     for arm in raw unity rmad rclip; do
       tag=$1.$F.$arm
       shard $tag && continue
       $W weights "$M" "$RAW" $F $arm "$O/$F-$arm-weights.json" $CB > "$O/$F-$arm.log" 2>&1
       $W n "$M" $F "$O/$F-$arm-n.json" $CB >> "$O/$F-$arm.log" 2>&1
-      $W image "$M" $F "$O/$F-$arm-img" 4 >> "$O/$F-$arm.log" 2>&1
+      $W image "$M" $F "$O/$F-$arm-img" 8 >> "$O/$F-$arm.log" 2>&1
       if [ $F = ASKAPJ1745 ]; then
         if [ $arm = raw ]; then
           $LOCK --slots 4 --mem 32 -- $NICE "$PY" -m rang.gemclean -name "$O/i-raw" -field $F -pol I             -weight natural -niter 0 -size 2048 2048 -scale 3asec -no-update-model-required -j 4 "$M"             >> "$O/$F-$arm.log" 2>&1
@@ -135,7 +135,7 @@ w48A|w48c4)
     tag=$1.$F.calwt; shard $tag && continue
     $W weights "$M" "$RAW" $F calwt "$O/$F-calwt-weights.json" $CB > "$O/$F-calwt.log" 2>&1
     $W n "$M" $F "$O/$F-calwt-n.json" $CB >> "$O/$F-calwt.log" 2>&1
-    $W image "$M" $F "$O/$F-calwt-img" 4 >> "$O/$F-calwt.log" 2>&1
+    $W image "$M" $F "$O/$F-calwt-img" 8 >> "$O/$F-calwt.log" 2>&1
     [ $F = ASKAPJ1745 ] && { $W lc "$M" $F "$O/sources.csv" "$O/$F-calwt-lc" >> "$O/$F-calwt.log" 2>&1 || true; }
     mark $tag
   done ;;
