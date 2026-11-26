@@ -348,4 +348,38 @@ extension and the branch's (`k1b/compare.json`).
   have the same fixed points, and the default reaches a different answer
   only where its ladder has flagged gains it cannot converge.
 
+**K1a: pass.** The Rust DD unit tests (8, 3 new), `tests/test_cal_gain_dd.py`,
+`tests/test_dd6.py` and `tests/test_dd9.py` pass.
+
+**K1c: pass, bitwise.** The default on O-X through the branch's extension
+(8 slots; predict 44 s, solve 246 s, 500 iterations, global fraction 0.522)
+gives gains and flags bitwise equal to DD8's `grid/O-X.npz`. The contingent
+main-extension run was not needed.
+
+**K2a: pass.** Rust Gauss-Seidel against the reference's I2 on synthetic data
+(1-40 iterations, free, d0 pinned, d2 pinned): flags identical, gains within
+1e-9 (3e-16 at up to 20 iterations). The first draft of the test ran the Rust
+side with stop fraction 1.0 against the reference's 2.0; the sweep reached
+fraction 1.0 at iteration 39 and stopped there, a test-setup difference,
+fixed by running both sides without the global stop (commit 69da36c0).
+
+**K2b: pass.** Rust Gauss-Seidel on O-X, cap 500 and 501, no global stop:
+500 iterations; per-direction fractions 0.9969, 0.9795, 0.9739, 0.9739,
+equal to the reference's to every digit; flagged gains 113, 113, 113, 116 in
+both, flag arrays identical; products on cells converged in both within
+6.0e-14 (median 1.2e-16 to 2.2e-15 per direction). e/ê 1.20, 1.08, 1.08 in
+d1-d3; d3 |g| max 1.38. Solve 672 s and 742 s (8 slots): 2.7 × the default's
+246 s per iteration.
+
+**K3: pass.** Against the Rust default (K1c, equal to DD8's), on the 63 O-X
+intervals whose flag arrays are identical in both, on 637,200 products of
+cells converged in both: median 2.5e-16, p99 3.6e-15, max 1.8e-14 (frozen
+bounds 1e-6 and 1e-4).
+
+**Admissibility (section 4): admissible.** K2 and K3 pass, T1 reads "a fixed
+point of the default update" and T2 "only the flag ladder". With DD9's
+clauses (closes O-X's gap, B-X within 0.02, accurate on O-X), Gauss-Seidel is
+an admissible option: the default's answer where the default converges
+without extra flags, and a converged answer where the default is unstable.
+
 ## Amendments
