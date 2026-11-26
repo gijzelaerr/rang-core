@@ -1,0 +1,296 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 10.951425552368164,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 1.048574447631836,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 179428,
+   "calibrate": 179428,
+   "chain": 119618,
+   "flag": 358856,
+   "model": 179428,
+   "rows": 478475,
+   "selfcal": 255186
+  },
+  "tasks": {
+   "flag-block": 23
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "85c16382ffa603a0370de8d7ca35a6a8c27d5e1998d64c54749f245caa2e440d",
+ "flag_version": "rang_flag_20261126T044259Z",
+ "flagged_after": 0.5318424608341601,
+ "flagged_before": 0.0,
+ "groups": [
+  {
+   "core_seconds": 6.3114697999553755,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.5446562913359788,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 1
+  },
+  {
+   "core_seconds": 6.437694899970666,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.5452807229662698,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 23
+  },
+  {
+   "core_seconds": 4.798599600093439,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.5452586340525793,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 2
+  },
+  {
+   "core_seconds": 5.0512368000345305,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.5439365931919643,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 8
+  },
+  {
+   "core_seconds": 4.947771500097588,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.5451197064112103,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 14
+  },
+  {
+   "core_seconds": 5.080939200008288,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.5460728882481812,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 22
+  },
+  {
+   "core_seconds": 3.273050299962051,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.546182880704365,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 3
+  },
+  {
+   "core_seconds": 3.4157869000919163,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5466039909887566,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 5
+  },
+  {
+   "core_seconds": 3.3371897001052275,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5460856119791667,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 7
+  },
+  {
+   "core_seconds": 3.3475380999734625,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.548408435639881,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 9
+  },
+  {
+   "core_seconds": 3.30883749993518,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5468193256035053,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 11
+  },
+  {
+   "core_seconds": 3.252669099951163,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5464141038359789,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 13
+  },
+  {
+   "core_seconds": 3.32198360003531,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5463244564318783,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 15
+  },
+  {
+   "core_seconds": 3.2304596999892965,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5455473400297619,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 17
+  },
+  {
+   "core_seconds": 3.400517600006424,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5469793733465609,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 19
+  },
+  {
+   "core_seconds": 3.3716853000223637,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.5481580946180555,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 21
+  },
+  {
+   "core_seconds": 18.53760549996514,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5262767133763228,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 4
+  },
+  {
+   "core_seconds": 18.33763960003853,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5256732726727844,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 6
+  },
+  {
+   "core_seconds": 18.23148630000651,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5283462120742394,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 10
+  },
+  {
+   "core_seconds": 18.63257789995987,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5262977172205687,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 12
+  },
+  {
+   "core_seconds": 18.857972100027837,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5259329788773148,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 16
+  },
+  {
+   "core_seconds": 18.1601326999953,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5282255110160383,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 18
+  },
+  {
+   "core_seconds": 18.51916030002758,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.5287556966145833,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 20
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 2842560,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 5,
+ "strategy": "D:\\rang\\outputs\\solver-flags-20261125\\a1\\mk_rfi_flagging_mild.yaml",
+ "strategy_sha256": "d9afac2774c302114f14b563bfbd64aa2956c1c501bb8e94de34af6eef4fce1e",
+ "write": "replace"
+}

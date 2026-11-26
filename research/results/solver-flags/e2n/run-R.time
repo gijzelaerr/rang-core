@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Worktrees/rang/solver-flags-base/.venv/bin/python -m rang.core_cli run /home/gijs/rang-data/outputs/solver-flags-20261125/cfg/e2n-R.yaml /home/gijs/rang-data/outputs/solver-flags-20261125/e2n-R.ms"
+	User time (seconds): 14747.04
+	System time (seconds): 3231.54
+	Percent of CPU this job got: 114%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:21:18
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5786788
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 238
+	Minor (reclaiming a frame) page faults: 988915790
+	Voluntary context switches: 1260457
+	Involuntary context switches: 76777
+	Swaps: 0
+	File system inputs: 516160184
+	File system outputs: 500085600
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

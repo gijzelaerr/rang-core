@@ -1296,10 +1296,16 @@ def stage_flag(ctx):
         ms, info, by_group, max_rows, cfg["column"], cfg["write"], text, masks
     )
     totals = [[0, 0, 0.0] for _ in by_group]
+    known = known_rfi_masks(ms, cfg["known_rfi"])  # issue #59
+    known_record = None
     with (
         core_tasks.executor(config) as ex,
         writeback_session(ctx, "flag") as (w, written),
     ):
+        if known is not None:
+            # Before the strategy (its SumThreshold then sees the bands as
+            # flagged), and again after it (write: replace).
+            known_record = known_rfi_pass(w, rows, known, plan.rows("rows"))
         for spec, part in zip(specs, ex.map(specs, w)):
             core_chunks.write_rows(w, "FLAG", part["rows"], part["flag"])
             total = totals[spec.key["group"]]
@@ -1307,6 +1313,10 @@ def stage_flag(ctx):
             total[1] += part["after"]
             total[2] += part["seconds"]
             del part
+        if known is not None:
+            known_record["after_strategy"] = known_rfi_pass(
+                w, rows, known, plan.rows("rows")
+            )["added"]
         executor_record = ex.describe()
     for ((field, ddid, scan), idx), (before, after, seconds) in zip(
         by_group.items(), totals
@@ -1354,8 +1364,67 @@ def stage_flag(ctx):
         **written,
         "chunking": {**plan.describe(), "blocks": blocks, **executor_record},
     }
+    if known_record is not None:
+        summary["known_rfi"] = known_record
     _write_json(ctx["run"].stage_dir("flag") / "summary.json", summary)
     return summary
+
+
+def known_rfi_masks(ms, preset):
+    """Issue #59 (research/solver-flags.md 3.3): `(all, short, metres)` channel
+    masks of `flag.known_rfi`, or None for `none`. Refuses data the preset
+    is not for."""
+    if preset == "none":
+        return None
+    from . import meerkat
+
+    with core_ms.open_table(ms / "SPECTRAL_WINDOW") as t:
+        freqs = np.asarray(t.getcol("CHAN_FREQ"), np.float64)
+        widths = np.asarray(t.getcol("CHAN_WIDTH"), np.float64)
+    if len(freqs) != 1:
+        raise StageFailed("flag.known_rfi: one spectral window only")
+    freq, width = freqs[0], widths[0]
+    with core_ms.open_table(ms / "OBSERVATION") as t:
+        names = {str(n) for n in t.getcol("TELESCOPE_NAME")}
+    if len(names) != 1:
+        raise StageFailed(f"flag.known_rfi: several telescopes {sorted(names)}")
+    try:
+        everywhere, short = meerkat.known_rfi_l(names.pop(), freq, width)
+    except ValueError as exc:
+        raise StageFailed(str(exc)) from exc
+    return everywhere, short, meerkat.KNOWN_RFI_L_SHORT_M
+
+
+def known_rfi_pass(w, rows, masks, chunk_rows):
+    """OR the preset's flags into FLAG on `rows` (ascending MS rows) through
+    session `w`: the `all` channels on every row, the `short` channels on
+    cross-correlation rows with uv distance below `metres`. Returns counts."""
+    everywhere, short, metres = masks
+    added = cells = 0
+    for start, n in core_chunks.runs(np.asarray(rows, np.int64)):
+        for s0 in range(start, start + n, max(1, chunk_rows)):
+            k = min(chunk_rows, start + n - s0)
+            flag = w.read("FLAG", s0, k)
+            uvw = np.asarray(w.read("UVW", s0, k), np.float64)
+            a1 = np.asarray(w.read("ANTENNA1", s0, k))
+            a2 = np.asarray(w.read("ANTENNA2", s0, k))
+            near = (np.hypot(uvw[:, 0], uvw[:, 1]) < metres) & (a1 != a2)
+            new = np.zeros(flag.shape[:2], bool)
+            new[:, everywhere] = True
+            new[np.ix_(near, short)] = True
+            before = int(flag.sum())
+            flag |= new[..., None]
+            added += int(flag.sum()) - before
+            cells += flag.size
+            w.write_flags(s0, flag)
+    return {
+        "preset": "meerkat_l",
+        "channels_all": int(everywhere.sum()),
+        "channels_short": int(short.sum()),
+        "short_m": float(metres),
+        "cells": cells,
+        "added": added,
+    }
 
 
 def solution_grid(times, nchan, chan_freq, solint, freqint):
@@ -2085,6 +2154,7 @@ def _chain_solve(
             kind for key, kind in CALWT_KEYS.items() if cal.get(key)
         ],  # calwt-terms
         executor=executor,
+        solver_flags=cal.get("solver_flags"),  # issue #58
     )
 
 
@@ -3173,6 +3243,11 @@ def execute(config, config_path, ms, stages, run_dir=None, force=(), log=print):
                         "or its SNR is under minsnr: check calibrate.refant and "
                         "the flags of that field"
                     ) from exc
+                from . import solver_flags as _sf
+
+                if isinstance(exc, _sf.TripwireFired):
+                    # Issue #58: the re-solve lost solutions.
+                    raise StageFailed(f"{stage}: {exc}") from exc
                 raise
             attempt.update(
                 status="done",

@@ -308,6 +308,8 @@ def _solution_record(sol, info, field_id):
         if hasattr(sol, key):
             value = getattr(sol, key)
             out[key] = value if isinstance(value, (bool, int, float)) else str(value)
+    if "solver_flags" in info:  # issue #58
+        out["solver_flags"] = info["solver_flags"]
     return out
 
 
@@ -574,6 +576,7 @@ def run(
     xf_calwt=False,
     solve_calwt=(),
     executor=None,
+    solver_flags=None,
 ):
     """Run `terms` in order on `ms`, writing each table to `out_dir/<name>`.
 
@@ -625,7 +628,12 @@ def run(
     their data (`rang.cal_gain.calwt_factor`; F is not). `executor` (a
     `rang.core_tasks.Executor`; default inline): the K, G, B and
     polarisation solves go through it by chunk or by field
-    (research/chunk-task-api-1b.md 1.2), with the same tables. Returns
+    (research/chunk-task-api-1b.md 1.2), with the same tables.
+    `solver_flags` (issue #58, `calibrate.solver_flags`, research/solver-flags.md):
+    when its mode is not off, every G and B solve of the types in its
+    `terms` runs flag passes on its residual and re-solves
+    (`rang.solver_flags.rounds`), the flags OR-ed into FLAG as the solve
+    goes; each solution record carries the passes. Returns
     `{"tables": {name: {...}}, "steps": [...]}`."""
     ms = Path(ms)
     out_dir = Path(out_dir)
@@ -656,13 +664,28 @@ def run(
         raise ValueError(f"solve_calwt takes {sorted(CALWT_TYPES)}")
     if solve_calwt:
         common["solve_calwt"] = solve_calwt
+    sf = None
+    if solver_flags is not None and solver_flags.get("mode", "off") != "off":
+        from . import solver_flags as _sf
+
+        if executor is not None and not executor.inline:
+            raise ValueError("solver_flags: data.processes 1 only")
+        sf = {
+            "cfg": dict(solver_flags),
+            "write": _sf.or_writer(
+                ms, flag_backup=flag_backup, stage=stage, chunk_rows=chunk_rows
+            ),
+        }
     for term in terms:
         kind, name = term["type"], term["name"]
         say(f"{kind} {name} on fields {term['fields']}")
         step = {"type": kind, "name": name, "fields": list(term["fields"])}
         if kind in ("K", "G", "B"):
             made, records = [], []
-            solved = _solve_fields("solve_one", ms, term, tables, common, executor)
+            use = common
+            if sf is not None and kind in ("G", "B") and kind in sf["cfg"]["terms"]:
+                use = {**common, "solver_flags": sf}
+            solved = _solve_fields("solve_one", ms, term, tables, use, executor)
             for f, (table, sol, info) in zip(term["fields"], solved):
                 made.append(table)
                 records.append(_solution_record(sol, info, f))

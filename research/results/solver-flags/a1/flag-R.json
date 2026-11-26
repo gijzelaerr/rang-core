@@ -1,0 +1,296 @@
+{
+ "chunking": {
+  "blocks": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "chunk_gb": 10.951425552368164,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 1.048574447631836,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 179428,
+   "calibrate": 179428,
+   "chain": 119618,
+   "flag": 358856,
+   "model": 179428,
+   "rows": 478475,
+   "selfcal": 255186
+  },
+  "tasks": {
+   "flag-block": 23
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "1385e94ad8cb3d8a5ce99ed6ae33e1e89f093a203a25ceb6de33dc8fb5bbdd18",
+ "flag_version": "rang_flag_20261125T095655Z",
+ "flagged_after": 0.2914752733891281,
+ "flagged_before": 0.0,
+ "groups": [
+  {
+   "core_seconds": 8.713954800041392,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.3364701313106261,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 1
+  },
+  {
+   "core_seconds": 11.168789900024422,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.33675750248015873,
+   "flagged_before": 0.0,
+   "rows": 90720,
+   "scan": 23
+  },
+  {
+   "core_seconds": 8.844513799995184,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3407110950934193,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 2
+  },
+  {
+   "core_seconds": 8.823985400027595,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3378160264756944,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 8
+  },
+  {
+   "core_seconds": 9.40184380003484,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3437091161334325,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 14
+  },
+  {
+   "core_seconds": 9.408109699958004,
+   "ddid": 0,
+   "field": "3C286-SIM",
+   "field_id": 1,
+   "flagged_after": 0.3450540209573413,
+   "flagged_before": 0.0,
+   "rows": 60480,
+   "scan": 22
+  },
+  {
+   "core_seconds": 6.185749600001145,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3286858775628307,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 3
+  },
+  {
+   "core_seconds": 5.959690599993337,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3271825396825397,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 5
+  },
+  {
+   "core_seconds": 6.411002799984999,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.32566512173445766,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 7
+  },
+  {
+   "core_seconds": 6.121686300029978,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3305360501405423,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 9
+  },
+  {
+   "core_seconds": 6.405133399995975,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.32779844576719575,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 11
+  },
+  {
+   "core_seconds": 6.52684299997054,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3280242435515873,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 13
+  },
+  {
+   "core_seconds": 6.465955100022256,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.32975273334160055,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 15
+  },
+  {
+   "core_seconds": 6.377873100049328,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3303369915674603,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 17
+  },
+  {
+   "core_seconds": 6.355100799992215,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.3311111369460979,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 19
+  },
+  {
+   "core_seconds": 6.395926599972881,
+   "ddid": 0,
+   "field": "SIM-GCAL",
+   "field_id": 2,
+   "flagged_after": 0.33116396949404764,
+   "flagged_before": 0.0,
+   "rows": 30240,
+   "scan": 21
+  },
+  {
+   "core_seconds": 38.0053796999855,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2760738441426918,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 4
+  },
+  {
+   "core_seconds": 39.27695440000389,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.27521258318865743,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 6
+  },
+  {
+   "core_seconds": 38.56216879998101,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2776463810350529,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 10
+  },
+  {
+   "core_seconds": 38.757367499987595,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.276891521474041,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 12
+  },
+  {
+   "core_seconds": 40.09641350002494,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2766207191426918,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 16
+  },
+  {
+   "core_seconds": 40.27919400000246,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.2757801261780754,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 18
+  },
+  {
+   "core_seconds": 39.11590160004562,
+   "ddid": 0,
+   "field": "SIM-TARGET",
+   "field_id": 3,
+   "flagged_after": 0.27719034184854496,
+   "flagged_before": 0.0,
+   "rows": 302400,
+   "scan": 20
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 2842560,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "strategy": "D:\\rang\\outputs\\solver-flags-20261125\\a1\\mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}
