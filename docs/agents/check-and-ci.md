@@ -45,6 +45,14 @@ gh run list --branch <branch> --workflow tests --limit 3
 gh run watch <run-id> --exit-status
 ```
 
+A pre-push hook (`tools/githooks/pre-push`, enabled for the main checkout
+and every worktree by `git config core.hooksPath tools/githooks`) runs
+`tools/prepush_check.py` in about a second. It refuses the push when a note
+in `research/` is missing from `research/README.md`, a source file lacks its
+SPDX line, or ruff fails, which were the causes of most red branch runs.
+This includes the first push of a frozen proposal: add the note's index line
+in the same commit.
+
 Never force-push. `tests.yml` runs on every push to a branch other than `main`
 (and on pull requests): lint, clippy, the Rust tests, and pytest on Linux and
 Windows against the branch's extension. A later push to the same branch
