@@ -9,9 +9,10 @@ containers on nash, a smaller Slurm run in CI, and the identity, recovery and sc
 `multinode-2`, from main `cd6cf276`. Infrastructure work: no novelty is claimed; the gates are identity and
 recovery, timing is reported.
 
-**Status, 2026-11-25: proposed.** Sections 0 to 5 are frozen in the commit that adds this note, before any launcher
-code; 0.3.1 is the one dated addition allowed (0.3). Section 0 holds probes of the test bed only (no rang code ran
-in it).
+**Status, 2026-11-26: implemented and measured (section 6). Slurm S, PBS P, CI green with the Slurm test.**
+Sections 0 to 5 were frozen in `37b4dd43`, before any launcher code; 0.3.1 is the one dated addition allowed (0.3),
+committed in `34f2bf11` before the launcher code (`011c9223`). Section 0 holds probes of the test bed only (no rang
+code ran in it).
 
 ## 0. Probes before the design (2026-11-25, nash)
 
@@ -200,6 +201,128 @@ the Slurm test of 1.3 where `sbatch` exists. `tests/test_spool.py` still passes.
 - Slurm 24.11 (nash) and 23.11 (CI) only; ilifu's and Lengau's versions are not checked.
 - No matched-accuracy comparison against QuartiCal or `wsclean-mp` (#4's requirement of stage 2 as a whole).
 
-## 6. Results
+## 6. Results (measured 2026-11-25 and 2026-11-26, host nash)
 
-Not yet measured.
+**Verdict, by section 3's rule: Slurm S (runs on a cluster), PBS P (runs on a cluster), CI green with the Slurm
+test running.** Every Slurm and PBS arm of F and W is bit-identical to O; the cancel and node-loss arms finish
+identical with one re-queued task in each stage the event hit while a task ran; the unit tests pass on Windows, nash
+and CI. Nothing reopens step 1's choice.
+
+Code: the gates ran on the harness at `94143550` with the package code of `011c9223` (later commits change only the
+harness, docs, the register and the CI file). `git diff cd6cf276 -- core/ src/` is empty; one `_core` build
+(`_core.abi3.so` SHA-256 `6e4a595d…`, built on nash in the branch worktree) served O and every arm, as the
+harness checks. Oracle O: main `cd6cf276` from the detached worktree `~/Worktrees/rang/mn2-oracle-cd6cf276`.
+Run root: `~/Build/tmp/20261125-multinode-2/shared/run` on nash. Receipts: [results/multinode-2/](results/multinode-2/)
+(`verdict.json`, `report.json`, and each arm's `done.json`, `arm.json`, `config.yaml`, `stage-*.json`,
+`hashes-*.json`; void arms keep their stage records).
+
+### 6.1 Identity and recovery
+
+| Case | Arm | Scheduler, workers, nodes | Files compared | Result | Re-queued flag / calibrate / apply | Walls flag / calibrate / apply, s |
+| --- | --- | --- | ---: | --- | --- | --- |
+| F | O | inline, login container | | reference | | 3.3 / 2.5 / 2.1 |
+| F | Sl2 | Slurm, 2 x 1, n1 and n2 | 123 | identical | 0 / 0 / 0 | 10.1 / 6.5 / 3.8 |
+| F | Sl4T | Slurm, 4 x 1, `chunk_rows: 7`, 2 nodes of 2 CPUs | 123 | identical | 0 / 0 / 0 | 6.5 / 8.8 / 5.7 |
+| F | SlKill | Slurm, 2 x 1, one array task `scancel`led per stage | 123 | identical | 1 / 1 / 0 | 68.4 / 71.6 / 7.4 |
+| F | SlNode | Slurm, 3 x 1 on 3 nodes, the claiming node SIGKILLed per stage (n1, n3, n2) | 123 | identical | 1 / 1 / 0 | 67.9 / 68.9 / 52.0 |
+| F | Pb2 | OpenPBS, 2 x 1 | 123 | identical | 0 / 0 / 0 | 9.4 / 9.3 / 7.0 |
+| F | PbKill | OpenPBS, 2 x 1, one subjob `qdel -W force`d per stage | 123 | identical | 1 / 1 / 0 | 69.3 / 74.1 / 9.4 |
+| W | O | inline, 4 threads | | reference | | 493.3 / 746.9 / 187.0 |
+| W | I, Sl1, Sl2, Sl4, Pb4 | section 6.2 | 240 each | identical | 0 / 0 / 0 | section 6.2 |
+
+- **Recovery.** In flag and calibrate the cancelled or killed worker held a running task; the parent re-queued it
+  after the 60 s lease and a surviving worker ran it, so each of those stages costs about one lease. In apply the
+  first claim's task had finished before the event landed (re-queued 0, as section 3 allows), on all three arms.
+  SlNode's killed node was started again after each stage and was idle before the next stage's workers were
+  submitted (the harness checks it). No hang, no `SpoolError`, no lost task in any measured arm.
+- **Unit tests.** `tests/test_spool_launch.py` with `tests/test_spool.py`: Windows 17 passed, 2 skipped (the Slurm
+  test, no `sbatch`; the POSIX permission test); nash 19 passed, 1 skipped (the Slurm test); CI's Linux job ran the Slurm test against its
+  one-node Slurm 23.11 (`sbatch --array` of 2 spool workers, flag/calibrate/apply identical to one process) and passed,
+  Windows skipped it (runs `45608306354` and later, all green).
+- **Plans.** The parent's spec digests are equal at Sl1, Sl2, Sl4 and Pb4 in each stage (`plans_equal` in
+  `report.json`): 17 flag tasks, 132 solve tasks and 54 apply tasks at every N, as in step 1.
+
+### 6.2 Scaling on the container cluster (shared host: provisional)
+
+One repeat per point, each under a shared ticket of the containers' caps, nice 19 and ionice idle, between 14:13 and
+17:46 SAST on 2026-11-26, while other users' jobs held most of the host (the lock showed 40-43 of 44 slots booked at
+the times read). Nodes of 2 CPUs and 6 GB, one worker of 2 threads each; `memory_limit_gb = 2N`, so 2 GB per
+worker, the same plan at every N.
+
+| Point | flag, s | calibrate, s | apply, s | total, s | workers' CPU-s |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| O (main, 4 threads) | 493.3 | 746.9 | 187.0 | 1427.2 | (one process) |
+| I (inline, 2 threads) | 924.3 | 1329.4 | 166.1 | 2419.8 | (one process) |
+| Sl1 | 1328.7 | 1335.8 | 162.8 | 2827.3 | 4018.8 |
+| Sl2 | 495.2 | 704.3 | 119.9 | 1319.4 | 4009.9 |
+| Sl4 | 295.0 | 408.0 | 113.5 | 816.5 | 4059.5 |
+| Pb4 | 307.3 | 401.8 | 114.8 | 823.9 | 4078.8 |
+
+| N | S(N) flag | calibrate | apply | total | efficiency, total |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 2 (Slurm) | 2.68 | 1.90 | 1.36 | 2.14 | 1.07 |
+| 4 (Slurm) | 4.50 | 3.27 | 1.43 | 3.46 | 0.87 |
+| 4 (PBS) | 4.32 | 3.32 | 1.42 | 3.43 | 0.86 |
+
+Against I, the spool at one worker: flag 1.44, calibrate 1.005, apply 0.98, total 1.17.
+
+Post hoc reading (one repeat on a shared host; not a frozen claim):
+- Sl1's flag (1328.7 s) is 1.44 times I's and 2.7 times Sl2's, so S(2) for flag is above 2. The same 17 tasks and
+  the same CPU-seconds ran; the excess wall is read as load on that one point (Sl1 ran 15:01-16:00, I just before
+  it), not as a cost of the spool. Calibrate and apply at Sl1 are within 1 % and 2 % of I. Step 1's process-group
+  S1/I was 1.035 for flag.
+- Calibrate 3.27 and apply about 1.4 at N = 4 match step 1's process-group figures (3.46 and 1.30): containers and
+  a scheduler change nothing visible; apply is capped by the single writer, as there.
+- Slurm and PBS at N = 4 are within 1 % of each other in total.
+- The workers' CPU-seconds are flat with N (4,010-4,079), so the spool, the scheduler and the containers add no per-
+  task work that grows with the worker count.
+
+### 6.3 Void runs and changes during the work, recorded
+
+Every void attempt is kept in the run root and its stage records in the archive.
+
+- **Harness, `F-SlKill.void-20261125-scancel-whole-array`.** The killer cancelled the worker's `SLURM_JOB_ID`; for the
+  last task of an array that id equals the array's own, and `scancel` of it cancelled both workers. The parent then
+  raised `SpoolError: no live worker ... for 600 s` in calibrate, as designed (an error, not a hang). Fixed in
+  `192f2553` (cancel `<array id>_<task id>`).
+- **Test bed, `F-SlNode.void-20261125-node-not-returned` and `F-SlNode.void-20261126-node-address-cached`.** A Slurm
+  node container restarted after its kill came back on a new address that `slurmctld` did not use, stayed "Not
+  responding", and the later stages lacked nodes (in the first, apply's single remaining worker was itself killed and
+  the parent raised after 600 s; in the second, the harness refused to start calibrate, exit 4, because not every
+  node was idle). In both, the stages before passed identity with one re-queue each. Fixed by fixed addresses and a
+  resume in `slurm_cluster.sh` (`107c9ea5`, `38150585`), checked by a restart probe (killed node idle again in 1 s,
+  still idle 45 s later).
+- **Test bed, `F-Pb2.void-20261125-pbs-bringup`.** `qmgr` ran before the PBS server answered on the loaded host;
+  fixed by retries (`107c9ea5`).
+- **Test bed, the `*.void-1795694*-interrupted` and `*.void-1795695216`/`1795701622` directories.** Bring-ups
+  failed with podman exit 125: first a network left behind without the fixed-address subnet (the teardown stopped
+  on an empty container list under `set -e` with `pipefail`; fixed in `f6ec1c3c`, `c64c0994`), then a missing mount.
+- **Outside the task, `W-O.void-20261126-oracle-worktree-removed`.** The oracle worktree on nash was removed by a
+  cleanup while W-O ran; its flag and calibrate finished, the receipt then failed on an import from the deleted
+  files. The worktree was recreated at `cd6cf276` with the same build (SHA-256 checked) and W-O run again.
+- **Bookings, post hoc.** Section 4 froze `2N + 2` slots and `16 + 3N` GB per point and the containers' caps "at or
+  under it". The caps (a 4-CPU login container plus the nodes) exceed that, so every ticket was booked at the caps
+  instead (`cluster_arms.booking`), above the frozen figures; batches of arms ran under one ticket of the largest
+  arm's caps (`ONE_TICKET`). This changes no measured quantity.
+- **PBS arrays are rerunnable** (0.3.1). The launcher's `-r n` applies only to a one-worker PBS job.
+
+### 6.4 What this does not show
+
+Section 5 stands: one host, a bind-mounted local disk as the shared filesystem, one clock, uid 0 inside the
+containers, Slurm 24.11 and 23.11 and OpenPBS master only, no site policies and no Torque run. Also: the walls
+include job submission and start on an idle container cluster, so a real queue's wait is not in them; the parent's
+first-worker wait (`data.spool_wait_s`) is the knob for that.
+
+## For the coordinator
+
+- **Outcome:** Slurm S and PBS P by the frozen rule: 11 arms (F 6, W 5) bit-identical to main on the public
+  fixture and `w3.ms`; worker cancel (Slurm, PBS) and node loss (Slurm) recovered by the lease with one re-queue per
+  hit stage. CI's Linux job now runs a real `sbatch --array` test on a one-node Slurm.
+- **New user surface:** `rang-core spool submit | status | stop` (`python/rang/core_launch.py`), docs page
+  `docs/howto/cluster.md`, `docs/cli.md` regenerated; no new `RANG_*` variable; no Rust change.
+- **Scaling, provisional (shared nash):** total S = 2.14 / 3.46 at 2 / 4 Slurm workers, 3.43 at 4 PBS workers;
+  apply about 1.4 (single writer).
+- **Not done:** a real site (ilifu Slurm, Lengau PBS Pro) with its shared filesystem; Torque; Sl8 (optional; not
+  queued: its caps are 20 slots and 64 GB and nash's queue was memory-bound all day).
+- **Full check:** not run on the branch; `python tools/check_all.py --quick` passed on glacier (1,471 s). The change
+  touches no oracle-gated path (no Rust, no solver, no MS writer), so the coordinator's one merge check suffices.

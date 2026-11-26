@@ -1,0 +1,52 @@
+{
+ "stage": "flag",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 2,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 2",
+   "chunk_rows: 7"
+  ],
+  "event": "cancel",
+  "ctl_mem_mb": 4000
+ },
+ "launch": {
+  "id": "20261125T165626-a1f06e26",
+  "job_id": "1",
+  "command": [
+   "sbatch",
+   "--parsable",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-SlKill/spool/launch/20261125T165626-a1f06e26/worker.sh"
+  ]
+ },
+ "killed": {
+  "owner": "n1-50-cff930",
+  "claim": "137-2f1ceb2b-0001-00000000",
+  "host": "n1",
+  "job": {
+   "SLURM_JOB_ID": "2",
+   "SLURM_ARRAY_JOB_ID": "1",
+   "SLURM_ARRAY_TASK_ID": "0",
+   "SLURMD_NODENAME": "n1"
+  },
+  "unix": 1795625788.0172582,
+  "command": [
+   "scancel",
+   "2"
+  ],
+  "exit": 0
+ },
+ "driver_wall_s": 64.4,
+ "jobs_left_after_s": 3.4,
+ "workers_cpu": {
+  "n2-50-e9f064": {
+   "tasks": 10,
+   "cpu_s": 4.0
+  }
+ }
+}

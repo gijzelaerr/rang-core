@@ -1,0 +1,29 @@
+{
+ "stage": "apply",
+ "cluster": {
+  "scheduler": "slurm",
+  "workers": 2,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 2"
+  ],
+  "event": null,
+  "ctl_mem_mb": 4000
+ },
+ "launch": {
+  "id": "20261125T164901-5991f4e9",
+  "job_id": "5",
+  "command": [
+   "sbatch",
+   "--parsable",
+   "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Sl2/spool/launch/20261125T164901-5991f4e9/worker.sh"
+  ]
+ },
+ "driver_wall_s": 2.58,
+ "jobs_left_after_s": 0.2,
+ "workers_cpu": {}
+}

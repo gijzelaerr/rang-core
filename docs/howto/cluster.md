@@ -102,8 +102,9 @@ PBS requires array jobs to be rerunnable, so PBS may rerun a lost subjob,
 which only adds a worker.
 
 What was tested ({gh}`research/multinode-2.md`): Slurm 24.11 and OpenPBS
-clusters in containers on one host, with a worker cancelled and a node
-killed in each stage, bit-identical to one process; a one-node Slurm cluster
-in CI. Not tested: a real site's shared filesystem (NFS, Lustre, CephFS
+clusters in containers on one host, bit-identical to one process on the
+public fixture and `w3.ms` (8 GB, 40,320 rows x 4,096 channels), with a worker cancelled in each
+stage (Slurm and PBS) and a node killed in each stage (Slurm); a one-node
+Slurm cluster in CI. Not tested: a real site's shared filesystem (NFS, Lustre, CephFS
 attribute caching and clock skew between nodes delay heartbeats), site
 limits on array size, and Torque.

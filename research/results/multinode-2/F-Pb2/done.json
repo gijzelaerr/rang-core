@@ -1,0 +1,258 @@
+{
+ "case": "F",
+ "arm": "Pb2",
+ "code": "/home/gijs/Worktrees/rang/multinode-2/python",
+ "data": [
+  "processes: 2"
+ ],
+ "workers": 2,
+ "threads": 1,
+ "rayon": 1,
+ "kill": false,
+ "source": "/home/gijs/rang-data/fixtures/outer_scans/1672727931_sdp_l0_scan_9.ms",
+ "build": {
+  "version": "0.4.0",
+  "core_sha256": "6e4a595d827c1fd342ef5a3ded1710297e4e682182df10f20f2e00e81d97b8c2"
+ },
+ "cluster": {
+  "scheduler": "pbs",
+  "workers": 2,
+  "threads": 1,
+  "nodes": 2,
+  "cpus": 1,
+  "mem_mb": 4000,
+  "mem_gb": 3,
+  "data": [
+   "processes: 2"
+  ],
+  "event": null,
+  "ctl_mem_mb": 4000
+ },
+ "host": "nash",
+ "stages": {
+  "flag": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2",
+    "flag"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 2.76,
+   "load1_before": 2.66,
+   "users_cpu_before": {
+    "gijs": 557.9,
+    "netdata": 8.8,
+    "root": 1.0
+   },
+   "started": "2026-11-26T13:28:27+0200",
+   "started_unix": 1795692507.846611,
+   "exit": 0,
+   "wall_s": 9.39,
+   "own_cpu_s": 5.2,
+   "max_rss_kb": 38304,
+   "host_busy_cpu_s": 45.2,
+   "foreign_cores": 4.26,
+   "host_busy_cores_10s": [],
+   "load1_after": 3.11,
+   "users_cpu_after": {
+    "gijs": 254.8,
+    "netdata": 9.2
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "flag",
+    "cluster": {
+     "scheduler": "pbs",
+     "workers": 2,
+     "threads": 1,
+     "nodes": 2,
+     "cpus": 1,
+     "mem_mb": 4000,
+     "mem_gb": 3,
+     "data": [
+      "processes: 2"
+     ],
+     "event": null,
+     "ctl_mem_mb": 4000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\nm2              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\n"
+    },
+    "launch": {
+     "id": "20261126T112828-79a63e9e",
+     "job_id": "0[].pbs",
+     "command": [
+      "qsub",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2/spool/launch/20261126T112828-79a63e9e/worker.sh"
+     ]
+    },
+    "driver_wall_s": 4.87,
+    "jobs_left_after_s": 3.0,
+    "workers_cpu": {
+     "m2-78-dfa8bf": {
+      "tasks": 0,
+      "cpu_s": 0.2
+     },
+     "m1-78-a0ae79": {
+      "tasks": 1,
+      "cpu_s": 3.5
+     }
+    }
+   }
+  },
+  "calibrate": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2",
+    "calibrate"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 2.74,
+   "load1_before": 2.84,
+   "users_cpu_before": {
+    "gijs": 258.4,
+    "netdata": 8.8,
+    "root": 8.6
+   },
+   "started": "2026-11-26T13:29:18+0200",
+   "started_unix": 1795692558.138978,
+   "exit": 0,
+   "wall_s": 9.26,
+   "own_cpu_s": 5.4,
+   "max_rss_kb": 90148,
+   "host_busy_cpu_s": 37.5,
+   "foreign_cores": 3.47,
+   "host_busy_cores_10s": [],
+   "load1_after": 3.1,
+   "users_cpu_after": {
+    "gijs": 261.1,
+    "netdata": 9.0
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "calibrate",
+    "cluster": {
+     "scheduler": "pbs",
+     "workers": 2,
+     "threads": 1,
+     "nodes": 2,
+     "cpus": 1,
+     "mem_mb": 4000,
+     "mem_gb": 3,
+     "data": [
+      "processes: 2"
+     ],
+     "event": null,
+     "ctl_mem_mb": 4000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\nm2              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\n"
+    },
+    "launch": {
+     "id": "20261126T112918-0da1142f",
+     "job_id": "1[].pbs",
+     "command": [
+      "qsub",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2/spool/launch/20261126T112918-0da1142f/worker.sh"
+     ]
+    },
+    "driver_wall_s": 5.07,
+    "jobs_left_after_s": 2.9,
+    "workers_cpu": {
+     "m2-92-b214e6": {
+      "tasks": 1,
+      "cpu_s": 1.4
+     },
+     "m1-93-08f0dc": {
+      "tasks": 2,
+      "cpu_s": 2.0
+     }
+    }
+   }
+  },
+  "apply": {
+   "cmd": [
+    "/home/gijs/Worktrees/rang/multinode-2/.venv/bin/python",
+    "/home/gijs/Worktrees/rang/multinode-2/tools/oracles/multinode/run.py",
+    "stage",
+    "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2",
+    "apply"
+   ],
+   "quiet_wait_s": 30.0,
+   "busy_cores_before_30s": 2.78,
+   "load1_before": 2.87,
+   "users_cpu_before": {
+    "gijs": 254.2,
+    "netdata": 8.2,
+    "root": 1.6
+   },
+   "started": "2026-11-26T13:30:08+0200",
+   "started_unix": 1795692608.357641,
+   "exit": 0,
+   "wall_s": 7.03,
+   "own_cpu_s": 5.4,
+   "max_rss_kb": 92444,
+   "host_busy_cpu_s": 31.1,
+   "foreign_cores": 3.65,
+   "host_busy_cores_10s": [],
+   "load1_after": 3.04,
+   "users_cpu_after": {
+    "gijs": 163.7,
+    "netdata": 7.8,
+    "root": 3.4
+   },
+   "max_foreign": 1000000000.0,
+   "void": false,
+   "stage": {
+    "stage": "apply",
+    "cluster": {
+     "scheduler": "pbs",
+     "workers": 2,
+     "threads": 1,
+     "nodes": 2,
+     "cpus": 1,
+     "mem_mb": 4000,
+     "mem_gb": 3,
+     "data": [
+      "processes: 2"
+     ],
+     "event": null,
+     "ctl_mem_mb": 4000
+    },
+    "nodes_ready": {
+     "exit": 0,
+     "sinfo": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\nm2              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\n"
+    },
+    "launch": {
+     "id": "20261126T113009-f223c54d",
+     "job_id": "2[].pbs",
+     "command": [
+      "qsub",
+      "/home/gijs/Build/tmp/20261125-multinode-2/shared/run/F-Pb2/spool/launch/20261126T113009-f223c54d/worker.sh"
+     ]
+    },
+    "driver_wall_s": 2.84,
+    "jobs_left_after_s": 2.9,
+    "workers_cpu": {
+     "m2-107-fff17e": {
+      "tasks": 2,
+      "cpu_s": 0.7
+     },
+     "m1-108-42f5e9": {
+      "tasks": 1,
+      "cpu_s": 0.5
+     }
+    }
+   }
+  }
+ },
+ "cluster_up": "                                                        mem       ncpus   nmics   ngpus\nvnode           state           njobs   run   susp      f/t        f/t     f/t     f/t   jobs\n--------------- --------------- ------ ----- ------ ------------ ------- ------- ------- -------\nm1              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\nm2              free                 0     0      0      4gb/4gb     1/1     0/0     0/0 --\n"
+}
