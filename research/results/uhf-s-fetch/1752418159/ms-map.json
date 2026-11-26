@@ -1,0 +1,196 @@
+{
+ "ms": "/home/gijs/rang-data/uhf-s/ms/1752418159.ms",
+ "token_check": {
+  "subtables": [
+   "ANTENNA",
+   "DATA_DESCRIPTION",
+   "FEED",
+   "FLAG_CMD",
+   "FIELD",
+   "HISTORY",
+   "OBSERVATION",
+   "POINTING",
+   "POLARIZATION",
+   "PROCESSOR",
+   "SPECTRAL_WINDOW",
+   "STATE",
+   "SOURCE"
+  ],
+  "hits": []
+ },
+ "columns_before": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM",
+  "SIGMA_SPECTRUM"
+ ],
+ "columns": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM"
+ ],
+ "fields": [
+  "J1939-6342",
+  "J1331+3030",
+  "J1609+2641",
+  "ILTJ153010"
+ ],
+ "rows": 1437408,
+ "scans": [
+  {
+   "scan": 1,
+   "field": [
+    "J1939-6342"
+   ],
+   "rows": 148428,
+   "dumps": 76,
+   "time_first": 5259135141.025141,
+   "time_last": 5259135740.101312
+  },
+  {
+   "scan": 2,
+   "field": [
+    "J1331+3030"
+   ],
+   "rows": 74214,
+   "dumps": 38,
+   "time_first": 5259135827.965813,
+   "time_last": 5259136123.5100155
+  },
+  {
+   "scan": 3,
+   "field": [
+    "J1609+2641"
+   ],
+   "rows": 29295,
+   "dumps": 15,
+   "time_first": 5259140181.2524395,
+   "time_last": 5259140293.079956
+  },
+  {
+   "scan": 4,
+   "field": [
+    "ILTJ153010"
+   ],
+   "rows": 439425,
+   "dumps": 225,
+   "time_first": 5259140317.043013,
+   "time_last": 5259142106.28376
+  },
+  {
+   "scan": 5,
+   "field": [
+    "J1609+2641"
+   ],
+   "rows": 29295,
+   "dumps": 15,
+   "time_first": 5259142130.246817,
+   "time_last": 5259142242.074333
+  },
+  {
+   "scan": 6,
+   "field": [
+    "J1609+2641"
+   ],
+   "rows": 29295,
+   "dumps": 15,
+   "time_first": 5259146323.779774,
+   "time_last": 5259146435.60733
+  },
+  {
+   "scan": 7,
+   "field": [
+    "ILTJ153010"
+   ],
+   "rows": 439425,
+   "dumps": 225,
+   "time_first": 5259146459.570387,
+   "time_last": 5259148248.811134
+  },
+  {
+   "scan": 8,
+   "field": [
+    "J1609+2641"
+   ],
+   "rows": 29295,
+   "dumps": 15,
+   "time_first": 5259148272.774151,
+   "time_last": 5259148384.601707
+  },
+  {
+   "scan": 9,
+   "field": [
+    "J1331+3030"
+   ],
+   "rows": 72261,
+   "dumps": 37,
+   "time_first": 5259148424.540135,
+   "time_last": 5259148712.096693
+  },
+  {
+   "scan": 10,
+   "field": [
+    "J1939-6342"
+   ],
+   "rows": 146475,
+   "dumps": 75,
+   "time_first": 5259148823.92421,
+   "time_last": 5259149415.012695
+  }
+ ],
+ "receptor_angle": [
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ],
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ]
+ ],
+ "chan_freq_first_last": [
+  544000000.0,
+  1087867187.5
+ ],
+ "seconds": 182.24110834486783
+}

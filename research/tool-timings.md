@@ -2604,3 +2604,8 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | uhf-s-fetch: `uhfs_meta.py`, four RDBs over the network (host nash, 1 slot shared, nice 19) | 1737424638, 1740534088, 1729932377, 1690097605 | 53 s | 1.57 GB | RDB opens 7.5-11.6 s each |
 | 2026-11-26 | uhf-s-fetch: smoke fetch of 1737424638 scan 0 (host nash, 1 slot shared, 6 workers, 40 MB/s cap) | 1,698 chunks | 103 s | – | 0 bytes: every chunk HTTP 404 (not staged) |
 | 2026-11-26 | uhf-s-fetch: `uhfs_stagecheck.py`, S3 listings of four blocks; control on DL2's nine (host nash) | 13 blocks | 2 s each run | – | four blocks 0 objects; control lists objects for all nine |
+| 2026-11-26 | uhf-s-fetch: fetch of 1752418159's gate selection (host nash, 1 slot shared, 6 workers, 40 MB/s cap, nice 19) | 16,240 chunks, 10 scans | 6,088 s (243.2 GB, 39.96 MB/s) | – | at the cap; 14 flag chunks lost (404), confirmed by two later passes |
+| 2026-11-26 | uhf-s-fetch: `mvftoms.py -f -a` of 1752418159's selection (host nash, 4 slots shared, nice 19) | 736 dumps, 4,096 ch, 63 antennas | 1,766 s | 7.4 GB | 144 % CPU; MS 288.7 GB, 1,437,408 rows |
+| 2026-11-26 | uhf-s-fetch: `uhfs_prep_ms.py` on 1752418159 (host nash, 1 slot shared) | 1,437,408 rows | 183 s | 0.29 GB | token check, SIGMA_SPECTRUM removed, FLAG hashes |
+| 2026-11-26 | uhf-s-fetch: `sha256sum` of every file of 1752418159.ms (host nash, 1 slot shared, ionice idle) | 288.7 GB, 77 files | 1,988 s | – | 145 MB/s |
+| 2026-11-26 | uhf-s-fetch: DATA-state probe on 1752418159 (host nash, 1 slot shared) | 3 fields × 800 rows × 32 ch | 1 s | – | native, unphased (coherence 0.013) |

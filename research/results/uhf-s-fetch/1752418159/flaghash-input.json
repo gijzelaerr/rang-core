@@ -1,0 +1,10 @@
+{
+ "ms": "/home/gijs/rang-data/uhf-s/ms/1752418159.ms",
+ "rows": 1437408,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "d3de33359c8888a860cbace9de10c6f55d0c3052c88ae4729f3efadc663907de",
+ "flag_row_sha256": "065ba12d99af1690bea8c480b648f2a8db3cc2f3b26ad51649f12fa0a462d8b0"
+}

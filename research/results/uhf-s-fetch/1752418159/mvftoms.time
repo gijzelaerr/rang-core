@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/rang-data/uhf-s/venv/bin/python /home/gijs/rang-data/uhf-s/venv/bin/mvftoms.py -f -a --flags static,cam,data_lost,ingest_rfi,predicted_rfi --scans 1,3,15,17,19,31,33,35,37,39 -o /home/gijs/rang-data/uhf-s/ms/1752418159.ms /home/gijs/rang-data/uhf-s/mvf/1752418159/1752418159_sdp_l0.full.rdb"
+	User time (seconds): 1695.64
+	System time (seconds): 854.82
+	Percent of CPU this job got: 144%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 29:26.34
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 7440956
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 97
+	Minor (reclaiming a frame) page faults: 106816371
+	Voluntary context switches: 1588907
+	Involuntary context switches: 125554
+	Swaps: 0
+	File system inputs: 384980656
+	File system outputs: 748063480
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

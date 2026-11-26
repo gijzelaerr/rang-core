@@ -257,9 +257,68 @@ the alias fix; 58 s for the four, 2.1 GB peak):
   1747682474 has three 1934-638 scans and 1680455600 two 0408-65 scans, so both
   allow the within-block flux and leakage transfers that note sketches.
 
+## 4.1 Development block 1752418159: fetched, converted, hashed (2026-11-26)
+
+Receipts in [results/uhf-s-fetch/1752418159/](results/uhf-s-fetch/1752418159/).
+
+- **Fetch** (selection of uhf-gate.md amendment 2, katdal scans 1, 3, 15, 17, 19,
+  31, 33, 35, 37, 39; 736 dumps): 16,240 chunks (14,768 in `sdp-l0`, 1,472 in
+  `sdp-l1-flags`). The first pass took 6,088 s for 243.2 GB at 39.96 MB/s,
+  which is the 40 MB/s cap, not the archive's limit. 16,226 chunks arrived.
+  **14 were lost:** flag chunks of 7 dumps (both channel halves), HTTP 404. A
+  second pass 30 min later and a third an hour later found the same 14, so
+  `fetch.done` was written at 12:59 UTC. katdal marks such chunks
+  `data_lost`. RDB SHA-256 `93a34a11…52bf`. The chunk manifest is on nash
+  (`mvf/1752418159-receipts/chunks-sha256.txt`, SHA-256 `bc430c3b…6b`).
+- **Conversion** (`mvftoms.py -f -a --flags
+  static,cam,data_lost,ingest_rfi,predicted_rfi --scans 1,3,15,17,19,31,33,35,37,39`):
+  rc 0 in 1,766 s, 7.4 GB peak RSS, 144 % CPU. The booking of 4 slots and
+  32 GB was generous; 2 slots and 12 GB fit. Prep took 183 s: no token in any
+  subtable or keyword, SIGMA_SPECTRUM removed. Logs: no `token=` or JWT.
+- **The MS** `~/rang-data/uhf-s/ms/1752418159.ms`: 288,684,854,689 B, 1,437,408
+  rows, 4,096 channels × 4 (544.000-1087.867 MHz). Fields: J1939-6342,
+  J1331+3030, J1609+2641, ILTJ153010. RECEPTOR_ANGLE −π/2. MS scans in time
+  order map to katdal scans as predicted:
+
+  | MS scan | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+  | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+  | katdal | 1 | 3 | 15 | 17 | 19 | 31 | 33 | 35 | 37 | 39 |
+  | field | J1939-6342 | J1331+3030 | J1609+2641 | ILTJ153010 | J1609+2641 | J1609+2641 | ILTJ153010 | J1609+2641 | J1331+3030 | J1939-6342 |
+  | dumps | 76 | 38 | 15 | 225 | 15 | 15 | 225 | 15 | 37 | 75 |
+
+- **Hashes.** FLAG `d3de3335…07de` and FLAG_ROW `065ba12d…d8b0`
+  ([flaghash-input.json](results/uhf-s-fetch/1752418159/flaghash-input.json), gate
+  2a's reference). SHA-256 of all 77 files of the MS:
+  [ms-sha256.txt](results/uhf-s-fetch/1752418159/ms-sha256.txt) (that file's own
+  SHA-256 is `4ab80e59…8d73`; 1,988 s).
+- **Smoke 8.1** (uhf-gate.md section 8). `rang-core config check` against the
+  MS with rang-core 0.4.0 (the release-040 venv; the frozen wheel repeats it):
+  `uhf-dev.yaml` is "valid for flag, calibrate, apply, image, selfcal" and
+  `uhf-dev-3c.yaml` "valid for image", each with the band warning.
+- **Smoke 8.2, the DATA-state probe: native, unphased**
+  ([datastate.json](results/uhf-s-fetch/1752418159/datastate.json); channels
+  2,048-2,079, 816.0-820.1 MHz, first 800 rows per field):
+
+  | | J1939-6342 | J1331+3030 | J1609+2641 | E2-N 1934 (L) | ESO137 1934 (A0) |
+  | --- | ---: | ---: | ---: | ---: | ---: |
+  | median \|XX−YY phase\| (rad) | 1.575 | 1.519 | 1.579 | 0.0117 | 1.488 |
+  | XX−YY phase coherence | **0.0127** | 0.0047 | 0.0118 | 0.99977 | 0.018 |
+  | row XX phase scatter | 105.9° | 105.3° | 105.7° | 9.9° | 104° |
+  | per-row \|⟨XY⟩\|/\|⟨XX⟩\|, median | 2.03 % | 2.69 % | 2.37 % | 1.52 % | 1.35 % |
+
+  Under E2-N's rule (coherence below 0.5) the block reads **native,
+  unphased**, like ESO137 and unlike E2-N's observatory-phased L-band block.
+  So the UHF gate is the first leg in which K, KCROSS and Xf are solved at
+  their real size. This is the question e2n-native.md amendment 3 moved to "a
+  later leg on another capture block". Every gate is read as frozen.
+
 ## For the coordinator
 
-- **Fetched: nothing.** All four blocks pass the frozen rule, but their chunks
+- **Since amendment 2:** development block 1752418159 is fetched, converted
+  and hashed (section 4.1): native, unphased. H 1726220298 is fetching, then
+  the two S blocks. Calibration waits for the frozen code (uhf-gate.md
+  section 4: a main merge carrying the protocol).
+- **First four blocks: fetched nothing.** All four blocks pass the frozen rule, but their chunks
   are not on the archive's object store (0 objects listed; the control lists
   DL2's blocks). Only the RDBs are online. A watcher on nash fetches and
   converts each block when it appears; it writes `~/rang-data/uhf-s/status.md`.
