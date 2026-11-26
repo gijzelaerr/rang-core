@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 //! `rang._core`: the PyO3 extension module over the Rang core.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Task J of `research/core-parallel-plan.md` (`research/core-j-packaging.md`)
 //! made this a second entry door into the C ABI of `rang_core::ffi*`; task P7

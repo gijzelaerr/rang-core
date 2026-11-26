@@ -146,6 +146,14 @@ rerun that script. `tests/test_spdx_headers.py` checks every line against the
 list it writes (`spdx.csv`): a file not yet listed passes only with a bare
 `MIT`, and no file the audit marks derived may carry one.
 
+Every new source file under `python/rang`, `core/src`, `core/py/src`, `src`
+and `tools` also declares its origin with a row in the provenance register
+`research/results/mit-relicense-audit/files.csv`. Own code is one line,
+`<path>,<lines>,a,-,-,-,0,-,-`; derived code gives its class, the upstream
+with version or commit, the upstream's licence, the estimated derived lines
+and the derived functions (`piece`). `tests/test_licence_register.py` and
+the pre-push check refuse a file without a row (and a row without a file).
+
 ## Releasing
 
 The version is set once, in `pyproject.toml` `[project] version`; bump the

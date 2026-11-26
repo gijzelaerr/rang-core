@@ -154,7 +154,8 @@ def test_ported_files_name_the_upstream_licence_too():
     for path, expr in {
         "core/src/predict.rs": "MIT AND BSD-3-Clause",
         "core/src/sumthreshold.rs": "MIT AND BSD-3-Clause",
-        "python/rang/meerkat.py": "MIT AND BSD-3-Clause",
+        # oxkat 421d14c5 RFI lists (GPL-3.0), class d (audit update 2026-11-26).
+        "python/rang/meerkat.py": "GPL-3.0-or-later AND BSD-3-Clause",
         "core/src/blosc.rs": "MIT AND BSD-3-Clause",
         "python/rang/core_flag.py": "MIT AND BSD-3-Clause",
         # B-02 (research/v030-review.md): radler 76fe4474 is LGPL-3.0-only.
@@ -178,6 +179,8 @@ def test_quartical_translations_keep_the_mit_notice():
         "core/src/solve.rs",
         "core/src/cal/delay.rs",
         "core/src/cal/delay_offset.rs",
+        "core/src/cal/diag_dd.rs",
+        "core/src/flag_residual.rs",
     ):
         if not (ROOT / path).is_file():
             pytest.skip("not a checkout")

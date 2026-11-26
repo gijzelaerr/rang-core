@@ -6,8 +6,9 @@ Writes spdx.csv beside this script: one row per tracked file that has an SPDX
 line, with its class and the expected licence expression.
 `tests/test_spdx_headers.py` checks every file against it.
 
-A file's class comes from, in order: HELD below; the audit's files.csv (the
-shipped files); the class spdx.csv already records (the files outside the
+A file's class comes from, in order: HELD below; the provenance register
+files.csv (every source file under python/rang, core/src, core/py/src, src and
+tools since 2026-11-26, plus the audit's tests/ rows); the class spdx.csv already records (the files outside the
 audit's scope, reviewed by hand on 2026-11-17). A new file in none of them is
 own code (class a) if its SPDX line is bare `MIT`, the owner's rule for new
 code; with any other line it is an error until it is added to HELD with its
