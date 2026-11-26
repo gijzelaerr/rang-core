@@ -2582,3 +2582,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd9: linearised rates, finite-difference Jacobians (default, I2, I3) per interval and hand (host glacier, 1 slot shared) | about 480 real unknowns per interval and hand | 726-759 s per 38 intervals; at I2's gains 509-521 s | – | |
 | 2026-11-26 | dd9: real arms at cap 500 and robust held-out score (host glacier, 1 slot shared) | real sums, 314 baselines removed | 487 s (four arms), 722 s (b0 and bGS) | – | |
 | 2026-11-26 | dd9: Rust `solve_dd` with three model columns (bM on O), cap 500 and the one-longer solve (host glacier, 4 slots shared) | 52.7 M cells, 3 directions | 556 s wall; solve 252 s | – | equals the reference |
+| 2026-11-26 | dd10: O rebuilt by `dd8.insert` (host glacier, 2 slots shared) | DD7's B, 2.5 GB copy | 230 s | – | GO pass |
+| 2026-11-26 | dd10: fixed-point tests T1, T2 in DD9's reference (I2 with the default's flags imposed, 2001 iterations) (host glacier, 2 slots shared) | O-skyO sums | 843 s (T2 841 s) | – | |
+| 2026-11-26 | dd10: Rust `solve_dd` default (Jacobi), O-X, cap 500, branch extension (host glacier, 8 slots shared) | 52.7 M cells, 4 directions | 392 s wall; predict 44 s, solve 246 s | – | bitwise equal to DD8's |
+| 2026-11-26 | dd10: Rust `solve_dd` Gauss-Seidel, O-X, cap 500 and 501, no global stop (host glacier, 8 slots shared) | 52.7 M cells, 4 directions | 1,464 s wall; solves 672 s and 742 s | – | 2.7 × the default per iteration |
+| 2026-11-26 | dd10: PSF (`fits_image`, 5760², w_I) on O and on the real subset with 145 baselines flagged (host glacier, 4 slots shared) | 52.7 M cells | 42-43 s | – | |
+| 2026-11-26 | dd10: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd10-gs | 1,057 s (lock wait excluded) | – | FAIL: index entry and K2a test setup, both fixed |
