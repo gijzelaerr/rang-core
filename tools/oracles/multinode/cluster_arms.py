@@ -126,7 +126,13 @@ def up(sp):
         sp["mem_mb"],
         *_mounts(),
         ctl_mem_mb=sp["ctl_mem_mb"],
+        check=False,
     )
+    if p.returncode:
+        raise RuntimeError(
+            f"{sp['scheduler']} cluster up failed ({p.returncode}):\n"
+            f"{p.stdout[-3000:]}\n{p.stderr[-3000:]}"
+        )
     return p.stdout
 
 
