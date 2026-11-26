@@ -382,6 +382,44 @@ clauses (closes O-X's gap, B-X within 0.02, accurate on O-X), Gauss-Seidel is
 an admissible option: the default's answer where the default converges
 without extra flags, and a converged answer where the default is unstable.
 
+### Part 2 on O (section 5)
+
+Every scored solve: Rust Gauss-Seidel, 4 × 8 s, d0 free, cap 500, stop
+fraction 0.99; each ran all 500 iterations. e is `e_d` on all unflagged
+cells, d1, d2, d3; e on converged cells is within 0.01 of it in every arm.
+
+| Arm | Model | fractions d0-d3 | e d1, d2, d3 | e/ê d1-d3 | d3 \|g\| p99 / max | G d1, d2, d3 | Reading |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **A0** | M₀ᶜ | 0.075, 0.011, 0.004, 0.000 | 0.352, 0.544, 1.000 | 72, 16, 20 | 13.6 / 59 | 0 | (reference; equals DD9's bGS) |
+| **AX** | sky O | 0.997, 0.979, 0.974, 0.974 | 0.0078, 0.0334, 0.0523 | 1.20, 1.08, 1.08 | 1.26 / 1.38 | 1 | (ceiling; bitwise equal to K2b) |
+| **AL** | loop M₃ | 0.982, 0.928, 0.922, 0.922 | **0.395**, 0.404, 0.478 | 104, 12, 10 | 2.10 / 4.1 | **−0.125**, 0.27, 0.55 | **no** |
+| **AT** | truth-gain M₃ | 0.995, 0.967, 0.960, 0.936 | **0.161**, 0.312, 0.500 | 29, 8.9, 10 | 2.57 / 4.0 | **0.555**, 0.45, 0.53 | **closes** |
+
+**Frozen outcome (section 5's table): "no" and "closes": the rule can build
+the model, but the solved gains are too wrong to bootstrap it.**
+- With O's truth gains in the images, three Högbom cycles (1,224, 1,546 and
+  1,803 components; stop 5.2, 3.3 and 3.0 mJy) close 55 % of d1's
+  model-gap error, about half of d2's and d3's, harm nothing, and make the
+  solve converge (min d1-d3 0.936 against A0's 0.000) with d3 tamed.
+- From the solved gains, the same rule makes d1 worse (0.352 to 0.395, e/ê
+  104) while d2 and d3 improve and the solve converges (min 0.922): the
+  model it builds is one the gains can fit, not the sky. Converged, tame and
+  wrong in d1, the pattern DD8 called "convergence certifies nothing".
+- Why AL fails: under the frozen image rule its cycle images keep 2.1 %,
+  5.1 % and 26.6 % of the weight (cycles 0-2; untrusted d3 gains drop most
+  rows, A1), and where gains are trusted they have absorbed M₀ᶜ's gap
+  (A0's d1 e/ê 72). Its cycle-0 Högbom stops at 13 mJy (5σ of a 2.6 mJy
+  residual) with 4,770 components of net flux 0.008 Jy.
+- Per cycle, AL's e in d1: 0.352, 0.378, 0.393, 0.395; d2: 0.544, 0.772,
+  0.533, 0.404; d3: 1.000, 1.019, 0.850, 0.478.
+- Net model flux in d1 (truth 4.43 Jy, M₀ᶜ 2.83): AL 4.19, AT 3.40. AL's
+  d1 model has more flux and a larger error. Σ|M − sky O| in d1 rises in both
+  (AL 40.0, AT 31.5 against 21.2), because point components on extended
+  emission add pixel-level error even where they improve the visibilities;
+  it is reported, and truth error is the reading.
+- Cost per cycle: predict 26-34 s, a solve 595-737 s (8 slots), facet images
+  22-45 s, Högbom 400-421 s (one core).
+
 ## Amendments
 
 **A1, 2026-11-26, post hoc (after AL's cycle-0 record was read: A0's
