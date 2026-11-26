@@ -75,6 +75,9 @@ The new flags are written to FLAG and the term is solved again. A baseline is ne
 `guard` flagged within an interval. The stage fails if a re-solve flags more of the term's solutions
 than `tripwire` allows. It needs `data.processes: 1`.
 
+`terms` takes a type, `G` (every G term) or `B`, or the name of a G or B term: `terms: [B, Gsec]`
+flags the bandpass and the secondary's G, and leaves the primary G alone.
+
 What was measured, and against what, is in {gh}`research/solver-flags.md`.
 
 ## Flag versions and restore
