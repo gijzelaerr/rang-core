@@ -285,4 +285,18 @@ untrusted share per facet.
 
 ## Amendments
 
-(none)
+**A1, 2026-11-26, a record of two procedure deviations (after the U6, Q6,
+L6, P6, AT6 and R-Q6 readings; before any ATm or ATs record was read). It
+changes no frozen rule or reading.**
+- **Unneeded solves in the truth-gain controls.** The code applied the start
+  rule to cycles 0-1 only, so AT6's cycles 3-5 and ATm's cycle 2 also ran a
+  Gauss-Seidel solve (3 + 1 solves over the run cap). Their images used O's
+  truth gains as frozen, so their models are unaffected; the solves are
+  reported only. One use: AT6's cycle-3 solve on DD10's AT M₃ gives gains
+  and flags **bitwise equal** to DD10's AT final solve (e d1 0.16078 in
+  both), which confirms section 2's reuse of DD10's solves.
+- **R-Q6 started early.** The real reading of Q6 was queued at 12:11, when
+  U6, Q6 and P6 were near their ends and L6 was at cycle 4, to use the
+  queue. The frozen best-arm choice, made after L6's scored point, picked Q6,
+  so R-Q6 is the section-7 run; had it picked another arm, that arm's real
+  run would have followed and R-Q6 would have been reported only.
