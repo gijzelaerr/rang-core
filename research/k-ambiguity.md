@@ -1,7 +1,10 @@
 # Rang: why `k_zero_start` missed a K at −1/(2Δν) (DL4s stage 3, block 1678312253)
 
-Status 2026-11-26: **proposed** (diagnosis frozen before any re-solve; no result read). Branch
-`k-ambiguity` from origin/main `cf9d6dd2`.
+Status 2026-11-26: **measured** (sections 6-7). Cause: **the data** (H4): antenna index 25 (m025)
+alternates in sign channel to channel from scan 50 to the end of the block; −1/(2Δν) is the right
+K for those data and `k_zero_start` correctly kept it. **No solver defect.** One recording gap
+fixed (section 8). Diagnosis frozen before the re-solve in `4a68b7e5`; branch `k-ambiguity` from
+origin/main `cf9d6dd2`.
 
 ## 1. What is open
 
@@ -77,3 +80,89 @@ Key off: bitwise unchanged. A change to `k_zero_start`'s own behaviour (opt-in, 
 re-measured on block 1678312253 scan 60 and on E2-A's ID 50 case (calchain-floor 15's
 `cf_kreal.py` route); a change to a default needs a K oracle (CASA `gaincal` K on the same MS) and a
 frozen addendum here first.
+
+## 6. Addendum 2026-11-26 15:00 SAST, post hoc (after the reproduction and the probe were read)
+
+The probe of section 4 ran first; then, before any further reading, a solver-independent check
+was added (`ka_raw.py`): on each MS copy, per baseline and dump, the circular mean of the
+adjacent-channel phase step angle(V[k+1] V[k]*) on unflagged channel pairs, per parallel hand, for
+antenna 25's baselines and 8 random baselines without it; and the parity of its unflagged
+channels. Then `ka_onset.sh` ran it on every scan of the block (each copied into the run root,
+read, deleted). H4's frozen wording ("both runs converge near −1/(2Δν)") was too strict: a zero
+start cannot reach −1/(2Δν) on full-band data, so under H4 the zero run is expected to stay near 0
+and lose on cost. H4 is read here as: the antenna's own data peak at ±1/(2Δν) and the FFT run has
+the lower cost on the antenna's own cells.
+
+## 7. Results (measured 2026-11-26, nash; [receipts](results/k-ambiguity/receipts/))
+
+**Reproduced on scan 60 alone.** Own copy of `scan060.ms`, rang-core flag with stage 3's strategy,
+K alone with stage 3's calibrate section (refant auto: m008, m015, m032 = 7, 8, 14; refant used 7;
+one interval, `average_time`, 21 iterations, fraction 0.992): antenna 25 **−2,392.388 /
+−2,392.415 ns**, key off and on, the same values as stage 3's table.
+
+| Probe (scan 60, one interval) | X / Y (ns) | iterations, fraction | interval cost | antenna 25's cost |
+| --- | --- | --- | --- | --- |
+| FFT start (rang's rule, recomputed) | −2,392.377 / −2,392.377 | – | – | – |
+| FFT run (key off) | −2,392.388 / −2,392.415 | 21, 0.992 | 4.350e9 | 6.19e8 |
+| zero run | −1.99 / 0.13 | 50, 0.0 | 6.898e9 | 1.90e9 |
+| zero run, stop off, 200 iterations | −2.63 / 0.15 | 200, 0.0 | 6.895e9 | 1.90e9 |
+| key on | as FFT run, `zero_start` true, `zero_start_intervals` [] | 21, 0.992 | 4.350e9 | 6.19e8 |
+
+The FFT start sat on its first FFT bin from −1/(2Δν) (−2,392.52 ns; bin width 0.146 ns), from 1,659
+unflagged cells on the refant baseline, not from an empty buffer. The zero run is the costlier on
+**every** antenna (29 of 29) and does not converge. Antenna 25's own delay spectrum (every other
+antenna corrected by either run's gains) peaks at ±2,392.5 ns with about 1,400 times its value at
+0 ns, and the median adjacent-channel step of its corrected data is 3.140 rad.
+
+**The raw data (no solver).** On every baseline of antenna 25, every dump, both hands, the
+adjacent-channel phase step is π (median |step| 3.141-3.142 rad) in scans 50, 54, 58, 60, 62, 66,
+70 and 74, and 0.000-0.005 rad in scans 4-46 (32 included); the 8 control baselines are at
+0.0001-0.0034 rad in every scan. Unflagged channels are even and odd in equal numbers (scan 60:
+1,870,590 / 1,868,210), so this is not a parity alias of the flags. The onset is between scan 46 and
+scan 50 (a gain-calibrator gap); from then on m025's visibilities are multiplied by (−1)^channel.
+
+**Reading (section 4 step 3).**
+- **H4 holds**: the data fit a π-per-channel step and −1/(2Δν) is their delay (mod 1/Δν). A data
+  defect of m025 (cause outside rang; not identified here), not a solver failure.
+- **H1 rejected**: the zero run loses on antenna 25's own cells too, not by another antenna's cost.
+- **H2 rejected**: the start is a true FFT peak, not an empty-buffer default.
+- **H3 rejected**: the key is evaluated (`zero_start` true; no interval taken from the zero run).
+- **H5 rejected**: the zero run with the stop off stays at 0.15-2.6 ns, cost unchanged.
+- So DL4s 2.7's "K at the delay ambiguity, one new instance" is not E2-A's class (a wrong start on
+  identifiable data, calchain-floor 13): E2-A's ID 50 was 2,335 / 2,291 ns, a sidelobe; this is an
+  exact half-period fit of sign-alternating data. The solver class keeps one instance on record.
+- What goes wrong downstream is interpolation, inferred and not measured: K is 0.1 ns at scan 32
+  and −2,392 ns at scan 60, so linear interpolation onto the gain-calibrator scans between them
+  (34-58) gives delays that fit neither the clean scans (34-46) nor the flipped ones (50-58); a
+  delay interpolated across a half-period has no meaning. That is where DL4s 2.7's Gsec / F
+  deviations on J1517-2422 would come from.
+- No CASA K was run on the scan: the finding is about the data (the raw phase step), and the
+  solver's answer is the data's own spectral peak; an oracle comparison is not needed for a
+  result that changes no table.
+
+## 8. Recording gap fixed (no table changes)
+
+Stage 3 could not tell whether the zero start won an interval: `zero_start_intervals` reached
+`DelaySolution.settings` but not the run summary, and a field solved in more than one chunk kept
+the first chunk's list only, in that chunk's own numbering. Now `cal_delay.zero_kept_of_chunks`
+merges the chunks' lists with their offsets, and `cal_chain._solution_record` writes
+`zero_start_intervals` into each K solution record of `summary.json` when the key is on. Key off:
+no record field, nothing else changes; key on: K tables unchanged (the merge only renumbers a
+list). So the E2-A and 1678312253 outcomes are unchanged. Tests:
+`tests/test_cal_delay_zero_start.py` (chunked list equal to the one-call list on calchain-floor's
+sparse case, where the old rule lost interval 1; the record field; a sign-alternating antenna keeps
+the half-period delay with the key on).
+
+## For the coordinator
+
+- Cause found, **not a rang solver defect**: m025 in block 1678312253 is multiplied by
+  (−1)^channel from scan 50 onwards (raw phase step π on all its baselines, all dumps, both hands;
+  clean through scan 46). −1/(2Δν) is the correct K for scan 60 and the key rightly kept it.
+- The harm is K interpolated between a clean and a flipped primary scan. Options, none built:
+  a QA flag for an antenna whose adjacent-channel step is near π (or a K within one FFT bin of
+  ±1/(2Δν)), flagging it for the affected scans; or treating the class as a known data defect.
+  The DL4s stage-3 class count drops this instance from "delay ambiguity" (one solver instance
+  left, E2-A's).
+- Fixed: `zero_start_intervals` in the solution records and merged over chunks (no table change).
+- Whether the same sign flip appears in other blocks (an F-engine or conversion issue) is open;
+  `ka_raw.py` runs on any MS in seconds.

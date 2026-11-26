@@ -310,6 +310,9 @@ def _solution_record(sol, info, field_id):
             out[key] = value if isinstance(value, (bool, int, float)) else str(value)
     if "solver_flags" in info:  # issue #58
         out["solver_flags"] = info["solver_flags"]
+    settings = getattr(sol, "settings", None) or {}
+    if "zero_start_intervals" in settings:  # research/k-ambiguity.md
+        out["zero_start_intervals"] = [int(i) for i in settings["zero_start_intervals"]]
     return out
 
 

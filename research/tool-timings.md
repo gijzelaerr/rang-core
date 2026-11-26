@@ -2604,3 +2604,9 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd10: DD3 loop on O, 3 Högbom cycles + final solve: AL (solved gains), AT (truth gains), ALu (A1) (host glacier, 8 slots shared) | 52.7 M cells, 2880² facet images | AL 5,602 s; AT 5,235 s; ALu 7,704 s (lock waits included) | – | per cycle: predict 26-34 s, GS solve 595-737 s, images 22-45 s, Högbom 400-421 s (one core) |
 | 2026-11-26 | dd10: DD3 loop on the real subset with 145 baselines flagged (RL), 3 cycles + final solve (host glacier, 8 slots shared) | 52.7 M cells | 8,378 s (lock wait included) | – | |
 | 2026-11-26 | dd10: `tools/check_all.py --quick`, second run (host glacier, 4 slots shared) | branch dd10-gs | 136 s (lock wait excluded; 4,448 s with it) | – | PASS |
+| 2026-11-26 | k-ambiguity: copy scan032 + scan060 (16 GB) into the run root (host nash, 1 slot) | 1678312253 | 55 s | – | |
+| 2026-11-26 | k-ambiguity: `maturin develop --release` of the branch (host nash, 8 slots; second, package-level build not timed) | branch k-ambiguity | 356 s | 1.5 GB | |
+| 2026-11-26 | k-ambiguity: rang-core flag, E2-N first-pass calibrator strategy (host nash, 4 slots, RAYON 4) | scan060.ms, 30,044 rows | 184 s | 3.3 GB | |
+| 2026-11-26 | k-ambiguity: rang-core calibrate, K alone, key off / on, arrays captured (host nash, 2 slots, RAYON 2) | scan060.ms | 180 s / 170 s | 2.6 / 2.1 GB | 21 iterations, one interval |
+| 2026-11-26 | k-ambiguity: `ka_probe.py` (five K re-solves of one interval) (host nash, 1 slot) | captured arrays | 69 s / 70 s | 1.6 GB | |
+| 2026-11-26 | k-ambiguity: `ka_raw.py` over all 20 scans, each copied, read, deleted (host nash, 1 slot) | block 1678312253 | 128 s | 0.7 GB | scan 60 alone 5 s |
