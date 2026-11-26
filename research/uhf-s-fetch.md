@@ -8,7 +8,10 @@ and conversion route). The protocol for the UHF gate is
 [uhf-gate.md](uhf-gate.md); the S-band scoping note is
 [sband-scope.md](sband-scope.md).
 
-**Status (2026-11-26): metadata read for all four blocks; every block passes the
+**Status (2026-11-26, amendment 2 at 10:15 UTC): the first four blocks are on
+tape and are replaced by four online blocks, which also pass the rule and are
+being fetched. The first four, as read before amendment 2: metadata read for
+all four blocks; every block passes the
 data rule; none is fetched, because the archive's object store holds no
 visibility or flag chunk of any of them (section 3.1).** A watcher on nash
 fetches and converts each block when its chunks appear. Only RDB metadata
@@ -204,6 +207,55 @@ of the Department of Science and Innovation." and the proposal IDs above.
 | stage check, four blocks; control on nine | 2 s; 2 s | – | |
 
 Rows are also in [tool-timings.md](tool-timings.md).
+
+## Amendment 2 (2026-11-26 10:15 UTC): four online blocks replace the first four
+
+**Why.** The coordinator found the first four blocks on tape (lifecycle
+ARCHIVED). The archive offers no restage of a single block, and the owner has
+not decided on writing to SARAO. So the watcher keeps them at the end of its
+list, at low priority, and four public blocks that are online (lifecycle
+AVAILABLE) come first. Their links are the first four lines of the same link
+file. The change is about storage, not about any data: nothing of the first
+four was ever read beyond their RDBs.
+
+| Capture block | Band, product | Proposal | Description | Start (UTC) | Tracks | Antennas | Cross visibilities |
+| --- | --- | --- | --- | --- | ---: | ---: | ---: |
+| 1752418159 | UHF, `c544M4k` | SCI-20241101-MH-01 | U-band 13h | 2025-07-13 14:52 | 20, 3.83 h | 63 | 458.0 GB |
+| 1726220298 | UHF, `c544M4k` | SCI-20230907-ZK-01 | RAMBO: The RAdio Magnetospheres of A, B and O Stars epoch 1 | 2024-09-13 09:39 | 31, 7.11 h | 60 | 772.8 GB |
+| 1747682474 | S0 (1750.00-2624.79 MHz), `c875M4k` | SCI-20241102-GD-01 | A3528S S0band | 2025-05-19 19:23 | 18, 3.97 h | 58 | 411.2 GB |
+| 1680455600 | S1 (1968.75-2843.54 MHz), `c875M4k` | SSV-20230209-AD-01 | S-band continuum study of NGC 2997 and NGC 4945 (Part 1) | 2023-04-02 17:15 | 22, 3.23 h | 57 | 336.8 GB |
+
+**Rule** ([uhfs_meta.py](results/uhf-s-fetch/scripts/uhfs_meta.py), unchanged since
+the alias fix; 58 s for the four, 2.1 GB peak):
+
+| Check | 1752418159 | 1726220298 | 1747682474 | 1680455600 |
+| --- | --- | --- | --- | --- |
+| ≥ 40 antennas | 63 | 60 | 58 | 57 |
+| 4 correlations | yes | yes | yes | yes |
+| Inside the receiver band, ≥ 1,024 channels, full band | 4,096, 544 of 544 MHz | 4,096, 544 of 544 MHz | 4,096, 875 of 875 MHz | 4,096, 875 of 875 MHz |
+| Flux calibrator (katdal scans) | 1934-638 (1, 39) | 0408-65 (0), 1934-638 (32, 60) | 1934-638 (1, 17, 35) | 0408-65 (3, 43) |
+| Polarisation calibrator | 3C 286 (3, 37) | 3C 286 (2, 30) | 3C 286 (3) | 3C 138 (1) |
+| Scan table | 20 tracks | 31 | 18 | 22 |
+| **Rule** | **pass** | **pass** | **pass** | **pass** |
+
+- Other calibrators: 1752418159 uses CTD93 (J1609+2641) for one target and
+  3C 286 itself for two others (a duplicate catalogue name, which katdal warns
+  of); 1726220298 J1605-1734 (1602-174); 1747682474 J1311-2216 (3C283);
+  1680455600 J0825-5010.
+- **Development 1752418159, held out 1726220298**, by the frozen tie-break (both
+  have 3C 286 and are native; the smaller wins). Scan selections:
+  [uhf-gate.md](uhf-gate.md) amendment 2.
+- **Staged:** at 10:10 UTC all four list objects in both buckets
+  ([stagecheck.jsonl](results/uhf-s-fetch/stagecheck.jsonl)); the first four
+  still list none.
+- **Fetch order:** 1752418159, 1726220298, 1747682474, 1680455600, then the first
+  four. The UHF blocks fetch the gate's selection (H also its reserve); the S
+  blocks every track scan. Disk at the peak: at most 3.3 times about 2.0 TB of
+  cross visibilities, about 6 TiB of nash's 13 TB, above the 2 TiB floor.
+- 1747682474 is sub-band S0 and 1680455600 S1, so [sband-scope.md](sband-scope.md)'s
+  remark holds: neither is a held-out set for the other's band-specific rows.
+  1747682474 has three 1934-638 scans and 1680455600 two 0408-65 scans, so both
+  allow the within-block flux and leakage transfers that note sketches.
 
 ## For the coordinator
 

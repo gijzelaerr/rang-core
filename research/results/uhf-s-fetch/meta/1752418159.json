@@ -1,0 +1,734 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 14.1,
+ "name": "1752418159_sdp_l0",
+ "experiment_id": "20241208-0051",
+ "observer": "Maya Horton",
+ "description": "U-band 13h",
+ "start_utc": "2025-07-13 14:52:09.044",
+ "end_utc": "2025-07-13 18:50:19.007",
+ "dump_period_s": 7.987681882352941,
+ "dumps": 1789,
+ "channels": 4096,
+ "freq_first_hz": 544000000.0,
+ "freq_last_hz": 1087867187.5,
+ "channel_width_hz": 132812.5,
+ "spw": {
+  "centre_freq_hz": 816000000.0,
+  "bandwidth_hz": 544000000.0,
+  "num_chans": 4096,
+  "product": "c544M4k",
+  "band": "UHF"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m051",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "J1939-6342",
+   "aliases": [
+    "1934-638"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "ILTJ131904",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(3.486629702298639, 0.5173325587699581)"
+  },
+  {
+   "name": "ILTJ132848",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(3.5291131979537456, 0.48650762011133275)"
+  },
+  {
+   "name": "J1609+2641",
+   "aliases": [
+    "CTD93"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(4.22902877069112, 0.465852618041342)"
+  },
+  {
+   "name": "ILTJ153010",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.058688271799082, 0.5064237661313125)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20241101-MH-01",
+  "sb_id_code": "20241208-0051",
+  "description": "U-band 13h",
+  "observer": "Maya Horton",
+  "experiment_id": "20241208-0051",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 1,
+   "start": 1752418333.037474,
+   "seconds": 7.987681882352941
+  },
+  {
+   "scan": 1,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 76,
+   "start": 1752418341.0251558,
+   "seconds": 607.0638230588236
+  },
+  {
+   "scan": 2,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 10,
+   "start": 1752418948.0889788,
+   "seconds": 79.87681882352942
+  },
+  {
+   "scan": 3,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 38,
+   "start": 1752419027.9657977,
+   "seconds": 303.5319115294118
+  },
+  {
+   "scan": 4,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 1,
+   "start": 1752419331.4977093,
+   "seconds": 7.987681882352941
+  },
+  {
+   "scan": 5,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752419339.4853911,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 6,
+   "state": "slew",
+   "target": "ILTJ131904",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752419459.3006194,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 7,
+   "state": "track",
+   "target": "ILTJ131904",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1752419475.275983,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 8,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752421272.5044067,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 9,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1752421288.4797704,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 10,
+   "state": "slew",
+   "target": "ILTJ132848",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752421400.3073168,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 11,
+   "state": "track",
+   "target": "ILTJ132848",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1752421416.2826805,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 12,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752423213.511104,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 13,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752423229.4864678,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 14,
+   "state": "slew",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1752423349.301696,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 15,
+   "state": "track",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752423381.2524235,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 16,
+   "state": "slew",
+   "target": "ILTJ153010",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752423501.0676517,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 17,
+   "state": "track",
+   "target": "ILTJ153010",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1752423517.0430155,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 18,
+   "state": "slew",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752425314.271439,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 19,
+   "state": "track",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752425330.2468028,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 20,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1752425450.062031,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 21,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752425482.0127587,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 22,
+   "state": "slew",
+   "target": "ILTJ131904",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752425601.827987,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "ILTJ131904",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1752425617.8033507,
+   "seconds": 1789.2407416470587
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752427407.0440922,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752427423.0194561,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 26,
+   "state": "slew",
+   "target": "ILTJ132848",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752427542.8346844,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 27,
+   "state": "track",
+   "target": "ILTJ132848",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1752427558.810048,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 28,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752429356.0384715,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 29,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752429372.0138354,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 30,
+   "state": "slew",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1752429491.8290637,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 31,
+   "state": "track",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752429523.779791,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 32,
+   "state": "slew",
+   "target": "ILTJ153010",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1752429643.5950193,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 33,
+   "state": "track",
+   "target": "ILTJ153010",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1752429659.570383,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 34,
+   "state": "slew",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1752431456.7988067,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 35,
+   "state": "track",
+   "target": "J1609+2641",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1752431472.7741704,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 36,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 4,
+   "start": 1752431592.5893986,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 37,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 37,
+   "start": 1752431624.540126,
+   "seconds": 295.54422964705884
+  },
+  {
+   "scan": 38,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 13,
+   "start": 1752431920.0843558,
+   "seconds": 103.83986447058824
+  },
+  {
+   "scan": 39,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 75,
+   "start": 1752432023.9242203,
+   "seconds": 599.0761411764706
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 8064,
+ "cross_products": 7812,
+ "vis_bytes_cross_all": 457954689024,
+ "track_dumps": 1724,
+ "rule": {
+  "band": "UHF",
+  "receiver_band_hz": [
+   544000000.0,
+   1088000000.0
+  ],
+  "channel_span_hz": 544000000.0,
+  "stream_bandwidth_hz": 544000000.0,
+  "flux_calibrators": [
+   "PKS 1934-638"
+  ],
+  "polarisation_calibrators": [
+   "3C 286"
+  ],
+  "track_scans": 20,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1752418159"
+}

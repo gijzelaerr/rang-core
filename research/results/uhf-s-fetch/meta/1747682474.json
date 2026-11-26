@@ -1,0 +1,670 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 10.3,
+ "name": "1747682474_sdp_l0",
+ "experiment_id": "20241220-0011",
+ "observer": "Gabriella Di Gennaro",
+ "description": "A3528S S0band",
+ "start_utc": "2025-05-19 19:23:49.560",
+ "end_utc": "2025-05-19 23:37:21.491",
+ "dump_period_s": 8.014715757714285,
+ "dumps": 1898,
+ "channels": 4096,
+ "freq_first_hz": 1750000000.0,
+ "freq_last_hz": 2624786376.953125,
+ "channel_width_hz": 213623.046875,
+ "spw": {
+  "centre_freq_hz": 2187500000.0,
+  "bandwidth_hz": 875000000.0,
+  "num_chans": 4096,
+  "product": "c875M4k",
+  "band": "S"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m051",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "J1939-6342",
+   "aliases": [
+    "1934-638"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1311-2216",
+   "aliases": [
+    "3C283"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(3.454249481351014, -0.3888288140824267)"
+  },
+  {
+   "name": "A3528S",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(3.380222795568718, -0.5100433850744762)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20241102-GD-01",
+  "sb_id_code": "20241220-0011",
+  "description": "A3528S S0band",
+  "observer": "Gabriella Di Gennaro",
+  "experiment_id": "20241220-0011",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 1,
+   "start": 1747682633.56746,
+   "seconds": 8.014715757714285
+  },
+  {
+   "scan": 1,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1747682641.5821757,
+   "seconds": 593.088966070857
+  },
+  {
+   "scan": 2,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 11,
+   "start": 1747683234.6711419,
+   "seconds": 88.16187333485713
+  },
+  {
+   "scan": 3,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 74,
+   "start": 1747683322.8330152,
+   "seconds": 593.088966070857
+  },
+  {
+   "scan": 4,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 8,
+   "start": 1747683915.9219813,
+   "seconds": 64.11772606171428
+  },
+  {
+   "scan": 5,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1747683980.0397074,
+   "seconds": 120.22073636571427
+  },
+  {
+   "scan": 6,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 6,
+   "start": 1747684100.2604437,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 7,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747684148.3487382,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 8,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1747685943.645068,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 9,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747685983.7186468,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 10,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1747686095.9246674,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 11,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747686135.9982462,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 12,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1747687931.294576,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 13,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747687963.3534389,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 14,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1747688075.5594594,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 15,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747688107.6183226,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 16,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 17,
+   "start": 1747689902.9146523,
+   "seconds": 136.25016788114283
+  },
+  {
+   "scan": 17,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1747690039.1648202,
+   "seconds": 593.088966070857
+  },
+  {
+   "scan": 18,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 16,
+   "start": 1747690632.2537863,
+   "seconds": 128.23545212342856
+  },
+  {
+   "scan": 19,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747690760.4892385,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 20,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1747690872.695259,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 21,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747690896.7394063,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 22,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1747692692.035736,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 23,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747692716.0798833,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 24,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1747692828.285904,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 25,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747692852.3300512,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 26,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1747694647.626381,
+   "seconds": 16.02943151542857
+  },
+  {
+   "scan": 27,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747694663.6558125,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 28,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1747694775.861833,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 29,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1747694799.9059803,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 30,
+   "state": "slew",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1747696595.20231,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 31,
+   "state": "track",
+   "target": "J1311-2216",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1747696619.2464573,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 32,
+   "state": "slew",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1747696731.452478,
+   "seconds": 16.02943151542857
+  },
+  {
+   "scan": 33,
+   "state": "track",
+   "target": "A3528S",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 45,
+   "start": 1747696747.4819095,
+   "seconds": 360.6622090971428
+  },
+  {
+   "scan": 34,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 17,
+   "start": 1747697108.1441185,
+   "seconds": 136.25016788114283
+  },
+  {
+   "scan": 35,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1747697244.3942864,
+   "seconds": 593.088966070857
+  },
+  {
+   "scan": 36,
+   "state": "stop",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 1,
+   "start": 1747697837.4832525,
+   "seconds": 8.014715757714285
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 6844,
+ "cross_products": 6612,
+ "vis_bytes_cross_all": 411224506368,
+ "track_dumps": 1784,
+ "rule": {
+  "band": "S",
+  "receiver_band_hz": [
+   1750000000.0,
+   3500000000.0
+  ],
+  "channel_span_hz": 875000000.0,
+  "stream_bandwidth_hz": 875000000.0,
+  "flux_calibrators": [
+   "PKS 1934-638"
+  ],
+  "polarisation_calibrators": [
+   "3C 286"
+  ],
+  "track_scans": 18,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1747682474"
+}

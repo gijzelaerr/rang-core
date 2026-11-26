@@ -42,22 +42,32 @@ status() {
   } > "$STATUS.tmp" && mv "$STATUS.tmp" "$STATUS"
 }
 ALL="$*"
-# conversion selections, katdal track scans (uhf-gate.md section 2, amendment 1):
-# the UHF gate's selection; the S-band blocks whole (empty).
+# conversion selections, katdal track scans (uhf-gate.md section 2, amendments 1 and 2):
+# the UHF gate's selection; the S-band blocks whole (empty). FETCH: the scans
+# fetched (UHF: the selection plus the reserve; empty: every track scan).
+declare -A FETCH=(
+  [1752418159]="1,3,15,17,19,31,33,35,37,39"
+  [1726220298]="0,2,4,8,12,16,20,22,24,26,28,30,32,34,36,38,40,42,44,46,50,54,58,60"
+)
 declare -A SELECTION=(
+  [1752418159]="1,3,15,17,19,31,33,35,37,39"
+  [1726220298]="0,2,4,8,12,16,20,22,24,26,28,30,32,34,36,38,42,46,50,54,58,60"
+  [1747682474]=""
+  [1680455600]=""
   [1740534088]="2,4,8,12,14,16,18,20,22,24,28,32,34"
   [1737424638]="0,2,6,10,12,14,16,18,20,22,23,25,27,31,35,37"
   [1729932377]=""
   [1690097605]=""
 )
 staged() {  # in the latest stage check, the block's visibility and flag buckets both list objects
-  tail -4 "$R/logs/stagecheck.jsonl" | python3 -c "
+  tail -n 32 "$R/logs/stagecheck.jsonl" | python3 -c "
 import json, sys
+ok = False
 for l in sys.stdin:
     d = json.loads(l)
     if d['cbid'] == '$1':
-        sys.exit(0 if d['vis']['keys_listed'] and d['flags']['keys_listed'] else 1)
-sys.exit(1)"
+        ok = bool(d['vis']['keys_listed'] and d['flags']['keys_listed'])
+sys.exit(0 if ok else 1)"
 }
 # catch-up after a restart: a fetched block whose conversion is not done
 for cb in "$@"; do
@@ -85,7 +95,7 @@ while :; do
   ATTEMPT[$cb]=$(( ${ATTEMPT[$cb]:-0} + 1 ))
   n=${ATTEMPT[$cb]}
   echo "$(now) $cb fetch attempt $n (free $free GiB, need $need)"
-  /usr/bin/time -v -o "$R/logs/fetch-$cb-$n.time"     python3 "$LOCK" run --slots 1 --mem 4 -- nice -n 19 ionice -c3     "$V/bin/python" "$R/scripts/uhfs_fetch.py" "$R/sarao-links.txt" "$R/mvf"     --cbid "$cb" --workers "$WORKERS" --max-mbps "$MBPS" >> "$R/logs/fetch-$cb.log" 2>&1
+  /usr/bin/time -v -o "$R/logs/fetch-$cb-$n.time"     python3 "$LOCK" run --slots 1 --mem 4 -- nice -n 19 ionice -c3     "$V/bin/python" "$R/scripts/uhfs_fetch.py" "$R/sarao-links.txt" "$R/mvf"     --cbid "$cb" --workers "$WORKERS" --max-mbps "$MBPS" ${FETCH[$cb]:+--scans ${FETCH[$cb]//,/ }}     >> "$R/logs/fetch-$cb.log" 2>&1
   rc=$?
   echo "$(now) $cb fetch attempt $n rc $rc"
   if [ -e "$R/mvf/$cb-receipts/fetch.done" ]; then

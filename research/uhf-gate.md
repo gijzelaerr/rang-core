@@ -8,7 +8,8 @@ port check P1 and the CARACal and CASA drafts, in `research/uhf-11.md` there)
 and [uhf-s-fetch.md](uhf-s-fetch.md) (the data).
 
 **Status: protocol, frozen 2026-11-26 before any UHF visibility, flag or weight
-value was read by anyone in this project.** What was read before the freeze is
+value was read by anyone in this project; the blocks were changed by
+amendment 2 (the first ones are on tape), also before any read.** What was read before the freeze is
 the four blocks' RDB metadata (telstate: scans, targets, tags, antennas, the
 spectral window; uhf-s-fetch.md section 1), and the calibrator model files'
 headers and component counts (section 3). None of the blocks' chunks is even on
@@ -314,11 +315,62 @@ block was staged, so nothing had been or could have been read. Three changes:
 
 Unchanged: every tolerance, the split, the models and the decision rule.
 
+## Amendment 2 (2026-11-26 10:15 UTC, before any visibility, flag or weight was read; not post hoc)
+
+**The blocks change; the reason is the archive's storage, not their data.** The
+first freeze's four blocks are on tape (lifecycle ARCHIVED; the archive offers
+no restage of a single block; uhf-s-fetch.md 3.1). Their data were never
+available, so nothing of them was read. The coordinator chose four public
+blocks that are online (lifecycle AVAILABLE); their metadata only was read
+(uhf-s-fetch.md amendment 2), and all four pass the frozen data rule.
+
+**Development and held-out, by section 5 of uhf-scope.md as before.** Both UHF
+blocks have 3C 286 and both are native, so the smaller is development:
+**D = 1752418159** (SCI-20241101-MH-01, 63 antennas, 458.0 GB of cross
+visibilities) and **H = 1726220298** (SCI-20230907-ZK-01, 60 antennas, 772.8 GB),
+different scheduling blocks.
+
+**Section 2 for the new blocks** (katdal track scans; dumps in brackets):
+- **D, 1752418159.** J1939-6342: 1 (76), 39 (75). J1331+3030 as polarisation
+  calibrator: 3 (38), 37 (37). Gain calibrator J1609+2641 (CTD93): 15, 19, 31,
+  35. Target ILTJ153010: 17, 33 (225 each), each bracketed by CTD93.
+  **Conversion selection** `1,3,15,17,19,31,33,35,37,39`. This block also uses
+  3C 286 as the gain calibrator of two other targets (a second catalogue entry
+  of J1331+3030 tagged `gaincal`: scans 5, 9, 13, 21, 25, 29; katdal warns of the
+  duplicate name). Those scans and the targets ILTJ131904 and ILTJ132848 (7, 11,
+  23, 27) are **untouched**, so J1331+3030 has one role. D has **no reserve**
+  (its only CTD93-bracketed target scans are both used); a fix found on D is
+  tested on H, as section 2's order says.
+- **H, 1726220298.** J0408-6545: 0 (77, the check source, in no solve).
+  J1939-6342: 32 (74), 60 (75). J1331+3030: 2, 30 (37 each). Gain calibrator
+  J1605-1734 (1602-174): every one of its 15 scans. Target HD 142184 (HD142184
+  in the MS), 12 scans of 224-225 dumps: the middle three **22, 26, 36**;
+  **reserve 40, 44**; untouched 6, 10, 14, 18, 48, 52, 56. **Conversion
+  selection** `0,2,4,8,12,16,20,22,24,26,28,30,32,34,36,38,42,46,50,54,58,60`;
+  **fetched** that plus the reserve.
+- Fetch: the UHF blocks fetch their selection (and H's reserve) only, as E2-N
+  did; the S-band blocks every track scan.
+
+**Configurations.** The four rang files keep their names and change only the
+roles: D gain calibrator J1609+2641, target ILTJ153010; H gain calibrator
+J1605-1734, target HD142184 (with the secondary's gainfield). The CARACal file
+becomes two, `caracal-uhf-dev.yml` and `caracal-uhf-heldout.yml`, with the gain
+calibrator and target named (D's 3C 286 is also tagged `gaincal`).
+
+**Consequences named now.**
+- Both blocks now have **two 3C 286 scans** (D 3 and 37, 3.6 h apart; H 2 and
+  30). Xf is still solved with `combine: scan` over both, so the 3C 286
+  transfer stays circular and is reported only, as frozen.
+- D has two 1934-638 scans and no 0408-65; H has 0408-65 (scan 0) and two
+  1934-638 scans, so H's 0408-65 rows of section 5 stand as frozen.
+- Everything else is unchanged: tolerances, models, the CASA rule, the decision
+  rule.
+
 ## For the coordinator
 
-- Frozen: this note and the five files in `results/uhf-gate/`. D = 1740534088,
-  H = 1737424638 by the frozen rule. Nothing can run until the archive stages
-  the blocks (uhf-s-fetch.md 3.1).
+- Frozen: this note and the files in `results/uhf-gate/`. After amendment 2,
+  D = 1752418159 and H = 1726220298 by the frozen rule (the first blocks are on
+  tape).
 - Merge `uhf-11` first or with this branch: the 0408-65 cubic for H's reported
   row lives there. Both branches append to uhf-scope.md.
 - New gate numbers (D5): J0408-6545 leakage 0.5 % (H), J0408-6545 flux

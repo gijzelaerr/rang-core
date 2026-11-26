@@ -1,0 +1,970 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 17.4,
+ "name": "1726220298_sdp_l0",
+ "experiment_id": "20240305-0006",
+ "observer": "Zsolt Keszthelyi",
+ "description": " RAMBO: The RAdio Magnetospheres of A, B and O Stars epoch 1",
+ "start_utc": "2024-09-13 09:39:32.847",
+ "end_utc": "2024-09-13 17:02:59.815",
+ "dump_period_s": 7.987681882352941,
+ "dumps": 3331,
+ "channels": 4096,
+ "freq_first_hz": 544000000.0,
+ "freq_last_hz": 1087867187.5,
+ "channel_width_hz": 132812.5,
+ "spw": {
+  "centre_freq_hz": 816000000.0,
+  "bandwidth_hz": 544000000.0,
+  "num_chans": 4096,
+  "product": "c544M4k",
+  "band": "UHF"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m003",
+  "m004",
+  "m005",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "J0408-6545",
+   "aliases": [
+    "0408-658"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(1.0835862116596362, -1.1475981012312526)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1605-1734",
+   "aliases": [
+    "1602-174"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(4.210766081730565, -0.30666598510375037)"
+  },
+  {
+   "name": "HD 142184",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.162309196710507, -0.4184965024842437)"
+  },
+  {
+   "name": "J1939-6342",
+   "aliases": [
+    "1934-638"
+   ],
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20230907-ZK-01",
+  "sb_id_code": "20240305-0006",
+  "description": " RAMBO: The RAdio Magnetospheres of A, B and O Stars epoch 1",
+  "observer": "Zsolt Keszthelyi",
+  "experiment_id": "20240305-0006",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "J0408-6545",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 77,
+   "start": 1726220376.840399,
+   "seconds": 615.0515049411765
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 14,
+   "start": 1726220991.8919039,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 37,
+   "start": 1726221103.7194502,
+   "seconds": 295.54422964705884
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1726221399.26368,
+   "seconds": 47.92609129411765
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726221447.1897712,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1726221567.0049994,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726221582.9803634,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726223380.2087867,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726223404.1718323,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726223515.9993787,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726223539.9624245,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1726225337.1908479,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726225353.1662118,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1726225472.98144,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726225488.9568038,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726227286.1852272,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726227310.148273,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726227421.9758193,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726227445.938865,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1726229243.1672885,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726229259.1426523,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1726229378.9578805,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726229394.9332442,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 23,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726231192.1616678,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 24,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726231216.1247134,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 25,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726231327.9522598,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 26,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726231351.9153054,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 27,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 2,
+   "start": 1726233149.143729,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 28,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726233165.1190927,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 29,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 7,
+   "start": 1726233284.934321,
+   "seconds": 55.913773176470585
+  },
+  {
+   "scan": 30,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 37,
+   "start": 1726233340.848094,
+   "seconds": 295.54422964705884
+  },
+  {
+   "scan": 31,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 12,
+   "start": 1726233636.3923237,
+   "seconds": 95.8521825882353
+  },
+  {
+   "scan": 32,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 74,
+   "start": 1726233732.2445064,
+   "seconds": 591.0884592941177
+  },
+  {
+   "scan": 33,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1726234323.3329656,
+   "seconds": 55.913773176470585
+  },
+  {
+   "scan": 34,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726234379.246739,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 35,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726234499.0619671,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 36,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1726234523.0250127,
+   "seconds": 1789.2407416470587
+  },
+  {
+   "scan": 37,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726236312.2657542,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 38,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726236336.2288,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 39,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1726236456.0440283,
+   "seconds": 15.975363764705882
+  },
+  {
+   "scan": 40,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726236472.019392,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 41,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726238269.2478156,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 42,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726238293.2108612,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 43,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726238405.0384076,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 44,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726238429.0014532,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 45,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726240226.2298768,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 46,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726240250.1929224,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 47,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1726240362.0204687,
+   "seconds": 31.950727529411765
+  },
+  {
+   "scan": 48,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726240393.9711962,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 49,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726242191.1996198,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 50,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726242215.1626654,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 51,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726242334.9778936,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 52,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726242358.9409392,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 53,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726244156.1693628,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 54,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1726244180.1324084,
+   "seconds": 119.81522823529411
+  },
+  {
+   "scan": 55,
+   "state": "slew",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 3,
+   "start": 1726244299.9476366,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 56,
+   "state": "track",
+   "target": "HD 142184",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 225,
+   "start": 1726244323.9106824,
+   "seconds": 1797.2284235294117
+  },
+  {
+   "scan": 57,
+   "state": "slew",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1726246121.1391058,
+   "seconds": 23.963045647058824
+  },
+  {
+   "scan": 58,
+   "state": "track",
+   "target": "J1605-1734",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1726246145.1021514,
+   "seconds": 111.82754635294117
+  },
+  {
+   "scan": 59,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 16,
+   "start": 1726246256.9296978,
+   "seconds": 127.80291011764706
+  },
+  {
+   "scan": 60,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "fluxcal",
+    "bpcal",
+    "delaycal"
+   ],
+   "dumps": 75,
+   "start": 1726246384.732608,
+   "seconds": 599.0761411764706
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 7320,
+ "cross_products": 7080,
+ "vis_bytes_cross_all": 772783472640,
+ "track_dumps": 3203,
+ "rule": {
+  "band": "UHF",
+  "receiver_band_hz": [
+   544000000.0,
+   1088000000.0
+  ],
+  "channel_span_hz": 544000000.0,
+  "stream_bandwidth_hz": 544000000.0,
+  "flux_calibrators": [
+   "PKS 0408-65",
+   "PKS 1934-638"
+  ],
+  "polarisation_calibrators": [
+   "3C 286"
+  ],
+  "track_scans": 31,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1726220298"
+}

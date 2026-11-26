@@ -11,7 +11,8 @@ dl2_fetch.py's method (itself e2n_fetch.py's), changed in five points:
   written or put on a command line;
 - the selection is every track scan of the block (mvftoms converts tracks
   only), or --scans, listed per scan with katdal's `mvf_download.chunk_names`
-  and merged; with --scans the receipts go to DEST/<cbid>-receipts-scans-<S-S>;
+  and merged (the selection is recorded in fetch.json; amendment 2 of
+  uhf-gate.md: the UHF blocks fetch their selection and reserve only);
 - each chunk's SHA-256 is computed while it streams and appended to
   DEST/<cbid>-receipts/chunks-sha256.txt (`sha256  bucket/name`); chunks
   already on disk without a line are hashed at the end;
@@ -151,8 +152,7 @@ def main(argv=None):
     endpoint = urlunparse((parts.scheme, parts.netloc, "", "", "", ""))
     *_, cbid, rdb_name = PurePosixPath(parts.path).parts
     a.dest.mkdir(parents=True, exist_ok=True)
-    tag = "" if a.scans is None else "-scans-" + "-".join(map(str, a.scans))
-    receipts = a.dest / f"{cbid}-receipts{tag}"
+    receipts = a.dest / f"{cbid}-receipts"
     receipts.mkdir(exist_ok=True)
     progress = receipts / "fetch-progress.jsonl"
     manifest = receipts / "chunks-sha256.txt"

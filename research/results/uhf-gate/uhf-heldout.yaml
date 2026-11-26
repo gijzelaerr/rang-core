@@ -1,6 +1,6 @@
 # The UHF gate (issue #11), held-out run: research/uhf-gate.md, frozen
 # 2026-11-26 before any UHF visibility, flag or weight was read. SARAO capture
-# block 1737424638 (SCI-20241101-HE-01), native DATA through katdal's
+# block 1737424638 (SCI-20241101-HE-01; replaced by amendment 2), native DATA through katdal's
 # mvftoms.py (no --applycal). E2-N's configuration (e2n-scripts/e2n.yaml) with
 # only these changes, each with its reason in uhf-gate.md section 4:
 # - this block's fields; J0408-6545 corrected like the secondary, in no solve
@@ -14,14 +14,18 @@
 # - calibrate.model: the 1934-638 UHF field model of Hugo (2021), DOI
 #   10.48479/hhhy-4r55, read at run time from nash (CC BY-NC 4.0, not shipped);
 # - image: 6,144 x 3", average_channels 4 (1,024 channels of 531 kHz).
+# Amendment 2 (2026-11-26, before any visibility was read): the block is now
+# 1726220298 (SCI-20230907-ZK-01); the first freeze's blocks are on tape
+# (uhf-gate.md amendment 2). Changed: the gain calibrator J1605-1734
+# (1602-174), the target HD142184; nothing else.
 schema: rang-config
 version: 1
 fields:
   fcal: [J1939-6342]
   bpcal: [J1939-6342]
-  gcal: [J1150-0023]
+  gcal: [J1605-1734]
   xcal: [J1331+3030]
-  target: [NGC4472]
+  target: [HD142184]
 data:
   weights: uniform
 flag:
@@ -70,7 +74,7 @@ apply:
   targets:
     - field: [gcal, target, J0408-6545]
       tables: [K, F, B, Kcross, Xf, Df]
-      gainfield: [J1939-6342, J1150-0023, J1939-6342, "", "", ""]
+      gainfield: [J1939-6342, J1605-1734, J1939-6342, "", "", ""]
       interp: [linear, linear, linear, nearest, nearest, nearest]
     - field: [fcal, xcal]
       tables: [K, G, B, Gpol, Kcross, Xf, Df]
