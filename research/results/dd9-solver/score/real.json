@@ -1,0 +1,173 @@
+{
+ "best_from_O": null,
+ "compared": null,
+ "dropped_baselines": 314,
+ "bad": 145,
+ "heldout": 169,
+ "arms": {
+  "b0": {
+   "fraction": [
+    0.11489675516224189,
+    0.03319073609676944,
+    0.02640117994100295,
+    0.018373092309971847
+   ],
+   "iterations": 500,
+   "d3_amp": {
+    "p99": 10.333087868166185,
+    "max": 70.54975396929983,
+    "cells_gt10": 151
+   },
+   "seconds": 131.0481296000071
+  },
+  "bM": {
+   "fraction": [
+    0.9693215339233038,
+    0.8898230088495576,
+    0.8344888626641097,
+    0.8898230088495576
+   ],
+   "iterations": 500,
+   "d3_amp": {
+    "p99": 1.2619515491840545,
+    "max": 1.4169548723043575,
+    "cells_gt10": 0
+   },
+   "seconds": 92.52699030004442
+  },
+  "bR": {
+   "fraction": [
+    0.47271386430678464,
+    0.23912081427939225,
+    0.1905604719764012,
+    0.137365074671004
+   ],
+   "iterations": 500,
+   "d3_amp": {
+    "p99": 5.143419661478788,
+    "max": 7.2193515754959705,
+    "cells_gt10": 0
+   },
+   "seconds": 131.25162009999622
+  },
+  "bL": {
+   "fraction": [
+    0.13893805309734514,
+    0.07182890855457227,
+    0.07094395280235988,
+    0.06755196304849885
+   ],
+   "iterations": 500,
+   "d3_amp": {
+    "p99": 9.890484707063983,
+    "max": 22.987591114666376,
+    "cells_gt10": 34
+   },
+   "seconds": 131.38185809995048
+  }
+ },
+ "score": {
+  "baselines": 113,
+  "blocks_dropped_fraction": 0.07990783892758024,
+  "solutions": {
+   "real-b0": {
+    "median": 1.6511064557193902,
+    "trimmed_mean": 1.9416760034433995,
+    "mean": 3.3400465000685986
+   },
+   "real-bM": {
+    "median": 1.64470451616444,
+    "trimmed_mean": 1.8912246048669281,
+    "mean": 2.877439275520473
+   },
+   "real-bR": {
+    "median": 1.6347156901459126,
+    "trimmed_mean": 1.9295335961293911,
+    "mean": 3.029814413067716
+   },
+   "real-bL": {
+    "median": 1.6536895445863091,
+    "trimmed_mean": 1.930041133639495,
+    "mean": 3.269133238916397
+   },
+   "unit": {
+    "median": 4.288576083683463,
+    "trimmed_mean": 4.961285312329925,
+    "mean": 9.123602371181713
+   }
+  },
+  "pairs": {
+   "real-b0 - real-bM": {
+    "median": 0.00980693666480592,
+    "lo": 0.0005917456284435228,
+    "hi": 0.024626618436509616,
+    "significant": true,
+    "reading": "real-bM predicts better"
+   },
+   "real-b0 - real-bR": {
+    "median": 0.007120651825375246,
+    "lo": 0.003837673449534229,
+    "hi": 0.010782564267956651,
+    "significant": true,
+    "reading": "real-bR predicts better"
+   },
+   "real-b0 - real-bL": {
+    "median": 0.0020225698257116953,
+    "lo": 0.0006341434834740145,
+    "hi": 0.004183246232410287,
+    "significant": true,
+    "reading": "real-bL predicts better"
+   },
+   "real-b0 - unit": {
+    "median": -1.782729618681373,
+    "lo": -2.9141187934399335,
+    "hi": -1.2154746434261645,
+    "significant": true,
+    "reading": "real-b0 predicts better"
+   },
+   "real-bM - real-bR": {
+    "median": -0.0020180896133381587,
+    "lo": -0.017645885165311403,
+    "hi": 0.0060174999094570044,
+    "significant": false,
+    "reading": "no difference"
+   },
+   "real-bM - real-bL": {
+    "median": -0.006685860859152681,
+    "lo": -0.021620517977576394,
+    "hi": 0.0027627140444598046,
+    "significant": false,
+    "reading": "no difference"
+   },
+   "real-bM - unit": {
+    "median": -1.8625956421392451,
+    "lo": -3.23098818512971,
+    "hi": -1.2260115984906086,
+    "significant": true,
+    "reading": "real-bM predicts better"
+   },
+   "real-bR - real-bL": {
+    "median": -0.0041346933222672355,
+    "lo": -0.00876313939099016,
+    "hi": -0.0022584143921082767,
+    "significant": true,
+    "reading": "real-bR predicts better"
+   },
+   "real-bR - unit": {
+    "median": -1.990232417729782,
+    "lo": -2.9750074394205757,
+    "hi": -1.3137858028229163,
+    "significant": true,
+    "reading": "real-bR predicts better"
+   },
+   "real-bL - unit": {
+    "median": -1.8113808308273693,
+    "lo": -2.901088208026617,
+    "hi": -1.2254326030917468,
+    "significant": true,
+    "reading": "real-bL predicts better"
+   }
+  }
+ },
+ "called": "accuracy proxy"
+}

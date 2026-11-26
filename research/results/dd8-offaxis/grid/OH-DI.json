@@ -1,0 +1,16 @@
+{
+ "run": "D:\\rang\\outputs\\dd8-20261125\\O-H",
+ "model": "D:/rang/outputs/dd7-20261125/b/sky.npy",
+ "ti": 4,
+ "cap": 500,
+ "iterations": 84,
+ "fraction": 0.9904129793510325,
+ "flagged": 113,
+ "amp_p10_p50_p90": [
+  0.7606374274538122,
+  0.9759866900916536,
+  1.0315688863914763
+ ],
+ "seconds_predict": 15.280306700034998,
+ "seconds_solve": 24.41133929998614
+}

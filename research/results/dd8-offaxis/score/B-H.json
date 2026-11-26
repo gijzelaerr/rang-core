@@ -1,0 +1,161 @@
+{
+ "run": "D:\\rang\\outputs\\dd8-20261125\\B-H",
+ "k": 0.5291444414416615,
+ "entries": [
+  "truth=D:/rang/outputs/dd7-20261125/b/sky.npy:truth",
+  "unit=D:/rang/outputs/dd7-20261125/b/sky.npy:unit",
+  "BH-F=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/BH-F.npz:4",
+  "BH-DI=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/BH-DI.npz:4"
+ ],
+ "rows_heldout": 76050,
+ "heldout_rows_dropped_flagged_gain": 0.06740302432610124,
+ "insample_rows_dropped_flagged_gain": 0.034825564350630334,
+ "results": {
+  "truth": {
+   "H_heldout": 1.0004424368840088,
+   "H_heldout_se": 0.00043965622466788783,
+   "cells_heldout": 5903322,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 1.417397061571593e-17,
+     "se": 5.457148589038998e-18,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 3.285381975447539,
+     "se": 0.4430245309587937,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.09610909128087378,
+     "se": 0.006886120034148395,
+     "reading": "informative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.03062382204281202,
+     "se": 0.0021733106442768575,
+     "reading": "informative"
+    }
+   ],
+   "H_insample": 1.0001025451325096
+  },
+  "unit": {
+   "H_heldout": 4.401557111971317,
+   "H_heldout_se": 0.44219621970604434,
+   "cells_heldout": 5903322,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 4.872535006263951
+  },
+  "BH-F": {
+   "H_heldout": 1.0016256076810395,
+   "H_heldout_se": 0.00044696429831062577,
+   "cells_heldout": 5903322,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": -0.00028901615650527636,
+     "se": 4.731387336452053e-05,
+     "reading": "harmful"
+    },
+    {
+     "dir": 1,
+     "dH": 3.285529685137556,
+     "se": 0.44315875285360395,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.09580996512101911,
+     "se": 0.006878237000775871,
+     "reading": "informative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.030327526460766776,
+     "se": 0.0021693291821603144,
+     "reading": "informative"
+    }
+   ],
+   "heldout_rows_offaxis_converged_fraction": 0.9222830071625966,
+   "H_heldout_converged_rows": 1.001436321768054,
+   "H_heldout_other_rows": 1.0038830817165918,
+   "H_insample": 0.9991814855032854
+  },
+  "BH-DI": {
+   "H_heldout": 4.226236035860067,
+   "H_heldout_se": 0.41937674950716725,
+   "cells_heldout": 5903322,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.1753210765692801,
+     "se": 0.13194396778149964,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 4.169968409251735
+  }
+ },
+ "pairs": {
+  "truth - unit": {
+   "dH": -3.401114675087307,
+   "se": 0.4422631528582042,
+   "reading": "truth predicts better"
+  },
+  "truth - BH-F": {
+   "dH": -0.001183170797030634,
+   "se": 8.782189920158283e-05,
+   "reading": "truth predicts better"
+  },
+  "truth - BH-DI": {
+   "dH": -3.2257935989760584,
+   "se": 0.41941222133902983,
+   "reading": "truth predicts better"
+  },
+  "unit - BH-F": {
+   "dH": 3.399931504290277,
+   "se": 0.4422170102066344,
+   "reading": "BH-F predicts better"
+  },
+  "unit - BH-DI": {
+   "dH": 0.17532107611124972,
+   "se": 0.13194396782024256,
+   "reading": "no difference"
+  },
+  "BH-F - BH-DI": {
+   "dH": -3.224610428179028,
+   "se": 0.4193556490680383,
+   "reading": "BH-F predicts better"
+  }
+ },
+ "seconds": 114.69766359997448
+}

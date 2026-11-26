@@ -1,0 +1,9 @@
+{
+ "run": "D:\\rang\\outputs\\dd7-20261125\\b",
+ "model": "D:/rang/outputs/dd7-20261125/b/sky.npy",
+ "nblock": 113,
+ "nbl": 1830,
+ "kept_cells": 30800924,
+ "seconds_predict": 47.1642352999188,
+ "seconds": 74.12881789996754
+}

@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/Github/rang/.venv/bin/python /home/gijs/Github/rang/research/results/e2-acceptance-scripts/e2_score3c_a.py /home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/n-clean /home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/ws-n /home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/g3c-n.json"
+	User time (seconds): 89.12
+	System time (seconds): 66.18
+	Percent of CPU this job got: 56%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:35.49
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 11823244
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 888
+	Minor (reclaiming a frame) page faults: 21753056
+	Voluntary context switches: 9420
+	Involuntary context switches: 975
+	Swaps: 0
+	File system inputs: 15043968
+	File system outputs: 832
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

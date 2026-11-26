@@ -1,0 +1,82 @@
+{
+ "chunking": {
+  "blocks": [
+   1
+  ],
+  "chunk_gb": 7.374997019767761,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6250029802322388,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 7551,
+   "calibrate": 7551,
+   "chain": 5034,
+   "flag": 15103,
+   "model": 7551,
+   "rows": 20138,
+   "selfcal": 10740
+  },
+  "tasks": {
+   "flag-block": 1
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "8ffaf1f6037ef7e2a887848d4a7a081623dafa3a5f22284421727ac967eaf500",
+ "flag_version": "rang_flag_20261125T070933Z",
+ "flagged_after": 0.7576416015625,
+ "flagged_before": 0.4318603515625,
+ "groups": [
+  {
+   "core_seconds": 0.3134301999816671,
+   "field": "J1939-6342",
+   "flagged_after": 0.7576416015625,
+   "flagged_before": 0.4318603515625,
+   "partition": "c3_partition_000",
+   "rows": 20,
+   "scan": "5"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "uint8",
+   "flag_sha256": "8ffaf1f6037ef7e2a887848d4a7a081623dafa3a5f22284421727ac967eaf500",
+   "flag_variable": "FLAG",
+   "flagged_cells": 248264,
+   "groups": [
+    {
+     "core_seconds": 0.3134301999816671,
+     "field": "J1939-6342",
+     "flagged_after": 0.7576416015625,
+     "flagged_before": 0.4318603515625,
+     "rows": 20,
+     "scan": "5"
+    }
+   ],
+   "name": "c3_partition_000",
+   "rows": 20,
+   "rows_flagged": 20,
+   "selected_flagged_after": 248264,
+   "selected_flagged_before": 141512,
+   "time_writes": 2
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 20,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xms-auto\\c3-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

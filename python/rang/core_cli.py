@@ -1005,7 +1005,7 @@ RESEARCH_TOP_LEVEL = {
 }
 # The commands for a user's own Measurement Set (task W2).
 USER_COMMANDS = {
-    "flag": "CONFIG MS: flag with the Tricolour port, writing FLAG",
+    "flag": "CONFIG MS: flag with the Tricolour port, writing FLAG (an MSv4 store too)",
     "calibrate": "CONFIG MS: solve the calibration terms, writing tables",
     "apply": "CONFIG MS: apply the complex solutions, writing CORRECTED_DATA",
     "image": "CONFIG MS: image with gemclean",
@@ -1264,7 +1264,11 @@ def main(argv=None):
 def _configure_pipeline(name):
     def configure(p):
         p.add_argument("config", help="the configuration (rang-core config defaults)")
-        p.add_argument("ms", help="the Measurement Set, written in place")
+        p.add_argument(
+            "ms",
+            help="the Measurement Set, written in place (flag and run: or an MSv4 "
+            "store, flag stage only)",
+        )
         p.add_argument(
             "--run-dir",
             help="the run directory with state.json (default: <ms>.rang-run beside the MS)",
@@ -1341,6 +1345,8 @@ def _pipeline(argv, options, pinned):
                 )
         else:
             stages, force = [name], ([name] if args.force else [])
+        if core_pipeline.is_store(ms):  # before the stages' keys are checked
+            core_pipeline.refuse_store_stages(ms, stages)
         config = core_config.validate(raw, stages, source=Path(args.config))
         state = core_pipeline.execute(
             config, args.config, ms, stages, run_dir=run_dir, force=force, log=log

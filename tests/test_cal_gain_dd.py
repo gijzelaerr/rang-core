@@ -81,3 +81,27 @@ def test_solve_dd_phase_is_unit_modulus_and_referenced():
         )  # fmt: skip
         assert np.allclose(np.abs(sol.gains), 1, atol=1e-12)
         assert np.allclose(np.angle(sol.gains[:, 0, 0]), 0, atol=1e-12)
+
+
+def test_solve_dd_gauss_seidel_option():
+    """DD10 (research/dd10-gs.md): the Gauss-Seidel direction update reaches
+    the default's noiseless solution; it is `ap` only; the default is the
+    Jacobi update."""
+    _, data, models, a1, a2, tb, nant = simulate()
+    nrow, nchan = data.shape[:2]
+    args = (
+        data, models, np.ones((nrow, nchan, 4)), np.zeros((nrow, nchan, 4), bool),
+        np.zeros(nrow, bool), a1, a2, tb,
+    )  # fmt: skip
+    kw = {"nant": nant, "refant": 0, "max_iterations": 300}
+    kw |= {"stop_criterion": 1e-10, "stop_fraction": 1.0}
+    gs = cal_gain.solve_dd(*args, **kw, direction_update="gauss-seidel")
+    jac = cal_gain.solve_dd(*args, **kw)
+    same = cal_gain.solve_dd(*args, **kw, direction_update="jacobi")
+    assert not gs.flags.any()
+    assert np.array_equal(jac.gains, same.gains) and jac.iterations == same.iterations
+    assert np.max(np.abs(gs.gains - jac.gains)) < 1e-8
+    with pytest.raises(ValueError):
+        cal_gain.solve_dd(*args, **kw, calmode="p", direction_update="gauss-seidel")
+    with pytest.raises(ValueError):
+        cal_gain.solve_dd(*args, **kw, direction_update="joint")

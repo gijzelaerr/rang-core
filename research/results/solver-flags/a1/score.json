@@ -1,0 +1,127 @@
+{
+ "R": {
+  "recall_above_5sigma": 0.9196275181259889,
+  "false_flag_clean": 0.42331799611160625,
+  "solutions_flagged": {
+   "K": 0.0,
+   "G": 0.0,
+   "B": 0.0,
+   "Gsec": 0.0,
+   "F": 0.0,
+   "Gpol": 0.0,
+   "Kcross": 0.0,
+   "Xf": 0.0,
+   "Df": 0.0
+  },
+  "solver_flags": []
+ },
+ "M0": {
+  "recall_above_5sigma": 0.9933658407186702,
+  "false_flag_clean": 0.78433108893032,
+  "solutions_flagged": {
+   "K": 0.0,
+   "G": 0.0,
+   "B": 0.11328125,
+   "Gsec": 0.0,
+   "F": 0.0,
+   "Gpol": 0.0,
+   "Kcross": 0.0,
+   "Xf": 0.69140625,
+   "Df": 0.69140625
+  },
+  "solver_flags": []
+ },
+ "M1": {
+  "recall_above_5sigma": 0.995500221906266,
+  "false_flag_clean": 0.8089811935257786,
+  "solutions_flagged": {
+   "K": 0.0,
+   "G": 0.0,
+   "B": 0.11328125,
+   "Gsec": 0.0,
+   "F": 0.0,
+   "Gpol": 0.0,
+   "Kcross": 0.0,
+   "Xf": 0.69140625,
+   "Df": 0.69140625
+  },
+  "solver_flags": [
+   {
+    "term": "G",
+    "field_id": 0,
+    "added": 498224,
+    "resolved": 2,
+    "solutions_flagged_first": 0.0,
+    "solutions_flagged_last": 0.0,
+    "passes": [
+     {
+      "cells": 46448640,
+      "input_flagged": 32173306,
+      "added": 385088
+     },
+     {
+      "cells": 46448640,
+      "input_flagged": 32558394,
+      "added": 113136
+     }
+    ]
+   },
+   {
+    "term": "B",
+    "field_id": 0,
+    "added": 2396579,
+    "resolved": 2,
+    "solutions_flagged_first": 0.11328125,
+    "solutions_flagged_last": 0.11328125,
+    "passes": [
+     {
+      "cells": 46448640,
+      "input_flagged": 32671530,
+      "added": 1898961
+     },
+     {
+      "cells": 46448640,
+      "input_flagged": 34570491,
+      "added": 497618
+     }
+    ]
+   },
+   {
+    "term": "Gsec",
+    "field_id": 2,
+    "added": 2107646,
+    "resolved": 2,
+    "solutions_flagged_first": 0.0,
+    "solutions_flagged_last": 0.0,
+    "passes": [
+     {
+      "cells": 77414400,
+      "input_flagged": 53330170,
+      "added": 1584842
+     },
+     {
+      "cells": 77414400,
+      "input_flagged": 54915012,
+      "added": 522804
+     }
+    ]
+   }
+  ]
+ },
+ "M2": {
+  "recall_above_5sigma": 0.9947360481445503,
+  "false_flag_clean": 0.7953883925992882,
+  "solutions_flagged": {
+   "K": 0.0,
+   "G": 0.0,
+   "B": 0.11328125,
+   "Gsec": 0.0,
+   "F": 0.0,
+   "Gpol": 0.0,
+   "Kcross": 0.0,
+   "Xf": 0.69140625,
+   "Df": 0.69140625
+  },
+  "solver_flags": []
+ }
+}

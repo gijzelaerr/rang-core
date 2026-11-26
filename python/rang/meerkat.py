@@ -63,6 +63,69 @@ FLAG_NAMES = tuple(name for name, _ in FLAG_BITS_TABLE)
 NATIVE_FLAGS = ("static", "cam", "data_lost", "ingest_rfi", "predicted_rfi")
 TRACK_STATES = ("track", "scan")
 
+# Issue #59 (research/solver-flags.md 3.3): MeerKAT L-band known RFI. The
+# lists are oxkat's `oxkat/config.py` (commit 421d14c5, GPL-3.0;
+# `CAL_1GC_BAD_FREQS`, `CAL_1GC_BL_FREQS`, `CAL_1GC_BL_FLAG_UVRANGE`), which
+# cites SARAO's MeerKAT Cookbook, "L-band RFI frequency flagging": facts
+# (frequency ranges), in CASA's spw syntax as there. Channels are selected as
+# `rang.flagdata` (CASA's flagdata) selects `spw='*:<range>'`.
+KNOWN_RFI_L_ALL = (
+    "850~900MHz",  # lower band edge
+    "1658~1800MHz",  # upper bandpass edge
+    "1419.8~1421.3MHz",  # Galactic HI
+)
+KNOWN_RFI_L_SHORT = (
+    "900MHz~915MHz",  # GSM and aviation
+    "925MHz~960MHz",
+    "1080MHz~1095MHz",
+    "1565MHz~1585MHz",  # GPS
+    "1217MHz~1237MHz",
+    "1375MHz~1387MHz",
+    "1166MHz~1186MHz",
+    "1592MHz~1610MHz",  # GLONASS
+    "1242MHz~1249MHz",
+    "1191MHz~1217MHz",  # Galileo
+    "1260MHz~1300MHz",
+    "1453MHz~1490MHz",  # Afristar
+    "1616MHz~1626MHz",  # Iridium
+    "1526MHz~1554MHz",  # Inmarsat
+    "1600MHz",  # Alkantpan
+)
+KNOWN_RFI_L_SHORT_M = 600.0  # uv distance below which the short list applies
+L_BAND_HZ = (856.0e6, 1712.0e6)
+
+
+def known_rfi_l(telescope, freq, width):
+    """`(all_baselines, short_baselines)` bool (nchan,) channel masks of the
+    L-band known-RFI preset for one window (centres `freq`, widths `width`
+    in Hz). Refuses (ValueError) data that is not MeerKAT or whose window
+    is not inside L band."""
+    from . import flagdata
+
+    name = str(telescope).strip().upper()
+    if name not in ("MEERKAT", "MKAT"):
+        raise ValueError(
+            f"flag.known_rfi meerkat_l: telescope {telescope!r} is not MeerKAT"
+        )
+    freq = np.asarray(freq, np.float64)
+    width = np.asarray(width, np.float64)
+    lo = float(np.min(freq - np.abs(width) / 2))
+    hi = float(np.max(freq + np.abs(width) / 2))
+    tol = 1.0e6
+    if lo < L_BAND_HZ[0] - tol or hi > L_BAND_HZ[1] + tol:
+        raise ValueError(
+            f"flag.known_rfi meerkat_l: window {lo / 1e6:.1f}-{hi / 1e6:.1f} MHz is not "
+            f"inside L band ({L_BAND_HZ[0] / 1e6:.0f}-{L_BAND_HZ[1] / 1e6:.0f} MHz)"
+        )
+
+    def mask(ranges):
+        out = np.zeros(len(freq), bool)
+        for r in ranges:
+            out |= flagdata._chan_range(freq, width, r)
+        return out
+
+    return mask(KNOWN_RFI_L_ALL), mask(KNOWN_RFI_L_SHORT)
+
 
 def has_katdal():
     """True when the `[meerkat]` extra is installed."""

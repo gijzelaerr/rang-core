@@ -1,0 +1,5 @@
+heavy_lock: waiting for head 01795629364346868455-linux-2425264.json, past its 15 min drain limit (draining)
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 60671.129818 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 60671.129818 from DATE-OBS'. [astropy.wcs.wcs]
+WARNING: FITSFixedWarning: 'datfix' made the change 'Set MJD-OBS to 60671.129818 from DATE-OBS'. [astropy.wcs.wcs]
+{"gates": {"dirty_linf": false, "compact_ratio": false, "q_over_q0": "not checked", "model_data_predict": "not checked"}, "met_where_checked": false, "not_checked": ["q_over_q0", "model_data_predict"]}
