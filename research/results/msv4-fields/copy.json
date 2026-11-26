@@ -1,0 +1,26 @@
+{
+ "sources": {
+  "c1/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c1-before.ps.zarr",
+  "c1/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c1-before.ps.zarr",
+  "c10/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c10-before.ps.zarr",
+  "c10/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c10-before.ps.zarr",
+  "c11/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c11-before.ps.zarr",
+  "c11/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c11-before.ps.zarr",
+  "c11c/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c11-before.ps.zarr",
+  "c11c/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c11-before.ps.zarr",
+  "c2/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c2-before.ps.zarr",
+  "c2/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c2-before.ps.zarr",
+  "c3/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c3-before.ps.zarr",
+  "c3/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c3-before.ps.zarr",
+  "c4/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c4-before.ps.zarr",
+  "c4/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c4-before.ps.zarr",
+  "c5/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c5-before.ps.zarr",
+  "c5/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c5-before.ps.zarr",
+  "c6x/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c6x-before.ps.zarr",
+  "c6x/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c6x-before.ps.zarr",
+  "c8/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c8-before.ps.zarr",
+  "c8/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c8-before.ps.zarr",
+  "c9/xms-auto": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c9-before.ps.zarr",
+  "c9/xradio": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c9-before.ps.zarr"
+ }
+}

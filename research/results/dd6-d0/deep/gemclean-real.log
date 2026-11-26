@@ -1,0 +1,28 @@
+D:\rang\outputs\dd6-20261125\real\sub.ms: 823500 of 823500 rows selected (field 0, DATA), 64 channels 1029.9795-1056.3115 MHz, 30800924 visibilities weighted, weight sum 1064707637.328576 (2.45 s read, 0.65 s weights)
+beam: peak 0.999999999575, patch ±64, f 5.6333e-2 outside the patch; 2881 of 2881 spectrum columns, -0.00e0 left out; restoring beam 19.535" × 10.600" PA -51.86° (1089 pixels fitted); PSF 11.16 s, FFT 0.15 s
+gemclean cycle 1: peak 2.2753e-1, threshold 5.9904e-2, 921 components so far, 31.8 s
+gemclean cycle 2: peak 4.2484e-2, threshold 1.4774e-2, 4093 components so far, 63.7 s
+gemclean cycle 3: peak 1.0429e-2, threshold 5.3728e-3, 13767 components so far, 95.8 s
+gemclean cycle 4: peak 2.4496e-3, threshold 8.8286e-4, 42162 components so far, 130.2 s
+gemclean cycle 5: peak 3.2242e-3, threshold 5.3097e-4, 71347 components so far, 188.6 s
+gemclean cycle 6: peak 1.3774e-3, threshold 4.2165e-4, 84377 components so far, 237.8 s
+multiscale: theoretic beam 7.6050" (2.5350 pixels), 8 scales, 486 sub-minor loops, end Normal
+warning: multiscale scale 648.9605826884717 px dropped: the PSF convolved with it has no positive peak (-4.341355748670408e-6)
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.200000, kernel peak 7.818848e-2, 32271 components, 5.841492 Jy
+multiscale: scale 10 px, bias factor 1.6667, psf peak 0.374739, gain 0.533704, kernel peak 2.456914e-2, 14756 components, 6.255958 Jy
+multiscale: scale 20 px, bias factor 2.7778, psf peak 0.184263, gain 1.085403, kernel peak 8.093280e-3, 27574 components, 23.675429 Jy
+multiscale: scale 41 px, bias factor 4.6296, psf peak 0.052011, gain 3.845362, kernel peak 2.374312e-3, 9045 components, 13.080834 Jy
+multiscale: scale 81 px, bias factor 7.7160, psf peak 0.012971, gain 15.419186, kernel peak 6.472322e-4, 731 components, 16.917616 Jy
+multiscale: scale 162 px, bias factor 12.8601, psf peak 0.002142, gain 93.363027, kernel peak 1.654698e-4, 0 components, 0.000000 Jy
+multiscale: scale 324 px, bias factor 21.4335, psf peak 0.000148, gain 1352.211008, kernel peak 4.231705e-5, 0 components, 0.000000 Jy
+multiscale: scale 1298 px, bias factor 59.5374, psf peak 0.000000, gain 6364786.832068, kernel peak 2.692843e-6, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 1.497595e-2 Jy, threshold 5.990378e-2 Jy; continued in the mask at gain 0.8000, threshold 5.990378e-2 Jy
+auto-mask: major iteration 2, sigma 3.693621e-3 Jy, threshold 1.477449e-2 Jy; continued in the mask at gain 0.8000, threshold 1.477449e-2 Jy
+auto-mask: major iteration 3, sigma 1.343193e-3 Jy, threshold 5.372771e-3 Jy; continued in the mask at gain 0.8000, threshold 5.372771e-3 Jy
+auto-mask: major iteration 4, sigma 5.885705e-4 Jy, threshold 2.354282e-3 Jy; continued in the mask at gain 0.0419, threshold 8.828558e-4 Jy
+auto-mask: major iteration 5, sigma 3.539769e-4 Jy, threshold 5.309654e-4 Jy, in the mask
+auto-mask: major iteration 6, sigma 2.810976e-4 Jy, threshold 4.216464e-4 Jy, in the mask
+auto-mask: threshold reached in major iteration 4
+84377 components, 6 major cycles, 0 resyncs, stop Threshold; Q/Q0 9.3988e-3; tau min NaN median NaN; minor 142.13 s (corrections 0.000 s), resync 57.68 s, major 28.72 s
+D:\rang\outputs\dd6-20261125\real\sub.ms: 823500 of 823500 rows predicted into MODEL_DATA (column added; 64 channels from 1 model image(s), 1 blocks, 7.82 s)
+wall 261.69 s

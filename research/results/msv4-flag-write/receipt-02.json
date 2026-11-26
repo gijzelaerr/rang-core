@@ -1,0 +1,734 @@
+{
+ "cases": {
+  "c1": {
+   "msv2": {
+    "cells": 327680,
+    "cells_changed": 109117,
+    "flagged_after": 255028,
+    "flagged_before": 145911,
+    "returncode": 0,
+    "seconds": 1.574
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 2,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c1_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.524,
+     "rang-p2": 6.981
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c1_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 18.524,
+     "rang-p2": 7.737
+    }
+   }
+  },
+  "c10": {
+   "msv2": {
+    "cells": 2293760,
+    "cells_changed": 775622,
+    "flagged_after": 1849716,
+    "flagged_before": 1074094,
+    "returncode": 0,
+    "seconds": 1.953
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 8,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c10_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.93,
+     "rang-p2": 5.842
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c10_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.831,
+     "rang-p2": 7.983
+    }
+   }
+  },
+  "c11": {
+   "msv2": {
+    "cells": 2293760,
+    "cells_changed": 775622,
+    "flagged_after": 1849716,
+    "flagged_before": 1074094,
+    "returncode": 0,
+    "seconds": 2.7
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 8,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c11_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.901,
+     "rang-p2": 5.797
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c11_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.894,
+     "rang-p2": 6.245
+    }
+   }
+  },
+  "c11c": {
+   "msv2": {
+    "cells": 2293760,
+    "cells_changed": 775622,
+    "flagged_after": 1849716,
+    "flagged_before": 1074094,
+    "returncode": 0,
+    "seconds": 2.192
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 8,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c11_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.754,
+     "rang-p2": 6.516
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c11_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-p1": 0.651,
+     "rang-p2": 5.85
+    }
+   }
+  },
+  "c2": {
+   "msv2": {
+    "cells": 327680,
+    "cells_changed": 110165,
+    "flagged_after": 248700,
+    "flagged_before": 138535,
+    "returncode": 0,
+    "seconds": 1.549
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 2,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c2_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.384,
+     "rang-p2": 6.564
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c2_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.442,
+     "rang-p2": 5.686
+    }
+   }
+  },
+  "c3": {
+   "msv2": {
+    "cells": 327680,
+    "cells_changed": 106752,
+    "flagged_after": 248264,
+    "flagged_before": 141512,
+    "returncode": 0,
+    "seconds": 1.825
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 2,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c3_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.426,
+     "rang-p2": 6.423
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c3_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.636,
+     "rang-p2": 6.867
+    }
+   }
+  },
+  "c4": {
+   "msv2": {
+    "cells": 327680,
+    "cells_changed": 111726,
+    "flagged_after": 252824,
+    "flagged_before": 141098,
+    "returncode": 0,
+    "seconds": 1.531
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 2,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c4_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.384,
+     "rang-p2": 6.687
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c4_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 20,
+     "rows_equal": 20,
+     "store_rows": 20
+    },
+    "seconds": {
+     "rang-p1": 0.494,
+     "rang-p2": 6.189
+    }
+   }
+  },
+  "c5": {
+   "msv2": {
+    "cells": 2293760,
+    "cells_changed": 775622,
+    "flagged_after": 1849716,
+    "flagged_before": 1074094,
+    "returncode": 0,
+    "seconds": 2.017
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 8,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-blocks": "flagged",
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c5_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-blocks": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-blocks": 1.343,
+     "rang-p1": 0.757,
+     "rang-p2": 5.747
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-blocks": "flagged",
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c5_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-blocks": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 140,
+     "rows_equal": 140,
+     "store_rows": 140
+    },
+    "seconds": {
+     "rang-blocks": 1.293,
+     "rang-p1": 0.946,
+     "rang-p2": 7.518
+    }
+   }
+  },
+  "c6x": {
+   "msv2": {
+    "cells": 6389760,
+    "cells_changed": 1200708,
+    "flagged_after": 2002352,
+    "flagged_before": 801644,
+    "returncode": 0,
+    "seconds": 8.016
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 20,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c6x_partition_000:attrs",
+     "/c6x_partition_001:attrs",
+     "/c6x_partition_002:attrs",
+     "/c6x_partition_003:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 1664,
+     "rows": 12480,
+     "rows_equal": 12480,
+     "store_rows": 12480
+    },
+    "seconds": {
+     "rang-p1": 5.769,
+     "rang-p2": 17.914
+    }
+   },
+   "xradio": {
+    "files_changed": 4,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c6x_0:attrs",
+     "/c6x_1:attrs",
+     "/c6x_2:attrs",
+     "/c6x_3:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 0,
+     "rows": 12480,
+     "rows_equal": 12480,
+     "store_rows": 12480
+    },
+    "seconds": {
+     "rang-p1": 6.648,
+     "rang-p2": 14.07
+    }
+   }
+  },
+  "c8": {
+   "msv2": {
+    "cells": 2228224,
+    "cells_changed": 784619,
+    "flagged_after": 1826896,
+    "flagged_before": 1042277,
+    "returncode": 0,
+    "seconds": 6.211
+   },
+   "o5": "match",
+   "xms-auto": {
+    "files_changed": 8,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c8_partition_000:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 4,
+     "rows": 136,
+     "rows_equal": 136,
+     "store_rows": 136
+    },
+    "seconds": {
+     "rang-p1": 1.0,
+     "rang-p2": 8.763
+    }
+   },
+   "xradio": {
+    "files_changed": 1,
+    "files_changed_outside_flag": [],
+    "flag_outcome": {
+     "rang-p1": "flagged",
+     "rang-p2": "flagged"
+    },
+    "o1": "match",
+    "o1_differs_counted": [],
+    "o1_excluded": [
+     "/c8_0:attrs"
+    ],
+    "o2": "match",
+    "o3": "match",
+    "o4": "match",
+    "o4_rang-p2": "match",
+    "outcome": "met",
+    "readback": {
+     "pads": 4,
+     "rows": 136,
+     "rows_equal": 136,
+     "store_rows": 136
+    },
+    "seconds": {
+     "rang-p1": 1.201,
+     "rang-p2": 8.985
+    }
+   }
+  },
+  "c9": {
+   "msv2": {
+    "cells": null,
+    "cells_changed": null,
+    "flagged_after": null,
+    "flagged_before": null,
+    "returncode": 2,
+    "seconds": 0.886
+   },
+   "outcome": "not measured",
+   "reason": "rang-core flag: refused\nD:\\rang\\outputs\\msv4-next-20261125\\msv2\\c9.ms: DATA cells differ in shape or correlations between data descriptions ([(4, 4), (8, 4)], [(9, 10, 11, 12)]); write-back needs one cell shape. Split one spectral window out first, for example with CASA split or mstransform (spw=...) (unsupported data, task W4: research/w4-unsupported.md)\n"
+  }
+ },
+ "commit": "62a3c51c259e44f14e13b2705dd39bf59ff4a807",
+ "deciding_measured": [
+  "c1",
+  "c2",
+  "c3",
+  "c4",
+  "c5",
+  "c6x",
+  "c8",
+  "c11",
+  "c11c"
+ ],
+ "not_measured": {
+  "c7": "source MS deleted (amendment A1)"
+ },
+ "note": "research/msv4-flag-write.md",
+ "rule": "pass",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "xms_auto": {
+  "c1": "met",
+  "c11": "met",
+  "c11c": "met",
+  "c2": "met",
+  "c3": "met",
+  "c4": "met",
+  "c5": "met",
+  "c6x": "met",
+  "c8": "met"
+ },
+ "xradio_reader": {
+  "numcodecs": "0.17.1",
+  "numpy": "2.5.5",
+  "xarray": "2026.9.0",
+  "xradio": "1.3.1",
+  "zarr": "3.4.2"
+ }
+}

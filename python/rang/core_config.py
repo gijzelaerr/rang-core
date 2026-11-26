@@ -224,6 +224,15 @@ SCHEMA = {
             "or: OR with the flags already there",
             ("replace", "or"),
         ),
+        "known_rfi": _k(
+            "none",
+            "choice",
+            "a known-RFI preset OR-ed into FLAG before the strategy (issue #59, "
+            "research/solver-flags.md 3.3): none; meerkat_l: MeerKAT L band, three "
+            "ranges on all baselines and 15 satellite and transmitter bands below "
+            "600 m (oxkat's lists, rang.meerkat.KNOWN_RFI_L)",
+            ("none", "meerkat_l"),
+        ),
         "residual": {
             "mode": _k(
                 "off",
@@ -262,6 +271,46 @@ SCHEMA = {
         },
     },
     "calibrate": {
+        "solver_flags": {
+            "mode": _k(
+                "off",
+                "choice",
+                "residual flags at the gain solve (issue #58, research/solver-flags.md): "
+                "after each G or B solve, flags on the residual d - g_p m g_q^* per "
+                "solution interval, then a re-solve; off; quartical: QuartiCal 0.2.7's "
+                "mad_flags rule; rang: antenna-factorised noise and persistence",
+                ("off", "quartical", "rang"),
+            ),
+            "terms": _k(["G", "B"], "strs", "the solve types flagged: G (G, Gsec), B"),
+            "rounds": _k(
+                2, "int", "flag passes, each followed by a re-solve of the term"
+            ),
+            "sigma": _k(5.0, "float", "cell threshold (QuartiCal: threshold_bl)"),
+            "global_sigma": _k(10.0, "float", "quartical only: threshold_global"),
+            "persist": _k(
+                3.0,
+                "float",
+                "rang only: a baseline's channel or dump whose mean z^2 exceeds this "
+                "times the interval's median",
+            ),
+            "guard": _k(
+                0.8,
+                "float",
+                "no baseline is pushed past this flagged fraction within a solution "
+                "interval (1: off)",
+            ),
+            "min_cells": _k(
+                8,
+                "int",
+                "a baseline with fewer unflagged cells in an interval gets none",
+            ),
+            "tripwire": _k(
+                0.05,
+                "float",
+                "fail the stage when a term's flagged-solution fraction rises by more "
+                "than this between its first solve and its last re-solve",
+            ),
+        },
         "model": {
             "source": _k(
                 "unity",
@@ -1425,6 +1474,7 @@ def refusals(config, stages):
         model = cal["model"]
         _model_refusals(model, cal, no, out)
         _chain_refusals(config, out)
+        _solver_flag_refusals(config, no)
         name = cal["polcal"]["model"]["name"]
         if cal["polcal"]["model"]["source"] == "nrao" and name is not None:
             from . import calmodels
@@ -1709,6 +1759,31 @@ def refusals(config, stages):
         out += _selfcal_image_refusals(config)
     out += _learned_refusals(config, stages)
     return out
+
+
+def _solver_flag_refusals(config, no):
+    """`calibrate.solver_flags` (issue #58, research/solver-flags.md 3.1)."""
+    sf = config["calibrate"]["solver_flags"]
+    if sf["mode"] == "off":
+        return
+    where = "calibrate.solver_flags"
+    bad = sorted(set(sf["terms"]) - {"G", "B"})
+    if bad or not sf["terms"]:
+        no(f"{where}.terms", "#58", f"G and B only, not {bad or 'none'}")
+    if sf["rounds"] < 1:
+        no(f"{where}.rounds", "#58", "at least 1")
+    if not 0.0 < sf["guard"] <= 1.0:
+        no(f"{where}.guard", "#58", "in (0, 1]")
+    if sf["sigma"] <= 0 or sf["global_sigma"] <= 0:
+        no(f"{where}.sigma", "#58", "thresholds must be positive")
+    if sf["min_cells"] < 0:
+        no(f"{where}.min_cells", "#58", "not negative")
+    if (config["data"].get("processes") or 1) > 1:
+        no(
+            f"{where}.mode",
+            "#58",
+            "the flag pass writes FLAG from the calibrate process: data.processes 1 only",
+        )
 
 
 def _learned_refusals(config, stages):
@@ -2122,7 +2197,21 @@ RESOURCE_KEYS = {
 # Keys left out of the stage hash at their default, so that adding them did
 # not change the hash of an existing configuration (task E2).
 HASH_DEFAULTS = {
+    # Issue #59: the known-RFI preset at its default leaves flag's hash.
+    "flag": {"known_rfi": "none"},
     "calibrate": {
+        # Issue #58: flags at the solve, at their default (off), leave calibrate's hash.
+        "solver_flags": {
+            "mode": "off",
+            "terms": ["G", "B"],
+            "rounds": 2,
+            "sigma": 5.0,
+            "global_sigma": 10.0,
+            "persist": 3.0,
+            "guard": 0.8,
+            "min_cells": 8,
+            "tripwire": 0.05,
+        },
         "average_time": False,
         "average_freq": False,
         "casa_phase_weights": False,

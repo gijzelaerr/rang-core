@@ -1,0 +1,197 @@
+{
+ "chunking": {
+  "blocks": [
+   3,
+   3,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   10,
+   10,
+   10,
+   3
+  ],
+  "chunk_gb": 7.042780250310898,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.9572197496891022,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 28847,
+   "calibrate": 28847,
+   "chain": 19231,
+   "flag": 57694,
+   "model": 28847,
+   "rows": 76925,
+   "selfcal": 41027
+  },
+  "tasks": {
+   "flag-block": 47
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "c35e5123dd2380bc6adbc096d17aa95b615200d1e434df47da29ffa55f7c4b99",
+ "flag_version": "rang_flag_20261125T160400Z",
+ "flagged_after": 0.6379873063471607,
+ "flagged_before": 0.3149291156060593,
+ "groups": [
+  {
+   "core_seconds": 207.29535779589787,
+   "ddid": 0,
+   "field": "J0408-6545",
+   "field_id": 0,
+   "flagged_after": 0.6096702075286385,
+   "flagged_before": 0.3172257595265893,
+   "rows": 139934,
+   "scan": 1
+  },
+  {
+   "core_seconds": 199.00397380813956,
+   "ddid": 0,
+   "field": "J1331+3030",
+   "field_id": 1,
+   "flagged_after": 0.6862699697937956,
+   "flagged_before": 0.3113956481130167,
+   "rows": 139934,
+   "scan": 2
+  },
+  {
+   "core_seconds": 54.75836024992168,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5968380459955994,
+   "flagged_before": 0.33660010285740255,
+   "rows": 26474,
+   "scan": 3
+  },
+  {
+   "core_seconds": 54.62889300007373,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5873450572967818,
+   "flagged_before": 0.33406064012686976,
+   "rows": 26474,
+   "scan": 4
+  },
+  {
+   "core_seconds": 54.68922490882687,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5557458792116794,
+   "flagged_before": 0.315457648305885,
+   "rows": 26474,
+   "scan": 5
+  },
+  {
+   "core_seconds": 54.43687275284901,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.55565229535346,
+   "flagged_before": 0.3192512988864074,
+   "rows": 26474,
+   "scan": 7
+  },
+  {
+   "core_seconds": 55.458737497916445,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.544123221427155,
+   "flagged_before": 0.319305920210041,
+   "rows": 26474,
+   "scan": 9
+  },
+  {
+   "core_seconds": 57.03348829597235,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5579017040697162,
+   "flagged_before": 0.3484159908365283,
+   "rows": 28365,
+   "scan": 11
+  },
+  {
+   "core_seconds": 54.58286229800433,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5119662289534072,
+   "flagged_before": 0.29874210310115584,
+   "rows": 26474,
+   "scan": 12
+  },
+  {
+   "core_seconds": 54.18024687189609,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.5240882342699441,
+   "flagged_before": 0.3066266722627625,
+   "rows": 26474,
+   "scan": 13
+  },
+  {
+   "core_seconds": 722.9546873534564,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.6574423993693906,
+   "flagged_before": 0.316349923215283,
+   "rows": 531371,
+   "scan": 6
+  },
+  {
+   "core_seconds": 718.2259073578753,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.6500245484528465,
+   "flagged_before": 0.3169256928105846,
+   "rows": 531371,
+   "scan": 8
+  },
+  {
+   "core_seconds": 730.1119266240858,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.6404868156242851,
+   "flagged_before": 0.30774671120196895,
+   "rows": 533262,
+   "scan": 10
+  },
+  {
+   "core_seconds": 206.56991322198883,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 4,
+   "flagged_after": 0.6167948065025297,
+   "flagged_before": 0.3189400163369428,
+   "rows": 139934,
+   "scan": 14
+  }
+ ],
+ "rang_original_saved_now": false,
+ "restored_before": null,
+ "rows_flagged": 2229489,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "strategy": "/home/gijs/rang-data/outputs/solver-flags-20261125/cfg/mk_rfi_flagging_calibrator_fields_firstpass.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

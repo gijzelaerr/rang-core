@@ -1,0 +1,110 @@
+WARNING: Overriding HOME environment variable with APPTAINERENV_HOME is not permitted
+
+WSClean version 3.7 (2026-02-16)
+This software package is released under the GPL version 3.
+Author: André Offringa (offringa@gmail.com).
+
+=== IMAGING TABLE ===
+       # Pol Ch JG ²G FG FI In Freq(MHz)
+| Independent group:
++-+-J- 0  I   0  0  0  0  0  0  856-963 (128)
+  +-J- 1  I   1  0  1  1  0  0  963-1070 (128)
+  +-J- 2  I   2  0  2  2  0  0  1070-1177 (128)
+  +-J- 3  I   3  0  3  3  0  0  1177-1284 (128)
+  +-J- 4  I   4  0  4  4  0  0  1284-1391 (128)
+  +-J- 5  I   5  0  5  5  0  0  1391-1498 (128)
+  +-J- 6  I   6  0  6  6  0  0  1498-1605 (128)
+  +-J- 7  I   7  0  7  7  0  0  1605-1712 (128)
+WARNING: This measurement set has no or an invalid WEIGHT_SPECTRUM column; will use less informative WEIGHT column.
+Reordering /c/e2n.ms into 8 x 1 parts.
+Reordering: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Initializing model visibilities: 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Precalculating MF weights for Briggs'(0.5) weighting...
+Opening reordered part 0 for /c/e2n.ms
+Opening reordered part 1 for /c/e2n.ms
+Opening reordered part 2 for /c/e2n.ms
+Opening reordered part 3 for /c/e2n.ms
+Opening reordered part 4 for /c/e2n.ms
+Opening reordered part 5 for /c/e2n.ms
+Opening reordered part 6 for /c/e2n.ms
+Opening reordered part 7 for /c/e2n.ms
+ == Constructing image ==
+Detected 503.8 GB of system memory, usage not limited.
+Opening reordered part 0 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00202763:19817.7] lambdas, maxuvw=24704.9 lambda)
+Theoretic beam = 8.35''
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 24908167
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 1 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.0022255:23193] lambdas, maxuvw=27452.2 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 116127277
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 2 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00265665:24819.1] lambdas, maxuvw=30049.4 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 54274234
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 3 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00583252:27597.9] lambdas, maxuvw=32925.5 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 32868246
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 4 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00298869:30169] lambdas, maxuvw=35694.4 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 135633898
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 5 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00313567:32200.3] lambdas, maxuvw=38441.7 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 120493958
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 6 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00357097:34170] lambdas, maxuvw=41189.1 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 26812237
+Writing dirty image...
+ == Constructing image ==
+Opening reordered part 7 for /c/e2n.ms
+Determining min and max w & theoretical beam size... DONE (w=[0.00361808:35919.8] lambdas, maxuvw=42841.8 lambda)
+Loading data in memory...
+Gridding 1596004 rows...
+Gridded visibility count: 62021644
+Writing dirty image...
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Rendering sources to restored image (beam is neither fitted nor estimated -- using delta scales!)... DONE
+Writing restored image... DONE
+Multi-scale cleaning summary:
+Total: 0 components (0 Jy)
+Inversion: 00:13:14.520296, prediction: 00:00:00, deconvolution: 00:00:00
+Cleaning up temporary files...
+Writing /p/ws-n/ASKAPJ1745-dirty-MFS-dirty.fits...
+Writing /p/ws-n/ASKAPJ1745-dirty-MFS-image.fits...

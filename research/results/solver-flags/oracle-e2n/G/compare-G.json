@@ -1,0 +1,24 @@
+{
+ "kind": "G",
+ "cells": 143292416,
+ "unflagged_before": 54910398,
+ "quartical_new": 9078219,
+ "rang_new": 9078219,
+ "differ": 0,
+ "differ_fraction": 0.0,
+ "only_quartical": 0,
+ "only_rang": 0,
+ "flags_pass": true,
+ "differing_cells_first_100": [],
+ "resolve_products": {
+  "products": 3782,
+  "max": 1.1322097734007353e-15,
+  "median": 1.3877787807814457e-16
+ },
+ "gains_pass": true,
+ "first_solve_products": {
+  "products": 3782,
+  "max": 1.4812222630807097e-15,
+  "median": 2.0014830212433607e-16
+ }
+}

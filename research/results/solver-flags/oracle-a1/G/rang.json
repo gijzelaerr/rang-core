@@ -1,0 +1,38 @@
+{
+ "kind": "G",
+ "seconds": 66.05857130000368,
+ "solver_flags": {
+  "mode": "quartical",
+  "passes": [
+   {
+    "cells": 46448640,
+    "input_flagged": 31443830,
+    "added": 1582526,
+    "intervals": [
+     {
+      "interval": 0,
+      "cells": 23224320,
+      "input_flagged": 15722260,
+      "rule": 809067,
+      "sparse_baselines": 0,
+      "guarded_baselines": 0,
+      "added": 809067
+     },
+     {
+      "interval": 1,
+      "cells": 23224320,
+      "input_flagged": 15721570,
+      "rule": 773459,
+      "sparse_baselines": 0,
+      "guarded_baselines": 0,
+      "added": 773459
+     }
+    ]
+   }
+  ],
+  "added": 1582526,
+  "solutions_flagged_first": 0.0,
+  "solutions_flagged_last": 0.0,
+  "resolved": 1
+ }
+}

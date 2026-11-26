@@ -507,6 +507,16 @@ Status: **measured, M2 pass.**
     with `CORRECTED_DATA`; the MSv4 path stays read-and-flag only. Settling
     it (which weight each data group takes, measured against the MSv2 path)
     is a later task, with its own amendment.
+- **M6 (2026-11-25, measured, pass: [msv4-flag-write.md](msv4-flag-write.md)):** the flag
+  stage on a store through #3's chunk tasks, `FLAG` written back, the round
+  trip checked against each writer's conversion of the MS flagged as MSv2.
+- **M7 (2026-11-25, measured, partial: [msv4-cli.md](msv4-cli.md)):**
+  `rang-core flag CONFIG STORE` with run directory, store flag versions and
+  journal; one miss, the summary's group key on xradio stores (field names
+  `<name>_<FIELD_ID>`). Follow-up (2026-11-25, post hoc, amendment A3 of
+  msv4-cli.md, branch `msv4-fields`): groups report the MSv2 field name and
+  id, `flag.fields` takes MSv2 names on xradio stores; C1 and C6 re-measured,
+  **pass** on both writers (c9 C6 not measured, no MSv2 run).
 - **Later, per the issue:** a Rust `zarrs` reader behind the same layout,
   then throughput, object storage and per-chunk writes; each with its own
   note.

@@ -1,0 +1,21 @@
+/home/gijs/rang-data/outputs/gate3c-compact-avg-20261124/e2n.ms: 1596004 rows (CORRECTED_DATA, field 3), 1024 channels into 8 output channels, MF weighting, joined, 418.67 s read, 326.65 s weights
+multiscale: theoretic beam 4.8146" (2.4073 pixels), 10 scales, 1716 sub-minor loops, end Normal
+multiscale: scale 0 px, bias factor 1.0000, psf peak 1.000000, gain 0.200000, kernel peak 7.966419e-2, 582574 components, 2.429541 Jy
+multiscale: scale 10 px, bias factor 1.6667, psf peak 0.467532, gain 0.427778, kernel peak 3.268600e-2, 120843 components, 0.421018 Jy
+multiscale: scale 19 px, bias factor 2.7778, psf peak 0.208644, gain 0.958570, kernel peak 9.573801e-3, 177205 components, 0.277001 Jy
+multiscale: scale 39 px, bias factor 4.6296, psf peak 0.072885, gain 2.744058, kernel peak 2.607823e-3, 94515 components, 0.074868 Jy
+multiscale: scale 77 px, bias factor 7.7160, psf peak 0.022758, gain 8.788006, kernel peak 7.138489e-4, 19901 components, -0.054490 Jy
+multiscale: scale 154 px, bias factor 12.8601, psf peak 0.006357, gain 31.460235, kernel peak 1.827039e-4, 3485 components, -0.045418 Jy
+multiscale: scale 308 px, bias factor 21.4335, psf peak 0.001558, gain 128.379803, kernel peak 4.677855e-5, 982 components, -0.094240 Jy
+multiscale: scale 616 px, bias factor 35.7225, psf peak 0.000307, gain 650.576498, kernel peak 1.183759e-5, 495 components, 0.082868 Jy
+multiscale: scale 1233 px, bias factor 59.5374, psf peak 0.000040, gain 4947.494979, kernel peak 2.979287e-6, 0 components, 0.000000 Jy
+multiscale: scale 2465 px, bias factor 99.2290, psf peak 0.000001, gain 237634.014430, kernel peak 7.506167e-7, 0 components, 0.000000 Jy
+auto-mask: major iteration 1, sigma 7.531617e-5 Jy, threshold 3.765808e-4 Jy; continued in the mask at gain 0.9000, threshold 3.765808e-4 Jy
+auto-mask: major iteration 2, sigma 2.796085e-5 Jy, threshold 1.398042e-4 Jy; continued in the mask at gain 0.9000, threshold 1.398042e-4 Jy
+auto-mask: major iteration 3, sigma 1.932553e-5 Jy, threshold 9.662765e-5 Jy; continued in the mask at gain 0.9000, threshold 9.662765e-5 Jy
+auto-mask: major iteration 4, sigma 1.790747e-5 Jy, threshold 8.953735e-5 Jy; continued in the mask at gain 0.9000, threshold 8.953735e-5 Jy
+auto-mask: major iteration 5, sigma 1.622617e-5 Jy, threshold 8.113086e-5 Jy; continued in the mask at gain 0.3577, threshold 4.867851e-5 Jy
+auto-mask: major iteration 6, sigma 1.373977e-5 Jy, threshold 4.121930e-5 Jy, in the mask
+auto-mask: threshold reached in major iteration 5
+joined: 1000000 components, 5 major cycles, 0 resyncs, stop Components; Q/Q0 4.6670e-2
+wall 56294.23 s

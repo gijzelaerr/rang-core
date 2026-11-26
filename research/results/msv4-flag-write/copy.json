@@ -1,0 +1,42 @@
+{
+ "c1": {
+  "from": "D:/rang/outputs/msv4-20261116/fixture/outer_scans/1672727931_sdp_l0_scan_1.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c1.ms"
+ },
+ "c10": {
+  "from": "D:/rang/outputs/msv4-20261116/ms/c10-flag-row.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c10.ms"
+ },
+ "c11": {
+  "from": "D:/rang/outputs/msv4-20261116/ms/c11-corrected-model.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c11.ms"
+ },
+ "c2": {
+  "from": "D:/rang/outputs/msv4-20261116/fixture/outer_scans/1672727931_sdp_l0_scan_4.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c2.ms"
+ },
+ "c3": {
+  "from": "D:/rang/outputs/msv4-20261116/fixture/outer_scans/1672727931_sdp_l0_scan_5.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c3.ms"
+ },
+ "c4": {
+  "from": "D:/rang/outputs/msv4-20261116/fixture/outer_scans/1672727931_sdp_l0_scan_8.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c4.ms"
+ },
+ "c5": {
+  "from": "D:/rang/outputs/msv4-20261116/fixture/outer_scans/1672727931_sdp_l0_scan_9.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c5.ms"
+ },
+ "c6x": {
+  "from": "D:/rang/outputs/e0-20261106-05/X3/casa.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c6x.ms"
+ },
+ "c8": {
+  "from": "D:/rang/outputs/msv4-20261116/ms/c8-scan9-gaps.ms",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c8.ms"
+ },
+ "c9": {
+  "from": "D:/rang/outputs/msv2-edge-cases/20261113/ms/m05-var-spw-tssm",
+  "to": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c9.ms"
+ }
+}

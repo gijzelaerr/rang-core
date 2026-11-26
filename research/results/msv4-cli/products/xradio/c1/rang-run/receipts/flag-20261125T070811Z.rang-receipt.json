@@ -1,0 +1,136 @@
+{
+ "schema": "rang.receipt",
+ "version": 5,
+ "command": [
+  "rang-core",
+  "flag",
+  "D:\\rang\\outputs\\msv4-next-20261125\\config-DATA-p1.yaml",
+  "D:\\rang\\outputs\\msv4-cli-20261125\\ps\\xradio\\c1-cli.ps.zarr"
+ ],
+ "stage": "flag",
+ "verb": null,
+ "started_utc": "2026-11-25T07:08:11+00:00",
+ "commit": {
+  "head": "33d8b684beb68a5091b3838e594c014e6668a357",
+  "dirty": false
+ },
+ "source": {
+  "checkout": "C:/Users/gijsm/Worktrees/rang/msv4-cli",
+  "distribution": "rang-core",
+  "version": "0.4.0",
+  "extension_sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+ },
+ "environment": {
+  "python": "3.14.10 (tags/v3.14.10:b703b2c, Oct 25 2026, 17:36:52) [MSC v.1944 64 bit (AMD64)]",
+  "executable": "C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "system": "Windows",
+  "machine": "AMD64",
+  "cpu_count": 16,
+  "rang_core": "0.4.0",
+  "extension": {
+   "path": "C:/Users/gijsm/Worktrees/rang/msv4-cli/python/rang/_core.pyd",
+   "sha256": "474648a290750fb530ac7c780dc44c45cabd39afd19c7444a5474e38fe89fc4d"
+  },
+  "threads": {
+   "OPENBLAS_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "MKL_NUM_THREADS": "1",
+   "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+   "RAYON_NUM_THREADS": "2",
+   "NUMBA_NUM_THREADS": null
+  },
+  "threads_pinned_by_cli": [
+   "OPENBLAS_NUM_THREADS",
+   "OMP_NUM_THREADS",
+   "MKL_NUM_THREADS",
+   "XLA_FLAGS"
+  ],
+  "rang_environment": {
+   "RANG_SOLVE_OPTIONS": null,
+   "RANG_SOLVE_TRACE": null,
+   "RANG_GRIDDER_DEVICE": null,
+   "RANG_GRIDDER_GPU_PRECISION": null,
+   "RANG_GPU_ADAPTER": null,
+   "RANG_GPU_MEMORY_MB": null,
+   "RANG_GPU_LAYERS_PER_BATCH": null,
+   "RANG_GEMCLEAN_SIMD": null,
+   "RANG_WGRIDDER_SIMD": null,
+   "RANG_WGRIDDER_PLANE_GROUP": null,
+   "RANG_WGRIDDER_TIMING": null,
+   "RANG_P6": null,
+   "RANG_SIM_BIN": null,
+   "RANG_FLAGGING_SUITE_IMAGE": null,
+   "RANG_STRATEGY_DIR": null,
+   "RANG_FIXTURE": null,
+   "RANG_LUNO_SLICE": null,
+   "RANG_LUNO_EXTRA": null,
+   "RANG_HOLOGRAPHY_PRODUCT": null,
+   "RANG_NOTEBOOK_CACHE": null,
+   "RANG_NOTEBOOK_LUNO": null,
+   "RANG_NOTEBOOK_SLOW": null,
+   "RANG_NOTEBOOK_HOLOGRAPHY": null,
+   "RANG_NOTEBOOK_CARTA": null,
+   "RANG_PIN_THREADS": null,
+   "RANG_CHECKALL_LOCK": null,
+   "RANG_CHECKALL_LOCKED": null,
+   "RANG_HEAVY_LOCK": null,
+   "RANG_HEAVY_SLOTS": null,
+   "RANG_HEAVY_MEM_GB": null,
+   "RANG_HEAVY_NICE": null,
+   "RANG_HEAVY_LOCK_HELD": "2:4",
+   "RANG_HEAVY_LOCK_PID": "1250204",
+   "RANG_HEAVY_DRAIN_MIN": null,
+   "RANG_ARCHIVE_OUTPUTS": null,
+   "RANG_CORE_BACKEND": null,
+   "RANG_CORE_LIB": null,
+   "RANG_SIM_LIB": null
+  }
+ },
+ "inputs": [
+  {
+   "path": "D:/rang/outputs/msv4-next-20261125/config-DATA-p1.yaml",
+   "kind": "file",
+   "bytes": 81,
+   "sha256": "e793476baa760bc57f58efc20d3661a92872a68ada131fdb52f4245021ee34fb"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xradio/c1-cli.ps.zarr",
+   "kind": "directory",
+   "files": 73,
+   "bytes": 4015828,
+   "listing_sha256": "61368455e6227d1bfd6622e9087887619ee8ddbc0a810e8e1c1c9ecdd24e3d9a"
+  }
+ ],
+ "outputs": [
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xradio/c1-cli.ps.zarr",
+   "kind": "directory",
+   "files": 73,
+   "bytes": 4011883,
+   "listing_sha256": "f5e797b8c7c6713d83d0e4fdeccfdec9f321728f1e9dd009e7b47e2192b55c74",
+   "modified": true
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xradio/c1-cli.ps.zarr.flagversions",
+   "kind": "directory",
+   "files": 8,
+   "bytes": 21517,
+   "tree_sha256": "fef9c9290ddc0cc3b843fe344e24f3eef8083264c45f00e0261171bdcd50d34e"
+  },
+  {
+   "path": "D:/rang/outputs/msv4-cli-20261125/ps/xradio/c1-cli.ps.zarr.rang-run",
+   "kind": "directory",
+   "files": 4,
+   "bytes": 8034,
+   "tree_sha256": "484e21e311f1fe144018f8d4befd6fc92efc837146f1c1e7181c134aa0823722"
+  }
+ ],
+ "timings": {
+  "wall_seconds": 5.744298700010404,
+  "cpu_seconds": 4.90625,
+  "peak_rss_mb": 115.94140625
+ },
+ "exit": 0,
+ "verdict": null
+}

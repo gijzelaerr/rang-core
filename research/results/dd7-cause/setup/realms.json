@@ -1,0 +1,21 @@
+{
+ "S1": {
+  "TIME": true,
+  "ANTENNA1": true,
+  "ANTENNA2": true,
+  "UVW": true,
+  "FLAG_ROW": true,
+  "FLAG": true,
+  "WEIGHT_SPECTRUM": true
+ },
+ "S1_pass": true,
+ "data_shape": [
+  823500,
+  64,
+  2
+ ],
+ "template": "D:\\rang\\outputs\\dd7-20261125\\a",
+ "cal2": "D:\\rang\\outputs\\20261103-gemclean-heldout\\real\\cal2.ms",
+ "data_written_equal": true,
+ "seconds": 12.588578199967742
+}

@@ -3011,6 +3011,9 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(flag_extend::flag_extend, m)?)?;
     m.add_function(wrap_pyfunction!(flag_residual::flag_residual_rang, m)?)?;
     m.add_function(wrap_pyfunction!(flag_residual::flag_residual_quartical, m)?)?;
+    // Issue #58: flags at the gain solve (research/solver-flags.md).
+    m.add_function(wrap_pyfunction!(flag_residual::flag_residual_diag, m)?)?;
+    m.add_function(wrap_pyfunction!(flag_residual::flag_residual_solver, m)?)?;
     m.add_function(wrap_pyfunction!(
         flag_residual::flag_residual_median_model,
         m

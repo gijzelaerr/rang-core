@@ -1,0 +1,206 @@
+{
+ "chunking": {
+  "blocks": [
+   3,
+   3,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   10,
+   10,
+   10,
+   3
+  ],
+  "chunk_gb": 7.042780250310898,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.9572197496891022,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 28847,
+   "calibrate": 28847,
+   "chain": 19231,
+   "flag": 57694,
+   "model": 28847,
+   "rows": 76925,
+   "selfcal": 41027
+  },
+  "tasks": {
+   "flag-block": 47
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "flag_sha256": "135658e15bd5dd19db3fa79485452ce4a5e93de6743bade906f396f56579a23d",
+ "flag_version": "rang_flag_20261125T164515Z",
+ "flagged_after": 0.7118201775650721,
+ "flagged_before": 0.37592352672553275,
+ "groups": [
+  {
+   "core_seconds": 118.8898452790454,
+   "ddid": 0,
+   "field": "J0408-6545",
+   "field_id": 0,
+   "flagged_after": 0.7273514112568247,
+   "flagged_before": 0.3876406689939543,
+   "rows": 139934,
+   "scan": 1
+  },
+  {
+   "core_seconds": 111.7489180129487,
+   "ddid": 0,
+   "field": "J1331+3030",
+   "field_id": 1,
+   "flagged_after": 0.7160971240794768,
+   "flagged_before": 0.3849227163564609,
+   "rows": 139934,
+   "scan": 2
+  },
+  {
+   "core_seconds": 33.957359564024955,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7143879667315102,
+   "flagged_before": 0.4025034087837359,
+   "rows": 26474,
+   "scan": 3
+  },
+  {
+   "core_seconds": 31.328014238970354,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7077784453614867,
+   "flagged_before": 0.398396600866062,
+   "rows": 26474,
+   "scan": 4
+  },
+  {
+   "core_seconds": 31.37119040102698,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7052986760005099,
+   "flagged_before": 0.3779845209273721,
+   "rows": 26474,
+   "scan": 5
+  },
+  {
+   "core_seconds": 30.916759967105463,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7034835475372063,
+   "flagged_before": 0.38009440903398145,
+   "rows": 26474,
+   "scan": 7
+  },
+  {
+   "core_seconds": 33.87567820586264,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7013175072712851,
+   "flagged_before": 0.37756237915620044,
+   "rows": 26474,
+   "scan": 9
+  },
+  {
+   "core_seconds": 32.81497812899761,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.7216777939361889,
+   "flagged_before": 0.40300678997554207,
+   "rows": 28365,
+   "scan": 11
+  },
+  {
+   "core_seconds": 34.82287204009481,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.700549470412008,
+   "flagged_before": 0.355845870447184,
+   "rows": 26474,
+   "scan": 12
+  },
+  {
+   "core_seconds": 31.19336720299907,
+   "ddid": 0,
+   "field": "J1744-5144",
+   "field_id": 2,
+   "flagged_after": 0.699846466403358,
+   "flagged_before": 0.36351538486168034,
+   "rows": 26474,
+   "scan": 13
+  },
+  {
+   "core_seconds": 413.713862007251,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.7117797089098294,
+   "flagged_before": 0.37680419017209726,
+   "rows": 531371,
+   "scan": 6
+  },
+  {
+   "core_seconds": 402.48028863500804,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.7098310957498386,
+   "flagged_before": 0.3766960401724972,
+   "rows": 531371,
+   "scan": 8
+  },
+  {
+   "core_seconds": 405.468975586351,
+   "ddid": 0,
+   "field": "ASKAPJ1745",
+   "field_id": 3,
+   "flagged_after": 0.7067050058033153,
+   "flagged_before": 0.3660134789915358,
+   "rows": 533262,
+   "scan": 10
+  },
+  {
+   "core_seconds": 117.7880784580484,
+   "ddid": 0,
+   "field": "J1939-6342",
+   "field_id": 4,
+   "flagged_after": 0.7266880265317043,
+   "flagged_before": 0.37658167303146034,
+   "rows": 139934,
+   "scan": 14
+  }
+ ],
+ "known_rfi": {
+  "added": 557000166,
+  "after_strategy": 0,
+  "cells": 9131986944,
+  "channels_all": 119,
+  "channels_short": 363,
+  "preset": "meerkat_l",
+  "short_m": 600.0
+ },
+ "rang_original_saved_now": false,
+ "restored_before": null,
+ "rows_flagged": 2229489,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 5,
+ "strategy": "/home/gijs/rang-data/outputs/solver-flags-20261125/cfg/mk_rfi_flagging_mild.yaml",
+ "strategy_sha256": "d9afac2774c302114f14b563bfbd64aa2956c1c501bb8e94de34af6eef4fce1e",
+ "write": "replace"
+}

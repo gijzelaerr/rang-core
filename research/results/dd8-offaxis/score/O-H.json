@@ -1,0 +1,214 @@
+{
+ "run": "D:\\rang\\outputs\\dd8-20261125\\O-H",
+ "k": 0.5291444414416615,
+ "entries": [
+  "truth-M0c=D:/rang/outputs/dd7-20261125/b/sky.npy:truth",
+  "truth-O=D:/rang/outputs/dd8-20261125/O-H/sky.npy:truth",
+  "unit=D:/rang/outputs/dd7-20261125/b/sky.npy:unit",
+  "OH-F=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/OH-F.npz:4",
+  "OH-DI=D:/rang/outputs/dd7-20261125/b/sky.npy:D:/rang/outputs/dd8-20261125/grid/OH-DI.npz:4"
+ ],
+ "rows_heldout": 76050,
+ "heldout_rows_dropped_flagged_gain": 0.07823800131492442,
+ "insample_rows_dropped_flagged_gain": 0.04545587804162998,
+ "results": {
+  "truth-M0c": {
+   "H_heldout": 4.987397122097455,
+   "H_heldout_se": 0.5154257190833849,
+   "cells_heldout": 5862734,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 1.2410519757818495e-18,
+     "se": 5.757223655755982e-17,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 1.5143033909461625,
+     "se": 0.4382068108592091,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.06521411457340194,
+     "se": 0.009612921701014437,
+     "reading": "informative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.029690485202499832,
+     "se": 0.004061738954492114,
+     "reading": "informative"
+    }
+   ],
+   "H_insample": 4.290482056341049
+  },
+  "truth-O": {
+   "H_heldout": 1.00046715297498,
+   "H_heldout_se": 0.000439158898398567,
+   "cells_heldout": 5862734,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": -6.205259878909247e-19,
+     "se": 5.993601873614577e-18,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 1.9186015287480047,
+     "se": 0.4661667712554842,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.10862629783045628,
+     "se": 0.010963496454061984,
+     "reading": "informative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.0507732271310081,
+     "se": 0.020875686049832563,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 1.0001063443568992
+  },
+  "unit": {
+   "H_heldout": 6.585521366039915,
+   "H_heldout_se": 0.6179967194773988,
+   "cells_heldout": 5862734,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 3,
+     "dH": 0.0,
+     "se": 0.0,
+     "reading": "uninformative"
+    }
+   ],
+   "H_insample": 6.590099451020695
+  },
+  "OH-F": {
+   "H_heldout": 3.389092543884677,
+   "H_heldout_se": 0.9078627660042764,
+   "cells_heldout": 5862734,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.006584125694237116,
+     "se": 0.04741753489411407,
+     "reading": "uninformative"
+    },
+    {
+     "dir": 1,
+     "dH": 4.331573067742372,
+     "se": 0.5193046824559456,
+     "reading": "informative"
+    },
+    {
+     "dir": 2,
+     "dH": 0.08076588320702367,
+     "se": 0.009451701773819364,
+     "reading": "informative"
+    },
+    {
+     "dir": 3,
+     "dH": -1.3181843818209424,
+     "se": 0.8360184369571922,
+     "reading": "uninformative"
+    }
+   ],
+   "heldout_rows_offaxis_converged_fraction": 0.0,
+   "H_heldout_converged_rows": 0.0,
+   "H_heldout_other_rows": 3.389092543884676,
+   "H_insample": 1.5519456363134907
+  },
+  "OH-DI": {
+   "H_heldout": 5.769446152774501,
+   "H_heldout_se": 0.5288775727426912,
+   "cells_heldout": 5862734,
+   "dH": [
+    {
+     "dir": 0,
+     "dH": 0.8160752135007969,
+     "se": 0.2667995095542161,
+     "reading": "informative"
+    }
+   ],
+   "H_insample": 5.3111535281210775
+  }
+ },
+ "pairs": {
+  "truth-M0c - truth-O": {
+   "dH": 3.986929969122475,
+   "se": 0.5155208434219021,
+   "reading": "truth-O predicts better"
+  },
+  "truth-M0c - unit": {
+   "dH": -1.5981242439424588,
+   "se": 0.43983528272519307,
+   "reading": "truth-M0c predicts better"
+  },
+  "truth-M0c - OH-F": {
+   "dH": 1.5983045782127787,
+   "se": 0.9817967268513967,
+   "reading": "no difference"
+  },
+  "truth-M0c - OH-DI": {
+   "dH": -0.7820490306770452,
+   "se": 0.5291247904997012,
+   "reading": "no difference"
+  },
+  "truth-O - unit": {
+   "dH": -5.585054213064934,
+   "se": 0.6180793125533789,
+   "reading": "truth-O predicts better"
+  },
+  "truth-O - OH-F": {
+   "dH": -2.3886253909096964,
+   "se": 0.9078538896228147,
+   "reading": "no difference"
+  },
+  "truth-O - OH-DI": {
+   "dH": -4.76897899979952,
+   "se": 0.5289037869371861,
+   "reading": "truth-O predicts better"
+  },
+  "unit - OH-F": {
+   "dH": 3.1964288221552373,
+   "se": 0.9718377232536478,
+   "reading": "OH-F predicts better"
+  },
+  "unit - OH-DI": {
+   "dH": 0.8160752132654138,
+   "se": 0.26679950960322807,
+   "reading": "OH-DI predicts better"
+  },
+  "OH-F - OH-DI": {
+   "dH": -2.380353608889824,
+   "se": 0.9188930384327836,
+   "reading": "no difference"
+  }
+ },
+ "seconds": 178.87028059992008
+}

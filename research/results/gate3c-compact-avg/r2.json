@@ -1,0 +1,22 @@
+{
+ "config_sha256": [
+  [
+   "/stages/apply",
+   "3b3f3047c0d30b3c80730146922de9e212e800728aac1c93b5370dcf3ac5a7f7"
+  ],
+  [
+   "/stages/calibrate",
+   "8baf5144c99ecc7fb271466aa2434da881c3e864d4c4b9b246a287a7d602acd7"
+  ],
+  [
+   "/stages/flag",
+   "31dd09383f8f9a7802bdaf42a432e922b1732701e852693fc38dbe9f24f98b02"
+  ],
+  [
+   "/stages/image",
+   "9e4519e076dc32d40790635e291f36b175c34932c46080c872ce1e2d455fb37a"
+  ]
+ ],
+ "want_prefix": "3b3f3047",
+ "met": true
+}

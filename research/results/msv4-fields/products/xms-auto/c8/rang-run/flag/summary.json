@@ -1,0 +1,86 @@
+{
+ "chunking": {
+  "blocks": [
+   1
+  ],
+  "chunk_gb": 7.374979734420776,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6250202655792236,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 7551,
+   "calibrate": 7551,
+   "chain": 5034,
+   "flag": 15103,
+   "model": 7551,
+   "rows": 20138,
+   "selfcal": 10740
+  },
+  "tasks": {
+   "flag-block": 1
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "dfa1c47573f60a2587f6ee8f1b25775a148878659be54b8c9c1fea6098ba30c2",
+ "flag_version": "rang_flag_20261125T084444Z",
+ "flagged_after": 0.8198888442095589,
+ "flagged_before": 0.4677613202263327,
+ "groups": [
+  {
+   "core_seconds": 0.8028581999824382,
+   "field": "J1939-6342",
+   "field_id": null,
+   "flagged_after": 0.8198888442095589,
+   "flagged_before": 0.4677613202263327,
+   "partition": "c8_partition_000",
+   "rows": 136,
+   "scan": "9",
+   "store_field": "J1939-6342"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "uint8",
+   "flag_sha256": "dfa1c47573f60a2587f6ee8f1b25775a148878659be54b8c9c1fea6098ba30c2",
+   "flag_variable": "FLAG",
+   "flagged_cells": 1826896,
+   "groups": [
+    {
+     "core_seconds": 0.8028581999824382,
+     "field": "J1939-6342",
+     "field_id": null,
+     "flagged_after": 0.8198888442095589,
+     "flagged_before": 0.4677613202263327,
+     "rows": 136,
+     "scan": "9",
+     "store_field": "J1939-6342"
+    }
+   ],
+   "name": "c8_partition_000",
+   "rows": 136,
+   "rows_flagged": 136,
+   "selected_flagged_after": 1826896,
+   "selected_flagged_before": 1042277,
+   "time_writes": 2
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 136,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xms-auto\\c8-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

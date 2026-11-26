@@ -1,0 +1,252 @@
+{
+ "apply": {
+  "applymode": "calflag",
+  "calwt": false,
+  "column": "CORRECTED_DATA",
+  "learned": {
+   "force": false,
+   "mode": "off",
+   "weights": null
+  },
+  "parang": false,
+  "parang_flags": "spread",
+  "reweight": {
+   "chanbin": 16,
+   "minsamp": 200,
+   "mode": "off",
+   "smooth": 5,
+   "statistic": "mad",
+   "timebin": "scan"
+  },
+  "targets": []
+ },
+ "calibrate": {
+  "average_freq": false,
+  "average_time": false,
+  "bandpass_model_divided": false,
+  "casa_phase_weights": false,
+  "df_calwt": false,
+  "g_calwt": false,
+  "gpol_calwt": false,
+  "k_calwt": false,
+  "k_zero_start": false,
+  "kcross_calwt": false,
+  "learned": {
+   "force": false,
+   "mode": "off",
+   "weights": null
+  },
+  "minblperant": null,
+  "minsnr": null,
+  "model": {
+   "column": "MODEL_DATA",
+   "flux_jy": null,
+   "lsm": null,
+   "polangle": null,
+   "polindex": null,
+   "reffreq_hz": null,
+   "rotmeas": null,
+   "source": "unity",
+   "spix": null,
+   "standard": null
+  },
+  "polcal": {
+   "extendflags": false,
+   "feed_angle_rotation": null,
+   "field": [
+    "xcal"
+   ],
+   "frame": "casa",
+   "model": {
+    "column": "MODEL_DATA",
+    "name": null,
+    "source": "nrao"
+   },
+   "terms": []
+  },
+  "primary": {
+   "field": [
+    "fcal"
+   ],
+   "terms": [
+    {
+     "combine": "",
+     "field": null,
+     "freqint": "inf",
+     "gainfield": [],
+     "interp": [],
+     "max_iterations": 50,
+     "minblperant": null,
+     "minsnr": null,
+     "name": "complex",
+     "preapply": [],
+     "refant": null,
+     "refantmode": null,
+     "solint": "inf",
+     "stop_criterion": 1e-07,
+     "stop_fraction": 0.99,
+     "type": "complex",
+     "uvrange": null
+    }
+   ]
+  },
+  "refant": null,
+  "refant_maxdist": 1000.0,
+  "refant_minbase": 150.0,
+  "refantmode": "flex",
+  "secondary": {
+   "field": [
+    "gcal"
+   ],
+   "terms": []
+  },
+  "uvrange": "",
+  "xf_calwt": false
+ },
+ "data": {
+  "chunk_rows": null,
+  "executor": "local",
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "scans": [],
+  "spool": null,
+  "spool_wait_s": 600.0,
+  "threads": null,
+  "weights": "as_is"
+ },
+ "fields": {
+  "bpcal": [],
+  "fcal": [],
+  "gcal": [],
+  "target": [],
+  "xcal": []
+ },
+ "flag": {
+  "column": "CORRECTED_DATA",
+  "fields": [
+   "all"
+  ],
+  "flagger": "tricolour",
+  "learned": {
+   "force": false,
+   "mode": "off",
+   "weights": null
+  },
+  "residual": {
+   "global_sigma": 10.0,
+   "guard": 0.8,
+   "method": "rang",
+   "mode": "off",
+   "persist": 3.0,
+   "sigma": 5.0,
+   "tripwire": 0.05
+  },
+  "static_masks": "tricolour",
+  "strategy": "strategy.yaml",
+  "write": "replace"
+ },
+ "image": {
+  "abs_auto_mask": null,
+  "auto_mask": null,
+  "auto_mask_nmiter": null,
+  "auto_threshold": 3.0,
+  "average_channels": 1,
+  "channels_out": 1,
+  "column": "auto",
+  "extra_args": [],
+  "fields": [
+   "target"
+  ],
+  "fit_spectral_pol": null,
+  "fits_mask": null,
+  "gain": null,
+  "gemclean": "auto",
+  "imager": "gemclean",
+  "join_channels": false,
+  "join_polarizations": false,
+  "learned": {
+   "force": false,
+   "mode": "off",
+   "weights": null
+  },
+  "maxuv_l": null,
+  "maxuvw_m": null,
+  "mgain": null,
+  "minuv_l": null,
+  "minuvw_m": null,
+  "multiscale": false,
+  "multiscale_gain": null,
+  "multiscale_max_scales": null,
+  "multiscale_scale_bias": null,
+  "multiscale_scales": null,
+  "multiscale_shape": "tapered-quadratic",
+  "name": "image",
+  "niter": 1000000,
+  "nmiter": null,
+  "pol": "I",
+  "robust": 0.0,
+  "scale": null,
+  "size": null,
+  "taper_gaussian": null,
+  "taper_inner_tukey": null,
+  "taper_tukey": null,
+  "threads": null,
+  "threshold": null,
+  "uvrange": "",
+  "weight": "briggs",
+  "wgridder_accuracy": 0.0001,
+  "write_model": false
+ },
+ "run": {
+  "stages": [
+   "flag",
+   "calibrate",
+   "apply",
+   "image",
+   "selfcal"
+  ]
+ },
+ "schema": "rang-config",
+ "selfcal": {
+  "average_time": false,
+  "clean_cutoff": [],
+  "cleanmask_method": [],
+  "cleanmask_thr": [],
+  "gain_clip": [
+   0.5,
+   2.0
+  ],
+  "input_column": "CORRECTED_1GC",
+  "learned": {
+   "force": false,
+   "mode": "off",
+   "weights": null
+  },
+  "minuvw_m": 0.0,
+  "model_column": "MODEL_DATA",
+  "output_column": "CORRECTED_DATA",
+  "refant": null,
+  "rounds": 2,
+  "terms": [
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sp",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sp"
+   },
+   {
+    "freqint": "inf",
+    "max_iterations": 50,
+    "name": "Sa",
+    "solint": "inf",
+    "stop_criterion": 1e-07,
+    "stop_fraction": 0.99,
+    "type": "Sa"
+   }
+  ]
+ },
+ "version": 1
+}

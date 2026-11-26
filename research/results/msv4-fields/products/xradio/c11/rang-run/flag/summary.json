@@ -1,0 +1,86 @@
+{
+ "chunking": {
+  "blocks": [
+   1
+  ],
+  "chunk_gb": 7.374979138374329,
+  "chunk_rows": null,
+  "executor": "local",
+  "fixed_gb": 0.6250208616256714,
+  "memory_limit_gb": 8.0,
+  "processes": 1,
+  "rows": {
+   "apply": 7551,
+   "calibrate": 7551,
+   "chain": 5034,
+   "flag": 15103,
+   "model": 7551,
+   "rows": 20138,
+   "selfcal": 10740
+  },
+  "tasks": {
+   "flag-block": 1
+  },
+  "threads_per_process": null
+ },
+ "column": "DATA",
+ "data_group": "base",
+ "flag_sha256": "dcd68f1594af09e8418d8d4c215ae56083f00106257141b5e42cc96c9fe3e53a",
+ "flag_version": "rang_flag_20261125T084541Z",
+ "flagged_after": 0.8064121791294643,
+ "flagged_before": 0.468267822265625,
+ "groups": [
+  {
+   "core_seconds": 1.1211076999898069,
+   "field": "J1939-6342",
+   "field_id": 0,
+   "flagged_after": 0.8064121791294643,
+   "flagged_before": 0.468267822265625,
+   "partition": "c11_0",
+   "rows": 140,
+   "scan": "9",
+   "store_field": "J1939-6342_0"
+  }
+ ],
+ "partitions": [
+  {
+   "blocks": [
+    1
+   ],
+   "flag_dtype": "bool",
+   "flag_sha256": "dcd68f1594af09e8418d8d4c215ae56083f00106257141b5e42cc96c9fe3e53a",
+   "flag_variable": "FLAG",
+   "flagged_cells": 1849716,
+   "groups": [
+    {
+     "core_seconds": 1.1211076999898069,
+     "field": "J1939-6342",
+     "field_id": 0,
+     "flagged_after": 0.8064121791294643,
+     "flagged_before": 0.468267822265625,
+     "rows": 140,
+     "scan": "9",
+     "store_field": "J1939-6342_0"
+    }
+   ],
+   "name": "c11_0",
+   "rows": 140,
+   "rows_flagged": 140,
+   "selected_flagged_after": 1849716,
+   "selected_flagged_before": 1074094,
+   "time_writes": 1
+  }
+ ],
+ "rang_original_saved_now": true,
+ "restored_before": null,
+ "rows_flagged": 140,
+ "static_masks": {
+  "4k_lband_meerkat.staticmask": "96969417441917454186ddcf5fe2fbc4e9cc0aa464f8d072c917749164108c33",
+  "4k_uhfband_meerkat.staticmask": "2d862fbe61e7cf4b7799fb9cf7ceaff81860a26d70eb770816dfb2a3e8ddc1bb"
+ },
+ "steps": 12,
+ "store": "D:\\rang\\outputs\\msv4-fields-20261125\\ps\\xradio\\c11-cli.ps.zarr",
+ "strategy": "D:\\rang\\outputs\\msv4-next-20261125\\strategy.yaml",
+ "strategy_sha256": "ce9ac66aba75c62e778eabbc951e8f9760447f7824f8fd37b26b91974ec71774",
+ "write": "replace"
+}

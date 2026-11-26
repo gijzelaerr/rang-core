@@ -1,0 +1,42 @@
+# The mild raw strategy of research/solver-flags.md section 3.2 (issue #58):
+# CARACal's caracal/data/meerkat_files/mk_rfi_flagging_calibrator_fields_firstpass.yaml
+# (the copy in research/results/e2n-scripts/) cut to its first three steps, every
+# parameter CARACal's, then flag_autos and combine_with_input_flags as that file
+# ends. Left out: both uvcontsub_flagger passes, the uvrange 0~550 static mask and
+# the three final sum_threshold passes. Not tuned. Kept out of the package with the
+# other CARACal strategy copies (their licence notice is an open item).
+strategies:
+    -
+        name: nan_dropouts_flag
+        task: flag_nans_zeros
+    -
+        name: background_static_mask
+        task: apply_static_mask
+        kwargs:
+            accumulation_mode: "or"
+            uvrange: ""
+    -
+        name: background_flags
+        task: sum_threshold
+        kwargs:
+            outlier_nsigma: 10
+            windows_time: [1, 2, 4, 8]
+            windows_freq: [1, 2, 4, 8]
+            background_reject: 2.0
+            background_iterations: 5
+            spike_width_time: 12.5
+            spike_width_freq: 10.0
+            time_extend: 3
+            freq_extend: 3
+            freq_chunks: 10
+            average_freq: 1
+            flag_all_time_frac: 0.6
+            flag_all_freq_frac: 0.8
+            rho: 1.3
+            num_major_iterations: 5
+    -
+        name: flag_autos
+        task: flag_autos
+    -
+        name: combine_with_input_flags
+        task: combine_with_input_flags

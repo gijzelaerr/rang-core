@@ -1,0 +1,53 @@
+{
+ "flags_equal": true,
+ "flag_cells_differ": 0,
+ "fraction_rang": 0.7931214174048984,
+ "fraction_oracle": 0.7931214174048984,
+ "fraction_equal": true,
+ "max_converged": 5.412046705364936e-05,
+ "max_unflagged": 0.0006330158229058698,
+ "median_unflagged": 3.2446846568112067e-07,
+ "gains_ok": false,
+ "per_direction": [
+  {
+   "max_unflagged": 4.5189808887123063e-07,
+   "median_unflagged": 9.181032758582429e-08,
+   "frac_le_tol": 1.0,
+   "max_converged": 4.5189808887123063e-07,
+   "converged_pairs": 12166
+  },
+  {
+   "max_unflagged": 2.709962108728643e-06,
+   "median_unflagged": 1.8788540088588546e-07,
+   "frac_le_tol": 1.0,
+   "max_converged": 2.0560055690185213e-06,
+   "converged_pairs": 10830
+  },
+  {
+   "max_unflagged": 1.927862245842507e-05,
+   "median_unflagged": 8.026476376660879e-07,
+   "frac_le_tol": 0.9990112994350282,
+   "max_converged": 1.927862245842507e-05,
+   "converged_pairs": 10621
+  },
+  {
+   "max_unflagged": 0.0006330158229058698,
+   "median_unflagged": 1.0648965168930879e-06,
+   "frac_le_tol": 0.9535848521381463,
+   "max_converged": 5.412046705364936e-05,
+   "converged_pairs": 10620
+  }
+ ],
+ "parity": false,
+ "fraction_crosscheck_gt_0.01": false,
+ "grid": "D:/rang/outputs/dd6-20261125/grid/real-MF-64.json",
+ "run": "D:\\rang\\outputs\\dd6-20261125\\real",
+ "ti": 64,
+ "pinned": [],
+ "model": "D:/rang/outputs/dd6-20261125/models/RM.npy",
+ "iterations_rang": 500,
+ "iterations_oracle": 500,
+ "refant0_vs_grid_products_max": 3.1580332478073507e-14,
+ "seconds_rang": 545.983345900022,
+ "seconds_oracle": 2567.894848999975
+}
