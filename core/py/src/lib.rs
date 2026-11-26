@@ -77,6 +77,7 @@ mod gemclean_cli;
 mod gemclean_predict;
 mod learned;
 mod lightcurve;
+mod multiscale_image;
 mod reweight;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -3027,6 +3028,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
     // Task G8: gemclean's command line for the console script (research/g8-wheel.md).
     m.add_function(wrap_pyfunction!(gemclean_cli::gemclean_main, m)?)?;
+    // DD12: GeMClean's multi-scale minor cycle on an image (research/dd12-msclean.md).
+    m.add_function(wrap_pyfunction!(multiscale_image::multiscale_image, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        multiscale_image::multiscale_theoretic_beam,
+        m
+    )?)?;
     // Task F3: the second learned flagger (research/f3-flagger.md).
     m.add_function(wrap_pyfunction!(f3flag::f3flag_features, m)?)?;
     m.add_function(wrap_pyfunction!(f3flag::f3flag_logits, m)?)?;

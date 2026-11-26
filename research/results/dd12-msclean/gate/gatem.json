@@ -1,0 +1,77 @@
+{
+ "beam_pixels": 2.5350022761268423,
+ "ladder": [
+  {
+   "components": 5000,
+   "major_cycles": 1,
+   "stop": "components",
+   "end": "normal",
+   "sub_minor_loops": 155,
+   "convolutions": 546,
+   "beam_pixels": 2.5350022761268423,
+   "seconds": 40.9852592,
+   "q_final": -0.23250021944418786,
+   "scales": [
+    {
+     "scale": 0.0,
+     "kernel_side": 1,
+     "bias": 1.0,
+     "psf_peak": 1.0,
+     "gain": 0.1,
+     "components": 3082,
+     "flux": 0.9564736181997385
+    },
+    {
+     "scale": 10.140009104507369,
+     "kernel_side": 13,
+     "bias": 1.6666666666666667,
+     "psf_peak": 0.3747392631368645,
+     "gain": 0.2668522085540778,
+     "components": 895,
+     "flux": -0.8367562866074983
+    },
+    {
+     "scale": 20.280018209014738,
+     "kernel_side": 23,
+     "bias": 2.777777777777778,
+     "psf_peak": 0.18426329024224752,
+     "gain": 0.5427016953215796,
+     "components": 432,
+     "flux": 0.18879753183001496
+    },
+    {
+     "scale": 40.560036418029476,
+     "kernel_side": 43,
+     "bias": 4.62962962962963,
+     "psf_peak": 0.052010712194892776,
+     "gain": 1.9226808436170495,
+     "components": 452,
+     "flux": 0.7256119359001999
+    },
+    {
+     "scale": 81.12007283605895,
+     "kernel_side": 83,
+     "bias": 7.716049382716051,
+     "psf_peak": 0.012970852913280973,
+     "gain": 7.709593244836591,
+     "components": 139,
+     "flux": -0.23058732301704776
+    }
+   ],
+   "dropped_scales": [],
+   "wall": 41.500908700000764,
+   "sigma": 0.0008870583817873011,
+   "stop_level": 0.004435291908936506,
+   "nscales_cap": 5,
+   "model_flux": 0.8035361912739875,
+   "increment_flux": 1.3894777093157482
+  }
+ ],
+ "M1": {
+  "max_abs_diff": 1.1102230246251565e-16,
+  "rel": 2.837830797458899e-16,
+  "pass": true
+ },
+ "nscales": 5,
+ "M_pass": true
+}
