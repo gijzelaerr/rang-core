@@ -1,0 +1,10 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/c4/e2n-c4.ms",
+ "field": "J0408-6545",
+ "arm": "unity",
+ "chanbin": 4,
+ "rows": 139934,
+ "heldout_unflagged_cells": 20798672,
+ "heldout_unflagged_cells_at_weight_0": 0,
+ "seconds": 15.78866772307083
+}

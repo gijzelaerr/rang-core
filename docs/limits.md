@@ -99,6 +99,17 @@ learned stage that you can turn on:
   antennas cut off from the refant m022, flex flags no K solution and agrees
   with CASA K at m058 to 4.6e-4 ns (median); strict loses those 19 and 31 % of
   G, Gsec and F.
+- **Empirical weights (`apply.reweight`, off by default; issues #55, #48,
+  {gh}`research/weights-48.md`).** `stokes_v` with the default `clipped`
+  statistic follows known noise to 0.2 % of the block-ideal efficiency on
+  simulations, with or without 1 % of strong RFI. On E2-N (native L0) it lowers
+  the thermal noise of natural weighting by 1.7-3.6 % against the raw L0
+  weights (calwt is worse than raw), but its variance over a scan also takes up
+  slowly varying V on baselines under 150 m (up to 2x the noise), so it
+  down-weights them: on the target it costs 5 % in rms at Briggs -0.5 and about
+  5 % of source flux. Use it with natural weighting and check the quintile test
+  first. A block with fewer than `minsamp` samples in a field with a single
+  short scan can get weight 0; the stage then warns.
 - **Solution TIME** differs from CASA's by up to 0.054 s (0.41 s with
   `combine`); it is reported, not gated, until CASA's centroid weighting is
   ported ({gh}`research/c2a-gain.md`).

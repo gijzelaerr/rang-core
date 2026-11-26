@@ -1,0 +1,24 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/c4/e2n-c4.ms",
+ "field": "J0408-6545",
+ "arm": "rclip",
+ "chanbin": 4,
+ "settings": {
+  "mode": "stokes_v",
+  "chanbin": 4,
+  "timebin": "scan",
+  "statistic": "clipped",
+  "minsamp": 200,
+  "smooth": 5,
+  "fill": true
+ },
+ "filled_blocks": {
+  "pooled": 0,
+  "array": 0
+ },
+ "blocks_finite": 0.0,
+ "rows": 139934,
+ "heldout_unflagged_cells": 20798672,
+ "heldout_unflagged_cells_at_weight_0": 20798672,
+ "seconds": 23.35352326487191
+}

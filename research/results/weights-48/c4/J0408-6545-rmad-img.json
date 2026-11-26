@@ -1,0 +1,14 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/c4/e2n-c4.ms",
+ "field": "J0408-6545",
+ "images": {
+  "natural": {
+   "rc": 2,
+   "seconds": 10.027638279134408
+  },
+  "briggs-0.5": {
+   "rc": 2,
+   "seconds": 9.975142400013283
+  }
+ }
+}

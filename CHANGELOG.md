@@ -22,7 +22,11 @@ the release notes are the section of this file for that version.
   scans, then from the scan's median over baselines (`fill: true`; `false` gives statwt's weight 0),
   so short calibrator scans no longer get weight 0. **Behaviour change for a non-off mode:** `smooth`
   now fills only the short blocks, as documented; it used to replace every block by the running
-  median, which flattened the channel shape of the weights (#48, `research/weights-48.md`).
+  median, which flattened the channel shape of the weights. The stage now warns when unflagged cells
+  are left at weight 0. Measured on E2-N held out: thermal noise of natural weighting 1.7-3.6 %
+  lower than with the raw L0 weights, but 5 % worse at Briggs −0.5 on the target, because the scan
+  variance takes up slowly varying V on baselines under 150 m; the stage stays off by default
+  (#48, `research/weights-48.md`).
 - `rang.cal_gain.solve_dd(..., direction_update="gauss-seidel")` (`diag_dd::DirectionUpdate::GaussSeidel`,
   the extension's `cal_gain_solve_dd(..., direction_update=1)`): an optional Gauss-Seidel sweep over
   directions in the direction-dependent `diag_complex` kernel, each direction updated from the

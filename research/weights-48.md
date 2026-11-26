@@ -1,6 +1,8 @@
 # Weights that track the noise: a robust, efficient estimator for `apply.reweight` (issue #48)
 
-Status at freeze, 2026-11-25: **proposed; nothing in this note is built or measured.** Branch `weights-k`
+Status 2026-11-26: **measured (section 8).** Simulations: the clipped statistic and the fills pass after revision R1 and ship (default of the off-by-default stage). Real data: the frozen rule reads "recommend", but A2's diagnostic finds sky taken up on baselines < 150 m and a 5 % Briggs loss on the target, so the stage stays an option and no default change is proposed.
+
+Status at freeze, 2026-11-25: proposed; nothing in this note was built or measured. Branch `weights-k`
 from origin/main `de22d05e`, committed before any code that tests it. Later changes are dated amendments
 in section 9, labelled post hoc when they could have seen a result. Procedure:
 `docs/agents/propose-and-measure.md`. The K item of the same branch (#60) has its own note,
@@ -244,6 +246,65 @@ floor 1.0071 (block-ideal), unity 1.2091 (1.2458 on baseline-excess).
 
 **Rule 1: met (after R1).** `clipped` and the fills ship; `statistic: clipped` is the stage's default;
 `mode` stays `off`.
+
+### 8.2 Real data, held out (2026-11-25/26, nash shared, nice 19, 8 slots per step)
+
+Arms on arm A's calibrated E2-N copy (the #60 run, `calwt: false`) and on E2-N-c4; weights fitted on
+even-pair dumps, only odd-pair dumps scored or imaged ([w48_real.py](results/weights-k-scripts/w48_real.py),
+[w48_rule.py](results/weights-k-scripts/w48_rule.py)); run root `nash:~/rang-data/outputs/weights-k-20261125/w48/`;
+archive [results/weights-48/e2n/](results/weights-48/e2n/), [c4/](results/weights-48/c4/),
+[diag/](results/weights-48/diag/). R = `stokes_v`; rclip = `clipped`, rmad = `mad`, both at the post-R1
+defaults. Natural V rms are medians over the kept tiles (µJy); r = median tile ratio (sem 0.001-0.04).
+
+**E2-N, held-out fields (decide the rule):**
+
+| Field | N: e raw / unity / calwt / rclip | V natural rms raw / unity / calwt / rclip | r rclip/raw, /unity | V Briggs −0.5 rms raw / rclip | r rclip/raw |
+| --- | --- | --- | --- | --- | --- |
+| J1744−5144 (10 of 16 tiles) | 0.750 / 0.776 / 0.780 / **0.738** | 27.4 / 30.7 / 30.4 / **21.0** | **0.760, 0.676** | 34.8 / 34.2 | 0.978 |
+| J0408−6545 (12 tiles) | 1.042 / 1.079 / 1.087 / **1.004** | 82.6 / 86.7 / 84.1 / **61.0** | **0.745, 0.706** | 57.5 / 51.2 | 0.901 |
+
+**E2-N target (development) and E2-N-c4 (reported):**
+
+| Data, field | N: e raw / unity / calwt / rclip | V natural r rclip/raw | V Briggs −0.5 r rclip/raw | S: σ_snap raw / rclip (mJy) | S: median SNR raw / rclip |
+| --- | --- | --- | --- | --- | --- |
+| E2-N ASKAPJ1745 | 1.040 / 1.078 / 1.083 / 1.002 | 0.698 | **1.051** (worse) | 3.00 / 2.80 (unity 3.64, calwt 3.57) | 5.32 / 5.26 (unity 4.84) |
+| c4 ASKAPJ1745 | 1.070 / 1.154 / 1.069 / 1.003 | 0.743 | **1.023** (worse) | 3.30 / 3.16 | 3.60 / 3.26 |
+| c4 J1744−5144 | 0.756 / 0.817 / 0.755 / 0.737 | 1.006 | 0.978 | – | – |
+| c4 J0408−6545 | 1.107 / 1.278 / 1.106 / – | – (R weight 0 everywhere) | – | – | – |
+
+- **The rule as frozen (section 6, H2): "recommend".** rclip beats raw and unity on both held-out
+  fields at natural weighting (r 0.676-0.760, mean + 2 sem < 1).
+- **A2's diagnostic** ([w48_blratio.py](results/weights-k-scripts/w48_blratio.py), on arm B's copy):
+  R's scan variance over the dump-difference noise, by baseline length: J0408−6545 1.015-1.031 in
+  every bin; J1744−5144 and the target 1.017-1.054 above 150 m but **1.97 and 1.68 below 150 m** (86 and
+  98 baselines). On those short baselines R takes up V that varies slowly (sky or RFI residue), not
+  noise, and down-weights them. Under A2 a rise on short baselines withholds the recommendation.
+- **Other signs that the natural-weighting V gain is not a noise gain:** N, which measures thermal noise
+  directly, gives only −1.7 % (J1744) and −3.6 % (J0408) against raw (−3.6 % on the target, as #55's
+  −3.2 %); at Briggs −0.5, the reporter's weighting, rclip is 2-10 % better on the calibrators and **5 %
+  worse on the target**; on the target the snapshot noise falls 6.5 % but the median source SNR does
+  not rise (5.32 → 5.26), so source fluxes fell about 5 % with R's weights (c4: SNR 3.60 → 3.26).
+- **calwt** is worse than raw in N everywhere on E2-N (as apply-calwt) and on c4 equal to raw.
+- **c4 precondition:** the c4 target's raw quintiles are [1.10 1.16 1.18 0.80 0.75], top 0.75, outside
+  [0.8, 1.25]: `--chanbin 4` does leave the raw weights less faithful than E2-N's (e raw 1.070 against
+  1.040), but not in #48's direction (the reporter's top quintile 1.95). c4 J0408−6545, one scan at
+  chanbin 4 held out, has 148 V samples per block < `minsamp` 200, so R is 0 on all 20.8 M cells
+  (A2's fill hole; the stage now warns). On E2-N J1744−5144, 101,636 of 162 M held-out cells (0.06 %)
+  were left at weight 0 by R.
+
+### 8.3 Outcome
+
+- **Rule 1 (simulations): met after R1.** `clipped` and the fills ship, `statistic: clipped` is the
+  default of the off-by-default stage.
+- **H2 (real data): as frozen the rule reads "recommend"; under A2 the recommendation is withheld.**
+  `apply.reweight.mode: stokes_v` is documented as an option with the measured numbers: it lowers the
+  thermal noise of natural weighting by 1.7-3.6 % against raw L0 weights on E2-N (N), and the natural V
+  images by 24-30 %, but on the target it costs 5 % at Briggs −0.5 and about 5 % of source flux, and
+  on the shortest baselines (< 150 m) it reads sky as noise. Default stays `off`; no default change is
+  proposed. A follow-up that estimates the variance from dump differences (as N does) instead of over a
+  scan would remove the short-baseline sky term; it is named, not tested.
+- **Not shown:** anything on 1680477139; #48's 18 % loss does not reproduce on E2-N or on its
+  `--chanbin 4` conversion (raw e 1.040 and 1.070).
 
 ## 9. Amendments
 

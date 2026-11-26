@@ -1,0 +1,10 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/A/e2n.ms",
+ "field": "ASKAPJ1745",
+ "arm": "unity",
+ "chanbin": 16,
+ "rows": 1596004,
+ "heldout_unflagged_cells": 1141001532,
+ "heldout_unflagged_cells_at_weight_0": 0,
+ "seconds": 464.9640048011206
+}

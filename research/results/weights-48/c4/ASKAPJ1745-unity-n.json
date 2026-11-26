@@ -1,0 +1,15 @@
+{
+ "cal_ms": "/home/gijs/rang-data/outputs/weights-k-20261125/c4/e2n-c4.ms",
+ "field": "ASKAPJ1745",
+ "cells_ideal": 29357418,
+ "cells_arm": 29357418,
+ "e": 1.1544408766583216,
+ "quintiles": [
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  1.0
+ ],
+ "seconds": 54.98587150499225
+}
