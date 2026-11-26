@@ -749,3 +749,42 @@ def rustbm(root):
            "seconds_predict": t1 - t0, "seconds_solve": t2 - t1, "seconds_second_solve": t3 - t2}  # fmt: skip
     dd9.write_json(root / "gates" / "rust-bM.json", rec)
     print(json.dumps(rec, indent=1, default=float))
+
+
+def jac_subsets(root, base="O-X", at="I2", start=0, stop=None):
+    """A4, post hoc: the default map's spectral radius on every subset of
+    two or three directions (the others held at the solution), at `at`'s
+    cap-2000 gains."""
+    from itertools import combinations
+
+    root = Path(root)
+    sums = {"B-X": "B-M0c", "O-X": "O-skyO"}[base]
+    S = dd9.Sums(root / "sums" / f"{sums}.npz")
+    P = dd9.Problem(S, np.arange(S.nblock), [1] * 4)
+    d0 = load(root / "solve" / f"{base}-{at}.npz", 2000, 4)
+    g = np.stack(d0["g"], -1)
+    f = np.stack(d0["f"], -1)
+    stop = S.nblock if stop is None else int(stop)
+    subsets = [c for k in (2, 3) for c in combinations(range(4), k)]
+    out = []
+    for j in range(int(start), stop):
+        row = {"interval": j, "hands": []}
+        for h in range(2):
+            free = f[j] == 0
+            loc = dd9.Local(P, j, h, free)
+            g0 = g[j, :, h, :]
+            J, fi = dd9.jacobian(loc, g0)
+            nf = len(fi)
+            rec = {"full": dd9.spectral_radius(J, dd9.gauge_projector(g0, fi, 4))}
+            for sub in subsets:
+                sel = np.flatnonzero(np.isin(fi % 4, sub))
+                ix = np.concatenate([sel, sel + nf])
+                rec["".join(map(str, sub))] = dd9.spectral_radius(
+                    J[np.ix_(ix, ix)], dd9.gauge_projector(g0, fi[sel], 4)
+                )
+            row["hands"].append(rec)
+        out.append(row)
+        print(j, json.dumps(row["hands"][0]), flush=True)
+    dd9.write_json(
+        root / "jac" / f"subsets-{base}-at{at}-{start}-{stop}.json", {"rows": out}
+    )

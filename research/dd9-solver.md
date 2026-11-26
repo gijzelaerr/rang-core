@@ -661,3 +661,16 @@ best-arm choice.
   It gets fractions, d3 tails and the robust held-out pair against
   real-b0. Its reading would be "predictive quality only" unless the O-H
   validation tracks.
+
+**A4, 2026-11-26, post hoc (after every frozen reading and A2-A3 were
+read; on the advisor's review of the draft).** Two checks are added,
+reported only. Neither changes a frozen reading.
+- **Which facets carry the instability.** At I2's cap-2000 gains on O-X,
+  the default map's spectral radius is computed on every subset of two and
+  three directions, with the other directions held at the solution
+  (`jac_subsets`, `jac/subsets-*.json`). If the d0-d2 block (d3 held) is
+  stable where the full map is not, then d3's coupling carries the
+  instability.
+- **The fixed-point check on intervals whose flag arrays are identical.**
+  Default against I3 and I2 against I3, on B-X and O-X
+  (`solve/posthoc_fixed_point.json`).

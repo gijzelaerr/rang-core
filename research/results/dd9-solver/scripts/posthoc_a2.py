@@ -14,7 +14,9 @@ import numpy as np
 
 W = Path(__file__).resolve().parents[4]
 R = "D:/rang/outputs/dd9-20261126"
-spec = importlib.util.spec_from_file_location("runs", W / "tools" / "oracles" / "dd9" / "runs.py")
+spec = importlib.util.spec_from_file_location(
+    "runs", W / "tools" / "oracles" / "dd9" / "runs.py"
+)
 runs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runs)
 dd9 = runs.dd9
@@ -23,7 +25,7 @@ dd9 = runs.dd9
 def rows(pattern):
     out = []
     for p in sorted(glob.glob(pattern)):
-        out += json.load(open(p))["rows"]
+        out += json.loads(Path(p).read_text())["rows"]
     return sorted(out, key=lambda r: r["interval"])
 
 
@@ -52,19 +54,29 @@ def split(rs, nc):
 
 rec = {}
 for base in ("B-X", "O-X"):
-    nc = np.array(json.load(open(f"{R}/solve/{base}-default.json"))["N_conv"])
+    nc = np.array(
+        json.loads(Path(f"{R}/solve/{base}-default.json").read_text())["N_conv"]
+    )
     rec[f"{base} N_conv classes"] = {"<=500": int((nc <= 500).sum()), "500-2000": int(((nc > 500) & (nc <= 2000)).sum()),
                                      ">2000": int((nc > 2000).sum()), "median": float(np.median(nc))}  # fmt: skip
     rec[f"{base} at default cap 2000"] = split(rows(f"{R}/jac/{base}-*.json"), nc)
-nc = np.array(json.load(open(f"{R}/solve/O-X-default.json"))["N_conv"])
+nc = np.array(json.loads(Path(f"{R}/solve/O-X-default.json").read_text())["N_conv"])
 rec["O-X at I2 cap 2000"] = split(rows(f"{R}/jac/at-I2/O-X-*.json"), nc)
 a = runs.load(f"{R}/solve/O-X-default.npz", 2000, 4)
 b = runs.load(f"{R}/solve/O-X-I2.npz", 2000, 4)
 fa, fb = np.stack(a["f"], -1), np.stack(b["f"], -1)
 extra = ((fa != 0) & (fb == 0)).sum((1, 2))
 rec["O-X default extra flags against I2"] = {
-    lab: {"intervals": int(sel.sum()), "with_extra": int((extra[sel] > 0).sum()), "extra_total": int(extra[sel].sum())}
-    for lab, sel in (("<=500", nc <= 500), ("500-2000", (nc > 500) & (nc <= 2000)), (">2000", nc > 2000))
+    lab: {
+        "intervals": int(sel.sum()),
+        "with_extra": int((extra[sel] > 0).sum()),
+        "extra_total": int(extra[sel].sum()),
+    }
+    for lab, sel in (
+        ("<=500", nc <= 500),
+        ("500-2000", (nc > 500) & (nc <= 2000)),
+        (">2000", nc > 2000),
+    )
 }
 Path(f"{R}/jac/posthoc_a2.json").write_text(json.dumps(rec, indent=1))
 print(json.dumps(rec, indent=1))

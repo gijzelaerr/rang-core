@@ -21,10 +21,21 @@ def part_a():
             for K in (500, 2000):
                 x = r[f"cap{K}"]
                 eh = x["ehat"][1:]
-                print(b, v, K, "frac", r3(x["fraction"]), "e/eh conv",
-                      r3([e / h for e, h in zip(x["e_d1_d3_converged"], eh)]),
-                      "e/eh all", r3([e / h for e, h in zip(x["e_d1_d3"], eh)]),
-                      "flagged", x["flagged"], "s", round(r["seconds"]))
+                print(
+                    b,
+                    v,
+                    K,
+                    "frac",
+                    r3(x["fraction"]),
+                    "e/eh conv",
+                    r3([e / h for e, h in zip(x["e_d1_d3_converged"], eh)]),
+                    "e/eh all",
+                    r3([e / h for e, h in zip(x["e_d1_d3"], eh)]),
+                    "flagged",
+                    x["flagged"],
+                    "s",
+                    round(r["seconds"]),
+                )
 
 
 def part_b():
@@ -37,9 +48,23 @@ def part_b():
         for arm in ("b0", "bP", "bM", "bR", "bL"):
             for K in (500, 2000):
                 x = r[arm][f"cap{K}"]
-                print(base, arm, K, "frac", r3(x["fraction"]), "it", x["iterations"], "e", r3(x["e_d1_d3"]),
-                      "e conv", r3(x["e_d1_d3_converged"]), "ehat", r3(x["ehat"]), "d3amp",
-                      {k: round(v, 2) for k, v in x["d3_amp"].items()})
+                print(
+                    base,
+                    arm,
+                    K,
+                    "frac",
+                    r3(x["fraction"]),
+                    "it",
+                    x["iterations"],
+                    "e",
+                    r3(x["e_d1_d3"]),
+                    "e conv",
+                    r3(x["e_d1_d3_converged"]),
+                    "ehat",
+                    r3(x["ehat"]),
+                    "d3amp",
+                    {k: round(v, 2) for k, v in x["d3_amp"].items()},
+                )
         if "rule" in r:
             print(json.dumps(r["rule"], indent=1))
 
