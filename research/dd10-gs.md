@@ -383,3 +383,23 @@ an admissible option: the default's answer where the default converges
 without extra flags, and a converged answer where the default is unstable.
 
 ## Amendments
+
+**A1, 2026-11-26, post hoc (after AL's cycle-0 record was read: A0's
+fractions and e_d, its excluded weight share and its Högbom summary; before
+AL's cycle-1 solve finished and before any AX, AT or RL record).**
+- What was seen: under section 5's frozen image rule, A0's gains leave
+  **2.1 % of the weight** in the cycle-0 images (excluded share 0.979). d3's
+  gains run away on most antennas (|g| p99 13.6, max 59; DD9's bGS), and a
+  row is dropped if any direction's gain on either antenna is untrusted. The
+  cycle-0 Högbom then stops at 13 mJy (5σ of a 2.6 mJy residual) with 4,770
+  components of net flux 0.008 Jy. AL continues unchanged and is read by the
+  frozen rule.
+- Added, reported only (no frozen reading changes, and it cannot be chosen
+  by section 5's table): **ALu**, the same loop with one change in step 2:
+  an untrusted gain (flagged, or an amplitude outside [1/3, 3]) is set to 1
+  in the residual and the facet images, and no row is dropped. ALu's cycle 0
+  is A0 (the same deterministic solve; its gains are reused, not re-solved).
+  Its final solve is scored as section 5's arms, and G_d1 is reported with
+  the reading section 5's rule would give.
+- RLu (the same change on real data) runs only if ALu would read "closes"
+  or "partly"; otherwise it is not run, and that is reported.
