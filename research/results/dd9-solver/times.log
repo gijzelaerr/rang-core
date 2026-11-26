@@ -69,3 +69,9 @@ c-validate start 2026-11-26T02:24:21+02:00 slots=1 mem=4 tools/oracles/dd9/dd9.p
 c-validate end 2026-11-26T02:24:21+02:00 rc=0 wall=0s
 c-real start 2026-11-26T02:24:21+02:00 slots=1 mem=4 tools/oracles/dd9/dd9.py partc_real D:/rang/outputs/dd9-20261126
 c-real end 2026-11-26T02:32:28+02:00 rc=0 wall=487s
+sub-O-X-0 start 2026-11-26T02:39:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac_subsets D:/rang/outputs/dd9-20261126 O-X I2 0 38
+sub-O-X-38 start 2026-11-26T02:39:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac_subsets D:/rang/outputs/dd9-20261126 O-X I2 38 76
+sub-O-X-76 start 2026-11-26T02:39:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac_subsets D:/rang/outputs/dd9-20261126 O-X I2 76 113
+sub-O-X-0 end 2026-11-26T02:40:48+02:00 rc=0 wall=79s
+sub-O-X-76 end 2026-11-26T02:40:48+02:00 rc=0 wall=79s
+sub-O-X-38 end 2026-11-26T02:40:49+02:00 rc=0 wall=80s

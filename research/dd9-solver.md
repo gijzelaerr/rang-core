@@ -357,11 +357,14 @@ e/ê is per direction, d1-d3.
 | O-X I1 (DI step rule) | 0.363, 0.113, 0.048, 0.086 | 0.739, 0.739, 0.735, 0.722 | 1.91, 1.51, 1.49 | 545, 319, 311, 383 |
 | **O-X I2 (Gauss-Seidel over directions)** | **0.997, 0.979, 0.974, 0.974** | 1.000, 1.000, 1.000, 0.980 | 1.21, 1.08, 1.08 | 113, 113, 113, 116 |
 | **O-X I3 (joint direction block)** | **1.000, 1.000, 0.991, 0.991** | 1.000, 1.000, 1.000, 1.000 | 1.21, 1.08, 1.08 | 113, 113, 113, 114 |
-| O-X I4 (warm start) | 0.748, 0.694, 0.619, 0.592 | 0.920, 0.842, 0.859, 0.843 | 1.24, 1.11, 1.12 | 1077, 1245, 1297, 1343 |
+| O-X I4 (warm start) | 0.748, 0.694, 0.619, 0.592 | 0.920, 0.842, 0.859, 0.843 | 1.24, 1.11, 1.12 | **1077, 1245, 1297, 1343** |
 | B-X I1 / I2 / I3 / I4 | min d1-d3 0.983 / 0.956 / 1.000 / 1.000 | 1.000 / 0.980 / 1.000 / 1.000 | 1.08, 1.02, 1.03 (all four) | 113-118 |
 
 113 flagged gains per direction is one per interval, an antenna with no
 data. GR reproduces the cap-500 defaults.
+- I4's fractions and accuracy cover only the gains it leaves unflagged: it
+  flags 16-19 % of them, because the flag ladder's trend test starts from
+  the small first step a warm start gives.
 
 **Iterations to converge (per interval, default):**
 - B-X: median N_conv 97 (p10-p90 88-110); 106 of 113 intervals converge
@@ -404,8 +407,12 @@ and what answer the remedies change:
 - **The default iteration is unstable at the solution in half the O-X
   intervals.**
   - Linearised at I2's converged gains, the default map has ρ_full > 1 in
-    56 of 113 O-X intervals: median 1.11 in the 41 that converge between
-    500 and 2000, 1.13 in the 25 that never do, maximum 1.17.
+    56 of 113 O-X intervals, maximum 1.17:
+    - 31 of the 41 that converge between 500 and 2000 (median 1.11);
+    - 23 of the 25 that never do (median 1.13);
+    - 2 of the 47 that converge within 500.
+    The other 12 slow intervals are slow without being linearly unstable
+    at this point.
   - Every direction's own block is stable in every interval (median
     ρ_within 0.87, 0.89, 0.75, 0.80; none above 1).
   - Under the same linearisation the coupled updates are stable
@@ -413,6 +420,14 @@ and what answer the remedies change:
   - So the instability comes from coupling between the facets. The
     per-direction (Jacobi) update, which takes every direction's step from
     one residual and halves it, overshoots.
+  - **It needs all four directions (A4).** At I2's gains every subset of
+    two or three directions, with the rest held at the solution, is
+    stable in all 113 intervals:
+    - medians on the 56 unstable intervals 0.81-0.92;
+    - the d0-d2 block with d3 held, 0.923.
+    Only the four together exceed 1. Holding any one direction fixed (as
+    bP does with d3) restores stability. The instability is a property of
+    the coupled four-facet update, not of d3 alone.
   - On B-X no interval has ρ_full above 0.905.
   - I1's full step makes it worse: ρ 1.45-1.9 on O-X.
 - **Where the default "converges" slowly, it does so by flagging.**
@@ -423,9 +438,11 @@ and what answer the remedies change:
     0.003-0.057).
   - In the 61 intervals where the default flags no extra gain, the default
     and I2 agree to 2e-14.
-  - On B-X, I3 and I4 agree with each other to 2e-14. I2, which flags 5
-    more d3 gains, and the default (8 more) differ from them at p99
-    5e-5 to 7e-3.
+  - On intervals whose flag arrays are identical (A4), all the updates
+    give the same answer to 3e-14:
+    - default against I3: 106 B-X and 61 O-X intervals;
+    - I2 against I3: 108 B-X and 109 O-X intervals.
+    Every difference therefore comes from the flag ladder.
   - So the frozen same-fixed-point check fails because the default's own
     answer is constrained by flags, on B-X too (d3 121 flagged against 113).
   - On all cells the coupled updates are at least as accurate as the
@@ -468,6 +485,9 @@ with at most 2000 iterations and the global stop.
   at cap 2000). But d2's truth error rises from 0.54 to 0.74, because d3's
   sky is then absorbed into d2's or d1's gains.
 - The amplitude prior caps |g| near 10 but leaves the errors as they are.
+  λ = 13.2 is 2.5 % of d3's median `J^H J` (527), so this is a null for a
+  prior as wide as the truth spread (σ_A 0.2), not for amplitude
+  regularisation in general.
 - Solving d3 at 16 × 8 s changes nothing.
 - In every arm d1's error stays at 0.35-0.39 (e/ê about 70-80), and that
   is the model gap.
@@ -550,6 +570,24 @@ No best arm, so these are reported only, without a reading.
 - The Rust bM point: 556 s (solve 252 s).
 - Gate GR: 400 s.
 
+**Points against section 9's cap.**
+- Sums: 4 files. The merged bM sums are a linear transform of O-M₀ᶜ's,
+  not a separate build.
+- Reference solves:
+  - B-X and O-X, default: 2;
+  - I1-I4 on each base: 8;
+  - part (b), five arms on O and on O-H: 10;
+  - real arms: 6 (b0 twice, in `real.json` and `real-bGS.json`, plus bM,
+    bR, bL and bGS), against "up to 4" plus a spare. That is one over, and
+    the extra one is post hoc (A3).
+  - Post hoc, beyond the list: bGS on O (A3).
+- Linearisations: the frozen one at the default's gains, plus post hoc at
+  I2's gains (A2) and on direction subsets (A4).
+- One Rust point.
+- One failed start: real-bGS first read a file that did not exist yet
+  (rc 1, 11 s, no result); it was fixed and rerun.
+- The 1-slot jobs used about 1.4 cores each (lock status).
+
 ## 11. For the coordinator
 
 - **(a) Frozen:**
@@ -568,7 +606,10 @@ No best arm, so these are reported only, without a reading.
   - Where the default still converges slowly, it does so because its flag
     ladder flags the unstable gains (60 in 41 intervals) and settles on a
     constrained solution.
-  - Where flags agree, the default and I2 give the same answer to 2e-14.
+  - Where flags agree, the default and I2 give the same answer to 3e-14.
+  - Every subset of two or three directions is stable (A4). So pinning
+    any one facet would also stabilise the default; part (b) shows that
+    pinning d3 costs d2 accuracy.
   - The frozen restriction to intervals converged in both hid this.
 - **(b) Frozen: no best arm.**
   - Pinning or merging d3 tames it but moves the error into d2 (e 0.54
@@ -583,6 +624,12 @@ No best arm, so these are reported only, without a reading.
   - On real data, merging d3 lifts RM at 4 × 8 s to min 0.83 and predicts
     held-out baselines 0.6 % better; on O the same merge costs d2 37 %
     accuracy.
+- **Non-convergence and inaccuracy are separate problems.**
+  - d3's runaway blocks convergence: real-bM reaches min 0.83 at cap 500,
+    and bM on O reaches 0.97 at cap 2000.
+  - The model gap sets the error (d1's e/ê about 72 in every O arm).
+  - This reframes the cap-500 "failures" of DD4-DD8: converging and being
+    right are tested separately.
 - **The coupled update does not fix the wrong-model failure (A3).**
   Gauss-Seidel on O with M₀ᶜ (bGS) and on real data (real-bGS) gives no
   lift, so the failure O and the real data share still follows the
@@ -592,7 +639,9 @@ No best arm, so these are reported only, without a reading.
      as an option beside the QuartiCal path. The default stays
      bit-identical; the option equals this reference on O-X; at
      convergence it agrees with the default where flags agree.
-     Otherwise any good off-axis model will meet the same instability.
+     On sky O the default update is unstable. Whether a better off-axis
+     model on real data meets the same instability is not shown: DD8's
+     R12 reached 0.87-0.90 at cap 500 with the default update.
   2. With it, the off-axis model work on O, where the truth is known: an
      off-axis model from DD-corrected facet images (DD3's loop), scored on
      d1's truth error, which is the dominant error. The 145 bad baselines
