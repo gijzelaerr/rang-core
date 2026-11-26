@@ -69,7 +69,10 @@ def a1_arm(root, arm):
 
     gen = root / "a1" / "gen"
     ms = root / "a1" / f"a1-{arm}.ms"
-    if not (gen / "truth.npz").is_file() or not ms.is_dir():
+    if (
+        not (gen / "truth.npz").is_file()
+        or not Path(f"{ms}.rang-run/apply/summary.json").is_file()
+    ):
         return {"missing": True}
     m = np.load(gen / "a1-full.rfi_mask.npz")
     with core_ms.open_table(ms / "FIELD") as t:
