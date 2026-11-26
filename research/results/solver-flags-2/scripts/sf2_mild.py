@@ -73,7 +73,9 @@ def main(ms, version, outp):
                 acc["preset"] += int((fl | pre).sum())
                 acc["both"] += int((fl | pre | st).sum())
                 cells += fl.size
-            out["fields"][name] = {k: v / cells for k, v in acc.items()} | {"cells": cells}
+            out["fields"][name] = {k: v / cells for k, v in acc.items()} | {
+                "cells": cells
+            }
             print(name, out["fields"][name], flush=True)
     Path(outp).write_text(json.dumps(out, indent=1))
 

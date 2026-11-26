@@ -1,0 +1,15 @@
+# solver-flags-2 (#58), section 4: the preset-only raw start. With
+# flag.known_rfi: meerkat_l, the flag stage's strategy only flags NaNs and
+# zeros and the autocorrelations, then ORs with the input flags. No
+# SumThreshold, no static mask, no uvcontsub_flagger. Steps are CARACal's,
+# without parameters.
+strategies:
+    -
+        name: nan_dropouts_flag
+        task: flag_nans_zeros
+    -
+        name: flag_autos
+        task: flag_autos
+    -
+        name: combine_with_input_flags
+        task: combine_with_input_flags
