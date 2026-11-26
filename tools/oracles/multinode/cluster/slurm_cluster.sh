@@ -12,6 +12,7 @@
 #   slurm_cluster.sh down
 #   slurm_cluster.sh kill NODE          # node loss: SIGKILL the container
 #   slurm_cluster.sh restart NODE       # bring it back; wait until all idle
+#   slurm_cluster.sh wait               # wait until every node is idle
 #   slurm_cluster.sh exec CMD...        # run CMD on ctl
 #
 # The controller (and login node) gets CTL_CPUS (default 4) and CTL_MEM_MB
@@ -22,16 +23,27 @@ NET=rang-mn
 IMAGE=localhost/rang-slurm:24.11
 PREFIX=rangmn
 
-wait_idle() {  # every one of $1 nodes idle, within 180 s
+wait_idle() {  # every one of $1 nodes idle, within 300 s
+  # A node that was killed comes back DOWN ("Not responding") or drained, or
+  # with its lost job still completing: resume it once it answers again.
   local idle
-  for _ in $(seq 90); do
+  for _ in $(seq 150); do
     idle=$(podman exec "$PREFIX-ctl" sinfo -h -o '%T %D' 2>/dev/null | awk '$1=="idle"{s+=$2} END{print s+0}')
     [ "$idle" = "$1" ] && { podman exec "$PREFIX-ctl" sinfo; return 0; }
+    for n in $(podman exec "$PREFIX-ctl" sinfo -h -N -o '%N %T' 2>/dev/null | awk '$2 ~ /^(down|drain|drng|fail)/ && $2 !~ /\*$/ {print $1}'); do
+      podman exec "$PREFIX-ctl" scontrol update nodename="$n" state=resume >/dev/null 2>&1 || true
+    done
     sleep 2
   done
-  podman exec "$PREFIX-ctl" sinfo || true
-  echo "cluster not idle after 180 s" >&2
+  podman exec "$PREFIX-ctl" sinfo -N -l || true
+  echo "cluster not idle after 300 s" >&2
   return 1
+}
+
+nodes() {
+  local conf
+  conf=$(podman inspect -f '{{range .Mounts}}{{if eq .Destination "/cluster"}}{{.Source}}{{end}}{{end}}' "$PREFIX-ctl")
+  cat "$conf/nodes"
 }
 
 cmd=${1:?usage}; shift
@@ -74,8 +86,9 @@ kill)
   podman kill -s KILL "$PREFIX-$1" >/dev/null ;;
 restart)
   podman start "$PREFIX-$1" >/dev/null
-  conf=$(podman inspect -f '{{range .Mounts}}{{if eq .Destination "/cluster"}}{{.Source}}{{end}}{{end}}' "$PREFIX-ctl")
-  wait_idle "$(cat "$conf/nodes")" ;;
+  wait_idle "$(nodes)" ;;
+wait)
+  wait_idle "$(nodes)" ;;
 exec)
   podman exec -w "$PWD" "$PREFIX-ctl" "$@" ;;
 *) echo "unknown command $cmd" >&2; exit 2 ;;

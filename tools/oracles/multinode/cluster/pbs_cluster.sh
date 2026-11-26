@@ -52,15 +52,15 @@ start() {  # name ip server|mom SHARED NODES CPUS MEM MOUNTS...
     "${vols[@]}" -w "$shared" "$IMAGE" bash -c "$boot" >/dev/null
 }
 
-wait_free() {  # every one of $1 nodes free, within 180 s
+wait_free() {  # every one of $1 nodes free, within 300 s
   local free
-  for _ in $(seq 90); do
+  for _ in $(seq 150); do
     free=$(podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a 2>/dev/null | grep -c "state = free" || true)
     [ "$free" = "$1" ] && { podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -aSj; return 0; }
     sleep 2
   done
   podman exec "$PREFIX-pbs" /opt/pbs/bin/pbsnodes -a || true
-  echo "nodes not free after 180 s" >&2
+  echo "nodes not free after 300 s" >&2
   return 1
 }
 
@@ -74,8 +74,14 @@ up)
   for i in $(seq 1 "$NODES"); do
     start "m$i" "$SUBNET.$((10 + i))" mom "$SHARED" "$NODES" "$CPUS" "$MEM" "$@"
   done
-  q() { podman exec "$PREFIX-pbs" /opt/pbs/bin/qmgr -c "$1"; }
-  for _ in $(seq 60); do
+  q() {  # qmgr, retried: the server may still be starting on a loaded host
+    for _ in $(seq 30); do
+      podman exec "$PREFIX-pbs" /opt/pbs/bin/qmgr -c "$1" 2>/dev/null && return 0
+      sleep 2
+    done
+    podman exec "$PREFIX-pbs" /opt/pbs/bin/qmgr -c "$1"
+  }
+  for _ in $(seq 150); do
     podman exec "$PREFIX-pbs" /opt/pbs/bin/qstat -B >/dev/null 2>&1 && break
     sleep 2
   done
@@ -83,7 +89,7 @@ up)
   q "set server flatuid = true"
   q "set server job_history_enable = true"
   for i in $(seq 1 "$NODES"); do
-    q "create node m$i" || true
+    podman exec "$PREFIX-pbs" /opt/pbs/bin/qmgr -c "create node m$i" 2>/dev/null || true
     # What the container may use, not what the host has.
     q "set node m$i resources_available.ncpus = $CPUS"
     q "set node m$i resources_available.mem = ${MEM}mb"
@@ -97,6 +103,8 @@ kill)
   podman kill -s KILL "$PREFIX-$1" >/dev/null ;;
 restart)
   podman start "$PREFIX-$1" >/dev/null
+  wait_free "$(cat "$(podman inspect -f '{{.Config.WorkingDir}}' "$PREFIX-pbs")/cluster-pbs.nodes")" ;;
+wait)
   wait_free "$(cat "$(podman inspect -f '{{.Config.WorkingDir}}' "$PREFIX-pbs")/cluster-pbs.nodes")" ;;
 exec)
   podman exec -w "$PWD" "$PREFIX-pbs" "$@" ;;

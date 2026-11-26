@@ -218,6 +218,14 @@ def stage(d, name, a, py, code):
         from rang import core_spool
 
         core_spool.prepare(spool)
+        # Every node idle before the workers are submitted (a node killed in
+        # the stage before is back), or the stage is not run: the recovery
+        # test needs all of its nodes at the start of each stage.
+        w = _script(sched, "wait", check=False)
+        record["nodes_ready"] = {"exit": w.returncode, "sinfo": w.stdout[-2000:]}
+        if w.returncode:
+            (d / f"stage-{name}.json").write_text(json.dumps(record, indent=1) + "\n")
+            return 4
         cmd = [
             py,
             "-m",

@@ -245,9 +245,9 @@ def arm(run, case, arm_name):
          "host": os.uname().nodename if hasattr(os, "uname") else os.environ.get("COMPUTERNAME")}  # fmt: skip
     (d / "arm.json").write_text(json.dumps(a, indent=1) + "\n")
     record = dict(a, stages={})
-    if a["cluster"]:
-        record["cluster_up"] = cluster_arms.up(a["cluster"])
     try:
+        if a["cluster"]:
+            record["cluster_up"] = cluster_arms.up(a["cluster"])
         _stages(d, ms, py, record)
     finally:
         if a["cluster"]:
