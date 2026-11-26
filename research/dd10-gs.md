@@ -420,6 +420,21 @@ the model, but the solved gains are too wrong to bootstrap it.**
 - Cost per cycle: predict 26-34 s, a solve 595-737 s (8 slots), facet images
   22-45 s, Högbom 400-421 s (one core).
 
+**ALu (A1, post hoc, reported only).** Untrusted gains set to 1 in the images,
+no row dropped; cycle 0 is A0.
+- Untrusted gain share in d0-d3 at cycle 0: 1.7 %, 17.8 %, 2.8 %, 76.4 %; at
+  cycle 2: 1.6 %, 10.3 %, 1.7 %, 4.3 %.
+- Högbom: 1,203, 1,489 and 1,916 components (stop 3.3, 2.1 and 2.0 mJy); the
+  first cycle's 0.41 Jy net is AT's (0.41 Jy).
+- e per cycle, d1: 0.352, 0.334, 0.315, **0.305**; d2: 0.544, 0.433, 0.377,
+  **0.345**; d3: 1.000, 0.786, 0.610, **0.536**.
+- Final: fractions 0.999, 0.990, 0.984, 0.983; d3 |g| max 3.4; e/ê 60, 9.6,
+  9.6; G 0.136, 0.39, 0.49.
+- By section 5's rule this would read **no** (G_d1 0.136 < 0.2), without
+  harm. Every direction improves with every cycle, d1 slowest, and three
+  cycles do not reach AT's d1 (0.161).
+- By A1, RLu is therefore not run.
+
 ## Amendments
 
 **A1, 2026-11-26, post hoc (after AL's cycle-0 record was read: A0's
