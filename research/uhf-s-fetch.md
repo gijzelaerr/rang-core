@@ -263,9 +263,9 @@ the alias fix; 58 s for the four, 2.1 GB peak):
   are not on the archive's object store (0 objects listed; the control lists
   DL2's blocks). Only the RDBs are online. A watcher on nash fetches and
   converts each block when it appears; it writes `~/rang-data/uhf-s/status.md`.
-- **The owner may want to ask SARAO to restage** (or check the archive's
-  status page for these blocks): the links expire about 2027-01-24, and the
-  watcher stops then.
+- **No restage is requested** (owner, 2026-11-26: nothing is sent to SARAO;
+  uhf-scope.md). The watcher keeps polling for these blocks until the links
+  expire (about 2027-01-24), at the end of its list.
 - **Development set by the frozen rule: 1740534088**, held out 1737424638
   (section 2). The brief called 1737424638 the primary; the fetch order is
   kept.

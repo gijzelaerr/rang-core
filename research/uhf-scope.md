@@ -562,6 +562,13 @@ note's own recommendations, after reading the four blocks' metadata only.
   exactly as 4.2.4 describes ("for technical purposes (e.g. development of
   imaging algorithms)"). The task proceeds under the public-data clause 4.1,
   with the acknowledgement, as E2-N did. **Recommendation: the owner asks SARAO
-  once, for all bands, before results from these blocks are published.** The
-  same message can ask SARAO to restage the four blocks (uhf-s-fetch.md 3.1).
-  Nothing was sent.
+  once, for all bands, before results from these blocks are published.**
+  Nothing was sent. (Superseded by the owner's decision below.)
+
+## Owner decision, 2026-11-26
+
+- **D8 closed: nothing is sent to SARAO.** ra-ng uses public archive data under
+  the public-data clause 4.1, with the acknowledgement, as E2-N did. No
+  question on 4.2.3 or 4.2.4 is asked, and no restage of the four blocks on tape
+  is requested. The watcher on nash may keep polling for them; nothing is
+  requested.
