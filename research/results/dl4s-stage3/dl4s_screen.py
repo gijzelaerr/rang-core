@@ -119,6 +119,7 @@ def screen(tabs, names, refmap, reading):
             flagged = tab["f"][i, ch, pol]
             caught_a = bool(flagged.all())
             uncaught_ch = ch[~flagged]
+            rep = uncaught_ch if len(uncaught_ch) else ch
             rb = (
                 ref_flag(tab, ref, i, pol)
                 if ref is not None and ref is not tab
@@ -147,8 +148,9 @@ def screen(tabs, names, refmap, reading):
                 "scan": None if tab["scan"] is None else int(tab["scan"][i]),
                 "time": float(tab["time"][i]), "pol": pol, "channels": len(ch),
                 "uncaught_channels": len(uncaught_ch),
-                "max_dev": float(np.nanmax(dev[i, ch, pol])),
-                "value": str(tab["p"][i, ch[np.nanargmax(dev[i, ch, pol])], pol]),
+                # over the uncaught channels when there are any (B), else all
+                "max_dev": float(np.nanmax(dev[i, rep, pol])),
+                "value": str(tab["p"][i, rep[np.nanargmax(dev[i, rep, pol])], pol]),
                 "caught_a": caught_a or len(uncaught_ch) == 0, "caught_b": rb,
                 "significant_5sigma": sig_ok,
             })  # fmt: skip
