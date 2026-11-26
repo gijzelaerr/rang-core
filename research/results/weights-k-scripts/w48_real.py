@@ -252,10 +252,12 @@ def cmd_n(cal_ms, field, out, chanbin="16"):
                 s[2] += (ww[g] ** 2 * dd[g]).sum()
                 q.append(np.stack([ww[g], ww[g] * dd[g]]).astype(np.float32))
     S = {a: v[2] / v[1] ** 2 if v[1] > 0 else math.nan for a, v in sums.items()}
+    # an arm with every held-out weight 0 has no S: e is NaN (written as null)
     rec = {"cal_ms": cal_ms, "field": field, "cells_ideal": sums["ideal"][0],
-           "cells_arm": sums["arm"][0], "e": math.sqrt(S["arm"] / S["ideal"])}  # fmt: skip
-    if q:
-        qq = np.concatenate(q, 1)
+           "cells_arm": sums["arm"][0],
+           "e": math.sqrt(S["arm"] / S["ideal"]) if math.isfinite(S["arm"]) else None}  # fmt: skip
+    qq = np.concatenate(q, 1) if q else np.zeros((2, 0), np.float32)
+    if qq.shape[1]:
         edges = np.quantile(qq[0], [0.2, 0.4, 0.6, 0.8])
         which = np.searchsorted(edges, qq[0], side="right")
         overall = float(qq[1].mean())

@@ -119,7 +119,7 @@ w48A|w48c4)
       $W image "$M" $F "$O/$F-$arm-img" 8 >> "$O/$F-$arm.log" 2>&1
       if [ $F = ASKAPJ1745 ]; then
         if [ $arm = raw ]; then
-          $LOCK --slots 4 --mem 32 -- $NICE "$PY" -m rang.gemclean -name "$O/i-raw" -field $F -pol I             -weight natural -niter 0 -size 2048 2048 -scale 3asec -no-update-model-required -j 4 "$M"             >> "$O/$F-$arm.log" 2>&1
+          $LOCK --slots 4 --mem 32 -- $NICE "$PY" -m rang.gemclean -name "$O/i-raw" -field "$("$PY" -I -c "import sys; sys.path.insert(0, '$S'); import w48_real; print(w48_real._field_id('$M', '$F'))")" -pol I             -weight natural -niter 0 -size 2048 2048 -scale 3asec -no-update-model-required -j 4 "$M"             >> "$O/$F-$arm.log" 2>&1
           "$PY" -I "$S/w48_real.py" sources "$O/i-raw-dirty.fits" "$M" $F "$O/sources.csv" >> "$O/$F-$arm.log" 2>&1
         fi
         $W lc "$M" $F "$O/sources.csv" "$O/$F-$arm-lc" >> "$O/$F-$arm.log" 2>&1 || true
