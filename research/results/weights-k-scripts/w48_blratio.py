@@ -6,9 +6,9 @@ the R estimate (stokes_v clipped, variance over a scan) take up slowly varying V
 On the dumps of even dump pairs only, per baseline and CHANBIN block: R's variance
 (`rang.reweight.estimate_rows`, the stage defaults with `statistic: clipped`, `fit` = even-pair
 dumps) against the dump-difference variance (median |d|^2 / ln 2 of d = (V_2k - V_2k+1)/sqrt(2) over
-the even pairs k, which cancels anything constant over 8 s). Both are per-correlation-equivalent V
-variances up to the same factor 2 (R reports 2 var(V); the difference estimate is var(V)), so the
-ratio is R / (2 sigma_d^2). Reported per baseline-length bin: median ratio and count of baselines.
+the even pairs k, which cancels anything constant over 8 s). R reports 2 var(V) with var the per-part
+variance, which is E|V - <V>|^2, the same quantity as E|d|^2, so the ratio is R / sigma_d^2. (The
+first run divided by 2 sigma_d^2 and read 0.51-0.52; corrected before the outcome was worded.) Reported per baseline-length bin: median ratio and count of baselines.
 Flat near 1 means R tracks the thermal noise; rising on short baselines means it takes up sky.
 """
 
@@ -90,7 +90,7 @@ def main(cal_ms, field, out, chanbin="16"):
                 for j in range(nb):
                     x = np.moveaxis(e[:, :, j * cb : (j + 1) * cb], 0, 1).reshape(nbl, -1)
                     sig[:, j] = np.nanmedian(x, 1) / math.log(2)
-            ratio = r_var_s / (2.0 * sig)
+            ratio = r_var_s / sig
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", RuntimeWarning)
                 per_bl = np.nanmedian(ratio, 1)
