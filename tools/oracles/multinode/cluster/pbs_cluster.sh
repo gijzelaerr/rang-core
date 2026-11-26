@@ -69,7 +69,10 @@ case "$cmd" in
 up)
   SHARED=$1; NODES=$2; CPUS=$3; MEM=$4; shift 4
   nice -n 19 podman build -q -t "$IMAGE" -f "$HERE/Containerfile.pbs" "$HERE" >/dev/null
-  podman network exists "$NET" || podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
+  # A fresh network every time (as slurm_cluster.sh).
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  if podman network exists "$NET"; then podman network rm "$NET" >/dev/null; fi
+  podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
   start pbs "$SUBNET.10" server "$SHARED" "$NODES" "${CTL_CPUS:-4}" "${CTL_MEM_MB:-16000}" "$@"
   for i in $(seq 1 "$NODES"); do
     start "m$i" "$SUBNET.$((10 + i))" mom "$SHARED" "$NODES" "$CPUS" "$MEM" "$@"

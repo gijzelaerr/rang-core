@@ -56,7 +56,11 @@ up)
   # Fixed addresses: slurmctld caches a node's address, and a restarted
   # container would otherwise come back on a new one, "Not responding"
   # (the void SlNode rerun of 2026-11-26).
-  podman network exists "$NET" || podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
+  # A fresh network every time: one left by an earlier run may lack the
+  # subnet the fixed addresses need (podman exit 125, 2026-11-26).
+  podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
+  if podman network exists "$NET"; then podman network rm "$NET" >/dev/null; fi
+  podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
   hosts=(--add-host "ctl:$SUBNET.10")
   for i in $(seq 1 "$NODES"); do hosts+=(--add-host "n$i:$SUBNET.$((10 + i))"); done
   conf="$SHARED/cluster"
