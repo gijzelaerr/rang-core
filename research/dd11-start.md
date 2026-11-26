@@ -513,7 +513,7 @@ then the scored point. R0 is DD10's RL cycle-0 solve, reused.
 - **Infrastructure:** the fast Högbom is bitwise equal but only 1.5 ×
   faster in NumPy. A real speed-up needs compiled code: exposing
   `core/src/clean.rs::hogbom` with a search mask would be a small binding.
-- **Checks:** `python tools/check_all.py --quick` CHECK_RESULT. CI on the
+- **Checks:** `python tools/check_all.py --quick` PASS (1,157 s, from the worktree's own .venv). CI on the
   branch: CI_RESULT. No Rust or library change, so the oracle gates are
   unchanged; the full check is left to the coordinator's merge check.
 - **Disk:** the rebuilt O MS and the PSF arrays are deleted. The run root

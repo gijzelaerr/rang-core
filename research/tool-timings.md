@@ -2607,3 +2607,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd11: truth-gain controls on O: AT6 (cycles 3-6), ATs (truth for untrusted gains, 3 cycles) (host glacier, 8 slots shared) | 52.7 M cells | AT6 6,508 s; ATs 8,440 s (lock waits included) | – | AT6 includes 3 unneeded solves (A1) |
 | 2026-11-26 | dd11: R-Q6, Q6's loop on the real subset with 145 baselines flagged, 6 cycles + scored solve (host glacier, 8 slots shared) | 52.7 M cells | 9,579 s (lock wait included) | – | |
 | 2026-11-26 | dd11: ATm, truth gains with AL's row masks, 3 cycles + scored solve, run from the worktree's rang copy (host glacier, 8 slots shared) | 52.7 M cells | 2,189 s (lock wait included) | – | includes 1 unneeded solve (A1) |
+| 2026-11-26 | dd11: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd11-start | 1,157 s (lock wait excluded) | – | PASS |
