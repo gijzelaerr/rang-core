@@ -1,10 +1,11 @@
 # Rang: why `k_zero_start` missed a K at −1/(2Δν) (DL4s stage 3, block 1678312253)
 
-Status 2026-11-26: **measured** (sections 6-7). Cause: **the data** (H4): antenna index 25 (m025)
-alternates in sign channel to channel from scan 50 to the end of the block; −1/(2Δν) is the right
-K for those data and `k_zero_start` correctly kept it. **No solver defect.** One recording gap
-fixed (section 8). Diagnosis frozen before the re-solve in `4a68b7e5`; branch `k-ambiguity` from
-origin/main `cf9d6dd2`.
+Status 2026-11-26: **measured** (sections 6-7). Cause: **the data** (H4): antenna index 25 (m054;
+the block's 29 antennas are not numbered by dish) has visibilities multiplied by (−1)^channel from
+scan 50 to the end of the block; −1/(2Δν) is the right K for those data and `k_zero_start`
+correctly kept it. **No solver defect.** One recording gap fixed (section 8). Diagnosis frozen
+before the re-solve in `4a68b7e5`; branch `k-ambiguity` from origin/main `cf9d6dd2`. Correction
+2026-11-26 17:30 SAST: the first results commit (`29768e6b`) named the antenna m025; it is m054.
 
 ## 1. What is open
 
@@ -81,17 +82,25 @@ re-measured on block 1678312253 scan 60 and on E2-A's ID 50 case (calchain-floor
 `cf_kreal.py` route); a change to a default needs a K oracle (CASA `gaincal` K on the same MS) and a
 frozen addendum here first.
 
-## 6. Addendum 2026-11-26 15:00 SAST, post hoc (after the reproduction and the probe were read)
+## 6. Addendum, post hoc (committed with the results in `29768e6b`, not before them)
 
-The probe of section 4 ran first; then, before any further reading, a solver-independent check
-was added (`ka_raw.py`): on each MS copy, per baseline and dump, the circular mean of the
-adjacent-channel phase step angle(V[k+1] V[k]*) on unflagged channel pairs, per parallel hand, for
-antenna 25's baselines and 8 random baselines without it; and the parity of its unflagged
-channels. Then `ka_onset.sh` ran it on every scan of the block (each copied into the run root,
-read, deleted). H4's frozen wording ("both runs converge near −1/(2Δν)") was too strict: a zero
-start cannot reach −1/(2Δν) on full-band data, so under H4 the zero run is expected to stay near 0
-and lose on cost. H4 is read here as: the antenna's own data peak at ±1/(2Δν) and the FFT run has
-the lower cost on the antenna's own cells.
+Order of events (UTC; the note was frozen and pushed at 14:13): flag, K off and K on and the two
+probes ran 14:23-14:35 (`receipts/timings.tsv`). Before the probe outputs were read, a
+solver-independent check was added (`ka_raw.py`): on an MS copy, per baseline and dump, the
+circular mean of the adjacent-channel phase step angle(V[k+1] V[k]*) on unflagged channel pairs
+(dumps with at least 8 pairs), per parallel hand, for antenna 25's baselines and 8 random
+baselines without it; and the parity of its unflagged channels. It ran on scan 32 while K was
+solving, then, after the key-off capture had shown the reproduction (−2,392.39 / −2,392.41 ns),
+on scan 60, and then (`ka_onset.sh`) on every scan of the block, each copied into the run root,
+read and deleted. The raw and onset results were read before the probe's. H4's frozen wording
+("both runs converge near −1/(2Δν)") was too strict: a zero start cannot reach −1/(2Δν) on
+full-band data, so under H4 the zero run is expected to stay near 0 and lose on cost. H4 is read
+here as: the antenna's own data peak at ±1/(2Δν) and the FFT run has the lower cost on its cells.
+
+Provenance: the nash venv was built from `4a68b7e5` (this note, code as `cf9d6dd2`). The archived
+scripts were ruff-formatted after they ran, and `ka_onset.sh` gained a `chmod` before its `rm`
+(the copies of read-only MSs could not be deleted; the first attempt stopped at scan 4). The nash
+run root and worktree were removed after the receipts were copied.
 
 ## 7. Results (measured 2026-11-26, nash; [receipts](results/k-ambiguity/receipts/))
 
@@ -114,16 +123,23 @@ unflagged cells on the refant baseline, not from an empty buffer. The zero run i
 antenna corrected by either run's gains) peaks at ±2,392.5 ns with about 1,400 times its value at
 0 ns, and the median adjacent-channel step of its corrected data is 3.140 rad.
 
-**The raw data (no solver).** On every baseline of antenna 25, every dump, both hands, the
-adjacent-channel phase step is π (median |step| 3.141-3.142 rad) in scans 50, 54, 58, 60, 62, 66,
-70 and 74, and 0.000-0.005 rad in scans 4-46 (32 included); the 8 control baselines are at
-0.0001-0.0034 rad in every scan. Unflagged channels are even and odd in equal numbers (scan 60:
-1,870,590 / 1,868,210), so this is not a parity alias of the flags. The onset is between scan 46 and
-scan 50 (a gain-calibrator gap); from then on m025's visibilities are multiplied by (−1)^channel.
+**The raw data (no solver).** On every baseline of antenna 25, in both hands and in every dump with
+at least 8 unflagged channel pairs, the adjacent-channel phase step is near π in scans 50, 54, 58,
+60, 62, 66, 70 and 74 (per-baseline median |step| 3.007-3.1415 rad; scan 60 3.1414-3.1415), and
+near 0 in scans 4-46 (0.0000-0.082 rad, scan 32 at most 0.005); the 8 control baselines are at
+0.0001-0.099 rad in every scan. Scan 50 has 15 dumps, of which 14 have 8 pairs, and all 14 are
+flipped; so the onset lies between the last dump of scan 46 and the first usable dump of scan 50.
+Unflagged channels are even and odd in equal numbers (scan 60: 1,870,590 / 1,868,210), so this is
+not a parity alias of the flags. From then on m054's visibilities carry (−1)^channel.
 
 **Reading (section 4 step 3).**
-- **H4 holds**: the data fit a π-per-channel step and −1/(2Δν) is their delay (mod 1/Δν). A data
-  defect of m025 (cause outside rang; not identified here), not a solver failure.
+- **H4 holds**: the data fit a π-per-channel step and −1/(2Δν) is their delay (mod 1/Δν), not a
+  solver failure. Where the step arises (the telescope or the conversion to MS) is not separated
+  here. One reading, not tested: 1/(2Δν) = 2,392.52 ns is exactly 4,096 samples at L-band's
+  1,712 MHz sampling, half the F-engine's 8,192-sample frame, so a coarse-delay step of half a
+  frame on m054 from about scan 50 would give exactly this. If so, K is the antenna's real delay
+  change and the right treatment is per-scan K (interpolation `nearest`, or a K solved on the gain
+  calibrator), not flagging the antenna.
 - **H1 rejected**: the zero run loses on antenna 25's own cells too, not by another antenna's cost.
 - **H2 rejected**: the start is a true FFT peak, not an empty-buffer default.
 - **H3 rejected**: the key is evaluated (`zero_start` true; no interval taken from the zero run).
@@ -149,20 +165,33 @@ merges the chunks' lists with their offsets, and `cal_chain._solution_record` wr
 `zero_start_intervals` into each K solution record of `summary.json` when the key is on. Key off:
 no record field, nothing else changes; key on: K tables unchanged (the merge only renumbers a
 list). So the E2-A and 1678312253 outcomes are unchanged. Tests:
-`tests/test_cal_delay_zero_start.py` (chunked list equal to the one-call list on calchain-floor's
-sparse case, where the old rule lost interval 1; the record field; a sign-alternating antenna keeps
-the half-period delay with the key on).
+`tests/test_cal_delay_zero_start.py` (on calchain-floor's sparse case split into two one-interval
+chunks, the merged list holds interval 1, which the old first-chunk rule lost; the record field;
+a sign-alternating antenna keeps the half-period delay with the key on). The merge inside
+`_solve_field` with a budget is covered by `tests/test_w3b_chainchunks.py`
+`test_chunked_k_zero_start_reports_every_chunk` (one `int` interval per chunk: the list now spans
+the chunks; before it was at most [0]).
+
+Found on the way, not fixed: **with the key on, a K solved in chunks is not bit for bit the
+one-call K** (W3b's promise holds with the key off). The replay traces the FFT run's stop only,
+and each chunk's zero run then gets that iteration count with the stop off, while the one-call
+zero run stops on its own test. On W3b's test MS the delays differ by 3.2e-6 ns, and near-tie
+intervals change sides (one-call [3, 7, 11, 16, 17, 18], chunked [7, 9, 11, 16, 17, 18]). Stage 3's
+K was one chunk, so it is not affected; a fix (trace both runs, or replay the zero run's own stop)
+belongs with any decision to make the key a default.
 
 ## For the coordinator
 
-- Cause found, **not a rang solver defect**: m025 in block 1678312253 is multiplied by
-  (−1)^channel from scan 50 onwards (raw phase step π on all its baselines, all dumps, both hands;
-  clean through scan 46). −1/(2Δν) is the correct K for scan 60 and the key rightly kept it.
-- The harm is K interpolated between a clean and a flipped primary scan. Options, none built:
-  a QA flag for an antenna whose adjacent-channel step is near π (or a K within one FFT bin of
-  ±1/(2Δν)), flagging it for the affected scans; or treating the class as a known data defect.
-  The DL4s stage-3 class count drops this instance from "delay ambiguity" (one solver instance
-  left, E2-A's).
-- Fixed: `zero_start_intervals` in the solution records and merged over chunks (no table change).
-- Whether the same sign flip appears in other blocks (an F-engine or conversion issue) is open;
-  `ka_raw.py` runs on any MS in seconds.
+- Cause found, **not a rang solver defect**: m054 (index 25) in block 1678312253 carries
+  (−1)^channel from scan 50 onwards (raw phase step π on all its baselines, every usable dump, both
+  hands; clean through scan 46). −1/(2Δν) is the correct K for scan 60 and the key rightly kept it.
+- The harm is K interpolated between a clean and a flipped primary scan (inferred, not measured).
+  Options, none built: a QA check for an antenna whose adjacent-channel step is near π (or a K
+  within one FFT bin of ±1/(2Δν)), then either per-scan K (`nearest`, if the step is a real delay
+  change, e.g. a half-frame coarse delay: 4,096 samples at 1,712 MHz) or flags for the affected
+  scans. DL4s stage 3's "delay ambiguity" class keeps one solver instance (E2-A's ID 50).
+- Fixed: `zero_start_intervals` in the K solution records and merged over chunks (no table change;
+  E2-A and 1678312253 outcomes unchanged by construction, not re-run). No CASA K run.
+- Not fixed: with the key on, a chunked K is not bitwise the one-call K (3e-6 ns; the zero run's
+  stop is not replayed); matters only if the key becomes a default (section 8).
+- Open: whether the same step appears in other blocks; `ka_raw.py` takes seconds per MS.

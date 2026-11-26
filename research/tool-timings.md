@@ -2610,3 +2610,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | k-ambiguity: rang-core calibrate, K alone, key off / on, arrays captured (host nash, 2 slots, RAYON 2) | scan060.ms | 180 s / 170 s | 2.6 / 2.1 GB | 21 iterations, one interval |
 | 2026-11-26 | k-ambiguity: `ka_probe.py` (five K re-solves of one interval) (host nash, 1 slot) | captured arrays | 69 s / 70 s | 1.6 GB | |
 | 2026-11-26 | k-ambiguity: `ka_raw.py` over all 20 scans, each copied, read, deleted (host nash, 1 slot) | block 1678312253 | 128 s | 0.7 GB | scan 60 alone 5 s |
+| 2026-11-26 | k-ambiguity: `tools/check_all.py --quick` (host glacier, 4 slots shared), three runs | branch k-ambiguity | 640 s FAIL (bare venv), 323 s FAIL (ruff format, one test), 71 s PASS (lock wait excluded) | – | |
