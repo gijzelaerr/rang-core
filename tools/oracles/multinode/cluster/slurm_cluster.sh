@@ -22,6 +22,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 NET=rang-mn
 IMAGE=localhost/rang-slurm:24.11
 PREFIX=rangmn
+SUBNET=10.89.78
 
 wait_idle() {  # every one of $1 nodes idle, within 300 s
   # A node that was killed comes back DOWN ("Not responding") or drained, or
@@ -52,7 +53,12 @@ up)
   SHARED=$1; NODES=$2; CPUS=$3; MEM=$4; shift 4
   mkdir -p "$SHARED/cluster"
   nice -n 19 podman build -q -t "$IMAGE" -f "$HERE/Containerfile.slurm" "$HERE" >/dev/null
-  podman network exists "$NET" || podman network create "$NET" >/dev/null
+  # Fixed addresses: slurmctld caches a node's address, and a restarted
+  # container would otherwise come back on a new one, "Not responding"
+  # (the void SlNode rerun of 2026-11-26).
+  podman network exists "$NET" || podman network create --subnet "$SUBNET.0/24" "$NET" >/dev/null
+  hosts=(--add-host "ctl:$SUBNET.10")
+  for i in $(seq 1 "$NODES"); do hosts+=(--add-host "n$i:$SUBNET.$((10 + i))"); done
   conf="$SHARED/cluster"
   sed -e "s/@NODES@/$NODES/" -e "s/@CPUS@/$CPUS/" -e "s/@MEM_MB@/$MEM/" \
     "$HERE/slurm.conf.in" > "$conf/slurm.conf"
@@ -67,17 +73,19 @@ up)
     mkdir -p /run/munge && chown munge:munge /run/munge
     runuser -u munge -- munged
     exec "$@"'
-  start() {  # name, cpus, memory MB, daemon command...
-    local name=$1 cpus=$2 mem=$3
-    shift 3
+  start() {  # name, ip, cpus, memory MB, daemon command...
+    local name=$1 ip=$2 cpus=$3 mem=$4
+    shift 4
     nice -n 19 ionice -c3 podman run -d --name "$PREFIX-$name" --hostname "$name" \
-      --network "$NET" --cpus "$cpus" --memory "${mem}m" \
+      --network "$NET" --ip "$ip" "${hosts[@]}" --cpus "$cpus" --memory "${mem}m" \
       -v "$conf:/cluster:ro" "${vols[@]}" -w "$SHARED" \
       "$IMAGE" bash -c "$boot" _ "$@" >/dev/null
   }
-  start ctl "${CTL_CPUS:-4}" "${CTL_MEM_MB:-16000}" slurmctld -D
+  start ctl "$SUBNET.10" "${CTL_CPUS:-4}" "${CTL_MEM_MB:-16000}" slurmctld -D
   sleep 3
-  for i in $(seq 1 "$NODES"); do start "n$i" "$CPUS" "$MEM" slurmd -D -N "n$i"; done
+  for i in $(seq 1 "$NODES"); do
+    start "n$i" "$SUBNET.$((10 + i))" "$CPUS" "$MEM" slurmd -D -N "n$i"
+  done
   wait_idle "$NODES" ;;
 down)
   podman ps -a --format '{{.Names}}' | grep "^$PREFIX-" | xargs -r podman rm -f -t 2 >/dev/null
