@@ -23,6 +23,10 @@ ROWS = 1000
 # slice is enough for a per-channel sign step and reads an eighth of the
 # 4,096-channel band; all channels when the band has fewer than 2,048.
 CHANS = slice(1792, 2304)
+# At most this many row chunks, evenly spaced, per MS (section 9: added
+# after the first 158 MSs, for the 30-218 GB scans; a sign flip that lasts a
+# scan shows in any sample of its dumps).
+MAX_CHUNKS = 200
 
 
 def main(ms, out_path):
@@ -43,7 +47,10 @@ def main(ms, out_path):
         flip = np.zeros((len(scans), nant, 2), np.int64)
         zsum = np.zeros((len(scans), nant, 2), complex)
         npair = np.zeros((len(scans), nant, 2), np.int64)
-        for start in range(0, nrow, ROWS):
+        starts = list(range(0, nrow, ROWS))
+        if len(starts) > MAX_CHUNKS:
+            starts = [starts[i] for i in np.linspace(0, len(starts) - 1, MAX_CHUNKS).astype(int)]
+        for start in starts:
             n = min(ROWS, nrow - start)
             sl = slice(start, start + n)
             cross = a1[sl] != a2[sl]
@@ -89,6 +96,7 @@ def main(ms, out_path):
         "hits": hits,
         "max_fraction_not_hit": float(rest.max()) if rest.size else 0.0,
         "rows_used_total": int(used.sum()),
+        "chunks_read": [len(starts), -(-nrow // ROWS)],
         "fields_by_scan": {str(scans[i]): f for i, f in fields.items()},
         "max_coherence_not_hit": float(coh.min(-1)[~hit].max()) if (~hit).any() else 0.0,
     }
