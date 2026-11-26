@@ -19,7 +19,6 @@ core/py/src/lib.rs,3051,a,-,-,-,0,-,-
 core/py/src/lightcurve.rs,68,a,-,-,-,0,-,-
 core/py/src/reweight.rs,62,a,-,-,-,0,-,-
 core/py/src/multiscale_image.rs,232,a,-,-,-,0,-,-
-core/py/src/reweight.rs,57,a,-,-,-,0,-,-
 core/src/aipsio.rs,815,c-src,casacore,LGPL-2.0-or-later,"AipsIO.cc, TypeIO.cc, RecordDesc.cc, RecordRep.cc",0,AipsIO and record format reader (format),-
 core/src/bin/gemclean.rs,26,a,-,-,-,0,-,-
 core/src/bin/gram_solver_bench.rs,904,a,-,-,-,0,-,-
