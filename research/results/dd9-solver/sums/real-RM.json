@@ -1,0 +1,9 @@
+{
+ "run": "D:\\rang\\outputs\\dd7-20261125\\real",
+ "model": "D:/rang/outputs/dd7-20261125/models/RM.npy",
+ "nblock": 113,
+ "nbl": 1830,
+ "kept_cells": 30800924,
+ "seconds_predict": 46.84570529998746,
+ "seconds": 72.03990119998343
+}

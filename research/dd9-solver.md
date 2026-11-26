@@ -8,7 +8,28 @@ frozen 2026-11-26, before the code that runs them and before any
 measurement. Later changes are dated amendments, committed before the
 reading they affect.
 
-Status: **proposed 2026-11-26.**
+Status: **measured 2026-11-26.**
+- **(a)** By the frozen readings, the linear rate explains the slowness
+  (Ra1) and the shares are "both" (Ra2).
+  - Gauss-Seidel over directions (I2) and the joint direction block (I3)
+    close O-X's gap at cap 500 (min d1-d3 0.974 and 0.991, against 0.449)
+    and stay accurate.
+  - Neither is admissible: the frozen same-fixed-point check fails because
+    the default's own answer is constrained by flags.
+  - Post hoc (A2): the default DD update is linearly unstable at the
+    solution in 56 of 113 O-X intervals (ρ up to 1.17) while every
+    direction's own block is stable. That is facet coupling. Where the default
+    converges there at all, it does so only after its flag ladder flags
+    the unstable gains.
+- **(b)** No d3 constraint qualifies.
+  - Pinning or merging d3 tames it but raises d2's truth error from 0.54
+    to 0.74.
+  - The amplitude prior and the 16 × 8 s interval do not tame it.
+  - d1's error (e/ê about 72), the model gap, is untouched.
+- **(c)** The robust held-out score tracks truth on O-H by the frozen
+  rule, at the extremes only. Post hoc, it rewards absorption.
+- **Real data:** merging d3 lifts the real RM solve at 4 × 8 s (min 0.83).
+  Gauss-Seidel does not help with the wrong model, on O or on real data.
 
 ## 1. Questions
 
@@ -306,6 +327,284 @@ QuartiCal beyond DD6's parity status.
   build about 60-120 s; reference solves seconds to minutes. Wall times go
   into [tool-timings.md](tool-timings.md). The rebuilt O copy is deleted at
   the end; the archive `results/dd9-solver/` keeps the records.
+
+## 10. Measured result
+
+Run root `D:/rang/outputs/dd9-20261126/`: `O/` (rebuilt; its MS since deleted), `sums/`, `gates/`,
+`solve/`, `jac/`, `score/`, `logs/`, `times.log`. The archive is
+[results/dd9-solver/](results/dd9-solver/). Host glacier, shared, under the
+main checkout's `heavy_lock.py`. No Rust changes; the Rust point used the
+main checkout's extension. Fractions are d0, d1, d2, d3 unless marked d1-d3.
+e/ê is per direction, d1-d3.
+
+**Setup and gate GR: pass.**
+- O is rebuilt equal to DD8's (A1).
+- The reference equals the Rust kernel:
+  - O-F and O-X: per-direction fractions and flag counts identical to
+    DD8's records; gain products on converged cells within 4e-14.
+  - B-F: DD6's fractions to every digit.
+  - The Rust bM point (three model columns): fractions and flags
+    identical; products within 1.1e-7, from float32 rounding of the summed
+    model column.
+- `e_d` from this code on DD8's Rust gains equals DD8's to every digit.
+
+### Part (a): B-X against O-X
+
+| Point | cap 500 | cap 2000 (no global stop) | e/ê d1-d3 (all cells, cap 500) | flagged gains |
+| --- | --- | --- | --- | --- |
+| B-X default | 0.997, 0.988, 0.974, 0.939 | 1.000, 1.000, 1.000, 0.991 | 1.08, 1.02, 1.03 | 113, 113, 113, 121 |
+| **O-X default** | **0.639, 0.540, 0.464, 0.449** | 0.841, 0.815, 0.817, 0.805 | 1.22, 1.09, 1.10 | 127, 117, 132, 156 |
+| O-X I1 (DI step rule) | 0.363, 0.113, 0.048, 0.086 | 0.739, 0.739, 0.735, 0.722 | 1.91, 1.51, 1.49 | 545, 319, 311, 383 |
+| **O-X I2 (Gauss-Seidel over directions)** | **0.997, 0.979, 0.974, 0.974** | 1.000, 1.000, 1.000, 0.980 | 1.21, 1.08, 1.08 | 113, 113, 113, 116 |
+| **O-X I3 (joint direction block)** | **1.000, 1.000, 0.991, 0.991** | 1.000, 1.000, 1.000, 1.000 | 1.21, 1.08, 1.08 | 113, 113, 113, 114 |
+| O-X I4 (warm start) | 0.748, 0.694, 0.619, 0.592 | 0.920, 0.842, 0.859, 0.843 | 1.24, 1.11, 1.12 | 1077, 1245, 1297, 1343 |
+| B-X I1 / I2 / I3 / I4 | min d1-d3 0.983 / 0.956 / 1.000 / 1.000 | 1.000 / 0.980 / 1.000 / 1.000 | 1.08, 1.02, 1.03 (all four) | 113-118 |
+
+113 flagged gains per direction is one per interval, an antenna with no
+data. GR reproduces the cap-500 defaults.
+
+**Iterations to converge (per interval, default):**
+- B-X: median N_conv 97 (p10-p90 88-110); 106 of 113 intervals converge
+  within 500 iterations; one interval never converges, the short last one.
+- O-X: median N_conv 1,094 (p10 142, p90 never); 47 intervals within 500,
+  41 between 500 and 2000, 25 never.
+- Median first step s₀: 0.31 in B-X, 0.32 in O-X.
+
+**Frozen readings (section 4, on the 88 intervals converged at cap 2000 in
+both):**
+- **Ra1: explains.** Spearman(N_conv, N_pred) = 0.82. The medians are
+  N_conv 99.5 in B-X and 219 in O-X (ratio 2.20) against N_pred 141 and 194
+  (ratio 1.38), within a factor 1.59.
+- **Ra2: both.** On O-X the median κ is 0.30 (p10-p90 0.27-0.34), against
+  0.18 on B-X. Median ρ_full is 0.926 on O-X and 0.899 on B-X. τ_within is
+  set by d1 in 71 of the 88 intervals and by d0 in 17.
+- Reported beside them: the median normalised direction overlap is
+  0.144, 0.131, 0.115, 0.139, 0.113, 0.082 on O-X (pairs 01, 02, 03, 12,
+  13, 23), against 0.118, 0.111, 0.086, 0.104, 0.085, 0.052 on B-X.
+
+**Interventions (section 4's rule, gap Δ = 0.490):**
+
+| Arm | Lift of min d1-d3 on O-X | Reading | B-X not worse | O-X accurate | Same fixed point (B-X, O-X) | Admissible |
+| --- | --- | --- | --- | --- | --- | --- |
+| I1 | −0.401 | no | yes | **no** (e/ê 2.26, 1.78, 1.58 on converged cells) | no, no | no |
+| I2 | +0.525 | **closes** | yes | yes | no, no | no |
+| I3 | +0.542 | **closes** | yes | yes | no, no | no |
+| I4 | +0.143 | partly | yes | yes | no, no | no |
+
+**Frozen outcome:**
+- Section 4's table: Ra1 explains, Ra2 both, giving "both, in the measured
+  shares".
+- I2 and I3 close the gap and I4 partly. All three are accurate and none
+  is admissible, because each fails the same-fixed-point check.
+- That is section 7's row "an intervention closes but is not
+  admissible": the remedy changes the answer, not only the speed.
+
+**Post hoc (A2), reported only.** Why the frozen readings miss the cause,
+and what answer the remedies change:
+- **The default iteration is unstable at the solution in half the O-X
+  intervals.**
+  - Linearised at I2's converged gains, the default map has ρ_full > 1 in
+    56 of 113 O-X intervals: median 1.11 in the 41 that converge between
+    500 and 2000, 1.13 in the 25 that never do, maximum 1.17.
+  - Every direction's own block is stable in every interval (median
+    ρ_within 0.87, 0.89, 0.75, 0.80; none above 1).
+  - Under the same linearisation the coupled updates are stable
+    everywhere: I2 0.923 (max 0.934), I3 0.932.
+  - So the instability comes from coupling between the facets. The
+    per-direction (Jacobi) update, which takes every direction's step from
+    one residual and halves it, overshoots.
+  - On B-X no interval has ρ_full above 0.905.
+  - I1's full step makes it worse: ρ 1.45-1.9 on O-X.
+- **Where the default "converges" slowly, it does so by flagging.**
+  - In all 41 intervals that converge between 500 and 2000, the default's
+    flag ladder has hard-flagged 60 gains (set to 1) that I2 keeps.
+  - It then converges on the remaining gains. Those are a different,
+    constrained solution: products differ from I2's by up to 0.40 (p99
+    0.003-0.057).
+  - In the 61 intervals where the default flags no extra gain, the default
+    and I2 agree to 2e-14.
+  - On B-X, I3 and I4 agree with each other to 2e-14. I2, which flags 5
+    more d3 gains, and the default (8 more) differ from them at p99
+    5e-5 to 7e-3.
+  - So the frozen same-fixed-point check fails because the default's own
+    answer is constrained by flags, on B-X too (d3 121 flagged against 113).
+  - On all cells the coupled updates are at least as accurate as the
+    default on O-X (e/ê 1.21, 1.08, 1.08 against 1.22, 1.09, 1.10).
+  - The frozen restriction of Ra1 and Ra2 to intervals converged in both
+    excluded the unstable ones. On the 88 it kept, the linear rate is
+    nearly equal in B-X and O-X, so neither reading sees the cause.
+- **With the wrong model it does not help (A3).**
+  - **bGS** (O, M₀ᶜ, Gauss-Seidel):
+    - cap 500: 0.075, 0.011, 0.004, 0.000; cap 2000: 0.698, 0.459,
+      0.410, 0.291;
+    - e 0.35, 0.54, 1.00 in d1-d3, the same as b0;
+    - d3 |g| up to 59 at cap 500 and 116 at cap 2000.
+  - **real-bGS** (RM, the 145 bad and 169 held-out baselines removed):
+    - fractions 0.119, 0.023, 0.018, 0.018, against real-b0's 0.115,
+      0.033, 0.026, 0.018;
+    - robust held-out pair: no difference (median 0.0003, 99 % interval
+      −0.0004 to 0.0013).
+  - So the coupled update cures the exact-model slowness. It does not cure
+    the failure O and the real data share, which follows the model gap.
+
+### Part (b): a constraint on d3, on O with M₀ᶜ
+
+e is the absolute truth error `e_d` in d1, d2, d3 on all unflagged cells.
+For bM, d3's e is the applied d1 gain against d3's truth; for bP it is the
+unit gain. λ = 13.2 for bR. Cap-500 values are first; cap 2000 is the solve
+with at most 2000 iterations and the global stop.
+
+| Arm | fractions, cap 500 (cap 2000) | e d1, d2, d3 | d3 \|g\| p99 / max (cap 500; cap 2000) | e ratio to b0 | Reading |
+| --- | --- | --- | --- | --- | --- |
+| **b0** | 0.094, 0.018, 0.009, 0.000 (0.702, 0.479, 0.419, 0.308) | 0.350, 0.538, 1.000 | 13.8 / 91; 17.8 / 784 | 1 | (reference) |
+| bP, d3 pinned | 0.815, 0.696, 0.611, 1 (0.993, 0.969, 0.951, 1) | 0.394, **0.740**, 0.508 | 1 / 1 | 1.13, **1.37**, 0.51 | **moves the error into the neighbours** |
+| bM, d3 into d1 | 0.832, 0.696, 0.617 (0.992, 0.991, 0.970) | 0.385, **0.740**, 0.911 | 1.40 / 1.57; same | 1.10, **1.38**, 0.91 | **moves the error into the neighbours** |
+| bR, amplitude prior | 0.326, 0.049, 0.017, 0.007 (0.921, 0.790, 0.757, 0.712) | 0.356, 0.546, 0.996 | 6.3 / 10.4; 6.3 / 10.4 | 1.02, 1.02, 1.00 | **fails** (not tamed: p99 above 3) |
+| bL, d3 at 16 × 8 s | 0.102, 0.008, 0.004, 0.000 (0.699, 0.488, 0.420, 0.237) | 0.353, 0.542, 0.999 | 12.9 / 36; 21.4 / 212 | 1.01, 1.01, 1.00 | **fails** |
+
+**Frozen outcome (section 5):**
+- No arm tames d3 without harm, so there is **no best arm**.
+- Pinning or merging d3 stops its runaway and lets d1-d2 converge (0.97-0.99
+  at cap 2000). But d2's truth error rises from 0.54 to 0.74, because d3's
+  sky is then absorbed into d2's or d1's gains.
+- The amplitude prior caps |g| near 10 but leaves the errors as they are.
+- Solving d3 at 16 × 8 s changes nothing.
+- In every arm d1's error stays at 0.35-0.39 (e/ê about 70-80), and that
+  is the model gap.
+- So by section 7 "the constraint moves the error or fails": drop the d3
+  constraint and do the model work next.
+- b0 at cap 500 equals DD8's O-F (GR). At cap 2000, b0's fractions are
+  within 0.007 of DD8's Rust O-F-2000; products on cells converged in both
+  agree to 6.4e-6, with 2 flag differences. That is floating-point
+  divergence over 2000 iterations in unconverged cells.
+- O-H (the same arms with the held-out baselines removed) gives the same
+  pattern. bP and bM tame d3, with e ratios 1.10-1.13 in d1 and 1.32-1.33
+  in d2. bR and bL do not tame it (ratios 0.998-1.014).
+
+### Part (c): the robust held-out score
+
+**Post hoc re-read of DD8 in the robust form.** From DD8's archived
+per-baseline sums: 113 of the 169 held-out baselines have cells there.
+Reported only.
+- V1: truth gains on B-H, median H_b 1.0002.
+- V2: robust ΔH of BH-F 2.01, 0.074, 0.026 in d1-d3, against the truth's
+  2.01, 0.074, 0.027. All are significant.
+- **V3 in the robust form rewards absorption.** On O-H, H_b(truth gains,
+  M₀ᶜ) − H_b(OH-F) has median +0.70, 99 % interval 0.20 to 1.72. So
+  gains that absorb the model gap predict unseen baselines better than the
+  true gains do. DD8's mean form read "indistinct".
+- DD8's real pairs in the robust form:
+  - RH-L2000 against RH-MF: no difference (−0.0004, −0.0014 to 0.0002).
+  - R2H against RH-MF: R2H predicts better (0.39, 0.36 to 0.46); the mean
+    form read "the same".
+  - Every DD point beats RH-DI (0.62-1.28).
+
+**Validation on O-H (frozen rule): tracks truth on O.**
+- The order by median H_b, b0 (1.467) < bL (1.476) < bR (1.480) < bM
+  (1.516), equals the order by mean e over d1-d3: 0.634, 0.635, 0.636,
+  0.676.
+- Caveats, post hoc:
+  - The truth gains predict worse than every solve (median 2.88 against
+    1.47-1.52), the absorption above.
+  - Three of the four arms differ in truth error by under 0.4 %.
+  - The frozen pair rule reads bR and bL as predicting better than b0
+    (median differences 0.0025 and 0.0016, significant), although their
+    truth errors are slightly higher.
+  - bP, the control with the lowest truth error (0.544, since unit d3
+    gains are nearer the truth than runaway ones), predicts no differently
+    from b0.
+- On this evidence the robust score orders solutions by how well they
+  absorb, and that agreed with truth error here only at the extremes.
+
+**Real arms.** RM, d0 free, 4 × 8 s, cap 500, with the 145 bad and 169
+held-out baselines removed (314 baselines); 113 held-out baselines scored.
+No best arm, so these are reported only, without a reading.
+
+| Arm | fractions d0-d3 | d3 \|g\| p99 / max | median H_b | against real-b0 (median, 99 % interval) |
+| --- | --- | --- | --- | --- |
+| real-b0 | 0.115, 0.033, 0.026, 0.018 | 10.3 / 71 | 1.651 | – |
+| real-bM | **0.969, 0.890, 0.834, (0.890)** | 1.26 / 1.42 | 1.645 | bM better, 0.0098 (0.0006 to 0.0246) |
+| real-bR | 0.473, 0.239, 0.191, 0.137 | 5.1 / 7.2 | 1.635 | bR better, 0.0071 (0.0038 to 0.0108) |
+| real-bL | 0.139, 0.072, 0.071, 0.068 | 9.9 / 23 | 1.654 | bL better, 0.0020 (0.0006 to 0.0042) |
+| real-bGS (A3) | 0.119, 0.023, 0.018, 0.018 | 9.7 / 31 | 1.653 | no difference |
+| unit gains | – | – | 4.289 | – |
+
+- Merging d3 into d1 lifts the real d0-free solve with RM at 4 × 8 s and
+  cap 500 for the first time (min 0.83). It needs neither the unit-gain
+  deep clean nor a longer interval.
+- On O the same merge raises d2's truth error by 37 %, so this lift is not
+  evidence of better real gains.
+- The held-out differences are under 1 % of H.
+
+
+**Cost (glacier, shared, 1-2 slots per job; walls include lock waits).**
+- O rebuild: 235 s.
+- Sums: 73-83 s each.
+- Reference solves, full data:
+  - default with history to cap 2000: about 1,620 s;
+  - I1 1,610 s, I2 2,210 s, I3 3,550 s;
+  - I4 (sequential, both caps) 460-500 s;
+  - part (b), five arms to cap 2000: 5,350 s per base;
+  - real arms: 490-720 s.
+- Linearisation: 509-759 s per third of the intervals.
+- The Rust bM point: 556 s (solve 252 s).
+- Gate GR: 400 s.
+
+## 11. For the coordinator
+
+- **(a) Frozen:**
+  - Ra1 "explains" and Ra2 "both" (κ 0.30).
+  - I2 (Gauss-Seidel over directions) and I3 (joint direction block)
+    **close** O-X's gap at cap 500 (min d1-d3 0.974 and 0.991, against
+    0.449) and are accurate (e/ê 1.08-1.21).
+  - Neither is admissible: the same-fixed-point check fails, on B-X too.
+  - I4 (warm start) partly closes; I1 (DI step rule) does not and is
+    inaccurate.
+- **(a) Post hoc (A2), the cause:**
+  - The default DD update (all directions from one residual, halved) is
+    linearly unstable at the solution (ρ 1.0-1.17) in 56 of 113 O-X
+    intervals. Each direction's own block is stable there (ρ ≤ 0.90), so
+    it is facet coupling.
+  - Where the default still converges slowly, it does so because its flag
+    ladder flags the unstable gains (60 in 41 intervals) and settles on a
+    constrained solution.
+  - Where flags agree, the default and I2 give the same answer to 2e-14.
+  - The frozen restriction to intervals converged in both hid this.
+- **(b) Frozen: no best arm.**
+  - Pinning or merging d3 tames it but moves the error into d2 (e 0.54
+    to 0.74).
+  - The amplitude prior (σ_A 0.2) and d3 at 16 × 8 s fail to tame it.
+  - d1's error (e/ê about 72) is the model gap in every arm. By section 7,
+    drop the d3 constraint; model work is next.
+- **(c):**
+  - The robust held-out score tracks truth on O-H by the frozen rule, but
+    only at the extremes. In its robust form it rewards absorption (V3
+    post hoc), so it is not a criterion for DD choices.
+  - On real data, merging d3 lifts RM at 4 × 8 s to min 0.83 and predicts
+    held-out baselines 0.6 % better; on O the same merge costs d2 37 %
+    accuracy.
+- **The coupled update does not fix the wrong-model failure (A3).**
+  Gauss-Seidel on O with M₀ᶜ (bGS) and on real data (real-bGS) gives no
+  lift, so the failure O and the real data share still follows the
+  off-axis model gap.
+- **Recommended DD10, frozen before code:**
+  1. A Gauss-Seidel (or joint-block) direction update in the Rust kernel,
+     as an option beside the QuartiCal path. The default stays
+     bit-identical; the option equals this reference on O-X; at
+     convergence it agrees with the default where flags agree.
+     Otherwise any good off-axis model will meet the same instability.
+  2. With it, the off-axis model work on O, where the truth is known: an
+     off-axis model from DD-corrected facet images (DD3's loop), scored on
+     d1's truth error, which is the dominant error. The 145 bad baselines
+     stay flagged on real data.
+- **Checks:**
+  - Gate GR and the Rust bM point pass.
+  - `tests/test_dd9.py` (reference against the Rust kernel on synthetic
+    data) passes.
+  - `tools/check_all.py --quick` PASS. The full check is left to the
+    coordinator's merge check; DD9 changes no Rust.
+- **Disk:** the rebuilt O copy is deleted. Kept in the run root: sums
+  (about 0.5 GB), gains and records. Archive `results/dd9-solver/`.
 
 ## Amendments
 

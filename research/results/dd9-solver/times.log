@@ -1,0 +1,71 @@
+insertO start 2026-11-26T00:35:27+02:00 slots=2 mem=10 tools/oracles/dd8/dd8.py insert D:/rang/outputs/dd9-20261126
+insertO end 2026-11-26T00:39:22+02:00 rc=0 wall=235s
+sums-O-M0c start 2026-11-26T00:41:00+02:00 slots=4 mem=12 tools/oracles/dd9/dd9.py sums D:/rang/outputs/dd9-20261126/O D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd9-20261126/sums/O-M0c.npz
+sums-O-skyO start 2026-11-26T00:41:00+02:00 slots=4 mem=12 tools/oracles/dd9/dd9.py sums D:/rang/outputs/dd9-20261126/O D:/rang/outputs/dd9-20261126/O/sky.npy D:/rang/outputs/dd9-20261126/sums/O-skyO.npz
+sums-O-M0c end 2026-11-26T00:42:13+02:00 rc=0 wall=73s
+sums-B-M0c start 2026-11-26T00:42:13+02:00 slots=4 mem=12 tools/oracles/dd9/dd9.py sums D:/rang/outputs/dd7-20261125/b D:/rang/outputs/dd7-20261125/b/sky.npy D:/rang/outputs/dd9-20261126/sums/B-M0c.npz
+sums-O-skyO end 2026-11-26T00:42:23+02:00 rc=0 wall=83s
+sums-real-RM start 2026-11-26T00:42:23+02:00 slots=4 mem=12 tools/oracles/dd9/dd9.py sums D:/rang/outputs/dd7-20261125/real D:/rang/outputs/dd7-20261125/models/RM.npy D:/rang/outputs/dd9-20261126/sums/real-RM.npz
+sums-B-M0c end 2026-11-26T00:43:28+02:00 rc=0 wall=75s
+sums-real-RM end 2026-11-26T00:43:36+02:00 rc=0 wall=73s
+gate start 2026-11-26T00:45:02+02:00 slots=2 mem=8 tools/oracles/dd9/dd9.py gate D:/rang/outputs/dd9-20261126
+gate end 2026-11-26T00:51:42+02:00 rc=0 wall=400s
+a-B-X-default start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 B-X default
+a-B-X-I1 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 B-X I1
+a-B-X-I2 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 B-X I2
+a-B-X-I3 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 B-X I3
+a-B-X-I4 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 B-X I4
+a-O-X-default start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 O-X default
+a-O-X-I1 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 O-X I1
+a-O-X-I2 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 O-X I2
+a-O-X-I3 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 O-X I3
+a-O-X-I4 start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py parta D:/rang/outputs/dd9-20261126 O-X I4
+b-O start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py partb D:/rang/outputs/dd9-20261126 O
+b-O-H start 2026-11-26T00:52:03+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py partb D:/rang/outputs/dd9-20261126 O-H
+dd8robust start 2026-11-26T00:52:03+02:00 slots=1 mem=2 tools/oracles/dd9/dd9.py dd8robust D:/rang/outputs/dd9-20261126
+dd8robust end 2026-11-26T00:52:15+02:00 rc=0 wall=12s
+a-B-X-I4 end 2026-11-26T00:59:42+02:00 rc=0 wall=459s
+a-O-X-I4 end 2026-11-26T01:00:18+02:00 rc=0 wall=495s
+a-O-X-I1 end 2026-11-26T01:18:51+02:00 rc=0 wall=1608s
+a-B-X-I1 end 2026-11-26T01:19:02+02:00 rc=0 wall=1619s
+a-B-X-default end 2026-11-26T01:19:04+02:00 rc=0 wall=1621s
+a-O-X-default end 2026-11-26T01:19:18+02:00 rc=0 wall=1635s
+jac-B-X-0 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 B-X 0 38
+jac-B-X-38 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 B-X 38 76
+jac-B-X-76 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 B-X 76 113
+jac-O-X-0 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 0 38
+jac-O-X-38 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 38 76
+jac-O-X-76 start 2026-11-26T01:19:29+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 76 113
+a-B-X-I2 end 2026-11-26T01:28:45+02:00 rc=0 wall=2202s
+a-O-X-I2 end 2026-11-26T01:29:04+02:00 rc=0 wall=2221s
+jac-B-X-76 end 2026-11-26T01:31:34+02:00 rc=0 wall=726s
+jac-O-X-76 end 2026-11-26T01:31:49+02:00 rc=0 wall=740s
+jac-B-X-0 end 2026-11-26T01:31:58+02:00 rc=0 wall=749s
+jac-O-X-38 end 2026-11-26T01:32:06+02:00 rc=0 wall=757s
+jac-B-X-38 end 2026-11-26T01:32:06+02:00 rc=0 wall=757s
+jac-O-X-0 end 2026-11-26T01:32:08+02:00 rc=0 wall=759s
+readings-a start 2026-11-26T01:32:20+02:00 slots=1 mem=2 tools/oracles/dd9/dd9.py readings_a D:/rang/outputs/dd9-20261126
+readings-a end 2026-11-26T01:32:25+02:00 rc=0 wall=5s
+jacI2-O-X-0 start 2026-11-26T01:33:20+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 0 38 I2
+jacI2-O-X-38 start 2026-11-26T01:33:20+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 38 76 I2
+jacI2-O-X-76 start 2026-11-26T01:33:20+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py jac D:/rang/outputs/dd9-20261126 O-X 76 113 I2
+b-O-bGS start 2026-11-26T01:37:05+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py partb D:/rang/outputs/dd9-20261126 O bGS
+c-real-bGS first try 01:37 rc=1 (code read partb-O.json before it existed; fixed, rerun)
+c-real-bGS start 2026-11-26T01:37:56+02:00 slots=1 mem=4 tools/oracles/dd9/dd9.py partc_real D:/rang/outputs/dd9-20261126 bGS
+jacI2-O-X-76 end 2026-11-26T01:41:49+02:00 rc=0 wall=509s
+jacI2-O-X-38 end 2026-11-26T01:41:58+02:00 rc=0 wall=518s
+jacI2-O-X-0 end 2026-11-26T01:42:00+02:00 rc=0 wall=521s
+c-real-bGS end 2026-11-26T01:49:57+02:00 rc=0 wall=722s
+a-B-X-I3 end 2026-11-26T01:51:16+02:00 rc=0 wall=3553s
+a-O-X-I3 end 2026-11-26T01:51:21+02:00 rc=0 wall=3558s
+fixed-point start 2026-11-26T01:52:46+02:00 slots=1 mem=3 tools/oracles/dd9/dd9.py fixed_point D:/rang/outputs/dd9-20261126
+fixed-point end 2026-11-26T01:52:48+02:00 rc=0 wall=2s
+b-O-bGS end 2026-11-26T01:58:32+02:00 rc=0 wall=1287s
+rustbm start 2026-11-26T01:59:25+02:00 slots=4 mem=14 tools/oracles/dd9/dd9.py rustbm D:/rang/outputs/dd9-20261126
+rustbm end 2026-11-26T02:08:41+02:00 rc=0 wall=556s
+b-O-H end 2026-11-26T02:21:15+02:00 rc=0 wall=5352s
+b-O end 2026-11-26T02:21:18+02:00 rc=0 wall=5355s
+c-validate start 2026-11-26T02:24:21+02:00 slots=1 mem=4 tools/oracles/dd9/dd9.py partc_validate D:/rang/outputs/dd9-20261126
+c-validate end 2026-11-26T02:24:21+02:00 rc=0 wall=0s
+c-real start 2026-11-26T02:24:21+02:00 slots=1 mem=4 tools/oracles/dd9/dd9.py partc_real D:/rang/outputs/dd9-20261126
+c-real end 2026-11-26T02:32:28+02:00 rc=0 wall=487s
