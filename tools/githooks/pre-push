@@ -1,0 +1,12 @@
+#!/bin/sh
+# SPDX-License-Identifier: MIT
+# Fast checks before every push (tools/prepush_check.py). Enabled for the
+# main checkout and its worktrees with: git config core.hooksPath tools/githooks
+root=$(git rev-parse --show-toplevel) || exit 0
+[ -f "$root/tools/prepush_check.py" ] || exit 0
+for py in "$root/.venv/Scripts/python.exe" "$root/.venv/bin/python" python3 python; do
+  if command -v "$py" >/dev/null 2>&1 || [ -x "$py" ]; then
+    exec "$py" "$root/tools/prepush_check.py"
+  fi
+done
+exit 0
