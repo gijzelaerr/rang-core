@@ -1,20 +1,21 @@
 #!/bin/bash
 # SPDX-License-Identifier: MIT
-# uhf-s-fetch driver (research/uhf-s-fetch.md section 3): for each block, in
-# the order given, wait until the archive's object store lists its chunks
-# (uhfs_stagecheck.py, every 30 min; on 2026-11-26 none of the four was
-# staged), then fetch it as a shared heavy-lock job of 1 slot and 4 GB under
-# nice -n 19 ionice -c3. A fetch that finds too many chunks missing (exit 3:
-# staging still in progress) waits an hour and resumes; fetched chunks are kept.
-# After a block's fetch.done its conversion starts (uhfs_convert.sh: its own
-# lock jobs, one block at a time through flock) and the next block's fetch.
+# uhf-s-fetch driver (research/uhf-s-fetch.md section 3): every 30 min, list
+# the archive's object store (uhfs_stagecheck.py; on 2026-11-26 none of the four
+# blocks was staged) and fetch the first block, in the order given, that is
+# staged and not yet fetched, as a shared heavy-lock job of 1 slot and 4 GB
+# under nice -n 19 ionice -c3. A fetch that ends with chunks missing (exit 3:
+# staging still in progress, or lost chunks awaiting confirmation an hour
+# later) is retried on a later pass; fetched chunks are kept. After a block's
+# fetch.done its conversion starts (uhfs_convert.sh with the block's scan
+# selection from SELECTION below: its own lock jobs, one block at a time).
 # Stops at the links' expiry. Writes a status file STATUS (default
 # ~/rang-data/uhf-s/status.md), under 15 lines, at every step.
 #   setsid nohup bash uhfs_fetch_all.sh CBID [CBID ...] > logs/fetch-all.log 2>&1 < /dev/null &
 # WORKERS and MBPS set the fetch's worker count and global rate cap (MB/s).
 set -u
 R=$HOME/rang-data/uhf-s
-V=$HOME/Build/tmp/20261126-uhf-s/venv
+V=$R/venv
 LOCK=$HOME/Github/rang/tools/heavy_lock.py
 WORKERS=${WORKERS:-6}
 MBPS=${MBPS:-40}
@@ -41,8 +42,15 @@ status() {
   } > "$STATUS.tmp" && mv "$STATUS.tmp" "$STATUS"
 }
 ALL="$*"
-staged() {  # the block's visibility and flag buckets both list objects
-  "$V/bin/python" "$R/scripts/uhfs_stagecheck.py" "$R/sarao-links.txt" "$R/logs/stagecheck.jsonl" > /dev/null 2>&1
+# conversion selections, katdal track scans (uhf-gate.md section 2, amendment 1):
+# the UHF gate's selection; the S-band blocks whole (empty).
+declare -A SELECTION=(
+  [1740534088]="2,4,8,12,14,16,18,20,22,24,28,32,34"
+  [1737424638]="0,2,6,10,12,14,16,18,20,22,23,25,27,31,35,37"
+  [1729932377]=""
+  [1690097605]=""
+)
+staged() {  # in the latest stage check, the block's visibility and flag buckets both list objects
   tail -4 "$R/logs/stagecheck.jsonl" | python3 -c "
 import json, sys
 for l in sys.stdin:
@@ -51,28 +59,41 @@ for l in sys.stdin:
         sys.exit(0 if d['vis']['keys_listed'] and d['flags']['keys_listed'] else 1)
 sys.exit(1)"
 }
+# catch-up after a restart: a fetched block whose conversion is not done
 for cb in "$@"; do
-  need=$(python3 -c "import json;print(int(json.load(open('$R/meta/$cb.json'))['vis_bytes_cross_all']*3.3/2**30))")
-  attempt=0
-  while [ ! -e "$R/mvf/$cb-receipts/fetch.done" ]; do
-    if [[ "$(date -u +%F)" > "$EXPIRY" ]]; then echo "$(now) links expired, stop"; status "$@"; exit 4; fi
-    status "$@"
-    if ! staged "$cb"; then echo "$(now) $cb not staged"; sleep 1800; continue; fi
-    free=$(df -BG --output=avail "$R" | tail -1 | tr -dc 0-9)
-    if [ $((free - need)) -lt $FLOOR_GB ]; then echo "$(now) $cb: disk rule not met (free $free need $need), wait"; sleep 3600; continue; fi
-    attempt=$((attempt + 1))
-    echo "$(now) $cb fetch attempt $attempt (free $free GiB, need $need)"
-    /usr/bin/time -v -o "$R/logs/fetch-$cb-$attempt.time" \
-      python3 "$LOCK" run --slots 1 --mem 4 -- nice -n 19 ionice -c3 \
-      "$V/bin/python" "$R/scripts/uhfs_fetch.py" "$R/sarao-links.txt" "$R/mvf" \
-      --cbid "$cb" --workers "$WORKERS" --max-mbps "$MBPS" >> "$R/logs/fetch-$cb.log" 2>&1
-    rc=$?
-    echo "$(now) $cb fetch attempt $attempt rc $rc"
-    [ -e "$R/mvf/$cb-receipts/fetch.done" ] || sleep 3600
-  done
+  if [ -e "$R/mvf/$cb-receipts/fetch.done" ] && [ ! -e "$R/mvf/$cb-receipts/ms-sha256.done" ]; then
+    SCANS="${SELECTION[$cb]}" setsid nohup bash "$R/scripts/uhfs_convert.sh" "$cb"       >> "$R/logs/convert-$cb.log" 2>&1 < /dev/null &
+  fi
+done
+declare -A ATTEMPT=()
+while :; do
+  if [[ "$(date -u +%F)" > "$EXPIRY" ]]; then echo "$(now) links expired, stop"; status "$@"; exit 4; fi
   status "$@"
-  if [ ! -e "$R/mvf/$cb-receipts/ms-sha256.done" ]; then
-    setsid nohup bash "$R/scripts/uhfs_convert.sh" "$cb" >> "$R/logs/convert-$cb.log" 2>&1 < /dev/null &
+  "$V/bin/python" "$R/scripts/uhfs_stagecheck.py" "$R/sarao-links.txt" "$R/logs/stagecheck.jsonl" > /dev/null 2>&1
+  left=0; picked=""
+  for cb in "$@"; do
+    [ -e "$R/mvf/$cb-receipts/fetch.done" ] && continue
+    left=$((left + 1))
+    if [ -z "$picked" ] && staged "$cb"; then picked=$cb; fi
+  done
+  [ $left -eq 0 ] && break
+  if [ -z "$picked" ]; then echo "$(now) none staged of $left left"; sleep 1800; continue; fi
+  cb=$picked
+  need=$(python3 -c "import json;print(int(json.load(open('$R/meta/$cb.json'))['vis_bytes_cross_all']*3.3/2**30))")
+  free=$(df -BG --output=avail "$R" | tail -1 | tr -dc 0-9)
+  if [ $((free - need)) -lt $FLOOR_GB ]; then echo "$(now) $cb: disk rule not met (free $free need $need), wait"; sleep 3600; continue; fi
+  ATTEMPT[$cb]=$(( ${ATTEMPT[$cb]:-0} + 1 ))
+  n=${ATTEMPT[$cb]}
+  echo "$(now) $cb fetch attempt $n (free $free GiB, need $need)"
+  /usr/bin/time -v -o "$R/logs/fetch-$cb-$n.time"     python3 "$LOCK" run --slots 1 --mem 4 -- nice -n 19 ionice -c3     "$V/bin/python" "$R/scripts/uhfs_fetch.py" "$R/sarao-links.txt" "$R/mvf"     --cbid "$cb" --workers "$WORKERS" --max-mbps "$MBPS" >> "$R/logs/fetch-$cb.log" 2>&1
+  rc=$?
+  echo "$(now) $cb fetch attempt $n rc $rc"
+  if [ -e "$R/mvf/$cb-receipts/fetch.done" ]; then
+    if [ ! -e "$R/mvf/$cb-receipts/ms-sha256.done" ]; then
+      SCANS="${SELECTION[$cb]}" setsid nohup bash "$R/scripts/uhfs_convert.sh" "$cb"         >> "$R/logs/convert-$cb.log" 2>&1 < /dev/null &
+    fi
+  else
+    sleep 1800
   fi
 done
 echo "$(now) all fetches ended"

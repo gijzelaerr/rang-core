@@ -5,9 +5,10 @@
 # mvftoms.py (no --applycal). E2-N's configuration (e2n-scripts/e2n.yaml) with
 # only these changes, each with its reason in uhf-gate.md section 4:
 # - this block's fields; J1446-4701 (one scan) is not selected;
-# - data.scans: the selection of uhf-gate.md section 2 (MS numbering checked
-#   against ms-map.json before the run; a mismatch is rewritten from the
-#   katdal list there, never chosen by hand);
+# - no data.scans: the MS holds only the selection of uhf-gate.md section 2,
+#   converted by mvftoms --scans as E2-N's (amendment 1, 2026-11-26, before any
+#   visibility was read: in the first freeze data.scans selected from a whole-
+#   block MS, which only rang would have honoured);
 # - flag.strategy: CARACal 8f7bb363's firstpass_UHF.yaml (SHA-256 4c336933...),
 #   copied into the run root and checked, not committed (GPL-2.0);
 # - calibrate.model: the 1934-638 UHF field model of Hugo (2021), DOI
@@ -27,7 +28,6 @@ fields:
   target: [J1424-6126]
 data:
   weights: uniform
-  scans: [1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16, 17]
 flag:
   strategy: firstpass_UHF.yaml
 calibrate:

@@ -8,7 +8,7 @@
 set -u
 cb=$1; scan=$2
 R=$HOME/rang-data/uhf-s
-V=$HOME/Build/tmp/20261126-uhf-s/venv
+V=$HOME/rang-data/uhf-s/venv
 LOCK=$HOME/Github/rang/tools/heavy_lock.py
 SM=$R/smoke
 mkdir -p "$SM" "$R/mvf"

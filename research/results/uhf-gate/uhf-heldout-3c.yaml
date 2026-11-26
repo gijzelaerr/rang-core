@@ -5,9 +5,10 @@
 # only these changes, each with its reason in uhf-gate.md section 4:
 # - this block's fields; J0408-6545 corrected like the secondary, in no solve
 #   (the leakage and flux-transfer rows of uhf-gate.md section 5);
-# - data.scans: the selection of uhf-gate.md section 2 (MS numbering checked
-#   against ms-map.json before the run; a mismatch is rewritten from the
-#   katdal list there, never chosen by hand);
+# - no data.scans: the MS holds only the selection of uhf-gate.md section 2,
+#   converted by mvftoms --scans as E2-N's (amendment 1, 2026-11-26, before any
+#   visibility was read: in the first freeze data.scans selected from a whole-
+#   block MS, which only rang would have honoured);
 # - flag.strategy: CARACal 8f7bb363's firstpass_UHF.yaml (SHA-256 4c336933...),
 #   copied into the run root and checked, not committed (GPL-2.0);
 # - calibrate.model: the 1934-638 UHF field model of Hugo (2021), DOI
@@ -27,7 +28,6 @@ fields:
   target: [NGC4472]
 data:
   weights: uniform
-  scans: [1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20]
 flag:
   strategy: firstpass_UHF.yaml
 calibrate:

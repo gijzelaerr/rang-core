@@ -108,8 +108,9 @@ block first) is kept, since it changes nothing that is read. The protocol
 ## 3. Fetch and conversion (method)
 
 Scripts in [results/uhf-s-fetch/scripts/](results/uhf-s-fetch/scripts/), copied to
-`~/rang-data/uhf-s/scripts/` on nash. Venv `~/Build/tmp/20261126-uhf-s/venv`
-(uv, Python 3.11.18, public PyPI: katdal 0.23, katsdptelstate 1.0.0,
+`~/rang-data/uhf-s/scripts/` on nash. Venv `~/rang-data/uhf-s/venv` (moved
+there from `~/Build/tmp` the same day, since `~/Build/tmp` may be wiped after 14
+days and the watcher may run for 60; the same freeze; uv, Python 3.11.18, public PyPI: katdal 0.23, katsdptelstate 1.0.0,
 python-casacore 3.8.1, setuptools < 81 for katdal's `pkg_resources` import;
 [venv-freeze.txt](results/uhf-s-fetch/venv-freeze.txt)).
 
@@ -121,22 +122,28 @@ python-casacore 3.8.1, setuptools < 81 for katdal's `pkg_resources` import;
   (default 40 MB/s over 6 workers) to keep nash's link friendly; and a
   lost-chunk bound: more than max(5, 0.1 %) of chunks answering HTTP 404 means
   the block is not on the store, so `fetch.done` is withheld (exit 3). E2-N
-  lost 2 of 6,545.
+  lost 2 of 6,545. Below the bound, `fetch.done` waits until a pass at least an
+  hour later finds the same lost list, so chunks still being staged are not
+  taken as lost.
 - **Driver** ([uhfs_fetch_all.sh](results/uhf-s-fetch/scripts/uhfs_fetch_all.sh)):
-  blocks in the order 1737424638, 1740534088, 1729932377, 1690097605. Before each
-  fetch it lists the block's buckets
-  ([uhfs_stagecheck.py](results/uhf-s-fetch/scripts/uhfs_stagecheck.py)) every
-  30 minutes and fetches only when both list objects; a fetch that stops on the
-  lost bound waits an hour and resumes (fetched chunks are kept). Disk rule:
+  every 30 minutes it lists every block's buckets
+  ([uhfs_stagecheck.py](results/uhf-s-fetch/scripts/uhfs_stagecheck.py)) and
+  fetches the first block, in the order 1737424638, 1740534088, 1729932377,
+  1690097605, whose two buckets both list objects and which is not yet fetched,
+  so one unstaged block does not hold up the others. A fetch that ends with
+  chunks missing is retried on a later pass (fetched chunks are kept). Disk rule:
   2 TiB stays free after the block's MVF and MS (3.3 times the cross
   visibilities). It stops at the links' expiry (2027-01-24). Each fetch is a
   shared lock job of 1 slot and 4 GB. It writes `~/rang-data/uhf-s/status.md`.
 - **Conversion** ([uhfs_convert.sh](results/uhf-s-fetch/scripts/uhfs_convert.sh)),
   one block at a time: E2-N's `mvftoms.py -f -a --flags
   static,cam,data_lost,ingest_rfi,predicted_rfi` on the local RDB (no token, no
-  network, no `--applycal`, default `--quack 1`), the whole block, into
-  `~/rang-data/uhf-s/ms/<cbid>.ms`; booked 4 slots and 32 GB (unmeasured at 4k:
-  E2-N's 1k conversion peaked at 5.6 GB). Then E2-N's prep step unchanged
+  network, no `--applycal`, default `--quack 1`) into
+  `~/rang-data/uhf-s/ms/<cbid>.ms`. **UHF blocks are converted as the gate's
+  selection** (`--scans`, [uhf-gate.md](uhf-gate.md) section 2 and amendment 1),
+  as E2-N converted its selection; the S-band blocks whole. Booked 4 slots and
+  32 GB: **unmeasured** at 4k (the smoke had no data, and no 4k MVF chunks
+  remain on nash to test with; E2-N's 1k conversion peaked at 5.6 GB). Then E2-N's prep step unchanged
   ([uhfs_prep_ms.py](results/uhf-s-fetch/scripts/uhfs_prep_ms.py): token search
   of every subtable and keyword, SIGMA_SPECTRUM removed, the MS map, SHA-256 of
   FLAG and FLAG_ROW), then SHA-256 of every file of the MS. Every log is
@@ -145,7 +152,8 @@ python-casacore 3.8.1, setuptools < 81 for katdal's `pkg_resources` import;
   links expire in about 60 days and restaging is slow, so the chunks are the
   only way to rebuild an MS after that; they are deleted when the gate has run.
 - **Disk.** /home on nash had 12.8 TB free at the start. All four blocks at 3.3
-  times their cross visibilities need about 5.1 TiB at the peak, leaving about
+  times their cross visibilities (whole-block MSs; the UHF selections are
+  smaller) need at most about 5.1 TiB at the peak, leaving about
   7.5 TiB, above the 2 TiB floor. This exceeds uhf-scope.md section 5's "under
   2 TB on nash without a note": this section is that note.
 
@@ -213,3 +221,9 @@ Rows are also in [tool-timings.md](tool-timings.md).
   the gate has run.
 - `uhf-11` (unmerged) and this branch both append to `uhf-scope.md`: a
   trivial merge conflict, both sections kept.
+- **The watcher needs kept on nash:** `~/rang-data/uhf-s/` (link file, `venv/`,
+  `scripts/`, `meta/`, `mvf/`, `ms/`) and the main checkout's
+  `tools/heavy_lock.py`. Its status is `~/rang-data/uhf-s/status.md` (rewritten
+  at each pass) and its log `logs/fetch-all.log`; the Windows status file
+  `outputs/status/uhf-s-fetch.md` is no longer updated after this hand-back.
+  Stop it with `kill` on the pid in `status.md`.

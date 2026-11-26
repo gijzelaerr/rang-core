@@ -4,7 +4,7 @@
 # research/results/uhf-11/caracal-uhf-draft.yml) with three changes:
 # refant auto (A0 6.4 item 7, E3-B's shipped value), the polcal section of
 # E3-B (meerkat-fullStokes-continuum-defaults: xcal 3C 286, leakage on fcal),
-# and the gain calibrator's fields left to CARACal's tag detection (obsconf).
+# and the calibrator roles named in obsconf (amendment 1).
 # Owner decision D4 of uhf-scope.md, taken by the coordinator 2026-11-26.
 schema_version: 1.2.0
 general:
@@ -13,6 +13,14 @@ getdata:
   dataid: ['']
   extension: ms
 obsconf:
+  # amendment 1 (2026-11-26, before any visibility): the calibrator roles are
+  # named, so that on the held-out block CARACal does not take J0408-6545 (also
+  # tagged fluxcal and bpcal) as a primary; the same names as rang's roles.
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  xcal: [J1331+3030]
+  gcal: [all]
+  target: [all]
   refant: auto
 transform:
   enable: true

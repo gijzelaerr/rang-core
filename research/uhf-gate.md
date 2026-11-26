@@ -56,7 +56,7 @@ scans:
 - target NGC4472, the middle three of seven: 12, 16, 25;
 - **reserve:** 29, 33; **untouched:** 4, 8.
 
-**MS numbering.** mvftoms numbers the written track scans 1 to N in time order.
+**MS numbering (replaced by amendment 1).** mvftoms numbers the written track scans 1 to N in time order.
 The frozen configurations' `data.scans` are that prediction: D
 `[1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 14, 16, 17]`, H
 `[1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 19, 20]`. After conversion
@@ -65,7 +65,8 @@ list is rewritten mechanically from the katdal lists above and the rewrite is
 recorded before the run. That read is metadata, as E2-N's.
 
 **The whole blocks are converted** (uhf-s-fetch.md section 3); the selection is
-made by `data.scans`, so the reserve needs no second fetch.
+made by `data.scans`, so the reserve needs no second fetch. (Replaced by
+amendment 1: the gate MS holds the selection only.)
 
 **Order of reading.** D's run and its post chain run once, and every gated row
 of D is read and recorded. H is then read **once**: with the configuration
@@ -124,7 +125,7 @@ They are E2-N's `e2n.yaml` with these changes only:
 | --- | --- | --- | --- |
 | roles | D: fcal = bpcal J1939-6342, gcal J1424-4913, xcal J1331+3030, target J1424-6126. H: gcal J1150-0023, target NGC4472, the rest as D | this track's | the blocks' calibrators |
 | J0408-6545 (H) | corrected like the secondary (K, F, B, Kcross, Xf, Df); in no solve | the same on E2-N | the leakage and flux-transfer check source (section 5) |
-| `data.scans` | section 2 | none | the frozen selection |
+| `data.scans` | section 2 (removed by amendment 1) | none | the frozen selection |
 | `flag.strategy` | CARACal 8f7bb363 `firstpass_UHF.yaml` (SHA-256 `4c336933…9856`, copied into the run root and checked; not committed, GPL-2.0) | the L-band calibrator first pass | CARACal's UHF strategy is the flagging oracle's; the port is flag for flag with it on three L-band scans (uhf-11 P1: 0 of 1.18e9 cells) |
 | `flag.static_masks` | `tricolour` (both of Tricolour 0.2.1's masks, as Tricolour loads them) | the same | uhf-11 section 2: choosing a mask per band would depart from the oracle |
 | `calibrate.model` | `source: lsm`, the DOI 1934-638 catalogue (section 3) | `setjy`, SR2016 | section 3 |
@@ -280,6 +281,38 @@ uvrange) with:
 - Whether UHF static-mask coverage below 915 MHz is enough (reported through
   flag fractions; not a gate).
 - katbeam or the holography beam: nothing in the chain applies a primary beam.
+
+## Amendment 1 (2026-11-26, before any visibility, flag or weight was read; not post hoc)
+
+Written after a review of the first freeze (commit `9cf2bbd3`), the same day; no
+block was staged, so nothing had been or could have been read. Three changes:
+
+1. **The gate MS holds only the selection** (E2-N's route). In the first freeze
+   the whole block was converted and `data.scans` chose the scans. Only rang
+   honours `data.scans`: Tricolour (3a), the flag hashes (2a), dask-ms and
+   WSClean (2b), CASA's calls and the scorers would have read the reserve and
+   the untouched scans too. Now each UHF block is converted by `mvftoms --scans`
+   with section 2's katdal list (D `2,4,8,12,14,16,18,20,22,24,28,32,34`; H
+   `0,2,6,10,12,14,16,18,20,22,23,25,27,31,35,37`), the four configurations
+   have no `data.scans`, and the MS map is still read and recorded before the
+   run. The MVF chunks of every track scan are fetched and kept, so the reserve
+   is converted from them only if a fix is tested on it. The S-band blocks are
+   converted whole (no selection is frozen for them).
+2. **CARACal's roles are named** (`caracal-uhf.yml` obsconf: fcal and bpcal
+   J1939-6342, xcal J1331+3030, gcal and target `all`). On H, J0408-6545 is also
+   tagged `fluxcal` and `bpcal`, and CARACal's tag detection could have taken
+   it as a primary with CARACal's own 0407 catalogue. E3 still reports that
+   CARACal's 1934-638 catalogue is not the DOI file.
+3. **Disclosed: calibrate's `average_time` and `average_freq` with a field
+   model.** Both average the data and the model separately within each
+   solution interval (the keys' documented behaviour, `core_config.py`; CASA's
+   pre-averaging does the same), and `bandpass_model_divided` stays false as on
+   E2-N. With a field model rather than a phase-centre point, the averaged model
+   is no longer a point of constant amplitude, so this is CASA's approximation
+   in both arms, not an exact solve. Both arms make it; it is not a gate
+   change.
+
+Unchanged: every tolerance, the split, the models and the decision rule.
 
 ## For the coordinator
 

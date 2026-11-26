@@ -6,11 +6,16 @@
 # (token check, SIGMA_SPECTRUM removed, MS map, FLAG and FLAG_ROW hashes) and a
 # SHA-256 of every file of the MS. One block at a time (flock); each step a
 # shared heavy-lock job under nice -n 19 ionice -c3.
-#   bash uhfs_convert.sh CBID
+# SCANS (katdal track indices, comma list) converts a selection, as E2-N's
+# e2n_tomss.sh; empty converts every track scan.
+#   SCANS=... bash uhfs_convert.sh CBID
 set -u
 cb=$1
 R=$HOME/rang-data/uhf-s
-V=$HOME/Build/tmp/20261126-uhf-s/venv
+V=$R/venv
+SCANS=${SCANS:-}
+SEL=()
+[ -n "$SCANS" ] && SEL=(--scans "$SCANS")
 LOCK=$HOME/Github/rang/tools/heavy_lock.py
 REC=$R/mvf/$cb-receipts
 MS=$R/ms/$cb.ms
@@ -21,10 +26,11 @@ RDB=$(ls "$R/mvf/$cb/"*.rdb | head -1)
 step() { echo "$(date -u +%FT%TZ) $cb $1 $2 free $(df -BG --output=avail "$R" | tail -1 | tr -d ' ')"; }
 if [ ! -e "$REC/mvftoms.done" ]; then
   rm -rf "$MS"
-  step mvftoms start
+  step mvftoms "start scans ${SCANS:-all}"
+  echo "${SCANS:-all}" > "$REC/mvftoms-scans.txt"
   python3 "$LOCK" run --slots 4 --mem 32 -- nice -n 19 ionice -c3 \
     /usr/bin/time -v -o "$REC/mvftoms.time" "$V/bin/python" "$V/bin/mvftoms.py" -f -a \
-    --flags static,cam,data_lost,ingest_rfi,predicted_rfi -o "$MS" "$RDB" > "$R/ms/$cb-mvftoms.log" 2>&1
+    --flags static,cam,data_lost,ingest_rfi,predicted_rfi "${SEL[@]}" -o "$MS" "$RDB" > "$R/ms/$cb-mvftoms.log" 2>&1
   rc=$?
   step mvftoms "rc $rc"
   [ $rc -eq 0 ] || exit $rc

@@ -21,6 +21,10 @@ dl2_fetch.py's method (itself e2n_fetch.py's), changed in five points:
   retried (katdal marks it data_lost in the conversion). More lost chunks than
   --max-lost (fraction of all, at least 5) means the block is not streaming
   from the archive (not staged): fetch.done is withheld and the exit is 3.
+  Below the bound, fetch.done is written only when the same lost list was
+  recorded by an earlier pass at least an hour before (lost-previous.json), so
+  chunks that are merely not staged yet are not taken as lost; otherwise the
+  list is recorded and the exit is 3.
 Writes DEST/<cbid>-receipts/fetch-progress.jsonl (one line a minute) and
 fetch.json at the end, then DEST/<cbid>-receipts/fetch.done when no chunk
 failed. Exit 1 if any chunk failed other than lost, 3 if too many were lost.
@@ -282,6 +286,19 @@ def main(argv=None):
     if len(state["lost"]) > max(5, a.max_lost * len(jobs)):
         print(f"{len(state['lost'])} of {len(jobs)} chunks lost: not streaming")
         return 3
+    if state["lost"]:
+        prev_path = receipts / "lost-previous.json"
+        lost = sorted(state["lost"])
+        prev = json.loads(prev_path.read_text()) if prev_path.exists() else None
+        if not (prev and prev["lost"] == lost and time.time() - prev["time"] >= 3600):
+            if not (prev and prev["lost"] == lost):
+                prev_path.write_text(
+                    json.dumps({"time": time.time(), "lost": lost}) + "\n"
+                )
+            print(
+                f"{len(lost)} chunks lost: recorded; fetch.done waits for a pass an hour later"
+            )
+            return 3
     (receipts / "fetch.done").write_text(
         time.strftime("%Y-%m-%dT%H:%M:%SZ\n", time.gmtime())
     )
