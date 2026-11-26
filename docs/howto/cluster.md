@@ -59,7 +59,10 @@ Torque (`qsub -t`) writes the same script in Torque's dialect; it has not
 been run on a Torque cluster. `--scheduler local` starts the workers as
 processes on this machine (any OS). `--dry-run` writes the script into
 `SPOOL/launch/<id>/worker.sh` and submits nothing, so you can read or edit it
-and submit it yourself.
+and submit it yourself. `--directive` only adds `#SBATCH` / `#PBS` header
+lines; for shell lines your site needs (`module load`, `source` of an
+environment), use `--dry-run`, add them to `worker.sh` before its `exec`
+line, and submit it with `sbatch` or `qsub`.
 
 Each worker runs `PYTHON -m rang.core_spool worker SPOOL --threads T
 --idle-exit S` with the interpreter you ran `submit` with, and exits after

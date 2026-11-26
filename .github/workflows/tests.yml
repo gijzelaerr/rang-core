@@ -158,6 +158,8 @@ jobs:
           sudo systemctl restart munge slurmctld slurmd
           for _ in $(seq 30); do sinfo -h -o %T | grep -q idle && break; sleep 2; done
           sinfo
+          # A cluster that did not come up fails here, not as a skipped test.
+          sinfo -h -o %T | grep -q idle
       - name: pytest
         run: |
           "$PY" -m pytest -q -ra
