@@ -291,3 +291,11 @@ and flags bitwise equal, but a different M₁ (from the float32 input). Part
 (1) is rerun with the float64 residual as Högbom's input; part (2) is kept.
 MS12 and ATM12 had started (they reuse only A0's gains, whose solve part (2)
 confirms).
+
+**A2, 2026-11-26, post hoc diagnostic (after ATM12's records and its M₆
+and M₁₂ scored points were read; before any MS12, Q12 or AT12 scored point
+was read). It changes no frozen rule or reading.** ATM12's minor cycles hit
+the 5,000-component cap every cycle and the clip removed about −0.5 Jy of
+d1 flux per cycle. Diagnostic `spill` reruns minor cycle S on the saved
+(float32) cycle-0 and cycle-1 residuals of ATM12 and MS12 and locates the
+clipped flux: in d0, within 16 px of a pin box, elsewhere. Reported only.

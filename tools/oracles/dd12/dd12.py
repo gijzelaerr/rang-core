@@ -553,6 +553,50 @@ def score(root):
     write_json(root / "score.json", rec)
 
 
+# -- post hoc diagnostic A2: where minor cycle S's clipped flux sits ----------------
+
+
+def spill(root, arms=("ATM12", "MS12"), cycles=(0, 1)):
+    """Rerun S on saved residuals (float32 copies, so the record is
+    diagnostic only) and locate the clipped flux: in d0, within 16 px of a
+    pin box, elsewhere (facet edges)."""
+    from scipy import ndimage
+
+    root = Path(root)
+    ctx = dd11.masks_ctx(root / "O")
+    clean_interior = ctx["interior"] & (ctx["idx"] > 0)
+    search = ctx["search"] & (ctx["idx"] > 0)
+    psf_img = np.load(root / "psf" / "O.npy")
+    b = json.loads((root / "gate" / "gatem.json").read_text())["beam_pixels"]
+    pins = np.zeros_like(search)
+    st = json.loads((root / "O" / "setup.json").read_text())
+    for y, x in st["pins"]:
+        pins[max(y - 2, 0) : y + 3, max(x - 2, 0) : x + 3] = True
+    near = ndimage.binary_dilation(pins, iterations=16)
+    d0 = ctx["idx"] == 0
+    rec = {}
+    for arm in arms:
+        for k in cycles:
+            r = np.load(root / "loop" / arm / f"cycle-{k}" / "residual.npy").astype(
+                np.float64
+            )
+            inc, full, _, _ = multiscale(
+                r, psf_img, clean_interior, search, b, nscales_used(root)
+            )
+            out = full - inc
+            parts = {"d0": d0, "near_pins": near & ~d0, "other": ~near & ~d0}
+            rec[f"{arm}-cycle-{k}"] = {
+                "clipped_net": float(out.sum()),
+                "clipped_abs": float(np.abs(out).sum()),
+                "parts_net": {n: float(out[m].sum()) for n, m in parts.items()},
+                "parts_abs": {n: float(np.abs(out[m]).sum()) for n, m in parts.items()},
+                "kept_near_pins_net": float(inc[near].sum()),
+                "kept_net": float(inc.sum()),
+            }
+            print(json.dumps(rec[f"{arm}-cycle-{k}"]), flush=True)
+    write_json(root / "spill.json", rec)
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     cmd = argv[0] if argv else ""
@@ -568,6 +612,8 @@ def main(argv=None):
         gatem(argv[1])
     elif cmd == "loop":
         loop(argv[1], argv[2])
+    elif cmd == "spill":
+        spill(argv[1])
     elif cmd == "score":
         score(argv[1])
     else:
