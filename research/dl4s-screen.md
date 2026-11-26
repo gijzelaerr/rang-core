@@ -1,7 +1,8 @@
 # Rang: one-day screenings of stages 3, 4 and 5a for a learned replacement (#44, DL4s)
 
 Status at freeze, 2026-11-20: **proposed; stages 4 and 5a decided from the record (section 5), stage 3's
-probe not run.** Branch `dl4s-screen` from origin/main `92e67e2f`. Route:
+probe not run.** Status 2026-11-26: stage 3's probe run on eight of nine blocks (2.4-2.7), outcome
+**pilot** by the 2.4 count, one new delay-ambiguity instance by class. Branch `dl4s-screen` from origin/main `92e67e2f`. Route:
 [docs/agents/propose-and-measure.md](../docs/agents/propose-and-measure.md). Plan:
 [dl-plan.md](dl-plan.md) stage table rows 3, 4, 5a ("one-day screenings, outcome recorded"); cost basis:
 [dl0-profile.md](dl0-profile.md) (final form `6dd70c86`). nash's account was locked from about 10:00 SAST
@@ -134,6 +135,82 @@ from a result.
 - **Host and bookings.** nash, one shard per block, `--slots 2 --mem 16` for calibrate as frozen;
   the concat and flag steps book their own honest figures.
 
+### 2.5 Implementation notes (dated, during the run; none changes a measure or the rule)
+
+- 2026-11-24 09:30 SAST, before any solution: CASA `concat` opens its inputs read/write, so each
+  source scan is first copied (modes dropped) into a staging directory of the run root and the
+  concat reads the copies, which are then deleted. The frozen per-scan MSs stayed read-only.
+- 2026-11-24 11:50 SAST, after the smoke block's screen and before any other block's solve: the
+  SCAN_NUMBER written is the katdal index **+ 1** (index 0 exists; 0 marked unmatched rows in the
+  check). The smoke block 1735892129 (no scan 0) kept the plain index. Intervals are time ranks
+  per field, so the screen does not depend on it.
+- Bookings: concat 1 slot / 8 GB, flag 4 slots / 24 GB (`RAYON_NUM_THREADS=4`), calibrate as
+  frozen, 2 slots / 16 GB. Wall time: 2.3's "one day" was not met: eight blocks ended between
+  2026-11-24 10:43 and 2026-11-26 09:43 SAST; 1571938260 (41 primary scans, 319 GB) was still in
+  its key-off calibrate at hand-back (section 2.6).
+- Positive control (glacier, E2-A's archived rang K1, G1, B1 at `D:\rang\outputs\e2a-20261115`,
+  [control/](results/dl4s-stage3/control/)): the screen finds ID 50, K1 interval 7 (2,335 /
+  2,291 ns) as the only K1 outlier of 14 intervals, and ID 50's G1 intervals 6-8 (amplitude
+  deviation 0.48-0.96) as the only G1 outliers, as on record. Catch (b) was checked by an injected
+  flag only (`ctl_catch_b.py`): the archived CASA G1 there does not carry the minsnr flag that
+  e2a-3b-k 7 read on a different CASA run.
+
+### 2.6 Measured result (2026-11-26; eight of nine blocks)
+
+Run root nash `~/rang-data/outputs/dl4s-stage3-20261124/` (`blocks/<cbid>/`: configs, scan list,
+run directories with the CASA tables and receipts, `screen.json`; `logs/`). Wheel
+`rang_core-0.4.0` from `6f438bc9` (sha256 395aef97…0890871, `_core` a0459af5…a422). Archive:
+[results/dl4s-stage3/summary-8-of-9.json](results/dl4s-stage3/summary-8-of-9.json).
+
+Key-on arm, amplitude reading (2.4's count); outliers / caught by neither (a) nor (b):
+
+| Block (split) | Primary scans | K | G | B (rows × hand) | Gsec | F | (block, term) |
+| --- | ---: | --- | --- | --- | --- | --- | --- |
+| 1735892129 (train) | 2 | 0 | 0 | 0 | 0 | 0 | – |
+| 1749428161 (train) | 3 | 0 | 0 | 276 / 0 | 2 / 1 | 2 / 1 | Gsec |
+| 1629213076 (train) | 3 | 0 | 0 | 296 / 1 | 0 | 0 | B |
+| 1611426666 (train) | 1 (no median) | – | – | – | 1 / 1 | 1 / 1 | Gsec |
+| 1573212012 (validation) | 6 | 11 / 11 | 0 | 671 / 0 | 0 | 0 | K |
+| 1678312253 (held out) | 2 | 4 / 4 | 4 / 4 | 4 / 4 | 22 / 8 | 26 / 12 | K, Gsec |
+| 1674958551 (held out) | 1 (no median) | – | – | – | 4 / 4 | 4 / 4 | Gsec |
+| 1579022459 (held out) | 5 | 0 | 0 | 580 / 42 | 1 / 1 | 1 / 1 | B, Gsec |
+| 1571938260 (train) | 41 | running | | | | | |
+
+**Independent instances by 2.4's reading: 9 (block, term) pairs on eight blocks**, the same in the
+5-sigma reading and in the key-off arm. The complex reading gives 22 (21 at 5 sigma), mostly the
+G-type phase following the refant over hours, as 2.4 expected. `k_zero_start` changed nothing: K
+tables are bitwise equal between the arms on every block (the key is `true` in every key-on
+`config.resolved.json`; rang does not record whether the zero start won an interval). The ninth
+block can only add pairs.
+
+**Outcome under rule 2.2 as read in 2.4: pilot (≥ 3).** Recorded as the frozen outcome.
+
+### 2.7 What the instances are (2026-11-26, post hoc reading of the result, not a rule)
+
+2.2 asks for "a failure class"; 2.4 counted any uncaught outlier. Read by class:
+
+- **K at the delay ambiguity: one new instance.** 1678312253 (held out), antenna index 25, primary
+  J1939-6342: 0.13 / 0.10 ns in its first scan, **−2,392.39 / −2,392.41 ns** in its second
+  (12,737 s later), i.e. −1/(2Δν) for 4,096 channels over 856 MHz, the signature of E2-A's ID 50
+  (2,335 ns near 2,392). Unflagged, its G SNR above 3, and `k_zero_start` did not move it (per
+  interval the key keeps the start with the lower residual over every antenna; whether that limit,
+  stated in calchain-floor 13, is the reason is not measured: the concat was deleted). Its G, B on
+  J1939-6342 and its late Gsec / F on J1517-2422 (intervals 14-17, 28-35 % low; K interpolated
+  towards −2,392 ns) are downstream; the Gsec pair would drop by the "downstream is one event"
+  idea of 2.4, which 2.4 applied only within one field: 8 pairs rather than 9. With E2-A's, the
+  record holds **two** instances of this class, below 2.2's three.
+- **K 0.10-0.14 ns from the median:** 1573212012, antennas 43, 51-53, first one or two of six
+  scans. Threshold-level; cause not examined.
+- **Gsec / F 10.1-11.5 %:** single gain-calibrator scans in 1749428161, 1611426666, 1674958551,
+  1579022459. Threshold-level; cause not examined.
+- **B channels 10-55 %:** 1579022459 (42 rows × hand, 1-26 channels each, J0408-6545 under a unity
+  model), 1629213076 (antenna 29, one scan, 112 channels at 11 %). Cause not examined.
+
+So the pilot outcome rests on threshold-level deviations of mixed kinds; the one demonstrable solver
+failure class has two instances (one here), and the classical key meant for it did not fix the new
+one. The coordinator decides whether the pilot note of 2.2 (training on injected bad intervals in
+A1) is written; this task did not write it.
+
 ## 3. Stage 4: polarisation terms (reading of seen results)
 
 - **Cost:** about 2 % of the run (section 1), mostly reads; a warm start cannot save wall time
@@ -169,7 +246,7 @@ from a result.
 
 | Stage | Outcome | Basis |
 | --- | --- | --- |
-| 3 | **probe pending** (rule 2.2) | one instance on record, fixed classically; probe on #39's blocks when nash returns |
+| 3 | **pilot** (rule 2.2 as read in 2.4, 2026-11-26; eight of nine blocks) | 9 uncaught (block, term) pairs; by class (2.7, post hoc) only one new delay-ambiguity instance, two with E2-A's; `k_zero_start` moved nothing |
 | 4 | **null** (post hoc reading) | about 2 % of the run, mostly reads; no rang failure class |
 | 5a | **null** (post hoc reading) | ≤ 7.6 % of selfcal; coarse gridder already shipped; no neural degridder exists |
 
@@ -178,6 +255,12 @@ from a result.
 - Stages 4 and 5a: null from the record, labelled post hoc; no host time spent. If you want a blind
   form, stage 5a's would be an ε 1e-2 / 1e-3 timing of the core degridder (classical, an evening on
   glacier after 21:00); I did not plan it, because the bound is below the rule either way.
-- Stage 3: one day on nash once #39's blocks are converted; needs nash back.
+- Stage 3 (2026-11-26): probe run on eight of nine blocks; outcome **pilot** by 2.4's count
+  (9 pairs), but by class (2.7) the only solver failure is a second delay-ambiguity K (1678312253,
+  antenna index 25, −2,392 ns) that `k_zero_start` did not fix. Open decisions: write 2.2's pilot
+  note or not; and, classically, why the key missed that interval (re-solve that scan with the key,
+  and look at the antenna's channels), which is a rang K defect lead, not a network task.
+  1571938260 was still in calibrate at hand-back; its driver writes `screen.json` and deletes its
+  concat by itself; rerun `dl4s_summary.py` then.
 - Classical items seen, not opened: an SNR rule on averaged cells for G (e2a-3b-k 475-478); rang's
   Gpol iteration counts where CASA stops at 50.
