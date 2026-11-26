@@ -74,6 +74,55 @@ def test_refusals():
     assert not {p for p in paths if p.startswith("calibrate.solver_flags")}
 
 
+def test_terms_by_type_or_name():
+    # research/solver-flags-2.md section 3: a type flags every term of that type,
+    # a name only that term; never K, F or the polarisation terms.
+    assert solver_flags.selects(["G", "B"], "G", "G")
+    assert solver_flags.selects(["G", "B"], "G", "Gsec")
+    assert solver_flags.selects(["G", "B"], "B", "B")
+    assert not solver_flags.selects(["Gsec"], "G", "G")
+    assert solver_flags.selects(["Gsec"], "G", "Gsec")
+    assert not solver_flags.selects(["Gsec"], "B", "B")
+    assert solver_flags.selects(["B", "Gsec"], "B", "B")
+    assert not solver_flags.selects(["K"], "K", "K")
+    assert not solver_flags.selects(["Df"], "Df", "Df")
+
+
+def test_terms_by_name_config():
+    chain = {
+        "primary": {
+            "field": ["fcal"],
+            "terms": [
+                {"type": "K", "name": "K"},
+                {"type": "G", "name": "G"},
+                {"type": "B", "name": "B"},
+            ],
+        },
+        "secondary": {"field": ["gcal"], "terms": [{"type": "G", "name": "Gsec"}]},
+    }
+    ok = _config(
+        calibrate={
+            **chain,
+            "solver_flags": {"mode": "quartical", "terms": ["B", "Gsec"]},
+        }
+    )
+    paths = {r.path for r in core_config.refusals(ok, ["calibrate"])}
+    assert "calibrate.solver_flags.terms" not in paths
+    for bad in (["K"], ["Gpol"], ["Nope"]):
+        cfg = _config(
+            calibrate={**chain, "solver_flags": {"mode": "quartical", "terms": bad}}
+        )
+        paths = {r.path for r in core_config.refusals(cfg, ["calibrate"])}
+        assert "calibrate.solver_flags.terms" in paths, bad
+    off = _config(calibrate=chain)
+    on = _config(
+        calibrate={**chain, "solver_flags": {"mode": "quartical", "terms": ["Gsec"]}}
+    )
+    assert core_config.stage_hash(on, "calibrate") != core_config.stage_hash(
+        off, "calibrate"
+    )
+
+
 def test_unquoted_off_reads_as_off():
     config = _config(calibrate={"solver_flags": {"mode": False}})
     assert config["calibrate"]["solver_flags"]["mode"] == "off"

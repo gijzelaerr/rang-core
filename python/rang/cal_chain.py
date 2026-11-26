@@ -683,7 +683,7 @@ def run(
         if kind in ("K", "G", "B"):
             made, records = [], []
             use = common
-            if sf is not None and kind in ("G", "B") and kind in sf["cfg"]["terms"]:
+            if sf is not None and _sf.selects(sf["cfg"]["terms"], kind, name):
                 use = {**common, "solver_flags": sf}
             solved = _solve_fields("solve_one", ms, term, tables, use, executor)
             for f, (table, sol, info) in zip(term["fields"], solved):

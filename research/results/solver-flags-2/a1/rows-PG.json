@@ -1,0 +1,18 @@
+{
+ "ms": "D:/rang/outputs/solver-flags-2-20261126/a1/a1-PG.ms",
+ "src": "D:/rang/outputs/solver-flags-2-20261126/a1/a1-R.ms",
+ "version": "rang_calibrate_20261125T100613Z",
+ "fields": {
+  "3C286-SIM": {
+   "rows": 241920,
+   "flagged_elements": 0.3418225646649719,
+   "flagged_cross_cells": 0.3418225646649719
+  },
+  "SIM-TARGET": {
+   "rows": 2116800,
+   "flagged_elements": 0.2764879310013936,
+   "flagged_cross_cells": 0.2764879310013936
+  }
+ },
+ "seconds": 43.023309399955906
+}

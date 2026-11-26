@@ -3,8 +3,8 @@
 //! `rang_core::cal::fluxscale` (task C2d, `research/c2d-fluxscale.md`), for
 //! `rang.cal_fluxscale`.
 //!
-//! Copyright (C) 2026 Gijs Molenaar. Licensed under the GNU General Public
-//! License, version 3 or (at your option) any later version; see `LICENSE`.
+//! Copyright (C) 2026 Gijs Molenaar. Licensed under the MIT License;
+//! see `LICENSES/MIT.txt`.
 //!
 //! Every array must be C-contiguous with the stated length (a ValueError
 //! names it); CASA's errors raise ValueError with CASA's message.
