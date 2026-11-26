@@ -1,0 +1,739 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 9.0,
+ "name": "1690097605_sdp_l0",
+ "experiment_id": "20230331-0025",
+ "observer": "Ancor Damas Segovia",
+ "description": "S-band continuum study of NGC 1566 and NGC 2442 (Part 1)",
+ "start_utc": "2023-07-23 07:34:42.985",
+ "end_utc": "2023-07-23 11:04:02.044",
+ "dump_period_s": 8.014715757714285,
+ "dumps": 1567,
+ "channels": 4096,
+ "freq_first_hz": 1968750000.0,
+ "freq_last_hz": 2843536376.953125,
+ "channel_width_hz": 213623.046875,
+ "spw": {
+  "centre_freq_hz": 2406250000.0,
+  "bandwidth_hz": 875000000.0,
+  "num_chans": 4096,
+  "product": "c875M4k",
+  "band": "S"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m024",
+  "m025",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m042",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m047",
+  "m048",
+  "m049",
+  "m050",
+  "m051",
+  "m052",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "PKS 0408-658",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "radec": "(1.0835862116596362, -1.1475981012312526)"
+  },
+  {
+   "name": "3C138",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(1.4013459458213753, 0.2904135760719153)"
+  },
+  {
+   "name": "J0825-5010",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(2.205432222184553, -0.8757601613510492)"
+  },
+  {
+   "name": "NGC2442",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.9914090409971834, -1.2135419733220907)"
+  },
+  {
+   "name": "NGC1566",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(1.134494557058224, -0.958845590764877)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SSV-20230209-AD-01",
+  "sb_id_code": "20230331-0025",
+  "description": "S-band continuum study of NGC 1566 and NGC 2442 (Part 1)",
+  "observer": "Ancor Damas Segovia",
+  "experiment_id": "20230331-0025",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "PKS 0408-658",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 40,
+   "start": 1690097686.9919019,
+   "seconds": 320.5886303085714
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "3C138",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 13,
+   "start": 1690098007.580532,
+   "seconds": 104.1913048502857
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "3C138",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 37,
+   "start": 1690098111.771837,
+   "seconds": 296.5444830354285
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 10,
+   "start": 1690098408.3163202,
+   "seconds": 80.14715757714285
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690098488.4634776,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690098632.7283614,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690098664.7872243,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1690099474.273516,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690099514.3470945,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1690100323.8333862,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690100371.9216807,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690100516.1865644,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690100548.2454274,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1690101357.731719,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690101397.8052976,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1690102207.2915893,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690102255.3798838,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690102399.6447675,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690102431.7036304,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1690103241.1899219,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 100,
+   "start": 1690103281.2635007,
+   "seconds": 801.4715757714284
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 7,
+   "start": 1690104082.7350764,
+   "seconds": 56.103010303999994
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690104138.8380868,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 23,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690104283.1029704,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 24,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690104315.1618335,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 25,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690105124.648125,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 26,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690105156.706988,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 27,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1690105966.1932795,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 28,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690106014.2815742,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 29,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690106158.5464578,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 30,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690106190.6053207,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 31,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1690107000.0916123,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 32,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 101,
+   "start": 1690107032.1504753,
+   "seconds": 809.4862915291428
+  },
+  {
+   "scan": 33,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 5,
+   "start": 1690107841.636767,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 34,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690107881.7103457,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 35,
+   "state": "slew",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1690108025.9752293,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 36,
+   "state": "track",
+   "target": "NGC2442",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 100,
+   "start": 1690108066.048808,
+   "seconds": 801.4715757714284
+  },
+  {
+   "scan": 37,
+   "state": "slew",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 5,
+   "start": 1690108867.5203838,
+   "seconds": 40.073578788571425
+  },
+  {
+   "scan": 38,
+   "state": "track",
+   "target": "NGC1566",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 100,
+   "start": 1690108907.5939627,
+   "seconds": 801.4715757714284
+  },
+  {
+   "scan": 39,
+   "state": "slew",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1690109709.0655384,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 40,
+   "state": "track",
+   "target": "J0825-5010",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 18,
+   "start": 1690109757.153833,
+   "seconds": 144.26488363885713
+  },
+  {
+   "scan": 41,
+   "state": "slew",
+   "target": "PKS 0408-658",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 6,
+   "start": 1690109901.4187167,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 42,
+   "state": "track",
+   "target": "PKS 0408-658",
+   "tags": [
+    "radec",
+    "delaycal",
+    "fluxcal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1690109949.5070112,
+   "seconds": 296.5444830354285
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 7320,
+ "cross_products": 7080,
+ "vis_bytes_cross_all": 363539988480,
+ "track_dumps": 1449,
+ "rule": {
+  "band": "S",
+  "receiver_band_hz": [
+   1750000000.0,
+   3500000000.0
+  ],
+  "channel_span_hz": 875000000.0,
+  "stream_bandwidth_hz": 875000000.0,
+  "flux_calibrators": [
+   "PKS 0408-65"
+  ],
+  "polarisation_calibrators": [
+   "3C 138"
+  ],
+  "track_scans": 22,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1690097605"
+}

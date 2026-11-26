@@ -1,0 +1,23 @@
+	Command being timed: "/home/gijs/rang-data/uhf-s/venv/bin/python /home/gijs/rang-data/uhf-s/scripts/uhfs_prep_ms.py /home/gijs/rang-data/uhf-s/ms/1726220298.ms /home/gijs/rang-data/uhf-s/mvf/1726220298-receipts"
+	User time (seconds): 147.90
+	System time (seconds): 83.67
+	Percent of CPU this job got: 33%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 11:23.11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 312548
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 25042089
+	Voluntary context switches: 4503
+	Involuntary context switches: 1890
+	Swaps: 0
+	File system inputs: 6716704
+	File system outputs: 72
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

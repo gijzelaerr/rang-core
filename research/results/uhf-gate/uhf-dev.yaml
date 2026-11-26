@@ -1,0 +1,101 @@
+# The UHF gate (issue #11), development run: research/uhf-gate.md, frozen
+# 2026-11-26 before any UHF visibility, flag or weight was read. SARAO capture
+# block 1740534088 (SCI-20241101-TM-01; replaced by amendment 2), native DATA through katdal's
+# mvftoms.py (no --applycal). E2-N's configuration (e2n-scripts/e2n.yaml) with
+# only these changes, each with its reason in uhf-gate.md section 4:
+# - this block's fields; J1446-4701 (one scan) is not selected;
+# - no data.scans: the MS holds only the selection of uhf-gate.md section 2,
+#   converted by mvftoms --scans as E2-N's (amendment 1, 2026-11-26, before any
+#   visibility was read: in the first freeze data.scans selected from a whole-
+#   block MS, which only rang would have honoured);
+# - flag.strategy: CARACal 8f7bb363's firstpass_UHF.yaml (SHA-256 4c336933...),
+#   copied into the run root and checked, not committed (GPL-2.0);
+# - calibrate.model: the 1934-638 UHF field model of Hugo (2021), DOI
+#   10.48479/hhhy-4r55, read at run time from nash (CC BY-NC 4.0, not shipped);
+# - image: 6,144 x 3", average_channels 4 (1,024 channels of 531 kHz).
+# Amendment 2 (2026-11-26, before any visibility was read): the block is now
+# 1752418159 (SCI-20241101-MH-01); the first freeze's blocks are on tape
+# (uhf-gate.md amendment 2). Changed: the gain calibrator J1609+2641 (CTD93),
+# the target ILTJ153010; nothing else.
+schema: rang-config
+version: 1
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [J1609+2641]
+  xcal: [J1331+3030]
+  target: [ILTJ153010]
+data:
+  weights: uniform
+flag:
+  strategy: firstpass_UHF.yaml
+calibrate:
+  model:
+    source: lsm
+    lsm: /home/gijs/rang-data/uhf/reference/hhhy-4r55/fitted.PKS1934.UBand.wsclean.cat.txt
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: A, name: Asec}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+  polcal:
+    field: [xcal]
+    model: {source: nrao, name: 3C286}
+    feed_angle_rotation: -90
+    extendflags: true
+    terms:
+      - {type: Gpol, name: Gpol, solint: 60s, calmode: p, parang: true,
+         preapply: [K, G, B], interp: [linear, linear, linear]}
+      - {type: KCROSS, name: Kcross, solint: inf, parang: true,
+         preapply: [K, G, B, Gpol], interp: [linear, linear, linear, linear]}
+      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,
+         preapply: [K, G, B, Gpol, Kcross], interp: [linear, linear, linear, linear, nearest]}
+      - {type: Df, name: Df, field: [fcal], solint: inf, combine: scan, parang: true,
+         clip: [-0.6, 0.6], preapply: [K, G, B, Kcross, Xf],
+         interp: [linear, linear, linear, nearest, nearest]}
+apply:
+  calwt: false
+  parang: true
+  targets:
+    - field: [gcal, target]
+      tables: [K, F, B, Kcross, Xf, Df]
+      gainfield: [J1939-6342, J1609+2641, J1939-6342, "", "", ""]
+      interp: [linear, linear, linear, nearest, nearest, nearest]
+    - field: [fcal, xcal]
+      tables: [K, G, B, Gpol, Kcross, Xf, Df]
+      interp: [linear, linear, linear, linear, nearest, nearest, nearest]
+image:
+  fields: [target]
+  column: CORRECTED_DATA
+  size: [6144, 6144]
+  scale: 3asec
+  weight: briggs
+  robust: 0.5
+  average_channels: 4
+  channels_out: 8
+  join_channels: true
+  fit_spectral_pol: 2
+  mgain: 0.9
+  auto_mask: 5.0
+  auto_threshold: 3.0
+  multiscale: true
+selfcal:
+  rounds: 2
+  average_time: true
+  terms: [{type: Sp, solint: 120}, {type: Sa, solint: 120}]
+run:
+  stages: [flag, calibrate, apply, image, selfcal]

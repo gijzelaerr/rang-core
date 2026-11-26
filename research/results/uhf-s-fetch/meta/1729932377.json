@@ -1,0 +1,536 @@
+{
+ "katdal": "0.23",
+ "open_seconds": 7.5,
+ "name": "1729932377_sdp_l0",
+ "experiment_id": "20241018-0009",
+ "observer": "Andrew Hughes",
+ "description": "XKAT S-band 2024-10-20",
+ "start_utc": "2024-10-26 08:47:32.510",
+ "end_utc": "2024-10-26 11:26:46.051",
+ "dump_period_s": 8.014715757714285,
+ "dumps": 1192,
+ "channels": 4096,
+ "freq_first_hz": 2625000000.0,
+ "freq_last_hz": 3499786376.953125,
+ "channel_width_hz": 213623.046875,
+ "spw": {
+  "centre_freq_hz": 3062500000.0,
+  "bandwidth_hz": 875000000.0,
+  "num_chans": 4096,
+  "product": "c875M4k",
+  "band": "S"
+ },
+ "antennas": [
+  "m000",
+  "m001",
+  "m002",
+  "m003",
+  "m004",
+  "m005",
+  "m006",
+  "m007",
+  "m008",
+  "m009",
+  "m010",
+  "m011",
+  "m012",
+  "m013",
+  "m014",
+  "m015",
+  "m016",
+  "m017",
+  "m018",
+  "m019",
+  "m020",
+  "m021",
+  "m022",
+  "m023",
+  "m025",
+  "m026",
+  "m027",
+  "m028",
+  "m029",
+  "m030",
+  "m031",
+  "m032",
+  "m033",
+  "m034",
+  "m035",
+  "m036",
+  "m037",
+  "m038",
+  "m039",
+  "m040",
+  "m041",
+  "m043",
+  "m044",
+  "m045",
+  "m046",
+  "m048",
+  "m049",
+  "m050",
+  "m052",
+  "m053",
+  "m054",
+  "m055",
+  "m056",
+  "m057",
+  "m058",
+  "m059",
+  "m060",
+  "m061",
+  "m062",
+  "m063"
+ ],
+ "ref_ant": "array",
+ "targets": [
+  {
+   "name": "J1939-6342",
+   "aliases": [
+    "1934-638"
+   ],
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "radec": "(5.146178203219012, -1.1119958085589738)"
+  },
+  {
+   "name": "J1331+3030",
+   "aliases": [
+    "3C286"
+   ],
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "radec": "(3.539257924230963, 0.5324854103730366)"
+  },
+  {
+   "name": "J1427-4206",
+   "aliases": [
+    "1424-418"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(3.787095405234679, -0.734877668943748)"
+  },
+  {
+   "name": "CirX1",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.017227975417956, -0.9976748032986208)"
+  },
+  {
+   "name": "J1733-1304",
+   "aliases": [
+    "NRAO530"
+   ],
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "radec": "(4.594776332636443, -0.22829633836607494)"
+  },
+  {
+   "name": "SwiftJ1727",
+   "aliases": [],
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "radec": "(4.571548909174485, -0.28276370099768794)"
+  }
+ ],
+ "obs_params": {
+  "proposal_id": "SCI-20230907-RF-01",
+  "sb_id_code": "20241018-0009",
+  "description": "XKAT S-band 2024-10-20",
+  "observer": "Andrew Hughes",
+  "experiment_id": "20241018-0009",
+  "program_block_id": "",
+  "issue_id": "",
+  "proposal_description": "",
+  "pb_id_code": "",
+  "keys": [
+   "all_up",
+   "capture_block_id",
+   "centre_freq",
+   "config_label",
+   "debug",
+   "description",
+   "dry_run",
+   "experiment_id",
+   "fbfuse_config_auth_host",
+   "horizon",
+   "issue_id",
+   "nd_params",
+   "no_capture",
+   "observer",
+   "pb_id_code",
+   "product",
+   "program_block_id",
+   "projection",
+   "proposal_description",
+   "proposal_id",
+   "quorum",
+   "reduction_label",
+   "sb_id_code",
+   "script_arguments",
+   "script_name",
+   "start_time",
+   "stow_when_done",
+   "trace",
+   "visibility",
+   "yaml"
+  ]
+ },
+ "scans": [
+  {
+   "scan": 0,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 40,
+   "start": 1729932456.517392,
+   "seconds": 320.5886303085714
+  },
+  {
+   "scan": 1,
+   "state": "slew",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 10,
+   "start": 1729932777.1060221,
+   "seconds": 80.14715757714285
+  },
+  {
+   "scan": 2,
+   "state": "track",
+   "target": "J1331+3030",
+   "tags": [
+    "radec",
+    "polcal"
+   ],
+   "dumps": 75,
+   "start": 1729932857.2531798,
+   "seconds": 601.1036818285713
+  },
+  {
+   "scan": 3,
+   "state": "slew",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 9,
+   "start": 1729933458.3568616,
+   "seconds": 72.13244181942856
+  },
+  {
+   "scan": 4,
+   "state": "track",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1729933530.4893034,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 5,
+   "state": "slew",
+   "target": "CirX1",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1729933642.695324,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 6,
+   "state": "track",
+   "target": "CirX1",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1729933674.754187,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 7,
+   "state": "slew",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1729935470.0505168,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 8,
+   "state": "track",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1729935502.1093798,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 9,
+   "state": "slew",
+   "target": "CirX1",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 4,
+   "start": 1729935614.3154004,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 10,
+   "state": "track",
+   "target": "CirX1",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1729935646.3742635,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 11,
+   "state": "slew",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 4,
+   "start": 1729937441.6705933,
+   "seconds": 32.05886303085714
+  },
+  {
+   "scan": 12,
+   "state": "track",
+   "target": "J1427-4206",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1729937473.7294562,
+   "seconds": 120.22073636571427
+  },
+  {
+   "scan": 13,
+   "state": "slew",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 6,
+   "start": 1729937593.9501927,
+   "seconds": 48.08829454628571
+  },
+  {
+   "scan": 14,
+   "state": "track",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 15,
+   "start": 1729937642.0384872,
+   "seconds": 120.22073636571427
+  },
+  {
+   "scan": 15,
+   "state": "slew",
+   "target": "SwiftJ1727",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1729937762.2592235,
+   "seconds": 16.02943151542857
+  },
+  {
+   "scan": 16,
+   "state": "track",
+   "target": "SwiftJ1727",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1729937778.288655,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 17,
+   "state": "slew",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1729939573.5849848,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 18,
+   "state": "track",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1729939597.629132,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 19,
+   "state": "slew",
+   "target": "SwiftJ1727",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 2,
+   "start": 1729939709.8351526,
+   "seconds": 16.02943151542857
+  },
+  {
+   "scan": 20,
+   "state": "track",
+   "target": "SwiftJ1727",
+   "tags": [
+    "radec",
+    "target"
+   ],
+   "dumps": 224,
+   "start": 1729939725.8645842,
+   "seconds": 1795.2963297279998
+  },
+  {
+   "scan": 21,
+   "state": "slew",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 3,
+   "start": 1729941521.160914,
+   "seconds": 24.044147273142855
+  },
+  {
+   "scan": 22,
+   "state": "track",
+   "target": "J1733-1304",
+   "tags": [
+    "radec",
+    "gaincal"
+   ],
+   "dumps": 14,
+   "start": 1729941545.2050612,
+   "seconds": 112.20602060799999
+  },
+  {
+   "scan": 23,
+   "state": "slew",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 7,
+   "start": 1729941657.4110818,
+   "seconds": 56.103010303999994
+  },
+  {
+   "scan": 24,
+   "state": "track",
+   "target": "J1939-6342",
+   "tags": [
+    "radec",
+    "delaycal",
+    "bpcal"
+   ],
+   "dumps": 37,
+   "start": 1729941713.514092,
+   "seconds": 296.5444830354285
+  }
+ ],
+ "corr_pols": [
+  "hh",
+  "hv",
+  "vh",
+  "vv"
+ ],
+ "products_all": 7320,
+ "cross_products": 7080,
+ "vis_bytes_cross_all": 276540948480,
+ "track_dumps": 1134,
+ "rule": {
+  "band": "S",
+  "receiver_band_hz": [
+   1750000000.0,
+   3500000000.0
+  ],
+  "channel_span_hz": 875000000.0,
+  "stream_bandwidth_hz": 875000000.0,
+  "flux_calibrators": [
+   "PKS 1934-638"
+  ],
+  "polarisation_calibrators": [
+   "3C 286"
+  ],
+  "track_scans": 13,
+  "checks": {
+   "antennas_ge_40": true,
+   "four_correlations": true,
+   "band_inside_receiver": true,
+   "channels_ge_1024": true,
+   "full_band": true,
+   "flux_calibrator_scan": true,
+   "scan_table": true
+  },
+  "passes": true
+ },
+ "cbid": "1729932377"
+}

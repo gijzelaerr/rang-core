@@ -1,0 +1,109 @@
+# CARACal 8f7bb363 configuration for the UHF gate's CARACal arm (gate 4, E3's
+# reading words; research/uhf-gate.md section 6), frozen 2026-11-26 before any
+# UHF visibility was read. It is uhf-11's draft (branch uhf-11, commit 860d2b81,
+# research/results/uhf-11/caracal-uhf-draft.yml) with three changes:
+# refant auto (A0 6.4 item 7, E3-B's shipped value), the polcal section of
+# E3-B (meerkat-fullStokes-continuum-defaults: xcal 3C 286, leakage on fcal),
+# and the calibrator roles named in obsconf (amendment 1).
+# Owner decision D4 of uhf-scope.md, taken by the coordinator 2026-11-26.
+# Amendment 2 (2026-11-26, before any visibility): the development block 1752418159; gcal and
+# target named (on 1752418159 3C 286 is also tagged gaincal).
+schema_version: 1.2.0
+general:
+  prefix: uhfgate
+getdata:
+  dataid: ['']
+  extension: ms
+obsconf:
+  # amendment 1 (2026-11-26, before any visibility): the calibrator roles are
+  # named, so that on the held-out block CARACal does not take J0408-6545 (also
+  # tagged fluxcal and bpcal) as a primary; the same names as rang's roles.
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  xcal: [J1331+3030]
+  gcal: [J1609+2641]
+  target: [ILTJ153010]
+  refant: auto
+transform:
+  enable: true
+  field: calibrators
+  label_out: cal
+  split_field: {enable: true, col: data}
+prep:
+  enable: true
+  label_in: cal
+  field: calibrators
+  specweights: {enable: true, mode: uniform}
+flag:
+  enable: true
+  field: calibrators
+  label_in: cal
+  flag_autocorr: {enable: true}
+  flag_spw:
+    # meerkat-defaults' 856~880 MHz and 1658~1800 MHz edges are L band; no UHF
+    # band edges are flagged (rang flags none either).
+    enable: false
+  flag_mask:
+    # meerkat.rfimask.npy is CARACal's L-band mask; the arm relies on
+    # Tricolour's static masks (both, as Tricolour and rang load them).
+    enable: false
+  flag_rfi:
+    enable: true
+    flagger: tricolour
+    tricolour:
+      strategy: firstpass_UHF.yaml
+crosscal:
+  enable: true
+  uvrange: '>150'
+  label_in: cal
+  set_model:
+    enable: true
+    # meerkat_skymodel: true would load the L-band pks1934-638.lsm on UHF data
+    # (uhf-scope 0.5); CARACal's UHF crystalball field model is used instead
+    # (1934-collapsed-uhf-cat.txt, SHA-256 30e4b6ff..., not the DOI file rang
+    # reads: a difference E3 reports, uhf-gate.md section 6).
+    meerkat_skymodel: false
+    meerkat_crystalball_skymodel: true
+  primary:
+    reuse_existing_gains: true
+    order: KGBAKGB
+    combine: ["", "", "", null, "", "", scan]
+    solint: [inf, inf, inf, null, 60s, 60s, inf]
+    calmode: [a, ap, ap, null, a, ap, ap]
+    b_fillgaps: 70
+  secondary:
+    order: KGAKF
+    apply: B
+    combine: ["", "", null, "", ""]
+    solint: [inf, inf, null, inf, inf]
+    calmode: [a, ap, null, a, ap]
+  apply_cal:
+    applyto: [gcal, bpcal]
+polcal:
+  # meerkat-fullStokes-continuum-defaults.yml lines 130-153 at 8f7bb363, verbatim
+  # but for plotgains (no plots in the gate).
+  enable: true
+  label_in: cal
+  label_cal: 1pcal
+  otfcal:
+    enable: true
+    label_cal: 1kgb
+  extendflags: true
+  feed_angle_rotation: '-90'
+  uvrange: '>150'
+  reuse_existing_tables: false
+  pol_calib: xcal
+  leakage_calib: fcal
+  set_model_pol:
+    enable: true
+    nrao_model: true
+  gain_solint: '60s'
+  time_solint: 'inf'
+  plotgains: false
+  apply_pcal: true
+  applyto:
+    - gcal
+    - bpcal
+    - xcal
+selfcal:
+  enable: false          # the gate images with rang's frozen geometry; E3 reads the calibrators
