@@ -1,0 +1,28 @@
+insertO start 2026-11-26T03:27:39+02:00 slots=2 mem=10 py=C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe tools/oracles/dd8/dd8.py insert D:/rang/outputs/dd10-20261126
+insertO end 2026-11-26T03:31:29+02:00 rc=0 wall=230s
+fixedpoint start 2026-11-26T03:37:18+02:00 slots=2 mem=6 py=C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py fixedpoint D:/rang/outputs/dd10-20261126
+abtest-main start 2026-11-26T03:37:49+02:00 slots=1 mem=2 py=C:/Users/gijsm/Github/rang/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py abtest D:/rang/outputs/dd10-20261126/k1b/main.json
+abtest-main end 2026-11-26T03:37:50+02:00 rc=0 wall=1s
+abtest-branch start 2026-11-26T03:49:52+02:00 slots=1 mem=2 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py abtest D:/rang/outputs/dd10-20261126/k1b/branch.json
+abtest-branch end 2026-11-26T03:49:54+02:00 rc=0 wall=2s
+K2b start 2026-11-26T03:50:02+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py point D:/rang/outputs/dd10-20261126 K2b-OX-gs O D:/rang/outputs/dd10-20261126/O/sky.npy gauss-seidel --stop-fraction 2
+K1c start 2026-11-26T03:50:02+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py point D:/rang/outputs/dd10-20261126 K1c-OX-default O D:/rang/outputs/dd10-20261126/O/sky.npy jacobi --one
+fixedpoint end 2026-11-26T03:51:21+02:00 rc=0 wall=843s
+quick1 rc=1 wall=1062s
+K1c end 2026-11-26T03:56:34+02:00 rc=0 wall=392s
+psf-O start 2026-11-26T03:56:49+02:00 slots=4 mem=10 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py psf D:/rang/outputs/dd10-20261126 O
+psf-O end 2026-11-26T03:57:31+02:00 rc=0 wall=42s
+psf-real start 2026-11-26T03:57:31+02:00 slots=4 mem=10 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py psf D:/rang/outputs/dd10-20261126 real
+psf-real end 2026-11-26T03:58:14+02:00 rc=0 wall=43s
+loop-AL start 2026-11-26T03:59:28+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py loop D:/rang/outputs/dd10-20261126 AL
+AX start 2026-11-26T03:59:37+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py point D:/rang/outputs/dd10-20261126 AX-OX-gs O D:/rang/outputs/dd10-20261126/O/sky.npy gauss-seidel
+loop-AT start 2026-11-26T03:59:37+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py loop D:/rang/outputs/dd10-20261126 AT
+K2b end 2026-11-26T04:14:26+02:00 rc=0 wall=1464s
+loop-ALu start 2026-11-26T04:33:03+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py loop D:/rang/outputs/dd10-20261126 ALu
+AX end 2026-11-26T04:38:30+02:00 rc=0 wall=2333s
+loop-RL start 2026-11-26T04:38:30+02:00 slots=8 mem=20 py=C:/Users/gijsm/Worktrees/rang/dd10-gs/.venv/Scripts/python.exe tools/oracles/dd10/dd10.py loop D:/rang/outputs/dd10-20261126 RL
+loop-AT end 2026-11-26T05:26:51+02:00 rc=0 wall=5235s
+quick2 rc=0 wall=4448s
+loop-AL end 2026-11-26T05:32:50+02:00 rc=0 wall=5602s
+loop-ALu end 2026-11-26T06:41:27+02:00 rc=0 wall=7704s
+loop-RL end 2026-11-26T06:58:08+02:00 rc=0 wall=8378s
