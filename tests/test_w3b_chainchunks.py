@@ -375,3 +375,35 @@ def test_extend_in_baseline_blocks_equals_whole_chunks(tmp_path):
     assert out["whole"][0] == out["blocks"][0]
     assert np.array_equal(out["whole"][1], out["blocks"][1])
     assert out["whole"][0]["flagged_after"] > out["whole"][0]["flagged_before"]
+
+
+def test_gaincal_k_warns_on_a_sign_flipped_antenna(tmp_path):
+    """research/k-ambiguity.md: an antenna whose visibilities carry
+    (-1)^channel gets a K near +-1/(2 dnu); gaincal warns, naming it, and
+    records it, and the K table is the one solved."""
+    ms = calibrator_ms(tmp_path / "flip.ms")
+    with core_ms_write.open_table(ms, readonly=False) as t:
+        a1, a2, d = t.getcol("ANTENNA1"), t.getcol("ANTENNA2"), t.getcol("DATA")
+        flip = np.where(np.arange(d.shape[1]) % 2, -1, 1)[None, :, None]
+        on = ((a1 == 2) | (a2 == 2)) & (a1 != a2)
+        d[on] = d[on] * flip
+        t.putcol("DATA", d)
+    common = {
+        "field_id": 0,
+        "refant": 0,
+        "weight_column": "WEIGHT",
+        "model": unit(ms, 0),
+    }
+    with pytest.warns(cal_delay.HalfPeriodDelay, match="ka_scan.py") as caught:
+        table, sol, _ = cal_delay.gaincal(ms, solint="inf", **common)
+    assert any("interval 0" in str(w.message) for w in caught)
+    half = sol.settings["half_period_delays"]
+    assert {d["antenna"] for d in half} == {2} and {d["hand"] for d in half} == {
+        "X",
+        "Y",
+    }
+    rec = cal_chain._solution_record(sol, {"rows": 1, "intervals": [0]}, 0)
+    assert rec["half_period_delays"] == half
+    # The table holds the solved delays; nothing is changed by the check.
+    fparam = np.array(table.column("FPARAM")).reshape(-1, 2)
+    assert np.allclose(fparam[2], sol.delays[0, 0, 2], atol=1e-3)

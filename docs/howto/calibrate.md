@@ -131,6 +131,20 @@ polarisation solves average within one scan and 5° of parallactic angle, so
 an Xf with `combine: scan` over several 3C 286 scans keeps its signal
 ({gh}`research/xf-avg-fix.md`).
 
+## A delay near half a channel period
+
+A K solution with |delay| of a quarter period or more from zero, that is
+within 1/(4Δν) of ±1/(2Δν) (±2,392.5 ns at 4,096 channels over 856 MHz), is
+the delay of data that alternate in sign channel to channel. rang-core warns
+(`rang.cal_delay.HalfPeriodDelay`, naming the antenna, interval, scan and
+value) and lists it under `half_period_delays` in that K solution's record in
+the calibrate summary; the K table is unchanged. Such a K is right for its
+own scan, but interpolating it to other scans is not: check the antenna with
+`research/results/k-ambiguity/ka_scan.py` on the per-scan MSs, and solve K
+per scan (`interp: nearest`) or flag the antenna where the step starts. One
+case is on record, in one of eleven MeerKAT observations
+({gh}`research/k-ambiguity.md`).
+
 ## Self-calibration
 
 `rang-core selfcal` runs CARACal's rounds: image, predict MODEL_DATA, solve one
