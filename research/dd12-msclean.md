@@ -279,3 +279,15 @@ accuracy. Otherwise no real arm runs, and the note says why.
   [tool-timings.md](tool-timings.md). The rebuilt O MS and the PSF arrays
   are deleted at the end; records stay in the run root, a compact archive
   in `results/dd12-msclean/`. D: stays above 150 GB free.
+
+## Amendments
+
+**A1, 2026-11-26, a correction to gate R's code (after gate R's first
+run, before any loop record was read). It changes no frozen rule.** Gate R
+part (1) fed `hogbom_fast` the float32 copy of the cycle-0 residual; DD11's
+loop cleaned the float64 residual and saved the float32 copy. The first run
+gave the residual bitwise equal (max |Δ| 0) and the cycle-1 solve's gains
+and flags bitwise equal, but a different M₁ (from the float32 input). Part
+(1) is rerun with the float64 residual as Högbom's input; part (2) is kept.
+MS12 and ATM12 had started (they reuse only A0's gains, whose solve part (2)
+confirms).

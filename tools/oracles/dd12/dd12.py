@@ -155,7 +155,7 @@ def reuse(root):
 # -- gate R (section 5) ----------------------------------------------------------------
 
 
-def gater(root):
+def gater(root, part1_only=False):
     root = Path(root)
     ctx = dd10.base_ctx(root, "O")
     c = ctx["c"]
@@ -171,10 +171,11 @@ def gater(root):
     ig = np.where(bad[..., None], 1.0 + 0j, gains / np.abs(gains))
     t0 = time.perf_counter()
     models = dd4.facet_models(ctx, np.load(START["O"]))
-    resid = dd10.residual_image(ctx, models, ig, c["w_I"]).astype(np.float32)
+    full = dd10.residual_image(ctx, models, ig, c["w_I"])
+    resid = full.astype(np.float32)  # DD11 saved float32 and cleaned float64 (A1)
     ref = np.load(q6 / "cycle-0" / "residual.npy")
     diff = float(np.abs(resid.astype(np.float64) - ref).max())
-    comps, _, _ = dd11.hogbom_fast(resid, psf_img, clean_interior, search)
+    comps, _, _ = dd11.hogbom_fast(full, psf_img, clean_interior, search)
     m1 = dd3.add_components(np.load(START["O"]), comps)
     m1_ref = np.load(q6 / "cycle-0" / "next_model.npy")
     rec["residual_bitwise"] = bool(np.array_equal(resid, ref))
@@ -183,6 +184,24 @@ def gater(root):
     rec["next_model_bitwise"] = bool(np.array_equal(m1, m1_ref))
     rec["seconds_1"] = time.perf_counter() - t0
     del models
+    if part1_only:  # A1: part (1) again, part (2) kept from the first run
+        prev = json.loads((root / "gate" / "gater.json").read_text())
+        rec["first_run"] = {k: prev[k] for k in prev if k != "first_run"}
+        for k in ("cycle1_gains_bitwise", "cycle1_flags_bitwise", "seconds_2"):
+            rec[k] = prev[k]
+    else:
+        _gater_solve(ctx, root, m1_ref, rec)
+    ok1 = (rec["residual_bitwise"] or rec["residual_rel"] <= 1e-6) and rec[
+        "next_model_bitwise"
+    ]
+    rec["R_pass"] = bool(
+        ok1 and rec["cycle1_gains_bitwise"] and rec["cycle1_flags_bitwise"]
+    )
+    write_json(root / "gate" / "gater.json", rec)
+    print(json.dumps(rec), flush=True)
+
+
+def _gater_solve(ctx, root, m1_ref, rec):
     # (2) the cycle-1 solve with DD11's M_1
     t1 = time.perf_counter()
     models = dd4.facet_models(ctx, m1_ref)
@@ -195,14 +214,6 @@ def gater(root):
         np.array_equal(np.asarray(sol.flags), g1["flags"])
     )
     rec["seconds_2"] = time.perf_counter() - t1
-    ok1 = (rec["residual_bitwise"] or rec["residual_rel"] <= 1e-6) and rec[
-        "next_model_bitwise"
-    ]
-    rec["R_pass"] = bool(
-        ok1 and rec["cycle1_gains_bitwise"] and rec["cycle1_flags_bitwise"]
-    )
-    write_json(root / "gate" / "gater.json", rec)
-    print(json.dumps(rec), flush=True)
 
 
 # -- gate M1 and pilot T (section 5) ---------------------------------------------------
@@ -552,7 +563,7 @@ def main(argv=None):
     elif cmd == "psf":
         dd11.psf(argv[1], argv[2])
     elif cmd == "gater":
-        gater(argv[1])
+        gater(argv[1], part1_only=len(argv) > 2 and argv[2] == "part1")
     elif cmd == "gatem":
         gatem(argv[1])
     elif cmd == "loop":
