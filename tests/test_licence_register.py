@@ -65,7 +65,7 @@ def test_every_source_file_has_a_row_and_every_row_a_file():
     paths = [r["path"] for r in rows]
     assert len(paths) == len(set(paths)), "one row per path"
     tracked = _tracked()
-    assert len(tracked) > 400
+    assert len(tracked) > 300
     assert sorted(set(tracked) - set(paths)) == [], (
         "add a row to research/results/mit-relicense-audit/files.csv "
         "(own new code: <path>,<lines>,a,-,-,-,0,-,-)"

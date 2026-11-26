@@ -101,7 +101,7 @@ core/src/ms_write.rs,b-copyleft,GPL-3.0-or-later
 core/src/multifile.rs,b-copyleft,GPL-3.0-or-later
 core/src/predict.rs,b-permissive,MIT AND BSD-3-Clause
 core/src/prox_solver.rs,a,MIT
-core/src/reweight.rs,c,MIT
+core/src/reweight.rs,c-src,GPL-3.0-or-later
 core/src/robust.rs,a,MIT
 core/src/sara.rs,a,MIT
 core/src/solve.rs,b-permissive,MIT
@@ -222,8 +222,8 @@ python/rang/mcp_server.py,a,MIT
 python/rang/mcp_tools.py,a,MIT
 python/rang/measures.py,a,MIT
 python/rang/meerkat.py,d,GPL-3.0-or-later AND BSD-3-Clause
-python/rang/msv4.py,a,MIT
-python/rang/msv4_flags.py,a,MIT
+python/rang/msv4.py,c,MIT
+python/rang/msv4_flags.py,c,MIT
 python/rang/notebook/__init__.py,a,MIT
 python/rang/notebook/_plot.py,a,MIT
 python/rang/notebook/carta.py,a,MIT
@@ -242,7 +242,7 @@ python/rang/oracles/casacure.py,a,MIT
 python/rang/pointing.py,a,MIT
 python/rang/pointing_selfcal.py,a,MIT
 python/rang/projector.py,a,MIT
-python/rang/reweight.py,c,MIT
+python/rang/reweight.py,c-src,GPL-3.0-or-later
 python/rang/rusage.py,a,MIT
 python/rang/simtruth.py,a,MIT
 python/rang/simtruth_ms.py,a,MIT
@@ -448,6 +448,7 @@ tests/test_information_budget.py,a,MIT
 tests/test_k_refant_53.py,a,MIT
 tests/test_l5_solver.py,a,MIT
 tests/test_l5c.py,a,MIT
+tests/test_licence_register.py,a,MIT
 tests/test_lsm.py,a,MIT
 tests/test_mcp_chain.py,a,MIT
 tests/test_mcp_server.py,a,MIT

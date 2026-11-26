@@ -645,14 +645,18 @@ code is one line: `<path>,<lines>,a,-,-,-,0,-,-`.
 **Rows added since d4b13e9b (2026-11-17).** 173 files had no row: 26 shipped
 and 147 in `tools/`. Each one's head, its upstream mentions and the research
 note it cites were read.
-- Class a: 166 files. These include the F4/F5 flaggers, `learned_interp.rs`, `diag_stream.rs`, `cal_stream`, `core_spool`, `watch`, `msv4`, `msv4_flags`, `solver_flags.py`, `flag_residual.py`, every binding in `core/py/src`, and every new `tools/` script (the DD1-DD10, ts-p2/p3, multinode and chunk-task drivers call WSClean, QuartiCal and CASA as oracles; nothing is transcribed). The five `tools/` files that `spdx.py` holds as GPL keep their classes.
+- Class a: 162 files. These include the F4/F5 flaggers, `learned_interp.rs`, `diag_stream.rs`, `cal_stream`, `core_spool`, `watch`, `solver_flags.py`, `flag_residual.py`, every binding in `core/py/src`, and every new `tools/` script (the DD1-DD10, ts-p2/p3, multinode and chunk-task drivers call WSClean, QuartiCal and CASA as oracles; nothing is transcribed). The five `tools/` files that `spdx.py` holds as GPL keep their classes (2 b-copyleft, 2 c-src, 1 d).
 - **b-permissive (QuartiCal 0.2.7, MIT, notice present):**
   - `core/src/flag_residual.rs`: `flags_quartical`, the `mad_flags` port, about 140 lines;
   - `core/src/cal/diag_dd.rs`: the direction-dependent `diag_complex` and `phase` kernels, about 600 lines. Its helpers copied from `diag.rs` are QuartiCal's; the CASA SNR part is not among them.
   - `test_quartical_translations_keep_the_mit_notice` now covers both.
+- **c-src (CASA), now `GPL-3.0-or-later`:** `core/src/reweight.rs` and `python/rang/reweight.py`.
+  - Their statwt rules were read in casa6's source (`StatWtVarianceAndWeightCalculator`, `StatWtTVI::weight`; apply-reweight.md 2 and 7). WEIGHT changed from a mean to the median after that reading.
+  - casadocs' statwt page states the same rules: `(v_r + v_i)/2`, divisor N, and WEIGHT as the median of WEIGHT_SPECTRUM. A restatement from the documentation therefore costs about 0 lines.
+  - Under the audit's c-src rule ("when in doubt, a file stays GPL"), their SPDX lines went from `MIT` to `GPL-3.0-or-later`.
 - **c (documentation or format), MIT:**
-  - `core/src/reweight.rs` and `python/rang/reweight.py`. The statwt rules they follow are in casadocs' statwt page: `(v_r + v_i)/2`, divisor N, and WEIGHT as the median of WEIGHT_SPECTRUM. casa6's source was read only to confirm them.
-  - `core/src/learned.rs`: the field numbers of `onnx.proto`, an Apache-2.0 interface.
+  - `core/src/learned.rs`: the field numbers of `onnx.proto`, an Apache-2.0 interface;
+  - `python/rang/msv4_flags.py`, and `msv4.py` reclassified from a. They follow the MSv4 layout of xradio 1.3.1, whose source was read (msv4-interop.md 5), and of xarray-ms 0.5.14. Both are BSD-3-Clause.
 
 **Reclassified.** `python/rang/meerkat.py` goes from b-permissive to **d**.
 Its `KNOWN_RFI_L_*` lists (issue #59) are oxkat `421d14c5`'s `config.py`
@@ -682,16 +686,16 @@ additions are c-src rules, not transcriptions.
 
 | Class | Files | Lines | Derived lines (est.) |
 | --- | ---: | ---: | ---: |
-| a | 480 | 132,879 | 0 |
+| a | 478 | 131,817 | 0 |
 | b-permissive | 9 | 10,482 | 6,445 |
 | b-copyleft | 27 | 32,766 | 14,555 |
-| c-src | 34 | 28,047 | 1,192 |
-| c | 12 | 4,888 | 0 |
-| d | 3 | 3,182 | 2,510 |
-| **total** | **565** | **212,244** | **24,702** |
+| c-src | 36 | 28,538 | 1,192 |
+| c | 12 | 5,465 | 0 |
+| d | 3 | 3,182 | 2,280 |
+| **total** | **565** | **212,250** | **24,472** |
 
-Without `tests/`, the five directories hold 407 files and 179,204 lines. Of
-them, 61 files and 63,210 lines are in the copyleft classes (b-copyleft, c-src
+Without `tests/`, the five directories hold 407 files and 179,210 lines. Of
+them, 63 files and 63,701 lines are in the copyleft classes (b-copyleft, c-src
 and d; five of these files are oracle tools).
 
 **Rewrite candidates, per piece** (copyleft classes; derived lines from the
@@ -712,6 +716,7 @@ register; cost from section 4 unless marked new):
 | CASA-rule test references | `tests/test_e0_refant_extend.py`, `test_cal_fluxscale.py`, `test_a3_casa_phase_weights.py` | 123 | casa6 | LGPL | delete; 0 (4.6) | - |
 | CASA calibration rules (c-src) | `cal_gain.py`, `cal_delay.py`, `cal_bandpass.py`, `cal_fluxscale.py`, `applycal.py`, `calmodels.py`, `flag_extend.py`, `cal/diag.rs` SNR, `cal/leakage.rs`, `caltable.rs`, `formats/caltable.py` | 110 | CASA | GPL-2.0+/LGPL-2.0+ | part of the 300-400 lines of rewording (4.5) | - |
 | `parallactic_angle_casa` | `cal_pol.py` | 70 | casacore measures | LGPL-2.0-or-later | 70 lines (4.5) | - |
+| statwt estimator and WEIGHT median (c-src) | `reweight.rs`, `reweight.py` | 0 | casa6 | LGPL-2.0-or-later | new: restate from casadocs statwt, about 0 lines | - |
 | `EidosBeam._reconstruct` | `beam_holography.py` | 24 | EIDOS 1.1.2 | GPL-3.0 | drop, or 24 lines (4.6) | - |
 | oxkat L-band RFI lists | `meerkat.py` `KNOWN_RFI_L_*` | 20 | oxkat 421d14c5 | GPL-3.0 (facts) | new: about 20 lines, re-sourced from primary allocations (ITU, GNSS operators) and checked against #59's flagged fraction | - |
 | `wgs84_to_ecef` | `cal_refant.py` | 20 | msutils 1.2.0 | **GPL-2.0-or-later** (owner 2026-11-26) | 10 lines from NIMA TR8350.2 (4.6) | licence settled |
@@ -725,4 +730,6 @@ and the WSClean gridder and weights.
 **For the coordinator.**
 - `files.csv` is a single file that every branch adding a source file now touches, so expect merge conflicts in it. Resolve them by keeping both rows (the rows are sorted by path).
 - A branch that was in flight before this one merges goes red until it adds its rows.
-- `meerkat.py` flipping to GPL makes the known-RFI preset the cheapest rewrite candidate.
+- Three shipped files went from `MIT` to `GPL-3.0-or-later` on this branch, and their headers say why. Confirm them before merging:
+  - `meerkat.py`, for oxkat's lists (about 20 lines, re-sourced cheaply);
+  - `reweight.rs` and `reweight.py`, for the statwt source reading (0 lines to restate).
