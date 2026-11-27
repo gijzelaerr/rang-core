@@ -2659,3 +2659,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | dd12: spill diagnostic (A2), multi-scale rerun on four saved residuals (host glacier, 4 slots shared) | 2880² | 228 s | – | |
 | 2026-11-26 | dd12: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd12-msclean | 813 s (lock wait excluded) | – | PASS |
 | 2026-11-26 | dd12: pin-flux diagnostic (A3), zero solves (host glacier, 1 slot shared) | 49 models of 2880² | 5 s | – | |
+| 2026-11-27 | dd13: extension build into the worktree venv (`check_all.py -- --only ext-build`, host glacier, 8 slots shared) | rang-core 0.4.0 | 240 s (lock wait excluded) | – | PASS |
+| 2026-11-27 | dd13: O rebuilt by `dd8.insert`; setup gate; PSF (`fits_image`, 5760², w_I) on O (host glacier, 2, 1 and 4 slots shared) | DD7's B, 52.7 M cells | 212 s; 1 s; 35 s | – | setup gate pass, PSF peak equal to DD10's |
+| 2026-11-27 | dd13: gate R13 (Q12 cycle-11 image + Högbom, cycle-12 GS solve on DD12's M₁₂; host glacier, 8 slots shared) and gate UV (2 slots) | 52.7 M cells | 894 s (part 1 248 s, solve 639 s); gate UV 9 s | – | R13 bitwise; UV fail (1.8 % of the weight below 1,074 λ) |
