@@ -470,6 +470,19 @@ copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
   cores 20-35 (its 16 booked slots) at 07:53, and `ug_caracal.sh` now pins it from
   the start. transform, prep and flag done; crosscal's crystalball predict was
   running at 09:00.
+- **CARACal arm on D: failed in crosscal (gate 4: not checked).** It ended rc 1
+  at 17:30:50 after 36,129 s wall (peak RSS 110 GB). Crystalball's 1934-638
+  predict took about 7 h; the primary's K, G, B, A, K, G, B solves ran; the
+  secondary's first solve (`delay_cal-1gc1-0-0-secondary`, CASA `gaincal` K on
+  J1609+2641) stopped on "TSM: no array in row 222642 of column MODEL_DATA" of
+  `1752418159-cal.ms`: crystalball creates MODEL_DATA and fills only the
+  fcal's rows, and nothing in this configuration sets the other fields' model
+  (the L-band path's `setjy` would). Not repaired: a hand step in the oracle's
+  sequence would have to be labelled as such (section 6), and the arm has no pass
+  bar. Kept on nash: `D/caracal/msdir/1752418159-cal.ms` (209 GB, the split, flags
+  and primary tables as CARACal left them), `D/caracal/output/` (caltables, logs);
+  the raw-MS copy was deleted. Whether to rerun with the secondary's model set
+  (labelled), or to read E3 from the primary's tables alone, is the coordinator's.
 
 ## For the coordinator
 
