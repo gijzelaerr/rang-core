@@ -1,0 +1,94 @@
+# The S-band gate (issue #18), S0 block 1747682474 (SCI-20241102-GD-01, 1750.0-2624.8 MHz), development half, gate 3c and target rows: research/sband-gate.md, frozen
+# 2026-11-27 before any S-band visibility, flag or weight was read. Native
+# DATA through katdal's mvftoms.py (no --applycal), the development half of
+# research/sband-gate.md section 2 converted by mvftoms --scans. E2-N's
+# configuration (e2n-scripts/e2n.yaml) with only these changes, each with its
+# reason in sband-gate.md section 4:
+# - this block's fields; no J0408-6545 check field (none in the half);
+# - calibrate.model: setjy Stevens-Reynolds 2016 (as E2-N; valid 1.4-8.6 GHz);
+# - calibrate.polcal.model: pb2013, Perley and Butler (2013) Table 3 for 3C 286
+#   (sband-gate.md section 3; added to rang after this freeze, behind the band).
+# - image: 6,144 x 1" (1.71 deg), average_channels 4 (1,024 channels of
+#   854.5 kHz) for the image stage; the 3c file images unaveraged.
+# THIS FILE: s0-dev.yaml with run.stages [image] on CORRECTED_1GC and average_channels 1
+# (gate3c-rerun.md: GeMClean and WSClean 3.7 grid the same channels).
+schema: rang-config
+version: 1
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [J1311-2216]
+  xcal: [J1331+3030]
+  target: [A3528S]
+data:
+  weights: uniform
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+calibrate:
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: A, name: Asec}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+  polcal:
+    field: [xcal]
+    model: {source: pb2013, name: 3C286}
+    feed_angle_rotation: -90
+    extendflags: true
+    terms:
+      - {type: Gpol, name: Gpol, solint: 60s, calmode: p, parang: true,
+         preapply: [K, G, B], interp: [linear, linear, linear]}
+      - {type: KCROSS, name: Kcross, solint: inf, parang: true,
+         preapply: [K, G, B, Gpol], interp: [linear, linear, linear, linear]}
+      - {type: Xf, name: Xf, solint: inf, combine: scan, parang: true,
+         preapply: [K, G, B, Gpol, Kcross], interp: [linear, linear, linear, linear, nearest]}
+      - {type: Df, name: Df, field: [fcal], solint: inf, combine: scan, parang: true,
+         clip: [-0.6, 0.6], preapply: [K, G, B, Kcross, Xf],
+         interp: [linear, linear, linear, nearest, nearest]}
+apply:
+  calwt: false
+  parang: true
+  targets:
+    - field: [gcal, target]
+      tables: [K, F, B, Kcross, Xf, Df]
+      gainfield: [J1939-6342, J1311-2216, J1939-6342, "", "", ""]
+      interp: [linear, linear, linear, nearest, nearest, nearest]
+    - field: [fcal, xcal]
+      tables: [K, G, B, Gpol, Kcross, Xf, Df]
+      interp: [linear, linear, linear, linear, nearest, nearest, nearest]
+image:
+  fields: [target]
+  column: CORRECTED_1GC
+  size: [6144, 6144]
+  scale: 1asec
+  weight: briggs
+  robust: 0.5
+  average_channels: 1
+  channels_out: 8
+  join_channels: true
+  fit_spectral_pol: 2
+  mgain: 0.9
+  auto_mask: 5.0
+  auto_threshold: 3.0
+  multiscale: true
+selfcal:
+  rounds: 2
+  average_time: true
+  terms: [{type: Sp, solint: 120}, {type: Sa, solint: 120}]
+run:
+  stages: [image]

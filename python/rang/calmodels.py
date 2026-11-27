@@ -413,6 +413,51 @@ NRAO_XCAL = {
 NRAO_XCAL_ALIASES = {"J1331+3030": "3C286", "J0521+1638": "3C138"}
 
 
+# Perley and Butler (2013), ApJS 206, 16 (arXiv:1302.6662), Table 3 (VLA,
+# December 2010): 3C 286's p from 1.45 to 3.75 GHz as the least-squares
+# quadratic in (f - 1.47 GHz) / 1.47 GHz (largest residual 0.106 points), chi
+# their adopted 33 deg, NRAO_XCAL's Stokes I. Frozen in research/sband-gate.md
+# section 3 for S band; refused outside PB2013_RANGE_HZ (L band keeps NRAO_XCAL).
+PB2013_TABLE3_3C286 = (
+    (1.450e9, 0.095),
+    (1.640e9, 0.099),
+    (1.950e9, 0.101),
+    (2.450e9, 0.105),
+    (2.950e9, 0.108),
+    (3.250e9, 0.109),
+    (3.750e9, 0.111),
+)
+PB2013_RANGE_HZ = (1.45e9, 3.75e9)
+PB2013_XCAL = {
+    "3C286": dict(
+        NRAO_XCAL["3C286"],
+        polindex=(0.096101, 0.016379, -0.004472),
+        polangle=(0.575959,),
+    ),
+}
+
+
+def pb2013_xcal(name, freq_hz=None):
+    """The `pb2013` model of 3C 286 (or an alias) as a `Manual`
+    (research/sband-gate.md section 3). With `freq_hz`, refuses channels outside
+    1.45-3.75 GHz, the range of the table it is fitted to."""
+    key = NRAO_XCAL_ALIASES.get(str(name), str(name))
+    if key not in PB2013_XCAL:
+        raise ValueError(
+            f"no pb2013 polarisation model for {name!r}; have "
+            f"{sorted(PB2013_XCAL)} (or an alias such as J1331+3030)"
+        )
+    if freq_hz is not None:
+        nu = np.asarray(freq_hz, float)
+        lo, hi = PB2013_RANGE_HZ
+        if nu.size and (np.min(nu) < lo or np.max(nu) > hi):
+            raise ValueError(
+                f"the pb2013 model of {key} is fitted over {lo / 1e9:g}-{hi / 1e9:g} "
+                f"GHz; channels span {np.min(nu) / 1e9:.4g}-{np.max(nu) / 1e9:.4g} GHz"
+            )
+    return Manual(**PB2013_XCAL[key])
+
+
 def caracal_xcal(name):
     """CARACal's `nrao_xcal.yml` model of 3C286 or 3C138 (or an alias) as a
     `Manual`."""
@@ -775,6 +820,9 @@ def set_model(
 __all__ = [
     "NRAO_XCAL",
     "NRAO_XCAL_ALIASES",
+    "PB2013_RANGE_HZ",
+    "PB2013_TABLE3_3C286",
+    "PB2013_XCAL",
     "Manual",
     "PointStokes",
     "SkyModel",
@@ -783,6 +831,7 @@ __all__ = [
     "correlations",
     "metadata",
     "parse_frequency",
+    "pb2013_xcal",
     "set_model",
     "spec_from_config",
 ]

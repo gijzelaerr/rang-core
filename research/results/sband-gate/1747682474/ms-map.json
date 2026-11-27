@@ -1,0 +1,166 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/sband-gate-20261127/1747682474/dev/1747682474-dev.ms",
+ "token_check": {
+  "subtables": [
+   "ANTENNA",
+   "DATA_DESCRIPTION",
+   "FEED",
+   "FLAG_CMD",
+   "FIELD",
+   "HISTORY",
+   "OBSERVATION",
+   "POINTING",
+   "POLARIZATION",
+   "PROCESSOR",
+   "SPECTRAL_WINDOW",
+   "STATE",
+   "SOURCE"
+  ],
+  "hits": []
+ },
+ "columns_before": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM",
+  "SIGMA_SPECTRUM"
+ ],
+ "columns": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM"
+ ],
+ "fields": [
+  "J1939-6342",
+  "J1331+3030",
+  "J1311-2216",
+  "A3528S"
+ ],
+ "rows": 1056267,
+ "scans": [
+  {
+   "scan": 1,
+   "field": [
+    "J1939-6342"
+   ],
+   "rows": 122322,
+   "dumps": 74,
+   "time_first": 5254399441.58219,
+   "time_last": 5254400026.656425
+  },
+  {
+   "scan": 2,
+   "field": [
+    "J1331+3030"
+   ],
+   "rows": 122322,
+   "dumps": 74,
+   "time_first": 5254400122.833011,
+   "time_last": 5254400707.907246
+  },
+  {
+   "scan": 3,
+   "field": [
+    "J1311-2216"
+   ],
+   "rows": 24795,
+   "dumps": 15,
+   "time_first": 5254400780.039705,
+   "time_last": 5254400892.245735
+  },
+  {
+   "scan": 4,
+   "field": [
+    "A3528S"
+   ],
+   "rows": 370272,
+   "dumps": 224,
+   "time_first": 5254400948.34875,
+   "time_last": 5254402735.630345
+  },
+  {
+   "scan": 5,
+   "field": [
+    "J1311-2216"
+   ],
+   "rows": 23142,
+   "dumps": 14,
+   "time_first": 5254402783.718638,
+   "time_last": 5254402887.9099455
+  },
+  {
+   "scan": 6,
+   "field": [
+    "A3528S"
+   ],
+   "rows": 370272,
+   "dumps": 224,
+   "time_first": 5254402935.998239,
+   "time_last": 5254404723.279874
+  },
+  {
+   "scan": 7,
+   "field": [
+    "J1311-2216"
+   ],
+   "rows": 23142,
+   "dumps": 14,
+   "time_first": 5254404763.353445,
+   "time_last": 5254404867.544752
+  }
+ ],
+ "receptor_angle": [
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ],
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ]
+ ],
+ "chan_freq_first_last": [
+  1750000000.0,
+  2624786376.953125
+ ],
+ "seconds": 110.43928316305391
+}

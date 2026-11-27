@@ -483,14 +483,16 @@ SCHEMA = {
                     "choice",
                     "the model Gpol, KCROSS and Xf solve against: nrao, CARACal's "
                     "nrao_xcal.yml (3C286, 3C138; rang.calmodels.NRAO_XCAL) written "
-                    "to MODEL_DATA on their fields; column: an existing column",
-                    ("nrao", "column"),
+                    "to MODEL_DATA on their fields; pb2013, Perley and Butler (2013) "
+                    "for 3C286 at 1.45-3.75 GHz (S band; rang.calmodels.PB2013_XCAL); "
+                    "column: an existing column",
+                    ("nrao", "pb2013", "column"),
                 ),
                 "name": _k(
                     None,
                     "str?",
-                    "nrao: 3C286, 3C138 or an alias such as J1331+3030 (null: the "
-                    "field's name)",
+                    "nrao: 3C286, 3C138 or an alias such as J1331+3030; pb2013: "
+                    "3C286 or an alias (null: the field's name)",
                 ),
                 "column": _k("MODEL_DATA", "column", "the model column for column"),
             },
@@ -1481,6 +1483,19 @@ def refusals(config, stages):
         _chain_refusals(config, out)
         _solver_flag_refusals(config, no)
         name = cal["polcal"]["model"]["name"]
+        if cal["polcal"]["model"]["source"] == "pb2013" and name is not None:
+            from . import calmodels
+
+            key = calmodels.NRAO_XCAL_ALIASES.get(name, name)
+            if key not in calmodels.PB2013_XCAL:
+                out.append(
+                    Refusal(
+                        "calibrate.polcal.model.name",
+                        "",
+                        f"no pb2013 model for {name!r}; have "
+                        f"{sorted(calmodels.PB2013_XCAL)} and its aliases",
+                    )
+                )
         if cal["polcal"]["model"]["source"] == "nrao" and name is not None:
             from . import calmodels
 

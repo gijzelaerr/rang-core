@@ -1,0 +1,10 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/sband-gate-20261127/1680455600/dev/1680455600-dev.ms",
+ "rows": 531468,
+ "cell_shape": [
+  4096,
+  4
+ ],
+ "flag_sha256": "20997ab696283010d871e7d99ef9b78b1a15539bcfef53577b8425d557441c5d",
+ "flag_row_sha256": "fc75fac97ed8e4f445a60b7f164b55c5448d10e5c7dc5060a1c4158cf054d2a6"
+}

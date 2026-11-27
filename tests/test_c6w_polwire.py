@@ -217,3 +217,26 @@ def test_applycal_parang_flags_spread_by_default(tmp_path):
     )
     with pytest.raises(applycal.ApplyError):
         applycal.applycal(src, [], parang=True, parang_flags="casa")
+
+
+def test_pb2013_polcal_model_is_behind_the_band(tmp_path):
+    """research/sband-gate.md section 3: `source: pb2013` takes 3C 286 only,
+    writes MODEL_DATA like nrao, and is refused on channels outside its
+    1.45-3.75 GHz fit; nrao stays the default."""
+    raw = _config(**{"calibrate.polcal.model": {"source": "pb2013", "name": "3C286"}})
+    assert ("calibrate.polcal.model.name", "") not in _problems(raw)
+    bad = _config(**{"calibrate.polcal.model": {"source": "pb2013", "name": "3C138"}})
+    assert ("calibrate.polcal.model.name", "") in _problems(bad)
+    ms = _with_feed(make_ms(tmp_path / "x.ms"))
+    config = core_config.validate(raw, ["calibrate"])
+    info = core_pipeline.inspect_ms(ms)
+    terms = core_pipeline.chain_terms(config, info, tmp_path / "c.yaml")
+    gpol = next(t for t in terms if t["type"] == "Gpol")
+    assert gpol["model_column"] == "MODEL_DATA"
+    assert core_pipeline.polcal_models(config, info) == [(1, "3C286")]
+    for freq, refused in ((np.linspace(1.75e9, 2.625e9, 8), False),
+                          (np.linspace(0.856e9, 1.712e9, 8), True)):  # fmt: skip
+        got = core_pipeline._polcal_problems(config, dict(info, chan_freq=freq))
+        assert bool(got) == refused, got
+    default = core_config.validate(POLCAL, ["calibrate"])
+    assert default["calibrate"]["polcal"]["model"]["source"] == "nrao"
