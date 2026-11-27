@@ -1,0 +1,99 @@
+# CARACal 8f7bb363 configuration for the S-band gate's CARACal arm (reported
+# only, E3's reading words; research/sband-gate.md section 6), frozen
+# 2026-11-27 before any S-band visibility was read; S1 block 1680455600, development half.
+# It is the UHF gate's caracal-uhf-dev.yml (research/results/uhf-gate/) with
+# these changes: this block's roles; the L-band calibrator first pass in the
+# flag worker (as rang's flag stage; CARACal ships no S-band strategy); no sky
+# model of CARACal's (meerkat_skymodel and the crystalball model off), so its
+# set_model is setjy with its own standard for the primary (sband-scope.md
+# section 3: "ours, flag_spw and the L-band mask off, meerkat_skymodel off").
+schema_version: 1.2.0
+general:
+  prefix: sbandgate
+getdata:
+  dataid: ['']
+  extension: ms
+obsconf:
+  fcal: [PKS0408-658]
+  bpcal: [PKS0408-658]
+  xcal: [3C138]
+  gcal: [J0825-5010]
+  target: [NGC2997]
+  refant: auto
+transform:
+  enable: true
+  field: calibrators
+  label_out: cal
+  split_field: {enable: true, col: data}
+prep:
+  enable: true
+  label_in: cal
+  field: calibrators
+  specweights: {enable: true, mode: uniform}
+flag:
+  enable: true
+  field: calibrators
+  label_in: cal
+  flag_autocorr: {enable: true}
+  flag_spw:
+    # meerkat-defaults' 856~880 MHz and 1658~1800 MHz edges are L band.
+    enable: false
+  flag_mask:
+    # meerkat.rfimask.npy is CARACal's L-band mask.
+    enable: false
+  flag_rfi:
+    enable: true
+    flagger: tricolour
+    tricolour:
+      strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+crosscal:
+  enable: true
+  uvrange: '>150'
+  label_in: cal
+  set_model:
+    enable: true
+    meerkat_skymodel: false
+    meerkat_crystalball_skymodel: false
+  primary:
+    reuse_existing_gains: true
+    order: KGBAKGB
+    combine: ["", "", "", null, "", "", scan]
+    solint: [inf, inf, inf, null, 60s, 60s, inf]
+    calmode: [a, ap, ap, null, a, ap, ap]
+    b_fillgaps: 70
+  secondary:
+    order: KGAKF
+    apply: B
+    combine: ["", "", null, "", ""]
+    solint: [inf, inf, null, inf, inf]
+    calmode: [a, ap, null, a, ap]
+  apply_cal:
+    applyto: [gcal, bpcal]
+polcal:
+  # meerkat-fullStokes-continuum-defaults.yml lines 130-153 at 8f7bb363, verbatim
+  # but for plotgains (no plots in the gate).
+  enable: true
+  label_in: cal
+  label_cal: 1pcal
+  otfcal:
+    enable: true
+    label_cal: 1kgb
+  extendflags: true
+  feed_angle_rotation: '-90'
+  uvrange: '>150'
+  reuse_existing_tables: false
+  pol_calib: xcal
+  leakage_calib: fcal
+  set_model_pol:
+    enable: true
+    nrao_model: true
+  gain_solint: '60s'
+  time_solint: 'inf'
+  plotgains: false
+  apply_pcal: true
+  applyto:
+    - gcal
+    - bpcal
+    - xcal
+selfcal:
+  enable: false          # the gate images with rang's frozen geometry; E3 reads the calibrators
