@@ -2665,3 +2665,4 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-27 | dd13: loops on O, 8 slots shared each, two lanes: QA12 (stopped at 6), SA12, QP12 (12 cycles), ATP12 (truth gains, 12 cycles), ATa3, ATp3 (3 cycles) | 52.7 M cells, 2880² facet images | QA12 5,529 s; SA12 11,715 s; QP12 10,967 s; ATP12 5,044 s; ATa3 3,400 s; ATp3 3,365 s (lock waits included); GS solve 520-800 s, image 30-60 s, Högbom 200-300 s | – | |
 | 2026-11-27 | dd13: diagnostic D (zero solves) and score (host glacier, 2 and 1 slots shared) | 16 gain sets | 10 s; 2 s | – | |
 | 2026-11-27 | dd13: real PSF (`fits_image`, 5760², 4 slots) and real loop R-QP12, 12 cycles (8 slots shared) | DD7's real subset, 145 baselines flagged | 35 s; 11,235 s | – | lifts, tames d3 |
+| 2026-11-27 | dd13: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd13-absorb | 738 s (lock wait excluded) | – | PASS |
