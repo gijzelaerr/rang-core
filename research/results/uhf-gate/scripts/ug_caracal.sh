@@ -28,7 +28,12 @@ case ${UG_BLOCK:-} in
 esac
 SRC=$HOME/rang-data/uhf-s/ms/$CB.ms
 REC=$W/research/results/uhf-s-fetch/$CB/ms-sha256.txt
+# CARACAL_RETRY=1: the one retry the coordinator allowed (uhf-gate.md, post hoc
+# 2026-11-27), in its own directory, with CARACal's documented crystalball switch
+# prep.clearcal {enable: true, addmodel: true} as a third recorded edit
+RETRY=${CARACAL_RETRY:-0}
 D=$RUN/$UG_BLOCK/caracal
+[ "$RETRY" = 1 ] && D=$RUN/$UG_BLOCK/caracal-retry
 mkdir -p "$D/msdir" "$D/input" "$D/output" "$D/done"
 note() { echo "$(date -Is) $UG_BLOCK caracal $*" | tee -a "$D/caracal.log"; }
 source "$HOME/.rang-env.sh" > /dev/null 2>&1
@@ -41,18 +46,22 @@ if [ ! -e "$D/done/copy" ]; then
   touch "$D/done/copy"
   note "copy equal to receipt"
 fi
-python3 - "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$CB" << 'EOF'
+python3 - "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$CB" "$RETRY" << 'EOF'
 import sys
-src, out, cb = sys.argv[1:4]
+src, out, cb, retry = sys.argv[1:5]
 t = open(src, encoding="utf-8").read()
-for old, new in (("  dataid: ['']\n", f"  dataid: ['{cb}']\n"),
-                 ("  flag_mask:\n", "  flag_mask:\n    mask: ''\n")):
+edits = [("  dataid: ['']\n", f"  dataid: ['{cb}']\n"),
+         ("  flag_mask:\n", "  flag_mask:\n    mask: ''\n")]
+if retry == "1":
+    sw = "  specweights: {enable: true, mode: uniform}\n"
+    edits.append((sw, "  clearcal: {enable: true, addmodel: true}\n" + sw))
+for old, new in edits:
     assert t.count(old) == 1, old
     t = t.replace(old, new)
 open(out, "w", encoding="utf-8").write(t)
 EOF
 diff "$W/research/results/uhf-gate/$YML" "$D/run.yml" > "$D/run.yml.diff"
-[ "$(grep -c '^[<>]' "$D/run.yml.diff")" = 3 ] || { note "run.yml edits"; exit 2; }
+[ "$(grep -c '^[<>]' "$D/run.yml.diff")" = $((3 + RETRY)) ] || { note "run.yml edits"; exit 2; }
 cp "$RUN/$UG_BLOCK/cfg/firstpass_UHF.yaml" "$D/input/firstpass_UHF.yaml"
 [ "$(sha256sum < "$D/input/firstpass_UHF.yaml" | cut -c1-64)" = "$STRATEGY_SHA" ] || { note "strategy hash"; exit 2; }
 sha256sum "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$D/input/firstpass_UHF.yaml" > "$D/inputs-sha256.txt"

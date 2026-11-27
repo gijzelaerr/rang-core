@@ -483,6 +483,17 @@ copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
   and primary tables as CARACal left them), `D/caracal/output/` (caltables, logs);
   the raw-MS copy was deleted. Whether to rerun with the secondary's model set
   (labelled), or to read E3 from the primary's tables alone, is the coordinator's.
+- **Post hoc, 2026-11-27 (coordinator decision): gate 4 on D reads "not
+  checked".** The cause: CARACal's crosscal secondary K failed because
+  MODEL_DATA was empty outside the flux calibrator's rows. It does not hold up
+  D's rang rows. One retry is allowed, and only for a CARACal configuration
+  change: it runs after D's model predict is done, in the cores D leaves
+  (`taskset`, nice 19), and it stays reported only. The candidate is CARACal's
+  own documented switch. Its prep schema describes `clearcal.addmodel` with
+  "Switch this on when using crystalball models for primary", so `prep:
+  clearcal: {enable: true, addmodel: true}` is added to `run.yml` as a third
+  recorded edit (`ug_caracal.sh` with `CARACAL_RETRY=1`). If the retry fails
+  the same way, it stays a known limitation.
 
 ### Smoke 8.3 again, on amendment 3's wheel (2026-11-27, nash; scores not read)
 
