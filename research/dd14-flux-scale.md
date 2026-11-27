@@ -308,3 +308,25 @@ kept models:
   [tool-timings.md](tool-timings.md). The OB MS, `gate/O` and the PSF array
   are deleted at the end; records stay in the run root, a compact archive
   in `results/dd14-flux-scale/`.
+
+## Amendments
+
+**A1, 2026-11-27, clarifications found while writing the code, before the
+simulation was generated and before any run. They change no decision
+quantity's meaning.**
+- **ρ_f** is catalogue.py's `hypot(l, m)` (radians to arcmin), not
+  `asin(...)`. The frozen B_nom values (0.9175, 0.8129, 0.3607) are
+  catalogue.py's, and the pins' S_app were made with them. The difference
+  at d3 is 3e-5 in B.
+- **The stage stop** reads DD12's effect rule on e^sr against Q12's cycle-6
+  e^sr, the same quantity as section 5's effect. On OB the raw e_d carries
+  the facet scale, so a raw stop would stop QP12 for the scale alone.
+- **Section 6's catalogue flux per aperture** is the sum of S_app of every
+  catalogue model component whose pixel lies inside the disc, at any flux.
+  Components of at least 20 mJy only place and merge the centres. This
+  makes RM's code check exact: RM holds every component at S_app in
+  d1-d3.
+- **Section 4's apertures:** on a plateau of the disc-sum map, the first
+  maximum in row-major order is taken. Any maximum on a plateau encloses
+  the same sky flux.
+
