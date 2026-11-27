@@ -22,6 +22,9 @@ B=$HOME/Build/tmp/20261126-uhf-gate
 WPY=${WPY:-$B/wheel-venv/bin/python}
 PY=${PY:-$W/.venv/bin/python}
 FLOOR=${FLOOR:-2000}
+# the run and casa-model steps hold the model predict, threaded by rayon in the
+# pipeline process (predict-par, amendment 3): RAYON_NUM_THREADS = these slots
+RUN_SLOTS=${RUN_SLOTS:-16}
 # scripts that put the worktree's python/ first (e1_run.py) need the frozen wheel's
 # extension there: the worktree's python/ is the wheel's source, so link its _core
 if ! ls "$W"/python/rang/_core*.so > /dev/null 2>&1; then
@@ -51,7 +54,7 @@ esac
 STEPS="
 config-check 1 8 CFGCHECK
 columns-before 1 2 POST
-run 16 128 RUN
+run $RUN_SLOTS 128 RUN
 gate1 1 2 POST
 archive 1 4 POST
 wcs 1 8 POST
@@ -80,7 +83,7 @@ leakage-rang 8 48 UG leakage RANG_CORRECTED_DATA rang
 unit-off-a 1 4 POST
 restore 1 8 RESTORE
 tricolour 16 192 TRICOLOUR
-casa-model 16 48 UG casa-model $CONFIG
+casa-model $RUN_SLOTS 48 UG casa-model $CONFIG
 casa-prep-a 1 8 UG casa-prep-a
 casa-run-a 4 64 UG casa-run-a
 casa-prep-b 1 8 UG casa-prep-b
