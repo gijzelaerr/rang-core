@@ -352,8 +352,8 @@ calibrate:
     field: ["xcal"]  # fields of the polarisation solves
     terms: []  # Gpol, KCROSS, Xf on xcal; Df with field: fcal
     model:
-      source: nrao  # the model Gpol, KCROSS and Xf solve against: nrao, CARACal's nrao_xcal.yml (3C286, 3C138; rang.calmodels.NRAO_XCAL) written to MODEL_DATA on their fields; column: an existing column
-      name: null  # nrao: 3C286, 3C138 or an alias such as J1331+3030 (null: the field's name)
+      source: nrao  # the model Gpol, KCROSS and Xf solve against: nrao, CARACal's nrao_xcal.yml (3C286, 3C138; rang.calmodels.NRAO_XCAL) written to MODEL_DATA on their fields; pb2013, Perley and Butler (2013) for 3C286 at 1.45-3.75 GHz (S band; rang.calmodels.PB2013_XCAL); column: an existing column
+      name: null  # nrao: 3C286, 3C138 or an alias such as J1331+3030; pb2013: 3C286 or an alias (null: the field's name)
       column: MODEL_DATA  # the model column for column
     frame: casa  # the parallactic-angle frame (rang.cal_pol; C6's provisional owner decision 1): casa, CASA's parang=True; rang, geodetic and ICRS north
     feed_angle_rotation: null  # degrees: the RECEPTOR_ANGLE of both receptors of every antenna used for P, in memory (CARACal writes it into FEED; MeerKAT: -90); null: FEED's
