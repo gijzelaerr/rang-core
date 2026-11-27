@@ -68,7 +68,8 @@ sha256sum "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$D/input/firstpass_U
 cd "$D" || exit 2
 note "start"
 t0=$(date +%s)
-OMP_NUM_THREADS=16 python3 "$LOCK" run --slots 16 --mem 160 -- \
+NS=${CARACAL_SLOTS:-16}
+OMP_NUM_THREADS=$NS python3 "$LOCK" run --slots "$NS" --mem 160 -- \
   nice -n 19 ionice -c3 /usr/bin/time -v -o "$D/time-caracal.txt" \
   taskset -c "${CARACAL_CPUS:-20-35}" "$CAR/.venv/bin/caracal" -c run.yml -ct singularity -sid "$SID" \
   --general-msdir msdir --general-input input --general-output output \
