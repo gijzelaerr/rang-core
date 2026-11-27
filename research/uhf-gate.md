@@ -484,6 +484,26 @@ copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
   the raw-MS copy was deleted. Whether to rerun with the secondary's model set
   (labelled), or to read E3 from the primary's tables alone, is the coordinator's.
 
+### Smoke 8.3 again, on amendment 3's wheel (2026-11-27, nash; scores not read)
+
+Wheel built on nash by `tools/wheel/build.py` from main `8474b790` (the
+`predict-par` merge `60e68d16` plus STATE), SHA-256 `5ea3a37d…f093`, in a fresh
+venv with the frozen venv's other seven packages at the same versions. Spot check
+before use (`scripts/bitcheck.py`): 40 rows × 4,096 channels × 7,779 components,
+the new wheel at 8 threads against the frozen wheel at 1, **bit-identical**. The
+nash worktree is uhf-gate `c8ef4097` (main merged; `python/`, `core/` and `src/`
+equal to `8474b790`), its `_core` linked to the new wheel. Smoke root
+`smoke2/`: all 51 steps rc 0 on the first try (run 85 s); the model row read
+4.4968e-8, the same as on the frozen wheel.
+
+### D attempt 2 (2026-11-27, nash)
+
+Fresh MS copy equal to its receipt. Section 8.1's check gave section 4's
+verdicts again. The chain started 17:43:17 SAST with the run in one booking of
+32 slots and 128 GB (`RUN_SLOTS=32`, so `RAYON_NUM_THREADS=32` for the
+pipeline process, which runs the model step); `D/R/launch.txt` holds the
+commits and hashes.
+
 ## For the coordinator
 
 - Frozen: this note and the files in `results/uhf-gate/`. After amendment 2,
