@@ -275,7 +275,7 @@ tests/test_calmodels.py,335,a,-,-,-,0,-,-
 tests/test_casacure_optional.py,94,a,-,-,-,0,-,-
 tests/test_check_all.py,138,a,-,-,-,0,-,-
 tests/test_chunk_tasks.py,303,a,-,-,-,0,-,-
-tests/test_core.py,240,a,-,-,-,0,-,-
+tests/test_core.py,244,a,-,-,-,0,-,-
 tests/test_core_backends.py,553,a,-,-,-,0,-,-
 tests/test_core_balanced.py,85,a,-,-,-,0,-,-
 tests/test_core_campaign.py,202,a,-,-,-,0,-,-

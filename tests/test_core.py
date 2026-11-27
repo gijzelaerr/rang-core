@@ -230,7 +230,11 @@ def test_predict_components_is_bitwise_the_same_at_any_thread_count():
         rng.integers(0, 2, nsrc).astype(bool),
         rng.uniform(5e8, 1.5e9, nsrc),
         np.column_stack(
-            [rng.uniform(0, 1e-4, nsrc), rng.uniform(0, 1e-4, nsrc), rng.uniform(0, 3, nsrc)]
+            [
+                rng.uniform(0, 1e-4, nsrc),
+                rng.uniform(0, 1e-4, nsrc),
+                rng.uniform(0, 3, nsrc),
+            ]
         ),
     )
     want, spec = core.predict_components(*args, spectra=True, threads=1)
