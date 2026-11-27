@@ -419,7 +419,7 @@ class Only:
     `stop_fraction` (`trace`: counted) and raises `ChunkDone`."""
 
     index: int
-    max_iterations: int
+    max_iterations: int | list  # a list: one count per run (K's zero_start)
     stop_fraction: float
     trace: bool
     key: str = ""  # the recipe's identity (the worker's row-weight memo)
@@ -499,6 +499,10 @@ def replayed(chunks, run, *, max_iterations, stop_fraction, row_w=None):
     converged fraction are the one-call solve's; a solver error is raised
     when no stop comes before the earliest error iteration of any chunk;
     pass 2 solves every chunk for `j + 1` iterations with the stop test off.
+    A solve of two runs (K with `zero_start`, research/k-ambiguity.md
+    section 10) traces a list of two: each run's stop is found the same
+    way, in run order, and pass 2 gets the list of counts; the returned
+    iterations and fraction are the first run's, as in the one call.
     Returns `(results, (iterations, converged fraction) or None)`.
 
     Chunk tasks (research/chunk-task-api-1b.md 1.2): inside `dispatching`
@@ -522,17 +526,41 @@ def replayed(chunks, run, *, max_iterations, stop_fraction, row_w=None):
         traced = (run(c, max_iterations, STOP_OFF, True) for c in chunks)
     else:
         traced = _dispatched(d, len(chunks), max_iterations, STOP_OFF, True)
-    totals, ngains, first = None, 0, None
-    for counts, error, n in traced:
-        counts = np.asarray(counts, np.int64).reshape(-1, 2)
-        ngains += int(n)
-        if error is not None and (first is None or error[0] < first[0]):
-            first = error
-        if totals is None:
-            totals = counts
-        else:
-            k = min(len(totals), len(counts))
-            totals = totals[:k] + counts[:k]
+    runs = None  # per run of the solve: [summed counts, gains, first error]
+    multi = False
+    for item in traced:
+        multi = isinstance(item, list)
+        parts = item if multi else [item]
+        if runs is None:
+            runs = [[None, 0, None] for _ in parts]
+        for acc, (counts, error, n) in zip(runs, parts, strict=True):
+            counts = np.asarray(counts, np.int64).reshape(-1, 2)
+            acc[1] += int(n)
+            if error is not None and (acc[2] is None or error[0] < acc[2][0]):
+                acc[2] = error
+            if acc[0] is None:
+                acc[0] = counts
+            else:
+                k = min(len(acc[0]), len(counts))
+                acc[0] = acc[0][:k] + counts[:k]
+    stops = [
+        _stop(totals, ngains, first, stop_fraction) for totals, ngains, first in runs
+    ]
+    iters = [j + 1 for j, _ in stops] if multi else stops[0][0] + 1
+    if d is None:
+        results = [run(c, iters, STOP_OFF, False) for c in chunks]
+    else:
+        results = []
+        for result, pos, values in _dispatched(d, len(chunks), iters, STOP_OFF, False):
+            row_w[pos] = values
+            results.append(result)
+    j, fraction = stops[0]
+    return results, (j + 1, float(fraction))
+
+
+def _stop(totals, ngains, first, stop_fraction):
+    """The one-call solve's stop `(iteration, converged fraction)` from one
+    run's summed counts; raises its error when no stop comes before it."""
     j, fraction = None, 0.0
     for i, (converged, flagged) in enumerate(totals.tolist()):
         solvable = ngains - flagged
@@ -544,14 +572,7 @@ def replayed(chunks, run, *, max_iterations, stop_fraction, row_w=None):
         if first is not None:
             raise ValueError(first[1])
         j = len(totals) - 1
-    if d is None:
-        results = [run(c, j + 1, STOP_OFF, False) for c in chunks]
-    else:
-        results = []
-        for result, pos, values in _dispatched(d, len(chunks), j + 1, STOP_OFF, False):
-            row_w[pos] = values
-            results.append(result)
-    return results, (j + 1, float(fraction))
+    return j, fraction
 
 
 def trace_buffer(max_iterations):

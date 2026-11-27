@@ -104,21 +104,22 @@ def test_chunked_k_zero_start_reports_every_chunk(cal_ms):
     """research/k-ambiguity.md: with `zero_start` a field solved in chunks
     (here one `int` interval per chunk) reports the zero-start intervals of
     every chunk in the field's numbering; before, the first chunk's list
-    only, so at most [0]. With the key on the chunked solve is not bit for
-    bit the one-call one (the zero run's stop is not replayed; 3e-6 ns
-    here), so near-tie intervals may differ between the two lists."""
+    only, so at most [0]. Section 10: both runs' stops are replayed, so the
+    chunked solve is the one call bit for bit (before, the zero run got the
+    FFT run's iteration count: 3.2e-6 ns, and the lists [3, 7, 11, 16, 17,
+    18] one call against [7, 9, 11, 16, 17, 18] chunked)."""
     common = {"field_id": 0, "refant": 0, "weight_column": "WEIGHT", "model": unit(cal_ms, 0),
               "zero_start": True}  # fmt: skip
     one = cal_delay.gaincal(cal_ms, solint="int", **common)
     chunked = cal_delay.gaincal(cal_ms, solint="int", budget=budget(400), **common)
-    nint = one[1].delays.shape[0]
     kept = chunked[1].settings["zero_start_intervals"]
-    assert kept == sorted(set(kept)) and all(0 <= i < nint for i in kept)
     assert len(kept) > 1 and max(kept) > 0
-    assert (
-        len(set(kept) & set(one[1].settings["zero_start_intervals"])) >= len(kept) - 2
-    )
-    assert np.abs(one[1].delays - chunked[1].delays).max() < 1e-4
+    assert kept == one[1].settings["zero_start_intervals"]
+    assert np.array_equal(one[1].delays, chunked[1].delays)
+    assert np.array_equal(one[1].offsets, chunked[1].offsets)
+    assert np.array_equal(one[1].flags, chunked[1].flags)
+    assert one[1].iterations == chunked[1].iterations
+    assert cal_chain._sha(one[0]) == cal_chain._sha(chunked[0])
 
 
 @pytest.mark.parametrize("stop", [0.5, 0.99, 1.0])

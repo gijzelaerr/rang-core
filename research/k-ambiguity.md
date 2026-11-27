@@ -208,6 +208,33 @@ fraction 0.18 %) or E2-N (62 antennas, 14 scans; 6.5 %). Largest non-hit fractio
 time onwards, both hands, every baseline: a single event, not a pattern of the telescope or of
 the conversion.
 
+## 10. Chunked K with the key on equals the one call (2026-11-27, branch `k-chunk-parity`)
+
+Cause (section 8's open item): `cal_chunks.replayed` traced the FFT run's stop only
+(`solve(trace=True)` counted that run), and pass 2 ran every chunk's zero run for the FFT run's
+iteration count with the stop off, while the one-call zero run stops on its own test. The zero
+runs then differ in their last iterations, and near-tie intervals (both starts at the same
+minimum, the choice decided by the last bits of the residual) change sides.
+
+Fix: with `zero_start`, `solve(trace=True)` returns both runs' counts (FFT, then zero);
+`replayed` finds each run's stop and error the same way, in that order, and pass 2 gives each
+run its own count (`max_iterations` a pair; `chain-chunk` specs carry the list, so workers
+replay it too). The reported iterations and fraction stay the FFT run's, as in the one call.
+`_interval_costs` sums each interval's rows in row order (`np.add.at`), so an interval's cost does
+not depend on the rows of other intervals in the array. Result: **bit for bit** (delays, offsets,
+flags, `zero_start_intervals`, iterations). Key off: one run traced, the code path unchanged (the
+trace is the same tuple; every gain hash unchanged by the gain-hash gate).
+
+Tests (each fails on `origin/main` `8ac1222b`, passes here):
+`tests/test_cal_delay_zero_start.py` `test_chunked_zero_start_is_the_one_call_bit_for_bit`
+(five noisy intervals, interval 1 sparse so the zero start wins it, at least one constructed
+near tie within 1e-3 ns between the two runs, the zero run's stop different from the FFT run's;
+chunks of one and two intervals, stop fraction 0.9 and 0.99; before: kept [1, 4] chunked
+against [0, 1, 3] one call); `tests/test_w3b_chainchunks.py`
+`test_chunked_k_zero_start_reports_every_chunk` now exact (before: [7, 9, 11, 16, 17, 18] against
+[3, 7, 11, 16, 17, 18]); `tests/test_chunk_tasks_1b.py`
+`test_a_replayed_k_zero_start_solve_runs_its_chunks_in_workers` (the dispatched route).
+
 ## For the coordinator
 
 - Cause found, **not a rang solver defect**: m054 (index 25) in block 1678312253 carries
@@ -220,6 +247,6 @@ the conversion.
   scans. DL4s stage 3's "delay ambiguity" class keeps one solver instance (E2-A's ID 50).
 - Fixed: `zero_start_intervals` in the K solution records and merged over chunks (no table change;
   E2-A and 1678312253 outcomes unchanged by construction, not re-run). No CASA K run.
-- Not fixed: with the key on, a chunked K is not bitwise the one-call K (3e-6 ns; the zero run's
-  stop is not replayed); matters only if the key becomes a default (section 8).
+- Fixed 2026-11-27 (section 10): with the key on, a chunked K is now bitwise the one-call K (each
+  run's stop replayed); before, 3e-6 ns and near-tie switches (section 8).
 - Section 9: the step is m054 in 1678312253 only, across the nine DL4s blocks, E2-A and E2-N.
