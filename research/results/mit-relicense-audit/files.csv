@@ -15,7 +15,7 @@ core/py/src/flag_residual.rs,219,a,-,-,-,0,-,-
 core/py/src/gemclean_cli.rs,24,a,-,-,-,0,-,-
 core/py/src/gemclean_predict.rs,90,a,-,-,-,0,-,-
 core/py/src/learned.rs,76,a,-,-,-,0,-,-
-core/py/src/lib.rs,3051,a,-,-,-,0,-,-
+core/py/src/lib.rs,3061,a,-,-,-,0,-,-
 core/py/src/lightcurve.rs,68,a,-,-,-,0,-,-
 core/py/src/reweight.rs,62,a,-,-,-,0,-,-
 core/py/src/multiscale_image.rs,232,a,-,-,-,0,-,-
@@ -48,7 +48,7 @@ core/src/correct.rs,507,c-src,WSClean,GPL-3.0-or-later (schaapcommon),schaapcomm
 core/src/f3flag.rs,601,a,-,-,-,0,-,-
 core/src/f4flag.rs,393,a,-,-,-,0,-,-
 core/src/f5flag.rs,1410,a,-,-,-,0,-,-
-core/src/ffi.rs,757,a,-,-,-,0,-,-
+core/src/ffi.rs,754,a,-,-,-,0,-,-
 core/src/ffi_closure.rs,170,a,-,-,-,0,-,-
 core/src/ffi_correct.rs,198,a,-,-,-,0,-,-
 core/src/ffi_flag.rs,353,a,-,-,-,0,-,-
@@ -100,7 +100,7 @@ core/src/ms_desc.rs,469,c-src,casacore,LGPL-2.0-or-later,"BaseTable, TableDesc, 
 core/src/ms_schema.rs,2130,d,casacore,LGPL-2.0-or-later (schema strings),"MS v2 and NewCalTable column names, comments and keywords from table.dat written by casacore 3.8.1 and CASA 6.7.6 (interface data)",2130,MS v2 and NewCalTable schema strings (data),-
 core/src/ms_write.rs,6610,b-copyleft,casacore,LGPL-2.0-or-later,"casacore 3.8.1 SSMBase, SSMIndex, SSMStringHandler, StManArrayFile, FilebufIO, BucketCache, TSMCube (L927-4754); the rest c-src",3830,"SSM, StManArrayFile, FilebufIO, BucketCache, TSMCube writers",-
 core/src/multifile.rs,796,b-copyleft,casacore,LGPL-2.0-or-later,"casacore MultiFile, MultiFileBase",600,MultiFile container,-
-core/src/predict.rs,260,b-permissive,codex-africanus,BSD-3-Clause,"0.4.4 rime/wsclean_predict.py, model/wsclean/spec_model.py",180,wsclean_predict and spectral model,-
+core/src/predict.rs,607,b-permissive,codex-africanus,BSD-3-Clause,"0.4.4 rime/wsclean_predict.py, model/wsclean/spec_model.py",180,wsclean_predict and spectral model,-
 core/src/prox_solver.rs,1509,a,-,-,-,0,-,-
 core/src/reweight.rs,335,c-src,CASA,LGPL-2.0-or-later (casa6),"casa6 master StatWtVarianceAndWeightCalculator::computeVariance, read 2026-11-21 (apply-reweight.md 2); the same rules are in casadocs' statwt page ((v_r + v_i)/2, divisor N, weight 1/v)",0,"block_variance classic (statwt estimator; restate from casadocs, about 0 lines)",-
 core/src/robust.rs,52,a,-,-,-,0,-,-
@@ -129,7 +129,7 @@ python/rang/cal_selfcal.py,458,c-src,CARACal,GPL-2.0,CARACal selfcal worker; Cub
 python/rang/cal_stream.py,216,a,-,-,-,0,-,-
 python/rang/calmodels.py,788,c-src,CASA,LGPL-2.0-or-later,"CASA Imager.cc sjy_setmanualflux; casacore SpectralIndex, SkyCompRep, Flux, Polynomial; CARACal nrao_xcal.yml values",0,setjy manual flux and spectral models,-
 python/rang/check.py,671,a,-,-,-,0,-,-
-python/rang/core.py,971,a,-,-,-,0,-,-
+python/rang/core.py,975,a,-,-,-,0,-,-
 python/rang/core_actions.py,189,a,-,-,-,0,-,-
 python/rang/core_balanced.py,60,a,-,-,-,0,-,-
 python/rang/core_campaign.py,1394,a,-,-,-,0,-,-
@@ -275,7 +275,7 @@ tests/test_calmodels.py,335,a,-,-,-,0,-,-
 tests/test_casacure_optional.py,94,a,-,-,-,0,-,-
 tests/test_check_all.py,138,a,-,-,-,0,-,-
 tests/test_chunk_tasks.py,303,a,-,-,-,0,-,-
-tests/test_core.py,213,a,-,-,-,0,-,-
+tests/test_core.py,244,a,-,-,-,0,-,-
 tests/test_core_backends.py,553,a,-,-,-,0,-,-
 tests/test_core_balanced.py,85,a,-,-,-,0,-,-
 tests/test_core_campaign.py,202,a,-,-,-,0,-,-

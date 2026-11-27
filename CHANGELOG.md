@@ -9,6 +9,9 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `core.predict_components` (calibrate's and casa-model's component model step) runs in parallel over blocks
+  of rows on rayon's pool (`RAYON_NUM_THREADS`, or the new `threads=` argument), bit for bit the
+  single-threaded result at any thread count (`research/predict-par.md`).
 - `calibrate.k_zero_start` (off by default): a K solved in chunks is now bit for bit the one-call K
   with the key on. The chunked replay traced the FFT start's stop only and gave the zero start the
   same iteration count, so delays differed by ~3e-6 ns and near-tie intervals could switch runs; both
