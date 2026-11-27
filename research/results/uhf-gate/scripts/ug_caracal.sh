@@ -8,7 +8,9 @@
 # fetched MS (never the rang arm's MS), so its split never sees rang's flags.
 #   UG_BLOCK=D|H nohup bash ug_caracal.sh >> $RUN/$UG_BLOCK/caracal/caracal.out 2>&1 &
 # Only the MS name (getdata dataid) is given on the command line; the frozen
-# file leaves it empty. Every job nice 19 / ionice idle under the main
+# file leaves it empty. And flag_mask's `mask`, which CARACal's schema requires
+# even with the worker disabled (`enable: false` in the frozen file, which fails
+# validation without it): given as CARACal's own example, '', so nothing is read. Every job nice 19 / ionice idle under the main
 # checkout's heavy lock.
 set -u
 W=$(cd "$(dirname "$0")/../../../.." && pwd)
@@ -48,7 +50,7 @@ OMP_NUM_THREADS=16 python3 "$LOCK" run --slots 16 --mem 160 -- \
   nice -n 19 ionice -c3 /usr/bin/time -v -o "$D/time-caracal.txt" \
   "$CAR/.venv/bin/caracal" -c "$YML" -ct singularity -sid "$SID" \
   --general-msdir msdir --general-input input --general-output output \
-  --getdata-dataid "$CB" < /dev/null >> "$D/caracal-run.out" 2>&1
+  --getdata-dataid "$CB" --flag-flag_mask-mask '' < /dev/null >> "$D/caracal-run.out" 2>&1
 rc=$?
 note "end rc=$rc $(( $(date +%s) - t0 ))s"
 exit $rc
