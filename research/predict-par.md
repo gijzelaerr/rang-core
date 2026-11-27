@@ -70,26 +70,32 @@ x 7,779 point components with ordinary polynomials (8.16e9 terms):
 | old loop | 8 slots shared, DD13 on the other 8 | 1 | 99.18 s | 12.16 | 1 |
 | new | same | 1 | 99.69 s | 12.22 | 1.00 |
 | new | same | 8 | 15.52 s | 1.90 | 6.4 |
-| new | all 16 slots (host otherwise idle) | 1 | 60.18 s | 7.38 | 1 |
+| new | all 16 slots (no other lock holder) | 1 | 60.18 s | 7.38 | 1 |
 | new | same | 8 | 13.67 s | 1.68 | 4.4 |
 | new | same | 16 | 9.08 s | 1.11 | 6.6 |
 
-The two 1-thread rows differ by the host's load (boost clock and shared cache with DD13 on the
-other cores), not the code. No single-thread win: sin and cos are the cost and are kept. On an
-otherwise idle host 8 threads give 4.4x against one boosted core (the all-core clock is lower),
-SMT adds 1.5x. Not an exclusive run (glacier's timing window starts at 21:00).
+No single-thread win: sin and cos are the cost and are kept (new/old 1.00 at 1 thread, same run).
+Readings, not measured: the two 1-thread rows (12.2 and 7.4 ns) differ by the host's load (DD13 on
+the other cores in the first run), and the 4.4x at 8 threads against one core in the second run
+is the clock and the shared caches; no block-size sweep was run to separate them. SMT adds 1.5x.
+Neither run is exclusive (glacier's timing window starts at 21:00); the second had no other lock
+holder, which does not exclude processes outside the lock.
 
 Projection for the UHF D predict (294,903 rows x 4,096 channels x 7,779 components = 9.40e12
 terms):
 - glacier at 16 threads: 1.11 ns x 9.40e12 = **2.9 h** (measured rate).
 - nash at 32 threads, from nash's 29.6 ns per term at 1 thread (frozen wheel, old loop; new/old at
   1 thread is 1.00 on glacier): 29.6 ns x 9.40e12 / (32 x e) = **3.0 h** at parallel efficiency
-  e = 0.80 (glacier's shared 8-thread figure) and **4.4 h** at e = 0.55 (glacier's idle-host
-  8-thread figure). Assumptions: the glacier efficiency carries to nash's 36 physical cores,
-  and nash's 29.6 ns (2.4-4x glacier's) holds for this build.
+  e = 0.80 (glacier's shared 8-thread figure), **4.4 h** at e = 0.55 (glacier's 8 physical
+  cores, no other lock holder) and **5.9 h** at e = 0.41 (glacier's 16 threads, SMT included).
+  nash has 36 physical cores (2 x Xeon E5-2695 v4, 72 threads), so 32 threads are physical cores
+  and 0.55 is the closer figure, but nash is shared at nice 19 and has two NUMA nodes.
+  Assumptions: glacier's efficiency carries to nash, and nash's 29.6 ns (2.4-4x glacier's) holds
+  for this build.
 
-By the decision rule (6 h at 32 threads) threads alone are enough. Not measured on nash (this task
-does not touch nash); the gate run's model step is the first nash measurement.
+By the decision rule (6 h at 32 threads) threads alone are enough, with little margin at the low
+end (5.9 h). Not measured on nash (this task does not touch nash); the gate run's model step is
+the first nash measurement.
 
 ## Next step if it is not enough (proposed, not implemented)
 
@@ -99,3 +105,17 @@ It is not bit-identical: it needs a frozen tolerance against the old loop (the r
 with k; re-seed with sin and cos every 64 or 128 channels) and the model-row gate of
 uhf-gate.md section 5 (1e-5) as the oracle. A coarser alternative is a flux cut of the model,
 which uhf-gate.md section 3 names as an amendment.
+
+## For the coordinator
+
+- Branch `predict-par`: kernel, Rust and Python bit-identity tests, this note, timings. CI tests
+  and docs green; the full local check is left to the merge.
+- Calibrate's model step (`core_pipeline.write_models` -> `calmodels.set_model` ->
+  `core.predict_components`) runs in the pipeline's own process, not in a spool worker, so it uses
+  rayon's global pool: `RAYON_NUM_THREADS` from the environment, else every logical CPU (72 on
+  nash). Set `RAYON_NUM_THREADS=32` (or the gate's share) in the gate run's environment.
+  Each call predicts one chunk of `plan.rows("model")` rows; it needs at least 8 x threads rows
+  per call to fill the pool (256 at 32 threads).
+- Projected D predict on nash at 32 threads: 3.0-5.9 h (4.4 h at glacier's physical-core
+  efficiency), under section 3's 12 h stop. If the first nash model step runs above about 6 h,
+  the next step is the channel phase recurrence above, frozen with a tolerance before the code.
