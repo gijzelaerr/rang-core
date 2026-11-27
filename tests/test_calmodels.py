@@ -333,3 +333,34 @@ def test_polarised_manual_writes_four_correlations(ms):
         len(entry["stokes_iquv_jy"]) == 3 and receipt["spec"]["casa_path"] == "tabular"
     )
     assert np.all(model[fid == 2][..., [0, 3]] == 1)
+
+
+def test_pb2013_3c286_follows_perley_butler_table3():
+    """research/sband-gate.md section 3: the quadratic p is within 0.11 points
+    of every Table 3 row it is fitted to, chi is 33 deg, Stokes I is
+    NRAO_XCAL's, and channels outside 1.45-3.75 GHz are refused."""
+    m = calmodels.pb2013_xcal("J1331+3030")
+    assert m == calmodels.pb2013_xcal("3C286") and m.casa_path == "tabular"
+    nu = np.array([f for f, _ in calmodels.PB2013_TABLE3_3C286])
+    p_table = np.array([p for _, p in calmodels.PB2013_TABLE3_3C286])
+    s = m.stokes(nu)
+    p = np.hypot(s[:, 1], s[:, 2]) / s[:, 0]
+    assert np.max(np.abs(p - p_table)) < 0.0011
+    chi = np.degrees(0.5 * np.arctan2(s[:, 2], s[:, 1]))
+    assert np.all(np.abs(chi - 33.0) < 0.01)
+    assert np.array_equal(s[:, 0], calmodels.caracal_xcal("3C286").stokes(nu)[:, 0])
+    s_band = np.linspace(1.75e9, 2.84e9, 5)
+    assert calmodels.pb2013_xcal("3C286", s_band) == m
+    with pytest.raises(ValueError, match="fitted over"):
+        calmodels.pb2013_xcal("3C286", np.array([1.284e9]))
+    with pytest.raises(ValueError, match="no pb2013"):
+        calmodels.pb2013_xcal("3C138")
+    # L band keeps CARACal's flat model.
+    assert calmodels.NRAO_XCAL["3C286"]["polindex"] == (0.098,)
+
+
+def test_0408_alias_of_sarao_block_1680455600():
+    nu = np.array([1.97e9, 2.84e9])
+    want = fluxstd.flux("0408-65", nu, "CARACal 2016")
+    for name in ("PKS0408-658", "PKS 0408-658", "J0408-6545"):
+        assert np.array_equal(fluxstd.flux(name, nu, "CARACal 2016"), want)

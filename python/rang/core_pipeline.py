@@ -594,6 +594,15 @@ def _polcal_problems(config, info):
         return out
     if pm["source"] == "column" and pm["column"] not in info["columns"]:
         out.append(f"calibrate.polcal.model.column: {info['ms']} has no {pm['column']}")
+    if pm["source"] == "pb2013":
+        for field, name in polcal_models(config, info):
+            try:
+                calmodels.pb2013_xcal(name, info.get("chan_freq"))
+            except ValueError as err:
+                out.append(
+                    f"calibrate.polcal.model: field {info['fields'][field]!r}: {err}"
+                )
+        return out
     for field, name in polcal_models(config, info):
         key = calmodels.NRAO_XCAL_ALIASES.get(name, name)
         if key not in calmodels.NRAO_XCAL:
@@ -1783,7 +1792,10 @@ def write_models(ctx):
             # (Gpol, KCROSS, Xf), one field at a time.
             records = []
             for field, name in polcal:
-                spec = calmodels.caracal_xcal(name)
+                if config["calibrate"]["polcal"]["model"]["source"] == "pb2013":
+                    spec = calmodels.pb2013_xcal(name, info.get("chan_freq"))
+                else:
+                    spec = calmodels.caracal_xcal(name)
                 receipt = calmodels.set_model(
                     ms, [field], spec, session=w, chunk_rows=plan.rows("model")
                 )
@@ -1816,10 +1828,11 @@ def polcal_fields(config, info):
 
 
 def polcal_models(config, info):
-    """[(field id, NRAO_XCAL name)] written by calibrate for
-    `calibrate.polcal.model.source: nrao` (task C6w), else []."""
+    """[(field id, model name)] written by calibrate for
+    `calibrate.polcal.model.source: nrao` (task C6w) or `pb2013`
+    (research/sband-gate.md), else []."""
     pm = config["calibrate"]["polcal"]["model"]
-    if pm["source"] != "nrao":
+    if pm["source"] not in ("nrao", "pb2013"):
         return []
     return [(f, pm["name"] or info["fields"][f]) for f in polcal_fields(config, info)]
 
@@ -1997,7 +2010,7 @@ def polcal_terms(config, info, types, primary_model):
     cal = config["calibrate"]
     block = cal["polcal"]
     pm = block["model"]
-    pol_column = "MODEL_DATA" if pm["source"] == "nrao" else pm["column"]
+    pol_column = "MODEL_DATA" if pm["source"] in ("nrao", "pb2013") else pm["column"]
     angle = block["feed_angle_rotation"]
     receptor = None if angle is None else float(np.deg2rad(angle))
     primary_fields = set()

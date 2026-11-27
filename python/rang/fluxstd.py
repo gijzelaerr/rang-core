@@ -221,6 +221,9 @@ ALIASES = {
     "J0408-6545": "0408-65",
     "PKS0408-65": "0408-65",
     "0408-658": "0408-65",
+    # the MS field name of SARAO block 1680455600 (research/sband-gate.md 3)
+    "PKS0408-658": "0408-65",
+    "PKS 0408-658": "0408-65",
 }
 STANDARD_ALIASES = {
     "PB2010": "Perley-Butler 2010",
