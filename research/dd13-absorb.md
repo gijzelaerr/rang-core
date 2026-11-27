@@ -7,7 +7,19 @@ Branch `dd13-absorb`. Coordinator brief 2026-11-27. Sections 1-9 are frozen
 Later changes are dated amendments, committed before the reading they
 affect, and labelled post hoc where they follow a reading.
 
-Status: **frozen 2026-11-27, not yet measured.**
+Status: **measured on O 2026-11-27; real reading R-QP12 running.**
+- **Frozen answer on O: "yes: QP12 stops the absorption and the loop from
+  solved gains closes on O".** QP12 (unit-amplitude image gains in every
+  cycle, the pin boxes released from cycle 2) brings d1 to 0.116 at 12
+  cycles (G_d1 0.686, 0.56 × Q12's 0.207, Γ 0.80 of the Q12-to-AT12 gap),
+  0.136 at 6, without harm; d1's amplitude bias falls from −0.116 (Q12) to
+  −0.004.
+- **The pin limits the loop**, with the truth gains too: ATP12 0.069
+  against AT12 0.093. The amplitude constraints alone do not close: QA12
+  stopped at 6 (d3 0.459 > 1.2 × Q6's; d1 0.238), SA12 no effect (0.226).
+- UV12 not run: gate UV failed as frozen (1.8 % of the solve weight lies
+  below 1,074 λ). The split controls read "not mainly in the amplitudes"
+  and "not mainly in the phases".
 
 ## 1. Question and hypotheses
 
@@ -324,8 +336,127 @@ Verified by search on 2026-11-27 unless marked "from recall".
 
 ## 10. Measured result
 
-Not yet measured.
+Run root `D:/rang/outputs/dd13-20261127/`. Host glacier, shared, under the
+main checkout's `heavy_lock.py`; two lanes, every loop 8 slots, 20 GB
+booked. Archive `results/dd13-absorb/` (per-cycle records, `score.json`,
+`diag.json`, `pinflux.json`, gates, `reuse.json`, `times.log`).
+
+**Setup.** O rebuilt (212 s): DD11's setup gate passes; the PSF peak
+equals DD10's. Reused files and their SHA-256 are in `reuse.json`.
+
+**Gate R13: pass.** From DD12's Q12 cycle-11 gains and M₁₁, `hogbom_fast`
+gives DD12's M₁₂ bit for bit (2,772 components); the cycle-12 scored solve
+on DD12's M₁₂ gives DD12's gains and flags bit for bit (500 iterations).
+DD12's Q12 and AT12 records are reused.
+
+**Gate UV: fail (frozen outcome).** The 1,074 λ cut removes 1.8 % of O's
+unflagged solve weight (558,479 of 30.8 M cells), below the 5 % bar; no
+antenna-interval loses all its data. **UV12 is not run.** With so little
+weight below the 64 px scale, an inner cut there cannot move the solve on
+O. A cut at a longer scale would be a new, post hoc arm and is not run.
+
+### The arms on O (sections 5 and 6)
+
+Every scored point: Rust Gauss-Seidel `ap`, 4 × 8 s, all baselines, d0
+free, cap 500. Q6, Q12, AT6 and AT12 are DD11's and DD12's scored points
+(reused, gate R13). References: A0 0.352, 0.544, 1.000; AX 0.0078, 0.0334,
+0.0523. b d1 is diagnostic D's signed d1 amplitude bias on the scored
+gains.
+
+| Point | e d1, d2, d3 | G d1, d2, d3 | Γ | e/ê d1-d3 | fractions d0-d3 | d3 \|g\| p99 / max | b d1 | Reading | Against Q at N |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Q6 (DD11) | 0.244, 0.301, 0.365 | 0.313, 0.476, 0.670 | 0 | 47, 8.3, 7.0 | 0.983, 0.950, 0.947, 0.948 | 1.83 / 2.5 | −0.107 | partly | - |
+| Q12 (DD12) | 0.207, 0.343, 0.301 | 0.420, 0.394, 0.737 | 0 | 42, 9.3, 5.8 | 0.988, 0.958, 0.957, 0.956 | 1.65 / 2.0 | −0.116 | partly | - |
+| **QA6** (stopped) | 0.238, 0.347, 0.459 | 0.332, 0.386, 0.571 | 0.055 | 40, 9.8, 9.1 | 0.997, 0.975, 0.974, 0.974 | 2.20 / 2.9 | −0.054 | partly | **hurts** (d1 0.974 ×, d3 1.26 ×) |
+| **SA6** | 0.247, 0.307, 0.341 | 0.305, 0.464, 0.695 | −0.023 | - | 0.962, 0.946, 0.931, 0.930 | 1.72 / 2.3 | −0.106 | partly | no effect (1.011 ×) |
+| **SA12** | 0.226, 0.335, 0.321 | 0.364, 0.409, 0.716 | −0.168 | 45, 9.2, 6.1 | 0.992, 0.961, 0.957, 0.956 | 1.65 / 2.0 | −0.121 | partly | no effect (1.093 ×) |
+| **QP6** | 0.136, 0.317, 0.336 | 0.629, 0.445, 0.701 | 0.939 | - | 0.981, 0.951, 0.947, 0.948 | 1.76 / 2.2 | −0.006 | **closes** | **helps** (0.555 ×) |
+| **QP12** | **0.116**, 0.312, 0.317 | **0.686**, 0.455, 0.721 | 0.797 | 17, 9.1, 5.9 | 0.980, 0.945, 0.938, 0.939 | 1.70 / 2.1 | **−0.004** | **closes** | **helps** (0.559 ×) |
+| AT6 (control) | 0.128, 0.279, 0.387 | 0.649, 0.520, 0.647 | 1 | 22, 8.0, 7.8 | 0.994, 0.975, 0.974, 0.974 | 1.95 / 2.9 | −0.063 | closes | - |
+| AT12 (control) | 0.093, 0.243, 0.300 | 0.753, 0.589, 0.738 | 1 | 15, 7.0, 6.0 | 0.982, 0.933, 0.921, 0.922 | 1.68 / 2.2 | −0.040 | closes | - |
+| ATP6 (control) | 0.072, 0.202, 0.283 | 0.813, 0.670, 0.757 | 1.49 | - | 0.991, 0.961, 0.956, 0.956 | 1.78 / 2.4 | −0.017 | closes | helps against AT6 (0.561 ×) |
+| ATP12 (control) | 0.069, 0.198, 0.272 | 0.822, 0.678, 0.768 | 1.21 | 11, 5.5, 4.9 | 0.988, 0.946, 0.939, 0.939 | 1.75 / 2.3 | −0.016 | closes | helps against AT12 (0.744 ×) |
+| ATa3 (control) | 0.266, 0.377, 0.591 | 0.248, 0.327, 0.431 | - | - | 0.947, 0.919, 0.910, 0.881 | 2.76 / 4.7 | −0.098 | partly | - |
+| ATp3 (control) | 0.257, 0.286, 0.475 | 0.274, 0.506, 0.554 | - | - | 0.998, 0.980, 0.959, 0.965 | 2.21 / 3.5 | −0.164 | partly | - |
+
+No arm harms d2 or d3 against A0. e on converged cells is within 0.001 of
+e on all cells for every point. Γ above 1 for ATP means that the released
+pin also beats the pinned truth-gain control.
+
+**Frozen readings (section 6):**
+- **QA12: stopped at N = 6 by the stage rule.** Its d1 (0.238, 0.974 ×
+  Q6's) alone is "no effect", but its d3 (0.459) exceeds 1.2 × Q6's 0.365,
+  so the effect reads "hurts". Absorption **not reduced**: b d1 −0.054
+  against Q6's −0.107, above the half (0.0535) by 0.0005.
+- **SA12: no effect** at 6 (1.011 ×) and 12 (1.093 ×); b d1 −0.121
+  against −0.116, **not reduced**. A time-constant amplitude keeps the
+  bias.
+- **QP12: closes** at both N (G_d1 0.629 and 0.686); **helps** against Q at
+  6 (0.555 ×) and 12 (0.559 ×); **absorption reduced** (b d1 −0.004
+  against −0.116). QP6 also helps against QA6 (0.570 ×).
+- **Pin: "the pin limits the loop"** (QP6 helps against QA6; ATP12 helps
+  against AT12, 0.744 ×).
+- **Split controls:** S_a 0.26, **"not mainly in the amplitudes"**; S_p
+  0.32, **"not mainly in the phases"**. With truth amplitudes or truth
+  phases alone, three cycles reach d1 0.266 and 0.257 (AT 0.161, ATs
+  0.304): neither factor alone carries the absorbed gap, which fits a model
+  error that both factors fit (the pin, below).
+- **DD13's answer (frozen): "yes: QP12 stops the absorption and the loop
+  from solved gains closes on O".** Best arm **QP12** (no harm, lowest
+  d1). The frozen rule calls for the real reading (section 7).
+
+**Mechanism (diagnostic D and pin flux; reported, not frozen).**
+- d1's amplitude bias by baseline length (< 500 m, 500-2,000 m,
+  > 2,000 m): A0 +0.07, −0.16, −0.90; Q12 +0.11, −0.14, −0.61; AT12
+  +0.03, −0.04, −0.45; QP12 +0.04, +0.01, −0.17; ATP12 +0.02, −0.01, −0.19.
+  The bias sits on the long baselines, the sign of a model too bright in
+  compact flux, and releasing the pin removes most of it.
+- Pin flux (post hoc A2, `pinflux.json`): in d1's 5 × 5 pin box sky O
+  holds 0.24 Jy and the 16 px ring round it 1.20 Jy. M₀ᶜ and every pinned
+  arm keep 0.96 Jy in the box at every cycle. QP12 ends with 0.66 Jy in the
+  box and 0.87 Jy in the ring; ATP12 0.69 and 0.78. The d1 pin holds M₀ᶜ's
+  catalogue point flux where sky O (DD8's DEEP) has the source resolved, so
+  on O the pin sets d1's amplitude scale wrong, and the trusted gains
+  absorb it. The d2 and d3 pins match the sky (0.10 and 0.08 Jy).
+- d1 in QP12's solves per cycle: 0.352, 0.304, 0.289 (cycles 0-2, Q12's),
+  then 0.192 after the first released cycle, 0.165, 0.147, 0.135, 0.129,
+  0.124, 0.121, 0.119, 0.117, scored 0.116. Högbom components fall from
+  3,498 (cycle 4) to 150 (cycle 11), with increments under 0.01 Jy from
+  cycle 5. The loop has converged; the remaining 0.116 against ATP12's
+  0.069 is the solved gains' share.
+- d1 net model flux at M₁₂: QP12 3.82 Jy, ATP12 3.56, Q12 3.38 (sky O
+  4.43). e/ê in d1: QP12 17, Q12 42, ATP12 11.
+
+**Caveat for real data (not tested on O).** QP12 holds the facet flux
+scale through the unit-amplitude images, not through the catalogue pin.
+On O this is right by construction (the truth amplitudes have mean
+log-amplitude about 0), and the pin is wrong by construction (M₀ᶜ's
+catalogue flux against DEEP's resolved source). On real data the
+catalogue flux may be right and the true facet amplitude not 1 (primary
+beam; DD3's and DD3c's flux-gain trade-off). The real reading tests
+convergence, not this.
+
+**Cost.** Loop walls (8 slots booked, lock waits included): QA12 5,529 s
+(stopped at 6); SA12 11,715 s; QP12 10,967 s; ATP12 5,044 s; ATa3 3,400 s;
+ATp3 3,365 s. Solve walls summed: QA12 4,408 s, SA12 9,270 s, QP12
+9,352 s, ATP12 2,892 s, ATa3 2,523 s, ATp3 2,322 s; a GS solve 520-800 s,
+Högbom 200-300 s per cycle. Solves used: gate R13 1, QA12 5, SA12 12,
+QP12 12, ATP12 4, ATa3 4, ATp3 4: 42 of the 65 capped (UV12's 16 not run,
+QA12 stopped).
+
+REAL_PLACEHOLDER
 
 ## Amendments
 
-None.
+**A1, 2026-11-27, a correction to `score`'s answer condition (after
+QA12's stage stop was read, before any other arm's scored point was read).
+It changes no frozen rule.** The code computed DD13's answer only when all
+four arms had a final N, so it gave none with UV12 not run. Section 5 says
+a failed gate UV means UV12 is not run; the answer is now read over the
+arms that run (QA12, SA12, QP12).
+
+**A2, 2026-11-27, post hoc diagnostic (after every O reading). It changes
+no frozen rule or reading.** DD12's `pinflux` on DD13's models (Q12,
+QA12, QP12, AT12, ATP12, SA12): the flux in each pin box and its 16 px
+ring per cycle against sky O (`pinflux.json`, zero solves). Section 10's
+mechanism paragraph reads it.

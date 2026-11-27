@@ -569,7 +569,9 @@ def score(root):
                       "releasing the pin hurts" if k1.startswith("hurts") or k2.startswith("hurts") else
                       "the pin does not limit")  # fmt: skip
     # answer
-    if len(final) == 4:
+    # UV12 is not run when gate UV fails (section 5)
+    uv_ok = json.loads((root / "gate" / "gateuv.json").read_text())["pass"]
+    if all(a in final for a in ("QA", "SA", "QP") + (("UV",) if uv_ok else ())):
         fin = {a: pts[f"{a}{nn}"] for a, nn in final.items()}
         closes = [a for a, s in fin.items() if s["reading"] == "closes"]
         helps = [a for a, nn in final.items() if eff[f"{a}{nn}_vs_Q{nn}"]["reading"].startswith("helps")
