@@ -7,7 +7,9 @@ Branch `dd13-absorb`. Coordinator brief 2026-11-27. Sections 1-9 are frozen
 Later changes are dated amendments, committed before the reading they
 affect, and labelled post hoc where they follow a reading.
 
-Status: **measured on O 2026-11-27; real reading R-QP12 running.**
+Status: **measured 2026-11-27.** Real reading R-QP12: lifts (min d1-d3
+0.080 to 0.937) and tames d3 (max 5.6), supported by O; convergence, not
+accuracy.
 - **Frozen answer on O: "yes: QP12 stops the absorption and the loop from
   solved gains closes on O".** QP12 (unit-amplitude image gains in every
   cycle, the pin boxes released from cycle 2) brings d1 to 0.116 at 12
@@ -444,7 +446,74 @@ Högbom 200-300 s per cycle. Solves used: gate R13 1, QA12 5, SA12 12,
 QP12 12, ATP12 4, ATa3 4, ATp3 4: 42 of the 65 capped (UV12's 16 not run,
 QA12 stopped).
 
-REAL_PLACEHOLDER
+### One real reading (section 7)
+
+R-QP12: DD7's real subset with the 145 bad baselines flagged (65,250
+rows), from RM, QP12's rules (unit-amplitude images in every cycle, rule U,
+pin boxes released from cycle 2), 12 cycles, then the scored point. R0 is
+DD10's RL cycle-0 solve, reused. Real PSF rebuilt (35 s).
+
+| Point | fractions d0-d3 | d3 \|g\| p99 / max (cells > 10) | flagged d0-d3 | residual rms d1-d3 / thermal σ |
+| --- | --- | --- | --- | --- |
+| R0 (RM) | 0.231, 0.137, 0.124, **0.080** | 10.8 / 33 (169) | 113, 113, 117, 249 | - |
+| DD11 R-Q6 (6 cycles, pin kept) | 0.999, 0.988, 0.970, **0.961** | 1.83 / 3.8 (0) | 113, 113, 114, 116 | 0.31 / 0.032 mJy (9.7 ×) |
+| **R-QP12** | 0.978, 0.956, 0.946, **0.937** | 1.89 / **5.6** (0) | 113, 115, 114, 116 | 0.29 / 0.032 mJy (9.1 ×) |
+
+- **Frozen reading: lifts** (min d1-d3 0.080 to 0.937, bar 0.280);
+  **tames d3** (p99 1.89 ≤ 3, max 5.6 ≤ 10); **supported by O** (QP12
+  reads "closes" on O).
+- **Convergence, not accuracy.** On O the same rules bring d1 to 0.116,
+  17 × the noise prediction; the real run says only that the loop
+  converges and stays tame. Against DD11's R-Q6 it converges slightly less
+  (min 0.937 against 0.961), with a larger d3 maximum (5.6 against 3.8)
+  and a residual 9.1 × thermal against 9.7 ×. R-QP12 changes the cycle
+  count, the image rule after cycle 1 and the pin together, so none of the
+  difference is attributable to one of them.
+- Per cycle: Högbom components 1,032, 1,282, 1,115, 2,272, 2,884, 1,670,
+  871, 490, 249, 181, 101, 53 (stop 3.2 to 1.6 mJy); global fraction 0.143,
+  0.661, 0.791, 0.917, 0.922, 0.961, 0.956, 0.965, 0.971, 0.972, 0.965,
+  0.965, scored 0.954; untrusted d3 gains 55 % at cycle 0, 2.3 % at the
+  end.
+- Pin flux on real data (reported only): d1's pin box holds 0.965 Jy in
+  RM and 0.684 Jy at M₁₂, as on O (0.96 to 0.66); the d2 and d3 boxes stay
+  at 0.10 and 0.07-0.08 Jy. The released loop removes the same compact
+  excess from d1's catalogue source on real data. Whether that is the real
+  source's structure or the unit-amplitude scale convention taking over
+  the pin's role cannot be told without a truth: the caveat above.
+- Cost: 11,235 s wall (8 slots booked); 14 solves (cycle 0 reused).
+
+## 11. For the coordinator
+
+- **Frozen answer on O: "yes: QP12 stops the absorption and the loop from
+  solved gains closes on O".** QP12: unit-amplitude trusted gains in every
+  cycle's images, rule U, Högbom with d1-d3's pin boxes released from
+  cycle 2, 12 cycles. d1 0.116 (G 0.686, 0.56 × Q12, Γ 0.80), d2 0.312,
+  d3 0.317, no harm; d1 amplitude bias −0.004 against Q12's −0.116.
+- **The lever is the pin, not the amplitude constraint alone.** QA12 (unit
+  amplitude, pins kept) stopped at 6 on d3; SA12 no effect; ATP12 (truth
+  gains, pins released) 0.069 against AT12's 0.093. On O, d1's catalogue
+  pin holds 0.96 Jy where DEEP has 0.24 Jy (resolved), so it set d1's
+  amplitude scale wrong and the trusted gains absorbed it (bias on the
+  > 2 km baselines −0.61 in Q12, −0.17 in QP12). DD11's and DD12's
+  "absorption" is mostly this pin error.
+- **Not run:** (a) and (c) (section 2, accepted); UV12 (gate UV: 1.8 % of
+  the weight below 1,074 λ). Split controls: neither truth amplitude nor
+  truth phase alone closes.
+- **Real (frozen): lifts and tames d3, supported by O** (min 0.080 to
+  0.937, d3 max 5.6); convergence, not accuracy; slightly below DD11's
+  R-Q6 (0.961, 3.8). d1's real pin box falls 0.965 to 0.684 Jy, as on O.
+- **Caveat:** QP12 replaces the catalogue pin with the unit-amplitude
+  convention for the facet flux scale. Right on O by construction; on real
+  data it needs a check against an independent flux scale (catalogue flux
+  of resolved sources, primary-beam model) before it goes into a recipe.
+- **Recommended next step:** carry QP12's rules into the real DD recipe
+  only after an O variant with a realistic facet amplitude offset (truth
+  mean |g| ≠ 1 per facet, e.g. a primary-beam factor) tests the
+  convention, and a real-data flux-scale check (d1-d3 source fluxes against
+  the catalogue at matched resolution). Novelty: none claimed; parity
+  step.
+- **Infrastructure:** no Rust or library change; driver
+  `tools/oracles/dd13/dd13.py`, test `tests/test_dd13.py`.
 
 ## Amendments
 

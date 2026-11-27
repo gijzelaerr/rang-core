@@ -1,0 +1,8 @@
+{
+ "uv_min_lambda": 1074.2958658702937,
+ "weight_share_removed": 0.018030442195805914,
+ "cells_cut": 558479,
+ "cells_unflagged": 30800924,
+ "antenna_intervals_losing_all_data": 0,
+ "pass": false
+}

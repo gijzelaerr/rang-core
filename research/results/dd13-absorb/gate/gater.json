@@ -1,0 +1,15 @@
+{
+ "cycle11_next_model_bitwise": true,
+ "cycle11_max_abs_diff": 0.0,
+ "cycle11_hogbom": {
+  "sigma": 0.00020360234172604318,
+  "stop": 0.0010180117086302158,
+  "n": 2772
+ },
+ "seconds_1": 247.56361789999937,
+ "cycle12_gains_bitwise": true,
+ "cycle12_flags_bitwise": true,
+ "cycle12_iterations": 500,
+ "seconds_2": 638.5870069000011,
+ "R13_pass": true
+}
