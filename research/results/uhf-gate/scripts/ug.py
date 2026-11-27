@@ -45,11 +45,11 @@ Steps (in ug_chain.sh's order):
 
 import json
 import math
+import multiprocessing
 import os
 import shutil
 import sys
 import time
-import multiprocessing
 from pathlib import Path
 
 import numpy as np
