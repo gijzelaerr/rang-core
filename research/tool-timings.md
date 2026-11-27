@@ -2651,3 +2651,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-26 | uhf-s-fetch: fetch of 1726220298's selection and reserve (host nash, 1 slot shared, 6 workers, 40 MB/s cap) | 35,912 chunks, 24 scans | 12,221 s (488.5 GB, 39.97 MB/s) | – | at the cap; 24 flag chunks lost, confirmed |
 | 2026-11-26 | uhf-s-fetch: `mvftoms.py -f -a` of 1726220298's selection (host nash, 4 slots shared) | 22 scans, 4,096 ch, 60 antennas | 3,737 s | 7.3 GB | 102 % CPU; MS 418.4 GB, 2,083,290 rows |
 | 2026-11-26 | uhf-s-fetch: prep and `sha256sum` of 1726220298.ms (host nash, 1 slot shared each) | 418.4 GB, 77 files | 683 s; 2,276 s | 0.31 GB | |
+| 2026-11-27 | uhf-gate smoke 8.3: `rang-core run` uhf-dev.yaml's shape on A1 small (host nash, 16 slots shared) | A1 small, 64 ch | 111 s | 0.99 GB | every stage done; the DOI 1934-638 catalogue (7,779 components) as the model |
+| 2026-11-27 | uhf-gate smoke 8.3: the post chain, 51 steps (host nash, shared bookings per step) | A1 small | about 19 min in all | 0.6 GB (largest) | Tricolour 0.2.1 `firstpass_UHF.yaml` 316 s; QuartiCal qc-selfcal 186 s; every other step < 45 s; four script failures fixed first (uhf-gate.md run log) |
+| 2026-11-27 | apptainer pull `quay.io/stimela/tricolour:1.5.0` (host nash) | Stimela cab image | 58 s | – | for the CARACal arm |

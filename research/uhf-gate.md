@@ -366,6 +366,46 @@ calibrator and target named (D's 3C 286 is also tagged `gaincal`).
 - Everything else is unchanged: tolerances, models, the CASA rule, the decision
   rule.
 
+## Run log
+
+### Smoke 8.3 (2026-11-26/27, nash, A1 small; scores not read)
+
+Run root `~/rang-data/outputs/uhf-gate-20261126/smoke/` (R/ holds every step's
+output), wheel at c31551f1 (SHA-256 `ece91edb…5dcc`), scripts
+`research/results/uhf-gate/scripts/` (`ug.py`, `ug_chain.sh`, `ug_dryrun.py`).
+`rang-core run` passed first time (111 s, every stage of `run.stages`). Four
+steps of the post chain failed and were fixed on this development data before D;
+none is a protocol change (no tolerance, selection or rule moved):
+
+1. **model-row, the pool** (`d795cbcf`): Python 3.14 starts pool workers by
+   forkserver, so they did not see the catalogue; the pool is now forked
+   explicitly.
+2. **model-row, the sign** (`c3822d6d`): the direct sum used
+   `exp(−2πi ν(ul+vm+w(n−1))/c)`; rang's MODEL_DATA equalled its complex
+   conjugate to 4.5e-8 of the peak (720 rows × 64 channels), and against it
+   differed by up to 2.0 × the peak. The MS convention is the positive phase:
+   rang's `predict.rs` (ported from codex-africanus, validated in
+   core-phase3c-a.md) and gemclean.md 2.7 state it, and g6-predict.md found
+   `predict_components` equal to WSClean's predict without conjugation. The
+   script now sums with `exp(+2πi …)`; it stays independent of rang (numpy,
+   its own catalogue parser). The `exp(−2πi …)` of `wgridder.rs`'s
+   `dirty2vis` is ducc0's adjoint in that gridder's own frame (`flip_w`), not
+   the MS's sign. On A1 the row now reads 4.5e-8 (tolerance 1e-5); the number
+   means nothing for the gate.
+3. **score3c and later scorers, the extension** (`399aaf2e`): `e1_run.py` puts
+   the worktree's `python/` first, which has no `_core`; the chain links the
+   frozen wheel's `_core.abi3.so` there (the worktree's `python/` is the
+   wheel's source: `git diff c31551f1 -- python core src` is empty).
+4. **leakage, the PSF name** (`cbe56436`): with `-join-polarizations` WSClean
+   writes one `-MFS-psf.fits`, not one per polarisation.
+
+Then all 51 steps returned 0 (gate 1 met, gate 2a's hashes restored, CASA's 14
+tasks without error). Wall times: tricolour 316 s, qc-selfcal 186 s, every other
+step under 45 s. The CARACal arm's driver is `scripts/ug_caracal.sh` (its own
+copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
+`quay.io/stimela/tricolour:1.5.0` on 2026-11-27, recorded in nash's
+`stimela-sif/pull-list.txt`; every other cab image was already there).
+
 ## For the coordinator
 
 - Frozen: this note and the files in `results/uhf-gate/`. After amendment 2,
