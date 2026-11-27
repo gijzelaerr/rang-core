@@ -450,6 +450,7 @@ fn solve_complex(
 
 /// `rang_core_predict_components`; returns its status code.
 #[pyfunction]
+#[pyo3(signature = (nrow, nchan, nsrc, ncoeff, uvw, frequency, lm, kind, flux, coeffs, log_poly, ref_freq, gauss_shape, vis, spectra=None, threads=0))]
 #[allow(clippy::too_many_arguments)]
 fn predict_components(
     py: Python<'_>,
@@ -468,6 +469,7 @@ fn predict_components(
     gauss_shape: Ro<'_, f64>,
     mut vis: Rw<'_, f64>,
     mut spectra: Option<Rw<'_, f64>>,
+    threads: usize,
 ) -> PyResult<i32> {
     let (r3, s2, s3) = (
         size("3 * nrow", &[3, nrow])?,
@@ -488,6 +490,7 @@ fn predict_components(
         log_poly: arg(&log_poly, "log_poly", nsrc)?,
         ref_freq: arg(&ref_freq, "ref_freq", nsrc)?,
         gauss_shape: arg(&gauss_shape, "gauss_shape", s3)?,
+        threads,
     };
     let mut outputs = ffi::PredictOutputs {
         vis: arg_mut(

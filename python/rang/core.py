@@ -896,6 +896,7 @@ def predict_components(
     gauss_shape,
     *,
     spectra=False,
+    threads=0,
 ):
     """WSClean-format component prediction (port of africanus wsclean_predict).
 
@@ -903,7 +904,9 @@ def predict_components(
     point and 1 Gaussian; flux (src,); coeffs (src, ncoeff); log_poly (src,)
     bool; ref_freq (src,); gauss_shape (src, 3) as major and minor FWHM in
     radians and position angle. Returns (row, chan) complex128 Stokes I
-    visibilities, and (src, chan) spectra when requested.
+    visibilities, and (src, chan) spectra when requested. Rows are predicted in
+    parallel on `threads` threads (0: the core's pool, `RAYON_NUM_THREADS`);
+    the result is bit for bit the same at any thread count.
     """
     uvw = np.require(uvw, np.float64, ["C", "A"])
     if uvw.ndim != 2 or uvw.shape[1] != 3:
@@ -938,6 +941,7 @@ def predict_components(
         shapes,
         vis.view(np.float64),
         spec,
+        int(threads),
     )
     if status:
         raise RuntimeError(

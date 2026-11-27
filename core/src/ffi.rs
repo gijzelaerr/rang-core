@@ -434,6 +434,9 @@ pub struct PredictInputs {
     pub ref_freq: *const f64,
     /// `nsrc * 3`: major FWHM, minor FWHM (radians), position angle.
     pub gauss_shape: *const f64,
+    /// Threads; 0 uses rayon's global pool (`RAYON_NUM_THREADS`). The result
+    /// does not depend on it.
+    pub threads: usize,
 }
 
 /// Caller-owned outputs of the component predictor.
@@ -512,18 +515,12 @@ pub unsafe extern "C" fn rang_core_predict_components(
                 ref_freq,
                 gauss_shape,
             };
-            let Ok(vis) = predict::predict(uvw, frequency, &components) else {
+            let out = slice_mut(o.vis, 2 * i.nrow * i.nchan);
+            let Ok(spec) = predict::predict_into(uvw, frequency, &components, i.threads, out)
+            else {
                 return 1;
             };
-            let out = slice_mut(o.vis, 2 * i.nrow * i.nchan);
-            for (k, value) in vis.iter().enumerate() {
-                out[2 * k] = value.re;
-                out[2 * k + 1] = value.im;
-            }
             if !o.spectra.is_null() {
-                let Ok(spec) = predict::spectra(&components, frequency) else {
-                    return 1;
-                };
                 slice_mut(o.spectra, i.nsrc * i.nchan).copy_from_slice(&spec);
             }
             0
