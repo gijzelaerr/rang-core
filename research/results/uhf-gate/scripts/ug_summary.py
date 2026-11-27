@@ -156,9 +156,8 @@ def main(r, block):
     )
     print("| Gate | Reading | Tolerance | Outcome |\n| --- | --- | --- | --- |")
     for x in out:
-        print(
-            f"| {x['gate']} | {x['reading']} | {x['tolerance']} | {verdict(x['met'])} |"
-        )
+        cells = [x["gate"], x["reading"], x["tolerance"], verdict(x["met"])]
+        print("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
     return 0
 
 
