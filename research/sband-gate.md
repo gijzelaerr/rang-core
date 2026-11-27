@@ -325,6 +325,42 @@ release does not wait for it, and its outcome on the day is read by this table.
 - Whether CARACal's cabs run its setjy route for 0408-65 at S band.
 - katbeam or holography beams: nothing in the chain applies a primary beam.
 
+## Amendment 1 (2026-11-27, before any S-band visibility, flag or weight was read; not post hoc)
+
+Written after a review of the freeze the same day; only the two development
+MSs exist, and nothing in them has been read (their maps and hashes are
+metadata, as UHF's). Three changes:
+
+1. **The gated flux transfer gets the held-out scan's own phase-only G.** E2-A's
+   estimator is coherent (the mean over cross rows of Re((XX + YY) / 2),
+   e2-acceptance.md section 9, the estimators), so development gain phases 2-4 h stale would
+   decorrelate it, and the row would measure phase drift, not the flux scale.
+   E2-A met it with 0.9838 in its worst bin at L band, one scan apart. **Gated
+   now:** the development K, G (ap) and B pre-applied, then a phase-only G
+   (`calmode: p`, solint inf over the scan, the run's refant and uvrange)
+   solved on the held-out scan itself against the primary model and applied
+   on top, as the leakage row's `leak18p` case. K is **not** re-solved (the
+   development K is transferred; a delay drift shows as a residual). Amplitude
+   and bandpass are what transfer. Tolerances unchanged: 2 % against the
+   model, 1 % rang against CASA (CASA's arm the same: its development tables,
+   then `gaincal` phase-only on the scan). **Reported beside it:** the row as
+   first frozen (no phase re-solve).
+2. **The CASA arm's polarisation-calibrator numbers.** The E2-N and UHF CASA
+   scripts hard-code NRAO_XCAL's 3C 286 (`X286`). The S-band scripts take
+   section 3's `pb2013` numbers for 3C 286 (S0) and NRAO_XCAL's 3C 138 numbers
+   (S1, 8.33843 Jy at 1.47 GHz, spix (−0.4981, −0.1552, −0.0102, 0.0223),
+   polindex (0.078,), polangle (−0.16755,)), so both arms use one model. The
+   3C 286 model row (5.2) checks it.
+3. **Disk guard scope.** Section 8.5's `e2_diskguard.py` wraps every MS write
+   of the chain. The two development MSs were written by `sg_convert.sh`
+   without it (11.3 TB free, far above the 2,000 GiB floor); the held-out
+   conversions and every chain step run inside it.
+
+Config check with this branch's code (Windows, no MS, 2026-11-27):
+`s0-dev.yaml` and `s1-dev.yaml` "valid for flag, calibrate, apply, image,
+selfcal"; both `*-3c.yaml` "valid for image". Unchanged: the split, models,
+every tolerance and the decision rule.
+
 ## Run log (records only; the protocol above is unchanged)
 
 **2026-11-27, development MSs made (section 2), nothing read.** Frozen at
