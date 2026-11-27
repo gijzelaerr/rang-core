@@ -9,6 +9,13 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- `core.predict_components` (calibrate's and casa-model's component model step) runs in parallel over blocks
+  of rows on rayon's pool (`RAYON_NUM_THREADS`, or the new `threads=` argument), bit for bit the
+  single-threaded result at any thread count (`research/predict-par.md`).
+- `calibrate.k_zero_start` (off by default): a K solved in chunks is now bit for bit the one-call K
+  with the key on. The chunked replay traced the FFT start's stop only and gave the zero start the
+  same iteration count, so delays differed by ~3e-6 ns and near-tie intervals could switch runs; both
+  runs' stops are now replayed, in workers too. Key off unchanged (`research/k-ambiguity.md` 10).
 - K with antennas cut off from the reference antenna (#60): no change needed. #53's `refantmode: flex`
   (the default since 0.4.0) was verified through `rang-core run` and on E2-N's real flags that cut 19
   antennas off m022: no K solution flagged, delays within 4.6e-4 ns (median) of CASA K at a refant that

@@ -129,6 +129,37 @@ def test_a_replayed_solve_runs_its_chunks_in_workers(cal_ms):
     assert tasks["chain-chunk"] >= 4  # two passes of two chunks or more
 
 
+def test_a_replayed_k_zero_start_solve_runs_its_chunks_in_workers(cal_ms):
+    """research/k-ambiguity.md section 10: K with `zero_start` traces two
+    runs and pass 2 takes one iteration count per run, through `chain-chunk`
+    specs and workers too; the same solution as the one call."""
+    tables = {}
+    term = {"type": "K", "name": "K", "fields": [0], "solint": "int", "combine": "",
+            "refant": 0, "refantmode": "flex", "minsnr": 3.0, "minblperant": 3,
+            "uvrange": "", "preapply": [], "interp": [], "max_iterations": 50,
+            "stop_criterion": 1e-7, "stop_fraction": 0.99, "model": "unit"}  # fmt: skip
+    common = {
+        "model_column": "MODEL_DATA",
+        "weight_column": "WEIGHT",
+        "zero_start": True,
+    }
+    one = cal_chain._solve_one(cal_ms, term, 0, tables, common)
+    common["budget"] = budget(400, rows=7)
+    r = cal_chain.recipe("solve_one", cal_ms, term, 0, tables, common)
+    assert r is not None
+    with core_tasks.executor({"data": {"processes": 2, "threads": 2}}) as ex:
+        with cal_chunks.dispatching(cal_chunks.Dispatch(ex, r)):
+            got = cal_chain._solve_one(cal_ms, term, 0, tables, common)
+        tasks = ex.describe()["tasks"]
+    assert cal_chain._sha(one[0]) == cal_chain._sha(got[0])
+    assert one[1].iterations == got[1].iterations
+    assert (
+        got[1].settings["zero_start_intervals"]
+        == one[1].settings["zero_start_intervals"]
+    )
+    assert tasks["chain-chunk"] >= 4
+
+
 def _command(tmp_path, arm, data, config):
     src = tmp_path / "src" / "x.ms"
     if not src.exists():

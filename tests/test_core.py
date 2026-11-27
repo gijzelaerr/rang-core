@@ -211,3 +211,34 @@ def test_predict_components_matches_numpy_templates():
     np.testing.assert_allclose(
         spec[0], 0.06 * (freq / 1.284e9) ** -0.5, rtol=1e-14, atol=0
     )
+
+
+def test_predict_components_is_bitwise_the_same_at_any_thread_count():
+    # predict-par: rows run in parallel blocks, each visibility's component
+    # sum keeps the single-threaded order (Rust test against the old loop).
+    rng = np.random.default_rng(11)
+    nrow, nchan, nsrc = 45, 23, 17
+    uvw = rng.uniform(-8000, 8000, (nrow, 3))
+    freq = np.linspace(544e6, 1088e6, nchan)
+    args = (
+        uvw,
+        freq,
+        rng.uniform(-0.02, 0.02, (nsrc, 2)),
+        rng.integers(0, 2, nsrc),
+        rng.uniform(-0.5, 2.0, nsrc),
+        rng.uniform(-1.0, 0.5, (nsrc, 2)),
+        rng.integers(0, 2, nsrc).astype(bool),
+        rng.uniform(5e8, 1.5e9, nsrc),
+        np.column_stack(
+            [
+                rng.uniform(0, 1e-4, nsrc),
+                rng.uniform(0, 1e-4, nsrc),
+                rng.uniform(0, 3, nsrc),
+            ]
+        ),
+    )
+    want, spec = core.predict_components(*args, spectra=True, threads=1)
+    for threads in (0, 2, 8, 16):
+        got, got_spec = core.predict_components(*args, spectra=True, threads=threads)
+        assert got.view(np.uint64).tobytes() == want.view(np.uint64).tobytes()
+        assert got_spec.tobytes() == spec.tobytes()

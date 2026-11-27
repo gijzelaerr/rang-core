@@ -77,6 +77,7 @@ mod gemclean_cli;
 mod gemclean_predict;
 mod learned;
 mod lightcurve;
+mod multiscale_image;
 mod reweight;
 
 type Ro<'py, T> = PyReadonlyArrayDyn<'py, T>;
@@ -449,6 +450,7 @@ fn solve_complex(
 
 /// `rang_core_predict_components`; returns its status code.
 #[pyfunction]
+#[pyo3(signature = (nrow, nchan, nsrc, ncoeff, uvw, frequency, lm, kind, flux, coeffs, log_poly, ref_freq, gauss_shape, vis, spectra=None, threads=0))]
 #[allow(clippy::too_many_arguments)]
 fn predict_components(
     py: Python<'_>,
@@ -467,6 +469,7 @@ fn predict_components(
     gauss_shape: Ro<'_, f64>,
     mut vis: Rw<'_, f64>,
     mut spectra: Option<Rw<'_, f64>>,
+    threads: usize,
 ) -> PyResult<i32> {
     let (r3, s2, s3) = (
         size("3 * nrow", &[3, nrow])?,
@@ -487,6 +490,7 @@ fn predict_components(
         log_poly: arg(&log_poly, "log_poly", nsrc)?,
         ref_freq: arg(&ref_freq, "ref_freq", nsrc)?,
         gauss_shape: arg(&gauss_shape, "gauss_shape", s3)?,
+        threads,
     };
     let mut outputs = ffi::PredictOutputs {
         vis: arg_mut(
@@ -3027,6 +3031,12 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(gemclean_predict::gemclean_predict, m)?)?;
     // Task G8: gemclean's command line for the console script (research/g8-wheel.md).
     m.add_function(wrap_pyfunction!(gemclean_cli::gemclean_main, m)?)?;
+    // DD12: GeMClean's multi-scale minor cycle on an image (research/dd12-msclean.md).
+    m.add_function(wrap_pyfunction!(multiscale_image::multiscale_image, m)?)?;
+    m.add_function(wrap_pyfunction!(
+        multiscale_image::multiscale_theoretic_beam,
+        m
+    )?)?;
     // Task F3: the second learned flagger (research/f3-flagger.md).
     m.add_function(wrap_pyfunction!(f3flag::f3flag_features, m)?)?;
     m.add_function(wrap_pyfunction!(f3flag::f3flag_logits, m)?)?;

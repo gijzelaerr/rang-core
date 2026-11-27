@@ -186,13 +186,18 @@ def solve(
     response's first sidelobe, 1.43 / bandwidth away); `False` is
     QuartiCal's estimator exactly. Autocorrelations are not used. `trace`
     (task W3b, `rang.cal_chunks.replayed`): return only `(counts, error,
-    ngains)` of the counted kernel. `zero_start` (with the initial estimate;
+    ngains)` of the counted kernel; with `zero_start` a list of two, the FFT
+    run's and the zero run's. `max_iterations` is one count, or with
+    `zero_start` a pair `(FFT run, zero run)` (the replay's pass 2, each run
+    for its own stop's count). `zero_start` (with the initial estimate;
     research/calchain-floor.md section 12, post hoc): the kernel runs a
     second time from zero delays and offsets, and per interval the run with
     the lower weighted residual over the interval's unflagged parallel-hand
     cells is kept (the FFT start, on the refant baselines only, can land on
     a sidelobe in a sparsely sampled interval, from which Gauss-Newton
-    converges to a wrong delay); `trace` counts the FFT run only. False:
+    converges to a wrong delay); `trace` counts both runs, so a chunked
+    solve replays each run's own stop and equals the one call bit for bit
+    (research/k-ambiguity.md section 10). False:
     one run, as before. `refantmode` (issue #53, research/k-refant-53.md;
     with `casa_rules`): `"flex"`, per interval the reference is the first
     antenna of `refant` with unflagged data, else the antenna with the most
@@ -241,12 +246,16 @@ def solve(
     nparam = ntime * nfreq * nant
     ngain = ntime * nchan * nant
     zero_start = bool(zero_start) and bool(initial_estimate)
+    iters = [int(i) for i in np.atleast_1d(max_iterations)]
+    if len(iters) not in (1, 2) or len(iters) == 2 and not zero_start:
+        raise ValueError("max_iterations: one count, or a pair with zero_start")
+    fft_iters, zero_iters = iters[0], iters[-1]
     want_gains = bool(return_gains) or zero_start
     from rang import core
 
     ext = core.extension()
 
-    def kernel(estimate):
+    def kernel(estimate, max_iterations):
         common = (
             nrow, nchan, ntime, nfreq, int(nant), cal_gain._floats(data), weights,
             cal_gain._floats(model), flag, flag_row.astype(np.uint8), a1, a2,
@@ -283,12 +292,14 @@ def solve(
         return r
 
     if trace:
-        return kernel(initial_estimate)
-    run = kernel(initial_estimate)
+        if zero_start:  # research/k-ambiguity.md section 10: both runs' stops
+            return [kernel(initial_estimate, fft_iters), kernel(False, zero_iters)]
+        return kernel(initial_estimate, fft_iters)
+    run = kernel(initial_estimate, fft_iters)
     zero_kept = None
     if zero_start:
         run, zero_kept = _keep_better(
-            run, kernel(False), data, model, weights, flag, flag_row, a1, a2, tb,
+            run, kernel(False, zero_iters), data, model, weights, flag, flag_row, a1, a2, tb,
             (ntime, nfreq, nant, nchan),
         )  # fmt: skip
     delays, pflags, err, gflags = (
@@ -383,7 +394,7 @@ def solve(
             "refant": refants,
             "casa_rules": bool(casa_rules),
             "initial_estimate": bool(initial_estimate),
-            "max_iterations": int(max_iterations),
+            "max_iterations": fft_iters,
             "stop_criterion": float(stop_criterion),
             "stop_fraction": float(stop_fraction),
             "zero_start": zero_start,
