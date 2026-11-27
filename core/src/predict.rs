@@ -495,11 +495,11 @@ mod tests {
     /// Timing at the UHF model's shape (point components, ordinary
     /// polynomials, 4,096 channels): `cargo test --release -p rang-core
     /// predict::tests::bench -- --ignored --nocapture`, with
-    /// `RANG_PREDICT_BENCH=rows,nsrc,threads,...` to change the shape.
+    /// `PREDICT_PAR_BENCH=rows,nsrc,threads,...` to change the shape.
     #[test]
     #[ignore]
     fn bench() {
-        let spec = std::env::var("RANG_PREDICT_BENCH").unwrap_or("64,7779,1,8,16".into());
+        let spec = std::env::var("PREDICT_PAR_BENCH").unwrap_or("64,7779,1,8,16".into());
         let v: Vec<usize> = spec.split(',').map(|x| x.trim().parse().unwrap()).collect();
         let (nrow, nsrc, nchan) = (v[0], v[1], 4096);
         let mut case = Case::new(42, nrow, nchan, nsrc, 2);
@@ -507,8 +507,8 @@ mod tests {
         case.log_poly.iter_mut().for_each(|x| *x = false);
         let c = case.components();
         let terms = (nrow * nchan * nsrc) as f64;
-        // RANG_PREDICT_BENCH_OLD=0 skips the old loop and the bitwise check.
-        let old = std::env::var("RANG_PREDICT_BENCH_OLD").map_or(true, |x| x != "0");
+        // PREDICT_PAR_BENCH_OLD=0 skips the old loop and the bitwise check.
+        let old = std::env::var("PREDICT_PAR_BENCH_OLD").map_or(true, |x| x != "0");
         let want = old.then(|| {
             let t = std::time::Instant::now();
             let want = reference(&case.uvw, &case.freq, &c).unwrap();
