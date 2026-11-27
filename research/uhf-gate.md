@@ -366,6 +366,32 @@ calibrator and target named (D's 3C 286 is also tagged `gaincal`).
 - Everything else is unchanged: tolerances, models, the CASA rule, the decision
   rule.
 
+## Amendment 3 (2026-11-27 09:22 SAST; post hoc: after D attempt 1's flag stage, before any solution, corrected value or image of D was read)
+
+**The model step's cost.** Section 3 named the risk and gave a 12 h stop rule.
+D attempt 1 measured it (run log below): rang's `core.predict_components` is
+single-threaded, 29.6 ns per row × channel × component on nash, so one predict
+of the DOI 1934-638 catalogue takes about 77 h on D and about 69 h on H, and
+the chain makes two per block (calibrate and `casa-model`).
+
+**Coordinator decision, option (a).** The predict is parallelised over rows on
+main by a separate task (`predict-par`), gated by bit-identity against the
+current single-threaded path. Section 4's Code clause changes only in this:
+the wheel is built from main at the merge of `predict-par` (its commit and
+SHA-256 go in the result), and its predict is bit-identical to the frozen
+wheel's. Models, selection, tolerances, the CASA rule and the decision rule are
+as frozen. Smoke 8.3 is run again on the new wheel before D.
+
+**D attempt 1 stopped.** `rang-core run` (pid 3773031) was sent SIGTERM at
+09:22:29 SAST on the coordinator's word (the chain logged rc 241); the 12 h
+watchdog was disarmed first. At the stop calibrate read "running" and
+`rang-run/calibrate/` held no entry: no solution, corrected value or image of D
+had been written or read. What attempt 1 showed is its flag stage (the flag
+fractions in the run log) and the model step's IO. Its result directory is kept
+as `D/R-attempt1/`; D's MS is copied again from the fetched one and checked
+against its receipt before attempt 2, and the flag stage runs again as frozen.
+The CARACal arm on D is independent of rang's run and continues.
+
 ## Run log
 
 ### Smoke 8.3 (2026-11-26/27, nash, A1 small; scores not read)
