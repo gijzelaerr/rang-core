@@ -181,7 +181,9 @@ _G = {}  # the catalogue for the workers (fork: shared, not pickled per task)
 def _dft_rows(uvw):
     nu, ll, m, n1, spec = _G["nu"], _G["l"], _G["m"], _G["n1"], _G["spec"]
     out = np.zeros((len(uvw), len(nu)), np.complex128)
-    k = -2j * np.pi * nu / C
+    # the MS sign, exp(+2 pi i ...) (research/gemclean.md 2.7, g6-predict.md: WSClean's
+    # predict without conjugation); the smoke found -2j gave the conjugate
+    k = 2j * np.pi * nu / C
     for i, (u, v, w) in enumerate(uvw):
         path = u * ll + v * m + w * n1  # (src,)
         out[i] = (spec * np.exp(np.outer(path, k))).sum(0)
@@ -242,7 +244,7 @@ def model_row(ms, r, lsm):
            "median_abs_diff_over_peak": float(np.median(d) / peak),
            "tolerance": MODEL_TOL, "met": worst <= MODEL_TOL,
            "direct_sum_seconds": seconds, "processes": nproc,
-           "convention": "V = sum S(nu) exp(-2 pi i nu (u l + v m + w (n - 1)) / c); "
+           "convention": "V = sum S(nu) exp(+2 pi i nu (u l + v m + w (n - 1)) / c); "
                          "spectra by the WSClean format's definition"}  # fmt: skip
     write(r / "model-row.json", rec)
     return 0
