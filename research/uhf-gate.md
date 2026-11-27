@@ -406,6 +406,45 @@ copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
 `quay.io/stimela/tricolour:1.5.0` on 2026-11-27, recorded in nash's
 `stimela-sif/pull-list.txt`; every other cab image was already there).
 
+### D attempt 1 (2026-11-27, nash; measured; nothing of D's solutions read)
+
+- **Launch.** Scripts at `793c08df`, wheel `ece91edb…5dcc` (c31551f1), configs as
+  committed (`D/R/launch.txt` holds the hashes). Section 8.1's check against the
+  MS gave section 4's verdicts: `uhf-dev.yaml` "valid for flag, calibrate, apply,
+  image, selfcal", `uhf-dev-3c.yaml` "valid for image" (with the band warning).
+  `rang-core run` started 06:50 SAST in one shared booking of 16 slots and 128 GB.
+- **Flag stage:** done in 6,216.6 s; flagged 14.8 % before, 31.3 % after
+  (`state.json`; a flag fraction, reported in section 5, not a gate).
+- **Calibrate** started 08:33:47 SAST. The model step allocated the 188 GB
+  MODEL_DATA column (about 11 min of IO), then ran on one thread.
+- **The section 3 cost risk is real.** rang's `core.predict_components`
+  (`core/src/predict.rs`) is a single-threaded scalar loop over components, rows
+  and channels. Benchmarked on nash with the frozen wheel
+  (`scripts/bench_predict.py`, 1 slot, 20 rows × 4,096 channels × 7,779
+  components): **29.6 ns per element, 0.944 s per row.** D's 1934-638 rows are
+  294,903 (scans 1 and 10 of the MS, 148,428 + 146,475; no autocorrelations),
+  so **one predict takes about 77 h**. The chain needs it twice per block
+  (calibrate, and `casa-model` for the CASA arm, the same call). H's 1934-638
+  rows are about 263,700 (149 dumps × 1,770 baselines), about 69 h each: about
+  290 h of predict for the gate as frozen.
+- **The stop rule is armed, not yet applied.** `stop_rule.sh` (detached on
+  nash; log `D/R/stop-rule.log`) sends SIGTERM to the `rang-core run` process
+  alone at **20:33:47 SAST on 2026-11-27** (12 h after calibrate started), only if
+  calibrate still reads "running" and `rang-run/calibrate/` holds no solution.
+  `model_watch.sh` logs the process IO every 10 min (`D/R/model-watch.log`).
+  The amendment that follows is the coordinator's (section 3).
+- **CARACal arm on D** (reported only): started 07:28 on its own copy of the
+  fetched MS (`cp -a` 837 s, `sha256sum -c` against the receipt 1,303 s, equal).
+  It runs `run.yml`: the frozen `caracal-uhf-dev.yml` with two mechanical edits,
+  recorded in `D/caracal/run.yml.diff`: `getdata.dataid` set to `1752418159` (the
+  frozen file leaves it empty), and `flag_mask.mask: ''` (CARACal's schema
+  requires the key even with the worker disabled, and rejected the frozen file;
+  a command-line override is not validated). Its Tricolour cab ignored
+  `OMP_NUM_THREADS` and took all 36 cores; the CARACal process tree was pinned to
+  cores 20-35 (its 16 booked slots) at 07:53, and `ug_caracal.sh` now pins it from
+  the start. transform, prep and flag done; crosscal's crystalball predict was
+  running at 09:00.
+
 ## For the coordinator
 
 - Frozen: this note and the files in `results/uhf-gate/`. After amendment 2,
