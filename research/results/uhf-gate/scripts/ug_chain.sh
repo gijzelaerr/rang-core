@@ -22,6 +22,12 @@ B=$HOME/Build/tmp/20261126-uhf-gate
 WPY=${WPY:-$B/wheel-venv/bin/python}
 PY=${PY:-$W/.venv/bin/python}
 FLOOR=${FLOOR:-2000}
+# scripts that put the worktree's python/ first (e1_run.py) need the frozen wheel's
+# extension there: the worktree's python/ is the wheel's source, so link its _core
+if ! ls "$W"/python/rang/_core*.so > /dev/null 2>&1; then
+  ln -s "$("$WPY" -c 'import os, rang; print(os.path.dirname(rang.__file__))')/_core.abi3.so" \
+    "$W/python/rang/_core.abi3.so"
+fi
 STRATEGY=$(dirname "$CONFIG")/firstpass_UHF.yaml
 STRATEGY_SHA=4c336933bd6c4ad2c075945394d76e270665ce301b8353b7974601e3a0459856
 export UG_BLOCK UG_0407_CAT=$HOME/rang-data/uhf/reference/ez63-vx81/fitted.PKS0407.UBand.wsclean.cat.txt

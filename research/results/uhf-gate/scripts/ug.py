@@ -74,8 +74,8 @@ os.environ.update(E2N_FCAL=FIELDS["fcal"], E2N_XCAL=FIELDS["xcal"], E2N_GCAL=FIE
                   E2N_TARGET=FIELDS["target"], E2N_LEAK=FIELDS["leak"] or "")  # fmt: skip
 sys.path[:0] = [str(RES / "e2n-scripts"), str(RES / "e2-acceptance-scripts")]
 
-import e2_post as P  # noqa: E402
-import e2n_nash  # noqa: E402,F401  (patches e2_post.docker with apptainer)
+import e2_post as P
+import e2n_nash  # noqa: F401  (patches e2_post.docker with apptainer)
 
 EDGES = [544e6, 644e6, 744e6, 844e6, 944e6, 1044e6]  # section 5.1
 RADIUS_DEG = 1.0  # section 5: the scorer's field limit
