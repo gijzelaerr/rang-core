@@ -325,6 +325,27 @@ release does not wait for it, and its outcome on the day is read by this table.
 - Whether CARACal's cabs run its setjy route for 0408-65 at S band.
 - katbeam or holography beams: nothing in the chain applies a primary beam.
 
+## Run log (records only; the protocol above is unchanged)
+
+**2026-11-27, development MSs made (section 2), nothing read.** Frozen at
+`d9a275b8`, code `a5d49085`, branch pushed with `tools/check_all.py --quick`
+PASS and CI green; origin/main with "Merge predict-par" merged at `6c4ee849`
+(quick check PASS, pushed). On nash, `scripts/sg_convert.sh` (heavy lock 2
+slots, 12 GB, nice 19 / ionice idle) into
+`~/rang-data/outputs/sband-gate-20261127/<block>/dev/`; receipts in
+[results/sband-gate/](results/sband-gate/) (`ms-map.json`,
+`flaghash-input.json`, the scan list, bytes). The token search found nothing.
+
+| Block | katdal scans | MS scans (field, dumps) | Rows | Bytes | FLAG / FLAG_ROW SHA-256 (gate 2a) |
+| --- | --- | --- | ---: | ---: | --- |
+| S0 1747682474 | 1,3,5,7,9,11,13 | 1 J1939-6342 (74), 2 J1331+3030 (74), 3 J1311-2216 (15), 4 A3528S (224), 5 J1311-2216 (14), 6 A3528S (224), 7 J1311-2216 (14) | 1,056,267 | 212,146,857,001 | `7ec2b54c…` / `583ef237…` |
+| S1 1680455600 | 1,3,5,9,11,15,17 | 1 3C138 (39), 2 PKS0408-658 (37), 3 J0825-5010 (18), 4 NGC2997 (101), 5 J0825-5010 (18), 6 NGC2997 (101), 7 J0825-5010 (19) | 531,468 | 106,747,821,621 | `20997ab6…` / `fc75fac9…` |
+
+Both maps match section 2's lists. The full chain waits for cores: the UHF
+gate (#11, the release's critical path) holds nash. The coordinator's
+answer, 2026-11-27: start only after the UHF D CARACal arm has finished,
+on 4-8 cores from 20-35 that the coordinator approves.
+
 ## For the coordinator
 
 - Frozen: this note and `results/sband-gate/` (four rang files, two CARACal

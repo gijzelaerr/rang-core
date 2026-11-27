@@ -1,0 +1,166 @@
+{
+ "ms": "/home/gijs/rang-data/outputs/sband-gate-20261127/1680455600/dev/1680455600-dev.ms",
+ "token_check": {
+  "subtables": [
+   "ANTENNA",
+   "DATA_DESCRIPTION",
+   "FEED",
+   "FLAG_CMD",
+   "FIELD",
+   "HISTORY",
+   "OBSERVATION",
+   "POINTING",
+   "POLARIZATION",
+   "PROCESSOR",
+   "SPECTRAL_WINDOW",
+   "STATE",
+   "SOURCE"
+  ],
+  "hits": []
+ },
+ "columns_before": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM",
+  "SIGMA_SPECTRUM"
+ ],
+ "columns": [
+  "ARRAY_ID",
+  "DATA_DESC_ID",
+  "EXPOSURE",
+  "FEED1",
+  "FEED2",
+  "FIELD_ID",
+  "FLAG_ROW",
+  "INTERVAL",
+  "OBSERVATION_ID",
+  "PROCESSOR_ID",
+  "SCAN_NUMBER",
+  "STATE_ID",
+  "TIME",
+  "TIME_CENTROID",
+  "UVW",
+  "FLAG",
+  "FLAG_CATEGORY",
+  "WEIGHT",
+  "SIGMA",
+  "ANTENNA1",
+  "ANTENNA2",
+  "DATA",
+  "WEIGHT_SPECTRUM"
+ ],
+ "fields": [
+  "3C138",
+  "PKS0408-658",
+  "J0825-5010",
+  "NGC2997"
+ ],
+ "rows": 531468,
+ "scans": [
+  {
+   "scan": 1,
+   "field": [
+    "3C138"
+   ],
+   "rows": 62244,
+   "dumps": 39,
+   "time_first": 5187172545.292693,
+   "time_last": 5187172849.851894
+  },
+  {
+   "scan": 2,
+   "field": [
+    "PKS0408-658"
+   ],
+   "rows": 59052,
+   "dumps": 37,
+   "time_first": 5187172929.999036,
+   "time_last": 5187173218.528792
+  },
+  {
+   "scan": 3,
+   "field": [
+    "J0825-5010"
+   ],
+   "rows": 28728,
+   "dumps": 18,
+   "time_first": 5187173394.852559,
+   "time_last": 5187173531.1027155
+  },
+  {
+   "scan": 4,
+   "field": [
+    "NGC2997"
+   ],
+   "rows": 161196,
+   "dumps": 101,
+   "time_first": 5187174452.79504,
+   "time_last": 5187175254.266614
+  },
+  {
+   "scan": 5,
+   "field": [
+    "J0825-5010"
+   ],
+   "rows": 28728,
+   "dumps": 18,
+   "time_first": 5187175318.384351,
+   "time_last": 5187175454.634507
+  },
+  {
+   "scan": 6,
+   "field": [
+    "NGC2997"
+   ],
+   "rows": 161196,
+   "dumps": 101,
+   "time_first": 5187176376.326832,
+   "time_last": 5187177177.798406
+  },
+  {
+   "scan": 7,
+   "field": [
+    "J0825-5010"
+   ],
+   "rows": 30324,
+   "dumps": 19,
+   "time_first": 5187177241.916102,
+   "time_last": 5187177386.181021
+  }
+ ],
+ "receptor_angle": [
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ],
+  [
+   -1.5707963267948966,
+   -1.5707963267948966
+  ]
+ ],
+ "chan_freq_first_last": [
+  1968750000.0,
+  2843536376.953125
+ ],
+ "seconds": 55.46216752100736
+}
