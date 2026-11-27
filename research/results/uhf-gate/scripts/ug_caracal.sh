@@ -12,6 +12,8 @@
 # `mask`, which CARACal's schema requires even with the worker disabled (the frozen
 # file fails validation without it), set to the schema's example '', so nothing is
 # read. Every job nice 19 / ionice idle under the main checkout's heavy lock.
+# CARACal is pinned to 16 cores (CARACAL_CPUS): its Tricolour cab ignores
+# OMP_NUM_THREADS and took all 36 of nash's cores on D before it was pinned live.
 set -u
 W=$(cd "$(dirname "$0")/../../../.." && pwd)
 RUN=${RUN:-$HOME/rang-data/outputs/uhf-gate-20261126}
@@ -59,7 +61,7 @@ note "start"
 t0=$(date +%s)
 OMP_NUM_THREADS=16 python3 "$LOCK" run --slots 16 --mem 160 -- \
   nice -n 19 ionice -c3 /usr/bin/time -v -o "$D/time-caracal.txt" \
-  "$CAR/.venv/bin/caracal" -c run.yml -ct singularity -sid "$SID" \
+  taskset -c "${CARACAL_CPUS:-20-35}" "$CAR/.venv/bin/caracal" -c run.yml -ct singularity -sid "$SID" \
   --general-msdir msdir --general-input input --general-output output \
   < /dev/null >> "$D/caracal-run.out" 2>&1
 rc=$?
