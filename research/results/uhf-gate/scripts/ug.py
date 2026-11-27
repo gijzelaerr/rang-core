@@ -49,7 +49,7 @@ import os
 import shutil
 import sys
 import time
-from multiprocessing import Pool
+import multiprocessing
 from pathlib import Path
 
 import numpy as np
@@ -222,7 +222,8 @@ def model_row(ms, r, lsm):
     nproc = int(os.environ.get("RAYON_NUM_THREADS", "4"))
     parts = np.array_split(np.arange(len(rows)), nproc * 4)
     _G.update(nu=nu, l=ll, m=m, n1=n1, spec=spec)
-    with Pool(nproc) as pool:
+    # fork, not 3.14's default forkserver: the workers read _G as set here
+    with multiprocessing.get_context("fork").Pool(nproc) as pool:
         got = pool.map(_dft_rows, [uvw[p] for p in parts if len(p)])
     ref = np.concatenate(got)  # Stokes I visibilities (row, chan)
     seconds = time.perf_counter() - t0
