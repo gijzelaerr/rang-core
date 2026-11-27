@@ -549,7 +549,8 @@ def leakage(ms, r, column, arm):
             int(np.argmax(np.where(inner, img["I"], -np.inf))), img["I"].shape
         )
         peak = float(img["I"][py, px])
-        hp = fits.getheader(out / f"{arm}-MFS-I-psf.fits")
+        # -join-polarizations writes one PSF, without the polarisation in its name
+        hp = fits.getheader(out / f"{arm}-MFS-psf.fits")
         bmaj = max(float(h.get("BMAJ", 0)), float(hp.get("BMAJ", 0))) / abs(h["CDELT2"])
         near = np.hypot(*np.mgrid[: img["I"].shape[0], : img["I"].shape[1]][::-1]
                         - np.array([px, py])[:, None, None]) <= 3 * bmaj  # fmt: skip
