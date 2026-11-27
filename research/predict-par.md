@@ -46,6 +46,56 @@ MeerKAT-like UVW; old kernel at 1 thread, new kernel at 1, 8 and 16 threads. Rep
 row x channel x component and wall. The 16-to-32-thread and glacier-to-nash steps are assumptions
 and are labelled.
 
-## Results
+## Results (2026-11-27, branch `predict-par`)
 
-Not yet measured.
+**Implemented and measured; the gate is met.** `BLOCK_ROWS` = 8.
+
+Bit identity:
+- Rust `predict::tests::parallel_blocks_equal_the_single_threaded_loop_bit_for_bit`: seven shapes
+  (nrow 0-101, nchan 0-64, nsrc 0-23, ncoeff 1-3, mixed kinds, both spectrum kinds, zero major
+  axes) at 1, 2, 8 and 16 threads and blocks of 1, 3, 8, 13 and 256 rows: `to_bits` equal to the
+  old loop on every value, spectra equal. Passes on Windows (glacier) and in CI on Linux.
+- At the timing shape (256 rows x 4,096 channels x 7,779 point components) the bench compared
+  every value with the old loop: bitwise equal at 1 and 8 threads.
+- Python `test_predict_components_is_bitwise_the_same_at_any_thread_count`: the binding at 0 (the
+  pool), 2, 8 and 16 threads equals 1 thread byte for byte; the existing numpy-template test passes.
+- Gain-hash gate (`check_all --quick`): PASS, every hash unchanged.
+
+Timings, glacier (AMD Ryzen 7 7700X, 8 cores / 16 threads, Windows), release build,
+`cargo test --release -p rang-core predict::tests::bench -- --ignored`, 256 rows x 4,096 channels
+x 7,779 point components with ordinary polynomials (8.16e9 terms):
+
+| Run | Lock | Threads | Wall | ns per row x chan x comp | Speed-up |
+| --- | --- | ---: | ---: | ---: | ---: |
+| old loop | 8 slots shared, DD13 on the other 8 | 1 | 99.18 s | 12.16 | 1 |
+| new | same | 1 | 99.69 s | 12.22 | 1.00 |
+| new | same | 8 | 15.52 s | 1.90 | 6.4 |
+| new | all 16 slots (host otherwise idle) | 1 | 60.18 s | 7.38 | 1 |
+| new | same | 8 | 13.67 s | 1.68 | 4.4 |
+| new | same | 16 | 9.08 s | 1.11 | 6.6 |
+
+The two 1-thread rows differ by the host's load (boost clock and shared cache with DD13 on the
+other cores), not the code. No single-thread win: sin and cos are the cost and are kept. On an
+otherwise idle host 8 threads give 4.4x against one boosted core (the all-core clock is lower),
+SMT adds 1.5x. Not an exclusive run (glacier's timing window starts at 21:00).
+
+Projection for the UHF D predict (294,903 rows x 4,096 channels x 7,779 components = 9.40e12
+terms):
+- glacier at 16 threads: 1.11 ns x 9.40e12 = **2.9 h** (measured rate).
+- nash at 32 threads, from nash's 29.6 ns per term at 1 thread (frozen wheel, old loop; new/old at
+  1 thread is 1.00 on glacier): 29.6 ns x 9.40e12 / (32 x e) = **3.0 h** at parallel efficiency
+  e = 0.80 (glacier's shared 8-thread figure) and **4.4 h** at e = 0.55 (glacier's idle-host
+  8-thread figure). Assumptions: the glacier efficiency carries to nash's 36 physical cores,
+  and nash's 29.6 ns (2.4-4x glacier's) holds for this build.
+
+By the decision rule (6 h at 32 threads) threads alone are enough. Not measured on nash (this task
+does not touch nash); the gate run's model step is the first nash measurement.
+
+## Next step if it is not enough (proposed, not implemented)
+
+Phase recurrence over channels: for uniform channels exp(i p nu_(k+1)) = exp(i p nu_k) x
+exp(i p dnu), one complex multiply per term instead of a sin and a cos, about 5-10x on one thread.
+It is not bit-identical: it needs a frozen tolerance against the old loop (the rounding grows
+with k; re-seed with sin and cos every 64 or 128 channels) and the model-row gate of
+uhf-gate.md section 5 (1e-5) as the oracle. A coarser alternative is a flux cut of the model,
+which uhf-gate.md section 3 names as an amendment.
