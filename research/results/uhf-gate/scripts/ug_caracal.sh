@@ -7,11 +7,11 @@
 # names each image's public source). CARACal gets its own copy of the block's
 # fetched MS (never the rang arm's MS), so its split never sees rang's flags.
 #   UG_BLOCK=D|H nohup bash ug_caracal.sh >> $RUN/$UG_BLOCK/caracal/caracal.out 2>&1 &
-# Only the MS name (getdata dataid) is given on the command line; the frozen
-# file leaves it empty. And flag_mask's `mask`, which CARACal's schema requires
-# even with the worker disabled (`enable: false` in the frozen file, which fails
-# validation without it): given as CARACal's own example, '', so nothing is read. Every job nice 19 / ionice idle under the main
-# checkout's heavy lock.
+# The run reads run.yml: the frozen file with two mechanical edits (run.yml.diff):
+# getdata dataid set to the MS name (the frozen file leaves it empty), and flag_mask's
+# `mask`, which CARACal's schema requires even with the worker disabled (the frozen
+# file fails validation without it), set to the schema's example '', so nothing is
+# read. Every job nice 19 / ionice idle under the main checkout's heavy lock.
 set -u
 W=$(cd "$(dirname "$0")/../../../.." && pwd)
 RUN=${RUN:-$HOME/rang-data/outputs/uhf-gate-20261126}
@@ -39,18 +39,29 @@ if [ ! -e "$D/done/copy" ]; then
   touch "$D/done/copy"
   note "copy equal to receipt"
 fi
-cp "$W/research/results/uhf-gate/$YML" "$D/$YML"
+python3 - "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$CB" << 'EOF'
+import sys
+src, out, cb = sys.argv[1:4]
+t = open(src, encoding="utf-8").read()
+for old, new in (("  dataid: ['']\n", f"  dataid: ['{cb}']\n"),
+                 ("  flag_mask:\n", "  flag_mask:\n    mask: ''\n")):
+    assert t.count(old) == 1, old
+    t = t.replace(old, new)
+open(out, "w", encoding="utf-8").write(t)
+EOF
+diff "$W/research/results/uhf-gate/$YML" "$D/run.yml" > "$D/run.yml.diff"
+[ "$(grep -c '^[<>]' "$D/run.yml.diff")" = 3 ] || { note "run.yml edits"; exit 2; }
 cp "$RUN/$UG_BLOCK/cfg/firstpass_UHF.yaml" "$D/input/firstpass_UHF.yaml"
 [ "$(sha256sum < "$D/input/firstpass_UHF.yaml" | cut -c1-64)" = "$STRATEGY_SHA" ] || { note "strategy hash"; exit 2; }
-sha256sum "$D/$YML" "$D/input/firstpass_UHF.yaml" > "$D/inputs-sha256.txt"
+sha256sum "$W/research/results/uhf-gate/$YML" "$D/run.yml" "$D/input/firstpass_UHF.yaml" > "$D/inputs-sha256.txt"
 cd "$D" || exit 2
 note "start"
 t0=$(date +%s)
 OMP_NUM_THREADS=16 python3 "$LOCK" run --slots 16 --mem 160 -- \
   nice -n 19 ionice -c3 /usr/bin/time -v -o "$D/time-caracal.txt" \
-  "$CAR/.venv/bin/caracal" -c "$YML" -ct singularity -sid "$SID" \
+  "$CAR/.venv/bin/caracal" -c run.yml -ct singularity -sid "$SID" \
   --general-msdir msdir --general-input input --general-output output \
-  --getdata-dataid "$CB" --flag-flag_mask-mask '' < /dev/null >> "$D/caracal-run.out" 2>&1
+  < /dev/null >> "$D/caracal-run.out" 2>&1
 rc=$?
 note "end rc=$rc $(( $(date +%s) - t0 ))s"
 exit $rc
