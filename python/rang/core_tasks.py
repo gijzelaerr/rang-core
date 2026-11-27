@@ -366,7 +366,7 @@ def _run_chain_chunk(spec, source):
     )
     key = hashlib.sha256(json.dumps(p["recipe"], sort_keys=True).encode()).hexdigest()
     only = cal_chunks.Only(
-        int(p["chunk"]), int(p["max_iterations"]), float(p["stop_fraction"]),
+        int(p["chunk"]), _iterations(p["max_iterations"]), float(p["stop_fraction"]),
         bool(p["trace"]), key,
     )  # fmt: skip
     try:
@@ -400,6 +400,14 @@ RUNNERS = {
 }
 
 
+def _iterations(value):
+    """A pass's iteration count: one int, or a list of one per run of a
+    two-run solve (K with `zero_start`, research/k-ambiguity.md section 10)."""
+    if isinstance(value, (list, tuple)):
+        return [int(v) for v in value]
+    return int(value)
+
+
 def chain_chunk_spec(recipe, chunk, max_iterations, stop_fraction, trace):
     """A `chain-chunk` spec: chunk `chunk` of the first replayed solve of
     `recipe` (`rang.cal_chain.recipe`), pass 1 (`trace`) or pass 2."""
@@ -417,7 +425,7 @@ def chain_chunk_spec(recipe, chunk, max_iterations, stop_fraction, trace):
         {
             "recipe": recipe,
             "chunk": int(chunk),
-            "max_iterations": int(max_iterations),
+            "max_iterations": _iterations(max_iterations),
             "stop_fraction": float(stop_fraction),
             "trace": bool(trace),
         },

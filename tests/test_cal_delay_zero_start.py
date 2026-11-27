@@ -193,3 +193,95 @@ def test_half_period_record_and_unchanged_delays():
     assert "half_period_delays" not in cal_chain._solution_record(
         sol, {"rows": len(s["tb"]), "intervals": [0, 1]}, 0
     )
+
+
+def _near_tie(seed=3):
+    """Five intervals with noise and delays up to 0.5 ns, so both starts
+    converge to the same minimum (a near tie: which run is kept is decided
+    by the last bits of the residual); interval 1 sparse as `sparse`, so the
+    zero start wins it outright."""
+    s = simulate(nant=6, ntime=5, nchan=256, scale=0.5, noise=0.3, seed=seed)
+    rng = np.random.default_rng(seed)
+    keep_ref = rng.choice(256, 2, replace=False)
+    for r in np.flatnonzero((s["tb"] == 1) & ((s["a1"] == 4) | (s["a2"] == 4))):
+        to_ref = s["a1"][r] == 0 or s["a2"][r] == 0
+        keep = keep_ref if to_ref else rng.choice(256, 12, replace=False)
+        f = np.ones(256, bool)
+        f[keep] = False
+        s["flag"][r] = f[:, None]
+    return s
+
+
+def _chunked(s, kw, per_chunk=1):
+    """`s` solved in chunks of `per_chunk` whole intervals through
+    `cal_chunks.replayed`, as `cal_delay._solve_field` does."""
+    from types import SimpleNamespace
+
+    from rang import cal_chunks, cal_delay
+
+    ntime = int(s["tb"].max()) + 1
+    chunks = [
+        SimpleNamespace(
+            pos=np.flatnonzero((s["tb"] >= t) & (s["tb"] < t + per_chunk)), t0=t
+        )
+        for t in range(0, ntime, per_chunk)
+    ]
+
+    def solve_chunk(chunk, max_iterations, stop_fraction, trace):
+        part = {k: (v[chunk.pos] if isinstance(v, np.ndarray) and len(v) == len(s["tb"]) else v)
+                for k, v in s.items()}  # fmt: skip
+        part["tb"] = part["tb"] - chunk.t0
+        opts = dict(kw, max_iterations=max_iterations, stop_fraction=stop_fraction)
+        return run(part, trace=trace, **opts)
+
+    results, replay = cal_chunks.replayed(
+        chunks, solve_chunk, max_iterations=kw["max_iterations"],
+        stop_fraction=kw["stop_fraction"],
+    )  # fmt: skip
+    kept = cal_delay.zero_kept_of_chunks(results)
+    cat = {
+        k: np.concatenate([getattr(r, k) for r in results])
+        for k in ("delays", "offsets", "flags")
+    }
+    return cat, kept, replay
+
+
+@pytest.mark.parametrize("stop", [0.9, 0.99])
+def test_chunked_zero_start_is_the_one_call_bit_for_bit(stop):
+    """research/k-ambiguity.md section 8: with the key on, the chunked
+    replay traced the FFT run's stop only and ran each chunk's zero run for
+    the FFT run's iteration count, so near-tie intervals changed sides and
+    the delays moved by ~1e-6 ns. Both runs' stops are replayed now: the
+    same kept intervals and the same delays, bit for bit."""
+    s = _near_tie()
+    kw = {"refant": 0, "kind": "delay_and_offset", "zero_start": True,
+          "max_iterations": 50, "stop_criterion": 1e-7, "stop_fraction": stop}  # fmt: skip
+    one = run(s, **kw)
+    fft = run(s, **dict(kw, zero_start=False))
+    zero = run(s, **dict(kw, zero_start=False, initial_estimate=False))
+    # the construction: interval 1 is the zero start's, and at least one
+    # other interval is a near tie (both runs within 1e-3 ns)
+    assert 1 in one.settings["zero_start_intervals"]
+    gap = np.abs(fft.delays - zero.delays).reshape(5, -1).max(1)
+    assert (np.delete(gap, 1) < 1e-3).any()
+    # the zero run's own stop differs from the FFT run's, which the old
+    # replay ignored
+    assert zero.iterations != fft.iterations
+    for per_chunk in (1, 2):
+        cat, kept, replay = _chunked(s, kw, per_chunk)
+        assert kept == one.settings["zero_start_intervals"]
+        assert np.array_equal(cat["delays"], one.delays)
+        assert np.array_equal(cat["offsets"], one.offsets)
+        assert np.array_equal(cat["flags"], one.flags)
+        assert replay == (one.iterations, one.converged_fraction)
+
+
+def test_chunked_zero_start_off_unchanged():
+    """Key off: the replay is W3b's, one run traced, bit for bit."""
+    s = _near_tie()
+    kw = {"refant": 0, "kind": "delay_and_offset", "max_iterations": 50,
+          "stop_criterion": 1e-7, "stop_fraction": 0.99}  # fmt: skip
+    one = run(s, **kw)
+    cat, kept, replay = _chunked(s, kw, 2)
+    assert kept == [] and np.array_equal(cat["delays"], one.delays)
+    assert replay == (one.iterations, one.converged_fraction)
