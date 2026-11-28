@@ -161,7 +161,7 @@ python/rang/core_ms.py,135,a,-,-,-,0,-,-
 python/rang/core_ms_write.py,892,a,-,-,-,0,-,-
 python/rang/core_patches.py,195,a,-,-,-,0,-,-
 python/rang/core_paths.py,22,a,-,-,-,0,-,-
-python/rang/core_pipeline.py,3360,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 crosscal, polcal and selfcal worker recipe",310,"CARACal crosscal, polcal and selfcal recipe",-
+python/rang/core_pipeline.py,3403,c-src,CARACal,GPL-2.0,"CARACal 8f7bb363 crosscal, polcal and selfcal worker recipe",310,"CARACal crosscal, polcal and selfcal recipe",-
 python/rang/core_policy.py,236,a,-,-,-,0,-,-
 python/rang/core_proposals.py,279,a,-,-,-,0,-,-
 python/rang/core_prospective.py,255,a,-,-,-,0,-,-
@@ -213,7 +213,7 @@ python/rang/mcp_server.py,202,a,-,-,-,0,-,-
 python/rang/mcp_tools.py,857,a,-,-,-,0,-,-
 python/rang/measures.py,153,a,-,-,-,0,-,-
 python/rang/meerkat.py,722,d,katdal; oxkat,BSD-3-Clause; oxkat GPL-3.0,"katdal 0.23 test helpers, flags.py; oxkat 421d14c5 oxkat/config.py CAL_1GC_BAD_FREQS, CAL_1GC_BL_FREQS, CAL_1GC_BL_FLAG_UVRANGE (frequency facts citing SARAO's MeerKAT Cookbook, itself GPL-3.0; copied with their comments)",20,"KNOWN_RFI_L_ALL, KNOWN_RFI_L_SHORT, KNOWN_RFI_L_SHORT_M (oxkat, about 20 lines, d); MVF writer test helpers (katdal BSD, about 230, not counted)",-
-python/rang/msv4.py,657,c,xradio; xarray-ms,BSD-3-Clause,"xradio 1.3.1 (BSD-3-Clause) MSv4 schema and get_pad_value, source read (msv4-interop.md 5); xarray-ms 0.5.14 (BSD-3-Clause) layout",0,MSv4 layout and pad rules (format),-
+python/rang/msv4.py,736,c,xradio; xarray-ms,BSD-3-Clause,"xradio 1.3.1 (BSD-3-Clause) MSv4 schema and get_pad_value, source read (msv4-interop.md 5); xarray-ms 0.5.14 (BSD-3-Clause) layout",0,MSv4 layout and pad rules (format),-
 python/rang/msv4_flags.py,405,c,xradio; xarray-ms,BSD-3-Clause,"xradio 1.3.1 (BSD-3-Clause) MSv4 schema and get_pad_value, source read (msv4-interop.md 5); xarray-ms 0.5.14 (BSD-3-Clause) layout",0,MSv4 layout and pad rules (format),-
 python/rang/notebook/__init__.py,45,a,-,-,-,0,-,-
 python/rang/notebook/_plot.py,42,a,-,-,-,0,-,-
@@ -362,7 +362,7 @@ tests/test_mcp_chain.py,351,a,-,-,-,0,-,-
 tests/test_mcp_server.py,413,a,-,-,-,0,-,-
 tests/test_mk1_meerkat.py,243,a,-,-,-,0,-,-
 tests/test_ms_inspection.py,57,a,-,-,-,0,-,-
-tests/test_msv4.py,409,a,-,-,-,0,-,-
+tests/test_msv4.py,493,a,-,-,-,0,-,-
 tests/test_native_support_diagnostics.py,122,a,-,-,-,0,-,-
 tests/test_nb_carta.py,249,a,-,-,-,0,-,-
 tests/test_notebook_execute.py,112,a,-,-,-,0,-,-

@@ -49,8 +49,8 @@ on a data description other than 0.
 Autocorrelations are flagged and corrected but left out of the solve.
 
 An MSv4 store (`rang.msv4.is_store`, research/msv4-cli.md) takes the flag
-stage only (no weighted stage takes MSv4 input until the base weights are
-settled, research/msv4-interop.md M5): the same run directory, with flag
+stage only (a weighted stage on a store is not built yet; the weights it
+will take are settled in research/msv4-weights.md, M5): the same run directory, with flag
 versions and the journal in `<store>.flagversions/` (`rang.msv4_flags`).
 
 Memory (task W3, research/w3-chunking.md): `flag`, `calibrate` and `apply`
@@ -1124,8 +1124,8 @@ def refuse_store_stages(store, stages):
     if other:
         raise Refused(
             f"{store} is an MSv4 store: only the flag stage runs on one, not "
-            f"{', '.join(other)} (no weighted stage takes MSv4 input until the "
-            "base weights are settled: research/msv4-interop.md, M5)"
+            f"{', '.join(other)} (a weighted stage on a store is not built yet; "
+            "its weights are settled in research/msv4-weights.md, M5)"
         )
 
 

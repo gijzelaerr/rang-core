@@ -13,11 +13,19 @@ Opens an xradio processing set (an xarray DataTree, a Zarr store by default,
   xarray-ms 0.5.14 carries an MSv2 `FLAG_ROW` into the store (the note's
   M3, case c10), so OR `FLAG_ROW` into `FLAG` before converting;
 - `DATA` complex64, `FLAG` bool, `WEIGHT_SPECTRUM` float32, each
-  `(row, channel, corr)`, from the data group's correlated data, flag and
-  weight; `UVW` float64 `(row, 3)`. A uint8 `FLAG` (xarray-ms writes one) is
+  `(row, channel, corr)`, from the data group's correlated data and flag,
+  and the partition's W (below); `UVW` float64 `(row, 3)`. A uint8 `FLAG` (xarray-ms writes one) is
   read as bool when every value read is 0 or 1, and refused otherwise (the
   note's section 9);
 - `FIELD_NAME`, `SCAN_NAME`: the per-time names, per row.
+
+Weights (research/msv4-weights.md, M5): every data group takes W, the MSv2
+`WEIGHT_SPECTRUM` (else `WEIGHT` repeated), as ra-ng's MSv2 path weights
+every column with it. W is the one weight variable all groups name; where
+they differ, only on an xradio partition with a `corrected` group, that
+group's weight (xradio puts `1/SIGMA^2` in the base group's when the MS has
+`CORRECTED_DATA`); otherwise refused when read. Sigma is the
+`SIGMA_SPECTRUM` variable (xarray-ms keeps one; xradio none, refused).
 
 Rows are time-major in `baseline_id` order. A `(time, baseline)` cell whose
 `UVW` and `VISIBILITY` are all NaN is a pad (xradio and xarray-ms fill
@@ -170,6 +178,60 @@ class Partition:
             ) from exc
         self.field_name = self._per_time("field_name")
         self.scan_name = self._per_time("scan_name")
+        self._weights_rule(node, groups)
+
+    def _weights_rule(self, node, groups):
+        """W and sigma of the partition (research/msv4-weights.md section 3):
+        `weight_variable`, `sigma_variable` (None when refused, the reason in
+        `weight_refusal`, `sigma_refusal`)."""
+        names = {g: groups[g].get("weight") for g in groups}
+        used = sorted({v for v in names.values() if v is not None})
+        writer = (node.attrs.get("creator") or {}).get("software_name")
+        self.weight_variable, self.weight_refusal = None, None
+        if len(used) == 1:
+            self.weight_variable = used[0]
+        elif writer == "xradio" and names.get("corrected") in self.ds:
+            self.weight_variable = names["corrected"]
+        else:
+            self.weight_refusal = (
+                f"{self.name}: data groups name weights {names} (writer "
+                f"{writer!r}); W is known only when they name one, or for an "
+                "xradio partition with a 'corrected' group "
+                "(research/msv4-weights.md)"
+            )
+        if self.weight_variable is not None:
+            var = self.ds[self.weight_variable]
+            if tuple(var.dims) != GRID or var.dtype != np.float32:
+                self.weight_refusal = (
+                    f"{self.name}: {self.weight_variable} is {var.dtype} over "
+                    f"{var.dims}, not float32 over {GRID}"
+                )
+                self.weight_variable = None
+        self.sigma_variable, self.sigma_refusal = None, None
+        sigma = self.ds.get("SIGMA_SPECTRUM")
+        if sigma is None:
+            self.sigma_refusal = (
+                f"{self.name}: the store keeps no sigma (no SIGMA_SPECTRUM; "
+                f"writer {writer!r}); a weight from sigma cannot be read "
+                "(research/msv4-weights.md)"
+            )
+        elif tuple(sigma.dims) != GRID or sigma.dtype != np.float32:
+            self.sigma_refusal = (
+                f"{self.name}: SIGMA_SPECTRUM is {sigma.dtype} over {sigma.dims}, "
+                f"not float32 over {GRID}"
+            )
+        else:
+            self.sigma_variable = "SIGMA_SPECTRUM"
+
+    def _weight(self):
+        if self.weight_variable is None:
+            raise ValueError(self.weight_refusal)
+        return self.weight_variable
+
+    def _sigma(self):
+        if self.sigma_variable is None:
+            raise ValueError(self.sigma_refusal)
+        return self.sigma_variable
 
     def _per_time(self, coord):
         if coord not in self.ds.coords:
@@ -250,8 +312,11 @@ class Partition:
         stop = len(self.time) if stop is None else stop
         part = self.ds.isel(time=slice(start, stop))
         values = {
-            role: np.asarray(part[var].values) for role, var in self.variables.items()
+            role: np.asarray(part[var].values)
+            for role, var in self.variables.items()
+            if role != "weight"
         }
+        values["weight"] = np.asarray(part[self._weight()].values)
         values["flag"] = self._flag_as_bool(values["flag"])
         vis = values["correlated_data"]
         ntime, nbl, nchan, ncorr = vis.shape
@@ -288,7 +353,10 @@ class RowSource:
     """A chunk task's reader of one partition: `getcol_rows(name, rows,
     chans)` for the rows `Partition.rows()` yields (indices in its order).
     `DATA`, `CORRECTED_DATA` and `MODEL_DATA` read the data group's
-    correlated data, `FLAG` its flag (bool; uint8 under the M1 rule)."""
+    correlated data, `FLAG` its flag (bool; uint8 under the M1 rule),
+    `WEIGHT_SPECTRUM` the partition's W, `SIGMA_SPECTRUM` its sigma and
+    `FLAG_ROW` false (research/msv4-weights.md); `WEIGHT` and `SIGMA` are
+    refused (the spectral variables stand for them on a store)."""
 
     def __init__(self, partition):
         self.partition = partition
@@ -296,13 +364,24 @@ class RowSource:
 
     def getcol_rows(self, name, rows, chans=None):
         part = self.partition
+        rows = np.asarray(rows, np.int64)
+        if name == "FLAG_ROW":
+            return np.zeros(len(rows), bool)
         if name in COLUMN_GROUPS:
             var = part.variables["correlated_data"]
         elif name == "FLAG":
             var = part.variables["flag"]
+        elif name == "WEIGHT_SPECTRUM":
+            var = part._weight()
+        elif name == "SIGMA_SPECTRUM":
+            var = part._sigma()
+        elif name in ("WEIGHT", "SIGMA"):
+            raise ValueError(
+                f"{part.name}: a store has no per-row {name}; read "
+                f"{name}_SPECTRUM (research/msv4-weights.md)"
+            )
         else:
             raise ValueError(f"{part.name}: the MSv4 row source has no column {name}")
-        rows = np.asarray(rows, np.int64)
         ti, bi = self.ti[rows], self.bi[rows]
         t0, t1 = int(ti.min()), int(ti.max()) + 1
         block = np.asarray(part.ds[var].isel(time=slice(t0, t1)).values)
