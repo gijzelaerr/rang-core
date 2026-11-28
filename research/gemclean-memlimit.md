@@ -85,6 +85,11 @@ cases, read under the same Q: F3 held-out 4096², F4 held-out 2048² (fit), V4 b
 `gemclean` binary (its counting allocator; the extension counts nothing on Windows), and Q is then
 read on the extension's `peak_memory_bytes` for every case, F included.
 
+**Amendment A1, 2026-11-28 15:30 SAST (design, before any branch code ran).** Section 2 point 4 said
+`data.memory_limit_gb / data.processes`. gemclean runs alone: the chunk tasks that `data.processes`
+divides the limit among do not run beside it. rang passes `data.memory_limit_gb` whole. No gate
+changes (every case here has `processes` 1).
+
 ## 4. Decision rule
 
 - Q, R and E pass: kept; #34 can close.
