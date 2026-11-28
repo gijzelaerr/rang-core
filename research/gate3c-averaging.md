@@ -168,4 +168,36 @@ All runs are on glacier through `heavy_lock.py`, at ≤ 8 slots / 24 GB. WSClean
 
 ## 5. Measured result
 
-(Empty until measured.)
+(Filled in below, per part.)
+
+## A1. Amendment, 2026-11-28 (post hoc: written after P1 was read)
+
+P1 read **partly explained** under the frozen rule: the predicted loss is at least half the measured
+loss in the outer bin. In fact the prediction is twice the measured loss: 1.4-2.5° measured 0.947,
+predicted 0.887 (section 5). Reading why, before computing anything new: P1 predicts the **dirty**
+peak, which weighs every sampled baseline by its imaging weight. The scorer fits the **restored**
+image, which is model ⊗ restoring beam + residual. When the deconvolution has fitted the smeared
+data, the model's visibilities follow the decorrelated data. The restored peak is then the
+decorrelation weighted by the restoring beam's Fourier transform, a Gaussian in uv. That Gaussian
+weighs the long baselines, which decorrelate most, far less than Briggs 0.5 does.
+
+- **HA′ (post hoc).** For a restoring beam with image-plane covariance Σ, the restored peak of an
+  averaged point source at (l, m) in an output channel of central frequency ν is
+  p′ = exp(−½ aᵀ Σ⁻¹ a / (2π)²), with a = π (δν / ν)(l, m). This is the Gaussian average of
+  cos(π x) for n = 2. For general n it is the second-order term (n² − 1)/3 × (π δν/ν)² in place of
+  π² (δν/ν)², which this note uses for n > 2.
+- **P1′ (post hoc, seen measurement).** As P1, but p′ per channel. It uses WSClean's fitted beam for
+  that channel from the archived `ws-n-clean.out` (GeMClean fits its own PSF on the same weights).
+  The tolerance, bins and reading are P1's. It is labelled post hoc, because the measurement it is
+  read against has been seen.
+- **P2b (post hoc in design, unseen data).** P2's simulated MS, cleaned noiselessly with
+  `-average-channels` 1 and 2. Settings are E2-N's clean settings, but with `-auto-threshold`
+  replaced by `-threshold 1e-4` Jy and `-niter 200000`, since a noiseless residual has no
+  noise-based threshold.
+  - Measure: at each radius, the mean over the 16 points of the ratio of the fixed-beam fluxes
+    (`e2_score3c_a.py`'s fit), summed over channels, against GeMClean's printed p′ at that radius.
+  - Tolerance: |measured − p′| ≤ 3e-3 for n = 2 at every radius. Also reported: the same against p.
+- **Code.** GeMClean also reports p′ (`averaging.restored_loss`), per radius, from its own fitted
+  restoring beams after the PSF fit. The guard (`-average-channels-max-loss`) stays on the natural
+  dirty-peak loss, which is the larger, conservative figure, because the restoring beam is not
+  known before averaging.

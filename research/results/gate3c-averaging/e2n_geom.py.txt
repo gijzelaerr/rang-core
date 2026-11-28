@@ -1,0 +1,36 @@
+# Read-only extraction on nash (gate3c-averaging.md P1), run as
+#   nice -n 19 ionice -c3 python3 e2n_geom.py MS FLAGVERSION FIELD OUT.npz
+# Writes field FIELD's cross-correlation rows: UVW, TIME, ANTENNA1/2, FLAG_ROW,
+# and the XX and YY flags of FLAGVERSION packed along the channel axis; plus
+# CHAN_FREQ, CHAN_WIDTH and the phase centre. Nothing is written into MS.
+import sys
+import numpy as np
+import casacore.tables as pt
+
+ms, fv, field, out = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4]
+t = pt.table(ms, ack=False)
+fid = t.getcol("FIELD_ID"); a1 = t.getcol("ANTENNA1"); a2 = t.getcol("ANTENNA2")
+rows = np.nonzero((fid == field) & (a1 != a2))[0]
+uvw = t.getcol("UVW")[rows]; tm = t.getcol("TIME")[rows]
+f = pt.table(fv, ack=False)
+assert f.nrows() == t.nrows(), (f.nrows(), t.nrows())
+frow = f.getcol("FLAG_ROW")[rows]
+spw = pt.table(ms + "/SPECTRAL_WINDOW", ack=False)
+freq = spw.getcol("CHAN_FREQ")[0]; width = spw.getcol("CHAN_WIDTH")[0]
+pc = pt.table(ms + "/FIELD", ack=False).getcol("PHASE_DIR")[field]
+nchan = len(freq)
+fx = np.zeros((len(rows), (nchan + 7) // 8), np.uint8); fy = np.zeros_like(fx)
+# rows are contiguous runs; read in blocks of the full table and pick
+lo = 0
+step = 20000
+while lo < len(rows):
+    sel = rows[lo:lo + step]
+    a, b = int(sel[0]), int(sel[-1]) + 1
+    fl = f.getcol("FLAG", startrow=a, nrow=b - a)[sel - a]  # (n, nchan, 4)
+    fx[lo:lo + len(sel)] = np.packbits(fl[:, :, 0], axis=1)
+    fy[lo:lo + len(sel)] = np.packbits(fl[:, :, 3], axis=1)
+    lo += len(sel)
+np.savez(out, rows=rows, uvw=uvw, time=tm, a1=a1[rows], a2=a2[rows], flag_row=frow,
+         flag_xx=fx, flag_yy=fy, freq=freq, width=width, phase_dir=pc, nchan=nchan)
+print(dict(rows=len(rows), nchan=nchan, f0=freq[0], df=width[0], phase_dir=pc.tolist(),
+           flagged_xx=float(np.unpackbits(fx, axis=1)[:, :nchan].mean())))
