@@ -1,0 +1,80 @@
+{
+ "ATG12": {
+  "cycle-0/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\AT12\\cycle-0\\next_model.npy",
+   "sha256": "6f9142b53fb66f1b96ad24cdf398b365d0d513a3778bbbb28e2c5c07e91dc1ba"
+  },
+  "cycle-0/info.json": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\AT12\\cycle-0\\info.json",
+   "sha256": "9beb6c1ef9f565cc6da83cdbd1588caa91e87383aa19585bdc035b6b12b9cb2c"
+  },
+  "cycle-1/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\AT12\\cycle-1\\next_model.npy",
+   "sha256": "cb9c642b01ff1dcc4c89858d1501c77318c3e43fee77c0c41ed80e69e3dfa1a9"
+  },
+  "cycle-1/info.json": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\AT12\\cycle-1\\info.json",
+   "sha256": "db7ad10a33fc74b0831ac48bbc5061020c1f72b088d56db4d4b2fc6ffabc9dad"
+  }
+ },
+ "QPG12-O": {
+  "cycle-0/gains.npz": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-0\\gains.npz",
+   "sha256": "ce589047e50dc24bf8ee829f274a727760bf61aff546ae84b8090241c60c390c"
+  },
+  "cycle-0/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-0\\next_model.npy",
+   "sha256": "8740b7b19f3968d96ecc3703c0f790ced952367fc6aaad597f217ba0c3151ccb"
+  },
+  "cycle-0/info.json": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-0\\info.json",
+   "sha256": "c2e8655b40932437b78db2dd15cc3540a6058dab70eb4fab43547efb7e3c6f06"
+  },
+  "cycle-1/gains.npz": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-1\\gains.npz",
+   "sha256": "5306dfc7985e64bd4abf143257043dda3601ceb04dd07505c2d959c8fae5064e"
+  },
+  "cycle-1/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-1\\next_model.npy",
+   "sha256": "11381ff72914f03aa39adba6d5fe8e6e300c77831e7ad7bca49c1c2634e1372d"
+  },
+  "cycle-1/info.json": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-1\\info.json",
+   "sha256": "2f777016569224e31ce14637bfe44ef8539d812a819139c1b4496df26f524742"
+  },
+  "cycle-2/reuse_gains.npz": {
+   "from": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12\\cycle-2\\gains.npz",
+   "sha256": "7dbf316510334e03647640e054d3abe48258c48b3de6ffe76350d185cfe343ef"
+  }
+ },
+ "QPG12": {
+  "cycle-0/gains.npz": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-0\\gains.npz",
+   "sha256": "91a20ecdceb26ff162e06e7c06c06c4fbed7f4ff09c3081f6cc5b022a507cb23"
+  },
+  "cycle-0/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-0\\next_model.npy",
+   "sha256": "0ef4c06edf8268a377262323df359b57994af44f11ed2dba4d3e705988812d3b"
+  },
+  "cycle-0/info.json": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-0\\info.json",
+   "sha256": "6896133aba7cd3d8ffdf94775db02465cf1e8a594e3f0bf6669359a59cc95eb7"
+  },
+  "cycle-1/gains.npz": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-1\\gains.npz",
+   "sha256": "bf7150d7c839a5af0e5ed906bf8cf2e8080b0ec591f65fd85f5ef287663a0394"
+  },
+  "cycle-1/next_model.npy": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-1\\next_model.npy",
+   "sha256": "e9f083f2e10c58bbe5cb080d4b1a0ad524dfa66c78b8f00fd99c1ad7ecf209e0"
+  },
+  "cycle-1/info.json": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-1\\info.json",
+   "sha256": "0df3957e0efa50ffecbcc0854d0b2b948b0688770a85006281252b5012e229f6"
+  },
+  "cycle-2/reuse_gains.npz": {
+   "from": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12\\cycle-2\\gains.npz",
+   "sha256": "7345ab8ed42f904595f377dc8c32d0bacd6d606b583d8914bbb691055632d63f"
+  }
+ }
+}

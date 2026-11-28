@@ -7,7 +7,16 @@ the code that runs them, before OB is rebuilt and before any measurement or
 real-data read. Later changes are dated amendments, committed before the
 reading they affect, and labelled post hoc where they follow a reading.
 
-Status: **frozen, not run.**
+Status: **measured 2026-11-28.**
+- **Frozen answer: "out: the pinned rule stays in the recipe".** Rows
+  [2, 0]: QPG12 reads "in for d1-d2" at M₆ and "out" at M₁₂, so section 7's
+  real check does not run.
+- **d3 decides it again, now as a loss.** Kept pinned, d3's pin aperture
+  falls: κ^pin_3 is −0.350 at M₆ and −0.411 at M₁₂. The allowance,
+  |κ^pin_3(Q12)| + 0.05, is 0.386 and 0.328.
+- **d1 and d2 pass everything at both N.** e^sr_d1 is 0.150 and 0.139
+  (0.42 × and 0.39 × Q's); s is 0.995/0.979 and 0.997/0.978; κ^pin is
+  −0.024/−0.016 and −0.026/−0.011.
 
 ## 1. Question
 
@@ -314,3 +323,114 @@ claimed.
 - Wall times go into [tool-timings.md](tool-timings.md). At the end OB's
   MS, `gate/O` and the PSF arrays are deleted. Records stay in the run
   root, and a compact archive goes in `results/dd15-beam-gate/`.
+
+## 10. Measured result
+
+Run root `D:/rang/outputs/dd15-20261128/`. Host glacier, shared, under the
+main checkout's `heavy_lock.py`. Two lanes, every loop 6 slots and 20 GB
+booked. Archive `results/dd15-beam-gate/`: `score.json`, the gates,
+`reuse.json`, per-cycle `info.json` for ATG12, QPG12 and QPG12-O,
+`times.log`, the scripts and `posthoc-d3-pin.json`.
+
+**Gates, all pass.**
+- **GB15:** DD14's GB 1-4 pass (GB 2 7.6e-6 Jy, GB 3 2.7e-6 Jy). `beam.npz`
+  arrays, OB's truth gains and the apertures equal DD14's bitwise, and the
+  sky SHA-256 is DD14's.
+- **R15 a:** QN everywhere, from DD14's QPN12 cycle 11, gives DD14's M₁₂
+  bitwise (563 components).
+- **R15 b:** cycle 1 gives QPN12's M₂ bitwise.
+- **R15 c:** the real form on O, from DD13's QP12 cycle 1, gives DD13's M₂
+  bitwise.
+- R15 d did not run (section 7 not called).
+- QPG12 did not stop at M₆: row 2 there.
+
+**Points on OB** (d1, d2, d3; truth s = 1; κ^pin against the O twin;
+references re-scored from DD14's records):
+
+| Point | e^sr d1-d3 | raw e d3 | s d1-d3 | G^sr d1 | Against Q (DD15's d3 clause) | κ^pin d1-d3 | G | F d1-d2 | F d3 | Row |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **QPG6** | 0.150, 0.322, 1.314 | 1.100 | 0.995, 0.979, 0.591 | 0.681 | helps (0.42 ×) | −0.024, −0.016, **−0.350** | yes | yes | no | **2** |
+| **QPG12** | 0.139, 0.315, 1.303 | 1.109 | 0.997, 0.978, 0.626 | 0.705 | helps (0.39 ×) | −0.026, −0.011, **−0.411** | yes | yes | no | **0** |
+| QPN6 (ref.) | 0.149, 0.322, 1.288 | 1.048 | 0.996, 0.982, 0.496 | 0.683 | helps (0.42 ×) | −0.019, −0.036, +0.073 | yes | yes | no | 2 |
+| QPN12 (ref.) | 0.141, 0.312, 1.249 | 1.136 | 0.994, 0.983, 0.806 | 0.700 | helps (0.40 ×) | −0.014, −0.035, +1.472 | yes | yes | no | 0 |
+| Q6 (ref.) | 0.359, 0.307, 1.091 | 1.312 | 0.977, 1.003, 1.382 | 0.209 | - | −0.145, −0.010, −0.336 | no | no | no | 0 |
+| Q12 (ref.) | 0.356, 0.282, 0.886 | 1.318 | 0.959, 1.082, 1.787 | 0.215 | - | −0.128, −0.007, −0.278 | no | no | no | 0 |
+| ATG6 (control) | 0.091, 0.214, 1.225 | 1.001 | 0.980, 1.030, 0.295 | 0.813 | - | (pin vs sky −0.069, −0.068, −0.015) | - | - | - | - |
+| ATG12 (control) | 0.090, 0.211, 1.216 | 1.000 | 0.981, 1.031, 0.305 | 0.816 | - | (pin vs sky −0.069, −0.068, −0.015) | - | - | - | - |
+
+- **O twin QPG12-O:** raw e 0.150, 0.322, 0.539 at M₆ and 0.134, 0.319,
+  0.537 at M₁₂; s 0.99-1.04. Reported, not read.
+- Every facet is readable: ATG12's pin apertures hold 0.93-0.99 of sky O's.
+
+**Frozen readings.**
+- **G holds at both N.** QPG12 reads "closes" and helps against Q.
+  - d1 ratio 0.42 and 0.39.
+  - d2 0.322 and 0.315 against Q's 0.307 and 0.282, under the 1.2 × bar.
+  - d3 raw 1.100 and 1.109 against bars of 1.57 and 1.58.
+- **F's d1-d2 terms hold at both N.**
+- **F's d3 term fails at both N.**
+  - At M₆ it is inside row 2's allowance: 0.350 ≤ 0.336 + 0.05.
+  - At M₁₂ it is not: 0.411 > 0.278 + 0.05.
+- **Answer (frozen table): "out: the pinned rule stays in the recipe".** The
+  failing term is F's d3 at M₁₂, alone. Section 7 does not run.
+- **References under DD15's rules (recorded, not deciding):**
+  - QPN12: rows [2, 0], out by its d3 excess (+1.47).
+  - Q12: rows [0, 0]. The pinned rule itself fails F in d1 (κ^pin −0.13)
+    and d3 (−0.28).
+
+### Reading the result (post hoc, A1; changes no frozen reading)
+
+- **Pinned d3 on OB loses flux round the pin.**
+  - QPG12's d3 pin disc goes 0.087 → 0.057 Jy from M₂ to M₁₂, while the
+    5 × 5 box stays at the catalogue's 0.0825 Jy. Högbom builds negative
+    flux in the ring.
+  - The O twin holds 0.096 Jy from M₃ on.
+  - QPG12's d3 cells stay 70 % untrusted throughout (O twin 3 % from
+    cycle 4). So most of d3's image gains are the nominal √B_nom, and the
+    trusted remainder carries s_d3 0.59-0.63.
+  - Released (QPN12), the same facet builds a +147 % excess instead.
+  - Neither rule holds d3's flux on OB; the truth gains do (ATG12 −1.5 %
+    against the sky).
+- **The gate does its job in d1 and d2.** QPG12's d1-d2 numbers equal
+  QPN12's within 0.01 in e^sr, s and κ^pin. Pinning d3 does not disturb
+  the high facets.
+- **The d3 loss grows with cycles.** −0.35 at M₆, −0.41 at M₁₂, with no
+  sign of levelling at 12. That is the same "M₆ passes, M₁₂ fails" pattern
+  as QPN in DD14, with the opposite sign.
+
+**Cost.**
+- Walls (lock waits included; QPG12's includes waiting for the M₆ inputs):
+  ATG12 4,874 s, QPG12 12,000 s, QPG12-O 12,266 s.
+- Prep: build and GB15 398 s, R15 702 s. Score 4 s.
+- Solves: ATG12 4, QPG12 12, QPG12-O 12. That is 28 against a cap of 44.
+- A GS solve took 720-900 s at 6 slots.
+
+## 11. For the coordinator
+
+- **Frozen answer: "out"; the pinned rule stays.** QPG12 meets G and F's
+  d1-d2 terms at M₆ and M₁₂ (d1 e^sr 0.139, s within 2.2 %, κ^pin within
+  2.6 %). It fails only F's d3 term: the pinned d3's pin aperture is
+  −35 % at M₆ and −41 % at M₁₂, past the allowance at 12 (0.328).
+- **What it settles for #15's convention question.**
+  - In high-beam facets, the nominal beam in the image gains plus released
+    pins holds the scale and keeps the gain win: QPN12 and QPG12 agree.
+  - In a facet at B 0.36, neither the released rule (+147 %) nor the pinned
+    rule (Q12 −28 %, QPG12 −41 %) holds the flux on OB. Only the truth
+    gains do.
+  - The low-beam facet's flux is therefore outside what rang's DD loop
+    calibrates on this field.
+- **Recommended:** close the convention question as "beam in the model
+  required; pins released only where B_nom ≥ 0.5 is safe for d1-d2 but not
+  adopted, because no rule holds a facet at B 0.36". Facets below half
+  power should be flagged as uncalibrated flux, or left out of DD
+  solutions. Choosing that is the owner's or the coordinator's call.
+- **Not run:** section 7, so there is no real-data flux reading for any
+  rule.
+
+## Amendments
+
+**A1, 2026-11-28, post hoc diagnostics, after the frozen reading. They
+change no frozen reading.** The d3 pin disc and box flux per cycle for
+QPG12 and QPG12-O, and their d3 untrusted shares, were read from the kept
+models and records, with zero solves (`posthoc-d3-pin.json`). Section 10's
+"Reading the result" reports them.
