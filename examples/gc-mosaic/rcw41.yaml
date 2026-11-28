@@ -16,7 +16,7 @@ fields:
            MSGPS_L_0614]
 
 data:
-  memory_limit_gb: 32
+  memory_limit_gb: 90  # flag, calibrate and apply chunks, and GeMClean's refusal limit (#34); the run books 96 GB
 
 flag:
   strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
