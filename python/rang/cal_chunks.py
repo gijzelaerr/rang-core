@@ -35,8 +35,10 @@ import contextlib
 import contextvars
 import hashlib
 import itertools
+import shutil
 import weakref
 from dataclasses import dataclass
+from pathlib import Path
 
 import numpy as np
 
@@ -329,7 +331,7 @@ class Average:
         return src, loc[src]
 
 
-def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
+def load_averaged(reader, rows, chunk, names, prepare, block_rows, average, cache=None):
     """The time-averaged arrays of `chunk` (a chunk of `average`'s rows):
     the source rows of its averaged rows are read in blocks of
     `block_rows` whole rows, prepared by `prepare` (pre-applies and P, per
@@ -339,16 +341,64 @@ def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
     `sum(w m) / sum(w)`, the weight `sum(w)`; a cell with `sum(w) = 0` (no
     unflagged sample of positive weight) is flagged, with data and model 0.
     Also returns `src` (the source positions read) and their `row_w`
-    (`prepare`'s per-row weight sums for the solution times)."""
+    (`prepare`'s per-row weight sums for the solution times).
+
+    `cache` (an `AverageCache`, issue #50, research/selfcal-io.md): the
+    same arrays, read from the source rows fewer times."""
+    if cache is not None:
+        return cache.load(reader, rows, chunk, names, prepare, block_rows, average)
+    return _load_averaged(reader, rows, chunk, names, prepare, block_rows, average)
+
+
+def _block_digest(cols, names):
+    """A digest of a read block's columns `names` (FLAG packed to bits)."""
+    h = hashlib.blake2b(digest_size=16)
+    for name in names:
+        value = np.ascontiguousarray(cols[name])
+        if value.dtype == np.bool_:
+            value = np.packbits(value, axis=None)
+        h.update(name.encode())
+        h.update(str((value.dtype.str, value.shape)).encode())
+        h.update(memoryview(value).cast("B"))
+    return h.digest()
+
+
+def _load_averaged(
+    reader, rows, chunk, names, prepare, block_rows, average, *, data_column=None,
+    expect=None, digest=None, reads=None,
+):  # fmt: skip
+    """`load_averaged` without a cache. `data_column` (issue #50): that
+    column is not read nor averaged (the returned `data` is None).
+    `digest`: the result carries `digests`, `_block_digest` of the columns
+    `digest` of each read block; `expect` the digests the blocks must have,
+    else None is returned at the first that differs. `reads` counts the
+    rows read per column."""
     src, loc = average.sources(chunk.pos)
     nloc = len(chunk.pos)
     chans = chunk.chans
     sw = swd = swm = None
     row_w = np.zeros(len(src))
     step = max(1, int(block_rows))
+    with_data = data_column is None
+    read = names if with_data else [n for n in names if n != data_column]
+    digests = []
     for b in range(0, len(src), step):
         part = src[b : b + step]
-        cols = {n: core_chunks.read_rows(reader, n, rows[part]) for n in names}
+        cols = {n: core_chunks.read_rows(reader, n, rows[part]) for n in read}
+        if reads is not None:
+            for n in read:
+                reads[n] = reads.get(n, 0) + len(part)
+        if digest is not None:
+            digests.append(_block_digest(cols, digest))
+            k = len(digests) - 1
+            if expect is not None and (k >= len(expect) or digests[k] != expect[k]):
+                return None
+        if not with_data:
+            # Not read: `prepare` (no pre-applies in a solve whose averages
+            # are kept) takes only their shape.
+            cols[data_column] = np.broadcast_to(
+                np.zeros((), np.complex64), np.shape(cols["FLAG"])
+            )
         got = prepare(part, cols)
         del cols
         row_w[b : b + len(part)] = got.pop("row_w")
@@ -362,13 +412,15 @@ def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
         used = ~flag & ~average.skip[part][:, None, None]
         del flag
         w = np.where(used, weights.astype(np.float64), 0.0)
-        wd = w * np.where(used, data, 0).astype(np.complex128)
+        if with_data:
+            wd = w * np.where(used, data, 0).astype(np.complex128)
         wm = w * np.where(used, model, 0).astype(np.complex128)
         del used, data, model, weights
         if sw is None:
             shape = (nloc, *w.shape[1:])
             sw = np.zeros(shape)
-            swd = np.zeros(shape, np.complex128)
+            if with_data:
+                swd = np.zeros(shape, np.complex128)
             swm = np.zeros(shape, np.complex128)
         here = loc[b : b + len(part)]
         order = np.argsort(here, kind="stable")
@@ -376,18 +428,25 @@ def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
         starts = np.flatnonzero(np.r_[True, sorted_loc[1:] != sorted_loc[:-1]])
         targets = sorted_loc[starts]
         sw[targets] += np.add.reduceat(w[order], starts, axis=0)
-        swd[targets] += np.add.reduceat(wd[order], starts, axis=0)
+        if with_data:
+            swd[targets] += np.add.reduceat(wd[order], starts, axis=0)
+            del wd
         swm[targets] += np.add.reduceat(wm[order], starts, axis=0)
-        del w, wd, wm
+        del w, wm
     if sw is None:  # no source rows: cannot happen for a planned chunk
         raise ValueError("an averaged chunk without source rows")
+    if expect is not None and len(digests) != len(expect):
+        return None
     good = sw > 0
+    data = None
     with np.errstate(invalid="ignore", divide="ignore"):
-        data = np.where(good, swd / np.where(good, sw, 1.0), 0).astype(np.complex64)
-        del swd
+        if with_data:
+            data = np.where(good, swd / np.where(good, sw, 1.0), 0)
+            data = data.astype(np.complex64)
+            del swd
         model = np.where(good, swm / np.where(good, sw, 1.0), 0).astype(np.complex64)
         del swm
-    return {
+    out = {
         "data": data,
         "model": model,
         "weights": sw.astype(np.float32),
@@ -395,6 +454,132 @@ def load_averaged(reader, rows, chunk, names, prepare, block_rows, average):
         "src": src,
         "row_w": row_w,
     }
+    if digest is not None:
+        out["digests"] = digests
+    return out
+
+
+class AverageCache:
+    """Scratch files that let the time-averaged solves of one
+    self-calibration stage, whose input column does not change, read the
+    input rows once (issue #50, research/selfcal-io.md):
+
+    - within a solve, the replay's counted pass (`replayed`) writes each
+      averaged chunk to `directory` and the solve pass reads it back;
+    - across solves, each chunk's averaged input data are kept with a
+      digest of every read block's flags and weights; a later solve with
+      the same averaging of the same rows (`_chunk_key`) reads the flags,
+      weights and model only. A block whose digest differs, or weight
+      sums that are not bit-identical to the kept ones, fall back to the
+      full read of that chunk.
+
+    The arrays are those of `load_averaged` without a cache, bit for bit.
+    `begin(data_column, model_column, passes)` starts a solve (the model
+    may have changed), `reads` counts the source rows read per column, `close()`
+    deletes the files."""
+
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.reads = {}
+        self._data_column = self._model_column = None
+        self._passes = 1
+        self._solve = 0
+        self._pass = {}  # chunk key -> this solve's files
+        self._kept = {}  # chunk key -> (data file, weights file, digests)
+
+    def begin(self, data_column, model_column, passes):
+        """A new solve whose data column is `data_column` (the stage's
+        input data, under whichever name) and model `model_column`, loading
+        each chunk `passes` times (2 in a replay of several chunks)."""
+        self._drop_pass()
+        self._solve += 1
+        self._data_column, self._model_column = data_column, model_column
+        self._passes = int(passes)
+
+    def _drop_pass(self):
+        for files in self._pass.values():
+            for path in files.values():
+                path.unlink(missing_ok=True)
+        self._pass = {}
+
+    def close(self):
+        self._pass, self._kept = {}, {}
+        shutil.rmtree(self.directory, ignore_errors=True)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    @staticmethod
+    def _chunk_key(rows, chunk, names, block_rows, average):
+        src, loc = average.sources(chunk.pos)
+        h = hashlib.sha256()
+        bounds = [
+            chunk.chans.start or 0,
+            -1 if chunk.chans.stop is None else chunk.chans.stop,
+        ]
+        for value in (
+            np.asarray(rows)[src],
+            loc,
+            average.skip[src],
+            np.array([*bounds, int(block_rows)], np.int64),
+        ):
+            value = np.ascontiguousarray(value)
+            h.update(str((value.dtype.str, value.shape)).encode())
+            h.update(memoryview(value).cast("B"))
+        h.update(repr(list(names)).encode())
+        return h.hexdigest()
+
+    def _save(self, key, kind, arrays):
+        self.directory.mkdir(parents=True, exist_ok=True)
+        files = {}
+        for name, value in arrays.items():
+            path = self.directory / f"{key[:32]}-{kind}-{name}.npy"
+            np.save(path, value, allow_pickle=False)
+            files[name] = path
+        return files
+
+    def load(self, reader, rows, chunk, names, prepare, block_rows, average):
+        """`load_averaged`'s arrays of `chunk`, through the cache."""
+        data_column, model_column = self._data_column, self._model_column
+        if data_column not in names or model_column not in names:
+            raise ValueError("AverageCache.load: begin(data_column, ...) first")
+        others = [n for n in names if n != data_column]
+        key = self._chunk_key(rows, chunk, [*others, None], block_rows, average)
+        files = self._pass.get(key)
+        if files is not None:
+            return {n: np.load(p, allow_pickle=False) for n, p in files.items()}
+        # FLAG and the weight columns decide the weights.
+        weighed = [n for n in others if n != model_column]
+        out = None
+        kept = self._kept.get(key)
+        if kept is not None:
+            got = _load_averaged(
+                reader, rows, chunk, names, prepare, block_rows, average,
+                data_column=data_column, expect=kept[2], digest=weighed,
+                reads=self.reads,
+            )  # fmt: skip
+            if got is not None:
+                weights = np.load(kept[1], allow_pickle=False)
+                if got["weights"].tobytes() == weights.tobytes():
+                    got.pop("digests")
+                    got["data"] = np.load(kept[0], allow_pickle=False)
+                    out = got
+        if out is None:
+            out = _load_averaged(
+                reader, rows, chunk, names, prepare, block_rows, average,
+                digest=weighed, reads=self.reads,
+            )  # fmt: skip
+            digests = out.pop("digests")
+            files = self._save(
+                key, "kept", {"data": out["data"], "weights": out["weights"]}
+            )
+            self._kept[key] = (files["data"], files["weights"], digests)
+        if self._passes > 1:
+            self._pass[key] = self._save(key, f"solve{self._solve}", out)
+        return out
 
 
 # -- chunk tasks of a replayed solve (research/chunk-task-api-1b.md 1.2) ---------
@@ -666,6 +851,7 @@ __all__ = [
     "AVERAGE_BLOCK_SHARE",
     "STOP_OFF",
     "Average",
+    "AverageCache",
     "Chunk",
     "gauge",
     "load",

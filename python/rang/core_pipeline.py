@@ -79,6 +79,7 @@ import numpy as np
 
 from . import (
     cal_chain,
+    cal_chunks,
     cal_gain,
     cal_refant,
     core,
@@ -2851,7 +2852,13 @@ def _selfcal_input(ctx):
     C5), decided before anything is written: after this run's apply
     (finished since the last copy, or never copied) `apply.column` is to be
     copied into it; otherwise an existing column is used as it is (raises
-    when there is none). Returns `(copy, record)`."""
+    when there is none). Returns `(copy, record)`.
+
+    Issue #49 (research/selfcal-io.md): the copy is made inside round 1's
+    apply, which records the rows copied so far in the marker
+    (`copied_rows`); a marker of this apply with `copied_rows` is a copy
+    to finish from that row (`record["resume_from"]`), the source's rows
+    past it being untouched."""
     config, ms, run = ctx["config"], ctx["ms"], ctx["run"]
     source = config["apply"]["column"]
     target = config["selfcal"]["input_column"]
@@ -2862,6 +2869,21 @@ def _selfcal_input(ctx):
     if marker.is_file():
         copied = json.loads(marker.read_text(encoding="utf-8"))
     stamp = apply_entry.get("finished")
+    if (
+        copied is not None
+        and "copied_rows" in copied
+        and apply_entry.get("status") == "done"
+        and copied.get("apply_finished") == stamp
+        and copied.get("column") == target
+        and copied.get("copied_from") == source
+    ):
+        if target not in columns or source not in columns:
+            raise StageFailed(
+                f"selfcal: the copy of {source} into {target} was interrupted and "
+                f"{ms} lacks one of them; run apply again (`--force apply`)"
+            )
+        record = {"column": target, "copied_from": source, "apply_finished": stamp}
+        return True, {**record, "resume_from": int(copied["copied_rows"])}
     fresh = apply_entry.get("status") == "done" and (
         target not in columns
         or copied is None
@@ -2886,12 +2908,20 @@ def _selfcal_input(ctx):
     return False, {"column": target, "previous_copy": copied}
 
 
-def _copy_column(w, source, target):
-    """`target` := `source` in every row, in chunks (task C5)."""
+def _copy_column(w, source, target, first=0):
+    """`target` := `source` in every row from row `first` on, in chunks
+    (task C5; `first`, issue #49: an interrupted copy finished)."""
 
     def init(start, n):
         return np.asarray(w.read(source, start, n), np.complex64)
 
+    if first:
+        w.ensure_column(target, init=None)
+        for start, n in w.chunks():
+            lo = max(start, first)
+            if lo < start + n:
+                w.write(target, lo, init(lo, start + n - lo))
+        return
     if not w.ensure_column(target, init=init):
         for start, n in w.chunks():
             w.write(target, start, init(start, n))
@@ -3021,16 +3051,36 @@ def stage_selfcal(ctx):
     weights = weight_column(info, config["data"]["weights"])
     plan = core_chunks.budget(config, info)
     copy, source = _selfcal_input(ctx)
+    resume = source.pop("resume_from", None)
     restored = restore_before(ms, ctx["entry"])
     out_dir = run.stage_dir("selfcal", fresh=True)
+    marker = run.path / "selfcal-input.json"
     written = {}
-    if copy:
+    targets = resolve_fields(img["fields"], config, info, "image.fields")
+    # Issue #49 (research/selfcal-io.md): the copy is made by round 1's
+    # apply, which reads the source anyway; until then the source is read.
+    fused = (
+        copy
+        and resume is None
+        and sc["rounds"] >= 1
+        and len(targets) > 0
+        and source["copied_from"] != sc["model_column"]
+    )
+    mode = None
+    if copy and not fused:
+        started = time.perf_counter()
         with writeback_session(ctx, "selfcal") as (w, written):
-            _copy_column(w, source["copied_from"], source["column"])
-        _write_json(run.path / "selfcal-input.json", source)
-    source["copied_now"] = copy
+            _copy_column(w, source["copied_from"], source["column"], resume or 0)
+        _write_json(marker, source)
+        mode = "resumed" if resume is not None else "separate"
+        source["copy_seconds"] = time.perf_counter() - started
+    pending = fused
+    cache = None
+    if sc["average_time"]:
+        # Issue #50: one averaged read of the input per stage (and solve).
+        cache = cal_chunks.AverageCache(out_dir / "average-cache")
     fields = []
-    for field in resolve_fields(img["fields"], config, info, "image.fields"):
+    for field in targets:
         name = info["fields"][field]
         rows = _selected_rows(info["rows"], [field], scans)
         field_dir = out_dir / _safe(name)
@@ -3039,7 +3089,8 @@ def stage_selfcal(ctx):
 
         for k in range(1, sc["rounds"] + 1):
             where = field_dir / f"round-{k}"
-            column = sc["input_column"] if k == 1 else sc["output_column"]
+            read_in = source["copied_from"] if pending else sc["input_column"]
+            column = read_in if k == 1 else sc["output_column"]
             prefix, imaged = _selfcal_image(ctx, binary, column, field, where, k)
             model = _selfcal_model(ctx, field, prefix, plan.rows("model"))
             term = selfcal_round_term(config, k)
@@ -3049,28 +3100,44 @@ def stage_selfcal(ctx):
                 term,
                 rows=rows,
                 field_id=field,
-                input_column=sc["input_column"],
+                input_column=read_in,
                 model_column=sc["model_column"],
                 weight_column=weights,
                 refant=refant,
                 minuvw_m=sc["minuvw_m"],
                 gain_clip=sc["gain_clip"],
                 budget=plan.selfcal(),
-                **({"average_time": True} if sc["average_time"] else {}),
+                **(
+                    {"average_time": True, "average_cache": cache}
+                    if sc["average_time"] and term["type"] in ("Sp", "Sa")
+                    else {}
+                ),
             )
             solved = sol.summary()
             solved["wall_seconds"] = time.perf_counter() - started
             store = where / "gains.qc"
             cal_selfcal.to_store(sol, store, info["antennas"], field_name=name)
             started = time.perf_counter()
+            fuse = {}
+            if pending:
+
+                def copied(rows):
+                    _write_json(marker, {**source, "copied_rows": int(rows)})
+
+                fuse = {"copy_to": source["column"], "on_copied": copied}
             with writeback_session(ctx, "selfcal") as (w, written):
                 applied = cal_selfcal.apply(
                     w,
                     sol,
-                    input_column=sc["input_column"],
+                    input_column=read_in,
                     output_column=sc["output_column"],
                     chunk_rows=plan.rows("apply"),
+                    **fuse,
                 )
+            if pending:
+                _write_json(marker, source)
+                pending, mode = False, "fused"
+                applied["copied_to"] = source["column"]
             applied["wall_seconds"] = time.perf_counter() - started
             rounds.append(
                 {
@@ -3094,6 +3161,10 @@ def stage_selfcal(ctx):
         fields.append(
             {"field_id": field, "field": name, "rounds": rounds, "final_image": final}
         )
+    if cache is not None:
+        cache.close()
+    source["copied_now"] = copy
+    source["copy"] = mode
     summary = {
         "gemclean": str(binary),
         "gemclean_sha256": _sha256_file(binary.path),

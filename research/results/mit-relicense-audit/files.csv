@@ -385,6 +385,7 @@ tests/test_pointing_sim.py,89,a,-,-,-,0,-,-
 tests/test_projector.py,106,a,-,-,-,0,-,-
 tests/test_rv1_revalidate.py,130,a,-,-,-,0,-,-
 tests/test_selfcal_arms.py,171,a,-,-,-,0,-,-
+tests/test_selfcal_io.py,288,a,-,-,-,0,-,-
 tests/test_sliced_read.py,409,a,-,-,-,0,-,-
 tests/test_spdx_headers.py,190,a,-,-,-,0,-,-
 tests/test_t1_casacure_oracle.py,605,a,-,-,-,0,-,-

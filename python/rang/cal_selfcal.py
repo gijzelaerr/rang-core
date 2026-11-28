@@ -236,6 +236,7 @@ def solve(
     average_time=False,
     stream="auto",
     start=None,
+    average_cache=None,
 ):
     """Solve self-calibration `term` (a dict with `type` Sp, Sa or Sd,
     `name`, `solint`, and for Sp and Sa `freqint`; `max_iterations`,
@@ -249,7 +250,11 @@ def solve(
     (`rang.cal_stream`, the same solution), True always, False never (the
     refusal). `start` (DL4a, research/dl4a-screen.md; Sp and Sa, the
     one-call path): kernel gains `(ntime, nfreq, nant, 2)` to start from
-    instead of unity. Returns a `SelfcalSolution`."""
+    instead of unity. `average_cache` (a `cal_chunks.AverageCache`, issue
+    #50, research/selfcal-io.md; Sp and Sa with `average_time`): the
+    averaged rows read through it, kept for later solves of the same
+    input; the solution is the same, and `settings["reads"]` counts the
+    source rows read per column. Returns a `SelfcalSolution`."""
     kind = term["type"]
     if kind not in TYPES:
         raise ValueError(f"self-calibration term type must be one of {TYPES}")
@@ -284,6 +289,12 @@ def solve(
     if average_time and kind not in ("Sp", "Sa"):
         raise ValueError("average_time applies to Sp and Sa only")
     extra = {"average": True} if average_time else {"stream": stream}
+    reads_before = None
+    if average_cache is not None:
+        if not (average_time and kind in ("Sp", "Sa")):
+            raise ValueError("average_cache applies to Sp and Sa with average_time")
+        extra["average_cache"] = average_cache
+        reads_before = dict(average_cache.reads)
     if start is not None:
         if kind not in ("Sp", "Sa"):
             raise ValueError("start applies to Sp and Sa only")
@@ -314,6 +325,15 @@ def solve(
         iterations, fraction = sol.iterations, sol.converged_fraction
         streamed = None
     flags, clipped = _clip(gains, flags, gain_clip)
+    reads = None
+    if reads_before is not None:
+        reads = {
+            n: int(v - reads_before.get(n, 0))
+            for n, v in average_cache.reads.items()
+            if v - reads_before.get(n, 0)
+        }
+        for n in fld.cells:
+            reads.setdefault(n, 0)
     return SelfcalSolution(
         name=str(term.get("name") or kind),
         type=kind,
@@ -344,17 +364,31 @@ def solve(
             "casa_rules": False,
             **solver,
             **({"streamed": streamed} if streamed else {}),
+            **({"reads": reads} if reads is not None else {}),
         },
     )
 
 
-def apply(w, sol, *, input_column, output_column, chunk_rows=None, threads=0):
+def apply(
+    w, sol, *, input_column, output_column, chunk_rows=None, threads=0, copy_to=None,
+    on_copied=None,
+):  # fmt: skip
     """Correct `input_column` of the solution's rows by `sol` on its own
     bins into `output_column` of WriteBack session `w`
     (`S_p^-1 V S_q^-H`), FLAG OR'd where a gain is invalid (all four
     correlations, `rang.cal_apply.apply_jones`). Other rows keep their
-    values. Returns counts of cells and flags."""
+    values. Returns counts of cells and flags.
+
+    `copy_to` (issue #49, research/selfcal-io.md): every row of
+    `input_column` is also written to that column (added if missing), each
+    chunk before its output, and `on_copied(rows)` is called after each
+    chunk's copy with the number of leading rows copied. `output_column`
+    may then be `input_column`, which it overwrites."""
+    if copy_to is None and output_column == input_column:
+        raise ValueError("the output column is the input column")
     w.ensure_column(output_column, init="data")
+    if copy_to is not None:
+        w.ensure_column(copy_to, init=None)
     nrows = w.layout["nrows"]
     row_bin = np.full(nrows, -1, np.int64)
     row_bin[sol.rows] = sol.time_bin
@@ -365,11 +399,20 @@ def apply(w, sol, *, input_column, output_column, chunk_rows=None, threads=0):
     for start, n in w.chunks(chunk_rows):
         rb = row_bin[start : start + n]
         sel = np.flatnonzero(rb >= 0)
+        if copy_to is not None:
+            data = w.read(input_column, start, n)
+            w.write(copy_to, start, np.asarray(data, np.complex64))
+            if on_copied is not None:
+                on_copied(start + n)
         if not len(sel):
             continue
-        data = w.read(input_column, start, n)
+        if copy_to is None:
+            data = w.read(input_column, start, n)
         flag = np.asarray(w.read("FLAG", start, n), bool)
-        out = np.array(w.read(output_column, start, n))
+        if output_column == input_column:
+            out = np.array(data)
+        else:
+            out = np.array(w.read(output_column, start, n))
         a1 = w.read("ANTENNA1", start, n)
         a2 = w.read("ANTENNA2", start, n)
         got, gflag = cal_apply.apply_jones(

@@ -940,7 +940,7 @@ def phase_only(data, model, weights, flag):
 def _solve_gain_field(
     fld, tb, *, nchan, per_channel, budget, what, freq_bin=None, average=False,
     average_freq=False, average_psi=None, casa_phase_weights=False, stream=False,
-    start=None, **opts,
+    start=None, average_cache=None, **opts,
 ):  # fmt: skip
     """`solve` on the rows of `fld` (`_Field`) with interval index `tb`, in
     chunks of whole intervals under `budget` (task W3b; None: one call),
@@ -964,7 +964,10 @@ def _solve_gain_field(
     solution interval does not fit `budget`, True always, False never.
     `start` (DL4a, research/dl4a-screen.md): kernel gains `(ntime, nfreq,
     nant, 2)` to start from; one-call path only (no chunks, no stream, no
-    averages), refused otherwise. Returns `(GainSolution, row weights)`."""
+    averages), refused otherwise. `average_cache` (a
+    `cal_chunks.AverageCache`, issue #50, research/selfcal-io.md; with
+    `average`, no pre-applies): the averaged chunks read through it, the
+    same arrays from fewer reads. Returns `(GainSolution, row weights)`."""
     import dataclasses
 
     from . import cal_chunks, core_chunks
@@ -997,6 +1000,12 @@ def _solve_gain_field(
             avg.antenna2,
             avg.time_bin,
         )
+        if average_cache is not None:
+            if fld.tables or fld.model is not None or fld.model_divided:
+                raise ValueError("average_cache: no pre-applies, a model column")
+            average_cache.begin(fld.data_column, fld.model_column, len(chunks))
+    elif average_cache is not None:
+        raise ValueError("average_cache needs average")
     else:
         streamable = stream and not (
             per_channel
@@ -1033,8 +1042,9 @@ def _solve_gain_field(
                     row_w[pos] = arr.pop("row_w")
             else:
                 arr = cal_chunks.load_averaged(
-                    reader, fld.rows, chunk, fld.cells, fld.prepare, block, avg
-                )
+                    reader, fld.rows, chunk, fld.cells, fld.prepare, block, avg,
+                    cache=average_cache,
+                )  # fmt: skip
                 if not trace:
                     row_w[arr["src"]] = arr["row_w"]
             fb = None if freq_bin is None else freq_bin[chunk.chans] - chunk.f0
