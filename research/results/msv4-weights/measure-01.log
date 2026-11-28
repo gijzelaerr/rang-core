@@ -1,0 +1,40 @@
+c1 xradio match refused - 
+c1 xms-auto match read, match - 
+c2 xradio match refused - 
+c2 xms-auto match read, match - 
+c3 xradio match refused - 
+c3 xms-auto match read, match - 
+c4 xradio match refused - 
+c4 xms-auto match read, match - 
+c5 xradio match refused match 
+c5 xms-auto match read, match match 
+c8 xradio match refused - 
+c8 xms-auto match read, match - 
+c11 xradio match refused match holds (own weight changes the gains)
+c11 xms-auto match read, match match does not hold
+c12 xradio match refused match holds (own weight changes the gains)
+c12 xms-auto match read, match match does not hold
+c13 xradio match refused match 
+c13 xms-auto match read, match match 
+c14 xradio match refused match 
+c14 xms-auto match read, match match 
+c6x xradio match refused - 
+c6x xms-auto match read, match - 
+c9 xradio match refused - 
+c9 xms-auto match read, match - 
+{
+ "xradio": {
+  "W1": true,
+  "W2": true,
+  "W3": true,
+  "W4": true,
+  "verdict": "pass"
+ },
+ "xms-auto": {
+  "W1": true,
+  "W2": true,
+  "W3": true,
+  "W4": true,
+  "verdict": "pass"
+ }
+}

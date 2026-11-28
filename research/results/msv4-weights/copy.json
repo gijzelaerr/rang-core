@@ -1,0 +1,182 @@
+{
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c1.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_1.ms",
+  "files": 93,
+  "bytes": 10578726
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c1.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c1.ps.zarr",
+  "files": 73,
+  "bytes": 4016664
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c1.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c1.ps.zarr",
+  "files": 80,
+  "bytes": 4157958
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c2.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_4.ms",
+  "files": 93,
+  "bytes": 10578726
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c2.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c2.ps.zarr",
+  "files": 73,
+  "bytes": 4015815
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c2.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c2.ps.zarr",
+  "files": 80,
+  "bytes": 4160819
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c3.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_5.ms",
+  "files": 93,
+  "bytes": 10578726
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c3.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c3.ps.zarr",
+  "files": 73,
+  "bytes": 4016237
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c3.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c3.ps.zarr",
+  "files": 80,
+  "bytes": 4164956
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c4.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_8.ms",
+  "files": 93,
+  "bytes": 10578726
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c4.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c4.ps.zarr",
+  "files": 73,
+  "bytes": 4015819
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c4.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c4.ps.zarr",
+  "files": 80,
+  "bytes": 4163668
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c5.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\fixture\\outer_scans\\1672727931_sdp_l0_scan_9.ms",
+  "files": 93,
+  "bytes": 41254182
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c5.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c5.ps.zarr",
+  "files": 73,
+  "bytes": 27345458
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c5.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c5.ps.zarr",
+  "files": 134,
+  "bytes": 31334617
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c8.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ms\\c8-scan9-gaps.ms",
+  "files": 93,
+  "bytes": 148910578
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c8.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c8.ps.zarr",
+  "files": 73,
+  "bytes": 26569450
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c8.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c8.ps.zarr",
+  "files": 134,
+  "bytes": 30426386
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c11.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ms\\c11-corrected-model.ms",
+  "files": 94,
+  "bytes": 77975744
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c11.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c11.ps.zarr",
+  "files": 101,
+  "bytes": 72873296
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c11.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c11.ps.zarr",
+  "files": 218,
+  "bytes": 64032104
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c12.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ms\\c12-sigma-row.ms",
+  "files": 92,
+  "bytes": 68537773
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c12.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c12.ps.zarr",
+  "files": 101,
+  "bytes": 63737568
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c12.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c12.ps.zarr",
+  "files": 218,
+  "bytes": 56166929
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c13.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ms\\c13-no-spectrum-weights.ms",
+  "files": 89,
+  "bytes": 22378255
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c13.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c13.ps.zarr",
+  "files": 73,
+  "bytes": 18210010
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c13.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c13.ps.zarr",
+  "files": 134,
+  "bytes": 15434627
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c14.ms": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ms\\c14-decreasing-freq.ms",
+  "files": 93,
+  "bytes": 41254182
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c14.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xradio\\c14.ps.zarr",
+  "files": 73,
+  "bytes": 27347274
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c14.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-20261116\\ps\\xms-auto\\c14.ps.zarr",
+  "files": 134,
+  "bytes": 31334645
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c6x.ms": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c6x.ms",
+  "files": 65,
+  "bytes": 79856741
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c6x.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c6x-before.ps.zarr",
+  "files": 245,
+  "bytes": 52292965
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c6x.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c6x-before.ps.zarr",
+  "files": 473,
+  "bytes": 48950418
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c9.ms": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ms-src\\c9.ms",
+  "files": 65,
+  "bytes": 198450
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xradio\\c9.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xradio\\c9-before.ps.zarr",
+  "files": 123,
+  "bytes": 204781
+ },
+ "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ps\\xms-auto\\c9.ps.zarr": {
+  "from": "D:\\rang\\outputs\\msv4-next-20261125\\ps\\xms-auto\\c9-before.ps.zarr",
+  "files": 131,
+  "bytes": 142878
+ }
+}

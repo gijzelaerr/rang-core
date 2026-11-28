@@ -3,8 +3,9 @@
 2026-11-28, branch `msv4-m5`, gijzelaerr/rang-core issue #5 step M5 (the
 read path is [msv4-interop.md](msv4-interop.md), whose section 8 proposed
 M5; the flag stage on a store is [msv4-flag-write.md](msv4-flag-write.md)
-and [msv4-cli.md](msv4-cli.md)). Status: **proposed, frozen**. Sections 1
-to 6 are frozen in the commit that adds this note, before any code. No
+and [msv4-cli.md](msv4-cli.md)). Status: **measured, pass** (section 7). Sections 1
+to 6 are frozen in the commit that adds this note, before any code;
+section 8 is a probe for a Rust reader, no claim. No
 frozen M5 criterion existed before today: msv4-interop.md listed M5 as
 "proposed, not started", and the coordinator's ruling of 2026-11-16 left
 settling it to "a later task, with its own amendment"; this note is that.
@@ -176,3 +177,98 @@ store (not built), that a solve in the store's own row order is
 bit-identical, that sigma-weighted (pre-applied) solves can run on an
 xradio store (they cannot: no sigma is kept), nor anything about other
 writers, partly unwritten `WEIGHT_SPECTRUM` cells or `FLAG_ROW`.
+
+## 7. Measured result (2026-11-28)
+
+**Outcome under the frozen rule: pass** on the `xradio` arm; the `xms-auto`
+arm is **met** on every measure. Receipt
+[results/msv4-weights/receipt-01.json](results/msv4-weights/receipt-01.json),
+harness [msv4_weights.py](results/msv4-weights/msv4_weights.py), log
+`measure-01.log` and `copy.json` beside it. Run root
+`D:\rang\outputs\20261128-msv4-m5` (1.1 GB), host glacier (Windows), code
+`dbc60239`, the main checkout's `.venv` (xarray 2026.9.0, zarr 3.4.2) with
+`PYTHONPATH` at the worktree's `python/` (extension copied from the main
+checkout; `core/` and `src/` unchanged), heavy lock 2 slots 4 GB,
+`RAYON_NUM_THREADS=2`. One run (01); inputs copied first (36 trees, file
+counts and bytes checked), only the copies read.
+
+| measure | xradio | xms-auto |
+| --- | --- | --- |
+| W1 W for every group = MSv2 W (`rows()` and `RowSource`) | 13/13 match | 13/13 match |
+| W2 sigma | 13/13 refused, as required | 13/13 match |
+| W3 `complex` solve from the store = MSv2 solve | 5/5 match | 5/5 match |
+| W4 the old reading changes the gains (c11, c12) | holds | n/a (own weight is W) |
+
+(13 = c1 to c5, c6x, c8, c9, c11 to c14; W3 on c5, c11, c12, c13, c14.)
+
+- **W1:** every data group of every partition gives the MSv2 W bit for bit
+  (13,432 MSv2 rows, 16 partitions per writer), the `corrected` and `model`
+  groups of c11 and c12 included. On the old reading (each group's own
+  weight variable) xradio's base group of c11 and c12 is not W (it is
+  `1/SIGMA^2`); every other group and case was already W.
+- **W2:** xarray-ms's `SIGMA_SPECTRUM` equals the MSv2 `SIGMA_SPECTRUM`, or
+  `SIGMA` repeated over channels (c6x, c9, c12, c13), bit for bit. On
+  xradio stores the read is refused, naming the store and this note.
+- **W3:** gains, flags, iterations (50) and converged fraction (0.1875) of
+  the store-fed solve equal the MSv2 solve's on every solve case and both
+  writers; on c14 xradio's channels were mapped back to the MS's descending
+  order. The unit model does not fit this data well (the solve runs to its
+  50 iterations), which does not weaken an identity of bits.
+- **W4:** with xradio's base `WEIGHT` (the old reading) the gains differ:
+  max relative difference 9.3e-6 on c11 and 51 on c12 (`SIGMA` per row, a
+  zero sigma in row 3).
+- **Reported, store row order:** the same solve on the store's own row
+  order (time-major, `baseline_id` order) is not bit-identical: max
+  relative gain difference 1.7e-12 (c5, c11, c12, c14), 9.0e-12 (c13).
+  A weighted stage built on a store must either feed the MSv2 order or
+  accept that, frozen in that stage's own gate.
+- **Cost** (reported): the solve 0.41-0.48 s on the MS, 0.45-0.51 s from
+  a store; the whole run 33 s.
+
+**So:** the base-weight convention is section 3. The M5 ruling of
+2026-11-16 is replaced by: a weighted stage on a store takes W and sigma by
+this note's section 3, under its own stage gate. calibrate, apply, image
+and selfcal on a store remain refused (not built). Sigma-weighted solves
+(pre-applied tables) cannot run bit for bit on xradio 1.3.1 stores, which
+keep no sigma.
+
+## 8. A Rust zarr reader: probe, no claim (2026-11-28)
+
+Issue #5 lists a Rust `zarrs` reader, worth building only if it is
+measurably faster or removes a dependency. Probe (reported, no rule;
+[read_probe.py](results/msv4-weights/read_probe.py), receipt
+[read-probe-01.json](results/msv4-weights/read-probe-01.json), 1 slot,
+warm page cache, best of 3) on the 24 store copies:
+
+- `Partition.rows()` takes 5-152 ms (30 MB in 34-51 ms, c6x's 83-94 MB in
+  109-152 ms); opening the processing set 18-89 ms.
+- zarr's own decode of the variables `rows()` reads (blosc-lz4 on xradio,
+  zstd on xarray-ms, both C codecs through numcodecs) is 64-92 % of that.
+  A Rust reader could save at most the other 8-36 % plus whatever its
+  decoders gain on numcodecs.
+- It removes no dependency: xarray and zarr stay for the metadata, the
+  data-group attributes and the flag write path (`rang.msv4.flag`,
+  `rang.msv4_flags`). The `zarrs` crate builds its codecs from C (blosc,
+  zstd); the core already has its own blosc-lz4 decoder
+  (`core/src/blosc.rs`) but no zstd decoder.
+
+Not built, and no note frozen for it. A proposal needs a store of
+production size (the cases here are at most 94 MB), a frozen speed bar and
+this path as the oracle.
+
+## For the coordinator
+
+Branch `msv4-m5`: note `4a42e646` (frozen before code; no M5 criterion
+existed before it), code and harness `dbc60239`, records after. **Pass**:
+every data group of a store now reads the MSv2 `WEIGHT_SPECTRUM` (xradio's
+`corrected` weight where its groups differ), xarray-ms's `SIGMA_SPECTRUM`
+reads as the MSv2 sigma, xradio's missing sigma is refused, and a `complex`
+solve fed from a store in the MSv2 row order gives the MSv2 gains bit for
+bit (13 cases, 2 writers). Behaviour change: `Partition.rows()["WEIGHT_SPECTRUM"]`
+of xradio's base group with `CORRECTED_DATA` is now W, not `1/SIGMA^2`; the
+flag path does not read it. The refusal message of non-flag stages on a
+store now names this note. No new `RANG_*` variable, no CLI change, no new
+crate. Run root `D:\rang\outputs\20261128-msv4-m5` (1.1 GB) kept until merge.
+Open: (1) a weighted stage on a store (calibrate first), with its own gate
+and a decision on row order (section 7); (2) the Rust reader, which the
+probe does not support at these sizes (section 8).
