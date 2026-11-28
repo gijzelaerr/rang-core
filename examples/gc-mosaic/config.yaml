@@ -1,0 +1,91 @@
+# One pointing of the MeerKAT Galactic Centre mosaic (SSV-20180505-FC-01;
+# Heywood et al. 2022, ApJ 925, 165) through rang-core, Stokes I:
+# docs/tutorials/galactic-centre.md. PROPOSED, NOT RUN: no Galactic Centre
+# pointing has been through rang yet. The chain is E2-N's Stokes I part
+# (research/results/e2n-scripts/e2n.yaml); the imaging and self-calibration
+# follow the paper where rang-core has the setting, and say so where not.
+# `rang-core config defaults` lists every key with its default.
+schema: rang-config
+version: 1
+
+# FIELD names by role: replace them with what `rang-core listobs <ms>`
+# shows. J1830-3602 is the J2000 name of the secondary, PKS B1827-360; the
+# target is named after the pointing (GC17, GC16, ...; TARGET in 1525645867).
+fields:
+  fcal: [J1939-6342]
+  bpcal: [J1939-6342]
+  gcal: [J1830-3602]
+  target: [GC17]
+
+# CARACal's first-pass calibrator strategy, the copy E2-N used (relative to
+# this file; copy both elsewhere and fix this path). rang's
+# meerkat_l preset adds oxkat's known-RFI bands (all baselines: three
+# ranges; under 600 m: satellite and transmitter bands), which is the
+# paper's "telecom bands on baselines under 600 m".
+flag:
+  strategy: ../../research/results/e2n-scripts/mk_rfi_flagging_calibrator_fields_firstpass.yaml
+  known_rfi: meerkat_l
+
+calibrate:
+  model: {source: setjy, standard: Stevens-Reynolds 2016}
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+
+apply:
+  calwt: false
+  targets:
+    - field: [fcal]
+      tables: [K, G, B]
+      interp: [linear, linear, linear]
+    - field: [gcal, target]
+      tables: [K, F, B]
+      gainfield: [J1939-6342, nearest, J1939-6342]
+      interp: [linear, linear, linear]
+
+# The paper: WSClean, multiscale, Briggs -1.5, 1.1" pixels, 8 joined
+# sub-bands, a 4th-order spectral polynomial, masked deep cleaning.
+# 6,144^2 at 1.2" is 2.05 deg, the B = 0.5 circle (radius 0.55 deg) with
+# room for the sources in the sidelobes; 6,144^2 is the size of the UHF
+# gate's images, the largest rang has booked (128 GB).
+image:
+  fields: [target]
+  column: CORRECTED_DATA
+  size: [6144, 6144]
+  scale: 1.2asec
+  weight: briggs
+  robust: -1.5
+  channels_out: 8
+  join_channels: true
+  fit_spectral_pol: 4
+  multiscale: true
+  mgain: 0.9
+  auto_mask: 5.0
+  auto_threshold: 1.0
+  niter: 1000000
+
+# The paper: phase-only every 64 s, then amplitude and phase per scan,
+# spacings under 300 m left out of the solves.
+selfcal:
+  rounds: 2
+  average_time: true
+  terms: [{type: Sp, solint: 64s}, {type: Sa, solint: inf}]
+  minuvw_m: 300.0
+
+run:
+  stages: [flag, calibrate, apply, image, selfcal]

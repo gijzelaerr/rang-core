@@ -63,6 +63,16 @@ and an unimplemented setting. The CI job `e2e` of the wheels workflow runs
 the same configuration on all five wheels ({gh}`tools/e2e/run.py`). Its
 section on real data is a placeholder until task E2 has results.
 
+## A worked field: the Galactic Centre mosaic
+
+{doc}`galactic-centre` goes from the SARAO archive to a press-style picture of
+the MeerKAT Galactic Centre mosaic (Heywood et al. 2022, 20 pointings). It
+covers the fetch and conversion with katdal, `rang-core run` per pointing,
+then primary-beam correction, a linear mosaic and the rendering with
+{gh}`examples/gc-mosaic/gc_mosaic.py`. It is a recipe, not an executed
+notebook: one pointing is about 1.5 TB of archive data. It is proposed, not
+yet measured, and says which steps rang has run on real data.
+
 ## After the image: reports, quality and hardware
 
 Two notebooks for astronomers who run the chain on their own data.
@@ -171,6 +181,7 @@ notebooks/i9-time-domain
 :caption: Tutorials and science notebooks
 
 notebooks/00-ms-to-image
+galactic-centre
 notebooks/01-data-and-rank
 notebooks/02-flagging-step-by-step
 notebooks/03-gains-and-tv
