@@ -1,0 +1,16 @@
+build start 2026-11-28T03:18:48+02:00 slots=2 mem=16 tools/oracles/dd15/dd15.py build D:/rang/outputs/dd15-20261128
+build end 2026-11-28T03:25:26+02:00 rc=0 wall=398s
+gater start 2026-11-28T03:25:26+02:00 slots=4 mem=16 tools/oracles/dd15/dd15.py gater D:/rang/outputs/dd15-20261128
+gater end 2026-11-28T03:37:08+02:00 rc=0 wall=702s
+PREP_OK
+loop-ATG12 start 2026-11-28T03:37:08+02:00 slots=6 mem=20 tools/oracles/dd15/dd15.py loop D:/rang/outputs/dd15-20261128 ATG12
+loop-QPG12-O start 2026-11-28T03:38:08+02:00 slots=6 mem=20 tools/oracles/dd15/dd15.py loop D:/rang/outputs/dd15-20261128 QPG12-O
+loop-ATG12 end 2026-11-28T04:58:22+02:00 rc=0 wall=4874s
+loop-QPG12 start 2026-11-28T04:58:22+02:00 slots=6 mem=20 tools/oracles/dd15/dd15.py loop D:/rang/outputs/dd15-20261128 QPG12
+loop-QPG12-O end 2026-11-28T07:02:34+02:00 rc=0 wall=12266s
+loop-QPG12 end 2026-11-28T08:18:22+02:00 rc=0 wall=12000s
+LANES_DONE
+score start 2026-11-28T08:18:22+02:00 slots=2 mem=8 tools/oracles/dd15/dd15.py score D:/rang/outputs/dd15-20261128
+score end 2026-11-28T08:18:26+02:00 rc=0 wall=4s
+REAL_NOT_CALLED
+ALL_DONE

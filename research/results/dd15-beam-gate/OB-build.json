@@ -1,0 +1,16 @@
+{
+ "rule": "research/dd14-flux-scale.md section 2",
+ "beam_sha256": "95b2bae42f330b8d57d574eb1e4658f095935fd4cee24b326e42cb60515ef37f",
+ "GB2_max_abs_B1_minus_gateO": 7.62939453125e-06,
+ "GB3_max_abs_OB_minus_n_minus_predict": 2.6973982585332124e-06,
+ "GB2_pass": true,
+ "GB3_pass": true,
+ "truth_amp_geomean_per_dir": [
+  0.9999192261225373,
+  0.9546809274777552,
+  0.90924576987709,
+  0.5988934785352333
+ ],
+ "sky_sha256": "a49ef2a025ae42e4b41ec0be4ca181888c53e1aea9090859cbb1043249481d35",
+ "seconds": 94.00401140000031
+}

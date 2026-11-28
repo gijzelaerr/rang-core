@@ -480,6 +480,7 @@ tools/oracles/dd11/dd11.py,623,a,-,-,-,0,-,-
 tools/oracles/dd12/dd12.py,667,a,-,-,-,0,-,-
 tools/oracles/dd13/dd13.py,650,a,-,-,-,0,-,-
 tools/oracles/dd14/dd14.py,836,a,-,-,-,0,-,-
+tools/oracles/dd15/dd15.py,632,a,-,-,-,0,-,-
 tools/oracles/dd2/dd2.py,503,a,-,-,-,0,-,-
 tools/oracles/dd2/run_wsclean.sh,70,a,-,-,-,0,-,-
 tools/oracles/dd3/common.sh,12,a,-,-,-,0,-,-
@@ -578,3 +579,4 @@ tools/oracles/multinode/cluster_points.sh,51,a,-,-,-,0,-,-
 tests/test_dd12.py,45,a,-,-,-,0,-,-
 tests/test_dd13.py,66,a,-,-,-,0,-,-
 tests/test_dd14.py,103,a,-,-,-,0,-,-
+tests/test_dd15.py,125,a,-,-,-,0,-,-

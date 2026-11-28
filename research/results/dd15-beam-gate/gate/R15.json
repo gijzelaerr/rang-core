@@ -1,0 +1,42 @@
+{
+ "a": {
+  "source": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12",
+  "cycle": 11,
+  "threshold": 0.0,
+  "bitwise": true,
+  "max_abs_diff": 0.0,
+  "hogbom": {
+   "sigma": 0.0006818157774488511,
+   "stop": 0.0034090788872442553,
+   "n": 563
+  },
+  "seconds": 119.32230879999406
+ },
+ "b": {
+  "source": "D:\\rang\\outputs\\dd14-20261127\\loop\\QPN12",
+  "cycle": 1,
+  "threshold": 0.5,
+  "bitwise": true,
+  "max_abs_diff": 0.0,
+  "hogbom": {
+   "sigma": 0.0008632317713571805,
+   "stop": 0.004316158856785902,
+   "n": 1483
+  },
+  "seconds": 284.2197382000013
+ },
+ "c": {
+  "source": "D:\\rang\\outputs\\dd13-20261127\\loop\\QP12",
+  "cycle": 1,
+  "threshold": 0.5,
+  "bitwise": true,
+  "max_abs_diff": 0.0,
+  "hogbom": {
+   "sigma": 0.0006554506615739626,
+   "stop": 0.003277253307869813,
+   "n": 1426
+  },
+  "seconds": 283.98573249999026
+ },
+ "R15_pass": true
+}
