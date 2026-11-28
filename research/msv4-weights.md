@@ -214,6 +214,12 @@ counts and bytes checked), only the copies read.
   writers; on c14 xradio's channels were mapped back to the MS's descending
   order. The unit model does not fit this data well (the solve runs to its
   50 iterations), which does not weaken an identity of bits.
+  Post-run reading (2026-11-28, after run 01, not a rule change): the five
+  solves are two distinct ones. c11, c12 and c14 carry c5's `DATA` and
+  `WEIGHT_SPECTRUM`, so their gains hash equals c5's (`c2c389b8...`); c13
+  (`WEIGHT` repeated) is the other (`05b05054...`). With rows fed in the
+  MSv2 order W3 follows from W1 and the data reading; the independent
+  evidence is W1, W2, W4 and the store-order figure below.
 - **W4:** with xradio's base `WEIGHT` (the old reading) the gains differ:
   max relative difference 9.3e-6 on c11 and 51 on c12 (`SIGMA` per row, a
   zero sigma in row 3).
@@ -232,7 +238,7 @@ and selfcal on a store remain refused (not built). Sigma-weighted solves
 (pre-applied tables) cannot run bit for bit on xradio 1.3.1 stores, which
 keep no sigma.
 
-## 8. A Rust zarr reader: probe, no claim (2026-11-28)
+## 8. A Rust zarr reader: not built, not measured (2026-11-28)
 
 Issue #5 lists a Rust `zarrs` reader, worth building only if it is
 measurably faster or removes a dependency. Probe (reported, no rule;
@@ -242,19 +248,23 @@ warm page cache, best of 3) on the 24 store copies:
 
 - `Partition.rows()` takes 5-152 ms (30 MB in 34-51 ms, c6x's 83-94 MB in
   109-152 ms); opening the processing set 18-89 ms.
-- zarr's own decode of the variables `rows()` reads (blosc-lz4 on xradio,
-  zstd on xarray-ms, both C codecs through numcodecs) is 64-92 % of that.
-  A Rust reader could save at most the other 8-36 % plus whatever its
-  decoders gain on numcodecs.
+- zarr-python's whole-array read of the variables `rows()` reads
+  (blosc-lz4 on xradio, zstd on xarray-ms) is 64-92 % of that. This times
+  zarr's array read, not the codecs alone, so it does not bound what a
+  Rust reader would save. xradio keeps one chunk per variable here, so a
+  read of a few times decodes the whole chunk; the core's selective
+  blosc decode (`core/src/blosc.rs`, only the blocks holding the rows
+  asked for) is exactly the case not measured.
 - It removes no dependency: xarray and zarr stay for the metadata, the
   data-group attributes and the flag write path (`rang.msv4.flag`,
   `rang.msv4_flags`). The `zarrs` crate builds its codecs from C (blosc,
   zstd); the core already has its own blosc-lz4 decoder
   (`core/src/blosc.rs`) but no zstd decoder.
 
-Not built, and no note frozen for it. A proposal needs a store of
-production size (the cases here are at most 94 MB), a frozen speed bar and
-this path as the oracle.
+Not built and not measured, so no null result either; no note frozen for
+it. A proposal needs a store of production size (the cases here are at
+most 94 MB), partial (time-slice) reads as well as whole ones, a frozen
+speed bar and this path as the oracle.
 
 ## For the coordinator
 
@@ -264,11 +274,14 @@ every data group of a store now reads the MSv2 `WEIGHT_SPECTRUM` (xradio's
 `corrected` weight where its groups differ), xarray-ms's `SIGMA_SPECTRUM`
 reads as the MSv2 sigma, xradio's missing sigma is refused, and a `complex`
 solve fed from a store in the MSv2 row order gives the MSv2 gains bit for
-bit (13 cases, 2 writers). Behaviour change: `Partition.rows()["WEIGHT_SPECTRUM"]`
+bit (13 cases, 2 writers; the five solves are two distinct ones, section
+7). Behaviour change: `Partition.rows()["WEIGHT_SPECTRUM"]`
 of xradio's base group with `CORRECTED_DATA` is now W, not `1/SIGMA^2`; the
 flag path does not read it. The refusal message of non-flag stages on a
 store now names this note. No new `RANG_*` variable, no CLI change, no new
 crate. Run root `D:\rang\outputs\20261128-msv4-m5` (1.1 GB) kept until merge.
+The archived M3 harness (`msv4_m3m2.py`) would now book xradio's base
+weight of c11 and c12 as W, not S. msv4-cli.md has a dated pointer.
 Open: (1) a weighted stage on a store (calibrate first), with its own gate
-and a decision on row order (section 7); (2) the Rust reader, which the
-probe does not support at these sizes (section 8).
+and a decision on row order (section 7); (2) the Rust reader, not built
+and not measured (section 8).
