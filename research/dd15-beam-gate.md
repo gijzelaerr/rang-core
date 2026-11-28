@@ -427,6 +427,15 @@ references re-scored from DD14's records):
 - **Not run:** section 7, so there is no real-data flux reading for any
   rule.
 
+## 12. Owner decision
+
+**2026-11-28, owner: option A.** The convention question of #15 is closed as
+"beam in the model required; pins kept". Releasing pins where B_nom >= 0.5
+is not adopted: no real-data check has read it. Facets below half power
+(B_nom < 0.5) are a known limitation: their flux is reported as uncalibrated,
+or the facet is left out of the DD solutions. #15 itself stays open for the
+rest of the direction-dependent work.
+
 ## Amendments
 
 **A1, 2026-11-28, post hoc diagnostics, after the frozen reading. They
