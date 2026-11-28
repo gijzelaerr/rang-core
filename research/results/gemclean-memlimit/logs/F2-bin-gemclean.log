@@ -1,0 +1,69 @@
+D:/rang/outputs/20261128-gemclean-memlimit/H/pilot.ms: 823500 of 823500 rows selected (field 0, DATA), 256 channels 989.8545-1096.4365 MHz, 76089333 visibilities weighted, weight sum 1381684725.755817 (13.00 s read, 1.87 s weights)
+memory estimate: 5.44 GiB (psf 2n, x1.03 margin) against -memory-limit 1000 GiB; GiB by phase: read and weights 4.73, measurement 3.05, psf 2n 5.28, plan, beam and compaction 4.87, major and minor cycles 4.49
+beam: peak 0.999999996233, patch ±64, f 2.3986e-2 outside the patch; 2049 of 2049 spectrum columns, -0.00e0 left out; restoring beam 16.598" × 9.553" PA -51.10° (784 pixels fitted); PSF 7.12 s, FFT 0.09 s
+gemclean cycle 1: peak 1.2050e0, threshold 3.0000e-3, 3707 components so far, 10.7 s
+gemclean cycle 2: peak 6.1441e-2, threshold 3.0000e-3, 64585 components so far, 21.0 s
+gemclean cycle 3: peak 3.2317e-3, threshold 3.0000e-3, 65844 components so far, 26.9 s
+65844 components, 3 major cycles, 173 resyncs, stop Threshold; Q/Q0 2.2989e-2; tau min 0.500 median 0.672; minor 0.69 s (corrections 0.101 s), resync 4.25 s, major 17.29 s
+memory by phase (heap GB: held at the end, most during; RSS GB: at the end, peak so far; swap GB):
+  read                       held   2.550  most   2.984  rss   2.556  peak rss   2.849  swap    NaN
+  weights                    held   4.237  most   5.081  rss   4.238  peak rss   5.081  swap    NaN
+  compact                    held   3.265  most   4.237  rss   3.272  peak rss   5.081  swap    NaN
+  measurement                held   3.265  most   3.284  rss   3.272  peak rss   5.081  swap    NaN
+  psf 2n                     held   3.400  most   7.062  rss   3.412  peak rss   7.074  swap    NaN
+  plan                       held   4.046  most   4.062  rss   4.075  peak rss   7.074  swap    NaN
+  beam                       held   4.319  most   4.454  rss   4.344  peak rss   7.074  swap    NaN
+  compacted                  held   2.291  most   5.537  rss   2.315  peak rss   7.074  swap    NaN
+  residual: grid             held   5.230  most   5.271  rss   5.243  peak rss   7.074  swap    NaN
+  cycle 1: minor             held   5.465  most   5.465  rss   5.479  peak rss   7.074  swap    NaN
+  residual: predict          held   5.532  most   5.589  rss   5.551  peak rss   7.074  swap    NaN
+  residual: grid             held   5.498  most   5.573  rss   5.525  peak rss   7.074  swap    NaN
+  cycle 2: minor             held   5.466  most   5.532  rss   5.493  peak rss   7.074  swap    NaN
+  residual: predict          held   5.533  most   5.590  rss   5.560  peak rss   7.074  swap    NaN
+  residual: grid             held   5.500  most   5.580  rss   5.535  peak rss   7.074  swap    NaN
+  cycle 3: minor             held   5.468  most   5.533  rss   5.500  peak rss   7.074  swap    NaN
+  residual: predict          held   5.535  most   5.592  rss   5.566  peak rss   7.074  swap    NaN
+  residual: grid             held   5.501  most   5.574  rss   5.533  peak rss   7.074  swap    NaN
+  clean: end                 held   5.333  most   5.535  rss   5.365  peak rss   7.074  swap    NaN
+  write                      held   0.478  most   5.333  rss   0.492  peak rss   7.074  swap    NaN
+memory by buffer (GB):
+  read: Stokes I visibilities                     1.687
+  read: Stokes I weights                          0.843
+  read: uvw and row flags                         0.021
+  weights: gridding weights                       1.687
+  compact: visibilities                           1.623
+  compact: weights                                1.623
+  compact: uvw                                    0.019
+  psf 2n image (freed before the run)             0.134
+  psf n x n crop                                  0.034
+  measurement: visibilities                       0.609
+  measurement: visibilities in the temporary file (not held)    0.000
+  measurement: weights                            0.609
+  measurement: uvw                                0.019
+  measurement: residual visibilities              0.000
+  gridder: baselines (uvw per row)                0.019
+  gridder: sorted visibility index                0.609
+  gridder: blocks and tiles                       0.002
+  gridder: tables                                 0.017
+  gridder: grids                                  1.445
+  gridder: stored sorted values                   1.217
+  gridder: visibility-order permutation           0.304
+  beam: exterior                                  0.134
+  beam: patch and rings                           0.000
+  beam: spectrum                                  0.134
+  beam: row spectra (resync work space)           0.067
+  one n x n f64 image                             0.034
+heap at its highest: 7.061 GB, during the phase ended by "psf 2n"; blocks of 1 MiB or more then:
+      2 x    1623138304 bytes     3.246 GB
+      2 x     829440000 bytes     1.659 GB
+      1 x    1217429328 bytes     1.217 GB
+      1 x     608714664 bytes     0.609 GB
+      1 x     134217728 bytes     0.134 GB
+      2 x      33587208 bytes     0.067 GB
+      1 x      67174416 bytes     0.067 GB
+      2 x      19021152 bytes     0.038 GB
+      1 x       1835008 bytes     0.002 GB
+      1 x       1572864 bytes     0.002 GB
+  smaller blocks                             0.020 GB
+wall 51.56 s
+peak: wall 51.7 s, largest process 6908280 KiB (e/gemclean.exe -name D:/rang/outputs/20261128-gemclean-memlimit/img/F2-bin/image), tree sum 6908256 KiB

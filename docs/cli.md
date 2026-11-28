@@ -275,7 +275,7 @@ fields:
 data:
   weights: as_is  # as_is: WEIGHT_SPECTRUM, else WEIGHT per channel; uniform: 1 (CARACal's prep.specweights), used in memory by calibrate
   scans: []  # SCAN_NUMBERs to use (empty: every scan)
-  memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md)
+  memory_limit_gb: 8.0  # peak resident memory a stage may use, GiB; flag, calibrate and apply chunk by time and row to stay within it (research/w3-chunking.md); gemclean (image, selfcal) refuses when its estimate is above it (research/gemclean-memlimit.md)
   chunk_rows: null  # a cap on the rows of every chunk (null: what memory_limit_gb allows); a solve chunk still holds one solution interval
   executor: local  # where chunk tasks run: local, this machine (research/chunk-task-api.md); spool, workers on any nodes serving data.spool (research/multinode-executor.md)
   spool: null  # executor spool: an absolute directory on a filesystem every worker mounts; start workers with python -m rang.core_spool worker DIR
@@ -1328,6 +1328,10 @@ gemclean: usage: gemclean [options] <ms>
   -no-restore               do not write the restored image
   -memory-report            print the heap held per phase and the main buffers' sizes
                             (always in -report.json)
+  -memory-limit <GiB>       stop before the PSF pass when the estimated peak resident memory is
+                            above GiB (rang-core passes data.memory_limit_gb); estimated on the
+                            single-image path of one polarisation only, elsewhere not checked
+                            (research/gemclean-memlimit.md)
 
 Model column (research/g6-predict.md; WSClean's options):
   -update-model-required    after imaging, predict the model images just written into the

@@ -1,0 +1,8 @@
+15:18:58 stage prepare D wall_s 8.4
+== 2026-11-28T13:18:59Z B0 start
+rang-core: selfcal: running
+rang-core: selfcal: done in 886.5 s
+rang-core: receipt D:/rang/outputs/20261128-gemclean-memlimit/B0/run/receipts/selfcal-20261128T131900Z.rang-receipt.json
+peak: wall 889.0 s, largest process 7882528 KiB (a\Roaming\uv\python\cpython-3.13-windows-x86_64-none\python.exe -m rang.gemclean), tree sum 7982692 KiB
+== 2026-11-28T13:33:48Z B0 end
+research/results/gemclean-memlimit/scripts/run.sh: line 39: unexpected EOF while looking for matching `''

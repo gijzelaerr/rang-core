@@ -1,0 +1,43 @@
+== 2026-11-28T13:44:53Z F1-bin start
+exit 0
+== 2026-11-28T13:47:34Z F1-bin end
+== 2026-11-28T13:47:34Z F2-bin start
+exit 0
+== 2026-11-28T13:48:26Z F2-bin end
+== 2026-11-28T13:48:27Z F3-bin start
+exit 0
+== 2026-11-28T13:49:51Z F3-bin end
+== 2026-11-28T13:49:52Z F4-bin start
+exit 0
+== 2026-11-28T13:50:53Z F4-bin end
+== 2026-11-28T13:50:54Z F1 start
+exit 0
+== 2026-11-28T13:53:26Z F1 end
+== 2026-11-28T13:53:27Z F2 start
+exit 0
+== 2026-11-28T13:54:35Z F2 end
+== 2026-11-28T13:54:35Z F3 start
+exit 0
+== 2026-11-28T13:56:00Z F3 end
+== 2026-11-28T13:56:00Z F4 start
+exit 0
+== 2026-11-28T13:56:39Z F4 end
+== 2026-11-28T13:56:40Z V1 start
+exit 0
+== 2026-11-28T13:59:54Z V1 end
+== 2026-11-28T13:59:54Z V1-plain start
+exit 0
+== 2026-11-28T14:02:32Z V1-plain end
+== 2026-11-28T14:02:32Z V2 start
+exit 0
+== 2026-11-28T14:04:13Z V2 end
+== 2026-11-28T14:04:14Z V3 start
+exit 0
+== 2026-11-28T14:05:37Z V3 end
+== 2026-11-28T14:05:37Z V4 start
+exit 0
+== 2026-11-28T14:07:54Z V4 end
+== 2026-11-28T14:07:55Z V5 start
+exit 0
+== 2026-11-28T14:08:54Z V5 end
+cases done
