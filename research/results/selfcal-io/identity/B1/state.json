@@ -1,0 +1,45 @@
+{
+ "config_path": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\config.yaml",
+ "created": "2026-11-28T13:38:19+00:00",
+ "ms": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\pilot.ms",
+ "schema": "rang.run-state",
+ "stages": {
+  "apply": {
+   "finished": "selfcal-io-pilot-apply",
+   "status": "done"
+  },
+  "selfcal": {
+   "attempts": 1,
+   "config_sha256": "3688960cb4a71d96c1b77c4ebf29e62f44107c9423977e44fce916edc4ae3570",
+   "finished": "2026-11-28T14:04:34+00:00",
+   "flag_version": "rang_selfcal_20261128T135634Z",
+   "host": "glacier",
+   "pid": 34932,
+   "previous": null,
+   "seconds": 768.7050281999982,
+   "sections": [
+    "fields",
+    "data",
+    "image",
+    "selfcal"
+   ],
+   "started": "2026-11-28T13:51:45+00:00",
+   "status": "done",
+   "summary": {
+    "flag_version": "rang_selfcal_20261128T135634Z",
+    "gemclean": "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe -m rang.gemclean",
+    "gemclean_sha256": "0ad896e53ab32bd2b35116e85350cd7bbba15a64fb311504244f6885474aa740",
+    "input_column": "CORRECTED_1GC",
+    "model_column": "MODEL_DATA",
+    "output_column": "CORRECTED_DATA",
+    "rang_original_saved_now": false,
+    "refant": 0,
+    "restored_before": null,
+    "rounds": 2
+   }
+  }
+ },
+ "telescope": "MeerKAT",
+ "updated": "2026-11-28T14:04:34+00:00",
+ "version": 1
+}

@@ -1,6 +1,7 @@
 # selfcal-io: the input-column copy and the repeated averaged reads (#49, #50)
 
-Status, 2026-11-28: **proposed** (this note is committed before the code). Source:
+Status, 2026-11-28: **identity met** on the pilot (section 4); exclusive timing pending. The note was
+committed (1f704c4f) before the code (2cfac23d). Source:
 [dl0-profile.md](dl0-profile.md) section 2.2. Branch `selfcal-io`, host glacier.
 
 No scientific claim is made. Both changes are I/O: they must leave every number the self-calibration
@@ -91,4 +92,41 @@ CORRECTED_1GC; the averaged solve with a cache equals the solve without one, one
 
 ## 4. Measured result
 
-(not yet run)
+### 4.1 Identity (2026-11-28, glacier, shared heavy lock 8 slots 24 GB, `RAYON_NUM_THREADS=8`)
+
+Run root `D:/rang/outputs/20261128-selfcal-io` (pilot base `grid/base/pilot.ms`, 823,500 rows x 256
+channels x 4 correlations, 61 antennas, 1,830 baselines; built in 38.5 s). Arms M1, B1 (one chunk per
+solve, 12 GiB) and MN, BN (`data.chunk_rows: 1830`, one averaged interval per chunk, four chunks per
+solve, so the replay runs); M = main `24572b76` (its `python/rang` in `oracle-src` with the branch's
+`_core.pyd`, checked in each `run.json`), B = branch `2cfac23d`. Driver
+[results/selfcal-io/scripts/pilot.py](results/selfcal-io/scripts/pilot.py); archive
+[results/selfcal-io/identity](results/selfcal-io/identity) (both `compare-*.json`, and per arm the
+config, the summary, the state, the marker and `run.json`).
+
+| Item (frozen rule) | M1 vs B1 | MN vs BN |
+| --- | --- | --- |
+| 1. both gain stores (41 files each) byte-identical; iterations, converged and flagged fractions equal | yes | yes |
+| 2. CORRECTED_DATA, CORRECTED_1GC, MODEL_DATA, FLAG (and FLAG_ROW, DATA) equal, sha256 over all rows | yes | yes |
+| 3. every FITS of round 1, round 2 and the final image byte-identical (5 per image) | yes | yes |
+| 4. `selfcal-input.json` equal | yes | yes |
+
+Solves: Sp 8 iterations (converged 1.0), Sa 39 (0.992), 4 intervals, 823,500 rows, flagged fraction
+0.016 in every arm. Counts (branch, `reads` in the solve summaries): round 1 reads CORRECTED_DATA
+(the source), FLAG and MODEL_DATA 823,500 rows each, once, also with four chunks; round 2 reads
+CORRECTED_1GC **0 rows**, FLAG and MODEL_DATA 823,500 each. The present path reads the input column
+once per solve with one chunk and twice with four (counted pass and solve pass), so 2 and 4 reads of
+the input in the stage against the branch's 1. The summaries' `input.copy` is `fused`; round 1's
+`image.column` and solve `input_column` name CORRECTED_DATA, as section 1 states. **Identity: met.**
+
+Clarification (dated 2026-11-28, read after the first comparison): the driver first compared each
+image's whole file record, which includes `image-report.json`; that report names the column read, the
+MS path and the timings, so it differs by design (section 1). The comparison was narrowed to the FITS
+files, which is the frozen item 3; nothing else changed.
+
+Shared-host walls (not timing; the host ran another task): stage M1 715 s, B1 769 s, MN 869 s, BN
+655 s; solves M1 62 + 81 s, B1 95 + 61 s, MN 134 + 165 s, BN 87 + 46 s; the remainder outside images,
+predicts, solves and applies (main: the copy and the stores) M1 29.8 s, MN 49.3 s, branch 1.0-1.1 s.
+
+### 4.2 Timing
+
+(exclusive runs scheduled from 21:00, `timing.sh` in the run root)

@@ -1,0 +1,359 @@
+{
+ "chunking": {
+  "chunk_gb": 11.252288937568665,
+  "chunk_rows": null,
+  "fixed_gb": 0.7477110624313354,
+  "memory_limit_gb": 12.0,
+  "processes": 1,
+  "rows": {
+   "apply": 184357,
+   "calibrate": 184357,
+   "chain": 122905,
+   "flag": 368715,
+   "model": 184357,
+   "rows": 491620,
+   "selfcal": 262197
+  }
+ },
+ "fields": [
+  {
+   "field": "ESO137-pilot",
+   "field_id": 0,
+   "final_image": {
+    "argv": [
+     "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe",
+     "-m",
+     "rang.gemclean",
+     "-name",
+     "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\final\\image",
+     "-size",
+     "4096",
+     "4096",
+     "-scale",
+     "3asec",
+     "-weight",
+     "briggs",
+     "0.5",
+     "-niter",
+     "1000000",
+     "-gain",
+     "0.1",
+     "-nmiter",
+     "1000",
+     "-threshold",
+     "0.003",
+     "-j",
+     "8",
+     "-wgridder-accuracy",
+     "1e-06",
+     "-data-column",
+     "CORRECTED_DATA",
+     "-field",
+     "0",
+     "-unit-weights",
+     "-no-update-model-required",
+     "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\pilot.ms"
+    ],
+    "auto_mask": null,
+    "auto_threshold": null,
+    "clean": {
+     "components": 24915,
+     "major_cycles": 3,
+     "stop": "Threshold"
+    },
+    "column": "CORRECTED_DATA",
+    "files": {
+     "image-dirty.fits": "a16c00a2be1d95f7ba9d66922f2f5b3347d8555b38c6aba291b9e4571faef8b2",
+     "image-image.fits": "dbf51fcae7380157ee73a2d792d171eefd40dbc61d49e3ec02ae0b76e89b32f1",
+     "image-model.fits": "cbd47f1e232b206c6337fef186169f1a575fcba98b1633f1dafc542f1106eac0",
+     "image-psf.fits": "a7e1abc2c179594b4fa4ce8cdc8d9dd81cf04d459e9b4d899dd39af02c23cc93",
+     "image-report.json": "e8747080bd5aaee7eeb61c94095530bf9d4d4eff3cade3b058f890dd8d1ad60a",
+     "image-residual.fits": "0726614b1d786c12c3b81ae6dcb1e252d98bb483152c3974e1e3a5a8a300c240"
+    },
+    "fits_mask": null,
+    "image": 3,
+    "wall_seconds": 121.75732959999004
+   },
+   "rounds": [
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "copied_to": "CORRECTED_1GC",
+      "input_column": "CORRECTED_DATA",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 59.766173899988644
+     },
+     "image": {
+      "argv": [
+       "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-1\\image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "CORRECTED_DATA",
+       "-field",
+       "0",
+       "-unit-weights",
+       "-no-update-model-required",
+       "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 60196,
+       "major_cycles": 3,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_DATA",
+      "files": {
+       "image-dirty.fits": "010c9ae259f9660ec1f8af25da59cd2de4028b879629f5ebbba574d4ade0e964",
+       "image-image.fits": "af2c2d8643d19e7d7935b3dfed99423460280877c2848408d234bc611b5dae72",
+       "image-model.fits": "cc6b19a6f9a74de89fc3040cf283d2cdc9b14bd4a882240c06a42587cb4eae27",
+       "image-psf.fits": "2cf28dcf1b9b7b43f738aea75e3fee7dd2677ec7436122df9ffd482553cf0824",
+       "image-report.json": "5abc44cc434ea8861b1cde571d8d60dd3d290633df9ab0dde8f4e0faeb4bc0b0",
+       "image-residual.fits": "4b223a972ca7184d17470ca6d3797fcefdf91195b01a65f5d3ecfff156fd6fbc"
+      },
+      "fits_mask": null,
+      "image": 1,
+      "wall_seconds": 147.29468819999602
+     },
+     "model": {
+      "added": true,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-1\\image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 46.46892260000459
+     },
+     "round": 1,
+     "solve": {
+      "caracal_type": "GainDiagPhase",
+      "clipped": 0,
+      "converged_fraction": 1.0,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 8,
+      "name": "Sp",
+      "quartical_type": "phase",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "CORRECTED_DATA",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "reads": {
+        "CORRECTED_DATA": 823500,
+        "FLAG": 823500,
+        "MODEL_DATA": 823500
+       },
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": 120,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "unit"
+      },
+      "time_bins": 4,
+      "time_bins_per_scan": {
+       "2": 4
+      },
+      "type": "Sp",
+      "wall_seconds": 94.9305563000089
+     },
+     "store": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-1\\gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sp",
+      "solint": 120,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sp"
+     }
+    },
+    {
+     "apply": {
+      "cells": 843264000,
+      "cells_flagged_after": 538906668,
+      "cells_flagged_before": 538906668,
+      "input_column": "CORRECTED_1GC",
+      "output_column": "CORRECTED_DATA",
+      "rows": 823500,
+      "wall_seconds": 37.74699869999313
+     },
+     "image": {
+      "argv": [
+       "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe",
+       "-m",
+       "rang.gemclean",
+       "-name",
+       "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-2\\image",
+       "-size",
+       "4096",
+       "4096",
+       "-scale",
+       "3asec",
+       "-weight",
+       "briggs",
+       "0.5",
+       "-niter",
+       "1000000",
+       "-gain",
+       "0.1",
+       "-nmiter",
+       "1000",
+       "-threshold",
+       "0.003",
+       "-j",
+       "8",
+       "-wgridder-accuracy",
+       "1e-06",
+       "-data-column",
+       "CORRECTED_DATA",
+       "-field",
+       "0",
+       "-unit-weights",
+       "-no-update-model-required",
+       "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\pilot.ms"
+      ],
+      "auto_mask": null,
+      "auto_threshold": null,
+      "clean": {
+       "components": 26040,
+       "major_cycles": 3,
+       "stop": "Threshold"
+      },
+      "column": "CORRECTED_DATA",
+      "files": {
+       "image-dirty.fits": "39f3f175c0e28acec667b054f74e8d84b2c782826f85e34e46ea2a0ed2b1eae8",
+       "image-image.fits": "97fb94cc2b0e55eb9d72bd16669e270331d53ff4b074b622f33260834275e4f3",
+       "image-model.fits": "f9b58d9aab248fe23f6c8af80b998065551d427a10ee2f4674a387a4d2ef78bc",
+       "image-psf.fits": "2a96a162a03f8f4728e663aa97c70648ff2a366bbe31a13a391926134ffacd4a",
+       "image-report.json": "64d9171a680e2c310bedd66cd60ee5b039de11c93928c81665aa979f45b0a2ce",
+       "image-residual.fits": "1bdd48ac8ea5b54791898e2a173cdc49c982caf616b7749285221693565bddfd"
+      },
+      "fits_mask": null,
+      "image": 2,
+      "wall_seconds": 141.6005984999938
+     },
+     "model": {
+      "added": false,
+      "channels_predicted": 256,
+      "column": "MODEL_DATA",
+      "field": 0,
+      "model_images": 1,
+      "name": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-2\\image",
+      "rows_selected": 823500,
+      "rows_written": 823500,
+      "scans": null,
+      "wall_seconds": 57.105436300014844
+     },
+     "round": 2,
+     "solve": {
+      "caracal_type": "GainDiag",
+      "clipped": 0,
+      "converged_fraction": 0.9916666666666667,
+      "field_id": 0,
+      "flagged_fraction": 0.01639344262295082,
+      "freq_bins": 1,
+      "iterations": 39,
+      "name": "Sa",
+      "quartical_type": "diag_complex",
+      "rows": 823500,
+      "settings": {
+       "casa_rules": false,
+       "freqint": "inf",
+       "gain_clip": [
+        0.5,
+        2.0
+       ],
+       "input_column": "CORRECTED_1GC",
+       "max_iterations": 50,
+       "model_column": "MODEL_DATA",
+       "reads": {
+        "CORRECTED_1GC": 0,
+        "FLAG": 823500,
+        "MODEL_DATA": 823500
+       },
+       "refant": 0,
+       "refant_name": "ANT00",
+       "solint": 120,
+       "stop_criterion": 1e-07,
+       "stop_fraction": 0.99,
+       "uvrange": "",
+       "weights": "unit"
+      },
+      "time_bins": 4,
+      "time_bins_per_scan": {
+       "2": 4
+      },
+      "type": "Sa",
+      "wall_seconds": 61.02628990000812
+     },
+     "store": "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run\\selfcal\\ESO137-pilot\\round-2\\gains.qc",
+     "term": {
+      "freqint": "inf",
+      "max_iterations": 50,
+      "name": "Sa",
+      "solint": 120,
+      "stop_criterion": 1e-07,
+      "stop_fraction": 0.99,
+      "type": "Sa"
+     }
+    }
+   ]
+  }
+ ],
+ "flag_version": "rang_selfcal_20261128T135634Z",
+ "gemclean": "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe -m rang.gemclean",
+ "gemclean_sha256": "0ad896e53ab32bd2b35116e85350cd7bbba15a64fb311504244f6885474aa740",
+ "input": {
+  "apply_finished": "selfcal-io-pilot-apply",
+  "column": "CORRECTED_1GC",
+  "copied_from": "CORRECTED_DATA",
+  "copied_now": true,
+  "copy": "fused"
+ },
+ "input_column": "CORRECTED_1GC",
+ "model_column": "MODEL_DATA",
+ "output_column": "CORRECTED_DATA",
+ "rang_original_saved_now": false,
+ "refant": 0,
+ "restored_before": null,
+ "rounds": 2
+}

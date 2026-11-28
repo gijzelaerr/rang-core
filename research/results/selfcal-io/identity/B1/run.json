@@ -1,0 +1,23 @@
+{
+ "RAYON_NUM_THREADS": "8",
+ "argv": [
+  "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\.venv\\Scripts\\python.exe",
+  "-c",
+  "import sys; from rang import core_cli; sys.exit(core_cli.dispatch(sys.argv[1:]))",
+  "selfcal",
+  "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\config.yaml",
+  "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\pilot.ms",
+  "--run-dir",
+  "D:\\rang\\outputs\\20261128-selfcal-io\\B1\\run"
+ ],
+ "arm": "B1",
+ "host": "GLACIER",
+ "package": [
+  "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\python\\rang\\__init__.py",
+  "C:\\Users\\gijsm\\Worktrees\\rang\\selfcal-io\\python\\rang\\_core.pyd"
+ ],
+ "peak_rang_bytes": 5484544,
+ "peak_tree_bytes": 8790614016,
+ "rc": 1,
+ "wall_s": 771.1963461000123
+}

@@ -96,6 +96,8 @@ def cmd_prepare(out, arm):
 
 
 def _tree_rss(pid):
+    """RSS of the process tree and of its largest rang-core process (the venv's
+    python.exe launcher and gemclean excluded)."""
     import psutil
 
     try:
@@ -107,11 +109,12 @@ def _tree_rss(pid):
     for c in procs:
         try:
             r = c.memory_info().rss
+            cmd = " ".join(c.cmdline())
         except psutil.Error:
             continue
         total += r
-        if c.pid == pid:
-            mine = r
+        if "rang.gemclean" not in cmd:
+            mine = max(mine, r)
     return total, mine
 
 
@@ -186,6 +189,12 @@ def _columns_equal(a, b, names):
     return res
 
 
+def _fits(image):
+    """The FITS files' sha256 of an image record (its image-report.json names the
+    column read, the paths and the timings, so it differs by design)."""
+    return {k: v for k, v in image["files"].items() if k.endswith(".fits")}
+
+
 def cmd_compare(out, a, b):
     qa, qb = out / a, out / b
     sa = json.loads((qa / "run/selfcal/summary.json").read_text())
@@ -201,7 +210,7 @@ def cmd_compare(out, a, b):
                 qb / "run/selfcal" / fb["field"] / f"round-{rb['round']}" / "gains.qc"
             )
             res["stores"][k] = {"files": len(ha), "equal": ha == hb}
-            res["fits"][k] = ra["image"]["files"] == rb["image"]["files"]
+            res["fits"][k] = _fits(ra["image"]) == _fits(rb["image"])
             keys = (
                 "iterations",
                 "converged_fraction",
@@ -215,8 +224,8 @@ def cmd_compare(out, a, b):
                 "wall_a": ra["solve"]["wall_seconds"], "wall_b": rb["solve"]["wall_seconds"],
                 "apply_a": ra["apply"]["wall_seconds"], "apply_b": rb["apply"]["wall_seconds"],
             }  # fmt: skip
-        res["fits"][f"{fa['field']}/final"] = (
-            fa["final_image"]["files"] == fb["final_image"]["files"]
+        res["fits"][f"{fa['field']}/final"] = _fits(fa["final_image"]) == _fits(
+            fb["final_image"]
         )
     res["marker"] = {
         "a": json.loads((qa / "run/selfcal-input.json").read_text()),
