@@ -2681,3 +2681,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-28 | gemclean-memlimit: `rang-core selfcal`, D's config, default 8 GiB, B0 main / B1 branch (8 slots shared; host glacier) | E2 pilot held-out copy, 823,500 rows x 256 ch | 889 s / 963 s | 7.52 GiB (GeMClean) | byte-identical; `research/gemclean-memlimit.md` |
 | 2026-11-28 | gemclean-memlimit: gemclean round-1 argv, extension, F1-F4 and V1-V5 (8 slots shared; host glacier) | held-out / base pilot, 2048²-4096² | 39-194 s per image | 5.06-10.64 GiB | gate Q; R1 refusal 17 s |
 | 2026-11-28 | gemclean-memlimit: extension builds (`maturin develop --release`, 8 slots; host glacier) | repo | 229-297 s | – | three builds |
+| 2026-11-28 | gc-mosaic: katdal 0.24 `mvftoms.py -f -a --chanbin 8`, streamed from the archive (outside the lock, nice 19; host nash) | SARAO 1658556374, 404 GB MVF, 4,096 -> 512 ch | 3,040 s | – | MS 88 GB; `research/gc-mosaic-tutorial.md` |
+| 2026-11-28 | gc-mosaic: `maturin build --release` of the branch (8 slots; host nash) | repo | 384 s | 1.44 GiB | |
+| 2026-11-28 | gc-mosaic: `gc_mosaic.py render --downsample 4` (nice 19; host nash) | SARAO's released GC Stokes I mosaic, 10,121 x 10,527 | 16 s | 1.96 GiB | |

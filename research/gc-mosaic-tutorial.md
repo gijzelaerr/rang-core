@@ -69,3 +69,68 @@ Not checked: whether the 2018 blocks are online or on tape.
   σ is 61 µJy/beam. After a first look, the scheme was changed: the grey now
   rises to 0.7 (was 0.5) and the default faint limit is 10σ (was 30σ). The
   faint filaments were too dark before.
+
+## A quicker field, 2026-11-28 (nash)
+
+The owner's request: a test on data that is online, with fewer steps. The
+field is SARAO **1658556374**, an MMGPS-L block (SCI-20200703-MK-01, public,
+AVAILABLE, QA good):
+
+- 3 h 24 min, 63 antennas, 4,096 channels, 404 GB;
+- 16 ten-minute target snapshots at l = 269.2-273.4 deg, b = -0.2 to +2.4
+  deg, around RCW 41;
+- calibrators 0408-658 (flux, bandpass, delay), J0825-5010 (gain) and 3C138
+  (not used).
+
+Steps:
+
+- **Conversion done.** `mvftoms -f -a --chanbin 8` streamed from the archive
+  link, outside the lock (owner's word). It took 13:42-14:33 UTC, rc 0, and
+  wrote `~/rang-data/gc-mosaic/rcw41/rcw41.ms` (88 GB).
+- **Config.** `examples/gc-mosaic/rcw41.yaml`: 1GC with setjy standard
+  `caracal` (CARACal's 0408-65 cubic), one 4,096² × 1.5″ image per pointing,
+  Briggs −0.5, 4 joined channels with a 2-term fit, multiscale, auto-mask 5,
+  threshold 1.5σ, no self-cal. `data.memory_limit_gb` is 90 since #34, under
+  the run's 96 GB booking.
+- **Running.** `chain2.sh` is in the run directory and its status log is
+  `status.md` there. Its steps:
+  1. rebuild the branch at bcca80f5 (main with #34) under the lock, 8 slots;
+  2. `listobs` and `config check` against the MS;
+  3. `rang-core run` under the lock, 16 slots, 96 GB, `RAYON_NUM_THREADS=16`;
+  4. `gc_mosaic.py mosaic --frame galactic`, then `render` to
+     `rcw41-mosaic.png`.
+
+  At 16:16 UTC it was queued: the UHF gate and CARACal retry 3 held all 44
+  slots.
+- **Links.** The archive links live in `~/rang-data/gc-mosaic/links/`
+  (mode 600). The owner allowed tokens in session logs (public archive). A
+  link comes from the archive row's right-click "RDB" item, which writes it to
+  the page's clipboard; in the built-in browser that clipboard is isolated, so
+  the item was read from the page.
+
+### Open items for the coordinator
+
+1. When `chain2.sh` finishes:
+   - check `status.md`, `run.log` and `post.log`;
+   - inspect the 16 images and the mosaic: noise against the radiometer
+     figure, calibrator flux, artefacts;
+   - send the PNG to the owner;
+   - add timings for the run, mosaic and render;
+   - copy a compact archive to `research/results/gc-mosaic/` (PNG, summaries,
+     receipts, no MS).
+2. If the image looks right, add a "quicker field" section to
+   `docs/tutorials/galactic-centre.md` with the measured times, then merge
+   `gc-mosaic-tutorial`. CI was green at 4560b079; recheck at the merge.
+3. GC23 (1528480450): the restage was requested at about 13:15 UTC and the
+   archive warns of delays. When the observation page shows the visibilities
+   no longer ARCHIVED:
+   - make its link the same way;
+   - put it in `links/`;
+   - run the GC pointing (`examples/gc-mosaic/config.yaml`);
+   - score it against the released mosaic in `~/rang-data/gc-mosaic/reference/`,
+     with a note frozen before the run (AGENTS.md claims).
+4. Cleanup when done:
+   - `~/Build/tmp/20261128-gc-mosaic` (venvs, target, wheel) on nash;
+   - the scratch nash worktree `~/Worktrees/rang/gc-mosaic-tutorial` (detached
+     at bcca80f5);
+   - the 88 GB MS once the images are archived.
