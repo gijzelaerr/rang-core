@@ -1182,4 +1182,9 @@ def test_the_model_predict_takes_the_averaging_gemclean_used(tmp_path):
         '{"averaging": {"requested": 4, "used": 1}}', encoding="utf-8"
     )
     assert pipe._average_channels_used(img, str(prefix)) == 1
-    assert pipe._average_channels_used({**img, "average_channels_max_loss": None}, str(prefix)) == 4
+    assert (
+        pipe._average_channels_used(
+            {**img, "average_channels_max_loss": None}, str(prefix)
+        )
+        == 4
+    )

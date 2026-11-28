@@ -13,6 +13,7 @@ import json
 import math
 import re
 import sys
+from pathlib import Path
 
 import numpy as np
 
@@ -23,8 +24,13 @@ AS = math.pi / (180 * 3600)
 
 
 def beams(path):
-    pat = re.compile(r"Fitting beam\.\.\. major=([\d.]+)'', minor=([\d.]+)'', PA=([-\d.]+) deg")
-    got = [tuple(map(float, m.groups())) for m in pat.finditer(open(path, encoding="utf-8").read())]
+    pat = re.compile(
+        r"Fitting beam\.\.\. major=([\d.]+)'', minor=([\d.]+)'', PA=([-\d.]+) deg"
+    )
+    got = [
+        tuple(map(float, m.groups()))
+        for m in pat.finditer(Path(path).read_text(encoding="utf-8"))
+    ]
     return got[:NOUT]  # the 8 channel beams; the 9th is the MFS image's
 
 
@@ -50,13 +56,10 @@ def main(geom, p1, wsout, out):
         centres.append(0.5 * (lo + hi))
     b = beams(wsout)
     inv = [inv_cov(*x) for x in b]
-    rec = json.load(open(p1, encoding="utf-8"))
+    rec = json.loads(Path(p1).read_text(encoding="utf-8"))
     scale = SCALE_AS * AS
     for s in rec["sources"]:
         l, m = -(s["x"] - N / 2) * scale, (s["y"] - N / 2) * scale
-        # P1's per-channel weights for U's fluxes: recover U_c from P1 inputs is not stored,
-        # so weight channels by P1's own convention: p = sum p_c U_c / sum U_c. P1 stored
-        # predicted_per_channel and predicted; U_c are re-read below from the score file.
         pc = []
         for c, nu in enumerate(centres):
             v = math.pi * dnu / nu * np.array([l, m])
@@ -68,12 +71,14 @@ def main(geom, p1, wsout, out):
 if __name__ == "__main__":
     geom, p1, wsout, gu, out = sys.argv[1:6]
     rec, centres, b = main(geom, p1, wsout, out)
-    du = json.load(open(gu, encoding="utf-8"))
-    cu = du["compact"] if "compact" in du else du
+    du = json.loads(Path(gu).read_text(encoding="utf-8"))
+    cu = du.get("compact", du)
     su = {(s["x"], s["y"]): s for s in cu["sources"]}
     for s in rec["sources"]:
         U = np.array(su[(s["x"], s["y"])]["rang_jy"])
-        s["predicted_restored"] = float((np.array(s["restored_per_channel"]) * U).sum() / U.sum())
+        s["predicted_restored"] = float(
+            (np.array(s["restored_per_channel"]) * U).sum() / U.sum()
+        )
     bins = []
     for lo, hi in itertools.pairwise(BINS):
         ss = [s for s in rec["sources"] if lo <= s["radius_deg"] < hi]
@@ -82,7 +87,11 @@ if __name__ == "__main__":
         bins.append({"deg": [lo, hi], "n": len(ss), "median_measured": mm,
                      "median_predicted_restored": mp, "diff": mm - mp,
                      "met": abs(mm - mp) <= TOL})  # fmt: skip
-    hi_snr = [s["measured"] - s["predicted_restored"] for s in rec["sources"] if s["snr"] >= 50]
+    hi_snr = [
+        s["measured"] - s["predicted_restored"]
+        for s in rec["sources"]
+        if s["snr"] >= 50
+    ]
     last = bins[-1]
     if all(x["met"] for x in bins):
         reading = "explained"
@@ -96,5 +105,5 @@ if __name__ == "__main__":
                          "robust_scatter": float(1.4826 * np.median(np.abs(np.array(hi_snr) - np.median(hi_snr))))},
            "sources": [{k: s[k] for k in ("x", "y", "radius_deg", "snr", "measured", "predicted",
                                           "predicted_restored")} for s in rec["sources"]]}  # fmt: skip
-    json.dump(res, open(out, "w", encoding="utf-8"), indent=1)
+    Path(out).write_text(json.dumps(res, indent=1), encoding="utf-8")
     print(json.dumps({k: res[k] for k in ("reading", "bins", "ge50sigma")}, indent=1))

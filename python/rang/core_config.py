@@ -1634,7 +1634,9 @@ def refusals(config, stages):
         loss = img["average_channels_max_loss"]
         if loss is not None and not 0 < loss < 1:
             out.append(
-                Refusal("image.average_channels_max_loss", "", "must be above 0 and below 1")
+                Refusal(
+                    "image.average_channels_max_loss", "", "must be above 0 and below 1"
+                )
             )
         if img["fit_spectral_pol"] is not None and (
             img["fit_spectral_pol"] < 1

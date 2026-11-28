@@ -2671,7 +2671,10 @@ def gemclean_arguments(
     if img["average_channels"] > 1:
         args += ["-average-channels", str(img["average_channels"])]
         if img["average_channels_max_loss"] is not None:
-            args += ["-average-channels-max-loss", repr(float(img["average_channels_max_loss"]))]
+            args += [
+                "-average-channels-max-loss",
+                repr(float(img["average_channels_max_loss"])),
+            ]
     if img["channels_out"] > 1:
         args += ["-channels-out", str(img["channels_out"])]
     if img["join_channels"]:

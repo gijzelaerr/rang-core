@@ -18,6 +18,7 @@ import json
 import math
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 from rang import core_weights as cw
@@ -34,8 +35,8 @@ def mad(x):
 
 
 def load_sources(path):
-    d = json.load(open(path, encoding="utf-8"))
-    c = d["compact"] if "compact" in d else d
+    d = json.loads(Path(path).read_text(encoding="utf-8"))
+    c = d.get("compact", d)
     return {(s["x"], s["y"]): s for s in c["sources"]}
 
 
@@ -49,7 +50,9 @@ def main(geom, ga, gu, out):
     flag = np.unpackbits(g["flag_xx"], axis=1)[:, :nchan].astype(bool)
     flag |= np.unpackbits(g["flag_yy"], axis=1)[:, :nchan].astype(bool)
     flag |= frow[:, None]
-    good = (~flag).astype(np.float32)  # Stokes I unit weight per native sample (scale-free)
+    good = (~flag).astype(
+        np.float32
+    )  # Stokes I unit weight per native sample (scale-free)
     del flag
     nrow = len(uvw)
     # arm A's averaged data weights and frequencies (spectral::average_channels)
@@ -62,8 +65,12 @@ def main(geom, ga, gu, out):
     grid_w = wa * res["weights"]  # gridding weight: data x imaging
     nav = nchan // NAVG
     groups = [range(i * nav // NOUT, (i + 1) * nav // NOUT) for i in range(NOUT)]
-    W = np.stack([grid_w[:, list(gr)].sum(axis=1) for gr in groups], axis=1).astype(np.float64)
-    Wn = np.stack([wa[:, list(gr)].sum(axis=1) for gr in groups], axis=1).astype(np.float64)
+    W = np.stack([grid_w[:, list(gr)].sum(axis=1) for gr in groups], axis=1).astype(
+        np.float64
+    )
+    Wn = np.stack([wa[:, list(gr)].sum(axis=1) for gr in groups], axis=1).astype(
+        np.float64
+    )
     t_w = time.perf_counter() - t0
     sa, su = load_sources(ga), load_sources(gu)
     keys = [k for k in su if k in sa]
@@ -111,7 +118,11 @@ def main(geom, ga, gu, out):
     for name, n, width in (("e2n_n2", 2, dnu), ("4096ch_n8", 8, dnu / 4)):
         xx = bl * r_hw * width / C
         s = np.sin(math.pi * xx)
-        dn = np.where(np.abs(s) < 1e-12, 1.0, np.sin(n * math.pi * xx) / (n * np.where(s == 0, 1, s)))
+        dn = np.where(
+            np.abs(s) < 1e-12,
+            1.0,
+            np.sin(n * math.pi * xx) / (n * np.where(s == 0, 1, s)),
+        )
         ok = (1 - dn) <= 0.01
         share = float(nvis[ok].sum() / nvis.sum())
         bda[name] = {"factor": n, "native_width_hz": width, "share_averageable": share,
@@ -123,8 +134,16 @@ def main(geom, ga, gu, out):
         "bda_bound": bda, "seconds": {"weights": t_w, "total": time.perf_counter() - t0},
         "sources": recs,
     }  # fmt: skip
-    json.dump(rec, open(out, "w", encoding="utf-8"), indent=1)
-    print(json.dumps({k: rec[k] for k in ("reading", "bins", "ge50sigma", "bda_bound", "seconds")}, indent=1))
+    Path(out).write_text(json.dumps(rec, indent=1), encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                k: rec[k]
+                for k in ("reading", "bins", "ge50sigma", "bda_bound", "seconds")
+            },
+            indent=1,
+        )
+    )
 
 
 if __name__ == "__main__":

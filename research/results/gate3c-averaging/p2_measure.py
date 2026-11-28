@@ -20,20 +20,22 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "e2-acceptance-scripts"))
-from e1b_score import _open  # noqa: E402
-from e2_score3c_a import channel_set, flux_at  # noqa: E402
+from e1b_score import _open
+from e2_score3c_a import channel_set, flux_at
 
 NCH = 8
 
 
 def main(mode, sky, base, avg, out):
     comps = json.loads(Path(sky).read_text(encoding="utf-8"))
-    rep = json.loads(Path(f"{avg}-report.json").read_text(encoding="utf-8"))["averaging"]
+    rep = json.loads(Path(f"{avg}-report.json").read_text(encoding="utf-8"))[
+        "averaging"
+    ]
     key = "imaging_loss" if mode == "dirty" else "restored_loss"
     pred = [1 - x["loss"] for x in rep[key]][:4]
     pred_dirty = [1 - x["loss"] for x in rep["imaging_loss"]][:4]
     if mode == "dirty":
-        b, h = _open(Path(f"{base}-MFS-dirty.fits"))[:2]
+        b = _open(Path(f"{base}-MFS-dirty.fits"))[0]
         a = _open(Path(f"{avg}-MFS-dirty.fits"))[0]
         n = b.shape[0]
         ratios = [a[n // 2 + c["dy"], n // 2 + c["dx"]] / b[n // 2 + c["dy"], n // 2 + c["dx"]]

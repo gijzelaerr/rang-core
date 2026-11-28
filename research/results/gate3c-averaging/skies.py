@@ -61,6 +61,12 @@ def p3_sky(size=3072, n=760):
 if __name__ == "__main__":
     out = Path(sys.argv[1])
     out.mkdir(parents=True, exist_ok=True)
-    for name, comps in (("p2-6144", rings(6144)), ("p2b-3072", rings(3072)), ("p3-3072", p3_sky())):
-        (out / f"sky-{name}.json").write_text(json.dumps(comps, indent=0), encoding="utf-8")
+    for name, comps in (
+        ("p2-6144", rings(6144)),
+        ("p2b-3072", rings(3072)),
+        ("p3-3072", p3_sky()),
+    ):
+        (out / f"sky-{name}.json").write_text(
+            json.dumps(comps, indent=0), encoding="utf-8"
+        )
         print(name, len(comps))

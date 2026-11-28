@@ -23,8 +23,8 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "e2-acceptance-scripts"))
-from e1b_score import _open, fit_psf_beam  # noqa: E402
-from e2_score3c_a import channel_set, flux_at, inner, mad  # noqa: E402
+from e1b_score import _open, fit_psf_beam
+from e2_score3c_a import channel_set, flux_at, inner, mad
 
 NCH, SCALE_AS, RADIUS = 8, 2.0, 0.7
 SNR_BINS = (10, 15, 25, 50, 200, math.inf)
@@ -32,7 +32,11 @@ SNR_BINS = (10, 15, 25, 50, 200, math.inf)
 
 def stats(v):
     v = np.asarray(v)
-    return {"n": len(v), "median": float(np.median(v)), "robust_scatter": float(mad(v))} if len(v) else {"n": 0}
+    return (
+        {"n": len(v), "median": float(np.median(v)), "robust_scatter": float(mad(v))}
+        if len(v)
+        else {"n": 0}
+    )
 
 
 def main(sky, noise, out, arms):
@@ -64,13 +68,25 @@ def main(sky, noise, out, arms):
         noise_ch.append({"model": np.zeros_like(d), "resid": d, "beam": beam})
     rows = []
     for i, x, y, snr, rad in pts:
-        r = {"i": i, "x": x, "y": y, "snr": snr, "radius_deg": rad, "flux": comps[i]["flux"]}
+        r = {
+            "i": i,
+            "x": x,
+            "y": y,
+            "snr": snr,
+            "radius_deg": rad,
+            "flux": comps[i]["flux"],
+        }
         r["truth"] = sum(comps[i]["flux"] + flux_at(ch, x, y) for ch in noise_ch)
         for k in names:
             r[k] = sum(flux_at(ch, x, y) for ch in chans[k])
         rows.append(r)
     pairs = [(a, "truth") for a in names] + list(itertools.combinations(names, 2))
-    res = {"sigma_jy": sigma, "beam_major_pix": bmaj, "n_points": len(rows), "pairs": {}}
+    res = {
+        "sigma_jy": sigma,
+        "beam_major_pix": bmaj,
+        "n_points": len(rows),
+        "pairs": {},
+    }
     for a, b in pairs:
         key = f"{a}/{b}"
         v = [r[a] / r[b] for r in rows]
@@ -86,7 +102,11 @@ def main(sky, noise, out, arms):
             reading = "HB holds, equal imagers: null, additive deconvolution disagreement, not a rang defect"
         elif g > 1.2 * w:
             reading = "GeMClean worse"
-            if "Gdeep/truth" in s and "Wdeep/truth" in s and s["Gdeep/truth"] <= 1.2 * s["Wdeep/truth"]:
+            if (
+                "Gdeep/truth" in s
+                and "Wdeep/truth" in s
+                and s["Gdeep/truth"] <= 1.2 * s["Wdeep/truth"]
+            ):
                 reading += "; cause named as depth (G-deep within 1.2x of W-deep)"
         else:
             reading = "GeMClean better: the excess is WSClean's"
@@ -94,7 +114,9 @@ def main(sky, noise, out, arms):
     res["rows"] = rows
     Path(out).write_text(json.dumps(res, indent=1), encoding="utf-8")
     for k, v in res["pairs"].items():
-        print(f"{k:16s} n {v['all']['n']} median {v['all']['median']:.4f} scatter {100 * v['all']['robust_scatter']:.2f} %")
+        print(
+            f"{k:16s} n {v['all']['n']} median {v['all']['median']:.4f} scatter {100 * v['all']['robust_scatter']:.2f} %"
+        )
     print("sigma", sigma, "reading:", res.get("reading"))
 
 
