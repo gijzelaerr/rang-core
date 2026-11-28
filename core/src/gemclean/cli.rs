@@ -29,6 +29,7 @@ use crate::gemclean::json::{arr, num, obj, opt, text};
 use crate::gemclean::kernels::{self, Level};
 use crate::gemclean::mask::{self, AutoMask, Masking};
 use crate::gemclean::measure::GridMeasurement;
+use crate::gemclean::memlimit;
 use crate::gemclean::memory::{self, bytes_of};
 use crate::gemclean::multiscale::{self, MultiscaleSettings};
 use crate::gemclean::predict;
@@ -130,6 +131,10 @@ const USAGE: &str = "usage: gemclean [options] <ms>
   -no-restore               do not write the restored image
   -memory-report            print the heap held per phase and the main buffers' sizes
                             (always in -report.json)
+  -memory-limit <GiB>       stop before the PSF pass when the estimated peak resident memory is
+                            above GiB (rang-core passes data.memory_limit_gb); estimated on the
+                            single-image path of one polarisation only, elsewhere not checked
+                            (research/gemclean-memlimit.md)
 
 Model column (research/g6-predict.md; WSClean's options):
   -update-model-required    after imaging, predict the model images just written into the
@@ -242,6 +247,8 @@ struct Args {
     lazy_bounds: bool,
     stop_tolerance: f64,
     memory_report: bool,
+    /// `-memory-limit` in GiB (research/gemclean-memlimit.md).
+    memory_limit: Option<f64>,
     channels_out: usize,
     join_channels: bool,
     fit_spectral_pol: Option<usize>,
@@ -354,6 +361,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         lazy_bounds: true,
         stop_tolerance: 0.0,
         memory_report: false,
+        memory_limit: None,
         channels_out: 1,
         join_channels: false,
         fit_spectral_pol: None,
@@ -487,6 +495,15 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
             }
             "-no-restore" => a.restore = false,
             "-memory-report" => a.memory_report = true,
+            "-memory-limit" => {
+                let v: f64 = number(flag, value(&mut i)?)?;
+                if !(v > 0.0 && v.is_finite()) {
+                    return Err(format!(
+                        "-memory-limit: {v} is not a positive number of GiB"
+                    ));
+                }
+                a.memory_limit = Some(v);
+            }
             "-tile" => a.tile = number(flag, value(&mut i)?)?,
             "-eager-tiles" => a.lazy_bounds = false,
             "-single" => precision = Some(true),
@@ -1399,6 +1416,11 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
     if args.predict {
         return predict_only(&args, raw, wall);
     }
+    if let (Some(limit), Some(why)) = (args.memory_limit, unestimated(&args)) {
+        println!(
+            "memory limit: no estimate for this path ({why}); -memory-limit {limit} GiB not checked"
+        );
+    }
     let n = args.size;
     let column = match &args.data_column {
         Some(c) => c.clone(),
@@ -1521,6 +1543,12 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
         flip_w: true,
         do_wgridding: args.wgridding,
         ..Options::default()
+    };
+    let memory_estimate = match args.memory_limit {
+        Some(limit) if unestimated(&args).is_none() => {
+            check_memory(&args, limit, &opts, &uvw, &freq, &vis, &wgt, weights.count)?
+        }
+        _ => "null".to_string(),
     };
     let cleaned = if args.single {
         deconvolve::<f32>(&args, uvw, &freq, vis, wgt, opts)?
@@ -1727,11 +1755,131 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
             "peak_memory_bytes",
             gemclean::peak_memory_bytes().map_or("null".into(), |b| b.to_string()),
         ),
+        ("memory_estimate", memory_estimate),
         ("memory", memory_json),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
     Ok(())
+}
+
+/// Why `-memory-limit` is not checked on this run's path, or `None` on the
+/// estimated one: one polarisation, one output channel, no channel selection
+/// or averaging, the Hogbom clean with plan reuse and no masks, the floor or
+/// the certified rule (research/gemclean-memlimit.md, section 2).
+fn unestimated(args: &Args) -> Option<&'static str> {
+    if args.pols.len() > 1 {
+        Some("several polarisations")
+    } else if args.channels_out > 1 {
+        Some("-channels-out above 1")
+    } else if args.channel_range.is_some() || args.average_channels > 1 {
+        Some("-channel-range or -average-channels")
+    } else if args.multiscale.is_some() {
+        Some("-multiscale")
+    } else if args.gram_operator.is_some() {
+        Some("-gram-operator")
+    } else if !args.plan_reuse {
+        Some("-no-plan-reuse")
+    } else if matches!(args.cycle_stop, CycleStop::Certified { .. }) {
+        Some("-stop-rule certified")
+    } else if args.floor_iterations > 0 {
+        Some("-floor-iterations")
+    } else if args.masking.is_active() {
+        Some("a mask")
+    } else {
+        None
+    }
+}
+
+/// `-memory-limit` on the estimated path (research/gemclean-memlimit.md):
+/// the estimate from the kept rows (`vis`, `wgt`, `uvw`), the weighted cells
+/// and the gridder's plans of the 2n PSF and the n residual passes, printed;
+/// an error naming it when it is above `limit` GiB. Returns the report's
+/// `memory_estimate`. Reads the arrays only.
+#[allow(clippy::too_many_arguments)]
+fn check_memory(
+    args: &Args,
+    limit: f64,
+    opts: &Options,
+    uvw: &[f64],
+    freq: &[f64],
+    vis: &[Complex<f32>],
+    wgt: &[f64],
+    weighted: u64,
+) -> Result<String, String> {
+    let n = args.size;
+    let at = |side: usize, wgridding: bool| Options {
+        nx: side,
+        ny: side,
+        pixsize_x: args.scale,
+        pixsize_y: args.scale,
+        epsilon: args.epsilon,
+        do_wgridding: wgridding,
+        ..*opts
+    };
+    let footprint = |o: &Options| {
+        if args.single {
+            crate::wgridder::gridding_footprint::<f32>(o, uvw, freq, wgt, 1)
+        } else {
+            crate::wgridder::gridding_footprint::<f64>(o, uvw, freq, wgt, 1)
+        }
+    };
+    let (_, grid_n) = footprint(&at(n, args.wgridding))?;
+    let (_, grid_2n) = footprint(&at(2 * n, args.wgridding && !args.beam_no_w))?;
+    let (resident, resident_peak) = memlimit_resident();
+    let real = if args.single { 4 } else { 8 };
+    let inputs = memlimit::Inputs {
+        n,
+        real,
+        kept_cells: vis.len(),
+        uvw_bytes: std::mem::size_of_val(uvw),
+        weighted: weighted as usize,
+        grid_n,
+        grid_2n,
+        resident,
+        resident_peak,
+        threads: rayon::current_num_threads(),
+    };
+    let e = memlimit::estimate(&inputs, memlimit::fixed(real));
+    let phases: Vec<String> = e
+        .phases
+        .iter()
+        .map(|(p, b)| format!("{p} {:.2}", b / memlimit::GIB))
+        .collect();
+    println!(
+        "memory estimate: {:.2} GiB ({}, x{} margin) against -memory-limit {limit} GiB; GiB by phase: {}",
+        e.gib(),
+        e.phase,
+        memlimit::MARGIN,
+        phases.join(", ")
+    );
+    if let Some(msg) = memlimit::refusal(&e, limit) {
+        return Err(msg);
+    }
+    Ok(e.to_json(limit))
+}
+
+/// Resident bytes now and their peak so far (0 where the platform does not
+/// say, which only lowers the estimate's measured part).
+fn memlimit_resident() -> (u64, u64) {
+    #[cfg(windows)]
+    {
+        memory::windows_memory().map_or((0, 0), |m| (m.working_set, m.peak_working_set))
+    }
+    #[cfg(not(windows))]
+    {
+        let kb = |key: &str| -> u64 {
+            std::fs::read_to_string("/proc/self/status")
+                .ok()
+                .and_then(|s| {
+                    s.lines()
+                        .find(|l| l.starts_with(key))
+                        .and_then(|l| l.split_whitespace().nth(1)?.parse::<u64>().ok())
+                })
+                .map_or(0, |k| k * 1024)
+        };
+        (kb("VmRSS:"), kb("VmHWM:"))
+    }
 }
 
 /// `-channel-range` (on the channels in ascending frequency), then

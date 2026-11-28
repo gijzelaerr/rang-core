@@ -1,0 +1,283 @@
+{
+ "fits": {
+  "8": {
+   "cases": [
+    {
+     "case": "F1-bin",
+     "heap_rest": 66247,
+     "k_psf": 8.722187206149101,
+     "k_beam": 69.94955044984818,
+     "k_clean": 178.93156695365906,
+     "heap": {
+      "check": 3265364007,
+      "psf": 8042816810,
+      "beam": 6801937628,
+      "clean": 8027871599
+     }
+    },
+    {
+     "case": "F2-bin",
+     "heap_rest": 66247,
+     "k_psf": 10.566238582134247,
+     "k_beam": 74.19646573066711,
+     "k_clean": 185.90306186676025,
+     "heap": {
+      "check": 3265364007,
+      "psf": 7061877794,
+      "beam": 5536928260,
+      "clean": 5591968263
+     }
+    }
+   ],
+   "fixed": {
+    "k_psf": 10.566238582134247,
+    "k_beam": 74.19646573066711,
+    "k_clean": 185.90306186676025
+   }
+  },
+  "4": {
+   "cases": [
+    {
+     "case": "F3-bin",
+     "heap_rest": 66247,
+     "k_psf": 6.619845673441887,
+     "k_beam": 69.78970509767532,
+     "k_clean": 164.47085690498352,
+     "heap": {
+      "check": 3265364007,
+      "psf": 5598169162,
+      "beam": 5683329384,
+      "clean": 6682562779
+     }
+    },
+    {
+     "case": "F4-bin",
+     "heap_rest": 66247,
+     "k_psf": 10.694538295269012,
+     "k_beam": 73.87346577644348,
+     "k_clean": 186.60436701774597,
+     "heap": {
+      "check": 3265364007,
+      "psf": 5387011258,
+      "beam": 4419647016,
+      "clean": 3959229626
+     }
+    }
+   ],
+   "fixed": {
+    "k_psf": 10.694538295269012,
+    "k_beam": 73.87346577644348,
+    "k_clean": 186.60436701774597
+   }
+  }
+ },
+ "Q": [
+  {
+   "case": "F1",
+   "n": 4096,
+   "real": 8,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 8071434240,
+   "E_bytes": 8437431986,
+   "E_over_M": 1.0453448216657961,
+   "E_gib": 7.857970880530774,
+   "M_gib": 7.517108917236328,
+   "phase": "psf 2n",
+   "binary_E_gib": 6.0099,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.749897003173828,
+    "measurement": 3.064495086669922,
+    "psf 2n": 7.629097942262888,
+    "plan, beam and compaction": 6.424543987959623,
+    "major and minor cycles": 7.608855526894331
+   }
+  },
+  {
+   "case": "F2",
+   "n": 2048,
+   "real": 8,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 7089487872,
+   "E_bytes": 7300625229,
+   "E_over_M": 1.0297817501887392,
+   "E_gib": 6.799237084360794,
+   "M_gib": 6.60260009765625,
+   "phase": "psf 2n",
+   "binary_E_gib": 5.4614,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.749900817871094,
+    "measurement": 3.0654220581054688,
+    "psf 2n": 6.601201052777469,
+    "plan, beam and compaction": 5.180981126613915,
+    "major and minor cycles": 5.232241123914719
+   }
+  },
+  {
+   "case": "F3",
+   "n": 4096,
+   "real": 4,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 6742253568,
+   "E_bytes": 7292713363,
+   "E_over_M": 1.0816432947127035,
+   "E_gib": 6.7918685852363705,
+   "M_gib": 6.279212951660156,
+   "phase": "major and minor cycles",
+   "binary_E_gib": 4.8927,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.750217437744141,
+    "measurement": 3.8215293884277344,
+    "psf 2n": 5.4929591082036495,
+    "plan, beam and compaction": 5.381411217153072,
+    "major and minor cycles": 6.594047170132399
+   }
+  },
+  {
+   "case": "F4",
+   "n": 2048,
+   "real": 4,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 5428887552,
+   "E_bytes": 5574943148,
+   "E_over_M": 1.0269034115168205,
+   "E_gib": 5.1920704058278355,
+   "M_gib": 5.0560455322265625,
+   "phase": "psf 2n",
+   "binary_E_gib": 4.8919,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.749370574951172,
+    "measurement": 3.82073974609375,
+    "psf 2n": 5.040845054201782,
+    "plan, beam and compaction": 4.139916897751391,
+    "major and minor cycles": 3.711119788698852
+   }
+  },
+  {
+   "case": "V1",
+   "n": 4096,
+   "real": 8,
+   "weighted": 152158164,
+   "kept_cells": 202912256,
+   "M_bytes": 11425415168,
+   "E_bytes": 11879486312,
+   "E_over_M": 1.0397422007868695,
+   "E_gib": 11.063633776903153,
+   "M_gib": 10.6407470703125,
+   "phase": "major and minor cycles",
+   "binary_E_gib": 8.0718,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.765117645263672,
+    "measurement": 3.0801658630371094,
+    "psf 2n": 9.345039587467909,
+    "plan, beam and compaction": 8.140485633164644,
+    "major and minor cycles": 10.741392016410828
+   }
+  },
+  {
+   "case": "V2",
+   "n": 2048,
+   "real": 8,
+   "weighted": 152158164,
+   "kept_cells": 202912256,
+   "M_bytes": 9001324544,
+   "E_bytes": 9250718190,
+   "E_over_M": 1.027706327514459,
+   "E_gib": 8.615402681641282,
+   "M_gib": 8.383136749267578,
+   "phase": "major and minor cycles",
+   "binary_E_gib": 7.8674,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.766155242919922,
+    "measurement": 3.0807838439941406,
+    "psf 2n": 8.316833707503974,
+    "plan, beam and compaction": 6.89661378134042,
+    "major and minor cycles": 8.3644686229527
+   }
+  },
+  {
+   "case": "V3",
+   "n": 3072,
+   "real": 8,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 7133175808,
+   "E_bytes": 7399386643,
+   "E_over_M": 1.0373201000112655,
+   "E_gib": 6.8912158185173755,
+   "M_gib": 6.643287658691406,
+   "phase": "psf 2n",
+   "binary_E_gib": 5.3408,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.74945068359375,
+    "measurement": 3.0648269653320312,
+    "psf 2n": 6.690500794677064,
+    "plan, beam and compaction": 5.6989234641660005,
+    "major and minor cycles": 6.525053401477635
+   }
+  },
+  {
+   "case": "V4",
+   "n": 4096,
+   "real": 4,
+   "weighted": 152158164,
+   "kept_cells": 202912256,
+   "M_bytes": 9225392128,
+   "E_bytes": 9799148883,
+   "E_over_M": 1.0621932105908636,
+   "E_gib": 9.12616856712848,
+   "M_gib": 8.591815948486328,
+   "phase": "major and minor cycles",
+   "binary_E_gib": 6.123,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.7494659423828125,
+    "measurement": 3.8211841583251953,
+    "psf 2n": 6.625979017466307,
+    "plan, beam and compaction": 6.797809604555368,
+    "major and minor cycles": 8.860357832163572
+   }
+  },
+  {
+   "case": "V5",
+   "n": 3072,
+   "real": 4,
+   "weighted": 76089333,
+   "kept_cells": 202892288,
+   "M_bytes": 6204399616,
+   "E_bytes": 6506133966,
+   "E_over_M": 1.0486323204479582,
+   "E_gib": 6.0593094362993725,
+   "M_gib": 5.778297424316406,
+   "phase": "psf 2n",
+   "binary_E_gib": 5.0881,
+   "lower": true,
+   "upper": true,
+   "phases_gib": {
+    "read and weights": 4.764774322509766,
+    "measurement": 3.8357276916503906,
+    "psf 2n": 5.882824695436284,
+    "plan, beam and compaction": 4.671865125419572,
+    "major and minor cycles": 4.733976962743327
+   }
+  }
+ ]
+}

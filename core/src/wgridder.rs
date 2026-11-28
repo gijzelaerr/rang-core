@@ -3550,6 +3550,41 @@ pub fn plan<T: Real>(
     Ok(Setup::new::<T>(opts, nvis, wmin_d, wmax_d, r_l, r_m, vis.is_some())?.plan)
 }
 
+/// The plan a gridding pass (`vis2dirty`, the PSF's or a residual's) would
+/// choose on the weights `wgt` (a cell is active where its weight is
+/// nonzero), and the bytes of its work grids for `nout` images, without
+/// gridding: GeMClean's memory estimate (research/gemclean-memlimit.md).
+pub fn gridding_footprint<T: Real>(
+    opts: &Options,
+    uvw: &[f64],
+    freq: &[f64],
+    wgt: &[f64],
+    nout: usize,
+) -> Result<(Plan, usize), String> {
+    let nchan = freq.len();
+    let nrow = uvw.len() / 3;
+    check_common(opts, nrow, nchan, uvw)?;
+    if wgt.len() != nrow * nchan {
+        return Err("array lengths disagree".into());
+    }
+    let (r_l, r_m) = recentring(opts);
+    let flips = [opts.flip_u, opts.flip_v, !opts.flip_w];
+    let bl = Baselines::new(uvw, freq, flips, r_l, r_m)?;
+    let act = Activity {
+        vis: None,
+        wgt: Weights::F64(wgt),
+        mask: None,
+    };
+    let (nvis, wmin_d, wmax_d) = scan::<T>(&bl, &act);
+    if nvis == 0 {
+        return Ok((Plan::default(), 0));
+    }
+    let setup = Setup::new::<T>(opts, nvis, wmin_d, wmax_d, r_l, r_m, true)?;
+    let group = plane_group::<T>(&setup, nout);
+    let bytes = group * nout * setup.nu * setup.nv * std::mem::size_of::<Complex<T>>();
+    Ok((setup.plan, bytes))
+}
+
 // ------------------------------------------------------------- KernelDB data
 
 /// ducc0 0.42.0 `KernelDB` rows with ndim 2 and 3, verbatim from
