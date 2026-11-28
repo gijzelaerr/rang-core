@@ -1,0 +1,78 @@
+# A quick Galactic-plane mosaic with rang-core: SARAO 1658556374 (MMGPS-L,
+# SCI-20200703-MK-01, public, online in the archive on 2026-11-28): 16
+# ten-minute L-band snapshots at l = 269-273 deg, b = -0.2 to +2.4 deg,
+# around the HII region RCW 41. docs/tutorials/galactic-centre.md, "a quicker
+# field". Fewest steps: 1GC and one image per pointing, no self-calibration.
+schema: rang-config
+version: 1
+
+fields:
+  fcal: ["0408-658"]
+  bpcal: ["0408-658"]
+  gcal: [J0825-5010]
+  target: [MSGPS_L_0428, MSGPS_L_0429, MSGPS_L_0430, MSGPS_L_0448, MSGPS_L_0451,
+           MSGPS_L_0452, MSGPS_L_0453, MSGPS_L_0471, MSGPS_L_0472, MSGPS_L_0474,
+           MSGPS_L_0476, MSGPS_L_0494, MSGPS_L_0496, MSGPS_L_0497, MSGPS_L_0523,
+           MSGPS_L_0614]
+
+data:
+  memory_limit_gb: 32
+
+flag:
+  strategy: mk_rfi_flagging_calibrator_fields_firstpass.yaml
+  known_rfi: meerkat_l
+
+calibrate:
+  # PKS 0408-65: CARACal's 2016 cubic (rang.fluxstd), valid from 843 MHz.
+  model: {source: setjy, standard: caracal}
+  refant: auto
+  uvrange: ">150"
+  average_time: true
+  average_freq: true
+  casa_phase_weights: true
+  primary:
+    field: [fcal]
+    terms:
+      - {type: K, name: K, solint: inf}
+      - {type: G, name: G, solint: inf, calmode: ap, preapply: [K], interp: [linear]}
+      - {type: B, name: B, solint: inf, preapply: [K, G], interp: [linear, linear]}
+  secondary:
+    field: [gcal]
+    terms:
+      - {type: G, name: Gsec, solint: inf, calmode: ap, preapply: [K, B],
+         interp: [linear, linear]}
+      - {type: F, name: F, solint: inf, calmode: ap, smodel: [1, 0, 0, 0],
+         preapply: [K, B], interp: [linear, linear]}
+
+apply:
+  calwt: false
+  targets:
+    - field: [fcal]
+      tables: [K, G, B]
+      interp: [linear, linear, linear]
+    - field: [gcal, target]
+      tables: [K, F, B]
+      gainfield: ["0408-658", nearest, "0408-658"]
+      interp: [linear, linear, linear]
+
+# 4,096^2 at 1.5" = 1.7 deg: the half-power circle (radius 0.55 deg) of each
+# snapshot with margin; the pointings are about 0.5 deg apart.
+image:
+  fields: [target]
+  column: CORRECTED_DATA
+  size: [4096, 4096]
+  scale: 1.5asec
+  weight: briggs
+  robust: -0.5
+  channels_out: 4
+  join_channels: true
+  fit_spectral_pol: 2
+  multiscale: true
+  mgain: 0.9
+  auto_mask: 5.0
+  auto_threshold: 1.5
+  niter: 200000
+  threads: 16
+
+run:
+  stages: [flag, calibrate, apply, image]
