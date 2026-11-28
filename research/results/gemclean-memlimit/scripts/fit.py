@@ -65,7 +65,8 @@ def estimate(i, k):
         "major and minor cycles": rest + x["clean"] + k["k_clean"] * x["n2"],
     }
     top = max(phases, key=phases.get)
-    return phases[top] * MARGIN, top, phases
+    extra = 16 * 2**20 * max(0, i.get("threads", 8) - 8)
+    return phases[top] * MARGIN + extra, top, phases
 
 
 def main():

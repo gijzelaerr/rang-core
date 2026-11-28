@@ -1838,6 +1838,7 @@ fn check_memory(
         grid_2n,
         resident,
         resident_peak,
+        threads: rayon::current_num_threads(),
     };
     let e = memlimit::estimate(&inputs, memlimit::fixed(real));
     let phases: Vec<String> = e

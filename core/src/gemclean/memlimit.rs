@@ -46,6 +46,11 @@ pub const FIXED_F32: Fixed = Fixed {
 /// The margin on the largest phase: allocator slack that grows with the
 /// run's allocations and is not in the resident memory at the check.
 pub const MARGIN: f64 = 1.03;
+/// The fixed parts were fitted at 8 threads; at 2-8 threads the peak grew by
+/// at most 7 MiB per thread (research/gemclean-memlimit.md, post hoc P1).
+/// Above 8, this much is added per thread (twice the measured slope).
+pub const FIT_THREADS: usize = 8;
+pub const THREAD_BYTES: f64 = (16u64 << 20) as f64;
 
 /// What the run knows at the check (after the read, the weights and the
 /// row compaction).
@@ -68,6 +73,8 @@ pub struct Inputs {
     /// Resident bytes now and their peak so far.
     pub resident: u64,
     pub resident_peak: u64,
+    /// Threads of the run (rayon's pool).
+    pub threads: usize,
 }
 
 /// The estimate: each phase's bytes, and the largest with the margin.
@@ -93,7 +100,7 @@ impl Estimate {
             .collect();
         let i = &self.inputs;
         format!(
-            "{{\"limit_gib\": {limit_gib}, \"bytes\": {:.0}, \"gib\": {:.4}, \"phase\": \"{}\", \"margin\": {MARGIN}, \"phases\": [{}], \"inputs\": {{\"n\": {}, \"real\": {}, \"kept_cells\": {}, \"uvw_bytes\": {}, \"weighted\": {}, \"grid_n\": {}, \"grid_2n\": {}, \"resident\": {}, \"resident_peak\": {}}}}}",
+            "{{\"limit_gib\": {limit_gib}, \"bytes\": {:.0}, \"gib\": {:.4}, \"phase\": \"{}\", \"margin\": {MARGIN}, \"phases\": [{}], \"inputs\": {{\"n\": {}, \"real\": {}, \"kept_cells\": {}, \"uvw_bytes\": {}, \"weighted\": {}, \"grid_n\": {}, \"grid_2n\": {}, \"resident\": {}, \"resident_peak\": {}, \"threads\": {}}}}}",
             self.bytes,
             self.gib(),
             self.phase,
@@ -106,7 +113,8 @@ impl Estimate {
             i.grid_n,
             i.grid_2n,
             i.resident,
-            i.resident_peak
+            i.resident_peak,
+            i.threads
         )
     }
 }
@@ -155,7 +163,7 @@ pub fn estimate(i: &Inputs, k: Fixed) -> Estimate {
     Estimate {
         inputs: *i,
         phases,
-        bytes: top * MARGIN,
+        bytes: top * MARGIN + THREAD_BYTES * i.threads.saturating_sub(FIT_THREADS) as f64,
         phase,
     }
 }
@@ -189,6 +197,7 @@ mod tests {
             grid_2n: 200_000_000,
             resident: 400_000_000,
             resident_peak: 500_000_000,
+            threads: 8,
         }
     }
 
@@ -197,6 +206,12 @@ mod tests {
         let e = estimate(&inputs(), FIXED_F64);
         let top = e.phases.iter().map(|p| p.1).fold(0.0, f64::max);
         assert_eq!(e.bytes, top * MARGIN);
+        let mut i = inputs();
+        i.threads = 10;
+        assert_eq!(
+            estimate(&i, FIXED_F64).bytes,
+            top * MARGIN + 2.0 * THREAD_BYTES
+        );
         assert!(e.phases.iter().any(|p| p.0 == e.phase && p.1 == top));
     }
 

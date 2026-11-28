@@ -116,7 +116,11 @@ changes (every case here has `processes` 1).
 
 Measured 2026-11-28 on **glacier** (Windows 11, heavy lock shared, 8 slots, 16 GB booked, `-j 8`,
 `RAYON_NUM_THREADS=8`; another task's 4-slot check ran beside some cases). Run root
-`D:/rang/outputs/20261128-gemclean-memlimit` (pilot base and three copies, about 40 GB; image outputs).
+`D:/rang/outputs/20261128-gemclean-memlimit` (5.2 GB after the MS copies were deleted: the B0 and B1
+run directories, the image outputs, logs). Source state: B0 ran the worktree at `24572b76`, clean,
+extension built from it; the F/V cases, R1 and B1 ran the worktree at `928764b9` with the branch's code
+uncommitted (dirty), the same source as commit `8c05a529` up to rustfmt and the clippy fix in a test
+file; the F/V extension had zero fixed parts, R1 and B1 the fitted ones.
 Pilot rebuilt from `D:/rang/outputs/20261103-gemclean-heldout/real/cal2.ms` (`selfcal_grid.py base`,
 34 s; `prepare D` 8-11 s per copy): 823,500 rows x 256 channels; held-out copy 76,089,333 weighted
 cells, base 152,158,164. Archive: [results/gemclean-memlimit/](results/gemclean-memlimit/) (`fit.json`
@@ -167,7 +171,7 @@ of both gain stores included; the 8 that differ are the 3 `gemclean.log`, the 3 
 | run | wall | largest process (GeMClean) | tree sum | GeMClean per image (bytes) | rang-core |
 | --- | ---: | ---: | ---: | --- | ---: |
 | B0 (main) | 889 s | 7,882,528 KiB (7.52 GiB) | 7,982,692 KiB | 8,070,451,200 / 8,071,708,672 / 8,071,139,328 | 6,830,080 KiB |
-| B1 (branch) | 963 s | 7,882,896 KiB (7.52 GiB) | 7,983,408 KiB | 8,071,716,864 / 8,072,085,504 / 8,070,926,336 | (as B0) |
+| B1 (branch) | 963 s | 7,882,896 KiB (7.52 GiB) | 7,983,408 KiB | 8,071,716,864 / 8,072,085,504 / 8,070,926,336 | 6,830,364 KiB |
 
 The check changes no peak (it runs on arrays already held; the footprint scans add about 1-2 s per
 image). The wall difference is a shared host's, not a speed figure.
@@ -180,3 +184,35 @@ selection or averaging, multiscale, the Gram operator, `-no-plan-reuse`, the cer
 and masks (selfcal's auto-masks included: a selfcal config with `cleanmask_*` or `auto_mask` runs
 unchecked). The read itself (24 B per cell read) precedes the check. Validated on glacier only. The
 solve planner is unchanged (section 1). No novelty or speed claim.
+
+**Post hoc P1, 2026-11-28 17:10 SAST (after the gates were read): threads.** Every case above ran at
+`-j 8`; rang's default `image.threads` is null, so gemclean takes every core (16 on glacier). On the
+held-out copy at 2048², on the final build: f32 M 5.009 / 5.025 / 5.049 GiB at `-j` 2 / 4 / 8 (E 5.192 /
+5.208 / 5.193), f64 M 6.590 / 6.596 / 6.603 GiB at `-j` 2 / 4 / 8 (E 6.813 / 6.815 / 6.800; the `-j 8`
+row is F2). The peak grows by at most 7 MiB per thread. `memlimit.rs` now adds 16 MiB per thread above
+8 (twice that slope); nothing changes at 8 threads or fewer, so the table and the gates stand. Above 8
+threads the estimate is unmeasured (the task's 8-slot share). The F4 rerun on the final build (T4j8)
+prints E 5.193 GiB, `fit.py`'s 5.192 to rounding.
+
+## 7. For the coordinator
+
+- **Branch `gemclean-memlimit`**, not merged. Quick check passed on glacier; CI on the branch. The full
+  check (oracles, archive) is left to the merge check; gemclean's images are unchanged by construction
+  and by gates E and R.
+- **#34 can close**: the solve planner was settled in `281a1a79` (`CELL_BYTES["selfcal"]` 45 unchanged;
+  the brief's "13.6 against 11.7" compared two stages); GeMClean now has the estimate and the refusal.
+- **Behaviour change at merge:** a single-channel Stokes I `image` or `selfcal` whose GeMClean estimate
+  is above `data.memory_limit_gb` (default 8) now fails with the figure, the default included. A nash
+  campaign that images a lightly flagged MS at the default limit would be refused mid-run; raise the
+  limit in its config. Your decision whether the default should only warn (one line in
+  `core_pipeline._memory_limit`).
+- **Open:** paths without an estimate (section 6, outcome); standalone `gemclean`'s default model update
+  (`-update-model-required`) is on the checked path but its predict phase is not in the estimate (rang
+  always passes `-no-update-model-required`); an `image.gemclean` path to a binary older than this branch
+  fails on the unknown `-memory-limit`; validated on glacier only (no huge pages), unmeasured on nash
+  and above 8 threads.
+- **Shared file:** `python/rang/core_pipeline.py`, only `gemclean_arguments`, its two call sites
+  (`stage_image`, `_selfcal_image`) and the new `_memory_limit`; the selfcal input-copy and Sp/Sa
+  read paths (branch `selfcal-io`) are not touched.
+- **Left on disk:** `D:/rang/outputs/20261128-gemclean-memlimit` (5.2 GB; the held-out copy `H` and the
+  base are deleted at hand-back).
