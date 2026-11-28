@@ -493,7 +493,25 @@ copy of the fetched MS; tricolour 1.5.0's Stimela image was pulled from
   "Switch this on when using crystalball models for primary", so `prep:
   clearcal: {enable: true, addmodel: true}` is added to `run.yml` as a third
   recorded edit (`ug_caracal.sh` with `CARACAL_RETRY=1`). If the retry fails
-  the same way, it stays a known limitation.
+  the same way, it stays a known limitation. This session's launch of the retry
+  (4 cores beside D) was refused by its permission check and did not run.
+- **Post hoc, 2026-11-28 (amendment to the gate-4 arm; the owner's instruction
+  "investigate, fix, retry", carried out by the coordinator).** The cause is as
+  above: the configuration lacked `prep.clearcal {enable: true, addmodel: true}`,
+  which CARACal's prep schema says to switch on with crystalball primary models.
+  Without it MODEL_DATA had no arrays in the secondary's rows. The coordinator
+  launched retry r2 on nash at 10:53 SAST under the heavy lock (12 slots, 160 GB):
+  - `D/caracal/run-r2.yml` is `run.yml` plus that one line, with a dated post hoc
+    header.
+  - It starts at prep (`-sw prep`) on the existing `1752418159-cal.ms`. Prep
+    restores `caracal_legacy`, so the flag worker runs again.
+  - `msdir/1752418159.ms` is an empty placeholder, so that getdata finds the
+    dataid (`PLACEHOLDER-raw-ms.txt`).
+  - Attempt 1's logs are in `D/caracal/attempt1/`; r2 writes
+    `caracal-run-r2.out` (ending in an `rc=` line) and `time-caracal-r2.txt`.
+
+  Gate 4 on D is read from r2 if it finishes, and stays "not checked" if it
+  fails. It is reported only, as frozen.
 
 ### Smoke 8.3 again, on amendment 3's wheel (2026-11-27, nash; scores not read)
 
