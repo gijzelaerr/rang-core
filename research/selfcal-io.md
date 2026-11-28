@@ -1,6 +1,6 @@
 # selfcal-io: the input-column copy and the repeated averaged reads (#49, #50)
 
-Status, 2026-11-28: **identity met** on the pilot (section 4); exclusive timing pending. The note was
+Status, 2026-11-28: **identity met** on the pilot (section 4); exclusive timing **not run** (4.2). The note was
 committed (1f704c4f) before the code (2cfac23d). Source:
 [dl0-profile.md](dl0-profile.md) section 2.2. Branch `selfcal-io`, host glacier.
 
@@ -129,4 +129,17 @@ predicts, solves and applies (main: the copy and the stores) M1 29.8 s, MN 49.3 
 
 ### 4.2 Timing
 
-(exclusive runs scheduled from 21:00, `timing.sh` in the run root)
+Not run. The exclusive runs (TMN, TBN, TM1, TB1 in that order, each prepared just before its run so
+that the page cache is in the same state for every arm) are scripted in `timing.sh` in the run root,
+which waits for 21:00. A coordinator message lifted the 21:00 rule; starting the runs early was
+refused by the session's permission check, so they were left for the coordinator or a later session.
+Only the shared walls of 4.1 exist. They show the structure, not a gain: main's remainder (the copy
+and the stores) of 30-49 s falls to 1 s; main's four-chunk solves (134, 165 s) take about twice its
+one-chunk solves (62, 81 s) and the branch's four-chunk solves (87, 46 s) do not; round 1's apply
+now carries the copy's write (B1 60 s against M1 29 s, BN 72 s against MN 37 s, on a shared host).
+
+**E2-N's 2 % is not measured here** (E2-N is on nash). By the structure: the separate copy pass (a
+read and a write of every row, about 5,530 s on E2-N under idle I/O) is gone; its read is replaced by
+round 1's apply reading the source once (and no longer reading the output column a second time), and
+its write moves into that apply. The write's share on E2-N was not measured (py-spy put the copy's
+time in `getcol`).
