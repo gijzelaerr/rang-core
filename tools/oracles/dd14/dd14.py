@@ -613,12 +613,14 @@ def score(root):
                          "kappa": [a / b - 1 if b else None for a, b in zip(fx, f0, strict=True)]}  # fmt: skip
         return fb
 
+    # the arms on O (A2: DD13 kept no copies of DD12's Q12 and AT12 models)
+    dd12_root = Path("D:/rang/outputs/dd12-20261126")
     o_ref = {
-        "Q12": "Q12",
-        "QP12": "QP12",
-        "QPN12": "QP12",
-        "AT12": "AT12",
-        "ATP12": "ATP12",
+        "Q12": (dd12_root, "Q12"),
+        "QP12": (DD13_ROOT, "QP12"),
+        "QPN12": (DD13_ROOT, "QP12"),
+        "AT12": (dd12_root, "AT12"),
+        "ATP12": (DD13_ROOT, "ATP12"),
     }
     for arm in ARMS:
         for n in SCORED:
@@ -635,7 +637,7 @@ def score(root):
                  "e_over_ehat": s.get("e_over_ehat"),
                  "diag": dd11.gain_errors(z["gains"], z["flags"], truth)}  # fmt: skip
             m = _model_at(root, arm, n)
-            m0 = _model_at(DD13_ROOT, o_ref[arm], n)
+            m0 = _model_at(*o_ref[arm], n)
             p["flux"] = flux_block(m, m0)
             pts[f"{arm[:-2]}{n}"] = p
             # QPC from QP12 (section 3)
