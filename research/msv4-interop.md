@@ -499,6 +499,8 @@ Status: **measured, M2 pass.**
   issue's gate "identical calibration and imaging results". Decide which
   weight a weighted stage takes per data group before an M2-like gate for
   calibration or imaging.
+  2026-11-28: frozen as its own note, [msv4-weights.md](msv4-weights.md)
+  (branch `msv4-m5`).
 - **Coordinator decisions, 2026-11-16 (owner delegated):**
   - M4: document, do not ask upstream (xradio is NRAO's; standing rule: no
     reports to CASA or NRAO). Done in the merge: `rang.msv4`'s docstring
