@@ -1,0 +1,12 @@
+{
+ "QN_B1_equals_QA_bitwise": true,
+ "next_model_bitwise": true,
+ "max_abs_diff": 0.0,
+ "hogbom": {
+  "sigma": 0.0003274953814971147,
+  "stop": 0.0016374769074855734,
+  "n": 150
+ },
+ "seconds": 106.49213240000245,
+ "R14_pass": true
+}

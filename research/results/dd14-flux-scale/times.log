@@ -1,0 +1,30 @@
+beam start 2026-11-27T19:14:51+02:00 slots=1 mem=4 tools/oracles/dd14/dd14.py beam D:/rang/outputs/dd14-20261127
+beam end 2026-11-27T19:14:52+02:00 rc=0 wall=1s
+apertures start 2026-11-27T19:14:52+02:00 slots=2 mem=6 tools/oracles/dd14/dd14.py apertures D:/rang/outputs/dd14-20261127
+apertures end 2026-11-27T19:14:59+02:00 rc=0 wall=7s
+gateo start 2026-11-27T19:14:59+02:00 slots=2 mem=16 tools/oracles/dd14/dd14.py gateo D:/rang/outputs/dd14-20261127
+gateo end 2026-11-27T19:18:57+02:00 rc=0 wall=238s
+insert start 2026-11-27T19:18:57+02:00 slots=2 mem=16 tools/oracles/dd14/dd14.py insert D:/rang/outputs/dd14-20261127
+insert end 2026-11-27T19:20:33+02:00 rc=0 wall=96s
+psf start 2026-11-27T19:20:33+02:00 slots=4 mem=10 tools/oracles/dd14/dd14.py psf D:/rang/outputs/dd14-20261127
+psf end 2026-11-27T19:21:10+02:00 rc=0 wall=37s
+gater start 2026-11-27T19:21:10+02:00 slots=4 mem=16 tools/oracles/dd14/dd14.py gater D:/rang/outputs/dd14-20261127
+gater end 2026-11-27T19:23:02+02:00 rc=0 wall=112s
+PREP_OK
+loop-Q12 start 2026-11-27T19:23:19+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py loop D:/rang/outputs/dd14-20261127 Q12
+loop-AT12 start 2026-11-27T19:25:19+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py loop D:/rang/outputs/dd14-20261127 AT12
+loop-AT12 end 2026-11-27T21:04:50+02:00 rc=0 wall=5971s
+loop-ATP12 start 2026-11-27T21:04:50+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py loop D:/rang/outputs/dd14-20261127 ATP12
+loop-ATP12 end 2026-11-27T22:14:20+02:00 rc=0 wall=4170s
+loop-QPN12 start 2026-11-27T22:14:20+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py loop D:/rang/outputs/dd14-20261127 QPN12
+loop-Q12 end 2026-11-27T23:36:03+02:00 rc=0 wall=15164s
+loop-QP12 start 2026-11-27T23:36:03+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py loop D:/rang/outputs/dd14-20261127 QP12
+loop-QPN12 end 2026-11-28T01:40:19+02:00 rc=0 wall=12359s
+loop-QP12 end 2026-11-28T02:36:44+02:00 rc=0 wall=10841s
+ax start 2026-11-28T02:36:44+02:00 slots=8 mem=20 tools/oracles/dd14/dd14.py ax D:/rang/outputs/dd14-20261127
+ax end 2026-11-28T02:48:18+02:00 rc=0 wall=694s
+LANES_DONE
+score start 2026-11-28T02:48:37+02:00 slots=2 mem=8 tools/oracles/dd14/dd14.py score D:/rang/outputs/dd14-20261127
+score end 2026-11-28T02:48:43+02:00 rc=1 wall=6s
+score start 2026-11-28T02:49:16+02:00 slots=2 mem=8 tools/oracles/dd14/dd14.py score D:/rang/outputs/dd14-20261127
+score end 2026-11-28T02:49:22+02:00 rc=0 wall=6s

@@ -2672,3 +2672,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-27 | dd13: diagnostic D (zero solves) and score (host glacier, 2 and 1 slots shared) | 16 gain sets | 10 s; 2 s | – | |
 | 2026-11-27 | dd13: real PSF (`fits_image`, 5760², 4 slots) and real loop R-QP12, 12 cycles (8 slots shared) | DD7's real subset, 145 baselines flagged | 35 s; 11,235 s | – | lifts, tames d3 |
 | 2026-11-27 | dd13: `tools/check_all.py --quick` (host glacier, 4 slots shared) | branch dd13-absorb | 738 s (lock wait excluded) | – | PASS |
+| 2026-11-27 | dd14: beam rule, apertures, DD8's O rebuilt (gate GB 1), OB build (GB 2-3), PSF, gate R14 (host glacier, 1-4 slots shared) | DD7's B, 52.7 M cells | 1 s; 7 s; 238 s; 96 s; 37 s; 112 s | – | all gates pass, R14 bitwise |
+| 2026-11-27 | dd14: loops on OB, 8 slots shared each, two lanes: Q12, QP12, QPN12 (12 cycles), AT12, ATP12 (truth gains), AX (one solve) | 52.7 M cells, 2880² facet images | Q12 15,164 s; QP12 10,841 s; QPN12 12,359 s; AT12 5,971 s; ATP12 4,170 s; AX 694 s (lock waits included) | – | 50 solves |
+| 2026-11-28 | dd14: score (zero solves; host glacier, 2 slots shared) | 15 gain sets, 15 models | 6 s (first run rc=1, A2 path fix; second 6 s) | – | |
