@@ -1060,6 +1060,20 @@ def test_the_spectral_image_options_reach_gemclean():
     args = pipe.gemclean_arguments(config["image"], "DATA", 0, "out/img", "x.ms")
     pairs = list(itertools.pairwise(args))
     assert ("-average-channels", "2") in pairs
+    assert "-average-channels-max-loss" not in args  # null: not passed
+    capped, errs = core_config.resolve(
+        {"version": 1, "image": {**image, "average_channels_max_loss": 0.01}}
+    )
+    assert errs == []
+    cargs = pipe.gemclean_arguments(capped["image"], "DATA", 0, "out/img", "x.ms")
+    assert ("-average-channels-max-loss", "0.01") in list(itertools.pairwise(cargs))
+    bad, _ = core_config.resolve(
+        {"version": 1, "image": {**image, "average_channels_max_loss": 1.5}}
+    )
+    assert any(
+        r.path == "image.average_channels_max_loss"
+        for r in core_config.refusals(bad, ["image"])
+    )
     assert ("-channels-out", "4") in pairs
     assert ("-fit-spectral-pol", "2") in pairs
     assert "-join-channels" in args
@@ -1155,3 +1169,17 @@ def test_the_polarisation_options_reach_gemclean():
         for r in core_config.refusals(config, ["image"])
         if r.path.startswith("image.") and r.path != "image.fields"
     ]
+
+
+def test_the_model_predict_takes_the_averaging_gemclean_used(tmp_path):
+    """research/gate3c-averaging.md: with average_channels_max_loss set,
+    gemclean may average fewer channels; the model predict reads the factor
+    from its report, and without the option keeps image.average_channels."""
+    img = {"average_channels": 4, "average_channels_max_loss": 0.01}
+    prefix = tmp_path / "image"
+    assert pipe._average_channels_used(img, str(prefix)) == 4  # no report yet
+    (tmp_path / "image-report.json").write_text(
+        '{"averaging": {"requested": 4, "used": 1}}', encoding="utf-8"
+    )
+    assert pipe._average_channels_used(img, str(prefix)) == 1
+    assert pipe._average_channels_used({**img, "average_channels_max_loss": None}, str(prefix)) == 4

@@ -154,7 +154,13 @@ Channels (research/g3-spectral.md; WSClean's options):
                             component's channel values (needs -join-channels)
   -channel-range <s> <e>    image the channels s to e - 1 (ascending frequency)
   -average-channels <n>     average n adjacent channels before imaging (rang's own:
-                            Stokes I weighted means, the weights summed)
+                            Stokes I weighted means, the weights summed); prints the
+                            predicted peak loss of the bandwidth decorrelation this adds
+                            (research/gate3c-averaging.md) and warns above 1 % at the
+                            image half-width
+  -average-channels-max-loss <f>  average fewer channels when needed: the largest factor up
+                            to -average-channels whose predicted peak loss at the image
+                            half-width (natural weights) is at most f (rang's own)
   -mf-weighting             one weight grid for all output channels (the default
                             with -join-channels)
   -no-mf-weighting          weights per output channel (the default without it)
@@ -254,6 +260,8 @@ struct Args {
     fit_spectral_pol: Option<usize>,
     channel_range: Option<(usize, usize)>,
     average_channels: usize,
+    /// `-average-channels-max-loss` (research/gate3c-averaging.md).
+    average_channels_max_loss: Option<f64>,
     mf_weighting: Option<bool>,
     pols: Vec<Pol>,
     join_pols: bool,
@@ -367,6 +375,7 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
         fit_spectral_pol: None,
         channel_range: None,
         average_channels: 1,
+        average_channels_max_loss: None,
         mf_weighting: None,
         pols: vec![Pol::I],
         join_pols: false,
@@ -529,6 +538,9 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
                 a.channel_range = Some((start, end));
             }
             "-average-channels" => a.average_channels = number(flag, value(&mut i)?)?,
+            "-average-channels-max-loss" => {
+                a.average_channels_max_loss = Some(number(flag, value(&mut i)?)?)
+            }
             "-mf-weighting" => a.mf_weighting = Some(true),
             "-no-mf-weighting" => a.mf_weighting = Some(false),
             "-pol" => a.pols = stokes::parse_list(&value(&mut i)?)?,
@@ -709,6 +721,11 @@ fn parse_args(raw: &[String]) -> Result<Args, String> {
     }
     if a.channels_out == 0 || a.average_channels == 0 {
         return Err("-channels-out and -average-channels must be at least 1".into());
+    }
+    if let Some(f) = a.average_channels_max_loss
+        && !(f > 0.0 && f < 1.0)
+    {
+        return Err("-average-channels-max-loss must be above 0 and below 1".into());
     }
     if let Some(terms) = a.fit_spectral_pol {
         if terms == 0 {
@@ -1409,7 +1426,7 @@ fn spill_path(args: &Args, run: usize) -> PathBuf {
     }
 }
 
-fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
+fn run_parsed(mut args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
     for w in temp_warnings(&args) {
         println!("warning: {w}");
     }
@@ -1452,6 +1469,12 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
         ..Selection::default()
     };
     if args.pols.len() > 1 {
+        if args.average_channels > 1 {
+            println!(
+                "averaging: the predicted decorrelation loss and -average-channels-max-loss \
+                 are not checked with several polarisations"
+            );
+        }
         return run_polarizations(&args, raw, &selection, &column, wall);
     }
     let mut data = input::read_ms(&args.ms, &selection)?;
@@ -1465,12 +1488,28 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
             return Err("CHAN_WIDTH and CHAN_FREQ differ in length".into());
         }
     }
+    let averaging = if args.average_channels > 1 {
+        let check = averaging_check(&data, &widths, &args)?;
+        args.average_channels = check.used;
+        Some(check)
+    } else {
+        None
+    };
     if spectral {
         (data, widths) = select_and_average(data, widths, &args)?;
     }
     if args.channels_out > 1 {
         let t_read = t.elapsed().as_secs_f64();
-        return run_channels(&args, raw, data, &widths, &column, wall, t_read);
+        return run_channels(
+            &args,
+            raw,
+            data,
+            &widths,
+            &column,
+            wall,
+            t_read,
+            averaging.as_ref(),
+        );
     }
     let t_read = t.elapsed().as_secs_f64();
     memory::mark("read");
@@ -1757,6 +1796,12 @@ fn run_parsed(args: Args, raw: &[String], wall: Instant) -> Result<(), String> {
         ),
         ("memory_estimate", memory_estimate),
         ("memory", memory_json),
+        (
+            "averaging",
+            averaging
+                .as_ref()
+                .map_or("null".into(), |a| a.to_json(None, None)),
+        ),
     ]);
     std::fs::write(format!("{prefix}-report.json"), report + "\n").map_err(|e| e.to_string())?;
     println!("wall {:.2} s", wall.elapsed().as_secs_f64());
@@ -1895,6 +1940,162 @@ fn select_and_average(
     let a = args.average_channels;
     let widths = widths.chunks(a).map(|c| c.iter().sum()).collect();
     Ok((spectral::average_channels(data, a), widths))
+}
+
+/// The bandwidth decorrelation that `-average-channels` adds
+/// (research/gate3c-averaging.md): the factor asked for and used, the native
+/// channel width, the image half-width and the predicted peak loss there with
+/// natural weights for each factor tried.
+struct AveragingCheck {
+    requested: usize,
+    used: usize,
+    max_loss: Option<f64>,
+    native_width: f64,
+    half_width: f64,
+    natural: Vec<(usize, f64)>,
+}
+
+/// Radii of the imaging-weight prediction, in image half-widths (the last
+/// one the half-diagonal).
+const AVERAGING_RADII: [f64; 5] = [0.25, 0.5, 0.75, 1.0, std::f64::consts::SQRT_2];
+
+impl AveragingCheck {
+    /// The predicted peak loss at each of [`AVERAGING_RADII`] (radians, loss)
+    /// with the imaging weights of the output channels, all channels' rows
+    /// together.
+    fn imaging_losses(&self, chans: &[ChannelData]) -> Vec<(f64, f64)> {
+        let mut uvw = Vec::new();
+        let mut w = Vec::new();
+        for c in chans {
+            let m = c.freq.len();
+            uvw.extend_from_slice(&c.uvw);
+            w.extend((0..c.rows).map(|r| c.wgt[r * m..(r + 1) * m].iter().sum::<f64>()));
+        }
+        AVERAGING_RADII
+            .iter()
+            .map(|&f| {
+                let r = f * self.half_width;
+                let p = spectral::averaging_peak_at(&uvw, &w, self.used, self.native_width, r);
+                (r, 1.0 - p)
+            })
+            .collect()
+    }
+
+    /// The predicted restored-peak loss (A1, HA′) at each of
+    /// [`AVERAGING_RADII`], from each output channel's restoring beam
+    /// (`beams` FWHM in radians, position angle) at its central frequency,
+    /// the channels weighted by `weights`.
+    fn restored_losses(
+        &self,
+        beams: &[(f64, f64, f64)],
+        nu: &[f64],
+        weights: &[f64],
+    ) -> Vec<(f64, f64)> {
+        let total: f64 = weights.iter().sum();
+        AVERAGING_RADII
+            .iter()
+            .map(|&f| {
+                let r = f * self.half_width;
+                let p: f64 = beams
+                    .iter()
+                    .zip(nu)
+                    .zip(weights)
+                    .map(|((&b, &v), &w)| {
+                        w * spectral::restored_peak_at(self.used, self.native_width, v, b, r)
+                    })
+                    .sum::<f64>()
+                    / total;
+                (r, 1.0 - p)
+            })
+            .collect()
+    }
+
+    fn to_json(&self, imaging: Option<&[(f64, f64)]>, restored: Option<&[(f64, f64)]>) -> String {
+        let natural: Vec<String> = self
+            .natural
+            .iter()
+            .map(|(n, l)| obj(&[("factor", n.to_string()), ("loss", num(*l))]))
+            .collect();
+        let losses = |x: Option<&[(f64, f64)]>| {
+            x.map_or("null".into(), |v| {
+                arr(&v
+                    .iter()
+                    .map(|(r, l)| obj(&[("radius_deg", num(r.to_degrees())), ("loss", num(*l))]))
+                    .collect::<Vec<_>>())
+            })
+        };
+        obj(&[
+            ("requested", self.requested.to_string()),
+            ("used", self.used.to_string()),
+            ("max_loss", self.max_loss.map_or("null".into(), num)),
+            ("native_width_hz", num(self.native_width)),
+            ("half_width_deg", num(self.half_width.to_degrees())),
+            ("natural_loss_at_half_width", arr(&natural)),
+            ("imaging_loss", losses(imaging)),
+            ("restored_loss", losses(restored)),
+        ])
+    }
+}
+
+/// `-average-channels` above 1: the predicted peak loss at the image
+/// half-width with natural weights, on the channels `-channel-range` keeps;
+/// with `-average-channels-max-loss f`, the largest factor up to the one asked
+/// for whose loss is at most f (1 when none is). Prints what it found and
+/// warns when the factor used loses more than 1 %.
+fn averaging_check(
+    data: &input::StokesI,
+    widths: &[f64],
+    args: &Args,
+) -> Result<AveragingCheck, String> {
+    let keep = spectral::channel_groups(&data.freq, args.channel_range, 1)?.remove(0);
+    let native_width = keep.iter().map(|&k| widths[k].abs()).sum::<f64>() / keep.len() as f64;
+    let half_width = 0.5 * args.size as f64 * args.scale;
+    let w = spectral::row_weights(data, &keep);
+    let requested = args.average_channels;
+    let mut natural = Vec::new();
+    let mut used = requested;
+    for n in (2..=requested).rev() {
+        let loss = 1.0 - spectral::averaging_peak_at(&data.uvw, &w, n, native_width, half_width);
+        natural.push((n, loss));
+        used = n;
+        match args.average_channels_max_loss {
+            Some(f) if loss > f => used = n - 1,
+            _ => break,
+        }
+    }
+    let deg = half_width.to_degrees();
+    for (n, loss) in &natural {
+        println!(
+            "averaging: {n} channels of {:.1} kHz, predicted peak loss {:.2} % at the image \
+             half-width ({deg:.3} deg; natural weights)",
+            native_width / 1e3,
+            100.0 * loss
+        );
+    }
+    if used != requested {
+        println!(
+            "averaging: -average-channels-max-loss {}: averaging {used} channels, not {requested}",
+            args.average_channels_max_loss.unwrap_or(0.0)
+        );
+    }
+    if let Some((_, loss)) = natural.iter().find(|(n, _)| *n == used)
+        && *loss > 0.01
+    {
+        println!(
+            "warning: -average-channels {used} loses {:.2} % of a point source's peak at the \
+             image half-width ({deg:.3} deg): bandwidth decorrelation that an unaveraged \
+             image does not have (research/gate3c-averaging.md)",
+            100.0 * loss
+        );
+    }
+    Ok(AveragingCheck {
+        requested,
+        used,
+        max_loss: args.average_channels_max_loss,
+        native_width,
+        half_width,
+        natural,
+    })
 }
 
 /// One output channel: its data, weights and header counters.
@@ -2380,6 +2581,7 @@ type ChannelMeta = (Vec<usize>, f64, f64, u64, f64, f64, usize);
 
 /// More than one output channel: split, deconvolve (joined or one by one),
 /// write each channel and the MFS images, as WSClean names them.
+#[allow(clippy::too_many_arguments)]
 fn run_channels(
     args: &Args,
     raw: &[String],
@@ -2388,6 +2590,7 @@ fn run_channels(
     column: &str,
     wall: Instant,
     t_read: f64,
+    averaging: Option<&AveragingCheck>,
 ) -> Result<(), String> {
     let n = args.size;
     let mf = args.mf_weighting.unwrap_or(args.join_channels);
@@ -2399,6 +2602,19 @@ fn run_channels(
     let chans = split_channels(data, widths, args, mf)?;
     let t_weights = t.elapsed().as_secs_f64();
     memory::mark("weights");
+    let averaging_imaging = averaging.map(|a| {
+        let losses = a.imaging_losses(&chans);
+        for (r, loss) in &losses {
+            println!(
+                "averaging: {} channels, predicted dirty peak loss {:.2} % at {:.3} deg \
+                 (imaging weights)",
+                a.used,
+                100.0 * loss,
+                r.to_degrees()
+            );
+        }
+        losses
+    });
     let weights: Vec<f64> = chans.iter().map(|c| c.total).collect();
     let central: Vec<f64> = chans.iter().map(ChannelData::central).collect();
     let meta: Vec<ChannelMeta> = chans
@@ -2437,6 +2653,28 @@ fn run_channels(
         deconvolve_channels::<f32>(args, chans, &weights, &central, opts)?
     } else {
         deconvolve_channels::<f64>(args, chans, &weights, &central, opts)?
+    };
+    let averaging_json = match averaging {
+        Some(a) => {
+            let beams: Vec<(f64, f64, f64)> = out
+                .restoring
+                .iter()
+                .take(central.len())
+                .map(|b| (b.major * args.scale, b.minor * args.scale, b.pa))
+                .collect();
+            let restored = a.restored_losses(&beams, &central, &weights);
+            for (r, loss) in &restored {
+                println!(
+                    "averaging: {} channels, predicted restored peak loss {:.2} % at {:.3} deg \
+                     (restoring beams)",
+                    a.used,
+                    100.0 * loss,
+                    r.to_degrees()
+                );
+            }
+            a.to_json(averaging_imaging.as_deref(), Some(&restored))
+        }
+        None => "null".into(),
     };
     let scale_deg = args.scale.to_degrees();
     let prefix = &args.name;
@@ -2622,6 +2860,7 @@ fn run_channels(
         ),
         ("reference_frequency_hz", opt(out.reference_frequency)),
         ("average_channels", args.average_channels.to_string()),
+        ("averaging", averaging_json),
         (
             "channel_range",
             args.channel_range

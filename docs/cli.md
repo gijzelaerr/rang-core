@@ -404,6 +404,7 @@ image:
   join_channels: false  # join the output channels
   fit_spectral_pol: null  # terms of the polynomial fit across joined channels
   average_channels: 1  # adjacent channels averaged before imaging (rang's own)
+  average_channels_max_loss: null  # average fewer channels when the predicted peak loss at the image half-width is above this fraction (research/gate3c-averaging.md; null: average_channels as given, with a warning above 1 %)
   auto_mask: null  # radler's automatic mask at this many sigma (WSClean's -auto-mask; needs mgain)
   abs_auto_mask: null  # the automatic mask at this many Jy (-abs-auto-mask)
   auto_mask_nmiter: null  # major cycles after the mask is made (null: WSClean's 2)
@@ -1351,7 +1352,13 @@ Channels (research/g3-spectral.md; WSClean's options):
                             component's channel values (needs -join-channels)
   -channel-range <s> <e>    image the channels s to e - 1 (ascending frequency)
   -average-channels <n>     average n adjacent channels before imaging (rang's own:
-                            Stokes I weighted means, the weights summed)
+                            Stokes I weighted means, the weights summed); prints the
+                            predicted peak loss of the bandwidth decorrelation this adds
+                            (research/gate3c-averaging.md) and warns above 1 % at the
+                            image half-width
+  -average-channels-max-loss <f>  average fewer channels when needed: the largest factor up
+                            to -average-channels whose predicted peak loss at the image
+                            half-width (natural weights) is at most f (rang's own)
   -mf-weighting             one weight grid for all output channels (the default
                             with -join-channels)
   -no-mf-weighting          weights per output channel (the default without it)

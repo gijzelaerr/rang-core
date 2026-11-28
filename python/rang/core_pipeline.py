@@ -2670,6 +2670,8 @@ def gemclean_arguments(
     args += ["-wgridder-accuracy", repr(float(img["wgridder_accuracy"]))]
     if img["average_channels"] > 1:
         args += ["-average-channels", str(img["average_channels"])]
+        if img["average_channels_max_loss"] is not None:
+            args += ["-average-channels-max-loss", repr(float(img["average_channels_max_loss"]))]
     if img["channels_out"] > 1:
         args += ["-channels-out", str(img["channels_out"])]
     if img["join_channels"]:
@@ -2756,6 +2758,19 @@ def _gridder_single(img, extra):
     return float(img["wgridder_accuracy"]) >= 1e-5
 
 
+def _average_channels_used(img, prefix):
+    """The averaging factor gemclean used for `prefix`: its report's
+    `averaging.used` when `average_channels_max_loss` may have lowered it
+    (research/gate3c-averaging.md), else `image.average_channels`."""
+    if img["average_channels"] > 1 and img.get("average_channels_max_loss") is not None:
+        try:
+            rep = json.loads(Path(f"{prefix}-report.json").read_text(encoding="utf-8"))
+            return int(rep["averaging"]["used"])
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+    return img["average_channels"]
+
+
 def write_model(img, ms, field_id, prefix, scans=()):
     """MODEL_DATA from the model images gemclean wrote for `field_id`
     (task G6): the binary's predictor, written through WriteBack."""
@@ -2767,7 +2782,7 @@ def write_model(img, ms, field_id, prefix, scans=()):
         field_id,
         channels_out=img["channels_out"],
         channel_range=None if rng is None else (int(rng[0]), int(rng[1])),
-        average_channels=img["average_channels"],
+        average_channels=_average_channels_used(img, prefix),
         epsilon=float(img["wgridder_accuracy"]),
         wgridding=_extra_flag(extra, "-no-wgridding") is None,
         single=_gridder_single(img, extra),
@@ -3016,7 +3031,7 @@ def _selfcal_model(ctx, field, prefix, chunk_rows):
         column=config["selfcal"]["model_column"],
         channels_out=img["channels_out"],
         channel_range=None if rng is None else (int(rng[0]), int(rng[1])),
-        average_channels=img["average_channels"],
+        average_channels=_average_channels_used(img, prefix),
         epsilon=float(img["wgridder_accuracy"]),
         wgridding=_extra_flag(extra, "-no-wgridding") is None,
         single=_gridder_single(img, extra),

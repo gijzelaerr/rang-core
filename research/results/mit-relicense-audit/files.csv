@@ -581,3 +581,10 @@ tests/test_dd13.py,66,a,-,-,-,0,-,-
 tests/test_dd14.py,103,a,-,-,-,0,-,-
 tests/test_dd15.py,125,a,-,-,-,0,-,-
 core/src/gemclean/memlimit.rs,234,a,-,-,-,0,-,-
+research/results/gate3c-averaging/p1_predict.py,131,a,-,-,-,0,-,-
+research/results/gate3c-averaging/p1r_restored.py,100,a,-,-,-,0,-,-
+research/results/gate3c-averaging/skies.py,66,a,-,-,-,0,-,-
+research/results/gate3c-averaging/p2_measure.py,72,a,-,-,-,0,-,-
+research/results/gate3c-averaging/p3_score.py,102,a,-,-,-,0,-,-
+research/results/gate3c-averaging/p2_run.sh,17,a,-,-,-,0,-,-
+research/results/gate3c-averaging/ws_run.sh,16,a,-,-,-,0,-,-

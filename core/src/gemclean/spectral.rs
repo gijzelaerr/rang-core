@@ -128,6 +128,115 @@ pub fn average_channels(data: StokesI, width: usize) -> StokesI {
     }
 }
 
+/// The Dirichlet kernel `sin(nπx) / (n sin(πx))`: the factor on a point
+/// source's visibility when `n` channels spaced `δν` are averaged and labelled
+/// with their mean frequency, `x = τ δν / c` (`research/gate3c-averaging.md`,
+/// HA). 1 at `x = 0`.
+pub fn dirichlet(n: usize, x: f64) -> f64 {
+    let s = (std::f64::consts::PI * x).sin();
+    if s.abs() < 1e-12 {
+        return 1.0;
+    }
+    (n as f64 * std::f64::consts::PI * x).sin() / (n as f64 * s)
+}
+
+/// Directions at which [`averaging_peak_at`] averages: 16 azimuths.
+pub const AVERAGING_AZIMUTHS: usize = 16;
+
+/// The predicted peak, as a fraction of the unaveraged one, of a point source
+/// at radius `radius` (radians, the length of the SIN direction cosines) when
+/// `n` adjacent channels of width `dnu` Hz are averaged
+/// (`research/gate3c-averaging.md`, HA, full groups): the mean over
+/// [`AVERAGING_AZIMUTHS`] azimuths of `Σ W_r D_n(τ_r δν / c) / Σ W_r`, with
+/// `τ = u l + v m + w (√(1 − l² − m²) − 1)` metres. `uvw` is `rows × 3`
+/// metres and `row_weight` the rows' summed weights (0 skips a row). Sums
+/// per fixed block of rows, then in order: the same value at any thread count.
+pub fn averaging_peak_at(uvw: &[f64], row_weight: &[f64], n: usize, dnu: f64, radius: f64) -> f64 {
+    use rayon::prelude::*;
+    const C: f64 = 299_792_458.0;
+    const BLOCK: usize = 1 << 15;
+    if n <= 1 {
+        return 1.0;
+    }
+    let nw = (1.0 - radius * radius).max(0.0).sqrt() - 1.0;
+    let dirs: Vec<(f64, f64)> = (0..AVERAGING_AZIMUTHS)
+        .map(|k| {
+            let phi = 2.0 * std::f64::consts::PI * k as f64 / AVERAGING_AZIMUTHS as f64;
+            (radius * phi.cos(), radius * phi.sin())
+        })
+        .collect();
+    let parts: Vec<(f64, f64)> = row_weight
+        .par_chunks(BLOCK)
+        .enumerate()
+        .map(|(b, ws)| {
+            let (mut num, mut den) = (0.0f64, 0.0f64);
+            for (i, &w) in ws.iter().enumerate() {
+                if w <= 0.0 {
+                    continue;
+                }
+                let r = b * BLOCK + i;
+                let (u, v, ww) = (uvw[3 * r], uvw[3 * r + 1], uvw[3 * r + 2]);
+                let mut d = 0.0;
+                for &(l, m) in &dirs {
+                    d += dirichlet(n, (u * l + v * m + ww * nw) * dnu / C);
+                }
+                num += w * d / AVERAGING_AZIMUTHS as f64;
+                den += w;
+            }
+            (num, den)
+        })
+        .collect();
+    let (num, den) = parts
+        .iter()
+        .fold((0.0, 0.0), |(a, b), (x, y)| (a + x, b + y));
+    if den > 0.0 { num / den } else { 1.0 }
+}
+
+/// The predicted restored peak (`research/gate3c-averaging.md`, A1, HA′) of
+/// a point source at radius `radius` (radians) averaged over
+/// [`AVERAGING_AZIMUTHS`] azimuths, for `n` channels of width `dnu` averaged
+/// in an output channel at `nu` Hz, restored with a Gaussian beam of FWHM
+/// `major`, `minor` (radians) and position angle `pa` (radians from north
+/// towards east): `exp(−cᵀ Σ⁻¹ c / (8π²))`, `c = π (δν/ν) √((n² − 1)/3) (l, m)`
+/// (exact for n = 2, second order above).
+pub fn restored_peak_at(n: usize, dnu: f64, nu: f64, beam: (f64, f64, f64), radius: f64) -> f64 {
+    if n <= 1 {
+        return 1.0;
+    }
+    let (major, minor, pa) = beam;
+    let s = 1.0 / (2.0 * (2.0 * std::f64::consts::LN_2).sqrt());
+    let (a2, b2) = ((major * s).powi(2), (minor * s).powi(2));
+    let (e1, e2) = ((pa.sin(), pa.cos()), (pa.cos(), -pa.sin()));
+    let k = std::f64::consts::PI * dnu / nu * (((n * n) as f64 - 1.0) / 3.0).sqrt();
+    let mut sum = 0.0;
+    for j in 0..AVERAGING_AZIMUTHS {
+        let phi = 2.0 * std::f64::consts::PI * j as f64 / AVERAGING_AZIMUTHS as f64;
+        let (cl, cm) = (k * radius * phi.cos(), k * radius * phi.sin());
+        let p1 = cl * e1.0 + cm * e1.1;
+        let p2 = cl * e2.0 + cm * e2.1;
+        let q = p1 * p1 / a2 + p2 * p2 / b2;
+        sum += (-q / (8.0 * std::f64::consts::PI * std::f64::consts::PI)).exp();
+    }
+    sum / AVERAGING_AZIMUTHS as f64
+}
+
+/// Each row's summed Stokes I weight over the channels `keep` of `data`
+/// (0 for a flagged row).
+pub fn row_weights(data: &StokesI, keep: &[usize]) -> Vec<f64> {
+    let nchan = data.freq.len();
+    (0..data.rows())
+        .map(|r| {
+            if data.flag_row[r] {
+                0.0
+            } else {
+                keep.iter()
+                    .map(|&k| f64::from(data.weight[r * nchan + k]))
+                    .sum()
+            }
+        })
+        .collect()
+}
+
 /// WSClean's `-fit-spectral-pol` on the joined channels.
 #[derive(Clone, Debug)]
 pub struct PolynomialFit {
@@ -358,5 +467,40 @@ mod tests {
         let s = select_channels(a, &[2, 0]);
         assert_eq!(s.freq, vec![5.0, 1.5]);
         assert_eq!(s.weight, vec![2.0, 4.0]);
+    }
+
+    #[test]
+    fn dirichlet_is_the_mean_phasor_of_the_group() {
+        for n in [2usize, 3, 4, 8] {
+            for x in [0.0, 1e-3, 0.05, 0.2, 0.37] {
+                let c = (n as f64 - 1.0) / 2.0;
+                let mean: f64 = (0..n)
+                    .map(|k| (2.0 * std::f64::consts::PI * x * (k as f64 - c)).cos())
+                    .sum::<f64>()
+                    / n as f64;
+                assert!((dirichlet(n, x) - mean).abs() < 1e-12, "{n} {x}");
+            }
+        }
+        assert_eq!(dirichlet(2, 0.0), 1.0);
+    }
+
+    #[test]
+    fn averaging_peak_matches_the_direct_mean_phasor() {
+        // One east-west baseline of 1 km: at radius r and azimuth φ the factor
+        // is D_2(1000 r cos φ δν / c) = cos(π x); the mean of 16 directions.
+        let uvw = vec![1000.0, 0.0, 0.0];
+        let (dnu, r) = (1.0e6, 0.03);
+        let got = averaging_peak_at(&uvw, &[1.0], 2, dnu, r);
+        let want: f64 = (0..AVERAGING_AZIMUTHS)
+            .map(|k| {
+                let phi = 2.0 * std::f64::consts::PI * k as f64 / AVERAGING_AZIMUTHS as f64;
+                let x = 1000.0 * r * phi.cos() * dnu / 299_792_458.0;
+                (std::f64::consts::PI * x).cos()
+            })
+            .sum::<f64>()
+            / AVERAGING_AZIMUTHS as f64;
+        assert!((got - want).abs() < 1e-12);
+        assert_eq!(averaging_peak_at(&uvw, &[1.0], 1, dnu, r), 1.0);
+        assert_eq!(averaging_peak_at(&uvw, &[0.0], 2, dnu, r), 1.0);
     }
 }

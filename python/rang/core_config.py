@@ -645,6 +645,13 @@ SCHEMA = {
         "average_channels": _k(
             1, "int", "adjacent channels averaged before imaging (rang's own)"
         ),
+        "average_channels_max_loss": _k(
+            None,
+            "float?",
+            "average fewer channels when the predicted peak loss at the image "
+            "half-width is above this fraction (research/gate3c-averaging.md; "
+            "null: average_channels as given, with a warning above 1 %)",
+        ),
         "auto_mask": _k(
             None,
             "float?",
@@ -1624,6 +1631,11 @@ def refusals(config, stages):
         for key in ("channels_out", "average_channels"):
             if img[key] < 1:
                 out.append(Refusal(f"image.{key}", "", "must be at least 1"))
+        loss = img["average_channels_max_loss"]
+        if loss is not None and not 0 < loss < 1:
+            out.append(
+                Refusal("image.average_channels_max_loss", "", "must be above 0 and below 1")
+            )
         if img["fit_spectral_pol"] is not None and (
             img["fit_spectral_pol"] < 1
             or not img["join_channels"]
