@@ -75,6 +75,16 @@ GeMClean through the extension (`python -m rang.gemclean`, as the pipeline runs 
 - Tests: refusal message and the "no estimate" path on the public fixture; the argv change; the
   estimate's lower bound against the measured peak on the fixture.
 
+**Clarification 1, 2026-11-28 15:50 SAST (before any F or V run; only B0, main's selfcal, had
+started).** rang's default `image.wgridder_accuracy` is 1e-4, so the default `image` stage and the
+default selfcal images grid in single precision; D's config (1e-6) grids in double. The estimate's
+per-cell terms follow the precision's type sizes, and each precision gets its own fit and validation
+cases, read under the same Q: F3 held-out 4096², F4 held-out 2048² (fit), V4 base 4096², V5 held-out
+3072² (validation), all with `-wgridder-accuracy 1e-4` and otherwise F1's argv. How the fit is done
+(stated before it): the fixed parts are fitted on the heap phases of the F cases run through the
+`gemclean` binary (its counting allocator; the extension counts nothing on Windows), and Q is then
+read on the extension's `peak_memory_bytes` for every case, F included.
+
 ## 4. Decision rule
 
 - Q, R and E pass: kept; #34 can close.
