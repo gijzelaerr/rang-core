@@ -201,3 +201,24 @@ weighs the long baselines, which decorrelate most, far less than Briggs 0.5 does
   restoring beams after the PSF fit. The guard (`-average-channels-max-loss`) stays on the natural
   dirty-peak loss, which is the larger, conservative figure, because the restoring beam is not
   known before averaging.
+
+## A2. Amendment, 2026-11-28: P2 and P2b geometry, before either ran (design; nothing new seen)
+
+- **P2 point positions.** The half-diagonal radius (√2 × half-width) lies outside a square image at
+  most azimuths, and the half-width itself is the edge pixel at azimuths 0, 90, 180 and 270°.
+  - P2 therefore places its 16-azimuth rings at 0.25, 0.5 and 0.75 × the half-width, and at the
+    half-width less 4″, which moves the predicted loss there by about 0.5 % of itself.
+  - The half-diagonal is reported only as GeMClean's printed figure, not measured.
+  - That gives 64 points, each the nearest pixel centre to its (r, φ).
+- **P2b image.** GeMClean's 8-channel multiscale clean at 6144² held 61-72 GB on E2-N, above this
+  task's 24 GB.
+  - P2b images 3072² × 2″ (half-width 0.853°), so its predictor radii are 0.21, 0.43, 0.64 and
+    0.85°.
+  - It uses its own simulated MS: P2's array, channels and noiseless set-up, with the same four rings
+    scaled to the 3072² half-width.
+  - Its tolerance stays 3e-3.
+- **P3 noise and sky.** `--noise-ujy 12` (natural weighting) is aimed at Briggs 0.5 residual MAD near
+  E2-N's 17 µJy. Fluxes are drawn in units of σ_ref = 17 µJy. The scorer's own σ (WSClean's MFS
+  residual MAD) sets the SNR bins. 760 points are drawn uniformly over the 3072² image (expected
+  about 300 isolated ≥ 10σ within 0.7°), plus 4 Gaussians. Seeds as frozen (sky 20261281,
+  noise 20261282).
