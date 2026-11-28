@@ -45,3 +45,27 @@ Not checked: whether the 2018 blocks are online or on tape.
   the katbeam path in `rang.beams`.
 - The paper's 4" homogenisation (model convolved, residual homogenised with
   pypher) has no counterpart in rang.
+
+## Progress, 2026-11-28 (nash)
+
+- **GC23 (1528480450): restage requested.** The archive showed the
+  visibilities and flags ARCHIVED (tape only) and the RDB SPOOLED. The
+  restage request was made through the archive UI and the archive confirmed
+  it ("A restage request for this dataset has been captured"); its banner
+  warns of significant delays. The archive gives the selection as 1.14 TB and
+  10:48:39. The stored E2-N token does not open this block (tokens are per
+  block): "only to '1735268787*'". A GC23 link exists in the browser session;
+  it goes to nash once the block is online.
+- **Reference products fetched** to `~/rang-data/gc-mosaic/reference/` on
+  nash (curl, nice 19):
+  - Stokes I, 852,356,160 B, 10.6 s;
+  - alpha, 1,196,611,200 B, 13.5 s;
+  - alpha-error, the same size, 13.3 s.
+
+  `SHA256SUMS` is beside them. The Stokes I mosaic is 10,121 × 10,527
+  pixels at 1.1″, RA---TAN, reference 266.3668 −29.2214.
+- **Step 6 measured on the released mosaic.** `render --downsample 4` took
+  16 s at 2.0 GB peak (venv `~/Build/tmp/20261128-gc-mosaic/venv`). The robust
+  σ is 61 µJy/beam. After a first look, the scheme was changed: the grey now
+  rises to 0.7 (was 0.5) and the default faint limit is 10σ (was 30σ). The
+  faint filaments were too dark before.
