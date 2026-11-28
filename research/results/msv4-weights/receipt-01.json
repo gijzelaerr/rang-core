@@ -1,0 +1,1501 @@
+{
+ "note": "research/msv4-weights.md",
+ "root": "D:\\rang\\outputs\\20261128-msv4-m5",
+ "code": "dbc60239063903f1d20a7b77c6467bdd37c85be5",
+ "rang": "C:\\Users\\gijsm\\Worktrees\\rang\\msv4-m5\\python\\rang\\__init__.py",
+ "versions": {
+  "numpy": "2.5.4",
+  "xarray": "2026.9.0",
+  "zarr": "3.4.2"
+ },
+ "term": {
+  "solint": "int",
+  "freqint": 256,
+  "max_iterations": 50,
+  "stop_criterion": 1e-07,
+  "stop_fraction": 0.99
+ },
+ "host": "GLACIER",
+ "rayon_threads": "2",
+ "cases": {
+  "c1": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c1.ms",
+   "ms_rows": 20,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_1_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "1672727931_sdp_l0_scan_1_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "1672727931_sdp_l0_scan_1_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_1_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 0.36
+  },
+  "c2": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c2.ms",
+   "ms_rows": 20,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_4_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "1672727931_sdp_l0_scan_4_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "1672727931_sdp_l0_scan_4_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_4_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 0.32
+  },
+  "c3": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c3.ms",
+   "ms_rows": 20,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_5_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "1672727931_sdp_l0_scan_5_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "1672727931_sdp_l0_scan_5_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_5_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 0.33
+  },
+  "c4": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c4.ms",
+   "ms_rows": 20,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_8_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "1672727931_sdp_l0_scan_8_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "1672727931_sdp_l0_scan_8_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_8_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 0.33
+  },
+  "c5": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c5.ms",
+   "ms_rows": 140,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_9_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "1672727931_sdp_l0_scan_9_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "1672727931_sdp_l0_scan_9_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.439,
+      "store_seconds": 0.506,
+      "channels_reordered": false,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    },
+    "xms-auto": {
+     "partitions": {
+      "1672727931_sdp_l0_scan_9_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.439,
+      "store_seconds": 0.502,
+      "channels_reordered": false,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    }
+   },
+   "seconds": 3.5
+  },
+  "c8": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c8.ms",
+   "ms_rows": 136,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c8-scan9-gaps_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c8-scan9-gaps_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c8-scan9-gaps_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "c8-scan9-gaps_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 6.67
+  },
+  "c11": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c11.ms",
+   "ms_rows": 140,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c11-corrected-model_0": {
+       "groups": [
+        "base",
+        "corrected",
+        "model"
+       ],
+       "weight_variable": "WEIGHT_CORRECTED",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c11-corrected-model_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT",
+        "corrected": "WEIGHT_CORRECTED",
+        "model": "WEIGHT_CORRECTED"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c11-corrected-model_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": false
+      },
+      {
+       "group": "corrected",
+       "variable": "WEIGHT_CORRECTED",
+       "W": true
+      },
+      {
+       "group": "model",
+       "variable": "WEIGHT_CORRECTED",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.408,
+      "store_seconds": 0.451,
+      "channels_reordered": false,
+      "W4_own_weight_variable": "WEIGHT",
+      "W4": "holds (own weight changes the gains)",
+      "W4_max_rel_gain_difference": 9.335510838260015e-06,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    },
+    "xms-auto": {
+     "partitions": {
+      "c11-corrected-model_partition_000": {
+       "groups": [
+        "base",
+        "corrected",
+        "model"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT",
+        "corrected": "WEIGHT",
+        "model": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "corrected",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "model",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.408,
+      "store_seconds": 0.486,
+      "channels_reordered": false,
+      "W4_own_weight_variable": "WEIGHT",
+      "W4": "does not hold",
+      "W4_max_rel_gain_difference": 0.0,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    }
+   },
+   "seconds": 4.42
+  },
+  "c12": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c12.ms",
+   "ms_rows": 140,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c12-sigma-row_0": {
+       "groups": [
+        "base",
+        "corrected",
+        "model"
+       ],
+       "weight_variable": "WEIGHT_CORRECTED",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c12-sigma-row_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT",
+        "corrected": "WEIGHT_CORRECTED",
+        "model": "WEIGHT_CORRECTED"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c12-sigma-row_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": false
+      },
+      {
+       "group": "corrected",
+       "variable": "WEIGHT_CORRECTED",
+       "W": true
+      },
+      {
+       "group": "model",
+       "variable": "WEIGHT_CORRECTED",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.452,
+      "store_seconds": 0.45,
+      "channels_reordered": false,
+      "W4_own_weight_variable": "WEIGHT",
+      "W4": "holds (own weight changes the gains)",
+      "W4_max_rel_gain_difference": 51.01562459436707,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    },
+    "xms-auto": {
+     "partitions": {
+      "c12-sigma-row_partition_000": {
+       "groups": [
+        "base",
+        "corrected",
+        "model"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT",
+        "corrected": "WEIGHT",
+        "model": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "corrected",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "model",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.452,
+      "store_seconds": 0.511,
+      "channels_reordered": false,
+      "W4_own_weight_variable": "WEIGHT",
+      "W4": "does not hold",
+      "W4_max_rel_gain_difference": 0.0,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    }
+   },
+   "seconds": 4.65
+  },
+  "c13": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c13.ms",
+   "ms_rows": 140,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c13-no-spectrum-weights_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c13-no-spectrum-weights_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c13-no-spectrum-weights_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "05b05054d86fb853d76c98ea4f45ba73bc63d2ef32c7360998f0eee52bd04a2e",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "05b05054d86fb853d76c98ea4f45ba73bc63d2ef32c7360998f0eee52bd04a2e",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.475,
+      "store_seconds": 0.497,
+      "channels_reordered": false,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 9.008401851929308e-12
+      }
+     }
+    },
+    "xms-auto": {
+     "partitions": {
+      "c13-no-spectrum-weights_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "05b05054d86fb853d76c98ea4f45ba73bc63d2ef32c7360998f0eee52bd04a2e",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "05b05054d86fb853d76c98ea4f45ba73bc63d2ef32c7360998f0eee52bd04a2e",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.475,
+      "store_seconds": 0.492,
+      "channels_reordered": false,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 9.008401851929308e-12
+      }
+     }
+    }
+   },
+   "seconds": 3.23
+  },
+  "c14": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c14.ms",
+   "ms_rows": 140,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c14-decreasing-freq_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c14-decreasing-freq_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c14-decreasing-freq_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.436,
+      "store_seconds": 0.502,
+      "channels_reordered": true,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    },
+    "xms-auto": {
+     "partitions": {
+      "c14-decreasing-freq_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA_SPECTRUM"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ],
+     "solve": {
+      "antennas_equal": true,
+      "msv2": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "store": {
+       "gains_sha256": "c2c389b81a55196dcf53c8d46b39163b575c4af5c445e1e800968a8d1ea47c08",
+       "flags_sha256": "d54f02b97ed5bc2a642756268b41d4b8f7a077e73224e1580d22436834a14db5",
+       "iterations": 50,
+       "converged_fraction": 0.1875,
+       "shape": [
+        14,
+        16,
+        4,
+        2,
+        2
+       ]
+      },
+      "W3": "match",
+      "msv2_seconds": 0.436,
+      "store_seconds": 0.494,
+      "channels_reordered": false,
+      "store_order": {
+       "equal": false,
+       "max_rel_gain_difference": 1.6686102500160404e-12
+      }
+     }
+    }
+   },
+   "seconds": 3.39
+  },
+  "c6x": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c6x.ms",
+   "ms_rows": 12480,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c6x_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c6x_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_1": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c6x_1: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_2": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c6x_2: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_3": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c6x_3: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c6x_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "c6x_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_partition_001": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_partition_002": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c6x_partition_003": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 3.03
+  },
+  "c9": {
+   "ms": "D:\\rang\\outputs\\20261128-msv4-m5\\inputs\\ms\\c9.ms",
+   "ms_rows": 36,
+   "arms": {
+    "xradio": {
+     "partitions": {
+      "c9_0": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c9_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c9_1": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": null,
+       "sigma_refusal": "c9_1: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "refused",
+     "W2_message": "c9_0: the store keeps no sigma (no SIGMA_SPECTRUM; writer 'xradio'); a weight from sigma cannot be read (research/msv4-weights.md)",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    },
+    "xms-auto": {
+     "partitions": {
+      "c9_partition_000": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      },
+      "c9_partition_001": {
+       "groups": [
+        "base"
+       ],
+       "weight_variable": "WEIGHT",
+       "weight_refusal": null,
+       "sigma_variable": "SIGMA_SPECTRUM",
+       "sigma_refusal": null,
+       "group_weights": {
+        "base": "WEIGHT"
+       }
+      }
+     },
+     "refused_partitions": {},
+     "coverage": true,
+     "failures": [],
+     "W1": "match",
+     "W1_rows": true,
+     "W1_row_source": true,
+     "W2": "read, match",
+     "W2_sigma_source": [
+      "SIGMA repeated"
+     ],
+     "old_reading": [
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      },
+      {
+       "group": "base",
+       "variable": "WEIGHT",
+       "W": true
+      }
+     ]
+    }
+   },
+   "seconds": 0.36
+  }
+ },
+ "seconds": 30.6,
+ "outcome": {
+  "xradio": {
+   "W1": true,
+   "W2": true,
+   "W3": true,
+   "W4": true,
+   "verdict": "pass"
+  },
+  "xms-auto": {
+   "W1": true,
+   "W2": true,
+   "W3": true,
+   "W4": true,
+   "verdict": "pass"
+  }
+ }
+}

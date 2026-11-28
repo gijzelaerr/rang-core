@@ -448,6 +448,18 @@ unknown there; nothing written) and was restarted with Git Bash.
 - Cost (reported): `rang-core flag` on a store 3.8-13.2 s per command; the
   `cli` step 282 s (M7: 262 s).
 
+## 12. Pointer: the M5 ruling replaced (2026-11-28, post hoc)
+
+Section 3 cites the coordinator's M5 ruling of 2026-11-16 (no weighted
+stage on a store until the base weights are settled). They are settled in
+[msv4-weights.md](msv4-weights.md) (frozen 4a42e646, measured: pass), which
+replaces the ruling with: a weighted stage on a store takes W and sigma by
+its section 3, under its own stage gate. Nothing here changes: C7 holds,
+calibrate, apply, image and selfcal on a store are still refused (not
+built). The refusal message now reads "a weighted stage on a store is not
+built yet; its weights are settled in research/msv4-weights.md, M5"; it
+still names the store and M5, as C7 requires.
+
 ## For the coordinator
 
 Branch `msv4-cli`: note `e296b1e3` (frozen before code), A1 `26f69040`, A2 `c0153729`

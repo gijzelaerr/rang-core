@@ -2681,3 +2681,6 @@ Rows marked "archived" are copied from earlier reports, not re-measured.
 | 2026-11-28 | gemclean-memlimit: `rang-core selfcal`, D's config, default 8 GiB, B0 main / B1 branch (8 slots shared; host glacier) | E2 pilot held-out copy, 823,500 rows x 256 ch | 889 s / 963 s | 7.52 GiB (GeMClean) | byte-identical; `research/gemclean-memlimit.md` |
 | 2026-11-28 | gemclean-memlimit: gemclean round-1 argv, extension, F1-F4 and V1-V5 (8 slots shared; host glacier) | held-out / base pilot, 2048²-4096² | 39-194 s per image | 5.06-10.64 GiB | gate Q; R1 refusal 17 s |
 | 2026-11-28 | gemclean-memlimit: extension builds (`maturin develop --release`, 8 slots; host glacier) | repo | 229-297 s | – | three builds |
+| 2026-11-28 | msv4-m5: copy of inputs (MSs and both writers' stores, 36 trees; 1 slot 2 GB; host glacier) | 1.1 GB | 584 s | – | most of it queued behind an exclusive job; `research/msv4-weights.md` |
+| 2026-11-28 | msv4-m5: run 01, W1-W4 (2 slots 4 GB, `RAYON_NUM_THREADS=2`; host glacier) | 13 cases x 2 writers, 5 `complex` solves each | 33 s | – | solve 0.41-0.48 s on the MS, 0.45-0.51 s from a store |
+| 2026-11-28 | msv4-m5: read-path probe (1 slot 2 GB; host glacier) | 24 stores, 12 KB-94 MB read | 10 s | – | `Partition.rows()` 5-152 ms, decode 64-92 % of it; `research/msv4-weights.md` section 8 |

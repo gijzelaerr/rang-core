@@ -407,3 +407,87 @@ def test_flag_equals_the_kernel_on_the_msv2_at_any_process_count(tmp_path):
             assert rows["FLAG"][i].tobytes() == want[key].tobytes()
             seen += 1
     assert seen == len(ref["TIME"])
+
+
+# -- weights (research/msv4-weights.md, M5) ----------------------------------------
+
+
+def _two_weights(writer, sigma=False):
+    """`_tree` with a `corrected` group whose weight differs from the base
+    group's, as xradio writes an MS with CORRECTED_DATA."""
+    tree, (vis, _flag, weight, _uvw) = _tree(pad=False)
+    ds = tree["p0"].to_dataset()
+    grid = ("time", "baseline_id", "frequency", "polarization")
+    corrected = (weight * 3).astype("float32")
+    ds["VISIBILITY_CORRECTED"] = (grid, vis * np.complex64(2))
+    ds["WEIGHT_CORRECTED"] = (grid, corrected)
+    if sigma:
+        ds["SIGMA_SPECTRUM"] = (grid, (weight + 1).astype("float32"))
+    groups = dict(ds.attrs["data_groups"])
+    groups["corrected"] = {
+        "correlated_data": "VISIBILITY_CORRECTED",
+        "flag": "FLAG",
+        "weight": "WEIGHT_CORRECTED",
+        "uvw": "UVW",
+    }
+    ds.attrs["data_groups"] = groups
+    if writer:
+        ds.attrs["creator"] = {"software_name": writer, "version": "1.3.1"}
+    return _retree(tree, ds), weight, corrected
+
+
+def _retree(tree, ds):
+    import xarray as xr
+
+    ant = tree["p0/antenna_xds"].to_dataset()
+    return xr.DataTree.from_dict({"/p0": ds, "/p0/antenna_xds": ant})
+
+
+def test_every_group_takes_the_corrected_weight_on_xradio():
+    tree, _weight, corrected = _two_weights("xradio")
+    ps = msv4.open_processing_set(tree)
+    for group in ("base", "corrected"):
+        part = ps.partition("p0", group)
+        assert part.weight_variable == "WEIGHT_CORRECTED"
+        rows = part.rows()
+        assert rows["WEIGHT_SPECTRUM"].tobytes() == corrected.reshape(9, 5, 2).tobytes()
+        src = msv4.RowSource(part)
+        got = src.getcol_rows("WEIGHT_SPECTRUM", np.arange(9))
+        assert got.tobytes() == corrected.reshape(9, 5, 2).tobytes()
+        assert not src.getcol_rows("FLAG_ROW", np.arange(4)).any()
+        with pytest.raises(ValueError, match="keeps no sigma"):
+            src.getcol_rows("SIGMA_SPECTRUM", np.arange(9))
+        with pytest.raises(ValueError, match="per-row WEIGHT"):
+            src.getcol_rows("WEIGHT", np.arange(9))
+
+
+def test_differing_weights_of_another_writer_are_refused_when_read():
+    tree, _, _ = _two_weights("someone", sigma=True)
+    part = msv4.open_processing_set(tree).partition("p0")
+    assert part.weight_variable is None and "someone" in part.weight_refusal
+    with pytest.raises(ValueError, match="W is known only"):
+        part.rows()
+    src = msv4.RowSource(part)
+    assert src.getcol_rows("DATA", np.arange(2)).shape == (2, 5, 2)
+    with pytest.raises(ValueError, match="W is known only"):
+        src.getcol_rows("WEIGHT_SPECTRUM", np.arange(2))
+
+
+def test_one_weight_and_sigma_spectrum_are_read_as_they_are():
+    tree, weight, _ = _two_weights(None, sigma=True)
+    ds = tree["p0"].to_dataset()
+    groups = dict(ds.attrs["data_groups"])
+    groups["corrected"] = dict(groups["corrected"], weight="WEIGHT")
+    ds.attrs["data_groups"] = groups
+    tree = _retree(tree, ds)
+    part = msv4.open_processing_set(tree).partition("p0", "corrected")
+    assert part.weight_variable == "WEIGHT"
+    src = msv4.RowSource(part)
+    rows = np.array([4, 0, 8])
+    w = src.getcol_rows("WEIGHT_SPECTRUM", rows)
+    assert w.tobytes() == weight.reshape(9, 5, 2)[rows].tobytes()
+    s = src.getcol_rows("SIGMA_SPECTRUM", rows, chans=slice(1, 3))
+    assert (
+        s.tobytes()
+        == (weight + 1).astype("float32").reshape(9, 5, 2)[rows][:, 1:3].tobytes()
+    )
