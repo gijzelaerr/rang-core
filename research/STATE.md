@@ -24,6 +24,9 @@ F7, 2026-11-24 (issue #46 blocked; branch `f7-draft`, merged; [f7-flagger.md](f7
 
 A new paragraph goes directly under this heading.
 
+GeMClean memory limit merged (2026-11-28, #34; research/gemclean-memlimit.md). GeMClean reads data.memory_limit_gb and refuses before its PSF pass, naming the needed figure, when its peak estimate is above the limit; the estimate is 1.03-1.08x the measured peak on 9 cases, never below. Default selfcal on the held-out E2 pilot (7.52 GiB measured) is not refused at 8 GB; the unflagged pilot (10.64 GiB) is, with exit 2. Images and gain stores are byte-identical when the limit does not bind. Paths without an estimate (several polarisations, channels-out > 1, multiscale, masks and others) run unchecked. Note: campaigns imaging lightly flagged data at the default limit must now raise it. Same day: CARACal D retry 2 failed the same way (CARACal's clearcal initialises only fcal+bpcal); retry 3 ran CASA clearcal over all fields first and restarts at crosscal.
+
+
 DD15 merged (2026-11-28, #15). research/dd15-beam-gate.md (frozen 925fd92a, A1 post hoc). Frozen answer: out, the pinned rule stays; real check not run. QPG12 (nominal beam in the image gains, pins released only where B_nom >= 0.5, d3 pinned) meets the gain criterion and the d1-d2 flux terms at M6 and M12 (d1 e^sr 0.139; s within 2.2 %; pin kappa within 2.6 %), but the pinned d3 (B 0.36) loses 35 % then 41 % of its pin-aperture flux. On OB neither rule holds d3, only the truth gains. Same day: the CARACal D arm of the UHF gate failed because its config lacked prep.clearcal addmodel (CARACal requires it with crystalball primary models; MODEL_DATA was empty in the secondary rows); retried on nash from prep with that one line (D/caracal/run-r2.yml, post hoc).
 
 
