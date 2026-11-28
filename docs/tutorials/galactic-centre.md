@@ -261,14 +261,21 @@ python examples/gc-mosaic/gc_mosaic.py render gc-mosaic.fits gc-mosaic.png \
 This follows the paper's Figure 1:
 
 - faint emission in linear greyscale from −2σ to `--faint-max`
-  (default 30σ, with σ the mosaic's robust rms);
+  (default 10σ, with σ the mosaic's robust rms);
 - brighter emission in the `afmhot` heat map with a square-root stretch up
   to `--bright-max` (default the 99.95th percentile).
 
-The filaments sit just above the noise and Sgr A* is about a jansky, so try
-`--faint-max` between 0.5 and 2 mJy/beam. The press image's exact levels are
-not published. `--downsample 2` averages 2×2 pixels, which keeps a 6.5 deg²
-mosaic at 1.2″ to a PNG of manageable size.
+The press image's exact levels are not published. On the released mosaic
+(measured 2026-11-28, nash):
+
+- the robust σ is 61 µJy/beam, extended emission included;
+- the defaults (grey to 0.61 mJy/beam, heat map to 30 mJy/beam with
+  `--bright-max 0.03`) show the filaments, the bubbles and the remnant shells;
+- `--faint-max 0.0004` brings out more of the faint filaments.
+
+The render took 16 s and 2 GB for the 10,121 × 10,527 mosaic with
+`--downsample 4`. Downsampling averages N×N pixels, which keeps the PNG to a
+manageable size.
 
 ## 7. All twenty pointings
 

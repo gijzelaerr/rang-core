@@ -287,16 +287,16 @@ def render_rgb(plane, faint_min=None, faint_max=None, bright_max=None, heat="afm
     sigma = robust_sigma(plane)
     finite = plane[np.isfinite(plane)]
     faint_min = -2.0 * sigma if faint_min is None else faint_min
-    faint_max = 30.0 * sigma if faint_max is None else faint_max
+    faint_max = 10.0 * sigma if faint_max is None else faint_max
     if bright_max is None:
         bright_max = max(np.percentile(finite, 99.95), 2.0 * faint_max)
-    # grey runs from black to mid-grey, so the heat map's dark red continues it
-    grey = 0.5 * np.clip((plane - faint_min) / (faint_max - faint_min), 0.0, 1.0)
+    # grey runs from black to 0.7, where the heat map's orange continues it
+    grey = 0.7 * np.clip((plane - faint_min) / (faint_max - faint_min), 0.0, 1.0)
     hot = np.sqrt(np.clip((plane - faint_max) / (bright_max - faint_max), 0.0, 1.0))
     rgb = np.repeat(grey[..., None], 3, axis=-1)
     bright = plane > faint_max
-    # the heat map starts at 0.35 of its range, about as bright as the grey's top
-    rgb[bright] = colormaps[heat](0.35 + 0.65 * hot[bright])[:, :3]
+    # the heat map starts at 0.45 of its range, about as bright as the grey's top
+    rgb[bright] = colormaps[heat](0.45 + 0.55 * hot[bright])[:, :3]
     rgb[~np.isfinite(plane)] = 0.0
     return rgb, {
         "sigma": sigma,
@@ -345,7 +345,7 @@ def main(argv=None):
         "--faint-min", type=float, default=None, help="Jy/beam (default -2 sigma)"
     )
     r.add_argument(
-        "--faint-max", type=float, default=None, help="Jy/beam (default 30 sigma)"
+        "--faint-max", type=float, default=None, help="Jy/beam (default 10 sigma)"
     )
     r.add_argument(
         "--bright-max",
