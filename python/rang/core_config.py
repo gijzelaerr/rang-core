@@ -154,7 +154,9 @@ SCHEMA = {
             8.0,
             "float",
             "peak resident memory a stage may use, GiB; flag, calibrate and apply "
-            "chunk by time and row to stay within it (research/w3-chunking.md)",
+            "chunk by time and row to stay within it (research/w3-chunking.md); "
+            "gemclean (image, selfcal) refuses when its estimate is above it "
+            "(research/gemclean-memlimit.md)",
         ),
         "chunk_rows": _k(
             None,

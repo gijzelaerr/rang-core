@@ -1,0 +1,9 @@
+D:/rang/outputs/20261128-gemclean-memlimit/H/pilot.ms: 823500 of 823500 rows selected (field 0, DATA), 256 channels 989.8545-1096.4365 MHz, 76089333 visibilities weighted, weight sum 1432094930.664457 (17.57 s read, 3.76 s weights)
+memory estimate: 6.01 GiB (psf 2n, x1.03 margin) against -memory-limit 1000 GiB; GiB by phase: read and weights 4.75, measurement 3.06, psf 2n 5.83, plan, beam and compaction 5.27, major and minor cycles 4.70
+beam: peak 0.999999999476, patch ±64, f 2.4940e-2 outside the patch; 4097 of 4097 spectrum columns, -0.00e0 left out; restoring beam 16.976" × 9.679" PA -51.22° (841 pixels fitted); PSF 41.04 s, FFT 0.30 s
+gemclean cycle 1: peak 1.2055e0, threshold 3.0000e-3, 3709 components so far, 26.5 s
+gemclean cycle 2: peak 6.0375e-2, threshold 3.0000e-3, 58047 components so far, 66.0 s
+gemclean cycle 3: peak 3.1903e-3, threshold 3.0000e-3, 59049 components so far, 83.0 s
+59049 components, 3 major cycles, 165 resyncs, stop Threshold; Q/Q0 2.4034e-2; tau min 0.500 median 0.673; minor 1.60 s (corrections 0.193 s), resync 25.95 s, major 47.08 s
+wall 150.78 s
+peak: wall 151.6 s, largest process 7882260 KiB (a\Roaming\uv\python\cpython-3.13-windows-x86_64-none\python.exe -m rang.gemclean), tree sum 7887512 KiB

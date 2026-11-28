@@ -1,6 +1,10 @@
 # Rang: GeMClean within `data.memory_limit_gb` (issue #34, last item)
 
-Status, 2026-11-28: **proposed.** Sections 1-5 frozen before any code. Host **glacier** (Windows,
+Status, 2026-11-28: **measured (section 6): Q, R and E pass; kept.** GeMClean estimates its own peak
+within 1.03-1.08 x of the measured peak working set on all nine cases (never below), refuses the
+unflagged pilot (10.6 GiB measured, 11.07 estimated) at 8 GiB, and the default selfcal on the held-out
+pilot is byte-identical (15 FITS, both gain stores). Sections 1-5 frozen before any code (`db1d117e`;
+clarification 1 `84e9ec24` and amendment A1 `928764b9` before any branch code ran). Host **glacier** (Windows,
 16 threads, 63 GB; heavy lock, at most 8 slots / 24 GB for this task). Branch `gemclean-memlimit`.
 Follows [selfcal-mem-34.md](selfcal-mem-34.md) (its stage B and gate Q are the design taken up
 here) and [selfcal-memory.md](selfcal-memory.md).
@@ -110,4 +114,69 @@ changes (every case here has `processes` 1).
 
 ## 6. Results
 
-Not yet measured.
+Measured 2026-11-28 on **glacier** (Windows 11, heavy lock shared, 8 slots, 16 GB booked, `-j 8`,
+`RAYON_NUM_THREADS=8`; another task's 4-slot check ran beside some cases). Run root
+`D:/rang/outputs/20261128-gemclean-memlimit` (pilot base and three copies, about 40 GB; image outputs).
+Pilot rebuilt from `D:/rang/outputs/20261103-gemclean-heldout/real/cal2.ms` (`selfcal_grid.py base`,
+34 s; `prepare D` 8-11 s per copy): 823,500 rows x 256 channels; held-out copy 76,089,333 weighted
+cells, base 152,158,164. Archive: [results/gemclean-memlimit/](results/gemclean-memlimit/) (`fit.json`
+with every case's phases and inputs, the reports, `peak.json` per run, logs, scripts).
+
+**Fit** (binary, heap phases; `scripts/fit.py`). The first fit gave a PSF part per 2n pixel of 26.9 at
+4096² and 83.1 at 2048²: not a per-pixel cost. The missing term was the PSF pass's stored sorted values
+(2t per weighted cell), added to `memlimit.rs` before any extension case was read (post hoc to the
+binary fit, dated here). With it the fixed parts agree across sizes and precisions: per 2n pixel
+8.7 / 10.6 (f64, F1 / F2) and 6.6 / 10.7 (f32, F3 / F4); beam 69.9-74.2; clean 164.5-186.6 B per pixel.
+The constants are the larger of each pair, rounded up (`fixed.json`). E for each extension case is
+recomputed from the inputs it recorded with these constants (the extension that ran the cases had zero
+fixed parts; the final build, used for R1 and B1, prints the same figures: B1 round 1 E 7.875 GiB).
+
+**Gate Q** (M = GeMClean's `peak_memory_bytes` through the extension; E with the 1.03 margin):
+
+| case | MS | size | precision | M (GiB) | E (GiB) | E / M | binding phase | wall |
+| --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: |
+| F1 | held out | 4096² | f64 | 7.517 | 7.860 | 1.046 | psf 2n | 152 s |
+| F2 | held out | 2048² | f64 | 6.603 | 6.800 | 1.030 | psf 2n | 68 s |
+| F3 | held out | 4096² | f32 | 6.279 | 6.793 | 1.082 | cycles | 85 s |
+| F4 | held out | 2048² | f32 | 5.056 | 5.192 | 1.027 | psf 2n | 39 s |
+| V1 | base | 4096² | f64 | 10.641 | 11.065 | 1.040 | cycles | 194 s |
+| V2 | base | 2048² | f64 | 8.383 | 8.616 | 1.028 | cycles | 101 s |
+| V3 | held out | 3072² | f64 | 6.643 | 6.892 | 1.038 | psf 2n | 83 s |
+| V4 | base | 4096² | f32 | 8.592 | 9.128 | 1.062 | cycles | 137 s |
+| V5 | held out | 3072² | f32 | 5.778 | 6.060 | 1.049 | psf 2n | 59 s |
+
+Every case M <= E <= 1.15 M; F1's E is 7.86 GiB, below 8. **Q passes.** On glacier the F1 peak (7.52
+GiB) matches nash's M1 (7.53).
+
+**Gate R.** R1 = V1 with `-memory-limit 8`: stopped 17 s in, after the read, before the PSF pass, no
+FITS written, exit code 2 (gemclean's error code; section 2 said 1): "the estimated peak memory,
+11.06 GiB (in the major and minor cycles), is above -memory-limit 8 GiB; raise the limit to at least
+11.1 (rang-core: data.memory_limit_gb), ...". V1 (`-memory-limit 1000`) and V1-plain (no option): all
+five FITS SHA-256 equal. **R passes.**
+
+**Gate E.** B0 = main `24572b76` (built in this worktree before any change), B1 = the branch, each on
+its own held-out copy, D's config without `memory_limit_gb` (so the default 8; B1's gemclean argv carries
+`-memory-limit 8`), `-memory-report`. `compare_runs.py`: 98 files identical, all 15 FITS and every file
+of both gain stores included; the 8 that differ are the 3 `gemclean.log`, the 3 `image-report.json`
+(argv, `memory_estimate`, paths, timings, peaks), `summary.json` (argv, timings) and `state.json`
+(paths, times, flag-version name, binary hash) ([compare-B0-B1.json](results/gemclean-memlimit/compare-B0-B1.json)).
+**E passes.**
+
+**Peaks, before and after** (psutil, largest process / tree sum; the pipeline's wall):
+
+| run | wall | largest process (GeMClean) | tree sum | GeMClean per image (bytes) | rang-core |
+| --- | ---: | ---: | ---: | --- | ---: |
+| B0 (main) | 889 s | 7,882,528 KiB (7.52 GiB) | 7,982,692 KiB | 8,070,451,200 / 8,071,708,672 / 8,071,139,328 | 6,830,080 KiB |
+| B1 (branch) | 963 s | 7,882,896 KiB (7.52 GiB) | 7,983,408 KiB | 8,071,716,864 / 8,072,085,504 / 8,070,926,336 | (as B0) |
+
+The check changes no peak (it runs on arrays already held; the footprint scans add about 1-2 s per
+image). The wall difference is a shared host's, not a speed figure.
+
+**Outcome.** Q, R and E pass: the refusal is kept. GeMClean now respects `data.memory_limit_gb` when
+`rang-core run`/`image`/`selfcal` call it, on the single-image path of one polarisation; a lightly
+flagged pilot-size MS at the default 8 GiB is refused with the figure (11.1) instead of running at
+10.6 GiB. Not covered (logged, not checked): several polarisations, `-channels-out` above 1, channel
+selection or averaging, multiscale, the Gram operator, `-no-plan-reuse`, the certified rule, the floor
+and masks (selfcal's auto-masks included: a selfcal config with `cleanmask_*` or `auto_mask` runs
+unchecked). The read itself (24 B per cell read) precedes the check. Validated on glacier only. The
+solve planner is unchanged (section 1). No novelty or speed claim.

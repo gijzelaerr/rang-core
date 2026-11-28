@@ -54,6 +54,7 @@ pub mod joined;
 pub mod kernels;
 pub mod mask;
 pub mod measure;
+pub mod memlimit;
 pub mod memory;
 pub mod multiscale;
 pub mod predict;

@@ -1,0 +1,26 @@
+{
+ "argv": [
+  "C:/Users/gijsm/Worktrees/rang/gemclean-memlimit/.venv/Scripts/rang-core.exe",
+  "selfcal",
+  "D:/rang/outputs/20261128-gemclean-memlimit/B0/config.yaml",
+  "D:/rang/outputs/20261128-gemclean-memlimit/B0/pilot.ms",
+  "--run-dir",
+  "D:/rang/outputs/20261128-gemclean-memlimit/B0/run"
+ ],
+ "returncode": 0,
+ "wall_s": 889.0154343000031,
+ "largest_kib": 7882528,
+ "largest": "a\\Roaming\\uv\\python\\cpython-3.13-windows-x86_64-none\\python.exe -m rang.gemclean",
+ "tree_sum_kib": 7982692,
+ "processes": {
+  "/rang-core.exe selfcal D:/rang/outputs/20261128-gemclean-memlimit/B0/config.yaml [8768]": 5376,
+  "Users\\gijsm\\Worktrees\\rang\\gemclean-memlimit\\.venv\\Scripts\\rang-core.exe selfcal [39396]": 5352,
+  "Users\\gijsm\\Worktrees\\rang\\gemclean-memlimit\\.venv\\Scripts\\rang-core.exe selfcal [42940]": 6830080,
+  "gijsm\\Worktrees\\rang\\gemclean-memlimit\\.venv\\Scripts\\python.exe -m rang.gemclean [23248]": 5332,
+  "a\\Roaming\\uv\\python\\cpython-3.13-windows-x86_64-none\\python.exe -m rang.gemclean [42204]": 7881300,
+  "gijsm\\Worktrees\\rang\\gemclean-memlimit\\.venv\\Scripts\\python.exe -m rang.gemclean [43988]": 5328,
+  "a\\Roaming\\uv\\python\\cpython-3.13-windows-x86_64-none\\python.exe -m rang.gemclean [36676]": 7882528,
+  "gijsm\\Worktrees\\rang\\gemclean-memlimit\\.venv\\Scripts\\python.exe -m rang.gemclean [43764]": 5328,
+  "a\\Roaming\\uv\\python\\cpython-3.13-windows-x86_64-none\\python.exe -m rang.gemclean [37296]": 7881972
+ }
+}

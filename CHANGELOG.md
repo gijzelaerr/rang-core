@@ -9,6 +9,12 @@ the release notes are the section of this file for that version.
 
 ## Unreleased
 
+- GeMClean has `-memory-limit <GiB>` (#34): on the single-image path of one polarisation it estimates its
+  own peak resident memory after the read and stops before the PSF pass, naming the figure, when the
+  estimate is above the limit; other paths log that they are not checked. `image` and `selfcal` pass
+  `data.memory_limit_gb` (default 8). Images are unchanged when the limit is not binding.
+  **Behaviour change:** a run whose estimate is above the limit, default included, now fails with the
+  figure to raise `data.memory_limit_gb` to (`research/gemclean-memlimit.md`).
 - `core.predict_components` (calibrate's and casa-model's component model step) runs in parallel over blocks
   of rows on rayon's pool (`RAYON_NUM_THREADS`, or the new `threads=` argument), bit for bit the
   single-threaded result at any thread count (`research/predict-par.md`).

@@ -2638,7 +2638,20 @@ def _safe(name):
     return "".join(c if c.isalnum() or c in "-_." else "_" for c in name)
 
 
-def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights=False):
+def gemclean_arguments(
+    img,
+    column,
+    field_id,
+    prefix,
+    ms,
+    scans=(),
+    unit_weights=False,
+    memory_limit_gb=None,
+):
+    """gemclean's argv for `img` (an image section). `memory_limit_gb`
+    (`data.memory_limit_gb`, passed by `image` and `selfcal`) becomes
+    `-memory-limit`: gemclean checks its own estimated peak against it
+    before the PSF pass (issue #34, research/gemclean-memlimit.md)."""
     args = ["-name", str(prefix), "-size", *[str(v) for v in img["size"]]]
     args += ["-scale", img["scale"], "-weight", img["weight"]]
     if img["weight"] == "briggs":
@@ -2707,8 +2720,17 @@ def gemclean_arguments(img, column, field_id, prefix, ms, scans=(), unit_weights
     # gemclean never writes the MS itself here: MODEL_DATA, when asked for,
     # goes through WriteBack after it (task G6, research/g6-predict.md).
     args.append("-no-update-model-required")
+    if memory_limit_gb is not None:
+        args += ["-memory-limit", f"{float(memory_limit_gb):g}"]
     args += list(img["extra_args"])
     return [*args, str(ms)]
+
+
+def _memory_limit(config):
+    """The GiB gemclean may use: `data.memory_limit_gb` whole (gemclean runs
+    alone; the chunk tasks of `data.processes` do not run beside it)."""
+    limit = config["data"].get("memory_limit_gb")
+    return core_chunks.DEFAULT_LIMIT_GB if limit is None else float(limit)
 
 
 def _extra_flag(extra, flag, count=0):
@@ -2775,7 +2797,9 @@ def stage_image(ctx):
         unit = config["data"]["weights"] == "uniform"
         argv = [
             *binary.argv,
-            *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
+            *gemclean_arguments(
+                img, column, field, prefix, ms, scans, unit, _memory_limit(config)
+            ),
         ]
         log = field_dir / "gemclean.log"
         started = time.perf_counter()
@@ -2953,7 +2977,9 @@ def _selfcal_image(ctx, binary, column, field, where, k):
     prefix = where / img["name"]
     argv = [
         *binary.argv,
-        *gemclean_arguments(img, column, field, prefix, ms, scans, unit),
+        *gemclean_arguments(
+            img, column, field, prefix, ms, scans, unit, _memory_limit(config)
+        ),
     ]
     log = where / "gemclean.log"
     try:

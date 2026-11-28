@@ -1,0 +1,7 @@
+16:14:46 stage prepare D wall_s 9.0
+== 2026-11-28T14:14:47Z B1 start
+rang-core: selfcal: running
+rang-core: selfcal: done in 959.9 s
+rang-core: receipt D:/rang/outputs/20261128-gemclean-memlimit/B1/run/receipts/selfcal-20261128T141448Z.rang-receipt.json
+peak: wall 962.5 s, largest process 7882896 KiB (a\Roaming\uv\python\cpython-3.13-windows-x86_64-none\python.exe -m rang.gemclean), tree sum 7983408 KiB
+== 2026-11-28T14:30:49Z B1 end

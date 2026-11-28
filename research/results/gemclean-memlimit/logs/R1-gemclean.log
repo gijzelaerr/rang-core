@@ -1,0 +1,4 @@
+D:/rang/outputs/20261128-gemclean-memlimit/base/pilot.ms: 823500 of 823500 rows selected (field 0, DATA), 256 channels 989.8545-1096.4365 MHz, 152158164 visibilities weighted, weight sum 2868959954.251530 (13.45 s read, 2.31 s weights)
+memory estimate: 11.06 GiB (major and minor cycles, x1.03 margin) against -memory-limit 8 GiB; GiB by phase: read and weights 4.76, measurement 3.08, psf 2n 9.35, plan, beam and compaction 8.14, major and minor cycles 10.74
+gemclean: the estimated peak memory, 11.06 GiB (in the major and minor cycles), is above -memory-limit 8 GiB; raise the limit to at least 11.1 (rang-core: data.memory_limit_gb), or image fewer pixels or cells (research/gemclean-memlimit.md)
+peak: wall 16.9 s, largest process 4995120 KiB (a\Roaming\uv\python\cpython-3.13-windows-x86_64-none\python.exe -m rang.gemclean), tree sum 4923448 KiB
