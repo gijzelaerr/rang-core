@@ -24,6 +24,9 @@ F7, 2026-11-24 (issue #46 blocked; branch `f7-draft`, merged; [f7-flagger.md](f7
 
 A new paragraph goes directly under this heading.
 
+MSv4 weights M5 merged (2026-11-28, #5; research/msv4-weights.md, criterion frozen 4a42e646 before code). On 13 cases with xradio 1.3.1 (deciding) and xarray-ms 0.5.14: weights bit-identical to the MSv2 WEIGHT_SPECTRUM for every data group (W1), sigma from SIGMA_SPECTRUM on xarray-ms and refused on xradio, which keeps none (W2), a complex solve in MSv2 row order bit-identical (W3), and the old base-weight reading changes the gains (W4). In the store's own row order gains differ by 1e-12 relative. Behaviour change: xradio's base group with CORRECTED_DATA now reads W, not 1/SIGMA^2. Calibrate, apply, image and selfcal on a store stay refused (C7). The Rust zarrs reader was not built: Partition.rows() takes 5-152 ms, and no dependency would go.
+
+
 GeMClean memory limit merged (2026-11-28, #34; research/gemclean-memlimit.md). GeMClean reads data.memory_limit_gb and refuses before its PSF pass, naming the needed figure, when its peak estimate is above the limit; the estimate is 1.03-1.08x the measured peak on 9 cases, never below. Default selfcal on the held-out E2 pilot (7.52 GiB measured) is not refused at 8 GB; the unflagged pilot (10.64 GiB) is, with exit 2. Images and gain stores are byte-identical when the limit does not bind. Paths without an estimate (several polarisations, channels-out > 1, multiscale, masks and others) run unchecked. Note: campaigns imaging lightly flagged data at the default limit must now raise it. Same day: CARACal D retry 2 failed the same way (CARACal's clearcal initialises only fcal+bpcal); retry 3 ran CASA clearcal over all fields first and restarts at crosscal.
 
 
